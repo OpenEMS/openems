@@ -1,4 +1,4 @@
-package de.fenecon.femscore.fems_core;
+package de.fenecon.femscore.femscore;
 
 /**
  * Hello world!
