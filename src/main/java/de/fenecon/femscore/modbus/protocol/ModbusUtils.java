@@ -1,4 +1,4 @@
-package de.fenecon.femscore.modbus;
+package de.fenecon.femscore.modbus.protocol;
 
 import net.wimpi.modbus.procimg.Register;
 
