@@ -1,50 +1,39 @@
 package de.fenecon.femscore.modbus.device;
 
-import java.util.List;
-
-import de.fenecon.femscore.modbus.ModbusWorker;
-import de.fenecon.femscore.modbus.protocol.ElementRange;
-import net.wimpi.modbus.procimg.Register;
+import de.fenecon.femscore.modbus.ModbusConnection;
+import de.fenecon.femscore.modbus.protocol.ModbusProtocol;
 
 public abstract class ModbusDevice {
 
 	protected final Integer unitid;
 	protected final String modbusId;
 	protected final String name;
-	protected final List<ElementRange> mainProtocol; 
-	
+	protected final ModbusProtocol mainProtocol;
+
 	public ModbusDevice(String name, String modbusid, int unitid) {
 		this.unitid = unitid;
 		this.name = name;
 		this.modbusId = modbusid;
 		this.mainProtocol = getMainProtocol();
 	}
-	
+
 	public String getModbusid() {
 		return modbusId;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
-	public void executeModbusMainQuery() {
-		//TODO
-	};
-	
-	public void executeModbusNextSmallQuery() {
-		//TODO
-	};
-	
-	protected abstract List<ElementRange> getMainProtocol();
-	
-	protected Register[] getModbusResponse(ModbusWorker worker, int ref, int count) throws Exception {
-		return worker.getModbusResponse(unitid, ref, count);
+
+	public void executeModbusMainQuery(ModbusConnection modbusConnection) throws Exception {
+		this.mainProtocol.query(modbusConnection, this.unitid);
 	}
-	
-	protected void writeRegister(ModbusWorker worker, int ref, Register reg) throws Exception {
-		worker.writeRegister(unitid, ref, reg);
-	}
+
+	public void executeModbusNextSmallQuery(ModbusConnection modbusConnection) {
+		// TODO
+	};
+
+	protected abstract ModbusProtocol getMainProtocol();
 
 	@Override
 	public String toString() {

@@ -1,8 +1,10 @@
 package de.fenecon.femscore.modbus.protocol;
 
+import de.fenecon.femscore.modbus.device.counter.CounterProtocol;
 import de.fenecon.femscore.modbus.device.ess.EssProtocol;
 
 public class ElementBuilder {
+	final int address;
 	String name = "";
 	ElementType type = ElementType.INTEGER;
 	int length = 1;
@@ -12,12 +14,8 @@ public class ElementBuilder {
 	boolean signed = false;
 	boolean littleEndian = false;
 
-	public ElementBuilder() {
-
-	}
-
 	public ElementBuilder(int address) {
-		// ignore
+		this.address = address;
 	}
 
 	public ElementBuilder name(String name) {
@@ -26,6 +24,11 @@ public class ElementBuilder {
 	}
 
 	public ElementBuilder name(EssProtocol name) {
+		this.name = name.name();
+		return this;
+	}
+
+	public ElementBuilder name(CounterProtocol name) {
 		this.name = name.name();
 		return this;
 	}
@@ -68,15 +71,17 @@ public class ElementBuilder {
 	public Element<?> build() {
 		if (type == ElementType.INTEGER) {
 			if (signed) {
-				return new SignedIntegerElement(name, length, multiplier, delta, unit, littleEndian);
+				return new SignedIntegerElement(address, name, length, multiplier, delta, unit, littleEndian);
 			} else {
-				return new UnsignedIntegerElement(name, length, multiplier, delta, unit);
+				return new UnsignedIntegerElement(address, name, length, multiplier, delta, unit);
 			}
 		} else if (type == ElementType.DOUBLE) {
-			return new DoubleElement(name, length, multiplier, delta, unit);
+			return new DoubleElement(address, name, length, multiplier, delta, unit);
 		} else if (type == ElementType.TEXT) {
 			throw new UnsupportedOperationException("TEXT is not implemented!");
+		} else if (type == ElementType.PLACEHOLDER) {
+			return new PlaceholderElement(address, name, length);
 		}
-		throw new UnsupportedOperationException("ElementBuilder build is not implemented!");
+		throw new UnsupportedOperationException("ElementBuilder build for " + type + " is not implemented!");
 	}
 }
