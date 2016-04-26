@@ -1,30 +1,33 @@
+/* Example for fems-core configuration */
 {
-  "modbus": {
-	"/dev/ttyUSB0": {
-	  "modbusType": "RTU",
-	  "baudrate": "38400",
-      "serialinterface": "/dev/ttyUSB0",
-	  "databits": 8,
-	  "parity": "even",
-	  "stopbits": 1	
+	"modbus": {
+		"/dev/ttyUSB0": {
+			"modbusType": "RTU",
+			"baudrate": "38400",
+			"serialinterface": "/dev/ttyUSB0",
+			"databits": 8,
+			"parity": "even",
+			"stopbits": 1,
+			"cycle": 500
+		},
+		"192.168.1.88": {
+			"modbusType": "TCP",
+			"inetAddress": "192.168.1.88"
+		}
 	},
-	"192.168.1.88": {
-	  "modbusType": "TCP",
-	  "inetAddress": "192.168.1.88"
+	"ess": {
+		"cess0": {
+			"essType": "CESS",
+			"modbus": "192.168.1.88",
+			"unitid": 100,
+			"cycle": 500
+		}
+	},
+	"counter": {
+		"grid": {
+			"counterType": "Socomec",
+			"modbus": "/dev/ttyUSB0",
+			"unitid": 5
+		}
 	}
-  },
-  "ess": {
-    "cess0": {
-      "essType": "CESS",
-	  "modbus": "192.168.1.88",
-      "unitid": 100
-    }
-  },
-  "counter": {
-    "grid": {
-	  "counterType": "Socomec",
-      "modbus": "/dev/ttyUSB0",
-      "unitid": 5
-	}
-  }
 }

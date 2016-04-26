@@ -28,6 +28,10 @@ public class ModbusProtocol {
 		}
 	}
 
+	public Element<?> getElement(String id) {
+		return elements.get(id);
+	}
+
 	public void query(ModbusConnection modbusConnection, int unitid) throws Exception {
 		for (ElementRange elementRange : elementRanges) {
 			Register[] registers = modbusConnection.query(unitid, elementRange.getStartAddress(),

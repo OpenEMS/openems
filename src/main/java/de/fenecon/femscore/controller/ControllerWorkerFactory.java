@@ -5,9 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,7 +26,8 @@ import de.fenecon.femscore.modbus.device.ess.Cess;
 import de.fenecon.femscore.modbus.device.ess.Ess;
 
 /**
- * ControllerFactory creates a {@link Controller} from a json configuration.
+ * ControllerFactory creates a {@link ControllerWorker} from a json
+ * configuration.
  * 
  * Example: { "modbus": { "/dev/ttyUSB0": { "modbusType": "RTU", "baudrate":
  * "38400", "serialinterface": "/dev/ttyUSB0", "databits": 8, "parity": "even",
@@ -40,35 +39,40 @@ import de.fenecon.femscore.modbus.device.ess.Ess;
  * @author stefan.feilmeier
  *
  */
-public class ControllerFactory {
-	private static final Logger log = Logger.getLogger(ControllerFactory.class.getName());
+public class ControllerWorkerFactory {
+	private static final Logger log = Logger.getLogger(ControllerWorkerFactory.class.getName());
 
 	private final static File fileLin = new File("/etc/fems-core");
 	private final static File fileWin = new File("D:/fems/fems-core/fems-core");
 	private static int count = 0;
 
-	public static Controller createControllerFromJson(JsonObject json) throws UnknownHostException {
+	public static ControllerWorker createControllerFromJson(JsonObject json) throws UnknownHostException {
 		HashMap<String, ModbusWorker> modbusWorkers = getModbusConnections(json.get("modbus").getAsJsonObject());
 
 		// Connect ModbusWorkers and EssDevices
-		List<Ess> essDevices = getEssDevices(json.get("ess").getAsJsonObject());
-		for (Ess ess : essDevices) {
+		HashMap<String, Ess> essDevices = getEssDevices(json.get("ess").getAsJsonObject());
+		for (Ess ess : essDevices.values()) {
 			ModbusWorker worker = modbusWorkers.get(ess.getModbusid());
 			worker.registerDevice(ess);
 		}
 
 		// Connect ModbusWorkers and CounterDevices
-		List<Counter> counterDevices = getCounterDevices(json.get("counter").getAsJsonObject());
-		for (Counter counter : counterDevices) {
+		HashMap<String, Counter> counterDevices = getCounterDevices(json.get("counter").getAsJsonObject());
+		for (Counter counter : counterDevices.values()) {
 			ModbusWorker worker = modbusWorkers.get(counter.getModbusid());
 			worker.registerDevice(counter);
 		}
 
-		Controller controller = new Controller("controller" + count++, modbusWorkers.values());
-		return controller;
+		// Create Controller
+		// TODO: Implement other controller strategies and read from json
+		Controller controller = new SelfConsumptionOptimizationWithoutAcGenerator(essDevices, counterDevices);
+
+		ControllerWorker controllerWorker = new ControllerWorker("controller" + count++, modbusWorkers.values(),
+				controller);
+		return controllerWorker;
 	}
 
-	public static Controller createControllerFromConfigFile()
+	public static ControllerWorker createControllerFromConfigFile()
 			throws JsonIOException, JsonSyntaxException, FileNotFoundException, UnknownHostException {
 		JsonObject json = readConfigFile();
 		return createControllerFromJson(json);
@@ -101,8 +105,8 @@ public class ControllerFactory {
 		return modbusWorkers;
 	}
 
-	private static List<Ess> getEssDevices(JsonObject json) {
-		List<Ess> essDevices = new ArrayList<Ess>();
+	private static HashMap<String, Ess> getEssDevices(JsonObject json) {
+		HashMap<String, Ess> essDevices = new HashMap<String, Ess>();
 		for (Entry<String, JsonElement> entry : json.entrySet()) {
 			JsonObject obj = entry.getValue().getAsJsonObject();
 			Ess ess = null;
@@ -114,13 +118,13 @@ public class ControllerFactory {
 				throw new UnsupportedOperationException(
 						"EssType " + obj.get("essType").getAsString() + " is not implemented!");
 			}
-			essDevices.add(ess);
+			essDevices.put(entry.getKey(), ess);
 		}
 		return essDevices;
 	}
 
-	private static List<Counter> getCounterDevices(JsonObject json) {
-		List<Counter> counterDevices = new ArrayList<Counter>();
+	private static HashMap<String, Counter> getCounterDevices(JsonObject json) {
+		HashMap<String, Counter> counterDevices = new HashMap<String, Counter>();
 		for (Entry<String, JsonElement> entry : json.entrySet()) {
 			JsonObject obj = entry.getValue().getAsJsonObject();
 			Counter counter = null;
@@ -132,7 +136,7 @@ public class ControllerFactory {
 				throw new UnsupportedOperationException(
 						"CounterType " + obj.get("counterType").getAsString() + " is not implemented!");
 			}
-			counterDevices.add(counter);
+			counterDevices.put(entry.getKey(), counter);
 		}
 		return counterDevices;
 	}

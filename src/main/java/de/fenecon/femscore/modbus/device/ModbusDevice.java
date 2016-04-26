@@ -1,6 +1,7 @@
 package de.fenecon.femscore.modbus.device;
 
 import de.fenecon.femscore.modbus.ModbusConnection;
+import de.fenecon.femscore.modbus.protocol.Element;
 import de.fenecon.femscore.modbus.protocol.ModbusProtocol;
 
 public abstract class ModbusDevice {
@@ -23,6 +24,14 @@ public abstract class ModbusDevice {
 
 	public String getName() {
 		return name;
+	}
+
+	public Element<?> getElement(String id) {
+		Element<?> element = mainProtocol.getElement(id);
+		if (element != null)
+			return element;
+		// TODO try the other protocols
+		return null;
 	}
 
 	public void executeModbusMainQuery(ModbusConnection modbusConnection) throws Exception {
