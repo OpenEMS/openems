@@ -1,11 +1,13 @@
 package de.fenecon.femscore.modbus.device.ess;
 
 public enum EssProtocol {
-	ActivePower,
-	ReactivePower,
-	ApparentPower,
-	
-	AllowedCharge,
-	AllowedDischarge,
-	AllowedApparent
+	SystemState, SystemMode,
+
+	ActivePower, ReactivePower, ApparentPower,
+
+	AllowedCharge, AllowedDischarge, AllowedApparent;
+
+	public enum SystemStates {
+		Stop, PvCharging, Standby, Running, Fault, Debug
+	}
 }

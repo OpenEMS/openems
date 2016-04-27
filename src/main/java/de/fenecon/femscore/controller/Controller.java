@@ -14,5 +14,7 @@ public abstract class Controller {
 		this.counterDevices = counterDevices;
 	}
 
+	public abstract void init();
+
 	public abstract void run();
 }

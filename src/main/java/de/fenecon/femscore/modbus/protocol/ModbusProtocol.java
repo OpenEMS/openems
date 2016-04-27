@@ -22,7 +22,7 @@ public class ModbusProtocol {
 		checkElementRange(elementRange);
 		elementRanges.add(elementRange);
 		for (Element<?> element : elementRange.getElements()) {
-			if (!(element instanceof PlaceholderElement)) {
+			if (!(element instanceof NoneElement)) {
 				elements.put(element.getName(), element);
 			}
 		}
@@ -64,6 +64,7 @@ public class ModbusProtocol {
 						Integer.toHexString(address));
 			}
 			address += element.getLength();
+			// TODO: check BitElements
 		}
 	}
 

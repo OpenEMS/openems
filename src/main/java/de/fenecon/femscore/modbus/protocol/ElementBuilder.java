@@ -1,5 +1,8 @@
 package de.fenecon.femscore.modbus.protocol;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import de.fenecon.femscore.modbus.device.counter.CounterProtocol;
 import de.fenecon.femscore.modbus.device.ess.EssProtocol;
 
@@ -13,6 +16,7 @@ public class ElementBuilder {
 	String unit = "";
 	boolean signed = false;
 	boolean littleEndian = false;
+	Map<String, BitElement<?>> bitElements = new HashMap<String, BitElement<?>>();
 
 	public ElementBuilder(int address) {
 		this.address = address;
@@ -68,8 +72,15 @@ public class ElementBuilder {
 		return this;
 	}
 
+	public ElementBuilder bit(BitElement<?> bitElement) {
+		this.bitElements.put(bitElement.getName(), bitElement);
+		return this;
+	}
+
 	public Element<?> build() {
-		if (type == ElementType.INTEGER) {
+		if (bitElements.size() > 0) {
+			return new BitsElement(address, name, length, unit, bitElements);
+		} else if (type == ElementType.INTEGER) {
 			if (signed) {
 				return new SignedIntegerElement(address, name, length, multiplier, delta, unit, littleEndian);
 			} else {
@@ -80,7 +91,7 @@ public class ElementBuilder {
 		} else if (type == ElementType.TEXT) {
 			throw new UnsupportedOperationException("TEXT is not implemented!");
 		} else if (type == ElementType.PLACEHOLDER) {
-			return new PlaceholderElement(address, name, length);
+			return new NoneElement(address, name, length);
 		}
 		throw new UnsupportedOperationException("ElementBuilder build for " + type + " is not implemented!");
 	}

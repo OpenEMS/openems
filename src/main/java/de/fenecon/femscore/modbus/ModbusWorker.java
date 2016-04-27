@@ -6,9 +6,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import EDU.oswego.cs.dl.util.concurrent.Mutex;
 import de.fenecon.femscore.modbus.device.ModbusDevice;
 import de.fenecon.femscore.modbus.device.ModbusDeviceWritable;
+import de.fenecon.femscore.utils.Semaphore;
 
 /**
  * ModbusWorker handles all modbus communication on one channel like
@@ -21,7 +21,8 @@ public class ModbusWorker extends Thread {
 
 	private final List<ModbusDevice> devices = new ArrayList<ModbusDevice>();
 	private final ModbusConnection modbusConnection;
-	private final Mutex mainQueryFinished = new Mutex();
+	private final Semaphore initQueryFinished = new Semaphore(false);
+	private final Semaphore mainQueryFinished = new Semaphore(false);
 
 	public ModbusWorker(String name, ModbusConnection modbusConnection) {
 		this.setName(name);
@@ -32,10 +33,12 @@ public class ModbusWorker extends Thread {
 		return modbusConnection;
 	}
 
+	public void waitForInitQuery() throws InterruptedException {
+		initQueryFinished.await();
+	}
+
 	public void waitForMainQuery() throws InterruptedException {
-		synchronized (mainQueryFinished) {
-			mainQueryFinished.acquire();
-		}
+		mainQueryFinished.await();
 	}
 
 	/**
@@ -50,27 +53,36 @@ public class ModbusWorker extends Thread {
 	@Override
 	public void run() {
 		log.info("ModbusWorker {} started", getName());
+		for (ModbusDevice device : devices) {
+			log.info("INIT {}", device);
+			try {
+				device.executeModbusInitQuery(modbusConnection);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		initQueryFinished.release();
+
 		while (!isInterrupted()) {
 
 			// Execute Modbus Writes
 			for (ModbusDevice device : devices) {
-				log.info("RUN for {}", device);
 				if (device instanceof ModbusDeviceWritable) {
+					log.info("WRITE {}", device);
 					((ModbusDeviceWritable) device).executeModbusWrite();
 				}
 			}
 
 			// Execute Modbus Main Queries
 			for (ModbusDevice device : devices) {
+				log.info("RUN for {}", device);
 				try {
 					device.executeModbusMainQuery(modbusConnection);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-			synchronized (mainQueryFinished) {
-				mainQueryFinished.release();
-			}
+			mainQueryFinished.release();
 
 			// Execute Next Modbus Queries
 			for (ModbusDevice device : devices) {

@@ -65,7 +65,7 @@ public class ControllerWorkerFactory {
 
 		// Create Controller
 		// TODO: Implement other controller strategies and read from json
-		Controller controller = new SelfConsumptionOptimizationWithoutAcGenerator(essDevices, counterDevices);
+		Controller controller = new BalancingWithoutAcGenerator(essDevices, counterDevices);
 
 		ControllerWorker controllerWorker = new ControllerWorker("controller" + count++, modbusWorkers.values(),
 				controller);

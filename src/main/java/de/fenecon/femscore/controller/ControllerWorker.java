@@ -22,9 +22,18 @@ public class ControllerWorker extends Thread {
 	@Override
 	public void run() {
 		log.info("ControllerWorker {} started", getName());
+		// Initialize ModbusWorkers
 		for (ModbusWorker modbusWorker : modbusWorkers) {
 			modbusWorker.start();
 		}
+		for (ModbusWorker modbusWorker : modbusWorkers) {
+			try {
+				modbusWorker.waitForInitQuery();
+			} catch (InterruptedException e) {
+				interrupt();
+			}
+		}
+		controller.init();
 
 		while (!isInterrupted()) {
 			try {

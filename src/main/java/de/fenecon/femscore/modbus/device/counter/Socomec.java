@@ -27,4 +27,9 @@ public class Socomec extends Counter {
 						.build()));
 		return protocol;
 	}
+
+	@Override
+	protected ModbusProtocol getInitProtocol() {
+		return null; // no initialization required
+	}
 }
