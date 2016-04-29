@@ -38,7 +38,6 @@ public class ControllerWorker extends Thread {
 		while (!isInterrupted()) {
 			try {
 				for (ModbusWorker modbusWorker : modbusWorkers) {
-					log.info(modbusWorker.getName() + ": Starting to wait for main");
 					modbusWorker.waitForMain();
 				}
 				controller.run();

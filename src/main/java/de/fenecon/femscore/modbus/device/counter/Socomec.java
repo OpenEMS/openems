@@ -8,6 +8,8 @@ import de.fenecon.femscore.modbus.protocol.ElementBuilder;
 import de.fenecon.femscore.modbus.protocol.ElementLength;
 import de.fenecon.femscore.modbus.protocol.ElementRange;
 import de.fenecon.femscore.modbus.protocol.ModbusProtocol;
+import de.fenecon.femscore.modbus.protocol.SignedIntegerDoublewordElement;
+import de.fenecon.femscore.modbus.protocol.UnsignedIntegerDoublewordElement;
 
 public class Socomec extends Counter {
 
@@ -44,5 +46,17 @@ public class Socomec extends Counter {
 				CounterProtocol.ActivePower.name(), //
 				CounterProtocol.ReactivePower.name(), //
 				CounterProtocol.ApparentPower.name()));
+	}
+
+	public SignedIntegerDoublewordElement getActivePower() {
+		return (SignedIntegerDoublewordElement) getElement(CounterProtocol.ActivePower.name());
+	}
+
+	public SignedIntegerDoublewordElement getReactivePower() {
+		return (SignedIntegerDoublewordElement) getElement(CounterProtocol.ReactivePower.name());
+	}
+
+	public UnsignedIntegerDoublewordElement getApparentPower() {
+		return (UnsignedIntegerDoublewordElement) getElement(CounterProtocol.ApparentPower.name());
 	}
 }

@@ -3,21 +3,22 @@ package de.fenecon.femscore.modbus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersRequest;
+import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
+import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
+import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersResponse;
+import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
+import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterResponse;
+import com.ghgande.j2mod.modbus.procimg.Register;
+
 import de.fenecon.femscore.modbus.protocol.Element;
 import de.fenecon.femscore.modbus.protocol.ElementRange;
 import de.fenecon.femscore.modbus.protocol.ModbusProtocol;
 import de.fenecon.femscore.modbus.protocol.interfaces.DoublewordElement;
 import de.fenecon.femscore.modbus.protocol.interfaces.WordElement;
-import net.wimpi.modbus.ModbusException;
-import net.wimpi.modbus.io.ModbusTransaction;
-import net.wimpi.modbus.msg.ModbusResponse;
-import net.wimpi.modbus.msg.ReadMultipleRegistersRequest;
-import net.wimpi.modbus.msg.ReadMultipleRegistersResponse;
-import net.wimpi.modbus.msg.WriteMultipleRegistersRequest;
-import net.wimpi.modbus.msg.WriteMultipleRegistersResponse;
-import net.wimpi.modbus.msg.WriteSingleRegisterRequest;
-import net.wimpi.modbus.msg.WriteSingleRegisterResponse;
-import net.wimpi.modbus.procimg.Register;
 
 public abstract class ModbusConnection implements AutoCloseable {
 	@SuppressWarnings("unused")

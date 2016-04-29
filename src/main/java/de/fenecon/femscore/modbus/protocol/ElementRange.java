@@ -2,9 +2,9 @@ package de.fenecon.femscore.modbus.protocol;
 
 import java.util.Arrays;
 
-import net.wimpi.modbus.io.ModbusSerialTransaction;
-import net.wimpi.modbus.msg.ReadMultipleRegistersRequest;
-import net.wimpi.modbus.net.SerialConnection;
+import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
+import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersRequest;
+import com.ghgande.j2mod.modbus.net.SerialConnection;
 
 public class ElementRange {
 	private int startAddress;

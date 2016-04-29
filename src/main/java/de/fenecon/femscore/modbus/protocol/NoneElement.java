@@ -1,6 +1,6 @@
 package de.fenecon.femscore.modbus.protocol;
 
-import net.wimpi.modbus.procimg.Register;
+import com.ghgande.j2mod.modbus.procimg.Register;
 
 public class NoneElement extends Element<Object> implements PlaceholderElement {
 	public NoneElement(int address, int length, String name) {

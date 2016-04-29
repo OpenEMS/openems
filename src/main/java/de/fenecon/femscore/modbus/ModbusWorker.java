@@ -67,33 +67,27 @@ public class ModbusWorker extends Thread {
 		initQueryFinished.release();
 
 		while (!isInterrupted()) {
-			log.info(getName() + ": Loop");
 			// Execute Modbus Main Queries
 			for (ModbusDevice device : devices) {
-				log.info(getName() + ": Loop 1 for " + device.getName());
 				try {
 					device.executeMainQuery(modbusConnection);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				log.info(getName() + ": Loop 1 for " + device.getName() + " - FIN");
 			}
-			log.info(getName() + ": Loop - 2");
 			mainQueryFinished.release();
 
 			// Execute Modbus Writes
 			for (ModbusDevice device : devices) {
 				if (device instanceof WritableModbusDevice) {
-					log.info("WRITE {}", device);
 					try {
 						((WritableModbusDevice) device).executeModbusWrite(modbusConnection);
 					} catch (Exception e) {
-						log.error("Error while executing modbus writes: {}", e.getMessage());
-						e.printStackTrace();
+						log.error("Error while executing modbus write: {}", e.getMessage());
 					}
 				}
 			}
-			log.info(getName() + ": Loop - 3");
+
 			// Execute Next Modbus Queries
 			for (ModbusDevice device : devices) {
 				try {
@@ -102,13 +96,11 @@ public class ModbusWorker extends Thread {
 					e.printStackTrace();
 				}
 			}
-			log.info(getName() + ": Loop - 4");
 			try {
 				Thread.sleep(this.modbusConnection.getCycle());
 			} catch (InterruptedException e) {
 				interrupt();
 			}
-			log.info(getName() + ": Loop - 5");
 		}
 		log.info("ModbusWorker {} stopped", getName());
 	}

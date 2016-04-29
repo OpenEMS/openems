@@ -1,6 +1,6 @@
 package de.fenecon.femscore.modbus.protocol;
 
-import net.wimpi.modbus.procimg.Register;
+import com.ghgande.j2mod.modbus.procimg.Register;
 
 public class DoubleElement extends NumberElement<Double> {
 	public DoubleElement(int address, int length, String name, short multiplier, short delta, String unit) {

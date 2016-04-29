@@ -4,7 +4,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.wimpi.modbus.procimg.Register;
+import com.ghgande.j2mod.modbus.procimg.Register;
 
 public abstract class Element<T> {
 	@SuppressWarnings("unused")

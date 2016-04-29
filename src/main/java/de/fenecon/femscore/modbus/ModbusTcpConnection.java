@@ -2,9 +2,9 @@ package de.fenecon.femscore.modbus;
 
 import java.net.InetAddress;
 
-import net.wimpi.modbus.io.ModbusTCPTransaction;
-import net.wimpi.modbus.io.ModbusTransaction;
-import net.wimpi.modbus.net.TCPMasterConnection;
+import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
 public class ModbusTcpConnection extends ModbusConnection {
 	private final Integer port;

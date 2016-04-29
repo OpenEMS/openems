@@ -3,10 +3,11 @@ package de.fenecon.femscore.modbus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.wimpi.modbus.io.ModbusSerialTransaction;
-import net.wimpi.modbus.io.ModbusTransaction;
-import net.wimpi.modbus.net.SerialConnection;
-import net.wimpi.modbus.util.SerialParameters;
+import com.ghgande.j2mod.modbus.Modbus;
+import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.net.SerialConnection;
+import com.ghgande.j2mod.modbus.util.SerialParameters;
 
 public class ModbusRtuConnection extends ModbusConnection {
 	@SuppressWarnings("unused")
@@ -45,7 +46,7 @@ public class ModbusRtuConnection extends ModbusConnection {
 			params.setDatabits(this.databits);
 			params.setParity(this.parity);
 			params.setStopbits(this.stopbits);
-			params.setEncoding(net.wimpi.modbus.Modbus.SERIAL_ENCODING_RTU);
+			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
 			con = new SerialConnection(params);
 		}
