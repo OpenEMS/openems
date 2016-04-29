@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.fenecon.femscore.modbus.device.ModbusDevice;
-import de.fenecon.femscore.modbus.device.ModbusDeviceWritable;
-import de.fenecon.femscore.utils.Semaphore;
+import de.fenecon.femscore.modbus.device.WritableModbusDevice;
+import de.fenecon.femscore.utils.Mutex;
 
 /**
  * ModbusWorker handles all modbus communication on one channel like
@@ -21,8 +21,8 @@ public class ModbusWorker extends Thread {
 
 	private final List<ModbusDevice> devices = new ArrayList<ModbusDevice>();
 	private final ModbusConnection modbusConnection;
-	private final Semaphore initQueryFinished = new Semaphore(false);
-	private final Semaphore mainQueryFinished = new Semaphore(false);
+	private final Mutex initQueryFinished = new Mutex(false);
+	private final Mutex mainQueryFinished = new Mutex(false);
 
 	public ModbusWorker(String name, ModbusConnection modbusConnection) {
 		this.setName(name);
@@ -33,11 +33,11 @@ public class ModbusWorker extends Thread {
 		return modbusConnection;
 	}
 
-	public void waitForInitQuery() throws InterruptedException {
+	public void waitForInit() throws InterruptedException {
 		initQueryFinished.await();
 	}
 
-	public void waitForMainQuery() throws InterruptedException {
+	public void waitForMain() throws InterruptedException {
 		mainQueryFinished.await();
 	}
 
@@ -46,58 +46,69 @@ public class ModbusWorker extends Thread {
 	 * 
 	 * @param device
 	 */
-	public void registerDevice(ModbusDevice device) {
-		devices.add(device);
+	public synchronized void registerDevice(ModbusDevice device) {
+		synchronized (devices) {
+			devices.add(device);
+		}
 	}
 
 	@Override
-	public void run() {
+	public synchronized void run() {
 		log.info("ModbusWorker {} started", getName());
 		for (ModbusDevice device : devices) {
-			log.info("INIT {}", device);
+			log.info("RUN with " + device);
 			try {
-				device.executeModbusInitQuery(modbusConnection);
+				device.executeInitQuery(modbusConnection);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+
 		initQueryFinished.release();
 
 		while (!isInterrupted()) {
+			log.info(getName() + ": Loop");
+			// Execute Modbus Main Queries
+			for (ModbusDevice device : devices) {
+				log.info(getName() + ": Loop 1 for " + device.getName());
+				try {
+					device.executeMainQuery(modbusConnection);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				log.info(getName() + ": Loop 1 for " + device.getName() + " - FIN");
+			}
+			log.info(getName() + ": Loop - 2");
+			mainQueryFinished.release();
 
 			// Execute Modbus Writes
 			for (ModbusDevice device : devices) {
-				if (device instanceof ModbusDeviceWritable) {
+				if (device instanceof WritableModbusDevice) {
 					log.info("WRITE {}", device);
-					((ModbusDeviceWritable) device).executeModbusWrite();
+					try {
+						((WritableModbusDevice) device).executeModbusWrite(modbusConnection);
+					} catch (Exception e) {
+						log.error("Error while executing modbus writes: {}", e.getMessage());
+						e.printStackTrace();
+					}
 				}
 			}
-
-			// Execute Modbus Main Queries
-			for (ModbusDevice device : devices) {
-				log.info("RUN for {}", device);
-				try {
-					device.executeModbusMainQuery(modbusConnection);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			mainQueryFinished.release();
-
+			log.info(getName() + ": Loop - 3");
 			// Execute Next Modbus Queries
 			for (ModbusDevice device : devices) {
 				try {
-					device.executeModbusNextSmallQuery(modbusConnection);
+					device.executeRemainingQuery(modbusConnection);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-
+			log.info(getName() + ": Loop - 4");
 			try {
 				Thread.sleep(this.modbusConnection.getCycle());
 			} catch (InterruptedException e) {
 				interrupt();
 			}
+			log.info(getName() + ": Loop - 5");
 		}
 		log.info("ModbusWorker {} stopped", getName());
 	}

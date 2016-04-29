@@ -4,8 +4,8 @@ public abstract class NumberElement<T> extends Element<T> {
 	protected final int multiplier;
 	protected final int delta;
 
-	public NumberElement(int address, String name, int length, int multiplier, int delta, String unit) {
-		super(address, name, length, unit);
+	public NumberElement(int address, int length, String name, int multiplier, int delta, String unit) {
+		super(address, length, name, unit);
 		this.multiplier = multiplier;
 		this.delta = delta;
 	}

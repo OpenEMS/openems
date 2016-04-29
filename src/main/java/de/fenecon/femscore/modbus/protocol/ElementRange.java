@@ -10,9 +10,12 @@ public class ElementRange {
 	private int startAddress;
 	private Element<?>[] elements;
 
-	public ElementRange(int startAddress, Element<?>... words) {
+	public ElementRange(int startAddress, Element<?>... elements) {
 		this.startAddress = startAddress;
-		this.elements = words;
+		this.elements = elements;
+		for (Element<?> element : elements) {
+			element.setElementRange(this);
+		}
 	}
 
 	/*

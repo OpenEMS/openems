@@ -1,5 +1,6 @@
 package de.fenecon.femscore.modbus.protocol;
 
+import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,12 +11,14 @@ public class ElementBuilder {
 	final int address;
 	String name = "";
 	ElementType type = ElementType.INTEGER;
-	int length = 1;
+	ElementLength length = ElementLength.WORD;
+	int intLength = 1;
 	int multiplier = 1;
 	int delta = 0;
 	String unit = "";
 	boolean signed = false;
-	boolean littleEndian = false;
+	ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+	boolean writable = false;
 	Map<String, BitElement<?>> bitElements = new HashMap<String, BitElement<?>>();
 
 	public ElementBuilder(int address) {
@@ -37,8 +40,27 @@ public class ElementBuilder {
 		return this;
 	}
 
-	public ElementBuilder length(int words) {
-		this.length = words;
+	public ElementBuilder length(ElementLength length) {
+		this.length = length;
+		if (length == ElementLength.WORD) {
+			this.intLength = 1;
+		} else if (length == ElementLength.DOUBLEWORD) {
+			this.intLength = 2;
+		} else {
+			this.intLength = 0;
+		}
+		return this;
+	}
+
+	public ElementBuilder intLength(int length) {
+		if (intLength == 1) {
+			this.length = ElementLength.WORD;
+		} else if (intLength == 2) {
+			this.length = ElementLength.DOUBLEWORD;
+		} else {
+			this.length = ElementLength.OTHER;
+		}
+		this.intLength = length;
 		return this;
 	}
 
@@ -67,8 +89,8 @@ public class ElementBuilder {
 		return this;
 	}
 
-	public ElementBuilder littleEndian(boolean littleEndian) {
-		this.littleEndian = littleEndian;
+	public ElementBuilder byteOrder(ByteOrder byteOrder) {
+		this.byteOrder = byteOrder;
 		return this;
 	}
 
@@ -79,19 +101,28 @@ public class ElementBuilder {
 
 	public Element<?> build() {
 		if (bitElements.size() > 0) {
-			return new BitsElement(address, name, length, unit, bitElements);
+			return new BitsElement(address, intLength, name, unit, bitElements);
 		} else if (type == ElementType.INTEGER) {
 			if (signed) {
-				return new SignedIntegerElement(address, name, length, multiplier, delta, unit, littleEndian);
+				if (length == ElementLength.WORD) {
+					return new SignedIntegerWordElement(address, intLength, name, multiplier, delta, unit, byteOrder);
+				} else if (length == ElementLength.DOUBLEWORD) {
+					return new SignedIntegerDoublewordElement(address, intLength, name, multiplier, delta, unit,
+							byteOrder);
+				}
 			} else {
-				return new UnsignedIntegerElement(address, name, length, multiplier, delta, unit);
+				if (length == ElementLength.WORD) {
+					return new UnsignedShortWordElement(address, intLength, name, multiplier, delta, unit);
+				} else if (length == ElementLength.DOUBLEWORD) {
+					return new UnsignedIntegerDoublewordElement(address, intLength, name, multiplier, delta, unit);
+				}
 			}
-		} else if (type == ElementType.DOUBLE) {
-			return new DoubleElement(address, name, length, multiplier, delta, unit);
+			// } else if (type == ElementType.DOUBLE) {
+			// return new DoubleElement(address, name, multiplier, delta, unit);
 		} else if (type == ElementType.TEXT) {
 			throw new UnsupportedOperationException("TEXT is not implemented!");
 		} else if (type == ElementType.PLACEHOLDER) {
-			return new NoneElement(address, name, length);
+			return new NoneElement(address, intLength, name);
 		}
 		throw new UnsupportedOperationException("ElementBuilder build for " + type + " is not implemented!");
 	}

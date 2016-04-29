@@ -1,8 +1,8 @@
 package de.fenecon.femscore.modbus.device.ess;
 
-import de.fenecon.femscore.modbus.device.ModbusDevice;
+import de.fenecon.femscore.modbus.device.WritableModbusDevice;
 
-public abstract class Ess extends ModbusDevice {
+public abstract class Ess extends WritableModbusDevice {
 
 	public Ess(String name, String modbusid, int unitid) {
 		super(name, modbusid, unitid);

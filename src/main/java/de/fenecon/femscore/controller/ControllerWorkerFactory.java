@@ -50,17 +50,25 @@ public class ControllerWorkerFactory {
 		HashMap<String, ModbusWorker> modbusWorkers = getModbusConnections(json.get("modbus").getAsJsonObject());
 
 		// Connect ModbusWorkers and EssDevices
-		HashMap<String, Ess> essDevices = getEssDevices(json.get("ess").getAsJsonObject());
-		for (Ess ess : essDevices.values()) {
-			ModbusWorker worker = modbusWorkers.get(ess.getModbusid());
-			worker.registerDevice(ess);
+		JsonElement essElement = json.get("ess");
+		HashMap<String, Ess> essDevices = null;
+		if (essElement != null && essElement.isJsonObject()) {
+			essDevices = getEssDevices(essElement.getAsJsonObject());
+			for (Ess ess : essDevices.values()) {
+				ModbusWorker worker = modbusWorkers.get(ess.getModbusid());
+				worker.registerDevice(ess);
+			}
 		}
 
 		// Connect ModbusWorkers and CounterDevices
-		HashMap<String, Counter> counterDevices = getCounterDevices(json.get("counter").getAsJsonObject());
-		for (Counter counter : counterDevices.values()) {
-			ModbusWorker worker = modbusWorkers.get(counter.getModbusid());
-			worker.registerDevice(counter);
+		JsonElement counterElement = json.get("counter");
+		HashMap<String, Counter> counterDevices = null;
+		if (counterElement != null && counterElement.isJsonObject()) {
+			counterDevices = getCounterDevices(counterElement.getAsJsonObject());
+			for (Counter counter : counterDevices.values()) {
+				ModbusWorker worker = modbusWorkers.get(counter.getModbusid());
+				worker.registerDevice(counter);
+			}
 		}
 
 		// Create Controller

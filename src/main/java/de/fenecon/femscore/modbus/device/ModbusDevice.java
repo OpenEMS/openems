@@ -1,5 +1,7 @@
 package de.fenecon.femscore.modbus.device;
 
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,15 +16,43 @@ public abstract class ModbusDevice {
 	protected final Integer unitid;
 	protected final String modbusId;
 	protected final String name;
-	protected final ModbusProtocol initProtocol;
-	protected final ModbusProtocol mainProtocol;
+	protected final ModbusProtocol protocol;
+
+	private final ModbusProtocol initProtocol;
+	private final ModbusProtocol mainProtocol;
+	protected final ModbusProtocol remainingProtocol;
 
 	public ModbusDevice(String name, String modbusid, int unitid) {
 		this.unitid = unitid;
 		this.name = name;
 		this.modbusId = modbusid;
-		this.initProtocol = getInitProtocol();
-		this.mainProtocol = getMainProtocol();
+
+		// Initialize protocols
+		this.protocol = getProtocol();
+		Set<String> allElements = this.protocol.getElementIds();
+		this.initProtocol = new ModbusProtocol(); // Init-Protocol
+		Set<String> initElements = getInitElements();
+		if (initElements != null) {
+			for (String id : initElements) {
+				initProtocol.addElementRange(protocol.getElement(id).getElementRange());
+				allElements.remove(id);
+			}
+		}
+		this.mainProtocol = new ModbusProtocol(); // Main-Protocol
+		Set<String> mainElements = getMainElements();
+		if (mainElements != null) {
+			for (String id : mainElements) {
+				mainProtocol.addElementRange(protocol.getElement(id).getElementRange());
+				allElements.remove(id);
+			}
+		}
+		this.remainingProtocol = new ModbusProtocol(); // Remaining-Protocol
+		if (allElements != null) {
+			for (String id : allElements) {
+				remainingProtocol.addElementRange(protocol.getElement(id).getElementRange());
+				// TODO: split remainingProtocol in small pieces
+			}
+		}
 	}
 
 	public String getModbusid() {
@@ -34,47 +64,26 @@ public abstract class ModbusDevice {
 	}
 
 	public Element<?> getElement(String id) {
-		if (mainProtocol != null) {
-			Element<?> element = mainProtocol.getElement(id);
-			if (element != null)
-				return element;
-		}
-		// TODO try the other protocols
-		if (initProtocol != null) {
-			Element<?> element = initProtocol.getElement(id);
-			if (element != null)
-				return element;
-		}
-		return null;
+		return protocol.getElement(id);
 	}
 
-	public void executeModbusInitQuery(ModbusConnection modbusConnection) throws Exception {
-		log.info("executeModbusInitQuery {}", modbusConnection);
-		if (this.initProtocol != null) {
-			this.initProtocol.query(modbusConnection, this.unitid);
-		}
+	public abstract Set<String> getInitElements();
+
+	public abstract Set<String> getMainElements();
+
+	public void executeInitQuery(ModbusConnection modbusConnection) throws Exception {
+		modbusConnection.updateProtocol(this.unitid, this.initProtocol);
 	}
 
-	public void executeModbusMainQuery(ModbusConnection modbusConnection) throws Exception {
-		if (this.mainProtocol != null) {
-			this.mainProtocol.query(modbusConnection, this.unitid);
-		}
+	public void executeMainQuery(ModbusConnection modbusConnection) throws Exception {
+		modbusConnection.updateProtocol(this.unitid, this.mainProtocol);
 	}
 
-	public void executeModbusNextSmallQuery(ModbusConnection modbusConnection) {
-		// TODO
+	public void executeRemainingQuery(ModbusConnection modbusConnection) throws Exception {
+		modbusConnection.updateProtocol(this.unitid, this.remainingProtocol);
 	};
 
-	protected abstract ModbusProtocol getMainProtocol();
-
-	/**
-	 * Defining the "InitProtocol". This protocol is queried once at the
-	 * beginning. It can be used to make sure, that the ModbusDevice is in a
-	 * running state.
-	 * 
-	 * @return the InitProtocol, or null for no initialization protocol
-	 */
-	protected abstract ModbusProtocol getInitProtocol();
+	protected abstract ModbusProtocol getProtocol();
 
 	@Override
 	public String toString() {

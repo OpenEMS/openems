@@ -1,7 +1,5 @@
 package de.fenecon.femscore.modbus.protocol;
 
-import java.util.List;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,16 +11,17 @@ public abstract class Element<T> {
 	private final static Logger log = LoggerFactory.getLogger(Element.class);
 
 	protected final int address;
-	protected final String name;
 	protected final int length;
+	protected final String name;
 	protected final String unit;
 	protected DateTime lastUpdate = null;
 	protected T value = null;
+	protected ElementRange elementRange = null;
 
-	public Element(int address, String name, int length, String unit) {
+	public Element(int address, int length, String name, String unit) {
 		this.address = address;
-		this.name = name;
 		this.length = length;
+		this.name = name;
 		this.unit = unit;
 	}
 
@@ -30,12 +29,12 @@ public abstract class Element<T> {
 		return address;
 	}
 
-	public String getName() {
-		return name;
-	}
-
 	public int getLength() {
 		return length;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public String getUnit() {
@@ -44,6 +43,14 @@ public abstract class Element<T> {
 
 	public T getValue() {
 		return value;
+	}
+
+	public void setElementRange(ElementRange elementRange) {
+		this.elementRange = elementRange;
+	}
+
+	public ElementRange getElementRange() {
+		return elementRange;
 	}
 
 	/**
@@ -55,23 +62,25 @@ public abstract class Element<T> {
 		return lastUpdate;
 	}
 
-	public void update(List<Register> registers) {
-		value = convert(registers);
+	public abstract Register[] toRegister(T value);
+
+	/**
+	 * Updates the lastUpdate timestamp. Always call this method with any
+	 * "update" method
+	 * 
+	 */
+	protected void update(T value) {
 		lastUpdate = DateTime.now();
+		this.value = value;
 	};
-
-	public void update(Register register) {
-		value = convert(register);
-		lastUpdate = DateTime.now();
-	};
-
-	protected abstract T convert(Register register);
-
-	protected abstract T convert(List<Register> registers);
 
 	@Override
 	public String toString() {
-		return "Element [address=0x" + Integer.toHexString(address) + ", name=" + name + ", length=" + length
-				+ ", unit=" + unit + ", lastUpdate=" + lastUpdate + ", value=" + value + "]";
+		return "Element [address=0x" + Integer.toHexString(address) + ", name=" + name + ", unit=" + unit
+				+ ", lastUpdate=" + lastUpdate + ", value=" + value + "]";
+	}
+
+	public String readable() {
+		return String.format("%5d %s", value, unit);
 	}
 }

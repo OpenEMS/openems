@@ -1,16 +1,14 @@
 package de.fenecon.femscore.modbus.protocol;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import de.fenecon.femscore.modbus.ModbusConnection;
-import net.wimpi.modbus.procimg.Register;
 
 public class ModbusProtocol {
 	private final static Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
@@ -32,22 +30,12 @@ public class ModbusProtocol {
 		return elements.get(id);
 	}
 
-	public void query(ModbusConnection modbusConnection, int unitid) throws Exception {
-		for (ElementRange elementRange : elementRanges) {
-			Register[] registers = modbusConnection.query(unitid, elementRange.getStartAddress(),
-					elementRange.getTotalLength());
-			int position = 0;
-			for (Element<?> element : elementRange.getElements()) {
-				int length = element.getLength();
-				int nextPosition = position + length;
-				if (length == 1) {
-					element.update(registers[position]);
-				} else {
-					element.update(Arrays.asList(registers).subList(position, nextPosition));
-				}
-				position = nextPosition;
-			}
-		}
+	public Set<String> getElementIds() {
+		return new HashSet<String>(elements.keySet());
+	}
+
+	public List<ElementRange> getElementRanges() {
+		return elementRanges;
 	}
 
 	/**

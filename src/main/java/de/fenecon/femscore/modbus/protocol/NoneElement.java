@@ -1,23 +1,14 @@
 package de.fenecon.femscore.modbus.protocol;
 
-import java.util.List;
-
 import net.wimpi.modbus.procimg.Register;
 
 public class NoneElement extends Element<Object> implements PlaceholderElement {
-
-	public NoneElement(int address, String name, int length) {
-		super(address, name, length, "");
+	public NoneElement(int address, int length, String name) {
+		super(address, length, name, "");
 	}
 
 	@Override
-	protected Object convert(Register register) {
+	public Register[] toRegister(Object value) {
 		return null;
 	}
-
-	@Override
-	protected Object convert(List<Register> registers) {
-		return null;
-	}
-
 }

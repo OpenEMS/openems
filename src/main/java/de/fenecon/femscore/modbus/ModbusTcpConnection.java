@@ -18,6 +18,13 @@ public class ModbusTcpConnection extends ModbusConnection {
 	}
 
 	@Override
+	public void dispose() {
+		if (con != null) {
+			con.close();
+		}
+	}
+
+	@Override
 	protected ModbusTransaction getTransaction() throws Exception {
 		if (con == null) {
 			con = new TCPMasterConnection(this.ip);

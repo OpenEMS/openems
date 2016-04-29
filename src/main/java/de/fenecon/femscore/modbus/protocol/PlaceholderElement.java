@@ -7,5 +7,4 @@ package de.fenecon.femscore.modbus.protocol;
  *
  */
 public interface PlaceholderElement {
-
 }

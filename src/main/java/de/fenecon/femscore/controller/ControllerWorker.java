@@ -28,7 +28,7 @@ public class ControllerWorker extends Thread {
 		}
 		for (ModbusWorker modbusWorker : modbusWorkers) {
 			try {
-				modbusWorker.waitForInitQuery();
+				modbusWorker.waitForInit();
 			} catch (InterruptedException e) {
 				interrupt();
 			}
@@ -38,9 +38,9 @@ public class ControllerWorker extends Thread {
 		while (!isInterrupted()) {
 			try {
 				for (ModbusWorker modbusWorker : modbusWorkers) {
-					modbusWorker.waitForMainQuery();
+					log.info(modbusWorker.getName() + ": Starting to wait for main");
+					modbusWorker.waitForMain();
 				}
-				log.info("MainQueryFinished for all ModbusWorkers");
 				controller.run();
 			} catch (InterruptedException e) {
 				interrupt();

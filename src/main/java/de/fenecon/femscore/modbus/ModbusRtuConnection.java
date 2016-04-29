@@ -30,6 +30,13 @@ public class ModbusRtuConnection extends ModbusConnection {
 	}
 
 	@Override
+	public void dispose() {
+		if (con != null && con.isOpen()) {
+			con.close();
+		}
+	}
+
+	@Override
 	protected ModbusTransaction getTransaction() throws Exception {
 		if (con == null) {
 			SerialParameters params = new SerialParameters();
