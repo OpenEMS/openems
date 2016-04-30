@@ -56,11 +56,10 @@ public class ModbusWorker extends Thread {
 	public synchronized void run() {
 		log.info("ModbusWorker {} started", getName());
 		for (ModbusDevice device : devices) {
-			log.info("RUN with " + device);
 			try {
 				device.executeInitQuery(modbusConnection);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error("Error while executing modbus query: {}", e.getMessage());
 			}
 		}
 
@@ -72,7 +71,7 @@ public class ModbusWorker extends Thread {
 				try {
 					device.executeMainQuery(modbusConnection);
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error("Error while executing modbus query: {}", e.getMessage());
 				}
 			}
 			mainQueryFinished.release();
@@ -93,7 +92,7 @@ public class ModbusWorker extends Thread {
 				try {
 					device.executeRemainingQuery(modbusConnection);
 				} catch (Exception e) {
-					e.printStackTrace();
+					log.error("Error while executing modbus query: {}", e.getMessage());
 				}
 			}
 			try {
