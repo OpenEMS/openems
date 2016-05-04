@@ -1,6 +1,7 @@
 package de.fenecon.femscore.modbus.protocol;
 
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ public abstract class Element<T> {
 	protected final int length;
 	protected final String name;
 	protected final String unit;
+	protected final Period validPeriod;
 	protected DateTime lastUpdate = null;
 	protected T value = null;
 	protected ElementRange elementRange = null;
@@ -23,6 +25,7 @@ public abstract class Element<T> {
 		this.length = length;
 		this.name = name;
 		this.unit = unit;
+		this.validPeriod = new Period(Period.minutes(1));
 	}
 
 	public int getAddress() {
@@ -42,6 +45,16 @@ public abstract class Element<T> {
 	}
 
 	public T getValue() {
+		// TODO: check if valid is still valid
+		return value;
+	}
+
+	/**
+	 * Returns the raw value, without checking if it is still valid
+	 * 
+	 * @return unchecked, raw value
+	 */
+	public T getRawValue() {
 		return value;
 	}
 
