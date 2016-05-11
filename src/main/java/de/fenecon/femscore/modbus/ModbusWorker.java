@@ -67,14 +67,18 @@ public class ModbusWorker extends Thread {
 
 		while (!isInterrupted()) {
 			// Execute Modbus Main Queries
+			boolean error = false;
 			for (ModbusDevice device : devices) {
 				try {
 					device.executeMainQuery(modbusConnection);
 				} catch (Exception e) {
 					log.error("Error while executing modbus query: {}", e.getMessage());
+					error = true;
 				}
 			}
-			mainQueryFinished.release();
+			if (!error) {
+				mainQueryFinished.release();
+			}
 
 			// Execute Modbus Writes
 			for (ModbusDevice device : devices) {
@@ -95,8 +99,12 @@ public class ModbusWorker extends Thread {
 					log.error("Error while executing modbus query: {}", e.getMessage());
 				}
 			}
+
+			// Sleep till next cycle
 			try {
 				Thread.sleep(this.modbusConnection.getCycle());
+				// TODO: calculate the difference from method start till now and
+				// wait only remaining time
 			} catch (InterruptedException e) {
 				interrupt();
 			}

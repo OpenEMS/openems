@@ -21,7 +21,6 @@ import de.fenecon.femscore.modbus.protocol.interfaces.DoublewordElement;
 import de.fenecon.femscore.modbus.protocol.interfaces.WordElement;
 
 public abstract class ModbusConnection implements AutoCloseable {
-	@SuppressWarnings("unused")
 	private final static Logger log = LoggerFactory.getLogger(ModbusConnection.class);
 
 	protected final int cycle; // length of a query cycle in milliseconds
@@ -38,7 +37,7 @@ public abstract class ModbusConnection implements AutoCloseable {
 		return cycle;
 	}
 
-	public synchronized Register[] query(int unitid, int ref, int count) throws Exception {
+	private synchronized Register[] singleQuery(int unitid, int ref, int count) throws Exception {
 		ModbusTransaction trans = getTransaction();
 		ReadMultipleRegistersRequest req = new ReadMultipleRegistersRequest(ref, count);
 		req.setUnitID(unitid);
@@ -50,6 +49,16 @@ public abstract class ModbusConnection implements AutoCloseable {
 			return mres.getRegisters();
 		} else {
 			throw new ModbusException(res.toString());
+		}
+	}
+
+	public synchronized Register[] query(int unitid, int ref, int count) throws Exception {
+		try {
+			return singleQuery(unitid, ref, count);
+		} catch (Exception e) {
+			log.info("Exception: {}. Try again with new connection", e.getMessage());
+			this.close();
+			return singleQuery(unitid, ref, count);
 		}
 	}
 
