@@ -39,10 +39,9 @@ public class ModbusTcpConnection extends ModbusConnection {
 
 	@Override
 	public void close() {
-		if (con == null) {
-			if (con.isConnected()) {
-				con.close();
-			}
+		if (con != null && con.isConnected()) {
+			con.close();
+			con = null;
 		}
 	}
 

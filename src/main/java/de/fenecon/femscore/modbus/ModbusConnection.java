@@ -52,11 +52,11 @@ public abstract class ModbusConnection implements AutoCloseable {
 		}
 	}
 
-	public synchronized Register[] query(int unitid, int ref, int count) throws Exception {
+	public Register[] query(int unitid, int ref, int count) throws Exception {
 		try {
 			return singleQuery(unitid, ref, count);
 		} catch (Exception e) {
-			log.info("Exception: {}. Try again with new connection", e.getMessage());
+			log.info("Query-Exception: {}. Try again with new connection", e.getMessage());
 			this.close();
 			return singleQuery(unitid, ref, count);
 		}
@@ -78,7 +78,7 @@ public abstract class ModbusConnection implements AutoCloseable {
 		}
 	}
 
-	public synchronized void write(int unitid, int ref, Register reg) throws Exception {
+	private synchronized void singleWrite(int unitid, int ref, Register reg) throws Exception {
 		ModbusTransaction trans = getTransaction();
 		WriteSingleRegisterRequest req = new WriteSingleRegisterRequest(ref, reg);
 		req.setUnitID(unitid);
@@ -90,7 +90,17 @@ public abstract class ModbusConnection implements AutoCloseable {
 		}
 	}
 
-	public synchronized void write(int unitid, int ref, Register[] regs) throws Exception {
+	public void write(int unitid, int ref, Register reg) throws Exception {
+		try {
+			singleWrite(unitid, ref, reg);
+		} catch (Exception e) {
+			log.info("Write-Exception: {}. Try again with new connection", e.getMessage());
+			this.close();
+			singleWrite(unitid, ref, reg);
+		}
+	}
+
+	private synchronized void singleWrite(int unitid, int ref, Register[] regs) throws Exception {
 		ModbusTransaction trans = getTransaction();
 		WriteMultipleRegistersRequest req = new WriteMultipleRegistersRequest(ref, regs);
 		req.setUnitID(unitid);
@@ -99,6 +109,16 @@ public abstract class ModbusConnection implements AutoCloseable {
 		ModbusResponse res = trans.getResponse();
 		if (!(res instanceof WriteMultipleRegistersResponse)) {
 			throw new ModbusException(res.toString());
+		}
+	}
+
+	public void write(int unitid, int ref, Register[] regs) throws Exception {
+		try {
+			singleWrite(unitid, ref, regs);
+		} catch (Exception e) {
+			log.info("Write-Exception: {}. Try again with new connection", e.getMessage());
+			this.close();
+			singleWrite(unitid, ref, regs);
 		}
 	}
 

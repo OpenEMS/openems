@@ -86,7 +86,6 @@ public class BalancingWithoutAcGenerator extends Controller {
 			} else if (Math.abs(diffCounterActivePower - diffCessActivePower) <= 200) {
 				deviationDelta = lastDeviationDelta + 100;
 			}
-			log.info("DeviationDelta " + deviationDelta);
 
 			// actual calculation
 			calculatedCessActivePower = (cessActivePower.getValue() + counterActivePower.getValue() + deviationDelta);

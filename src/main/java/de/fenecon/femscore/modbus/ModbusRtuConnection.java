@@ -34,6 +34,7 @@ public class ModbusRtuConnection extends ModbusConnection {
 	public void dispose() {
 		if (con != null && con.isOpen()) {
 			con.close();
+			con = null;
 		}
 	}
 

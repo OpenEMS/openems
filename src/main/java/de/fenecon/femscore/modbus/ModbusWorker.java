@@ -17,7 +17,7 @@ import de.fenecon.femscore.utils.Mutex;
  * @author Stefan Feilmeier
  */
 public class ModbusWorker extends Thread {
-	private final static Logger log = LoggerFactory.getLogger(Thread.class);
+	private final static Logger log = LoggerFactory.getLogger(ModbusWorker.class);
 
 	private final List<ModbusDevice> devices = new ArrayList<ModbusDevice>();
 	private final ModbusConnection modbusConnection;
@@ -72,7 +72,7 @@ public class ModbusWorker extends Thread {
 				try {
 					device.executeMainQuery(modbusConnection);
 				} catch (Exception e) {
-					log.error("Error while executing modbus query: {}", e.getMessage());
+					log.error("Query-Exception: {}", e.getMessage());
 					error = true;
 				}
 			}
@@ -86,7 +86,7 @@ public class ModbusWorker extends Thread {
 					try {
 						((WritableModbusDevice) device).executeModbusWrite(modbusConnection);
 					} catch (Exception e) {
-						log.error("Error while executing modbus write: {}", e.getMessage());
+						log.error("Write-Exception: {}", e.getMessage());
 					}
 				}
 			}
@@ -96,7 +96,7 @@ public class ModbusWorker extends Thread {
 				try {
 					device.executeRemainingQuery(modbusConnection);
 				} catch (Exception e) {
-					log.error("Error while executing modbus query: {}", e.getMessage());
+					log.error("Query-Exception: {}", e.getMessage());
 				}
 			}
 
