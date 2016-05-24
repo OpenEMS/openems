@@ -3,8 +3,9 @@ package de.fenecon.femscore;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import de.fenecon.femscore.config.Config;
+import de.fenecon.femscore.config.JsonConfigFactory;
 import de.fenecon.femscore.controller.ControllerWorker;
-import de.fenecon.femscore.controller.ControllerWorkerFactory;
 
 /**
  * Main App
@@ -12,7 +13,9 @@ import de.fenecon.femscore.controller.ControllerWorkerFactory;
  */
 public class App {
 	public static void main(String[] args) throws FileNotFoundException, IOException {
-		ControllerWorker controller = ControllerWorkerFactory.createControllerFromConfigFile();
-		controller.start();
+		Config config = JsonConfigFactory.readConfigFromJsonFile();
+		for (ControllerWorker controllerWorker : config.getControllerWorkers().values()) {
+			controllerWorker.start();
+		}
 	}
 }

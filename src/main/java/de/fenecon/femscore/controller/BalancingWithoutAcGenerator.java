@@ -20,13 +20,23 @@ import de.fenecon.femscore.modbus.protocol.UnsignedShortWordElement;
 public class BalancingWithoutAcGenerator extends Controller {
 	private final static Logger log = LoggerFactory.getLogger(BalancingWithoutAcGenerator.class);
 
-	public BalancingWithoutAcGenerator(Map<String, Ess> essDevices, Map<String, Counter> counterDevices) {
-		super(essDevices, counterDevices);
+	private int minSoc = 10;
+
+	public BalancingWithoutAcGenerator(String name, Map<String, Ess> essDevices, Map<String, Counter> counterDevices) {
+		super(name, essDevices, counterDevices);
+	}
+
+	public void setMinSoc(int minSoc) {
+		this.minSoc = minSoc;
+	}
+
+	public int getMinSoc() {
+		return minSoc;
 	}
 
 	@Override
 	public void init() {
-		Cess cess = (Cess) (essDevices.get("cess0"));
+		Cess cess = (Cess) (esss.get("cess0"));
 		BitsElement bitsElement = (BitsElement) cess.getElement(EssProtocol.SystemState.name());
 		BooleanBitElement cessRunning = (BooleanBitElement) bitsElement.getBit(EssProtocol.SystemStates.Running.name());
 		Boolean isCessRunning = cessRunning.getValue();
@@ -47,7 +57,7 @@ public class BalancingWithoutAcGenerator extends Controller {
 
 	@Override
 	public void run() {
-		Cess cess = (Cess) (essDevices.get("cess0"));
+		Cess cess = (Cess) (esss.get("cess0"));
 		UnsignedShortWordElement cessSoc = cess.getSoc();
 		SignedIntegerWordElement cessActivePower = cess.getActivePower();
 		SignedIntegerWordElement cessReactivePower = cess.getReactivePower();
@@ -57,7 +67,7 @@ public class BalancingWithoutAcGenerator extends Controller {
 		UnsignedShortWordElement cessAllowedApparent = cess.getAllowedApparent();
 		SignedIntegerWordElement cessSetActivePower = cess.getSetActivePower();
 
-		Socomec counter = (Socomec) (counterDevices.get("grid"));
+		Socomec counter = (Socomec) (counters.get("grid"));
 		SignedIntegerDoublewordElement counterActivePower = counter.getActivePower();
 		SignedIntegerDoublewordElement counterReactivePower = counter.getReactivePower();
 		UnsignedIntegerDoublewordElement counterApparentPower = counter.getApparentPower();
@@ -67,7 +77,7 @@ public class BalancingWithoutAcGenerator extends Controller {
 		// + (lastCalculatedCessActivePower - cessActivePower.getValue()) / 2;
 
 		int calculatedCessActivePower;
-		if (cessSoc.getValue() < 10) {
+		if (cessSoc.getValue() < this.getMinSoc()) {
 			// low SOC
 			calculatedCessActivePower = 0;
 		} else {

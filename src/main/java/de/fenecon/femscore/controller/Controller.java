@@ -7,19 +7,21 @@ import de.fenecon.femscore.modbus.device.counter.Counter;
 import de.fenecon.femscore.modbus.device.ess.Ess;
 
 public abstract class Controller {
-	protected final Map<String, Ess> essDevices;
-	protected final Map<String, Counter> counterDevices;
+	private final String name;
+	protected final Map<String, Ess> esss;
+	protected final Map<String, Counter> counters;
 
-	public Controller(Map<String, Ess> essDevices, Map<String, Counter> counterDevices) {
-		if (essDevices == null) {
-			this.essDevices = new HashMap<String, Ess>();
+	public Controller(String name, Map<String, Ess> esss, Map<String, Counter> counters) {
+		this.name = name;
+		if (esss == null) {
+			this.esss = new HashMap<String, Ess>();
 		} else {
-			this.essDevices = essDevices;
+			this.esss = esss;
 		}
-		if (counterDevices == null) {
-			this.counterDevices = new HashMap<String, Counter>();
+		if (counters == null) {
+			this.counters = new HashMap<String, Counter>();
 		} else {
-			this.counterDevices = counterDevices;
+			this.counters = counters;
 		}
 	}
 
