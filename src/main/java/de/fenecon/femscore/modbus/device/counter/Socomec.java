@@ -32,6 +32,17 @@ public class Socomec extends Counter {
 						.length(ElementLength.DOUBLEWORD).unit("VA").build(),
 				new ElementBuilder(0xc56c).name(CounterProtocol.ApparentPower).multiplier(10)
 						.length(ElementLength.DOUBLEWORD).unit("Var").build()));
+		protocol.addElementRange(new ElementRange(0xc652,
+				new ElementBuilder(0xc652).name(CounterProtocol.ActivePositiveEnergy).length(ElementLength.DOUBLEWORD)
+						.unit("kWh").build(),
+				new ElementBuilder(0xc654).name(CounterProtocol.ReactivePositiveEnergy).length(ElementLength.DOUBLEWORD)
+						.unit("kvarh").build(),
+				new ElementBuilder(0xc656).name(CounterProtocol.ApparentEnergy).length(ElementLength.DOUBLEWORD)
+						.unit("kVAh").build(),
+				new ElementBuilder(0xc658).name(CounterProtocol.ActiveNegativeEnergy).length(ElementLength.DOUBLEWORD)
+						.unit("kWh").build(),
+				new ElementBuilder(0xc65a).name(CounterProtocol.ReactiveNegativeEnergy).length(ElementLength.DOUBLEWORD)
+						.unit("kvarh").build()));
 		return protocol;
 	}
 
@@ -58,5 +69,13 @@ public class Socomec extends Counter {
 
 	public UnsignedIntegerDoublewordElement getApparentPower() {
 		return (UnsignedIntegerDoublewordElement) getElement(CounterProtocol.ApparentPower.name());
+	}
+
+	public UnsignedIntegerDoublewordElement getActivePositiveEnergy() {
+		return (UnsignedIntegerDoublewordElement) getElement(CounterProtocol.ActivePositiveEnergy.name());
+	}
+
+	public UnsignedIntegerDoublewordElement getActiveNegativeEnergy() {
+		return (UnsignedIntegerDoublewordElement) getElement(CounterProtocol.ActiveNegativeEnergy.name());
 	}
 }

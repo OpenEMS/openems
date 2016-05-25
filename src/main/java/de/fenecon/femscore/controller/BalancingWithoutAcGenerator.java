@@ -71,6 +71,8 @@ public class BalancingWithoutAcGenerator extends Controller {
 		SignedIntegerDoublewordElement counterActivePower = counter.getActivePower();
 		SignedIntegerDoublewordElement counterReactivePower = counter.getReactivePower();
 		UnsignedIntegerDoublewordElement counterApparentPower = counter.getApparentPower();
+		UnsignedIntegerDoublewordElement counterActivePostiveEnergy = counter.getActivePositiveEnergy();
+		UnsignedIntegerDoublewordElement counterActiveNegativeEnergy = counter.getActiveNegativeEnergy();
 
 		// ess set active power deviation:
 		// lastCalculatedCessActivePower = lastCalculatedCessActivePower
@@ -137,7 +139,8 @@ public class BalancingWithoutAcGenerator extends Controller {
 		 */
 		log.info("[" + cessSoc.readable() + "] PWR: [" + cessActivePower.readable() + " " + cessReactivePower.readable()
 				+ " " + cessApparentPower.readable() + "] COUNTER: [" + counterActivePower.readable() + " "
-				+ counterReactivePower.readable() + " " + counterApparentPower.readable() + "] SET: ["
+				+ counterReactivePower.readable() + " " + counterApparentPower.readable() + " +"
+				+ counterActivePostiveEnergy.readable() + " -" + counterActiveNegativeEnergy.readable() + "] SET: ["
 				+ calculatedCessActivePower + "]");
 	}
 
