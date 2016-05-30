@@ -19,7 +19,7 @@ public class ElementBuilder {
 	boolean signed = false;
 	ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 	boolean writable = false;
-	Map<String, BitElement<?>> bitElements = new HashMap<String, BitElement<?>>();
+	Map<String, BitElement> bitElements = new HashMap<String, BitElement>();
 
 	public ElementBuilder(int address) {
 		this.address = address;
@@ -94,7 +94,7 @@ public class ElementBuilder {
 		return this;
 	}
 
-	public ElementBuilder bit(BitElement<?> bitElement) {
+	public ElementBuilder bit(BitElement bitElement) {
 		this.bitElements.put(bitElement.getName(), bitElement);
 		return this;
 	}
