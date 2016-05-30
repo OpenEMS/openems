@@ -44,4 +44,8 @@ public class BitsElement extends Element<Map<String, BitElement>> implements Wor
 	public Register[] toRegister(Map<String, BitElement> value) {
 		throw new UnsupportedOperationException("not implemented");
 	}
+
+	public Map<String, BitElement> getBitElements() {
+		return bitElements;
+	}
 }

@@ -10,8 +10,8 @@ import de.fenecon.femscore.modbus.device.counter.Socomec;
 import de.fenecon.femscore.modbus.device.ess.Cess;
 import de.fenecon.femscore.modbus.device.ess.Ess;
 import de.fenecon.femscore.modbus.device.ess.EssProtocol;
+import de.fenecon.femscore.modbus.protocol.BitElement;
 import de.fenecon.femscore.modbus.protocol.BitsElement;
-import de.fenecon.femscore.modbus.protocol.BooleanBitElement;
 import de.fenecon.femscore.modbus.protocol.SignedIntegerDoublewordElement;
 import de.fenecon.femscore.modbus.protocol.SignedIntegerWordElement;
 import de.fenecon.femscore.modbus.protocol.UnsignedIntegerDoublewordElement;
@@ -42,7 +42,7 @@ public abstract class Balancing extends Controller {
 	public void init() {
 		Cess cess = (Cess) (esss.get("cess0"));
 		BitsElement bitsElement = (BitsElement) cess.getElement(EssProtocol.SystemState.name());
-		BooleanBitElement cessRunning = (BooleanBitElement) bitsElement.getBit(EssProtocol.SystemStates.Running.name());
+		BitElement cessRunning = bitsElement.getBit(EssProtocol.SystemStates.Running.name());
 		Boolean isCessRunning = cessRunning.getValue();
 		if (isCessRunning == null) {
 			log.info("No connection to CESS");
@@ -70,6 +70,8 @@ public abstract class Balancing extends Controller {
 		UnsignedShortWordElement cessAllowedDischarge = cess.getAllowedDischarge();
 		UnsignedShortWordElement cessAllowedApparent = cess.getAllowedApparent();
 		SignedIntegerWordElement cessSetActivePower = cess.getSetActivePower();
+		SignedIntegerWordElement cessPv1OutputPower = cess.getPv1OutputPower();
+		SignedIntegerWordElement cessPv2OutputPower = cess.getPv2OutputPower();
 
 		Socomec counter = (Socomec) (counters.get("grid"));
 		SignedIntegerDoublewordElement counterActivePower = counter.getActivePower();
@@ -134,9 +136,7 @@ public abstract class Balancing extends Controller {
 			}
 		} else { // charge
 			if (allowChargeFromAC) { // charging is allowed
-				// TODO if (calculatedCessActivePower <
-				// cessAllowedCharge.getValue()) {
-				if (calculatedCessActivePower < -1000) {
+				if (calculatedCessActivePower < cessAllowedCharge.getValue()) {
 					// not allowed to charge with such high power
 					calculatedCessActivePower = cessAllowedCharge.getValue();
 				} else {
@@ -165,7 +165,8 @@ public abstract class Balancing extends Controller {
 		 * calculatedCessActivePower + "]");
 		 */
 		log.info("[" + cessSoc.readable() + "] PWR: [" + cessActivePower.readable() + " " + cessReactivePower.readable()
-				+ " " + cessApparentPower.readable() + "] COUNTER: [" + counterActivePower.readable() + " "
+				+ " " + cessApparentPower.readable() + "] DCPV: [" + cessPv1OutputPower.readable()
+				+ cessPv2OutputPower.readable() + "] COUNTER: [" + counterActivePower.readable() + " "
 				+ counterReactivePower.readable() + " " + counterApparentPower.readable() + " +"
 				+ counterActivePostiveEnergy.readable() + " -" + counterActiveNegativeEnergy.readable() + "] SET: ["
 				+ calculatedCessActivePower + "]");
