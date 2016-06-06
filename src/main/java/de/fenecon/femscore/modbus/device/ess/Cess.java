@@ -56,6 +56,14 @@ public class Cess extends Ess {
 	@Override
 	protected ModbusProtocol getProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol();
+		protocol.addElementRange(new ElementRange(0x0101,
+				new ElementBuilder(0x0101).name(EssProtocol.SystemState) //
+						.bit(new BitElement(1, EssProtocol.SystemStates.Stop.name())) //
+						.bit(new BitElement(2, EssProtocol.SystemStates.PvCharging.name())) //
+						.bit(new BitElement(3, EssProtocol.SystemStates.Standby.name())) //
+						.bit(new BitElement(4, EssProtocol.SystemStates.Running.name())) //
+						.bit(new BitElement(5, EssProtocol.SystemStates.Fault.name())) //
+						.bit(new BitElement(6, EssProtocol.SystemStates.Debug.name())).build()));
 		protocol.addElementRange(new ElementRange(0x0210,
 				new ElementBuilder(0x0210).name(EssProtocol.ActivePower).multiplier(100).signed(true).unit("W").build(),
 				new ElementBuilder(0x0211).name(EssProtocol.ReactivePower).multiplier(100).signed(true).unit("VA")
@@ -66,14 +74,6 @@ public class Cess extends Ess {
 						.build(),
 				new ElementBuilder(0x0231).name(EssProtocol.AllowedDischarge).multiplier(100).unit("W").build(),
 				new ElementBuilder(0x0232).name(EssProtocol.AllowedApparent).multiplier(100).unit("Var").build()));
-		protocol.addElementRange(new ElementRange(0x0101,
-				new ElementBuilder(0x0101).name(EssProtocol.SystemState) //
-						.bit(new BitElement(1, EssProtocol.SystemStates.Stop.name())) //
-						.bit(new BitElement(2, EssProtocol.SystemStates.PvCharging.name())) //
-						.bit(new BitElement(3, EssProtocol.SystemStates.Standby.name())) //
-						.bit(new BitElement(4, EssProtocol.SystemStates.Running.name())) //
-						.bit(new BitElement(5, EssProtocol.SystemStates.Fault.name())) //
-						.bit(new BitElement(6, EssProtocol.SystemStates.Debug.name())).build()));
 		protocol.addElementRange(new ElementRange(0x0501, new ElementBuilder(0x0501).name(EssProtocol.SetActivePower)
 				.multiplier(100).signed(true).unit("W").build()));
 		protocol.addElementRange(new ElementRange(0x1402,

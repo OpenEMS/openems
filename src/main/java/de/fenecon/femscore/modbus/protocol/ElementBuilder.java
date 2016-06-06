@@ -19,6 +19,7 @@ public class ElementBuilder {
 	boolean signed = false;
 	ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 	boolean writable = false;
+	boolean inverted = false;
 	Map<String, BitElement> bitElements = new HashMap<String, BitElement>();
 
 	public ElementBuilder(int address) {
@@ -99,22 +100,29 @@ public class ElementBuilder {
 		return this;
 	}
 
+	public ElementBuilder inverted(boolean inverted) {
+		this.inverted = inverted;
+		return this;
+	}
+
 	public Element<?> build() {
 		if (bitElements.size() > 0) {
 			return new BitsElement(address, intLength, name, unit, bitElements);
 		} else if (type == ElementType.INTEGER) {
 			if (signed) {
 				if (length == ElementLength.WORD) {
-					return new SignedIntegerWordElement(address, intLength, name, multiplier, delta, unit, byteOrder);
+					return new SignedIntegerWordElement(address, intLength, name, multiplier, delta, unit, byteOrder,
+							inverted);
 				} else if (length == ElementLength.DOUBLEWORD) {
 					return new SignedIntegerDoublewordElement(address, intLength, name, multiplier, delta, unit,
-							byteOrder);
+							byteOrder, inverted);
 				}
 			} else {
 				if (length == ElementLength.WORD) {
-					return new UnsignedShortWordElement(address, intLength, name, multiplier, delta, unit);
+					return new UnsignedShortWordElement(address, intLength, name, multiplier, delta, unit, inverted);
 				} else if (length == ElementLength.DOUBLEWORD) {
-					return new UnsignedIntegerDoublewordElement(address, intLength, name, multiplier, delta, unit);
+					return new UnsignedIntegerDoublewordElement(address, intLength, name, multiplier, delta, unit,
+							inverted);
 				}
 			}
 			// } else if (type == ElementType.DOUBLE) {

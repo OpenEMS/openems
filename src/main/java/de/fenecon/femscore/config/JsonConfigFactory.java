@@ -117,7 +117,8 @@ public class JsonConfigFactory {
 	 *   "grid": {
 	 *     "counterType": "Socomec",
 	 *     "modbus": "/dev/ttyUSB0",
-	 *     "unitid": 5
+	 *     "unitid": 5,
+	 *     ["inverted": true]
 	 *   }
 	 * },
 	 * </pre>
@@ -144,6 +145,10 @@ public class JsonConfigFactory {
 				default:
 					throw new UnsupportedOperationException(
 							"CounterType " + obj.get("counterType").getAsString() + " is not implemented!");
+				}
+				// is the counter value inverted? = mounted the wrong way around
+				if (obj.has("inverted")) {
+					counter.setInverted(obj.get("inverted").getAsBoolean());
 				}
 				counters.put(entry.getKey(), counter);
 				// register to ModbusWorker

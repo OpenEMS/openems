@@ -58,6 +58,7 @@ public abstract class Balancing extends Controller {
 	private int lastCounterActivePower = 0;
 	private int lastCessActivePower = 0;
 	private int lastDeviationDelta = 0;
+	private int lowSocCounter = 0;
 
 	@Override
 	public void run() {
@@ -68,7 +69,8 @@ public abstract class Balancing extends Controller {
 		UnsignedShortWordElement cessApparentPower = cess.getApparentPower();
 		SignedIntegerWordElement cessAllowedCharge = cess.getAllowedCharge();
 		UnsignedShortWordElement cessAllowedDischarge = cess.getAllowedDischarge();
-		UnsignedShortWordElement cessAllowedApparent = cess.getAllowedApparent();
+		// UnsignedShortWordElement cessAllowedApparent =
+		// cess.getAllowedApparent();
 		SignedIntegerWordElement cessSetActivePower = cess.getSetActivePower();
 		SignedIntegerWordElement cessPv1OutputPower = cess.getPv1OutputPower();
 		SignedIntegerWordElement cessPv2OutputPower = cess.getPv2OutputPower();
@@ -103,38 +105,49 @@ public abstract class Balancing extends Controller {
 			deviationDelta = lastDeviationDelta + 100;
 		}
 
-		// actual calculation
+		// low SOC hysteresis
+		if (cessSoc.getValue() < this.getMinSoc()) {
+			if (lowSocCounter < 0) {
+				lowSocCounter = 1;
+			} else if (lowSocCounter > 3) {
+				lowSocCounter = 4;
+			} else {
+				lowSocCounter++;
+			}
+		} else {
+			if (lowSocCounter > 0) {
+				lowSocCounter = -1;
+			} else if (lowSocCounter < -3) {
+				lowSocCounter = -4;
+			} else {
+				lowSocCounter--;
+			}
+		}
+
+		// actual power calculation
 		calculatedCessActivePower = (cessActivePower.getValue() + counterActivePower.getValue() + deviationDelta);
 
-		// round to 100: cess can only be controlled with precision 100 W
-		calculatedCessActivePower = calculatedCessActivePower / 100 * 100;
-
-		if (calculatedCessActivePower > 0) { // discharge
-			if (cessSoc.getValue() < this.getMinSoc()) { // low SOC
-				// TODO: Hysterese einbauen, sonst springt der SOC die ganze
-				// Zeit
-				// zwischen 9 und 10 %:
-				// [ 10 %] PWR: [ -100 W 500 VA 0 Var] COUNTER: [ 8350 W 6950 VA
-				// 10860 Var + 913 kWh - 284 kWh] SET: [8300]
-				// [ 10 %] PWR: [ 3200 W 400 VA 3500 Var] COUNTER: [ 3320 W 8450
-				// VA
-				// 9080 Var + 913 kWh - 284 kWh] SET: [6500]
-				// [ 9 %] PWR: [ 6300 W 200 VA 6500 Var] COUNTER: [ 1780 W 8210
-				// VA
-				// 8220 Var + 913 kWh - 284 kWh] SET: [0]
-				// [ 9 %] PWR: [ 4600 W 200 VA 4700 Var] COUNTER: [ 7570 W 7540
-				// VA
-				// 10680 Var + 913 kWh - 284 kWh] SET: [0]
-				// [ 9 %] PWR: [ -100 W 400 VA 0 Var] COUNTER: [ 8300 W 6970 VA
-				// 10840 Var + 913 kWh - 284 kWh] SET: [0]
+		if (calculatedCessActivePower > 0) {
+			// discharge
+			if (lowSocCounter > 3) {
+				// low soc
 				calculatedCessActivePower = 0;
-			} else if (calculatedCessActivePower > cessAllowedDischarge.getValue()) {
-				// not allowed to discharge with such high power
-				calculatedCessActivePower = cessAllowedDischarge.getValue();
+			} else if (lowSocCounter < 3) {
+				// normal operation
+				if (calculatedCessActivePower > cessAllowedDischarge.getValue()) {
+					// not allowed to discharge with such high power
+					calculatedCessActivePower = cessAllowedDischarge.getValue();
+				} else {
+					// discharge with calculated value
+				}
 			} else {
-				// discharge with calculated value
+				System.out.println("vorher: " + calculatedCessActivePower + "; lowSocCounter: " + lowSocCounter);
+				calculatedCessActivePower = (int) (calculatedCessActivePower * Math.abs(lowSocCounter) / 3.);
+				System.out.println("nachher: " + calculatedCessActivePower);
 			}
-		} else { // charge
+
+		} else {
+			// charge
 			if (allowChargeFromAC) { // charging is allowed
 				if (calculatedCessActivePower < cessAllowedCharge.getValue()) {
 					// not allowed to charge with such high power
@@ -147,6 +160,16 @@ public abstract class Balancing extends Controller {
 			}
 		}
 		lastDeviationDelta = deviationDelta;
+
+		// TODO: safety - remove
+		if (calculatedCessActivePower > 1000) {
+			calculatedCessActivePower = 1000;
+		} else if (calculatedCessActivePower < -1000) {
+			calculatedCessActivePower = -1000;
+		}
+
+		// round to 100: cess can only be controlled with precision 100 W
+		calculatedCessActivePower = calculatedCessActivePower / 100 * 100;
 
 		cess.addToWriteQueue(cessSetActivePower, cessSetActivePower.toRegister(calculatedCessActivePower));
 
@@ -170,9 +193,5 @@ public abstract class Balancing extends Controller {
 				+ counterReactivePower.readable() + " " + counterApparentPower.readable() + " +"
 				+ counterActivePostiveEnergy.readable() + " -" + counterActiveNegativeEnergy.readable() + "] SET: ["
 				+ calculatedCessActivePower + "]");
-	}
-
-	private int roundTo100(int value) {
-		return ((value + 99) / 100) * 100;
 	}
 }
