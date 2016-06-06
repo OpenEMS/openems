@@ -21,6 +21,7 @@ public abstract class Balancing extends Controller {
 	private final static Logger log = LoggerFactory.getLogger(Balancing.class);
 
 	private final boolean allowChargeFromAC;
+	private final boolean invertedCounter;
 
 	private int minSoc = 10;
 
@@ -28,6 +29,15 @@ public abstract class Balancing extends Controller {
 			boolean allowChargeFromAc) {
 		super(name, essDevices, counterDevices);
 		this.allowChargeFromAC = allowChargeFromAc;
+		this.invertedCounter = false;
+	}
+
+	// TODO: remove this
+	public Balancing(String name, Map<String, Ess> essDevices, Map<String, Counter> counterDevices,
+			boolean allowChargeFromAc, boolean invertedCounter) {
+		super(name, essDevices, counterDevices);
+		this.allowChargeFromAC = allowChargeFromAc;
+		this.invertedCounter = invertedCounter;
 	}
 
 	public void setMinSoc(int minSoc) {
@@ -77,6 +87,11 @@ public abstract class Balancing extends Controller {
 
 		Socomec counter = (Socomec) (counters.get("grid"));
 		SignedIntegerDoublewordElement counterActivePower = counter.getActivePower();
+		int counterActivePowerValue = counter.getActivePower().getValue();
+		if (invertedCounter) {
+			counterActivePowerValue *= -1;
+			log.info("INVERTED! counterActivePowerValue: " + counterActivePowerValue);
+		}
 		SignedIntegerDoublewordElement counterReactivePower = counter.getReactivePower();
 		UnsignedIntegerDoublewordElement counterApparentPower = counter.getApparentPower();
 		UnsignedIntegerDoublewordElement counterActivePostiveEnergy = counter.getActivePositiveEnergy();
@@ -93,17 +108,22 @@ public abstract class Balancing extends Controller {
 		// calculatedCessActivePower = (lastCalculatedCessActivePower +
 		// counterActivePower.getValue()) / 100 * 100;
 
+		// TODO: removed deviationDelta because offgrid-power is counted in
+		// cessActivePower
 		// change in ActivePower => deviationDelta
-		int diffCounterActivePower = lastCounterActivePower - counterActivePower.getValue();
-		int diffCessActivePower = lastCessActivePower - cessActivePower.getValue();
+		// int diffCounterActivePower = lastCounterActivePower -
+		// counterActivePowerValue;
+		// int diffCessActivePower = lastCessActivePower -
+		// cessActivePower.getValue();
 		int deviationDelta = 0;
-		if (counterActivePower.getValue() < 0) {
-			deviationDelta = lastDeviationDelta - 100;
-		} else if (counterActivePower.getValue() < 100) {
-			deviationDelta = lastDeviationDelta;
-		} else if (Math.abs(diffCounterActivePower - diffCessActivePower) <= 200) {
-			deviationDelta = lastDeviationDelta + 100;
-		}
+		/*
+		 * if (counterActivePowerValue < 0) { deviationDelta =
+		 * lastDeviationDelta - 100; } else if (counterActivePowerValue < 100) {
+		 * deviationDelta = lastDeviationDelta; } else if
+		 * (Math.abs(diffCounterActivePower - diffCessActivePower) <= 200) {
+		 * deviationDelta = lastDeviationDelta + 100; }
+		 */
+		lastDeviationDelta = deviationDelta;
 
 		// low SOC hysteresis
 		if (cessSoc.getValue() < this.getMinSoc()) {
@@ -125,7 +145,7 @@ public abstract class Balancing extends Controller {
 		}
 
 		// actual power calculation
-		calculatedCessActivePower = (cessActivePower.getValue() + counterActivePower.getValue() + deviationDelta);
+		calculatedCessActivePower = (cessActivePower.getValue() + counterActivePowerValue + deviationDelta);
 
 		if (calculatedCessActivePower > 0) {
 			// discharge
@@ -159,14 +179,17 @@ public abstract class Balancing extends Controller {
 				calculatedCessActivePower = 0;
 			}
 		}
-		lastDeviationDelta = deviationDelta;
 
 		// TODO: safety - remove
-		if (calculatedCessActivePower > 1000) {
-			calculatedCessActivePower = 1000;
-		} else if (calculatedCessActivePower < -1000) {
-			calculatedCessActivePower = -1000;
-		}
+
+		/*
+		 * if (calculatedCessActivePower > 30000) { log.info(
+		 * "calculatedCessActivePower > 30000: " + calculatedCessActivePower);
+		 * calculatedCessActivePower = 30000; } else if
+		 * (calculatedCessActivePower < -30000) { log.info(
+		 * "calculatedCessActivePower < -30000: " + calculatedCessActivePower);
+		 * calculatedCessActivePower = -30000; }
+		 */
 
 		// round to 100: cess can only be controlled with precision 100 W
 		calculatedCessActivePower = calculatedCessActivePower / 100 * 100;
@@ -175,7 +198,7 @@ public abstract class Balancing extends Controller {
 
 		lastSetCessActivePower = calculatedCessActivePower;
 		lastCessActivePower = cessActivePower.getValue();
-		lastCounterActivePower = counterActivePower.getValue();
+		lastCounterActivePower = counterActivePowerValue;
 
 		/*
 		 * log.info("[" + cessSoc.readable() + "] PWR: [" +
@@ -193,5 +216,9 @@ public abstract class Balancing extends Controller {
 				+ counterReactivePower.readable() + " " + counterApparentPower.readable() + " +"
 				+ counterActivePostiveEnergy.readable() + " -" + counterActiveNegativeEnergy.readable() + "] SET: ["
 				+ calculatedCessActivePower + "]");
+	}
+
+	private int roundTo100(int value) {
+		return ((value + 99) / 100) * 100;
 	}
 }

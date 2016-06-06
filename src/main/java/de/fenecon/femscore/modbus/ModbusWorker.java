@@ -97,6 +97,7 @@ public class ModbusWorker extends Thread {
 					device.executeRemainingQuery(modbusConnection);
 				} catch (Exception e) {
 					log.error("Query-Exception: {}", e.getMessage());
+					e.printStackTrace();
 				}
 			}
 

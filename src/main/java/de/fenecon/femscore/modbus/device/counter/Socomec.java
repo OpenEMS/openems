@@ -25,21 +25,6 @@ public class Socomec extends Counter {
 	@Override
 	protected ModbusProtocol getProtocol() {
 		ModbusProtocol protocol = new ModbusProtocol();
-		/*
-		 * protocol.addElementRange(new ElementRange(0xc568, new
-		 * ElementBuilder(0xc568).name(CounterProtocol.ActivePower).multiplier(
-		 * 10).signed(true)
-		 * .length(ElementLength.DOUBLEWORD).unit("W").inverted(inverted).build(
-		 * ), new
-		 * ElementBuilder(0xc56a).name(CounterProtocol.ReactivePower).multiplier
-		 * (10).signed(true)
-		 * .length(ElementLength.DOUBLEWORD).unit("VA").inverted(inverted).build
-		 * (), new
-		 * ElementBuilder(0xc56c).name(CounterProtocol.ApparentPower).multiplier
-		 * (10)
-		 * .length(ElementLength.DOUBLEWORD).unit("Var").inverted(inverted).
-		 * build()));
-		 */
 		protocol.addElementRange(new ElementRange(0xc568,
 				new ElementBuilder(0xc568).name(CounterProtocol.ActivePower).multiplier(10).signed(true)
 						.length(ElementLength.DOUBLEWORD).unit("W").build(),
@@ -47,7 +32,6 @@ public class Socomec extends Counter {
 						.length(ElementLength.DOUBLEWORD).unit("VA").build(),
 				new ElementBuilder(0xc56c).name(CounterProtocol.ApparentPower).multiplier(10)
 						.length(ElementLength.DOUBLEWORD).unit("Var").build()));
-		// if (!inverted) {
 		protocol.addElementRange(new ElementRange(0xc652,
 				new ElementBuilder(0xc652).name(CounterProtocol.ActivePositiveEnergy).length(ElementLength.DOUBLEWORD)
 						.unit("kWh").build(),
@@ -59,20 +43,6 @@ public class Socomec extends Counter {
 						.unit("kWh").build(),
 				new ElementBuilder(0xc65a).name(CounterProtocol.ReactiveNegativeEnergy).length(ElementLength.DOUBLEWORD)
 						.unit("kvarh").build()));
-		/*
-		 * } else { protocol.addElementRange(new ElementRange(0xc652, new
-		 * ElementBuilder(0xc652).name(CounterProtocol.ActiveNegativeEnergy)
-		 * .length(ElementLength.DOUBLEWORD).unit("kWh").build(), new
-		 * ElementBuilder(0xc654).name(CounterProtocol.ReactiveNegativeEnergy)
-		 * .length(ElementLength.DOUBLEWORD).unit("kvarh").build(), new
-		 * ElementBuilder(0xc656).name(CounterProtocol.ApparentEnergy).length(
-		 * ElementLength.DOUBLEWORD) .unit("kVAh").inverted(inverted).build(),
-		 * new ElementBuilder(0xc658).name(CounterProtocol.ActivePositiveEnergy)
-		 * .length(ElementLength.DOUBLEWORD).unit("kWh").build(), new
-		 * ElementBuilder(0xc65a).name(CounterProtocol.ReactivePositiveEnergy)
-		 * .length(ElementLength.DOUBLEWORD).unit("kvarh").build())); }
-		 */
-
 		return protocol;
 	}
 

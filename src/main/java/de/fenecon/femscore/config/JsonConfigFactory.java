@@ -18,6 +18,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import de.fenecon.femscore.controller.BalancingWithAcGenerator;
+import de.fenecon.femscore.controller.BalancingWithAcGeneratorInvertedCounter;
 import de.fenecon.femscore.controller.BalancingWithoutAcGenerator;
 import de.fenecon.femscore.controller.Controller;
 import de.fenecon.femscore.controller.ControllerWorker;
@@ -117,8 +118,7 @@ public class JsonConfigFactory {
 	 *   "grid": {
 	 *     "counterType": "Socomec",
 	 *     "modbus": "/dev/ttyUSB0",
-	 *     "unitid": 5,
-	 *     ["inverted": true]
+	 *     "unitid": 5
 	 *   }
 	 * },
 	 * </pre>
@@ -145,10 +145,6 @@ public class JsonConfigFactory {
 				default:
 					throw new UnsupportedOperationException(
 							"CounterType " + obj.get("counterType").getAsString() + " is not implemented!");
-				}
-				// is the counter value inverted? = mounted the wrong way around
-				if (obj.has("inverted")) {
-					counter.setInverted(obj.get("inverted").getAsBoolean());
 				}
 				counters.put(entry.getKey(), counter);
 				// register to ModbusWorker
@@ -285,6 +281,16 @@ public class JsonConfigFactory {
 					case "BalancingWithAcGenerator": {
 						BalancingWithAcGenerator c = new BalancingWithAcGenerator(jsonControllerElement.getKey(),
 								controllerEsss, controllerCounters);
+						if (jsonControllerStrategy.has("minSoc")) {
+							c.setMinSoc(jsonControllerStrategy.get("minSoc").getAsInt());
+						}
+						controller = c;
+						break;
+					}
+
+					case "BalancingWithAcGeneratorInvertedCounter": {
+						BalancingWithAcGeneratorInvertedCounter c = new BalancingWithAcGeneratorInvertedCounter(
+								jsonControllerElement.getKey(), controllerEsss, controllerCounters);
 						if (jsonControllerStrategy.has("minSoc")) {
 							c.setMinSoc(jsonControllerStrategy.get("minSoc").getAsInt());
 						}
