@@ -19,7 +19,7 @@ public class ElementBuilder {
 	boolean signed = false;
 	ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 	boolean writable = false;
-	Map<String, BitElement> bitElements = new HashMap<String, BitElement>();
+	Map<String, BitElement> bitElements = new HashMap<>();
 
 	public ElementBuilder(int address) {
 		this.address = address;
@@ -100,21 +100,23 @@ public class ElementBuilder {
 	}
 
 	public Element<?> build() {
+		Element<?> element = null;
 		if (bitElements.size() > 0) {
-			return new BitsElement(address, intLength, name, unit, bitElements);
+			element = new BitsElement(address, intLength, name, unit, bitElements);
 		} else if (type == ElementType.INTEGER) {
 			if (signed) {
 				if (length == ElementLength.WORD) {
-					return new SignedIntegerWordElement(address, intLength, name, multiplier, delta, unit, byteOrder);
+					element = new SignedIntegerWordElement(address, intLength, name, multiplier, delta, unit,
+							byteOrder);
 				} else if (length == ElementLength.DOUBLEWORD) {
-					return new SignedIntegerDoublewordElement(address, intLength, name, multiplier, delta, unit,
+					element = new SignedIntegerDoublewordElement(address, intLength, name, multiplier, delta, unit,
 							byteOrder);
 				}
 			} else {
 				if (length == ElementLength.WORD) {
-					return new UnsignedShortWordElement(address, intLength, name, multiplier, delta, unit);
+					element = new UnsignedShortWordElement(address, intLength, name, multiplier, delta, unit);
 				} else if (length == ElementLength.DOUBLEWORD) {
-					return new UnsignedIntegerDoublewordElement(address, intLength, name, multiplier, delta, unit);
+					element = new UnsignedIntegerDoublewordElement(address, intLength, name, multiplier, delta, unit);
 				}
 			}
 			// } else if (type == ElementType.DOUBLE) {
@@ -122,8 +124,12 @@ public class ElementBuilder {
 		} else if (type == ElementType.TEXT) {
 			throw new UnsupportedOperationException("TEXT is not implemented!");
 		} else if (type == ElementType.PLACEHOLDER) {
-			return new NoneElement(address, intLength, name);
+			element = new NoneElement(address, intLength, name);
 		}
-		throw new UnsupportedOperationException("ElementBuilder build for " + type + " is not implemented!");
+		if (element != null) {
+			return element;
+		} else {
+			throw new UnsupportedOperationException("ElementBuilder build for " + type + " is not implemented!");
+		}
 	}
 }

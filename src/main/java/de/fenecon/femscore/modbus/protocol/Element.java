@@ -1,11 +1,16 @@
 package de.fenecon.femscore.modbus.protocol;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
+
+import de.fenecon.femscore.modbus.protocol.interfaces.ElementUpdateListener;
 
 public abstract class Element<T> {
 	@SuppressWarnings("unused")
@@ -16,6 +21,8 @@ public abstract class Element<T> {
 	protected final String name;
 	protected final String unit;
 	protected final Period validPeriod;
+	protected Set<ElementUpdateListener> listeners = new HashSet<>();
+
 	protected DateTime lastUpdate = null;
 	protected T value = null;
 	protected ElementRange elementRange = null;
@@ -47,6 +54,16 @@ public abstract class Element<T> {
 	public T getValue() {
 		// TODO: check if valid is still valid
 		return value;
+	}
+
+	public void addListener(ElementUpdateListener listener) {
+		listeners.add(listener);
+	}
+
+	private void notifyListeners() {
+		for (ElementUpdateListener listener : listeners) {
+			listener.elementUpdated(this.name, this.value);
+		}
 	}
 
 	/**
@@ -85,6 +102,7 @@ public abstract class Element<T> {
 	protected void update(T value) {
 		lastUpdate = DateTime.now();
 		this.value = value;
+		notifyListeners();
 	};
 
 	@Override

@@ -6,7 +6,9 @@ import java.io.FileReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,10 +28,13 @@ import de.fenecon.femscore.modbus.ModbusConnection;
 import de.fenecon.femscore.modbus.ModbusRtuConnection;
 import de.fenecon.femscore.modbus.ModbusTcpConnection;
 import de.fenecon.femscore.modbus.ModbusWorker;
+import de.fenecon.femscore.modbus.device.ModbusDevice;
 import de.fenecon.femscore.modbus.device.counter.Counter;
 import de.fenecon.femscore.modbus.device.counter.Socomec;
 import de.fenecon.femscore.modbus.device.ess.Cess;
 import de.fenecon.femscore.modbus.device.ess.Ess;
+import de.fenecon.femscore.monitoring.MonitoringWorker;
+import de.fenecon.femscore.monitoring.fenecon.FeneconMonitoringWorker;
 
 /**
  * Create a fems-core {@link Config} from json
@@ -42,15 +47,22 @@ public class JsonConfigFactory {
 	private final static File fileLin = new File("/etc/fems-core");
 	private final static File fileWin = new File("D:/fems/fems-core/fems-core");
 
-	public static Config readConfigFromJsonFile()
-			throws JsonIOException, JsonSyntaxException, FileNotFoundException, UnknownHostException {
+	public static Config readConfigFromJsonFile() throws Exception {
 		JsonObject jsonConfig = readJsonFile();
-		HashMap<String, ModbusWorker> modbusWorkers = getModbusWorkers(jsonConfig.get("modbus"));
-		HashMap<String, Ess> esss = getEsss(jsonConfig.get("ess"), modbusWorkers);
-		HashMap<String, Counter> counters = getCounters(jsonConfig.get("counter"), modbusWorkers);
-		HashMap<String, ControllerWorker> controllerWorkers = getControllerWorkers(jsonConfig.get("controller"),
-				modbusWorkers, esss, counters);
-		return new Config(modbusWorkers, esss, counters, controllerWorkers);
+		String devicekey = getDevicekey(jsonConfig.get("devicekey"));
+		HashMap<String, ModbusWorker> modbuss = getModbusWorkers(jsonConfig.get("modbus"));
+		HashMap<String, Ess> esss = getEsss(jsonConfig.get("ess"), modbuss);
+		HashMap<String, Counter> counters = getCounters(jsonConfig.get("counter"), modbuss);
+		HashMap<String, ControllerWorker> controllers = getControllerWorkers(jsonConfig.get("controller"), modbuss,
+				esss, counters);
+
+		Set<ModbusDevice> devices = new HashSet<>();
+		devices.addAll(esss.values());
+		devices.addAll(counters.values());
+		HashMap<String, MonitoringWorker> monitorings = getMonitoringWorkers(jsonConfig.get("monitoring"), devicekey,
+				devices);
+
+		return new Config(devicekey, modbuss, esss, counters, controllers, monitorings);
 	}
 
 	private static JsonObject readJsonFile() throws JsonIOException, JsonSyntaxException, FileNotFoundException {
@@ -67,6 +79,29 @@ public class JsonConfigFactory {
 		} else {
 			return fileWin;
 		}
+	}
+
+	/**
+	 * Get unique devicekey from json config:
+	 * 
+	 * <pre>
+	 * "devicekey": "Hhs49ZDzKuQK4ZxibFic"
+	 * </pre>
+	 * 
+	 * @param jsonElement
+	 * @return
+	 * @throws Exception
+	 */
+	private static String getDevicekey(JsonElement jsonElement) throws Exception {
+		String devicekey = null;
+		if (jsonElement != null && jsonElement.isJsonPrimitive()) {
+			devicekey = jsonElement.getAsString();
+		}
+		// TODO: if devicekey is still none: read hostname from device
+		if (devicekey == null) {
+			throw new Exception("Devicekey is mandatory!");
+		}
+		return devicekey;
 	}
 
 	/**
@@ -308,5 +343,52 @@ public class JsonConfigFactory {
 			}
 		}
 		return controllerWorkers;
+	}
+
+	/**
+	 * Create {@link MonitoringWorker}s from json config:
+	 * 
+	 * <pre>
+	 * "monitoring": {
+	 *   "fenecon": {
+	 *     "url": "...",
+	 *     "enabled": false
+	 *   }
+	 * },
+	 * </pre>
+	 * 
+	 * @param jsonElement
+	 * @return
+	 */
+	private static HashMap<String, MonitoringWorker> getMonitoringWorkers(JsonElement jsonElement, String devicekey,
+			Set<ModbusDevice> devices) {
+		HashMap<String, MonitoringWorker> monitoringWorkers = new HashMap<String, MonitoringWorker>();
+		// default monitoring
+		FeneconMonitoringWorker feneconMonitoring = new FeneconMonitoringWorker(devicekey);
+		for (ModbusDevice device : devices) { // add listener for all elements
+			for (String elementName : device.getElements()) {
+				device.getElement(elementName).addListener(feneconMonitoring);
+			}
+		}
+		monitoringWorkers.put("fenecon", feneconMonitoring);
+
+		if (jsonElement != null && jsonElement.isJsonObject()) {
+			JsonObject jsonObject = jsonElement.getAsJsonObject();
+			for (Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+				JsonObject obj = entry.getValue().getAsJsonObject();
+				if (obj.has("enabled") && !obj.get("enabled").getAsBoolean()) {
+					// remove if monitoring is not enabled but already existing
+					// in the map per default
+					if (monitoringWorkers.containsKey(entry.getKey())) {
+						monitoringWorkers.remove(entry.getKey());
+					}
+				} else {
+					// TODO implement other monitorings or changes from default
+					// for fenecon
+				}
+			}
+		}
+
+		return monitoringWorkers;
 	}
 }

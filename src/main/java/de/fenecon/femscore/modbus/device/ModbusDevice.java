@@ -1,5 +1,6 @@
 package de.fenecon.femscore.modbus.device;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -65,6 +66,19 @@ public abstract class ModbusDevice {
 
 	public Element<?> getElement(String id) {
 		return protocol.getElement(id);
+	}
+
+	public Set<String> getElements() {
+		Set<String> elements = new HashSet<>();
+		Set<String> initElements = getInitElements();
+		if (initElements != null) {
+			elements.addAll(initElements);
+		}
+		Set<String> mainElements = getMainElements();
+		if (mainElements != null) {
+			elements.addAll(mainElements);
+		}
+		return elements;
 	}
 
 	public abstract Set<String> getInitElements();
