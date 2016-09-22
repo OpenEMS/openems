@@ -3,11 +3,12 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { CurrentMonitorComponent } from './monitor/current-monitor/current-monitor.component';
+import { OpenemsSettingComponent } from './setting/openems-setting/openems-setting.component';
 
 const appRoutes: Routes = [
   { path: 'monitor/current', component: CurrentMonitorComponent },
+  { path: 'setting/openems', component: OpenemsSettingComponent },
   { path: '', component: AppComponent }
-  //,
   //{ path: '**', component: PageNotFoundComponent }
 ];
 

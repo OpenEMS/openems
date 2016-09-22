@@ -1,0 +1,16 @@
+<div *ngIf="statusMessage" class="alert alert-success" role="alert">
+  <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+  <span class="sr-only">{{statusMessage}}</span>
+</div>
+
+<div *ngIf="statusError" class="alert alert-danger" role="alert">
+  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+  <span class="sr-only">Error:</span>
+  {{statusError}}
+</div>
+
+<form>
+  <textarea class="form-control" [(ngModel)]="config" name="config"></textarea>
+  <button class="btn btn-default" (click)="resetConfig()">Reset</button>
+  <button type="submit" class="btn btn-primary" (click)="postConfig()">Save Changes</button>
+</form>

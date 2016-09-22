@@ -11,14 +11,14 @@ export abstract class DataService {
       this.getCurrentData()
           .then(data => observer.next(data));
       // start interval
-      new IntervalObservable(this.getInterval()).forEach(() => { 
+      new IntervalObservable(this.getPollInterval()).forEach(() => { 
         this.getCurrentData()
           .then(data => observer.next(data));
       })
     });
   }
 
-  abstract getInterval(): number;
+  abstract getPollInterval(): number;
 
   abstract getCurrentData(): Promise<CurrentData>;
 }
