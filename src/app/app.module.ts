@@ -6,7 +6,7 @@ import { HttpModule } from '@angular/http';
 import { routing, appRoutingProviders }  from './app.routing';
 import { AppComponent } from './app.component';
 import { CurrentMonitorComponent } from './monitor/current-monitor/current-monitor.component';
-import { DataService } from './data/data-service';
+import { DataService } from './data/data.service';
 import { OpenemsService } from './data/openems/openems.service';
 
 @NgModule({

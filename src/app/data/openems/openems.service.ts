@@ -1,17 +1,26 @@
 import { Injectable } from '@angular/core';
-import { DataService } from '../data-service';
+import { Observable } from 'rxjs/Observable';
+
+import { DataService } from '../data.service';
 import { CurrentData } from '../current-data';
 
 @Injectable()
-export class OpenemsService implements DataService {
+export class OpenemsService extends DataService {
 
-  constructor() { }
+  constructor() {
+    super();
+
+  }
+
+  getInterval(): number {
+    return 5000;
+  }
 
   getCurrentData(): Promise<CurrentData> {
     let data = new CurrentData({
       soc: Math.floor(Math.random() * 100)  
     });
-    return Promise.resolve(data);
+    return Promise.resolve(data); 
   }
   
 }
