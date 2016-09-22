@@ -3,9 +3,11 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
+import { routing, appRoutingProviders }  from './app.routing';
 import { AppComponent } from './app.component';
 import { CurrentMonitorComponent } from './monitor/current-monitor/current-monitor.component';
-import { routing, appRoutingProviders }  from './app.routing';
+import { DataService } from './data/data-service';
+import { OpenemsService } from './data/openems/openems.service';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,8 @@ import { routing, appRoutingProviders }  from './app.routing';
     routing
   ],
   providers: [
-    appRoutingProviders
+    appRoutingProviders,
+    { provide: DataService, useClass: OpenemsService }
   ],
   bootstrap: [
     AppComponent
