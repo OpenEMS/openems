@@ -4,17 +4,25 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
+import { CurrentMonitorComponent } from './monitor/current-monitor/current-monitor.component';
+import { routing, appRoutingProviders }  from './app.routing';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    CurrentMonitorComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule
+    HttpModule,
+    routing
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: [
+    appRoutingProviders
+  ],
+  bootstrap: [
+    AppComponent
+  ]
 })
 export class AppModule { }
