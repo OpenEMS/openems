@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormsModule }   from '@angular/forms';
 
 import { OpenemsService } from '../../data/openems/openems.service';
 
@@ -9,7 +10,10 @@ import { OpenemsService } from '../../data/openems/openems.service';
 })
 export class OpenemsSettingComponent implements OnInit {
   config: JSON;
-  statusError: string;
+  statusError: {
+    title: string,
+    message: string
+  };
   statusMessage: string;
 
   constructor(private openemsService: OpenemsService) { }
@@ -25,13 +29,13 @@ export class OpenemsSettingComponent implements OnInit {
 
   public getConfig(): void {
     this.openemsService.getConfig()
-      //.then(config => this.config = JSON.stringify(config, null, '\t'));
       .then(config => this.config = config);
+      //.then(config => this.config = config);
   }
 
   public postConfig(): void {
     this.resetStatus();
-    this.openemsService.postConfig(JSON.stringify(this.config,null, '\t').replace(/(\n|\t)/gm,''))
+    this.openemsService.postConfig(JSON.stringify(this.config, null, '\t').replace(/(\n|\t)/gm,''))
       .then(response => this.handleSuccess())
       .catch(error => this.handleError(error));
     } 
@@ -47,6 +51,9 @@ export class OpenemsSettingComponent implements OnInit {
   }
 
   private handleError(error: any): void {
-    this.statusError = "Error: " + error._body;
+    this.statusError = {
+      title: "Error",
+      message: JSON.stringify(error, null, '\t')
+    };
   }
 }

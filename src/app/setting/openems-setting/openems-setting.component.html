@@ -1,16 +1,370 @@
-<div *ngIf="statusMessage" class="alert alert-success" role="alert">
-  <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-  <span class="sr-only">{{statusMessage}}</span>
+<div class="container">
+  <div *ngIf="statusMessage" class="row">
+    <div class="col-sm-12 alert alert-success" role="alert">
+      <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+      <span>{{statusMessage}}</span>
+    </div>
+  </div>
+  <div *ngIf="statusError" class="row">
+    <div class="col-sm-12 alert alert-danger" role="alert">
+      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+      <span>{{statusError.title}}</span>
+      <br/>
+      <small>{{statusError.message}}</small>
+    </div>
+  </div>
+  <div *ngIf="config" class="row">
+    <form class="form-horizontal">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <strong>Channel</strong>
+            </div>
+            <div class="col-sm-8">
+              <strong>usb0</strong>
+              <br/>
+              <span>{{config.channel.usb0.type}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="config.channel.usb0.serialinterface" class="col-sm-4 control-label">Serial Interface</label>
+            <div class="col-sm-8">
+              <input [(ngModel)]="config.channel.usb0.serialinterface" type="text" class="form-control" name="config.channel.usb0.serialinterface"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.channel.usb0.baudrate" class="col-sm-4 control-label">Baudrate</label>
+            <div class="col-sm-8">
+              <input [(ngModel)]="config.channel.usb0.baudrate" type="text" class="form-control" name="config.channel.usb0.baudrate"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.channel.usb0.databits" class="col-sm-4 control-label">Databits</label>
+            <div class="col-sm-8">
+              <input [(ngModel)]="config.channel.usb0.databits" type="text" class="form-control" name="config.channel.usb0.databits"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.channel.usb0.stopbits" class="col-sm-4 control-label">Stopbits</label>
+            <div class="col-sm-8">
+              <input [(ngModel)]="config.channel.usb0.stopbits" type="text" class="form-control" name="config.channel.usb0.stopbits"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <strong>Channel</strong>
+            </div>
+            <div class="col-sm-8">
+              <strong>lan0</strong>
+              <br/>
+              <span>{{config.channel.lan0.type}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="config.channel.lan0.inetAddress" class="col-sm-4 control-label">IP-Address</label>
+            <div class="col-sm-8">
+              <input [(ngModel)]="config.channel.lan0.inetAddress" type="text" class="form-control" name="config.channel.lan0.inetAddress"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <strong>Channel</strong>
+            </div>
+            <div class="col-sm-8">
+              <strong>lan1</strong>
+              <br/>
+              <span>{{config.channel.lan1.type}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="config.channel.lan1.inetAddress" class="col-sm-4 control-label">IP-Address</label>
+            <div class="col-sm-8">
+              <input [(ngModel)]="config.channel.lan1.inetAddress" type="text" class="form-control" name="config.channel.lan1.inetAddress"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <strong>Channel</strong>
+            </div>
+            <div class="col-sm-8">
+              <strong>lan2</strong>
+              <br/>
+              <span>{{config.channel.lan2.type}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="config.channel.lan2.inetAddress" class="col-sm-4 control-label">IP-Address</label>
+            <div class="col-sm-8">
+              <input [(ngModel)]="config.channel.lan2.inetAddress" type="text" class="form-control" name="config.channel.lan2.inetAddress"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <strong>Channel</strong>
+            </div>
+            <div class="col-sm-8">
+              <strong>lan3</strong>
+              <br/>
+              <span>{{config.channel.lan3.type}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="config.channel.lan3.inetAddress" class="col-sm-4 control-label">IP-Address</label>
+            <div class="col-sm-8">
+              <input [(ngModel)]="config.channel.lan3.inetAddress" type="text" class="form-control" name="config.channel.lan3.inetAddress"/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <strong>Device</strong>
+            </div>
+            <div class="col-sm-8">
+              <strong>io0</strong>
+              <br/>
+              <span>{{config.device.io0.type}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="config.device.io0.channel" class="col-sm-4 control-label">Channel</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.device.io0.channel" type="text" class="form-control" name="config.device.io0.channel" disabled/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <strong>Device</strong>
+            </div>
+            <div class="col-sm-8">
+              <strong>ess0</strong>
+              <br/>
+              <span>{{config.device.ess0.type}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="config.device.ess0.channel" class="col-sm-4 control-label">Channel</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.device.ess0.channel" type="text" class="form-control" name="config.device.ess0.channel" disabled/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.device.ess0.minSoc" class="col-sm-4 control-label">Minimal SOC</label>
+            <div class="col-sm-8">
+              <div class="input-group">
+                <input [(ngModel)]="config.device.ess0.minSoc" type="text" class="form-control" name="config.device.ess0.minSoc">
+                <div class="input-group-addon">%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <strong>Device</strong>
+            </div>
+            <div class="col-sm-8">
+              <strong>ess1</strong>
+              <br/>
+              <span>{{config.device.ess1.type}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="config.device.ess1.channel" class="col-sm-4 control-label">Channel</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.device.ess1.channel" type="text" class="form-control" name="config.device.ess1.channel" disabled/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.device.ess1.minSoc" class="col-sm-4 control-label">Minimal SOC</label>
+            <div class="col-sm-8">
+              <div class="input-group">
+                <input [(ngModel)]="config.device.ess1.minSoc" type="text" class="form-control" name="config.device.ess1.minSoc">
+                <div class="input-group-addon">%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <strong>Device</strong>
+            </div>
+            <div class="col-sm-8">
+              <strong>sl0</strong>
+              <br/>
+              <span>{{config.device.sl0.type}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="config.device.sl0.channel" class="col-sm-4 control-label">Channel</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.device.sl0.channel" type="text" class="form-control" name="config.device.sl0.channel" disabled/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.device.sl0.totalPower" class="col-sm-4 control-label">Total Power</label>
+            <div class="col-sm-8">
+              <div class="input-group">
+                <input [(ngModel)]="config.device.sl0.totalPower" type="text" class="form-control" name="config.device.sl0.totalPower"/>
+                <div class="input-group-addon">W</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <strong>Device</strong>
+            </div>
+            <div class="col-sm-8">
+              <strong>counter0</strong>
+              <br/>
+              <span>{{config.device.counter0.type}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="config.device.counter0.channel" class="col-sm-4 control-label">Channel</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.device.counter0.channel" type="text" class="form-control" name="config.device.counter0.channel" disabled/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="form-group">
+            <div class="col-sm-4">
+              <strong>Controller</strong>
+            </div>
+            <div class="col-sm-8">
+              <strong>enbag</strong>
+              <br/>
+              <span>{{config.controller.enbag.type}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="config.controller.enbag.chargeFromAc" class="col-sm-4 control-label">Charge from AC</label>
+            <div class="col-sm-8">
+              <input [(ngModel)]="config.controller.enbag.chargeFromAc" type="text" class="form-control" name="config.controller.enbag.chargeFromAc"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.controller.enbag.gridCounter" class="col-sm-4 control-label">Grid-Counter</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.controller.enbag.gridCounter" type="text" class="form-control" name="config.controller.enbag.gridCounter" disabled/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.controller.enbag.ess" class="col-sm-4 control-label">ESS</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.controller.enbag.ess" type="text" class="form-control" name="config.controller.enbag.ess" disabled/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.controller.enbag.maxGridFeedPower" class="col-sm-4 control-label">Maximum Greed Feed Power</label>
+            <div class="col-sm-8">
+              <div class="input-group">
+                <input [(ngModel)]="config.controller.enbag.maxGridFeedPower" type="text" class="form-control" name="config.controller.enbag.maxGridFeedPower"/>
+                <div class="input-group-addon">W</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.controller.enbag.essOffGridSwitches" class="col-sm-4 control-label">ESS Off-Grid Switches</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.controller.enbag.essOffGridSwitches | json" type="text" class="form-control" name="config.controller.enbag.essOffGridSwitches" disabled/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.controller.enbag.pvOnGridSwitch" class="col-sm-4 control-label">PV On-Grid Switch</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.controller.enbag.pvOnGridSwitch" type="text" class="form-control" name="config.controller.enbag.pvOnGridSwitch" disabled/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.controller.enbag.pvOffGridSwitch" class="col-sm-4 control-label">PV Off-Grid Switch</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.controller.enbag.pvOffGridSwitch" type="text" class="form-control" name="config.controller.enbag.pvOffGridSwitch" disabled/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.controller.enbag.primaryEss" class="col-sm-4 control-label">Primary ESS</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.controller.enbag.primaryEss" type="text" class="form-control" name="config.controller.enbag.primaryEss" disabled/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.controller.enbag.io" class="col-sm-4 control-label">IO</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.controller.enbag.io" type="text" class="form-control" name="config.controller.enbag.io" disabled/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="config.controller.enbag.solarLog" class="col-sm-4 control-label">SolarLog</label>
+            <div class="col-sm-8">
+              <input [ngModel]="config.controller.enbag.solarLog" type="text" class="form-control" name="config.controller.enbag.solarLog" disabled/>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-4 col-sm-8">
+          <button class="btn btn-default" (click)="resetConfig()">Reset</button>
+          <button type="submit" class="btn btn-primary" (click)="postConfig()">Save Changes</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
-
-<div *ngIf="statusError" class="alert alert-danger" role="alert">
-  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-  <span class="sr-only">Error:</span>
-  {{statusError}}
-</div>
-
-<form>
-  <textarea class="form-control" [(ngModel)]="config" name="config"></textarea>
-  <button class="btn btn-default" (click)="resetConfig()">Reset</button>
-  <button type="submit" class="btn btn-primary" (click)="postConfig()">Save Changes</button>
-</form>
