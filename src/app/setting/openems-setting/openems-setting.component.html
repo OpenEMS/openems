@@ -17,6 +17,14 @@
     <form class="form-horizontal">
       <div class="panel panel-default">
         <div class="panel-heading">
+          <button type="button" class="btn btn-primary" (click)="expertMode = !expertMode">Activate / Deactivate Expert Mode</button>
+        </div>
+      </div>
+      <div *ngIf="expertMode" class="panel panel-warning">
+        <div class="panel-heading">Expert Mode activated! Be careful what you are doing. If in doubt, contact FENECON via E-Mail (service@fenecon.de) or Phone (+49 991 648800-30).</div>
+      </div>
+      <div *ngIf="expertMode" class="panel panel-warning">
+        <div class="panel-heading">
           <div class="form-group">
             <div class="col-sm-4">
               <strong>Channel</strong>
@@ -55,7 +63,7 @@
           </div>
         </div>
       </div>
-      <div class="panel panel-default">
+      <div *ngIf="expertMode" class="panel panel-warning">
         <div class="panel-heading">
           <div class="form-group">
             <div class="col-sm-4">
@@ -77,7 +85,7 @@
           </div>
         </div>
       </div>
-      <div class="panel panel-default">
+      <div *ngIf="expertMode" class="panel panel-warning">
         <div class="panel-heading">
           <div class="form-group">
             <div class="col-sm-4">
@@ -99,7 +107,7 @@
           </div>
         </div>
       </div>
-      <div class="panel panel-default">
+      <div *ngIf="expertMode" class="panel panel-warning">
         <div class="panel-heading">
           <div class="form-group">
             <div class="col-sm-4">
@@ -121,7 +129,7 @@
           </div>
         </div>
       </div>
-      <div class="panel panel-default">
+      <div *ngIf="expertMode" class="panel panel-warning">
         <div class="panel-heading">
           <div class="form-group">
             <div class="col-sm-4">
@@ -143,7 +151,7 @@
           </div>
         </div>
       </div>
-      <div class="panel panel-default">
+      <div *ngIf="expertMode" class="panel panel-warning">
         <div class="panel-heading">
           <div class="form-group">
             <div class="col-sm-4">
@@ -227,7 +235,7 @@
           </div>
         </div>
       </div>
-      <div class="panel panel-default">
+      <div *ngIf="expertMode" class="panel panel-warning">
         <div class="panel-heading">
           <div class="form-group">
             <div class="col-sm-4">
@@ -258,7 +266,7 @@
           </div>
         </div>
       </div>
-      <div class="panel panel-default">
+      <div *ngIf="expertMode" class="panel panel-warning">
         <div class="panel-heading">
           <div class="form-group">
             <div class="col-sm-4">
@@ -279,7 +287,8 @@
             </div>
           </div>
         </div>
-      </div>
+      </div>      
+
       <div class="panel panel-default">
         <div class="panel-heading">
           <div class="form-group">
@@ -294,26 +303,26 @@
           </div>
         </div>
         <div class="panel-body">
-          <div class="form-group">
+          <div *ngIf="expertMode" class="form-group">
             <label for="config.controller.enbag.chargeFromAc" class="col-sm-4 control-label">Charge from AC</label>
             <div class="col-sm-8">
               <input [(ngModel)]="config.controller.enbag.chargeFromAc" type="text" class="form-control" name="config.controller.enbag.chargeFromAc"/>
             </div>
           </div>
-          <div class="form-group">
+          <div *ngIf="expertMode" class="form-group">
             <label for="config.controller.enbag.gridCounter" class="col-sm-4 control-label">Grid-Counter</label>
             <div class="col-sm-8">
               <input [ngModel]="config.controller.enbag.gridCounter" type="text" class="form-control" name="config.controller.enbag.gridCounter" disabled/>
             </div>
           </div>
-          <div class="form-group">
+          <div *ngIf="expertMode" class="form-group">
             <label for="config.controller.enbag.ess" class="col-sm-4 control-label">ESS</label>
             <div class="col-sm-8">
               <input [ngModel]="config.controller.enbag.ess" type="text" class="form-control" name="config.controller.enbag.ess" disabled/>
             </div>
           </div>
           <div class="form-group">
-            <label for="config.controller.enbag.maxGridFeedPower" class="col-sm-4 control-label">Maximum Greed Feed Power</label>
+            <label for="config.controller.enbag.maxGridFeedPower" class="col-sm-4 control-label">Maximum Grid Feed Power</label>
             <div class="col-sm-8">
               <div class="input-group">
                 <input [(ngModel)]="config.controller.enbag.maxGridFeedPower" type="text" class="form-control" name="config.controller.enbag.maxGridFeedPower"/>
@@ -321,37 +330,37 @@
               </div>
             </div>
           </div>
-          <div class="form-group">
+          <div *ngIf="expertMode" class="form-group">
             <label for="config.controller.enbag.essOffGridSwitches" class="col-sm-4 control-label">ESS Off-Grid Switches</label>
             <div class="col-sm-8">
               <input [ngModel]="config.controller.enbag.essOffGridSwitches | json" type="text" class="form-control" name="config.controller.enbag.essOffGridSwitches" disabled/>
             </div>
           </div>
-          <div class="form-group">
+          <div *ngIf="expertMode" class="form-group">
             <label for="config.controller.enbag.pvOnGridSwitch" class="col-sm-4 control-label">PV On-Grid Switch</label>
             <div class="col-sm-8">
               <input [ngModel]="config.controller.enbag.pvOnGridSwitch" type="text" class="form-control" name="config.controller.enbag.pvOnGridSwitch" disabled/>
             </div>
           </div>
-          <div class="form-group">
+          <div *ngIf="expertMode" class="form-group">
             <label for="config.controller.enbag.pvOffGridSwitch" class="col-sm-4 control-label">PV Off-Grid Switch</label>
             <div class="col-sm-8">
               <input [ngModel]="config.controller.enbag.pvOffGridSwitch" type="text" class="form-control" name="config.controller.enbag.pvOffGridSwitch" disabled/>
             </div>
           </div>
-          <div class="form-group">
+          <div *ngIf="expertMode" class="form-group">
             <label for="config.controller.enbag.primaryEss" class="col-sm-4 control-label">Primary ESS</label>
             <div class="col-sm-8">
               <input [ngModel]="config.controller.enbag.primaryEss" type="text" class="form-control" name="config.controller.enbag.primaryEss" disabled/>
             </div>
           </div>
-          <div class="form-group">
+          <div *ngIf="expertMode" class="form-group">
             <label for="config.controller.enbag.io" class="col-sm-4 control-label">IO</label>
             <div class="col-sm-8">
               <input [ngModel]="config.controller.enbag.io" type="text" class="form-control" name="config.controller.enbag.io" disabled/>
             </div>
           </div>
-          <div class="form-group">
+          <div *ngIf="expertMode" class="form-group">
             <label for="config.controller.enbag.solarLog" class="col-sm-4 control-label">SolarLog</label>
             <div class="col-sm-8">
               <input [ngModel]="config.controller.enbag.solarLog" type="text" class="form-control" name="config.controller.enbag.solarLog" disabled/>

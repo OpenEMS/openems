@@ -8,8 +8,7 @@ import { OpenemsSettingComponent } from './setting/openems-setting/openems-setti
 const appRoutes: Routes = [
   { path: 'monitor/current', component: CurrentMonitorComponent },
   { path: 'setting/openems', component: OpenemsSettingComponent },
-  { path: '', component: AppComponent }
-  //{ path: '**', component: PageNotFoundComponent }
+  { path: '', redirectTo: 'monitor/current', pathMatch: 'full' }
 ];
 
 export const appRoutingProviders: any[] = [

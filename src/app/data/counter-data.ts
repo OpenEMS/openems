@@ -1,23 +1,17 @@
-interface EssDataArguments {
-  soc: number;
+interface CounterDataArguments {
   activePower: number;
   reactivePower: number;
   apparentPower: number;
-  gridMode: number;
 }
 
-export class EssData {
-  soc: number;
+export class CounterData {
   activePower: number;
   reactivePower: number;
   apparentPower: number;
-  gridMode: number;
 
-  constructor(args: EssDataArguments) {
-    this.soc = args.soc;
+  constructor(args: CounterDataArguments) {
     this.activePower = args.activePower;
     this.reactivePower = args.reactivePower;
     this.apparentPower = args.apparentPower;
-    this.gridMode = args.gridMode;
   }
 }

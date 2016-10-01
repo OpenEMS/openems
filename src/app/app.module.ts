@@ -7,7 +7,6 @@ import { routing, appRoutingProviders }  from './app.routing';
 import { AppComponent } from './app.component';
 import { CurrentMonitorComponent } from './monitor/current-monitor/current-monitor.component';
 import { DataService } from './data/data.service';
-import { OpenemsService } from './data/openems/openems.service';
 import { OpenemsSettingComponent } from './setting/openems-setting/openems-setting.component';
 
 @NgModule({
@@ -23,10 +22,7 @@ import { OpenemsSettingComponent } from './setting/openems-setting/openems-setti
     routing
   ],
   providers: [
-    appRoutingProviders,
-    //{ provide: DataService, useClass: OpenemsService }
-    OpenemsService,
-    { provide: DataService, useExisting: OpenemsService }
+    appRoutingProviders
   ],
   bootstrap: [
     AppComponent

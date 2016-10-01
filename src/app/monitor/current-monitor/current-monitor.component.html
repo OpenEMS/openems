@@ -1,6 +1,145 @@
-<p>
-  current-monitor works!  
-</p>
-<div *ngIf="currentData">
-  SOC: {{currentData.ess0.soc}} %
+<div class="container">
+  <div *ngIf="statusMessage" class="row">
+    <div class="col-sm-12 alert alert-success" role="alert">
+      <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+      <span>{{statusMessage}}</span>
+    </div>
+  </div>
+  <div *ngIf="statusError" class="row">
+    <div class="col-sm-12 alert alert-danger" role="alert">
+      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+      <span>{{statusError.title}}</span>
+      <br/>
+      <small>{{statusError.message}}</small>
+    </div>
+  </div>
+  <div *ngIf="currentData">
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <strong>ess0</strong>
+          </div>
+          <table class="table table-hover">
+            <tr [class.danger]="currentData.ess0.soc == null">
+              <td>State of Charge</td>
+              <td class="text-right">{{currentData.ess0.soc}} %</td>
+            <tr>
+            <tr [class.danger]="currentData.ess0.activePower == null">
+              <td>Active Power</td>
+              <td class="text-right">{{currentData.ess0.activePower}} W</td>
+            <tr>
+            <tr [class.danger]="currentData.ess0.reactivePower == null">
+              <td>Reactive Power</td>
+              <td class="text-right">{{currentData.ess0.reactivePower}} W</td>
+            <tr>
+            <tr [class.danger]="currentData.ess0.apparentPower == null">
+              <td>Apparent Power</td>
+              <td class="text-right">{{currentData.ess0.apparentPower}} W</td>
+            <tr>
+            <tr [class.danger]="currentData.ess0.gridMode == null">
+              <td>Grid Mode</td>
+              <td class="text-right">{{currentData.ess0.gridMode}}</td>
+            <tr>
+          </table>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <strong>ess1</strong>
+          </div>
+          <table class="table table-hover">
+            <tr [class.danger]="currentData.ess1.soc == null">
+              <td>State of Charge</td>
+              <td class="text-right">{{currentData.ess1.soc}} %</td>
+            <tr>
+            <tr [class.danger]="currentData.ess1.activePower == null">
+              <td>Active Power</td>
+              <td class="text-right">{{currentData.ess1.activePower}} W</td>
+            <tr>
+            <tr [class.danger]="currentData.ess1.reactivePower == null">
+              <td>Reactive Power</td>
+              <td class="text-right">{{currentData.ess1.reactivePower}} W</td>
+            <tr>
+            <tr [class.danger]="currentData.ess1.apparentPower == null">
+              <td>Apparent Power</td>
+              <td class="text-right">{{currentData.ess1.apparentPower}} W</td>
+            <tr>
+            <tr [class.danger]="currentData.ess1.gridMode == null">
+              <td>Grid Mode</td>
+              <td class="text-right">{{currentData.ess1.gridMode}}</td>
+            <tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <strong>Solar-Log (sl0)</strong>
+          </div>
+          <table class="table table-hover">
+            <tr [class.danger]="currentData.sl0.pac == null">
+              <td>PAC</td>
+              <td class="text-right">{{currentData.sl0.pac}} W</td>
+            <tr>
+            <tr [class.danger]="currentData.sl0.limit == null">
+              <td>Limit</td>
+              <td class="text-right">{{currentData.sl0.limit}} %</td>
+            <tr>
+          </table>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <strong>Counter (counter0)</strong>
+          </div>
+          <table class="table table-hover">
+            <tr [class.danger]="currentData.counter0.activePower == null">
+              <td>Active Power</td>
+              <td class="text-right">{{currentData.counter0.activePower}} W</td>
+            <tr>
+            <tr [class.danger]="currentData.counter0.reactivePower == null">
+              <td>Reactive Power</td>
+              <td class="text-right">{{currentData.counter0.reactivePower}} W</td>
+            <tr>
+            <tr [class.danger]="currentData.counter0.apparentPower == null">
+              <td>Apparent Power</td>
+              <td class="text-right">{{currentData.counter0.apparentPower}} W</td>
+            <tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <strong>Relay (io0)</strong>
+          </div>
+          <table class="table table-hover">
+            <tr [class.danger]="currentData.io0.digitalOutput_1_1 == null">
+              <td>Relay ess0</td>
+              <td class="text-right">{{currentData.io0.digitalOutput_1_1}}</td>
+            <tr>
+            <tr [class.danger]="currentData.io0.digitalOutput_1_2 == null">
+              <td>Relay ess1</td>
+              <td class="text-right">{{currentData.io0.digitalOutput_1_2}}</td>
+            <tr>
+            <tr [class.danger]="currentData.io0.digitalOutput_2_1 == null">
+              <td>Relay PV Off-Grid</td>
+              <td class="text-right">{{currentData.io0.digitalOutput_2_1}}</td>
+            <tr>
+            <tr [class.danger]="currentData.io0.digitalOutput_2_2 == null">
+              <td>Relay PV On-Grid</td>
+              <td class="text-right">{{currentData.io0.digitalOutput_2_2}}</td>
+            <tr>
+          </table>
+        </div>
+      </div>  
+    </div>
+  </div>
 </div>

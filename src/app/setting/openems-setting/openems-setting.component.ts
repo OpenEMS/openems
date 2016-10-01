@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule }   from '@angular/forms';
-
-import { OpenemsService } from '../../data/openems/openems.service';
+import { Headers, Http, Response } from '@angular/http';
+import 'rxjs/add/operator/toPromise';
 
 @Component({
   selector: 'app-openems-setting',
@@ -10,13 +10,16 @@ import { OpenemsService } from '../../data/openems/openems.service';
 })
 export class OpenemsSettingComponent implements OnInit {
   config: JSON;
+  expertMode: false;
   statusError: {
     title: string,
     message: string
   };
   statusMessage: string;
+  private url = '';
+  //private url = 'http://localhost:80';
 
-  constructor(private openemsService: OpenemsService) { }
+  constructor(private http: Http) { }
 
   ngOnInit() {
     this.getConfig();
@@ -28,15 +31,27 @@ export class OpenemsSettingComponent implements OnInit {
   }
 
   public getConfig(): void {
-    this.openemsService.getConfig()
-      .then(config => this.config = config);
-      //.then(config => this.config = config);
+    this.resetStatus();
+    this.http
+      .get(this.url + '/rest/config')
+      .toPromise()
+      .then(result => {
+        console.log(result);
+        this.config = result.json();
+      })
+      .catch(this.handleError);
   }
 
   public postConfig(): void {
     this.resetStatus();
-    this.openemsService.postConfig(JSON.stringify(this.config, null, '\t').replace(/(\n|\t)/gm,''))
-      .then(response => this.handleSuccess())
+    let headers = new Headers({
+        'Content-Type': 'application/json'
+    });
+    //let configPost = this.config.replace(/(\n|\t)/gm,'')
+    this.http
+      .post(this.url + '/rest/config', this.config, { headers: headers })
+      .toPromise()
+      .then(success => this.handleSuccess())
       .catch(error => this.handleError(error));
     } 
 

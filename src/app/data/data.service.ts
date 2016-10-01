@@ -6,7 +6,7 @@ export abstract class DataService {
   public data: Observable<CurrentData>;
 
   constructor() {
-    this.data = new Observable<CurrentData>(observer => {
+    /*this.data = new Observable<CurrentData>(observer => {
       // initialize immediately
       this.getCurrentData()
           .then(data => observer.next(data));
@@ -15,10 +15,10 @@ export abstract class DataService {
         this.getCurrentData()
           .then(data => observer.next(data));
       })
-    });
+    });*/
   }
 
   abstract getPollInterval(): number;
 
-  abstract getCurrentData(): Promise<CurrentData>;
+  //abstract getCurrentData(): Promise<CurrentData>;
 }
