@@ -9,8 +9,7 @@ public abstract class Element {
 	protected final Channel channel;
 	protected final BigInteger delta;
 	protected final BigInteger multiplier;
-	protected Range range = null;
-	protected BigInteger value = null;
+	protected ModbusRange range = null;
 
 	public Element(int address, Channel channel, int multiplier, int delta) {
 		this.address = address;
@@ -33,16 +32,20 @@ public abstract class Element {
 
 	public abstract BigInteger getMinValue();
 
-	public Range getRange() {
+	public ModbusRange getModbusRange() {
 		return range;
 	}
 
 	/**
-	 * Set the {@link Range}, where this Element belongs to. This is called during {@link ModbusRange}.add()
+	 * Set the {@link ModbusRange}, where this Element belongs to. This is called during {@link ModbusRange}.add()
 	 *
 	 * @param range
 	 */
-	public void setRange(Range range) {
+	public void setModbusRange(ModbusRange range) {
 		this.range = range;
+	}
+
+	public void setValue(BigInteger value) {
+		channel.setValue(value);
 	}
 }

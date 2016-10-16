@@ -9,7 +9,7 @@ public class ElementBuilder {
 	private Integer address = null;
 	private Channel channel = null;
 	private int delta = 0;
-	private int multiplier = 0;
+	private int multiplier = 1;
 	ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 
 	public ElementBuilder address(Integer address) {
@@ -24,7 +24,7 @@ public class ElementBuilder {
 			throw new OpenemsModbusException("Error in protocol: [channel] is missing");
 		}
 		;
-		return new UnsignedWordElement(address, channel, delta, multiplier, byteOrder);
+		return new UnsignedWordElement(address, channel, multiplier, delta, byteOrder);
 	}
 
 	public ElementBuilder channel(Channel channel) {

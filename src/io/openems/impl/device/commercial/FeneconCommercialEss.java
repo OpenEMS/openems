@@ -6,7 +6,7 @@ import io.openems.api.exception.OpenemsModbusException;
 import io.openems.impl.protocol.modbus.device.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.internal.ElementBuilder;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
-import io.openems.impl.protocol.modbus.internal.Range;
+import io.openems.impl.protocol.modbus.internal.ModbusRange;
 
 public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 	private final Channel activePower = new Channel();
@@ -40,7 +40,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws OpenemsModbusException {
 		return new ModbusProtocol( //
-				new Range(0x1402, //
+				new ModbusRange(0x1402, //
 						new ElementBuilder().address(0x1402).channel(getSoc()).build() //
 				));
 	}

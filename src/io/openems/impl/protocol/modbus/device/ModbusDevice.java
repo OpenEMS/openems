@@ -1,11 +1,10 @@
 package io.openems.impl.protocol.modbus.device;
 
-import com.ghgande.j2mod.modbus.io.ModbusTransaction;
-
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.IsConfigParameter;
+import io.openems.impl.protocol.modbus.bridge.ModbusBridge;
 
 public abstract class ModbusDevice extends Device {
 	private Integer modbusUnitId = null;
@@ -19,10 +18,13 @@ public abstract class ModbusDevice extends Device {
 		this.modbusUnitId = modbusUnitId;
 	}
 
-	public final void update(ModbusTransaction modbusTransaction) throws OpenemsException {
+	public final void update(ModbusBridge modbusBridge) throws OpenemsException {
+		if (modbusUnitId == null) {
+			throw new OpenemsException("No ModbusUnitId configured for Device[" + this.getThingId() + "]");
+		}
 		for (DeviceNature nature : getDeviceNatures()) {
 			if (nature instanceof ModbusDeviceNature) {
-				((ModbusDeviceNature) nature).update(modbusTransaction);
+				((ModbusDeviceNature) nature).update(modbusUnitId, modbusBridge);
 			}
 		}
 	}

@@ -28,6 +28,14 @@ public class ModbusRtu extends ModbusBridge {
 
 	}
 
+	@Override
+	public ModbusTransaction getTransaction() throws OpenemsModbusException {
+		establishModbusConnection(connection);
+		ModbusSerialTransaction trans = new ModbusSerialTransaction(connection);
+		trans.setRetries(0);
+		return trans;
+	}
+
 	@IsConfigParameter("baudrate")
 	public void setBaudrate(Integer baudrate) {
 		this.baudrate = baudrate;
@@ -65,14 +73,6 @@ public class ModbusRtu extends ModbusBridge {
 	public String toString() {
 		return "ModbusRtu [baudrate=" + baudrate + ", serialinterface=" + serialinterface + ", devices="
 				+ Arrays.toString(devices) + "]";
-	}
-
-	@Override
-	protected ModbusTransaction getTransaction() throws OpenemsModbusException {
-		establishModbusConnection(connection);
-		ModbusSerialTransaction trans = new ModbusSerialTransaction(connection);
-		trans.setRetries(0);
-		return trans;
 	}
 
 	@Override

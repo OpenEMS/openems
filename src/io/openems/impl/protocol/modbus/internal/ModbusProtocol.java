@@ -12,17 +12,17 @@ import io.openems.api.channel.Channel;
 public class ModbusProtocol {
 	private static Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
 	private final Map<Channel, Element> channelElementMap;
-	private final HashMap<Integer, Range> otherRanges; // key = startAddress
-	private final HashMap<Integer, Range> requiredRanges; // key = startAddress
+	private final HashMap<Integer, ModbusRange> otherRanges; // key = startAddress
+	private final HashMap<Integer, ModbusRange> requiredRanges; // key = startAddress
 
-	public ModbusProtocol(Range... ranges) {
+	public ModbusProtocol(ModbusRange... ranges) {
 		otherRanges = new HashMap<>();
 		channelElementMap = new HashMap<>();
 
 		// requiredRanges stays emty till someone calls "setAsRequired()"
 		requiredRanges = new HashMap<>();
 
-		for (Range range : ranges) {
+		for (ModbusRange range : ranges) {
 			// check each range for plausibility
 			checkRange(range);
 			// fill otherRanges Map
@@ -34,26 +34,26 @@ public class ModbusProtocol {
 		}
 	}
 
-	public Collection<Range> getOtherRanges() {
+	public Collection<ModbusRange> getOtherRanges() {
 		return otherRanges.values();
 	}
 
-	public Collection<Range> getRequiredRanges() {
+	public Collection<ModbusRange> getRequiredRanges() {
 		return requiredRanges.values();
 	}
 
 	public void setAsRequired(Channel channel) {
-		Range range = channelElementMap.get(channel).getRange();
+		ModbusRange range = channelElementMap.get(channel).getModbusRange();
 		otherRanges.remove(range.getStartAddress());
 		requiredRanges.put(range.getStartAddress(), range);
 	}
 
 	/**
-	 * Checks a {@link Range} for plausibility
+	 * Checks a {@link ModbusRange} for plausibility
 	 *
 	 * @param range
 	 */
-	private void checkRange(Range range) {
+	private void checkRange(ModbusRange range) {
 		int address = range.getStartAddress();
 		for (Element element : range.getElements()) {
 			if (element.getAddress() != address) {

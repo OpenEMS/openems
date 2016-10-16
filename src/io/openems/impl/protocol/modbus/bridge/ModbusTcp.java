@@ -28,6 +28,13 @@ public class ModbusTcp extends ModbusBridge {
 
 	}
 
+	@Override
+	public ModbusTransaction getTransaction() throws OpenemsModbusException {
+		establishModbusConnection(connection);
+		ModbusTCPTransaction trans = new ModbusTCPTransaction(connection);
+		return trans;
+	}
+
 	@IsConfigParameter("ip")
 	public void setBaudrate(Inet4Address ip) {
 		this.ip = ip;
@@ -43,13 +50,6 @@ public class ModbusTcp extends ModbusBridge {
 	@Override
 	public String toString() {
 		return "ModbusTcp [ip=" + ip + ", devices=" + Arrays.toString(devices) + "]";
-	}
-
-	@Override
-	protected ModbusTransaction getTransaction() throws OpenemsModbusException {
-		establishModbusConnection(connection);
-		ModbusTCPTransaction trans = new ModbusTCPTransaction(connection);
-		return trans;
 	}
 
 	@Override

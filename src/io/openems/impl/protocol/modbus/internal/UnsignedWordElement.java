@@ -53,7 +53,8 @@ public class UnsignedWordElement extends Element implements WordElement {
 	public void setValue(Register register) {
 		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);
 		buff.put(register.toBytes());
-		value = BigInteger.valueOf(Short.toUnsignedInt(buff.getShort(0))).multiply(multiplier).subtract(delta);
+		int shortValue = Short.toUnsignedInt(buff.getShort(0));
+		setValue(BigInteger.valueOf(shortValue).multiply(multiplier).subtract(delta));
 	}
 
 	public Register toRegister(BigInteger value) {

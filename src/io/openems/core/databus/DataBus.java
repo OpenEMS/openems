@@ -5,10 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
+import io.openems.api.exception.InvalidValueException;
 import io.openems.api.thing.Thing;
 
 public class DataBus {
+	private final static Logger log = LoggerFactory.getLogger(DataBus.class);
 	/**
 	 * holds thingId -> channelId -> channel
 	 */
@@ -35,7 +40,11 @@ public class DataBus {
 	}
 
 	public void channelValueUpdated(Channel channel) {
-		System.out.println("Channel value updated: " + channel);
+		try {
+			log.info("Channel [" + channel + "] value updated: " + channel.getValue());
+		} catch (InvalidValueException e) {
+			log.info("Channel [" + channel + "] value updated: INVALID");
+		}
 	};
 
 	public Set<String> getChannelIds(String thingId) {
