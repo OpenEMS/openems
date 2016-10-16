@@ -17,25 +17,27 @@
  */
 package io.openems.impl.protocol.modbus.internal;
 
+import io.openems.impl.protocol.modbus.ModbusElement;
+
 public class ModbusRange {
-	private Element[] elements;
+	private ModbusElement[] elements;
 	private final int length;
 	private final int startAddress;
 
-	public ModbusRange(int startAddress, Element... elements) {
+	public ModbusRange(int startAddress, ModbusElement... elements) {
 		this.startAddress = startAddress;
 		this.elements = elements;
-		for (Element element : elements) {
+		for (ModbusElement element : elements) {
 			element.setModbusRange(this);
 		}
 		int length = 0;
-		for (Element element : elements) {
+		for (ModbusElement element : elements) {
 			length += element.getLength();
 		}
 		this.length = length;
 	}
 
-	public Element[] getElements() {
+	public ModbusElement[] getElements() {
 		return elements;
 	}
 

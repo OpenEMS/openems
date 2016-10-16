@@ -3,13 +3,15 @@ package io.openems.impl.device.pro;
 import io.openems.api.channel.Channel;
 import io.openems.api.device.nature.Ess;
 import io.openems.api.exception.OpenemsModbusException;
-import io.openems.impl.protocol.modbus.device.ModbusDeviceNature;
+import io.openems.impl.protocol.modbus.ModbusChannel;
+import io.openems.impl.protocol.modbus.ModbusChannelBuilder;
+import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 
 public class FeneconProEss extends ModbusDeviceNature implements Ess {
-	private final Channel activePower = new Channel();
-	private final Channel minSoc = new Channel();
-	private final Channel soc = new Channel();
+	public final ModbusChannel soc = new ModbusChannelBuilder().unit("%").minValue(0).build();
+	private final ModbusChannel activePower = new ModbusChannelBuilder().build();
+	private final ModbusChannel minSoc = new ModbusChannelBuilder().build();
 
 	public FeneconProEss(String thingId) {
 		super(thingId);
@@ -22,7 +24,8 @@ public class FeneconProEss extends ModbusDeviceNature implements Ess {
 
 	@Override
 	public Channel getSoc() {
-		return soc;
+		// TODO return soc;
+		return null;
 	}
 
 	@Override

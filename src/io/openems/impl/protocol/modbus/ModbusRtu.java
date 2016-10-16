@@ -1,4 +1,4 @@
-package io.openems.impl.protocol.modbus.bridge;
+package io.openems.impl.protocol.modbus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +13,6 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 import io.openems.api.device.Device;
 import io.openems.api.exception.OpenemsModbusException;
 import io.openems.api.thing.IsConfigParameter;
-import io.openems.impl.protocol.modbus.device.ModbusDevice;
 
 public class ModbusRtu extends ModbusBridge {
 	private volatile Integer baudrate = null;

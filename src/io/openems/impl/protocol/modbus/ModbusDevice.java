@@ -1,10 +1,9 @@
-package io.openems.impl.protocol.modbus.device;
+package io.openems.impl.protocol.modbus;
 
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.IsConfigParameter;
-import io.openems.impl.protocol.modbus.bridge.ModbusBridge;
 
 public abstract class ModbusDevice extends Device {
 	private Integer modbusUnitId = null;

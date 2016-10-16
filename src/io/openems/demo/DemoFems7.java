@@ -21,7 +21,7 @@ public class DemoFems7 extends Demo {
 
 		JsonObject bridge0 = new JsonObject();
 		things.add(bridge0);
-		bridge0.add("class", new JsonPrimitive("io.openems.impl.protocol.modbus.bridge.ModbusTcp"));
+		bridge0.add("class", new JsonPrimitive("io.openems.impl.protocol.modbus.ModbusTcp"));
 		bridge0.add("ip", new JsonPrimitive("127.0.0.1"));
 		JsonArray devices = new JsonArray();
 		bridge0.add("devices", devices);

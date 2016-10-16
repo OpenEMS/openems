@@ -24,12 +24,13 @@ import java.nio.ByteOrder;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
-import io.openems.api.channel.Channel;
+import io.openems.impl.protocol.modbus.ModbusChannel;
+import io.openems.impl.protocol.modbus.ModbusElement;
 
-public class UnsignedWordElement extends Element implements WordElement {
+public class UnsignedWordElement extends ModbusElement implements WordElement {
 	final ByteOrder byteOrder;
 
-	public UnsignedWordElement(int address, Channel channel, int multiplier, int delta, ByteOrder byteOrder) {
+	public UnsignedWordElement(int address, ModbusChannel channel, int multiplier, int delta, ByteOrder byteOrder) {
 		super(address, channel, multiplier, delta);
 		this.byteOrder = byteOrder;
 	}
@@ -39,15 +40,16 @@ public class UnsignedWordElement extends Element implements WordElement {
 		return 1;
 	}
 
-	@Override
-	public BigInteger getMaxValue() {
-		return BigInteger.valueOf(Short.MAX_VALUE - Short.MIN_VALUE);
-	}
-
-	@Override
-	public BigInteger getMinValue() {
-		return BigInteger.valueOf(0);
-	}
+	// TODO
+	// @Override
+	// public BigInteger getMaxValue() {
+	// return BigInteger.valueOf(Short.MAX_VALUE - Short.MIN_VALUE);
+	// }
+	//
+	// @Override
+	// public BigInteger getMinValue() {
+	// return BigInteger.valueOf(0);
+	// }
 
 	@Override
 	public void setValue(Register register) {

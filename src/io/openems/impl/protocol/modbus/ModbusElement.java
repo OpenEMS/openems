@@ -1,17 +1,18 @@
-package io.openems.impl.protocol.modbus.internal;
+package io.openems.impl.protocol.modbus;
 
 import java.math.BigInteger;
 
 import io.openems.api.channel.Channel;
+import io.openems.impl.protocol.modbus.internal.ModbusRange;
 
-public abstract class Element {
+public abstract class ModbusElement {
 	protected final int address;
-	protected final Channel channel;
+	protected final ModbusChannel channel;
 	protected final BigInteger delta;
 	protected final BigInteger multiplier;
 	protected ModbusRange range = null;
 
-	public Element(int address, Channel channel, int multiplier, int delta) {
+	public ModbusElement(int address, ModbusChannel channel, int multiplier, int delta) {
 		this.address = address;
 		this.channel = channel;
 		this.delta = BigInteger.valueOf(delta);
@@ -28,10 +29,6 @@ public abstract class Element {
 
 	public abstract int getLength();
 
-	public abstract BigInteger getMaxValue();
-
-	public abstract BigInteger getMinValue();
-
 	public ModbusRange getModbusRange() {
 		return range;
 	}
@@ -45,7 +42,7 @@ public abstract class Element {
 		this.range = range;
 	}
 
-	public void setValue(BigInteger value) {
-		channel.setValue(value);
+	protected void setValue(BigInteger value) {
+		channel.updateValue(value);
 	}
 }

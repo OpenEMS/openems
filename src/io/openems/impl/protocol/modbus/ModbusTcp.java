@@ -1,4 +1,4 @@
-package io.openems.impl.protocol.modbus.bridge;
+package io.openems.impl.protocol.modbus;
 
 import java.net.Inet4Address;
 import java.util.ArrayList;
@@ -15,7 +15,6 @@ import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 import io.openems.api.device.Device;
 import io.openems.api.exception.OpenemsModbusException;
 import io.openems.api.thing.IsConfigParameter;
-import io.openems.impl.protocol.modbus.device.ModbusDevice;
 
 public class ModbusTcp extends ModbusBridge {
 	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);

@@ -1,14 +1,14 @@
 package io.openems.impl.device.pro;
 
 import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelBuilder;
 import io.openems.api.device.nature.Meter;
 import io.openems.api.exception.OpenemsModbusException;
-import io.openems.impl.protocol.modbus.device.ModbusDeviceNature;
+import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 
 public class FeneconProMeter extends ModbusDeviceNature implements Meter {
-
-	private Channel activePower = new Channel();
+	private Channel activePower = new ChannelBuilder().build();
 
 	public FeneconProMeter(String thingId) {
 		super(thingId);

@@ -1,4 +1,4 @@
-package io.openems.impl.protocol.modbus.bridge;
+package io.openems.impl.protocol.modbus;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,6 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.api.exception.OpenemsModbusException;
 import io.openems.core.bridge.Bridge;
-import io.openems.impl.protocol.modbus.device.ModbusDevice;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
 
 public abstract class ModbusBridge extends Bridge {
@@ -34,8 +33,6 @@ public abstract class ModbusBridge extends Bridge {
 		for (ModbusDevice modbusdevice : modbusdevices) {
 			modbusdevice.update(this);
 		}
-		// TODO add cycle
-		Thread.sleep(1000);
 	}
 
 	private Register[] singleQuery(int modbusUnitId, int address, int count) throws OpenemsModbusException {

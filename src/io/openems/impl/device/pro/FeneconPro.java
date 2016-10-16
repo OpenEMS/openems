@@ -3,7 +3,7 @@ package io.openems.impl.device.pro;
 import io.openems.api.device.nature.IsDeviceNature;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.IsConfigParameter;
-import io.openems.impl.protocol.modbus.device.ModbusDevice;
+import io.openems.impl.protocol.modbus.ModbusDevice;
 
 public class FeneconPro extends ModbusDevice {
 	@IsDeviceNature
