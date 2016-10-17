@@ -25,7 +25,7 @@ public class SimpleScheduler extends Scheduler {
 	protected void forever() {
 		Collections.sort(controllers, (c1, c2) -> c1.getPriority() - c2.getPriority());
 		for (Controller controller : controllers) {
-			log.info("Controller: " + controller);
+			// log.info("Controller: " + controller);
 			controller.run();
 		}
 		// lastExecution = System.currentTimeMillis();

@@ -18,7 +18,7 @@ public class AvoidTotalDischargeController extends Controller {
 	@Override
 	public void run() {
 		for (EssMap ess : esss) {
-			log.info("AvoidTotalDischarge: " + ess.soc);
+			log.info("AvoidTotalDischarge. SOC: " + ess.soc.toSimpleString());
 			// if (ess.soc.getReadValue().getValue().asInt() <= minSoc
 			// && e.soc.getReadValue().getValue().asInt() > minSoc - 5) {
 			// e.activePower.setRange(e.activePower.getMinWriteValue(), new IntegerValue(0));

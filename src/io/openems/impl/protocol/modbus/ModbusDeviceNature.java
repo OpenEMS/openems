@@ -45,7 +45,6 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 			try {
 				// Query using this Range
 				Register[] registers;
-
 				registers = modbusBridge.query(modbusUnitId, range);
 
 				// Fill channels
@@ -67,6 +66,7 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 						"Modbus query failed. " //
 								+ "Bridge [" + modbusBridge + "], Range [" + range.getStartAddress() + "]: {}",
 						e.getMessage());
+				modbusBridge.triggerInitialize();
 				// set all elements to invalid
 				for (ModbusElement element : range.getElements()) {
 					element.setValue(null);

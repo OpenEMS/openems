@@ -33,7 +33,7 @@ public class Databus {
 	}
 
 	public void channelValueUpdated(Channel channel) {
-		log.info("Channel update: " + channel);
+		// log.info("Channel update: " + channel);
 	};
 
 	public Set<String> getChannelIds(String thingId) {
