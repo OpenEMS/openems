@@ -83,10 +83,8 @@ public class ThingFactory {
 	 * @throws ConfigException
 	 * @throws InjectionException
 	 */
-	public static Map<String, Thing> getFromConfig(JsonObject jConfig, Databus databus)
-			throws ConfigException, InjectionException {
-		Map<String, Thing> things = new HashMap<>();
-
+	public static Databus getFromConfig(JsonObject jConfig) throws ConfigException, InjectionException {
+		Databus databus = new Databus();
 		/*
 		 * read each Bridge in "things" array
 		 */
@@ -95,8 +93,8 @@ public class ThingFactory {
 			JsonObject jBridge = JsonUtils.getAsJsonObject(jBridgeElement);
 			String bridgeClass = JsonUtils.getAsString(jBridge, "class");
 			Bridge bridge = (Bridge) getThingInstance(bridgeClass);
-			injectConfigParameters(bridge, jBridge, things);
-			things.put(bridge.getThingId(), bridge);
+			injectConfigParameters(bridge, jBridge, databus);
+			databus.addThing(bridge.getThingId(), bridge);
 			/*
 			 * read each Device in "things" array
 			 */
@@ -106,9 +104,9 @@ public class ThingFactory {
 				JsonObject jDevice = JsonUtils.getAsJsonObject(jDeviceElement);
 				String deviceClass = JsonUtils.getAsString(jDevice, "class");
 				Device device = (Device) getThingInstance(deviceClass);
-				injectConfigParameters(device, jDevice, things);
+				injectConfigParameters(device, jDevice, databus);
 				devices.add(device);
-				things.put(device.getThingId(), device);
+				databus.addThing(device.getThingId(), device);
 			}
 			bridge.setDevices(devices.stream().toArray(Device[]::new));
 		}
@@ -119,8 +117,8 @@ public class ThingFactory {
 		JsonObject jScheduler = JsonUtils.getAsJsonObject(jConfig, "scheduler");
 		String schedulerClass = JsonUtils.getAsString(jScheduler, "class");
 		Scheduler scheduler = (Scheduler) getThingInstance(schedulerClass, databus);
-		injectConfigParameters(scheduler, jScheduler, things);
-		things.put(scheduler.getThingId(), scheduler);
+		injectConfigParameters(scheduler, jScheduler, databus);
+		databus.addThing(scheduler.getThingId(), scheduler);
 		/*
 		 * read each Controller in "controllers" array
 		 */
@@ -129,11 +127,11 @@ public class ThingFactory {
 			JsonObject jController = JsonUtils.getAsJsonObject(jControllerElement);
 			String controllerClass = JsonUtils.getAsString(jController, "class");
 			Controller controller = (Controller) getThingInstance(controllerClass);
-			injectConfigParameters(controller, jController, things);
-			things.put(controller.getThingId(), controller);
-			scheduler.addController(controller, things);
+			injectConfigParameters(controller, jController, databus);
+			databus.addThing(controller.getThingId(), controller);
+			scheduler.addController(controller);
 		}
-		return things;
+		return databus;
 	}
 
 	/**
@@ -159,11 +157,12 @@ public class ThingFactory {
 	 * @param type
 	 * @return
 	 */
-	public static Map<String, Thing> getThingsByClass(Map<String, Thing> things, Class<? extends Thing> type) {
+	public static Map<String, Thing> getThingsByClass(Databus databus, Class<? extends Thing> type) {
 		Map<String, Thing> result = new HashMap<>();
-		for (Entry<String, Thing> thingEntry : things.entrySet()) {
-			if (type.isAssignableFrom(thingEntry.getValue().getClass())) {
-				result.put(thingEntry.getKey(), thingEntry.getValue());
+		for (String thingId : databus.getThingIds()) {
+			Thing thing = databus.getThing(thingId);
+			if (type.isAssignableFrom(thing.getClass())) {
+				result.put(thingId, thing);
 			}
 		}
 		return result;
@@ -214,7 +213,7 @@ public class ThingFactory {
 	 * @param things
 	 * @throws ConfigException
 	 */
-	private static void injectConfigParameters(Thing thing, JsonObject jConfig, Map<String, Thing> things)
+	private static void injectConfigParameters(Thing thing, JsonObject jConfig, Databus databus)
 			throws InjectionException, ConfigException {
 		for (Method method : thing.getClass().getMethods()) {
 			IsConfig annotation = method.getAnnotation(IsConfig.class);
@@ -246,15 +245,13 @@ public class ThingFactory {
 					JsonObject jConfigParameter = JsonUtils
 							.getAsJsonObject(JsonUtils.getSubElement(jConfig, configParameterName));
 					String thingId = JsonUtils.getAsString(jConfigParameter, "thingId");
-					Thing newThing;
-					if (things.containsKey(thingId)) {
-						newThing = things.get(thingId);
-					} else {
+					Thing newThing = databus.getThing(thingId);
+					if (newThing == null) {
 						newThing = getThingInstance(paramType, thingId);
 					}
-					things.put(thingId, newThing);
+					databus.addThing(thingId, newThing);
 					// Recursive call to inject config parameters for the newly created Thing
-					injectConfigParameters(newThing, jConfigParameter, things);
+					injectConfigParameters(newThing, jConfigParameter, databus);
 					parameter = newThing;
 				}
 				try {

@@ -1,7 +1,6 @@
 package io.openems.core.scheduler;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.openems.api.controller.Controller;
@@ -23,17 +22,8 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 		this.databus = databus;
 	}
 
-	/**
-	 * While initialization in ThingFactory databus is not populated. This method is used to supply the Things anyway.
-	 *
-	 * @param controller
-	 * @param things
-	 * @throws InjectionException
-	 * @throws ConfigException
-	 */
-	public void addController(Controller controller, Map<String, Thing> things)
-			throws InjectionException, ConfigException {
-		ControllerFactory.generateMappings(controller, things);
+	public void addController(Controller controller) throws InjectionException, ConfigException {
+		ControllerFactory.generateMappings(controller, databus);
 		controllers.add(controller);
 	}
 }

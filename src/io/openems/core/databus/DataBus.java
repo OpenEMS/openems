@@ -58,6 +58,10 @@ public class Databus {
 		return Collections.unmodifiableSet(thingDataChannels.get(thingId).keySet());
 	};
 
+	public Thing getThing(String thingId) {
+		return things.get(thingId);
+	}
+
 	public Set<String> getThingIds() {
 		return Collections.unmodifiableSet(things.keySet());
 	}

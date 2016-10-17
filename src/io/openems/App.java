@@ -1,15 +1,11 @@
 package io.openems;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.thing.Thing;
 import io.openems.core.databus.Databus;
 import io.openems.core.thing.ThingFactory;
 import io.openems.demo.Demo;
@@ -20,23 +16,17 @@ public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
 	public static void main(String[] args) throws Exception {
-		Databus databus = new Databus();
-
 		Demo demo = new DemoFems7();
 
 		JsonObject config = demo.getConfig();
 
-		Map<String, Thing> things = ThingFactory.getFromConfig(config, databus);
-		ThingFactory.printThings(things);
+		Databus databus = ThingFactory.getFromConfig(config);
+		databus.printAll();
 
-		FeneconCommercialEss ess0 = (FeneconCommercialEss) things.get("ess0");
+		FeneconCommercialEss ess0 = (FeneconCommercialEss) databus.getThing("ess0");
 		Channel soc = ess0.soc();
 		ess0.getProtocol().setAsRequired(soc);
 
-		for (Entry<String, Thing> thing : things.entrySet()) {
-			databus.addThing(thing.getKey(), thing.getValue());
-		}
-		// dataBus.printAll();
 		//
 		// log.info("Protocol Other: " + ess0.getProtocol().getOtherRanges());
 		// log.info("Protocol Required: " + ess0.getProtocol().getRequiredRanges());

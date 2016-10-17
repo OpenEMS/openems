@@ -25,6 +25,7 @@ import io.openems.api.controller.ThingMap;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InjectionException;
 import io.openems.api.thing.Thing;
+import io.openems.core.databus.Databus;
 import io.openems.core.thing.ThingFactory;
 import io.openems.core.utilities.InjectionUtils;
 
@@ -32,7 +33,7 @@ public class ControllerFactory {
 	private static Logger log = LoggerFactory.getLogger(ControllerFactory.class);
 
 	@SuppressWarnings("unchecked")
-	public static List<ControllerThingMapping> generateMappings(Controller controller, Map<String, Thing> things)
+	public static List<ControllerThingMapping> generateMappings(Controller controller, Databus databus)
 			throws InjectionException, ConfigException {
 		// List<ChannelMapping> readChannelMap = new LinkedList<>();
 		// readFieldMapping.put(controller, readChannelMap);
@@ -92,7 +93,7 @@ public class ControllerFactory {
 				/*
 				 * Create ThingMap instance(s) for each matching Thing
 				 */
-				Map<String, Thing> matchingThings = ThingFactory.getThingsByClass(things, thingClass);
+				Map<String, Thing> matchingThings = ThingFactory.getThingsByClass(databus, thingClass);
 				Map<String, ThingMap> thingMaps = new HashMap<>();
 				for (String thingId : matchingThings.keySet()) {
 					ThingMap thingMap = getThingMapInstance(thingMapClass, thingId);
