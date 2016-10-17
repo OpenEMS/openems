@@ -2,16 +2,17 @@ package io.openems.impl.protocol.modbus.internal;
 
 import java.nio.ByteOrder;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.exception.OpenemsModbusException;
-import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class ElementBuilder {
 	private Integer address = null;
-	private ModbusChannel channel = null;
+	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+	private Channel channel = null;
 	private int delta = 0;
 	private int multiplier = 1;
-	ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+	private boolean signed = false;
 
 	public ElementBuilder address(Integer address) {
 		this.address = address;
@@ -24,11 +25,14 @@ public class ElementBuilder {
 		} else if (channel == null) {
 			throw new OpenemsModbusException("Error in protocol: [channel] is missing");
 		}
-		;
-		return new UnsignedWordElement(address, channel, multiplier, delta, byteOrder);
+		if (signed) {
+			return new SignedWordElement(address, channel, multiplier, delta, byteOrder);
+		} else {
+			return new UnsignedWordElement(address, channel, multiplier, delta, byteOrder);
+		}
 	}
 
-	public ElementBuilder channel(ModbusChannel channel) {
+	public ElementBuilder channel(Channel channel) {
 		this.channel = channel;
 		return this;
 	}
@@ -40,6 +44,11 @@ public class ElementBuilder {
 
 	public ElementBuilder multiplier(int multiplier) {
 		this.multiplier = multiplier;
+		return this;
+	}
+
+	public ElementBuilder signed() {
+		this.signed = true;
 		return this;
 	}
 }

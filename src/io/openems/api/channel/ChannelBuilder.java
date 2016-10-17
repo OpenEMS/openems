@@ -2,49 +2,49 @@ package io.openems.api.channel;
 
 import java.math.BigInteger;
 
-public class ChannelBuilder<T extends ChannelBuilder<?>> {
+public class ChannelBuilder<B extends ChannelBuilder<?>> {
 	protected BigInteger maxValue = null;
 	protected BigInteger minValue = null;
 	protected String unit = "";
 
 	public Channel build() {
-		// if (address == null) {
-		// throw new OpenemsModbusException("Error in protocol: [address] is missing");
-		// } else if (channel == null) {
-		// throw new OpenemsModbusException("Error in protocol: [channel] is missing");
-		// }
-		// ;
 		return new Channel(unit, minValue, maxValue);
 	}
 
 	@SuppressWarnings("unchecked")
-	public T maxValue(BigInteger maxValue) {
+	public B maxValue(BigInteger maxValue) {
 		this.maxValue = maxValue;
-		return (T) this;
+		return (B) this;
 	}
 
 	@SuppressWarnings("unchecked")
-	public T maxValue(int maxValue) {
+	public B maxValue(int maxValue) {
 		this.maxValue = BigInteger.valueOf(maxValue);
-		return (T) this;
+		return (B) this;
 	}
 
 	@SuppressWarnings("unchecked")
-	public T minValue(BigInteger minValue) {
+	public B minValue(BigInteger minValue) {
 		this.minValue = minValue;
-		return (T) this;
+		return (B) this;
 	}
 
 	@SuppressWarnings("unchecked")
-	public T minValue(int minValue) {
+	public B minValue(int minValue) {
 		this.minValue = BigInteger.valueOf(minValue);
-		return (T) this;
+		return (B) this;
+	}
+
+	public B percentType() {
+		maxValue(100);
+		minValue(0);
+		return unit("%");
 	}
 
 	@SuppressWarnings("unchecked")
-	public T unit(String unit) {
+	public B unit(String unit) {
 		this.unit = unit;
-		return (T) this;
+		return (B) this;
 	}
 
 }

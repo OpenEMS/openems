@@ -14,7 +14,7 @@ import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
 import io.openems.api.device.Device;
 import io.openems.api.exception.OpenemsModbusException;
-import io.openems.api.thing.IsConfigParameter;
+import io.openems.api.thing.IsConfig;
 
 public class ModbusTcp extends ModbusBridge {
 	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
@@ -34,7 +34,7 @@ public class ModbusTcp extends ModbusBridge {
 		return trans;
 	}
 
-	@IsConfigParameter("ip")
+	@IsConfig("ip")
 	public void setBaudrate(Inet4Address ip) {
 		this.ip = ip;
 		triggerInitialize();

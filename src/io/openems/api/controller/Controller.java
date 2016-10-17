@@ -3,7 +3,7 @@ package io.openems.api.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.api.thing.IsConfigParameter;
+import io.openems.api.thing.IsConfig;
 import io.openems.api.thing.Thing;
 
 public abstract class Controller implements Thing, Runnable {
@@ -33,7 +33,7 @@ public abstract class Controller implements Thing, Runnable {
 		return name;
 	}
 
-	@IsConfigParameter("priority")
+	@IsConfig("priority")
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}

@@ -33,7 +33,6 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 	 */
 	public void addController(Controller controller, Map<String, Thing> things)
 			throws InjectionException, ConfigException {
-		log.debug("Add Controller: " + controller);
 		ControllerFactory.generateMappings(controller, things);
 		controllers.add(controller);
 	}

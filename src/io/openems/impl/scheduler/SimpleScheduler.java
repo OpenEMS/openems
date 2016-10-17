@@ -2,7 +2,9 @@ package io.openems.impl.scheduler;
 
 import java.util.Collections;
 
+import io.openems.api.channel.WriteableChannel;
 import io.openems.api.controller.Controller;
+import io.openems.core.databus.DataChannel;
 import io.openems.core.databus.Databus;
 import io.openems.core.scheduler.Scheduler;
 
@@ -23,11 +25,18 @@ public class SimpleScheduler extends Scheduler {
 
 	@Override
 	protected void forever() {
-		Collections.sort(controllers, (c1, c2) -> c1.getPriority() - c2.getPriority());
+		Collections.sort(controllers, (c1, c2) -> c2.getPriority() - c1.getPriority());
 		for (Controller controller : controllers) {
-			// log.info("Controller: " + controller);
 			controller.run();
 		}
+		for (DataChannel dataChannel : databus.getWritableChannels()) {
+			log.info("Check: " + dataChannel);
+			WriteableChannel writableChannel = (WriteableChannel) dataChannel.channel;
+			if (writableChannel.hasWriteValue()) {
+				log.info("New Value for " + dataChannel.channelId + ": " + writableChannel.popWriteValue());
+			}
+		}
+
 		// lastExecution = System.currentTimeMillis();
 		// writtenChannels.clear();
 		// rangeCache.clear();

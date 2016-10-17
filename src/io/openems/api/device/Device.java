@@ -35,7 +35,7 @@ public abstract class Device implements Thing {
 		this.bridge = bridge;
 	}
 
-	protected DeviceNature[] getDeviceNatures() throws OpenemsException {
+	protected synchronized DeviceNature[] getDeviceNatures() throws OpenemsException {
 		if (this.deviceNatures == null) {
 			/*
 			 * Parse Device for {@link DeviceNature}s and store them in local deviceNatures array

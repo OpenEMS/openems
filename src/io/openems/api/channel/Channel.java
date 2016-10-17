@@ -63,15 +63,18 @@ public class Channel {
 	}
 
 	protected void updateValue(BigInteger value) {
+		updateValue(value, true);
+	}
+
+	protected void updateValue(BigInteger value, boolean triggerDatabusEvent) {
 		if (value == null) {
 			this.isValid = false;
 		} else {
 			this.isValid = true;
 		}
 		this.value = value;
-		if (databus != null) {
+		if (databus != null && triggerDatabusEvent) {
 			databus.channelValueUpdated(this);
 		}
 	}
-
 }

@@ -12,7 +12,7 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 
 import io.openems.api.device.Device;
 import io.openems.api.exception.OpenemsModbusException;
-import io.openems.api.thing.IsConfigParameter;
+import io.openems.api.thing.IsConfig;
 
 public class ModbusRtu extends ModbusBridge {
 	private volatile Integer baudrate = null;
@@ -35,13 +35,13 @@ public class ModbusRtu extends ModbusBridge {
 		return trans;
 	}
 
-	@IsConfigParameter("baudrate")
+	@IsConfig("baudrate")
 	public void setBaudrate(Integer baudrate) {
 		this.baudrate = baudrate;
 		triggerInitialize();
 	}
 
-	@IsConfigParameter("databits")
+	@IsConfig("databits")
 	public void setDatabits(Integer databits) {
 		this.databits = databits;
 	}
@@ -52,18 +52,18 @@ public class ModbusRtu extends ModbusBridge {
 		triggerInitialize();
 	}
 
-	@IsConfigParameter("parity")
+	@IsConfig("parity")
 	public void setParity(String parity) {
 		this.parity = parity;
 	}
 
-	@IsConfigParameter("serialinterface")
+	@IsConfig("serialinterface")
 	public void setSerialinterface(String serialinterface) {
 		this.serialinterface = serialinterface;
 		triggerInitialize();
 	}
 
-	@IsConfigParameter("stopbits")
+	@IsConfig("stopbits")
 	public void setStopbits(Integer stopbits) {
 		this.stopbits = stopbits;
 	}

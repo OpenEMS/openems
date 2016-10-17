@@ -16,24 +16,23 @@ import io.openems.core.utilities.InjectionUtils;
 public class DatabusFactory {
 	private static Logger log = LoggerFactory.getLogger(DatabusFactory.class);
 
-	public static Map<String, DataChannelMapping> getDataChannels(Thing thing, Databus databus) {
-		HashMap<String, DataChannelMapping> dataChannels = new HashMap<>();
+	public static Map<String, DataChannel> getDataChannels(Thing thing, Databus databus) {
+		HashMap<String, DataChannel> dataChannels = new HashMap<>();
 		// fill channels for this thing
 		for (Method method : thing.getClass().getDeclaredMethods()) {
 			// get all methods of this class
-			if (method.getReturnType().isAssignableFrom(Channel.class)) {
+			if (Channel.class.isAssignableFrom(method.getReturnType())) {
 				// method returns a Channel; now check for the annotation
 				IsChannel annotation = InjectionUtils.getIsChannelMethods(thing.getClass(), method.getName());
 				if (annotation != null) {
 					try {
 						Channel channel = (Channel) method.invoke(thing);
 						channel.setDatabus(databus);
-						DataChannelMapping dataChannel = new DataChannelMapping(channel, annotation.id(),
-								annotation.address());
+						DataChannel dataChannel = new DataChannel(thing, thing.getThingId(), channel, annotation.id());
 						dataChannels.put(annotation.id(), dataChannel);
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 						log.warn("Unable to add Channel to Databus. Method [" + method.getName() + "], ChannelId ["
-								+ annotation.id() + "], Address [" + annotation.address() + "]: " + e.getMessage());
+								+ annotation.id() + "]: " + e.getMessage());
 					}
 				}
 			}

@@ -5,7 +5,7 @@ import io.openems.api.channel.IsChannel;
 
 public interface Meter extends DeviceNature {
 
-	@IsChannel(id = "ActivePower", address = 1)
-	public Channel getActivePower();
+	@IsChannel(id = "ActivePower")
+	public Channel activePower();
 
 }

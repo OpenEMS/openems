@@ -27,15 +27,14 @@ public class App {
 		JsonObject config = demo.getConfig();
 
 		Map<String, Thing> things = ThingFactory.getFromConfig(config, databus);
-		// ThingFactory.printThings(things);
+		ThingFactory.printThings(things);
 
 		FeneconCommercialEss ess0 = (FeneconCommercialEss) things.get("ess0");
-		Channel soc = ess0.getSoc();
+		Channel soc = ess0.soc();
 		ess0.getProtocol().setAsRequired(soc);
 
-		Databus dataBus = new Databus();
 		for (Entry<String, Thing> thing : things.entrySet()) {
-			dataBus.addThing(thing.getKey(), thing.getValue());
+			databus.addThing(thing.getKey(), thing.getValue());
 		}
 		// dataBus.printAll();
 		//
@@ -44,6 +43,6 @@ public class App {
 		//
 		Thread.sleep(3000);
 
-		log.info("ess0/soc: " + dataBus.getValue("ess0", "Soc"));
+		log.info("ess0/soc: " + databus.getValue("ess0", "Soc"));
 	}
 }

@@ -81,7 +81,7 @@ public class ControllerFactory {
 				Map<String, Method> channelMethods = new HashMap<>();
 				for (Method method : thingClass.getDeclaredMethods()) {
 					// get all methods of this class
-					if (method.getReturnType().isAssignableFrom(Channel.class)) {
+					if (Channel.class.isAssignableFrom(method.getReturnType())) {
 						// method returns a Channel; now check for the annotation
 						IsChannel annotation = InjectionUtils.getIsChannelMethods(thingClass, method.getName());
 						if (annotation != null) {
@@ -123,8 +123,8 @@ public class ControllerFactory {
 						Method sourceMethod = channelMethods.get(channelId);
 						if (sourceMethod == null) {
 							log.warn("No matching source Method found for ThingMap ["
-									+ thingMap.getClass().getSimpleName() + "], ChannelId [" + channelId + "], Field ["
-									+ targetField.getName() + "]");
+									+ thingMap.getClass().getCanonicalName() + "], ChannelId [" + channelId
+									+ "], Field [" + targetField.getName() + "]");
 						} else {
 							log.debug("Match ThingId [" + thingId + "], ChannelId [" + channelId + "]: Method ["
 									+ sourceMethod.getName() + "] -> Field [" + targetField.getName() + "]");
@@ -134,8 +134,9 @@ public class ControllerFactory {
 								targetField.set(thingMap, channel);
 							} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException
 									| NullPointerException e) {
-								throw new InjectionException("Unable to set IsRequired field for ThingId [" + thingId
-										+ "], ThingMap [" + thingMap.getClass().getSimpleName() + "]");
+								throw new InjectionException(
+										"Unable to set IsRequired field for ThingId [" + thingId + "], ThingMap ["
+												+ thingMap.getClass().getSimpleName() + "]: " + e.getMessage());
 							}
 						}
 					}

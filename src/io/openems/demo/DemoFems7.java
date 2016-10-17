@@ -48,6 +48,11 @@ public class DemoFems7 extends Demo {
 		controller0.add("class",
 				new JsonPrimitive("io.openems.impl.controller.avoidtotaldischarge.AvoidTotalDischargeController"));
 
+		JsonObject controller1 = new JsonObject();
+		controllers.add(controller1);
+		controller1.add("priority", new JsonPrimitive(50));
+		controller1.add("class", new JsonPrimitive("io.openems.impl.controller.balancing.Balancing"));
+
 		return config;
 	}
 }

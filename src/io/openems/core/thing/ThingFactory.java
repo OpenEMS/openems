@@ -21,7 +21,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InjectionException;
-import io.openems.api.thing.IsConfigParameter;
+import io.openems.api.thing.IsConfig;
 import io.openems.api.thing.Thing;
 import io.openems.core.bridge.Bridge;
 import io.openems.core.databus.Databus;
@@ -202,7 +202,7 @@ public class ThingFactory {
 	}
 
 	/**
-	 * Searches the given {@link Thing} for methods annotated with {@link IsConfigParameter}. Finds matching entries in
+	 * Searches the given {@link Thing} for methods annotated with {@link IsConfig}. Finds matching entries in
 	 * the given jConfig {@link JsonObject}. Calls the annotated method with the matching entry. See
 	 * {@link getFromConfig()) for more information on the config format.
 	 *
@@ -217,7 +217,7 @@ public class ThingFactory {
 	private static void injectConfigParameters(Thing thing, JsonObject jConfig, Map<String, Thing> things)
 			throws InjectionException, ConfigException {
 		for (Method method : thing.getClass().getMethods()) {
-			IsConfigParameter annotation = method.getAnnotation(IsConfigParameter.class);
+			IsConfig annotation = method.getAnnotation(IsConfig.class);
 			if (annotation != null) {
 				// found valid annotation
 				String configParameterName = annotation.value();
