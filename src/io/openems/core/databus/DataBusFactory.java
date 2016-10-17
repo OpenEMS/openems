@@ -11,26 +11,28 @@ import org.slf4j.LoggerFactory;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsChannel;
 import io.openems.api.thing.Thing;
+import io.openems.core.utilities.InjectionUtils;
 
-public class DataBusFactory {
-	private static Logger log = LoggerFactory.getLogger(DataBusFactory.class);
+public class DatabusFactory {
+	private static Logger log = LoggerFactory.getLogger(DatabusFactory.class);
 
-	public static Map<String, DataChannel> getDataChannels(Thing thing, DataBus dataBus) {
-		HashMap<String, DataChannel> dataChannels = new HashMap<>();
+	public static Map<String, DataChannelMapping> getDataChannels(Thing thing, Databus databus) {
+		HashMap<String, DataChannelMapping> dataChannels = new HashMap<>();
 		// fill channels for this thing
 		for (Method method : thing.getClass().getDeclaredMethods()) {
 			// get all methods of this class
 			if (method.getReturnType().isAssignableFrom(Channel.class)) {
 				// method returns a Channel; now check for the annotation
-				IsChannel annotation = getAnnotatedMethod(thing.getClass(), method.getName());
+				IsChannel annotation = InjectionUtils.getIsChannelMethods(thing.getClass(), method.getName());
 				if (annotation != null) {
 					try {
 						Channel channel = (Channel) method.invoke(thing);
-						channel.setDataBus(dataBus);
-						DataChannel dataChannel = new DataChannel(channel, annotation.id(), annotation.address());
+						channel.setDatabus(databus);
+						DataChannelMapping dataChannel = new DataChannelMapping(channel, annotation.id(),
+								annotation.address());
 						dataChannels.put(annotation.id(), dataChannel);
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-						log.warn("Unable to add Channel to DataBus. Method [" + method.getName() + "], ChannelId ["
+						log.warn("Unable to add Channel to Databus. Method [" + method.getName() + "], ChannelId ["
 								+ annotation.id() + "], Address [" + annotation.address() + "]: " + e.getMessage());
 					}
 				}
@@ -39,42 +41,4 @@ public class DataBusFactory {
 		return dataChannels;
 	}
 
-	/**
-	 * Searches the class tree for a method with the name methodName, that is annotated with IsChannel.
-	 *
-	 * @param clazz
-	 * @param methodName
-	 * @return IsChannel annotation or null if no match was found
-	 */
-	private static IsChannel getAnnotatedMethod(Class<?> clazz, String methodName) {
-		// clazz must be a Thing
-		if (!Thing.class.isInterface() && !Thing.class.isAssignableFrom(clazz)) {
-			return null;
-		}
-		// check if method can be found
-		Method method;
-		try {
-			method = clazz.getMethod(methodName);
-		} catch (NoSuchMethodException | SecurityException e) {
-			return null;
-		}
-		// return the annotation if found
-		IsChannel annotation = method.getAnnotation(IsChannel.class);
-		if (annotation != null) {
-			return annotation;
-		}
-		// start recursive search if not found
-		for (Class<?> implementedInterface : clazz.getInterfaces()) {
-			// search all implemented interfaces
-			IsChannel ret = getAnnotatedMethod(implementedInterface, methodName);
-			if (ret != null) {
-				return ret;
-			}
-		}
-		if (clazz.getSuperclass() == null) {
-			// reached the top end... no superclass found
-			return null;
-		}
-		return getAnnotatedMethod(clazz.getSuperclass(), methodName);
-	}
 }

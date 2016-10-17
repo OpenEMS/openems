@@ -10,9 +10,9 @@ public interface Ess extends DeviceNature {
 	// TODO @IsChannel(id = "ActivePower", address = 0)
 	public Channel getActivePower();
 
-	@IsChannel(id = "soc", address = 0)
+	@IsChannel(id = "Soc", address = 0)
 	public Channel getSoc();
 
-	@IsConfigParameter("minSoc")
+	@IsConfigParameter("MinSoc")
 	public void setMinSoc(Integer minSoc);
 }

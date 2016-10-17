@@ -36,7 +36,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 
 	@Override
 	public String toString() {
-		return "FeneconCommercialEss [minSoc=" + minSoc + ", getThingId()=" + getThingId() + "]";
+		return "FeneconCommercialEss [activePower=" + activePower.toSimpleString() + ", minSoc="
+				+ minSoc.toSimpleString() + ", soc=" + soc.toSimpleString() + "]";
 	}
 
 	@Override

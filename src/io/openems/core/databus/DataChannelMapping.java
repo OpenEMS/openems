@@ -2,12 +2,12 @@ package io.openems.core.databus;
 
 import io.openems.api.channel.Channel;
 
-public class DataChannel {
+public class DataChannelMapping {
 	private final Integer address;
 	private final Channel channel;
 	private final String channelId;
 
-	public DataChannel(Channel channel, String channelId, int address) {
+	public DataChannelMapping(Channel channel, String channelId, int address) {
 		this.address = address;
 		this.channel = channel;
 		this.channelId = channelId;

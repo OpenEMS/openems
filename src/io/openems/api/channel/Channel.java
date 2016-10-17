@@ -6,14 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.databus.DataBus;
+import io.openems.core.databus.Databus;
 
 public class Channel {
 	private final static Logger log = LoggerFactory.getLogger(Channel.class);
 	protected BigInteger maxValue = null;
 	protected BigInteger minValue = null;
 	protected BigInteger value;
-	private DataBus dataBus = null;
+	private Databus databus = null;
 	private boolean isValid = false;
 	private final String unit;
 
@@ -41,8 +41,16 @@ public class Channel {
 		return value;
 	}
 
-	public void setDataBus(DataBus dataBus) {
-		this.dataBus = dataBus;
+	public void setDatabus(Databus databus) {
+		this.databus = databus;
+	}
+
+	public String toSimpleString() {
+		if (isValid) {
+			return value + " " + unit;
+		} else {
+			return "INVALID";
+		}
 	}
 
 	@Override
@@ -61,8 +69,8 @@ public class Channel {
 			this.isValid = true;
 		}
 		this.value = value;
-		if (dataBus != null) {
-			dataBus.channelValueUpdated(this);
+		if (databus != null) {
+			databus.channelValueUpdated(this);
 		}
 	}
 

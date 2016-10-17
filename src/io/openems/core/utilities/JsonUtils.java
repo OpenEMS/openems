@@ -10,7 +10,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.api.exception.ConfigException;
 
-public class JsonUtilities {
+public class JsonUtils {
 	public static JsonArray getAsJsonArray(JsonElement jElement, String memberName) throws ConfigException {
 		JsonElement jSubElement = getSubElement(jElement, memberName);
 		if (!jSubElement.isJsonArray()) {
@@ -24,6 +24,14 @@ public class JsonUtilities {
 			throw new ConfigException("Config is not a JsonObject: " + jElement);
 		}
 		return jElement.getAsJsonObject();
+	};
+
+	public static JsonObject getAsJsonObject(JsonElement jElement, String memberName) throws ConfigException {
+		JsonElement jsubElement = getSubElement(jElement, memberName);
+		if (!jsubElement.isJsonObject()) {
+			throw new ConfigException("Config is not a JsonObject: " + jsubElement);
+		}
+		return jsubElement.getAsJsonObject();
 	};
 
 	public static JsonPrimitive getAsPrimitive(JsonElement jElement, String memberName) throws ConfigException {

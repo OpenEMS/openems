@@ -46,7 +46,7 @@ public class ModbusProtocol {
 	}
 
 	public synchronized void setAsRequired(Channel channel) {
-		System.out.println("Set required: " + channel + " " + this);
+		log.debug("Set required: " + channel + " " + this);
 		ModbusRange range = channelElementMap.get(channel).getModbusRange();
 		otherRanges.remove(range.getStartAddress());
 		requiredRanges.put(range.getStartAddress(), range);

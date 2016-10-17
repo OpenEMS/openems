@@ -9,6 +9,7 @@ import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
+import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.OpenemsModbusException;
 import io.openems.core.bridge.Bridge;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
@@ -28,10 +29,13 @@ public abstract class ModbusBridge extends Bridge {
 	}
 
 	@Override
-	protected void forever() throws Throwable {
-		log.info("forever()");
+	protected void forever() {
 		for (ModbusDevice modbusdevice : modbusdevices) {
-			modbusdevice.update(this);
+			try {
+				modbusdevice.update(this);
+			} catch (OpenemsException e) {
+				log.error(e.getMessage());
+			}
 		}
 	}
 

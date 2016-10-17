@@ -1,6 +1,5 @@
 package io.openems.core.thing;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -18,12 +17,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
+import io.openems.api.exception.InjectionException;
 import io.openems.api.thing.IsConfigParameter;
 import io.openems.api.thing.Thing;
 import io.openems.core.bridge.Bridge;
-import io.openems.core.utilities.JsonUtilities;
+import io.openems.core.databus.Databus;
+import io.openems.core.scheduler.Scheduler;
+import io.openems.core.utilities.InjectionUtils;
+import io.openems.core.utilities.JsonUtils;
 
 public class ThingFactory {
 
@@ -77,17 +81,19 @@ public class ThingFactory {
 	 * @param jConfig
 	 * @return
 	 * @throws ConfigException
+	 * @throws InjectionException
 	 */
-	public static Map<String, Thing> getFromConfig(JsonObject jConfig) throws ConfigException {
+	public static Map<String, Thing> getFromConfig(JsonObject jConfig, Databus databus)
+			throws ConfigException, InjectionException {
 		Map<String, Thing> things = new HashMap<>();
 
 		/*
 		 * read each Bridge in "things" array
 		 */
-		JsonArray jThings = JsonUtilities.getAsJsonArray(jConfig, "things");
+		JsonArray jThings = JsonUtils.getAsJsonArray(jConfig, "things");
 		for (JsonElement jBridgeElement : jThings) {
-			JsonObject jBridge = JsonUtilities.getAsJsonObject(jBridgeElement);
-			String bridgeClass = JsonUtilities.getAsString(jBridge, "class");
+			JsonObject jBridge = JsonUtils.getAsJsonObject(jBridgeElement);
+			String bridgeClass = JsonUtils.getAsString(jBridge, "class");
 			Bridge bridge = (Bridge) getThingInstance(bridgeClass);
 			injectConfigParameters(bridge, jBridge, things);
 			things.put(bridge.getThingId(), bridge);
@@ -95,10 +101,10 @@ public class ThingFactory {
 			 * read each Device in "things" array
 			 */
 			List<Device> devices = new ArrayList<>();
-			JsonArray jDevices = JsonUtilities.getAsJsonArray(jBridge, "devices");
+			JsonArray jDevices = JsonUtils.getAsJsonArray(jBridge, "devices");
 			for (JsonElement jDeviceElement : jDevices) {
-				JsonObject jDevice = JsonUtilities.getAsJsonObject(jDeviceElement);
-				String deviceClass = JsonUtilities.getAsString(jDevice, "class");
+				JsonObject jDevice = JsonUtils.getAsJsonObject(jDeviceElement);
+				String deviceClass = JsonUtils.getAsString(jDevice, "class");
 				Device device = (Device) getThingInstance(deviceClass);
 				injectConfigParameters(device, jDevice, things);
 				devices.add(device);
@@ -106,7 +112,61 @@ public class ThingFactory {
 			}
 			bridge.setDevices(devices.stream().toArray(Device[]::new));
 		}
+
+		/*
+		 * read Scheduler
+		 */
+		JsonObject jScheduler = JsonUtils.getAsJsonObject(jConfig, "scheduler");
+		String schedulerClass = JsonUtils.getAsString(jScheduler, "class");
+		Scheduler scheduler = (Scheduler) getThingInstance(schedulerClass, databus);
+		injectConfigParameters(scheduler, jScheduler, things);
+		things.put(scheduler.getThingId(), scheduler);
+		/*
+		 * read each Controller in "controllers" array
+		 */
+		JsonArray jControllers = JsonUtils.getAsJsonArray(jScheduler, "controllers");
+		for (JsonElement jControllerElement : jControllers) {
+			JsonObject jController = JsonUtils.getAsJsonObject(jControllerElement);
+			String controllerClass = JsonUtils.getAsString(jController, "class");
+			Controller controller = (Controller) getThingInstance(controllerClass);
+			injectConfigParameters(controller, jController, things);
+			things.put(controller.getThingId(), controller);
+			scheduler.addController(controller, things);
+		}
 		return things;
+	}
+
+	/**
+	 * Creates a Thing instance of the given {@link Class}. {@link Object} arguments are optional.
+	 *
+	 * @param clazz
+	 * @param args
+	 * @return
+	 * @throws ConfigException
+	 */
+	public static Thing getThingInstance(Class<?> clazz, Object... args) throws ConfigException {
+		try {
+			return (Thing) InjectionUtils.getInstance(clazz, args);
+		} catch (ClassCastException e) {
+			e.printStackTrace();
+			throw new ConfigException("Class [" + clazz.getName() + "] is not a Thing");
+		}
+	}
+
+	/**
+	 * Finds in a collection of Things all {@link Thing}s with matching type
+	 *
+	 * @param type
+	 * @return
+	 */
+	public static Map<String, Thing> getThingsByClass(Map<String, Thing> things, Class<? extends Thing> type) {
+		Map<String, Thing> result = new HashMap<>();
+		for (Entry<String, Thing> thingEntry : things.entrySet()) {
+			if (type.isAssignableFrom(thingEntry.getValue().getClass())) {
+				result.put(thingEntry.getKey(), thingEntry.getValue());
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -115,58 +175,30 @@ public class ThingFactory {
 	 * @param things
 	 */
 	public static void printThings(Map<String, Thing> things) {
-		log.info("");
 		log.info("Things:");
 		log.info("--------");
 		for (Entry<String, Thing> entry : things.entrySet()) {
-			log.info("thingId: " + entry.getKey());
-			log.info("thing:   " + entry.getValue());
+			log.info("Thing [" + entry.getKey() + "]: " + entry.getValue());
 		}
 	}
 
 	/**
-	 * Creates an instance of the given {@link Class}. {@link Object} arguments are optional.
-	 *
-	 * Restriction: this implementation tries only the first constructor of the Class.
-	 *
-	 * @param clazz
-	 * @param args
-	 * @return
-	 * @throws ConfigException
-	 */
-	private static Thing getThingInstance(Class<?> clazz, Object... args) throws ConfigException {
-		try {
-			if (args.length == 0) {
-				return (Thing) clazz.newInstance();
-			} else {
-				Constructor<?> constructor = clazz.getConstructors()[0];
-				return (Thing) constructor.newInstance(args);
-			}
-		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-			e.printStackTrace();
-			throw new ConfigException("Unable to instantiate class [" + clazz.getName() + "]: " + e.getMessage());
-		} catch (ClassCastException e) {
-			e.printStackTrace();
-			throw new ConfigException("Class [" + clazz.getName() + "] is not a Thing");
-		}
-	}
-
-	/**
-	 * Creates an instance of the given {@link Class}name. Uses {@link getThingInstance()} internally.
+	 * Creates an instance of the given {@link Class}name. Uses {@link getThingInstance()} internally. {@link Object}
+	 * arguments are optional.
 	 *
 	 * @param className
 	 * @return
 	 * @throws ConfigException
 	 */
 	@SuppressWarnings("unchecked")
-	private static Thing getThingInstance(String className) throws ConfigException {
+	private static Thing getThingInstance(String className, Object... args) throws ConfigException {
 		Class<? extends Thing> clazz;
 		try {
 			clazz = (Class<? extends Thing>) Class.forName(className);
 		} catch (ClassNotFoundException e) {
 			throw new ConfigException("Class not found: [" + className + "]");
 		}
-		return getThingInstance(clazz);
+		return getThingInstance(clazz, args);
 	}
 
 	/**
@@ -183,7 +215,7 @@ public class ThingFactory {
 	 * @throws ConfigException
 	 */
 	private static void injectConfigParameters(Thing thing, JsonObject jConfig, Map<String, Thing> things)
-			throws ConfigException {
+			throws InjectionException, ConfigException {
 		for (Method method : thing.getClass().getMethods()) {
 			IsConfigParameter annotation = method.getAnnotation(IsConfigParameter.class);
 			if (annotation != null) {
@@ -194,7 +226,7 @@ public class ThingFactory {
 				{
 					Parameter[] parameters = method.getParameters();
 					if (parameters.length != 1) {
-						throw new ConfigException("Invalid 'IsConfigParameter' method [" + method.getName()
+						throw new InjectionException("Invalid 'IsConfigParameter' method [" + method.getName()
 								+ "] in class [" + thing.getClass() + "]");
 					}
 					paramType = parameters[0].getType();
@@ -204,16 +236,16 @@ public class ThingFactory {
 					/**
 					 * Parameter is a JsonPrimitive
 					 */
-					JsonPrimitive jConfigParameter = JsonUtilities.getAsPrimitive(jConfig, configParameterName);
-					parameter = JsonUtilities.getJsonPrimitiveAsClass(jConfigParameter, paramType);
+					JsonPrimitive jConfigParameter = JsonUtils.getAsPrimitive(jConfig, configParameterName);
+					parameter = JsonUtils.getJsonPrimitiveAsClass(jConfigParameter, paramType);
 
 				} else {
 					/**
 					 * Parameter is NOT a JsonPrimitive -> create a matching Thing
 					 */
-					JsonObject jConfigParameter = JsonUtilities
-							.getAsJsonObject(JsonUtilities.getSubElement(jConfig, configParameterName));
-					String thingId = JsonUtilities.getAsString(jConfigParameter, "thingId");
+					JsonObject jConfigParameter = JsonUtils
+							.getAsJsonObject(JsonUtils.getSubElement(jConfig, configParameterName));
+					String thingId = JsonUtils.getAsString(jConfigParameter, "thingId");
 					Thing newThing;
 					if (things.containsKey(thingId)) {
 						newThing = things.get(thingId);
@@ -228,7 +260,7 @@ public class ThingFactory {
 				try {
 					method.invoke(thing, parameter);
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-					throw new ConfigException("Unable to call method [" + method.getName() + "] with parameter ["
+					throw new InjectionException("Unable to call method [" + method.getName() + "] with parameter ["
 							+ parameter + "]: " + e.getMessage());
 				}
 			}

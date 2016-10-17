@@ -13,13 +13,13 @@ import io.openems.api.channel.Channel;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.thing.Thing;
 
-public class DataBus {
-	private final static Logger log = LoggerFactory.getLogger(DataBus.class);
+public class Databus {
+	private final static Logger log = LoggerFactory.getLogger(Databus.class);
 
 	/**
 	 * holds thingId -> channelId -> DataChannel
 	 */
-	private Map<String, Map<String, DataChannel>> thingDataChannels = new HashMap<>();
+	private Map<String, Map<String, DataChannelMapping>> thingDataChannels = new HashMap<>();
 
 	/**
 	 * holds thingId -> thing
@@ -28,7 +28,7 @@ public class DataBus {
 
 	public void addThing(String thingId, Thing thing) {
 		things.put(thingId, thing);
-		Map<String, DataChannel> dataChannels = DataBusFactory.getDataChannels(thing, this);
+		Map<String, DataChannelMapping> dataChannels = DatabusFactory.getDataChannels(thing, this);
 		thingDataChannels.put(thingId, dataChannels);
 	}
 
@@ -49,16 +49,16 @@ public class DataBus {
 	}
 
 	/**
-	 * Nicely prints all {@link Thing}s and {@link DataChannel}s to system output
+	 * Nicely prints all {@link Thing}s and {@link DataChannelMapping}s to system output
 	 *
 	 * @param things
 	 */
 	public void printAll() {
-		log.info("DataBus:");
+		log.info("Databus:");
 		log.info("--------");
-		for (Entry<String, Map<String, DataChannel>> thingDataChannel : thingDataChannels.entrySet()) {
+		for (Entry<String, Map<String, DataChannelMapping>> thingDataChannel : thingDataChannels.entrySet()) {
 			log.info("Thing [" + thingDataChannel.getKey() + "]");
-			for (Entry<String, DataChannel> dataChannel : thingDataChannel.getValue().entrySet()) {
+			for (Entry<String, DataChannelMapping> dataChannel : thingDataChannel.getValue().entrySet()) {
 				log.info("  Channel [" + dataChannel.getKey() + "]: " + dataChannel.getValue());
 			}
 		}
