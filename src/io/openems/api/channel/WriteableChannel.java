@@ -2,6 +2,8 @@ package io.openems.api.channel;
 
 import java.math.BigInteger;
 
+import io.openems.api.exception.WriteChannelException;
+
 public class WriteableChannel extends Channel {
 
 	private BigInteger maxWriteValue = null;
@@ -47,10 +49,17 @@ public class WriteableChannel extends Channel {
 	 * Set a new value for this Channel
 	 *
 	 * @param writeValue
+	 * @throws WriteChannelException
 	 */
-	public void pushWriteValue(BigInteger writeValue) {
-		this.writeValue = writeValue;
-		setMinMaxNewValue(writeValue, writeValue);
+	public void pushWriteValue(BigInteger writeValue) throws WriteChannelException {
+		if ((minWriteValue == null || (minWriteValue != null && writeValue.compareTo(minWriteValue) > 0))
+				&& (maxWriteValue == null || (maxWriteValue != null && writeValue.compareTo(maxWriteValue) < 0))) {
+			this.writeValue = writeValue;
+			setMinMaxNewValue(writeValue, writeValue);
+		} else {
+			throw new WriteChannelException("Value [" + writeValue + "] is out of boundaries: min [" + minWriteValue
+					+ "] max [" + maxWriteValue + "]");
+		}
 	}
 
 	/**
@@ -61,22 +70,32 @@ public class WriteableChannel extends Channel {
 		this.maxWriteValue = maxValue;
 	}
 
-	public void setMaxWriteValue(BigInteger maxValue) {
-		this.maxWriteValue = maxValue;
-		if (this.writeValue != null && this.writeValue.compareTo(maxValue) > 0) {
-			this.writeValue = maxValue;
+	public void setMaxWriteValue(BigInteger maxValue) throws WriteChannelException {
+		if ((this.minWriteValue == null
+				|| (this.minWriteValue != null && writeValue.compareTo(this.minWriteValue) >= 0))
+				&& (this.maxWriteValue == null
+						|| (this.maxWriteValue != null && writeValue.compareTo(this.maxWriteValue) <= 0))) {
+			this.maxWriteValue = maxValue;
+		} else {
+			throw new WriteChannelException("Max-Value [" + maxValue + "] is out of boundaries: min ["
+					+ this.minWriteValue + "] max [" + this.maxWriteValue + "]");
 		}
 	}
 
-	public void setMinMaxNewValue(BigInteger minValue, BigInteger maxValue) {
+	public void setMinMaxNewValue(BigInteger minValue, BigInteger maxValue) throws WriteChannelException {
 		setMinWriteValue(minValue);
 		setMaxWriteValue(maxValue);
 	}
 
-	public void setMinWriteValue(BigInteger minValue) {
-		this.minWriteValue = minValue;
-		if (this.writeValue != null && this.writeValue.compareTo(minValue) < 0) {
-			this.writeValue = minValue;
+	public void setMinWriteValue(BigInteger minValue) throws WriteChannelException {
+		if ((this.minWriteValue == null
+				|| (this.minWriteValue != null && writeValue.compareTo(this.minWriteValue) >= 0))
+				&& (this.maxWriteValue == null
+						|| (this.maxWriteValue != null && writeValue.compareTo(this.maxWriteValue) <= 0))) {
+			this.minWriteValue = minValue;
+		} else {
+			throw new WriteChannelException("Min-Value [" + minValue + "] is out of boundaries: min ["
+					+ this.minWriteValue + "] max [" + this.maxWriteValue + "]");
 		}
 	}
 }

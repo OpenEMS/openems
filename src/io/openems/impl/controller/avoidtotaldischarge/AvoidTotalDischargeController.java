@@ -6,6 +6,7 @@ import java.util.List;
 import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMapping;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.api.exception.WriteChannelException;
 
 public class AvoidTotalDischargeController extends Controller {
 	@IsThingMapping
@@ -27,7 +28,7 @@ public class AvoidTotalDischargeController extends Controller {
 					// SOC < minSoc - 5
 					ess.setActivePower.setMaxWriteValue(ess.setActivePower.getMaxWriteValue().divide(FIVE));
 				}
-			} catch (InvalidValueException e) {
+			} catch (InvalidValueException | WriteChannelException e) {
 				log.error(e.getMessage());
 			}
 		}

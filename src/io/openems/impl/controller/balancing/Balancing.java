@@ -5,6 +5,7 @@ import java.util.List;
 
 import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMapping;
+import io.openems.api.exception.WriteChannelException;
 
 public class Balancing extends Controller {
 	@IsThingMapping
@@ -27,7 +28,11 @@ public class Balancing extends Controller {
 		log.info("Balancing: ");
 		if (isOnGrid()) {
 			for (EssMap ess : esss) {
-				ess.setActivePower.pushWriteValue(BigInteger.valueOf(1));
+				try {
+					ess.setActivePower.pushWriteValue(BigInteger.valueOf(1));
+				} catch (WriteChannelException e) {
+					log.error(e.getMessage());
+				}
 			}
 
 			// int calculatedPower = meter.activePower.getValue().intValue();
