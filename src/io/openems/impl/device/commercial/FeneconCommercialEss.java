@@ -18,9 +18,10 @@ import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
 import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBuilder;
 
 public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
-	private final WriteableModbusChannel _activePower = new WriteableModbusChannelBuilder().unit("W").build();
-	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().unit("W").build();
-	private final ModbusChannel _allowedDischarge = new ModbusChannelBuilder().unit("W").build();
+	private final WriteableModbusChannel _activePower = new WriteableModbusChannelBuilder().unit("W").multiplier(100)
+			.build();
+	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().unit("W").multiplier(100).build();
+	private final ModbusChannel _allowedDischarge = new ModbusChannelBuilder().unit("W").multiplier(100).build();
 	private final ConfigChannel _minSoc = new ConfigChannelBuilder().defaultValue(DEFAULT_MINSOC).percentType().build();
 	private final ModbusChannel _soc = new ModbusChannelBuilder().percentType().build();
 
@@ -69,12 +70,12 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 
 		return new ModbusProtocol( //
 				new ModbusRange(0x0230, //
-						new ElementBuilder().address(0x0230).channel(_allowedCharge).multiplier(100).signed().build(),
-						new ElementBuilder().address(0x0231).channel(_allowedDischarge).multiplier(100).build()),
+						new ElementBuilder().address(0x0230).channel(_allowedCharge).signed().build(),
+						new ElementBuilder().address(0x0231).channel(_allowedDischarge).build()),
 				new ModbusRange(0x1402, //
 						new ElementBuilder().address(0x1402).channel(_soc).build()),
 				new ModbusRange(0x0501, //
-						new ElementBuilder().address(0x0501).channel(_activePower).multiplier(100).signed().build() //
+						new ElementBuilder().address(0x0501).channel(_activePower).signed().build() //
 				));
 	}
 }

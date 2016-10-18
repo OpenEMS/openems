@@ -6,8 +6,9 @@ import io.openems.api.channel.WriteableChannel;
 
 public class WriteableModbusChannel extends WriteableChannel {
 
-	public WriteableModbusChannel(String unit, BigInteger minValue, BigInteger maxValue) {
-		super(unit, minValue, maxValue);
+	public WriteableModbusChannel(String unit, BigInteger minValue, BigInteger maxValue, BigInteger multiplier,
+			BigInteger delta) {
+		super(unit, minValue, maxValue, multiplier, delta);
 	}
 
 	@Override

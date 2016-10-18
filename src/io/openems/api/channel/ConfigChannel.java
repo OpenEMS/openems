@@ -4,8 +4,9 @@ import java.math.BigInteger;
 
 public class ConfigChannel extends Channel {
 
-	public ConfigChannel(String unit, BigInteger minValue, BigInteger maxValue, BigInteger defaultValue) {
-		super(unit, minValue, maxValue);
+	public ConfigChannel(String unit, BigInteger minValue, BigInteger maxValue, BigInteger multiplier, BigInteger delta,
+			BigInteger defaultValue) {
+		super(unit, minValue, maxValue, multiplier, delta);
 		updateValue(defaultValue, false);
 	}
 

@@ -30,8 +30,8 @@ import io.openems.impl.protocol.modbus.ModbusElement;
 public class UnsignedWordElement extends ModbusElement implements WordElement {
 	final ByteOrder byteOrder;
 
-	public UnsignedWordElement(int address, Channel channel, int multiplier, int delta, ByteOrder byteOrder) {
-		super(address, channel, multiplier, delta);
+	public UnsignedWordElement(int address, Channel channel, ByteOrder byteOrder) {
+		super(address, channel);
 		this.byteOrder = byteOrder;
 	}
 
@@ -56,12 +56,11 @@ public class UnsignedWordElement extends ModbusElement implements WordElement {
 		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);
 		buff.put(register.toBytes());
 		int shortValue = Short.toUnsignedInt(buff.getShort(0));
-		setValue(BigInteger.valueOf(shortValue).multiply(multiplier).subtract(delta));
+		setValue(BigInteger.valueOf(shortValue));
 	}
 
 	public Register toRegister(BigInteger value) {
-		byte[] b = ByteBuffer.allocate(2).order(byteOrder).putShort(value.add(delta).divide(multiplier).shortValue())
-				.array();
+		byte[] b = ByteBuffer.allocate(2).order(byteOrder).putShort(value.shortValue()).array();
 		return new SimpleRegister(b[0], b[1]);
 	}
 }

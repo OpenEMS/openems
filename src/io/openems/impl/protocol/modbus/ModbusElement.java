@@ -11,16 +11,12 @@ import io.openems.impl.protocol.modbus.internal.ModbusRange;
 public abstract class ModbusElement {
 	protected final int address;
 	protected final Channel channel;
-	protected final BigInteger delta;
 	protected final Logger log;
-	protected final BigInteger multiplier;
 	protected ModbusRange range = null;
 
-	public ModbusElement(int address, Channel channel, int multiplier, int delta) {
+	public ModbusElement(int address, Channel channel) {
 		this.address = address;
 		this.channel = channel;
-		this.delta = BigInteger.valueOf(delta);
-		this.multiplier = BigInteger.valueOf(multiplier);
 		log = LoggerFactory.getLogger(this.getClass());
 	}
 

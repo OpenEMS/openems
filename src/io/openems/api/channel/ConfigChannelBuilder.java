@@ -7,7 +7,7 @@ public class ConfigChannelBuilder extends ChannelBuilder<ConfigChannelBuilder> {
 
 	@Override
 	public ConfigChannel build() {
-		return new ConfigChannel(unit, minValue, maxValue, defaultValue);
+		return new ConfigChannel(unit, minValue, maxValue, multiplier, delta, defaultValue);
 	}
 
 	public ConfigChannelBuilder defaultValue(BigInteger defaultValue) {

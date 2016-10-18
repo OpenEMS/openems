@@ -30,13 +30,16 @@ public class Databus {
 	 */
 	private final Map<String, Thing> things = new HashMap<>();
 
-	/*
+	/**
 	 * holds WritableChannels
 	 */
 	private final List<DataChannel> writableChannels = new LinkedList<>();
 
-	/*
+	/**
 	 * Adds a thing to the Databus and fills the local convenience maps
+	 *
+	 * @param thingId
+	 * @param thing
 	 */
 	public synchronized void addThing(String thingId, Thing thing) {
 		things.put(thingId, thing);
@@ -50,6 +53,11 @@ public class Databus {
 		log.info("writableChannels " + this.writableChannels.size());
 	}
 
+	/**
+	 * Is getting triggered on update event of any {@link Channel} on the Databus
+	 *
+	 * @param channel
+	 */
 	public void channelValueUpdated(Channel channel) {
 		// log.info("Channel update: " + channel);
 	}
@@ -71,7 +79,6 @@ public class Databus {
 	}
 
 	public List<DataChannel> getWritableChannels() {
-		log.info("getWritableChannels " + this.writableChannels.size());
 		return Collections.unmodifiableList(this.writableChannels);
 	}
 
@@ -87,6 +94,18 @@ public class Databus {
 			log.info("Thing [" + thingDataChannel.getKey() + "]");
 			for (Entry<String, DataChannel> dataChannel : thingDataChannel.getValue().entrySet()) {
 				log.info("  Channel [" + dataChannel.getKey() + "]: " + dataChannel.getValue());
+			}
+		}
+	}
+
+	/**
+	 * Triggers a write for all {@link WriteableChannel}
+	 */
+	public void writeAllWriteableChannels() {
+		for (DataChannel dataChannel : this.getWritableChannels()) {
+			WriteableChannel writableChannel = (WriteableChannel) dataChannel.channel;
+			if (writableChannel.hasWriteValue()) {
+				log.info("Databus: New Value for " + dataChannel.channelId + ": " + writableChannel.popWriteValue());
 			}
 		}
 	}

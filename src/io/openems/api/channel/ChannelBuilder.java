@@ -3,12 +3,24 @@ package io.openems.api.channel;
 import java.math.BigInteger;
 
 public class ChannelBuilder<B extends ChannelBuilder<?>> {
+	protected BigInteger delta = BigInteger.ZERO;
 	protected BigInteger maxValue = null;
 	protected BigInteger minValue = null;
+	protected BigInteger multiplier = BigInteger.ONE;
 	protected String unit = "";
 
 	public Channel build() {
-		return new Channel(unit, minValue, maxValue);
+		return new Channel(unit, minValue, maxValue, multiplier, delta);
+	}
+
+	@SuppressWarnings("unchecked")
+	public B delta(BigInteger delta) {
+		this.delta = delta;
+		return (B) this;
+	}
+
+	public B delta(int delta) {
+		return delta(BigInteger.valueOf(delta));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -33,6 +45,16 @@ public class ChannelBuilder<B extends ChannelBuilder<?>> {
 	public B minValue(int minValue) {
 		this.minValue = BigInteger.valueOf(minValue);
 		return (B) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public B multiplier(BigInteger multiplier) {
+		this.multiplier = multiplier;
+		return (B) this;
+	}
+
+	public B multiplier(int multiplier) {
+		return multiplier(BigInteger.valueOf(multiplier));
 	}
 
 	public B percentType() {
