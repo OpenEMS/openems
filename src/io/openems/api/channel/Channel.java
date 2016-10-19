@@ -88,10 +88,11 @@ public class Channel {
 	protected void updateValue(BigInteger value, boolean triggerDatabusEvent) {
 		if (value == null) {
 			this.isValid = false;
+			this.value = null;
 		} else {
 			this.isValid = true;
+			this.value = value.multiply(multiplier).subtract(delta);
 		}
-		this.value = value.multiply(multiplier).subtract(delta);
 		if (databus != null && triggerDatabusEvent) {
 			databus.channelValueUpdated(this);
 		}

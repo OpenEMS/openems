@@ -3,6 +3,8 @@ package io.openems.api.channel;
 import java.math.BigInteger;
 import java.util.Stack;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.WriteChannelException;
 
@@ -31,37 +33,85 @@ public class WriteableChannel extends Channel {
 		resetMinMax();
 	}
 
+	/**
+	 * Returns the set Max boundary.
+	 *
+	 * @return
+	 */
+	@Nullable
 	public BigInteger getMaxWriteValue() {
 		return maxWriteValue;
 	}
 
+	/**
+	 * Returns the set Min boundary.
+	 *
+	 * @return
+	 */
+	@Nullable
 	public BigInteger getMinWriteValue() {
 		return minWriteValue;
 	};
 
+	/**
+	 * Returns the multiplier, required to set the value to the hardware
+	 *
+	 * @return
+	 */
+	@Nullable
 	public BigInteger getMultiplier() {
 		return multiplier;
 	}
 
+	/**
+	 * Checks if a fixed value or a boundary was set.
+	 *
+	 * @return true if anything was set.
+	 */
 	public boolean hasWriteValue() {
 		return (writeValue != null || minWriteValue != null || maxWriteValue != null);
 	}
 
+	/**
+	 * Returns the fixed value.
+	 *
+	 * @return
+	 */
+	@Nullable
 	public BigInteger peekWriteValue() {
 		return writeValue;
 	}
 
+	/**
+	 * Returns the value or a value that was derived from the Min and Max boundaries and initializes the
+	 * {@link WriteableChannel}.
+	 *
+	 * @return
+	 */
+	@Nullable
 	public BigInteger popWriteValue() {
 		BigInteger result;
 		if (this.writeValue != null) {
+			// fixed value exists: return it
 			result = this.writeValue;
-		} else if (this.maxWriteValue != null && this.minWriteValue != null) {
-			result = this.minWriteValue.add(this.maxWriteValue).divide(BigInteger.valueOf(2));
-		} else if (this.maxWriteValue != null) {
-			result = this.minValue;
-		} else {
-			// (this.newMinValue != null)
-			result = this.maxValue;
+		} else { // this.writeValue == null
+			if (this.maxWriteValue != null) {
+				if (this.minWriteValue != null) {
+					// Min+Max exist: return average value
+					result = this.minWriteValue.add(this.maxWriteValue).divide(BigInteger.valueOf(2));
+				} else { // this.minWriteValue == null
+					// only Max exists: return it
+					result = this.maxWriteValue;
+				}
+			} else { // this.maxWriteValue == null
+				if (this.minWriteValue != null) {
+					// only Min exist: return it
+					result = this.minWriteValue;
+				} else { // this.minWriteValue == null
+					// No value exists: return null
+					result = null;
+				}
+			}
 		}
 		this.writeValue = null;
 		this.minWriteValue = null;
@@ -75,16 +125,12 @@ public class WriteableChannel extends Channel {
 	 * @param writeValue
 	 * @throws WriteChannelException
 	 */
-	public void pushWriteValue(BigInteger writeValue) throws WriteChannelException {
+	public BigInteger pushWriteValue(BigInteger writeValue) throws WriteChannelException {
 		writeValue = roundToHardwarePrecision(writeValue);
-		if ((minWriteValue == null || (minWriteValue != null && writeValue.compareTo(minWriteValue) > 0))
-				&& (maxWriteValue == null || (maxWriteValue != null && writeValue.compareTo(maxWriteValue) < 0))) {
-			this.writeValue = writeValue;
-			setMinMaxNewValue(writeValue, writeValue);
-		} else {
-			throw new WriteChannelException("Value [" + writeValue + "] is out of boundaries: min [" + minWriteValue
-					+ "] max [" + maxWriteValue + "]");
-		}
+		checkValueBoundaries(writeValue);
+		this.writeValue = writeValue;
+		setMinMaxNewValue(writeValue, writeValue);
+		return writeValue;
 	}
 
 	/**
@@ -95,39 +141,73 @@ public class WriteableChannel extends Channel {
 		this.maxWriteValue = maxValue;
 	}
 
-	public void setMaxWriteValue(BigInteger maxValue) throws WriteChannelException {
-		writeValue = roundToHardwarePrecision(maxValue);
-		if ((this.minWriteValue == null
-				|| (this.minWriteValue != null && writeValue.compareTo(this.minWriteValue) >= 0))
-				&& (this.maxWriteValue == null
-						|| (this.maxWriteValue != null && writeValue.compareTo(this.maxWriteValue) <= 0))) {
-			this.maxWriteValue = maxValue;
-		} else {
-			throw new WriteChannelException("Max-Value [" + maxValue + "] is out of boundaries: min ["
-					+ this.minWriteValue + "] max [" + this.maxWriteValue + "]");
-		}
+	/**
+	 * Sets the Max boundary.
+	 *
+	 * @param maxValue
+	 * @return
+	 * @throws WriteChannelException
+	 */
+	public BigInteger setMaxWriteValue(BigInteger maxValue) throws WriteChannelException {
+		maxValue = roundToHardwarePrecision(maxValue);
+		checkValueBoundaries(maxValue);
+		this.maxWriteValue = maxValue;
+		return maxValue;
 	}
 
+	/**
+	 * Sets both Max and Min boundaries
+	 *
+	 * @param minValue
+	 * @param maxValue
+	 * @throws WriteChannelException
+	 */
 	public void setMinMaxNewValue(BigInteger minValue, BigInteger maxValue) throws WriteChannelException {
 		setMinWriteValue(minValue);
 		setMaxWriteValue(maxValue);
 	}
 
-	public void setMinWriteValue(BigInteger minValue) throws WriteChannelException {
-		writeValue = roundToHardwarePrecision(minValue);
-		if ((this.minWriteValue == null
-				|| (this.minWriteValue != null && writeValue.compareTo(this.minWriteValue) >= 0))
-				&& (this.maxWriteValue == null
-						|| (this.maxWriteValue != null && writeValue.compareTo(this.maxWriteValue) <= 0))) {
-			this.minWriteValue = minValue;
-		} else {
-			throw new WriteChannelException("Min-Value [" + minValue + "] is out of boundaries: min ["
-					+ this.minWriteValue + "] max [" + this.maxWriteValue + "]");
-		}
+	public BigInteger setMinWriteValue(BigInteger minValue) throws WriteChannelException {
+		minValue = roundToHardwarePrecision(minValue);
+		checkValueBoundaries(minValue);
+		this.minWriteValue = minValue;
+		return minValue;
 	}
 
 	protected BigInteger popRawWriteValue() {
-		return popWriteValue().add(delta).divide(multiplier);
+		BigInteger value = popWriteValue();
+		if (value == null) {
+			return value;
+		}
+		return value.add(delta).divide(multiplier);
+	}
+
+	private void checkValueBoundaries(BigInteger value) throws WriteChannelException {
+		if (this.writeValue != null) {
+			if (value.compareTo(this.writeValue) != 0) {
+				throwOutOfBoundariesException();
+			}
+		}
+		if (this.minValue != null) {
+			if (value.compareTo(this.minValue) < 0) {
+				throwOutOfBoundariesException();
+			}
+		}
+		if (this.minWriteValue != null) {
+			if (value.compareTo(this.minWriteValue) < 0) {
+				throwOutOfBoundariesException();
+			}
+		}
+		if (this.maxValue != null) {
+			if (value.compareTo(this.maxValue) > 0) {
+				throwOutOfBoundariesException();
+			}
+		}
+		if (this.maxWriteValue != null) {
+			if (value.compareTo(this.maxWriteValue) > 0) {
+				throwOutOfBoundariesException();
+			}
+		}
 	}
 
 	private BigInteger roundToHardwarePrecision(BigInteger value) {
@@ -137,6 +217,12 @@ public class WriteableChannel extends Channel {
 			log.warn("Value [" + value + "] is too precise for device. Will round to [" + roundedValue + "]");
 		}
 		return value;
+	}
+
+	private void throwOutOfBoundariesException() throws WriteChannelException {
+		throw new WriteChannelException(
+				"Value [" + value + "] is out of boundaries: fixed [" + this.writeValue + "], min [" + this.minValue
+						+ "/" + this.minWriteValue + "], max [" + this.maxValue + "/" + this.maxWriteValue + "]");
 	}
 
 }

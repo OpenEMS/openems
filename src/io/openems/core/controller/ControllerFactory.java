@@ -46,8 +46,9 @@ public class ControllerFactory {
 		 * Search Fields with @IsThingMapping Annotation
 		 */
 		for (Field controllerField : controller.getClass().getDeclaredFields()) {
-			IsThingMapping isThingMapping = controllerField.getAnnotation(IsThingMapping.class);
-			if (isThingMapping != null) {
+			if (controllerField.isAnnotationPresent(IsThingMapping.class)) {
+				@SuppressWarnings("null")
+				IsThingMapping isThingMapping = controllerField.getAnnotation(IsThingMapping.class);
 				// marker to tell if only one mapped Thing or a list of Things is expected
 				boolean isListExpected = false;
 				/*
@@ -69,11 +70,12 @@ public class ControllerFactory {
 				/*
 				 * Get the referenced Thing class
 				 */
-				IsThingMap isThingMap = thingMapClass.getAnnotation(IsThingMap.class);
-				if (isThingMap == null) {
+				if (!thingMapClass.isAnnotationPresent(IsThingMap.class)) {
 					throw new InjectionException("ThingMap [" + controller.getClass().getSimpleName()
 							+ "] has no defined target Thing! 'IsThingMap'-annotation is missing.");
 				}
+				@SuppressWarnings("null")
+				IsThingMap isThingMap = thingMapClass.getAnnotation(IsThingMap.class);
 				Class<? extends Thing> thingClass = isThingMap.type();
 				/*
 				 * Get Channel-Methods of referenced Thing class
@@ -98,8 +100,9 @@ public class ControllerFactory {
 				for (String thingId : matchingThings.keySet()) {
 					ThingMap thingMap = getThingMapInstance(thingMapClass, thingId);
 					thingMaps.put(thingId, thingMap);
-					if (!isListExpected)
+					if (!isListExpected) {
 						break;
+					}
 				}
 				/*
 				 * Get IsRequired channel Fields in Thing
@@ -107,8 +110,9 @@ public class ControllerFactory {
 				 */
 				Map<String, Field> thingMapFields = new HashMap<>();
 				for (Field mapField : thingMapClass.getDeclaredFields()) {
-					IsRequired isRequired = mapField.getAnnotation(IsRequired.class);
-					if (isRequired != null) {
+					if (mapField.isAnnotationPresent(IsRequired.class)) {
+						@SuppressWarnings("null")
+						IsRequired isRequired = mapField.getAnnotation(IsRequired.class);
 						thingMapFields.put(isRequired.channelId(), mapField);
 					}
 				}

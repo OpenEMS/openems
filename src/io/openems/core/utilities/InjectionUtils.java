@@ -54,9 +54,10 @@ public class InjectionUtils {
 			return null;
 		}
 		// return the annotation if found
-		IsChannel annotation = method.getAnnotation(IsChannel.class);
-		if (annotation != null) {
-			return annotation;
+		if (method.isAnnotationPresent(IsChannel.class)) {
+			@SuppressWarnings("null")
+			IsChannel result = method.getAnnotation(IsChannel.class);
+			return result;
 		}
 		// start recursive search if not found
 		for (Class<?> implementedInterface : clazz.getInterfaces()) {

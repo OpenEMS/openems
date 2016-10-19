@@ -216,8 +216,9 @@ public class ThingFactory {
 	private static void injectConfigParameters(Thing thing, JsonObject jConfig, Databus databus)
 			throws InjectionException, ConfigException {
 		for (Method method : thing.getClass().getMethods()) {
-			IsConfig annotation = method.getAnnotation(IsConfig.class);
-			if (annotation != null) {
+			if (method.isAnnotationPresent(IsConfig.class)) {
+				@SuppressWarnings("null")
+				IsConfig annotation = method.getAnnotation(IsConfig.class);
 				// found valid annotation
 				String configParameterName = annotation.value();
 				// prepare method parameter type

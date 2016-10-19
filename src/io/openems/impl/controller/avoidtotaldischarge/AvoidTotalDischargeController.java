@@ -26,7 +26,12 @@ public class AvoidTotalDischargeController extends Controller {
 					ess.setActivePower.setMaxWriteValue(BigInteger.ZERO);
 				} else if (ess.soc.getValue().compareTo(ess.minSoc.getValue().subtract(FIVE)) < 0) {
 					// SOC < minSoc - 5
-					ess.setActivePower.setMaxWriteValue(ess.setActivePower.getMaxWriteValue().divide(FIVE));
+					BigInteger currentMaxValue = ess.setActivePower.getMaxWriteValue();
+					if (currentMaxValue != null) {
+						ess.setActivePower.setMaxWriteValue(currentMaxValue.divide(FIVE));
+					} else {
+						ess.setActivePower.setMaxWriteValue(BigInteger.valueOf(1000));
+					}
 				}
 			} catch (InvalidValueException | WriteChannelException e) {
 				log.error(e.getMessage());

@@ -17,5 +17,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="org.eclipse.jdt.annotation_2.1.0.v20160418-1457.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
