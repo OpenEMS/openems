@@ -18,42 +18,34 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.balancing;
+package io.openems.api.device.nature;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.IsRequired;
-import io.openems.api.channel.WriteableChannel;
-import io.openems.api.controller.IsThingMap;
-import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.Ess;
-import io.openems.api.exception.InvalidValueException;
+import io.openems.api.channel.IsChannel;
 
-@IsThingMap(type = Ess.class)
-public class EssMap extends ThingMap {
+public interface MeterNature extends DeviceNature {
 
-	@IsRequired(channelId = "ActivePower")
-	public Channel activePower;
+	@IsChannel(id = "ActiveNegativeEnergy")
+	public Channel activeNegativeEnergy();
 
-	@IsRequired(channelId = "AllowedCharge")
-	public Channel allowedCharge;
+	@IsChannel(id = "ActivePositiveEnergy")
+	public Channel activePositiveEnergy();
 
-	@IsRequired(channelId = "AllowedDischarge")
-	public Channel allowedDischarge;
+	@IsChannel(id = "ActivePower")
+	public Channel activePower();
 
-	@IsRequired(channelId = "MinSoc")
-	public Channel minSoc;
+	@IsChannel(id = "ApparentEnergy")
+	public Channel apparentEnergy();
 
-	@IsRequired(channelId = "SetActivePower")
-	public WriteableChannel setActivePower;
+	@IsChannel(id = "ApparentPower")
+	public Channel apparentPower();
 
-	@IsRequired(channelId = "Soc")
-	public Channel soc;
+	@IsChannel(id = "ReactiveNegativeEnergy")
+	public Channel reactiveNegativeEnergy();
 
-	public EssMap(String thingId) {
-		super(thingId);
-	}
+	@IsChannel(id = "ReactivePositiveEnergy")
+	public Channel reactivePositiveEnergy();
 
-	public Long getUseableSoc() throws InvalidValueException {
-		return soc.getValue() - minSoc.getValue();
-	}
+	@IsChannel(id = "ReactivePower")
+	public Channel reactivePower();
 }

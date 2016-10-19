@@ -27,17 +27,14 @@ import io.openems.api.controller.IsThingMapping;
 
 public class DebugLogController extends Controller {
 	@IsThingMapping
-	public List<EssMap> esss = null;
+	public List<Ess> esss = null;
 
 	@IsThingMapping
-	public MeterMap meter = null;
+	public Meter meter = null;
 
 	@Override
 	public void run() {
-		log.info("esss: " + esss);
-		log.info("meter: " + meter);
-
-		for (EssMap ess : esss) {
+		for (Ess ess : esss) {
 			log.info(ess.getThingId() + ": " + ess.toString());
 		}
 		log.info(meter.getThingId() + ": " + meter.toString());

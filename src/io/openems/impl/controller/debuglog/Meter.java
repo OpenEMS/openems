@@ -24,10 +24,10 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsRequired;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.Meter;
+import io.openems.api.device.nature.MeterNature;
 
-@IsThingMap(type = Meter.class)
-public class MeterMap extends ThingMap {
+@IsThingMap(type = MeterNature.class)
+public class Meter extends ThingMap {
 
 	@IsRequired(channelId = "ActiveNegativeEnergy")
 	public Channel activeNegativeEnergy;
@@ -53,7 +53,7 @@ public class MeterMap extends ThingMap {
 	@IsRequired(channelId = "ReactivePower")
 	public Channel reactivePower;
 
-	public MeterMap(String thingId) {
+	public Meter(String thingId) {
 		super(thingId);
 	}
 

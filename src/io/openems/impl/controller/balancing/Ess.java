@@ -18,17 +18,30 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.avoidtotaldischarge;
+package io.openems.impl.controller.balancing;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsRequired;
 import io.openems.api.channel.WriteableChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.Ess;
+import io.openems.api.device.nature.EssNature;
+import io.openems.api.exception.InvalidValueException;
 
-@IsThingMap(type = Ess.class)
-public class EssMap extends ThingMap {
+@IsThingMap(type = EssNature.class)
+public class Ess extends ThingMap {
+
+	@IsRequired(channelId = "ActivePower")
+	public Channel activePower;
+
+	@IsRequired(channelId = "AllowedCharge")
+	public Channel allowedCharge;
+
+	@IsRequired(channelId = "AllowedDischarge")
+	public Channel allowedDischarge;
+
+	@IsRequired(channelId = "GridMode")
+	public WriteableChannel gridMode;
 
 	@IsRequired(channelId = "MinSoc")
 	public Channel minSoc;
@@ -36,16 +49,17 @@ public class EssMap extends ThingMap {
 	@IsRequired(channelId = "SetActivePower")
 	public WriteableChannel setActivePower;
 
-	@IsRequired(channelId = "SetWorkState")
-	public WriteableChannel setWorkState;
-
 	@IsRequired(channelId = "Soc")
 	public Channel soc;
 
 	@IsRequired(channelId = "SystemState")
-	public Channel systemState;
+	public WriteableChannel systemState;
 
-	public EssMap(String thingId) {
+	public Ess(String thingId) {
 		super(thingId);
+	}
+
+	public long useableSoc() throws InvalidValueException {
+		return soc.getValue() - minSoc.getValue();
 	}
 }

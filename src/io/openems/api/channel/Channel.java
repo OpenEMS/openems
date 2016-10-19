@@ -22,6 +22,7 @@ package io.openems.api.channel;
 
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +45,7 @@ public class Channel {
 	private DeviceNature nature = null;
 	private final String unit;
 
-	public Channel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
+	public Channel(DeviceNature nature, @NonNull String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
 			Map<Long, String> labels) {
 		log = LoggerFactory.getLogger(this.getClass());
 		this.nature = nature;
@@ -56,6 +57,7 @@ public class Channel {
 		this.labels = labels;
 	}
 
+	@NonNull
 	public String getAddress() {
 		String natureId = null;
 		if (nature != null) {
@@ -64,22 +66,29 @@ public class Channel {
 		return natureId + "/" + channelId;
 	}
 
+	@Nullable
 	public String getChannelId() {
 		return channelId;
 	}
 
+	@Nullable
 	public Long getMaxValue() {
 		return maxValue;
 	}
 
+	@Nullable
 	public Long getMinValue() {
 		return minValue;
 	}
 
+	@SuppressWarnings("null")
+	@NonNull
 	public String getUnit() {
 		return unit;
 	}
 
+	@SuppressWarnings("null")
+	@NonNull
 	public Long getValue() throws InvalidValueException {
 		if (value != null) {
 			return value;
@@ -88,6 +97,7 @@ public class Channel {
 		}
 	};
 
+	@NonNull
 	public String getValueLabel() throws InvalidValueException {
 		String label = getValueLabelOrNull();
 		if (label != null) {
@@ -97,6 +107,7 @@ public class Channel {
 		}
 	};
 
+	@Nullable
 	public String getValueLabelOrNull() {
 		if (value != null) {
 			if (labels != null && labels.containsKey(value)) {
@@ -121,11 +132,11 @@ public class Channel {
 		}
 	}
 
-	public void setChannelId(String channelId) {
+	public void setChannelId(@NonNull String channelId) {
 		this.channelId = channelId;
 	}
 
-	public void setDatabus(Databus databus) {
+	public void setDatabus(@NonNull Databus databus) {
 		this.databus = databus;
 	}
 

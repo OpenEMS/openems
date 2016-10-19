@@ -22,30 +22,51 @@ package io.openems.api.device.nature;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsChannel;
+import io.openems.api.channel.WriteableChannel;
+import io.openems.api.thing.IsConfig;
 
-public interface Meter extends DeviceNature {
+public interface EssNature extends DeviceNature {
+	public final int DEFAULT_MINSOC = 10;
 
-	@IsChannel(id = "ActiveNegativeEnergy")
-	public Channel activeNegativeEnergy();
+	public final String OFF_GRID = "Off-Grid";
+	public final String ON_GRID = "On-Grid";
 
-	@IsChannel(id = "ActivePositiveEnergy")
-	public Channel activePositiveEnergy();
+	public final String START = "Start";
+	public final String STOP = "Stop";
 
 	@IsChannel(id = "ActivePower")
 	public Channel activePower();
 
-	@IsChannel(id = "ApparentEnergy")
-	public Channel apparentEnergy();
+	@IsChannel(id = "AllowedCharge")
+	public Channel allowedCharge();
+
+	@IsChannel(id = "AllowedDischarge")
+	public Channel allowedDischarge();
 
 	@IsChannel(id = "ApparentPower")
 	public Channel apparentPower();
 
-	@IsChannel(id = "ReactiveNegativeEnergy")
-	public Channel reactiveNegativeEnergy();
+	@IsChannel(id = "GridMode")
+	public Channel gridMode();
 
-	@IsChannel(id = "ReactivePositiveEnergy")
-	public Channel reactivePositiveEnergy();
+	@IsChannel(id = "MinSoc")
+	public Channel minSoc();
 
 	@IsChannel(id = "ReactivePower")
 	public Channel reactivePower();
+
+	@IsChannel(id = "SetActivePower")
+	public WriteableChannel setActivePower();
+
+	@IsConfig("MinSoc")
+	public void setMinSoc(Integer minSoc);
+
+	@IsChannel(id = "SetWorkState")
+	public WriteableChannel setWorkState();
+
+	@IsChannel(id = "Soc")
+	public Channel soc();
+
+	@IsChannel(id = "SystemState")
+	public Channel systemState();
 }

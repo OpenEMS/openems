@@ -18,46 +18,21 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.device.nature;
+package io.openems.impl.controller.balancing;
 
-import io.openems.api.channel.Channel;
-import io.openems.api.channel.IsChannel;
+import io.openems.api.channel.IsRequired;
 import io.openems.api.channel.WriteableChannel;
-import io.openems.api.thing.IsConfig;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.MeterNature;
 
-public interface Ess extends DeviceNature {
-	public final int DEFAULT_MINSOC = 10;
+@IsThingMap(type = MeterNature.class)
+public class Meter extends ThingMap {
 
-	@IsChannel(id = "ActivePower")
-	public Channel activePower();
+	@IsRequired(channelId = "ActivePower")
+	public WriteableChannel activePower;
 
-	@IsChannel(id = "AllowedCharge")
-	public Channel allowedCharge();
-
-	@IsChannel(id = "AllowedDischarge")
-	public Channel allowedDischarge();
-
-	@IsChannel(id = "ApparentPower")
-	public Channel apparentPower();
-
-	@IsChannel(id = "MinSoc")
-	public Channel minSoc();
-
-	@IsChannel(id = "RectivePower")
-	public Channel reactivePower();
-
-	@IsChannel(id = "SetActivePower")
-	public WriteableChannel setActivePower();
-
-	@IsConfig("MinSoc")
-	public void setMinSoc(Integer minSoc);
-
-	@IsChannel(id = "SetWorkState")
-	public WriteableChannel setWorkState();
-
-	@IsChannel(id = "Soc")
-	public Channel soc();
-
-	@IsChannel(id = "SystemState")
-	public Channel systemState();
+	public Meter(String thingId) {
+		super(thingId);
+	}
 }

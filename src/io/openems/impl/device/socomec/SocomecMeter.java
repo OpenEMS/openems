@@ -21,7 +21,7 @@
 package io.openems.impl.device.socomec;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.device.nature.Meter;
+import io.openems.api.device.nature.MeterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -30,7 +30,7 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
 
-public class SocomecMeter extends ModbusDeviceNature implements Meter {
+public class SocomecMeter extends ModbusDeviceNature implements MeterNature {
 
 	private final ModbusChannel _activeNegativeEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
 	private final ModbusChannel _activePositiveEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();

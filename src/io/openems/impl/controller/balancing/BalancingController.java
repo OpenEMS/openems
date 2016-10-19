@@ -20,102 +20,122 @@
  *******************************************************************************/
 package io.openems.impl.controller.balancing;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMapping;
+import io.openems.api.device.nature.EssNature;
+import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 public class BalancingController extends Controller {
 	@IsThingMapping
-	public List<EssMap> esss = null;
+	public List<Ess> esss = null;
 
 	@IsThingMapping
-	public MeterMap meter;
-
-	public boolean isOnGrid() {
-		// for (EssMap ess : esss) {
-		// if (!ess.isOnGrid()) {
-		// return false;
-		// }
-		// }
-		return true;
-	}
+	public Meter meter;
 
 	@Override
 	public void run() {
-		if (isOnGrid()) {
-			for (EssMap ess : esss) {
-				try {
-					// lastValue = lastValue.add(Long.valueOf(100));
-					ess.setActivePower.pushWriteValue(0);
-				} catch (WriteChannelException e) {
-					log.error(e.getMessage());
+		try {
+			if (isOnGrid()) {
+				long calculatedPower = meter.activePower.getValue();
+				long maxChargePower = 0;
+				long maxDischargePower = 0;
+				long useableSoc = 0;
+				for (Ess ess : esss) {
+					calculatedPower += ess.activePower.getValue();
+					maxChargePower += ess.allowedCharge.getValue();
+					maxDischargePower += ess.allowedDischarge.getValue();
+					useableSoc += ess.useableSoc();
 				}
-			}
+				if (calculatedPower > 0) {
+					/*
+					 * Discharge
+					 */
+					if (calculatedPower > maxDischargePower) {
+						calculatedPower = maxChargePower;
+					}
+					Collections.sort(esss, (a, b) -> {
+						try {
+							return (int) (a.useableSoc() - b.useableSoc());
+						} catch (InvalidValueException e) {
+							log.error(e.getMessage());
+							return 0;
+						}
+					});
+					for (int i = 0; i < esss.size(); i++) {
+						Ess ess = esss.get(i);
+						long minP = calculatedPower;
+						for (int j = i + 1; j < esss.size(); j++) {
+							if (esss.get(j).useableSoc() > 0) {
+								minP -= esss.get(j).allowedCharge.getValue();
+							}
+						}
+						if (minP < 0) {
+							minP = 0;
+						}
+						long maxP = ess.allowedCharge.getValue();
+						if (calculatedPower < maxP) {
+							maxP = calculatedPower;
+						}
+						double diff = maxP - minP;
+						// if (e.getUseableSoc() >= 0) {
+						long p = (long) (Math.ceil((minP + diff / useableSoc * ess.useableSoc()) / 100) * 100);
+						ess.setActivePower.pushWriteValue(p);
+						calculatedPower -= p;
+						// }
+					}
+				} else {
+					/*
+					 * Charge
+					 */
+					if (calculatedPower < maxChargePower) {
+						calculatedPower = maxChargePower;
+					}
+					Collections.sort(esss, (a, b) -> {
+						try {
+							return (int) ((100 - a.useableSoc()) - (100 - b.useableSoc()));
+						} catch (InvalidValueException e) {
+							log.error(e.getMessage());
+							return 0;
+						}
+					});
+					for (int i = 0; i < esss.size(); i++) {
+						Ess ess = esss.get(i);
+						long minP = calculatedPower;
+						for (int j = i + 1; j < esss.size(); j++) {
+							minP -= esss.get(j).allowedCharge.getValue();
+						}
+						if (minP > 0) {
+							minP = 0;
+						}
+						long maxP = ess.allowedCharge.getValue();
+						if (calculatedPower > maxP) {
+							maxP = calculatedPower;
+						}
+						double diff = maxP - minP;
+						long p = (long) Math.floor((minP + diff / useableSoc * (100 - ess.useableSoc())) / 100) * 100;
+						ess.setActivePower.pushWriteValue(p);
+						calculatedPower -= p;
+					}
+				}
 
-			// int calculatedPower = meter.activePower.getValue().intValue();
-			// int maxChargePower = 0;
-			// int maxDischargePower = 0;
-			// int useableSoc = 0;
-			// for (EssMap ess : esss) {
-			// calculatedPower += ess.activePower.getValue().intValue();
-			// maxChargePower += ess.allowedCharge.getValue().intValue();
-			// maxDischargePower += ess.allowedDischarge.getValue().intValue();
-			// useableSoc += ess.getUseableSoc();
-			// }
-			// if (calculatedPower > 0) {
-			// if (calculatedPower > maxDischargePower) {
-			// calculatedPower = maxChargePower;
-			// }
-			// Collections.sort(esss, (e1, e2) -> e1.getUseableSoc() - e2.getUseableSoc());
-			// for (int i = 0; i < esss.size(); i++) {
-			// EssMap ess = esss.get(i);
-			// int minP = calculatedPower;
-			// for (int j = i + 1; j < esss.size(); j++) {
-			// if (esss.get(j).getUseableSoc() > 0) {
-			// minP -= esss.get(j).activePower.getMinWriteValue().asInt();
-			// }
-			// }
-			// if (minP < 0) {
-			// minP = 0;
-			// }
-			// int maxP = e.activePower.getMinWriteValue().asInt();
-			// if (calculatedPower < maxP) {
-			// maxP = calculatedPower;
-			// }
-			// double diff = maxP - minP;
-			// // if (e.getUseableSoc() >= 0) {
-			// int p = (int) Math.ceil((minP + diff / useableSoc * e.getUseableSoc()) / 100) * 100;
-			// e.setActivePower(p);
-			// calculatedPower -= p;
-			// // }
-			// }
-			// } else {
-			// if (calculatedPower < maxChargePower) {
-			// calculatedPower = maxChargePower;
-			// }
-			// Collections.sort(ess, (a, b) -> (100 - a.getUseableSoc()) - (100 - b.getUseableSoc()));
-			// for (int i = 0; i < ess.size(); i++) {
-			// EssContainer e = ess.get(i);
-			// int minP = calculatedPower;
-			// for (int j = i + 1; j < ess.size(); j++) {
-			// minP -= ess.get(j).activePower.getMinWriteValue().asInt();
-			// }
-			// if (minP > 0) {
-			// minP = 0;
-			// }
-			// int maxP = e.activePower.getMinWriteValue().asInt();
-			// if (calculatedPower > maxP) {
-			// maxP = calculatedPower;
-			// }
-			// double diff = maxP - minP;
-			// int p = (int) Math.floor((minP + diff / useableSoc * (100 - e.getUseableSoc())) / 100) * 100;
-			// e.setActivePower(p);
-			// calculatedPower -= p;
-			// }
-			// }
+			}
+		} catch (InvalidValueException | WriteChannelException e) {
+			log.error(e.getMessage());
 		}
+	}
+
+	private boolean isOnGrid() {
+		for (Ess ess : esss) {
+			String gridMode = ess.gridMode.getValueLabelOrNull();
+			if (gridMode != null && gridMode != EssNature.ON_GRID) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

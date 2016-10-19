@@ -24,7 +24,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ConfigChannelBuilder;
 import io.openems.api.channel.WriteableChannel;
-import io.openems.api.device.nature.Ess;
+import io.openems.api.device.nature.EssNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -36,7 +36,7 @@ import io.openems.impl.protocol.modbus.internal.WritableModbusRange;
 import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
 import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBuilder;
 
-public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
+public class FeneconCommercialEss extends ModbusDeviceNature implements EssNature {
 
 	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
 			.build();
@@ -46,22 +46,46 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 			.build();
 	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(100)
 			.build();
+	private final ModbusChannel _batteryMaintenanceState = new ModbusChannelBuilder().nature(this) //
+			.label(0, "Off") //
+			.label(1, "On").build();
+	private final ModbusChannel _controlMode = new ModbusChannelBuilder().nature(this) //
+			.label(0, "Remote") //
+			.label(2, "Local").build();
+	private final ModbusChannel _gridMode = new ModbusChannelBuilder().nature(this) //
+			.label(0, OFF_GRID) //
+			.label(1, ON_GRID).build();
+	private final ModbusChannel _inverterState = new ModbusChannelBuilder().nature(this) //
+			.label(0, "Init") //
+			.label(2, "Fault") //
+			.label(4, STOP) //
+			.label(8, "Standby") //
+			.label(16, "Grid-Monitor") // ,
+			.label(32, "Ready") //
+			.label(64, START) //
+			.label(128, "Debug").build();
 	private final ConfigChannel _minSoc = new ConfigChannelBuilder().nature(this).defaultValue(DEFAULT_MINSOC)
 			.percentType().build();
+	private final ModbusChannel _protocolVersion = new ModbusChannelBuilder().nature(this).build();
 	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().nature(this).unit("var").multiplier(100)
 			.build();
 	private final WriteableModbusChannel _setActivePower = new WriteableModbusChannelBuilder().nature(this).unit("W")
 			.multiplier(100).minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
 	private final WriteableModbusChannel _setWorkState = new WriteableModbusChannelBuilder().nature(this) //
-			.label(4, "Stop") //
-			.label(64, "Start") //
-			.build();
+			.label(4, STOP) //
+			.label(64, START).build();
 	private final ModbusChannel _soc = new ModbusChannelBuilder().nature(this).percentType().build();
+	private final ModbusChannel _systemManufacturer = new ModbusChannelBuilder().nature(this) //
+			.label(1, "BYD").build();
 	private final ModbusChannel _systemState = new ModbusChannelBuilder().nature(this) //
-			.label(2, "Stop") //
+			.label(2, STOP) //
+			.label(4, "PV-Charge") //
 			.label(8, "Standby") //
-			.label(16, "Start") //
-			.build();
+			.label(16, START) //
+			.label(32, "Fault") //
+			.label(64, "Debug").build();
+	private final ModbusChannel _systemType = new ModbusChannelBuilder().nature(this) //
+			.label(1, "CESS").build();
 
 	public FeneconCommercialEss(String thingId) {
 		super(thingId);
@@ -85,6 +109,11 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 	@Override
 	public Channel apparentPower() {
 		return _apparentPower;
+	}
+
+	@Override
+	public Channel gridMode() {
+		return _gridMode;
 	}
 
 	@Override
@@ -133,7 +162,16 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
 				new ModbusRange(0x0101, //
-						new ElementBuilder().address(0x0101).channel(_systemState).build()), //
+						new ElementBuilder().address(0x0101).channel(_systemState).build(), //
+						new ElementBuilder().address(0x0102).channel(_controlMode).build(), //
+						new ElementBuilder().address(0x0103).dummy().build(), // WorkMode: RemoteDispatch
+						new ElementBuilder().address(0x0104).channel(_batteryMaintenanceState).build(), //
+						new ElementBuilder().address(0x0105).channel(_inverterState).build(), //
+						new ElementBuilder().address(0x0106).channel(_gridMode).build(), //
+						new ElementBuilder().address(0x0107).dummy(0x0108 - 0x0107).build(), //
+						new ElementBuilder().address(0x0108).channel(_protocolVersion).build(), //
+						new ElementBuilder().address(0x0109).channel(_systemManufacturer).build(), //
+						new ElementBuilder().address(0x010A).channel(_systemType).build()), //
 				new ModbusRange(0x0210, //
 						new ElementBuilder().address(0x0210).channel(_activePower).signed().build(),
 						new ElementBuilder().address(0x0211).channel(_reactivePower).signed().build(),

@@ -18,21 +18,34 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.balancing;
+package io.openems.impl.controller.avoidtotaldischarge;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsRequired;
 import io.openems.api.channel.WriteableChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.Meter;
+import io.openems.api.device.nature.EssNature;
 
-@IsThingMap(type = Meter.class)
-public class MeterMap extends ThingMap {
+@IsThingMap(type = EssNature.class)
+public class Ess extends ThingMap {
 
-	@IsRequired(channelId = "ActivePower")
-	public WriteableChannel activePower;
+	@IsRequired(channelId = "MinSoc")
+	public Channel minSoc;
 
-	public MeterMap(String thingId) {
+	@IsRequired(channelId = "SetActivePower")
+	public WriteableChannel setActivePower;
+
+	@IsRequired(channelId = "SetWorkState")
+	public WriteableChannel setWorkState;
+
+	@IsRequired(channelId = "Soc")
+	public Channel soc;
+
+	@IsRequired(channelId = "SystemState")
+	public Channel systemState;
+
+	public Ess(String thingId) {
 		super(thingId);
 	}
 }

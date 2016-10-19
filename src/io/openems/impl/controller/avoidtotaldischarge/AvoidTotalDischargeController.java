@@ -29,11 +29,11 @@ import io.openems.api.exception.WriteChannelException;
 
 public class AvoidTotalDischargeController extends Controller {
 	@IsThingMapping
-	public List<EssMap> esss = null;
+	public List<Ess> esss = null;
 
 	@Override
 	public void run() {
-		for (EssMap ess : esss) {
+		for (Ess ess : esss) {
 			try {
 				/*
 				 * Calculate SetActivePower according to MinSoc
