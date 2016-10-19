@@ -70,7 +70,6 @@ public class WriteableChannel extends Channel {
 		if (maxWriteValue != null) {
 			return maxWriteValue;
 		} else if (maxWriteValueChannel != null) {
-			log.info("maxWriteValueChannel " + maxWriteValueChannel.getValueOrNull());
 			return maxWriteValueChannel.getValueOrNull();
 		} else {
 			return null;
@@ -87,7 +86,6 @@ public class WriteableChannel extends Channel {
 		if (minWriteValue != null) {
 			return minWriteValue;
 		} else if (minWriteValueChannel != null) {
-			log.info("minWriteValueChannel " + minWriteValueChannel.getValueOrNull());
 			return minWriteValueChannel.getValueOrNull();
 		} else {
 			return null;
@@ -101,23 +99,25 @@ public class WriteableChannel extends Channel {
 	 */
 	@Nullable
 	public BigInteger peekWriteValue() {
+		BigInteger maxWriteValue = peekMaxWriteValue();
+		BigInteger minWriteValue = peekMinWriteValue();
 		BigInteger result;
 		if (this.writeValue != null) {
 			// fixed value exists: return it
 			result = this.writeValue;
 		} else { // this.writeValue == null
-			if (peekMaxWriteValue() != null) {
-				if (peekMinWriteValue() != null) {
+			if (maxWriteValue != null) {
+				if (minWriteValue != null) {
 					// Min+Max exist: return average value
-					result = minWriteValue.add(peekMaxWriteValue()).divide(BigInteger.valueOf(2));
+					result = minWriteValue.add(maxWriteValue).divide(BigInteger.valueOf(2));
 				} else { // this.minWriteValue == null
 					// only Max exists: return it
 					result = peekMaxWriteValue();
 				}
 			} else { // this.maxWriteValue == null
-				if (peekMinWriteValue() != null) {
+				if (minWriteValue != null) {
 					// only Min exist: return it
-					result = peekMinWriteValue();
+					result = minWriteValue;
 				} else { // this.minWriteValue == null
 					// No value exists: return null
 					result = null;

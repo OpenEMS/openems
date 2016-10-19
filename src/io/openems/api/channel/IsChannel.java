@@ -10,4 +10,5 @@ import java.lang.annotation.Target;
 @Target(METHOD)
 public @interface IsChannel {
 	String id();
+	// TODO add unit and check if Channel-Implementation has the same
 }

@@ -12,8 +12,10 @@ public class ElementBuilder {
 	private Integer address = null;
 	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 	private Channel channel = null;
+	private boolean doubleword = false;
 	private int dummy = 0;
 	private boolean signed = false;
+	private WordOrder wordOrder = WordOrder.MSWLSW;
 
 	public ElementBuilder address(Integer address) {
 		this.address = address;
@@ -29,10 +31,18 @@ public class ElementBuilder {
 		} else if (channel == null) {
 			throw new ConfigException("Error in protocol: [channel] is missing");
 		}
-		if (signed) {
-			return new SignedWordElement(address, channel, byteOrder);
+		if (doubleword) {
+			if (signed) {
+				return new SignedDoublewordElement(address, channel, byteOrder, wordOrder);
+			} else {
+				return new UnsignedDoublewordElement(address, channel, byteOrder, wordOrder);
+			}
 		} else {
-			return new UnsignedWordElement(address, channel, byteOrder);
+			if (signed) {
+				return new SignedWordElement(address, channel, byteOrder);
+			} else {
+				return new UnsignedWordElement(address, channel, byteOrder);
+			}
 		}
 	}
 
@@ -43,6 +53,11 @@ public class ElementBuilder {
 
 	public ElementBuilder channel(@NonNull Channel channel) {
 		this.channel = channel;
+		return this;
+	}
+
+	public ElementBuilder doubleword() {
+		this.doubleword = true;
 		return this;
 	}
 
@@ -58,6 +73,11 @@ public class ElementBuilder {
 
 	public ElementBuilder signed() {
 		this.signed = true;
+		return this;
+	}
+
+	public ElementBuilder wordOrder(@NonNull WordOrder wordOrder) {
+		this.wordOrder = wordOrder;
 		return this;
 	}
 }

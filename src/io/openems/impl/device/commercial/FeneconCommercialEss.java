@@ -30,7 +30,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 			.build();
 	private final ConfigChannel _minSoc = new ConfigChannelBuilder().nature(this).defaultValue(DEFAULT_MINSOC)
 			.percentType().build();
-	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().nature(this).unit("Var").multiplier(100)
+	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().nature(this).unit("var").multiplier(100)
 			.build();
 	private final WriteableModbusChannel _setActivePower = new WriteableModbusChannelBuilder().nature(this).unit("W")
 			.multiplier(100).minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
@@ -113,7 +113,6 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 	@SuppressWarnings("null")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-
 		return new ModbusProtocol( //
 				new ModbusRange(0x0101, //
 						new ElementBuilder().address(0x0101).channel(_systemState).build()), //

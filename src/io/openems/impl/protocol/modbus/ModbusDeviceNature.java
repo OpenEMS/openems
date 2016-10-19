@@ -132,7 +132,7 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 		} catch (OpenemsModbusException e) {
 			log.error(
 					"Modbus query failed. " //
-							+ "Bridge [" + modbusBridge + "], Range [" + range.getStartAddress() + "]: {}",
+							+ "Bridge [" + modbusBridge.getThingId() + "], Range [" + range.getStartAddress() + "]: {}",
 					e.getMessage());
 			modbusBridge.triggerInitialize();
 			// set all elements to invalid

@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,6 +154,15 @@ public class ControllerFactory {
 						thingMapsList.addAll(thingMaps.values());
 						controllerField.set(controller, thingMapsList);
 					} catch (IllegalArgumentException | IllegalAccessException e) {
+						throw new InjectionException(
+								"Unable to set IsThingMapping to Field [" + controller.getClass().getSimpleName() + "."
+										+ controllerField.getName() + "]: " + e.getMessage());
+					}
+				} else {
+					try {
+						ThingMap thingMap = thingMaps.values().iterator().next();
+						controllerField.set(controller, thingMap);
+					} catch (IllegalArgumentException | IllegalAccessException | NoSuchElementException e) {
 						throw new InjectionException(
 								"Unable to set IsThingMapping to Field [" + controller.getClass().getSimpleName() + "."
 										+ controllerField.getName() + "]: " + e.getMessage());

@@ -29,30 +29,42 @@ import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 import io.openems.api.channel.Channel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
-public class UnsignedWordElement extends ModbusElement implements WordElement {
+public class UnsignedDoublewordElement extends ModbusElement implements DoublewordElement {
 	private final ByteOrder byteOrder;
+	private final WordOrder wordOrder;
 
-	public UnsignedWordElement(int address, @NonNull Channel channel, @NonNull ByteOrder byteOrder) {
+	public UnsignedDoublewordElement(int address, @NonNull Channel channel, @NonNull ByteOrder byteOrder,
+			@NonNull WordOrder wordOrder) {
 		super(address, channel);
 		this.byteOrder = byteOrder;
+		this.wordOrder = wordOrder;
 	}
 
 	@Override
 	public int getLength() {
-		return 1;
+		return 2;
 	}
 
 	@Override
-	public void setValue(@NonNull Register register) {
-		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);
-		buff.put(register.toBytes());
-		int shortValue = Short.toUnsignedInt(buff.getShort(0));
-		setValue(BigInteger.valueOf(shortValue));
+	public void setValue(@NonNull Register register1, @NonNull Register register2) {
+		ByteBuffer buff = ByteBuffer.allocate(4).order(byteOrder);
+		if (wordOrder == WordOrder.MSWLSW) {
+			buff.put(register1.toBytes());
+			buff.put(register2.toBytes());
+		} else {
+			buff.put(register2.toBytes());
+			buff.put(register1.toBytes());
+		}
+		setValue(BigInteger.valueOf(Integer.toUnsignedLong(buff.getInt(0))));
 	}
 
 	@Override
-	public Register toRegister(@NonNull BigInteger value) {
-		byte[] b = ByteBuffer.allocate(2).order(byteOrder).putShort(value.shortValue()).array();
-		return new SimpleRegister(b[0], b[1]);
+	public Register[] toRegisters(@NonNull BigInteger value) {
+		byte[] b = ByteBuffer.allocate(4).order(byteOrder).putInt(value.intValue()).array();
+		if (wordOrder == WordOrder.MSWLSW) {
+			return new Register[] { new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) };
+		} else {
+			return new Register[] { new SimpleRegister(b[2], b[3]), new SimpleRegister(b[0], b[1]) };
+		}
 	}
 }

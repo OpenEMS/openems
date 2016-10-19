@@ -9,14 +9,18 @@ public class DebugLogController extends Controller {
 	@IsThingMapping
 	public List<EssMap> esss = null;
 
-	// @IsThingMapping
-	// public MeterMap meter;
+	@IsThingMapping
+	public MeterMap meter = null;
 
 	@Override
 	public void run() {
+		log.info("esss: " + esss);
+		log.info("meter: " + meter);
+
 		for (EssMap ess : esss) {
 			log.info(ess.getThingId() + ": " + ess.toString());
 		}
+		log.info(meter.getThingId() + ": " + meter.toString());
 	}
 
 }

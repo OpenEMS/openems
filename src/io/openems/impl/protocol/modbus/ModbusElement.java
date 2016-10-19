@@ -50,7 +50,8 @@ public abstract class ModbusElement {
 		} else if (channel instanceof WriteableModbusChannel) {
 			((WriteableModbusChannel) channel).updateValue(value);
 		} else {
-			log.error("Unable to set value. Channel is no ModbusChannel or WritableModbusChannel.");
+			log.error("Unable to set value [" + value + "]. Channel [" + channel.getAddress()
+					+ "] is no ModbusChannel or WritableModbusChannel.");
 		}
 	}
 }
