@@ -1,4 +1,4 @@
-package io.openems.core.controller;
+package io.openems.core.utilities;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -27,8 +27,6 @@ import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InjectionException;
 import io.openems.api.thing.Thing;
 import io.openems.core.databus.Databus;
-import io.openems.core.thing.ThingFactory;
-import io.openems.core.utilities.InjectionUtils;
 
 public class ControllerFactory {
 	private static Logger log = LoggerFactory.getLogger(ControllerFactory.class);

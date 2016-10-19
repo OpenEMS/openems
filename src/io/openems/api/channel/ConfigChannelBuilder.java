@@ -1,22 +1,20 @@
 package io.openems.api.channel;
 
-import java.math.BigInteger;
-
 public class ConfigChannelBuilder extends ChannelBuilder<ConfigChannelBuilder> {
-	protected BigInteger defaultValue = null;
+	protected Long defaultValue = null;
 
 	@Override
 	public ConfigChannel build() {
 		return new ConfigChannel(nature, unit, minValue, maxValue, multiplier, delta, labels, defaultValue);
 	}
 
-	public ConfigChannelBuilder defaultValue(BigInteger defaultValue) {
-		this.defaultValue = defaultValue;
+	public ConfigChannelBuilder defaultValue(int defaultValue) {
+		this.defaultValue = Long.valueOf(defaultValue);
 		return this;
 	}
 
-	public ConfigChannelBuilder defaultValue(int defaultValue) {
-		this.defaultValue = BigInteger.valueOf(defaultValue);
+	public ConfigChannelBuilder defaultValue(Long defaultValue) {
+		this.defaultValue = defaultValue;
 		return this;
 	}
 }

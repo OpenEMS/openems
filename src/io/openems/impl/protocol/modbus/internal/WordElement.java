@@ -1,7 +1,5 @@
 package io.openems.impl.protocol.modbus.internal;
 
-import java.math.BigInteger;
-
 import org.eclipse.jdt.annotation.NonNull;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
@@ -21,5 +19,5 @@ public interface WordElement {
 	 * @param value
 	 * @return
 	 */
-	public Register toRegister(@NonNull BigInteger value);
+	public Register toRegister(@NonNull Long value);
 }

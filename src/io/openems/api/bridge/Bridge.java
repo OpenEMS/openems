@@ -1,4 +1,4 @@
-package io.openems.core.bridge;
+package io.openems.api.bridge;
 
 import io.openems.api.device.Device;
 import io.openems.api.thing.Thing;

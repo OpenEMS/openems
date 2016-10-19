@@ -15,9 +15,9 @@ import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.OpenemsModbusException;
-import io.openems.core.bridge.Bridge;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
 
 public abstract class ModbusBridge extends Bridge {

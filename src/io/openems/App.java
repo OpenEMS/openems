@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.core.databus.Databus;
-import io.openems.core.thing.ThingFactory;
+import io.openems.core.utilities.ThingFactory;
 import io.openems.demo.Demo;
 import io.openems.demo.DemoFems7WithMeter;
 

@@ -1,6 +1,5 @@
 package io.openems.api.channel;
 
-import java.math.BigInteger;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -13,20 +12,20 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.core.databus.Databus;
 
 public class Channel {
-	protected final BigInteger delta;
-	protected final Map<BigInteger, String> labels;
+	protected final Long delta;
+	protected final Map<Long, String> labels;
 	protected final Logger log;
-	protected BigInteger maxValue = null;
-	protected BigInteger minValue = null;
-	protected final BigInteger multiplier;
-	protected BigInteger value = null;
+	protected Long maxValue = null;
+	protected Long minValue = null;
+	protected final Long multiplier;
+	protected Long value = null;
 	private String channelId = null;
 	private Databus databus = null;
 	private DeviceNature nature = null;
 	private final String unit;
 
-	public Channel(DeviceNature nature, String unit, BigInteger minValue, BigInteger maxValue, BigInteger multiplier,
-			BigInteger delta, Map<BigInteger, String> labels) {
+	public Channel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
+			Map<Long, String> labels) {
 		log = LoggerFactory.getLogger(this.getClass());
 		this.nature = nature;
 		this.unit = unit;
@@ -49,11 +48,11 @@ public class Channel {
 		return channelId;
 	}
 
-	public BigInteger getMaxValue() {
+	public Long getMaxValue() {
 		return maxValue;
 	}
 
-	public BigInteger getMinValue() {
+	public Long getMinValue() {
 		return minValue;
 	}
 
@@ -61,7 +60,7 @@ public class Channel {
 		return unit;
 	}
 
-	public BigInteger getValue() throws InvalidValueException {
+	public Long getValue() throws InvalidValueException {
 		if (value != null) {
 			return value;
 		} else {
@@ -90,7 +89,7 @@ public class Channel {
 	}
 
 	@Nullable
-	public BigInteger getValueOrNull() {
+	public Long getValueOrNull() {
 		return value;
 	};
 
@@ -128,7 +127,7 @@ public class Channel {
 	 *
 	 * @param value
 	 */
-	protected void updateValue(BigInteger value) {
+	protected void updateValue(Long value) {
 		updateValue(value, true);
 	}
 
@@ -139,11 +138,11 @@ public class Channel {
 	 * @param triggerDatabusEvent
 	 *            true if an event should be forwarded to {@link Databus}
 	 */
-	protected void updateValue(BigInteger value, boolean triggerDatabusEvent) {
+	protected void updateValue(Long value, boolean triggerDatabusEvent) {
 		if (value == null) {
 			this.value = null;
 		} else {
-			this.value = value.multiply(multiplier).subtract(delta);
+			this.value = value * multiplier - delta;
 		}
 		if (databus != null && triggerDatabusEvent) {
 			databus.channelValueUpdated(this);

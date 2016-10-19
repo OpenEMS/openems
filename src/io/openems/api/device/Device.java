@@ -7,12 +7,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.device.nature.IsDeviceNature;
 import io.openems.api.exception.InjectionException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
-import io.openems.core.bridge.Bridge;
 
 public abstract class Device implements Thing {
 	public final static String THINGID_PREFIX = "_device";

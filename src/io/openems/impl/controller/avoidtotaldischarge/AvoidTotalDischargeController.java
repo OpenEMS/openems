@@ -1,6 +1,5 @@
 package io.openems.impl.controller.avoidtotaldischarge;
 
-import java.math.BigInteger;
 import java.util.List;
 
 import io.openems.api.controller.Controller;
@@ -12,8 +11,6 @@ public class AvoidTotalDischargeController extends Controller {
 	@IsThingMapping
 	public List<EssMap> esss = null;
 
-	private final BigInteger FIVE = BigInteger.valueOf(5);
-
 	@Override
 	public void run() {
 		for (EssMap ess : esss) {
@@ -21,17 +18,16 @@ public class AvoidTotalDischargeController extends Controller {
 				/*
 				 * Calculate SetActivePower according to MinSoc
 				 */
-				if (ess.soc.getValue().compareTo(ess.minSoc.getValue()) <= 0
-						&& ess.soc.getValue().compareTo(ess.minSoc.getValue().subtract(FIVE)) > 0) {
-					// SOC > minSoc && > minSoc - 5
-					ess.setActivePower.pushMaxWriteValue(BigInteger.ZERO);
-				} else if (ess.soc.getValue().compareTo(ess.minSoc.getValue().subtract(FIVE)) < 0) {
+				if (ess.soc.getValue() < ess.minSoc.getValue() && ess.soc.getValue() >= ess.minSoc.getValue() - 5) {
+					// SOC < minSoc && SOC > minSoc - 5
+					ess.setActivePower.pushMaxWriteValue(0);
+				} else if (ess.soc.getValue() < ess.minSoc.getValue() - 5) {
 					// SOC < minSoc - 5
-					BigInteger currentMaxValue = ess.setActivePower.peekMaxWriteValue();
+					Long currentMaxValue = ess.setActivePower.peekMaxWriteValue();
 					if (currentMaxValue != null) {
-						ess.setActivePower.pushMaxWriteValue(currentMaxValue.divide(FIVE));
+						ess.setActivePower.pushMaxWriteValue(currentMaxValue / 5);
 					} else {
-						ess.setActivePower.pushMaxWriteValue(BigInteger.valueOf(1000));
+						ess.setActivePower.pushMaxWriteValue(1000);
 					}
 				}
 				/*

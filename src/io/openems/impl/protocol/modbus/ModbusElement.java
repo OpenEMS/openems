@@ -1,7 +1,5 @@
 package io.openems.impl.protocol.modbus;
 
-import java.math.BigInteger;
-
 import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +42,7 @@ public abstract class ModbusElement {
 		this.range = range;
 	}
 
-	protected void setValue(BigInteger value) {
+	protected void setValue(Long value) {
 		if (channel instanceof ModbusChannel) {
 			((ModbusChannel) channel).updateValue(value);
 		} else if (channel instanceof WriteableModbusChannel) {

@@ -1,7 +1,5 @@
 package io.openems.impl.device.commercial;
 
-import java.math.BigInteger;
-
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ConfigChannelBuilder;
@@ -86,7 +84,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 
 	@Override
 	public void setMinSoc(Integer minSoc) {
-		this._minSoc.updateValue(BigInteger.valueOf(minSoc));
+		this._minSoc.updateValue(Long.valueOf(minSoc));
 	}
 
 	@Override

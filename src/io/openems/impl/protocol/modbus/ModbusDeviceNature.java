@@ -1,7 +1,5 @@
 package io.openems.impl.protocol.modbus;
 
-import java.math.BigInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +73,7 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 				if (element.getChannel() instanceof WriteableChannel) {
 					WriteableChannel writeableChannel = (WriteableChannel) element.getChannel();
 					// take the value from the Channel and initialize it
-					BigInteger writeValue = writeableChannel.popRawWriteValue();
+					Long writeValue = writeableChannel.popRawWriteValue();
 					if (writeValue != null) {
 						if (element instanceof WordElement) {
 							try {

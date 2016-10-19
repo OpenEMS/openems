@@ -1,4 +1,4 @@
-package io.openems.core.thing;
+package io.openems.core.utilities;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,17 +17,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InjectionException;
+import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.IsConfig;
 import io.openems.api.thing.Thing;
-import io.openems.core.bridge.Bridge;
 import io.openems.core.databus.Databus;
-import io.openems.core.scheduler.Scheduler;
-import io.openems.core.utilities.InjectionUtils;
-import io.openems.core.utilities.JsonUtils;
 
 public class ThingFactory {
 

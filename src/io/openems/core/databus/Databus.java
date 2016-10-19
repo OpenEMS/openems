@@ -1,6 +1,5 @@
 package io.openems.core.databus;
 
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,11 +11,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.WriteableChannel;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.thing.Thing;
-import io.openems.core.bridge.Bridge;
 
 public class Databus {
 	private final static Logger log = LoggerFactory.getLogger(Databus.class);
@@ -87,7 +86,7 @@ public class Databus {
 		return Collections.unmodifiableSet(things.keySet());
 	}
 
-	public BigInteger getValue(String thingId, String channelId) throws InvalidValueException {
+	public Long getValue(String thingId, String channelId) throws InvalidValueException {
 		return thingDataChannels.get(thingId).get(channelId).channel.getValue();
 	}
 

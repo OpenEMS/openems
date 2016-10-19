@@ -1,6 +1,5 @@
 package io.openems.impl.controller.balancing;
 
-import java.math.BigInteger;
 import java.util.List;
 
 import io.openems.api.controller.Controller;
@@ -28,8 +27,8 @@ public class BalancingController extends Controller {
 		if (isOnGrid()) {
 			for (EssMap ess : esss) {
 				try {
-					// lastValue = lastValue.add(BigInteger.valueOf(100));
-					ess.setActivePower.pushWriteValue(BigInteger.valueOf(0));
+					// lastValue = lastValue.add(Long.valueOf(100));
+					ess.setActivePower.pushWriteValue(0);
 				} catch (WriteChannelException e) {
 					log.error(e.getMessage());
 				}

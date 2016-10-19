@@ -33,7 +33,7 @@ public class EssMap extends ThingMap {
 		super(thingId);
 	}
 
-	public int getUseableSoc() throws InvalidValueException {
-		return soc.getValue().subtract(minSoc.getValue()).intValue();
+	public Long getUseableSoc() throws InvalidValueException {
+		return soc.getValue() - minSoc.getValue();
 	}
 }

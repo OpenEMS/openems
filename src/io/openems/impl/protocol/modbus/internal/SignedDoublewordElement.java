@@ -17,7 +17,6 @@
  */
 package io.openems.impl.protocol.modbus.internal;
 
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -55,11 +54,11 @@ public class SignedDoublewordElement extends ModbusElement implements Doubleword
 			buff.put(register2.toBytes());
 			buff.put(register1.toBytes());
 		}
-		setValue(BigInteger.valueOf(buff.order(byteOrder).getInt(0)));
+		setValue(Long.valueOf(buff.order(byteOrder).getInt(0)));
 	}
 
 	@Override
-	public Register[] toRegisters(@NonNull BigInteger value) {
+	public Register[] toRegisters(@NonNull Long value) {
 		byte[] b = ByteBuffer.allocate(4).order(byteOrder).putInt(value.intValue()).array();
 		if (wordOrder == WordOrder.MSWLSW) {
 			return new Register[] { new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) };

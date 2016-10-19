@@ -1,6 +1,5 @@
 package io.openems.api.channel;
 
-import java.math.BigInteger;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
@@ -27,13 +26,13 @@ import io.openems.api.exception.WriteChannelException;
 public class WriteableChannel extends Channel {
 	protected final Channel maxWriteValueChannel;
 	protected final Channel minWriteValueChannel;
-	private BigInteger maxWriteValue = null;
-	private BigInteger minWriteValue = null;
-	private BigInteger writeValue = null;
+	private Long maxWriteValue = null;
+	private Long minWriteValue = null;
+	private Long writeValue = null;
 
-	public WriteableChannel(DeviceNature nature, String unit, BigInteger minValue, BigInteger maxValue,
-			BigInteger multiplier, BigInteger delta, Map<BigInteger, String> labels, BigInteger minWriteValue,
-			Channel minWriteValueChannel, BigInteger maxWriteValue, Channel maxWriteValueChannel) {
+	public WriteableChannel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
+			Map<Long, String> labels, Long minWriteValue, Channel minWriteValueChannel, Long maxWriteValue,
+			Channel maxWriteValueChannel) {
 		super(nature, unit, minValue, maxValue, multiplier, delta, labels);
 		this.minWriteValue = minWriteValue;
 		this.minWriteValueChannel = minWriteValueChannel;
@@ -47,7 +46,7 @@ public class WriteableChannel extends Channel {
 	 * @return
 	 */
 	@Nullable
-	public BigInteger getMultiplier() {
+	public Long getMultiplier() {
 		return multiplier;
 	}
 
@@ -66,7 +65,7 @@ public class WriteableChannel extends Channel {
 	 * @return
 	 */
 	@Nullable
-	public BigInteger peekMaxWriteValue() {
+	public Long peekMaxWriteValue() {
 		if (maxWriteValue != null) {
 			return maxWriteValue;
 		} else if (maxWriteValueChannel != null) {
@@ -82,7 +81,7 @@ public class WriteableChannel extends Channel {
 	 * @return
 	 */
 	@Nullable
-	public BigInteger peekMinWriteValue() {
+	public Long peekMinWriteValue() {
 		if (minWriteValue != null) {
 			return minWriteValue;
 		} else if (minWriteValueChannel != null) {
@@ -98,10 +97,10 @@ public class WriteableChannel extends Channel {
 	 * @return
 	 */
 	@Nullable
-	public BigInteger peekWriteValue() {
-		BigInteger maxWriteValue = peekMaxWriteValue();
-		BigInteger minWriteValue = peekMinWriteValue();
-		BigInteger result;
+	public Long peekWriteValue() {
+		Long maxWriteValue = peekMaxWriteValue();
+		Long minWriteValue = peekMinWriteValue();
+		Long result;
 		if (this.writeValue != null) {
 			// fixed value exists: return it
 			result = this.writeValue;
@@ -109,7 +108,7 @@ public class WriteableChannel extends Channel {
 			if (maxWriteValue != null) {
 				if (minWriteValue != null) {
 					// Min+Max exist: return average value
-					result = minWriteValue.add(maxWriteValue).divide(BigInteger.valueOf(2));
+					result = (minWriteValue + maxWriteValue) / 2;
 				} else { // this.minWriteValue == null
 					// only Max exists: return it
 					result = peekMaxWriteValue();
@@ -134,12 +133,12 @@ public class WriteableChannel extends Channel {
 	 *
 	 * @return
 	 */
-	public BigInteger popRawWriteValue() {
-		BigInteger value = popWriteValue();
+	public Long popRawWriteValue() {
+		Long value = popWriteValue();
 		if (value == null) {
 			return value;
 		}
-		return value.add(delta).divide(multiplier);
+		return (value + delta) / multiplier;
 	}
 
 	/**
@@ -149,7 +148,18 @@ public class WriteableChannel extends Channel {
 	 * @return
 	 * @throws WriteChannelException
 	 */
-	public BigInteger pushMaxWriteValue(BigInteger maxValue) throws WriteChannelException {
+	public Long pushMaxWriteValue(int maxValue) throws WriteChannelException {
+		return pushMaxWriteValue(Long.valueOf(maxValue));
+	}
+
+	/**
+	 * Sets the Max boundary.
+	 *
+	 * @param maxValue
+	 * @return
+	 * @throws WriteChannelException
+	 */
+	public Long pushMaxWriteValue(Long maxValue) throws WriteChannelException {
 		maxValue = roundToHardwarePrecision(maxValue);
 		checkValueBoundaries(maxValue);
 		this.maxWriteValue = maxValue;
@@ -163,12 +173,30 @@ public class WriteableChannel extends Channel {
 	 * @param maxValue
 	 * @throws WriteChannelException
 	 */
-	public void pushMinMaxNewValue(BigInteger minValue, BigInteger maxValue) throws WriteChannelException {
+	public void pushMinMaxNewValue(Long minValue, Long maxValue) throws WriteChannelException {
 		pushMinWriteValue(minValue);
 		pushMaxWriteValue(maxValue);
 	}
 
-	public BigInteger pushMinWriteValue(BigInteger minValue) throws WriteChannelException {
+	/**
+	 * Sets the Min boundary.
+	 *
+	 * @param minValue
+	 * @return
+	 * @throws WriteChannelException
+	 */
+	public Long pushMinWriteValue(int minValue) throws WriteChannelException {
+		return pushMinWriteValue(Long.valueOf(minValue));
+	}
+
+	/**
+	 * Sets the Min boundary.
+	 *
+	 * @param minValue
+	 * @return
+	 * @throws WriteChannelException
+	 */
+	public Long pushMinWriteValue(Long minValue) throws WriteChannelException {
 		minValue = roundToHardwarePrecision(minValue);
 		checkValueBoundaries(minValue);
 		this.minWriteValue = minValue;
@@ -181,7 +209,17 @@ public class WriteableChannel extends Channel {
 	 * @param writeValue
 	 * @throws WriteChannelException
 	 */
-	public BigInteger pushWriteValue(BigInteger writeValue) throws WriteChannelException {
+	public Long pushWriteValue(int writeValue) throws WriteChannelException {
+		return pushWriteValue(Long.valueOf(writeValue));
+	}
+
+	/**
+	 * Set a new value for this Channel
+	 *
+	 * @param writeValue
+	 * @throws WriteChannelException
+	 */
+	public Long pushWriteValue(Long writeValue) throws WriteChannelException {
 		writeValue = roundToHardwarePrecision(writeValue);
 		checkValueBoundaries(writeValue);
 		this.writeValue = writeValue;
@@ -195,14 +233,14 @@ public class WriteableChannel extends Channel {
 	 * @param writeValue
 	 * @throws WriteChannelException
 	 */
-	public BigInteger pushWriteValue(String label) throws WriteChannelException {
+	public Long pushWriteValue(String label) throws WriteChannelException {
 		if (labels == null) {
 			throw new WriteChannelException(
 					"Label [" + label + "] not found. No labels set for Channel [" + getAddress() + "]");
 		} else if (!labels.containsValue(label)) {
 			throw new WriteChannelException("Label [" + label + "] not found: [" + labels.values() + "]");
 		}
-		for (Entry<BigInteger, String> entry : labels.entrySet()) {
+		for (Entry<Long, String> entry : labels.entrySet()) {
 			if (entry.getValue().equals(label)) {
 				return pushWriteValue(entry.getKey());
 			}
@@ -211,7 +249,7 @@ public class WriteableChannel extends Channel {
 				+ "] for Channel [" + getAddress() + "]");
 	}
 
-	private void checkValueBoundaries(BigInteger value) throws WriteChannelException {
+	private void checkValueBoundaries(Long value) throws WriteChannelException {
 		if (this.writeValue != null) {
 			if (value.compareTo(this.writeValue) != 0) {
 				throwOutOfBoundariesException(value);
@@ -246,24 +284,23 @@ public class WriteableChannel extends Channel {
 	 * @return
 	 */
 	@Nullable
-	private BigInteger popWriteValue() {
-		BigInteger result = peekWriteValue();
+	private Long popWriteValue() {
+		Long result = peekWriteValue();
 		this.writeValue = null;
 		this.minWriteValue = null;
 		this.maxWriteValue = null;
 		return result;
 	}
 
-	private BigInteger roundToHardwarePrecision(BigInteger value) {
-		BigInteger[] division = value.divideAndRemainder(multiplier);
-		if (division[1] != BigInteger.ZERO) {
-			BigInteger roundedValue = division[0].multiply(multiplier);
+	private Long roundToHardwarePrecision(Long value) {
+		if (value % multiplier != 0) {
+			Long roundedValue = (value / multiplier) * multiplier;
 			log.warn("Value [" + value + "] is too precise for device. Will round to [" + roundedValue + "]");
 		}
 		return value;
 	}
 
-	private void throwOutOfBoundariesException(BigInteger value) throws WriteChannelException {
+	private void throwOutOfBoundariesException(Long value) throws WriteChannelException {
 		throw new WriteChannelException(
 				"Value [" + value + "] is out of boundaries: fixed [" + this.writeValue + "], min [" + this.minValue
 						+ "/" + this.minWriteValue + "], max [" + this.maxValue + "/" + this.maxWriteValue + "]");
