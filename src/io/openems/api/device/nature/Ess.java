@@ -8,14 +8,23 @@ import io.openems.api.thing.IsConfig;
 public interface Ess extends DeviceNature {
 	public final int DEFAULT_MINSOC = 10;
 
+	@IsChannel(id = "ActivePower")
+	public Channel activePower();
+
 	@IsChannel(id = "AllowedCharge")
 	public Channel allowedCharge();
 
 	@IsChannel(id = "AllowedDischarge")
 	public Channel allowedDischarge();
 
+	@IsChannel(id = "ApparentPower")
+	public Channel apparentPower();
+
 	@IsChannel(id = "MinSoc")
 	public Channel minSoc();
+
+	@IsChannel(id = "RectivePower")
+	public Channel reactivePower();
 
 	@IsChannel(id = "SetActivePower")
 	public WriteableChannel setActivePower();

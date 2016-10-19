@@ -28,7 +28,7 @@ public class SimpleScheduler extends Scheduler {
 			// TODO: check if WritableChannels can still be changed, before executing
 			controller.run();
 		}
-		databus.writeAllWriteableChannels();
+		databus.writeAll();
 
 		// lastExecution = System.currentTimeMillis();
 		// writtenChannels.clear();

@@ -16,17 +16,23 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.WriteableChannel;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.thing.Thing;
+import io.openems.core.bridge.Bridge;
 
 public class Databus {
 	private final static Logger log = LoggerFactory.getLogger(Databus.class);
 
-	/*
+	/**
+	 * holds bridgeId -> Bridge
+	 */
+	private final Map<String, Bridge> bridges = new HashMap<>();
+
+	/**
 	 * holds thingId -> channelId -> DataChannel
 	 */
 	private final Map<String, Map<String, DataChannel>> thingDataChannels = new HashMap<>();
 
-	/*
-	 * holds thingId -> thing
+	/**
+	 * holds thingId -> Thing
 	 */
 	private final Map<String, Thing> things = new HashMap<>();
 
@@ -42,15 +48,22 @@ public class Databus {
 	 * @param thing
 	 */
 	public synchronized void addThing(String thingId, Thing thing) {
+		// add to central Thing-Map
 		things.put(thingId, thing);
+		// add to central ThingDataChannel-Map
 		Map<String, DataChannel> dataChannels = DatabusFactory.getDataChannels(thing, this);
 		thingDataChannels.put(thingId, dataChannels);
+		// add to central WritableChannel-Map
 		for (DataChannel dataChannel : dataChannels.values()) {
 			if (dataChannel.channel instanceof WriteableChannel) {
 				this.writableChannels.add(dataChannel);
 			}
 		}
-		log.info("writableChannels " + this.writableChannels.size());
+		// add to central Bridge-Map
+		if (thing instanceof Bridge) {
+			Bridge bridge = (Bridge) thing;
+			bridges.put(thingId, bridge);
+		}
 	}
 
 	/**
@@ -99,14 +112,11 @@ public class Databus {
 	}
 
 	/**
-	 * Triggers a write for all {@link WriteableChannel}
+	 * Triggers a write for all {@link WriteableChannel} via their respective {@link Bridge}.
 	 */
-	public void writeAllWriteableChannels() {
-		for (DataChannel dataChannel : this.getWritableChannels()) {
-			WriteableChannel writableChannel = (WriteableChannel) dataChannel.channel;
-			if (writableChannel.hasWriteValue()) {
-				log.info("Databus: New Value for " + dataChannel.channelId + ": " + writableChannel.popWriteValue());
-			}
+	public void writeAll() {
+		for (Bridge bridge : this.bridges.values()) {
+			bridge.triggerWrite();
 		}
 	}
 }

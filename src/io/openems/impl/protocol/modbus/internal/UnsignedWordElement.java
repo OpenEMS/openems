@@ -21,6 +21,8 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
@@ -30,7 +32,7 @@ import io.openems.impl.protocol.modbus.ModbusElement;
 public class UnsignedWordElement extends ModbusElement implements WordElement {
 	final ByteOrder byteOrder;
 
-	public UnsignedWordElement(int address, Channel channel, ByteOrder byteOrder) {
+	public UnsignedWordElement(int address, @NonNull Channel channel, @NonNull ByteOrder byteOrder) {
 		super(address, channel);
 		this.byteOrder = byteOrder;
 	}
@@ -52,14 +54,15 @@ public class UnsignedWordElement extends ModbusElement implements WordElement {
 	// }
 
 	@Override
-	public void setValue(Register register) {
+	public void setValue(@NonNull Register register) {
 		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);
 		buff.put(register.toBytes());
 		int shortValue = Short.toUnsignedInt(buff.getShort(0));
 		setValue(BigInteger.valueOf(shortValue));
 	}
 
-	public Register toRegister(BigInteger value) {
+	@Override
+	public Register toRegister(@NonNull BigInteger value) {
 		byte[] b = ByteBuffer.allocate(2).order(byteOrder).putShort(value.shortValue()).array();
 		return new SimpleRegister(b[0], b[1]);
 	}

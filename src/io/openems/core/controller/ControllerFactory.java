@@ -35,11 +35,6 @@ public class ControllerFactory {
 	@SuppressWarnings("unchecked")
 	public static List<ControllerThingMapping> generateMappings(Controller controller, Databus databus)
 			throws InjectionException, ConfigException {
-		// List<ChannelMapping> readChannelMap = new LinkedList<>();
-		// readFieldMapping.put(controller, readChannelMap);
-		// List<ChannelMapping> writeChannelMap = new LinkedList<>();
-		// writeFieldMapping.put(controller, writeChannelMap);
-
 		List<ControllerThingMapping> result = new LinkedList<>();
 
 		/*
@@ -163,42 +158,6 @@ public class ControllerFactory {
 				// TODO else
 
 			}
-			//
-
-			// Class<?> mappingClass = (Class<?>) ((ParameterizedType)
-			// f.getGenericType()).getActualTypeArguments()[0];
-			// // Check if the field has the right type
-			// if (DataMap.class.isAssignableFrom(mappingClass)) {
-			// // generate List of mappings which are set to the Field
-			// // of the Controller
-			// List<DataMap> dataMaps = new ArrayList<>();
-			// // Search all things of the specified type of the
-			// // mapping annotation
-			// List<Thing> things = dm.getThingsByClass(m.type());
-			// for (Thing thing : things) {
-			// DataMap dataMap = (DataMap) mappingClass.newInstance();
-			// dataMaps.add(dataMap);
-			// // Search fields, which are marked with the
-			// // IsRequired annotation
-			// for (Field mappingField : mappingClass.getDeclaredFields()) {
-			// if (mappingField.isAnnotationPresent(IsRequired.class)) {
-			// IsRequired r = mappingField.getAnnotation(IsRequired.class);
-			// // Search Channel by id and generate
-			// // channelmapping
-			// if (mappingField.getType().equals(Range.class)) {
-			// Channel channel = dm.getChannelFromThing(thing, r.itemId());
-			// if (channel != null) {
-			// ChannelMapping cm = new ChannelMapping(channel, mappingField, dataMap);
-			// readChannelMap.add(cm);
-			// if (r.permission() == Permission.WRITE) {
-			// writeChannelMap.add(cm);
-			// }
-			// }
-			// }
-			// }
-			// }
-			// }
-			// f.set(controller, dataMaps);
 		}
 		return result;
 	}

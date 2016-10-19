@@ -11,8 +11,9 @@ import io.openems.api.thing.Thing;
 public abstract class AbstractWorker extends Thread implements Thing {
 	protected final Logger log;
 	private final AtomicBoolean initialize = new AtomicBoolean(true);
-	private final AtomicBoolean initialized = new AtomicBoolean(false);
 	private Mutex initializedMutex = new Mutex(false);
+	private final AtomicBoolean isForceRun = new AtomicBoolean(false);
+	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 
 	/**
 	 * Initialize the Thread with a name
@@ -45,7 +46,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 				while (initialize.get()) {
 					boolean initSuccessful = initialize();
 					if (initSuccessful) {
-						initialized.set(true);
+						isInitialized.set(true);
 						initializedMutex.release();
 						initialize.set(false);
 					} else {
@@ -55,10 +56,22 @@ public abstract class AbstractWorker extends Thread implements Thing {
 				try {
 					forever();
 				} catch (Throwable e) {
-					log.error("Bridge execution failed! Trying to initialize again: {}", e.getMessage());
+					log.error("Bridge execution failed! Trying to initialize again.");
+					e.printStackTrace();
 					forever();
 				}
-				Thread.sleep(1000); // TODO add cycle time
+				try {
+					Thread.sleep(1000); // TODO add cycle time
+				} catch (InterruptedException e) {
+					if (isForceRun.get()) {
+						// check if a "forceRun" was triggereed. In that case Thread.sleep is interrupted and run() is
+						// starting again immediately
+						isForceRun.set(false);
+					} else {
+						// otherwise forward the exception
+						throw e;
+					}
+				}
 			} catch (Throwable e) {
 				System.out.println("BridgeWorker-Exception! " + e.getMessage());
 				e.printStackTrace();
@@ -66,6 +79,14 @@ public abstract class AbstractWorker extends Thread implements Thing {
 		}
 		dispose();
 		System.out.println("BridgeWorker was interrupted. Exiting gracefully...");
+	}
+
+	/**
+	 * Causes the Worker to interrupt sleeping and start again the run() method immediately
+	 */
+	public final void triggerForceRun() {
+		isForceRun.set(true);
+		this.interrupt();
 	};
 
 	/**

@@ -7,26 +7,35 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ConfigChannelBuilder;
 import io.openems.api.channel.WriteableChannel;
 import io.openems.api.device.nature.Ess;
-import io.openems.api.exception.OpenemsModbusException;
+import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.WriteableModbusChannel;
 import io.openems.impl.protocol.modbus.internal.ElementBuilder;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
+import io.openems.impl.protocol.modbus.internal.WritableModbusRange;
 import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
 import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBuilder;
 
 public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
-	private final WriteableModbusChannel _activePower = new WriteableModbusChannelBuilder().unit("W").multiplier(100)
-			.build();
+	private final ModbusChannel _activePower = new ModbusChannelBuilder().unit("W").multiplier(100).build();
 	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().unit("W").multiplier(100).build();
 	private final ModbusChannel _allowedDischarge = new ModbusChannelBuilder().unit("W").multiplier(100).build();
+	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().unit("VA").multiplier(100).build();
 	private final ConfigChannel _minSoc = new ConfigChannelBuilder().defaultValue(DEFAULT_MINSOC).percentType().build();
+	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().unit("Var").multiplier(100).build();
+	private final WriteableModbusChannel _setActivePower = new WriteableModbusChannelBuilder().unit("W").multiplier(100)
+			.build();
 	private final ModbusChannel _soc = new ModbusChannelBuilder().percentType().build();
 
 	public FeneconCommercialEss(String thingId) {
 		super(thingId);
+	}
+
+	@Override
+	public Channel activePower() {
+		return _activePower;
 	}
 
 	@Override
@@ -40,13 +49,23 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 	}
 
 	@Override
+	public Channel apparentPower() {
+		return _apparentPower;
+	}
+
+	@Override
 	public Channel minSoc() {
 		return _minSoc;
 	}
 
 	@Override
+	public Channel reactivePower() {
+		return _reactivePower;
+	}
+
+	@Override
 	public WriteableChannel setActivePower() {
-		return _activePower;
+		return _setActivePower;
 	}
 
 	@Override
@@ -61,21 +80,59 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 
 	@Override
 	public String toString() {
-		return "FeneconCommercialEss [activePower=" + _activePower.toSimpleString() + ", minSoc="
+		return "FeneconCommercialEss [setActivePower=" + _setActivePower.toSimpleString() + ", minSoc="
 				+ _minSoc.toSimpleString() + ", soc=" + _soc.toSimpleString() + "]";
 	}
 
+	@SuppressWarnings("null")
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsModbusException {
+	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 
 		return new ModbusProtocol( //
-				new ModbusRange(0x0230, //
+				new ModbusRange(0x0210, //
+						new ElementBuilder().address(0x0210).channel(_activePower).signed().build(),
+						new ElementBuilder().address(0x0211).channel(_reactivePower).signed().build(),
+						new ElementBuilder().address(0x0212).channel(_apparentPower).build(),
+						new ElementBuilder().address(0x0213).dummy().build(),
+						// .name(EssProtocol.CurrentPhase1).signed(true).multiplier(100).unit("mA").build(),
+						new ElementBuilder().address(0x0214).dummy().build(),
+						// .name(EssProtocol.CurrentPhase2).signed(true).multiplier(100).unit("mA").build(),
+						new ElementBuilder().address(0x0215).dummy().build(),
+						// .name(EssProtocol.CurrentPhase3).signed(true).multiplier(100).unit("mA").build(),
+						new ElementBuilder().address(0x0216).dummy(0x219 - 0x216).build(),
+						// .type(ElementType.PLACEHOLDER).intLength(0x219 - 0x216).build(),
+						new ElementBuilder().address(0x0219).dummy().build(),
+						// .name(EssProtocol.VoltagePhase1).multiplier(100).unit("mV").build(),
+						new ElementBuilder().address(0x021A).dummy().build(),
+						// .name(EssProtocol.VoltagePhase2).multiplier(100).unit("mV").build(),
+						new ElementBuilder().address(0x021B).dummy().build(),
+						// .name(EssProtocol.VoltagePhase3).multiplier(100).unit("mV").build(),
+						new ElementBuilder().address(0x021C).dummy().build(),
+						// .name(EssProtocol.Frequency).multiplier(10).unit("mHZ").build(),
+						new ElementBuilder().address(0x021D).dummy(0x222 - 0x21D).build(),
+						// type(ElementType.PLACEHOLDER).intLength(0x222 - 0x21D).build(),
+						new ElementBuilder().address(0x0222).dummy().build(),
+						// .name(EssProtocol.InverterVoltagePhase1).signed(true).multiplier(100).unit("mV").build(),
+						new ElementBuilder().address(0x0223).dummy().build(),
+						// .name(EssProtocol.InverterVoltagePhase2).signed(true).multiplier(100).unit("mV").build(),
+						new ElementBuilder().address(0x0224).dummy().build(),
+						// .name(EssProtocol.InverterVoltagePhase3).signed(true).multiplier(100).unit("mV").build(),
+						new ElementBuilder().address(0x0225).dummy().build(),
+						// .name(EssProtocol.InverterCurrentPhase1).signed(true).multiplier(100).unit("mA").build(),
+						new ElementBuilder().address(0x0226).dummy().build(),
+						// .name(EssProtocol.InverterCurrentPhase2).signed(true).multiplier(100).unit("mA").build(),
+						new ElementBuilder().address(0x0227).dummy().build(),
+						// .name(EssProtocol.InverterCurrentPhase3).signed(true).multiplier(100).unit("mA").build(),
+						new ElementBuilder().address(0x0228).dummy().build(),
+						// .name(EssProtocol.InverterActivePower).signed(true).multiplier(100).unit("W").build(),
+						new ElementBuilder().address(0x0229).dummy(0x230 - 0x229).build(),
+						// .type(ElementType.PLACEHOLDER).intLength(0x230 - 0x229).build(),
 						new ElementBuilder().address(0x0230).channel(_allowedCharge).signed().build(),
 						new ElementBuilder().address(0x0231).channel(_allowedDischarge).build()),
 				new ModbusRange(0x1402, //
 						new ElementBuilder().address(0x1402).channel(_soc).build()),
-				new ModbusRange(0x0501, //
-						new ElementBuilder().address(0x0501).channel(_activePower).signed().build() //
+				new WritableModbusRange(0x0501, //
+						new ElementBuilder().address(0x0501).channel(_setActivePower).signed().build() //
 				));
 	}
 }

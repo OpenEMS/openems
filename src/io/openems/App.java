@@ -23,6 +23,7 @@ public class App {
 		Databus databus = ThingFactory.getFromConfig(config);
 		databus.printAll();
 
+		// TODO: this should be done by scheduler
 		FeneconCommercialEss ess0 = (FeneconCommercialEss) databus.getThing("ess0");
 		Channel soc = ess0.soc();
 		ess0.getProtocol().setAsRequired(soc);

@@ -83,40 +83,18 @@ public class WriteableChannel extends Channel {
 	}
 
 	/**
-	 * Returns the value or a value that was derived from the Min and Max boundaries and initializes the
-	 * {@link WriteableChannel}.
+	 * Returns the value or a value that was derived from the Min and Max boundaries in a format suitable
+	 * for writing to hardware and initializes the
+	 * {@link WriteableChannel}. This method is called internally by {@link DeviceNature}.
 	 *
 	 * @return
 	 */
-	@Nullable
-	public BigInteger popWriteValue() {
-		BigInteger result;
-		if (this.writeValue != null) {
-			// fixed value exists: return it
-			result = this.writeValue;
-		} else { // this.writeValue == null
-			if (this.maxWriteValue != null) {
-				if (this.minWriteValue != null) {
-					// Min+Max exist: return average value
-					result = this.minWriteValue.add(this.maxWriteValue).divide(BigInteger.valueOf(2));
-				} else { // this.minWriteValue == null
-					// only Max exists: return it
-					result = this.maxWriteValue;
-				}
-			} else { // this.maxWriteValue == null
-				if (this.minWriteValue != null) {
-					// only Min exist: return it
-					result = this.minWriteValue;
-				} else { // this.minWriteValue == null
-					// No value exists: return null
-					result = null;
-				}
-			}
+	public BigInteger popRawWriteValue() {
+		BigInteger value = popWriteValue();
+		if (value == null) {
+			return value;
 		}
-		this.writeValue = null;
-		this.minWriteValue = null;
-		this.maxWriteValue = null;
-		return result;
+		return value.add(delta).divide(multiplier);
 	}
 
 	/**
@@ -174,40 +152,69 @@ public class WriteableChannel extends Channel {
 		return minValue;
 	}
 
-	protected BigInteger popRawWriteValue() {
-		BigInteger value = popWriteValue();
-		if (value == null) {
-			return value;
-		}
-		return value.add(delta).divide(multiplier);
-	}
-
 	private void checkValueBoundaries(BigInteger value) throws WriteChannelException {
 		if (this.writeValue != null) {
 			if (value.compareTo(this.writeValue) != 0) {
-				throwOutOfBoundariesException();
+				throwOutOfBoundariesException(value);
 			}
 		}
 		if (this.minValue != null) {
 			if (value.compareTo(this.minValue) < 0) {
-				throwOutOfBoundariesException();
+				throwOutOfBoundariesException(value);
 			}
 		}
 		if (this.minWriteValue != null) {
 			if (value.compareTo(this.minWriteValue) < 0) {
-				throwOutOfBoundariesException();
+				throwOutOfBoundariesException(value);
 			}
 		}
 		if (this.maxValue != null) {
 			if (value.compareTo(this.maxValue) > 0) {
-				throwOutOfBoundariesException();
+				throwOutOfBoundariesException(value);
 			}
 		}
 		if (this.maxWriteValue != null) {
 			if (value.compareTo(this.maxWriteValue) > 0) {
-				throwOutOfBoundariesException();
+				throwOutOfBoundariesException(value);
 			}
 		}
+	}
+
+	/**
+	 * Returns the value or a value that was derived from the Min and Max boundaries and initializes the
+	 * {@link WriteableChannel}.
+	 *
+	 * @return
+	 */
+	@Nullable
+	private BigInteger popWriteValue() {
+		BigInteger result;
+		if (this.writeValue != null) {
+			// fixed value exists: return it
+			result = this.writeValue;
+		} else { // this.writeValue == null
+			if (this.maxWriteValue != null) {
+				if (this.minWriteValue != null) {
+					// Min+Max exist: return average value
+					result = this.minWriteValue.add(this.maxWriteValue).divide(BigInteger.valueOf(2));
+				} else { // this.minWriteValue == null
+					// only Max exists: return it
+					result = this.maxWriteValue;
+				}
+			} else { // this.maxWriteValue == null
+				if (this.minWriteValue != null) {
+					// only Min exist: return it
+					result = this.minWriteValue;
+				} else { // this.minWriteValue == null
+					// No value exists: return null
+					result = null;
+				}
+			}
+		}
+		this.writeValue = null;
+		this.minWriteValue = null;
+		this.maxWriteValue = null;
+		return result;
 	}
 
 	private BigInteger roundToHardwarePrecision(BigInteger value) {
@@ -219,7 +226,7 @@ public class WriteableChannel extends Channel {
 		return value;
 	}
 
-	private void throwOutOfBoundariesException() throws WriteChannelException {
+	private void throwOutOfBoundariesException(BigInteger value) throws WriteChannelException {
 		throw new WriteChannelException(
 				"Value [" + value + "] is out of boundaries: fixed [" + this.writeValue + "], min [" + this.minValue
 						+ "/" + this.minWriteValue + "], max [" + this.maxValue + "/" + this.maxWriteValue + "]");

@@ -14,8 +14,6 @@ public class Balancing extends Controller {
 	@IsThingMapping
 	public MeterMap meter;
 
-	private BigInteger lastValue = BigInteger.ZERO;
-
 	public boolean isOnGrid() {
 		// for (EssMap ess : esss) {
 		// if (!ess.isOnGrid()) {
@@ -27,12 +25,13 @@ public class Balancing extends Controller {
 
 	@Override
 	public void run() {
-		log.info("Balancing: ");
 		if (isOnGrid()) {
 			for (EssMap ess : esss) {
+				log.info("ESS [" + ess.getThingId() + "], SOC [" + ess.soc.toSimpleString() + "], ActivePower ["
+						+ ess.activePower.toSimpleString() + "]");
 				try {
-					lastValue = lastValue.add(BigInteger.valueOf(10));
-					ess.setActivePower.pushWriteValue(lastValue);
+					// lastValue = lastValue.add(BigInteger.valueOf(100));
+					ess.setActivePower.pushWriteValue(BigInteger.valueOf(0));
 				} catch (WriteChannelException e) {
 					log.error(e.getMessage());
 				}

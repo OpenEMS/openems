@@ -11,6 +11,9 @@ import io.openems.api.exception.InvalidValueException;
 @IsThingMap(type = Ess.class)
 public class EssMap extends ThingMap {
 
+	@IsRequired(channelId = "ActivePower")
+	public Channel activePower;
+
 	@IsRequired(channelId = "AllowedCharge")
 	public Channel allowedCharge;
 

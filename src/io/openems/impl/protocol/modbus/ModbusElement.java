@@ -2,6 +2,7 @@ package io.openems.impl.protocol.modbus;
 
 import java.math.BigInteger;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +15,10 @@ public abstract class ModbusElement {
 	protected final Logger log;
 	protected ModbusRange range = null;
 
-	public ModbusElement(int address, Channel channel) {
+	public ModbusElement(int address, @NonNull Channel channel) {
+		log = LoggerFactory.getLogger(this.getClass());
 		this.address = address;
 		this.channel = channel;
-		log = LoggerFactory.getLogger(this.getClass());
 	}
 
 	public int getAddress() {

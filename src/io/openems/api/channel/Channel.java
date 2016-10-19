@@ -2,6 +2,7 @@ package io.openems.api.channel;
 
 import java.math.BigInteger;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +29,12 @@ public class Channel {
 		this.maxValue = maxValue;
 	}
 
+	@Nullable
 	public BigInteger getMaxValue() {
 		return maxValue;
 	}
 
+	@Nullable
 	public BigInteger getMinValue() {
 		return minValue;
 	};
@@ -44,6 +47,7 @@ public class Channel {
 		}
 	};
 
+	@Nullable
 	public BigInteger getValueOrNull() {
 		return value;
 	}

@@ -2,8 +2,9 @@ package io.openems.impl.protocol.modbus.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +14,11 @@ import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class ModbusProtocol {
 	private static Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
-	private final Map<Channel, ModbusElement> channelElementMap = new HashMap<>();
-	private final HashMap<Integer, ModbusRange> otherRanges = new HashMap<>(); // key = startAddress
+	private final Map<Channel, ModbusElement> channelElementMap = new ConcurrentHashMap<>();
+	private final Map<Integer, ModbusRange> otherRanges = new ConcurrentHashMap<>(); // key = startAddress
 	// requiredRanges stays empty till someone calls "setAsRequired()"
-	private final HashMap<Integer, ModbusRange> requiredRanges = new HashMap<>(); // key = startAddress
+	private final Map<Integer, ModbusRange> requiredRanges = new ConcurrentHashMap<>(); // key = startAddress
+	private final Map<Integer, WritableModbusRange> writableRanges = new ConcurrentHashMap<>(); // key = startAddress
 
 	public ModbusProtocol(ModbusRange... ranges) {
 		for (ModbusRange range : ranges) {
@@ -28,21 +30,33 @@ public class ModbusProtocol {
 			for (ModbusElement element : range.getElements()) {
 				channelElementMap.put(element.getChannel(), element);
 			}
+			// fill writableRanges
+			if (range instanceof WritableModbusRange) {
+				WritableModbusRange writableRange = (WritableModbusRange) range;
+				writableRanges.put(writableRange.getStartAddress(), writableRange);
+			}
 		}
 	}
 
 	public synchronized Collection<ModbusRange> getOtherRanges() {
 		if (otherRanges.isEmpty()) {
-			return new ArrayList<ModbusRange>();
+			return Collections.unmodifiableCollection(new ArrayList<ModbusRange>());
 		}
-		return otherRanges.values();
+		return Collections.unmodifiableCollection(otherRanges.values());
 	}
 
 	public synchronized Collection<ModbusRange> getRequiredRanges() {
 		if (requiredRanges.isEmpty()) {
-			return new ArrayList<ModbusRange>();
+			return Collections.unmodifiableCollection(new ArrayList<ModbusRange>());
 		}
-		return requiredRanges.values();
+		return Collections.unmodifiableCollection(requiredRanges.values());
+	}
+
+	public synchronized Collection<WritableModbusRange> getWritableRanges() {
+		if (writableRanges.isEmpty()) {
+			return Collections.unmodifiableCollection(new ArrayList<WritableModbusRange>());
+		}
+		return Collections.unmodifiableCollection(writableRanges.values());
 	}
 
 	public synchronized void setAsRequired(Channel channel) {

@@ -26,4 +26,6 @@ public abstract class Bridge extends AbstractWorker implements Thing {
 	public void setDevices(Device... devices) {
 		this.devices = devices;
 	}
+
+	public abstract void triggerWrite();
 }
