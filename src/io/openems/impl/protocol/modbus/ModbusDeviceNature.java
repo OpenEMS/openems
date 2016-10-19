@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.channel.WriteableChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
@@ -28,20 +29,27 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 		log = LoggerFactory.getLogger(this.getClass());
 	}
 
-	// TODO make protected
-	public ModbusProtocol getProtocol() throws ConfigException {
-		if (protocol == null) {
-			this.protocol = defineModbusProtocol();
-		}
-		return protocol;
-	}
-
 	@Override
 	public String getThingId() {
 		return thingId;
 	}
 
+	@Override
+	/**
+	 * Sets a Channel as required. The Range with this Channel will be added to ModbusProtocol.RequiredRanges.
+	 */
+	public void setAsRequired(Channel channel) throws ConfigException {
+		getProtocol().setAsRequired(channel);
+	}
+
 	protected abstract ModbusProtocol defineModbusProtocol() throws ConfigException;
+
+	protected ModbusProtocol getProtocol() throws ConfigException {
+		if (protocol == null) {
+			this.protocol = defineModbusProtocol();
+		}
+		return protocol;
+	}
 
 	protected void update(int unitId, ModbusBridge bridge) throws ConfigException {
 		/**

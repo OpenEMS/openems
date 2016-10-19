@@ -1,16 +1,22 @@
 package io.openems.api.channel;
 
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.openems.api.device.nature.DeviceNature;
 
 public class ChannelBuilder<B extends ChannelBuilder<?>> {
 	protected BigInteger delta = BigInteger.ZERO;
+	protected Map<BigInteger, String> labels;
 	protected BigInteger maxValue = null;
 	protected BigInteger minValue = null;
 	protected BigInteger multiplier = BigInteger.ONE;
+	protected DeviceNature nature = null;
 	protected String unit = "";
 
 	public Channel build() {
-		return new Channel(unit, minValue, maxValue, multiplier, delta);
+		return new Channel(nature, unit, minValue, maxValue, multiplier, delta, labels);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -21,6 +27,19 @@ public class ChannelBuilder<B extends ChannelBuilder<?>> {
 
 	public B delta(int delta) {
 		return delta(BigInteger.valueOf(delta));
+	}
+
+	@SuppressWarnings("unchecked")
+	public B label(BigInteger value, String label) {
+		if (this.labels == null) {
+			this.labels = new HashMap<>();
+		}
+		this.labels.put(value, label);
+		return (B) this;
+	}
+
+	public B label(int value, String label) {
+		return label(BigInteger.valueOf(value), label);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -55,6 +74,12 @@ public class ChannelBuilder<B extends ChannelBuilder<?>> {
 
 	public B multiplier(int multiplier) {
 		return multiplier(BigInteger.valueOf(multiplier));
+	}
+
+	@SuppressWarnings("unchecked")
+	public B nature(DeviceNature nature) {
+		this.nature = nature;
+		return (B) this;
 	}
 
 	public B percentType() {

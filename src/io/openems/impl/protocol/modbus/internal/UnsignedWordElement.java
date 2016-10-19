@@ -42,17 +42,6 @@ public class UnsignedWordElement extends ModbusElement implements WordElement {
 		return 1;
 	}
 
-	// TODO
-	// @Override
-	// public BigInteger getMaxValue() {
-	// return BigInteger.valueOf(Short.MAX_VALUE - Short.MIN_VALUE);
-	// }
-	//
-	// @Override
-	// public BigInteger getMinValue() {
-	// return BigInteger.valueOf(0);
-	// }
-
 	@Override
 	public void setValue(@NonNull Register register) {
 		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);

@@ -36,11 +36,6 @@ public abstract class Device implements Thing {
 		return this.thingId;
 	}
 
-	// TODO @IsConfigParameter("bridge")
-	public void setBridge(Bridge bridge) {
-		this.bridge = bridge;
-	}
-
 	protected synchronized DeviceNature[] getDeviceNatures() throws InjectionException {
 		if (this.deviceNatures == null) {
 			/*

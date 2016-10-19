@@ -122,7 +122,7 @@ public class ControllerFactory {
 						Field targetField = thingMapFieldEntry.getValue();
 						Method sourceMethod = channelMethods.get(channelId);
 						if (sourceMethod == null) {
-							log.warn("No matching source Method found for ThingMap ["
+							throw new ConfigException("No matching source Method found for ThingMap ["
 									+ thingMap.getClass().getCanonicalName() + "], ChannelId [" + channelId
 									+ "], Field [" + targetField.getName() + "]");
 						} else {
@@ -131,12 +131,15 @@ public class ControllerFactory {
 							try {
 								Thing sourceThing = matchingThings.get(thingId);
 								Channel channel = (Channel) sourceMethod.invoke(sourceThing);
+								channel.setChannelId(channelId);
 								targetField.set(thingMap, channel);
+								channel.setAsRequired();
 							} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException
 									| NullPointerException e) {
-								throw new InjectionException(
-										"Unable to set IsRequired field for ThingId [" + thingId + "], ThingMap ["
-												+ thingMap.getClass().getSimpleName() + "]: " + e.getMessage());
+								e.printStackTrace();
+								throw new InjectionException("Unable to set IsRequired field for ThingId [" + thingId
+										+ "], ThingMap [" + thingMap.getClass().getSimpleName() + "], Channel ["
+										+ channelId + "]: " + e.getMessage());
 							}
 						}
 					}
@@ -156,7 +159,6 @@ public class ControllerFactory {
 					}
 				}
 				// TODO else
-
 			}
 		}
 		return result;

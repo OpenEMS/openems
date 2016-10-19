@@ -1,12 +1,15 @@
 package io.openems.api.channel;
 
 import java.math.BigInteger;
+import java.util.Map;
+
+import io.openems.api.device.nature.DeviceNature;
 
 public class ConfigChannel extends Channel {
 
-	public ConfigChannel(String unit, BigInteger minValue, BigInteger maxValue, BigInteger multiplier, BigInteger delta,
-			BigInteger defaultValue) {
-		super(unit, minValue, maxValue, multiplier, delta);
+	public ConfigChannel(DeviceNature nature, String unit, BigInteger minValue, BigInteger maxValue,
+			BigInteger multiplier, BigInteger delta, Map<BigInteger, String> labels, BigInteger defaultValue) {
+		super(nature, unit, minValue, maxValue, multiplier, delta, labels);
 		updateValue(defaultValue, false);
 	}
 

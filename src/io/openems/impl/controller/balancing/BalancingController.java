@@ -7,7 +7,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMapping;
 import io.openems.api.exception.WriteChannelException;
 
-public class Balancing extends Controller {
+public class BalancingController extends Controller {
 	@IsThingMapping
 	public List<EssMap> esss = null;
 
@@ -27,8 +27,6 @@ public class Balancing extends Controller {
 	public void run() {
 		if (isOnGrid()) {
 			for (EssMap ess : esss) {
-				log.info("ESS [" + ess.getThingId() + "], SOC [" + ess.soc.toSimpleString() + "], ActivePower ["
-						+ ess.activePower.toSimpleString() + "]");
 				try {
 					// lastValue = lastValue.add(BigInteger.valueOf(100));
 					ess.setActivePower.pushWriteValue(BigInteger.valueOf(0));

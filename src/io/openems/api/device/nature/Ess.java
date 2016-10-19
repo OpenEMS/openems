@@ -32,6 +32,12 @@ public interface Ess extends DeviceNature {
 	@IsConfig("MinSoc")
 	public void setMinSoc(Integer minSoc);
 
+	@IsChannel(id = "SetWorkState")
+	public WriteableChannel setWorkState();
+
 	@IsChannel(id = "Soc")
 	public Channel soc();
+
+	@IsChannel(id = "SystemState")
+	public Channel systemState();
 }

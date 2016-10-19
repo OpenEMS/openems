@@ -19,15 +19,31 @@ import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
 import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBuilder;
 
 public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
-	private final ModbusChannel _activePower = new ModbusChannelBuilder().unit("W").multiplier(100).build();
-	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().unit("W").multiplier(100).build();
-	private final ModbusChannel _allowedDischarge = new ModbusChannelBuilder().unit("W").multiplier(100).build();
-	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().unit("VA").multiplier(100).build();
-	private final ConfigChannel _minSoc = new ConfigChannelBuilder().defaultValue(DEFAULT_MINSOC).percentType().build();
-	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().unit("Var").multiplier(100).build();
-	private final WriteableModbusChannel _setActivePower = new WriteableModbusChannelBuilder().unit("W").multiplier(100)
+
+	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
 			.build();
-	private final ModbusChannel _soc = new ModbusChannelBuilder().percentType().build();
+	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
+			.build();
+	private final ModbusChannel _allowedDischarge = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
+			.build();
+	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(100)
+			.build();
+	private final ConfigChannel _minSoc = new ConfigChannelBuilder().nature(this).defaultValue(DEFAULT_MINSOC)
+			.percentType().build();
+	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().nature(this).unit("Var").multiplier(100)
+			.build();
+	private final WriteableModbusChannel _setActivePower = new WriteableModbusChannelBuilder().nature(this).unit("W")
+			.multiplier(100).minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+	private final WriteableModbusChannel _setWorkState = new WriteableModbusChannelBuilder().nature(this) //
+			.label(4, "Stop") //
+			.label(64, "Start") //
+			.build();
+	private final ModbusChannel _soc = new ModbusChannelBuilder().nature(this).percentType().build();
+	private final ModbusChannel _systemState = new ModbusChannelBuilder().nature(this) //
+			.label(2, "Stop") //
+			.label(8, "Standby") //
+			.label(16, "Start") //
+			.build();
 
 	public FeneconCommercialEss(String thingId) {
 		super(thingId);
@@ -74,14 +90,24 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 	}
 
 	@Override
+	public WriteableChannel setWorkState() {
+		return _setWorkState;
+	}
+
+	@Override
 	public Channel soc() {
 		return _soc;
 	}
 
 	@Override
+	public Channel systemState() {
+		return _systemState;
+	}
+
+	@Override
 	public String toString() {
-		return "FeneconCommercialEss [setActivePower=" + _setActivePower.toSimpleString() + ", minSoc="
-				+ _minSoc.toSimpleString() + ", soc=" + _soc.toSimpleString() + "]";
+		return "FeneconCommercialEss [setActivePower=" + _setActivePower + ", minSoc=" + _minSoc + ", soc=" + _soc
+				+ "]";
 	}
 
 	@SuppressWarnings("null")
@@ -89,6 +115,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 
 		return new ModbusProtocol( //
+				new ModbusRange(0x0101, //
+						new ElementBuilder().address(0x0101).channel(_systemState).build()), //
 				new ModbusRange(0x0210, //
 						new ElementBuilder().address(0x0210).channel(_activePower).signed().build(),
 						new ElementBuilder().address(0x0211).channel(_reactivePower).signed().build(),
@@ -131,7 +159,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Ess {
 						new ElementBuilder().address(0x0231).channel(_allowedDischarge).build()),
 				new ModbusRange(0x1402, //
 						new ElementBuilder().address(0x1402).channel(_soc).build()),
-				new WritableModbusRange(0x0501, //
+				new WritableModbusRange(0x0500, //
+						new ElementBuilder().address(0x0500).channel(_setWorkState).build(),
 						new ElementBuilder().address(0x0501).channel(_setActivePower).signed().build() //
 				));
 	}

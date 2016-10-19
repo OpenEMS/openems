@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
+import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class ModbusProtocol {
@@ -60,10 +61,11 @@ public class ModbusProtocol {
 	}
 
 	public synchronized void setAsRequired(Channel channel) {
-		log.debug("Set required: " + channel + " " + this);
-		ModbusRange range = channelElementMap.get(channel).getModbusRange();
-		otherRanges.remove(range.getStartAddress());
-		requiredRanges.put(range.getStartAddress(), range);
+		if (channel instanceof ModbusChannel) {
+			ModbusRange range = channelElementMap.get(channel).getModbusRange();
+			otherRanges.remove(range.getStartAddress());
+			requiredRanges.put(range.getStartAddress(), range);
+		}
 	}
 
 	/**

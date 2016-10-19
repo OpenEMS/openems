@@ -8,7 +8,7 @@ public class DummyElement extends ModbusElement {
 	private final int length;
 
 	public DummyElement(int address, int length) {
-		super(address, new Channel("", null, null, null, null));
+		super(address, new Channel(null, "", null, null, null, null, null));
 		this.length = length;
 	}
 

@@ -18,19 +18,30 @@ public class AvoidTotalDischargeController extends Controller {
 	public void run() {
 		for (EssMap ess : esss) {
 			try {
-				log.info("AvoidTotalDischarge. SOC: " + ess.soc.toSimpleString() + ". MinSoc: "
-						+ ess.minSoc.toSimpleString());
+				/*
+				 * Calculate SetActivePower according to MinSoc
+				 */
 				if (ess.soc.getValue().compareTo(ess.minSoc.getValue()) <= 0
 						&& ess.soc.getValue().compareTo(ess.minSoc.getValue().subtract(FIVE)) > 0) {
 					// SOC > minSoc && > minSoc - 5
-					ess.setActivePower.setMaxWriteValue(BigInteger.ZERO);
+					ess.setActivePower.pushMaxWriteValue(BigInteger.ZERO);
 				} else if (ess.soc.getValue().compareTo(ess.minSoc.getValue().subtract(FIVE)) < 0) {
 					// SOC < minSoc - 5
-					BigInteger currentMaxValue = ess.setActivePower.getMaxWriteValue();
+					BigInteger currentMaxValue = ess.setActivePower.peekMaxWriteValue();
 					if (currentMaxValue != null) {
-						ess.setActivePower.setMaxWriteValue(currentMaxValue.divide(FIVE));
+						ess.setActivePower.pushMaxWriteValue(currentMaxValue.divide(FIVE));
 					} else {
-						ess.setActivePower.setMaxWriteValue(BigInteger.valueOf(1000));
+						ess.setActivePower.pushMaxWriteValue(BigInteger.valueOf(1000));
+					}
+				}
+				/*
+				 * Start ESS if it was stopped and we have a setActivePower command
+				 */
+				if (ess.setActivePower.hasWriteValue()) {
+					String systemState = ess.systemState.getValueLabelOrNull();
+					if (systemState == null || systemState != "Start") {
+						log.info("ESS [" + ess.getThingId() + "] was stopped. Starting...");
+						ess.setWorkState.pushWriteValue("Start");
 					}
 				}
 			} catch (InvalidValueException | WriteChannelException e) {
