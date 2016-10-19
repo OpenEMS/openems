@@ -157,7 +157,6 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 				+ "]";
 	}
 
-	@SuppressWarnings("null")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //

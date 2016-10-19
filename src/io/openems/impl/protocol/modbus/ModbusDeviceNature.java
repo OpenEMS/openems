@@ -123,7 +123,6 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 		}
 	}
 
-	@SuppressWarnings("null")
 	private void update(int modbusUnitId, ModbusBridge modbusBridge, ModbusRange range) {
 		try {
 			// Query using this Range

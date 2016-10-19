@@ -87,7 +87,6 @@ public class SocomecMeter extends ModbusDeviceNature implements MeterNature {
 		return _reactivePower;
 	}
 
-	@SuppressWarnings("null")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //

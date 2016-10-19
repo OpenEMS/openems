@@ -23,8 +23,6 @@ package io.openems.impl.protocol.modbus.internal;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
@@ -35,8 +33,7 @@ public class UnsignedDoublewordElement extends ModbusElement implements Doublewo
 	private final ByteOrder byteOrder;
 	private final WordOrder wordOrder;
 
-	public UnsignedDoublewordElement(int address, @NonNull Channel channel, @NonNull ByteOrder byteOrder,
-			@NonNull WordOrder wordOrder) {
+	public UnsignedDoublewordElement(int address, Channel channel, ByteOrder byteOrder, WordOrder wordOrder) {
 		super(address, channel);
 		this.byteOrder = byteOrder;
 		this.wordOrder = wordOrder;
@@ -48,7 +45,7 @@ public class UnsignedDoublewordElement extends ModbusElement implements Doublewo
 	}
 
 	@Override
-	public void setValue(@NonNull Register register1, @NonNull Register register2) {
+	public void setValue(Register register1, Register register2) {
 		ByteBuffer buff = ByteBuffer.allocate(4).order(byteOrder);
 		if (wordOrder == WordOrder.MSWLSW) {
 			buff.put(register1.toBytes());
@@ -61,7 +58,7 @@ public class UnsignedDoublewordElement extends ModbusElement implements Doublewo
 	}
 
 	@Override
-	public Register[] toRegisters(@NonNull Long value) {
+	public Register[] toRegisters(Long value) {
 		byte[] b = ByteBuffer.allocate(4).order(byteOrder).putInt(value.intValue()).array();
 		if (wordOrder == WordOrder.MSWLSW) {
 			return new Register[] { new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) };

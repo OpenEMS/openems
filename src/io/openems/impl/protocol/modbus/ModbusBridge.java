@@ -22,7 +22,6 @@ package io.openems.impl.protocol.modbus;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +74,6 @@ public abstract class ModbusBridge extends Bridge {
 		}
 	}
 
-	@NonNull
 	protected Register[] query(int modbusUnitId, ModbusRange range) throws OpenemsModbusException {
 		return query(modbusUnitId, range.getStartAddress(), range.getLength());
 	}
@@ -109,8 +107,6 @@ public abstract class ModbusBridge extends Bridge {
 	 * @return
 	 * @throws OpenemsModbusException
 	 */
-	@SuppressWarnings("null")
-	@NonNull
 	private Register[] query(int modbusUnitId, int address, int count) throws OpenemsModbusException {
 		ModbusTransaction trans = getTransaction();
 		ReadMultipleRegistersRequest req = new ReadMultipleRegistersRequest(address, count);

@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,7 +38,6 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsChannel;
 import io.openems.api.channel.IsRequired;
 import io.openems.api.controller.Controller;
-import io.openems.api.controller.ControllerThingMapping;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.IsThingMapping;
 import io.openems.api.controller.ThingMap;
@@ -52,16 +50,13 @@ public class ControllerFactory {
 	private static Logger log = LoggerFactory.getLogger(ControllerFactory.class);
 
 	@SuppressWarnings("unchecked")
-	public static List<ControllerThingMapping> generateMappings(Controller controller, Databus databus)
+	public static void generateMappings(Controller controller, Databus databus)
 			throws InjectionException, ConfigException {
-		List<ControllerThingMapping> result = new LinkedList<>();
-
 		/*
 		 * Search Fields with @IsThingMapping Annotation
 		 */
 		for (Field controllerField : controller.getClass().getDeclaredFields()) {
 			if (controllerField.isAnnotationPresent(IsThingMapping.class)) {
-				@SuppressWarnings("null")
 				IsThingMapping isThingMapping = controllerField.getAnnotation(IsThingMapping.class);
 				// marker to tell if only one mapped Thing or a list of Things is expected
 				boolean isListExpected = false;
@@ -88,7 +83,6 @@ public class ControllerFactory {
 					throw new InjectionException("ThingMap [" + controller.getClass().getSimpleName()
 							+ "] has no defined target Thing! 'IsThingMap'-annotation is missing.");
 				}
-				@SuppressWarnings("null")
 				IsThingMap isThingMap = thingMapClass.getAnnotation(IsThingMap.class);
 				Class<? extends Thing> thingClass = isThingMap.type();
 				/*
@@ -125,7 +119,6 @@ public class ControllerFactory {
 				Map<String, Field> thingMapFields = new HashMap<>();
 				for (Field mapField : thingMapClass.getDeclaredFields()) {
 					if (mapField.isAnnotationPresent(IsRequired.class)) {
-						@SuppressWarnings("null")
 						IsRequired isRequired = mapField.getAnnotation(IsRequired.class);
 						thingMapFields.put(isRequired.channelId(), mapField);
 					}
@@ -186,10 +179,8 @@ public class ControllerFactory {
 										+ controllerField.getName() + "]: " + e.getMessage());
 					}
 				}
-				// TODO else
 			}
 		}
-		return result;
 	}
 
 	/**

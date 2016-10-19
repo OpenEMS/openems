@@ -235,7 +235,6 @@ public class ThingFactory {
 			throws InjectionException, ConfigException {
 		for (Method method : thing.getClass().getMethods()) {
 			if (method.isAnnotationPresent(IsConfig.class)) {
-				@SuppressWarnings("null")
 				IsConfig annotation = method.getAnnotation(IsConfig.class);
 				// found valid annotation
 				String configParameterName = annotation.value();

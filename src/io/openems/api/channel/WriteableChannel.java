@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.WriteChannelException;
 
@@ -65,7 +63,6 @@ public class WriteableChannel extends Channel {
 	 *
 	 * @return
 	 */
-	@Nullable
 	public Long getMultiplier() {
 		return multiplier;
 	}
@@ -84,7 +81,6 @@ public class WriteableChannel extends Channel {
 	 *
 	 * @return
 	 */
-	@Nullable
 	public Long peekMaxWriteValue() {
 		if (maxWriteValue != null) {
 			return maxWriteValue;
@@ -100,7 +96,6 @@ public class WriteableChannel extends Channel {
 	 *
 	 * @return
 	 */
-	@Nullable
 	public Long peekMinWriteValue() {
 		if (minWriteValue != null) {
 			return minWriteValue;
@@ -116,7 +111,6 @@ public class WriteableChannel extends Channel {
 	 *
 	 * @return
 	 */
-	@Nullable
 	public Long peekWriteValue() {
 		Long maxWriteValue = peekMaxWriteValue();
 		Long minWriteValue = peekMinWriteValue();
@@ -271,27 +265,27 @@ public class WriteableChannel extends Channel {
 
 	private void checkValueBoundaries(Long value) throws WriteChannelException {
 		if (this.writeValue != null) {
-			if (value.compareTo(this.writeValue) != 0) {
+			if (value == this.writeValue) {
 				throwOutOfBoundariesException(value);
 			}
 		}
 		if (this.minValue != null) {
-			if (value.compareTo(this.minValue) < 0) {
+			if (value < this.minValue) {
 				throwOutOfBoundariesException(value);
 			}
 		}
 		if (this.minWriteValue != null) {
-			if (value.compareTo(this.minWriteValue) < 0) {
+			if (value < this.minWriteValue) {
 				throwOutOfBoundariesException(value);
 			}
 		}
 		if (this.maxValue != null) {
-			if (value.compareTo(this.maxValue) > 0) {
+			if (value > this.maxValue) {
 				throwOutOfBoundariesException(value);
 			}
 		}
 		if (this.maxWriteValue != null) {
-			if (value.compareTo(this.maxWriteValue) > 0) {
+			if (value > this.maxWriteValue) {
 				throwOutOfBoundariesException(value);
 			}
 		}
@@ -303,7 +297,6 @@ public class WriteableChannel extends Channel {
 	 *
 	 * @return
 	 */
-	@Nullable
 	private Long popWriteValue() {
 		Long result = peekWriteValue();
 		this.writeValue = null;

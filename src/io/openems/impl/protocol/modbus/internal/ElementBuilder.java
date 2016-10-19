@@ -22,8 +22,6 @@ package io.openems.impl.protocol.modbus.internal;
 
 import java.nio.ByteOrder;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 import io.openems.api.channel.Channel;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusElement;
@@ -42,7 +40,6 @@ public class ElementBuilder {
 		return this;
 	}
 
-	@SuppressWarnings("null")
 	public ModbusElement build() throws ConfigException {
 		if (address == null) {
 			throw new ConfigException("Error in protocol: [address] is missing");
@@ -66,12 +63,12 @@ public class ElementBuilder {
 		}
 	}
 
-	public ElementBuilder byteOrder(@NonNull ByteOrder byteOrder) {
+	public ElementBuilder byteOrder(ByteOrder byteOrder) {
 		this.byteOrder = byteOrder;
 		return this;
 	}
 
-	public ElementBuilder channel(@NonNull Channel channel) {
+	public ElementBuilder channel(Channel channel) {
 		this.channel = channel;
 		return this;
 	}
@@ -96,7 +93,7 @@ public class ElementBuilder {
 		return this;
 	}
 
-	public ElementBuilder wordOrder(@NonNull WordOrder wordOrder) {
+	public ElementBuilder wordOrder(WordOrder wordOrder) {
 		this.wordOrder = wordOrder;
 		return this;
 	}

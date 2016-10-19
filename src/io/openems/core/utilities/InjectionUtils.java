@@ -75,7 +75,6 @@ public class InjectionUtils {
 		}
 		// return the annotation if found
 		if (method.isAnnotationPresent(IsChannel.class)) {
-			@SuppressWarnings("null")
 			IsChannel result = method.getAnnotation(IsChannel.class);
 			return result;
 		}
