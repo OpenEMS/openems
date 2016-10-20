@@ -82,13 +82,20 @@ public class WriteableChannel extends Channel {
 	 * @return
 	 */
 	public Long peekMaxWriteValue() {
-		if (maxWriteValue != null) {
-			return maxWriteValue;
-		} else if (maxWriteValueChannel != null) {
-			return maxWriteValueChannel.getValueOrNull();
-		} else {
-			return null;
+		Long maxWriteValueFromChannel = null;
+		if (maxWriteValueChannel != null) {
+			maxWriteValueFromChannel = maxWriteValueChannel.getValueOrNull();
 		}
+		if (maxWriteValue != null && maxWriteValueFromChannel != null) {
+			if (maxWriteValue < maxWriteValueFromChannel) {
+				return maxWriteValue;
+			} else {
+				return maxWriteValueFromChannel;
+			}
+		} else if (maxWriteValue != null) {
+			return maxWriteValue;
+		}
+		return maxWriteValueFromChannel;
 	}
 
 	/**
@@ -97,13 +104,20 @@ public class WriteableChannel extends Channel {
 	 * @return
 	 */
 	public Long peekMinWriteValue() {
-		if (minWriteValue != null) {
-			return minWriteValue;
-		} else if (minWriteValueChannel != null) {
-			return minWriteValueChannel.getValueOrNull();
-		} else {
-			return null;
+		Long minWriteValueFromChannel = null;
+		if (minWriteValueChannel != null) {
+			minWriteValueFromChannel = minWriteValueChannel.getValueOrNull();
 		}
+		if (minWriteValue != null && minWriteValueFromChannel != null) {
+			if (minWriteValueFromChannel < minWriteValue) {
+				return minWriteValue;
+			} else {
+				return minWriteValueFromChannel;
+			}
+		} else if (minWriteValue != null) {
+			return minWriteValue;
+		}
+		return minWriteValueFromChannel;
 	}
 
 	/**
