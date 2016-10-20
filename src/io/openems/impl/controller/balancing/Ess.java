@@ -41,7 +41,7 @@ public class Ess extends ThingMap {
 	public Channel allowedDischarge;
 
 	@IsRequired(channelId = "GridMode")
-	public WriteableChannel gridMode;
+	public Channel gridMode;
 
 	@IsRequired(channelId = "MinSoc")
 	public Channel minSoc;
@@ -51,9 +51,6 @@ public class Ess extends ThingMap {
 
 	@IsRequired(channelId = "Soc")
 	public Channel soc;
-
-	@IsRequired(channelId = "SystemState")
-	public WriteableChannel systemState;
 
 	public Ess(String thingId) {
 		super(thingId);

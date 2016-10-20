@@ -22,9 +22,6 @@ package io.openems.impl.protocol.modbus;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
@@ -40,7 +37,6 @@ import io.openems.api.exception.OpenemsModbusException;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
 
 public abstract class ModbusBridge extends Bridge {
-	private final static Logger log = LoggerFactory.getLogger(ModbusBridge.class);
 	protected volatile ModbusDevice[] modbusdevices = new ModbusDevice[0];
 	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
 

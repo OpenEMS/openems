@@ -128,7 +128,7 @@ public class ModbusRtu extends ModbusBridge {
 		try {
 			connection.open();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Unable to open Modbus-RTU connection: " + e.getMessage());
 			return false;
 		}
 		return true;

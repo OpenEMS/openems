@@ -60,7 +60,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	 */
 	@Override
 	public final void run() {
-		long bridgeExceptionSleep = 1000;
+		long bridgeExceptionSleep = 1; // seconds
 		this.initialize.set(true);
 		while (!isInterrupted()) {
 			try {
@@ -97,7 +97,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 					}
 				}
 				// Everything went ok: reset bridgeExceptionSleep
-				bridgeExceptionSleep = 1000;
+				bridgeExceptionSleep = 1;
 			} catch (Throwable e) {
 				/*
 				 * Handle Bridge-Exceptions
@@ -150,19 +150,20 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	 * because something is wrong with the setup if we landed here.
 	 *
 	 * @param duration
+	 *            in seconds
 	 */
 	private long bridgeExceptionSleep(long duration) {
-		if (duration < 60000) {
-			duration += 1000;
+		if (duration < 60) {
+			duration += 1;
 		}
 		log.info("Sleep " + duration);
-		long targetTime = System.nanoTime() + duration;
+		long targetTime = System.nanoTime() + (duration * 1000000);
 		do {
 			try {
-				log.info("sleep");
-				long sleep = (targetTime - System.nanoTime()) / 1000;
-				if (sleep < 0) {
-					Thread.sleep(sleep);
+				long thisDuration = (targetTime - System.nanoTime()) / 1000000;
+				log.info("  Sleep " + thisDuration);
+				if (thisDuration < 0) {
+					Thread.sleep(thisDuration);
 				}
 			} catch (InterruptedException e1) {
 				log.info("Interrupted: " + isForceRun.get());

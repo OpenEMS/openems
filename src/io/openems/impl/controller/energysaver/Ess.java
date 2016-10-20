@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.controller.energysaver;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsRequired;
 import io.openems.api.channel.WriteableChannel;
 import io.openems.api.controller.IsThingMap;
@@ -36,7 +37,7 @@ public class Ess extends ThingMap {
 	public WriteableChannel setWorkState;
 
 	@IsRequired(channelId = "SystemState")
-	public WriteableChannel systemState;
+	public Channel systemState;
 
 	public Ess(String thingId) {
 		super(thingId);

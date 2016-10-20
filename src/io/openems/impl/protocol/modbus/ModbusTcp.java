@@ -97,7 +97,7 @@ public class ModbusTcp extends ModbusBridge {
 		try {
 			establishModbusConnection(connection);
 		} catch (OpenemsModbusException e) {
-			log.error(e.getMessage());
+			log.error("Unable to open Modbus-TCP connection: " + e.getMessage());
 			return false;
 		}
 		return true;
