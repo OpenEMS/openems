@@ -92,12 +92,12 @@ public class DemoFems7WithMeter extends Demo {
 		controller1.add("priority", new JsonPrimitive(100));
 		controller1.add("class",
 				new JsonPrimitive("io.openems.impl.controller.avoidtotaldischarge.AvoidTotalDischargeController"));
-		/*
-		 * JsonObject controller2 = new JsonObject();
-		 * controllers.add(controller2);
-		 * controller2.add("priority", new JsonPrimitive(50));
-		 * controller2.add("class", new JsonPrimitive("io.openems.impl.controller.balancing.BalancingController"));
-		 */
+
+		JsonObject controller2 = new JsonObject();
+		controllers.add(controller2);
+		controller2.add("priority", new JsonPrimitive(50));
+		controller2.add("class", new JsonPrimitive("io.openems.impl.controller.balancing.BalancingController"));
+
 		return config;
 	}
 }

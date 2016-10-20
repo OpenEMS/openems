@@ -34,14 +34,14 @@ public class Channel {
 	protected final Long delta;
 	protected final Map<Long, String> labels;
 	protected final Logger log;
-	protected Long maxValue = null;
-	protected Long minValue = null;
 	protected final Long multiplier;
-	protected Long value = null;
 	private String channelId = null;
 	private Databus databus = null;
+	private Long maxValue = null;
+	private Long minValue = null;
 	private DeviceNature nature = null;
 	private final String unit;
+	private Long value = null;
 
 	public Channel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
 			Map<Long, String> labels) {

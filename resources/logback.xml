@@ -27,8 +27,9 @@
 			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line] %msg%ex{10}%n</pattern>
 		</encoder>
 	</appender>
-	<logger name="io.openems" level="DEBUG" additivity="false">
-		<appender-ref ref="STDOUT" />
+	<!-- <logger name="io.openems" level="DEBUG" additivity="false"> -->
+	<logger name="io.openems" level="INFO" additivity="false">
+		<appender-ref ref="STDOUT" />	
 	</logger>
 	<root level="ERROR">
 		<appender-ref ref="STDOUT" />

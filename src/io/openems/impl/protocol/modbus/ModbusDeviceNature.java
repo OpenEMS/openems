@@ -89,7 +89,7 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 		for (WritableModbusRange range : getProtocol().getWritableRanges()) {
 			// TODO: combine writes to a Multi
 			for (ModbusElement element : range.getElements()) {
-				// Check if Channel is writable (should be always the case
+				// Check if Channel is writable (should be always the case)
 				if (element.getChannel() instanceof WriteableChannel) {
 					WriteableChannel writeableChannel = (WriteableChannel) element.getChannel();
 					// take the value from the Channel and initialize it
@@ -131,20 +131,19 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 			// Fill channels
 			int position = 0;
 			for (ModbusElement element : range.getElements()) {
-				int length = element.getLength();
-				if (element instanceof WordElement) {
+				if (element instanceof DummyElement) {
+					// ignore dummy
+				} else if (element instanceof WordElement) {
 					// Use _one_ Register for the element
 					((WordElement) element).setValue(registers[position]);
 				} else if (element instanceof DoublewordElement) {
 					// Use _two_ registers for the element
 					((DoublewordElement) element).setValue(registers[position], registers[position + 1]);
-				} else if (element instanceof DummyElement) {
-					// ignore dummy
 				} else {
 					log.warn("Element type not defined: Element [" + element.getAddress() + "], Bridge [" + modbusBridge
 							+ "], Range [" + range.getStartAddress() + "]: ");
 				}
-				position += length;
+				position += element.getLength();
 			}
 		} catch (OpenemsModbusException e) {
 			log.error(

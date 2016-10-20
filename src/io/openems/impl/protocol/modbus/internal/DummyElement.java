@@ -37,4 +37,11 @@ public class DummyElement extends ModbusElement {
 		return length;
 	}
 
+	/**
+	 * We are not setting a value for a DummyElement.
+	 */
+	@Override
+	protected void setValue(Long value) {
+		return;
+	}
 }

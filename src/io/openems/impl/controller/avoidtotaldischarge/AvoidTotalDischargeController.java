@@ -39,15 +39,18 @@ public class AvoidTotalDischargeController extends Controller {
 				 * Calculate SetActivePower according to MinSoc
 				 */
 				if (ess.soc.getValue() < ess.minSoc.getValue() && ess.soc.getValue() >= ess.minSoc.getValue() - 5) {
-					// SOC < minSoc && SOC > minSoc - 5
+					// SOC < minSoc && SOC >= minSoc - 5
+					log.info("Avoid discharge. Set ActivePower=Max[0]");
 					ess.setActivePower.pushMaxWriteValue(0);
 				} else if (ess.soc.getValue() < ess.minSoc.getValue() - 5) {
 					// SOC < minSoc - 5
-					Long currentMaxValue = ess.setActivePower.peekMaxWriteValue();
-					if (currentMaxValue != null) {
-						ess.setActivePower.pushMaxWriteValue(currentMaxValue / 5);
+					Long currentMinValue = ess.setActivePower.peekMinWriteValue();
+					if (currentMinValue != null) {
+						log.info("Force charge. Set ActivePower=Min[" + currentMinValue / 5 + "]");
+						ess.setActivePower.pushMinWriteValue(currentMinValue / 5);
 					} else {
-						ess.setActivePower.pushMaxWriteValue(1000);
+						log.info("Avoid discharge. Set ActivePower=Min[1000 W]");
+						ess.setActivePower.pushMinWriteValue(1000);
 					}
 				}
 				/*

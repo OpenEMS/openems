@@ -42,26 +42,90 @@ import io.openems.api.exception.WriteChannelException;
  * @author stefan.feilmeier
  */
 public class WriteableChannel extends Channel {
-	protected final Channel maxWriteValueChannel;
-	protected final Channel minWriteValueChannel;
+	protected final Channel maxWriteChannel;
+	protected final Channel minWriteChannel;
 	private Long maxWriteValue = null;
 	private Long minWriteValue = null;
 	private Long writeValue = null;
 
 	public WriteableChannel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
-			Map<Long, String> labels, Long minWriteValue, Channel minWriteValueChannel, Long maxWriteValue,
-			Channel maxWriteValueChannel) {
+			Map<Long, String> labels, Long minWriteValue, Channel minWriteChannel, Long maxWriteValue,
+			Channel maxWriteChannel) {
 		super(nature, unit, minValue, maxValue, multiplier, delta, labels);
 		this.minWriteValue = minWriteValue;
-		this.minWriteValueChannel = minWriteValueChannel;
+		this.minWriteChannel = minWriteChannel;
 		this.maxWriteValue = maxWriteValue;
-		this.maxWriteValueChannel = maxWriteValueChannel;
+		this.maxWriteChannel = maxWriteChannel;
+	}
+
+	/**
+	 * Returns the maximum allowed write value
+	 *
+	 * @return
+	 */
+	public Long getAllowedMaxValue() {
+		if (this.writeValue != null) {
+			return this.writeValue;
+		} else {
+			Long value = null;
+			if (this.getMaxValue() != null) {
+				value = this.getMaxValue();
+			}
+			if (this.maxWriteValue != null) {
+				if (value == null || this.maxWriteValue < value) {
+					value = this.maxWriteValue;
+				}
+			}
+			if (this.minWriteChannel != null) {
+				Long minWriteChannelValue = this.minWriteChannel.getValueOrNull();
+				if (value == null || (minWriteChannelValue != null && minWriteChannelValue < value)) {
+					value = minWriteChannelValue;
+				}
+			}
+			return value;
+		}
+	}
+
+	/**
+	 * Returns the minimum allowed write value
+	 *
+	 * @return
+	 */
+	public Long getAllowedMinValue() {
+		if (this.writeValue != null) {
+			return this.writeValue;
+		} else {
+			Long value = null;
+			if (this.getMinValue() != null) {
+				value = this.getMinValue();
+			}
+			if (this.minWriteValue != null) {
+				if (value == null || this.minWriteValue > value) {
+					value = this.minWriteValue;
+				}
+			}
+			if (this.minWriteChannel != null) {
+				Long minWriteChannelValue = this.minWriteChannel.getValueOrNull();
+				if (value == null || (minWriteChannelValue != null && minWriteChannelValue > value)) {
+					value = minWriteChannelValue;
+				}
+			}
+			return value;
+		}
+	}
+
+	public Channel getMaxWriteChannel() {
+		return maxWriteChannel;
+	}
+
+	public Channel getMinWriteChannel() {
+		return minWriteChannel;
 	}
 
 	/**
 	 * Returns the multiplier, required to set the value to the hardware
 	 *
-	 * @return
+	 * @return value
 	 */
 	public Long getMultiplier() {
 		return multiplier;
@@ -77,103 +141,76 @@ public class WriteableChannel extends Channel {
 	}
 
 	/**
+	 * Checks if value is within the current boundaries.
+	 *
+	 * @param value
+	 * @return true if allowed
+	 */
+	public boolean isAllowed(Long value) {
+		if (value < getAllowedMinValue()) {
+			return false;
+		} else if (value > getAllowedMaxValue()) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Returns the set Max boundary.
 	 *
-	 * @return
+	 * @return value or null
 	 */
 	public Long peekMaxWriteValue() {
-		Long maxWriteValueFromChannel = null;
-		if (maxWriteValueChannel != null) {
-			maxWriteValueFromChannel = maxWriteValueChannel.getValueOrNull();
-		}
-		if (maxWriteValue != null && maxWriteValueFromChannel != null) {
-			if (maxWriteValue < maxWriteValueFromChannel) {
-				return maxWriteValue;
-			} else {
-				return maxWriteValueFromChannel;
-			}
-		} else if (maxWriteValue != null) {
-			return maxWriteValue;
-		}
-		return maxWriteValueFromChannel;
+		return maxWriteValue;
 	}
 
 	/**
 	 * Returns the set Min boundary.
 	 *
-	 * @return
+	 * @return value or null
 	 */
 	public Long peekMinWriteValue() {
-		Long minWriteValueFromChannel = null;
-		if (minWriteValueChannel != null) {
-			minWriteValueFromChannel = minWriteValueChannel.getValueOrNull();
-		}
-		if (minWriteValue != null && minWriteValueFromChannel != null) {
-			if (minWriteValueFromChannel < minWriteValue) {
-				return minWriteValue;
-			} else {
-				return minWriteValueFromChannel;
-			}
+		return minWriteValue;
+	}
+
+	/**
+	 * Returns the fixed value or one that is derived from max/min boundaries.
+	 *
+	 * @return value or null
+	 */
+	public Long peekWriteValue() {
+		if (writeValue != null) {
+			return writeValue;
+		} else if (maxWriteValue != null && minWriteValue != null) {
+			return roundToHardwarePrecision((maxWriteValue + minWriteValue) / 2);
+		} else if (maxWriteValue != null) {
+			return maxWriteValue;
 		} else if (minWriteValue != null) {
 			return minWriteValue;
 		}
-		return minWriteValueFromChannel;
+		return null;
 	}
 
 	/**
-	 * Returns the fixed value.
-	 *
-	 * @return
-	 */
-	public Long peekWriteValue() {
-		Long maxWriteValue = peekMaxWriteValue();
-		Long minWriteValue = peekMinWriteValue();
-		Long result;
-		if (this.writeValue != null) {
-			// fixed value exists: return it
-			result = this.writeValue;
-		} else { // this.writeValue == null
-			if (maxWriteValue != null) {
-				if (minWriteValue != null) {
-					// Min+Max exist: return average value
-					result = (minWriteValue + maxWriteValue) / 2;
-				} else { // this.minWriteValue == null
-					// only Max exists: return it
-					result = peekMaxWriteValue();
-				}
-			} else { // this.maxWriteValue == null
-				if (minWriteValue != null) {
-					// only Min exist: return it
-					result = minWriteValue;
-				} else { // this.minWriteValue == null
-					// No value exists: return null
-					result = null;
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Returns the value or a value that was derived from the Min and Max boundaries in a format suitable
-	 * for writing to hardware and initializes the
+	 * Returns the fixed value in a format suitable for writing to hardware and initializes the
 	 * {@link WriteableChannel}. This method is called internally by {@link DeviceNature}.
 	 *
-	 * @return
+	 * @return value or null
 	 */
 	public Long popRawWriteValue() {
 		Long value = popWriteValue();
 		if (value == null) {
 			return value;
 		}
-		return (value + delta) / multiplier;
+		long rawValue = (value + delta) / multiplier;
+		return rawValue;
 	}
 
 	/**
 	 * Sets the Max boundary.
 	 *
 	 * @param maxValue
-	 * @return
+	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
 	public Long pushMaxWriteValue(int maxValue) throws WriteChannelException {
@@ -184,12 +221,14 @@ public class WriteableChannel extends Channel {
 	 * Sets the Max boundary.
 	 *
 	 * @param maxValue
-	 * @return
+	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
 	public Long pushMaxWriteValue(Long maxValue) throws WriteChannelException {
 		maxValue = roundToHardwarePrecision(maxValue);
-		checkValueBoundaries(maxValue);
+		if (!isAllowed(maxValue)) {
+			throwOutOfBoundariesException(maxValue);
+		}
 		this.maxWriteValue = maxValue;
 		return maxValue;
 	}
@@ -210,7 +249,7 @@ public class WriteableChannel extends Channel {
 	 * Sets the Min boundary.
 	 *
 	 * @param minValue
-	 * @return
+	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
 	public Long pushMinWriteValue(int minValue) throws WriteChannelException {
@@ -221,12 +260,14 @@ public class WriteableChannel extends Channel {
 	 * Sets the Min boundary.
 	 *
 	 * @param minValue
-	 * @return
+	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
 	public Long pushMinWriteValue(Long minValue) throws WriteChannelException {
 		minValue = roundToHardwarePrecision(minValue);
-		checkValueBoundaries(minValue);
+		if (!isAllowed(minValue)) {
+			throwOutOfBoundariesException(minValue);
+		}
 		this.minWriteValue = minValue;
 		return minValue;
 	}
@@ -234,31 +275,36 @@ public class WriteableChannel extends Channel {
 	/**
 	 * Set a new value for this Channel
 	 *
-	 * @param writeValue
+	 * @param value
+	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
-	public Long pushWriteValue(int writeValue) throws WriteChannelException {
-		return pushWriteValue(Long.valueOf(writeValue));
+	public Long pushWriteValue(int value) throws WriteChannelException {
+		return pushWriteValue(Long.valueOf(value));
 	}
 
 	/**
 	 * Set a new value for this Channel
 	 *
 	 * @param writeValue
+	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
-	public Long pushWriteValue(Long writeValue) throws WriteChannelException {
-		writeValue = roundToHardwarePrecision(writeValue);
-		checkValueBoundaries(writeValue);
-		this.writeValue = writeValue;
-		pushMinMaxNewValue(writeValue, writeValue);
-		return writeValue;
+	public Long pushWriteValue(Long value) throws WriteChannelException {
+		value = roundToHardwarePrecision(value);
+		if (!isAllowed(value)) {
+			throwOutOfBoundariesException(value);
+		}
+		this.writeValue = value;
+		pushMinMaxNewValue(value, value);
+		return value;
 	}
 
 	/**
 	 * Set a new value for this Channel using a Label
 	 *
 	 * @param writeValue
+	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
 	public Long pushWriteValue(String label) throws WriteChannelException {
@@ -277,48 +323,25 @@ public class WriteableChannel extends Channel {
 				+ "] for Channel [" + getAddress() + "]");
 	}
 
-	private void checkValueBoundaries(Long value) throws WriteChannelException {
-		if (this.writeValue != null) {
-			if (value == this.writeValue) {
-				throwOutOfBoundariesException(value);
-			}
-		}
-		if (this.minValue != null) {
-			if (value < this.minValue) {
-				throwOutOfBoundariesException(value);
-			}
-		}
-		if (this.minWriteValue != null) {
-			if (value < this.minWriteValue) {
-				throwOutOfBoundariesException(value);
-			}
-		}
-		if (this.maxValue != null) {
-			if (value > this.maxValue) {
-				throwOutOfBoundariesException(value);
-			}
-		}
-		if (this.maxWriteValue != null) {
-			if (value > this.maxWriteValue) {
-				throwOutOfBoundariesException(value);
-			}
-		}
-	}
-
 	/**
-	 * Returns the value or a value that was derived from the Min and Max boundaries and initializes the
-	 * {@link WriteableChannel}.
+	 * Returns the value and initializes the {@link WriteableChannel}.
 	 *
-	 * @return
+	 * @return value or null
 	 */
 	private Long popWriteValue() {
-		Long result = peekWriteValue();
+		Long value = peekWriteValue();
 		this.writeValue = null;
 		this.minWriteValue = null;
 		this.maxWriteValue = null;
-		return result;
+		return value;
 	}
 
+	/**
+	 * Rounds the value to the precision required by hardware. Prints a warning if rounding was necessary.
+	 *
+	 * @param value
+	 * @return rounded value
+	 */
 	private Long roundToHardwarePrecision(Long value) {
 		if (value % multiplier != 0) {
 			Long roundedValue = (value / multiplier) * multiplier;
@@ -327,10 +350,24 @@ public class WriteableChannel extends Channel {
 		return value;
 	}
 
+	/**
+	 * Helper for checkValueBoundaries() to throw a nice Exception.
+	 *
+	 * @param value
+	 * @throws WriteChannelException
+	 */
 	private void throwOutOfBoundariesException(Long value) throws WriteChannelException {
-		throw new WriteChannelException(
-				"Value [" + value + "] is out of boundaries: fixed [" + this.writeValue + "], min [" + this.minValue
-						+ "/" + this.minWriteValue + "], max [" + this.maxValue + "/" + this.maxWriteValue + "]");
+		Long minChannelValue = null;
+		if (minWriteChannel != null) {
+			minChannelValue = minWriteChannel.getValueOrNull();
+		}
+		Long maxChannelValue = null;
+		if (maxWriteChannel != null) {
+			maxChannelValue = maxWriteChannel.getValueOrNull();
+		}
+		throw new WriteChannelException("Value [" + value + "] is out of boundaries: fixed [" + this.writeValue
+				+ "], min [" + this.getMinValue() + "/" + this.minWriteValue + "/" + minChannelValue + "], max ["
+				+ this.getMaxValue() + "/" + this.maxWriteValue + "/" + maxChannelValue + "]");
 	}
 
 }
