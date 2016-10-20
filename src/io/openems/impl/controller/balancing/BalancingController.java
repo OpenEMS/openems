@@ -36,6 +36,16 @@ public class BalancingController extends Controller {
 	@IsThingMapping
 	public Meter meter;
 
+	private boolean isOnGrid() {
+		for (Ess ess : esss) {
+			String gridMode = ess.gridMode.getValueLabelOrNull();
+			if (gridMode != null && gridMode != EssNature.ON_GRID) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	@Override
 	public void run() {
 		try {
@@ -46,8 +56,8 @@ public class BalancingController extends Controller {
 				long useableSoc = 0;
 				for (Ess ess : esss) {
 					calculatedPower += ess.activePower.getValue();
-					maxChargePower += ess.allowedCharge.getValue();
-					maxDischargePower += ess.allowedDischarge.getValue();
+					maxChargePower += ess.setActivePower.getAllowedMinValue();
+					maxDischargePower += ess.setActivePower.getAllowedMaxValue();
 					useableSoc += ess.useableSoc();
 				}
 				if (calculatedPower > 0) {
@@ -55,7 +65,7 @@ public class BalancingController extends Controller {
 					 * Discharge
 					 */
 					if (calculatedPower > maxDischargePower) {
-						calculatedPower = maxChargePower;
+						calculatedPower = maxDischargePower;
 					}
 					Collections.sort(esss, (a, b) -> {
 						try {
@@ -70,13 +80,13 @@ public class BalancingController extends Controller {
 						long minP = calculatedPower;
 						for (int j = i + 1; j < esss.size(); j++) {
 							if (esss.get(j).useableSoc() > 0) {
-								minP -= esss.get(j).allowedCharge.getValue();
+								minP -= esss.get(j).allowedDischarge.getValue();
 							}
 						}
 						if (minP < 0) {
 							minP = 0;
 						}
-						long maxP = ess.allowedCharge.getValue();
+						long maxP = ess.allowedDischarge.getValue();
 						if (calculatedPower < maxP) {
 							maxP = calculatedPower;
 						}
@@ -126,16 +136,6 @@ public class BalancingController extends Controller {
 		} catch (InvalidValueException | WriteChannelException e) {
 			log.error(e.getMessage());
 		}
-	}
-
-	private boolean isOnGrid() {
-		for (Ess ess : esss) {
-			String gridMode = ess.gridMode.getValueLabelOrNull();
-			if (gridMode != null && gridMode != EssNature.ON_GRID) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 }

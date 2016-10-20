@@ -18,9 +18,8 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.avoidtotaldischarge;
+package io.openems.impl.controller.energysaver;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsRequired;
 import io.openems.api.channel.WriteableChannel;
 import io.openems.api.controller.IsThingMap;
@@ -30,22 +29,17 @@ import io.openems.api.device.nature.EssNature;
 @IsThingMap(type = EssNature.class)
 public class Ess extends ThingMap {
 
-	@IsRequired(channelId = "MinSoc")
-	public Channel minSoc;
-
 	@IsRequired(channelId = "SetActivePower")
 	public WriteableChannel setActivePower;
 
-	// @IsRequired(channelId = "SetWorkState")
-	// public WriteableChannel setWorkState;
+	@IsRequired(channelId = "SetWorkState")
+	public WriteableChannel setWorkState;
 
-	@IsRequired(channelId = "Soc")
-	public Channel soc;
-
-	// @IsRequired(channelId = "SystemState")
-	// public Channel systemState;
+	@IsRequired(channelId = "SystemState")
+	public WriteableChannel systemState;
 
 	public Ess(String thingId) {
 		super(thingId);
 	}
+
 }

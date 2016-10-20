@@ -46,21 +46,12 @@ public class AvoidTotalDischargeController extends Controller {
 					// SOC < minSoc - 5
 					Long currentMinValue = ess.setActivePower.peekMinWriteValue();
 					if (currentMinValue != null) {
+						// Force Charge with minimum of MaxChargePower/5
 						log.info("Force charge. Set ActivePower=Min[" + currentMinValue / 5 + "]");
 						ess.setActivePower.pushMinWriteValue(currentMinValue / 5);
 					} else {
 						log.info("Avoid discharge. Set ActivePower=Min[1000 W]");
 						ess.setActivePower.pushMinWriteValue(1000);
-					}
-				}
-				/*
-				 * Start ESS if it was stopped and we have a setActivePower command
-				 */
-				if (ess.setActivePower.hasWriteValue()) {
-					String systemState = ess.systemState.getValueLabelOrNull();
-					if (systemState == null || systemState != "Start") {
-						log.info("ESS [" + ess.getThingId() + "] was stopped. Starting...");
-						ess.setWorkState.pushWriteValue("Start");
 					}
 				}
 			} catch (InvalidValueException | WriteChannelException e) {
