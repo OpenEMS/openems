@@ -38,7 +38,115 @@ import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBu
 
 public class FeneconCommercialEss extends ModbusDeviceNature implements EssNature {
 
+	// .label(1, "") //
+	// .label(2, "") //
+	// .label(4, "") //
+	// .label(8, "") //
+	// .label(16, "") //
+	// .label(32, "") //
+	// .label(64, "") //
+	// .label(128, "") //
+	// .label(256, "") //
+	// .label(512, "") //
+	// .label(1024, "") //
+	// .label(2048, "") //
+	// .label(4096, "") //
+	// .label(8192, "") //
+	// .label(16384, "")//
+	// .label(132768, "").build();
+
+	private final ModbusChannel _abnormity1 = new ModbusChannelBuilder().nature(this) //
+			.label(1, "DC precharge contactor close unsuccessfully") //
+			.label(2, "AC precharge contactor close unsuccessfully") //
+			.label(4, "AC main contactor close unsuccessfully") //
+			.label(8, "DC electrical breaker 1 close unsuccessfully") //
+			.label(16, "DC main contactor close unsuccessfully") //
+			.label(32, "AC breaker trip") //
+			.label(64, "AC main contactor open when running") //
+			.label(128, "DC main contactor open when running") //
+			.label(256, "AC main contactor open unsuccessfully") //
+			.label(512, "DC electrical breaker 1 open unsuccessfully") //
+			.label(1024, "DC main contactor open unsuccessfully") //
+			.label(2048, "Hardware PDP fault") //
+			.label(4096, "Master stop suddenly") //
+			.label(8192, "") //
+			.label(16384, "")//
+			.label(132768, "").build();
+	private final ModbusChannel _abnormity2 = new ModbusChannelBuilder().nature(this) //
+			.label(1, "DC short circuit protection") //
+			.label(2, "DC overvoltage protection") //
+			.label(4, "DC undervoltage protection") //
+			.label(8, "DC inverse/no connection protection") //
+			.label(16, "DC disconnection protection") //
+			.label(32, "Commuting voltage abnormity protection") //
+			.label(64, "DC overcurrent protection") //
+			.label(128, "Phase A peak current over limit protection") //
+			.label(256, "Phase B peak current over limit protection") //
+			.label(512, "Phase C peak current over limit protection") //
+			.label(1024, "Phase A grid voltage sampling invalidation") //
+			.label(2048, "Phase B virtual current over limit protection") //
+			.label(4096, "Phase C virtual current over limit protection") //
+			.label(8192, "Phase A grid voltage sampling invalidation") //
+			.label(16384, "Phase B grid voltage sampling invalidation") //
+			.label(32768, "Phase C grid voltage sampling invalidation").build();
+	private final ModbusChannel _abnormity3 = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Phase A invert voltage sampling invalidation") //
+			.label(2, "Phase B invert voltage sampling invalidation") //
+			.label(4, "Phase C invert voltage sampling invalidation") //
+			.label(8, "AC current sampling invalidation") //
+			.label(16, "DC current sampling invalidation") //
+			.label(32, "Phase A overtemperature protection") //
+			.label(64, "Phase B overtemperature protection") //
+			.label(128, "Phase C overtemperature protection") //
+			.label(256, "Phase A temperature sampling invalidation") //
+			.label(512, "Phase B temperature sampling invalidation") //
+			.label(1024, "Phase C temperature sampling invalidation") //
+			.label(2048, "Phase A precharge unmet protection") //
+			.label(4096, "Phase B precharge unmet protection") //
+			.label(8192, "Phase C precharge unmet protection") //
+			.label(16384, "Unadaptable phase sequence error protection")//
+			.label(132768, "DSP protection").build();
+	private final ModbusChannel _abnormity4 = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Phase A grid voltage severe overvoltage protection") //
+			.label(2, "Phase A grid voltage general overvoltage protection") //
+			.label(4, "Phase B grid voltage severe overvoltage protection") //
+			.label(8, "Phase B grid voltage general overvoltage protection") //
+			.label(16, "Phase C grid voltage severe overvoltage protection") //
+			.label(32, "Phase C grid voltage general overvoltage protection") //
+			.label(64, "Phase A grid voltage severe undervoltage protection") //
+			.label(128, "Phase A grid voltage general undervoltage protection") //
+			.label(256, "Phase B grid voltage severe undervoltage protection") //
+			.label(512, "Phase B grid voltage general undervoltage protection") //
+			.label(1024, "Phase B Inverter voltage general overvoltage protection") //
+			.label(2048, "Phase C Inverter voltage severe overvoltage protection") //
+			.label(4096, "Phase C Inverter voltage general overvoltage protection") //
+			.label(8192, "Inverter  peak voltage high protection cause by AC disconnect") //
+			.label(16384, "")//
+			.label(132768, "").build();
+	private final ModbusChannel _abnormity5 = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Phase A gird loss") //
+			.label(2, "Phase B gird loss") //
+			.label(4, "Phase C gird loss") //
+			.label(8, "Islanding protection") //
+			.label(16, "Phase A under voltage ride through") //
+			.label(32, "Phase B under voltage ride through") //
+			.label(64, "Phase C under voltage ride through ") //
+			.label(128, "Phase A Inverter voltage severe overvoltage protection") //
+			.label(256, "Phase A Inverter voltage general overvoltage protection") //
+			.label(512, "Phase B Inverter voltage severe overvoltage protection") //
+			.label(1024, "Phase B Inverter voltage general overvoltage protection") //
+			.label(2048, "Phase C Inverter voltage severe overvoltage protection") //
+			.label(4096, "Phase C Inverter voltage general overvoltage protection") //
+			.label(8192, "Inverter  peak voltage high protection cause by AC disconnect") //
+			.label(16384, "")//
+			.label(132768, "").build();
+	private final ModbusChannel _acChargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh").multiplier(100)
+			.build();
+	private final ModbusChannel _acDischargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh").multiplier(100)
+			.build();
 	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
+			.build();
+	private final ModbusChannel _allowedApparent = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(100)
 			.build();
 	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
 			.build();
@@ -52,9 +160,27 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 	private final ModbusChannel _controlMode = new ModbusChannelBuilder().nature(this) //
 			.label(0, "Remote") //
 			.label(2, "Local").build();
+	private final ModbusChannel _currentPhase1 = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
+			.build();
+	private final ModbusChannel _currentPhase2 = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
+			.build();
+	private final ModbusChannel _currentPhase3 = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
+			.build();
+	private final ModbusChannel _dcCurrent = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100).build();
+	private final ModbusChannel _dcPower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100).build();
+	private final ModbusChannel _dcVoltage = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100).build();
+	private final ModbusChannel _frequency = new ModbusChannelBuilder().nature(this).unit("mHZ").multiplier(10).build();
 	private final ModbusChannel _gridMode = new ModbusChannelBuilder().nature(this) //
 			.label(1, OFF_GRID) //
 			.label(2, ON_GRID).build();
+	private final ModbusChannel _inverterActivePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
+			.build();
+	private final ModbusChannel _inverterCurrentPhase1 = new ModbusChannelBuilder().nature(this).unit("mA")
+			.multiplier(100).build();
+	private final ModbusChannel _inverterCurrentPhase2 = new ModbusChannelBuilder().nature(this).unit("mA")
+			.multiplier(100).build();
+	private final ModbusChannel _inverterCurrentPhase3 = new ModbusChannelBuilder().nature(this).unit("mA")
+			.multiplier(100).build();
 	private final ModbusChannel _inverterState = new ModbusChannelBuilder().nature(this) //
 			.label(0, "Init") //
 			.label(2, "Fault") //
@@ -64,6 +190,15 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(32, "Ready") //
 			.label(64, START) //
 			.label(128, "Debug").build();
+	private final ModbusChannel _inverterVoltagePhase1 = new ModbusChannelBuilder().nature(this).unit("mV")
+			.multiplier(100).build();
+	private final ModbusChannel _inverterVoltagePhase2 = new ModbusChannelBuilder().nature(this).unit("mV")
+			.multiplier(100).build();
+	private final ModbusChannel _inverterVoltagePhase3 = new ModbusChannelBuilder().nature(this).unit("mV")
+			.multiplier(100).build();
+	private final ModbusChannel _ipmPhaseATemperature = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	private final ModbusChannel _ipmPhaseBTemperature = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	private final ModbusChannel _ipmPhaseCTemperature = new ModbusChannelBuilder().nature(this).unit("°C").build();
 	private final ConfigChannel _minSoc = new ConfigChannelBuilder().nature(this).defaultValue(DEFAULT_MINSOC)
 			.percentType().build();
 	private final ModbusChannel _protocolVersion = new ModbusChannelBuilder().nature(this).build();
@@ -71,22 +206,128 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.build();
 	private final WriteableModbusChannel _setActivePower = new WriteableModbusChannelBuilder().nature(this).unit("W")
 			.multiplier(100).minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+	private final WriteableModbusChannel _setPvLimit = new WriteableModbusChannelBuilder().nature(this).unit("W")
+			.multiplier(100).minValue(0).maxValue(60000).build();
+	private final WriteableModbusChannel _setReactivePower = new WriteableModbusChannelBuilder().nature(this)
+			.unit("var").multiplier(100).minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
 	private final WriteableModbusChannel _setWorkState = new WriteableModbusChannelBuilder().nature(this) //
 			.label(4, STOP) //
 			.label(32, STANDBY) //
 			.label(64, START).build();
 	private final ModbusChannel _soc = new ModbusChannelBuilder().nature(this).percentType().build();
+	private final ModbusChannel _suggestiveInformation1 = new ModbusChannelBuilder().nature(this) //
+			.label(4, "EmergencyStop") //
+			.label(64, "KeyManualStop").build();
+	private final ModbusChannel _suggestiveInformation2 = new ModbusChannelBuilder().nature(this) //
+			.label(4, "EmergencyStop") //
+			.label(64, "KeyManualStop").build();
+	private final ModbusChannel _suggestiveInformation3 = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Inverter communication abnormity") //
+			.label(2, "Battery stack communication abnormity") //
+			.label(4, "Multifunctional ammeter communication abnormity") //
+			.label(16, "Remote communication abnormity").build();
+	private final ModbusChannel _suggestiveInformation4 = new ModbusChannelBuilder().nature(this) //
+			.label(8, "Transformer severe overtemperature").build();
+	private final ModbusChannel _suggestiveInformation5 = new ModbusChannelBuilder().nature(this) //
+			.label(1, "DC precharge contactor inspection abnormity") //
+			.label(2, "DC breaker 1 inspection abnormity ") //
+			.label(4, "DC breaker 2 inspection abnormity ") //
+			.label(8, "AC precharge contactor inspection abnormity ") //
+			.label(16, "AC main contactor inspection abnormity ") //
+			.label(32, "AC breaker inspection abnormity ") //
+			.label(64, "DC breaker 1 close unsuccessfully") //
+			.label(128, "DC breaker 2 close unsuccessfully") //
+			.label(256, "Control signal close abnormally inspected by system") //
+			.label(512, "Control signal open abnormally inspected by system") //
+			.label(1024, "Neutral wire contactor close unsuccessfully") //
+			.label(2048, "Neutral wire contactor open unsuccessfully") //
+			.label(4096, "Work door open") //
+			.label(8192, "Emergency stop") //
+			.label(16384, "AC breaker close unsuccessfully")//
+			.label(132768, "Control switch stop").build();
+	private final ModbusChannel _suggestiveInformation6 = new ModbusChannelBuilder().nature(this) //
+			.label(1, "General overload") //
+			.label(2, "Severe overload") //
+			.label(4, "Battery current over limit") //
+			.label(8, "Power decrease caused by overtemperature") //
+			.label(16, "Inverter general overtemperature") //
+			.label(32, "AC three-phase current unbalance") //
+			.label(64, "Rstore factory setting unsuccessfully") //
+			.label(128, "Pole-board invalidation") //
+			.label(256, "Self-inspection failed") //
+			.label(512, "Receive BMS fault and stop") //
+			.label(1024, "Refrigeration equipment invalidation") //
+			.label(2048, "Large temperature difference among IGBT three phases") //
+			.label(4096, "EEPROM parameters over range") //
+			.label(8192, "EEPROM parameters backup failed") //
+			.label(16384, "DC breaker close unsuccessfully")//
+			.label(132768, "").build();
+	private final ModbusChannel _suggestiveInformation7 = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Communication between inverter and BSMU disconnected") //
+			.label(2, "Communication between inverter and Master disconnected") //
+			.label(4, "Communication between inverter and UC disconnected") //
+			.label(8, "BMS start overtime controlled by PCS") //
+			.label(16, "BMS stop overtime controlled by PCS") //
+			.label(32, "Sync signal invalidation") //
+			.label(64, "Sync signal continuous caputure fault") //
+			.label(128, "Sync signal several times caputure fault") //
+			.label(256, "") //
+			.label(512, "") //
+			.label(1024, "") //
+			.label(2048, "") //
+			.label(4096, "") //
+			.label(8192, "") //
+			.label(16384, "")//
+			.label(132768, "").build();
+	private final ModbusChannel _switchState = new ModbusChannelBuilder().nature(this) //
+			.label(2, "DC main contactor state") //
+			.label(4, "DC precharge contactor state") //
+			.label(8, "AC breaker state") //
+			.label(16, "AC main contactor state") //
+			.label(32, "AC precharge contactor state").build();
 	private final ModbusChannel _systemManufacturer = new ModbusChannelBuilder().nature(this) //
 			.label(1, "BYD").build();
 	private final ModbusChannel _systemState = new ModbusChannelBuilder().nature(this) //
-			.label(2, STOP) //
-			.label(4, "PV-Charge") //
-			.label(8, "Standby") //
-			.label(16, START) //
-			.label(32, "Fault") //
-			.label(64, "Debug").build();
+			.label(8, "TransformertPH1TempSensInvalidation") //
+			.label(8192, "SDCardInvalidation").build();
 	private final ModbusChannel _systemType = new ModbusChannelBuilder().nature(this) //
 			.label(1, "CESS").build();
+	private final ModbusChannel _totalDateEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy0 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy1 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy10 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy11 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy12 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy13 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy14 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy15 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy16 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy17 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy18 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy19 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy2 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy20 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy21 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy22 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy23 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy3 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy4 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy5 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy6 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy7 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy8 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalHourEnergy9 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalMonthEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _totalYearEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	private final ModbusChannel _transformerPhaseBTemperature = new ModbusChannelBuilder().nature(this).unit("°C")
+			.build();
+	private final ModbusChannel _voltagePhase1 = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
+			.build();
+	private final ModbusChannel _voltagePhase2 = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
+			.build();
+	private final ModbusChannel _voltagePhase3 = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
+			.build();
 
 	public FeneconCommercialEss(String thingId) {
 		super(thingId);
@@ -125,53 +366,99 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 						new ElementBuilder().address(0x0107).dummy(0x0108 - 0x0107).build(), //
 						new ElementBuilder().address(0x0108).channel(_protocolVersion).build(), //
 						new ElementBuilder().address(0x0109).channel(_systemManufacturer).build(), //
-						new ElementBuilder().address(0x010A).channel(_systemType).build()), //
-				new ModbusRange(0x0210, //
+						new ElementBuilder().address(0x010A).channel(_systemType).build(), //
+						new ElementBuilder().address(0x010B).dummy(0x0110 - 0x010B).build(), //
+						new ElementBuilder().address(0x0110).channel(_suggestiveInformation1).build(), //
+						new ElementBuilder().address(0x0111).channel(_suggestiveInformation2).build(), //
+						new ElementBuilder().address(0x0112).dummy(0x0125 - 0x0112).build(), //
+						new ElementBuilder().address(0x0125).channel(_suggestiveInformation3).build(), //
+						new ElementBuilder().address(0x0126).channel(_suggestiveInformation4).build(), //
+						new ElementBuilder().address(0x0127).dummy(0x0150 - 0x0127).build(), //
+						new ElementBuilder().address(0x0150).channel(_switchState).build()//
+				), //
+				new ModbusRange(0x0180, //
+						new ElementBuilder().address(0x0180).channel(_abnormity1).build(), //
+						new ElementBuilder().address(0x0181).dummy(0x0182 - 0x0181).build(), //
+						new ElementBuilder().address(0x0182).channel(_abnormity2).build(), //
+						new ElementBuilder().address(0x0183).channel(_abnormity3).build(), //
+						new ElementBuilder().address(0x0184).channel(_abnormity4).build(), //
+						new ElementBuilder().address(0x0185).channel(_abnormity5).build(), //
+						new ElementBuilder().address(0x0186).channel(_suggestiveInformation5).build(), //
+						new ElementBuilder().address(0x0187).channel(_suggestiveInformation6).build(), //
+						new ElementBuilder().address(0x0188).channel(_suggestiveInformation7).build() //
+				), new ModbusRange(0x0210, //
+						new ElementBuilder().address(0x0200).channel(_dcVoltage).signed().build(),
+						new ElementBuilder().address(0x0201).channel(_dcCurrent).signed().build(),
+						new ElementBuilder().address(0x0202).channel(_dcPower).signed().build(),
+						new ElementBuilder().address(0x0203).dummy(0x0208 - 0x0203).build(),
+						new ElementBuilder().address(0x0208).channel(_acChargeEnergy).doubleword().build(),
+						new ElementBuilder().address(0x020A).channel(_acDischargeEnergy).doubleword().build(),
+						new ElementBuilder().address(0x020C).dummy(0x0210 - 0x020C).build(),
 						new ElementBuilder().address(0x0210).channel(_activePower).signed().build(),
 						new ElementBuilder().address(0x0211).channel(_reactivePower).signed().build(),
 						new ElementBuilder().address(0x0212).channel(_apparentPower).build(),
-						new ElementBuilder().address(0x0213).dummy().build(),
-						// .name(EssProtocol.CurrentPhase1).signed(true).multiplier(100).unit("mA").build(),
-						new ElementBuilder().address(0x0214).dummy().build(),
-						// .name(EssProtocol.CurrentPhase2).signed(true).multiplier(100).unit("mA").build(),
-						new ElementBuilder().address(0x0215).dummy().build(),
-						// .name(EssProtocol.CurrentPhase3).signed(true).multiplier(100).unit("mA").build(),
+						new ElementBuilder().address(0x0213).channel(_currentPhase1).signed().build(),
+						new ElementBuilder().address(0x0214).channel(_currentPhase2).signed().build(),
+						new ElementBuilder().address(0x0215).channel(_currentPhase3).signed().build(),
 						new ElementBuilder().address(0x0216).dummy(0x219 - 0x216).build(),
-						// .type(ElementType.PLACEHOLDER).intLength(0x219 - 0x216).build(),
-						new ElementBuilder().address(0x0219).dummy().build(),
-						// .name(EssProtocol.VoltagePhase1).multiplier(100).unit("mV").build(),
-						new ElementBuilder().address(0x021A).dummy().build(),
-						// .name(EssProtocol.VoltagePhase2).multiplier(100).unit("mV").build(),
-						new ElementBuilder().address(0x021B).dummy().build(),
-						// .name(EssProtocol.VoltagePhase3).multiplier(100).unit("mV").build(),
-						new ElementBuilder().address(0x021C).dummy().build(),
-						// .name(EssProtocol.Frequency).multiplier(10).unit("mHZ").build(),
+						new ElementBuilder().address(0x0219).channel(_voltagePhase1).build(),
+						new ElementBuilder().address(0x021A).channel(_voltagePhase2).build(),
+						new ElementBuilder().address(0x021B).channel(_voltagePhase3).build(),
+						new ElementBuilder().address(0x021C).channel(_frequency).build(),
 						new ElementBuilder().address(0x021D).dummy(0x222 - 0x21D).build(),
-						// type(ElementType.PLACEHOLDER).intLength(0x222 - 0x21D).build(),
-						new ElementBuilder().address(0x0222).dummy().build(),
-						// .name(EssProtocol.InverterVoltagePhase1).signed(true).multiplier(100).unit("mV").build(),
-						new ElementBuilder().address(0x0223).dummy().build(),
-						// .name(EssProtocol.InverterVoltagePhase2).signed(true).multiplier(100).unit("mV").build(),
-						new ElementBuilder().address(0x0224).dummy().build(),
-						// .name(EssProtocol.InverterVoltagePhase3).signed(true).multiplier(100).unit("mV").build(),
-						new ElementBuilder().address(0x0225).dummy().build(),
-						// .name(EssProtocol.InverterCurrentPhase1).signed(true).multiplier(100).unit("mA").build(),
-						new ElementBuilder().address(0x0226).dummy().build(),
-						// .name(EssProtocol.InverterCurrentPhase2).signed(true).multiplier(100).unit("mA").build(),
-						new ElementBuilder().address(0x0227).dummy().build(),
-						// .name(EssProtocol.InverterCurrentPhase3).signed(true).multiplier(100).unit("mA").build(),
-						new ElementBuilder().address(0x0228).dummy().build(),
-						// .name(EssProtocol.InverterActivePower).signed(true).multiplier(100).unit("W").build(),
+						new ElementBuilder().address(0x0222).channel(_inverterVoltagePhase1).build(),
+						new ElementBuilder().address(0x0223).channel(_inverterVoltagePhase2).build(),
+						new ElementBuilder().address(0x0224).channel(_inverterVoltagePhase3).build(),
+						new ElementBuilder().address(0x0225).channel(_inverterCurrentPhase1).build(),
+						new ElementBuilder().address(0x0226).channel(_inverterCurrentPhase2).build(),
+						new ElementBuilder().address(0x0227).channel(_inverterCurrentPhase3).build(),
+						new ElementBuilder().address(0x0228).channel(_inverterActivePower).signed().build(),
 						new ElementBuilder().address(0x0229).dummy(0x230 - 0x229).build(),
-						// .type(ElementType.PLACEHOLDER).intLength(0x230 - 0x229).build(),
 						new ElementBuilder().address(0x0230).channel(_allowedCharge).signed().build(),
-						new ElementBuilder().address(0x0231).channel(_allowedDischarge).build()),
-				new ModbusRange(0x1402, //
-						new ElementBuilder().address(0x1402).channel(_soc).build()),
+						new ElementBuilder().address(0x0231).channel(_allowedDischarge).build(),
+						new ElementBuilder().address(0x0232).channel(_allowedApparent).build(),
+						new ElementBuilder().address(0x0233).dummy(0x240 - 0x233).build(),
+						new ElementBuilder().address(0x0240).channel(_ipmPhaseATemperature).signed().build(),
+						new ElementBuilder().address(0x0241).channel(_ipmPhaseBTemperature).signed().build(),
+						new ElementBuilder().address(0x0242).channel(_ipmPhaseCTemperature).signed().build(),
+						new ElementBuilder().address(0x0243).dummy(0x0249 - 0x0243).build(),
+						new ElementBuilder().address(0x0249).channel(_transformerPhaseBTemperature).signed().build()),
+				new ModbusRange(0x0300, //
+						new ElementBuilder().address(0x0300).channel(_totalEnergy).doubleword().build(),
+						new ElementBuilder().address(0x0302).channel(_totalYearEnergy).doubleword().build(),
+						new ElementBuilder().address(0x0304).channel(_totalMonthEnergy).doubleword().build(),
+						new ElementBuilder().address(0x0306).channel(_totalDateEnergy).build(),
+						new ElementBuilder().address(0x0307).channel(_totalHourEnergy0).build(),
+						new ElementBuilder().address(0x0308).channel(_totalHourEnergy1).build(),
+						new ElementBuilder().address(0x0309).channel(_totalHourEnergy2).build(),
+						new ElementBuilder().address(0x030A).channel(_totalHourEnergy3).build(),
+						new ElementBuilder().address(0x030B).channel(_totalHourEnergy4).build(),
+						new ElementBuilder().address(0x030C).channel(_totalHourEnergy5).build(),
+						new ElementBuilder().address(0x030D).channel(_totalHourEnergy6).build(),
+						new ElementBuilder().address(0x030E).channel(_totalHourEnergy7).build(),
+						new ElementBuilder().address(0x030F).channel(_totalHourEnergy8).build(),
+						new ElementBuilder().address(0x0310).channel(_totalHourEnergy9).build(),
+						new ElementBuilder().address(0x0311).channel(_totalHourEnergy10).build(),
+						new ElementBuilder().address(0x0312).channel(_totalHourEnergy11).build(),
+						new ElementBuilder().address(0x0313).channel(_totalHourEnergy12).build(),
+						new ElementBuilder().address(0x0314).channel(_totalHourEnergy13).build(),
+						new ElementBuilder().address(0x0315).channel(_totalHourEnergy14).build(),
+						new ElementBuilder().address(0x0316).channel(_totalHourEnergy15).build(),
+						new ElementBuilder().address(0x0317).channel(_totalHourEnergy16).build(),
+						new ElementBuilder().address(0x0318).channel(_totalHourEnergy17).build(),
+						new ElementBuilder().address(0x0319).channel(_totalHourEnergy18).build(),
+						new ElementBuilder().address(0x031A).channel(_totalHourEnergy19).build(),
+						new ElementBuilder().address(0x031B).channel(_totalHourEnergy20).build(),
+						new ElementBuilder().address(0x031C).channel(_totalHourEnergy21).build(),
+						new ElementBuilder().address(0x031D).channel(_totalHourEnergy22).build(),
+						new ElementBuilder().address(0x031E).channel(_totalHourEnergy23).build()),
 				new WritableModbusRange(0x0500, //
 						new ElementBuilder().address(0x0500).channel(_setWorkState).build(),
-						new ElementBuilder().address(0x0501).channel(_setActivePower).signed().build() //
-				));
+						new ElementBuilder().address(0x0501).channel(_setActivePower).signed().build(), //
+						new ElementBuilder().address(0x0502).channel(_setReactivePower).signed().build(), //
+						new ElementBuilder().address(0x0503).channel(_setPvLimit).build()),
+				new ModbusRange(0x1402, //
+						new ElementBuilder().address(0x1402).channel(_soc).build()));
 	}
 
 	@Override
