@@ -38,23 +38,6 @@ import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBu
 
 public class FeneconCommercialEss extends ModbusDeviceNature implements EssNature {
 
-	// .label(1, "") //
-	// .label(2, "") //
-	// .label(4, "") //
-	// .label(8, "") //
-	// .label(16, "") //
-	// .label(32, "") //
-	// .label(64, "") //
-	// .label(128, "") //
-	// .label(256, "") //
-	// .label(512, "") //
-	// .label(1024, "") //
-	// .label(2048, "") //
-	// .label(4096, "") //
-	// .label(8192, "") //
-	// .label(16384, "")//
-	// .label(132768, "").build();
-
 	private final ModbusChannel _abnormity1 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "DC precharge contactor close unsuccessfully") //
 			.label(2, "AC precharge contactor close unsuccessfully") //
@@ -142,6 +125,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(132768, "").build();
 	private final ModbusChannel _acChargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh").multiplier(100)
 			.build();
+
 	private final ModbusChannel _acDischargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh").multiplier(100)
 			.build();
 	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
@@ -154,9 +138,142 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.build();
 	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(100)
 			.build();
+	private final ModbusChannel _batteryAccumulatedCharge = new ModbusChannelBuilder().nature(this).unit("Wh").build();
+	private final ModbusChannel _batteryAccumulatedDischarge = new ModbusChannelBuilder().nature(this).unit("Wh")
+			.build();
+	private final ModbusChannel _batteryChargeCycles = new ModbusChannelBuilder().nature(this).build();
 	private final ModbusChannel _batteryMaintenanceState = new ModbusChannelBuilder().nature(this) //
 			.label(0, "Off") //
 			.label(1, "On").build();
+	private final ModbusChannel _batteryPower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
+			.build();
+	private final ModbusChannel _batterySteringTotalCurrent = new ModbusChannelBuilder().nature(this).unit("mA")
+			.multiplier(100).build();
+	private final ModbusChannel _batteryStringAbnormity1 = new ModbusChannelBuilder().nature(this).label(1, "") //
+			.label(2, "") //
+			.label(4, "Battery string voltage sampling route invalidation") //
+			.label(8, "") //
+			.label(16, "Battery string voltage sampling route disconnected") //
+			.label(32, "Battery string temperature sampling route disconnected") //
+			.label(64, "Battery string inside CAN disconnected") //
+			.label(128, "") //
+			.label(256, "") //
+			.label(512, "Battery string current sampling circuit abnormity") //
+			.label(1024, "Battery string battery cell invalidation") //
+			.label(2048, "Battery string main contactor inspection abnormity") //
+			.label(4096, "Battery string precharge contactor inspection abnormity") //
+			.label(8192, "Battery string negative contactor inspection abnormity") //
+			.label(16384, "Battery string power supply relay inspection abnormity")//
+			.label(132768, "Battery string middle relay abnormity").build();
+	private final ModbusChannel _batteryStringAbnormity2 = new ModbusChannelBuilder().nature(this).label(1, "") //
+			.label(2, "") //
+			.label(4, "Battery string severe overtemperature") //
+			.label(8, "") //
+			.label(16, "") //
+			.label(32, "") //
+			.label(64, "") //
+			.label(128, "Battery string smog fault") //
+			.label(256, "Battery string blown fuse indicator fault") //
+			.label(512, "") //
+			.label(1024, "Battery string general leakage") //
+			.label(2048, "Battery string severe leakage") //
+			.label(4096, "Communication between  BECU and periphery CAN disconnected") //
+			.label(8192, "") //
+			.label(16384, "Battery string power supply relay contactor disconnected")//
+			.label(132768, "").build();
+	private final ModbusChannel _batteryStringCellAverageTemperature = new ModbusChannelBuilder().nature(this)
+			.unit("°C").multiplier(100).build();
+	private final ModbusChannel _batteryStringChargeCurrentLimit = new ModbusChannelBuilder().nature(this).unit("mA")
+			.multiplier(100).build();
+	private final ModbusChannel _batteryStringDischargeCurrentLimit = new ModbusChannelBuilder().nature(this).unit("mA")
+			.multiplier(100).build();
+	private final ModbusChannel _batteryStringPeripheralIoState = new ModbusChannelBuilder().nature(this)
+			.label(1, "Fuse state") //
+			.label(2, "Isolated switch state") //
+			.label(4, "") //
+			.label(8, "") //
+			.label(16, "") //
+			.label(32, "") //
+			.label(64, "") //
+			.label(128, "") //
+			.label(256, "") //
+			.label(512, "") //
+			.label(1024, "") //
+			.label(2048, "") //
+			.label(4096, "") //
+			.label(8192, "") //
+			.label(16384, "")//
+			.label(132768, "").build();
+	private final ModbusChannel _batteryStringSOH = new ModbusChannelBuilder().nature(this).unit("%").multiplier(100)
+			.build();
+	private final ModbusChannel _batteryStringSuggestiveInformation = new ModbusChannelBuilder().nature(this)
+			.label(1, "Battery string charge general overcurrent") //
+			.label(2, "Battery string discharge general overcurrent") //
+			.label(4, "Battery string charge current over limit") //
+			.label(8, "Battery string discharge current over limit") //
+			.label(16, "Battery string general overvoltage") //
+			.label(32, "Battery string general undervoltage") //
+			.label(64, "") //
+			.label(128, "Battery string general over temperature") //
+			.label(256, "Battery string general under temperature") //
+			.label(512, "") //
+			.label(1024, "Battery string severe overvoltage") //
+			.label(2048, "Battery string severe under voltage") //
+			.label(4096, "Battery string severe under temperature") //
+			.label(8192, "Battery string charge severe overcurrent") //
+			.label(16384, "Battery string discharge severe overcurrent")//
+			.label(132768, "Battery string capacity abnormity").build();
+	private final ModbusChannel _batteryStringSwitchState = new ModbusChannelBuilder().nature(this)
+			.label(1, "Main contactor") //
+			.label(2, "Precharge contactor") //
+			.label(4, "FAN contactor") //
+			.label(8, "BMU power supply relay") //
+			.label(16, "Middle relay") //
+			.label(32, "") //
+			.label(64, "") //
+			.label(128, "") //
+			.label(256, "") //
+			.label(512, "") //
+			.label(1024, "") //
+			.label(2048, "") //
+			.label(4096, "") //
+			.label(8192, "") //
+			.label(16384, "")//
+			.label(132768, "").build();
+	private final ModbusChannel _batteryStringTotalVoltage = new ModbusChannelBuilder().nature(this).unit("mV")
+			.multiplier(100).build();
+	// .label(1, "") //
+	// .label(2, "") //
+	// .label(4, "") //
+	// .label(8, "") //
+	// .label(16, "") //
+	// .label(32, "") //
+	// .label(64, "") //
+	// .label(128, "") //
+	// .label(256, "") //
+	// .label(512, "") //
+	// .label(1024, "") //
+	// .label(2048, "") //
+	// .label(4096, "") //
+	// .label(8192, "") //
+	// .label(16384, "")//
+	// .label(132768, "").build();
+	private final ModbusChannel _batteryStringWorkState = new ModbusChannelBuilder().nature(this).label(1, "Initial") //
+			.label(2, "Stop") //
+			.label(4, "Starting up") //
+			.label(8, "Running") //
+			.label(16, "Fault") //
+			.label(32, "") //
+			.label(64, "") //
+			.label(128, "") //
+			.label(256, "") //
+			.label(512, "") //
+			.label(1024, "") //
+			.label(2048, "") //
+			.label(4096, "") //
+			.label(8192, "") //
+			.label(16384, "")//
+			.label(132768, "").build();
 	private final ModbusChannel _controlMode = new ModbusChannelBuilder().nature(this) //
 			.label(0, "Remote") //
 			.label(2, "Local").build();
@@ -457,8 +574,32 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 						new ElementBuilder().address(0x0501).channel(_setActivePower).signed().build(), //
 						new ElementBuilder().address(0x0502).channel(_setReactivePower).signed().build(), //
 						new ElementBuilder().address(0x0503).channel(_setPvLimit).build()),
-				new ModbusRange(0x1402, //
-						new ElementBuilder().address(0x1402).channel(_soc).build()));
+				new ModbusRange(0x1100, //
+						new ElementBuilder().address(0x1100).channel(_batteryStringWorkState).build(),
+						new ElementBuilder().address(0x1101).channel(_batteryStringSwitchState).build(),
+						new ElementBuilder().address(0x1102).channel(_batteryStringPeripheralIoState).build(),
+						new ElementBuilder().address(0x1103).channel(_batteryStringSuggestiveInformation).build(),
+						new ElementBuilder().address(0x1104).dummy().build(),
+						new ElementBuilder().address(0x1105).channel(_batteryStringAbnormity1).build(),
+						new ElementBuilder().address(0x1106).channel(_batteryStringAbnormity2).build()),
+				new ModbusRange(0x1400, //
+						new ElementBuilder().address(0x1400).channel(_batteryStringTotalVoltage).build(),
+						new ElementBuilder().address(0x1401).channel(_batterySteringTotalCurrent).signed().build(),
+						new ElementBuilder().address(0x1402).channel(_soc).build(),
+						new ElementBuilder().address(0x1403).channel(_batteryStringSOH).build(),
+						new ElementBuilder().address(0x1404).channel(_batteryStringCellAverageTemperature).signed()
+								.build(),
+						new ElementBuilder().address(0x1405).dummy().build(),
+						new ElementBuilder().address(0x1406).channel(_batteryStringChargeCurrentLimit).build(),
+						new ElementBuilder().address(0x1407).channel(_batteryStringDischargeCurrentLimit).build(),
+						new ElementBuilder().address(0x1408).dummy(0x140A - 0x1408).build(),
+						new ElementBuilder().address(0x140A).channel(_batteryChargeCycles).doubleword().build(),
+						new ElementBuilder().address(0x140C).dummy(0x1418 - 0x140C).build(),
+						new ElementBuilder().address(0x1418).channel(_batteryAccumulatedCharge).doubleword().build(),
+						new ElementBuilder().address(0x141A).channel(_batteryAccumulatedDischarge).doubleword().build(),
+						new ElementBuilder().address(0x141C).dummy(0x1420 - 0x141C).build(),
+						new ElementBuilder().address(0x1420).channel(_batteryPower).signed().build())//
+		);
 	}
 
 	@Override
