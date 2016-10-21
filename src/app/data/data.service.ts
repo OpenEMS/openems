@@ -18,7 +18,13 @@ export abstract class DataService {
     });*/
   }
 
-  abstract getPollInterval(): number;
+  //abstract getPollInterval(): number;
 
   //abstract getCurrentData(): Promise<CurrentData>;
+
+  abstract getDevices(): Promise<any>;
+
+  abstract getOne(name_number: number, fields: string[]): Promise<any>;
+
+  /*abstract getPeriod(fields: string[], fromTime: long ): Object;*/
 }

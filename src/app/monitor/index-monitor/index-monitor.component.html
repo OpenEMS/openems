@@ -1,0 +1,12 @@
+<p>
+  index-monitor works!
+</p>
+<ul>
+  <li *ngFor="let device of devices" (click)="gotoMonitor(device)">
+    <span class="badge">{{device.name}}</span><br/>
+    <ul>
+      <li>SOC: {{device.soc}} %</li>
+      <li>Last Message: {{device.lastmessage}}</li>
+    </ul>
+  </li>
+</ul>

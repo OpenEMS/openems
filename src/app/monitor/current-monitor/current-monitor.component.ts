@@ -7,6 +7,7 @@ import { Headers, Http, Response } from '@angular/http';
 
 import { CurrentData } from '../../data/current-data';
 import { EssData } from '../../data/ess-data';
+import { OdooRPCService } from 'angular2-odoo-jsonrpc';
 
 @Component({
   selector: 'app-current-monitor',

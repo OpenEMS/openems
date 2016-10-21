@@ -25,7 +25,8 @@
     "ts-helpers": "^1.1.1",
     "zone.js": "^0.6.23",
     "bootstrap": "^3.3.7",
-    "ng2-bootstrap": "1.1.5"
+    "ng2-bootstrap": "1.1.5",
+    "angular2-odoo-jsonrpc": "0.0.7"
   },
   "devDependencies": {
     "@types/jasmine": "^2.2.30",
