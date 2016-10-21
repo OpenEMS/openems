@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
 import io.openems.api.thing.Thing;
 
 public abstract class AbstractWorker extends Thread implements Thing {
-	protected final Logger log;
 	private final AtomicBoolean initialize = new AtomicBoolean(true);
 	private Mutex initializedMutex = new Mutex(false);
 	private final AtomicBoolean isForceRun = new AtomicBoolean(false);
 	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
+	protected final Logger log;
 
 	/**
 	 * Initialize the Thread with a name
@@ -50,10 +50,55 @@ public abstract class AbstractWorker extends Thread implements Thing {
 		this.start();
 	}
 
+	/**
+	 * Little helper method: Sleep and don't let yourself interrupt by a ForceRun-Flag. It is not making sense anyway,
+	 * because something is wrong with the setup if we landed here.
+	 *
+	 * @param duration
+	 *            in seconds
+	 */
+	private long bridgeExceptionSleep(long duration) {
+		if (duration < 60) {
+			duration += 1;
+		}
+		log.info("Sleep " + duration);
+		long targetTime = System.nanoTime() + (duration * 1000000);
+		do {
+			try {
+				long thisDuration = (targetTime - System.nanoTime()) / 1000000;
+				log.info("  Sleep " + thisDuration);
+				if (thisDuration < 0) {
+					Thread.sleep(thisDuration);
+				}
+			} catch (InterruptedException e1) {
+				log.info("Interrupted: " + isForceRun.get());
+			}
+		} while (targetTime > System.nanoTime());
+		return duration;
+	}
+
+	/**
+	 * This method is called when the Thread stops. Use it to close resources.
+	 */
+	protected abstract void dispose();
+
+	/**
+	 * This method is called in a loop forever until the Thread gets interrupted.
+	 */
+	protected abstract void forever();
+
 	@Override
 	public String getThingId() {
 		return getName();
-	}
+	};
+
+	/**
+	 * This method is called once before {@link forever()} and every time after {@link restart()} method was called. Use
+	 * it to (re)initialize everything.
+	 *
+	 * @return false on initialization error
+	 */
+	protected abstract boolean initialize();
 
 	/**
 	 * Executes the Thread. Calls {@link forever} till the Thread gets interrupted.
@@ -102,7 +147,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 				/*
 				 * Handle Bridge-Exceptions
 				 */
-				log.error("Bridge-Exception! Retry later. Error: " + e.getMessage());
+				log.error("Bridge-Exception! Retry later. Error: " + e.getMessage(), e);
 				bridgeExceptionSleep = bridgeExceptionSleep(bridgeExceptionSleep);
 			}
 		}
@@ -125,50 +170,5 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	public final void triggerInitialize() {
 		initialize.set(true);
 		initializedMutex.release();
-	};
-
-	/**
-	 * This method is called when the Thread stops. Use it to close resources.
-	 */
-	protected abstract void dispose();
-
-	/**
-	 * This method is called in a loop forever until the Thread gets interrupted.
-	 */
-	protected abstract void forever();
-
-	/**
-	 * This method is called once before {@link forever()} and every time after {@link restart()} method was called. Use
-	 * it to (re)initialize everything.
-	 *
-	 * @return false on initialization error
-	 */
-	protected abstract boolean initialize();
-
-	/**
-	 * Little helper method: Sleep and don't let yourself interrupt by a ForceRun-Flag. It is not making sense anyway,
-	 * because something is wrong with the setup if we landed here.
-	 *
-	 * @param duration
-	 *            in seconds
-	 */
-	private long bridgeExceptionSleep(long duration) {
-		if (duration < 60) {
-			duration += 1;
-		}
-		log.info("Sleep " + duration);
-		long targetTime = System.nanoTime() + (duration * 1000000);
-		do {
-			try {
-				long thisDuration = (targetTime - System.nanoTime()) / 1000000;
-				log.info("  Sleep " + thisDuration);
-				if (thisDuration < 0) {
-					Thread.sleep(thisDuration);
-				}
-			} catch (InterruptedException e1) {
-				log.info("Interrupted: " + isForceRun.get());
-			}
-		} while (targetTime > System.nanoTime());
-		return duration;
 	}
 }

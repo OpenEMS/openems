@@ -13,7 +13,7 @@ public class EnergysavingController extends Controller {
 	@IsThingMapping
 	public List<Ess> esss = null;
 
-	private Long lastTimeValueWritten = System.currentTimeMillis();
+	private Long lastTimeValueWritten = 0l;
 
 	@Override
 	public void run() {
@@ -31,14 +31,14 @@ public class EnergysavingController extends Controller {
 					}
 				} else {
 					/*
-					 * Stop Ess if no values were written since two minutes
+					 * go to Sytandby if no values were written since two minutes
 					 */
 					if (lastTimeValueWritten + 2 * 60 * 1000 < System.currentTimeMillis()) {
 						String systemState = ess.systemState.getValueLabelOrNull();
-						if (systemState == null || systemState != EssNature.STOP) {
+						if (systemState == null || systemState != EssNature.STANDBY) {
 							log.info("ESS [" + ess.getThingId()
-									+ "] had no written value since two minutes. Stopping...");
-							ess.setWorkState.pushWriteValue(EssNature.STOP);
+									+ "] had no written value since two minutes. Standby...");
+							ess.setWorkState.pushWriteValue(EssNature.STANDBY);
 						}
 					}
 				}

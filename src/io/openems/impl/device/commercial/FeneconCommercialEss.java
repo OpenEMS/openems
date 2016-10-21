@@ -53,13 +53,13 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(0, "Remote") //
 			.label(2, "Local").build();
 	private final ModbusChannel _gridMode = new ModbusChannelBuilder().nature(this) //
-			.label(0, OFF_GRID) //
-			.label(1, ON_GRID).build();
+			.label(1, OFF_GRID) //
+			.label(2, ON_GRID).build();
 	private final ModbusChannel _inverterState = new ModbusChannelBuilder().nature(this) //
 			.label(0, "Init") //
 			.label(2, "Fault") //
 			.label(4, STOP) //
-			.label(8, "Standby") //
+			.label(8, STANDBY) //
 			.label(16, "Grid-Monitor") // ,
 			.label(32, "Ready") //
 			.label(64, START) //
@@ -73,6 +73,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.multiplier(100).minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
 	private final WriteableModbusChannel _setWorkState = new WriteableModbusChannelBuilder().nature(this) //
 			.label(4, STOP) //
+			.label(32, STANDBY) //
 			.label(64, START).build();
 	private final ModbusChannel _soc = new ModbusChannelBuilder().nature(this).percentType().build();
 	private final ModbusChannel _systemManufacturer = new ModbusChannelBuilder().nature(this) //
@@ -109,52 +110,6 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 	@Override
 	public Channel apparentPower() {
 		return _apparentPower;
-	}
-
-	@Override
-	public Channel gridMode() {
-		return _gridMode;
-	}
-
-	@Override
-	public Channel minSoc() {
-		return _minSoc;
-	}
-
-	@Override
-	public Channel reactivePower() {
-		return _reactivePower;
-	}
-
-	@Override
-	public WriteableChannel setActivePower() {
-		return _setActivePower;
-	}
-
-	@Override
-	public void setMinSoc(Integer minSoc) {
-		this._minSoc.updateValue(Long.valueOf(minSoc));
-	}
-
-	@Override
-	public WriteableChannel setWorkState() {
-		return _setWorkState;
-	}
-
-	@Override
-	public Channel soc() {
-		return _soc;
-	}
-
-	@Override
-	public Channel systemState() {
-		return _systemState;
-	}
-
-	@Override
-	public String toString() {
-		return "FeneconCommercialEss [setActivePower=" + _setActivePower + ", minSoc=" + _minSoc + ", soc=" + _soc
-				+ "]";
 	}
 
 	@Override
@@ -217,5 +172,51 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 						new ElementBuilder().address(0x0500).channel(_setWorkState).build(),
 						new ElementBuilder().address(0x0501).channel(_setActivePower).signed().build() //
 				));
+	}
+
+	@Override
+	public Channel gridMode() {
+		return _gridMode;
+	}
+
+	@Override
+	public Channel minSoc() {
+		return _minSoc;
+	}
+
+	@Override
+	public Channel reactivePower() {
+		return _reactivePower;
+	}
+
+	@Override
+	public WriteableChannel setActivePower() {
+		return _setActivePower;
+	}
+
+	@Override
+	public void setMinSoc(Integer minSoc) {
+		this._minSoc.updateValue(Long.valueOf(minSoc));
+	}
+
+	@Override
+	public WriteableChannel setWorkState() {
+		return _setWorkState;
+	}
+
+	@Override
+	public Channel soc() {
+		return _soc;
+	}
+
+	@Override
+	public Channel systemState() {
+		return _systemState;
+	}
+
+	@Override
+	public String toString() {
+		return "FeneconCommercialEss [setActivePower=" + _setActivePower + ", minSoc=" + _minSoc + ", soc=" + _soc
+				+ "]";
 	}
 }

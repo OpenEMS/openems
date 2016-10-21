@@ -43,8 +43,8 @@ import io.openems.api.exception.WriteChannelException;
  */
 public class WriteableChannel extends Channel {
 	protected final Channel maxWriteChannel;
-	protected final Channel minWriteChannel;
 	private Long maxWriteValue = null;
+	protected final Channel minWriteChannel;
 	private Long minWriteValue = null;
 	private Long writeValue = null;
 
@@ -67,7 +67,7 @@ public class WriteableChannel extends Channel {
 		if (this.writeValue != null) {
 			return this.writeValue;
 		} else {
-			Long value = null;
+			Long value = Long.MAX_VALUE;
 			if (this.getMaxValue() != null) {
 				value = this.getMaxValue();
 			}
@@ -76,10 +76,10 @@ public class WriteableChannel extends Channel {
 					value = this.maxWriteValue;
 				}
 			}
-			if (this.minWriteChannel != null) {
-				Long minWriteChannelValue = this.minWriteChannel.getValueOrNull();
-				if (value == null || (minWriteChannelValue != null && minWriteChannelValue < value)) {
-					value = minWriteChannelValue;
+			if (this.maxWriteChannel != null) {
+				Long maxWriteChannelValue = this.maxWriteChannel.getValueOrNull();
+				if (value == null || (maxWriteChannelValue != null && maxWriteChannelValue < value)) {
+					value = maxWriteChannelValue;
 				}
 			}
 			return value;
@@ -95,7 +95,7 @@ public class WriteableChannel extends Channel {
 		if (this.writeValue != null) {
 			return this.writeValue;
 		} else {
-			Long value = null;
+			Long value = Long.MIN_VALUE;
 			if (this.getMinValue() != null) {
 				value = this.getMinValue();
 			}
@@ -204,6 +204,19 @@ public class WriteableChannel extends Channel {
 		}
 		long rawValue = (value + delta) / multiplier;
 		return rawValue;
+	}
+
+	/**
+	 * Returns the value and initializes the {@link WriteableChannel}.
+	 *
+	 * @return value or null
+	 */
+	private Long popWriteValue() {
+		Long value = peekWriteValue();
+		this.writeValue = null;
+		this.minWriteValue = null;
+		this.maxWriteValue = null;
+		return value;
 	}
 
 	/**
@@ -321,19 +334,6 @@ public class WriteableChannel extends Channel {
 		}
 		throw new WriteChannelException("Unexpected error in 'pushWriteValue()'-method with label [" + label
 				+ "] for Channel [" + getAddress() + "]");
-	}
-
-	/**
-	 * Returns the value and initializes the {@link WriteableChannel}.
-	 *
-	 * @return value or null
-	 */
-	private Long popWriteValue() {
-		Long value = peekWriteValue();
-		this.writeValue = null;
-		this.minWriteValue = null;
-		this.maxWriteValue = null;
-		return value;
 	}
 
 	/**

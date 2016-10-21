@@ -31,6 +31,7 @@ public interface EssNature extends DeviceNature {
 	public final String OFF_GRID = "Off-Grid";
 	public final String ON_GRID = "On-Grid";
 
+	public final String STANDBY = "Standby";
 	public final String START = "Start";
 	public final String STOP = "Stop";
 
