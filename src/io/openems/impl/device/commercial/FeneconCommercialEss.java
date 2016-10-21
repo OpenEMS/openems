@@ -51,10 +51,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(512, "DC electrical breaker 1 open unsuccessfully") //
 			.label(1024, "DC main contactor open unsuccessfully") //
 			.label(2048, "Hardware PDP fault") //
-			.label(4096, "Master stop suddenly") //
-			.label(8192, "") //
-			.label(16384, "")//
-			.label(132768, "").build();
+			.label(4096, "Master stop suddenly").build();
 	private final ModbusChannel _abnormity2 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "DC short circuit protection") //
 			.label(2, "DC overvoltage protection") //
@@ -103,9 +100,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(1024, "Phase B Inverter voltage general overvoltage protection") //
 			.label(2048, "Phase C Inverter voltage severe overvoltage protection") //
 			.label(4096, "Phase C Inverter voltage general overvoltage protection") //
-			.label(8192, "Inverter  peak voltage high protection cause by AC disconnect") //
-			.label(16384, "")//
-			.label(132768, "").build();
+			.label(8192, "Inverter peak voltage high protection cause by AC disconnect").build();
 	private final ModbusChannel _abnormity5 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "Phase A gird loss") //
 			.label(2, "Phase B gird loss") //
@@ -120,9 +115,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(1024, "Phase B Inverter voltage general overvoltage protection") //
 			.label(2048, "Phase C Inverter voltage severe overvoltage protection") //
 			.label(4096, "Phase C Inverter voltage general overvoltage protection") //
-			.label(8192, "Inverter  peak voltage high protection cause by AC disconnect") //
-			.label(16384, "")//
-			.label(132768, "").build();
+			.label(8192, "Inverter peak voltage high protection cause by AC disconnect").build();
 	private final ModbusChannel _acChargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh").multiplier(100)
 			.build();
 
@@ -149,15 +142,11 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.build();
 	private final ModbusChannel _batterySteringTotalCurrent = new ModbusChannelBuilder().nature(this).unit("mA")
 			.multiplier(100).build();
-	private final ModbusChannel _batteryStringAbnormity1 = new ModbusChannelBuilder().nature(this).label(1, "") //
-			.label(2, "") //
+	private final ModbusChannel _batteryStringAbnormity1 = new ModbusChannelBuilder().nature(this) //
 			.label(4, "Battery string voltage sampling route invalidation") //
-			.label(8, "") //
 			.label(16, "Battery string voltage sampling route disconnected") //
 			.label(32, "Battery string temperature sampling route disconnected") //
 			.label(64, "Battery string inside CAN disconnected") //
-			.label(128, "") //
-			.label(256, "") //
 			.label(512, "Battery string current sampling circuit abnormity") //
 			.label(1024, "Battery string battery cell invalidation") //
 			.label(2048, "Battery string main contactor inspection abnormity") //
@@ -165,22 +154,14 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(8192, "Battery string negative contactor inspection abnormity") //
 			.label(16384, "Battery string power supply relay inspection abnormity")//
 			.label(132768, "Battery string middle relay abnormity").build();
-	private final ModbusChannel _batteryStringAbnormity2 = new ModbusChannelBuilder().nature(this).label(1, "") //
-			.label(2, "") //
+	private final ModbusChannel _batteryStringAbnormity2 = new ModbusChannelBuilder().nature(this) //
 			.label(4, "Battery string severe overtemperature") //
-			.label(8, "") //
-			.label(16, "") //
-			.label(32, "") //
-			.label(64, "") //
 			.label(128, "Battery string smog fault") //
 			.label(256, "Battery string blown fuse indicator fault") //
-			.label(512, "") //
 			.label(1024, "Battery string general leakage") //
 			.label(2048, "Battery string severe leakage") //
-			.label(4096, "Communication between  BECU and periphery CAN disconnected") //
-			.label(8192, "") //
-			.label(16384, "Battery string power supply relay contactor disconnected")//
-			.label(132768, "").build();
+			.label(4096, "Communication between BECU and periphery CAN disconnected") //
+			.label(16384, "Battery string power supply relay contactor disconnected").build();
 	private final ModbusChannel _batteryStringCellAverageTemperature = new ModbusChannelBuilder().nature(this)
 			.unit("°C").multiplier(100).build();
 	private final ModbusChannel _batteryStringChargeCurrentLimit = new ModbusChannelBuilder().nature(this).unit("mA")
@@ -189,21 +170,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.multiplier(100).build();
 	private final ModbusChannel _batteryStringPeripheralIoState = new ModbusChannelBuilder().nature(this)
 			.label(1, "Fuse state") //
-			.label(2, "Isolated switch state") //
-			.label(4, "") //
-			.label(8, "") //
-			.label(16, "") //
-			.label(32, "") //
-			.label(64, "") //
-			.label(128, "") //
-			.label(256, "") //
-			.label(512, "") //
-			.label(1024, "") //
-			.label(2048, "") //
-			.label(4096, "") //
-			.label(8192, "") //
-			.label(16384, "")//
-			.label(132768, "").build();
+			.label(2, "Isolated switch state").build();
 	private final ModbusChannel _batteryStringSOH = new ModbusChannelBuilder().nature(this).unit("%").multiplier(100)
 			.build();
 	private final ModbusChannel _batteryStringSuggestiveInformation = new ModbusChannelBuilder().nature(this)
@@ -213,10 +180,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(8, "Battery string discharge current over limit") //
 			.label(16, "Battery string general overvoltage") //
 			.label(32, "Battery string general undervoltage") //
-			.label(64, "") //
 			.label(128, "Battery string general over temperature") //
 			.label(256, "Battery string general under temperature") //
-			.label(512, "") //
 			.label(1024, "Battery string severe overvoltage") //
 			.label(2048, "Battery string severe under voltage") //
 			.label(4096, "Battery string severe under temperature") //
@@ -228,54 +193,17 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(2, "Precharge contactor") //
 			.label(4, "FAN contactor") //
 			.label(8, "BMU power supply relay") //
-			.label(16, "Middle relay") //
-			.label(32, "") //
-			.label(64, "") //
-			.label(128, "") //
-			.label(256, "") //
-			.label(512, "") //
-			.label(1024, "") //
-			.label(2048, "") //
-			.label(4096, "") //
-			.label(8192, "") //
-			.label(16384, "")//
-			.label(132768, "").build();
+			.label(16, "Middle relay").build();
 	private final ModbusChannel _batteryStringTotalVoltage = new ModbusChannelBuilder().nature(this).unit("mV")
 			.multiplier(100).build();
-	// .label(1, "") //
-	// .label(2, "") //
-	// .label(4, "") //
-	// .label(8, "") //
-	// .label(16, "") //
-	// .label(32, "") //
-	// .label(64, "") //
-	// .label(128, "") //
-	// .label(256, "") //
-	// .label(512, "") //
-	// .label(1024, "") //
-	// .label(2048, "") //
-	// .label(4096, "") //
-	// .label(8192, "") //
-	// .label(16384, "")//
-	// .label(132768, "").build();
-	private final ModbusChannel _batteryStringWorkState = new ModbusChannelBuilder().nature(this).label(1, "Initial") //
+	private final ModbusChannel _batteryStringWorkState = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Initial") //
 			.label(2, "Stop") //
 			.label(4, "Starting up") //
 			.label(8, "Running") //
-			.label(16, "Fault") //
-			.label(32, "") //
-			.label(64, "") //
-			.label(128, "") //
-			.label(256, "") //
-			.label(512, "") //
-			.label(1024, "") //
-			.label(2048, "") //
-			.label(4096, "") //
-			.label(8192, "") //
-			.label(16384, "")//
-			.label(132768, "").build();
+			.label(16, "Fault").build();
 	private final ModbusChannel _controlMode = new ModbusChannelBuilder().nature(this) //
-			.label(0, "Remote") //
+			.label(1, "Remote") //
 			.label(2, "Local").build();
 	private final ModbusChannel _currentPhase1 = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
 			.build();
@@ -377,8 +305,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(2048, "Large temperature difference among IGBT three phases") //
 			.label(4096, "EEPROM parameters over range") //
 			.label(8192, "EEPROM parameters backup failed") //
-			.label(16384, "DC breaker close unsuccessfully")//
-			.label(132768, "").build();
+			.label(16384, "DC breaker close unsuccessfully").build();
 	private final ModbusChannel _suggestiveInformation7 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "Communication between inverter and BSMU disconnected") //
 			.label(2, "Communication between inverter and Master disconnected") //
@@ -387,15 +314,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(16, "BMS stop overtime controlled by PCS") //
 			.label(32, "Sync signal invalidation") //
 			.label(64, "Sync signal continuous caputure fault") //
-			.label(128, "Sync signal several times caputure fault") //
-			.label(256, "") //
-			.label(512, "") //
-			.label(1024, "") //
-			.label(2048, "") //
-			.label(4096, "") //
-			.label(8192, "") //
-			.label(16384, "")//
-			.label(132768, "").build();
+			.label(128, "Sync signal several times caputure fault").build();
 	private final ModbusChannel _switchState = new ModbusChannelBuilder().nature(this) //
 			.label(2, "DC main contactor state") //
 			.label(4, "DC precharge contactor state") //
@@ -468,6 +387,52 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 	@Override
 	public Channel apparentPower() {
 		return _apparentPower;
+	}
+
+	@Override
+	public Channel gridMode() {
+		return _gridMode;
+	}
+
+	@Override
+	public Channel minSoc() {
+		return _minSoc;
+	}
+
+	@Override
+	public Channel reactivePower() {
+		return _reactivePower;
+	}
+
+	@Override
+	public WriteableChannel setActivePower() {
+		return _setActivePower;
+	}
+
+	@Override
+	public void setMinSoc(Integer minSoc) {
+		this._minSoc.updateValue(Long.valueOf(minSoc));
+	}
+
+	@Override
+	public WriteableChannel setWorkState() {
+		return _setWorkState;
+	}
+
+	@Override
+	public Channel soc() {
+		return _soc;
+	}
+
+	@Override
+	public Channel systemState() {
+		return _systemState;
+	}
+
+	@Override
+	public String toString() {
+		return "FeneconCommercialEss [setActivePower=" + _setActivePower + ", minSoc=" + _minSoc + ", soc=" + _soc
+				+ "]";
 	}
 
 	@Override
@@ -600,51 +565,5 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 						new ElementBuilder().address(0x141C).dummy(0x1420 - 0x141C).build(),
 						new ElementBuilder().address(0x1420).channel(_batteryPower).signed().build())//
 		);
-	}
-
-	@Override
-	public Channel gridMode() {
-		return _gridMode;
-	}
-
-	@Override
-	public Channel minSoc() {
-		return _minSoc;
-	}
-
-	@Override
-	public Channel reactivePower() {
-		return _reactivePower;
-	}
-
-	@Override
-	public WriteableChannel setActivePower() {
-		return _setActivePower;
-	}
-
-	@Override
-	public void setMinSoc(Integer minSoc) {
-		this._minSoc.updateValue(Long.valueOf(minSoc));
-	}
-
-	@Override
-	public WriteableChannel setWorkState() {
-		return _setWorkState;
-	}
-
-	@Override
-	public Channel soc() {
-		return _soc;
-	}
-
-	@Override
-	public Channel systemState() {
-		return _systemState;
-	}
-
-	@Override
-	public String toString() {
-		return "FeneconCommercialEss [setActivePower=" + _setActivePower + ", minSoc=" + _minSoc + ", soc=" + _soc
-				+ "]";
 	}
 }
