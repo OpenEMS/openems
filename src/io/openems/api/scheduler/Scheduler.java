@@ -40,10 +40,13 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 	public Scheduler(Databus databus) {
 		super(THINGID_PREFIX + instanceCounter++);
 		this.databus = databus;
+		log.info("Started " + this.getClass().getSimpleName());
 	}
 
 	public void addController(Controller controller) throws InjectionException, ConfigException {
 		ControllerFactory.generateMappings(controller, databus);
 		controllers.add(controller);
+		log.info("Added " + controller.getClass().getSimpleName() + " as " + controller.getThingId() + " with priority "
+				+ controller.getPriority());
 	}
 }

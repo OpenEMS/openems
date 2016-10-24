@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,16 +44,17 @@ public class DatabusFactory {
 			// get all methods of this class
 			if (Channel.class.isAssignableFrom(method.getReturnType())) {
 				// method returns a Channel; now check for the annotation
-				IsChannel annotation = InjectionUtils.getIsChannelMethods(thing.getClass(), method.getName());
-				if (annotation != null) {
+				Optional<IsChannel> annotation = InjectionUtils.getIsChannelMethods(thing.getClass(), method.getName());
+				if (annotation.isPresent()) {
 					try {
 						Channel channel = (Channel) method.invoke(thing);
 						channel.setDatabus(databus);
-						DataChannel dataChannel = new DataChannel(thing, thing.getThingId(), channel, annotation.id());
-						dataChannels.put(annotation.id(), dataChannel);
+						DataChannel dataChannel = new DataChannel(thing, thing.getThingId(), channel,
+								annotation.get().id());
+						dataChannels.put(annotation.get().id(), dataChannel);
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 						log.warn("Unable to add Channel to Databus. Method [" + method.getName() + "], ChannelId ["
-								+ annotation.id() + "]: " + e.getMessage());
+								+ annotation.get().id() + "]: " + e.getMessage());
 					}
 				}
 			}

@@ -23,6 +23,7 @@ package io.openems.core.utilities;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 import io.openems.api.channel.IsChannel;
 import io.openems.api.exception.ConfigException;
@@ -61,34 +62,33 @@ public class InjectionUtils {
 	 * @param methodName
 	 * @return IsChannel annotation or null if no match was found
 	 */
-	public static IsChannel getIsChannelMethods(Class<?> clazz, String methodName) {
+	public static Optional<IsChannel> getIsChannelMethods(Class<?> clazz, String methodName) {
 		// clazz must be a Thing
 		if (!Thing.class.isInterface() && !Thing.class.isAssignableFrom(clazz)) {
-			return null;
+			return Optional.empty();
 		}
 		// check if method can be found
 		Method method;
 		try {
 			method = clazz.getMethod(methodName);
 		} catch (NoSuchMethodException | SecurityException e) {
-			return null;
+			return Optional.empty();
 		}
 		// return the annotation if found
 		if (method.isAnnotationPresent(IsChannel.class)) {
-			IsChannel result = method.getAnnotation(IsChannel.class);
-			return result;
+			return Optional.of(method.getAnnotation(IsChannel.class));
 		}
 		// start recursive search if not found
 		for (Class<?> implementedInterface : clazz.getInterfaces()) {
 			// search all implemented interfaces
-			IsChannel ret = getIsChannelMethods(implementedInterface, methodName);
-			if (ret != null) {
+			Optional<IsChannel> ret = getIsChannelMethods(implementedInterface, methodName);
+			if (ret.isPresent()) {
 				return ret;
 			}
 		}
 		if (clazz.getSuperclass() == null) {
 			// reached the top end... no superclass found
-			return null;
+			return Optional.empty();
 		}
 		return getIsChannelMethods(clazz.getSuperclass(), methodName);
 	}

@@ -324,8 +324,12 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 	private final ModbusChannel _systemManufacturer = new ModbusChannelBuilder().nature(this) //
 			.label(1, "BYD").build();
 	private final ModbusChannel _systemState = new ModbusChannelBuilder().nature(this) //
-			.label(8, "TransformertPH1TempSensInvalidation") //
-			.label(8192, "SDCardInvalidation").build();
+			.label(2, STOP) //
+			.label(4, "PV-Charge") //
+			.label(8, "Standby") //
+			.label(16, START) //
+			.label(32, "Fault") //
+			.label(64, "Debug").build();
 	private final ModbusChannel _systemType = new ModbusChannelBuilder().nature(this) //
 			.label(1, "CESS").build();
 	private final ModbusChannel _totalDateEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
@@ -467,8 +471,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 						new ElementBuilder().address(0x0185).channel(_abnormity5).build(), //
 						new ElementBuilder().address(0x0186).channel(_suggestiveInformation5).build(), //
 						new ElementBuilder().address(0x0187).channel(_suggestiveInformation6).build(), //
-						new ElementBuilder().address(0x0188).channel(_suggestiveInformation7).build() //
-				), new ModbusRange(0x0210, //
+						new ElementBuilder().address(0x0188).channel(_suggestiveInformation7).build()),
+				new ModbusRange(0x0200, //
 						new ElementBuilder().address(0x0200).channel(_dcVoltage).signed().build(),
 						new ElementBuilder().address(0x0201).channel(_dcCurrent).signed().build(),
 						new ElementBuilder().address(0x0202).channel(_dcPower).signed().build(),

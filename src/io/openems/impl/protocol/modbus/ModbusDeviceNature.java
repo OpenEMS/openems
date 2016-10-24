@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,9 +81,9 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 		/**
 		 * Update other ranges
 		 */
-		// TODO: update only range at a time
-		for (ModbusRange range : getProtocol().getOtherRanges()) {
-			update(unitId, bridge, range);
+		Optional<ModbusRange> range = getProtocol().getNextOtherRange();
+		if (range.isPresent()) {
+			update(unitId, bridge, range.get());
 		}
 	}
 
@@ -93,12 +95,12 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 				if (element.getChannel() instanceof WriteableChannel) {
 					WriteableChannel writeableChannel = (WriteableChannel) element.getChannel();
 					// take the value from the Channel and initialize it
-					Long writeValue = writeableChannel.popRawWriteValue();
-					if (writeValue != null) {
+					Optional<Long> writeValue = writeableChannel.popRawWriteValueOptional();
+					if (writeValue.isPresent()) {
 						if (element instanceof WordElement) {
 							try {
 								WordElement wordElement = (WordElement) element;
-								Register register = wordElement.toRegister(writeValue);
+								Register register = wordElement.toRegister(writeValue.get());
 								modbusBridge.write(modbusUnitId, element.getAddress(), register);
 								log.debug("Wrote successfully: Thing [" + this.getThingId() + "], Address ["
 										+ element.getAddress() + "], Value [" + register.getValue() + "]");

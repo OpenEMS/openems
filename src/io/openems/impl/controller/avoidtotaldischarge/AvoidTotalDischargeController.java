@@ -21,6 +21,7 @@
 package io.openems.impl.controller.avoidtotaldischarge;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMapping;
@@ -44,11 +45,11 @@ public class AvoidTotalDischargeController extends Controller {
 					ess.setActivePower.pushMaxWriteValue(0);
 				} else if (ess.soc.getValue() < ess.minSoc.getValue() - 5) {
 					// SOC < minSoc - 5
-					Long currentMinValue = ess.setActivePower.peekMinWriteValue();
-					if (currentMinValue != null) {
+					Optional<Long> currentMinValue = ess.setActivePower.peekMinWriteValue();
+					if (currentMinValue.isPresent()) {
 						// Force Charge with minimum of MaxChargePower/5
-						log.info("Force charge. Set ActivePower=Min[" + currentMinValue / 5 + "]");
-						ess.setActivePower.pushMinWriteValue(currentMinValue / 5);
+						log.info("Force charge. Set ActivePower=Min[" + currentMinValue.get() / 5 + "]");
+						ess.setActivePower.pushMinWriteValue(currentMinValue.get() / 5);
 					} else {
 						log.info("Avoid discharge. Set ActivePower=Min[1000 W]");
 						ess.setActivePower.pushMinWriteValue(1000);

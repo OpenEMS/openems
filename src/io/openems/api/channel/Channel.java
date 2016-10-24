@@ -21,6 +21,7 @@
 package io.openems.api.channel;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,46 +33,56 @@ import io.openems.core.databus.Databus;
 
 public class Channel {
 	protected final Long delta;
-	protected final Map<Long, String> labels;
+	protected final Optional<Map<Long, String>> labels;
 	protected final Logger log;
 	protected final Long multiplier;
-	private String channelId = null;
-	private Databus databus = null;
-	private Long maxValue = null;
-	private Long minValue = null;
-	private DeviceNature nature = null;
+	private Optional<String> channelId = Optional.empty();
+	private Optional<Databus> databus = Optional.empty();
+	private Optional<Long> maxValue = Optional.empty();
+	private Optional<Long> minValue = Optional.empty();
+	private Optional<DeviceNature> nature = Optional.empty();
 	private final String unit;
-	private Long value = null;
+	private Optional<Long> value = Optional.empty();
 
 	public Channel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
 			Map<Long, String> labels) {
 		log = LoggerFactory.getLogger(this.getClass());
-		this.nature = nature;
+		this.nature = Optional.ofNullable(nature);
 		this.unit = unit;
 		this.multiplier = multiplier;
 		this.delta = delta;
-		this.minValue = minValue;
-		this.maxValue = maxValue;
-		this.labels = labels;
+		this.minValue = Optional.ofNullable(minValue);
+		this.maxValue = Optional.ofNullable(maxValue);
+		this.labels = Optional.ofNullable(labels);
 	}
 
 	public String getAddress() {
-		String natureId = null;
-		if (nature != null) {
-			natureId = nature.getThingId();
+		String natureId;
+		if (nature.isPresent()) {
+			natureId = nature.get().getThingId();
+		} else {
+			natureId = "EMPTY";
 		}
-		return natureId + "/" + channelId;
+		return natureId + "/" + channelId.orElse("EMPTY");
 	}
 
-	public String getChannelId() {
+	public Optional<String> getChannelId() {
 		return channelId;
 	}
 
-	public Long getMaxValue() {
+	public Long getMaxValue() throws InvalidValueException {
+		return maxValue.orElseThrow(() -> new InvalidValueException("No Max-Value available."));
+	}
+
+	public Optional<Long> getMaxValueOptional() {
 		return maxValue;
 	}
 
-	public Long getMinValue() {
+	public Long getMinValue() throws InvalidValueException {
+		return minValue.orElseThrow(() -> new InvalidValueException("No Min-Value available."));
+	}
+
+	public Optional<Long> getMinValueOptional() {
 		return minValue;
 	}
 
@@ -80,61 +91,45 @@ public class Channel {
 	}
 
 	public Long getValue() throws InvalidValueException {
-		if (value != null) {
-			return value;
-		} else {
-			throw new InvalidValueException("Channel value is invalid.");
-		}
+		return value.orElseThrow(() -> new InvalidValueException("No Value available."));
 	};
 
-	public String getValueLabel() throws InvalidValueException {
-		String label = getValueLabelOrNull();
-		if (label != null) {
-			return label;
-		} else {
-			throw new InvalidValueException("Channel value is invalid.");
-		}
-	};
-
-	public String getValueLabelOrNull() {
-		if (value != null) {
-			if (labels != null && labels.containsKey(value)) {
-				return labels.get(value);
-			} else {
-				return "UNKNOWN";
-			}
-		}
-		return null;
-	}
-
-	public Long getValueOrNull() {
+	public Optional<Long> getValueOptional() {
 		return value;
 	};
 
+	public Optional<String> getValueLabelOptional() {
+		String label;
+		if (value.isPresent() && labels.isPresent() && labels.get().containsKey(value.get())) {
+			label = labels.get().get(value.get());
+			return Optional.of(label);
+		}
+		return Optional.empty();
+	};
+
 	public void setAsRequired() throws ConfigException {
-		if (this.nature == null) {
-			throw new ConfigException("DeviceNature is not set [" + this + "]");
+		if (this.nature.isPresent()) {
+			this.nature.get().setAsRequired(this);
 		} else {
-			this.nature.setAsRequired(this);
+			throw new ConfigException("DeviceNature is not set [" + this + "]");
 		}
 	}
 
 	public void setChannelId(String channelId) {
-		this.channelId = channelId;
+		this.channelId = Optional.of(channelId);
 	}
 
 	public void setDatabus(Databus databus) {
-		this.databus = databus;
+		this.databus = Optional.of(databus);
 	}
 
 	@Override
 	public String toString() {
-		if (value != null) {
-			if (labels != null) {
-				return getValueLabelOrNull();
-			} else {
-				return value + " " + unit;
-			}
+		Optional<String> label = getValueLabelOptional();
+		if (label.isPresent()) {
+			return label.get();
+		} else if (value.isPresent()) {
+			return value.get() + " " + unit;
 		} else {
 			return "INVALID";
 		}
@@ -157,13 +152,14 @@ public class Channel {
 	 *            true if an event should be forwarded to {@link Databus}
 	 */
 	protected void updateValue(Long value, boolean triggerDatabusEvent) {
-		if (value == null) {
-			this.value = null;
+		Optional<Long> optValue = Optional.ofNullable(value);
+		if (optValue.isPresent()) {
+			this.value = Optional.of(optValue.get() * multiplier - delta);
 		} else {
-			this.value = value * multiplier - delta;
+			this.value = optValue;
 		}
-		if (databus != null && triggerDatabusEvent) {
-			databus.channelValueUpdated(this);
+		if (databus.isPresent() && triggerDatabusEvent) {
+			databus.get().channelValueUpdated(this);
 		}
 	}
 }

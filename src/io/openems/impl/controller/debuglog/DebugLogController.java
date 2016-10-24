@@ -34,10 +34,13 @@ public class DebugLogController extends Controller {
 
 	@Override
 	public void run() {
+		StringBuilder b = new StringBuilder();
+		b.append(meter.getThingId() + ": " + meter.activePower.toString() + " ");
 		for (Ess ess : esss) {
-			log.info(ess.getThingId() + ": " + ess.toString());
+			b.append(ess.getThingId() + ": " + ess.soc.toString() + ", act=" + ess.activePower.toString() + ", setAct="
+					+ ess.setActivePower.toString() + ", state=" + ess.systemState.toString() + " ");
 		}
-		log.info(meter.getThingId() + ": " + meter.toString());
+		log.info(b.toString());
 	}
 
 }

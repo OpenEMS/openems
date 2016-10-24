@@ -21,9 +21,7 @@
 package io.openems.impl.protocol.modbus;
 
 import java.net.Inet4Address;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +36,8 @@ import io.openems.api.thing.IsConfig;
 
 public class ModbusTcp extends ModbusBridge {
 	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
-	private TCPMasterConnection connection = null;
-	private volatile Inet4Address ip = null;
+	private Optional<TCPMasterConnection> connection = Optional.empty();
+	private volatile Optional<Inet4Address> ip = Optional.empty();
 	private volatile int port = 502;
 
 	@Override
@@ -49,14 +47,14 @@ public class ModbusTcp extends ModbusBridge {
 
 	@Override
 	public ModbusTransaction getTransaction() throws OpenemsModbusException {
-		establishModbusConnection(connection);
+		TCPMasterConnection connection = getModbusConnection();
 		ModbusTCPTransaction trans = new ModbusTCPTransaction(connection);
 		return trans;
 	}
 
 	@IsConfig("ip")
 	public void setBaudrate(Inet4Address ip) {
-		this.ip = ip;
+		this.ip = Optional.ofNullable(ip);
 		triggerInitialize();
 	}
 
@@ -68,48 +66,46 @@ public class ModbusTcp extends ModbusBridge {
 
 	@Override
 	public String toString() {
-		return "ModbusTcp [ip=" + ip + ", devices=" + Arrays.toString(devices) + "]";
+		return "ModbusTcp [ip=" + ip + "]";
 	}
 
 	@Override
 	protected boolean initialize() {
-		if (ip == null || devices == null || devices.length == 0) {
+		if (!super.initialize()) {
 			return false;
 		}
-		/*
-		 * Copy and cast devices to local modbusdevices array
-		 */
-		List<ModbusDevice> modbusdevices = new ArrayList<>();
-		for (Device device : devices) {
-			if (device instanceof ModbusDevice) {
-				modbusdevices.add((ModbusDevice) device);
-			}
-		}
-		this.modbusdevices = modbusdevices.stream().toArray(ModbusDevice[]::new);
-		/*
-		 * Create a new TCPMasterConnection
-		 */
-		if (connection != null && connection.isConnected()) {
-			connection.close();
-		}
-		connection = new TCPMasterConnection(ip);
-		connection.setPort(port);
 		try {
-			establishModbusConnection(connection);
+			getModbusConnection();
 		} catch (OpenemsModbusException e) {
-			log.error("Unable to open Modbus-TCP connection: " + e.getMessage());
+			log.error(e.getMessage());
 			return false;
 		}
 		return true;
 	}
 
-	private void establishModbusConnection(TCPMasterConnection connection) throws OpenemsModbusException {
-		if (!connection.isConnected()) {
+	@Override
+	protected void closeModbusConnection() {
+		if (connection.isPresent() && connection.get().isConnected()) {
+			connection.get().close();
+		}
+		connection = Optional.empty();
+	}
+
+	private TCPMasterConnection getModbusConnection() throws OpenemsModbusException {
+		if (!connection.isPresent()) {
+			if (!ip.isPresent()) {
+				throw new OpenemsModbusException("Modbus-TCP is not configured completely");
+			}
+			connection = Optional.of(new TCPMasterConnection(ip.get()));
+			connection.get().setPort(port);
+		}
+		if (!connection.get().isConnected()) {
 			try {
-				connection.connect();
+				connection.get().connect();
 			} catch (Exception e) {
-				throw new OpenemsModbusException("Unable to open modbus connection: " + e.getMessage());
+				throw new OpenemsModbusException("Unable to open Modbus-TCP connection: " + connection);
 			}
 		}
+		return connection.get();
 	}
 }

@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ghgande.j2mod.modbus.ModbusException;
@@ -32,6 +34,7 @@ import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.api.bridge.Bridge;
+import io.openems.api.device.Device;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.OpenemsModbusException;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
@@ -70,6 +73,34 @@ public abstract class ModbusBridge extends Bridge {
 		}
 	}
 
+	protected abstract void closeModbusConnection();
+
+	@Override
+	protected boolean initialize() {
+		/*
+		 * Copy and cast devices to local modbusdevices array
+		 */
+		if (!devices.isPresent() || devices.get().length == 0) {
+			return false;
+		}
+		List<ModbusDevice> modbusdevices = new ArrayList<>();
+		for (Device device : devices.get()) {
+			if (device instanceof ModbusDevice) {
+				modbusdevices.add((ModbusDevice) device);
+			}
+		}
+		ModbusDevice[] newModbusdevices = modbusdevices.stream().toArray(ModbusDevice[]::new);
+		if (newModbusdevices == null) {
+			newModbusdevices = new ModbusDevice[0];
+		}
+		this.modbusdevices = newModbusdevices;
+		/*
+		 * Create a new SerialConnection
+		 */
+		closeModbusConnection();
+		return true;
+	}
+
 	protected Register[] query(int modbusUnitId, ModbusRange range) throws OpenemsModbusException {
 		return query(modbusUnitId, range.getStartAddress(), range.getLength());
 	}
@@ -82,9 +113,19 @@ public abstract class ModbusBridge extends Bridge {
 		try {
 			trans.execute();
 		} catch (ModbusException e) {
-			throw new OpenemsModbusException("Error while executing write transaction. " //
-					+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Register [" + register.getValue()
-					+ "]: " + e.getMessage());
+			// try again with new connection
+			closeModbusConnection();
+			trans = getTransaction();
+			req = new WriteSingleRegisterRequest(address, register);
+			req.setUnitID(modbusUnitId);
+			trans.setRequest(req);
+			try {
+				trans.execute();
+			} catch (ModbusException e1) {
+				throw new OpenemsModbusException("Error while executing write transaction. " //
+						+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Register [" + register.getValue()
+						+ "]: " + e1.getMessage());
+			}
 		}
 		ModbusResponse res = trans.getResponse();
 		if (!(res instanceof WriteSingleRegisterResponse)) {
@@ -111,9 +152,19 @@ public abstract class ModbusBridge extends Bridge {
 		try {
 			trans.execute();
 		} catch (ModbusException e) {
-			throw new OpenemsModbusException("Error on modbus query. " //
-					+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Count [" + count + "]: "
-					+ e.getMessage());
+			// try again with new connection
+			closeModbusConnection();
+			trans = getTransaction();
+			req = new ReadMultipleRegistersRequest(address, count);
+			req.setUnitID(modbusUnitId);
+			trans.setRequest(req);
+			try {
+				trans.execute();
+			} catch (ModbusException e1) {
+				throw new OpenemsModbusException("Error on modbus query. " //
+						+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Count [" + count + "]: "
+						+ e1.getMessage());
+			}
 		}
 		ModbusResponse res = trans.getResponse();
 		if (res instanceof ReadMultipleRegistersResponse) {

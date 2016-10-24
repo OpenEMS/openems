@@ -1,6 +1,7 @@
 package io.openems.impl.controller.energysaver;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMapping;
@@ -24,8 +25,8 @@ public class EnergysavingController extends Controller {
 				 */
 				if (ess.setActivePower.hasWriteValue() && ess.setActivePower.getValue() != 0) {
 					lastTimeValueWritten = System.currentTimeMillis();
-					String systemState = ess.systemState.getValueLabelOrNull();
-					if (systemState == null || systemState != EssNature.START) {
+					Optional<String> systemState = ess.systemState.getValueLabelOptional();
+					if (!systemState.isPresent() || !systemState.get().equals(EssNature.START)) {
 						log.info("ESS [" + ess.getThingId() + "] was stopped. Starting...");
 						ess.setWorkState.pushWriteValue(EssNature.START);
 					}
@@ -34,8 +35,8 @@ public class EnergysavingController extends Controller {
 					 * go to Sytandby if no values were written since two minutes
 					 */
 					if (lastTimeValueWritten + 2 * 60 * 1000 < System.currentTimeMillis()) {
-						String systemState = ess.systemState.getValueLabelOrNull();
-						if (systemState == null || systemState != EssNature.STANDBY) {
+						Optional<String> systemState = ess.systemState.getValueLabelOptional();
+						if (!systemState.isPresent() || !systemState.get().equals(EssNature.START)) {
 							log.info("ESS [" + ess.getThingId()
 									+ "] had no written value since two minutes. Standby...");
 							ess.setWorkState.pushWriteValue(EssNature.STANDBY);

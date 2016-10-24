@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,9 +95,10 @@ public class ControllerFactory {
 					// get all methods of this class
 					if (Channel.class.isAssignableFrom(method.getReturnType())) {
 						// method returns a Channel; now check for the annotation
-						IsChannel annotation = InjectionUtils.getIsChannelMethods(thingClass, method.getName());
-						if (annotation != null) {
-							channelMethods.put(annotation.id(), method);
+						Optional<IsChannel> annotation = InjectionUtils.getIsChannelMethods(thingClass,
+								method.getName());
+						if (annotation.isPresent()) {
+							channelMethods.put(annotation.get().id(), method);
 						}
 					}
 				}

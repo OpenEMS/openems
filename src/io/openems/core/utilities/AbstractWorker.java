@@ -61,17 +61,14 @@ public abstract class AbstractWorker extends Thread implements Thing {
 		if (duration < 60) {
 			duration += 1;
 		}
-		log.info("Sleep " + duration);
 		long targetTime = System.nanoTime() + (duration * 1000000);
 		do {
 			try {
 				long thisDuration = (targetTime - System.nanoTime()) / 1000000;
-				log.info("  Sleep " + thisDuration);
 				if (thisDuration < 0) {
 					Thread.sleep(thisDuration);
 				}
 			} catch (InterruptedException e1) {
-				log.info("Interrupted: " + isForceRun.get());
 			}
 		} while (targetTime > System.nanoTime());
 		return duration;
@@ -130,7 +127,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 				 * Wait for next cycle
 				 */
 				try {
-					Thread.sleep(1000); // TODO add cycle time
+					Thread.sleep(500); // TODO add cycle time
 				} catch (InterruptedException e) {
 					if (isForceRun.get()) {
 						// check if a "forceRun" was triggereed. In that case Thread.sleep is interrupted and run() is

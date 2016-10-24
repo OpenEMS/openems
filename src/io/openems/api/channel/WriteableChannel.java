@@ -22,9 +22,11 @@ package io.openems.api.channel;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Stack;
 
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 /**
@@ -42,43 +44,44 @@ import io.openems.api.exception.WriteChannelException;
  * @author stefan.feilmeier
  */
 public class WriteableChannel extends Channel {
-	protected final Channel maxWriteChannel;
-	protected final Channel minWriteChannel;
-	private Long maxWriteValue = null;
-	private Long minWriteValue = null;
-	private Long writeValue = null;
+	protected final Optional<Channel> maxWriteChannel;
+	protected final Optional<Channel> minWriteChannel;
+	private Optional<Long> maxWriteValue = Optional.empty();
+	private Optional<Long> minWriteValue = Optional.empty();
+	private Optional<Long> writeValue = Optional.empty();
 
 	public WriteableChannel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
 			Map<Long, String> labels, Long minWriteValue, Channel minWriteChannel, Long maxWriteValue,
 			Channel maxWriteChannel) {
 		super(nature, unit, minValue, maxValue, multiplier, delta, labels);
-		this.minWriteValue = minWriteValue;
-		this.minWriteChannel = minWriteChannel;
-		this.maxWriteValue = maxWriteValue;
-		this.maxWriteChannel = maxWriteChannel;
+		this.minWriteValue = Optional.ofNullable(minWriteValue);
+		this.minWriteChannel = Optional.ofNullable(minWriteChannel);
+		this.maxWriteValue = Optional.ofNullable(maxWriteValue);
+		this.maxWriteChannel = Optional.ofNullable(maxWriteChannel);
 	}
 
 	/**
 	 * Returns the maximum allowed write value
 	 *
-	 * @return max value or null
+	 * @return max value
+	 * @throws InvalidValueException
 	 */
-	public Long getAllowedMaxValue() {
-		if (this.writeValue != null) {
+	public synchronized Long getAllowedMaxValue() throws InvalidValueException {
+		return getAllowedMaxValueOptional()
+				.orElseThrow(() -> new InvalidValueException("No Allowed-Max-Value available."));
+	}
+
+	public synchronized Optional<Long> getAllowedMaxValueOptional() {
+		if (this.writeValue.isPresent()) {
 			return this.writeValue;
 		} else {
-			Long value = null;
-			if (this.getMaxValue() != null) {
-				value = this.getMaxValue();
+			Optional<Long> value = this.getMaxValueOptional();
+			if (!value.isPresent() || (this.maxWriteValue.isPresent() && this.maxWriteValue.get() < value.get())) {
+				value = this.maxWriteValue;
 			}
-			if (this.maxWriteValue != null) {
-				if (value == null || this.maxWriteValue < value) {
-					value = this.maxWriteValue;
-				}
-			}
-			if (this.maxWriteChannel != null) {
-				Long maxWriteChannelValue = this.maxWriteChannel.getValueOrNull();
-				if (value == null || (maxWriteChannelValue != null && maxWriteChannelValue < value)) {
+			if (this.maxWriteChannel.isPresent()) {
+				Optional<Long> maxWriteChannelValue = this.maxWriteChannel.get().getValueOptional();
+				if (!value.isPresent() || maxWriteChannelValue.get() < value.get()) {
 					value = maxWriteChannelValue;
 				}
 			}
@@ -89,24 +92,25 @@ public class WriteableChannel extends Channel {
 	/**
 	 * Returns the minimum allowed write value
 	 *
-	 * @return min value or null
+	 * @return min value
+	 * @throws InvalidValueException
 	 */
-	public Long getAllowedMinValue() {
-		if (this.writeValue != null) {
+	public synchronized Long getAllowedMinValue() throws InvalidValueException {
+		return getAllowedMinValueOptional()
+				.orElseThrow(() -> new InvalidValueException("No Allowed-Min-Value available."));
+	}
+
+	public synchronized Optional<Long> getAllowedMinValueOptional() {
+		if (this.writeValue.isPresent()) {
 			return this.writeValue;
 		} else {
-			Long value = null;
-			if (this.getMinValue() != null) {
-				value = this.getMinValue();
+			Optional<Long> value = this.getMinValueOptional();
+			if (!value.isPresent() || (this.minWriteValue.isPresent() && this.minWriteValue.get() > value.get())) {
+				value = this.minWriteValue;
 			}
-			if (this.minWriteValue != null) {
-				if (value == null || this.minWriteValue > value) {
-					value = this.minWriteValue;
-				}
-			}
-			if (this.minWriteChannel != null) {
-				Long minWriteChannelValue = this.minWriteChannel.getValueOrNull();
-				if (value == null || (minWriteChannelValue != null && minWriteChannelValue > value)) {
+			if (this.maxWriteChannel.isPresent()) {
+				Optional<Long> minWriteChannelValue = this.minWriteChannel.get().getValueOptional();
+				if (!value.isPresent() || minWriteChannelValue.get() < value.get()) {
 					value = minWriteChannelValue;
 				}
 			}
@@ -114,11 +118,11 @@ public class WriteableChannel extends Channel {
 		}
 	}
 
-	public Channel getMaxWriteChannel() {
+	public synchronized Optional<Channel> getMaxWriteChannel() {
 		return maxWriteChannel;
 	}
 
-	public Channel getMinWriteChannel() {
+	public synchronized Optional<Channel> getMinWriteChannel() {
 		return minWriteChannel;
 	}
 
@@ -127,7 +131,7 @@ public class WriteableChannel extends Channel {
 	 *
 	 * @return value
 	 */
-	public Long getMultiplier() {
+	public synchronized Long getMultiplier() {
 		return multiplier;
 	}
 
@@ -136,8 +140,8 @@ public class WriteableChannel extends Channel {
 	 *
 	 * @return true if anything was set.
 	 */
-	public boolean hasWriteValue() {
-		return (writeValue != null || minWriteValue != null || maxWriteValue != null);
+	public synchronized boolean hasWriteValue() {
+		return (writeValue.isPresent() || minWriteValue.isPresent() || maxWriteValue.isPresent());
 	}
 
 	/**
@@ -146,12 +150,12 @@ public class WriteableChannel extends Channel {
 	 * @param value
 	 * @return true if allowed
 	 */
-	public boolean isAllowed(Long value) {
-		Long allowedMin = getAllowedMinValue();
-		Long allowedMax = getAllowedMaxValue();
-		if (allowedMin != null && value < allowedMin) {
+	public synchronized boolean isAllowed(Long value) {
+		Optional<Long> allowedMin = getAllowedMinValueOptional();
+		Optional<Long> allowedMax = getAllowedMaxValueOptional();
+		if (allowedMin.isPresent() && value < allowedMin.get()) {
 			return false;
-		} else if (allowedMax != null && value > allowedMax) {
+		} else if (allowedMax.isPresent() && value > allowedMax.get()) {
 			return false;
 		}
 		return true;
@@ -160,52 +164,51 @@ public class WriteableChannel extends Channel {
 	/**
 	 * Returns the set Max boundary.
 	 *
-	 * @return value or null
+	 * @return value
 	 */
-	public Long peekMaxWriteValue() {
+	public synchronized Optional<Long> peekMaxWriteValue() {
 		return maxWriteValue;
 	}
 
 	/**
 	 * Returns the set Min boundary.
 	 *
-	 * @return value or null
+	 * @return value
 	 */
-	public Long peekMinWriteValue() {
+	public synchronized Optional<Long> peekMinWriteValue() {
 		return minWriteValue;
 	}
 
 	/**
 	 * Returns the fixed value or one that is derived from max/min boundaries.
 	 *
-	 * @return value or null
+	 * @return value
 	 */
-	public Long peekWriteValue() {
-		if (writeValue != null) {
+	public synchronized Optional<Long> peekWriteValue() {
+		if (writeValue.isPresent()) {
 			return writeValue;
-		} else if (maxWriteValue != null && minWriteValue != null) {
-			return roundToHardwarePrecision((maxWriteValue + minWriteValue) / 2);
-		} else if (maxWriteValue != null) {
+		} else if (maxWriteValue.isPresent() && minWriteValue.isPresent()) {
+			return Optional.of(roundToHardwarePrecision((maxWriteValue.get() + minWriteValue.get()) / 2));
+		} else if (maxWriteValue.isPresent()) {
 			return maxWriteValue;
-		} else if (minWriteValue != null) {
+		} else if (minWriteValue.isPresent()) {
 			return minWriteValue;
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	/**
 	 * Returns the fixed value in a format suitable for writing to hardware and initializes the
 	 * {@link WriteableChannel}. This method is called internally by {@link DeviceNature}.
 	 *
-	 * @return value or null
+	 * @return value
 	 */
-	public Long popRawWriteValue() {
-		Long value = popWriteValue();
-		if (value == null) {
+	public synchronized Optional<Long> popRawWriteValueOptional() {
+		Optional<Long> value = popWriteValueOptional();
+		if (!value.isPresent()) {
 			return value;
 		}
-		long rawValue = (value + delta) / multiplier;
-		return rawValue;
+		return Optional.of((value.get() + delta) / multiplier);
 	}
 
 	/**
@@ -215,7 +218,7 @@ public class WriteableChannel extends Channel {
 	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
-	public Long pushMaxWriteValue(int maxValue) throws WriteChannelException {
+	public synchronized Long pushMaxWriteValue(int maxValue) throws WriteChannelException {
 		return pushMaxWriteValue(Long.valueOf(maxValue));
 	}
 
@@ -226,12 +229,12 @@ public class WriteableChannel extends Channel {
 	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
-	public Long pushMaxWriteValue(Long maxValue) throws WriteChannelException {
+	public synchronized Long pushMaxWriteValue(Long maxValue) throws WriteChannelException {
 		maxValue = roundToHardwarePrecision(maxValue);
 		if (!isAllowed(maxValue)) {
 			throwOutOfBoundariesException(maxValue);
 		}
-		this.maxWriteValue = maxValue;
+		this.maxWriteValue = Optional.of(maxValue);
 		return maxValue;
 	}
 
@@ -242,7 +245,7 @@ public class WriteableChannel extends Channel {
 	 * @param maxValue
 	 * @throws WriteChannelException
 	 */
-	public void pushMinMaxNewValue(Long minValue, Long maxValue) throws WriteChannelException {
+	public synchronized void pushMinMaxNewValue(Long minValue, Long maxValue) throws WriteChannelException {
 		pushMinWriteValue(minValue);
 		pushMaxWriteValue(maxValue);
 	}
@@ -254,7 +257,7 @@ public class WriteableChannel extends Channel {
 	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
-	public Long pushMinWriteValue(int minValue) throws WriteChannelException {
+	public synchronized Long pushMinWriteValue(int minValue) throws WriteChannelException {
 		return pushMinWriteValue(Long.valueOf(minValue));
 	}
 
@@ -265,12 +268,12 @@ public class WriteableChannel extends Channel {
 	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
-	public Long pushMinWriteValue(Long minValue) throws WriteChannelException {
+	public synchronized Long pushMinWriteValue(Long minValue) throws WriteChannelException {
 		minValue = roundToHardwarePrecision(minValue);
 		if (!isAllowed(minValue)) {
 			throwOutOfBoundariesException(minValue);
 		}
-		this.minWriteValue = minValue;
+		this.minWriteValue = Optional.of(minValue);
 		return minValue;
 	}
 
@@ -281,7 +284,7 @@ public class WriteableChannel extends Channel {
 	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
-	public Long pushWriteValue(int value) throws WriteChannelException {
+	public synchronized Long pushWriteValue(int value) throws WriteChannelException {
 		return pushWriteValue(Long.valueOf(value));
 	}
 
@@ -292,12 +295,12 @@ public class WriteableChannel extends Channel {
 	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
-	public Long pushWriteValue(Long value) throws WriteChannelException {
+	public synchronized Long pushWriteValue(Long value) throws WriteChannelException {
 		value = roundToHardwarePrecision(value);
 		if (!isAllowed(value)) {
 			throwOutOfBoundariesException(value);
 		}
-		this.writeValue = value;
+		this.writeValue = Optional.of(value);
 		pushMinMaxNewValue(value, value);
 		return value;
 	}
@@ -309,14 +312,14 @@ public class WriteableChannel extends Channel {
 	 * @return value rounded to hardware requirements
 	 * @throws WriteChannelException
 	 */
-	public Long pushWriteValue(String label) throws WriteChannelException {
-		if (labels == null) {
+	public synchronized Long pushWriteValue(String label) throws WriteChannelException {
+		if (!labels.isPresent()) {
 			throw new WriteChannelException(
 					"Label [" + label + "] not found. No labels set for Channel [" + getAddress() + "]");
-		} else if (!labels.containsValue(label)) {
-			throw new WriteChannelException("Label [" + label + "] not found: [" + labels.values() + "]");
+		} else if (labels.get().containsKey(label)) {
+			throw new WriteChannelException("Label [" + label + "] not found: [" + labels.get() + "]");
 		}
-		for (Entry<Long, String> entry : labels.entrySet()) {
+		for (Entry<Long, String> entry : labels.get().entrySet()) {
 			if (entry.getValue().equals(label)) {
 				return pushWriteValue(entry.getKey());
 			}
@@ -328,13 +331,13 @@ public class WriteableChannel extends Channel {
 	/**
 	 * Returns the value and initializes the {@link WriteableChannel}.
 	 *
-	 * @return value or null
+	 * @return value
 	 */
-	private Long popWriteValue() {
-		Long value = peekWriteValue();
-		this.writeValue = null;
-		this.minWriteValue = null;
-		this.maxWriteValue = null;
+	private synchronized Optional<Long> popWriteValueOptional() {
+		Optional<Long> value = peekWriteValue();
+		this.writeValue = Optional.empty();
+		this.minWriteValue = Optional.empty();
+		this.maxWriteValue = Optional.empty();
 		return value;
 	}
 
@@ -344,7 +347,7 @@ public class WriteableChannel extends Channel {
 	 * @param value
 	 * @return rounded value
 	 */
-	private Long roundToHardwarePrecision(Long value) {
+	private synchronized Long roundToHardwarePrecision(Long value) {
 		if (value % multiplier != 0) {
 			Long roundedValue = (value / multiplier) * multiplier;
 			log.warn("Value [" + value + "] is too precise for device. Will round to [" + roundedValue + "]");
@@ -358,18 +361,18 @@ public class WriteableChannel extends Channel {
 	 * @param value
 	 * @throws WriteChannelException
 	 */
-	private void throwOutOfBoundariesException(Long value) throws WriteChannelException {
-		Long minChannelValue = null;
-		if (minWriteChannel != null) {
-			minChannelValue = minWriteChannel.getValueOrNull();
+	private synchronized void throwOutOfBoundariesException(Long value) throws WriteChannelException {
+		Optional<Long> minChannelValue = Optional.empty();
+		if (minWriteChannel.isPresent()) {
+			minChannelValue = minWriteChannel.get().getValueOptional();
 		}
-		Long maxChannelValue = null;
-		if (maxWriteChannel != null) {
-			maxChannelValue = maxWriteChannel.getValueOrNull();
+		Optional<Long> maxChannelValue = Optional.empty();
+		if (maxWriteChannel.isPresent()) {
+			maxChannelValue = maxWriteChannel.get().getValueOptional();
 		}
 		throw new WriteChannelException("Value [" + value + "] is out of boundaries: fixed [" + this.writeValue
-				+ "], min [" + this.getMinValue() + "/" + this.minWriteValue + "/" + minChannelValue + "], max ["
-				+ this.getMaxValue() + "/" + this.maxWriteValue + "/" + maxChannelValue + "]");
+				+ "], min [" + this.getMinValueOptional() + "/" + this.minWriteValue + "/" + minChannelValue
+				+ "], max [" + this.getMaxValueOptional() + "/" + this.maxWriteValue + "/" + maxChannelValue + "]");
 	}
 
 }

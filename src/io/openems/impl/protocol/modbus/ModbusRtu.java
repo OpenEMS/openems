@@ -20,9 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
 import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
@@ -35,12 +33,12 @@ import io.openems.api.exception.OpenemsModbusException;
 import io.openems.api.thing.IsConfig;
 
 public class ModbusRtu extends ModbusBridge {
-	private volatile Integer baudrate = null;
-	private SerialConnection connection = null;
-	private volatile Integer databits = null;
-	private volatile String parity = null;
-	private volatile String serialinterface = null;
-	private volatile Integer stopbits = null;
+	private volatile Optional<Integer> baudrate = Optional.empty();
+	private Optional<SerialConnection> connection = Optional.empty();
+	private volatile Optional<Integer> databits = Optional.empty();
+	private volatile Optional<String> parity = Optional.empty();
+	private volatile Optional<String> serialinterface = Optional.empty();
+	private volatile Optional<Integer> stopbits = Optional.empty();
 
 	@Override
 	public void dispose() {
@@ -49,7 +47,7 @@ public class ModbusRtu extends ModbusBridge {
 
 	@Override
 	public ModbusTransaction getTransaction() throws OpenemsModbusException {
-		establishModbusConnection(connection);
+		SerialConnection connection = getModbusConnection();
 		ModbusSerialTransaction trans = new ModbusSerialTransaction(connection);
 		trans.setRetries(0);
 		return trans;
@@ -57,13 +55,13 @@ public class ModbusRtu extends ModbusBridge {
 
 	@IsConfig("baudrate")
 	public void setBaudrate(Integer baudrate) {
-		this.baudrate = baudrate;
+		this.baudrate = Optional.ofNullable(baudrate);
 		triggerInitialize();
 	}
 
 	@IsConfig("databits")
 	public void setDatabits(Integer databits) {
-		this.databits = databits;
+		this.databits = Optional.ofNullable(databits);
 	}
 
 	@Override
@@ -74,73 +72,70 @@ public class ModbusRtu extends ModbusBridge {
 
 	@IsConfig("parity")
 	public void setParity(String parity) {
-		this.parity = parity;
+		this.parity = Optional.ofNullable(parity);
 	}
 
 	@IsConfig("serialinterface")
 	public void setSerialinterface(String serialinterface) {
-		this.serialinterface = serialinterface;
+		this.serialinterface = Optional.ofNullable(serialinterface);
 		triggerInitialize();
 	}
 
 	@IsConfig("stopbits")
 	public void setStopbits(Integer stopbits) {
-		this.stopbits = stopbits;
+		this.stopbits = Optional.ofNullable(stopbits);
 	}
 
 	@Override
 	public String toString() {
-		return "ModbusRtu [baudrate=" + baudrate + ", serialinterface=" + serialinterface + ", devices="
-				+ Arrays.toString(devices) + "]";
+		return "ModbusRtu [baudrate=" + baudrate + ", serialinterface=" + serialinterface + "]";
 	}
 
 	@Override
 	protected boolean initialize() {
-		if (baudrate == null || databits == null || parity == null || serialinterface == null || stopbits == null
-				|| devices == null || devices.length == 0) {
+		if (!super.initialize()) {
 			return false;
 		}
-		/*
-		 * Copy and cast devices to local modbusdevices array
-		 */
-		List<ModbusDevice> modbusdevices = new ArrayList<>();
-		for (Device device : devices) {
-			if (device instanceof ModbusDevice) {
-				modbusdevices.add((ModbusDevice) device);
-			}
-		}
-		this.modbusdevices = modbusdevices.stream().toArray(ModbusDevice[]::new);
-		/*
-		 * Create a new SerialConnection
-		 */
-		if (connection != null && connection.isOpen()) {
-			connection.close();
-		}
-		SerialParameters params = new SerialParameters();
-		params.setPortName(serialinterface);
-		params.setBaudRate(baudrate);
-		params.setDatabits(databits);
-		params.setParity(parity);
-		params.setStopbits(stopbits);
-		params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
-		params.setEcho(false);
-		connection = new SerialConnection(params);
 		try {
-			connection.open();
-		} catch (Exception e) {
-			log.error("Unable to open Modbus-RTU connection: " + e.getMessage());
+			getModbusConnection();
+		} catch (OpenemsModbusException e) {
+			log.error(e.getMessage());
 			return false;
 		}
 		return true;
 	}
 
-	private void establishModbusConnection(SerialConnection connection) throws OpenemsModbusException {
-		if (!connection.isOpen()) {
+	@Override
+	protected void closeModbusConnection() {
+		if (connection.isPresent() && connection.get().isOpen()) {
+			connection.get().close();
+		}
+		connection = Optional.empty();
+	}
+
+	private SerialConnection getModbusConnection() throws OpenemsModbusException {
+		if (!connection.isPresent()) {
+			if (!baudrate.isPresent() || !databits.isPresent() || !parity.isPresent() || !serialinterface.isPresent()
+					|| !stopbits.isPresent()) {
+				throw new OpenemsModbusException("Modbus-RTU is not configured completely");
+			}
+			SerialParameters params = new SerialParameters();
+			params.setPortName(serialinterface.get());
+			params.setBaudRate(baudrate.get());
+			params.setDatabits(databits.get());
+			params.setParity(parity.get());
+			params.setStopbits(stopbits.get());
+			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
+			params.setEcho(false);
+			connection = Optional.of(new SerialConnection(params));
+		}
+		if (!connection.get().isOpen()) {
 			try {
-				connection.open();
+				connection.get().open();
 			} catch (Exception e) {
-				throw new OpenemsModbusException("Unable to open modbus connection: " + connection);
+				throw new OpenemsModbusException("Unable to open Modbus-RTU connection: " + connection);
 			}
 		}
+		return connection.get();
 	}
 }

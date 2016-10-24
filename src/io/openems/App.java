@@ -34,11 +34,16 @@ public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
 	public static void main(String[] args) throws Exception {
+		log.info("OpenEMS started");
+
 		Demo demo = new DemoFems7WithMeter();
+		// Demo demo = new DemoFems7();
 
 		JsonObject config = demo.getConfig();
+		log.info("OpenEMS config loaded");
 
 		Databus databus = ThingFactory.getFromConfig(config);
+		log.info("OpenEMS Databus initialized");
 		// databus.printAll();
 
 		Thread.sleep(3000);

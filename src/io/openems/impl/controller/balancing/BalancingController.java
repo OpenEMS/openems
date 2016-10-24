@@ -22,6 +22,7 @@ package io.openems.impl.controller.balancing;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMapping;
@@ -41,8 +42,8 @@ public class BalancingController extends Controller {
 
 	private boolean isOnGrid() {
 		for (Ess ess : esss) {
-			String gridMode = ess.gridMode.getValueLabelOrNull();
-			if (gridMode != null && gridMode != EssNature.ON_GRID) {
+			Optional<String> gridMode = ess.gridMode.getValueLabelOptional();
+			if (gridMode.isPresent() && !gridMode.get().equals(EssNature.ON_GRID)) {
 				return false;
 			}
 		}
