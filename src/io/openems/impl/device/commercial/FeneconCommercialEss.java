@@ -375,7 +375,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 
 	@Override
 	public Channel activePower() {
-		return _activePower;
+		return _inverterActivePower;
 	}
 
 	@Override

@@ -29,26 +29,26 @@ import io.openems.api.device.nature.MeterNature;
 @IsThingMap(type = MeterNature.class)
 public class Meter extends ThingMap {
 
-	@IsRequired(channelId = "ActiveNegativeEnergy")
-	public Channel activeNegativeEnergy;
-
-	@IsRequired(channelId = "ActivePositiveEnergy")
-	public Channel activePositiveEnergy;
+	// @IsRequired(channelId = "ActiveNegativeEnergy")
+	// public Channel activeNegativeEnergy;
+	//
+	// @IsRequired(channelId = "ActivePositiveEnergy")
+	// public Channel activePositiveEnergy;
 
 	@IsRequired(channelId = "ActivePower")
 	public Channel activePower;
 
-	@IsRequired(channelId = "ApparentEnergy")
-	public Channel apparentEnergy;
+	// @IsRequired(channelId = "ApparentEnergy")
+	// public Channel apparentEnergy;
 
 	@IsRequired(channelId = "ApparentPower")
 	public Channel apparentPower;
 
-	@IsRequired(channelId = "ReactiveNegativeEnergy")
-	public Channel reactiveNegativeEnergy;
-
-	@IsRequired(channelId = "ReactivePositiveEnergy")
-	public Channel reactivePositiveEnergy;
+	// @IsRequired(channelId = "ReactiveNegativeEnergy")
+	// public Channel reactiveNegativeEnergy;
+	//
+	// @IsRequired(channelId = "ReactivePositiveEnergy")
+	// public Channel reactivePositiveEnergy;
 
 	@IsRequired(channelId = "ReactivePower")
 	public Channel reactivePower;
@@ -59,9 +59,10 @@ public class Meter extends ThingMap {
 
 	@Override
 	public String toString() {
-		return "Meter [activePower=" + activePower + ", reactivePower=" + reactivePower + ", apparentPower="
-				+ apparentPower + ", activePositiveEnergy=" + activePositiveEnergy + ", activeNegativeEnergy="
-				+ activeNegativeEnergy + ", reactivePositiveEnergy=" + reactivePositiveEnergy
-				+ ", reactiveNegativeEnergy=" + reactiveNegativeEnergy + ", apparentEnergy=" + apparentEnergy + "]";
+		// return "Meter [activePower=" + activePower + ", reactivePower=" + reactivePower + ", apparentPower="
+		// + apparentPower + ", activePositiveEnergy=" + activePositiveEnergy + ", activeNegativeEnergy="
+		// + activeNegativeEnergy + ", reactivePositiveEnergy=" + reactivePositiveEnergy
+		// + ", reactiveNegativeEnergy=" + reactiveNegativeEnergy + ", apparentEnergy=" + apparentEnergy + "]";
+		return "";
 	}
 }

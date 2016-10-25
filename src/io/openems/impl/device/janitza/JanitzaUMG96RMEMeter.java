@@ -58,7 +58,9 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements MeterNat
 		return new ModbusProtocol( //
 				new ModbusRange(3923, //
 						new ElementBuilder().address(3923).channel(_activePower).signed().build(), //
+						new ElementBuilder().address(3924).dummy(3927 - 3924).build(),
 						new ElementBuilder().address(3927).channel(_reactivePower).signed().build(), //
+						new ElementBuilder().address(3928).dummy(3931 - 3928).build(),
 						new ElementBuilder().address(3931).channel(_apparentPower).build()) //
 		);
 	}

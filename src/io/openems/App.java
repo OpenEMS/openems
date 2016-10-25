@@ -37,6 +37,8 @@ public class App {
 		log.info("OpenEMS started");
 
 		Demo demo = new DemoFems7WithMeter();
+		// Demo demo = new DemoJanitza();
+
 		// Demo demo = new DemoFems7();
 
 		JsonObject config = demo.getConfig();
