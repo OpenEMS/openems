@@ -15,14 +15,12 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements MeterNat
 	// TODO multiplier 0.1
 	private final ModbusChannel _activeNegativeEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
 	private final ModbusChannel _activePositiveEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10).build();
+	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").build();
 	private final ModbusChannel _apparentEnergy = new ModbusChannelBuilder().nature(this).unit("kVAh").build();
-	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(10)
-			.build();
+	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").build();
 	private final ModbusChannel _reactiveNegativeEnergy = new ModbusChannelBuilder().nature(this).unit("kvarh").build();
 	private final ModbusChannel _reactivePositiveEnergy = new ModbusChannelBuilder().nature(this).unit("kvarh").build();
-	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().nature(this).unit("var").multiplier(10)
-			.build();
+	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().nature(this).unit("var").build();
 
 	public JanitzaUMG96RMEMeter(String thingId) {
 		super(thingId);
@@ -56,12 +54,15 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements MeterNat
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
-				new ModbusRange(3923, //
-						new ElementBuilder().address(3923).channel(_activePower).signed().build(), //
-						new ElementBuilder().address(3924).dummy(3927 - 3924).build(),
-						new ElementBuilder().address(3927).channel(_reactivePower).signed().build(), //
-						new ElementBuilder().address(3928).dummy(3931 - 3928).build(),
-						new ElementBuilder().address(3931).channel(_apparentPower).build()) //
+				new ModbusRange(874, //
+						new ElementBuilder().address(874).channel(_activePower).floatingPoint().doubleword().signed()
+								.build(), //
+						new ElementBuilder().address(876).dummy(882 - 876).build(), //
+						new ElementBuilder().address(882).channel(_reactivePower).floatingPoint().doubleword().signed()
+								.build(), //
+						new ElementBuilder().address(884).dummy(890 - 884).build(), //
+						new ElementBuilder().address(890).channel(_apparentPower).floatingPoint().doubleword().signed()
+								.build()) //
 		);
 	}
 

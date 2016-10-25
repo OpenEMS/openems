@@ -28,7 +28,7 @@ import com.google.gson.JsonObject;
 import io.openems.core.databus.Databus;
 import io.openems.core.utilities.ThingFactory;
 import io.openems.demo.Demo;
-import io.openems.demo.DemoFems7WithMeter;
+import io.openems.demo.DemoJanitza;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
@@ -36,8 +36,8 @@ public class App {
 	public static void main(String[] args) throws Exception {
 		log.info("OpenEMS started");
 
-		Demo demo = new DemoFems7WithMeter();
-		// Demo demo = new DemoJanitza();
+		// Demo demo = new DemoFems7WithMeter();
+		Demo demo = new DemoJanitza();
 
 		// Demo demo = new DemoFems7();
 

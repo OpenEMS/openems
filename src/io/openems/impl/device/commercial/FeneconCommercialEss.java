@@ -375,7 +375,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 
 	@Override
 	public Channel activePower() {
-		return _inverterActivePower;
+		return _activePower;
 	}
 
 	@Override
@@ -490,8 +490,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 						new ElementBuilder().address(0x0219).channel(_voltagePhase1).build(),
 						new ElementBuilder().address(0x021A).channel(_voltagePhase2).build(),
 						new ElementBuilder().address(0x021B).channel(_voltagePhase3).build(),
-						new ElementBuilder().address(0x021C).channel(_frequency).build(),
-						new ElementBuilder().address(0x021D).dummy(0x222 - 0x21D).build(),
+						new ElementBuilder().address(0x021C).channel(_frequency).build()),
+				new ModbusRange(0x0222, //
 						new ElementBuilder().address(0x0222).channel(_inverterVoltagePhase1).build(),
 						new ElementBuilder().address(0x0223).channel(_inverterVoltagePhase2).build(),
 						new ElementBuilder().address(0x0224).channel(_inverterVoltagePhase3).build(),

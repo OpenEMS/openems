@@ -20,12 +20,14 @@
  *******************************************************************************/
 package io.openems.impl.device.pro;
 
+import io.openems.api.device.nature.IsDeviceNature;
 import io.openems.api.exception.OpenemsException;
+import io.openems.api.thing.IsConfig;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
 public class FeneconPro extends ModbusDevice {
-	// @IsDeviceNature
-	// public FeneconProEss ess = null;
+	@IsDeviceNature
+	public FeneconProEss ess = null;
 
 	// @IsDeviceNature
 	// public FeneconProMeter meter = null;
@@ -34,10 +36,10 @@ public class FeneconPro extends ModbusDevice {
 		super();
 	}
 
-	// @IsConfig("ess")
-	// public void setEss(FeneconProEss ess) {
-	// this.ess = ess;
-	// }
+	@IsConfig("ess")
+	public void setEss(FeneconProEss ess) {
+		this.ess = ess;
+	}
 
 	// @IsConfig("meter")
 	// public void setMeter(FeneconProMeter meter) {

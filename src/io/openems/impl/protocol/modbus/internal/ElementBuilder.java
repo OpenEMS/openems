@@ -34,6 +34,7 @@ public class ElementBuilder {
 	private int dummy = 0;
 	private boolean signed = false;
 	private WordOrder wordOrder = WordOrder.MSWLSW;
+	private boolean floatingPoint = false;
 
 	public ElementBuilder address(Integer address) {
 		this.address = address;
@@ -50,15 +51,31 @@ public class ElementBuilder {
 		}
 		if (doubleword) {
 			if (signed) {
-				return new SignedDoublewordElement(address, channel, byteOrder, wordOrder);
+				if (floatingPoint) {
+					return new FloatElement(address, channel, byteOrder, wordOrder);
+				} else {
+					return new SignedDoublewordElement(address, channel, byteOrder, wordOrder);
+				}
 			} else {
-				return new UnsignedDoublewordElement(address, channel, byteOrder, wordOrder);
+				if (floatingPoint) {
+					throw new ConfigException("Not implemented!");
+				} else {
+					return new UnsignedDoublewordElement(address, channel, byteOrder, wordOrder);
+				}
 			}
 		} else {
 			if (signed) {
-				return new SignedWordElement(address, channel, byteOrder);
+				if (floatingPoint) {
+					throw new ConfigException("Not implemented!");
+				} else {
+					return new SignedWordElement(address, channel, byteOrder);
+				}
 			} else {
-				return new UnsignedWordElement(address, channel, byteOrder);
+				if (floatingPoint) {
+					throw new ConfigException("Not implemented!");
+				} else {
+					return new UnsignedWordElement(address, channel, byteOrder);
+				}
 			}
 		}
 	}
@@ -95,6 +112,11 @@ public class ElementBuilder {
 
 	public ElementBuilder wordOrder(WordOrder wordOrder) {
 		this.wordOrder = wordOrder;
+		return this;
+	}
+
+	public ElementBuilder floatingPoint() {
+		this.floatingPoint = true;
 		return this;
 	}
 }
