@@ -18,16 +18,30 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.channel;
+package io.openems.impl.device.commercial;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import io.openems.api.device.nature.IsDeviceNature;
+import io.openems.api.exception.OpenemsException;
+import io.openems.api.thing.IsConfig;
+import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.FIELD })
-public @interface IsChannel {
-	String id();
-	// TODO add unit and check if Channel-Implementation has the same
+public class FeneconCommercialAC extends ModbusDevice {
+
+	@IsDeviceNature
+	public FeneconCommercialEss ess = null;
+
+	public FeneconCommercialAC() throws OpenemsException {
+		super();
+	}
+
+	@IsConfig("ess")
+	public void setEss(FeneconCommercialEss ess) {
+		this.ess = ess;
+	}
+
+	@Override
+	public String toString() {
+		return "FeneconPro [ess=" + ess + ", modbusUnitId=" + getModbusUnitId() + ", getThingId()=" + getThingId()
+				+ "]";
+	}
 }

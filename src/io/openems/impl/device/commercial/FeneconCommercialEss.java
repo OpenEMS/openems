@@ -23,6 +23,7 @@ package io.openems.impl.device.commercial;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ConfigChannelBuilder;
+import io.openems.api.channel.IsChannel;
 import io.openems.api.channel.WriteableChannel;
 import io.openems.api.device.nature.EssNature;
 import io.openems.api.exception.ConfigException;
@@ -38,7 +39,8 @@ import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBu
 
 public class FeneconCommercialEss extends ModbusDeviceNature implements EssNature {
 
-	private final ModbusChannel _abnormity1 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "Abnormity1")
+	public final ModbusChannel _abnormity1 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "DC precharge contactor close unsuccessfully") //
 			.label(2, "AC precharge contactor close unsuccessfully") //
 			.label(4, "AC main contactor close unsuccessfully") //
@@ -52,7 +54,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(1024, "DC main contactor open unsuccessfully") //
 			.label(2048, "Hardware PDP fault") //
 			.label(4096, "Master stop suddenly").build();
-	private final ModbusChannel _abnormity2 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "Abnormity2")
+	public final ModbusChannel _abnormity2 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "DC short circuit protection") //
 			.label(2, "DC overvoltage protection") //
 			.label(4, "DC undervoltage protection") //
@@ -69,7 +72,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(8192, "Phase A grid voltage sampling invalidation") //
 			.label(16384, "Phase B grid voltage sampling invalidation") //
 			.label(32768, "Phase C grid voltage sampling invalidation").build();
-	private final ModbusChannel _abnormity3 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "Abnormity3")
+	public final ModbusChannel _abnormity3 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "Phase A invert voltage sampling invalidation") //
 			.label(2, "Phase B invert voltage sampling invalidation") //
 			.label(4, "Phase C invert voltage sampling invalidation") //
@@ -86,7 +90,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(8192, "Phase C precharge unmet protection") //
 			.label(16384, "Unadaptable phase sequence error protection")//
 			.label(132768, "DSP protection").build();
-	private final ModbusChannel _abnormity4 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "Abnormity4")
+	public final ModbusChannel _abnormity4 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "Phase A grid voltage severe overvoltage protection") //
 			.label(2, "Phase A grid voltage general overvoltage protection") //
 			.label(4, "Phase B grid voltage severe overvoltage protection") //
@@ -101,7 +106,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(2048, "Phase C Inverter voltage severe overvoltage protection") //
 			.label(4096, "Phase C Inverter voltage general overvoltage protection") //
 			.label(8192, "Inverter peak voltage high protection cause by AC disconnect").build();
-	private final ModbusChannel _abnormity5 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "Abnormity5")
+	public final ModbusChannel _abnormity5 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "Phase A gird loss") //
 			.label(2, "Phase B gird loss") //
 			.label(4, "Phase C gird loss") //
@@ -116,14 +122,16 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(2048, "Phase C Inverter voltage severe overvoltage protection") //
 			.label(4096, "Phase C Inverter voltage general overvoltage protection") //
 			.label(8192, "Inverter peak voltage high protection cause by AC disconnect").build();
-	private final ModbusChannel _acChargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh").multiplier(100)
+	@IsChannel(id = "AcChargeEnergy")
+	public final ModbusChannel _acChargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh").multiplier(100)
 			.build();
 
-	private final ModbusChannel _acDischargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh").multiplier(100)
+	@IsChannel(id = "AcDischargeEnergy")
+	public final ModbusChannel _acDischargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh").multiplier(100)
 			.build();
-	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
-			.build();
-	private final ModbusChannel _allowedApparent = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(100)
+	public final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100).build();
+	@IsChannel(id = "AllowedApparent")
+	public final ModbusChannel _allowedApparent = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(100)
 			.build();
 	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
 			.build();
@@ -131,18 +139,25 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.build();
 	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(100)
 			.build();
-	private final ModbusChannel _batteryAccumulatedCharge = new ModbusChannelBuilder().nature(this).unit("Wh").build();
-	private final ModbusChannel _batteryAccumulatedDischarge = new ModbusChannelBuilder().nature(this).unit("Wh")
+	@IsChannel(id = "BatteryAccumulatedCharge")
+	public final ModbusChannel _batteryAccumulatedCharge = new ModbusChannelBuilder().nature(this).unit("Wh").build();
+	@IsChannel(id = "BatteryAccumulatedDischarge")
+	public final ModbusChannel _batteryAccumulatedDischarge = new ModbusChannelBuilder().nature(this).unit("Wh")
 			.build();
-	private final ModbusChannel _batteryChargeCycles = new ModbusChannelBuilder().nature(this).build();
-	private final ModbusChannel _batteryMaintenanceState = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "BatteryChargeCycles")
+	public final ModbusChannel _batteryChargeCycles = new ModbusChannelBuilder().nature(this).build();
+	@IsChannel(id = "BatteryMaintenanceState")
+	public final ModbusChannel _batteryMaintenanceState = new ModbusChannelBuilder().nature(this) //
 			.label(0, "Off") //
 			.label(1, "On").build();
-	private final ModbusChannel _batteryPower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
+	@IsChannel(id = "BatteryPower")
+	public final ModbusChannel _batteryPower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
 			.build();
-	private final ModbusChannel _batterySteringTotalCurrent = new ModbusChannelBuilder().nature(this).unit("mA")
+	@IsChannel(id = "BatteryStringTotalCurrent")
+	public final ModbusChannel _batteryStringTotalCurrent = new ModbusChannelBuilder().nature(this).unit("mA")
 			.multiplier(100).build();
-	private final ModbusChannel _batteryStringAbnormity1 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "BatteryStringAbnormity1")
+	public final ModbusChannel _batteryStringAbnormity1 = new ModbusChannelBuilder().nature(this) //
 			.label(4, "Battery string voltage sampling route invalidation") //
 			.label(16, "Battery string voltage sampling route disconnected") //
 			.label(32, "Battery string temperature sampling route disconnected") //
@@ -154,7 +169,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(8192, "Battery string negative contactor inspection abnormity") //
 			.label(16384, "Battery string power supply relay inspection abnormity")//
 			.label(132768, "Battery string middle relay abnormity").build();
-	private final ModbusChannel _batteryStringAbnormity2 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "BatteryStringAbnormity2")
+	public final ModbusChannel _batteryStringAbnormity2 = new ModbusChannelBuilder().nature(this) //
 			.label(4, "Battery string severe overtemperature") //
 			.label(128, "Battery string smog fault") //
 			.label(256, "Battery string blown fuse indicator fault") //
@@ -162,18 +178,24 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(2048, "Battery string severe leakage") //
 			.label(4096, "Communication between BECU and periphery CAN disconnected") //
 			.label(16384, "Battery string power supply relay contactor disconnected").build();
-	private final ModbusChannel _batteryStringCellAverageTemperature = new ModbusChannelBuilder().nature(this)
-			.unit("°C").multiplier(100).build();
-	private final ModbusChannel _batteryStringChargeCurrentLimit = new ModbusChannelBuilder().nature(this).unit("mA")
+	@IsChannel(id = "BatteryStringCellAverageTemperature")
+	public final ModbusChannel _batteryStringCellAverageTemperature = new ModbusChannelBuilder().nature(this).unit("°C")
 			.multiplier(100).build();
-	private final ModbusChannel _batteryStringDischargeCurrentLimit = new ModbusChannelBuilder().nature(this).unit("mA")
+	@IsChannel(id = "BatteryStringChargeCurrentLimit")
+	public final ModbusChannel _batteryStringChargeCurrentLimit = new ModbusChannelBuilder().nature(this).unit("mA")
 			.multiplier(100).build();
-	private final ModbusChannel _batteryStringPeripheralIoState = new ModbusChannelBuilder().nature(this)
+	@IsChannel(id = "BatteryStringDischargeCurrentLimit")
+	public final ModbusChannel _batteryStringDischargeCurrentLimit = new ModbusChannelBuilder().nature(this).unit("mA")
+			.multiplier(100).build();
+	@IsChannel(id = "BatteryStringPeripheralIoState")
+	public final ModbusChannel _batteryStringPeripheralIoState = new ModbusChannelBuilder().nature(this)
 			.label(1, "Fuse state") //
 			.label(2, "Isolated switch state").build();
-	private final ModbusChannel _batteryStringSOH = new ModbusChannelBuilder().nature(this).unit("%").multiplier(100)
+	@IsChannel(id = "BatteryStringSOH")
+	public final ModbusChannel _batteryStringSOH = new ModbusChannelBuilder().nature(this).unit("%").multiplier(100)
 			.build();
-	private final ModbusChannel _batteryStringSuggestiveInformation = new ModbusChannelBuilder().nature(this)
+	@IsChannel(id = "BatteryStringSuggestiveInformation")
+	public final ModbusChannel _batteryStringSuggestiveInformation = new ModbusChannelBuilder().nature(this)
 			.label(1, "Battery string charge general overcurrent") //
 			.label(2, "Battery string discharge general overcurrent") //
 			.label(4, "Battery string charge current over limit") //
@@ -188,45 +210,61 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(8192, "Battery string charge severe overcurrent") //
 			.label(16384, "Battery string discharge severe overcurrent")//
 			.label(132768, "Battery string capacity abnormity").build();
-	private final ModbusChannel _batteryStringSwitchState = new ModbusChannelBuilder().nature(this)
+	@IsChannel(id = "BatteryStringSwitchState")
+	public final ModbusChannel _batteryStringSwitchState = new ModbusChannelBuilder().nature(this)
 			.label(1, "Main contactor") //
 			.label(2, "Precharge contactor") //
 			.label(4, "FAN contactor") //
 			.label(8, "BMU power supply relay") //
 			.label(16, "Middle relay").build();
-	private final ModbusChannel _batteryStringTotalVoltage = new ModbusChannelBuilder().nature(this).unit("mV")
+	@IsChannel(id = "BatteryStringTotalVoltage")
+	public final ModbusChannel _batteryStringTotalVoltage = new ModbusChannelBuilder().nature(this).unit("mV")
 			.multiplier(100).build();
-	private final ModbusChannel _batteryStringWorkState = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "BatteryStringWorkState")
+	public final ModbusChannel _batteryStringWorkState = new ModbusChannelBuilder().nature(this) //
 			.label(1, "Initial") //
 			.label(2, "Stop") //
 			.label(4, "Starting up") //
 			.label(8, "Running") //
 			.label(16, "Fault").build();
-	private final ModbusChannel _controlMode = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "ControlMode")
+	public final ModbusChannel _controlMode = new ModbusChannelBuilder().nature(this) //
 			.label(1, "Remote") //
 			.label(2, "Local").build();
-	private final ModbusChannel _currentPhase1 = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
+	@IsChannel(id = "CurrentPhase1")
+	public final ModbusChannel _currentPhase1 = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
 			.build();
-	private final ModbusChannel _currentPhase2 = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
+	@IsChannel(id = "CurrentPhase2")
+	public final ModbusChannel _currentPhase2 = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
 			.build();
-	private final ModbusChannel _currentPhase3 = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
+	@IsChannel(id = "CurrentPhase3")
+	public final ModbusChannel _currentPhase3 = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
 			.build();
-	private final ModbusChannel _dcCurrent = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100).build();
-	private final ModbusChannel _dcPower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100).build();
-	private final ModbusChannel _dcVoltage = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100).build();
-	private final ModbusChannel _frequency = new ModbusChannelBuilder().nature(this).unit("mHZ").multiplier(10).build();
+	@IsChannel(id = "DCCurrent")
+	public final ModbusChannel _dcCurrent = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100).build();
+	@IsChannel(id = "DCPower")
+	public final ModbusChannel _dcPower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100).build();
+	@IsChannel(id = "DCVoltage")
+	public final ModbusChannel _dcVoltage = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100).build();
+	@IsChannel(id = "Frequency")
+	public final ModbusChannel _frequency = new ModbusChannelBuilder().nature(this).unit("mHZ").multiplier(10).build();
 	private final ModbusChannel _gridMode = new ModbusChannelBuilder().nature(this) //
 			.label(1, OFF_GRID) //
 			.label(2, ON_GRID).build();
-	private final ModbusChannel _inverterActivePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
+	@IsChannel(id = "InverterActivePower")
+	public final ModbusChannel _inverterActivePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
 			.build();
-	private final ModbusChannel _inverterCurrentPhase1 = new ModbusChannelBuilder().nature(this).unit("mA")
+	@IsChannel(id = "InverterCurrentPhase1")
+	public final ModbusChannel _inverterCurrentPhase1 = new ModbusChannelBuilder().nature(this).unit("mA")
 			.multiplier(100).build();
-	private final ModbusChannel _inverterCurrentPhase2 = new ModbusChannelBuilder().nature(this).unit("mA")
+	@IsChannel(id = "InverterCurrentPhase2")
+	public final ModbusChannel _inverterCurrentPhase2 = new ModbusChannelBuilder().nature(this).unit("mA")
 			.multiplier(100).build();
-	private final ModbusChannel _inverterCurrentPhase3 = new ModbusChannelBuilder().nature(this).unit("mA")
+	@IsChannel(id = "InverterCurrentPhase3")
+	public final ModbusChannel _inverterCurrentPhase3 = new ModbusChannelBuilder().nature(this).unit("mA")
 			.multiplier(100).build();
-	private final ModbusChannel _inverterState = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "InverterState")
+	public final ModbusChannel _inverterState = new ModbusChannelBuilder().nature(this) //
 			.label(0, "Init") //
 			.label(2, "Fault") //
 			.label(4, STOP) //
@@ -235,45 +273,57 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(32, "Ready") //
 			.label(64, START) //
 			.label(128, "Debug").build();
-	private final ModbusChannel _inverterVoltagePhase1 = new ModbusChannelBuilder().nature(this).unit("mV")
+	@IsChannel(id = "InverterVoltagePhase1")
+	public final ModbusChannel _inverterVoltagePhase1 = new ModbusChannelBuilder().nature(this).unit("mV")
 			.multiplier(100).build();
-	private final ModbusChannel _inverterVoltagePhase2 = new ModbusChannelBuilder().nature(this).unit("mV")
+	@IsChannel(id = "InverterVoltagePhase2")
+	public final ModbusChannel _inverterVoltagePhase2 = new ModbusChannelBuilder().nature(this).unit("mV")
 			.multiplier(100).build();
-	private final ModbusChannel _inverterVoltagePhase3 = new ModbusChannelBuilder().nature(this).unit("mV")
+	@IsChannel(id = "InverterVoltagePhase3")
+	public final ModbusChannel _inverterVoltagePhase3 = new ModbusChannelBuilder().nature(this).unit("mV")
 			.multiplier(100).build();
-	private final ModbusChannel _ipmPhaseATemperature = new ModbusChannelBuilder().nature(this).unit("°C").build();
-	private final ModbusChannel _ipmPhaseBTemperature = new ModbusChannelBuilder().nature(this).unit("°C").build();
-	private final ModbusChannel _ipmPhaseCTemperature = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "IPMPhaseATemperature")
+	public final ModbusChannel _ipmPhaseATemperature = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "IPMPhaseBTemperature")
+	public final ModbusChannel _ipmPhaseBTemperature = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "IPMPhaseCTemperature")
+	public final ModbusChannel _ipmPhaseCTemperature = new ModbusChannelBuilder().nature(this).unit("°C").build();
 	private final ConfigChannel _minSoc = new ConfigChannelBuilder().nature(this).defaultValue(DEFAULT_MINSOC)
 			.percentType().build();
-	private final ModbusChannel _protocolVersion = new ModbusChannelBuilder().nature(this).build();
+	@IsChannel(id = "ProtocolVersion")
+	public final ModbusChannel _protocolVersion = new ModbusChannelBuilder().nature(this).build();
 	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().nature(this).unit("var").multiplier(100)
 			.build();
 	private final WriteableModbusChannel _setActivePower = new WriteableModbusChannelBuilder().nature(this).unit("W")
 			.multiplier(100).minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
-	private final WriteableModbusChannel _setPvLimit = new WriteableModbusChannelBuilder().nature(this).unit("W")
-			.multiplier(100).minValue(0).maxValue(60000).build();
-	private final WriteableModbusChannel _setReactivePower = new WriteableModbusChannelBuilder().nature(this)
-			.unit("var").multiplier(100).minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+
+	@IsChannel(id = "Abnormity1")
+	public final WriteableModbusChannel _setReactivePower = new WriteableModbusChannelBuilder().nature(this).unit("var")
+			.multiplier(100).minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
 	private final WriteableModbusChannel _setWorkState = new WriteableModbusChannelBuilder().nature(this) //
 			.label(4, STOP) //
 			.label(32, STANDBY) //
 			.label(64, START).build();
 	private final ModbusChannel _soc = new ModbusChannelBuilder().nature(this).percentType().build();
-	private final ModbusChannel _suggestiveInformation1 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "SuggestiveInformation1")
+	public final ModbusChannel _suggestiveInformation1 = new ModbusChannelBuilder().nature(this) //
 			.label(4, "EmergencyStop") //
 			.label(64, "KeyManualStop").build();
-	private final ModbusChannel _suggestiveInformation2 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "SuggestiveInformation2")
+	public final ModbusChannel _suggestiveInformation2 = new ModbusChannelBuilder().nature(this) //
 			.label(4, "EmergencyStop") //
 			.label(64, "KeyManualStop").build();
-	private final ModbusChannel _suggestiveInformation3 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "SuggestiveInformation3")
+	public final ModbusChannel _suggestiveInformation3 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "Inverter communication abnormity") //
 			.label(2, "Battery stack communication abnormity") //
 			.label(4, "Multifunctional ammeter communication abnormity") //
 			.label(16, "Remote communication abnormity").build();
-	private final ModbusChannel _suggestiveInformation4 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "SuggestiveInformation4")
+	public final ModbusChannel _suggestiveInformation4 = new ModbusChannelBuilder().nature(this) //
 			.label(8, "Transformer severe overtemperature").build();
-	private final ModbusChannel _suggestiveInformation5 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "SuggestiveInformation5")
+	public final ModbusChannel _suggestiveInformation5 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "DC precharge contactor inspection abnormity") //
 			.label(2, "DC breaker 1 inspection abnormity ") //
 			.label(4, "DC breaker 2 inspection abnormity ") //
@@ -290,7 +340,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(8192, "Emergency stop") //
 			.label(16384, "AC breaker close unsuccessfully")//
 			.label(132768, "Control switch stop").build();
-	private final ModbusChannel _suggestiveInformation6 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "SuggestiveInformation6")
+	public final ModbusChannel _suggestiveInformation6 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "General overload") //
 			.label(2, "Severe overload") //
 			.label(4, "Battery current over limit") //
@@ -306,7 +357,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(4096, "EEPROM parameters over range") //
 			.label(8192, "EEPROM parameters backup failed") //
 			.label(16384, "DC breaker close unsuccessfully").build();
-	private final ModbusChannel _suggestiveInformation7 = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "SuggestiveInformation7")
+	public final ModbusChannel _suggestiveInformation7 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "Communication between inverter and BSMU disconnected") //
 			.label(2, "Communication between inverter and Master disconnected") //
 			.label(4, "Communication between inverter and UC disconnected") //
@@ -315,13 +367,15 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(32, "Sync signal invalidation") //
 			.label(64, "Sync signal continuous caputure fault") //
 			.label(128, "Sync signal several times caputure fault").build();
-	private final ModbusChannel _switchState = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "SwitchState")
+	public final ModbusChannel _switchState = new ModbusChannelBuilder().nature(this) //
 			.label(2, "DC main contactor state") //
 			.label(4, "DC precharge contactor state") //
 			.label(8, "AC breaker state") //
 			.label(16, "AC main contactor state") //
 			.label(32, "AC precharge contactor state").build();
-	private final ModbusChannel _systemManufacturer = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "SystemManufacturer")
+	public final ModbusChannel _systemManufacturer = new ModbusChannelBuilder().nature(this) //
 			.label(1, "BYD").build();
 	private final ModbusChannel _systemState = new ModbusChannelBuilder().nature(this) //
 			.label(2, STOP) //
@@ -330,44 +384,358 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(16, START) //
 			.label(32, "Fault") //
 			.label(64, "Debug").build();
-	private final ModbusChannel _systemType = new ModbusChannelBuilder().nature(this) //
+	@IsChannel(id = "SystemType")
+	public final ModbusChannel _systemType = new ModbusChannelBuilder().nature(this) //
 			.label(1, "CESS").build();
-	private final ModbusChannel _totalDateEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy0 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy1 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy10 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy11 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy12 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy13 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy14 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy15 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy16 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy17 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy18 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy19 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy2 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy20 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy21 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy22 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy23 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy3 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy4 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy5 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy6 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy7 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy8 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalHourEnergy9 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalMonthEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _totalYearEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _transformerPhaseBTemperature = new ModbusChannelBuilder().nature(this).unit("°C")
+	@IsChannel(id = "TotalDateEnergy")
+	public final ModbusChannel _totalDateEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalEnergy")
+	public final ModbusChannel _totalEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy0")
+	public final ModbusChannel _totalHourEnergy0 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy1")
+	public final ModbusChannel _totalHourEnergy1 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy10")
+	public final ModbusChannel _totalHourEnergy10 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy11")
+	public final ModbusChannel _totalHourEnergy11 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy12")
+	public final ModbusChannel _totalHourEnergy12 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy13")
+	public final ModbusChannel _totalHourEnergy13 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy14")
+	public final ModbusChannel _totalHourEnergy14 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy15")
+	public final ModbusChannel _totalHourEnergy15 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy16")
+	public final ModbusChannel _totalHourEnergy16 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy17")
+	public final ModbusChannel _totalHourEnergy17 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy18")
+	public final ModbusChannel _totalHourEnergy18 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy19")
+	public final ModbusChannel _totalHourEnergy19 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy2")
+	public final ModbusChannel _totalHourEnergy2 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy20")
+	public final ModbusChannel _totalHourEnergy20 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy21")
+	public final ModbusChannel _totalHourEnergy21 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy22")
+	public final ModbusChannel _totalHourEnergy22 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy23")
+	public final ModbusChannel _totalHourEnergy23 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy3")
+	public final ModbusChannel _totalHourEnergy3 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy4")
+	public final ModbusChannel _totalHourEnergy4 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy5")
+	public final ModbusChannel _totalHourEnergy5 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy6")
+	public final ModbusChannel _totalHourEnergy6 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy7")
+	public final ModbusChannel _totalHourEnergy7 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy8")
+	public final ModbusChannel _totalHourEnergy8 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalHourEnergy9")
+	public final ModbusChannel _totalHourEnergy9 = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalMonthEnergy")
+	public final ModbusChannel _totalMonthEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TotalYearEnergy")
+	public final ModbusChannel _totalYearEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
+	@IsChannel(id = "TransformerPhaseBTemperature")
+	public final ModbusChannel _transformerPhaseBTemperature = new ModbusChannelBuilder().nature(this).unit("°C")
 			.build();
-	private final ModbusChannel _voltagePhase1 = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
+	@IsChannel(id = "VoltagePhase1")
+	public final ModbusChannel _voltagePhase1 = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
 			.build();
-	private final ModbusChannel _voltagePhase2 = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
+	@IsChannel(id = "VoltagePhase2")
+	public final ModbusChannel _voltagePhase2 = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
 			.build();
-	private final ModbusChannel _voltagePhase3 = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
+	@IsChannel(id = "VoltagePhase3")
+	public final ModbusChannel _voltagePhase3 = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
 			.build();
+	@IsChannel(id = "MaxVoltageCellNo")
+	public final ModbusChannel _maxVoltageCellNo = new ModbusChannelBuilder().nature(this).build();
+	@IsChannel(id = "MaxVoltageCellVoltage")
+	public final ModbusChannel _maxVoltageCellVoltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "MaxVoltageCellTemp")
+	public final ModbusChannel _maxVoltageCellTemp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "MinVoltageCellNo")
+	public final ModbusChannel _minVoltageCellNo = new ModbusChannelBuilder().nature(this).build();
+	@IsChannel(id = "MinVoltageCellVoltage")
+	public final ModbusChannel _minVoltageCellVoltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "MinVoltageCellTemp")
+	public final ModbusChannel _minVoltageCellTemp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "MaxTempCellNo")
+	public final ModbusChannel _maxTempCellNo = new ModbusChannelBuilder().nature(this).build();
+	@IsChannel(id = "MaxTempCellVoltage")
+	public final ModbusChannel _maxTempCellVoltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "MaxTempCellTemp")
+	public final ModbusChannel _maxTempCellTemp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "MinTempCellNo")
+	public final ModbusChannel _minTempCellNo = new ModbusChannelBuilder().nature(this).build();
+	@IsChannel(id = "MinTempCellVoltage")
+	public final ModbusChannel _minTempCellVoltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "MinTempCellTemp")
+	public final ModbusChannel _minTempCellTemp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell1Voltage")
+	public final ModbusChannel _cell1Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell2Voltage")
+	public final ModbusChannel _cell2Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell3Voltage")
+	public final ModbusChannel _cell3Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell4Voltage")
+	public final ModbusChannel _cell4Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell5Voltage")
+	public final ModbusChannel _cell5Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell6Voltage")
+	public final ModbusChannel _cell6Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell7Voltage")
+	public final ModbusChannel _cell7Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell8Voltage")
+	public final ModbusChannel _cell8Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell9Voltage")
+	public final ModbusChannel _cell9Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell10Voltage")
+	public final ModbusChannel _cell10Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell11Voltage")
+	public final ModbusChannel _cell11Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell12Voltage")
+	public final ModbusChannel _cell12Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell13Voltage")
+	public final ModbusChannel _cell13Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell14Voltage")
+	public final ModbusChannel _cell14Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell15Voltage")
+	public final ModbusChannel _cell15Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell16Voltage")
+	public final ModbusChannel _cell16Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell17Voltage")
+	public final ModbusChannel _cell17Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell18Voltage")
+	public final ModbusChannel _cell18Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell19Voltage")
+	public final ModbusChannel _cell19Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell20Voltage")
+	public final ModbusChannel _cell20Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell21Voltage")
+	public final ModbusChannel _cell21Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell22Voltage")
+	public final ModbusChannel _cell22Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell23Voltage")
+	public final ModbusChannel _cell23Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell24Voltage")
+	public final ModbusChannel _cell24Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell25Voltage")
+	public final ModbusChannel _cell25Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell26Voltage")
+	public final ModbusChannel _cell26Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell27Voltage")
+	public final ModbusChannel _cell27Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell28Voltage")
+	public final ModbusChannel _cell28Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell29Voltage")
+	public final ModbusChannel _cell29Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell30Voltage")
+	public final ModbusChannel _cell30Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell31Voltage")
+	public final ModbusChannel _cell31Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell32Voltage")
+	public final ModbusChannel _cell32Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell33Voltage")
+	public final ModbusChannel _cell33Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell34Voltage")
+	public final ModbusChannel _cell34Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell35Voltage")
+	public final ModbusChannel _cell35Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell36Voltage")
+	public final ModbusChannel _cell36Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell37Voltage")
+	public final ModbusChannel _cell37Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell38Voltage")
+	public final ModbusChannel _cell38Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell39Voltage")
+	public final ModbusChannel _cell39Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell40Voltage")
+	public final ModbusChannel _cell40Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell41Voltage")
+	public final ModbusChannel _cell41Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell42Voltage")
+	public final ModbusChannel _cell42Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell43Voltage")
+	public final ModbusChannel _cell43Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell44Voltage")
+	public final ModbusChannel _cell44Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell45Voltage")
+	public final ModbusChannel _cell45Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell46Voltage")
+	public final ModbusChannel _cell46Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell47Voltage")
+	public final ModbusChannel _cell47Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell48Voltage")
+	public final ModbusChannel _cell48Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell49Voltage")
+	public final ModbusChannel _cell49Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell50Voltage")
+	public final ModbusChannel _cell50Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell51Voltage")
+	public final ModbusChannel _cell51Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell52Voltage")
+	public final ModbusChannel _cell52Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell53Voltage")
+	public final ModbusChannel _cell53Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell54Voltage")
+	public final ModbusChannel _cell54Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell55Voltage")
+	public final ModbusChannel _cell55Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell56Voltage")
+	public final ModbusChannel _cell56Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell57Voltage")
+	public final ModbusChannel _cell57Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell58Voltage")
+	public final ModbusChannel _cell58Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell59Voltage")
+	public final ModbusChannel _cell59Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell60Voltage")
+	public final ModbusChannel _cell60Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell61Voltage")
+	public final ModbusChannel _cell61Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell62Voltage")
+	public final ModbusChannel _cell62Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell63Voltage")
+	public final ModbusChannel _cell63Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+	@IsChannel(id = "Cell64Voltage")
+	public final ModbusChannel _cell64Voltage = new ModbusChannelBuilder().nature(this).unit("mV").build();
+
+	@IsChannel(id = "Cell1Temp")
+	public final ModbusChannel _cell1Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell2Temp")
+	public final ModbusChannel _cell2Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell3Temp")
+	public final ModbusChannel _cell3Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell4Temp")
+	public final ModbusChannel _cell4Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell5Temp")
+	public final ModbusChannel _cell5Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell6Temp")
+	public final ModbusChannel _cell6Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell7Temp")
+	public final ModbusChannel _cell7Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell8Temp")
+	public final ModbusChannel _cell8Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell9Temp")
+	public final ModbusChannel _cell9Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell10Temp")
+	public final ModbusChannel _cell10Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell11Temp")
+	public final ModbusChannel _cell11Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell12Temp")
+	public final ModbusChannel _cell12Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell13Temp")
+	public final ModbusChannel _cell13Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell14Temp")
+	public final ModbusChannel _cell14Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell15Temp")
+	public final ModbusChannel _cell15Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell16Temp")
+	public final ModbusChannel _cell16Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell17Temp")
+	public final ModbusChannel _cell17Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell18Temp")
+	public final ModbusChannel _cell18Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell19Temp")
+	public final ModbusChannel _cell19Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell20Temp")
+	public final ModbusChannel _cell20Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell21Temp")
+	public final ModbusChannel _cell21Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell22Temp")
+	public final ModbusChannel _cell22Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell23Temp")
+	public final ModbusChannel _cell23Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell24Temp")
+	public final ModbusChannel _cell24Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell25Temp")
+	public final ModbusChannel _cell25Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell26Temp")
+	public final ModbusChannel _cell26Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell27Temp")
+	public final ModbusChannel _cell27Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell28Temp")
+	public final ModbusChannel _cell28Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell29Temp")
+	public final ModbusChannel _cell29Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell30Temp")
+	public final ModbusChannel _cell30Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell31Temp")
+	public final ModbusChannel _cell31Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell32Temp")
+	public final ModbusChannel _cell32Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell33Temp")
+	public final ModbusChannel _cell33Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell34Temp")
+	public final ModbusChannel _cell34Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell35Temp")
+	public final ModbusChannel _cell35Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell36Temp")
+	public final ModbusChannel _cell36Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell37Temp")
+	public final ModbusChannel _cell37Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell38Temp")
+	public final ModbusChannel _cell38Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell39Temp")
+	public final ModbusChannel _cell39Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell40Temp")
+	public final ModbusChannel _cell40Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell41Temp")
+	public final ModbusChannel _cell41Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell42Temp")
+	public final ModbusChannel _cell42Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell43Temp")
+	public final ModbusChannel _cell43Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell44Temp")
+	public final ModbusChannel _cell44Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell45Temp")
+	public final ModbusChannel _cell45Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell46Temp")
+	public final ModbusChannel _cell46Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell47Temp")
+	public final ModbusChannel _cell47Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell48Temp")
+	public final ModbusChannel _cell48Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell49Temp")
+	public final ModbusChannel _cell49Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell50Temp")
+	public final ModbusChannel _cell50Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell51Temp")
+	public final ModbusChannel _cell51Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell52Temp")
+	public final ModbusChannel _cell52Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell53Temp")
+	public final ModbusChannel _cell53Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell54Temp")
+	public final ModbusChannel _cell54Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell55Temp")
+	public final ModbusChannel _cell55Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell56Temp")
+	public final ModbusChannel _cell56Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell57Temp")
+	public final ModbusChannel _cell57Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell58Temp")
+	public final ModbusChannel _cell58Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell59Temp")
+	public final ModbusChannel _cell59Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell60Temp")
+	public final ModbusChannel _cell60Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell61Temp")
+	public final ModbusChannel _cell61Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell62Temp")
+	public final ModbusChannel _cell62Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell63Temp")
+	public final ModbusChannel _cell63Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
+	@IsChannel(id = "Cell64Temp")
+	public final ModbusChannel _cell64Temp = new ModbusChannelBuilder().nature(this).unit("°C").build();
 
 	public FeneconCommercialEss(String thingId) {
 		super(thingId);
@@ -541,8 +909,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 				new WritableModbusRange(0x0500, //
 						new ElementBuilder().address(0x0500).channel(_setWorkState).build(),
 						new ElementBuilder().address(0x0501).channel(_setActivePower).signed().build(), //
-						new ElementBuilder().address(0x0502).channel(_setReactivePower).signed().build(), //
-						new ElementBuilder().address(0x0503).channel(_setPvLimit).build()),
+						new ElementBuilder().address(0x0502).channel(_setReactivePower).signed().build()),
 				new ModbusRange(0x1100, //
 						new ElementBuilder().address(0x1100).channel(_batteryStringWorkState).build(),
 						new ElementBuilder().address(0x1101).channel(_batteryStringSwitchState).build(),
@@ -553,7 +920,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 						new ElementBuilder().address(0x1106).channel(_batteryStringAbnormity2).build()),
 				new ModbusRange(0x1400, //
 						new ElementBuilder().address(0x1400).channel(_batteryStringTotalVoltage).build(),
-						new ElementBuilder().address(0x1401).channel(_batterySteringTotalCurrent).signed().build(),
+						new ElementBuilder().address(0x1401).channel(_batteryStringTotalCurrent).signed().build(),
 						new ElementBuilder().address(0x1402).channel(_soc).build(),
 						new ElementBuilder().address(0x1403).channel(_batteryStringSOH).build(),
 						new ElementBuilder().address(0x1404).channel(_batteryStringCellAverageTemperature).signed()
@@ -567,7 +934,149 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 						new ElementBuilder().address(0x1418).channel(_batteryAccumulatedCharge).doubleword().build(),
 						new ElementBuilder().address(0x141A).channel(_batteryAccumulatedDischarge).doubleword().build(),
 						new ElementBuilder().address(0x141C).dummy(0x1420 - 0x141C).build(),
-						new ElementBuilder().address(0x1420).channel(_batteryPower).signed().build())//
-		);
+						new ElementBuilder().address(0x1420).channel(_batteryPower).signed().build(),
+						new ElementBuilder().address(0x1421).dummy(0x1430 - 0x1421).build(),
+						new ElementBuilder().address(0x1430).channel(_maxVoltageCellNo).build(),
+						new ElementBuilder().address(0x1431).channel(_maxVoltageCellVoltage).build(),
+						new ElementBuilder().address(0x1432).channel(_maxVoltageCellTemp).signed().build(),
+						new ElementBuilder().address(0x1433).channel(_minVoltageCellNo).build(),
+						new ElementBuilder().address(0x1434).channel(_minVoltageCellVoltage).build(),
+						new ElementBuilder().address(0x1435).channel(_minVoltageCellTemp).signed().build(),
+						new ElementBuilder().address(0x1436).dummy(0x143A - 0x1436).build(),
+						new ElementBuilder().address(0x143A).channel(_maxTempCellNo).build(),
+						new ElementBuilder().address(0x143B).channel(_maxTempCellTemp).signed().build(),
+						new ElementBuilder().address(0x143C).channel(_maxTempCellVoltage).build(),
+						new ElementBuilder().address(0x143D).channel(_minTempCellNo).build(),
+						new ElementBuilder().address(0x143E).channel(_minTempCellTemp).signed().build(),
+						new ElementBuilder().address(0x143F).channel(_minTempCellVoltage).build()), //
+				new ModbusRange(0x1500, new ElementBuilder().address(0x1500).channel(_cell1Voltage).build(),
+						new ElementBuilder().address(0x1501).channel(_cell2Voltage).build(),
+						new ElementBuilder().address(0x1502).channel(_cell3Voltage).build(),
+						new ElementBuilder().address(0x1503).channel(_cell4Voltage).build(),
+						new ElementBuilder().address(0x1504).channel(_cell5Voltage).build(),
+						new ElementBuilder().address(0x1505).channel(_cell6Voltage).build(),
+						new ElementBuilder().address(0x1506).channel(_cell7Voltage).build(),
+						new ElementBuilder().address(0x1507).channel(_cell8Voltage).build(),
+						new ElementBuilder().address(0x1508).channel(_cell9Voltage).build(),
+						new ElementBuilder().address(0x1509).channel(_cell10Voltage).build(),
+						new ElementBuilder().address(0x150a).channel(_cell11Voltage).build(),
+						new ElementBuilder().address(0x150b).channel(_cell12Voltage).build(),
+						new ElementBuilder().address(0x150c).channel(_cell13Voltage).build(),
+						new ElementBuilder().address(0x150d).channel(_cell14Voltage).build(),
+						new ElementBuilder().address(0x150e).channel(_cell15Voltage).build(),
+						new ElementBuilder().address(0x150f).channel(_cell16Voltage).build(),
+						new ElementBuilder().address(0x1510).channel(_cell17Voltage).build(),
+						new ElementBuilder().address(0x1511).channel(_cell18Voltage).build(),
+						new ElementBuilder().address(0x1512).channel(_cell19Voltage).build(),
+						new ElementBuilder().address(0x1513).channel(_cell20Voltage).build(),
+						new ElementBuilder().address(0x1514).channel(_cell21Voltage).build(),
+						new ElementBuilder().address(0x1515).channel(_cell22Voltage).build(),
+						new ElementBuilder().address(0x1516).channel(_cell23Voltage).build(),
+						new ElementBuilder().address(0x1517).channel(_cell24Voltage).build(),
+						new ElementBuilder().address(0x1518).channel(_cell25Voltage).build(),
+						new ElementBuilder().address(0x1519).channel(_cell26Voltage).build(),
+						new ElementBuilder().address(0x151a).channel(_cell27Voltage).build(),
+						new ElementBuilder().address(0x151b).channel(_cell28Voltage).build(),
+						new ElementBuilder().address(0x151c).channel(_cell29Voltage).build(),
+						new ElementBuilder().address(0x151d).channel(_cell30Voltage).build(),
+						new ElementBuilder().address(0x151e).channel(_cell31Voltage).build(),
+						new ElementBuilder().address(0x151f).channel(_cell32Voltage).build(),
+						new ElementBuilder().address(0x1520).channel(_cell33Voltage).build(),
+						new ElementBuilder().address(0x1521).channel(_cell34Voltage).build(),
+						new ElementBuilder().address(0x1522).channel(_cell35Voltage).build(),
+						new ElementBuilder().address(0x1523).channel(_cell36Voltage).build(),
+						new ElementBuilder().address(0x1524).channel(_cell37Voltage).build(),
+						new ElementBuilder().address(0x1525).channel(_cell38Voltage).build(),
+						new ElementBuilder().address(0x1526).channel(_cell39Voltage).build(),
+						new ElementBuilder().address(0x1527).channel(_cell40Voltage).build(),
+						new ElementBuilder().address(0x1528).channel(_cell41Voltage).build(),
+						new ElementBuilder().address(0x1529).channel(_cell42Voltage).build(),
+						new ElementBuilder().address(0x152a).channel(_cell43Voltage).build(),
+						new ElementBuilder().address(0x152b).channel(_cell44Voltage).build(),
+						new ElementBuilder().address(0x152c).channel(_cell45Voltage).build(),
+						new ElementBuilder().address(0x152d).channel(_cell46Voltage).build(),
+						new ElementBuilder().address(0x152e).channel(_cell47Voltage).build(),
+						new ElementBuilder().address(0x152f).channel(_cell48Voltage).build(),
+						new ElementBuilder().address(0x1530).channel(_cell49Voltage).build(),
+						new ElementBuilder().address(0x1531).channel(_cell50Voltage).build(),
+						new ElementBuilder().address(0x1532).channel(_cell51Voltage).build(),
+						new ElementBuilder().address(0x1533).channel(_cell52Voltage).build(),
+						new ElementBuilder().address(0x1534).channel(_cell53Voltage).build(),
+						new ElementBuilder().address(0x1535).channel(_cell54Voltage).build(),
+						new ElementBuilder().address(0x1536).channel(_cell55Voltage).build(),
+						new ElementBuilder().address(0x1537).channel(_cell56Voltage).build(),
+						new ElementBuilder().address(0x1538).channel(_cell57Voltage).build(),
+						new ElementBuilder().address(0x1539).channel(_cell58Voltage).build(),
+						new ElementBuilder().address(0x153a).channel(_cell59Voltage).build(),
+						new ElementBuilder().address(0x153b).channel(_cell60Voltage).build(),
+						new ElementBuilder().address(0x153c).channel(_cell61Voltage).build(),
+						new ElementBuilder().address(0x153d).channel(_cell62Voltage).build(),
+						new ElementBuilder().address(0x153e).channel(_cell63Voltage).build(),
+						new ElementBuilder().address(0x153f).channel(_cell64Voltage).build()),
+				new ModbusRange(0x1700, //
+						new ElementBuilder().address(0x1700).channel(_cell1Temp).build(),
+						new ElementBuilder().address(0x1701).channel(_cell2Temp).build(),
+						new ElementBuilder().address(0x1702).channel(_cell3Temp).build(),
+						new ElementBuilder().address(0x1703).channel(_cell4Temp).build(),
+						new ElementBuilder().address(0x1704).channel(_cell5Temp).build(),
+						new ElementBuilder().address(0x1705).channel(_cell6Temp).build(),
+						new ElementBuilder().address(0x1706).channel(_cell7Temp).build(),
+						new ElementBuilder().address(0x1707).channel(_cell8Temp).build(),
+						new ElementBuilder().address(0x1708).channel(_cell9Temp).build(),
+						new ElementBuilder().address(0x1709).channel(_cell10Temp).build(),
+						new ElementBuilder().address(0x170a).channel(_cell11Temp).build(),
+						new ElementBuilder().address(0x170b).channel(_cell12Temp).build(),
+						new ElementBuilder().address(0x170c).channel(_cell13Temp).build(),
+						new ElementBuilder().address(0x170d).channel(_cell14Temp).build(),
+						new ElementBuilder().address(0x170e).channel(_cell15Temp).build(),
+						new ElementBuilder().address(0x170f).channel(_cell16Temp).build(),
+						new ElementBuilder().address(0x1710).channel(_cell17Temp).build(),
+						new ElementBuilder().address(0x1711).channel(_cell18Temp).build(),
+						new ElementBuilder().address(0x1712).channel(_cell19Temp).build(),
+						new ElementBuilder().address(0x1713).channel(_cell20Temp).build(),
+						new ElementBuilder().address(0x1714).channel(_cell21Temp).build(),
+						new ElementBuilder().address(0x1715).channel(_cell22Temp).build(),
+						new ElementBuilder().address(0x1716).channel(_cell23Temp).build(),
+						new ElementBuilder().address(0x1717).channel(_cell24Temp).build(),
+						new ElementBuilder().address(0x1718).channel(_cell25Temp).build(),
+						new ElementBuilder().address(0x1719).channel(_cell26Temp).build(),
+						new ElementBuilder().address(0x171a).channel(_cell27Temp).build(),
+						new ElementBuilder().address(0x171b).channel(_cell28Temp).build(),
+						new ElementBuilder().address(0x171c).channel(_cell29Temp).build(),
+						new ElementBuilder().address(0x171d).channel(_cell30Temp).build(),
+						new ElementBuilder().address(0x171e).channel(_cell31Temp).build(),
+						new ElementBuilder().address(0x171f).channel(_cell32Temp).build(),
+						new ElementBuilder().address(0x1720).channel(_cell33Temp).build(),
+						new ElementBuilder().address(0x1721).channel(_cell34Temp).build(),
+						new ElementBuilder().address(0x1722).channel(_cell35Temp).build(),
+						new ElementBuilder().address(0x1723).channel(_cell36Temp).build(),
+						new ElementBuilder().address(0x1724).channel(_cell37Temp).build(),
+						new ElementBuilder().address(0x1725).channel(_cell38Temp).build(),
+						new ElementBuilder().address(0x1726).channel(_cell39Temp).build(),
+						new ElementBuilder().address(0x1727).channel(_cell40Temp).build(),
+						new ElementBuilder().address(0x1728).channel(_cell41Temp).build(),
+						new ElementBuilder().address(0x1729).channel(_cell42Temp).build(),
+						new ElementBuilder().address(0x172a).channel(_cell43Temp).build(),
+						new ElementBuilder().address(0x172b).channel(_cell44Temp).build(),
+						new ElementBuilder().address(0x172c).channel(_cell45Temp).build(),
+						new ElementBuilder().address(0x172d).channel(_cell46Temp).build(),
+						new ElementBuilder().address(0x172e).channel(_cell47Temp).build(),
+						new ElementBuilder().address(0x172f).channel(_cell48Temp).build(),
+						new ElementBuilder().address(0x1730).channel(_cell49Temp).build(),
+						new ElementBuilder().address(0x1731).channel(_cell50Temp).build(),
+						new ElementBuilder().address(0x1732).channel(_cell51Temp).build(),
+						new ElementBuilder().address(0x1733).channel(_cell52Temp).build(),
+						new ElementBuilder().address(0x1734).channel(_cell53Temp).build(),
+						new ElementBuilder().address(0x1735).channel(_cell54Temp).build(),
+						new ElementBuilder().address(0x1736).channel(_cell55Temp).build(),
+						new ElementBuilder().address(0x1737).channel(_cell56Temp).build(),
+						new ElementBuilder().address(0x1738).channel(_cell57Temp).build(),
+						new ElementBuilder().address(0x1739).channel(_cell58Temp).build(),
+						new ElementBuilder().address(0x173a).channel(_cell59Temp).build(),
+						new ElementBuilder().address(0x173b).channel(_cell60Temp).build(),
+						new ElementBuilder().address(0x173c).channel(_cell61Temp).build(),
+						new ElementBuilder().address(0x173d).channel(_cell62Temp).build(),
+						new ElementBuilder().address(0x173e).channel(_cell63Temp).build(),
+						new ElementBuilder().address(0x173f).channel(_cell64Temp).build()));
 	}
 }

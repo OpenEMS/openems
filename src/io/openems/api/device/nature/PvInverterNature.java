@@ -18,30 +18,14 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.device.commercial;
+package io.openems.api.device.nature;
 
-import io.openems.api.device.nature.IsDeviceNature;
-import io.openems.api.exception.OpenemsException;
-import io.openems.api.thing.IsConfig;
-import io.openems.impl.protocol.modbus.ModbusDevice;
+import io.openems.api.channel.IsChannel;
+import io.openems.api.channel.WriteableChannel;
 
-public class FeneconCommercial extends ModbusDevice {
+public interface PvInverterNature extends DeviceNature {
 
-	@IsDeviceNature
-	public FeneconCommercialEss ess = null;
+	@IsChannel(id = "SetLimit")
+	public WriteableChannel setLimit();
 
-	public FeneconCommercial() throws OpenemsException {
-		super();
-	}
-
-	@IsConfig("ess")
-	public void setEss(FeneconCommercialEss ess) {
-		this.ess = ess;
-	}
-
-	@Override
-	public String toString() {
-		return "FeneconPro [ess=" + ess + ", modbusUnitId=" + getModbusUnitId() + ", getThingId()=" + getThingId()
-				+ "]";
-	}
 }

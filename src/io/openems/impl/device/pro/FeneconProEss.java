@@ -1,15 +1,19 @@
 package io.openems.impl.device.pro;
 
 import io.openems.api.channel.Channel;
+import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.ConfigChannelBuilder;
 import io.openems.api.channel.WriteableChannel;
 import io.openems.api.device.nature.EssNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
+import io.openems.impl.protocol.modbus.WriteableModbusChannel;
 import io.openems.impl.protocol.modbus.internal.ElementBuilder;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
+import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBuilder;
 
 public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 
@@ -33,6 +37,15 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 			.label(3, "Running") //
 			.label(4, "Stopping") //
 			.label(5, "Fail").build();
+	private final ModbusChannel _pcsOperationState = new ModbusChannelBuilder().nature(this) //
+			.label(0, "Self-checking") //
+			.label(1, "Standby") //
+			.label(2, "Off grid PV") //
+			.label(3, "Off grid") //
+			.label(4, "On grid") //
+			.label(5, "Fail") //
+			.label(6, "bypass 1") //
+			.label(7, "bypass 2").build();
 	private final ModbusChannel _batteryGroupAlarm = new ModbusChannelBuilder().nature(this) //
 			.label(1, "Fail, The system should be stopped") //
 			.label(2, "Common low voltage alarm") //
@@ -50,82 +63,108 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 	private final ModbusChannel _batteryCurrent = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
 			.build();
 	private final ModbusChannel _batteryPower = new ModbusChannelBuilder().nature(this).unit("W").build();
+	private final ModbusChannel _currentPhaseA = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
+			.build();
+	private final ModbusChannel _currentPhaseB = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
+			.build();
+	private final ModbusChannel _currentPhaseC = new ModbusChannelBuilder().nature(this).unit("mA").multiplier(100)
+			.build();
+	private final ModbusChannel _voltagePhaseA = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
+			.build();
+	private final ModbusChannel _voltagePhaseB = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
+			.build();
+	private final ModbusChannel _voltagePhaseC = new ModbusChannelBuilder().nature(this).unit("mV").multiplier(100)
+			.build();
+	private final ModbusChannel _activePowerPhaseA = new ModbusChannelBuilder().nature(this).unit("W").build();
+	private final ModbusChannel _activePowerPhaseB = new ModbusChannelBuilder().nature(this).unit("W").build();
+	private final ModbusChannel _activePowerPhaseC = new ModbusChannelBuilder().nature(this).unit("W").build();
+	private final ModbusChannel _reactivePowerPhaseA = new ModbusChannelBuilder().nature(this).unit("var").build();
+	private final ModbusChannel _reactivePowerPhaseB = new ModbusChannelBuilder().nature(this).unit("var").build();
+	private final ModbusChannel _reactivePowerPhaseC = new ModbusChannelBuilder().nature(this).unit("var").build();
+	private final ModbusChannel _frequencyPhaseA = new ModbusChannelBuilder().nature(this).unit("mHz").multiplier(10)
+			.build();
+	private final ModbusChannel _frequencyPhaseB = new ModbusChannelBuilder().nature(this).unit("mHz").multiplier(10)
+			.build();
+	private final ModbusChannel _frequencyPhaseC = new ModbusChannelBuilder().nature(this).unit("mHz").multiplier(10)
+			.build();
+	private final ModbusChannel _pcsAllowedApparentPower = new ModbusChannelBuilder().nature(this).unit("VA").build();
+	private final ModbusChannel _allowedDischarge = new ModbusChannelBuilder().nature(this).unit("W").build();
+	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().nature(this).unit("W").build();
+	private final WriteableModbusChannel _setWorkState = new WriteableModbusChannelBuilder().nature(this) //
+			.label(0, "Local control") //
+			.label(1, "Remote control on grid starting") //
+			.label(2, "Remote control off grid starting") //
+			.label(3, STOP)//
+			.label(4, "Emergency Stop").build();
+	private final WriteableModbusChannel _setActivePower = new WriteableModbusChannelBuilder().nature(this).unit("W")
+			.minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+	private final WriteableModbusChannel _setReactivePower = new WriteableModbusChannelBuilder().nature(this)
+			.unit("var").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+	private final ConfigChannel _minSoc = new ConfigChannelBuilder().nature(this).defaultValue(DEFAULT_MINSOC)
+			.percentType().build();
 
 	public FeneconProEss(String thingId) {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public Channel activePower() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Channel allowedCharge() {
-		// TODO Auto-generated method stub
-		return null;
+		return _allowedCharge;
 	}
 
 	@Override
 	public Channel allowedDischarge() {
-		// TODO Auto-generated method stub
-		return null;
+		return _allowedDischarge;
 	}
 
 	@Override
 	public Channel apparentPower() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Channel gridMode() {
-		// TODO Auto-generated method stub
-		return null;
+		return _pcsOperationState;
 	}
 
 	@Override
 	public Channel minSoc() {
-		// TODO Auto-generated method stub
-		return null;
+		return _minSoc;
 	}
 
 	@Override
 	public Channel reactivePower() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public WriteableChannel setActivePower() {
-		// TODO Auto-generated method stub
-		return null;
+		return _setActivePower;
 	}
 
 	@Override
 	public void setMinSoc(Integer minSoc) {
-		// TODO Auto-generated method stub
-
+		this._minSoc.updateValue(Long.valueOf(minSoc));
 	}
 
 	@Override
 	public WriteableChannel setWorkState() {
-		// TODO Auto-generated method stub
-		return null;
+		return _setWorkState;
 	}
 
 	@Override
 	public Channel soc() {
-		// TODO Auto-generated method stub
-		return null;
+		return _soc;
 	}
 
 	@Override
 	public Channel systemState() {
-		// TODO Auto-generated method stub
-		return null;
+		return _systemState;
 	}
 
 	@Override
@@ -143,9 +182,34 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 						new ElementBuilder().address(110).channel(_batteryVoltage).build(), //
 						new ElementBuilder().address(111).channel(_batteryCurrent).build(), //
 						new ElementBuilder().address(112).channel(_batteryPower).build(), //
-						new ElementBuilder().address(113).channel(_batteryGroupAlarm).build() //
-				)//
-		);
+						new ElementBuilder().address(113).channel(_batteryGroupAlarm).build(), //
+						new ElementBuilder().address(114).channel(_pcsOperationState).build(), //
+						new ElementBuilder().address(115).dummy(118 - 115).build(), //
+						new ElementBuilder().address(118).channel(_currentPhaseA).signed().build(), //
+						new ElementBuilder().address(119).channel(_currentPhaseB).signed().build(), //
+						new ElementBuilder().address(120).channel(_currentPhaseC).signed().build(), //
+						new ElementBuilder().address(121).channel(_voltagePhaseA).build(), //
+						new ElementBuilder().address(122).channel(_voltagePhaseA).build(), //
+						new ElementBuilder().address(123).channel(_voltagePhaseA).build(), //
+						new ElementBuilder().address(124).channel(_activePowerPhaseA).signed().build(), //
+						new ElementBuilder().address(125).channel(_activePowerPhaseB).signed().build(), //
+						new ElementBuilder().address(126).channel(_activePowerPhaseC).signed().build(), //
+						new ElementBuilder().address(127).channel(_reactivePowerPhaseA).signed().build(), //
+						new ElementBuilder().address(128).channel(_reactivePowerPhaseB).signed().build(), //
+						new ElementBuilder().address(129).channel(_reactivePowerPhaseC).signed().build(), //
+						new ElementBuilder().address(130).dummy().build(), //
+						new ElementBuilder().address(131).channel(_frequencyPhaseA).build(), //
+						new ElementBuilder().address(132).channel(_frequencyPhaseB).build(), //
+						new ElementBuilder().address(133).channel(_frequencyPhaseC).build(), //
+						new ElementBuilder().address(134).channel(_pcsAllowedApparentPower).build(), //
+						new ElementBuilder().address(135).dummy(141 - 135).build(), //
+						new ElementBuilder().address(141).channel(_allowedCharge).build(), //
+						new ElementBuilder().address(133).channel(_allowedDischarge).build() //
+				), //
+				new ModbusRange(200, //
+						new ElementBuilder().address(200).channel(_setWorkState).build(),
+						new ElementBuilder().address(201).channel(_setActivePower).signed().build(),
+						new ElementBuilder().address(202).channel(_setReactivePower).signed().build()));
 	}
 
 }
