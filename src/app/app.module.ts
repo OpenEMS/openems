@@ -20,7 +20,7 @@ import { OpenemsSettingComponent } from './setting/openems-setting/openems-setti
     BrowserModule,
     FormsModule,
     HttpModule,
-    routing
+    routing,
   ],
   providers: [
     appRoutingProviders,
