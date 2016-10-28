@@ -88,6 +88,8 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 	private final ModbusChannel _frequencyPhaseC = new ModbusChannelBuilder().nature(this).unit("mHz").multiplier(10)
 			.build();
 	private final ModbusChannel _pcsAllowedApparentPower = new ModbusChannelBuilder().nature(this).unit("VA").build();
+	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").build();
+	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("VA").build();
 	private final ModbusChannel _allowedDischarge = new ModbusChannelBuilder().nature(this).unit("W").build();
 	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().nature(this).unit("W").build();
 	private final WriteableModbusChannel _setWorkState = new WriteableModbusChannelBuilder().nature(this) //
@@ -109,7 +111,7 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 
 	@Override
 	public Channel activePower() {
-		return null;
+		return _activePower;
 	}
 
 	@Override
@@ -124,7 +126,7 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 
 	@Override
 	public Channel apparentPower() {
-		return null;
+		return _apparentPower;
 	}
 
 	@Override
@@ -204,7 +206,7 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 						new ElementBuilder().address(134).channel(_pcsAllowedApparentPower).build(), //
 						new ElementBuilder().address(135).dummy(141 - 135).build(), //
 						new ElementBuilder().address(141).channel(_allowedCharge).build(), //
-						new ElementBuilder().address(133).channel(_allowedDischarge).build() //
+						new ElementBuilder().address(142).channel(_allowedDischarge).build() //
 				), //
 				new ModbusRange(200, //
 						new ElementBuilder().address(200).channel(_setWorkState).build(),

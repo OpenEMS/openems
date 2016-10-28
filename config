@@ -1,0 +1,29 @@
+{
+	"things":[
+		{
+			"class":"io.openems.impl.protocol.modbus.ModbusRtu",
+			"serialinterface":"COM3",
+			"baudrate":9600,
+			"databits":8,
+			"parity":"none",
+			"stopbits":1,
+			"devices":[
+			{
+				"class":"io.openems.impl.device.socomec.Socomec",
+				"modbusUnitId":5,
+				"meter":{"thingId":"meter0"}
+			},{
+				"class":"io.openems.impl.device.pro.FeneconPro",
+				"modbusUnitId":4,
+				"ess":{"thingId":"ess0", "minSoc":15}
+			}]
+		}],
+	"scheduler":{
+		"class":"io.openems.impl.scheduler.SimpleScheduler",
+		"controllers":[
+			{
+				"priority":150,
+				"class":"io.openems.impl.controller.debuglog.DebugLogController"
+			}]
+	}
+}

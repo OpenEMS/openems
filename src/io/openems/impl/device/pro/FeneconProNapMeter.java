@@ -13,6 +13,12 @@ import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
 public class FeneconProNapMeter extends ModbusDeviceNature implements MeterNature {
 
 	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().nature(this).unit("var").build();
+	private final ModbusChannel _activePowerPhaseA = new ModbusChannelBuilder().nature(this).unit("W").delta(-10000)
+			.build();
+	private final ModbusChannel _activePowerPhaseB = new ModbusChannelBuilder().nature(this).unit("W").delta(-10000)
+			.build();
+	private final ModbusChannel _activePowerPhaseC = new ModbusChannelBuilder().nature(this).unit("W").delta(-10000)
+			.build();
 	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").build();
 
 	public FeneconProNapMeter(String thingId) {
@@ -71,7 +77,12 @@ public class FeneconProNapMeter extends ModbusDeviceNature implements MeterNatur
 				new ModbusRange(139, //
 						new ElementBuilder().address(139).channel(_activePower).signed().build(), //
 						new ElementBuilder().address(140).channel(_reactivePower).signed().build() //
-				));
+				), new ModbusRange(2018, //
+						new ElementBuilder().address(2018).channel(_activePowerPhaseA).build()),
+				new ModbusRange(2118, //
+						new ElementBuilder().address(2118).channel(_activePowerPhaseB).build()),
+				new ModbusRange(2218, //
+						new ElementBuilder().address(2218).channel(_activePowerPhaseC).build()));
 	}
 
 }
