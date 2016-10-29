@@ -21,6 +21,7 @@
 package io.openems.core.utilities;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Optional;
@@ -56,32 +57,49 @@ public class InjectionUtils {
 	}
 
 	/**
-	 * Searches the class tree for a method with the name methodName, that is annotated with IsChannel.
+	 * Searches the class tree for a member with the name memberName, that is annotated with IsChannel.
 	 *
 	 * @param clazz
 	 * @param methodName
 	 * @return IsChannel annotation or null if no match was found
 	 */
-	public static Optional<IsChannel> getIsChannelMethods(Class<?> clazz, String methodName) {
+	public static Optional<IsChannel> getIsChannelMembers(Class<?> clazz, String memberName) {
 		// clazz must be a Thing
 		if (!Thing.class.isInterface() && !Thing.class.isAssignableFrom(clazz)) {
 			return Optional.empty();
 		}
 		// check if method can be found
-		Method method;
-		try {
-			method = clazz.getMethod(methodName);
-		} catch (NoSuchMethodException | SecurityException e) {
-			return Optional.empty();
+		{
+			Method method;
+			try {
+				method = clazz.getMethod(memberName);
+				// return the annotation if found
+				if (method.isAnnotationPresent(IsChannel.class)) {
+					return Optional.of(method.getAnnotation(IsChannel.class));
+				}
+			} catch (NoSuchMethodException | SecurityException e) {
+				// ignore
+			}
 		}
-		// return the annotation if found
-		if (method.isAnnotationPresent(IsChannel.class)) {
-			return Optional.of(method.getAnnotation(IsChannel.class));
+
+		// check if field can be found
+		{
+			Field field;
+			try {
+				field = clazz.getField(memberName);
+				// return the annotation if found
+				if (field.isAnnotationPresent(IsChannel.class)) {
+					return Optional.of(field.getAnnotation(IsChannel.class));
+				}
+			} catch (NoSuchFieldException | SecurityException e) {
+				// ignore
+			}
 		}
+
 		// start recursive search if not found
 		for (Class<?> implementedInterface : clazz.getInterfaces()) {
 			// search all implemented interfaces
-			Optional<IsChannel> ret = getIsChannelMethods(implementedInterface, methodName);
+			Optional<IsChannel> ret = getIsChannelMembers(implementedInterface, memberName);
 			if (ret.isPresent()) {
 				return ret;
 			}
@@ -90,6 +108,6 @@ public class InjectionUtils {
 			// reached the top end... no superclass found
 			return Optional.empty();
 		}
-		return getIsChannelMethods(clazz.getSuperclass(), methodName);
+		return getIsChannelMembers(clazz.getSuperclass(), memberName);
 	}
 }

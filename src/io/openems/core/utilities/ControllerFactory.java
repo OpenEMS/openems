@@ -95,7 +95,7 @@ public class ControllerFactory {
 					// get all methods of this class
 					if (Channel.class.isAssignableFrom(method.getReturnType())) {
 						// method returns a Channel; now check for the annotation
-						Optional<IsChannel> annotation = InjectionUtils.getIsChannelMethods(thingClass,
+						Optional<IsChannel> annotation = InjectionUtils.getIsChannelMembers(thingClass,
 								method.getName());
 						if (annotation.isPresent()) {
 							channelMethods.put(annotation.get().id(), method);

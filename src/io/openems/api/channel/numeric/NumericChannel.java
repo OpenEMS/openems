@@ -1,8 +1,9 @@
-package io.openems.api.channel;
+package io.openems.api.channel.numeric;
 
 import java.util.Map;
 import java.util.Optional;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.InvalidValueException;
 
@@ -14,9 +15,9 @@ public class NumericChannel extends Channel<Long> {
 	private Optional<Long> minValue = Optional.empty();
 	private final String unit;
 
-	public NumericChannel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
-			Map<Long, String> labels) {
-		super(nature);
+	public NumericChannel(Optional<String> channelId, DeviceNature nature, String unit, Long minValue, Long maxValue,
+			Long multiplier, Long delta, Map<Long, String> labels) {
+		super(nature, channelId);
 		this.unit = unit;
 		this.multiplier = multiplier;
 		this.delta = delta;
@@ -45,6 +46,7 @@ public class NumericChannel extends Channel<Long> {
 		return unit;
 	}
 
+	// TODO: return a list of Strings
 	public Optional<String> getValueLabelOptional() {
 		String label;
 		Optional<Long> value = getValueOptional();
@@ -55,8 +57,7 @@ public class NumericChannel extends Channel<Long> {
 		return Optional.empty();
 	};
 
-	@Override
-	public String toString() {
+	public String format() {
 		Optional<String> label = getValueLabelOptional();
 		Optional<Long> value = getValueOptional();
 		if (label.isPresent()) {

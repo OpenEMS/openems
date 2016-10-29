@@ -26,7 +26,7 @@ import java.nio.ByteOrder;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
-import io.openems.api.channel.NumericChannel;
+import io.openems.api.channel.numeric.NumericChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class UnsignedDoublewordElement extends ModbusElement implements DoublewordElement {

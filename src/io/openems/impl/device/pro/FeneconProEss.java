@@ -2,8 +2,10 @@ package io.openems.impl.device.pro;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ConfigChannelBuilder;
-import io.openems.api.channel.NumericChannel;
-import io.openems.api.channel.WriteableNumericChannel;
+import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.channel.numeric.NumericChannelBuilder;
+import io.openems.api.channel.numeric.NumericChannelBuilder.Aggregation;
+import io.openems.api.channel.numeric.WriteableNumericChannel;
 import io.openems.api.device.nature.EssNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusChannel;
@@ -89,7 +91,8 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 			.build();
 	private final ModbusChannel _pcsAllowedApparentPower = new ModbusChannelBuilder().nature(this).unit("VA").build();
 	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").build();
-	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("VA").build();
+	private final NumericChannel _activePower = new NumericChannelBuilder<>().nature(this).unit("W")
+			.channel(_activePowerPhaseA, _activePowerPhaseB, _activePowerPhaseC).aggregate(Aggregation.SUM).build();
 	private final ModbusChannel _allowedDischarge = new ModbusChannelBuilder().nature(this).unit("W").build();
 	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().nature(this).unit("W").build();
 	private final WriteableModbusChannel _setWorkState = new WriteableModbusChannelBuilder().nature(this) //

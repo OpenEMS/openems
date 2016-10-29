@@ -20,13 +20,13 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus.internal.channel;
 
-import io.openems.api.channel.WriteableNumericChannelBuilder;
+import io.openems.api.channel.numeric.WriteableNumericChannelBuilder;
 import io.openems.impl.protocol.modbus.WriteableModbusChannel;
 
 public class WriteableModbusChannelBuilder extends WriteableNumericChannelBuilder<WriteableModbusChannelBuilder> {
 	@Override
 	public WriteableModbusChannel build() {
-		return new WriteableModbusChannel(nature, unit, minValue, maxValue, multiplier, delta, labels, minWriteValue,
-				minWriteValueChannel, maxWriteValue, maxWriteValueChannel);
+		return new WriteableModbusChannel(channelId, nature, unit, minValue, maxValue, multiplier, delta, labels,
+				minWriteValue, minWriteValueChannel, maxWriteValue, maxWriteValueChannel);
 	}
 }

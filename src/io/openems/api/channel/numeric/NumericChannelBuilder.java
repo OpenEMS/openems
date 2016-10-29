@@ -18,41 +18,45 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.channel;
+package io.openems.api.channel.numeric;
 
-public class WriteableNumericChannelBuilder<B extends WriteableNumericChannelBuilder<?>> extends ChannelBuilder<B> {
-	protected Long maxWriteValue = null;
-	protected NumericChannel maxWriteValueChannel = null;
-	protected Long minWriteValue = null;
-	protected NumericChannel minWriteValueChannel = null;
+import java.util.HashSet;
+import java.util.Set;
+
+import io.openems.api.channel.ChannelBuilder;
+
+public class NumericChannelBuilder<B extends NumericChannelBuilder<?>> extends ChannelBuilder<B> {
+	public enum Aggregation {
+		SUM
+	}
+
+	protected Set<NumericChannel> channels = null;
+	protected Aggregation aggregate = null;
 
 	@Override
-	public WriteableNumericChannel build() {
-		return new WriteableNumericChannel(nature, unit, minValue, maxValue, multiplier, delta, labels, minWriteValue,
-				minWriteValueChannel, maxWriteValue, maxWriteValueChannel);
+	public NumericChannel build() {
+		if (channels != null) {
+			if (aggregate == Aggregation.SUM) {
+				return new SumNumericChannel(channelId, nature, unit, minValue, maxValue, multiplier, delta, labels,
+						channels);
+			}
+		}
+		return new NumericChannel(channelId, nature, unit, minValue, maxValue, multiplier, delta, labels);
 	}
 
 	@SuppressWarnings("unchecked")
-	public B maxWriteValue(NumericChannel maxWriteValueChannel) {
-		this.maxWriteValueChannel = maxWriteValueChannel;
+	public B channel(NumericChannel... channels) {
+		this.channels = new HashSet<>();
+		for (NumericChannel channel : channels) {
+			this.channels.add(channel);
+		}
 		return (B) this;
 	}
 
 	@SuppressWarnings("unchecked")
-	public B maxWriteValue(Long maxWriteValue) {
-		this.maxWriteValue = maxWriteValue;
+	public B aggregate(Aggregation aggregate) {
+		this.aggregate = aggregate;
 		return (B) this;
 	}
 
-	@SuppressWarnings("unchecked")
-	public B minWriteValue(NumericChannel minWriteValueChannel) {
-		this.minWriteValueChannel = minWriteValueChannel;
-		return (B) this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public B minWriteValue(Long minWriteValue) {
-		this.minWriteValue = minWriteValue;
-		return (B) this;
-	}
 }

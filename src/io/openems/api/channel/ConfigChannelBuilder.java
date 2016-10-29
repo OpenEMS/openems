@@ -25,7 +25,7 @@ public class ConfigChannelBuilder extends ChannelBuilder<ConfigChannelBuilder> {
 
 	@Override
 	public ConfigChannel build() {
-		return new ConfigChannel(nature, unit, minValue, maxValue, multiplier, delta, labels, defaultValue);
+		return new ConfigChannel(channelId, nature, unit, minValue, maxValue, multiplier, delta, labels, defaultValue);
 	}
 
 	public ConfigChannelBuilder defaultValue(int defaultValue) {

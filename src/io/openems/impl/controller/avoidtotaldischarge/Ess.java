@@ -21,8 +21,8 @@
 package io.openems.impl.controller.avoidtotaldischarge;
 
 import io.openems.api.channel.IsRequired;
-import io.openems.api.channel.NumericChannel;
-import io.openems.api.channel.WriteableNumericChannel;
+import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.channel.numeric.WriteableNumericChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.EssNature;

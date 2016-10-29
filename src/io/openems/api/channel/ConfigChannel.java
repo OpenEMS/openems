@@ -21,14 +21,16 @@
 package io.openems.api.channel;
 
 import java.util.Map;
+import java.util.Optional;
 
+import io.openems.api.channel.numeric.NumericChannel;
 import io.openems.api.device.nature.DeviceNature;
 
 public class ConfigChannel extends NumericChannel {
 
-	public ConfigChannel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
-			Map<Long, String> labels, Long defaultValue) {
-		super(nature, unit, minValue, maxValue, multiplier, delta, labels);
+	public ConfigChannel(Optional<String> channelId, DeviceNature nature, String unit, Long minValue, Long maxValue,
+			Long multiplier, Long delta, Map<Long, String> labels, Long defaultValue) {
+		super(channelId, nature, unit, minValue, maxValue, multiplier, delta, labels);
 		updateValue(defaultValue, false);
 	}
 

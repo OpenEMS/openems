@@ -20,7 +20,9 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus.internal;
 
-import io.openems.api.channel.NumericChannel;
+import java.util.Optional;
+
+import io.openems.api.channel.numeric.NumericChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class DummyElement extends ModbusElement {
@@ -28,7 +30,7 @@ public class DummyElement extends ModbusElement {
 	private final int length;
 
 	public DummyElement(int address, int length) {
-		super(address, new NumericChannel(null, "", null, null, null, null, null));
+		super(address, new NumericChannel(Optional.empty(), null, "", null, null, null, null, null));
 		this.length = length;
 	}
 

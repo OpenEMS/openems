@@ -21,7 +21,7 @@
 package io.openems.api.device.nature;
 
 import io.openems.api.channel.IsChannel;
-import io.openems.api.channel.NumericChannel;
+import io.openems.api.channel.numeric.NumericChannel;
 
 public interface MeterNature extends DeviceNature {
 

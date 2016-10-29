@@ -20,9 +20,13 @@
  *******************************************************************************/
 package io.openems.core.databus;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,21 +43,51 @@ public class DatabusFactory {
 
 	public static Map<String, DataChannel> getDataChannels(Thing thing, Databus databus) {
 		HashMap<String, DataChannel> dataChannels = new HashMap<>();
-		// fill channels for this thing
+
+		// Get all declared members of thing class
+		List<Member> members = new LinkedList<>();
 		for (Method method : thing.getClass().getDeclaredMethods()) {
-			// get all methods of this class
-			if (Channel.class.isAssignableFrom(method.getReturnType())) {
-				// method returns a Channel; now check for the annotation
-				Optional<IsChannel> annotation = InjectionUtils.getIsChannelMethods(thing.getClass(), method.getName());
+			members.add(method);
+		}
+		for (Field field : thing.getClass().getDeclaredFields()) {
+			members.add(field);
+		}
+
+		// fill channels for this thing
+		for (Member member : members) {
+
+			// is this member a Channel type?
+			boolean isChannelType = false;
+			if (member instanceof Method) {
+				// is Method ReturnType a Channel?
+				isChannelType = Channel.class.isAssignableFrom(((Method) member).getReturnType());
+			} else if (member instanceof Field) {
+				// is Field a Channel?
+				isChannelType = Channel.class.isAssignableFrom(((Field) member).getType());
+			}
+
+			if (isChannelType) {
+				// Check if Member has a IsChannel annotation
+				Optional<IsChannel> annotation = InjectionUtils.getIsChannelMembers(thing.getClass(), member.getName());
 				if (annotation.isPresent()) {
 					try {
-						Channel<?> channel = (Channel<?>) method.invoke(thing);
-						channel.setDatabus(databus);
-						DataChannel dataChannel = new DataChannel(thing, thing.getThingId(), channel,
-								annotation.get().id());
-						dataChannels.put(annotation.get().id(), dataChannel);
+						// Ok. Now receive the Channel
+						Channel<?> channel = null;
+						if (member instanceof Method) {
+							channel = (Channel<?>) ((Method) member).invoke(thing);
+						} else if (member instanceof Field) {
+							channel = (Channel<?>) ((Field) member).get(thing);
+						}
+
+						if (channel != null) {
+							// Connect the channel to databus
+							channel.setDatabus(databus);
+							DataChannel dataChannel = new DataChannel(thing, thing.getThingId(), channel,
+									annotation.get().id());
+							dataChannels.put(annotation.get().id(), dataChannel);
+						}
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-						log.warn("Unable to add Channel to Databus. Method [" + method.getName() + "], ChannelId ["
+						log.warn("Unable to add Channel to Databus. Member [" + member.getName() + "], ChannelId ["
 								+ annotation.get().id() + "]: " + e.getMessage());
 					}
 				}

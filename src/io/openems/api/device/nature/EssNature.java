@@ -21,8 +21,8 @@
 package io.openems.api.device.nature;
 
 import io.openems.api.channel.IsChannel;
-import io.openems.api.channel.NumericChannel;
-import io.openems.api.channel.WriteableNumericChannel;
+import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.channel.numeric.WriteableNumericChannel;
 import io.openems.api.thing.IsConfig;
 
 public interface EssNature extends DeviceNature {

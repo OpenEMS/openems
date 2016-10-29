@@ -27,13 +27,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.WriteableNumericChannel;
+import io.openems.api.channel.ChannelListener;
+import io.openems.api.channel.numeric.WriteableNumericChannel;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.thing.Thing;
 
@@ -59,6 +61,11 @@ public class Databus {
 	 * holds WritableChannels
 	 */
 	private final List<DataChannel> writableChannels = new LinkedList<>();
+
+	/**
+	 * holds Channel-Updated listeners
+	 */
+	private final Map<Channel<?>, List<ChannelListener>> channelListeners = new ConcurrentHashMap<>();
 
 	/**
 	 * Adds a thing to the Databus and fills the local convenience maps
@@ -91,7 +98,21 @@ public class Databus {
 	 * @param channel
 	 */
 	public void channelValueUpdated(Channel<?> channel) {
-		// log.info("Channel update: " + channel);
+		List<ChannelListener> listeners = channelListeners.get(channel);
+		if (listeners != null) {
+			for (ChannelListener listener : listeners) {
+				listener.channelUpdated(channel);
+			}
+		}
+	}
+
+	public void addListener(Channel<?> channel, ChannelListener listener) {
+		List<ChannelListener> listeners = channelListeners.get(channel);
+		if (listeners == null) {
+			listeners = new LinkedList<ChannelListener>();
+			channelListeners.put(channel, listeners);
+		}
+		listeners.add(listener);
 	}
 
 	public Set<String> getChannelIds(String thingId) {

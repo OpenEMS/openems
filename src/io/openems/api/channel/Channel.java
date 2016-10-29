@@ -37,9 +37,10 @@ public abstract class Channel<T> {
 	private Optional<DeviceNature> nature = Optional.empty();
 	private Optional<T> value = Optional.empty();
 
-	public Channel(DeviceNature nature) {
+	public Channel(DeviceNature nature, Optional<String> channelId) {
 		log = LoggerFactory.getLogger(this.getClass());
 		this.nature = Optional.ofNullable(nature);
+		this.channelId = channelId;
 	}
 
 	public String getAddress() {
@@ -57,7 +58,7 @@ public abstract class Channel<T> {
 	}
 
 	public T getValue() throws InvalidValueException {
-		return value.orElseThrow(() -> new InvalidValueException("No Value available."));
+		return getValueOptional().orElseThrow(() -> new InvalidValueException("No Value available."));
 	};
 
 	public Optional<T> getValueOptional() {

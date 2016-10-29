@@ -18,13 +18,14 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.channel;
+package io.openems.api.channel.numeric;
 
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -50,10 +51,10 @@ public class WriteableNumericChannel extends NumericChannel {
 	private Optional<Long> minWriteValue = Optional.empty();
 	private Optional<Long> writeValue = Optional.empty();
 
-	public WriteableNumericChannel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier,
-			Long delta, Map<Long, String> labels, Long minWriteValue, NumericChannel minWriteChannel,
-			Long maxWriteValue, NumericChannel maxWriteChannel) {
-		super(nature, unit, minValue, maxValue, multiplier, delta, labels);
+	public WriteableNumericChannel(Optional<String> channelId, DeviceNature nature, String unit, Long minValue,
+			Long maxValue, Long multiplier, Long delta, Map<Long, String> labels, Long minWriteValue,
+			NumericChannel minWriteChannel, Long maxWriteValue, NumericChannel maxWriteChannel) {
+		super(channelId, nature, unit, minValue, maxValue, multiplier, delta, labels);
 		this.minWriteValue = Optional.ofNullable(minWriteValue);
 		this.minWriteChannel = Optional.ofNullable(minWriteChannel);
 		this.maxWriteValue = Optional.ofNullable(maxWriteValue);

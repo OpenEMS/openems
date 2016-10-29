@@ -23,8 +23,8 @@ package io.openems.impl.device.commercial;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ConfigChannelBuilder;
 import io.openems.api.channel.IsChannel;
-import io.openems.api.channel.NumericChannel;
-import io.openems.api.channel.WriteableNumericChannel;
+import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.channel.numeric.WriteableNumericChannel;
 import io.openems.api.device.nature.EssNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusChannel;
@@ -38,7 +38,19 @@ import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
 import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBuilder;
 
 public class FeneconCommercialEss extends ModbusDeviceNature implements EssNature {
+	private final ModbusChannel _activePower = new ModbusChannelBuilder().id("ActivePower").nature(this).unit("W")
+			.multiplier(100).build();
+	private final ModbusChannel _soc = new ModbusChannelBuilder().nature(this).percentType().build();
+	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
+			.build();
+	private final ModbusChannel _allowedDischarge = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
+			.build();
+	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(100)
+			.build();
 
+	@IsChannel(id = "AllowedApparent")
+	public final ModbusChannel _allowedApparent = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(100)
+			.build();
 	@IsChannel(id = "Abnormity1")
 	public final ModbusChannel _abnormity1 = new ModbusChannelBuilder().nature(this) //
 			.label(1, "DC precharge contactor close unsuccessfully") //
@@ -129,16 +141,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 	@IsChannel(id = "AcDischargeEnergy")
 	public final ModbusChannel _acDischargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh").multiplier(100)
 			.build();
-	public final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100).build();
-	@IsChannel(id = "AllowedApparent")
-	public final ModbusChannel _allowedApparent = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(100)
-			.build();
-	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
-			.build();
-	private final ModbusChannel _allowedDischarge = new ModbusChannelBuilder().nature(this).unit("W").multiplier(100)
-			.build();
-	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(100)
-			.build();
+
 	@IsChannel(id = "BatteryAccumulatedCharge")
 	public final ModbusChannel _batteryAccumulatedCharge = new ModbusChannelBuilder().nature(this).unit("Wh").build();
 	@IsChannel(id = "BatteryAccumulatedDischarge")
@@ -304,7 +307,6 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 			.label(4, STOP) //
 			.label(32, STANDBY) //
 			.label(64, START).build();
-	private final ModbusChannel _soc = new ModbusChannelBuilder().nature(this).percentType().build();
 	@IsChannel(id = "SuggestiveInformation1")
 	public final ModbusChannel _suggestiveInformation1 = new ModbusChannelBuilder().nature(this) //
 			.label(4, "EmergencyStop") //

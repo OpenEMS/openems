@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.WriteableNumericChannel;
+import io.openems.api.channel.numeric.WriteableNumericChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsModbusException;

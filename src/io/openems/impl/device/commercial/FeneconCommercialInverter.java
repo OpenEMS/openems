@@ -1,6 +1,6 @@
 package io.openems.impl.device.commercial;
 
-import io.openems.api.channel.WriteableNumericChannel;
+import io.openems.api.channel.numeric.WriteableNumericChannel;
 import io.openems.api.device.nature.PvInverterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;

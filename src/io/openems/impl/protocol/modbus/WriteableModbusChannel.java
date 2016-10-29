@@ -21,18 +21,19 @@
 package io.openems.impl.protocol.modbus;
 
 import java.util.Map;
+import java.util.Optional;
 
-import io.openems.api.channel.NumericChannel;
-import io.openems.api.channel.WriteableNumericChannel;
+import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.channel.numeric.WriteableNumericChannel;
 import io.openems.api.device.nature.DeviceNature;
 
 public class WriteableModbusChannel extends WriteableNumericChannel {
 
-	public WriteableModbusChannel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier,
-			Long delta, Map<Long, String> labels, Long minWriteValue, NumericChannel minWriteValueChannel,
-			Long maxWriteValue, NumericChannel maxWriteValueChannel) {
-		super(nature, unit, minValue, maxValue, multiplier, delta, labels, minWriteValue, minWriteValueChannel,
-				maxWriteValue, maxWriteValueChannel);
+	public WriteableModbusChannel(Optional<String> channelId, DeviceNature nature, String unit, Long minValue,
+			Long maxValue, Long multiplier, Long delta, Map<Long, String> labels, Long minWriteValue,
+			NumericChannel minWriteValueChannel, Long maxWriteValue, NumericChannel maxWriteValueChannel) {
+		super(channelId, nature, unit, minValue, maxValue, multiplier, delta, labels, minWriteValue,
+				minWriteValueChannel, maxWriteValue, maxWriteValueChannel);
 	}
 
 	@Override

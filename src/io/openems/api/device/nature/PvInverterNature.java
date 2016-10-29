@@ -21,7 +21,7 @@
 package io.openems.api.device.nature;
 
 import io.openems.api.channel.IsChannel;
-import io.openems.api.channel.WriteableNumericChannel;
+import io.openems.api.channel.numeric.WriteableNumericChannel;
 
 public interface PvInverterNature extends DeviceNature {
 

@@ -21,14 +21,15 @@
 package io.openems.impl.protocol.modbus;
 
 import java.util.Map;
+import java.util.Optional;
 
-import io.openems.api.channel.NumericChannel;
+import io.openems.api.channel.numeric.NumericChannel;
 import io.openems.api.device.nature.DeviceNature;
 
 public class ModbusChannel extends NumericChannel {
-	public ModbusChannel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
-			Map<Long, String> labels) {
-		super(nature, unit, minValue, maxValue, multiplier, delta, labels);
+	public ModbusChannel(Optional<String> channelId, DeviceNature nature, String unit, Long minValue, Long maxValue,
+			Long multiplier, Long delta, Map<Long, String> labels) {
+		super(channelId, nature, unit, minValue, maxValue, multiplier, delta, labels);
 	}
 
 	@Override

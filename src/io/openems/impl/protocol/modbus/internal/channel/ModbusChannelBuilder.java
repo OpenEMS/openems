@@ -26,6 +26,6 @@ import io.openems.impl.protocol.modbus.ModbusChannel;
 public class ModbusChannelBuilder extends ChannelBuilder<ModbusChannelBuilder> {
 	@Override
 	public ModbusChannel build() {
-		return new ModbusChannel(nature, unit, minValue, maxValue, multiplier, delta, labels);
+		return new ModbusChannel(channelId, nature, unit, minValue, maxValue, multiplier, delta, labels);
 	}
 }

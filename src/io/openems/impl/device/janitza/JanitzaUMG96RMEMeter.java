@@ -1,6 +1,6 @@
 package io.openems.impl.device.janitza;
 
-import io.openems.api.channel.NumericChannel;
+import io.openems.api.channel.numeric.NumericChannel;
 import io.openems.api.device.nature.MeterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusChannel;
