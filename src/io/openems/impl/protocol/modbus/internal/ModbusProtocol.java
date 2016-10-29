@@ -32,12 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
+import io.openems.api.channel.NumericChannel;
 import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class ModbusProtocol {
 	private static Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
-	private final Map<Channel, ModbusElement> channelElementMap = new ConcurrentHashMap<>();
+	private final Map<NumericChannel, ModbusElement> channelElementMap = new ConcurrentHashMap<>();
 	private final Map<Integer, ModbusRange> otherRanges = new ConcurrentHashMap<>(); // key = startAddress
 	private final LinkedList<Integer> otherRangesQueue = new LinkedList<>();
 	// requiredRanges stays empty till someone calls "setAsRequired()"
@@ -98,7 +99,7 @@ public class ModbusProtocol {
 		return Collections.unmodifiableCollection(writableRanges.values());
 	}
 
-	public void setAsRequired(Channel channel) {
+	public void setAsRequired(Channel<?> channel) {
 		if (channel instanceof ModbusChannel) {
 			ModbusRange range = channelElementMap.get(channel).getModbusRange();
 			otherRanges.remove(range.getStartAddress());

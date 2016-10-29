@@ -1,6 +1,6 @@
 package io.openems.impl.device.pro;
 
-import io.openems.api.channel.Channel;
+import io.openems.api.channel.NumericChannel;
 import io.openems.api.device.nature.MeterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusChannel;
@@ -22,49 +22,49 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements MeterNature
 	}
 
 	@Override
-	public Channel activeNegativeEnergy() {
+	public NumericChannel activeNegativeEnergy() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Channel activePositiveEnergy() {
+	public NumericChannel activePositiveEnergy() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Channel activePower() {
+	public NumericChannel activePower() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Channel apparentEnergy() {
+	public NumericChannel apparentEnergy() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Channel apparentPower() {
+	public NumericChannel apparentPower() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Channel reactiveNegativeEnergy() {
+	public NumericChannel reactiveNegativeEnergy() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Channel reactivePositiveEnergy() {
+	public NumericChannel reactivePositiveEnergy() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Channel reactivePower() {
+	public NumericChannel reactivePower() {
 		// TODO Auto-generated method stub
 		return null;
 	}

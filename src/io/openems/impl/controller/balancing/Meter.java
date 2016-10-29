@@ -20,8 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.controller.balancing;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsRequired;
+import io.openems.api.channel.NumericChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.MeterNature;
@@ -30,7 +30,7 @@ import io.openems.api.device.nature.MeterNature;
 public class Meter extends ThingMap {
 
 	@IsRequired(channelId = "ActivePower")
-	public Channel activePower;
+	public NumericChannel activePower;
 
 	public Meter(String thingId) {
 		super(thingId);

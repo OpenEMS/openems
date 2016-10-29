@@ -144,7 +144,7 @@ public class ControllerFactory {
 									+ sourceMethod.getName() + "] -> Field [" + targetField.getName() + "]");
 							try {
 								Thing sourceThing = matchingThings.get(thingId);
-								Channel channel = (Channel) sourceMethod.invoke(sourceThing);
+								Channel<?> channel = (Channel<?>) sourceMethod.invoke(sourceThing);
 								channel.setChannelId(channelId);
 								targetField.set(thingMap, channel);
 								channel.setAsRequired();

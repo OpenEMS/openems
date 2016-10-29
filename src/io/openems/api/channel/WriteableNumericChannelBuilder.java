@@ -20,20 +20,20 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
-public class WriteableChannelBuilder<B extends WriteableChannelBuilder<?>> extends ChannelBuilder<B> {
+public class WriteableNumericChannelBuilder<B extends WriteableNumericChannelBuilder<?>> extends ChannelBuilder<B> {
 	protected Long maxWriteValue = null;
-	protected Channel maxWriteValueChannel = null;
+	protected NumericChannel maxWriteValueChannel = null;
 	protected Long minWriteValue = null;
-	protected Channel minWriteValueChannel = null;
+	protected NumericChannel minWriteValueChannel = null;
 
 	@Override
-	public WriteableChannel build() {
-		return new WriteableChannel(nature, unit, minValue, maxValue, multiplier, delta, labels, minWriteValue,
+	public WriteableNumericChannel build() {
+		return new WriteableNumericChannel(nature, unit, minValue, maxValue, multiplier, delta, labels, minWriteValue,
 				minWriteValueChannel, maxWriteValue, maxWriteValueChannel);
 	}
 
 	@SuppressWarnings("unchecked")
-	public B maxWriteValue(Channel maxWriteValueChannel) {
+	public B maxWriteValue(NumericChannel maxWriteValueChannel) {
 		this.maxWriteValueChannel = maxWriteValueChannel;
 		return (B) this;
 	}
@@ -45,7 +45,7 @@ public class WriteableChannelBuilder<B extends WriteableChannelBuilder<?>> exten
 	}
 
 	@SuppressWarnings("unchecked")
-	public B minWriteValue(Channel minWriteValueChannel) {
+	public B minWriteValue(NumericChannel minWriteValueChannel) {
 		this.minWriteValueChannel = minWriteValueChannel;
 		return (B) this;
 	}

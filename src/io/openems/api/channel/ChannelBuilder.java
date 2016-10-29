@@ -23,6 +23,9 @@ package io.openems.api.channel;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.device.nature.DeviceNature;
 
 public class ChannelBuilder<B extends ChannelBuilder<?>> {
@@ -33,13 +36,30 @@ public class ChannelBuilder<B extends ChannelBuilder<?>> {
 	protected Long multiplier = 1L;
 	protected DeviceNature nature = null;
 	protected String unit = "";
+	protected boolean numeric = false;
+	protected final Logger log;
 
-	public Channel build() {
-		return new Channel(nature, unit, minValue, maxValue, multiplier, delta, labels);
+	public ChannelBuilder() {
+		log = LoggerFactory.getLogger(this.getClass());
+	}
+
+	public Channel<?> build() {
+		if (numeric) {
+			return new NumericChannel(nature, unit, minValue, maxValue, multiplier, delta, labels);
+		} else {
+			log.error("Channel type not implemented!");
+			return null;
+		}
 	}
 
 	public B delta(int delta) {
 		return delta(Long.valueOf(delta));
+	}
+
+	@SuppressWarnings("unchecked")
+	public B numeric() {
+		this.numeric = true;
+		return (B) this;
 	}
 
 	@SuppressWarnings("unchecked")

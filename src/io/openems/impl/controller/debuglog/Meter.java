@@ -20,8 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.controller.debuglog;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsRequired;
+import io.openems.api.channel.NumericChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.MeterNature;
@@ -36,13 +36,13 @@ public class Meter extends ThingMap {
 	// public Channel activePositiveEnergy;
 
 	@IsRequired(channelId = "ActivePower")
-	public Channel activePower;
+	public NumericChannel activePower;
 
 	// @IsRequired(channelId = "ApparentEnergy")
 	// public Channel apparentEnergy;
 
 	@IsRequired(channelId = "ApparentPower")
-	public Channel apparentPower;
+	public NumericChannel apparentPower;
 
 	// @IsRequired(channelId = "ReactiveNegativeEnergy")
 	// public Channel reactiveNegativeEnergy;
@@ -51,7 +51,7 @@ public class Meter extends ThingMap {
 	// public Channel reactivePositiveEnergy;
 
 	@IsRequired(channelId = "ReactivePower")
-	public Channel reactivePower;
+	public NumericChannel reactivePower;
 
 	public Meter(String thingId) {
 		super(thingId);

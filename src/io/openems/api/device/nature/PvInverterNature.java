@@ -21,11 +21,11 @@
 package io.openems.api.device.nature;
 
 import io.openems.api.channel.IsChannel;
-import io.openems.api.channel.WriteableChannel;
+import io.openems.api.channel.WriteableNumericChannel;
 
 public interface PvInverterNature extends DeviceNature {
 
 	@IsChannel(id = "SetLimit")
-	public WriteableChannel setLimit();
+	public WriteableNumericChannel setLimit();
 
 }

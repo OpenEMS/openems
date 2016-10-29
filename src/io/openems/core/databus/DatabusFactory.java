@@ -47,7 +47,7 @@ public class DatabusFactory {
 				Optional<IsChannel> annotation = InjectionUtils.getIsChannelMethods(thing.getClass(), method.getName());
 				if (annotation.isPresent()) {
 					try {
-						Channel channel = (Channel) method.invoke(thing);
+						Channel<?> channel = (Channel<?>) method.invoke(thing);
 						channel.setDatabus(databus);
 						DataChannel dataChannel = new DataChannel(thing, thing.getThingId(), channel,
 								annotation.get().id());

@@ -26,6 +26,6 @@ import io.openems.api.thing.Thing;
 
 public interface DeviceNature extends Thing {
 
-	void setAsRequired(Channel channel) throws ConfigException;
+	void setAsRequired(Channel<?> channel) throws ConfigException;
 
 }

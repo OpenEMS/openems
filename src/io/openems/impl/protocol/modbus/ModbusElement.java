@@ -23,16 +23,16 @@ package io.openems.impl.protocol.modbus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.api.channel.Channel;
+import io.openems.api.channel.NumericChannel;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
 
 public abstract class ModbusElement {
 	protected final int address;
-	protected final Channel channel;
+	protected final NumericChannel channel;
 	protected final Logger log;
 	protected ModbusRange range = null;
 
-	public ModbusElement(int address, Channel channel) {
+	public ModbusElement(int address, NumericChannel channel) {
 		log = LoggerFactory.getLogger(this.getClass());
 		this.address = address;
 		this.channel = channel;
@@ -42,7 +42,7 @@ public abstract class ModbusElement {
 		return address;
 	}
 
-	public Channel getChannel() {
+	public NumericChannel getChannel() {
 		return channel;
 	}
 

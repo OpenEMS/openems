@@ -1,6 +1,6 @@
 package io.openems.impl.device.commercial;
 
-import io.openems.api.channel.WriteableChannel;
+import io.openems.api.channel.WriteableNumericChannel;
 import io.openems.api.device.nature.PvInverterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -21,7 +21,7 @@ public class FeneconCommercialInverter extends ModbusDeviceNature implements PvI
 	}
 
 	@Override
-	public WriteableChannel setLimit() {
+	public WriteableNumericChannel setLimit() {
 		return _setPvLimit;
 	}
 

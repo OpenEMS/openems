@@ -20,7 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.device.socomec;
 
-import io.openems.api.channel.Channel;
+import io.openems.api.channel.NumericChannel;
 import io.openems.api.device.nature.MeterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusChannel;
@@ -48,42 +48,42 @@ public class SocomecMeter extends ModbusDeviceNature implements MeterNature {
 	}
 
 	@Override
-	public Channel activeNegativeEnergy() {
+	public NumericChannel activeNegativeEnergy() {
 		return _activeNegativeEnergy;
 	}
 
 	@Override
-	public Channel activePositiveEnergy() {
+	public NumericChannel activePositiveEnergy() {
 		return _activePositiveEnergy;
 	}
 
 	@Override
-	public Channel activePower() {
+	public NumericChannel activePower() {
 		return _activePower;
 	}
 
 	@Override
-	public Channel apparentEnergy() {
+	public NumericChannel apparentEnergy() {
 		return _apparentEnergy;
 	}
 
 	@Override
-	public Channel apparentPower() {
+	public NumericChannel apparentPower() {
 		return _apparentPower;
 	}
 
 	@Override
-	public Channel reactiveNegativeEnergy() {
+	public NumericChannel reactiveNegativeEnergy() {
 		return _reactiveNegativeEnergy;
 	}
 
 	@Override
-	public Channel reactivePositiveEnergy() {
+	public NumericChannel reactivePositiveEnergy() {
 		return _reactivePositiveEnergy;
 	}
 
 	@Override
-	public Channel reactivePower() {
+	public NumericChannel reactivePower() {
 		return _reactivePower;
 	}
 

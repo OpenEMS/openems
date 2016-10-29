@@ -22,14 +22,14 @@ package io.openems.impl.protocol.modbus.internal;
 
 import java.nio.ByteOrder;
 
-import io.openems.api.channel.Channel;
+import io.openems.api.channel.NumericChannel;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class ElementBuilder {
 	private Integer address = null;
 	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-	private Channel channel = null;
+	private NumericChannel channel = null;
 	private boolean doubleword = false;
 	private int dummy = 0;
 	private boolean signed = false;
@@ -85,7 +85,7 @@ public class ElementBuilder {
 		return this;
 	}
 
-	public ElementBuilder channel(Channel channel) {
+	public ElementBuilder channel(NumericChannel channel) {
 		this.channel = channel;
 		return this;
 	}

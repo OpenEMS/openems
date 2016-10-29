@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.WriteableChannel;
+import io.openems.api.channel.WriteableNumericChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsModbusException;
@@ -58,7 +58,7 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 	/**
 	 * Sets a Channel as required. The Range with this Channel will be added to ModbusProtocol.RequiredRanges.
 	 */
-	public void setAsRequired(Channel channel) throws ConfigException {
+	public void setAsRequired(Channel<?> channel) throws ConfigException {
 		getProtocol().setAsRequired(channel);
 	}
 
@@ -92,8 +92,8 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 			// TODO: combine writes to a Multi
 			for (ModbusElement element : range.getElements()) {
 				// Check if Channel is writable (should be always the case)
-				if (element.getChannel() instanceof WriteableChannel) {
-					WriteableChannel writeableChannel = (WriteableChannel) element.getChannel();
+				if (element.getChannel() instanceof WriteableNumericChannel) {
+					WriteableNumericChannel writeableChannel = (WriteableNumericChannel) element.getChannel();
 					// take the value from the Channel and initialize it
 					Optional<Long> writeValue = writeableChannel.popRawWriteValueOptional();
 					if (writeValue.isPresent()) {

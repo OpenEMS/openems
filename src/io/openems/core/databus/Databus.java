@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.WriteableChannel;
+import io.openems.api.channel.WriteableNumericChannel;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.thing.Thing;
 
@@ -74,7 +74,7 @@ public class Databus {
 		thingDataChannels.put(thingId, dataChannels);
 		// add to central WritableChannel-Map
 		for (DataChannel dataChannel : dataChannels.values()) {
-			if (dataChannel.channel instanceof WriteableChannel) {
+			if (dataChannel.channel instanceof WriteableNumericChannel) {
 				this.writableChannels.add(dataChannel);
 			}
 		}
@@ -90,7 +90,7 @@ public class Databus {
 	 *
 	 * @param channel
 	 */
-	public void channelValueUpdated(Channel channel) {
+	public void channelValueUpdated(Channel<?> channel) {
 		// log.info("Channel update: " + channel);
 	}
 
@@ -106,7 +106,7 @@ public class Databus {
 		return Collections.unmodifiableSet(things.keySet());
 	}
 
-	public Long getValue(String thingId, String channelId) throws InvalidValueException {
+	public Object getValue(String thingId, String channelId) throws InvalidValueException {
 		return thingDataChannels.get(thingId).get(channelId).channel.getValue();
 	}
 
@@ -131,7 +131,7 @@ public class Databus {
 	}
 
 	/**
-	 * Triggers a write for all {@link WriteableChannel} via their respective {@link Bridge}.
+	 * Triggers a write for all {@link WriteableNumericChannel} via their respective {@link Bridge}.
 	 */
 	public void writeAll() {
 		for (Bridge bridge : this.bridges.values()) {

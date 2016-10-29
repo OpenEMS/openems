@@ -20,7 +20,9 @@
  *******************************************************************************/
 package io.openems.api.bridge;
 
-import java.util.Optional;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import io.openems.api.device.Device;
 import io.openems.api.thing.Thing;
@@ -29,7 +31,7 @@ import io.openems.core.utilities.AbstractWorker;
 public abstract class Bridge extends AbstractWorker implements Thing {
 	public final static String THINGID_PREFIX = "_bridge";
 	private static int instanceCounter = 0;
-	protected Optional<Device[]> devices = Optional.empty();
+	protected final List<Device> devices = Collections.synchronizedList(new LinkedList<Device>());
 
 	/**
 	 * Initialize the Thread with a name
@@ -45,8 +47,20 @@ public abstract class Bridge extends AbstractWorker implements Thing {
 		return getName();
 	}
 
-	public void setDevices(Device... devices) {
-		this.devices = Optional.of(devices);
+	public void addDevice(Device device) {
+		this.devices.add(device);
+	}
+
+	public final void addDevices(Device... devices) {
+		for (Device device : devices) {
+			addDevice(device);
+		}
+	}
+
+	public final void addDevices(List<Device> devices) {
+		for (Device device : devices) {
+			addDevice(device);
+		}
 	}
 
 	public abstract void triggerWrite();

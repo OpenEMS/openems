@@ -20,11 +20,11 @@
  *******************************************************************************/
 package io.openems.impl.device.commercial;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ConfigChannelBuilder;
 import io.openems.api.channel.IsChannel;
-import io.openems.api.channel.WriteableChannel;
+import io.openems.api.channel.NumericChannel;
+import io.openems.api.channel.WriteableNumericChannel;
 import io.openems.api.device.nature.EssNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusChannel;
@@ -742,42 +742,42 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 	}
 
 	@Override
-	public Channel activePower() {
+	public NumericChannel activePower() {
 		return _activePower;
 	}
 
 	@Override
-	public Channel allowedCharge() {
+	public NumericChannel allowedCharge() {
 		return _allowedCharge;
 	}
 
 	@Override
-	public Channel allowedDischarge() {
+	public NumericChannel allowedDischarge() {
 		return _allowedDischarge;
 	}
 
 	@Override
-	public Channel apparentPower() {
+	public NumericChannel apparentPower() {
 		return _apparentPower;
 	}
 
 	@Override
-	public Channel gridMode() {
+	public NumericChannel gridMode() {
 		return _gridMode;
 	}
 
 	@Override
-	public Channel minSoc() {
+	public NumericChannel minSoc() {
 		return _minSoc;
 	}
 
 	@Override
-	public Channel reactivePower() {
+	public NumericChannel reactivePower() {
 		return _reactivePower;
 	}
 
 	@Override
-	public WriteableChannel setActivePower() {
+	public WriteableNumericChannel setActivePower() {
 		return _setActivePower;
 	}
 
@@ -787,17 +787,17 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 	}
 
 	@Override
-	public WriteableChannel setWorkState() {
+	public WriteableNumericChannel setWorkState() {
 		return _setWorkState;
 	}
 
 	@Override
-	public Channel soc() {
+	public NumericChannel soc() {
 		return _soc;
 	}
 
 	@Override
-	public Channel systemState() {
+	public NumericChannel systemState() {
 		return _systemState;
 	}
 

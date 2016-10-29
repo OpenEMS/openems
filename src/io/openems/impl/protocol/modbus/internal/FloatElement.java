@@ -26,14 +26,14 @@ import java.nio.ByteOrder;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
-import io.openems.api.channel.Channel;
+import io.openems.api.channel.NumericChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class FloatElement extends ModbusElement implements DoublewordElement {
 	private final ByteOrder byteOrder;
 	private final WordOrder wordOrder;
 
-	public FloatElement(int address, Channel channel, ByteOrder byteOrder, WordOrder wordOrder) {
+	public FloatElement(int address, NumericChannel channel, ByteOrder byteOrder, WordOrder wordOrder) {
 		super(address, channel);
 		this.byteOrder = byteOrder;
 		this.wordOrder = wordOrder;

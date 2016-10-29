@@ -80,11 +80,11 @@ public abstract class ModbusBridge extends Bridge {
 		/*
 		 * Copy and cast devices to local modbusdevices array
 		 */
-		if (!devices.isPresent() || devices.get().length == 0) {
+		if (devices.isEmpty()) {
 			return false;
 		}
 		List<ModbusDevice> modbusdevices = new ArrayList<>();
-		for (Device device : devices.get()) {
+		for (Device device : devices) {
 			if (device instanceof ModbusDevice) {
 				modbusdevices.add((ModbusDevice) device);
 			}

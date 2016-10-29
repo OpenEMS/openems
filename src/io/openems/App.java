@@ -20,18 +20,15 @@
  *******************************************************************************/
 package io.openems;
 
-import java.io.File;
-import java.io.FileReader;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import io.openems.core.databus.Databus;
 import io.openems.core.utilities.ThingFactory;
+import io.openems.demo.Demo;
+import io.openems.demo.DemoFems7;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
@@ -42,13 +39,14 @@ public class App {
 		// Demo demo = new DemoFems7WithMeter();
 		// Demo demo = new DemoJanitza();
 
-		// Demo demo = new DemoFems7();
+		Demo demo = new DemoFems7();
+		JsonObject config = demo.getConfig();
 
-		File file = new File("config");
-		log.info("Read configuration from " + file.getAbsolutePath());
-		JsonParser parser = new JsonParser();
-		JsonElement jsonElement = parser.parse(new FileReader(file));
-		JsonObject config = jsonElement.getAsJsonObject();
+		// File file = new File("config");
+		// log.info("Read configuration from " + file.getAbsolutePath());
+		// JsonParser parser = new JsonParser();
+		// JsonElement jsonElement = parser.parse(new FileReader(file));
+		// JsonObject config = jsonElement.getAsJsonObject();
 
 		log.info("OpenEMS config loaded");
 

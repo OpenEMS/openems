@@ -20,9 +20,9 @@
  *******************************************************************************/
 package io.openems.impl.controller.avoidtotaldischarge;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsRequired;
-import io.openems.api.channel.WriteableChannel;
+import io.openems.api.channel.NumericChannel;
+import io.openems.api.channel.WriteableNumericChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.EssNature;
@@ -31,16 +31,16 @@ import io.openems.api.device.nature.EssNature;
 public class Ess extends ThingMap {
 
 	@IsRequired(channelId = "MinSoc")
-	public Channel minSoc;
+	public NumericChannel minSoc;
 
 	@IsRequired(channelId = "SetActivePower")
-	public WriteableChannel setActivePower;
+	public WriteableNumericChannel setActivePower;
 
 	// @IsRequired(channelId = "SetWorkState")
 	// public WriteableChannel setWorkState;
 
 	@IsRequired(channelId = "Soc")
-	public Channel soc;
+	public NumericChannel soc;
 
 	// @IsRequired(channelId = "SystemState")
 	// public Channel systemState;

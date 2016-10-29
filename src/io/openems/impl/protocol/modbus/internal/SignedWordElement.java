@@ -26,13 +26,13 @@ import java.nio.ByteOrder;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
-import io.openems.api.channel.Channel;
+import io.openems.api.channel.NumericChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class SignedWordElement extends ModbusElement implements WordElement {
 	private final ByteOrder byteOrder;
 
-	public SignedWordElement(int address, Channel channel, ByteOrder byteOrder) {
+	public SignedWordElement(int address, NumericChannel channel, ByteOrder byteOrder) {
 		super(address, channel);
 		this.byteOrder = byteOrder;
 	}

@@ -29,13 +29,13 @@ public class DebugLogController extends Controller {
 	@IsThingMapping
 	public List<Ess> esss = null;
 
-	@IsThingMapping
-	public Meter meter = null;
+	// @IsThingMapping
+	// public Meter meter = null;
 
 	@Override
 	public void run() {
 		StringBuilder b = new StringBuilder();
-		b.append(meter.getThingId() + ": " + meter.activePower.toString() + " ");
+		// b.append(meter.getThingId() + ": " + meter.activePower.toString() + " ");
 		for (Ess ess : esss) {
 			b.append(ess.getThingId() + ": " + ess.soc.toString() + ", act=" + ess.activePower.toString() + ", setAct="
 					+ ess.setActivePower.toString() + ", state=" + ess.systemState.toString() + " ");

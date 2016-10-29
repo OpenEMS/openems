@@ -20,9 +20,9 @@
  *******************************************************************************/
 package io.openems.api.device.nature;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsChannel;
-import io.openems.api.channel.WriteableChannel;
+import io.openems.api.channel.NumericChannel;
+import io.openems.api.channel.WriteableNumericChannel;
 import io.openems.api.thing.IsConfig;
 
 public interface EssNature extends DeviceNature {
@@ -36,38 +36,38 @@ public interface EssNature extends DeviceNature {
 	public final String STOP = "Stop";
 
 	@IsChannel(id = "ActivePower")
-	public Channel activePower();
+	public NumericChannel activePower();
 
 	@IsChannel(id = "AllowedCharge")
-	public Channel allowedCharge();
+	public NumericChannel allowedCharge();
 
 	@IsChannel(id = "AllowedDischarge")
-	public Channel allowedDischarge();
+	public NumericChannel allowedDischarge();
 
 	@IsChannel(id = "ApparentPower")
-	public Channel apparentPower();
+	public NumericChannel apparentPower();
 
 	@IsChannel(id = "GridMode")
-	public Channel gridMode();
+	public NumericChannel gridMode();
 
 	@IsChannel(id = "MinSoc")
-	public Channel minSoc();
+	public NumericChannel minSoc();
 
 	@IsChannel(id = "ReactivePower")
-	public Channel reactivePower();
+	public NumericChannel reactivePower();
 
 	@IsChannel(id = "SetActivePower")
-	public WriteableChannel setActivePower();
+	public WriteableNumericChannel setActivePower();
 
 	@IsConfig("MinSoc")
 	public void setMinSoc(Integer minSoc);
 
 	@IsChannel(id = "SetWorkState")
-	public WriteableChannel setWorkState();
+	public WriteableNumericChannel setWorkState();
 
 	@IsChannel(id = "Soc")
-	public Channel soc();
+	public NumericChannel soc();
 
 	@IsChannel(id = "SystemState")
-	public Channel systemState();
+	public NumericChannel systemState();
 }

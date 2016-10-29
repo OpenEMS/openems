@@ -65,8 +65,8 @@ public class ModbusRtu extends ModbusBridge {
 	}
 
 	@Override
-	public void setDevices(Device... devices) {
-		super.setDevices(devices);
+	public void addDevice(Device device) {
+		super.addDevice(device);
 		triggerInitialize();
 	}
 

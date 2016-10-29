@@ -49,7 +49,7 @@ public class FeneconCommercialDC extends ModbusDevice {
 
 	@Override
 	public String toString() {
-		return "FeneconPro [ess=" + ess + ", modbusUnitId=" + getModbusUnitId() + ", getThingId()=" + getThingId()
-				+ "]";
+		return "FeneconCommercialDC [ess=" + ess + ", modbusUnitId=" + getModbusUnitId() + ", getThingId()="
+				+ getThingId() + "]";
 	}
 }

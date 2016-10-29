@@ -37,22 +37,22 @@ import io.openems.api.exception.WriteChannelException;
  * - Use {@link hasWriteValue()} to see if a value or a boundary was set.
  * - Use {@link peekWriteValue()} to receive the value.
  * - Use {@link popWriteValue()} to receive the value or a value that was derived from the min and max boundaries and
- * initialize the {@link WriteableChannel}.
+ * initialize the {@link WriteableNumericChannel}.
  * - The {@link DeviceNature} is internally calling {@link popRawWriteValue()} to receive the value in a format suitable
  * for writing to hardware.
  *
  * @author stefan.feilmeier
  */
-public class WriteableChannel extends Channel {
-	protected final Optional<Channel> maxWriteChannel;
-	protected final Optional<Channel> minWriteChannel;
+public class WriteableNumericChannel extends NumericChannel {
+	protected final Optional<NumericChannel> maxWriteChannel;
+	protected final Optional<NumericChannel> minWriteChannel;
 	private Optional<Long> maxWriteValue = Optional.empty();
 	private Optional<Long> minWriteValue = Optional.empty();
 	private Optional<Long> writeValue = Optional.empty();
 
-	public WriteableChannel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier, Long delta,
-			Map<Long, String> labels, Long minWriteValue, Channel minWriteChannel, Long maxWriteValue,
-			Channel maxWriteChannel) {
+	public WriteableNumericChannel(DeviceNature nature, String unit, Long minValue, Long maxValue, Long multiplier,
+			Long delta, Map<Long, String> labels, Long minWriteValue, NumericChannel minWriteChannel,
+			Long maxWriteValue, NumericChannel maxWriteChannel) {
 		super(nature, unit, minValue, maxValue, multiplier, delta, labels);
 		this.minWriteValue = Optional.ofNullable(minWriteValue);
 		this.minWriteChannel = Optional.ofNullable(minWriteChannel);
@@ -118,11 +118,11 @@ public class WriteableChannel extends Channel {
 		}
 	}
 
-	public synchronized Optional<Channel> getMaxWriteChannel() {
+	public synchronized Optional<NumericChannel> getMaxWriteChannel() {
 		return maxWriteChannel;
 	}
 
-	public synchronized Optional<Channel> getMinWriteChannel() {
+	public synchronized Optional<NumericChannel> getMinWriteChannel() {
 		return minWriteChannel;
 	}
 
@@ -199,7 +199,7 @@ public class WriteableChannel extends Channel {
 
 	/**
 	 * Returns the fixed value in a format suitable for writing to hardware and initializes the
-	 * {@link WriteableChannel}. This method is called internally by {@link DeviceNature}.
+	 * {@link WriteableNumericChannel}. This method is called internally by {@link DeviceNature}.
 	 *
 	 * @return value
 	 */
@@ -329,7 +329,7 @@ public class WriteableChannel extends Channel {
 	}
 
 	/**
-	 * Returns the value and initializes the {@link WriteableChannel}.
+	 * Returns the value and initializes the {@link WriteableNumericChannel}.
 	 *
 	 * @return value
 	 */

@@ -41,7 +41,7 @@ public class FeneconCommercialAC extends ModbusDevice {
 
 	@Override
 	public String toString() {
-		return "FeneconPro [ess=" + ess + ", modbusUnitId=" + getModbusUnitId() + ", getThingId()=" + getThingId()
-				+ "]";
+		return "FeneconCommercialAC [ess=" + ess + ", modbusUnitId=" + getModbusUnitId() + ", getThingId()="
+				+ getThingId() + "]";
 	}
 }

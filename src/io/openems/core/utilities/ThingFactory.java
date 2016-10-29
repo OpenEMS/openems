@@ -126,7 +126,7 @@ public class ThingFactory {
 				devices.add(device);
 				databus.addThing(device.getThingId(), device);
 			}
-			bridge.setDevices(devices.stream().toArray(Device[]::new));
+			bridge.addDevices(devices);
 		}
 
 		/*

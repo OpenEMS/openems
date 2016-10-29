@@ -20,32 +20,32 @@
  *******************************************************************************/
 package io.openems.api.device.nature;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.channel.IsChannel;
+import io.openems.api.channel.NumericChannel;
 
 public interface MeterNature extends DeviceNature {
 
 	@IsChannel(id = "ActiveNegativeEnergy")
-	public Channel activeNegativeEnergy();
+	public NumericChannel activeNegativeEnergy();
 
 	@IsChannel(id = "ActivePositiveEnergy")
-	public Channel activePositiveEnergy();
+	public NumericChannel activePositiveEnergy();
 
 	@IsChannel(id = "ActivePower")
-	public Channel activePower();
+	public NumericChannel activePower();
 
 	@IsChannel(id = "ApparentEnergy")
-	public Channel apparentEnergy();
+	public NumericChannel apparentEnergy();
 
 	@IsChannel(id = "ApparentPower")
-	public Channel apparentPower();
+	public NumericChannel apparentPower();
 
 	@IsChannel(id = "ReactiveNegativeEnergy")
-	public Channel reactiveNegativeEnergy();
+	public NumericChannel reactiveNegativeEnergy();
 
 	@IsChannel(id = "ReactivePositiveEnergy")
-	public Channel reactivePositiveEnergy();
+	public NumericChannel reactivePositiveEnergy();
 
 	@IsChannel(id = "ReactivePower")
-	public Channel reactivePower();
+	public NumericChannel reactivePower();
 }
