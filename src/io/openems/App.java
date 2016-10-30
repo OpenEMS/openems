@@ -29,6 +29,8 @@ import io.openems.core.databus.Databus;
 import io.openems.core.utilities.ThingFactory;
 import io.openems.demo.Demo;
 import io.openems.demo.DemoFems7;
+import io.openems.impl.api.rest.RestApi;
+import io.vertx.core.Vertx;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
@@ -54,8 +56,14 @@ public class App {
 		log.info("OpenEMS Databus initialized");
 		// databus.printAll();
 
+		// Start vertx
+		Vertx vertx = Vertx.vertx();
+		// Deploy REST-Api verticle
+		vertx.deployVerticle(new RestApi(databus));
+
 		Thread.sleep(3000);
 
 		log.info("ess0/soc: " + databus.getValue("ess0", "Soc"));
+		;
 	}
 }
