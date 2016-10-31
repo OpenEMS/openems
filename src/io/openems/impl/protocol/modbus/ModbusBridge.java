@@ -29,6 +29,8 @@ import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
+import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
+import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
@@ -133,6 +135,50 @@ public abstract class ModbusBridge extends Bridge {
 					+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Register [" + register.getValue()
 					+ "]: " + res.toString());
 		}
+	}
+
+	protected void writeMultipleRegisters(int modbusUnitId, int address, Register... register)
+			throws OpenemsModbusException {
+		ModbusTransaction trans = getTransaction();
+		WriteMultipleRegistersRequest req = new WriteMultipleRegistersRequest(address, register);
+		req.setUnitID(modbusUnitId);
+		trans.setRequest(req);
+		try {
+			trans.execute();
+		} catch (ModbusException e) {
+			// try again with new connection
+			closeModbusConnection();
+			trans = getTransaction();
+			req = new WriteMultipleRegistersRequest(address, register);
+			req.setUnitID(modbusUnitId);
+			trans.setRequest(req);
+			try {
+				trans.execute();
+			} catch (ModbusException e1) {
+				throw new OpenemsModbusException("Error while executing write transaction. " //
+						+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Register ["
+						+ registersAsString(register) + "]: " + e1.getMessage());
+			}
+		}
+		ModbusResponse res = trans.getResponse();
+		if (!(res instanceof WriteMultipleRegistersResponse)) {
+			throw new OpenemsModbusException("Unable to read modbus write response. " //
+					+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Register ["
+					+ registersAsString(register) + "]: " + res.toString());
+		}
+	}
+
+	private String registersAsString(Register... registers) {
+		StringBuilder sb = new StringBuilder();
+		int count = 0;
+		for (Register r : registers) {
+			if (count != 0) {
+				sb.append(",");
+			}
+			sb.append(r.getValue());
+			count++;
+		}
+		return sb.toString();
 	}
 
 	/**

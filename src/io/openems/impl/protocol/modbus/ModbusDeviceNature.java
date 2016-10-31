@@ -21,6 +21,7 @@
 package io.openems.impl.protocol.modbus;
 
 import java.util.Optional;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,36 +91,91 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 	protected void write(int modbusUnitId, ModbusBridge modbusBridge) throws ConfigException {
 		for (WritableModbusRange range : getProtocol().getWritableRanges()) {
 			// TODO: combine writes to a Multi
-			for (ModbusElement element : range.getElements()) {
-				// Check if Channel is writable (should be always the case)
-				if (element.getChannel() instanceof WriteableNumericChannel) {
-					WriteableNumericChannel writeableChannel = (WriteableNumericChannel) element.getChannel();
-					// take the value from the Channel and initialize it
-					Optional<Long> writeValue = writeableChannel.popRawWriteValueOptional();
-					if (writeValue.isPresent()) {
-						if (element instanceof WordElement) {
-							try {
+			if (range.getLength() > 1) {
+				TreeMap<Integer, Register> registers = new TreeMap<>();
+				for (ModbusElement element : range.getElements()) {
+					// Check if Channel is writable (should be always the case)
+					if (element.getChannel() instanceof WriteableNumericChannel) {
+						WriteableNumericChannel writeableChannel = (WriteableNumericChannel) element.getChannel();
+						// take the value from the Channel and initialize it
+						Optional<Long> writeValue = writeableChannel.popRawWriteValueOptional();
+						if (writeValue.isPresent()) {
+							if (element instanceof WordElement) {
+								// try {
 								WordElement wordElement = (WordElement) element;
 								Register register = wordElement.toRegister(writeValue.get());
-								modbusBridge.write(modbusUnitId, element.getAddress(), register);
-								log.debug("Wrote successfully: Thing [" + this.getThingId() + "], Address ["
-										+ element.getAddress() + "], Value [" + register.getValue() + "]");
+								registers.put(element.getAddress(), register);
+								// modbusBridge.write(modbusUnitId, element.getAddress(), register);
+								// log.debug("Wrote successfully: Thing [" + this.getThingId() + "], Address ["
+								// + element.getAddress() + "], Value [" + register.getValue() + "]");
 
-							} catch (OpenemsModbusException e) {
-								log.error("Modbus write failed. " //
-										+ "Bridge [" + modbusBridge.getThingId() + "], Range ["
-										+ range.getStartAddress() + "]: {}", e.getMessage());
-								modbusBridge.triggerInitialize();
+								// } catch (OpenemsModbusException e) {
+								// log.error("Modbus write failed. " //
+								// + "Bridge [" + modbusBridge.getThingId() + "], Range ["
+								// + range.getStartAddress() + "]: {}", e.getMessage());
+								// modbusBridge.triggerInitialize();
+								// }
+
+							} else if (element instanceof DoublewordElement) {
+								DoublewordElement wordElement = (DoublewordElement) element;
+								Register[] register = wordElement.toRegisters(writeValue.get());
+								int count = 0;
+								for (Register r : register) {
+									registers.put(element.getAddress() + count, r);
+									count++;
+								}
+							} else {
+								log.error("No WordElement: NOT IMPLEMENTED!");
 							}
-
-						} else {
-							log.error("No WordElement: NOT IMPLEMENTED!");
 						}
-					}
 
-				} else {
-					throw new ConfigException("Handling WritableModbusRange [" + range.getStartAddress()
-							+ "] but Channel for Element [" + element.getAddress() + "] is not writable!");
+					} else {
+						throw new ConfigException("Handling WritableModbusRange [" + range.getStartAddress()
+								+ "] but Channel for Element [" + element.getAddress() + "] is not writable!");
+					}
+				}
+				try {
+					Register[] arr = new Register[registers.size()];
+					registers.values().toArray(arr);
+					modbusBridge.writeMultipleRegisters(modbusUnitId, registers.firstKey(), arr);
+				} catch (OpenemsModbusException e) {
+					log.error("Modbus write failed. " //
+							+ "Bridge [" + modbusBridge.getThingId() + "], Range [" + range.getStartAddress() + "]: {}",
+							e.getMessage());
+					modbusBridge.triggerInitialize();
+				}
+			} else {
+				for (ModbusElement element : range.getElements()) {
+					// Check if Channel is writable (should be always the case)
+					if (element.getChannel() instanceof WriteableNumericChannel) {
+						WriteableNumericChannel writeableChannel = (WriteableNumericChannel) element.getChannel();
+						// take the value from the Channel and initialize it
+						Optional<Long> writeValue = writeableChannel.popRawWriteValueOptional();
+						if (writeValue.isPresent()) {
+							if (element instanceof WordElement) {
+								try {
+									WordElement wordElement = (WordElement) element;
+									Register register = wordElement.toRegister(writeValue.get());
+									modbusBridge.write(modbusUnitId, element.getAddress(), register);
+									log.debug("Wrote successfully: Thing [" + this.getThingId() + "], Address ["
+											+ element.getAddress() + "], Value [" + register.getValue() + "]");
+
+								} catch (OpenemsModbusException e) {
+									log.error("Modbus write failed. " //
+											+ "Bridge [" + modbusBridge.getThingId() + "], Range ["
+											+ range.getStartAddress() + "]: {}", e.getMessage());
+									modbusBridge.triggerInitialize();
+								}
+
+							} else {
+								log.error("No WordElement: NOT IMPLEMENTED!");
+							}
+						}
+
+					} else {
+						throw new ConfigException("Handling WritableModbusRange [" + range.getStartAddress()
+								+ "] but Channel for Element [" + element.getAddress() + "] is not writable!");
+					}
 				}
 			}
 		}

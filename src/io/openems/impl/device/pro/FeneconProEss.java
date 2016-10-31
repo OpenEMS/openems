@@ -14,6 +14,7 @@ import io.openems.impl.protocol.modbus.WriteableModbusChannel;
 import io.openems.impl.protocol.modbus.internal.ElementBuilder;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
+import io.openems.impl.protocol.modbus.internal.WritableModbusRange;
 import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
 import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBuilder;
 
@@ -44,7 +45,7 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 			.label(1, "Standby") //
 			.label(2, "Off grid PV") //
 			.label(3, "Off grid") //
-			.label(4, "On grid") //
+			.label(4, ON_GRID) //
 			.label(5, "Fail") //
 			.label(6, "bypass 1") //
 			.label(7, "bypass 2").build();
@@ -93,11 +94,15 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").build();
 	private final NumericChannel _activePower = new NumericChannelBuilder<>().nature(this).unit("W")
 			.channel(_activePowerPhaseA, _activePowerPhaseB, _activePowerPhaseC).aggregate(Aggregation.SUM).build();
+	private final NumericChannel _reactivePower = new NumericChannelBuilder<>().nature(this).unit("W")
+			.channel(_reactivePowerPhaseA, _reactivePowerPhaseB, _reactivePowerPhaseC).aggregate(Aggregation.SUM)
+			.build();
 	private final ModbusChannel _allowedDischarge = new ModbusChannelBuilder().nature(this).unit("W").build();
-	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().nature(this).unit("W").build();
+	private final ModbusChannel _allowedCharge = new ModbusChannelBuilder().nature(this).unit("W").multiplier(-1)
+			.build();
 	private final WriteableModbusChannel _setWorkState = new WriteableModbusChannelBuilder().nature(this) //
 			.label(0, "Local control") //
-			.label(1, "Remote control on grid starting") //
+			.label(1, START) // "Remote control on grid starting"
 			.label(2, "Remote control off grid starting") //
 			.label(3, STOP)//
 			.label(4, "Emergency Stop").build();
@@ -144,7 +149,7 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 
 	@Override
 	public NumericChannel reactivePower() {
-		return null;
+		return _reactivePower;
 	}
 
 	@Override
@@ -194,8 +199,8 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 						new ElementBuilder().address(119).channel(_currentPhaseB).signed().build(), //
 						new ElementBuilder().address(120).channel(_currentPhaseC).signed().build(), //
 						new ElementBuilder().address(121).channel(_voltagePhaseA).build(), //
-						new ElementBuilder().address(122).channel(_voltagePhaseA).build(), //
-						new ElementBuilder().address(123).channel(_voltagePhaseA).build(), //
+						new ElementBuilder().address(122).channel(_voltagePhaseB).build(), //
+						new ElementBuilder().address(123).channel(_voltagePhaseC).build(), //
 						new ElementBuilder().address(124).channel(_activePowerPhaseA).signed().build(), //
 						new ElementBuilder().address(125).channel(_activePowerPhaseB).signed().build(), //
 						new ElementBuilder().address(126).channel(_activePowerPhaseC).signed().build(), //
@@ -211,7 +216,7 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 						new ElementBuilder().address(141).channel(_allowedCharge).build(), //
 						new ElementBuilder().address(142).channel(_allowedDischarge).build() //
 				), //
-				new ModbusRange(200, //
+				new WritableModbusRange(200, //
 						new ElementBuilder().address(200).channel(_setWorkState).build(),
 						new ElementBuilder().address(201).channel(_setActivePower).signed().build(),
 						new ElementBuilder().address(202).channel(_setReactivePower).signed().build()));

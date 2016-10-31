@@ -376,4 +376,9 @@ public class WriteableNumericChannel extends NumericChannel {
 				+ "], max [" + this.getMaxValueOptional() + "/" + this.maxWriteValue + "/" + maxChannelValue + "]");
 	}
 
+	@Override
+	public Optional<Long> getValueOptional() {
+		return writeValue;
+	}
+
 }

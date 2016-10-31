@@ -13,7 +13,7 @@ public class NumericChannel extends Channel<Long> {
 	protected final Long multiplier;
 	private Optional<Long> maxValue = Optional.empty();
 	private Optional<Long> minValue = Optional.empty();
-	private final String unit;
+	protected final String unit;
 
 	public NumericChannel(Optional<String> channelId, DeviceNature nature, String unit, Long minValue, Long maxValue,
 			Long multiplier, Long delta, Map<Long, String> labels) {
