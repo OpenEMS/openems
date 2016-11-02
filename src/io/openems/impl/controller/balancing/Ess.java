@@ -49,6 +49,9 @@ public class Ess extends ThingMap {
 	@IsRequired(channelId = "SetActivePower")
 	public WriteableNumericChannel setActivePower;
 
+	@IsRequired(channelId = "SetReactivePower")
+	public WriteableNumericChannel setReactivePower;
+
 	@IsRequired(channelId = "Soc")
 	public NumericChannel soc;
 

@@ -2,10 +2,12 @@ package io.openems.impl.device.pro;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ConfigChannelBuilder;
+import io.openems.api.channel.IsChannel;
 import io.openems.api.channel.numeric.NumericChannel;
 import io.openems.api.channel.numeric.NumericChannelBuilder;
 import io.openems.api.channel.numeric.NumericChannelBuilder.Aggregation;
 import io.openems.api.channel.numeric.WriteableNumericChannel;
+import io.openems.api.controller.IsThingMap;
 import io.openems.api.device.nature.EssNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusChannel;
@@ -18,6 +20,7 @@ import io.openems.impl.protocol.modbus.internal.WritableModbusRange;
 import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
 import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBuilder;
 
+@IsThingMap(type = EssNature.class)
 public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 
 	private final ModbusChannel _systemState = new ModbusChannelBuilder().nature(this) //
@@ -57,6 +60,204 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 			.label(16, "Discharging over current alarm") //
 			.label(32, "Over temperature alarm")//
 			.label(64, "Interal communication abnormal").build();
+	private final ModbusChannel _pcsAlarm1PhaseA = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Grid undervoltage") //
+			.label(2, "Grid overvoltage") //
+			.label(4, "Grid under frequency") //
+			.label(8, "Grid over frequency") //
+			.label(16, "Grid power supply off") //
+			.label(32, "Grid condition unmeet")//
+			.label(64, "DC under voltage")//
+			.label(128, "Input over resistance")//
+			.label(256, "Combination error")//
+			.label(512, "Comm with inverter error")//
+			.label(1024, "Tme error")//
+			.build();
+	private final ModbusChannel _pcsAlarm2PhaseA = new ModbusChannelBuilder().nature(this) //
+			.build();
+	private final ModbusChannel _pcsFault1PhaseA = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Control current overload 100%")//
+			.label(2, "Control current overload 110%")//
+			.label(4, "Control current overload 150%")//
+			.label(8, "Control current overload 200%")//
+			.label(16, "Control current overload 120%")//
+			.label(32, "Control current overload 300%")//
+			.label(64, "Control transient load 300%")//
+			.label(128, "Grid over current")//
+			.label(256, "Locking waveform too many times")//
+			.label(512, "Inverter voltage zero drift error")//
+			.label(1024, "Grid voltage zero drift error")//
+			.label(2048, "Control current zero drift error")//
+			.label(4096, "Inverter current zero drift error")//
+			.label(8192, "Grid current zero drift error")//
+			.label(16384, "PDP protection")//
+			.label(32768, "Hardware control current protection")//
+			.build();
+	private final ModbusChannel _pcsFault2PhaseA = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Hardware AC volt. protection")//
+			.label(2, "Hardware DC curr. protection")//
+			.label(4, "Hardware temperature protection")//
+			.label(8, "No capturing signal")//
+			.label(16, "DC overvoltage")//
+			.label(32, "DC disconnected")//
+			.label(64, "Inverter undervoltage")//
+			.label(128, "Inverter overvoltage")//
+			.label(256, "Current sensor fail")//
+			.label(512, "Voltage sensor fail")//
+			.label(1024, "Power uncontrollable")//
+			.label(2048, "Current uncontrollable")//
+			.label(4096, "Fan error")//
+			.label(8192, "Phase lack")//
+			.label(16384, "Inverter relay fault")//
+			.label(32768, "Grid relay fault")//
+			.build();
+	private final ModbusChannel _pcsFault3PhaseA = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Control panel overtemp")//
+			.label(2, "Power panel overtemp")//
+			.label(4, "DC input overcurrent")//
+			.label(8, "Capacitor overtemp")//
+			.label(16, "Radiator overtemp")//
+			.label(32, "Transformer overtemp")//
+			.label(64, "Combination comm error")//
+			.label(128, "EEPROM error")//
+			.label(256, "Load current zero drift error")//
+			.label(512, "Current limit-R error")//
+			.label(1024, "Phase sync error")//
+			.label(2048, "External PV current zero drift error")//
+			.label(4096, "External grid current zero drift error")//
+			.build();
+	private final ModbusChannel _pcsAlarm1PhaseB = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Grid undervoltage") //
+			.label(2, "Grid overvoltage") //
+			.label(4, "Grid under frequency") //
+			.label(8, "Grid over frequency") //
+			.label(16, "Grid power supply off") //
+			.label(32, "Grid condition unmeet")//
+			.label(64, "DC under voltage")//
+			.label(128, "Input over resistance")//
+			.label(256, "Combination error")//
+			.label(512, "Comm with inverter error")//
+			.label(1024, "Tme error")//
+			.build();
+	private final ModbusChannel _pcsAlarm2PhaseB = new ModbusChannelBuilder().nature(this) //
+			.build();
+	private final ModbusChannel _pcsFault1PhaseB = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Control current overload 100%")//
+			.label(2, "Control current overload 110%")//
+			.label(4, "Control current overload 150%")//
+			.label(8, "Control current overload 200%")//
+			.label(16, "Control current overload 120%")//
+			.label(32, "Control current overload 300%")//
+			.label(64, "Control transient load 300%")//
+			.label(128, "Grid over current")//
+			.label(256, "Locking waveform too many times")//
+			.label(512, "Inverter voltage zero drift error")//
+			.label(1024, "Grid voltage zero drift error")//
+			.label(2048, "Control current zero drift error")//
+			.label(4096, "Inverter current zero drift error")//
+			.label(8192, "Grid current zero drift error")//
+			.label(16384, "PDP protection")//
+			.label(32768, "Hardware control current protection")//
+			.build();
+	private final ModbusChannel _pcsFault2PhaseB = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Hardware AC volt. protection")//
+			.label(2, "Hardware DC curr. protection")//
+			.label(4, "Hardware temperature protection")//
+			.label(8, "No capturing signal")//
+			.label(16, "DC overvoltage")//
+			.label(32, "DC disconnected")//
+			.label(64, "Inverter undervoltage")//
+			.label(128, "Inverter overvoltage")//
+			.label(256, "Current sensor fail")//
+			.label(512, "Voltage sensor fail")//
+			.label(1024, "Power uncontrollable")//
+			.label(2048, "Current uncontrollable")//
+			.label(4096, "Fan error")//
+			.label(8192, "Phase lack")//
+			.label(16384, "Inverter relay fault")//
+			.label(32768, "Grid relay fault")//
+			.build();
+	private final ModbusChannel _pcsFault3PhaseB = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Control panel overtemp")//
+			.label(2, "Power panel overtemp")//
+			.label(4, "DC input overcurrent")//
+			.label(8, "Capacitor overtemp")//
+			.label(16, "Radiator overtemp")//
+			.label(32, "Transformer overtemp")//
+			.label(64, "Combination comm error")//
+			.label(128, "EEPROM error")//
+			.label(256, "Load current zero drift error")//
+			.label(512, "Current limit-R error")//
+			.label(1024, "Phase sync error")//
+			.label(2048, "External PV current zero drift error")//
+			.label(4096, "External grid current zero drift error")//
+			.build();
+	private final ModbusChannel _pcsAlarm1PhaseC = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Grid undervoltage") //
+			.label(2, "Grid overvoltage") //
+			.label(4, "Grid under frequency") //
+			.label(8, "Grid over frequency") //
+			.label(16, "Grid power supply off") //
+			.label(32, "Grid condition unmeet")//
+			.label(64, "DC under voltage")//
+			.label(128, "Input over resistance")//
+			.label(256, "Combination error")//
+			.label(512, "Comm with inverter error")//
+			.label(1024, "Tme error")//
+			.build();
+	private final ModbusChannel _pcsAlarm2PhaseC = new ModbusChannelBuilder().nature(this) //
+			.build();
+	private final ModbusChannel _pcsFault1PhaseC = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Control current overload 100%")//
+			.label(2, "Control current overload 110%")//
+			.label(4, "Control current overload 150%")//
+			.label(8, "Control current overload 200%")//
+			.label(16, "Control current overload 120%")//
+			.label(32, "Control current overload 300%")//
+			.label(64, "Control transient load 300%")//
+			.label(128, "Grid over current")//
+			.label(256, "Locking waveform too many times")//
+			.label(512, "Inverter voltage zero drift error")//
+			.label(1024, "Grid voltage zero drift error")//
+			.label(2048, "Control current zero drift error")//
+			.label(4096, "Inverter current zero drift error")//
+			.label(8192, "Grid current zero drift error")//
+			.label(16384, "PDP protection")//
+			.label(32768, "Hardware control current protection")//
+			.build();
+	private final ModbusChannel _pcsFault2PhaseC = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Hardware AC volt. protection")//
+			.label(2, "Hardware DC curr. protection")//
+			.label(4, "Hardware temperature protection")//
+			.label(8, "No capturing signal")//
+			.label(16, "DC overvoltage")//
+			.label(32, "DC disconnected")//
+			.label(64, "Inverter undervoltage")//
+			.label(128, "Inverter overvoltage")//
+			.label(256, "Current sensor fail")//
+			.label(512, "Voltage sensor fail")//
+			.label(1024, "Power uncontrollable")//
+			.label(2048, "Current uncontrollable")//
+			.label(4096, "Fan error")//
+			.label(8192, "Phase lack")//
+			.label(16384, "Inverter relay fault")//
+			.label(32768, "Grid relay fault")//
+			.build();
+	private final ModbusChannel _pcsFault3PhaseC = new ModbusChannelBuilder().nature(this) //
+			.label(1, "Control panel overtemp")//
+			.label(2, "Power panel overtemp")//
+			.label(4, "DC input overcurrent")//
+			.label(8, "Capacitor overtemp")//
+			.label(16, "Radiator overtemp")//
+			.label(32, "Transformer overtemp")//
+			.label(64, "Combination comm error")//
+			.label(128, "EEPROM error")//
+			.label(256, "Load current zero drift error")//
+			.label(512, "Current limit-R error")//
+			.label(1024, "Phase sync error")//
+			.label(2048, "External PV current zero drift error")//
+			.label(4096, "External grid current zero drift error")//
+			.build();
 	private final ModbusChannel _totalBatteryChargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh").build();
 	private final ModbusChannel _totalBatteryDischargeEnergy = new ModbusChannelBuilder().nature(this).unit("Wh")
 			.build();
@@ -106,9 +307,23 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 			.label(2, "Remote control off grid starting") //
 			.label(3, STOP)//
 			.label(4, "Emergency Stop").build();
-	private final WriteableModbusChannel _setActivePower = new WriteableModbusChannelBuilder().nature(this).unit("W")
-			.minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
-	private final WriteableModbusChannel _setReactivePower = new WriteableModbusChannelBuilder().nature(this)
+	@IsChannel(id = "SetActivePowerPhaseA")
+	private final WriteableModbusChannel _setActivePowerPhaseA = new WriteableModbusChannelBuilder().nature(this)
+			.unit("W").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+	@IsChannel(id = "SetActivePowerPhaseB")
+	private final WriteableModbusChannel _setActivePowerPhaseB = new WriteableModbusChannelBuilder().nature(this)
+			.unit("W").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+	@IsChannel(id = "SetActivePowerPhaseC")
+	private final WriteableModbusChannel _setActivePowerPhaseC = new WriteableModbusChannelBuilder().nature(this)
+			.unit("W").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+	@IsChannel(id = "SetReactivePowerPhaseA")
+	private final WriteableModbusChannel _setReactivePowerPhaseA = new WriteableModbusChannelBuilder().nature(this)
+			.unit("var").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+	@IsChannel(id = "SetReactivePowerPhaseB")
+	private final WriteableModbusChannel _setReactivePowerPhaseB = new WriteableModbusChannelBuilder().nature(this)
+			.unit("var").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+	@IsChannel(id = "SetReactivePowerPhaseC")
+	private final WriteableModbusChannel _setReactivePowerPhaseC = new WriteableModbusChannelBuilder().nature(this)
 			.unit("var").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
 	private final ConfigChannel _minSoc = new ConfigChannelBuilder().nature(this).defaultValue(DEFAULT_MINSOC)
 			.percentType().build();
@@ -154,7 +369,12 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 
 	@Override
 	public WriteableNumericChannel setActivePower() {
-		return _setActivePower;
+		return null;
+	}
+
+	@Override
+	public WriteableNumericChannel setReactivePower() {
+		return null;
 	}
 
 	@Override
@@ -214,12 +434,36 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 						new ElementBuilder().address(134).channel(_pcsAllowedApparentPower).build(), //
 						new ElementBuilder().address(135).dummy(141 - 135).build(), //
 						new ElementBuilder().address(141).channel(_allowedCharge).build(), //
-						new ElementBuilder().address(142).channel(_allowedDischarge).build() //
-				), //
+						new ElementBuilder().address(142).channel(_allowedDischarge).build(), //
+						new ElementBuilder().address(143).dummy(150 - 143).build(), //
+						new ElementBuilder().address(150).channel(_pcsAlarm1PhaseA).build(), //
+						new ElementBuilder().address(151).channel(_pcsAlarm2PhaseA).build(), //
+						new ElementBuilder().address(152).channel(_pcsFault1PhaseA).build(), //
+						new ElementBuilder().address(153).channel(_pcsFault2PhaseA).build(), //
+						new ElementBuilder().address(154).channel(_pcsFault3PhaseA).build(), //
+						new ElementBuilder().address(150).channel(_pcsAlarm1PhaseB).build(), //
+						new ElementBuilder().address(151).channel(_pcsAlarm2PhaseB).build(), //
+						new ElementBuilder().address(152).channel(_pcsFault1PhaseB).build(), //
+						new ElementBuilder().address(153).channel(_pcsFault2PhaseB).build(), //
+						new ElementBuilder().address(154).channel(_pcsFault3PhaseB).build(), //
+						new ElementBuilder().address(150).channel(_pcsAlarm1PhaseC).build(), //
+						new ElementBuilder().address(151).channel(_pcsAlarm2PhaseC).build(), //
+						new ElementBuilder().address(152).channel(_pcsFault1PhaseC).build(), //
+						new ElementBuilder().address(153).channel(_pcsFault2PhaseC).build(), //
+						new ElementBuilder().address(154).channel(_pcsFault3PhaseC).build()), //
 				new WritableModbusRange(200, //
 						new ElementBuilder().address(200).channel(_setWorkState).build(),
-						new ElementBuilder().address(201).channel(_setActivePower).signed().build(),
-						new ElementBuilder().address(202).channel(_setReactivePower).signed().build()));
+						new ElementBuilder().address(201).dummy().build(),
+						new ElementBuilder().address(202).dummy().build(),
+						new ElementBuilder().address(203).dummy().build(),
+						new ElementBuilder().address(204).dummy().build(),
+						new ElementBuilder().address(205).dummy().build(),
+						new ElementBuilder().address(206).channel(_setActivePowerPhaseA).build(),
+						new ElementBuilder().address(207).channel(_setReactivePowerPhaseA).build(),
+						new ElementBuilder().address(208).channel(_setActivePowerPhaseB).build(),
+						new ElementBuilder().address(209).channel(_setReactivePowerPhaseB).build(),
+						new ElementBuilder().address(210).channel(_setActivePowerPhaseC).build(),
+						new ElementBuilder().address(211).channel(_setReactivePowerPhaseC).build()));
 	}
 
 }

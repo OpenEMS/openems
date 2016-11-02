@@ -300,7 +300,6 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 	private final WriteableModbusChannel _setActivePower = new WriteableModbusChannelBuilder().nature(this).unit("W")
 			.multiplier(100).minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
 
-	@IsChannel(id = "Abnormity1")
 	public final WriteableModbusChannel _setReactivePower = new WriteableModbusChannelBuilder().nature(this).unit("var")
 			.multiplier(100).minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
 	private final WriteableModbusChannel _setWorkState = new WriteableModbusChannelBuilder().nature(this) //
@@ -1080,5 +1079,10 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements EssNatur
 						new ElementBuilder().address(0x173d).channel(_cell62Temp).build(),
 						new ElementBuilder().address(0x173e).channel(_cell63Temp).build(),
 						new ElementBuilder().address(0x173f).channel(_cell64Temp).build()));
+	}
+
+	@Override
+	public WriteableNumericChannel setReactivePower() {
+		return _setReactivePower;
 	}
 }

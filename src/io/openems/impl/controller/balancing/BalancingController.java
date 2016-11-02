@@ -54,106 +54,107 @@ public class BalancingController extends Controller {
 	public void run() {
 		try {
 			// Run only if all ess are on-grid
-			if (isOnGrid()) {
-				// Calculate required sum values
-				long calculatedPower = meter.activePower.getValue();
-				long maxChargePower = 0;
-				long maxDischargePower = 0;
-				long useableSoc = 0;
-				for (Ess ess : esss) {
-					calculatedPower += ess.activePower.getValue();
-					maxChargePower += ess.setActivePower.getAllowedMinValue();
-					maxDischargePower += ess.setActivePower.getAllowedMaxValue();
-					useableSoc += ess.useableSoc();
-				}
-				if (calculatedPower > 0) {
-					/*
-					 * Discharge
-					 */
-					if (calculatedPower > maxDischargePower) {
-						calculatedPower = maxDischargePower;
-					}
-					// sort ess by useableSoc asc
-					Collections.sort(esss, (a, b) -> {
-						try {
-							return (int) (a.useableSoc() - b.useableSoc());
-						} catch (InvalidValueException e) {
-							log.error(e.getMessage());
-							return 0;
-						}
-					});
-					for (int i = 0; i < esss.size(); i++) {
-						Ess ess = esss.get(i);
-						// calculate minimal power needed to fulfill the calculatedPower
-						long minP = calculatedPower;
-						for (int j = i + 1; j < esss.size(); j++) {
-							if (esss.get(j).useableSoc() > 0) {
-								minP -= esss.get(j).allowedDischarge.getValue();
-							}
-						}
-						if (minP < 0) {
-							minP = 0;
-						}
-						// check maximal power to avoid larger charges then calculatedPower
-						long maxP = ess.allowedDischarge.getValue();
-						if (calculatedPower < maxP) {
-							maxP = calculatedPower;
-						}
-						double diff = maxP - minP;
-						/*
-						 * weight the range of possible power by the useableSoc
-						 * if the useableSoc is negative the ess will be charged
-						 */
-						long p = (long) (Math.ceil((minP + diff / useableSoc * ess.useableSoc()) / 100) * 100);
-						ess.setActivePower.pushWriteValue(p);
-						calculatedPower -= p;
-					}
-				} else {
-					/*
-					 * Charge
-					 */
-					if (calculatedPower < maxChargePower) {
-						calculatedPower = maxChargePower;
-					}
-					/*
-					 * sort ess by 100 - useabelSoc
-					 * 100 - 90 = 10
-					 * 100 - 45 = 55
-					 * 100 - (- 5) = 105
-					 * => ess with negative useableSoc will be charged much more then one with positive useableSoc
-					 */
-					Collections.sort(esss, (a, b) -> {
-						try {
-							return (int) ((100 - a.useableSoc()) - (100 - b.useableSoc()));
-						} catch (InvalidValueException e) {
-							log.error(e.getMessage());
-							return 0;
-						}
-					});
-					for (int i = 0; i < esss.size(); i++) {
-						Ess ess = esss.get(i);
-						// calculate minimal power needed to fulfill the calculatedPower
-						long minP = calculatedPower;
-						for (int j = i + 1; j < esss.size(); j++) {
-							minP -= esss.get(j).allowedCharge.getValue();
-						}
-						if (minP > 0) {
-							minP = 0;
-						}
-						// check maximal power to avoid larger charges then calculatedPower
-						long maxP = ess.allowedCharge.getValue();
-						if (calculatedPower > maxP) {
-							maxP = calculatedPower;
-						}
-						double diff = maxP - minP;
-						// weight the range of possible power by the useableSoc
-						long p = (long) Math.floor((minP + diff / useableSoc * (100 - ess.useableSoc())) / 100) * 100;
-						ess.setActivePower.pushWriteValue(p);
-						calculatedPower -= p;
-					}
-				}
-
+			// if (isOnGrid()) {
+			// Calculate required sum values
+			long calculatedPower = meter.activePower.getValue();
+			long maxChargePower = 0;
+			long maxDischargePower = 0;
+			long useableSoc = 0;
+			for (Ess ess : esss) {
+				calculatedPower += ess.activePower.getValue();
+				maxChargePower += ess.setActivePower.getAllowedMinValue();
+				maxDischargePower += ess.setActivePower.getAllowedMaxValue();
+				useableSoc += ess.useableSoc();
 			}
+			if (calculatedPower > 0) {
+				/*
+				 * Discharge
+				 */
+				if (calculatedPower > maxDischargePower) {
+					calculatedPower = maxDischargePower;
+				}
+				// sort ess by useableSoc asc
+				Collections.sort(esss, (a, b) -> {
+					try {
+						return (int) (a.useableSoc() - b.useableSoc());
+					} catch (InvalidValueException e) {
+						log.error(e.getMessage());
+						return 0;
+					}
+				});
+				for (int i = 0; i < esss.size(); i++) {
+					Ess ess = esss.get(i);
+					// calculate minimal power needed to fulfill the calculatedPower
+					long minP = calculatedPower;
+					for (int j = i + 1; j < esss.size(); j++) {
+						if (esss.get(j).useableSoc() > 0) {
+							minP -= esss.get(j).allowedDischarge.getValue();
+						}
+					}
+					if (minP < 0) {
+						minP = 0;
+					}
+					// check maximal power to avoid larger charges then calculatedPower
+					long maxP = ess.allowedDischarge.getValue();
+					if (calculatedPower < maxP) {
+						maxP = calculatedPower;
+					}
+					double diff = maxP - minP;
+					/*
+					 * weight the range of possible power by the useableSoc
+					 * if the useableSoc is negative the ess will be charged
+					 */
+					long p = (long) (Math.ceil((minP + diff / useableSoc * ess.useableSoc()) / 100) * 100);
+					ess.setActivePower.pushWriteValue(p);
+					ess.setReactivePower.pushWriteValue(0);
+					calculatedPower -= p;
+				}
+			} else {
+				/*
+				 * Charge
+				 */
+				if (calculatedPower < maxChargePower) {
+					calculatedPower = maxChargePower;
+				}
+				/*
+				 * sort ess by 100 - useabelSoc
+				 * 100 - 90 = 10
+				 * 100 - 45 = 55
+				 * 100 - (- 5) = 105
+				 * => ess with negative useableSoc will be charged much more then one with positive useableSoc
+				 */
+				Collections.sort(esss, (a, b) -> {
+					try {
+						return (int) ((100 - a.useableSoc()) - (100 - b.useableSoc()));
+					} catch (InvalidValueException e) {
+						log.error(e.getMessage());
+						return 0;
+					}
+				});
+				for (int i = 0; i < esss.size(); i++) {
+					Ess ess = esss.get(i);
+					// calculate minimal power needed to fulfill the calculatedPower
+					long minP = calculatedPower;
+					for (int j = i + 1; j < esss.size(); j++) {
+						minP -= esss.get(j).allowedCharge.getValue();
+					}
+					if (minP > 0) {
+						minP = 0;
+					}
+					// check maximal power to avoid larger charges then calculatedPower
+					long maxP = ess.allowedCharge.getValue();
+					if (calculatedPower > maxP) {
+						maxP = calculatedPower;
+					}
+					double diff = maxP - minP;
+					// weight the range of possible power by the useableSoc
+					long p = (long) Math.floor((minP + diff / useableSoc * (100 - ess.useableSoc())) / 100) * 100;
+					ess.setActivePower.pushWriteValue(p);
+					calculatedPower -= p;
+				}
+			}
+
+			// }
 		} catch (InvalidValueException | WriteChannelException e) {
 			log.error(e.getMessage());
 		}

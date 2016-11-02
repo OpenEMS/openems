@@ -29,11 +29,8 @@ public class FeneconPro extends ModbusDevice {
 	@IsDeviceNature
 	public FeneconProEss ess = null;
 
-	// @IsDeviceNature
-	// public FeneconProPvMeter pvMeter = null;
-	//
-	// @IsDeviceNature
-	// public FeneconProNapMeter napMeter = null;
+	@IsDeviceNature
+	public FeneconProPvMeter pvMeter = null;
 
 	public FeneconPro() throws OpenemsException {
 		super();
@@ -44,15 +41,10 @@ public class FeneconPro extends ModbusDevice {
 		this.ess = ess;
 	}
 
-	// @IsConfig("pvMeter")
-	// public void setPvMeter(FeneconProPvMeter meter) {
-	// this.pvMeter = meter;
-	// }
-	//
-	// @IsConfig("napMeter")
-	// public void setNapMeter(FeneconProNapMeter meter) {
-	// this.napMeter = meter;
-	// }
+	@IsConfig("pvMeter")
+	public void setPvMeter(FeneconProPvMeter meter) {
+		this.pvMeter = meter;
+	}
 
 	@Override
 	public String toString() {

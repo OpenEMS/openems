@@ -59,6 +59,9 @@ public interface EssNature extends DeviceNature {
 	@IsChannel(id = "SetActivePower")
 	public WriteableNumericChannel setActivePower();
 
+	@IsChannel(id = "SetReactivePower")
+	public WriteableNumericChannel setReactivePower();
+
 	@IsConfig("MinSoc")
 	public void setMinSoc(Integer minSoc);
 
