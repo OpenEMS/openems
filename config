@@ -27,11 +27,7 @@
 			},
 			{
 				"priority":50,
-				"class":"io.openems.impl.controller.balancing.BalancingController"
-			},
-			{
-				"priority":0,
-				"class":"io.openems.impl.controller.energysaver.EnergysavingController"
+				"class":"io.openems.impl.controller.balancingThreePhase.BalancingThreePhaseController"
 			}]
 	}
 }

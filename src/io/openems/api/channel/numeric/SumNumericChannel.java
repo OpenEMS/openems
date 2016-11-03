@@ -18,7 +18,7 @@ public class SumNumericChannel extends AggregatedNumericChannel {
 	protected Long aggregateValue(Map<NumericChannel, Optional<Long>> values) {
 		Long result = 0L;
 		for (Entry<NumericChannel, Optional<Long>> entry : values.entrySet()) {
-			log.info(entry.getValue().orElse(0L).toString());
+			// log.info(entry.getValue().orElse(0L).toString());
 			result += entry.getValue().orElse(0L);
 		}
 		return result;

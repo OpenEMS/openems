@@ -18,30 +18,27 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.debuglog;
+package io.openems.impl.controller.balancingThreePhase;
 
-import java.util.List;
+import io.openems.api.channel.IsRequired;
+import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
+import io.openems.impl.device.socomec.SocomecMeter;
 
-import io.openems.api.controller.Controller;
-import io.openems.api.controller.IsThingMapping;
+@IsThingMap(type = SocomecMeter.class)
+public class Meter extends ThingMap {
 
-public class DebugLogController extends Controller {
-	@IsThingMapping
-	public List<Ess> esss = null;
+	@IsRequired(channelId = "ActivePowerPhaseA")
+	public NumericChannel activePowerPhaseA;
 
-	@IsThingMapping
-	public Meter meter = null;
+	@IsRequired(channelId = "ActivePowerPhaseB")
+	public NumericChannel activePowerPhaseB;
 
-	@Override
-	public void run() {
-		StringBuilder b = new StringBuilder();
-		b.append(meter.getThingId() + ": " + meter.activePower.format() + " ");
-		for (Ess ess : esss) {
-			b.append(ess.getThingId() + ": " + ess.soc.format() + ", act=" + ess.activePower.format()
-					+ ", allowedCharge=" + ess.allowedCharge.format() + ", allowedDischarge="
-					+ ess.allowedDischarge.format() + ", state=" + ess.systemState.format() + " ");
-		}
-		log.info(b.toString());
+	@IsRequired(channelId = "ActivePowerPhaseC")
+	public NumericChannel activePowerPhaseC;
+
+	public Meter(String thingId) {
+		super(thingId);
 	}
-
 }

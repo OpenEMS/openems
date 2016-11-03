@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
+import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.numeric.WriteableNumericChannel;
@@ -129,15 +130,25 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 							}
 						}
 
+					} else if (element instanceof DummyElement) {
+						DummyElement de = (DummyElement) element;
+						for (int i = 0; i < de.getLength(); i++) {
+							registers.put(de.getAddress() + i, new SimpleRegister(0));
+						}
 					} else {
 						throw new ConfigException("Handling WritableModbusRange [" + range.getStartAddress()
 								+ "] but Channel for Element [" + element.getAddress() + "] is not writable!");
 					}
 				}
 				try {
-					Register[] arr = new Register[registers.size()];
-					registers.values().toArray(arr);
-					modbusBridge.writeMultipleRegisters(modbusUnitId, registers.firstKey(), arr);
+					if (registers.size() == range.getLength() && registers.firstKey() == range.getStartAddress()) {
+						Register[] arr = new Register[registers.size()];
+						registers.values().toArray(arr);
+						modbusBridge.writeMultipleRegisters(modbusUnitId, registers.firstKey(), arr);
+					} else {
+						throw new OpenemsModbusException(
+								"Addresses and count of registers doesn't meet the modbus range");
+					}
 				} catch (OpenemsModbusException e) {
 					log.error("Modbus write failed. " //
 							+ "Bridge [" + modbusBridge.getThingId() + "], Range [" + range.getStartAddress() + "]: {}",

@@ -22,7 +22,6 @@ package io.openems.impl.controller.debuglog;
 
 import io.openems.api.channel.IsRequired;
 import io.openems.api.channel.numeric.NumericChannel;
-import io.openems.api.channel.numeric.WriteableNumericChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.EssNature;
@@ -42,9 +41,6 @@ public class Ess extends ThingMap {
 	@IsRequired(channelId = "MinSoc")
 	public NumericChannel minSoc;
 
-	@IsRequired(channelId = "SetActivePower")
-	public WriteableNumericChannel setActivePower;
-
 	@IsRequired(channelId = "Soc")
 	public NumericChannel soc;
 
@@ -58,8 +54,7 @@ public class Ess extends ThingMap {
 	@Override
 	public String toString() {
 		return "Ess [soc=" + soc + ", minSoc=" + minSoc + ", activePower=" + activePower + ", allowedCharge="
-				+ allowedCharge + ", allowedDischarge=" + allowedDischarge + ", setActivePower=" + setActivePower
-				+ ", systemState=" + systemState + "]";
+				+ allowedCharge + ", allowedDischarge=" + allowedDischarge + ", systemState=" + systemState + "]";
 	}
 
 }

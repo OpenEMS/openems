@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.device.socomec;
 
+import io.openems.api.channel.IsChannel;
 import io.openems.api.channel.numeric.NumericChannel;
 import io.openems.api.device.nature.MeterNature;
 import io.openems.api.exception.ConfigException;
@@ -39,9 +40,21 @@ public class SocomecMeter extends ModbusDeviceNature implements MeterNature {
 	private final ModbusChannel _reactivePositiveEnergy = new ModbusChannelBuilder().nature(this).unit("kvarh").build();
 	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().nature(this).unit("var").multiplier(10)
 			.build();
+	private final ModbusChannel _reactivePowerPhaseA = new ModbusChannelBuilder().nature(this).unit("var")
+			.multiplier(10).build();
+	private final ModbusChannel _reactivePowerPhaseB = new ModbusChannelBuilder().nature(this).unit("var")
+			.multiplier(10).build();
+	private final ModbusChannel _reactivePowerPhaseC = new ModbusChannelBuilder().nature(this).unit("var")
+			.multiplier(10).build();
 	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(10)
 			.build();
 	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10).build();
+	private final ModbusChannel _activePowerPhaseA = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10)
+			.build();
+	private final ModbusChannel _activePowerPhaseB = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10)
+			.build();
+	private final ModbusChannel _activePowerPhaseC = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10)
+			.build();
 
 	public SocomecMeter(String thingId) {
 		super(thingId);
@@ -87,13 +100,53 @@ public class SocomecMeter extends ModbusDeviceNature implements MeterNature {
 		return _reactivePower;
 	}
 
+	@IsChannel(id = "ActivePowerPhaseA")
+	public NumericChannel activePowerPhaseA() {
+		return _activePowerPhaseA;
+	}
+
+	@IsChannel(id = "ActivePowerPhaseB")
+	public NumericChannel activePowerPhaseB() {
+		return _activePowerPhaseB;
+	}
+
+	@IsChannel(id = "ActivePowerPhaseC")
+	public NumericChannel activePowerPhaseC() {
+		return _activePowerPhaseC;
+	}
+
+	@IsChannel(id = "RectivePowerPhaseA")
+	public NumericChannel reactivePowerPhaseA() {
+		return _reactivePowerPhaseA;
+	}
+
+	@IsChannel(id = "RectivePowerPhaseB")
+	public NumericChannel reactivePowerPhaseB() {
+		return _reactivePowerPhaseB;
+	}
+
+	@IsChannel(id = "RectivePowerPhaseC")
+	public NumericChannel reactivePowerPhaseC() {
+		return _reactivePowerPhaseC;
+	}
+
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
 				new ModbusRange(0xc568, //
 						new ElementBuilder().address(0xc568).channel(_activePower).doubleword().signed().build(), //
 						new ElementBuilder().address(0xc56A).channel(_reactivePower).doubleword().signed().build(), //
-						new ElementBuilder().address(0xc56C).channel(_apparentPower).doubleword().build()), //
+						new ElementBuilder().address(0xc56C).channel(_apparentPower).doubleword().build(),
+						new ElementBuilder().address(0xc56E).dummy(0xc570 - 0xc56E).build(),
+						new ElementBuilder().address(0xc570).channel(_activePowerPhaseA).doubleword().signed().build(),
+						new ElementBuilder().address(0xc572).channel(_activePowerPhaseB).doubleword().signed().build(),
+						new ElementBuilder().address(0xc574).channel(_activePowerPhaseC).doubleword().signed().build(),
+						new ElementBuilder().address(0xc576).channel(_reactivePowerPhaseA).doubleword().signed()
+								.build(),
+						new ElementBuilder().address(0xc578).channel(_reactivePowerPhaseB).doubleword().signed()
+								.build(),
+						new ElementBuilder().address(0xc57A).channel(_reactivePowerPhaseC).doubleword().signed()
+								.build()), //
 				new ModbusRange(0xc652, //
 						new ElementBuilder().address(0xc652).channel(_activePositiveEnergy).doubleword().build(),
 						new ElementBuilder().address(0xc654).channel(_reactivePositiveEnergy).doubleword().build(),
