@@ -32,13 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.numeric.NumericChannel;
-import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
+import io.openems.impl.protocol.modbus.ModbusReadChannel;
 
 public class ModbusProtocol {
 	private static Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
-	private final Map<NumericChannel, ModbusElement> channelElementMap = new ConcurrentHashMap<>();
+	private final Map<Channel, ModbusElement> channelElementMap = new ConcurrentHashMap<>();
 	private final Map<Integer, ModbusRange> otherRanges = new ConcurrentHashMap<>(); // key = startAddress
 	private final LinkedList<Integer> otherRangesQueue = new LinkedList<>();
 	// requiredRanges stays empty till someone calls "setAsRequired()"
@@ -58,7 +57,10 @@ public class ModbusProtocol {
 		otherRanges.put(range.getStartAddress(), range);
 		// fill channelElementMap
 		for (ModbusElement element : range.getElements()) {
-			channelElementMap.put(element.getChannel(), element);
+			if (element.getChannel() != null) {
+				// ignore Elements without Channel (DummyChannels)
+				channelElementMap.put(element.getChannel(), element);
+			}
 		}
 		// fill writableRanges
 		if (range instanceof WritableModbusRange) {
@@ -99,8 +101,8 @@ public class ModbusProtocol {
 		return Collections.unmodifiableCollection(writableRanges.values());
 	}
 
-	public void setAsRequired(Channel<?> channel) {
-		if (channel instanceof ModbusChannel) {
+	public void setAsRequired(Channel channel) {
+		if (channel instanceof ModbusReadChannel) {
 			ModbusRange range = channelElementMap.get(channel).getModbusRange();
 			otherRanges.remove(range.getStartAddress());
 			requiredRanges.put(range.getStartAddress(), range);

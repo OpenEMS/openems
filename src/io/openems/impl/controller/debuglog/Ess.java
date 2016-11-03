@@ -20,39 +20,32 @@
  *******************************************************************************/
 package io.openems.impl.controller.debuglog;
 
-import io.openems.api.channel.IsRequired;
-import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.channel.ReadChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.EssNature;
+import io.openems.api.device.nature.SymmetricEssNature;
 
-@IsThingMap(type = EssNature.class)
+@IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	@IsRequired(channelId = "ActivePower")
-	public NumericChannel activePower;
+	public final ReadChannel<Long> activePower;
+	public final ReadChannel<Long> allowedCharge;
+	public final ReadChannel<Long> allowedDischarge;
+	public final ReadChannel<Integer> minSoc;
+	public final ReadChannel<Long> soc;
+	public final ReadChannel<Long> systemState;
 
-	@IsRequired(channelId = "AllowedCharge")
-	public NumericChannel allowedCharge;
-
-	@IsRequired(channelId = "AllowedDischarge")
-	public NumericChannel allowedDischarge;
-
-	@IsRequired(channelId = "MinSoc")
-	public NumericChannel minSoc;
-
-	@IsRequired(channelId = "Soc")
-	public NumericChannel soc;
-
-	@IsRequired(channelId = "SystemState")
-	public NumericChannel systemState;
-
-	public Ess(String thingId) {
-		super(thingId);
+	public Ess(SymmetricEssNature ess) {
+		super(ess);
+		activePower = ess.activePower().required();
+		allowedCharge = ess.allowedCharge().required();
+		allowedDischarge = ess.allowedDischarge().required();
+		minSoc = ess.minSoc().required();
+		soc = ess.soc().required();
+		systemState = ess.systemState().required();
 	}
 
-	@Override
-	public String toString() {
+	@Override public String toString() {
 		return "Ess [soc=" + soc + ", minSoc=" + minSoc + ", activePower=" + activePower + ", allowedCharge="
 				+ allowedCharge + ", allowedDischarge=" + allowedDischarge + ", systemState=" + systemState + "]";
 	}

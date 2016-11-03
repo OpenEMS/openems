@@ -45,21 +45,18 @@ public abstract class ModbusBridge extends Bridge {
 	protected volatile ModbusDevice[] modbusdevices = new ModbusDevice[0];
 	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
 
-	@Override
-	public abstract void dispose();
+	@Override public abstract void dispose();
 
 	public abstract ModbusTransaction getTransaction() throws OpenemsModbusException;
 
-	@Override
-	public void triggerWrite() {
+	@Override public void triggerWrite() {
 		// set the Write-flag
 		isWriteTriggered.set(true);
 		// start "run()" again as fast as possible
 		triggerForceRun();
 	}
 
-	@Override
-	protected void forever() {
+	@Override protected void forever() {
 		for (ModbusDevice modbusdevice : modbusdevices) {
 			// if Write-flag was set -> start writing for all Devices immediately
 			if (isWriteTriggered.get()) {
@@ -77,8 +74,7 @@ public abstract class ModbusBridge extends Bridge {
 
 	protected abstract void closeModbusConnection();
 
-	@Override
-	protected boolean initialize() {
+	@Override protected boolean initialize() {
 		/*
 		 * Copy and cast devices to local modbusdevices array
 		 */
@@ -208,8 +204,8 @@ public abstract class ModbusBridge extends Bridge {
 				trans.execute();
 			} catch (ModbusException e1) {
 				throw new OpenemsModbusException("Error on modbus query. " //
-						+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Count [" + count + "]: "
-						+ e1.getMessage());
+						+ "UnitId [" + modbusUnitId + "], Address [" + address + "/0x" + Integer.toHexString(address)
+						+ "], Count [" + count + "]: " + e1.getMessage());
 			}
 		}
 		ModbusResponse res = trans.getResponse();
@@ -228,7 +224,7 @@ public abstract class ModbusBridge extends Bridge {
 			try {
 				modbusdevice.write(this);
 			} catch (OpenemsException e) {
-				log.error("Error while writing to ModbusDevice [" + modbusdevice.getThingId() + "]: " + e.getMessage());
+				log.error("Error while writing to ModbusDevice [" + modbusdevice.id() + "]: " + e.getMessage());
 			}
 		}
 	}

@@ -32,8 +32,7 @@ public class DemoFems7 extends Demo {
 		System.out.println(gson.toJson(config));
 	}
 
-	@Override
-	public JsonObject getConfig() {
+	@Override public JsonObject getConfig() {
 		JsonObject config = new JsonObject();
 
 		JsonArray things = new JsonArray();
@@ -43,6 +42,7 @@ public class DemoFems7 extends Demo {
 		things.add(bridge0);
 		bridge0.add("class", new JsonPrimitive("io.openems.impl.protocol.modbus.ModbusTcp"));
 		bridge0.add("ip", new JsonPrimitive("127.0.0.1"));
+		bridge0.add("port", new JsonPrimitive(503));
 		JsonArray devices = new JsonArray();
 		bridge0.add("devices", devices);
 
@@ -53,7 +53,7 @@ public class DemoFems7 extends Demo {
 
 		JsonObject device0ess = new JsonObject();
 		device0.add("ess", device0ess);
-		device0ess.add("thingId", new JsonPrimitive("ess0"));
+		device0ess.add("id", new JsonPrimitive("ess0"));
 		device0ess.add("minSoc", new JsonPrimitive(15));
 
 		JsonObject scheduler = new JsonObject();

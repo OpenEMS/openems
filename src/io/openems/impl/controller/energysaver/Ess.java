@@ -20,27 +20,24 @@
  *******************************************************************************/
 package io.openems.impl.controller.energysaver;
 
-import io.openems.api.channel.IsRequired;
-import io.openems.api.channel.numeric.NumericChannel;
-import io.openems.api.channel.numeric.WriteableNumericChannel;
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.EssNature;
+import io.openems.api.device.nature.SymmetricEssNature;
 
-@IsThingMap(type = EssNature.class)
+@IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	@IsRequired(channelId = "SetActivePower")
-	public WriteableNumericChannel setActivePower;
+	public final WriteChannel<Long> setActivePower;
+	public final WriteChannel<Long> setWorkState;
+	public final ReadChannel<Long> systemState;
 
-	@IsRequired(channelId = "SetWorkState")
-	public WriteableNumericChannel setWorkState;
-
-	@IsRequired(channelId = "SystemState")
-	public NumericChannel systemState;
-
-	public Ess(String thingId) {
-		super(thingId);
+	public Ess(SymmetricEssNature ess) {
+		super(ess);
+		setActivePower = ess.setActivePower().required();
+		setWorkState = ess.setWorkState().required();
+		systemState = ess.systemState().required();
 	}
 
 }

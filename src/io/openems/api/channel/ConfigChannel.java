@@ -20,23 +20,30 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
-import java.util.Map;
-import java.util.Optional;
+import io.openems.api.thing.Thing;
 
-import io.openems.api.channel.numeric.NumericChannel;
-import io.openems.api.device.nature.DeviceNature;
+public class ConfigChannel<T> extends WriteChannel<T> {
+	private final Class<?> type;
 
-public class ConfigChannel extends NumericChannel {
-
-	public ConfigChannel(Optional<String> channelId, DeviceNature nature, String unit, Long minValue, Long maxValue,
-			Long multiplier, Long delta, Map<Long, String> labels, Long defaultValue) {
-		super(channelId, nature, unit, minValue, maxValue, multiplier, delta, labels);
-		updateValue(defaultValue, false);
+	public ConfigChannel(String id, Thing parent, Class<?> type) {
+		super(id, parent);
+		this.type = type;
 	}
 
-	@Override
-	public void updateValue(Long value) {
-		// TODO: update to ConfigChannel should be represented in JsonConfig
-		super.updateValue(value);
+	@Override public ConfigChannel<T> listener(ChannelListener... listeners) {
+		return (ConfigChannel<T>) super.listener(listeners);
+	}
+
+	public Class<?> type() {
+		return this.type;
+	}
+
+	@Override public void updateValue(Object value, boolean triggerEvent) {
+		super.updateValue((T) value, triggerEvent);
+	}
+
+	public ConfigChannel<T> defaultValue(T value) {
+		updateValue(value, false);
+		return this;
 	}
 }

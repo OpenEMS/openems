@@ -20,26 +20,25 @@
  *******************************************************************************/
 package io.openems.impl.controller.debuglog;
 
-import java.util.List;
+import java.util.Set;
 
 import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMapping;
 
 public class DebugLogController extends Controller {
-	@IsThingMapping
-	public List<Ess> esss = null;
+	@IsThingMapping public Set<Ess> esss = null;
 
-	@IsThingMapping
-	public Meter meter = null;
+	@IsThingMapping public Meter meter = null;
 
-	@Override
-	public void run() {
+	@Override public void run() {
 		StringBuilder b = new StringBuilder();
-		b.append(meter.getThingId() + ": " + meter.activePower.format() + " ");
+		if (meter != null) {
+			b.append(meter.id() + ": " + meter.activePower.format() + " ");
+		}
 		for (Ess ess : esss) {
-			b.append(ess.getThingId() + ": " + ess.soc.format() + ", act=" + ess.activePower.format()
-					+ ", allowedCharge=" + ess.allowedCharge.format() + ", allowedDischarge="
-					+ ess.allowedDischarge.format() + ", state=" + ess.systemState.format() + " ");
+			b.append(ess.id() + ": " + ess.soc.format() + ", act=" + ess.activePower.format() + ", allowedCharge="
+					+ ess.allowedCharge.format() + ", allowedDischarge=" + ess.allowedDischarge.format() + ", state="
+					+ ess.systemState.format() + " ");
 		}
 		log.info(b.toString());
 	}

@@ -20,14 +20,22 @@
  *******************************************************************************/
 package io.openems.api.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.openems.api.thing.Thing;
+
 public class ThingMap {
-	private final String thingId;
-	
-	public ThingMap(String thingId) {
-		this.thingId = thingId;
+	protected final Logger log;
+
+	private final String id;
+
+	public ThingMap(Thing thing) {
+		log = LoggerFactory.getLogger(this.getClass());
+		this.id = thing.id();
 	}
-	
-	public String getThingId() {
-		return thingId;
+
+	public String id() {
+		return id;
 	}
 }

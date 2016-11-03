@@ -18,27 +18,21 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.balancingThreePhase;
+package io.openems.impl.controller.symmetricbalancing;
 
-import io.openems.api.channel.IsRequired;
-import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.channel.ReadChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.impl.device.socomec.SocomecMeter;
+import io.openems.api.device.nature.MeterNature;
 
-@IsThingMap(type = SocomecMeter.class)
+@IsThingMap(type = MeterNature.class)
 public class Meter extends ThingMap {
 
-	@IsRequired(channelId = "ActivePowerPhaseA")
-	public NumericChannel activePowerPhaseA;
+	public final ReadChannel<Long> activePower;
 
-	@IsRequired(channelId = "ActivePowerPhaseB")
-	public NumericChannel activePowerPhaseB;
-
-	@IsRequired(channelId = "ActivePowerPhaseC")
-	public NumericChannel activePowerPhaseC;
-
-	public Meter(String thingId) {
-		super(thingId);
+	public Meter(MeterNature meter) {
+		super(meter);
+		activePower = meter.activePower().required();
 	}
+
 }

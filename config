@@ -11,11 +11,11 @@
 			{
 				"class":"io.openems.impl.device.socomec.Socomec",
 				"modbusUnitId":5,
-				"meter":{"thingId":"meter0"}
+				"meter":{"id":"meter0"}
 			},{
 				"class":"io.openems.impl.device.pro.FeneconPro",
 				"modbusUnitId":4,
-				"ess":{"thingId":"ess0", "minSoc":15}
+				"ess":{"id":"ess0", "minSoc":15}
 			}]
 		}],
 	"scheduler":{

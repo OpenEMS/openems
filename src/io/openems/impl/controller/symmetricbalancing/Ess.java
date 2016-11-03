@@ -18,48 +18,44 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.balancing;
+package io.openems.impl.controller.symmetricbalancing;
 
-import io.openems.api.channel.IsRequired;
-import io.openems.api.channel.numeric.NumericChannel;
-import io.openems.api.channel.numeric.WriteableNumericChannel;
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.EssNature;
+import io.openems.api.device.nature.SymmetricEssNature;
 import io.openems.api.exception.InvalidValueException;
 
-@IsThingMap(type = EssNature.class)
+@IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	@IsRequired(channelId = "ActivePower")
-	public NumericChannel activePower;
+	public final ReadChannel<Integer> minSoc;
+	public final WriteChannel<Long> setActivePower;
+	public final WriteChannel<Long> setReactivePower;
+	public final ReadChannel<Long> soc;
+	public final ReadChannel<Long> activePower;
+	public final ReadChannel<Long> allowedCharge;
+	public final ReadChannel<Long> allowedDischarge;
+	public final ReadChannel<Long> gridMode;
+	public final ReadChannel<Long> systemState;
 
-	@IsRequired(channelId = "AllowedCharge")
-	public NumericChannel allowedCharge;
+	public Ess(SymmetricEssNature ess) {
+		super(ess);
+		minSoc = ess.minSoc().required();
 
-	@IsRequired(channelId = "AllowedDischarge")
-	public NumericChannel allowedDischarge;
+		setActivePower = ess.setActivePower().required();
+		setReactivePower = ess.setReactivePower().required();
 
-	@IsRequired(channelId = "GridMode")
-	public NumericChannel gridMode;
-
-	@IsRequired(channelId = "MinSoc")
-	public NumericChannel minSoc;
-
-	@IsRequired(channelId = "SetActivePower")
-	public WriteableNumericChannel setActivePower;
-
-	@IsRequired(channelId = "SetReactivePower")
-	public WriteableNumericChannel setReactivePower;
-
-	@IsRequired(channelId = "Soc")
-	public NumericChannel soc;
-
-	public Ess(String thingId) {
-		super(thingId);
+		soc = ess.soc().required();
+		activePower = ess.activePower().required();
+		allowedCharge = ess.allowedCharge().required();
+		allowedDischarge = ess.allowedDischarge().required();
+		gridMode = ess.gridMode().required();
+		systemState = ess.systemState().required();
 	}
 
 	public long useableSoc() throws InvalidValueException {
-		return soc.getValue() - minSoc.getValue();
+		return soc.value() - minSoc.value();
 	}
 }

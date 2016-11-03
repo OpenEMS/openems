@@ -18,16 +18,24 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.device.nature;
+package io.openems.impl.controller.asymmetricbalancing;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
+import io.openems.api.thing.Thing;
+import io.openems.impl.device.socomec.SocomecMeter;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+@IsThingMap(type = SocomecMeter.class)
+public class Meter extends ThingMap {
 
-@Retention(RUNTIME)
-@Target(FIELD)
-public @interface IsDeviceNature {
+	public Meter(Thing thing) {
+		super(thing);
+	}
+	//
+	// @IsRequired(channelId = "ActivePowerPhaseA") public NumericChannel activePowerPhaseA;
+	//
+	// @IsRequired(channelId = "ActivePowerPhaseB") public NumericChannel activePowerPhaseB;
+	//
+	// @IsRequired(channelId = "ActivePowerPhaseC") public NumericChannel activePowerPhaseC;
 
 }

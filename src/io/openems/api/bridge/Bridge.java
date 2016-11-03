@@ -42,8 +42,7 @@ public abstract class Bridge extends AbstractWorker implements Thing {
 		super(THINGID_PREFIX + instanceCounter++);
 	}
 
-	@Override
-	public String getThingId() {
+	@Override public String id() {
 		return getName();
 	}
 

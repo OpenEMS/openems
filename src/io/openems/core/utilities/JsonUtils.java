@@ -28,49 +28,49 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.api.exception.ConfigException;
+import io.openems.api.exception.ReflectionException;
 
 public class JsonUtils {
-	public static JsonArray getAsJsonArray(JsonElement jElement, String memberName) throws ConfigException {
+	public static JsonArray getAsJsonArray(JsonElement jElement, String memberName) throws ReflectionException {
 		JsonElement jSubElement = getSubElement(jElement, memberName);
 		if (!jSubElement.isJsonArray()) {
-			throw new ConfigException("Config [" + memberName + "] is not a JsonArray: " + jSubElement);
+			throw new ReflectionException("Config [" + memberName + "] is not a JsonArray: " + jSubElement);
 		}
 		return jSubElement.getAsJsonArray();
 	};
 
-	public static JsonObject getAsJsonObject(JsonElement jElement) throws ConfigException {
+	public static JsonObject getAsJsonObject(JsonElement jElement) throws ReflectionException {
 		if (!jElement.isJsonObject()) {
-			throw new ConfigException("Config is not a JsonObject: " + jElement);
+			throw new ReflectionException("Config is not a JsonObject: " + jElement);
 		}
 		return jElement.getAsJsonObject();
 	};
 
-	public static JsonObject getAsJsonObject(JsonElement jElement, String memberName) throws ConfigException {
+	public static JsonObject getAsJsonObject(JsonElement jElement, String memberName) throws ReflectionException {
 		JsonElement jsubElement = getSubElement(jElement, memberName);
 		if (!jsubElement.isJsonObject()) {
-			throw new ConfigException("Config is not a JsonObject: " + jsubElement);
+			throw new ReflectionException("Config is not a JsonObject: " + jsubElement);
 		}
 		return jsubElement.getAsJsonObject();
 	};
 
-	public static JsonPrimitive getAsPrimitive(JsonElement jElement, String memberName) throws ConfigException {
+	public static JsonPrimitive getAsPrimitive(JsonElement jElement, String memberName) throws ReflectionException {
 		JsonElement jSubElement = getSubElement(jElement, memberName);
 		if (!jSubElement.isJsonPrimitive()) {
-			throw new ConfigException("Config is not a JsonPrimitive: " + jSubElement);
+			throw new ReflectionException("Config is not a JsonPrimitive: " + jSubElement);
 		}
 		return jSubElement.getAsJsonPrimitive();
 	}
 
-	public static String getAsString(JsonElement jElement, String memberName) throws ConfigException {
+	public static String getAsString(JsonElement jElement, String memberName) throws ReflectionException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (!jPrimitive.isString()) {
-			throw new ConfigException("[" + memberName + "] is not a String: " + jPrimitive);
+			throw new ReflectionException("[" + memberName + "] is not a String: " + jPrimitive);
 		}
 		return jPrimitive.getAsString();
 	}
 
-	public static Object getJsonPrimitiveAsClass(JsonPrimitive j, Class<?> clazz) throws ConfigException {
+	public static Object getJsonPrimitiveAsClass(JsonPrimitive j, Class<?> clazz) throws ReflectionException {
 		Object parameter = null;
 		if (j.isNumber()) {
 			if (clazz.isAssignableFrom(Integer.class)) {
@@ -83,20 +83,20 @@ public class JsonUtils {
 				try {
 					parameter = Inet4Address.getByName(j.getAsString());
 				} catch (UnknownHostException e) {
-					throw new ConfigException("Unable to convert [" + j + "] to IPv4 address");
+					throw new ReflectionException("Unable to convert [" + j + "] to IPv4 address");
 				}
 			}
 		}
 		if (parameter == null) {
-			throw new ConfigException("Unable to match config [" + j + "] to class type [" + clazz + "]");
+			throw new ReflectionException("Unable to match config [" + j + "] to class type [" + clazz + "]");
 		}
 		return parameter;
 	}
 
-	public static JsonElement getSubElement(JsonElement jElement, String memberName) throws ConfigException {
+	public static JsonElement getSubElement(JsonElement jElement, String memberName) throws ReflectionException {
 		JsonObject jObject = getAsJsonObject(jElement);
 		if (!jObject.has(memberName)) {
-			throw new ConfigException("[" + memberName + "] is missing in Config: " + jElement);
+			throw new ReflectionException("[" + memberName + "] is missing in Config: " + jElement);
 		}
 		return jObject.get(memberName);
 	}

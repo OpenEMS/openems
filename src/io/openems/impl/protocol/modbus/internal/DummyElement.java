@@ -20,30 +20,29 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus.internal;
 
-import java.util.Optional;
-
-import io.openems.api.channel.numeric.NumericChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class DummyElement extends ModbusElement {
 
 	private final int length;
 
-	public DummyElement(int address, int length) {
-		super(address, new NumericChannel(Optional.empty(), null, "", null, null, null, null, null));
-		this.length = length;
+	public DummyElement(int address) {
+		this(address, address);
 	}
 
-	@Override
-	public int getLength() {
+	public DummyElement(int fromAddress, int toAddress) {
+		super(fromAddress, null);
+		this.length = toAddress - fromAddress + 1;
+	}
+
+	@Override public int getLength() {
 		return length;
 	}
 
 	/**
 	 * We are not setting a value for a DummyElement.
 	 */
-	@Override
-	protected void setValue(Long value) {
+	@Override protected void setValue(Long value) {
 		return;
 	}
 }

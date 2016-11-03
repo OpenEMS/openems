@@ -20,13 +20,15 @@
  *******************************************************************************/
 package io.openems.api.device.nature;
 
-import io.openems.api.channel.IsChannel;
-import io.openems.api.channel.numeric.NumericChannel;
-import io.openems.api.channel.numeric.WriteableNumericChannel;
-import io.openems.api.thing.IsConfig;
+import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 
-public interface EssNature extends DeviceNature {
+public interface AsymmetricEssNature extends DeviceNature {
 	public final int DEFAULT_MINSOC = 10;
+
+	public final String OFF = "Off";
+	public final String ON = "On";
 
 	public final String OFF_GRID = "Off-Grid";
 	public final String ON_GRID = "On-Grid";
@@ -35,42 +37,36 @@ public interface EssNature extends DeviceNature {
 	public final String START = "Start";
 	public final String STOP = "Stop";
 
-	@IsChannel(id = "ActivePower")
-	public NumericChannel activePower();
+	/*
+	 * Config
+	 */
+	public ConfigChannel<Integer> minSoc();
 
-	@IsChannel(id = "AllowedCharge")
-	public NumericChannel allowedCharge();
+	/*
+	 * ReadChannels
+	 */
+	public ReadChannel<Long> activePower();
 
-	@IsChannel(id = "AllowedDischarge")
-	public NumericChannel allowedDischarge();
+	public ReadChannel<Long> allowedCharge();
 
-	@IsChannel(id = "ApparentPower")
-	public NumericChannel apparentPower();
+	public ReadChannel<Long> allowedDischarge();
 
-	@IsChannel(id = "GridMode")
-	public NumericChannel gridMode();
+	public ReadChannel<Long> apparentPower();
 
-	@IsChannel(id = "MinSoc")
-	public NumericChannel minSoc();
+	public ReadChannel<Long> gridMode();
 
-	@IsChannel(id = "ReactivePower")
-	public NumericChannel reactivePower();
+	public ReadChannel<Long> reactivePower();
 
-	@IsChannel(id = "SetActivePower")
-	public WriteableNumericChannel setActivePower();
+	public ReadChannel<Long> soc();
 
-	@IsChannel(id = "SetReactivePower")
-	public WriteableNumericChannel setReactivePower();
+	public ReadChannel<Long> systemState();
 
-	@IsConfig("MinSoc")
-	public void setMinSoc(Integer minSoc);
+	/*
+	 * WriteChannels
+	 */
+	public WriteChannel<Long> setActivePower();
 
-	@IsChannel(id = "SetWorkState")
-	public WriteableNumericChannel setWorkState();
+	public WriteChannel<Long> setReactivePower();
 
-	@IsChannel(id = "Soc")
-	public NumericChannel soc();
-
-	@IsChannel(id = "SystemState")
-	public NumericChannel systemState();
+	public WriteChannel<Long> setWorkState();
 }

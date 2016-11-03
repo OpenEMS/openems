@@ -20,8 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.controller.debuglog;
 
-import io.openems.api.channel.IsRequired;
-import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.channel.ReadChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.MeterNature;
@@ -29,40 +28,23 @@ import io.openems.api.device.nature.MeterNature;
 @IsThingMap(type = MeterNature.class)
 public class Meter extends ThingMap {
 
-	// @IsRequired(channelId = "ActiveNegativeEnergy")
-	// public Channel activeNegativeEnergy;
-	//
-	// @IsRequired(channelId = "ActivePositiveEnergy")
-	// public Channel activePositiveEnergy;
+	public final ReadChannel<Long> activeNegativeEnergy;
+	public final ReadChannel<Long> activePositiveEnergy;
+	public final ReadChannel<Long> activePower;
+	public final ReadChannel<Long> apparentPower;
+	public final ReadChannel<Long> reactiveNegativeEnergy;
+	public final ReadChannel<Long> reactivePositiveEnergy;
+	public final ReadChannel<Long> reactivePower;
 
-	@IsRequired(channelId = "ActivePower")
-	public NumericChannel activePower;
-
-	// @IsRequired(channelId = "ApparentEnergy")
-	// public Channel apparentEnergy;
-
-	@IsRequired(channelId = "ApparentPower")
-	public NumericChannel apparentPower;
-
-	// @IsRequired(channelId = "ReactiveNegativeEnergy")
-	// public Channel reactiveNegativeEnergy;
-	//
-	// @IsRequired(channelId = "ReactivePositiveEnergy")
-	// public Channel reactivePositiveEnergy;
-
-	@IsRequired(channelId = "ReactivePower")
-	public NumericChannel reactivePower;
-
-	public Meter(String thingId) {
-		super(thingId);
+	public Meter(MeterNature meter) {
+		super(meter);
+		activeNegativeEnergy = meter.activeNegativeEnergy().required();
+		activePositiveEnergy = meter.activePositiveEnergy().required();
+		activePower = meter.activePower().required();
+		apparentPower = meter.apparentPower().required();
+		reactiveNegativeEnergy = meter.reactiveNegativeEnergy().required();
+		reactivePositiveEnergy = meter.reactivePositiveEnergy().required();
+		reactivePower = meter.reactivePower().required();
 	}
 
-	@Override
-	public String toString() {
-		// return "Meter [activePower=" + activePower + ", reactivePower=" + reactivePower + ", apparentPower="
-		// + apparentPower + ", activePositiveEnergy=" + activePositiveEnergy + ", activeNegativeEnergy="
-		// + activeNegativeEnergy + ", reactivePositiveEnergy=" + reactivePositiveEnergy
-		// + ", reactiveNegativeEnergy=" + reactiveNegativeEnergy + ", apparentEnergy=" + apparentEnergy + "]";
-		return "";
-	}
 }

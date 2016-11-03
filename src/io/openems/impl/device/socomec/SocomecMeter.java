@@ -20,139 +20,117 @@
  *******************************************************************************/
 package io.openems.impl.device.socomec;
 
-import io.openems.api.channel.IsChannel;
-import io.openems.api.channel.numeric.NumericChannel;
 import io.openems.api.device.nature.MeterNature;
 import io.openems.api.exception.ConfigException;
-import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
-import io.openems.impl.protocol.modbus.internal.ElementBuilder;
+import io.openems.impl.protocol.modbus.ModbusReadChannel;
+import io.openems.impl.protocol.modbus.internal.DummyElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
-import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
+import io.openems.impl.protocol.modbus.internal.SignedDoublewordElement;
+import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 
 public class SocomecMeter extends ModbusDeviceNature implements MeterNature {
 
-	private final ModbusChannel _activeNegativeEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _activePositiveEnergy = new ModbusChannelBuilder().nature(this).unit("kWh").build();
-	private final ModbusChannel _apparentEnergy = new ModbusChannelBuilder().nature(this).unit("kVAh").build();
-	private final ModbusChannel _reactiveNegativeEnergy = new ModbusChannelBuilder().nature(this).unit("kvarh").build();
-	private final ModbusChannel _reactivePositiveEnergy = new ModbusChannelBuilder().nature(this).unit("kvarh").build();
-	private final ModbusChannel _reactivePower = new ModbusChannelBuilder().nature(this).unit("var").multiplier(10)
-			.build();
-	private final ModbusChannel _reactivePowerPhaseA = new ModbusChannelBuilder().nature(this).unit("var")
-			.multiplier(10).build();
-	private final ModbusChannel _reactivePowerPhaseB = new ModbusChannelBuilder().nature(this).unit("var")
-			.multiplier(10).build();
-	private final ModbusChannel _reactivePowerPhaseC = new ModbusChannelBuilder().nature(this).unit("var")
-			.multiplier(10).build();
-	private final ModbusChannel _apparentPower = new ModbusChannelBuilder().nature(this).unit("VA").multiplier(10)
-			.build();
-	private final ModbusChannel _activePower = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10).build();
-	private final ModbusChannel _activePowerPhaseA = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10)
-			.build();
-	private final ModbusChannel _activePowerPhaseB = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10)
-			.build();
-	private final ModbusChannel _activePowerPhaseC = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10)
-			.build();
-
-	public SocomecMeter(String thingId) {
+	public SocomecMeter(String thingId) throws ConfigException {
 		super(thingId);
 	}
 
-	@Override
-	public NumericChannel activeNegativeEnergy() {
-		return _activeNegativeEnergy;
+	/*
+	 * Inherited Channels
+	 */
+	private ModbusReadChannel activeNegativeEnergy;
+	private ModbusReadChannel activePositiveEnergy;
+	private ModbusReadChannel activePower;
+	private ModbusReadChannel apparentEnergy;
+	private ModbusReadChannel apparentPower;
+	private ModbusReadChannel reactiveNegativeEnergy;
+	private ModbusReadChannel reactivePositiveEnergy;
+	private ModbusReadChannel reactivePower;
+
+	@Override public ModbusReadChannel activeNegativeEnergy() {
+		return activeNegativeEnergy;
 	}
 
-	@Override
-	public NumericChannel activePositiveEnergy() {
-		return _activePositiveEnergy;
+	@Override public ModbusReadChannel activePositiveEnergy() {
+		return activePositiveEnergy;
 	}
 
-	@Override
-	public NumericChannel activePower() {
-		return _activePower;
+	@Override public ModbusReadChannel activePower() {
+		return activePower;
 	}
 
-	@Override
-	public NumericChannel apparentEnergy() {
-		return _apparentEnergy;
+	@Override public ModbusReadChannel apparentEnergy() {
+		return apparentEnergy;
 	}
 
-	@Override
-	public NumericChannel apparentPower() {
-		return _apparentPower;
+	@Override public ModbusReadChannel apparentPower() {
+		return apparentPower;
 	}
 
-	@Override
-	public NumericChannel reactiveNegativeEnergy() {
-		return _reactiveNegativeEnergy;
+	@Override public ModbusReadChannel reactiveNegativeEnergy() {
+		return reactiveNegativeEnergy;
 	}
 
-	@Override
-	public NumericChannel reactivePositiveEnergy() {
-		return _reactivePositiveEnergy;
+	@Override public ModbusReadChannel reactivePositiveEnergy() {
+		return reactivePositiveEnergy;
 	}
 
-	@Override
-	public NumericChannel reactivePower() {
-		return _reactivePower;
+	@Override public ModbusReadChannel reactivePower() {
+		return reactivePower;
 	}
 
-	@IsChannel(id = "ActivePowerPhaseA")
-	public NumericChannel activePowerPhaseA() {
-		return _activePowerPhaseA;
-	}
+	/*
+	 * This Channels
+	 */
+	public ModbusReadChannel activePowerPhase1;
+	public ModbusReadChannel activePowerPhase2;
+	public ModbusReadChannel activePowerPhase3;
+	public ModbusReadChannel reactivePowerPhase1;
+	public ModbusReadChannel reactivePowerPhase2;
+	public ModbusReadChannel reactivePowerPhase3;
 
-	@IsChannel(id = "ActivePowerPhaseB")
-	public NumericChannel activePowerPhaseB() {
-		return _activePowerPhaseB;
-	}
-
-	@IsChannel(id = "ActivePowerPhaseC")
-	public NumericChannel activePowerPhaseC() {
-		return _activePowerPhaseC;
-	}
-
-	@IsChannel(id = "RectivePowerPhaseA")
-	public NumericChannel reactivePowerPhaseA() {
-		return _reactivePowerPhaseA;
-	}
-
-	@IsChannel(id = "RectivePowerPhaseB")
-	public NumericChannel reactivePowerPhaseB() {
-		return _reactivePowerPhaseB;
-	}
-
-	@IsChannel(id = "RectivePowerPhaseC")
-	public NumericChannel reactivePowerPhaseC() {
-		return _reactivePowerPhaseC;
-	}
-
-	@Override
-	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
 				new ModbusRange(0xc568, //
-						new ElementBuilder().address(0xc568).channel(_activePower).doubleword().signed().build(), //
-						new ElementBuilder().address(0xc56A).channel(_reactivePower).doubleword().signed().build(), //
-						new ElementBuilder().address(0xc56C).channel(_apparentPower).doubleword().build(),
-						new ElementBuilder().address(0xc56E).dummy(0xc570 - 0xc56E).build(),
-						new ElementBuilder().address(0xc570).channel(_activePowerPhaseA).doubleword().signed().build(),
-						new ElementBuilder().address(0xc572).channel(_activePowerPhaseB).doubleword().signed().build(),
-						new ElementBuilder().address(0xc574).channel(_activePowerPhaseC).doubleword().signed().build(),
-						new ElementBuilder().address(0xc576).channel(_reactivePowerPhaseA).doubleword().signed()
-								.build(),
-						new ElementBuilder().address(0xc578).channel(_reactivePowerPhaseB).doubleword().signed()
-								.build(),
-						new ElementBuilder().address(0xc57A).channel(_reactivePowerPhaseC).doubleword().signed()
-								.build()), //
+						new SignedDoublewordElement(0xc568, //
+								activePower = new ModbusReadChannel("ActivePower", this).unit("W").multiplier(10)),
+						new SignedDoublewordElement(0xc56A, //
+								reactivePower = new ModbusReadChannel("ReactivePower", this).unit("var")
+										.multiplier(10)),
+						new SignedDoublewordElement(0xc56C, //
+								apparentPower = new ModbusReadChannel("ApparentPower", this).unit("VA").multiplier(10)),
+						new DummyElement(0xc56E, 0xc56F),
+						new SignedDoublewordElement(0xc570, //
+								activePowerPhase1 = new ModbusReadChannel("ActivePowerPhase1", this).unit("W")
+										.multiplier(10)),
+						new SignedDoublewordElement(0xc572, //
+								activePowerPhase2 = new ModbusReadChannel("ActivePowerPhase2", this).unit("W")
+										.multiplier(10)),
+						new SignedDoublewordElement(0xc574, //
+								activePowerPhase3 = new ModbusReadChannel("ActivePowerPhase3", this).unit("W")
+										.multiplier(10)),
+						new SignedDoublewordElement(0xc576, //
+								reactivePowerPhase1 = new ModbusReadChannel("ReactivePowerPhase1", this).unit("var")
+										.multiplier(10)),
+						new SignedDoublewordElement(0xc578, //
+								reactivePowerPhase2 = new ModbusReadChannel("ReactivePowerPhase2", this).unit("var")
+										.multiplier(10)),
+						new SignedDoublewordElement(0xc57A, //
+								reactivePowerPhase3 = new ModbusReadChannel("ReactivePowerPhase3", this).unit("var")
+										.multiplier(10))),
 				new ModbusRange(0xc652, //
-						new ElementBuilder().address(0xc652).channel(_activePositiveEnergy).doubleword().build(),
-						new ElementBuilder().address(0xc654).channel(_reactivePositiveEnergy).doubleword().build(),
-						new ElementBuilder().address(0xc656).channel(_apparentEnergy).doubleword().signed().build(),
-						new ElementBuilder().address(0xc658).channel(_activeNegativeEnergy).doubleword().build(),
-						new ElementBuilder().address(0xc65a).channel(_reactiveNegativeEnergy).doubleword().build()));
+						new UnsignedDoublewordElement(0xc652, //
+								activePositiveEnergy = new ModbusReadChannel("ActivePositiveEnergy", this).unit("kWh")),
+						new UnsignedDoublewordElement(0xc654, //
+								reactivePositiveEnergy = new ModbusReadChannel("ReactivePositiveEnergy", this)
+										.unit("kvarh")),
+						new UnsignedDoublewordElement(0xc656, //
+								apparentEnergy = new ModbusReadChannel("ApparentEnergy", this).unit("kVAh")),
+						new UnsignedDoublewordElement(0xc658, //
+								activeNegativeEnergy = new ModbusReadChannel("ActiveNegativeEnergy", this).unit("kWh")),
+						new UnsignedDoublewordElement(0xc65a, //
+								reactiveNegativeEnergy = new ModbusReadChannel("ReactiveNegativeEnergy", this)
+										.unit("kvarh"))));
 	}
-
 }

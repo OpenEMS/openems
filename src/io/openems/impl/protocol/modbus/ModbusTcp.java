@@ -30,47 +30,51 @@ import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelListener;
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
+import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.OpenemsModbusException;
-import io.openems.api.thing.IsConfig;
 
-public class ModbusTcp extends ModbusBridge {
+public class ModbusTcp extends ModbusBridge implements ChannelListener {
 	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
 	private Optional<TCPMasterConnection> connection = Optional.empty();
-	private volatile Optional<Inet4Address> ip = Optional.empty();
-	private volatile int port = 502;
 
-	@Override
-	public void dispose() {
+	private final static int MODBUS_PORT = 502;
+
+	/*
+	 * Config
+	 */
+	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this, Inet4Address.class)
+			.listener(this);
+	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this, Integer.class)
+			.defaultValue(MODBUS_PORT).listener(this);
+
+	@Override public void channelUpdated(Channel channel) {
+		triggerInitialize();
+	}
+
+	@Override public void dispose() {
 
 	}
 
-	@Override
-	public ModbusTransaction getTransaction() throws OpenemsModbusException {
+	@Override public ModbusTransaction getTransaction() throws OpenemsModbusException {
 		TCPMasterConnection connection = getModbusConnection();
 		ModbusTCPTransaction trans = new ModbusTCPTransaction(connection);
 		return trans;
 	}
 
-	@IsConfig("ip")
-	public void setBaudrate(Inet4Address ip) {
-		this.ip = Optional.ofNullable(ip);
-		triggerInitialize();
-	}
-
-	@Override
-	public void addDevice(Device device) {
+	@Override public void addDevice(Device device) {
 		super.addDevice(device);
 		triggerInitialize();
 	}
 
-	@Override
-	public String toString() {
+	@Override public String toString() {
 		return "ModbusTcp [ip=" + ip + "]";
 	}
 
-	@Override
-	protected boolean initialize() {
+	@Override protected boolean initialize() {
 		if (!super.initialize()) {
 			return false;
 		}
@@ -83,8 +87,7 @@ public class ModbusTcp extends ModbusBridge {
 		return true;
 	}
 
-	@Override
-	protected void closeModbusConnection() {
+	@Override protected void closeModbusConnection() {
 		if (connection.isPresent() && connection.get().isConnected()) {
 			connection.get().close();
 		}
@@ -93,17 +96,18 @@ public class ModbusTcp extends ModbusBridge {
 
 	private TCPMasterConnection getModbusConnection() throws OpenemsModbusException {
 		if (!connection.isPresent()) {
-			if (!ip.isPresent()) {
+			try {
+				connection = Optional.of(new TCPMasterConnection(ip.value()));
+				connection.get().setPort(port.value());
+			} catch (InvalidValueException e) {
 				throw new OpenemsModbusException("Modbus-TCP is not configured completely");
 			}
-			connection = Optional.of(new TCPMasterConnection(ip.get()));
-			connection.get().setPort(port);
 		}
 		if (!connection.get().isConnected()) {
 			try {
 				connection.get().connect();
 			} catch (Exception e) {
-				throw new OpenemsModbusException("Unable to open Modbus-TCP connection: " + connection);
+				throw new OpenemsModbusException("Unable to open Modbus-TCP connection: " + ip.valueOptional().get());
 			}
 		}
 		return connection.get();

@@ -32,8 +32,7 @@ public class DemoFems7WithMeter extends Demo {
 		System.out.println(gson.toJson(config));
 	}
 
-	@Override
-	public JsonObject getConfig() {
+	@Override public JsonObject getConfig() {
 		JsonObject config = new JsonObject();
 
 		JsonArray things = new JsonArray();
@@ -48,12 +47,12 @@ public class DemoFems7WithMeter extends Demo {
 
 		JsonObject device0 = new JsonObject();
 		devices0.add(device0);
-		device0.add("class", new JsonPrimitive("io.openems.impl.device.commercial.FeneconCommercial"));
+		device0.add("class", new JsonPrimitive("io.openems.impl.device.commercial.FeneconCommercialAC"));
 		device0.add("modbusUnitId", new JsonPrimitive(100));
 
 		JsonObject device0ess = new JsonObject();
 		device0.add("ess", device0ess);
-		device0ess.add("thingId", new JsonPrimitive("ess0"));
+		device0ess.add("id", new JsonPrimitive("ess0"));
 		device0ess.add("minSoc", new JsonPrimitive(15));
 
 		JsonObject bridge1 = new JsonObject();
@@ -74,7 +73,7 @@ public class DemoFems7WithMeter extends Demo {
 
 		JsonObject device1meter = new JsonObject();
 		device1.add("meter", device1meter);
-		device1meter.add("thingId", new JsonPrimitive("meter0"));
+		device1meter.add("id", new JsonPrimitive("meter0"));
 
 		JsonObject scheduler = new JsonObject();
 		config.add("scheduler", scheduler);
@@ -96,7 +95,8 @@ public class DemoFems7WithMeter extends Demo {
 		JsonObject controller2 = new JsonObject();
 		controllers.add(controller2);
 		controller2.add("priority", new JsonPrimitive(50));
-		controller2.add("class", new JsonPrimitive("io.openems.impl.controller.balancing.BalancingController"));
+		controller2.add("class",
+				new JsonPrimitive("io.openems.impl.controller.symmetricbalancing.SymmetricBalancingController"));
 
 		JsonObject controller3 = new JsonObject();
 		controllers.add(controller3);
