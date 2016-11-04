@@ -141,7 +141,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 				/*
 				 * Handle Bridge-Exceptions
 				 */
-				log.error("Bridge-Exception! Retry later.", e);
+				log.error("Bridge-Exception! Retry later: ", e);
 				bridgeExceptionSleep = bridgeExceptionSleep(bridgeExceptionSleep);
 			}
 		}

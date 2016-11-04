@@ -22,7 +22,11 @@ package io.openems.core;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -34,13 +38,11 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMap;
-import io.openems.api.controller.IsThingMapping;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
@@ -54,8 +56,13 @@ import io.openems.core.utilities.JsonUtils;
 public class Config {
 	private final static Logger log = LoggerFactory.getLogger(Config.class);
 
+	private final ThingRepository thingRepository;
+
+	public Config() {
+		thingRepository = ThingRepository.getInstance();
+	}
+
 	public void readConfig(JsonObject jConfig) throws ReflectionException, ConfigException, WriteChannelException {
-		ThingRepository thingRepository = ThingRepository.getInstance();
 		/*
 		 * read each Bridge in "things" array
 		 */
@@ -96,9 +103,64 @@ public class Config {
 			String controllerClass = JsonUtils.getAsString(jController, "class");
 			Controller controller = (Controller) InjectionUtils.getThingInstance(controllerClass);
 			injectConfigChannels(thingRepository.getConfigChannels(controller), jController);
-			injectControllerNatureMapping(controller);
+			// injectControllerNatureMapping(controller);
 			scheduler.addController(controller);
 		}
+	}
+
+	private Thing getThingFromConfig(Class<?> type, JsonElement j) throws ReflectionException {
+		String thingId = JsonUtils.getAsString(j, "id");
+		Optional<Thing> existingThing = thingRepository.getThingById(thingId);
+		Thing thing;
+		if (existingThing.isPresent()) {
+			// reuse existing Thing
+			thing = existingThing.get();
+		} else {
+			// Thing is not existing. Create a new instance
+			thing = InjectionUtils.getThingInstance(type, thingId);
+		}
+		// Recursive call to inject config parameters for the newly created Thing
+		injectConfigChannels(thingRepository.getConfigChannels(thing), j.getAsJsonObject());
+		return thing;
+	}
+
+	private Object getConfigObject(ConfigChannel<?> channel, JsonElement j) throws ReflectionException {
+		Class<?> type = channel.type();
+		if (Integer.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for an Integer
+			 */
+			return j.getAsInt();
+
+		} else if (String.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for a String
+			 */
+			return j.getAsString();
+
+		} else if (Thing.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for a Thing
+			 */
+			return getThingFromConfig(type, j);
+
+		} else if (ThingMap.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for a ThingMap
+			 */
+			return getThingMapsFromConfig(channel, j);
+
+		} else if (Inet4Address.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for an IPv4
+			 */
+			try {
+				return Inet4Address.getByName(j.getAsString());
+			} catch (UnknownHostException e) {
+				throw new ReflectionException("Unable to convert [" + j + "] to IPv4 address");
+			}
+		}
+		throw new ReflectionException("Unable to match config [" + j + "] to class type [" + type + "]");
 	}
 
 	/**
@@ -110,122 +172,100 @@ public class Config {
 	 */
 	private void injectConfigChannels(Set<ConfigChannel<?>> channels, JsonObject jConfig) throws ReflectionException {
 		for (ConfigChannel<?> channel : channels) {
-			if (!jConfig.has(channel.id()) && channel.valueOptional().isPresent()) {
+			if ((!jConfig.has(channel.id()) && channel.valueOptional().isPresent()) || channel.isOptional()) {
 				// Element for this Channel is not existing existing in the configuration, but a default value was set
 				continue;
 			}
-			JsonElement jConfigElement = JsonUtils.getSubElement(jConfig, channel.id());
-			if (jConfigElement.isJsonPrimitive()) {
-				/**
-				 * Parameter is a JsonPrimitive
-				 */
-				JsonPrimitive jConfigParameter = jConfigElement.getAsJsonPrimitive();
-				Object object = JsonUtils.getJsonPrimitiveAsClass(jConfigParameter, channel.type());
-				channel.updateValue(object, true);
-			} else {
-				/**
-				 * Parameter is NOT a JsonPrimitive -> create a matching Thing
-				 */
-				JsonObject jConfigParameter = JsonUtils.getAsJsonObject(jConfigElement);
-				String thingId = JsonUtils.getAsString(jConfigParameter, "id");
-				ThingRepository thingRepository = ThingRepository.getInstance();
-				Optional<Thing> existingThing = thingRepository.getThingById(thingId);
-				Thing thing;
-				if (existingThing.isPresent()) {
-					// reuse existing Thing
-					thing = existingThing.get();
-				} else {
-					// Thing is not existing. Create a new instance
-					thing = InjectionUtils.getThingInstance(channel.type(), thingId);
-				}
-				// Recursive call to inject config parameters for the newly created Thing
-				injectConfigChannels(thingRepository.getConfigChannels(thing), jConfigParameter);
-				channel.updateValue(thing, true);
-			}
-
+			JsonElement jChannel = JsonUtils.getSubElement(jConfig, channel.id());
+			Object parameter = getConfigObject(channel, jChannel);
+			channel.updateValue(parameter, true);
 		}
 
 	}
 
-	private enum InjectionType {
-		OBJECT, SET, LIST
-	}
+	private Object getThingMapsFromConfig(ConfigChannel<?> channel, JsonElement j) throws ReflectionException {
+		/*
+		 * Get "Field" in Channels parent class
+		 */
+		Field field;
+		try {
+			field = channel.parent().getClass().getField(channel.id());
+		} catch (NoSuchFieldException | SecurityException e) {
+			throw new ReflectionException("Field for ConfigChannel [" + channel.address() + "] is not named ["
+					+ channel.id() + "] in [" + channel.getClass().getSimpleName() + "]");
+		}
 
-	private void injectControllerNatureMapping(Controller controller) throws ReflectionException {
-		ThingRepository thingRepository = ThingRepository.getInstance();
-		for (Field field : controller.getClass().getDeclaredFields()) {
-			IsThingMapping annotation = field.getAnnotation(IsThingMapping.class);
-			if (annotation != null) {
-				// field is annotated with @IsThingMapping
+		/*
+		 * Get expected Object Type (List, Set, simple Object)
+		 */
+		Type expectedObjectType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+		if (expectedObjectType instanceof ParameterizedType) {
+			expectedObjectType = ((ParameterizedType) expectedObjectType).getRawType();
+		}
+		Class<?> expectedObjectClass = (Class<?>) expectedObjectType;
 
-				// marker to tell if only one mapped Thing or a list of Things is expected
-				InjectionType expected = InjectionType.OBJECT;
+		/*
+		 * Get the ThingMap class
+		 */
+		Class<?> thingMapClass = channel.type();
 
-				/*
-				 * Get the ThingMap class
-				 */
-				Class<? extends ThingMap> thingMapClass;
-				try {
-					thingMapClass = (Class<? extends ThingMap>) field.getType();
-					if (Set.class.isAssignableFrom(thingMapClass)) {
-						// Field is a set. Get the generic type
-						ParameterizedType type = (ParameterizedType) field.getGenericType();
-						thingMapClass = (Class<? extends ThingMap>) Class
-								.forName(type.getActualTypeArguments()[0].getTypeName());
-						expected = InjectionType.SET;
-					} else if (List.class.isAssignableFrom(thingMapClass)) {
-						// Field is a list. Get the generic type
-						ParameterizedType type = (ParameterizedType) field.getGenericType();
-						thingMapClass = (Class<? extends ThingMap>) Class
-								.forName(type.getActualTypeArguments()[0].getTypeName());
-						expected = InjectionType.LIST;
-					}
-				} catch (ClassNotFoundException e) {
-					throw new ReflectionException("Unable to find ThingMap [" + annotation + "].");
-				}
+		/*
+		 * Get the referenced Thing class
+		 */
+		IsThingMap isThingMapAnnotation = thingMapClass.getAnnotation(IsThingMap.class);
+		Class<? extends Thing> thingClass = isThingMapAnnotation.type();
 
-				/*
-				 * Get the referenced Thing class
-				 */
-				if (!thingMapClass.isAnnotationPresent(IsThingMap.class)) {
-					throw new ReflectionException("ThingMap [" + thingMapClass.getSimpleName()
-							+ "] has no defined target Thing! 'IsThingMap'-annotation is missing.");
-				}
-				IsThingMap isThingMap = thingMapClass.getAnnotation(IsThingMap.class);
-				Class<? extends Thing> thingClass = isThingMap.type();
+		/*
+		 * Prepare filter for matching Things
+		 * - Empty filter: accept everything
+		 * - Otherwise: accept only exact string matches on the thing id
+		 */
+		Set<String> filter = new HashSet<>();
+		if (j.isJsonPrimitive()) {
+			String id = j.getAsJsonPrimitive().getAsString();
+			if (!id.equals("*")) {
+				filter.add(id);
+			}
+		} else if (j.isJsonArray()) {
+			j.getAsJsonArray().forEach(id -> filter.add(id.getAsString()));
+		}
 
-				/*
-				 * Create ThingMap instance(s) for each matching Thing
-				 */
-				Set<Thing> matchingThings = thingRepository.getThingsAssignableByClass(thingClass);
-				Set<ThingMap> thingMaps = new HashSet<>();
-				for (Thing thing : matchingThings) {
-					ThingMap thingMap = (ThingMap) InjectionUtils.getInstance(thingMapClass, thing);
-					thingMaps.add(thingMap);
-					if (expected == InjectionType.OBJECT) {
-						break;
-					}
-				}
+		/*
+		 * Create ThingMap instance(s) for each matching Thing
+		 */
+		Set<Thing> matchingThings = thingRepository.getThingsAssignableByClass(thingClass);
+		Set<ThingMap> thingMaps = new HashSet<>();
+		for (Thing thing : matchingThings) {
+			if (filter.isEmpty() || filter.contains(thing.id())) {
+				ThingMap thingMap = (ThingMap) InjectionUtils.getInstance(thingMapClass, thing);
+				thingMaps.add(thingMap);
+			}
+		}
 
-				/*
-				 * If a matching ThingMap was created:
-				 * ThingMap -> Controller.@IsThingMapping
-				 */
-				if (!thingMaps.isEmpty()) {
-					try {
-						if (expected == InjectionType.SET) {
-							field.set(controller, thingMaps);
-						} else if (expected == InjectionType.LIST) {
-							field.set(controller, new ArrayList<>(thingMaps));
-						} else {
-							field.set(controller, thingMaps.iterator().next());
-						}
-					} catch (IllegalArgumentException | IllegalAccessException e) {
-						throw new ReflectionException(
-								"Unable to set IsThingMapping to Field [" + controller.getClass().getSimpleName() + "."
-										+ field.getName() + "]: " + e.getMessage());
-					}
-				}
+		/*
+		 * Prepare return
+		 */
+		if (thingMaps.isEmpty()) {
+			throw new ReflectionException("No matching ThingMap found for ConfigChannel [" + channel.address() + "]");
+		}
+
+		if (Collection.class.isAssignableFrom(expectedObjectClass)) {
+			if (Set.class.isAssignableFrom(expectedObjectClass)) {
+				return thingMaps;
+			} else if (List.class.isAssignableFrom(expectedObjectClass)) {
+				return new ArrayList<>(thingMaps);
+			} else {
+				throw new ReflectionException("Only List and Set ConfigChannels are currently implemented, not ["
+						+ expectedObjectClass + "]. ConfigChannel [" + channel.address() + "]");
+			}
+		} else {
+			// No collection
+			if (thingMaps.size() > 1) {
+				throw new ReflectionException("Field for ConfigChannel [" + channel.address()
+						+ "] is no collection, but more than one ThingMaps [" + thingMaps + "] is fitting for ["
+						+ channel.id() + "] in [" + channel.getClass().getSimpleName() + "]");
+			} else {
+				return thingMaps.iterator().next();
 			}
 		}
 

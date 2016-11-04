@@ -24,6 +24,7 @@ import io.openems.api.thing.Thing;
 
 public class ConfigChannel<T> extends WriteChannel<T> {
 	private final Class<?> type;
+	private boolean isOptional;
 
 	public ConfigChannel(String id, Thing parent, Class<?> type) {
 		super(id, parent);
@@ -45,5 +46,14 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	public ConfigChannel<T> defaultValue(T value) {
 		updateValue(value, false);
 		return this;
+	}
+
+	public ConfigChannel<T> optional() {
+		this.isOptional = true;
+		return this;
+	}
+
+	public boolean isOptional() {
+		return isOptional;
 	}
 }

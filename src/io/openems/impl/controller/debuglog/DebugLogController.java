@@ -23,31 +23,41 @@ package io.openems.impl.controller.debuglog;
 import java.util.Optional;
 import java.util.Set;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.controller.IsThingMapping;
+import io.openems.api.exception.InvalidValueException;
 
 public class DebugLogController extends Controller {
-	@IsThingMapping public Set<Ess> esss = null;
 
-	@IsThingMapping public Meter meter = null;
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
+
+	public final ConfigChannel<Set<Meter>> meters = new ConfigChannel<Set<Meter>>("meters", this, Meter.class)
+			.optional();
 
 	@Override public void run() {
-		StringBuilder b = new StringBuilder();
-		if (meter != null) {
-			b.append(meter.id() + ": " + meter.activePower.format() + " ");
-		}
-		for (Ess ess : esss) {
-			b.append(ess.id() + " [" + ess.soc.format() + "] " //
-					+ "Act[" + ess.activePower.format() + "] " //
-					+ "Charge[" + ess.allowedCharge.format() + "] " //
-					+ "Discharge[" + ess.allowedDischarge.format() + "] " //
-					+ "State[" + ess.systemState.format() + "]");
-			Optional<String> warning = ess.warning.labelOptional();
-			if (warning.isPresent()) {
-				b.append(" Warning[" + warning.get() + "]");
+		try {
+			StringBuilder b = new StringBuilder();
+			if (meters.valueOptional().isPresent()) {
+				for (Meter meter : meters.value()) {
+					b.append(meter.id() + ": " + meter.activePower.format() + " ");
+				}
 			}
+
+			for (Ess ess : esss.value()) {
+				b.append(ess.id() + " [" + ess.soc.format() + "] " //
+						+ "Act[" + ess.activePower.format() + "] " //
+						+ "Charge[" + ess.allowedCharge.format() + "] " //
+						+ "Discharge[" + ess.allowedDischarge.format() + "] " //
+						+ "State[" + ess.systemState.format() + "]");
+				Optional<String> warning = ess.warning.labelOptional();
+				if (warning.isPresent()) {
+					b.append(" Warning[" + warning.get() + "]");
+				}
+			}
+			log.info(b.toString());
+		} catch (InvalidValueException e) {
+			e.printStackTrace();
 		}
-		log.info(b.toString());
 	}
 
 }

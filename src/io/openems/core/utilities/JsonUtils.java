@@ -20,9 +20,6 @@
  *******************************************************************************/
 package io.openems.core.utilities;
 
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -68,29 +65,6 @@ public class JsonUtils {
 			throw new ReflectionException("[" + memberName + "] is not a String: " + jPrimitive);
 		}
 		return jPrimitive.getAsString();
-	}
-
-	public static Object getJsonPrimitiveAsClass(JsonPrimitive j, Class<?> clazz) throws ReflectionException {
-		Object parameter = null;
-		if (j.isNumber()) {
-			if (clazz.isAssignableFrom(Integer.class)) {
-				parameter = j.getAsInt();
-			}
-		} else if (j.isString()) {
-			if (clazz.isAssignableFrom(String.class)) {
-				parameter = j.getAsString();
-			} else if (clazz.isAssignableFrom(Inet4Address.class)) {
-				try {
-					parameter = Inet4Address.getByName(j.getAsString());
-				} catch (UnknownHostException e) {
-					throw new ReflectionException("Unable to convert [" + j + "] to IPv4 address");
-				}
-			}
-		}
-		if (parameter == null) {
-			throw new ReflectionException("Unable to match config [" + j + "] to class type [" + clazz + "]");
-		}
-		return parameter;
 	}
 
 	public static JsonElement getSubElement(JsonElement jElement, String memberName) throws ReflectionException {
