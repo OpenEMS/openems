@@ -39,7 +39,18 @@ public class BalancingThreePhaseController extends Controller {
 	@IsThingMapping
 	public Meter meter;
 
+	// TODO configureable
 	private double cosPhi = 0.95;
+
+	private long calculatedPower = 0L;
+	private long calculatedPowerL1 = 0L;
+	private long calculatedPowerL2 = 0L;
+	private long calculatedPowerL3 = 0L;
+	private long maxChargePower = 0L;
+	private long maxDischargePower = 0L;
+	private double percentageL1 = 0;
+	private double percentageL2 = 0;
+	private double percentageL3 = 0;
 
 	@Override
 	public void run() {
@@ -47,14 +58,18 @@ public class BalancingThreePhaseController extends Controller {
 			for (Ess ess : esss) {
 				ess.setWorkState.pushWriteValue(EssNature.START);
 			}
+			calculateRequiredPower();
+			calculateAllowedPower();
+			reducePowerToPossiblePower();
+			calculateMinMaxValues();
+
 			// Calculate required sum values
 			long calculatedPower = meter.activePowerPhaseA.getValue() + meter.activePowerPhaseB.getValue()
 					+ meter.activePowerPhaseC.getValue();
 			long calculatedPowerPhaseA = meter.activePowerPhaseA.getValue();
 			long calculatedPowerPhaseB = meter.activePowerPhaseB.getValue();
 			long calculatedPowerPhaseC = meter.activePowerPhaseC.getValue();
-			long maxChargePower = 0;
-			long maxDischargePower = 0;
+
 			long maxChargePowerPhaseA = 0;
 			long maxDischargePowerPhaseA = 0;
 			long maxChargePowerPhaseB = 0;
@@ -151,15 +166,19 @@ public class BalancingThreePhaseController extends Controller {
 					long powerPhaseA = (long) (Math.ceil(minPowerPhaseA + diffPhaseA / useableSoc * ess.useableSoc()));
 					long powerPhaseB = (long) (Math.ceil(minPowerPhaseB + diffPhaseB / useableSoc * ess.useableSoc()));
 					long powerPhaseC = (long) (Math.ceil(minPowerPhaseC + diffPhaseC / useableSoc * ess.useableSoc()));
+					long reactivePowerPhaseA = (long) (powerPhaseA * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
+					long reactivePowerPhaseB = (long) (powerPhaseB * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
+					long reactivePowerPhaseC = (long) (powerPhaseC * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
 					ess.setActivePowerPhaseA.pushWriteValue(powerPhaseA);
 					ess.setActivePowerPhaseB.pushWriteValue(powerPhaseB);
 					ess.setActivePowerPhaseC.pushWriteValue(powerPhaseC);
-					ess.setReactivePowerPhaseA.pushWriteValue(0);
-					ess.setReactivePowerPhaseB.pushWriteValue(0);
-					ess.setReactivePowerPhaseC.pushWriteValue(0);
-					log.info("Set ActivePowerPhase1 [" + powerPhaseA + "], ReactivePowerPhase1 [0],ActivePowerPhase2 ["
-							+ powerPhaseB + "], ReactivePowerPhase2 [0],ActivePowerPhase3 [" + powerPhaseC
-							+ "], ReactivePowerPhase3 [0]");
+					ess.setReactivePowerPhaseA.pushWriteValue(reactivePowerPhaseA);
+					ess.setReactivePowerPhaseB.pushWriteValue(reactivePowerPhaseB);
+					ess.setReactivePowerPhaseC.pushWriteValue(reactivePowerPhaseC);
+					log.info("Set ActivePowerPhase1 [" + powerPhaseA + "], ReactivePowerPhase1 [" + reactivePowerPhaseA
+							+ "],ActivePowerPhase2 [" + powerPhaseB + "], ReactivePowerPhase2 [" + reactivePowerPhaseB
+							+ "],ActivePowerPhase3 [" + powerPhaseC + "], ReactivePowerPhase3 [" + reactivePowerPhaseC
+							+ "]");
 					calculatedPower -= powerPhaseA + powerPhaseB + powerPhaseC;
 					calculatedPowerPhaseA -= powerPhaseA;
 					calculatedPowerPhaseB -= powerPhaseB;
@@ -241,9 +260,19 @@ public class BalancingThreePhaseController extends Controller {
 							.floor(minPowerPhaseB + diffPhaseB / useableSoc * (100 - ess.useableSoc()));
 					long powerPhaseC = (long) Math
 							.floor(minPowerPhaseC + diffPhaseC / useableSoc * (100 - ess.useableSoc()));
+					long reactivePowerPhaseA = (long) (powerPhaseA * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
+					long reactivePowerPhaseB = (long) (powerPhaseB * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
+					long reactivePowerPhaseC = (long) (powerPhaseC * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
 					ess.setActivePowerPhaseA.pushWriteValue(powerPhaseA);
 					ess.setActivePowerPhaseB.pushWriteValue(powerPhaseB);
 					ess.setActivePowerPhaseC.pushWriteValue(powerPhaseC);
+					ess.setReactivePowerPhaseA.pushWriteValue(reactivePowerPhaseA);
+					ess.setReactivePowerPhaseB.pushWriteValue(reactivePowerPhaseB);
+					ess.setReactivePowerPhaseC.pushWriteValue(reactivePowerPhaseC);
+					log.info("Set ActivePowerPhase1 [" + powerPhaseA + "], ReactivePowerPhase1 [" + reactivePowerPhaseA
+							+ "],ActivePowerPhase2 [" + powerPhaseB + "], ReactivePowerPhase2 [" + reactivePowerPhaseB
+							+ "],ActivePowerPhase3 [" + powerPhaseC + "], ReactivePowerPhase3 [" + reactivePowerPhaseC
+							+ "]");
 					calculatedPower -= powerPhaseA + powerPhaseB + powerPhaseC;
 					calculatedPowerPhaseA -= powerPhaseA;
 					calculatedPowerPhaseB -= powerPhaseB;
@@ -257,4 +286,106 @@ public class BalancingThreePhaseController extends Controller {
 		}
 	}
 
+	private void calculateMinMaxValues() throws WriteChannelException, InvalidValueException {
+		for (Ess ess : esss) {
+			long maxPowerL1 = 0;
+			long maxPowerL2 = 0;
+			long maxPowerL3 = 0;
+			long minPowerL1 = 0;
+			long minPowerL2 = 0;
+			long minPowerL3 = 0;
+			if (ess.allowedApparent.getValue() < ess.allowedDischarge.getValue()) {
+				maxPowerL1 = calculateActivePower((long) (ess.allowedApparent.getValue() * percentageL1), cosPhi);
+				maxPowerL2 = calculateActivePower((long) (ess.allowedApparent.getValue() * percentageL2), cosPhi);
+				maxPowerL3 = calculateActivePower((long) (ess.allowedApparent.getValue() * percentageL3), cosPhi);
+			} else {
+				maxPowerL1 = calculateActivePower((long) (ess.allowedDischarge.getValue() * percentageL1), cosPhi);
+				maxPowerL2 = calculateActivePower((long) (ess.allowedDischarge.getValue() * percentageL2), cosPhi);
+				maxPowerL3 = calculateActivePower((long) (ess.allowedDischarge.getValue() * percentageL3), cosPhi);
+			}
+			if (ess.allowedApparent.getValue() < ess.allowedCharge.getValue()) {
+				minPowerL1 = calculateActivePower((long) (ess.allowedApparent.getValue() * percentageL1), cosPhi);
+				minPowerL2 = calculateActivePower((long) (ess.allowedApparent.getValue() * percentageL2), cosPhi);
+				minPowerL3 = calculateActivePower((long) (ess.allowedApparent.getValue() * percentageL3), cosPhi);
+			} else {
+				minPowerL1 = calculateActivePower((long) (ess.allowedCharge.getValue() * percentageL1), cosPhi);
+				minPowerL2 = calculateActivePower((long) (ess.allowedCharge.getValue() * percentageL2), cosPhi);
+				minPowerL3 = calculateActivePower((long) (ess.allowedCharge.getValue() * percentageL3), cosPhi);
+			}
+			ess.setActivePowerPhaseA.pushMaxWriteValue(maxPowerL1);
+			ess.setActivePowerPhaseB.pushMaxWriteValue(maxPowerL2);
+			ess.setActivePowerPhaseC.pushMaxWriteValue(maxPowerL3);
+			ess.setActivePowerPhaseA.pushMinWriteValue(minPowerL1);
+			ess.setActivePowerPhaseB.pushMinWriteValue(minPowerL2);
+			ess.setActivePowerPhaseC.pushMinWriteValue(minPowerL3);
+		}
+	}
+
+	private void calculateRequiredPower() throws InvalidValueException {
+		this.calculatedPower = meter.activePowerPhaseA.getValue() + meter.activePowerPhaseB.getValue()
+				+ meter.activePowerPhaseC.getValue();
+		this.calculatedPowerL1 = meter.activePowerPhaseA.getValue();
+		this.calculatedPowerL2 = meter.activePowerPhaseB.getValue();
+		this.calculatedPowerL3 = meter.activePowerPhaseC.getValue();
+		for (Ess ess : esss) {
+			this.calculatedPower += meter.activePowerPhaseA.getValue() + meter.activePowerPhaseB.getValue()
+					+ meter.activePowerPhaseC.getValue();
+			this.calculatedPowerL1 += meter.activePowerPhaseA.getValue();
+			this.calculatedPowerL2 += meter.activePowerPhaseB.getValue();
+			this.calculatedPowerL3 += meter.activePowerPhaseC.getValue();
+		}
+	}
+
+	private void calculateAllowedPower() throws InvalidValueException {
+		long allowedApparent = 0;
+		long allowedCharge = 0;
+		long allowedDischarge = 0;
+		for (Ess ess : esss) {
+			allowedCharge += ess.allowedCharge.getValue();
+			allowedDischarge += ess.allowedDischarge.getValue();
+			allowedApparent += ess.allowedApparent.getValue();
+		}
+		this.maxChargePower = allowedApparent;
+		if (allowedCharge < allowedApparent) {
+			this.maxChargePower = allowedCharge;
+		}
+		this.maxDischargePower = allowedApparent;
+		if (allowedDischarge < allowedApparent) {
+			this.maxDischargePower = allowedDischarge;
+		}
+		this.maxChargePower *= -1;
+	}
+
+	private void reducePowerToPossiblePower() throws InvalidValueException {
+		percentageL1 = (double) this.calculatedPowerL1 / (double) this.calculatedPower;
+		percentageL2 = (double) this.calculatedPowerL2 / (double) this.calculatedPower;
+		percentageL3 = (double) this.calculatedPowerL3 / (double) this.calculatedPower;
+		if (calculateApparentPower(this.calculatedPower, cosPhi) > maxDischargePower) {
+			this.calculatedPower = calculateActivePower(maxDischargePower, cosPhi);
+			this.calculatedPowerL1 = (long) (this.calculatedPower * percentageL1);
+			this.calculatedPowerL2 = (long) (this.calculatedPower * percentageL2);
+			this.calculatedPowerL3 = (long) (this.calculatedPower * percentageL3);
+		} else if (calculateApparentPower(this.calculatedPower, cosPhi) < maxChargePower) {
+			this.calculatedPower = calculateActivePower(maxChargePower, cosPhi);
+			this.calculatedPowerL1 = (long) (this.calculatedPower * percentageL1);
+			this.calculatedPowerL2 = (long) (this.calculatedPower * percentageL2);
+			this.calculatedPowerL3 = (long) (this.calculatedPower * percentageL3);
+		}
+	}
+
+	private long calculateReactivePower(long activePower, double cosPhi) {
+		return (long) (activePower * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
+	}
+
+	private long calculateApparentPower(long activePower, long reactivePower) {
+		return (long) Math.sqrt(Math.pow(activePower, 2) + Math.pow(reactivePower, 2));
+	}
+
+	private long calculateActivePower(long apparentPower, double cosPhi) {
+		return (long) (apparentPower * cosPhi);
+	}
+
+	private long calculateApparentPower(long activePower, double cosPhi) {
+		return (long) (activePower / cosPhi);
+	}
 }

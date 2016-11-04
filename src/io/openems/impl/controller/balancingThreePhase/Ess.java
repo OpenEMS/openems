@@ -24,6 +24,9 @@ public class Ess extends ThingMap {
 	@IsRequired(channelId = "AllowedDischarge")
 	public NumericChannel allowedDischarge;
 
+	@IsRequired(channelId = "AllowedApparent")
+	public NumericChannel allowedApparent;
+
 	@IsRequired(channelId = "SetActivePowerPhaseA")
 	public WriteableNumericChannel setActivePowerPhaseA;
 

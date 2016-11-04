@@ -343,17 +343,17 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 			.label(3, STOP)//
 			.label(4, "Emergency Stop").build();
 	public final WriteableModbusChannel _setActivePowerPhaseA = new WriteableModbusChannelBuilder().nature(this)
-			.unit("W").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+			.unit("W").minValue(-3000).maxValue(3000).build();
 	public final WriteableModbusChannel _setActivePowerPhaseB = new WriteableModbusChannelBuilder().nature(this)
-			.unit("W").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+			.unit("W").minValue(-3000).maxValue(3000).build();
 	public final WriteableModbusChannel _setActivePowerPhaseC = new WriteableModbusChannelBuilder().nature(this)
-			.unit("W").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+			.unit("W").minValue(-3000).maxValue(3000).build();
 	public final WriteableModbusChannel _setReactivePowerPhaseA = new WriteableModbusChannelBuilder().nature(this)
-			.unit("var").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+			.unit("var").minValue(-3000).maxValue(3000).build();
 	public final WriteableModbusChannel _setReactivePowerPhaseB = new WriteableModbusChannelBuilder().nature(this)
-			.unit("var").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+			.unit("var").minValue(-3000).maxValue(3000).build();
 	public final WriteableModbusChannel _setReactivePowerPhaseC = new WriteableModbusChannelBuilder().nature(this)
-			.unit("var").minWriteValue(_allowedCharge).maxWriteValue(_allowedDischarge).build();
+			.unit("var").minValue(-3000).maxValue(3000).build();
 	private final ConfigChannel _minSoc = new ConfigChannelBuilder().nature(this).defaultValue(DEFAULT_MINSOC)
 			.percentType().build();
 
@@ -541,12 +541,8 @@ public class FeneconProEss extends ModbusDeviceNature implements EssNature {
 						new ElementBuilder().address(163).channel(_pcsFault2PhaseC).build(), //
 						new ElementBuilder().address(164).channel(_pcsFault3PhaseC).build()), //
 				new WritableModbusRange(200, //
-						new ElementBuilder().address(200).channel(_setWorkState).build(),
-						new ElementBuilder().address(201).dummy().build(),
-						new ElementBuilder().address(202).dummy().build(),
-						new ElementBuilder().address(203).dummy().build(),
-						new ElementBuilder().address(204).dummy().build(),
-						new ElementBuilder().address(205).dummy().build(),
+						new ElementBuilder().address(200).channel(_setWorkState).build()), //
+				new WritableModbusRange(206, //
 						new ElementBuilder().address(206).channel(_setActivePowerPhaseA).build(),
 						new ElementBuilder().address(207).channel(_setReactivePowerPhaseA).build(),
 						new ElementBuilder().address(208).channel(_setActivePowerPhaseB).build(),
