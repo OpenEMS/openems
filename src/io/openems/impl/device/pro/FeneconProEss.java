@@ -54,7 +54,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	/*
 	 * Inherited Channels
 	 */
-	private StatusBitChannels warning = new StatusBitChannels("Warning", this);
+	private StatusBitChannels warning;
 	private ReadChannel<Long> allowedCharge;
 	private ReadChannel<Long> allowedDischarge;
 	private ReadChannel<Long> gridMode;
@@ -63,6 +63,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	private ReadChannel<Long> activePowerL1;
 	private ReadChannel<Long> activePowerL2;
 	private ReadChannel<Long> activePowerL3;
+	private ReadChannel<Long> allowedApparent;
 
 	private WriteChannel<Long> setWorkState;
 	private WriteChannel<Long> setActivePowerL1;
@@ -136,10 +137,13 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 		return warning;
 	}
 
+	@Override public ReadChannel<Long> allowedApparent() {
+		return allowedApparent;
+	}
+
 	/*
 	 * This Channels
 	 */
-	public ModbusReadChannel allowedApparentPower;
 	public ModbusReadChannel frequencyL3;
 	public ModbusReadChannel frequencyL2;
 	public ModbusReadChannel frequencyL1;
@@ -164,6 +168,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	public ModbusReadChannel controlMode;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+		warning = new StatusBitChannels("Warning", this);
 		return new ModbusProtocol(new ModbusRange(100, //
 				new UnsignedWordElement(100, //
 						systemState = new ModbusReadChannel("SystemState", this) //
@@ -254,7 +259,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 				new UnsignedWordElement(133, //
 						frequencyL3 = new ModbusReadChannel("FrequencyL3", this).unit("mHz").multiplier(10)),
 				new UnsignedWordElement(134, //
-						allowedApparentPower = new ModbusReadChannel("AllowedApparentPower", this).unit("VA")),
+						allowedApparent = new ModbusReadChannel("AllowedApparentPower", this).unit("VA")),
 				new DummyElement(135, 140),
 				new UnsignedWordElement(141, //
 						allowedCharge = new ModbusReadChannel("AllowedCharge", this).unit("W")),

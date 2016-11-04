@@ -46,6 +46,16 @@ public class AsymmetricBalancingController extends Controller {
 
 	@IsThingMapping public Meter meter;
 
+	private long calculatedPower = 0L;
+	private long calculatedPowerL1 = 0L;
+	private long calculatedPowerL2 = 0L;
+	private long calculatedPowerL3 = 0L;
+	private long maxChargePower = 0L;
+	private long maxDischargePower = 0L;
+	private double percentageL1 = 0;
+	private double percentageL2 = 0;
+	private double percentageL3 = 0;
+
 	@Override public void run() {
 		try {
 			for (Ess ess : esss) {
@@ -248,6 +258,108 @@ public class AsymmetricBalancingController extends Controller {
 		} catch (InvalidValueException | WriteChannelException e) {
 			log.error(e.getMessage());
 		}
+	}
+
+	private void calculateMinMaxValues() throws WriteChannelException, InvalidValueException {
+		for (Ess ess : esss) {
+			long maxPowerL1 = 0;
+			long maxPowerL2 = 0;
+			long maxPowerL3 = 0;
+			long minPowerL1 = 0;
+			long minPowerL2 = 0;
+			long minPowerL3 = 0;
+			if (ess.allowedApparent.value() < ess.allowedDischarge.value()) {
+				maxPowerL1 = calculateActivePower((long) (ess.allowedApparent.value() * percentageL1), cosPhi.value());
+				maxPowerL2 = calculateActivePower((long) (ess.allowedApparent.value() * percentageL2), cosPhi.value());
+				maxPowerL3 = calculateActivePower((long) (ess.allowedApparent.value() * percentageL3), cosPhi.value());
+			} else {
+				maxPowerL1 = calculateActivePower((long) (ess.allowedDischarge.value() * percentageL1), cosPhi.value());
+				maxPowerL2 = calculateActivePower((long) (ess.allowedDischarge.value() * percentageL2), cosPhi.value());
+				maxPowerL3 = calculateActivePower((long) (ess.allowedDischarge.value() * percentageL3), cosPhi.value());
+			}
+			if (ess.allowedApparent.value() < ess.allowedCharge.value()) {
+				minPowerL1 = calculateActivePower((long) (ess.allowedApparent.value() * percentageL1), cosPhi.value());
+				minPowerL2 = calculateActivePower((long) (ess.allowedApparent.value() * percentageL2), cosPhi.value());
+				minPowerL3 = calculateActivePower((long) (ess.allowedApparent.value() * percentageL3), cosPhi.value());
+			} else {
+				minPowerL1 = calculateActivePower((long) (ess.allowedCharge.value() * percentageL1), cosPhi.value());
+				minPowerL2 = calculateActivePower((long) (ess.allowedCharge.value() * percentageL2), cosPhi.value());
+				minPowerL3 = calculateActivePower((long) (ess.allowedCharge.value() * percentageL3), cosPhi.value());
+			}
+			ess.setActivePowerL1.pushWriteMax(maxPowerL1);
+			ess.setActivePowerL2.pushWriteMax(maxPowerL2);
+			ess.setActivePowerL3.pushWriteMax(maxPowerL3);
+			ess.setActivePowerL1.pushWriteMax(minPowerL1);
+			ess.setActivePowerL2.pushWriteMax(minPowerL2);
+			ess.setActivePowerL3.pushWriteMax(minPowerL3);
+		}
+	}
+
+	private void calculateRequiredPower() throws InvalidValueException {
+		this.calculatedPower = meter.activePowerL1.value() + meter.activePowerL2.value() + meter.activePowerL3.value();
+		this.calculatedPowerL1 = meter.activePowerL1.value();
+		this.calculatedPowerL2 = meter.activePowerL2.value();
+		this.calculatedPowerL3 = meter.activePowerL3.value();
+		for (Ess ess : esss) {
+			this.calculatedPower += meter.activePowerL1.value() + meter.activePowerL2.value()
+					+ meter.activePowerL3.value();
+			this.calculatedPowerL1 += meter.activePowerL1.value();
+			this.calculatedPowerL2 += meter.activePowerL2.value();
+			this.calculatedPowerL3 += meter.activePowerL3.value();
+		}
+	}
+
+	private void calculateAllowedPower() throws InvalidValueException {
+		long allowedApparent = 0;
+		long allowedCharge = 0;
+		long allowedDischarge = 0;
+		for (Ess ess : esss) {
+			allowedCharge += ess.allowedCharge.value();
+			allowedDischarge += ess.allowedDischarge.value();
+			allowedApparent += ess.allowedApparent.value();
+		}
+		this.maxChargePower = allowedApparent;
+		if (allowedCharge < allowedApparent) {
+			this.maxChargePower = allowedCharge;
+		}
+		this.maxDischargePower = allowedApparent;
+		if (allowedDischarge < allowedApparent) {
+			this.maxDischargePower = allowedDischarge;
+		}
+		this.maxChargePower *= -1;
+	}
+
+	private void reducePowerToPossiblePower() throws InvalidValueException {
+		percentageL1 = (double) this.calculatedPowerL1 / (double) this.calculatedPower;
+		percentageL2 = (double) this.calculatedPowerL2 / (double) this.calculatedPower;
+		percentageL3 = (double) this.calculatedPowerL3 / (double) this.calculatedPower;
+		if (calculateApparentPower(this.calculatedPower, cosPhi.value()) > maxDischargePower) {
+			this.calculatedPower = calculateActivePower(maxDischargePower, cosPhi.value());
+			this.calculatedPowerL1 = (long) (this.calculatedPower * percentageL1);
+			this.calculatedPowerL2 = (long) (this.calculatedPower * percentageL2);
+			this.calculatedPowerL3 = (long) (this.calculatedPower * percentageL3);
+		} else if (calculateApparentPower(this.calculatedPower, cosPhi.value()) < maxChargePower) {
+			this.calculatedPower = calculateActivePower(maxChargePower, cosPhi.value());
+			this.calculatedPowerL1 = (long) (this.calculatedPower * percentageL1);
+			this.calculatedPowerL2 = (long) (this.calculatedPower * percentageL2);
+			this.calculatedPowerL3 = (long) (this.calculatedPower * percentageL3);
+		}
+	}
+
+	private long calculateReactivePower(long activePower, double cosPhi) {
+		return (long) (activePower * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
+	}
+
+	private long calculateApparentPower(long activePower, long reactivePower) {
+		return (long) Math.sqrt(Math.pow(activePower, 2) + Math.pow(reactivePower, 2));
+	}
+
+	private long calculateActivePower(long apparentPower, double cosPhi) {
+		return (long) (apparentPower * cosPhi);
+	}
+
+	private long calculateApparentPower(long activePower, double cosPhi) {
+		return (long) (activePower / cosPhi);
 	}
 
 }

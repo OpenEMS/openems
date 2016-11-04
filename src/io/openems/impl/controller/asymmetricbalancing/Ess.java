@@ -44,6 +44,7 @@ public class Ess extends ThingMap {
 	public WriteChannel<Long> setReactivePowerL1;
 	public WriteChannel<Long> setReactivePowerL2;
 	public WriteChannel<Long> setReactivePowerL3;
+	public ReadChannel<Long> allowedApparent;
 
 	public Ess(AsymmetricEssNature ess) {
 		super(ess);
@@ -62,6 +63,7 @@ public class Ess extends ThingMap {
 		setReactivePowerL3 = ess.setReactivePowerL3().required();
 		soc = ess.soc().required();
 		setWorkState = ess.setWorkState().required();
+		allowedApparent = ess.allowedApparent().required();
 	}
 
 	public long useableSoc() throws InvalidValueException {

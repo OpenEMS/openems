@@ -111,6 +111,10 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 		return setWorkState;
 	}
 
+	@Override public ModbusReadChannel allowedApparent() {
+		return allowedApparent;
+	}
+
 	@Override public StatusBitChannels warning() {
 		return warning;
 	}

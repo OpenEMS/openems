@@ -39,6 +39,8 @@ public interface EssNature extends DeviceNature {
 	public ReadChannel<Long> allowedCharge();
 
 	public ReadChannel<Long> allowedDischarge();
+	
+	public ReadChannel<Long> allowedApparent();
 
 	public StatusBitChannels warning();
 
