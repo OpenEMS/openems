@@ -18,28 +18,33 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.device.nature;
+package io.openems.api.device.nature.ess;
 
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 
-public interface MeterNature extends DeviceNature {
-
+public interface AsymmetricEssNature extends EssNature {
 	/*
 	 * ReadChannels
 	 */
-	public ReadChannel<Long> activeNegativeEnergy();
+	public ReadChannel<Long> activePowerL1();
 
-	public ReadChannel<Long> activePositiveEnergy();
+	public ReadChannel<Long> activePowerL2();
 
-	public ReadChannel<Long> activePower();
+	public ReadChannel<Long> activePowerL3();
 
-	public ReadChannel<Long> apparentEnergy();
+	/*
+	 * WriteChannels
+	 */
+	public WriteChannel<Long> setActivePowerL1();
 
-	public ReadChannel<Long> apparentPower();
+	public WriteChannel<Long> setActivePowerL2();
 
-	public ReadChannel<Long> reactiveNegativeEnergy();
+	public WriteChannel<Long> setActivePowerL3();
 
-	public ReadChannel<Long> reactivePositiveEnergy();
+	public WriteChannel<Long> setReactivePowerL1();
 
-	public ReadChannel<Long> reactivePower();
+	public WriteChannel<Long> setReactivePowerL2();
+
+	public WriteChannel<Long> setReactivePowerL3();
 }

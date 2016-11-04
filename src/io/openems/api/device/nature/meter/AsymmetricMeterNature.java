@@ -18,55 +18,19 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.device.nature;
+package io.openems.api.device.nature.meter;
 
-import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 
-public interface SymmetricEssNature extends DeviceNature {
-	public final int DEFAULT_MINSOC = 10;
-
-	public final String OFF = "Off";
-	public final String ON = "On";
-
-	public final String OFF_GRID = "Off-Grid";
-	public final String ON_GRID = "On-Grid";
-
-	public final String STANDBY = "Standby";
-	public final String START = "Start";
-	public final String STOP = "Stop";
-
-	/*
-	 * Config
-	 */
-	public ConfigChannel<Integer> minSoc();
+public interface AsymmetricMeterNature extends MeterNature {
 
 	/*
 	 * ReadChannels
 	 */
-	public ReadChannel<Long> activePower();
+	public ReadChannel<Long> activePowerL1();
 
-	public ReadChannel<Long> allowedCharge();
+	public ReadChannel<Long> activePowerL2();
 
-	public ReadChannel<Long> allowedDischarge();
+	public ReadChannel<Long> activePowerL3();
 
-	public ReadChannel<Long> apparentPower();
-
-	public ReadChannel<Long> gridMode();
-
-	public ReadChannel<Long> reactivePower();
-
-	public ReadChannel<Long> soc();
-
-	public ReadChannel<Long> systemState();
-
-	/*
-	 * WriteChannels
-	 */
-	public WriteChannel<Long> setActivePower();
-
-	public WriteChannel<Long> setReactivePower();
-
-	public WriteChannel<Long> setWorkState();
 }

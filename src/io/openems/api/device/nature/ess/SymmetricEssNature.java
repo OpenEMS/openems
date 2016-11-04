@@ -18,26 +18,25 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.energysaver;
+package io.openems.api.device.nature.ess;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.controller.IsThingMap;
-import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.ess.SymmetricEssNature;
 
-@IsThingMap(type = SymmetricEssNature.class)
-public class Ess extends ThingMap {
+public interface SymmetricEssNature extends EssNature {
+	/*
+	 * ReadChannels
+	 */
+	public ReadChannel<Long> activePower();
 
-	public final WriteChannel<Long> setActivePower;
-	public final WriteChannel<Long> setWorkState;
-	public final ReadChannel<Long> systemState;
+	public ReadChannel<Long> apparentPower();
 
-	public Ess(SymmetricEssNature ess) {
-		super(ess);
-		setActivePower = ess.setActivePower().required();
-		setWorkState = ess.setWorkState().required();
-		systemState = ess.systemState().required();
-	}
+	public ReadChannel<Long> reactivePower();
 
+	/*
+	 * WriteChannels
+	 */
+	public WriteChannel<Long> setActivePower();
+
+	public WriteChannel<Long> setReactivePower();
 }

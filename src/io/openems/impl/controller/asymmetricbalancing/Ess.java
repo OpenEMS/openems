@@ -20,58 +20,51 @@
  *******************************************************************************/
 package io.openems.impl.controller.asymmetricbalancing;
 
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
+import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.thing.Thing;
+import io.openems.api.device.nature.ess.AsymmetricEssNature;
+import io.openems.api.exception.InvalidValueException;
 
-//
-// import io.openems.api.channel.IsRequired;
-// import io.openems.api.channel.numeric.NumericChannel;
-// import io.openems.api.channel.numeric.WriteableNumericChannel;
-// import io.openems.api.controller.IsThingMap;
-// import io.openems.api.controller.ThingMap;
-// import io.openems.api.exception.InvalidValueException;
-// import io.openems.impl.device.pro.FeneconProEss;
-//
-// @IsThingMap(type = FeneconProEss.class)
+@IsThingMap(type = AsymmetricEssNature.class)
 public class Ess extends ThingMap {
+	public ReadChannel<Long> soc;
+	public ReadChannel<Long> activePowerL1;
+	public ReadChannel<Long> activePowerL2;
+	public ReadChannel<Long> activePowerL3;
+	public ReadChannel<Long> allowedCharge;
+	public ReadChannel<Long> allowedDischarge;
+	public ReadChannel<Long> gridMode;
+	public ReadChannel<Integer> minSoc;
+	public WriteChannel<Long> setWorkState;
+	public WriteChannel<Long> setActivePowerL1;
+	public WriteChannel<Long> setActivePowerL2;
+	public WriteChannel<Long> setActivePowerL3;
+	public WriteChannel<Long> setReactivePowerL1;
+	public WriteChannel<Long> setReactivePowerL2;
+	public WriteChannel<Long> setReactivePowerL3;
 
-	public Ess(Thing thing) {
-		super(thing);
+	public Ess(AsymmetricEssNature ess) {
+		super(ess);
+		activePowerL1 = ess.activePowerL1().required();
+		activePowerL2 = ess.activePowerL2().required();
+		activePowerL3 = ess.activePowerL3().required();
+		allowedCharge = ess.allowedCharge().required();
+		allowedDischarge = ess.allowedDischarge().required();
+		gridMode = ess.gridMode().required();
+		minSoc = ess.minSoc().required();
+		setActivePowerL1 = ess.setActivePowerL1().required();
+		setActivePowerL2 = ess.setActivePowerL2().required();
+		setActivePowerL3 = ess.setActivePowerL3().required();
+		setReactivePowerL1 = ess.setReactivePowerL1().required();
+		setReactivePowerL2 = ess.setReactivePowerL2().required();
+		setReactivePowerL3 = ess.setReactivePowerL3().required();
+		soc = ess.soc().required();
+		setWorkState = ess.setWorkState().required();
 	}
-	//
-	// @IsRequired(channelId = "ActivePowerPhaseA") public NumericChannel activePowerPhaseA;
-	// @IsRequired(channelId = "ActivePowerPhaseB") public NumericChannel activePowerPhaseB;
-	// @IsRequired(channelId = "ActivePowerPhaseC") public NumericChannel activePowerPhaseC;
-	//
-	// @IsRequired(channelId = "AllowedCharge") public NumericChannel allowedCharge;
-	//
-	// @IsRequired(channelId = "AllowedDischarge") public NumericChannel allowedDischarge;
-	//
-	// @IsRequired(channelId = "SetActivePowerPhaseA") public WriteableNumericChannel setActivePowerPhaseA;
-	//
-	// @IsRequired(channelId = "SetReactivePowerPhaseA") public WriteableNumericChannel setReactivePowerPhaseA;
-	//
-	// @IsRequired(channelId = "SetActivePowerPhaseB") public WriteableNumericChannel setActivePowerPhaseB;
-	//
-	// @IsRequired(channelId = "SetReactivePowerPhaseB") public WriteableNumericChannel setReactivePowerPhaseB;
-	//
-	// @IsRequired(channelId = "SetActivePowerPhaseC") public WriteableNumericChannel setActivePowerPhaseC;
-	//
-	// @IsRequired(channelId = "SetReactivePowerPhaseC") public WriteableNumericChannel setReactivePowerPhaseC;
-	//
-	// @IsRequired(channelId = "MinSoc") public NumericChannel minSoc;
-	//
-	// @IsRequired(channelId = "Soc") public NumericChannel soc;
-	//
-	// @IsRequired(channelId = "SetWorkState") public WriteableNumericChannel setWorkState;
-	//
-	// public Ess(String thingId) {
-	// super(thingId);
-	// // TODO Auto-generated constructor stub
-	// }
-	//
-	// public long useableSoc() throws InvalidValueException {
-	// return soc.getValue() - minSoc.getValue();
-	// }
-	//
+
+	public long useableSoc() throws InvalidValueException {
+		return soc.value() - minSoc.value();
+	}
 }

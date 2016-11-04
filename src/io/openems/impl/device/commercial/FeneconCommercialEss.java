@@ -21,7 +21,7 @@
 package io.openems.impl.device.commercial;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.device.nature.SymmetricEssNature;
+import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;
@@ -135,24 +135,24 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	public ModbusReadChannel dcPower;
 	public ModbusReadChannel acChargeEnergy;
 	public ModbusReadChannel acDischargeEnergy;
-	public ModbusReadChannel currentPhase1;
-	public ModbusReadChannel currentPhase2;
-	public ModbusReadChannel currentPhase3;
-	public ModbusReadChannel voltagePhase1;
-	public ModbusReadChannel voltagePhase2;
-	public ModbusReadChannel voltagePhase3;
+	public ModbusReadChannel currentL1;
+	public ModbusReadChannel currentL2;
+	public ModbusReadChannel currentL3;
+	public ModbusReadChannel voltageL1;
+	public ModbusReadChannel voltageL2;
+	public ModbusReadChannel voltageL3;
 	public ModbusReadChannel frequency;
-	public ModbusReadChannel inverterVoltagePhase1;
-	public ModbusReadChannel inverterVoltagePhase2;
-	public ModbusReadChannel inverterVoltagePhase3;
-	public ModbusReadChannel inverterCurrentPhase1;
-	public ModbusReadChannel inverterCurrentPhase2;
-	public ModbusReadChannel inverterCurrentPhase3;
+	public ModbusReadChannel inverterVoltageL1;
+	public ModbusReadChannel inverterVoltageL2;
+	public ModbusReadChannel inverterVoltageL3;
+	public ModbusReadChannel inverterCurrentL1;
+	public ModbusReadChannel inverterCurrentL2;
+	public ModbusReadChannel inverterCurrentL3;
 	public ModbusReadChannel inverterActivePower;
-	public ModbusReadChannel ipmTemperaturePhase1;
-	public ModbusReadChannel ipmTemperaturePhase2;
-	public ModbusReadChannel ipmTemperaturePhase3;
-	public ModbusReadChannel transformerTemperaturePhase2;
+	public ModbusReadChannel ipmTemperatureL1;
+	public ModbusReadChannel ipmTemperatureL2;
+	public ModbusReadChannel ipmTemperatureL3;
+	public ModbusReadChannel transformerTemperatureL2;
 	public ModbusReadChannel allowedApparent;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
@@ -381,44 +381,38 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 								apparentPower = new ModbusReadChannel("ApparentPower", this).unit("VA")
 										.multiplier(100)),
 						new SignedWordElement(0x0213, //
-								currentPhase1 = new ModbusReadChannel("CurrentPhase1", this).unit("mA")
-										.multiplier(100)),
+								currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA").multiplier(100)),
 						new SignedWordElement(0x0214, //
-								currentPhase2 = new ModbusReadChannel("CurrentPhase2", this).unit("mA")
-										.multiplier(100)),
+								currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA").multiplier(100)),
 						new SignedWordElement(0x0215, //
-								currentPhase3 = new ModbusReadChannel("CurrentPhase3", this).unit("mA")
-										.multiplier(100)),
+								currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA").multiplier(100)),
 						new DummyElement(0x0216, 0x218), //
 						new UnsignedWordElement(0x0219, //
-								voltagePhase1 = new ModbusReadChannel("VoltagePhase1", this).unit("mV")
-										.multiplier(100)),
+								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(100)),
 						new UnsignedWordElement(0x021A, //
-								voltagePhase2 = new ModbusReadChannel("VoltagePhase2", this).unit("mV")
-										.multiplier(100)),
+								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(100)),
 						new UnsignedWordElement(0x021B, //
-								voltagePhase3 = new ModbusReadChannel("VoltagePhase3", this).unit("mV")
-										.multiplier(100)),
+								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(100)),
 						new UnsignedWordElement(0x021C, //
 								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ").multiplier(10))),
 				new ModbusRange(0x0222, //
 						new UnsignedWordElement(0x0222, //
-								inverterVoltagePhase1 = new ModbusReadChannel("InverterVoltagePhase1", this).unit("mV")
+								inverterVoltageL1 = new ModbusReadChannel("InverterVoltageL1", this).unit("mV")
 										.multiplier(100)), //
 						new UnsignedWordElement(0x0223, //
-								inverterVoltagePhase2 = new ModbusReadChannel("InverterVoltagePhase2", this).unit("mV")
+								inverterVoltageL2 = new ModbusReadChannel("InverterVoltageL2", this).unit("mV")
 										.multiplier(100)), //
 						new UnsignedWordElement(0x0224, //
-								inverterVoltagePhase3 = new ModbusReadChannel("InverterVoltagePhase3", this).unit("mV")
+								inverterVoltageL3 = new ModbusReadChannel("InverterVoltageL3", this).unit("mV")
 										.multiplier(100)), //
 						new UnsignedWordElement(0x0225, //
-								inverterCurrentPhase1 = new ModbusReadChannel("InverterCurrentPhase1", this).unit("mA")
+								inverterCurrentL1 = new ModbusReadChannel("InverterCurrentL1", this).unit("mA")
 										.multiplier(100)), //
 						new UnsignedWordElement(0x0226, //
-								inverterCurrentPhase2 = new ModbusReadChannel("InverterCurrentPhase2", this).unit("mA")
+								inverterCurrentL2 = new ModbusReadChannel("InverterCurrentL2", this).unit("mA")
 										.multiplier(100)), //
 						new UnsignedWordElement(0x0227, //
-								inverterCurrentPhase3 = new ModbusReadChannel("InverterCurrentPhase3", this).unit("mA")
+								inverterCurrentL3 = new ModbusReadChannel("InverterCurrentL3", this).unit("mA")
 										.multiplier(100)), //
 						new SignedWordElement(0x0228, //
 								inverterActivePower = new ModbusReadChannel("InverterActivePower", this).unit("mA")
@@ -434,15 +428,15 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.multiplier(100)), //
 						new DummyElement(0x0233, 0x23F),
 						new SignedWordElement(0x0240, //
-								ipmTemperaturePhase1 = new ModbusReadChannel("IpmTemperaturePhase1", this).unit("°C")), //
+								ipmTemperatureL1 = new ModbusReadChannel("IpmTemperatureL1", this).unit("°C")), //
 						new SignedWordElement(0x0241, //
-								ipmTemperaturePhase2 = new ModbusReadChannel("IpmTemperaturePhase2", this).unit("°C")), //
+								ipmTemperatureL2 = new ModbusReadChannel("IpmTemperatureL2", this).unit("°C")), //
 						new SignedWordElement(0x0242, //
-								ipmTemperaturePhase3 = new ModbusReadChannel("IpmTemperaturePhase3", this).unit("°C")), //
+								ipmTemperatureL3 = new ModbusReadChannel("IpmTemperatureL3", this).unit("°C")), //
 						new DummyElement(0x0243, 0x0248),
 						new SignedWordElement(0x0249, //
-								transformerTemperaturePhase2 = new ModbusReadChannel("TransformerTemperaturePhase2",
-										this).unit("°C"))),
+								transformerTemperatureL2 = new ModbusReadChannel("TransformerTemperatureL2", this)
+										.unit("°C"))),
 				new WritableModbusRange(0x0500, //
 						new UnsignedWordElement(0x0500, //
 								setWorkState = new ModbusWriteChannel("SetWorkState", this) //

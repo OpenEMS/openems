@@ -21,7 +21,7 @@
 package io.openems.impl.device.pro;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.device.nature.MeterNature;
+import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
@@ -42,7 +42,7 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 // import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
 //
 // @IsThingMap(type = MeterNature.class)
-public class FeneconProPvMeter extends ModbusDeviceNature implements MeterNature {
+public class FeneconProPvMeter extends ModbusDeviceNature implements SymmetricMeterNature {
 
 	public FeneconProPvMeter(String thingId) throws ConfigException {
 		super(thingId);

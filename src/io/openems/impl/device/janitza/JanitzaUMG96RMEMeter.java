@@ -21,12 +21,12 @@
 package io.openems.impl.device.janitza;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.device.nature.MeterNature;
+import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 
-public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements MeterNature {
+public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements SymmetricMeterNature {
 
 	public JanitzaUMG96RMEMeter(String thingId) throws ConfigException {
 		super(thingId);

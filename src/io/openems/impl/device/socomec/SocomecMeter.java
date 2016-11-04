@@ -20,7 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.device.socomec;
 
-import io.openems.api.device.nature.MeterNature;
+import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;
@@ -30,7 +30,7 @@ import io.openems.impl.protocol.modbus.internal.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.SignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 
-public class SocomecMeter extends ModbusDeviceNature implements MeterNature {
+public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNature {
 
 	public SocomecMeter(String thingId) throws ConfigException {
 		super(thingId);
@@ -83,12 +83,12 @@ public class SocomecMeter extends ModbusDeviceNature implements MeterNature {
 	/*
 	 * This Channels
 	 */
-	public ModbusReadChannel activePowerPhase1;
-	public ModbusReadChannel activePowerPhase2;
-	public ModbusReadChannel activePowerPhase3;
-	public ModbusReadChannel reactivePowerPhase1;
-	public ModbusReadChannel reactivePowerPhase2;
-	public ModbusReadChannel reactivePowerPhase3;
+	public ModbusReadChannel activePowerL1;
+	public ModbusReadChannel activePowerL2;
+	public ModbusReadChannel activePowerL3;
+	public ModbusReadChannel reactivePowerL1;
+	public ModbusReadChannel reactivePowerL2;
+	public ModbusReadChannel reactivePowerL3;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
@@ -102,22 +102,19 @@ public class SocomecMeter extends ModbusDeviceNature implements MeterNature {
 								apparentPower = new ModbusReadChannel("ApparentPower", this).unit("VA").multiplier(10)),
 						new DummyElement(0xc56E, 0xc56F),
 						new SignedDoublewordElement(0xc570, //
-								activePowerPhase1 = new ModbusReadChannel("ActivePowerPhase1", this).unit("W")
-										.multiplier(10)),
+								activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W").multiplier(10)),
 						new SignedDoublewordElement(0xc572, //
-								activePowerPhase2 = new ModbusReadChannel("ActivePowerPhase2", this).unit("W")
-										.multiplier(10)),
+								activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W").multiplier(10)),
 						new SignedDoublewordElement(0xc574, //
-								activePowerPhase3 = new ModbusReadChannel("ActivePowerPhase3", this).unit("W")
-										.multiplier(10)),
+								activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W").multiplier(10)),
 						new SignedDoublewordElement(0xc576, //
-								reactivePowerPhase1 = new ModbusReadChannel("ReactivePowerPhase1", this).unit("var")
+								reactivePowerL1 = new ModbusReadChannel("ReactivePowerL1", this).unit("var")
 										.multiplier(10)),
 						new SignedDoublewordElement(0xc578, //
-								reactivePowerPhase2 = new ModbusReadChannel("ReactivePowerPhase2", this).unit("var")
+								reactivePowerL2 = new ModbusReadChannel("ReactivePowerL2", this).unit("var")
 										.multiplier(10)),
 						new SignedDoublewordElement(0xc57A, //
-								reactivePowerPhase3 = new ModbusReadChannel("ReactivePowerPhase3", this).unit("var")
+								reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this).unit("var")
 										.multiplier(10))),
 				new ModbusRange(0xc652, //
 						new UnsignedDoublewordElement(0xc652, //

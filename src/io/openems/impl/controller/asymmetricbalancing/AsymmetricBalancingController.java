@@ -20,7 +20,15 @@
  *******************************************************************************/
 package io.openems.impl.controller.asymmetricbalancing;
 
+import java.util.Collections;
+import java.util.List;
+
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.controller.IsThingMapping;
+import io.openems.api.device.nature.ess.EssNature;
+import io.openems.api.exception.InvalidValueException;
+import io.openems.api.exception.WriteChannelException;
 
 /**
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach
@@ -29,229 +37,217 @@ import io.openems.api.controller.Controller;
 
 public class AsymmetricBalancingController extends Controller {
 
-	@Override public void run() {
-		// TODO Auto-generated method stub
+	/*
+	 * Config
+	 */
+	private ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this, Double.class).defaultValue(0.95);
 
+	@IsThingMapping public List<Ess> esss = null;
+
+	@IsThingMapping public Meter meter;
+
+	@Override public void run() {
+		try {
+			for (Ess ess : esss) {
+				ess.setWorkState.pushWriteFromLabel(EssNature.START);
+			}
+			// Calculate required sum values
+			long calculatedPower = meter.activePowerL1.value() + meter.activePowerL2.value()
+					+ meter.activePowerL3.value();
+			long calculatedPowerL1 = meter.activePowerL1.value();
+			long calculatedPowerL2 = meter.activePowerL2.value();
+			long calculatedPowerL3 = meter.activePowerL3.value();
+			long maxChargePower = 0;
+			long maxDischargePower = 0;
+			long maxChargePowerL1 = 0;
+			long maxDischargePowerL1 = 0;
+			long maxChargePowerL2 = 0;
+			long maxDischargePowerL2 = 0;
+			long maxChargePowerL3 = 0;
+			long maxDischargePowerL3 = 0;
+			long useableSoc = 0;
+			for (Ess ess : esss) {
+				calculatedPower += ess.activePowerL1.value() + ess.activePowerL1.value() + ess.activePowerL3.value();
+				calculatedPowerL1 += ess.activePowerL1.value();
+				calculatedPowerL2 += ess.activePowerL2.value();
+				calculatedPowerL3 += ess.activePowerL3.value();
+				maxChargePower += ess.allowedCharge.value();
+				maxDischargePower += ess.allowedDischarge.value();
+				maxChargePowerL1 += ess.setActivePowerL1.writeMin().orElse(ess.allowedCharge.value() / 3);
+				maxDischargePowerL1 += ess.setActivePowerL2.writeMax().orElse(ess.allowedDischarge.value() / 3);
+				maxChargePowerL2 += ess.setActivePowerL2.writeMin().orElse(ess.allowedCharge.value() / 3);
+				maxDischargePowerL2 += ess.setActivePowerL2.writeMax().orElse(ess.allowedDischarge.value() / 3);
+				maxChargePowerL3 += ess.setActivePowerL3.writeMin().orElse(ess.allowedCharge.value() / 3);
+				maxDischargePowerL3 += ess.setActivePowerL3.writeMax().orElse(ess.allowedDischarge.value() / 3);
+				useableSoc += ess.useableSoc();
+			}
+			if (calculatedPower > 0) {
+				/*
+				 * Discharge
+				 */
+				if (calculatedPowerL1 > maxDischargePowerL1) {
+					calculatedPowerL1 = maxDischargePowerL1;
+				}
+				if (calculatedPowerL2 > maxDischargePowerL2) {
+					calculatedPowerL2 = maxDischargePowerL2;
+				}
+				if (calculatedPowerL3 > maxDischargePowerL3) {
+					calculatedPowerL3 = maxDischargePowerL3;
+				}
+				// sort ess by useableSoc asc
+				Collections.sort(esss, (a, b) -> {
+					try {
+						return (int) (a.useableSoc() - b.useableSoc());
+					} catch (InvalidValueException e) {
+						log.error(e.getMessage());
+						return 0;
+					}
+				});
+				for (int i = 0; i < esss.size(); i++) {
+					Ess ess = esss.get(i);
+					// calculate minimal power needed to fulfill the calculatedPower
+					long minPowerL1 = calculatedPowerL1;
+					long minPowerL2 = calculatedPowerL2;
+					long minPowerL3 = calculatedPowerL3;
+					for (int j = i + 1; j < esss.size(); j++) {
+						if (esss.get(j).useableSoc() > 0) {
+							minPowerL1 -= esss.get(j).allowedDischarge.value() / 3;
+							minPowerL2 -= esss.get(j).allowedDischarge.value() / 3;
+							minPowerL3 -= esss.get(j).allowedDischarge.value() / 3;
+						}
+					}
+					if (minPowerL1 < 0) {
+						minPowerL1 = 0;
+					}
+					if (minPowerL2 < 0) {
+						minPowerL2 = 0;
+					}
+					if (minPowerL3 < 0) {
+						minPowerL3 = 0;
+					}
+					// check maximal power to avoid larger charges then calculatedPower
+					long maxPowerL1 = ess.allowedDischarge.value() / 3;
+					long maxPowerL2 = ess.allowedDischarge.value() / 3;
+					long maxPowerL3 = ess.allowedDischarge.value() / 3;
+					if (calculatedPowerL1 < maxPowerL1) {
+						maxPowerL1 = calculatedPowerL1;
+					}
+					if (calculatedPowerL2 < maxPowerL2) {
+						maxPowerL2 = calculatedPowerL2;
+					}
+					if (calculatedPowerL3 < maxPowerL3) {
+						maxPowerL3 = calculatedPowerL3;
+					}
+					double diffL1 = maxPowerL1 - minPowerL1;
+					double diffL2 = maxPowerL2 - minPowerL2;
+					double diffL3 = maxPowerL3 - minPowerL3;
+					/*
+					 * weight the range of possible power by the useableSoc
+					 * if the useableSoc is negative the ess will be charged
+					 */
+					long powerL1 = (long) (Math.ceil(minPowerL1 + diffL1 / useableSoc * ess.useableSoc()));
+					long powerL2 = (long) (Math.ceil(minPowerL2 + diffL2 / useableSoc * ess.useableSoc()));
+					long powerL3 = (long) (Math.ceil(minPowerL3 + diffL3 / useableSoc * ess.useableSoc()));
+					ess.setActivePowerL1.pushWrite(powerL1);
+					ess.setActivePowerL2.pushWrite(powerL2);
+					ess.setActivePowerL3.pushWrite(powerL3);
+					ess.setReactivePowerL1.pushWrite(0L);
+					ess.setReactivePowerL2.pushWrite(0L);
+					ess.setReactivePowerL3.pushWrite(0L);
+					log.info("Set ActivePowerL1 [" + powerL1 + "], ReactivePowerL1 [0],ActivePowerL2 [" + powerL2
+							+ "], ReactivePowerL2 [0],ActivePowerL3 [" + powerL3 + "], ReactivePowerL3 [0]");
+					calculatedPower -= powerL1 + powerL2 + powerL3;
+					calculatedPowerL1 -= powerL1;
+					calculatedPowerL2 -= powerL2;
+					calculatedPowerL3 -= powerL3;
+				}
+			} else {
+				/*
+				 * Charge
+				 */
+				if (calculatedPowerL1 < maxChargePowerL1) {
+					calculatedPowerL1 = maxChargePowerL1;
+				}
+				if (calculatedPowerL2 < maxChargePowerL2) {
+					calculatedPowerL2 = maxChargePowerL2;
+				}
+				if (calculatedPowerL3 < maxChargePowerL3) {
+					calculatedPowerL3 = maxChargePowerL3;
+				}
+				/*
+				 * sort ess by 100 - useabelSoc
+				 * 100 - 90 = 10
+				 * 100 - 45 = 55
+				 * 100 - (- 5) = 105
+				 * => ess with negative useableSoc will be charged much more then one with positive useableSoc
+				 */
+				Collections.sort(esss, (a, b) -> {
+					try {
+						return (int) ((100 - a.useableSoc()) - (100 - b.useableSoc()));
+					} catch (InvalidValueException e) {
+						log.error(e.getMessage());
+						return 0;
+					}
+				});
+				for (int i = 0; i < esss.size(); i++) {
+					Ess ess = esss.get(i);
+					// calculate minimal power needed to fulfill the calculatedPower
+					long minP = calculatedPower;
+					long minPowerL1 = calculatedPowerL1;
+					long minPowerL2 = calculatedPowerL2;
+					long minPowerL3 = calculatedPowerL3;
+					for (int j = i + 1; j < esss.size(); j++) {
+						minP -= esss.get(j).allowedCharge.value();
+						minPowerL1 -= esss.get(j).allowedCharge.value() / 3;
+						minPowerL2 -= esss.get(j).allowedCharge.value() / 3;
+						minPowerL3 -= esss.get(j).allowedCharge.value() / 3;
+					}
+					if (minP > 0) {
+						minP = 0;
+					}
+					if (minPowerL1 > 0) {
+						minPowerL1 = 0;
+					}
+					if (minPowerL2 > 0) {
+						minPowerL2 = 0;
+					}
+					if (minPowerL3 > 0) {
+						minPowerL3 = 0;
+					}
+					// check maximal power to avoid larger charges then calculatedPower
+					long maxPowerL1 = ess.allowedCharge.value() / 3;
+					long maxPowerL2 = ess.allowedCharge.value() / 3;
+					long maxPowerL3 = ess.allowedCharge.value() / 3;
+					if (calculatedPowerL1 > maxPowerL1) {
+						maxPowerL1 = calculatedPowerL1;
+					}
+					if (calculatedPowerL2 > maxPowerL2) {
+						maxPowerL2 = calculatedPowerL2;
+					}
+					if (calculatedPowerL3 > maxPowerL3) {
+						maxPowerL3 = calculatedPowerL3;
+					}
+					double diffL1 = maxPowerL1 - minPowerL1;
+					double diffL2 = maxPowerL2 - minPowerL2;
+					double diffL3 = maxPowerL3 - minPowerL3;
+					// weight the range of possible power by the useableSoc
+					long powerL1 = (long) Math.floor(minPowerL1 + diffL1 / useableSoc * (100 - ess.useableSoc()));
+					long powerL2 = (long) Math.floor(minPowerL2 + diffL2 / useableSoc * (100 - ess.useableSoc()));
+					long powerL3 = (long) Math.floor(minPowerL3 + diffL3 / useableSoc * (100 - ess.useableSoc()));
+					ess.setActivePowerL1.pushWrite(powerL1);
+					ess.setActivePowerL2.pushWrite(powerL2);
+					ess.setActivePowerL3.pushWrite(powerL3);
+					calculatedPower -= powerL1 + powerL2 + powerL3;
+					calculatedPowerL1 -= powerL1;
+					calculatedPowerL2 -= powerL2;
+					calculatedPowerL3 -= powerL3;
+				}
+			}
+
+			// }
+		} catch (InvalidValueException | WriteChannelException e) {
+			log.error(e.getMessage());
+		}
 	}
-	// @IsThingMapping public List<Ess> esss = null;
-	//
-	// @IsThingMapping public Meter meter;
-	//
-	// private double cosPhi = 0.95;
-	//
-	// @Override public void run() {
-	// try {
-	// for (Ess ess : esss) {
-	// ess.setWorkState.pushWriteValue(EssSymmetricNature.START);
-	// }
-	// // Calculate required sum values
-	// long calculatedPower = meter.activePowerPhaseA.getValue() + meter.activePowerPhaseB.getValue()
-	// + meter.activePowerPhaseC.getValue();
-	// long calculatedPowerPhaseA = meter.activePowerPhaseA.getValue();
-	// long calculatedPowerPhaseB = meter.activePowerPhaseB.getValue();
-	// long calculatedPowerPhaseC = meter.activePowerPhaseC.getValue();
-	// long maxChargePower = 0;
-	// long maxDischargePower = 0;
-	// long maxChargePowerPhaseA = 0;
-	// long maxDischargePowerPhaseA = 0;
-	// long maxChargePowerPhaseB = 0;
-	// long maxDischargePowerPhaseB = 0;
-	// long maxChargePowerPhaseC = 0;
-	// long maxDischargePowerPhaseC = 0;
-	// long useableSoc = 0;
-	// for (Ess ess : esss) {
-	// calculatedPower += ess.activePowerPhaseA.getValue() + ess.activePowerPhaseB.getValue()
-	// + ess.activePowerPhaseC.getValue();
-	// calculatedPowerPhaseA += ess.activePowerPhaseA.getValue();
-	// calculatedPowerPhaseB += ess.activePowerPhaseB.getValue();
-	// calculatedPowerPhaseC += ess.activePowerPhaseC.getValue();
-	// maxChargePower += ess.allowedCharge.getValue();
-	// maxDischargePower += ess.allowedDischarge.getValue();
-	// maxChargePowerPhaseA += ess.setActivePowerPhaseA.getMinValueOptional()
-	// .orElse(ess.allowedCharge.getValue() / 3);
-	// maxDischargePowerPhaseA += ess.setActivePowerPhaseA.getMaxValueOptional()
-	// .orElse(ess.allowedDischarge.getValue() / 3);
-	// maxChargePowerPhaseB += ess.setActivePowerPhaseB.getMinValueOptional()
-	// .orElse(ess.allowedCharge.getValue() / 3);
-	// maxDischargePowerPhaseB += ess.setActivePowerPhaseB.getMaxValueOptional()
-	// .orElse(ess.allowedDischarge.getValue() / 3);
-	// maxChargePowerPhaseC += ess.setActivePowerPhaseC.getMinValueOptional()
-	// .orElse(ess.allowedCharge.getValue() / 3);
-	// maxDischargePowerPhaseC += ess.setActivePowerPhaseC.getMaxValueOptional()
-	// .orElse(ess.allowedDischarge.getValue() / 3);
-	// useableSoc += ess.useableSoc();
-	// }
-	// if (calculatedPower > 0) {
-	// /*
-	// * Discharge
-	// */
-	// if (calculatedPowerPhaseA > maxDischargePowerPhaseA) {
-	// calculatedPowerPhaseA = maxDischargePowerPhaseA;
-	// }
-	// if (calculatedPowerPhaseB > maxDischargePowerPhaseB) {
-	// calculatedPowerPhaseB = maxDischargePowerPhaseB;
-	// }
-	// if (calculatedPowerPhaseC > maxDischargePowerPhaseC) {
-	// calculatedPowerPhaseC = maxDischargePowerPhaseC;
-	// }
-	// // sort ess by useableSoc asc
-	// Collections.sort(esss, (a, b) -> {
-	// try {
-	// return (int) (a.useableSoc() - b.useableSoc());
-	// } catch (InvalidValueException e) {
-	// log.error(e.getMessage());
-	// return 0;
-	// }
-	// });
-	// for (int i = 0; i < esss.size(); i++) {
-	// Ess ess = esss.get(i);
-	// // calculate minimal power needed to fulfill the calculatedPower
-	// long minPowerPhaseA = calculatedPowerPhaseA;
-	// long minPowerPhaseB = calculatedPowerPhaseB;
-	// long minPowerPhaseC = calculatedPowerPhaseC;
-	// for (int j = i + 1; j < esss.size(); j++) {
-	// if (esss.get(j).useableSoc() > 0) {
-	// minPowerPhaseA -= esss.get(j).allowedDischarge.getValue() / 3;
-	// minPowerPhaseB -= esss.get(j).allowedDischarge.getValue() / 3;
-	// minPowerPhaseC -= esss.get(j).allowedDischarge.getValue() / 3;
-	// }
-	// }
-	// if (minPowerPhaseA < 0) {
-	// minPowerPhaseA = 0;
-	// }
-	// if (minPowerPhaseB < 0) {
-	// minPowerPhaseB = 0;
-	// }
-	// if (minPowerPhaseC < 0) {
-	// minPowerPhaseC = 0;
-	// }
-	// // check maximal power to avoid larger charges then calculatedPower
-	// long maxPowerPhaseA = ess.allowedDischarge.getValue() / 3;
-	// long maxPowerPhaseB = ess.allowedDischarge.getValue() / 3;
-	// long maxPowerPhaseC = ess.allowedDischarge.getValue() / 3;
-	// if (calculatedPowerPhaseA < maxPowerPhaseA) {
-	// maxPowerPhaseA = calculatedPowerPhaseA;
-	// }
-	// if (calculatedPowerPhaseB < maxPowerPhaseB) {
-	// maxPowerPhaseB = calculatedPowerPhaseB;
-	// }
-	// if (calculatedPowerPhaseC < maxPowerPhaseC) {
-	// maxPowerPhaseC = calculatedPowerPhaseC;
-	// }
-	// double diffPhaseA = maxPowerPhaseA - minPowerPhaseA;
-	// double diffPhaseB = maxPowerPhaseB - minPowerPhaseB;
-	// double diffPhaseC = maxPowerPhaseC - minPowerPhaseC;
-	// /*
-	// * weight the range of possible power by the useableSoc
-	// * if the useableSoc is negative the ess will be charged
-	// */
-	// long powerPhaseA = (long) (Math.ceil(minPowerPhaseA + diffPhaseA / useableSoc * ess.useableSoc()));
-	// long powerPhaseB = (long) (Math.ceil(minPowerPhaseB + diffPhaseB / useableSoc * ess.useableSoc()));
-	// long powerPhaseC = (long) (Math.ceil(minPowerPhaseC + diffPhaseC / useableSoc * ess.useableSoc()));
-	// ess.setActivePowerPhaseA.pushWriteValue(powerPhaseA);
-	// ess.setActivePowerPhaseB.pushWriteValue(powerPhaseB);
-	// ess.setActivePowerPhaseC.pushWriteValue(powerPhaseC);
-	// ess.setReactivePowerPhaseA.pushWriteValue(0);
-	// ess.setReactivePowerPhaseB.pushWriteValue(0);
-	// ess.setReactivePowerPhaseC.pushWriteValue(0);
-	// log.info("Set ActivePowerPhase1 [" + powerPhaseA + "], ReactivePowerPhase1 [0],ActivePowerPhase2 ["
-	// + powerPhaseB + "], ReactivePowerPhase2 [0],ActivePowerPhase3 [" + powerPhaseC
-	// + "], ReactivePowerPhase3 [0]");
-	// calculatedPower -= powerPhaseA + powerPhaseB + powerPhaseC;
-	// calculatedPowerPhaseA -= powerPhaseA;
-	// calculatedPowerPhaseB -= powerPhaseB;
-	// calculatedPowerPhaseC -= powerPhaseC;
-	// }
-	// } else {
-	// /*
-	// * Charge
-	// */
-	// if (calculatedPowerPhaseA < maxChargePowerPhaseA) {
-	// calculatedPowerPhaseA = maxChargePowerPhaseA;
-	// }
-	// if (calculatedPowerPhaseB < maxChargePowerPhaseB) {
-	// calculatedPowerPhaseB = maxChargePowerPhaseB;
-	// }
-	// if (calculatedPowerPhaseC < maxChargePowerPhaseC) {
-	// calculatedPowerPhaseC = maxChargePowerPhaseC;
-	// }
-	// /*
-	// * sort ess by 100 - useabelSoc
-	// * 100 - 90 = 10
-	// * 100 - 45 = 55
-	// * 100 - (- 5) = 105
-	// * => ess with negative useableSoc will be charged much more then one with positive useableSoc
-	// */
-	// Collections.sort(esss, (a, b) -> {
-	// try {
-	// return (int) ((100 - a.useableSoc()) - (100 - b.useableSoc()));
-	// } catch (InvalidValueException e) {
-	// log.error(e.getMessage());
-	// return 0;
-	// }
-	// });
-	// for (int i = 0; i < esss.size(); i++) {
-	// Ess ess = esss.get(i);
-	// // calculate minimal power needed to fulfill the calculatedPower
-	// long minP = calculatedPower;
-	// long minPowerPhaseA = calculatedPowerPhaseA;
-	// long minPowerPhaseB = calculatedPowerPhaseB;
-	// long minPowerPhaseC = calculatedPowerPhaseC;
-	// for (int j = i + 1; j < esss.size(); j++) {
-	// minP -= esss.get(j).allowedCharge.getValue();
-	// minPowerPhaseA -= esss.get(j).allowedCharge.getValue() / 3;
-	// minPowerPhaseB -= esss.get(j).allowedCharge.getValue() / 3;
-	// minPowerPhaseC -= esss.get(j).allowedCharge.getValue() / 3;
-	// }
-	// if (minP > 0) {
-	// minP = 0;
-	// }
-	// if (minPowerPhaseA > 0) {
-	// minPowerPhaseA = 0;
-	// }
-	// if (minPowerPhaseB > 0) {
-	// minPowerPhaseB = 0;
-	// }
-	// if (minPowerPhaseC > 0) {
-	// minPowerPhaseC = 0;
-	// }
-	// // check maximal power to avoid larger charges then calculatedPower
-	// long maxPowerPhaseA = ess.allowedCharge.getValue() / 3;
-	// long maxPowerPhaseB = ess.allowedCharge.getValue() / 3;
-	// long maxPowerPhaseC = ess.allowedCharge.getValue() / 3;
-	// if (calculatedPowerPhaseA > maxPowerPhaseA) {
-	// maxPowerPhaseA = calculatedPowerPhaseA;
-	// }
-	// if (calculatedPowerPhaseB > maxPowerPhaseB) {
-	// maxPowerPhaseB = calculatedPowerPhaseB;
-	// }
-	// if (calculatedPowerPhaseC > maxPowerPhaseC) {
-	// maxPowerPhaseC = calculatedPowerPhaseC;
-	// }
-	// double diffPhaseA = maxPowerPhaseA - minPowerPhaseA;
-	// double diffPhaseB = maxPowerPhaseB - minPowerPhaseB;
-	// double diffPhaseC = maxPowerPhaseC - minPowerPhaseC;
-	// // weight the range of possible power by the useableSoc
-	// long powerPhaseA = (long) Math
-	// .floor(minPowerPhaseA + diffPhaseA / useableSoc * (100 - ess.useableSoc()));
-	// long powerPhaseB = (long) Math
-	// .floor(minPowerPhaseB + diffPhaseB / useableSoc * (100 - ess.useableSoc()));
-	// long powerPhaseC = (long) Math
-	// .floor(minPowerPhaseC + diffPhaseC / useableSoc * (100 - ess.useableSoc()));
-	// ess.setActivePowerPhaseA.pushWriteValue(powerPhaseA);
-	// ess.setActivePowerPhaseB.pushWriteValue(powerPhaseB);
-	// ess.setActivePowerPhaseC.pushWriteValue(powerPhaseC);
-	// calculatedPower -= powerPhaseA + powerPhaseB + powerPhaseC;
-	// calculatedPowerPhaseA -= powerPhaseA;
-	// calculatedPowerPhaseB -= powerPhaseB;
-	// calculatedPowerPhaseC -= powerPhaseC;
-	// }
-	// }
-	//
-	// // }
-	// } catch (InvalidValueException | WriteChannelException e) {
-	// log.error(e.getMessage());
-	// }
-	// }
 
 }

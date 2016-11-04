@@ -25,7 +25,7 @@ import java.util.Set;
 
 import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMapping;
-import io.openems.api.device.nature.SymmetricEssNature;
+import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.WriteChannelException;
 
 public class EnergysavingController extends Controller {

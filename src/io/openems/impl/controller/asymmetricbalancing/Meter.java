@@ -20,22 +20,23 @@
  *******************************************************************************/
 package io.openems.impl.controller.asymmetricbalancing;
 
+import io.openems.api.channel.ReadChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.thing.Thing;
-import io.openems.impl.device.socomec.SocomecMeter;
+import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 
-@IsThingMap(type = SocomecMeter.class)
+@IsThingMap(type = AsymmetricMeterNature.class)
 public class Meter extends ThingMap {
 
-	public Meter(Thing thing) {
-		super(thing);
+	public ReadChannel<Long> activePowerL1;
+	public ReadChannel<Long> activePowerL2;
+	public ReadChannel<Long> activePowerL3;
+
+	public Meter(AsymmetricMeterNature meter) {
+		super(meter);
+		activePowerL1 = meter.activePowerL1().required();
+		activePowerL2 = meter.activePowerL1().required();
+		activePowerL3 = meter.activePowerL1().required();
 	}
-	//
-	// @IsRequired(channelId = "ActivePowerPhaseA") public NumericChannel activePowerPhaseA;
-	//
-	// @IsRequired(channelId = "ActivePowerPhaseB") public NumericChannel activePowerPhaseB;
-	//
-	// @IsRequired(channelId = "ActivePowerPhaseC") public NumericChannel activePowerPhaseC;
 
 }

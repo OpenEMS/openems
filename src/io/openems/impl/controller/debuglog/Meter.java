@@ -23,9 +23,9 @@ package io.openems.impl.controller.debuglog;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.MeterNature;
+import io.openems.api.device.nature.meter.SymmetricMeterNature;
 
-@IsThingMap(type = MeterNature.class)
+@IsThingMap(type = SymmetricMeterNature.class)
 public class Meter extends ThingMap {
 
 	public final ReadChannel<Long> activeNegativeEnergy;
@@ -36,7 +36,7 @@ public class Meter extends ThingMap {
 	public final ReadChannel<Long> reactivePositiveEnergy;
 	public final ReadChannel<Long> reactivePower;
 
-	public Meter(MeterNature meter) {
+	public Meter(SymmetricMeterNature meter) {
 		super(meter);
 		activeNegativeEnergy = meter.activeNegativeEnergy().required();
 		activePositiveEnergy = meter.activePositiveEnergy().required();
