@@ -22,12 +22,10 @@ package io.openems.api.channel;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.InvalidValueException;
@@ -42,7 +40,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private Optional<T> value = Optional.empty();
 
 	protected Optional<Long> delta = Optional.empty();
-	protected BiMap<T, String> labels = HashBiMap.create();
+	protected TreeMap<T, String> labels = new TreeMap<T, String>();
 	protected Optional<Long> multiplier = Optional.empty();
 	private Interval<T> valueInterval = new Interval<T>();
 	private String unit = "";
@@ -162,7 +160,6 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		}
 	}
 
-	// TODO: return a list of Strings
 	public Optional<String> labelOptional() {
 		String label;
 		Optional<T> value = valueOptional();

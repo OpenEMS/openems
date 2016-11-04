@@ -21,6 +21,7 @@
 package io.openems.impl.controller.debuglog;
 
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
@@ -34,6 +35,7 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Integer> minSoc;
 	public final ReadChannel<Long> soc;
 	public final ReadChannel<Long> systemState;
+	public final StatusBitChannels warning;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
@@ -43,6 +45,8 @@ public class Ess extends ThingMap {
 		minSoc = ess.minSoc().required();
 		soc = ess.soc().required();
 		systemState = ess.systemState().required();
+
+		warning = ess.warning(); // not required!
 	}
 
 	@Override public String toString() {

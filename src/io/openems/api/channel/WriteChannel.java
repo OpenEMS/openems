@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import io.openems.api.device.nature.DeviceNature;
@@ -176,12 +177,17 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	 * Set a new value for this Channel using a Label
 	 */
 	public void pushWriteFromLabel(String label) throws WriteChannelException {
-		T value = labels.inverse().get(label);
-		if (value == null) {
+		T result = null;
+		for (Entry<T, String> entry : labels.entrySet()) {
+			if (entry.getValue().equals(label)) {
+				result = entry.getKey();
+			}
+		}
+		if (result == null) {
 			throw new WriteChannelException(
 					"Label [" + label + "] for Channel [" + address() + "]not found: [" + labels + "]");
 		}
-		pushWrite(value);
+		pushWrite(result);
 	}
 
 	public void pushWriteMin(T value) throws WriteChannelException {

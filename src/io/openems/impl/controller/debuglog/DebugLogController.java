@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.controller.debuglog;
 
+import java.util.Optional;
 import java.util.Set;
 
 import io.openems.api.controller.Controller;
@@ -36,9 +37,15 @@ public class DebugLogController extends Controller {
 			b.append(meter.id() + ": " + meter.activePower.format() + " ");
 		}
 		for (Ess ess : esss) {
-			b.append(ess.id() + ": " + ess.soc.format() + ", act=" + ess.activePower.format() + ", allowedCharge="
-					+ ess.allowedCharge.format() + ", allowedDischarge=" + ess.allowedDischarge.format() + ", state="
-					+ ess.systemState.format() + " ");
+			b.append(ess.id() + " [" + ess.soc.format() + "] " //
+					+ "Act[" + ess.activePower.format() + "] " //
+					+ "Charge[" + ess.allowedCharge.format() + "] " //
+					+ "Discharge[" + ess.allowedDischarge.format() + "] " //
+					+ "State[" + ess.systemState.format() + "]");
+			Optional<String> warning = ess.warning.labelOptional();
+			if (warning.isPresent()) {
+				b.append(" Warning[" + warning.get() + "]");
+			}
 		}
 		log.info(b.toString());
 	}

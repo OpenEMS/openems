@@ -2,6 +2,7 @@ package io.openems.api.device.nature.ess;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.DeviceNature;
 
@@ -38,6 +39,8 @@ public interface EssNature extends DeviceNature {
 	public ReadChannel<Long> allowedCharge();
 
 	public ReadChannel<Long> allowedDischarge();
+
+	public StatusBitChannels warning();
 
 	/*
 	 * Write Channels

@@ -22,6 +22,7 @@ package io.openems.impl.device.pro;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
@@ -53,25 +54,23 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	/*
 	 * Inherited Channels
 	 */
-	public ReadChannel<Long> activePower;
-	public ReadChannel<Long> allowedCharge;
-	public ReadChannel<Long> allowedDischarge;
-	public ReadChannel<Long> apparentPower;
-	public ReadChannel<Long> gridMode;
-	public ReadChannel<Long> reactivePower;
-	public ReadChannel<Long> soc;
-	public ReadChannel<Long> systemState;
-	public ReadChannel<Long> activePowerL1;
-	public ReadChannel<Long> activePowerL2;
-	public ReadChannel<Long> activePowerL3;
+	private StatusBitChannels warning = new StatusBitChannels("Warning", this);
+	private ReadChannel<Long> allowedCharge;
+	private ReadChannel<Long> allowedDischarge;
+	private ReadChannel<Long> gridMode;
+	private ReadChannel<Long> soc;
+	private ReadChannel<Long> systemState;
+	private ReadChannel<Long> activePowerL1;
+	private ReadChannel<Long> activePowerL2;
+	private ReadChannel<Long> activePowerL3;
 
-	public WriteChannel<Long> setWorkState;
-	public WriteChannel<Long> setActivePowerL1;
-	public WriteChannel<Long> setActivePowerL2;
-	public WriteChannel<Long> setActivePowerL3;
-	public WriteChannel<Long> setReactivePowerL1;
-	public WriteChannel<Long> setReactivePowerL2;
-	public WriteChannel<Long> setReactivePowerL3;
+	private WriteChannel<Long> setWorkState;
+	private WriteChannel<Long> setActivePowerL1;
+	private WriteChannel<Long> setActivePowerL2;
+	private WriteChannel<Long> setActivePowerL3;
+	private WriteChannel<Long> setReactivePowerL1;
+	private WriteChannel<Long> setReactivePowerL2;
+	private WriteChannel<Long> setReactivePowerL3;
 
 	@Override public ReadChannel<Long> allowedCharge() {
 		return allowedCharge;
@@ -131,6 +130,10 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 
 	@Override public WriteChannel<Long> setReactivePowerL3() {
 		return setReactivePowerL3;
+	}
+
+	@Override public StatusBitChannels warning() {
+		return warning;
 	}
 
 	/*
