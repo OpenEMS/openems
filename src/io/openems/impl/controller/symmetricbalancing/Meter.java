@@ -18,26 +18,21 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.core.databus;
+package io.openems.impl.controller.symmetricbalancing;
 
-import io.openems.api.channel.Channel;
-import io.openems.api.thing.Thing;
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.meter.SymmetricMeterNature;
 
-public class DataChannel {
-	public final Channel<?> channel;
-	public final String channelId;
-	public final Thing thing;
-	public final String thingId;
+@IsThingMap(type = SymmetricMeterNature.class)
+public class Meter extends ThingMap {
 
-	public DataChannel(Thing thing, String thingId, Channel<?> channel, String channelId) {
-		this.thing = thing;
-		this.thingId = thingId;
-		this.channel = channel;
-		this.channelId = channelId;
+	public final ReadChannel<Long> activePower;
+
+	public Meter(SymmetricMeterNature meter) {
+		super(meter);
+		activePower = meter.activePower().required();
 	}
 
-	@Override
-	public String toString() {
-		return "DataChannelMapping [channel=" + channel + ", channelId=" + channelId + "]";
-	}
 }

@@ -1,36 +1,56 @@
+/*******************************************************************************
+ * OpenEMS - Open Source Energy Management System
+ * Copyright (c) 2016 FENECON GmbH and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ *   FENECON GmbH - initial API and implementation and initial documentation
+ *******************************************************************************/
 package io.openems.impl.device.commercial;
 
-import io.openems.api.channel.numeric.WriteableNumericChannel;
 import io.openems.api.device.nature.PvInverterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
-import io.openems.impl.protocol.modbus.WriteableModbusChannel;
-import io.openems.impl.protocol.modbus.internal.ElementBuilder;
+import io.openems.impl.protocol.modbus.ModbusWriteChannel;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
-import io.openems.impl.protocol.modbus.internal.channel.WriteableModbusChannelBuilder;
+import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 
 public class FeneconCommercialInverter extends ModbusDeviceNature implements PvInverterNature {
 
-	private final WriteableModbusChannel _setPvLimit = new WriteableModbusChannelBuilder().nature(this).unit("W")
-			.multiplier(100).minValue(0).maxValue(60000).build();
+	/*
+	 * Inherited Channels
+	 */
 
-	public FeneconCommercialInverter(String thingId) {
+	private ModbusWriteChannel setPvLimit;
+
+	@Override public ModbusWriteChannel setLimit() {
+		return setPvLimit;
+	}
+
+	public FeneconCommercialInverter(String thingId) throws ConfigException {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
-	@Override
-	public WriteableNumericChannel setLimit() {
-		return _setPvLimit;
-	}
-
-	@Override
-	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		ModbusProtocol protocoll = new ModbusProtocol(//
+	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+		ModbusProtocol protocol = new ModbusProtocol(//
 				new ModbusRange(0x0503, //
-						new ElementBuilder().address(0x0503).channel(_setPvLimit).build()//
-				));
-		return protocoll;
+						new UnsignedWordElement(0x0503, //
+								setPvLimit = new ModbusWriteChannel("SetPvLimit", this).unit("W").multiplier(100)))
+		// TODO .minValue(0).maxValue(60000)
+		);
+		return protocol;
 	}
 }

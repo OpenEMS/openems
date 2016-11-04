@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.balancing;
+package io.openems.impl.controller.symmetricbalancing;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,44 +26,41 @@ import java.util.Optional;
 
 import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMapping;
-import io.openems.api.device.nature.EssNature;
+import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 /*
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
  */
-public class BalancingController extends Controller {
-	@IsThingMapping
-	public List<Ess> esss = null;
+public class SymmetricBalancingController extends Controller {
+	@IsThingMapping public List<Ess> esss = null;
 
-	@IsThingMapping
-	public Meter meter;
+	@IsThingMapping public Meter meter;
 
 	private boolean isOnGrid() {
 		for (Ess ess : esss) {
-			Optional<String> gridMode = ess.gridMode.getValueLabelOptional();
-			if (gridMode.isPresent() && !gridMode.get().equals(EssNature.ON_GRID)) {
+			Optional<String> gridMode = ess.gridMode.labelOptional();
+			if (gridMode.isPresent() && !gridMode.get().equals(SymmetricEssNature.ON_GRID)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	@Override
-	public void run() {
+	@Override public void run() {
 		try {
 			// Run only if all ess are on-grid
 			if (isOnGrid()) {
 				// Calculate required sum values
-				long calculatedPower = meter.activePower.getValue();
+				long calculatedPower = meter.activePower.value();
 				long maxChargePower = 0;
 				long maxDischargePower = 0;
 				long useableSoc = 0;
 				for (Ess ess : esss) {
-					calculatedPower += ess.activePower.getValue();
-					maxChargePower += ess.setActivePower.getAllowedMinValue();
-					maxDischargePower += ess.setActivePower.getAllowedMaxValue();
+					calculatedPower += ess.activePower.value();
+					maxChargePower += ess.setActivePower.writeMin().orElse(0L);
+					maxDischargePower += ess.setActivePower.writeMax().orElse(0L);
 					useableSoc += ess.useableSoc();
 				}
 				if (calculatedPower > 0) {
@@ -88,14 +85,14 @@ public class BalancingController extends Controller {
 						long minP = calculatedPower;
 						for (int j = i + 1; j < esss.size(); j++) {
 							if (esss.get(j).useableSoc() > 0) {
-								minP -= esss.get(j).allowedDischarge.getValue();
+								minP -= esss.get(j).allowedDischarge.value();
 							}
 						}
 						if (minP < 0) {
 							minP = 0;
 						}
 						// check maximal power to avoid larger charges then calculatedPower
-						long maxP = ess.allowedDischarge.getValue();
+						long maxP = ess.allowedDischarge.value();
 						if (calculatedPower < maxP) {
 							maxP = calculatedPower;
 						}
@@ -105,8 +102,8 @@ public class BalancingController extends Controller {
 						 * if the useableSoc is negative the ess will be charged
 						 */
 						long p = (long) (Math.ceil((minP + diff / useableSoc * ess.useableSoc()) / 100) * 100);
-						ess.setActivePower.pushWriteValue(p);
-						ess.setReactivePower.pushWriteValue(0);
+						ess.setActivePower.pushWrite(p);
+						ess.setReactivePower.pushWrite(0L);
 						calculatedPower -= p;
 					}
 				} else {
@@ -136,20 +133,20 @@ public class BalancingController extends Controller {
 						// calculate minimal power needed to fulfill the calculatedPower
 						long minP = calculatedPower;
 						for (int j = i + 1; j < esss.size(); j++) {
-							minP -= esss.get(j).allowedCharge.getValue();
+							minP -= esss.get(j).allowedCharge.value();
 						}
 						if (minP > 0) {
 							minP = 0;
 						}
 						// check maximal power to avoid larger charges then calculatedPower
-						long maxP = ess.allowedCharge.getValue();
+						long maxP = ess.allowedCharge.value();
 						if (calculatedPower > maxP) {
 							maxP = calculatedPower;
 						}
 						double diff = maxP - minP;
 						// weight the range of possible power by the useableSoc
 						long p = (long) Math.floor((minP + diff / useableSoc * (100 - ess.useableSoc())) / 100) * 100;
-						ess.setActivePower.pushWriteValue(p);
+						ess.setActivePower.pushWrite(p);
 						calculatedPower -= p;
 					}
 				}

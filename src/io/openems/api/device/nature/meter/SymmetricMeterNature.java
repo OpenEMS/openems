@@ -18,34 +18,28 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.device.nature;
+package io.openems.api.device.nature.meter;
 
-import io.openems.api.channel.IsChannel;
-import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.channel.ReadChannel;
 
-public interface MeterNature extends DeviceNature {
+public interface SymmetricMeterNature extends MeterNature {
 
-	@IsChannel(id = "ActiveNegativeEnergy")
-	public NumericChannel activeNegativeEnergy();
+	/*
+	 * ReadChannels
+	 */
+	public ReadChannel<Long> activeNegativeEnergy();
 
-	@IsChannel(id = "ActivePositiveEnergy")
-	public NumericChannel activePositiveEnergy();
+	public ReadChannel<Long> activePositiveEnergy();
 
-	@IsChannel(id = "ActivePower")
-	public NumericChannel activePower();
+	public ReadChannel<Long> activePower();
 
-	@IsChannel(id = "ApparentEnergy")
-	public NumericChannel apparentEnergy();
+	public ReadChannel<Long> apparentEnergy();
 
-	@IsChannel(id = "ApparentPower")
-	public NumericChannel apparentPower();
+	public ReadChannel<Long> apparentPower();
 
-	@IsChannel(id = "ReactiveNegativeEnergy")
-	public NumericChannel reactiveNegativeEnergy();
+	public ReadChannel<Long> reactiveNegativeEnergy();
 
-	@IsChannel(id = "ReactivePositiveEnergy")
-	public NumericChannel reactivePositiveEnergy();
+	public ReadChannel<Long> reactivePositiveEnergy();
 
-	@IsChannel(id = "ReactivePower")
-	public NumericChannel reactivePower();
+	public ReadChannel<Long> reactivePower();
 }

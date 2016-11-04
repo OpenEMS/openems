@@ -28,17 +28,32 @@ import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.net.SerialConnection;
 import com.ghgande.j2mod.modbus.util.SerialParameters;
 
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelListener;
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.exception.OpenemsModbusException;
-import io.openems.api.thing.IsConfig;
 
-public class ModbusRtu extends ModbusBridge {
-	private volatile Optional<Integer> baudrate = Optional.empty();
+public class ModbusRtu extends ModbusBridge implements ChannelListener {
 	private Optional<SerialConnection> connection = Optional.empty();
-	private volatile Optional<Integer> databits = Optional.empty();
-	private volatile Optional<String> parity = Optional.empty();
-	private volatile Optional<String> serialinterface = Optional.empty();
-	private volatile Optional<Integer> stopbits = Optional.empty();
+
+	/*
+	 * Config
+	 */
+	public final ConfigChannel<Integer> baudrate = new ConfigChannel<Integer>("baudrate", this, Integer.class)
+			.listener(this);
+	public final ConfigChannel<Integer> databits = new ConfigChannel<Integer>("databits", this, Integer.class)
+			.listener(this);
+	public final ConfigChannel<String> parity = new ConfigChannel<String>("parity", this, String.class).listener(this);
+	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this,
+			String.class).listener(this);
+	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this, Integer.class)
+			.listener(this);
+
+	@Override
+	public void channelUpdated(Channel channel) {
+		triggerInitialize();
+	}
 
 	@Override
 	public void dispose() {
@@ -53,37 +68,10 @@ public class ModbusRtu extends ModbusBridge {
 		return trans;
 	}
 
-	@IsConfig("baudrate")
-	public void setBaudrate(Integer baudrate) {
-		this.baudrate = Optional.ofNullable(baudrate);
-		triggerInitialize();
-	}
-
-	@IsConfig("databits")
-	public void setDatabits(Integer databits) {
-		this.databits = Optional.ofNullable(databits);
-	}
-
 	@Override
 	public void addDevice(Device device) {
 		super.addDevice(device);
 		triggerInitialize();
-	}
-
-	@IsConfig("parity")
-	public void setParity(String parity) {
-		this.parity = Optional.ofNullable(parity);
-	}
-
-	@IsConfig("serialinterface")
-	public void setSerialinterface(String serialinterface) {
-		this.serialinterface = Optional.ofNullable(serialinterface);
-		triggerInitialize();
-	}
-
-	@IsConfig("stopbits")
-	public void setStopbits(Integer stopbits) {
-		this.stopbits = Optional.ofNullable(stopbits);
 	}
 
 	@Override
@@ -115,16 +103,17 @@ public class ModbusRtu extends ModbusBridge {
 
 	private SerialConnection getModbusConnection() throws OpenemsModbusException {
 		if (!connection.isPresent()) {
-			if (!baudrate.isPresent() || !databits.isPresent() || !parity.isPresent() || !serialinterface.isPresent()
-					|| !stopbits.isPresent()) {
+			if (!baudrate.valueOptional().isPresent() || !databits.valueOptional().isPresent()
+					|| !parity.valueOptional().isPresent() || !serialinterface.valueOptional().isPresent()
+					|| !stopbits.valueOptional().isPresent()) {
 				throw new OpenemsModbusException("Modbus-RTU is not configured completely");
 			}
 			SerialParameters params = new SerialParameters();
-			params.setPortName(serialinterface.get());
-			params.setBaudRate(baudrate.get());
-			params.setDatabits(databits.get());
-			params.setParity(parity.get());
-			params.setStopbits(stopbits.get());
+			params.setPortName(serialinterface.valueOptional().get());
+			params.setBaudRate(baudrate.valueOptional().get());
+			params.setDatabits(databits.valueOptional().get());
+			params.setParity(parity.valueOptional().get());
+			params.setStopbits(stopbits.valueOptional().get());
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
 			connection = Optional.of(new SerialConnection(params));
@@ -138,4 +127,5 @@ public class ModbusRtu extends ModbusBridge {
 		}
 		return connection.get();
 	}
+
 }

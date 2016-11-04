@@ -21,13 +21,10 @@
 package io.openems.core.utilities;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Optional;
 
-import io.openems.api.channel.IsChannel;
 import io.openems.api.exception.ConfigException;
+import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
 
 public class InjectionUtils {
@@ -42,7 +39,7 @@ public class InjectionUtils {
 	 * @return
 	 * @throws ConfigException
 	 */
-	public static Object getInstance(Class<?> clazz, Object... args) throws ConfigException {
+	public static Object getInstance(Class<?> clazz, Object... args) throws ReflectionException {
 		try {
 			if (args.length == 0) {
 				return clazz.newInstance();
@@ -52,62 +49,46 @@ public class InjectionUtils {
 			}
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
 			e.printStackTrace();
-			throw new ConfigException("Unable to instantiate class [" + clazz.getName() + "]: " + e.getMessage());
+			throw new ReflectionException("Unable to instantiate class [" + clazz.getName() + "]: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Searches the class tree for a member with the name memberName, that is annotated with IsChannel.
+	 * Creates a Thing instance of the given {@link Class}. {@link Object} arguments are optional.
 	 *
 	 * @param clazz
-	 * @param methodName
-	 * @return IsChannel annotation or null if no match was found
+	 * @param args
+	 * @return
+	 * @throws CastException
+	 * @throws ConfigException
+	 * @throws ReflectionException
 	 */
-	public static Optional<IsChannel> getIsChannelMembers(Class<?> clazz, String memberName) {
-		// clazz must be a Thing
-		if (!Thing.class.isInterface() && !Thing.class.isAssignableFrom(clazz)) {
-			return Optional.empty();
+	public static Thing getThingInstance(Class<?> clazz, Object... args) throws ReflectionException {
+		try {
+			return (Thing) InjectionUtils.getInstance(clazz, args);
+		} catch (ClassCastException e) {
+			e.printStackTrace();
+			throw new ReflectionException("Class [" + clazz.getName() + "] is not a Thing");
 		}
-		// check if method can be found
-		{
-			Method method;
-			try {
-				method = clazz.getMethod(memberName);
-				// return the annotation if found
-				if (method.isAnnotationPresent(IsChannel.class)) {
-					return Optional.of(method.getAnnotation(IsChannel.class));
-				}
-			} catch (NoSuchMethodException | SecurityException e) {
-				// ignore
-			}
-		}
+	}
 
-		// check if field can be found
-		{
-			Field field;
-			try {
-				field = clazz.getField(memberName);
-				// return the annotation if found
-				if (field.isAnnotationPresent(IsChannel.class)) {
-					return Optional.of(field.getAnnotation(IsChannel.class));
-				}
-			} catch (NoSuchFieldException | SecurityException e) {
-				// ignore
-			}
+	/**
+	 * Creates an instance of the given {@link Class}name. Uses {@link getThingInstance()} internally. {@link Object}
+	 * arguments are optional.
+	 *
+	 * @param className
+	 * @return
+	 * @throws CastException
+	 * @throws ConfigException
+	 */
+	@SuppressWarnings("unchecked") public static Thing getThingInstance(String className, Object... args)
+			throws ReflectionException {
+		Class<? extends Thing> clazz;
+		try {
+			clazz = (Class<? extends Thing>) Class.forName(className);
+		} catch (ClassNotFoundException e) {
+			throw new ReflectionException("Class not found: [" + className + "]");
 		}
-
-		// start recursive search if not found
-		for (Class<?> implementedInterface : clazz.getInterfaces()) {
-			// search all implemented interfaces
-			Optional<IsChannel> ret = getIsChannelMembers(implementedInterface, memberName);
-			if (ret.isPresent()) {
-				return ret;
-			}
-		}
-		if (clazz.getSuperclass() == null) {
-			// reached the top end... no superclass found
-			return Optional.empty();
-		}
-		return getIsChannelMembers(clazz.getSuperclass(), memberName);
+		return getThingInstance(clazz, args);
 	}
 }

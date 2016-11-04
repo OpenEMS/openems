@@ -22,37 +22,39 @@ package io.openems.impl.scheduler;
 
 import java.util.Collections;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.controller.Controller;
 import io.openems.api.scheduler.Scheduler;
-import io.openems.core.databus.Databus;
+import io.openems.core.ThingRepository;
 
 public class SimpleScheduler extends Scheduler {
-	public SimpleScheduler(Databus databus) {
-		super(databus);
+
+	private ThingRepository thingRepository;
+
+	public SimpleScheduler() {
+		thingRepository = ThingRepository.getInstance();
 	}
 
-	@Override
-	public void activate() {
+	@Override public void activate() {
 		log.debug("Activate SimpleScheduler");
 		super.activate();
 	}
 
-	@Override
-	protected void dispose() {
-	}
+	@Override protected void dispose() {}
 
-	@Override
-	protected void forever() {
-		Collections.sort(controllers, (c1, c2) -> c2.getPriority() - c1.getPriority());
+	@Override protected void forever() {
+		Collections.sort(controllers, (c1, c2) -> c2.priority.valueOptional().orElse(Integer.MIN_VALUE)
+				- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
 		for (Controller controller : controllers) {
 			// TODO: check if WritableChannels can still be changed, before executing
 			controller.run();
 		}
-		databus.writeAll();
+		for (Bridge bridge : thingRepository.getBridges()) {
+			bridge.triggerWrite();
+		}
 	}
 
-	@Override
-	protected boolean initialize() {
+	@Override protected boolean initialize() {
 		return true;
 	}
 }

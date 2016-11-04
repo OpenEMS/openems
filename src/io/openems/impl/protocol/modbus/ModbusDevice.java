@@ -20,31 +20,27 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus;
 
+import java.util.Optional;
+
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.InjectionException;
 import io.openems.api.exception.OpenemsException;
-import io.openems.api.thing.IsConfig;
+import io.openems.api.exception.ReflectionException;
 
 public abstract class ModbusDevice extends Device {
-	private Integer modbusUnitId = null;
+	/*
+	 * Config
+	 */
+	public final ConfigChannel<Integer> modbusUnitId = new ConfigChannel<Integer>("modbusUnitId", this, Integer.class);
 
 	public ModbusDevice() throws OpenemsException {
 		super();
 	}
 
-	@IsConfig("modbusUnitId")
-	public void setModbusUnitId(Integer modbusUnitId) {
-		this.modbusUnitId = modbusUnitId;
-	}
-
-	protected int getModbusUnitId() {
-		return modbusUnitId;
-	}
-
-	protected final void update(ModbusBridge modbusBridge) throws ConfigException, InjectionException {
-		checkModbusUnitId();
+	protected final void update(ModbusBridge modbusBridge) throws ConfigException, ReflectionException {
+		int modbusUnitId = getModbusUnitId();
 		for (DeviceNature nature : getDeviceNatures()) {
 			if (nature instanceof ModbusDeviceNature) {
 				((ModbusDeviceNature) nature).update(modbusUnitId, modbusBridge);
@@ -52,8 +48,8 @@ public abstract class ModbusDevice extends Device {
 		}
 	}
 
-	protected final void write(ModbusBridge modbusBridge) throws ConfigException, InjectionException {
-		checkModbusUnitId();
+	protected final void write(ModbusBridge modbusBridge) throws ConfigException, ReflectionException {
+		int modbusUnitId = getModbusUnitId();
 		for (DeviceNature nature : getDeviceNatures()) {
 			if (nature instanceof ModbusDeviceNature) {
 				((ModbusDeviceNature) nature).write(modbusUnitId, modbusBridge);
@@ -61,9 +57,12 @@ public abstract class ModbusDevice extends Device {
 		}
 	}
 
-	private void checkModbusUnitId() throws ConfigException {
-		if (modbusUnitId == null) {
-			throw new ConfigException("No ModbusUnitId configured for Device[" + this.getThingId() + "]");
+	private int getModbusUnitId() throws ConfigException {
+		Optional<Integer> modbusUnitId = this.modbusUnitId.valueOptional();
+		if (modbusUnitId.isPresent()) {
+			return modbusUnitId.get();
+		} else {
+			throw new ConfigException("No ModbusUnitId configured for Device[" + this.id() + "]");
 		}
 	}
 }

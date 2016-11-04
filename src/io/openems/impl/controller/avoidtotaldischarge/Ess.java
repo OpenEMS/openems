@@ -20,32 +20,25 @@
  *******************************************************************************/
 package io.openems.impl.controller.avoidtotaldischarge;
 
-import io.openems.api.channel.IsRequired;
-import io.openems.api.channel.numeric.NumericChannel;
-import io.openems.api.channel.numeric.WriteableNumericChannel;
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.EssNature;
+import io.openems.api.device.nature.ess.SymmetricEssNature;
 
-@IsThingMap(type = EssNature.class)
+@IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	@IsRequired(channelId = "MinSoc")
-	public NumericChannel minSoc;
+	public final ReadChannel<Integer> minSoc;
+	public final WriteChannel<Long> setActivePower;
+	public final ReadChannel<Long> soc;
+	public final ReadChannel<Long> systemState;
 
-	@IsRequired(channelId = "SetActivePower")
-	public WriteableNumericChannel setActivePower;
-
-	// @IsRequired(channelId = "SetWorkState")
-	// public WriteableChannel setWorkState;
-
-	@IsRequired(channelId = "Soc")
-	public NumericChannel soc;
-
-	// @IsRequired(channelId = "SystemState")
-	// public Channel systemState;
-
-	public Ess(String thingId) {
-		super(thingId);
+	public Ess(SymmetricEssNature ess) {
+		super(ess);
+		setActivePower = ess.setActivePower().required();
+		systemState = ess.systemState().required();
+		soc = ess.soc().required();
+		minSoc = ess.minSoc().required();
 	}
 }

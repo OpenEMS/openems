@@ -18,13 +18,25 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.exception;
+package io.openems.impl.controller.asymmetricbalancing;
 
-public class InjectionException extends OpenemsException {
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 
-	private static final long serialVersionUID = 4327222554707114879L;
+@IsThingMap(type = AsymmetricMeterNature.class)
+public class Meter extends ThingMap {
 
-	public InjectionException(String message) {
-		super(message);
+	public ReadChannel<Long> activePowerL1;
+	public ReadChannel<Long> activePowerL2;
+	public ReadChannel<Long> activePowerL3;
+
+	public Meter(AsymmetricMeterNature meter) {
+		super(meter);
+		activePowerL1 = meter.activePowerL1().required();
+		activePowerL2 = meter.activePowerL1().required();
+		activePowerL3 = meter.activePowerL1().required();
 	}
+
 }

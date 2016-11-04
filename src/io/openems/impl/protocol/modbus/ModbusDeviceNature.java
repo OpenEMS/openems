@@ -20,8 +20,12 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +34,6 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.numeric.WriteableNumericChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsModbusException;
@@ -46,13 +49,13 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 	private ModbusProtocol protocol = null;
 	private final String thingId;
 
-	public ModbusDeviceNature(String thingId) {
+	public ModbusDeviceNature(String thingId) throws ConfigException {
 		this.thingId = thingId;
 		log = LoggerFactory.getLogger(this.getClass());
+		this.protocol = defineModbusProtocol();
 	}
 
-	@Override
-	public String getThingId() {
+	@Override public String id() {
 		return thingId;
 	}
 
@@ -60,133 +63,97 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 	/**
 	 * Sets a Channel as required. The Range with this Channel will be added to ModbusProtocol.RequiredRanges.
 	 */
-	public void setAsRequired(Channel<?> channel) throws ConfigException {
-		getProtocol().setAsRequired(channel);
+	public void setAsRequired(Channel channel) {
+		protocol.setAsRequired(channel);
 	}
 
 	protected abstract ModbusProtocol defineModbusProtocol() throws ConfigException;
-
-	protected ModbusProtocol getProtocol() throws ConfigException {
-		if (protocol == null) {
-			this.protocol = defineModbusProtocol();
-		}
-		return protocol;
-	}
 
 	protected void update(int unitId, ModbusBridge bridge) throws ConfigException {
 		/**
 		 * Update required ranges
 		 */
-		for (ModbusRange range : getProtocol().getRequiredRanges()) {
+		for (ModbusRange range : protocol.getRequiredRanges()) {
 			update(unitId, bridge, range);
 		}
 		/**
 		 * Update other ranges
 		 */
-		Optional<ModbusRange> range = getProtocol().getNextOtherRange();
+		Optional<ModbusRange> range = protocol.getNextOtherRange();
 		if (range.isPresent()) {
 			update(unitId, bridge, range.get());
 		}
 	}
 
 	protected void write(int modbusUnitId, ModbusBridge modbusBridge) throws ConfigException {
-		for (WritableModbusRange range : getProtocol().getWritableRanges()) {
-			// TODO: combine writes to a Multi
-			if (range.getLength() > 1) {
-				TreeMap<Integer, Register> registers = new TreeMap<>();
-				for (ModbusElement element : range.getElements()) {
-					// Check if Channel is writable (should be always the case)
-					if (element.getChannel() instanceof WriteableNumericChannel) {
-						WriteableNumericChannel writeableChannel = (WriteableNumericChannel) element.getChannel();
-						// take the value from the Channel and initialize it
-						Optional<Long> writeValue = writeableChannel.popRawWriteValueOptional();
-						if (writeValue.isPresent()) {
-							if (element instanceof WordElement) {
-								// try {
-								WordElement wordElement = (WordElement) element;
-								Register register = wordElement.toRegister(writeValue.get());
-								registers.put(element.getAddress(), register);
-								// modbusBridge.write(modbusUnitId, element.getAddress(), register);
-								// log.debug("Wrote successfully: Thing [" + this.getThingId() + "], Address ["
-								// + element.getAddress() + "], Value [" + register.getValue() + "]");
-
-								// } catch (OpenemsModbusException e) {
-								// log.error("Modbus write failed. " //
-								// + "Bridge [" + modbusBridge.getThingId() + "], Range ["
-								// + range.getStartAddress() + "]: {}", e.getMessage());
-								// modbusBridge.triggerInitialize();
-								// }
-
-							} else if (element instanceof DoublewordElement) {
-								DoublewordElement wordElement = (DoublewordElement) element;
-								Register[] register = wordElement.toRegisters(writeValue.get());
-								int count = 0;
-								for (Register r : register) {
-									registers.put(element.getAddress() + count, r);
-									count++;
-								}
-							} else {
-								log.error("No WordElement: NOT IMPLEMENTED!");
-							}
-						}
-
-					} else if (element instanceof DummyElement) {
-						DummyElement de = (DummyElement) element;
-						for (int i = 0; i < de.getLength(); i++) {
-							registers.put(de.getAddress() + i, new SimpleRegister(0));
-						}
+		for (WritableModbusRange range : protocol.getWritableRanges()) {
+			/*
+			 * Build a list of start-addresses of elements without holes. The start-addresses map to a list
+			 * of elements and their values (sorted by order of insertion using LinkedHashMap)
+			 */
+			LinkedHashMap<Integer, LinkedHashMap<ModbusElement, Long>> elements = new LinkedHashMap<>();
+			Integer nextStartAddress = null;
+			LinkedHashMap<ModbusElement, Long> values = new LinkedHashMap<ModbusElement, Long>();
+			;
+			for (ModbusElement element : range.getElements()) {
+				// Test if Channel is a dummy or writable and receive write value
+				long value = 0L;
+				if (element instanceof DummyElement) {
+					value = 0L;
+				} else if (element.getChannel() != null && element.getChannel() instanceof ModbusWriteChannel) {
+					Optional<Long> valueOptional = ((ModbusWriteChannel) element.getChannel()).popRawWrite();
+					if (valueOptional.isPresent()) {
+						value = valueOptional.get();
 					} else {
-						throw new ConfigException("Handling WritableModbusRange [" + range.getStartAddress()
-								+ "] but Channel for Element [" + element.getAddress() + "] is not writable!");
+						continue;
+					}
+				} else {
+					// no dummy, no WriteChannel, no value -> try next element
+					continue;
+				}
+				// Test if there is a "hole", if yes -> create new values map
+				if (nextStartAddress == null || nextStartAddress != element.getAddress()) {
+					values = new LinkedHashMap<ModbusElement, Long>();
+					elements.put(element.getAddress(), values);
+				}
+				// store this element and the value
+				values.put(element, value);
+				// store for next run
+				nextStartAddress = element.getAddress() + element.getLength();
+			}
+
+			/*
+			 * Write all elements
+			 */
+			for (Entry<Integer, LinkedHashMap<ModbusElement, Long>> entry : elements.entrySet()) {
+				/*
+				 * Get start address and all registers
+				 */
+				int address = entry.getKey();
+				List<Register> registers = new ArrayList<>();
+				for (Entry<ModbusElement, Long> value : entry.getValue().entrySet()) {
+					ModbusElement element = value.getKey();
+					if (element instanceof WordElement) {
+						registers.add( //
+								((WordElement) element).toRegister(value.getValue()));
+					} else if (element instanceof DoublewordElement) {
+						registers.addAll(Arrays.asList( //
+								((DoublewordElement) element).toRegisters(value.getValue())));
+					} else { // DummyElement -> write 0;
+						for (int i = 0; i < element.getLength(); i++) {
+							registers.add(new SimpleRegister(value.getValue().intValue()));
+						}
 					}
 				}
+				/*
+				 * Write
+				 */
 				try {
-					if (registers.size() == range.getLength() && registers.firstKey() == range.getStartAddress()) {
-						Register[] arr = new Register[registers.size()];
-						registers.values().toArray(arr);
-						modbusBridge.writeMultipleRegisters(modbusUnitId, registers.firstKey(), arr);
-					} else {
-						throw new OpenemsModbusException(
-								"Addresses and count of registers doesn't meet the modbus range");
-					}
+					modbusBridge.write(modbusUnitId, address, registers);
 				} catch (OpenemsModbusException e) {
-					log.error("Modbus write failed. " //
-							+ "Bridge [" + modbusBridge.getThingId() + "], Range [" + range.getStartAddress() + "]: {}",
-							e.getMessage());
+					log.error("Bridge [" + modbusBridge.id() + "], Range [" + range.getStartAddress() + "/0x"
+							+ Integer.toHexString(range.getStartAddress()) + "]: " + e.getMessage());
 					modbusBridge.triggerInitialize();
-				}
-			} else {
-				for (ModbusElement element : range.getElements()) {
-					// Check if Channel is writable (should be always the case)
-					if (element.getChannel() instanceof WriteableNumericChannel) {
-						WriteableNumericChannel writeableChannel = (WriteableNumericChannel) element.getChannel();
-						// take the value from the Channel and initialize it
-						Optional<Long> writeValue = writeableChannel.popRawWriteValueOptional();
-						if (writeValue.isPresent()) {
-							if (element instanceof WordElement) {
-								try {
-									WordElement wordElement = (WordElement) element;
-									Register register = wordElement.toRegister(writeValue.get());
-									modbusBridge.write(modbusUnitId, element.getAddress(), register);
-									log.debug("Wrote successfully: Thing [" + this.getThingId() + "], Address ["
-											+ element.getAddress() + "], Value [" + register.getValue() + "]");
-
-								} catch (OpenemsModbusException e) {
-									log.error("Modbus write failed. " //
-											+ "Bridge [" + modbusBridge.getThingId() + "], Range ["
-											+ range.getStartAddress() + "]: {}", e.getMessage());
-									modbusBridge.triggerInitialize();
-								}
-
-							} else {
-								log.error("No WordElement: NOT IMPLEMENTED!");
-							}
-						}
-
-					} else {
-						throw new ConfigException("Handling WritableModbusRange [" + range.getStartAddress()
-								+ "] but Channel for Element [" + element.getAddress() + "] is not writable!");
-					}
 				}
 			}
 		}
@@ -217,7 +184,7 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 		} catch (OpenemsModbusException e) {
 			log.error(
 					"Modbus query failed. " //
-							+ "Bridge [" + modbusBridge.getThingId() + "], Range [" + range.getStartAddress() + "]: {}",
+							+ "Bridge [" + modbusBridge.id() + "], Range [" + range.getStartAddress() + "]: {}",
 					e.getMessage());
 			modbusBridge.triggerInitialize();
 			// set all elements to invalid

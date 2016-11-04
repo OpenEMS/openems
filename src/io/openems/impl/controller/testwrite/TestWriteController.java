@@ -18,16 +18,27 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.channel;
+package io.openems.impl.controller.testwrite;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Set;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.FIELD })
-public @interface IsChannel {
-	String id();
-	// TODO add unit and check if Channel-Implementation has the same
+import io.openems.api.controller.Controller;
+import io.openems.api.controller.IsThingMapping;
+import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.exception.WriteChannelException;
+
+public class TestWriteController extends Controller {
+	@IsThingMapping public Set<Ess> esss = null;
+
+	@Override public void run() {
+		for (Ess ess : esss) {
+			try {
+				ess.setActivePower.pushWrite(500L);
+				ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.START);
+			} catch (WriteChannelException e) {
+				log.error("", e);
+			}
+		}
+	}
+
 }

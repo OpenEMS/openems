@@ -18,36 +18,44 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.debuglog;
+package io.openems.impl.controller.symmetricbalancing;
 
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.exception.InvalidValueException;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
+	public final ReadChannel<Integer> minSoc;
+	public final WriteChannel<Long> setActivePower;
+	public final WriteChannel<Long> setReactivePower;
+	public final ReadChannel<Long> soc;
 	public final ReadChannel<Long> activePower;
 	public final ReadChannel<Long> allowedCharge;
 	public final ReadChannel<Long> allowedDischarge;
-	public final ReadChannel<Integer> minSoc;
-	public final ReadChannel<Long> soc;
+	public final ReadChannel<Long> gridMode;
 	public final ReadChannel<Long> systemState;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
+		minSoc = ess.minSoc().required();
+
+		setActivePower = ess.setActivePower().required();
+		setReactivePower = ess.setReactivePower().required();
+
+		soc = ess.soc().required();
 		activePower = ess.activePower().required();
 		allowedCharge = ess.allowedCharge().required();
 		allowedDischarge = ess.allowedDischarge().required();
-		minSoc = ess.minSoc().required();
-		soc = ess.soc().required();
+		gridMode = ess.gridMode().required();
 		systemState = ess.systemState().required();
 	}
 
-	@Override public String toString() {
-		return "Ess [soc=" + soc + ", minSoc=" + minSoc + ", activePower=" + activePower + ", allowedCharge="
-				+ allowedCharge + ", allowedDischarge=" + allowedDischarge + ", systemState=" + systemState + "]";
+	public long useableSoc() throws InvalidValueException {
+		return soc.value() - minSoc.value();
 	}
-
 }

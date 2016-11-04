@@ -18,27 +18,33 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.balancingThreePhase;
+package io.openems.api.device.nature.ess;
 
-import io.openems.api.channel.IsRequired;
-import io.openems.api.channel.numeric.NumericChannel;
-import io.openems.api.controller.IsThingMap;
-import io.openems.api.controller.ThingMap;
-import io.openems.impl.device.socomec.SocomecMeter;
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 
-@IsThingMap(type = SocomecMeter.class)
-public class Meter extends ThingMap {
+public interface AsymmetricEssNature extends EssNature {
+	/*
+	 * ReadChannels
+	 */
+	public ReadChannel<Long> activePowerL1();
 
-	@IsRequired(channelId = "ActivePowerPhaseA")
-	public NumericChannel activePowerPhaseA;
+	public ReadChannel<Long> activePowerL2();
 
-	@IsRequired(channelId = "ActivePowerPhaseB")
-	public NumericChannel activePowerPhaseB;
+	public ReadChannel<Long> activePowerL3();
 
-	@IsRequired(channelId = "ActivePowerPhaseC")
-	public NumericChannel activePowerPhaseC;
+	/*
+	 * WriteChannels
+	 */
+	public WriteChannel<Long> setActivePowerL1();
 
-	public Meter(String thingId) {
-		super(thingId);
-	}
+	public WriteChannel<Long> setActivePowerL2();
+
+	public WriteChannel<Long> setActivePowerL3();
+
+	public WriteChannel<Long> setReactivePowerL1();
+
+	public WriteChannel<Long> setReactivePowerL2();
+
+	public WriteChannel<Long> setReactivePowerL3();
 }

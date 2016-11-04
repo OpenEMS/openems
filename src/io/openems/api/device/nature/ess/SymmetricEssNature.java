@@ -18,16 +18,25 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.thing;
+package io.openems.api.device.nature.ess;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+public interface SymmetricEssNature extends EssNature {
+	/*
+	 * ReadChannels
+	 */
+	public ReadChannel<Long> activePower();
 
-@Retention(RUNTIME)
-@Target(METHOD)
-public @interface IsConfig {
-	String value();
+	public ReadChannel<Long> apparentPower();
+
+	public ReadChannel<Long> reactivePower();
+
+	/*
+	 * WriteChannels
+	 */
+	public WriteChannel<Long> setActivePower();
+
+	public WriteChannel<Long> setReactivePower();
 }

@@ -20,8 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.controller.avoidtotaldischarge;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import io.openems.api.controller.Controller;
 import io.openems.api.controller.IsThingMapping;
@@ -29,30 +29,28 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 public class AvoidTotalDischargeController extends Controller {
-	@IsThingMapping
-	public List<Ess> esss = null;
+	@IsThingMapping public Set<Ess> esss = null;
 
-	@Override
-	public void run() {
+	@Override public void run() {
 		for (Ess ess : esss) {
 			try {
 				/*
 				 * Calculate SetActivePower according to MinSoc
 				 */
-				if (ess.soc.getValue() < ess.minSoc.getValue() && ess.soc.getValue() >= ess.minSoc.getValue() - 5) {
+				if (ess.soc.value() < ess.minSoc.value() && ess.soc.value() >= ess.minSoc.value() - 5) {
 					// SOC < minSoc && SOC >= minSoc - 5
 					log.info("Avoid discharge. Set ActivePower=Max[0]");
-					ess.setActivePower.pushMaxWriteValue(0);
-				} else if (ess.soc.getValue() < ess.minSoc.getValue() - 5) {
+					ess.setActivePower.pushWriteMin(0L);
+				} else if (ess.soc.value() < ess.minSoc.value() - 5) {
 					// SOC < minSoc - 5
-					Optional<Long> currentMinValue = ess.setActivePower.peekMinWriteValue();
+					Optional<Long> currentMinValue = ess.setActivePower.writeMin();
 					if (currentMinValue.isPresent()) {
 						// Force Charge with minimum of MaxChargePower/5
 						log.info("Force charge. Set ActivePower=Min[" + currentMinValue.get() / 5 + "]");
-						ess.setActivePower.pushMinWriteValue(currentMinValue.get() / 5);
+						ess.setActivePower.pushWriteMin(currentMinValue.get() / 5);
 					} else {
 						log.info("Avoid discharge. Set ActivePower=Min[1000 W]");
-						ess.setActivePower.pushMinWriteValue(1000);
+						ess.setActivePower.pushWriteMin(1000L);
 					}
 				}
 			} catch (InvalidValueException | WriteChannelException e) {

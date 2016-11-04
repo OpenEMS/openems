@@ -26,32 +26,33 @@ import java.nio.ByteOrder;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
-import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.channel.Channel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class SignedWordElement extends ModbusElement implements WordElement {
-	private final ByteOrder byteOrder;
+	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 
-	public SignedWordElement(int address, NumericChannel channel, ByteOrder byteOrder) {
+	public SignedWordElement(int address, Channel channel) {
 		super(address, channel);
-		this.byteOrder = byteOrder;
 	}
 
-	@Override
-	public int getLength() {
+	public SignedWordElement byteOrder(ByteOrder byteOrder) {
+		this.byteOrder = byteOrder;
+		return this;
+	}
+
+	@Override public int getLength() {
 		return 1;
 	}
 
-	@Override
-	public void setValue(Register register) {
+	@Override public void setValue(Register register) {
 		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);
 		buff.put(register.toBytes());
 		short shortValue = buff.order(byteOrder).getShort(0);
 		setValue(Long.valueOf(shortValue));
 	}
 
-	@Override
-	public Register toRegister(Long value) {
+	@Override public Register toRegister(Long value) {
 		byte[] b = ByteBuffer.allocate(2).order(byteOrder).putShort(value.shortValue()).array();
 		return new SimpleRegister(b[0], b[1]);
 	}

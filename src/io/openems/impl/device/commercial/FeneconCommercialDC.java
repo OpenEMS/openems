@@ -20,36 +20,41 @@
  *******************************************************************************/
 package io.openems.impl.device.commercial;
 
-import io.openems.api.device.nature.IsDeviceNature;
+import java.util.HashSet;
+import java.util.Set;
+
+import io.openems.api.channel.ConfigChannel;
+import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.OpenemsException;
-import io.openems.api.thing.IsConfig;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
 public class FeneconCommercialDC extends ModbusDevice {
 
-	@IsDeviceNature
-	public FeneconCommercialEss ess = null;
+	/*
+	 * Config
+	 */
+	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<FeneconCommercialEss>("ess", this,
+			FeneconCommercialEss.class);
 
-	@IsDeviceNature
-	public FeneconCommercialInverter inverter = null;
+	public final ConfigChannel<FeneconCommercialInverter> inverter = new ConfigChannel<FeneconCommercialInverter>(
+			"inverter", this, FeneconCommercialInverter.class);
 
 	public FeneconCommercialDC() throws OpenemsException {
 		super();
 	}
 
-	@IsConfig("ess")
-	public void setEss(FeneconCommercialEss ess) {
-		this.ess = ess;
+	@Override public String toString() {
+		return "FeneconCommercialDC [ess=" + ess + ", getThingId()=" + id() + "]";
 	}
 
-	@IsConfig("inverter")
-	public void setInverter(FeneconCommercialInverter inverter) {
-		this.inverter = inverter;
-	}
-
-	@Override
-	public String toString() {
-		return "FeneconCommercialDC [ess=" + ess + ", modbusUnitId=" + getModbusUnitId() + ", getThingId()="
-				+ getThingId() + "]";
+	@Override protected Set<DeviceNature> getDeviceNatures() {
+		Set<DeviceNature> natures = new HashSet<>();
+		if (ess.valueOptional().isPresent()) {
+			natures.add(ess.valueOptional().get());
+		}
+		if (inverter.valueOptional().isPresent()) {
+			natures.add(inverter.valueOptional().get());
+		}
+		return natures;
 	}
 }

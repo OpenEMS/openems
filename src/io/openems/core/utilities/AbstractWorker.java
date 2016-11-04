@@ -65,11 +65,10 @@ public abstract class AbstractWorker extends Thread implements Thing {
 		do {
 			try {
 				long thisDuration = (targetTime - System.nanoTime()) / 1000000;
-				if (thisDuration < 0) {
+				if (thisDuration > 0) {
 					Thread.sleep(thisDuration);
 				}
-			} catch (InterruptedException e1) {
-			}
+			} catch (InterruptedException e1) {}
 		} while (targetTime > System.nanoTime());
 		return duration;
 	}
@@ -84,8 +83,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	 */
 	protected abstract void forever();
 
-	@Override
-	public String getThingId() {
+	@Override public String id() {
 		return getName();
 	};
 
@@ -100,8 +98,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	/**
 	 * Executes the Thread. Calls {@link forever} till the Thread gets interrupted.
 	 */
-	@Override
-	public final void run() {
+	@Override public final void run() {
 		long bridgeExceptionSleep = 1; // seconds
 		this.initialize.set(true);
 		while (!isInterrupted()) {
@@ -144,7 +141,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 				/*
 				 * Handle Bridge-Exceptions
 				 */
-				log.error("Bridge-Exception! Retry later. Error: " + e.getMessage(), e);
+				log.error("Bridge-Exception! Retry later.", e);
 				bridgeExceptionSleep = bridgeExceptionSleep(bridgeExceptionSleep);
 			}
 		}

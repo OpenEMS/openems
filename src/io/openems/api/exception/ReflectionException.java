@@ -18,23 +18,13 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.channel;
+package io.openems.api.exception;
 
-public class ConfigChannelBuilder extends ChannelBuilder<ConfigChannelBuilder> {
-	protected Long defaultValue = null;
+public class ReflectionException extends OpenemsException {
 
-	@Override
-	public ConfigChannel build() {
-		return new ConfigChannel(channelId, nature, unit, minValue, maxValue, multiplier, delta, labels, defaultValue);
-	}
+	private static final long serialVersionUID = 4327222554707114879L;
 
-	public ConfigChannelBuilder defaultValue(int defaultValue) {
-		this.defaultValue = Long.valueOf(defaultValue);
-		return this;
-	}
-
-	public ConfigChannelBuilder defaultValue(Long defaultValue) {
-		this.defaultValue = defaultValue;
-		return this;
+	public ReflectionException(String message) {
+		super(message);
 	}
 }

@@ -18,48 +18,22 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.balancing;
+package io.openems.impl.controller.testwrite;
 
-import io.openems.api.channel.IsRequired;
-import io.openems.api.channel.numeric.NumericChannel;
-import io.openems.api.channel.numeric.WriteableNumericChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.EssNature;
-import io.openems.api.exception.InvalidValueException;
+import io.openems.api.device.nature.ess.SymmetricEssNature;
 
-@IsThingMap(type = EssNature.class)
+@IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	@IsRequired(channelId = "ActivePower")
-	public NumericChannel activePower;
+	public final WriteChannel<Long> setActivePower;
+	public final WriteChannel<Long> setWorkState;
 
-	@IsRequired(channelId = "AllowedCharge")
-	public NumericChannel allowedCharge;
-
-	@IsRequired(channelId = "AllowedDischarge")
-	public NumericChannel allowedDischarge;
-
-	@IsRequired(channelId = "GridMode")
-	public NumericChannel gridMode;
-
-	@IsRequired(channelId = "MinSoc")
-	public NumericChannel minSoc;
-
-	@IsRequired(channelId = "SetActivePower")
-	public WriteableNumericChannel setActivePower;
-
-	@IsRequired(channelId = "SetReactivePower")
-	public WriteableNumericChannel setReactivePower;
-
-	@IsRequired(channelId = "Soc")
-	public NumericChannel soc;
-
-	public Ess(String thingId) {
-		super(thingId);
-	}
-
-	public long useableSoc() throws InvalidValueException {
-		return soc.getValue() - minSoc.getValue();
+	public Ess(SymmetricEssNature ess) {
+		super(ess);
+		setActivePower = ess.setActivePower().required();
+		setWorkState = ess.setWorkState().required();
 	}
 }

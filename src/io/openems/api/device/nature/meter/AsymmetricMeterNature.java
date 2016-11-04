@@ -18,16 +18,19 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.device.nature;
+package io.openems.api.device.nature.meter;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import io.openems.api.channel.ReadChannel;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+public interface AsymmetricMeterNature extends MeterNature {
 
-@Retention(RUNTIME)
-@Target(FIELD)
-public @interface IsDeviceNature {
+	/*
+	 * ReadChannels
+	 */
+	public ReadChannel<Long> activePowerL1();
+
+	public ReadChannel<Long> activePowerL2();
+
+	public ReadChannel<Long> activePowerL3();
 
 }

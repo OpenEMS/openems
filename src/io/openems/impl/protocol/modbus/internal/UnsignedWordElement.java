@@ -26,15 +26,19 @@ import java.nio.ByteOrder;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
-import io.openems.api.channel.numeric.NumericChannel;
+import io.openems.api.channel.Channel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class UnsignedWordElement extends ModbusElement implements WordElement {
-	private final ByteOrder byteOrder;
+	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 
-	public UnsignedWordElement(int address, NumericChannel channel, ByteOrder byteOrder) {
+	public UnsignedWordElement(int address, Channel channel) {
 		super(address, channel);
+	}
+
+	public UnsignedWordElement byteOrder(ByteOrder byteOrder) {
 		this.byteOrder = byteOrder;
+		return this;
 	}
 
 	@Override
