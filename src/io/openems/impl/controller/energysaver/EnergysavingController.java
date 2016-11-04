@@ -32,44 +32,42 @@ public class EnergysavingController extends Controller {
 
 	@IsThingMapping public Set<Ess> esss = null;
 
-	private Long lastTimeValueWritten = System.currentTimeMillis();
+	// private Long lastTimeValueWritten = System.currentTimeMillis();
 
 	@Override public void run() {
 		for (Ess ess : esss) {
 			try {
-				/*
-				 * Start ESS if it was stopped and we have a setActivePower command
-				 */
-				if (ess.setActivePower.peekWrite().orElse(0L) != 0L) {
-					lastTimeValueWritten = System.currentTimeMillis();
-					Optional<String> systemState = ess.systemState.labelOptional();
-					if (!systemState.isPresent() || !systemState.get().equals(SymmetricEssNature.START)) {
-						// Current system state is not START but we have a setActivePower-Command
-						if (ess.setWorkState.peekWriteLabel().orElse(SymmetricEssNature.START)
-								.equals(SymmetricEssNature.START)) {
-							// SetWorkState was not set to anything different than START before -> START the system
-							log.info("ESS [" + ess.id() + "] was stopped. Starting...");
-							ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.START);
-						}
-					}
-				} else {
+				Optional<String> systemState = ess.systemState.labelOptional();
+				if (!systemState.isPresent() || !systemState.get().equals(SymmetricEssNature.START)) {
 					/*
-					 * go to Standby if no values were written since two minutes
+					 * Always start ESS if it was stopped
 					 */
-					if (lastTimeValueWritten + 2 * 60 * 1000 < System.currentTimeMillis()) {
-						Optional<String> systemState = ess.systemState.labelOptional();
-						if (!systemState.isPresent() || (!systemState.get().equals(SymmetricEssNature.STANDBY)
-								&& !systemState.get().equals("PV-Charge"))) {
-							// System state was not yet STANDBY or PV-Charge
-							if (ess.setWorkState.peekWriteLabel().orElse(SymmetricEssNature.STANDBY)
-									.equals(SymmetricEssNature.STANDBY)) {
-								// SetWorkState was not set to anything different than STANDBY before -> put the system
-								// in STANDBY
-								log.info("ESS [" + ess.id() + "] had no written value since two minutes. Standby...");
-								ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.STANDBY);
-							}
-						}
+					// Current system state is not START
+					if (ess.setWorkState.peekWriteLabel().orElse(SymmetricEssNature.START)
+							.equals(SymmetricEssNature.START)) {
+						// SetWorkState was not set to anything different than START before -> START the system
+						log.info("ESS [" + ess.id() + "] was stopped. Starting...");
+						ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.START);
 					}
+					// } else {
+					// /*
+					// * TODO go to Standby if no values were written since two minutes
+					// */
+					// // TODO lastTimeValueWritten = System.currentTimeMillis();
+					// if (lastTimeValueWritten + 2 * 60 * 1000 < System.currentTimeMillis()) {
+					// Optional<String> systemState = ess.systemState.labelOptional();
+					// if (!systemState.isPresent() || (!systemState.get().equals(SymmetricEssNature.STANDBY)
+					// && !systemState.get().equals("PV-Charge"))) {
+					// // System state was not yet STANDBY or PV-Charge
+					// if (ess.setWorkState.peekWriteLabel().orElse(SymmetricEssNature.STANDBY)
+					// .equals(SymmetricEssNature.STANDBY)) {
+					// // SetWorkState was not set to anything different than STANDBY before -> put the system
+					// // in STANDBY
+					// log.info("ESS [" + ess.id() + "] had no written value since two minutes. Standby...");
+					// ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.STANDBY);
+					// }
+					// }
+					// }
 				}
 			} catch (WriteChannelException e) {
 				log.error("", e);

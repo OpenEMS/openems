@@ -22,17 +22,17 @@ package io.openems.impl.protocol.modbus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.msg.ExceptionResponse;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
-import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
-import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterResponse;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.api.bridge.Bridge;
@@ -72,6 +72,16 @@ public abstract class ModbusBridge extends Bridge {
 		}
 	}
 
+	private void writeAllDevices() {
+		for (ModbusDevice modbusdevice : modbusdevices) {
+			try {
+				modbusdevice.write(this);
+			} catch (OpenemsException e) {
+				log.error("Error while writing to ModbusDevice [" + modbusdevice.id() + "]: " + e.getMessage());
+			}
+		}
+	}
+
 	protected abstract void closeModbusConnection();
 
 	@Override protected boolean initialize() {
@@ -103,7 +113,37 @@ public abstract class ModbusBridge extends Bridge {
 		return query(modbusUnitId, range.getStartAddress(), range.getLength());
 	}
 
-	protected void write(int modbusUnitId, int address, Register register) throws OpenemsModbusException {
+	protected void write(int modbusUnitId, int address, List<Register> registers) throws OpenemsModbusException {
+		write(modbusUnitId, address, registers.toArray(new Register[registers.size()]));
+	}
+
+	protected void write(int modbusUnitId, int address, Register... register) throws OpenemsModbusException {
+		ModbusResponse res;
+		try {
+			if (register.length == 0) {
+				return;
+			} else if (register.length == 1) {
+				res = writeSingleRegister(modbusUnitId, address, register[0]);
+			} else {
+				res = writeMultipleRegisters(modbusUnitId, address, register);
+			}
+		} catch (ModbusException | OpenemsModbusException e) {
+			throw new OpenemsModbusException("Error on modbus write. " //
+					+ "UnitId [" + modbusUnitId + "], Address [" + address + "/0x" + Integer.toHexString(address)
+					+ "], Register [" + registersAsString(register) + "]: " + e.getMessage());
+		}
+		if (res instanceof ExceptionResponse) {
+			throw new OpenemsModbusException("Error on modbus write response. " //
+					+ "UnitId [" + modbusUnitId + "], Address [" + address + "/0x" + Integer.toHexString(address)
+					+ "], Register [" + registersAsString(register) + "]: " + res.toString());
+		}
+		log.debug("Successful write. " //
+				+ "UnitId [" + modbusUnitId + "], Address [" + address + "/0x" + Integer.toHexString(address)
+				+ "], Register [" + registersAsString(register) + "]");
+	}
+
+	private ModbusResponse writeSingleRegister(int modbusUnitId, int address, Register register)
+			throws ModbusException, OpenemsModbusException {
 		ModbusTransaction trans = getTransaction();
 		WriteSingleRegisterRequest req = new WriteSingleRegisterRequest(address, register);
 		req.setUnitID(modbusUnitId);
@@ -117,24 +157,22 @@ public abstract class ModbusBridge extends Bridge {
 			req = new WriteSingleRegisterRequest(address, register);
 			req.setUnitID(modbusUnitId);
 			trans.setRequest(req);
-			try {
-				trans.execute();
-			} catch (ModbusException e1) {
-				throw new OpenemsModbusException("Error while executing write transaction. " //
-						+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Register [" + register.getValue()
-						+ "]: " + e1.getMessage());
-			}
+			trans.execute();
 		}
-		ModbusResponse res = trans.getResponse();
-		if (!(res instanceof WriteSingleRegisterResponse)) {
-			throw new OpenemsModbusException("Unable to read modbus write response. " //
-					+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Register [" + register.getValue()
-					+ "]: " + res.toString());
-		}
+		return trans.getResponse();
 	}
 
-	protected void writeMultipleRegisters(int modbusUnitId, int address, Register... register)
-			throws OpenemsModbusException {
+	/**
+	 * Write Multiple Registers (function code 16)
+	 *
+	 * @param modbusUnitId
+	 * @param address
+	 * @param register
+	 * @throws OpenemsModbusException
+	 * @throws ModbusException
+	 */
+	private ModbusResponse writeMultipleRegisters(int modbusUnitId, int address, Register... register)
+			throws OpenemsModbusException, ModbusException {
 		ModbusTransaction trans = getTransaction();
 		WriteMultipleRegistersRequest req = new WriteMultipleRegistersRequest(address, register);
 		req.setUnitID(modbusUnitId);
@@ -148,33 +186,17 @@ public abstract class ModbusBridge extends Bridge {
 			req = new WriteMultipleRegistersRequest(address, register);
 			req.setUnitID(modbusUnitId);
 			trans.setRequest(req);
-			try {
-				trans.execute();
-			} catch (ModbusException e1) {
-				throw new OpenemsModbusException("Error while executing write transaction. " //
-						+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Register ["
-						+ registersAsString(register) + "]: " + e1.getMessage());
-			}
+			trans.execute();
 		}
-		ModbusResponse res = trans.getResponse();
-		if (!(res instanceof WriteMultipleRegistersResponse)) {
-			throw new OpenemsModbusException("Unable to read modbus write response. " //
-					+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Register ["
-					+ registersAsString(register) + "]: " + res.toString());
-		}
+		return trans.getResponse();
 	}
 
 	private String registersAsString(Register... registers) {
-		StringBuilder sb = new StringBuilder();
-		int count = 0;
-		for (Register r : registers) {
-			if (count != 0) {
-				sb.append(",");
-			}
-			sb.append(r.getValue());
-			count++;
+		StringJoiner joiner = new StringJoiner(",");
+		for (Register register : registers) {
+			joiner.add(String.valueOf(register.getValue()));
 		}
-		return sb.toString();
+		return joiner.toString();
 	}
 
 	/**
@@ -216,16 +238,6 @@ public abstract class ModbusBridge extends Bridge {
 			throw new OpenemsModbusException("Unable to read modbus response. " //
 					+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Count [" + count + "]: "
 					+ res.toString());
-		}
-	}
-
-	private void writeAllDevices() {
-		for (ModbusDevice modbusdevice : modbusdevices) {
-			try {
-				modbusdevice.write(this);
-			} catch (OpenemsException e) {
-				log.error("Error while writing to ModbusDevice [" + modbusdevice.id() + "]: " + e.getMessage());
-			}
 		}
 	}
 }

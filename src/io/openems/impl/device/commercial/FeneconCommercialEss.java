@@ -448,7 +448,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 								setWorkState = new ModbusWriteChannel("SetWorkState", this) //
 										.label(4, STOP) //
 										.label(32, STANDBY) //
-										.label(64, START)),
+										.label(64, START))),
+				new WritableModbusRange(0x0501, //
 						new SignedWordElement(0x0501, //
 								setActivePower = new ModbusWriteChannel("SetActivePower", this).unit("W")
 										.multiplier(100).minWriteChannel(allowedCharge)

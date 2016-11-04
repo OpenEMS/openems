@@ -107,8 +107,8 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		if (writeValue.isPresent()) {
 			return writeValue;
 		} else {
-			Optional<T> writeMax = writeMax();
-			Optional<T> writeMin = writeMin();
+			Optional<T> writeMax = this.writeInterval.maxOptional();
+			Optional<T> writeMin = this.writeInterval.minOptional();
 			if (writeMin.isPresent() && writeMax.isPresent()) {
 				if (writeMin.get() instanceof Number && writeMax.get() instanceof Number) {
 					long writeMinLong = ((Number) writeMin.get()).longValue();
@@ -167,6 +167,7 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	}
 
 	public void pushWrite(T value) throws WriteChannelException {
+		log.debug("Write to [" + address() + "] -> " + value);
 		checkIntervalBoundaries(value);
 		writeValue = Optional.of(value);
 	}

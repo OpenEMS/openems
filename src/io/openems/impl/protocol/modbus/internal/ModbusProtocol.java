@@ -53,19 +53,20 @@ public class ModbusProtocol {
 	public void addRange(ModbusRange range) {
 		// check each range for plausibility
 		checkRange(range);
-		// fill otherRanges Map
-		otherRanges.put(range.getStartAddress(), range);
+		if (range instanceof WritableModbusRange) {
+			// fill writableRanges
+			WritableModbusRange writableRange = (WritableModbusRange) range;
+			writableRanges.put(writableRange.getStartAddress(), writableRange);
+		} else {
+			// fill otherRanges Map
+			otherRanges.put(range.getStartAddress(), range);
+		}
 		// fill channelElementMap
 		for (ModbusElement element : range.getElements()) {
 			if (element.getChannel() != null) {
 				// ignore Elements without Channel (DummyChannels)
 				channelElementMap.put(element.getChannel(), element);
 			}
-		}
-		// fill writableRanges
-		if (range instanceof WritableModbusRange) {
-			WritableModbusRange writableRange = (WritableModbusRange) range;
-			writableRanges.put(writableRange.getStartAddress(), writableRange);
 		}
 	}
 
