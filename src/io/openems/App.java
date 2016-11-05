@@ -26,8 +26,11 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.core.Config;
+import io.openems.core.Databus;
 import io.openems.demo.Demo;
-import io.openems.demo.DemoFems7WithMeter;
+import io.openems.demo.DemoSimulator;
+import io.openems.impl.api.rest.RestApi;
+import io.vertx.core.Vertx;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
@@ -35,12 +38,12 @@ public class App {
 	public static void main(String[] args) throws Exception {
 		log.info("OpenEMS started");
 
-		Demo demo = new DemoFems7WithMeter();
+		// Demo demo = new DemoFems7WithMeter();
 		// Demo demo = new DemoJanitza();
-
 		// Demo demo = new DemoFems7();
+		Demo demo = new DemoSimulator();
 		JsonObject jConfig = demo.getConfig();
-
+		//
 		// File file = new File("config");
 		// log.info("Read configuration from " + file.getAbsolutePath());
 		// JsonParser parser = new JsonParser();
@@ -55,12 +58,13 @@ public class App {
 		// databus.printAll();
 
 		// Start vertx
-		// Vertx vertx = Vertx.vertx();
+		Vertx vertx = Vertx.vertx();
 		// Deploy REST-Api verticle
-		// vertx.deployVerticle(new RestApi(databus));
+		vertx.deployVerticle(new RestApi());
 
 		Thread.sleep(3000);
 
-		// log.info("ess0/soc: " + databus.getValue("ess0", "Soc"));
+		Databus databus = Databus.getInstance();
+		log.info("ess0/soc: " + databus.getValue("ess0", "Soc"));
 	}
 }

@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -35,8 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Table;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
@@ -56,13 +59,12 @@ public class ThingRepository {
 		return ThingRepository.instance;
 	}
 
-	private ThingRepository() {
-		this.databus = Databus.getInstance();
-	}
+	private ThingRepository() {}
 
-	private final Databus databus;
-	private BiMap<String, Thing> thingIds = HashBiMap.create();
-	private HashMultimap<Thing, Channel> thingChannels = HashMultimap.create();
+	private final BiMap<String, Thing> thingIds = HashBiMap.create();
+	private final Table<Thing, String, Channel> thingChannels = HashBasedTable.create();
+
+	// private HashMultimap<Thing, Channel> thingChannels = HashMultimap.create();
 	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
 	private HashMultimap<Class<? extends Thing>, Thing> thingClasses = HashMultimap.create();
 	private Set<Bridge> bridges = new HashSet<>();
@@ -98,9 +100,9 @@ public class ThingRepository {
 	 * @param thing
 	 * @return
 	 */
-	public synchronized Set<Channel> getChannels(Thing thing) {
+	public synchronized Collection<Channel> getChannels(Thing thing) {
 		addThing(thing);
-		if (!thingChannels.containsKey(thing)) {
+		if (!thingChannels.containsRow(thing)) {
 			// Channels for this Thing were not yet parsed.
 			List<Member> members = getMembers(thing.getClass());
 			for (Member member : members) {
@@ -117,10 +119,11 @@ public class ThingRepository {
 						continue;
 					}
 					// Store Channel in cache
-					thingChannels.put(thing, channel);
+					thingChannels.put(thing, channel.id(), channel);
 
 					// Register Databus as listener
 					if (channel instanceof ReadChannel) {
+						Databus databus = Databus.getInstance();
 						((ReadChannel<?>) channel).listener(databus);
 					}
 
@@ -130,7 +133,7 @@ public class ThingRepository {
 			}
 
 		}
-		return Collections.unmodifiableSet(thingChannels.get(thing));
+		return Collections.unmodifiableCollection(thingChannels.row(thing).values());
 
 	}
 
@@ -144,7 +147,7 @@ public class ThingRepository {
 		addThing(thing);
 		if (!thingConfigChannels.containsKey(thing)) {
 			// Config-Channels for this Thing were not yet received. Filter from all Channels.
-			Set<Channel> channels = getChannels(thing);
+			Collection<Channel> channels = getChannels(thing);
 			for (Channel channel : channels) {
 				if (channel instanceof ConfigChannel) {
 					thingConfigChannels.put(thing, (ConfigChannel<?>) channel);
@@ -175,5 +178,14 @@ public class ThingRepository {
 
 	public synchronized Set<Bridge> getBridges() {
 		return Collections.unmodifiableSet(bridges);
+	}
+
+	public Optional<Channel> getChannel(String thingId, String channelId) {
+		Thing thing = thingIds.get(thingId);
+		if (thing == null) {
+			return Optional.empty();
+		}
+		Channel channel = thingChannels.row(thing).get(channelId);
+		return Optional.ofNullable(channel);
 	}
 }

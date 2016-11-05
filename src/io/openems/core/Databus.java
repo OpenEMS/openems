@@ -1,5 +1,7 @@
 package io.openems.core;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +21,24 @@ public class Databus implements ChannelListener {
 		return Databus.instance;
 	}
 
-	private Databus() {}
+	private final ThingRepository thingRepository;
+
+	private Databus() {
+		thingRepository = ThingRepository.getInstance();
+	}
 
 	@Override public void channelEvent(Channel channel) {
 		if (channel instanceof ReadChannel<?>) {
 			log.debug("Channel [" + channel.address() + "] updated: " + ((ReadChannel<?>) channel).valueOptional());
+		}
+	}
+
+	public Optional<?> getValue(String thingId, String channelId) {
+		Optional<Channel> channel = thingRepository.getChannel(thingId, channelId);
+		if (channel.isPresent() && channel.get() instanceof ReadChannel<?>) {
+			return ((ReadChannel<?>) channel.get()).valueOptional();
+		} else {
+			return Optional.empty();
 		}
 	}
 }
