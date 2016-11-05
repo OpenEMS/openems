@@ -32,6 +32,7 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.CorsHandler;
 
 public class RestApi extends AbstractVerticle {
 
@@ -46,6 +47,9 @@ public class RestApi extends AbstractVerticle {
 	@Override public void start(Future<Void> fut) throws Exception {
 		// Create a router object.
 		Router router = Router.router(vertx);
+
+		// TODO: remove this cors handler
+		router.route().handler(CorsHandler.create("*"));
 
 		router.get("/rest/thing/:thingId/channel/:channelId/current").handler(this::getThingChannelValue);
 

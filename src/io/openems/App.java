@@ -26,10 +26,11 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.core.Config;
-import io.openems.core.Databus;
 import io.openems.demo.Demo;
 import io.openems.demo.DemoSimulator;
 import io.openems.impl.api.rest.RestApi;
+import io.openems.impl.api.websocket.WebSocketClient;
+import io.openems.impl.api.websocket.WebsocketApi;
 import io.vertx.core.Vertx;
 
 public class App {
@@ -53,7 +54,7 @@ public class App {
 		Config config = new Config();
 		config.readConfig(jConfig);
 
-		log.info("OpenEMS config loaded");
+		// log.info("OpenEMS config loaded");
 
 		// databus.printAll();
 
@@ -62,9 +63,12 @@ public class App {
 		// Deploy REST-Api verticle
 		vertx.deployVerticle(new RestApi());
 
-		Thread.sleep(3000);
+		// Thread.sleep(3000);
 
-		Databus databus = Databus.getInstance();
-		log.info("ess0/soc: " + databus.getValue("ess0", "Soc"));
+		// Databus databus = Databus.getInstance();
+		// log.info("ess0/soc: " + databus.getValue("ess0", "Soc"));
+
+		vertx.deployVerticle(new WebsocketApi());
+		vertx.deployVerticle(new WebSocketClient());
 	}
 }
