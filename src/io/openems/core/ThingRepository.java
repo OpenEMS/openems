@@ -41,6 +41,7 @@ import com.google.common.collect.HashMultimap;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.ReadChannel;
 import io.openems.api.thing.Thing;
 
 public class ThingRepository {
@@ -55,8 +56,11 @@ public class ThingRepository {
 		return ThingRepository.instance;
 	}
 
-	private ThingRepository() {}
+	private ThingRepository() {
+		this.databus = Databus.getInstance();
+	}
 
+	private final Databus databus;
 	private BiMap<String, Thing> thingIds = HashBiMap.create();
 	private HashMultimap<Thing, Channel> thingChannels = HashMultimap.create();
 	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
@@ -114,6 +118,11 @@ public class ThingRepository {
 					}
 					// Store Channel in cache
 					thingChannels.put(thing, channel);
+
+					// Register Databus as listener
+					if (channel instanceof ReadChannel) {
+						((ReadChannel<?>) channel).listener(databus);
+					}
 
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 					log.warn("Unable to add Channel. Member [" + member.getName() + "]", e);

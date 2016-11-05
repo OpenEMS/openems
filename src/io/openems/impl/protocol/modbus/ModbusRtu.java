@@ -51,7 +51,7 @@ public class ModbusRtu extends ModbusBridge implements ChannelListener {
 			.listener(this);
 
 	@Override
-	public void channelUpdated(Channel channel) {
+	public void channelEvent(Channel channel) {
 		triggerInitialize();
 	}
 

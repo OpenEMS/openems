@@ -28,4 +28,12 @@ public interface Channel {
 	public Thing parent();
 
 	public String address();
+
+	/**
+	 * Register a listener for events on this Channel
+	 *
+	 * @param listeners
+	 * @return itself
+	 */
+	public Channel listener(ChannelListener... listeners);
 }

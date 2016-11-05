@@ -51,7 +51,7 @@ public class ModbusTcp extends ModbusBridge implements ChannelListener {
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this, Integer.class)
 			.defaultValue(MODBUS_PORT).listener(this);
 
-	@Override public void channelUpdated(Channel channel) {
+	@Override public void channelEvent(Channel channel) {
 		triggerInitialize();
 	}
 
