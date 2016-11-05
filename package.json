@@ -25,7 +25,7 @@
     "ts-helpers": "1.1.2",
     "zone.js": "0.6.26",
     "bootstrap": "3.3.7",
-    "ng2-bootstrap": "1.1.16"
+    "ng2-bootstrap": "1.1.16",
   },
   "devDependencies": {
     "@types/jasmine": "2.5.36",

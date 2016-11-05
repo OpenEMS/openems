@@ -1,6 +1,23 @@
 <p>
-  current-monitor works!  
+  current-monitor works!
 </p>
-<div *ngIf="currentData">
-  SOC: {{currentData.soc}} %
+
+<div *ngIf="data">
+
+  <div class="container">
+    <div class="row">
+      <div *ngIf="data.ess0" class="col-xs-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">ess0</div>
+          <table class="table">
+            <tr *ngIf="data.ess0.Soc">
+              <td>SOC</td>
+              <td>{{data.ess0.Soc}} %</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 </div>
