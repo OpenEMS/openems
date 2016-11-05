@@ -18,42 +18,35 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.scheduler;
+package io.openems.impl.protocol.simulator;
 
-import java.util.Collections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import io.openems.api.bridge.Bridge;
-import io.openems.api.controller.Controller;
-import io.openems.api.scheduler.Scheduler;
-import io.openems.core.ThingRepository;
+import io.openems.api.channel.Channel;
+import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.exception.ConfigException;
 
-public class SimpleScheduler extends Scheduler {
+public abstract class SimulatorDeviceNature implements DeviceNature {
+	protected final Logger log;
+	private final String thingId;
 
-	private ThingRepository thingRepository;
-
-	public SimpleScheduler() {
-		thingRepository = ThingRepository.getInstance();
+	public SimulatorDeviceNature(String thingId) throws ConfigException {
+		this.thingId = thingId;
+		log = LoggerFactory.getLogger(this.getClass());
 	}
 
-	@Override public void activate() {
-		super.activate();
+	@Override public String id() {
+		return thingId;
 	}
 
-	@Override protected void dispose() {}
-
-	@Override protected void forever() {
-		Collections.sort(controllers, (c1, c2) -> c2.priority.valueOptional().orElse(Integer.MIN_VALUE)
-				- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
-		for (Controller controller : controllers) {
-			// TODO: check if WritableChannels can still be changed, before executing
-			controller.run();
-		}
-		for (Bridge bridge : thingRepository.getBridges()) {
-			bridge.triggerWrite();
-		}
+	@Override
+	/**
+	 * Sets a Channel as required. The Range with this Channel will be added to ModbusProtocol.RequiredRanges.
+	 */
+	public void setAsRequired(Channel channel) {
+		// ignore
 	}
 
-	@Override protected boolean initialize() {
-		return true;
-	}
+	protected abstract void update();
 }

@@ -36,12 +36,11 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 
 	public Scheduler() {
 		super(THINGID_PREFIX + instanceCounter++);
-		log.info("Started " + this.getClass().getSimpleName());
 	}
 
 	public void addController(Controller controller) throws ReflectionException, ConfigException {
 		controllers.add(controller);
-		log.info("Added " + controller.getClass().getSimpleName() + " as " + controller.id() + " with priority "
-				+ controller.priority.valueOptional());
+		// log.info("Add Controller [" + controller.id() + "], Priority[" + controller.priority.valueOptional()
+		// + "], Implementation[" + controller.getClass().getSimpleName() + "]");
 	}
 }

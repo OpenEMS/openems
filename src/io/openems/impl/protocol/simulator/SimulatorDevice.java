@@ -18,42 +18,23 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.scheduler;
+package io.openems.impl.protocol.simulator;
 
-import java.util.Collections;
+import io.openems.api.device.Device;
+import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.exception.OpenemsException;
 
-import io.openems.api.bridge.Bridge;
-import io.openems.api.controller.Controller;
-import io.openems.api.scheduler.Scheduler;
-import io.openems.core.ThingRepository;
+public abstract class SimulatorDevice extends Device {
 
-public class SimpleScheduler extends Scheduler {
-
-	private ThingRepository thingRepository;
-
-	public SimpleScheduler() {
-		thingRepository = ThingRepository.getInstance();
+	public SimulatorDevice() throws OpenemsException {
+		super();
 	}
 
-	@Override public void activate() {
-		super.activate();
-	}
-
-	@Override protected void dispose() {}
-
-	@Override protected void forever() {
-		Collections.sort(controllers, (c1, c2) -> c2.priority.valueOptional().orElse(Integer.MIN_VALUE)
-				- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
-		for (Controller controller : controllers) {
-			// TODO: check if WritableChannels can still be changed, before executing
-			controller.run();
+	protected final void update() {
+		for (DeviceNature nature : getDeviceNatures()) {
+			if (nature instanceof SimulatorDeviceNature) {
+				((SimulatorDeviceNature) nature).update();
+			}
 		}
-		for (Bridge bridge : thingRepository.getBridges()) {
-			bridge.triggerWrite();
-		}
-	}
-
-	@Override protected boolean initialize() {
-		return true;
 	}
 }
