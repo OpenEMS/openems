@@ -25,7 +25,7 @@ import { IndexMonitorComponent } from './monitor/index-monitor/index-monitor.com
     BrowserModule,
     FormsModule,
     HttpModule,
-    routing
+    routing,
   ],
   providers: [
     appRoutingProviders,
