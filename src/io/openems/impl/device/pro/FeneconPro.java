@@ -20,42 +20,34 @@
  *******************************************************************************/
 package io.openems.impl.device.pro;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
 public class FeneconPro extends ModbusDevice {
 
+	/*
+	 * Config
+	 */
+	public final ConfigChannel<FeneconProEss> ess = new ConfigChannel<FeneconProEss>("ess", this, FeneconProEss.class);
+
 	public FeneconPro() throws OpenemsException {
 		super();
-		// TODO Auto-generated constructor stub
+	}
+
+	@Override public String toString() {
+		return "FeneconPro [ess=" + ess + ", getThingId()=" + id() + "]";
 	}
 
 	@Override protected Set<DeviceNature> getDeviceNatures() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<DeviceNature> natures = new HashSet<>();
+		if (ess.valueOptional().isPresent()) {
+			natures.add(ess.valueOptional().get());
+		}
+		return natures;
 	}
-	// @IsDeviceNature public FeneconProEss ess = null;
-	//
-	// // @IsDeviceNature
-	// // public FeneconProPvMeter pvMeter = null;
-	//
-	// public FeneconPro() throws OpenemsException {
-	// super();
-	// }
-	//
-	// @IsConfig("ess") public void setEss(FeneconProEss ess) {
-	// this.ess = ess;
-	// }
-	//
-	// // @IsConfig("pvMeter")
-	// // public void setPvMeter(FeneconProPvMeter meter) {
-	// // this.pvMeter = meter;
-	// // }
-	//
-	// @Override public String toString() {
-	// return "FeneconPro []";
-	// }
 }

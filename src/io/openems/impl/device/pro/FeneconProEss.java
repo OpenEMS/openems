@@ -192,7 +192,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 				new UnsignedDoublewordElement(106, //
 						totalBatteryDischargeEnergy = new ModbusReadChannel("TotalBatteryDischargeEnergy", this)
 								.unit("Wh")), //
-				new UnsignedDoublewordElement(108, //
+				new UnsignedWordElement(108, //
 						batteryGroupState = new ModbusReadChannel("BatteryGroupState", this) //
 								.label(0, "Initial") //
 								.label(1, "Stop") //

@@ -119,8 +119,9 @@ public class ModbusProtocol {
 		int address = range.getStartAddress();
 		for (ModbusElement element : range.getElements()) {
 			if (element.getAddress() != address) {
-				log.error("Start address of Element is wrong. It is 0x{}, should be 0x{}",
-						Integer.toHexString(element.getAddress()), Integer.toHexString(address));
+				log.error("Start address of Element is wrong. It is " + element.getAddress() + "/0x"
+						+ Integer.toHexString(element.getAddress()) + ", should be " + address + "/0x"
+						+ Integer.toHexString(address) + ".");
 			}
 			address += element.getLength();
 			// TODO: check BitElements

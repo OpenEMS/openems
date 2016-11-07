@@ -24,12 +24,11 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.device.nature.ess.EssNature;
 
-@IsThingMap(type = SymmetricEssNature.class)
+@IsThingMap(type = EssNature.class)
 public class Ess extends ThingMap {
 
-	public final ReadChannel<Long> activePower;
 	public final ReadChannel<Long> allowedCharge;
 	public final ReadChannel<Long> allowedDischarge;
 	public final ReadChannel<Integer> minSoc;
@@ -37,9 +36,8 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> systemState;
 	public final StatusBitChannels warning;
 
-	public Ess(SymmetricEssNature ess) {
+	public Ess(EssNature ess) {
 		super(ess);
-		activePower = ess.activePower().required();
 		allowedCharge = ess.allowedCharge().required();
 		allowedDischarge = ess.allowedDischarge().required();
 		minSoc = ess.minSoc().required();
@@ -50,8 +48,8 @@ public class Ess extends ThingMap {
 	}
 
 	@Override public String toString() {
-		return "Ess [soc=" + soc + ", minSoc=" + minSoc + ", activePower=" + activePower + ", allowedCharge="
-				+ allowedCharge + ", allowedDischarge=" + allowedDischarge + ", systemState=" + systemState + "]";
+		return "Ess [soc=" + soc + ", minSoc=" + minSoc + ", allowedCharge=" + allowedCharge + ", allowedDischarge="
+				+ allowedDischarge + ", systemState=" + systemState + ", warning=" + warning + "]";
 	}
 
 }

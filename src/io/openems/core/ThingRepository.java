@@ -118,6 +118,11 @@ public class ThingRepository {
 					} else {
 						continue;
 					}
+					if (channel == null) {
+						log.error("Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName()
+								+ "]");
+						continue;
+					}
 					// Store Channel in cache
 					thingChannels.put(thing, channel.id(), channel);
 

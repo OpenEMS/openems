@@ -53,7 +53,6 @@ public class App {
 		JsonParser parser = new JsonParser();
 		JsonElement jsonElement = parser.parse(new FileReader(file));
 		JsonObject jConfig = jsonElement.getAsJsonObject();
-		System.out.println(jConfig.toString());
 
 		Config config = new Config();
 		config.readConfig(jConfig);

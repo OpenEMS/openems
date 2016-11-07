@@ -45,7 +45,7 @@ public class DebugLogController extends Controller {
 
 			for (Ess ess : esss.value()) {
 				b.append(ess.id() + " [" + ess.soc.format() + "] " //
-						+ "Act[" + ess.activePower.format() + "] " //
+				// + "Act[" + ess.activePower.format() + "] " //
 						+ "Charge[" + ess.allowedCharge.format() + "] " //
 						+ "Discharge[" + ess.allowedDischarge.format() + "] " //
 						+ "State[" + ess.systemState.format() + "]");
