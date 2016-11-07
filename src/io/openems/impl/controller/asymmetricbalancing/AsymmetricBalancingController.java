@@ -42,9 +42,9 @@ public class AsymmetricBalancingController extends Controller {
 	 */
 	private ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this, Double.class).defaultValue(0.95);
 
-	@IsThingMapping public List<Ess> esss = null;
+	@IsThingMapping public ConfigChannel<List<Ess>> esss = new ConfigChannel<>("esss", this, Ess.class);
 
-	@IsThingMapping public Meter meter;
+	@IsThingMapping public ConfigChannel<Meter> meter = new ConfigChannel<>("meters", this, Meter.class);
 
 	private long calculatedPower = 0L;
 	private long calculatedPowerL1 = 0L;
@@ -58,17 +58,14 @@ public class AsymmetricBalancingController extends Controller {
 
 	@Override public void run() {
 		try {
-			for (Ess ess : esss) {
+			for (Ess ess : esss.value()) {
 				ess.setWorkState.pushWriteFromLabel(EssNature.START);
 			}
+			calculateRequiredPower();
+			calculateAllowedPower();
+			reducePowerToPossiblePower();
+			calculateMinMaxValues();
 			// Calculate required sum values
-			long calculatedPower = meter.activePowerL1.value() + meter.activePowerL2.value()
-					+ meter.activePowerL3.value();
-			long calculatedPowerL1 = meter.activePowerL1.value();
-			long calculatedPowerL2 = meter.activePowerL2.value();
-			long calculatedPowerL3 = meter.activePowerL3.value();
-			long maxChargePower = 0;
-			long maxDischargePower = 0;
 			long maxChargePowerL1 = 0;
 			long maxDischargePowerL1 = 0;
 			long maxChargePowerL2 = 0;
@@ -76,13 +73,7 @@ public class AsymmetricBalancingController extends Controller {
 			long maxChargePowerL3 = 0;
 			long maxDischargePowerL3 = 0;
 			long useableSoc = 0;
-			for (Ess ess : esss) {
-				calculatedPower += ess.activePowerL1.value() + ess.activePowerL1.value() + ess.activePowerL3.value();
-				calculatedPowerL1 += ess.activePowerL1.value();
-				calculatedPowerL2 += ess.activePowerL2.value();
-				calculatedPowerL3 += ess.activePowerL3.value();
-				maxChargePower += ess.allowedCharge.value();
-				maxDischargePower += ess.allowedDischarge.value();
+			for (Ess ess : esss.value()) {
 				maxChargePowerL1 += ess.setActivePowerL1.writeMin().orElse(ess.allowedCharge.value() / 3);
 				maxDischargePowerL1 += ess.setActivePowerL2.writeMax().orElse(ess.allowedDischarge.value() / 3);
 				maxChargePowerL2 += ess.setActivePowerL2.writeMin().orElse(ess.allowedCharge.value() / 3);
@@ -105,7 +96,7 @@ public class AsymmetricBalancingController extends Controller {
 					calculatedPowerL3 = maxDischargePowerL3;
 				}
 				// sort ess by useableSoc asc
-				Collections.sort(esss, (a, b) -> {
+				Collections.sort(esss.value(), (a, b) -> {
 					try {
 						return (int) (a.useableSoc() - b.useableSoc());
 					} catch (InvalidValueException e) {
@@ -113,17 +104,17 @@ public class AsymmetricBalancingController extends Controller {
 						return 0;
 					}
 				});
-				for (int i = 0; i < esss.size(); i++) {
-					Ess ess = esss.get(i);
+				for (int i = 0; i < esss.value().size(); i++) {
+					Ess ess = esss.value().get(i);
 					// calculate minimal power needed to fulfill the calculatedPower
 					long minPowerL1 = calculatedPowerL1;
 					long minPowerL2 = calculatedPowerL2;
 					long minPowerL3 = calculatedPowerL3;
-					for (int j = i + 1; j < esss.size(); j++) {
-						if (esss.get(j).useableSoc() > 0) {
-							minPowerL1 -= esss.get(j).allowedDischarge.value() / 3;
-							minPowerL2 -= esss.get(j).allowedDischarge.value() / 3;
-							minPowerL3 -= esss.get(j).allowedDischarge.value() / 3;
+					for (int j = i + 1; j < esss.value().size(); j++) {
+						if (esss.value().get(j).useableSoc() > 0) {
+							minPowerL1 -= esss.value().get(j).allowedDischarge.value() / 3;
+							minPowerL2 -= esss.value().get(j).allowedDischarge.value() / 3;
+							minPowerL3 -= esss.value().get(j).allowedDischarge.value() / 3;
 						}
 					}
 					if (minPowerL1 < 0) {
@@ -191,7 +182,7 @@ public class AsymmetricBalancingController extends Controller {
 				 * 100 - (- 5) = 105
 				 * => ess with negative useableSoc will be charged much more then one with positive useableSoc
 				 */
-				Collections.sort(esss, (a, b) -> {
+				Collections.sort(esss.value(), (a, b) -> {
 					try {
 						return (int) ((100 - a.useableSoc()) - (100 - b.useableSoc()));
 					} catch (InvalidValueException e) {
@@ -199,18 +190,18 @@ public class AsymmetricBalancingController extends Controller {
 						return 0;
 					}
 				});
-				for (int i = 0; i < esss.size(); i++) {
-					Ess ess = esss.get(i);
+				for (int i = 0; i < esss.value().size(); i++) {
+					Ess ess = esss.value().get(i);
 					// calculate minimal power needed to fulfill the calculatedPower
 					long minP = calculatedPower;
 					long minPowerL1 = calculatedPowerL1;
 					long minPowerL2 = calculatedPowerL2;
 					long minPowerL3 = calculatedPowerL3;
-					for (int j = i + 1; j < esss.size(); j++) {
-						minP -= esss.get(j).allowedCharge.value();
-						minPowerL1 -= esss.get(j).allowedCharge.value() / 3;
-						minPowerL2 -= esss.get(j).allowedCharge.value() / 3;
-						minPowerL3 -= esss.get(j).allowedCharge.value() / 3;
+					for (int j = i + 1; j < esss.value().size(); j++) {
+						minP -= esss.value().get(j).allowedCharge.value();
+						minPowerL1 -= esss.value().get(j).allowedCharge.value() / 3;
+						minPowerL2 -= esss.value().get(j).allowedCharge.value() / 3;
+						minPowerL3 -= esss.value().get(j).allowedCharge.value() / 3;
 					}
 					if (minP > 0) {
 						minP = 0;
@@ -261,7 +252,7 @@ public class AsymmetricBalancingController extends Controller {
 	}
 
 	private void calculateMinMaxValues() throws WriteChannelException, InvalidValueException {
-		for (Ess ess : esss) {
+		for (Ess ess : esss.value()) {
 			long maxPowerL1 = 0;
 			long maxPowerL2 = 0;
 			long maxPowerL3 = 0;
@@ -296,11 +287,12 @@ public class AsymmetricBalancingController extends Controller {
 	}
 
 	private void calculateRequiredPower() throws InvalidValueException {
+		Meter meter = this.meter.value();
 		this.calculatedPower = meter.activePowerL1.value() + meter.activePowerL2.value() + meter.activePowerL3.value();
 		this.calculatedPowerL1 = meter.activePowerL1.value();
 		this.calculatedPowerL2 = meter.activePowerL2.value();
 		this.calculatedPowerL3 = meter.activePowerL3.value();
-		for (Ess ess : esss) {
+		for (Ess ess : esss.value()) {
 			this.calculatedPower += meter.activePowerL1.value() + meter.activePowerL2.value()
 					+ meter.activePowerL3.value();
 			this.calculatedPowerL1 += meter.activePowerL1.value();
@@ -313,7 +305,7 @@ public class AsymmetricBalancingController extends Controller {
 		long allowedApparent = 0;
 		long allowedCharge = 0;
 		long allowedDischarge = 0;
-		for (Ess ess : esss) {
+		for (Ess ess : esss.value()) {
 			allowedCharge += ess.allowedCharge.value();
 			allowedDischarge += ess.allowedDischarge.value();
 			allowedApparent += ess.allowedApparent.value();

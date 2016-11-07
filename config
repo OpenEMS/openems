@@ -2,7 +2,7 @@
 	"things":[
 		{
 			"class":"io.openems.impl.protocol.modbus.ModbusRtu",
-			"serialinterface":"COM3",
+			"serialinterface":"COM4",
 			"baudrate":9600,
 			"databits":8,
 			"parity":"none",
@@ -23,11 +23,15 @@
 		"controllers":[
 			{
 				"priority":150,
-				"class":"io.openems.impl.controller.debuglog.DebugLogController"
-			},
+				"class":"io.openems.impl.controller.debuglog.DebugLogController",
+				"esss":"ess0"
+				/*"meters":"*"*/
+			}/*,
 			{
 				"priority":50,
-				"class":"io.openems.impl.controller.balancingThreePhase.BalancingThreePhaseController"
-			}]
+				"class":"io.openems.impl.controller.asymmetricbalancing.AsymmetricBalancingController",
+				"esss":"*",
+				"meters":"meter0"
+			}*/]
 	}
 }

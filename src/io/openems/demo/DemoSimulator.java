@@ -59,11 +59,11 @@ public class DemoSimulator extends Demo {
 		JsonArray controllers = new JsonArray();
 		scheduler.add("controllers", controllers);
 
-		// JsonObject controller0 = new JsonObject();
-		// controllers.add(controller0);
-		// controller0.add("priority", new JsonPrimitive(150));
-		// controller0.add("class", new JsonPrimitive("io.openems.impl.controller.debuglog.DebugLogController"));
-		// controller0.add("esss", new JsonPrimitive("ess0"));
+		JsonObject controller0 = new JsonObject();
+		controllers.add(controller0);
+		controller0.add("priority", new JsonPrimitive(150));
+		controller0.add("class", new JsonPrimitive("io.openems.impl.controller.debuglog.DebugLogController"));
+		controller0.add("esss", new JsonPrimitive("ess0"));
 
 		// JsonObject controller1 = new JsonObject();
 		// controllers.add(controller1);

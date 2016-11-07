@@ -20,14 +20,17 @@
  *******************************************************************************/
 package io.openems;
 
+import java.io.File;
+import java.io.FileReader;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import io.openems.core.Config;
-import io.openems.demo.Demo;
-import io.openems.demo.DemoSimulator;
 import io.openems.impl.api.rest.RestApi;
 import io.openems.impl.api.websocket.WebSocketClient;
 import io.openems.impl.api.websocket.WebsocketApi;
@@ -42,14 +45,15 @@ public class App {
 		// Demo demo = new DemoFems7WithMeter();
 		// Demo demo = new DemoJanitza();
 		// Demo demo = new DemoFems7();
-		Demo demo = new DemoSimulator();
-		JsonObject jConfig = demo.getConfig();
+		// Demo demo = new DemoSimulator();
+		// JsonObject jConfig = demo.getConfig();
 		//
-		// File file = new File("config");
-		// log.info("Read configuration from " + file.getAbsolutePath());
-		// JsonParser parser = new JsonParser();
-		// JsonElement jsonElement = parser.parse(new FileReader(file));
-		// JsonObject jConfig = jsonElement.getAsJsonObject();
+		File file = new File("config");
+		log.info("Read configuration from " + file.getAbsolutePath());
+		JsonParser parser = new JsonParser();
+		JsonElement jsonElement = parser.parse(new FileReader(file));
+		JsonObject jConfig = jsonElement.getAsJsonObject();
+		System.out.println(jConfig.toString());
 
 		Config config = new Config();
 		config.readConfig(jConfig);
