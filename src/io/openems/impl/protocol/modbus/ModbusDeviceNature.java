@@ -101,7 +101,7 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 				if (element instanceof DummyElement) {
 					value = 0L;
 				} else if (element.getChannel() != null && element.getChannel() instanceof ModbusWriteChannel) {
-					Optional<Long> valueOptional = ((ModbusWriteChannel) element.getChannel()).popRawWrite();
+					Optional<Long> valueOptional = ((ModbusWriteChannel) element.getChannel()).writeShadowCopy();
 					if (valueOptional.isPresent()) {
 						value = valueOptional.get();
 					} else {

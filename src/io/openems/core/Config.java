@@ -71,6 +71,7 @@ public class Config {
 			JsonObject jBridge = JsonUtils.getAsJsonObject(jBridgeElement);
 			String bridgeClass = JsonUtils.getAsString(jBridge, "class");
 			Bridge bridge = (Bridge) InjectionUtils.getThingInstance(bridgeClass);
+			thingRepository.addThing(bridge);
 			log.debug("Add Bridge[" + bridge.id() + "], Implementation[" + bridge.getClass().getSimpleName() + "]");
 			injectConfigChannels(thingRepository.getConfigChannels(bridge), jBridge);
 			/*
@@ -82,6 +83,7 @@ public class Config {
 				JsonObject jDevice = JsonUtils.getAsJsonObject(jDeviceElement);
 				String deviceClass = JsonUtils.getAsString(jDevice, "class");
 				Device device = (Device) InjectionUtils.getThingInstance(deviceClass);
+				thingRepository.addThing(device);
 				log.debug("Add Device[" + device.id() + "], Implementation[" + device.getClass().getSimpleName() + "]");
 
 				injectConfigChannels(thingRepository.getConfigChannels(device), jDevice);
@@ -96,6 +98,7 @@ public class Config {
 		JsonObject jScheduler = JsonUtils.getAsJsonObject(jConfig, "scheduler");
 		String schedulerClass = JsonUtils.getAsString(jScheduler, "class");
 		Scheduler scheduler = (Scheduler) InjectionUtils.getThingInstance(schedulerClass);
+		thingRepository.addThing(scheduler);
 		log.debug(
 				"Add Scheduler[" + scheduler.id() + "], Implementation[" + scheduler.getClass().getSimpleName() + "]");
 		injectConfigChannels(thingRepository.getConfigChannels(scheduler), jScheduler);
@@ -107,6 +110,7 @@ public class Config {
 			JsonObject jController = JsonUtils.getAsJsonObject(jControllerElement);
 			String controllerClass = JsonUtils.getAsString(jController, "class");
 			Controller controller = (Controller) InjectionUtils.getThingInstance(controllerClass);
+			thingRepository.addThing(controller);
 			log.debug("Add Controller[" + controller.id() + "], Implementation[" + controller.getClass().getSimpleName()
 					+ "]");
 			injectConfigChannels(thingRepository.getConfigChannels(controller), jController);
@@ -124,6 +128,7 @@ public class Config {
 		} else {
 			// Thing is not existing. Create a new instance
 			thing = InjectionUtils.getThingInstance(type, thingId);
+			thingRepository.addThing(thing);
 			log.debug("Add Thing[" + thing.id() + "], Implementation[" + thing.getClass().getSimpleName() + "]");
 		}
 		// Recursive call to inject config parameters for the newly created Thing

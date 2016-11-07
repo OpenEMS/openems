@@ -45,6 +45,7 @@ import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.thing.Thing;
 
 public class ThingRepository {
@@ -62,19 +63,77 @@ public class ThingRepository {
 	private ThingRepository() {}
 
 	private final BiMap<String, Thing> thingIds = HashBiMap.create();
-	private final Table<Thing, String, Channel> thingChannels = HashBasedTable.create();
-
-	// private HashMultimap<Thing, Channel> thingChannels = HashMultimap.create();
-	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
 	private HashMultimap<Class<? extends Thing>, Thing> thingClasses = HashMultimap.create();
 	private Set<Bridge> bridges = new HashSet<>();
+	private final Table<Thing, String, Channel> thingChannels = HashBasedTable.create();
+	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
+	private HashMultimap<Thing, WriteChannel<?>> thingWriteChannels = HashMultimap.create();
 
+	/**
+	 * Add a Thing to the Repository and cache its Channels and other information for later usage.
+	 *
+	 * @param thing
+	 */
 	public synchronized void addThing(Thing thing) {
+		if (thingIds.containsValue(thing)) {
+			// Thing was already added
+			return;
+		}
+		// Add to thingIds
 		thingIds.forcePut(thing.id(), thing);
+
+		// Add to thingClasses
 		thingClasses.put(thing.getClass(), thing);
+
+		// Add to bridges
 		if (thing instanceof Bridge) {
 			bridges.add((Bridge) thing);
 		}
+
+		// Add Channels to thingChannels, thingConfigChannels and thingWriteChannels
+		List<Member> members = getMembers(thing.getClass());
+		for (Member member : members) {
+			try {
+				Channel channel;
+				if (member instanceof Method && Channel.class.isAssignableFrom(((Method) member).getReturnType())) {
+					// It's a Method with ReturnType Channel
+					channel = (Channel) ((Method) member).invoke(thing);
+
+				} else if (member instanceof Field && Channel.class.isAssignableFrom(((Field) member).getType())) {
+					// It's a Field with Type Channel
+					channel = (Channel) ((Field) member).get(thing);
+				} else {
+					continue;
+				}
+				if (channel == null) {
+					log.error(
+							"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
+					continue;
+				}
+				// Add Channel to thingChannels
+				thingChannels.put(thing, channel.id(), channel);
+
+				// Add Channel to configChannels
+				if (channel instanceof ConfigChannel) {
+					thingConfigChannels.put(thing, (ConfigChannel<?>) channel);
+				}
+
+				// Add Channel to writeChannels
+				if (channel instanceof WriteChannel) {
+					thingWriteChannels.put(thing, (WriteChannel<?>) channel);
+				}
+
+				// Register Databus as listener
+				if (channel instanceof ReadChannel) {
+					Databus databus = Databus.getInstance();
+					((ReadChannel<?>) channel).listener(databus);
+				}
+
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				log.warn("Unable to add Channel. Member [" + member.getName() + "]", e);
+			}
+		}
+
 	}
 
 	/**
@@ -95,71 +154,43 @@ public class ThingRepository {
 	}
 
 	/**
-	 * Returns all Channels for this Thing. Result is cached for later usage.
+	 * Returns all Channels for this Thing.
 	 *
 	 * @param thing
 	 * @return
 	 */
 	public synchronized Collection<Channel> getChannels(Thing thing) {
-		addThing(thing);
-		if (!thingChannels.containsRow(thing)) {
-			// Channels for this Thing were not yet parsed.
-			List<Member> members = getMembers(thing.getClass());
-			for (Member member : members) {
-				try {
-					Channel channel;
-					if (member instanceof Method && Channel.class.isAssignableFrom(((Method) member).getReturnType())) {
-						// It's a Method with ReturnType Channel
-						channel = (Channel) ((Method) member).invoke(thing);
-
-					} else if (member instanceof Field && Channel.class.isAssignableFrom(((Field) member).getType())) {
-						// It's a Field with Type Channel
-						channel = (Channel) ((Field) member).get(thing);
-					} else {
-						continue;
-					}
-					if (channel == null) {
-						log.error("Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName()
-								+ "]");
-						continue;
-					}
-					// Store Channel in cache
-					thingChannels.put(thing, channel.id(), channel);
-
-					// Register Databus as listener
-					if (channel instanceof ReadChannel) {
-						Databus databus = Databus.getInstance();
-						((ReadChannel<?>) channel).listener(databus);
-					}
-
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-					log.warn("Unable to add Channel. Member [" + member.getName() + "]", e);
-				}
-			}
-
-		}
 		return Collections.unmodifiableCollection(thingChannels.row(thing).values());
-
 	}
 
 	/**
-	 * Returns all Config-Channels for this Thing. Result is cached for later usage.
+	 * Returns all Config-Channels for this Thing.
 	 *
 	 * @param thing
 	 * @return
 	 */
 	public synchronized Set<ConfigChannel<?>> getConfigChannels(Thing thing) {
-		addThing(thing);
-		if (!thingConfigChannels.containsKey(thing)) {
-			// Config-Channels for this Thing were not yet received. Filter from all Channels.
-			Collection<Channel> channels = getChannels(thing);
-			for (Channel channel : channels) {
-				if (channel instanceof ConfigChannel) {
-					thingConfigChannels.put(thing, (ConfigChannel<?>) channel);
-				}
-			}
-		}
 		return Collections.unmodifiableSet(thingConfigChannels.get(thing));
+	}
+
+	/**
+	 * Returns all Write-Channels for this Thing.
+	 *
+	 * @param thing
+	 * @return
+	 */
+	public synchronized Set<WriteChannel<?>> getWriteChannels(Thing thing) {
+		return Collections.unmodifiableSet(thingWriteChannels.get(thing));
+	}
+
+	/**
+	 * Returns all Write-Channels.
+	 *
+	 * @param thing
+	 * @return
+	 */
+	public synchronized Collection<WriteChannel<?>> getWriteChannels() {
+		return Collections.unmodifiableCollection(thingWriteChannels.values());
 	}
 
 	public synchronized Set<Thing> getThingsByClass(Class<? extends Thing> clazz) {

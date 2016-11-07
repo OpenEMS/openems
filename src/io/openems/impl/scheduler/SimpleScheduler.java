@@ -23,6 +23,7 @@ package io.openems.impl.scheduler;
 import java.util.Collections;
 
 import io.openems.api.bridge.Bridge;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.core.ThingRepository;
@@ -47,6 +48,9 @@ public class SimpleScheduler extends Scheduler {
 		for (Controller controller : controllers) {
 			// TODO: check if WritableChannels can still be changed, before executing
 			controller.run();
+		}
+		for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
+			channel.shadowCopyAndReset();
 		}
 		for (Bridge bridge : thingRepository.getBridges()) {
 			bridge.triggerWrite();

@@ -23,7 +23,7 @@ package io.openems.api.channel;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.api.thing.Thing;
@@ -33,6 +33,7 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	private final Interval<ReadChannel<T>> writeChannelInterval = new Interval<ReadChannel<T>>();
 	private final Interval<T> writeInterval = new Interval<T>();
 	private Optional<T> writeValue = Optional.empty();
+	private Optional<T> writeShadowCopy = Optional.empty();
 
 	public WriteChannel(String id, Thing parent) {
 		super(id, parent);
@@ -130,29 +131,14 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		return Optional.ofNullable(labels.get(value));
 	}
 
-	public synchronized Optional<T> popWrite() {
-		Optional<T> value = peekWrite();
-		writeValue = Optional.empty();
-		writeInterval.reset();
-		return value;
-	}
-
 	/**
-	 * Returns the fixed value in a format suitable for writing to hardware and initializes the
-	 * {@link WriteChannel}. This method is called internally by {@link DeviceNature}.
+	 * Stores the write value in a format suitable for writing to hardware and initializes this
+	 * {@link WriteChannel}. This method is called internally immediately after the {@link Scheduler} finished all
+	 * {@link Controller}s.
 	 */
-	public synchronized Optional<T> popRawWrite() {
-		Optional<T> value = popWrite();
-		if (!value.isPresent()) {
-			// no value present -> return empty Optional
-			return value;
-		} else if (!multiplier.isPresent() && !delta.isPresent()) {
-			// no multiplier and no delta existing
-			return value;
-		} else if (!(value.get() instanceof Number)) {
-			// value is no Long -> return Optional
-			return value;
-		} else {
+	@SuppressWarnings("unchecked") public synchronized void shadowCopyAndReset() {
+		Optional<T> value = peekWrite();
+		if (value.isPresent() && value.get() instanceof Number && (multiplier.isPresent() || delta.isPresent())) {
 			Number number = (Number) value.get();
 			long multiplier = 1;
 			if (this.multiplier.isPresent()) {
@@ -163,8 +149,23 @@ public class WriteChannel<T> extends ReadChannel<T> {
 				delta = this.delta.get();
 			}
 			number = (number.longValue() + delta) / multiplier;
-			return Optional.of((T) number);
+			value = Optional.of((T) number);
 		}
+		writeShadowCopy = value;
+		writeValue = Optional.empty();
+		writeInterval.reset();
+	}
+
+	/**
+	 * Returns the internal Write-Shadow-Copy and resets it. This method is used just before actually writing the value
+	 * to the underlying device.
+	 *
+	 * @return
+	 */
+	public synchronized Optional<T> writeShadowCopy() {
+		Optional<T> value = writeShadowCopy;
+		writeShadowCopy = Optional.empty();
+		return value;
 	}
 
 	public void pushWrite(T value) throws WriteChannelException {
