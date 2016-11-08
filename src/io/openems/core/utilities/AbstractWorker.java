@@ -50,6 +50,8 @@ public abstract class AbstractWorker extends Thread implements Thing {
 		this.start();
 	}
 
+	protected abstract long getCycleTime();
+
 	/**
 	 * Little helper method: Sleep and don't let yourself interrupt by a ForceRun-Flag. It is not making sense anyway,
 	 * because something is wrong with the setup if we landed here.
@@ -124,7 +126,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 				 * Wait for next cycle
 				 */
 				try {
-					Thread.sleep(500); // TODO add cycle time
+					Thread.sleep(getCycleTime()); // TODO add cycle time
 				} catch (InterruptedException e) {
 					if (isForceRun.get()) {
 						// check if a "forceRun" was triggereed. In that case Thread.sleep is interrupted and run() is
