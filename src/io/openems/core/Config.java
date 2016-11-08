@@ -20,11 +20,16 @@
  *******************************************************************************/
 package io.openems.core;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -38,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
@@ -58,8 +64,27 @@ public class Config {
 
 	private final ThingRepository thingRepository;
 
-	public Config() {
+	private final Path path;
+
+	public Config(Path path) {
 		thingRepository = ThingRepository.getInstance();
+		this.path = path;
+	}
+
+	public void parseConfigFiles()
+			throws IOException, FileNotFoundException, ReflectionException, ConfigException, WriteChannelException {
+		JsonObject jConfig = new JsonObject();
+		// read files in path directory
+		for (final File file : path.toFile().listFiles()) {
+			log.info("Read configuration from " + file.getAbsolutePath());
+			JsonParser parser = new JsonParser();
+			JsonElement jsonElement = parser.parse(new FileReader(file));
+			jConfig = jsonElement.getAsJsonObject();
+			// TODO: read all files in folder and merge them
+			continue;
+		}
+		// apply config
+		readConfig(jConfig);
 	}
 
 	public void readConfig(JsonObject jConfig) throws ReflectionException, ConfigException, WriteChannelException {

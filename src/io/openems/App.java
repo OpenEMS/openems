@@ -20,16 +20,13 @@
  *******************************************************************************/
 package io.openems;
 
-import java.io.File;
-import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
+import io.openems.api.exception.ConfigException;
 import io.openems.core.Config;
 import io.openems.impl.api.rest.RestApi;
 import io.openems.impl.api.websocket.WebSocketClient;
@@ -42,24 +39,19 @@ public class App {
 	public static void main(String[] args) throws Exception {
 		log.info("OpenEMS started");
 
-		// Demo demo = new DemoFems7WithMeter();
-		// Demo demo = new DemoJanitza();
-		// Demo demo = new DemoFems7();
-		// Demo demo = new DemoSimulator();
-		// JsonObject jConfig = demo.getConfig();
-		//
-		File file = new File("config");
-		log.info("Read configuration from " + file.getAbsolutePath());
-		JsonParser parser = new JsonParser();
-		JsonElement jsonElement = parser.parse(new FileReader(file));
-		JsonObject jConfig = jsonElement.getAsJsonObject();
+		// Get config directory
+		Path configPath = Paths.get("/etc", "openems.d");
+		if (!configPath.toFile().exists()) {
+			configPath = Paths.get("D:", "fems", "openems", "etc", "openems.d");
+		}
+		if (!configPath.toFile().exists()) {
+			throw new ConfigException("No config directory found!");
+		}
 
-		Config config = new Config();
-		config.readConfig(jConfig);
-
-		// log.info("OpenEMS config loaded");
-
-		// databus.printAll();
+		// Load config
+		Config config = new Config(configPath);
+		config.parseConfigFiles();
+		log.info("OpenEMS config loaded");
 
 		// Start vertx
 		Vertx vertx = Vertx.vertx();
