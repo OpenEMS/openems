@@ -50,37 +50,35 @@ public class ModbusRtu extends ModbusBridge implements ChannelListener {
 	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this, Integer.class)
 			.listener(this);
 
-	@Override
-	public void channelEvent(Channel channel) {
+	@Override protected long getCycleTime() {
+		return 500;
+	}
+
+	@Override public void channelEvent(Channel channel) {
 		triggerInitialize();
 	}
 
-	@Override
-	public void dispose() {
+	@Override public void dispose() {
 
 	}
 
-	@Override
-	public ModbusTransaction getTransaction() throws OpenemsModbusException {
+	@Override public ModbusTransaction getTransaction() throws OpenemsModbusException {
 		SerialConnection connection = getModbusConnection();
 		ModbusSerialTransaction trans = new ModbusSerialTransaction(connection);
 		trans.setRetries(0);
 		return trans;
 	}
 
-	@Override
-	public void addDevice(Device device) {
+	@Override public void addDevice(Device device) {
 		super.addDevice(device);
 		triggerInitialize();
 	}
 
-	@Override
-	public String toString() {
+	@Override public String toString() {
 		return "ModbusRtu [baudrate=" + baudrate + ", serialinterface=" + serialinterface + "]";
 	}
 
-	@Override
-	protected boolean initialize() {
+	@Override protected boolean initialize() {
 		if (!super.initialize()) {
 			return false;
 		}
@@ -93,8 +91,7 @@ public class ModbusRtu extends ModbusBridge implements ChannelListener {
 		return true;
 	}
 
-	@Override
-	protected void closeModbusConnection() {
+	@Override protected void closeModbusConnection() {
 		if (connection.isPresent() && connection.get().isOpen()) {
 			connection.get().close();
 		}

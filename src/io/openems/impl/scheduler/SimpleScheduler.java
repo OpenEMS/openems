@@ -36,6 +36,10 @@ public class SimpleScheduler extends Scheduler {
 		thingRepository = ThingRepository.getInstance();
 	}
 
+	@Override protected long getCycleTime() {
+		return 500;
+	}
+
 	@Override public void activate() {
 		super.activate();
 	}
