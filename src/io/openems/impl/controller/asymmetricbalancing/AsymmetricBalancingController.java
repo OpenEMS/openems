@@ -39,7 +39,7 @@ public class AsymmetricBalancingController extends Controller {
 	/*
 	 * Config
 	 */
-	private ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this, Double.class).defaultValue(0.95);
+	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this, Double.class).defaultValue(0.95);
 
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this, Ess.class);
 
