@@ -29,12 +29,14 @@ import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;
+import io.openems.impl.protocol.modbus.ModbusWriteChannel;
 import io.openems.impl.protocol.modbus.internal.DummyElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.SignedWordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
+import io.openems.impl.protocol.modbus.internal.WritableModbusRange;
 
 public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNature {
 
@@ -64,6 +66,9 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	private ReadChannel<Long> activePowerL2;
 	private ReadChannel<Long> activePowerL3;
 	private ReadChannel<Long> allowedApparent;
+	private ModbusReadChannel reactivePowerL1;
+	private ModbusReadChannel reactivePowerL2;
+	private ModbusReadChannel reactivePowerL3;
 
 	private WriteChannel<Long> setWorkState;
 	private WriteChannel<Long> setActivePowerL1;
@@ -141,6 +146,18 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 		return allowedApparent;
 	}
 
+	@Override public ReadChannel<Long> reactivePowerL1() {
+		return reactivePowerL1;
+	}
+
+	@Override public ReadChannel<Long> reactivePowerL2() {
+		return reactivePowerL2;
+	}
+
+	@Override public ReadChannel<Long> reactivePowerL3() {
+		return reactivePowerL3;
+	}
+
 	/*
 	 * This Channels
 	 */
@@ -153,9 +170,6 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	public ModbusReadChannel voltageL1;
 	public ModbusReadChannel voltageL2;
 	public ModbusReadChannel voltageL3;
-	public ModbusReadChannel reactivePowerL1;
-	public ModbusReadChannel reactivePowerL2;
-	public ModbusReadChannel reactivePowerL3;
 	public ModbusReadChannel pcsOperationState;
 	public ModbusReadChannel batteryPower;
 	public ModbusReadChannel batteryGroupAlarm;
@@ -169,102 +183,131 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
-		return new ModbusProtocol(new ModbusRange(100, //
-				new UnsignedWordElement(100, //
-						systemState = new ModbusReadChannel("SystemState", this) //
-								.label(0, STANDBY) //
-								.label(1, EssNature.OFF_GRID) //
-								.label(2, EssNature.ON_GRID) //
-								.label(3, "Fail") //
-								.label(4, "Off-grid PV")),
-				new UnsignedWordElement(101, //
-						controlMode = new ModbusReadChannel("ControlMode", this) //
-								.label(1, "Remote") //
-								.label(2, "Local")), //
-				new UnsignedWordElement(102, //
-						workMode = new ModbusReadChannel("WorkMode", this) //
-								.label(2, "Economy") //
-								.label(6, "Remote dispatch") //
-								.label(8, "Timing")), //
-				new DummyElement(103), //
-				new UnsignedDoublewordElement(104, //
-						totalBatteryChargeEnergy = new ModbusReadChannel("TotalBatteryChargeEnergy", this).unit("Wh")), //
-				new UnsignedDoublewordElement(106, //
-						totalBatteryDischargeEnergy = new ModbusReadChannel("TotalBatteryDischargeEnergy", this)
-								.unit("Wh")), //
-				new UnsignedWordElement(108, //
-						batteryGroupState = new ModbusReadChannel("BatteryGroupState", this) //
-								.label(0, "Initial") //
-								.label(1, "Stop") //
-								.label(2, "Starting") //
-								.label(3, "Running") //
-								.label(4, "Stopping") //
-								.label(5, "Fail")),
-				new UnsignedWordElement(109, //
-						soc = new ModbusReadChannel("Soc", this).unit("%").interval(0, 100)),
-				new UnsignedWordElement(110, //
-						batteryVoltage = new ModbusReadChannel("BatteryVoltage", this).unit("mV").multiplier(100)),
-				new UnsignedWordElement(111, //
-						batteryCurrent = new ModbusReadChannel("BatteryCurrent", this).unit("mA").multiplier(100)),
-				new UnsignedWordElement(112, //
-						batteryPower = new ModbusReadChannel("BatteryPower", this).unit("W")),
-				new UnsignedWordElement(113, //
-						batteryGroupAlarm = new ModbusReadChannel("BatteryGroupAlarm", this)
-								.label(1, "Fail, The system should be stopped") //
-								.label(2, "Common low voltage alarm") //
-								.label(4, "Common high voltage alarm") //
-								.label(8, "Charging over current alarm") //
-								.label(16, "Discharging over current alarm") //
-								.label(32, "Over temperature alarm")//
-								.label(64, "Interal communication abnormal")),
-				new UnsignedWordElement(114, //
-						pcsOperationState = new ModbusReadChannel("PcsOperationState", this).label(0, "Self-checking") //
-								.label(1, "Standby") //
-								.label(2, "Off grid PV") //
-								.label(3, "Off grid") //
-								.label(4, ON_GRID) //
-								.label(5, "Fail") //
-								.label(6, "bypass 1") //
-								.label(7, "bypass 2")),
-				new DummyElement(115, 117), //
-				new SignedWordElement(118, //
-						currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA").multiplier(100)),
-				new SignedWordElement(119, //
-						currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA").multiplier(100)),
-				new SignedWordElement(120, //
-						currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA").multiplier(100)),
-				new UnsignedWordElement(121, //
-						voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(100)),
-				new UnsignedWordElement(122, //
-						voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(100)),
-				new UnsignedWordElement(123, //
-						voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(100)),
-				new SignedWordElement(124, //
-						activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W")),
-				new SignedWordElement(125, //
-						activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W")),
-				new SignedWordElement(126, //
-						activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W")),
-				new SignedWordElement(127, //
-						reactivePowerL1 = new ModbusReadChannel("ReactivePowerL1", this).unit("var")),
-				new SignedWordElement(128, //
-						reactivePowerL2 = new ModbusReadChannel("ReactivePowerL2", this).unit("var")),
-				new SignedWordElement(129, //
-						reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this).unit("var")),
-				new DummyElement(130),
-				new UnsignedWordElement(131, //
-						frequencyL1 = new ModbusReadChannel("FrequencyL1", this).unit("mHz").multiplier(10)),
-				new UnsignedWordElement(132, //
-						frequencyL2 = new ModbusReadChannel("FrequencyL2", this).unit("mHz").multiplier(10)),
-				new UnsignedWordElement(133, //
-						frequencyL3 = new ModbusReadChannel("FrequencyL3", this).unit("mHz").multiplier(10)),
-				new UnsignedWordElement(134, //
-						allowedApparent = new ModbusReadChannel("AllowedApparentPower", this).unit("VA")),
-				new DummyElement(135, 140),
-				new UnsignedWordElement(141, //
-						allowedCharge = new ModbusReadChannel("AllowedCharge", this).unit("W")),
-				new UnsignedWordElement(142, //
-						allowedDischarge = new ModbusReadChannel("AllowedDischarge", this).unit("W")))
+		return new ModbusProtocol(
+				new ModbusRange(100, //
+						new UnsignedWordElement(100, //
+								systemState = new ModbusReadChannel("SystemState", this) //
+										.label(0, STANDBY) //
+										.label(1, EssNature.OFF_GRID) //
+										.label(2, EssNature.ON_GRID) //
+										.label(3, "Fail") //
+										.label(4, "Off-grid PV")),
+						new UnsignedWordElement(101, //
+								controlMode = new ModbusReadChannel("ControlMode", this) //
+										.label(1, "Remote") //
+										.label(2, "Local")), //
+						new UnsignedWordElement(102, //
+								workMode = new ModbusReadChannel("WorkMode", this) //
+										.label(2, "Economy") //
+										.label(6, "Remote dispatch") //
+										.label(8, "Timing")), //
+						new DummyElement(103), //
+						new UnsignedDoublewordElement(104, //
+								totalBatteryChargeEnergy = new ModbusReadChannel("TotalBatteryChargeEnergy", this)
+										.unit("Wh")), //
+						new UnsignedDoublewordElement(106, //
+								totalBatteryDischargeEnergy = new ModbusReadChannel("TotalBatteryDischargeEnergy", this)
+										.unit("Wh")), //
+						new UnsignedWordElement(108, //
+								batteryGroupState = new ModbusReadChannel("BatteryGroupState", this) //
+										.label(0, "Initial") //
+										.label(1, "Stop") //
+										.label(2, "Starting") //
+										.label(3, "Running") //
+										.label(4, "Stopping") //
+										.label(5, "Fail")),
+						new UnsignedWordElement(109, //
+								soc = new ModbusReadChannel("Soc", this).unit("%").interval(0, 100)),
+						new UnsignedWordElement(
+								110, //
+								batteryVoltage = new ModbusReadChannel("BatteryVoltage", this).unit("mV")
+										.multiplier(100)),
+						new UnsignedWordElement(111, //
+								batteryCurrent = new ModbusReadChannel("BatteryCurrent", this).unit("mA")
+										.multiplier(100)),
+						new UnsignedWordElement(112, //
+								batteryPower = new ModbusReadChannel("BatteryPower", this).unit("W")),
+						new UnsignedWordElement(113, //
+								batteryGroupAlarm = new ModbusReadChannel("BatteryGroupAlarm", this)
+										.label(1, "Fail, The system should be stopped") //
+										.label(2, "Common low voltage alarm") //
+										.label(4, "Common high voltage alarm") //
+										.label(8, "Charging over current alarm") //
+										.label(16, "Discharging over current alarm") //
+										.label(32, "Over temperature alarm")//
+										.label(64,
+												"Interal communication abnormal")),
+						new UnsignedWordElement(114, //
+								pcsOperationState = new ModbusReadChannel("PcsOperationState", this)
+										.label(0, "Self-checking") //
+										.label(1, "Standby") //
+										.label(2, "Off grid PV") //
+										.label(3, "Off grid") //
+										.label(4, ON_GRID) //
+										.label(5, "Fail") //
+										.label(6, "bypass 1") //
+										.label(7, "bypass 2")),
+						new DummyElement(115, 117), //
+						new SignedWordElement(118, //
+								currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA").multiplier(100)),
+						new SignedWordElement(119, //
+								currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA").multiplier(100)),
+						new SignedWordElement(120, //
+								currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA").multiplier(100)),
+						new UnsignedWordElement(121, //
+								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(100)),
+						new UnsignedWordElement(122, //
+								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(100)),
+						new UnsignedWordElement(123, //
+								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(100)),
+						new SignedWordElement(124, //
+								activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W")),
+						new SignedWordElement(125, //
+								activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W")),
+						new SignedWordElement(126, //
+								activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W")),
+						new SignedWordElement(127, //
+								reactivePowerL1 = new ModbusReadChannel("ReactivePowerL1", this).unit("var")),
+						new SignedWordElement(128, //
+								reactivePowerL2 = new ModbusReadChannel("ReactivePowerL2", this).unit("var")),
+						new SignedWordElement(129, //
+								reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this).unit("var")),
+						new DummyElement(130),
+						new UnsignedWordElement(131, //
+								frequencyL1 = new ModbusReadChannel("FrequencyL1", this).unit("mHz").multiplier(10)),
+						new UnsignedWordElement(132, //
+								frequencyL2 = new ModbusReadChannel("FrequencyL2", this).unit("mHz").multiplier(10)),
+						new UnsignedWordElement(133, //
+								frequencyL3 = new ModbusReadChannel("FrequencyL3", this).unit("mHz").multiplier(10)),
+						new UnsignedWordElement(134, //
+								allowedApparent = new ModbusReadChannel("AllowedApparentPower", this).unit("VA")),
+						new DummyElement(135, 140),
+						new UnsignedWordElement(141, //
+								allowedCharge = new ModbusReadChannel("AllowedCharge", this).unit("W")),
+						new UnsignedWordElement(142, //
+								allowedDischarge = new ModbusReadChannel("AllowedDischarge", this).unit("W"))),
+				new WritableModbusRange(200, //
+						new UnsignedWordElement(200,
+								setWorkState = new ModbusWriteChannel("SetWorkState", this)//
+										.label(0, "Local control") //
+										.label(1, START) // "Remote control on grid starting"
+										.label(2, "Remote control off grid starting") //
+										.label(3, STOP)//
+										.label(4, "Emergency Stop"))),
+				new WritableModbusRange(206, //
+						new SignedWordElement(206,
+								setActivePowerL1 = new ModbusWriteChannel("SetActivePowerL1", this).unit("W")), //
+						new SignedWordElement(207,
+								setReactivePowerL1 = new ModbusWriteChannel("SetReactivePowerL1", this).unit("Var")), //
+						new SignedWordElement(208,
+								setActivePowerL2 = new ModbusWriteChannel("SetActivePowerL2", this).unit("W")), //
+						new SignedWordElement(209,
+								setReactivePowerL2 = new ModbusWriteChannel("SetReactivePowerL2", this).unit("Var")), //
+						new SignedWordElement(210,
+								setActivePowerL3 = new ModbusWriteChannel("SetActivePowerL3", this).unit("W")), //
+						new SignedWordElement(211,
+								setReactivePowerL3 = new ModbusWriteChannel("SetReactivePowerL3", this).unit("Var")//
+						))
 		// new DummyElement(143, 149),
 		// new ElementBuilder().address(150).channel(_pcsAlarm1PhaseA).build(), //
 		// new ElementBuilder().address(151).channel(_pcsAlarm2PhaseA).build(), //

@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.api.exception.ConfigException;
 import io.openems.core.Config;
 import io.openems.impl.api.rest.RestApi;
-import io.openems.impl.api.websocket.WebSocketClient;
-import io.openems.impl.api.websocket.WebsocketApi;
 import io.vertx.core.Vertx;
 
 public class App {
@@ -63,7 +61,7 @@ public class App {
 		// Databus databus = Databus.getInstance();
 		// log.info("ess0/soc: " + databus.getValue("ess0", "Soc"));
 
-		vertx.deployVerticle(new WebsocketApi());
-		vertx.deployVerticle(new WebSocketClient());
+		// vertx.deployVerticle(new WebsocketApi());
+		// vertx.deployVerticle(new WebSocketClient());
 	}
 }

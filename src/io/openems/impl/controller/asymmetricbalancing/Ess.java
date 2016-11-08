@@ -35,7 +35,6 @@ public class Ess extends ThingMap {
 	public ReadChannel<Long> activePowerL3;
 	public ReadChannel<Long> allowedCharge;
 	public ReadChannel<Long> allowedDischarge;
-	public ReadChannel<Long> gridMode;
 	public ReadChannel<Integer> minSoc;
 	public WriteChannel<Long> setWorkState;
 	public WriteChannel<Long> setActivePowerL1;
@@ -53,7 +52,6 @@ public class Ess extends ThingMap {
 		activePowerL3 = ess.activePowerL3().required();
 		allowedCharge = ess.allowedCharge().required();
 		allowedDischarge = ess.allowedDischarge().required();
-		gridMode = ess.gridMode().required();
 		minSoc = ess.minSoc().required();
 		setActivePowerL1 = ess.setActivePowerL1().required();
 		setActivePowerL2 = ess.setActivePowerL2().required();
@@ -68,5 +66,53 @@ public class Ess extends ThingMap {
 
 	public long useableSoc() throws InvalidValueException {
 		return soc.value() - minSoc.value();
+	}
+
+	public ReadChannel<Long> getActivePower(int phase) {
+		ReadChannel<Long> channel = null;
+		switch (phase) {
+		case 1:
+			channel = activePowerL1;
+			break;
+		case 2:
+			channel = activePowerL2;
+			break;
+		case 3:
+			channel = activePowerL3;
+			break;
+		}
+		return channel;
+	}
+
+	public WriteChannel<Long> getSetActivePower(int phase) {
+		WriteChannel<Long> channel = null;
+		switch (phase) {
+		case 1:
+			channel = setActivePowerL1;
+			break;
+		case 2:
+			channel = setActivePowerL2;
+			break;
+		case 3:
+			channel = setActivePowerL3;
+			break;
+		}
+		return channel;
+	}
+
+	public WriteChannel<Long> getSetReactivePower(int phase) {
+		WriteChannel<Long> channel = null;
+		switch (phase) {
+		case 1:
+			channel = setReactivePowerL1;
+			break;
+		case 2:
+			channel = setReactivePowerL2;
+			break;
+		case 3:
+			channel = setReactivePowerL3;
+			break;
+		}
+		return channel;
 	}
 }

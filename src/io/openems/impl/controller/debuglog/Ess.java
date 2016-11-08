@@ -24,9 +24,9 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.ess.EssNature;
+import io.openems.api.device.nature.ess.AsymmetricEssNature;
 
-@IsThingMap(type = EssNature.class)
+@IsThingMap(type = AsymmetricEssNature.class)
 public class Ess extends ThingMap {
 
 	public final ReadChannel<Long> allowedCharge;
@@ -34,15 +34,21 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Integer> minSoc;
 	public final ReadChannel<Long> soc;
 	public final ReadChannel<Long> systemState;
+	public final ReadChannel<Long> reactivePowerL1;
+	public final ReadChannel<Long> reactivePowerL2;
+	public final ReadChannel<Long> reactivePowerL3;
 	public final StatusBitChannels warning;
 
-	public Ess(EssNature ess) {
+	public Ess(AsymmetricEssNature ess) {
 		super(ess);
 		allowedCharge = ess.allowedCharge().required();
 		allowedDischarge = ess.allowedDischarge().required();
 		minSoc = ess.minSoc().required();
 		soc = ess.soc().required();
 		systemState = ess.systemState().required();
+		reactivePowerL1 = ess.reactivePowerL1().required();
+		reactivePowerL2 = ess.reactivePowerL2().required();
+		reactivePowerL3 = ess.reactivePowerL3().required();
 
 		warning = ess.warning(); // not required!
 	}

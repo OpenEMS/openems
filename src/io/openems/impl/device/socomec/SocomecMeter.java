@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.device.socomec;
 
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -30,7 +32,7 @@ import io.openems.impl.protocol.modbus.internal.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.SignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 
-public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNature {
+public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
 	public SocomecMeter(String thingId) throws ConfigException {
 		super(thingId);
@@ -47,6 +49,12 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	private ModbusReadChannel reactiveNegativeEnergy;
 	private ModbusReadChannel reactivePositiveEnergy;
 	private ModbusReadChannel reactivePower;
+	private ModbusReadChannel activePowerL1;
+	private ModbusReadChannel activePowerL2;
+	private ModbusReadChannel activePowerL3;
+	private ModbusReadChannel reactivePowerL1;
+	private ModbusReadChannel reactivePowerL2;
+	private ModbusReadChannel reactivePowerL3;
 
 	@Override public ModbusReadChannel activeNegativeEnergy() {
 		return activeNegativeEnergy;
@@ -83,12 +91,6 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	/*
 	 * This Channels
 	 */
-	public ModbusReadChannel activePowerL1;
-	public ModbusReadChannel activePowerL2;
-	public ModbusReadChannel activePowerL3;
-	public ModbusReadChannel reactivePowerL1;
-	public ModbusReadChannel reactivePowerL2;
-	public ModbusReadChannel reactivePowerL3;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
@@ -129,5 +131,29 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 						new UnsignedDoublewordElement(0xc65a, //
 								reactiveNegativeEnergy = new ModbusReadChannel("ReactiveNegativeEnergy", this)
 										.unit("kvarh"))));
+	}
+
+	@Override public ReadChannel<Long> activePowerL1() {
+		return activePowerL1;
+	}
+
+	@Override public ReadChannel<Long> activePowerL2() {
+		return activePowerL2;
+	}
+
+	@Override public ReadChannel<Long> activePowerL3() {
+		return activePowerL3;
+	}
+
+	@Override public ReadChannel<Long> reactivePowerL1() {
+		return reactivePowerL1;
+	}
+
+	@Override public ReadChannel<Long> reactivePowerL2() {
+		return reactivePowerL2;
+	}
+
+	@Override public ReadChannel<Long> reactivePowerL3() {
+		return reactivePowerL3;
 	}
 }

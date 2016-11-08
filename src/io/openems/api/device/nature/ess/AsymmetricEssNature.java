@@ -33,6 +33,12 @@ public interface AsymmetricEssNature extends EssNature {
 
 	public ReadChannel<Long> activePowerL3();
 
+	public ReadChannel<Long> reactivePowerL1();
+
+	public ReadChannel<Long> reactivePowerL2();
+
+	public ReadChannel<Long> reactivePowerL3();
+
 	/*
 	 * WriteChannels
 	 */
