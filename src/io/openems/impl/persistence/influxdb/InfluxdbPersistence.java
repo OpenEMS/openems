@@ -31,9 +31,9 @@ public class InfluxdbPersistence extends Persistence {
 
 	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this, Inet4Address.class);
 
-	public final ConfigChannel<String> user = new ConfigChannel<String>("user", this, String.class);
+	public final ConfigChannel<String> user = new ConfigChannel<String>("user", this, String.class).optional();
 
-	public final ConfigChannel<String> password = new ConfigChannel<String>("password", this, String.class);
+	public final ConfigChannel<String> password = new ConfigChannel<String>("password", this, String.class).optional();
 
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
 
@@ -114,8 +114,7 @@ public class InfluxdbPersistence extends Persistence {
 	}
 
 	private Optional<InfluxDB> getInfluxDB() {
-		if (!this.ip.valueOptional().isPresent() || !this.user.valueOptional().isPresent()
-				|| !this.password.valueOptional().isPresent() || !this.fems.valueOptional().isPresent()) {
+		if (!this.ip.valueOptional().isPresent() || !this.fems.valueOptional().isPresent()) {
 			return Optional.empty();
 		}
 
@@ -124,12 +123,16 @@ public class InfluxdbPersistence extends Persistence {
 		}
 
 		String ip = this.ip.valueOptional().get().getHostAddress();
-		String user = this.user.valueOptional().get();
-		String password = this.password.valueOptional().get();
+		String user = this.user.valueOptional().orElse("root");
+		String password = this.password.valueOptional().orElse("root");
 
 		InfluxDB influxdb = InfluxDBFactory.connect("http://" + ip + ":8086", user, password);
-		influxdb.deleteDatabase(DB_NAME);
-		influxdb.createDatabase(DB_NAME);
+		try {
+			influxdb.createDatabase(DB_NAME);
+		} catch (RuntimeException e) {
+			log.error("Unable to connect to InfluxDB: " + e.getCause().getMessage());
+			return Optional.empty();
+		}
 
 		this._influxdb = Optional.of(influxdb);
 		return this._influxdb;

@@ -28,6 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.exception.ConfigException;
 import io.openems.core.Config;
+import io.openems.impl.api.rest.RestApi;
+import io.openems.impl.api.websocket.WebsocketApi;
+import io.vertx.core.Vertx;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
@@ -49,17 +52,31 @@ public class App {
 		config.parseConfigFiles();
 		log.info("OpenEMS config loaded");
 
-		// Start vertx
-		// Vertx vertx = Vertx.vertx();
-		// Deploy REST-Api verticle
-		// vertx.deployVerticle(new RestApi());
+		// Wait for the important parts to start
+		Thread.sleep(3000);
 
-		// Thread.sleep(3000);
+		// Start vertx
+		Vertx vertx = Vertx.vertx();
+		// Deploy REST-Api verticle on Port 8084
+		vertx.deployVerticle(new RestApi(8084), result -> {
+			if (result.succeeded()) {
+				log.info("REST-Api started");
+			} else {
+				log.error("REST-Api failed: ", result.cause());
+			}
+		});
 
 		// Databus databus = Databus.getInstance();
 		// log.info("ess0/soc: " + databus.getValue("ess0", "Soc"));
 
-		// vertx.deployVerticle(new WebsocketApi());
+		// Deploy Websocket-Api on Port 8085
+		vertx.deployVerticle(new WebsocketApi(8085), result -> {
+			if (result.succeeded()) {
+				log.info("Websocket started");
+			} else {
+				log.error("Websocket failed: ", result.cause());
+			}
+		});
 		// vertx.deployVerticle(new WebSocketClient());
 	}
 }

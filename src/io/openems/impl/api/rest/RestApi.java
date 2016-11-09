@@ -39,9 +39,11 @@ public class RestApi extends AbstractVerticle {
 	private static Logger log = LoggerFactory.getLogger(RestApi.class);
 
 	private final Databus databus;
+	private final int port;
 
-	public RestApi() {
+	public RestApi(int port) {
 		this.databus = Databus.getInstance();
+		this.port = port;
 	}
 
 	@Override public void start(Future<Void> fut) throws Exception {
@@ -61,16 +63,13 @@ public class RestApi extends AbstractVerticle {
 		});
 
 		// Create the HTTP server and pass the "accept" method to the request handler.
-		vertx.createHttpServer().requestHandler(router::accept).listen(
-				// Retrieve the port from the configuration,
-				// default to 8080.
-				config().getInteger("http.port", 8081), result -> {
-					if (result.succeeded()) {
-						fut.complete();
-					} else {
-						fut.fail(result.cause());
-					}
-				});
+		vertx.createHttpServer().requestHandler(router::accept).listen(this.port, result -> {
+			if (result.succeeded()) {
+				fut.complete();
+			} else {
+				fut.fail(result.cause());
+			}
+		});
 	}
 
 	private void getThingChannelValue(RoutingContext routingContext) {

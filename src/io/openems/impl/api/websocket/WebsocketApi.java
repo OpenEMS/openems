@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 
 import io.openems.core.Databus;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -19,12 +20,14 @@ public class WebsocketApi extends AbstractVerticle {
 	private static Logger log = LoggerFactory.getLogger(WebsocketApi.class);
 
 	private final Databus databus;
+	private final int port;
 
-	public WebsocketApi() {
+	public WebsocketApi(int port) {
 		this.databus = Databus.getInstance();
+		this.port = port;
 	}
 
-	@Override public void start() throws Exception {
+	@Override public void start(Future<Void> fut) throws Exception {
 
 		// router.route("/ws/websocket/*").handler(request -> {
 		// ServerWebSocket webSocket = request.request().upgrade();
@@ -49,7 +52,7 @@ public class WebsocketApi extends AbstractVerticle {
 				/*
 				 * Once every second, send data to client
 				 */
-				vertx.periodicStream(1000).toObservable().subscribe(id -> {
+				vertx.periodicStream(2000).toObservable().subscribe(id -> {
 					JsonObject jMessage = new JsonObject();
 					JsonObject jData = new JsonObject();
 					subscribedChannels.keys().forEach(thingId -> {
@@ -82,18 +85,18 @@ public class WebsocketApi extends AbstractVerticle {
 						JsonArray jChannelIds = (JsonArray) jThingEntry.getValue();
 						jChannelIds.forEach(jChannelId -> {
 							String channelId = jChannelId.toString();
-							log.info("Add subscription for " + thingId + "." + channelId);
+							log.info("Add subscription for " + thingId + "/" + channelId);
 							subscribedChannels.put(thingId, channelId);
 						});
 					});
 				});
 			}
 
-		}).listen(8090, res -> {
-			if (res.succeeded()) {
-				log.info("Server is now listening!");
+		}).listen(this.port, result -> {
+			if (result.succeeded()) {
+				fut.complete();
 			} else {
-				log.error("Failed to bind!");
+				fut.fail(result.cause());
 			}
 		});
 	}
