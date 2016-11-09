@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelListener;
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 
 public class Databus implements ChannelListener {
@@ -30,6 +31,12 @@ public class Databus implements ChannelListener {
 	@Override public void channelEvent(Channel channel) {
 		if (channel instanceof ReadChannel<?>) {
 			log.debug("Channel [" + channel.address() + "] updated: " + ((ReadChannel<?>) channel).valueOptional());
+		}
+		// Call Persistence-Workers
+		if (channel instanceof ReadChannel<?> && !(channel instanceof ConfigChannel<?>)) {
+			thingRepository.getPersistences().forEach(persistence -> {
+				persistence.channelEvent(channel);
+			});
 		}
 	}
 

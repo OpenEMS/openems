@@ -53,4 +53,8 @@ public class SimulatorBridge extends Bridge {
 		return true;
 	}
 
+	@Override protected long getCycleTime() {
+		return 1000;
+	}
+
 }

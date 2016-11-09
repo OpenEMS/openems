@@ -46,6 +46,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.persistence.Persistence;
 import io.openems.api.thing.Thing;
 
 public class ThingRepository {
@@ -65,6 +66,7 @@ public class ThingRepository {
 	private final BiMap<String, Thing> thingIds = HashBiMap.create();
 	private HashMultimap<Class<? extends Thing>, Thing> thingClasses = HashMultimap.create();
 	private Set<Bridge> bridges = new HashSet<>();
+	private Set<Persistence> persistences = new HashSet<>();
 	private final Table<Thing, String, Channel> thingChannels = HashBasedTable.create();
 	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
 	private HashMultimap<Thing, WriteChannel<?>> thingWriteChannels = HashMultimap.create();
@@ -88,6 +90,11 @@ public class ThingRepository {
 		// Add to bridges
 		if (thing instanceof Bridge) {
 			bridges.add((Bridge) thing);
+		}
+
+		// Add to persistences
+		if (thing instanceof Persistence) {
+			persistences.add((Persistence) thing);
 		}
 
 		// Add Channels to thingChannels, thingConfigChannels and thingWriteChannels
@@ -191,6 +198,16 @@ public class ThingRepository {
 	 */
 	public synchronized Collection<WriteChannel<?>> getWriteChannels() {
 		return Collections.unmodifiableCollection(thingWriteChannels.values());
+	}
+
+	/**
+	 * Returns all Persistence-Workers.
+	 *
+	 * @param thing
+	 * @return
+	 */
+	public synchronized Set<Persistence> getPersistences() {
+		return Collections.unmodifiableSet(persistences);
 	}
 
 	public synchronized Set<Thing> getThingsByClass(Class<? extends Thing> clazz) {
