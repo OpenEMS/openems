@@ -23,55 +23,63 @@ package io.openems.impl.controller.energysaver;
 import java.util.Optional;
 import java.util.Set;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.controller.IsThingMapping;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 public class EnergysavingController extends Controller {
 
-	@IsThingMapping public Set<Ess> esss = null;
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
 
-	// private Long lastTimeValueWritten = System.currentTimeMillis();
+	private Long lastTimeValueWritten = System.currentTimeMillis();
 
 	@Override public void run() {
-		for (Ess ess : esss) {
-			try {
-				Optional<String> systemState = ess.systemState.labelOptional();
-				if (!systemState.isPresent() || !systemState.get().equals(SymmetricEssNature.START)) {
-					/*
-					 * Always start ESS if it was stopped
-					 */
-					// Current system state is not START
-					if (ess.setWorkState.peekWriteLabel().orElse(SymmetricEssNature.START)
-							.equals(SymmetricEssNature.START)) {
-						// SetWorkState was not set to anything different than START before -> START the system
-						log.info("ESS [" + ess.id() + "] was stopped. Starting...");
-						ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.START);
+		try {
+			for (Ess ess : esss.value()) {
+				try {
+					Optional<String> systemState = ess.systemState.labelOptional();
+					if (systemState.isPresent()) {
+						if (!systemState.get().equals(SymmetricEssNature.START)) {
+							/*
+							 * Always start ESS if it was stopped
+							 */
+							// Current system state is not START
+							if (ess.setWorkState.peekWriteLabel().orElse(SymmetricEssNature.START)
+									.equals(SymmetricEssNature.START)) {
+								// SetWorkState was not set to anything different than START before -> START the system
+								log.info("ESS [" + ess.id() + "] was stopped. Starting...");
+								ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.START);
+							}
+						} else {
+							/*
+							 * TODO go to Standby if no values were written since two minutes
+							 */
+							// TODO lastTimeValueWritten = System.currentTimeMillis();
+							if (lastTimeValueWritten + 2 * 60 * 1000 < System.currentTimeMillis()) {
+								if (!systemState.isPresent() || (!systemState.get().equals(SymmetricEssNature.STANDBY)
+										&& !systemState.get().equals("PV-Charge"))) {
+									// System state was not yet STANDBY or PV-Charge
+									if (ess.setWorkState.peekWriteLabel().orElse(SymmetricEssNature.STANDBY)
+											.equals(SymmetricEssNature.STANDBY)) {
+										// SetWorkState was not set to anything different than STANDBY before -> put the
+										// system
+										// in STANDBY
+										log.info("ESS [" + ess.id()
+												+ "] had no written value since two minutes. Standby...");
+										ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.STANDBY);
+									}
+								}
+							}
+						}
 					}
-					// } else {
-					// /*
-					// * TODO go to Standby if no values were written since two minutes
-					// */
-					// // TODO lastTimeValueWritten = System.currentTimeMillis();
-					// if (lastTimeValueWritten + 2 * 60 * 1000 < System.currentTimeMillis()) {
-					// Optional<String> systemState = ess.systemState.labelOptional();
-					// if (!systemState.isPresent() || (!systemState.get().equals(SymmetricEssNature.STANDBY)
-					// && !systemState.get().equals("PV-Charge"))) {
-					// // System state was not yet STANDBY or PV-Charge
-					// if (ess.setWorkState.peekWriteLabel().orElse(SymmetricEssNature.STANDBY)
-					// .equals(SymmetricEssNature.STANDBY)) {
-					// // SetWorkState was not set to anything different than STANDBY before -> put the system
-					// // in STANDBY
-					// log.info("ESS [" + ess.id() + "] had no written value since two minutes. Standby...");
-					// ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.STANDBY);
-					// }
-					// }
-					// }
+				} catch (WriteChannelException e) {
+					log.error("", e);
 				}
-			} catch (WriteChannelException e) {
-				log.error("", e);
 			}
+		} catch (InvalidValueException e) {
+			log.error("", e);
 		}
 	}
 

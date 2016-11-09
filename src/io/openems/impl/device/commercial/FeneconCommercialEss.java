@@ -55,7 +55,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	 * Inherited Channels
 	 */
 	private ModbusReadChannel soc;
-	private ModbusReadChannel activePower;
+	private ModbusReadChannel inverterActivePower;
 	private ModbusReadChannel allowedCharge;
 	private ModbusReadChannel allowedDischarge;
 	private ModbusReadChannel apparentPower;
@@ -72,7 +72,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	}
 
 	@Override public ModbusReadChannel activePower() {
-		return activePower;
+		return inverterActivePower;
 	}
 
 	@Override public ModbusReadChannel allowedCharge() {
@@ -129,11 +129,6 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	public ModbusReadChannel systemManufacturer;
 	public ModbusReadChannel systemType;
 	public StatusBitChannel switchState;
-	public StatusBitChannel abnormity1;
-	public StatusBitChannel abnormity2;
-	public StatusBitChannel abnormity3;
-	public StatusBitChannel abnormity4;
-	public StatusBitChannel abnormity5;
 	public ModbusReadChannel dcVoltage;
 	public ModbusReadChannel dcCurrent;
 	public ModbusReadChannel dcPower;
@@ -152,12 +147,12 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	public ModbusReadChannel inverterCurrentL1;
 	public ModbusReadChannel inverterCurrentL2;
 	public ModbusReadChannel inverterCurrentL3;
-	public ModbusReadChannel inverterActivePower;
 	public ModbusReadChannel ipmTemperatureL1;
 	public ModbusReadChannel ipmTemperatureL2;
 	public ModbusReadChannel ipmTemperatureL3;
 	public ModbusReadChannel transformerTemperatureL2;
 	public ModbusReadChannel allowedApparent;
+	public ModbusReadChannel activePower;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
@@ -399,7 +394,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 						new UnsignedWordElement(0x021B, //
 								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(100)),
 						new UnsignedWordElement(0x021C, //
-								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ").multiplier(10))),
+								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ")
+										.multiplier(10))),
 				new ModbusRange(0x0222, //
 						new UnsignedWordElement(0x0222, //
 								inverterVoltageL1 = new ModbusReadChannel("InverterVoltageL1", this).unit("mV")
@@ -447,12 +443,13 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 								setWorkState = new ModbusWriteChannel("SetWorkState", this) //
 										.label(4, STOP) //
 										.label(32, STANDBY) //
-										.label(64, START))),
+										.label(64,
+												START))),
 				new WritableModbusRange(0x0501, //
 						new SignedWordElement(0x0501, //
 								setActivePower = new ModbusWriteChannel("SetActivePower", this).unit("W")
-										.multiplier(100).minWriteChannel(allowedCharge)
-										.maxWriteChannel(allowedDischarge)),
+										.multiplier(100).minWriteChannel(allowedCharge).maxWriteChannel(
+												allowedDischarge)),
 						new SignedWordElement(0x0502, //
 								setReactivePower = new ModbusWriteChannel("SetReactivePower", this).unit("var")
 										.multiplier(100).minWriteChannel(allowedCharge)

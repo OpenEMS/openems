@@ -48,9 +48,7 @@ public class DebugLogController extends Controller {
 				// + "Act[" + ess.activePower.format() + "] " //
 						+ "Charge[" + ess.allowedCharge.format() + "] " //
 						+ "Discharge[" + ess.allowedDischarge.format() + "] " //
-						+ "State[" + ess.systemState.format() + "]" + "ReactivePowerL1[" + ess.reactivePowerL1.format()
-						+ "]" + "ReactivePowerL2[" + ess.reactivePowerL2.format() + "]" + "ReactivePowerL3["
-						+ ess.reactivePowerL3.format() + "]");
+						+ "State[" + ess.systemState.format() + "]");
 				Optional<String> warning = ess.warning.labelOptional();
 				if (warning.isPresent()) {
 					b.append(" Warning[" + warning.get() + "]");
