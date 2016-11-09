@@ -33,7 +33,7 @@ public class EnergysavingController extends Controller {
 
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
 
-	private Long lastTimeValueWritten = System.currentTimeMillis();
+	private Long lastTimeValueWritten = 0L;
 
 	@Override public void run() {
 		try {
@@ -41,22 +41,23 @@ public class EnergysavingController extends Controller {
 				try {
 					Optional<String> systemState = ess.systemState.labelOptional();
 					if (systemState.isPresent()) {
-						if (!systemState.get().equals(SymmetricEssNature.START)) {
-							/*
-							 * Always start ESS if it was stopped
-							 */
-							// Current system state is not START
-							if (ess.setWorkState.peekWriteLabel().orElse(SymmetricEssNature.START)
-									.equals(SymmetricEssNature.START)) {
-								// SetWorkState was not set to anything different than START before -> START the system
-								log.info("ESS [" + ess.id() + "] was stopped. Starting...");
-								ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.START);
+						System.out.println(ess.setActivePower.peekWrite());
+						if (ess.setActivePower.peekWrite().isPresent() && ess.setActivePower.peekWrite().get() != 0) {
+							if (!systemState.get().equals(SymmetricEssNature.START)) {
+								// Current system state is not START
+								if (ess.setWorkState.peekWriteLabel().orElse(SymmetricEssNature.START)
+										.equals(SymmetricEssNature.START)) {
+									// SetWorkState was not set to anything different than START before -> START the
+									// system
+									log.info("ESS [" + ess.id() + "] was stopped. Starting...");
+									ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.START);
+								}
 							}
+							lastTimeValueWritten = System.currentTimeMillis();
 						} else {
 							/*
 							 * TODO go to Standby if no values were written since two minutes
 							 */
-							// TODO lastTimeValueWritten = System.currentTimeMillis();
 							if (lastTimeValueWritten + 2 * 60 * 1000 < System.currentTimeMillis()) {
 								if (!systemState.isPresent() || (!systemState.get().equals(SymmetricEssNature.STANDBY)
 										&& !systemState.get().equals("PV-Charge"))) {
