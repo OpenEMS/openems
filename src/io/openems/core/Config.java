@@ -54,6 +54,7 @@ import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
 import io.openems.core.utilities.InjectionUtils;
@@ -140,6 +141,20 @@ public class Config {
 					+ "]");
 			injectConfigChannels(thingRepository.getConfigChannels(controller), jController);
 			scheduler.addController(controller);
+		}
+
+		/*
+		 * read Persistence
+		 */
+		JsonArray jPersistences = JsonUtils.getAsJsonArray(jConfig, "persistence");
+		for (JsonElement jPersistenceElement : jPersistences) {
+			JsonObject jPersistence = JsonUtils.getAsJsonObject(jPersistenceElement);
+			String persistenceClass = JsonUtils.getAsString(jPersistence, "class");
+			Persistence persistence = (Persistence) InjectionUtils.getThingInstance(persistenceClass);
+			thingRepository.addThing(persistence);
+			log.debug("Add Persistence[" + persistence.id() + "], Implementation["
+					+ persistence.getClass().getSimpleName() + "]");
+			injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);
 		}
 	}
 
