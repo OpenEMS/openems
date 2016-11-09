@@ -37,22 +37,20 @@ public class CapacityTestController extends Controller {
 	/*
 	 * Config
 	 */
-	public ConfigChannel<Long> power = new ConfigChannel<Long>("power", this, Long.class).defaultValue(750L);
+	public ConfigChannel<Integer> power = new ConfigChannel<Integer>("power", this, Integer.class).defaultValue(750);
 
 	public ConfigChannel<String> logPath = new ConfigChannel<String>("logPath", this, String.class);
 
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this, Ess.class);
-
-	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this, Meter.class);
 
 	private FileWriter fw;
 
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {
-				ess.setActivePowerL1.pushWrite(power.value());
-				ess.setActivePowerL2.pushWrite(power.value());
-				ess.setActivePowerL3.pushWrite(power.value());
+				ess.setActivePowerL1.pushWrite((long) power.value());
+				ess.setActivePowerL2.pushWrite((long) power.value());
+				ess.setActivePowerL3.pushWrite((long) power.value());
 				ess.setWorkState.pushWriteFromLabel(EssNature.START);
 				fw.append(System.currentTimeMillis() + ";" + ess.activePowerL1.value() + ";" + ess.activePowerL2.value()
 						+ ";" + ess.activePowerL3.value() + ";" + ess.batteryCurrent.value() + ";"
@@ -60,6 +58,7 @@ public class CapacityTestController extends Controller {
 						+ ";" + ess.voltageL2.value() + ";" + ess.voltageL3.value() + ";" + ess.currentL1.value() + ";"
 						+ ess.currentL2.value() + ";" + ess.currentL3.value() + ";" + ess.soc.value() + ";"
 						+ ess.totalBatteryChargeEnergy.value() + ";" + ess.totalBatteryDischargeEnergy.value() + "\n");
+				fw.flush();
 			}
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());

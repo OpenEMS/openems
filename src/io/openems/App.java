@@ -28,8 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.exception.ConfigException;
 import io.openems.core.Config;
-import io.openems.impl.api.rest.RestApi;
-import io.vertx.core.Vertx;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
@@ -52,9 +50,9 @@ public class App {
 		log.info("OpenEMS config loaded");
 
 		// Start vertx
-		Vertx vertx = Vertx.vertx();
+		// Vertx vertx = Vertx.vertx();
 		// Deploy REST-Api verticle
-		vertx.deployVerticle(new RestApi());
+		// vertx.deployVerticle(new RestApi());
 
 		// Thread.sleep(3000);
 
