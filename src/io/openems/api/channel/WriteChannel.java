@@ -128,7 +128,11 @@ public class WriteChannel<T> extends ReadChannel<T> {
 
 	public synchronized Optional<String> peekWriteLabel() {
 		Optional<T> value = peekWrite();
-		return Optional.ofNullable(labels.get(value));
+		if (value.isPresent()) {
+			return Optional.of(labels.get(value.get()));
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	/**
