@@ -66,6 +66,7 @@ public class AsymmetricBalancingController extends Controller {
 			for (Ess ess : esss.value()) {
 				useableSoc += ess.useableSoc();
 			}
+			// Loop each Phase
 			for (int i = 1; i <= 3; i++) {
 				long absolutePower = Math.abs(calculatedPowers[0]) + Math.abs(calculatedPowers[1])
 						+ Math.abs(calculatedPowers[2]);
