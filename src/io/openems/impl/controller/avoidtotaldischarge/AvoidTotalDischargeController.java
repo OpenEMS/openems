@@ -23,39 +23,40 @@ package io.openems.impl.controller.avoidtotaldischarge;
 import java.util.Optional;
 import java.util.Set;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.controller.IsThingMapping;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 public class AvoidTotalDischargeController extends Controller {
-	@IsThingMapping public Set<Ess> esss = null;
+
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
 
 	@Override public void run() {
-		for (Ess ess : esss) {
-			try {
+		try {
+			for (Ess ess : esss.value()) {
 				/*
 				 * Calculate SetActivePower according to MinSoc
 				 */
 				if (ess.soc.value() < ess.minSoc.value() && ess.soc.value() >= ess.minSoc.value() - 5) {
 					// SOC < minSoc && SOC >= minSoc - 5
 					log.info("Avoid discharge. Set ActivePower=Max[0]");
-					ess.setActivePower.pushWriteMin(0L);
+					ess.setActivePower.pushWriteMax(0L);
 				} else if (ess.soc.value() < ess.minSoc.value() - 5) {
 					// SOC < minSoc - 5
 					Optional<Long> currentMinValue = ess.setActivePower.writeMin();
 					if (currentMinValue.isPresent()) {
 						// Force Charge with minimum of MaxChargePower/5
-						log.info("Force charge. Set ActivePower=Min[" + currentMinValue.get() / 5 + "]");
-						ess.setActivePower.pushWriteMin(currentMinValue.get() / 5);
+						log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
+						ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
 					} else {
 						log.info("Avoid discharge. Set ActivePower=Min[1000 W]");
-						ess.setActivePower.pushWriteMin(1000L);
+						ess.setActivePower.pushWriteMax(-1000L);
 					}
 				}
-			} catch (InvalidValueException | WriteChannelException e) {
-				log.error(e.getMessage());
 			}
+		} catch (InvalidValueException | WriteChannelException e) {
+			log.error(e.getMessage());
 		}
 	}
 }
