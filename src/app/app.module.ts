@@ -11,18 +11,23 @@ import { OpenemsSettingComponent } from './setting/openems-setting/openems-setti
 import { MonitorGrafanaComponent } from './monitor/grafana/grafana.component';
 import { MonitorProCurrentComponent } from './monitor/pro/current/pro-current.component';
 
+import { ChartModule } from 'primeng/components/chart/chart';
+import { CommonSocComponent } from './common/soc/common-soc.component';
+
 @NgModule({
   declarations: [
     AppComponent,
     /*MonitorCommercialCurrentComponent,*/
     MonitorProCurrentComponent,
     OpenemsSettingComponent,
-    MonitorGrafanaComponent
+    MonitorGrafanaComponent,
+    CommonSocComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
+    ChartModule,
     routing,
   ],
   providers: [

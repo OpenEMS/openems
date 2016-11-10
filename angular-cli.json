@@ -19,10 +19,12 @@
       "mobile": false,
       "styles": [
         "styles.css",
-        "../node_modules/bootstrap/dist/css/bootstrap.min.css"
+        "../node_modules/bootstrap/dist/css/bootstrap.min.css",
+        "../node_modules/primeng/resources/primeng.min.css"
       ],
       "scripts": [
-        "../node_modules/ng2-bootstrap/bundles/ng2-bootstrap.umd.min.js"
+        "../node_modules/chart.js/dist/Chart.bundle.min.js",
+        "../node_modules/chart.js/dist/Chart.min.js"
       ],
       "environments": {
         "source": "environments/environment.ts",

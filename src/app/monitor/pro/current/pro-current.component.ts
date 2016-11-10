@@ -2,12 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { ISubscription } from 'rxjs/Subscription';
 
+import { UIChart } from 'primeng/primeng';
+
 @Component({
   selector: 'app-monitor-pro-current',
   templateUrl: './pro-current.component.html',
   styleUrls: ['./pro-current.component.css']
 })
 export class MonitorProCurrentComponent implements OnInit {
+  private soc :number = 60;
+
   private waitingForData = true;
   private data = {
     ess0: {
@@ -33,8 +37,6 @@ export class MonitorProCurrentComponent implements OnInit {
       ActivePowerL3: null
     }
   }
-
-  constructor() { }
 
   ngOnInit() {
     var ws = new WebSocket("ws://" + location.hostname + "/websocket");
