@@ -27,19 +27,10 @@ public interface SymmetricMeterNature extends MeterNature {
 	/*
 	 * ReadChannels
 	 */
-	public ReadChannel<Long> activeNegativeEnergy();
-
-	public ReadChannel<Long> activePositiveEnergy();
 
 	public ReadChannel<Long> activePower();
 
-	public ReadChannel<Long> apparentEnergy();
-
 	public ReadChannel<Long> apparentPower();
-
-	public ReadChannel<Long> reactiveNegativeEnergy();
-
-	public ReadChannel<Long> reactivePositiveEnergy();
 
 	public ReadChannel<Long> reactivePower();
 }

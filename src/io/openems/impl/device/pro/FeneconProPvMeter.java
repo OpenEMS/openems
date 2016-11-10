@@ -21,148 +21,89 @@
 package io.openems.impl.device.pro;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.device.nature.meter.SymmetricMeterNature;
+import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
+import io.openems.impl.protocol.modbus.ModbusReadChannel;
+import io.openems.impl.protocol.modbus.internal.DummyElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
+import io.openems.impl.protocol.modbus.internal.ModbusRange;
+import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
+import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 
-//
-// import io.openems.api.channel.IsChannel;
-// import io.openems.api.channel.numeric.NumericChannel;
-// import io.openems.api.channel.numeric.NumericChannelBuilder;
-// import io.openems.api.channel.numeric.NumericChannelBuilder.Aggregation;
-// import io.openems.api.controller.IsThingMap;
-// import io.openems.api.device.nature.MeterNature;
-// import io.openems.api.exception.ConfigException;
-// import io.openems.impl.protocol.modbus.ModbusChannel;
-// import io.openems.impl.protocol.modbus.ModbusDeviceNature;
-// import io.openems.impl.protocol.modbus.internal.ElementBuilder;
-// import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
-// import io.openems.impl.protocol.modbus.internal.ModbusRange;
-// import io.openems.impl.protocol.modbus.internal.channel.ModbusChannelBuilder;
-//
-// @IsThingMap(type = MeterNature.class)
-public class FeneconProPvMeter extends ModbusDeviceNature implements SymmetricMeterNature {
+public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricMeterNature {
 
 	public FeneconProPvMeter(String thingId) throws ConfigException {
 		super(thingId);
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override public ReadChannel<Long> activeNegativeEnergy() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	/*
+	 * Inherited Channels
+	 */
+	private ModbusReadChannel activePowerL1;
+	private ModbusReadChannel activePowerL2;
+	private ModbusReadChannel activePowerL3;
+	private ModbusReadChannel reactivePowerL1 = new ModbusReadChannel("ReactivePowerL1", this);
+	private ModbusReadChannel reactivePowerL2 = new ModbusReadChannel("ReactivePowerL2", this);
+	private ModbusReadChannel reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this);
 
-	@Override public ReadChannel<Long> activePositiveEnergy() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override public ReadChannel<Long> activePower() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override public ReadChannel<Long> apparentEnergy() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override public ReadChannel<Long> apparentPower() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override public ReadChannel<Long> reactiveNegativeEnergy() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override public ReadChannel<Long> reactivePositiveEnergy() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override public ReadChannel<Long> reactivePower() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	/*
+	 * This Channels
+	 */
+	public ModbusReadChannel activeEnergyL1;
+	public ModbusReadChannel activeEnergyL2;
+	public ModbusReadChannel activeEnergyL3;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		// TODO Auto-generated method stub
-		return null;
+		return new ModbusProtocol( //
+				new ModbusRange(2035, //
+						new UnsignedDoublewordElement(2035, //
+								activeEnergyL1 = new ModbusReadChannel("ActiveEnergyL1", this).unit("Wh")
+										.multiplier(100)),
+						new DummyElement(2037,
+								2065),
+						new UnsignedWordElement(2066, //
+								activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W").delta(-10000L))),
+				new ModbusRange(2135, //
+						new UnsignedDoublewordElement(2135, //
+								activeEnergyL2 = new ModbusReadChannel("ActiveEnergyL2", this).unit("Wh")
+										.multiplier(100)),
+						new DummyElement(2137,
+								2165),
+						new UnsignedWordElement(2166, //
+								activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W").delta(-10000L))),
+				new ModbusRange(2235, //
+						new UnsignedDoublewordElement(2235, //
+								activeEnergyL3 = new ModbusReadChannel("ActiveEnergyL3", this).unit("Wh")
+										.multiplier(100)),
+						new DummyElement(2237, 2265),
+						new UnsignedWordElement(2266, //
+								activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W")
+										.delta(-10000L))));
 	}
-	//
-	// @IsChannel(id = "ActivePowerPhaseA")
-	// private final ModbusChannel _activePowerPhaseA = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10)
-	// .build();
-	// @IsChannel(id = "ActivePowerPhaseB")
-	// private final ModbusChannel _activePowerPhaseB = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10)
-	// .build();
-	// @IsChannel(id = "ActivePowerPhaseC")
-	// private final ModbusChannel _activePowerPhaseC = new ModbusChannelBuilder().nature(this).unit("W").multiplier(10)
-	// .build();
-	// private final NumericChannel _activePower = new NumericChannelBuilder<>().nature(this).unit("W")
-	// .channel(_activePowerPhaseA, _activePowerPhaseB, _activePowerPhaseC).aggregate(Aggregation.SUM).build();
-	//
-	// public FeneconProPvMeter(String thingId) {
-	// super(thingId);
-	// }
-	//
-	// @Override
-	// public NumericChannel activeNegativeEnergy() {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-	//
-	// @Override
-	// public NumericChannel activePositiveEnergy() {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-	//
-	// @Override
-	// public NumericChannel activePower() {
-	// return _activePower;
-	// }
-	//
-	// @Override
-	// public NumericChannel apparentEnergy() {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-	//
-	// @Override
-	// public NumericChannel apparentPower() {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-	//
-	// @Override
-	// public NumericChannel reactiveNegativeEnergy() {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-	//
-	// @Override
-	// public NumericChannel reactivePositiveEnergy() {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-	//
-	// @Override
-	// public NumericChannel reactivePower() {
-	// return null;
-	// }
-	//
-	// @Override
-	// protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-	// return new ModbusProtocol( //
-	// new ModbusRange(143, //
-	// new ElementBuilder().address(143).channel(_activePowerPhaseA).build(),
-	// new ElementBuilder().address(144).channel(_activePowerPhaseB).build(),
-	// new ElementBuilder().address(145).channel(_activePowerPhaseC).build()));
-	// }
-	//
+
+	@Override public ReadChannel<Long> activePowerL1() {
+		return activePowerL1;
+	}
+
+	@Override public ReadChannel<Long> activePowerL2() {
+		return activePowerL2;
+	}
+
+	@Override public ReadChannel<Long> activePowerL3() {
+		return activePowerL3;
+	}
+
+	@Override public ReadChannel<Long> reactivePowerL1() {
+		return reactivePowerL1;
+	}
+
+	@Override public ReadChannel<Long> reactivePowerL2() {
+		return reactivePowerL2;
+	}
+
+	@Override public ReadChannel<Long> reactivePowerL3() {
+		return reactivePowerL3;
+	}
 }

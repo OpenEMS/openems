@@ -33,37 +33,12 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override public ReadChannel<Long> activeNegativeEnergy() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override public ReadChannel<Long> activePositiveEnergy() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	@Override public ReadChannel<Long> activePower() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override public ReadChannel<Long> apparentEnergy() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	@Override public ReadChannel<Long> apparentPower() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override public ReadChannel<Long> reactiveNegativeEnergy() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override public ReadChannel<Long> reactivePositiveEnergy() {
 		// TODO Auto-generated method stub
 		return null;
 	}

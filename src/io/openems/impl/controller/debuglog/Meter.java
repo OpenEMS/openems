@@ -28,22 +28,22 @@ import io.openems.api.device.nature.meter.SymmetricMeterNature;
 @IsThingMap(type = SymmetricMeterNature.class)
 public class Meter extends ThingMap {
 
-	public final ReadChannel<Long> activeNegativeEnergy;
-	public final ReadChannel<Long> activePositiveEnergy;
+	// public final ReadChannel<Long> activeNegativeEnergy;
+	// public final ReadChannel<Long> activePositiveEnergy;
 	public final ReadChannel<Long> activePower;
 	public final ReadChannel<Long> apparentPower;
-	public final ReadChannel<Long> reactiveNegativeEnergy;
-	public final ReadChannel<Long> reactivePositiveEnergy;
+	// public final ReadChannel<Long> reactiveNegativeEnergy;
+	// public final ReadChannel<Long> reactivePositiveEnergy;
 	public final ReadChannel<Long> reactivePower;
 
 	public Meter(SymmetricMeterNature meter) {
 		super(meter);
-		activeNegativeEnergy = meter.activeNegativeEnergy().required();
-		activePositiveEnergy = meter.activePositiveEnergy().required();
+		// activeNegativeEnergy = meter.activeNegativeEnergy().required();
+		// activePositiveEnergy = meter.activePositiveEnergy().required();
 		activePower = meter.activePower().required();
 		apparentPower = meter.apparentPower().required();
-		reactiveNegativeEnergy = meter.reactiveNegativeEnergy().required();
-		reactivePositiveEnergy = meter.reactivePositiveEnergy().required();
+		// reactiveNegativeEnergy = meter.reactiveNegativeEnergy().required();
+		// reactivePositiveEnergy = meter.reactivePositiveEnergy().required();
 		reactivePower = meter.reactivePower().required();
 	}
 

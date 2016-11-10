@@ -41,13 +41,8 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	/*
 	 * Inherited Channels
 	 */
-	private ModbusReadChannel activeNegativeEnergy;
-	private ModbusReadChannel activePositiveEnergy;
 	private ModbusReadChannel activePower;
-	private ModbusReadChannel apparentEnergy;
 	private ModbusReadChannel apparentPower;
-	private ModbusReadChannel reactiveNegativeEnergy;
-	private ModbusReadChannel reactivePositiveEnergy;
 	private ModbusReadChannel reactivePower;
 	private ModbusReadChannel activePowerL1;
 	private ModbusReadChannel activePowerL2;
@@ -56,32 +51,12 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	private ModbusReadChannel reactivePowerL2;
 	private ModbusReadChannel reactivePowerL3;
 
-	@Override public ModbusReadChannel activeNegativeEnergy() {
-		return activeNegativeEnergy;
-	}
-
-	@Override public ModbusReadChannel activePositiveEnergy() {
-		return activePositiveEnergy;
-	}
-
 	@Override public ModbusReadChannel activePower() {
 		return activePower;
 	}
 
-	@Override public ModbusReadChannel apparentEnergy() {
-		return apparentEnergy;
-	}
-
 	@Override public ModbusReadChannel apparentPower() {
 		return apparentPower;
-	}
-
-	@Override public ModbusReadChannel reactiveNegativeEnergy() {
-		return reactiveNegativeEnergy;
-	}
-
-	@Override public ModbusReadChannel reactivePositiveEnergy() {
-		return reactivePositiveEnergy;
 	}
 
 	@Override public ModbusReadChannel reactivePower() {
@@ -91,6 +66,11 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	/*
 	 * This Channels
 	 */
+	public ModbusReadChannel activeNegativeEnergy;
+	public ModbusReadChannel activePositiveEnergy;
+	public ModbusReadChannel reactiveNegativeEnergy;
+	public ModbusReadChannel reactivePositiveEnergy;
+	public ModbusReadChannel apparentEnergy;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
