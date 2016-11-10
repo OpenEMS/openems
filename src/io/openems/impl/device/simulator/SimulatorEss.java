@@ -99,7 +99,7 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 
 	@Override protected void update() {
 		soc.updateValue(getRandom(0, 100));
-		activePower.updateValue(0L);
+		activePower.updateValue(getRandom(-10000, 10000));
 		allowedCharge.updateValue(9000L);
 		allowedDischarge.updateValue(3000L);
 		systemState.updateValue(1L);
