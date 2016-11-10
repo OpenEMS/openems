@@ -44,6 +44,10 @@ public class ModbusReadChannel extends ReadChannel<Long> implements ModbusChanne
 		return (ModbusReadChannel) super.multiplier(multiplier);
 	}
 
+	@Override public ModbusReadChannel delta(Long delta) {
+		return (ModbusReadChannel) super.delta(delta);
+	}
+
 	@Override public ModbusReadChannel interval(Long min, Long max) {
 		return (ModbusReadChannel) super.interval(min, max);
 	}
