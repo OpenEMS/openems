@@ -46,7 +46,6 @@ public class SymmetricBalancingBandgapController extends Controller {
 			long calculatedReactivePower = meter.value().reactivePower.value() + ess.reactivePower.value();
 			long maxChargePower = ess.setActivePower.writeMin().orElse(0L);
 			long maxDischargePower = ess.setActivePower.writeMax().orElse(0L);
-			long useableSoc = ess.useableSoc();
 			if (calculatedPower >= maxActivePower.value()) {
 				calculatedPower -= maxActivePower.value();
 			} else if (calculatedPower <= minActivePower.value()) {
