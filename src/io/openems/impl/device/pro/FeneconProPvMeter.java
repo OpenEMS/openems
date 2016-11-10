@@ -35,7 +35,6 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 
 	public FeneconProPvMeter(String thingId) throws ConfigException {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
 	/*

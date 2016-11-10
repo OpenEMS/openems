@@ -18,39 +18,23 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.device.pro;
+package io.openems.impl.controller.symmetricbalancingoffset;
 
-import java.util.HashSet;
-import java.util.Set;
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.meter.SymmetricMeterNature;
 
-import io.openems.api.channel.ConfigChannel;
-import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.exception.OpenemsException;
-import io.openems.impl.protocol.modbus.ModbusDevice;
+@IsThingMap(type = SymmetricMeterNature.class)
+public class Meter extends ThingMap {
 
-public class FeneconPro extends ModbusDevice {
+	public final ReadChannel<Long> activePower;
+	public final ReadChannel<Long> reactivePower;
 
-	/*
-	 * Config
-	 */
-	public final ConfigChannel<FeneconProEss> ess = new ConfigChannel<FeneconProEss>("ess", this, FeneconProEss.class);
-
-	public final ConfigChannel<FeneconProPvMeter> meter = new ConfigChannel<FeneconProPvMeter>("ess", this,
-			FeneconProPvMeter.class);
-
-	public FeneconPro() throws OpenemsException {
-		super();
+	public Meter(SymmetricMeterNature meter) {
+		super(meter);
+		activePower = meter.activePower().required();
+		reactivePower = meter.reactivePower().required();
 	}
 
-	@Override public String toString() {
-		return "FeneconPro [ess=" + ess + ", getThingId()=" + id() + "]";
-	}
-
-	@Override protected Set<DeviceNature> getDeviceNatures() {
-		Set<DeviceNature> natures = new HashSet<>();
-		if (ess.valueOptional().isPresent()) {
-			natures.add(ess.valueOptional().get());
-		}
-		return natures;
-	}
 }
