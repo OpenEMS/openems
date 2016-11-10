@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.thing.Thing;
+import io.openems.core.Databus;
 import io.vertx.core.impl.ConcurrentHashSet;
 
 public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
@@ -71,7 +72,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
-	public ReadChannel<T> listener(ChannelListener... listeners) {
+	@Override public ReadChannel<T> listener(ChannelListener... listeners) {
 		for (ChannelListener listener : listeners) {
 			this.listeners.add(listener);
 		}
@@ -110,8 +111,9 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return unit;
 	}
 
-	public void delta(Long delta) {
+	public ReadChannel<T> delta(Long delta) {
 		this.delta = Optional.ofNullable(delta);
+		return this;
 	}
 
 	public Optional<Long> deltaOptional() {

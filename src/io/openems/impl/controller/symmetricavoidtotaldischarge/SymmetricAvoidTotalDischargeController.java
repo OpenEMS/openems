@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.avoidtotaldischarge;
+package io.openems.impl.controller.symmetricavoidtotaldischarge;
 
 import java.util.Optional;
 import java.util.Set;
@@ -28,7 +28,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
-public class AvoidTotalDischargeController extends Controller {
+public class SymmetricAvoidTotalDischargeController extends Controller {
 
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
 

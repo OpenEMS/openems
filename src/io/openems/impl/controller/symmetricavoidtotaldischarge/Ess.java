@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.avoidtotaldischarge;
+package io.openems.impl.controller.symmetricavoidtotaldischarge;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;

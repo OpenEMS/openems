@@ -60,6 +60,7 @@ public class SymmetricBalancingBandgapController extends Controller {
 			} else {
 				calculatedReactivePower = 0;
 			}
+			// TODO check reactivePower
 			if (calculatedPower > 0) {
 				/*
 				 * Discharge
