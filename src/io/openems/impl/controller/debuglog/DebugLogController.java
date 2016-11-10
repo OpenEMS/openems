@@ -32,7 +32,7 @@ public class DebugLogController extends Controller {
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
 
 	public final ConfigChannel<Set<Meter>> meters = new ConfigChannel<Set<Meter>>("meters", this, Meter.class)
-	/* .optional() */;
+			.optional();
 
 	@Override public void run() {
 		try {

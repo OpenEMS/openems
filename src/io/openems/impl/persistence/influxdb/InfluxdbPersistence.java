@@ -99,6 +99,7 @@ public class InfluxdbPersistence extends Persistence {
 				});
 				batchPoints.point(builder.build());
 			});
+			queue.clear();
 		}
 		// write to DB
 		influxDB.write(batchPoints);
