@@ -5,21 +5,19 @@ import { HttpModule } from '@angular/http';
 
 import { routing, appRoutingProviders }  from './app.routing';
 import { AppComponent } from './app.component';
-import { CurrentMonitorComponent } from './monitor/current-monitor/current-monitor.component';
+import { MonitorCommercialCurrentComponent } from './monitor/commercial/current/commercial-current.component';
 import { DataService } from './data/data.service';
-import { OdooDataService } from './data/odoo-data.service';
 import { OpenemsSettingComponent } from './setting/openems-setting/openems-setting.component';
-import { OdooRPCService } from 'angular2-odoo-jsonrpc';
-import { DessMonitorComponent } from './monitor/dess-monitor/dess-monitor.component';
-import { IndexMonitorComponent } from './monitor/index-monitor/index-monitor.component';
+import { MonitorGrafanaComponent } from './monitor/grafana/grafana.component';
+import { MonitorProCurrentComponent } from './monitor/pro/current/pro-current.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    CurrentMonitorComponent,
+    /*MonitorCommercialCurrentComponent,*/
+    MonitorProCurrentComponent,
     OpenemsSettingComponent,
-    DessMonitorComponent,
-    IndexMonitorComponent
+    MonitorGrafanaComponent
   ],
   imports: [
     BrowserModule,
@@ -29,8 +27,8 @@ import { IndexMonitorComponent } from './monitor/index-monitor/index-monitor.com
   ],
   providers: [
     appRoutingProviders,
-    OdooRPCService,
-    { provide: DataService, useClass: OdooDataService }
+    /*OdooRPCService*/
+    /*{ provide: DataService, useClass: OdooDataService }*/
   ],
   bootstrap: [
     AppComponent

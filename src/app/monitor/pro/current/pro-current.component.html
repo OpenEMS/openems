@@ -1,0 +1,126 @@
+<div *ngIf="waitingForData" class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Einen Moment bitte</h3>
+        </div>
+        <div class="panel-body">
+          <p>Daten werden geladen...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!waitingForData && data" class="container">
+  <div class="row">
+    <div *ngIf="data.ess0" class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Speicher</h3>
+        </div>
+        <table class="table">
+          <tr>
+            <td>Ladezustand</td>
+            <td></td>
+            <td align="right">{{data.ess0.Soc}} %</td>
+          </tr>
+          <tr>
+            <td>Wirkleistung</td>
+            <td>L1</td>
+            <td align="right">{{data.ess0.ActivePowerL1}} W</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L2</td>
+            <td align="right">{{data.ess0.ActivePowerL2}} W</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L3</td>
+            <td align="right">{{data.ess0.ActivePowerL3}} W</td>
+          </tr>
+          <tr>
+            <td>Blindleistung</td>
+            <td>L1</td>
+            <td align="right">{{data.ess0.ReactivePowerL1}} VA</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L2</td>
+            <td align="right">{{data.ess0.ReactivePowerL2}} VA</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L3</td>
+            <td align="right">{{data.ess0.ReactivePowerL3}} VA</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div *ngIf="data.meter0" class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Zähler Netzanschlusspunkt</h3>
+        </div>
+        <table class="table">
+          <tr>
+            <td>Wirkleistung</td>
+            <td>L1</td>
+            <td align="right">{{data.meter0.ActivePowerL1}} W</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L2</td>
+            <td align="right">{{data.meter0.ActivePowerL2}} W</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L3</td>
+            <td align="right">{{data.meter0.ActivePowerL3}} W</td>
+          </tr>
+          <tr>
+            <td>Blindleistung</td>
+            <td>L1</td>
+            <td align="right">{{data.meter0.ReactivePowerL1}} VA</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L2</td>
+            <td align="right">{{data.meter0.ReactivePowerL2}} VA</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L3</td>
+            <td align="right">{{data.meter0.ReactivePowerL3}} VA</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div *ngIf="data.meter1" class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">PV-Anlage</h3>
+        </div>
+        <table class="table">
+          <tr>
+            <td>Wirkleistung</td>
+            <td>L1</td>
+            <td align="right">{{data.meter1.ActivePowerL1}} W</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L2</td>
+            <td align="right">{{data.meter1.ActivePowerL2}} W</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L3</td>
+            <td align="right">{{data.meter1.ActivePowerL3}} W</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

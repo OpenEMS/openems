@@ -1,0 +1,84 @@
+<div *ngIf="waitingForData" class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Einen Moment bitte</h3>
+        </div>
+        <div class="panel-body">
+          <p>Daten werden geladen...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!waitingForData && data" class="container">
+  <div class="row">
+    <div *ngIf="data.ess0" class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Speicher: ess</h3>
+        </div>
+        <table class="table">
+          <tr *ngIf="data.ess0.Soc">
+            <td>Ladezustand</td>
+            <td align="right">{{data.ess0.Soc}} %</td>
+          </tr>
+          <tr *ngIf="data.ess0.ActivePower">
+            <td>Ausgabeleistung</td>
+            <td align="right">{{data.ess0.ActivePower}} W</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div *ngIf="data.meter0" class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Zähler Netzanschlusspunkt</h3>
+        </div>
+        <table class="table">
+          <tr *ngIf="data.meter0.ActivePower">
+            <td>Leistung</td>
+            <!--<td>L1:</td>-->
+            <td align="right">{{data.meter0.ActivePower}} W</td>
+          </tr>
+          <!--<tr>
+            <td></td>
+            <td>L2:</td>
+            <td align="right">.. W</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L3:</td>
+            <td align="right">.. W</td>
+          </tr>-->
+        </table>
+      </div>
+    </div>
+    <div *ngIf="data.meter1" class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">PV-Anlage</h3>
+        </div>
+        <table class="table">
+          <tr *ngIf="data.meter1.ActivePower">
+            <td>Leistung</td>
+            <!--<td>L1:</td>-->
+            <td align="right">{{data.meter1.ActivePower}} W</td>
+          </tr>
+          <!--<tr>
+            <td></td>
+            <td>L2:</td>
+            <td align="right">.. W</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>L3:</td>
+            <td align="right">.. W</td>
+          </tr>-->
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
