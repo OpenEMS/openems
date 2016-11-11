@@ -26,12 +26,10 @@ import java.util.Set;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.impl.controller.clocksync.RealTimeClock;
 
 public class DebugLogController extends Controller {
 
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
-
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class).optional();
 	public final ConfigChannel<Set<SymmetricMeter>> symmetricMeters = new ConfigChannel<Set<SymmetricMeter>>(
 			"symmetricMeters", this, SymmetricMeter.class).optional();
 	public final ConfigChannel<Set<AsymmetricMeter>> asymmetricMeters = new ConfigChannel<Set<AsymmetricMeter>>(
@@ -41,6 +39,10 @@ public class DebugLogController extends Controller {
 
 	@Override public void run() {
 		try {
+			System.out.println(esss.valueOptional());
+			System.out.println(symmetricMeters.valueOptional());
+			System.out.println(asymmetricMeters.valueOptional());
+			System.out.println(rtc.valueOptional());
 			StringBuilder b = new StringBuilder();
 			if (symmetricMeters.valueOptional().isPresent()) {
 				for (SymmetricMeter meter : symmetricMeters.value()) {
@@ -49,22 +51,27 @@ public class DebugLogController extends Controller {
 			}
 			if (asymmetricMeters.valueOptional().isPresent()) {
 				for (AsymmetricMeter meter : asymmetricMeters.value()) {
-					b.append(meter.id() + " L1: " + meter.activePowerL1.format() + " W, "
-							+ meter.reactivePowerL1.format() + " Var, L2: " + meter.activePowerL2.format() + " W, "
-							+ meter.reactivePowerL2.format() + " Var, L3: " + meter.activePowerL3.format() + " W, "
-							+ meter.reactivePowerL3.format() + " Var");
+					b.append(meter.id() + " L1: " + meter.activePowerL1.format() + ", " + meter.reactivePowerL1.format()
+							+ ", L2: " + meter.activePowerL2.format() + ", " + meter.reactivePowerL2.format() + ", L3: "
+							+ meter.activePowerL3.format() + ", " + meter.reactivePowerL3.format() + "");
 				}
 			}
-
-			for (Ess ess : esss.value()) {
-				b.append(ess.id() + " [" + ess.soc.format() + "] " //
-				// + "Act[" + ess.activePower.format() + "] " //
-						+ "Charge[" + ess.allowedCharge.format() + "] " //
-						+ "Discharge[" + ess.allowedDischarge.format() + "] " //
-						+ "State[" + ess.systemState.format() + "]");
-				Optional<String> warning = ess.warning.labelOptional();
-				if (warning.isPresent()) {
-					b.append(" Warning[" + warning.get() + "]");
+			if (rtc.valueOptional().isPresent()) {
+				RealTimeClock r = rtc.value();
+				b.append(rtc.id() + " " + r.year.format() + "-" + r.month.format() + "-" + r.day.format() + " "
+						+ r.hour.format() + ":" + r.minute.format() + ":" + r.second.format());
+			}
+			if (esss.valueOptional().isPresent()) {
+				for (Ess ess : esss.value()) {
+					b.append(ess.id() + " [" + ess.soc.format() + "] " //
+					// + "Act[" + ess.activePower.format() + "] " //
+							+ "Charge[" + ess.allowedCharge.format() + "] " //
+							+ "Discharge[" + ess.allowedDischarge.format() + "] " //
+							+ "State[" + ess.systemState.format() + "]");
+					Optional<String> warning = ess.warning.labelOptional();
+					if (warning.isPresent()) {
+						b.append(" Warning[" + warning.get() + "]");
+					}
 				}
 			}
 			log.info(b.toString());
