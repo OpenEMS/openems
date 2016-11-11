@@ -26,6 +26,7 @@ import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
+import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;
@@ -38,7 +39,7 @@ import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.WritableModbusRange;
 
-public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNature {
+public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNature, RealTimeClockNature {
 
 	public FeneconProEss(String thingId) throws ConfigException {
 		super(thingId);
@@ -56,6 +57,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	/*
 	 * Inherited Channels
 	 */
+	// ESS
 	private StatusBitChannels warning;
 	private ReadChannel<Long> allowedCharge;
 	private ReadChannel<Long> allowedDischarge;
@@ -69,6 +71,13 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	private ModbusReadChannel reactivePowerL1;
 	private ModbusReadChannel reactivePowerL2;
 	private ModbusReadChannel reactivePowerL3;
+	// RealTimeClock
+	private ModbusReadChannel rtcYear;
+	private ModbusReadChannel rtcMonth;
+	private ModbusReadChannel rtcDay;
+	private ModbusReadChannel rtcHour;
+	private ModbusReadChannel rtcMinute;
+	private ModbusReadChannel rtcSecond;
 
 	private WriteChannel<Long> setWorkState;
 	private WriteChannel<Long> setActivePowerL1;
@@ -158,6 +167,30 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 		return reactivePowerL3;
 	}
 
+	@Override public ReadChannel<Long> rtcYear() {
+		return rtcYear();
+	}
+
+	@Override public ReadChannel<Long> rtcMonth() {
+		return rtcMonth();
+	}
+
+	@Override public ReadChannel<Long> rtcDay() {
+		return rtcDay();
+	}
+
+	@Override public ReadChannel<Long> rtcHour() {
+		return rtcHour();
+	}
+
+	@Override public ReadChannel<Long> rtcMinute() {
+		return rtcMinute();
+	}
+
+	@Override public ReadChannel<Long> rtcSecond() {
+		return rtcSecond();
+	}
+
 	/*
 	 * This Channels
 	 */
@@ -218,8 +251,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 										.label(5, "Fail")),
 						new UnsignedWordElement(109, //
 								soc = new ModbusReadChannel("Soc", this).unit("%").interval(0, 100)),
-						new UnsignedWordElement(
-								110, //
+						new UnsignedWordElement(110, //
 								batteryVoltage = new ModbusReadChannel("BatteryVoltage", this).unit("mV")
 										.multiplier(100)),
 						new UnsignedWordElement(111, //
@@ -235,8 +267,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 										.label(8, "Charging over current alarm") //
 										.label(16, "Discharging over current alarm") //
 										.label(32, "Over temperature alarm")//
-										.label(64,
-												"Interal communication abnormal")),
+										.label(64, "Interal communication abnormal")),
 						new UnsignedWordElement(114, //
 								pcsOperationState = new ModbusReadChannel("PcsOperationState", this)
 										.label(0, "Self-checking") //
@@ -307,7 +338,15 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 								setActivePowerL3 = new ModbusWriteChannel("SetActivePowerL3", this).unit("W")), //
 						new SignedWordElement(211,
 								setReactivePowerL3 = new ModbusWriteChannel("SetReactivePowerL3", this).unit("Var")//
-						))
+						)), //
+				new ModbusRange(9014, //
+						new UnsignedWordElement(9014, rtcYear = new ModbusReadChannel("Year", this)),
+						new UnsignedWordElement(9015, rtcMonth = new ModbusReadChannel("Month", this)),
+						new UnsignedWordElement(9016, rtcDay = new ModbusReadChannel("Day", this)),
+						new UnsignedWordElement(9017, rtcHour = new ModbusReadChannel("Hour", this)),
+						new UnsignedWordElement(9018, rtcMinute = new ModbusReadChannel("Minute", this)),
+						new UnsignedWordElement(9019, rtcSecond = new ModbusReadChannel("Second", this)))
+
 		// new DummyElement(143, 149),
 		// new ElementBuilder().address(150).channel(_pcsAlarm1PhaseA).build(), //
 		// new ElementBuilder().address(151).channel(_pcsAlarm2PhaseA).build(), //

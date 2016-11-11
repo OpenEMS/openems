@@ -26,6 +26,7 @@ import java.util.Set;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.impl.controller.clocksync.RealTimeClock;
 
 public class DebugLogController extends Controller {
 
@@ -35,6 +36,8 @@ public class DebugLogController extends Controller {
 			"symmetricMeters", this, SymmetricMeter.class).optional();
 	public final ConfigChannel<Set<AsymmetricMeter>> asymmetricMeters = new ConfigChannel<Set<AsymmetricMeter>>(
 			"asymmetricMeters", this, AsymmetricMeter.class).optional();
+	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this, RealTimeClock.class)
+			.optional();
 
 	@Override public void run() {
 		try {
