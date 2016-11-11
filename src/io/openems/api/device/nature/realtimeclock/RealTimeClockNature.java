@@ -1,18 +1,18 @@
 package io.openems.api.device.nature.realtimeclock;
 
-import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.DeviceNature;
 
 public interface RealTimeClockNature extends DeviceNature {
-	public ReadChannel<Long> rtcYear();
+	public WriteChannel<Long> rtcYear();
 
-	public ReadChannel<Long> rtcMonth();
+	public WriteChannel<Long> rtcMonth();
 
-	public ReadChannel<Long> rtcDay();
+	public WriteChannel<Long> rtcDay();
 
-	public ReadChannel<Long> rtcHour();
+	public WriteChannel<Long> rtcHour();
 
-	public ReadChannel<Long> rtcMinute();
+	public WriteChannel<Long> rtcMinute();
 
-	public ReadChannel<Long> rtcSecond();
+	public WriteChannel<Long> rtcSecond();
 }

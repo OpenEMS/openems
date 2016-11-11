@@ -72,12 +72,12 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	private ModbusReadChannel reactivePowerL2;
 	private ModbusReadChannel reactivePowerL3;
 	// RealTimeClock
-	private ModbusReadChannel rtcYear;
-	private ModbusReadChannel rtcMonth;
-	private ModbusReadChannel rtcDay;
-	private ModbusReadChannel rtcHour;
-	private ModbusReadChannel rtcMinute;
-	private ModbusReadChannel rtcSecond;
+	private ModbusWriteChannel rtcYear;
+	private ModbusWriteChannel rtcMonth;
+	private ModbusWriteChannel rtcDay;
+	private ModbusWriteChannel rtcHour;
+	private ModbusWriteChannel rtcMinute;
+	private ModbusWriteChannel rtcSecond;
 
 	private WriteChannel<Long> setWorkState;
 	private WriteChannel<Long> setActivePowerL1;
@@ -167,27 +167,27 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 		return reactivePowerL3;
 	}
 
-	@Override public ReadChannel<Long> rtcYear() {
+	@Override public WriteChannel<Long> rtcYear() {
 		return rtcYear;
 	}
 
-	@Override public ReadChannel<Long> rtcMonth() {
+	@Override public WriteChannel<Long> rtcMonth() {
 		return rtcMonth;
 	}
 
-	@Override public ReadChannel<Long> rtcDay() {
+	@Override public WriteChannel<Long> rtcDay() {
 		return rtcDay;
 	}
 
-	@Override public ReadChannel<Long> rtcHour() {
+	@Override public WriteChannel<Long> rtcHour() {
 		return rtcHour;
 	}
 
-	@Override public ReadChannel<Long> rtcMinute() {
+	@Override public WriteChannel<Long> rtcMinute() {
 		return rtcMinute;
 	}
 
-	@Override public ReadChannel<Long> rtcSecond() {
+	@Override public WriteChannel<Long> rtcSecond() {
 		return rtcSecond;
 	}
 
@@ -339,13 +339,13 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						new SignedWordElement(211,
 								setReactivePowerL3 = new ModbusWriteChannel("SetReactivePowerL3", this).unit("Var")//
 						)), //
-				new ModbusRange(9014, //
-						new UnsignedWordElement(9014, rtcYear = new ModbusReadChannel("Year", this)),
-						new UnsignedWordElement(9015, rtcMonth = new ModbusReadChannel("Month", this)),
-						new UnsignedWordElement(9016, rtcDay = new ModbusReadChannel("Day", this)),
-						new UnsignedWordElement(9017, rtcHour = new ModbusReadChannel("Hour", this)),
-						new UnsignedWordElement(9018, rtcMinute = new ModbusReadChannel("Minute", this)),
-						new UnsignedWordElement(9019, rtcSecond = new ModbusReadChannel("Second", this)))
+				new WritableModbusRange(9014, //
+						new UnsignedWordElement(9014, rtcYear = new ModbusWriteChannel("Year", this)),
+						new UnsignedWordElement(9015, rtcMonth = new ModbusWriteChannel("Month", this)),
+						new UnsignedWordElement(9016, rtcDay = new ModbusWriteChannel("Day", this)),
+						new UnsignedWordElement(9017, rtcHour = new ModbusWriteChannel("Hour", this)),
+						new UnsignedWordElement(9018, rtcMinute = new ModbusWriteChannel("Minute", this)),
+						new UnsignedWordElement(9019, rtcSecond = new ModbusWriteChannel("Second", this)))
 
 		// new DummyElement(143, 149),
 		// new ElementBuilder().address(150).channel(_pcsAlarm1PhaseA).build(), //

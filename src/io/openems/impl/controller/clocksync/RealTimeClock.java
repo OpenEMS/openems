@@ -20,7 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.controller.clocksync;
 
-import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
@@ -28,12 +28,12 @@ import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
 @IsThingMap(type = RealTimeClockNature.class)
 public class RealTimeClock extends ThingMap {
 
-	public final ReadChannel<Long> year;
-	public final ReadChannel<Long> month;
-	public final ReadChannel<Long> day;
-	public final ReadChannel<Long> hour;
-	public final ReadChannel<Long> minute;
-	public final ReadChannel<Long> second;
+	public final WriteChannel<Long> year;
+	public final WriteChannel<Long> month;
+	public final WriteChannel<Long> day;
+	public final WriteChannel<Long> hour;
+	public final WriteChannel<Long> minute;
+	public final WriteChannel<Long> second;
 
 	public RealTimeClock(RealTimeClockNature rtc) {
 		super(rtc);
