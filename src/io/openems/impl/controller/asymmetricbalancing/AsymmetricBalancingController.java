@@ -204,6 +204,10 @@ public class AsymmetricBalancingController extends Controller {
 			 */
 			long power = (long) (Math.ceil(minPower + diff / useableSoc * ess.useableSoc()));
 
+			if (power <= 100 && power >= -100) {
+				power = 0;
+			}
+
 			long reactivePower = calculateReactivePower(power, cosPhi.value());
 
 			calculatedPower -= power;
