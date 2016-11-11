@@ -45,6 +45,9 @@ public class AsymmetricBalancingController extends Controller {
 
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this, Meter.class);
 
+	private long[][] lastWriteValues = new long[3][8];
+	private int index = 0;
+
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {
@@ -61,6 +64,12 @@ public class AsymmetricBalancingController extends Controller {
 				calculatedPowers[1] += ess.activePowerL2.value();
 				calculatedPowers[2] += ess.activePowerL3.value();
 			}
+			for (int i = 0; i < 3; i++) {
+				lastWriteValues[i][index] = calculatedPowers[i];
+				calculatedPowers[i] = getAvgPower(i + 1);
+			}
+			index++;
+			index %= lastWriteValues[0].length;
 			// Calculate required sum values
 			long useableSoc = 0;
 			for (Ess ess : esss.value()) {
@@ -100,6 +109,17 @@ public class AsymmetricBalancingController extends Controller {
 		} catch (InvalidValueException | WriteChannelException e) {
 			log.error(e.getMessage());
 		}
+	}
+
+	private long getAvgPower(int phase) {
+		int i = index;
+		long sum = 0;
+		do {
+			sum += lastWriteValues[phase - 1][i];
+			i++;
+			i %= lastWriteValues[phase - 1].length;
+		} while (i != index);
+		return sum / lastWriteValues[phase - 1].length;
 	}
 
 	/**

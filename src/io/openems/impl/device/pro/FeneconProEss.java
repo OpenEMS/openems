@@ -168,27 +168,27 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	}
 
 	@Override public ReadChannel<Long> rtcYear() {
-		return rtcYear();
+		return rtcYear;
 	}
 
 	@Override public ReadChannel<Long> rtcMonth() {
-		return rtcMonth();
+		return rtcMonth;
 	}
 
 	@Override public ReadChannel<Long> rtcDay() {
-		return rtcDay();
+		return rtcDay;
 	}
 
 	@Override public ReadChannel<Long> rtcHour() {
-		return rtcHour();
+		return rtcHour;
 	}
 
 	@Override public ReadChannel<Long> rtcMinute() {
-		return rtcMinute();
+		return rtcMinute;
 	}
 
 	@Override public ReadChannel<Long> rtcSecond() {
-		return rtcSecond();
+		return rtcSecond;
 	}
 
 	/*
