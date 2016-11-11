@@ -31,15 +31,25 @@ public class DebugLogController extends Controller {
 
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
 
-	public final ConfigChannel<Set<Meter>> meters = new ConfigChannel<Set<Meter>>("meters", this, Meter.class)
-			.optional();
+	public final ConfigChannel<Set<SymmetricMeter>> symmetricMeters = new ConfigChannel<Set<SymmetricMeter>>(
+			"symmetricMeters", this, SymmetricMeter.class).optional();
+	public final ConfigChannel<Set<AsymmetricMeter>> asymmetricMeters = new ConfigChannel<Set<AsymmetricMeter>>(
+			"asymmetricMeters", this, AsymmetricMeter.class).optional();
 
 	@Override public void run() {
 		try {
 			StringBuilder b = new StringBuilder();
-			if (meters.valueOptional().isPresent()) {
-				for (Meter meter : meters.value()) {
+			if (symmetricMeters.valueOptional().isPresent()) {
+				for (SymmetricMeter meter : symmetricMeters.value()) {
 					b.append(meter.id() + ": " + meter.activePower.format() + " ");
+				}
+			}
+			if (asymmetricMeters.valueOptional().isPresent()) {
+				for (AsymmetricMeter meter : asymmetricMeters.value()) {
+					b.append(meter.id() + " L1: " + meter.activePowerL1.format() + " W, "
+							+ meter.reactivePowerL1.format() + " Var, L2: " + meter.activePowerL2.format() + " W, "
+							+ meter.reactivePowerL2.format() + " Var, L3: " + meter.activePowerL3.format() + " W, "
+							+ meter.reactivePowerL3.format() + " Var");
 				}
 			}
 
