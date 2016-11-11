@@ -43,9 +43,9 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 	private ModbusReadChannel activePowerL1;
 	private ModbusReadChannel activePowerL2;
 	private ModbusReadChannel activePowerL3;
-	private ModbusReadChannel reactivePowerL1 = new ModbusReadChannel("ReactivePowerL1", this);
-	private ModbusReadChannel reactivePowerL2 = new ModbusReadChannel("ReactivePowerL2", this);
-	private ModbusReadChannel reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this);
+	private ReadChannel<Long> reactivePowerL1 = new ReadChannel<Long>("ReactivePowerL1", this);
+	private ReadChannel<Long> reactivePowerL2 = new ReadChannel<Long>("ReactivePowerL2", this);
+	private ReadChannel<Long> reactivePowerL3 = new ReadChannel<Long>("ReactivePowerL3", this);
 
 	/*
 	 * This Channels
@@ -63,23 +63,20 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 						new DummyElement(2037,
 								2065),
 						new UnsignedWordElement(2066, //
-								activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W").delta(-10000L))),
+								activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W").delta(10000L))),
 				new ModbusRange(2135, //
 						new UnsignedDoublewordElement(2135, //
 								activeEnergyL2 = new ModbusReadChannel("ActiveEnergyL2", this).unit("Wh")
 										.multiplier(100)),
-						new DummyElement(2137,
-								2165),
+						new DummyElement(2137, 2165),
 						new UnsignedWordElement(2166, //
-								activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W").delta(-10000L))),
+								activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W").delta(10000L))),
 				new ModbusRange(2235, //
 						new UnsignedDoublewordElement(2235, //
 								activeEnergyL3 = new ModbusReadChannel("ActiveEnergyL3", this).unit("Wh")
 										.multiplier(100)),
-						new DummyElement(2237, 2265),
-						new UnsignedWordElement(2266, //
-								activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W")
-										.delta(-10000L))));
+						new DummyElement(2237, 2265), new UnsignedWordElement(2266, //
+								activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W").delta(10000L))));
 	}
 
 	@Override public ReadChannel<Long> activePowerL1() {

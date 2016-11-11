@@ -35,7 +35,7 @@ public class FeneconPro extends ModbusDevice {
 	 */
 	public final ConfigChannel<FeneconProEss> ess = new ConfigChannel<FeneconProEss>("ess", this, FeneconProEss.class);
 
-	public final ConfigChannel<FeneconProPvMeter> meter = new ConfigChannel<FeneconProPvMeter>("ess", this,
+	public final ConfigChannel<FeneconProPvMeter> meter = new ConfigChannel<FeneconProPvMeter>("meter", this,
 			FeneconProPvMeter.class);
 
 	public FeneconPro() throws OpenemsException {
@@ -50,6 +50,9 @@ public class FeneconPro extends ModbusDevice {
 		Set<DeviceNature> natures = new HashSet<>();
 		if (ess.valueOptional().isPresent()) {
 			natures.add(ess.valueOptional().get());
+		}
+		if (meter.valueOptional().isPresent()) {
+			natures.add(meter.valueOptional().get());
 		}
 		return natures;
 	}
