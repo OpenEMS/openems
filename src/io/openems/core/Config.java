@@ -224,7 +224,7 @@ public class Config {
 	 */
 	private void injectConfigChannels(Set<ConfigChannel<?>> channels, JsonObject jConfig) throws ReflectionException {
 		for (ConfigChannel<?> channel : channels) {
-			if ((!jConfig.has(channel.id()) && channel.valueOptional().isPresent()) || channel.isOptional()) {
+			if ((!jConfig.has(channel.id()) && (channel.valueOptional().isPresent()) || channel.isOptional())) {
 				// Element for this Channel is not existing existing in the configuration, but a default value was set
 				continue;
 			}
