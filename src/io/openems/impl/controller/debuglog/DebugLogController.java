@@ -39,10 +39,6 @@ public class DebugLogController extends Controller {
 
 	@Override public void run() {
 		try {
-			System.out.println(esss.valueOptional());
-			System.out.println(symmetricMeters.valueOptional());
-			System.out.println(asymmetricMeters.valueOptional());
-			System.out.println(rtc.valueOptional());
 			StringBuilder b = new StringBuilder();
 			if (symmetricMeters.valueOptional().isPresent()) {
 				for (SymmetricMeter meter : symmetricMeters.value()) {
@@ -53,13 +49,13 @@ public class DebugLogController extends Controller {
 				for (AsymmetricMeter meter : asymmetricMeters.value()) {
 					b.append(meter.id() + " L1: " + meter.activePowerL1.format() + ", " + meter.reactivePowerL1.format()
 							+ ", L2: " + meter.activePowerL2.format() + ", " + meter.reactivePowerL2.format() + ", L3: "
-							+ meter.activePowerL3.format() + ", " + meter.reactivePowerL3.format() + "");
+							+ meter.activePowerL3.format() + ", " + meter.reactivePowerL3.format() + " ");
 				}
 			}
 			if (rtc.valueOptional().isPresent()) {
 				RealTimeClock r = rtc.value();
 				b.append(rtc.id() + " " + r.year.format() + "-" + r.month.format() + "-" + r.day.format() + " "
-						+ r.hour.format() + ":" + r.minute.format() + ":" + r.second.format());
+						+ r.hour.format() + ":" + r.minute.format() + ":" + r.second.format() + " ");
 			}
 			if (esss.valueOptional().isPresent()) {
 				for (Ess ess : esss.value()) {
@@ -70,7 +66,7 @@ public class DebugLogController extends Controller {
 							+ "State[" + ess.systemState.format() + "]");
 					Optional<String> warning = ess.warning.labelOptional();
 					if (warning.isPresent()) {
-						b.append(" Warning[" + warning.get() + "]");
+						b.append(" Warning[" + warning.get() + "] ");
 					}
 				}
 			}
