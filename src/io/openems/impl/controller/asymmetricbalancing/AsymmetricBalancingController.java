@@ -28,6 +28,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.core.utilities.ControllerUtils;
 
 /**
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach
@@ -98,10 +99,13 @@ public class AsymmetricBalancingController extends Controller {
 					}
 				}
 				// reduce Power to possible power
-				if (calculateApparentPower(calculatedPowers[i - 1], cosPhi.value()) > maxDischargePowerPhase) {
-					calculatedPowers[i - 1] = calculateActivePower(maxDischargePowerPhase, cosPhi.value());
-				} else if (calculateApparentPower(calculatedPowers[i - 1], cosPhi.value()) < maxChargePowerPhase) {
-					calculatedPowers[i - 1] = calculateActivePower(maxChargePowerPhase, cosPhi.value());
+				if (ControllerUtils.calculateApparentPower(calculatedPowers[i - 1],
+						cosPhi.value()) > maxDischargePowerPhase) {
+					calculatedPowers[i - 1] = ControllerUtils.calculateActivePower(maxDischargePowerPhase,
+							cosPhi.value());
+				} else if (ControllerUtils.calculateApparentPower(calculatedPowers[i - 1],
+						cosPhi.value()) < maxChargePowerPhase) {
+					calculatedPowers[i - 1] = ControllerUtils.calculateActivePower(maxChargePowerPhase, cosPhi.value());
 				}
 				calculatePower(calculatedPowers[i - 1], maxDischargePowerPhase, maxChargePowerPhase, i, useableSoc);
 			}
@@ -228,7 +232,7 @@ public class AsymmetricBalancingController extends Controller {
 				power = 0;
 			}
 
-			long reactivePower = calculateReactivePower(power, cosPhi.value());
+			long reactivePower = ControllerUtils.calculateReactivePower(power, cosPhi.value());
 
 			calculatedPower -= power;
 
@@ -254,14 +258,17 @@ public class AsymmetricBalancingController extends Controller {
 		long minPower = 0;
 		percentage = Math.abs(percentage);
 		if (ess.allowedApparent.value() * 3 < ess.allowedDischarge.value()) {
-			maxPower = calculateActivePower((long) (ess.allowedApparent.value() * 3 * percentage), cosPhi);
+			maxPower = ControllerUtils.calculateActivePower((long) (ess.allowedApparent.value() * 3 * percentage),
+					cosPhi);
 		} else {
-			maxPower = calculateActivePower((long) (ess.allowedDischarge.value() * percentage), cosPhi);
+			maxPower = ControllerUtils.calculateActivePower((long) (ess.allowedDischarge.value() * percentage), cosPhi);
 		}
 		if (ess.allowedApparent.value() * 3 < ess.allowedCharge.value()) {
-			minPower = calculateActivePower((long) (ess.allowedApparent.value() * -3 * percentage), cosPhi);
+			minPower = ControllerUtils.calculateActivePower((long) (ess.allowedApparent.value() * -3 * percentage),
+					cosPhi);
 		} else {
-			minPower = calculateActivePower((long) (ess.allowedCharge.value() * -1 * percentage), cosPhi);
+			minPower = ControllerUtils.calculateActivePower((long) (ess.allowedCharge.value() * -1 * percentage),
+					cosPhi);
 		}
 		if (minPower < ess.allowedApparent.value() * -1) {
 			minPower = ess.allowedApparent.value() * -1;
@@ -270,22 +277,6 @@ public class AsymmetricBalancingController extends Controller {
 			maxPower = ess.allowedApparent.value();
 		}
 		return new Tupel<Long>(minPower, maxPower);
-	}
-
-	private long calculateReactivePower(long activePower, double cosPhi) {
-		return (long) (activePower * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
-	}
-
-	private long calculateApparentPower(long activePower, long reactivePower) {
-		return (long) Math.sqrt(Math.pow(activePower, 2) + Math.pow(reactivePower, 2));
-	}
-
-	private long calculateActivePower(long apparentPower, double cosPhi) {
-		return (long) (apparentPower * cosPhi);
-	}
-
-	private long calculateApparentPower(long activePower, double cosPhi) {
-		return (long) (activePower / cosPhi);
 	}
 
 	private class Tupel<T> {

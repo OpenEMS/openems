@@ -24,6 +24,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.core.utilities.ControllerUtils;
 
 /*
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
@@ -60,26 +61,40 @@ public class SymmetricBalancingBandgapController extends Controller {
 			} else {
 				calculatedReactivePower = 0;
 			}
+			boolean activePowerPos = true;
+			boolean reactivePowerPos = true;
+			if (calculatedPower < 0) {
+				activePowerPos = false;
+			}
+			if (calculatedReactivePower < 0) {
+				reactivePowerPos = false;
+			}
 			// TODO check reactivePower
-			if (calculatedPower > 0) {
-				/*
-				 * Discharge
-				 */
-				if (calculateApparentPower(calculatedPower, calculatedReactivePower) > maxDischargePower) {
-					double cosPhi = calculateCosPhi(calculatedPower, calculatedReactivePower);
-					calculatedPower = calculateActivePower(maxDischargePower, cosPhi);
-					calculatedReactivePower = calculateReactivePower(maxDischargePower, cosPhi);
-				}
-			} else {
+			if (ControllerUtils.isCharge(calculatedPower, calculatedReactivePower)) {
 				/*
 				 * Charge
 				 */
-				if (calculateApparentPower(calculatedPower, calculatedReactivePower) < maxChargePower) {
-					double cosPhi = calculateCosPhi(calculatedPower, calculatedReactivePower);
-					calculatedPower = calculateActivePower(maxChargePower, cosPhi);
-					calculatedReactivePower = calculateReactivePower(maxChargePower, cosPhi);
+				if (ControllerUtils.calculateApparentPower(calculatedPower, calculatedReactivePower) < maxChargePower) {
+					double cosPhi = ControllerUtils.calculateCosPhi(calculatedPower, calculatedReactivePower);
+					calculatedPower = ControllerUtils.calculateActivePower(maxChargePower, cosPhi);
+					calculatedReactivePower = ControllerUtils.calculateReactivePower(maxChargePower, cosPhi);
 				}
-
+			} else {
+				/*
+				 * Discharge
+				 */
+				if (ControllerUtils.calculateApparentPower(calculatedPower,
+						calculatedReactivePower) > maxDischargePower) {
+					double cosPhi = ControllerUtils.calculateCosPhi(calculatedPower, calculatedReactivePower);
+					calculatedPower = ControllerUtils.calculateActivePower(maxDischargePower, cosPhi);
+					calculatedReactivePower = ControllerUtils.calculateReactivePower(maxDischargePower, cosPhi);
+				}
+			}
+			if (!activePowerPos && calculatedPower >= 0) {
+				calculatedPower *= -1;
+			}
+			if (!reactivePowerPos && calculatedReactivePower >= 0) {
+				calculatedReactivePower *= -1;
 			}
 			ess.setActivePower.pushWrite(calculatedPower);
 			ess.setReactivePower.pushWrite(calculatedReactivePower);
@@ -88,26 +103,6 @@ public class SymmetricBalancingBandgapController extends Controller {
 		} catch (InvalidValueException | WriteChannelException e) {
 			log.error(e.getMessage());
 		}
-	}
-
-	private double calculateCosPhi(long activePower, long reactivePower) {
-		return activePower / calculateApparentPower(activePower, reactivePower);
-	}
-
-	private long calculateReactivePower(long activePower, double cosPhi) {
-		return (long) (activePower * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
-	}
-
-	private long calculateApparentPower(long activePower, long reactivePower) {
-		return (long) Math.sqrt(Math.pow(activePower, 2) + Math.pow(reactivePower, 2));
-	}
-
-	private long calculateActivePower(long apparentPower, double cosPhi) {
-		return (long) (apparentPower * cosPhi);
-	}
-
-	private long calculateApparentPower(long activePower, double cosPhi) {
-		return (long) (activePower / cosPhi);
 	}
 
 }
