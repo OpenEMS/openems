@@ -44,4 +44,9 @@ public class RealTimeClock extends ThingMap {
 		minute = rtc.rtcMinute(); // not required!
 		second = rtc.rtcSecond(); // not required!
 	}
+
+	@Override public String toString() {
+		return id() + "[" + year.format() + "-" + month.format() + "-" + day.format() + " " + //
+				hour.format() + ":" + minute.format() + ":" + second.format() + "]";
+	}
 }

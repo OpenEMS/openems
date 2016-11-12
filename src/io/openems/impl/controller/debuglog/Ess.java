@@ -20,36 +20,63 @@
  *******************************************************************************/
 package io.openems.impl.controller.debuglog;
 
-import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
+import io.openems.api.device.nature.ess.SymmetricEssNature;
 
 @IsThingMap(type = EssNature.class)
 public class Ess extends ThingMap {
 
-	public final ReadChannel<Long> allowedCharge;
-	public final ReadChannel<Long> allowedDischarge;
-	public final ReadChannel<Integer> minSoc;
-	public final ReadChannel<Long> soc;
-	public final ReadChannel<Long> systemState;
-	public final StatusBitChannels warning;
+	private final EssNature ess;
 
 	public Ess(EssNature ess) {
 		super(ess);
-		allowedCharge = ess.allowedCharge().required();
-		allowedDischarge = ess.allowedDischarge().required();
-		minSoc = ess.minSoc().required();
-		soc = ess.soc().required();
-		systemState = ess.systemState().required();
+		this.ess = ess;
 
-		warning = ess.warning(); // not required!
+		ess.allowedCharge().required();
+		ess.allowedDischarge().required();
+		ess.minSoc().required();
+		ess.soc().required();
+		ess.systemState().required();
+
+		if (ess instanceof AsymmetricEssNature) {
+			AsymmetricEssNature e = (AsymmetricEssNature) ess;
+			e.activePowerL1().required();
+			e.activePowerL2().required();
+			e.activePowerL3().required();
+			e.reactivePowerL1().required();
+			e.reactivePowerL2().required();
+			e.reactivePowerL3().required();
+		} else if (ess instanceof SymmetricEssNature) {
+			SymmetricEssNature e = (SymmetricEssNature) ess;
+			e.activePower().required();
+			e.reactivePower().required();
+		}
 	}
 
 	@Override public String toString() {
-		return "Ess [soc=" + soc + ", minSoc=" + minSoc + ", allowedCharge=" + allowedCharge + ", allowedDischarge="
-				+ allowedDischarge + ", systemState=" + systemState + ", warning=" + warning + "]";
+		StringBuilder b = new StringBuilder();
+		b.append(ess.id() + "[" + //
+				"SOC:" + ess.soc().format() + "|");
+		if (ess instanceof AsymmetricEssNature) {
+			AsymmetricEssNature e = (AsymmetricEssNature) ess;
+			b.append("L1:" + e.activePowerL1().format() + "|" + e.reactivePowerL1().format() + "|" + //
+					"L2:" + e.activePowerL2().format() + "|" + e.reactivePowerL2().format() + "|" + //
+					"L3:" + e.activePowerL3().format() + "|" + e.reactivePowerL3().format());
+		} else if (ess instanceof SymmetricEssNature) {
+			SymmetricEssNature e = (SymmetricEssNature) ess;
+			b.append("L" + e.activePower().format() + "|" + e.reactivePower().format());
+		}
+		b.append("|" + //
+				"Allowed:" + ess.allowedCharge().format() + "|" + ess.allowedDischarge().format());
+		String warn = ess.warning().toString();
+		if (!warn.equals("")) {
+			b.append("|Warn:" + ess.warning());
+		}
+		b.append("]");
+		return b.toString();
 	}
 
 }

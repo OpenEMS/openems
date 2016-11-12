@@ -20,31 +20,34 @@
  *******************************************************************************/
 package io.openems.impl.controller.debuglog;
 
-import io.openems.api.channel.ReadChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.meter.AsymmetricMeterNature;
+import io.openems.api.device.nature.meter.MeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 
-@IsThingMap(type = SymmetricMeterNature.class)
-public class SymmetricMeter extends ThingMap {
+@IsThingMap(type = MeterNature.class)
+public class Meter extends ThingMap {
+	private final MeterNature meter;
 
-	// public final ReadChannel<Long> activeNegativeEnergy;
-	// public final ReadChannel<Long> activePositiveEnergy;
-	public final ReadChannel<Long> activePower;
-	public final ReadChannel<Long> apparentPower;
-	// public final ReadChannel<Long> reactiveNegativeEnergy;
-	// public final ReadChannel<Long> reactivePositiveEnergy;
-	public final ReadChannel<Long> reactivePower;
-
-	public SymmetricMeter(SymmetricMeterNature meter) {
+	public Meter(MeterNature meter) {
 		super(meter);
-		// activeNegativeEnergy = meter.activeNegativeEnergy().required();
-		// activePositiveEnergy = meter.activePositiveEnergy().required();
-		activePower = meter.activePower().required();
-		apparentPower = meter.apparentPower().required();
-		// reactiveNegativeEnergy = meter.reactiveNegativeEnergy().required();
-		// reactivePositiveEnergy = meter.reactivePositiveEnergy().required();
-		reactivePower = meter.reactivePower().required();
+		this.meter = meter;
 	}
 
+	@Override public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append(meter.id() + "[");
+		if (meter instanceof AsymmetricMeterNature) {
+			AsymmetricMeterNature m = (AsymmetricMeterNature) meter;
+			b.append("L1:" + m.activePowerL1().format() + "|" + m.reactivePowerL1().format() + "|" + //
+					"L2:" + m.activePowerL2().format() + "|" + m.reactivePowerL2().format() + "|" + //
+					"L3:" + m.activePowerL3().format() + "|" + m.reactivePowerL3().format());
+		} else if (meter instanceof SymmetricMeterNature) {
+			SymmetricMeterNature m = (SymmetricMeterNature) meter;
+			b.append(m.activePower().format() + "|" + m.reactivePower().format());
+		}
+		b.append("]");
+		return b.toString();
+	}
 }
