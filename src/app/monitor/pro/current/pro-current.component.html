@@ -1,12 +1,5 @@
 <div *ngIf="waitingForData" class="container">
   <div class="row">
-    <div class="col-xs-3">
-      <common-soc [soc]="soc"></common-soc>
-    </div>
-  </div>
-</div>
-<div *ngIf="waitingForData" class="container">
-  <div class="row">
     <div class="col-xs-12">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -34,6 +27,11 @@
             <td align="right">{{data.ess0.Soc}} %</td>
           </tr>
           <tr>
+            <td colspan="3">
+              <common-soc [soc]="data.ess0.Soc" height="150"></common-soc>
+            </td>
+          </tr>
+          <tr>
             <td>Wirkleistung</td>
             <td>L1</td>
             <td align="right">{{data.ess0.ActivePowerL1}} W</td>
@@ -48,17 +46,17 @@
             <td>L3</td>
             <td align="right">{{data.ess0.ActivePowerL3}} W</td>
           </tr>
-          <tr>
+          <tr class="text-muted">
             <td>Blindleistung</td>
             <td>L1</td>
             <td align="right">{{data.ess0.ReactivePowerL1}} VA</td>
           </tr>
-          <tr>
+          <tr class="text-muted">
             <td></td>
             <td>L2</td>
             <td align="right">{{data.ess0.ReactivePowerL2}} VA</td>
           </tr>
-          <tr>
+          <tr class="text-muted">
             <td></td>
             <td>L3</td>
             <td align="right">{{data.ess0.ReactivePowerL3}} VA</td>
@@ -87,17 +85,17 @@
             <td>L3</td>
             <td align="right">{{data.meter0.ActivePowerL3}} W</td>
           </tr>
-          <tr>
+          <tr class="text-muted">
             <td>Blindleistung</td>
             <td>L1</td>
             <td align="right">{{data.meter0.ReactivePowerL1}} VA</td>
           </tr>
-          <tr>
+          <tr class="text-muted">
             <td></td>
             <td>L2</td>
             <td align="right">{{data.meter0.ReactivePowerL2}} VA</td>
           </tr>
-          <tr>
+          <tr class="text-muted">
             <td></td>
             <td>L3</td>
             <td align="right">{{data.meter0.ReactivePowerL3}} VA</td>

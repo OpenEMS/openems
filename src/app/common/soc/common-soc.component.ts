@@ -8,11 +8,11 @@ import { ISubscription } from 'rxjs/Subscription';
   styleUrls: ['./common-soc.component.css']
 })
 export class CommonSocComponent {
-  private _soc :number = null;
+  @Input()
+  private height: number = 200;
 
   @Input()
   set soc(soc: number) {
-    this._soc = soc;
     this.chartdata.datasets[0].data = [soc, 100-soc];
   }
 
@@ -25,12 +25,12 @@ export class CommonSocComponent {
         {
           data: [null, null],
           backgroundColor: [
-            "#FF6384",
-            "#36A2EB"
+            "#2D8FAB",
+            "#E8E8E8"
           ],
           hoverBackgroundColor: [
-            "#FF6384",
-            "#36A2EB"
+            "#2D8FAB",
+            "#E8E8E8"
           ]
         }]
     };
@@ -40,7 +40,9 @@ export class CommonSocComponent {
       },
       legend: {
         display: false
-      }
+      },
+      responsive: true,
+      maintainAspectRatio: true
     };
   }
 }

@@ -39,7 +39,8 @@ export class MonitorProCurrentComponent implements OnInit {
   }
 
   ngOnInit() {
-    var ws = new WebSocket("ws://" + location.hostname + "/websocket");
+    //var ws = new WebSocket("ws://" + location.hostname + "/websocket");
+    var ws = new WebSocket("ws://192.168.178.143/websocket");
     ws.onopen = () => {
       ws.send(JSON.stringify({
         subscription: {
@@ -62,26 +63,26 @@ export class MonitorProCurrentComponent implements OnInit {
       var data = JSON.parse(message.data).data;
       if (data) {
         if (data.ess0) {
-          this.data.ess0.Soc = data.ess0.Soc ? data.ess0.Soc : null;
-          this.data.ess0.ActivePowerL1 = data.ess0.ActivePowerL1 ? data.ess0.ActivePowerL1 : null;
-          this.data.ess0.ActivePowerL2 = data.ess0.ActivePowerL2 ? data.ess0.ActivePowerL2 : null;
-          this.data.ess0.ActivePowerL3 = data.ess0.ActivePowerL3 ? data.ess0.ActivePowerL3 : null;
-          this.data.ess0.ReactivePowerL1 = data.ess0.ReactivePowerL1 ? data.ess0.ReactivePowerL1 : null;
-          this.data.ess0.ReactivePowerL2 = data.ess0.ReactivePowerL2 ? data.ess0.ReactivePowerL2 : null;
-          this.data.ess0.ReactivePowerL3 = data.ess0.ReactivePowerL3 ? data.ess0.ReactivePowerL3 : null;
+          this.data.ess0.Soc = "Soc" in data.ess0 ? data.ess0.Soc : null;
+          this.data.ess0.ActivePowerL1 = "ActivePowerL1" in data.ess0 ? data.ess0.ActivePowerL1 : null;
+          this.data.ess0.ActivePowerL2 = "ActivePowerL2" in data.ess0 ? data.ess0.ActivePowerL2 : null;
+          this.data.ess0.ActivePowerL3 = "ActivePowerL3" in data.ess0 ? data.ess0.ActivePowerL3 : null;
+          this.data.ess0.ReactivePowerL1 = "ReactivePowerL1" in data.ess0 ? data.ess0.ReactivePowerL1 : null;
+          this.data.ess0.ReactivePowerL2 = "ReactivePowerL2" in data.ess0 ? data.ess0.ReactivePowerL2 : null;
+          this.data.ess0.ReactivePowerL3 = "ReactivePowerL3" in data.ess0 ? data.ess0.ReactivePowerL3 : null;
         }
         if (data.meter0) {
-          this.data.meter0.ActivePowerL1 = data.meter0.ActivePowerL1 ? data.meter0.ActivePowerL1 : null;
-          this.data.meter0.ActivePowerL2 = data.meter0.ActivePowerL2 ? data.meter0.ActivePowerL2 : null;
-          this.data.meter0.ActivePowerL3 = data.meter0.ActivePowerL3 ? data.meter0.ActivePowerL3 : null;
-          this.data.meter0.ReactivePowerL1 = data.meter0.ReactivePowerL1 ? data.meter0.ReactivePowerL1 : null;
-          this.data.meter0.ReactivePowerL2 = data.meter0.ReactivePowerL2 ? data.meter0.ReactivePowerL2 : null;
-          this.data.meter0.ReactivePowerL3 = data.meter0.ReactivePowerL3 ? data.meter0.ReactivePowerL3 : null;
+          this.data.meter0.ActivePowerL1 = "ActivePowerL1" in data.meter0 ? data.meter0.ActivePowerL1 : null;
+          this.data.meter0.ActivePowerL2 = "ActivePowerL2" in data.meter0 ? data.meter0.ActivePowerL2 : null;
+          this.data.meter0.ActivePowerL3 = "ActivePowerL3" in data.meter0 ? data.meter0.ActivePowerL3 : null;
+          this.data.meter0.ReactivePowerL1 = "ReactivePowerL1" in data.meter0 ? data.meter0.ReactivePowerL1 : null;
+          this.data.meter0.ReactivePowerL2 = "ReactivePowerL2" in data.meter0 ? data.meter0.ReactivePowerL2 : null;
+          this.data.meter0.ReactivePowerL3 = "ReactivePowerL3" in data.meter0 ? data.meter0.ReactivePowerL3 : null;
         }
         if (data.meter1) {
-          this.data.meter1.ActivePowerL1 = data.meter1.ActivePowerL1 ? data.meter1.ActivePowerL1 : null;
-          this.data.meter1.ActivePowerL2 = data.meter1.ActivePowerL2 ? data.meter1.ActivePowerL2 : null;
-          this.data.meter1.ActivePowerL3 = data.meter1.ActivePowerL3 ? data.meter1.ActivePowerL3 : null;
+          this.data.meter1.ActivePowerL1 = "ActivePowerL1" in data.meter1 ? data.meter1.ActivePowerL1 : null;
+          this.data.meter1.ActivePowerL2 = "ActivePowerL2" in data.meter1 ? data.meter1.ActivePowerL2 : null;
+          this.data.meter1.ActivePowerL3 = "ActivePowerL3" in data.meter1 ? data.meter1.ActivePowerL3 : null;
         }
         this.waitingForData = false;
       }
