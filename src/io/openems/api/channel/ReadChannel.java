@@ -46,7 +46,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private Interval<T> valueInterval = new Interval<T>();
 	private String unit = "";
 
-	private final Set<ChannelListener> listeners = new ConcurrentHashSet<>();
+	private final Set<ChannelUpdateListener> listeners = new ConcurrentHashSet<>();
 
 	public ReadChannel(String id, Thing parent) {
 		log = LoggerFactory.getLogger(this.getClass());
@@ -72,8 +72,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
-	@Override public ReadChannel<T> listener(ChannelListener... listeners) {
-		for (ChannelListener listener : listeners) {
+	@Override public ReadChannel<T> updateListener(ChannelUpdateListener... listeners) {
+		for (ChannelUpdateListener listener : listeners) {
 			this.listeners.add(listener);
 		}
 		return this;
@@ -158,7 +158,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		}
 
 		if (triggerEvent) {
-			listeners.forEach(listener -> listener.channelEvent(this));
+			listeners.forEach(listener -> listener.channelUpdated(this, this.value));
 		}
 	}
 

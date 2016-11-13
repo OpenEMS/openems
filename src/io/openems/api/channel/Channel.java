@@ -30,10 +30,10 @@ public interface Channel {
 	public String address();
 
 	/**
-	 * Register a listener for events on this Channel
+	 * Register a listener for update events on this Channel
 	 *
 	 * @param listeners
 	 * @return itself
 	 */
-	public Channel listener(ChannelListener... listeners);
+	public Channel updateListener(ChannelUpdateListener... listeners);
 }

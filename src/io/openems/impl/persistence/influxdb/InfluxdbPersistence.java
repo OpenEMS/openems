@@ -40,15 +40,15 @@ public class InfluxdbPersistence extends Persistence {
 	/**
 	 * Receives events for all {@link ReadChannel}s, excluding {@link ConfigChannel}s via the {@link Databus}.
 	 */
-	@Override public void channelEvent(Channel channel) {
+	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
 		if (!(channel instanceof ReadChannel<?>)) {
 			return;
 		}
 		ReadChannel<?> readChannel = (ReadChannel<?>) channel;
-		if (!readChannel.valueOptional().isPresent()) {
+		if (!newValue.isPresent()) {
 			return;
 		}
-		Object value = readChannel.valueOptional().get();
+		Object value = newValue.get();
 		String field = readChannel.address();
 		FieldValue<?> fieldValue;
 		if (value instanceof Number) {

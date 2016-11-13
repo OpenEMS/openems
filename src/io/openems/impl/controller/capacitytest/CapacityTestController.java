@@ -23,9 +23,10 @@ package io.openems.impl.controller.capacitytest;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelListener;
+import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
@@ -70,9 +71,9 @@ public class CapacityTestController extends Controller {
 	}
 
 	public CapacityTestController() {
-		logPath.listener(new ChannelListener() {
+		logPath.updateListener(new ChannelUpdateListener() {
 
-			@Override public void channelEvent(Channel channel) {
+			@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
 				try {
 					if (fw != null) {
 						fw.close();

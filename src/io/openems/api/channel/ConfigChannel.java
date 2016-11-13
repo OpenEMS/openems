@@ -31,8 +31,8 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 		this.type = type;
 	}
 
-	@Override public ConfigChannel<T> listener(ChannelListener... listeners) {
-		return (ConfigChannel<T>) super.listener(listeners);
+	@Override public ConfigChannel<T> updateListener(ChannelUpdateListener... listeners) {
+		return (ConfigChannel<T>) super.updateListener(listeners);
 	}
 
 	public Class<?> type() {
