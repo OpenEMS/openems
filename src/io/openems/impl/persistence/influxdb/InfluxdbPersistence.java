@@ -13,12 +13,13 @@ import org.influxdb.dto.Point.Builder;
 import com.google.common.collect.HashMultimap;
 
 import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.persistence.Persistence;
 import io.openems.core.Databus;
 
-public class InfluxdbPersistence extends Persistence {
+public class InfluxdbPersistence extends Persistence implements ChannelUpdateListener {
 
 	private final String DB_NAME = "db";
 
