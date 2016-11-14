@@ -54,6 +54,7 @@ public class Ess extends ThingMap {
 	public ReadChannel<Long> batteryCurrent;
 	public ReadChannel<Long> batteryVoltage;
 	public ReadChannel<Long> batteryPower;
+	public boolean empty = false;
 
 	public Ess(FeneconProEss ess) {
 		super(ess);

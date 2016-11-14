@@ -49,17 +49,24 @@ public class CapacityTestController extends Controller {
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {
-				ess.setActivePowerL1.pushWrite((long) power.value());
-				ess.setActivePowerL2.pushWrite((long) power.value());
-				ess.setActivePowerL3.pushWrite((long) power.value());
-				ess.setWorkState.pushWriteFromLabel(EssNature.START);
-				fw.append(System.currentTimeMillis() + ";" + ess.activePowerL1.value() + ";" + ess.activePowerL2.value()
-						+ ";" + ess.activePowerL3.value() + ";" + ess.batteryCurrent.value() + ";"
-						+ ess.batteryPower.value() + ";" + ess.batteryVoltage.value() + ";" + ess.voltageL1.value()
-						+ ";" + ess.voltageL2.value() + ";" + ess.voltageL3.value() + ";" + ess.currentL1.value() + ";"
-						+ ess.currentL2.value() + ";" + ess.currentL3.value() + ";" + ess.soc.value() + ";"
-						+ ess.totalBatteryChargeEnergy.value() + ";" + ess.totalBatteryDischargeEnergy.value() + "\n");
-				fw.flush();
+				if (!ess.empty) {
+					ess.setActivePowerL1.pushWrite((long) power.value());
+					ess.setActivePowerL2.pushWrite((long) power.value());
+					ess.setActivePowerL3.pushWrite((long) power.value());
+					ess.setWorkState.pushWriteFromLabel(EssNature.START);
+					fw.append(System.currentTimeMillis() + ";" + ess.activePowerL1.value() + ";"
+							+ ess.activePowerL2.value() + ";" + ess.activePowerL3.value() + ";"
+							+ ess.batteryCurrent.value() + ";" + ess.batteryPower.value() + ";"
+							+ ess.batteryVoltage.value() + ";" + ess.voltageL1.value() + ";" + ess.voltageL2.value()
+							+ ";" + ess.voltageL3.value() + ";" + ess.currentL1.value() + ";" + ess.currentL2.value()
+							+ ";" + ess.currentL3.value() + ";" + ess.soc.value() + ";"
+							+ ess.totalBatteryChargeEnergy.value() + ";" + ess.totalBatteryDischargeEnergy.value()
+							+ "\n");
+					fw.flush();
+				}
+				if (ess.soc.value() <= ess.minSoc.value()) {
+					ess.empty = true;
+				}
 			}
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
