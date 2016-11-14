@@ -18,42 +18,30 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.channel;
+package io.openems.impl.controller.clocksync;
 
-import io.openems.api.thing.Thing;
+import io.openems.api.channel.WriteChannel;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
 
-public class ConfigChannel<T> extends WriteChannel<T> {
-	private final Class<?> type;
-	private boolean isOptional;
+@IsThingMap(type = RealTimeClockNature.class)
+public class RealTimeClock extends ThingMap {
 
-	public ConfigChannel(String id, Thing parent, Class<?> type) {
-		super(id, parent);
-		this.type = type;
-	}
+	public final WriteChannel<Long> year;
+	public final WriteChannel<Long> month;
+	public final WriteChannel<Long> day;
+	public final WriteChannel<Long> hour;
+	public final WriteChannel<Long> minute;
+	public final WriteChannel<Long> second;
 
-	@Override public ConfigChannel<T> updateListener(ChannelUpdateListener... listeners) {
-		return (ConfigChannel<T>) super.updateListener(listeners);
-	}
-
-	public Class<?> type() {
-		return this.type;
-	}
-
-	@Override public void updateValue(Object value, boolean triggerEvent) {
-		super.updateValue((T) value, triggerEvent);
-	}
-
-	public ConfigChannel<T> defaultValue(T value) {
-		updateValue(value, false);
-		return this;
-	}
-
-	public ConfigChannel<T> optional() {
-		this.isOptional = true;
-		return this;
-	}
-
-	public boolean isOptional() {
-		return isOptional;
+	public RealTimeClock(RealTimeClockNature rtc) {
+		super(rtc);
+		year = rtc.rtcYear(); // not required!
+		month = rtc.rtcMonth(); // not required!
+		day = rtc.rtcDay(); // not required!
+		hour = rtc.rtcHour(); // not required!
+		minute = rtc.rtcMinute(); // not required!
+		second = rtc.rtcSecond(); // not required!
 	}
 }

@@ -20,7 +20,6 @@
  *******************************************************************************/
 package io.openems.impl.controller.debuglog;
 
-import java.util.Optional;
 import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
@@ -29,38 +28,29 @@ import io.openems.api.exception.InvalidValueException;
 
 public class DebugLogController extends Controller {
 
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
-
-	public final ConfigChannel<Set<SymmetricMeter>> symmetricMeters = new ConfigChannel<Set<SymmetricMeter>>(
-			"symmetricMeters", this, SymmetricMeter.class);
-	public final ConfigChannel<Set<AsymmetricMeter>> asymmetricMeters = new ConfigChannel<Set<AsymmetricMeter>>(
-			"asymmetricMeters", this, AsymmetricMeter.class);
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class).optional();
+	public final ConfigChannel<Set<Meter>> meters = new ConfigChannel<Set<Meter>>("meters", this, Meter.class)
+			.optional();
+	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this, RealTimeClock.class)
+			.optional();
 
 	@Override public void run() {
 		try {
 			StringBuilder b = new StringBuilder();
-			if (symmetricMeters.valueOptional().isPresent()) {
-				for (SymmetricMeter meter : symmetricMeters.value()) {
-					b.append(meter.id() + ": " + meter.activePower.format() + " ");
+			if (meters.valueOptional().isPresent()) {
+				for (Meter meter : meters.value()) {
+					b.append(meter.toString());
+					b.append(" ");
 				}
 			}
-			if (asymmetricMeters.valueOptional().isPresent()) {
-				for (AsymmetricMeter meter : asymmetricMeters.value()) {
-					b.append(meter.id() + " L1: " + meter.activePowerL1.format() + ", " + meter.reactivePowerL1.format()
-							+ ", L2: " + meter.activePowerL2.format() + ", " + meter.reactivePowerL2.format() + ", L3: "
-							+ meter.activePowerL3.format() + ", " + meter.reactivePowerL3.format() + "");
-				}
+			if (rtc.valueOptional().isPresent()) {
+				b.append(rtc.toString());
+				b.append(" ");
 			}
-
-			for (Ess ess : esss.value()) {
-				b.append(ess.id() + " [" + ess.soc.format() + "] " //
-				// + "Act[" + ess.activePower.format() + "] " //
-						+ "Charge[" + ess.allowedCharge.format() + "] " //
-						+ "Discharge[" + ess.allowedDischarge.format() + "] " //
-						+ "State[" + ess.systemState.format() + "]");
-				Optional<String> warning = ess.warning.labelOptional();
-				if (warning.isPresent()) {
-					b.append(" Warning[" + warning.get() + "]");
+			if (esss.valueOptional().isPresent()) {
+				for (Ess ess : esss.value()) {
+					b.append(ess.toString());
+					b.append(" ");
 				}
 			}
 			log.info(b.toString());

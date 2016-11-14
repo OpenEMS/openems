@@ -20,40 +20,8 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
-import io.openems.api.thing.Thing;
+import java.util.Optional;
 
-public class ConfigChannel<T> extends WriteChannel<T> {
-	private final Class<?> type;
-	private boolean isOptional;
-
-	public ConfigChannel(String id, Thing parent, Class<?> type) {
-		super(id, parent);
-		this.type = type;
-	}
-
-	@Override public ConfigChannel<T> updateListener(ChannelUpdateListener... listeners) {
-		return (ConfigChannel<T>) super.updateListener(listeners);
-	}
-
-	public Class<?> type() {
-		return this.type;
-	}
-
-	@Override public void updateValue(Object value, boolean triggerEvent) {
-		super.updateValue((T) value, triggerEvent);
-	}
-
-	public ConfigChannel<T> defaultValue(T value) {
-		updateValue(value, false);
-		return this;
-	}
-
-	public ConfigChannel<T> optional() {
-		this.isOptional = true;
-		return this;
-	}
-
-	public boolean isOptional() {
-		return isOptional;
-	}
+public interface ChannelChangeListener {
+	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue);
 }

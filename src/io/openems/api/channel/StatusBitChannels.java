@@ -39,4 +39,13 @@ public class StatusBitChannels extends ReadChannel<Long> {
 			return Optional.of(joiner.toString());
 		}
 	};
+
+	@Override public String toString() {
+		Optional<String> string = labelOptional();
+		if (string.isPresent()) {
+			return string.get();
+		} else {
+			return "";
+		}
+	}
 }

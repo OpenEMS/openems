@@ -23,26 +23,30 @@ package io.openems.impl.controller.debuglog;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.meter.AsymmetricMeterNature;
+import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
 
-@IsThingMap(type = AsymmetricMeterNature.class)
-public class AsymmetricMeter extends ThingMap {
+@IsThingMap(type = RealTimeClockNature.class)
+public class RealTimeClock extends ThingMap {
 
-	public final ReadChannel<Long> activePowerL1;
-	public final ReadChannel<Long> reactivePowerL1;
-	public final ReadChannel<Long> activePowerL2;
-	public final ReadChannel<Long> reactivePowerL2;
-	public final ReadChannel<Long> activePowerL3;
-	public final ReadChannel<Long> reactivePowerL3;
+	public final ReadChannel<Long> year;
+	public final ReadChannel<Long> month;
+	public final ReadChannel<Long> day;
+	public final ReadChannel<Long> hour;
+	public final ReadChannel<Long> minute;
+	public final ReadChannel<Long> second;
 
-	public AsymmetricMeter(AsymmetricMeterNature meter) {
-		super(meter);
-		activePowerL1 = meter.activePowerL1().required();
-		reactivePowerL1 = meter.reactivePowerL1().required();
-		activePowerL2 = meter.activePowerL2().required();
-		reactivePowerL2 = meter.reactivePowerL2().required();
-		activePowerL3 = meter.activePowerL3().required();
-		reactivePowerL3 = meter.reactivePowerL3().required();
+	public RealTimeClock(RealTimeClockNature rtc) {
+		super(rtc);
+		year = rtc.rtcYear(); // not required!
+		month = rtc.rtcMonth(); // not required!
+		day = rtc.rtcDay(); // not required!
+		hour = rtc.rtcHour(); // not required!
+		minute = rtc.rtcMinute(); // not required!
+		second = rtc.rtcSecond(); // not required!
 	}
 
+	@Override public String toString() {
+		return id() + "[" + year.format() + "-" + month.format() + "-" + day.format() + " " + //
+				hour.format() + ":" + minute.format() + ":" + second.format() + "]";
+	}
 }

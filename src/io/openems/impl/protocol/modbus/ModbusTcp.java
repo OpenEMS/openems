@@ -31,13 +31,13 @@ import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelListener;
+import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.OpenemsModbusException;
 
-public class ModbusTcp extends ModbusBridge implements ChannelListener {
+public class ModbusTcp extends ModbusBridge implements ChannelUpdateListener {
 	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
 	private Optional<TCPMasterConnection> connection = Optional.empty();
 
@@ -47,15 +47,15 @@ public class ModbusTcp extends ModbusBridge implements ChannelListener {
 	 * Config
 	 */
 	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this, Inet4Address.class)
-			.listener(this);
+			.updateListener(this);
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this, Integer.class)
-			.defaultValue(MODBUS_PORT).listener(this);
+			.defaultValue(MODBUS_PORT).updateListener(this);
 
 	@Override protected long getCycleTime() {
 		return 500;
 	}
 
-	@Override public void channelEvent(Channel channel) {
+	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
 		triggerInitialize();
 	}
 

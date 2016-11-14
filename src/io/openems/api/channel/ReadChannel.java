@@ -46,7 +46,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private Interval<T> valueInterval = new Interval<T>();
 	private String unit = "";
 
-	private final Set<ChannelListener> listeners = new ConcurrentHashSet<>();
+	private final Set<ChannelUpdateListener> updateListeners = new ConcurrentHashSet<>();
+	private final Set<ChannelChangeListener> changeListeners = new ConcurrentHashSet<>();
 
 	public ReadChannel(String id, Thing parent) {
 		log = LoggerFactory.getLogger(this.getClass());
@@ -72,9 +73,16 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
-	@Override public ReadChannel<T> listener(ChannelListener... listeners) {
-		for (ChannelListener listener : listeners) {
-			this.listeners.add(listener);
+	@Override public ReadChannel<T> updateListener(ChannelUpdateListener... listeners) {
+		for (ChannelUpdateListener listener : listeners) {
+			this.updateListeners.add(listener);
+		}
+		return this;
+	}
+
+	@Override public ReadChannel<T> changeListener(ChannelChangeListener... listeners) {
+		for (ChannelChangeListener listener : listeners) {
+			this.changeListeners.add(listener);
 		}
 		return this;
 	}
@@ -132,17 +140,18 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	/**
 	 * Update value from the underlying {@link DeviceNature}
 	 *
-	 * @param value
+	 * @param newValue
 	 * @param triggerEvent
 	 *            true if an event should be forwarded to {@link Databus}
 	 */
-	protected void updateValue(T value, boolean triggerEvent) {
-		if (value == null) {
+	protected void updateValue(T newValue, boolean triggerEvent) {
+		Optional<T> oldValue = this.value;
+		if (newValue == null) {
 			this.value = Optional.empty();
 		}
-		if (value instanceof Number && (multiplier.isPresent() || delta.isPresent())) {
+		if (newValue instanceof Number && (multiplier.isPresent() || delta.isPresent())) {
 			// special treatment for Numbers with given multiplier or delta
-			Number number = (Number) value;
+			Number number = (Number) newValue;
 			long multiplier = 1;
 			if (this.multiplier.isPresent()) {
 				multiplier = this.multiplier.get();
@@ -154,11 +163,14 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 			number = number.longValue() * multiplier - delta;
 			this.value = (Optional<T>) Optional.of(number);
 		} else {
-			this.value = Optional.ofNullable(value);
+			this.value = Optional.ofNullable(newValue);
 		}
 
 		if (triggerEvent) {
-			listeners.forEach(listener -> listener.channelEvent(this));
+			updateListeners.forEach(listener -> listener.channelUpdated(this, this.value));
+			if (oldValue.equals(newValue)) {
+				changeListeners.forEach(listener -> listener.channelChanged(this, this.value, oldValue));
+			}
 		}
 	}
 

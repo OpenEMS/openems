@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
-public interface ChannelListener {
-	public void channelEvent(Channel channel);
+import java.util.Optional;
+
+public interface ChannelUpdateListener {
+	public void channelUpdated(Channel channel, Optional<?> newValue);
 }

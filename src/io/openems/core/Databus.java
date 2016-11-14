@@ -6,11 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelListener;
+import io.openems.api.channel.ChannelChangeListener;
+import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 
-public class Databus implements ChannelListener {
+public class Databus implements ChannelUpdateListener, ChannelChangeListener {
 	private final static Logger log = LoggerFactory.getLogger(ThingRepository.class);
 
 	private static Databus instance;
@@ -28,14 +29,30 @@ public class Databus implements ChannelListener {
 		thingRepository = ThingRepository.getInstance();
 	}
 
-	@Override public void channelEvent(Channel channel) {
+	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
 		if (channel instanceof ReadChannel<?>) {
-			log.debug("Channel [" + channel.address() + "] updated: " + ((ReadChannel<?>) channel).valueOptional());
+			log.debug("Channel [" + channel.address() + "] updated: " + newValue);
 		}
 		// Call Persistence-Workers
 		if (channel instanceof ReadChannel<?> && !(channel instanceof ConfigChannel<?>)) {
 			thingRepository.getPersistences().forEach(persistence -> {
-				persistence.channelEvent(channel);
+				if (persistence instanceof ChannelUpdateListener) {
+					((ChannelUpdateListener) persistence).channelUpdated(channel, newValue);
+				}
+			});
+		}
+	}
+
+	@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+		if (channel instanceof ReadChannel<?>) {
+			log.debug("Channel [" + channel.address() + "] changed from " + oldValue + " to " + newValue);
+		}
+		// Call Persistence-Workers
+		if (!(channel instanceof ConfigChannel<?>)) {
+			thingRepository.getPersistences().forEach(persistence -> {
+				if (persistence instanceof ChannelChangeListener) {
+					((ChannelChangeListener) persistence).channelChanged(channel, newValue, oldValue);
+				}
 			});
 		}
 	}

@@ -13,12 +13,13 @@ import org.influxdb.dto.Point.Builder;
 import com.google.common.collect.HashMultimap;
 
 import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.persistence.Persistence;
 import io.openems.core.Databus;
 
-public class InfluxdbPersistence extends Persistence {
+public class InfluxdbPersistence extends Persistence implements ChannelUpdateListener {
 
 	private final String DB_NAME = "db";
 
@@ -40,15 +41,15 @@ public class InfluxdbPersistence extends Persistence {
 	/**
 	 * Receives events for all {@link ReadChannel}s, excluding {@link ConfigChannel}s via the {@link Databus}.
 	 */
-	@Override public void channelEvent(Channel channel) {
+	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
 		if (!(channel instanceof ReadChannel<?>)) {
 			return;
 		}
 		ReadChannel<?> readChannel = (ReadChannel<?>) channel;
-		if (!readChannel.valueOptional().isPresent()) {
+		if (!newValue.isPresent()) {
 			return;
 		}
-		Object value = readChannel.valueOptional().get();
+		Object value = newValue.get();
 		String field = readChannel.address();
 		FieldValue<?> fieldValue;
 		if (value instanceof Number) {

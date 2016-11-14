@@ -133,7 +133,7 @@ public class ThingRepository {
 				// Register Databus as listener
 				if (channel instanceof ReadChannel) {
 					Databus databus = Databus.getInstance();
-					((ReadChannel<?>) channel).listener(databus);
+					((ReadChannel<?>) channel).updateListener(databus);
 				}
 
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

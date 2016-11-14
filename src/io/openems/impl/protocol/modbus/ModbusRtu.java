@@ -29,32 +29,33 @@ import com.ghgande.j2mod.modbus.net.SerialConnection;
 import com.ghgande.j2mod.modbus.util.SerialParameters;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelListener;
+import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.exception.OpenemsModbusException;
 
-public class ModbusRtu extends ModbusBridge implements ChannelListener {
+public class ModbusRtu extends ModbusBridge implements ChannelUpdateListener {
 	private Optional<SerialConnection> connection = Optional.empty();
 
 	/*
 	 * Config
 	 */
 	public final ConfigChannel<Integer> baudrate = new ConfigChannel<Integer>("baudrate", this, Integer.class)
-			.listener(this);
+			.updateListener(this);
 	public final ConfigChannel<Integer> databits = new ConfigChannel<Integer>("databits", this, Integer.class)
-			.listener(this);
-	public final ConfigChannel<String> parity = new ConfigChannel<String>("parity", this, String.class).listener(this);
+			.updateListener(this);
+	public final ConfigChannel<String> parity = new ConfigChannel<String>("parity", this, String.class)
+			.updateListener(this);
 	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this,
-			String.class).listener(this);
+			String.class).updateListener(this);
 	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this, Integer.class)
-			.listener(this);
+			.updateListener(this);
 
 	@Override protected long getCycleTime() {
 		return 500;
 	}
 
-	@Override public void channelEvent(Channel channel) {
+	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
 		triggerInitialize();
 	}
 
