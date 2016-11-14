@@ -39,4 +39,5 @@ public interface SymmetricEssNature extends EssNature {
 	public WriteChannel<Long> setActivePower();
 
 	public WriteChannel<Long> setReactivePower();
+
 }

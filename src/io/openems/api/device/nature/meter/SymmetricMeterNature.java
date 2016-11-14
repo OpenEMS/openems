@@ -33,4 +33,6 @@ public interface SymmetricMeterNature extends MeterNature {
 	public ReadChannel<Long> apparentPower();
 
 	public ReadChannel<Long> reactivePower();
+
+	public ReadChannel<Long> current();
 }

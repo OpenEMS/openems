@@ -38,4 +38,16 @@ public interface AsymmetricMeterNature extends MeterNature {
 	public ReadChannel<Long> reactivePowerL2();
 
 	public ReadChannel<Long> reactivePowerL3();
+
+	public ReadChannel<Long> currentL1();
+
+	public ReadChannel<Long> currentL2();
+
+	public ReadChannel<Long> currentL3();
+
+	public ReadChannel<Long> voltageL1();
+
+	public ReadChannel<Long> voltageL2();
+
+	public ReadChannel<Long> voltageL3();
 }

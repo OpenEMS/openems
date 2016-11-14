@@ -28,9 +28,9 @@ public class ControllerUtils {
 		} else if (activePower < 0 && reactivePower >= 0) {
 			return true;
 		} else if (activePower < 0 && reactivePower < 0) {
-			return false;
-		} else {
 			return true;
+		} else {
+			return false;
 		}
 	}
 }

@@ -50,6 +50,13 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	private ModbusReadChannel reactivePowerL1;
 	private ModbusReadChannel reactivePowerL2;
 	private ModbusReadChannel reactivePowerL3;
+	private ModbusReadChannel voltageL1;
+	private ModbusReadChannel voltageL2;
+	private ModbusReadChannel voltageL3;
+	private ModbusReadChannel current;
+	private ModbusReadChannel currentL1;
+	private ModbusReadChannel currentL2;
+	private ModbusReadChannel currentL3;
 
 	@Override public ModbusReadChannel activePower() {
 		return activePower;
@@ -71,10 +78,28 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	public ModbusReadChannel reactiveNegativeEnergy;
 	public ModbusReadChannel reactivePositiveEnergy;
 	public ModbusReadChannel apparentEnergy;
+	public ModbusReadChannel frequency;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
-				new ModbusRange(0xc568, //
+				new ModbusRange(0xc558, //
+
+						new UnsignedDoublewordElement(0xc558, //
+								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(10)),
+						new UnsignedDoublewordElement(0xc55A, //
+								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(10)),
+						new UnsignedDoublewordElement(0xc55C, //
+								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(10)),
+						new UnsignedDoublewordElement(0xc55E, //
+								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ").multiplier(10)),
+						new UnsignedDoublewordElement(0xc560, //
+								currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA")),
+						new UnsignedDoublewordElement(0xc560, //
+								currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA")),
+						new UnsignedDoublewordElement(0xc560, //
+								currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA")),
+						new UnsignedDoublewordElement(0xc560, //
+								current = new ModbusReadChannel("Current", this).unit("mA")),
 						new SignedDoublewordElement(0xc568, //
 								activePower = new ModbusReadChannel("ActivePower", this).unit("W").multiplier(10)),
 						new SignedDoublewordElement(0xc56A, //
@@ -135,5 +160,33 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 
 	@Override public ReadChannel<Long> reactivePowerL3() {
 		return reactivePowerL3;
+	}
+
+	@Override public ReadChannel<Long> current() {
+		return current;
+	}
+
+	@Override public ReadChannel<Long> currentL1() {
+		return currentL1;
+	}
+
+	@Override public ReadChannel<Long> currentL2() {
+		return currentL2;
+	}
+
+	@Override public ReadChannel<Long> currentL3() {
+		return currentL3;
+	}
+
+	@Override public ReadChannel<Long> voltageL1() {
+		return voltageL1;
+	}
+
+	@Override public ReadChannel<Long> voltageL2() {
+		return voltageL2;
+	}
+
+	@Override public ReadChannel<Long> voltageL3() {
+		return voltageL3;
 	}
 }

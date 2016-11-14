@@ -46,6 +46,12 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 	private ReadChannel<Long> reactivePowerL1 = new ReadChannel<Long>("ReactivePowerL1", this);
 	private ReadChannel<Long> reactivePowerL2 = new ReadChannel<Long>("ReactivePowerL2", this);
 	private ReadChannel<Long> reactivePowerL3 = new ReadChannel<Long>("ReactivePowerL3", this);
+	private ModbusReadChannel voltageL1;
+	private ModbusReadChannel voltageL2;
+	private ModbusReadChannel voltageL3;
+	private ReadChannel<Long> currentL1 = new ReadChannel<>("currentL1", this);
+	private ReadChannel<Long> currentL2 = new ReadChannel<>("currentL2", this);
+	private ReadChannel<Long> currentL3 = new ReadChannel<>("currentL3", this);
 
 	/*
 	 * This Channels
@@ -56,6 +62,13 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
+				new ModbusRange(121,
+						new UnsignedWordElement(121, //
+								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(100)),
+						new UnsignedWordElement(122, //
+								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(100)),
+						new UnsignedWordElement(123, //
+								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(100))),
 				new ModbusRange(2035, //
 						new UnsignedDoublewordElement(2035, //
 								activeEnergyL1 = new ModbusReadChannel("ActiveEnergyL1", this).unit("Wh")
@@ -101,5 +114,29 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 
 	@Override public ReadChannel<Long> reactivePowerL3() {
 		return reactivePowerL3;
+	}
+
+	@Override public ReadChannel<Long> currentL1() {
+		return currentL1;
+	}
+
+	@Override public ReadChannel<Long> currentL2() {
+		return currentL2;
+	}
+
+	@Override public ReadChannel<Long> currentL3() {
+		return currentL3;
+	}
+
+	@Override public ReadChannel<Long> voltageL1() {
+		return voltageL1;
+	}
+
+	@Override public ReadChannel<Long> voltageL2() {
+		return voltageL2;
+	}
+
+	@Override public ReadChannel<Long> voltageL3() {
+		return voltageL3;
 	}
 }
