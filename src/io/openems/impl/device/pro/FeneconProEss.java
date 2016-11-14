@@ -213,6 +213,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	public ModbusReadChannel totalBatteryChargeEnergy;
 	public ModbusReadChannel workMode;
 	public ModbusReadChannel controlMode;
+	public ModbusWriteChannel setPcsMode;
+	public ModbusWriteChannel setSetupMode;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
@@ -232,7 +234,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						new UnsignedWordElement(102, //
 								workMode = new ModbusReadChannel("WorkMode", this) //
 										.label(2, "Economy") //
-										.label(6, "Remote dispatch") //
+										.label(6, "Remote") //
 										.label(8, "Timing")), //
 						new DummyElement(103), //
 						new UnsignedDoublewordElement(104, //
@@ -251,7 +253,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 										.label(5, "Fail")),
 						new UnsignedWordElement(109, //
 								soc = new ModbusReadChannel("Soc", this).unit("%").interval(0, 100)),
-						new UnsignedWordElement(110, //
+						new UnsignedWordElement(
+								110, //
 								batteryVoltage = new ModbusReadChannel("BatteryVoltage", this).unit("mV")
 										.multiplier(100)),
 						new UnsignedWordElement(111, //
@@ -267,7 +270,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 										.label(8, "Charging over current alarm") //
 										.label(16, "Discharging over current alarm") //
 										.label(32, "Over temperature alarm")//
-										.label(64, "Interal communication abnormal")),
+										.label(64,
+												"Interal communication abnormal")),
 						new UnsignedWordElement(114, //
 								pcsOperationState = new ModbusReadChannel("PcsOperationState", this)
 										.label(0, "Self-checking") //
@@ -345,7 +349,24 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						new UnsignedWordElement(9016, rtcDay = new ModbusWriteChannel("Day", this)),
 						new UnsignedWordElement(9017, rtcHour = new ModbusWriteChannel("Hour", this)),
 						new UnsignedWordElement(9018, rtcMinute = new ModbusWriteChannel("Minute", this)),
-						new UnsignedWordElement(9019, rtcSecond = new ModbusWriteChannel("Second", this)))
+						new UnsignedWordElement(9019,
+								rtcSecond = new ModbusWriteChannel("Second", this))),
+				new WritableModbusRange(30558,
+						new UnsignedWordElement(30558,
+								setSetupMode = new ModbusWriteChannel("SetSetupMode", this)
+										.label(0,
+												EssNature.OFF)
+										.label(1, EssNature.ON))),
+				new WritableModbusRange(30559,
+						new UnsignedWordElement(30559,
+								setPcsMode = new ModbusWriteChannel("SetPcsMode", this)//
+										.label(0, "Emergency")//
+										.label(1, "ConsumersPeakPattern")//
+										.label(2, "Economic")//
+										.label(3, "Eco")//
+										.label(4, "Debug")//
+										.label(5, "SmoothPv")//
+										.label(6, "Remote")))
 
 		// new DummyElement(143, 149),
 		// new ElementBuilder().address(150).channel(_pcsAlarm1PhaseA).build(), //
