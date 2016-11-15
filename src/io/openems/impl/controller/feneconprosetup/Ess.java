@@ -10,16 +10,18 @@ import io.openems.impl.device.pro.FeneconProEss;
 public class Ess extends ThingMap {
 
 	public ReadChannel<Long> workMode;
-	public WriteChannel<Long> pcsMode;
-	public WriteChannel<Long> setupMode;
-
-	public boolean setupFinished = false;
+	public WriteChannel<Long> setPcsMode;
+	public WriteChannel<Long> setSetupMode;
+	public ReadChannel<Long> pcsMode;
+	public ReadChannel<Long> setupMode;
 
 	public Ess(FeneconProEss ess) {
 		super(ess);
 		workMode = ess.workMode.required();
-		pcsMode = ess.setPcsMode;
-		setupMode = ess.setSetupMode;
+		setPcsMode = ess.setPcsMode;
+		setSetupMode = ess.setSetupMode;
+		pcsMode = ess.pcsMode;
+		setupMode = ess.setupMode;
 	}
 
 }

@@ -215,6 +215,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	public ModbusReadChannel controlMode;
 	public ModbusWriteChannel setPcsMode;
 	public ModbusWriteChannel setSetupMode;
+	public ModbusReadChannel setupMode;
+	public ModbusReadChannel pcsMode;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
@@ -360,6 +362,20 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 				new WritableModbusRange(30559,
 						new UnsignedWordElement(30559,
 								setPcsMode = new ModbusWriteChannel("SetPcsMode", this)//
+										.label(0, "Emergency")//
+										.label(1, "ConsumersPeakPattern")//
+										.label(2, "Economic")//
+										.label(3, "Eco")//
+										.label(4, "Debug")//
+										.label(5, "SmoothPv")//
+										.label(6, "Remote"))),
+				new ModbusRange(30157,
+						new UnsignedWordElement(30157,
+								setupMode = new ModbusReadChannel("SetupMode", this)//
+										.label(0, EssNature.OFF)//
+										.label(1, EssNature.ON)),
+						new UnsignedWordElement(30158,
+								pcsMode = new ModbusReadChannel("PcsMode", this)//
 										.label(0, "Emergency")//
 										.label(1, "ConsumersPeakPattern")//
 										.label(2, "Economic")//

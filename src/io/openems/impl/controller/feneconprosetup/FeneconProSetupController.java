@@ -15,17 +15,20 @@ public class FeneconProSetupController extends Controller {
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {
-				if (ess.workMode.labelOptional().isPresent() && !ess.workMode.labelOptional().equals("Remote")) {
+				if (ess.pcsMode.labelOptional().isPresent() && !ess.pcsMode.labelOptional().get().equals("Remote")) {
 					if (ess.setupMode.labelOptional().isPresent()
-							&& ess.setupMode.labelOptional().equals(EssNature.ON)) {
-						if (ess.setupFinished) {
-							ess.setupMode.pushWriteFromLabel(EssNature.OFF);
-						} else {
-							ess.pcsMode.pushWriteFromLabel("Remote");
-							ess.setupFinished = true;
-						}
+							&& ess.setupMode.labelOptional().get().equals(EssNature.ON)) {
+						ess.setPcsMode.pushWriteFromLabel("Remote");
+						log.info("Set " + ess.id() + " to Remote mode.");
 					} else {
-						ess.setupMode.pushWriteFromLabel(EssNature.ON);
+						log.info(ess.id() + " is not in Remote mode. Go to Setting Mode.");
+						ess.setSetupMode.pushWriteFromLabel(EssNature.ON);
+					}
+				} else {
+					if (ess.setupMode.labelOptional().isPresent()
+							&& ess.setupMode.labelOptional().get().equals(EssNature.ON)) {
+						ess.setSetupMode.pushWriteFromLabel(EssNature.OFF);
+						log.info(ess.id() + " Switch setting mode Off");
 					}
 				}
 			}
