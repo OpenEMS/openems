@@ -94,7 +94,9 @@ public class ModbusRtu extends ModbusBridge implements ChannelUpdateListener {
 
 	@Override protected void closeModbusConnection() {
 		if (connection.isPresent() && connection.get().isOpen()) {
-			connection.get().close();
+			try {
+				connection.get().close();
+			} catch (NullPointerException e) { /* ignore */}
 		}
 		connection = Optional.empty();
 	}

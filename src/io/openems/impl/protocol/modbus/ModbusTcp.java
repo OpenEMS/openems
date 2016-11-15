@@ -93,7 +93,9 @@ public class ModbusTcp extends ModbusBridge implements ChannelUpdateListener {
 
 	@Override protected void closeModbusConnection() {
 		if (connection.isPresent() && connection.get().isConnected()) {
-			connection.get().close();
+			try {
+				connection.get().close();
+			} catch (NullPointerException e) { /* ignore */}
 		}
 		connection = Optional.empty();
 	}
