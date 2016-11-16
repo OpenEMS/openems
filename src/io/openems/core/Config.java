@@ -121,26 +121,28 @@ public class Config {
 		/*
 		 * read Scheduler
 		 */
-		JsonObject jScheduler = JsonUtils.getAsJsonObject(jConfig, "scheduler");
-		String schedulerClass = JsonUtils.getAsString(jScheduler, "class");
-		Scheduler scheduler = (Scheduler) InjectionUtils.getThingInstance(schedulerClass);
-		thingRepository.addThing(scheduler);
-		log.debug(
-				"Add Scheduler[" + scheduler.id() + "], Implementation[" + scheduler.getClass().getSimpleName() + "]");
-		injectConfigChannels(thingRepository.getConfigChannels(scheduler), jScheduler);
-		/*
-		 * read each Controller in "controllers" array
-		 */
-		JsonArray jControllers = JsonUtils.getAsJsonArray(jScheduler, "controllers");
-		for (JsonElement jControllerElement : jControllers) {
-			JsonObject jController = JsonUtils.getAsJsonObject(jControllerElement);
-			String controllerClass = JsonUtils.getAsString(jController, "class");
-			Controller controller = (Controller) InjectionUtils.getThingInstance(controllerClass);
-			thingRepository.addThing(controller);
-			log.debug("Add Controller[" + controller.id() + "], Implementation[" + controller.getClass().getSimpleName()
+		if (jConfig.has("scheduler")) {
+			JsonObject jScheduler = JsonUtils.getAsJsonObject(jConfig, "scheduler");
+			String schedulerClass = JsonUtils.getAsString(jScheduler, "class");
+			Scheduler scheduler = (Scheduler) InjectionUtils.getThingInstance(schedulerClass);
+			thingRepository.addThing(scheduler);
+			log.debug("Add Scheduler[" + scheduler.id() + "], Implementation[" + scheduler.getClass().getSimpleName()
 					+ "]");
-			injectConfigChannels(thingRepository.getConfigChannels(controller), jController);
-			scheduler.addController(controller);
+			injectConfigChannels(thingRepository.getConfigChannels(scheduler), jScheduler);
+			/*
+			 * read each Controller in "controllers" array
+			 */
+			JsonArray jControllers = JsonUtils.getAsJsonArray(jScheduler, "controllers");
+			for (JsonElement jControllerElement : jControllers) {
+				JsonObject jController = JsonUtils.getAsJsonObject(jControllerElement);
+				String controllerClass = JsonUtils.getAsString(jController, "class");
+				Controller controller = (Controller) InjectionUtils.getThingInstance(controllerClass);
+				thingRepository.addThing(controller);
+				log.debug("Add Controller[" + controller.id() + "], Implementation["
+						+ controller.getClass().getSimpleName() + "]");
+				injectConfigChannels(thingRepository.getConfigChannels(controller), jController);
+				scheduler.addController(controller);
+			}
 		}
 
 		/*
