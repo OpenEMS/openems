@@ -12,7 +12,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 
 public class Databus implements ChannelUpdateListener, ChannelChangeListener {
-	private final static Logger log = LoggerFactory.getLogger(ThingRepository.class);
+	private final static Logger log = LoggerFactory.getLogger(Databus.class);
 
 	private static Databus instance;
 
@@ -30,9 +30,7 @@ public class Databus implements ChannelUpdateListener, ChannelChangeListener {
 	}
 
 	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
-		if (channel instanceof ReadChannel<?>) {
-			log.debug("Channel [" + channel.address() + "] updated: " + newValue);
-		}
+		log.debug("Channel [" + channel.address() + "] updated: " + newValue);
 		// Call Persistence-Workers
 		if (channel instanceof ReadChannel<?> && !(channel instanceof ConfigChannel<?>)) {
 			thingRepository.getPersistences().forEach(persistence -> {
@@ -44,9 +42,7 @@ public class Databus implements ChannelUpdateListener, ChannelChangeListener {
 	}
 
 	@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-		if (channel instanceof ReadChannel<?>) {
-			log.debug("Channel [" + channel.address() + "] changed from " + oldValue + " to " + newValue);
-		}
+		log.debug("Channel [" + channel.address() + "] changed from " + oldValue + " to " + newValue);
 		// Call Persistence-Workers
 		if (!(channel instanceof ConfigChannel<?>)) {
 			thingRepository.getPersistences().forEach(persistence -> {

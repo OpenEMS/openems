@@ -168,7 +168,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 
 		if (triggerEvent) {
 			updateListeners.forEach(listener -> listener.channelUpdated(this, this.value));
-			if (oldValue.equals(newValue)) {
+			if (!oldValue.equals(this.value)) {
 				changeListeners.forEach(listener -> listener.channelChanged(this, this.value, oldValue));
 			}
 		}
