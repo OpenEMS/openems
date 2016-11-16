@@ -51,7 +51,7 @@ public class ModbusRtu extends ModbusBridge implements ChannelUpdateListener {
 	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this, Integer.class)
 			.updateListener(this);
 
-	@Override protected long getCycleTime() {
+	@Override protected int getCycleTime() {
 		return 500;
 	}
 

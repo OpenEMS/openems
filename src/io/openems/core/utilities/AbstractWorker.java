@@ -50,7 +50,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 		this.start();
 	}
 
-	protected abstract long getCycleTime();
+	protected abstract int getCycleTime();
 
 	/**
 	 * Little helper method: Sleep and don't let yourself interrupt by a ForceRun-Flag. It is not making sense anyway,
@@ -115,7 +115,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 						initializedMutex.release();
 						initialize.set(false);
 					} else {
-						initializedMutex.awaitOrTimeout(10, TimeUnit.SECONDS);
+						initializedMutex.awaitOrTimeout(getCycleTime() * 10, TimeUnit.MILLISECONDS);
 					}
 				}
 				/*

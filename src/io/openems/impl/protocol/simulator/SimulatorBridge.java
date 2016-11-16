@@ -53,7 +53,7 @@ public class SimulatorBridge extends Bridge {
 		return true;
 	}
 
-	@Override protected long getCycleTime() {
+	@Override protected int getCycleTime() {
 		return 1000;
 	}
 

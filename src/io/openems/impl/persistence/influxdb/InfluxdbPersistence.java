@@ -104,7 +104,7 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 		}
 		// write to DB
 		influxDB.write(batchPoints);
-		log.info("Wrote points to InfluxDB");
+		log.debug("Wrote [" + batchPoints.getPoints().size() + "] points to InfluxDB");
 	}
 
 	@Override protected boolean initialize() {
@@ -140,7 +140,7 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 		return this._influxdb;
 	}
 
-	@Override protected long getCycleTime() {
+	@Override protected int getCycleTime() {
 		return 10000;
 	}
 }
