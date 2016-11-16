@@ -71,6 +71,10 @@
 			"class": "io.openems.impl.persistence.influxdb.InfluxdbPersistence",
 			"ip": "127.0.0.1",
 			"fems": 343
+		},
+		{
+			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
+			"apikey": "ViRf5UwXH2xCCOAUNWrA"
 		}
-	]
+	]	
 }
