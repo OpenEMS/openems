@@ -21,6 +21,8 @@
 package io.openems.impl.device.commercial;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
@@ -65,6 +67,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	private ModbusWriteChannel setActivePower;
 	private ModbusWriteChannel setReactivePower;
 	private ModbusWriteChannel setWorkState;
+	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
+			.unit("VA");
 	public StatusBitChannels warning;
 
 	@Override public ModbusReadChannel soc() {
@@ -117,6 +121,10 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 
 	@Override public StatusBitChannels warning() {
 		return warning;
+	}
+
+	@Override public ReadChannel<Long> maxNominalPower() {
+		return maxNominalPower;
 	}
 
 	/*

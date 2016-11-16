@@ -34,7 +34,6 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 
 	public JanitzaUMG96RMEMeter(String thingId) throws ConfigException {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
 	/*
@@ -44,6 +43,7 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 	private ModbusReadChannel apparentPower;
 	private ModbusReadChannel reactivePower;
 	private ModbusReadChannel current;
+	private ModbusReadChannel frequency;
 
 	@Override public ReadChannel<Long> activePower() {
 		return activePower;
@@ -61,9 +61,16 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 		return current;
 	}
 
+	@Override public ReadChannel<Long> frequency() {
+		return frequency;
+	}
+
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
-				new ModbusRange(874, //
+				new ModbusRange(800, //
+						new FloatElement(800, //
+								frequency = new ModbusReadChannel("Frequency", this).unit("mHz").multiplier(1000)),
+						new DummyElement(802, 866),
 						new FloatElement(866, //
 								current = new ModbusReadChannel("Current", this).unit("mA").multiplier(1000)),
 						new DummyElement(868, 873),
@@ -80,4 +87,5 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 										.unit("VA")) //
 				));
 	}
+
 }

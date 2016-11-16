@@ -57,6 +57,7 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	private ModbusReadChannel currentL1;
 	private ModbusReadChannel currentL2;
 	private ModbusReadChannel currentL3;
+	private ModbusReadChannel frequency;
 
 	@Override public ModbusReadChannel activePower() {
 		return activePower;
@@ -78,7 +79,6 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	public ModbusReadChannel reactiveNegativeEnergy;
 	public ModbusReadChannel reactivePositiveEnergy;
 	public ModbusReadChannel apparentEnergy;
-	public ModbusReadChannel frequency;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
@@ -188,5 +188,9 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 
 	@Override public ReadChannel<Long> voltageL3() {
 		return voltageL3;
+	}
+
+	@Override public ReadChannel<Long> frequency() {
+		return frequency;
 	}
 }

@@ -18,28 +18,25 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.device.nature.ess;
+package io.openems.impl.controller.symmetricpoweroffrequency;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.meter.SymmetricMeterNature;
 
-public interface SymmetricEssNature extends EssNature {
-	/*
-	 * ReadChannels
-	 */
-	public ReadChannel<Long> activePower();
+@IsThingMap(type = SymmetricMeterNature.class)
+public class Meter extends ThingMap {
 
-	public ReadChannel<Long> apparentPower();
+	public final ReadChannel<Long> activePower;
+	public final ReadChannel<Long> reactivePower;
+	public final ReadChannel<Long> frequency;
 
-	public ReadChannel<Long> reactivePower();
-
-	public ReadChannel<Long> maxNominalPower();
-
-	/*
-	 * WriteChannels
-	 */
-	public WriteChannel<Long> setActivePower();
-
-	public WriteChannel<Long> setReactivePower();
+	public Meter(SymmetricMeterNature meter) {
+		super(meter);
+		activePower = meter.activePower().required();
+		reactivePower = meter.reactivePower().required();
+		frequency = meter.frequency().required();
+	}
 
 }
