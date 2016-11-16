@@ -69,6 +69,7 @@ public class ModbusReadChannel extends ReadChannel<Long> implements ModbusChanne
 	}
 
 	@Override public ReadChannel<Long> required() {
+		super.required();
 		if (parent() instanceof DeviceNature) {
 			DeviceNature parent = (DeviceNature) parent();
 			parent.setAsRequired(this);

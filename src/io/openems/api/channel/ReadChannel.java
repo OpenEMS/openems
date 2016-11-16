@@ -45,6 +45,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	protected Optional<Long> multiplier = Optional.empty();
 	private Interval<T> valueInterval = new Interval<T>();
 	private String unit = "";
+	private boolean isRequired = false;
 
 	private final Set<ChannelUpdateListener> updateListeners = new ConcurrentHashSet<>();
 	private final Set<ChannelChangeListener> changeListeners = new ConcurrentHashSet<>();
@@ -244,4 +245,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	public ReadChannel<T> required() {
 		return this;
 	};
+
+	public boolean isRequired() {
+		return this.isRequired;
+	}
 }

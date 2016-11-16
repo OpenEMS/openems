@@ -94,11 +94,11 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ").multiplier(10)),
 						new UnsignedDoublewordElement(0xc560, //
 								currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA")),
-						new UnsignedDoublewordElement(0xc560, //
+						new UnsignedDoublewordElement(0xc562, //
 								currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA")),
-						new UnsignedDoublewordElement(0xc560, //
+						new UnsignedDoublewordElement(0xc564, //
 								currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA")),
-						new UnsignedDoublewordElement(0xc560, //
+						new UnsignedDoublewordElement(0xc566, //
 								current = new ModbusReadChannel("Current", this).unit("mA")),
 						new SignedDoublewordElement(0xc568, //
 								activePower = new ModbusReadChannel("ActivePower", this).unit("W").multiplier(10)),

@@ -65,6 +65,7 @@ public class SimulatorReadChannel extends ReadChannel<Long> {
 	}
 
 	@Override public ReadChannel<Long> required() {
+		super.required();
 		if (parent() instanceof DeviceNature) {
 			DeviceNature parent = (DeviceNature) parent();
 			parent.setAsRequired(this);

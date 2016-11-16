@@ -33,19 +33,38 @@ public class Meter extends ThingMap {
 	public Meter(MeterNature meter) {
 		super(meter);
 		this.meter = meter;
+
+		if (meter instanceof AsymmetricMeterNature) {
+			AsymmetricMeterNature m = (AsymmetricMeterNature) meter;
+			m.activePowerL1().required();
+			m.activePowerL2().required();
+			m.activePowerL3().required();
+			m.reactivePowerL1().required();
+			m.reactivePowerL2().required();
+			m.reactivePowerL3().required();
+		}
+		if (meter instanceof SymmetricMeterNature) {
+			SymmetricMeterNature m = (SymmetricMeterNature) meter;
+			m.activePower().required();
+			m.reactivePower().required();
+		}
 	}
 
 	@Override public String toString() {
 		StringBuilder b = new StringBuilder();
-		b.append(meter.id() + "[");
+		b.append(meter.id() + " [");
+		if (meter instanceof SymmetricMeterNature) {
+			SymmetricMeterNature m = (SymmetricMeterNature) meter;
+			b.append("L:" + m.activePower().format() + ";" + m.reactivePower().format());
+		}
+		if (meter instanceof SymmetricMeterNature && meter instanceof AsymmetricMeterNature) {
+			b.append("|");
+		}
 		if (meter instanceof AsymmetricMeterNature) {
 			AsymmetricMeterNature m = (AsymmetricMeterNature) meter;
-			b.append("L1:" + m.activePowerL1().format() + "|" + m.reactivePowerL1().format() + "|" + //
-					"L2:" + m.activePowerL2().format() + "|" + m.reactivePowerL2().format() + "|" + //
-					"L3:" + m.activePowerL3().format() + "|" + m.reactivePowerL3().format());
-		} else if (meter instanceof SymmetricMeterNature) {
-			SymmetricMeterNature m = (SymmetricMeterNature) meter;
-			b.append(m.activePower().format() + "|" + m.reactivePower().format());
+			b.append("L1:" + m.activePowerL1().format() + ";" + m.reactivePowerL1().format() + "|" + //
+					"L2:" + m.activePowerL2().format() + ";" + m.reactivePowerL2().format() + "|" + //
+					"L3:" + m.activePowerL3().format() + ";" + m.reactivePowerL3().format());
 		}
 		b.append("]");
 		return b.toString();

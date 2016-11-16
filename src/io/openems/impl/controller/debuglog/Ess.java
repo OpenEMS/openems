@@ -49,7 +49,8 @@ public class Ess extends ThingMap {
 			e.reactivePowerL1().required();
 			e.reactivePowerL2().required();
 			e.reactivePowerL3().required();
-		} else if (ess instanceof SymmetricEssNature) {
+		}
+		if (ess instanceof SymmetricEssNature) {
 			SymmetricEssNature e = (SymmetricEssNature) ess;
 			e.activePower().required();
 			e.reactivePower().required();
@@ -58,19 +59,23 @@ public class Ess extends ThingMap {
 
 	@Override public String toString() {
 		StringBuilder b = new StringBuilder();
-		b.append(ess.id() + "[" + //
+		b.append(ess.id() + " [" + //
 				"SOC:" + ess.soc().format() + "|");
+		if (ess instanceof SymmetricEssNature) {
+			SymmetricEssNature e = (SymmetricEssNature) ess;
+			b.append("L:" + e.activePower().format() + ";" + e.reactivePower().format());
+		}
+		if (ess instanceof AsymmetricEssNature && ess instanceof SymmetricEssNature) {
+			b.append("|");
+		}
 		if (ess instanceof AsymmetricEssNature) {
 			AsymmetricEssNature e = (AsymmetricEssNature) ess;
-			b.append("L1:" + e.activePowerL1().format() + "|" + e.reactivePowerL1().format() + "|" + //
-					"L2:" + e.activePowerL2().format() + "|" + e.reactivePowerL2().format() + "|" + //
-					"L3:" + e.activePowerL3().format() + "|" + e.reactivePowerL3().format());
-		} else if (ess instanceof SymmetricEssNature) {
-			SymmetricEssNature e = (SymmetricEssNature) ess;
-			b.append("L" + e.activePower().format() + "|" + e.reactivePower().format());
+			b.append("L1:" + e.activePowerL1().format() + ";" + e.reactivePowerL1().format() + "|" + //
+					"L2:" + e.activePowerL2().format() + ";" + e.reactivePowerL2().format() + "|" + //
+					"L3:" + e.activePowerL3().format() + ";" + e.reactivePowerL3().format());
 		}
 		b.append("|" + //
-				"Allowed:" + ess.allowedCharge().format() + "|" + ess.allowedDischarge().format());
+				"Allowed:" + ess.allowedCharge().format() + ";" + ess.allowedDischarge().format());
 		String warn = ess.warning().toString();
 		if (!warn.equals("")) {
 			b.append("|Warn:" + ess.warning());
