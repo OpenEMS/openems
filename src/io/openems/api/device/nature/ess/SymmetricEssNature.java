@@ -33,6 +33,8 @@ public interface SymmetricEssNature extends EssNature {
 
 	public ReadChannel<Long> reactivePower();
 
+	public ReadChannel<Long> maxNominalPower();
+
 	/*
 	 * WriteChannels
 	 */

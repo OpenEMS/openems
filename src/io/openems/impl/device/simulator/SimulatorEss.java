@@ -4,6 +4,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
@@ -44,6 +45,8 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 	private ModbusWriteChannel setActivePower = new ModbusWriteChannel("SetActivePower", this);
 	private ModbusWriteChannel setReactivePower = new ModbusWriteChannel("SetReactivePower", this);
 	private ModbusWriteChannel setWorkState = new ModbusWriteChannel("SetWorkState", this);
+	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
+			.unit("VA");
 
 	@Override public ReadChannel<Long> gridMode() {
 		return gridMode;
@@ -107,5 +110,9 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 
 	private long getRandom(int min, int max) {
 		return ThreadLocalRandom.current().nextLong(min, max + 1);
+	}
+
+	@Override public ReadChannel<Long> maxNominalPower() {
+		return maxNominalPower;
 	}
 }
