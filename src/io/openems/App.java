@@ -35,6 +35,9 @@ import io.vertx.core.Vertx;
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
+	private final static int restApiPort = 8084;
+	private final static int websocketPort = 8085;
+
 	public static void main(String[] args) throws Exception {
 		log.info("OpenEMS started");
 
@@ -57,26 +60,22 @@ public class App {
 
 		// Start vertx
 		Vertx vertx = Vertx.vertx();
-		// Deploy REST-Api verticle on Port 8084
-		vertx.deployVerticle(new RestApi(8084), result -> {
+		// deploy REST-Api
+		vertx.deployVerticle(new RestApi(restApiPort), result -> {
 			if (result.succeeded()) {
-				log.info("REST-Api started");
+				log.info("REST-Api started on port [" + restApiPort + "]");
 			} else {
-				log.error("REST-Api failed: ", result.cause());
+				log.error("REST-Api failed on port [" + restApiPort + "]:", result.cause());
 			}
 		});
 
-		// Databus databus = Databus.getInstance();
-		// log.info("ess0/soc: " + databus.getValue("ess0", "Soc"));
-
-		// Deploy Websocket-Api on Port 8085
-		vertx.deployVerticle(new WebsocketApi(8085), result -> {
+		// deploy Websocket-Api
+		vertx.deployVerticle(new WebsocketApi(websocketPort), result -> {
 			if (result.succeeded()) {
-				log.info("Websocket started");
+				log.info("Websocket started on port [" + websocketPort + "]");
 			} else {
-				log.error("Websocket failed: ", result.cause());
+				log.error("Websocket failed on port [" + websocketPort + "]:", result.cause());
 			}
 		});
-		// vertx.deployVerticle(new WebSocketClient());
 	}
 }
