@@ -32,16 +32,32 @@ public class SymmetricAvoidTotalDischargeController extends Controller {
 
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
 
+	public final ConfigChannel<Long> powerDecreaseStep = new ConfigChannel<Long>("powerDecreaseStep", this, Long.class)
+			.defaultValue(2L);
+
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {
 				/*
 				 * Calculate SetActivePower according to MinSoc
 				 */
-				if (ess.soc.value() < ess.minSoc.value() && ess.soc.value() >= ess.minSoc.value() - 5) {
+				long maxWrite = ess.allowedDischarge.value();
+				if (ess.setActivePower.writeMax().isPresent()) {
+					maxWrite = ess.setActivePower.writeMax().get();
+				}
+				if ((ess.soc.value() <= ess.minSoc.value() && ess.soc.value() >= ess.minSoc.value() - 5)
+						|| (ess.soc.value() <= ess.minSoc.value() + 3 && ess.maxPowerPercent == 0)) {
 					// SOC < minSoc && SOC >= minSoc - 5
-					log.info("Avoid discharge. Set ActivePower=Max[0]");
-					ess.setActivePower.pushWriteMax(0L);
+					log.info("Avoid discharge. Decrease ActivePower");
+					ess.maxPowerPercent -= powerDecreaseStep.value();
+					if (ess.maxPowerPercent < 0) {
+						ess.maxPowerPercent = 0;
+					}
+					ess.setActivePower.pushWriteMax(maxWrite / 100 * ess.maxPowerPercent);
+				} else if (ess.soc.value() > ess.minSoc.value()) {
+					ess.maxPowerPercent += powerDecreaseStep.value();
+					ess.maxPowerPercent %= 100;
+					ess.setActivePower.pushWriteMax(maxWrite / 100 * maxWrite);
 				} else if (ess.soc.value() < ess.minSoc.value() - 5) {
 					// SOC < minSoc - 5
 					Optional<Long> currentMinValue = ess.setActivePower.writeMin();
