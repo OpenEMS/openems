@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.symmetricpoweroffrequency;
+package io.openems.impl.controller.symmetricpowerbyfrequency;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
@@ -28,7 +28,7 @@ import io.openems.api.exception.WriteChannelException;
 /*
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
  */
-public class SymmetricPowerOfFrequencyController extends Controller {
+public class SymmetricPowerByFrequencyController extends Controller {
 	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this, Ess.class);
 
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this, Meter.class);
@@ -41,26 +41,17 @@ public class SymmetricPowerOfFrequencyController extends Controller {
 			long activePower = 0L;
 			long reactivePower = 0L;
 			if (meter.frequency.value() >= 49990 && meter.frequency.value() <= 50010) {
-				// Totband
+				// charge if SOC isn't in the expected range
 				if (ess.soc.value() > 65 || ess.soc.value() < 30) {
 					activePower = (long) (ess.maxNominalPower.value() * (300 - 0.006 * meter.frequency.value()));
 				}
 			} else {
+				// calculate minimal Power for Frequency
 				activePower = ess.maxNominalPower.value() * (250 - meter.frequency.value() / 200);
-				if (meter.frequency.value() > 50000) {
-					/*
-					 * Discharge
-					 */
-					if (ess.soc.value() > 65) {
-						activePower = (long) (ess.maxNominalPower.value() * (300 - 0.006 * meter.frequency.value()));
-					}
-				} else {
-					/*
-					 * Charge
-					 */
-					if (ess.soc.value() < 35) {
-						activePower = (long) (ess.maxNominalPower.value() * (300 - 0.006 * meter.frequency.value()));
-					}
+				if ((meter.frequency.value() > 50000 && ess.soc.value() > 65)
+						|| (meter.frequency.value() < 50000 && ess.soc.value() < 35)) {
+					// calculate maximal Power for frequency
+					activePower = (long) (ess.maxNominalPower.value() * (300 - 0.006 * meter.frequency.value()));
 				}
 			}
 			// reduce power to max Discharge
