@@ -26,7 +26,7 @@ public class App {
 		Properties config = getConfig();
 		initOdoo(config);
 		initInfluxdb(config);
-		
+				
 		// Start websocket
 		Websocket ws = new Websocket(websocketPort);
 		ws.start();
@@ -41,7 +41,7 @@ public class App {
         }
 	}
 	
-	private static void initOdoo(Properties config) throws IOException {
+	private static void initOdoo(Properties config) throws Exception {
 		String url = config.getProperty("odoo.url");
 		int port = Integer.valueOf(config.getProperty("odoo.port"));
 		String database = config.getProperty("odoo.database");

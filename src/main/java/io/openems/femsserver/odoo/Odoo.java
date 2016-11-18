@@ -25,7 +25,11 @@ public class Odoo {
 
 	private static Odoo instance;
 
-	public static synchronized void initialize(String url, int port, String database, String username, String password) throws IOException {
+	public static synchronized void initialize(String url, int port, String database, String username, String password) throws Exception {
+		if (url == null || database == null || username == null || password == null) {
+			throw new Exception("Config missing: database [" + database + "], url [" + url + "], port [" + port
+					+ "] username [" + username + "], password [" + password + "]");
+		}
 		Odoo odoo = getInstance();
 		odoo.url = url;
 		odoo.port = port;
