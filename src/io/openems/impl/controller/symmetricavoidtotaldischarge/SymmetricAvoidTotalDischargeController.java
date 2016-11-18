@@ -45,22 +45,7 @@ public class SymmetricAvoidTotalDischargeController extends Controller {
 				if (ess.setActivePower.writeMax().isPresent()) {
 					maxWrite = ess.setActivePower.writeMax().get();
 				}
-				if ((ess.soc.value() <= ess.minSoc.value()
-						|| (ess.soc.value() <= ess.minSoc.value() + 3 && ess.maxPowerPercent == 0))
-						&& ess.soc.value() >= ess.chargeSoc.value()) {
-					// SOC < minSoc && SOC >= minSoc - 5
-					log.info("Avoid discharge. Decrease ActivePower");
-					ess.maxPowerPercent -= powerDecreaseStep.value();
-					if (ess.maxPowerPercent < 0) {
-						ess.maxPowerPercent = 0;
-					}
-					ess.setActivePower.pushWriteMax(maxWrite / 100 * ess.maxPowerPercent);
-				} else if (ess.soc.value() > ess.minSoc.value()) {
-					ess.maxPowerPercent += powerDecreaseStep.value();
-					ess.maxPowerPercent %= 100;
-					ess.setActivePower.pushWriteMax(maxWrite / 100 * maxWrite);
-				} else if (ess.soc.value() < ess.chargeSoc.value()) {
-					// SOC < minSoc - 5
+				if (ess.isChargeSoc) {
 					Optional<Long> currentMinValue = ess.setActivePower.writeMin();
 					if (currentMinValue.isPresent()) {
 						// Force Charge with minimum of MaxChargePower/5
@@ -69,6 +54,27 @@ public class SymmetricAvoidTotalDischargeController extends Controller {
 					} else {
 						log.info("Avoid discharge. Set ActivePower=Min[1000 W]");
 						ess.setActivePower.pushWriteMax(-1000L);
+					}
+					if (ess.soc.value() >= ess.minSoc.value()) {
+						ess.isChargeSoc = false;
+					}
+				} else {
+					if ((ess.soc.value() <= ess.minSoc.value()
+							|| (ess.soc.value() <= ess.minSoc.value() + 3 && ess.maxPowerPercent == 0))
+							&& ess.soc.value() >= ess.chargeSoc.value()) {
+						log.info("Avoid discharge. Decrease ActivePower");
+						ess.maxPowerPercent -= powerDecreaseStep.value();
+						if (ess.maxPowerPercent < 0) {
+							ess.maxPowerPercent = 0;
+						}
+						ess.setActivePower.pushWriteMax(maxWrite / 100 * ess.maxPowerPercent);
+					} else if (ess.soc.value() > ess.minSoc.value()) {
+						ess.maxPowerPercent += powerDecreaseStep.value();
+						ess.maxPowerPercent %= 100;
+						ess.setActivePower.pushWriteMax(maxWrite / 100 * maxWrite);
+					} else if (ess.soc.value() < ess.chargeSoc.value()) {
+						// SOC < minSoc - 5
+						ess.isChargeSoc = true;
 					}
 				}
 			}
