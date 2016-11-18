@@ -45,8 +45,9 @@ public class SymmetricAvoidTotalDischargeController extends Controller {
 				if (ess.setActivePower.writeMax().isPresent()) {
 					maxWrite = ess.setActivePower.writeMax().get();
 				}
-				if ((ess.soc.value() <= ess.minSoc.value() && ess.soc.value() >= ess.minSoc.value() - 5)
-						|| (ess.soc.value() <= ess.minSoc.value() + 3 && ess.maxPowerPercent == 0)) {
+				if ((ess.soc.value() <= ess.minSoc.value()
+						|| (ess.soc.value() <= ess.minSoc.value() + 3 && ess.maxPowerPercent == 0))
+						&& ess.soc.value() >= ess.chargeSoc.value()) {
 					// SOC < minSoc && SOC >= minSoc - 5
 					log.info("Avoid discharge. Decrease ActivePower");
 					ess.maxPowerPercent -= powerDecreaseStep.value();
@@ -58,7 +59,7 @@ public class SymmetricAvoidTotalDischargeController extends Controller {
 					ess.maxPowerPercent += powerDecreaseStep.value();
 					ess.maxPowerPercent %= 100;
 					ess.setActivePower.pushWriteMax(maxWrite / 100 * maxWrite);
-				} else if (ess.soc.value() < ess.minSoc.value() - 5) {
+				} else if (ess.soc.value() < ess.chargeSoc.value()) {
 					// SOC < minSoc - 5
 					Optional<Long> currentMinValue = ess.setActivePower.writeMin();
 					if (currentMinValue.isPresent()) {

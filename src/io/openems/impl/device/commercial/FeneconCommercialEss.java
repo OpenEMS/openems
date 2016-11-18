@@ -48,6 +48,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	 * Config
 	 */
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class);
+	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class);
 
 	@Override public ConfigChannel<Integer> minSoc() {
 		return minSoc;
@@ -125,6 +126,10 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 
 	@Override public ReadChannel<Long> maxNominalPower() {
 		return maxNominalPower;
+	}
+
+	@Override public ConfigChannel<Integer> chargeSoc() {
+		return chargeSoc;
 	}
 
 	/*

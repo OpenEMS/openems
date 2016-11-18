@@ -24,6 +24,8 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 	 */
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class);
 
+	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class);
+
 	@Override public ConfigChannel<Integer> minSoc() {
 		return minSoc;
 	}
@@ -98,6 +100,10 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 
 	@Override public ReadChannel<Long> allowedApparent() {
 		return allowedApparent;
+	}
+
+	@Override public ConfigChannel<Integer> chargeSoc() {
+		return chargeSoc;
 	}
 
 	@Override protected void update() {

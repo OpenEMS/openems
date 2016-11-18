@@ -35,6 +35,7 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> systemState;
 	public int maxPowerPercent = 100;
 	public final ReadChannel<Long> allowedDischarge;
+	public final ReadChannel<Integer> chargeSoc;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
@@ -43,5 +44,6 @@ public class Ess extends ThingMap {
 		soc = ess.soc().required();
 		minSoc = ess.minSoc().required();
 		allowedDischarge = ess.allowedDischarge().required();
+		chargeSoc = ess.chargeSoc().required();
 	}
 }

@@ -27,6 +27,8 @@ public interface EssNature extends DeviceNature {
 	 */
 	public ConfigChannel<Integer> minSoc();
 
+	public ConfigChannel<Integer> chargeSoc();
+
 	/*
 	 * Read Channels
 	 */
@@ -39,7 +41,7 @@ public interface EssNature extends DeviceNature {
 	public ReadChannel<Long> allowedCharge();
 
 	public ReadChannel<Long> allowedDischarge();
-	
+
 	public ReadChannel<Long> allowedApparent();
 
 	public StatusBitChannels warning();
