@@ -3,10 +3,14 @@ package io.openems.impl.persistence.fenecon;
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.net.ssl.SSLContext;
 
 import org.java_websocket.client.DefaultSSLWebSocketClientFactory;
+import org.java_websocket.drafts.Draft_10;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
@@ -18,11 +22,14 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketClient.class);
 
-	private final String apikey;
-
 	public WebsocketClient(URI uri, String apikey) throws Exception {
-		super(uri);
-		this.apikey = apikey;
+		// super(uri);
+		super( //
+				uri, //
+				new Draft_10(), //
+				Stream.of(new SimpleEntry<>("apikey", apikey))
+						.collect(Collectors.toMap((se) -> se.getKey(), (se) -> se.getValue())),
+				0);
 
 		if (uri.toString().startsWith("wss")) {
 			log.info("Socket: Using SSL");
@@ -52,10 +59,6 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 
 	@Override public void onOpen(ServerHandshake handshakedata) {
 		log.info("Websocket opened");
-		// send authentication
-		JsonObject j = new JsonObject();
-		j.addProperty("authenticate", apikey);
-		send(j);
 	}
 
 	public boolean send(JsonObject j) {
