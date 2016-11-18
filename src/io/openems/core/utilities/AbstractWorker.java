@@ -43,11 +43,6 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	public AbstractWorker(String name) {
 		log = LoggerFactory.getLogger(this.getClass());
 		this.setName(name);
-		activate(); // TODO: remove for OSGi
-	}
-
-	public void activate() {
-		this.start();
 	}
 
 	protected abstract int getCycleTime();

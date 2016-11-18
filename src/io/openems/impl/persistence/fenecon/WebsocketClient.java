@@ -32,7 +32,6 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 				0);
 
 		if (uri.toString().startsWith("wss")) {
-			log.info("Socket: Using SSL");
 			try {
 				SSLContext sslContext = null;
 				sslContext = SSLContext.getInstance("TLS");

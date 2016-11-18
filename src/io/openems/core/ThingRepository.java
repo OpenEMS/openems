@@ -144,6 +144,10 @@ public class ThingRepository {
 
 	}
 
+	public Set<Thing> getThings() {
+		return Collections.unmodifiableSet(this.thingIds.values());
+	}
+
 	/**
 	 * Get all declared members of thing class.
 	 *

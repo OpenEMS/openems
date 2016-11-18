@@ -40,10 +40,6 @@ public class SimpleScheduler extends Scheduler {
 		return 500;
 	}
 
-	@Override public void activate() {
-		super.activate();
-	}
-
 	@Override protected void dispose() {}
 
 	@Override protected void forever() {

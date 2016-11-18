@@ -57,6 +57,7 @@ import io.openems.api.exception.WriteChannelException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
+import io.openems.core.utilities.AbstractWorker;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
 
@@ -158,6 +159,15 @@ public class Config {
 					+ persistence.getClass().getSimpleName() + "]");
 			injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);
 		}
+
+		/*
+		 * Configuration is finished -> start all worker threads
+		 */
+		thingRepository.getThings().forEach(thing -> {
+			if (thing instanceof Thread) {
+				((AbstractWorker) thing).start();
+			}
+		});
 	}
 
 	private Thing getThingFromConfig(Class<?> type, JsonElement j) throws ReflectionException {
