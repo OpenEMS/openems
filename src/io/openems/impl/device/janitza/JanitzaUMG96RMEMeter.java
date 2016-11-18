@@ -44,6 +44,9 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 	private ModbusReadChannel reactivePower;
 	private ModbusReadChannel current;
 	private ModbusReadChannel frequency;
+	public ModbusReadChannel voltageL1;
+	public ModbusReadChannel voltageL2;
+	public ModbusReadChannel voltageL3;
 
 	@Override public ReadChannel<Long> activePower() {
 		return activePower;
@@ -70,7 +73,14 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 				new ModbusRange(800, //
 						new FloatElement(800, //
 								frequency = new ModbusReadChannel("Frequency", this).unit("mHz").multiplier(1000)),
-						new DummyElement(802, 866),
+						new DummyElement(802, 807),
+						new FloatElement(808,
+								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(1000)),
+						new FloatElement(810,
+								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(1000)),
+						new FloatElement(812,
+								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(1000)),
+						new DummyElement(814, 865),
 						new FloatElement(866, //
 								current = new ModbusReadChannel("Current", this).unit("mA").multiplier(1000)),
 						new DummyElement(868, 873),
