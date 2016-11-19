@@ -1,31 +1,26 @@
 package io.openems.femsserver.odoo;
 
-import java.io.IOException;
+import java.util.List;
 
+import org.apache.xmlrpc.XmlRpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.abercap.odoo.FilterCollection;
-import com.abercap.odoo.ObjectAdapter;
-import com.abercap.odoo.Row;
-import com.abercap.odoo.RowCollection;
+import com.abercap.odoo.OdooApiException;
 import com.abercap.odoo.Session;
 
-public class Odoo {
+import io.openems.femsserver.odoo.fems.device.FemsDevice;
+import io.openems.femsserver.odoo.fems.device.FemsDeviceModel;
 
-	// private final String url = "fenecon.de";
-	protected String url;
-	protected int port;
-	protected String database;
-	protected String username;
-	protected String password;
+public class Odoo {
 
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(Odoo.class);
 
 	private static Odoo instance;
 
-	public static synchronized void initialize(String url, int port, String database, String username, String password) throws Exception {
+	public static synchronized void initialize(String url, int port, String database, String username, String password)
+			throws Exception {
 		if (url == null || database == null || username == null || password == null) {
 			throw new Exception("Config missing: database [" + database + "], url [" + url + "], port [" + port
 					+ "] username [" + username + "], password [" + password + "]");
@@ -36,8 +31,10 @@ public class Odoo {
 		odoo.database = database;
 		odoo.username = username;
 		odoo.password = password;
+
+		odoo.connect();
 	}
-	
+
 	public static synchronized Odoo getInstance() {
 		if (Odoo.instance == null) {
 			Odoo.instance = new Odoo();
@@ -45,25 +42,36 @@ public class Odoo {
 		return Odoo.instance;
 	}
 
-	private Odoo() {}
+	private String url;
+	private int port;
+	private String database;
+	private String username;
+	private String password;
+	private Session session;
+	private FemsDeviceModel femsDeviceModel;
 
-	private Session getSession() throws Exception {
-		Session session = new Session(url, port, database, username, password);
+	private Odoo() {
+	}
+
+	private void connect() throws Exception {
+		session = new Session(url, port, database, username, password);
 		// startSession logs into the server and keeps the userid of the logged
 		// in user
 		session.startSession();
-		return session;
+		femsDeviceModel = new FemsDeviceModel(session);
 	}
 
-	public String getDeviceForApikey(String apikey) throws Exception {
-		Session session = getSession();
-		ObjectAdapter deviceAd = session.getObjectAdapter("fems.device");
-		FilterCollection filters = new FilterCollection();
-		filters.add("apikey", "=", apikey);
-		RowCollection devices = deviceAd.searchAndReadObject(filters, new String[] { "name_number" });
-		for (Row device : devices) {
-			return device.get("name_number").toString();
+	public List<FemsDevice> getDevicesForApikey(String apikey) throws OdooApiException, XmlRpcException {
+		List<FemsDevice> devices = femsDeviceModel.searchAndReadObject("apikey", "=", apikey);
+		return devices;
+	}
+	
+	public FemsDevice getFirstDeviceForApikey(String apikey) throws OdooApiException, XmlRpcException {
+		List<FemsDevice> devices = getDevicesForApikey(apikey);
+		if(devices.size() > 0) {
+			return devices.get(0);
+		} else {
+			return null;
 		}
-		throw new Exception("Device not found.");
 	}
 }

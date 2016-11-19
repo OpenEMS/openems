@@ -1,7 +1,7 @@
 package io.openems.femsserver.websocket;
 
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.java_websocket.WebSocket;
@@ -10,23 +10,27 @@ import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.openems.femsserver.influx.Influxdb;
 import io.openems.femsserver.odoo.Odoo;
+import io.openems.femsserver.odoo.fems.device.FemsDevice;
 import io.openems.femsserver.utilities.JsonUtils;
 import io.openems.femsserver.utilities.OpenemsException;
 
 public class Websocket extends WebSocketServer {
 
 	private static Logger log = LoggerFactory.getLogger(Websocket.class);
-	private final ConcurrentHashMap<WebSocket, String> sockets = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<WebSocket, FemsDevice> sockets = new ConcurrentHashMap<>();
 	private final Odoo odoo;
+	private final Influxdb influxdb;
 
-	public Websocket(int port) throws UnknownHostException {
+	public Websocket(int port) throws Exception {
 		super(new InetSocketAddress(port));
 		this.odoo = Odoo.getInstance();
+		this.influxdb = Influxdb.getInstance();
 	}
 
 	@Override
@@ -43,11 +47,12 @@ public class Websocket extends WebSocketServer {
 
 	@Override
 	public void onMessage(WebSocket conn, String message) {
-		String fems = sockets.get(conn);
+		FemsDevice fems = sockets.get(conn);
 		if (fems == null) {
 			// ignore
 			return;
 		}
+		fems.setLastMessage();
 		JsonObject j = (new JsonParser()).parse(message).getAsJsonObject();
 		try {
 			/*
@@ -60,31 +65,53 @@ public class Websocket extends WebSocketServer {
 				} else { // cachedData
 					jData = JsonUtils.getAsJsonObject(j, "cachedData");
 				}
+				/*
+				 * Write to InfluxDB
+				 */
 				try {
-					Influxdb influxdb = Influxdb.getInstance();
-					influxdb.write(fems, jData);
+					influxdb.write(fems.getNameNumber(), jData);
 				} catch (Exception e) {
 					log.error("No InfluxDB-connection: ", e);
 				}
+				/*
+				 * Write some data to Odoo
+				 */
+				// TODO: this is only to provide feedback for FENECON
+				// Service-Team that the device is online. Replace with
+				// something based on the actual websocket connection
+				if (j.has("data")) {
+					// take only not cached data
+					fems.setLastUpdate();
+					for (Entry<String, JsonElement> timestampEntry : JsonUtils.getAsJsonObject(j, "data").entrySet()) {
+						JsonObject jChannels = JsonUtils.getAsJsonObject(timestampEntry.getValue());
+						if (jChannels.has("ess0/Soc")) {
+							int soc = JsonUtils.getAsPrimitive(jChannels, "ess0/Soc").getAsInt();
+							fems.setSoc(soc);
+						}
+					}
+				}
 			}
 		} catch (OpenemsException e) {
-			log.error("Error on message from [" + fems + "]: " + e.getMessage());
+			log.error("Error on message from [" + fems.getName() + "]: " + e.getMessage());
 		}
-	}
-
-	String getFemsName(WebSocket conn) {
-		String fems = sockets.get(conn);
-		return fems != null ? "fems" + fems : "UNKNOWN";
+		try {
+			fems.writeObject();
+		} catch (Exception e) {
+			log.error(fems.getName() + ": Updating Odoo failed: " + e.getMessage());
+		}
 	}
 
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		String fems = null;
+		FemsDevice fems = null;
 		try {
 			if (handshake.hasFieldValue("apikey")) {
 				String apikey = handshake.getFieldValue("apikey");
-				fems = odoo.getDeviceForApikey(apikey);
-				log.info("Incoming connection from [" + fems + "]");
+				fems = odoo.getFirstDeviceForApikey(apikey);
+				if (fems == null) {
+					throw new Exception("Unable to find device from apikey [" + apikey + "]");
+				}
+				log.info("Incoming connection from [" + fems.getName() + "]");
 				sockets.put(conn, fems);
 			} else {
 				throw new Exception("Apikey is missing");
@@ -92,6 +119,15 @@ public class Websocket extends WebSocketServer {
 		} catch (Exception e) {
 			log.warn("Connection failed: " + e.getMessage());
 			conn.close();
+		}
+	}
+
+	private String getFemsName(WebSocket conn) {
+		FemsDevice device = sockets.get(conn);
+		if (device == null) {
+			return "NOT_CONNECTED";
+		} else {
+			return device.getName();
 		}
 	}
 }

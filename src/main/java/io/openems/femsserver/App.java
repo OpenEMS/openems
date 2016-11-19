@@ -17,30 +17,36 @@ import io.openems.femsserver.websocket.Websocket;
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
-	private static int websocketPort = 8086;
+	private static int WEBSOCKET_PORT = 8086;
 
 	public static void main(String[] args) throws Exception {
-		log.info("FEMS-Server started");
+		log.info("FEMS-Server starting...");
 
 		// Configure everything
+		log.info("Read config");
 		Properties config = getConfig();
+		log.info("Connect to Odoo");
 		initOdoo(config);
+		log.info("Connect to InfluxDB");
 		initInfluxdb(config);
-				
+
 		// Start websocket
-		Websocket ws = new Websocket(websocketPort);
+		log.info("Start websocket server on " + WEBSOCKET_PORT);
+		Websocket ws = new Websocket(WEBSOCKET_PORT);
 		ws.start();
+
+		log.info("FEMS-Server started.");
 	}
-	
+
 	private static Properties getConfig() throws IOException {
 		Path configLocation = Paths.get("config.properties");
 		try (InputStream stream = Files.newInputStream(configLocation)) {
-            Properties config = new Properties();
-            config.load(stream);
-            return config;
-        }
+			Properties config = new Properties();
+			config.load(stream);
+			return config;
+		}
 	}
-	
+
 	private static void initOdoo(Properties config) throws Exception {
 		String url = config.getProperty("odoo.url");
 		int port = Integer.valueOf(config.getProperty("odoo.port"));
@@ -49,7 +55,7 @@ public class App {
 		String password = config.getProperty("odoo.password");
 		Odoo.initialize(url, port, database, username, password);
 	}
-	
+
 	private static void initInfluxdb(Properties config) throws Exception {
 		String database = config.getProperty("influx.database");
 		String url = config.getProperty("influx.url");
