@@ -1,0 +1,24 @@
+{
+	"things": [
+		{
+			"class": "io.openems.impl.protocol.simulator.SimulatorBridge",
+			"devices": [
+				{
+					"class": "io.openems.impl.device.simulator.Simulator",
+					"ess": {
+						"id": "ess0",
+						"minSoc": 15,
+						"chargeSoc": 10
+					}
+				}
+			]
+		}
+	],
+	"persistence": [
+		{
+			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
+			"uri": "ws://localhost:8086",
+			"apikey": "p2MU5wJEIJ4umrNjEaQT"
+		}
+	]
+}
