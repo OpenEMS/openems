@@ -68,10 +68,10 @@ public class SymmetricVoltageCharacteristicController extends Controller {
 			long uRatio = meter.value().voltage.value() / uNenn.value() * 100;
 			long p = ControllerUtils.getValueOfLine(pCharacteristic, uRatio);
 			long q = ControllerUtils.getValueOfLine(qCharacteristic, uRatio);
-			long maxChargeApparentPower = Math.max(ess.value().allowedCharge.value(),
-					ess.value().setActivePower.writeMin().orElse(ess.value().allowedCharge.value()));
-			long maxDischargeApparentPower = Math.min(ess.value().allowedDischarge.value(),
-					ess.value().setActivePower.writeMax().orElse(ess.value().allowedDischarge.value()));
+			long maxChargeApparentPower = ess.value().setActivePower.writeMin()
+					.orElse(ess.value().allowedCharge.value());
+			long maxDischargeApparentPower = ess.value().setActivePower.writeMax()
+					.orElse(ess.value().allowedDischarge.value());
 			long reducedP = ControllerUtils.reduceActivePower(p, q, maxChargeApparentPower, maxDischargeApparentPower);
 			long reducedQ = ControllerUtils.reduceReactivePower(p, q, maxChargeApparentPower,
 					maxDischargeApparentPower);
