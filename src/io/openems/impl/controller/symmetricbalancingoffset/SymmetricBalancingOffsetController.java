@@ -45,8 +45,9 @@ public class SymmetricBalancingOffsetController extends Controller {
 			// Calculate required sum values
 			long calculatedPower = meter.value().activePower.value() + ess.activePower.value();
 			long calculatedReactivePower = meter.value().reactivePower.value() + ess.reactivePower.value();
-			long maxChargePower = ess.setActivePower.writeMin().orElse(ess.allowedCharge.value());
+			long maxChargePower = ess.setActivePower.writeMin().orElse(ess.allowedCharge.value() * -1);
 			long maxDischargePower = ess.setActivePower.writeMax().orElse(ess.allowedDischarge.value());
+			System.out.println("ActivePower: " + calculatedPower + ", ReactivePower: " + calculatedReactivePower);
 			calculatedPower -= activePowerOffset.value();
 			calculatedReactivePower -= reactivePowerOffset.value();
 			long activePower = ControllerUtils.reduceActivePower(calculatedPower, calculatedReactivePower,

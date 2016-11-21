@@ -65,11 +65,11 @@ public class SymmetricVoltageCharacteristicController extends Controller {
 
 	@Override public void run() {
 		try {
-			long uRatio = meter.value().voltage.value() / uNenn.value() * 100;
+			long uRatio = (long) ((double) meter.value().voltage.value() / (double) uNenn.value() * 100.0);
 			long p = ControllerUtils.getValueOfLine(pCharacteristic, uRatio);
 			long q = ControllerUtils.getValueOfLine(qCharacteristic, uRatio);
 			long maxChargeApparentPower = ess.value().setActivePower.writeMin()
-					.orElse(ess.value().allowedCharge.value());
+					.orElse(ess.value().allowedCharge.value() * -1);
 			long maxDischargeApparentPower = ess.value().setActivePower.writeMax()
 					.orElse(ess.value().allowedDischarge.value());
 			long reducedP = ControllerUtils.reduceActivePower(p, q, maxChargeApparentPower, maxDischargeApparentPower);
@@ -77,6 +77,7 @@ public class SymmetricVoltageCharacteristicController extends Controller {
 					maxDischargeApparentPower);
 			ess.value().setActivePower.pushWrite(reducedP);
 			ess.value().setReactivePower.pushWrite(reducedQ);
+			log.info(ess.id() + " Set ActivePower [" + reducedP + "], ReactivePower [" + reducedQ + "]");
 		} catch (InvalidValueException e) {
 			log.error("Failed to read Value.", e);
 		} catch (WriteChannelException e) {

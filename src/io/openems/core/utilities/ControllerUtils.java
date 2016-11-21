@@ -6,11 +6,12 @@ import java.util.List;
 public class ControllerUtils {
 
 	public static double calculateCosPhi(long activePower, long reactivePower) {
-		return activePower / calculateApparentPower(activePower, reactivePower);
+		return (double) activePower / (double) calculateApparentPower(activePower, reactivePower);
 	}
 
 	public static long calculateReactivePower(long activePower, double cosPhi) {
-		return (long) (activePower * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
+		// return (long) (activePower * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
+		return (long) (Math.sqrt(Math.pow(activePower / cosPhi, 2) - Math.pow(activePower, 2)));
 	}
 
 	public static long calculateApparentPower(long activePower, long reactivePower) {
@@ -37,7 +38,7 @@ public class ControllerUtils {
 			/*
 			 * Charge
 			 */
-			if (calculateApparentPower(activePower, reactivePower) < maxChargeApparentPower) {
+			if (calculateApparentPower(activePower, reactivePower) * -1 < maxChargeApparentPower) {
 				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
 				activePower = ControllerUtils.calculateActivePower(maxChargeApparentPower, cosPhi);
 			}
@@ -68,9 +69,10 @@ public class ControllerUtils {
 			/*
 			 * Charge
 			 */
-			if (calculateApparentPower(activePower, reactivePower) < maxChargeApparentPower) {
+			if (calculateApparentPower(activePower, reactivePower) * -1 < maxChargeApparentPower) {
 				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
-				reactivePower = ControllerUtils.calculateReactivePower(maxChargeApparentPower, cosPhi);
+				reactivePower = ControllerUtils.calculateReactivePower(reduceActivePower(activePower, reactivePower,
+						maxChargeApparentPower, maxDischargeApparentPower), cosPhi);
 			}
 		} else {
 
@@ -79,7 +81,8 @@ public class ControllerUtils {
 			 */
 			if (ControllerUtils.calculateApparentPower(activePower, reactivePower) > maxDischargeApparentPower) {
 				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
-				reactivePower = ControllerUtils.calculateReactivePower(maxDischargeApparentPower, cosPhi);
+				reactivePower = ControllerUtils.calculateReactivePower(reduceActivePower(activePower, reactivePower,
+						maxChargeApparentPower, maxDischargeApparentPower), cosPhi);
 			}
 		}
 		if (!reactivePowerPos && reactivePower >= 0) {
@@ -103,12 +106,16 @@ public class ControllerUtils {
 	public static Long getValueOfLine(List<Point> points, long x) {
 		Point smaller = getSmallerPoint(points, x);
 		Point greater = getGreaterPoint(points, x);
-		if (smaller != null && greater != null) {
+		if (smaller != null && greater == null) {
+			return smaller.y;
+		} else if (smaller == null && greater != null) {
+			return greater.y;
+		} else if (smaller != null && greater != null) {
 			double m = (greater.y - smaller.y) / (greater.x - smaller.x);
 			double t = smaller.y - m * smaller.x;
 			return (long) (m * x + t);
 		} else {
-			throw new ArithmeticException("x is out of Range of the points");
+			throw new ArithmeticException("x[" + x + "] is out of Range of the points");
 		}
 	}
 
@@ -125,7 +132,7 @@ public class ControllerUtils {
 
 	private static Point getSmallerPoint(List<Point> points, long x) {
 		Collections.sort(points, (p1, p2) -> (int) (p2.x - p1.x));
-		for (int i = points.size() - 1; i >= 0; i--) {
+		for (int i = 0; i < points.size(); i++) {
 			Point p = points.get(i);
 			if (p.x < x) {
 				return p;
