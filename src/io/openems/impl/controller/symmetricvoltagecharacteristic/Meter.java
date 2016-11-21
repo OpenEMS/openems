@@ -18,25 +18,21 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.device.nature.meter;
+package io.openems.impl.controller.symmetricvoltagecharacteristic;
 
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.meter.SymmetricMeterNature;
 
-public interface SymmetricMeterNature extends MeterNature {
+@IsThingMap(type = SymmetricMeterNature.class)
+public class Meter extends ThingMap {
 
-	/*
-	 * ReadChannels
-	 */
+	public final ReadChannel<Long> voltage;
 
-	public ReadChannel<Long> activePower();
+	public Meter(SymmetricMeterNature meter) {
+		super(meter);
+		voltage = meter.voltage().required();
+	}
 
-	public ReadChannel<Long> apparentPower();
-
-	public ReadChannel<Long> reactivePower();
-
-	public ReadChannel<Long> current();
-
-	public ReadChannel<Long> frequency();
-
-	public ReadChannel<Long> voltage();
 }

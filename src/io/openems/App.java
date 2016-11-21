@@ -47,6 +47,10 @@ public class App {
 			configPath = Paths.get("D:", "fems", "openems", "etc", "openems.d");
 		}
 		if (!configPath.toFile().exists()) {
+			configPath = Paths.get("C:", "Users", "matthias.rossmann", "Dev", "git", "openems", "openems", "etc",
+					"openems.d");
+		}
+		if (!configPath.toFile().exists()) {
 			throw new ConfigException("No config directory found!");
 		}
 

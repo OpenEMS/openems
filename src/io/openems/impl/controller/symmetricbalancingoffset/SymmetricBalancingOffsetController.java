@@ -45,50 +45,17 @@ public class SymmetricBalancingOffsetController extends Controller {
 			// Calculate required sum values
 			long calculatedPower = meter.value().activePower.value() + ess.activePower.value();
 			long calculatedReactivePower = meter.value().reactivePower.value() + ess.reactivePower.value();
-			long maxChargePower = ess.setActivePower.writeMin().orElse(0L);
-			long maxDischargePower = ess.setActivePower.writeMax().orElse(0L);
+			long maxChargePower = ess.setActivePower.writeMin().orElse(ess.allowedCharge.value());
+			long maxDischargePower = ess.setActivePower.writeMax().orElse(ess.allowedDischarge.value());
 			calculatedPower -= activePowerOffset.value();
 			calculatedReactivePower -= reactivePowerOffset.value();
-			boolean activePowerPos = true;
-			boolean reactivePowerPos = true;
-			if (calculatedPower < 0) {
-				activePowerPos = false;
-			}
-			if (calculatedReactivePower < 0) {
-				reactivePowerPos = false;
-			}
-			// TODO check reactivePower
-			if (ControllerUtils.isCharge(calculatedPower, calculatedReactivePower)) {
-				/*
-				 * Charge
-				 */
-				if (ControllerUtils.calculateApparentPower(calculatedPower, calculatedReactivePower) < maxChargePower) {
-					double cosPhi = ControllerUtils.calculateCosPhi(calculatedPower, calculatedReactivePower);
-					calculatedPower = ControllerUtils.calculateActivePower(maxChargePower, cosPhi);
-					calculatedReactivePower = ControllerUtils.calculateReactivePower(maxChargePower, cosPhi);
-				}
-			} else {
-
-				/*
-				 * Discharge
-				 */
-				if (ControllerUtils.calculateApparentPower(calculatedPower,
-						calculatedReactivePower) > maxDischargePower) {
-					double cosPhi = ControllerUtils.calculateCosPhi(calculatedPower, calculatedReactivePower);
-					calculatedPower = ControllerUtils.calculateActivePower(maxDischargePower, cosPhi);
-					calculatedReactivePower = ControllerUtils.calculateReactivePower(maxDischargePower, cosPhi);
-				}
-			}
-			if (!activePowerPos && calculatedPower >= 0) {
-				calculatedPower *= -1;
-			}
-			if (!reactivePowerPos && calculatedReactivePower >= 0) {
-				calculatedReactivePower *= -1;
-			}
-			ess.setActivePower.pushWrite(calculatedPower);
-			ess.setReactivePower.pushWrite(calculatedReactivePower);
-			log.info(ess.id() + " Set ActivePower [" + calculatedPower + "], ReactivePower [" + calculatedReactivePower
-					+ "]");
+			long activePower = ControllerUtils.reduceActivePower(calculatedPower, calculatedReactivePower,
+					maxChargePower, maxDischargePower);
+			long reactivePower = ControllerUtils.reduceReactivePower(calculatedPower, calculatedReactivePower,
+					maxChargePower, maxDischargePower);
+			ess.setActivePower.pushWrite(activePower);
+			ess.setReactivePower.pushWrite(reactivePower);
+			log.info(ess.id() + " Set ActivePower [" + activePower + "], ReactivePower [" + reactivePower + "]");
 		} catch (InvalidValueException | WriteChannelException e) {
 			log.error(e.getMessage());
 		}

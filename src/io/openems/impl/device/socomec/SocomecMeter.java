@@ -193,4 +193,8 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	@Override public ReadChannel<Long> frequency() {
 		return frequency;
 	}
+
+	@Override public ReadChannel<Long> voltage() {
+		return voltageL1();
+	}
 }

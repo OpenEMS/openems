@@ -25,6 +25,69 @@ public class ControllerUtils {
 		return (long) (activePower / cosPhi);
 	}
 
+	public static long reduceActivePower(long activePower, long reactivePower, long maxChargeApparentPower,
+			long maxDischargeApparentPower) {
+		boolean activePowerPos = true;
+
+		if (activePower < 0) {
+			activePowerPos = false;
+		}
+
+		if (isCharge(activePower, reactivePower)) {
+			/*
+			 * Charge
+			 */
+			if (calculateApparentPower(activePower, reactivePower) < maxChargeApparentPower) {
+				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
+				activePower = ControllerUtils.calculateActivePower(maxChargeApparentPower, cosPhi);
+			}
+		} else {
+
+			/*
+			 * Discharge
+			 */
+			if (ControllerUtils.calculateApparentPower(activePower, reactivePower) > maxDischargeApparentPower) {
+				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
+				activePower = ControllerUtils.calculateActivePower(maxDischargeApparentPower, cosPhi);
+			}
+		}
+		if (!activePowerPos && activePower >= 0) {
+			activePower *= -1;
+		}
+
+		return activePower;
+	}
+
+	public static long reduceReactivePower(long activePower, long reactivePower, long maxChargeApparentPower,
+			long maxDischargeApparentPower) {
+		boolean reactivePowerPos = true;
+		if (reactivePower < 0) {
+			reactivePowerPos = false;
+		}
+		if (isCharge(activePower, reactivePower)) {
+			/*
+			 * Charge
+			 */
+			if (calculateApparentPower(activePower, reactivePower) < maxChargeApparentPower) {
+				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
+				reactivePower = ControllerUtils.calculateReactivePower(maxChargeApparentPower, cosPhi);
+			}
+		} else {
+
+			/*
+			 * Discharge
+			 */
+			if (ControllerUtils.calculateApparentPower(activePower, reactivePower) > maxDischargeApparentPower) {
+				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
+				reactivePower = ControllerUtils.calculateReactivePower(maxDischargeApparentPower, cosPhi);
+			}
+		}
+		if (!reactivePowerPos && reactivePower >= 0) {
+			reactivePower *= -1;
+		}
+		return reactivePower;
+	}
+
 	public static boolean isCharge(long activePower, long reactivePower) {
 		if (activePower >= 0 && reactivePower >= 0) {
 			return false;
@@ -69,16 +132,5 @@ public class ControllerUtils {
 			}
 		}
 		return null;
-	}
-
-	class Point {
-		final long x;
-		final long y;
-
-		public Point(long x, long y) {
-			this.x = x;
-			this.y = y;
-		}
-
 	}
 }

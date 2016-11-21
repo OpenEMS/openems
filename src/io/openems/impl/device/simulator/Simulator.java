@@ -14,6 +14,8 @@ public class Simulator extends SimulatorDevice {
 	 * Config
 	 */
 	public final ConfigChannel<SimulatorEss> ess = new ConfigChannel<SimulatorEss>("ess", this, SimulatorEss.class);
+	public final ConfigChannel<SimulatorMeter> meter = new ConfigChannel<SimulatorMeter>("meter", this,
+			SimulatorMeter.class);
 
 	public Simulator() throws OpenemsException {
 		super();
@@ -23,6 +25,9 @@ public class Simulator extends SimulatorDevice {
 		Set<DeviceNature> natures = new HashSet<>();
 		if (ess.valueOptional().isPresent()) {
 			natures.add(ess.valueOptional().get());
+		}
+		if (meter.valueOptional().isPresent()) {
+			natures.add(meter.valueOptional().get());
 		}
 		return natures;
 	}
