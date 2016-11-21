@@ -223,8 +223,74 @@ public class Config {
 			} catch (UnknownHostException e) {
 				throw new ReflectionException("Unable to convert [" + j + "] to IPv4 address");
 			}
+		} else if (Long[].class.isAssignableFrom(type)) {
+			return getLongArrayFromConfig(channel, j);
 		}
 		throw new ReflectionException("Unable to match config [" + j + "] to class type [" + type + "]");
+	}
+
+	private Object getLongArrayFromConfig(ConfigChannel<?> channel, JsonElement j) throws ReflectionException {
+		/*
+		 * Get "Field" in Channels parent class
+		 */
+		Field field;
+		try {
+			field = channel.parent().getClass().getField(channel.id());
+		} catch (NoSuchFieldException | SecurityException e) {
+			throw new ReflectionException("Field for ConfigChannel [" + channel.address() + "] is not named ["
+					+ channel.id() + "] in [" + channel.getClass().getSimpleName() + "]");
+		}
+
+		/*
+		 * Get expected Object Type (List, Set, simple Object)
+		 */
+		Type expectedObjectType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+		if (expectedObjectType instanceof ParameterizedType) {
+			expectedObjectType = ((ParameterizedType) expectedObjectType).getRawType();
+		}
+		Class<?> expectedObjectClass = (Class<?>) expectedObjectType;
+
+		if (Collection.class.isAssignableFrom(expectedObjectClass)) {
+			if (j.isJsonArray()) {
+				Set<Long[]> erg = new HashSet<>();
+				for (JsonElement e : j.getAsJsonArray()) {
+					if (e.isJsonArray()) {
+						JsonArray arr = e.getAsJsonArray();
+						Long[] larr = new Long[arr.size()];
+						for (int i = 0; i < arr.size(); i++) {
+							larr[i] = arr.get(i).getAsLong();
+						}
+						erg.add(larr);
+					} else {
+						throw new ReflectionException("The Json object for ConfigChannel [" + channel.address()
+								+ "] is no twodimensional array!");
+					}
+				}
+				if (Set.class.isAssignableFrom(expectedObjectClass)) {
+					return erg;
+				} else if (List.class.isAssignableFrom(expectedObjectClass)) {
+					return new ArrayList<>(erg);
+				} else {
+					throw new ReflectionException("Only List and Set ConfigChannels are currently implemented, not ["
+							+ expectedObjectClass + "]. ConfigChannel [" + channel.address() + "]");
+				}
+			} else {
+				throw new ReflectionException(
+						"The Json object for ConfigChannel [" + channel.address() + "] is no array!");
+			}
+		} else {
+			if (j.isJsonArray()) {
+				JsonArray arr = j.getAsJsonArray();
+				Long[] larr = new Long[arr.size()];
+				for (int i = 0; i < arr.size(); i++) {
+					larr[i] = arr.get(i).getAsLong();
+				}
+				return larr;
+			} else {
+				throw new ReflectionException(
+						"The Json object for ConfigChannel [" + channel.address() + "] is no array!");
+			}
+		}
 	}
 
 	/**
