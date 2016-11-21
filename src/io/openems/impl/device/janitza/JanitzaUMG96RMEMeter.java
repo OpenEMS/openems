@@ -98,4 +98,8 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 				));
 	}
 
+	@Override public ReadChannel<Long> voltage() {
+		return voltageL1;
+	}
+
 }
