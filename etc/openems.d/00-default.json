@@ -1,28 +1,16 @@
 {
 	"things": [
 		{
-			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
-			"serialinterface": "/dev/ttyUSB0",
-			"baudrate": 9600,
-			"databits": 8,
-			"parity": "none",
-			"stopbits": 1,
+			"class": "io.openems.impl.protocol.simulator.SimulatorBridge",
 			"devices": [
 				{
-					"class": "io.openems.impl.device.pro.FeneconPro",
-					"modbusUnitId": 4,
+					"class": "io.openems.impl.device.simulator.Simulator",
 					"ess": {
 						"id": "ess0",
-						"minSoc": 15
+						"minSoc": 15,
+						"chargeSoc": 10
 					},
-					"meter": {
-						"id": "meter1"
-					}
-				},
-				{
-					"class": "io.openems.impl.device.socomec.Socomec",
-					"modbusUnitId": 5,
-					"meter": {
+					"meter":{
 						"id": "meter0"
 					}
 				}
@@ -32,45 +20,46 @@
 	"scheduler": {
 		"class": "io.openems.impl.scheduler.SimpleScheduler",
 		"controllers": [
-			{
-				"priority": 150,
-				"class": "io.openems.impl.controller.debuglog.DebugLogController",
-				"esss": "ess0",
-				"asymmetricMeters": "meter1",
-				"symmetricMeters": "meter0",
-				"rtc": "ess0"
-			},
-			{
-				"priority": 100,
-				"class": "io.openems.impl.controller.asymmetricbalancing.AsymmetricBalancingController",
-				"esss": [
-					"ess0",
-					"ess1"
+			/*{
+				"priority": 10,
+				"class": "io.openems.impl.controller.symmetricvoltagecharacteristic.SymmetricVoltageCharacteristicController",
+				"ess": "ess0",
+				"meter": "meter0",
+				"UNenn": 230000,
+				"pByUCharacteristicPoints":[
+					[90,1000],
+					[100,0],
+					[110,-15000]
 				],
-				"meter": "meter0"
-			},
-			{
-				"priority": 50,
-				"class": "io.openems.impl.controller.asymmetricavoidtotaldischarge.AsymmetricAvoidTotalDischarge",
-				"esss": "ess0"
-			},
-			{
-				"priority": 0,
-				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
-				"rtc": "ess0"
+				"qByUCharacteristicPoints":[
+					[85,12000],
+					[100,0],
+					[115,-100]
+				]
 			},
 			{
 				"priority": 10,
-				"class": "io.openems.impl.controller.feneconprosetup.FeneconProSetupController",
-				"esss": "ess0"
+				"class": "io.openems.impl.controller.symmetricbalancingoffset.SymmetricBalancingOffsetController",
+				"ess": "ess0",
+				"meter": "meter0",
+				"activePowerOffset": -500,
+				"reactivePowerOffset": 400,
+				"activePowerActivated": true,
+				"reactivePowerActivated": false
+			}*/
+			{
+				"priority": 10,
+				"class": "io.openems.impl.controller.symmetricbalancingbandgap.SymmetricBalancingBandgapController",
+				"ess": "ess0",
+				"meter": "meter0",
+				"minActivePower": -500,
+				"maxActivePower": 500,
+				"minReactivePower": -500,
+				"maxReactivePower": 500,
+				"activePowerActivated": true,
+				"reactivePowerActivated": true
 			}
 		]
 	},
-	"persistence": [
-		{
-			"class": "io.openems.impl.persistence.influxdb.InfluxdbPersistence",
-			"ip": "127.0.0.1",
-			"fems": 343
-		}
-	]
+	"persistence":[]
 }
