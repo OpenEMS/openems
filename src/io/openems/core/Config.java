@@ -196,6 +196,16 @@ public class Config {
 			 */
 			return j.getAsInt();
 
+		} else if (Long.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for an Long
+			 */
+			return j.getAsLong();
+		} else if (Boolean.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for an Boolean
+			 */
+			return j.getAsBoolean();
 		} else if (String.class.isAssignableFrom(type)) {
 			/*
 			 * Asking for a String
