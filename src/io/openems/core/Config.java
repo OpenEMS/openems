@@ -206,6 +206,11 @@ public class Config {
 			 * Asking for an Boolean
 			 */
 			return j.getAsBoolean();
+		} else if (Double.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for an Long
+			 */
+			return j.getAsDouble();
 		} else if (String.class.isAssignableFrom(type)) {
 			/*
 			 * Asking for a String
