@@ -78,8 +78,11 @@ public class AvoidTotalDischargeController extends Controller {
 					}
 				}
 			}
-		} catch (InvalidValueException | WriteChannelException e) {
+		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
+		} catch (WriteChannelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }

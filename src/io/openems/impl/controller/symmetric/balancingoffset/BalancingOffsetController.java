@@ -88,8 +88,8 @@ public class BalancingOffsetController extends Controller {
 			long maxChargePower = ess.setActivePower.writeMin().orElse(ess.allowedCharge.value() * -1);
 			long maxDischargePower = ess.setActivePower.writeMax().orElse(ess.allowedDischarge.value());
 			System.out.println("ActivePower: " + calculatedPower + ", ReactivePower: " + calculatedReactivePower);
-			calculatedPower += activePowerOffset.value();
-			calculatedReactivePower += reactivePowerOffset.value();
+			calculatedPower -= activePowerOffset.value();
+			calculatedReactivePower -= reactivePowerOffset.value();
 			activePowerQueue.add(calculatedPower);
 			reactivePowerQueue.add(calculatedReactivePower);
 			calculatedPower = activePowerQueue.avg();

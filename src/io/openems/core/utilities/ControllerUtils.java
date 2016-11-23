@@ -6,12 +6,11 @@ import java.util.List;
 public class ControllerUtils {
 
 	public static double calculateCosPhi(long activePower, long reactivePower) {
-		return (double) activePower / (double) calculateApparentPower(activePower, reactivePower);
+		return Math.cos(Math.atan((double) activePower / (double) reactivePower));
 	}
 
 	public static long calculateReactivePower(long activePower, double cosPhi) {
-		// return (long) (activePower * Math.sqrt(1 / Math.pow(cosPhi, 2) - 1));
-		return (long) (Math.sqrt(Math.pow(activePower / cosPhi, 2) - Math.pow(activePower, 2)));
+		return (long) (Math.tan(Math.acos(cosPhi)) * activePower);
 	}
 
 	public static long calculateApparentPower(long activePower, long reactivePower) {

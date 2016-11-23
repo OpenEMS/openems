@@ -20,9 +20,14 @@ public class PowerRampController extends Controller {
 		try {
 			for (Ess ess : esss.value()) {
 				try {
-					long activePower = ess.activePower.value() + pStep.value();
-					activePower %= pMax.value();
-					long reactivePower = ControllerUtils.calculateReactivePower(activePower, cosPhi.value()) * -1;
+					long activePower = 0L;
+					activePower = ess.activePower.value();
+					if (Math.abs(activePower + pStep.value()) <= Math.abs(pMax.value())) {
+						activePower = activePower + pStep.value();
+					} else {
+						activePower = pMax.value();
+					}
+					long reactivePower = ControllerUtils.calculateReactivePower(activePower, cosPhi.value());
 					ess.setActivePower.pushWrite(activePower);
 					ess.setReactivePower.pushWrite(reactivePower);
 					log.info("Set ActivePower [" + activePower + "] Set ReactivePower [" + reactivePower + "]");
