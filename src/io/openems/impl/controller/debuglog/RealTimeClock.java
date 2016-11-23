@@ -46,7 +46,7 @@ public class RealTimeClock extends ThingMap {
 	}
 
 	@Override public String toString() {
-		return id() + "[" + year.format() + "-" + month.format() + "-" + day.format() + " " + //
+		return id() + " [" + year.format() + "-" + month.format() + "-" + day.format() + " " + //
 				hour.format() + ":" + minute.format() + ":" + second.format() + "]";
 	}
 }

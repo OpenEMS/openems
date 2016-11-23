@@ -44,7 +44,7 @@ public class DebugLogController extends Controller {
 				}
 			}
 			if (rtc.valueOptional().isPresent()) {
-				b.append(rtc.toString());
+				b.append(rtc.valueOptional().get().toString());
 				b.append(" ");
 			}
 			if (esss.valueOptional().isPresent()) {
