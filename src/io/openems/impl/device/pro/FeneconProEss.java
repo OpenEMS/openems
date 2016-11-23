@@ -22,6 +22,7 @@ package io.openems.impl.device.pro;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
@@ -226,109 +227,289 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
-		return new ModbusProtocol(
-				new ModbusRange(100, //
-						new UnsignedWordElement(100, //
-								systemState = new ModbusReadChannel("SystemState", this) //
-										.label(0, STANDBY) //
-										.label(1, EssNature.OFF_GRID) //
-										.label(2, EssNature.ON_GRID) //
-										.label(3, "Fail") //
-										.label(4, "Off-grid PV")),
-						new UnsignedWordElement(101, //
-								controlMode = new ModbusReadChannel("ControlMode", this) //
-										.label(1, "Remote") //
-										.label(2, "Local")), //
-						new UnsignedWordElement(102, //
-								workMode = new ModbusReadChannel("WorkMode", this) //
-										.label(2, "Economy") //
-										.label(6, "Remote") //
-										.label(8, "Timing")), //
-						new DummyElement(103), //
-						new UnsignedDoublewordElement(104, //
-								totalBatteryChargeEnergy = new ModbusReadChannel("TotalBatteryChargeEnergy", this)
-										.unit("Wh")), //
-						new UnsignedDoublewordElement(106, //
-								totalBatteryDischargeEnergy = new ModbusReadChannel("TotalBatteryDischargeEnergy", this)
-										.unit("Wh")), //
-						new UnsignedWordElement(108, //
-								batteryGroupState = new ModbusReadChannel("BatteryGroupState", this) //
-										.label(0, "Initial") //
-										.label(1, "Stop") //
-										.label(2, "Starting") //
-										.label(3, "Running") //
-										.label(4, "Stopping") //
-										.label(5, "Fail")),
-						new UnsignedWordElement(109, //
-								soc = new ModbusReadChannel("Soc", this).unit("%").interval(0, 100)),
-						new UnsignedWordElement(
-								110, //
-								batteryVoltage = new ModbusReadChannel("BatteryVoltage", this).unit("mV")
-										.multiplier(100)),
-						new UnsignedWordElement(111, //
-								batteryCurrent = new ModbusReadChannel("BatteryCurrent", this).unit("mA")
-										.multiplier(100)),
-						new UnsignedWordElement(112, //
-								batteryPower = new ModbusReadChannel("BatteryPower", this).unit("W")),
-						new UnsignedWordElement(113, //
-								batteryGroupAlarm = new ModbusReadChannel("BatteryGroupAlarm", this)
-										.label(1, "Fail, The system should be stopped") //
-										.label(2, "Common low voltage alarm") //
-										.label(4, "Common high voltage alarm") //
-										.label(8, "Charging over current alarm") //
-										.label(16, "Discharging over current alarm") //
-										.label(32, "Over temperature alarm")//
-										.label(64,
-												"Interal communication abnormal")),
-						new UnsignedWordElement(114, //
-								pcsOperationState = new ModbusReadChannel("PcsOperationState", this)
-										.label(0, "Self-checking") //
-										.label(1, "Standby") //
-										.label(2, "Off grid PV") //
-										.label(3, "Off grid") //
-										.label(4, ON_GRID) //
-										.label(5, "Fail") //
-										.label(6, "bypass 1") //
-										.label(7, "bypass 2")),
-						new DummyElement(115, 117), //
-						new SignedWordElement(118, //
-								currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA").multiplier(100)),
-						new SignedWordElement(119, //
-								currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA").multiplier(100)),
-						new SignedWordElement(120, //
-								currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA").multiplier(100)),
-						new UnsignedWordElement(121, //
-								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(100)),
-						new UnsignedWordElement(122, //
-								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(100)),
-						new UnsignedWordElement(123, //
-								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(100)),
-						new SignedWordElement(124, //
-								activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W")),
-						new SignedWordElement(125, //
-								activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W")),
-						new SignedWordElement(126, //
-								activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W")),
-						new SignedWordElement(127, //
-								reactivePowerL1 = new ModbusReadChannel("ReactivePowerL1", this).unit("var")),
-						new SignedWordElement(128, //
-								reactivePowerL2 = new ModbusReadChannel("ReactivePowerL2", this).unit("var")),
-						new SignedWordElement(129, //
-								reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this).unit("var")),
-						new DummyElement(130),
-						new UnsignedWordElement(131, //
-								frequencyL1 = new ModbusReadChannel("FrequencyL1", this).unit("mHz").multiplier(10)),
-						new UnsignedWordElement(132, //
-								frequencyL2 = new ModbusReadChannel("FrequencyL2", this).unit("mHz").multiplier(10)),
-						new UnsignedWordElement(133, //
-								frequencyL3 = new ModbusReadChannel("FrequencyL3", this).unit("mHz").multiplier(10)),
-						new UnsignedWordElement(134, //
-								allowedApparent = new ModbusReadChannel("AllowedApparentPower", this).unit("VA")),
-						new DummyElement(135, 140),
-						new UnsignedWordElement(141, //
-								allowedCharge = new ModbusReadChannel("AllowedCharge", this).unit("W")),
-						new UnsignedWordElement(142, //
-								allowedDischarge = new ModbusReadChannel("AllowedDischarge", this).unit("W"))),
+		return new ModbusProtocol(new ModbusRange(100, //
+				new UnsignedWordElement(100, //
+						systemState = new ModbusReadChannel("SystemState", this) //
+								.label(0, STANDBY) //
+								.label(1, EssNature.OFF_GRID) //
+								.label(2, EssNature.ON_GRID) //
+								.label(3, "Fail") //
+								.label(4, "Off-grid PV")),
+				new UnsignedWordElement(101, //
+						controlMode = new ModbusReadChannel("ControlMode", this) //
+								.label(1, "Remote") //
+								.label(2, "Local")), //
+				new UnsignedWordElement(102, //
+						workMode = new ModbusReadChannel("WorkMode", this) //
+								.label(2, "Economy") //
+								.label(6, "Remote") //
+								.label(8, "Timing")), //
+				new DummyElement(103), //
+				new UnsignedDoublewordElement(104, //
+						totalBatteryChargeEnergy = new ModbusReadChannel("TotalBatteryChargeEnergy", this).unit("Wh")), //
+				new UnsignedDoublewordElement(106, //
+						totalBatteryDischargeEnergy = new ModbusReadChannel("TotalBatteryDischargeEnergy", this)
+								.unit("Wh")), //
+				new UnsignedWordElement(108, //
+						batteryGroupState = new ModbusReadChannel("BatteryGroupState", this) //
+								.label(0, "Initial") //
+								.label(1, "Stop") //
+								.label(2, "Starting") //
+								.label(3, "Running") //
+								.label(4, "Stopping") //
+								.label(5, "Fail")),
+				new UnsignedWordElement(109, //
+						soc = new ModbusReadChannel("Soc", this).unit("%").interval(0, 100)),
+				new UnsignedWordElement(110, //
+						batteryVoltage = new ModbusReadChannel("BatteryVoltage", this).unit("mV").multiplier(100)),
+				new UnsignedWordElement(111, //
+						batteryCurrent = new ModbusReadChannel("BatteryCurrent", this).unit("mA").multiplier(100)),
+				new UnsignedWordElement(112, //
+						batteryPower = new ModbusReadChannel("BatteryPower", this)
+								.unit("W")),
+				new UnsignedWordElement(113, //
+						batteryGroupAlarm = new ModbusReadChannel("BatteryGroupAlarm", this)
+								.label(1, "Fail, The system should be stopped") //
+								.label(2, "Common low voltage alarm") //
+								.label(4, "Common high voltage alarm") //
+								.label(8, "Charging over current alarm") //
+								.label(16, "Discharging over current alarm") //
+								.label(32, "Over temperature alarm")//
+								.label(64, "Interal communication abnormal")),
+				new UnsignedWordElement(114, //
+						pcsOperationState = new ModbusReadChannel("PcsOperationState", this).label(0, "Self-checking") //
+								.label(1, "Standby") //
+								.label(2, "Off grid PV") //
+								.label(3, "Off grid") //
+								.label(4, ON_GRID) //
+								.label(5, "Fail") //
+								.label(6, "bypass 1") //
+								.label(7, "bypass 2")),
+				new DummyElement(115, 117), //
+				new SignedWordElement(118, //
+						currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA").multiplier(100)),
+				new SignedWordElement(119, //
+						currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA").multiplier(100)),
+				new SignedWordElement(120, //
+						currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA").multiplier(100)),
+				new UnsignedWordElement(121, //
+						voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(100)),
+				new UnsignedWordElement(122, //
+						voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(100)),
+				new UnsignedWordElement(123, //
+						voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(100)),
+				new SignedWordElement(124, //
+						activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W")),
+				new SignedWordElement(125, //
+						activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W")),
+				new SignedWordElement(126, //
+						activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W")),
+				new SignedWordElement(127, //
+						reactivePowerL1 = new ModbusReadChannel("ReactivePowerL1", this).unit("var")),
+				new SignedWordElement(128, //
+						reactivePowerL2 = new ModbusReadChannel("ReactivePowerL2", this).unit("var")),
+				new SignedWordElement(129, //
+						reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this).unit("var")),
+				new DummyElement(130),
+				new UnsignedWordElement(131, //
+						frequencyL1 = new ModbusReadChannel("FrequencyL1", this).unit("mHz").multiplier(10)),
+				new UnsignedWordElement(132, //
+						frequencyL2 = new ModbusReadChannel("FrequencyL2", this).unit("mHz").multiplier(10)),
+				new UnsignedWordElement(133, //
+						frequencyL3 = new ModbusReadChannel("FrequencyL3", this).unit("mHz").multiplier(10)),
+				new UnsignedWordElement(134, //
+						allowedApparent = new ModbusReadChannel("AllowedApparentPower", this).unit("VA")),
+				new DummyElement(135, 140),
+				new UnsignedWordElement(141, //
+						allowedCharge = new ModbusReadChannel("AllowedCharge", this).unit("W")),
+				new UnsignedWordElement(142, //
+						allowedDischarge = new ModbusReadChannel("AllowedDischarge", this).unit("W")),
+				new DummyElement(143, 149),
+				new UnsignedWordElement(150,
+						warning.channel(new StatusBitChannel("PcsAlarm1L1", this)//
+								.label(1, "Grid undervoltage") //
+								.label(2, "Grid overvoltage") //
+								.label(4, "Grid under frequency") //
+								.label(8, "Grid over frequency") //
+								.label(16, "Grid power supply off") //
+								.label(32, "Grid condition unmeet")//
+								.label(64, "DC under voltage")//
+								.label(128, "Input over resistance")//
+								.label(256, "Combination error")//
+								.label(512, "Comm with inverter error")//
+								.label(1024, "Tme error")//
+						)), new UnsignedWordElement(151, warning.channel(new StatusBitChannel("PcsAlarm2L1", this)//
+				)), new UnsignedWordElement(152, warning.channel(new StatusBitChannel("PcsFault1L1", this)//
+						.label(1, "Control current overload 100%")//
+						.label(2, "Control current overload 110%")//
+						.label(4, "Control current overload 150%")//
+						.label(8, "Control current overload 200%")//
+						.label(16, "Control current overload 120%")//
+						.label(32, "Control current overload 300%")//
+						.label(64, "Control transient load 300%")//
+						.label(128, "Grid over current")//
+						.label(256, "Locking waveform too many times")//
+						.label(512, "Inverter voltage zero drift error")//
+						.label(1024, "Grid voltage zero drift error")//
+						.label(2048, "Control current zero drift error")//
+						.label(4096, "Inverter current zero drift error")//
+						.label(8192, "Grid current zero drift error")//
+						.label(16384, "PDP protection")//
+						.label(32768, "Hardware control current protection")//
+				)), new UnsignedWordElement(153, warning.channel(new StatusBitChannel("PcsFault2L1", this)//
+						.label(1, "Hardware AC volt. protection")//
+						.label(2, "Hardware DC curr. protection")//
+						.label(4, "Hardware temperature protection")//
+						.label(8, "No capturing signal")//
+						.label(16, "DC overvoltage")//
+						.label(32, "DC disconnected")//
+						.label(64, "Inverter undervoltage")//
+						.label(128, "Inverter overvoltage")//
+						.label(256, "Current sensor fail")//
+						.label(512, "Voltage sensor fail")//
+						.label(1024, "Power uncontrollable")//
+						.label(2048, "Current uncontrollable")//
+						.label(4096, "Fan error")//
+						.label(8192, "Phase lack")//
+						.label(16384, "Inverter relay fault")//
+						.label(32768, "Grid relay fault")//
+				)), new UnsignedWordElement(154, warning.channel(new StatusBitChannel("PcsFault3L1", this)//
+						.label(1, "Control panel overtemp")//
+						.label(2, "Power panel overtemp")//
+						.label(4, "DC input overcurrent")//
+						.label(8, "Capacitor overtemp")//
+						.label(16, "Radiator overtemp")//
+						.label(32, "Transformer overtemp")//
+						.label(64, "Combination comm error")//
+						.label(128, "EEPROM error")//
+						.label(256, "Load current zero drift error")//
+						.label(512, "Current limit-R error")//
+						.label(1024, "Phase sync error")//
+						.label(2048, "External PV current zero drift error")//
+						.label(4096, "External grid current zero drift error")//
+				)), new UnsignedWordElement(155, warning.channel(new StatusBitChannel("PcsAlarm1L2", this)//
+						.label(1, "Grid undervoltage") //
+						.label(2, "Grid overvoltage") //
+						.label(4, "Grid under frequency") //
+						.label(8, "Grid over frequency") //
+						.label(16, "Grid power supply off") //
+						.label(32, "Grid condition unmeet")//
+						.label(64, "DC under voltage")//
+						.label(128, "Input over resistance")//
+						.label(256, "Combination error")//
+						.label(512, "Comm with inverter error")//
+						.label(1024, "Tme error")//
+				)), new UnsignedWordElement(156, warning.channel(new StatusBitChannel("PcsAlarm2L2", this)//
+				)), new UnsignedWordElement(157, warning.channel(new StatusBitChannel("PcsFault1L2", this)//
+						.label(1, "Control current overload 100%")//
+						.label(2, "Control current overload 110%")//
+						.label(4, "Control current overload 150%")//
+						.label(8, "Control current overload 200%")//
+						.label(16, "Control current overload 120%")//
+						.label(32, "Control current overload 300%")//
+						.label(64, "Control transient load 300%")//
+						.label(128, "Grid over current")//
+						.label(256, "Locking waveform too many times")//
+						.label(512, "Inverter voltage zero drift error")//
+						.label(1024, "Grid voltage zero drift error")//
+						.label(2048, "Control current zero drift error")//
+						.label(4096, "Inverter current zero drift error")//
+						.label(8192, "Grid current zero drift error")//
+						.label(16384, "PDP protection")//
+						.label(32768, "Hardware control current protection")//
+				)), new UnsignedWordElement(158, warning.channel(new StatusBitChannel("PcsFault2L2", this)//
+						.label(1, "Hardware AC volt. protection")//
+						.label(2, "Hardware DC curr. protection")//
+						.label(4, "Hardware temperature protection")//
+						.label(8, "No capturing signal")//
+						.label(16, "DC overvoltage")//
+						.label(32, "DC disconnected")//
+						.label(64, "Inverter undervoltage")//
+						.label(128, "Inverter overvoltage")//
+						.label(256, "Current sensor fail")//
+						.label(512, "Voltage sensor fail")//
+						.label(1024, "Power uncontrollable")//
+						.label(2048, "Current uncontrollable")//
+						.label(4096, "Fan error")//
+						.label(8192, "Phase lack")//
+						.label(16384, "Inverter relay fault")//
+						.label(32768, "Grid relay fault")//
+				)), new UnsignedWordElement(159, warning.channel(new StatusBitChannel("PcsFault3L2", this)//
+						.label(1, "Control panel overtemp")//
+						.label(2, "Power panel overtemp")//
+						.label(4, "DC input overcurrent")//
+						.label(8, "Capacitor overtemp")//
+						.label(16, "Radiator overtemp")//
+						.label(32, "Transformer overtemp")//
+						.label(64, "Combination comm error")//
+						.label(128, "EEPROM error")//
+						.label(256, "Load current zero drift error")//
+						.label(512, "Current limit-R error")//
+						.label(1024, "Phase sync error")//
+						.label(2048, "External PV current zero drift error")//
+						.label(4096, "External grid current zero drift error")//
+				)), new UnsignedWordElement(160, warning.channel(new StatusBitChannel("PcsAlarm1L1", this)//
+						.label(1, "Grid undervoltage") //
+						.label(2, "Grid overvoltage") //
+						.label(4, "Grid under frequency") //
+						.label(8, "Grid over frequency") //
+						.label(16, "Grid power supply off") //
+						.label(32, "Grid condition unmeet")//
+						.label(64, "DC under voltage")//
+						.label(128, "Input over resistance")//
+						.label(256, "Combination error")//
+						.label(512, "Comm with inverter error")//
+						.label(1024, "Tme error")//
+				)), new UnsignedWordElement(161, warning.channel(new StatusBitChannel("PcsAlarm2L1", this)//
+				)), new UnsignedWordElement(162, warning.channel(new StatusBitChannel("PcsFault1L1", this)//
+						.label(1, "Control current overload 100%")//
+						.label(2, "Control current overload 110%")//
+						.label(4, "Control current overload 150%")//
+						.label(8, "Control current overload 200%")//
+						.label(16, "Control current overload 120%")//
+						.label(32, "Control current overload 300%")//
+						.label(64, "Control transient load 300%")//
+						.label(128, "Grid over current")//
+						.label(256, "Locking waveform too many times")//
+						.label(512, "Inverter voltage zero drift error")//
+						.label(1024, "Grid voltage zero drift error")//
+						.label(2048, "Control current zero drift error")//
+						.label(4096, "Inverter current zero drift error")//
+						.label(8192, "Grid current zero drift error")//
+						.label(16384, "PDP protection")//
+						.label(32768, "Hardware control current protection")//
+				)), new UnsignedWordElement(163, warning.channel(new StatusBitChannel("PcsFault2L1", this)//
+						.label(1, "Hardware AC volt. protection")//
+						.label(2, "Hardware DC curr. protection")//
+						.label(4, "Hardware temperature protection")//
+						.label(8, "No capturing signal")//
+						.label(16, "DC overvoltage")//
+						.label(32, "DC disconnected")//
+						.label(64, "Inverter undervoltage")//
+						.label(128, "Inverter overvoltage")//
+						.label(256, "Current sensor fail")//
+						.label(512, "Voltage sensor fail")//
+						.label(1024, "Power uncontrollable")//
+						.label(2048, "Current uncontrollable")//
+						.label(4096, "Fan error")//
+						.label(8192, "Phase lack")//
+						.label(16384, "Inverter relay fault")//
+						.label(32768, "Grid relay fault")//
+				)), new UnsignedWordElement(164, warning.channel(new StatusBitChannel("PcsFault3L1", this)//
+						.label(1, "Control panel overtemp")//
+						.label(2, "Power panel overtemp")//
+						.label(4, "DC input overcurrent")//
+						.label(8, "Capacitor overtemp")//
+						.label(16, "Radiator overtemp")//
+						.label(32, "Transformer overtemp")//
+						.label(64, "Combination comm error")//
+						.label(128, "EEPROM error")//
+						.label(256, "Load current zero drift error")//
+						.label(512, "Current limit-R error")//
+						.label(1024, "Phase sync error")//
+						.label(2048, "External PV current zero drift error")//
+						.label(4096, "External grid current zero drift error")//
+				))), //
 				new WritableModbusRange(200, //
 						new UnsignedWordElement(200,
 								setWorkState = new ModbusWriteChannel("SetWorkState", this)//
