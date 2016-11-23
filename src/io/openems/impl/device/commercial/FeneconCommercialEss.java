@@ -20,6 +20,10 @@
  *******************************************************************************/
 package io.openems.impl.device.commercial;
 
+import java.util.Optional;
+
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
@@ -38,7 +42,7 @@ import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.WritableModbusRange;
 
-public class FeneconCommercialEss extends ModbusDeviceNature implements SymmetricEssNature {
+public class FeneconCommercialEss extends ModbusDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
 
 	public FeneconCommercialEss(String thingId) throws ConfigException {
 		super(thingId);
@@ -47,11 +51,20 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	/*
 	 * Config
 	 */
-	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class);
-	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class);
+	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class)
+			.updateListener(this);
+
+	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class).optional();
 
 	@Override public ConfigChannel<Integer> minSoc() {
 		return minSoc;
+	}
+
+	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+		// If chargeSoc was not set -> set it to minSoc minus 2
+		if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
+			chargeSoc.updateValue((Integer) newValue.get() - 2, false);
+		}
 	}
 
 	/*
@@ -407,8 +420,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 						new UnsignedWordElement(0x021B, //
 								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(100)),
 						new UnsignedWordElement(0x021C, //
-								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ")
-										.multiplier(10))),
+								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ").multiplier(10))),
 				new ModbusRange(0x0222, //
 						new UnsignedWordElement(0x0222, //
 								inverterVoltageL1 = new ModbusReadChannel("InverterVoltageL1", this).unit("mV")
@@ -456,13 +468,12 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 								setWorkState = new ModbusWriteChannel("SetWorkState", this) //
 										.label(4, STOP) //
 										.label(32, STANDBY) //
-										.label(64,
-												START))),
+										.label(64, START))),
 				new WritableModbusRange(0x0501, //
 						new SignedWordElement(0x0501, //
 								setActivePower = new ModbusWriteChannel("SetActivePower", this).unit("W")
-										.multiplier(100).minWriteChannel(allowedCharge).maxWriteChannel(
-												allowedDischarge)),
+										.multiplier(100).minWriteChannel(allowedCharge)
+										.maxWriteChannel(allowedDischarge)),
 						new SignedWordElement(0x0502, //
 								setReactivePower = new ModbusWriteChannel("SetReactivePower", this).unit("var")
 										.multiplier(100).minWriteChannel(allowedCharge)

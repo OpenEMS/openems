@@ -20,6 +20,10 @@
  *******************************************************************************/
 package io.openems.impl.device.pro;
 
+import java.util.Optional;
+
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StatusBitChannel;
@@ -40,7 +44,8 @@ import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.WritableModbusRange;
 
-public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNature, RealTimeClockNature {
+public class FeneconProEss extends ModbusDeviceNature
+		implements AsymmetricEssNature, RealTimeClockNature, ChannelUpdateListener {
 
 	public FeneconProEss(String thingId) throws ConfigException {
 		super(thingId);
@@ -49,12 +54,20 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	/*
 	 * Config
 	 */
-	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class);
+	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class)
+			.updateListener(this);
 
-	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class);
+	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class).optional();
 
 	@Override public ConfigChannel<Integer> minSoc() {
 		return minSoc;
+	}
+
+	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+		// If chargeSoc was not set -> set it to minSoc minus 2
+		if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
+			chargeSoc.updateValue((Integer) newValue.get() - 2, false);
+		}
 	}
 
 	/*
@@ -265,8 +278,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 				new UnsignedWordElement(111, //
 						batteryCurrent = new ModbusReadChannel("BatteryCurrent", this).unit("mA").multiplier(100)),
 				new UnsignedWordElement(112, //
-						batteryPower = new ModbusReadChannel("BatteryPower", this)
-								.unit("W")),
+						batteryPower = new ModbusReadChannel("BatteryPower", this).unit("W")),
 				new UnsignedWordElement(113, //
 						batteryGroupAlarm = new ModbusReadChannel("BatteryGroupAlarm", this)
 								.label(1, "Fail, The system should be stopped") //
@@ -538,13 +550,10 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						new UnsignedWordElement(9016, rtcDay = new ModbusWriteChannel("Day", this)),
 						new UnsignedWordElement(9017, rtcHour = new ModbusWriteChannel("Hour", this)),
 						new UnsignedWordElement(9018, rtcMinute = new ModbusWriteChannel("Minute", this)),
-						new UnsignedWordElement(9019,
-								rtcSecond = new ModbusWriteChannel("Second", this))),
+						new UnsignedWordElement(9019, rtcSecond = new ModbusWriteChannel("Second", this))),
 				new WritableModbusRange(30558,
 						new UnsignedWordElement(30558,
-								setSetupMode = new ModbusWriteChannel("SetSetupMode", this)
-										.label(0,
-												EssNature.OFF)
+								setSetupMode = new ModbusWriteChannel("SetSetupMode", this).label(0, EssNature.OFF)
 										.label(1, EssNature.ON))),
 				new WritableModbusRange(30559,
 						new UnsignedWordElement(30559,
