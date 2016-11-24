@@ -42,17 +42,17 @@
 			},
 			{
 				"priority": 100,
+				"class": "io.openems.impl.controller.asymmetricavoidtotaldischarge.AsymmetricAvoidTotalDischarge",
+				"esss": "ess0"
+			},
+			{
+				"priority": 50,
 				"class": "io.openems.impl.controller.asymmetricbalancing.AsymmetricBalancingController",
 				"esss": [
 					"ess0",
 					"ess1"
 				],
 				"meter": "meter0"
-			},
-			{
-				"priority": 50,
-				"class": "io.openems.impl.controller.asymmetricavoidtotaldischarge.AsymmetricAvoidTotalDischarge",
-				"esss": "ess0"
 			},
 			{
 				"priority": 1,
