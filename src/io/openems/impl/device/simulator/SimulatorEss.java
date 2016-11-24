@@ -1,7 +1,10 @@
 package io.openems.impl.device.simulator;
 
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
@@ -13,7 +16,7 @@ import io.openems.impl.protocol.modbus.ModbusWriteChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
-public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssNature {
+public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
 
 	public SimulatorEss(String thingId) throws ConfigException {
 		super(thingId);
@@ -22,12 +25,20 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 	/*
 	 * Config
 	 */
-	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class);
+	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class)
+			.updateListener(this);
 
-	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class);
+	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class).optional();
 
 	@Override public ConfigChannel<Integer> minSoc() {
 		return minSoc;
+	}
+
+	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+		// If chargeSoc was not set -> set it to minSoc minus 2
+		if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
+			chargeSoc.updateValue((Integer) newValue.get() - 2, false);
+		}
 	}
 
 	/*
