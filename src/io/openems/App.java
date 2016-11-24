@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -27,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.exception.ConfigException;
+import io.openems.api.exception.ReflectionException;
+import io.openems.api.exception.WriteChannelException;
 import io.openems.core.Config;
 import io.openems.impl.api.rest.RestApi;
 import io.openems.impl.api.websocket.WebsocketApi;
@@ -38,7 +42,8 @@ public class App {
 	private final static int restApiPort = 8084;
 	private final static int websocketPort = 8085;
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws ConfigException, FileNotFoundException, ReflectionException,
+			WriteChannelException, IOException, InterruptedException {
 		log.info("OpenEMS started");
 
 		// Get config directory
@@ -62,17 +67,15 @@ public class App {
 		// Wait for the important parts to start
 		Thread.sleep(3000);
 
+		try {
+			RestApi.startComponent(restApiPort);
+			log.info("REST-Api started on port [" + restApiPort + "]");
+		} catch (Exception e) {
+			log.error("REST-Api failed on port [" + restApiPort + "]:", e);
+		}
+
 		// Start vertx
 		Vertx vertx = Vertx.vertx();
-		// deploy REST-Api
-		vertx.deployVerticle(new RestApi(restApiPort), result -> {
-			if (result.succeeded()) {
-				log.info("REST-Api started on port [" + restApiPort + "]");
-			} else {
-				log.error("REST-Api failed on port [" + restApiPort + "]:", result.cause());
-			}
-		});
-
 		// deploy Websocket-Api
 		vertx.deployVerticle(new WebsocketApi(websocketPort), result -> {
 			if (result.succeeded()) {

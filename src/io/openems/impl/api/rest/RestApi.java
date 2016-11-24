@@ -20,73 +20,50 @@
  *******************************************************************************/
 package io.openems.impl.api.rest;
 
-import java.util.Optional;
-
+import org.restlet.Application;
+import org.restlet.Component;
+import org.restlet.Restlet;
+import org.restlet.data.Protocol;
+import org.restlet.routing.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.core.Databus;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.Json;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.CorsHandler;
-
-public class RestApi extends AbstractVerticle {
+public class RestApi extends Application {
 
 	private static Logger log = LoggerFactory.getLogger(RestApi.class);
 
-	private final Databus databus;
-	private final int port;
+	public final static int DEFAULT_PORT = 8084;
+	private static Component component;
 
-	public RestApi(int port) {
-		this.databus = Databus.getInstance();
-		this.port = port;
+	public static synchronized Component startComponent() throws Exception {
+		return RestApi.startComponent(DEFAULT_PORT);
 	}
 
-	@Override public void start(Future<Void> fut) throws Exception {
-		// Create a router object.
-		Router router = Router.router(vertx);
-
-		// TODO: remove this cors handler
-		router.route().handler(CorsHandler.create("*"));
-
-		router.get("/rest/thing/:thingId/channel/:channelId/current").handler(this::getThingChannelValue);
-
-		// Bind "/" to our hello message - so we are still compatible.
-		router.route("/").handler(routingContext -> {
-			HttpServerResponse response = routingContext.response();
-			response.putHeader("content-type", "text/html").end(
-					"<h1>Welcome to OpenEMS REST-Api</h1><p>Why don't you try reading <a href='/rest/thing/ess0/channel/Soc/current'>current SOC of ess0</a>?");
-		});
-
-		// Create the HTTP server and pass the "accept" method to the request handler.
-		vertx.createHttpServer().requestHandler(router::accept).listen(this.port, result -> {
-			if (result.succeeded()) {
-				fut.complete();
-			} else {
-				fut.fail(result.cause());
-			}
-		});
-	}
-
-	private void getThingChannelValue(RoutingContext routingContext) {
-		String thingId = routingContext.request().getParam("thingId");
-		String channelId = routingContext.request().getParam("channelId");
-		if (thingId == null || channelId == null) {
-			routingContext.response().setStatusCode(400).end();
-		} else {
-			log.info("Thing: " + thingId + ", Channel: " + channelId);
-			Optional<?> value = databus.getValue(thingId, channelId);
-			if (value.isPresent()) {
-				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
-						.end(Json.encodePrettily(value.get()));
-			} else {
-				routingContext.response().setStatusCode(404).end();
-			}
+	public static synchronized Component startComponent(int port) throws Exception {
+		if (RestApi.component == null) {
+			RestApi.component = new Component();
+			RestApi.component.getServers().add(Protocol.HTTP, port);
+			RestApi.component.getDefaultHost().attach("/rest", new RestApi());
+			RestApi.component.start();
 		}
-		// routingContext.response().setStatusCode(204).end();
+		return RestApi.component;
+	}
+
+	public static void stopComponent() throws Exception {
+		if (RestApi.component != null) {
+			RestApi.component.stop();
+			RestApi.component = null;
+		}
+	}
+
+	/**
+	 * Creates a root Restlet that will receive all incoming calls.
+	 */
+	@Override public synchronized Restlet createInboundRoot() {
+		Router router = new Router(getContext());
+		// define all routes
+		router.attach("/channel/{thing}/{channel}/current", ChannelCurrentResource.class);
+
+		return router;
 	}
 }

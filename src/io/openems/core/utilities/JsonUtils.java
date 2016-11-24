@@ -25,6 +25,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 
 public class JsonUtils {
@@ -73,6 +74,13 @@ public class JsonUtils {
 			throw new ReflectionException("[" + memberName + "] is missing in Config: " + jElement);
 		}
 		return jObject.get(memberName);
+	}
+
+	public static JsonElement getAsJsonElement(Object object) throws NotImplementedException {
+		if (object instanceof Long) {
+			return new JsonPrimitive((Long) object);
+		}
+		throw new NotImplementedException("Converter for [object] to JSON is not implemented.");
 	}
 
 }
