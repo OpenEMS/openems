@@ -23,7 +23,6 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 	private static Logger log = LoggerFactory.getLogger(WebsocketClient.class);
 
 	public WebsocketClient(URI uri, String apikey) throws Exception {
-		// super(uri);
 		super( //
 				uri, //
 				new Draft_10(), //
@@ -45,7 +44,6 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 
 	@Override public void onClose(int code, String reason, boolean remote) {
 		log.info("Websocket closed. Code[" + code + "] Reason[" + reason + "]");
-		log.info(this.getDraft().toString());
 	}
 
 	@Override public void onError(Exception ex) {

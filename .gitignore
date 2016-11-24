@@ -11,3 +11,5 @@
 hs_err_pid*
 /target/
 /openems
+
+/etc/openems.d/*
