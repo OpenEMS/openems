@@ -27,4 +27,8 @@ public class OpenemsException extends Exception {
 	public OpenemsException(String message) {
 		super(message);
 	}
+
+	public OpenemsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

@@ -32,7 +32,6 @@ import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.Config;
-import io.openems.impl.api.rest.RestApi;
 import io.openems.impl.api.websocket.WebsocketApi;
 import io.vertx.core.Vertx;
 
@@ -66,13 +65,6 @@ public class App {
 
 		// Wait for the important parts to start
 		Thread.sleep(3000);
-
-		try {
-			RestApi.startComponent(restApiPort);
-			log.info("REST-Api started on port [" + restApiPort + "]");
-		} catch (Exception e) {
-			log.error("REST-Api failed on port [" + restApiPort + "]:", e);
-		}
 
 		// Start vertx
 		Vertx vertx = Vertx.vertx();

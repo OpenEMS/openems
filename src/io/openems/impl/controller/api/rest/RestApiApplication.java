@@ -18,43 +18,13 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.api.rest;
+package io.openems.impl.controller.api.rest;
 
 import org.restlet.Application;
-import org.restlet.Component;
 import org.restlet.Restlet;
-import org.restlet.data.Protocol;
 import org.restlet.routing.Router;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class RestApi extends Application {
-
-	private static Logger log = LoggerFactory.getLogger(RestApi.class);
-
-	public final static int DEFAULT_PORT = 8084;
-	private static Component component;
-
-	public static synchronized Component startComponent() throws Exception {
-		return RestApi.startComponent(DEFAULT_PORT);
-	}
-
-	public static synchronized Component startComponent(int port) throws Exception {
-		if (RestApi.component == null) {
-			RestApi.component = new Component();
-			RestApi.component.getServers().add(Protocol.HTTP, port);
-			RestApi.component.getDefaultHost().attach("/rest", new RestApi());
-			RestApi.component.start();
-		}
-		return RestApi.component;
-	}
-
-	public static void stopComponent() throws Exception {
-		if (RestApi.component != null) {
-			RestApi.component.stop();
-			RestApi.component = null;
-		}
-	}
+public class RestApiApplication extends Application {
 
 	/**
 	 * Creates a root Restlet that will receive all incoming calls.
@@ -62,7 +32,8 @@ public class RestApi extends Application {
 	@Override public synchronized Restlet createInboundRoot() {
 		Router router = new Router(getContext());
 		// define all routes
-		router.attach("/channel/{thing}/{channel}/current", ChannelCurrentResource.class);
+		// router.attach("/channel/{thing}/{channel}/current", ChannelCurrentResource.class);
+		router.attach("/channel/{thing}/{channel}", ChannelCurrentResource.class);
 
 		return router;
 	}

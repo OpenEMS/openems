@@ -20,7 +20,12 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import io.openems.api.exception.NotImplementedException;
 import io.openems.api.thing.Thing;
+import io.openems.core.utilities.JsonUtils;
 
 public class ConfigChannel<T> extends WriteChannel<T> {
 	private final Class<?> type;
@@ -35,12 +40,21 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 		return (ConfigChannel<T>) super.updateListener(listeners);
 	}
 
+	@Override public ConfigChannel<T> changeListener(ChannelChangeListener... listeners) {
+		return (ConfigChannel<T>) super.changeListener(listeners);
+	}
+
 	public Class<?> type() {
 		return this.type;
 	}
 
 	@Override public void updateValue(Object value, boolean triggerEvent) {
 		super.updateValue((T) value, triggerEvent);
+	}
+
+	public void updateValue(JsonElement jValue, boolean triggerEvent) throws NotImplementedException {
+		T value = (T) JsonUtils.getAsType(jValue, type);
+		this.updateValue(value, triggerEvent);
 	}
 
 	public ConfigChannel<T> defaultValue(T value) {
@@ -55,5 +69,11 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 
 	public boolean isOptional() {
 		return isOptional;
+	}
+
+	@Override public JsonObject toJsonObject() throws NotImplementedException {
+		JsonObject j = super.toJsonObject();
+		j.addProperty("writeable", true);
+		return j;
 	}
 }

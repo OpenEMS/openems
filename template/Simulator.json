@@ -9,15 +9,25 @@
 						"id": "ess0",
 						"minSoc": 15,
 						"chargeSoc": 10
-					}
+					},
+					"meter": {}
 				}
 			]
 		}
 	],
+	"scheduler": {
+		"class": "io.openems.impl.scheduler.SimpleScheduler",
+		"controllers": [
+			{
+				"priority": 150,
+				"class": "io.openems.impl.controller.api.rest.RestApiController",
+				"esss": "ess0"
+			}
+		]
+	},
 	"persistence": [
 		{
 			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
-			"uri": "ws://localhost:8086",
 			"apikey": "p2MU5wJEIJ4umrNjEaQT"
 		}
 	]

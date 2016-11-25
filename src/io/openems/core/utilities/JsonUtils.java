@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.core.utilities;
 
+import java.util.Optional;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -76,11 +78,39 @@ public class JsonUtils {
 		return jObject.get(memberName);
 	}
 
-	public static JsonElement getAsJsonElement(Object object) throws NotImplementedException {
-		if (object instanceof Long) {
-			return new JsonPrimitive((Long) object);
+	public static JsonElement getAsJsonElement(Object value) throws NotImplementedException {
+		// null
+		if (value == null) {
+			return null;
 		}
-		throw new NotImplementedException("Converter for [object] to JSON is not implemented.");
+		// optional
+		if (value instanceof Optional<?>) {
+			if (!((Optional<?>) value).isPresent()) {
+				return null;
+			} else {
+				value = ((Optional<?>) value).get();
+			}
+		}
+		if (value instanceof Number) {
+			return new JsonPrimitive((Number) value);
+		}
+		throw new NotImplementedException("Converter for [" + value + "]" + " of type [" //
+				+ value.getClass().getSimpleName() + "]" //
+				+ " to JSON is not implemented.");
+	}
+
+	public static Object getAsType(JsonElement jValue, Class<?> type) throws NotImplementedException {
+		try {
+			if (jValue.isJsonPrimitive()) {
+				JsonPrimitive j = (JsonPrimitive) jValue;
+				if (Integer.class.isAssignableFrom(type)) {
+					return j.getAsInt();
+				}
+			}
+		} catch (NumberFormatException e) {
+			;
+		}
+		throw new NotImplementedException("Converter for [" + jValue + "] to value is not implemented.");
 	}
 
 }

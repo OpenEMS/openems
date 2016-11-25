@@ -20,6 +20,9 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
+import com.google.gson.JsonObject;
+
+import io.openems.api.exception.NotImplementedException;
 import io.openems.api.thing.Thing;
 
 public interface Channel {
@@ -44,4 +47,12 @@ public interface Channel {
 	 * @return itself
 	 */
 	public Channel changeListener(ChannelChangeListener... listeners);
+
+	/**
+	 * Convert the channel to a JsonObject
+	 *
+	 * @return
+	 * @throws NotImplementedException
+	 */
+	public JsonObject toJsonObject() throws NotImplementedException;
 }

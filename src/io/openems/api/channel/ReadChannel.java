@@ -27,10 +27,14 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.api.exception.NotImplementedException;
 import io.openems.api.thing.Thing;
 import io.openems.core.Databus;
+import io.openems.core.utilities.JsonUtils;
 import io.vertx.core.impl.ConcurrentHashSet;
 
 public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
@@ -249,5 +253,13 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 
 	public boolean isRequired() {
 		return this.isRequired;
+	}
+
+	@Override public JsonObject toJsonObject() throws NotImplementedException {
+		JsonObject j = new JsonObject();
+		j.add("value", JsonUtils.getAsJsonElement(valueOptional()));
+		j.addProperty("type", this.getClass().getSimpleName());
+		j.addProperty("writeable", false);
+		return j;
 	}
 }
