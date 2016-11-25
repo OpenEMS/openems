@@ -47,6 +47,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.persistence.Persistence;
+import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
 
 public class ThingRepository {
@@ -66,6 +67,7 @@ public class ThingRepository {
 	private final BiMap<String, Thing> thingIds = HashBiMap.create();
 	private HashMultimap<Class<? extends Thing>, Thing> thingClasses = HashMultimap.create();
 	private Set<Bridge> bridges = new HashSet<>();
+	private Set<Scheduler> schedulers = new HashSet<>();
 	private Set<Persistence> persistences = new HashSet<>();
 	private final Table<Thing, String, Channel> thingChannels = HashBasedTable.create();
 	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
@@ -90,6 +92,11 @@ public class ThingRepository {
 		// Add to bridges
 		if (thing instanceof Bridge) {
 			bridges.add((Bridge) thing);
+		}
+
+		// Add to schedulers
+		if (thing instanceof Scheduler) {
+			schedulers.add((Scheduler) thing);
 		}
 
 		// Add to persistences
@@ -176,6 +183,15 @@ public class ThingRepository {
 	}
 
 	/**
+	 * Returns all Config-Channels.
+	 *
+	 * @return
+	 */
+	public synchronized Collection<ConfigChannel<?>> getConfigChannels() {
+		return Collections.unmodifiableCollection(thingConfigChannels.values());
+	}
+
+	/**
 	 * Returns all Config-Channels for this Thing.
 	 *
 	 * @param thing
@@ -236,6 +252,10 @@ public class ThingRepository {
 
 	public synchronized Set<Bridge> getBridges() {
 		return Collections.unmodifiableSet(bridges);
+	}
+
+	public synchronized Set<Scheduler> getSchedulers() {
+		return Collections.unmodifiableSet(schedulers);
 	}
 
 	public Optional<Channel> getChannel(String thingId, String channelId) {

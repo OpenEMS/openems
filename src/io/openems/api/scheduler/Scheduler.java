@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.api.scheduler;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -38,9 +39,11 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 		super(THINGID_PREFIX + instanceCounter++);
 	}
 
-	public void addController(Controller controller) throws ReflectionException, ConfigException {
+	public synchronized void addController(Controller controller) throws ReflectionException, ConfigException {
 		controllers.add(controller);
-		// log.info("Add Controller [" + controller.id() + "], Priority[" + controller.priority.valueOptional()
-		// + "], Implementation[" + controller.getClass().getSimpleName() + "]");
+	}
+
+	public synchronized List<Controller> getControllers() {
+		return Collections.unmodifiableList(this.controllers);
 	}
 }

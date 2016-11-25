@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
+import java.util.Optional;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -29,6 +31,7 @@ import io.openems.core.utilities.JsonUtils;
 
 public class ConfigChannel<T> extends WriteChannel<T> {
 	private final Class<?> type;
+	private Optional<T> defaultValue = Optional.empty();
 	private boolean isOptional;
 
 	public ConfigChannel(String id, Thing parent, Class<?> type) {
@@ -53,13 +56,18 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	}
 
 	public void updateValue(JsonElement jValue, boolean triggerEvent) throws NotImplementedException {
-		T value = (T) JsonUtils.getAsType(jValue, type);
+		T value = (T) JsonUtils.getAsType(type, jValue);
 		this.updateValue(value, triggerEvent);
 	}
 
 	public ConfigChannel<T> defaultValue(T value) {
+		this.defaultValue = Optional.ofNullable(value);
 		updateValue(value, false);
 		return this;
+	}
+
+	public Optional<T> getDefaultValue() {
+		return this.defaultValue;
 	}
 
 	public ConfigChannel<T> optional() {

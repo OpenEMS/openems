@@ -20,11 +20,13 @@
  *******************************************************************************/
 package io.openems;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.restlet.engine.Engine;
+import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,29 +40,19 @@ import io.vertx.core.Vertx;
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
-	private final static int restApiPort = 8084;
 	private final static int websocketPort = 8085;
 
 	public static void main(String[] args) throws ConfigException, FileNotFoundException, ReflectionException,
 			WriteChannelException, IOException, InterruptedException {
 		log.info("OpenEMS started");
 
-		// Get config directory
-		Path configPath = Paths.get("/etc", "openems.d");
-		if (!configPath.toFile().exists()) {
-			configPath = Paths.get("D:", "fems", "openems", "etc", "openems.d");
-		}
-		if (!configPath.toFile().exists()) {
-			configPath = Paths.get("C:", "Users", "matthias.rossmann", "Dev", "git", "openems", "openems", "etc",
-					"openems.d");
-		}
-		if (!configPath.toFile().exists()) {
-			throw new ConfigException("No config directory found!");
-		}
+		// configure Restlet logging
+		Engine.getInstance().setLoggerFacade(new Slf4jLoggerFacade());
 
-		// Load config
-		Config config = new Config(configPath);
-		config.parseConfigFiles();
+		// Get config directory
+		File configFile = getConfigFile();
+		Config config = new Config(configFile);
+		config.readConfigFile();
 		log.info("OpenEMS config loaded");
 
 		// Wait for the important parts to start
@@ -76,5 +68,23 @@ public class App {
 				log.error("Websocket failed on port [" + websocketPort + "]:", result.cause());
 			}
 		});
+	}
+
+	/*
+	 * Provides the File path of the config file ("/etc/openems.d/config.json") or a local file on a development machine
+	 */
+	private static File getConfigFile() throws ConfigException {
+		File configFile = Paths.get("/etc", "openems.d", "config.json").toFile();
+		if (!configFile.isFile()) {
+			configFile = Paths.get("D:", "fems", "openems", "etc", "openems.d", "config.json").toFile();
+		}
+		if (!configFile.isFile()) {
+			configFile = Paths.get("C:", "Users", "matthias.rossmann", "Dev", "git", "openems", "openems", "etc",
+					"openems.d", "config.json").toFile();
+		}
+		if (!configFile.isFile()) {
+			throw new ConfigException("No config file found!");
+		}
+		return configFile;
 	}
 }

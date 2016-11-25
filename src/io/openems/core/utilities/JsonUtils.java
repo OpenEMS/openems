@@ -20,8 +20,8 @@
  *******************************************************************************/
 package io.openems.core.utilities;
 
-import java.util.Optional;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -79,38 +79,63 @@ public class JsonUtils {
 	}
 
 	public static JsonElement getAsJsonElement(Object value) throws NotImplementedException {
-		// null
-		if (value == null) {
-			return null;
-		}
-		// optional
-		if (value instanceof Optional<?>) {
-			if (!((Optional<?>) value).isPresent()) {
-				return null;
-			} else {
-				value = ((Optional<?>) value).get();
-			}
-		}
 		if (value instanceof Number) {
+			/*
+			 * Number
+			 */
 			return new JsonPrimitive((Number) value);
+		} else if (value instanceof String) {
+			/*
+			 * String
+			 */
+			return new JsonPrimitive((String) value);
 		}
 		throw new NotImplementedException("Converter for [" + value + "]" + " of type [" //
 				+ value.getClass().getSimpleName() + "]" //
 				+ " to JSON is not implemented.");
 	}
 
-	public static Object getAsType(JsonElement jValue, Class<?> type) throws NotImplementedException {
-		try {
-			if (jValue.isJsonPrimitive()) {
-				JsonPrimitive j = (JsonPrimitive) jValue;
-				if (Integer.class.isAssignableFrom(type)) {
-					return j.getAsInt();
-				}
-			}
-		} catch (NumberFormatException e) {
-			;
+	public static Object getAsType(Class<?> type, JsonElement j) throws NotImplementedException {
+		if (Integer.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for an Integer
+			 */
+			return j.getAsInt();
+
+		} else if (Long.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for an Long
+			 */
+			return j.getAsLong();
+		} else if (Boolean.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for an Boolean
+			 */
+			return j.getAsBoolean();
+		} else if (Double.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for an Double
+			 */
+			return j.getAsDouble();
+		} else if (String.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for a String
+			 */
+			return j.getAsString();
+
 		}
-		throw new NotImplementedException("Converter for [" + jValue + "] to value is not implemented.");
+		throw new NotImplementedException(
+				"Converter for value [" + j + "] to class type [" + type + "] is not implemented.");
 	}
 
+	/**
+	 * Pretty print a JsonElement
+	 *
+	 * @param j
+	 */
+	public static void prettyPrint(JsonElement j) {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String json = gson.toJson(j);
+		System.out.println(json);
+	}
 }

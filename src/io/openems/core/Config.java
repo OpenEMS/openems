@@ -23,73 +23,72 @@ package io.openems.core;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
-import java.nio.file.Path;
+import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.openems.api.bridge.Bridge;
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.controller.IsThingMap;
-import io.openems.api.controller.ThingMap;
 import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
+import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
-import io.openems.api.thing.Thing;
 import io.openems.core.utilities.AbstractWorker;
+import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
 
-public class Config {
+public class Config implements ChannelChangeListener {
 	private final static Logger log = LoggerFactory.getLogger(Config.class);
-
 	private final ThingRepository thingRepository;
+	private final File file;
 
-	private final Path path;
-
-	public Config(Path path) {
+	public Config(File file) {
 		thingRepository = ThingRepository.getInstance();
-		this.path = path;
+		this.file = file;
 	}
 
-	public void parseConfigFiles()
+	public synchronized void readConfigFile()
 			throws IOException, FileNotFoundException, ReflectionException, ConfigException, WriteChannelException {
 		JsonObject jConfig = new JsonObject();
-		// read files in path directory
-		for (final File file : path.toFile().listFiles()) {
-			log.info("Read configuration from " + file.getAbsolutePath());
-			JsonParser parser = new JsonParser();
-			JsonElement jsonElement = parser.parse(new FileReader(file));
-			jConfig = jsonElement.getAsJsonObject();
-			// TODO: read all files in folder and merge them
-			continue;
-		}
+		log.info("Read configuration from " + file.getAbsolutePath());
+		JsonParser parser = new JsonParser();
+		JsonElement jsonElement = parser.parse(new FileReader(file));
+		jConfig = jsonElement.getAsJsonObject();
 		// apply config
-		readConfig(jConfig);
+		parseJsonConfig(jConfig);
 	}
 
-	public void readConfig(JsonObject jConfig) throws ReflectionException, ConfigException, WriteChannelException {
+	private synchronized void writeConfigFile() throws NotImplementedException, IOException {
+		JsonObject jConfig = createJsonConfig();
+		try (Writer writer = new FileWriter(file)) {
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			gson.toJson(jConfig, writer);
+			log.info("Wrote configuration to " + file.getAbsolutePath());
+		}
+	}
+
+	public synchronized void parseJsonConfig(JsonObject jConfig)
+			throws ReflectionException, ConfigException, WriteChannelException {
 		/*
 		 * read each Bridge in "things" array
 		 */
@@ -100,7 +99,7 @@ public class Config {
 			Bridge bridge = (Bridge) InjectionUtils.getThingInstance(bridgeClass);
 			thingRepository.addThing(bridge);
 			log.debug("Add Bridge[" + bridge.id() + "], Implementation[" + bridge.getClass().getSimpleName() + "]");
-			injectConfigChannels(thingRepository.getConfigChannels(bridge), jBridge);
+			ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(bridge), jBridge);
 			/*
 			 * read each Device in "things" array
 			 */
@@ -113,7 +112,7 @@ public class Config {
 				thingRepository.addThing(device);
 				log.debug("Add Device[" + device.id() + "], Implementation[" + device.getClass().getSimpleName() + "]");
 
-				injectConfigChannels(thingRepository.getConfigChannels(device), jDevice);
+				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(device), jDevice);
 				devices.add(device);
 			}
 			bridge.addDevices(devices);
@@ -129,7 +128,7 @@ public class Config {
 			thingRepository.addThing(scheduler);
 			log.debug("Add Scheduler[" + scheduler.id() + "], Implementation[" + scheduler.getClass().getSimpleName()
 					+ "]");
-			injectConfigChannels(thingRepository.getConfigChannels(scheduler), jScheduler);
+			ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(scheduler), jScheduler);
 			/*
 			 * read each Controller in "controllers" array
 			 */
@@ -141,7 +140,7 @@ public class Config {
 				thingRepository.addThing(controller);
 				log.debug("Add Controller[" + controller.id() + "], Implementation["
 						+ controller.getClass().getSimpleName() + "]");
-				injectConfigChannels(thingRepository.getConfigChannels(controller), jController);
+				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(controller), jController);
 				scheduler.addController(controller);
 			}
 		}
@@ -157,7 +156,7 @@ public class Config {
 			thingRepository.addThing(persistence);
 			log.debug("Add Persistence[" + persistence.id() + "], Implementation["
 					+ persistence.getClass().getSimpleName() + "]");
-			injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);
+			ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);
 		}
 
 		/*
@@ -168,251 +167,72 @@ public class Config {
 				((AbstractWorker) thing).start();
 			}
 		});
-	}
-
-	private Thing getThingFromConfig(Class<?> type, JsonElement j) throws ReflectionException {
-		String thingId = JsonUtils.getAsString(j, "id");
-		Optional<Thing> existingThing = thingRepository.getThingById(thingId);
-		Thing thing;
-		if (existingThing.isPresent()) {
-			// reuse existing Thing
-			thing = existingThing.get();
-		} else {
-			// Thing is not existing. Create a new instance
-			thing = InjectionUtils.getThingInstance(type, thingId);
-			thingRepository.addThing(thing);
-			log.debug("Add Thing[" + thing.id() + "], Implementation[" + thing.getClass().getSimpleName() + "]");
-		}
-		// Recursive call to inject config parameters for the newly created Thing
-		injectConfigChannels(thingRepository.getConfigChannels(thing), j.getAsJsonObject());
-		return thing;
-	}
-
-	private Object getConfigObject(ConfigChannel<?> channel, JsonElement j) throws ReflectionException {
-		Class<?> type = channel.type();
-		if (Integer.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for an Integer
-			 */
-			return j.getAsInt();
-
-		} else if (Long.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for an Long
-			 */
-			return j.getAsLong();
-		} else if (Boolean.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for an Boolean
-			 */
-			return j.getAsBoolean();
-		} else if (Double.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for an Long
-			 */
-			return j.getAsDouble();
-		} else if (String.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for a String
-			 */
-			return j.getAsString();
-
-		} else if (Thing.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for a Thing
-			 */
-			return getThingFromConfig(type, j);
-
-		} else if (ThingMap.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for a ThingMap
-			 */
-			return getThingMapsFromConfig(channel, j);
-
-		} else if (Inet4Address.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for an IPv4
-			 */
-			try {
-				return Inet4Address.getByName(j.getAsString());
-			} catch (UnknownHostException e) {
-				throw new ReflectionException("Unable to convert [" + j + "] to IPv4 address");
-			}
-		} else if (Long[].class.isAssignableFrom(type)) {
-			return getLongArrayFromConfig(channel, j);
-		}
-		throw new ReflectionException("Unable to match config [" + j + "] to class type [" + type + "]");
-	}
-
-	private Object getLongArrayFromConfig(ConfigChannel<?> channel, JsonElement j) throws ReflectionException {
-		/*
-		 * Get "Field" in Channels parent class
-		 */
-		Field field;
-		try {
-			field = channel.parent().getClass().getField(channel.id());
-		} catch (NoSuchFieldException | SecurityException e) {
-			throw new ReflectionException("Field for ConfigChannel [" + channel.address() + "] is not named ["
-					+ channel.id() + "] in [" + channel.getClass().getSimpleName() + "]");
-		}
 
 		/*
-		 * Get expected Object Type (List, Set, simple Object)
+		 * Register myself as onChangeListener on all ConfigChannels
 		 */
-		Type expectedObjectType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-		if (expectedObjectType instanceof ParameterizedType) {
-			expectedObjectType = ((ParameterizedType) expectedObjectType).getRawType();
+		for (ConfigChannel<?> channel : thingRepository.getConfigChannels()) {
+			channel.changeListener(this);
 		}
-		Class<?> expectedObjectClass = (Class<?>) expectedObjectType;
+	}
 
-		if (Collection.class.isAssignableFrom(expectedObjectClass)) {
-			if (j.isJsonArray()) {
-				Set<Long[]> erg = new HashSet<>();
-				for (JsonElement e : j.getAsJsonArray()) {
-					if (e.isJsonArray()) {
-						JsonArray arr = e.getAsJsonArray();
-						Long[] larr = new Long[arr.size()];
-						for (int i = 0; i < arr.size(); i++) {
-							larr[i] = arr.get(i).getAsLong();
-						}
-						erg.add(larr);
-					} else {
-						throw new ReflectionException("The Json object for ConfigChannel [" + channel.address()
-								+ "] is no twodimensional array!");
-					}
-				}
-				if (Set.class.isAssignableFrom(expectedObjectClass)) {
-					return erg;
-				} else if (List.class.isAssignableFrom(expectedObjectClass)) {
-					return new ArrayList<>(erg);
-				} else {
-					throw new ReflectionException("Only List and Set ConfigChannels are currently implemented, not ["
-							+ expectedObjectClass + "]. ConfigChannel [" + channel.address() + "]");
-				}
-			} else {
-				throw new ReflectionException(
-						"The Json object for ConfigChannel [" + channel.address() + "] is no array!");
+	private synchronized JsonObject createJsonConfig() throws NotImplementedException {
+		JsonObject jConfig = new JsonObject();
+		/*
+		 * Bridge
+		 */
+		JsonArray jBridges = new JsonArray();
+		for (Bridge bridge : thingRepository.getBridges()) {
+			JsonObject jBridge = (JsonObject) ConfigUtils.getAsJsonElement(bridge);
+			/*
+			 * Device
+			 */
+			JsonArray jDevices = new JsonArray();
+			for (Device device : bridge.getDevices()) {
+				JsonObject jDevice = (JsonObject) ConfigUtils.getAsJsonElement(device);
+				jDevices.add(jDevice);
 			}
-		} else {
-			if (j.isJsonArray()) {
-				JsonArray arr = j.getAsJsonArray();
-				Long[] larr = new Long[arr.size()];
-				for (int i = 0; i < arr.size(); i++) {
-					larr[i] = arr.get(i).getAsLong();
-				}
-				return larr;
-			} else {
-				throw new ReflectionException(
-						"The Json object for ConfigChannel [" + channel.address() + "] is no array!");
-			}
+			jBridge.add("devices", jDevices);
+			jBridges.add(jBridge);
 		}
+		jConfig.add("things", jBridges);
+		/*
+		 * Scheduler
+		 */
+		JsonObject jScheduler = null;
+		for (Scheduler scheduler : thingRepository.getSchedulers()) {
+			jScheduler = (JsonObject) ConfigUtils.getAsJsonElement(scheduler);
+			/*
+			 * Controller
+			 */
+			JsonArray jControllers = new JsonArray();
+			for (Controller controller : scheduler.getControllers()) {
+				jControllers.add(ConfigUtils.getAsJsonElement(controller));
+			}
+			jScheduler.add("controllers", jControllers);
+			break; // TODO only one Scheduler supported
+		}
+		jConfig.add("scheduler", jScheduler);
+		/*
+		 * Persistence
+		 */
+		JsonArray jPersistences = new JsonArray();
+		for (Persistence persistence : thingRepository.getPersistences()) {
+			JsonObject jPersistence = (JsonObject) ConfigUtils.getAsJsonElement(persistence);
+			jPersistences.add(jPersistence);
+		}
+		jConfig.add("persistence", jPersistences);
+		return jConfig;
 	}
 
 	/**
-	 * Fill all Config-Channels from a JsonObject configuration
-	 *
-	 * @param channels
-	 * @param jConfig
-	 * @throws ConfigException
+	 * Receives update events for config channels and rewrites the json config
 	 */
-	private void injectConfigChannels(Set<ConfigChannel<?>> channels, JsonObject jConfig) throws ReflectionException {
-		for (ConfigChannel<?> channel : channels) {
-			if (!jConfig.has(channel.id()) && (channel.valueOptional().isPresent() || channel.isOptional())) {
-				// Element for this Channel is not existing existing in the configuration, but a default value was set
-				continue;
-			}
-			JsonElement jChannel = JsonUtils.getSubElement(jConfig, channel.id());
-			Object parameter = getConfigObject(channel, jChannel);
-			channel.updateValue(parameter, true);
-		}
-
-	}
-
-	private Object getThingMapsFromConfig(ConfigChannel<?> channel, JsonElement j) throws ReflectionException {
-		/*
-		 * Get "Field" in Channels parent class
-		 */
-		Field field;
+	@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		try {
-			field = channel.parent().getClass().getField(channel.id());
-		} catch (NoSuchFieldException | SecurityException e) {
-			throw new ReflectionException("Field for ConfigChannel [" + channel.address() + "] is not named ["
-					+ channel.id() + "] in [" + channel.getClass().getSimpleName() + "]");
+			writeConfigFile();
+		} catch (NotImplementedException | IOException e) {
+			log.error("Config-Error.", e);
 		}
-
-		/*
-		 * Get expected Object Type (List, Set, simple Object)
-		 */
-		Type expectedObjectType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
-		if (expectedObjectType instanceof ParameterizedType) {
-			expectedObjectType = ((ParameterizedType) expectedObjectType).getRawType();
-		}
-		Class<?> expectedObjectClass = (Class<?>) expectedObjectType;
-
-		/*
-		 * Get the ThingMap class
-		 */
-		Class<?> thingMapClass = channel.type();
-
-		/*
-		 * Get the referenced Thing class
-		 */
-		IsThingMap isThingMapAnnotation = thingMapClass.getAnnotation(IsThingMap.class);
-		Class<? extends Thing> thingClass = isThingMapAnnotation.type();
-
-		/*
-		 * Prepare filter for matching Things
-		 * - Empty filter: accept everything
-		 * - Otherwise: accept only exact string matches on the thing id
-		 */
-		Set<String> filter = new HashSet<>();
-		if (j.isJsonPrimitive()) {
-			String id = j.getAsJsonPrimitive().getAsString();
-			if (!id.equals("*")) {
-				filter.add(id);
-			}
-		} else if (j.isJsonArray()) {
-			j.getAsJsonArray().forEach(id -> filter.add(id.getAsString()));
-		}
-
-		/*
-		 * Create ThingMap instance(s) for each matching Thing
-		 */
-		Set<Thing> matchingThings = thingRepository.getThingsAssignableByClass(thingClass);
-		Set<ThingMap> thingMaps = new HashSet<>();
-		for (Thing thing : matchingThings) {
-			if (filter.isEmpty() || filter.contains(thing.id())) {
-				ThingMap thingMap = (ThingMap) InjectionUtils.getInstance(thingMapClass, thing);
-				thingMaps.add(thingMap);
-			}
-		}
-
-		/*
-		 * Prepare return
-		 */
-		if (thingMaps.isEmpty()) {
-			throw new ReflectionException("No matching ThingMap found for ConfigChannel [" + channel.address() + "]");
-		}
-
-		if (Collection.class.isAssignableFrom(expectedObjectClass)) {
-			if (Set.class.isAssignableFrom(expectedObjectClass)) {
-				return thingMaps;
-			} else if (List.class.isAssignableFrom(expectedObjectClass)) {
-				return new ArrayList<>(thingMaps);
-			} else {
-				throw new ReflectionException("Only List and Set ConfigChannels are currently implemented, not ["
-						+ expectedObjectClass + "]. ConfigChannel [" + channel.address() + "]");
-			}
-		} else {
-			// No collection
-			if (thingMaps.size() > 1) {
-				throw new ReflectionException("Field for ConfigChannel [" + channel.address()
-						+ "] is no collection, but more than one ThingMaps [" + thingMaps + "] is fitting for ["
-						+ channel.id() + "] in [" + channel.getClass().getSimpleName() + "]");
-			} else {
-				return thingMaps.iterator().next();
-			}
-		}
-
 	}
 }

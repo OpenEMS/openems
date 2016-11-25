@@ -21,11 +21,25 @@
 package io.openems.core.utilities;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import com.google.gson.JsonElement;
+
+import io.openems.api.channel.ConfigChannel;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
+import io.openems.core.ThingRepository;
 
 public class InjectionUtils {
 
@@ -90,5 +104,93 @@ public class InjectionUtils {
 			throw new ReflectionException("Class not found: [" + className + "]");
 		}
 		return getThingInstance(clazz, args);
+	}
+
+	public static Object getThingMapsFromConfig(ConfigChannel<?> channel, JsonElement j) throws ReflectionException {
+		/*
+		 * Get "Field" in Channels parent class
+		 */
+		Field field;
+		try {
+			field = channel.parent().getClass().getField(channel.id());
+		} catch (NoSuchFieldException | SecurityException e) {
+			throw new ReflectionException("Field for ConfigChannel [" + channel.address() + "] is not named ["
+					+ channel.id() + "] in [" + channel.getClass().getSimpleName() + "]");
+		}
+
+		/*
+		 * Get expected Object Type (List, Set, simple Object)
+		 */
+		Type expectedObjectType = ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0];
+		if (expectedObjectType instanceof ParameterizedType) {
+			expectedObjectType = ((ParameterizedType) expectedObjectType).getRawType();
+		}
+		Class<?> expectedObjectClass = (Class<?>) expectedObjectType;
+
+		/*
+		 * Get the ThingMap class
+		 */
+		Class<?> thingMapClass = channel.type();
+
+		/*
+		 * Get the referenced Thing class
+		 */
+		IsThingMap isThingMapAnnotation = thingMapClass.getAnnotation(IsThingMap.class);
+		Class<? extends Thing> thingClass = isThingMapAnnotation.type();
+
+		/*
+		 * Prepare filter for matching Things
+		 * - Empty filter: accept everything
+		 * - Otherwise: accept only exact string matches on the thing id
+		 */
+		Set<String> filter = new HashSet<>();
+		if (j.isJsonPrimitive()) {
+			String id = j.getAsJsonPrimitive().getAsString();
+			if (!id.equals("*")) {
+				filter.add(id);
+			}
+		} else if (j.isJsonArray()) {
+			j.getAsJsonArray().forEach(id -> filter.add(id.getAsString()));
+		}
+
+		/*
+		 * Create ThingMap instance(s) for each matching Thing
+		 */
+		ThingRepository thingRepository = ThingRepository.getInstance();
+		Set<Thing> matchingThings = thingRepository.getThingsAssignableByClass(thingClass);
+		Set<ThingMap> thingMaps = new HashSet<>();
+		for (Thing thing : matchingThings) {
+			if (filter.isEmpty() || filter.contains(thing.id())) {
+				ThingMap thingMap = (ThingMap) InjectionUtils.getInstance(thingMapClass, thing);
+				thingMaps.add(thingMap);
+			}
+		}
+
+		/*
+		 * Prepare return
+		 */
+		if (thingMaps.isEmpty()) {
+			throw new ReflectionException("No matching ThingMap found for ConfigChannel [" + channel.address() + "]");
+		}
+
+		if (Collection.class.isAssignableFrom(expectedObjectClass)) {
+			if (Set.class.isAssignableFrom(expectedObjectClass)) {
+				return thingMaps;
+			} else if (List.class.isAssignableFrom(expectedObjectClass)) {
+				return new ArrayList<>(thingMaps);
+			} else {
+				throw new ReflectionException("Only List and Set ConfigChannels are currently implemented, not ["
+						+ expectedObjectClass + "]. ConfigChannel [" + channel.address() + "]");
+			}
+		} else {
+			// No collection
+			if (thingMaps.size() > 1) {
+				throw new ReflectionException("Field for ConfigChannel [" + channel.address()
+						+ "] is no collection, but more than one ThingMaps [" + thingMaps + "] is fitting for ["
+						+ channel.id() + "] in [" + channel.getClass().getSimpleName() + "]");
+			} else {
+				return thingMaps.iterator().next();
+			}
+		}
 	}
 }

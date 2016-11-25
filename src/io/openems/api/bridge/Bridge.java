@@ -46,20 +46,24 @@ public abstract class Bridge extends AbstractWorker implements Thing {
 		return getName();
 	}
 
-	public void addDevice(Device device) {
+	public synchronized void addDevice(Device device) {
 		this.devices.add(device);
 	}
 
-	public final void addDevices(Device... devices) {
+	public synchronized final void addDevices(Device... devices) {
 		for (Device device : devices) {
 			addDevice(device);
 		}
 	}
 
-	public final void addDevices(List<Device> devices) {
+	public synchronized final void addDevices(List<Device> devices) {
 		for (Device device : devices) {
 			addDevice(device);
 		}
+	}
+
+	public synchronized List<Device> getDevices() {
+		return Collections.unmodifiableList(this.devices);
 	}
 
 	public abstract void triggerWrite();
