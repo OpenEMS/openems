@@ -41,48 +41,101 @@ public class AvoidTotalDischargeController extends Controller {
 				/*
 				 * Calculate SetActivePower according to MinSoc
 				 */
-				long maxWrite = ess.allowedDischarge.value();
-				if (ess.setActivePower.writeMax().isPresent()) {
-					maxWrite = ess.setActivePower.writeMax().get();
-				}
-				if (ess.isChargeSoc) {
-					Optional<Long> currentMinValue = ess.setActivePower.writeMin();
-					if (currentMinValue.isPresent()) {
-						// Force Charge with minimum of MaxChargePower/5
-						log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
-						ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
-					} else {
-						log.info("Avoid discharge. Set ActivePower=Min[1000 W]");
-						ess.setActivePower.pushWriteMax(-1000L);
-					}
-					if (ess.soc.value() >= ess.minSoc.value()) {
-						ess.isChargeSoc = false;
-					}
-				} else {
-					if ((ess.soc.value() <= ess.minSoc.value()
-							|| (ess.soc.value() <= ess.minSoc.value() + 3 && ess.maxPowerPercent == 0))
-							&& ess.soc.value() >= ess.chargeSoc.value()) {
-						log.info("Avoid discharge. Decrease ActivePower");
-						ess.maxPowerPercent -= powerDecreaseStep.value();
-						if (ess.maxPowerPercent < 0) {
-							ess.maxPowerPercent = 0;
+				ess.socMinHysteresis.update(ess.soc.value());
+				ess.socMinHysteresis.apply((state, multiplier) -> {
+					switch (state) {
+					case ASC:
+					case DESC:
+						try {
+							long maxPower = (long) (ess.allowedDischarge.value() * multiplier);
+							if (!ess.setActivePower.writeMax().isPresent()
+									|| maxPower < ess.setActivePower.writeMax().get()) {
+								ess.setActivePower.pushWriteMax(maxPower);
+							}
+						} catch (InvalidValueException e) {
+							log.error(ess.id() + "Value allowedDischarge is not present.", e);
+						} catch (WriteChannelException e) {
+							log.error(ess.id() + "Failed to set Max allowed power.", e);
 						}
-						ess.setActivePower.pushWriteMax(maxWrite / 100 * ess.maxPowerPercent);
-					} else if (ess.soc.value() > ess.minSoc.value()) {
-						ess.maxPowerPercent += powerDecreaseStep.value();
-						ess.maxPowerPercent %= 100;
-						ess.setActivePower.pushWriteMax(maxWrite / 100 * maxWrite);
-					} else if (ess.soc.value() < ess.chargeSoc.value()) {
-						// SOC < minSoc - 5
-						ess.isChargeSoc = true;
+						break;
+					case BELOW:
+						if (ess.isChargeSoc) {
+							try {
+								Optional<Long> currentMinValue = ess.setActivePower.writeMin();
+								if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
+									// Force Charge with minimum of MaxChargePower/5
+									log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
+									ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
+								} else {
+									log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
+									ess.setActivePower.pushWriteMax(-1000L);
+								}
+								if (ess.soc.value() >= ess.minSoc.value()) {
+									ess.isChargeSoc = false;
+								}
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						} else {
+							try {
+								if (ess.soc.value() < ess.chargeSoc.value()) {
+									ess.isChargeSoc = true;
+								} else {
+									ess.setActivePower.pushWriteMax(0L);
+								}
+							} catch (Exception e) {
+								log.error(e.getMessage());
+							}
+						}
+						break;
+					case ABOVE:
+					default:
+						break;
 					}
-				}
+				});
+				// long maxWrite = ess.allowedDischarge.value();
+				// if (ess.setActivePower.writeMax().isPresent() && ess.setActivePower.writeMax().get() < maxWrite) {
+				// maxWrite = ess.setActivePower.writeMax().get();
+				// }
+				// if (ess.isChargeSoc) {
+				// Optional<Long> currentMinValue = ess.setActivePower.writeMin();
+				// if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
+				// // Force Charge with minimum of MaxChargePower/5
+				// log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
+				// ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
+				// } else {
+				// log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
+				// ess.setActivePower.pushWriteMax(-1000L);
+				// }
+				// if (ess.soc.value() >= ess.minSoc.value()) {
+				// ess.isChargeSoc = false;
+				// }
+				// } else {
+				// if ((ess.soc.value() <= ess.minSoc.value()
+				// || (ess.soc.value() <= ess.minSoc.value() + 3 && ess.maxPowerPercent == 0))
+				// && ess.soc.value() >= ess.chargeSoc.value()) {
+				// log.info("Avoid discharge. Decrease ActivePower");
+				// ess.maxPowerPercent -= powerDecreaseStep.value();
+				// if (ess.maxPowerPercent < 0) {
+				// ess.maxPowerPercent = 0;
+				// }
+				// ess.setActivePower.pushWriteMax(maxWrite / 100 * ess.maxPowerPercent);
+				// } else if (ess.soc.value() > ess.minSoc.value()) {
+				// if (ess.maxPowerPercent + powerDecreaseStep.value() < 100) {
+				// ess.maxPowerPercent += powerDecreaseStep.value();
+				// } else {
+				// ess.maxPowerPercent = 100;
+				// }
+				// ess.setActivePower.pushWriteMax(maxWrite / 100 * ess.maxPowerPercent);
+				// } else if (ess.soc.value() < ess.chargeSoc.value()) {
+				// // SOC < minSoc - 5
+				// ess.isChargeSoc = true;
+				// }
+				// }
 			}
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
-		} catch (WriteChannelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 }

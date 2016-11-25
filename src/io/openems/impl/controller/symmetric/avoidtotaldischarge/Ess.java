@@ -20,11 +20,16 @@
  *******************************************************************************/
 package io.openems.impl.controller.symmetric.avoidtotaldischarge;
 
+import java.util.Optional;
+
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.core.utilities.hysteresis.Hysteresis;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
@@ -37,6 +42,7 @@ public class Ess extends ThingMap {
 	public boolean isChargeSoc = false;
 	public final ReadChannel<Long> allowedDischarge;
 	public final ReadChannel<Integer> chargeSoc;
+	public Hysteresis socMinHysteresis;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
@@ -46,5 +52,16 @@ public class Ess extends ThingMap {
 		minSoc = ess.minSoc().required();
 		allowedDischarge = ess.allowedDischarge().required();
 		chargeSoc = ess.chargeSoc().required();
+		minSoc.changeListener(new ChannelChangeListener() {
+
+			@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+				if (newValue.isPresent()) {
+					socMinHysteresis = new Hysteresis(((Long) newValue.get()) - 2, ((Long) newValue.get()) + 2);
+				}
+			}
+		});
+		if (minSoc.valueOptional().isPresent()) {
+			socMinHysteresis = new Hysteresis(minSoc.valueOptional().get() - 2, minSoc.valueOptional().get() + 2);
+		}
 	}
 }
