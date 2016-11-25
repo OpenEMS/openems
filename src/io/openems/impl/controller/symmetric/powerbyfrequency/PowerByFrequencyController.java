@@ -24,6 +24,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.core.utilities.ControllerUtils;
 
 /*
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
@@ -33,36 +34,38 @@ public class PowerByFrequencyController extends Controller {
 
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this, Meter.class);
 
+	public final ConfigChannel<Integer> lowSocLimit = new ConfigChannel<Integer>("lowSocLimit", this, Integer.class)
+			.defaultValue(30);
+	public final ConfigChannel<Integer> highSocLimit = new ConfigChannel<Integer>("highSocLimit", this, Integer.class)
+			.defaultValue(70);
+
 	@Override public void run() {
 		try {
 			Ess ess = this.ess.value();
 			Meter meter = this.meter.value();
 			// Calculate required sum values
 			long activePower = 0L;
-			long reactivePower = 0L;
 			if (meter.frequency.value() >= 49990 && meter.frequency.value() <= 50010) {
 				// charge if SOC isn't in the expected range
-				if (ess.soc.value() > 65 || ess.soc.value() < 30) {
-					activePower = (long) (ess.maxNominalPower.value() * (300 - 0.006 * meter.frequency.value()));
+				if ((ess.soc.value() > highSocLimit.value() && meter.frequency.value() < 50000)
+						|| (ess.soc.value() < lowSocLimit.value() && meter.frequency.value() > 50000)) {
+					activePower = (long) (ess.maxNominalPower.value() * (300.0 - 0.006 * meter.frequency.value()));
 				}
 			} else {
 				// calculate minimal Power for Frequency
-				activePower = ess.maxNominalPower.value() * (250 - meter.frequency.value() / 200);
-				if ((meter.frequency.value() > 50000 && ess.soc.value() > 65)
-						|| (meter.frequency.value() < 50000 && ess.soc.value() < 35)) {
+				activePower = (long) ((double) ess.maxNominalPower.value() * (250.0 - meter.frequency.value() / 200.0));
+				if ((meter.frequency.value() < 50000 && ess.soc.value() > highSocLimit.value())
+						|| (meter.frequency.value() > 50000 && ess.soc.value() < lowSocLimit.value())) {
 					// calculate maximal Power for frequency
 					activePower = (long) (ess.maxNominalPower.value() * (300 - 0.006 * meter.frequency.value()));
 				}
 			}
 			// reduce power to max Discharge
-			if (activePower > 0 && activePower > ess.allowedDischarge.value()) {
-				activePower = ess.allowedDischarge.value();
-			} else if (activePower < 0 && activePower < ess.allowedCharge.value()) {
-				activePower = ess.allowedCharge.value();
-			}
+			activePower = ControllerUtils.reduceActivePower(activePower, 0,
+					ess.setActivePower.writeMin().orElse(ess.allowedCharge.value()),
+					ess.setActivePower.writeMax().orElse(ess.allowedDischarge.value()));
 			ess.setActivePower.pushWrite(activePower);
-			ess.setReactivePower.pushWrite(reactivePower);
-			log.info(ess.id() + " Set ActivePower [" + activePower + "], ReactivePower [" + reactivePower + "]");
+			log.info(ess.id() + " Set ActivePower [" + activePower + "]");
 		} catch (InvalidValueException | WriteChannelException e) {
 			log.error(e.getMessage());
 		}

@@ -6,6 +6,9 @@ import java.util.List;
 public class ControllerUtils {
 
 	public static double calculateCosPhi(long activePower, long reactivePower) {
+		if (reactivePower == 0) {
+			return 1;
+		}
 		return Math.cos(Math.atan((double) activePower / (double) reactivePower));
 	}
 
