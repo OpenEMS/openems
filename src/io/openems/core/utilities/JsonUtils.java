@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.core.utilities;
 
+import java.util.Optional;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -79,6 +81,18 @@ public class JsonUtils {
 	}
 
 	public static JsonElement getAsJsonElement(Object value) throws NotImplementedException {
+		// null
+		if (value == null) {
+			return null;
+		}
+		// optional
+		if (value instanceof Optional<?>) {
+			if (!((Optional<?>) value).isPresent()) {
+				return null;
+			} else {
+				value = ((Optional<?>) value).get();
+			}
+		}
 		if (value instanceof Number) {
 			/*
 			 * Number

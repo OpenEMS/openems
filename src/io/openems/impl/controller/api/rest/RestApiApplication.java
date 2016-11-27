@@ -33,7 +33,7 @@ public class RestApiApplication extends Application {
 		Router router = new Router(getContext());
 		// define all routes
 		// router.attach("/channel/{thing}/{channel}/current", ChannelCurrentResource.class);
-		router.attach("/channel/{thing}/{channel}", ChannelCurrentResource.class);
+		router.attach("/channel/{thing}/{channel}", new ChannelRestlet());
 
 		return router;
 	}
