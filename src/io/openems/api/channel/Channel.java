@@ -20,9 +20,12 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
+import java.util.Set;
+
 import com.google.gson.JsonObject;
 
 import io.openems.api.exception.NotImplementedException;
+import io.openems.api.security.OpenemsRole;
 import io.openems.api.thing.Thing;
 
 public interface Channel {
@@ -55,4 +58,11 @@ public interface Channel {
 	 * @throws NotImplementedException
 	 */
 	public JsonObject toJsonObject() throws NotImplementedException;
+
+	/**
+	 * Returns security Roles that have access to this Channel. Empty set allows global access.
+	 *
+	 * @return
+	 */
+	public Set<OpenemsRole> roles();
 }

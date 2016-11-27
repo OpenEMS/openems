@@ -22,7 +22,14 @@ package io.openems.impl.controller.api.rest;
 
 import org.restlet.Application;
 import org.restlet.Restlet;
+import org.restlet.data.ChallengeScheme;
 import org.restlet.routing.Router;
+import org.restlet.security.ChallengeAuthenticator;
+import org.restlet.security.MemoryRealm;
+import org.restlet.security.Role;
+import org.restlet.security.User;
+
+import io.openems.api.security.OpenemsRole;
 
 public class RestApiApplication extends Application {
 
@@ -30,11 +37,41 @@ public class RestApiApplication extends Application {
 	 * Creates a root Restlet that will receive all incoming calls.
 	 */
 	@Override public synchronized Restlet createInboundRoot() {
+		ChallengeAuthenticator guard = createAuthenticator();
+		Router router = createRouter();
+		guard.setNext(router);
+		return guard;
+	}
+
+	private ChallengeAuthenticator createAuthenticator() {
+		ChallengeAuthenticator guard = new ChallengeAuthenticator(getContext(), ChallengeScheme.HTTP_BASIC, "realm");
+
+		// Create in-memory users with roles
+		MemoryRealm realm = new MemoryRealm();
+		// TODO : read from configuration
+		User admin = new User("admin", "admin");
+		realm.getUsers().add(admin);
+		realm.map(admin, Role.get(this, OpenemsRole.ADMIN.toString()));
+		User installer = new User("installer", "installer");
+		realm.getUsers().add(installer);
+		realm.map(installer, Role.get(this, OpenemsRole.INSTALLER.toString()));
+		User owner = new User("owner", "owner");
+		realm.getUsers().add(owner);
+		realm.map(owner, Role.get(this, OpenemsRole.OWNER.toString()));
+		User user = new User("user", "user");
+		realm.getUsers().add(user);
+		realm.map(user, Role.get(this, OpenemsRole.USER.toString()));
+
+		// Attach verifier to check authentication and enroler to determine roles
+		guard.setVerifier(realm.getVerifier());
+		guard.setEnroler(realm.getEnroler());
+		return guard;
+	}
+
+	private Router createRouter() {
 		Router router = new Router(getContext());
-		// define all routes
 		// router.attach("/channel/{thing}/{channel}/current", ChannelCurrentResource.class);
 		router.attach("/channel/{thing}/{channel}", new ChannelRestlet());
-
 		return router;
 	}
 }
