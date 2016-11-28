@@ -22,7 +22,7 @@ package io.openems.impl.protocol.simulator;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.security.OpenemsRole;
+import io.openems.api.security.User;
 
 public class SimulatorReadChannel extends ReadChannel<Long> {
 
@@ -74,7 +74,7 @@ public class SimulatorReadChannel extends ReadChannel<Long> {
 		return this;
 	}
 
-	@Override public SimulatorReadChannel role(OpenemsRole... roles) {
-		return (SimulatorReadChannel) super.role(roles);
+	@Override public SimulatorReadChannel user(User... roles) {
+		return (SimulatorReadChannel) super.user(roles);
 	}
 }

@@ -20,7 +20,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.exception.NotImplementedException;
-import io.openems.api.security.OpenemsRole;
+import io.openems.api.security.User;
 import io.openems.core.ThingRepository;
 
 public class ChannelRestlet extends OpenemsRestlet {
@@ -52,10 +52,10 @@ public class ChannelRestlet extends OpenemsRestlet {
 		}
 
 		// check permission
-		if (!channel.roles().isEmpty()) {
+		if (!channel.users().isEmpty()) {
 			boolean allowed = false;
-			for (OpenemsRole role : channel.roles()) {
-				if (isInRole(request, role)) {
+			for (User user : channel.users()) {
+				if (isAuthenticatedAsUser(request, user)) {
 					allowed = true;
 					break;
 				}
@@ -121,7 +121,7 @@ public class ChannelRestlet extends OpenemsRestlet {
 			ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
 			try {
 				configChannel.updateValue(jValue, true);
-				log.info("Updated Channel " + jValue.toString());
+				log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
 			} catch (NotImplementedException e) {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Conversion not implemented");
 			}

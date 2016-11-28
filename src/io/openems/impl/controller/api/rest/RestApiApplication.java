@@ -25,11 +25,6 @@ import org.restlet.Restlet;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.routing.Router;
 import org.restlet.security.ChallengeAuthenticator;
-import org.restlet.security.MemoryRealm;
-import org.restlet.security.Role;
-import org.restlet.security.User;
-
-import io.openems.api.security.OpenemsRole;
 
 public class RestApiApplication extends Application {
 
@@ -44,27 +39,10 @@ public class RestApiApplication extends Application {
 	}
 
 	private ChallengeAuthenticator createAuthenticator() {
-		ChallengeAuthenticator guard = new ChallengeAuthenticator(getContext(), ChallengeScheme.HTTP_BASIC, "realm");
-
-		// Create in-memory users with roles
-		MemoryRealm realm = new MemoryRealm();
-		// TODO : read from configuration
-		User admin = new User("admin", "admin");
-		realm.getUsers().add(admin);
-		realm.map(admin, Role.get(this, OpenemsRole.ADMIN.toString()));
-		User installer = new User("installer", "installer");
-		realm.getUsers().add(installer);
-		realm.map(installer, Role.get(this, OpenemsRole.INSTALLER.toString()));
-		User owner = new User("owner", "owner");
-		realm.getUsers().add(owner);
-		realm.map(owner, Role.get(this, OpenemsRole.OWNER.toString()));
-		User user = new User("user", "user");
-		realm.getUsers().add(user);
-		realm.map(user, Role.get(this, OpenemsRole.USER.toString()));
-
-		// Attach verifier to check authentication and enroler to determine roles
-		guard.setVerifier(realm.getVerifier());
-		guard.setEnroler(realm.getEnroler());
+		ChallengeAuthenticator guard = new ChallengeAuthenticator(getContext(), ChallengeScheme.HTTP_BASIC,
+				"OpenEMS REST-Api");
+		guard.setVerifier(new OpenemsVerifier());
+		guard.setEnroler(new OpenemsEnroler());
 		return guard;
 	}
 

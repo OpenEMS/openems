@@ -34,7 +34,7 @@ import com.google.gson.JsonObject;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.NotImplementedException;
-import io.openems.api.security.OpenemsRole;
+import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
 import io.openems.core.Databus;
 import io.openems.core.utilities.JsonUtils;
@@ -53,7 +53,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private Interval<T> valueInterval = new Interval<T>();
 	private String unit = "";
 	private boolean isRequired = false;
-	protected final Set<OpenemsRole> roles = new HashSet<>();
+	protected final Set<User> users = new HashSet<>();
 
 	private final Set<ChannelUpdateListener> updateListeners = new ConcurrentHashSet<>();
 	private final Set<ChannelChangeListener> changeListeners = new ConcurrentHashSet<>();
@@ -101,9 +101,9 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
-	public ReadChannel<T> role(OpenemsRole... roles) {
-		for (OpenemsRole role : roles) {
-			this.roles.add(role);
+	public ReadChannel<T> user(User... users) {
+		for (User user : users) {
+			this.users.add(user);
 		}
 		return this;
 	}
@@ -145,8 +145,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return delta;
 	}
 
-	@Override public Set<OpenemsRole> roles() {
-		return Collections.unmodifiableSet(roles);
+	@Override public Set<User> users() {
+		return Collections.unmodifiableSet(users);
 	}
 
 	/**

@@ -20,10 +20,8 @@
  *******************************************************************************/
 package io.openems;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Paths;
 
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
@@ -50,8 +48,7 @@ public class App {
 		Engine.getInstance().setLoggerFacade(new Slf4jLoggerFacade());
 
 		// Get config directory
-		File configFile = getConfigFile();
-		Config config = new Config(configFile);
+		Config config = Config.getInstance();
 		config.readConfigFile();
 		log.info("OpenEMS config loaded");
 
@@ -68,23 +65,5 @@ public class App {
 				log.error("Websocket failed on port [" + websocketPort + "]:", result.cause());
 			}
 		});
-	}
-
-	/*
-	 * Provides the File path of the config file ("/etc/openems.d/config.json") or a local file on a development machine
-	 */
-	private static File getConfigFile() throws ConfigException {
-		File configFile = Paths.get("/etc", "openems.d", "config.json").toFile();
-		if (!configFile.isFile()) {
-			configFile = Paths.get("D:", "fems", "openems", "etc", "openems.d", "config.json").toFile();
-		}
-		if (!configFile.isFile()) {
-			configFile = Paths.get("C:", "Users", "matthias.rossmann", "Dev", "git", "openems", "openems", "etc",
-					"openems.d", "config.json").toFile();
-		}
-		if (!configFile.isFile()) {
-			throw new ConfigException("No config file found!");
-		}
-		return configFile;
 	}
 }

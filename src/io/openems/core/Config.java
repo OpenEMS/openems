@@ -26,8 +26,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -48,10 +50,12 @@ import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
+import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
+import io.openems.api.security.User;
 import io.openems.core.utilities.AbstractWorker;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
@@ -59,12 +63,21 @@ import io.openems.core.utilities.JsonUtils;
 
 public class Config implements ChannelChangeListener {
 	private final static Logger log = LoggerFactory.getLogger(Config.class);
+	private static Config instance;
+
+	public static synchronized Config getInstance() throws ConfigException {
+		if (Config.instance == null) {
+			Config.instance = new Config();
+		}
+		return Config.instance;
+	}
+
 	private final ThingRepository thingRepository;
 	private final File file;
 
-	public Config(File file) {
+	public Config() throws ConfigException {
 		thingRepository = ThingRepository.getInstance();
-		this.file = file;
+		this.file = getConfigFile();
 	}
 
 	public synchronized void readConfigFile()
@@ -78,17 +91,38 @@ public class Config implements ChannelChangeListener {
 		parseJsonConfig(jConfig);
 	}
 
-	private synchronized void writeConfigFile() throws NotImplementedException, IOException {
+	public synchronized void writeConfigFile() throws OpenemsException {
 		JsonObject jConfig = createJsonConfig();
 		try (Writer writer = new FileWriter(file)) {
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			gson.toJson(jConfig, writer);
 			log.info("Wrote configuration to " + file.getAbsolutePath());
+		} catch (IOException e) {
+			throw new ConfigException("Unable to write to file [" + file.getAbsolutePath() + "]");
 		}
 	}
 
 	public synchronized void parseJsonConfig(JsonObject jConfig)
 			throws ReflectionException, ConfigException, WriteChannelException {
+		/*
+		 * read Users
+		 */
+		if (jConfig.has("users")) {
+			JsonObject jUsers = JsonUtils.getAsJsonObject(jConfig, "users");
+			for (Entry<String, JsonElement> jUsersElement : jUsers.entrySet()) {
+				JsonObject jUser = JsonUtils.getAsJsonObject(jUsersElement.getValue());
+				String username = jUsersElement.getKey();
+				String passwordBase64 = JsonUtils.getAsString(jUser, "password");
+				String saltBase64 = JsonUtils.getAsString(jUser, "salt");
+				try {
+					User.getUserByName(username).initialize(passwordBase64, saltBase64);
+				} catch (OpenemsException e) {
+					log.error("Error parsing config: " + e.getMessage());
+				}
+			}
+		}
+		User.initializeFinished(); // important! no more setting of users allowed!
+
 		/*
 		 * read each Bridge in "things" array
 		 */
@@ -148,15 +182,17 @@ public class Config implements ChannelChangeListener {
 		/*
 		 * read Persistence
 		 */
-		JsonArray jPersistences = JsonUtils.getAsJsonArray(jConfig, "persistence");
-		for (JsonElement jPersistenceElement : jPersistences) {
-			JsonObject jPersistence = JsonUtils.getAsJsonObject(jPersistenceElement);
-			String persistenceClass = JsonUtils.getAsString(jPersistence, "class");
-			Persistence persistence = (Persistence) InjectionUtils.getThingInstance(persistenceClass);
-			thingRepository.addThing(persistence);
-			log.debug("Add Persistence[" + persistence.id() + "], Implementation["
-					+ persistence.getClass().getSimpleName() + "]");
-			ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);
+		if (jConfig.has("persistence")) {
+			JsonArray jPersistences = JsonUtils.getAsJsonArray(jConfig, "persistence");
+			for (JsonElement jPersistenceElement : jPersistences) {
+				JsonObject jPersistence = JsonUtils.getAsJsonObject(jPersistenceElement);
+				String persistenceClass = JsonUtils.getAsString(jPersistence, "class");
+				Persistence persistence = (Persistence) InjectionUtils.getThingInstance(persistenceClass);
+				thingRepository.addThing(persistence);
+				log.debug("Add Persistence[" + persistence.id() + "], Implementation["
+						+ persistence.getClass().getSimpleName() + "]");
+				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);
+			}
 		}
 
 		/*
@@ -222,6 +258,17 @@ public class Config implements ChannelChangeListener {
 			jPersistences.add(jPersistence);
 		}
 		jConfig.add("persistence", jPersistences);
+		/*
+		 * Users
+		 */
+		JsonObject jUsers = new JsonObject();
+		for (User user : User.getUsers()) {
+			JsonObject jUser = new JsonObject();
+			jUser.addProperty("password", user.getPasswordBase64());
+			jUser.addProperty("salt", user.getSaltBase64());
+			jUsers.add(user.getName(), jUser);
+		}
+		jConfig.add("users", jUsers);
 		return jConfig;
 	}
 
@@ -231,8 +278,26 @@ public class Config implements ChannelChangeListener {
 	@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		try {
 			writeConfigFile();
-		} catch (NotImplementedException | IOException e) {
+		} catch (OpenemsException e) {
 			log.error("Config-Error.", e);
 		}
+	}
+
+	/*
+	 * Provides the File path of the config file ("/etc/openems.d/config.json") or a local file on a development machine
+	 */
+	private static File getConfigFile() throws ConfigException {
+		File configFile = Paths.get("/etc", "openems.d", "config.json").toFile();
+		if (!configFile.isFile()) {
+			configFile = Paths.get("D:", "fems", "openems", "etc", "openems.d", "config.json").toFile();
+		}
+		if (!configFile.isFile()) {
+			configFile = Paths.get("C:", "Users", "matthias.rossmann", "Dev", "git", "openems", "openems", "etc",
+					"openems.d", "config.json").toFile();
+		}
+		if (!configFile.isFile()) {
+			throw new ConfigException("No config file found!");
+		}
+		return configFile;
 	}
 }
