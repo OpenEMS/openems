@@ -23,9 +23,7 @@ package io.openems.impl.controller.symmetric.balancingbandgap;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.AvgFiFoQueue;
-import io.openems.core.utilities.ControllerUtils;
 
 /*
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
@@ -51,15 +49,10 @@ public class BalancingBandgapController extends Controller {
 		try {
 			Ess ess = this.ess.value();
 			// Calculate required sum values
-			long calculatedPower = meter.value().activePower.value() + ess.activePower.value();
-			long calculatedReactivePower = meter.value().reactivePower.value() + ess.reactivePower.value();
-			long maxChargePower = ess.setActivePower.writeMin().orElse(ess.allowedCharge.value() * -1);
-			long maxDischargePower = ess.setActivePower.writeMax().orElse(ess.allowedDischarge.value());
-			activePowerQueue.add(calculatedPower);
-			reactivePowerQueue.add(calculatedReactivePower);
-			calculatedPower = activePowerQueue.avg();
-			calculatedReactivePower = reactivePowerQueue.avg();
-			System.out.println("ActivePower: " + calculatedPower + ", ReactivePower: " + calculatedReactivePower);
+			activePowerQueue.add(meter.value().activePower.value());
+			reactivePowerQueue.add(meter.value().reactivePower.value());
+			long calculatedPower = activePowerQueue.avg() + ess.activePower.value();
+			long calculatedReactivePower = reactivePowerQueue.avg() + ess.reactivePower.value();
 			if (calculatedPower >= maxActivePower.value()) {
 				calculatedPower -= maxActivePower.value();
 			} else if (calculatedPower <= minActivePower.value()) {
@@ -74,27 +67,23 @@ public class BalancingBandgapController extends Controller {
 			} else {
 				calculatedReactivePower = 0;
 			}
-			if (!reactivePowerActivated.value()) {
-				calculatedReactivePower = 0;
+			if (reactivePowerActivated.value()) {
+				ess.power.setReactivePower(calculatedReactivePower);
 			}
-			long activePower = ControllerUtils.reduceActivePower(calculatedPower, calculatedReactivePower,
-					maxChargePower, maxDischargePower);
-			if (!activePowerActivated.value()) {
-				calculatedPower = 0;
+			if (activePowerActivated.value()) {
+				ess.power.setActivePower(calculatedPower);
 			}
-			long reactivePower = ControllerUtils.reduceReactivePower(calculatedPower, calculatedReactivePower,
-					maxChargePower, maxDischargePower);
+			ess.power.writePower();
+			// write info message to log
 			String message = ess.id();
 			if (activePowerActivated.value()) {
-				ess.setActivePower.pushWrite(activePower);
-				message = message + " Set ActivePower [" + activePower + "]";
+				message = message + " Set ActivePower [" + ess.power.getActivePower() + "]";
 			}
 			if (reactivePowerActivated.value()) {
-				ess.setReactivePower.pushWrite(reactivePower);
-				message = message + " Set ReactivePower [" + reactivePower + "]";
+				message = message + " Set ReactivePower [" + ess.power.getReactivePower() + "]";
 			}
 			log.info(message);
-		} catch (InvalidValueException | WriteChannelException e) {
+		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
 		}
 	}

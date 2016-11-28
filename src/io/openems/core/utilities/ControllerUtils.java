@@ -3,6 +3,8 @@ package io.openems.core.utilities;
 import java.util.Collections;
 import java.util.List;
 
+import io.openems.api.channel.WriteChannel;
+
 public class ControllerUtils {
 
 	public static double calculateCosPhi(long activePower, long reactivePower) {
@@ -20,8 +22,12 @@ public class ControllerUtils {
 		return (long) Math.sqrt(Math.pow(activePower, 2) + Math.pow(reactivePower, 2));
 	}
 
-	public static long calculateActivePower(long apparentPower, double cosPhi) {
+	public static long calculateActivePowerFromApparentPower(long apparentPower, double cosPhi) {
 		return (long) (apparentPower * cosPhi);
+	}
+
+	public static long calculateActivePowerFromReactivePower(long reactivePower, double cosPhi) {
+		return (long) (reactivePower / Math.tan(Math.acos(cosPhi)));
 	}
 
 	public static long calculateApparentPower(long activePower, double cosPhi) {
@@ -42,7 +48,7 @@ public class ControllerUtils {
 			 */
 			if (calculateApparentPower(activePower, reactivePower) * -1 < maxChargeApparentPower) {
 				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
-				activePower = ControllerUtils.calculateActivePower(maxChargeApparentPower, cosPhi);
+				activePower = ControllerUtils.calculateActivePowerFromApparentPower(maxChargeApparentPower, cosPhi);
 			}
 		} else {
 
@@ -51,7 +57,7 @@ public class ControllerUtils {
 			 */
 			if (ControllerUtils.calculateApparentPower(activePower, reactivePower) > maxDischargeApparentPower) {
 				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
-				activePower = ControllerUtils.calculateActivePower(maxDischargeApparentPower, cosPhi);
+				activePower = ControllerUtils.calculateActivePowerFromApparentPower(maxDischargeApparentPower, cosPhi);
 			}
 		}
 		if (!activePowerPos && activePower >= 0) {
@@ -62,7 +68,7 @@ public class ControllerUtils {
 	}
 
 	public static long reduceReactivePower(long activePower, long reactivePower, long maxChargeApparentPower,
-			long maxDischargeApparentPower) {
+			long maxDischargeApparentPower, long maxApparent, WriteChannel<Long> setReactivePower) {
 		boolean reactivePowerPos = true;
 		if (reactivePower < 0) {
 			reactivePowerPos = false;
@@ -105,7 +111,7 @@ public class ControllerUtils {
 		}
 	}
 
-	public static Long getValueOfLine(List<Point> points, long x) {
+	public static double getValueOfLine(List<Point> points, double x) {
 		Point smaller = getSmallerPoint(points, x);
 		Point greater = getGreaterPoint(points, x);
 		if (smaller != null && greater == null) {
@@ -115,13 +121,13 @@ public class ControllerUtils {
 		} else if (smaller != null && greater != null) {
 			double m = (greater.y - smaller.y) / (greater.x - smaller.x);
 			double t = smaller.y - m * smaller.x;
-			return (long) (m * x + t);
+			return m * x + t;
 		} else {
 			throw new ArithmeticException("x[" + x + "] is out of Range of the points");
 		}
 	}
 
-	private static Point getGreaterPoint(List<Point> points, long x) {
+	private static Point getGreaterPoint(List<Point> points, double x) {
 		Collections.sort(points, (p1, p2) -> (int) (p1.x - p2.x));
 		for (int i = 0; i < points.size(); i++) {
 			Point p = points.get(i);
@@ -132,7 +138,7 @@ public class ControllerUtils {
 		return null;
 	}
 
-	private static Point getSmallerPoint(List<Point> points, long x) {
+	private static Point getSmallerPoint(List<Point> points, double x) {
 		Collections.sort(points, (p1, p2) -> (int) (p2.x - p1.x));
 		for (int i = 0; i < points.size(); i++) {
 			Point p = points.get(i);

@@ -9,9 +9,9 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Point;
+import io.openems.core.utilities.Power;
 
 public class VoltageCharacteristicController extends Controller {
 
@@ -25,6 +25,10 @@ public class VoltageCharacteristicController extends Controller {
 			this, Long[].class);
 	public final ConfigChannel<List<Long[]>> qByUCharacteristicPoints = new ConfigChannel<>("qByUCharacteristicPoints",
 			this, Long[].class);
+	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this,
+			Boolean.class).defaultValue(true);
+	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
+			this, Boolean.class).defaultValue(true);
 
 	private List<Point> pCharacteristic;
 
@@ -65,23 +69,19 @@ public class VoltageCharacteristicController extends Controller {
 
 	@Override public void run() {
 		try {
-			long uRatio = (long) ((double) meter.value().voltage.value() / (double) uNenn.value() * 100.0);
-			long p = ControllerUtils.getValueOfLine(pCharacteristic, uRatio);
-			long q = ControllerUtils.getValueOfLine(qCharacteristic, uRatio);
-			long maxChargeApparentPower = ess.value().setActivePower.writeMin()
-					.orElse(ess.value().allowedCharge.value() * -1);
-			long maxDischargeApparentPower = ess.value().setActivePower.writeMax()
-					.orElse(ess.value().allowedDischarge.value());
-			long reducedP = ControllerUtils.reduceActivePower(p, q, maxChargeApparentPower, maxDischargeApparentPower);
-			long reducedQ = ControllerUtils.reduceReactivePower(p, q, maxChargeApparentPower,
-					maxDischargeApparentPower);
-			ess.value().setActivePower.pushWrite(reducedP);
-			ess.value().setReactivePower.pushWrite(reducedQ);
-			log.info(ess.id() + " Set ActivePower [" + reducedP + "], ReactivePower [" + reducedQ + "]");
+			Power power = ess.value().power;
+			double uRatio = (double) meter.value().voltage.value() / (double) uNenn.value() * 100.0;
+			long nominalActivePower = ess.value().maxNominalPower.value();
+			long nominalReactivePower = ess.value().maxNominalPower.value();
+			power.setActivePower(
+					(long) (nominalActivePower / 100.0 * ControllerUtils.getValueOfLine(pCharacteristic, uRatio)));
+			power.setReactivePower(
+					(long) (nominalReactivePower / 100.0 * ControllerUtils.getValueOfLine(qCharacteristic, uRatio)));
+			power.writePower();
+			log.info(ess.id() + " Set ActivePower [" + power.getActivePower() + "], ReactivePower ["
+					+ power.getReactivePower() + "]");
 		} catch (InvalidValueException e) {
 			log.error("Failed to read Value.", e);
-		} catch (WriteChannelException e) {
-			log.error("Failed to write Value.", e);
 		}
 	}
 

@@ -3,7 +3,6 @@ package io.openems.impl.controller.symmetric.balancingcurrent;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.ControllerUtils;
 
 public class BalancingCurrentController extends Controller {
@@ -36,7 +35,8 @@ public class BalancingCurrentController extends Controller {
 				if (calculatedApparentPower < maxChargePower) {
 					calculatedApparentPower = maxChargePower;
 				}
-				activePower = ControllerUtils.calculateActivePower(calculatedApparentPower, cosPhi.value()) * -1;
+				activePower = ControllerUtils.calculateActivePowerFromApparentPower(calculatedApparentPower,
+						cosPhi.value()) * -1;
 				reactivePower = ControllerUtils.calculateReactivePower(activePower, cosPhi.value()) * -1;
 			} else {
 				/*
@@ -45,13 +45,16 @@ public class BalancingCurrentController extends Controller {
 				if (calculatedApparentPower > maxDischargePower) {
 					calculatedApparentPower = maxDischargePower;
 				}
-				activePower = ControllerUtils.calculateActivePower(calculatedApparentPower, cosPhi.value());
+				activePower = ControllerUtils.calculateActivePowerFromApparentPower(calculatedApparentPower,
+						cosPhi.value());
 				reactivePower = ControllerUtils.calculateReactivePower(activePower, cosPhi.value());
 			}
-			ess.setActivePower.pushWrite(activePower);
-			ess.setReactivePower.pushWrite(reactivePower);
-			log.info(ess.id() + " Set ActivePower [" + activePower + "], ReactivePower [" + reactivePower + "]");
-		} catch (InvalidValueException | WriteChannelException e) {
+			ess.power.setActivePower(activePower);
+			ess.power.setReactivePower(reactivePower);
+			ess.power.writePower();
+			log.info(ess.id() + " Set ActivePower [" + ess.power.getActivePower() + "], ReactivePower ["
+					+ ess.power.getReactivePower() + "]");
+		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
 		}
 	}

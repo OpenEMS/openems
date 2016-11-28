@@ -5,8 +5,8 @@ import java.util.List;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.ControllerUtils;
+import io.openems.core.utilities.Power;
 
 public class PowerRampController extends Controller {
 
@@ -20,18 +20,19 @@ public class PowerRampController extends Controller {
 		try {
 			for (Ess ess : esss.value()) {
 				try {
+					Power power = ess.power;
 					long activePower = 0L;
 					activePower = ess.activePower.value();
 					if (Math.abs(activePower + pStep.value()) <= Math.abs(pMax.value())) {
-						activePower = activePower + pStep.value();
+						power.setActivePower(activePower + pStep.value());
 					} else {
-						activePower = pMax.value();
+						power.setActivePower(pMax.value());
 					}
-					long reactivePower = ControllerUtils.calculateReactivePower(activePower, cosPhi.value());
-					ess.setActivePower.pushWrite(activePower);
-					ess.setReactivePower.pushWrite(reactivePower);
-					log.info("Set ActivePower [" + activePower + "] Set ReactivePower [" + reactivePower + "]");
-				} catch (WriteChannelException | InvalidValueException e) {
+					power.setReactivePower(ControllerUtils.calculateReactivePower(activePower, cosPhi.value()));
+					power.writePower();
+					log.info("Set ActivePower [" + power.getActivePower() + "] Set ReactivePower ["
+							+ power.getReactivePower() + "]");
+				} catch (InvalidValueException e) {
 					log.error("Failed to write fixed P/Q value for Ess " + ess.id, e);
 				}
 			}

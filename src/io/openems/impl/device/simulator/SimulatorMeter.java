@@ -42,7 +42,7 @@ public class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMe
 		soc.updateValue(getRandom(0, 100));
 		long apparentPower = getRandom(-10000, 10000);
 		double cosPhi = ThreadLocalRandom.current().nextDouble(-1.5, 1.5);
-		long activePower = ControllerUtils.calculateActivePower(apparentPower, cosPhi);
+		long activePower = ControllerUtils.calculateActivePowerFromApparentPower(apparentPower, cosPhi);
 		long reactivePower = ControllerUtils.calculateReactivePower(activePower, cosPhi);
 		this.activePower.updateValue(activePower);
 		this.reactivePower.updateValue(reactivePower);

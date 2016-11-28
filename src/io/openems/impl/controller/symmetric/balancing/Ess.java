@@ -53,6 +53,7 @@ public class Ess extends ThingMap {
 		allowedDischarge = ess.allowedDischarge().required();
 		gridMode = ess.gridMode().required();
 		systemState = ess.systemState().required();
+		// TODO implement Power class
 	}
 
 	public long useableSoc() throws InvalidValueException {

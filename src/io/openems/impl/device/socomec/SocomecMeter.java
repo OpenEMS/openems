@@ -195,6 +195,6 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	}
 
 	@Override public ReadChannel<Long> voltage() {
-		return voltageL1();
+		return voltageL1;
 	}
 }

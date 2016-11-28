@@ -101,11 +101,11 @@ public class BalancingController extends Controller {
 				// reduce Power to possible power
 				if (ControllerUtils.calculateApparentPower(calculatedPowers[i - 1],
 						cosPhi.value()) > maxDischargePowerPhase) {
-					calculatedPowers[i - 1] = ControllerUtils.calculateActivePower(maxDischargePowerPhase,
+					calculatedPowers[i - 1] = ControllerUtils.calculateActivePowerFromApparentPower(maxDischargePowerPhase,
 							cosPhi.value());
 				} else if (ControllerUtils.calculateApparentPower(calculatedPowers[i - 1],
 						cosPhi.value()) < maxChargePowerPhase) {
-					calculatedPowers[i - 1] = ControllerUtils.calculateActivePower(maxChargePowerPhase, cosPhi.value());
+					calculatedPowers[i - 1] = ControllerUtils.calculateActivePowerFromApparentPower(maxChargePowerPhase, cosPhi.value());
 				}
 				calculatePower(calculatedPowers[i - 1], maxDischargePowerPhase, maxChargePowerPhase, i, useableSoc);
 			}
@@ -258,16 +258,16 @@ public class BalancingController extends Controller {
 		long minPower = 0;
 		percentage = Math.abs(percentage);
 		if (ess.allowedApparent.value() * 3 < ess.allowedDischarge.value()) {
-			maxPower = ControllerUtils.calculateActivePower((long) (ess.allowedApparent.value() * 3 * percentage),
+			maxPower = ControllerUtils.calculateActivePowerFromApparentPower((long) (ess.allowedApparent.value() * 3 * percentage),
 					cosPhi);
 		} else {
-			maxPower = ControllerUtils.calculateActivePower((long) (ess.allowedDischarge.value() * percentage), cosPhi);
+			maxPower = ControllerUtils.calculateActivePowerFromApparentPower((long) (ess.allowedDischarge.value() * percentage), cosPhi);
 		}
 		if (ess.allowedApparent.value() * 3 < ess.allowedCharge.value()) {
-			minPower = ControllerUtils.calculateActivePower((long) (ess.allowedApparent.value() * -3 * percentage),
+			minPower = ControllerUtils.calculateActivePowerFromApparentPower((long) (ess.allowedApparent.value() * -3 * percentage),
 					cosPhi);
 		} else {
-			minPower = ControllerUtils.calculateActivePower((long) (ess.allowedCharge.value() * -1 * percentage),
+			minPower = ControllerUtils.calculateActivePowerFromApparentPower((long) (ess.allowedCharge.value() * -1 * percentage),
 					cosPhi);
 		}
 		if (minPower < ess.allowedApparent.value() * -1) {
