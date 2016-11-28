@@ -49,6 +49,7 @@ public class RestApiApplication extends Application {
 	private Router createRouter() {
 		Router router = new Router(getContext());
 		// router.attach("/channel/{thing}/{channel}/current", ChannelCurrentResource.class);
+		router.attach("/user/changePassword", new UserChangePasswordRestlet());
 		router.attach("/channel/{thing}/{channel}", new ChannelRestlet());
 		return router;
 	}

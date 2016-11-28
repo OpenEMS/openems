@@ -35,6 +35,14 @@ public class ChannelRestlet extends OpenemsRestlet {
 	@Override public void handle(Request request, Response response) {
 		super.handle(request, response);
 
+		// check general permission
+		if (isAuthenticatedAsUser(request, User.GUEST) && request.getClientInfo().getRoles().size() == 1) {
+			// pfff... it's only a "GUEST"! Deny anything but GET requests
+			if (!request.getMethod().equals(Method.GET)) {
+				throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
+			}
+		}
+
 		// get request attributes
 		Map<String, Object> attributes = request.getAttributes();
 		String thingId = (String) attributes.get("thing");
@@ -74,7 +82,7 @@ public class ChannelRestlet extends OpenemsRestlet {
 			JsonParser parser = new JsonParser();
 			String httpPost = request.getEntityAsText();
 			JsonObject jHttpPost = parser.parse(httpPost).getAsJsonObject();
-			setValue(request, channel, jHttpPost);
+			setValue(channel, jHttpPost);
 		}
 	}
 
@@ -100,7 +108,7 @@ public class ChannelRestlet extends OpenemsRestlet {
 	 * @param channelId
 	 * @param jHttpPost
 	 */
-	private void setValue(Request request, Channel channel, JsonObject jHttpPost) {
+	private void setValue(Channel channel, JsonObject jHttpPost) {
 		// check for writable channel
 		if (!(channel instanceof WriteChannel<?>)) {
 			throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);

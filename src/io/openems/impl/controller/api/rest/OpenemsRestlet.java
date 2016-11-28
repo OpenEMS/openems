@@ -4,9 +4,6 @@ import org.restlet.Application;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
-import org.restlet.data.Method;
-import org.restlet.data.Status;
-import org.restlet.resource.ResourceException;
 import org.restlet.security.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +27,5 @@ public abstract class OpenemsRestlet extends Restlet {
 
 	@Override public void handle(Request request, Response response) {
 		super.handle(request, response);
-
-		// check permission
-		if (isAuthenticatedAsUser(request, User.GUEST) && request.getClientInfo().getRoles().size() == 1) {
-			// pfff... it's only a "GUEST"! Deny anything but GET requests
-			if (!request.getMethod().equals(Method.GET)) {
-				throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
-			}
-		}
 	}
 }
