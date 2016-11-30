@@ -43,8 +43,8 @@ public class CosPhiCharacteristicController extends Controller {
 		try {
 			if (ess.value().setActivePower.peekWrite().isPresent()) {
 				double pRatio = (double) ess.value().setActivePower.peekWrite().get()
-						/ (double) ess.value().nominalPower.value();
-				double cosPhi = ControllerUtils.getValueOfLine(cosPhiCharacteristic, pRatio);
+						/ (double) ess.value().nominalPower.value() * 100;
+				double cosPhi = ControllerUtils.getValueOfLine(cosPhiCharacteristic, pRatio) / 100;
 				ess.value().power.setReactivePower(
 						ControllerUtils.calculateReactivePower(ess.value().setActivePower.peekWrite().get(), cosPhi));
 				ess.value().power.writePower();
