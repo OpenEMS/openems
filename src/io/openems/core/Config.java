@@ -96,21 +96,28 @@ public class Config implements ChannelChangeListener {
 		try {
 			if (jConfig.has("things")) {
 				JsonArray jThings = JsonUtils.getAsJsonArray(jConfig, "things");
+				/*
+				 * System
+				 */
+				JsonObject jBridge = new JsonObject();
+				jBridge.addProperty("class", "io.openems.impl.protocol.system.SystemBridge");
 				{
-					/*
-					 * System
-					 */
-					JsonObject jBridge = new JsonObject();
 					JsonArray jDevices = new JsonArray();
-					JsonObject jSystem = new JsonObject();
-					jSystem.addProperty("class", "io.openems.impl.device.system.System");
-					JsonObject jSystemNature = new JsonObject();
-					jSystemNature.addProperty("id", "system0");
-					jSystem.add("system", jSystemNature);
-					jDevices.add(jSystem);
+					{
+						JsonObject jSystem = new JsonObject();
+						jSystem.addProperty("class", "io.openems.impl.device.system.System");
+						{
+							JsonObject jSystemNature = new JsonObject();
+							{
+								jSystemNature.addProperty("id", "system0");
+							}
+							jSystem.add("system", jSystemNature);
+						}
+						jDevices.add(jSystem);
+					}
 					jBridge.add("devices", jDevices);
-					jThings.add(jBridge);
 				}
+				jThings.add(jBridge);
 			}
 		} catch (ReflectionException e) {
 			log.warn("Error applying default config: " + e.getMessage());
