@@ -87,6 +87,10 @@ public class Websocket extends WebSocketServer {
 						if (jChannels.has("ess0/Soc")) {
 							int soc = JsonUtils.getAsPrimitive(jChannels, "ess0/Soc").getAsInt();
 							fems.setSoc(soc);
+						}						
+						if (jChannels.has("system0/PrimaryIpAddress")) {
+							String ipv4 = JsonUtils.getAsPrimitive(jChannels, "system0/PrimaryIpAddress").getAsString();
+							fems.setIpV4(ipv4);
 						}
 					}
 				}
