@@ -1,5 +1,6 @@
 package io.openems.impl.persistence.fenecon;
 
+import java.net.Inet4Address;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -56,7 +57,10 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 				fieldValue = new NumberFieldValue(field, (Number) value);
 			} else if (value instanceof String) {
 				fieldValue = new StringFieldValue(field, (String) value);
+			} else if (value instanceof Inet4Address) {
+				fieldValue = new StringFieldValue(field, ((Inet4Address) value).getHostAddress());
 			} else {
+				log.warn("FENECON Persistence for value type [" + value.getClass().getName() + "] is not implemented.");
 				return;
 			}
 		}

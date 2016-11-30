@@ -87,8 +87,35 @@ public class Config implements ChannelChangeListener {
 		JsonParser parser = new JsonParser();
 		JsonElement jsonElement = parser.parse(new FileReader(file));
 		jConfig = jsonElement.getAsJsonObject();
+		jConfig = addDefaultConfig(jConfig);
 		// apply config
 		parseJsonConfig(jConfig);
+	}
+
+	private JsonObject addDefaultConfig(JsonObject jConfig) {
+		try {
+			if (jConfig.has("things")) {
+				JsonArray jThings = JsonUtils.getAsJsonArray(jConfig, "things");
+				{
+					/*
+					 * System
+					 */
+					JsonObject jBridge = new JsonObject();
+					JsonArray jDevices = new JsonArray();
+					JsonObject jSystem = new JsonObject();
+					jSystem.addProperty("class", "io.openems.impl.device.system.System");
+					JsonObject jSystemNature = new JsonObject();
+					jSystemNature.addProperty("id", "system0");
+					jSystem.add("system", jSystemNature);
+					jDevices.add(jSystem);
+					jBridge.add("devices", jDevices);
+					jThings.add(jBridge);
+				}
+			}
+		} catch (ReflectionException e) {
+			log.warn("Error applying default config: " + e.getMessage());
+		}
+		return jConfig;
 	}
 
 	public synchronized void writeConfigFile() throws OpenemsException {

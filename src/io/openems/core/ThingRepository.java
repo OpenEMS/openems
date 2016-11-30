@@ -231,6 +231,10 @@ public class ThingRepository {
 		return Collections.unmodifiableSet(persistences);
 	}
 
+	public synchronized Set<Class<? extends Thing>> getThingClasses() {
+		return Collections.unmodifiableSet(thingClasses.keySet());
+	}
+
 	public synchronized Set<Thing> getThingsByClass(Class<? extends Thing> clazz) {
 		return Collections.unmodifiableSet(thingClasses.get(clazz));
 	}

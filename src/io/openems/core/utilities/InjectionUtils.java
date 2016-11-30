@@ -61,7 +61,8 @@ public class InjectionUtils {
 				Constructor<?> constructor = clazz.getConstructors()[0];
 				return constructor.newInstance(args);
 			}
-		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException
+				| IllegalArgumentException e) {
 			e.printStackTrace();
 			throw new ReflectionException("Unable to instantiate class [" + clazz.getName() + "]: " + e.getMessage());
 		}

@@ -85,7 +85,10 @@ public class ConfigUtils {
 			 */
 			Thing thing = (Thing) value;
 			JsonObject j = new JsonObject();
-			j.addProperty("id", thing.id());
+			if (!thing.id().startsWith("_")) {
+				// ignore generated id names starting with "_"
+				j.addProperty("id", thing.id());
+			}
 			if (!(value instanceof DeviceNature)) {
 				// class is not needed for DeviceNatures
 				j.addProperty("class", thing.getClass().getCanonicalName());
