@@ -101,11 +101,12 @@ public class BalancingController extends Controller {
 				// reduce Power to possible power
 				if (ControllerUtils.calculateApparentPower(calculatedPowers[i - 1],
 						cosPhi.value()) > maxDischargePowerPhase) {
-					calculatedPowers[i - 1] = ControllerUtils.calculateActivePowerFromApparentPower(maxDischargePowerPhase,
-							cosPhi.value());
+					calculatedPowers[i - 1] = ControllerUtils
+							.calculateActivePowerFromApparentPower(maxDischargePowerPhase, cosPhi.value());
 				} else if (ControllerUtils.calculateApparentPower(calculatedPowers[i - 1],
 						cosPhi.value()) < maxChargePowerPhase) {
-					calculatedPowers[i - 1] = ControllerUtils.calculateActivePowerFromApparentPower(maxChargePowerPhase, cosPhi.value());
+					calculatedPowers[i - 1] = ControllerUtils.calculateActivePowerFromApparentPower(maxChargePowerPhase,
+							cosPhi.value());
 				}
 				calculatePower(calculatedPowers[i - 1], maxDischargePowerPhase, maxChargePowerPhase, i, useableSoc);
 			}
@@ -184,6 +185,7 @@ public class BalancingController extends Controller {
 			// calculate minimal power needed to fulfill the calculatedPower
 			long minPower = 0;
 			long maxPower = 0;
+			long power = 0;
 			if (calculatedPower >= 0) {
 				/*
 				 * Discharge
@@ -203,6 +205,12 @@ public class BalancingController extends Controller {
 				if (calculatedPower < maxPower) {
 					maxPower = calculatedPower;
 				}
+				double diff = maxPower - minPower;
+				/*
+				 * weight the range of possible power by the useableSoc
+				 * if the useableSoc is negative the ess will be charged
+				 */
+				power = (long) (Math.ceil(minPower + diff / useableSoc * ess.useableSoc()));
 			} else {
 				/*
 				 * Charge
@@ -220,13 +228,14 @@ public class BalancingController extends Controller {
 				if (calculatedPower > maxPower) {
 					maxPower = calculatedPower;
 				}
+				double diff = maxPower - minPower;
+				/*
+				 * weight the range of possible power by the useableSoc
+				 * if the useableSoc is negative the ess will be charged
+				 */
+				power = (long) (Math
+						.ceil(minPower + diff / (esss.value().size() * 100 - useableSoc) * (100 - ess.useableSoc())));
 			}
-			double diff = maxPower - minPower;
-			/*
-			 * weight the range of possible power by the useableSoc
-			 * if the useableSoc is negative the ess will be charged
-			 */
-			long power = (long) (Math.ceil(minPower + diff / useableSoc * ess.useableSoc()));
 
 			if (power <= 100 && power >= -100) {
 				power = 0;
@@ -258,17 +267,18 @@ public class BalancingController extends Controller {
 		long minPower = 0;
 		percentage = Math.abs(percentage);
 		if (ess.allowedApparent.value() * 3 < ess.allowedDischarge.value()) {
-			maxPower = ControllerUtils.calculateActivePowerFromApparentPower((long) (ess.allowedApparent.value() * 3 * percentage),
-					cosPhi);
+			maxPower = ControllerUtils.calculateActivePowerFromApparentPower(
+					(long) (ess.allowedApparent.value() * 3 * percentage), cosPhi);
 		} else {
-			maxPower = ControllerUtils.calculateActivePowerFromApparentPower((long) (ess.allowedDischarge.value() * percentage), cosPhi);
+			maxPower = ControllerUtils
+					.calculateActivePowerFromApparentPower((long) (ess.allowedDischarge.value() * percentage), cosPhi);
 		}
 		if (ess.allowedApparent.value() * 3 < ess.allowedCharge.value()) {
-			minPower = ControllerUtils.calculateActivePowerFromApparentPower((long) (ess.allowedApparent.value() * -3 * percentage),
-					cosPhi);
+			minPower = ControllerUtils.calculateActivePowerFromApparentPower(
+					(long) (ess.allowedApparent.value() * -3 * percentage), cosPhi);
 		} else {
-			minPower = ControllerUtils.calculateActivePowerFromApparentPower((long) (ess.allowedCharge.value() * -1 * percentage),
-					cosPhi);
+			minPower = ControllerUtils.calculateActivePowerFromApparentPower(
+					(long) (ess.allowedCharge.value() * -1 * percentage), cosPhi);
 		}
 		if (minPower < ess.allowedApparent.value() * -1) {
 			minPower = ess.allowedApparent.value() * -1;
