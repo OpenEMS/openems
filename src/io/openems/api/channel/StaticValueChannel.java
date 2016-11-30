@@ -43,4 +43,9 @@ public class StaticValueChannel<T> extends ReadChannel<T> {
 		return this;
 	}
 
+	@Override public StaticValueChannel<T> label(T value, String label) {
+		super.label(value, label);
+		return this;
+	}
+
 }
