@@ -155,9 +155,9 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	public ModbusReadChannel systemManufacturer;
 	public ModbusReadChannel systemType;
 	public StatusBitChannel switchState;
-	public ModbusReadChannel dcVoltage;
-	public ModbusReadChannel dcCurrent;
-	public ModbusReadChannel dcPower;
+	public ModbusReadChannel batteryVoltage;
+	public ModbusReadChannel batteryCurrent;
+	public ModbusReadChannel batteryPower;
 	public ModbusReadChannel acChargeEnergy;
 	public ModbusReadChannel acDischargeEnergy;
 	public ModbusReadChannel currentL1;
@@ -385,11 +385,13 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(128, "Sync signal several times caputure fault")))),
 				new ModbusRange(0x0200, //
 						new SignedWordElement(0x0200, //
-								dcVoltage = new ModbusReadChannel("DcVoltage", this).unit("mV").multiplier(2)),
+								batteryVoltage = new ModbusReadChannel("BatteryVoltage", this).unit("mV")
+										.multiplier(2)),
 						new SignedWordElement(0x0201, //
-								dcCurrent = new ModbusReadChannel("DcCurrent", this).unit("mA").multiplier(2)),
+								batteryCurrent = new ModbusReadChannel("BatteryCurrent", this).unit("mA")
+										.multiplier(2)),
 						new SignedWordElement(0x0202, //
-								dcPower = new ModbusReadChannel("DcPower", this).unit("W").multiplier(2)),
+								batteryPower = new ModbusReadChannel("BatteryPower", this).unit("W").multiplier(2)),
 						new DummyElement(0x0203, 0x0207), //
 						new UnsignedDoublewordElement(0x0208, //
 								acChargeEnergy = new ModbusReadChannel("AcChargeEnergy", this).unit("Wh")
