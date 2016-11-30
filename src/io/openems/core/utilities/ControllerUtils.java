@@ -119,9 +119,13 @@ public class ControllerUtils {
 		} else if (smaller == null && greater != null) {
 			return greater.y;
 		} else if (smaller != null && greater != null) {
-			double m = (greater.y - smaller.y) / (greater.x - smaller.x);
-			double t = smaller.y - m * smaller.x;
-			return m * x + t;
+			if (smaller.equals(greater)) {
+				return smaller.y;
+			} else {
+				double m = (greater.y - smaller.y) / (greater.x - smaller.x);
+				double t = smaller.y - m * smaller.x;
+				return m * x + t;
+			}
 		} else {
 			throw new ArithmeticException("x[" + x + "] is out of Range of the points");
 		}
@@ -131,7 +135,7 @@ public class ControllerUtils {
 		Collections.sort(points, (p1, p2) -> (int) (p1.x - p2.x));
 		for (int i = 0; i < points.size(); i++) {
 			Point p = points.get(i);
-			if (p.x > x) {
+			if (p.x >= x) {
 				return p;
 			}
 		}
@@ -142,7 +146,7 @@ public class ControllerUtils {
 		Collections.sort(points, (p1, p2) -> (int) (p2.x - p1.x));
 		for (int i = 0; i < points.size(); i++) {
 			Point p = points.get(i);
-			if (p.x < x) {
+			if (p.x <= x) {
 				return p;
 			}
 		}

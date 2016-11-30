@@ -85,13 +85,13 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 				new ModbusRange(0xc558, //
 
 						new UnsignedDoublewordElement(0xc558, //
-								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(10)),
+								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(1)),
 						new UnsignedDoublewordElement(0xc55A, //
-								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(10)),
+								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(1)),
 						new UnsignedDoublewordElement(0xc55C, //
-								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(10)),
+								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(1)),
 						new UnsignedDoublewordElement(0xc55E, //
-								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ").multiplier(10)),
+								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ").multiplier(1)),
 						new UnsignedDoublewordElement(0xc560, //
 								currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA")),
 						new UnsignedDoublewordElement(0xc562, //
@@ -101,28 +101,27 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 						new UnsignedDoublewordElement(0xc566, //
 								current = new ModbusReadChannel("Current", this).unit("mA")),
 						new SignedDoublewordElement(0xc568, //
-								activePower = new ModbusReadChannel("ActivePower", this).unit("W").multiplier(10)),
+								activePower = new ModbusReadChannel("ActivePower", this).unit("W").multiplier(1)),
 						new SignedDoublewordElement(0xc56A, //
-								reactivePower = new ModbusReadChannel("ReactivePower", this).unit("var")
-										.multiplier(10)),
+								reactivePower = new ModbusReadChannel("ReactivePower", this).unit("var").multiplier(1)),
 						new SignedDoublewordElement(0xc56C, //
-								apparentPower = new ModbusReadChannel("ApparentPower", this).unit("VA").multiplier(10)),
+								apparentPower = new ModbusReadChannel("ApparentPower", this).unit("VA").multiplier(1)),
 						new DummyElement(0xc56E, 0xc56F),
 						new SignedDoublewordElement(0xc570, //
-								activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W").multiplier(10)),
+								activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W").multiplier(1)),
 						new SignedDoublewordElement(0xc572, //
-								activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W").multiplier(10)),
+								activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W").multiplier(1)),
 						new SignedDoublewordElement(0xc574, //
-								activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W").multiplier(10)),
+								activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W").multiplier(1)),
 						new SignedDoublewordElement(0xc576, //
 								reactivePowerL1 = new ModbusReadChannel("ReactivePowerL1", this).unit("var")
-										.multiplier(10)),
+										.multiplier(1)),
 						new SignedDoublewordElement(0xc578, //
 								reactivePowerL2 = new ModbusReadChannel("ReactivePowerL2", this).unit("var")
-										.multiplier(10)),
+										.multiplier(1)),
 						new SignedDoublewordElement(0xc57A, //
 								reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this).unit("var")
-										.multiplier(10))),
+										.multiplier(1))),
 				new ModbusRange(0xc652, //
 						new UnsignedDoublewordElement(0xc652, //
 								activePositiveEnergy = new ModbusReadChannel("ActivePositiveEnergy", this).unit("kWh")),

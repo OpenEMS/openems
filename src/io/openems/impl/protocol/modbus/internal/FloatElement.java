@@ -32,6 +32,7 @@ import io.openems.impl.protocol.modbus.ModbusElement;
 public class FloatElement extends ModbusElement implements DoublewordElement {
 	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 	private WordOrder wordOrder = WordOrder.MSWLSW;
+	private int multiplier = 0;
 
 	public FloatElement(int address, Channel channel) {
 		super(address, channel);
@@ -39,6 +40,11 @@ public class FloatElement extends ModbusElement implements DoublewordElement {
 
 	@Override public int getLength() {
 		return 2;
+	}
+
+	public FloatElement multiplier(int multiplier) {
+		this.multiplier = multiplier;
+		return this;
 	}
 
 	@Override public void setValue(Register register1, Register register2) {
@@ -50,11 +56,12 @@ public class FloatElement extends ModbusElement implements DoublewordElement {
 			buff.put(register2.toBytes());
 			buff.put(register1.toBytes());
 		}
-		setValue((long) buff.order(byteOrder).getFloat(0));
+		setValue((long) (buff.order(byteOrder).getFloat(0) * Math.pow(10, multiplier)));
 	}
 
 	@Override public Register[] toRegisters(Long value) {
-		byte[] b = ByteBuffer.allocate(4).order(byteOrder).putFloat(value.floatValue()).array();
+		byte[] b = ByteBuffer.allocate(4).order(byteOrder)
+				.putFloat(value.floatValue() / (float) Math.pow(10, multiplier)).array();
 		if (wordOrder == WordOrder.MSWLSW) {
 			return new Register[] { new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) };
 		} else {

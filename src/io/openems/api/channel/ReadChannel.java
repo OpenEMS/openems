@@ -175,7 +175,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 			Number number = (Number) newValue;
 			long multiplier = 1;
 			if (this.multiplier.isPresent()) {
-				multiplier = this.multiplier.get();
+				multiplier = (long) Math.pow(10, this.multiplier.get());
 			}
 			long delta = 0;
 			if (this.delta.isPresent()) {
@@ -247,7 +247,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	protected synchronized long roundToHardwarePrecision(long value) {
 		long multiplier = 1;
 		if (this.multiplier.isPresent()) {
-			multiplier = this.multiplier.get();
+			multiplier = (long) Math.pow(10, this.multiplier.get());
 		}
 		if (value % multiplier != 0) {
 			long roundedValue = (value / multiplier) * multiplier;

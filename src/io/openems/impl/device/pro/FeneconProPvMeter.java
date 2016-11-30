@@ -64,15 +64,15 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 		return new ModbusProtocol( //
 				new ModbusRange(121,
 						new UnsignedWordElement(121, //
-								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(100)),
+								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(2)),
 						new UnsignedWordElement(122, //
-								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(100)),
+								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(2)),
 						new UnsignedWordElement(123, //
-								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(100))),
+								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(2))),
 				new ModbusRange(2035, //
 						new UnsignedDoublewordElement(2035, //
 								activeEnergyL1 = new ModbusReadChannel("ActiveEnergyL1", this).unit("Wh")
-										.multiplier(100)),
+										.multiplier(2)),
 						new DummyElement(2037,
 								2065),
 						new UnsignedWordElement(2066, //
@@ -80,14 +80,14 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 				new ModbusRange(2135, //
 						new UnsignedDoublewordElement(2135, //
 								activeEnergyL2 = new ModbusReadChannel("ActiveEnergyL2", this).unit("Wh")
-										.multiplier(100)),
+										.multiplier(2)),
 						new DummyElement(2137, 2165),
 						new UnsignedWordElement(2166, //
 								activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W").delta(10000L))),
 				new ModbusRange(2235, //
 						new UnsignedDoublewordElement(2235, //
 								activeEnergyL3 = new ModbusReadChannel("ActiveEnergyL3", this).unit("Wh")
-										.multiplier(100)),
+										.multiplier(2)),
 						new DummyElement(2237, 2265), new UnsignedWordElement(2266, //
 								activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W").delta(10000L))));
 	}

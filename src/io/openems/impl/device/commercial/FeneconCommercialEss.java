@@ -385,73 +385,72 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(128, "Sync signal several times caputure fault")))),
 				new ModbusRange(0x0200, //
 						new SignedWordElement(0x0200, //
-								dcVoltage = new ModbusReadChannel("DcVoltage", this).unit("mV").multiplier(100)),
+								dcVoltage = new ModbusReadChannel("DcVoltage", this).unit("mV").multiplier(2)),
 						new SignedWordElement(0x0201, //
-								dcCurrent = new ModbusReadChannel("DcCurrent", this).unit("mA").multiplier(100)),
+								dcCurrent = new ModbusReadChannel("DcCurrent", this).unit("mA").multiplier(2)),
 						new SignedWordElement(0x0202, //
-								dcPower = new ModbusReadChannel("DcPower", this).unit("W").multiplier(100)),
+								dcPower = new ModbusReadChannel("DcPower", this).unit("W").multiplier(2)),
 						new DummyElement(0x0203, 0x0207), //
 						new UnsignedDoublewordElement(0x0208, //
 								acChargeEnergy = new ModbusReadChannel("AcChargeEnergy", this).unit("Wh")
-										.multiplier(100)),
+										.multiplier(2)),
 						new UnsignedDoublewordElement(0x020A, //
 								acDischargeEnergy = new ModbusReadChannel("AcDischargeEnergy", this).unit("Wh")
-										.multiplier(100)),
+										.multiplier(2)),
 						new DummyElement(0x020C, 0x020F),
 						new SignedWordElement(0x0210, //
-								activePower = new ModbusReadChannel("ActivePower", this).unit("W").multiplier(100)),
+								activePower = new ModbusReadChannel("ActivePower", this).unit("W").multiplier(2)),
 						new SignedWordElement(0x0211, //
-								reactivePower = new ModbusReadChannel("ReactivePower", this).unit("var")
-										.multiplier(100)),
+								reactivePower = new ModbusReadChannel("ReactivePower", this).unit("var").multiplier(2)),
 						new UnsignedWordElement(0x0212, //
-								apparentPower = new ModbusReadChannel("ApparentPower", this).unit("VA")
-										.multiplier(100)),
+								apparentPower = new ModbusReadChannel("ApparentPower", this).unit("VA").multiplier(2)),
 						new SignedWordElement(0x0213, //
-								currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA").multiplier(100)),
+								currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA").multiplier(2)),
 						new SignedWordElement(0x0214, //
-								currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA").multiplier(100)),
+								currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA").multiplier(2)),
 						new SignedWordElement(0x0215, //
-								currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA").multiplier(100)),
+								currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA").multiplier(2)),
 						new DummyElement(0x0216, 0x218), //
 						new UnsignedWordElement(0x0219, //
-								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(100)),
+								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(2)),
 						new UnsignedWordElement(0x021A, //
-								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(100)),
+								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(2)),
 						new UnsignedWordElement(0x021B, //
-								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(100)),
+								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(2)),
 						new UnsignedWordElement(0x021C, //
-								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ").multiplier(10))),
+								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ")
+										.multiplier(1))),
 				new ModbusRange(0x0222, //
 						new UnsignedWordElement(0x0222, //
 								inverterVoltageL1 = new ModbusReadChannel("InverterVoltageL1", this).unit("mV")
-										.multiplier(100)), //
+										.multiplier(2)), //
 						new UnsignedWordElement(0x0223, //
 								inverterVoltageL2 = new ModbusReadChannel("InverterVoltageL2", this).unit("mV")
-										.multiplier(100)), //
+										.multiplier(2)), //
 						new UnsignedWordElement(0x0224, //
 								inverterVoltageL3 = new ModbusReadChannel("InverterVoltageL3", this).unit("mV")
-										.multiplier(100)), //
+										.multiplier(2)), //
 						new UnsignedWordElement(0x0225, //
 								inverterCurrentL1 = new ModbusReadChannel("InverterCurrentL1", this).unit("mA")
-										.multiplier(100)), //
+										.multiplier(2)), //
 						new UnsignedWordElement(0x0226, //
 								inverterCurrentL2 = new ModbusReadChannel("InverterCurrentL2", this).unit("mA")
-										.multiplier(100)), //
+										.multiplier(2)), //
 						new UnsignedWordElement(0x0227, //
 								inverterCurrentL3 = new ModbusReadChannel("InverterCurrentL3", this).unit("mA")
-										.multiplier(100)), //
+										.multiplier(2)), //
 						new SignedWordElement(0x0228, //
 								inverterActivePower = new ModbusReadChannel("InverterActivePower", this).unit("W")
-										.multiplier(100)), //
+										.multiplier(2)), //
 						new DummyElement(0x0229, 0x022F),
 						new SignedWordElement(0x0230, //
-								allowedCharge = new ModbusReadChannel("AllowedCharge", this).unit("W").multiplier(100)), //
+								allowedCharge = new ModbusReadChannel("AllowedCharge", this).unit("W").multiplier(2)), //
 						new UnsignedWordElement(0x0231, //
 								allowedDischarge = new ModbusReadChannel("AllowedDischarge", this).unit("W")
-										.multiplier(100)), //
+										.multiplier(2)), //
 						new UnsignedWordElement(0x0232, //
 								allowedApparent = new ModbusReadChannel("AllowedApparent", this).unit("VA")
-										.multiplier(100)), //
+										.multiplier(2)), //
 						new DummyElement(0x0233, 0x23F),
 						new SignedWordElement(0x0240, //
 								ipmTemperatureL1 = new ModbusReadChannel("IpmTemperatureL1", this).unit("°C")), //
@@ -468,15 +467,16 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 								setWorkState = new ModbusWriteChannel("SetWorkState", this) //
 										.label(4, STOP) //
 										.label(32, STANDBY) //
-										.label(64, START))),
+										.label(64,
+												START))),
 				new WritableModbusRange(0x0501, //
 						new SignedWordElement(0x0501, //
-								setActivePower = new ModbusWriteChannel("SetActivePower", this).unit("W")
-										.multiplier(100).minWriteChannel(allowedCharge)
-										.maxWriteChannel(allowedDischarge)),
+								setActivePower = new ModbusWriteChannel("SetActivePower", this).unit("W").multiplier(2)
+										.minWriteChannel(allowedCharge).maxWriteChannel(
+												allowedDischarge)),
 						new SignedWordElement(0x0502, //
 								setReactivePower = new ModbusWriteChannel("SetReactivePower", this).unit("var")
-										.multiplier(100).minWriteChannel(allowedCharge)
+										.multiplier(2).minWriteChannel(allowedCharge)
 										.maxWriteChannel(allowedDischarge))),
 				new ModbusRange(0x1402, //
 						new UnsignedWordElement(0x1402,

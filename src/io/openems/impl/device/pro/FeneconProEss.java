@@ -274,11 +274,12 @@ public class FeneconProEss extends ModbusDeviceNature
 				new UnsignedWordElement(109, //
 						soc = new ModbusReadChannel("Soc", this).unit("%").interval(0, 100)),
 				new UnsignedWordElement(110, //
-						batteryVoltage = new ModbusReadChannel("BatteryVoltage", this).unit("mV").multiplier(100)),
+						batteryVoltage = new ModbusReadChannel("BatteryVoltage", this).unit("mV").multiplier(2)),
 				new UnsignedWordElement(111, //
-						batteryCurrent = new ModbusReadChannel("BatteryCurrent", this).unit("mA").multiplier(100)),
+						batteryCurrent = new ModbusReadChannel("BatteryCurrent", this).unit("mA").multiplier(2)),
 				new UnsignedWordElement(112, //
-						batteryPower = new ModbusReadChannel("BatteryPower", this).unit("W")),
+						batteryPower = new ModbusReadChannel("BatteryPower", this)
+								.unit("W")),
 				new UnsignedWordElement(113, //
 						batteryGroupAlarm = new ModbusReadChannel("BatteryGroupAlarm", this)
 								.label(1, "Fail, The system should be stopped") //
@@ -299,17 +300,17 @@ public class FeneconProEss extends ModbusDeviceNature
 								.label(7, "bypass 2")),
 				new DummyElement(115, 117), //
 				new SignedWordElement(118, //
-						currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA").multiplier(100)),
+						currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA").multiplier(2)),
 				new SignedWordElement(119, //
-						currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA").multiplier(100)),
+						currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA").multiplier(2)),
 				new SignedWordElement(120, //
-						currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA").multiplier(100)),
+						currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA").multiplier(2)),
 				new UnsignedWordElement(121, //
-						voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(100)),
+						voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(2)),
 				new UnsignedWordElement(122, //
-						voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(100)),
+						voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(2)),
 				new UnsignedWordElement(123, //
-						voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(100)),
+						voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(2)),
 				new SignedWordElement(124, //
 						activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W")),
 				new SignedWordElement(125, //
@@ -324,11 +325,11 @@ public class FeneconProEss extends ModbusDeviceNature
 						reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this).unit("var")),
 				new DummyElement(130),
 				new UnsignedWordElement(131, //
-						frequencyL1 = new ModbusReadChannel("FrequencyL1", this).unit("mHz").multiplier(10)),
+						frequencyL1 = new ModbusReadChannel("FrequencyL1", this).unit("mHz").multiplier(1)),
 				new UnsignedWordElement(132, //
-						frequencyL2 = new ModbusReadChannel("FrequencyL2", this).unit("mHz").multiplier(10)),
+						frequencyL2 = new ModbusReadChannel("FrequencyL2", this).unit("mHz").multiplier(1)),
 				new UnsignedWordElement(133, //
-						frequencyL3 = new ModbusReadChannel("FrequencyL3", this).unit("mHz").multiplier(10)),
+						frequencyL3 = new ModbusReadChannel("FrequencyL3", this).unit("mHz").multiplier(1)),
 				new UnsignedWordElement(134, //
 						allowedApparent = new ModbusReadChannel("AllowedApparentPower", this).unit("VA")),
 				new DummyElement(135, 140),
@@ -550,10 +551,13 @@ public class FeneconProEss extends ModbusDeviceNature
 						new UnsignedWordElement(9016, rtcDay = new ModbusWriteChannel("Day", this)),
 						new UnsignedWordElement(9017, rtcHour = new ModbusWriteChannel("Hour", this)),
 						new UnsignedWordElement(9018, rtcMinute = new ModbusWriteChannel("Minute", this)),
-						new UnsignedWordElement(9019, rtcSecond = new ModbusWriteChannel("Second", this))),
+						new UnsignedWordElement(9019,
+								rtcSecond = new ModbusWriteChannel("Second", this))),
 				new WritableModbusRange(30558,
 						new UnsignedWordElement(30558,
-								setSetupMode = new ModbusWriteChannel("SetSetupMode", this).label(0, EssNature.OFF)
+								setSetupMode = new ModbusWriteChannel("SetSetupMode", this)
+										.label(0,
+												EssNature.OFF)
 										.label(1, EssNature.ON))),
 				new WritableModbusRange(30559,
 						new UnsignedWordElement(30559,
