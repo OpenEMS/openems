@@ -204,7 +204,13 @@ public class Config implements ChannelChangeListener {
 			for (JsonElement jControllerElement : jControllers) {
 				JsonObject jController = JsonUtils.getAsJsonObject(jControllerElement);
 				String controllerClass = JsonUtils.getAsString(jController, "class");
-				Controller controller = (Controller) InjectionUtils.getThingInstance(controllerClass);
+				Controller controller;
+				if (jController.has("id")) {
+					String id = JsonUtils.getAsString(jController, "id");
+					controller = (Controller) InjectionUtils.getThingInstance(controllerClass, id);
+				} else {
+					controller = (Controller) InjectionUtils.getThingInstance(controllerClass);
+				}
 				thingRepository.addThing(controller);
 				log.debug("Add Controller[" + controller.id() + "], Implementation["
 						+ controller.getClass().getSimpleName() + "]");
@@ -326,8 +332,7 @@ public class Config implements ChannelChangeListener {
 			configFile = Paths.get("D:", "fems", "openems", "etc", "openems.d", "config.json").toFile();
 		}
 		if (!configFile.isFile()) {
-			configFile = Paths.get("C:", "Users", "matthias.rossmann", "Dev", "git", "openems", "openems", "etc",
-					"openems.d", "config.json").toFile();
+			configFile = Paths.get("C:", "Users", "matthias.rossmann", "Documents", "config.json").toFile();
 		}
 		if (!configFile.isFile()) {
 			throw new ConfigException("No config file found!");

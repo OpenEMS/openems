@@ -2,10 +2,7 @@ package io.openems.impl.controller.symmetric.cosphicharacteristic;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
@@ -17,26 +14,27 @@ public class CosPhiCharacteristicController extends Controller {
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this, Ess.class);
 
 	public ConfigChannel<List<Long[]>> cosPhiPoints = new ConfigChannel<List<Long[]>>("cosPhiPoints", this,
-			Long[].class);
+			Long[].class).changeListener((channel, newValue, oldValue) -> {
+				List<Point> points = new ArrayList<>();
+				if (newValue.isPresent()) {
+					List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();
+					for (Long[] arr : cosPhiPoints) {
+						points.add(new Point(arr[0], arr[1]));
+					}
+				} else {
+					log.error("found no cosPhiPoints!");
+				}
+				cosPhiCharacteristic = points;
+			});
 
 	public List<Point> cosPhiCharacteristic;
 
 	public CosPhiCharacteristicController() {
-		cosPhiPoints.changeListener(new ChannelChangeListener() {
+		super();
+	}
 
-			@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-				try {
-					List<Point> points = new ArrayList<>();
-					for (Long[] arr : cosPhiPoints.value()) {
-						points.add(new Point(arr[0], arr[1]));
-					}
-					cosPhiCharacteristic = points;
-				} catch (InvalidValueException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
+	public CosPhiCharacteristicController(String id) {
+		super(id);
 	}
 
 	@Override public void run() {

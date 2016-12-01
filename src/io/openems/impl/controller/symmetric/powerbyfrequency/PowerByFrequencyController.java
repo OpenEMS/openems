@@ -39,6 +39,14 @@ public class PowerByFrequencyController extends Controller {
 	public final ConfigChannel<Integer> highSocLimit = new ConfigChannel<Integer>("highSocLimit", this, Integer.class)
 			.defaultValue(70);
 
+	public PowerByFrequencyController() {
+		super();
+	}
+
+	public PowerByFrequencyController(String thingId) {
+		super(thingId);
+	}
+
 	@Override public void run() {
 		try {
 			Ess ess = this.ess.value();

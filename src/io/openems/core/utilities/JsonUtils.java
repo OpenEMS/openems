@@ -137,6 +137,16 @@ public class JsonUtils {
 			 */
 			return j.getAsString();
 
+		} else if (JsonObject.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for a JsonObject
+			 */
+			return j.getAsJsonObject();
+		} else if (JsonArray.class.isAssignableFrom(type)) {
+			/*
+			 * Asking for a JsonArray
+			 */
+			return j.getAsJsonArray();
 		}
 		throw new NotImplementedException(
 				"Converter for value [" + j + "] to class type [" + type + "] is not implemented.");

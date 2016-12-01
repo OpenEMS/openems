@@ -6,6 +6,14 @@ import io.openems.api.exception.OpenemsException;
 
 public class RestApiController extends Controller {
 
+	public RestApiController() {
+		super();
+	}
+
+	public RestApiController(String thingId) {
+		super(thingId);
+	}
+
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this, Integer.class)
 			.defaultValue(8084);
 

@@ -14,6 +14,14 @@ public class FixValueController extends Controller {
 	public ConfigChannel<Integer> p = new ConfigChannel<Integer>("p", this, Integer.class);
 	public ConfigChannel<Integer> q = new ConfigChannel<Integer>("q", this, Integer.class);
 
+	public FixValueController() {
+		super();
+	}
+
+	public FixValueController(String thingId) {
+		super(thingId);
+	}
+
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {

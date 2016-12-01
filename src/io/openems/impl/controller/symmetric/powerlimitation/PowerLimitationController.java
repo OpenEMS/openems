@@ -14,6 +14,14 @@ public class PowerLimitationController extends Controller {
 	public ConfigChannel<Long> qMin = new ConfigChannel<Long>("qMin", this, Long.class);
 	public ConfigChannel<Long> qMax = new ConfigChannel<Long>("qMax", this, Long.class);
 
+	public PowerLimitationController() {
+		super();
+	}
+
+	public PowerLimitationController(String thingId) {
+		super(thingId);
+	}
+
 	@Override public void run() {
 		try {
 			try {

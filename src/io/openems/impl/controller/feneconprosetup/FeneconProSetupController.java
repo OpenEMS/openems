@@ -12,6 +12,16 @@ public class FeneconProSetupController extends Controller {
 
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this, Ess.class);
 
+	public FeneconProSetupController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public FeneconProSetupController(String thingId) {
+		super(thingId);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {

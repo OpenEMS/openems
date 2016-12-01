@@ -12,6 +12,14 @@ public class AvoidTotalDischargeController extends Controller {
 
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
 
+	public AvoidTotalDischargeController() {
+		super();
+	}
+
+	public AvoidTotalDischargeController(String id) {
+		super(id);
+	}
+
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {

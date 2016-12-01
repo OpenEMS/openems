@@ -48,6 +48,16 @@ public class BalancingController extends Controller {
 		return true;
 	}
 
+	public BalancingController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public BalancingController(String thingId) {
+		super(thingId);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override public void run() {
 		try {
 			// Run only if all ess are on-grid

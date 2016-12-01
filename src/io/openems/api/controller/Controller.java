@@ -42,12 +42,18 @@ public abstract class Controller implements Thing, Runnable {
 	public final ConfigChannel<Integer> priority = new ConfigChannel<Integer>("priority", this, Integer.class);
 
 	public Controller() {
-		log = LoggerFactory.getLogger(this.getClass());
-		name = THINGID_PREFIX + instanceCounter++;
+		this(null);
 	}
 
-	@Override
-	public String id() {
+	public Controller(String thingId) {
+		if (thingId == null) {
+			thingId = THINGID_PREFIX + instanceCounter++;
+		}
+		log = LoggerFactory.getLogger(this.getClass());
+		name = thingId;
+	}
+
+	@Override public String id() {
 		return name;
 	}
 }

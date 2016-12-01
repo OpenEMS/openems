@@ -11,6 +11,14 @@ public class CosPhiController extends Controller {
 
 	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this, Double.class);
 
+	public CosPhiController() {
+		super();
+	}
+
+	public CosPhiController(String thingId) {
+		super(thingId);
+	}
+
 	@Override public void run() {
 		try {
 			if (ess.value().setActivePower.peekWrite().isPresent()) {

@@ -46,6 +46,37 @@ public class CapacityTestController extends Controller {
 
 	private FileWriter fw;
 
+	public CapacityTestController() {
+		super();
+		init();
+	}
+
+	public CapacityTestController(String thingId) {
+		super(thingId);
+		init();
+	}
+
+	private void init() {
+		logPath.updateListener(new ChannelUpdateListener() {
+
+			@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+				try {
+					if (fw != null) {
+						fw.close();
+					}
+					fw = new FileWriter(logPath.value());
+					fw.write(
+							"time;activePowerL1;activePowerL2;activePowerL3;batteryCurrent;batteryPower;batteryVoltage;voltageL1;voltageL2;voltageL3;currentL1;currentL2;currentL3;soc;totalBatteryChargeEnergy;totalBatteryDischargeEnergy\n");
+				} catch (IOException e) {
+					log.error(e.getMessage());
+				} catch (InvalidValueException e) {
+					log.error(e.getMessage());
+				}
+
+			}
+		});
+	}
+
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {
@@ -77,24 +108,4 @@ public class CapacityTestController extends Controller {
 		}
 	}
 
-	public CapacityTestController() {
-		logPath.updateListener(new ChannelUpdateListener() {
-
-			@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
-				try {
-					if (fw != null) {
-						fw.close();
-					}
-					fw = new FileWriter(logPath.value());
-					fw.write(
-							"time;activePowerL1;activePowerL2;activePowerL3;batteryCurrent;batteryPower;batteryVoltage;voltageL1;voltageL2;voltageL3;currentL1;currentL2;currentL3;soc;totalBatteryChargeEnergy;totalBatteryDischargeEnergy\n");
-				} catch (IOException e) {
-					log.error(e.getMessage());
-				} catch (InvalidValueException e) {
-					log.error(e.getMessage());
-				}
-
-			}
-		});
-	}
 }

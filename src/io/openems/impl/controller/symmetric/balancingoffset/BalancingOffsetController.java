@@ -52,6 +52,16 @@ public class BalancingOffsetController extends Controller {
 	private final AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(5);
 
 	public BalancingOffsetController() {
+		super();
+		init();
+	}
+
+	public BalancingOffsetController(String thingId) {
+		super(thingId);
+		init();
+	}
+
+	public void init() {
 		activePowerActivated.changeListener(new ChannelChangeListener() {
 
 			@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {

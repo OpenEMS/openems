@@ -35,6 +35,16 @@ public class VoltageCharacteristicController extends Controller {
 	private List<Point> qCharacteristic;
 
 	public VoltageCharacteristicController() {
+		super();
+		init();
+	}
+
+	public VoltageCharacteristicController(String thingId) {
+		super(thingId);
+		init();
+	}
+
+	private void init() {
 		pByUCharacteristicPoints.changeListener(new ChannelChangeListener() {
 
 			@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {

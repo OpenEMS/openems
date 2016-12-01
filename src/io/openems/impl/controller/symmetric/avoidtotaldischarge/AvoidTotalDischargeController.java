@@ -35,6 +35,16 @@ public class AvoidTotalDischargeController extends Controller {
 	public final ConfigChannel<Long> powerDecreaseStep = new ConfigChannel<Long>("powerDecreaseStep", this, Long.class)
 			.defaultValue(2L);
 
+	public AvoidTotalDischargeController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public AvoidTotalDischargeController(String thingId) {
+		super(thingId);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {

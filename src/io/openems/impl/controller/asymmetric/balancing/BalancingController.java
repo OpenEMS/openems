@@ -49,6 +49,16 @@ public class BalancingController extends Controller {
 	private long[][] lastWriteValues = new long[3][8];
 	private int index = 0;
 
+	public BalancingController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public BalancingController(String thingId) {
+		super(thingId);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {
