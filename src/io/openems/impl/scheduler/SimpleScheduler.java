@@ -20,7 +20,9 @@
  *******************************************************************************/
 package io.openems.impl.scheduler;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.WriteChannel;
@@ -43,6 +45,7 @@ public class SimpleScheduler extends Scheduler {
 	@Override protected void dispose() {}
 
 	@Override protected void forever() {
+		List<Controller> controllers = new ArrayList<>(this.controllers.values());
 		Collections.sort(controllers, (c1, c2) -> c2.priority.valueOptional().orElse(Integer.MIN_VALUE)
 				- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
 		for (Controller controller : controllers) {
