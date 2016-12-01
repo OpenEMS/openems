@@ -15,6 +15,7 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> activePower;
 	public final String id;
 	public final Power power;
+	public final ReadChannel<Long> gridMode;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
@@ -24,6 +25,7 @@ public class Ess extends ThingMap {
 		activePower = ess.activePower().required();
 		this.power = new Power(ess.allowedDischarge().required(), ess.allowedCharge().required(),
 				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required());
+		this.gridMode = ess.gridMode();
 	}
 
 }

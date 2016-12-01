@@ -28,6 +28,7 @@ import io.openems.api.exception.NotImplementedException;
 import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
 
+//TODO change to generic to use Generic ChannelUpdate/ChangeListener
 public interface Channel {
 	public String id();
 

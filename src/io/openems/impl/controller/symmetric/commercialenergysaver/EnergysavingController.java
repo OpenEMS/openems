@@ -35,6 +35,14 @@ public class EnergysavingController extends Controller {
 
 	private Long lastTimeValueWritten = 0L;
 
+	public EnergysavingController() {
+		super();
+	}
+
+	public EnergysavingController(String thingId) {
+		super(thingId);
+	}
+
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {

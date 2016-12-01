@@ -9,6 +9,12 @@ public class RestApiController extends Controller {
 	public static RestApiController instance = null;
 
 	public RestApiController() {
+		super();
+		RestApiController.instance = this;
+	}
+
+	public RestApiController(String thingId) {
+		super(thingId);
 		RestApiController.instance = this;
 	}
 

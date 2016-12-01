@@ -34,6 +34,16 @@ public class DebugLogController extends Controller {
 	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this, RealTimeClock.class)
 			.optional();
 
+	public DebugLogController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public DebugLogController(String thingId) {
+		super(thingId);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override public void run() {
 		try {
 			StringBuilder b = new StringBuilder();

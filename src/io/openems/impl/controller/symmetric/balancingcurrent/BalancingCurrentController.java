@@ -14,6 +14,16 @@ public class BalancingCurrentController extends Controller {
 	public final ConfigChannel<Integer> currentOffset = new ConfigChannel<>("CurrentOffset", this, Integer.class);
 	public final ConfigChannel<Double> cosPhi = new ConfigChannel<>("cosPhi", this, Integer.class);
 
+	public BalancingCurrentController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public BalancingCurrentController(String thingId) {
+		super(thingId);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override public void run() {
 		try {
 			Ess ess = this.ess.value();

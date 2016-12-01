@@ -19,6 +19,16 @@ public class FixValueController extends Controller {
 	public final ConfigChannel<Long> reactivePowerL2 = new ConfigChannel<>("reactivePowerL2", this, Long.class);
 	public final ConfigChannel<Long> reactivePowerL3 = new ConfigChannel<>("reactivePowerL3", this, Long.class);
 
+	public FixValueController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public FixValueController(String thingId) {
+		super(thingId);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override public void run() {
 		try {
 			for (Ess ess : esss.value()) {

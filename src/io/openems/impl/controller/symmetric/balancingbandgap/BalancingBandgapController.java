@@ -45,6 +45,16 @@ public class BalancingBandgapController extends Controller {
 	private final AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(10);
 	private final AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(10);
 
+	public BalancingBandgapController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public BalancingBandgapController(String thingId) {
+		super(thingId);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override public void run() {
 		try {
 			Ess ess = this.ess.value();

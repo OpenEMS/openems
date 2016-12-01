@@ -20,9 +20,11 @@
  *******************************************************************************/
 package io.openems.api.scheduler;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.ConfigException;
@@ -33,17 +35,17 @@ import io.openems.core.utilities.AbstractWorker;
 public abstract class Scheduler extends AbstractWorker implements Thing {
 	public final static String THINGID_PREFIX = "_scheduler";
 	private static int instanceCounter = 0;
-	protected final List<Controller> controllers = new CopyOnWriteArrayList<>();
+	protected final Map<String, Controller> controllers = new ConcurrentHashMap<>();
 
 	public Scheduler() {
 		super(THINGID_PREFIX + instanceCounter++);
 	}
 
 	public synchronized void addController(Controller controller) throws ReflectionException, ConfigException {
-		controllers.add(controller);
+		controllers.put(controller.id(), controller);
 	}
 
 	public synchronized List<Controller> getControllers() {
-		return Collections.unmodifiableList(this.controllers);
+		return Collections.unmodifiableList(new ArrayList<>(this.controllers.values()));
 	}
 }

@@ -14,6 +14,16 @@ public class ClockSyncController extends Controller {
 
 	private boolean isDateSet = false;
 
+	public ClockSyncController() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public ClockSyncController(String thingId) {
+		super(thingId);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override public void run() {
 		if (isDateSet) {
 			// Set time only once in the beginning
