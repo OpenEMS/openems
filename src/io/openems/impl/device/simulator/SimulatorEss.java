@@ -124,6 +124,7 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 		allowedCharge.updateValue(9000L);
 		allowedDischarge.updateValue(3000L);
 		systemState.updateValue(1L);
+		gridMode.updateValue(0L);
 	}
 
 	private long getRandom(int min, int max) {

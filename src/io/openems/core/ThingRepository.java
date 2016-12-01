@@ -46,6 +46,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
@@ -69,6 +70,7 @@ public class ThingRepository {
 	private Set<Bridge> bridges = new HashSet<>();
 	private Set<Scheduler> schedulers = new HashSet<>();
 	private Set<Persistence> persistences = new HashSet<>();
+	private Set<DeviceNature> deviceNatures = new HashSet<>();
 	private final Table<Thing, String, Channel> thingChannels = HashBasedTable.create();
 	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
 	private HashMultimap<Thing, WriteChannel<?>> thingWriteChannels = HashMultimap.create();
@@ -102,6 +104,11 @@ public class ThingRepository {
 		// Add to persistences
 		if (thing instanceof Persistence) {
 			persistences.add((Persistence) thing);
+		}
+
+		// Add to persistences
+		if (thing instanceof DeviceNature) {
+			deviceNatures.add((DeviceNature) thing);
 		}
 
 		// Add Channels to thingChannels, thingConfigChannels and thingWriteChannels
@@ -260,6 +267,10 @@ public class ThingRepository {
 
 	public synchronized Set<Scheduler> getSchedulers() {
 		return Collections.unmodifiableSet(schedulers);
+	}
+
+	public synchronized Set<DeviceNature> getDeviceNatures() {
+		return Collections.unmodifiableSet(deviceNatures);
 	}
 
 	public Optional<Channel> getChannel(String thingId, String channelId) {

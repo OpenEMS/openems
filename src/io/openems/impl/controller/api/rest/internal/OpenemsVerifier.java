@@ -1,4 +1,4 @@
-package io.openems.impl.controller.api.rest;
+package io.openems.impl.controller.api.rest.internal;
 
 import org.restlet.Request;
 import org.restlet.Response;

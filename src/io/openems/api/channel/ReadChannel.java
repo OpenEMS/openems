@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,6 @@ import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
 import io.openems.core.Databus;
 import io.openems.core.utilities.JsonUtils;
-import io.vertx.core.impl.ConcurrentHashSet;
 
 public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	protected final Logger log;
@@ -55,8 +55,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private boolean isRequired = false;
 	protected final Set<User> users = new HashSet<>();
 
-	private final Set<ChannelUpdateListener> updateListeners = new ConcurrentHashSet<>();
-	private final Set<ChannelChangeListener> changeListeners = new ConcurrentHashSet<>();
+	private final Set<ChannelUpdateListener> updateListeners = ConcurrentHashMap.newKeySet();
+	private final Set<ChannelChangeListener> changeListeners = ConcurrentHashMap.newKeySet();
 
 	public ReadChannel(String id, Thing parent) {
 		log = LoggerFactory.getLogger(this.getClass());

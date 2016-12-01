@@ -98,6 +98,22 @@ public enum User {
 		return salt;
 	}
 
+	/**
+	 * Authenticates a user with his password
+	 *
+	 * @param password
+	 * @return the authenticated User or null if authentication failed
+	 */
+	public static User authenticate(String password) {
+		// Search for any user with the given password
+		for (User user : USERS) {
+			if (user.checkPassword(password)) {
+				return user;
+			}
+		}
+		return null;
+	}
+
 	public static User authenticate(String username, String password) {
 		// Search for user with given username
 		for (User user : USERS) {
@@ -110,12 +126,7 @@ public enum User {
 			}
 		}
 		// Search for any user with the given password
-		for (User user : USERS) {
-			if (user.checkPassword(password)) {
-				return user;
-			}
-		}
-		return null;
+		return authenticate(password);
 	}
 
 	private static byte[] hashPassword(final String password, final byte[] salt) {

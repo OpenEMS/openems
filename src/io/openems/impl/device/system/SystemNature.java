@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Enumeration;
 
 import io.openems.api.channel.ReadChannel;
@@ -14,13 +15,17 @@ import io.openems.impl.protocol.system.SystemReadChannel;
 
 public class SystemNature extends SystemDeviceNature implements io.openems.api.device.nature.system.SystemNature {
 
-	private final Inet4Address OPENEMS_STATIC_IP;
+	private final Inet4Address[] OPENEMS_STATIC_IPS;
 
 	public SystemNature(String thingId) throws ConfigException {
 		super(thingId);
 		try {
-			OPENEMS_STATIC_IP = (Inet4Address) InetAddress
-					.getByAddress(new byte[] { (byte) 192, (byte) 168, (byte) 100, (byte) 100 });
+			OPENEMS_STATIC_IPS = new Inet4Address[] { //
+					// 192.168.100.100
+					(Inet4Address) InetAddress
+							.getByAddress(new byte[] { (byte) 192, (byte) 168, (byte) 100, (byte) 100 }),
+					// 10.4.0.1
+					(Inet4Address) InetAddress.getByAddress(new byte[] { (byte) 10, (byte) 4, (byte) 0, (byte) 1 }) };
 		} catch (UnknownHostException e) {
 			throw new ConfigException("Error initializing OpenEMS Static IP: " + e.getMessage());
 		}
@@ -64,19 +69,20 @@ public class SystemNature extends SystemDeviceNature implements io.openems.api.d
 					if (inetAddress.isLinkLocalAddress() || inetAddress.isLoopbackAddress()) {
 						// ignore local and loopback address
 						continue;
-					}
-					if (inetAddress.equals(OPENEMS_STATIC_IP)) {
+					} else if (Arrays.asList(OPENEMS_STATIC_IPS).contains(inetAddress)) {
 						// ignore static ip
 						foundOpenEmsStaticIp = true;
 						continue;
+					} else {
+						// take this ip and stop
+						primaryIpAddress = inetAddress;
 					}
-					primaryIpAddress = inetAddress;
 				}
 			}
 		}
 		if (primaryIpAddress == null && foundOpenEmsStaticIp) {
 			// set static ip if no other ip was found and it is existing
-			primaryIpAddress = OPENEMS_STATIC_IP;
+			primaryIpAddress = OPENEMS_STATIC_IPS[0];
 		}
 		return primaryIpAddress;
 	}

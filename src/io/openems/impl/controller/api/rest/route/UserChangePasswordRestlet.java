@@ -1,4 +1,4 @@
-package io.openems.impl.controller.api.rest;
+package io.openems.impl.controller.api.rest.route;
 
 import org.restlet.Request;
 import org.restlet.Response;
@@ -13,6 +13,7 @@ import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.security.User;
 import io.openems.core.utilities.JsonUtils;
+import io.openems.impl.controller.api.rest.OpenemsRestlet;
 
 public class UserChangePasswordRestlet extends OpenemsRestlet {
 

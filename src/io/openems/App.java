@@ -32,13 +32,9 @@ import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.Config;
-import io.openems.impl.api.websocket.WebsocketApi;
-import io.vertx.core.Vertx;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
-
-	private final static int websocketPort = 8085;
 
 	public static void main(String[] args) throws ConfigException, FileNotFoundException, ReflectionException,
 			WriteChannelException, IOException, InterruptedException {
@@ -51,19 +47,5 @@ public class App {
 		Config config = Config.getInstance();
 		config.readConfigFile();
 		log.info("OpenEMS config loaded");
-
-		// Wait for the important parts to start
-		Thread.sleep(3000);
-
-		// Start vertx
-		Vertx vertx = Vertx.vertx();
-		// deploy Websocket-Api
-		vertx.deployVerticle(new WebsocketApi(websocketPort), result -> {
-			if (result.succeeded()) {
-				log.info("Websocket started on port [" + websocketPort + "]");
-			} else {
-				log.error("Websocket failed on port [" + websocketPort + "]:", result.cause());
-			}
-		});
 	}
 }

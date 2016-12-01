@@ -1,4 +1,4 @@
-package io.openems.impl.controller.api.rest;
+package io.openems.impl.controller.api.rest.route;
 
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +22,7 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.security.User;
 import io.openems.core.ThingRepository;
+import io.openems.impl.controller.api.rest.OpenemsRestlet;
 
 public class ChannelRestlet extends OpenemsRestlet {
 
