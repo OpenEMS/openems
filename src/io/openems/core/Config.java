@@ -94,34 +94,93 @@ public class Config implements ChannelChangeListener {
 
 	private JsonObject addDefaultConfig(JsonObject jConfig) {
 		try {
-			if (jConfig.has("things")) {
-				JsonArray jThings = JsonUtils.getAsJsonArray(jConfig, "things");
-				/*
-				 * System
-				 */
-				JsonObject jBridge = new JsonObject();
-				jBridge.addProperty("class", "io.openems.impl.protocol.system.SystemBridge");
-				{
-					JsonArray jDevices = new JsonArray();
-					{
-						JsonObject jSystem = new JsonObject();
-						jSystem.addProperty("class", "io.openems.impl.device.system.System");
-						{
-							JsonObject jSystemNature = new JsonObject();
-							{
-								jSystemNature.addProperty("id", "system0");
-							}
-							jSystem.add("system", jSystemNature);
-						}
-						jDevices.add(jSystem);
-					}
-					jBridge.add("devices", jDevices);
-				}
-				jThings.add(jBridge);
+			/*
+			 * Things
+			 */
+			JsonArray jThings;
+			if (!jConfig.has("things") || !jConfig.get("things").isJsonArray()) {
+				jThings = new JsonArray();
+			} else {
+				jThings = JsonUtils.getAsJsonArray(jConfig, "things");
 			}
+			{
+				/*
+				 * Add SystemBridge
+				 */
+				if (!JsonUtils.hasElement(jConfig, "things", "class", "io.openems.impl.protocol.system.SystemBridge")) {
+					JsonObject jBridge = new JsonObject();
+					{
+						jBridge.addProperty("class", "io.openems.impl.protocol.system.SystemBridge");
+						JsonArray jDevices = new JsonArray();
+						{
+							JsonObject jSystem = new JsonObject();
+							jSystem.addProperty("class", "io.openems.impl.device.system.System");
+							{
+								JsonObject jSystemNature = new JsonObject();
+								{
+									jSystemNature.addProperty("id", "system0");
+								}
+								jSystem.add("system", jSystemNature);
+							}
+							jDevices.add(jSystem);
+						}
+						jBridge.add("devices", jDevices);
+					}
+					jThings.add(jBridge);
+				}
+			}
+			jConfig.add("things", jThings);
+			/*
+			 * Scheduler
+			 */
+			JsonObject jScheduler;
+			if (!jConfig.has("scheduler") || !jConfig.get("scheduler").isJsonObject()) {
+				jScheduler = new JsonObject();
+				jScheduler.addProperty("class", "io.openems.impl.scheduler.SimpleScheduler");
+			} else {
+				jScheduler = JsonUtils.getAsJsonObject(jConfig, "scheduler");
+			}
+			{
+				/*
+				 * Controller
+				 */
+				JsonArray jControllers;
+				if (!jConfig.has("controllers") || !jConfig.get("controllers").isJsonArray()) {
+					jControllers = new JsonArray();
+				} else {
+					jControllers = JsonUtils.getAsJsonArray(jConfig, "controllers");
+				}
+				{
+					/*
+					 * WebsocketApiController
+					 */
+					if (!JsonUtils.hasElement(jControllers, "class",
+							"io.openems.impl.controller.api.rest.WebsocketApiController")) {
+						JsonObject jWebsocketApiController = new JsonObject();
+						jWebsocketApiController.addProperty("class",
+								"io.openems.impl.controller.api.websocket.WebsocketApiController");
+						jWebsocketApiController.addProperty("priority", Integer.MIN_VALUE);
+						jControllers.add(jWebsocketApiController);
+					}
+					/*
+					 * RestApiController
+					 */
+					if (!JsonUtils.hasElement(jControllers, "class",
+							"io.openems.impl.controller.api.rest.RestApiController")) {
+						JsonObject jRestApiController = new JsonObject();
+						jRestApiController.addProperty("class",
+								"io.openems.impl.controller.api.rest.RestApiController");
+						jRestApiController.addProperty("priority", Integer.MIN_VALUE);
+						jControllers.add(jRestApiController);
+					}
+				}
+				jScheduler.add("controllers", jControllers);
+			}
+			jConfig.add("scheduler", jScheduler);
 		} catch (ReflectionException e) {
 			log.warn("Error applying default config: " + e.getMessage());
 		}
+		JsonUtils.prettyPrint(jConfig);
 		return jConfig;
 	}
 

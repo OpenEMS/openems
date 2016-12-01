@@ -20,7 +20,12 @@
  *******************************************************************************/
 package io.openems.core.utilities;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -150,6 +155,41 @@ public class JsonUtils {
 		}
 		throw new NotImplementedException(
 				"Converter for value [" + j + "] to class type [" + type + "] is not implemented.");
+	}
+
+	public static boolean hasElement(JsonElement j, String... paths) {
+		return getMatchingElements(j, paths).size() > 0;
+	}
+
+	public static Set<JsonElement> getMatchingElements(JsonElement j, String... paths) {
+		Set<JsonElement> result = new HashSet<JsonElement>();
+		if (paths.length == 0) {
+			// last path element
+			result.add(j);
+			return result;
+		}
+		String path = paths[0];
+		if (j.isJsonObject()) {
+			JsonObject jO = j.getAsJsonObject();
+			if (jO.has(path)) {
+				List<String> nextPathsList = new ArrayList<String>(Arrays.asList(paths));
+				nextPathsList.remove(0);
+				String[] nextPaths = nextPathsList.toArray(new String[0]);
+				result.addAll(getMatchingElements(jO.get(path), nextPaths));
+			}
+		} else if (j.isJsonArray()) {
+			for (JsonElement jE : j.getAsJsonArray()) {
+				result.addAll(getMatchingElements(jE, paths));
+			}
+		} else if (j.isJsonPrimitive()) {
+			JsonPrimitive jP = j.getAsJsonPrimitive();
+			if (jP.isString()) {
+				if (jP.getAsString().equals(path)) {
+					result.add(jP);
+				}
+			}
+		}
+		return result;
 	}
 
 	/**
