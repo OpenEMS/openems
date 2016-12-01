@@ -1,0 +1,28 @@
+<div *ngIf="!data && error" class="container">
+    <md-card>
+        <md-card-title>Fehler</md-card-title>
+        <md-card-content>{{error}}</md-card-content>
+    </md-card>
+</div>
+
+<div *ngIf="!data && !error" class="container">
+    <md-card>
+        <md-card-title>Einen Moment bitte</md-card-title>
+        <md-card-content>Daten werden geladen...</md-card-content>
+    </md-card>
+</div>
+
+<div *ngIf="data && !error" class="container">
+    <div class="ui-g">
+        <div *ngFor="let thing of data | keys" class="ui-g-4">
+            <md-card>
+                <md-card-title>{{thing.key}}</md-card-title>
+                <md-card-content>
+                    <md-grid-list cols="2" rowHeight="1em">
+                        <md-grid-tile *ngFor="let channel of thing.value | keys">{{channel.key}}: {{channel.value}}</md-grid-tile>
+                    </md-grid-list>
+                </md-card-content>
+            </md-card>
+        </div>
+    </div>
+</div>

@@ -39,8 +39,7 @@ export class MonitorProCurrentComponent implements OnInit {
   }
 
   ngOnInit() {
-    //var ws = new WebSocket("ws://" + location.hostname + "/websocket");
-    var ws = new WebSocket("ws://192.168.178.143/websocket");
+    var ws = new WebSocket("ws://" + location.hostname + "/websocket");
     ws.onopen = () => {
       ws.send(JSON.stringify({
         subscription: {
