@@ -26,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -58,11 +59,37 @@ public class InjectionUtils {
 			if (args.length == 0) {
 				return clazz.newInstance();
 			} else {
-				Constructor<?> constructor = clazz.getConstructors()[0];
-				return constructor.newInstance(args);
+				Constructor<?>[] constructors = clazz.getConstructors();
+				Constructor<?> constructor = null;
+				for (Constructor<?> ct : constructors) {
+					List<Class<?>> types = new ArrayList<>(Arrays.asList(ct.getParameterTypes()));
+					if (types.size() == args.length) {
+						boolean isType = true;
+						for (Object arg : args) {
+							boolean isAssignable = false;
+							for (Class<?> type : types) {
+								if (type.isAssignableFrom(arg.getClass())) {
+									isAssignable = true;
+								}
+							}
+							if (!isAssignable) {
+								isType = false;
+							}
+						}
+						if (isType) {
+							constructor = ct;
+						}
+					}
+				}
+				if (constructor != null) {
+					return constructor.newInstance(args);
+				} else {
+					throw new ReflectionException(
+							"Unable to instantiate class [" + clazz.getName() + "] no matching constructor found.");
+				}
 			}
-		} catch (InstantiationException | IllegalAccessException | InvocationTargetException
-				| IllegalArgumentException e) {
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException
+				| NullPointerException e) {
 			e.printStackTrace();
 			throw new ReflectionException("Unable to instantiate class [" + clazz.getName() + "]: " + e.getMessage());
 		}
