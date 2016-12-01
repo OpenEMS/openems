@@ -49,7 +49,9 @@ public class EnergysavingController extends Controller {
 				try {
 					Optional<String> systemState = ess.systemState.labelOptional();
 					if (systemState.isPresent()) {
-						if (ess.setActivePower.peekWrite().isPresent() && ess.setActivePower.peekWrite().get() != 0) {
+						if ((ess.setActivePower.peekWrite().isPresent() && ess.setActivePower.peekWrite().get() != 0)
+								|| (ess.setReactivePower.peekWrite().isPresent()
+										&& ess.setReactivePower.peekWrite().get() != 0)) {
 							if (!systemState.get().equals(SymmetricEssNature.START)) {
 								// Current system state is not START
 								if (ess.setWorkState.peekWriteLabel().orElse(SymmetricEssNature.START)
