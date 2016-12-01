@@ -180,7 +180,6 @@ public class Config implements ChannelChangeListener {
 		} catch (ReflectionException e) {
 			log.warn("Error applying default config: " + e.getMessage());
 		}
-		JsonUtils.prettyPrint(jConfig);
 		return jConfig;
 	}
 
