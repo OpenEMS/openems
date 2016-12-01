@@ -36,12 +36,10 @@ public class DebugLogController extends Controller {
 
 	public DebugLogController() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public DebugLogController(String thingId) {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override public void run() {

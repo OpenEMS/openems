@@ -26,14 +26,19 @@ public class Power {
 	private boolean activePowerValid = false;
 	private boolean reactivePowerValid = false;
 
+	private final AvgFiFoQueue activePowerQueue;
+	private final AvgFiFoQueue reactivePowerQueue;
+
 	public Power(ReadChannel<Long> allowedDischarge, ReadChannel<Long> allowedCharge, ReadChannel<Long> allowedApparent,
-			WriteChannel<Long> setActivePower, WriteChannel<Long> setReactivePower) {
+			WriteChannel<Long> setActivePower, WriteChannel<Long> setReactivePower, int average) {
 		super();
 		this.allowedDischarge = allowedDischarge;
 		this.allowedCharge = allowedCharge;
 		this.allowedApparent = allowedApparent;
 		this.setActivePower = setActivePower;
 		this.setReactivePower = setReactivePower;
+		this.activePowerQueue = new AvgFiFoQueue(average);
+		this.reactivePowerQueue = new AvgFiFoQueue(average);
 	}
 
 	public void setActivePower(long power) {
@@ -165,11 +170,13 @@ public class Power {
 		} catch (WriteChannelException e) {
 			this.reducePower();
 			try {
+				activePowerQueue.add(activePower);
 				if (activePowerValid) {
-					setActivePower.pushWrite(activePower);
+					setActivePower.pushWrite(activePowerQueue.avg());
 				}
+				reactivePowerQueue.add(reactivePower);
 				if (reactivePowerValid) {
-					setReactivePower.pushWrite(reactivePower);
+					setReactivePower.pushWrite(reactivePowerQueue.avg());
 				}
 			} catch (WriteChannelException e1) {
 				log.error("Failed to reduce and set Power!", e1);

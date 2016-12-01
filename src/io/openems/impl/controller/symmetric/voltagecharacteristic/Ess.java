@@ -58,7 +58,8 @@ public class Ess extends ThingMap {
 		reactivePower = ess.reactivePower().required();
 		maxNominalPower = ess.maxNominalPower().required();
 		this.power = new Power(ess.allowedDischarge().required(), ess.allowedCharge().required(),
-				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required());
+				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required(),
+				1);
 	}
 
 	public long useableSoc() throws InvalidValueException {

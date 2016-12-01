@@ -28,7 +28,6 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
-import io.openems.core.utilities.AvgFiFoQueue;
 
 /*
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
@@ -46,10 +45,6 @@ public class BalancingOffsetController extends Controller {
 			Boolean.class).defaultValue(true);
 	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
 			this, Boolean.class).defaultValue(true);
-
-	private final AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(5);
-
-	private final AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(5);
 
 	public BalancingOffsetController() {
 		super();
@@ -92,10 +87,9 @@ public class BalancingOffsetController extends Controller {
 		try {
 			Ess ess = this.ess.value();
 			// Calculate required sum values
-			activePowerQueue.add(meter.value().activePower.value());
-			reactivePowerQueue.add(meter.value().reactivePower.value());
-			long calculatedPower = activePowerQueue.avg() + ess.activePower.value() - activePowerOffset.value();
-			long calculatedReactivePower = reactivePowerQueue.avg() + ess.reactivePower.value()
+			long calculatedPower = meter.value().activePower.value() + ess.activePower.value()
+					- activePowerOffset.value();
+			long calculatedReactivePower = meter.value().reactivePower.value() + ess.reactivePower.value()
 					- reactivePowerOffset.value();
 			if (reactivePowerActivated.value()) {
 				ess.power.setReactivePower(calculatedReactivePower);

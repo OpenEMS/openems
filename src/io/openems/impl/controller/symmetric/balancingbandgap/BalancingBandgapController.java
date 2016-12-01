@@ -23,7 +23,6 @@ package io.openems.impl.controller.symmetric.balancingbandgap;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.AvgFiFoQueue;
 
 /*
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
@@ -42,9 +41,6 @@ public class BalancingBandgapController extends Controller {
 	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
 			this, Boolean.class).defaultValue(true);
 
-	private final AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(10);
-	private final AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(10);
-
 	public BalancingBandgapController() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -59,10 +55,8 @@ public class BalancingBandgapController extends Controller {
 		try {
 			Ess ess = this.ess.value();
 			// Calculate required sum values
-			activePowerQueue.add(meter.value().activePower.value());
-			reactivePowerQueue.add(meter.value().reactivePower.value());
-			long calculatedPower = activePowerQueue.avg() + ess.activePower.value();
-			long calculatedReactivePower = reactivePowerQueue.avg() + ess.reactivePower.value();
+			long calculatedPower = meter.value().activePower.value() + ess.activePower.value();
+			long calculatedReactivePower = meter.value().reactivePower.value() + ess.reactivePower.value();
 			if (calculatedPower >= maxActivePower.value()) {
 				calculatedPower -= maxActivePower.value();
 			} else if (calculatedPower <= minActivePower.value()) {
