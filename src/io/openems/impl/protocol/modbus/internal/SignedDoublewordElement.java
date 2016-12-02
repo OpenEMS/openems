@@ -61,4 +61,9 @@ public class SignedDoublewordElement extends ModbusElement implements Doubleword
 			return new Register[] { new SimpleRegister(b[2], b[3]), new SimpleRegister(b[0], b[1]) };
 		}
 	}
+
+	public SignedDoublewordElement wordorder(WordOrder order) {
+		this.wordOrder = order;
+		return this;
+	}
 }
