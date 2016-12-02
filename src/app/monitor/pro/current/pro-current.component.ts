@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { ISubscription } from 'rxjs/Subscription';
 
-import { UIChart } from 'primeng/primeng';
-
 @Component({
   selector: 'app-monitor-pro-current',
   templateUrl: './pro-current.component.html',
