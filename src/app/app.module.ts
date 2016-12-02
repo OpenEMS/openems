@@ -6,11 +6,16 @@ import { HttpModule } from '@angular/http';
 import { routing, appRoutingProviders }  from './app.routing';
 import { AppComponent } from './app.component';
 import { MonitorCommercialCurrentComponent } from './monitor/commercial/current/commercial-current.component';
-import { DataService } from './data/data.service';
 import { OpenemsSettingComponent } from './setting/openems-setting/openems-setting.component';
 import { MonitorGrafanaComponent } from './monitor/grafana/grafana.component';
 import { MonitorProCurrentComponent } from './monitor/pro/current/pro-current.component';
 import { MonitorUniversalCurrentComponent } from './monitor/universal/current/universal-current.component';
+
+import { CommonMeterSimulatorComponent } from './common/thing/meter/simulator/simulator.component';
+import { CommonEssSimulatorComponent } from './common/thing/ess/simulator/simulator.component';
+
+import { WebSocketService } from './data/websocket.service';
+import { DataService } from './data/data.service';
 
 import { KeysPipe } from './common/pipe/keys/keys-pipe';
 
@@ -25,6 +30,8 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     MonitorGrafanaComponent,
     MonitorUniversalCurrentComponent,
     CommonSocComponent,
+    CommonMeterSimulatorComponent,
+    CommonEssSimulatorComponent,
     KeysPipe
   ],
   imports: [
@@ -35,6 +42,8 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
   ],
   providers: [
     appRoutingProviders,
+    DataService,
+    WebSocketService
     /*OdooRPCService*/
     /*{ provide: DataService, useClass: OdooDataService }*/
   ],

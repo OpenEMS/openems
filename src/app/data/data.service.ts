@@ -1,27 +1,23 @@
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { IntervalObservable } from 'rxjs/Observable/IntervalObservable';
+import { Observer } from 'rxjs/Observer';
+import { Subject } from 'rxjs/Subject';
+import 'rxjs/add/operator/map';
+import { WebSocketService } from './websocket.service';
 
-export abstract class DataService {
-  constructor() {
-    /*this.data = new Observable<CurrentData>(observer => {
-      // initialize immediately
-      this.getCurrentData()
-          .then(data => observer.next(data));
-      // start interval
-      new IntervalObservable(this.getPollInterval()).forEach(() => { 
-        this.getCurrentData()
-          .then(data => observer.next(data));
-      })
-    });*/
+const WEBSOCKET_URL = 'ws://localhost:8085';
+
+@Injectable()
+export class DataService {
+  public messages: Subject<any>;
+
+  constructor(wsService: WebSocketService) {
+
+    this.messages = <Subject<any>>wsService
+      .connect(WEBSOCKET_URL, "owner", "fenecon_monitor_v1")
+      .map((response: MessageEvent): any => {
+        let data = JSON.parse(response.data);
+        return data;
+      });
   }
-
-  //abstract getPollInterval(): number;
-
-  //abstract getCurrentData(): Promise<CurrentData>;
-
-  abstract getDevices(): Promise<any>;
-
-  abstract getOne(name_number: number, fields: string[]): Promise<any>;
-
-  /*abstract getPeriod(fields: string[], fromTime: long ): Object;*/
 }

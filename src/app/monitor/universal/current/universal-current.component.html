@@ -31,7 +31,9 @@
 <div *ngIf="data" class="container">
   <div class="row">
     <div *ngFor="let thing of data | keys" class="col-md-3">
-      <div class="panel panel-default">
+      <common-thing-meter-simulator *ngIf="thing.value._tag == 'SimulatorMeter'" [data]="thing"></common-thing-meter-simulator>
+      <common-thing-ess-simulator *ngIf="thing.value._tag == 'SimulatorEss'" [data]="thing"></common-thing-ess-simulator>
+      <!--<div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title">{{thing.key}}</h3>
         </div>
@@ -41,7 +43,7 @@
             <td align="right">{{channel.value}}</td>
           </tr>
         </table>
-      </div>
+      </div>-->
     </div>
   </div>
 </div>
