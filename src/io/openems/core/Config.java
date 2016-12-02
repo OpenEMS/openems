@@ -145,10 +145,10 @@ public class Config implements ChannelChangeListener {
 				 * Controller
 				 */
 				JsonArray jControllers;
-				if (!jConfig.has("controllers") || !jConfig.get("controllers").isJsonArray()) {
+				if (!jScheduler.has("controllers") || !jScheduler.get("controllers").isJsonArray()) {
 					jControllers = new JsonArray();
 				} else {
-					jControllers = JsonUtils.getAsJsonArray(jConfig, "controllers");
+					jControllers = JsonUtils.getAsJsonArray(jScheduler, "controllers");
 				}
 				{
 					/*
