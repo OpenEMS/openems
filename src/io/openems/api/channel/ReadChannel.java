@@ -50,6 +50,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	protected Optional<Long> delta = Optional.empty();
 	protected TreeMap<T, String> labels = new TreeMap<T, String>();
 	protected Optional<Long> multiplier = Optional.empty();
+	protected boolean negate = false;
 	private Interval<T> valueInterval = new Interval<T>();
 	private String unit = "";
 	private boolean isRequired = false;
@@ -79,6 +80,11 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 
 	public ReadChannel<T> multiplier(Long multiplier) {
 		this.multiplier = Optional.ofNullable(multiplier);
+		return this;
+	}
+
+	public ReadChannel<T> negate() {
+		this.negate = true;
 		return this;
 	}
 
@@ -176,6 +182,9 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 			long multiplier = 1;
 			if (this.multiplier.isPresent()) {
 				multiplier = (long) Math.pow(10, this.multiplier.get());
+			}
+			if (this.negate) {
+				multiplier *= -1;
 			}
 			long delta = 0;
 			if (this.delta.isPresent()) {

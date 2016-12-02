@@ -52,11 +52,11 @@ public class Power {
 	}
 
 	public long getActivePower() {
-		return this.activePower;
+		return this.activePowerQueue.avg();
 	}
 
 	public long getReactivePower() {
-		return this.reactivePower;
+		return this.reactivePowerQueue.avg();
 	}
 
 	/**
@@ -161,11 +161,13 @@ public class Power {
 	 */
 	public void writePower() {
 		try {
+			activePowerQueue.add(activePower);
 			if (activePowerValid) {
-				setActivePower.pushWrite(activePower);
+				setActivePower.pushWrite(activePowerQueue.avg());
 			}
+			reactivePowerQueue.add(reactivePower);
 			if (reactivePowerValid) {
-				setReactivePower.pushWrite(reactivePower);
+				setReactivePower.pushWrite(reactivePowerQueue.avg());
 			}
 		} catch (WriteChannelException e) {
 			this.reducePower();

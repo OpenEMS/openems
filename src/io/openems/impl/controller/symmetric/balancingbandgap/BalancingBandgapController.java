@@ -56,7 +56,7 @@ public class BalancingBandgapController extends Controller {
 			Ess ess = this.ess.value();
 			// Calculate required sum values
 			long calculatedPower = meter.value().activePower.value() + ess.activePower.value();
-			long calculatedReactivePower = meter.value().reactivePower.value() + ess.reactivePower.value();
+			long calculatedReactivePower = meter.value().reactivePower.value() * -1 + ess.reactivePower.value();
 			if (calculatedPower >= maxActivePower.value()) {
 				calculatedPower -= maxActivePower.value();
 			} else if (calculatedPower <= minActivePower.value()) {

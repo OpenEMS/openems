@@ -19,7 +19,11 @@ public class AvgFiFoQueue {
 		for (long value : queue) {
 			sum += value;
 		}
-		return sum / queue.size();
+		if (sum == 0) {
+			return 0;
+		} else {
+			return sum / queue.size();
+		}
 	}
 
 }

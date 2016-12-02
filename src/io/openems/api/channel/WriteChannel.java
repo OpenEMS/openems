@@ -148,6 +148,9 @@ public class WriteChannel<T> extends ReadChannel<T> {
 			if (this.multiplier.isPresent()) {
 				multiplier = (long) Math.pow(10, this.multiplier.get());
 			}
+			if (this.negate) {
+				multiplier *= -1;
+			}
 			long delta = 0;
 			if (this.delta.isPresent()) {
 				delta = this.delta.get();

@@ -25,6 +25,7 @@ public class CosPhiController extends Controller {
 				ess.value().power.setReactivePower(ControllerUtils
 						.calculateReactivePower(ess.value().setActivePower.peekWrite().get(), cosPhi.value()));
 				ess.value().power.writePower();
+				log.info("Set ReactivePower [" + ess.value().power.getReactivePower() + "]");
 			} else {
 				log.error(ess.id() + " no ActivePower is Set.");
 			}
