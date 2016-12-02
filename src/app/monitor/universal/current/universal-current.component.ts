@@ -3,8 +3,6 @@ import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { ISubscription } from 'rxjs/Subscription';
 
-import { UIChart, PanelModule } from 'primeng/primeng';
-
 @Component({
   selector: 'app-monitor-test-current',
   templateUrl: './universal-current.component.html'

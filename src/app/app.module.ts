@@ -11,11 +11,8 @@ import { OpenemsSettingComponent } from './setting/openems-setting/openems-setti
 import { MonitorGrafanaComponent } from './monitor/grafana/grafana.component';
 import { MonitorProCurrentComponent } from './monitor/pro/current/pro-current.component';
 import { MonitorUniversalCurrentComponent } from './monitor/universal/current/universal-current.component';
-import { MaterialModule } from '@angular/material';
 
 import { KeysPipe } from './common/pipe/keys/keys-pipe';
-
-import { ChartModule, PanelModule, TabMenuModule } from 'primeng/primeng';
 
 import { CommonSocComponent } from './common/soc/common-soc.component';
 
@@ -34,10 +31,6 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     BrowserModule,
     FormsModule,
     HttpModule,
-    ChartModule,
-    PanelModule,
-    TabMenuModule,
-    MaterialModule.forRoot(),
     routing,
   ],
   providers: [

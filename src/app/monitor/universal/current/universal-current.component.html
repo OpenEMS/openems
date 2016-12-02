@@ -1,28 +1,47 @@
-<div *ngIf="!data && error" class="container">
-    <md-card>
-        <md-card-title>Fehler</md-card-title>
-        <md-card-content>{{error}}</md-card-content>
-    </md-card>
+<div *ngIf="error" class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="panel panel-danger">
+        <div class="panel-heading">
+          <h3 class="panel-title">Fehler</h3>
+        </div>
+        <div class="panel-body">
+          <p>{{error}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div *ngIf="!data && !error" class="container">
-    <md-card>
-        <md-card-title>Einen Moment bitte</md-card-title>
-        <md-card-content>Daten werden geladen...</md-card-content>
-    </md-card>
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Einen Moment bitte</h3>
+        </div>
+        <div class="panel-body">
+          <p>Daten werden geladen...</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div *ngIf="data && !error" class="container">
-    <div class="ui-g">
-        <div *ngFor="let thing of data | keys" class="ui-g-4">
-            <md-card>
-                <md-card-title>{{thing.key}}</md-card-title>
-                <md-card-content>
-                    <md-grid-list cols="2" rowHeight="1em">
-                        <md-grid-tile *ngFor="let channel of thing.value | keys">{{channel.key}}: {{channel.value}}</md-grid-tile>
-                    </md-grid-list>
-                </md-card-content>
-            </md-card>
+<div *ngIf="data" class="container">
+  <div class="row">
+    <div *ngFor="let thing of data | keys" class="col-md-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{thing.key}}</h3>
         </div>
+        <table class="table">
+          <tr *ngFor="let channel of thing.value | keys">
+            <td>{{channel.key}}:</td>
+            <td align="right">{{channel.value}}</td>
+          </tr>
+        </table>
+      </div>
     </div>
+  </div>
 </div>
