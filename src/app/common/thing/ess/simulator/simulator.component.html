@@ -8,8 +8,19 @@
       <td align="right">{{soc}} %</td>
     </tr>
     <tr>
+      <td colspan="2"><common-soc [soc]="soc"></common-soc></td>
+    </tr>
+    <tr>
       <td>Wirkleistung</td>
       <td align="right">{{activePower}} W</td>
+    </tr>
+    <tr>
+      <td>Blindleistung</td>
+      <td align="right">{{reactivePower}} W</td>
+    </tr>
+    <tr *ngIf="warning">
+      <td>Warnung</td>
+      <td>{{warning}}</td>
     </tr>
   </table>
 </div>

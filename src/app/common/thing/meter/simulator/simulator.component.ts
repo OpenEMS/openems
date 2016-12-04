@@ -7,11 +7,13 @@ import { CommonThingComponent } from '../../thing.component';
 })
 export class CommonMeterSimulatorComponent extends CommonThingComponent {
   private activePower: number;
+  private reactivePower: number;
 
   @Input()
   set data(data: any) {
     super.init(data);
     let d = data.value;
     this.activePower = "ActivePower" in d ? d.ActivePower : null;
+    this.reactivePower = "ReactivePower" in d ? d.ReactivePower : null;
   }
 }

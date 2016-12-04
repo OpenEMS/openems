@@ -32,7 +32,6 @@ export class MonitorUniversalCurrentComponent implements OnInit {
         for (let nature in this.natures) {
           if (nature in this.data) {
             let n: string[] = this.natures[nature];
-            console.log(nature + ": " + n.indexOf("SimulatorMeter"));
             let tag: string;
             if(this.contains(n, "SimulatorMeter")) {
               tag = "SimulatorMeter";

@@ -1,11 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { ISubscription } from 'rxjs/Subscription';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'common-soc',
-  templateUrl: './common-soc.component.html',
-  styleUrls: ['./common-soc.component.css']
+  templateUrl: './common-soc.component.html'
 })
 export class CommonSocComponent {
   @Input()
@@ -13,28 +10,24 @@ export class CommonSocComponent {
 
   @Input()
   set soc(soc: number) {
-    this.chartdata.datasets[0].data = [soc, 100-soc];
+    this.data = [soc, 100 - soc];
   }
 
-  private chartdata: any;
-  private chartoptions: any;
+  private data: number[];
+  private options: any;
+  private colors: Array<any>;
+  private labels: string[] = ['Ladezustand', ''];
+  private chartType: string = 'doughnut';
+
   constructor() {
-    this.chartdata = {
-      labels: ['Ladezustand', ''],
-      datasets: [
-        {
-          data: [null, null],
-          backgroundColor: [
-            "#2D8FAB",
-            "#E8E8E8"
-          ],
-          hoverBackgroundColor: [
-            "#2D8FAB",
-            "#E8E8E8"
-          ]
-        }]
-    };
-    this.chartoptions = {
+    this.colors = [
+      {
+        backgroundColor: ["#2D8FAB", "#E8E8E8"],
+        hoverBackgroundColor: ["#2D8FAB", "#E8E8E8"]
+      }
+    ];
+    this.options = {
+      animation: false,
       tooltips: {
         enabled: false
       },
@@ -42,7 +35,7 @@ export class CommonSocComponent {
         display: false
       },
       responsive: true,
-      maintainAspectRatio: true
+      maintainAspectRatio: false
     };
   }
 }

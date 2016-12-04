@@ -1,5 +1,10 @@
 <div class="embed-responsive text-center" [style.height.px]="height">
   <div class="embed-responsive-item">
-    <!--<p-chart type="doughnut" [data]="chartdata" [options]="chartoptions"></p-chart>-->
+      <canvas baseChart
+              [data]="data"
+              [labels]="labels"
+              [options]="options"
+              [colors]="colors"
+              [chartType]="chartType"></canvas>
   </div>
 </div>

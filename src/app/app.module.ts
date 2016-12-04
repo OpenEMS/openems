@@ -19,6 +19,7 @@ import { DataService } from './data/data.service';
 
 import { KeysPipe } from './common/pipe/keys/keys-pipe';
 
+import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { CommonSocComponent } from './common/soc/common-soc.component';
 
 @NgModule({
@@ -38,6 +39,7 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     BrowserModule,
     FormsModule,
     HttpModule,
+    ChartsModule,
     routing,
   ],
   providers: [
