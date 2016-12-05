@@ -21,24 +21,62 @@ export class MonitorUniversalCurrentComponent implements OnInit {
       this.error = null;
       if ("natures" in message) {
         this.natures = message.natures;
-        for (let nature in this.natures) {
-          console.log(nature + ": " + this.natures[nature]);
-        }
+        /*for (let thing in this.natures) {
+          console.log(thing + ": " + this.natures[thing]);
+        }*/
       }
+
       if ("data" in message) {
         this.data = message.data;
 
-        // fill primary nature type
-        for (let nature in this.natures) {
-          if (nature in this.data) {
-            let n: string[] = this.natures[nature];
-            let tag: string;
-            if(this.contains(n, "SimulatorMeter")) {
-              tag = "SimulatorMeter";
-            } else if(this.contains(n, "SimulatorEss")) {
-              tag = "SimulatorEss";
+        // filter general system type
+        var ess = null;
+        for (let thing in this.natures) {
+          if (thing in this.data) {
+            let n: string[] = this.natures[thing];
+            if(this.contains(n, "FeneconProEss")) {
+              ess = "FeneconPro";
+            } else if(this.contains(n, "FeneconCommercialAC") || this.contains(n, "FeneconCommercialDC")) {
+              ess = "FeneconCommercial";
             }
-            this.data[nature]["_tag"] = tag;
+          }
+        }
+        
+        // fill primary nature type
+        for (let thing in this.natures) {
+          if (thing in this.data) {
+            let n: string[] = this.natures[thing];
+            let tag: string;
+            let title: string = null;
+            // Meter
+            if(ess == "FeneconPro" && this.contains(n, "AsymmetricMeterNature")) {
+              tag = "AsymmetricMeter";
+              if(thing == "meter0") {
+                title = "Netzzähler";
+              } else if(thing == "meter1") {
+                title = "PV-Zähler";
+              }
+
+            } else if(ess == "FeneconCommercial" && this.contains(n, "SymmetricMeter")) {
+              tag = "SymmetricMeter";
+            } else if(this.contains(n, "SimulatorMeter")) {
+              //tag = "SimulatorMeter";
+              tag = "SymmetricMeter";
+              title = "Simulierter Zähler";
+
+            // Ess
+            } else if(this.contains(n, "FeneconProEss")) {
+              tag = "FeneconProEss";
+            } else if(this.contains(n, "FeneconCommercialEss")) {
+              tag = "FeneconCommercialEss";
+            } else if(this.contains(n, "SimulatorEss")) {
+              //tag = "SimulatorEss";
+              tag = "FeneconCommercialEss";
+              title = "Simuliertes Speichersystem";
+            }
+            this.data[thing]["_thing"] = thing;
+            this.data[thing]["_title"] = title;
+            this.data[thing]["_tag"] = tag;
           }
         }
       }
@@ -51,29 +89,4 @@ export class MonitorUniversalCurrentComponent implements OnInit {
   private contains(array: string[], tag: string): boolean {
     return array.indexOf(tag) != -1
   }
-
-  /*
-    ngOnInit() {
-      //var ws = new WebSocket("ws://" + location.hostname + "/websocket");
-      var ws = new WebSocket("ws://localhost:8085");
-      ws.onopen = () => {
-        ws.send(JSON.stringify({
-          authenticate: {
-            password: "owner"
-          },
-          subscribe: "fenecon_monitor_v1"
-        }))
-        ws.onmessage = (message) => {
-          
-        }
-      }
-      ws.onerror = (e) => {
-        
-      }
-      ws.onclose = (e) => {
-        this.data = null;
-        this.error = "Verbindung wurde beendet.";
-      }
-    }
-    */
 }

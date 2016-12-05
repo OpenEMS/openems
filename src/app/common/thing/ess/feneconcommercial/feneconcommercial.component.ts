@@ -2,10 +2,10 @@ import { Component, Input } from '@angular/core';
 import { CommonThingComponent } from '../../thing.component';
 
 @Component({
-  selector: 'common-thing-ess-simulator',
-  templateUrl: './simulator.component.html',
+  selector: 'common-thing-ess-feneconcommercial',
+  templateUrl: './feneconcommercial.component.html',
 })
-export class CommonEssSimulatorComponent extends CommonThingComponent {
+export class CommonEssFeneconCommercialComponent extends CommonThingComponent {
   private soc: number;
   private activePower: number;
   private reactivePower: number;

@@ -2,10 +2,10 @@ import { Component, OnInit, Input } from '@angular/core';
 import { CommonThingComponent } from '../../thing.component';
 
 @Component({
-  selector: 'common-thing-meter-simulator',
-  templateUrl: './simulator.component.html',
+  selector: 'common-thing-meter-symmetric',
+  templateUrl: './symmetric.component.html',
 })
-export class CommonMeterSimulatorComponent extends CommonThingComponent {
+export class CommonMeterSymmetricComponent extends CommonThingComponent {
   private activePower: number;
   private reactivePower: number;
 
