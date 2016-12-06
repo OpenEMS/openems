@@ -34,8 +34,6 @@ public interface SymmetricMeterNature extends MeterNature {
 
 	public ReadChannel<Long> reactivePower();
 
-	public ReadChannel<Long> current();
-
 	public ReadChannel<Long> frequency();
 
 	public ReadChannel<Long> voltage();

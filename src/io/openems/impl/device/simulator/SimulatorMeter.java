@@ -22,7 +22,6 @@ public class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMe
 	private SimulatorReadChannel activePower = new SimulatorReadChannel("ActivePower", this);
 	private SimulatorReadChannel apparentPower = new SimulatorReadChannel("ApparentPower", this);
 	private SimulatorReadChannel reactivePower = new SimulatorReadChannel("ReactivePower", this);
-	private SimulatorReadChannel current = new SimulatorReadChannel("Current", this);
 	private SimulatorReadChannel frequency = new SimulatorReadChannel("Frequency", this);
 	private SimulatorReadChannel voltage = new SimulatorReadChannel("Voltage", this);
 
@@ -49,16 +48,11 @@ public class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMe
 		this.apparentPower.updateValue(apparentPower);
 		long voltage = getRandom(220000, 240000);
 		this.voltage.updateValue(voltage);
-		this.current.updateValue(apparentPower / voltage);
 		this.frequency.updateValue(getRandom(48000, 52000));
 	}
 
 	private long getRandom(int min, int max) {
 		return ThreadLocalRandom.current().nextLong(min, max + 1);
-	}
-
-	@Override public ReadChannel<Long> current() {
-		return current;
 	}
 
 	@Override public ReadChannel<Long> frequency() {
