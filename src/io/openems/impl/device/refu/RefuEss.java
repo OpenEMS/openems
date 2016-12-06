@@ -253,7 +253,120 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 										.unit("°C")),
 						new SignedWordElement(0x12B, //
 								batteryLowestTemperature = new ModbusReadChannel("BatteryLowestTemperature", this)
-										.unit("°C"))),
+										.unit("°C")),
+						new UnsignedWordElement(0x12D,
+								warning.channel(new StatusBitChannel("BatteryAlarm1", this)//
+										.label(1, "Normal charging over-current ")//
+										.label(2, "Charginig current over limit")//
+										.label(4, "Discharging current over limit")//
+										.label(8, "Normal high voltage")//
+										.label(16, "Normal low voltage")//
+										.label(32, "Abnormal voltage variation")//
+										.label(64, "Normal high temperature")//
+										.label(128, "Normal low temperature")//
+										.label(256, "Abnormal temperature variation")//
+										.label(512, "Serious high voltage")//
+										.label(1024, "Serious low voltage")//
+										.label(2048, "Serious low temperature")//
+										.label(4096, "Charging serious over current")//
+										.label(8192, "Discharging serious over current")//
+										.label(16384, "Abnormal capacity alarm"))),
+						new UnsignedWordElement(0x12E,
+								warning.channel(new StatusBitChannel("BatteryAlarm2", this)//
+										.label(1, "EEPROM parameter failure")//
+										.label(2, "Switch off inside combined cabinet")//
+										.label(32, "Should not be connected to grid due to the DC side condition")//
+										.label(128, "Emergency stop require from system controller"))),
+						new UnsignedWordElement(0x12F,
+								warning.channel(new StatusBitChannel("BatteryAlarm3", this)//
+										.label(1, "Battery group 1 enable and not connected to grid")//
+										.label(2, "Battery group 2 enable and not connected to grid")//
+										.label(4, "Battery group 3 enable and not connected to grid")//
+										.label(8, "Battery group 4 enable and not connected to grid"))),
+						new UnsignedWordElement(0x130,
+								warning.channel(new StatusBitChannel("BatteryAlarm4", this)//
+										.label(1, "The isolation switch of battery group 1 open")//
+										.label(2, "The isolation switch of battery group 2 open")//
+										.label(4, "The isolation switch of battery group 3 open")//
+										.label(8, "The isolation switch of battery group 4 open"))),
+						new DummyElement(0x131),
+						new UnsignedWordElement(0x133,
+								warning.channel(new StatusBitChannel("BatteryAlarm6", this)//
+										.label(1, "Balancing sampling failure of battery group 1")//
+										.label(2, "Balancing sampling failure of battery group 2")//
+										.label(4, "Balancing sampling failure of battery group 3")//
+										.label(8, "Balancing sampling failure of battery group 4"))),
+						new UnsignedWordElement(0x134,
+								warning.channel(new StatusBitChannel("BatteryAlarm7", this)//
+										.label(1, "Balancing control failure of battery group 1")//
+										.label(2, "Balancing control failure of battery group 2")//
+										.label(4, "Balancing control failure of battery group 3")//
+										.label(8, "Balancing control failure of battery group 4"))),
+						new UnsignedWordElement(0x135, warning.channel(new StatusBitChannel("BatteryFault1", this)//
+								.label(1, "No enable batery group or usable battery group")//
+								.label(2, "Normal leakage of battery group")//
+								.label(4, "Serious leakage of battery group")//
+								.label(8, "Battery start failure")//
+								.label(16, "Battery stop failure")//
+								.label(32, "Interruption of CAN Communication between battery group and controller")//
+								.label(1024, "Emergency stop abnormal of auxiliary collector")//
+								.label(2048, "Leakage self detection on negative")//
+								.label(4096, "Leakage self detection on positive")//
+								.label(8192, "Self detection failure on battery"))),
+						new UnsignedWordElement(0x136,
+								warning.channel(new StatusBitChannel("BatteryFault2", this)//
+										.label(1, "CAN Communication interruption between battery group and group 1")//
+										.label(2, "CAN Communication interruption between battery group and group 2")//
+										.label(4, "CAN Communication interruption between battery group and group 3")//
+										.label(8, "CAN Communication interruption between battery group and group 4"))),
+						new UnsignedWordElement(0x137,
+								warning.channel(new StatusBitChannel("BatteryFault3", this)//
+										.label(1, "Main contractor abnormal in battery self detect group 1")//
+										.label(2, "Main contractor abnormal in battery self detect group 2")//
+										.label(4, "Main contractor abnormal in battery self detect group 3")//
+										.label(8, "Main contractor abnormal in battery self detect group 4"))),
+						new UnsignedWordElement(0x138,
+								warning.channel(new StatusBitChannel("BatteryFault4", this)//
+										.label(1, "Pre-charge contractor abnormal on battery self detect group 1")//
+										.label(2, "Pre-charge contractor abnormal on battery self detect group 2")//
+										.label(4, "Pre-charge contractor abnormal on battery self detect group 3")//
+										.label(8, "Pre-charge contractor abnormal on battery self detect group 4"))),
+						new UnsignedWordElement(0x139,
+								warning.channel(new StatusBitChannel("BatteryFault5", this)//
+										.label(1, "Main contact failure on battery control group 1")//
+										.label(2, "Main contact failure on battery control group 2")//
+										.label(4, "Main contact failure on battery control group 3")//
+										.label(8, "Main contact failure on battery control group 4"))),
+						new UnsignedWordElement(0x13A,
+								warning.channel(new StatusBitChannel("BatteryFault6", this)//
+										.label(1, "Pre-charge failure on battery control group 1")//
+										.label(2, "Pre-charge failure on battery control group 2")//
+										.label(4, "Pre-charge failure on battery control group 3")//
+										.label(8, "Pre-charge failure on battery control group 4"))),
+						new UnsignedWordElement(0x13D,
+								warning.channel(new StatusBitChannel("BatteryFault7", this)//
+										.label(4, "Sampling circuit abnormal for BMU")//
+										.label(8, "Power cable disconnect failure")//
+										.label(16, "Sampling circuit disconnect failure")//
+										.label(64, "CAN disconnect for master and slave")//
+										.label(512, "Sammpling circuit failure")//
+										.label(1024, "Single battery failure")//
+										.label(2048, "Circuit detection abnormal for main contactor")//
+										.label(4096, "Circuit detection abnormal for main contactor")//
+										.label(8192, "Circuit detection abnormal for Fancontactor")//
+										.label(16384, "BMUPower contactor circuit detection abnormal")//
+										.label(32768, "Central contactor circuit detection abnormal"))),
+						new UnsignedWordElement(0x13E,
+								warning.channel(new StatusBitChannel("BatteryFault8", this)//
+										.label(4, "Serious temperature fault")//
+										.label(8, "Communication fault for system controller")//
+										.label(128, "Frog alarm")//
+										.label(256, "Fuse fault")//
+										.label(1024, "Normal leakage")//
+										.label(2048, "Serious leakage")//
+										.label(4096, "CAN disconnection between battery group and battery stack")//
+										.label(8192, "Central contactor circuit open")//
+										.label(16384, "BMU power contactor open")))),
 				new WritableModbusRange(0x200, //
 						new UnsignedWordElement(0x200, //
 								setWorkState = new ModbusWriteChannel("SetWorkState", this) //
