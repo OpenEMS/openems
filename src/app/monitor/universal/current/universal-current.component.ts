@@ -57,8 +57,12 @@ export class MonitorUniversalCurrentComponent implements OnInit {
                 title = "PV-Zähler";
               }
 
-            } else if(ess == "FeneconCommercial" && this.contains(n, "SymmetricMeter")) {
+            } else if(ess == "FeneconCommercial" && this.contains(n, "SymmetricMeterNature")) {
               tag = "SymmetricMeter";
+
+            } else if(this.contains(n, "SymmetricMeterNature")) {
+              tag = "SymmetricMeter";
+
             } else if(this.contains(n, "SimulatorMeter")) {
               //tag = "SimulatorMeter";
               tag = "SymmetricMeter";
@@ -73,6 +77,9 @@ export class MonitorUniversalCurrentComponent implements OnInit {
               //tag = "SimulatorEss";
               tag = "FeneconCommercialEss";
               title = "Simuliertes Speichersystem";
+
+            } else {
+              console.log("Not implemented: " + JSON.stringify(n));
             }
             this.data[thing]["_thing"] = thing;
             this.data[thing]["_title"] = title;

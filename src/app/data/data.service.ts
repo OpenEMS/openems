@@ -6,7 +6,8 @@ import 'rxjs/add/operator/map';
 import { WebSocketService } from './websocket.service';
 
 //const WEBSOCKET_URL = 'ws://localhost:8085';
-const WEBSOCKET_URL ="ws://" + location.hostname + "/websocket";
+//const WEBSOCKET_URL = 'ws://localhost:80/websocket';
+const WEBSOCKET_URL ="ws://" + location.hostname + ":" + location.port + "/websocket";
 
 @Injectable()
 export class DataService {

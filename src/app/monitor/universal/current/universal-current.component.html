@@ -30,26 +30,22 @@
 
 <div *ngIf="data" class="container">
   <div class="row">
-    <div *ngFor="let thing of data | keys" class="col-xs-12 col-sm-4 col-md-3">
+    <div *ngFor="let thing of data | keys" [ngSwitch]="thing.value._tag" class="col-xs-12 col-sm-4 col-md-3">
       <!-- Meter -->
-      <common-thing-meter-simulator *ngIf="thing.value._tag == 'SimulatorMeter'" [data]="thing"></common-thing-meter-simulator>
-      <common-thing-meter-asymmetric *ngIf="thing.value._tag == 'AsymmetricMeter'" [data]="thing"></common-thing-meter-asymmetric>
-      <common-thing-meter-symmetric *ngIf="thing.value._tag == 'SymmetricMeter'" [data]="thing"></common-thing-meter-symmetric>
+      <common-thing-meter-simulator *ngSwitchCase="'SimulatorMeter'" [data]="thing"></common-thing-meter-simulator>
+      <common-thing-meter-asymmetric *ngSwitchCase="'AsymmetricMeter'" [data]="thing"></common-thing-meter-asymmetric>
+      <common-thing-meter-symmetric *ngSwitchCase="'SymmetricMeter'" [data]="thing"></common-thing-meter-symmetric>
       <!-- Ess -->
-      <common-thing-ess-simulator *ngIf="thing.value._tag == 'SimulatorEss'" [data]="thing"></common-thing-ess-simulator>
-      <common-thing-ess-feneconpro *ngIf="thing.value._tag == 'FeneconProEss'" [data]="thing"></common-thing-ess-feneconpro>
-      <common-thing-ess-feneconcommercial *ngIf="thing.value._tag == 'FeneconCommercialEss'" [data]="thing"></common-thing-ess-feneconcommercial>
-      <!--<div class="panel panel-default">
+      <common-thing-ess-simulator *ngSwitchCase="'SimulatorEss'" [data]="thing"></common-thing-ess-simulator>
+      <common-thing-ess-feneconpro *ngSwitchCase="'FeneconProEss'" [data]="thing"></common-thing-ess-feneconpro>
+      <common-thing-ess-feneconcommercial *ngSwitchCase="'FeneconCommercialEss'" [data]="thing"></common-thing-ess-feneconcommercial>
+      <!-- Default -->
+      <div *ngSwitchDefault class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title">{{thing.key}}</h3>
         </div>
-        <table class="table">
-          <tr *ngFor="let channel of thing.value | keys">
-            <td>{{channel.key}}:</td>
-            <td align="right">{{channel.value}}</td>
-          </tr>
-        </table>
-      </div>-->
+        <div>{{thing.value | json}}: not implemented</div>
+      </div>
     </div>
   </div>
 </div>
