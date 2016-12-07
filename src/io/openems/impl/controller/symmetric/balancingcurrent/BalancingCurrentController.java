@@ -24,7 +24,7 @@ public class BalancingCurrentController extends Controller {
 		try {
 			Ess ess = this.ess.value();
 			// Calculate required sum values
-			long power = calculatePower();
+			long power = calculatePower() + ess.activePower.value();
 			ess.power.setActivePower(power);
 			ess.power.writePower();
 			log.info(ess.id() + " Set ActivePower [" + ess.power.getActivePower() + "]");
@@ -34,15 +34,18 @@ public class BalancingCurrentController extends Controller {
 	}
 
 	private long calculatePower() throws InvalidValueException {
-		long powerL1 = (meter.value().currentL1.value() - currentOffset.value() / 3) * meter.value().voltageL1.value();
+		long powerL1 = ((meter.value().currentL1.value() - currentOffset.value() / 3) / 1000)
+				* (meter.value().voltageL1.value() / 1000);
 		if (meter.value().activePowerL1.value() < 0) {
 			powerL1 *= -1;
 		}
-		long powerL2 = (meter.value().currentL2.value() - currentOffset.value() / 3) * meter.value().voltageL2.value();
+		long powerL2 = ((meter.value().currentL2.value() - currentOffset.value() / 3) / 1000)
+				* (meter.value().voltageL2.value() / 1000);
 		if (meter.value().activePowerL2.value() < 0) {
 			powerL2 *= -1;
 		}
-		long powerL3 = (meter.value().currentL3.value() - currentOffset.value() / 3) * meter.value().voltageL3.value();
+		long powerL3 = ((meter.value().currentL3.value() - currentOffset.value() / 3) / 1000)
+				* (meter.value().voltageL3.value() / 1000);
 		if (meter.value().activePowerL3.value() < 0) {
 			powerL3 *= -1;
 		}

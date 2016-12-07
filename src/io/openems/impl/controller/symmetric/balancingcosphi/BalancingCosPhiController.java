@@ -24,8 +24,10 @@ public class BalancingCosPhiController extends Controller {
 		try {
 			double phi = Math.acos(cosPhi.value());
 			long q = (long) (meter.value().activePower.value() * Math.tan(phi)) - meter.value().reactivePower.value();
+			q += ess.value().reactivePower.value();
 			ess.value().power.setReactivePower(q);
 			ess.value().power.writePower();
+			log.info(ess.id() + " Set ReactivePower [" + ess.value().power.getReactivePower() + "]");
 		} catch (InvalidValueException e) {
 			log.error("Failed to read value.", e);
 		}
