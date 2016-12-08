@@ -4,8 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { ISubscription } from 'rxjs/Subscription';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { WebSocketService } from '../../../service/websocket.service';
-import { Connection, ActiveConnection } from '../../../service/connection';
+import { ConnectionService, Connection, ActiveConnection } from '../../../service/connection.service';
 
 const SUBSCRIBE: string = "fenecon_monitor_v1";
 
@@ -21,7 +20,7 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private websocket: WebSocketService) {
+    private connectionService: ConnectionService) {
   }
 
   ngOnInit() {
@@ -29,7 +28,7 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
     // TODO: on first init it happens twice
     this.subscribeNatures();
 
-    var connection: Connection = this.websocket.getDefault();
+    var connection: Connection = this.connectionService.getDefault();
 
     // check connection after a while
     setTimeout(() => {
@@ -153,7 +152,7 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
    */
   private subscribeNatures() {
     if (this.natures == null) {
-      var connection: Connection = this.websocket.getDefault();
+      var connection: Connection = this.connectionService.getDefault();
       if(connection instanceof ActiveConnection) {
         connection.send({
           subscribe: SUBSCRIBE
@@ -166,7 +165,7 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
    * send "unsubscribe" message to server
    */
   private unsubscribeNatures() {
-    var connection: Connection = this.websocket.getDefault();
+    var connection: Connection = this.connectionService.getDefault();
     if (connection instanceof ActiveConnection) {
       connection.send({
         subscribe: ""

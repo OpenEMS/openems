@@ -3,8 +3,30 @@ import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/share';
-import { Connection, ActiveConnection } from './connection';
 import { LocalstorageService } from './localstorage.service';
+
+export class Connection {
+  constructor(
+    public name: string,
+    public url: string
+  ) {}
+}
+
+export class ActiveConnection extends Connection {
+  constructor(
+    name: string,
+    url: string,
+    public websocket: WebSocket,
+    public subject: BehaviorSubject<any>,
+    public username: string
+  ) {
+    super(name, url);
+  }
+
+  public send(value: any): void {
+    this.subject.next(value);
+  }
+}
 
 const DEFAULT_CONNECTION: Connection = {
   name: "fems",
@@ -14,12 +36,12 @@ const DEFAULT_CONNECTION: Connection = {
 //const DEFAULT: string = "ws://" + location.hostname + ":" + location.port + "/websocket";
 
 @Injectable()
-export class WebSocketService {
+export class ConnectionService {
   public connections: { [url: string]: Connection } = {};
   public connectionsChanged: BehaviorSubject<null> = new BehaviorSubject(null);
 
   constructor(
-    private localstorage: LocalstorageService
+    private localstorageService: LocalstorageService
   ) {
     this.connections[DEFAULT_CONNECTION.url] = DEFAULT_CONNECTION;
     this.connectionsChanged.next(null);
@@ -107,7 +129,7 @@ export class WebSocketService {
 
     // try to get token from local storage if none was provided
     if(token == null) {
-      token = this.localstorage.getToken();
+      token = this.localstorageService.getToken();
     }
 
     // return non-active Connection if no password or token was given
@@ -159,7 +181,7 @@ export class WebSocketService {
         // Receive authentication token
         if ("authenticate" in data) {
           if ("token" in data.authenticate) {
-            this.localstorage.setToken(data.authenticate.token);
+            this.localstorageService.setToken(data.authenticate.token);
             if ("username" in data.authenticate) {
               var conn: Connection = this.connections[connection.url];
               if (conn instanceof ActiveConnection) {
@@ -169,7 +191,7 @@ export class WebSocketService {
             }
           } else {
             // close websocket
-            this.localstorage.removeToken();
+            this.localstorageService.removeToken();
             console.log("Authentication failed. Close websocket.");
             ws.close();
           }
