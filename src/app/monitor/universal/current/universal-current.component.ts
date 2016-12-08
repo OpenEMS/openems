@@ -36,7 +36,9 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
       if (container == null || container.websocket.readyState !== WebSocket.OPEN) {
         this.data = null;
         this.error = "Verbindung unmöglich";
-        setTimeout(() => this.router.navigate(['login']), 1000);
+        setTimeout(() => {
+          if(!container) this.router.navigate(['login']);
+        }, 1000);
       }
     }, 2000);
 
