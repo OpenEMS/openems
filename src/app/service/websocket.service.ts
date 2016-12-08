@@ -4,7 +4,8 @@ import { Observer } from 'rxjs/Observer';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/share';
 
-const DEFAULT = 'ws://localhost:8085';
+const DEFAULT_URL = "ws://localhost:8085";
+const DEFAULT_NAME = "fems";
 //const DEFAULT = 'ws://localhost:80/websocket';
 //const DEFAULT: string = "ws://" + location.hostname + ":" + location.port + "/websocket";
 
@@ -13,6 +14,7 @@ export class WebsocketContainer {
   subject: BehaviorSubject<any>;
   username: string;
   url: string;
+  name: string;
 }
 
 @Injectable()
@@ -21,10 +23,10 @@ export class WebSocketService {
   public containersChanged: BehaviorSubject<null> = new BehaviorSubject(null);
 
   public getDefault(): WebsocketContainer {
-    return this.get(DEFAULT);
+    return this.get(DEFAULT_NAME, DEFAULT_URL);
   }
 
-  public get(url: string): WebsocketContainer {
+  public get(name: string, url: string): WebsocketContainer {
     if (url in this.containers) {
       return this.containers[url];
     } else {
@@ -33,13 +35,13 @@ export class WebSocketService {
   }
 
   public getDefaultWithLogin(password: string): WebsocketContainer {
-    return this.getWithLogin(DEFAULT, password);
+    return this.getWithLogin(DEFAULT_NAME, DEFAULT_URL, password);
   }
 
-  public getWithLogin(url: string, password: string): WebsocketContainer {
-    var container: WebsocketContainer = this.get(url);
+  public getWithLogin(name: string, url: string, password: string): WebsocketContainer {
+    var container: WebsocketContainer = this.get(name, url);
     if (!container) {
-      var container: WebsocketContainer = this.create(url, password, null);
+      var container: WebsocketContainer = this.create(name, url, password, null);
       this.containers[url] = container;
       this.containersChanged.next(null);
       return container;
@@ -47,13 +49,13 @@ export class WebSocketService {
   }
 
   public getDefaultWithToken(token: string): WebsocketContainer {
-    return this.getWithToken(DEFAULT, token);
+    return this.getWithToken(DEFAULT_NAME, DEFAULT_URL, token);
   }
 
-  public getWithToken(url: string, token: string): WebsocketContainer {
-    var subcontainerject: WebsocketContainer = this.get(url);
+  public getWithToken(name: string, url: string, token: string): WebsocketContainer {
+    var subcontainerject: WebsocketContainer = this.get(name, url);
     if (!container) {
-      var container: WebsocketContainer = this.create(url, null, token);
+      var container: WebsocketContainer = this.create(name, url, null, token);
       this.containers[url] = container;
       this.containersChanged.next(null);
       return container;
@@ -61,7 +63,7 @@ export class WebSocketService {
   }
 
   public closeDefault() {
-    this.close(DEFAULT);
+    this.close(DEFAULT_URL);
   }
 
   public close(url: string) {
@@ -76,7 +78,7 @@ export class WebSocketService {
     }
   }
   
-  private create(url: string, password: string, token: string): WebsocketContainer {
+  private create(name: string, url: string, password: string, token: string): WebsocketContainer {
     var ws = new WebSocket(url);
     
     let observable = Observable.create((obs: Observer<MessageEvent>) => {
@@ -133,7 +135,8 @@ export class WebSocketService {
       websocket: ws,
       subject: subject,
       username: null,
-      url: url
+      url: url,
+      name: name
     };
   }
 }

@@ -26,8 +26,11 @@ export class AppComponent implements OnInit {
       for (var url in this.websocket.containers) {
         var container: WebsocketContainer = this.websocket.containers[url];
         if (container.username != null) {
-          this.connections += container.username + "@" + url;
+          this.connections += container.username + "@" + container.name + " ";
         }
+      }
+      if(this.connections == "") {
+        this.connections = "Keine Verbindung";
       }
     }, error => {
       this.connections = ""
