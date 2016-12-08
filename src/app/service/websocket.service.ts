@@ -3,84 +3,122 @@ import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/share';
+import { Connection, ActiveConnection } from './connection';
+import { LocalstorageService } from './localstorage.service';
 
-const DEFAULT_URL = "ws://localhost:8085";
-const DEFAULT_NAME = "fems";
+const DEFAULT_CONNECTION: Connection = {
+  name: "fems",
+  url: "ws://localhost:8085"
+}
 //const DEFAULT = 'ws://localhost:80/websocket';
 //const DEFAULT: string = "ws://" + location.hostname + ":" + location.port + "/websocket";
 
-export class WebsocketContainer {
-  websocket: WebSocket;
-  subject: BehaviorSubject<any>;
-  username: string;
-  url: string;
-  name: string;
-}
-
 @Injectable()
 export class WebSocketService {
-  public containers: { [url: string]: WebsocketContainer } = {};
-  public containersChanged: BehaviorSubject<null> = new BehaviorSubject(null);
+  public connections: { [url: string]: Connection } = {};
+  public connectionsChanged: BehaviorSubject<null> = new BehaviorSubject(null);
 
-  public getDefault(): WebsocketContainer {
-    return this.get(DEFAULT_NAME, DEFAULT_URL);
+  constructor(
+    private localstorage: LocalstorageService
+  ) {
+    this.connections[DEFAULT_CONNECTION.url] = DEFAULT_CONNECTION;
+    this.connectionsChanged.next(null);
   }
 
-  public get(name: string, url: string): WebsocketContainer {
-    if (url in this.containers) {
-      return this.containers[url];
-    } else {
-      return null;
-    }
+  public getDefault(): Connection {
+    return this.get(DEFAULT_CONNECTION);
   }
 
-  public getDefaultWithLogin(password: string): WebsocketContainer {
-    return this.getWithLogin(DEFAULT_NAME, DEFAULT_URL, password);
+  public get(connection: Connection): Connection {
+    return this.getOrCreate(connection, null, null);
   }
 
-  public getWithLogin(name: string, url: string, password: string): WebsocketContainer {
-    var container: WebsocketContainer = this.get(name, url);
-    if (!container) {
-      var container: WebsocketContainer = this.create(name, url, password, null);
-      this.containers[url] = container;
-      this.containersChanged.next(null);
-      return container;
-    }
+  public getDefaultWithLogin(password: string): Connection {
+    return this.getWithLogin(DEFAULT_CONNECTION, password);
   }
 
-  public getDefaultWithToken(token: string): WebsocketContainer {
-    return this.getWithToken(DEFAULT_NAME, DEFAULT_URL, token);
+  public getWithLogin(connection: Connection, password: string): Connection {
+    this.closeConnection(connection);
+    return this.getOrCreate(connection, password, null);
   }
 
-  public getWithToken(name: string, url: string, token: string): WebsocketContainer {
-    var subcontainerject: WebsocketContainer = this.get(name, url);
-    if (!container) {
-      var container: WebsocketContainer = this.create(name, url, null, token);
-      this.containers[url] = container;
-      this.containersChanged.next(null);
-      return container;
-    }
+  /**
+   * Gets default connection using session token
+   */
+  public getDefaultWithToken(token: string): Connection {
+    return this.getWithToken(DEFAULT_CONNECTION, token);
   }
 
+  /**
+   * Tries to open a connection using a session token. Closes the existing connection if existent. 
+   */
+  public getWithToken(connection: Connection, token: string): Connection {
+    this.closeConnection(connection);
+    return this.getOrCreate(connection, null, token);
+  }
+
+  /**
+   * Closes the default connection
+   */
   public closeDefault() {
-    this.close(DEFAULT_URL);
+    this.closeConnection(DEFAULT_CONNECTION);
   }
 
+  public closeConnection(connection: Connection) {
+    this.close(DEFAULT_CONNECTION.url);
+  }
+
+  /**
+   * Closes the connection to the given url.
+   * 
+   * Replaces an ActiveConnection with a Connection in this.connections
+   */
   public close(url: string) {
-    if (url in this.containers) {
+    if (url in this.connections) {
       console.log("Closing websocket[" + url + "]");
-      var websocket: WebSocket = this.containers[url].websocket;
-      if(websocket != null && websocket.readyState === WebSocket.OPEN) {
-        this.containers[url].websocket.close()
+      var connection: Connection = this.connections[url];
+      if (connection instanceof ActiveConnection) {
+        var websocket = connection.websocket;
+        if (websocket != null && websocket.readyState === WebSocket.OPEN) {
+          websocket.close()
+        }
+        this.connections[url] = {
+          name: connection.name,
+          url: connection.url
+        }
+        this.connectionsChanged.next(null);
       }
-      delete this.containers[url];
-      this.containersChanged.next(null);
     }
   }
-  
-  private create(name: string, url: string, password: string, token: string): WebsocketContainer {
-    var ws = new WebSocket(url);
-    
+
+  /**
+   * Gets an ActiveConnection if one is existing. Otherwise tries to connect to a connection,
+   * using given password or token and adds it to this.connections. Otherwise returns a closed 
+   * Connection object 
+   */
+  private getOrCreate(connection: Connection, password: string, token: string): Connection {
+    // return an existing ActiveConnection
+    if (connection.url in this.connections) {
+      var conn: Connection = this.connections[connection.url];
+      if (conn instanceof ActiveConnection) {
+        return conn;
+      }
+    }
+
+    // try to get token from local storage if none was provided
+    if(token == null) {
+      token = this.localstorage.getToken();
+    }
+
+    // return non-active Connection if no password or token was given
+    if (password == null && token == null) {
+      return connection;
+    }
+
+    // create a new connection
+    var ws = new WebSocket(connection.url);
+
+    // define observable
     let observable = Observable.create((obs: Observer<MessageEvent>) => {
       ws.onmessage = obs.next.bind(obs);
       ws.onerror = obs.error.bind(obs);
@@ -89,6 +127,7 @@ export class WebSocketService {
       return ws.close.bind(ws);
     }).share();
 
+    // define observer
     let observer = {
       next: (data: Object) => {
         if (ws.readyState === WebSocket.OPEN) {
@@ -97,8 +136,8 @@ export class WebSocketService {
       },
     };
 
+    // Authenticate when websocket is opened
     ws.onopen = () => {
-      // Authenticate
       if (password) {
         observer.next({
           authenticate: { password: password }
@@ -110,7 +149,9 @@ export class WebSocketService {
       }
     };
 
+    // create subject
     var subject: BehaviorSubject<any> = BehaviorSubject.create(observer, observable);
+
     subject.subscribe((message: any) => {
       if ("data" in message) {
         let data = JSON.parse(message.data);
@@ -118,25 +159,35 @@ export class WebSocketService {
         // Receive authentication token
         if ("authenticate" in data) {
           if ("token" in data.authenticate) {
+            this.localstorage.setToken(data.authenticate.token);
             if ("username" in data.authenticate) {
-              this.containers[url].username = data.authenticate.username
-              this.containersChanged.next(null);
+              var conn: Connection = this.connections[connection.url];
+              if (conn instanceof ActiveConnection) {
+                conn.username = data.authenticate.username
+                this.connectionsChanged.next(null);
+              }
             }
           } else {
             // close websocket
+            this.localstorage.removeToken();
             console.log("Authentication failed. Close websocket.");
             ws.close();
           }
         }
       }
     });
+    
+    // create ActiveConnection, save it and announce listeners
+    var activeConn = new ActiveConnection(
+      connection.name,
+      connection.url,
+      ws,
+      subject,
+      null
+    );
+    this.connections[activeConn.url] = activeConn;
+    this.connectionsChanged.next(null);
 
-    return {
-      websocket: ws,
-      subject: subject,
-      username: null,
-      url: url,
-      name: name
-    };
+    return activeConn;
   }
 }

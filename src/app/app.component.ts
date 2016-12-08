@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { WebSocketService, WebsocketContainer } from './service/websocket.service';
+import { WebSocketService } from './service/websocket.service';
+import { Connection, ActiveConnection } from './service/connection';
 
 @Component({
   selector: 'app-root',
@@ -20,12 +21,14 @@ export class AppComponent implements OnInit {
       { label: 'Historie', routerLink: '/monitor/history' }
     ];
 
-    this.websocket.containersChanged.subscribe(() => {
+    this.websocket.connectionsChanged.subscribe(() => {
       this.connections = "";
-      for (var url in this.websocket.containers) {
-        var container: WebsocketContainer = this.websocket.containers[url];
-        if (container.username != null) { 
-          this.connections += (this.connections != "" ? ", " : "") + container.username + "@" + container.name;
+      for (var url in this.websocket.connections) {
+        var connection: Connection = this.websocket.connections[url];
+        if(connection instanceof ActiveConnection) {
+          if (connection.username != null) { 
+            this.connections += (this.connections != "" ? ", " : "") + connection.username + "@" + connection.name;
+          }
         }
       }
     }, error => {

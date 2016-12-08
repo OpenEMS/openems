@@ -2,10 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { ISubscription } from 'rxjs/Subscription';
-import { DataService } from '../../../service/data.service';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { WebSocketService, WebsocketContainer } from '../../../service/websocket.service';
+import { WebSocketService } from '../../../service/websocket.service';
+import { Connection, ActiveConnection } from '../../../service/connection';
 
 const SUBSCRIBE: string = "fenecon_monitor_v1";
 
@@ -20,30 +20,32 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
   private subscription: ISubscription;
 
   constructor(
-    private dataService: DataService,
     private router: Router,
     private websocket: WebSocketService) {
   }
 
   ngOnInit() {
-    // make sure to subscribe to openems natures on init; on first init it happens twice
+    // make sure to subscribe to openems natures on init; 
+    // TODO: on first init it happens twice
     this.subscribeNatures();
 
-    var container: WebsocketContainer = this.dataService.getWebsocketContainer();
+    var connection: Connection = this.websocket.getDefault();
 
     // check connection after a while
     setTimeout(() => {
-      if (container == null || container.websocket.readyState !== WebSocket.OPEN) {
+      if(connection instanceof ActiveConnection && connection.websocket.readyState !== WebSocket.OPEN) {
         this.data = null;
         this.error = "Verbindung unmöglich";
         setTimeout(() => {
-          if(!container) this.router.navigate(['login']);
+          if(!(connection instanceof ActiveConnection)) {
+            this.router.navigate(['login']);
+          }
         }, 1000);
       }
     }, 2000);
 
-    if (container && container.subject) {
-      container.subject.subscribe((message: any) => {
+    if(connection instanceof ActiveConnection) { 
+      connection.subject.subscribe((message: any) => {
         this.subscribeNatures();
 
         if ("data" in message) {
@@ -151,9 +153,9 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
    */
   private subscribeNatures() {
     if (this.natures == null) {
-      var container: WebsocketContainer = this.dataService.getWebsocketContainer();
-      if (container && container.subject) {
-        container.subject.next({
+      var connection: Connection = this.websocket.getDefault();
+      if(connection instanceof ActiveConnection) {
+        connection.send({
           subscribe: SUBSCRIBE
         });
       }
@@ -164,9 +166,9 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
    * send "unsubscribe" message to server
    */
   private unsubscribeNatures() {
-    var container: WebsocketContainer = this.dataService.getWebsocketContainer();
-    if (container && container.subject) {
-      container.subject.next({
+    var connection: Connection = this.websocket.getDefault();
+    if (connection instanceof ActiveConnection) {
+      connection.send({
         subscribe: ""
       });
     }

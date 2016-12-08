@@ -30,7 +30,6 @@ import { CommonEssFeneconCommercialComponent } from './common/thing/ess/feneconc
  * Services
  */
 import { WebSocketService } from './service/websocket.service';
-import { DataService } from './service/data.service';
 import { LocalstorageService } from './service/localstorage.service';
 
 /*
@@ -70,7 +69,6 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
   ],
   providers: [
     appRoutingProviders,
-    DataService,
     WebSocketService,
     LocalstorageService
     /*OdooRPCService*/
