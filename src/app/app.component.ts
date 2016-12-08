@@ -17,20 +17,16 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.menuitems = [
       { label: 'Aktuelle Daten', routerLink: '/monitor/current' },
-      { label: 'Historie', routerLink: '/monitor/history' },
-      { label: 'Login', routerLink: '/login' }
+      { label: 'Historie', routerLink: '/monitor/history' }
     ];
 
     this.websocket.containersChanged.subscribe(() => {
       this.connections = "";
       for (var url in this.websocket.containers) {
         var container: WebsocketContainer = this.websocket.containers[url];
-        if (container.username != null) {
-          this.connections += container.username + "@" + container.name + " ";
+        if (container.username != null) { 
+          this.connections += (this.connections != "" ? ", " : "") + container.username + "@" + container.name;
         }
-      }
-      if(this.connections == "") {
-        this.connections = "Keine Verbindung";
       }
     }, error => {
       this.connections = ""

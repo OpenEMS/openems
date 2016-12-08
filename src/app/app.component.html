@@ -16,7 +16,7 @@
         <li *ngFor="let item of menuitems" routerLinkActive="active"><a routerLink="{{item.routerLink}}">{{item.label}}</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a routerLink="/login">{{connections}}</a></li>
+        <li><a routerLinkActive="active" routerLink="/login"><span *ngIf="!connections">Anmelden</span><span *ngIf="connections">Abmelden [{{connections}}]</span></a></li>
       </ul>
     </div>
   </div>
