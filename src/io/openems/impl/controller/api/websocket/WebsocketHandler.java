@@ -26,7 +26,7 @@ import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.exception.NotImplementedException;
-import io.openems.api.security.User;
+import io.openems.api.security.Session;
 import io.openems.api.thing.Thing;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
@@ -41,9 +41,9 @@ public class WebsocketHandler {
 	private final WebSocket conn;
 
 	/**
-	 * Holds the authenticated user
+	 * Holds the authenticated session
 	 */
-	private User user = null;
+	private Session session = null;
 
 	/**
 	 * Holds thingId and channelId, subscribed by this websocket
@@ -73,12 +73,23 @@ public class WebsocketHandler {
 		};
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setSession(Session session) {
+		this.session = session;
 	}
 
-	public User getUser() {
-		return user;
+	public Session getSession() {
+		return session;
+	}
+
+	public WebSocket getWebSocket() {
+		return conn;
+	}
+
+	public boolean isValid() {
+		if (this.session != null && this.session.isValid()) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -106,15 +117,27 @@ public class WebsocketHandler {
 	}
 
 	public void addSubscribedChannels(String tag) {
-		if (tag.equals("fenecon_monitor_v1")) {
+		if (tag.equals("")) {
+			unsubscribe();
+		} else if (tag.equals("fenecon_monitor_v1")) {
 			subscribeFeneconMonitorV1();
 		} else {
 			log.warn("User[" + getUserName() + "]: subscribe-tag [" + tag + "] is not implemented.");
+			unsubscribe();
 		}
 	}
 
 	private void subscribe(Thing thing, String... channelIds) {
 		subscribedChannels.putAll(thing.id(), Arrays.asList(channelIds));
+	}
+
+	private void unsubscribe() {
+		// unsubscribe regular task
+		if (future != null) {
+			future.cancel(true);
+		}
+		// clear subscriptions
+		subscribedChannels.clear();
 	}
 
 	private void subscribeFeneconMonitorV1() {
@@ -218,10 +241,9 @@ public class WebsocketHandler {
 	 * @return
 	 */
 	public String getUserName() {
-		if (user == null) {
-			return "NOT_CONNECTED";
-		} else {
-			return user.getName();
+		if (session != null && session.getUser() != null) {
+			return session.getUser().getName();
 		}
+		return "NOT_CONNECTED";
 	}
 }

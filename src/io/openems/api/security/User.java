@@ -17,10 +17,13 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.exception.OpenemsException;
 import io.openems.core.Config;
+import io.openems.core.utilities.SecureRandomSingleton;
 
 public enum User {
 	/*
 	 * "GUEST" generally has readonly access
+	 *
+	 * default: guest/guest
 	 */
 	GUEST( //
 			new byte[] { 33, -62, 51, 37, 35, -81, 52, -51, 79, -67, 15, 47, -25, 42, 69, -68, -6, 19, 103, 33, -16,
@@ -30,6 +33,8 @@ public enum User {
 
 	/*
 	 * "OWNER" is the owner of the system.
+	 *
+	 * default: owner/owner
 	 */
 	OWNER( //
 			new byte[] { 120, -104, 11, 5, -15, -45, -103, -24, 111, -31, 45, 112, -122, -57, -29, 120, 77, -22, -36, 2,
@@ -40,7 +45,7 @@ public enum User {
 	/*
 	 * "INSTALLER" is a qualified electrician with extended configuration access
 	 *
-	 * default: "installer"/"installer"
+	 * default: installer/installer
 	 */
 	INSTALLER( //
 			new byte[] { -40, -19, 93, 50, 91, 5, 119, 6, -97, -53, -97, 30, -122, -76, -2, 95, -19, 2, 17, 102, -128,
@@ -51,7 +56,7 @@ public enum User {
 	/*
 	 * "ADMIN" is allowed to do anything
 	 *
-	 * default: "admin"/"admin"
+	 * default: admin/admin
 	 */
 	ADMIN( //
 			new byte[] { -73, 16, 18, -107, 69, 80, -112, 66, 61, 7, 22, -65, 33, -109, -119, 123, -55, 119, -7, 30, 37,
@@ -92,7 +97,7 @@ public enum User {
 	}
 
 	private static byte[] getRandomSalt(int length) {
-		SecureRandom sr = new SecureRandom();
+		SecureRandom sr = SecureRandomSingleton.getInstance();
 		byte[] salt = new byte[length];
 		sr.nextBytes(salt);
 		return salt;

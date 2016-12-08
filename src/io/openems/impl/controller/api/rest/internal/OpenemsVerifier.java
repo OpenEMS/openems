@@ -6,7 +6,8 @@ import org.restlet.security.Verifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.api.security.User;
+import io.openems.api.security.Authentication;
+import io.openems.api.security.Session;
 
 public class OpenemsVerifier implements Verifier {
 
@@ -19,15 +20,15 @@ public class OpenemsVerifier implements Verifier {
 		} else {
 			String username = getIdentifier(request, response);
 			String password = new String(getSecret(request, response));
-			User user = User.authenticate(username, password);
+			Session session = Authentication.getInstance().byUserPassword(username, password);
 
-			if (user == null) {
-				log.warn("Authentication failed: wrong password.");
+			if (session == null || !session.isValid()) {
+				log.warn("Authentication failed.");
 				return RESULT_INVALID;
 			} else {
 				// log.info("Authentication successful: logged in as " + user.getName());
-				request.getClientInfo().setUser(new org.restlet.security.User(user.getName()));
-				request.getChallengeResponse().setIdentifier(user.getName());
+				request.getClientInfo().setUser(new org.restlet.security.User(session.getUser().getName()));
+				request.getChallengeResponse().setIdentifier(session.getUser().getName());
 				return RESULT_VALID;
 			}
 		}

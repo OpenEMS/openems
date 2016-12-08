@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.openems.api.exception.ReflectionException;
-import io.openems.api.security.User;
+import io.openems.api.security.Authentication;
 import io.openems.core.utilities.JsonUtils;
 
 public class WebsocketServer extends WebSocketServer {
@@ -41,7 +42,7 @@ public class WebsocketServer extends WebSocketServer {
 		WebsocketHandler handler = sockets.get(conn);
 
 		/*
-		 * Authenticate user
+		 * Authenticate user and send immediate reply
 		 */
 		if (j.has("authenticate")) {
 			authenticate(j.get("authenticate"), handler);
@@ -50,7 +51,7 @@ public class WebsocketServer extends WebSocketServer {
 		/*
 		 * Check authentication
 		 */
-		if (handler.getUser() == null) {
+		if (!handler.isValid()) {
 			// no user authenticated till now -> exit
 			conn.close();
 			return;
@@ -64,22 +65,52 @@ public class WebsocketServer extends WebSocketServer {
 		}
 	}
 
+	/**
+	 * Authenticates a user according to the "authenticate" message. Adds the session to this {@link WebsocketHandler}
+	 * if valid.
+	 *
+	 * @param jAuthenticateElement
+	 * @param handler
+	 */
 	private void authenticate(JsonElement jAuthenticateElement, WebsocketHandler handler) {
 		try {
 			JsonObject jAuthenticate = JsonUtils.getAsJsonObject(jAuthenticateElement);
-			String password = JsonUtils.getAsString(jAuthenticate, "password");
-			if (jAuthenticate.has("username")) {
-				String username = JsonUtils.getAsString(jAuthenticate, "username");
-				handler.setUser(User.authenticate(username, password));
-			} else {
-				handler.setUser(User.authenticate(password));
+			Authentication auth = Authentication.getInstance();
+			if (jAuthenticate.has("password")) {
+				/*
+				 * Authenticate using username and password
+				 */
+				String password = JsonUtils.getAsString(jAuthenticate, "password");
+				if (jAuthenticate.has("username")) {
+					String username = JsonUtils.getAsString(jAuthenticate, "username");
+					handler.setSession(auth.byUserPassword(username, password));
+				} else {
+					handler.setSession(auth.byPassword(password));
+				}
+			} else if (jAuthenticate.has("token")) {
+				/*
+				 * Authenticate using session token
+				 */
+				String token = JsonUtils.getAsString(jAuthenticate, "token");
+				handler.setSession(auth.bySession(token));
 			}
 		} catch (ReflectionException e) { /* ignore */ }
-		if (handler.getUser() != null) {
-			log.info("User[" + handler.getUserName() + "]: authenticated.");
+		/*
+		 * Send reply
+		 */
+		JsonObject jReply = new JsonObject();
+		JsonObject jAuthenticate = new JsonObject();
+		if (handler.isValid()) {
+			// on success: send immediate reply with token to client
+			jAuthenticate.addProperty("token", handler.getSession().getToken());
+			jAuthenticate.addProperty("username", handler.getSession().getUser().getName());
 		} else {
 			log.error("Authentication failed");
+			// on failure: send immediate reply with error
+			jAuthenticate.addProperty("failed", true);
 		}
+		jReply.add("authenticate", jAuthenticate);
+		WebsocketServer.send(handler.getWebSocket(), jReply);
 	}
 
 	private void subscribe(JsonElement j, WebsocketHandler handler) {
@@ -109,6 +140,21 @@ public class WebsocketServer extends WebSocketServer {
 			return "NOT_CONNECTED";
 		} else {
 			return handler.getUserName();
+		}
+	}
+
+	/**
+	 * Send a message to a websocket
+	 *
+	 * @param j
+	 * @return true if successful, otherwise false
+	 */
+	private static boolean send(WebSocket conn, JsonObject j) {
+		try {
+			conn.send(j.toString());
+			return true;
+		} catch (WebsocketNotConnectedException e) {
+			return false;
 		}
 	}
 }
