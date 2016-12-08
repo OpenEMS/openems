@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { routing, appRoutingProviders }  from './app.routing';
 import { AppComponent } from './app.component';
@@ -10,7 +10,7 @@ import { AppComponent } from './app.component';
  */
 import { MonitorGrafanaComponent } from './monitor/grafana/grafana.component';
 import { MonitorUniversalCurrentComponent } from './monitor/universal/current/universal-current.component';
-import { OpenemsSettingComponent } from './setting/openems-setting/openems-setting.component';
+import { LoginComponent } from './login/login.component';
 
 /*
  * Common components
@@ -29,8 +29,9 @@ import { CommonEssFeneconCommercialComponent } from './common/thing/ess/feneconc
 /*
  * Services
  */
-import { WebSocketService } from './data/websocket.service';
-import { DataService } from './data/data.service';
+import { WebSocketService } from './service/websocket.service';
+import { DataService } from './service/data.service';
+import { LocalstorageService } from './service/localstorage.service';
 
 /*
  * Pipe
@@ -43,9 +44,9 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
 @NgModule({
   declarations: [
     AppComponent,
-    OpenemsSettingComponent,
     MonitorGrafanaComponent,
     MonitorUniversalCurrentComponent,
+    LoginComponent,
     // common
     CommonSocComponent,
     //   Meter
@@ -62,6 +63,7 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpModule,
     ChartsModule,
     routing,
@@ -69,7 +71,8 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
   providers: [
     appRoutingProviders,
     DataService,
-    WebSocketService
+    WebSocketService,
+    LocalstorageService
     /*OdooRPCService*/
     /*{ provide: DataService, useClass: OdooDataService }*/
   ],
