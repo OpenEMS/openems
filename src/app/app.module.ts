@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { routing, appRoutingProviders }  from './app.routing';
 import { AppComponent } from './app.component';
+import { CollapseDirective } from 'ng2-bootstrap';
 
 /*
  * Frontend
@@ -46,6 +47,7 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     MonitorGrafanaComponent,
     MonitorUniversalCurrentComponent,
     LoginComponent,
+    CollapseDirective,
     // common
     CommonSocComponent,
     //   Meter

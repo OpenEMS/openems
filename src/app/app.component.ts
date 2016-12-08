@@ -7,8 +7,9 @@ import { ConnectionService, Connection, ActiveConnection } from './service/conne
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  private navCollapsed: boolean = true;
   private menuitems: any[];
-  public connections: string;
+  private connections: string;
 
   constructor(
     private connectionService: ConnectionService) {
