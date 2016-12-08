@@ -1,0 +1,35 @@
+<div class="container">
+  <div class="row">
+    <!--<div *ngFor="let connection of connectionService.connections | keys" class="col-xs-4 col-md-3">-->
+    <div *ngFor="let device of devices" class="col-xs-4 col-md-3">
+      <a href="FEMS-UI3.html">
+        <div class="panel panel-default">
+          <img src="image.png" class="center-block">
+          <h3 class="text-center">{{device.name}}</h3>
+          <table class="table" class="center-block">
+            <tr>
+              <td>Ladezustand</td>
+              <td>{{device.soc}} %</td>
+              <td>
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 20%;">
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Leistung:</td>
+              <td>3,2 kW</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Modus</td>
+              <td>P/Q</td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

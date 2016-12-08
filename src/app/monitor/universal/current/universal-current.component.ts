@@ -6,14 +6,11 @@ import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ConnectionService, Connection, ActiveConnection } from '../../../service/connection.service';
 
-const SUBSCRIBE: string = "fenecon_monitor_v1";
-
 @Component({
   selector: 'app-monitor-test-current',
   templateUrl: './universal-current.component.html'
 })
 export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
-  private natures: Object;
   private data: Object;
   private error: string;
   private subscription: ISubscription;
@@ -24,29 +21,12 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // make sure to subscribe to openems natures on init; 
-    // TODO: on first init it happens twice
-    this.subscribeNatures();
-
     var connection: Connection = this.connectionService.getDefault();
+    if (!(connection instanceof ActiveConnection)) {
+      this.router.navigate(['login']);
 
-    // check connection after a while
-    setTimeout(() => {
-      if(connection instanceof ActiveConnection && connection.websocket.readyState !== WebSocket.OPEN) {
-        this.data = null;
-        this.error = "Verbindung unmöglich";
-        setTimeout(() => {
-          if(!(connection instanceof ActiveConnection)) {
-            this.router.navigate(['login']);
-          }
-        }, 1000);
-      }
-    }, 2000);
-
-    if(connection instanceof ActiveConnection) { 
+    } else {
       connection.subject.subscribe((message: any) => {
-        this.subscribeNatures();
-
         if ("data" in message) {
           var msg: any = JSON.parse(message.data);
 
@@ -58,11 +38,6 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
             return;
           }
 
-          // Natures
-          if ("natures" in msg) {
-            this.natures = msg.natures;
-          }
-
           // Data
           if ("data" in msg) {
             this.data = msg.data;
@@ -70,57 +45,59 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
 
             // filter general system type
             var ess = null;
-            for (let thing in this.natures) {
-              if (thing in this.data) {
-                let n: string[] = this.natures[thing];
-                if (this.contains(n, "FeneconProEss")) {
-                  ess = "FeneconPro";
-                } else if (this.contains(n, "FeneconCommercialAC") || this.contains(n, "FeneconCommercialDC")) {
-                  ess = "FeneconCommercial";
+            if (connection instanceof ActiveConnection) {
+              for (let thing in connection.natures) {
+                if (thing in this.data) {
+                  let n: string[] = connection.natures[thing];
+                  if (this.contains(n, "FeneconProEss")) {
+                    ess = "FeneconPro";
+                  } else if (this.contains(n, "FeneconCommercialAC") || this.contains(n, "FeneconCommercialDC")) {
+                    ess = "FeneconCommercial";
+                  }
                 }
               }
-            }
 
-            // fill primary nature type
-            for (let thing in this.natures) {
-              if (thing in this.data) {
-                let n: string[] = this.natures[thing];
-                let tag: string;
-                let title: string = null;
-                // Meter
-                if (ess == "FeneconPro" && this.contains(n, "AsymmetricMeterNature")) {
-                  tag = "AsymmetricMeter";
-                  if (thing == "meter0") {
-                    title = "Netzzähler";
-                  } else if (thing == "meter1") {
-                    title = "PV-Zähler";
+              // fill primary nature type
+              for (let thing in connection.natures) {
+                if (thing in this.data) {
+                  let n: string[] = connection.natures[thing];
+                  let tag: string;
+                  let title: string = null;
+                  // Meter
+                  if (ess == "FeneconPro" && this.contains(n, "AsymmetricMeterNature")) {
+                    tag = "AsymmetricMeter";
+                    if (thing == "meter0") {
+                      title = "Netzzähler";
+                    } else if (thing == "meter1") {
+                      title = "PV-Zähler";
+                    }
+
+                  } else if (ess == "FeneconCommercial" && this.contains(n, "SymmetricMeterNature")) {
+                    tag = "SymmetricMeter";
+
+                  } else if (this.contains(n, "SimulatorMeter")) {
+                    tag = "SimulatorMeter";
+                    title = "Simulierter Zähler";
+
+                  } else if (this.contains(n, "SymmetricMeterNature")) {
+                    tag = "SymmetricMeter";
+
+                    // Ess
+                  } else if (this.contains(n, "FeneconProEss")) {
+                    tag = "FeneconProEss";
+                  } else if (this.contains(n, "FeneconCommercialEss")) {
+                    tag = "FeneconCommercialEss";
+                  } else if (this.contains(n, "SimulatorEss")) {
+                    tag = "SimulatorEss";
+                    title = "Simuliertes Speichersystem";
+
+                  } else {
+                    console.log("Not implemented: " + JSON.stringify(n));
                   }
-
-                } else if (ess == "FeneconCommercial" && this.contains(n, "SymmetricMeterNature")) {
-                  tag = "SymmetricMeter";
-
-                } else if (this.contains(n, "SimulatorMeter")) {
-                  tag = "SimulatorMeter";
-                  title = "Simulierter Zähler";
-
-                } else if (this.contains(n, "SymmetricMeterNature")) {
-                  tag = "SymmetricMeter";
-
-                  // Ess
-                } else if (this.contains(n, "FeneconProEss")) {
-                  tag = "FeneconProEss";
-                } else if (this.contains(n, "FeneconCommercialEss")) {
-                  tag = "FeneconCommercialEss";
-                } else if (this.contains(n, "SimulatorEss")) {
-                  tag = "SimulatorEss";
-                  title = "Simuliertes Speichersystem";
-
-                } else {
-                  console.log("Not implemented: " + JSON.stringify(n));
+                  this.data[thing]["_thing"] = thing;
+                  this.data[thing]["_title"] = title;
+                  this.data[thing]["_tag"] = tag;
                 }
-                this.data[thing]["_thing"] = thing;
-                this.data[thing]["_title"] = title;
-                this.data[thing]["_tag"] = tag;
               }
             }
           }
@@ -133,43 +110,13 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
         this.data = null;
         setTimeout(() => this.router.navigate(['login']), 1000);
       });
-    } else {
-      this.data = null;
-      this.error = "Verbindung ist getrennt.";
-      setTimeout(() => this.router.navigate(['login']), 1000);
     }
   }
 
   ngOnDestroy() {
-    this.unsubscribeNatures();
+    //TODO this.unsubscribeNatures();
     if (this.subscription) {
       this.subscription.unsubscribe();
-    }
-  }
-
-  /**
-   * Send "subscribe" message to server 
-   */
-  private subscribeNatures() {
-    if (this.natures == null) {
-      var connection: Connection = this.connectionService.getDefault();
-      if(connection instanceof ActiveConnection) {
-        connection.send({
-          subscribe: SUBSCRIBE
-        });
-      }
-    }
-  }
-
-  /**
-   * send "unsubscribe" message to server
-   */
-  private unsubscribeNatures() {
-    var connection: Connection = this.connectionService.getDefault();
-    if (connection instanceof ActiveConnection) {
-      connection.send({
-        subscribe: ""
-      });
     }
   }
 

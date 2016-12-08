@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ConnectionService, Connection, ActiveConnection } from './service/connection.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -12,14 +13,33 @@ export class AppComponent implements OnInit {
   private connections: string;
 
   constructor(
-    private connectionService: ConnectionService) {
-  }
+    private connectionService: ConnectionService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.menuitems = [
+      { label: 'Übersicht', routerLink: '/monitor' },
       { label: 'Aktuelle Daten', routerLink: '/monitor/current' },
       { label: 'Historie', routerLink: '/monitor/history' }
     ];
+
+    var connection: Connection = this.connectionService.getDefault();
+    if(!(connection instanceof ActiveConnection)) {
+      this.router.navigate(['login']);
+    } 
+
+    // check connection after a while
+    setTimeout(() => {
+      if(connection instanceof ActiveConnection && connection.websocket.readyState !== WebSocket.OPEN) {
+        //this.error = "Verbindung unmöglich";
+        setTimeout(() => {
+          if(!(connection instanceof ActiveConnection)) {
+            this.router.navigate(['login']);
+          }
+        }, 1000);
+      }
+    }, 2000);
 
     this.connectionService.connectionsChanged.subscribe(() => {
       this.connections = "";

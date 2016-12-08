@@ -11,6 +11,7 @@ import { CollapseDirective } from 'ng2-bootstrap';
  */
 import { MonitorGrafanaComponent } from './monitor/grafana/grafana.component';
 import { MonitorUniversalCurrentComponent } from './monitor/universal/current/universal-current.component';
+import { MonitorOverviewComponent } from './monitor/overview/overview.component';
 import { LoginComponent } from './login/login.component';
 
 /*
@@ -46,6 +47,7 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     AppComponent,
     MonitorGrafanaComponent,
     MonitorUniversalCurrentComponent,
+    MonitorOverviewComponent,
     LoginComponent,
     CollapseDirective,
     // common

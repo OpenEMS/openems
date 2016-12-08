@@ -5,26 +5,66 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/share';
 import { LocalstorageService } from './localstorage.service';
 
+const SUBSCRIBE: string = "fenecon_monitor_v1";
+
 export class Connection {
   constructor(
     public name: string,
     public url: string
-  ) {}
+  ) { }
 }
 
 export class ActiveConnection extends Connection {
+  public username: string;
+  public natures: Object;
+
   constructor(
     name: string,
     url: string,
     public websocket: WebSocket,
-    public subject: BehaviorSubject<any>,
-    public username: string
+    public subject: BehaviorSubject<any>
   ) {
     super(name, url);
+
+    // make sure to subscribe to openems natures on init; 
+    // TODO: on first init it happens twice
+    this.subscribeNatures();
+
+    subject.subscribe((message: any) => {
+      this.subscribeNatures();
+      if ("data" in message) {
+        var msg: any = JSON.parse(message.data);
+        // Natures
+        if ("natures" in msg) {
+          console.log("got natures: " + this.natures);
+          this.natures = msg.natures;
+        }
+      }
+    });
   }
 
   public send(value: any): void {
     this.subject.next(value);
+  }
+
+  /**
+   * Send "subscribe" message to server 
+   */
+  private subscribeNatures() {
+    if (this.natures == null) {
+      this.send({
+        subscribe: SUBSCRIBE
+      });
+    }
+  }
+
+  /**
+   * send "unsubscribe" message to server
+   */
+  private unsubscribeNatures() {
+    this.send({
+      subscribe: ""
+    });
   }
 }
 
@@ -32,6 +72,8 @@ const DEFAULT_CONNECTION: Connection = {
   name: "fems",
   url: "ws://localhost:8085"
 }
+
+const DEFAULT_PASSWORD: string = "guest";
 //const DEFAULT = 'ws://localhost:80/websocket';
 //const DEFAULT: string = "ws://" + location.hostname + ":" + location.port + "/websocket";
 
@@ -128,7 +170,7 @@ export class ConnectionService {
     }
 
     // try to get token from local storage if none was provided
-    if(token == null) {
+    if (token == null) {
       token = this.localstorageService.getToken();
     }
 
@@ -198,14 +240,13 @@ export class ConnectionService {
         }
       }
     });
-    
+
     // create ActiveConnection, save it and announce listeners
     var activeConn = new ActiveConnection(
       connection.name,
       connection.url,
       ws,
-      subject,
-      null
+      subject
     );
     this.connections[activeConn.url] = activeConn;
     this.connectionsChanged.next(null);
