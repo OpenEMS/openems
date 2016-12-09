@@ -29,6 +29,12 @@ import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
+/**
+ *
+ * @author matthias.rossmann
+ *         This Controller send the Ess a command to go in Standby if no power is Reqired.
+ *         Do not use if Off-Grid Functionality is required.
+ */
 public class EnergysavingController extends Controller {
 
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
