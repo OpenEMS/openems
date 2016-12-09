@@ -44,7 +44,7 @@
 			},
 			{
 				"priority": 100,
-				"class": "io.openems.impl.controller.symmetricavoidtotaldischarge.SymmetricAvoidTotalDischargeController",
+				"class": "io.openems.impl.controller.symmetric.avoidtotaldischarge.AvoidTotalDischargeController",
 				"esss": "ess0"
 			},
 			{
