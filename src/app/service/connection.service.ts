@@ -4,74 +4,18 @@ import { Observer } from 'rxjs/Observer';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/share';
 import { LocalstorageService } from './localstorage.service';
+import { Connection } from './connection';
 
-const SUBSCRIBE: string = "fenecon_monitor_v1";
+export { Connection } from './connection';
 
-export class Connection {
-  constructor(
-    public name: string,
-    public url: string
-  ) { }
-}
-
-export class ActiveConnection extends Connection {
-  public username: string;
-  public natures: Object;
-
-  constructor(
-    name: string,
-    url: string,
-    public websocket: WebSocket,
-    public subject: BehaviorSubject<any>
-  ) {
-    super(name, url);
-
-    // make sure to subscribe to openems natures on init; 
-    // TODO: on first init it happens twice
-    this.subscribeNatures();
-
-    subject.subscribe((message: any) => {
-      this.subscribeNatures();
-      if ("data" in message) {
-        var msg: any = JSON.parse(message.data);
-        // Natures
-        if ("natures" in msg) {
-          console.log("got natures: " + this.natures);
-          this.natures = msg.natures;
-        }
-      }
-    });
+const DEFAULT_CONNECTIONS = [{
+    name: "Trafostation 1",
+    url: "ws://localhost:8085"
+  }, { 
+    name: "Trafostation 2",
+    url: "ws://localhost:8095"
   }
-
-  public send(value: any): void {
-    this.subject.next(value);
-  }
-
-  /**
-   * Send "subscribe" message to server 
-   */
-  private subscribeNatures() {
-    if (this.natures == null) {
-      this.send({
-        subscribe: SUBSCRIBE
-      });
-    }
-  }
-
-  /**
-   * send "unsubscribe" message to server
-   */
-  private unsubscribeNatures() {
-    this.send({
-      subscribe: ""
-    });
-  }
-}
-
-const DEFAULT_CONNECTION: Connection = {
-  name: "fems",
-  url: "ws://localhost:8085"
-}
+];
 
 const DEFAULT_PASSWORD: string = "guest";
 //const DEFAULT = 'ws://localhost:80/websocket';
@@ -85,51 +29,31 @@ export class ConnectionService {
   constructor(
     private localstorageService: LocalstorageService
   ) {
-    this.connections[DEFAULT_CONNECTION.url] = DEFAULT_CONNECTION;
+    for(var connection of DEFAULT_CONNECTIONS) {
+      this.connections[connection.url] = new Connection(connection.name, connection.url, localstorageService);
+    }
     this.connectionsChanged.next(null);
   }
 
-  public getDefault(): Connection {
-    return this.get(DEFAULT_CONNECTION);
-  }
-
-  public get(connection: Connection): Connection {
+  /*public get(connection: Connection): Connection {
     return this.getOrCreate(connection, null, null);
-  }
+  }*/
 
-  public getDefaultWithLogin(password: string): Connection {
-    return this.getWithLogin(DEFAULT_CONNECTION, password);
-  }
-
-  public getWithLogin(connection: Connection, password: string): Connection {
+  /*public getWithLogin(connection: Connection, password: string): Connection {
     this.closeConnection(connection);
     return this.getOrCreate(connection, password, null);
-  }
-
-  /**
-   * Gets default connection using session token
-   */
-  public getDefaultWithToken(token: string): Connection {
-    return this.getWithToken(DEFAULT_CONNECTION, token);
-  }
+  }*/
 
   /**
    * Tries to open a connection using a session token. Closes the existing connection if existent. 
    */
-  public getWithToken(connection: Connection, token: string): Connection {
+  /*public getWithToken(connection: Connection, token: string): Connection {
     this.closeConnection(connection);
     return this.getOrCreate(connection, null, token);
-  }
-
-  /**
-   * Closes the default connection
-   */
-  public closeDefault() {
-    this.closeConnection(DEFAULT_CONNECTION);
-  }
+  }*/
 
   public closeConnection(connection: Connection) {
-    this.close(DEFAULT_CONNECTION.url);
+    this.close(connection.url);
   }
 
   /**
@@ -141,26 +65,17 @@ export class ConnectionService {
     if (url in this.connections) {
       console.log("Closing websocket[" + url + "]");
       var connection: Connection = this.connections[url];
-      if (connection instanceof ActiveConnection) {
-        var websocket = connection.websocket;
-        if (websocket != null && websocket.readyState === WebSocket.OPEN) {
-          websocket.close()
-        }
-        this.connections[url] = {
-          name: connection.name,
-          url: connection.url
-        }
-        this.connectionsChanged.next(null);
-      }
+      connection.close();
+      this.connectionsChanged.next(null);
     }
   }
 
   /**
-   * Gets an ActiveConnection if one is existing. Otherwise tries to connect to a connection,
+   * Gets a Connection if one is existing. Otherwise tries to connect to a connection,
    * using given password or token and adds it to this.connections. Otherwise returns a closed 
    * Connection object 
    */
-  private getOrCreate(connection: Connection, password: string, token: string): Connection {
+/*  private getOrCreate(connection: Connection, password: string, token: string): Connection {
     // return an existing ActiveConnection
     if (connection.url in this.connections) {
       var conn: Connection = this.connections[connection.url];
@@ -252,5 +167,5 @@ export class ConnectionService {
     this.connectionsChanged.next(null);
 
     return activeConn;
-  }
+  }*/
 }

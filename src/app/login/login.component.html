@@ -1,15 +1,22 @@
 <div class="container">
   <div class="row">
-    <div class="col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
-      <form [formGroup]="loginForm" (ngSubmit)="doLogin()">
-        <div class="form-group">
-          <div class="input-group">
-            <span class="input-group-addon"><i class="glyphicon glyphicon-lock" style="width: auto"></i></span>
-            <input formControlName="password" class="form-control" type="password" placeholder="Passwort" required=""/>
-          </div>
+    <div class="col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2" *ngFor="let connection of connectionService.connections | keys">
+      <div class="panel" [ngClass]="{'panel-success': connection.value.isConnected, 'panel-default': !connection.value.isConnected}">
+        <div class="panel-heading">
+          <h3 class="panel-title"><span class="glyphicon" [ngClass]="{'glyphicon-ok': connection.value.isConnected, 'glyphicon-remove': !connection.value.isConnected}"
+              aria-hidden="true"></span> {{connection.value.name}}</h3>
         </div>
-        <button class="btn btn-default" type="submit" style="width: 100%">Anmelden <i class="glyphicon glyphicon-log-in"></i></button>
-      </form>
+        <div class="panel-body">
+          <form class="form-inline" (ngSubmit)="doLogin(connection.value)">
+            <div class="form-group" *ngIf="!connection.value.isConnected" >
+              <input type="text" class="form-control" id="password" type="password" placeholder="Passwort" required="" name="password" [(ngModel)]="connection.value.password">
+            </div>
+            <button  *ngIf="connection.value.isConnected" class="btn btn-default" (click)="doLogout(connection.value)">Abmelden</button>
+            <button *ngIf="!connection.value.isConnected" class="btn btn-default" (click)="doLogin(connection.value)">Anmelden</button>
+            <span> {{connection.value.event | async}}</span>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 </div>

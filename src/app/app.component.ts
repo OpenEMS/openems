@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ConnectionService, Connection, ActiveConnection } from './service/connection.service';
+import { ConnectionService, Connection } from './service/connection.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -24,7 +24,7 @@ export class AppComponent implements OnInit {
       { label: 'Historie', routerLink: '/monitor/history' }
     ];
 
-    var connection: Connection = this.connectionService.getDefault();
+    /*var connection: Connection = this.connectionService.getDefault();
     if(!(connection instanceof ActiveConnection)) {
       this.router.navigate(['login']);
     } 
@@ -55,6 +55,6 @@ export class AppComponent implements OnInit {
       this.connections = ""
     }, () => {
       this.connections = ""
-    });
+    });*/
   }
 }
