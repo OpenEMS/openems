@@ -36,7 +36,7 @@ export class Connection {
   private connect(password: string, token: string) {
     // return non-active Connection if no password or token was given
     if (password == null && token == null) {
-      this.close();
+      this.initialize();
       return;
     }
 
@@ -108,7 +108,7 @@ export class Connection {
           } else {
             // close websocket
             this.localstorageService.removeToken(this.name);
-            this.close();
+            this.initialize();
             clearTimeout(timeout);
             error = "Keine Verbindung: Authentifizierung fehlgeschlagen.";
             this.event.next(error);
@@ -122,14 +122,14 @@ export class Connection {
         }
       }
     }, (error: any) => {
-      this.close();
+      this.initialize();
       clearTimeout(timeout);
       if (error == null) {
         error = "Verbindungsfehler."
         this.event.next(error);
       }
     }, (/* complete */) => {
-      this.close();
+      this.initialize();
       clearTimeout(timeout);
       if (error == null) {
         error = "Verbindung beendet."
@@ -146,6 +146,11 @@ export class Connection {
    * Closes the connection.
    */
   public close() {
+    this.localstorageService.removeToken(this.name);
+    this.initialize();
+  }
+  
+  private initialize() {
     if (this.websocket != null && this.websocket.readyState === WebSocket.OPEN) {
       this.websocket.close();
     }
@@ -154,7 +159,6 @@ export class Connection {
     this.username = null;
     this.natures = null;
   }
-
 
   /**
    * Send "subscribe" message to server 
