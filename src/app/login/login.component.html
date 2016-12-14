@@ -7,7 +7,7 @@
               aria-hidden="true"></span> {{connection.value.name}}</h3>
         </div>
         <div class="panel-body">
-          <form class="form-inline" (ngSubmit)="doLogin(connection.value)">
+          <form class="form-inline">
             <div class="form-group" *ngIf="!connection.value.isConnected" >
               <input type="text" class="form-control" id="password" type="password" placeholder="Passwort" required="" name="password" [(ngModel)]="connection.value.password">
             </div>

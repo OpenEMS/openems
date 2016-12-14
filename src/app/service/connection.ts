@@ -17,23 +17,7 @@ export class Connection {
     public name: string,
     public url: string,
     private localstorageService: LocalstorageService
-  ) {
-    // make sure to subscribe to openems natures on init; 
-    // TODO: on first init it happens twice
-    //this.subscribeNatures();
-
-    /*    this.subject.subscribe((message: any) => {
-          this.subscribeNatures();
-          if ("data" in message) {
-            var msg: any = JSON.parse(message.data);
-            // Natures
-            if ("natures" in msg) {
-              console.log("got natures: " + this.natures);
-              this.natures = msg.natures;
-            }
-          }
-        });*/
-  }
+  ) {}
 
   public connectWithPassword(password: string) {
     this.connect(password, null);
@@ -110,7 +94,8 @@ export class Connection {
               this.websocket = ws;
               this.subject = sj;
               this.isConnected = true;
-              error = null; 
+              error = null;
+              this.subscribeNatures();
               this.event.next("Angemeldet als " + this.username + ".");
             }
           } else {
@@ -122,17 +107,26 @@ export class Connection {
             this.event.next(error);
           }
         }
+
+        // Receive natures
+        if ("natures" in data) {
+          this.natures = data.natures;
+          console.log("Got natures: " + JSON.stringify(this.natures));
+        }
       }
     }, (error: any) => {
       this.close();
       clearTimeout(timeout);
-      error = "Verbindungsfehler."
-      this.event.next(error);
+      if (error == null) {
+        error = "Verbindungsfehler."
+        this.event.next(error);
+      }
     }, (/* complete */) => {
       this.close();
       clearTimeout(timeout);
-      if(error == null) {
-        this.event.next("Verbindung beendet.");
+      if (error == null) {
+        error = "Verbindung beendet."
+        this.event.next(error);
       }
     });
   }
@@ -151,6 +145,7 @@ export class Connection {
     this.websocket = null;
     this.isConnected = false;
     this.username = null;
+    this.natures = null;
   }
 
 
@@ -158,11 +153,9 @@ export class Connection {
    * Send "subscribe" message to server 
    */
   private subscribeNatures() {
-    /*if (this.natures == null) {
-      this.send({
-        subscribe: SUBSCRIBE
-      });
-    }*/
+    this.send({
+      subscribe: SUBSCRIBE
+    });
   }
 
   /**

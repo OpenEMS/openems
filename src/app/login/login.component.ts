@@ -30,7 +30,5 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
-    //this.localstorageService.removeToken();
-    //this.connectionService.closeDefault();
   }
 }
