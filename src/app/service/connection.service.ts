@@ -30,7 +30,11 @@ export class ConnectionService {
     private localstorageService: LocalstorageService
   ) {
     for(var connection of DEFAULT_CONNECTIONS) {
-      this.connections[connection.url] = new Connection(connection.name, connection.url, localstorageService);
+      // load default connections
+      var conn = new Connection(connection.name, connection.url, localstorageService);
+      this.connections[connection.url] = conn
+      // try to connect using token
+      conn.connectWithToken();
     }
     this.connectionsChanged.next(null);
   }

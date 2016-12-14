@@ -23,6 +23,13 @@ export class Connection {
     this.connect(password, null);
   }
 
+  public connectWithToken() {
+    var token = this.localstorageService.getToken(this.name);
+    if(token) {
+      this.connect(null, token);
+    }
+  }
+
   /**
    * Tries to connect using given password or token.
    */
