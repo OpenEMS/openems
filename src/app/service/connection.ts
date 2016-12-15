@@ -2,22 +2,33 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { LocalstorageService } from './localstorage.service';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
+import { Device } from './device';
+
+export { Device } from './device';
 
 const SUBSCRIBE: string = "fenecon_monitor_v1";
+
+export class InfluxdbPersistence {
+  ip: string;
+  username: string;
+  password: string;
+  fems: number;
+}
 
 export class Connection {
   public isConnected: boolean = false;
   public username: string;
-  public natures: Object;
   public websocket: WebSocket;
   public subject: BehaviorSubject<any>;
   public event: BehaviorSubject<string> = new BehaviorSubject(null);
+  public devices: { [id: string]: Device } = {};
+  public influxdb: InfluxdbPersistence;
 
   constructor(
     public name: string,
     public url: string,
     private localstorageService: LocalstorageService
-  ) {}
+  ) { }
 
   public connectWithPassword(password: string) {
     this.connect(password, null);
@@ -25,7 +36,7 @@ export class Connection {
 
   public connectWithToken() {
     var token = this.localstorageService.getToken(this.name);
-    if(token) {
+    if (token) {
       this.connect(null, token);
     }
   }
@@ -90,14 +101,14 @@ export class Connection {
 
     sj.subscribe((message: any) => {
       if ("data" in message) {
-        let data = JSON.parse(message.data);
+        let msg = JSON.parse(message.data);
 
         // Receive authentication token
-        if ("authenticate" in data) {
-          if ("token" in data.authenticate) {
-            this.localstorageService.setToken(this.name, data.authenticate.token);
-            if ("username" in data.authenticate) {
-              this.username = data.authenticate.username;
+        if ("authenticate" in msg) {
+          if ("token" in msg.authenticate) {
+            this.localstorageService.setToken(this.name, msg.authenticate.token);
+            if ("username" in msg.authenticate) {
+              this.username = msg.authenticate.username;
               this.websocket = ws;
               this.subject = sj;
               this.isConnected = true;
@@ -116,9 +127,50 @@ export class Connection {
         }
 
         // Receive natures
-        if ("natures" in data) {
-          this.natures = data.natures;
-          console.log("Got natures: " + JSON.stringify(this.natures));
+        if ("natures" in msg) {
+          this.devices = {}
+          for (let id in msg.natures) {
+            var device = new Device();
+            device.name = id;
+            device.natures = msg.natures[id];
+            this.devices[id] = device;
+          }
+        }
+
+        // Receive natures
+        if ("persistences" in msg) {
+          for (let pers in msg.persistences) {
+            var persistence = msg.persistences[pers];
+            if ("class" in persistence) {
+              var clazz = persistence.class;
+              if (clazz == "InfluxdbPersistence") {
+                var ip = persistence.ip;
+                if(ip == "127.0.0.1") {
+                  ip = location.hostname;
+                }
+                this.influxdb = new InfluxdbPersistence();
+                this.influxdb.ip = ip;
+                this.influxdb.username = persistence.username;
+                this.influxdb.password = persistence.password;
+                this.influxdb.fems = persistence.fems;
+              }
+            }
+          }
+        }
+
+        // Receive data
+        if ("data" in msg) {
+          var data = msg.data;
+          for (let id in data) {
+            var channels = data[id];
+            if (id in this.devices) {
+              for (let channelid in channels) {
+                var channel = channels[channelid];
+                this.devices[id][channelid] = channel;
+              }
+            }
+          }
+          //console.log(this.devices);
         }
       }
     }, (error: any) => {
@@ -149,7 +201,7 @@ export class Connection {
     this.localstorageService.removeToken(this.name);
     this.initialize();
   }
-  
+
   private initialize() {
     if (this.websocket != null && this.websocket.readyState === WebSocket.OPEN) {
       this.websocket.close();
@@ -157,7 +209,7 @@ export class Connection {
     this.websocket = null;
     this.isConnected = false;
     this.username = null;
-    this.natures = null;
+    this.influxdb = null;
   }
 
   /**

@@ -28,7 +28,9 @@
     "bootstrap": "3.3.7",
     "ng2-bootstrap": "1.1.16",
     "chart.js": "2.4.0",
-    "ng2-charts": "1.4.1"
+    "ng2-charts": "1.4.1",
+    "moment": "2.17.1",
+    "ng2-datepicker": "1.4.0"
   },
   "devDependencies": {
     "@angular/compiler-cli": "2.2.1",

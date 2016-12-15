@@ -5,6 +5,8 @@ import { HttpModule } from '@angular/http';
 import { routing, appRoutingProviders }  from './app.routing';
 import { AppComponent } from './app.component';
 import { CollapseDirective } from 'ng2-bootstrap';
+import { DatepickerModule } from 'ng2-bootstrap/components/datepicker';
+import * as moment from "moment";
 
 /*
  * Frontend
@@ -12,6 +14,7 @@ import { CollapseDirective } from 'ng2-bootstrap';
 import { MonitorGrafanaComponent } from './monitor/grafana/grafana.component';
 import { MonitorUniversalCurrentComponent } from './monitor/universal/current/universal-current.component';
 import { MonitorOverviewComponent } from './monitor/overview/overview.component';
+import { MonitorDetailComponent } from './monitor/detail/detail.component';
 import { LoginComponent } from './login/login.component';
 
 /*
@@ -48,6 +51,7 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     MonitorGrafanaComponent,
     MonitorUniversalCurrentComponent,
     MonitorOverviewComponent,
+    MonitorDetailComponent,
     LoginComponent,
     CollapseDirective,
     // common
@@ -69,6 +73,7 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     ReactiveFormsModule,
     HttpModule,
     ChartsModule,
+    DatepickerModule,
     routing,
   ],
   providers: [
