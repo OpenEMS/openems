@@ -155,7 +155,7 @@ public class Config implements ChannelChangeListener {
 					 * WebsocketApiController
 					 */
 					if (!JsonUtils.hasElement(jControllers, "class",
-							"io.openems.impl.controller.api.rest.WebsocketApiController")) {
+							"io.openems.impl.controller.api.websocket.WebsocketApiController")) {
 						JsonObject jWebsocketApiController = new JsonObject();
 						jWebsocketApiController.addProperty("class",
 								"io.openems.impl.controller.api.websocket.WebsocketApiController");
