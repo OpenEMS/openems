@@ -63,9 +63,24 @@ export class MonitorDetailComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.route.params.subscribe((params: Params) => {
-      this.connection = this.connectionService.connections[params['name']];
-    });
+    if (!(this.route.params)) {
+      this.router.navigate(['/login']);
+    } else {
+      this.route.params.subscribe((params: Params) => {
+        if (!("name" in params)) {
+          this.router.navigate(['/login']);
+        } else {
+          this.connection = this.connectionService.connections[params['name']];
+          if (!this.connection.isConnected || !this.connection.subject) {
+            this.router.navigate(['/login']);
+          } else {
+            this.connection.subject.subscribe(null, null, (/* complete */) => {
+              this.router.navigate(['/login']);
+            })
+          }
+        }
+      });
+    }
 
     // fill timeseries labels
     for (var i = 0; i < 24; i++) {
@@ -78,13 +93,18 @@ export class MonitorDetailComponent implements OnInit {
   }
 
   public lineChartUpdateData() {
+    var influxdb = this.connection.config.getInfluxdbPersistence();
+    if (!influxdb) {
+      return;
+      //TODO error message
+    }
     var date = this.datepicker;
     if (!date["_isAMomentObject"]) {
       date = moment(date);
     }
     this.date = date.startOf('day');
     this.dateIsCollapsed = true;
-    var query = "SELECT MEAN(" + '"ess0/Soc"' + ") FROM db..data WHERE fems='" + this.connection.influxdb.fems + "' AND time >= '" + this.date.format(INFLUX_DATE_FORMAT) + "' GROUP BY time(1h);";
+    var query = "SELECT MEAN(" + '"ess0/Soc"' + ") FROM db..data WHERE fems='" + influxdb.fems + "' AND time >= '" + this.date.format(INFLUX_DATE_FORMAT) + "' GROUP BY time(1h);";
 
     this.influxQuery(query)
       .subscribe((value: Object) => {
@@ -119,11 +139,16 @@ export class MonitorDetailComponent implements OnInit {
   }
 
   public tableUpdateData(hour: number) {
+    var influxdb = this.connection.config.getInfluxdbPersistence();
+    if (!influxdb) {
+      return;
+      //TODO error message
+    }
     this.date.hour(hour);
     this.date = moment(this.date);
     var from = moment(this.date).format(INFLUX_DATE_FORMAT);
     var to = moment(this.date).add(60, 'minutes').format(INFLUX_DATE_FORMAT);
-    var query = "SELECT MEAN(*) FROM db..data WHERE fems='" + this.connection.influxdb.fems + "' AND time >= '" + from + "' AND time < '" + to + "';";
+    var query = "SELECT MEAN(*) FROM db..data WHERE fems='" + influxdb.fems + "' AND time >= '" + from + "' AND time < '" + to + "';";
 
     this.influxQuery(query)
       .subscribe((value: Object) => {
@@ -156,13 +181,18 @@ export class MonitorDetailComponent implements OnInit {
   }
 
   public influxQuery(query: string): Observable<Response> {
+    var influxdb = this.connection.config.getInfluxdbPersistence();
+    if (!influxdb) {
+      return;
+      //TODO error message
+    }
     let headers = new Headers();
-    headers.append('Authorization', 'Basic ' + btoa(this.connection.influxdb.username + ":" + this.connection.influxdb.password));
+    headers.append('Authorization', 'Basic ' + btoa(influxdb.username + ":" + influxdb.password));
     let options = new RequestOptions({
       search: new URLSearchParams("q=" + query),
       headers: headers
     });
-    return this.http.get("http://" + this.connection.influxdb.ip + ":8086/query", options)
+    return this.http.get("http://" + influxdb.ip + ":8086/query", options)
       .map(res => res.json());
   }
 }

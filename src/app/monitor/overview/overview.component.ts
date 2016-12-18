@@ -13,7 +13,16 @@ export class MonitorOverviewComponent implements OnInit {
     private router: Router
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.connectionService.connectionsChanged.subscribe((/* value */) => {
+      for(let conn in this.connectionService.connections) {
+        if(this.connectionService.connections[conn].isConnected) {
+          return;
+        }
+        this.router.navigate(['/login']);
+      }
+    })
+  }
 
   private contains(array: string[], tag: string): boolean {
     return array.indexOf(tag) != -1

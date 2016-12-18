@@ -1,9 +1,8 @@
 export class Device {
-  name: string;
-  natures: string[];
-}
+  _name: string;
+  _natures: string[];
 
-export class EssDevice extends Device {
-  soc: number;
-  activePower: number;
+  set(field: string, value: number) {
+    console.log("Set "+field+" to " + value);
+  }
 }

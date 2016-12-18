@@ -8,6 +8,22 @@ export { Device } from './device';
 
 const SUBSCRIBE: string = "fenecon_monitor_v1";
 
+class OpenemsConfig {
+  _devices: { [id: string]: Device } = {};
+  things: Object[] = [];
+  scheduler: Object = {};
+  persistence: Object[] = [];
+
+  public getInfluxdbPersistence(): InfluxdbPersistence {
+    for(let persistence of this.persistence) {
+      if(persistence instanceof InfluxdbPersistence) {
+        return persistence as InfluxdbPersistence;
+      }
+    };
+    return null;
+  }
+}
+
 export class InfluxdbPersistence {
   ip: string;
   username: string;
@@ -19,10 +35,10 @@ export class Connection {
   public isConnected: boolean = false;
   public username: string;
   public websocket: WebSocket;
-  public subject: BehaviorSubject<any>;
+  public subject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public event: BehaviorSubject<string> = new BehaviorSubject(null);
-  public devices: { [id: string]: Device } = {};
-  public influxdb: InfluxdbPersistence;
+  public config: OpenemsConfig = new OpenemsConfig();
+  public data: Object = {};
 
   constructor(
     public name: string,
@@ -113,7 +129,7 @@ export class Connection {
               this.subject = sj;
               this.isConnected = true;
               error = null;
-              this.subscribeNatures();
+              //this.subscribeNatures();
               this.event.next("Angemeldet als " + this.username + ".");
             }
           } else {
@@ -126,33 +142,43 @@ export class Connection {
           }
         }
 
-        // Receive natures
-        if ("natures" in msg) {
-          this.devices = {}
-          for (let id in msg.natures) {
-            var device = new Device();
-            device.name = id;
-            device.natures = msg.natures[id];
-            this.devices[id] = device;
+        // Receive config
+        if ("config" in msg) {
+          this.config = new OpenemsConfig();
+          // device natures
+          if ("_devices" in msg.config) {
+            this.config._devices = {}
+            for (let id in msg.config._devices) {
+              var device = new Device();
+              device._name = id;
+              device._natures = msg.config._devices[id];
+              this.config._devices[id] = device;
+            }
           }
-        }
-
-        // Receive natures
-        if ("persistences" in msg) {
-          for (let pers in msg.persistences) {
-            var persistence = msg.persistences[pers];
-            if ("class" in persistence) {
-              var clazz = persistence.class;
-              if (clazz == "InfluxdbPersistence") {
+          // things
+          if ("things" in msg.config) {
+            this.config.things = msg.config.things;
+          }
+          // scheduler
+          if ("scheduler" in msg.config) {
+            this.config.scheduler = msg.config.scheduler;
+          }
+          // persistences
+          if ("persistence" in msg.config) {
+            for(let persistence of msg.config.persistence) {
+              if (persistence.class == "io.openems.impl.persistence.influxdb.InfluxdbPersistence") {
                 var ip = persistence.ip;
-                if(ip == "127.0.0.1") {
+                if (ip == "127.0.0.1") { // rewrite localhost to remote ip
                   ip = location.hostname;
                 }
-                this.influxdb = new InfluxdbPersistence();
-                this.influxdb.ip = ip;
-                this.influxdb.username = persistence.username;
-                this.influxdb.password = persistence.password;
-                this.influxdb.fems = persistence.fems;
+                var influxdb = new InfluxdbPersistence();
+                influxdb.ip = ip;
+                influxdb.username = persistence.username;
+                influxdb.password = persistence.password;
+                influxdb.fems = persistence.fems;
+                this.config.persistence.push(influxdb);
+              } else {
+                this.config.persistence.push(persistence);
               }
             }
           }
@@ -163,14 +189,20 @@ export class Connection {
           var data = msg.data;
           for (let id in data) {
             var channels = data[id];
-            if (id in this.devices) {
+            if (id in this.config._devices) {
+              this.data[id] = {};
               for (let channelid in channels) {
                 var channel = channels[channelid];
-                this.devices[id][channelid] = channel;
+                this.data[id][channelid] = channel;
               }
             }
           }
-          //console.log(this.devices);
+          console.log(this.data);
+        }
+
+        // receive notification
+        if ("notification" in msg) {
+          console.log(msg.notification);
         }
       }
     }, (error: any) => {
@@ -209,7 +241,9 @@ export class Connection {
     this.websocket = null;
     this.isConnected = false;
     this.username = null;
-    this.influxdb = null;
+    this.config = new OpenemsConfig();
+    this.subject = new BehaviorSubject<any>(null);
+    this.data = {};
   }
 
   /**
