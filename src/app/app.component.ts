@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { ConnectionService, Connection } from './service/connection.service';
 import { Router } from '@angular/router';
+import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 
 @Component({
   selector: 'app-root',
@@ -12,10 +13,20 @@ export class AppComponent implements OnInit {
   private menuitems: any[];
   private connections: string;
 
+  private options = {
+    position: ["bottom", "left"],
+    timeOut: 5000,
+    lastOnBottom: true
+  }
+
   constructor(
     private connectionService: ConnectionService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private toastr: ToastsManager,
+    private vRef: ViewContainerRef
+  ) {
+    this.toastr.setRootViewContainerRef(vRef);
+  }
 
   ngOnInit() {
     this.menuitems = [
@@ -23,38 +34,5 @@ export class AppComponent implements OnInit {
       { label: 'Aktuelle Daten', routerLink: '/monitor/current' },
       { label: 'Historie', routerLink: '/monitor/history' }
     ];
-
-    /*var connection: Connection = this.connectionService.getDefault();
-    if(!(connection instanceof ActiveConnection)) {
-      this.router.navigate(['login']);
-    } 
-
-    // check connection after a while
-    setTimeout(() => {
-      if(connection instanceof ActiveConnection && connection.websocket.readyState !== WebSocket.OPEN) {
-        //this.error = "Verbindung unmöglich";
-        setTimeout(() => {
-          if(!(connection instanceof ActiveConnection)) {
-            this.router.navigate(['login']);
-          }
-        }, 1000);
-      }
-    }, 2000);
-
-    this.connectionService.connectionsChanged.subscribe(() => {
-      this.connections = "";
-      for (var url in this.connectionService.connections) {
-        var connection: Connection = this.connectionService.connections[url];
-        if(connection instanceof ActiveConnection) {
-          if (connection.username != null) { 
-            this.connections += (this.connections != "" ? ", " : "") + connection.username + "@" + connection.name;
-          }
-        }
-      }
-    }, error => {
-      this.connections = ""
-    }, () => {
-      this.connections = ""
-    });*/
   }
 }

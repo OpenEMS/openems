@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/share';
 import { LocalstorageService } from './localstorage.service';
 import { Connection } from './connection';
+import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 
 export { Connection } from './connection';
 
@@ -27,11 +28,12 @@ export class ConnectionService {
   public connectionsChanged: BehaviorSubject<null> = new BehaviorSubject(null);
 
   constructor(
-    private localstorageService: LocalstorageService
+    private localstorageService: LocalstorageService,
+    private toastr: ToastsManager
   ) {
     for (var connection of DEFAULT_CONNECTIONS) {
       // load default connections
-      var conn = new Connection(connection.name, connection.url, localstorageService);
+      var conn = new Connection(connection.name, connection.url, localstorageService, toastr);
       this.connections[connection.name] = conn
       // try to connect using token
       conn.connectWithToken();

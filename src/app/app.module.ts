@@ -2,11 +2,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { routing, appRoutingProviders }  from './app.routing';
+import { routing, appRoutingProviders } from './app.routing';
 import { AppComponent } from './app.component';
 import { CollapseDirective } from 'ng2-bootstrap';
 import { DatepickerModule } from 'ng2-bootstrap/components/datepicker';
-import * as moment from "moment";
+import { ToastModule } from 'ng2-toastr/ng2-toastr';
 
 /*
  * Frontend
@@ -31,6 +31,12 @@ import { CommonMeterSymmetricComponent } from './common/thing/meter/symmetric/sy
 import { CommonEssSimulatorComponent } from './common/thing/ess/simulator/simulator.component';
 import { CommonEssFeneconProComponent } from './common/thing/ess/feneconpro/feneconpro.component';
 import { CommonEssFeneconCommercialComponent } from './common/thing/ess/feneconcommercial/feneconcommercial.component';
+
+// Forms
+import { FormControllerWebsocketApiComponent } from './common/form/controller/websocketapi/websocketapi.component';
+import { FormControllerRestApiComponent } from './common/form/controller/restapi/restapi.component';
+import { FormControllerUniversalComponent } from './common/form/controller/universal/universal.component';
+import { FormSchedulerWeekTimeComponent } from './common/form/scheduler/weektime/weektime.component';
 
 /*
  * Services
@@ -66,6 +72,11 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     CommonEssSimulatorComponent,
     CommonEssFeneconProComponent,
     CommonEssFeneconCommercialComponent,
+    //   Form
+    FormControllerWebsocketApiComponent,
+    FormControllerRestApiComponent,
+    FormControllerUniversalComponent,
+    FormSchedulerWeekTimeComponent,
     // pipe
     KeysPipe
   ],
@@ -76,6 +87,7 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     HttpModule,
     ChartsModule,
     DatepickerModule,
+    ToastModule,
     routing,
   ],
   providers: [

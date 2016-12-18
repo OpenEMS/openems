@@ -3,15 +3,25 @@ import { LocalstorageService } from './localstorage.service';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import { Device } from './device';
+import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 
 export { Device } from './device';
 
 const SUBSCRIBE: string = "fenecon_monitor_v1";
 
+class ThingConfig {
+  id: String;
+  class: String;
+}
+
+class SchedulerConfig extends ThingConfig {
+  controllers: Object[] = [];
+}
+
 class OpenemsConfig {
   _devices: { [id: string]: Device } = {};
-  things: Object[] = [];
-  scheduler: Object = {};
+  things: ThingConfig[] = [];
+  scheduler: SchedulerConfig = new SchedulerConfig();
   persistence: Object[] = [];
 
   public getInfluxdbPersistence(): InfluxdbPersistence {
@@ -22,6 +32,11 @@ class OpenemsConfig {
     };
     return null;
   }
+}
+
+interface Notification {
+  type: string;
+  message: string;
 }
 
 export class InfluxdbPersistence {
@@ -43,7 +58,8 @@ export class Connection {
   constructor(
     public name: string,
     public url: string,
-    private localstorageService: LocalstorageService
+    private localstorageService: LocalstorageService,
+    private toastr: ToastsManager
   ) { }
 
   public connectWithPassword(password: string) {
@@ -182,6 +198,7 @@ export class Connection {
               }
             }
           }
+          this.event.next(null);
         }
 
         // Receive data
@@ -202,7 +219,7 @@ export class Connection {
 
         // receive notification
         if ("notification" in msg) {
-          console.log(msg.notification);
+          this.showNotification(msg.notification);
         }
       }
     }, (error: any) => {
@@ -262,5 +279,17 @@ export class Connection {
     this.send({
       subscribe: ""
     });
+  }
+
+  private showNotification(notification: Notification) {
+    if(notification.type == "success") {
+      this.toastr.success(notification.message);
+    } else if(notification.type == "error") {
+      this.toastr.error(notification.message);
+    } else if(notification.type == "warning") {
+      this.toastr.warning(notification.message);
+    } else {
+      this.toastr.info(notification.message);
+    }
   }
 }
