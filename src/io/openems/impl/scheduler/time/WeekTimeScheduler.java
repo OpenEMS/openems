@@ -1,4 +1,4 @@
-package io.openems.impl.scheduler.timescheduler;
+package io.openems.impl.scheduler.time;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -34,7 +34,7 @@ public class WeekTimeScheduler extends Scheduler {
 	public ConfigChannel<JsonObject> friday = new ConfigChannel<>("friday", this, JsonObject.class);
 	public ConfigChannel<JsonObject> saturday = new ConfigChannel<>("saturday", this, JsonObject.class);
 	public ConfigChannel<JsonObject> sunday = new ConfigChannel<>("sunday", this, JsonObject.class);
-	public ConfigChannel<JsonArray> allways = new ConfigChannel<>("allways", this, JsonArray.class);
+	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this, JsonArray.class);
 
 	public WeekTimeScheduler() {
 		thingRepository = ThingRepository.getInstance();
@@ -69,8 +69,8 @@ public class WeekTimeScheduler extends Scheduler {
 
 	private List<Controller> getAllwaysController() {
 		List<Controller> controller = new ArrayList<>();
-		if (allways.valueOptional().isPresent()) {
-			for (JsonElement element : allways.valueOptional().get()) {
+		if (always.valueOptional().isPresent()) {
+			for (JsonElement element : always.valueOptional().get()) {
 				controller.add(controllers.get(element.getAsString()));
 			}
 		}
