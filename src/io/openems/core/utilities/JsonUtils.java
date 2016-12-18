@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.core.utilities;
 
+import java.net.Inet4Address;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,6 +39,13 @@ import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 
 public class JsonUtils {
+	public static JsonArray getAsJsonArray(JsonElement jElement) throws ReflectionException {
+		if (!jElement.isJsonArray()) {
+			throw new ReflectionException("Config is not a JsonArray: " + jElement);
+		}
+		return jElement.getAsJsonArray();
+	};
+
 	public static JsonArray getAsJsonArray(JsonElement jElement, String memberName) throws ReflectionException {
 		JsonElement jSubElement = getSubElement(jElement, memberName);
 		if (!jSubElement.isJsonArray()) {
@@ -108,6 +116,16 @@ public class JsonUtils {
 			 * String
 			 */
 			return new JsonPrimitive((String) value);
+		} else if (value instanceof Inet4Address) {
+			/*
+			 * Inet4Address
+			 */
+			return new JsonPrimitive(((Inet4Address) value).getHostAddress());
+		} else if (value instanceof JsonElement) {
+			/*
+			 * JsonElement
+			 */
+			return (JsonElement) value;
 		}
 		throw new NotImplementedException("Converter for [" + value + "]" + " of type [" //
 				+ value.getClass().getSimpleName() + "]" //

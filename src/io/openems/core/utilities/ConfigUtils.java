@@ -59,6 +59,17 @@ public class ConfigUtils {
 	 * @throws NotImplementedException
 	 */
 	public static JsonElement getAsJsonElement(Object value) throws NotImplementedException {
+		return getAsJsonElement(value, false);
+	}
+
+	/**
+	 * Converts an object to a JsonElement
+	 *
+	 * @param value
+	 * @return
+	 * @throws NotImplementedException
+	 */
+	public static JsonElement getAsJsonElement(Object value, boolean includeEverything) throws NotImplementedException {
 		// null
 		if (value == null) {
 			return null;
@@ -85,7 +96,7 @@ public class ConfigUtils {
 			 */
 			Thing thing = (Thing) value;
 			JsonObject j = new JsonObject();
-			if (!thing.id().startsWith("_")) {
+			if (includeEverything || !thing.id().startsWith("_")) {
 				// ignore generated id names starting with "_"
 				j.addProperty("id", thing.id());
 			}
@@ -95,7 +106,7 @@ public class ConfigUtils {
 			}
 			ThingRepository thingRepository = ThingRepository.getInstance();
 			for (ConfigChannel<?> channel : thingRepository.getConfigChannels(thing)) {
-				JsonElement jChannel = ConfigUtils.getAsJsonElement(channel);
+				JsonElement jChannel = ConfigUtils.getAsJsonElement(channel, includeEverything);
 				if (jChannel != null) {
 					j.add(channel.id(), jChannel);
 				}
@@ -109,12 +120,12 @@ public class ConfigUtils {
 			if (!channel.valueOptional().isPresent()) {
 				// no value set
 				return null;
-			} else if (channel.getDefaultValue().equals(channel.valueOptional())) {
+			} else if (!includeEverything && channel.getDefaultValue().equals(channel.valueOptional())) {
 				// default value not changed
 				return null;
 			} else {
 				// recursive call
-				return ConfigUtils.getAsJsonElement(channel.valueOptional().get());
+				return ConfigUtils.getAsJsonElement(channel.valueOptional().get(), includeEverything);
 			}
 		}
 		throw new NotImplementedException("Converter for [" + value + "]" + " of type [" //

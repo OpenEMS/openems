@@ -1,9 +1,7 @@
 package io.openems.impl.controller.api.websocket;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -15,11 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
@@ -142,17 +138,7 @@ public class WebsocketHandler {
 
 	private void subscribeFeneconMonitorV1() {
 		log.info("User[" + getUserName() + "]: subscribed to FENECON Monitor v1");
-		JsonObject jNatures = new JsonObject();
 		thingRepository.getDeviceNatures().forEach(nature -> {
-			JsonArray jNatureClasses = new JsonArray();
-			/*
-			 * get important classes/interfaces that are implemented by this nature
-			 */
-			for (Class<?> iface : getImportantNatureInterfaces(nature.getClass())) {
-				jNatureClasses.add(iface.getSimpleName());
-			}
-			jNatures.add(nature.id(), jNatureClasses);
-
 			/*
 			 * Subscribe to channels
 			 */
@@ -174,15 +160,6 @@ public class WebsocketHandler {
 		});
 
 		/*
-		 * Send data
-		 */
-		JsonObject jSend = new JsonObject();
-		jSend.add("natures", jNatures);
-		JsonObject jData = getData();
-		jSend.add("data", jData);
-		send(jSend);
-
-		/*
 		 * Execute regular task
 		 */
 		if (future != null) {
@@ -192,31 +169,16 @@ public class WebsocketHandler {
 	}
 
 	/**
-	 * Gets all important nature super interfaces and classes. This data is used by web client to visualize the data
-	 * appropriately
+	 * Send a message to the websocket
 	 *
-	 * @param clazz
-	 * @return
+	 * @param key
+	 * @param j
+	 * @return true if successful, otherwise false
 	 */
-	private Set<Class<?>> getImportantNatureInterfaces(Class<?> clazz) {
-		Set<Class<?>> ifaces = new HashSet<>();
-		if (clazz == null // at the top
-				|| clazz.equals(DeviceNature.class) // we are at the DeviceNature interface
-				|| !DeviceNature.class.isAssignableFrom(clazz) // clazz is not derived from DeviceNature
-		) {
-			return ifaces;
-		}
-		// myself
-		ifaces.add(clazz);
-		// super interfaces
-		for (Class<?> iface : clazz.getInterfaces()) {
-			if (DeviceNature.class.isAssignableFrom(iface)) {
-				ifaces.addAll(getImportantNatureInterfaces(iface));
-			}
-		}
-		// super classes
-		ifaces.addAll(getImportantNatureInterfaces(clazz.getSuperclass()));
-		return ifaces;
+	public synchronized boolean send(String key, JsonElement j) {
+		JsonObject jSend = new JsonObject();
+		jSend.add(key, j);
+		return send(jSend);
 	}
 
 	/**
@@ -225,13 +187,26 @@ public class WebsocketHandler {
 	 * @param j
 	 * @return true if successful, otherwise false
 	 */
-	private boolean send(JsonObject j) {
+	public synchronized boolean send(JsonObject j) {
 		try {
 			this.conn.send(j.toString());
 			return true;
 		} catch (WebsocketNotConnectedException e) {
 			return false;
 		}
+	}
+
+	/**
+	 * Send a notification message/error to the websocket
+	 *
+	 * @param mesage
+	 * @return true if successful, otherwise false
+	 */
+	public synchronized boolean sendNotification(NotificationType type, String message) {
+		JsonObject jMessage = new JsonObject();
+		jMessage.addProperty("type", type.name().toLowerCase());
+		jMessage.addProperty("message", message);
+		return send("notification", jMessage);
 	}
 
 	/**

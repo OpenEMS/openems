@@ -37,6 +37,7 @@ import com.google.gson.JsonElement;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
@@ -220,5 +221,33 @@ public class InjectionUtils {
 				return thingMaps.iterator().next();
 			}
 		}
+	}
+
+	/**
+	 * Gets all important nature super interfaces and classes. This data is used by web client to visualize the data
+	 * appropriately
+	 *
+	 * @param clazz
+	 * @return
+	 */
+	public static Set<Class<?>> getImportantNatureInterfaces(Class<?> clazz) {
+		Set<Class<?>> ifaces = new HashSet<>();
+		if (clazz == null // at the top
+				|| clazz.equals(DeviceNature.class) // we are at the DeviceNature interface
+				|| !DeviceNature.class.isAssignableFrom(clazz) // clazz is not derived from DeviceNature
+		) {
+			return ifaces;
+		}
+		// myself
+		ifaces.add(clazz);
+		// super interfaces
+		for (Class<?> iface : clazz.getInterfaces()) {
+			if (DeviceNature.class.isAssignableFrom(iface)) {
+				ifaces.addAll(getImportantNatureInterfaces(iface));
+			}
+		}
+		// super classes
+		ifaces.addAll(getImportantNatureInterfaces(clazz.getSuperclass()));
+		return ifaces;
 	}
 }

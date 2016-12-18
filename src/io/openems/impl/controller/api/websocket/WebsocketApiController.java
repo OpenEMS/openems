@@ -15,6 +15,14 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this, Integer.class)
 			.defaultValue(8085).changeListener(this);
 
+	public WebsocketApiController() {
+		super();
+	}
+
+	public WebsocketApiController(String thingId) {
+		super(thingId);
+	}
+
 	@Override public void run() {
 		// Start Websocket-Api server
 		if (ws == null && port.valueOptional().isPresent()) {

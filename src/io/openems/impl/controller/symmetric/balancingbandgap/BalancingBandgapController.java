@@ -43,12 +43,10 @@ public class BalancingBandgapController extends Controller {
 
 	public BalancingBandgapController() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public BalancingBandgapController(String thingId) {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override public void run() {

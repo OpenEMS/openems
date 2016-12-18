@@ -184,7 +184,7 @@ public class Config implements ChannelChangeListener {
 	}
 
 	public synchronized void writeConfigFile() throws OpenemsException {
-		JsonObject jConfig = createJsonConfig();
+		JsonObject jConfig = getJsonComplete();
 		try (Writer writer = new FileWriter(file)) {
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			gson.toJson(jConfig, writer);
@@ -310,55 +310,51 @@ public class Config implements ChannelChangeListener {
 		}
 	}
 
-	private synchronized JsonObject createJsonConfig() throws NotImplementedException {
-		JsonObject jConfig = new JsonObject();
-		/*
-		 * Bridge
-		 */
+	public JsonArray getBridgesJson(boolean includeEverything) throws NotImplementedException {
 		JsonArray jBridges = new JsonArray();
 		for (Bridge bridge : thingRepository.getBridges()) {
-			JsonObject jBridge = (JsonObject) ConfigUtils.getAsJsonElement(bridge);
+			JsonObject jBridge = (JsonObject) ConfigUtils.getAsJsonElement(bridge, includeEverything);
 			/*
 			 * Device
 			 */
 			JsonArray jDevices = new JsonArray();
 			for (Device device : bridge.getDevices()) {
-				JsonObject jDevice = (JsonObject) ConfigUtils.getAsJsonElement(device);
+				JsonObject jDevice = (JsonObject) ConfigUtils.getAsJsonElement(device, includeEverything);
 				jDevices.add(jDevice);
 			}
 			jBridge.add("devices", jDevices);
 			jBridges.add(jBridge);
 		}
-		jConfig.add("things", jBridges);
-		/*
-		 * Scheduler
-		 */
+		return jBridges;
+	}
+
+	public JsonObject getSchedulerJson(boolean includeEverything) throws NotImplementedException {
 		JsonObject jScheduler = null;
 		for (Scheduler scheduler : thingRepository.getSchedulers()) {
-			jScheduler = (JsonObject) ConfigUtils.getAsJsonElement(scheduler);
+			jScheduler = (JsonObject) ConfigUtils.getAsJsonElement(scheduler, includeEverything);
 			/*
 			 * Controller
 			 */
 			JsonArray jControllers = new JsonArray();
 			for (Controller controller : scheduler.getControllers()) {
-				jControllers.add(ConfigUtils.getAsJsonElement(controller));
+				jControllers.add(ConfigUtils.getAsJsonElement(controller, includeEverything));
 			}
 			jScheduler.add("controllers", jControllers);
 			break; // TODO only one Scheduler supported
 		}
-		jConfig.add("scheduler", jScheduler);
-		/*
-		 * Persistence
-		 */
+		return jScheduler;
+	}
+
+	public JsonArray getPersistenceJson(boolean includeEverything) throws NotImplementedException {
 		JsonArray jPersistences = new JsonArray();
 		for (Persistence persistence : thingRepository.getPersistences()) {
-			JsonObject jPersistence = (JsonObject) ConfigUtils.getAsJsonElement(persistence);
+			JsonObject jPersistence = (JsonObject) ConfigUtils.getAsJsonElement(persistence, includeEverything);
 			jPersistences.add(jPersistence);
 		}
-		jConfig.add("persistence", jPersistences);
-		/*
-		 * Users
-		 */
+		return jPersistences;
+	}
+
+	private JsonObject getUsersJson() {
 		JsonObject jUsers = new JsonObject();
 		for (User user : User.getUsers()) {
 			JsonObject jUser = new JsonObject();
@@ -366,7 +362,32 @@ public class Config implements ChannelChangeListener {
 			jUser.addProperty("salt", user.getSaltBase64());
 			jUsers.add(user.getName(), jUser);
 		}
-		jConfig.add("users", jUsers);
+		return jUsers;
+	}
+
+	public synchronized JsonObject getJson(boolean includeEverything) throws NotImplementedException {
+		JsonObject jConfig = new JsonObject();
+		/*
+		 * Bridge
+		 */
+		jConfig.add("things", getBridgesJson(includeEverything));
+		/*
+		 * Scheduler
+		 */
+		jConfig.add("scheduler", getSchedulerJson(includeEverything));
+		/*
+		 * Persistence
+		 */
+		jConfig.add("persistence", getPersistenceJson(includeEverything));
+		return jConfig;
+	}
+
+	private synchronized JsonObject getJsonComplete() throws NotImplementedException {
+		JsonObject jConfig = getJson(false);
+		/*
+		 * Users
+		 */
+		jConfig.add("users", getUsersJson());
 		return jConfig;
 	}
 

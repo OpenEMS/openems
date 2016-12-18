@@ -27,6 +27,12 @@ public class WeekTimeScheduler extends Scheduler {
 
 	private ThingRepository thingRepository;
 
+	/*
+	 * JsonObject format:
+	 * {
+	 * "08:00": ["controller0", "controller1"]
+	 * }
+	 */
 	public ConfigChannel<JsonObject> monday = new ConfigChannel<>("monday", this, JsonObject.class);
 	public ConfigChannel<JsonObject> tuesday = new ConfigChannel<>("tuesday", this, JsonObject.class);
 	public ConfigChannel<JsonObject> wednesday = new ConfigChannel<>("wednesday", this, JsonObject.class);
@@ -35,6 +41,7 @@ public class WeekTimeScheduler extends Scheduler {
 	public ConfigChannel<JsonObject> saturday = new ConfigChannel<>("saturday", this, JsonObject.class);
 	public ConfigChannel<JsonObject> sunday = new ConfigChannel<>("sunday", this, JsonObject.class);
 	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this, JsonArray.class);
+	// TODO: always could be of type String[]
 
 	public WeekTimeScheduler() {
 		thingRepository = ThingRepository.getInstance();
@@ -49,7 +56,7 @@ public class WeekTimeScheduler extends Scheduler {
 	@Override protected void forever() {
 		try {
 			List<Controller> controllers = getActiveControllers();
-			controllers.addAll(getAllwaysController());
+			controllers.addAll(getAlwaysController());
 			Collections.sort(controllers, (c1, c2) -> c2.priority.valueOptional().orElse(Integer.MIN_VALUE)
 					- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
 			for (Controller controller : controllers) {
@@ -67,7 +74,7 @@ public class WeekTimeScheduler extends Scheduler {
 		}
 	}
 
-	private List<Controller> getAllwaysController() {
+	private List<Controller> getAlwaysController() {
 		List<Controller> controller = new ArrayList<>();
 		if (always.valueOptional().isPresent()) {
 			for (JsonElement element : always.valueOptional().get()) {

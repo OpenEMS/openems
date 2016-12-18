@@ -1,6 +1,7 @@
 package io.openems.impl.controller.api.websocket;
 
 import java.net.InetSocketAddress;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.java_websocket.WebSocket;
@@ -10,21 +11,34 @@ import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ConfigChannel;
+import io.openems.api.controller.Controller;
+import io.openems.api.exception.ConfigException;
+import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
+import io.openems.api.scheduler.Scheduler;
 import io.openems.api.security.Authentication;
+import io.openems.core.Config;
+import io.openems.core.ThingRepository;
+import io.openems.core.utilities.ConfigUtils;
+import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
 
 public class WebsocketServer extends WebSocketServer {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketServer.class);
 	private final ConcurrentHashMap<WebSocket, WebsocketHandler> sockets = new ConcurrentHashMap<>();
+	private final ThingRepository thingRepository;
 
 	public WebsocketServer(int port) {
 		super(new InetSocketAddress(port));
+		this.thingRepository = ThingRepository.getInstance();
 	}
 
 	@Override public void onClose(WebSocket conn, int code, String reason, boolean remote) {
@@ -58,10 +72,24 @@ public class WebsocketServer extends WebSocketServer {
 		}
 
 		/*
+		 * On initial call -> send config
+		 */
+		if (j.has("authenticate")) {
+			sendConfig(handler);
+		}
+
+		/*
 		 * Subscribe to data
 		 */
 		if (j.has("subscribe")) {
 			subscribe(j.get("subscribe"), handler);
+		}
+
+		/*
+		 * Set a channel
+		 */
+		if (j.has("config")) {
+			config(j.get("config"), handler);
 		}
 	}
 
@@ -113,10 +141,93 @@ public class WebsocketServer extends WebSocketServer {
 		WebsocketServer.send(handler.getWebSocket(), jReply);
 	}
 
+	private void sendConfig(WebsocketHandler handler) {
+		try {
+			Config config = Config.getInstance();
+			/*
+			 * Json Config
+			 */
+			JsonObject j = config.getJson(true);
+			/*
+			 * Natures
+			 */
+			JsonObject jDevices = new JsonObject();
+			thingRepository.getDeviceNatures().forEach(nature -> {
+				JsonArray jNatureClasses = new JsonArray();
+				/*
+				 * get important classes/interfaces that are implemented by this nature
+				 */
+				for (Class<?> iface : InjectionUtils.getImportantNatureInterfaces(nature.getClass())) {
+					jNatureClasses.add(iface.getSimpleName());
+				}
+				jDevices.add(nature.id(), jNatureClasses);
+			});
+			j.add("_devices", jDevices);
+
+			handler.send("config", j);
+		} catch (NotImplementedException | ConfigException e) {
+			handler.sendNotification(NotificationType.WARNING, "Unable to send config: " + e.getMessage());
+		}
+	}
+
 	private void subscribe(JsonElement j, WebsocketHandler handler) {
 		if (j.isJsonPrimitive() && j.getAsJsonPrimitive().isString()) {
 			String tag = j.getAsString();
 			handler.addSubscribedChannels(tag);
+		}
+	}
+
+	private void config(JsonElement jConfigsElement, WebsocketHandler handler) {
+		try {
+			JsonArray jConfigs = JsonUtils.getAsJsonArray(jConfigsElement);
+			for (JsonElement jConfigElement : jConfigs) {
+				JsonObject jConfig = JsonUtils.getAsJsonObject(jConfigElement);
+				if (jConfig.has("thing") && jConfig.has("channel") && jConfig.has("operation")) {
+					/*
+					 * Channel operation
+					 */
+					ThingRepository thingRepository = ThingRepository.getInstance();
+					String thingId = JsonUtils.getAsString(jConfig, "thing");
+					String channelId = JsonUtils.getAsString(jConfig, "channel");
+					String operation = JsonUtils.getAsString(jConfig, "operation");
+					Optional<Channel> channelOptional = thingRepository.getChannel(thingId, channelId);
+					if (channelOptional.isPresent()) {
+						Channel channel = channelOptional.get();
+						if (operation.equals("update")) {
+							ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
+							JsonElement jValue = JsonUtils.getSubElement(jConfig, "value");
+							configChannel.updateValue(jValue, true);
+							log.info("Updated channel " + channel.address() + " with " + jValue);
+							handler.sendNotification(NotificationType.SUCCESS,
+									"Successfully updated [" + channel.address() + "] to [" + jValue + "]");
+						}
+					}
+				} else if (jConfig.has("get")) {
+					/*
+					 * Get configuration
+					 */
+					ThingRepository thingRepository = ThingRepository.getInstance();
+					String get = JsonUtils.getAsString(jConfig, "get");
+					if (get.equals("scheduler")) {
+						for (Scheduler scheduler : thingRepository.getSchedulers()) {
+							handler.sendNotification(NotificationType.INFO,
+									"Scheduler: " + ConfigUtils.getAsJsonElement(scheduler));
+						}
+					} else if (get.equals("controllers")) {
+						for (Scheduler scheduler : thingRepository.getSchedulers()) {
+							for (Controller controller : scheduler.getControllers()) {
+								handler.sendNotification(NotificationType.INFO,
+										"Controller: " + ConfigUtils.getAsJsonElement(controller));
+							}
+						}
+					}
+				}
+			}
+		} catch (ReflectionException | NotImplementedException e) {
+			/*
+			 * ignore
+			 * log.error("ThingId or ChannelId missing in json[" + jChannel.toString() + "]");
+			 */
 		}
 	}
 
