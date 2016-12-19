@@ -7,7 +7,6 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.google.gson.JsonArray;
@@ -20,26 +19,29 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.api.exception.ReflectionException;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.core.ThingRepository;
+import io.openems.core.utilities.JsonUtils;
 
 public class WeekTimeScheduler extends Scheduler {
 
 	private ThingRepository thingRepository;
 
 	/*
-	 * JsonObject format:
-	 * {
-	 * "08:00": ["controller0", "controller1"]
-	 * }
+	 * JsonArray format:
+	 * [{
+	 * time: "08:00",
+	 * controllers: [ "controller0", "controller1"]
+	 * }]
 	 */
-	public ConfigChannel<JsonObject> monday = new ConfigChannel<>("monday", this, JsonObject.class);
-	public ConfigChannel<JsonObject> tuesday = new ConfigChannel<>("tuesday", this, JsonObject.class);
-	public ConfigChannel<JsonObject> wednesday = new ConfigChannel<>("wednesday", this, JsonObject.class);
-	public ConfigChannel<JsonObject> thursday = new ConfigChannel<>("thursday", this, JsonObject.class);
-	public ConfigChannel<JsonObject> friday = new ConfigChannel<>("friday", this, JsonObject.class);
-	public ConfigChannel<JsonObject> saturday = new ConfigChannel<>("saturday", this, JsonObject.class);
-	public ConfigChannel<JsonObject> sunday = new ConfigChannel<>("sunday", this, JsonObject.class);
+	public ConfigChannel<JsonArray> monday = new ConfigChannel<>("monday", this, JsonArray.class);
+	public ConfigChannel<JsonArray> tuesday = new ConfigChannel<>("tuesday", this, JsonArray.class);
+	public ConfigChannel<JsonArray> wednesday = new ConfigChannel<>("wednesday", this, JsonArray.class);
+	public ConfigChannel<JsonArray> thursday = new ConfigChannel<>("thursday", this, JsonArray.class);
+	public ConfigChannel<JsonArray> friday = new ConfigChannel<>("friday", this, JsonArray.class);
+	public ConfigChannel<JsonArray> saturday = new ConfigChannel<>("saturday", this, JsonArray.class);
+	public ConfigChannel<JsonArray> sunday = new ConfigChannel<>("sunday", this, JsonArray.class);
 	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this, JsonArray.class);
 	// TODO: always could be of type String[]
 
@@ -69,7 +71,7 @@ public class WeekTimeScheduler extends Scheduler {
 			for (Bridge bridge : thingRepository.getBridges()) {
 				bridge.triggerWrite();
 			}
-		} catch (InvalidValueException | DateTimeParseException | ConfigException e) {
+		} catch (InvalidValueException | DateTimeParseException | ConfigException | ReflectionException e) {
 			log.error(e.getMessage());
 		}
 	}
@@ -84,24 +86,24 @@ public class WeekTimeScheduler extends Scheduler {
 		return controller;
 	}
 
-	private List<Controller> getActiveControllers() throws InvalidValueException, ConfigException {
-		JsonObject day = getJsonOfDay(LocalDate.now().getDayOfWeek());
+	private List<Controller> getActiveControllers() throws InvalidValueException, ConfigException, ReflectionException {
+		JsonArray jHours = getJsonOfDay(LocalDate.now().getDayOfWeek());
 		LocalTime time = LocalTime.now();
-		List<Controller> controllers = null;
+		List<Controller> controllers = new ArrayList<>();
 		int count = 1;
-		while (controllers == null && count < 7) {
+		while (controllers.size() == 0 && count < 8) {
 			try {
-				controllers = floorController(day, time);
+				controllers.addAll(floorController(jHours, time));
 			} catch (IndexOutOfBoundsException e) {
 				time = LocalTime.MAX;
-				day = getJsonOfDay(LocalDate.now().getDayOfWeek().minus(count));
+				jHours = getJsonOfDay(LocalDate.now().getDayOfWeek().minus(count));
 			}
 			count++;
 		}
 		return controllers;
 	}
 
-	private JsonObject getJsonOfDay(DayOfWeek day) throws InvalidValueException {
+	private JsonArray getJsonOfDay(DayOfWeek day) throws InvalidValueException {
 		switch (day) {
 		case FRIDAY:
 			return friday.value();
@@ -121,22 +123,29 @@ public class WeekTimeScheduler extends Scheduler {
 		}
 	}
 
-	private List<Controller> floorController(JsonObject day, LocalTime time) throws ConfigException {
-		TreeMap<LocalTime, JsonElement> times = new TreeMap<>();
-		for (Entry<String, JsonElement> entry : day.entrySet()) {
-			times.put(LocalTime.parse(entry.getKey()), entry.getValue());
+	private List<Controller> floorController(JsonArray jHours, LocalTime time)
+			throws ConfigException, ReflectionException {
+		// fill times map; sorted by hour
+		TreeMap<LocalTime, JsonArray> times = new TreeMap<>();
+		for (JsonElement jHourElement : jHours) {
+			JsonObject jHour = JsonUtils.getAsJsonObject(jHourElement);
+			String hourTime = JsonUtils.getAsString(jHour, "time");
+			JsonArray jControllers = JsonUtils.getAsJsonArray(jHourElement, "controllers");
+			times.put(LocalTime.parse(hourTime), jControllers);
 		}
+		// return matching controllers
 		if (times.floorEntry(time) != null) {
-			List<Controller> controller = new ArrayList<>();
-			for (JsonElement element : times.floorEntry(time).getValue().getAsJsonArray()) {
-				Controller c = controllers.get(element.getAsString());
-				if (c != null) {
-					controller.add(c);
+			List<Controller> controllers = new ArrayList<>();
+			for (JsonElement jControllerElement : times.floorEntry(time).getValue()) {
+				String controllerId = JsonUtils.getAsString(jControllerElement);
+				Controller controller = this.controllers.get(controllerId);
+				if (controller != null) {
+					controllers.add(controller);
 				} else {
-					throw new ConfigException("Controller " + element.getAsString() + " not found");
+					throw new ConfigException("Controller [" + controllerId + "] not found.");
 				}
 			}
-			return controller;
+			return controllers;
 		} else {
 			throw new IndexOutOfBoundsException("No smaller time found");
 		}

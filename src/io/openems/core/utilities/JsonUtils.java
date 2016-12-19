@@ -69,12 +69,27 @@ public class JsonUtils {
 		return jsubElement.getAsJsonObject();
 	};
 
+	public static JsonPrimitive getAsPrimitive(JsonElement jElement) throws ReflectionException {
+		if (!jElement.isJsonPrimitive()) {
+			throw new ReflectionException("Config is not a JsonPrimitive: " + jElement);
+		}
+		return jElement.getAsJsonPrimitive();
+	}
+
 	public static JsonPrimitive getAsPrimitive(JsonElement jElement, String memberName) throws ReflectionException {
 		JsonElement jSubElement = getSubElement(jElement, memberName);
 		if (!jSubElement.isJsonPrimitive()) {
 			throw new ReflectionException("Config is not a JsonPrimitive: " + jSubElement);
 		}
 		return jSubElement.getAsJsonPrimitive();
+	}
+
+	public static String getAsString(JsonElement jElement) throws ReflectionException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
+		if (!jPrimitive.isString()) {
+			throw new ReflectionException("Config is not a String: " + jPrimitive);
+		}
+		return jPrimitive.getAsString();
 	}
 
 	public static String getAsString(JsonElement jElement, String memberName) throws ReflectionException {
