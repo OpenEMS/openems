@@ -43,20 +43,19 @@ public class BalancingBandgapController extends Controller {
 
 	public BalancingBandgapController() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public BalancingBandgapController(String thingId) {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override public void run() {
 		try {
 			Ess ess = this.ess.value();
+			Meter meter = this.meter.value();
 			// Calculate required sum values
-			long calculatedPower = meter.value().activePower.value() + ess.activePower.value();
-			long calculatedReactivePower = meter.value().reactivePower.value() * -1 + ess.reactivePower.value();
+			long calculatedPower = meter.activePower.value() + ess.activePower.value();
+			long calculatedReactivePower = meter.reactivePower.value() + ess.reactivePower.value();
 			if (calculatedPower >= maxActivePower.value()) {
 				calculatedPower -= maxActivePower.value();
 			} else if (calculatedPower <= minActivePower.value()) {

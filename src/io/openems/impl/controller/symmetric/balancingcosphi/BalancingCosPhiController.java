@@ -22,8 +22,10 @@ public class BalancingCosPhiController extends Controller {
 
 	@Override public void run() {
 		try {
-			double phi = Math.acos(cosPhi.value());
-			long q = (long) (meter.value().activePower.value() * Math.tan(phi)) - meter.value().reactivePower.value();
+			double cosPhi = this.cosPhi.value();
+			double phi = Math.acos(cosPhi);
+			long q = (long) ((meter.value().activePower.value() * Math.tan(phi)) - meter.value().reactivePower.value())
+					* -1;
 			q += ess.value().reactivePower.value();
 			ess.value().power.setReactivePower(q);
 			ess.value().power.writePower();
