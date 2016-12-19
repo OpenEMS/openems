@@ -1,0 +1,46 @@
+<div [formGroup]="form" *ngIf="connection">
+  <div [formArrayName]="day">
+    <div class="panel panel-default" *ngFor="let hour of form.controls[day].controls; let i=index" [formGroupName]="i">
+      <div class="panel-heading">
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="input-group">
+              <input type="text" class="form-control" formControlName="time">
+              <div (click)="removeTime(form.controls[day], i)" class="input-group-addon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body" formArrayName="controllers">
+        <div class="row">
+          <div *ngFor="let controllers of hour.controls.controllers.controls; let j=index" class="col-sm-4">
+            <div class="input-group">
+              <select class="form-control" [formControlName]="j">
+                <option *ngFor="let controller of connection.config.scheduler.controllers">{{controller.id}}</option>
+              </select>
+              <div (click)="removeController(hour.controls.controllers, j)" class="input-group-addon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="input-group">
+              <input type="text" class="form-control" disabled>
+              <div (click)="addController(hour.controls.controllers)" class="input-group-addon"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="input-group">
+            <input type="text" class="form-control" disabled>
+            <div (click)="addTime(form.controls[day])" class="input-group-addon"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

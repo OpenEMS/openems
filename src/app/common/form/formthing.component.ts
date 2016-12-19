@@ -30,31 +30,33 @@ export class FormThingComponent {
     var controlsConfig: { [key: string]: any; } = {};
     for (let channel in thing) {
       var formState = thing[channel];
-      console.log("formstate", formState);
       disabled.forEach(d => {
         if (channel == d) {
           formState = { value: formState, disabled: true };
         }
       });
-      if (thing[channel] instanceof Object) {
-        /* object */
-        var group: { [key: string]: any; } = {};
-        for (let time in thing[channel]) {
-          console.log(time, thing[channel][time]);
-          var controls: any[] = [];
-          for(let controllerId of thing[channel][time]) {
-            controls.push(controllerId);
+      if (thing[channel] instanceof Array) {
+        /* Array */
+        var array: FormGroup[] = [];
+        for (let config of thing[channel]) {
+          if (config["time"]) {
+            var group = {};
+            group["time"] = config["time"];
+            var controllerIds: FormControl[] = [];
+            for (let controllerId of config["controllers"]) {
+              controllerIds.push(this._fb.control(controllerId));
+            }
+            group["controllers"] = this._fb.array(controllerIds);
+            array.push(this._fb.group(group));
           }
-          group[time] = this._fb.array(controls);
         }
-        controlsConfig[channel] = this._fb.group(group);
+        controlsConfig[channel] = this._fb.array(array);
       } else {
         /* simple string */
         controlsConfig[channel] = [formState, [<any>Validators.required]];
       }
     }
     this.form = this._fb.group(controlsConfig);
-    console.log(this.form);
   }
 
   save(form: Object) {

@@ -25,8 +25,8 @@ class OpenemsConfig {
   persistence: Object[] = [];
 
   public getInfluxdbPersistence(): InfluxdbPersistence {
-    for(let persistence of this.persistence) {
-      if(persistence instanceof InfluxdbPersistence) {
+    for (let persistence of this.persistence) {
+      if (persistence instanceof InfluxdbPersistence) {
         return persistence as InfluxdbPersistence;
       }
     };
@@ -34,8 +34,10 @@ class OpenemsConfig {
   }
 }
 
+type NotificationType = "success" | "error" | "warning" | "info";
+
 interface Notification {
-  type: string;
+  type: NotificationType;
   message: string;
 }
 
@@ -181,7 +183,7 @@ export class Connection {
           }
           // persistences
           if ("persistence" in msg.config) {
-            for(let persistence of msg.config.persistence) {
+            for (let persistence of msg.config.persistence) {
               if (persistence.class == "io.openems.impl.persistence.influxdb.InfluxdbPersistence") {
                 var ip = persistence.ip;
                 if (ip == "127.0.0.1") { // rewrite localhost to remote ip
@@ -234,6 +236,7 @@ export class Connection {
       clearTimeout(timeout);
       if (error == null) {
         error = "Verbindung beendet."
+        this.showNotification({ type:"info", message: "Verbindung beendet."});
         this.event.next(error);
       }
     });
@@ -282,11 +285,11 @@ export class Connection {
   }
 
   private showNotification(notification: Notification) {
-    if(notification.type == "success") {
+    if (notification.type == "success") {
       this.toastr.success(notification.message);
-    } else if(notification.type == "error") {
+    } else if (notification.type == "error") {
       this.toastr.error(notification.message);
-    } else if(notification.type == "warning") {
+    } else if (notification.type == "warning") {
       this.toastr.warning(notification.message);
     } else {
       this.toastr.info(notification.message);

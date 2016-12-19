@@ -1,42 +1,22 @@
 <form *ngIf="form" [formGroup]="form" novalidate (ngSubmit)="save(form)" class="form-horizontal">
   <div class="form-group">
-    <label for="id" class="col-sm-2 control-label">Id</label>
+    <label for="class" class="col-sm-2 control-label">Wochenplan</label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" formControlName="id">
+      <ul class="nav nav-tabs">
+        <li *ngFor="let day of days" role="presentation" [class.active]="day.active"><a (click)="setDayActive(day)">{{day.label}}</a></li>
+      </ul>
     </div>
   </div>
   <div class="form-group">
-    <label for="class" class="col-sm-2 control-label">Klasse</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" formControlName="class">
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="monday" class="col-sm-2 control-label">Montag</label>
-    <div class="col-sm-10">
-      <div formGroupName="monday">
-        <table class="table table-striped">
-          <tr *ngFor="let time of form.controls.monday.controls | keys">
-            <td>
-              <label for="time.key" class="col-sm-2 control-label">{{time.key}}</label>
-            </td>
-            <td>
-              <div *ngFor="let controller of time.value.controls; let i=index" [formArrayName]="time.key">
-                <input type="text" class="form-control" [formControlName]="i">
-              </div>
-              <div (click)="addController(time.value)">+ Hinzufügen</div>
-            </td>
-          </tr>
-          <tr>
-            <td>+ Hinzufügen</td>
-          </tr>
-        </table>
+    <div class="col-sm-10 col-sm-offset-2">
+      <div *ngFor="let day of days">
+        <form-scheduler-weektime-hours *ngIf="day.active" [form]="form" [day]="day.key" [connection]="_connection"></form-scheduler-weektime-hours>
       </div>
     </div>
   </div>
   <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
-      <button type="submit" class="btn btn-default">Controller speichern</button>
+      <button type="submit" class="btn btn-default">Tagesplan speichern</button>
     </div>
   </div>
 </form>
