@@ -32,9 +32,11 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 
 	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this, Inet4Address.class);
 
-	public final ConfigChannel<String> user = new ConfigChannel<String>("user", this, String.class).optional();
+	public final ConfigChannel<String> username = new ConfigChannel<String>("username", this, String.class)
+			.defaultValue("root");
 
-	public final ConfigChannel<String> password = new ConfigChannel<String>("password", this, String.class).optional();
+	public final ConfigChannel<String> password = new ConfigChannel<String>("password", this, String.class)
+			.defaultValue("root");
 
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
 
@@ -86,7 +88,7 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 		 */
 		BatchPoints batchPoints = BatchPoints.database(DB_NAME) //
 				.tag("fems", String.valueOf(fems.valueOptional().get())) //
-				.retentionPolicy("autogen").build();
+				/* .retentionPolicy("autogen") */.build();
 		synchronized (queue) {
 			queue.asMap().forEach((timestamp, fieldValues) -> {
 				Builder builder = Point.measurement("data") //
@@ -116,7 +118,8 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 	}
 
 	private Optional<InfluxDB> getInfluxDB() {
-		if (!this.ip.valueOptional().isPresent() || !this.fems.valueOptional().isPresent()) {
+		if (!this.ip.valueOptional().isPresent() || !this.fems.valueOptional().isPresent()
+				|| !this.username.valueOptional().isPresent() || !this.password.valueOptional().isPresent()) {
 			return Optional.empty();
 		}
 
@@ -125,10 +128,10 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 		}
 
 		String ip = this.ip.valueOptional().get().getHostAddress();
-		String user = this.user.valueOptional().orElse("root");
-		String password = this.password.valueOptional().orElse("root");
+		String username = this.username.valueOptional().get();
+		String password = this.password.valueOptional().get();
 
-		InfluxDB influxdb = InfluxDBFactory.connect("http://" + ip + ":8086", user, password);
+		InfluxDB influxdb = InfluxDBFactory.connect("http://" + ip + ":8086", username, password);
 		try {
 			influxdb.createDatabase(DB_NAME);
 		} catch (RuntimeException e) {
