@@ -30,15 +30,16 @@ public class Power {
 	private final AvgFiFoQueue reactivePowerQueue;
 
 	public Power(ReadChannel<Long> allowedDischarge, ReadChannel<Long> allowedCharge, ReadChannel<Long> allowedApparent,
-			WriteChannel<Long> setActivePower, WriteChannel<Long> setReactivePower, int average) {
+			WriteChannel<Long> setActivePower, WriteChannel<Long> setReactivePower, int acivePowerAverage,
+			int reactivePowerAverage) {
 		super();
 		this.allowedDischarge = allowedDischarge;
 		this.allowedCharge = allowedCharge;
 		this.allowedApparent = allowedApparent;
 		this.setActivePower = setActivePower;
 		this.setReactivePower = setReactivePower;
-		this.activePowerQueue = new AvgFiFoQueue(average);
-		this.reactivePowerQueue = new AvgFiFoQueue(average);
+		this.activePowerQueue = new AvgFiFoQueue(acivePowerAverage);
+		this.reactivePowerQueue = new AvgFiFoQueue(reactivePowerAverage);
 	}
 
 	public void setActivePower(long power) {

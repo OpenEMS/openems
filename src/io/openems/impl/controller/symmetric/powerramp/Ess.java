@@ -24,7 +24,7 @@ public class Ess extends ThingMap {
 		id = ess.id();
 		activePower = ess.activePower().required();
 		this.power = new Power(ess.allowedDischarge().required(), ess.allowedCharge().required(),
-				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required(),
+				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required(), 1,
 				1);
 		this.gridMode = ess.gridMode();
 	}

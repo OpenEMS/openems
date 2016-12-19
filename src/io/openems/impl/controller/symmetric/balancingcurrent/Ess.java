@@ -54,7 +54,7 @@ public class Ess extends ThingMap {
 		reactivePower = ess.reactivePower().required();
 		this.power = new Power(ess.allowedDischarge().required(), ess.allowedCharge().required(),
 				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required(),
-				10);
+				10, 2);
 	}
 
 }
