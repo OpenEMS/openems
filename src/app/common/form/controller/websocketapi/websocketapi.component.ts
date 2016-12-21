@@ -16,13 +16,13 @@ export class FormControllerWebsocketApiComponent extends FormThingComponent {
 
   @Input()
   set form(form: FormGroup) {
-    if(!form.value["priority"]) {
+    if (!form.value["priority"]) {
       form.addControl("priority", this.formBuilder.control(""));
     }
-    if(!form.value["port"]) {
-      form.addControl("port", this.formBuilder.control(""));
+    if (!form.value["port"]) {
+      form.addControl("port", this.formBuilder.control({ value: "", diabled: true }));
     }
     super.setForm(form, []);
   }
-  
+
 }

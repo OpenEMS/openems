@@ -33,6 +33,10 @@ interface ConfigUpdateRequest extends ConfigRequest {
   value: Object;
 }
 
+interface ConfigDeleteRequest extends ConfigRequest {
+  thing: string;
+}
+
 interface Controller {
   class: string;
   id: string;
@@ -51,6 +55,8 @@ class TableData {
 export class ConfigurationComponent implements OnInit {
 
   private form: FormGroup;
+
+  private configRequests: ConfigRequest[];
 
   public submitted: boolean; // keep track on whether form is submitted
   public events: any[] = []; // use later to display form changes
@@ -132,7 +138,7 @@ export class ConfigurationComponent implements OnInit {
   }
 
   private save() {
-    var configRequests = this.getSaveRequests(this.form);
+    var configRequests = this.getRequests(this.form);
     if (configRequests.length > 0) {
       this.connection.send({
         config: configRequests
@@ -141,7 +147,7 @@ export class ConfigurationComponent implements OnInit {
     // TODO: clear dirty flag
   }
 
-  private getSaveRequests(form: FormGroup | FormArray, path?: string[]): ConfigRequest[] {
+  private getRequests(form: FormGroup | FormArray, path?: string[]): ConfigRequest[] {
     if (!path) {
       path = [];
     }
@@ -157,10 +163,21 @@ export class ConfigurationComponent implements OnInit {
               object: control.value,
               path: path
             });
+          } if (control["_deleted"]) {
+            // Delete Thing
+            configRequests.push(<ConfigDeleteRequest>{
+              operation: "delete",
+              thing: control.value.id
+            });
+            if(form instanceof FormGroup) {
+              form.removeControl(channel);
+            } else {
+              form.removeAt(Number.parseInt(channel));
+            }
           } else {
             // Update existing thing
             path.unshift(channel);
-            configRequests = configRequests.concat(this.getSaveRequests(control, path));
+            configRequests = configRequests.concat(this.getRequests(control, path));
           }
         } else {
           var parent = control.parent._value;
