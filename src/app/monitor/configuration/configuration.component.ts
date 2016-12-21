@@ -37,11 +37,6 @@ interface ConfigDeleteRequest extends ConfigRequest {
   thing: string;
 }
 
-interface ConfigPath {
-  type: "controller" | "scheduler";
-  thing: string;
-}
-
 interface Controller {
   class: string;
   id: string;
@@ -105,7 +100,6 @@ export class ConfigurationComponent implements OnInit {
 
   private onConnectionEvent() {
     this.form = this.buildFormGroup(this.connection.config);
-    console.log("FORM", this.form);
     this.connection.subject.subscribe(null, null, (/* complete */) => {
       this.router.navigate(['/login']);
     })
@@ -132,7 +126,6 @@ export class ConfigurationComponent implements OnInit {
 
   private save() {
     var configRequests = this.getRequests(this.form);
-    console.log("SAVE", configRequests, this.form);
     if (configRequests.length > 0) {
       this.connection.send({
         config: configRequests
@@ -170,36 +163,29 @@ export class ConfigurationComponent implements OnInit {
             }
           } else {
             // Update existing thing
-            path.unshift(channel);
-            configRequests = configRequests.concat(this.getRequests(control, path));
+            if (control.value["time"] && control.value["controllers"]) {
+              // WeekTimeSchedule -> delete controller
+              configRequests.push(<ConfigUpdateRequest>{
+                operation: "update",
+                thing: "_scheduler0",
+                channel: path[0],
+                value: this.form.value["scheduler"][path[0]]
+              });
+            } else {
+              path.unshift(channel);
+              configRequests = configRequests.concat(this.getRequests(control, path));
+            }
           }
         } else {
           // => FormControl
           var parent = control.parent;
-          if (parent instanceof FormArray) {
-            if (control["_deleted"]) {
-              parent.removeAt(Number.parseInt(channel));
-              if (parent.parent.value["time"] && parent.parent.value["controllers"]) {
-                // WeekTimeSchedule -> delete controller
-                var day = path[2];
-                console.log(control);
-                configRequests.push(<ConfigUpdateRequest>{
-                  operation: "update",
-                  thing: "_scheduler0",
-                  channel: day,
-                  value: this.form.value["scheduler"][day]
-                });
-              }
-            }
-          } else if (parent instanceof FormGroup) {
-            if (parent.value["id"]) {
-              configRequests.push(<ConfigUpdateRequest>{
-                operation: "update",
-                thing: parent.value.id,
-                channel: channel,
-                value: control._value,
-              });
-            }
+          if (parent.value["id"]) {
+            configRequests.push(<ConfigUpdateRequest>{
+              operation: "update",
+              thing: parent.value.id,
+              channel: channel,
+              value: control._value,
+            });
           }
         }
       }

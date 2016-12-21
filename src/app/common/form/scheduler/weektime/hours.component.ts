@@ -25,9 +25,9 @@ export class FormSchedulerWeekTimeHoursComponent {
     control.markAsDirty();
   }
 
-  public removeController(controller: FormControl) {
-    controller.markAsDirty();
-    controller["_deleted"] = true;
+  public removeController(controllers: FormArray, index: number) {
+    controllers.removeAt(index);
+    controllers.markAsDirty();
   }
 
   public addTime(hours: any) {

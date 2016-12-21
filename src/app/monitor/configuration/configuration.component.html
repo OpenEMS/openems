@@ -7,7 +7,12 @@
   <form *ngIf="form" [formGroup]="form" novalidate (ngSubmit)="save()">
     <div *ngIf="form.dirty" class="row">
       <div class="col-md-12">
-        <div class="alert alert-info" role="alert">Konfiguration wurde geändert. <button type="submit" class="btn btn-primary" [disabled]="!form.valid">Jetzt speichern</button></div>
+        <div class="alert alert-info clearfix" role="alert">
+          <p class="pull-left">Konfiguration wurde geändert.</p>
+          <div class="pull-right">
+            <button type="submit" class="btn btn-primary" [disabled]="!form.valid">Jetzt speichern</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="row">
