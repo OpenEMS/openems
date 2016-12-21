@@ -20,7 +20,7 @@ export class FormControllerWebsocketApiComponent extends FormThingComponent {
       form.addControl("priority", this.formBuilder.control(""));
     }
     if (!form.value["port"]) {
-      form.addControl("port", this.formBuilder.control({ value: "", diabled: true }));
+      form.addControl("port", this.formBuilder.control({ value: "", disabled: true }));
     }
     super.setForm(form, []);
   }

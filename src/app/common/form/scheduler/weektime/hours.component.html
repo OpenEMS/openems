@@ -1,30 +1,38 @@
-<div [formGroup]="form" *ngIf="connection">
+<div [formGroup]="form">
   <div [formArrayName]="day">
     <div class="panel panel-default" *ngFor="let hour of form.controls[day].controls; let i=index" [formGroupName]="i">
       <div class="panel-heading">
-        <div class="row">
-          <div class="col-sm-4">
-            <div class="input-group">
-              <input type="text" class="form-control" formControlName="time">
-              <div (click)="removeTime(form.controls[day], i)" class="input-group-addon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
+        <div class="form-horizontal">
+          <div class="form-group" style="margin-bottom: 0">
+            <label class="col-sm-2 control-label" [for]="time">Startzeit</label>
+            <div class="col-sm-4">
+              <input type="text" class="form-control" formControlName="time" placeholder="HH:MM">
+            </div>
+            <div class="col-sm-6 col-xs-12 text-right">
+              <button (click)="removeTime(form.controls[day], i)" type="button" class="btn btn-default" title="Remove Controller">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
             </div>
           </div>
         </div>
       </div>
       <div class="panel-body" formArrayName="controllers">
         <div class="row">
-          <div *ngFor="let controllers of hour.controls.controllers.controls; let j=index" class="col-sm-4">
-            <div class="input-group">
-              <select class="form-control" [formControlName]="j">
-                <option *ngFor="let controller of connection.config.scheduler.controllers">{{controller.id}}</option>
-              </select>
-              <div (click)="removeController(hour.controls.controllers, j)" class="input-group-addon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
+          <label class="col-sm-2 control-label text-right">Controller</label>
+          <div class="col-sm-10">
+            <div *ngFor="let controller of hour.controls.controllers.controls; let j=index" class="col-sm-4" style="padding-left:0; padding-right:0">
+              <div class="input-group">
+                <select class="form-control" [formControlName]="j" [class.btn-danger]="controller._deleted">
+                  <option *ngFor="let ctrl of form.controls.controllers.controls" [value]="ctrl.value.id">{{ctrl.value.id}}</option>
+                </select>
+                <div (click)="removeController(controller)" class="input-group-addon"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></div>
+              </div>
             </div>
-          </div>
-          <div class="col-sm-4">
-            <div class="input-group">
-              <input type="text" class="form-control" disabled>
-              <div (click)="addController(hour.controls.controllers)" class="input-group-addon"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></div>
+            <div class="col-sm-4" style="padding-left:0; padding-right:0">
+              <div class="input-group">
+                <input type="text" class="form-control" disabled>
+                <div (click)="addController(hour.controls.controllers)" class="input-group-addon"><span class="glyphicon glyphicon-plus" title="Add Controller"></span></div>
+              </div>
             </div>
           </div>
         </div>
@@ -32,14 +40,12 @@
     </div>
   </div>
   <div class="panel panel-default">
-    <div class="panel-heading">
-      <div class="row">
-        <div class="col-sm-4">
-          <div class="input-group">
-            <input type="text" class="form-control" disabled>
-            <div (click)="addTime(form.controls[day])" class="input-group-addon"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></div>
-          </div>
-        </div>
+    <div class="panel-heading clearfix">
+      <h4 class="pull-left"></h4>
+      <div class="pull-right">
+        <button (click)="addTime(form.controls[day])" type="button" class="btn btn-default" title="Add Time">
+          <span class="glyphicon glyphicon-plus"></span>
+        </button>
       </div>
     </div>
   </div>

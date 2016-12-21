@@ -38,6 +38,7 @@ import { FormControllerWebsocketApiComponent } from './common/form/controller/we
 import { FormControllerRestApiComponent } from './common/form/controller/restapi/restapi.component';
 import { FormControllerUniversalComponent } from './common/form/controller/universal/universal.component';
 import { FormControllerNewComponent } from './common/form/controller/new/new.component';
+import { FormSchedulerComponent } from './common/form/scheduler/scheduler.component';
 import { FormSchedulerWeekTimeComponent } from './common/form/scheduler/weektime/weektime.component';
 import { FormSchedulerWeekTimeHoursComponent } from './common/form/scheduler/weektime/hours.component';
 
@@ -81,6 +82,7 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     FormControllerRestApiComponent,
     FormControllerUniversalComponent,
     FormControllerNewComponent,
+    FormSchedulerComponent,
     FormSchedulerWeekTimeComponent,
     FormSchedulerWeekTimeHoursComponent,
     // pipe

@@ -15,6 +15,9 @@ interface Day {
 })
 export class FormSchedulerWeekTimeComponent extends FormThingComponent {
 
+  @Input()
+  private form: FormGroup;
+
   private days: Day[] = [{
     label: "Montag",
     key: "monday",

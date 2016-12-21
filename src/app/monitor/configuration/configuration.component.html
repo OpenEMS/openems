@@ -4,10 +4,20 @@
       <h2>{{connection.name}}</h2>
     </div>
   </div>
-  <form *ngIf="form" [formGroup]="form" novalidate (ngSubmit)="save()" class="form-horizontal">
+  <form *ngIf="form" [formGroup]="form" novalidate (ngSubmit)="save()">
     <div *ngIf="form.dirty" class="row">
       <div class="col-md-12">
         <div class="alert alert-info" role="alert">Konfiguration wurde geändert. <button type="submit" class="btn btn-primary" [disabled]="!form.valid">Jetzt speichern</button></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <h3>Scheduler</h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-11 col-md-offset-1">
+        <form-scheduler [form]="form"></form-scheduler>
       </div>
     </div>
     <div class="row">
@@ -17,33 +27,13 @@
     </div>
     <div class="row">
       <div class="col-md-11 col-md-offset-1">
-        <form-controllers [form]="form" [connection]="connection"></form-controllers>
+        <form-controllers [form]="form"></form-controllers>
       </div>
     </div>
   </form>
   <!--
-    <div class="row">
-    <div class="col-md-12">
-      <h3>Scheduler</h3>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-11 col-md-offset-1">
-      <div [ngSwitch]="connection.config.scheduler.class" class="panel panel-default">
-        <div (click)="connection.config.scheduler._collapsed = !connection.config.scheduler._collapsed" class="panel-heading">
-          <h4 class="panel-title">{{connection.config.scheduler.id}} <small>{{connection.config.scheduler.class}}</small></h4>
-        </div>
-        <div *ngIf="connection.config.scheduler._collapsed" class="panel-body">
-          -->
-          <!-- Defined views -->
-          <!--<form-scheduler-weektime *ngSwitchCase="'io.openems.impl.scheduler.time.WeekTimeScheduler'" [thing]="connection.config.scheduler"
-            [connection]="connection"></form-scheduler-weektime>
-            -->
-          <!-- Default -->
-          <!--<div *ngSwitchDefault>Undefined</div>
-        </div>
-      </div>
-    </div>
+
+
   </div>
   <div class="row">
     <div class="col-md-12">
@@ -125,4 +115,4 @@
   </div>
 </div>
 -->
-<small>{{connection.config | json}}</small>
+  <small>{{connection.config | json}}</small>

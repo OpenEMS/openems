@@ -23,9 +23,6 @@ export class FormControllersComponent {
   @Input()
   private form: FormGroup;
 
-  @Input()
-  private connection: Connection;
-
   private addController() {
     var controllers: FormArray = this.form.controls["scheduler"]["controls"]["controllers"];
     var controller = this.formBuilder.group({

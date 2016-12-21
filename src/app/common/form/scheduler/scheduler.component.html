@@ -1,0 +1,10 @@
+<div *ngIf="form" [formGroup]="form">
+  <div formGroupName="scheduler">
+    <div formArrayName="controllers">
+      <div [ngSwitch]="form.controls.scheduler.value.class">
+        <!-- Defined views -->
+        <form-scheduler-weektime *ngSwitchCase="'io.openems.impl.scheduler.time.WeekTimeScheduler'" [form]="form.controls.scheduler"></form-scheduler-weektime>
+      </div>
+    </div>
+  </div>
+</div>

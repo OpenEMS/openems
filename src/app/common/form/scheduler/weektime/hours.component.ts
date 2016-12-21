@@ -11,10 +11,7 @@ export class FormSchedulerWeekTimeHoursComponent {
 
   constructor(
     private formBuilder: FormBuilder
-  ) {}
-
-  @Input()
-  public connection: Connection;
+  ) { }
 
   @Input()
   public form: FormGroup;
@@ -23,19 +20,23 @@ export class FormSchedulerWeekTimeHoursComponent {
   public day: string;
 
   public addController(controllers: FormArray) {
-    controllers.push(this.formBuilder.control(""));
+    var control = this.formBuilder.control("");
+    controllers.push(control);
+    control.markAsDirty();
   }
 
-  public removeController(controllers: FormArray, index: number) {
-    controllers.removeAt(index);
-    controllers.markAsDirty();
+  public removeController(controller: FormControl) {
+    controller.markAsDirty();
+    controller["_deleted"] = true;
   }
 
-  public addTime(hours: FormArray) {
-    hours.push(this.formBuilder.group({
+  public addTime(hours: any) {
+    var control = this.formBuilder.group({
       "time": this.formBuilder.control(""),
       "controllers": this.formBuilder.array([]),
-    }));
+    })
+    hours.push(control);
+    control.markAsDirty();
   }
 
   public removeTime(hours: FormArray, index: number) {
