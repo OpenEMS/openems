@@ -1,5 +1,5 @@
 <div *ngIf="form" [formGroup]="form">
-  <ul class="nav nav-tabs">
+  <ul class="nav nav-pills">
     <li *ngFor="let day of days" role="presentation" [class.active]="day.active"><a (click)="setDayActive(day)">{{day.label}}</a></li>
   </ul>
   <div *ngFor="let day of days">

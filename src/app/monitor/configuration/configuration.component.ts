@@ -43,9 +43,9 @@ interface Controller {
   _collapsed: boolean;
 }
 
-class TableData {
-  key: string;
-  value: any;
+interface Menu {
+  label: string;
+  active: boolean;
 }
 
 @Component({
@@ -66,6 +66,14 @@ export class ConfigurationComponent implements OnInit {
   private value: string;
 
   private connection: Connection;
+
+  private menu: Menu[] = [{
+    label: "Scheduler",
+    active: true
+  }, {
+    label: "Controller",
+    active: false
+  }];
 
   constructor(
     private route: ActivatedRoute,
@@ -228,6 +236,16 @@ export class ConfigurationComponent implements OnInit {
       return this.buildFormGroup(item);
     } else {
       return this.buildFormControl(item);
+    }
+  }
+
+  public setMenuActive(pMenu: Menu) {
+    for (let menu of this.menu) {
+      if (pMenu == menu) {
+        menu.active = true;
+      } else {
+        menu.active = false;
+      }
     }
   }
 }

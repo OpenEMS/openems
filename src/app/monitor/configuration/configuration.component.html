@@ -5,6 +5,41 @@
     </div>
   </div>
   <form *ngIf="form" [formGroup]="form" novalidate (ngSubmit)="save()">
+    <ul class="nav nav-pills">
+      <li *ngFor="let m of menu" role="presentation" [class.active]="m.active"><a (click)="setMenuActive(m)">{{m.label}}</a></li>
+    </ul>
+    <div *ngFor="let m of menu">
+      <div *ngIf="m.active">
+        <div [ngSwitch]="m.label">
+          <!-- Scheduler -->
+          <div *ngSwitchCase="'Scheduler'">
+            <div class="row">
+              <div class="col-md-12">
+                <h3>Scheduler</h3>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-11 col-md-offset-1">
+                <form-scheduler [form]="form"></form-scheduler>
+              </div>
+            </div>
+          </div>
+          <!-- Controller -->
+          <div *ngSwitchCase="'Controller'">
+            <div class="row">
+              <div class="col-md-12">
+                <h3>Controller</h3>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-11 col-md-offset-1">
+                <form-controllers [form]="form"></form-controllers>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div *ngIf="form.dirty" class="row">
       <div class="col-md-12">
         <div class="alert alert-info clearfix" role="alert">
@@ -15,27 +50,8 @@
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-12">
-        <h3>Scheduler</h3>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-11 col-md-offset-1">
-        <form-scheduler [form]="form"></form-scheduler>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <h3>Controller</h3>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-11 col-md-offset-1">
-        <form-controllers [form]="form"></form-controllers>
-      </div>
-    </div>
   </form>
+</div>
   <!--
 
 
@@ -120,4 +136,3 @@
   </div>
 </div>
 -->
-  <small>{{connection.config | json}}</small>
