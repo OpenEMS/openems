@@ -33,8 +33,12 @@ export class FormControllersComponent {
       "id": this.formBuilder.control(""),
       "class": this.formBuilder.control(""),
     });
-    controller["_collapsed"] = false;
+    controller["_opened"] = true;
     controller["_new"] = true;
     controllers.push(controller);
+  }
+
+  public removeController(id: number) {
+
   }
 }

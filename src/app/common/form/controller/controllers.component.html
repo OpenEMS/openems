@@ -2,10 +2,18 @@
   <div formGroupName="scheduler">
     <div formArrayName="controllers">
       <div *ngFor="let controller of form.controls.scheduler.controls.controllers.controls; let i=index" [formGroupName]="i" class="panel panel-default">
-        <div (click)="controller._collapsed = !controller._collapsed" class="panel-heading">
-          <h4 class="panel-title">{{controller.controls.id._value}} <small>{{controller.controls.class._value}}</small></h4>
+        <div class="panel-heading clearfix">
+          <h4 class="pull-left">{{controller.controls.id._value}} <small>{{controller.controls.class._value}}</small></h4>
+          <div class="pull-right">
+            <button (click)="controller._opened = !controller._opened" type="button" class="btn btn-default" title="Open Controller">
+              <span class="glyphicon glyphicon-menu-down"></span>
+            </button>
+            <button (click)="controller._opened = !controller._opened" type="button" class="btn btn-default" title="Remove Controller">
+              <span class="glyphicon glyphicon-remove"></span>
+            </button>
+          </div>
         </div>
-        <div *ngIf="controller._collapsed" class="panel-body">
+        <div *ngIf="controller._opened" class="panel-body">
           <!-- New -->
           <form-controller-new *ngIf="!(controller._value.id && controller._value.class)" [form]="controller"></form-controller-new>
           <div *ngIf="controller._value.id && controller._value.class" [ngSwitch]="controller._value.class">
@@ -16,14 +24,12 @@
         </div>
       </div>
       <div class="panel panel-default">
-        <div class="panel-heading">
-          <div class="row">
-            <div class="col-sm-4">
-              <div class="input-group">
-                <input type="text" class="form-control" disabled>
-                <div (click)="addController()" class="input-group-addon"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></div>
-              </div>
-            </div>
+        <div class="panel-heading clearfix">
+          <h4 class="pull-left"></h4>
+          <div class="pull-right">
+            <button (click)="addController()" type="button" class="btn btn-default" title="Add Controller">
+              <span class="glyphicon glyphicon-plus"></span>
+            </button>
           </div>
         </div>
       </div>
