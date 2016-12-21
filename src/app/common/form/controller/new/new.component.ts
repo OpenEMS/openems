@@ -4,9 +4,14 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { Connection } from './../../../../service/connection';
 
 @Component({
-  selector: 'form-controller-universal',
-  templateUrl: './universal.component.html',
+  selector: 'form-controller-new',
+  templateUrl: './new.component.html',
 })
-export class FormControllerUniversalComponent extends FormThingComponent {
+export class FormControllerNewComponent extends FormThingComponent {
+
+  @Input()
+  set form(form: FormGroup) {
+    super.setForm(form, []);
+  }
 
 }

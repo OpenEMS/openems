@@ -4,29 +4,25 @@
       <h2>{{connection.name}}</h2>
     </div>
   </div>
-  <div class="row">
-    <div class="col-md-12">
-      <h3>Controller</h3>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-11 col-md-offset-1">
-      <div *ngFor="let controller of connection.config.scheduler.controllers" [ngSwitch]="controller.class" class="panel panel-default">
-        <div (click)="controller._collapsed = !controller._collapsed" class="panel-heading">
-          <h3 class="panel-title">{{controller.id}} <small>{{controller.class}}</small></h3>
-        </div>
-        <div *ngIf="controller._collapsed" class="panel-body">
-          <!-- Defined views -->
-          <form-controller-websocketapi *ngSwitchCase="'io.openems.impl.controller.api.websocket.WebsocketApiController'" [thing]="controller"
-            [connection]="connection"></form-controller-websocketapi>
-          <form-controller-restapi *ngSwitchCase="'io.openems.impl.controller.api.rest.RestApiController'" [thing]="controller" [connection]="connection"></form-controller-restapi>
-          <!-- Default -->
-          <form-controller-universal *ngSwitchDefault [thing]="controller" [connection]="connection"></form-controller-universal>
-        </div>
+  <form *ngIf="form" [formGroup]="form" novalidate (ngSubmit)="save()" class="form-horizontal">
+    <div *ngIf="form.dirty" class="row">
+      <div class="col-md-12">
+        <div class="alert alert-info" role="alert">Konfiguration wurde geändert. <button type="submit" class="btn btn-primary" [disabled]="!form.valid">Jetzt speichern</button></div>
       </div>
     </div>
-  </div>
-  <div class="row">
+    <div class="row">
+      <div class="col-md-12">
+        <h3>Controller</h3>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-11 col-md-offset-1">
+        <form-controllers [form]="form" [connection]="connection"></form-controllers>
+      </div>
+    </div>
+  </form>
+  <!--
+    <div class="row">
     <div class="col-md-12">
       <h3>Scheduler</h3>
     </div>
@@ -35,20 +31,20 @@
     <div class="col-md-11 col-md-offset-1">
       <div [ngSwitch]="connection.config.scheduler.class" class="panel panel-default">
         <div (click)="connection.config.scheduler._collapsed = !connection.config.scheduler._collapsed" class="panel-heading">
-          <h3 class="panel-title">{{connection.config.scheduler.id}} <small>{{connection.config.scheduler.class}}</small></h3>
+          <h4 class="panel-title">{{connection.config.scheduler.id}} <small>{{connection.config.scheduler.class}}</small></h4>
         </div>
         <div *ngIf="connection.config.scheduler._collapsed" class="panel-body">
+          -->
           <!-- Defined views -->
-          <form-scheduler-weektime *ngSwitchCase="'io.openems.impl.scheduler.time.WeekTimeScheduler'" [thing]="connection.config.scheduler"
+          <!--<form-scheduler-weektime *ngSwitchCase="'io.openems.impl.scheduler.time.WeekTimeScheduler'" [thing]="connection.config.scheduler"
             [connection]="connection"></form-scheduler-weektime>
+            -->
           <!-- Default -->
-          <div *ngSwitchDefault>Undefined</div>
+          <!--<div *ngSwitchDefault>Undefined</div>
         </div>
       </div>
     </div>
   </div>
-
-
   <div class="row">
     <div class="col-md-12">
       <h3>Verbindungen <small>(bridges)</small></h3>
@@ -128,5 +124,5 @@
     </div>
   </div>
 </div>
-
+-->
 <small>{{connection.config | json}}</small>

@@ -2,58 +2,18 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { LocalstorageService } from './localstorage.service';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
-import { Device } from './device';
+import { Notification } from './notification';
 import { ToastsManager } from 'ng2-toastr/ng2-toastr';
-
-export { Device } from './device';
+import { OpenemsConfig, InfluxdbPersistence, Device } from './config';
 
 const SUBSCRIBE: string = "fenecon_monitor_v1";
-
-class ThingConfig {
-  id: String;
-  class: String;
-}
-
-class SchedulerConfig extends ThingConfig {
-  controllers: Object[] = [];
-}
-
-class OpenemsConfig {
-  _devices: { [id: string]: Device } = {};
-  things: ThingConfig[] = [];
-  scheduler: SchedulerConfig = new SchedulerConfig();
-  persistence: Object[] = [];
-
-  public getInfluxdbPersistence(): InfluxdbPersistence {
-    for (let persistence of this.persistence) {
-      if (persistence instanceof InfluxdbPersistence) {
-        return persistence as InfluxdbPersistence;
-      }
-    };
-    return null;
-  }
-}
-
-type NotificationType = "success" | "error" | "warning" | "info";
-
-interface Notification {
-  type: NotificationType;
-  message: string;
-}
-
-export class InfluxdbPersistence {
-  ip: string;
-  username: string;
-  password: string;
-  fems: number;
-}
 
 export class Connection {
   public isConnected: boolean = false;
   public username: string;
   public websocket: WebSocket;
   public subject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  public event: BehaviorSubject<string> = new BehaviorSubject(null);
+  public event: BehaviorSubject<Notification> = new BehaviorSubject(null);
   public config: OpenemsConfig = new OpenemsConfig();
   public data: Object = {};
 
@@ -85,14 +45,14 @@ export class Connection {
       return;
     }
 
-    // Error description is here:
-    var error = null;
+    // Status description is here:
+    var status: Notification = null;
 
-    // send "not successful event" if not connected within timeout
+    // send "not successful event" if not connected within Timeout
     var timeout = setTimeout(() => {
       if (!this.isConnected) {
-        error = "Keine Verbindung: Timeout"
-        this.event.next(error);
+        status = { type: "error", message: "Keine Verbindung: Timeout" };
+        this.event.next(status);
       }
     }, 2000);
 
@@ -146,17 +106,17 @@ export class Connection {
               this.websocket = ws;
               this.subject = sj;
               this.isConnected = true;
-              error = null;
+              status = { type: "success", message: "Angemeldet als " + this.username + "." };
+              this.event.next(status);
               //this.subscribeNatures();
-              this.event.next("Angemeldet als " + this.username + ".");
             }
           } else {
             // close websocket
             this.localstorageService.removeToken(this.name);
             this.initialize();
             clearTimeout(timeout);
-            error = "Keine Verbindung: Authentifizierung fehlgeschlagen.";
-            this.event.next(error);
+            status = { type: "error", message: "Keine Verbindung: Authentifizierung fehlgeschlagen." };
+            this.event.next(status);
           }
         }
 
@@ -216,7 +176,6 @@ export class Connection {
               }
             }
           }
-          console.log(this.data);
         }
 
         // receive notification
@@ -227,17 +186,16 @@ export class Connection {
     }, (error: any) => {
       this.initialize();
       clearTimeout(timeout);
-      if (error == null) {
-        error = "Verbindungsfehler."
-        this.event.next(error);
+      if (!status) {
+        status = { type: "error", message: "Verbindungsfehler." };
+        this.event.next(status);
       }
     }, (/* complete */) => {
       this.initialize();
       clearTimeout(timeout);
-      if (error == null) {
-        error = "Verbindung beendet."
-        this.showNotification({ type:"info", message: "Verbindung beendet."});
-        this.event.next(error);
+      if (status == null) {
+        status = { type: "error", message: "Verbindung beendet." };
+        this.event.next(status);
       }
     });
   }
@@ -252,6 +210,8 @@ export class Connection {
   public close() {
     this.localstorageService.removeToken(this.name);
     this.initialize();
+    var status: Notification = { type: "error", message: "Verbindung beendet." };
+    this.event.next(status);
   }
 
   private initialize() {

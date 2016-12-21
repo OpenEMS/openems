@@ -30,9 +30,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.menuitems = [
-      { label: 'Übersicht', routerLink: '/monitor' },
+      { label: 'Übersicht', routerLink: '/monitor' }/*,
       { label: 'Aktuelle Daten', routerLink: '/monitor/current' },
-      { label: 'Historie', routerLink: '/monitor/history' }
+      { label: 'Historie', routerLink: '/monitor/history' }*/
     ];
   }
 }

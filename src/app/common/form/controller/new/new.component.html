@@ -1,0 +1,15 @@
+NEW
+<div *ngIf="_form" [formGroup]="_form">
+  <div class="form-group">
+    <label for="id" class="col-sm-2 control-label">Id</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" formControlName="id">
+    </div>
+  </div>
+  <div *ngIf="_form.value.id" class="form-group">
+    <label for="class" class="col-sm-2 control-label">Klasse</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" formControlName="class">
+    </div>
+  </div>
+</div>

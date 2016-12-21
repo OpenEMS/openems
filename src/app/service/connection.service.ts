@@ -12,11 +12,7 @@ export { Connection } from './connection';
 const DEFAULT_CONNECTIONS = [{
   name: "Trafostation 1",
   url: "ws://localhost:8085"
-}, {
-  name: "Trafostation 2",
-  url: "ws://localhost:8095"
-}
-];
+}];
 
 const DEFAULT_PASSWORD: string = "guest";
 //const DEFAULT = 'ws://localhost:80/websocket';

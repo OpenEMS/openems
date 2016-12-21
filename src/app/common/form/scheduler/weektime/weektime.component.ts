@@ -45,22 +45,6 @@ export class FormSchedulerWeekTimeComponent extends FormThingComponent {
     active: false
   }]
 
-  constructor(
-    private formBuilder: FormBuilder
-  ) {
-    super(formBuilder);
-  }
-
-  @Input()
-  set thing(thing: Object) {
-    this.buildForm(thing);
-  };
-
-  @Input()
-  set connection(connection: Connection) {
-    this._connection = connection;
-  }
-
   public setDayActive(thisDay: Day) {
     for (let day of this.days) {
       if (day == thisDay) {

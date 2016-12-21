@@ -1,16 +1,4 @@
-<form *ngIf="form" [formGroup]="form" novalidate (ngSubmit)="save(form)" class="form-horizontal">
-  <div class="form-group">
-    <label for="id" class="col-sm-2 control-label">Id</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" formControlName="id">
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="class" class="col-sm-2 control-label">Klasse</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" formControlName="class">
-    </div>
-  </div>
+<div *ngIf="_form" [formGroup]="_form">
   <div class="form-group">
     <label for="priority" class="col-sm-2 control-label">Priorität</label>
     <div class="col-sm-10">
@@ -23,9 +11,4 @@
       <input type="text" class="form-control" formControlName="port">
     </div>
   </div>
-  <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-      <button type="submit" class="btn btn-default" [disabled]="!form.valid">Controller speichern</button>
-    </div>
-  </div>
-</form>
+</div>

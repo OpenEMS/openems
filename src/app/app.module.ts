@@ -33,9 +33,11 @@ import { CommonEssFeneconProComponent } from './common/thing/ess/feneconpro/fene
 import { CommonEssFeneconCommercialComponent } from './common/thing/ess/feneconcommercial/feneconcommercial.component';
 
 // Forms
+import { FormControllersComponent } from './common/form/controller/controllers.component';
 import { FormControllerWebsocketApiComponent } from './common/form/controller/websocketapi/websocketapi.component';
 import { FormControllerRestApiComponent } from './common/form/controller/restapi/restapi.component';
 import { FormControllerUniversalComponent } from './common/form/controller/universal/universal.component';
+import { FormControllerNewComponent } from './common/form/controller/new/new.component';
 import { FormSchedulerWeekTimeComponent } from './common/form/scheduler/weektime/weektime.component';
 import { FormSchedulerWeekTimeHoursComponent } from './common/form/scheduler/weektime/hours.component';
 
@@ -74,9 +76,11 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     CommonEssFeneconProComponent,
     CommonEssFeneconCommercialComponent,
     //   Form
+    FormControllersComponent,
     FormControllerWebsocketApiComponent,
     FormControllerRestApiComponent,
     FormControllerUniversalComponent,
+    FormControllerNewComponent,
     FormSchedulerWeekTimeComponent,
     FormSchedulerWeekTimeHoursComponent,
     // pipe

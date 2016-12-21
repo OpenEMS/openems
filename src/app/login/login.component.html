@@ -13,7 +13,7 @@
             </div>
             <button  *ngIf="connection.value.isConnected" class="btn btn-default" (click)="doLogout(connection.value)">Abmelden</button>
             <button *ngIf="!connection.value.isConnected" class="btn btn-default" (click)="doLogin(connection.value)">Anmelden</button>
-            <span> {{connection.value.event | async}}</span>
+            <span> {{(connection.value.event | async)?.message}}</span>
           </form>
         </div>
       </div>

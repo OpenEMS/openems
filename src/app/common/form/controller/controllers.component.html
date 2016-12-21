@@ -1,0 +1,53 @@
+<form *ngIf="form" [formGroup]="form" novalidate (ngSubmit)="save(form)" class="form-horizontal">
+  <div formGroupName="scheduler">
+    <div formArrayName="controllers">
+      <div *ngFor="let controller of form.controls.scheduler.controls.controllers.controls; let i=index" [formGroupName]="i" class="panel panel-default">
+        <div (click)="controller._collapsed = !controller._collapsed" class="panel-heading">
+          <h4 class="panel-title">{{controller.controls.id._value}} <small>{{controller.controls.class._value}}</small></h4>
+        </div>
+        <div *ngIf="controller._collapsed" class="panel-body">
+          <!-- New -->
+          <form-controller-new *ngIf="!(controller._value.id && controller._value.class)" [form]="controller"></form-controller-new>
+          <div *ngIf="controller._value.id && controller._value.class" [ngSwitch]="controller._value.class">
+            <!-- Defined views -->
+            <form-controller-websocketapi *ngSwitchCase="'io.openems.impl.controller.api.websocket.WebsocketApiController'" [form]="controller"></form-controller-websocketapi>
+            <form-controller-restapi *ngSwitchCase="'io.openems.impl.controller.api.rest.RestApiController'" [form]="controller"></form-controller-restapi>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="input-group">
+                <input type="text" class="form-control" disabled>
+                <div (click)="addController()" class="input-group-addon"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!--
+        
+        
+        -->
+  <!-- Default -->
+  <!--<form-controller-universal *ngSwitchDefault [thing]="controller" [connection]="connection"></form-controller-universal>
+        -->
+
+  <!--        
+      </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-xs-12">
+      <button type="submit" class="btn btn-default">Controller-Konfiguration speichern</button>
+    </div>
+  </div>-->
+</form>
