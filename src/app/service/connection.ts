@@ -15,7 +15,7 @@ export class Connection {
   public subject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public event: BehaviorSubject<Notification> = new BehaviorSubject(null);
   public config: OpenemsConfig = new OpenemsConfig();
-  public data: Object = {};
+  public data: BehaviorSubject<Object> = new BehaviorSubject<any>(null);
 
   constructor(
     public name: string,
@@ -166,16 +166,19 @@ export class Connection {
         // Receive data
         if ("data" in msg) {
           var data = msg.data;
+          var newData: Object = {}
           for (let id in data) {
             var channels = data[id];
             if (id in this.config._devices) {
-              this.data[id] = {};
+              newData[id] = {};
               for (let channelid in channels) {
                 var channel = channels[channelid];
-                this.data[id][channelid] = channel;
+                newData[id][channelid] = channel;
               }
             }
           }
+          this.data.next(newData);
+          console.log(newData);
         }
 
         // receive notification
@@ -223,13 +226,13 @@ export class Connection {
     this.username = null;
     this.config = new OpenemsConfig();
     this.subject = new BehaviorSubject<any>(null);
-    this.data = {};
+    this.data = new BehaviorSubject<any>(null);
   }
 
   /**
    * Send "subscribe" message to server 
    */
-  private subscribeNatures() {
+  public subscribeData() {
     this.send({
       subscribe: SUBSCRIBE
     });
@@ -238,7 +241,7 @@ export class Connection {
   /**
    * send "unsubscribe" message to server
    */
-  private unsubscribeNatures() {
+  public unsubscribeData() {
     this.send({
       subscribe: ""
     });

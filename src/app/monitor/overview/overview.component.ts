@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ConnectionService, Connection } from './../../service/connection.service';
 import { Router } from '@angular/router';
 
@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
   selector: 'app-monitor-overview',
   templateUrl: './overview.component.html'
 })
-export class MonitorOverviewComponent implements OnInit {
+export class MonitorOverviewComponent implements OnInit, OnDestroy {
 
   constructor(
     private connectionService: ConnectionService,
@@ -15,13 +15,27 @@ export class MonitorOverviewComponent implements OnInit {
 
   ngOnInit() {
     this.connectionService.connectionsChanged.subscribe((/* value */) => {
-      for(let conn in this.connectionService.connections) {
-        if(this.connectionService.connections[conn].isConnected) {
-          return;
-        }
-        this.router.navigate(['/login']);
+      // subscribe to each connection for overview
+      for (let conn in this.connectionService.connections) {
+        var connection = this.connectionService.connections[conn];
+        connection.event.subscribe(() => {
+          if (connection.isConnected) {
+            connection.subscribeData();
+          }
+        });
       }
     })
+  }
+
+  ngOnDestroy() {
+    console.log("Overview Out");
+    // unsubscribe to each connection for overview
+    for (let conn in this.connectionService.connections) {
+      var connection = this.connectionService.connections[conn];
+      if (connection.isConnected) {
+        connection.unsubscribeData();
+      }
+    }
   }
 
   private contains(array: string[], tag: string): boolean {

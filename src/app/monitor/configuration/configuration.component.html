@@ -8,33 +8,20 @@
     <ul class="nav nav-pills">
       <li *ngFor="let m of menu" role="presentation" [class.active]="m.active"><a (click)="setMenuActive(m)">{{m.label}}</a></li>
     </ul>
+    <br/>
     <div *ngFor="let m of menu">
       <div *ngIf="m.active">
         <div [ngSwitch]="m.label">
           <!-- Scheduler -->
-          <div *ngSwitchCase="'Scheduler'">
-            <div class="row">
-              <div class="col-md-12">
-                <h3>Scheduler</h3>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-11 col-md-offset-1">
-                <form-scheduler [form]="form"></form-scheduler>
-              </div>
+          <div class="row" *ngSwitchCase="'Scheduler'">
+            <div class="col-md-12">
+              <form-scheduler [form]="form"></form-scheduler>
             </div>
           </div>
           <!-- Controller -->
-          <div *ngSwitchCase="'Controller'">
-            <div class="row">
-              <div class="col-md-12">
-                <h3>Controller</h3>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-11 col-md-offset-1">
-                <form-controllers [form]="form"></form-controllers>
-              </div>
+          <div class="row" *ngSwitchCase="'Controller'">
+            <div class="col-md-12">
+              <form-controllers [form]="form"></form-controllers>
             </div>
           </div>
         </div>
@@ -52,7 +39,7 @@
     </div>
   </form>
 </div>
-  <!--
+<!--
 
 
   </div>

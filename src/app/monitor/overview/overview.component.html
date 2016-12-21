@@ -2,26 +2,36 @@
   <div class="row">
     <div *ngFor="let conn of connectionService.connections | keys">
       <div *ngIf="conn.value.isConnected" class="col-xs-4 col-md-3">
-        <div class="panel panel-default">
+        <div routerLink="/monitor/{{conn.value.name}}" class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">{{conn.value.name}}</h3>
           </div>
-          <table class="table">
-            <tr *ngFor="let dev of conn.value.devices | keys">
-              <template [ngIf]="dev.value.Soc">  
-                <td>Ladezustand</td>
-                <td class="align-right">{{dev.value.Soc}} %</td>
+          <div *ngFor="let dev of conn.value.data | async | keys">
+            <div [ngSwitch]="dev.key">
+              <template [ngSwitchCase]="'ess0'">
+                <table class="table">
+                  <tr>
+                    <th colspan="3">Speicher</th>
+                  </tr>
+                  <tr>
+                    <td>Ladezustand</td>
+                    <td></td>
+                    <td class="align-right">{{dev.value.Soc}} %</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3">
+                      <common-soc [soc]="dev.value.Soc"></common-soc>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Wirkleistung</td>
+                    <td></td>
+                    <td class="align-right">{{dev.value.ActivePower}} W</td>
+                  </tr>
+                </table>
               </template>
-            </tr>
-            <!-- TODO: filter ESS devices
-            <tr *ngFor="let dev of conn.value.devices | keys">
-              <template [ngIf]="dev.value.ActivePower">  
-                <td>Leistung</td>
-                <td>{{dev.value.ActivePower}} W</td>
-              </template>
-            </tr>-->
-          </table>
-          <a routerLink="/monitor/{{conn.value.name}}"><div class="panel-footer">Details...</div></a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
