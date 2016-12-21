@@ -139,7 +139,7 @@ export class ConfigurationComponent implements OnInit {
         config: configRequests
       })
     }
-    // TODO: clear dirty flag
+    this.form.markAsPristine();
   }
 
   private getRequests(form: FormGroup | FormArray, path?: string[]): ConfigRequest[] {
@@ -149,6 +149,7 @@ export class ConfigurationComponent implements OnInit {
     var configRequests: ConfigRequest[] = [];
     for (let channel in form.controls) {
       var control = form.controls[channel];
+      var parent = control.parent;
       if (control.dirty) {
         if (control instanceof FormGroup || control instanceof FormArray) {
           if (control["_new"]) {
@@ -171,13 +172,18 @@ export class ConfigurationComponent implements OnInit {
             }
           } else {
             // Update existing thing
-            if (control.value["time"] && control.value["controllers"]) {
-              // WeekTimeSchedule -> delete controller
+            if (parent.value["class"] && parent.value.class === "io.openems.impl.scheduler.time.WeekTimeScheduler") {
+              // WeekTimeScheduler
+              var data: Object[] = parent.value[channel];
+              data.sort((a: Object, b: Object) => {
+                // sort by time ascending
+                return (<string>a["time"]).localeCompare(b["time"]);
+              })
               configRequests.push(<ConfigUpdateRequest>{
                 operation: "update",
-                thing: "_scheduler0",
-                channel: path[0],
-                value: this.form.value["scheduler"][path[0]]
+                thing: parent.value["id"],
+                channel: channel,
+                value: data
               });
             } else {
               path.unshift(channel);
@@ -186,7 +192,6 @@ export class ConfigurationComponent implements OnInit {
           }
         } else {
           // => FormControl
-          var parent = control.parent;
           if (parent.value["id"]) {
             configRequests.push(<ConfigUpdateRequest>{
               operation: "update",
