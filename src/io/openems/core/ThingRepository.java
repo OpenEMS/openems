@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -136,15 +135,15 @@ public class ThingRepository {
 		}
 
 		// Add Channels to thingChannels, thingConfigChannels and thingWriteChannels
-		List<Member> members = getMembers(thing.getClass());
+		List<Member> members = ConfigUtils.getChannelMembers(thing.getClass());
 		for (Member member : members) {
 			try {
 				Channel channel;
-				if (member instanceof Method && Channel.class.isAssignableFrom(((Method) member).getReturnType())) {
+				if (member instanceof Method) {
 					// It's a Method with ReturnType Channel
 					channel = (Channel) ((Method) member).invoke(thing);
 
-				} else if (member instanceof Field && Channel.class.isAssignableFrom(((Field) member).getType())) {
+				} else if (member instanceof Field) {
 					// It's a Field with Type Channel
 					channel = (Channel) ((Field) member).get(thing);
 				} else {
@@ -241,23 +240,6 @@ public class ThingRepository {
 
 	public Set<Thing> getThings() {
 		return Collections.unmodifiableSet(this.thingIds.values());
-	}
-
-	/**
-	 * Get all declared members of thing class.
-	 *
-	 * @param clazz
-	 * @return
-	 */
-	private static List<Member> getMembers(Class<? extends Thing> clazz) {
-		List<Member> members = new LinkedList<>();
-		for (Method method : clazz.getMethods()) {
-			members.add(method);
-		}
-		for (Field field : clazz.getFields()) {
-			members.add(field);
-		}
-		return Collections.unmodifiableList(members);
 	}
 
 	/**

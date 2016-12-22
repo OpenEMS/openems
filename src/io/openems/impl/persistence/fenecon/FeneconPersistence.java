@@ -36,12 +36,24 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 	private static final int DEFAULT_CYCLETIME = 2000;
 
-	private volatile int cycleTime = DEFAULT_CYCLETIME;
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
+			.defaultValue(DEFAULT_CYCLETIME);
+
+	@Override public ConfigChannel<Integer> cycleTime() {
+		return cycleTime;
+	}
+
+	private volatile int currentCycleTime = DEFAULT_CYCLETIME;
 
 	/**
 	 * Receives update events for all {@link ReadChannel}s, excluding {@link ConfigChannel}s via the {@link Databus}.
 	 */
 	@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+		if (channel == cycleTime) {
+			// Cycle Time
+			this.currentCycleTime = cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
+		}
+
 		if (!(channel instanceof ReadChannel<?>)) {
 			return;
 		}
@@ -108,7 +120,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			 * Sent successfully
 			 */
 			// reset cycleTime
-			this.cycleTime = DEFAULT_CYCLETIME;
+			this.currentCycleTime = cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
 
 			// resend from cache
 			for (Iterator<JsonObject> iterator = unsentCache.iterator(); iterator.hasNext();) {
@@ -174,8 +186,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 	private void increaseCycleTime() {
 		// TODO increase max cycle time for production
-		if (this.cycleTime < 30000 /* 30 seconds */) {
-			this.cycleTime *= 2;
+		if (currentCycleTime < 30000 /* 30 seconds */) {
+			currentCycleTime *= 2;
 		}
 		log.info("New cycle time: " + cycleTime);
 	}
@@ -186,9 +198,5 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			increaseCycleTime();
 		}
 		return getWebsocketClient().isPresent();
-	}
-
-	@Override protected int getCycleTime() {
-		return this.cycleTime;
 	}
 }

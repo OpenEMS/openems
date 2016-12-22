@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import io.openems.api.bridge.Bridge;
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.scheduler.Scheduler;
@@ -38,8 +39,11 @@ public class SimpleScheduler extends Scheduler {
 		thingRepository = ThingRepository.getInstance();
 	}
 
-	@Override protected int getCycleTime() {
-		return 500;
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
+			.defaultValue(500);
+
+	@Override public ConfigChannel<Integer> cycleTime() {
+		return cycleTime;
 	}
 
 	@Override protected void dispose() {}

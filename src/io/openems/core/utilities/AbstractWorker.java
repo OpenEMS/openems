@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.thing.Thing;
 
 public abstract class AbstractWorker extends Thread implements Thing {
@@ -45,7 +46,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 		this.setName(name);
 	}
 
-	protected abstract int getCycleTime();
+	public abstract ConfigChannel<Integer> cycleTime();
 
 	/**
 	 * Little helper method: Sleep and don't let yourself interrupt by a ForceRun-Flag. It is not making sense anyway,
@@ -110,7 +111,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 						initializedMutex.release();
 						initialize.set(false);
 					} else {
-						initializedMutex.awaitOrTimeout(getCycleTime() * 10, TimeUnit.MILLISECONDS);
+						initializedMutex.awaitOrTimeout(cycleTime().valueOptional().get() * 10, TimeUnit.MILLISECONDS);
 					}
 				}
 				/*
@@ -121,7 +122,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 				 * Wait for next cycle
 				 */
 				try {
-					Thread.sleep(getCycleTime()); // TODO add cycle time
+					Thread.sleep(cycleTime().valueOptional().get()); // TODO add cycle time
 				} catch (InterruptedException e) {
 					if (isForceRun.get()) {
 						// check if a "forceRun" was triggereed. In that case Thread.sleep is interrupted and run() is

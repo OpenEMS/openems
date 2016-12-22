@@ -49,8 +49,11 @@ public class WeekTimeScheduler extends Scheduler {
 		thingRepository = ThingRepository.getInstance();
 	}
 
-	@Override protected int getCycleTime() {
-		return 500;
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
+			.defaultValue(500);
+
+	@Override public ConfigChannel<Integer> cycleTime() {
+		return cycleTime;
 	}
 
 	@Override protected void dispose() {}

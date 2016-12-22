@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.api.bridge.Bridge;
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 
 public class SimulatorBridge extends Bridge {
@@ -53,8 +54,10 @@ public class SimulatorBridge extends Bridge {
 		return true;
 	}
 
-	@Override protected int getCycleTime() {
-		return 1000;
-	}
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
+			.defaultValue(1000);
 
+	@Override public ConfigChannel<Integer> cycleTime() {
+		return cycleTime;
+	}
 }

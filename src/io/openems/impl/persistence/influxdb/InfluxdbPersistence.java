@@ -38,6 +38,13 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 	public final ConfigChannel<String> password = new ConfigChannel<String>("password", this, String.class)
 			.defaultValue("root");
 
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
+			.defaultValue(10000);
+
+	@Override public ConfigChannel<Integer> cycleTime() {
+		return cycleTime;
+	}
+
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
 
 	/**
@@ -62,7 +69,8 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 			return;
 		}
 		// Round time to Cycle-Time
-		Long timestamp = System.currentTimeMillis() / getCycleTime() * getCycleTime();
+		int cycleTime = this.cycleTime().valueOptional().get();
+		Long timestamp = System.currentTimeMillis() / cycleTime * cycleTime;
 		synchronized (queue) {
 			queue.put(timestamp, fieldValue);
 		}
@@ -141,9 +149,5 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 
 		this._influxdb = Optional.of(influxdb);
 		return this._influxdb;
-	}
-
-	@Override protected int getCycleTime() {
-		return 10000;
 	}
 }

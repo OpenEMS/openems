@@ -3,6 +3,7 @@ package io.openems.core.utilities;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -10,7 +11,9 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +26,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
@@ -305,5 +309,43 @@ public class ConfigUtils {
 			throw new ReflectionException(e.getMessage());
 		}
 		return clazzes;
+	}
+
+	/**
+	 * Get all declared Channels of thing class.
+	 *
+	 * @param clazz
+	 * @return
+	 */
+	public static List<Member> getChannelMembers(Class<? extends Thing> clazz) {
+		List<Member> members = new LinkedList<>();
+		for (Method method : clazz.getMethods()) {
+			if (Channel.class.isAssignableFrom(method.getReturnType())) {
+				members.add(method);
+			}
+		}
+		for (Field field : clazz.getFields()) {
+			if (Channel.class.isAssignableFrom(field.getType())) {
+				members.add(field);
+			}
+		}
+		return Collections.unmodifiableList(members);
+	}
+
+	/**
+	 * Get all declared members of thing class.
+	 *
+	 * @param clazz
+	 * @return
+	 */
+	public static List<Member> getMembers(Class<? extends Thing> clazz) {
+		List<Member> members = new LinkedList<>();
+		for (Method method : clazz.getMethods()) {
+			members.add(method);
+		}
+		for (Field field : clazz.getFields()) {
+			members.add(field);
+		}
+		return Collections.unmodifiableList(members);
 	}
 }
