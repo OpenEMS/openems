@@ -8,7 +8,9 @@
   <div *ngIf="_form.value.id" class="form-group">
     <label for="class" class="col-sm-2 control-label">Klasse</label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" formControlName="class">
+      <select class="form-control" formControlName="class">
+        <option *ngFor="let ctrl of _form.parent.parent.parent.value._controllers" [value]="ctrl.class"><span *ngIf="ctrl.title">{{ctrl.title}}: </span>{{ctrl.class}}</option>
+      </select>
     </div>
   </div>
 </div>

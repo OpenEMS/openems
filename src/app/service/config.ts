@@ -17,8 +17,13 @@ export class InfluxdbPersistence {
   fems: number;
 }
 
+interface ControllerDefinition {
+  class: string;
+}
+
 export class OpenemsConfig {
   public _devices: { [id: string]: Device } = {};
+  public _controllers: ControllerDefinition[];
   public things: ThingConfig[] = [];
   public scheduler: SchedulerConfig = new SchedulerConfig();
   public persistence: Object[] = [];

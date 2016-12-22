@@ -28,7 +28,6 @@ export class MonitorOverviewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log("Overview Out");
     // unsubscribe to each connection for overview
     for (let conn in this.connectionService.connections) {
       var connection = this.connectionService.connections[conn];

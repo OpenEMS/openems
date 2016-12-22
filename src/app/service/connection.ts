@@ -133,6 +133,10 @@ export class Connection {
               this.config._devices[id] = device;
             }
           }
+          // controllers
+          if ("_controllers" in msg.config) {
+            this.config._controllers = msg.config._controllers;
+          }
           // things
           if ("things" in msg.config) {
             this.config.things = msg.config.things;

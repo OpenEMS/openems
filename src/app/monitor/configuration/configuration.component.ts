@@ -108,6 +108,7 @@ export class ConfigurationComponent implements OnInit {
 
   private onConnectionEvent() {
     this.form = this.buildFormGroup(this.connection.config);
+    console.log(this.form);
     this.connection.subject.subscribe(null, null, (/* complete */) => {
       this.router.navigate(['/login']);
     })
@@ -151,6 +152,7 @@ export class ConfigurationComponent implements OnInit {
       var control = form.controls[channel];
       var parent = control.parent;
       if (control.dirty) {
+        console.log("DIRTY", control);
         if (control instanceof FormGroup || control instanceof FormArray) {
           if (control["_new"]) {
             // New Thing
@@ -177,7 +179,10 @@ export class ConfigurationComponent implements OnInit {
               var data: Object[] = parent.value[channel];
               data.sort((a: Object, b: Object) => {
                 // sort by time ascending
-                return (<string>a["time"]).localeCompare(b["time"]);
+                if(a["time"] && b["time"]) {
+                  return a["time"].localeCompare(b["time"]);
+                }
+                return 0;
               })
               configRequests.push(<ConfigUpdateRequest>{
                 operation: "update",
