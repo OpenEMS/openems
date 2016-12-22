@@ -7,7 +7,7 @@
             <button (click)="controller._opened = !controller._opened" type="button" class="btn btn-default" title="Open Controller">
               <span class="glyphicon glyphicon-menu-down"></span>
             </button>
-            <button (click)="deleteController(controller)" type="button" class="btn btn-default" title="Remove Controller">
+            <button (click)="deleteController(form.controls.scheduler.controls.controllers, i)" type="button" class="btn btn-default" title="Remove Controller">
               <span class="glyphicon glyphicon-remove"></span>
             </button>
           </div>
