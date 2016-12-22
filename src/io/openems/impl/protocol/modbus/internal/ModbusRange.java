@@ -52,8 +52,7 @@ public class ModbusRange {
 		return startAddress;
 	}
 
-	@Override
-	public String toString() {
+	@Override public String toString() {
 		return "Range [startAddress=" + startAddress + ", length=" + length + "]";
 	}
 }

@@ -21,9 +21,11 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
+import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.security.Authentication;
+import io.openems.api.thing.ThingDescription;
 import io.openems.core.Config;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ConfigUtils;
@@ -163,6 +165,14 @@ public class WebsocketServer extends WebSocketServer {
 				jDevices.add(nature.id(), jNatureClasses);
 			});
 			j.add("_devices", jDevices);
+			/*
+			 * Available Controllers
+			 */
+			JsonArray jControllers = new JsonArray();
+			for (ThingDescription controllerDescription : thingRepository.getAvailableControllers()) {
+				jControllers.add(controllerDescription.getAsJsonObject());
+			}
+			j.add("_controllers", jControllers);
 
 			handler.send("config", j);
 		} catch (NotImplementedException | ConfigException e) {
@@ -182,14 +192,15 @@ public class WebsocketServer extends WebSocketServer {
 			JsonArray jConfigs = JsonUtils.getAsJsonArray(jConfigsElement);
 			for (JsonElement jConfigElement : jConfigs) {
 				JsonObject jConfig = JsonUtils.getAsJsonObject(jConfigElement);
-				if (jConfig.has("thing") && jConfig.has("channel") && jConfig.has("operation")) {
+				String operation = JsonUtils.getAsString(jConfig, "operation");
+				if (operation.equals("update")) {
 					/*
-					 * Channel operation
+					 * Channel Update operation
 					 */
+					log.info("Channel: " + jConfig);
 					ThingRepository thingRepository = ThingRepository.getInstance();
 					String thingId = JsonUtils.getAsString(jConfig, "thing");
 					String channelId = JsonUtils.getAsString(jConfig, "channel");
-					String operation = JsonUtils.getAsString(jConfig, "operation");
 					Optional<Channel> channelOptional = thingRepository.getChannel(thingId, channelId);
 					if (channelOptional.isPresent()) {
 						Channel channel = channelOptional.get();
@@ -202,6 +213,39 @@ public class WebsocketServer extends WebSocketServer {
 									"Successfully updated [" + channel.address() + "] to [" + jValue + "]");
 						}
 					}
+				} else if (operation.equals("create")) {
+					/*
+					 * Create new Thing
+					 */
+					JsonObject jObject = JsonUtils.getAsJsonObject(jConfig, "object");
+					JsonArray jPaths = JsonUtils.getAsJsonArray(jConfig, "path");
+					String thingId = JsonUtils.getAsString(jObject, "id");
+					if (thingId.startsWith("_")) {
+						throw new ConfigException("IDs starting with underscore are reserved for internal use.");
+					}
+					for (JsonElement jPath : jPaths) {
+						String path = JsonUtils.getAsString(jPath);
+						if (path.equals("controllers")) {
+							Controller controller = thingRepository.createController(jObject);
+							for (Scheduler scheduler : thingRepository.getSchedulers()) {
+								// TODO needs modification for multiple schedulers
+								scheduler.addController(controller);
+							}
+							Config.getInstance().writeConfigFile();
+							handler.sendNotification(NotificationType.SUCCESS,
+									"Controller [" + controller.id() + "] wurde erstellt.");
+							break;
+						}
+					}
+				} else if (operation.equals("delete")) {
+					/*
+					 * Delete a Thing
+					 */
+					String thingId = JsonUtils.getAsString(jConfig, "thing");
+					thingRepository.removeThing(thingId);
+					Config.getInstance().writeConfigFile();
+					handler.sendNotification(NotificationType.SUCCESS, "Controller [" + thingId + "] wurde gelöscht.");
+
 				} else if (jConfig.has("get")) {
 					/*
 					 * Get configuration
@@ -221,13 +265,14 @@ public class WebsocketServer extends WebSocketServer {
 							}
 						}
 					}
+				} else {
+					throw new OpenemsException("Methode [" + operation + "] ist nicht implementiert.");
 				}
 			}
-		} catch (ReflectionException | NotImplementedException e) {
-			/*
-			 * ignore
-			 * log.error("ThingId or ChannelId missing in json[" + jChannel.toString() + "]");
-			 */
+		} catch (OpenemsException e) {
+			log.error(e.getMessage());
+			handler.sendNotification(NotificationType.ERROR, e.getMessage());
+			// TODO: send notification to websocket
 		}
 	}
 

@@ -3,8 +3,13 @@ package io.openems.impl.controller.api.rest;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.OpenemsException;
+import io.openems.api.thing.ThingDescription;
 
 public class RestApiController extends Controller {
+
+	public static ThingDescription getDescription() {
+		return new ThingDescription("REST-API (z. B. für externe Datenabfrage)", "");
+	}
 
 	public RestApiController() {
 		super();

@@ -261,18 +261,7 @@ public class Config implements ChannelChangeListener {
 			JsonArray jControllers = JsonUtils.getAsJsonArray(jScheduler, "controllers");
 			for (JsonElement jControllerElement : jControllers) {
 				JsonObject jController = JsonUtils.getAsJsonObject(jControllerElement);
-				String controllerClass = JsonUtils.getAsString(jController, "class");
-				Controller controller;
-				if (jController.has("id")) {
-					String id = JsonUtils.getAsString(jController, "id");
-					controller = (Controller) InjectionUtils.getThingInstance(controllerClass, id);
-				} else {
-					controller = (Controller) InjectionUtils.getThingInstance(controllerClass);
-				}
-				thingRepository.addThing(controller);
-				log.debug("Add Controller[" + controller.id() + "], Implementation["
-						+ controller.getClass().getSimpleName() + "]");
-				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(controller), jController);
+				Controller controller = thingRepository.createController(jController);
 				scheduler.addController(controller);
 			}
 		}
@@ -286,7 +275,6 @@ public class Config implements ChannelChangeListener {
 				JsonObject jPersistence = JsonUtils.getAsJsonObject(jPersistenceElement);
 				String persistenceClass = JsonUtils.getAsString(jPersistence, "class");
 				Persistence persistence = (Persistence) InjectionUtils.getThingInstance(persistenceClass);
-				thingRepository.addThing(persistence);
 				log.debug("Add Persistence[" + persistence.id() + "], Implementation["
 						+ persistence.getClass().getSimpleName() + "]");
 				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);

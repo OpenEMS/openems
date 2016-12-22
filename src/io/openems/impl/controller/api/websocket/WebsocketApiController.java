@@ -7,6 +7,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.thing.ThingDescription;
 
 public class WebsocketApiController extends Controller implements ChannelChangeListener {
 
@@ -14,6 +15,10 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this, Integer.class)
 			.defaultValue(8085).changeListener(this);
+
+	public static ThingDescription getDescription() {
+		return new ThingDescription("Websocket-API (z. B. für Weboberfläche)", "");
+	}
 
 	public WebsocketApiController() {
 		super();

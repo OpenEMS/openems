@@ -1,6 +1,9 @@
 package io.openems.core.utilities;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.Inet4Address;
@@ -15,6 +18,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.reflect.ClassPath;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -26,6 +30,7 @@ import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
+import io.openems.api.thing.ThingDescription;
 import io.openems.core.ThingRepository;
 
 public class ConfigUtils {
@@ -266,4 +271,39 @@ public class ConfigUtils {
 		}
 	}
 
+	public static ThingDescription getThingDescription(Class<? extends Thing> clazz) {
+		ThingDescription description;
+		try {
+			Method method = clazz.getMethod("getDescription");
+			description = (ThingDescription) method.invoke(null);
+
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			log.warn("Thing [" + clazz.getName()
+					+ "] has no ThingDescription. Please implement 'public static ThingDescription getDescription() {}'");
+			description = new ThingDescription("", "");
+		}
+		description.setClass(clazz);
+		return description;
+	}
+
+	public static Set<Class<? extends Thing>> getAvailableClasses(String topLevelPackage, Class<? extends Thing> clazz,
+			String suffix) throws ReflectionException {
+		Set<Class<? extends Thing>> clazzes = new HashSet<>();
+		try {
+			ClassPath classpath = ClassPath.from(ClassLoader.getSystemClassLoader());
+			for (ClassPath.ClassInfo classInfo : classpath.getTopLevelClassesRecursive(topLevelPackage)) {
+				if (classInfo.getName().endsWith(suffix)) {
+					Class<?> thisClazz = classInfo.load();
+					if (clazz.isAssignableFrom(thisClazz)) {
+						// it is in fact a "Controller" class
+						clazzes.add((Class<? extends Thing>) thisClazz);
+					}
+				}
+			}
+		} catch (IllegalArgumentException | IOException e) {
+			throw new ReflectionException(e.getMessage());
+		}
+		return clazzes;
+	}
 }

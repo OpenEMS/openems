@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,16 +41,23 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Table;
+import com.google.gson.JsonObject;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.exception.ReflectionException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
+import io.openems.api.thing.ThingDescription;
+import io.openems.core.utilities.ConfigUtils;
+import io.openems.core.utilities.InjectionUtils;
+import io.openems.core.utilities.JsonUtils;
 
 public class ThingRepository {
 	private final static Logger log = LoggerFactory.getLogger(ThingRepository.class);
@@ -63,7 +71,21 @@ public class ThingRepository {
 		return ThingRepository.instance;
 	}
 
-	private ThingRepository() {}
+	private ThingRepository() {
+		// Fill "availableThingClasses"
+		// Controller
+		try {
+			Set<Class<? extends Thing>> clazzes = ConfigUtils.getAvailableClasses("io.openems.impl.controller",
+					Controller.class, "Controller");
+			for (Class<? extends Thing> clazz : clazzes) {
+				ThingDescription description = ConfigUtils.getThingDescription(clazz);
+				availableThingClasses.put(Controller.class, clazz, description);
+			}
+		} catch (ReflectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	private final BiMap<String, Thing> thingIds = HashBiMap.create();
 	private HashMultimap<Class<? extends Thing>, Thing> thingClasses = HashMultimap.create();
@@ -74,6 +96,8 @@ public class ThingRepository {
 	private final Table<Thing, String, Channel> thingChannels = HashBasedTable.create();
 	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
 	private HashMultimap<Thing, WriteChannel<?>> thingWriteChannels = HashMultimap.create();
+	private final Table<Class<? extends Thing>, Class<? extends Thing>, ThingDescription> availableThingClasses = HashBasedTable
+			.create();
 
 	/**
 	 * Add a Thing to the Repository and cache its Channels and other information for later usage.
@@ -156,6 +180,63 @@ public class ThingRepository {
 			}
 		}
 
+	}
+
+	/**
+	 * Remove a Thing from the Repository.
+	 *
+	 * @param thing
+	 */
+	public synchronized void removeThing(String thingId) {
+		Thing thing = thingIds.get(thingId);
+		removeThing(thing);
+	}
+
+	/**
+	 * Remove a Thing from the Repository.
+	 *
+	 * @param thing
+	 */
+	public synchronized void removeThing(Thing thing) {
+		// Remove from thingIds
+		thingIds.remove(thing.id());
+
+		// Remove from thingClasses
+		thingClasses.remove(thing.getClass(), thing);
+
+		// Remove from bridges
+		if (thing instanceof Bridge) {
+			bridges.remove(thing);
+		}
+
+		// Remove from schedulers
+		if (thing instanceof Scheduler) {
+			schedulers.remove(thing);
+		}
+
+		// Remove from persistences
+		if (thing instanceof Persistence) {
+			persistences.remove(thing);
+		}
+
+		// Remove from persistences
+		if (thing instanceof DeviceNature) {
+			deviceNatures.remove(thing);
+		}
+
+		// Remove controller
+		if (thing instanceof Controller) {
+			Controller controller = (Controller) thing;
+			for (Scheduler scheduler : getSchedulers()) {
+				scheduler.removeController(controller);
+			}
+		}
+		// TODO further cleaning if required
+	}
+
+	public Thing getThing(String thingId) {
+		Thing thing = thingIds.get(thingId);
+		return thing;
 	}
 
 	public Set<Thing> getThings() {
@@ -280,5 +361,29 @@ public class ThingRepository {
 		}
 		Channel channel = thingChannels.row(thing).get(channelId);
 		return Optional.ofNullable(channel);
+	}
+
+	public Controller createController(JsonObject jController) throws ReflectionException {
+		String controllerClass = JsonUtils.getAsString(jController, "class");
+		Controller controller;
+		if (jController.has("id")) {
+			String id = JsonUtils.getAsString(jController, "id");
+			controller = (Controller) InjectionUtils.getThingInstance(controllerClass, id);
+		} else {
+			controller = (Controller) InjectionUtils.getThingInstance(controllerClass);
+		}
+		log.debug("Add Controller[" + controller.id() + "], Implementation[" + controller.getClass().getSimpleName()
+				+ "]");
+		this.addThing(controller);
+		ConfigUtils.injectConfigChannels(this.getConfigChannels(controller), jController);
+		return controller;
+	}
+
+	public List<ThingDescription> getAvailableControllers() {
+		List<ThingDescription> descriptions = new ArrayList<>();
+		availableThingClasses.row(Controller.class).forEach((clazz, description) -> {
+			descriptions.add(description);
+		});
+		return Collections.unmodifiableList(descriptions);
 	}
 }

@@ -45,6 +45,10 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 		controllers.put(controller.id(), controller);
 	}
 
+	public synchronized void removeController(Controller controller) {
+		controllers.remove(controller.id());
+	}
+
 	public synchronized List<Controller> getControllers() {
 		return Collections.unmodifiableList(new ArrayList<>(this.controllers.values()));
 	}

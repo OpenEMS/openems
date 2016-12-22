@@ -22,4 +22,9 @@ package io.openems.api.thing;
 
 public interface Thing {
 	public String id();
+
+	/*
+	 * All subclasses of Thing are asked to have static method "getDescription()". Please implement!
+	 */
+	// public static ThingDescription getDescription();
 }

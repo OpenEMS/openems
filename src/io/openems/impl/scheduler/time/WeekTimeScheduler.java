@@ -155,4 +155,8 @@ public class WeekTimeScheduler extends Scheduler {
 		return true;
 	}
 
+	@Override public synchronized void removeController(Controller controller) {
+		// remove controller from all times
+		super.removeController(controller);
+	}
 }
