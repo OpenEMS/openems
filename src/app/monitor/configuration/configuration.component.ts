@@ -140,7 +140,7 @@ export class ConfigurationComponent implements OnInit {
         config: configRequests
       })
     }
-    //this.form.markAsPristine();
+    this.form.markAsPristine();
   }
 
   private getRequests(form: FormGroup | FormArray, path?: string[]): ConfigRequest[] {
@@ -152,7 +152,6 @@ export class ConfigurationComponent implements OnInit {
       var control = form.controls[channel];
       var parent = control.parent;
       if (control.dirty) {
-        console.log("DIRTY", control.value, control);
         if (control instanceof FormGroup || control instanceof FormArray) {
           if (control["_new"]) {
             // New Thing
@@ -173,7 +172,6 @@ export class ConfigurationComponent implements OnInit {
               form.removeAt(Number.parseInt(channel));
             }
           } else {
-            console.log("ELSE", channel);
             // Update existing thing
             if (parent.value["class"] && parent.value.class === "io.openems.impl.scheduler.time.WeekTimeScheduler" && channel != "controllers") {
               // WeekTimeScheduler

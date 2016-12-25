@@ -20,6 +20,8 @@
             <!-- Defined views -->
             <form-controller-websocketapi *ngSwitchCase="'io.openems.impl.controller.api.websocket.WebsocketApiController'" [form]="controller"></form-controller-websocketapi>
             <form-controller-restapi *ngSwitchCase="'io.openems.impl.controller.api.rest.RestApiController'" [form]="controller"></form-controller-restapi>
+            <!-- Default: Universal view -->
+            <form-controller-universal *ngSwitchDefault [form]="controller"></form-controller-universal>
           </div>
         </div>
       </div>

@@ -9,4 +9,24 @@ import { Connection } from './../../../../service/connection';
 })
 export class FormControllerUniversalComponent extends FormThingComponent {
 
+  constructor(
+    private formBuilder: FormBuilder
+  ) {
+    super();
+  }
+
+  @Input()
+  set form(form: FormGroup) {
+    //TODO
+    console.log(form);
+/*
+    if (!form.value["priority"]) {
+      form.addControl("priority", this.formBuilder.control(""));
+    }
+    if (!form.value["port"]) {
+      form.addControl("port", this.formBuilder.control(""));
+    }*/
+    super.setForm(form, []);
+  }
+
 }
