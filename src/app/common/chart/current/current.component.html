@@ -3,6 +3,8 @@
     <svg:g *ngFor="let section of sections | keys">
       <svg:path [attr.d]="section.value.outlinePath" fill="white" stroke="LightGray"></svg:path>
       <svg:path [attr.d]="section.value.path" [attr.fill]="section.value.color"></svg:path>
+      <svg:text [attr.x]="section.value.textPosition.x" [attr.y]="section.value.textPosition.y" [attr.text-anchor]="section.value.textPosition.anchor"
+        font-size="20px" fill="black" font-family="sans-serif">{{section.value.name}}</svg:text>
     </svg:g>
   </svg:g>
 </svg>

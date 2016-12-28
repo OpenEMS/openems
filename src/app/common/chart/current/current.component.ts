@@ -1,65 +1,8 @@
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  OnInit,
-  OnChanges,
-  ElementRef,
-  NgZone,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef
-} from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, ElementRef, NgZone, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { BaseChartComponent } from 'ngx-charts';
 import { ColorHelper } from 'ngx-charts';
 import * as d3 from 'd3';
-
-class Section {
-  private outlinePath: number = null;
-  private path: number = null;
-  private value: number = 10;
-  private innerRadius: number = 0;
-  private outerRadius: number = 0;
-
-  constructor(
-    private startAngle: number,
-    private endAngle: number,
-    private color: string) { }
-
-  public update(outerRadius: number, innerRadius: number) {
-    this.outerRadius = outerRadius;
-    this.innerRadius = innerRadius;
-    let arc = this.getArc();
-    this.outlinePath = arc.endAngle(this.deg2rad(this.endAngle))();
-    let valueEndAngle = ((this.endAngle - this.startAngle) * this.value) / 100 + this.startAngle;
-    this.path = arc.endAngle(this.deg2rad(valueEndAngle))();
-  }
-
-  public setValue(value: number) {
-    if (value > 100) {
-      value = 100;
-    } else if (value < 0) {
-      value = 0;
-    }
-    this.value = value;
-    this.update(this.innerRadius, this.outerRadius);
-  }
-
-  public getValue(): number {
-    return this.value;
-  }
-
-  private getArc(): any {
-    return d3.arc()
-      .innerRadius(this.innerRadius)
-      .outerRadius(this.outerRadius)
-      .startAngle(this.deg2rad(this.startAngle));
-  }
-
-  private deg2rad(value: number): number {
-    return value * (Math.PI / 180)
-  }
-}
+import { StorageSection, ProductionSection, ConsumptionSection, GridSection } from './section/section';
 
 @Component({
   selector: 'chart-current',
@@ -70,10 +13,31 @@ export class ChartCurrentComponent extends BaseChartComponent implements OnChang
   private translation: string;
 
   private sections = {
-    grid: new Section(226, 314, "blue"),
-    production: new Section(316, 404, "green"),
-    consumption: new Section(46, 134, "yellow"),
-    storage: new Section(136, 224, "red")
+    grid: new GridSection(),
+    production: new ProductionSection(),
+    consumption: new ConsumptionSection(),
+    storage: new StorageSection()
+  }
+
+  @Input()
+  set grid(value: number) {
+    console.log("grid", value);
+    this.sections.grid.setValue(value);
+  }
+
+  @Input()
+  set production(value: number) {
+    this.sections.production.setValue(value);
+  }
+
+  @Input()
+  set consumption(value: number) {
+    this.sections.consumption.setValue(value);
+  }
+
+  @Input()
+  set storage(value: number) {
+    this.sections.storage.setValue(value);
   }
 
   ngOnInit() {
@@ -97,11 +61,5 @@ export class ChartCurrentComponent extends BaseChartComponent implements OnChang
     for (let section in this.sections) {
       this.sections[section].update(outerRadius, innerRadius);
     }
-
-    console.log("VIEW", this.width, this.height);
-
-    setInterval(() => {
-      this.sections.grid.setValue(this.sections.grid.getValue() + 10);
-    }, 500);
   }
 }
