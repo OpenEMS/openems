@@ -18,7 +18,10 @@ export class FormControllerUniversalComponent extends FormThingComponent {
   @Input()
   set form(form: FormGroup) {
     //TODO
-    console.log(form);
+    var controllers: Object[] = form.parent.parent.parent.value["_controllers"];
+    
+
+    console.log();
 /*
     if (!form.value["priority"]) {
       form.addControl("priority", this.formBuilder.control(""));

@@ -21,4 +21,26 @@
   </div>
 </nav>
 
+<div class="container">
+  <chart-current [view]="[600,600]" [results]="data"></chart-current>
+  <!--<ngx-charts-gauge
+            [view]="[600,300]"
+            [results]="data"
+            [scheme]="colorScheme">
+          </ngx-charts-gauge>
+-->
+  <!--<ngx-charts-pie-chart
+    [scheme]="colorScheme"
+    [results]="data">
+  </ngx-charts-pie-chart>
+-->
+  <!--
+  <h2>Custom Chart</h2>
+  <custom-chart
+    [view]="[600,300]"
+    [results]="data">
+  </custom-chart>
+-->
+</div>
+
 <router-outlet></router-outlet>

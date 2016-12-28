@@ -1,0 +1,8 @@
+<svg [attr.width]="width" [attr.height]="height">
+  <svg:g [attr.transform]="translation">
+    <svg:g *ngFor="let section of sections | keys">
+      <svg:path [attr.d]="section.value.outlinePath" fill="white" stroke="LightGray"></svg:path>
+      <svg:path [attr.d]="section.value.path" [attr.fill]="section.value.color"></svg:path>
+    </svg:g>
+  </svg:g>
+</svg>

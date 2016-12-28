@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { CollapseDirective } from 'ng2-bootstrap';
 import { DatepickerModule } from 'ng2-bootstrap/components/datepicker';
 import { ToastModule } from 'ng2-toastr/ng2-toastr';
+import { NgxChartsModule } from 'ngx-charts';
 
 /*
  * Frontend
@@ -41,6 +42,10 @@ import { FormControllerNewComponent } from './common/form/controller/new/new.com
 import { FormSchedulerComponent } from './common/form/scheduler/scheduler.component';
 import { FormSchedulerWeekTimeComponent } from './common/form/scheduler/weektime/weektime.component';
 import { FormSchedulerWeekTimeHoursComponent } from './common/form/scheduler/weektime/hours.component';
+
+// Charts
+import { CustomChartComponent } from './common/chart/custom-chart/custom.component';
+import { ChartCurrentComponent } from './common/chart/current/current.component';
 
 /*
  * Services
@@ -85,6 +90,9 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     FormSchedulerComponent,
     FormSchedulerWeekTimeComponent,
     FormSchedulerWeekTimeHoursComponent,
+    //   Chart
+    CustomChartComponent,
+    ChartCurrentComponent,
     // pipe
     KeysPipe
   ],
@@ -96,6 +104,7 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     ChartsModule,
     DatepickerModule,
     ToastModule,
+    NgxChartsModule,
     routing,
   ],
   providers: [

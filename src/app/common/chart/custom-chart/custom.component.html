@@ -1,0 +1,13 @@
+<ngx-charts-chart
+  [view]="[width, height]"
+  [showLegend]="false">
+  <svg:g class="bar-chart chart">
+    <svg:g ngx-charts-series-vertical
+      [xScale]="xScale"
+      [yScale]="yScale"
+      [colors]="colors"
+      [series]="results"
+      [dims]="dims">
+    </svg:g>
+  </svg:g>
+</ngx-charts-chart>
