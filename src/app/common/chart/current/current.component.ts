@@ -3,6 +3,7 @@ import {
   Input,
   Output,
   EventEmitter,
+  OnInit,
   OnChanges,
   ElementRef,
   NgZone,
@@ -64,7 +65,7 @@ class Section {
   selector: 'chart-current',
   templateUrl: './current.component.html'
 })
-export class ChartCurrentComponent extends BaseChartComponent implements OnChanges {
+export class ChartCurrentComponent extends BaseChartComponent implements OnChanges, OnInit {
 
   private translation: string;
 
@@ -74,6 +75,11 @@ export class ChartCurrentComponent extends BaseChartComponent implements OnChang
     consumption: new Section(46, 134, "yellow"),
     storage: new Section(136, 224, "red")
   }
+
+  ngOnInit() {
+    this.update();
+  }
+
   ngOnChanges() {
     this.update();
   }
@@ -91,6 +97,8 @@ export class ChartCurrentComponent extends BaseChartComponent implements OnChang
     for (let section in this.sections) {
       this.sections[section].update(outerRadius, innerRadius);
     }
+
+    console.log("VIEW", this.width, this.height);
 
     setInterval(() => {
       this.sections.grid.setValue(this.sections.grid.getValue() + 10);
