@@ -10,14 +10,14 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.femsserver.femswebsocket.FemsWebsocket;
 import io.openems.femsserver.influx.Influxdb;
 import io.openems.femsserver.odoo.Odoo;
-import io.openems.femsserver.websocket.Websocket;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
-	private static int WEBSOCKET_PORT = 8086;
+	private static int FEMS_WEBSOCKET_PORT = 8086;
 
 	public static void main(String[] args) throws Exception {
 		log.info("FEMS-Server starting...");
@@ -30,9 +30,9 @@ public class App {
 		log.info("Connect to InfluxDB");
 		initInfluxdb(config);
 
-		// Start websocket
-		log.info("Start websocket server on " + WEBSOCKET_PORT);
-		Websocket ws = new Websocket(WEBSOCKET_PORT);
+		// Start FEMS websocket
+		log.info("Start websocket server on " + FEMS_WEBSOCKET_PORT);
+		FemsWebsocket ws = new FemsWebsocket(FEMS_WEBSOCKET_PORT);
 		ws.start();
 
 		log.info("FEMS-Server started.");

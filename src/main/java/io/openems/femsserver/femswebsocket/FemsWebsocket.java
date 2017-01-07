@@ -1,4 +1,4 @@
-package io.openems.femsserver.websocket;
+package io.openems.femsserver.femswebsocket;
 
 import java.net.InetSocketAddress;
 import java.util.Map.Entry;
@@ -20,14 +20,14 @@ import io.openems.femsserver.odoo.fems.device.FemsDevice;
 import io.openems.femsserver.utilities.JsonUtils;
 import io.openems.femsserver.utilities.OpenemsException;
 
-public class Websocket extends WebSocketServer {
+public class FemsWebsocket extends WebSocketServer {
 
-	private static Logger log = LoggerFactory.getLogger(Websocket.class);
+	private static Logger log = LoggerFactory.getLogger(FemsWebsocket.class);
 	private final ConcurrentHashMap<WebSocket, FemsDevice> sockets = new ConcurrentHashMap<>();
 	private final Odoo odoo;
 	private final Influxdb influxdb;
 
-	public Websocket(int port) throws Exception {
+	public FemsWebsocket(int port) throws Exception {
 		super(new InetSocketAddress(port));
 		this.odoo = Odoo.getInstance();
 		this.influxdb = Influxdb.getInstance();
