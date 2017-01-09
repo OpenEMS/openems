@@ -20,15 +20,16 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus.internal;
 
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 public interface WordElement {
 	/**
 	 * Updates the value of this Element from a Register.
 	 *
-	 * @param register
+	 * @param registers
 	 */
-	public void setValue(Register register);
+	public void setValue(InputRegister registers);
 
 	/**
 	 * Converts the given value to a Register fitting with the hardware format of this Element. Use it to prepare a
