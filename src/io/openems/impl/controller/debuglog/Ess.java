@@ -76,6 +76,8 @@ public class Ess extends ThingMap {
 		}
 		b.append("|" + //
 				"Allowed:" + ess.allowedCharge().format() + ";" + ess.allowedDischarge().format());
+		b.append("|" + //
+				"GridMode:" + ess.gridMode().labelOptional().orElse("unknown"));
 		String warn = ess.warning().toString();
 		if (!warn.equals("")) {
 			b.append("|Warn:" + ess.warning());
