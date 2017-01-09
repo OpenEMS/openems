@@ -52,18 +52,8 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 			.unit("VA").unit("VA");
 	private ModbusReadChannel apparentPower;
 	private StaticValueChannel<Long> gridMode = new StaticValueChannel<Long>("GridMode", this, 1L).label(1L, ON_GRID);
-	private ModbusReadChannel current;
-	public ModbusReadChannel currentL1;
-	public ModbusReadChannel currentL2;
-	public ModbusReadChannel currentL3;
 	private ModbusReadChannel activePower;
-	public ModbusReadChannel activePowerL1;
-	public ModbusReadChannel activePowerL2;
-	public ModbusReadChannel activePowerL3;
 	private ModbusReadChannel reactivePower;
-	public ModbusReadChannel reactivePowerL1;
-	public ModbusReadChannel reactivePowerL2;
-	public ModbusReadChannel reactivePowerL3;
 	private ModbusReadChannel systemState;
 	private ModbusWriteChannel setActivePower;
 	private ModbusWriteChannel setReactivePower;
@@ -102,6 +92,17 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 	public ModbusReadChannel cosPhiL1;
 	public ModbusReadChannel cosPhiL2;
 	public ModbusReadChannel cosPhiL3;
+	public ModbusReadChannel current;
+	public ModbusReadChannel currentL1;
+	public ModbusReadChannel currentL2;
+	public ModbusReadChannel currentL3;
+	public ModbusReadChannel activePowerL1;
+	public ModbusReadChannel activePowerL2;
+	public ModbusReadChannel activePowerL3;
+	public ModbusReadChannel reactivePowerL1;
+	public ModbusReadChannel reactivePowerL2;
+	public ModbusReadChannel reactivePowerL3;
+	public ModbusReadChannel maxAcPower;
 
 	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
 		// If chargeSoc was not set -> set it to minSoc minus 2
@@ -234,10 +235,15 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 						new SignedWordElement(0x113,
 								reactivePowerL2 = new ModbusReadChannel("ReactivePowerL2", this).unit("Var")
 										.multiplier(2)),
-						new SignedWordElement(0x114, reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this)
-								.unit("Var").multiplier(2))
-
-				), new InputRegistersModbusRange(0x11A, //
+						new SignedWordElement(0x114,
+								reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this).unit("Var")
+										.multiplier(2)),
+						new SignedWordElement(0x115, cosPhi3p = new ModbusReadChannel("CosPhi3p", this).unit("")),
+						new SignedWordElement(0x116, cosPhiL1 = new ModbusReadChannel("CosPhiL1", this).unit("")),
+						new SignedWordElement(0x117, cosPhiL2 = new ModbusReadChannel("CosPhiL2", this).unit("")),
+						new SignedWordElement(0x118, cosPhiL3 = new ModbusReadChannel("CosPhiL3", this).unit("")),
+						new SignedWordElement(0x119, maxAcPower = new ModbusReadChannel("MaxAcPower", this).unit(""))),
+				new InputRegistersModbusRange(0x11A, //
 						new UnsignedWordElement(0x11A, //
 								batteryState = new ModbusReadChannel("BatteryState", this)//
 										.label(0, "Initial")//
