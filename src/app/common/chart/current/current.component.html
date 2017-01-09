@@ -1,10 +1,8 @@
-<svg [attr.width]="width" [attr.height]="height">
-  <svg:g [attr.transform]="translation">
-    <svg:g *ngFor="let section of sections | keys">
-      <svg:path [attr.d]="section.value.outlinePath" fill="white" stroke="LightGray"></svg:path>
-      <svg:path [attr.d]="section.value.path" [attr.fill]="section.value.color"></svg:path>
-      <svg:text [attr.x]="section.value.textPosition.x" [attr.y]="section.value.textPosition.y" [attr.text-anchor]="section.value.textPosition.anchor"
-        font-size="20px" fill="black" font-family="sans-serif">{{section.value.name}}</svg:text>
+<svg width="800" height="800">
+  <svg:g transform="translate(400,400)">
+    <svg:g *ngFor="let section of sections">
+      <svg:path [attr.d]="section.outlinePath" fill="white" stroke="LightGray"></svg:path>
+      <svg:path [attr.d]="section.Path" fill="grey" stroke="LightGray"></svg:path>
     </svg:g>
   </svg:g>
 </svg>
