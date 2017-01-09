@@ -148,43 +148,47 @@ public class JsonUtils {
 	}
 
 	public static Object getAsType(Class<?> type, JsonElement j) throws NotImplementedException {
-		if (Integer.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for an Integer
-			 */
-			return j.getAsInt();
+		try {
+			if (Integer.class.isAssignableFrom(type)) {
+				/*
+				 * Asking for an Integer
+				 */
+				return j.getAsInt();
 
-		} else if (Long.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for an Long
-			 */
-			return j.getAsLong();
-		} else if (Boolean.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for an Boolean
-			 */
-			return j.getAsBoolean();
-		} else if (Double.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for an Double
-			 */
-			return j.getAsDouble();
-		} else if (String.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for a String
-			 */
-			return j.getAsString();
+			} else if (Long.class.isAssignableFrom(type)) {
+				/*
+				 * Asking for an Long
+				 */
+				return j.getAsLong();
+			} else if (Boolean.class.isAssignableFrom(type)) {
+				/*
+				 * Asking for an Boolean
+				 */
+				return j.getAsBoolean();
+			} else if (Double.class.isAssignableFrom(type)) {
+				/*
+				 * Asking for an Double
+				 */
+				return j.getAsDouble();
+			} else if (String.class.isAssignableFrom(type)) {
+				/*
+				 * Asking for a String
+				 */
+				return j.getAsString();
 
-		} else if (JsonObject.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for a JsonObject
-			 */
-			return j.getAsJsonObject();
-		} else if (JsonArray.class.isAssignableFrom(type)) {
-			/*
-			 * Asking for a JsonArray
-			 */
-			return j.getAsJsonArray();
+			} else if (JsonObject.class.isAssignableFrom(type)) {
+				/*
+				 * Asking for a JsonObject
+				 */
+				return j.getAsJsonObject();
+			} else if (JsonArray.class.isAssignableFrom(type)) {
+				/*
+				 * Asking for a JsonArray
+				 */
+				return j.getAsJsonArray();
+			}
+		} catch (IllegalStateException e) {
+			throw new IllegalStateException("Failed to parse JsonElement [" + j + "]", e);
 		}
 		throw new NotImplementedException(
 				"Converter for value [" + j + "] to class type [" + type + "] is not implemented.");
