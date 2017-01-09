@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { FormThingComponent } from '../../formthing.component';
 import { FormGroup, FormBuilder, FormArray, FormControl } from '@angular/forms';
-import { Connection } from './../../../../service/connection';
 
 @Component({
   selector: 'form-scheduler-weektime-hours',

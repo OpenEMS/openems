@@ -1,13 +1,13 @@
 <div class="container">
   <div class="row">
-    <div *ngFor="let ws of websocketService.websockets | keys">
-      <div *ngFor="let dev of ws.value.devices | keys" class="col-xs-4 col-md-3">
-        <div routerLink="/monitor/{{ws.key}}/{{dev.key}}" class="panel panel-default">
+    HALLo
+    <!--<div *ngFor="let conn of connectionService.connections | keys">
+      <div *ngIf="conn.value.isConnected" class="col-xs-4 col-md-3">
+        <div routerLink="/monitor/{{conn.value.name}}" class="panel panel-default">
           <div class="panel-heading">
-            <h3 class="panel-title">{{dev.key}}</h3>
-            <p>/monitor/{{ws.key}}/{{dev.key}}</p>
+            <h3 class="panel-title">{{conn.value.name}}</h3>
           </div>
-          <!--<div *ngFor="let dev of conn.value.data | async | keys">
+          <div *ngFor="let dev of conn.value.data | async | keys">
             <div [ngSwitch]="dev.key">
               <template [ngSwitchCase]="'ess0'">
                 <table class="table">
@@ -31,9 +31,10 @@
                   </tr>
                 </table>
               </template>
-            </div>-->
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </div>-->
   </div>
 </div>

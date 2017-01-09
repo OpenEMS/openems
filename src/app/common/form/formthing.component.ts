@@ -1,4 +1,3 @@
-import { Connection } from './../../service/connection';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 
 export class FormThingComponent {

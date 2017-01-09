@@ -1,8 +1,13 @@
-export class Device {
-  _name: string;
-  _natures: string[];
+import { Subject } from 'rxjs/Subject';
+import { Notification } from './webapp.service';
 
-  set(field: string, value: number) {
-    console.log("Set "+field+" to " + value);
-  }
+export class Device {
+
+  public event = new Subject<Notification>();
+
+  constructor(
+    public name: string
+  ) { }
+
+  public data: { [thing: string]: any } = {};
 }

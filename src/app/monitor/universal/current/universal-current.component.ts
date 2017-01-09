@@ -4,7 +4,6 @@ import { Observable } from 'rxjs/Observable';
 import { ISubscription } from 'rxjs/Subscription';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { ConnectionService, Connection } from '../../../service/connection.service';
 
 @Component({
   selector: 'app-monitor-test-current',
@@ -16,8 +15,7 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
   private subscription: ISubscription;
 
   constructor(
-    private router: Router,
-    private connectionService: ConnectionService) {
+    private router: Router) {
   }
 
   ngOnInit() {
@@ -107,10 +105,10 @@ export class MonitorUniversalCurrentComponent implements OnInit, OnDestroy {
         this.error = "Herstellen der Verbindung ist nicht möglich.";
         setTimeout(() => this.router.navigate(['login']), 1000);
       }, (/* complete *//*) => {
-        this.data = null;
-        setTimeout(() => this.router.navigate(['login']), 1000);
-      });
-    }*/
+  this.data = null;
+  setTimeout(() => this.router.navigate(['login']), 1000);
+});
+}*/
   }
 
   ngOnDestroy() {

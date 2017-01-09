@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
-import { ConnectionService, Connection } from './service/connection.service';
 import { Router } from '@angular/router';
 import { ToastsManager } from 'ng2-toastr/ng2-toastr';
+import { WebappService } from './service/webapp.service';
 
 @Component({
   selector: 'app-root',
@@ -20,19 +20,33 @@ export class AppComponent implements OnInit {
   }
 
   constructor(
-    private connectionService: ConnectionService,
     private router: Router,
-    private toastr: ToastsManager,
+    private webappService: WebappService,
     private vRef: ViewContainerRef
-  ) {
-    this.toastr.setRootViewContainerRef(vRef);
-  }
+  ) { }
 
   ngOnInit() {
+    this.webappService.initializeToastr(this.vRef);
     this.menuitems = [
-      { label: 'Übersicht', routerLink: '/monitor' }/*,
+      { label: 'Übersicht', routerLink: '/monitor' },
+      { label: 'Konfiguration', routerLink: '/config' }/*,
       { label: 'Aktuelle Daten', routerLink: '/monitor/current' },
       { label: 'Historie', routerLink: '/monitor/history' }*/
     ];
+
+    /*
+    var ws = new WebSocket("ws://localhost:8087");
+    ws.onopen = () => {
+      console.log("WS opened");
+      ws.send(JSON.stringify({ "Hallo": "Welt" }));
+    }
+    ws.onclose = () => {
+      console.log("WS closed");
+    }
+    ws.onmessage = (msg) => {
+      let data = JSON.parse(msg.data);
+      console.log("Message", data);
+    }
+    */
   }
 }

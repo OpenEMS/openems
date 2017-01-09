@@ -125,16 +125,5 @@
             .attr("font-family", "sans-serif")
             .attr("font-size", "20px")
             .attr("fill", "red");
-
-        setTimeout(function () {
-            var battery = 10;
-            //battArc.attr('d', getArc(136, battery));
-            battArc.attr("d", d3.arc()
-                .innerRadius(innerRadius)
-                .outerRadius(outerRadius)
-                .startAngle(deg2rad(136))
-                .endAngle(deg2rad(136 + battery)));
-        }, 1000);
-
     </script>
 </body>

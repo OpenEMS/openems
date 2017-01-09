@@ -1,7 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormThingComponent } from '../formthing.component';
 import { FormGroup, FormBuilder, FormArray, FormControl } from '@angular/forms';
-import { Connection } from './../../../service/connection';
 
 interface Day {
   label: string;

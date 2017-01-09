@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { LocalstorageService } from '../service/localstorage.service';
-import { ConnectionService, Connection } from '../service/connection.service';
-import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { FormGroup, FormBuilder } from '@angular/forms';
+
+import { WebsocketService, Websocket } from '../service/websocket.service';
 
 @Component({
   selector: 'app-login',
@@ -11,24 +11,32 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 })
 export class LoginComponent implements OnInit {
 
+  private forms: FormGroup[] = [];
+
   constructor(
-    public formbuilder: FormBuilder,
-    private localstorageService: LocalstorageService,
-    private connectionService: ConnectionService,
-    private router: Router) {
-  }
-
-  doLogin(connection: Connection) {
-    if("password" in connection) {
-      var password: string = connection["password"];
-      connection.connectWithPassword(password);
-    }
-  }
-
-  doLogout(connection: Connection) {
-    connection.close();
+    private websocketService: WebsocketService,
+    private router: Router,
+    private formBuilder: FormBuilder) {
   }
 
   ngOnInit() {
+    for (let websocketName in this.websocketService.websockets) {
+      let websocket = this.websocketService.websockets[websocketName];
+      let form: FormGroup = this.formBuilder.group({
+        "password": this.formBuilder.control('')
+      });
+      form['_websocket'] = websocket;
+      this.forms.push(form);
+    }
+  }
+
+  loginOrLogout(form: FormGroup) {
+    let websocket: Websocket = form['_websocket'];
+    let password: string = form.value['password']
+    if (websocket.isConnected) {
+      websocket.close();
+    } else {
+      websocket.connectWithPassword(password);
+    }
   }
 }

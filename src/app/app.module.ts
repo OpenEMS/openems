@@ -12,12 +12,16 @@ import { NgxChartsModule } from 'ngx-charts';
 /*
  * Frontend
  */
+import { LoginComponent } from './login/login.component';
+import { MonitorOverviewComponent } from './monitor/overview/overview.component';
+import { MonitorCurrentComponent } from './monitor/current/current.component';
+
+/*
 import { MonitorGrafanaComponent } from './monitor/grafana/grafana.component';
 import { MonitorUniversalCurrentComponent } from './monitor/universal/current/universal-current.component';
-import { MonitorOverviewComponent } from './monitor/overview/overview.component';
 import { MonitorDetailComponent } from './monitor/detail/detail.component';
 import { ConfigurationComponent } from './monitor/configuration/configuration.component';
-import { LoginComponent } from './login/login.component';
+*/
 
 /*
  * Common components
@@ -50,8 +54,8 @@ import { ChartCurrentComponent } from './common/chart/current/current.component'
 /*
  * Services
  */
-import { ConnectionService } from './service/connection.service';
-import { LocalstorageService } from './service/localstorage.service';
+import { WebappService } from './service/webapp.service';
+import { WebsocketService } from './service/websocket.service';
 
 /*
  * Pipe
@@ -64,12 +68,10 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
 @NgModule({
   declarations: [
     AppComponent,
-    MonitorGrafanaComponent,
-    MonitorUniversalCurrentComponent,
-    MonitorOverviewComponent,
-    MonitorDetailComponent,
-    ConfigurationComponent,
+    // Frontend
     LoginComponent,
+    MonitorOverviewComponent,
+    MonitorCurrentComponent,
     CollapseDirective,
     // common
     CommonSocComponent,
@@ -109,8 +111,8 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
   ],
   providers: [
     appRoutingProviders,
-    ConnectionService,
-    LocalstorageService
+    WebappService,
+    WebsocketService
     /*OdooRPCService*/
     /*{ provide: DataService, useClass: OdooDataService }*/
   ],

@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { Connection } from './../../../service/connection';
 
 @Component({
   selector: 'form-scheduler',
@@ -15,5 +14,5 @@ export class FormSchedulerComponent {
 
   @Input()
   private form: FormGroup;
-  
+
 }

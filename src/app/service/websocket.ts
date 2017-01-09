@@ -1,45 +1,48 @@
+import { EventEmitter } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { LocalstorageService } from './localstorage.service';
+import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
-import { Notification } from './notification';
-import { ToastsManager } from 'ng2-toastr/ng2-toastr';
-import { OpenemsConfig, InfluxdbPersistence, Device } from './config';
 
-const SUBSCRIBE: string = "fenecon_monitor_v1";
+import { Device } from './device';
+import { WebappService, Notification } from './webapp.service';
 
-export class Connection {
+export class Websocket {
   public isConnected: boolean = false;
-  public username: string;
-  public websocket: WebSocket;
+  public event = new Subject<Notification>();
   public subject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  public event: BehaviorSubject<Notification> = new BehaviorSubject(null);
-  public config: OpenemsConfig = new OpenemsConfig();
-  public data: BehaviorSubject<Object> = new BehaviorSubject<any>(null);
+  public devices: { [name: string]: Device } = {};
+
+  private websocket: WebSocket;
 
   constructor(
     public name: string,
     public url: string,
-    private localstorageService: LocalstorageService,
-    private toastr: ToastsManager
+    private webappService: WebappService
   ) { }
 
-  public connectWithPassword(password: string) {
-    this.connect(password, null);
-  }
-
+  /**
+   * Opens a connection using the stored token for this websocket
+   */
   public connectWithToken() {
-    var token = this.localstorageService.getToken(this.name);
+    var token = this.webappService.getToken(this.name);
     if (token) {
       this.connect(null, token);
     }
   }
 
   /**
+   * Opens a connection using a password
+   */
+  public connectWithPassword(password: string) {
+    this.connect(password, null);
+  }
+
+  /**
    * Tries to connect using given password or token.
    */
   private connect(password: string, token: string) {
-    // return non-active Connection if no password or token was given
+    // return non-active Websocket if no password or token was given
     if (password == null && token == null) {
       this.initialize();
       return;
@@ -51,68 +54,65 @@ export class Connection {
     // send "not successful event" if not connected within Timeout
     var timeout = setTimeout(() => {
       if (!this.isConnected) {
-        status = { type: "error", message: "Keine Verbindung: Timeout" };
-        this.event.next(status);
+        this.event.next({ type: "error", message: "Keine Verbindung: Timeout" });
       }
     }, 2000);
 
-    // create a new connection
-    var ws = new WebSocket(this.url);
+    // create a new websocket connection
+    let websocket = new WebSocket(this.url);
 
     // define observable
     let observable = Observable.create((obs: Observer<MessageEvent>) => {
-      ws.onmessage = obs.next.bind(obs);
-      ws.onerror = obs.error.bind(obs);
-      ws.onclose = obs.complete.bind(obs);
+      websocket.onmessage = obs.next.bind(obs);
+      websocket.onerror = obs.error.bind(obs);
+      websocket.onclose = obs.complete.bind(obs);
 
-      ws.close.bind(ws);
+      websocket.close.bind(websocket);
     }).share();
 
     // define observer
     let observer = {
       next: (data: Object) => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify(data));
+        if (websocket.readyState === WebSocket.OPEN) {
+          websocket.send(JSON.stringify(data));
         }
       },
     };
 
-    // Authenticate when websocket is opened
-    ws.onopen = () => {
+    // immediately authenticate when websocket is opened
+    websocket.onopen = () => {
+      let authenticate = {}
       if (password) {
-        observer.next({
-          authenticate: { password: password }
-        });
+        authenticate["password"] = password;
       } else if (token) {
-        observer.next({
-          authenticate: { token: token }
-        });
+        authenticate["token"] = token;
       }
+      observer.next({
+        authenticate: authenticate
+      });
     };
 
     // create subject
-    var sj: BehaviorSubject<any> = BehaviorSubject.create(observer, observable);
+    let subject: BehaviorSubject<any> = BehaviorSubject.create(observer, observable);
 
-    sj.subscribe((message: any) => {
-      if ("data" in message) {
-        let msg = JSON.parse(message.data);
+    subject
+      .map(message => JSON.parse(message.data))
+      .subscribe((message: any) => {
 
         // Receive authentication token
-        if ("authenticate" in msg) {
-          if ("token" in msg.authenticate) {
-            this.localstorageService.setToken(this.name, msg.authenticate.token);
-            if ("username" in msg.authenticate) {
-              this.username = msg.authenticate.username;
-              this.websocket = ws;
-              this.subject = sj;
+        if ("authenticate" in message) {
+          if ("token" in message.authenticate) {
+            this.webappService.setToken(this.name, message.authenticate.token);
+            if ("username" in message.authenticate) {
+              let username = message.authenticate.username;
+              this.websocket = websocket;
+              this.subject = subject;
               this.isConnected = true;
-              status = { type: "success", message: "Angemeldet als " + this.username + "." };
-              this.event.next(status);
-              //this.subscribeNatures();
+              this.event.next({ type: "success", message: "Angemeldet als " + username + "." });
             }
           } else {
             // close websocket
-            this.localstorageService.removeToken(this.name);
+            this.webappService.removeToken(this.name);
             this.initialize();
             clearTimeout(timeout);
             status = { type: "error", message: "Keine Verbindung: Authentifizierung fehlgeschlagen." };
@@ -120,8 +120,18 @@ export class Connection {
           }
         }
 
+        // Receive connected devices
+        if ("devices" in message) {
+          this.devices = {};
+          for (let deviceName in message.devices) {
+            this.devices[deviceName] = message.devices[deviceName];
+          }
+        }
+
+        //TODO reveice config of all FEMSes
+        /*
         // Receive config
-        if ("config" in msg) {
+        if ("config" in message) {
           this.config = new OpenemsConfig();
           // device natures
           if ("_devices" in msg.config) {
@@ -164,10 +174,12 @@ export class Connection {
               }
             }
           }
-          this.event.next(null);
+          this.event.emit(null);
         }
+        */
 
-        // Receive data
+        // TODO Receive data of all FEMSes
+        /*
         if ("data" in msg) {
           var data = msg.data;
           var newData: Object = {}
@@ -184,82 +196,69 @@ export class Connection {
           this.data.next(newData);
           console.log(newData);
         }
+        */
 
         // receive notification
-        if ("notification" in msg) {
-          this.showNotification(msg.notification);
+        if ("notification" in message) {
+          this.webappService.notify(message.notification);
         }
-      }
-    }, (error: any) => {
-      this.initialize();
-      clearTimeout(timeout);
-      if (!status) {
-        status = { type: "error", message: "Verbindungsfehler." };
-        this.event.next(status);
-      }
-    }, (/* complete */) => {
-      this.initialize();
-      clearTimeout(timeout);
-      if (status == null) {
-        status = { type: "error", message: "Verbindung beendet." };
-        this.event.next(status);
-      }
-    });
-  }
-
-  public send(value: any): void {
-    this.subject.next(value);
+      }, (error: any) => {
+        this.initialize();
+        clearTimeout(timeout);
+        if (!status) {
+          status = { type: "error", message: "Verbindungsfehler." };
+          this.event.next(status);
+        }
+      }, (/* complete */) => {
+        this.initialize();
+        clearTimeout(timeout);
+        if (status == null) {
+          status = { type: "error", message: "Verbindung beendet." };
+          this.event.next(status);
+        }
+      });
   }
 
   /**
-   * Closes the connection.
+   * Reset everything to default
    */
-  public close() {
-    this.localstorageService.removeToken(this.name);
-    this.initialize();
-    var status: Notification = { type: "error", message: "Verbindung beendet." };
-    this.event.next(status);
-  }
-
   private initialize() {
     if (this.websocket != null && this.websocket.readyState === WebSocket.OPEN) {
       this.websocket.close();
     }
     this.websocket = null;
     this.isConnected = false;
-    this.username = null;
-    this.config = new OpenemsConfig();
+    //this.config = new OpenemsConfig();
     this.subject = new BehaviorSubject<any>(null);
-    this.data = new BehaviorSubject<any>(null);
+    //this.data = new BehaviorSubject<any>(null);
+    this.devices = {}
   }
 
   /**
-   * Send "subscribe" message to server 
+   * Closes the connection.
    */
-  public subscribeData() {
-    this.send({
-      subscribe: SUBSCRIBE
-    });
+  public close() {
+    this.webappService.removeToken(this.name);
+    this.initialize();
+    var status: Notification = { type: "error", message: "Verbindung beendet." };
+    this.event.next(status);
   }
 
   /**
-   * send "unsubscribe" message to server
+   * Sends a message to the websocket
    */
-  public unsubscribeData() {
-    this.send({
-      subscribe: ""
-    });
+  private send(value: any): void {
+    this.subject.next(value);
   }
 
-  private showNotification(notification: Notification) {
-    if (notification.type == "success") {
-      this.toastr.success(notification.message);
-    } else if (notification.type == "error") {
-      this.toastr.error(notification.message);
-    } else if (notification.type == "warning") {
-      this.toastr.warning(notification.message);
+  /**
+   * Returns the websocket with the given name
+   */
+  public getDevice(name: string) {
+    if (name in this.devices) {
+      return this.devices[name];
     } else {
-      this.toastr.info(notification.message);
+      return null;
     }
   }
 }
