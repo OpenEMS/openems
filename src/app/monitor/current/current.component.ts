@@ -15,7 +15,7 @@ export class MonitorCurrentComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    let device = this.websocketService.getCurrentDevice(this.route.snapshot.params);
+    let device = this.websocketService.setCurrentDevice(this.route.snapshot.params);
     console.log("CurrentComponent", device);
     //this.connectionService.connectionsChanged.subscribe((/* value */) => {
     // subscribe to each connection for overview

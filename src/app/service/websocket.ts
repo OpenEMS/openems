@@ -124,7 +124,10 @@ export class Websocket {
         if ("devices" in message) {
           this.devices = {};
           for (let deviceName in message.devices) {
-            this.devices[deviceName] = message.devices[deviceName];
+            this.devices[deviceName] = new Device(deviceName, this);
+            for (let key in message.devices[deviceName]) {
+              this.devices[deviceName][key] = message.devices[deviceName][key];
+            }
           }
         }
 

@@ -12,10 +12,13 @@
     </div>
     <div class="navbar-collapse" [collapse]="navCollapsed">
       <ul class="nav navbar-nav">
-        <li *ngFor="let item of menuitems" routerLinkActive="active"><a routerLink="{{item.routerLink}}">{{item.label}}</a></li>
+        <li routerLinkActive="active"><a routerLink="/monitor">Übersicht</a></li>
+        <li *ngIf="websocketService.currentDevice"><a>{{ websocketService.currentDevice.address }}</a></li>
+        <li *ngIf="websocketService.currentDevice" routerLinkActive="active"><a routerLink="/monitor/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}">Monitor</a></li>
+        <li *ngIf="websocketService.currentDevice" routerLinkActive="active"><a routerLink="/config/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}">Konfiguration</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a routerLinkActive="active" routerLink="/login"><span *ngIf="!connections">Anmelden</span><span *ngIf="connections">Abmelden [{{connections}}]</span></a></li>
+        <li><a routerLinkActive="active" routerLink="/login">An-/Abmelden</a></li>
       </ul>
     </div>
   </div>

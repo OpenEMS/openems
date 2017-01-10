@@ -20,6 +20,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.websocketService.clearCurrentDevice();
     for (let websocketName in this.websocketService.websockets) {
       let websocket = this.websocketService.websockets[websocketName];
       let form: FormGroup = this.formBuilder.group({

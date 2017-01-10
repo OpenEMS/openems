@@ -17,6 +17,7 @@ export class MonitorOverviewComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.websocketService.clearCurrentDevice();
     /*
      * Redirect after a short delay
      * - to /login if nothing is connected

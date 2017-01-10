@@ -2,6 +2,7 @@ import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 import { WebappService } from './service/webapp.service';
+import { WebsocketService } from './service/websocket.service';
 
 @Component({
   selector: 'app-root',
@@ -22,6 +23,7 @@ export class AppComponent implements OnInit {
   constructor(
     private router: Router,
     private webappService: WebappService,
+    private websocketService: WebsocketService,
     private vRef: ViewContainerRef
   ) { }
 

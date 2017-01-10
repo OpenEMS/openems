@@ -19,6 +19,7 @@ const DEFAULT_WEBSOCKETS = [{
 export class WebsocketService {
   public websockets: { [name: string]: Websocket } = {};
   public event = new Subject<Notification>();
+  public currentDevice: Device = null;
 
   constructor(
     private router: Router,
@@ -43,9 +44,9 @@ export class WebsocketService {
   }
 
   /**
-   * Parses the current device from route params or redirects to login
+   * Parses the route params, sets the current device and returns it - or redirects to login and returns null
    */
-  public getCurrentDevice(params: Params): Device {
+  public setCurrentDevice(params: Params): Device {
     if ('websocket' in params && 'device' in params) {
       let websocketName = params['websocket'];
       let deviceName = params['device'];
@@ -53,11 +54,17 @@ export class WebsocketService {
       if (websocket) {
         let device = websocket.getDevice(deviceName);
         if (device) {
+          this.currentDevice = device;
           return device;
         }
       }
     }
+    this.currentDevice = null;
     this.router.navigate(['/login']);
+  }
+
+  public clearCurrentDevice() {
+    this.currentDevice = null;
   }
 
   /**
