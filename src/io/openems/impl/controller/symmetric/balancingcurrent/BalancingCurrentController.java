@@ -34,21 +34,21 @@ public class BalancingCurrentController extends Controller {
 	}
 
 	private long calculatePower() throws InvalidValueException {
-		long powerL1 = ((meter.value().currentL1.value() - currentOffset.value() / 3) / 1000)
-				* (meter.value().voltageL1.value() / 1000);
+		long currentL1 = meter.value().currentL1.value();
 		if (meter.value().activePowerL1.value() < 0) {
-			powerL1 *= -1;
+			currentL1 *= -1;
 		}
-		long powerL2 = ((meter.value().currentL2.value() - currentOffset.value() / 3) / 1000)
-				* (meter.value().voltageL2.value() / 1000);
+		long powerL1 = ((currentL1 - currentOffset.value() / 3) / 1000) * (meter.value().voltageL1.value() / 1000);
+		long currentL2 = meter.value().currentL2.value();
 		if (meter.value().activePowerL2.value() < 0) {
-			powerL2 *= -1;
+			currentL2 *= -1;
 		}
-		long powerL3 = ((meter.value().currentL3.value() - currentOffset.value() / 3) / 1000)
-				* (meter.value().voltageL3.value() / 1000);
+		long powerL2 = ((currentL2 - currentOffset.value() / 3) / 1000) * (meter.value().voltageL2.value() / 1000);
+		long currentL3 = meter.value().currentL3.value();
 		if (meter.value().activePowerL3.value() < 0) {
-			powerL3 *= -1;
+			currentL3 *= -1;
 		}
+		long powerL3 = ((currentL3 - currentOffset.value() / 3) / 1000) * (meter.value().voltageL3.value() / 1000);
 		return powerL1 + powerL2 + powerL3;
 	}
 

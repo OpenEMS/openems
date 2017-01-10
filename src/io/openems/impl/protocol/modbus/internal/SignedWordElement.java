@@ -23,6 +23,7 @@ package io.openems.impl.protocol.modbus.internal;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
@@ -45,7 +46,7 @@ public class SignedWordElement extends ModbusElement implements WordElement {
 		return 1;
 	}
 
-	@Override public void setValue(Register register) {
+	@Override public void setValue(InputRegister register) {
 		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);
 		buff.put(register.toBytes());
 		short shortValue = buff.order(byteOrder).getShort(0);

@@ -25,6 +25,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.FunctionalChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
@@ -33,6 +34,7 @@ import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
 import io.openems.api.exception.ConfigException;
+import io.openems.api.exception.InvalidValueException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;
 import io.openems.impl.protocol.modbus.ModbusWriteChannel;
@@ -240,7 +242,7 @@ public class FeneconProEss extends ModbusDeviceNature
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
-		return new ModbusProtocol(new ModbusRange(100, //
+		ModbusProtocol protokol = new ModbusProtocol(new ModbusRange(100, //
 				new UnsignedWordElement(100, //
 						systemState = new ModbusReadChannel("SystemState", this) //
 								.label(0, STANDBY) //
@@ -278,8 +280,7 @@ public class FeneconProEss extends ModbusDeviceNature
 				new UnsignedWordElement(111, //
 						batteryCurrent = new ModbusReadChannel("BatteryCurrent", this).unit("mA").multiplier(2)),
 				new UnsignedWordElement(112, //
-						batteryPower = new ModbusReadChannel("BatteryPower", this)
-								.unit("W")),
+						batteryPower = new ModbusReadChannel("BatteryPower", this).unit("W")),
 				new UnsignedWordElement(113, //
 						batteryGroupAlarm = new ModbusReadChannel("BatteryGroupAlarm", this)
 								.label(1, "Fail, The system should be stopped") //
@@ -551,13 +552,10 @@ public class FeneconProEss extends ModbusDeviceNature
 						new UnsignedWordElement(9016, rtcDay = new ModbusWriteChannel("Day", this)),
 						new UnsignedWordElement(9017, rtcHour = new ModbusWriteChannel("Hour", this)),
 						new UnsignedWordElement(9018, rtcMinute = new ModbusWriteChannel("Minute", this)),
-						new UnsignedWordElement(9019,
-								rtcSecond = new ModbusWriteChannel("Second", this))),
+						new UnsignedWordElement(9019, rtcSecond = new ModbusWriteChannel("Second", this))),
 				new WritableModbusRange(30558,
 						new UnsignedWordElement(30558,
-								setSetupMode = new ModbusWriteChannel("SetSetupMode", this)
-										.label(0,
-												EssNature.OFF)
+								setSetupMode = new ModbusWriteChannel("SetSetupMode", this).label(0, EssNature.OFF)
 										.label(1, EssNature.ON))),
 				new WritableModbusRange(30559,
 						new UnsignedWordElement(30559,
@@ -603,7 +601,20 @@ public class FeneconProEss extends ModbusDeviceNature
 
 		//
 		);
+		gridMode = new FunctionalChannel<Long>("GridMode", this, (channels) -> {
+			ReadChannel<Long> state = channels[0];
+			try {
+				if (state.value() == 1L) {
+					return 0L;
+				} else {
+					return 1L;
+				}
+			} catch (InvalidValueException e) {
+				return null;
+			}
+		}, systemState).label(0L, OFF_GRID).label(1L, ON_GRID);
 
+		return protokol;
 	}
 
 	// @IsChannel(id = "PcsAlarm1PhaseA")

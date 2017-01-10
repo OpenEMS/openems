@@ -29,16 +29,20 @@ import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.msg.ExceptionResponse;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+import com.ghgande.j2mod.modbus.msg.ReadInputRegistersRequest;
+import com.ghgande.j2mod.modbus.msg.ReadInputRegistersResponse;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
 import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.device.Device;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.OpenemsModbusException;
+import io.openems.impl.protocol.modbus.internal.InputRegistersModbusRange;
 import io.openems.impl.protocol.modbus.internal.ModbusRange;
 
 public abstract class ModbusBridge extends Bridge {
@@ -109,8 +113,12 @@ public abstract class ModbusBridge extends Bridge {
 		return true;
 	}
 
-	protected Register[] query(int modbusUnitId, ModbusRange range) throws OpenemsModbusException {
-		return query(modbusUnitId, range.getStartAddress(), range.getLength());
+	protected InputRegister[] query(int modbusUnitId, ModbusRange range) throws OpenemsModbusException {
+		if (range instanceof InputRegistersModbusRange) {
+			return queryInputRegisters(modbusUnitId, range.getStartAddress(), range.getLength());
+		} else {
+			return queryMultipleRegisters(modbusUnitId, range.getStartAddress(), range.getLength());
+		}
 	}
 
 	protected void write(int modbusUnitId, int address, List<Register> registers) throws OpenemsModbusException {
@@ -208,7 +216,7 @@ public abstract class ModbusBridge extends Bridge {
 	 * @return
 	 * @throws OpenemsModbusException
 	 */
-	private Register[] query(int modbusUnitId, int address, int count) throws OpenemsModbusException {
+	private Register[] queryMultipleRegisters(int modbusUnitId, int address, int count) throws OpenemsModbusException {
 		ModbusTransaction trans = getTransaction();
 		ReadMultipleRegistersRequest req = new ReadMultipleRegistersRequest(address, count);
 		req.setUnitID(modbusUnitId);
@@ -233,6 +241,49 @@ public abstract class ModbusBridge extends Bridge {
 		ModbusResponse res = trans.getResponse();
 		if (res instanceof ReadMultipleRegistersResponse) {
 			ReadMultipleRegistersResponse mres = (ReadMultipleRegistersResponse) res;
+			return mres.getRegisters();
+		} else {
+			throw new OpenemsModbusException("Unable to read modbus response. " //
+					+ "UnitId [" + modbusUnitId + "], Address [" + address + "], Count [" + count + "]: "
+					+ res.toString());
+		}
+	}
+
+	/**
+	 * Executes a query on the Modbus client
+	 *
+	 * @param modbusUnitId
+	 * @param address
+	 * @param count
+	 * @return
+	 * @throws OpenemsModbusException
+	 */
+	private InputRegister[] queryInputRegisters(int modbusUnitId, int address, int count)
+			throws OpenemsModbusException {
+		ModbusTransaction trans = getTransaction();
+		ReadInputRegistersRequest req = new ReadInputRegistersRequest(address, count);
+		req.setUnitID(modbusUnitId);
+		trans.setRequest(req);
+		try {
+			trans.execute();
+		} catch (ModbusException e) {
+			// try again with new connection
+			closeModbusConnection();
+			trans = getTransaction();
+			req = new ReadInputRegistersRequest(address, count);
+			req.setUnitID(modbusUnitId);
+			trans.setRequest(req);
+			try {
+				trans.execute();
+			} catch (ModbusException e1) {
+				throw new OpenemsModbusException("Error on modbus query. " //
+						+ "UnitId [" + modbusUnitId + "], Address [" + address + "/0x" + Integer.toHexString(address)
+						+ "], Count [" + count + "]: " + e1.getMessage());
+			}
+		}
+		ModbusResponse res = trans.getResponse();
+		if (res instanceof ReadInputRegistersResponse) {
+			ReadInputRegistersResponse mres = (ReadInputRegistersResponse) res;
 			return mres.getRegisters();
 		} else {
 			throw new OpenemsModbusException("Unable to read modbus response. " //

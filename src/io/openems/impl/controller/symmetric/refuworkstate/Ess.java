@@ -18,26 +18,30 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.protocol.modbus.internal;
+package io.openems.impl.controller.symmetric.refuworkstate;
 
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
-import com.ghgande.j2mod.modbus.procimg.Register;
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
+import io.openems.impl.device.refu.RefuEss;
 
-public interface DoublewordElement {
-	/**
-	 * Updates the value of this Element from two Registers.
-	 *
-	 * @param register
-	 */
-	public void setValue(InputRegister registers, InputRegister registers2);
+@IsThingMap(type = RefuEss.class)
+public class Ess extends ThingMap {
 
-	/**
-	 * Converts the given value to a Register[2]-Array, fitting with the hardware format of this Element. Use it to
-	 * prepare a
-	 * Modbus write.
-	 *
-	 * @param value
-	 * @return
-	 */
-	public Register[] toRegisters(Long value);
+	public final WriteChannel<Long> setActivePower;
+	public final WriteChannel<Long> setReactivePower;
+	public final WriteChannel<Long> setWorkState;
+	public final WriteChannel<Long> setSystemErrorReset;
+	public final ReadChannel<Long> systemState;
+
+	public Ess(RefuEss ess) {
+		super(ess);
+		setActivePower = ess.setActivePower().required();
+		setReactivePower = ess.setReactivePower().required();
+		setWorkState = ess.setWorkState().required();
+		systemState = ess.systemState().required();
+		setSystemErrorReset = ess.setSystemErrorReset.required();
+	}
+
 }

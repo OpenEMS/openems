@@ -23,6 +23,7 @@ package io.openems.impl.protocol.modbus.internal;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
@@ -47,7 +48,7 @@ public class FloatElement extends ModbusElement implements DoublewordElement {
 		return this;
 	}
 
-	@Override public void setValue(Register register1, Register register2) {
+	@Override public void setValue(InputRegister register1, InputRegister register2) {
 		ByteBuffer buff = ByteBuffer.allocate(4).order(byteOrder);
 		if (wordOrder == WordOrder.MSWLSW) {
 			buff.put(register1.toBytes());

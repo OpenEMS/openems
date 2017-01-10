@@ -30,6 +30,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
@@ -162,7 +163,7 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 	private void update(int modbusUnitId, ModbusBridge modbusBridge, ModbusRange range) {
 		try {
 			// Query using this Range
-			Register[] registers = modbusBridge.query(modbusUnitId, range);
+			InputRegister[] registers = modbusBridge.query(modbusUnitId, range);
 
 			// Fill channels
 			int position = 0;

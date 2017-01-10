@@ -42,12 +42,12 @@
 			},
 			{
 				"priority": 100,
-				"class": "io.openems.impl.controller.asymmetricavoidtotaldischarge.AsymmetricAvoidTotalDischarge",
+				"class": "io.openems.impl.controller.asymmetric.avoidtotaldischarge.AvoidTotalDischargeController",
 				"esss": "ess0"
 			},
 			{
 				"priority": 50,
-				"class": "io.openems.impl.controller.asymmetricbalancing.AsymmetricBalancingController",
+				"class": "io.openems.impl.controller.asymmetric.balancing.BalancingController",
 				"esss": [
 					"ess0",
 					"ess1"
@@ -70,11 +70,11 @@
 		{
 			"class": "io.openems.impl.persistence.influxdb.InfluxdbPersistence",
 			"ip": "127.0.0.1",
-			"fems": 343
+			"fems": 
 		},
 		{
 			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
-			"apikey": "ViRf5UwXH2xCCOAUNWrA"
+			"apikey": ""
 		}
 	]	
 }
