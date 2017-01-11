@@ -142,6 +142,11 @@ public class JsonUtils {
 			 * String
 			 */
 			return new JsonPrimitive((String) value);
+		} else if (value instanceof Boolean) {
+			/*
+			 * Boolean
+			 */
+			return new JsonPrimitive((Boolean) value);
 		} else if (value instanceof Inet4Address) {
 			/*
 			 * Inet4Address
