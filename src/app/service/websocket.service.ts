@@ -12,8 +12,8 @@ export { Websocket } from './websocket';
 
 const DEFAULT_WEBSOCKETS = [{
   name: "Lokales FEMS",
-  //url: "ws://" + location.hostname + ":8085"
-  url: "ws://localhost:8085"
+  url: "ws://" + location.hostname + ":8085"
+  //url: "ws://localhost:8085"
 }];
 
 @Injectable()

@@ -57,31 +57,53 @@
 
 <div *ngIf="mode == 'manualPQ'" class="container">
   <div class="row">
-    <form class="form-horizontal" [formGroup]="manualPQForm">
-      <div class="form-group">
-        <label for="p" class="col-xs-4 control-label">Wirkleistung (P)</label>
-        <div class="col-xs-6">
-          <div class="input-group">
-            <input type="text" class="form-control" id="p" required="" formControlName="p">
-            <div class="input-group-addon">W</div>
-          </div>
+    <div class="col-xs-12">
+      <div class="panel panel-default" (click)="mode = 'manualPQ'">
+        <div class="panel-heading">
+          <h3 class="panel-title">Wechselrichter</h3>
+        </div>
+        <div class="panel-body">
+          <button (click)="setInverterState(true)" class="btn btn-default">starten</button>
+          <button (click)="setInverterState(false)" class="btn btn-default">stoppen</button>
         </div>
       </div>
-      <div class="form-group">
-        <label for="q" class="col-xs-4 control-label">Blindleistung (Q)</label>
-        <div class="col-xs-6">
-          <div class="input-group">
-            <input type="text" class="form-control" id="q" required="" formControlName="q">
-            <div class="input-group-addon">VA</div>
-          </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Leistungsvorgabe</h3>
+        </div>
+        <div class="panel-body">
+          <form class="form-horizontal" [formGroup]="manualPQForm">
+            <div class="form-group">
+              <label for="p" class="col-xs-4 control-label">Wirkleistung (P)</label>
+              <div class="col-xs-6">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="p" required="" formControlName="p">
+                  <div class="input-group-addon">W</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="q" class="col-xs-4 control-label">Blindleistung (Q)</label>
+              <div class="col-xs-6">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="q" required="" formControlName="q">
+                  <div class="input-group-addon">VA</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-xs-offset-4 col-xs-6">
+                <button (click)="applyManualPQ(manualPQForm)" type="submit" class="btn btn-default">Übernehmen</button>
+                <button (click)="removeManualPQ()" class="btn btn-default">Zurücksetzen</button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
-      <div class="form-group">
-        <div class="col-xs-offset-4 col-xs-6">
-          <button (click)="applyManualPQ(manualPQForm)" type="submit" class="btn btn-default">Übernehmen</button>
-          <button (click)="removeManualPQ()" class="btn btn-default">Zurücksetzen</button>
-        </div>
-      </div>
-    </form>
+    </div>
   </div>
 </div>

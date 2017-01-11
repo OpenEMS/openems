@@ -38,4 +38,14 @@ export class ConfigComponent implements OnInit {
   private removeManualPQ() {
     this.device.send({ manualPQ: {} });
   }
+
+  private setInverterState(state: boolean) {
+    this.device.send({
+      channel: {
+        thing: "RefuWorkState0",
+        channel: "start",
+        value: state
+      }
+    });
+  }
 }
