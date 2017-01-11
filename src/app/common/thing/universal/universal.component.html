@@ -1,0 +1,11 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">{{ thing.key }}</h3>
+  </div>
+  <table class="table">
+    <tr *ngFor="let channel of thing.value | keys">
+      <td>{{ channel.key }}</td>
+      <td>{{ channel.value }}</td>
+    </tr>
+  </table>
+</div>

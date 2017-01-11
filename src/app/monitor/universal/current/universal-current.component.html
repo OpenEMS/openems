@@ -27,25 +27,3 @@
     </div>
   </div>
 </div>
-
-<div *ngIf="data" class="container">
-  <div class="row">
-    <div *ngFor="let thing of data | keys" [ngSwitch]="thing.value._tag" class="col-xs-12 col-sm-4 col-md-3">
-      <!-- Meter -->
-      <common-thing-meter-simulator *ngSwitchCase="'SimulatorMeter'" [data]="thing"></common-thing-meter-simulator>
-      <common-thing-meter-asymmetric *ngSwitchCase="'AsymmetricMeter'" [data]="thing"></common-thing-meter-asymmetric>
-      <common-thing-meter-symmetric *ngSwitchCase="'SymmetricMeter'" [data]="thing"></common-thing-meter-symmetric>
-      <!-- Ess -->
-      <common-thing-ess-simulator *ngSwitchCase="'SimulatorEss'" [data]="thing"></common-thing-ess-simulator>
-      <common-thing-ess-feneconpro *ngSwitchCase="'FeneconProEss'" [data]="thing"></common-thing-ess-feneconpro>
-      <common-thing-ess-feneconcommercial *ngSwitchCase="'FeneconCommercialEss'" [data]="thing"></common-thing-ess-feneconcommercial>
-      <!-- Default -->
-      <div *ngSwitchDefault class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">{{thing.key}}</h3>
-        </div>
-        <div>{{thing.value | json}}: not implemented</div>
-      </div>
-    </div>
-  </div>
-</div>

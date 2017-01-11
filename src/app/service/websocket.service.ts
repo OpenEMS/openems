@@ -11,7 +11,8 @@ export { Websocket } from './websocket';
 //TODO const DEFAULT_PASSWORD: string = "guest";
 
 const DEFAULT_WEBSOCKETS = [{
-  name: "Trafostation 1",
+  name: "Lokales FEMS",
+  //url: "ws://" + location.hostname + ":8085"
   url: "ws://localhost:8085"
 }];
 
@@ -59,6 +60,7 @@ export class WebsocketService {
         }
       }
     }
+    // TODO retry once after 500 ms
     this.currentDevice = null;
     this.router.navigate(['/login']);
   }

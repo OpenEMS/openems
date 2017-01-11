@@ -13,8 +13,9 @@ import { NgxChartsModule } from 'ngx-charts';
  * Frontend
  */
 import { LoginComponent } from './login/login.component';
-import { MonitorOverviewComponent } from './monitor/overview/overview.component';
+import { OverviewComponent } from './overview/overview.component';
 import { MonitorCurrentComponent } from './monitor/current/current.component';
+import { ConfigComponent } from './config/config.component';
 
 /*
 import { MonitorGrafanaComponent } from './monitor/grafana/grafana.component';
@@ -26,6 +27,7 @@ import { ConfigurationComponent } from './monitor/configuration/configuration.co
 /*
  * Common components
  */
+import { CommonThingUniversalComponent } from './common/thing/universal/universal.component';
 
 // Meter
 import { CommonMeterSimulatorComponent } from './common/thing/meter/simulator/simulator.component';
@@ -70,11 +72,14 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     AppComponent,
     // Frontend
     LoginComponent,
-    MonitorOverviewComponent,
+    OverviewComponent,
     MonitorCurrentComponent,
+    ConfigComponent,
     CollapseDirective,
     // common
     CommonSocComponent,
+    //   Thing
+    CommonThingUniversalComponent,
     //   Meter
     CommonMeterSimulatorComponent,
     CommonMeterSymmetricComponent,

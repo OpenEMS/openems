@@ -14,6 +14,7 @@ export class AppComponent implements OnInit {
   private menuitems: any[];
   private connections: string;
 
+  // TODO: toastr-options
   private options = {
     position: ["bottom", "left"],
     timeOut: 5000,
@@ -29,12 +30,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.webappService.initializeToastr(this.vRef);
-    this.menuitems = [
-      { label: 'Übersicht', routerLink: '/monitor' },
-      { label: 'Konfiguration', routerLink: '/config' }/*,
-      { label: 'Aktuelle Daten', routerLink: '/monitor/current' },
-      { label: 'Historie', routerLink: '/monitor/history' }*/
-    ];
 
     /*
     var ws = new WebSocket("ws://localhost:8087");

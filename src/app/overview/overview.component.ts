@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { WebsocketService, Websocket } from './../../service/websocket.service';
-import { WebappService } from './../../service/webapp.service';
+import { WebsocketService, Websocket } from './../service/websocket.service';
+import { WebappService } from './../service/webapp.service';
 
 @Component({
-  selector: 'app-monitor-overview',
+  selector: 'app-overview',
   templateUrl: './overview.component.html'
 })
-export class MonitorOverviewComponent implements OnInit {
+export class OverviewComponent implements OnInit {
 
   constructor(
     private websocketService: WebsocketService,

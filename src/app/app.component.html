@@ -12,7 +12,7 @@
     </div>
     <div class="navbar-collapse" [collapse]="navCollapsed">
       <ul class="nav navbar-nav">
-        <li routerLinkActive="active"><a routerLink="/monitor">Übersicht</a></li>
+        <li routerLinkActive="active"><a routerLink="/overview">Übersicht</a></li>
         <li *ngIf="websocketService.currentDevice"><a>{{ websocketService.currentDevice.address }}</a></li>
         <li *ngIf="websocketService.currentDevice" routerLinkActive="active"><a routerLink="/monitor/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}">Monitor</a></li>
         <li *ngIf="websocketService.currentDevice" routerLinkActive="active"><a routerLink="/config/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}">Konfiguration</a></li>

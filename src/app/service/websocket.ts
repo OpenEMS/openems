@@ -10,7 +10,7 @@ import { WebappService, Notification } from './webapp.service';
 export class Websocket {
   public isConnected: boolean = false;
   public event = new Subject<Notification>();
-  public subject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  public subject = new BehaviorSubject<any>(null);
   public devices: { [name: string]: Device } = {};
 
   private websocket: WebSocket;
@@ -121,89 +121,34 @@ export class Websocket {
         }
 
         // Receive connected devices
-        if ("devices" in message) {
+        if ("all_devices" in message) {
           this.devices = {};
+          for (let deviceName in message.all_devices) {
+            let device = new Device(deviceName, this);
+            device.receive(message.all_devices[deviceName]);
+            this.devices[deviceName] = device;
+          }
+        }
+
+        // Receive device info
+        if ("devices" in message) {
           for (let deviceName in message.devices) {
-            this.devices[deviceName] = new Device(deviceName, this);
-            for (let key in message.devices[deviceName]) {
-              this.devices[deviceName][key] = message.devices[deviceName][key];
+            if (this.devices[deviceName]) {
+              this.devices[deviceName].receive(message.devices[deviceName]);
             }
           }
         }
-
-        //TODO reveice config of all FEMSes
-        /*
-        // Receive config
-        if ("config" in message) {
-          this.config = new OpenemsConfig();
-          // device natures
-          if ("_devices" in msg.config) {
-            this.config._devices = {}
-            for (let id in msg.config._devices) {
-              var device = new Device();
-              device._name = id;
-              device._natures = msg.config._devices[id];
-              this.config._devices[id] = device;
-            }
-          }
-          // controllers
-          if ("_controllers" in msg.config) {
-            this.config._controllers = msg.config._controllers;
-          }
-          // things
-          if ("things" in msg.config) {
-            this.config.things = msg.config.things;
-          }
-          // scheduler
-          if ("scheduler" in msg.config) {
-            this.config.scheduler = msg.config.scheduler;
-          }
-          // persistences
-          if ("persistence" in msg.config) {
-            for (let persistence of msg.config.persistence) {
-              if (persistence.class == "io.openems.impl.persistence.influxdb.InfluxdbPersistence") {
-                var ip = persistence.ip;
-                if (ip == "127.0.0.1") { // rewrite localhost to remote ip
-                  ip = location.hostname;
-                }
-                var influxdb = new InfluxdbPersistence();
-                influxdb.ip = ip;
-                influxdb.username = persistence.username;
-                influxdb.password = persistence.password;
-                influxdb.fems = persistence.fems;
-                this.config.persistence.push(influxdb);
-              } else {
-                this.config.persistence.push(persistence);
-              }
-            }
-          }
-          this.event.emit(null);
-        }
-        */
-
-        // TODO Receive data of all FEMSes
-        /*
-        if ("data" in msg) {
-          var data = msg.data;
-          var newData: Object = {}
-          for (let id in data) {
-            var channels = data[id];
-            if (id in this.config._devices) {
-              newData[id] = {};
-              for (let channelid in channels) {
-                var channel = channels[channelid];
-                newData[id][channelid] = channel;
-              }
-            }
-          }
-          this.data.next(newData);
-          console.log(newData);
-        }
-        */
 
         // receive notification
         if ("notification" in message) {
           this.webappService.notify(message.notification);
+        }
+        if ("devices" in message) {
+          for (let deviceName in message.devices) {
+            if ("notification" in message.devices[deviceName]) {
+              this.webappService.notify(message.devices[deviceName].notification);
+            }
+          }
         }
       }, (error: any) => {
         this.initialize();
@@ -219,6 +164,7 @@ export class Websocket {
           status = { type: "error", message: "Verbindung beendet." };
           this.event.next(status);
         }
+        // REDIRECT if current device was this one
       });
   }
 
@@ -250,8 +196,13 @@ export class Websocket {
   /**
    * Sends a message to the websocket
    */
-  private send(value: any): void {
-    this.subject.next(value);
+  public send(device: Device, value: any): void {
+    let message = {
+      devices: {}
+    }
+    message.devices[device.name] = value;
+    console.log("SENDING", message);
+    this.subject.next(message);
   }
 
   /**
