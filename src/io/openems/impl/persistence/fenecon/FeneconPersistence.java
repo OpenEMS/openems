@@ -165,10 +165,12 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			boolean connected = ws.connectBlocking();
 			if (connected) {
 				// return connected websocket
+				log.info("FENECON persistence connected to uri [" + uri + "]");
 				this._websocket = ws;
 				return Optional.of(ws);
 			} else {
 				// not connected -> return empty
+				log.warn("FENECON persistence failed connection to uri [" + uri + "]");
 				this._websocket = null;
 				return Optional.empty();
 			}

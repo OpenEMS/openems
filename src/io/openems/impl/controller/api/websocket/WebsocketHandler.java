@@ -65,7 +65,7 @@ public class WebsocketHandler {
 			JsonObject j = new JsonObject();
 			JsonObject jData = getData();
 			j.add("data", jData);
-			send(j);
+			send(true, j);
 		};
 	}
 
@@ -175,10 +175,10 @@ public class WebsocketHandler {
 	 * @param j
 	 * @return true if successful, otherwise false
 	 */
-	public synchronized boolean send(String key, JsonElement j) {
+	public synchronized boolean send(boolean asDevice, String key, JsonElement j) {
 		JsonObject jSend = new JsonObject();
 		jSend.add(key, j);
-		return send(jSend);
+		return send(asDevice, jSend);
 	}
 
 	/**
@@ -187,9 +187,18 @@ public class WebsocketHandler {
 	 * @param j
 	 * @return true if successful, otherwise false
 	 */
-	public synchronized boolean send(JsonObject j) {
+	public synchronized boolean send(boolean asDevice, JsonObject j) {
+		JsonObject jSend;
+		if (asDevice) {
+			jSend = new JsonObject();
+			JsonObject jDevices = new JsonObject();
+			jDevices.add(WebsocketServer.DEFAULT_DEVICE_NAME, j);
+			jSend.add("devices", jDevices);
+		} else {
+			jSend = j;
+		}
 		try {
-			this.conn.send(j.toString());
+			this.conn.send(jSend.toString());
 			return true;
 		} catch (WebsocketNotConnectedException e) {
 			return false;
@@ -206,7 +215,7 @@ public class WebsocketHandler {
 		JsonObject jMessage = new JsonObject();
 		jMessage.addProperty("type", type.name().toLowerCase());
 		jMessage.addProperty("message", message);
-		return send("notification", jMessage);
+		return send(true, "notification", jMessage);
 	}
 
 	/**

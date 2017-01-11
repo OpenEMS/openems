@@ -275,6 +275,7 @@ public class Config implements ChannelChangeListener {
 				JsonObject jPersistence = JsonUtils.getAsJsonObject(jPersistenceElement);
 				String persistenceClass = JsonUtils.getAsString(jPersistence, "class");
 				Persistence persistence = (Persistence) InjectionUtils.getThingInstance(persistenceClass);
+				thingRepository.addThing(persistence);
 				log.debug("Add Persistence[" + persistence.id() + "], Implementation["
 						+ persistence.getClass().getSimpleName() + "]");
 				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);

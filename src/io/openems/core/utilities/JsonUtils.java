@@ -100,10 +100,21 @@ public class JsonUtils {
 		return jPrimitive.getAsString();
 	}
 
+	public static long getAsLong(JsonElement jElement, String memberName) throws ReflectionException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsLong();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Long.parseLong(string);
+		}
+		throw new ReflectionException("[" + memberName + "] is not a Number: " + jPrimitive);
+	}
+
 	public static JsonElement getSubElement(JsonElement jElement, String memberName) throws ReflectionException {
 		JsonObject jObject = getAsJsonObject(jElement);
 		if (!jObject.has(memberName)) {
-			throw new ReflectionException("[" + memberName + "] is missing in Config: " + jElement);
+			throw new ReflectionException("[" + memberName + "] is missing: " + jElement);
 		}
 		return jObject.get(memberName);
 	}

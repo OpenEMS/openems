@@ -25,6 +25,7 @@ import com.google.common.reflect.ClassPath;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
@@ -136,6 +137,29 @@ public class ConfigUtils {
 				// recursive call
 				return ConfigUtils.getAsJsonElement(channel.valueOptional().get(), includeEverything);
 			}
+		} else if (value instanceof ThingMap) {
+			/*
+			 * ThingMap (we need only id)
+			 */
+			return new JsonPrimitive(((ThingMap) value).id());
+		} else if (value instanceof List<?>) {
+			/*
+			 * List
+			 */
+			JsonArray jArray = new JsonArray();
+			for (Object v : (List<?>) value) {
+				jArray.add(ConfigUtils.getAsJsonElement(v, includeEverything));
+			}
+			return jArray;
+		} else if (value instanceof Set<?>) {
+			/*
+			 * Set
+			 */
+			JsonArray jArray = new JsonArray();
+			for (Object v : (Set<?>) value) {
+				jArray.add(ConfigUtils.getAsJsonElement(v, includeEverything));
+			}
+			return jArray;
 		}
 		throw new NotImplementedException("Converter for [" + value + "]" + " of type [" //
 				+ value.getClass().getSimpleName() + "]" //

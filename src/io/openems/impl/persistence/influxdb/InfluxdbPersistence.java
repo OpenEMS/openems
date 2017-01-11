@@ -143,7 +143,7 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 		try {
 			influxdb.createDatabase(DB_NAME);
 		} catch (RuntimeException e) {
-			log.error("Unable to connect to InfluxDB: " + e.getCause().getMessage());
+			log.error("Unable to connect to InfluxDB: ", e);
 			return Optional.empty();
 		}
 

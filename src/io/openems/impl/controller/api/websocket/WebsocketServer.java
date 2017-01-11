@@ -35,12 +35,17 @@ import io.openems.core.utilities.JsonUtils;
 public class WebsocketServer extends WebSocketServer {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketServer.class);
+
+	public final static String DEFAULT_DEVICE_NAME = "fems";
+
 	private final ConcurrentHashMap<WebSocket, WebsocketHandler> sockets = new ConcurrentHashMap<>();
 	private final ThingRepository thingRepository;
+	private final WebsocketApiController controller;
 
-	public WebsocketServer(int port) {
+	public WebsocketServer(WebsocketApiController controller, int port) {
 		super(new InetSocketAddress(port));
 		this.thingRepository = ThingRepository.getInstance();
+		this.controller = controller;
 	}
 
 	@Override public void onClose(WebSocket conn, int code, String reason, boolean remote) {
@@ -74,24 +79,40 @@ public class WebsocketServer extends WebSocketServer {
 		}
 
 		/*
-		 * On initial call -> send config
+		 * Send message on initial call
 		 */
 		if (j.has("authenticate")) {
-			sendConfig(handler);
+			sendInitialMessage(handler);
 		}
 
-		/*
-		 * Subscribe to data
-		 */
-		if (j.has("subscribe")) {
-			subscribe(j.get("subscribe"), handler);
-		}
+		if (j.has("devices")) {
+			try {
+				JsonObject jDevices = JsonUtils.getAsJsonObject(j, "devices");
+				JsonObject jDevice = JsonUtils.getAsJsonObject(jDevices, DEFAULT_DEVICE_NAME);
 
-		/*
-		 * Set a channel
-		 */
-		if (j.has("config")) {
-			config(j.get("config"), handler);
+				/*
+				 * Subscribe to data
+				 */
+				if (jDevice.has("subscribe")) {
+					subscribe(jDevice.get("subscribe"), handler);
+				}
+
+				/*
+				 * Set a channel
+				 */
+				if (jDevice.has("config")) {
+					config(jDevice.get("config"), handler);
+				}
+
+				/*
+				 * Set manual P/Q values
+				 */
+				if (jDevice.has("manualPQ")) {
+					manualPQ(jDevice.get("manualPQ"), handler);
+				}
+			} catch (ReflectionException e) {
+				log.warn("Error parsing device request: " + e.getMessage());
+			}
 		}
 	}
 
@@ -125,25 +146,37 @@ public class WebsocketServer extends WebSocketServer {
 				handler.setSession(auth.bySession(token));
 			}
 		} catch (ReflectionException e) { /* ignore */ }
-		/*
-		 * Send reply
-		 */
+	}
+
+	private void sendInitialMessage(WebsocketHandler handler) {
 		JsonObject jReply = new JsonObject();
 		JsonObject jAuthenticate = new JsonObject();
 		if (handler.isValid()) {
-			// on success: send immediate reply with token to client
+			/*
+			 * on success: authentication data with token and username
+			 */
 			jAuthenticate.addProperty("token", handler.getSession().getToken());
 			jAuthenticate.addProperty("username", handler.getSession().getUser().getName());
+			/*
+			 * Device data
+			 */
+			JsonObject jDevices = new JsonObject();
+			JsonObject jDevice = new JsonObject();
+			jDevice.add("config", getConfigJson());
+			jDevices.add(DEFAULT_DEVICE_NAME, jDevice);
+			jReply.add("all_devices", jDevices);
 		} else {
 			log.error("Authentication failed");
-			// on failure: send immediate reply with error
+			/*
+			 * on failure: send error
+			 */
 			jAuthenticate.addProperty("failed", true);
 		}
 		jReply.add("authenticate", jAuthenticate);
 		WebsocketServer.send(handler.getWebSocket(), jReply);
 	}
 
-	private void sendConfig(WebsocketHandler handler) {
+	private JsonObject getConfigJson() {
 		try {
 			Config config = Config.getInstance();
 			/*
@@ -153,7 +186,7 @@ public class WebsocketServer extends WebSocketServer {
 			/*
 			 * Natures
 			 */
-			JsonObject jDevices = new JsonObject();
+			JsonObject jDeviceNatures = new JsonObject();
 			thingRepository.getDeviceNatures().forEach(nature -> {
 				JsonArray jNatureClasses = new JsonArray();
 				/*
@@ -162,21 +195,21 @@ public class WebsocketServer extends WebSocketServer {
 				for (Class<?> iface : InjectionUtils.getImportantNatureInterfaces(nature.getClass())) {
 					jNatureClasses.add(iface.getSimpleName());
 				}
-				jDevices.add(nature.id(), jNatureClasses);
+				jDeviceNatures.add(nature.id(), jNatureClasses);
 			});
-			j.add("_devices", jDevices);
+			j.add("_deviceNatures", jDeviceNatures);
 			/*
 			 * Available Controllers
 			 */
-			JsonArray jControllers = new JsonArray();
+			JsonArray jAvailableControllers = new JsonArray();
 			for (ThingDescription controllerDescription : thingRepository.getAvailableControllers()) {
-				jControllers.add(controllerDescription.getAsJsonObject());
+				jAvailableControllers.add(controllerDescription.getAsJsonObject());
 			}
-			j.add("_controllers", jControllers);
-
-			handler.send("config", j);
+			j.add("_availableControllers", jAvailableControllers);
+			return j;
 		} catch (NotImplementedException | ConfigException e) {
-			handler.sendNotification(NotificationType.WARNING, "Unable to send config: " + e.getMessage());
+			log.warn("Unable to create config: " + e.getMessage());
+			return new JsonObject();
 		}
 	}
 
@@ -244,7 +277,7 @@ public class WebsocketServer extends WebSocketServer {
 					String thingId = JsonUtils.getAsString(jConfig, "thing");
 					thingRepository.removeThing(thingId);
 					Config.getInstance().writeConfigFile();
-					handler.sendNotification(NotificationType.SUCCESS, "Controller [" + thingId + "] wurde gelöscht.");
+					handler.sendNotification(NotificationType.SUCCESS, "Controller [" + thingId + "] wurde gelï¿½scht.");
 
 				} else if (jConfig.has("get")) {
 					/*
@@ -273,6 +306,24 @@ public class WebsocketServer extends WebSocketServer {
 			log.error(e.getMessage());
 			handler.sendNotification(NotificationType.ERROR, e.getMessage());
 			// TODO: send notification to websocket
+		}
+	}
+
+	private void manualPQ(JsonElement j, WebsocketHandler handler) {
+		try {
+			JsonObject jPQ = JsonUtils.getAsJsonObject(j);
+			if (jPQ.has("p") && jPQ.has("q")) {
+				long p = JsonUtils.getAsLong(jPQ, "p");
+				long q = JsonUtils.getAsLong(jPQ, "q");
+				this.controller.setManualPQ(p, q);
+				handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabe gesetzt: P=" + p + ",Q=" + q);
+			} else {
+				// stop manual PQ
+				this.controller.resetManualPQ();
+				handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabe zurÃ¼ckgesetzt");
+			}
+		} catch (ReflectionException e) {
+			handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabewerte falsch: " + e.getMessage());
 		}
 	}
 
@@ -312,5 +363,11 @@ public class WebsocketServer extends WebSocketServer {
 		} catch (WebsocketNotConnectedException e) {
 			return false;
 		}
+	}
+
+	public void broadcastNotification(NotificationType type, String message) {
+		sockets.forEach((websocket, handler) -> {
+			handler.sendNotification(type, message);
+		});
 	}
 }
