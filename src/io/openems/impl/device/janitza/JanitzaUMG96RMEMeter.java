@@ -24,11 +24,11 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
-import io.openems.impl.protocol.modbus.ModbusReadChannel;
+import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.internal.DummyElement;
 import io.openems.impl.protocol.modbus.internal.FloatElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
-import io.openems.impl.protocol.modbus.internal.ModbusRange;
+import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
 public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements SymmetricMeterNature {
 
@@ -39,23 +39,23 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 	/*
 	 * Inherited Channels
 	 */
-	private ModbusReadChannel activePower;
-	public ModbusReadChannel activePowerL1;
-	public ModbusReadChannel activePowerL2;
-	public ModbusReadChannel activePowerL3;
-	private ModbusReadChannel apparentPower;
-	private ModbusReadChannel reactivePower;
-	public ModbusReadChannel reactivePowerL1;
-	public ModbusReadChannel reactivePowerL2;
-	public ModbusReadChannel reactivePowerL3;
-	public ModbusReadChannel current;
-	private ModbusReadChannel frequency;
-	public ModbusReadChannel voltageL1;
-	public ModbusReadChannel voltageL2;
-	public ModbusReadChannel voltageL3;
-	public ModbusReadChannel currentL1;
-	public ModbusReadChannel currentL2;
-	public ModbusReadChannel currentL3;
+	private ModbusReadLongChannel activePower;
+	public ModbusReadLongChannel activePowerL1;
+	public ModbusReadLongChannel activePowerL2;
+	public ModbusReadLongChannel activePowerL3;
+	private ModbusReadLongChannel apparentPower;
+	private ModbusReadLongChannel reactivePower;
+	public ModbusReadLongChannel reactivePowerL1;
+	public ModbusReadLongChannel reactivePowerL2;
+	public ModbusReadLongChannel reactivePowerL3;
+	public ModbusReadLongChannel current;
+	private ModbusReadLongChannel frequency;
+	public ModbusReadLongChannel voltageL1;
+	public ModbusReadLongChannel voltageL2;
+	public ModbusReadLongChannel voltageL3;
+	public ModbusReadLongChannel currentL1;
+	public ModbusReadLongChannel currentL2;
+	public ModbusReadLongChannel currentL3;
 
 	@Override public ReadChannel<Long> activePower() {
 		return activePower;
@@ -75,53 +75,53 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
-				new ModbusRange(800, //
+				new ModbusRegisterRange(800, //
 						new FloatElement(800, //
-								frequency = new ModbusReadChannel("Frequency", this).unit("mHz")) //
+								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHz")) //
 										.multiplier(3),
 						new DummyElement(802, 807),
-						new FloatElement(808, voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV"))
+						new FloatElement(808, voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV"))
 								.multiplier(3),
-						new FloatElement(810, voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV"))
+						new FloatElement(810, voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV"))
 								.multiplier(3),
-						new FloatElement(812, voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV"))
+						new FloatElement(812, voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV"))
 								.multiplier(3),
 						new DummyElement(814, 859),
 						new FloatElement(860, //
-								currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA")).multiplier(3),
+								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")).multiplier(3),
 						new FloatElement(862, //
-								currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA")).multiplier(3),
+								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA")).multiplier(3),
 						new FloatElement(864, //
-								currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA")).multiplier(3),
+								currentL3 = new ModbusReadLongChannel("CurrentL3", this).unit("mA")).multiplier(3),
 						new FloatElement(866, //
-								current = new ModbusReadChannel("Current", this).unit("mA")).multiplier(3),
+								current = new ModbusReadLongChannel("Current", this).unit("mA")).multiplier(3),
 						new FloatElement(868, //
-								activePowerL1 = new ModbusReadChannel("ActivePowerL1", this) //
+								activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this) //
 										.unit("W")), //
 						new FloatElement(870, //
-								activePowerL2 = new ModbusReadChannel("ActivePowerL2", this) //
+								activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this) //
 										.unit("W")), //
 						new FloatElement(872, //
-								activePowerL3 = new ModbusReadChannel("ActivePowerL3", this) //
+								activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this) //
 										.unit("W")), //
 						new FloatElement(874, //
-								activePower = new ModbusReadChannel("ActivePower", this) //
+								activePower = new ModbusReadLongChannel("ActivePower", this) //
 										.unit("W")), //
 						new FloatElement(876, //
-								reactivePowerL1 = new ModbusReadChannel("ReactivePowerL1", this) //
+								reactivePowerL1 = new ModbusReadLongChannel("ReactivePowerL1", this) //
 										.unit("Var")), //
 						new FloatElement(878, //
-								reactivePowerL2 = new ModbusReadChannel("ReactivePowerL2", this) //
+								reactivePowerL2 = new ModbusReadLongChannel("ReactivePowerL2", this) //
 										.unit("Var")), //
 						new FloatElement(880, //
-								reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this) //
+								reactivePowerL3 = new ModbusReadLongChannel("ReactivePowerL3", this) //
 										.unit("Var")), //
 						new FloatElement(882, //
-								reactivePower = new ModbusReadChannel("ReactivePower", this) //
+								reactivePower = new ModbusReadLongChannel("ReactivePower", this) //
 										.unit("Var")), //
 						new DummyElement(884, 889),
 						new FloatElement(890, //
-								apparentPower = new ModbusReadChannel("ApparentPower", this) //
+								apparentPower = new ModbusReadLongChannel("ApparentPower", this) //
 										.unit("VA")) //
 				));
 	}

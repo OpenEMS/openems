@@ -24,15 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
-import io.openems.impl.protocol.modbus.internal.ModbusRange;
+import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 
-public abstract class ModbusElement {
+public abstract class ModbusElement<T> {
 	protected final int address;
-	protected final Channel channel;
+	protected final ModbusChannel<T> channel;
 	protected final Logger log;
 	protected ModbusRange range = null;
 
-	public ModbusElement(int address, Channel channel) {
+	public ModbusElement(int address, ModbusChannel<T> channel) {
 		log = LoggerFactory.getLogger(this.getClass());
 		this.address = address;
 		this.channel = channel;
@@ -61,13 +61,13 @@ public abstract class ModbusElement {
 		this.range = range;
 	}
 
-	protected void setValue(Long value) {
+	protected void setValue(T value) {
 		if (channel == null) {
 			return;
 		} else if (channel instanceof ModbusReadChannel) {
-			((ModbusReadChannel) channel).updateValue(value);
+			((ModbusReadChannel<T>) channel).updateValue(value);
 		} else if (channel instanceof ModbusWriteChannel) {
-			((ModbusWriteChannel) channel).updateValue(value);
+			((ModbusWriteChannel<T>) channel).updateValue(value);
 		} else {
 			log.error("Unable to set value [" + value + "]. Channel [" + channel.address()
 					+ "] is no ModbusChannel or WritableModbusChannel.");

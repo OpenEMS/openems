@@ -18,14 +18,42 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.protocol.modbus.internal;
+package io.openems.impl.protocol.modbus.internal.range;
 
 import io.openems.impl.protocol.modbus.ModbusElement;
 
-public class WritableModbusRange extends ModbusRange {
+public abstract class ModbusRange {
 
-	public WritableModbusRange(int startAddress, ModbusElement... elements) {
-		super(startAddress, elements);
+	private ModbusElement[] elements;
+	private final int length;
+	private final int startAddress;
+
+	public ModbusRange(int startAddress, ModbusElement... elements) {
+		this.startAddress = startAddress;
+		this.elements = elements;
+		for (ModbusElement element : elements) {
+			element.setModbusRange(this);
+		}
+		int length = 0;
+		for (ModbusElement element : elements) {
+			length += element.getLength();
+		}
+		this.length = length;
 	}
 
+	public ModbusElement[] getElements() {
+		return elements;
+	}
+
+	public int getLength() {
+		return length;
+	}
+
+	public int getStartAddress() {
+		return startAddress;
+	}
+
+	@Override public String toString() {
+		return "Range [startAddress=" + startAddress + ", length=" + length + "]";
+	}
 }

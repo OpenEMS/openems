@@ -27,15 +27,15 @@ import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
-import io.openems.api.channel.Channel;
+import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
-public class FloatElement extends ModbusElement implements DoublewordElement {
+public class FloatElement extends ModbusElement<Long> implements DoublewordElement {
 	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 	private WordOrder wordOrder = WordOrder.MSWLSW;
 	private int multiplier = 0;
 
-	public FloatElement(int address, Channel channel) {
+	public FloatElement(int address, ModbusChannel<Long> channel) {
 		super(address, channel);
 	}
 

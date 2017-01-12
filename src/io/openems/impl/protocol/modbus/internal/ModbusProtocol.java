@@ -33,7 +33,9 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
 import io.openems.impl.protocol.modbus.ModbusElement;
-import io.openems.impl.protocol.modbus.ModbusReadChannel;
+import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
+import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
+import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRange;
 
 public class ModbusProtocol {
 	private static Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
@@ -42,7 +44,8 @@ public class ModbusProtocol {
 	private final LinkedList<Integer> otherRangesQueue = new LinkedList<>();
 	// requiredRanges stays empty till someone calls "setAsRequired()"
 	private final Map<Integer, ModbusRange> requiredRanges = new ConcurrentHashMap<>(); // key = startAddress
-	private final Map<Integer, WritableModbusRange> writableRanges = new ConcurrentHashMap<>(); // key = startAddress
+	private final Map<Integer, WriteableModbusRange> writableRanges = new ConcurrentHashMap<>(); // key =
+																									// startAddress
 
 	public ModbusProtocol(ModbusRange... ranges) {
 		for (ModbusRange range : ranges) {
@@ -54,8 +57,8 @@ public class ModbusProtocol {
 		// check each range for plausibility
 		checkRange(range);
 		// fill writableRanges
-		if (range instanceof WritableModbusRange) {
-			WritableModbusRange writableRange = (WritableModbusRange) range;
+		if (range instanceof WriteableModbusRange) {
+			WriteableModbusRange writableRange = (WriteableModbusRange) range;
 			writableRanges.put(writableRange.getStartAddress(), writableRange);
 		}
 		// fill otherRanges Map
@@ -94,15 +97,15 @@ public class ModbusProtocol {
 		return Collections.unmodifiableCollection(requiredRanges.values());
 	}
 
-	public Collection<WritableModbusRange> getWritableRanges() {
+	public Collection<WriteableModbusRange> getWritableRanges() {
 		if (writableRanges.isEmpty()) {
-			return Collections.unmodifiableCollection(new ArrayList<WritableModbusRange>());
+			return Collections.unmodifiableCollection(new ArrayList<WriteableModbusRange>());
 		}
 		return Collections.unmodifiableCollection(writableRanges.values());
 	}
 
 	public void setAsRequired(Channel channel) {
-		if (channel instanceof ModbusReadChannel) {
+		if (channel instanceof ModbusReadLongChannel) {
 			ModbusRange range = channelElementMap.get(channel).getModbusRange();
 			otherRanges.remove(range.getStartAddress());
 			requiredRanges.put(range.getStartAddress(), range);

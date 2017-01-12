@@ -12,7 +12,7 @@ import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.ConfigException;
-import io.openems.impl.protocol.modbus.ModbusWriteChannel;
+import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
@@ -55,9 +55,9 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 	private SimulatorReadChannel reactivePower = new SimulatorReadChannel("ReactivePower", this);
 	private SimulatorReadChannel systemState = new SimulatorReadChannel("SystemState", this) //
 			.label(1, START).label(2, STOP);
-	private ModbusWriteChannel setActivePower = new ModbusWriteChannel("SetActivePower", this);
-	private ModbusWriteChannel setReactivePower = new ModbusWriteChannel("SetReactivePower", this);
-	private ModbusWriteChannel setWorkState = new ModbusWriteChannel("SetWorkState", this);
+	private ModbusWriteLongChannel setActivePower = new ModbusWriteLongChannel("SetActivePower", this);
+	private ModbusWriteLongChannel setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this);
+	private ModbusWriteLongChannel setWorkState = new ModbusWriteLongChannel("SetWorkState", this);
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
 

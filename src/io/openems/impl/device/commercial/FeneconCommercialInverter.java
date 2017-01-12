@@ -23,10 +23,10 @@ package io.openems.impl.device.commercial;
 import io.openems.api.device.nature.PvInverterNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
-import io.openems.impl.protocol.modbus.ModbusWriteChannel;
+import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
-import io.openems.impl.protocol.modbus.internal.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
+import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
 public class FeneconCommercialInverter extends ModbusDeviceNature implements PvInverterNature {
 
@@ -34,9 +34,9 @@ public class FeneconCommercialInverter extends ModbusDeviceNature implements PvI
 	 * Inherited Channels
 	 */
 
-	private ModbusWriteChannel setPvLimit;
+	private ModbusWriteLongChannel setPvLimit;
 
-	@Override public ModbusWriteChannel setLimit() {
+	@Override public ModbusWriteLongChannel setLimit() {
 		return setPvLimit;
 	}
 
@@ -46,9 +46,9 @@ public class FeneconCommercialInverter extends ModbusDeviceNature implements PvI
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		ModbusProtocol protocol = new ModbusProtocol(//
-				new ModbusRange(0x0503, //
+				new ModbusRegisterRange(0x0503, //
 						new UnsignedWordElement(0x0503, //
-								setPvLimit = new ModbusWriteChannel("SetPvLimit", this).unit("W").multiplier(100)))
+								setPvLimit = new ModbusWriteLongChannel("SetPvLimit", this).unit("W").multiplier(100)))
 		// TODO .minValue(0).maxValue(60000)
 		);
 		return protocol;

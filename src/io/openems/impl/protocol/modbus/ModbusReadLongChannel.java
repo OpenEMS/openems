@@ -23,48 +23,57 @@ package io.openems.impl.protocol.modbus;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.DeviceNature;
 
-public class ModbusReadDoubleChannel extends ModbusReadChannel<Double> {
+public class ModbusReadLongChannel extends ReadChannel<Long> implements ModbusChannel<Long> {
 
-	public ModbusReadDoubleChannel(String id, DeviceNature nature) {
+	public ModbusReadLongChannel(String id, DeviceNature nature) {
 		super(id, nature);
 	}
 
 	/*
 	 * Builder
 	 */
-	@Override public ModbusReadDoubleChannel unit(String unit) {
-		return (ModbusReadDoubleChannel) super.unit(unit);
+	@Override public ModbusReadLongChannel unit(String unit) {
+		return (ModbusReadLongChannel) super.unit(unit);
 	}
 
-	public ModbusReadDoubleChannel multiplier(int multiplier) {
+	public ModbusReadLongChannel multiplier(int multiplier) {
 		return multiplier(Long.valueOf(multiplier));
 	}
 
-	@Override public ModbusReadDoubleChannel multiplier(Long multiplier) {
-		return (ModbusReadDoubleChannel) super.multiplier(multiplier);
+	@Override public ModbusReadLongChannel multiplier(Long multiplier) {
+		return (ModbusReadLongChannel) super.multiplier(multiplier);
 	}
 
-	@Override public ModbusReadDoubleChannel delta(Long delta) {
-		return (ModbusReadDoubleChannel) super.delta(delta);
+	@Override public ModbusReadLongChannel negate() {
+		super.negate();
+		return this;
 	}
 
-	@Override public ModbusReadDoubleChannel interval(Double min, Double max) {
-		return (ModbusReadDoubleChannel) super.interval(min, max);
+	@Override public ModbusReadLongChannel delta(Long delta) {
+		return (ModbusReadLongChannel) super.delta(delta);
 	}
 
-	@Override public ModbusReadDoubleChannel label(Double value, String label) {
-		return (ModbusReadDoubleChannel) super.label(value, label);
+	@Override public ModbusReadLongChannel interval(Long min, Long max) {
+		return (ModbusReadLongChannel) super.interval(min, max);
 	}
 
-	public ModbusReadDoubleChannel label(int value, String label) {
-		return label(Double.valueOf(value), label);
+	public ModbusReadLongChannel interval(Integer min, Integer max) {
+		return interval(min.longValue(), max.longValue());
 	}
 
-	@Override protected void updateValue(Double value) {
+	@Override public ModbusReadLongChannel label(Long value, String label) {
+		return (ModbusReadLongChannel) super.label(value, label);
+	}
+
+	public ModbusReadLongChannel label(int value, String label) {
+		return label(Long.valueOf(value), label);
+	}
+
+	@Override protected void updateValue(Long value) {
 		super.updateValue(value);
 	}
 
-	@Override public ReadChannel<Double> required() {
+	@Override public ReadChannel<Long> required() {
 		super.required();
 		if (parent() instanceof DeviceNature) {
 			DeviceNature parent = (DeviceNature) parent();

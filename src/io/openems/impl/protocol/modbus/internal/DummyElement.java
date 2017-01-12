@@ -22,7 +22,7 @@ package io.openems.impl.protocol.modbus.internal;
 
 import io.openems.impl.protocol.modbus.ModbusElement;
 
-public class DummyElement extends ModbusElement {
+public class DummyElement extends ModbusElement<Long> {
 
 	private final int length;
 

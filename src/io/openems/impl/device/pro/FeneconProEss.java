@@ -36,15 +36,15 @@ import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
-import io.openems.impl.protocol.modbus.ModbusReadChannel;
-import io.openems.impl.protocol.modbus.ModbusWriteChannel;
+import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
+import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.modbus.internal.DummyElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
-import io.openems.impl.protocol.modbus.internal.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.SignedWordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
-import io.openems.impl.protocol.modbus.internal.WritableModbusRange;
+import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
+import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
 public class FeneconProEss extends ModbusDeviceNature
 		implements AsymmetricEssNature, RealTimeClockNature, ChannelUpdateListener {
@@ -77,33 +77,33 @@ public class FeneconProEss extends ModbusDeviceNature
 	 */
 	// ESS
 	private StatusBitChannels warning;
-	private ReadChannel<Long> allowedCharge;
-	private ReadChannel<Long> allowedDischarge;
+	private ModbusReadLongChannel allowedCharge;
+	private ModbusReadLongChannel allowedDischarge;
 	private ReadChannel<Long> gridMode;
-	private ReadChannel<Long> soc;
-	private ReadChannel<Long> systemState;
-	private ReadChannel<Long> activePowerL1;
-	private ReadChannel<Long> activePowerL2;
-	private ReadChannel<Long> activePowerL3;
-	private ReadChannel<Long> allowedApparent;
-	private ModbusReadChannel reactivePowerL1;
-	private ModbusReadChannel reactivePowerL2;
-	private ModbusReadChannel reactivePowerL3;
+	private ModbusReadLongChannel soc;
+	private ModbusReadLongChannel systemState;
+	private ModbusReadLongChannel activePowerL1;
+	private ModbusReadLongChannel activePowerL2;
+	private ModbusReadLongChannel activePowerL3;
+	private ModbusReadLongChannel allowedApparent;
+	private ModbusReadLongChannel reactivePowerL1;
+	private ModbusReadLongChannel reactivePowerL2;
+	private ModbusReadLongChannel reactivePowerL3;
 	// RealTimeClock
-	private ModbusWriteChannel rtcYear;
-	private ModbusWriteChannel rtcMonth;
-	private ModbusWriteChannel rtcDay;
-	private ModbusWriteChannel rtcHour;
-	private ModbusWriteChannel rtcMinute;
-	private ModbusWriteChannel rtcSecond;
+	private ModbusWriteLongChannel rtcYear;
+	private ModbusWriteLongChannel rtcMonth;
+	private ModbusWriteLongChannel rtcDay;
+	private ModbusWriteLongChannel rtcHour;
+	private ModbusWriteLongChannel rtcMinute;
+	private ModbusWriteLongChannel rtcSecond;
 
-	private WriteChannel<Long> setWorkState;
-	private WriteChannel<Long> setActivePowerL1;
-	private WriteChannel<Long> setActivePowerL2;
-	private WriteChannel<Long> setActivePowerL3;
-	private WriteChannel<Long> setReactivePowerL1;
-	private WriteChannel<Long> setReactivePowerL2;
-	private WriteChannel<Long> setReactivePowerL3;
+	private ModbusWriteLongChannel setWorkState;
+	private ModbusWriteLongChannel setActivePowerL1;
+	private ModbusWriteLongChannel setActivePowerL2;
+	private ModbusWriteLongChannel setActivePowerL3;
+	private ModbusWriteLongChannel setReactivePowerL1;
+	private ModbusWriteLongChannel setReactivePowerL2;
+	private ModbusWriteLongChannel setReactivePowerL3;
 
 	@Override public ReadChannel<Long> allowedCharge() {
 		return allowedCharge;
@@ -216,57 +216,59 @@ public class FeneconProEss extends ModbusDeviceNature
 	/*
 	 * This Channels
 	 */
-	public ModbusReadChannel frequencyL3;
-	public ModbusReadChannel frequencyL2;
-	public ModbusReadChannel frequencyL1;
-	public ModbusReadChannel currentL1;
-	public ModbusReadChannel currentL2;
-	public ModbusReadChannel currentL3;
-	public ModbusReadChannel voltageL1;
-	public ModbusReadChannel voltageL2;
-	public ModbusReadChannel voltageL3;
-	public ModbusReadChannel pcsOperationState;
-	public ModbusReadChannel batteryPower;
-	public ModbusReadChannel batteryGroupAlarm;
-	public ModbusReadChannel batteryCurrent;
-	public ModbusReadChannel batteryVoltage;
-	public ModbusReadChannel batteryGroupState;
-	public ModbusReadChannel totalBatteryDischargeEnergy;
-	public ModbusReadChannel totalBatteryChargeEnergy;
-	public ModbusReadChannel workMode;
-	public ModbusReadChannel controlMode;
-	public ModbusWriteChannel setPcsMode;
-	public ModbusWriteChannel setSetupMode;
-	public ModbusReadChannel setupMode;
-	public ModbusReadChannel pcsMode;
+	public ModbusReadLongChannel frequencyL3;
+	public ModbusReadLongChannel frequencyL2;
+	public ModbusReadLongChannel frequencyL1;
+	public ModbusReadLongChannel currentL1;
+	public ModbusReadLongChannel currentL2;
+	public ModbusReadLongChannel currentL3;
+	public ModbusReadLongChannel voltageL1;
+	public ModbusReadLongChannel voltageL2;
+	public ModbusReadLongChannel voltageL3;
+	public ModbusReadLongChannel pcsOperationState;
+	public ModbusReadLongChannel batteryPower;
+	public ModbusReadLongChannel batteryGroupAlarm;
+	public ModbusReadLongChannel batteryCurrent;
+	public ModbusReadLongChannel batteryVoltage;
+	public ModbusReadLongChannel batteryGroupState;
+	public ModbusReadLongChannel totalBatteryDischargeEnergy;
+	public ModbusReadLongChannel totalBatteryChargeEnergy;
+	public ModbusReadLongChannel workMode;
+	public ModbusReadLongChannel controlMode;
+	public ModbusWriteLongChannel setPcsMode;
+	public ModbusWriteLongChannel setSetupMode;
+	public ModbusReadLongChannel setupMode;
+	public ModbusReadLongChannel pcsMode;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
-		ModbusProtocol protokol = new ModbusProtocol(new ModbusRange(100, //
+
+		ModbusProtocol protokol = new ModbusProtocol(new ModbusRegisterRange(100, //
 				new UnsignedWordElement(100, //
-						systemState = new ModbusReadChannel("SystemState", this) //
+						systemState = new ModbusReadLongChannel("SystemState", this) //
 								.label(0, STANDBY) //
 								.label(1, EssNature.OFF_GRID) //
 								.label(2, EssNature.ON_GRID) //
 								.label(3, "Fail") //
 								.label(4, "Off-grid PV")),
 				new UnsignedWordElement(101, //
-						controlMode = new ModbusReadChannel("ControlMode", this) //
+						controlMode = new ModbusReadLongChannel("ControlMode", this) //
 								.label(1, "Remote") //
 								.label(2, "Local")), //
 				new UnsignedWordElement(102, //
-						workMode = new ModbusReadChannel("WorkMode", this) //
+						workMode = new ModbusReadLongChannel("WorkMode", this) //
 								.label(2, "Economy") //
 								.label(6, "Remote") //
 								.label(8, "Timing")), //
 				new DummyElement(103), //
 				new UnsignedDoublewordElement(104, //
-						totalBatteryChargeEnergy = new ModbusReadChannel("TotalBatteryChargeEnergy", this).unit("Wh")), //
+						totalBatteryChargeEnergy = new ModbusReadLongChannel("TotalBatteryChargeEnergy", this)
+								.unit("Wh")), //
 				new UnsignedDoublewordElement(106, //
-						totalBatteryDischargeEnergy = new ModbusReadChannel("TotalBatteryDischargeEnergy", this)
+						totalBatteryDischargeEnergy = new ModbusReadLongChannel("TotalBatteryDischargeEnergy", this)
 								.unit("Wh")), //
 				new UnsignedWordElement(108, //
-						batteryGroupState = new ModbusReadChannel("BatteryGroupState", this) //
+						batteryGroupState = new ModbusReadLongChannel("BatteryGroupState", this) //
 								.label(0, "Initial") //
 								.label(1, "Stop") //
 								.label(2, "Starting") //
@@ -274,15 +276,15 @@ public class FeneconProEss extends ModbusDeviceNature
 								.label(4, "Stopping") //
 								.label(5, "Fail")),
 				new UnsignedWordElement(109, //
-						soc = new ModbusReadChannel("Soc", this).unit("%").interval(0, 100)),
+						soc = new ModbusReadLongChannel("Soc", this).unit("%").interval(0, 100)),
 				new UnsignedWordElement(110, //
-						batteryVoltage = new ModbusReadChannel("BatteryVoltage", this).unit("mV").multiplier(2)),
+						batteryVoltage = new ModbusReadLongChannel("BatteryVoltage", this).unit("mV").multiplier(2)),
 				new UnsignedWordElement(111, //
-						batteryCurrent = new ModbusReadChannel("BatteryCurrent", this).unit("mA").multiplier(2)),
+						batteryCurrent = new ModbusReadLongChannel("BatteryCurrent", this).unit("mA").multiplier(2)),
 				new UnsignedWordElement(112, //
-						batteryPower = new ModbusReadChannel("BatteryPower", this).unit("W")),
+						batteryPower = new ModbusReadLongChannel("BatteryPower", this).unit("W")),
 				new UnsignedWordElement(113, //
-						batteryGroupAlarm = new ModbusReadChannel("BatteryGroupAlarm", this)
+						batteryGroupAlarm = new ModbusReadLongChannel("BatteryGroupAlarm", this)
 								.label(1, "Fail, The system should be stopped") //
 								.label(2, "Common low voltage alarm") //
 								.label(4, "Common high voltage alarm") //
@@ -291,7 +293,8 @@ public class FeneconProEss extends ModbusDeviceNature
 								.label(32, "Over temperature alarm")//
 								.label(64, "Interal communication abnormal")),
 				new UnsignedWordElement(114, //
-						pcsOperationState = new ModbusReadChannel("PcsOperationState", this).label(0, "Self-checking") //
+						pcsOperationState = new ModbusReadLongChannel("PcsOperationState", this)
+								.label(0, "Self-checking") //
 								.label(1, "Standby") //
 								.label(2, "Off grid PV") //
 								.label(3, "Off grid") //
@@ -301,43 +304,43 @@ public class FeneconProEss extends ModbusDeviceNature
 								.label(7, "bypass 2")),
 				new DummyElement(115, 117), //
 				new SignedWordElement(118, //
-						currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA").multiplier(2)),
+						currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA").multiplier(2)),
 				new SignedWordElement(119, //
-						currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA").multiplier(2)),
+						currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA").multiplier(2)),
 				new SignedWordElement(120, //
-						currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA").multiplier(2)),
+						currentL3 = new ModbusReadLongChannel("CurrentL3", this).unit("mA").multiplier(2)),
 				new UnsignedWordElement(121, //
-						voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(2)),
+						voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV").multiplier(2)),
 				new UnsignedWordElement(122, //
-						voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(2)),
+						voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV").multiplier(2)),
 				new UnsignedWordElement(123, //
-						voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(2)),
+						voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV").multiplier(2)),
 				new SignedWordElement(124, //
-						activePowerL1 = new ModbusReadChannel("ActivePowerL1", this).unit("W")),
+						activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")),
 				new SignedWordElement(125, //
-						activePowerL2 = new ModbusReadChannel("ActivePowerL2", this).unit("W")),
+						activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")),
 				new SignedWordElement(126, //
-						activePowerL3 = new ModbusReadChannel("ActivePowerL3", this).unit("W")),
+						activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")),
 				new SignedWordElement(127, //
-						reactivePowerL1 = new ModbusReadChannel("ReactivePowerL1", this).unit("var")),
+						reactivePowerL1 = new ModbusReadLongChannel("ReactivePowerL1", this).unit("var")),
 				new SignedWordElement(128, //
-						reactivePowerL2 = new ModbusReadChannel("ReactivePowerL2", this).unit("var")),
+						reactivePowerL2 = new ModbusReadLongChannel("ReactivePowerL2", this).unit("var")),
 				new SignedWordElement(129, //
-						reactivePowerL3 = new ModbusReadChannel("ReactivePowerL3", this).unit("var")),
+						reactivePowerL3 = new ModbusReadLongChannel("ReactivePowerL3", this).unit("var")),
 				new DummyElement(130),
 				new UnsignedWordElement(131, //
-						frequencyL1 = new ModbusReadChannel("FrequencyL1", this).unit("mHz").multiplier(1)),
+						frequencyL1 = new ModbusReadLongChannel("FrequencyL1", this).unit("mHz").multiplier(1)),
 				new UnsignedWordElement(132, //
-						frequencyL2 = new ModbusReadChannel("FrequencyL2", this).unit("mHz").multiplier(1)),
+						frequencyL2 = new ModbusReadLongChannel("FrequencyL2", this).unit("mHz").multiplier(1)),
 				new UnsignedWordElement(133, //
-						frequencyL3 = new ModbusReadChannel("FrequencyL3", this).unit("mHz").multiplier(1)),
+						frequencyL3 = new ModbusReadLongChannel("FrequencyL3", this).unit("mHz").multiplier(1)),
 				new UnsignedWordElement(134, //
-						allowedApparent = new ModbusReadChannel("AllowedApparentPower", this).unit("VA")),
+						allowedApparent = new ModbusReadLongChannel("AllowedApparentPower", this).unit("VA")),
 				new DummyElement(135, 140),
 				new UnsignedWordElement(141, //
-						allowedCharge = new ModbusReadChannel("AllowedCharge", this).unit("W")),
+						allowedCharge = new ModbusReadLongChannel("AllowedCharge", this).unit("W")),
 				new UnsignedWordElement(142, //
-						allowedDischarge = new ModbusReadChannel("AllowedDischarge", this).unit("W")),
+						allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this).unit("W")),
 				new DummyElement(143, 149),
 				new UnsignedWordElement(150,
 						warning.channel(new StatusBitChannel("PcsAlarm1L1", this)//
@@ -524,42 +527,44 @@ public class FeneconProEss extends ModbusDeviceNature
 						.label(2048, "External PV current zero drift error")//
 						.label(4096, "External grid current zero drift error")//
 				))), //
-				new WritableModbusRange(200, //
+				new WriteableModbusRegisterRange(200, //
 						new UnsignedWordElement(200,
-								setWorkState = new ModbusWriteChannel("SetWorkState", this)//
+								setWorkState = new ModbusWriteLongChannel("SetWorkState", this)//
 										.label(0, "Local control") //
 										.label(1, START) // "Remote control on grid starting"
 										.label(2, "Remote control off grid starting") //
 										.label(3, STOP)//
 										.label(4, "Emergency Stop"))),
-				new WritableModbusRange(206, //
+				new WriteableModbusRegisterRange(206, //
 						new SignedWordElement(206,
-								setActivePowerL1 = new ModbusWriteChannel("SetActivePowerL1", this).unit("W")), //
+								setActivePowerL1 = new ModbusWriteLongChannel("SetActivePowerL1", this).unit("W")), //
 						new SignedWordElement(207,
-								setReactivePowerL1 = new ModbusWriteChannel("SetReactivePowerL1", this).unit("Var")), //
+								setReactivePowerL1 = new ModbusWriteLongChannel("SetReactivePowerL1", this)
+										.unit("Var")), //
 						new SignedWordElement(208,
-								setActivePowerL2 = new ModbusWriteChannel("SetActivePowerL2", this).unit("W")), //
+								setActivePowerL2 = new ModbusWriteLongChannel("SetActivePowerL2", this).unit("W")), //
 						new SignedWordElement(209,
-								setReactivePowerL2 = new ModbusWriteChannel("SetReactivePowerL2", this).unit("Var")), //
+								setReactivePowerL2 = new ModbusWriteLongChannel("SetReactivePowerL2", this)
+										.unit("Var")), //
 						new SignedWordElement(210,
-								setActivePowerL3 = new ModbusWriteChannel("SetActivePowerL3", this).unit("W")), //
+								setActivePowerL3 = new ModbusWriteLongChannel("SetActivePowerL3", this).unit("W")), //
 						new SignedWordElement(211,
-								setReactivePowerL3 = new ModbusWriteChannel("SetReactivePowerL3", this).unit("Var")//
+								setReactivePowerL3 = new ModbusWriteLongChannel("SetReactivePowerL3", this).unit("Var")//
 						)), //
-				new WritableModbusRange(9014, //
-						new UnsignedWordElement(9014, rtcYear = new ModbusWriteChannel("Year", this)),
-						new UnsignedWordElement(9015, rtcMonth = new ModbusWriteChannel("Month", this)),
-						new UnsignedWordElement(9016, rtcDay = new ModbusWriteChannel("Day", this)),
-						new UnsignedWordElement(9017, rtcHour = new ModbusWriteChannel("Hour", this)),
-						new UnsignedWordElement(9018, rtcMinute = new ModbusWriteChannel("Minute", this)),
-						new UnsignedWordElement(9019, rtcSecond = new ModbusWriteChannel("Second", this))),
-				new WritableModbusRange(30558,
+				new WriteableModbusRegisterRange(9014, //
+						new UnsignedWordElement(9014, rtcYear = new ModbusWriteLongChannel("Year", this)),
+						new UnsignedWordElement(9015, rtcMonth = new ModbusWriteLongChannel("Month", this)),
+						new UnsignedWordElement(9016, rtcDay = new ModbusWriteLongChannel("Day", this)),
+						new UnsignedWordElement(9017, rtcHour = new ModbusWriteLongChannel("Hour", this)),
+						new UnsignedWordElement(9018, rtcMinute = new ModbusWriteLongChannel("Minute", this)),
+						new UnsignedWordElement(9019, rtcSecond = new ModbusWriteLongChannel("Second", this))),
+				new WriteableModbusRegisterRange(30558,
 						new UnsignedWordElement(30558,
-								setSetupMode = new ModbusWriteChannel("SetSetupMode", this).label(0, EssNature.OFF)
+								setSetupMode = new ModbusWriteLongChannel("SetSetupMode", this).label(0, EssNature.OFF)
 										.label(1, EssNature.ON))),
-				new WritableModbusRange(30559,
+				new WriteableModbusRegisterRange(30559,
 						new UnsignedWordElement(30559,
-								setPcsMode = new ModbusWriteChannel("SetPcsMode", this)//
+								setPcsMode = new ModbusWriteLongChannel("SetPcsMode", this)//
 										.label(0, "Emergency")//
 										.label(1, "ConsumersPeakPattern")//
 										.label(2, "Economic")//
@@ -567,13 +572,13 @@ public class FeneconProEss extends ModbusDeviceNature
 										.label(4, "Debug")//
 										.label(5, "SmoothPv")//
 										.label(6, "Remote"))),
-				new ModbusRange(30157,
+				new ModbusRegisterRange(30157,
 						new UnsignedWordElement(30157,
-								setupMode = new ModbusReadChannel("SetupMode", this)//
+								setupMode = new ModbusReadLongChannel("SetupMode", this)//
 										.label(0, EssNature.OFF)//
 										.label(1, EssNature.ON)),
 						new UnsignedWordElement(30158,
-								pcsMode = new ModbusReadChannel("PcsMode", this)//
+								pcsMode = new ModbusReadLongChannel("PcsMode", this)//
 										.label(0, "Emergency")//
 										.label(1, "ConsumersPeakPattern")//
 										.label(2, "Economic")//

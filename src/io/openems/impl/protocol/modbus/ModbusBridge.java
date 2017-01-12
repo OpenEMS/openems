@@ -21,6 +21,7 @@
 package io.openems.impl.protocol.modbus;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,21 +30,26 @@ import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.msg.ExceptionResponse;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+import com.ghgande.j2mod.modbus.msg.ReadCoilsRequest;
+import com.ghgande.j2mod.modbus.msg.ReadCoilsResponse;
 import com.ghgande.j2mod.modbus.msg.ReadInputRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadInputRegistersResponse;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
+import com.ghgande.j2mod.modbus.msg.WriteCoilRequest;
+import com.ghgande.j2mod.modbus.msg.WriteMultipleCoilsRequest;
 import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
+import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.device.Device;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.OpenemsModbusException;
-import io.openems.impl.protocol.modbus.internal.InputRegistersModbusRange;
-import io.openems.impl.protocol.modbus.internal.ModbusRange;
+import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
+import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 
 public abstract class ModbusBridge extends Bridge {
 	protected volatile ModbusDevice[] modbusdevices = new ModbusDevice[0];
@@ -114,11 +120,57 @@ public abstract class ModbusBridge extends Bridge {
 	}
 
 	protected InputRegister[] query(int modbusUnitId, ModbusRange range) throws OpenemsModbusException {
-		if (range instanceof InputRegistersModbusRange) {
+		if (range instanceof ModbusInputRegisterRange) {
 			return queryInputRegisters(modbusUnitId, range.getStartAddress(), range.getLength());
 		} else {
 			return queryMultipleRegisters(modbusUnitId, range.getStartAddress(), range.getLength());
 		}
+	}
+
+	protected boolean[] queryCoil(int modbusUnitId, ModbusRange range) throws OpenemsModbusException {
+		return queryCoils(modbusUnitId, range.getStartAddress(), range.getLength());
+	}
+
+	private boolean[] queryCoils(int modbusUnitId, int startAddress, int length) throws OpenemsModbusException {
+		ModbusTransaction trans = getTransaction();
+		ReadCoilsRequest req = new ReadCoilsRequest(startAddress, length);
+		req.setUnitID(modbusUnitId);
+		trans.setRequest(req);
+		try {
+			trans.execute();
+		} catch (ModbusException e) {
+			// try again with new connection
+			closeModbusConnection();
+			trans = getTransaction();
+			req = new ReadCoilsRequest(startAddress, length);
+			req.setUnitID(modbusUnitId);
+			trans.setRequest(req);
+			try {
+				trans.execute();
+			} catch (ModbusException e1) {
+				throw new OpenemsModbusException("Error on modbus query. " //
+						+ "UnitId [" + modbusUnitId + "], Address [" + startAddress + "/0x"
+						+ Integer.toHexString(startAddress) + "], Count [" + length + "]: " + e1.getMessage());
+			}
+		}
+		ModbusResponse res = trans.getResponse();
+		if (res instanceof ReadCoilsResponse) {
+			ReadCoilsResponse mres = (ReadCoilsResponse) res;
+			return toBooleanArray(mres.getCoils().getBytes());
+		} else {
+			throw new OpenemsModbusException("Unable to read modbus response. " //
+					+ "UnitId [" + modbusUnitId + "], Address [" + startAddress + "], Count [" + length + "]: "
+					+ res.toString());
+		}
+	}
+
+	static boolean[] toBooleanArray(byte[] bytes) {
+		BitSet bits = BitSet.valueOf(bytes);
+		boolean[] bools = new boolean[bytes.length * 8];
+		for (int i = bits.nextSetBit(0); i != -1; i = bits.nextSetBit(i + 1)) {
+			bools[i] = true;
+		}
+		return bools;
 	}
 
 	protected void write(int modbusUnitId, int address, List<Register> registers) throws OpenemsModbusException {
@@ -148,6 +200,91 @@ public abstract class ModbusBridge extends Bridge {
 		log.debug("Successful write. " //
 				+ "UnitId [" + modbusUnitId + "], Address [" + address + "/0x" + Integer.toHexString(address)
 				+ "], Register [" + registersAsString(register) + "]");
+	}
+
+	protected void writeCoil(int modbusUnitId, int address, List<Boolean> coils) throws OpenemsModbusException {
+		writeCoil(modbusUnitId, address, coils.toArray(new Boolean[coils.size()]));
+	}
+
+	protected void writeCoil(int modbusUnitId, int address, Boolean... values) throws OpenemsModbusException {
+		boolean[] coils = new boolean[values.length];
+		for (int i = 0; i < values.length; i++) {
+			coils[i] = values[i];
+		}
+		ModbusResponse res;
+		try {
+			if (coils.length == 0) {
+				return;
+			} else if (coils.length == 1) {
+				res = writeSingleCoil(modbusUnitId, address, coils[0]);
+			} else {
+				res = writeMultipleCoils(modbusUnitId, address, coils);
+			}
+		} catch (ModbusException | OpenemsModbusException e) {
+			throw new OpenemsModbusException("Error on modbus write. " //
+					+ "UnitId [" + modbusUnitId + "], Address [" + address + "/0x" + Integer.toHexString(address)
+					+ "], Coil [" + coilsAsString(coils) + "]: " + e.getMessage());
+		}
+		if (res instanceof ExceptionResponse) {
+			throw new OpenemsModbusException("Error on modbus write response. " //
+					+ "UnitId [" + modbusUnitId + "], Address [" + address + "/0x" + Integer.toHexString(address)
+					+ "], Coil [" + coilsAsString(coils) + "]: " + res.toString());
+		}
+		log.debug("Successful write. " //
+				+ "UnitId [" + modbusUnitId + "], Address [" + address + "/0x" + Integer.toHexString(address)
+				+ "], Coil [" + coilsAsString(coils) + "]");
+	}
+
+	private String coilsAsString(boolean[] coils) {
+		StringJoiner joiner = new StringJoiner(",");
+		for (boolean coil : coils) {
+			joiner.add(String.valueOf(coil));
+		}
+		return joiner.toString();
+	}
+
+	private ModbusResponse writeMultipleCoils(int modbusUnitId, int address, boolean[] coils)
+			throws OpenemsModbusException, ModbusException {
+		ModbusTransaction trans = getTransaction();
+		BitVector vec = new BitVector(coils.length);
+		for (int i = 0; i < coils.length; i++) {
+			vec.setBit(i, coils[i]);
+		}
+		WriteMultipleCoilsRequest req = new WriteMultipleCoilsRequest(address, vec);
+		req.setUnitID(modbusUnitId);
+		trans.setRequest(req);
+		try {
+			trans.execute();
+		} catch (ModbusException e) {
+			// try again with new connection
+			closeModbusConnection();
+			trans = getTransaction();
+			req = new WriteMultipleCoilsRequest(address, vec);
+			req.setUnitID(modbusUnitId);
+			trans.setRequest(req);
+			trans.execute();
+		}
+		return trans.getResponse();
+	}
+
+	private ModbusResponse writeSingleCoil(int modbusUnitId, int address, boolean b)
+			throws OpenemsModbusException, ModbusException {
+		ModbusTransaction trans = getTransaction();
+		WriteCoilRequest req = new WriteCoilRequest(address, b);
+		req.setUnitID(modbusUnitId);
+		trans.setRequest(req);
+		try {
+			trans.execute();
+		} catch (ModbusException e) {
+			// try again with new connection
+			closeModbusConnection();
+			trans = getTransaction();
+			req = new WriteCoilRequest(address, b);
+			req.setUnitID(modbusUnitId);
+			trans.setRequest(req);
+			trans.execute();
+		}
+		return trans.getResponse();
 	}
 
 	private ModbusResponse writeSingleRegister(int modbusUnitId, int address, Register register)

@@ -32,15 +32,15 @@ import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
-import io.openems.impl.protocol.modbus.ModbusReadChannel;
-import io.openems.impl.protocol.modbus.ModbusWriteChannel;
+import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
+import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.modbus.internal.DummyElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
-import io.openems.impl.protocol.modbus.internal.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.SignedWordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
-import io.openems.impl.protocol.modbus.internal.WritableModbusRange;
+import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
+import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
 public class FeneconCommercialEss extends ModbusDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
 
@@ -70,66 +70,66 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	/*
 	 * Inherited Channels
 	 */
-	private ModbusReadChannel soc;
-	private ModbusReadChannel inverterActivePower;
-	private ModbusReadChannel allowedCharge;
-	private ModbusReadChannel allowedDischarge;
-	private ModbusReadChannel apparentPower;
-	private ModbusReadChannel gridMode;
-	private ModbusReadChannel reactivePower;
-	private ModbusReadChannel systemState;
-	private ModbusWriteChannel setActivePower;
-	private ModbusWriteChannel setReactivePower;
-	private ModbusWriteChannel setWorkState;
+	private ModbusReadLongChannel soc;
+	private ModbusReadLongChannel inverterActivePower;
+	private ModbusReadLongChannel allowedCharge;
+	private ModbusReadLongChannel allowedDischarge;
+	private ModbusReadLongChannel apparentPower;
+	private ModbusReadLongChannel gridMode;
+	private ModbusReadLongChannel reactivePower;
+	private ModbusReadLongChannel systemState;
+	private ModbusWriteLongChannel setActivePower;
+	private ModbusWriteLongChannel setReactivePower;
+	private ModbusWriteLongChannel setWorkState;
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
 	public StatusBitChannels warning;
 
-	@Override public ModbusReadChannel soc() {
+	@Override public ModbusReadLongChannel soc() {
 		return soc;
 	}
 
-	@Override public ModbusReadChannel activePower() {
+	@Override public ModbusReadLongChannel activePower() {
 		return inverterActivePower;
 	}
 
-	@Override public ModbusReadChannel allowedCharge() {
+	@Override public ModbusReadLongChannel allowedCharge() {
 		return allowedCharge;
 	}
 
-	@Override public ModbusReadChannel allowedDischarge() {
+	@Override public ModbusReadLongChannel allowedDischarge() {
 		return allowedDischarge;
 	}
 
-	@Override public ModbusReadChannel apparentPower() {
+	@Override public ModbusReadLongChannel apparentPower() {
 		return apparentPower;
 	}
 
-	@Override public ModbusReadChannel gridMode() {
+	@Override public ModbusReadLongChannel gridMode() {
 		return gridMode;
 	}
 
-	@Override public ModbusReadChannel reactivePower() {
+	@Override public ModbusReadLongChannel reactivePower() {
 		return reactivePower;
 	}
 
-	@Override public ModbusReadChannel systemState() {
+	@Override public ModbusReadLongChannel systemState() {
 		return systemState;
 	}
 
-	@Override public ModbusWriteChannel setActivePower() {
+	@Override public ModbusWriteLongChannel setActivePower() {
 		return setActivePower;
 	}
 
-	@Override public ModbusWriteChannel setReactivePower() {
+	@Override public ModbusWriteLongChannel setReactivePower() {
 		return setReactivePower;
 	}
 
-	@Override public ModbusWriteChannel setWorkState() {
+	@Override public ModbusWriteLongChannel setWorkState() {
 		return setWorkState;
 	}
 
-	@Override public ModbusReadChannel allowedApparent() {
+	@Override public ModbusReadLongChannel allowedApparent() {
 		return allowedApparent;
 	}
 
@@ -148,44 +148,44 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	/*
 	 * This Channels
 	 */
-	public ModbusReadChannel controlMode;
-	public ModbusReadChannel batteryMaintenanceState;
-	public ModbusReadChannel inverterState;
-	public ModbusReadChannel protocolVersion;
-	public ModbusReadChannel systemManufacturer;
-	public ModbusReadChannel systemType;
+	public ModbusReadLongChannel controlMode;
+	public ModbusReadLongChannel batteryMaintenanceState;
+	public ModbusReadLongChannel inverterState;
+	public ModbusReadLongChannel protocolVersion;
+	public ModbusReadLongChannel systemManufacturer;
+	public ModbusReadLongChannel systemType;
 	public StatusBitChannel switchState;
-	public ModbusReadChannel batteryVoltage;
-	public ModbusReadChannel batteryCurrent;
-	public ModbusReadChannel batteryPower;
-	public ModbusReadChannel acChargeEnergy;
-	public ModbusReadChannel acDischargeEnergy;
-	public ModbusReadChannel currentL1;
-	public ModbusReadChannel currentL2;
-	public ModbusReadChannel currentL3;
-	public ModbusReadChannel voltageL1;
-	public ModbusReadChannel voltageL2;
-	public ModbusReadChannel voltageL3;
-	public ModbusReadChannel frequency;
-	public ModbusReadChannel inverterVoltageL1;
-	public ModbusReadChannel inverterVoltageL2;
-	public ModbusReadChannel inverterVoltageL3;
-	public ModbusReadChannel inverterCurrentL1;
-	public ModbusReadChannel inverterCurrentL2;
-	public ModbusReadChannel inverterCurrentL3;
-	public ModbusReadChannel ipmTemperatureL1;
-	public ModbusReadChannel ipmTemperatureL2;
-	public ModbusReadChannel ipmTemperatureL3;
-	public ModbusReadChannel transformerTemperatureL2;
-	public ModbusReadChannel allowedApparent;
-	public ModbusReadChannel activePower;
+	public ModbusReadLongChannel batteryVoltage;
+	public ModbusReadLongChannel batteryCurrent;
+	public ModbusReadLongChannel batteryPower;
+	public ModbusReadLongChannel acChargeEnergy;
+	public ModbusReadLongChannel acDischargeEnergy;
+	public ModbusReadLongChannel currentL1;
+	public ModbusReadLongChannel currentL2;
+	public ModbusReadLongChannel currentL3;
+	public ModbusReadLongChannel voltageL1;
+	public ModbusReadLongChannel voltageL2;
+	public ModbusReadLongChannel voltageL3;
+	public ModbusReadLongChannel frequency;
+	public ModbusReadLongChannel inverterVoltageL1;
+	public ModbusReadLongChannel inverterVoltageL2;
+	public ModbusReadLongChannel inverterVoltageL3;
+	public ModbusReadLongChannel inverterCurrentL1;
+	public ModbusReadLongChannel inverterCurrentL2;
+	public ModbusReadLongChannel inverterCurrentL3;
+	public ModbusReadLongChannel ipmTemperatureL1;
+	public ModbusReadLongChannel ipmTemperatureL2;
+	public ModbusReadLongChannel ipmTemperatureL3;
+	public ModbusReadLongChannel transformerTemperatureL2;
+	public ModbusReadLongChannel allowedApparent;
+	public ModbusReadLongChannel activePower;
 
 	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
 		return new ModbusProtocol( //
-				new ModbusRange(0x0101, //
+				new ModbusRegisterRange(0x0101, //
 						new UnsignedWordElement(0x0101, //
-								systemState = new ModbusReadChannel("SystemState", this) //
+								systemState = new ModbusReadLongChannel("SystemState", this) //
 										.label(2, STOP) //
 										.label(4, "PV-Charge") //
 										.label(8, "Standby") //
@@ -193,16 +193,16 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(32, "Fault") //
 										.label(64, "Debug")), //
 						new UnsignedWordElement(0x0102, //
-								controlMode = new ModbusReadChannel("ControlMode", this) //
+								controlMode = new ModbusReadLongChannel("ControlMode", this) //
 										.label(1, "Remote") //
 										.label(2, "Local")), //
 						new DummyElement(0x0103), // WorkMode: RemoteDispatch
 						new UnsignedWordElement(0x0104, //
-								batteryMaintenanceState = new ModbusReadChannel("BatteryMaintenanceState", this) //
+								batteryMaintenanceState = new ModbusReadLongChannel("BatteryMaintenanceState", this) //
 										.label(0, OFF) //
 										.label(1, ON)), //
 						new UnsignedWordElement(0x0105, //
-								inverterState = new ModbusReadChannel("InverterState", this) //
+								inverterState = new ModbusReadLongChannel("InverterState", this) //
 										.label(0, "Init") //
 										.label(2, "Fault") //
 										.label(4, STOP) //
@@ -212,17 +212,17 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(64, START) //
 										.label(128, "Debug")), //
 						new UnsignedWordElement(0x0106, //
-								gridMode = new ModbusReadChannel("GridMode", this) //
+								gridMode = new ModbusReadLongChannel("GridMode", this) //
 										.label(1, OFF_GRID) //
 										.label(2, ON_GRID)), //
 						new DummyElement(0x0107), //
 						new UnsignedWordElement(0x0108, //
-								protocolVersion = new ModbusReadChannel("ProtocolVersion", this)), //
+								protocolVersion = new ModbusReadLongChannel("ProtocolVersion", this)), //
 						new UnsignedWordElement(0x0109, //
-								systemManufacturer = new ModbusReadChannel("SystemManufacturer", this) //
+								systemManufacturer = new ModbusReadLongChannel("SystemManufacturer", this) //
 										.label(1, "BYD")), //
 						new UnsignedWordElement(0x010A, //
-								systemType = new ModbusReadChannel("SystemType", this) //
+								systemType = new ModbusReadLongChannel("SystemType", this) //
 										.label(1, "CESS")), //
 						new DummyElement(0x010B, 0x010F), //
 						new UnsignedWordElement(0x0110, //
@@ -252,7 +252,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(8, "BMU power supply relay") //
 										.label(16, "Middle relay"))//
 				), //
-				new ModbusRange(0x0180, //
+				new ModbusRegisterRange(0x0180, //
 						new UnsignedWordElement(0x0180,
 								warning.channel(new StatusBitChannel("Abnormity1", this)//
 										.label(1, "DC precharge contactor close unsuccessfully") //
@@ -383,106 +383,103 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(32, "Sync signal invalidation") //
 										.label(64, "Sync signal continuous caputure fault") //
 										.label(128, "Sync signal several times caputure fault")))),
-				new ModbusRange(0x0200, //
+				new ModbusRegisterRange(0x0200, //
 						new SignedWordElement(0x0200, //
-								batteryVoltage = new ModbusReadChannel("BatteryVoltage", this).unit("mV")
+								batteryVoltage = new ModbusReadLongChannel("BatteryVoltage", this).unit("mV")
 										.multiplier(2)),
 						new SignedWordElement(0x0201, //
-								batteryCurrent = new ModbusReadChannel("BatteryCurrent", this).unit("mA")
+								batteryCurrent = new ModbusReadLongChannel("BatteryCurrent", this).unit("mA")
 										.multiplier(2)),
 						new SignedWordElement(0x0202, //
-								batteryPower = new ModbusReadChannel("BatteryPower", this).unit("W").multiplier(2)),
+								batteryPower = new ModbusReadLongChannel("BatteryPower", this).unit("W").multiplier(2)),
 						new DummyElement(0x0203, 0x0207), //
 						new UnsignedDoublewordElement(0x0208, //
-								acChargeEnergy = new ModbusReadChannel("AcChargeEnergy", this).unit("Wh")
+								acChargeEnergy = new ModbusReadLongChannel("AcChargeEnergy", this).unit("Wh")
 										.multiplier(2)),
 						new UnsignedDoublewordElement(0x020A, //
-								acDischargeEnergy = new ModbusReadChannel("AcDischargeEnergy", this).unit("Wh")
+								acDischargeEnergy = new ModbusReadLongChannel("AcDischargeEnergy", this).unit("Wh")
 										.multiplier(2)),
 						new DummyElement(0x020C, 0x020F),
 						new SignedWordElement(0x0210, //
-								activePower = new ModbusReadChannel("ActivePower", this).unit("W").multiplier(2)),
+								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").multiplier(2)),
 						new SignedWordElement(0x0211, //
-								reactivePower = new ModbusReadChannel("ReactivePower", this).unit("var").multiplier(2)),
+								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("var").multiplier(2)),
 						new UnsignedWordElement(0x0212, //
-								apparentPower = new ModbusReadChannel("ApparentPower", this).unit("VA").multiplier(2)),
+								apparentPower = new ModbusReadLongChannel("ApparentPower", this).unit("VA").multiplier(2)),
 						new SignedWordElement(0x0213, //
-								currentL1 = new ModbusReadChannel("CurrentL1", this).unit("mA").multiplier(2)),
+								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA").multiplier(2)),
 						new SignedWordElement(0x0214, //
-								currentL2 = new ModbusReadChannel("CurrentL2", this).unit("mA").multiplier(2)),
+								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA").multiplier(2)),
 						new SignedWordElement(0x0215, //
-								currentL3 = new ModbusReadChannel("CurrentL3", this).unit("mA").multiplier(2)),
+								currentL3 = new ModbusReadLongChannel("CurrentL3", this).unit("mA").multiplier(2)),
 						new DummyElement(0x0216, 0x218), //
 						new UnsignedWordElement(0x0219, //
-								voltageL1 = new ModbusReadChannel("VoltageL1", this).unit("mV").multiplier(2)),
+								voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV").multiplier(2)),
 						new UnsignedWordElement(0x021A, //
-								voltageL2 = new ModbusReadChannel("VoltageL2", this).unit("mV").multiplier(2)),
+								voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV").multiplier(2)),
 						new UnsignedWordElement(0x021B, //
-								voltageL3 = new ModbusReadChannel("VoltageL3", this).unit("mV").multiplier(2)),
+								voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV").multiplier(2)),
 						new UnsignedWordElement(0x021C, //
-								frequency = new ModbusReadChannel("Frequency", this).unit("mHZ")
-										.multiplier(1))),
-				new ModbusRange(0x0222, //
+								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHZ").multiplier(1))),
+				new ModbusRegisterRange(0x0222, //
 						new UnsignedWordElement(0x0222, //
-								inverterVoltageL1 = new ModbusReadChannel("InverterVoltageL1", this).unit("mV")
+								inverterVoltageL1 = new ModbusReadLongChannel("InverterVoltageL1", this).unit("mV")
 										.multiplier(2)), //
 						new UnsignedWordElement(0x0223, //
-								inverterVoltageL2 = new ModbusReadChannel("InverterVoltageL2", this).unit("mV")
+								inverterVoltageL2 = new ModbusReadLongChannel("InverterVoltageL2", this).unit("mV")
 										.multiplier(2)), //
 						new UnsignedWordElement(0x0224, //
-								inverterVoltageL3 = new ModbusReadChannel("InverterVoltageL3", this).unit("mV")
+								inverterVoltageL3 = new ModbusReadLongChannel("InverterVoltageL3", this).unit("mV")
 										.multiplier(2)), //
 						new UnsignedWordElement(0x0225, //
-								inverterCurrentL1 = new ModbusReadChannel("InverterCurrentL1", this).unit("mA")
+								inverterCurrentL1 = new ModbusReadLongChannel("InverterCurrentL1", this).unit("mA")
 										.multiplier(2)), //
 						new UnsignedWordElement(0x0226, //
-								inverterCurrentL2 = new ModbusReadChannel("InverterCurrentL2", this).unit("mA")
+								inverterCurrentL2 = new ModbusReadLongChannel("InverterCurrentL2", this).unit("mA")
 										.multiplier(2)), //
 						new UnsignedWordElement(0x0227, //
-								inverterCurrentL3 = new ModbusReadChannel("InverterCurrentL3", this).unit("mA")
+								inverterCurrentL3 = new ModbusReadLongChannel("InverterCurrentL3", this).unit("mA")
 										.multiplier(2)), //
 						new SignedWordElement(0x0228, //
-								inverterActivePower = new ModbusReadChannel("InverterActivePower", this).unit("W")
+								inverterActivePower = new ModbusReadLongChannel("InverterActivePower", this).unit("W")
 										.multiplier(2)), //
 						new DummyElement(0x0229, 0x022F),
 						new SignedWordElement(0x0230, //
-								allowedCharge = new ModbusReadChannel("AllowedCharge", this).unit("W").multiplier(2)), //
+								allowedCharge = new ModbusReadLongChannel("AllowedCharge", this).unit("W").multiplier(2)), //
 						new UnsignedWordElement(0x0231, //
-								allowedDischarge = new ModbusReadChannel("AllowedDischarge", this).unit("W")
+								allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this).unit("W")
 										.multiplier(2)), //
 						new UnsignedWordElement(0x0232, //
-								allowedApparent = new ModbusReadChannel("AllowedApparent", this).unit("VA")
+								allowedApparent = new ModbusReadLongChannel("AllowedApparent", this).unit("VA")
 										.multiplier(2)), //
 						new DummyElement(0x0233, 0x23F),
 						new SignedWordElement(0x0240, //
-								ipmTemperatureL1 = new ModbusReadChannel("IpmTemperatureL1", this).unit("°C")), //
+								ipmTemperatureL1 = new ModbusReadLongChannel("IpmTemperatureL1", this).unit("ï¿½C")), //
 						new SignedWordElement(0x0241, //
-								ipmTemperatureL2 = new ModbusReadChannel("IpmTemperatureL2", this).unit("°C")), //
+								ipmTemperatureL2 = new ModbusReadLongChannel("IpmTemperatureL2", this).unit("ï¿½C")), //
 						new SignedWordElement(0x0242, //
-								ipmTemperatureL3 = new ModbusReadChannel("IpmTemperatureL3", this).unit("°C")), //
+								ipmTemperatureL3 = new ModbusReadLongChannel("IpmTemperatureL3", this).unit("ï¿½C")), //
 						new DummyElement(0x0243, 0x0248),
 						new SignedWordElement(0x0249, //
-								transformerTemperatureL2 = new ModbusReadChannel("TransformerTemperatureL2", this)
-										.unit("°C"))),
-				new WritableModbusRange(0x0500, //
+								transformerTemperatureL2 = new ModbusReadLongChannel("TransformerTemperatureL2", this)
+										.unit("ï¿½C"))),
+				new WriteableModbusRegisterRange(0x0500, //
 						new UnsignedWordElement(0x0500, //
-								setWorkState = new ModbusWriteChannel("SetWorkState", this) //
+								setWorkState = new ModbusWriteLongChannel("SetWorkState", this) //
 										.label(4, STOP) //
 										.label(32, STANDBY) //
-										.label(64,
-												START))),
-				new WritableModbusRange(0x0501, //
+										.label(64, START))),
+				new WriteableModbusRegisterRange(0x0501, //
 						new SignedWordElement(0x0501, //
-								setActivePower = new ModbusWriteChannel("SetActivePower", this).unit("W").multiplier(2)
-										.minWriteChannel(allowedCharge).maxWriteChannel(
-												allowedDischarge)),
+								setActivePower = new ModbusWriteLongChannel("SetActivePower", this).unit("W").multiplier(2)
+										.minWriteChannel(allowedCharge).maxWriteChannel(allowedDischarge)),
 						new SignedWordElement(0x0502, //
-								setReactivePower = new ModbusWriteChannel("SetReactivePower", this).unit("var")
+								setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this).unit("var")
 										.multiplier(2).minWriteChannel(allowedCharge)
 										.maxWriteChannel(allowedDischarge))),
-				new ModbusRange(0x1402, //
+				new ModbusRegisterRange(0x1402, //
 						new UnsignedWordElement(0x1402,
-								soc = new ModbusReadChannel("Soc", this).unit("%").interval(0, 100))));
+								soc = new ModbusReadLongChannel("Soc", this).unit("%").interval(0, 100))));
 
 	}
 
@@ -527,7 +524,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	// .label(16384, "Battery string power supply relay contactor disconnected").build();
 	// @IsChannel(id = "BatteryStringCellAverageTemperature")
 	// public final ModbusReadChannel _batteryStringCellAverageTemperature = new OldModbusChannelBuilder().nature(this)
-	// .unit("°C").multiplier(100).build();
+	// .unit("ï¿½C").multiplier(100).build();
 	// @IsChannel(id = "BatteryStringChargeCurrentLimit")
 	// public final ModbusReadChannel _batteryStringChargeCurrentLimit = new OldModbusChannelBuilder().nature(this)
 	// .unit("mA").multiplier(100).build();
@@ -671,7 +668,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	// .build();
 	// @IsChannel(id = "MaxVoltageCellTemp")
 	// public final ModbusReadChannel _maxVoltageCellTemp = new
-	// OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "MinVoltageCellNo")
 	// public final ModbusReadChannel _minVoltageCellNo = new OldModbusChannelBuilder().nature(this).build();
 	// @IsChannel(id = "MinVoltageCellVoltage")
@@ -679,21 +676,21 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	// .build();
 	// @IsChannel(id = "MinVoltageCellTemp")
 	// public final ModbusReadChannel _minVoltageCellTemp = new
-	// OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "MaxTempCellNo")
 	// public final ModbusReadChannel _maxTempCellNo = new OldModbusChannelBuilder().nature(this).build();
 	// @IsChannel(id = "MaxTempCellVoltage")
 	// public final ModbusReadChannel _maxTempCellVoltage = new
 	// OldModbusChannelBuilder().nature(this).unit("mV").build();
 	// @IsChannel(id = "MaxTempCellTemp")
-	// public final ModbusReadChannel _maxTempCellTemp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _maxTempCellTemp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "MinTempCellNo")
 	// public final ModbusReadChannel _minTempCellNo = new OldModbusChannelBuilder().nature(this).build();
 	// @IsChannel(id = "MinTempCellVoltage")
 	// public final ModbusReadChannel _minTempCellVoltage = new
 	// OldModbusChannelBuilder().nature(this).unit("mV").build();
 	// @IsChannel(id = "MinTempCellTemp")
-	// public final ModbusReadChannel _minTempCellTemp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _minTempCellTemp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell1Voltage")
 	// public final ModbusReadChannel _cell1Voltage = new OldModbusChannelBuilder().nature(this).unit("mV").build();
 	// @IsChannel(id = "Cell2Voltage")
@@ -824,133 +821,133 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	// public final ModbusReadChannel _cell64Voltage = new OldModbusChannelBuilder().nature(this).unit("mV").build();
 	//
 	// @IsChannel(id = "Cell1Temp")
-	// public final ModbusReadChannel _cell1Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell1Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell2Temp")
-	// public final ModbusReadChannel _cell2Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell2Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell3Temp")
-	// public final ModbusReadChannel _cell3Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell3Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell4Temp")
-	// public final ModbusReadChannel _cell4Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell4Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell5Temp")
-	// public final ModbusReadChannel _cell5Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell5Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell6Temp")
-	// public final ModbusReadChannel _cell6Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell6Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell7Temp")
-	// public final ModbusReadChannel _cell7Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell7Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell8Temp")
-	// public final ModbusReadChannel _cell8Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell8Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell9Temp")
-	// public final ModbusReadChannel _cell9Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell9Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell10Temp")
-	// public final ModbusReadChannel _cell10Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell10Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell11Temp")
-	// public final ModbusReadChannel _cell11Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell11Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell12Temp")
-	// public final ModbusReadChannel _cell12Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell12Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell13Temp")
-	// public final ModbusReadChannel _cell13Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell13Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell14Temp")
-	// public final ModbusReadChannel _cell14Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell14Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell15Temp")
-	// public final ModbusReadChannel _cell15Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell15Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell16Temp")
-	// public final ModbusReadChannel _cell16Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell16Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell17Temp")
-	// public final ModbusReadChannel _cell17Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell17Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell18Temp")
-	// public final ModbusReadChannel _cell18Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell18Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell19Temp")
-	// public final ModbusReadChannel _cell19Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell19Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell20Temp")
-	// public final ModbusReadChannel _cell20Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell20Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell21Temp")
-	// public final ModbusReadChannel _cell21Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell21Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell22Temp")
-	// public final ModbusReadChannel _cell22Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell22Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell23Temp")
-	// public final ModbusReadChannel _cell23Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell23Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell24Temp")
-	// public final ModbusReadChannel _cell24Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell24Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell25Temp")
-	// public final ModbusReadChannel _cell25Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell25Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell26Temp")
-	// public final ModbusReadChannel _cell26Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell26Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell27Temp")
-	// public final ModbusReadChannel _cell27Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell27Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell28Temp")
-	// public final ModbusReadChannel _cell28Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell28Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell29Temp")
-	// public final ModbusReadChannel _cell29Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell29Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell30Temp")
-	// public final ModbusReadChannel _cell30Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell30Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell31Temp")
-	// public final ModbusReadChannel _cell31Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell31Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell32Temp")
-	// public final ModbusReadChannel _cell32Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell32Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell33Temp")
-	// public final ModbusReadChannel _cell33Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell33Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell34Temp")
-	// public final ModbusReadChannel _cell34Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell34Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell35Temp")
-	// public final ModbusReadChannel _cell35Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell35Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell36Temp")
-	// public final ModbusReadChannel _cell36Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell36Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell37Temp")
-	// public final ModbusReadChannel _cell37Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell37Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell38Temp")
-	// public final ModbusReadChannel _cell38Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell38Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell39Temp")
-	// public final ModbusReadChannel _cell39Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell39Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell40Temp")
-	// public final ModbusReadChannel _cell40Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell40Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell41Temp")
-	// public final ModbusReadChannel _cell41Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell41Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell42Temp")
-	// public final ModbusReadChannel _cell42Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell42Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell43Temp")
-	// public final ModbusReadChannel _cell43Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell43Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell44Temp")
-	// public final ModbusReadChannel _cell44Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell44Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell45Temp")
-	// public final ModbusReadChannel _cell45Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell45Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell46Temp")
-	// public final ModbusReadChannel _cell46Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell46Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell47Temp")
-	// public final ModbusReadChannel _cell47Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell47Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell48Temp")
-	// public final ModbusReadChannel _cell48Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell48Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell49Temp")
-	// public final ModbusReadChannel _cell49Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell49Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell50Temp")
-	// public final ModbusReadChannel _cell50Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell50Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell51Temp")
-	// public final ModbusReadChannel _cell51Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell51Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell52Temp")
-	// public final ModbusReadChannel _cell52Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell52Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell53Temp")
-	// public final ModbusReadChannel _cell53Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell53Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell54Temp")
-	// public final ModbusReadChannel _cell54Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell54Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell55Temp")
-	// public final ModbusReadChannel _cell55Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell55Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell56Temp")
-	// public final ModbusReadChannel _cell56Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell56Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell57Temp")
-	// public final ModbusReadChannel _cell57Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell57Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell58Temp")
-	// public final ModbusReadChannel _cell58Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell58Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell59Temp")
-	// public final ModbusReadChannel _cell59Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell59Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell60Temp")
-	// public final ModbusReadChannel _cell60Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell60Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell61Temp")
-	// public final ModbusReadChannel _cell61Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell61Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell62Temp")
-	// public final ModbusReadChannel _cell62Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell62Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell63Temp")
-	// public final ModbusReadChannel _cell63Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell63Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 	// @IsChannel(id = "Cell64Temp")
-	// public final ModbusReadChannel _cell64Temp = new OldModbusChannelBuilder().nature(this).unit("°C").build();
+	// public final ModbusReadChannel _cell64Temp = new OldModbusChannelBuilder().nature(this).unit("ï¿½C").build();
 
 	// @Override
 	// protected ModbusProtocol defineModbusProtocol() throws ConfigException {

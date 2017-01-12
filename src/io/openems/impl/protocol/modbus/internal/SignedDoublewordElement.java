@@ -27,14 +27,14 @@ import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
-import io.openems.api.channel.Channel;
+import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
-public class SignedDoublewordElement extends ModbusElement implements DoublewordElement {
+public class SignedDoublewordElement extends ModbusElement<Long> implements DoublewordElement {
 	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
 	private WordOrder wordOrder = WordOrder.MSWLSW;
 
-	public SignedDoublewordElement(int address, Channel channel) {
+	public SignedDoublewordElement(int address, ModbusChannel<Long> channel) {
 		super(address, channel);
 	}
 
