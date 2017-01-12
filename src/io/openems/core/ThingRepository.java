@@ -353,6 +353,14 @@ public class ThingRepository {
 		return Optional.ofNullable(channel);
 	}
 
+	public Optional<Channel> getChannelByAddress(String address) {
+		String[] args = address.split("/");
+		if (args.length == 2) {
+			return getChannel(args[0], args[1]);
+		}
+		return Optional.empty();
+	}
+
 	public Controller createController(JsonObject jController) throws ReflectionException {
 		String controllerClass = JsonUtils.getAsString(jController, "class");
 		Controller controller;
