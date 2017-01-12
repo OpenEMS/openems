@@ -66,7 +66,7 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 	 * This Channels
 	 */
 	public StatusBitChannel communicationInformations;
-	public ModbusReadLongChannel inverterStatus;
+	public StatusBitChannel inverterStatus;
 	public ModbusReadLongChannel errorCode;
 	public StatusBitChannel dcDcStatus;
 	public ModbusReadLongChannel dcDcError;
@@ -222,13 +222,17 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 						new SignedWordElement(0x10D,
 								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").multiplier(2)),
 						new SignedWordElement(0x10E,
-								activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W").multiplier(2)),
+								activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")
+										.multiplier(2)),
 						new SignedWordElement(0x10F,
-								activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W").multiplier(2)),
+								activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")
+										.multiplier(2)),
 						new SignedWordElement(0x110,
-								activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W").multiplier(2)),
+								activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")
+										.multiplier(2)),
 						new SignedWordElement(0x111,
-								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("Var").multiplier(2)),
+								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("Var")
+										.multiplier(2)),
 						new SignedWordElement(0x112,
 								reactivePowerL1 = new ModbusReadLongChannel("ReactivePowerL1", this).unit("Var")
 										.multiplier(2)),
@@ -242,7 +246,8 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 						new SignedWordElement(0x116, cosPhiL1 = new ModbusReadLongChannel("CosPhiL1", this).unit("")),
 						new SignedWordElement(0x117, cosPhiL2 = new ModbusReadLongChannel("CosPhiL2", this).unit("")),
 						new SignedWordElement(0x118, cosPhiL3 = new ModbusReadLongChannel("CosPhiL3", this).unit("")),
-						new SignedWordElement(0x119, maxAcPower = new ModbusReadLongChannel("MaxAcPower", this).unit(""))),
+						new SignedWordElement(0x119,
+								maxAcPower = new ModbusReadLongChannel("MaxAcPower", this).unit(""))),
 				new ModbusInputRegisterRange(0x11A, //
 						new UnsignedWordElement(0x11A, //
 								batteryState = new ModbusReadLongChannel("BatteryState", this)//
@@ -266,7 +271,8 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 						new UnsignedWordElement(0x11F, //
 								soc = new ModbusReadLongChannel("Soc", this).unit("%")),
 						new UnsignedWordElement(0x120, //
-								allowedChargeCurrent = new ModbusReadLongChannel("AllowedChargeCurrent", this).unit("mA")//
+								allowedChargeCurrent = new ModbusReadLongChannel("AllowedChargeCurrent", this)
+										.unit("mA")//
 										.multiplier(2)//
 										.negate()),
 						new UnsignedWordElement(0x121, //
@@ -279,8 +285,8 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 								allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this).unit("W")
 										.multiplier(2)),
 						new SignedDoublewordElement(0x124, //
-								batteryChargeEnergy = new ModbusReadLongChannel("BatteryChargeEnergy", this).unit("kWh"))
-										.wordorder(WordOrder.LSWMSW),
+								batteryChargeEnergy = new ModbusReadLongChannel("BatteryChargeEnergy", this)
+										.unit("kWh")).wordorder(WordOrder.LSWMSW),
 						new SignedDoublewordElement(0x126, //
 								batteryDischargeEnergy = new ModbusReadLongChannel("BatteryDischargeEnergy", this)
 										.unit("kWh")).wordorder(WordOrder.LSWMSW),
@@ -294,7 +300,8 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 								batteryHighestVoltage = new ModbusReadLongChannel("BatteryHighestVoltage", this)
 										.unit("mV")),
 						new UnsignedWordElement(0x12A, //
-								batteryLowestVoltage = new ModbusReadLongChannel("BatteryLowestVoltage", this).unit("mV")),
+								batteryLowestVoltage = new ModbusReadLongChannel("BatteryLowestVoltage", this)
+										.unit("mV")),
 						new SignedWordElement(0x12B, //
 								batteryHighestTemperature = new ModbusReadLongChannel("BatteryHighestTemperature", this)
 										.unit("�C")),

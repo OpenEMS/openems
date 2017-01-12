@@ -7,9 +7,9 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
+import io.openems.impl.protocol.modbus.ModbusReadChannel;
 
-public class StatusBitChannel extends ModbusReadLongChannel {
+public class StatusBitChannel extends ModbusReadChannel<Long> {
 
 	public StatusBitChannel(String id, DeviceNature nature) {
 		super(id, nature);
@@ -53,7 +53,7 @@ public class StatusBitChannel extends ModbusReadLongChannel {
 		return (StatusBitChannel) super.label(value, label);
 	}
 
-	@Override public StatusBitChannel label(int value, String label) {
+	public StatusBitChannel label(int value, String label) {
 		return (StatusBitChannel) super.label(Long.valueOf(value), label);
 	}
 }

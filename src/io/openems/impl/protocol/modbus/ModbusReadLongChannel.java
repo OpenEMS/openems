@@ -23,7 +23,7 @@ package io.openems.impl.protocol.modbus;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.DeviceNature;
 
-public class ModbusReadLongChannel extends ReadChannel<Long> implements ModbusChannel<Long> {
+public class ModbusReadLongChannel extends ModbusReadChannel<Long> {
 
 	public ModbusReadLongChannel(String id, DeviceNature nature) {
 		super(id, nature);
