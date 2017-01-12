@@ -212,6 +212,20 @@ public class WebsocketHandler {
 	 * @return true if successful, otherwise false
 	 */
 	public synchronized boolean sendNotification(NotificationType type, String message) {
+		// log message to syslog
+		switch (type) {
+		case INFO:
+		case SUCCESS:
+			log.info(message);
+			break;
+		case ERROR:
+			log.error(message);
+			break;
+		case WARNING:
+			log.warn(message);
+			break;
+		}
+		// send notification to websocket
 		JsonObject jMessage = new JsonObject();
 		jMessage.addProperty("type", type.name().toLowerCase());
 		jMessage.addProperty("message", message);

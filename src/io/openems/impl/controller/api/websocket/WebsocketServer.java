@@ -8,6 +8,8 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.restlet.data.Status;
+import org.restlet.resource.ResourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,7 @@ import com.google.gson.JsonParser;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
@@ -109,6 +112,13 @@ public class WebsocketServer extends WebSocketServer {
 				 */
 				if (jDevice.has("manualPQ")) {
 					manualPQ(jDevice.get("manualPQ"), handler);
+				}
+
+				/*
+				 * Set channel
+				 */
+				if (jDevice.has("channel")) {
+					channel(jDevice.get("channel"), handler);
 				}
 			} catch (ReflectionException e) {
 				log.warn("Error parsing device request: " + e.getMessage());
@@ -321,6 +331,50 @@ public class WebsocketServer extends WebSocketServer {
 				// stop manual PQ
 				this.controller.resetManualPQ();
 				handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabe zurückgesetzt");
+			}
+		} catch (ReflectionException e) {
+			handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabewerte falsch: " + e.getMessage());
+		}
+	}
+
+	private void channel(JsonElement jChannelElement, WebsocketHandler handler) {
+		try {
+			JsonObject jChannel = JsonUtils.getAsJsonObject(jChannelElement);
+			String thingId = JsonUtils.getAsString(jChannel, "thing");
+			String channelId = JsonUtils.getAsString(jChannel, "channel");
+			JsonElement jValue = JsonUtils.getSubElement(jChannel, "value");
+
+			// get channel
+			Channel channel;
+			Optional<Channel> channelOptional = thingRepository.getChannel(thingId, channelId);
+			if (channelOptional.isPresent()) {
+				// get channel value
+				channel = channelOptional.get();
+			} else {
+				// Channel not found
+				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+			}
+
+			// check for writable channel
+			if (!(channel instanceof WriteChannel<?>)) {
+				throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+			}
+
+			// set channel value
+			if (channel instanceof ConfigChannel<?>) {
+				// is a ConfigChannel
+				ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
+				try {
+					configChannel.updateValue(jValue, true);
+					log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
+					handler.sendNotification(NotificationType.SUCCESS,
+							"Channel [" + channel.address() + "] aktualisiert zu [" + jValue.toString() + "].");
+				} catch (NotImplementedException e) {
+					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Conversion not implemented");
+				}
+			} else {
+				// is a WriteChannel
+				handler.sendNotification(NotificationType.WARNING, "WriteChannel nicht implementiert");
 			}
 		} catch (ReflectionException e) {
 			handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabewerte falsch: " + e.getMessage());
