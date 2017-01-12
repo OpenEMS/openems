@@ -344,8 +344,15 @@ public class ConfigUtils {
 	public static List<Member> getChannelMembers(Class<? extends Thing> clazz) {
 		List<Member> members = new LinkedList<>();
 		for (Method method : clazz.getMethods()) {
-			if (Channel.class.isAssignableFrom(method.getReturnType())) {
-				members.add(method);
+			if (method.getReturnType().isArray()) {
+				Class<?> rtype = method.getReturnType();
+				if (Channel.class.isAssignableFrom(rtype.getComponentType())) {
+					members.add(method);
+				}
+			} else {
+				if (Channel.class.isAssignableFrom(method.getReturnType())) {
+					members.add(method);
+				}
 			}
 		}
 		for (Field field : clazz.getFields()) {

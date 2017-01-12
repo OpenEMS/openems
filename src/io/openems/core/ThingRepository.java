@@ -138,42 +138,50 @@ public class ThingRepository {
 		List<Member> members = ConfigUtils.getChannelMembers(thing.getClass());
 		for (Member member : members) {
 			try {
-				Channel channel;
+				List<Channel> channels = new ArrayList<>();
 				if (member instanceof Method) {
-					// It's a Method with ReturnType Channel
-					channel = (Channel) ((Method) member).invoke(thing);
-
+					if (((Method) member).getReturnType().isArray()) {
+						Channel[] ch = (Channel[]) ((Method) member).invoke(thing);
+						for (Channel c : ch) {
+							channels.add(c);
+						}
+					} else {
+						// It's a Method with ReturnType Channel
+						channels.add((Channel) ((Method) member).invoke(thing));
+					}
 				} else if (member instanceof Field) {
 					// It's a Field with Type Channel
-					channel = (Channel) ((Field) member).get(thing);
+					channels.add((Channel) ((Field) member).get(thing));
 				} else {
 					continue;
 				}
-				if (channel == null) {
+				if (channels.isEmpty()) {
 					log.error(
 							"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
 					continue;
 				}
-				// Add Channel to thingChannels
-				thingChannels.put(thing, channel.id(), channel);
+				for (Channel channel : channels) {
+					// Add Channel to thingChannels
+					thingChannels.put(thing, channel.id(), channel);
 
-				// Add Channel to configChannels
-				if (channel instanceof ConfigChannel) {
-					thingConfigChannels.put(thing, (ConfigChannel<?>) channel);
+					// Add Channel to configChannels
+					if (channel instanceof ConfigChannel) {
+						thingConfigChannels.put(thing, (ConfigChannel<?>) channel);
+					}
+
+					// Add Channel to writeChannels
+					if (channel instanceof WriteChannel) {
+						thingWriteChannels.put(thing, (WriteChannel<?>) channel);
+					}
+
+					// Register Databus as listener
+					if (channel instanceof ReadChannel) {
+						Databus databus = Databus.getInstance();
+						((ReadChannel<?>) channel).updateListener(databus);
+						((ReadChannel<?>) channel).changeListener(databus);
+					}
+
 				}
-
-				// Add Channel to writeChannels
-				if (channel instanceof WriteChannel) {
-					thingWriteChannels.put(thing, (WriteChannel<?>) channel);
-				}
-
-				// Register Databus as listener
-				if (channel instanceof ReadChannel) {
-					Databus databus = Databus.getInstance();
-					((ReadChannel<?>) channel).updateListener(databus);
-					((ReadChannel<?>) channel).changeListener(databus);
-				}
-
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				log.warn("Unable to add Channel. Member [" + member.getName() + "]", e);
 			}
