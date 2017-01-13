@@ -15,7 +15,7 @@ public class ChannelThresholdController extends Controller {
 
 	private ThingRepository repo = ThingRepository.getInstance();
 
-	public ConfigChannel<String> thresholdChannelName = new ConfigChannel<String>("thresholdChannelName", this,
+	public ConfigChannel<String> thresholdChannelName = new ConfigChannel<String>("thresholdChannelAddress", this,
 			String.class).changeListener((channel, newValue, oldValue) -> {
 				try {
 					String channelAddress = ((ReadChannel<String>) channel).value();
@@ -30,8 +30,8 @@ public class ChannelThresholdController extends Controller {
 				}
 			});
 
-	public ConfigChannel<String> outputChannelName = new ConfigChannel<String>("outputChannelName", this, String.class)
-			.changeListener((channel, newValue, oldValue) -> {
+	public ConfigChannel<String> outputChannelName = new ConfigChannel<String>("outputChannelAddress", this,
+			String.class).changeListener((channel, newValue, oldValue) -> {
 				try {
 					String channelAddress = ((ReadChannel<String>) channel).value();
 					Optional<Channel> ch = repo.getChannelByAddress(channelAddress);
@@ -50,8 +50,6 @@ public class ChannelThresholdController extends Controller {
 
 	private ReadChannel<Long> thresholdChannel;
 	private WriteChannel<Boolean> outputChannel;
-
-	private boolean isOn = false;
 
 	public ChannelThresholdController() {
 		super();
