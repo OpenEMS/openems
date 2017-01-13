@@ -27,7 +27,6 @@ import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
-import io.openems.api.thing.ThingDescription;
 
 /**
  *
@@ -52,12 +51,15 @@ public class WorkStateController extends Controller {
 		super(thingId);
 	}
 
-	public static ThingDescription getDescription() {
-		return new ThingDescription("WorkStateController",
-				"Handles if the storage system should go to standby or stay in running mode. This is indicated by the configchannel 'start'. Has an error occoured tries this controller to reset the error three times. If the tries to reset the error failed the controller sleep for 30 minutes till it tries another three times to reset the error. This is repeated thill the error disapears.");
-	}
-
-	@Override public void run() {
+	/*
+	 * public static ThingDoc getDescription() {
+	 * return new ThingDoc("WorkStateController",
+	 * "Handles if the storage system should go to standby or stay in running mode. This is indicated by the configchannel 'start'. Has an error occoured tries this controller to reset the error three times. If the tries to reset the error failed the controller sleep for 30 minutes till it tries another three times to reset the error. This is repeated thill the error disapears."
+	 * );
+	 * }
+	 */
+	@Override
+	public void run() {
 		Ess ess;
 		try {
 			ess = this.ess.value();

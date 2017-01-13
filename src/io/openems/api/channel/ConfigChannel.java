@@ -25,25 +25,46 @@ import java.util.Optional;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.thing.Thing;
+import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
 
 public class ConfigChannel<T> extends WriteChannel<T> {
-	private final Class<?> type;
+	private Class<?> type;
 	private Optional<T> defaultValue = Optional.empty();
 	private boolean isOptional;
 
+	// TODO remove, obsolet
 	public ConfigChannel(String id, Thing parent, Class<?> type) {
 		super(id, parent);
 		this.type = type;
 	}
 
-	@Override public ConfigChannel<T> updateListener(ChannelUpdateListener... listeners) {
+	public ConfigChannel(String id, Thing parent) {
+		super(id, parent);
+	}
+
+	/**
+	 * Sets values for this ConfigChannel using its annotation
+	 *
+	 * This method is called by reflection from {@link InjectionUtils.getThingInstance}
+	 *
+	 * @param parent
+	 */
+	public void applyAnnotation(ConfigInfo configAnnotation) {
+		this.type = configAnnotation.type();
+		this.isOptional = configAnnotation.isOptional();
+	}
+
+	@Override
+	public ConfigChannel<T> updateListener(ChannelUpdateListener... listeners) {
 		return (ConfigChannel<T>) super.updateListener(listeners);
 	}
 
-	@Override public ConfigChannel<T> changeListener(ChannelChangeListener... listeners) {
+	@Override
+	public ConfigChannel<T> changeListener(ChannelChangeListener... listeners) {
 		return (ConfigChannel<T>) super.changeListener(listeners);
 	}
 
@@ -51,7 +72,8 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 		return this.type;
 	}
 
-	@Override public void updateValue(Object value, boolean triggerEvent) {
+	@Override
+	public void updateValue(Object value, boolean triggerEvent) {
 		super.updateValue((T) value, triggerEvent);
 	}
 
@@ -70,6 +92,7 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 		return this.defaultValue;
 	}
 
+	// TODO: remove, obsolete
 	public ConfigChannel<T> optional() {
 		this.isOptional = true;
 		return this;
@@ -79,7 +102,8 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 		return isOptional;
 	}
 
-	@Override public JsonObject toJsonObject() throws NotImplementedException {
+	@Override
+	public JsonObject toJsonObject() throws NotImplementedException {
 		JsonObject j = super.toJsonObject();
 		j.addProperty("writeable", true);
 		return j;

@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.thing.Thing;
 
 public abstract class Controller implements Thing, Runnable {
@@ -39,6 +40,7 @@ public abstract class Controller implements Thing, Runnable {
 	 * Holds the priority of this controller. High value is high priority, low value is low priority.
 	 *
 	 */
+	@ConfigInfo(title = "Priority of this controller", type = Integer.class)
 	public final ConfigChannel<Integer> priority = new ConfigChannel<Integer>("priority", this, Integer.class);
 
 	public Controller() {
@@ -53,7 +55,8 @@ public abstract class Controller implements Thing, Runnable {
 		name = thingId;
 	}
 
-	@Override public String id() {
+	@Override
+	public String id() {
 		return name;
 	}
 }

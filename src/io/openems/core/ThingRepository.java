@@ -49,11 +49,11 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
-import io.openems.api.thing.ThingDescription;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -71,13 +71,14 @@ public class ThingRepository {
 	}
 
 	private ThingRepository() {
+		classRepository = ClassRepository.getInstance();
 		// Fill "availableThingClasses"
 		// Controller
 		try {
 			Set<Class<? extends Thing>> clazzes = ConfigUtils.getAvailableClasses("io.openems.impl.controller",
 					Controller.class, "Controller");
 			for (Class<? extends Thing> clazz : clazzes) {
-				ThingDescription description = ConfigUtils.getThingDescription(clazz);
+				ThingDoc description = ConfigUtils.getThingDescription(clazz);
 				availableThingClasses.put(Controller.class, clazz, description);
 			}
 		} catch (ReflectionException e) {
@@ -86,6 +87,7 @@ public class ThingRepository {
 		}
 	}
 
+	private final ClassRepository classRepository;
 	private final BiMap<String, Thing> thingIds = HashBiMap.create();
 	private HashMultimap<Class<? extends Thing>, Thing> thingClasses = HashMultimap.create();
 	private Set<Bridge> bridges = new HashSet<>();
@@ -95,7 +97,7 @@ public class ThingRepository {
 	private final Table<Thing, String, Channel> thingChannels = HashBasedTable.create();
 	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
 	private HashMultimap<Thing, WriteChannel<?>> thingWriteChannels = HashMultimap.create();
-	private final Table<Class<? extends Thing>, Class<? extends Thing>, ThingDescription> availableThingClasses = HashBasedTable
+	private final Table<Class<? extends Thing>, Class<? extends Thing>, ThingDoc> availableThingClasses = HashBasedTable
 			.create();
 
 	/**
@@ -135,7 +137,7 @@ public class ThingRepository {
 		}
 
 		// Add Channels to thingChannels, thingConfigChannels and thingWriteChannels
-		List<Member> members = ConfigUtils.getChannelMembers(thing.getClass());
+		Set<Member> members = classRepository.getThingChannels(thing.getClass());
 		for (Member member : members) {
 			try {
 				List<Channel> channels = new ArrayList<>();
@@ -377,8 +379,8 @@ public class ThingRepository {
 		return controller;
 	}
 
-	public List<ThingDescription> getAvailableControllers() {
-		List<ThingDescription> descriptions = new ArrayList<>();
+	public List<ThingDoc> getAvailableControllers() {
+		List<ThingDoc> descriptions = new ArrayList<>();
 		availableThingClasses.row(Controller.class).forEach((clazz, description) -> {
 			descriptions.add(description);
 		});

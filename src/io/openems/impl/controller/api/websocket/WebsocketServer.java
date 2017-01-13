@@ -22,13 +22,13 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.security.Authentication;
-import io.openems.api.thing.ThingDescription;
 import io.openems.core.Config;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ConfigUtils;
@@ -212,7 +212,7 @@ public class WebsocketServer extends WebSocketServer {
 			 * Available Controllers
 			 */
 			JsonArray jAvailableControllers = new JsonArray();
-			for (ThingDescription controllerDescription : thingRepository.getAvailableControllers()) {
+			for (ThingDoc controllerDescription : thingRepository.getAvailableControllers()) {
 				jAvailableControllers.add(controllerDescription.getAsJsonObject());
 			}
 			j.add("_availableControllers", jAvailableControllers);

@@ -23,6 +23,8 @@ package io.openems.core.utilities;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -32,8 +34,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonElement;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
@@ -41,9 +47,11 @@ import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
+import io.openems.core.ClassRepository;
 import io.openems.core.ThingRepository;
 
 public class InjectionUtils {
+	private final static Logger log = LoggerFactory.getLogger(InjectionUtils.class);
 
 	/**
 	 * Creates an instance of the given {@link Class}. {@link Object} arguments are optional.
@@ -106,12 +114,36 @@ public class InjectionUtils {
 	 * @throws ConfigException
 	 * @throws ReflectionException
 	 */
-	public static Thing getThingInstance(Class<?> clazz, Object... args) throws ReflectionException {
+	public static Thing getThingInstance(Class<? extends Thing> clazz, Object... args)
+			throws ReflectionException {
+		Thing thing;
 		try {
-			return (Thing) InjectionUtils.getInstance(clazz, args);
+			thing = (Thing) InjectionUtils.getInstance(clazz, args);
 		} catch (ClassCastException e) {
 			e.printStackTrace();
 			throw new ReflectionException("Class [" + clazz.getName() + "] is not a Thing");
+		}
+		ClassRepository classRepository = ClassRepository.getInstance();
+		classRepository.getThingConfigChannels(clazz).forEach((member, config) -> {
+			try {
+				Channel channel = getChannel(thing, member);
+				((ConfigChannel<?>) channel).applyAnnotation(config);
+			} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+				log.warn(e.getMessage());
+			}
+		});
+		return thing;
+
+	}
+
+	private static Channel getChannel(Thing thing, Member member)
+			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		if (member instanceof Field) {
+			Field f = (Field) member;
+			return (Channel) f.get(thing);
+		} else {
+			Method m = (Method) member;
+			return (Channel) m.invoke(thing, null);
 		}
 	}
 
@@ -124,8 +156,8 @@ public class InjectionUtils {
 	 * @throws CastException
 	 * @throws ConfigException
 	 */
-	@SuppressWarnings("unchecked") public static Thing getThingInstance(String className, Object... args)
-			throws ReflectionException {
+	@SuppressWarnings("unchecked")
+	public static Thing getThingInstance(String className, Object... args) throws ReflectionException {
 		Class<? extends Thing> clazz;
 		try {
 			clazz = (Class<? extends Thing>) Class.forName(className);

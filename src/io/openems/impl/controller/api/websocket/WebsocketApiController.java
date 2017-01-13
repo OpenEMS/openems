@@ -9,10 +9,11 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
-import io.openems.api.thing.ThingDescription;
 
+@ThingInfo("Websocket-API (z. B. für Weboberfläche)")
 public class WebsocketApiController extends Controller implements ChannelChangeListener {
 
 	private volatile WebsocketServer ws = null;
@@ -21,10 +22,6 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this, Integer.class)
 			.defaultValue(8085).changeListener(this);
-
-	public static ThingDescription getDescription() {
-		return new ThingDescription("Websocket-API (z. B. für Weboberfläche)", "");
-	}
 
 	private final AtomicReference<Optional<Long>> manualP = new AtomicReference<Optional<Long>>(Optional.empty());
 	private final AtomicReference<Optional<Long>> manualQ = new AtomicReference<Optional<Long>>(Optional.empty());
@@ -38,7 +35,8 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 		super(thingId);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		// Start Websocket-Api server
 		if (ws == null && port.valueOptional().isPresent()) {
 			try {
@@ -71,7 +69,8 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 		}
 	}
 
-	@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+	@Override
+	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		if (channel.equals(port)) {
 			if (this.ws != null) {
 				try {

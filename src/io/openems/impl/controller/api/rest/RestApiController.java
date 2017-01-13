@@ -2,14 +2,12 @@ package io.openems.impl.controller.api.rest;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
-import io.openems.api.thing.ThingDescription;
 
+@ThingInfo("REST-API (z. B. fÃ¼r externe Datenabfrage)")
 public class RestApiController extends Controller {
-
-	public static ThingDescription getDescription() {
-		return new ThingDescription("REST-API (z. B. für externe Datenabfrage)", "");
-	}
 
 	public RestApiController() {
 		super();
@@ -19,10 +17,11 @@ public class RestApiController extends Controller {
 		super(thingId);
 	}
 
-	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this, Integer.class)
-			.defaultValue(8084);
+	@ConfigInfo(title = "Sets the port", type = Integer.class)
+	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(8084);
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		// Start REST-Api server
 		try {
 			ComponentSingleton.getComponent(port);

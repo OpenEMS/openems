@@ -2,7 +2,6 @@ package io.openems.core.utilities;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -27,15 +26,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ConfigChannelDoc;
+import io.openems.api.doc.ThingInfo;
+import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
-import io.openems.api.thing.ThingDescription;
+import io.openems.core.ClassRepository;
 import io.openems.core.ThingRepository;
 
 public class ConfigUtils {
@@ -190,7 +191,7 @@ public class ConfigUtils {
 			/*
 			 * Asking for a Thing
 			 */
-			return getThingFromConfig(type, j);
+			return getThingFromConfig((Class<Thing>) type, j);
 
 		} else if (ThingMap.class.isAssignableFrom(type)) {
 			/*
@@ -216,7 +217,8 @@ public class ConfigUtils {
 		throw new ReflectionException("Unable to match config [" + j + "] to class type [" + type + "]");
 	}
 
-	private static Thing getThingFromConfig(Class<?> type, JsonElement j) throws ReflectionException {
+	private static Thing getThingFromConfig(Class<? extends Thing> type, JsonElement j)
+			throws ReflectionException {
 		String thingId = JsonUtils.getAsString(j, "id");
 		ThingRepository thingRepository = ThingRepository.getInstance();
 		Optional<Thing> existingThing = thingRepository.getThingById(thingId);
@@ -299,24 +301,26 @@ public class ConfigUtils {
 		}
 	}
 
-	public static ThingDescription getThingDescription(Class<? extends Thing> clazz) {
-		ThingDescription description;
-		try {
-			Method method = clazz.getMethod("getDescription");
-			description = (ThingDescription) method.invoke(null);
+	public static ThingDoc getThingDescription(Class<? extends Thing> clazz) {
+		ThingDoc doc = new ThingDoc(clazz);
 
-		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
-			log.warn("Thing [" + clazz.getName()
-					+ "] has no ThingDescription. Please implement 'public static ThingDescription getDescription() {}'");
-			description = new ThingDescription("", "");
+		ThingInfo thing = clazz.getAnnotation(ThingInfo.class);
+		if (thing == null) {
+			log.warn("Thing [" + clazz.getName() + "] has no @Thing annotation");
+		} else {
+			doc.setThingDescription(thing);
+			ClassRepository classRepository = ClassRepository.getInstance();
+			classRepository.getThingConfigChannels(clazz).forEach((member, config) -> {
+				doc.addConfigChannel(
+						new ConfigChannelDoc(member.getName(), config.title(), config.type(), config.isOptional()));
+			});
+			log.info(doc.getAsJsonObject().toString());
 		}
-		description.setClass(clazz);
-		return description;
+		return doc;
 	}
 
-	public static Set<Class<? extends Thing>> getAvailableClasses(String topLevelPackage, Class<? extends Thing> clazz,
-			String suffix) throws ReflectionException {
+	public static Set<Class<? extends Thing>> getAvailableClasses(String topLevelPackage,
+			Class<? extends Thing> clazz, String suffix) throws ReflectionException {
 		Set<Class<? extends Thing>> clazzes = new HashSet<>();
 		try {
 			ClassPath classpath = ClassPath.from(ClassLoader.getSystemClassLoader());
@@ -333,34 +337,6 @@ public class ConfigUtils {
 			throw new ReflectionException(e.getMessage());
 		}
 		return clazzes;
-	}
-
-	/**
-	 * Get all declared Channels of thing class.
-	 *
-	 * @param clazz
-	 * @return
-	 */
-	public static List<Member> getChannelMembers(Class<? extends Thing> clazz) {
-		List<Member> members = new LinkedList<>();
-		for (Method method : clazz.getMethods()) {
-			if (method.getReturnType().isArray()) {
-				Class<?> rtype = method.getReturnType();
-				if (Channel.class.isAssignableFrom(rtype.getComponentType())) {
-					members.add(method);
-				}
-			} else {
-				if (Channel.class.isAssignableFrom(method.getReturnType())) {
-					members.add(method);
-				}
-			}
-		}
-		for (Field field : clazz.getFields()) {
-			if (Channel.class.isAssignableFrom(field.getType())) {
-				members.add(field);
-			}
-		}
-		return Collections.unmodifiableList(members);
 	}
 
 	/**
