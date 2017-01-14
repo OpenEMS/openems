@@ -16,6 +16,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.persistence.Persistence;
 import io.openems.core.Databus;
 
@@ -28,20 +29,24 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 	/*
 	 * Config
 	 */
-	public final ConfigChannel<Integer> fems = new ConfigChannel<Integer>("fems", this, Integer.class);
+	@ConfigInfo(title = "Sets the fems-number", type = Integer.class)
+	public final ConfigChannel<Integer> fems = new ConfigChannel<Integer>("fems", this);
 
-	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this, Inet4Address.class);
+	@ConfigInfo(title = "Sets the IP address of the InfluxDB", type = Inet4Address.class)
+	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
 
-	public final ConfigChannel<String> username = new ConfigChannel<String>("username", this, String.class)
-			.defaultValue("root");
+	@ConfigInfo(title = "Sets the username for InfluxDB", type = String.class)
+	public final ConfigChannel<String> username = new ConfigChannel<String>("username", this).defaultValue("root");
 
-	public final ConfigChannel<String> password = new ConfigChannel<String>("password", this, String.class)
-			.defaultValue("root");
+	@ConfigInfo(title = "Sets the username for InfluxDB", type = String.class)
+	public final ConfigChannel<String> password = new ConfigChannel<String>("password", this).defaultValue("root");
 
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
 			.defaultValue(10000);
 
-	@Override public ConfigChannel<Integer> cycleTime() {
+	@Override
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
@@ -50,7 +55,8 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 	/**
 	 * Receives events for all {@link ReadChannel}s, excluding {@link ConfigChannel}s via the {@link Databus}.
 	 */
-	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+	@Override
+	public void channelUpdated(Channel channel, Optional<?> newValue) {
 		if (!(channel instanceof ReadChannel<?>)) {
 			return;
 		}
@@ -76,11 +82,13 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 		}
 	}
 
-	@Override protected void dispose() {
+	@Override
+	protected void dispose() {
 
 	}
 
-	@Override protected void forever() {
+	@Override
+	protected void forever() {
 		// Prepare DB connection
 		Optional<InfluxDB> _influxdb = getInfluxDB();
 		if (!_influxdb.isPresent()) {
@@ -117,7 +125,8 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 		log.debug("Wrote [" + batchPoints.getPoints().size() + "] points to InfluxDB");
 	}
 
-	@Override protected boolean initialize() {
+	@Override
+	protected boolean initialize() {
 		if (getInfluxDB().isPresent()) {
 			return true;
 		} else {

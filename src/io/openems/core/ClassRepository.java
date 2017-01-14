@@ -82,6 +82,14 @@ public class ClassRepository {
 				if (ConfigChannel.class.isAssignableFrom(type)) {
 					ConfigInfo configAnnotation = method.getAnnotation(ConfigInfo.class);
 					if (configAnnotation == null) {
+						// TODO recursive search
+						// Class<?> superclazz = null;
+						// do {
+						// superclazz = clazz.getSuperclass();
+						// if(superclazz != null) {
+						// configAnnotation = method.getAnnotation(ConfigInfo.class);
+						// }
+						// } while(configAnnotation == null || superclazz == null);
 						log.error("Config-Annotation is missing for method [" + method.getName() + "] in class ["
 								+ clazz.getName() + "]");
 					} else {

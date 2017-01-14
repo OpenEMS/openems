@@ -34,6 +34,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.OpenemsModbusException;
 
@@ -54,34 +55,42 @@ public class ModbusTcp extends ModbusBridge implements ChannelUpdateListener {
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
 			.defaultValue(500);
 
-	@Override public ConfigChannel<Integer> cycleTime() {
+	@Override
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
-	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+	@Override
+	public void channelUpdated(Channel channel, Optional<?> newValue) {
 		triggerInitialize();
 	}
 
-	@Override public void dispose() {
+	@Override
+	public void dispose() {
 
 	}
 
-	@Override public ModbusTransaction getTransaction() throws OpenemsModbusException {
+	@Override
+	public ModbusTransaction getTransaction() throws OpenemsModbusException {
 		TCPMasterConnection connection = getModbusConnection();
 		ModbusTCPTransaction trans = new ModbusTCPTransaction(connection);
 		return trans;
 	}
 
-	@Override public void addDevice(Device device) {
+	@Override
+	public void addDevice(Device device) {
 		super.addDevice(device);
 		triggerInitialize();
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return "ModbusTcp [ip=" + ip + "]";
 	}
 
-	@Override protected boolean initialize() {
+	@Override
+	protected boolean initialize() {
 		if (!super.initialize()) {
 			return false;
 		}
@@ -94,7 +103,8 @@ public class ModbusTcp extends ModbusBridge implements ChannelUpdateListener {
 		return true;
 	}
 
-	@Override protected void closeModbusConnection() {
+	@Override
+	protected void closeModbusConnection() {
 		if (connection.isPresent() && connection.get().isConnected()) {
 			try {
 				connection.get().close();

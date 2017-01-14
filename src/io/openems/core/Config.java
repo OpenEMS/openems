@@ -237,7 +237,6 @@ public class Config implements ChannelChangeListener {
 				Device device = (Device) InjectionUtils.getThingInstance(deviceClass);
 				thingRepository.addThing(device);
 				log.debug("Add Device[" + device.id() + "], Implementation[" + device.getClass().getSimpleName() + "]");
-
 				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(device), jDevice);
 				devices.add(device);
 			}
@@ -383,7 +382,8 @@ public class Config implements ChannelChangeListener {
 	/**
 	 * Receives update events for config channels and rewrites the json config
 	 */
-	@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+	@Override
+	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		try {
 			writeConfigFile();
 		} catch (OpenemsException e) {

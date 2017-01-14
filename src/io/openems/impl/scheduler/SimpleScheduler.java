@@ -28,6 +28,7 @@ import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.core.ThingRepository;
 
@@ -42,13 +43,17 @@ public class SimpleScheduler extends Scheduler {
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
 			.defaultValue(500);
 
-	@Override public ConfigChannel<Integer> cycleTime() {
+	@Override
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
-	@Override protected void dispose() {}
+	@Override
+	protected void dispose() {}
 
-	@Override protected void forever() {
+	@Override
+	protected void forever() {
 		List<Controller> controllers = new ArrayList<>(this.controllers.values());
 		Collections.sort(controllers, (c1, c2) -> c2.priority.valueOptional().orElse(Integer.MIN_VALUE)
 				- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
@@ -64,7 +69,8 @@ public class SimpleScheduler extends Scheduler {
 		}
 	}
 
-	@Override protected boolean initialize() {
+	@Override
+	protected boolean initialize() {
 		return true;
 	}
 }

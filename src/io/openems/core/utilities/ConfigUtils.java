@@ -30,8 +30,8 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ConfigChannelDoc;
-import io.openems.api.doc.ThingInfo;
 import io.openems.api.doc.ThingDoc;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
@@ -217,8 +217,7 @@ public class ConfigUtils {
 		throw new ReflectionException("Unable to match config [" + j + "] to class type [" + type + "]");
 	}
 
-	private static Thing getThingFromConfig(Class<? extends Thing> type, JsonElement j)
-			throws ReflectionException {
+	private static Thing getThingFromConfig(Class<? extends Thing> type, JsonElement j) throws ReflectionException {
 		String thingId = JsonUtils.getAsString(j, "id");
 		ThingRepository thingRepository = ThingRepository.getInstance();
 		Optional<Thing> existingThing = thingRepository.getThingById(thingId);
@@ -309,18 +308,17 @@ public class ConfigUtils {
 			log.warn("Thing [" + clazz.getName() + "] has no @Thing annotation");
 		} else {
 			doc.setThingDescription(thing);
-			ClassRepository classRepository = ClassRepository.getInstance();
-			classRepository.getThingConfigChannels(clazz).forEach((member, config) -> {
-				doc.addConfigChannel(
-						new ConfigChannelDoc(member.getName(), config.title(), config.type(), config.isOptional()));
-			});
-			log.info(doc.getAsJsonObject().toString());
 		}
+		ClassRepository classRepository = ClassRepository.getInstance();
+		classRepository.getThingConfigChannels(clazz).forEach((member, config) -> {
+			doc.addConfigChannel(
+					new ConfigChannelDoc(member.getName(), config.title(), config.type(), config.isOptional()));
+		});
 		return doc;
 	}
 
-	public static Set<Class<? extends Thing>> getAvailableClasses(String topLevelPackage,
-			Class<? extends Thing> clazz, String suffix) throws ReflectionException {
+	public static Set<Class<? extends Thing>> getAvailableClasses(String topLevelPackage, Class<? extends Thing> clazz,
+			String suffix) throws ReflectionException {
 		Set<Class<? extends Thing>> clazzes = new HashSet<>();
 		try {
 			ClassPath classpath = ClassPath.from(ClassLoader.getSystemClassLoader());

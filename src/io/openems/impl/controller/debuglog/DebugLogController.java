@@ -24,15 +24,21 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 
 public class DebugLogController extends Controller {
 
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class).optional();
-	public final ConfigChannel<Set<Meter>> meters = new ConfigChannel<Set<Meter>>("meters", this, Meter.class)
-			.optional();
-	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this, RealTimeClock.class)
-			.optional();
+	// TODO Access all relevant channels directly via ThingRepository
+
+	@ConfigInfo(title = "Sets all Ess", type = Ess.class, isOptional = true)
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
+
+	@ConfigInfo(title = "Sets all Meters", type = Meter.class, isOptional = true)
+	public final ConfigChannel<Set<Meter>> meters = new ConfigChannel<Set<Meter>>("meters", this);
+
+	@ConfigInfo(title = "Sets all RealTimeClocks", type = RealTimeClock.class, isOptional = true)
+	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this);
 
 	public DebugLogController() {
 		super();
@@ -42,7 +48,8 @@ public class DebugLogController extends Controller {
 		super(thingId);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			StringBuilder b = new StringBuilder();
 			if (meters.valueOptional().isPresent()) {

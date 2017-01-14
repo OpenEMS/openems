@@ -6,25 +6,30 @@ import java.util.List;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
+import io.openems.api.doc.ConfigInfo;
 
 public class SimulatorBridge extends Bridge {
 	protected volatile SimulatorDevice[] simulatordevices = new SimulatorDevice[0];
 
-	@Override public void triggerWrite() {
+	@Override
+	public void triggerWrite() {
 		// not implemented
 	}
 
-	@Override protected void dispose() {
+	@Override
+	protected void dispose() {
 		// nothing to dispose
 	}
 
-	@Override protected void forever() {
+	@Override
+	protected void forever() {
 		for (SimulatorDevice device : simulatordevices) {
 			device.update();
 		}
 	}
 
-	@Override protected boolean initialize() {
+	@Override
+	protected boolean initialize() {
 		/*
 		 * Wait a little bit, because the simulator is much faster than real hardware.
 		 * Otherwise the system waits 10 seconds to call initialize() again.
@@ -57,7 +62,9 @@ public class SimulatorBridge extends Bridge {
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
 			.defaultValue(1000);
 
-	@Override public ConfigChannel<Integer> cycleTime() {
+	@Override
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 }

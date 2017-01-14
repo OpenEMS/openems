@@ -15,6 +15,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.persistence.Persistence;
 import io.openems.core.Databus;
 
@@ -23,8 +24,10 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	/*
 	 * Config
 	 */
-	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this, String.class);
+	@ConfigInfo(title = "Sets the 'apikey' for FENECON Cloud", type = String.class)
+	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this);
 
+	@ConfigInfo(title = "Sets the connection URI", type = String.class)
 	public final ConfigChannel<String> uri = new ConfigChannel<String>("uri", this, String.class)
 			.defaultValue("wss://fenecon.de/femsserver:443");
 
@@ -39,7 +42,9 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
 			.defaultValue(DEFAULT_CYCLETIME);
 
-	@Override public ConfigChannel<Integer> cycleTime() {
+	@Override
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
@@ -48,7 +53,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	/**
 	 * Receives update events for all {@link ReadChannel}s, excluding {@link ConfigChannel}s via the {@link Databus}.
 	 */
-	@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+	@Override
+	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		if (channel == cycleTime) {
 			// Cycle Time
 			this.currentCycleTime = cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
@@ -83,13 +89,15 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		}
 	}
 
-	@Override protected void dispose() {
+	@Override
+	protected void dispose() {
 		if (this._websocket != null) {
 			this._websocket.close();
 		}
 	}
 
-	@Override protected void forever() {
+	@Override
+	protected void forever() {
 		JsonObject jData = new JsonObject();
 		/*
 		 * Convert FieldVales in queue to JsonObject
@@ -194,7 +202,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		log.info("New cycle time: " + cycleTime);
 	}
 
-	@Override protected boolean initialize() {
+	@Override
+	protected boolean initialize() {
 		boolean successful = getWebsocketClient().isPresent();
 		if (!successful) {
 			increaseCycleTime();

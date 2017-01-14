@@ -1,7 +1,6 @@
 package io.openems.impl.controller.api.websocket;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -9,19 +8,17 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo("Websocket-API (z. B. für Weboberfläche)")
 public class WebsocketApiController extends Controller implements ChannelChangeListener {
 
 	private volatile WebsocketServer ws = null;
 
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this, Ess.class).optional();
-
-	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this, Integer.class)
-			.defaultValue(8085).changeListener(this);
+	@ConfigInfo(title = "Sets the websocket port", type = Integer.class)
+	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(8085)
+			.changeListener(this);
 
 	private final AtomicReference<Optional<Long>> manualP = new AtomicReference<Optional<Long>>(Optional.empty());
 	private final AtomicReference<Optional<Long>> manualQ = new AtomicReference<Optional<Long>>(Optional.empty());
@@ -48,24 +45,23 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 			}
 		}
 		// TODO needs awareness for which essDevice to set...
-		try {
-			Optional<Long> p = manualP.get();
-			Optional<Long> q = manualQ.get();
-			if (p.isPresent() && q.isPresent()) {
-				if (esss.valueOptional().isPresent()) {
-					for (Ess ess : esss.value()) {
-						String message = "P=" + p.get() + ",Q=" + q.get();
-						if (!message.equals(lastMessage)) {
-							ws.broadcastNotification(NotificationType.INFO,
-									"Leistungsvorgabe an [" + ess.id() + "] gesendet: " + message);
-						}
-						lastMessage = message;
-						ess.setPower(p.get(), q.get());
-					}
-				}
-			}
-		} catch (WriteChannelException | InvalidValueException e) {
-			log.error(e.getMessage());
+		Optional<Long> p = manualP.get();
+		Optional<Long> q = manualQ.get();
+		if (p.isPresent() && q.isPresent()) {
+			// TODO get the channel via ThingRepository!
+			/*
+			 * if (esss.valueOptional().isPresent()) {
+			 * for (Ess ess : esss.value()) {
+			 * String message = "P=" + p.get() + ",Q=" + q.get();
+			 * if (!message.equals(lastMessage)) {
+			 * ws.broadcastNotification(NotificationType.INFO,
+			 * "Leistungsvorgabe an [" + ess.id() + "] gesendet: " + message);
+			 * }
+			 * lastMessage = message;
+			 * ess.setPower(p.get(), q.get());
+			 * }
+			 * }
+			 */
 		}
 	}
 

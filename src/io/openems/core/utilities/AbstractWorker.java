@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.thing.Thing;
 
 public abstract class AbstractWorker extends Thread implements Thing {
@@ -46,6 +47,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 		this.setName(name);
 	}
 
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public abstract ConfigChannel<Integer> cycleTime();
 
 	/**
@@ -81,7 +83,8 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	 */
 	protected abstract void forever();
 
-	@Override public String id() {
+	@Override
+	public String id() {
 		return getName();
 	};
 
@@ -96,7 +99,8 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	/**
 	 * Executes the Thread. Calls {@link forever} till the Thread gets interrupted.
 	 */
-	@Override public final void run() {
+	@Override
+	public final void run() {
 		long bridgeExceptionSleep = 1; // seconds
 		this.initialize.set(true);
 		while (!isInterrupted()) {
