@@ -56,10 +56,22 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 	public ModbusDeviceNature(String thingId) throws ConfigException {
 		this.thingId = thingId;
 		log = LoggerFactory.getLogger(this.getClass());
-		this.protocol = defineModbusProtocol();
+		// this.protocol = defineModbusProtocol();
 	}
 
-	@Override public String id() {
+	private ModbusProtocol getProtocol() {
+		if (protocol == null) {
+			try {
+				this.protocol = defineModbusProtocol();
+			} catch (ConfigException e) {
+				log.error("Failed to define modbus protcol!", e);
+			}
+		}
+		return this.protocol;
+	}
+
+	@Override
+	public String id() {
 		return thingId;
 	}
 
@@ -68,7 +80,7 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 	 * Sets a Channel as required. The Range with this Channel will be added to ModbusProtocol.RequiredRanges.
 	 */
 	public void setAsRequired(Channel channel) {
-		protocol.setAsRequired(channel);
+		getProtocol().setAsRequired(channel);
 	}
 
 	protected abstract ModbusProtocol defineModbusProtocol() throws ConfigException;
@@ -77,20 +89,20 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 		/**
 		 * Update required ranges
 		 */
-		for (ModbusRange range : protocol.getRequiredRanges()) {
+		for (ModbusRange range : getProtocol().getRequiredRanges()) {
 			update(unitId, bridge, range);
 		}
 		/**
 		 * Update other ranges
 		 */
-		Optional<ModbusRange> range = protocol.getNextOtherRange();
+		Optional<ModbusRange> range = getProtocol().getNextOtherRange();
 		if (range.isPresent()) {
 			update(unitId, bridge, range.get());
 		}
 	}
 
 	protected void write(int modbusUnitId, ModbusBridge modbusBridge) throws ConfigException {
-		for (WriteableModbusRange range : protocol.getWritableRanges()) {
+		for (WriteableModbusRange range : getProtocol().getWritableRanges()) {
 			if (range instanceof WriteableModbusCoilRange) {
 				/*
 				 * Build a list of start-addresses of elements without holes. The start-addresses map to a list
