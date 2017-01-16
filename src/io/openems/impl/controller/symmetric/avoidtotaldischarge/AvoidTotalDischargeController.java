@@ -45,14 +45,14 @@ public class AvoidTotalDischargeController extends Controller {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
 				/*
 				 * Calculate SetActivePower according to MinSoc
 				 */
-				ess.socMinHysteresis.update(ess.soc.value());
-				ess.socMinHysteresis.apply((state, multiplier) -> {
+				ess.socMinHysteresis.apply(ess.soc.value(), (state, multiplier) -> {
 					switch (state) {
 					case ASC:
 					case DESC:

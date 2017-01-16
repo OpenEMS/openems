@@ -10,6 +10,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
+import io.openems.core.utilities.hysteresis.Hysteresis;
 
 public class ChannelThresholdController extends Controller {
 
@@ -17,39 +18,51 @@ public class ChannelThresholdController extends Controller {
 
 	public ConfigChannel<String> thresholdChannelName = new ConfigChannel<String>("thresholdChannelAddress", this,
 			String.class).changeListener((channel, newValue, oldValue) -> {
-				try {
-					String channelAddress = ((ReadChannel<String>) channel).value();
-					Optional<Channel> ch = repo.getChannelByAddress(channelAddress);
+				Optional<String> channelAddress = (Optional<String>) newValue;
+				if (channelAddress.isPresent()) {
+					Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
 					if (ch.isPresent()) {
 						thresholdChannel = (ReadChannel<Long>) ch.get();
 					} else {
-						log.error("Channel " + channelAddress + " not found");
+						log.error("Channel " + channelAddress.get() + " not found");
 					}
-				} catch (InvalidValueException e) {
-					log.error("channelName is empty!");
+				} else {
+					log.error("'outputChannelAddress' is not configured!");
 				}
 			});
 
 	public ConfigChannel<String> outputChannelName = new ConfigChannel<String>("outputChannelAddress", this,
 			String.class).changeListener((channel, newValue, oldValue) -> {
-				try {
-					String channelAddress = ((ReadChannel<String>) channel).value();
-					Optional<Channel> ch = repo.getChannelByAddress(channelAddress);
+				Optional<String> channelAddress = (Optional<String>) newValue;
+				if (channelAddress.isPresent()) {
+					Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
 					if (ch.isPresent()) {
 						outputChannel = (WriteChannel<Boolean>) ch.get();
 					} else {
-						log.error("Channel " + channelAddress + " not found");
+						log.error("Channel " + channelAddress.get() + " not found");
 					}
-				} catch (InvalidValueException e) {
-					log.error("channelName is empty!");
+				} else {
+					log.error("'outputChannelAddress' is not configured!");
 				}
 			});
 
-	public ConfigChannel<Long> lowerThreshold = new ConfigChannel<>("lowerThreshold", this, Long.class);
-	public ConfigChannel<Long> upperThreshold = new ConfigChannel<>("upperThreshold", this, Long.class);
+	public ConfigChannel<Long> lowerThreshold = new ConfigChannel<Long>("lowerThreshold", this, Long.class)
+			.changeListener((channel, newValue, oldValue) -> {
+				if (newValue.isPresent()) {
+					createHysteresis();
+				}
+			});
+	public ConfigChannel<Long> upperThreshold = new ConfigChannel<Long>("upperThreshold", this, Long.class)
+			.changeListener((channel, newValue, oldValue) -> {
+				if (newValue.isPresent()) {
+					createHysteresis();
+				}
+			});
 
 	private ReadChannel<Long> thresholdChannel;
 	private WriteChannel<Boolean> outputChannel;
+	private Hysteresis thresholdHysteresis;
+	private boolean isActive = false;
 
 	public ChannelThresholdController() {
 		super();
@@ -59,19 +72,53 @@ public class ChannelThresholdController extends Controller {
 		super(thingId);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
-			if (thresholdChannel != null && thresholdChannel.value() <= lowerThreshold.value()
-					&& !outputChannel.value()) {
-				outputChannel.pushWrite(true);
-			} else if (thresholdChannel != null && thresholdChannel.value() >= upperThreshold.value()
-					&& outputChannel.value()) {
-				outputChannel.pushWrite(false);
+			if (thresholdHysteresis != null) {
+				thresholdHysteresis.apply(thresholdChannel.value(), (state, multiplier) -> {
+					try {
+						switch (state) {
+						case ABOVE:
+							outputChannel.pushWrite(false);
+							isActive = false;
+							break;
+						case ASC:
+							if (isActive) {
+								outputChannel.pushWrite(true);
+							} else {
+								outputChannel.pushWrite(false);
+							}
+							break;
+						case BELOW:
+							outputChannel.pushWrite(true);
+							isActive = true;
+							break;
+						case DESC:
+							if (isActive) {
+								outputChannel.pushWrite(true);
+							} else {
+								outputChannel.pushWrite(false);
+							}
+							break;
+						default:
+							break;
+						}
+					} catch (WriteChannelException e) {
+						log.error("failed to write outputChannel[" + outputChannel.id() + "]", e);
+					}
+				});
 			}
 		} catch (InvalidValueException e) {
-			log.error(e.getMessage());
-		} catch (WriteChannelException e) {
-			e.printStackTrace();
+			log.error("thresholdChannel has no valid value!");
+		}
+	}
+
+	private void createHysteresis() {
+		try {
+			thresholdHysteresis = new Hysteresis(lowerThreshold.value(), upperThreshold.value());
+		} catch (InvalidValueException e) {
+			log.error("lower or upper Threshold is invalid! Can't create Hysteresis!");
 		}
 	}
 
