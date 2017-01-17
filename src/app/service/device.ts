@@ -13,7 +13,12 @@ export class Device {
   public data = new BehaviorSubject<{ [thing: string]: any }>(null);
   private config: {
     _availableControllers: [{
-      channels: [{ name }],
+      channels: [{
+        name: string,
+        title: string,
+        type: "Integer" | "String"
+        optional: boolean
+      }],
       class: string,
       text: string,
       title: string

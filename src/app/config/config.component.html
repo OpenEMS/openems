@@ -1,7 +1,7 @@
 <div *ngIf="mode == '' && device && device.config" class="container">
   <div class="row">
     <div class="col-xs-12 col-sm-6">
-      <div class="panel panel-default">
+      <div class="panel panel-default" (click)="mode = 'things'">
         <div class="panel-heading">
           <h3 class="panel-title">Verbindungen und Geräte</h3>
         </div>
@@ -13,7 +13,7 @@
       </div>
     </div>
     <div class="col-xs-12 col-sm-6" *ngIf="device.config.scheduler">
-      <div class="panel panel-default">
+      <div class="panel panel-default" (click)="mode = 'scheduler'">
         <div class="panel-heading">
           <h3 class="panel-title">App-Planer</h3>
         </div>
@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="col-xs-12 col-sm-6" *ngIf="device.config.scheduler && device.config.scheduler.controllers">
-      <div class="panel panel-default">
+      <div class="panel panel-default" (click)="mode = 'controllers'">
         <div class="panel-heading">
           <h3 class="panel-title">Apps</h3>
         </div>
@@ -51,6 +51,29 @@
   <div class="row">
     <div class="col-xs-12">
       <p (click)="mode = ''"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Zurück</p>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="mode == 'controllers'" class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Apps</h3>
+        </div>
+        <div class="panel-body">
+          Controllers
+        </div>
+        <table>
+          <tr *ngFor="let controller of device.config._availableControllers">
+            <td *ngIf="controller.class">
+              {{ controller.class }}<br/><small class="is-breakable">{{ controller.title }}: </small><br/>
+              <small *ngFor="let channel of controller.channels">{{ channel.name }}</small>
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 </div>
