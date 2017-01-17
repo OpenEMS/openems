@@ -36,7 +36,14 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	private Optional<T> defaultValue = Optional.empty();
 	private boolean isOptional;
 
-	// TODO remove, obsolet
+	/**
+	 *
+	 * @param id
+	 * @param parent
+	 * @param type
+	 * @deprecated use instead "@ConfigInfo(title="",type=String.class) ConfigChannel(String id, Thing parent)"
+	 */
+	@Deprecated
 	public ConfigChannel(String id, Thing parent, Class<?> type) {
 		super(id, parent);
 		this.type = type;
