@@ -21,7 +21,8 @@
         "styles.css",
         "../node_modules/bootstrap/dist/css/bootstrap.min.css",
         "../node_modules/ng2-toastr/bundles/ng2-toastr.min.css",
-        "../node_modules/ngx-charts/release/ngx-charts.css"
+        "../node_modules/ngx-charts/release/ngx-charts.css",
+        "../node_modules/@angular/material/core/theming/prebuilt/deeppurple-amber.css"
       ],
       "scripts": [],
       "environments": {
