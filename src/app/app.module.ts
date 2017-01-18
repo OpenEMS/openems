@@ -8,8 +8,9 @@ import { CollapseDirective } from 'ng2-bootstrap';
 import { DatepickerModule } from 'ng2-bootstrap/components/datepicker';
 import { ToastModule } from 'ng2-toastr/ng2-toastr';
 import { NgxChartsModule } from 'ngx-charts';
-import { MaterialModule } from '@angular/material';
+import { MaterialModule, MdSnackBar } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import 'hammerjs';
 
 /*
  * Frontend
@@ -120,6 +121,7 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
   ],
   providers: [
     appRoutingProviders,
+    MdSnackBar,
     WebappService,
     WebsocketService
     /*OdooRPCService*/

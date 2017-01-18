@@ -1,29 +1,33 @@
-<nav class="navbar navbar-inverse navbar-static-top">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" (click)="navCollapsed = !navCollapsed">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#">FEMS</a>
-    </div>
-    <div class="navbar-collapse" [collapse]="navCollapsed">
-      <ul class="nav navbar-nav">
-        <li routerLinkActive="active"><a routerLink="/overview">Übersicht</a></li>
-        <li *ngIf="websocketService.currentDevice"><a>{{ websocketService.currentDevice.address }}</a></li>
-        <li *ngIf="websocketService.currentDevice" routerLinkActive="active"><a routerLink="/monitor/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}">Monitor</a></li>
-        <li *ngIf="websocketService.currentDevice" routerLinkActive="active"><a routerLink="/config/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}">Konfiguration</a></li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li><a routerLinkActive="active" routerLink="/login">An-/Abmelden</a></li>
-      </ul>
-    </div>
+<md-sidenav-container fullscreen>
+  <md-sidenav #sidenav mode="side" class="app-sidenav">
+    <button md-button routerLinkActive="active" routerLink="/login">An-/Abmelden</button><br/>
+    <button md-button routerLinkActive="active" routerLink="/overview">Übersicht</button><br/>
+    <button md-button *ngIf="websocketService.currentDevice" routerLinkActive="active" routerLink="/monitor/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}">Monitor</button><br/>
+    <button md-button *ngIf="websocketService.currentDevice" routerLinkActive="active" routerLink="/config/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}">Konfiguration</button><br/>
+  </md-sidenav>
+  <md-toolbar color="primary">
+    <button md-icon-button (click)="sidenav.toggle()">
+      <i class="material-icons app-toolbar-menu">menu</i>
+    </button>
+    <h2>
+      <span>FEMS</span>
+      <small *ngIf="websocketService.currentDevice"> {{ websocketService.currentDevice.address }}</small>
+    </h2>
+  </md-toolbar>
+  <div class="app-content">
+    <router-outlet></router-outlet>
   </div>
-</nav>
+</md-sidenav-container>
 
+
+<!--
+  Angular Material
+<div class="flex-container" fxLayout="row" fxLayoutAlign="center center">
+  <div class="flex-item" fxFlex="20%">Test1</div>
+  <div class="flex-item" fxFlex>Test2</div>
+  <div class="flex-item" fxFlex="25px">Test3</div>
+</div>
+-->
 <!--
 <div class="container" style="height: calc(100% - 100px)">
 <div class="row" style="height: 100%">
@@ -33,4 +37,3 @@
 </div>
 </div>
 -->
-<router-outlet></router-outlet>

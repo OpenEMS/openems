@@ -1,5 +1,6 @@
 import { Injectable, ViewContainerRef } from '@angular/core';
 import { ToastsManager } from 'ng2-toastr/ng2-toastr';
+import { MdSnackBar } from '@angular/material'
 
 import { WebsocketService } from './websocket.service';
 import { Device } from './device';
@@ -15,6 +16,7 @@ export interface Notification {
 export class WebappService {
 
   constructor(
+    private snackBar: MdSnackBar,
     private toastr: ToastsManager
   ) { }
 
@@ -58,6 +60,7 @@ export class WebappService {
       this.toastr.warning(notification.message);
     } else {
       this.toastr.info(notification.message);
+      // Material: this.snackBar.open(notification.message, null, { duration: 2000 });
     }
   }
 }

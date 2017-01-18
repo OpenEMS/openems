@@ -1,6 +1,6 @@
-<div class="container">
-  <div class="row">
-    <div *ngFor="let ws of websocketService.websockets | keys">
+<div class="flex-container" fxLayout="row" fxLayoutAlign="center center">
+  <div class="flex-item" fxFlex="80%">
+    <md-card *ngFor="let ws of websocketService.websockets | keys">
       <div *ngFor="let dev of ws.value.devices | keys" class="col-xs-4 col-md-3">
         <div routerLink="/monitor/{{ws.key}}/{{dev.key}}" class="panel panel-default">
           <div class="panel-heading">
@@ -33,6 +33,6 @@
             </div>-->
         </div>
       </div>
-    </div>
+    </md-card>
   </div>
 </div>
