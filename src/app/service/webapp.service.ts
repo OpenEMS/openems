@@ -52,6 +52,8 @@ export class WebappService {
    * Shows a nofication using toastr
    */
   public notify(notification: Notification) {
+    this.snackBar.open(notification.message, null, { duration: 2000 });
+    /*
     if (notification.type == "success") {
       this.toastr.success(notification.message);
     } else if (notification.type == "error") {
@@ -59,8 +61,9 @@ export class WebappService {
     } else if (notification.type == "warning") {
       this.toastr.warning(notification.message);
     } else {
-      this.toastr.info(notification.message);
-      // Material: this.snackBar.open(notification.message, null, { duration: 2000 });
+      //this.toastr.info(notification.message);
+      this.snackBar.open(notification.message, null, { duration: 2000 });
     }
+    */
   }
 }

@@ -17,8 +17,11 @@ import 'hammerjs';
  */
 import { LoginComponent } from './login/login.component';
 import { OverviewComponent } from './overview/overview.component';
-import { MonitorCurrentComponent } from './monitor/current/current.component';
-import { ConfigComponent } from './config/config.component';
+import { DeviceOverviewComponent } from './device/overview/overview.component';
+import { DeviceOverviewEnergymonitorComponent } from './device/overview/energymonitor/energymonitor.component';
+import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
+import { DeviceConfigMoreComponent } from './device/config/more/more.component';
+//import { ConfigComponent } from './config/config.component';
 
 /*
 import { MonitorGrafanaComponent } from './monitor/grafana/grafana.component';
@@ -65,7 +68,8 @@ import { WebsocketService } from './service/websocket.service';
 /*
  * Pipe
  */
-import { KeysPipe } from './common/pipe/keys/keys-pipe';
+import { KeysPipe } from './common/pipe/keys/keys.pipe';
+import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
 
 import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { CommonSocComponent } from './common/soc/common-soc.component';
@@ -73,11 +77,16 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
 @NgModule({
   declarations: [
     AppComponent,
-    // Frontend
+    // Login
     LoginComponent,
+    // Overview
     OverviewComponent,
-    MonitorCurrentComponent,
-    ConfigComponent,
+    // Device
+    DeviceOverviewComponent,
+    DeviceOverviewEnergymonitorComponent,
+    DeviceConfigOverviewComponent,
+    DeviceConfigMoreComponent,
+    //ConfigComponent,
     CollapseDirective,
     // common
     CommonSocComponent,
@@ -104,7 +113,8 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     CustomChartComponent,
     ChartCurrentComponent,
     // pipe
-    KeysPipe
+    KeysPipe,
+    ClassnamePipe
   ],
   imports: [
     BrowserModule,

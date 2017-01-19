@@ -2,32 +2,31 @@
   <md-sidenav #sidenav mode="side" class="app-sidenav">
     <button md-button routerLinkActive="active" routerLink="/login">An-/Abmelden</button><br/>
     <button md-button routerLinkActive="active" routerLink="/overview">Übersicht</button><br/>
-    <button md-button *ngIf="websocketService.currentDevice" routerLinkActive="active" routerLink="/monitor/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}">Monitor</button><br/>
-    <button md-button *ngIf="websocketService.currentDevice" routerLinkActive="active" routerLink="/config/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}">Konfiguration</button><br/>
   </md-sidenav>
   <md-toolbar color="primary">
-    <button md-icon-button (click)="sidenav.toggle()">
-      <i class="material-icons app-toolbar-menu">menu</i>
-    </button>
-    <h2>
-      <span>FEMS</span>
-      <small *ngIf="websocketService.currentDevice"> {{ websocketService.currentDevice.address }}</small>
-    </h2>
+    <div fxFill class="flex-container" fxLayout="row" fxLayoutAlign="center center">
+      <div class="flex-item" fxFlex="50px">
+        <button md-icon-button (click)="sidenav.toggle()"><i class="material-icons app-toolbar-menu">menu</i></button>
+      </div>
+      <div class="flex-item" fxFlex>
+        <button md-button *ngIf="!websocketService.currentDevice" routerLink="/overview">
+          <h2>FEMS</h2>
+        </button>
+        <button md-button *ngIf="websocketService.currentDevice" routerLink="/device/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}/overview">
+          <h2>FEMS <small>{{ websocketService.currentDevice.address }}</small></h2>
+        </button>
+      </div>
+      <div *ngIf="websocketService.currentDevice" class="flex-item" fxFlex="50px">
+        <button routerLinkActive="active" routerLink="/device/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}/config"
+          md-icon-button><i class="material-icons app-setting">settings</i></button>
+      </div>
+    </div>
   </md-toolbar>
   <div class="app-content">
     <router-outlet></router-outlet>
   </div>
 </md-sidenav-container>
 
-
-<!--
-  Angular Material
-<div class="flex-container" fxLayout="row" fxLayoutAlign="center center">
-  <div class="flex-item" fxFlex="20%">Test1</div>
-  <div class="flex-item" fxFlex>Test2</div>
-  <div class="flex-item" fxFlex="25px">Test3</div>
-</div>
--->
 <!--
 <div class="container" style="height: calc(100% - 100px)">
 <div class="row" style="height: 100%">

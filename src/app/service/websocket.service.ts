@@ -11,7 +11,7 @@ export { Websocket } from './websocket';
 //TODO const DEFAULT_PASSWORD: string = "guest";
 
 const DEFAULT_WEBSOCKETS = [{
-  name: "Lokales FEMS",
+  name: location.hostname,
   url: "ws://" + location.hostname + ":8085"
   //url: "ws://localhost:8085"
 }];

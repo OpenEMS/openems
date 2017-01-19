@@ -1,52 +1,42 @@
-<div *ngIf="mode == '' && device && device.config" class="container">
-  <div class="row">
-    <div class="col-xs-12 col-sm-6">
-      <div class="panel panel-default" (click)="mode = 'things'">
-        <div class="panel-heading">
-          <h3 class="panel-title">Verbindungen und Geräte</h3>
-        </div>
-        <table class="table">
-          <tr *ngFor="let bridge of device.config.things">
-            <td>{{ bridge.id }}<br/><small class="is-breakable">{{ bridge.class }}</small></td>
-          </tr>
-        </table>
-      </div>
-    </div>
-    <div class="col-xs-12 col-sm-6" *ngIf="device.config.scheduler">
-      <div class="panel panel-default" (click)="mode = 'scheduler'">
-        <div class="panel-heading">
-          <h3 class="panel-title">App-Planer</h3>
-        </div>
-        <table class="table">
-          <tr>
-            <td *ngIf="device.config.scheduler.id && device.config.scheduler.class">{{ device.config.scheduler.id }}<br/><small class="is-breakable">{{ device.config.scheduler.class }}</small></td>
-          </tr>
-        </table>
-      </div>
-    </div>
-    <div class="col-xs-12 col-sm-6" *ngIf="device.config.scheduler && device.config.scheduler.controllers">
-      <div class="panel panel-default" (click)="mode = 'controllers'">
-        <div class="panel-heading">
-          <h3 class="panel-title">Apps</h3>
-        </div>
-        <table class="table">
-          <tr *ngFor="let controller of device.config.scheduler.controllers">
-            <td *ngIf="controller.id && controller.class">{{ controller.id }}<br/><small class="is-breakable">{{ controller.class }}</small></td>
-          </tr>
-        </table>
-      </div>
-    </div>
-    <div class="col-xs-12 col-sm-6">
-      <div class="panel panel-default" (click)="mode = 'manualPQ'">
-        <div class="panel-heading">
-          <h3 class="panel-title">Test-Modus</h3>
-        </div>
-        <div class="panel-body">Manuelle Leistungsvorgabe</div>
-      </div>
-    </div>
-  </div>
+<div *ngIf="device && device.config" fxLayout="column">
+  <md-card *ngIf="device.config.things" class="flex-item" fxFlex="50">
+    <md-card-title>Verbindungen und Geräte</md-card-title>
+    <md-card-content>
+      <md-chip-list>
+        <md-chip *ngFor="let bridge of device.config.things">{{ bridge.class | classname }}<br/><small>{{ bridge.id }}</small></md-chip>
+      </md-chip-list>
+    </md-card-content>
+  </md-card>
+
+  <md-card *ngIf="device.config.scheduler" class="flex-item" fxFlex="50">
+    <md-card-title>App-Planer</md-card-title>
+    <md-card-content>
+      <md-chip-list>
+        <md-chip *ngIf="device.config.scheduler.id && device.config.scheduler.class">{{ device.config.scheduler.class | classname }}<br/><small>{{ device.config.scheduler.id }}</small></md-chip>
+      </md-chip-list>
+    </md-card-content>
+  </md-card>
+
+  <md-card *ngIf="device.config.scheduler && device.config.scheduler.controllers" class="flex-item" fxFlex="50">
+    <md-card-title>Apps</md-card-title>
+    <md-card-content>
+      <md-chip-list>
+        <md-chip *ngFor="let controller of device.config.scheduler.controllers">{{ controller.class | classname }}<br/><small>{{ controller.id }}</small></md-chip>
+      </md-chip-list>
+    </md-card-content>
+  </md-card>
+
+  <md-card class="flex-item" fxFlex="50" routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/more">
+    <md-card-title>Mehr...</md-card-title>
+    <md-card-content>
+      <md-chip-list>
+        <md-chip>Manuelle<br/>Speichersteuerung</md-chip>
+      </md-chip-list>
+    </md-card-content>
+  </md-card>
 </div>
 
+<!--
 <div *ngIf="mode != ''" class="container">
   <div class="row">
     <div class="col-xs-12">
@@ -129,4 +119,4 @@
       </div>
     </div>
   </div>
-</div>
+</div>-->

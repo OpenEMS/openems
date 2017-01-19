@@ -42,7 +42,7 @@ export class OverviewComponent implements OnInit {
           this.webappService.notify({ type: "info", message: "Keine Geräte gefunden." });
           this.router.navigate(['/login']);
         } else if (numberOfConnectedDevices == 1) {
-          this.router.navigate(['/monitor', lastConnectedWebsocket.name, deviceNames[0]]);
+          this.router.navigate(['/device', lastConnectedWebsocket.name, deviceNames[0]]);
         }
       }
     }, 500);

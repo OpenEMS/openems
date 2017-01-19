@@ -1,34 +1,25 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
-import { WebsocketService } from '../../service/websocket.service';
-import { Device } from '../../service/device';
+import { WebsocketService } from '../../../service/websocket.service';
+import { Device } from '../../../service/device';
 
 @Component({
-  selector: 'app-monitor-current',
-  templateUrl: './current.component.html'
+  selector: 'app-device-overview-energymonitor',
+  templateUrl: './energymonitor.component.html'
 })
-export class MonitorCurrentComponent implements OnInit, OnDestroy {
+export class DeviceOverviewEnergymonitorComponent {
 
   private device: Device;
 
   constructor(
-    private route: ActivatedRoute,
     private websocketService: WebsocketService
   ) { }
 
   ngOnInit() {
-    this.device = this.websocketService.setCurrentDevice(this.route.snapshot.params);
-    if (this.device != null) {
-      this.device.subscribe();
-    }
+    this.device = this.websocketService.currentDevice;
   }
 
-  ngOnDestroy() {
-    if (this.device) {
-      this.device.unsubscribe();
-    }
-  }
   /*
     private getThingTag(thing: string): string {
       for (let thing in connection.natures) {

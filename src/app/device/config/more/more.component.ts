@@ -2,17 +2,16 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormGroup, FormBuilder } from '@angular/forms';
 
-import { WebsocketService } from '../service/websocket.service';
-import { Device } from '../service/device';
+import { WebsocketService } from '../../../service/websocket.service';
+import { Device } from '../../../service/device';
 
 @Component({
-  selector: 'app-config',
-  templateUrl: './config.component.html'
+  selector: 'app-device-config-more',
+  templateUrl: './more.component.html'
 })
-export class ConfigComponent implements OnInit {
+export class DeviceConfigMoreComponent implements OnInit {
 
   private device: Device;
-  private mode: "" | "manualPQ" | "bridge" | "controller" | "scheduler";
 
   private manualPQForm: FormGroup;
 
@@ -24,7 +23,6 @@ export class ConfigComponent implements OnInit {
 
   ngOnInit() {
     this.device = this.websocketService.setCurrentDevice(this.route.snapshot.params);
-    this.mode = "";
     this.manualPQForm = this.formBuilder.group({
       "p": this.formBuilder.control(''),
       "q": this.formBuilder.control('')
