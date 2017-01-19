@@ -4,13 +4,13 @@
       <md-card-title>{{form._websocket.name}} <span class="glyphicon" [ngClass]="{'glyphicon-ok': form._websocket.isConnected, 'glyphicon-remove': !form._websocket.isConnected}"
           aria-hidden="true"></span></md-card-title>
       <md-card-content>
-        <form class="form-inline" [formGroup]="form" (ngSubmit)="loginOrLogout(form)">
+        <form class="form-inline" [formGroup]="form">
           <div class="form-group" *ngIf="!form._websocket.isConnected">
             <input type="text" class="form-control" id="password" type="password" placeholder="Passwort" required="" name="password"
               formControlName="password" />
           </div>
-          <button *ngIf="!form._websocket.isConnected" type="submit" class="btn btn-default">Anmelden</button>
-          <button *ngIf="form._websocket.isConnected" type="submit" class="btn btn-default">Abmelden</button>
+          <button *ngIf="!form._websocket.isConnected" (click)="doLogin(form)" class="btn btn-default">Anmelden</button>
+          <button *ngIf="form._websocket.isConnected" (click)="doLogout(form)" class="btn btn-default">Abmelden</button>
           <span> {{(form._websocket.event | async)?.message}}</span>
         </form>
       </md-card-content>
