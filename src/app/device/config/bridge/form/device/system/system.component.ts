@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, FormBuilder } from '@angular/forms';
 
 import { WebsocketService } from '../../../../../../service/websocket.service';
 import { AbstractConfigComponent } from '../../abstractformconfig.component';
@@ -11,13 +11,22 @@ import { AbstractConfigComponent } from '../../abstractformconfig.component';
 export class FormDeviceSystemComponent extends AbstractConfigComponent {
 
   constructor(
-    private _websocketService: WebsocketService
+    private _websocketService: WebsocketService,
+    private formBuilder: FormBuilder
   ) {
     super(_websocketService);
   }
 
   @Input()
   set form(form: FormGroup) {
-    super.setForm(form, ["id", "class"]);
+    let ignore: string[] = ["id", "class"];
+    if (!form.value["system"]) {
+      form.addControl("system", this.formBuilder.group({
+        id: this.formBuilder.control("")
+      }));
+    } else {
+      ignore.push("ess.id");
+    }
+    super.setForm(form, ignore);
   }
 }

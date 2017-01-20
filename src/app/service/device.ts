@@ -3,40 +3,9 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { Notification } from './webapp.service';
 import { Websocket } from './websocket.service';
+import { Config } from './config';
 
 const SUBSCRIBE: string = "fenecon_monitor_v1";
-
-interface Config {
-  _availableControllers: [{
-    channels: [{
-      name: string,
-      title: string,
-      type: "Integer" | "String"
-      optional: boolean
-    }],
-    class: string,
-    text: string,
-    title: string
-  }],
-  _deviceNatures: { [thing: string]: string[] },
-  persistence: [{ class: string }],
-  scheduler: {
-    id: string,
-    class: string,
-    controllers: [{
-      id: string,
-      class: string
-    }]
-  },
-  things: [{
-    id: string,
-    class: string,
-    devices: [{
-      id: string,
-      class: string
-    }]
-  }]
-}
 
 export class Device {
 

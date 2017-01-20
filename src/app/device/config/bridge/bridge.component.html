@@ -52,15 +52,17 @@
                 <md-input-container><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
               </td>
               <td>
-                <md-input-container><input formControlName="class" type="text" placeholder="Klasse" md-input></md-input-container>
+                <md-select [hidden]="!deviceForm.controls['id'].value" formControlName="class" md-input placeholder="Klasse">
+                  <md-option *ngFor="let dev of config._meta.devices" [value]="dev.class"><span *ngIf="dev.title">{{dev.title}}: </span>{{dev.class | classname}}</md-option>
+                </md-select>
               </td>
             </tr>
           </table>
           <div [ngSwitch]="deviceForm.controls['class'].value | classname">
             <form-device-simulator *ngSwitchCase="'Simulator'" [form]="deviceForm"></form-device-simulator>
             <form-device-system *ngSwitchCase="'System'" [form]="deviceForm"></form-device-system>
-            <table>
-              <tr *ngSwitchDefault>
+            <table *ngSwitchDefault>
+              <tr>
                 <td>
                   <p><b>Formular nicht implementiert!</b></p>
                   <p>{{deviceForm.value | json}}</p>
@@ -68,6 +70,19 @@
               </tr>
             </table>
           </div>
+        </md-card-content>
+      </md-card>
+
+      <!-- New Device -->
+      <md-card>
+        <md-card-content>
+          <table>
+            <tr>
+              <td>
+                <button md-mini-fab (click)="addNewDevice(bridgeForm.controls['id'].value)"><md-icon>add circle</md-icon></button>
+              </td>
+            </tr>
+          </table>
         </md-card-content>
       </md-card>
     </div>

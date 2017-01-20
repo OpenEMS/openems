@@ -1,4 +1,12 @@
 <div [formGroup]="_form">
+    <tr [formGroup]="_form.controls.system">
+        <td>
+            <h4>System</h4>
+        </td>
+        <td>
+            <md-input-container><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
+        </td>
+    </tr>
     <tr>
         <td>
             <button md-mini-fab (click)="save(_form)" [disabled]="_form.pristine"><md-icon>check</md-icon></button>

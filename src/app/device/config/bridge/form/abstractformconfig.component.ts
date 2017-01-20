@@ -9,7 +9,7 @@ interface ConfigRequest {
 }
 interface ConfigCreateRequest extends ConfigRequest {
   object: Object;
-  path: string[];
+  parentId: string;
 }
 interface ConfigUpdateRequest extends ConfigRequest {
   thing: string
@@ -54,7 +54,12 @@ export abstract class AbstractConfigComponent {
   }
 
   protected save(form: FormGroup) {
-    let requests = this.getConfigUpdateRequests(form);
+    let requests;
+    if (form["_meta_new"]) {
+      requests = this.getConfigCreateRequests(form);
+    } else {
+      requests = this.getConfigUpdateRequests(form);
+    }
     this.send(requests);
     form.markAsPristine();
   }
@@ -68,11 +73,33 @@ export abstract class AbstractConfigComponent {
   }
 
   protected delete(form: FormGroup) {
-    console.log("delete", form);
-    let requests = this.getConfigDeleteRequests(form);
-    console.log(requests);
-    this.send(requests);
-    form.markAsPristine();
+    if (form["_meta_parent"] && form["_meta_new"]) {
+      // newly created. No need to delete it at server
+      let array: FormGroup[] = form["_meta_parent"];
+      var index: number = array.indexOf(form, 0);
+      if (index > -1) {
+        array.splice(index, 1);
+      }
+    } else {
+      let requests = this.getConfigDeleteRequests(form);
+      this.send(requests);
+      form.markAsPristine();
+    }
+  }
+
+  protected getConfigCreateRequests(form: FormGroup): ConfigRequest[] {
+    var requests: ConfigRequest[] = [];
+    console.log(form);
+    let parentId = "";
+    if (form["_meta_parent_id"]) {
+      parentId = form["_meta_parent_id"];
+    }
+    requests.push(<ConfigCreateRequest>{
+      operation: "create",
+      object: this.buildValue(form),
+      parentId: parentId
+    });
+    return requests;
   }
 
   protected getConfigUpdateRequests(form: AbstractControl): ConfigRequest[] {
@@ -106,5 +133,14 @@ export abstract class AbstractConfigComponent {
       });
     }
     return requests;
+  }
+
+  protected buildValue(form: FormGroup): Object {
+    let builder: Object = {};
+    for (let key in form.controls) {
+      builder[key] = form.controls[key].value;
+    }
+    console.log(builder);
+    return builder;
   }
 }
