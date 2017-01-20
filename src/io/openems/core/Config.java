@@ -294,7 +294,7 @@ public class Config implements ChannelChangeListener {
 		 * Register myself as onChangeListener on all ConfigChannels
 		 */
 		for (ConfigChannel<?> channel : thingRepository.getConfigChannels()) {
-			channel.changeListener(this);
+			channel.addChangeListener(this);
 		}
 	}
 

@@ -52,7 +52,7 @@ public class Ess extends ThingMap {
 		minSoc = ess.minSoc().required();
 		allowedDischarge = ess.allowedDischarge().required();
 		chargeSoc = ess.chargeSoc().required();
-		minSoc.changeListener(new ChannelChangeListener() {
+		minSoc.addChangeListener(new ChannelChangeListener() {
 
 			@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 				if (newValue.isPresent()) {

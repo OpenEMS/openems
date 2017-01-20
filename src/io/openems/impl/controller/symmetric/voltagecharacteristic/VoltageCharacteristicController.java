@@ -36,18 +36,19 @@ public class VoltageCharacteristicController extends Controller {
 
 	public VoltageCharacteristicController() {
 		super();
-		init();
+		initialize();
 	}
 
 	public VoltageCharacteristicController(String thingId) {
 		super(thingId);
-		init();
+		initialize();
 	}
 
-	private void init() {
-		pByUCharacteristicPoints.changeListener(new ChannelChangeListener() {
+	private void initialize() {
+		pByUCharacteristicPoints.addChangeListener(new ChannelChangeListener() {
 
-			@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 				try {
 					List<Point> points = new ArrayList<>();
 					for (Long[] arr : pByUCharacteristicPoints.value()) {
@@ -60,9 +61,10 @@ public class VoltageCharacteristicController extends Controller {
 				}
 			}
 		});
-		qByUCharacteristicPoints.changeListener(new ChannelChangeListener() {
+		qByUCharacteristicPoints.addChangeListener(new ChannelChangeListener() {
 
-			@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 				try {
 					List<Point> points = new ArrayList<>();
 					for (Long[] arr : qByUCharacteristicPoints.value()) {
@@ -77,7 +79,8 @@ public class VoltageCharacteristicController extends Controller {
 		});
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			Power power = ess.value().power;
 			double uRatio = (double) meter.value().voltage.value() / (double) uNenn.value() * 100.0;

@@ -57,7 +57,7 @@ public class FeneconProEss extends ModbusDeviceNature
 	 * Config
 	 */
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class)
-			.updateListener(this);
+			.addUpdateListener(this);
 
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class).optional();
 

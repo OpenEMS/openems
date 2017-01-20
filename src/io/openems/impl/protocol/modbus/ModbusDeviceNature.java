@@ -35,9 +35,11 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsModbusException;
+import io.openems.api.thing.ThingChannelsUpdatedListener;
 import io.openems.impl.protocol.modbus.internal.CoilElement;
 import io.openems.impl.protocol.modbus.internal.DoublewordElement;
 import io.openems.impl.protocol.modbus.internal.DummyElement;
@@ -48,26 +50,40 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusCoilRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRange;
 
-public abstract class ModbusDeviceNature implements DeviceNature {
+public abstract class ModbusDeviceNature implements DeviceNature, ChannelChangeListener {
 	protected final Logger log;
 	private ModbusProtocol protocol = null;
 	private final String thingId;
+	private List<ThingChannelsUpdatedListener> listeners;
 
 	public ModbusDeviceNature(String thingId) throws ConfigException {
 		this.thingId = thingId;
 		log = LoggerFactory.getLogger(this.getClass());
 		// this.protocol = defineModbusProtocol();
+		this.listeners = new ArrayList<>();
 	}
 
 	private ModbusProtocol getProtocol() {
 		if (protocol == null) {
-			try {
-				this.protocol = defineModbusProtocol();
-			} catch (ConfigException e) {
-				log.error("Failed to define modbus protcol!", e);
-			}
+			createModbusProtocol();
 		}
 		return this.protocol;
+	}
+
+	@Override
+	public void addListener(ThingChannelsUpdatedListener listener) {
+		this.listeners.add(listener);
+	}
+
+	@Override
+	public void removeListener(ThingChannelsUpdatedListener listener) {
+		this.listeners.remove(listener);
+	}
+
+	@Override
+	public void init() {
+		DeviceNature.super.init();
+		createModbusProtocol();
 	}
 
 	@Override
@@ -81,6 +97,22 @@ public abstract class ModbusDeviceNature implements DeviceNature {
 	 */
 	public void setAsRequired(Channel channel) {
 		getProtocol().setAsRequired(channel);
+	}
+
+	@Override
+	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+		createModbusProtocol();
+	}
+
+	private void createModbusProtocol() {
+		try {
+			this.protocol = defineModbusProtocol();
+			for (ThingChannelsUpdatedListener listener : this.listeners) {
+				listener.thingChannelsUpdated(this);
+			}
+		} catch (ConfigException e) {
+			log.error("Failed to define modbus protocol!", e);
+		}
 	}
 
 	protected abstract ModbusProtocol defineModbusProtocol() throws ConfigException;

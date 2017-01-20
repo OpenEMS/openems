@@ -88,16 +88,34 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
-	@Override public ReadChannel<T> updateListener(ChannelUpdateListener... listeners) {
+	@Override
+	public ReadChannel<T> addUpdateListener(ChannelUpdateListener... listeners) {
 		for (ChannelUpdateListener listener : listeners) {
 			this.updateListeners.add(listener);
 		}
 		return this;
 	}
 
-	@Override public ReadChannel<T> changeListener(ChannelChangeListener... listeners) {
+	@Override
+	public ReadChannel<T> addChangeListener(ChannelChangeListener... listeners) {
 		for (ChannelChangeListener listener : listeners) {
 			this.changeListeners.add(listener);
+		}
+		return this;
+	}
+
+	@Override
+	public ReadChannel<T> removeUpdateListener(ChannelUpdateListener... listeners) {
+		for (ChannelUpdateListener listener : listeners) {
+			this.updateListeners.remove(listener);
+		}
+		return this;
+	}
+
+	@Override
+	public ReadChannel<T> removeChangeListener(ChannelChangeListener... listeners) {
+		for (ChannelChangeListener listener : listeners) {
+			this.changeListeners.remove(listener);
 		}
 		return this;
 	}
@@ -117,15 +135,18 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	/*
 	 * Getter
 	 */
-	@Override public String id() {
+	@Override
+	public String id() {
 		return id;
 	}
 
-	@Override public String address() {
+	@Override
+	public String address() {
 		return parent.id() + "/" + id;
 	}
 
-	@Override public Thing parent() {
+	@Override
+	public Thing parent() {
 		return parent;
 	}
 
@@ -151,7 +172,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return delta;
 	}
 
-	@Override public Set<User> users() {
+	@Override
+	public Set<User> users() {
 		return Collections.unmodifiableSet(users);
 	}
 
@@ -234,7 +256,9 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return valueInterval;
 	}
 
-	@SuppressWarnings("unchecked") @Override public int compareTo(ReadChannel<T> o) {
+	@SuppressWarnings("unchecked")
+	@Override
+	public int compareTo(ReadChannel<T> o) {
 		if (this.value.isPresent() && this.value.get() instanceof Comparable && o.value.isPresent()
 				&& o.value.get() instanceof Comparable) {
 			return ((Comparable<ReadChannel<T>>) this.value.get()).compareTo((ReadChannel<T>) o.value.get());
@@ -279,11 +303,13 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this.isRequired;
 	}
 
-	@Override public JsonObject toJsonObject() throws NotImplementedException {
+	@Override
+	public JsonObject toJsonObject() throws NotImplementedException {
 		JsonObject j = new JsonObject();
 		j.add("value", JsonUtils.getAsJsonElement(valueOptional()));
 		j.addProperty("type", this.getClass().getSimpleName());
 		j.addProperty("writeable", false);
 		return j;
 	}
+
 }

@@ -18,7 +18,7 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 
 	@ConfigInfo(title = "Sets the websocket port", type = Integer.class)
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(8085)
-			.changeListener(this);
+			.addChangeListener(this);
 
 	private final AtomicReference<Optional<Long>> manualP = new AtomicReference<Optional<Long>>(Optional.empty());
 	private final AtomicReference<Optional<Long>> manualQ = new AtomicReference<Optional<Long>>(Optional.empty());

@@ -28,7 +28,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
@@ -54,11 +56,12 @@ import io.openems.api.exception.ReflectionException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
+import io.openems.api.thing.ThingChannelsUpdatedListener;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
 
-public class ThingRepository {
+public class ThingRepository implements ThingChannelsUpdatedListener {
 	private final static Logger log = LoggerFactory.getLogger(ThingRepository.class);
 
 	private static ThingRepository instance;
@@ -136,7 +139,9 @@ public class ThingRepository {
 			deviceNatures.add((DeviceNature) thing);
 		}
 
-		// Add Channels to thingChannels, thingConfigChannels and thingWriteChannels
+		thing.addListener(this);
+
+		// Add Channels thingConfigChannels
 		Set<Member> members = classRepository.getThingChannels(thing.getClass());
 		for (Member member : members) {
 			try {
@@ -163,32 +168,19 @@ public class ThingRepository {
 					continue;
 				}
 				for (Channel channel : channels) {
-					// Add Channel to thingChannels
-					thingChannels.put(thing, channel.id(), channel);
-
-					// Add Channel to configChannels
 					if (channel instanceof ConfigChannel) {
+						// Add Channel to thingChannels
+						thingChannels.put(thing, channel.id(), channel);
+
+						// Add Channel to configChannels
 						thingConfigChannels.put(thing, (ConfigChannel<?>) channel);
-					}
 
-					// Add Channel to writeChannels
-					if (channel instanceof WriteChannel) {
-						thingWriteChannels.put(thing, (WriteChannel<?>) channel);
 					}
-
-					// Register Databus as listener
-					if (channel instanceof ReadChannel) {
-						Databus databus = Databus.getInstance();
-						((ReadChannel<?>) channel).updateListener(databus);
-						((ReadChannel<?>) channel).changeListener(databus);
-					}
-
 				}
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				log.warn("Unable to add Channel. Member [" + member.getName() + "]", e);
 			}
 		}
-
 	}
 
 	/**
@@ -240,6 +232,8 @@ public class ThingRepository {
 				scheduler.removeController(controller);
 			}
 		}
+
+		thing.removeListener(this);
 		// TODO further cleaning if required
 	}
 
@@ -385,5 +379,69 @@ public class ThingRepository {
 			descriptions.add(description);
 		});
 		return Collections.unmodifiableList(descriptions);
+	}
+
+	@Override
+	public void thingChannelsUpdated(Thing thing) {
+		// remove Channels from thingChannels, thingWriteChannels
+		Databus databus = Databus.getInstance();
+		Set<Entry<String, Channel>> thingRow = thingChannels.row(thing).entrySet();
+		Iterator<Entry<String, Channel>> i = thingRow.iterator();
+		while (i.hasNext()) {
+			Entry<String, Channel> thingChannel = i.next();
+			if (!(thingChannel.getValue() instanceof ConfigChannel)) {
+				thingChannel.getValue().removeChangeListener(databus);
+				thingChannel.getValue().removeUpdateListener(databus);
+				i.remove();
+			}
+		}
+		thingWriteChannels.removeAll(thing);
+
+		// Add Channels to thingChannels, thingConfigChannels and thingWriteChannels
+		Set<Member> members = classRepository.getThingChannels(thing.getClass());
+		for (Member member : members) {
+			try {
+				List<Channel> channels = new ArrayList<>();
+				if (member instanceof Method) {
+					if (((Method) member).getReturnType().isArray()) {
+						Channel[] ch = (Channel[]) ((Method) member).invoke(thing);
+						for (Channel c : ch) {
+							channels.add(c);
+						}
+					} else {
+						// It's a Method with ReturnType Channel
+						channels.add((Channel) ((Method) member).invoke(thing));
+					}
+				} else if (member instanceof Field) {
+					// It's a Field with Type Channel
+					channels.add((Channel) ((Field) member).get(thing));
+				} else {
+					continue;
+				}
+				if (channels.isEmpty()) {
+					log.error(
+							"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
+					continue;
+				}
+				for (Channel channel : channels) {
+					// Add Channel to thingChannels
+					thingChannels.put(thing, channel.id(), channel);
+
+					// Add Channel to writeChannels
+					if (channel instanceof WriteChannel) {
+						thingWriteChannels.put(thing, (WriteChannel<?>) channel);
+					}
+
+					// Register Databus as listener
+					if (channel instanceof ReadChannel) {
+						((ReadChannel<?>) channel).addUpdateListener(databus);
+						((ReadChannel<?>) channel).addChangeListener(databus);
+					}
+
+				}
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				log.warn("Unable to add Channel. Member [" + member.getName() + "]", e);
+			}
+		}
 	}
 }

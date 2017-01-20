@@ -20,25 +20,38 @@
  *******************************************************************************/
 package io.openems.impl.controller.testwrite;
 
-import java.util.Set;
-
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.controller.IsThingMapping;
-import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.doc.ConfigInfo;
+import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 public class TestWriteController extends Controller {
-	@IsThingMapping public Set<Ess> esss = null;
+	@ConfigInfo(title = "", type = Output.class)
+	public ConfigChannel<Output> out = new ConfigChannel<>("out", this);
+	@ConfigInfo(title = "", type = Input.class)
+	public ConfigChannel<Input> in = new ConfigChannel<>("in", this);
 
-	@Override public void run() {
-		for (Ess ess : esss) {
-			try {
-				ess.setActivePower.pushWrite(500L);
-				ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.START);
-			} catch (WriteChannelException e) {
-				log.error("", e);
-			}
+	@Override
+	public void run() {
+		try {
+			out.value().output1.pushWrite(true);
+			log.info(in.value().input1.value().toString());
+		} catch (WriteChannelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidValueException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		// for (Ess ess : esss) {
+		// try {
+		// ess.setActivePower.pushWrite(500L);
+		// ess.setWorkState.pushWriteFromLabel(SymmetricEssNature.START);
+		// } catch (WriteChannelException e) {
+		// log.error("", e);
+		// }
+		// }
 	}
 
 }

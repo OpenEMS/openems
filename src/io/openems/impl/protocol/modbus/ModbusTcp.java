@@ -48,9 +48,9 @@ public class ModbusTcp extends ModbusBridge implements ChannelUpdateListener {
 	 * Config
 	 */
 	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this, Inet4Address.class)
-			.updateListener(this);
+			.addUpdateListener(this);
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this, Integer.class)
-			.defaultValue(MODBUS_PORT).updateListener(this);
+			.defaultValue(MODBUS_PORT).addUpdateListener(this);
 
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
 			.defaultValue(500);

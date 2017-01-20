@@ -46,7 +46,7 @@ public class SystemReadChannel<T> extends ReadChannel<T> {
 		return (SystemReadChannel<T>) super.user(roles);
 	}
 
-	@Override public SystemReadChannel<T> changeListener(ChannelChangeListener... listeners) {
-		return (SystemReadChannel<T>) super.changeListener(listeners);
+	@Override public SystemReadChannel<T> addChangeListener(ChannelChangeListener... listeners) {
+		return (SystemReadChannel<T>) super.addChangeListener(listeners);
 	}
 }

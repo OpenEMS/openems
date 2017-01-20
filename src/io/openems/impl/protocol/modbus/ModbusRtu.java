@@ -42,15 +42,15 @@ public class ModbusRtu extends ModbusBridge implements ChannelUpdateListener {
 	 * Config
 	 */
 	public final ConfigChannel<Integer> baudrate = new ConfigChannel<Integer>("baudrate", this, Integer.class)
-			.updateListener(this);
+			.addUpdateListener(this);
 	public final ConfigChannel<Integer> databits = new ConfigChannel<Integer>("databits", this, Integer.class)
-			.updateListener(this);
+			.addUpdateListener(this);
 	public final ConfigChannel<String> parity = new ConfigChannel<String>("parity", this, String.class)
-			.updateListener(this);
+			.addUpdateListener(this);
 	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this,
-			String.class).updateListener(this);
+			String.class).addUpdateListener(this);
 	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this, Integer.class)
-			.updateListener(this);
+			.addUpdateListener(this);
 
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
 			.defaultValue(500);
