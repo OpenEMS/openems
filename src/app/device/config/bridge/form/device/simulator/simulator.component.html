@@ -1,0 +1,30 @@
+<div [formGroup]="_form">
+  <tr [formGroup]="_form.controls.ess">
+    <td>
+      <h4>Speicher</h4>
+    </td>
+    <td>
+      <md-input-container><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
+    </td>
+    <td>
+      <md-input-container><input formControlName="minSoc" type="text" placeholder="Ladezustand Minimal" md-input></md-input-container>
+    </td>
+    <td>
+      <md-input-container><input formControlName="chargeSoc" type="text" placeholder="Ladezustand Zwangsbeladung" md-input></md-input-container>
+    </td>
+  </tr>
+  <tr [formGroup]="_form.controls.meter">
+    <td>
+      <h4>Zähler</h4>
+    </td>
+    <td>
+      <md-input-container><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <button md-mini-fab (click)="save(_form)" [disabled]="_form.pristine"><md-icon>check</md-icon></button>
+      <button md-mini-fab color="warn" (click)="delete(_form)"><md-icon>delete</md-icon></button>
+    </td>
+  </tr>
+</div>

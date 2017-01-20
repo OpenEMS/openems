@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormGroup, FormBuilder } from '@angular/forms';
+import { Subscription } from 'rxjs/Subscription';
 
 import { WebsocketService } from '../../../service/websocket.service';
 import { Device } from '../../../service/device';
@@ -12,6 +13,7 @@ import { Device } from '../../../service/device';
 export class DeviceConfigMoreComponent implements OnInit {
 
   private device: Device;
+  private deviceSubscription: Subscription;
 
   private manualPQForm: FormGroup;
 
@@ -22,11 +24,17 @@ export class DeviceConfigMoreComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.device = this.websocketService.setCurrentDevice(this.route.snapshot.params);
+    this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
+      this.device = device;
+    })
     this.manualPQForm = this.formBuilder.group({
       "p": this.formBuilder.control(''),
       "q": this.formBuilder.control('')
     });
+  }
+
+  ngOnDestroy() {
+    this.deviceSubscription.unsubscribe();
   }
 
   private applyManualPQ(form: FormGroup) {

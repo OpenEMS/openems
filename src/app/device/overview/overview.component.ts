@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
 
 import { WebsocketService } from '../../service/websocket.service';
 import { Device } from '../../service/device';
@@ -11,6 +12,7 @@ import { Device } from '../../service/device';
 export class DeviceOverviewComponent implements OnInit, OnDestroy {
 
   private device: Device;
+  private deviceSubscription: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -18,13 +20,16 @@ export class DeviceOverviewComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.device = this.websocketService.setCurrentDevice(this.route.snapshot.params);
-    if (this.device != null) {
-      this.device.subscribe();
-    }
+    this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
+      this.device = device;
+      if (device != null) {
+        device.subscribe();
+      }
+    })
   }
 
   ngOnDestroy() {
+    this.deviceSubscription.unsubscribe();
     if (this.device) {
       this.device.unsubscribe();
     }

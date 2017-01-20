@@ -1,27 +1,28 @@
-<div *ngIf="device && device.config" fxLayout="column">
-  <md-card *ngIf="device.config.things" class="flex-item" fxFlex="50">
+<div *ngIf="device" fxLayout="column">
+
+  <md-card class="flex-item" fxFlex="50" routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/bridge">
     <md-card-title>Verbindungen und Geräte</md-card-title>
     <md-card-content>
       <md-chip-list>
-        <md-chip *ngFor="let bridge of device.config.things">{{ bridge.class | classname }}<br/><small>{{ bridge.id }}</small></md-chip>
+        <md-chip *ngFor="let bridge of (device.config | async)?.things">{{ bridge.class | classname }}<br/><small>{{ bridge.id }}</small></md-chip>
       </md-chip-list>
     </md-card-content>
   </md-card>
 
-  <md-card *ngIf="device.config.scheduler" class="flex-item" fxFlex="50">
+  <md-card class="flex-item" fxFlex="50">
     <md-card-title>App-Planer</md-card-title>
     <md-card-content>
       <md-chip-list>
-        <md-chip *ngIf="device.config.scheduler.id && device.config.scheduler.class">{{ device.config.scheduler.class | classname }}<br/><small>{{ device.config.scheduler.id }}</small></md-chip>
+        <md-chip>{{ (device.config | async)?.scheduler.class | classname }}<br/><small>{{ (device.config | async)?.scheduler.id }}</small></md-chip>
       </md-chip-list>
     </md-card-content>
   </md-card>
 
-  <md-card *ngIf="device.config.scheduler && device.config.scheduler.controllers" class="flex-item" fxFlex="50">
+  <md-card class="flex-item" fxFlex="50">
     <md-card-title>Apps</md-card-title>
     <md-card-content>
       <md-chip-list>
-        <md-chip *ngFor="let controller of device.config.scheduler.controllers">{{ controller.class | classname }}<br/><small>{{ controller.id }}</small></md-chip>
+        <md-chip *ngFor="let controller of (device.config | async)?.scheduler.controllers">{{ controller.class | classname }}<br/><small>{{ controller.id }}</small></md-chip>
       </md-chip-list>
     </md-card-content>
   </md-card>
@@ -63,59 +64,6 @@
             </td>
           </tr>
         </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div *ngIf="mode == 'manualPQ'" class="container">
-  <div class="row">
-    <div class="col-xs-12">
-      <div class="panel panel-default" (click)="mode = 'manualPQ'">
-        <div class="panel-heading">
-          <h3 class="panel-title">Wechselrichter</h3>
-        </div>
-        <div class="panel-body">
-          <button (click)="setInverterState(true)" class="btn btn-default">starten</button>
-          <button (click)="setInverterState(false)" class="btn btn-default">stoppen</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-xs-12">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Leistungsvorgabe</h3>
-        </div>
-        <div class="panel-body">
-          <form class="form-horizontal" [formGroup]="manualPQForm">
-            <div class="form-group">
-              <label for="p" class="col-xs-4 control-label">Wirkleistung (P)</label>
-              <div class="col-xs-6">
-                <div class="input-group">
-                  <input type="text" class="form-control" id="p" required="" formControlName="p">
-                  <div class="input-group-addon">W</div>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="q" class="col-xs-4 control-label">Blindleistung (Q)</label>
-              <div class="col-xs-6">
-                <div class="input-group">
-                  <input type="text" class="form-control" id="q" required="" formControlName="q">
-                  <div class="input-group-addon">VA</div>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <div class="col-xs-offset-4 col-xs-6">
-                <button (click)="applyManualPQ(manualPQForm)" type="submit" class="btn btn-default">Übernehmen</button>
-                <button (click)="removeManualPQ()" class="btn btn-default">Zurücksetzen</button>
-              </div>
-            </div>
-          </form>
-        </div>
       </div>
     </div>
   </div>

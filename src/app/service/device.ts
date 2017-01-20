@@ -6,42 +6,44 @@ import { Websocket } from './websocket.service';
 
 const SUBSCRIBE: string = "fenecon_monitor_v1";
 
+interface Config {
+  _availableControllers: [{
+    channels: [{
+      name: string,
+      title: string,
+      type: "Integer" | "String"
+      optional: boolean
+    }],
+    class: string,
+    text: string,
+    title: string
+  }],
+  _deviceNatures: { [thing: string]: string[] },
+  persistence: [{ class: string }],
+  scheduler: {
+    id: string,
+    class: string,
+    controllers: [{
+      id: string,
+      class: string
+    }]
+  },
+  things: [{
+    id: string,
+    class: string,
+    devices: [{
+      id: string,
+      class: string
+    }]
+  }]
+}
+
 export class Device {
 
   public event = new Subject<Notification>();
   public address: string;
   public data = new BehaviorSubject<{ [thing: string]: any }>(null);
-  private config: {
-    _availableControllers: [{
-      channels: [{
-        name: string,
-        title: string,
-        type: "Integer" | "String"
-        optional: boolean
-      }],
-      class: string,
-      text: string,
-      title: string
-    }],
-    _deviceNatures: { [thing: string]: string[] },
-    persistence: [{ class: string }],
-    scheduler: {
-      id: string,
-      class: string,
-      controllers: [{
-        id: string,
-        class: string
-      }]
-    },
-    things: [{
-      id: string,
-      class: string,
-      devices: [{
-        id: string,
-        class: string
-      }]
-    }]
-  };
+  public config = new BehaviorSubject<Config>(null);
   private influxdb: {
     ip: string,
     username: string,
@@ -90,11 +92,10 @@ export class Device {
      * config
      */
     if ("config" in message) {
-      // store all config
-      this.config = message.config;
+      let config = message.config;
       // parse influxdb connection
-      if ("persistence" in this.config) {
-        for (let persistence of this.config.persistence) {
+      if ("persistence" in config) {
+        for (let persistence of config.persistence) {
           if (persistence.class == "io.openems.impl.persistence.influxdb.InfluxdbPersistence" &&
             "ip" in persistence && "username" in persistence && "password" in persistence && "fems" in persistence) {
             let ip = persistence["ip"];
@@ -110,6 +111,8 @@ export class Device {
           }
         }
       }
+      // store all config
+      this.config.next(config);
     }
 
     /*

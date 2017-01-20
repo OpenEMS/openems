@@ -9,15 +9,15 @@
         <button md-icon-button (click)="sidenav.toggle()"><i class="material-icons app-toolbar-menu">menu</i></button>
       </div>
       <div class="flex-item" fxFlex>
-        <button md-button *ngIf="!websocketService.currentDevice" routerLink="/overview">
+        <button md-button *ngIf="!(websocketService.currentDevice | async)" routerLink="/overview">
           <h2>FEMS</h2>
         </button>
-        <button md-button *ngIf="websocketService.currentDevice" routerLink="/device/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}/overview">
-          <h2>FEMS <small>{{ websocketService.currentDevice.address }}</small></h2>
+        <button md-button *ngIf="websocketService.currentDevice | async" routerLink="/device/{{ (websocketService.currentDevice | async)?.websocket.name }}/{{ (websocketService.currentDevice | async)?.name }}/overview">
+          <h2>FEMS <small>{{ (websocketService.currentDevice | async)?.address }}</small></h2>
         </button>
       </div>
-      <div *ngIf="websocketService.currentDevice" class="flex-item" fxFlex="50px">
-        <button routerLinkActive="active" routerLink="/device/{{ websocketService.currentDevice.websocket.name }}/{{ websocketService.currentDevice.name }}/config"
+      <div *ngIf="websocketService.currentDevice | async" class="flex-item" fxFlex="50px">
+        <button routerLinkActive="active" routerLink="/device/{{ (websocketService.currentDevice | async)?.websocket.name | classname }}/{{(websocketService.currentDevice | async)?.name }}/config"
           md-icon-button><i class="material-icons app-setting">settings</i></button>
       </div>
     </div>

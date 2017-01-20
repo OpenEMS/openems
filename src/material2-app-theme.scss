@@ -4,8 +4,8 @@
 
 @include md-core();
 
-$primary: md-palette($md-indigo);
-$accent:  md-palette($md-amber, A200, A100, A400);
+$primary: md-palette($md-blue);
+$accent:  md-palette($md-blue, A200, A100, A400);
 
 $theme: md-light-theme($primary, $accent);
 

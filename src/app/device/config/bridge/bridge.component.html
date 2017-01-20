@@ -1,0 +1,75 @@
+<md-tab-group fxLayout="column">
+  <md-tab *ngFor="let bridgeForm of bridgeForms">
+    <template md-tab-label>{{ bridgeForm.controls["class"].value | classname }} <small>({{ bridgeForm.controls["id"].value }})</small></template>
+    <!-- Bridge -->
+    <md-card>
+      <md-card-title><i class="material-icons">device_hub</i> {{ bridgeForm.controls["class"].value | classname }}
+        <small><md-chip>{{ bridgeForm.controls["id"].value }}</md-chip></small>
+      </md-card-title>
+      <md-card-content [formGroup]="bridgeForm">
+        <table>
+          <tr>
+            <td>
+              <md-input-container><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
+            </td>
+            <td>
+              <md-input-container><input formControlName="class" type="text" placeholder="Klasse" md-input></md-input-container>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <md-input-container>
+                <input formControlName="cycleTime" type="number" placeholder="Zyklusdauer" md-input>
+                <span md-suffix>ms</span>
+              </md-input-container>
+            </td>
+          </tr>
+        </table>
+        <div [ngSwitch]="bridgeForm.controls['class'].value | classname">
+          <form-bridge-simulator *ngSwitchCase="'SimulatorBridge'" [form]="bridgeForm"></form-bridge-simulator>
+          <form-bridge-system *ngSwitchCase="'SystemBridge'" [form]="bridgeForm"></form-bridge-system>
+          <table>
+            <tr *ngSwitchDefault>
+              <td>
+                <p><b>Formular nicht implementiert!</b></p>
+                <p>{{bridgeForm.value | json}}</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </md-card-content>
+    </md-card>
+    <!-- Devices -->
+    <div *ngIf="deviceForms.hasOwnProperty(bridgeForm.controls['id'].value)">
+      <md-card *ngFor="let deviceForm of deviceForms[bridgeForm.controls['id'].value]">
+        <md-card-title><i class="material-icons">build</i> {{ deviceForm.controls["class"].value | classname }}
+          <small><md-chip>{{ deviceForm.controls["id"].value }}</md-chip></small>
+        </md-card-title>
+        <md-card-content [formGroup]="deviceForm">
+          <table>
+            <tr>
+              <td>
+                <md-input-container><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
+              </td>
+              <td>
+                <md-input-container><input formControlName="class" type="text" placeholder="Klasse" md-input></md-input-container>
+              </td>
+            </tr>
+          </table>
+          <div [ngSwitch]="deviceForm.controls['class'].value | classname">
+            <form-device-simulator *ngSwitchCase="'Simulator'" [form]="deviceForm"></form-device-simulator>
+            <form-device-system *ngSwitchCase="'System'" [form]="deviceForm"></form-device-system>
+            <table>
+              <tr *ngSwitchDefault>
+                <td>
+                  <p><b>Formular nicht implementiert!</b></p>
+                  <p>{{deviceForm.value | json}}</p>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </md-card-content>
+      </md-card>
+    </div>
+  </md-tab>
+</md-tab-group>

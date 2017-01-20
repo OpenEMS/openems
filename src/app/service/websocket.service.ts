@@ -1,5 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
 import { Websocket } from './websocket';
@@ -20,7 +21,7 @@ const DEFAULT_WEBSOCKETS = [{
 export class WebsocketService {
   public websockets: { [name: string]: Websocket } = {};
   public event = new Subject<Notification>();
-  public currentDevice: Device = null;
+  public currentDevice = new BehaviorSubject<Device>(null);
 
   constructor(
     private router: Router,
@@ -40,6 +41,14 @@ export class WebsocketService {
           message: websocket.name + ": " + notification.message
         }
         this.event.next(n);
+        if (!websocket.isConnected) {
+          let device = this.currentDevice.getValue();
+          if (device) {
+            if (device.websocket === websocket) {
+              this.router.navigate(['/overview']);
+            }
+          }
+        }
       });
     }
   }
@@ -47,26 +56,36 @@ export class WebsocketService {
   /**
    * Parses the route params, sets the current device and returns it - or redirects to login and returns null
    */
-  public setCurrentDevice(params: Params): Device {
-    if ('websocket' in params && 'device' in params) {
-      let websocketName = params['websocket'];
-      let deviceName = params['device'];
-      let websocket = this.getWebsocket(websocketName);
-      if (websocket) {
-        let device = websocket.getDevice(deviceName);
-        if (device) {
-          this.currentDevice = device;
-          return device;
+  public setCurrentDevice(params: Params): BehaviorSubject<Device> {
+    let worker = (params: Params): boolean => {
+      if ('websocket' in params && 'device' in params) {
+        let websocketName = params['websocket'];
+        let deviceName = params['device'];
+        let websocket = this.getWebsocket(websocketName);
+        if (websocket) {
+          let device = websocket.getDevice(deviceName);
+          if (device) {
+            this.currentDevice.next(device);
+            return true;
+          }
         }
       }
+      return false;
     }
-    // TODO retry once after 500 ms
-    this.currentDevice = null;
-    this.router.navigate(['/login']);
+    if (!worker(params)) {
+      // try again
+      setTimeout(() => {
+        if (!worker(params)) {
+          this.currentDevice.next(null);
+          this.router.navigate(['/login']);
+        }
+      }, 500);
+    }
+    return this.currentDevice;
   }
 
   public clearCurrentDevice() {
-    this.currentDevice = null;
+    this.currentDevice.next(null);
   }
 
   /**

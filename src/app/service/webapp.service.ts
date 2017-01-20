@@ -1,5 +1,4 @@
 import { Injectable, ViewContainerRef } from '@angular/core';
-import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 import { MdSnackBar } from '@angular/material'
 
 import { WebsocketService } from './websocket.service';
@@ -16,16 +15,8 @@ export interface Notification {
 export class WebappService {
 
   constructor(
-    private snackBar: MdSnackBar,
-    private toastr: ToastsManager
+    private snackBar: MdSnackBar
   ) { }
-
-  /**
-   * Needs to be called once from AppComponent
-   */
-  public initializeToastr(vRef: ViewContainerRef) {
-    this.toastr.setRootViewContainerRef(vRef);
-  }
 
   /**
    * Gets the token for this id from localstorage

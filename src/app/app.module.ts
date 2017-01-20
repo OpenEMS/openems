@@ -20,6 +20,11 @@ import { OverviewComponent } from './overview/overview.component';
 import { DeviceOverviewComponent } from './device/overview/overview.component';
 import { DeviceOverviewEnergymonitorComponent } from './device/overview/energymonitor/energymonitor.component';
 import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
+import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
+import { FormBridgeSimulatorComponent } from './device/config/bridge/form/bridge/simulator/simulator.component';
+import { FormBridgeSystemComponent } from './device/config/bridge/form/bridge/system/system.component';
+import { FormDeviceSimulatorComponent } from './device/config/bridge/form/device/simulator/simulator.component';
+import { FormDeviceSystemComponent } from './device/config/bridge/form/device/system/system.component';
 import { DeviceConfigMoreComponent } from './device/config/more/more.component';
 //import { ConfigComponent } from './config/config.component';
 
@@ -33,7 +38,7 @@ import { ConfigurationComponent } from './monitor/configuration/configuration.co
 /*
  * Common components
  */
-import { CommonThingUniversalComponent } from './common/thing/universal/universal.component';
+import { DeviceOverviewEnergymonitorUniversalComponent } from './device/overview/energymonitor/universal/universal.component';
 
 // Meter
 import { CommonMeterSimulatorComponent } from './common/thing/meter/simulator/simulator.component';
@@ -84,14 +89,20 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     // Device
     DeviceOverviewComponent,
     DeviceOverviewEnergymonitorComponent,
+    DeviceOverviewEnergymonitorUniversalComponent,
     DeviceConfigOverviewComponent,
+    DeviceConfigBridgeComponent,
+    // Form
+    FormBridgeSimulatorComponent,
+    FormBridgeSystemComponent,
     DeviceConfigMoreComponent,
+    FormDeviceSimulatorComponent,
+    FormDeviceSystemComponent,
     //ConfigComponent,
     CollapseDirective,
     // common
     CommonSocComponent,
     //   Thing
-    CommonThingUniversalComponent,
     //   Meter
     CommonMeterSimulatorComponent,
     CommonMeterSymmetricComponent,
