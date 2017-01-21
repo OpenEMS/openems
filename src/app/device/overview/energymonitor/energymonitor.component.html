@@ -3,17 +3,6 @@
   <md-card-content>
     <div *ngIf="device && device.data" class="flex-container" fxLayout="row">
       <div *ngFor="let thing of device.data | async | keys" class="flex-item" fxFlex="50%">
-        <!--<div *ngFor="let thing of data | keys" [ngSwitch]="thing.value._tag" class="col-xs-12 col-sm-4 col-md-3">-->
-        <!-- Meter -->
-        <!--<common-thing-meter-simulator *ngSwitchCase="'SimulatorMeter'" [data]="thing"></common-thing-meter-simulator>
-      <common-thing-meter-asymmetric *ngSwitchCase="'AsymmetricMeter'" [data]="thing"></common-thing-meter-asymmetric>
-      <common-thing-meter-symmetric *ngSwitchCase="'SymmetricMeter'" [data]="thing"></common-thing-meter-symmetric>-->
-        <!-- Ess -->
-        <!--<common-thing-ess-simulator *ngSwitchCase="'SimulatorEss'" [data]="thing"></common-thing-ess-simulator>
-      <common-thing-ess-feneconpro *ngSwitchCase="'FeneconProEss'" [data]="thing"></common-thing-ess-feneconpro>
-      <common-thing-ess-feneconcommercial *ngSwitchCase="'FeneconCommercialEss'" [data]="thing"></common-thing-ess-feneconcommercial>-->
-        <!-- Default -->
-        <!--<div *ngSwitchDefault class="panel panel-default">-->
         <app-device-overview-energymonitor-universal [thing]="thing"></app-device-overview-energymonitor-universal>
       </div>
     </div>

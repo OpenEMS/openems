@@ -4,9 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { routing, appRoutingProviders } from './app.routing';
 import { AppComponent } from './app.component';
-import { CollapseDirective } from 'ng2-bootstrap';
-import { DatepickerModule } from 'ng2-bootstrap/components/datepicker';
-import { ToastModule } from 'ng2-toastr/ng2-toastr';
 import { NgxChartsModule } from 'ngx-charts';
 import { MaterialModule, MdSnackBar } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -40,16 +37,6 @@ import { ConfigurationComponent } from './monitor/configuration/configuration.co
  */
 import { DeviceOverviewEnergymonitorUniversalComponent } from './device/overview/energymonitor/universal/universal.component';
 
-// Meter
-import { CommonMeterSimulatorComponent } from './common/thing/meter/simulator/simulator.component';
-import { CommonMeterAsymmetricComponent } from './common/thing/meter/asymmetric/asymmetric.component';
-import { CommonMeterSymmetricComponent } from './common/thing/meter/symmetric/symmetric.component';
-
-// Ess
-import { CommonEssSimulatorComponent } from './common/thing/ess/simulator/simulator.component';
-import { CommonEssFeneconProComponent } from './common/thing/ess/feneconpro/feneconpro.component';
-import { CommonEssFeneconCommercialComponent } from './common/thing/ess/feneconcommercial/feneconcommercial.component';
-
 // Forms
 import { FormControllersComponent } from './common/form/controller/controllers.component';
 import { FormControllerWebsocketApiComponent } from './common/form/controller/websocketapi/websocketapi.component';
@@ -76,9 +63,6 @@ import { WebsocketService } from './service/websocket.service';
 import { KeysPipe } from './common/pipe/keys/keys.pipe';
 import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
 
-import { ChartsModule } from 'ng2-charts/ng2-charts';
-import { CommonSocComponent } from './common/soc/common-soc.component';
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -98,19 +82,6 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     DeviceConfigMoreComponent,
     FormDeviceSimulatorComponent,
     FormDeviceSystemComponent,
-    //ConfigComponent,
-    CollapseDirective,
-    // common
-    CommonSocComponent,
-    //   Thing
-    //   Meter
-    CommonMeterSimulatorComponent,
-    CommonMeterSymmetricComponent,
-    CommonMeterAsymmetricComponent,
-    //   Ess
-    CommonEssSimulatorComponent,
-    CommonEssFeneconProComponent,
-    CommonEssFeneconCommercialComponent,
     //   Form
     FormControllersComponent,
     FormControllerWebsocketApiComponent,
@@ -132,9 +103,6 @@ import { CommonSocComponent } from './common/soc/common-soc.component';
     FormsModule,
     ReactiveFormsModule,
     HttpModule,
-    ChartsModule,
-    DatepickerModule,
-    ToastModule,
     NgxChartsModule,
     routing,
     MaterialModule.forRoot(),
