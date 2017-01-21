@@ -1,19 +1,20 @@
-<div class="flex-container" fxLayout="row" fxLayoutAlign="center center">
-  <div class="flex-item" fxFlex="80%">
-    <md-card *ngFor="let form of forms">
-      <md-card-title>{{form._websocket.name}} <span class="glyphicon" [ngClass]="{'glyphicon-ok': form._websocket.isConnected, 'glyphicon-remove': !form._websocket.isConnected}"
-          aria-hidden="true"></span></md-card-title>
-      <md-card-content>
-        <form class="form-inline" [formGroup]="form">
-          <div class="form-group" *ngIf="!form._websocket.isConnected">
-            <input type="text" class="form-control" id="password" type="password" placeholder="Passwort" required="" name="password"
-              formControlName="password" />
-          </div>
-          <button *ngIf="!form._websocket.isConnected" (click)="doLogin(form)" class="btn btn-default">Anmelden</button>
-          <button *ngIf="form._websocket.isConnected" (click)="doLogout(form)" class="btn btn-default">Abmelden</button>
-          <span> {{(form._websocket.event | async)?.message}}</span>
-        </form>
+<div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div *ngFor="let form of forms" fxFlex="50" fxFlex.xs="100">
+    <md-card>
+      <md-card-header>
+        <md-icon *ngIf="form._websocket.isConnected" md-card-avatar>done</md-icon>
+        <md-icon *ngIf="!form._websocket.isConnected" md-card-avatar>stop</md-icon>
+        <md-card-title>{{form._websocket.name}}</md-card-title>
+        <md-card-subtitle>{{form._websocket.url}}</md-card-subtitle>
+      </md-card-header>
+      <md-card-content [formGroup]="form" fxLayout fxLayoutWrap="wrap">
+        <md-input-container *ngIf="!form._websocket.isConnected" fxFlex="100"><input formControlName="password" md-input type="text" placeholder="Passwort"></md-input-container>
+        <p fxFlex="100">{{(form._websocket.event | async)?.message}}</p>
       </md-card-content>
+      <md-card-actions fxLayout fxLayoutAlign="end start">
+        <button md-fab *ngIf="!form._websocket.isConnected" (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>
+        <button md-fab *ngIf="form._websocket.isConnected" (click)="doLogout(form)" color="accent"><md-icon>close</md-icon></button>
+      </md-card-actions>
     </md-card>
   </div>
 </div>
