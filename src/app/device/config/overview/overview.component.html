@@ -1,70 +1,69 @@
-<div *ngIf="device" fxLayout="column">
+<div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
 
-  <md-card class="single" fxFlex="50" routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/bridge">
-    <md-card-title>Verbindungen und Geräte</md-card-title>
-    <md-card-content>
-      <md-chip-list>
-        <md-chip *ngFor="let bridge of (device.config | async)?.things">{{ bridge.class | classname }}<br/><small>{{ bridge.id }}</small></md-chip>
-      </md-chip-list>
-    </md-card-content>
-  </md-card>
+  <div fxFlex="50%" fxFlex.xs="100%">
+    <md-card routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/bridge" class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>device_hub</md-icon>
+        <md-card-title>Verbindungen und Geräte</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <md-list dense fxLayout fxLayoutWrap="wrap">
+          <md-list-item *ngFor="let bridge of (device.config | async)?.things" fxFlex="50%">
+            <p md-line>{{ bridge.class | classname }}</p>
+            <p md-line><small>{{ bridge.id }}</small></p>
+          </md-list-item>
+        </md-list>
+      </md-card-content>
+    </md-card>
+  </div>
 
-  <md-card class="single" fxFlex="50">
-    <md-card-title>App-Planer</md-card-title>
-    <md-card-content>
-      <md-chip-list>
-        <md-chip>{{ (device.config | async)?.scheduler.class | classname }}<br/><small>{{ (device.config | async)?.scheduler.id }}</small></md-chip>
-      </md-chip-list>
-    </md-card-content>
-  </md-card>
+  <div fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>schedule</md-icon>
+        <md-card-title>App-Planer</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <md-list dense fxLayout fxLayoutWrap="wrap">
+          <md-list-item fxFlex="50%">
+            <p md-line>{{ (device.config | async)?.scheduler.class | classname }}</p>
+            <p md-line><small>{{ (device.config | async)?.scheduler.id }}</small></p>
+          </md-list-item>
+        </md-list>
+      </md-card-content>
+    </md-card>
+  </div>
 
-  <md-card class="single" fxFlex="50">
-    <md-card-title>Apps</md-card-title>
-    <md-card-content>
-      <md-chip-list>
-        <md-chip *ngFor="let controller of (device.config | async)?.scheduler.controllers">{{ controller.class | classname }}<br/><small>{{ controller.id }}</small></md-chip>
-      </md-chip-list>
-    </md-card-content>
-  </md-card>
+  <div fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>apps</md-icon>
+        <md-card-title>Apps</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <md-list dense fxLayout fxLayoutWrap="wrap">
+          <md-list-item *ngFor="let controller of (device.config | async)?.scheduler.controllers" fxFlex="50%">
+            <p md-line>{{ controller.class | classname }}</p>
+            <p md-line><small>{{ controller.id }}</small></p>
+          </md-list-item>
+        </md-list>
+      </md-card-content>
+    </md-card>
+  </div>
 
-  <md-card class="single" fxFlex="50" routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/more">
-    <md-card-title>Mehr...</md-card-title>
-    <md-card-content>
-      <md-chip-list>
-        <md-chip>Manuelle<br/>Speichersteuerung</md-chip>
-      </md-chip-list>
-    </md-card-content>
-  </md-card>
-</div>
-
-<!--
-<div *ngIf="mode != ''" class="container">
-  <div class="row">
-    <div class="col-xs-12">
-      <p (click)="mode = ''"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> Zurück</p>
-    </div>
+  <div routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/more" fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>more_horiz</md-icon>
+        <md-card-title>Mehr...</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <md-list dense fxLayout fxLayoutWrap="wrap">
+          <md-list-item fxFlex="50%">
+            <p md-line>Manuelle Steuerung</p>
+          </md-list-item>
+        </md-list>
+      </md-card-content>
+    </md-card>
   </div>
 </div>
-
-<div *ngIf="mode == 'controllers'" class="container">
-  <div class="row">
-    <div class="col-xs-12">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Apps</h3>
-        </div>
-        <div class="panel-body">
-          Controllers
-        </div>
-        <table>
-          <tr *ngFor="let controller of device.config._availableControllers">
-            <td *ngIf="controller.class">
-              {{ controller.class }}<br/><small class="is-breakable">{{ controller.title }}: </small><br/>
-              <small *ngFor="let channel of controller.channels">{{ channel.name }}</small>
-            </td>
-          </tr>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>-->
