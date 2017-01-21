@@ -1,6 +1,6 @@
 <div *ngIf="device" fxLayout="column">
 
-  <md-card class="flex-item" fxFlex="50" routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/bridge">
+  <md-card class="single" fxFlex="50" routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/bridge">
     <md-card-title>Verbindungen und Geräte</md-card-title>
     <md-card-content>
       <md-chip-list>
@@ -9,7 +9,7 @@
     </md-card-content>
   </md-card>
 
-  <md-card class="flex-item" fxFlex="50">
+  <md-card class="single" fxFlex="50">
     <md-card-title>App-Planer</md-card-title>
     <md-card-content>
       <md-chip-list>
@@ -18,7 +18,7 @@
     </md-card-content>
   </md-card>
 
-  <md-card class="flex-item" fxFlex="50">
+  <md-card class="single" fxFlex="50">
     <md-card-title>Apps</md-card-title>
     <md-card-content>
       <md-chip-list>
@@ -27,7 +27,7 @@
     </md-card-content>
   </md-card>
 
-  <md-card class="flex-item" fxFlex="50" routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/more">
+  <md-card class="single" fxFlex="50" routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/more">
     <md-card-title>Mehr...</md-card-title>
     <md-card-content>
       <md-chip-list>

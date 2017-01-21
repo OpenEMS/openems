@@ -1,38 +1,29 @@
 <md-sidenav-container fullscreen>
-  <md-sidenav #sidenav mode="side" class="app-sidenav">
-    <button md-button routerLinkActive="active" routerLink="/login">An-/Abmelden</button><br/>
-    <button md-button routerLinkActive="active" routerLink="/overview">Übersicht</button><br/>
+  <md-sidenav #sidenav mode="push">
+    <md-list>
+      <md-list-item>
+        <button routerLinkActive="active" routerLink="/login" md-button>An-/Abmelden</button>
+      </md-list-item>
+      <md-list-item>
+        <button routerLinkActive="active" routerLink="/overview" md-button>Übersicht</button>
+      </md-list-item>
+    </md-list>
   </md-sidenav>
-  <md-toolbar color="primary">
-    <div fxFill class="flex-container" fxLayout="row" fxLayoutAlign="center center">
-      <div class="flex-item" fxFlex="50px">
-        <button md-icon-button (click)="sidenav.toggle()"><i class="material-icons app-toolbar-menu">menu</i></button>
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <md-toolbar color="primary">
+      <div fxFlex="40px">
+        <button (click)="sidenav.toggle()" md-icon-button><md-icon>menu</md-icon></button>
       </div>
-      <div class="flex-item" fxFlex>
-        <button md-button *ngIf="!(websocketService.currentDevice | async)" routerLink="/overview">
-          <h2>FEMS</h2>
-        </button>
-        <button md-button *ngIf="websocketService.currentDevice | async" routerLink="/device/{{ (websocketService.currentDevice | async)?.websocket.name }}/{{ (websocketService.currentDevice | async)?.name }}/overview">
-          <h2>FEMS <small>{{ (websocketService.currentDevice | async)?.address }}</small></h2>
-        </button>
+      <div fxFlex>
+        <button *ngIf="!(websocketService.currentDevice | async)" routerLink="/overview" md-button><h2>FEMS</h2></button>
+        <button *ngIf="websocketService.currentDevice | async" routerLink="/device/{{ (websocketService.currentDevice | async)?.websocket.name }}/{{ (websocketService.currentDevice | async)?.name }}/overview"
+          md-button><h2>FEMS <small>{{ (websocketService.currentDevice | async)?.address }}</small></h2></button>
       </div>
-      <div *ngIf="websocketService.currentDevice | async" class="flex-item" fxFlex="50px">
+      <div *ngIf="websocketService.currentDevice | async" fxFlex="50px">
         <button routerLinkActive="active" routerLink="/device/{{ (websocketService.currentDevice | async)?.websocket.name | classname }}/{{(websocketService.currentDevice | async)?.name }}/config"
-          md-icon-button><i class="material-icons app-setting">settings</i></button>
+          md-icon-button><md-icon>settings</md-icon></button>
       </div>
-    </div>
-  </md-toolbar>
-  <div class="app-content">
-    <router-outlet></router-outlet>
+    </md-toolbar>
   </div>
+  <router-outlet></router-outlet>
 </md-sidenav-container>
-
-<!--
-<div class="container" style="height: calc(100% - 100px)">
-<div class="row" style="height: 100%">
-<div class="col-xs-12" style="height: 100%">
-<chart-current storage="50" production="20" consumption="80" grid="50"></chart-current>
-</div>
-</div>
-</div>
--->
