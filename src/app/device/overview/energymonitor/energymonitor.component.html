@@ -1,55 +1,21 @@
-<md-card>
-  <md-card-title>Energiemonitor</md-card-title>
-  <md-card-content>
-    <div *ngIf="device && device.data" class="flex-container" fxLayout="row">
-      <div *ngFor="let thing of device.data | async | keys" class="flex-item" fxFlex="50%">
-        <app-device-overview-energymonitor-universal [thing]="thing"></app-device-overview-energymonitor-universal>
-      </div>
-    </div>
-  </md-card-content>
+<md-card class="single">
+  <md-card-header>
+    <md-icon md-card-avatar>timeline</md-icon>
+    <md-card-title>Energiemonitor</md-card-title>
+  </md-card-header>
+  <md-card-content *ngIf="device && device.data" fxLayout fxLayoutAlign="start start" fxLayoutWrap="wrap">
+    <div *ngFor="let thing of device.data | async | keys" fxFlex="50%" fxFlex.xs="100%">
+      <md-card>
+        <md-card-title>{{ thing.key }}</md-card-title>
+        <md-card-content>
+          <table style="width:100%">
+<tr *ngFor="let channel of thing.value | keys">
+  <td>{{ channel.key }}</td>
+  <td>{{ channel.value }}</td>
+</tr>
+</table>
+</md-card-content>
 </md-card>
-<!--
-    <div class="col-xs-12 col-md-6">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Apps</h3>
-        </div>
-      </div>
-    </div>-->
-
-
-<!--<div *ngFor="let conn of connectionService.connections | keys">
-      <div *ngIf="conn.value.isConnected" class="col-xs-4 col-md-3">
-        <div routerLink="/monitor/{{conn.value.name}}" class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">{{conn.value.name}}</h3>
-          </div>
-          <div *ngFor="let dev of conn.value.data | async | keys">
-            <div [ngSwitch]="dev.key">
-              <template [ngSwitchCase]="'ess0'">
-                <table class="table">
-                  <tr>
-                    <th colspan="3">Speicher</th>
-                  </tr>
-                  <tr>
-                    <td>Ladezustand</td>
-                    <td></td>
-                    <td class="align-right">{{dev.value.Soc}} %</td>
-                  </tr>
-                  <tr>
-                    <td colspan="3">
-                      <common-soc [soc]="dev.value.Soc"></common-soc>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Wirkleistung</td>
-                    <td></td>
-                    <td class="align-right">{{dev.value.ActivePower}} W</td>
-                  </tr>
-                </table>
-              </template>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>-->
+</div>
+</md-card-content>
+</md-card>

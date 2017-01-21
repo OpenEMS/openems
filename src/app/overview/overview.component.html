@@ -1,38 +1,13 @@
-<div class="flex-container" fxLayout="row" fxLayoutAlign="center center">
-  <div class="flex-item" fxFlex="80%">
-    <md-card *ngFor="let ws of websocketService.websockets | keys">
-      <div *ngFor="let dev of ws.value.devices | keys" class="col-xs-4 col-md-3">
-        <div routerLink="/device/{{ws.key}}/{{dev.key}}" class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">{{dev.key}}</h3>
-          </div>
-          <!--<div *ngFor="let dev of conn.value.data | async | keys">
-            <div [ngSwitch]="dev.key">
-              <template [ngSwitchCase]="'ess0'">
-                <table class="table">
-                  <tr>
-                    <th colspan="3">Speicher</th>
-                  </tr>
-                  <tr>
-                    <td>Ladezustand</td>
-                    <td></td>
-                    <td class="align-right">{{dev.value.Soc}} %</td>
-                  </tr>
-                  <tr>
-                    <td colspan="3">
-                      <common-soc [soc]="dev.value.Soc"></common-soc>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Wirkleistung</td>
-                    <td></td>
-                    <td class="align-right">{{dev.value.ActivePower}} W</td>
-                  </tr>
-                </table>
-              </template>
-            </div>-->
-        </div>
-      </div>
-    </md-card>
+<div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div *ngFor="let ws of websocketService.websockets | keys" fxFlex="50%" fxFlex.xs="100%">
+    <ng-container *ngFor="let dev of ws.value.devices | keys">
+      <md-card class="single" routerLink="/device/{{ ws.key }}/{{ dev.key }}">
+        <md-card-header>
+          <md-icon md-card-avatar>folder</md-icon>
+          <md-card-title>{{dev.key}}</md-card-title>
+          <md-card-subtitle>{{ws.key}}</md-card-subtitle>
+        </md-card-header>
+      </md-card>
+    </ng-container>
   </div>
 </div>

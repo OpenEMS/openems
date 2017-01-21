@@ -35,8 +35,6 @@ import { ConfigurationComponent } from './monitor/configuration/configuration.co
 /*
  * Common components
  */
-import { DeviceOverviewEnergymonitorUniversalComponent } from './device/overview/energymonitor/universal/universal.component';
-
 // Forms
 import { FormControllersComponent } from './common/form/controller/controllers.component';
 import { FormControllerWebsocketApiComponent } from './common/form/controller/websocketapi/websocketapi.component';
@@ -73,7 +71,6 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     // Device
     DeviceOverviewComponent,
     DeviceOverviewEnergymonitorComponent,
-    DeviceOverviewEnergymonitorUniversalComponent,
     DeviceConfigOverviewComponent,
     DeviceConfigBridgeComponent,
     // Form

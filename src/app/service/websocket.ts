@@ -8,9 +8,9 @@ import { Device } from './device';
 import { WebappService, Notification } from './webapp.service';
 
 export class Websocket {
-  public isConnected: boolean = false;
-  public event = new Subject<Notification>();
-  public subject = new BehaviorSubject<any>(null);
+  public isConnected: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public event: Subject<Notification> = new Subject<Notification>();
+  public subject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public devices: { [name: string]: Device } = {};
 
   private websocket: WebSocket;
@@ -107,7 +107,7 @@ export class Websocket {
               let username = message.authenticate.username;
               this.websocket = websocket;
               this.subject = subject;
-              this.isConnected = true;
+              this.isConnected.next(true);
               this.event.next({ type: "success", message: "Angemeldet als " + username + "." });
             }
           } else {
@@ -176,7 +176,7 @@ export class Websocket {
       this.websocket.close();
     }
     this.websocket = null;
-    this.isConnected = false;
+    this.isConnected.next(false);
     //this.config = new OpenemsConfig();
     this.subject = new BehaviorSubject<any>(null);
     //this.data = new BehaviorSubject<any>(null);

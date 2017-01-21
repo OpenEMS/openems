@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { WebsocketService, Websocket } from './../service/websocket.service';
+import { Device } from './../service/device';
 import { WebappService } from './../service/webapp.service';
 
 @Component({
@@ -9,6 +10,8 @@ import { WebappService } from './../service/webapp.service';
   templateUrl: './overview.component.html'
 })
 export class OverviewComponent implements OnInit {
+
+  private devices: Device[] = [];
 
   constructor(
     private websocketService: WebsocketService,
@@ -18,6 +21,7 @@ export class OverviewComponent implements OnInit {
 
   ngOnInit() {
     this.websocketService.clearCurrentDevice();
+
     /*
      * Redirect after a short delay
      * - to /login if nothing is connected
@@ -45,6 +49,6 @@ export class OverviewComponent implements OnInit {
           this.router.navigate(['/device', lastConnectedWebsocket.name, deviceNames[0]]);
         }
       }
-    }, 500);
+    }, 50000);
   }
 }
