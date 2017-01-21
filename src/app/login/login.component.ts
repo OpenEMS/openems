@@ -44,12 +44,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   doLogin(form: FormGroup) {
+    console.log("login");
     let websocket: Websocket = form['_websocket'];
     let password: string = form.value['password']
     websocket.connectWithPassword(password);
   }
 
   doLogout(form: FormGroup) {
+    console.log("logout");
     let websocket: Websocket = form['_websocket'];
     websocket.close();
   }

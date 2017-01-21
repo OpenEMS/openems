@@ -49,6 +49,6 @@ export class OverviewComponent implements OnInit {
           this.router.navigate(['/device', lastConnectedWebsocket.name, deviceNames[0]]);
         }
       }
-    }, 50000);
+    }, 500);
   }
 }
