@@ -1,30 +1,20 @@
 <div [formGroup]="_form">
-  <tr [formGroup]="_form.controls.ess">
-    <td>
-      <h4>Speicher</h4>
-    </td>
-    <td>
-      <md-input-container><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
-    </td>
-    <td>
-      <md-input-container><input formControlName="minSoc" type="text" placeholder="Ladezustand Minimal" md-input></md-input-container>
-    </td>
-    <td>
-      <md-input-container><input formControlName="chargeSoc" type="text" placeholder="Ladezustand Zwangsbeladung" md-input></md-input-container>
-    </td>
-  </tr>
-  <tr [formGroup]="_form.controls.meter">
-    <td>
-      <h4>Zähler</h4>
-    </td>
-    <td>
-      <md-input-container><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <button md-mini-fab (click)="save(_form)" [disabled]="_form.pristine"><md-icon>check</md-icon></button>
-      <button md-mini-fab color="warn" (click)="delete(_form)"><md-icon>delete</md-icon></button>
-    </td>
-  </tr>
+  <div fxLayout>
+    <p fxFlex="100px">Speicher</p>
+    <div [formGroup]="_form.controls.ess" fxFlex fxLayout fxLayoutWrap="wrap">
+      <md-input-container fxFlex="50%"><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
+      <md-input-container fxFlex="50%"><input formControlName="minSoc" type="number" placeholder="Ladezustand Minimal" md-input></md-input-container>
+      <md-input-container fxFlex="50%"><input formControlName="chargeSoc" type="number" placeholder="Ladezustand Zwangsbeladung" md-input></md-input-container>
+    </div>
+  </div>
+  <div fxLayout>
+    <p fxFlex="100px">Zähler</p>
+    <div [formGroup]="_form.controls.meter" fxFlex fxLayout fxLayoutWrap="wrap">
+      <md-input-container fxFlex="50%"><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
+    </div>
+  </div>
+  <div fxLayout fxLayoutAlign="end start">
+    <button md-mini-fab (click)="save(_form)" [disabled]="_form.pristine" color="primary"><md-icon>check</md-icon></button>
+    <button md-mini-fab (click)="delete(_form)"><md-icon>delete</md-icon></button>
+  </div>
 </div>

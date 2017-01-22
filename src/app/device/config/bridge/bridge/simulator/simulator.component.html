@@ -1,8 +1,4 @@
-<div [formGroup]="_form">
-    <tr>
-        <td>
-            <button md-mini-fab (click)="save(_form)" [disabled]="_form.pristine"><md-icon>check</md-icon></button>
-            <button md-mini-fab color="warn" (click)="delete(_form)"><md-icon>delete</md-icon></button>
-        </td>
-    </tr>
+<div fxLayout fxLayoutAlign="end start">
+    <button md-mini-fab (click)="save(_form)" [disabled]="_form.pristine" color="primary"><md-icon>check</md-icon></button>
+    <button md-mini-fab (click)="delete(_form)"><md-icon>delete</md-icon></button>
 </div>
