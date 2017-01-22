@@ -18,10 +18,10 @@ import { DeviceOverviewComponent } from './device/overview/overview.component';
 import { DeviceOverviewEnergymonitorComponent } from './device/overview/energymonitor/energymonitor.component';
 import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
 import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
-import { FormBridgeSimulatorComponent } from './device/config/bridge/form/bridge/simulator/simulator.component';
-import { FormBridgeSystemComponent } from './device/config/bridge/form/bridge/system/system.component';
-import { FormDeviceSimulatorComponent } from './device/config/bridge/form/device/simulator/simulator.component';
-import { FormDeviceSystemComponent } from './device/config/bridge/form/device/system/system.component';
+import { FormBridgeSimulatorComponent } from './device/config/bridge/bridge/simulator/simulator.component';
+import { FormBridgeSystemComponent } from './device/config/bridge/bridge/system/system.component';
+import { FormDeviceSimulatorComponent } from './device/config/bridge/device/simulator/simulator.component';
+import { FormDeviceSystemComponent } from './device/config/bridge/device/system/system.component';
 import { DeviceConfigMoreComponent } from './device/config/more/more.component';
 //import { ConfigComponent } from './config/config.component';
 

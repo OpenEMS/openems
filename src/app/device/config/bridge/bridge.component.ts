@@ -42,7 +42,7 @@ export class DeviceConfigBridgeComponent implements OnInit {
             // device forms
             let deviceForms: any[] = [];
             for (let device of bridge["devices"]) {
-              let deviceForm = this.buildForm(device, ["system"]);
+              let deviceForm = this.buildForm(device);
               deviceForms.push(deviceForm);
             }
             this.deviceForms[bridge["id"]] = deviceForms;

@@ -1,7 +1,7 @@
 import { AbstractControl, FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 
-import { Device } from '../../../../service/device';
-import { WebsocketService } from '../../../../service/websocket.service';
+import { Device } from '../../../service/device';
+import { WebsocketService } from '../../../service/websocket.service';
 
 type ConfigRequestType = "update" | "create" | "delete";
 interface ConfigRequest {
@@ -61,6 +61,7 @@ export abstract class AbstractConfigComponent {
       requests = this.getConfigUpdateRequests(form);
     }
     this.send(requests);
+    form["_meta_new"] = false;
     form.markAsPristine();
   }
 

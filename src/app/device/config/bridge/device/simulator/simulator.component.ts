@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 
-import { WebsocketService } from '../../../../../../service/websocket.service';
+import { WebsocketService } from '../../../../../service/websocket.service';
 import { AbstractConfigComponent } from '../../abstractformconfig.component';
 
 @Component({
