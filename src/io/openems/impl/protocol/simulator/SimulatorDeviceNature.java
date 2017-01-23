@@ -20,24 +20,41 @@
  *******************************************************************************/
 package io.openems.impl.protocol.simulator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
+import io.openems.api.thing.ThingChannelsUpdatedListener;
 
 public abstract class SimulatorDeviceNature implements DeviceNature {
 	protected final Logger log;
 	private final String thingId;
+	private List<ThingChannelsUpdatedListener> listeners;
 
 	public SimulatorDeviceNature(String thingId) throws ConfigException {
 		this.thingId = thingId;
 		log = LoggerFactory.getLogger(this.getClass());
+		this.listeners = new ArrayList<>();
 	}
 
-	@Override public String id() {
+	@Override
+	public String id() {
 		return thingId;
+	}
+
+	@Override
+	public void addListener(ThingChannelsUpdatedListener listener) {
+		this.listeners.add(listener);
+	}
+
+	@Override
+	public void removeListener(ThingChannelsUpdatedListener listener) {
+		this.listeners.remove(listener);
 	}
 
 	@Override
@@ -49,4 +66,11 @@ public abstract class SimulatorDeviceNature implements DeviceNature {
 	}
 
 	protected abstract void update();
+
+	@Override
+	public void init() {
+		for (ThingChannelsUpdatedListener listener : this.listeners) {
+			listener.thingChannelsUpdated(this);
+		}
+	}
 }

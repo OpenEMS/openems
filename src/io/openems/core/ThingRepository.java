@@ -224,7 +224,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 				bridge.removeDevice((Device) thing);
 			}
 		}
-		
+
 		// Remove Listener
 		thing.removeListener(this);
 		// TODO further cleaning if required

@@ -29,7 +29,8 @@ public class Databus implements ChannelUpdateListener, ChannelChangeListener {
 		thingRepository = ThingRepository.getInstance();
 	}
 
-	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+	@Override
+	public void channelUpdated(Channel channel, Optional<?> newValue) {
 		log.debug("Channel [" + channel.address() + "] updated: " + newValue);
 		// Call Persistence-Workers
 		if (channel instanceof ReadChannel<?> && !(channel instanceof ConfigChannel<?>)) {
@@ -41,7 +42,8 @@ public class Databus implements ChannelUpdateListener, ChannelChangeListener {
 		}
 	}
 
-	@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+	@Override
+	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		log.debug("Channel [" + channel.address() + "] changed from " + oldValue + " to " + newValue);
 		// Call Persistence-Workers
 		if (!(channel instanceof ConfigChannel<?>)) {
