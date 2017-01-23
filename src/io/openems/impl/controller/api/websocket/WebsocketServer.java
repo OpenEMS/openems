@@ -18,10 +18,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.device.Device;
 import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
@@ -29,6 +31,8 @@ import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.security.Authentication;
+import io.openems.api.thing.Thing;
+import io.openems.core.ClassRepository;
 import io.openems.core.Config;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ConfigUtils;
@@ -43,25 +47,30 @@ public class WebsocketServer extends WebSocketServer {
 
 	private final ConcurrentHashMap<WebSocket, WebsocketHandler> sockets = new ConcurrentHashMap<>();
 	private final ThingRepository thingRepository;
+	private final ClassRepository classRepository;
 	private final WebsocketApiController controller;
 
 	public WebsocketServer(WebsocketApiController controller, int port) {
 		super(new InetSocketAddress(port));
 		this.thingRepository = ThingRepository.getInstance();
+		this.classRepository = ClassRepository.getInstance();
 		this.controller = controller;
 	}
 
-	@Override public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+	@Override
+	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
 		log.info("User[" + getUserName(conn) + "]: close connection." //
 				+ " Code [" + code + "] Reason [" + reason + "]");
 		sockets.remove(conn);
 	}
 
-	@Override public void onError(WebSocket conn, Exception ex) {
+	@Override
+	public void onError(WebSocket conn, Exception ex) {
 		log.info("User[" + getUserName(conn) + "]: error on connection. " + ex.getMessage());
 	}
 
-	@Override public void onMessage(WebSocket conn, String message) {
+	@Override
+	public void onMessage(WebSocket conn, String message) {
 		JsonObject j = (new JsonParser()).parse(message).getAsJsonObject();
 		WebsocketHandler handler = sockets.get(conn);
 
@@ -193,6 +202,7 @@ public class WebsocketServer extends WebSocketServer {
 			 * Json Config
 			 */
 			JsonObject j = config.getJson(true);
+			JsonObject jMeta = new JsonObject();
 			/*
 			 * Natures
 			 */
@@ -207,17 +217,37 @@ public class WebsocketServer extends WebSocketServer {
 				}
 				jDeviceNatures.add(nature.id(), jNatureClasses);
 			});
-			j.add("_deviceNatures", jDeviceNatures);
+			jMeta.add("natures", jDeviceNatures);
 			/*
-			 * Available Controllers
+			 * Available
 			 */
-			JsonArray jAvailableControllers = new JsonArray();
-			for (ThingDoc controllerDescription : thingRepository.getAvailableControllers()) {
-				jAvailableControllers.add(controllerDescription.getAsJsonObject());
+			// Controllers
+			JsonArray jControllers = new JsonArray();
+			for (ThingDoc description : classRepository.getAvailableControllers()) {
+				jControllers.add(description.getAsJsonObject());
 			}
-			j.add("_availableControllers", jAvailableControllers);
+			jMeta.add("controllers", jControllers);
+			// Bridges
+			JsonArray jBridges = new JsonArray();
+			for (ThingDoc description : classRepository.getAvailableBridges()) {
+				jBridges.add(description.getAsJsonObject());
+			}
+			jMeta.add("bridges", jBridges);
+			// Devices
+			JsonArray jDevices = new JsonArray();
+			for (ThingDoc description : classRepository.getAvailableDevices()) {
+				jDevices.add(description.getAsJsonObject());
+			}
+			jMeta.add("devices", jDevices);
+			// Schedulers
+			JsonArray jSchedulers = new JsonArray();
+			for (ThingDoc description : classRepository.getAvailableSchedulers()) {
+				jSchedulers.add(description.getAsJsonObject());
+			}
+			jMeta.add("schedulers", jSchedulers);
+			j.add("_meta", jMeta);
 			return j;
-		} catch (NotImplementedException | ConfigException e) {
+		} catch (NotImplementedException | ConfigException | ReflectionException e) {
 			log.warn("Unable to create config: " + e.getMessage());
 			return new JsonObject();
 		}
@@ -261,22 +291,26 @@ public class WebsocketServer extends WebSocketServer {
 					 * Create new Thing
 					 */
 					JsonObject jObject = JsonUtils.getAsJsonObject(jConfig, "object");
-					JsonArray jPaths = JsonUtils.getAsJsonArray(jConfig, "path");
+					String parentId = JsonUtils.getAsString(jConfig, "parentId");
 					String thingId = JsonUtils.getAsString(jObject, "id");
 					if (thingId.startsWith("_")) {
 						throw new ConfigException("IDs starting with underscore are reserved for internal use.");
 					}
-					for (JsonElement jPath : jPaths) {
-						String path = JsonUtils.getAsString(jPath);
-						if (path.equals("controllers")) {
-							Controller controller = thingRepository.createController(jObject);
-							for (Scheduler scheduler : thingRepository.getSchedulers()) {
-								// TODO needs modification for multiple schedulers
-								scheduler.addController(controller);
-							}
+					String clazzName = JsonUtils.getAsString(jObject, "class");
+					Class<?> clazz = Class.forName(clazzName);
+					log.info(jObject.toString());
+					log.info(parentId);
+					log.info(clazzName);
+					if (Device.class.isAssignableFrom(clazz)) {
+						// Device
+						Thing parentThing = thingRepository.getThing(parentId);
+						if (parentThing instanceof Bridge) {
+							Bridge parentBridge = (Bridge) parentThing;
+							Device device = thingRepository.createDevice(jObject);
+							parentBridge.addDevice(device);
 							Config.getInstance().writeConfigFile();
 							handler.sendNotification(NotificationType.SUCCESS,
-									"Controller [" + controller.id() + "] wurde erstellt.");
+									"Device [" + device.id() + "] wurde erstellt.");
 							break;
 						}
 					}
@@ -312,8 +346,11 @@ public class WebsocketServer extends WebSocketServer {
 					throw new OpenemsException("Methode [" + operation + "] ist nicht implementiert.");
 				}
 			}
-		} catch (OpenemsException e) {
-			log.error(e.getMessage());
+			// Send new config
+			JsonObject j = new JsonObject();
+			j.add("config", getConfigJson());
+			handler.send(true, j);
+		} catch (OpenemsException | ClassNotFoundException e) {
 			handler.sendNotification(NotificationType.ERROR, e.getMessage());
 			// TODO: send notification to websocket
 		}
@@ -381,7 +418,8 @@ public class WebsocketServer extends WebSocketServer {
 		}
 	}
 
-	@Override public void onOpen(WebSocket conn, ClientHandshake handshake) {
+	@Override
+	public void onOpen(WebSocket conn, ClientHandshake handshake) {
 		log.info("Incoming connection...");
 		sockets.put(conn, new WebsocketHandler(conn));
 	}

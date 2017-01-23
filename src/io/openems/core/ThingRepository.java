@@ -50,8 +50,8 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
@@ -75,19 +75,6 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 
 	private ThingRepository() {
 		classRepository = ClassRepository.getInstance();
-		// Fill "availableThingClasses"
-		// Controller
-		try {
-			Set<Class<? extends Thing>> clazzes = ConfigUtils.getAvailableClasses("io.openems.impl.controller",
-					Controller.class, "Controller");
-			for (Class<? extends Thing> clazz : clazzes) {
-				ThingDoc description = ConfigUtils.getThingDescription(clazz);
-				availableThingClasses.put(Controller.class, clazz, description);
-			}
-		} catch (ReflectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	private final ClassRepository classRepository;
@@ -100,8 +87,6 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 	private final Table<Thing, String, Channel> thingChannels = HashBasedTable.create();
 	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
 	private HashMultimap<Thing, WriteChannel<?>> thingWriteChannels = HashMultimap.create();
-	private final Table<Class<? extends Thing>, Class<? extends Thing>, ThingDoc> availableThingClasses = HashBasedTable
-			.create();
 
 	/**
 	 * Add a Thing to the Repository and cache its Channels and other information for later usage.
@@ -139,6 +124,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 			deviceNatures.add((DeviceNature) thing);
 		}
 
+		// Add Listener
 		thing.addListener(this);
 
 		// Add Channels thingConfigChannels
@@ -174,7 +160,6 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 
 						// Add Channel to configChannels
 						thingConfigChannels.put(thing, (ConfigChannel<?>) channel);
-
 					}
 				}
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -233,6 +218,14 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 			}
 		}
 
+		// Remove device
+		if (thing instanceof Device) {
+			for (Bridge bridge : bridges) {
+				bridge.removeDevice((Device) thing);
+			}
+		}
+
+		// Remove Listener
 		thing.removeListener(this);
 		// TODO further cleaning if required
 	}
@@ -373,12 +366,13 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		return controller;
 	}
 
-	public List<ThingDoc> getAvailableControllers() {
-		List<ThingDoc> descriptions = new ArrayList<>();
-		availableThingClasses.row(Controller.class).forEach((clazz, description) -> {
-			descriptions.add(description);
-		});
-		return Collections.unmodifiableList(descriptions);
+	public Device createDevice(JsonObject jDevice) throws ReflectionException {
+		String deviceClass = JsonUtils.getAsString(jDevice, "class");
+		Device device = (Device) InjectionUtils.getThingInstance(deviceClass);
+		log.debug("Add Device[" + device.id() + "], Implementation[" + device.getClass().getSimpleName() + "]");
+		this.addThing(device);
+		ConfigUtils.injectConfigChannels(this.getConfigChannels(device), jDevice);
+		return device;
 	}
 
 	@Override

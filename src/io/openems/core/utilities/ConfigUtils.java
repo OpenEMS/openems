@@ -327,7 +327,6 @@ public class ConfigUtils {
 				if (classInfo.getName().endsWith(suffix)) {
 					Class<?> thisClazz = classInfo.load();
 					if (clazz.isAssignableFrom(thisClazz)) {
-						// it is in fact a "Controller" class
 						clazzes.add((Class<? extends Thing>) thisClazz);
 					}
 				}
