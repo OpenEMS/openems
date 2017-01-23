@@ -22,7 +22,7 @@ public class EmergencyGeneratorController extends Controller {
 
 	@ConfigInfo(title = "if the soc falls under this value and the system is Off-Grid the generator starts", type = Long.class)
 	public ConfigChannel<Long> minSoc = new ConfigChannel<Long>("minSoc", this);
-	@ConfigInfo(title = "if the system is Off-Grid and the generator is running the generator stops if the soc level increase over the maxSoc.", type = Boolean.class)
+	@ConfigInfo(title = "if the system is Off-Grid and the generator is running the generator stops if the soc level increase over the maxSoc.", type = Long.class)
 	public ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
 	@ConfigInfo(title = "true if the digital output should be inverted.", type = Boolean.class)
 	public ConfigChannel<Boolean> invertOutput = new ConfigChannel<>("invertOutput", this);
