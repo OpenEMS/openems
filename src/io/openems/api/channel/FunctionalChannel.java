@@ -7,9 +7,9 @@ import io.openems.api.thing.Thing;
 public class FunctionalChannel<T> extends ReadChannel<T> implements ChannelUpdateListener {
 
 	private ReadChannel<T>[] channels;
-	private FunctionoalChannelFunction<T> func;
+	private FunctionalChannelFunction<T> func;
 
-	public FunctionalChannel(String id, Thing parent, FunctionoalChannelFunction<T> function,
+	public FunctionalChannel(String id, Thing parent, FunctionalChannelFunction<T> function,
 			ReadChannel<T>... channels) {
 		super(id, parent);
 		this.channels = channels;
@@ -19,11 +19,13 @@ public class FunctionalChannel<T> extends ReadChannel<T> implements ChannelUpdat
 		}
 	}
 
-	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+	@Override
+	public void channelUpdated(Channel channel, Optional<?> newValue) {
 		updateValue(func.handle(channels));
 	}
 
-	@Override public FunctionalChannel<T> label(T value, String label) {
+	@Override
+	public FunctionalChannel<T> label(T value, String label) {
 		super.label(value, label);
 		return this;
 	}
