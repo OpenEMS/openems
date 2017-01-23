@@ -1,29 +1,33 @@
-<div>
-  <md-card class="flex-item" fxFlex="100%">
+<md-card class="single">
+  <md-card-header>
+    <md-icon md-card-avatar>stop</md-icon>
     <md-card-title>Wechselrichter</md-card-title>
-    <md-card-content>
-      <button md-raised-button (click)="setInverterState(true)" class="btn btn-default">starten</button>
-      <button md-raised-button (click)="setInverterState(false)" class="btn btn-default">stoppen</button>
-    </md-card-content>
-  </md-card>
+    <md-card-subtitle>starten/stoppen</md-card-subtitle>
+  </md-card-header>
+  <md-card-content>
+    <button md-raised-button (click)="setInverterState(true)" class="btn btn-default">starten</button>
+    <button md-raised-button (click)="setInverterState(false)" class="btn btn-default">stoppen</button>
+  </md-card-content>
+</md-card>
 
-  <md-card class="flex-item" fxFlex="100%">
+<md-card class="single">
+  <md-card-header>
+    <md-icon md-card-avatar>stop</md-icon>
     <md-card-title>Leistungsvorgabe</md-card-title>
-    <md-card-content>
-      <form [formGroup]="manualPQForm">
-        <md-list>
-          <md-list-item>
-            <md-input-container type="number"><input formControlName="p" id="p" md-input placeholder="Wirkleistung (P)" value=""><span md-suffix>W</span></md-input-container>
-          </md-list-item>
-          <md-list-item>
-            <md-input-container type="number"><input formControlName="q" id="q" md-input placeholder="Blindleistung (Q)" value=""><span md-suffix>Var</span></md-input-container>
-          </md-list-item>
-          <md-list-item>
-            <button md-raised-button (click)="applyManualPQ(manualPQForm)" type="submit" class="btn btn-default">Übernehmen</button>
-            <button md-raised-button (click)="removeManualPQ()" class="btn btn-default">Zurücksetzen</button>
-          </md-list-item>
-        </md-list>
-      </form>
-    </md-card-content>
-  </md-card>
-</div>
+    <md-card-subtitle>Manuelle Vorgabe von Wirk- und Blindleistung</md-card-subtitle>
+  </md-card-header>
+  <md-card-content [formGroup]="manualPQForm" fxLayout fxLayoutWrap="wrap">
+    <div fxFlex="100%">
+      <md-input-container fxFlex="200px"><input formControlName="p" type="number" placeholder="Wirkleistung (P)" md-input><span md-suffix>W</span></md-input-container>
+      <div fxFlex></div>
+    </div>
+    <div fxFlex="100%">
+      <md-input-container fxFlex="200px"><input formControlName="q" type="number" placeholder="Blindleistung (Q)" md-input><span md-suffix>Var</span></md-input-container>
+      <div fxFlex></div>
+    </div>
+    <div fxFlex="100%">
+      <button md-raised-button (click)="applyManualPQ(manualPQForm)" type="submit" class="btn btn-default">Übernehmen</button>
+      <button md-raised-button (click)="removeManualPQ()" class="btn btn-default">Zurücksetzen</button>
+    </div>
+  </md-card-content>
+</md-card>

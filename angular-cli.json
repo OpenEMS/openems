@@ -21,7 +21,6 @@
         "styles.css",
         "../node_modules/ngx-charts/release/ngx-charts.css",
         "../node_modules/material-design-icons/iconfont/material-icons.css",
-        "../node_modules/roboto-fontface/css/roboto/sass/roboto-fontface.scss",
         "material2-app-theme.scss"
       ],
       "scripts": [],

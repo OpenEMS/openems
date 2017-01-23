@@ -7,15 +7,13 @@
     <div *ngFor="let thing of device.data | async | keys" fxFlex="50%" fxFlex.xs="100%">
       <md-card>
         <md-card-title>{{ thing.key }}</md-card-title>
-        <md-card-content>
-          <table style="width:100%">
-<tr *ngFor="let channel of thing.value | keys">
-  <td>{{ channel.key }}</td>
-  <td>{{ channel.value }}</td>
-</tr>
-</table>
-</md-card-content>
-</md-card>
-</div>
-</md-card-content>
+        <md-card-content fxLayout fxLayoutWrap="wrap">
+          <div *ngFor="let channel of thing.value | keys" fxFlex="100%" fxLayout>
+            <div fxFlex="50%">{{ channel.key }}</div>
+            <div fxFlex>{{ channel.value }}</div>
+          </div>
+        </md-card-content>
+      </md-card>
+    </div>
+  </md-card-content>
 </md-card>

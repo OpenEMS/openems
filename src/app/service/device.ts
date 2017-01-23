@@ -89,6 +89,7 @@ export class Device {
      */
     if ("data" in message) {
       this.data.next(message.data);
+      console.log(message.data);
     }
   }
 }

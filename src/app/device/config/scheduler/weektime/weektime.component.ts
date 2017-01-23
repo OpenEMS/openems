@@ -95,20 +95,16 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
   }
 
   protected save(form: FormGroup) {
-    console.log("FORM", form);
     let requests: ConfigRequest[] = [];
     for (let controlName in form.controls) {
       let control = form.controls[controlName];
       if (control.dirty) {
-        console.log("CNT", controlName, control);
-        console.log(this.getConfigUpdateRequests(control));
         let request = <ConfigUpdateRequest>{
           operation: "update",
           thing: this._form.controls["id"].value,
           channel: controlName,
           value: control.value
         };
-        console.log(request);
         requests.push(request);
       }
     }
