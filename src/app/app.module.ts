@@ -22,7 +22,9 @@ import { FormBridgeSimulatorComponent } from './device/config/bridge/bridge/simu
 import { FormBridgeSystemComponent } from './device/config/bridge/bridge/system/system.component';
 import { FormDeviceSimulatorComponent } from './device/config/bridge/device/simulator/simulator.component';
 import { FormDeviceSystemComponent } from './device/config/bridge/device/system/system.component';
+import { DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
 import { DeviceConfigMoreComponent } from './device/config/more/more.component';
+import { FormSchedulerWeekTimeComponent } from './device/config/scheduler/weektime/weektime.component';
 //import { ConfigComponent } from './config/config.component';
 
 /*
@@ -42,7 +44,6 @@ import { FormControllerRestApiComponent } from './common/form/controller/restapi
 import { FormControllerUniversalComponent } from './common/form/controller/universal/universal.component';
 import { FormControllerNewComponent } from './common/form/controller/new/new.component';
 import { FormSchedulerComponent } from './common/form/scheduler/scheduler.component';
-import { FormSchedulerWeekTimeComponent } from './common/form/scheduler/weektime/weektime.component';
 import { FormSchedulerWeekTimeHoursComponent } from './common/form/scheduler/weektime/hours.component';
 
 // Charts
@@ -73,12 +74,14 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     DeviceOverviewEnergymonitorComponent,
     DeviceConfigOverviewComponent,
     DeviceConfigBridgeComponent,
+    DeviceConfigSchedulerComponent,
     // Form
     FormBridgeSimulatorComponent,
     FormBridgeSystemComponent,
     DeviceConfigMoreComponent,
     FormDeviceSimulatorComponent,
     FormDeviceSystemComponent,
+    FormSchedulerWeekTimeComponent,
     //   Form
     FormControllersComponent,
     FormControllerWebsocketApiComponent,
@@ -86,7 +89,6 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     FormControllerUniversalComponent,
     FormControllerNewComponent,
     FormSchedulerComponent,
-    FormSchedulerWeekTimeComponent,
     FormSchedulerWeekTimeHoursComponent,
     //   Chart
     CustomChartComponent,

@@ -12,7 +12,6 @@
         <div fxLayout>
           <p fxFlex="100px"></p>
           <div fxFlex fxLayout fxLayoutWrap="wrap">
-            <md-input-container fxFlex="50%"><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
             <md-select fxFlex="50%" formControlName="class" placeholder="Klasse">
               <md-option *ngFor="let element of config._meta.bridges" [value]="element.class"><span *ngIf="element.title">{{element.title}}: </span>{{element.class | classname}}</md-option>
             </md-select>
@@ -41,7 +40,6 @@
           <div fxLayout>
             <p fxFlex="100px"></p>
             <div fxFlex fxLayout fxLayoutWrap="wrap">
-              <md-input-container fxFlex="50%"><input formControlName="id" type="text" placeholder="Id" md-input></md-input-container>
               <md-select fxFlex="50%" formControlName="class" placeholder="Klasse">
                 <md-option *ngFor="let element of config._meta.devices" [value]="element.class"><span *ngIf="element.title">{{element.title}}: </span>{{element.class | classname}}</md-option>
               </md-select>
@@ -63,13 +61,18 @@
     <md-card class="not_single">
       <md-card-header>
         <md-icon md-card-avatar>stop</md-icon>
-        <md-card-title>Neues Gerät anlegen...</md-card-title>
+        <md-card-title>Neues Gerät...</md-card-title>
       </md-card-header>
       <md-card-content>
         <div fxLayout fxLayoutAlign="end start">
-          <button md-mini-fab (click)="addNewDevice(bridgeForm.controls['id'].value)" color="primary"><md-icon>add circle</md-icon></button>
+          <button md-mini-fab (click)="addNewDevice(bridgeForm.controls['id'].value)" color="primary"><md-icon>add</md-icon></button>
         </div>
       </md-card-content>
     </md-card>
+  </md-tab>
+  <md-tab>
+    <template md-tab-label><span>Neue Verbindung...</span>
+      <md-icon>add_circle_outline</md-icon>
+    </template>
   </md-tab>
 </md-tab-group>

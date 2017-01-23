@@ -3,22 +3,15 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
-import { WebsocketService } from '../../../service/websocket.service';
-import { Device } from '../../../service/device';
+import { WebsocketService } from '../../service/websocket.service';
+import { Device } from '../../service/device';
 
 
-@Component({
-  selector: 'app-device-config-bridge',
-  templateUrl: './bridge.component.html'
-})
-export class DeviceConfigBridgeComponent implements OnInit {
+export abstract class AbstractConfig implements OnInit {
 
   private device: Device;
   private deviceSubscription: Subscription;
-
-  private config = null;
-  private bridgeForms: AbstractControl[] = [];
-  private deviceForms: { [bridge: string]: AbstractControl[] } = {};
+  protected config = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -26,26 +19,15 @@ export class DeviceConfigBridgeComponent implements OnInit {
     private formBuilder: FormBuilder
   ) { }
 
+  protected abstract initForm(config);
+
   ngOnInit() {
     this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
       if (device && device.config) {
         device.config.subscribe(config => {
           this.config = config;
-          this.bridgeForms = [];
-          this.deviceForms = {};
-          for (let bridge of config.things) {
-            // bridge forms
-            let bridgeForm = this.buildForm(bridge, "devices");
-            this.bridgeForms.push(bridgeForm);
-            // device forms
-            let deviceForms: any[] = [];
-            for (let device of bridge["devices"]) {
-              let deviceForm = this.buildForm(device);
-              deviceForms.push(deviceForm);
-            }
-            this.deviceForms[bridge["id"]] = deviceForms;
-          }
+          this.initForm(config);
         });
       }
     });
@@ -55,18 +37,7 @@ export class DeviceConfigBridgeComponent implements OnInit {
     this.deviceSubscription.unsubscribe();
   }
 
-  private addNewDevice(bridgeFormId: string) {
-    let group = this.formBuilder.group({
-      "id": this.formBuilder.control(""),
-      "class": this.formBuilder.control(""),
-    });
-    group["_meta_new"] = true;
-    group["_meta_parent"] = this.deviceForms[bridgeFormId];
-    group["_meta_parent_id"] = bridgeFormId;
-    this.deviceForms[bridgeFormId].push(group);
-  }
-
-  private buildForm(item: any, ignoreKeys?: string | string[]): FormControl | FormGroup | FormArray {
+  protected buildForm(item: any, ignoreKeys?: string | string[]): FormControl | FormGroup | FormArray {
     if (typeof item === "function") {
       // ignore
     } else if (item instanceof Array) {

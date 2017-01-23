@@ -2,18 +2,18 @@ import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { WebsocketService } from '../../../../../service/websocket.service';
-import { AbstractConfigComponent } from '../../abstractformconfig.component';
+import { AbstractConfigForm } from '../../../abstractconfigform';
 
 @Component({
   selector: 'form-bridge-system',
   templateUrl: './system.component.html',
 })
-export class FormBridgeSystemComponent extends AbstractConfigComponent {
+export class FormBridgeSystemComponent extends AbstractConfigForm {
 
   constructor(
-    private _websocketService: WebsocketService
+    websocketService: WebsocketService
   ) {
-    super(_websocketService);
+    super(websocketService);
   }
 
   @Input()

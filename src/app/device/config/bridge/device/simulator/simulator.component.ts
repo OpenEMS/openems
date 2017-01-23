@@ -2,19 +2,19 @@ import { Component, Input } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 
 import { WebsocketService } from '../../../../../service/websocket.service';
-import { AbstractConfigComponent } from '../../abstractformconfig.component';
+import { AbstractConfigForm } from '../../../abstractconfigform';
 
 @Component({
   selector: 'form-device-simulator',
   templateUrl: './simulator.component.html',
 })
-export class FormDeviceSimulatorComponent extends AbstractConfigComponent {
+export class FormDeviceSimulatorComponent extends AbstractConfigForm {
 
   constructor(
-    private _websocketService: WebsocketService,
+    websocketService: WebsocketService,
     private formBuilder: FormBuilder
   ) {
-    super(_websocketService);
+    super(websocketService);
   }
 
   @Input()

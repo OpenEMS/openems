@@ -1,8 +1,0 @@
-<div *ngIf="form" [formGroup]="form">
-  <ul class="nav nav-pills">
-    <li *ngFor="let day of days" role="presentation" [class.active]="day.active"><a (click)="setDayActive(day)">{{day.label}}</a></li>
-  </ul>
-  <div *ngFor="let day of days">
-    <form-scheduler-weektime-hours *ngIf="day.active" [form]="form" [day]="day.key"></form-scheduler-weektime-hours>
-  </div>
-</div>

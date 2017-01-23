@@ -1,0 +1,82 @@
+<md-tab-group [formGroup]="_form">
+  <!-- All days -->
+  <md-tab *ngFor="let day of days">
+    <template md-tab-label>{{ day.label }}</template>
+    <div [formArrayName]="day.key">
+      <!-- Time -->
+      <div *ngFor="let hour of _form.controls[day.key].controls; let i=index" [formGroupName]="i" fxLayout>
+        <md-input-container fxFlex="100px"><input formControlName="time" type="text" placeholder="Startzeit" md-input></md-input-container>
+        <div fxFlex="50px">
+          <button md-mini-fab (click)="removeHour(_form.controls[day.key], i)"><md-icon>delete</md-icon></button>
+        </div>
+        <!-- Controller -->
+        <div formArrayName="controllers" fxFlex fxLayout fxLayoutWrap="wrap">
+          <div *ngFor="let controller of hour.controls.controllers.controls; let j=index" fxLayout fxFlex="33%">
+            <div fxFlex fxLayout>
+              <md-select [formControlName]="j" placeholder="App" fxFlex="100%">
+                <md-option *ngFor="let element of _form.controls.controllers.controls" [value]="element.value.id">{{ element.value.id }}</md-option>
+              </md-select>
+            </div>
+            <div fxFlex="50px">
+              <button md-mini-fab (click)="removeControllerFromHour(_form.controls[day.key], i, j)"><md-icon>delete</md-icon></button>
+            </div>
+          </div>
+          <div fxFlex="50px">
+            <button md-mini-fab (click)="addControllerToHour(_form.controls[day.key], i)"><md-icon>add</md-icon></button>
+          </div>
+        </div>
+      </div>
+      <div fxLayout fxFlex="100%">
+        <div fxFlex="100px"></div>
+        <div fxFlex="50px">
+          <button md-mini-fab (click)="addHour(_form.controls[day.key])"><md-icon>add</md-icon></button>
+        </div>
+      </div>
+    </div>
+  </md-tab>
+
+  <!-- Always -->
+  <md-tab>
+    <template md-tab-label>Immer</template>
+    <div formArrayName="always" fxFlex fxLayout fxLayoutWrap="wrap">
+      <!-- Controller -->
+      <div *ngFor="let controller of _form.controls['always'].controls; let j=index" fxLayout fxFlex="33%">
+        <div fxFlex fxLayout>
+          <md-select [formControlName]="j" placeholder="App" fxFlex="100%">
+            <md-option *ngFor="let element of _form.controls.controllers.controls" [value]="element.value.id">{{ element.value.id }}</md-option>
+          </md-select>
+        </div>
+        <div fxFlex="50px">
+          <button md-mini-fab (click)="removeControllerFromAlways(j)"><md-icon>delete</md-icon></button>
+        </div>
+      </div>
+      <div fxFlex="50px">
+        <button md-mini-fab (click)="addControllerToAlways()"><md-icon>add</md-icon></button>
+      </div>
+    </div>
+  </md-tab>
+</md-tab-group>
+<div fxLayout fxLayoutAlign="end start">
+  <button md-mini-fab (click)="save(_form)" [disabled]="_form.pristine" color="primary"><md-icon>check</md-icon></button>
+</div>
+
+<!--
+   placeholder="HH:MM"
+<div>
+  <p fxFlex="100px"></p>
+  <div fxFlex fxLayout fxLayoutWrap="wrap">
+    <md-select fxFlex="50%" formControlName="class" placeholder="Klasse">
+      <md-option *ngFor="let element of config._meta.schedulers" [value]="element.class"><span *ngIf="element.title">{{element.title}}: </span>{{element.class | classname}}</md-option>
+    </md-select>
+
+  </div>
+</div>
+
+
+-->
+
+<!--
+            -->
+<!--<input type="text" class="form-control" disabled>-->
+<!--<div (click)="addController(hour.controls.controllers)" class="input-group-addon"><span class="glyphicon glyphicon-plus" title="Add Controller"></span></div>-->
+<!--<button (click)="addTime(form.controls[day])" type="button" class="btn btn-default" title="Add Time">-->

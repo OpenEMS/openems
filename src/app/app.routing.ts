@@ -7,6 +7,7 @@ import { OverviewComponent } from './overview/overview.component';
 import { DeviceOverviewComponent } from './device/overview/overview.component';
 import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
 import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
+import { DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
 import { DeviceConfigMoreComponent } from './device/config/more/more.component';
 
 /*import { MonitorCommercialCurrentComponent } from './monitor/commercial/current/commercial-current.component';
@@ -27,6 +28,7 @@ const appRoutes: Routes = [
   { path: 'device/:websocket/:device/config', redirectTo: 'device/:websocket/:device/config/overview', pathMatch: 'full' },
   { path: 'device/:websocket/:device/config/overview', component: DeviceConfigOverviewComponent },
   { path: 'device/:websocket/:device/config/bridge', component: DeviceConfigBridgeComponent },
+  { path: 'device/:websocket/:device/config/scheduler', component: DeviceConfigSchedulerComponent },
   { path: 'device/:websocket/:device/config/more', component: DeviceConfigMoreComponent }
 ];
 

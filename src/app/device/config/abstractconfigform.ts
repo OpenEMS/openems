@@ -1,26 +1,26 @@
 import { AbstractControl, FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 
-import { Device } from '../../../service/device';
-import { WebsocketService } from '../../../service/websocket.service';
+import { Device } from '../../service/device';
+import { WebsocketService } from '../../service/websocket.service';
 
-type ConfigRequestType = "update" | "create" | "delete";
-interface ConfigRequest {
+export type ConfigRequestType = "update" | "create" | "delete";
+export interface ConfigRequest {
   operation: string;
 }
-interface ConfigCreateRequest extends ConfigRequest {
+export interface ConfigCreateRequest extends ConfigRequest {
   object: Object;
   parentId: string;
 }
-interface ConfigUpdateRequest extends ConfigRequest {
+export interface ConfigUpdateRequest extends ConfigRequest {
   thing: string
   channel: string;
   value: Object;
 }
-interface ConfigDeleteRequest extends ConfigRequest {
+export interface ConfigDeleteRequest extends ConfigRequest {
   thing: string;
 }
 
-export abstract class AbstractConfigComponent {
+export abstract class AbstractConfigForm {
   constructor(private websocketService: WebsocketService) {
     websocketService.currentDevice.subscribe(device => {
       this.device = device;
@@ -77,7 +77,7 @@ export abstract class AbstractConfigComponent {
     if (form["_meta_parent"] && form["_meta_new"]) {
       // newly created. No need to delete it at server
       let array: FormGroup[] = form["_meta_parent"];
-      var index: number = array.indexOf(form, 0);
+      let index: number = array.indexOf(form, 0);
       if (index > -1) {
         array.splice(index, 1);
       }
@@ -89,7 +89,7 @@ export abstract class AbstractConfigComponent {
   }
 
   protected getConfigCreateRequests(form: FormGroup): ConfigRequest[] {
-    var requests: ConfigRequest[] = [];
+    let requests: ConfigRequest[] = [];
     console.log(form);
     let parentId = "";
     if (form["_meta_parent_id"]) {
@@ -104,7 +104,7 @@ export abstract class AbstractConfigComponent {
   }
 
   protected getConfigUpdateRequests(form: AbstractControl): ConfigRequest[] {
-    var requests: ConfigRequest[] = [];
+    let requests: ConfigRequest[] = [];
     if (form instanceof FormGroup) {
       for (let key in form.controls) {
         if (form.controls[key].dirty) {
@@ -126,7 +126,7 @@ export abstract class AbstractConfigComponent {
   }
 
   protected getConfigDeleteRequests(form: AbstractControl): ConfigRequest[] {
-    var requests: ConfigRequest[] = [];
+    let requests: ConfigRequest[] = [];
     if (form instanceof FormGroup) {
       requests.push(<ConfigDeleteRequest>{
         operation: "delete",
