@@ -228,11 +228,12 @@ public class ConfigUtils {
 		} else {
 			// Thing is not existing. Create a new instance
 			thing = InjectionUtils.getThingInstance(type, thingId);
-			thingRepository.addThing(thing);
 			log.debug("Add Thing[" + thing.id() + "], Implementation[" + thing.getClass().getSimpleName() + "]");
+			thingRepository.addThing(thing);
 		}
 		// Recursive call to inject config parameters for the newly created Thing
 		injectConfigChannels(thingRepository.getConfigChannels(thing), j.getAsJsonObject());
+		thing.init();
 		return thing;
 	}
 

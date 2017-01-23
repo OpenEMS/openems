@@ -57,7 +57,7 @@ public class BalancingOffsetController extends Controller {
 	}
 
 	public void init() {
-		activePowerActivated.changeListener(new ChannelChangeListener() {
+		activePowerActivated.addChangeListener(new ChannelChangeListener() {
 
 			@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 				try {
@@ -69,7 +69,7 @@ public class BalancingOffsetController extends Controller {
 				}
 			}
 		});
-		reactivePowerActivated.changeListener(new ChannelChangeListener() {
+		reactivePowerActivated.addChangeListener(new ChannelChangeListener() {
 
 			@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 				try {

@@ -48,18 +48,19 @@ public class CapacityTestController extends Controller {
 
 	public CapacityTestController() {
 		super();
-		init();
+		initialize();
 	}
 
 	public CapacityTestController(String thingId) {
 		super(thingId);
-		init();
+		initialize();
 	}
 
-	private void init() {
-		logPath.updateListener(new ChannelUpdateListener() {
+	private void initialize() {
+		logPath.addUpdateListener(new ChannelUpdateListener() {
 
-			@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+			@Override
+			public void channelUpdated(Channel channel, Optional<?> newValue) {
 				try {
 					if (fw != null) {
 						fw.close();
@@ -77,7 +78,8 @@ public class CapacityTestController extends Controller {
 		});
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
 				if (!ess.empty) {

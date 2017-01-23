@@ -24,4 +24,16 @@ public interface Thing {
 
 	public String id();
 
+	public default void addListener(ThingChannelsUpdatedListener listener) {
+
+	}
+
+	public default void removeListener(ThingChannelsUpdatedListener listener) {
+
+	}
+
+	public default void init() {
+
+	}
+
 }

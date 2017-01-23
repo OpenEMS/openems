@@ -18,11 +18,37 @@ public class Supplybus {
 
 	private HashMap<Ess, WriteChannel<Boolean>> switchEssMapping;
 
+	private Ess activeEss;
+
+	enum State {
+		CONNECTED, DISCONNECTING, DISCONNECTED, CONNECTING
+	}
+
+	private State state;
+
 	private String name;
 
 	public Supplybus(HashMap<Ess, WriteChannel<Boolean>> switchEssMapping, String name) {
 		this.switchEssMapping = switchEssMapping;
 		this.name = name;
+		state = State.DISCONNECTING;
+		try {
+			activeEss = getActiveEss();
+			if (activeEss != null) {
+				state = State.CONNECTED;
+				activeEss.setActiveSupplybus(this);
+			}
+		} catch (SupplyBusException e) {
+			disconnect();
+		}
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public void setState(State state) {
+		this.state = state;
 	}
 
 	public String getName() {
@@ -50,21 +76,51 @@ public class Supplybus {
 	}
 
 	public void disconnect() {
-		for (WriteChannel<Boolean> io : switchEssMapping.values()) {
+		for (Entry<Ess, WriteChannel<Boolean>> entry : switchEssMapping.entrySet()) {
 			try {
-				io.pushWrite(false);
+				entry.getValue().pushWrite(false);
 			} catch (WriteChannelException e) {
-				log.error("Failed to write disconnect command to digital output " + io.address(), e);
+				log.error("Failed to write disconnect command to digital output " + entry.getValue().address(), e);
 			}
 		}
+		if (activeEss != null) {
+			activeEss.setActiveSupplybus(null);
+		}
+		activeEss = null;
+		state = State.DISCONNECTING;
+	}
+
+	public boolean isConnected() {
+		if (activeEss != null) {
+			WriteChannel<Boolean> sOn = switchEssMapping.get(activeEss);
+			if (sOn.valueOptional().isPresent() && sOn.valueOptional().get()) {
+				state = State.CONNECTED;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isDisconnected() {
+		try {
+			if (getActiveEss() == null) {
+				state = State.DISCONNECTED;
+				return true;
+			}
+		} catch (SupplyBusException e) {
+			return false;
+		}
+		return false;
 	}
 
 	public void connect(Ess ess) throws SupplyBusException {
-		if (getActiveEss() == null) {
+		if (getActiveEss() == null && activeEss == null && ess != null) {
+			activeEss = ess;
+			activeEss.setActiveSupplybus(this);
 			WriteChannel<Boolean> sOn = switchEssMapping.get(ess);
+			state = State.CONNECTING;
 			try {
 				sOn.pushWrite(true);
-				ess.start();
 			} catch (WriteChannelException e) {
 				log.error("Failed to write connect command to digital output " + sOn.address(), e);
 			}

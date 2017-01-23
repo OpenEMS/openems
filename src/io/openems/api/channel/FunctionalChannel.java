@@ -15,7 +15,7 @@ public class FunctionalChannel<T> extends ReadChannel<T> implements ChannelUpdat
 		this.channels = channels;
 		this.func = function;
 		for (Channel c : channels) {
-			c.updateListener(this);
+			c.addUpdateListener(this);
 		}
 	}
 

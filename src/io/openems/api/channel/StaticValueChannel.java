@@ -33,13 +33,13 @@ public class StaticValueChannel<T> extends ReadChannel<T> {
 		return this;
 	}
 
-	@Override public StaticValueChannel<T> updateListener(ChannelUpdateListener... listeners) {
-		super.updateListener(listeners);
+	@Override public StaticValueChannel<T> addUpdateListener(ChannelUpdateListener... listeners) {
+		super.addUpdateListener(listeners);
 		return this;
 	}
 
-	@Override public StaticValueChannel<T> changeListener(ChannelChangeListener... listeners) {
-		super.changeListener(listeners);
+	@Override public StaticValueChannel<T> addChangeListener(ChannelChangeListener... listeners) {
+		super.addChangeListener(listeners);
 		return this;
 	}
 

@@ -32,7 +32,7 @@ public class EmergencyGeneratorController extends Controller {
 	@SuppressWarnings("unchecked")
 	@ConfigInfo(title = "the address of the Digital Output where the generator is connected to.", type = String.class)
 	public ConfigChannel<String> outputChannelAddress = new ConfigChannel<String>("outputChannelAddress", this)
-			.changeListener((channel, newValue, oldValue) -> {
+			.addChangeListener((channel, newValue, oldValue) -> {
 				Optional<String> channelAddress = (Optional<String>) newValue;
 				if (channelAddress.isPresent()) {
 					Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());

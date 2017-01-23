@@ -14,7 +14,7 @@ public class CosPhiCharacteristicController extends Controller {
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this, Ess.class);
 
 	public ConfigChannel<List<Long[]>> cosPhiPoints = new ConfigChannel<List<Long[]>>("cosPhiPoints", this,
-			Long[].class).changeListener((channel, newValue, oldValue) -> {
+			Long[].class).addChangeListener((channel, newValue, oldValue) -> {
 				List<Point> points = new ArrayList<>();
 				if (newValue.isPresent()) {
 					List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();

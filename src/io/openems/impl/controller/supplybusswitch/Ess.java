@@ -47,6 +47,15 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Integer> minSoc;
 	public final WriteChannel<Long> setWorkState;
 	public final ReadChannel<Long> systemState;
+	private Supplybus activeSupplybus;
+
+	public Supplybus getActieSupplybus() {
+		return activeSupplybus;
+	}
+
+	public void setActiveSupplybus(Supplybus supplybus) {
+		this.activeSupplybus = supplybus;
+	}
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);

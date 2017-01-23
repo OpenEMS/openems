@@ -42,7 +42,7 @@ public interface Channel {
 	 * @param listeners
 	 * @return itself
 	 */
-	public Channel updateListener(ChannelUpdateListener... listeners);
+	public Channel addUpdateListener(ChannelUpdateListener... listeners);
 
 	/**
 	 * Register a listener for change events on this Channel
@@ -50,7 +50,23 @@ public interface Channel {
 	 * @param listeners
 	 * @return itself
 	 */
-	public Channel changeListener(ChannelChangeListener... listeners);
+	public Channel addChangeListener(ChannelChangeListener... listeners);
+
+	/**
+	 * Remove a listener for update events on this Channel
+	 *
+	 * @param listeners
+	 * @return itself
+	 */
+	public Channel removeUpdateListener(ChannelUpdateListener... listeners);
+
+	/**
+	 * Remove a listener for change events on this Channel
+	 *
+	 * @param listeners
+	 * @return itself
+	 */
+	public Channel removeChangeListener(ChannelChangeListener... listeners);
 
 	/**
 	 * Convert the channel to a JsonObject
