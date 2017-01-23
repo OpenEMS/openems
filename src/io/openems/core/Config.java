@@ -233,14 +233,10 @@ public class Config implements ChannelChangeListener {
 			JsonArray jDevices = JsonUtils.getAsJsonArray(jBridge, "devices");
 			for (JsonElement jDeviceElement : jDevices) {
 				JsonObject jDevice = JsonUtils.getAsJsonObject(jDeviceElement);
-				String deviceClass = JsonUtils.getAsString(jDevice, "class");
-				Device device = (Device) InjectionUtils.getThingInstance(deviceClass);
-				thingRepository.addThing(device);
-				log.debug("Add Device[" + device.id() + "], Implementation[" + device.getClass().getSimpleName() + "]");
-				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(device), jDevice);
+				Device device = thingRepository.createDevice(jDevice);
 				devices.add(device);
+				bridge.addDevice(device);
 			}
-			bridge.addDevices(devices);
 		}
 
 		/*
