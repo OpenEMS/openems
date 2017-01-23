@@ -424,20 +424,24 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 					continue;
 				}
 				for (Channel channel : channels) {
-					// Add Channel to thingChannels
-					thingChannels.put(thing, channel.id(), channel);
+					if (channel == null) {
+						log.error("Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName()
+								+ "]");
+					} else {
+						// Add Channel to thingChannels
+						thingChannels.put(thing, channel.id(), channel);
 
-					// Add Channel to writeChannels
-					if (channel instanceof WriteChannel) {
-						thingWriteChannels.put(thing, (WriteChannel<?>) channel);
+						// Add Channel to writeChannels
+						if (channel instanceof WriteChannel) {
+							thingWriteChannels.put(thing, (WriteChannel<?>) channel);
+						}
+
+						// Register Databus as listener
+						if (channel instanceof ReadChannel) {
+							((ReadChannel<?>) channel).addUpdateListener(databus);
+							((ReadChannel<?>) channel).addChangeListener(databus);
+						}
 					}
-
-					// Register Databus as listener
-					if (channel instanceof ReadChannel) {
-						((ReadChannel<?>) channel).addUpdateListener(databus);
-						((ReadChannel<?>) channel).addChangeListener(databus);
-					}
-
 				}
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				log.warn("Unable to add Channel. Member [" + member.getName() + "]", e);
