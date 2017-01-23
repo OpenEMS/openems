@@ -42,7 +42,8 @@ public abstract class Bridge extends AbstractWorker implements Thing {
 		super(THINGID_PREFIX + instanceCounter++);
 	}
 
-	@Override public String id() {
+	@Override
+	public String id() {
 		return getName();
 	}
 
@@ -60,6 +61,10 @@ public abstract class Bridge extends AbstractWorker implements Thing {
 		for (Device device : devices) {
 			addDevice(device);
 		}
+	}
+
+	public synchronized void removeDevice(Device device) {
+		this.devices.remove(device);
 	}
 
 	public synchronized List<Device> getDevices() {
