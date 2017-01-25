@@ -5,12 +5,14 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 public class AvoidTotalDischargeController extends Controller {
 
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
+	@ConfigInfo(title = "all ess where load reservation should work.", type = Ess.class)
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
 
 	public AvoidTotalDischargeController() {
 		super();
@@ -20,7 +22,8 @@ public class AvoidTotalDischargeController extends Controller {
 		super(id);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
 				/*

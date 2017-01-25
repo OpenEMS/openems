@@ -26,6 +26,7 @@ import java.util.List;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.ControllerUtils;
@@ -40,11 +41,14 @@ public class BalancingController extends Controller {
 	/*
 	 * Config
 	 */
-	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this, Double.class).defaultValue(0.95);
+	@ConfigInfo(title = "cosPhi to hold on the ess", type = Double.class)
+	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this).defaultValue(0.95);
 
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this, Ess.class);
+	@ConfigInfo(title = "ess to controll. Multiple ess possible", type = Ess.class)
+	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
-	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this, Meter.class);
+	@ConfigInfo(title = "Grid meter to meassure inhous power consumption", type = Meter.class)
+	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
 	private long[][] lastWriteValues = new long[3][8];
 	private int index = 0;
@@ -59,7 +63,8 @@ public class BalancingController extends Controller {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
 				ess.setWorkState.pushWriteFromLabel(EssNature.START);
