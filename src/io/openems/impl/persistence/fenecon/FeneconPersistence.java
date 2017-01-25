@@ -77,6 +77,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 				fieldValue = new StringFieldValue(field, (String) value);
 			} else if (value instanceof Inet4Address) {
 				fieldValue = new StringFieldValue(field, ((Inet4Address) value).getHostAddress());
+			} else if (value instanceof Boolean) {
+				fieldValue = new NumberFieldValue(field, ((Boolean) value) ? 1 : 0);
 			} else {
 				log.warn("FENECON Persistence for value type [" + value.getClass().getName() + "] is not implemented.");
 				return;
