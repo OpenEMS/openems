@@ -5,16 +5,18 @@ import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Point;
 
 public class CosPhiCharacteristicController extends Controller {
+	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
+	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this, Ess.class);
-
-	public ConfigChannel<List<Long[]>> cosPhiPoints = new ConfigChannel<List<Long[]>>("cosPhiPoints", this,
-			Long[].class).addChangeListener((channel, newValue, oldValue) -> {
+	@ConfigInfo(title = "The points of the characteristic (x = PowerRatio, y = cosPhi).", type = Long[].class)
+	public ConfigChannel<List<Long[]>> cosPhiPoints = new ConfigChannel<List<Long[]>>("cosPhiPoints", this)
+			.addChangeListener((channel, newValue, oldValue) -> {
 				List<Point> points = new ArrayList<>();
 				if (newValue.isPresent()) {
 					List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();
@@ -37,7 +39,8 @@ public class CosPhiCharacteristicController extends Controller {
 		super(id);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			if (ess.value().setActivePower.peekWrite().isPresent()) {
 				double pRatio = (double) ess.value().setActivePower.peekWrite().get()

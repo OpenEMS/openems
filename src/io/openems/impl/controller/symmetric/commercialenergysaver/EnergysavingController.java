@@ -26,6 +26,7 @@ import java.util.Set;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
@@ -37,7 +38,8 @@ import io.openems.api.exception.WriteChannelException;
  */
 public class EnergysavingController extends Controller {
 
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
+	@ConfigInfo(title = "All ess which should be stopped if the power is more than two minutes zero.", type = Ess.class)
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
 
 	private Long lastTimeValueWritten = 0L;
 
@@ -49,7 +51,8 @@ public class EnergysavingController extends Controller {
 		super(thingId);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
 				try {
@@ -71,7 +74,7 @@ public class EnergysavingController extends Controller {
 							lastTimeValueWritten = System.currentTimeMillis();
 						} else {
 							/*
-							 * TODO go to Standby if no values were written since two minutes
+							 * go to Standby if no values were written since two minutes
 							 */
 							if (lastTimeValueWritten + 2 * 60 * 1000 < System.currentTimeMillis()) {
 								if (!systemState.isPresent() || (!systemState.get().equals(SymmetricEssNature.STANDBY)
