@@ -136,7 +136,7 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 			if (esss.valueOptional().get().size() <= supplyBusConfig.valueOptional().get().size()) {
 				log.error("there must be one more ess than supply buses!");
 			} else {
-				supplybuses = generatreSupplybuses();
+				supplybuses = generateSupplybuses();
 			}
 		}
 	}
@@ -173,7 +173,7 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 		return activeEsss;
 	}
 
-	private List<Supplybus> generatreSupplybuses() {
+	private List<Supplybus> generateSupplybuses() {
 		if (esss.valueOptional().isPresent() && supplyBusConfig.valueOptional().isPresent()) {
 			List<Supplybus> buses = new ArrayList<>();
 			for (JsonObject bus : supplyBusConfig.valueOptional().get()) {
