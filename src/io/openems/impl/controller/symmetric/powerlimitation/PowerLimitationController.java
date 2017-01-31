@@ -2,17 +2,23 @@ package io.openems.impl.controller.symmetric.powerlimitation;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 public class PowerLimitationController extends Controller {
 
-	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this, Ess.class);
+	@ConfigInfo(title = "The storage which should be limited in power.", type = Ess.class)
+	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	public ConfigChannel<Long> pMin = new ConfigChannel<Long>("pMin", this, Long.class);
-	public ConfigChannel<Long> pMax = new ConfigChannel<Long>("pMax", this, Long.class);
-	public ConfigChannel<Long> qMin = new ConfigChannel<Long>("qMin", this, Long.class);
-	public ConfigChannel<Long> qMax = new ConfigChannel<Long>("qMax", this, Long.class);
+	@ConfigInfo(title = "The maximal allowed discharge activepower.(negative)", type = Long.class)
+	public ConfigChannel<Long> pMin = new ConfigChannel<Long>("pMin", this);
+	@ConfigInfo(title = "The maximal allowed charge activepower.(positive)", type = Long.class)
+	public ConfigChannel<Long> pMax = new ConfigChannel<Long>("pMax", this);
+	@ConfigInfo(title = "The maximal allowed discharge reactivepower.(negative)", type = Long.class)
+	public ConfigChannel<Long> qMin = new ConfigChannel<Long>("qMin", this);
+	@ConfigInfo(title = "The maximal allowed discharge reactivepower.(positive)", type = Long.class)
+	public ConfigChannel<Long> qMax = new ConfigChannel<Long>("qMax", this);
 
 	public PowerLimitationController() {
 		super();
@@ -22,7 +28,8 @@ public class PowerLimitationController extends Controller {
 		super(thingId);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			try {
 				ess.value().setActivePower.pushWriteMax(pMax.value());

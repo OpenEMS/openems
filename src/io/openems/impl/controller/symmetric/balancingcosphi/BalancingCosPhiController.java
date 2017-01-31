@@ -2,15 +2,18 @@ package io.openems.impl.controller.symmetric.balancingcosphi;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 
 public class BalancingCosPhiController extends Controller {
+	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
+	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this, Ess.class);
+	@ConfigInfo(title = "The meter which meassures the power from/to the grid", type = Meter.class)
+	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this, Meter.class);
-
-	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this, Double.class);
+	@ConfigInfo(title = "The cosPhi to hold on the grid meter.", type = Double.class)
+	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
 
 	public BalancingCosPhiController() {
 		super();
@@ -20,7 +23,8 @@ public class BalancingCosPhiController extends Controller {
 		super(thingId);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			double cosPhi = this.cosPhi.value();
 			double phi = Math.acos(cosPhi);

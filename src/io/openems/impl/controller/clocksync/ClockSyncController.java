@@ -6,11 +6,12 @@ import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.WriteChannelException;
 
 public class ClockSyncController extends Controller {
-	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this, RealTimeClock.class)
-			.optional();
+	@ConfigInfo(title = "realtTimeClock to set systemTime with", type = RealTimeClock.class)
+	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this).optional();
 
 	private boolean isDateSet = false;
 
@@ -24,7 +25,8 @@ public class ClockSyncController extends Controller {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		if (isDateSet) {
 			// Set time only once in the beginning
 			return;

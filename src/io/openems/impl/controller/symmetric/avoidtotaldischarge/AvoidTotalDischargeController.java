@@ -25,24 +25,21 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 public class AvoidTotalDischargeController extends Controller {
 
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
-
-	public final ConfigChannel<Long> powerDecreaseStep = new ConfigChannel<Long>("powerDecreaseStep", this, Long.class)
-			.defaultValue(2L);
+	@ConfigInfo(title = "Storages, where total discharge should be avoided. For excample to reserve load for the Off-Grid power supply.", type = Ess.class)
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
 
 	public AvoidTotalDischargeController() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public AvoidTotalDischargeController(String thingId) {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

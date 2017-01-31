@@ -27,6 +27,7 @@ import java.util.Optional;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
@@ -34,9 +35,11 @@ import io.openems.api.exception.WriteChannelException;
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
  */
 public class BalancingController extends Controller {
-	public final ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this, Ess.class);
+	@ConfigInfo(title = "All storages which should work as cluster to reach zero power consumption from the grid", type = Ess.class)
+	public final ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
-	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this, Meter.class);
+	@ConfigInfo(title = "the meter which meassures the power from/to the grid", type = Meter.class)
+	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
 	private boolean isOnGrid() throws InvalidValueException {
 		for (Ess ess : esss.value()) {
@@ -58,7 +61,8 @@ public class BalancingController extends Controller {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			// Run only if all ess are on-grid
 			if (isOnGrid()) {

@@ -22,24 +22,33 @@ package io.openems.impl.controller.symmetric.balancingbandgap;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 
 /*
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
  */
 public class BalancingBandgapController extends Controller {
-	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this, Ess.class);
+	@ConfigInfo(title = "The storage which should be controlled", type = Ess.class)
+	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this, Meter.class);
+	@ConfigInfo(title = "The meter which meassures the power from/to the grid", type = Meter.class)
+	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	public final ConfigChannel<Integer> minActivePower = new ConfigChannel<>("minActivePower", this, Integer.class);
-	public final ConfigChannel<Integer> maxActivePower = new ConfigChannel<>("maxActivePower", this, Integer.class);
-	public final ConfigChannel<Integer> minReactivePower = new ConfigChannel<>("minReactivePower", this, Integer.class);
-	public final ConfigChannel<Integer> maxReactivePower = new ConfigChannel<>("maxReactivePower", this, Integer.class);
-	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this,
-			Boolean.class).defaultValue(true);
+	@ConfigInfo(title = "Lower limit of the activepower bandgap.", type = Integer.class)
+	public final ConfigChannel<Integer> minActivePower = new ConfigChannel<>("minActivePower", this);
+	@ConfigInfo(title = "Upper limit of the activepower bandgap.", type = Integer.class)
+	public final ConfigChannel<Integer> maxActivePower = new ConfigChannel<>("maxActivePower", this);
+	@ConfigInfo(title = "Lower limit of the reactivepower bandgap.", type = Integer.class)
+	public final ConfigChannel<Integer> minReactivePower = new ConfigChannel<>("minReactivePower", this);
+	@ConfigInfo(title = "Upper limit of the reactivepower bandgap.", type = Integer.class)
+	public final ConfigChannel<Integer> maxReactivePower = new ConfigChannel<>("maxReactivePower", this);
+	@ConfigInfo(title = "sign if activepower bandgap is activated", type = Boolean.class)
+	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this)
+			.defaultValue(true);
+	@ConfigInfo(title = "sign if reactivepower bandgap is activated", type = Boolean.class)
 	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
-			this, Boolean.class).defaultValue(true);
+			this).defaultValue(true);
 
 	public BalancingBandgapController() {
 		super();
@@ -49,7 +58,8 @@ public class BalancingBandgapController extends Controller {
 		super(thingId);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			Ess ess = this.ess.value();
 			Meter meter = this.meter.value();

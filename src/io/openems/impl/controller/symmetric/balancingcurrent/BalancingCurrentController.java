@@ -2,15 +2,19 @@ package io.openems.impl.controller.symmetric.balancingcurrent;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 
 public class BalancingCurrentController extends Controller {
 
-	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this, Ess.class);
+	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
+	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this, Meter.class);
+	@ConfigInfo(title = "The meter which meassures the power from/to the grid", type = Meter.class)
+	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	public final ConfigChannel<Integer> currentOffset = new ConfigChannel<>("CurrentOffset", this, Integer.class);
+	@ConfigInfo(title = "The current to hold on the grid meter.", type = Integer.class)
+	public final ConfigChannel<Integer> currentOffset = new ConfigChannel<>("CurrentOffset", this);
 
 	public BalancingCurrentController() {
 		super();
@@ -20,7 +24,8 @@ public class BalancingCurrentController extends Controller {
 		super(thingId);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			Ess ess = this.ess.value();
 			// Calculate required sum values

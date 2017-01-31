@@ -1,33 +1,38 @@
-package io.openems.impl.controller.emergencygenerator;
+package io.openems.impl.controller.thermalpowerstation;
 
+import java.util.List;
 import java.util.Optional;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 
-public class EmergencyGeneratorController extends Controller {
+public class ThermalPowerStationController extends Controller {
 
 	@ConfigInfo(title = "The ess where the soc should be read from.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "The grid meter to detect if the system is Off-Grid or On-Grid.", type = Meter.class)
-	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
+	@ConfigInfo(title = "The meters of power producers for excample PV.", type = Meter.class)
+	public ConfigChannel<List<Meter>> meters = new ConfigChannel<>("meters", this);
 
-	@ConfigInfo(title = "if the soc falls under this value and the system is Off-Grid the generator starts", type = Long.class)
+	@ConfigInfo(title = "if the soc falls below this value and power production is below the productionLimit thermalpowerstation will start", type = Long.class)
 	public ConfigChannel<Long> minSoc = new ConfigChannel<Long>("minSoc", this);
-	@ConfigInfo(title = "if the system is Off-Grid and the generator is running the generator stops if the soc level increase over the maxSoc.", type = Long.class)
+	@ConfigInfo(title = "if the soc rise above maxSoc the thermalpowerstation will stop", type = Long.class)
 	public ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
 	@ConfigInfo(title = "true if the digital output should be inverted.", type = Boolean.class)
 	public ConfigChannel<Boolean> invertOutput = new ConfigChannel<>("invertOutput", this);
+	@ConfigInfo(title = "if the soc falls below this value and power production is below the productionLimit thermalpowerstation will start", type = Long.class)
+	public ConfigChannel<Long> productionLimit = new ConfigChannel<>("productionLimit", this);
+	@ConfigInfo(title = "indicates how long the production power must be below the productionLimit to start the powerstation. Time in minutes.", type = Long.class)
+	public ConfigChannel<Long> limitTimeRange = new ConfigChannel<>("limitTimeRange", this);
 
 	private ThingRepository repo = ThingRepository.getInstance();
+	private Long lastTimeBelowProductionlimit = System.currentTimeMillis();
 
 	@SuppressWarnings("unchecked")
 	@ConfigInfo(title = "the address of the Digital Output where the generator is connected to.", type = String.class)
@@ -48,41 +53,35 @@ public class EmergencyGeneratorController extends Controller {
 
 	private WriteChannel<Boolean> outputChannel;
 
-	private boolean generatorOn = true;
+	private boolean outputOn = true;
 
-	public EmergencyGeneratorController() {
+	public ThermalPowerStationController() {
 		super();
 	}
 
-	public EmergencyGeneratorController(String thingId) {
+	public ThermalPowerStationController(String thingId) {
 		super(thingId);
 	}
 
 	@Override
 	public void run() {
 		try {
-			// Check if grid is available
-			if (!meter.value().voltage.valueOptional().isPresent()
-					|| !(meter.value().voltage.value() >= 200 && meter.value().voltage.value() <= 260)) {
-				// no meassurable voltage => Off-Grid
-				if (ess.value().gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID)) && !generatorOn
-						&& ess.value().soc.value() <= minSoc.value()) {
-					// switch generator on
-					startGenerator();
-					generatorOn = true;
-				} else if (ess.value().gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID)) && generatorOn
-						&& ess.value().soc.value() >= maxSoc.value()) {
-					// switch generator off
-					stopGenerator();
-					generatorOn = false;
-				} else if (generatorOn) {
-					startGenerator();
-				} else if (!generatorOn) {
-					stopGenerator();
-				}
-			} else {
-				// Grid voltage is the allowed range
+			if (getProductionPower() <= productionLimit.value()) {
+				lastTimeBelowProductionlimit = System.currentTimeMillis();
+			}
+			if (!outputOn && ess.value().soc.value() <= minSoc.value()
+					&& getProductionPower() <= productionLimit.value()) {
+				// switch generator on
+				startGenerator();
+				outputOn = true;
+			} else if (outputOn && (ess.value().soc.value() >= maxSoc.value() || lastTimeBelowProductionlimit
+					+ limitTimeRange.value() * 60 * 1000 <= System.currentTimeMillis())) {
 				// switch generator off
+				stopGenerator();
+				outputOn = false;
+			} else if (outputOn) {
+				startGenerator();
+			} else if (!outputOn) {
 				stopGenerator();
 			}
 		} catch (InvalidValueException e) {
@@ -102,6 +101,14 @@ public class EmergencyGeneratorController extends Controller {
 		if (outputChannel.value() != false ^ invertOutput.value()) {
 			outputChannel.pushWrite(false ^ invertOutput.value());
 		}
+	}
+
+	private Long getProductionPower() throws InvalidValueException {
+		Long power = 0L;
+		for (Meter m : meters.value()) {
+			power += m.power.value();
+		}
+		return power;
 	}
 
 }

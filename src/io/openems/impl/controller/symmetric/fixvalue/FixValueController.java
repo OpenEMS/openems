@@ -4,15 +4,18 @@ import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 public class FixValueController extends Controller {
+	@ConfigInfo(title = "All storage, which should be set to the p and q values.", type = Ess.class)
+	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this, Ess.class);
-
-	public ConfigChannel<Integer> p = new ConfigChannel<Integer>("p", this, Integer.class);
-	public ConfigChannel<Integer> q = new ConfigChannel<Integer>("q", this, Integer.class);
+	@ConfigInfo(title = "The activePower to set for each storage.", type = Integer.class)
+	public ConfigChannel<Integer> p = new ConfigChannel<Integer>("p", this);
+	@ConfigInfo(title = "The reactivePower to set for each storage.", type = Integer.class)
+	public ConfigChannel<Integer> q = new ConfigChannel<Integer>("q", this);
 
 	public FixValueController() {
 		super();
@@ -22,7 +25,8 @@ public class FixValueController extends Controller {
 		super(thingId);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
 				try {

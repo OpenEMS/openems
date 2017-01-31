@@ -22,6 +22,7 @@ package io.openems.impl.controller.symmetric.powerbyfrequency;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.ControllerUtils;
@@ -30,13 +31,15 @@ import io.openems.core.utilities.ControllerUtils;
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
  */
 public class PowerByFrequencyController extends Controller {
-	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this, Ess.class);
+	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
+	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
+	@ConfigInfo(title = "The meter for the frequency meassurement.", type = Meter.class)
+	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this, Meter.class);
-
-	public final ConfigChannel<Integer> lowSocLimit = new ConfigChannel<Integer>("lowSocLimit", this, Integer.class)
-			.defaultValue(30);
-	public final ConfigChannel<Integer> highSocLimit = new ConfigChannel<Integer>("highSocLimit", this, Integer.class)
+	@ConfigInfo(title = "The lower soc limit. Below this limit the storage will charge with more power by the same frequency.", type = Integer.class)
+	public final ConfigChannel<Integer> lowSocLimit = new ConfigChannel<Integer>("lowSocLimit", this).defaultValue(30);
+	@ConfigInfo(title = "The upper soc limit. Above this limit the storage will discharge with more power by the same frequency.", type = Integer.class)
+	public final ConfigChannel<Integer> highSocLimit = new ConfigChannel<Integer>("highSocLimit", this)
 			.defaultValue(70);
 
 	public PowerByFrequencyController() {
@@ -47,7 +50,8 @@ public class PowerByFrequencyController extends Controller {
 		super(thingId);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			Ess ess = this.ess.value();
 			Meter meter = this.meter.value();

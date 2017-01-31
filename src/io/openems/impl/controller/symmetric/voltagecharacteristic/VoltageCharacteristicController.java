@@ -8,6 +8,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Point;
@@ -15,20 +16,24 @@ import io.openems.core.utilities.Power;
 
 public class VoltageCharacteristicController extends Controller {
 
-	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this, Ess.class);
-
-	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this, Meter.class);
-
-	public final ConfigChannel<Integer> uNenn = new ConfigChannel<>("UNenn", this, Integer.class);
-
+	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
+	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
+	@ConfigInfo(title = "The meter to meassure the Voltage.", type = Meter.class)
+	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
+	@ConfigInfo(title = "Nennvoltage of the grid.", type = Integer.class)
+	public final ConfigChannel<Integer> uNenn = new ConfigChannel<>("UNenn", this);
+	@ConfigInfo(title = "CharacteristicPoints for the activepower.", type = Long[].class)
 	public final ConfigChannel<List<Long[]>> pByUCharacteristicPoints = new ConfigChannel<>("pByUCharacteristicPoints",
-			this, Long[].class);
+			this);
+	@ConfigInfo(title = "CharacteristicPoints for the reactivepower.", type = Long[].class)
 	public final ConfigChannel<List<Long[]>> qByUCharacteristicPoints = new ConfigChannel<>("qByUCharacteristicPoints",
-			this, Long[].class);
-	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this,
-			Boolean.class).defaultValue(true);
+			this);
+	@ConfigInfo(title = "Indicates if the activepower characteristic is active.", type = Boolean.class)
+	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this)
+			.defaultValue(true);
+	@ConfigInfo(title = "Indicates if the reactivepower characteristic is active.", type = Boolean.class)
 	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
-			this, Boolean.class).defaultValue(true);
+			this).defaultValue(true);
 
 	private List<Point> pCharacteristic;
 

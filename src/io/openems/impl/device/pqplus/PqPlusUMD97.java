@@ -18,49 +18,31 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.symmetric.commercialworkstate;
+package io.openems.impl.device.pqplus;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.controller.Controller;
-import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
-import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
+import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.exception.OpenemsException;
+import io.openems.impl.protocol.modbus.ModbusDevice;
 
-/**
- *
- * @author matthias.rossmann
- *         This Controller send the Ess a command to always run.
- *         Use if Off-Grid Functionality is required.
- */
-public class AlwaysOnController extends Controller {
+public class PqPlusUMD97 extends ModbusDevice {
 
-	@ConfigInfo(title = "All storages, which should allways run.", type = Ess.class)
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
+	public final ConfigChannel<PqPlusUMD97Meter> meter = new ConfigChannel<PqPlusUMD97Meter>("meter", this,
+			PqPlusUMD97Meter.class);
 
-	public AlwaysOnController() {
+	public PqPlusUMD97() throws OpenemsException {
 		super();
 	}
 
-	public AlwaysOnController(String thingId) {
-		super(thingId);
-	}
-
-	@Override
-	public void run() {
-		try {
-			for (Ess ess : esss.value()) {
-				try {
-					ess.setWorkState.pushWriteFromLabel(EssNature.START);
-				} catch (WriteChannelException e) {
-					log.error("", e);
-				}
-			}
-		} catch (InvalidValueException e) {
-			log.error("No Storage Found!", e);
+	@Override protected Set<DeviceNature> getDeviceNatures() {
+		Set<DeviceNature> natures = new HashSet<>();
+		if (meter.valueOptional().isPresent()) {
+			natures.add(meter.valueOptional().get());
 		}
+		return natures;
 	}
 
 }

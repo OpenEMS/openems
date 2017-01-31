@@ -25,6 +25,7 @@ import java.util.Optional;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
@@ -36,8 +37,10 @@ import io.openems.api.exception.WriteChannelException;
  */
 public class WorkStateController extends Controller {
 
-	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this, Ess.class);
-	public final ConfigChannel<Boolean> start = new ConfigChannel<>("start", this, Boolean.class);
+	@ConfigInfo(title = "The refu storage to stop/start.", type = Ess.class)
+	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
+	@ConfigInfo(title = "Indicates if the storage should be started or stopped.", type = Boolean.class)
+	public final ConfigChannel<Boolean> start = new ConfigChannel<>("start", this);
 
 	private boolean reset = false;
 	private long lastReset = 0L;

@@ -30,6 +30,7 @@ import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
@@ -38,9 +39,11 @@ public class CapacityTestController extends Controller {
 	/*
 	 * Config
 	 */
-	public ConfigChannel<Integer> power = new ConfigChannel<Integer>("power", this, Integer.class).defaultValue(750);
+	@ConfigInfo(title = "power to discharge ess", type = Integer.class)
+	public ConfigChannel<Integer> power = new ConfigChannel<Integer>("power", this).defaultValue(750);
 
-	public ConfigChannel<String> logPath = new ConfigChannel<String>("logPath", this, String.class);
+	@ConfigInfo(title = "path to save the logfile", type = String.class)
+	public ConfigChannel<String> logPath = new ConfigChannel<String>("logPath", this);
 
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this, Ess.class);
 

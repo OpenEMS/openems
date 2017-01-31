@@ -5,18 +5,24 @@ import java.util.List;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Power;
 
 public class PowerRampController extends Controller {
 
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this, Ess.class);
+	@ConfigInfo(title = "All storage, which should be controlled", type = Ess.class)
+	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
-	public ConfigChannel<Integer> pMax = new ConfigChannel<Integer>("pMax", this, Integer.class);
-	public ConfigChannel<Integer> pStep = new ConfigChannel<Integer>("pStep", this, Integer.class);
-	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this, Double.class);
-	public ConfigChannel<Integer> sleep = new ConfigChannel<>("sleep", this, Integer.class);
+	@ConfigInfo(title = "The limit where the powerRamp stops.(pos/neg)", type = Integer.class)
+	public ConfigChannel<Integer> pMax = new ConfigChannel<Integer>("pMax", this);
+	@ConfigInfo(title = "How high the step to increase the power is.", type = Integer.class)
+	public ConfigChannel<Integer> pStep = new ConfigChannel<Integer>("pStep", this);
+	@ConfigInfo(title = "The cosPhi to hold.", type = Double.class)
+	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
+	@ConfigInfo(title = "How long to slee till next power step.", type = Integer.class)
+	public ConfigChannel<Integer> sleep = new ConfigChannel<>("sleep", this);
 	private long lastPower;
 	private long lastSet;
 
@@ -28,7 +34,8 @@ public class PowerRampController extends Controller {
 		super(thingId);
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
 				try {

@@ -4,20 +4,28 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 public class FixValueController extends Controller {
 
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this, Ess.class);
+	@ConfigInfo(title = "ess to set fix power value", type = Ess.class)
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
 
-	public final ConfigChannel<Long> activePowerL1 = new ConfigChannel<>("activePowerL1", this, Long.class);
-	public final ConfigChannel<Long> activePowerL2 = new ConfigChannel<>("activePowerL2", this, Long.class);
-	public final ConfigChannel<Long> activePowerL3 = new ConfigChannel<>("activePowerL3", this, Long.class);
+	@ConfigInfo(title = "Fixvalue activePower for phase 1", type = Long.class)
+	public final ConfigChannel<Long> activePowerL1 = new ConfigChannel<>("activePowerL1", this);
+	@ConfigInfo(title = "Fixvalue activePower for phase 2", type = Long.class)
+	public final ConfigChannel<Long> activePowerL2 = new ConfigChannel<>("activePowerL2", this);
+	@ConfigInfo(title = "Fixvalue activePower for phase 3", type = Long.class)
+	public final ConfigChannel<Long> activePowerL3 = new ConfigChannel<>("activePowerL3", this);
 
-	public final ConfigChannel<Long> reactivePowerL1 = new ConfigChannel<>("reactivePowerL1", this, Long.class);
-	public final ConfigChannel<Long> reactivePowerL2 = new ConfigChannel<>("reactivePowerL2", this, Long.class);
-	public final ConfigChannel<Long> reactivePowerL3 = new ConfigChannel<>("reactivePowerL3", this, Long.class);
+	@ConfigInfo(title = "Fixvalue reactivePower for phase 1", type = Long.class)
+	public final ConfigChannel<Long> reactivePowerL1 = new ConfigChannel<>("reactivePowerL1", this);
+	@ConfigInfo(title = "Fixvalue reactivePower for phase 2", type = Long.class)
+	public final ConfigChannel<Long> reactivePowerL2 = new ConfigChannel<>("reactivePowerL2", this);
+	@ConfigInfo(title = "Fixvalue reactivePower for phase 3", type = Long.class)
+	public final ConfigChannel<Long> reactivePowerL3 = new ConfigChannel<>("reactivePowerL3", this);
 
 	public FixValueController() {
 		super();
@@ -29,7 +37,8 @@ public class FixValueController extends Controller {
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override public void run() {
+	@Override
+	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
 				try {
