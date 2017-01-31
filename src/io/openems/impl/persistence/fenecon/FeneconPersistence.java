@@ -17,6 +17,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.persistence.Persistence;
+import io.openems.core.Config;
 import io.openems.core.Databus;
 
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
@@ -28,8 +29,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this);
 
 	@ConfigInfo(title = "Sets the connection URI", type = String.class)
-	public final ConfigChannel<String> uri = new ConfigChannel<String>("uri", this, String.class)
-			.defaultValue("wss://fenecon.de/femsserver:443");
+	public final ConfigChannel<String> uri = new ConfigChannel<String>("uri", this)
+			.defaultValue("wss://fenecon.de:443/femsserver");
 
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
 
@@ -39,7 +40,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 	private static final int DEFAULT_CYCLETIME = 2000;
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
 			.defaultValue(DEFAULT_CYCLETIME);
 
 	@Override
@@ -98,7 +100,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 	@Override
 	protected void forever() {
-		JsonObject jData = new JsonObject();
+		JsonObject jTimedata = new JsonObject();
 		/*
 		 * Convert FieldVales in queue to JsonObject
 		 */
@@ -112,13 +114,13 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 						jTimestamp.addProperty(fieldValue.field, ((StringFieldValue) fieldValue).value);
 					}
 				});
-				jData.add(String.valueOf(timestamp), jTimestamp);
+				jTimedata.add(String.valueOf(timestamp), jTimestamp);
 			});
 			queue.clear();
 		}
 		// build Json
 		JsonObject j = new JsonObject();
-		j.add("data", jData);
+		j.add("timedata", jTimedata);
 		/*
 		 * Send to Server
 		 */
@@ -132,10 +134,10 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 			// resend from cache
 			for (Iterator<JsonObject> iterator = unsentCache.iterator(); iterator.hasNext();) {
-				JsonObject jFromCache = iterator.next();
-				JsonObject jCachedData = new JsonObject();
-				j.add("cachedData", jFromCache);
-				boolean cacheWasSent = _websocket.send(jCachedData);
+				JsonObject jCachedTimedata = iterator.next();
+				JsonObject jCached = new JsonObject();
+				jCached.add("timedata", jCachedTimedata);
+				boolean cacheWasSent = this._websocket.send(jCached);
 				if (cacheWasSent) {
 					iterator.remove();
 				}
@@ -148,9 +150,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			increaseCycleTime();
 
 			// cache data for later
-			unsentCache.add(jData);
-			// TODO: store the timestamp here to resend data later from influxdb
-			// increase cycleTime
+			unsentCache.add(jTimedata);
 		}
 	}
 
@@ -169,12 +169,20 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		String apikey = this.apikey.valueOptional().get();
 		try {
 			// create new websocket
+			// TODO: check server certificate
 			ws = new WebsocketClient(new URI(uri), apikey);
 			boolean connected = ws.connectBlocking();
 			if (connected) {
 				// return connected websocket
 				log.info("FENECON persistence connected to uri [" + uri + "]");
 				this._websocket = ws;
+				// send current OpenEMS config
+				JsonObject jConfig = Config.getInstance().getMetaConfigJson();
+				JsonObject jMetadata = new JsonObject();
+				jMetadata.add("config", jConfig);
+				JsonObject j = new JsonObject();
+				j.add("metadata", jMetadata);
+				ws.send(j);
 				return Optional.of(ws);
 			} else {
 				// not connected -> return empty

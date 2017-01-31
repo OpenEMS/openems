@@ -24,7 +24,6 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
-import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
@@ -36,7 +35,6 @@ import io.openems.core.ClassRepository;
 import io.openems.core.Config;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ConfigUtils;
-import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
 
 public class WebsocketServer extends WebSocketServer {
@@ -167,6 +165,26 @@ public class WebsocketServer extends WebSocketServer {
 		} catch (ReflectionException e) { /* ignore */ }
 	}
 
+	/**
+	 * Sends an initial message to the browser
+	 *
+	 * <pre>
+	 * {
+	 *   authenticate: {
+	 *     [token: "",]
+	 *     [username: "",]
+	 *     [failed: true]
+	 *   },
+	 *   all_devices: {
+	 *     fems: {
+	 *       config: {...}
+	 *     }
+	 *   }
+	 * }
+	 * </pre>
+	 *
+	 * @param handler
+	 */
 	private void sendInitialMessage(WebsocketHandler handler) {
 		JsonObject jReply = new JsonObject();
 		JsonObject jAuthenticate = new JsonObject();
@@ -181,7 +199,12 @@ public class WebsocketServer extends WebSocketServer {
 			 */
 			JsonObject jDevices = new JsonObject();
 			JsonObject jDevice = new JsonObject();
-			jDevice.add("config", getConfigJson());
+			try {
+				jDevice.add("config", Config.getInstance().getMetaConfigJson());
+			} catch (ConfigException e) {
+				log.error(e.getMessage());
+			}
+			jDevice.addProperty("online", true);
 			jDevices.add(DEFAULT_DEVICE_NAME, jDevice);
 			jReply.add("all_devices", jDevices);
 		} else {
@@ -193,64 +216,6 @@ public class WebsocketServer extends WebSocketServer {
 		}
 		jReply.add("authenticate", jAuthenticate);
 		WebsocketServer.send(handler.getWebSocket(), jReply);
-	}
-
-	private JsonObject getConfigJson() {
-		try {
-			Config config = Config.getInstance();
-			/*
-			 * Json Config
-			 */
-			JsonObject j = config.getJson(true);
-			JsonObject jMeta = new JsonObject();
-			/*
-			 * Natures
-			 */
-			JsonObject jDeviceNatures = new JsonObject();
-			thingRepository.getDeviceNatures().forEach(nature -> {
-				JsonArray jNatureClasses = new JsonArray();
-				/*
-				 * get important classes/interfaces that are implemented by this nature
-				 */
-				for (Class<?> iface : InjectionUtils.getImportantNatureInterfaces(nature.getClass())) {
-					jNatureClasses.add(iface.getSimpleName());
-				}
-				jDeviceNatures.add(nature.id(), jNatureClasses);
-			});
-			jMeta.add("natures", jDeviceNatures);
-			/*
-			 * Available
-			 */
-			// Controllers
-			JsonArray jControllers = new JsonArray();
-			for (ThingDoc description : classRepository.getAvailableControllers()) {
-				jControllers.add(description.getAsJsonObject());
-			}
-			jMeta.add("controllers", jControllers);
-			// Bridges
-			JsonArray jBridges = new JsonArray();
-			for (ThingDoc description : classRepository.getAvailableBridges()) {
-				jBridges.add(description.getAsJsonObject());
-			}
-			jMeta.add("bridges", jBridges);
-			// Devices
-			JsonArray jDevices = new JsonArray();
-			for (ThingDoc description : classRepository.getAvailableDevices()) {
-				jDevices.add(description.getAsJsonObject());
-			}
-			jMeta.add("devices", jDevices);
-			// Schedulers
-			JsonArray jSchedulers = new JsonArray();
-			for (ThingDoc description : classRepository.getAvailableSchedulers()) {
-				jSchedulers.add(description.getAsJsonObject());
-			}
-			jMeta.add("schedulers", jSchedulers);
-			j.add("_meta", jMeta);
-			return j;
-		} catch (NotImplementedException | ConfigException | ReflectionException e) {
-			log.warn("Unable to create config: " + e.getMessage());
-			return new JsonObject();
-		}
 	}
 
 	private void subscribe(JsonElement j, WebsocketHandler handler) {
@@ -348,7 +313,7 @@ public class WebsocketServer extends WebSocketServer {
 			}
 			// Send new config
 			JsonObject j = new JsonObject();
-			j.add("config", getConfigJson());
+			j.add("config", Config.getInstance().getMetaConfigJson());
 			handler.send(true, j);
 		} catch (OpenemsException | ClassNotFoundException e) {
 			handler.sendNotification(NotificationType.ERROR, e.getMessage());

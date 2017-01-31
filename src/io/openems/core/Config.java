@@ -48,6 +48,7 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
+import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
@@ -380,6 +381,7 @@ public class Config implements ChannelChangeListener {
 	 */
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+		// TODO: trigger ConfigUpdated event
 		try {
 			writeConfigFile();
 		} catch (OpenemsException e) {
@@ -402,5 +404,69 @@ public class Config implements ChannelChangeListener {
 			throw new ConfigException("No config file found!");
 		}
 		return configFile;
+	}
+
+	/**
+	 * Generates a JsonObject including the current configuration as well as meta-data about available controllers,
+	 * bridges,...
+	 *
+	 * @return
+	 */
+	public JsonObject getMetaConfigJson() {
+		try {
+			/*
+			 * Json Config
+			 */
+			JsonObject j = getJson(true);
+			JsonObject jMeta = new JsonObject();
+			/*
+			 * Natures
+			 */
+			JsonObject jDeviceNatures = new JsonObject();
+			thingRepository.getDeviceNatures().forEach(nature -> {
+				JsonArray jNatureClasses = new JsonArray();
+				/*
+				 * get important classes/interfaces that are implemented by this nature
+				 */
+				for (Class<?> iface : InjectionUtils.getImportantNatureInterfaces(nature.getClass())) {
+					jNatureClasses.add(iface.getSimpleName());
+				}
+				jDeviceNatures.add(nature.id(), jNatureClasses);
+			});
+			jMeta.add("natures", jDeviceNatures);
+			/*
+			 * Available
+			 */
+			ClassRepository classRepository = ClassRepository.getInstance();
+			// Controllers
+			JsonArray jControllers = new JsonArray();
+			for (ThingDoc description : classRepository.getAvailableControllers()) {
+				jControllers.add(description.getAsJsonObject());
+			}
+			jMeta.add("controllers", jControllers);
+			// Bridges
+			JsonArray jBridges = new JsonArray();
+			for (ThingDoc description : classRepository.getAvailableBridges()) {
+				jBridges.add(description.getAsJsonObject());
+			}
+			jMeta.add("bridges", jBridges);
+			// Devices
+			JsonArray jDevices = new JsonArray();
+			for (ThingDoc description : classRepository.getAvailableDevices()) {
+				jDevices.add(description.getAsJsonObject());
+			}
+			jMeta.add("devices", jDevices);
+			// Schedulers
+			JsonArray jSchedulers = new JsonArray();
+			for (ThingDoc description : classRepository.getAvailableSchedulers()) {
+				jSchedulers.add(description.getAsJsonObject());
+			}
+			jMeta.add("schedulers", jSchedulers);
+			j.add("_meta", jMeta);
+			return j;
+		} catch (NotImplementedException | ReflectionException e) {
+			log.warn("Unable to create config: " + e.getMessage());
+			return new JsonObject();
+		}
 	}
 }

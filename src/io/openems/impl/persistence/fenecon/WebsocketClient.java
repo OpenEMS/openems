@@ -22,6 +22,8 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketClient.class);
 
+	private final WebsocketHandler handler = new WebsocketHandler(this.getConnection());
+
 	public WebsocketClient(URI uri, String apikey) throws Exception {
 		super( //
 				uri, //
@@ -29,7 +31,6 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 				Stream.of(new SimpleEntry<>("apikey", apikey))
 						.collect(Collectors.toMap((se) -> se.getKey(), (se) -> se.getValue())),
 				0);
-
 		if (uri.toString().startsWith("wss")) {
 			try {
 				SSLContext sslContext = null;
@@ -42,19 +43,18 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 		}
 	}
 
-	@Override public void onClose(int code, String reason, boolean remote) {
+	@Override
+	public void onClose(int code, String reason, boolean remote) {
 		log.info("Websocket closed. Code[" + code + "] Reason[" + reason + "]");
 	}
 
-	@Override public void onError(Exception ex) {
+	@Override
+	public void onError(Exception ex) {
 		log.warn("Websocket error: " + ex.getMessage());
 	}
 
-	@Override public void onMessage(String message) {
-		log.info("Websocket message: " + message);
-	}
-
-	@Override public void onOpen(ServerHandshake handshakedata) {
+	@Override
+	public void onOpen(ServerHandshake handshakedata) {
 		log.info("Websocket opened");
 	}
 
@@ -65,5 +65,13 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 		} catch (WebsocketNotConnectedException e) {
 			return false;
 		}
+	}
+
+	/**
+	 * Message event of websocket. Forwards a new message to the handler.
+	 */
+	@Override
+	public void onMessage(String message) {
+		this.handler.onMessage(message);
 	}
 }
