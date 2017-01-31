@@ -14,16 +14,21 @@ import org.slf4j.LoggerFactory;
 import com.abercap.odoo.OdooApiException;
 import com.abercap.odoo.Row;
 
-public class OdooObject {
+public abstract class OdooObject {
 	private final Logger log = LoggerFactory.getLogger(OdooObject.class);
-	private final Row row;
-	private final OdooModel<?> model;
+	private Row row;
+	private OdooModel<?> model;
 	private boolean isChangedSinceLastWrite = false;
 	private long lastWrite = 0;
 
 	public OdooObject(OdooModel<?> model, Row row) {
 		this.model = model;
 		this.row = row;
+	}
+
+	public void refreshFrom(OdooObject o) {
+		this.row = o.row;
+		this.model = o.model;
 	}
 
 	public Object get(String fieldName) {
@@ -55,10 +60,11 @@ public class OdooObject {
 			isChangedSinceLastWrite = false;
 		}
 	}
-	
+
 	public Date odooCompatibleNow() {
 		Instant instant = Instant.now();
-		int seconds = ZonedDateTime.of(LocalDateTime.ofInstant(instant, ZoneOffset.UTC), ZoneId.systemDefault()).getOffset().getTotalSeconds();
+		int seconds = ZonedDateTime.of(LocalDateTime.ofInstant(instant, ZoneOffset.UTC), ZoneId.systemDefault())
+				.getOffset().getTotalSeconds();
 		return Date.from(instant.minusSeconds(seconds));
 	}
 }

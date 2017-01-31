@@ -1,0 +1,99 @@
+sequenceDiagram
+participant Browser
+participant OpenEMS
+participant FemsServer
+participant Odoo
+participant InfluxDB
+
+%%
+%% Authenticate: Browser->FemsServer
+%%
+Note over Browser,FemsServer: Authenticate: Browser->FemsServer
+Browser ->>+ FemsServer: session_id authentication
+%% Cookie: session_id
+FemsServer ->>+ Odoo: /fems/info?
+%% /fems/info?session_id=...
+Odoo -->>- FemsServer: result/failed
+%% on success: { result: { devices: ["...",] } }
+%% on error: { error }
+FemsServer --> OpenEMS: is online?
+FemsServer -->>- Browser: authenticate: allow, metadata
+%% {
+%%   authenticate: {
+%%     mode: allow, username, token
+%%   }, metadata: {
+%%     devices: [{
+%%       name, config, online
+%%     }]
+%%   }
+%% }
+
+%%
+%% Current data: FemsServer->Browser
+%%
+Note over Browser,FemsServer: Current data: FemsServer->Browser
+Browser ->>+ FemsServer: subscribe: channels
+%% {
+%%   device: "...",
+%%   subscribe: {
+%%     thing0: [
+%%       channel
+%%     ]
+%%   }
+%% }
+FemsServer ->>+ OpenEMS: subscribe: channels
+loop
+    OpenEMS -->> FemsServer: currentdata
+    %% {
+    %%   currentdata: [{ 
+    %%     channel, value
+    %%   }]
+    %% }
+    FemsServer -->> Browser: currentdata
+    %% {
+    %%   device: "...",
+    %%   currentdata: [{ 
+    %%     channel, value
+    %%   }]
+    %% }
+end
+Browser ->>- FemsServer: subscribe: false
+FemsServer ->>- OpenEMS: subscribe: false
+
+%%
+%% Authenticate: OpenEMS->FemsServer
+%%
+Note over OpenEMS,FemsServer: Authenticate: OpenEMS->FemsServer
+OpenEMS ->> FemsServer: handshake authentication
+OpenEMS ->> FemsServer: metadata
+%% {
+%%   metadata: {
+%%     config
+%%   }
+%% }
+
+Note over OpenEMS,FemsServer: Send timestamped data: OpenEMS->FemsServer
+loop
+    OpenEMS ->> FemsServer: timedata
+    %% {
+    %%   timedata: {
+    %%     timestamp: [{
+    %%       channel, value
+    %%     }]
+    %%   }
+    %% }
+    FemsServer ->> InfluxDB: [data]
+    FemsServer ->> Odoo: [some data]
+end
+
+%%
+%% Notification FemsServer->Browser
+%%
+Note over Browser,FemsServer: Notification FemsServer->Browser
+FemsServer ->> Browser: notification
+%% {
+%%   device: "...",
+%%   notification: {
+%%     message: "...
+%%   }
+%% }

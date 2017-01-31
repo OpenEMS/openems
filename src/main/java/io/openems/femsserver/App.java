@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.femsserver.browserwebsocket.BrowserWebsocket;
 import io.openems.femsserver.femswebsocket.FemsWebsocket;
 import io.openems.femsserver.influx.Influxdb;
 import io.openems.femsserver.odoo.Odoo;
@@ -17,28 +18,21 @@ import io.openems.femsserver.odoo.Odoo;
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
-	private static int FEMS_WEBSOCKET_PORT = 8086;
-
 	public static void main(String[] args) throws Exception {
 		log.info("FEMS-Server starting...");
 
 		// Configure everything
-		log.info("Read config");
 		Properties config = getConfig();
-		log.info("Connect to Odoo");
 		initOdoo(config);
-		log.info("Connect to InfluxDB");
 		initInfluxdb(config);
-
-		// Start FEMS websocket
-		log.info("Start websocket server on " + FEMS_WEBSOCKET_PORT);
-		FemsWebsocket ws = new FemsWebsocket(FEMS_WEBSOCKET_PORT);
-		ws.start();
+		initFemsWebsocket(config);
+		initBrowserWebsocket(config);
 
 		log.info("FEMS-Server started.");
 	}
 
 	private static Properties getConfig() throws IOException {
+		log.info("Read config");
 		Path configLocation = Paths.get("config.properties");
 		try (InputStream stream = Files.newInputStream(configLocation)) {
 			Properties config = new Properties();
@@ -48,6 +42,7 @@ public class App {
 	}
 
 	private static void initOdoo(Properties config) throws Exception {
+		log.info("Connect to Odoo");
 		String url = config.getProperty("odoo.url");
 		int port = Integer.valueOf(config.getProperty("odoo.port"));
 		String database = config.getProperty("odoo.database");
@@ -57,11 +52,24 @@ public class App {
 	}
 
 	private static void initInfluxdb(Properties config) throws Exception {
+		log.info("Connect to InfluxDB");
 		String database = config.getProperty("influx.database");
 		String url = config.getProperty("influx.url");
 		int port = Integer.valueOf(config.getProperty("influx.port"));
 		String username = config.getProperty("influx.username");
 		String password = config.getProperty("influx.password");
 		Influxdb.initialize(database, url, port, username, password);
+	}
+
+	private static void initFemsWebsocket(Properties config) throws Exception {
+		int port = Integer.valueOf(config.getProperty("femswebsocket.port"));
+		log.info("Start FEMS Websocket server on " + port);
+		FemsWebsocket.initialize(port);
+	}
+
+	private static void initBrowserWebsocket(Properties config) throws Exception {
+		int port = Integer.valueOf(config.getProperty("browserwebsocket.port"));
+		log.info("Start Browser Websocket server on " + port);
+		BrowserWebsocket.initialize(port);
 	}
 }

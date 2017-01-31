@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit;
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
-import org.influxdb.dto.Point.Builder;
 import org.influxdb.dto.Point;
+import org.influxdb.dto.Point.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +69,7 @@ public class Influxdb {
 
 	/**
 	 * Takes a JsonObject and writes the points to influxDB.
-	 * 
+	 *
 	 * Format: { "timestamp1" { "channel1": value, "channel2": value },
 	 * "timestamp2" { "channel1": value, "channel2": value } }
 	 */
@@ -110,15 +110,5 @@ public class Influxdb {
 		});
 		// write to DB
 		influxDB.write(batchPoints);
-		log.info("fems" + fems + ": wrote " + batchPoints.getPoints().size() + " points " + toShortString(jData, 120));
-	}
-
-	private String toShortString(JsonObject j, int length) {
-		String s = j.toString();
-		if (s.length() > length - 3) {
-			return s.substring(0, length - 3) + "...";
-		} else {
-			return s;
-		}
 	}
 }
