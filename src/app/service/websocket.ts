@@ -12,6 +12,7 @@ export class Websocket {
   public event: Subject<Notification> = new Subject<Notification>();
   public subject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public devices: { [name: string]: Device } = {};
+  public backend: "femsserver" | "openems" = null;
 
   private websocket: WebSocket;
 
@@ -22,12 +23,14 @@ export class Websocket {
   ) { }
 
   /**
-   * Opens a connection using the stored token for this websocket
+   * Opens a connection using a stored token or a cookie with a session_id for this websocket
    */
-  public connectWithToken() {
+  public connectWithTokenOrSessionId() {
     var token = this.webappService.getToken(this.name);
     if (token) {
       this.connect(null, token);
+    } else if (document.cookie.indexOf("session_id=") != -1) {
+      this.connect(null, null);
     }
   }
 
@@ -42,21 +45,15 @@ export class Websocket {
    * Tries to connect using given password or token.
    */
   private connect(password: string, token: string) {
-    // return non-active Websocket if no password or token was given
-    if (password == null && token == null) {
-      this.initialize();
-      return;
-    }
-
     // Status description is here:
-    var status: Notification = null;
+    let status: Notification = null;
 
     // send "not successful event" if not connected within Timeout
-    var timeout = setTimeout(() => {
+    let timeout = setTimeout(() => {
       if (!this.isConnected) {
         this.event.next({ type: "error", message: "Keine Verbindung: Timeout" });
       }
-    }, 2000);
+    }, 10000);
 
     // create a new websocket connection
     let websocket = new WebSocket(this.url);
@@ -100,15 +97,20 @@ export class Websocket {
       .subscribe((message: any) => {
 
         // Receive authentication token
-        if ("authenticate" in message) {
-          if ("token" in message.authenticate) {
-            this.webappService.setToken(this.name, message.authenticate.token);
+        if ("authenticate" in message && "mode" in message.authenticate) {
+          let mode = message.authenticate.mode;
+          if (mode === "allow") {
+            this.websocket = websocket;
+            this.subject = subject;
+            this.isConnected = true;
+            if ("token" in message.authenticate) {
+              this.webappService.setToken(this.name, message.authenticate.token);
+            }
             if ("username" in message.authenticate) {
               let username = message.authenticate.username;
-              this.websocket = websocket;
-              this.subject = subject;
-              this.isConnected = true;
               this.event.next({ type: "success", message: "Angemeldet als " + username + "." });
+            } else {
+              this.event.next({ type: "success", message: "Angemeldet." });
             }
           } else {
             // close websocket
@@ -120,22 +122,29 @@ export class Websocket {
           }
         }
 
-        // Receive connected devices
-        if ("all_devices" in message) {
-          this.devices = {};
-          for (let deviceName in message.all_devices) {
-            let device = new Device(deviceName, this);
-            device.receive(message.all_devices[deviceName]);
-            this.devices[deviceName] = device;
+        // receive metadata
+        if ("metadata" in message) {
+          if ("devices" in message.metadata) {
+            // Receive connected devices
+            let newDevices = message.metadata.devices;
+            this.devices = {};
+            for (let newDevice of newDevices) {
+              let name = newDevice["name"];
+              let device = new Device(name, this);
+              device.receive(newDevice);
+              this.devices[name] = device;
+            }
+          }
+          if ("backend" in message.metadata) {
+            this.backend = message.metadata.backend;
           }
         }
 
-        // Receive device info
-        if ("devices" in message) {
-          for (let deviceName in message.devices) {
-            if (this.devices[deviceName]) {
-              this.devices[deviceName].receive(message.devices[deviceName]);
-            }
+        // receive device specific data
+        if ("device" in message) {
+          if (this.devices[message.device]) {
+            let device = this.devices[message.device];
+            device.receive(message);
           }
         }
 
@@ -143,13 +152,7 @@ export class Websocket {
         if ("notification" in message) {
           this.webappService.notify(message.notification);
         }
-        if ("devices" in message) {
-          for (let deviceName in message.devices) {
-            if ("notification" in message.devices[deviceName]) {
-              this.webappService.notify(message.devices[deviceName].notification);
-            }
-          }
-        }
+
       }, (error: any) => {
         this.initialize();
         clearTimeout(timeout);
@@ -194,11 +197,8 @@ export class Websocket {
   /**
    * Sends a message to the websocket
    */
-  public send(device: Device, value: any): void {
-    let message = {
-      devices: {}
-    }
-    message.devices[device.name] = value;
+  public send(device: Device, message: any): void {
+    message["device"] = device.name;
     console.log("SENDING", message);
     this.subject.next(message);
   }

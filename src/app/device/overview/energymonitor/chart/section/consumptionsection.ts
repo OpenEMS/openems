@@ -1,16 +1,16 @@
 import { AbstractSection, SvgTextPosition } from './abstractsection';
 
-export class ProductionSection extends AbstractSection {
+export class ConsumptionSection extends AbstractSection {
     constructor() {
-        super("Erzeugung", 316, 404, "gray");
+        super("Verbrauch", 46, 134);
     }
 
     protected getTextPosition(arc: any): SvgTextPosition {
         let center = arc.centroid();
         return {
-            x: center[0],
-            y: center[1] + 40,
-            anchor: "middle"
+            x: center[0] - 20,
+            y: center[1],
+            anchor: "end"
         }
     }
 }

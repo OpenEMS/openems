@@ -32,8 +32,8 @@ export class WebsocketService {
       // load default websockets
       let websocket = new Websocket(defaultWebsocket.name, defaultWebsocket.url, webappService);
       this.websockets[websocket.name] = websocket;
-      // try to connect using token
-      websocket.connectWithToken();
+      // try to connect using token or session_id
+      websocket.connectWithTokenOrSessionId();
 
       websocket.event.subscribe(notification => {
         let n = {
@@ -57,7 +57,10 @@ export class WebsocketService {
    * Parses the route params, sets the current device and returns it - or redirects to login and returns null
    */
   public setCurrentDevice(params: Params): BehaviorSubject<Device> {
+    let timeout = null;
+    let retryCounter = 0;
     let worker = (params: Params): boolean => {
+      retryCounter++;
       if ('websocket' in params && 'device' in params) {
         let websocketName = params['websocket'];
         let deviceName = params['device'];
@@ -65,22 +68,25 @@ export class WebsocketService {
         if (websocket) {
           let device = websocket.getDevice(deviceName);
           if (device) {
+            // found it -> we quit here
             this.currentDevice.next(device);
-            return true;
+            return;
           }
         }
       }
-      return false;
+      if (retryCounter < 10) {
+        // retry 10 times
+        timeout = setTimeout(() => {
+          worker(params);
+        }, 1000);
+      } else {
+        // failed -> redirect to /login
+        this.currentDevice.next(null);
+        console.info("Redirect to /login");
+        this.router.navigate(['/login']);
+      }
     }
-    if (!worker(params)) {
-      // try again
-      setTimeout(() => {
-        if (!worker(params)) {
-          this.currentDevice.next(null);
-          this.router.navigate(['/login']);
-        }
-      }, 500);
-    }
+    worker(params);
     return this.currentDevice;
   }
 

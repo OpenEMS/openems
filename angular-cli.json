@@ -25,9 +25,10 @@
       ],
       "scripts": [],
       "environments": {
+        "femsserver": "environments/environment.femsserver.ts",
         "source": "environments/environment.ts",
         "dev": "environments/environment.ts",
-        "prod": "environments/environment.prod.ts"
+        "openems": "environments/environment.ts"
       }
     }
   ],

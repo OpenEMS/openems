@@ -32,12 +32,13 @@ interface Bridge extends Thing {
 }
 
 export interface Config {
-    _meta: [{
+    _meta: {
         natures: { [thing: string]: string[] },
         bridges: [ThingClass],
         controllers: [ThingClass],
         schedulers: [ThingClass],
-    }],
+        devices: [ThingClass]
+    },
     persistence: [{ class: string }],
     scheduler: Scheduler,
     things: Bridge[]

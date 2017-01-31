@@ -6,6 +6,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 
 import { WebsocketService, Websocket } from '../service/websocket.service';
 import { WebappService, Notification } from '../service/webapp.service';
+import { environment } from '../../environments';
 
 @Component({
   selector: 'app-login',
@@ -14,8 +15,8 @@ import { WebappService, Notification } from '../service/webapp.service';
 export class LoginComponent implements OnInit, OnDestroy {
 
   private forms: FormGroup[] = [];
-
   private websocketSubscriptions: Subscription[] = [];
+  private backend;
 
   constructor(
     private websocketService: WebsocketService,
@@ -25,6 +26,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.backend = environment.backend;
+
     this.websocketService.clearCurrentDevice();
     for (let websocketName in this.websocketService.websockets) {
       let websocket = this.websocketService.websockets[websocketName];

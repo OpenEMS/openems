@@ -13,12 +13,12 @@ export abstract class AbstractSection {
     private innerRadius: number = 0;
     private outerRadius: number = 0;
     private textPosition = null;
+    private color: string = "gray";
 
     constructor(
         private name: string,
         private startAngle: number,
-        private endAngle: number,
-        private color: string,
+        private endAngle: number
     ) { }
 
     public update(outerRadius: number, innerRadius: number) {

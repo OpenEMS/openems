@@ -13,6 +13,7 @@ export class Device {
   public address: string;
   public data = new BehaviorSubject<{ [thing: string]: any }>(null);
   public config = new BehaviorSubject<Config>(null);
+  private online = false;
   private influxdb: {
     ip: string,
     username: string,
@@ -39,8 +40,40 @@ export class Device {
    * Send "subscribe" message to websocket
    */
   public subscribe() {
+    let isInArray = (array: any, value: any): boolean => {
+      return array.indexOf(value) > -1;
+    }
+    let subscribe = {}
+    let natures = this.config.getValue()._meta.natures;
+    for (let thing in natures) {
+      let a = natures[thing];
+      let channels = []
+
+      /*
+       * Find important Channels to subscribe
+       */
+      // Ess
+      if (isInArray(a, "EssNature")) {
+        channels.push("Soc");
+      }
+      if (isInArray(a, "AsymmetricEssNature")) {
+        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
+      } else if (isInArray(a, "SymmetricEssNature")) {
+        channels.push("ActivePower", "ActivePower", "ActivePower");
+      }
+
+      // Meter
+      if (isInArray(a, "AsymmetricMeterNature")) {
+        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
+      } else if (isInArray(a, "SymmetricMeterNature")) {
+        channels.push("ActivePower", "ActivePower", "ActivePower");
+      }
+
+      subscribe[thing] = channels;
+    }
+
     this.send({
-      subscribe: SUBSCRIBE
+      subscribe: subscribe
     });
   }
 
@@ -84,12 +117,15 @@ export class Device {
       this.config.next(config);
     }
 
+    if ("online" in message) {
+      this.online = message.online;
+    }
+
     /*
      * data
      */
-    if ("data" in message) {
-      this.data.next(message.data);
-      console.log(message.data);
+    if ("currentdata" in message) {
+      this.data.next(message.currentdata);
     }
   }
 }

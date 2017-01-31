@@ -10,12 +10,6 @@ import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.compo
 import { DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
 import { DeviceConfigMoreComponent } from './device/config/more/more.component';
 
-/*import { MonitorCommercialCurrentComponent } from './monitor/commercial/current/commercial-current.component';
-import { MonitorGrafanaComponent } from './monitor/grafana/grafana.component';
-import { MonitorUniversalCurrentComponent } from './monitor/universal/current/universal-current.component';
-import { MonitorDetailComponent } from './monitor/detail/detail.component';
-import { ConfigurationComponent } from './monitor/configuration/configuration.component';
-*/
 const appRoutes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },

@@ -4,6 +4,7 @@
     <md-card-title>Energiemonitor</md-card-title>
   </md-card-header>
   <md-card-content *ngIf="device && device.data" fxLayout fxLayoutAlign="start start" fxLayoutWrap="wrap">
+    <app-device-overview-energymonitor-chart fxFlex="100%"></app-device-overview-energymonitor-chart>
     <div *ngFor="let thing of device.data | async | keys" fxFlex="50%" fxFlex.xs="100%">
       <md-card>
         <md-card-title>{{ thing.key }}</md-card-title>

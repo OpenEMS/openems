@@ -1,16 +1,16 @@
 import { AbstractSection, SvgTextPosition } from './abstractsection';
 
-export class StorageSection extends AbstractSection {
+export class GridSection extends AbstractSection {
     constructor() {
-        super("Speicher", 136, 224, "gray");
+        super("Netz", 226, 314);
     }
 
     protected getTextPosition(arc: any): SvgTextPosition {
         let center = arc.centroid();
         return {
-            x: center[0],
-            y: center[1] - 30,
-            anchor: "middle"
+            x: center[0] + 20,
+            y: center[1],
+            anchor: "start"
         }
     }
 }

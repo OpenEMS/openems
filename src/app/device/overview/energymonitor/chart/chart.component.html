@@ -1,8 +1,8 @@
-<svg width="800" height="800">
-  <svg:g transform="translate(400,400)">
+<svg>
+  <svg:g>
     <svg:g *ngFor="let section of sections">
       <svg:path [attr.d]="section.outlinePath" fill="white" stroke="LightGray"></svg:path>
-      <svg:path [attr.d]="section.Path" fill="grey" stroke="LightGray"></svg:path>
+      <svg:path [attr.d]="section.path" [attr.fill]="section.color" stroke="LightGray"></svg:path>
     </svg:g>
   </svg:g>
 </svg>

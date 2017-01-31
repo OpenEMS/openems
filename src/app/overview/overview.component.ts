@@ -44,11 +44,16 @@ export class OverviewComponent implements OnInit {
         let numberOfConnectedDevices = deviceNames.length;
         if (numberOfConnectedDevices == 0) {
           this.webappService.notify({ type: "info", message: "Keine Geräte gefunden." });
+          console.info("Redirect to /login");
           this.router.navigate(['/login']);
         } else if (numberOfConnectedDevices == 1) {
           this.router.navigate(['/device', lastConnectedWebsocket.name, deviceNames[0]]);
         }
       }
-    }, 500);
+    }, 10000);
+  }
+
+  private getRouterLink(ws: any, dev: any): string {
+    return "/device/" + ws.key + "/" + dev.key;
   }
 }

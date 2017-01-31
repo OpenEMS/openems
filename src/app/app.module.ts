@@ -16,6 +16,7 @@ import { LoginComponent } from './login/login.component';
 import { OverviewComponent } from './overview/overview.component';
 import { DeviceOverviewComponent } from './device/overview/overview.component';
 import { DeviceOverviewEnergymonitorComponent } from './device/overview/energymonitor/energymonitor.component';
+import { DeviceOverviewEnergymonitorChartComponent } from './device/overview/energymonitor/chart/chart.component';
 import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
 import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
 import { FormBridgeSimulatorComponent } from './device/config/bridge/bridge/simulator/simulator.component';
@@ -46,10 +47,6 @@ import { FormControllerNewComponent } from './common/form/controller/new/new.com
 import { FormSchedulerComponent } from './common/form/scheduler/scheduler.component';
 import { FormSchedulerWeekTimeHoursComponent } from './common/form/scheduler/weektime/hours.component';
 
-// Charts
-import { CustomChartComponent } from './common/chart/custom-chart/custom.component';
-import { ChartCurrentComponent } from './common/chart/current/current.component';
-
 /*
  * Services
  */
@@ -72,6 +69,7 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     // Device
     DeviceOverviewComponent,
     DeviceOverviewEnergymonitorComponent,
+    DeviceOverviewEnergymonitorChartComponent,
     DeviceConfigOverviewComponent,
     DeviceConfigBridgeComponent,
     DeviceConfigSchedulerComponent,
@@ -90,9 +88,6 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     FormControllerNewComponent,
     FormSchedulerComponent,
     FormSchedulerWeekTimeHoursComponent,
-    //   Chart
-    CustomChartComponent,
-    ChartCurrentComponent,
     // pipe
     KeysPipe,
     ClassnamePipe

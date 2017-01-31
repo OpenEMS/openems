@@ -1,4 +1,4 @@
-<div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+<div *ngIf="backend != 'femsserver'" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
   <div *ngFor="let form of forms" fxFlex="50%" fxFlex.xs="100%">
     <form [formGroup]="form" (ngSubmit)="doLogin(form)">
       <md-card class="single">
@@ -16,6 +16,24 @@
           <button type="submit" md-fab *ngIf="!form._websocket.isConnected" (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>
           <button type="button" md-fab *ngIf="form._websocket.isConnected" (click)="doLogout(form)" color="accent"><md-icon>close</md-icon></button>
         </md-card-actions>
+      </md-card>
+    </form>
+  </div>
+</div>
+
+<div *ngIf="backend == 'femsserver'" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div *ngFor="let form of forms" fxFlex="50%" fxFlex.xs="100%">
+    <form [formGroup]="form" (ngSubmit)="doLogin(form)">
+      <md-card class="single">
+        <md-card-header>
+          <md-icon *ngIf="form._websocket.isConnected" md-card-avatar>play_arrow</md-icon>
+          <md-icon *ngIf="!form._websocket.isConnected" md-card-avatar>stop</md-icon>
+          <md-card-title>{{form._websocket.name}}</md-card-title>
+          <md-card-subtitle>{{form._websocket.url}}</md-card-subtitle>
+        </md-card-header>
+        <md-card-content fxLayout fxLayoutWrap="wrap">
+          <p fxFlex="100%">{{(form._websocket.event | async)?.message}}</p>
+        </md-card-content>
       </md-card>
     </form>
   </div>
