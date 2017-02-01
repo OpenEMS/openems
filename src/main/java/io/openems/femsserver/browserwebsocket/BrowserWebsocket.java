@@ -82,7 +82,7 @@ public class BrowserWebsocket extends WebSocketServer {
 			if (sessionId != null) {
 				try {
 					log.info("Incoming browser websocket using session [" + sessionId + "].");
-					JsonObject jOdoo = Odoo.getFemsInfo(sessionId);
+					JsonObject jOdoo = this.odoo.getFemsInfo(sessionId);
 					// successfully logged in (otherwise an exception was thrown)
 					JsonArray jOdooDeviceNames = JsonUtils.getAsJsonArray(jOdoo, "devices");
 					List<FemsDevice> devices = this.odoo.getDevicesForNames(jOdooDeviceNames);
@@ -99,7 +99,7 @@ public class BrowserWebsocket extends WebSocketServer {
 					     devices: [{
 					       name, online,...
 					     }]
-					
+
 					   }
 					 }
 					 * </pre>
@@ -195,11 +195,10 @@ public class BrowserWebsocket extends WebSocketServer {
 		String sessionId = null;
 		if (handshake.hasFieldValue("cookie")) {
 			String cookieString = handshake.getFieldValue("cookie");
-			for (String cookieVariable : cookieString.split(" ")) {
+			for (String cookieVariable : cookieString.split("; ")) {
 				String[] keyValue = cookieVariable.split("=");
 				if (keyValue.length == 2 && keyValue[0].equals("session_id")) {
 					sessionId = keyValue[1];
-					sessionId = sessionId.substring(0, sessionId.length() - 1); // remove last char (";")
 				}
 			}
 		}

@@ -19,7 +19,7 @@ public class WebSocketUtils {
 	 */
 	public static boolean send(WebSocket websocket, JsonObject j) {
 		try {
-			log.info("Send: " + j.toString());
+			// log.info("Send: " + j.toString());
 			websocket.send(j.toString());
 			return true;
 		} catch (WebsocketNotConnectedException e) {

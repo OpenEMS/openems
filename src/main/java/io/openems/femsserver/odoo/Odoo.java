@@ -28,7 +28,6 @@ import io.openems.femsserver.utilities.OpenemsException;
 
 public class Odoo {
 
-	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(Odoo.class);
 
 	private static Odoo instance;
@@ -115,12 +114,12 @@ public class Odoo {
 	 * @return
 	 * @throws OpenemsException
 	 */
-	public static JsonObject getFemsInfo(String sessionId) throws OpenemsException {
+	public JsonObject getFemsInfo(String sessionId) throws OpenemsException {
 		try {
 			String charset = "US-ASCII";
 			String query = String.format("session_id=%s", URLEncoder.encode(sessionId, charset));
-			HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8070/fems/info?" + query)
-					.openConnection();
+			HttpURLConnection connection = (HttpURLConnection) new URL(
+					"http://" + this.url + ":" + this.port + "/fems/info?" + query).openConnection();
 			try {
 				connection.setConnectTimeout(5000);// 5 secs
 				connection.setReadTimeout(5000);// 5 secs
