@@ -74,8 +74,13 @@ public class WeekTimeScheduler extends Scheduler {
 		try {
 			List<Controller> controllers = getActiveControllers();
 			controllers.addAll(getAlwaysController());
-			Collections.sort(controllers, (c1, c2) -> c2.priority.valueOptional().orElse(Integer.MIN_VALUE)
-					- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
+			Collections.sort(controllers, (c1, c2) -> {
+				if (c1 == null || c2 == null) {
+					return 0;
+				}
+				return c2.priority.valueOptional().orElse(Integer.MIN_VALUE)
+						- c1.priority.valueOptional().orElse(Integer.MIN_VALUE);
+			});
 			for (Controller controller : controllers) {
 				// TODO: check if WritableChannels can still be changed, before executing
 				if (controller != null) {
