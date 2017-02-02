@@ -7,6 +7,13 @@ import { Config } from './config';
 
 const SUBSCRIBE: string = "fenecon_monitor_v1";
 
+class Summary {
+  public ess = {
+    things: {},
+    soc: null
+  };
+}
+
 export class Device {
 
   public event = new Subject<Notification>();
@@ -20,6 +27,8 @@ export class Device {
     password: string,
     fems: string
   }
+
+  private summary: Summary = new Summary();
 
   constructor(
     public name: string,
@@ -45,6 +54,7 @@ export class Device {
     }
     let subscribe = {}
     let natures = this.config.getValue()._meta.natures;
+    this.summary = new Summary();
     for (let thing in natures) {
       let a = natures[thing];
       let channels = []
@@ -55,6 +65,7 @@ export class Device {
       // Ess
       if (isInArray(a, "EssNature")) {
         channels.push("Soc");
+        this.summary.ess.things[thing] = true;
       }
       if (isInArray(a, "AsymmetricEssNature")) {
         channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
@@ -125,7 +136,19 @@ export class Device {
      * data
      */
     if ("currentdata" in message) {
-      this.data.next(message.currentdata);
+      let data = message.currentdata;
+
+      // Calculate summarized data
+      let soc = 0;
+      for (let thing in this.summary.ess.things) {
+        if (thing in data) {
+          let ess = data[thing];
+          soc += ess["Soc"];
+        }
+      }
+      this.summary.ess.soc = soc / Object.keys(this.summary.ess.things).length;
+
+      this.data.next(data);
     }
   }
 }

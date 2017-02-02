@@ -4,9 +4,9 @@ This project was generated with [angular-cli](https://github.com/angular/angular
 
 ## Development server
 
-Run `ng serve --env=femsserver` to build for FemsServer-Backend.
+Run `ng serve --env=femsserver` to serve for FemsServer-Backend.
 
-Run `ng serve --env=openems` to build for OpenEMS-Backend.
+Run `ng serve` to serve for OpenEMS-Backend.
 
 ## Build
 

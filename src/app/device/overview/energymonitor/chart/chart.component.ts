@@ -4,30 +4,58 @@ import { ColorHelper } from 'ngx-charts';
 import * as d3 from 'd3';
 import { StorageSection, ProductionSection, ConsumptionSection, GridSection, AbstractSection } from './section/section';
 
+class Circle {
+  constructor(
+    public x: number,
+    public y: number
+  ) { }
+}
+
 @Component({
   selector: 'app-device-overview-energymonitor-chart',
   templateUrl: './chart.component.html'
 })
 export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponent implements OnInit, OnChanges {
 
-  private grid: AbstractSection = new GridSection();
-  private production: AbstractSection = new ProductionSection();
-  private consumption: AbstractSection = new ConsumptionSection();
-  private storage: AbstractSection = new StorageSection();
-  private sections: AbstractSection[] = [this.grid, this.production, this.consumption, this.storage];
+  private translation: string;
+  private gridSection: AbstractSection = new GridSection();
+  private productionSection: AbstractSection = new ProductionSection();
+  private consumptionSection: AbstractSection = new ConsumptionSection();
+  private storageSection: AbstractSection = new StorageSection();
+  private sections: AbstractSection[] = [this.gridSection, this.productionSection, this.consumptionSection, this.storageSection];
 
-  ngOnInit() {
-    this.grid.setValue(50);
-    console.log(this.chartElement.nativeElement.offsetHeight);
+  @Input()
+  set grid(value: number) {
+    this.gridSection.setValue(value);
   }
 
-  ngOnChanges() {
-    console.log("TEST ");
+  @Input()
+  set production(value: number) {
+    this.productionSection.setValue(value);
+  }
+
+  @Input()
+  set consumption(value: number) {
+    this.consumptionSection.setValue(value);
+  }
+
+  @Input()
+  set storage(value: number) {
+    this.storageSection.setValue(value);
+  }
+
+  ngOnInit() {
+    this.update();
+  }
+
+  update() {
     super.update();
-    var radius = Math.min(this.width, this.height) / 2;
-    var outerRadius = radius;
-    var innerRadius = radius - 30;
-    console.log(outerRadius, innerRadius);
+    this.height = this.width - 100;
+    const xOffset = this.width / 2;
+    const yOffset = this.height / 2;
+    this.translation = `translate(${xOffset}, ${yOffset})`;
+    var outerRadius = Math.min(this.width, this.height) / 2;
+    var innerRadius = outerRadius - 30;
     this.sections.forEach(section => {
       section.update(outerRadius, innerRadius);
     });
@@ -36,4 +64,23 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
   private deg2rad(value: number): number {
     return value * (Math.PI / 180)
   }
+
+  private circles: Circle[] = [
+    new Circle(-20, 0),
+    new Circle(-50, 0),
+    new Circle(-80, 0),
+    new Circle(-110, 0),
+    new Circle(20, 0),
+    new Circle(50, 0),
+    new Circle(80, 0),
+    new Circle(110, 0),
+    new Circle(0, -20),
+    new Circle(0, -50),
+    new Circle(0, -80),
+    new Circle(0, -110),
+    new Circle(0, 20),
+    new Circle(0, 50),
+    new Circle(0, 80),
+    new Circle(0, 110)
+  ];
 }

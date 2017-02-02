@@ -78,7 +78,9 @@ export class Websocket {
 
     // immediately authenticate when websocket is opened
     websocket.onopen = () => {
-      let authenticate = {}
+      let authenticate = {
+        mode: "login"
+      }
       if (password) {
         authenticate["password"] = password;
       } else if (token) {
@@ -142,9 +144,16 @@ export class Websocket {
 
         // receive device specific data
         if ("device" in message) {
+          // device was specified -> forward
           if (this.devices[message.device]) {
             let device = this.devices[message.device];
             device.receive(message);
+          }
+        }
+        if (Object.keys(this.devices).length == 1) {
+          // device was not specified, but we have only one
+          for (let key in this.devices) {
+            this.devices[key].receive(message);
           }
         }
 
