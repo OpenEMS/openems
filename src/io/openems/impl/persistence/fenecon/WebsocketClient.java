@@ -11,18 +11,20 @@ import javax.net.ssl.SSLContext;
 
 import org.java_websocket.client.DefaultSSLWebSocketClientFactory;
 import org.java_websocket.drafts.Draft_10;
-import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import io.openems.core.utilities.websocket.WebsocketHandler;
 
 public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketClient.class);
 
-	private final WebsocketHandler handler = new WebsocketHandler(this.getConnection());
+	private final WebsocketHandler websocketHandler;
 
 	public WebsocketClient(URI uri, String apikey) throws Exception {
 		super( //
@@ -41,6 +43,7 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 				throw new Exception("Could not initialize SSL connection");
 			}
 		}
+		this.websocketHandler = new WebsocketHandler(this.getConnection());
 	}
 
 	@Override
@@ -58,20 +61,30 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 		log.info("Websocket opened");
 	}
 
-	public boolean send(JsonObject j) {
-		try {
-			send(j.toString());
-			return true;
-		} catch (WebsocketNotConnectedException e) {
-			return false;
-		}
-	}
-
 	/**
 	 * Message event of websocket. Forwards a new message to the handler.
 	 */
 	@Override
 	public void onMessage(String message) {
-		this.handler.onMessage(message);
+		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
+		this.websocketHandler.onMessage(jMessage);
+	}
+
+	@Override
+	public boolean connectBlocking() throws InterruptedException {
+		boolean connected = super.connectBlocking();
+		if (connected) {
+			this.websocketHandler.sendConnectionSuccessfulReply();
+		}
+		return connected;
+	}
+
+	/**
+	 * Gets the websocketHandler
+	 *
+	 * @return
+	 */
+	public WebsocketHandler getWebsocketHandler() {
+		return this.websocketHandler;
 	}
 }

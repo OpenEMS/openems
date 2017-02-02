@@ -41,7 +41,9 @@ public abstract class Controller implements Thing, Runnable {
 	 *
 	 */
 	@ConfigInfo(title = "Priority of this controller", type = Integer.class)
-	public final ConfigChannel<Integer> priority = new ConfigChannel<Integer>("priority", this, Integer.class);
+	public final ConfigChannel<Integer> priority = new ConfigChannel<Integer>("priority", this);
+
+	// TODO add "active" configchannel to be able to deactivate a controller without deleting it
 
 	public Controller() {
 		this(null);

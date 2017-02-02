@@ -1,4 +1,4 @@
-package io.openems.impl.controller.api.websocket;
+package io.openems.core.utilities.websocket;
 
 public enum NotificationType {
 	SUCCESS, ERROR, WARNING, INFO;

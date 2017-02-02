@@ -21,7 +21,7 @@ import io.openems.core.ThingRepository;
 @ThingInfo("Websocket-API (z. B. für Weboberfläche)")
 public class WebsocketApiController extends Controller implements ChannelChangeListener {
 
-	private volatile WebsocketServer ws = null;
+	private volatile WebsocketServer websocketServer = null;
 
 	@ConfigInfo(title = "Sets the websocket port", type = Integer.class)
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(8085)
@@ -45,10 +45,10 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	@Override
 	public void run() {
 		// Start Websocket-Api server
-		if (ws == null && port.valueOptional().isPresent()) {
+		if (websocketServer == null && port.valueOptional().isPresent()) {
 			try {
-				ws = new WebsocketServer(this, port.valueOptional().get());
-				ws.start();
+				websocketServer = new WebsocketServer(this, port.valueOptional().get());
+				websocketServer.start();
 				log.info("Websocket-Api started on port [" + port.valueOptional().orElse(0) + "].");
 			} catch (Exception e) {
 				log.error(e.getMessage() + ": " + e.getCause());
@@ -81,9 +81,10 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 						}
 						String lastMessage = lastMessages.get(nature.id());
 						if (lastMessage == null || !lastMessage.equals(message)) {
-							ws.broadcastNotification(NotificationType.INFO,
-									"Leistungsvorgabe an [" + nature.id() + "] gesendet: " + message);
-							lastMessages.put(nature.id(), message);
+							// TODO
+							// ws.broadcastNotification(NotificationType.INFO,
+							// "Leistungsvorgabe an [" + nature.id() + "] gesendet: " + message);
+							// lastMessages.put(nature.id(), message);
 						}
 					}
 				}
@@ -96,14 +97,14 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		if (channel.equals(port)) {
-			if (this.ws != null) {
+			if (this.websocketServer != null) {
 				try {
-					this.ws.stop();
+					this.websocketServer.stop();
 				} catch (IOException | InterruptedException e) {
 					log.error("Error closing websocket on port [" + oldValue + "]: " + e.getMessage());
 				}
 			}
-			this.ws = null;
+			this.websocketServer = null;
 		}
 	}
 

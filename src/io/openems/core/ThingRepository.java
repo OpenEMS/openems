@@ -359,7 +359,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		} else {
 			controller = (Controller) InjectionUtils.getThingInstance(controllerClass);
 		}
-		log.debug("Add Controller[" + controller.id() + "], Implementation[" + controller.getClass().getSimpleName()
+		log.info("Add Controller[" + controller.id() + "], Implementation[" + controller.getClass().getSimpleName()
 				+ "]");
 		this.addThing(controller);
 		ConfigUtils.injectConfigChannels(this.getConfigChannels(controller), jController);

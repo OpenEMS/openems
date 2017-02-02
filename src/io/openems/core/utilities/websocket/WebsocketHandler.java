@@ -1,4 +1,4 @@
-package io.openems.impl.persistence.fenecon;
+package io.openems.core.utilities.websocket;
 
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,15 +15,22 @@ import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
+import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
+import io.openems.core.Config;
 import io.openems.core.Databus;
 import io.openems.core.utilities.JsonUtils;
 
-// TODO merge this with WebsocketHandler in WebsocketController
+/**
+ * Handles a Websocket connection to a browser, femsserver,...
+ *
+ * @author stefan.feilmeier
+ */
 public class WebsocketHandler {
+
+	protected final static String DEFAULT_DEVICE_NAME = "fems";
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketHandler.class);
 
@@ -54,7 +62,7 @@ public class WebsocketHandler {
 	/**
 	 * Holds the websocket connection
 	 */
-	private final WebSocket websocket;
+	protected final WebSocket websocket;
 
 	public WebsocketHandler(WebSocket websocket) {
 		this.databus = Databus.getInstance();
@@ -66,17 +74,15 @@ public class WebsocketHandler {
 			JsonObject j = new JsonObject();
 			JsonObject jCurrentdata = getSubscribedData();
 			j.add("currentdata", jCurrentdata);
-			this.websocket.send(j.toString());
+			this.send(j);
 		};
 	}
 
 	/**
 	 * Message event of websocket. Handles a new message.
 	 */
-	public void onMessage(String message) {
-		log.info("Websocket message: " + message);
-		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-
+	public void onMessage(JsonObject jMessage) {
+		log.info("Websocket message: " + jMessage.toString());
 		/*
 		 * Subscribe to data
 		 */
@@ -90,7 +96,7 @@ public class WebsocketHandler {
 	 *
 	 * @param j
 	 */
-	private void subscribe(JsonElement j) {
+	private synchronized void subscribe(JsonElement j) {
 		try {
 			// unsubscribe regular task
 			if (subscriptionFuture != null) {
@@ -147,4 +153,94 @@ public class WebsocketHandler {
 		});
 		return jData;
 	}
+
+	/**
+	 * Sends a message to the websocket
+	 *
+	 * @param jMessage
+	 */
+	public boolean send(JsonObject jMessage) {
+		try {
+			this.websocket.send(jMessage.toString());
+			return true;
+		} catch (WebsocketNotConnectedException e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Sends an initial message to the browser after it was successfully connected
+	 */
+	public boolean sendConnectionSuccessfulReply() {
+		return this.send(this.createConnectionSuccessfulReply());
+	}
+
+	/**
+	 * Creates an initial message to the browser after it was successfully connected
+	 *
+	 * <pre>
+	 * {
+	 *   metadata: {
+	 *     devices: [{
+	 *       name: {...},
+	 *       config: {...}
+	 *       online: true
+	 *     }],
+	 *     backend: "openems"
+	 *   }
+	 * }
+	 * </pre>
+	 *
+	 * @param handler
+	 */
+	protected JsonObject createConnectionSuccessfulReply() {
+		JsonObject j = new JsonObject();
+
+		// Metadata
+		JsonObject jMetadata = new JsonObject();
+		// - devices
+		JsonArray jDevices = new JsonArray();
+		// -- device
+		JsonObject jDevice = new JsonObject();
+		jDevice.addProperty("name", DEFAULT_DEVICE_NAME);
+		jDevice.addProperty("online", true);
+		try {
+			jDevice.add("config", Config.getInstance().getMetaConfigJson());
+		} catch (ConfigException e) {
+			log.error(e.getMessage());
+		}
+		jDevices.add(jDevice);
+		jMetadata.add("devices", jDevices);
+		j.add("metadata", jMetadata);
+
+		return j;
+	}
+
+	/**
+	 * Send a notification message/error to the websocket
+	 *
+	 * @param mesage
+	 * @return true if successful, otherwise false
+	 */
+	// TODO
+	// public synchronized boolean sendNotification(NotificationType type, String message) {
+	// // log message to syslog
+	// switch (type) {
+	// case INFO:
+	// case SUCCESS:
+	// log.info(message);
+	// break;
+	// case ERROR:
+	// log.error(message);
+	// break;
+	// case WARNING:
+	// log.warn(message);
+	// break;
+	// }
+	// // send notification to websocket
+	// JsonObject jMessage = new JsonObject();
+	// jMessage.addProperty("type", type.name().toLowerCase());
+	// jMessage.addProperty("message", message);
+	// return send(true, "notification", jMessage);
+	// }
 }

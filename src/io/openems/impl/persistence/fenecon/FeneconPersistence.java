@@ -17,8 +17,8 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.persistence.Persistence;
-import io.openems.core.Config;
 import io.openems.core.Databus;
+import io.openems.core.utilities.websocket.WebsocketHandler;
 
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
 
@@ -36,7 +36,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 	private List<JsonObject> unsentCache = new ArrayList<>();
 
-	private WebsocketClient _websocket;
+	private WebsocketClient websocketClient;
 
 	private static final int DEFAULT_CYCLETIME = 2000;
 
@@ -95,8 +95,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 	@Override
 	protected void dispose() {
-		if (this._websocket != null) {
-			this._websocket.close();
+		if (this.websocketClient != null) {
+			this.websocketClient.close();
 		}
 	}
 
@@ -126,8 +126,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		/*
 		 * Send to Server
 		 */
-		Optional<WebsocketClient> ws = getWebsocketClient();
-		if (ws.isPresent() && ws.get().send(j)) {
+		Optional<WebsocketHandler> websocketHandler = getWebsocketHandler();
+		if (websocketHandler.isPresent() && websocketHandler.get().send(j)) {
 			/*
 			 * Sent successfully
 			 */
@@ -139,7 +139,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 				JsonObject jCachedTimedata = iterator.next();
 				JsonObject jCached = new JsonObject();
 				jCached.add("timedata", jCachedTimedata);
-				boolean cacheWasSent = this._websocket.send(jCached);
+				boolean cacheWasSent = websocketHandler.get().send(jCached);
 				if (cacheWasSent) {
 					iterator.remove();
 				}
@@ -156,12 +156,28 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		}
 	}
 
-	Optional<WebsocketClient> getWebsocketClient() {
-		WebsocketClient ws = this._websocket;
+	/**
+	 * Gets the websocket handler
+	 *
+	 * @return
+	 */
+	Optional<WebsocketHandler> getWebsocketHandler() {
+		Optional<WebsocketClient> websocketClient = getWebsocketClient();
+		if (websocketClient.isPresent()) {
+			return Optional.of(websocketClient.get().getWebsocketHandler());
+		}
+		return Optional.empty();
+	}
 
+	/**
+	 * Gets the websocket client
+	 *
+	 * @return
+	 */
+	Optional<WebsocketClient> getWebsocketClient() {
 		// return existing and opened websocket
-		if (ws != null && ws.getConnection().isOpen()) {
-			return Optional.of(ws);
+		if (this.websocketClient != null && this.websocketClient.getConnection().isOpen()) {
+			return Optional.of(this.websocketClient);
 		}
 		// check config
 		if (!this.apikey.valueOptional().isPresent() || !this.uri.valueOptional().isPresent()) {
@@ -172,24 +188,16 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		try {
 			// create new websocket
 			// TODO: check server certificate
-			ws = new WebsocketClient(new URI(uri), apikey);
-			boolean connected = ws.connectBlocking();
-			if (connected) {
-				// return connected websocket
+			WebsocketClient newWebsocketClient = new WebsocketClient(new URI(uri), apikey);
+			if (newWebsocketClient.connectBlocking()) {
+				// successful -> return connected websocket
 				log.info("FENECON persistence connected to uri [" + uri + "]");
-				this._websocket = ws;
-				// send current OpenEMS config
-				JsonObject jConfig = Config.getInstance().getMetaConfigJson();
-				JsonObject jMetadata = new JsonObject();
-				jMetadata.add("config", jConfig);
-				JsonObject j = new JsonObject();
-				j.add("metadata", jMetadata);
-				ws.send(j);
-				return Optional.of(ws);
+				this.websocketClient = newWebsocketClient;
+				return Optional.of(newWebsocketClient);
 			} else {
 				// not connected -> return empty
 				log.warn("FENECON persistence failed connection to uri [" + uri + "]");
-				this._websocket = null;
+				this.websocketClient = null;
 				return Optional.empty();
 			}
 		} catch (URISyntaxException e) {
