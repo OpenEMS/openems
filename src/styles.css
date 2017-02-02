@@ -8,3 +8,15 @@ md-card.not_single {
   margin-left: 20px;
   margin-right: 20px;
 }
+
+table.full_width {
+  width: 100%;
+}
+
+td.align_right {
+  text-align: right;
+}
+
+.gray_color {
+  color: gray;
+}

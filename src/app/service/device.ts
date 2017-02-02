@@ -12,6 +12,9 @@ class Summary {
     things: {},
     soc: null
   };
+  public meter = {
+    things: {}
+  };
 }
 
 export class Device {
@@ -54,7 +57,9 @@ export class Device {
     }
     let subscribe = {}
     let natures = this.config.getValue()._meta.natures;
+    let ignoreNatures = {};
     this.summary = new Summary();
+    console.log("natures", natures);
     for (let thing in natures) {
       let a = natures[thing];
       let channels = []
@@ -68,16 +73,24 @@ export class Device {
         this.summary.ess.things[thing] = true;
       }
       if (isInArray(a, "AsymmetricEssNature")) {
-        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
-      } else if (isInArray(a, "SymmetricEssNature")) {
-        channels.push("ActivePower", "ActivePower", "ActivePower");
+        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
+      }
+      if (isInArray(a, "SymmetricEssNature")) {
+        channels.push("ActivePower", "ReactivePower");
+      }
+      if (isInArray(a, "FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
+        ignoreNatures["AsymmetricMeterNature"] = true;
       }
 
       // Meter
-      if (isInArray(a, "AsymmetricMeterNature")) {
-        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
-      } else if (isInArray(a, "SymmetricMeterNature")) {
-        channels.push("ActivePower", "ActivePower", "ActivePower");
+      if (isInArray(a, "MeterNature")) {
+        this.summary.meter.things[thing] = true;
+      }
+      if (isInArray(a, "AsymmetricMeterNature") && !ignoreNatures["AsymmetricMeterNature"]) {
+        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
+      }
+      if (isInArray(a, "SymmetricMeterNature")) {
+        channels.push("ActivePower", "ReactivePower");
       }
 
       subscribe[thing] = channels;

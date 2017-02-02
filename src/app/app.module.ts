@@ -17,6 +17,7 @@ import { OverviewComponent } from './overview/overview.component';
 import { DeviceOverviewComponent } from './device/overview/overview.component';
 import { DeviceOverviewEnergymonitorComponent } from './device/overview/energymonitor/energymonitor.component';
 import { DeviceOverviewEnergymonitorChartComponent } from './device/overview/energymonitor/chart/chart.component';
+import { DeviceOverviewEnergymonitorTableComponent } from './device/overview/energymonitor/table/table.component';
 import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
 import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
 import { FormBridgeSimulatorComponent } from './device/config/bridge/bridge/simulator/simulator.component';
@@ -70,6 +71,7 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     DeviceOverviewComponent,
     DeviceOverviewEnergymonitorComponent,
     DeviceOverviewEnergymonitorChartComponent,
+    DeviceOverviewEnergymonitorTableComponent,
     DeviceConfigOverviewComponent,
     DeviceConfigBridgeComponent,
     DeviceConfigSchedulerComponent,
