@@ -1,6 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, ElementRef, NgZone, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { BaseChartComponent } from 'ngx-charts';
-import { ColorHelper } from 'ngx-charts';
+import { Component, Input, OnInit, OnChanges } from '@angular/core';
+import { BaseChartComponent, ColorHelper } from '@swimlane/ngx-charts';
 import * as d3 from 'd3';
 import { StorageSection, ProductionSection, ConsumptionSection, GridSection, AbstractSection } from './section/section';
 

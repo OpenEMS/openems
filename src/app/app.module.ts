@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { routing, appRoutingProviders } from './app.routing';
 import { AppComponent } from './app.component';
-import { NgxChartsModule } from 'ngx-charts';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MaterialModule, MdSnackBar } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import 'hammerjs';
