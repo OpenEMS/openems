@@ -39,7 +39,13 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		super(id, parent);
 	}
 
-	@SuppressWarnings("unchecked") public Optional<T> writeMin() {
+	/**
+	 * Returns the currently set min value limitation
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Optional<T> writeMin() {
 		T valueMin = valueInterval().minOptional().orElse(null);
 		T writeMin = writeInterval.minOptional().orElse(null);
 		T channelMin = null;
@@ -65,7 +71,13 @@ public class WriteChannel<T> extends ReadChannel<T> {
 
 	}
 
-	@SuppressWarnings("unchecked") public Optional<T> writeMax() {
+	/**
+	 * Returns the currently set max value limitation
+	 *
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Optional<T> writeMax() {
 		T valueMax = valueInterval().maxOptional().orElse(null);
 		T writeMax = writeInterval.maxOptional().orElse(null);
 		T channelMax = null;
@@ -105,7 +117,8 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	 *
 	 * @return value
 	 */
-	@SuppressWarnings("unchecked") public synchronized Optional<T> peekWrite() {
+	@SuppressWarnings("unchecked")
+	public synchronized Optional<T> peekWrite() {
 		if (writeValue.isPresent()) {
 			return writeValue;
 		} else {
@@ -140,7 +153,8 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	 * {@link WriteChannel}. This method is called internally immediately after the {@link Scheduler} finished all
 	 * {@link Controller}s.
 	 */
-	@SuppressWarnings("unchecked") public synchronized void shadowCopyAndReset() {
+	@SuppressWarnings("unchecked")
+	public synchronized void shadowCopyAndReset() {
 		Optional<T> value = peekWrite();
 		if (value.isPresent() && value.get() instanceof Number && (multiplier.isPresent() || delta.isPresent())) {
 			Number number = (Number) value.get();
@@ -208,11 +222,13 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		writeInterval.max(value);
 	}
 
-	@Override public WriteChannel<T> required() {
+	@Override
+	public WriteChannel<T> required() {
 		return (WriteChannel<T>) super.required();
 	}
 
-	@SuppressWarnings("unchecked") private void checkIntervalBoundaries(T value) throws WriteChannelException {
+	@SuppressWarnings("unchecked")
+	private void checkIntervalBoundaries(T value) throws WriteChannelException {
 		Optional<T> max = writeMax();
 		Optional<T> min = writeMin();
 		Optional<T> write = this.writeValue;

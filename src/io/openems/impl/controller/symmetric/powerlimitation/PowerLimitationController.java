@@ -32,24 +32,32 @@ public class PowerLimitationController extends Controller {
 	public void run() {
 		try {
 			try {
-				ess.value().setActivePower.pushWriteMax(pMax.value());
+				if (pMax.value() < ess.value().setActivePower.writeMax().orElse(Long.MAX_VALUE)) {
+					ess.value().setActivePower.pushWriteMax(pMax.value());
+				}
 			} catch (WriteChannelException | InvalidValueException e) {
-				log.error("Failed to write Max P value for Ess " + ess.value().id, e);
+				log.error("Failed to write Max P value for [" + ess.value().id + "]: " + e.getMessage());
 			}
 			try {
-				ess.value().setActivePower.pushWriteMin(pMin.value());
+				if (pMin.value() > ess.value().setActivePower.writeMin().orElse(Long.MIN_VALUE)) {
+					ess.value().setActivePower.pushWriteMin(pMin.value());
+				}
 			} catch (WriteChannelException | InvalidValueException e) {
-				log.error("Failed to write Min P value for Ess " + ess.value().id, e);
+				log.error("Failed to write Min P value for [" + ess.value().id + "]: " + e.getMessage());
 			}
 			try {
-				ess.value().setReactivePower.pushWriteMin(qMin.value());
+				if (qMin.value() > ess.value().setReactivePower.writeMin().orElse(Long.MIN_VALUE)) {
+					ess.value().setReactivePower.pushWriteMin(qMin.value());
+				}
 			} catch (WriteChannelException | InvalidValueException e) {
-				log.error("Failed to write Min Q value for Ess " + ess.value().id, e);
+				log.error("Failed to write Min Q value for [" + ess.value().id + "]: " + e.getMessage());
 			}
 			try {
-				ess.value().setReactivePower.pushWriteMax(qMax.value());
+				if (qMax.value() < ess.value().setReactivePower.writeMax().orElse(Long.MAX_VALUE)) {
+					ess.value().setReactivePower.pushWriteMax(qMax.value());
+				}
 			} catch (WriteChannelException | InvalidValueException e) {
-				log.error("Failed to write Max Q value for Ess " + ess.value().id, e);
+				log.error("Failed to write Max Q value for [" + ess.value().id + "]: " + e.getMessage());
 			}
 		} catch (InvalidValueException e) {
 			log.error("No ess found.", e);
