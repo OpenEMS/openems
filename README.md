@@ -14,11 +14,11 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 Build for femsserver:
 
-`ng build --env=femsserver --base-href /m/`
+`ng build -prod --env=femsserver --base-href /m/`
 
 Build for openems:
 
-`ng build --env=openems --base-href /`
+`ng build -prod --env=openems --base-href /`
 
 ## Further help
 
