@@ -25,8 +25,10 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 
+@ThingInfo("System nature. Provides general system information.")
 public abstract class SystemDeviceNature implements DeviceNature {
 	protected final Logger log;
 	private final String thingId;
@@ -36,7 +38,8 @@ public abstract class SystemDeviceNature implements DeviceNature {
 		log = LoggerFactory.getLogger(this.getClass());
 	}
 
-	@Override public String id() {
+	@Override
+	public String id() {
 		return thingId;
 	}
 

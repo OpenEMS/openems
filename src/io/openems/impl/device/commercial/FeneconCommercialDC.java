@@ -25,29 +25,35 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
+@ThingInfo("Represents a FENECON Commercial DC/Hybrid device")
 public class FeneconCommercialDC extends ModbusDevice {
 
 	/*
 	 * Config
 	 */
-	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<FeneconCommercialEss>("ess", this,
-			FeneconCommercialEss.class);
+	@ConfigInfo(title = "Sets the ess nature", type = FeneconCommercialEss.class)
+	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<FeneconCommercialEss>("ess", this);
 
+	@ConfigInfo(title = "Sets the inverter nature", type = FeneconCommercialInverter.class)
 	public final ConfigChannel<FeneconCommercialInverter> inverter = new ConfigChannel<FeneconCommercialInverter>(
-			"inverter", this, FeneconCommercialInverter.class);
+			"inverter", this);
 
 	public FeneconCommercialDC() throws OpenemsException {
 		super();
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return "FeneconCommercialDC [ess=" + ess + ", getThingId()=" + id() + "]";
 	}
 
-	@Override protected Set<DeviceNature> getDeviceNatures() {
+	@Override
+	protected Set<DeviceNature> getDeviceNatures() {
 		Set<DeviceNature> natures = new HashSet<>();
 		if (ess.valueOptional().isPresent()) {
 			natures.add(ess.valueOptional().get());

@@ -55,18 +55,21 @@ public abstract class ModbusBridge extends Bridge {
 	protected volatile ModbusDevice[] modbusdevices = new ModbusDevice[0];
 	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
 
-	@Override public abstract void dispose();
+	@Override
+	public abstract void dispose();
 
 	public abstract ModbusTransaction getTransaction() throws OpenemsModbusException;
 
-	@Override public void triggerWrite() {
+	@Override
+	public void triggerWrite() {
 		// set the Write-flag
 		isWriteTriggered.set(true);
 		// start "run()" again as fast as possible
 		triggerForceRun();
 	}
 
-	@Override protected void forever() {
+	@Override
+	protected void forever() {
 		for (ModbusDevice modbusdevice : modbusdevices) {
 			// if Write-flag was set -> start writing for all Devices immediately
 			if (isWriteTriggered.get()) {
@@ -94,7 +97,8 @@ public abstract class ModbusBridge extends Bridge {
 
 	protected abstract void closeModbusConnection();
 
-	@Override protected boolean initialize() {
+	@Override
+	protected boolean initialize() {
 		/*
 		 * Copy and cast devices to local modbusdevices array
 		 */

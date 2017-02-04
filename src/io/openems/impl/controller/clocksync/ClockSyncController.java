@@ -7,10 +7,12 @@ import java.util.Optional;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.WriteChannelException;
 
+@ThingInfo("Synchronizes system clocks")
 public class ClockSyncController extends Controller {
-	@ConfigInfo(title = "realtTimeClock to set systemTime with", type = RealTimeClock.class)
+	@ConfigInfo(title = "Sets the RealTimeClock device", type = RealTimeClock.class)
 	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this).optional();
 
 	private boolean isDateSet = false;

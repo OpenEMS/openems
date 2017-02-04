@@ -5,9 +5,11 @@ import java.util.Set;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
+@ThingInfo("Set fixed active and reactive power for asymmetric ESS")
 public class FixValueController extends Controller {
 
 	@ConfigInfo(title = "ess to set fix power value", type = Ess.class)

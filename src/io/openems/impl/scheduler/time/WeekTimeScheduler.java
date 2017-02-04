@@ -18,6 +18,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.ReflectionException;
@@ -25,6 +26,7 @@ import io.openems.api.scheduler.Scheduler;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
 
+@ThingInfo("Simple app-planner for reccuring weekly plans")
 public class WeekTimeScheduler extends Scheduler {
 
 	private ThingRepository thingRepository;

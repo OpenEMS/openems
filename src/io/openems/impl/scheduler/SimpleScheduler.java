@@ -29,9 +29,11 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.core.ThingRepository;
 
+@ThingInfo("Simple app-planner")
 public class SimpleScheduler extends Scheduler {
 
 	private ThingRepository thingRepository;

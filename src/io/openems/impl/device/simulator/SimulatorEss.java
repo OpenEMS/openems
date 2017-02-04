@@ -12,11 +12,13 @@ import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
+@ThingInfo("Simulated energy storage system")
 public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
 
 	public SimulatorEss(String thingId) throws ConfigException {
@@ -37,7 +39,7 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 	}
 
 	@Override
-	@ConfigInfo(title = "Sets the Charge-SOC", type = Integer.class, isOptional = true)
+	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class, isOptional = true)
 	public ConfigChannel<Integer> chargeSoc() {
 		return chargeSoc;
 	}

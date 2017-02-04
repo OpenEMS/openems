@@ -7,7 +7,9 @@ import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 
+@ThingInfo("Bridge to the system")
 public class SystemBridge extends Bridge {
 	protected volatile SystemDevice[] systemdevices = new SystemDevice[0];
 

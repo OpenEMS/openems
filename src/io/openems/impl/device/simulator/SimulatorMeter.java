@@ -4,11 +4,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
+@ThingInfo("Simulated meter")
 public class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMeterNature {
 
 	public SimulatorMeter(String thingId) throws ConfigException {
@@ -25,19 +27,23 @@ public class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMe
 	private SimulatorReadChannel frequency = new SimulatorReadChannel("Frequency", this);
 	private SimulatorReadChannel voltage = new SimulatorReadChannel("Voltage", this);
 
-	@Override public ReadChannel<Long> activePower() {
+	@Override
+	public ReadChannel<Long> activePower() {
 		return activePower;
 	}
 
-	@Override public ReadChannel<Long> apparentPower() {
+	@Override
+	public ReadChannel<Long> apparentPower() {
 		return apparentPower;
 	}
 
-	@Override public ReadChannel<Long> reactivePower() {
+	@Override
+	public ReadChannel<Long> reactivePower() {
 		return reactivePower;
 	}
 
-	@Override protected void update() {
+	@Override
+	protected void update() {
 		soc.updateValue(getRandom(0, 100));
 		long apparentPower = getRandom(-10000, 10000);
 		double cosPhi = ThreadLocalRandom.current().nextDouble(-1.5, 1.5);
@@ -55,11 +61,13 @@ public class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMe
 		return ThreadLocalRandom.current().nextLong(min, max + 1);
 	}
 
-	@Override public ReadChannel<Long> frequency() {
+	@Override
+	public ReadChannel<Long> frequency() {
 		return frequency;
 	}
 
-	@Override public ReadChannel<Long> voltage() {
+	@Override
+	public ReadChannel<Long> voltage() {
 		return voltage;
 	}
 

@@ -24,6 +24,7 @@ import io.openems.api.channel.FunctionalChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -35,6 +36,7 @@ import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
+@ThingInfo("FENECON Pro meter")
 public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricMeterNature, SymmetricMeterNature {
 
 	public FeneconProPvMeter(String thingId) throws ConfigException {

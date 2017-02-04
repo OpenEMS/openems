@@ -5,10 +5,13 @@ import java.util.List;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
+@ThingInfo("Set fixed active and reactive power for symmetric ESS")
 public class FixValueController extends Controller {
+
 	@ConfigInfo(title = "All storage, which should be set to the p and q values.", type = Ess.class)
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 

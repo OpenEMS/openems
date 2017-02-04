@@ -24,10 +24,12 @@ import org.xml.sax.SAXException;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
+@ThingInfo("Represents a WAGO I/O device")
 public class WagoFB extends ModbusDevice {
 
 	@ConfigInfo(title = "Output configuration", type = WagoFBOutput.class)

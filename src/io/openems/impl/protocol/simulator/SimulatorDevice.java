@@ -22,8 +22,10 @@ package io.openems.impl.protocol.simulator;
 
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 
+@ThingInfo("Simulated devices")
 public abstract class SimulatorDevice extends Device {
 
 	public SimulatorDevice() throws OpenemsException {

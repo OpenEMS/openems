@@ -33,27 +33,30 @@ import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsModbusException;
 
+@ThingInfo("Bridge to Modbus/RTU devices")
 public class ModbusRtu extends ModbusBridge implements ChannelUpdateListener {
 	private Optional<SerialConnection> connection = Optional.empty();
 
 	/*
 	 * Config
 	 */
-	public final ConfigChannel<Integer> baudrate = new ConfigChannel<Integer>("baudrate", this, Integer.class)
+	@ConfigInfo(title = "Sets the baudrate (e.g. 9600)", type = Integer.class)
+	public final ConfigChannel<Integer> baudrate = new ConfigChannel<Integer>("baudrate", this).addUpdateListener(this);
+	@ConfigInfo(title = "Sets the databits (e.g. 8)", type = Integer.class)
+	public final ConfigChannel<Integer> databits = new ConfigChannel<Integer>("databits", this).addUpdateListener(this);
+	@ConfigInfo(title = "Sets the parity (e.g. even)", type = String.class)
+	public final ConfigChannel<String> parity = new ConfigChannel<String>("parity", this).addUpdateListener(this);
+	@ConfigInfo(title = "Sets the serial interface (e.g. /dev/ttyUSB0)", type = String.class)
+	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this)
 			.addUpdateListener(this);
-	public final ConfigChannel<Integer> databits = new ConfigChannel<Integer>("databits", this, Integer.class)
-			.addUpdateListener(this);
-	public final ConfigChannel<String> parity = new ConfigChannel<String>("parity", this, String.class)
-			.addUpdateListener(this);
-	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this,
-			String.class).addUpdateListener(this);
-	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this, Integer.class)
-			.addUpdateListener(this);
+	@ConfigInfo(title = "Sets the stopbits (e.g. 1)", type = Integer.class)
+	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this).addUpdateListener(this);
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
-			.defaultValue(500);
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(500);
 
 	@Override
 	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)

@@ -8,6 +8,7 @@ import java.util.List;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.io.InputNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.impl.protocol.modbus.ModbusCoilReadChannel;
@@ -17,6 +18,7 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.range.ModbusCoilRange;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 
+@ThingInfo("WAGO I/O input")
 public class WagoFBInput extends ModbusDeviceNature implements InputNature {
 
 	@ConfigInfo(title = "Ip-Address to download the wago configuration", type = Inet4Address.class)

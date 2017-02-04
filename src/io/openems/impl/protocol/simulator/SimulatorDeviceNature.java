@@ -28,9 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
 
+@ThingInfo("Simulator nature. Provides simulated data for tests.")
 public abstract class SimulatorDeviceNature implements DeviceNature {
 	protected final Logger log;
 	private final String thingId;

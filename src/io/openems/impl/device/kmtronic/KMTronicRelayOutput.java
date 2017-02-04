@@ -1,6 +1,7 @@
 package io.openems.impl.device.kmtronic;
 
 import io.openems.api.device.nature.io.OutputNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusCoilWriteChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -8,6 +9,7 @@ import io.openems.impl.protocol.modbus.internal.CoilElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusCoilRange;
 
+@ThingInfo("KMTronic Relay board outputs")
 public class KMTronicRelayOutput extends ModbusDeviceNature implements OutputNature {
 
 	private ModbusCoilWriteChannel[] outputs;
@@ -16,7 +18,8 @@ public class KMTronicRelayOutput extends ModbusDeviceNature implements OutputNat
 		super(thingId);
 	}
 
-	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+	@Override
+	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		if (outputs == null) {
 			outputs = new ModbusCoilWriteChannel[8];
 		}
@@ -32,7 +35,8 @@ public class KMTronicRelayOutput extends ModbusDeviceNature implements OutputNat
 						new CoilElement(7, outputs[7] = new ModbusCoilWriteChannel("8", this))));
 	}
 
-	@Override public ModbusCoilWriteChannel[] setOutput() {
+	@Override
+	public ModbusCoilWriteChannel[] setOutput() {
 		return outputs;
 	}
 

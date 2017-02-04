@@ -9,10 +9,12 @@ import java.util.Arrays;
 import java.util.Enumeration;
 
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.system.SystemDeviceNature;
 import io.openems.impl.protocol.system.SystemReadChannel;
 
+@ThingInfo("System information")
 public class SystemNature extends SystemDeviceNature implements io.openems.api.device.nature.system.SystemNature {
 
 	private final Inet4Address[] OPENEMS_STATIC_IPS;
@@ -37,11 +39,13 @@ public class SystemNature extends SystemDeviceNature implements io.openems.api.d
 	private SystemReadChannel<Inet4Address> primaryIpAddress = new SystemReadChannel<Inet4Address>("PrimaryIpAddress",
 			this);
 
-	@Override public ReadChannel<Inet4Address> primaryIpAddress() {
+	@Override
+	public ReadChannel<Inet4Address> primaryIpAddress() {
 		return primaryIpAddress;
 	}
 
-	@Override protected void update() {
+	@Override
+	protected void update() {
 		// Get IP address
 		Inet4Address primaryIpAddress;
 		try {

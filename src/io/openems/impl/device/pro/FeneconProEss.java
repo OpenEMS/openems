@@ -33,6 +33,8 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
+import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -46,6 +48,7 @@ import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
+@ThingInfo("FENECON Pro energy storage system")
 public class FeneconProEss extends ModbusDeviceNature
 		implements AsymmetricEssNature, RealTimeClockNature, ChannelUpdateListener {
 
@@ -56,16 +59,19 @@ public class FeneconProEss extends ModbusDeviceNature
 	/*
 	 * Config
 	 */
-	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class)
-			.addUpdateListener(this);
+	@ConfigInfo(title = "Sets the minimal SOC", type = Integer.class)
+	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this).addUpdateListener(this);
 
-	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class).optional();
+	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class)
+	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this).optional();
 
-	@Override public ConfigChannel<Integer> minSoc() {
+	@Override
+	public ConfigChannel<Integer> minSoc() {
 		return minSoc;
 	}
 
-	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+	@Override
+	public void channelUpdated(Channel channel, Optional<?> newValue) {
 		// If chargeSoc was not set -> set it to minSoc minus 2
 		if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
 			chargeSoc.updateValue((Integer) newValue.get() - 2, false);
@@ -105,111 +111,138 @@ public class FeneconProEss extends ModbusDeviceNature
 	private ModbusWriteLongChannel setReactivePowerL2;
 	private ModbusWriteLongChannel setReactivePowerL3;
 
-	@Override public ReadChannel<Long> allowedCharge() {
+	@Override
+	public ReadChannel<Long> allowedCharge() {
 		return allowedCharge;
 	}
 
-	@Override public ReadChannel<Long> allowedDischarge() {
+	@Override
+	public ReadChannel<Long> allowedDischarge() {
 		return allowedDischarge;
 	}
 
-	@Override public ReadChannel<Long> gridMode() {
+	@Override
+	public ReadChannel<Long> gridMode() {
 		return gridMode;
 	}
 
-	@Override public ReadChannel<Long> soc() {
+	@Override
+	public ReadChannel<Long> soc() {
 		return soc;
 	}
 
-	@Override public ReadChannel<Long> systemState() {
+	@Override
+	public ReadChannel<Long> systemState() {
 		return systemState;
 	}
 
-	@Override public WriteChannel<Long> setWorkState() {
+	@Override
+	public WriteChannel<Long> setWorkState() {
 		return setWorkState;
 	}
 
-	@Override public ReadChannel<Long> activePowerL1() {
+	@Override
+	public ReadChannel<Long> activePowerL1() {
 		return activePowerL1;
 	}
 
-	@Override public ReadChannel<Long> activePowerL2() {
+	@Override
+	public ReadChannel<Long> activePowerL2() {
 		return activePowerL2;
 	}
 
-	@Override public ReadChannel<Long> activePowerL3() {
+	@Override
+	public ReadChannel<Long> activePowerL3() {
 		return activePowerL3;
 	}
 
-	@Override public WriteChannel<Long> setActivePowerL1() {
+	@Override
+	public WriteChannel<Long> setActivePowerL1() {
 		return setActivePowerL1;
 	}
 
-	@Override public WriteChannel<Long> setActivePowerL2() {
+	@Override
+	public WriteChannel<Long> setActivePowerL2() {
 		return setActivePowerL2;
 	}
 
-	@Override public WriteChannel<Long> setActivePowerL3() {
+	@Override
+	public WriteChannel<Long> setActivePowerL3() {
 		return setActivePowerL3;
 	}
 
-	@Override public WriteChannel<Long> setReactivePowerL1() {
+	@Override
+	public WriteChannel<Long> setReactivePowerL1() {
 		return setReactivePowerL1;
 	}
 
-	@Override public WriteChannel<Long> setReactivePowerL2() {
+	@Override
+	public WriteChannel<Long> setReactivePowerL2() {
 		return setReactivePowerL2;
 	}
 
-	@Override public WriteChannel<Long> setReactivePowerL3() {
+	@Override
+	public WriteChannel<Long> setReactivePowerL3() {
 		return setReactivePowerL3;
 	}
 
-	@Override public StatusBitChannels warning() {
+	@Override
+	public StatusBitChannels warning() {
 		return warning;
 	}
 
-	@Override public ReadChannel<Long> allowedApparent() {
+	@Override
+	public ReadChannel<Long> allowedApparent() {
 		return allowedApparent;
 	}
 
-	@Override public ReadChannel<Long> reactivePowerL1() {
+	@Override
+	public ReadChannel<Long> reactivePowerL1() {
 		return reactivePowerL1;
 	}
 
-	@Override public ReadChannel<Long> reactivePowerL2() {
+	@Override
+	public ReadChannel<Long> reactivePowerL2() {
 		return reactivePowerL2;
 	}
 
-	@Override public ReadChannel<Long> reactivePowerL3() {
+	@Override
+	public ReadChannel<Long> reactivePowerL3() {
 		return reactivePowerL3;
 	}
 
-	@Override public WriteChannel<Long> rtcYear() {
+	@Override
+	public WriteChannel<Long> rtcYear() {
 		return rtcYear;
 	}
 
-	@Override public WriteChannel<Long> rtcMonth() {
+	@Override
+	public WriteChannel<Long> rtcMonth() {
 		return rtcMonth;
 	}
 
-	@Override public WriteChannel<Long> rtcDay() {
+	@Override
+	public WriteChannel<Long> rtcDay() {
 		return rtcDay;
 	}
 
-	@Override public WriteChannel<Long> rtcHour() {
+	@Override
+	public WriteChannel<Long> rtcHour() {
 		return rtcHour;
 	}
 
-	@Override public WriteChannel<Long> rtcMinute() {
+	@Override
+	public WriteChannel<Long> rtcMinute() {
 		return rtcMinute;
 	}
 
-	@Override public WriteChannel<Long> rtcSecond() {
+	@Override
+	public WriteChannel<Long> rtcSecond() {
 		return rtcSecond;
 	}
 
-	@Override public ConfigChannel<Integer> chargeSoc() {
+	@Override
+	public ConfigChannel<Integer> chargeSoc() {
 		return chargeSoc;
 	}
 
@@ -240,7 +273,8 @@ public class FeneconProEss extends ModbusDeviceNature
 	public ModbusReadLongChannel setupMode;
 	public ModbusReadLongChannel pcsMode;
 
-	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+	@Override
+	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
 
 		ModbusProtocol protokol = new ModbusProtocol(new ModbusRegisterRange(100, //

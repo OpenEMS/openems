@@ -306,7 +306,7 @@ public class ConfigUtils {
 
 		ThingInfo thing = clazz.getAnnotation(ThingInfo.class);
 		if (thing == null) {
-			log.warn("Thing [" + clazz.getName() + "] has no @Thing annotation");
+			log.warn("Thing [" + clazz.getName() + "] has no @ThingInfo annotation");
 		} else {
 			doc.setThingDescription(thing);
 		}
