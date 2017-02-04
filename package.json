@@ -49,6 +49,7 @@
     "@types/d3": "4.4.1",
     "@types/jasmine": "2.5.38",
     "@types/node": "^6.0.42",
+    "@ngtools/webpack": "1.2.4",
     "codelyzer": "~2.0.0-beta.1",
     "jasmine-core": "2.5.2",
     "jasmine-spec-reporter": "2.5.0",

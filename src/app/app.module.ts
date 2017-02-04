@@ -2,12 +2,14 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { routing, appRoutingProviders } from './app.routing';
-import { AppComponent } from './app.component';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MaterialModule, MdSnackBar } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 import 'hammerjs';
+
+import { routing, appRoutingProviders } from './app.routing';
+import { AppComponent } from './app.component';
+import { environment } from '../environments';
 
 /*
  * Frontend
@@ -109,8 +111,6 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     MdSnackBar,
     WebappService,
     WebsocketService
-    /*OdooRPCService*/
-    /*{ provide: DataService, useClass: OdooDataService }*/
   ],
   bootstrap: [
     AppComponent

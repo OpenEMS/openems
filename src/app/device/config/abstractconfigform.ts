@@ -90,7 +90,6 @@ export abstract class AbstractConfigForm {
 
   protected getConfigCreateRequests(form: FormGroup): ConfigRequest[] {
     let requests: ConfigRequest[] = [];
-    console.log(form);
     let parentId = "";
     if (form["_meta_parent_id"]) {
       parentId = form["_meta_parent_id"];
@@ -141,7 +140,6 @@ export abstract class AbstractConfigForm {
     for (let key in form.controls) {
       builder[key] = form.controls[key].value;
     }
-    console.log(builder);
     return builder;
   }
 }

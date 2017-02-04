@@ -12,6 +12,6 @@ export class ConsumptionSection extends AbstractSection {
 
     protected getImagePosition(outlineArc: any): SvgImagePosition {
         let centroid = outlineArc.centroid();
-        return new SvgImagePosition("/assets/img/consumption.png", centroid[0] - 130, centroid[1] - 10)
+        return new SvgImagePosition("assets/img/consumption.png", centroid[0] - 130, centroid[1] - 10)
     }
 }

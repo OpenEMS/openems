@@ -59,7 +59,6 @@ export class Device {
     let natures = this.config.getValue()._meta.natures;
     let ignoreNatures = {};
     this.summary = new Summary();
-    console.log("natures", natures);
     for (let thing in natures) {
       let a = natures[thing];
       let channels = []
@@ -114,35 +113,41 @@ export class Device {
    * Receive new data from websocket
    */
   public receive(message: any) {
-    /*
-     * config
-     */
-    if ("config" in message) {
-      let config = message.config;
-      // parse influxdb connection
-      if ("persistence" in config) {
-        for (let persistence of config.persistence) {
-          if (persistence.class == "io.openems.impl.persistence.influxdb.InfluxdbPersistence" &&
-            "ip" in persistence && "username" in persistence && "password" in persistence && "fems" in persistence) {
-            let ip = persistence["ip"];
-            if (ip == "127.0.0.1" || ip == "localhost") { // rewrite localhost to remote ip
-              ip = location.hostname;
-            }
-            this.influxdb = {
-              ip: ip,
-              username: persistence["username"],
-              password: persistence["password"],
-              fems: persistence["fems"]
+
+    if ("metadata" in message) {
+      let metadata = message.metadata;
+      /*
+       * config
+       */
+      if ("config" in metadata) {
+        let config = metadata.config;
+        // parse influxdb connection
+        if ("persistence" in config) {
+          for (let persistence of config.persistence) {
+            if (persistence.class == "io.openems.impl.persistence.influxdb.InfluxdbPersistence" &&
+              "ip" in persistence && "username" in persistence && "password" in persistence && "fems" in persistence) {
+              let ip = persistence["ip"];
+              if (ip == "127.0.0.1" || ip == "localhost") { // rewrite localhost to remote ip
+                ip = location.hostname;
+              }
+              this.influxdb = {
+                ip: ip,
+                username: persistence["username"],
+                password: persistence["password"],
+                fems: persistence["fems"]
+              }
             }
           }
         }
+        // store all config
+        this.config.next(config);
       }
-      // store all config
-      this.config.next(config);
-    }
 
-    if ("online" in message) {
-      this.online = message.online;
+      if ("online" in metadata) {
+        this.online = metadata.online;
+      } else {
+        this.online = true;
+      }
     }
 
     /*

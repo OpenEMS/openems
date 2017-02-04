@@ -127,15 +127,22 @@ export class Websocket {
         // receive metadata
         if ("metadata" in message) {
           if ("devices" in message.metadata) {
-            // Receive connected devices
+            // receive device specific data
             let newDevices = message.metadata.devices;
             this.devices = {};
             for (let newDevice of newDevices) {
               let name = newDevice["name"];
               let device = new Device(name, this);
-              device.receive(newDevice);
+              device.receive({
+                metadata: newDevice
+              });
               this.devices[name] = device;
             }
+          } else {
+            // only one device
+            this.devices = {
+              fems: new Device("fems", this)
+            };
           }
           if ("backend" in message.metadata) {
             this.backend = message.metadata.backend;
@@ -149,8 +156,7 @@ export class Websocket {
             let device = this.devices[message.device];
             device.receive(message);
           }
-        }
-        if (Object.keys(this.devices).length == 1) {
+        } else if (Object.keys(this.devices).length == 1) {
           // device was not specified, but we have only one
           for (let key in this.devices) {
             this.devices[key].receive(message);
@@ -208,7 +214,6 @@ export class Websocket {
    */
   public send(device: Device, message: any): void {
     message["device"] = device.name;
-    console.log("SENDING", message);
     this.subject.next(message);
   }
 

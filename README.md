@@ -12,6 +12,14 @@ Run `ng serve` to serve for OpenEMS-Backend.
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
 
+Build for femsserver:
+
+`ng build --env=femsserver --base-href /m/`
+
+Build for openems:
+
+`ng build --env=openems --base-href /`
+
 ## Further help
 
 To get more help on the `angular-cli` use `ng help` or go check out the [Angular-CLI README](https://github.com/angular/angular-cli/blob/master/README.md).

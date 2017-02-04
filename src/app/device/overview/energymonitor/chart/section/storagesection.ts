@@ -12,6 +12,6 @@ export class StorageSection extends AbstractSection {
 
     protected getImagePosition(outlineArc: any): SvgImagePosition {
         let centroid = outlineArc.centroid();
-        return new SvgImagePosition("/assets/img/storage.png", centroid[0] - 60, centroid[1] - 100)
+        return new SvgImagePosition("assets/img/storage.png", centroid[0] - 60, centroid[1] - 100)
     }
 }
