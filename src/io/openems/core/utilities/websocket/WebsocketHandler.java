@@ -198,19 +198,12 @@ public class WebsocketHandler {
 
 		// Metadata
 		JsonObject jMetadata = new JsonObject();
-		// - devices
-		JsonArray jDevices = new JsonArray();
-		// -- device
-		JsonObject jDevice = new JsonObject();
-		jDevice.addProperty("name", DEFAULT_DEVICE_NAME);
-		jDevice.addProperty("online", true);
 		try {
-			jDevice.add("config", Config.getInstance().getMetaConfigJson());
+			jMetadata.add("config", Config.getInstance().getMetaConfigJson());
 		} catch (ConfigException e) {
 			log.error(e.getMessage());
 		}
-		jDevices.add(jDevice);
-		jMetadata.add("devices", jDevices);
+		jMetadata.addProperty("backend", "openems");
 		j.add("metadata", jMetadata);
 
 		return j;

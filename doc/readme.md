@@ -97,7 +97,8 @@ on error:
 ```
 {
 	metadata: {
-		config
+		config: {},
+		backend: "openems"
 	}
 }
 ```
@@ -135,9 +136,7 @@ on error:
 	authenticate: {
 		mode: allow, username, token
 	}, metadata: {
-		devices: [{
-			name, config, online
-		}],
+		config: {},
 		backend: "openems"
 	}
 }

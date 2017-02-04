@@ -115,4 +115,9 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 		j.addProperty("writeable", true);
 		return j;
 	}
+
+	@Override
+	public String toString() {
+		return "ConfigChannel[" + this.valueOptional().toString() + "]";
+	}
 }
