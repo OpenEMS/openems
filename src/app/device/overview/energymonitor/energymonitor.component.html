@@ -7,16 +7,6 @@
     <div fxFlex.gt-md="33%" fxFlex.md="50%" fxFlex.sm="75%" fxFlex.xs="100%">
       <app-device-overview-energymonitor-chart [storage]="device.summary.ess.soc" production="0" consumption="0" grid="0"></app-device-overview-energymonitor-chart>
     </div>
-    <div *ngFor="let thing of device.data | async | keys" fxFlex.gt-sm="25%" fxFlex.sm="50%" fxFlex.xs="100%">
-      <md-card>
-        <md-card-title>{{ thing.key }}</md-card-title>
-        <md-card-content fxLayout fxLayoutWrap="wrap">
-          <div *ngFor="let channel of thing.value | keys" fxFlex="100%" fxLayout>
-            <div fxFlex="50%">{{ channel.key }}</div>
-            <div fxFlex>{{ channel.value }}</div>
-          </div>
-        </md-card-content>
-      </md-card>
-    </div>
+    <app-device-overview-energymonitor-table fxFlex.gt-md="33%" fxFlex.md="50%" fxFlex.sm="75%" fxFlex.xs="100%" [device]="device"></app-device-overview-energymonitor-table>
   </md-card-content>
 </md-card>

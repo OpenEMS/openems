@@ -2,12 +2,14 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { routing, appRoutingProviders } from './app.routing';
-import { AppComponent } from './app.component';
-import { NgxChartsModule } from 'ngx-charts';
 import { MaterialModule, MdSnackBar } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 import 'hammerjs';
+
+import { routing, appRoutingProviders } from './app.routing';
+import { AppComponent } from './app.component';
+import { environment } from '../environments';
 
 /*
  * Frontend
@@ -17,6 +19,7 @@ import { OverviewComponent } from './overview/overview.component';
 import { DeviceOverviewComponent } from './device/overview/overview.component';
 import { DeviceOverviewEnergymonitorComponent } from './device/overview/energymonitor/energymonitor.component';
 import { DeviceOverviewEnergymonitorChartComponent } from './device/overview/energymonitor/chart/chart.component';
+import { DeviceOverviewEnergymonitorTableComponent } from './device/overview/energymonitor/table/table.component';
 import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
 import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
 import { FormBridgeSimulatorComponent } from './device/config/bridge/bridge/simulator/simulator.component';
@@ -70,6 +73,7 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     DeviceOverviewComponent,
     DeviceOverviewEnergymonitorComponent,
     DeviceOverviewEnergymonitorChartComponent,
+    DeviceOverviewEnergymonitorTableComponent,
     DeviceConfigOverviewComponent,
     DeviceConfigBridgeComponent,
     DeviceConfigSchedulerComponent,
@@ -107,8 +111,6 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     MdSnackBar,
     WebappService,
     WebsocketService
-    /*OdooRPCService*/
-    /*{ provide: DataService, useClass: OdooDataService }*/
   ],
   bootstrap: [
     AppComponent

@@ -2,5 +2,6 @@ export type BackendType = "femsserver" | "openems";
 
 export interface Environment {
     production: boolean,
-    backend: BackendType
+    backend: BackendType,
+    url: string
 }

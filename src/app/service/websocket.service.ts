@@ -3,6 +3,7 @@ import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
+import { environment } from '../../environments';
 import { Websocket } from './websocket';
 import { WebappService, Notification } from './webapp.service';
 import { Device } from './device';
@@ -13,8 +14,7 @@ export { Websocket } from './websocket';
 
 const DEFAULT_WEBSOCKETS = [{
   name: location.hostname,
-  url: "ws://" + location.hostname + ":8085"
-  //url: "ws://localhost:8085"
+  url: environment.url
 }];
 
 @Injectable()
@@ -109,7 +109,7 @@ export class WebsocketService {
    * Closes the given websocket
    */
   public closeConnection(websocket: Websocket) {
-    console.log("Closing websocket[" + websocket.name + "; " + websocket.url + "]");
+    console.info("Closing websocket[" + websocket.name + "; " + websocket.url + "]");
     websocket.close();
     //this.event.emit({ type: "info", message: "Verbindung beendet" });
   }

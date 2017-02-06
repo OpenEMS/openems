@@ -35,7 +35,6 @@ export class FormControllersComponent {
 
   private deleteController(controllers: FormArray, index: number) {
     var controller = controllers.controls[index];
-    console.log(controllers, controller);
     if (controller) {
       if (controller["_new"]) {
         controllers.removeAt(index);

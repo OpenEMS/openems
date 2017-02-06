@@ -12,6 +12,6 @@ export class ProductionSection extends AbstractSection {
 
     protected getImagePosition(outlineArc: any): SvgImagePosition {
         let centroid = outlineArc.centroid();
-        return new SvgImagePosition("/assets/img/production.png", centroid[0] - 60, centroid[1] + 70)
+        return new SvgImagePosition("assets/img/production.png", centroid[0] - 60, centroid[1] + 70)
     }
 }

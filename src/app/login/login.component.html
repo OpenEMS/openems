@@ -1,4 +1,4 @@
-<div *ngIf="backend != 'femsserver'" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+<div *ngIf="backend == 'openems'" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
   <div *ngFor="let form of forms" fxFlex="50%" fxFlex.xs="100%">
     <form [formGroup]="form" (ngSubmit)="doLogin(form)">
       <md-card class="single">
@@ -9,6 +9,7 @@
           <md-card-subtitle>{{form._websocket.url}}</md-card-subtitle>
         </md-card-header>
         <md-card-content fxLayout fxLayoutWrap="wrap">
+          <p>Testversion: bitte melden Sie sich mit dem Passwort "<strong>admin</strong>" an.</p>
           <md-input-container *ngIf="!form._websocket.isConnected" fxFlex="100%"><input formControlName="password" md-input type="password" placeholder="Passwort"></md-input-container>
           <p fxFlex="100%">{{(form._websocket.event | async)?.message}}</p>
         </md-card-content>

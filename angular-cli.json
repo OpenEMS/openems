@@ -1,6 +1,6 @@
 {
   "project": {
-    "version": "1.0.0-beta.30",
+    "version": "1.0.0-beta.28.3",
     "name": "openems-gui"
   },
   "apps": [
@@ -19,16 +19,16 @@
       "prefix": "app",
       "styles": [
         "styles.css",
-        "../node_modules/ngx-charts/release/ngx-charts.css",
+        "../node_modules/@swimlane/ngx-charts/release/index.css",
         "../node_modules/material-design-icons/iconfont/material-icons.css",
         "material2-app-theme.scss"
       ],
       "scripts": [],
       "environments": {
         "femsserver": "environments/environment.femsserver.ts",
+        "openems": "environments/environment.openems.ts",
         "source": "environments/environment.ts",
-        "dev": "environments/environment.ts",
-        "openems": "environments/environment.ts"
+        "dev": "environments/environment.ts"
       }
     }
   ],

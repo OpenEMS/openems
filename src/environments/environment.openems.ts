@@ -2,6 +2,6 @@ import { Environment } from "./environment.type";
 
 export const environment: Environment = {
   production: true,
-  backend: "femsserver",
-  url: "wss://fenecon.de:443/femsmonitor"
+  backend: "openems",
+  url: "ws://" + location.hostname + ":" + location.port + "/websocket"
 };

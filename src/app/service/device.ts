@@ -12,6 +12,9 @@ class Summary {
     things: {},
     soc: null
   };
+  public meter = {
+    things: {}
+  };
 }
 
 export class Device {
@@ -54,6 +57,7 @@ export class Device {
     }
     let subscribe = {}
     let natures = this.config.getValue()._meta.natures;
+    let ignoreNatures = {};
     this.summary = new Summary();
     for (let thing in natures) {
       let a = natures[thing];
@@ -68,16 +72,24 @@ export class Device {
         this.summary.ess.things[thing] = true;
       }
       if (isInArray(a, "AsymmetricEssNature")) {
-        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
-      } else if (isInArray(a, "SymmetricEssNature")) {
-        channels.push("ActivePower", "ActivePower", "ActivePower");
+        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
+      }
+      if (isInArray(a, "SymmetricEssNature")) {
+        channels.push("ActivePower", "ReactivePower");
+      }
+      if (isInArray(a, "FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
+        ignoreNatures["AsymmetricMeterNature"] = true;
       }
 
       // Meter
-      if (isInArray(a, "AsymmetricMeterNature")) {
-        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
-      } else if (isInArray(a, "SymmetricMeterNature")) {
-        channels.push("ActivePower", "ActivePower", "ActivePower");
+      if (isInArray(a, "MeterNature")) {
+        this.summary.meter.things[thing] = true;
+      }
+      if (isInArray(a, "AsymmetricMeterNature") && !ignoreNatures["AsymmetricMeterNature"]) {
+        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
+      }
+      if (isInArray(a, "SymmetricMeterNature")) {
+        channels.push("ActivePower", "ReactivePower");
       }
 
       subscribe[thing] = channels;
@@ -101,35 +113,41 @@ export class Device {
    * Receive new data from websocket
    */
   public receive(message: any) {
-    /*
-     * config
-     */
-    if ("config" in message) {
-      let config = message.config;
-      // parse influxdb connection
-      if ("persistence" in config) {
-        for (let persistence of config.persistence) {
-          if (persistence.class == "io.openems.impl.persistence.influxdb.InfluxdbPersistence" &&
-            "ip" in persistence && "username" in persistence && "password" in persistence && "fems" in persistence) {
-            let ip = persistence["ip"];
-            if (ip == "127.0.0.1" || ip == "localhost") { // rewrite localhost to remote ip
-              ip = location.hostname;
-            }
-            this.influxdb = {
-              ip: ip,
-              username: persistence["username"],
-              password: persistence["password"],
-              fems: persistence["fems"]
+
+    if ("metadata" in message) {
+      let metadata = message.metadata;
+      /*
+       * config
+       */
+      if ("config" in metadata) {
+        let config = metadata.config;
+        // parse influxdb connection
+        if ("persistence" in config) {
+          for (let persistence of config.persistence) {
+            if (persistence.class == "io.openems.impl.persistence.influxdb.InfluxdbPersistence" &&
+              "ip" in persistence && "username" in persistence && "password" in persistence && "fems" in persistence) {
+              let ip = persistence["ip"];
+              if (ip == "127.0.0.1" || ip == "localhost") { // rewrite localhost to remote ip
+                ip = location.hostname;
+              }
+              this.influxdb = {
+                ip: ip,
+                username: persistence["username"],
+                password: persistence["password"],
+                fems: persistence["fems"]
+              }
             }
           }
         }
+        // store all config
+        this.config.next(config);
       }
-      // store all config
-      this.config.next(config);
-    }
 
-    if ("online" in message) {
-      this.online = message.online;
+      if ("online" in metadata) {
+        this.online = metadata.online;
+      } else {
+        this.online = true;
+      }
     }
 
     /*
