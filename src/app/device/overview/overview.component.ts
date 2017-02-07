@@ -10,7 +10,6 @@ import { Device } from '../../service/device';
   templateUrl: './overview.component.html'
 })
 export class DeviceOverviewComponent implements OnInit, OnDestroy {
-
   private device: Device;
   private deviceSubscription: Subscription;
 
