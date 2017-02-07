@@ -5,7 +5,7 @@ import { WebsocketService } from '../../service/websocket.service';
 
 export type ConfigRequestType = "update" | "create" | "delete";
 export interface ConfigRequest {
-  operation: string;
+  mode: string;
 }
 export interface ConfigCreateRequest extends ConfigRequest {
   object: Object;
@@ -60,6 +60,7 @@ export abstract class AbstractConfigForm {
     } else {
       requests = this.getConfigUpdateRequests(form);
     }
+    console.log(requests);
     this.send(requests);
     form["_meta_new"] = false;
     form.markAsPristine();
@@ -95,7 +96,7 @@ export abstract class AbstractConfigForm {
       parentId = form["_meta_parent_id"];
     }
     requests.push(<ConfigCreateRequest>{
-      operation: "create",
+      mode: "create",
       object: this.buildValue(form),
       parentId: parentId
     });
@@ -113,7 +114,7 @@ export abstract class AbstractConfigForm {
             return this.getConfigUpdateRequests(form.controls[key]);
           }
           requests.push(<ConfigUpdateRequest>{
-            operation: "update",
+            mode: "set",
             thing: form.controls["id"].value,
             channel: key,
             value: value
@@ -128,7 +129,7 @@ export abstract class AbstractConfigForm {
     let requests: ConfigRequest[] = [];
     if (form instanceof FormGroup) {
       requests.push(<ConfigDeleteRequest>{
-        operation: "delete",
+        mode: "delete",
         thing: form.controls["id"].value
       });
     }

@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 
 import { WebsocketService } from '../../../../../service/websocket.service';
 import { AbstractConfigForm } from '../../../abstractconfigform';
+import { WebappService, Notification } from '../../../../../service/webapp.service';
 
 @Component({
   selector: 'form-device-simulator',
@@ -12,7 +13,8 @@ export class FormDeviceSimulatorComponent extends AbstractConfigForm {
 
   constructor(
     websocketService: WebsocketService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private webapp: WebappService
   ) {
     super(websocketService);
   }
