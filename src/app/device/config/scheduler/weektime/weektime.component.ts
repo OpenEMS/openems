@@ -100,7 +100,7 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
       let control = form.controls[controlName];
       if (control.dirty) {
         let request = <ConfigUpdateRequest>{
-          operation: "update",
+          mode: "set",
           thing: this._form.controls["id"].value,
           channel: controlName,
           value: control.value
