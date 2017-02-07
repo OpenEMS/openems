@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { AbstractControl, FormArray, FormGroup, FormBuilder } from '@angular/forms';
 
 import { WebsocketService } from '../../../../service/websocket.service';
-import { AbstractConfigForm, ConfigRequest, ConfigUpdateRequest } from '../../abstractconfigform';
+import { AbstractConfigForm, ConfigureRequest, ConfigureUpdateRequest } from '../../abstractconfigform';
 
 interface Day {
   label: string;
@@ -95,12 +95,12 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
   }
 
   protected save(form: FormGroup) {
-    let requests: ConfigRequest[] = [];
+    let requests: ConfigureRequest[] = [];
     for (let controlName in form.controls) {
       let control = form.controls[controlName];
       if (control.dirty) {
-        let request = <ConfigUpdateRequest>{
-          mode: "set",
+        let request = <ConfigureUpdateRequest>{
+          mode: "update",
           thing: this._form.controls["id"].value,
           channel: controlName,
           value: control.value

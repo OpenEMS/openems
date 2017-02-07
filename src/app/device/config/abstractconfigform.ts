@@ -3,20 +3,20 @@ import { AbstractControl, FormGroup, FormControl, FormBuilder, Validators } from
 import { Device } from '../../service/device';
 import { WebsocketService } from '../../service/websocket.service';
 
-export type ConfigRequestType = "update" | "create" | "delete";
-export interface ConfigRequest {
-  mode: string;
+export type ConfigureRequestModeType = "update" | "create" | "delete";
+export class ConfigureRequest {
+  mode: ConfigureRequestModeType;
 }
-export interface ConfigCreateRequest extends ConfigRequest {
-  object: Object;
-  parentId: string;
-}
-export interface ConfigUpdateRequest extends ConfigRequest {
+export interface ConfigureUpdateRequest extends ConfigureRequest {
   thing: string
   channel: string;
   value: Object;
 }
-export interface ConfigDeleteRequest extends ConfigRequest {
+export interface ConfigureCreateRequest extends ConfigureRequest {
+  object: Object;
+  parent: string;
+}
+export interface ConfigureDeleteRequest extends ConfigureRequest {
   thing: string;
 }
 
@@ -56,9 +56,9 @@ export abstract class AbstractConfigForm {
   protected save(form: FormGroup) {
     let requests;
     if (form["_meta_new"]) {
-      requests = this.getConfigCreateRequests(form);
+      requests = this.getConfigureCreateRequests(form);
     } else {
-      requests = this.getConfigUpdateRequests(form);
+      requests = this.getConfigureUpdateRequests(form);
     }
     console.log(requests);
     this.send(requests);
@@ -66,7 +66,7 @@ export abstract class AbstractConfigForm {
     form.markAsPristine();
   }
 
-  protected send(requests: ConfigRequest[]) {
+  protected send(requests: ConfigureRequest[]) {
     if (requests.length > 0) {
       this.device.send({
         config: requests
@@ -89,32 +89,32 @@ export abstract class AbstractConfigForm {
     }
   }
 
-  protected getConfigCreateRequests(form: FormGroup): ConfigRequest[] {
-    let requests: ConfigRequest[] = [];
+  protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
+    let requests: ConfigureRequest[] = [];
     let parentId = "";
     if (form["_meta_parent_id"]) {
       parentId = form["_meta_parent_id"];
     }
-    requests.push(<ConfigCreateRequest>{
+    requests.push(<ConfigureCreateRequest>{
       mode: "create",
       object: this.buildValue(form),
-      parentId: parentId
+      parent: parentId
     });
     return requests;
   }
 
-  protected getConfigUpdateRequests(form: AbstractControl): ConfigRequest[] {
-    let requests: ConfigRequest[] = [];
+  protected getConfigureUpdateRequests(form: AbstractControl): ConfigureRequest[] {
+    let requests: ConfigureRequest[] = [];
     if (form instanceof FormGroup) {
       for (let key in form.controls) {
         if (form.controls[key].dirty) {
           let value = form.controls[key].value;
           if (typeof value === "object") {
-            // value is an object -> call getConfigRequests for sub-object
-            return this.getConfigUpdateRequests(form.controls[key]);
+            // value is an object -> call getConfigureRequests for sub-object
+            return this.getConfigureUpdateRequests(form.controls[key]);
           }
-          requests.push(<ConfigUpdateRequest>{
-            mode: "set",
+          requests.push(<ConfigureUpdateRequest>{
+            mode: "update",
             thing: form.controls["id"].value,
             channel: key,
             value: value
@@ -125,10 +125,10 @@ export abstract class AbstractConfigForm {
     return requests;
   }
 
-  protected getConfigDeleteRequests(form: AbstractControl): ConfigRequest[] {
-    let requests: ConfigRequest[] = [];
+  protected getConfigDeleteRequests(form: AbstractControl): ConfigureRequest[] {
+    let requests: ConfigureRequest[] = [];
     if (form instanceof FormGroup) {
-      requests.push(<ConfigDeleteRequest>{
+      requests.push(<ConfigureDeleteRequest>{
         mode: "delete",
         thing: form.controls["id"].value
       });
