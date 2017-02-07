@@ -170,16 +170,37 @@ on error:
 [3.3.1]
 ```
 {
-	configure: {
-		mode: "set",
+	configure: [{
+		mode: "update",
 		thing: "...",
 		channel: "...",
 		value: ( "..." | { ... } )
-	}
+	}]
 }
 ```
 
 [3.3.2]
+```
+{
+	configure: [{
+		mode: "create",
+		object: { ... },
+		parent: "..."
+	}]
+}
+```
+
+[3.3.3]
+```
+{
+	configure: [{
+		mode: "delete",
+		thing: "..."
+	}]
+}
+```
+
+[3.3.4]
 ```
 {
  	metadata: {

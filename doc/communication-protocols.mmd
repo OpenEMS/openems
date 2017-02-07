@@ -49,5 +49,7 @@ end
 Browser ->>- OpenEMS: subscribe: false
 
 Note over Browser,OpenEMS: [3.3] Configuration
-Browser ->>+ OpenEMS: [3.3.1] config set
-OpenEMS ->>- Browser: [3.3.2] metadata, notification
+Browser ->>+ OpenEMS: [3.3.1] config update
+Browser ->> OpenEMS: [3.3.2] config create
+Browser ->> OpenEMS: [3.3.3] config delete
+OpenEMS ->>- Browser: [3.3.4] metadata, notification

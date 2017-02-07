@@ -36,11 +36,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.api.bridge.Bridge;
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ConfigChannel;
+import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
+import io.openems.api.thing.Thing;
 import io.openems.core.Config;
 import io.openems.core.Databus;
+import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
 
 /**
@@ -102,12 +108,18 @@ public class WebsocketHandler {
 	 * Message event of websocket. Handles a new message.
 	 */
 	public void onMessage(JsonObject jMessage) {
-		log.info("Websocket message: " + jMessage.toString());
 		/*
 		 * Subscribe to data
 		 */
 		if (jMessage.has("subscribe")) {
 			subscribe(jMessage.get("subscribe"));
+		}
+
+		/*
+		 * Configuration
+		 */
+		if (jMessage.has("configure")) {
+			configure(jMessage.get("configure"));
 		}
 	}
 
@@ -228,6 +240,159 @@ public class WebsocketHandler {
 
 		return j;
 	}
+
+	/**
+	 * Set configuration
+	 *
+	 * @param j
+	 */
+	private synchronized void configure(JsonElement jConfigsElement) {
+		try {
+			JsonArray jConfigs = JsonUtils.getAsJsonArray(jConfigsElement);
+			ThingRepository thingRepository = ThingRepository.getInstance();
+			for (JsonElement jConfigElement : jConfigs) {
+				JsonObject jConfig = JsonUtils.getAsJsonObject(jConfigElement);
+				String mode = JsonUtils.getAsString(jConfig, "mode");
+				if (mode.equals("set")) {
+					/*
+					 * Channel Set mode
+					 */
+					String thingId = JsonUtils.getAsString(jConfig, "thing");
+					String channelId = JsonUtils.getAsString(jConfig, "channel");
+					JsonElement jValue = JsonUtils.getSubElement(jConfig, "value");
+					Optional<Channel> channelOptional = thingRepository.getChannel(thingId, channelId);
+					if (channelOptional.isPresent()) {
+						Channel channel = channelOptional.get();
+						if (channel instanceof ConfigChannel<?>) {
+							ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
+							configChannel.updateValue(jValue, true);
+							log.info("Updated channel " + channel.address() + " with " + jValue);
+							// TODO send notification
+							/*
+							 * handler.sendNotification(NotificationType.SUCCESS,
+							 * "Successfully updated [" + channel.address() + "] to [" + jValue + "]");
+							 */
+						}
+					} else {
+						throw new ConfigException("Unable to find " + jConfig.toString());
+					}
+				} else if (mode.equals("create")) {
+					/*
+					 * Create new Thing
+					 */
+					JsonObject jObject = JsonUtils.getAsJsonObject(jConfig, "object");
+					String parentId = JsonUtils.getAsString(jConfig, "parent");
+					String thingId = JsonUtils.getAsString(jObject, "id");
+					if (thingId.startsWith("_")) {
+						throw new ConfigException("IDs starting with underscore are reserved for internal use.");
+					}
+					String clazzName = JsonUtils.getAsString(jObject, "class");
+					Class<?> clazz = Class.forName(clazzName);
+					if (Device.class.isAssignableFrom(clazz)) {
+						// Device
+						Thing parentThing = thingRepository.getThing(parentId);
+						if (parentThing instanceof Bridge) {
+							Bridge parentBridge = (Bridge) parentThing;
+							Device device = thingRepository.createDevice(jObject);
+							parentBridge.addDevice(device);
+							Config.getInstance().writeConfigFile();
+							log.info("Device [" + device.id() + "] wurde erstellt.");
+							// TODO send notification
+							/*
+							 * handler.sendNotification(NotificationType.SUCCESS,
+							 * "Device [" + device.id() + "] wurde erstellt.");
+							 */
+							break;
+						}
+					}
+				} else if (mode.equals("delete")) {
+					/*
+					 * Delete a Thing
+					 */
+					String thingId = JsonUtils.getAsString(jConfig, "thing");
+					thingRepository.removeThing(thingId);
+					Config.getInstance().writeConfigFile();
+					// TODO send notification
+					// handler.sendNotification(NotificationType.SUCCESS, "Controller [" + thingId + "] wurde
+					// gel�scht.");
+					log.info("Controller [" + thingId + "] wurde gelöscht.");
+				} else {
+					throw new OpenemsException("Modus [" + mode + "] ist nicht implementiert.");
+				}
+			}
+			// Send new config
+			JsonObject j = new JsonObject();
+			j.add("config", Config.getInstance().getMetaConfigJson());
+			this.send(j);
+		} catch (OpenemsException | ClassNotFoundException e) {
+			log.error(e.getMessage());
+			// handler.sendNotification(NotificationType.ERROR, e.getMessage());
+			// TODO: send notification to websocket
+		}
+	}
+
+	/*
+	 * private void manualPQ(JsonElement j, AuthenticatedWebsocketHandler handler) {
+	 * try {
+	 * JsonObject jPQ = JsonUtils.getAsJsonObject(j);
+	 * if (jPQ.has("p") && jPQ.has("q")) {
+	 * long p = JsonUtils.getAsLong(jPQ, "p");
+	 * long q = JsonUtils.getAsLong(jPQ, "q");
+	 * this.controller.setManualPQ(p, q);
+	 * handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabe gesetzt: P=" + p + ",Q=" + q);
+	 * } else {
+	 * // stop manual PQ
+	 * this.controller.resetManualPQ();
+	 * handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabe zurückgesetzt");
+	 * }
+	 * } catch (ReflectionException e) {
+	 * handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabewerte falsch: " + e.getMessage());
+	 * }
+	 * }
+	 */
+	// private void channel(JsonElement jChannelElement, AuthenticatedWebsocketHandler handler) {
+	// try {
+	// JsonObject jChannel = JsonUtils.getAsJsonObject(jChannelElement);
+	// String thingId = JsonUtils.getAsString(jChannel, "thing");
+	// String channelId = JsonUtils.getAsString(jChannel, "channel");
+	// JsonElement jValue = JsonUtils.getSubElement(jChannel, "value");
+	//
+	// // get channel
+	// Channel channel;
+	// Optional<Channel> channelOptional = thingRepository.getChannel(thingId, channelId);
+	// if (channelOptional.isPresent()) {
+	// // get channel value
+	// channel = channelOptional.get();
+	// } else {
+	// // Channel not found
+	// throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+	// }
+	//
+	// // check for writable channel
+	// if (!(channel instanceof WriteChannel<?>)) {
+	// throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+	// }
+	//
+	// // set channel value
+	// if (channel instanceof ConfigChannel<?>) {
+	// // is a ConfigChannel
+	// ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
+	// try {
+	// configChannel.updateValue(jValue, true);
+	// log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
+	// handler.sendNotification(NotificationType.SUCCESS,
+	// "Channel [" + channel.address() + "] aktualisiert zu [" + jValue.toString() + "].");
+	// } catch (NotImplementedException e) {
+	// throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Conversion not implemented");
+	// }
+	// } else {
+	// // is a WriteChannel
+	// handler.sendNotification(NotificationType.WARNING, "WriteChannel nicht implementiert");
+	// }
+	// } catch (ReflectionException e) {
+	// handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabewerte falsch: " + e.getMessage());
+	// }
+	// }
 
 	/**
 	 * Send a notification message/error to the websocket
