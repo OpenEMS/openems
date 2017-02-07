@@ -67,7 +67,6 @@ export abstract class AbstractConfigForm {
   }
 
   protected send(requests: ConfigureRequest[]) {
-    console.log(requests);
     if (requests.length > 0) {
       this.device.send({
         configure: requests
