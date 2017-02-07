@@ -165,6 +165,32 @@ on error:
 }
 ```
 
+### [3.3] Configuration
+
+[3.3.1]
+```
+{
+	configure: {
+		mode: "set",
+		thing: "...",
+		channel: "...",
+		value: ( "..." | { ... } )
+	}
+}
+```
+
+[3.3.2]
+```
+{
+ 	metadata: {
+		config: {}
+	}, notification: {
+		type: ( "success" | "error" | "warning" | "info" ),
+		message: "..."
+	}
+}
+```
+
 # Generate the docs
 
 ## Charts

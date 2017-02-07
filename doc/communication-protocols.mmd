@@ -47,3 +47,7 @@ loop
     OpenEMS -->> Browser: [3.2.2] currentdata
 end
 Browser ->>- OpenEMS: subscribe: false
+
+Note over Browser,OpenEMS: [3.3] Configuration
+Browser ->>+ OpenEMS: [3.3.1] config set
+OpenEMS ->>- Browser: [3.3.2] metadata, notification
