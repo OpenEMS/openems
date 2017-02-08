@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.core.utilities.websocket;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -123,6 +124,13 @@ public class WebsocketHandler {
 		if (jMessage.has("configure")) {
 			configure(jMessage.get("configure"));
 		}
+
+		/*
+		 * System command
+		 */
+		if (jMessage.has("system")) {
+			system(jMessage.get("system"));
+		}
 	}
 
 	/**
@@ -130,7 +138,7 @@ public class WebsocketHandler {
 	 *
 	 * @param j
 	 */
-	private synchronized void subscribe(JsonElement j) {
+	private synchronized void subscribe(JsonElement jSubscribeElement) {
 		try {
 			// unsubscribe regular task
 			if (subscriptionFuture != null) {
@@ -139,21 +147,19 @@ public class WebsocketHandler {
 			// clear subscriptions
 			this.subscribedChannels.clear();
 			// add subscriptions
-			if (j.isJsonObject()) {
-				JsonObject jThings = JsonUtils.getAsJsonObject(j);
-				jThings.entrySet().forEach(entry -> {
-					try {
-						String thing = entry.getKey();
-						JsonArray jChannels = JsonUtils.getAsJsonArray(entry.getValue());
-						for (JsonElement jChannel : jChannels) {
-							String channel = JsonUtils.getAsString(jChannel);
-							this.subscribedChannels.put(thing, channel);
-						}
-					} catch (OpenemsException e) {
-						log.error(e.getMessage());
+			JsonObject jSubscribe = JsonUtils.getAsJsonObject(jSubscribeElement);
+			jSubscribe.entrySet().forEach(entry -> {
+				try {
+					String thing = entry.getKey();
+					JsonArray jChannels = JsonUtils.getAsJsonArray(entry.getValue());
+					for (JsonElement jChannel : jChannels) {
+						String channel = JsonUtils.getAsString(jChannel);
+						this.subscribedChannels.put(thing, channel);
 					}
-				});
-			}
+				} catch (OpenemsException e) {
+					log.error(e.getMessage());
+				}
+			});
 			// schedule task
 			if (!this.subscribedChannels.isEmpty()) {
 				subscriptionFuture = subscriptionExecutor.scheduleWithFixedDelay(this.subscriptionTask, 0, 3,
@@ -335,6 +341,36 @@ public class WebsocketHandler {
 			log.error(e.getMessage());
 			this.createNotification(NotificationType.ERROR, e.getMessage());
 			// TODO: send notification to websocket
+		}
+	}
+
+	/**
+	 * System command
+	 *
+	 * @param j
+	 */
+	private synchronized void system(JsonElement jSystemElement) {
+		try {
+			JsonObject jSystem = JsonUtils.getAsJsonObject(jSystemElement);
+			String mode = JsonUtils.getAsString(jSystem, "mode");
+			if (mode.equals("systemd-restart")) {
+				String service = JsonUtils.getAsString(jSystem, "service");
+				if (service.equals("fems-pagekite")) {
+					ProcessBuilder builder = new ProcessBuilder("/bin/systemctl", "restart", "fems-pagekite");
+					Process p = builder.start();
+					if (p.waitFor() == 0) {
+						log.info("Successfully restarted fems-pagekite");
+					} else {
+						throw new OpenemsException("restart fems-pagekite failed");
+					}
+				} else {
+					throw new OpenemsException("Unknown systemd-restart service: " + jSystemElement.toString());
+				}
+			} else {
+				throw new OpenemsException("Unknown system message: " + jSystemElement.toString());
+			}
+		} catch (OpenemsException | IOException | InterruptedException e) {
+			log.error(e.getMessage());
 		}
 	}
 

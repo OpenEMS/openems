@@ -174,7 +174,7 @@ on error:
 		mode: "update",
 		thing: "...",
 		channel: "...",
-		value: ( "..." | { ... } )
+		value: "..." | { ... }
 	}]
 }
 ```
@@ -206,9 +206,19 @@ on error:
  	metadata: {
 		config: {}
 	}, notification: {
-		type: ( "success" | "error" | "warning" | "info" ),
+		type: "success" | "error" | "warning" | "info",
 		message: "..."
 	}
+}
+```
+
+### [3.4] System
+```
+{
+ 	system: {
+ 		mode: "systemd-restart",
+ 		service: "fems-pagekite" | "..."
+ 	}
 }
 ```
 
