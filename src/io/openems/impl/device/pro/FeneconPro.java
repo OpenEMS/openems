@@ -39,7 +39,7 @@ public class FeneconPro extends ModbusDevice {
 	@ConfigInfo(title = "Sets the ess nature", type = FeneconProEss.class)
 	public final ConfigChannel<FeneconProEss> ess = new ConfigChannel<FeneconProEss>("ess", this);
 
-	@ConfigInfo(title = "Sets the meter nature", type = FeneconProEss.class)
+	@ConfigInfo(title = "Sets the meter nature", type = FeneconProPvMeter.class)
 	public final ConfigChannel<FeneconProPvMeter> meter = new ConfigChannel<FeneconProPvMeter>("meter", this);
 
 	public FeneconPro() throws OpenemsException {

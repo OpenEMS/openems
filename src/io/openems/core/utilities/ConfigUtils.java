@@ -198,6 +198,11 @@ public class ConfigUtils {
 	private static Object getConfigObject(ConfigChannel<?> channel, JsonElement j) throws ReflectionException {
 		Class<?> type = channel.type();
 
+		if (type == null) {
+			String clazz = channel.parent() != null ? " in implementation [" + channel.parent().getClass() + "]" : "";
+			throw new ReflectionException("Type is null for channel [" + channel.address() + "]" + clazz);
+		}
+
 		/*
 		 * test for simple types
 		 */

@@ -66,6 +66,7 @@ public class FeneconProEss extends ModbusDeviceNature
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this).optional();
 
 	@Override
+	@ConfigInfo(title = "Sets the minimal SOC", type = Integer.class)
 	public ConfigChannel<Integer> minSoc() {
 		return minSoc;
 	}
@@ -242,6 +243,7 @@ public class FeneconProEss extends ModbusDeviceNature
 	}
 
 	@Override
+	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class)
 	public ConfigChannel<Integer> chargeSoc() {
 		return chargeSoc;
 	}
