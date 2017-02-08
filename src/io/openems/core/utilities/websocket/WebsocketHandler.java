@@ -90,6 +90,8 @@ public class WebsocketHandler {
 	 */
 	protected final WebSocket websocket;
 
+	private WebsocketHandler handler;
+
 	public WebsocketHandler(WebSocket websocket) {
 		this.databus = Databus.getInstance();
 		this.websocket = websocket;
@@ -250,10 +252,11 @@ public class WebsocketHandler {
 		try {
 			JsonArray jConfigs = JsonUtils.getAsJsonArray(jConfigsElement);
 			ThingRepository thingRepository = ThingRepository.getInstance();
+			JsonObject jNotification = new JsonObject();
 			for (JsonElement jConfigElement : jConfigs) {
 				JsonObject jConfig = JsonUtils.getAsJsonObject(jConfigElement);
 				String mode = JsonUtils.getAsString(jConfig, "mode");
-				if (mode.equals("set")) {
+				if (mode.equals("update")) {
 					/*
 					 * Channel Set mode
 					 */
@@ -268,10 +271,10 @@ public class WebsocketHandler {
 							configChannel.updateValue(jValue, true);
 							log.info("Updated channel " + channel.address() + " with " + jValue);
 							// TODO send notification
-							/*
-							 * handler.sendNotification(NotificationType.SUCCESS,
-							 * "Successfully updated [" + channel.address() + "] to [" + jValue + "]");
-							 */
+
+							jNotification = createNotification(NotificationType.SUCCESS,
+									"Successfully updated [" + channel.address() + "] to [" + jValue + "]");
+
 						}
 					} else {
 						throw new ConfigException("Unable to find " + jConfig.toString());
@@ -286,6 +289,9 @@ public class WebsocketHandler {
 					if (thingId.startsWith("_")) {
 						throw new ConfigException("IDs starting with underscore are reserved for internal use.");
 					}
+					if (thingRepository.getThingById(thingId).isPresent()) {
+						throw new ConfigException("Thing Id is already existing.");
+					}
 					String clazzName = JsonUtils.getAsString(jObject, "class");
 					Class<?> clazz = Class.forName(clazzName);
 					if (Device.class.isAssignableFrom(clazz)) {
@@ -298,10 +304,8 @@ public class WebsocketHandler {
 							Config.getInstance().writeConfigFile();
 							log.info("Device [" + device.id() + "] wurde erstellt.");
 							// TODO send notification
-							/*
-							 * handler.sendNotification(NotificationType.SUCCESS,
-							 * "Device [" + device.id() + "] wurde erstellt.");
-							 */
+							jNotification = createNotification(NotificationType.SUCCESS,
+									"Device [" + device.id() + "] wurde erstellt.");
 							break;
 						}
 					}
@@ -313,20 +317,23 @@ public class WebsocketHandler {
 					thingRepository.removeThing(thingId);
 					Config.getInstance().writeConfigFile();
 					// TODO send notification
-					// handler.sendNotification(NotificationType.SUCCESS, "Controller [" + thingId + "] wurde
-					// gel�scht.");
+					jNotification = createNotification(NotificationType.SUCCESS,
+							"Controller [" + thingId + "] wurde " + " gel�scht.");
 					log.info("Controller [" + thingId + "] wurde gelöscht.");
 				} else {
 					throw new OpenemsException("Modus [" + mode + "] ist nicht implementiert.");
 				}
 			}
 			// Send new config
+			JsonObject jMetadata = new JsonObject();
+			jMetadata.add("config", Config.getInstance().getMetaConfigJson());
 			JsonObject j = new JsonObject();
-			j.add("config", Config.getInstance().getMetaConfigJson());
+			j.add("metadata", jMetadata);
+			j.add("notification", jNotification);
 			this.send(j);
 		} catch (OpenemsException | ClassNotFoundException e) {
 			log.error(e.getMessage());
-			// handler.sendNotification(NotificationType.ERROR, e.getMessage());
+			this.createNotification(NotificationType.ERROR, e.getMessage());
 			// TODO: send notification to websocket
 		}
 	}
@@ -401,24 +408,24 @@ public class WebsocketHandler {
 	 * @return true if successful, otherwise false
 	 */
 	// TODO
-	// public synchronized boolean sendNotification(NotificationType type, String message) {
-	// // log message to syslog
-	// switch (type) {
-	// case INFO:
-	// case SUCCESS:
-	// log.info(message);
-	// break;
-	// case ERROR:
-	// log.error(message);
-	// break;
-	// case WARNING:
-	// log.warn(message);
-	// break;
-	// }
-	// // send notification to websocket
-	// JsonObject jMessage = new JsonObject();
-	// jMessage.addProperty("type", type.name().toLowerCase());
-	// jMessage.addProperty("message", message);
-	// return send(true, "notification", jMessage);
-	// }
+	public synchronized JsonObject createNotification(NotificationType type, String message) {
+		// log message to syslog
+		switch (type) {
+		case INFO:
+		case SUCCESS:
+			log.info(message);
+			break;
+		case ERROR:
+			log.error(message);
+			break;
+		case WARNING:
+			log.warn(message);
+			break;
+		}
+		// send notification to websocket
+		JsonObject jMessage = new JsonObject();
+		jMessage.addProperty("type", type.name().toLowerCase());
+		jMessage.addProperty("message", message);
+		return jMessage;
+	}
 }
