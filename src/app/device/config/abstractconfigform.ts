@@ -69,7 +69,7 @@ export abstract class AbstractConfigForm {
   protected send(requests: ConfigureRequest[]) {
     if (requests.length > 0) {
       this.device.send({
-        config: requests
+        configure: requests
       });
     }
   }

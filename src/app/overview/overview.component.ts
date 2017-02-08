@@ -27,7 +27,7 @@ export class OverviewComponent implements OnInit {
      * - to /login if nothing is connected
      * - to /monitor/... if exactly one device is connected
      */
-    setTimeout(() => {
+    /*setTimeout(() => {
       let numberOfConnectedWebsockets = 0;
       let lastConnectedWebsocket: Websocket = null;
       for (let websocketName in this.websocketService.websockets) {
@@ -50,7 +50,7 @@ export class OverviewComponent implements OnInit {
           this.router.navigate(['/device', lastConnectedWebsocket.name, deviceNames[0]]);
         }
       }
-    }, 10000);
+    }, 10000);*/
   }
 
   private getRouterLink(ws: any, dev: any): string {
