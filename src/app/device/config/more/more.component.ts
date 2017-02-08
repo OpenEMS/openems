@@ -4,6 +4,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
 import { WebsocketService } from '../../../service/websocket.service';
+import { WebappService } from '../../../service/webapp.service';
 import { Device } from '../../../service/device';
 
 @Component({
@@ -16,10 +17,12 @@ export class DeviceConfigMoreComponent implements OnInit {
   private deviceSubscription: Subscription;
 
   private manualPQForm: FormGroup;
+  private manualMessageForm: FormGroup;
 
   constructor(
     private route: ActivatedRoute,
     private websocketService: WebsocketService,
+    private webappService: WebappService,
     private formBuilder: FormBuilder
   ) { }
 
@@ -30,6 +33,9 @@ export class DeviceConfigMoreComponent implements OnInit {
     this.manualPQForm = this.formBuilder.group({
       "p": this.formBuilder.control(''),
       "q": this.formBuilder.control('')
+    });
+    this.manualMessageForm = this.formBuilder.group({
+      "message": this.formBuilder.control('')
     });
   }
 
@@ -53,5 +59,17 @@ export class DeviceConfigMoreComponent implements OnInit {
         value: state
       }
     });
+  }
+
+  private sendManualMessage(form: FormGroup) {
+    try {
+      let obj = JSON.parse(form["value"]["message"]);
+      this.device.send(obj);
+    } catch (e) {
+      this.webappService.notify({
+        type: "error",
+        message: (<Error>e).message
+      });
+    }
   }
 }
