@@ -97,7 +97,6 @@ export class Websocket {
     subject
       .map(message => JSON.parse(message.data))
       .subscribe((message: any) => {
-
         // Receive authentication token
         if ("authenticate" in message && "mode" in message.authenticate) {
           let mode = message.authenticate.mode;
@@ -147,6 +146,7 @@ export class Websocket {
           if ("backend" in message.metadata) {
             this.backend = message.metadata.backend;
           }
+
         }
 
         // receive device specific data

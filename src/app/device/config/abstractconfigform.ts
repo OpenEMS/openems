@@ -60,7 +60,6 @@ export abstract class AbstractConfigForm {
     } else {
       requests = this.getConfigureUpdateRequests(form);
     }
-    console.log(requests);
     this.send(requests);
     form["_meta_new"] = false;
     form.markAsPristine();

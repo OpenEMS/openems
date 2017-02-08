@@ -44,17 +44,16 @@ export class WebappService {
    */
   public notify(notification: Notification) {
     this.snackBar.open(notification.message, null, { duration: 2000 });
-    /*
-    if (notification.type == "success") {
-      this.toastr.success(notification.message);
-    } else if (notification.type == "error") {
-      this.toastr.error(notification.message);
-    } else if (notification.type == "warning") {
-      this.toastr.warning(notification.message);
-    } else {
-      //this.toastr.info(notification.message);
-      this.snackBar.open(notification.message, null, { duration: 2000 });
-    }
-    */
+    // if (notification.type == "success") {
+    //   this.toastr.success(notification.message);
+    // } else if (notification.type == "error") {
+    //   this.toastr.error(notification.message);
+    // } else if (notification.type == "warning") {
+    //   this.toastr.warning(notification.message);
+    // } else {
+    //   //this.toastr.info(notification.message);
+    //   this.snackBar.open(notification.message, null, { duration: 2000 });
+    // }
+
   }
 }
