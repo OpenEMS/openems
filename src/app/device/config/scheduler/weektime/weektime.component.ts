@@ -47,7 +47,18 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
 
   @Input()
   set form(form: FormGroup) {
+    console.log(form);
     let ignore: string[] = ["id", "class"];
+    for (let day of this.days) {
+      if (!form.value[day.key]) {
+        form.addControl(day.key, this.formBuilder.array([
+          this.formBuilder.group({
+            time: this.formBuilder.control(""),
+            controllers: this.formBuilder.array([])
+          })
+        ]))
+      }
+    }
     super.setForm(form, ignore);
   }
 
