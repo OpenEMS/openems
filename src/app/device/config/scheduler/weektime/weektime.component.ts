@@ -122,6 +122,7 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
         requests.push(request);
       }
     }
+    console.log(requests);
     this.send(requests);
     form["_meta_new"] = false;
     form.markAsPristine();

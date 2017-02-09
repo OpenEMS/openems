@@ -1,10 +1,3 @@
-<div fxLayout>
-  <div fxFlex="100%" style="background-color: blue">X</div>
-  <div fxFlex="100%" fxLayoutWrap="Wrap" style="background-color: green">Y</div>
-</div>
-
-
-
 <md-tab-group [formGroup]="_form">
   <md-tab *ngFor="let day of days">
     <template md-tab-label>{{ day.label }}</template>
@@ -63,12 +56,13 @@
         <button md-mini-fab (click)="addControllerToAlways()"><md-icon>add</md-icon></button>
       </div>
     </div>
+    <p></p>
   </md-tab>
-
-  <div fxLayout fxLayoutAlign="end start">
-    <button md-mini-fab (click)="save(_form)" [disabled]="_form.pristine" color="primary"><md-icon>check</md-icon></button>
-  </div>
 </md-tab-group>
+<div fxLayout>
+  <div fxFlex="100%"></div>
+  <button md-mini-fab (click)="save(_form)" color="primary"><md-icon>check</md-icon></button>
+</div>
 
 <!--
    placeholder="HH:MM"
