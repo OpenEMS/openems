@@ -24,6 +24,7 @@ export class DeviceConfigSchedulerComponent extends AbstractConfig {
   }
 
   initForm(config) {
+    console.log(config);
     this.form = this.buildForm(config.scheduler);
   }
 }

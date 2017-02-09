@@ -29,6 +29,7 @@ import { FormDeviceSystemComponent } from './device/config/bridge/device/system/
 import { DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
 import { DeviceConfigMoreComponent } from './device/config/more/more.component';
 import { FormSchedulerWeekTimeComponent } from './device/config/scheduler/weektime/weektime.component';
+import { DeviceConfigControllerComponent } from './device/config/controller/controller.component';
 //import { ConfigComponent } from './config/config.component';
 
 /*
@@ -77,6 +78,7 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     DeviceConfigOverviewComponent,
     DeviceConfigBridgeComponent,
     DeviceConfigSchedulerComponent,
+    DeviceConfigControllerComponent,
     // Form
     FormBridgeSimulatorComponent,
     FormBridgeSystemComponent,

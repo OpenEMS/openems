@@ -1,0 +1,45 @@
+<md-card class="single" *ngFor="let ctrl of form.controls.controllers.controls">
+    <md-card-header>
+        <md-icon md-card-avatar>android</md-icon>
+        <md-card-title>
+            <label style="font-weight: bold">Klasse: </label> {{ ctrl.value.class | classname }}
+        </md-card-title>
+    </md-card-header>
+    <div fxLayout fxFlex="100%" [formGroup]="ctrl">
+        <div fxLayout fxFlex="100%">
+            <md-input-container>
+                <input formControlName="priority" type="number" placeholder="Priorität" md-input>
+            </md-input-container>
+        </div>
+    </div>
+    <md-card class="not_single">
+        <ng-container [ngSwitch]="form.controls['class'].value | classname">
+            <form-scheduler-weektime *ngSwitchCase="'WeekTimeScheduler'" [form]="form"></form-scheduler-weektime>
+            <ng-container *ngSwitchDefault>
+                <p><b>Formular nicht implementiert:</b> {{ form.value | json }}<br/>Das sollte nicht passieren. Bitte kontaktieren
+                    Sie
+                    <a href="mailto:fems@fenecon.de">fems@fenecon.de</a>.</p>
+            </ng-container>
+        </ng-container>
+    </md-card>
+    <!--<md-card-content>
+        <div fxLayout>
+            <p fxFlex="100px"></p>
+            <div fxFlex fxLayout fxLayoutWrap="wrap">
+                <md-select fxFlex="50%" formControlName="class" placeholder="Klasse">
+                    <md-option *ngFor="let element of config._meta.schedulers" [value]="element.class">
+                        <span *ngIf="element.title">{{element.title}}: </span>{{element.class | classname}}</md-option>
+                </md-select>
+                <md-input-container fxFlex="50%"><input formControlName="cycleTime" type="number" placeholder="Zyklusdauer" md-input><span md-suffix>ms</span></md-input-container>
+            </div>
+        </div>
+        <ng-container [ngSwitch]="form.controls['class'].value | classname">
+            <form-scheduler-weektime *ngSwitchCase="'WeekTimeScheduler'" [form]="form"></form-scheduler-weektime>
+            <ng-container *ngSwitchDefault>
+                <p><b>Formular nicht implementiert:</b> {{ form.value | json }}<br/>Das sollte nicht passieren. Bitte kontaktieren
+                    Sie
+                    <a href="mailto:fems@fenecon.de">fems@fenecon.de</a>.</p>
+            </ng-container>
+        </ng-container>
+    </md-card-content>-->
+</md-card>

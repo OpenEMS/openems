@@ -9,6 +9,7 @@ import { DeviceConfigOverviewComponent } from './device/config/overview/overview
 import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
 import { DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
 import { DeviceConfigMoreComponent } from './device/config/more/more.component';
+import { DeviceConfigControllerComponent } from './device/config/controller/controller.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -23,7 +24,8 @@ const appRoutes: Routes = [
   { path: 'device/:websocket/:device/config/overview', component: DeviceConfigOverviewComponent },
   { path: 'device/:websocket/:device/config/bridge', component: DeviceConfigBridgeComponent },
   { path: 'device/:websocket/:device/config/scheduler', component: DeviceConfigSchedulerComponent },
-  { path: 'device/:websocket/:device/config/more', component: DeviceConfigMoreComponent }
+  { path: 'device/:websocket/:device/config/more', component: DeviceConfigMoreComponent },
+  { path: 'device/:websocket/:device/config/controller', component: DeviceConfigControllerComponent }
 ];
 
 export const appRoutingProviders: any[] = [
