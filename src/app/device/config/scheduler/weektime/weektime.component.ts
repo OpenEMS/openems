@@ -14,7 +14,6 @@ interface Day {
   templateUrl: './weektime.component.html',
 })
 export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
-
   constructor(
     websocketService: WebsocketService,
     private formBuilder: FormBuilder
@@ -58,6 +57,10 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
           })
         ]))
       }
+    }
+
+    if (!form.value["always"]) {
+      form.addControl("always", this.formBuilder.array([]));
     }
     super.setForm(form, ignore);
   }

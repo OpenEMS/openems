@@ -1,11 +1,13 @@
-{{ _form.value | json }}
+<div fxLayout>
+  <div fxFlex="100%" style="background-color: blue">X</div>
+  <div fxFlex="100%" fxLayoutWrap="Wrap" style="background-color: green">Y</div>
+</div>
+
+
 
 <md-tab-group [formGroup]="_form">
   <md-tab *ngFor="let day of days">
     <template md-tab-label>{{ day.label }}</template>
-    {{ day | json}}
-
-
     <div [formArrayName]="day.key">
 
       <div *ngFor="let hour of _form.controls[day.key].controls; let i=index" [formGroupName]="i" fxLayout>
@@ -17,55 +19,34 @@
             <md-icon>delete</md-icon>
           </button>
         </div>
-      </div>
-
-    </div>
-  </md-tab>
-</md-tab-group>
-
-<!--
-<md-tab-group [formGroup]="_form">
-  <md-tab *ngFor="let day of days">
-    <template md-tab-label>{{ day.label }}</template>
-    <div [formArrayName]="day.key">
-      <div *ngFor="let hour of _form.controls[day.key].controls; let i=index" [formGroupName]="i" fxLayout>
-        <md-input-container fxFlex="100px">
-          <input formControlName="time" type="text" placeholder="Startzeit" md-input></md-input-container>
-        <div fxFlex="50px">
-          <button md-mini-fab (click)="removeHour(_form.controls[day.key], i)"><md-icon>delete</md-icon></button>
-        </div>
-      </div>
-    </div>
-  </md-tab>
-</md-tab-group>
-
         <div formArrayName="controllers" fxFlex fxLayout fxLayoutWrap="wrap">
-          <div *ngFor="let controller of hour.controls.controllers.controls; let j=index" fxLayout fxFlex="33%">
-            <div fxFlex fxLayout>
+          <div *ngFor="let controller of hour.controls.controllers.controls; let j=index" fxLayout fxFlex.gt-md="33%" fxFlex.sm="50%"
+            fxFlex.xs="100%">
+            <div class="flex-container" fxFlex fxLayout>
               <md-select [formControlName]="j" placeholder="App" fxFlex="100%">
                 <md-option *ngFor="let element of _form.controls.controllers.controls" [value]="element.value.id">{{ element.value.id }}</md-option>
               </md-select>
             </div>
-            <div fxFlex="50px">
+            <div class="flex-container" fxFlex="50px">
               <button md-mini-fab (click)="removeControllerFromHour(_form.controls[day.key], i, j)"><md-icon>delete</md-icon></button>
             </div>
-          </div>
-          <div fxFlex="50px">
-            <button md-mini-fab (click)="addControllerToHour(_form.controls[day.key], i)"><md-icon>add</md-icon></button>
-          </div>
         </div>
-      </div>
-      <div fxLayout fxFlex="100%">
-        <div fxFlex="100px"></div>
-        <div fxFlex="50px">
-          <button md-mini-fab (click)="addHour(_form.controls[day.key])"><md-icon>add</md-icon></button>
+        <div class="flex-container" fxFlex="60px">
+          <button md-mini-fab (click)="addControllerToHour(_form.controls[day.key], i)"><md-icon>add</md-icon></button>
         </div>
       </div>
     </div>
+    <div fxLayout>
+      <div fxFlex="100px"></div>
+      <div fxFlex="50px">
+        <button md-mini-fab (click)="addHour(_form.controls[day.key])"><md-icon>add</md-icon></button>
+      </div>
+    </div>
+    </div>
   </md-tab>
--->
-<!-- Always -->
-<!-- <md-tab>
+
+  <!-- Always -->
+  <md-tab>
     <template md-tab-label>Immer</template>
     <div formArrayName="always" fxFlex fxLayout fxLayoutWrap="wrap">
       <div *ngFor="let controller of _form.controls['always'].controls; let j=index" fxLayout fxFlex="33%">
@@ -83,12 +64,11 @@
       </div>
     </div>
   </md-tab>
-</md-tab-group>
-<div fxLayout fxLayoutAlign="end start">
-  <button md-mini-fab (click)="save(_form)" [disabled]="_form.pristine" color="primary"><md-icon>check</md-icon></button>
-</div>
--->
 
+  <div fxLayout fxLayoutAlign="end start">
+    <button md-mini-fab (click)="save(_form)" [disabled]="_form.pristine" color="primary"><md-icon>check</md-icon></button>
+  </div>
+</md-tab-group>
 
 <!--
    placeholder="HH:MM"
