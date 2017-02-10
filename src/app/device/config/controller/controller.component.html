@@ -5,18 +5,20 @@
             <label style="font-weight: bold">Klasse: </label> {{ ctrl.value.class | classname }}
         </md-card-title>
     </md-card-header>
-    <div fxLayout fxFlex="100%" [formGroup]="ctrl">
-        <div fxLayout fxFlex="100%">
-            <md-input-container>
-                <input formControlName="priority" type="number" placeholder="Priorität" md-input>
-            </md-input-container>
-        </div>
+    <div fxLayout fxFlex="100%" fxLayoutWrap="Wrap" [formGroup]="ctrl">
+        <md-input-container fxFlex.xs="100%" fxFlex.gt-xs="50%">
+            <input formControlName="priority" type="number" placeholder="Priorität" md-input>
+        </md-input-container>
+        <md-input-container fxFlex.xs="100%" fxFlex.gt-xs="50%">
+            <input formControlName="id" type="text" placeholder="Name" md-input>
+        </md-input-container>
     </div>
     <md-card class="not_single">
-        <ng-container [ngSwitch]="form.controls['class'].value | classname">
-            <form-scheduler-weektime *ngSwitchCase="'WeekTimeScheduler'" [form]="form"></form-scheduler-weektime>
+        <ng-container [ngSwitch]="ctrl.value.class | classname">
+            <device-config-ctrl-websocketapi *ngSwitchCase="'WebsocketApiController'" [form]="ctrl">
+            </device-config-ctrl-websocketapi>
             <ng-container *ngSwitchDefault>
-                <p><b>Formular nicht implementiert:</b> {{ form.value | json }}<br/>Das sollte nicht passieren. Bitte kontaktieren
+                <p><b>Formular nicht implementiert:</b> {{ ctrl.value | json }}<br/>Das sollte nicht passieren. Bitte kontaktieren
                     Sie
                     <a href="mailto:fems@fenecon.de">fems@fenecon.de</a>.</p>
             </ng-container>

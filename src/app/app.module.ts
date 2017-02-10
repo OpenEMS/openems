@@ -30,6 +30,7 @@ import { DeviceConfigSchedulerComponent } from './device/config/scheduler/schedu
 import { DeviceConfigMoreComponent } from './device/config/more/more.component';
 import { FormSchedulerWeekTimeComponent } from './device/config/scheduler/weektime/weektime.component';
 import { DeviceConfigControllerComponent } from './device/config/controller/controller.component';
+import { DeviceConfigCtrlWebsocketApiComponent } from './device/config/controller/websocketapi/websocketapi.component';
 //import { ConfigComponent } from './config/config.component';
 
 /*
@@ -79,6 +80,7 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     DeviceConfigBridgeComponent,
     DeviceConfigSchedulerComponent,
     DeviceConfigControllerComponent,
+    DeviceConfigCtrlWebsocketApiComponent,
     // Form
     FormBridgeSimulatorComponent,
     FormBridgeSystemComponent,

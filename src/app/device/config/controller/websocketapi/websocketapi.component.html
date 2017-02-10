@@ -1,0 +1,7 @@
+<div fxlayout fxFlex="100%" [formGroup]="_form" fxLayoutWrap="wrap">
+    <!--<div fxFlex="50" fxLayout fxLayoutWrap="Wrap">-->
+    <md-input-container fxFlex.xs="100%" fxFlex.gt-xs="50%">
+        <input formControlName="port" type="number" placeholder="Portnummer" [value]="_form.controls['port'].value" md-input>
+    </md-input-container>
+    <!--</div>-->
+</div>
