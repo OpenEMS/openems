@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OpenEMS - Open Source Energy Management System
- * Copyright (c) 2016 FENECON GmbH and contributors
+ * Copyright (c) 2016, 2017 FENECON GmbH and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,9 +35,11 @@ import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.OpenemsModbusException;
 
+@ThingInfo("Bridge to Modbus/TCP devices")
 public class ModbusTcp extends ModbusBridge implements ChannelUpdateListener {
 	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
 	private Optional<TCPMasterConnection> connection = Optional.empty();
@@ -47,13 +49,14 @@ public class ModbusTcp extends ModbusBridge implements ChannelUpdateListener {
 	/*
 	 * Config
 	 */
-	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this, Inet4Address.class)
+	@ConfigInfo(title = "Sets the IP address (e.g. 10.0.0.15)", type = Inet4Address.class)
+	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this).addUpdateListener(this);
+	@ConfigInfo(title = "Sets the port (default: " + MODBUS_PORT + ")", type = Integer.class)
+	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(MODBUS_PORT)
 			.addUpdateListener(this);
-	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this, Integer.class)
-			.defaultValue(MODBUS_PORT).addUpdateListener(this);
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
-			.defaultValue(500);
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(500);
 
 	@Override
 	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)

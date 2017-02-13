@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OpenEMS - Open Source Energy Management System
- * Copyright (c) 2016 FENECON GmbH and contributors
+ * Copyright (c) 2016, 2017 FENECON GmbH and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
+import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -46,6 +48,7 @@ import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
+@ThingInfo("FENECON Pro energy storage system")
 public class FeneconProEss extends ModbusDeviceNature
 		implements AsymmetricEssNature, RealTimeClockNature, ChannelUpdateListener {
 
@@ -56,12 +59,14 @@ public class FeneconProEss extends ModbusDeviceNature
 	/*
 	 * Config
 	 */
-	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class)
-			.addUpdateListener(this);
+	@ConfigInfo(title = "Sets the minimal SOC", type = Integer.class)
+	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this).addUpdateListener(this);
 
-	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class).optional();
+	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class)
+	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this).optional();
 
 	@Override
+	@ConfigInfo(title = "Sets the minimal SOC", type = Integer.class)
 	public ConfigChannel<Integer> minSoc() {
 		return minSoc;
 	}
@@ -238,6 +243,7 @@ public class FeneconProEss extends ModbusDeviceNature
 	}
 
 	@Override
+	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class)
 	public ConfigChannel<Integer> chargeSoc() {
 		return chargeSoc;
 	}

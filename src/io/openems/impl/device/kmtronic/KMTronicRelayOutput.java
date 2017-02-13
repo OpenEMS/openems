@@ -1,6 +1,27 @@
+/*******************************************************************************
+ * OpenEMS - Open Source Energy Management System
+ * Copyright (c) 2016, 2017 FENECON GmbH and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ *   FENECON GmbH - initial API and implementation and initial documentation
+ *******************************************************************************/
 package io.openems.impl.device.kmtronic;
 
 import io.openems.api.device.nature.io.OutputNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusCoilWriteChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -8,6 +29,7 @@ import io.openems.impl.protocol.modbus.internal.CoilElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusCoilRange;
 
+@ThingInfo("KMTronic Relay board outputs")
 public class KMTronicRelayOutput extends ModbusDeviceNature implements OutputNature {
 
 	private ModbusCoilWriteChannel[] outputs;
@@ -16,7 +38,8 @@ public class KMTronicRelayOutput extends ModbusDeviceNature implements OutputNat
 		super(thingId);
 	}
 
-	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+	@Override
+	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		if (outputs == null) {
 			outputs = new ModbusCoilWriteChannel[8];
 		}
@@ -32,7 +55,8 @@ public class KMTronicRelayOutput extends ModbusDeviceNature implements OutputNat
 						new CoilElement(7, outputs[7] = new ModbusCoilWriteChannel("8", this))));
 	}
 
-	@Override public ModbusCoilWriteChannel[] setOutput() {
+	@Override
+	public ModbusCoilWriteChannel[] setOutput() {
 		return outputs;
 	}
 

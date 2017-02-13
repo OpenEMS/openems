@@ -1,3 +1,23 @@
+/*******************************************************************************
+ * OpenEMS - Open Source Energy Management System
+ * Copyright (c) 2016, 2017 FENECON GmbH and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Contributors:
+ *   FENECON GmbH - initial API and implementation and initial documentation
+ *******************************************************************************/
 package io.openems.impl.device.refu;
 
 import java.util.Optional;
@@ -11,6 +31,8 @@ import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
@@ -24,6 +46,7 @@ import io.openems.impl.protocol.modbus.internal.WordOrder;
 import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
+@ThingInfo("REFU battery inverter")
 public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
 
 	public RefuEss(String thingId) throws ConfigException {
@@ -36,9 +59,11 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class)
 			.addUpdateListener(this);
 
-	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class).optional();
+	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class)
+	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this).optional();
 
-	@Override public ConfigChannel<Integer> minSoc() {
+	@Override
+	public ConfigChannel<Integer> minSoc() {
 		return minSoc;
 	}
 
@@ -104,74 +129,91 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 	public ModbusReadLongChannel reactivePowerL3;
 	public ModbusReadLongChannel maxAcPower;
 
-	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+	@Override
+	public void channelUpdated(Channel channel, Optional<?> newValue) {
 		// If chargeSoc was not set -> set it to minSoc minus 2
 		if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
 			chargeSoc.updateValue((Integer) newValue.get() - 2, false);
 		}
 	}
 
-	@Override public ConfigChannel<Integer> chargeSoc() {
+	@Override
+	public ConfigChannel<Integer> chargeSoc() {
 		return chargeSoc;
 	}
 
-	@Override public ReadChannel<Long> gridMode() {
+	@Override
+	public ReadChannel<Long> gridMode() {
 		return gridMode;
 	}
 
-	@Override public ReadChannel<Long> soc() {
+	@Override
+	public ReadChannel<Long> soc() {
 		return soc;
 	}
 
-	@Override public ReadChannel<Long> systemState() {
+	@Override
+	public ReadChannel<Long> systemState() {
 		return systemState;
 	}
 
-	@Override public ReadChannel<Long> allowedCharge() {
+	@Override
+	public ReadChannel<Long> allowedCharge() {
 		return allowedCharge;
 	}
 
-	@Override public ReadChannel<Long> allowedDischarge() {
+	@Override
+	public ReadChannel<Long> allowedDischarge() {
 		return allowedDischarge;
 	}
 
-	@Override public ReadChannel<Long> allowedApparent() {
+	@Override
+	public ReadChannel<Long> allowedApparent() {
 		return allowedApparent;
 	}
 
-	@Override public StatusBitChannels warning() {
+	@Override
+	public StatusBitChannels warning() {
 		return warning;
 	}
 
-	@Override public WriteChannel<Long> setWorkState() {
+	@Override
+	public WriteChannel<Long> setWorkState() {
 		return setWorkState;
 	}
 
-	@Override public ReadChannel<Long> activePower() {
+	@Override
+	public ReadChannel<Long> activePower() {
 		return activePower;
 	}
 
-	@Override public ReadChannel<Long> apparentPower() {
+	@Override
+	public ReadChannel<Long> apparentPower() {
 		return apparentPower;
 	}
 
-	@Override public ReadChannel<Long> reactivePower() {
+	@Override
+	public ReadChannel<Long> reactivePower() {
 		return reactivePower;
 	}
 
-	@Override public ReadChannel<Long> maxNominalPower() {
+	@Override
+	public ReadChannel<Long> maxNominalPower() {
 		return maxNominalPower;
 	}
 
-	@Override public WriteChannel<Long> setActivePower() {
+	@Override
+	public WriteChannel<Long> setActivePower() {
 		return setActivePower;
 	}
 
-	@Override public WriteChannel<Long> setReactivePower() {
+	@Override
+	public WriteChannel<Long> setReactivePower() {
 		return setReactivePower;
 	}
 
-	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+	@Override
+	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
 		return new ModbusProtocol( //
 				new ModbusInputRegisterRange(0x100, //

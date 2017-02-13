@@ -97,7 +97,8 @@ on error:
 ```
 {
 	metadata: {
-		config
+		config: {},
+		backend: "openems"
 	}
 }
 ```
@@ -135,9 +136,7 @@ on error:
 	authenticate: {
 		mode: allow, username, token
 	}, metadata: {
-		devices: [{
-			name, config, online
-		}],
+		config: {},
 		backend: "openems"
 	}
 }
@@ -163,6 +162,63 @@ on error:
 	currentdata: [{ 
 		channel, value
     }]
+}
+```
+
+### [3.3] Configuration
+
+[3.3.1]
+```
+{
+	configure: [{
+		mode: "update",
+		thing: "...",
+		channel: "...",
+		value: "..." | { ... }
+	}]
+}
+```
+
+[3.3.2]
+```
+{
+	configure: [{
+		mode: "create",
+		object: { ... },
+		parent: "..."
+	}]
+}
+```
+
+[3.3.3]
+```
+{
+	configure: [{
+		mode: "delete",
+		thing: "..."
+	}]
+}
+```
+
+[3.3.4]
+```
+{
+ 	metadata: {
+		config: {}
+	}, notification: {
+		type: "success" | "error" | "warning" | "info",
+		message: "..."
+	}
+}
+```
+
+### [3.4] System
+```
+{
+ 	system: {
+ 		mode: "systemd-restart",
+ 		service: "fems-pagekite" | "..."
+ 	}
 }
 ```
 

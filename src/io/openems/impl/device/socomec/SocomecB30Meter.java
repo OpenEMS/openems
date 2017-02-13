@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OpenEMS - Open Source Energy Management System
- * Copyright (c) 2016 FENECON GmbH and contributors
+ * Copyright (c) 2016, 2017 FENECON GmbH and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ package io.openems.impl.device.socomec;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
@@ -32,6 +33,7 @@ import io.openems.impl.protocol.modbus.internal.SignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
+@ThingInfo("Socomec B30 meter")
 public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
 	public SocomecB30Meter(String thingId) throws ConfigException {
@@ -58,15 +60,18 @@ public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMete
 	private ModbusReadLongChannel currentL3;
 	private ModbusReadLongChannel frequency;
 
-	@Override public ModbusReadLongChannel activePower() {
+	@Override
+	public ModbusReadLongChannel activePower() {
 		return activePower;
 	}
 
-	@Override public ModbusReadLongChannel apparentPower() {
+	@Override
+	public ModbusReadLongChannel apparentPower() {
 		return apparentPower;
 	}
 
-	@Override public ModbusReadLongChannel reactivePower() {
+	@Override
+	public ModbusReadLongChannel reactivePower() {
 		return reactivePower;
 	}
 
@@ -79,7 +84,8 @@ public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMete
 	public ModbusReadLongChannel reactivePositiveEnergy;
 	public ModbusReadLongChannel apparentEnergy;
 
-	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+	@Override
+	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
 				new ModbusRegisterRange(0x480A, //
 						new UnsignedDoublewordElement(0x480A, //
@@ -120,10 +126,12 @@ public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMete
 								reactivePowerL3 = new ModbusReadLongChannel("ReactivePowerL3", this).unit("Var"))),
 				new ModbusRegisterRange(0x4D83, //
 						new UnsignedDoublewordElement(0x4D83, //
-								activePositiveEnergy = new ModbusReadLongChannel("ActivePositiveEnergy", this).unit("kWh")),
+								activePositiveEnergy = new ModbusReadLongChannel("ActivePositiveEnergy", this)
+										.unit("kWh")),
 						new DummyElement(0x4D85),
 						new UnsignedDoublewordElement(0x4D86, //
-								activeNegativeEnergy = new ModbusReadLongChannel("ActiveNegativeEnergy", this).unit("kWh")),
+								activeNegativeEnergy = new ModbusReadLongChannel("ActiveNegativeEnergy", this)
+										.unit("kWh")),
 						new DummyElement(0x4D88),
 						new UnsignedDoublewordElement(0x4D89, //
 								reactivePositiveEnergy = new ModbusReadLongChannel("ReactivePositiveEnergy", this)
@@ -138,59 +146,73 @@ public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMete
 		);
 	}
 
-	@Override public ReadChannel<Long> activePowerL1() {
+	@Override
+	public ReadChannel<Long> activePowerL1() {
 		return activePowerL1;
 	}
 
-	@Override public ReadChannel<Long> activePowerL2() {
+	@Override
+	public ReadChannel<Long> activePowerL2() {
 		return activePowerL2;
 	}
 
-	@Override public ReadChannel<Long> activePowerL3() {
+	@Override
+	public ReadChannel<Long> activePowerL3() {
 		return activePowerL3;
 	}
 
-	@Override public ReadChannel<Long> reactivePowerL1() {
+	@Override
+	public ReadChannel<Long> reactivePowerL1() {
 		return reactivePowerL1;
 	}
 
-	@Override public ReadChannel<Long> reactivePowerL2() {
+	@Override
+	public ReadChannel<Long> reactivePowerL2() {
 		return reactivePowerL2;
 	}
 
-	@Override public ReadChannel<Long> reactivePowerL3() {
+	@Override
+	public ReadChannel<Long> reactivePowerL3() {
 		return reactivePowerL3;
 	}
 
-	@Override public ReadChannel<Long> currentL1() {
+	@Override
+	public ReadChannel<Long> currentL1() {
 		return currentL1;
 	}
 
-	@Override public ReadChannel<Long> currentL2() {
+	@Override
+	public ReadChannel<Long> currentL2() {
 		return currentL2;
 	}
 
-	@Override public ReadChannel<Long> currentL3() {
+	@Override
+	public ReadChannel<Long> currentL3() {
 		return currentL3;
 	}
 
-	@Override public ReadChannel<Long> voltageL1() {
+	@Override
+	public ReadChannel<Long> voltageL1() {
 		return voltageL1;
 	}
 
-	@Override public ReadChannel<Long> voltageL2() {
+	@Override
+	public ReadChannel<Long> voltageL2() {
 		return voltageL2;
 	}
 
-	@Override public ReadChannel<Long> voltageL3() {
+	@Override
+	public ReadChannel<Long> voltageL3() {
 		return voltageL3;
 	}
 
-	@Override public ReadChannel<Long> frequency() {
+	@Override
+	public ReadChannel<Long> frequency() {
 		return frequency;
 	}
 
-	@Override public ReadChannel<Long> voltage() {
+	@Override
+	public ReadChannel<Long> voltage() {
 		return voltageL1;
 	}
 }

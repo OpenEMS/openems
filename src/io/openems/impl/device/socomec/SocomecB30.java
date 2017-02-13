@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OpenEMS - Open Source Energy Management System
- * Copyright (c) 2016 FENECON GmbH and contributors
+ * Copyright (c) 2016, 2017 FENECON GmbH and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,22 +25,26 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
+@ThingInfo("Represents a Socomec B30 meter device")
 public class SocomecB30 extends ModbusDevice {
 
 	/*
 	 * Config
 	 */
-	public final ConfigChannel<SocomecB30Meter> meter = new ConfigChannel<SocomecB30Meter>("meter", this,
-			SocomecB30Meter.class);
+	@ConfigInfo(title = "Sets the meter nature", type = SocomecB30Meter.class)
+	public final ConfigChannel<SocomecB30Meter> meter = new ConfigChannel<SocomecB30Meter>("meter", this);
 
 	public SocomecB30() throws OpenemsException {
 		super();
 	}
 
-	@Override protected Set<DeviceNature> getDeviceNatures() {
+	@Override
+	protected Set<DeviceNature> getDeviceNatures() {
 		Set<DeviceNature> natures = new HashSet<>();
 		if (meter.valueOptional().isPresent()) {
 			natures.add(meter.valueOptional().get());

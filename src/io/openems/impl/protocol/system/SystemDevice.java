@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OpenEMS - Open Source Energy Management System
- * Copyright (c) 2016 FENECON GmbH and contributors
+ * Copyright (c) 2016, 2017 FENECON GmbH and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,10 @@ package io.openems.impl.protocol.system;
 
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 
+@ThingInfo("System device")
 public abstract class SystemDevice extends Device {
 
 	public SystemDevice() throws OpenemsException {

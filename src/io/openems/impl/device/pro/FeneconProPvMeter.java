@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OpenEMS - Open Source Energy Management System
- * Copyright (c) 2016 FENECON GmbH and contributors
+ * Copyright (c) 2016, 2017 FENECON GmbH and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import io.openems.api.channel.FunctionalChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -35,6 +36,7 @@ import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
+@ThingInfo("FENECON Pro meter")
 public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricMeterNature, SymmetricMeterNature {
 
 	public FeneconProPvMeter(String thingId) throws ConfigException {

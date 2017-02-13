@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OpenEMS - Open Source Energy Management System
- * Copyright (c) 2016 FENECON GmbH and contributors
+ * Copyright (c) 2016, 2017 FENECON GmbH and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,15 +27,12 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.ControllerUtils;
 
-/**
- * this Controller calculates the power consumption of the house and charges or discharges the storages to reach
- * zero/power consumption from the grid
- */
-
+@ThingInfo("Self-consumption optimization. Tries to keep the grid meter on zero. For asymmetric Ess.")
 public class BalancingController extends Controller {
 
 	/*

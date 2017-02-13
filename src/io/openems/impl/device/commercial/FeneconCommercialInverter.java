@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OpenEMS - Open Source Energy Management System
- * Copyright (c) 2016 FENECON GmbH and contributors
+ * Copyright (c) 2016, 2017 FENECON GmbH and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 package io.openems.impl.device.commercial;
 
 import io.openems.api.device.nature.PvInverterNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -28,6 +29,7 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
+@ThingInfo("FENECON Commercial DC inverter")
 public class FeneconCommercialInverter extends ModbusDeviceNature implements PvInverterNature {
 
 	/*
@@ -36,7 +38,8 @@ public class FeneconCommercialInverter extends ModbusDeviceNature implements PvI
 
 	private ModbusWriteLongChannel setPvLimit;
 
-	@Override public ModbusWriteLongChannel setLimit() {
+	@Override
+	public ModbusWriteLongChannel setLimit() {
 		return setPvLimit;
 	}
 
@@ -44,7 +47,8 @@ public class FeneconCommercialInverter extends ModbusDeviceNature implements PvI
 		super(thingId);
 	}
 
-	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+	@Override
+	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		ModbusProtocol protocol = new ModbusProtocol(//
 				new ModbusRegisterRange(0x0503, //
 						new UnsignedWordElement(0x0503, //
