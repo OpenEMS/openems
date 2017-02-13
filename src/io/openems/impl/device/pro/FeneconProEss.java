@@ -61,11 +61,13 @@ public class FeneconProEss extends ModbusDeviceNature
 
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this, Integer.class).optional();
 
-	@Override public ConfigChannel<Integer> minSoc() {
+	@Override
+	public ConfigChannel<Integer> minSoc() {
 		return minSoc;
 	}
 
-	@Override public void channelUpdated(Channel channel, Optional<?> newValue) {
+	@Override
+	public void channelUpdated(Channel channel, Optional<?> newValue) {
 		// If chargeSoc was not set -> set it to minSoc minus 2
 		if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
 			chargeSoc.updateValue((Integer) newValue.get() - 2, false);
@@ -105,111 +107,138 @@ public class FeneconProEss extends ModbusDeviceNature
 	private ModbusWriteLongChannel setReactivePowerL2;
 	private ModbusWriteLongChannel setReactivePowerL3;
 
-	@Override public ReadChannel<Long> allowedCharge() {
+	@Override
+	public ReadChannel<Long> allowedCharge() {
 		return allowedCharge;
 	}
 
-	@Override public ReadChannel<Long> allowedDischarge() {
+	@Override
+	public ReadChannel<Long> allowedDischarge() {
 		return allowedDischarge;
 	}
 
-	@Override public ReadChannel<Long> gridMode() {
+	@Override
+	public ReadChannel<Long> gridMode() {
 		return gridMode;
 	}
 
-	@Override public ReadChannel<Long> soc() {
+	@Override
+	public ReadChannel<Long> soc() {
 		return soc;
 	}
 
-	@Override public ReadChannel<Long> systemState() {
+	@Override
+	public ReadChannel<Long> systemState() {
 		return systemState;
 	}
 
-	@Override public WriteChannel<Long> setWorkState() {
+	@Override
+	public WriteChannel<Long> setWorkState() {
 		return setWorkState;
 	}
 
-	@Override public ReadChannel<Long> activePowerL1() {
+	@Override
+	public ReadChannel<Long> activePowerL1() {
 		return activePowerL1;
 	}
 
-	@Override public ReadChannel<Long> activePowerL2() {
+	@Override
+	public ReadChannel<Long> activePowerL2() {
 		return activePowerL2;
 	}
 
-	@Override public ReadChannel<Long> activePowerL3() {
+	@Override
+	public ReadChannel<Long> activePowerL3() {
 		return activePowerL3;
 	}
 
-	@Override public WriteChannel<Long> setActivePowerL1() {
+	@Override
+	public WriteChannel<Long> setActivePowerL1() {
 		return setActivePowerL1;
 	}
 
-	@Override public WriteChannel<Long> setActivePowerL2() {
+	@Override
+	public WriteChannel<Long> setActivePowerL2() {
 		return setActivePowerL2;
 	}
 
-	@Override public WriteChannel<Long> setActivePowerL3() {
+	@Override
+	public WriteChannel<Long> setActivePowerL3() {
 		return setActivePowerL3;
 	}
 
-	@Override public WriteChannel<Long> setReactivePowerL1() {
+	@Override
+	public WriteChannel<Long> setReactivePowerL1() {
 		return setReactivePowerL1;
 	}
 
-	@Override public WriteChannel<Long> setReactivePowerL2() {
+	@Override
+	public WriteChannel<Long> setReactivePowerL2() {
 		return setReactivePowerL2;
 	}
 
-	@Override public WriteChannel<Long> setReactivePowerL3() {
+	@Override
+	public WriteChannel<Long> setReactivePowerL3() {
 		return setReactivePowerL3;
 	}
 
-	@Override public StatusBitChannels warning() {
+	@Override
+	public StatusBitChannels warning() {
 		return warning;
 	}
 
-	@Override public ReadChannel<Long> allowedApparent() {
+	@Override
+	public ReadChannel<Long> allowedApparent() {
 		return allowedApparent;
 	}
 
-	@Override public ReadChannel<Long> reactivePowerL1() {
+	@Override
+	public ReadChannel<Long> reactivePowerL1() {
 		return reactivePowerL1;
 	}
 
-	@Override public ReadChannel<Long> reactivePowerL2() {
+	@Override
+	public ReadChannel<Long> reactivePowerL2() {
 		return reactivePowerL2;
 	}
 
-	@Override public ReadChannel<Long> reactivePowerL3() {
+	@Override
+	public ReadChannel<Long> reactivePowerL3() {
 		return reactivePowerL3;
 	}
 
-	@Override public WriteChannel<Long> rtcYear() {
+	@Override
+	public WriteChannel<Long> rtcYear() {
 		return rtcYear;
 	}
 
-	@Override public WriteChannel<Long> rtcMonth() {
+	@Override
+	public WriteChannel<Long> rtcMonth() {
 		return rtcMonth;
 	}
 
-	@Override public WriteChannel<Long> rtcDay() {
+	@Override
+	public WriteChannel<Long> rtcDay() {
 		return rtcDay;
 	}
 
-	@Override public WriteChannel<Long> rtcHour() {
+	@Override
+	public WriteChannel<Long> rtcHour() {
 		return rtcHour;
 	}
 
-	@Override public WriteChannel<Long> rtcMinute() {
+	@Override
+	public WriteChannel<Long> rtcMinute() {
 		return rtcMinute;
 	}
 
-	@Override public WriteChannel<Long> rtcSecond() {
+	@Override
+	public WriteChannel<Long> rtcSecond() {
 		return rtcSecond;
 	}
 
-	@Override public ConfigChannel<Integer> chargeSoc() {
+	@Override
+	public ConfigChannel<Integer> chargeSoc() {
 		return chargeSoc;
 	}
 
@@ -240,7 +269,8 @@ public class FeneconProEss extends ModbusDeviceNature
 	public ModbusReadLongChannel setupMode;
 	public ModbusReadLongChannel pcsMode;
 
-	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+	@Override
+	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
 
 		ModbusProtocol protokol = new ModbusProtocol(new ModbusRegisterRange(100, //
@@ -465,7 +495,7 @@ public class FeneconProEss extends ModbusDeviceNature
 						.label(1024, "Phase sync error")//
 						.label(2048, "External PV current zero drift error")//
 						.label(4096, "External grid current zero drift error")//
-				)), new UnsignedWordElement(160, warning.channel(new StatusBitChannel("PcsAlarm1L1", this)//
+				)), new UnsignedWordElement(160, warning.channel(new StatusBitChannel("PcsAlarm1L3", this)//
 						.label(1, "Grid undervoltage") //
 						.label(2, "Grid overvoltage") //
 						.label(4, "Grid under frequency") //
@@ -477,8 +507,8 @@ public class FeneconProEss extends ModbusDeviceNature
 						.label(256, "Combination error")//
 						.label(512, "Comm with inverter error")//
 						.label(1024, "Tme error")//
-				)), new UnsignedWordElement(161, warning.channel(new StatusBitChannel("PcsAlarm2L1", this)//
-				)), new UnsignedWordElement(162, warning.channel(new StatusBitChannel("PcsFault1L1", this)//
+				)), new UnsignedWordElement(161, warning.channel(new StatusBitChannel("PcsAlarm2L3", this)//
+				)), new UnsignedWordElement(162, warning.channel(new StatusBitChannel("PcsFault1L3", this)//
 						.label(1, "Control current overload 100%")//
 						.label(2, "Control current overload 110%")//
 						.label(4, "Control current overload 150%")//
@@ -495,7 +525,7 @@ public class FeneconProEss extends ModbusDeviceNature
 						.label(8192, "Grid current zero drift error")//
 						.label(16384, "PDP protection")//
 						.label(32768, "Hardware control current protection")//
-				)), new UnsignedWordElement(163, warning.channel(new StatusBitChannel("PcsFault2L1", this)//
+				)), new UnsignedWordElement(163, warning.channel(new StatusBitChannel("PcsFault2L3", this)//
 						.label(1, "Hardware AC volt. protection")//
 						.label(2, "Hardware DC curr. protection")//
 						.label(4, "Hardware temperature protection")//
@@ -512,7 +542,7 @@ public class FeneconProEss extends ModbusDeviceNature
 						.label(8192, "Phase lack")//
 						.label(16384, "Inverter relay fault")//
 						.label(32768, "Grid relay fault")//
-				)), new UnsignedWordElement(164, warning.channel(new StatusBitChannel("PcsFault3L1", this)//
+				)), new UnsignedWordElement(164, warning.channel(new StatusBitChannel("PcsFault3L3", this)//
 						.label(1, "Control panel overtemp")//
 						.label(2, "Power panel overtemp")//
 						.label(4, "DC input overcurrent")//
