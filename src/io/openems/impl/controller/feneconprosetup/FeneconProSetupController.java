@@ -48,7 +48,7 @@ public class FeneconProSetupController extends Controller {
 	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
-				if (ess.pcsMode.labelOptional().isPresent() && !ess.pcsMode.labelOptional().get().equals("Remote")) {
+				if (ess.pcsMode.labelOptional().isPresent() && ess.pcsMode.labelOptional().get().equals("Debug")) {
 					if (ess.setupMode.labelOptional().isPresent()
 							&& ess.setupMode.labelOptional().get().equals(EssNature.ON)) {
 						ess.setPcsMode.pushWriteFromLabel("Remote");
