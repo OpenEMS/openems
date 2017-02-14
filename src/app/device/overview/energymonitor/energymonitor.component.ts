@@ -1,8 +1,6 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-
-import { WebsocketService } from '../../../service/websocket.service';
+import { Component, Input, OnInit, OnChanges } from '@angular/core';
+import { BaseChartComponent, ColorHelper } from '@swimlane/ngx-charts';
+import * as d3 from 'd3';
 import { Device } from '../../../service/device';
 
 @Component({
@@ -10,6 +8,7 @@ import { Device } from '../../../service/device';
   templateUrl: './energymonitor.component.html'
 })
 export class DeviceOverviewEnergymonitorComponent {
+
   @Input()
   private device: Device;
 }

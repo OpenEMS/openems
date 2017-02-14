@@ -155,7 +155,6 @@ export class Device {
      */
     if ("currentdata" in message) {
       let data = message.currentdata;
-      console.log("currentdata", data);
 
       // Calculate summarized data
       let soc = 0;

@@ -1,12 +1,9 @@
-<md-card class="single">
+<md-card class="single" *ngIf="device">
   <md-card-header>
     <md-icon md-card-avatar>timeline</md-icon>
     <md-card-title>Energiemonitor</md-card-title>
   </md-card-header>
-  <md-card-content *ngIf="device && device.data" fxLayout fxLayoutAlign="start start" fxLayoutWrap="wrap">
-    <div fxFlex.gt-md="33%" fxFlex.md="50%" fxFlex.sm="75%" fxFlex.xs="100%">
-      <app-device-overview-energymonitor-chart [storage]="device.summary.ess.soc" production="0" consumption="0" grid="0"></app-device-overview-energymonitor-chart>
-    </div>
-    <app-device-overview-energymonitor-table fxFlex.gt-md="33%" fxFlex.md="50%" fxFlex.sm="75%" fxFlex.xs="100%" [device]="device"></app-device-overview-energymonitor-table>
+  <md-card-content>
+    <app-device-overview-energymonitor-chart [storage]="device.summary.ess.soc" production="0" consumption="0" grid="0"></app-device-overview-energymonitor-chart>
   </md-card-content>
 </md-card>

@@ -64,22 +64,22 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
     return value * (Math.PI / 180)
   }
 
-  private circles: Circle[] = [
-    new Circle(-20, 0),
-    new Circle(-50, 0),
-    new Circle(-80, 0),
-    new Circle(-110, 0),
-    new Circle(20, 0),
-    new Circle(50, 0),
-    new Circle(80, 0),
-    new Circle(110, 0),
-    new Circle(0, -20),
-    new Circle(0, -50),
-    new Circle(0, -80),
-    new Circle(0, -110),
-    new Circle(0, 20),
-    new Circle(0, 50),
-    new Circle(0, 80),
-    new Circle(0, 110)
-  ];
+  private circles: Circle[] = [];
+  //   new Circle(-20, 0),
+  //   new Circle(-50, 0),
+  //   new Circle(-80, 0),
+  //   new Circle(-110, 0),
+  //   new Circle(20, 0),
+  //   new Circle(50, 0),
+  //   new Circle(80, 0),
+  //   new Circle(110, 0),
+  //   new Circle(0, -20),
+  //   new Circle(0, -50),
+  //   new Circle(0, -80),
+  //   new Circle(0, -110),
+  //   new Circle(0, 20),
+  //   new Circle(0, 50),
+  //   new Circle(0, 80),
+  //   new Circle(0, 110)
+  // ];
 }
