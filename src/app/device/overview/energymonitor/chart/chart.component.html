@@ -1,11 +1,11 @@
-<svg [style.width]="width" [style.height]="height">
+<svg style.width="{{width}}px" style.height="{{height}}px">
   <svg:g [attr.transform]="translation">
     <svg:g *ngFor="let section of sections">
       <svg:path [attr.d]="section.outlinePath" fill="white" stroke="LightGray"></svg:path>
       <svg:path [attr.d]="section.path" [attr.fill]="section.color" stroke="LightGray"></svg:path>
       <svg:text [attr.x]="section.textPosition.x" [attr.y]="section.textPosition.y" [attr.text-anchor]="section.textPosition.anchor"
         font-family="sans-serif" font-size="20px" fill="color">{{section.name}}</svg:text>
-      <svg:image [attr.x]="section.imagePosition.x" [attr.y]="section.imagePosition.y" width="120" height="70" [attr.xlink:href]="section.imagePosition.image"></svg:image>
+        <svg:image [attr.x]="section.imagePosition.x" [attr.y]="section.imagePosition.y" width="120" height="70" [attr.xlink:href]="section.imagePosition.image"></svg:image>
     </svg:g>
     <svg:g *ngFor="let circle of circles">
       <svg:circle [attr.cx]="circle.x" [attr.cy]="circle.y" stroke-width="1" r="10" stroke="grey" fill="white"></svg:circle>

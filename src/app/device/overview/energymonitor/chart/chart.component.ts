@@ -16,6 +16,7 @@ class Circle {
 })
 export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponent implements OnInit, OnChanges {
 
+  private style: string;
   private translation: string;
   private gridSection: AbstractSection = new GridSection();
   private productionSection: AbstractSection = new ProductionSection();
@@ -50,9 +51,7 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
   update() {
     super.update();
     this.height = this.width - 100;
-    const xOffset = this.width / 2;
-    const yOffset = this.height / 2;
-    this.translation = `translate(${xOffset}, ${yOffset})`;
+    this.translation = `translate(${this.width / 2}, ${this.height / 2})`;
     var outerRadius = Math.min(this.width, this.height) / 2;
     var innerRadius = outerRadius - 30;
     this.sections.forEach(section => {
