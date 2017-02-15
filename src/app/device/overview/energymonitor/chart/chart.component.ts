@@ -22,7 +22,7 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
   private productionSection: AbstractSection = new ProductionSection();
   private consumptionSection: AbstractSection = new ConsumptionSection();
   private storageSection: AbstractSection = new StorageSection();
-  private sections: AbstractSection[] = [this.gridSection, this.productionSection, this.consumptionSection, this.storageSection];
+  private sections: AbstractSection[] = [/*this.gridSection, this.productionSection, this.consumptionSection, */ this.storageSection];
 
   @Input()
   set grid(value: number) {
