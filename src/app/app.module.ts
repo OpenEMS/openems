@@ -14,6 +14,7 @@ import { environment } from '../environments';
 /*
  * Frontend
  */
+import { AboutComponent } from './about/about.component';
 import { LoginComponent } from './login/login.component';
 import { OverviewComponent } from './overview/overview.component';
 import { DeviceOverviewComponent } from './device/overview/overview.component';
@@ -67,6 +68,8 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
 @NgModule({
   declarations: [
     AppComponent,
+    // About
+    AboutComponent,
     // Login
     LoginComponent,
     // Overview

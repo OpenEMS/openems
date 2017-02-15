@@ -2,6 +2,7 @@ import { ModuleWithProviders } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
+import { AboutComponent } from './about/about.component';
 import { LoginComponent } from './login/login.component';
 import { OverviewComponent } from './overview/overview.component';
 import { DeviceOverviewComponent } from './device/overview/overview.component';
@@ -15,6 +16,7 @@ const appRoutes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
 
+  { path: 'about', component: AboutComponent },
   { path: 'overview', component: OverviewComponent },
 
   { path: 'device/:websocket/:device', redirectTo: 'device/:websocket/:device/overview', pathMatch: 'full' },

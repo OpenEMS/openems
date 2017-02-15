@@ -10,6 +10,9 @@
       <md-list-item *ngIf="environment.backend == 'openems'">
         <a href="/grafana/dashboard/file/fems-asymmetric.json" md-button>Historie</a>
       </md-list-item>
+      <md-list-item>
+        <button routerLinkActive="active" routerLink="/about" md-button>Über FEMS-UI</button>
+      </md-list-item>
     </md-list>
   </md-sidenav>
   <div fxLayout="row" fxLayoutAlign="space-between center">
