@@ -68,7 +68,11 @@ public class EmergencyGeneratorController extends Controller {
 
 	private WriteChannel<Boolean> outputChannel;
 
-	private boolean generatorOn = true;
+	private boolean generatorOn = false;
+
+	private long lastPower = 0l;
+
+	private Long cooldownStartTime = null;
 
 	public EmergencyGeneratorController() {
 		super();
@@ -82,26 +86,49 @@ public class EmergencyGeneratorController extends Controller {
 	public void run() {
 		try {
 			// Check if grid is available
-			if (!meter.value().voltage.valueOptional().isPresent()
-					|| !(meter.value().voltage.value() >= 200 && meter.value().voltage.value() <= 260)) {
+			if (!meter.value().voltage.valueOptional().isPresent()) {
 				// no meassurable voltage => Off-Grid
 				if (ess.value().gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID)) && !generatorOn
 						&& ess.value().soc.value() <= minSoc.value()) {
 					// switch generator on
 					startGenerator();
 					generatorOn = true;
+					System.out.println("1: storage is empty. Start generator.");
 				} else if (ess.value().gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID)) && generatorOn
 						&& ess.value().soc.value() >= maxSoc.value()) {
 					// switch generator off
-					stopGenerator();
-					generatorOn = false;
+					if (cooldownStartTime == null) {
+						cooldownStartTime = System.currentTimeMillis();
+						ess.value().setActivePowerL1.pushWrite(0l);
+						ess.value().setActivePowerL2.pushWrite(0l);
+						ess.value().setActivePowerL3.pushWrite(0l);
+						log.info("Start cooldownphase.");
+					} else if (cooldownStartTime + 1000 * 60 < System.currentTimeMillis()) {
+						stopGenerator();
+						generatorOn = false;
+						lastPower = 0l;
+						cooldownStartTime = null;
+						System.out.println("Storage is full. Stop generator.");
+					}
 				} else if (generatorOn) {
 					startGenerator();
+					if (ess.value().gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+						if (lastPower > -1000) {
+							lastPower -= 20l;
+						}
+						ess.value().setActivePowerL1.pushWrite(lastPower);
+						ess.value().setActivePowerL2.pushWrite(lastPower);
+						ess.value().setActivePowerL3.pushWrite(lastPower);
+						System.out.println("Charge with " + lastPower * 3 + " kW");
+					}
+					System.out.println("3: ");
 				} else if (!generatorOn) {
 					stopGenerator();
+					lastPower = 0l;
+					System.out.println("4: ");
 				}
 			} else {
-				// Grid voltage is the allowed range
+				// Grid voltage is in the allowed range
 				// switch generator off
 				stopGenerator();
 			}
