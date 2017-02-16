@@ -20,8 +20,16 @@
  *******************************************************************************/
 package io.openems.api.device.nature.charger;
 
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.DeviceNature;
 
 public interface ChargerNature extends DeviceNature {
+
+	public WriteChannel<Float> setMaxCurrent();
+
+	public ReadChannel<Float> getBatteryVoltage();
+
+	public ReadChannel<Float> getNominalCurrent();
 
 }
