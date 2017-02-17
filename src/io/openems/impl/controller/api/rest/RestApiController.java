@@ -29,6 +29,9 @@ import io.openems.api.exception.OpenemsException;
 @ThingInfo(title = "REST-Api", description = "Use for external access to OpenEMS.")
 public class RestApiController extends Controller {
 
+	/*
+	 * Constructors
+	 */
 	public RestApiController() {
 		super();
 	}
@@ -37,9 +40,15 @@ public class RestApiController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
 	@ConfigInfo(title = "Port", description = "Sets the port of the REST-Api Server.", type = Integer.class, defaultValue = "8084")
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this);
 
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		// Start REST-Api server

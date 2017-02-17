@@ -20,10 +20,6 @@
  *******************************************************************************/
 package io.openems.impl.device.pro;
 
-import java.util.Optional;
-
-import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalChannel;
 import io.openems.api.channel.ReadChannel;
@@ -33,7 +29,6 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
-import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
@@ -49,34 +44,35 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
 @ThingInfo(title = "FENECON Pro ESS")
-public class FeneconProEss extends ModbusDeviceNature
-		implements AsymmetricEssNature, RealTimeClockNature, ChannelUpdateListener {
+public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNature, RealTimeClockNature {
 
+	/*
+	 * Constructors
+	 */
 	public FeneconProEss(String thingId) throws ConfigException {
 		super(thingId);
+		minSoc.addUpdateListener((channel, newValue) -> {
+			// If chargeSoc was not set -> set it to minSoc minus 2
+			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
+				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
+			}
+		});
 	}
 
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Sets the minimal SOC", type = Integer.class)
-	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this).addUpdateListener(this);
-
-	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class)
-	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this).optional();
+	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this);
+	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 
 	@Override
-	@ConfigInfo(title = "Sets the minimal SOC", type = Integer.class)
 	public ConfigChannel<Integer> minSoc() {
 		return minSoc;
 	}
 
 	@Override
-	public void channelUpdated(Channel channel, Optional<?> newValue) {
-		// If chargeSoc was not set -> set it to minSoc minus 2
-		if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
-			chargeSoc.updateValue((Integer) newValue.get() - 2, false);
-		}
+	public ConfigChannel<Integer> chargeSoc() {
+		return chargeSoc;
 	}
 
 	/*
@@ -96,14 +92,6 @@ public class FeneconProEss extends ModbusDeviceNature
 	private ModbusReadLongChannel reactivePowerL1;
 	private ModbusReadLongChannel reactivePowerL2;
 	private ModbusReadLongChannel reactivePowerL3;
-	// RealTimeClock
-	private ModbusWriteLongChannel rtcYear;
-	private ModbusWriteLongChannel rtcMonth;
-	private ModbusWriteLongChannel rtcDay;
-	private ModbusWriteLongChannel rtcHour;
-	private ModbusWriteLongChannel rtcMinute;
-	private ModbusWriteLongChannel rtcSecond;
-
 	private ModbusWriteLongChannel setWorkState;
 	private ModbusWriteLongChannel setActivePowerL1;
 	private ModbusWriteLongChannel setActivePowerL2;
@@ -111,6 +99,13 @@ public class FeneconProEss extends ModbusDeviceNature
 	private ModbusWriteLongChannel setReactivePowerL1;
 	private ModbusWriteLongChannel setReactivePowerL2;
 	private ModbusWriteLongChannel setReactivePowerL3;
+	// RealTimeClock
+	private ModbusWriteLongChannel rtcYear;
+	private ModbusWriteLongChannel rtcMonth;
+	private ModbusWriteLongChannel rtcDay;
+	private ModbusWriteLongChannel rtcHour;
+	private ModbusWriteLongChannel rtcMinute;
+	private ModbusWriteLongChannel rtcSecond;
 
 	@Override
 	public ReadChannel<Long> allowedCharge() {
@@ -242,12 +237,6 @@ public class FeneconProEss extends ModbusDeviceNature
 		return rtcSecond;
 	}
 
-	@Override
-	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class)
-	public ConfigChannel<Integer> chargeSoc() {
-		return chargeSoc;
-	}
-
 	/*
 	 * This Channels
 	 */
@@ -275,6 +264,9 @@ public class FeneconProEss extends ModbusDeviceNature
 	public ModbusReadLongChannel setupMode;
 	public ModbusReadLongChannel pcsMode;
 
+	/*
+	 * Methods
+	 */
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);

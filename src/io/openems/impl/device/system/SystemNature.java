@@ -37,8 +37,9 @@ import io.openems.impl.protocol.system.SystemReadChannel;
 @ThingInfo(title = "Operating system")
 public class SystemNature extends SystemDeviceNature implements io.openems.api.device.nature.system.SystemNature {
 
-	private final Inet4Address[] OPENEMS_STATIC_IPS;
-
+	/*
+	 * Constructors
+	 */
 	public SystemNature(String thingId) throws ConfigException {
 		super(thingId);
 		try {
@@ -64,6 +65,14 @@ public class SystemNature extends SystemDeviceNature implements io.openems.api.d
 		return primaryIpAddress;
 	}
 
+	/*
+	 * Fields
+	 */
+	private final Inet4Address[] OPENEMS_STATIC_IPS;
+
+	/*
+	 * Methods
+	 */
 	@Override
 	protected void update() {
 		// Get IP address

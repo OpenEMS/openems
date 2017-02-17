@@ -33,9 +33,9 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "Avoid total discharge of battery (Symmetric)", description = "Makes sure the battery is not going into critically low state of charge. For symmetric Ess.")
 public class AvoidTotalDischargeController extends Controller {
 
-	@ConfigInfo(title = "Storages, where total discharge should be avoided. For excample to reserve load for the Off-Grid power supply.", type = Ess.class)
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
-
+	/*
+	 * Constructors
+	 */
 	public AvoidTotalDischargeController() {
 		super();
 	}
@@ -44,6 +44,15 @@ public class AvoidTotalDischargeController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

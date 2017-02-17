@@ -54,14 +54,35 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 
 @ThingInfo(title = "Modbus")
 public abstract class ModbusBridge extends Bridge {
+
+	/*
+	 * Fields
+	 */
 	protected volatile ModbusDevice[] modbusdevices = new ModbusDevice[0];
 	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
 
-	@Override
-	public abstract void dispose();
-
+	/*
+	 * Abstract Methods
+	 */
 	public abstract ModbusTransaction getTransaction() throws OpenemsModbusException;
 
+	protected abstract void closeModbusConnection();
+
+	/*
+	 * Static Methods
+	 */
+	static boolean[] toBooleanArray(byte[] bytes) {
+		BitSet bits = BitSet.valueOf(bytes);
+		boolean[] bools = new boolean[bytes.length * 8];
+		for (int i = bits.nextSetBit(0); i != -1; i = bits.nextSetBit(i + 1)) {
+			bools[i] = true;
+		}
+		return bools;
+	}
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void triggerWrite() {
 		// set the Write-flag
@@ -96,8 +117,6 @@ public abstract class ModbusBridge extends Bridge {
 			}
 		}
 	}
-
-	protected abstract void closeModbusConnection();
 
 	@Override
 	protected boolean initialize() {
@@ -168,15 +187,6 @@ public abstract class ModbusBridge extends Bridge {
 					+ "UnitId [" + modbusUnitId + "], Address [" + startAddress + "], Count [" + length + "]: "
 					+ res.toString());
 		}
-	}
-
-	static boolean[] toBooleanArray(byte[] bytes) {
-		BitSet bits = BitSet.valueOf(bytes);
-		boolean[] bools = new boolean[bytes.length * 8];
-		for (int i = bits.nextSetBit(0); i != -1; i = bits.nextSetBit(i + 1)) {
-			bools[i] = true;
-		}
-		return bools;
 	}
 
 	protected void write(int modbusUnitId, int address, List<Register> registers) throws OpenemsModbusException {

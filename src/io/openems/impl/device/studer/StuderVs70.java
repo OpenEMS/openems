@@ -12,16 +12,23 @@ import io.openems.impl.protocol.studer.StuderDevice;
 
 @ThingInfo(title = "Studer VS-70")
 public class StuderVs70 extends StuderDevice {
-	/*
-	 * Config
-	 */
-	@ConfigInfo(title = "Sets the charger nature", type = StuderVs70Charger.class)
-	public final ConfigChannel<StuderVs70Charger> charger = new ConfigChannel<StuderVs70Charger>("charger", this);
 
+	/*
+	 * Constructors
+	 */
 	public StuderVs70() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Charger", description = "Sets the charger nature.", type = StuderVs70Charger.class)
+	public final ConfigChannel<StuderVs70Charger> charger = new ConfigChannel<>("charger", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public String toString() {
 		return "StuderVs70 [charger=" + charger + ", getThingId()=" + id() + "]";

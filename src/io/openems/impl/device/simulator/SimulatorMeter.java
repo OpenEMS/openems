@@ -34,6 +34,9 @@ import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 @ThingInfo(title = "Simulator Meter")
 public class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMeterNature {
 
+	/*
+	 * Constructors
+	 */
 	public SimulatorMeter(String thingId) throws ConfigException {
 		super(thingId);
 	}
@@ -74,6 +77,19 @@ public class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMe
 	}
 
 	@Override
+	public ReadChannel<Long> frequency() {
+		return frequency;
+	}
+
+	@Override
+	public ReadChannel<Long> voltage() {
+		return voltage;
+	}
+
+	/*
+	 * Methods
+	 */
+	@Override
 	protected void update() {
 		soc.updateValue(getRandom(0, 100));
 		long apparentPower = getRandom(-10000, 10000);
@@ -91,15 +107,4 @@ public class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMe
 	private long getRandom(int min, int max) {
 		return ThreadLocalRandom.current().nextLong(min, max + 1);
 	}
-
-	@Override
-	public ReadChannel<Long> frequency() {
-		return frequency;
-	}
-
-	@Override
-	public ReadChannel<Long> voltage() {
-		return voltage;
-	}
-
 }

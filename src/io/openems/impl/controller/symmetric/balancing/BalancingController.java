@@ -32,15 +32,32 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
-@ThingInfo(title = "Self-consumption optimization (Symmetric)", description = "Tries to keep the grid meter on zero. For symmetric Ess.")
+@ThingInfo(title = "Self-consumption optimization (Symmetric)", description = "Tries to keep the grid meter on zero. For symmetric Ess. Ess-Cluster is supported.")
 public class BalancingController extends Controller {
 
-	@ConfigInfo(title = "All storages which should work as cluster to reach zero power consumption from the grid", type = Ess.class)
+	/*
+	 * Constructors
+	 */
+	public BalancingController() {
+		super();
+	}
+
+	public BalancingController(String thingId) {
+		super(thingId);
+	}
+
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public final ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
-	@ConfigInfo(title = "the meter which meassures the power from/to the grid", type = Meter.class)
+	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
+	/*
+	 * Methods
+	 */
 	private boolean isOnGrid() throws InvalidValueException {
 		for (Ess ess : esss.value()) {
 			Optional<String> gridMode = ess.gridMode.labelOptional();
@@ -49,16 +66,6 @@ public class BalancingController extends Controller {
 			}
 		}
 		return true;
-	}
-
-	public BalancingController() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	public BalancingController(String thingId) {
-		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

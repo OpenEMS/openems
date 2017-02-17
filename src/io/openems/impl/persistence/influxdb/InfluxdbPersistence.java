@@ -44,36 +44,38 @@ import io.openems.core.Databus;
 @ThingInfo(title = "InfluxDB Persistence", description = "Persists data in an InfluxDB time-series database.")
 public class InfluxdbPersistence extends Persistence implements ChannelUpdateListener {
 
-	private final String DB_NAME = "db";
-
-	private Optional<InfluxDB> _influxdb = Optional.empty();
-
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Sets the fems-number", type = Integer.class)
-	public final ConfigChannel<Integer> fems = new ConfigChannel<Integer>("fems", this);
+	@ConfigInfo(title = "FEMS", description = "Sets FEMS-number.", type = Integer.class)
+	public final ConfigChannel<Integer> fems = new ConfigChannel<>("fems", this);
 
-	@ConfigInfo(title = "Sets the IP address of the InfluxDB", type = Inet4Address.class)
-	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
+	@ConfigInfo(title = "IP address", description = "IP address of InfluxDB.", type = Inet4Address.class)
+	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<>("ip", this);
 
-	@ConfigInfo(title = "Sets the username for InfluxDB", type = String.class)
-	public final ConfigChannel<String> username = new ConfigChannel<String>("username", this).defaultValue("root");
+	@ConfigInfo(title = "Username", description = "Username for InfluxDB.", type = String.class, defaultValue = "root")
+	public final ConfigChannel<String> username = new ConfigChannel<>("username", this);
 
-	@ConfigInfo(title = "Sets the username for InfluxDB", type = String.class)
-	public final ConfigChannel<String> password = new ConfigChannel<String>("password", this).defaultValue("root");
+	@ConfigInfo(title = "Password", description = "Password for InfluxDB.", type = String.class, defaultValue = "root")
+	public final ConfigChannel<String> password = new ConfigChannel<>("password", this);
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
-			.defaultValue(10000);
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(10000);
 
 	@Override
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
+	/*
+	 * Fields
+	 */
+	private final String DB_NAME = "db";
+	private Optional<InfluxDB> _influxdb = Optional.empty();
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
 
+	/*
+	 * Methods
+	 */
 	/**
 	 * Receives events for all {@link ReadChannel}s, excluding {@link ConfigChannel}s via the {@link Databus}.
 	 */

@@ -29,11 +29,19 @@ import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo(title = "Test write")
 public class TestWriteController extends Controller {
-	@ConfigInfo(title = "", type = Output.class)
+
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Output", type = Output.class)
 	public ConfigChannel<Output> out = new ConfigChannel<>("out", this);
-	@ConfigInfo(title = "", type = Input.class)
+
+	@ConfigInfo(title = "Input", type = Input.class)
 	public ConfigChannel<Input> in = new ConfigChannel<>("in", this);
 
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

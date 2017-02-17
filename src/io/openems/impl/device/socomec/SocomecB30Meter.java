@@ -37,6 +37,9 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "Socomec B30 Meter")
 public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
+	/*
+	 * Constructors
+	 */
 	public SocomecB30Meter(String thingId) throws ConfigException {
 		super(thingId);
 	}
@@ -84,77 +87,6 @@ public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMete
 	@Override
 	public ModbusReadLongChannel reactivePower() {
 		return reactivePower;
-	}
-
-	/*
-	 * This Channels
-	 */
-	public ModbusReadLongChannel activeNegativeEnergy;
-	public ModbusReadLongChannel activePositiveEnergy;
-	public ModbusReadLongChannel reactiveNegativeEnergy;
-	public ModbusReadLongChannel reactivePositiveEnergy;
-	public ModbusReadLongChannel apparentEnergy;
-
-	@Override
-	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		return new ModbusProtocol( //
-				new ModbusRegisterRange(0x480A, //
-						new UnsignedDoublewordElement(0x480A, //
-								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHZ")),
-						new UnsignedDoublewordElement(0x480C, //
-								voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV").multiplier(1)),
-						new UnsignedDoublewordElement(0x480E, //
-								voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV").multiplier(1)),
-						new UnsignedDoublewordElement(0x4810, //
-								voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV").multiplier(1)),
-						new DummyElement(0x4812, 0x4819),
-						new UnsignedDoublewordElement(0x481A, //
-								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")),
-						new UnsignedDoublewordElement(0x481C, //
-								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA")),
-						new UnsignedDoublewordElement(0x481E, //
-								currentL3 = new ModbusReadLongChannel("CurrentL3", this).unit("mA"))),
-				new ModbusRegisterRange(0x482C, //
-						new SignedDoublewordElement(0x482C, //
-								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W")),
-						new SignedDoublewordElement(0x482E, //
-								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("Var")),
-						new DummyElement(0x4830, 0x4833),
-						new SignedDoublewordElement(0x4834, //
-								apparentPower = new ModbusReadLongChannel("ApparentPower", this).unit("VA")),
-						new DummyElement(0x4836, 0x4837),
-						new SignedDoublewordElement(0x4838, //
-								activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")),
-						new SignedDoublewordElement(0x483A, //
-								activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")),
-						new SignedDoublewordElement(0x483C, //
-								activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")),
-						new SignedDoublewordElement(0x483E, //
-								reactivePowerL1 = new ModbusReadLongChannel("ReactivePowerL1", this).unit("Var")),
-						new SignedDoublewordElement(0x4840, //
-								reactivePowerL2 = new ModbusReadLongChannel("ReactivePowerL2", this).unit("Var")),
-						new SignedDoublewordElement(0x4842, //
-								reactivePowerL3 = new ModbusReadLongChannel("ReactivePowerL3", this).unit("Var"))),
-				new ModbusRegisterRange(0x4D83, //
-						new UnsignedDoublewordElement(0x4D83, //
-								activePositiveEnergy = new ModbusReadLongChannel("ActivePositiveEnergy", this)
-										.unit("kWh")),
-						new DummyElement(0x4D85),
-						new UnsignedDoublewordElement(0x4D86, //
-								activeNegativeEnergy = new ModbusReadLongChannel("ActiveNegativeEnergy", this)
-										.unit("kWh")),
-						new DummyElement(0x4D88),
-						new UnsignedDoublewordElement(0x4D89, //
-								reactivePositiveEnergy = new ModbusReadLongChannel("ReactivePositiveEnergy", this)
-										.unit("kvarh")),
-						new DummyElement(0x4D8B),
-						new UnsignedDoublewordElement(0x4D8C, //
-								reactiveNegativeEnergy = new ModbusReadLongChannel("ReactiveNegativeEnergy", this)
-										.unit("kvarh")),
-						new DummyElement(0x4D8E), new UnsignedDoublewordElement(0x4D8F, //
-								apparentEnergy = new ModbusReadLongChannel("ApparentEnergy", this).unit("kVAh")))
-
-		);
 	}
 
 	@Override
@@ -225,5 +157,79 @@ public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMete
 	@Override
 	public ReadChannel<Long> voltage() {
 		return voltageL1;
+	}
+
+	/*
+	 * This Channels
+	 */
+	public ModbusReadLongChannel activeNegativeEnergy;
+	public ModbusReadLongChannel activePositiveEnergy;
+	public ModbusReadLongChannel reactiveNegativeEnergy;
+	public ModbusReadLongChannel reactivePositiveEnergy;
+	public ModbusReadLongChannel apparentEnergy;
+
+	/*
+	 * Methods
+	 */
+	@Override
+	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+		return new ModbusProtocol( //
+				new ModbusRegisterRange(0x480A, //
+						new UnsignedDoublewordElement(0x480A, //
+								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHZ")),
+						new UnsignedDoublewordElement(0x480C, //
+								voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV").multiplier(1)),
+						new UnsignedDoublewordElement(0x480E, //
+								voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV").multiplier(1)),
+						new UnsignedDoublewordElement(0x4810, //
+								voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV").multiplier(1)),
+						new DummyElement(0x4812, 0x4819),
+						new UnsignedDoublewordElement(0x481A, //
+								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")),
+						new UnsignedDoublewordElement(0x481C, //
+								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA")),
+						new UnsignedDoublewordElement(0x481E, //
+								currentL3 = new ModbusReadLongChannel("CurrentL3", this).unit("mA"))),
+				new ModbusRegisterRange(0x482C, //
+						new SignedDoublewordElement(0x482C, //
+								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W")),
+						new SignedDoublewordElement(0x482E, //
+								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("Var")),
+						new DummyElement(0x4830, 0x4833),
+						new SignedDoublewordElement(0x4834, //
+								apparentPower = new ModbusReadLongChannel("ApparentPower", this).unit("VA")),
+						new DummyElement(0x4836, 0x4837),
+						new SignedDoublewordElement(0x4838, //
+								activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")),
+						new SignedDoublewordElement(0x483A, //
+								activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")),
+						new SignedDoublewordElement(0x483C, //
+								activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")),
+						new SignedDoublewordElement(0x483E, //
+								reactivePowerL1 = new ModbusReadLongChannel("ReactivePowerL1", this).unit("Var")),
+						new SignedDoublewordElement(0x4840, //
+								reactivePowerL2 = new ModbusReadLongChannel("ReactivePowerL2", this).unit("Var")),
+						new SignedDoublewordElement(0x4842, //
+								reactivePowerL3 = new ModbusReadLongChannel("ReactivePowerL3", this).unit("Var"))),
+				new ModbusRegisterRange(0x4D83, //
+						new UnsignedDoublewordElement(0x4D83, //
+								activePositiveEnergy = new ModbusReadLongChannel("ActivePositiveEnergy", this)
+										.unit("kWh")),
+						new DummyElement(0x4D85),
+						new UnsignedDoublewordElement(0x4D86, //
+								activeNegativeEnergy = new ModbusReadLongChannel("ActiveNegativeEnergy", this)
+										.unit("kWh")),
+						new DummyElement(0x4D88),
+						new UnsignedDoublewordElement(0x4D89, //
+								reactivePositiveEnergy = new ModbusReadLongChannel("ReactivePositiveEnergy", this)
+										.unit("kvarh")),
+						new DummyElement(0x4D8B),
+						new UnsignedDoublewordElement(0x4D8C, //
+								reactiveNegativeEnergy = new ModbusReadLongChannel("ReactiveNegativeEnergy", this)
+										.unit("kvarh")),
+						new DummyElement(0x4D8E), new UnsignedDoublewordElement(0x4D8F, //
+								apparentEnergy = new ModbusReadLongChannel("ApparentEnergy", this).unit("kVAh")))
+
+		);
 	}
 }

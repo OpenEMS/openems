@@ -36,21 +36,10 @@ import io.openems.api.exception.WriteChannelException;
  */
 @ThingInfo(title = "Balancing offset (Symmetric)", description = "Tries to keep the grid meter within an offset. For symmetric Ess.")
 public class BalancingOffsetController extends Controller {
-	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
-	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
-	@ConfigInfo(title = "The meter which meassures the power from/to the grid", type = Meter.class)
-	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
-	@ConfigInfo(title = "The offset of the activepower from zero to hold on the grid meter.", type = Integer.class)
-	public final ConfigChannel<Integer> activePowerOffset = new ConfigChannel<>("activePowerOffset", this);
-	@ConfigInfo(title = "The offset of the reactivepower from zero to hold on the grid meter.", type = Integer.class)
-	public final ConfigChannel<Integer> reactivePowerOffset = new ConfigChannel<>("reactivePowerOffset", this);
-	@ConfigInfo(title = "Indicates if the activepower controller is activated or not.", type = Boolean.class)
-	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this)
-			.defaultValue(true);
-	@ConfigInfo(title = "Indicates if the reactivepower controller is activated or not.", type = Boolean.class)
-	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
-			this).defaultValue(true);
 
+	/*
+	 * Constructors
+	 */
 	public BalancingOffsetController() {
 		super();
 		init();
@@ -61,6 +50,31 @@ public class BalancingOffsetController extends Controller {
 		init();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public final ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
+
+	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	public final ConfigChannel<Meter> meter = new ConfigChannel<>("meter", this);
+
+	@ConfigInfo(title = "Offset ActivePower", description = "The offset of the active power from zero to hold on the grid meter.", type = Integer.class)
+	public final ConfigChannel<Integer> activePowerOffset = new ConfigChannel<>("activePowerOffset", this);
+
+	@ConfigInfo(title = "Offset ReactivePower", description = "The offset of the reactive power from zero to hold on the grid meter.", type = Integer.class)
+	public final ConfigChannel<Integer> reactivePowerOffset = new ConfigChannel<>("reactivePowerOffset", this);
+
+	@ConfigInfo(title = "Enable ActivePower", description = "Indicates if active power is enabled.", type = Boolean.class, defaultValue = "true")
+	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this);
+
+	@ConfigInfo(title = "Enable ReactivePower", description = "Indicates if reactive power is enabled.", type = Boolean.class, defaultValue = "true")
+	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
+			this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void init() {
 		activePowerActivated.addChangeListener(new ChannelChangeListener() {

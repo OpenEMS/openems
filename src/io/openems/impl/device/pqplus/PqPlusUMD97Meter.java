@@ -35,6 +35,9 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "PQ Plus UMD 97 Meter")
 public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMeterNature {
 
+	/*
+	 * Constructors
+	 */
 	public PqPlusUMD97Meter(String thingId) throws ConfigException {
 		super(thingId);
 	}
@@ -91,6 +94,14 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 	}
 
 	@Override
+	public ReadChannel<Long> voltage() {
+		return voltageL1;
+	}
+
+	/*
+	 * Methods
+	 */
+	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
 				new ModbusRegisterRange(19000, //
@@ -141,11 +152,6 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 						new FloatElement(19050, //
 								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHz")) //
 										.multiplier(3)));
-	}
-
-	@Override
-	public ReadChannel<Long> voltage() {
-		return voltageL1;
 	}
 
 }

@@ -34,19 +34,24 @@ import io.openems.impl.protocol.modbus.ModbusDevice;
 public class FeneconCommercialDC extends ModbusDevice {
 
 	/*
-	 * Config
+	 * Constructors
 	 */
-	@ConfigInfo(title = "Sets the ess nature", type = FeneconCommercialEss.class)
-	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<FeneconCommercialEss>("ess", this);
-
-	@ConfigInfo(title = "Sets the inverter nature", type = FeneconCommercialInverter.class)
-	public final ConfigChannel<FeneconCommercialInverter> inverter = new ConfigChannel<FeneconCommercialInverter>(
-			"inverter", this);
-
 	public FeneconCommercialDC() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = FeneconCommercialEss.class)
+	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<FeneconCommercialEss>("ess", this);
+
+	@ConfigInfo(title = "Inverter", description = "Sets the inverter nature.", type = FeneconCommercialInverter.class)
+	public final ConfigChannel<FeneconCommercialInverter> inverter = new ConfigChannel<>("inverter", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public String toString() {
 		return "FeneconCommercialDC [ess=" + ess + ", getThingId()=" + id() + "]";

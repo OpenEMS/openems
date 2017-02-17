@@ -32,21 +32,32 @@ import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo(title = "Sychronizes system clocks", description = "Synchronizes the sytem clocks of OpenEMS and a connected real-time clock device.")
 public class ClockSyncController extends Controller {
-	@ConfigInfo(title = "Sets the RealTimeClock device", type = RealTimeClock.class)
-	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this).optional();
 
-	private boolean isDateSet = false;
-
+	/*
+	 * Constructors
+	 */
 	public ClockSyncController() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public ClockSyncController(String thingId) {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Real-time clock", description = "Sets the real-time clock device.", type = RealTimeClock.class, isOptional = true)
+	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this);
+
+	/*
+	 * Fields
+	 */
+	private boolean isDateSet = false;
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		if (isDateSet) {

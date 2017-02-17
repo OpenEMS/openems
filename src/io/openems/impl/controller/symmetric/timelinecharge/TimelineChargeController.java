@@ -27,25 +27,14 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.impl.controller.supplybusswitch.Ess;
 
 @ThingInfo(title = "Timeline charge (Symmetric)")
 public class TimelineChargeController extends Controller {
 
-	@ConfigInfo(title = "list of Storages to controll", type = Ess.class)
-	public final ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
-
-	@ConfigInfo(title = "Primary ess is necassary to reserve Load for the control hardware.", type = Ess.class)
-	public final ConfigChannel<Ess> primaryEss = new ConfigChannel<Ess>("primaryEss", this);
-
-	@ConfigInfo(title = "grid meter", type = Meter.class)
-	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
-
-	@ConfigInfo(title = "how much power the grid connection can take.", type = Long.class)
-	public final ConfigChannel<Long> allowedApparent = new ConfigChannel<>("allowedApparent", this);
-
-	@ConfigInfo(title = "cosPhi to hold on the grid connection.", type = Double.class)
-	public final ConfigChannel<Double> cosPhi = new ConfigChannel<>("cosPhi", this);
-
+	/*
+	 * Constructors
+	 */
 	public TimelineChargeController() {
 		super();
 	}
@@ -54,6 +43,27 @@ public class TimelineChargeController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public final ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
+
+	@ConfigInfo(title = "Primary-Ess", description = "OpenEMS is supplied by this Ess. Will reserve some load.", type = Ess.class)
+	public final ConfigChannel<Ess> primaryEss = new ConfigChannel<>("primaryEss", this);
+
+	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	public final ConfigChannel<Meter> meter = new ConfigChannel<>("meter", this);
+
+	@ConfigInfo(title = "Max-ApparentPower", description = "How much apparent power the grid connection can take.", type = Long.class)
+	public final ConfigChannel<Long> allowedApparent = new ConfigChannel<>("allowedApparent", this);
+
+	@ConfigInfo(title = "Cos-Phi", description = "The cos-phi to hold on the grid.", type = Double.class)
+	public final ConfigChannel<Double> cosPhi = new ConfigChannel<>("cosPhi", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

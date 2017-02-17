@@ -33,9 +33,9 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "Initial setup for FENECON Pro", description = "Sets the correct factory settings for FENECON Pro energy storage systems.")
 public class FeneconProSetupController extends Controller {
 
-	@ConfigInfo(title = "Storages of type FeneconPro to run initial setup commands", type = Ess.class)
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
-
+	/*
+	 * Constructors
+	 */
 	public FeneconProSetupController() {
 		super();
 	}
@@ -44,6 +44,15 @@ public class FeneconProSetupController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

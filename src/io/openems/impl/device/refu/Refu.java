@@ -34,15 +34,21 @@ import io.openems.impl.protocol.modbus.ModbusDevice;
 public class Refu extends ModbusDevice {
 
 	/*
-	 * Config
+	 * Constructors
 	 */
-	@ConfigInfo(title = "Sets the ess nature", type = RefuEss.class)
-	public final ConfigChannel<RefuEss> ess = new ConfigChannel<RefuEss>("ess", this);
-
 	public Refu() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = RefuEss.class)
+	public final ConfigChannel<RefuEss> ess = new ConfigChannel<>("ess", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public String toString() {
 		return "FeneconCommercialAC [ess=" + ess + ", getThingId()=" + id() + "]";

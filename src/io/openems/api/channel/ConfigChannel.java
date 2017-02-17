@@ -25,6 +25,7 @@ import java.util.Optional;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.NotImplementedException;
@@ -37,19 +38,6 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	private Class<?> type;
 	private Optional<T> defaultValue = Optional.empty();
 	private boolean isOptional;
-
-	/**
-	 *
-	 * @param id
-	 * @param parent
-	 * @param type
-	 * @deprecated use instead "@ConfigInfo(title="",type=String.class) ConfigChannel(String id, Thing parent)"
-	 */
-	@Deprecated
-	public ConfigChannel(String id, Thing parent, Class<?> type) {
-		super(id, parent);
-		this.type = type;
-	}
 
 	public ConfigChannel(String id, Thing parent) {
 		super(id, parent);
@@ -67,11 +55,12 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 		this.type = configAnnotation.type();
 		this.isOptional = configAnnotation.isOptional();
 		if (!configAnnotation.defaultValue().isEmpty()) {
-			JsonElement jValue = (new JsonParser()).parse(configAnnotation.defaultValue());
+			JsonElement jValue = null;
 			try {
+				jValue = (new JsonParser()).parse(configAnnotation.defaultValue());
 				this.defaultValue((T) JsonUtils.getAsType(type, jValue));
-			} catch (NotImplementedException e) {
-				throw new OpenemsException("Unable to set defaultValue: " + e.getMessage());
+			} catch (NotImplementedException | JsonSyntaxException e) {
+				throw new OpenemsException("Unable to set defaultValue [" + jValue + "] " + e.getMessage());
 			}
 		}
 	}
@@ -111,7 +100,7 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	}
 
 	// TODO: remove, obsolete
-	public ConfigChannel<T> optional() {
+	private ConfigChannel<T> optional() {
 		this.isOptional = true;
 		return this;
 	}

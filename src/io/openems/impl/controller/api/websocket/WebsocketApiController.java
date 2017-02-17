@@ -41,16 +41,9 @@ import io.openems.core.ThingRepository;
 @ThingInfo(title = "Websocket-API", description = "Required by OpenEMS-UI.")
 public class WebsocketApiController extends Controller implements ChannelChangeListener {
 
-	private volatile WebsocketServer websocketServer = null;
-
-	@ConfigInfo(title = "Port", description = "Sets the port of the Websocket-Api Server.", type = Integer.class, defaultValue = "8085")
-	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).addChangeListener(this);
-
-	private final AtomicReference<Optional<Long>> manualP = new AtomicReference<Optional<Long>>(Optional.empty());
-	private final AtomicReference<Optional<Long>> manualQ = new AtomicReference<Optional<Long>>(Optional.empty());
-	private HashMap<String, String> lastMessages = new HashMap<>();
-	private final ThingRepository thingRepository;
-
+	/*
+	 * Constructors
+	 */
 	public WebsocketApiController() {
 		super();
 		this.thingRepository = ThingRepository.getInstance();
@@ -61,6 +54,24 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 		this.thingRepository = ThingRepository.getInstance();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Port", description = "Sets the port of the Websocket-Api Server.", type = Integer.class, defaultValue = "8085")
+	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).addChangeListener(this);
+
+	/*
+	 * Fields
+	 */
+	private final AtomicReference<Optional<Long>> manualP = new AtomicReference<Optional<Long>>(Optional.empty());
+	private final AtomicReference<Optional<Long>> manualQ = new AtomicReference<Optional<Long>>(Optional.empty());
+	private final ThingRepository thingRepository;
+	private volatile WebsocketServer websocketServer = null;
+	private HashMap<String, String> lastMessages = new HashMap<>();
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		// Start Websocket-Api server

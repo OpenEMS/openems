@@ -48,20 +48,9 @@ import io.openems.core.utilities.JsonUtils;
 @ThingInfo(title = "Supply Bus Switch")
 public class SupplyBusSwitchController extends Controller implements ChannelChangeListener {
 
-	private List<Supplybus> supplybuses;
-
-	private ThingRepository repo = ThingRepository.getInstance();
-
-	@ConfigInfo(title = "collection of the switches for the supplyBus each array represents the switches for one supply bus.", type = JsonObject.class)
-	public ConfigChannel<List<JsonObject>> supplyBusConfig = new ConfigChannel<List<JsonObject>>("supplyBuses", this)
-			.addChangeListener(this);
-
-	@ConfigInfo(title = "all ess which can be switcht to the supplyBus", type = Ess.class)
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this).addChangeListener(this);
-
-	@ConfigInfo(title = "Primary ess is necassary to reserve Load for the control hardware.", type = Ess.class)
-	public final ConfigChannel<Ess> primaryEss = new ConfigChannel<Ess>("primaryEss", this);
-
+	/*
+	 * Constructors
+	 */
 	public SupplyBusSwitchController() {
 		super();
 	}
@@ -70,6 +59,28 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Supply-bus", description = "Collection of the switches for the supplyBus each array represents the switches for one supply bus.", type = JsonObject.class)
+	public ConfigChannel<List<JsonObject>> supplyBusConfig = new ConfigChannel<List<JsonObject>>("supplyBuses", this)
+			.addChangeListener(this);
+
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this).addChangeListener(this);
+
+	@ConfigInfo(title = "Primary-Ess", description = "OpenEMS is supplied by this Ess. Will reserve some load.", type = Ess.class)
+	public final ConfigChannel<Ess> primaryEss = new ConfigChannel<Ess>("primaryEss", this);
+
+	/*
+	 * Fields
+	 */
+	private List<Supplybus> supplybuses;
+	private ThingRepository repo = ThingRepository.getInstance();
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

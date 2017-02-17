@@ -20,10 +20,6 @@
  *******************************************************************************/
 package io.openems.impl.device.refu;
 
-import java.util.Optional;
-
-import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
@@ -31,7 +27,6 @@ import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -47,24 +42,35 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
 @ThingInfo(title = "REFU battery inverter ESS")
-public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
+public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature {
 
+	/*
+	 * Constructors
+	 */
 	public RefuEss(String thingId) throws ConfigException {
 		super(thingId);
+		minSoc.addUpdateListener((channel, newValue) -> {
+			// If chargeSoc was not set -> set it to minSoc minus 2
+			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
+				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
+			}
+		});
 	}
 
-	/**
+	/*
 	 * Config
 	 */
-	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this, Integer.class)
-			.addUpdateListener(this);
-
-	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class)
-	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this).optional();
+	private ConfigChannel<Integer> minSoc = new ConfigChannel<>("minSoc", this);
+	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 
 	@Override
 	public ConfigChannel<Integer> minSoc() {
 		return minSoc;
+	}
+
+	@Override
+	public ConfigChannel<Integer> chargeSoc() {
+		return chargeSoc;
 	}
 
 	/*
@@ -128,19 +134,6 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, C
 	public ModbusReadLongChannel reactivePowerL2;
 	public ModbusReadLongChannel reactivePowerL3;
 	public ModbusReadLongChannel maxAcPower;
-
-	@Override
-	public void channelUpdated(Channel channel, Optional<?> newValue) {
-		// If chargeSoc was not set -> set it to minSoc minus 2
-		if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
-			chargeSoc.updateValue((Integer) newValue.get() - 2, false);
-		}
-	}
-
-	@Override
-	public ConfigChannel<Integer> chargeSoc() {
-		return chargeSoc;
-	}
 
 	@Override
 	public ReadChannel<Long> gridMode() {

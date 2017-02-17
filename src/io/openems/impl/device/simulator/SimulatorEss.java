@@ -20,18 +20,14 @@
  *******************************************************************************/
 package io.openems.impl.device.simulator;
 
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
-import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -39,37 +35,35 @@ import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
 @ThingInfo(title = "Simulator ESS")
-public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
+public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssNature {
 
+	/*
+	 * Constructors
+	 */
 	public SimulatorEss(String thingId) throws ConfigException {
 		super(thingId);
+		minSoc.addUpdateListener((channel, newValue) -> {
+			// If chargeSoc was not set -> set it to minSoc minus 2
+			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
+				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
+			}
+		});
 	}
 
 	/*
 	 * Config
 	 */
-	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this).addUpdateListener(this);
-
+	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 
 	@Override
-	@ConfigInfo(title = "Sets the minimal SOC", type = Integer.class)
 	public ConfigChannel<Integer> minSoc() {
 		return minSoc;
 	}
 
 	@Override
-	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class, isOptional = true)
 	public ConfigChannel<Integer> chargeSoc() {
 		return chargeSoc;
-	}
-
-	@Override
-	public void channelUpdated(Channel channel, Optional<?> newValue) {
-		// If chargeSoc was not set -> set it to minSoc minus 2
-		if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
-			chargeSoc.updateValue((Integer) newValue.get() - 2, false);
-		}
 	}
 
 	/*
@@ -157,6 +151,18 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 		return allowedApparent;
 	}
 
+	private long getRandom(int min, int max) {
+		return ThreadLocalRandom.current().nextLong(min, max + 1);
+	}
+
+	@Override
+	public ReadChannel<Long> maxNominalPower() {
+		return maxNominalPower;
+	}
+
+	/*
+	 * Methods
+	 */
 	@Override
 	protected void update() {
 		soc.updateValue(getRandom(0, 100));
@@ -168,12 +174,4 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 		gridMode.updateValue(0L);
 	}
 
-	private long getRandom(int min, int max) {
-		return ThreadLocalRandom.current().nextLong(min, max + 1);
-	}
-
-	@Override
-	public ReadChannel<Long> maxNominalPower() {
-		return maxNominalPower;
-	}
 }

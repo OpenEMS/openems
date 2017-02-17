@@ -30,18 +30,9 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "Power limitation (Symmetric)", description = "Limits the active and reactive power of the Ess. For symmetric Ess.")
 public class PowerLimitationController extends Controller {
 
-	@ConfigInfo(title = "The storage which should be limited in power.", type = Ess.class)
-	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
-
-	@ConfigInfo(title = "The maximal allowed discharge activepower.(negative)", type = Long.class)
-	public ConfigChannel<Long> pMin = new ConfigChannel<Long>("pMin", this);
-	@ConfigInfo(title = "The maximal allowed charge activepower.(positive)", type = Long.class)
-	public ConfigChannel<Long> pMax = new ConfigChannel<Long>("pMax", this);
-	@ConfigInfo(title = "The maximal allowed discharge reactivepower.(negative)", type = Long.class)
-	public ConfigChannel<Long> qMin = new ConfigChannel<Long>("qMin", this);
-	@ConfigInfo(title = "The maximal allowed discharge reactivepower.(positive)", type = Long.class)
-	public ConfigChannel<Long> qMax = new ConfigChannel<Long>("qMax", this);
-
+	/*
+	 * Constructors
+	 */
 	public PowerLimitationController() {
 		super();
 	}
@@ -50,6 +41,27 @@ public class PowerLimitationController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
+
+	@ConfigInfo(title = "Min-Charge ActivePower", description = "The minimum allowed active power for discharge. Value is negative.", type = Long.class)
+	public ConfigChannel<Long> pMin = new ConfigChannel<Long>("pMin", this);
+
+	@ConfigInfo(title = "Max-Charge ActivePower", description = "The maximum allowed active power for discharge. Value is positive.", type = Long.class)
+	public ConfigChannel<Long> pMax = new ConfigChannel<Long>("pMax", this);
+
+	@ConfigInfo(title = "Min-Charge ReactivePower", description = "The minimum allowed reactive power for discharge. Value is negative.", type = Long.class)
+	public ConfigChannel<Long> qMin = new ConfigChannel<Long>("qMin", this);
+
+	@ConfigInfo(title = "Max-Charge ReactivePower", description = "The maximum allowed reactive power for discharge. Value is positive.", type = Long.class)
+	public ConfigChannel<Long> qMax = new ConfigChannel<Long>("qMax", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

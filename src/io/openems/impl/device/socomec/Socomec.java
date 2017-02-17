@@ -34,15 +34,21 @@ import io.openems.impl.protocol.modbus.ModbusDevice;
 public class Socomec extends ModbusDevice {
 
 	/*
-	 * Config
+	 * Constructors
 	 */
-	@ConfigInfo(title = "Sets the meter nature", type = SocomecMeter.class)
-	public final ConfigChannel<SocomecMeter> meter = new ConfigChannel<SocomecMeter>("meter", this);
-
 	public Socomec() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Meter", description = "Sets the meter nature.", type = SocomecMeter.class)
+	public final ConfigChannel<SocomecMeter> meter = new ConfigChannel<>("meter", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	protected Set<DeviceNature> getDeviceNatures() {
 		Set<DeviceNature> natures = new HashSet<>();

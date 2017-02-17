@@ -20,17 +20,12 @@
  *******************************************************************************/
 package io.openems.impl.device.commercial;
 
-import java.util.Optional;
-
-import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -45,33 +40,35 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
 @ThingInfo(title = "FENECON Commercial ESS")
-public class FeneconCommercialEss extends ModbusDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
+public class FeneconCommercialEss extends ModbusDeviceNature implements SymmetricEssNature {
 
+	/*
+	 * Constructors
+	 */
 	public FeneconCommercialEss(String thingId) throws ConfigException {
 		super(thingId);
+		minSoc.addUpdateListener((channel, newValue) -> {
+			// If chargeSoc was not set -> set it to minSoc minus 2
+			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
+				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
+			}
+		});
 	}
 
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Sets the minimal SOC", type = Integer.class)
-	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this).addUpdateListener(this);
-
-	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class)
-	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this).optional();
+	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this);
+	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 
 	@Override
-	@ConfigInfo(title = "Sets the minimal SOC", type = Integer.class)
 	public ConfigChannel<Integer> minSoc() {
 		return minSoc;
 	}
 
 	@Override
-	public void channelUpdated(Channel channel, Optional<?> newValue) {
-		// If chargeSoc was not set -> set it to minSoc minus 2
-		if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
-			chargeSoc.updateValue((Integer) newValue.get() - 2, false);
-		}
+	public ConfigChannel<Integer> chargeSoc() {
+		return chargeSoc;
 	}
 
 	/*
@@ -162,12 +159,6 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 		return maxNominalPower;
 	}
 
-	@Override
-	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class)
-	public ConfigChannel<Integer> chargeSoc() {
-		return chargeSoc;
-	}
-
 	/*
 	 * This Channels
 	 */
@@ -203,6 +194,9 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	public ModbusReadLongChannel allowedApparent;
 	public ModbusReadLongChannel activePower;
 
+	/*
+	 * Methods
+	 */
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);

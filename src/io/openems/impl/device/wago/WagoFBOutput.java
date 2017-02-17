@@ -42,15 +42,27 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusCoilRange;
 @ThingInfo(title = "WAGO I/O Output")
 public class WagoFBOutput extends ModbusDeviceNature implements OutputNature {
 
-	@ConfigInfo(title = "Ip-Address to download the wago configuration", type = Inet4Address.class)
-	public ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
-
-	private List<ModbusCoilWriteChannel> channel = new ArrayList<>();
-
+	/*
+	 * Constructors
+	 */
 	public WagoFBOutput(String thingId) throws ConfigException {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "IP", description = "IP address of the WAGO device.", type = Inet4Address.class)
+	public ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
+
+	/*
+	 * This Channels
+	 */
+	private List<ModbusCoilWriteChannel> channel = new ArrayList<>();
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public ModbusCoilWriteChannel[] setOutput() {
 		return channel.toArray(new ModbusCoilWriteChannel[channel.size()]);

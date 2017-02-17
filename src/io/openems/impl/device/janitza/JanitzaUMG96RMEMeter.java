@@ -35,6 +35,9 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "Janitza UMG96RM Meter")
 public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements SymmetricMeterNature {
 
+	/*
+	 * Constructors
+	 */
 	public JanitzaUMG96RMEMeter(String thingId) throws ConfigException {
 		super(thingId);
 	}
@@ -91,6 +94,14 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 	}
 
 	@Override
+	public ReadChannel<Long> voltage() {
+		return voltageL1;
+	}
+
+	/*
+	 * Methods
+	 */
+	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
 				new ModbusRegisterRange(800, //
@@ -143,10 +154,4 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 										.unit("VA")) //
 				));
 	}
-
-	@Override
-	public ReadChannel<Long> voltage() {
-		return voltageL1;
-	}
-
 }

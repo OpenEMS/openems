@@ -33,13 +33,22 @@ import io.openems.impl.protocol.modbus.ModbusDevice;
 @ThingInfo(title = "KMTronic Relay board")
 public class KMTronicRelay extends ModbusDevice {
 
-	@ConfigInfo(title = "Sets the output nature", type = KMTronicRelayOutput.class)
-	public final ConfigChannel<KMTronicRelayOutput> output = new ConfigChannel<KMTronicRelayOutput>("output", this);
-
+	/*
+	 * Constructors
+	 */
 	public KMTronicRelay() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Output", description = "Sets the output nature.", type = KMTronicRelayOutput.class)
+	public final ConfigChannel<KMTronicRelayOutput> output = new ConfigChannel<>("output", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	protected Set<DeviceNature> getDeviceNatures() {
 		Set<DeviceNature> natures = new HashSet<>();

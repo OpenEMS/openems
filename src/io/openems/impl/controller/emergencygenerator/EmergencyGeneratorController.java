@@ -36,21 +36,47 @@ import io.openems.core.ThingRepository;
 @ThingInfo(title = "External generator control", description = "Starts an external generator in case of emergency.")
 public class EmergencyGeneratorController extends Controller {
 
-	@ConfigInfo(title = "The ess where the soc should be read from.", type = Ess.class)
+	/*
+	 * Constructors
+	 */
+	public EmergencyGeneratorController() {
+		super();
+	}
+
+	public EmergencyGeneratorController(String thingId) {
+		super(thingId);
+	}
+
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "The grid meter to detect if the system is Off-Grid or On-Grid.", type = Meter.class)
+	@ConfigInfo(title = "Grid-meter", description = "Sets the grid-meter to detect if the system is Off-Grid or On-Grid.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	@ConfigInfo(title = "if the soc falls under this value and the system is Off-Grid the generator starts", type = Long.class)
+	@ConfigInfo(title = "Min-SOC", description = "If the SOC falls under this value and the system is Off-Grid the generator starts.", type = Long.class)
 	public ConfigChannel<Long> minSoc = new ConfigChannel<Long>("minSoc", this);
-	@ConfigInfo(title = "if the system is Off-Grid and the generator is running the generator stops if the soc level increase over the maxSoc.", type = Long.class)
+
+	@ConfigInfo(title = "Max-SOC", description = "If the system is Off-Grid and the generator is running, the generator stops if the SOC level increases over the Max-SOC.", type = Long.class)
 	public ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
-	@ConfigInfo(title = "true if the digital output should be inverted.", type = Boolean.class)
+
+	@ConfigInfo(title = "Invert-Output", description = "True if the digital output should be inverted.", type = Boolean.class)
 	public ConfigChannel<Boolean> invertOutput = new ConfigChannel<>("invertOutput", this);
 
+	/*
+	 * Fields
+	 */
 	private ThingRepository repo = ThingRepository.getInstance();
+	private WriteChannel<Boolean> outputChannel;
+	private boolean generatorOn = false;
+	private long lastPower = 0l;
+	private Long cooldownStartTime = null;
 
+	/*
+	 * Methods
+	 */
 	@SuppressWarnings("unchecked")
 	@ConfigInfo(title = "the address of the Digital Output where the generator is connected to.", type = String.class)
 	public ConfigChannel<String> outputChannelAddress = new ConfigChannel<String>("outputChannelAddress", this)
@@ -67,22 +93,6 @@ public class EmergencyGeneratorController extends Controller {
 					log.error("'outputChannelAddress' is not configured!");
 				}
 			});
-
-	private WriteChannel<Boolean> outputChannel;
-
-	private boolean generatorOn = false;
-
-	private long lastPower = 0l;
-
-	private Long cooldownStartTime = null;
-
-	public EmergencyGeneratorController() {
-		super();
-	}
-
-	public EmergencyGeneratorController(String thingId) {
-		super(thingId);
-	}
 
 	@Override
 	public void run() {
