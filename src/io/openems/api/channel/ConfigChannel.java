@@ -24,9 +24,11 @@ import java.util.Optional;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.NotImplementedException;
+import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -59,10 +61,19 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	 * This method is called by reflection from {@link InjectionUtils.getThingInstance}
 	 *
 	 * @param parent
+	 * @throws OpenemsException
 	 */
-	public void applyAnnotation(ConfigInfo configAnnotation) {
+	public void applyAnnotation(ConfigInfo configAnnotation) throws OpenemsException {
 		this.type = configAnnotation.type();
 		this.isOptional = configAnnotation.isOptional();
+		if (!configAnnotation.defaultValue().isEmpty()) {
+			JsonElement jValue = (new JsonParser()).parse(configAnnotation.defaultValue());
+			try {
+				this.defaultValue((T) JsonUtils.getAsType(type, jValue));
+			} catch (NotImplementedException e) {
+				throw new OpenemsException("Unable to set defaultValue: " + e.getMessage());
+			}
+		}
 	}
 
 	@Override

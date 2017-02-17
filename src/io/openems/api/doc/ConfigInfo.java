@@ -35,4 +35,11 @@ public @interface ConfigInfo {
 	Class<?> type();
 
 	boolean isOptional() default false;
+
+	/**
+	 * String is interpreted as a JsonElement
+	 *
+	 * @return
+	 */
+	String defaultValue() default "";
 }
