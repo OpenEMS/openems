@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.device.pro;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
@@ -41,6 +42,16 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 
 	public FeneconProPvMeter(String thingId) throws ConfigException {
 		super(thingId);
+	}
+
+	/*
+	 * Config
+	 */
+	private final ConfigChannel<String> type = new ConfigChannel<String>("type", this);
+
+	@Override
+	public ConfigChannel<String> type() {
+		return type;
 	}
 
 	/*

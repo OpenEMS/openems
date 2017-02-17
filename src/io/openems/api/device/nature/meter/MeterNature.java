@@ -20,8 +20,13 @@
  *******************************************************************************/
 package io.openems.api.device.nature.meter;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ConfigInfo;
 
 public interface MeterNature extends DeviceNature {
+
+	@ConfigInfo(title = "Sets the Meter type (e.g. 'grid', 'inverter')", type = String.class, defaultValue = "inverter")
+	public ConfigChannel<String> type();
 
 }

@@ -22,6 +22,7 @@ package io.openems.impl.device.simulator;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
@@ -35,6 +36,16 @@ public class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMe
 
 	public SimulatorMeter(String thingId) throws ConfigException {
 		super(thingId);
+	}
+
+	/*
+	 * Config
+	 */
+	private final ConfigChannel<String> type = new ConfigChannel<String>("type", this);
+
+	@Override
+	public ConfigChannel<String> type() {
+		return type;
 	}
 
 	/*

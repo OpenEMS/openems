@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.device.janitza;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.exception.ConfigException;
@@ -34,6 +35,16 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 
 	public JanitzaUMG96RMEMeter(String thingId) throws ConfigException {
 		super(thingId);
+	}
+
+	/*
+	 * Config
+	 */
+	private final ConfigChannel<String> type = new ConfigChannel<String>("type", this);
+
+	@Override
+	public ConfigChannel<String> type() {
+		return type;
 	}
 
 	/*
@@ -57,23 +68,28 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 	public ModbusReadLongChannel currentL2;
 	public ModbusReadLongChannel currentL3;
 
-	@Override public ReadChannel<Long> activePower() {
+	@Override
+	public ReadChannel<Long> activePower() {
 		return activePower;
 	}
 
-	@Override public ReadChannel<Long> apparentPower() {
+	@Override
+	public ReadChannel<Long> apparentPower() {
 		return apparentPower;
 	}
 
-	@Override public ReadChannel<Long> reactivePower() {
+	@Override
+	public ReadChannel<Long> reactivePower() {
 		return reactivePower;
 	}
 
-	@Override public ReadChannel<Long> frequency() {
+	@Override
+	public ReadChannel<Long> frequency() {
 		return frequency;
 	}
 
-	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+	@Override
+	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
 				new ModbusRegisterRange(800, //
 						new FloatElement(800, //
@@ -126,7 +142,8 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 				));
 	}
 
-	@Override public ReadChannel<Long> voltage() {
+	@Override
+	public ReadChannel<Long> voltage() {
 		return voltageL1;
 	}
 
