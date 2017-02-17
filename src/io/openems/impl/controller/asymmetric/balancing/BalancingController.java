@@ -102,12 +102,12 @@ public class BalancingController extends Controller {
 					try {
 						ess.getSetActivePower(i).pushWriteMax(minMax.b);
 					} catch (WriteChannelException e) {
-						log.error(e.getMessage());
+						log.debug(e.getMessage());
 					}
 					try {
 						ess.getSetActivePower(i).pushWriteMin(minMax.a);
 					} catch (WriteChannelException e) {
-						log.error(e.getMessage());
+						log.debug(e.getMessage());
 					}
 				}
 				// reduce Power to possible power

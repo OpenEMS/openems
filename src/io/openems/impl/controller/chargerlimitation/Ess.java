@@ -18,30 +18,52 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.emergencygenerator;
+package io.openems.impl.controller.chargerlimitation;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
+import io.openems.api.exception.WriteChannelException;
 
 @IsThingMap(type = AsymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	public ReadChannel<Long> gridMode;
 	public ReadChannel<Long> soc;
+	public ReadChannel<Long> allowedCharge;
 	public WriteChannel<Long> setActivePowerL1;
 	public WriteChannel<Long> setActivePowerL2;
 	public WriteChannel<Long> setActivePowerL3;
+	public ReadChannel<Long> activePowerL1;
+	public ReadChannel<Long> activePowerL2;
+	public ReadChannel<Long> activePowerL3;
 
-	public Ess(AsymmetricEssNature ess) {
-		super(ess);
-		gridMode = ess.gridMode().required();
-		soc = ess.soc().required();
-		setActivePowerL1 = ess.setActivePowerL1();
-		setActivePowerL2 = ess.setActivePowerL2();
-		setActivePowerL3 = ess.setActivePowerL3();
+	public Ess(AsymmetricEssNature thing) {
+		super(thing);
+		this.soc = thing.soc().required();
+		this.allowedCharge = thing.allowedCharge().required();
+		this.setActivePowerL1 = thing.setActivePowerL1();
+		this.setActivePowerL2 = thing.setActivePowerL2();
+		this.setActivePowerL3 = thing.setActivePowerL3();
+		this.activePowerL1 = thing.activePowerL1();
+		this.activePowerL2 = thing.activePowerL2();
+		this.activePowerL3 = thing.activePowerL3();
+	}
+
+	public Long getWrittenActivePower() {
+		long writePower = setActivePowerL1.peekWrite().orElse(0l) + setActivePowerL2.peekWrite().orElse(0l)
+				+ setActivePowerL3.peekWrite().orElse(0l);
+		long currentPower = activePowerL1.valueOptional().orElse(0L) + activePowerL2.valueOptional().orElse(0L)
+				+ activePowerL3.valueOptional().orElse(0L);
+		return writePower < currentPower ? writePower : currentPower;
+	}
+
+	public void setMaxCharge(float power) throws WriteChannelException {
+		power *= -1;
+		setActivePowerL1.pushWriteMin((long) (power / 3f));
+		setActivePowerL2.pushWriteMin((long) (power / 3f));
+		setActivePowerL3.pushWriteMin((long) (power / 3f));
 	}
 
 }
