@@ -37,9 +37,11 @@ import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.persistence.Persistence;
 import io.openems.core.Databus;
 
+@ThingInfo(title = "InfluxDB Persistence", description = "Persists data in an InfluxDB time-series database.")
 public class InfluxdbPersistence extends Persistence implements ChannelUpdateListener {
 
 	private final String DB_NAME = "db";

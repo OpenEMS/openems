@@ -30,7 +30,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.simulator.SimulatorDevice;
 
-@ThingInfo("Represents a Simulated device")
+@ThingInfo(title = "Simulator")
 public class Simulator extends SimulatorDevice {
 
 	/*

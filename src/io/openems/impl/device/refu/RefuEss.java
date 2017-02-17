@@ -46,7 +46,7 @@ import io.openems.impl.protocol.modbus.internal.WordOrder;
 import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
-@ThingInfo("REFU battery inverter")
+@ThingInfo(title = "REFU battery inverter ESS")
 public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
 
 	public RefuEss(String thingId) throws ConfigException {

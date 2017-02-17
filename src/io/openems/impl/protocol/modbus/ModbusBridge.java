@@ -46,11 +46,13 @@ import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.device.Device;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.OpenemsModbusException;
 import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 
+@ThingInfo(title = "Modbus")
 public abstract class ModbusBridge extends Bridge {
 	protected volatile ModbusDevice[] modbusdevices = new ModbusDevice[0];
 	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);

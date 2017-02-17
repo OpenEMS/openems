@@ -23,9 +23,11 @@ package io.openems.impl.controller.testwrite;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
+@ThingInfo(title = "Test write")
 public class TestWriteController extends Controller {
 	@ConfigInfo(title = "", type = Output.class)
 	public ConfigChannel<Output> out = new ConfigChannel<>("out", this);

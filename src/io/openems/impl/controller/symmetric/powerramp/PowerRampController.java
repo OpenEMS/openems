@@ -26,10 +26,12 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Power;
 
+@ThingInfo(title = "Power ramp (Symmetric)", description = "Follows a power ramp. For symmetric Ess.")
 public class PowerRampController extends Controller {
 
 	@ConfigInfo(title = "All storage, which should be controlled", type = Ess.class)

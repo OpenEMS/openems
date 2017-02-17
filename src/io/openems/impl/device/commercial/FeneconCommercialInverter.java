@@ -29,7 +29,7 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
-@ThingInfo("FENECON Commercial DC inverter")
+@ThingInfo(title = "FENECON Commercial DC-Inverter")
 public class FeneconCommercialInverter extends ModbusDeviceNature implements PvInverterNature {
 
 	/*

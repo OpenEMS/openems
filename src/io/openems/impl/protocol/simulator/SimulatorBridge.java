@@ -29,7 +29,7 @@ import io.openems.api.device.Device;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 
-@ThingInfo("Bridge to simulated devices for tests")
+@ThingInfo(title = "Simulator")
 public class SimulatorBridge extends Bridge {
 	protected volatile SimulatorDevice[] simulatordevices = new SimulatorDevice[0];
 

@@ -29,7 +29,7 @@ import io.openems.api.device.Device;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 
-@ThingInfo("Bridge to the system")
+@ThingInfo(title = "Operating system")
 public class SystemBridge extends Bridge {
 	protected volatile SystemDevice[] systemdevices = new SystemDevice[0];
 

@@ -40,8 +40,8 @@ public class ThingDoc {
 	}
 
 	public void setThingDescription(ThingInfo thing) {
-		this.title = thing.value();
-		this.text = thing.text();
+		this.title = thing.title();
+		this.text = thing.description();
 	}
 
 	public String getText() {

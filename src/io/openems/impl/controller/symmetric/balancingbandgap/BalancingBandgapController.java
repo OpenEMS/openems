@@ -23,11 +23,10 @@ package io.openems.impl.controller.symmetric.balancingbandgap;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
-/*
- * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
- */
+@ThingInfo(title = "Balancing bandgap (Symmetric)", description = "Tries to keep the grid meter within a bandgap. For symmetric Ess.")
 public class BalancingBandgapController extends Controller {
 	@ConfigInfo(title = "The storage which should be controlled", type = Ess.class)
 	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);

@@ -37,12 +37,15 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
 
+// TODO better explanation
+@ThingInfo(title = "Supply Bus Switch")
 public class SupplyBusSwitchController extends Controller implements ChannelChangeListener {
 
 	private List<Supplybus> supplybuses;

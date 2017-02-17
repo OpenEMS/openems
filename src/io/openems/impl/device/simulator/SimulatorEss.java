@@ -38,7 +38,7 @@ import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
-@ThingInfo("Simulated energy storage system")
+@ThingInfo(title = "Simulator ESS")
 public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
 
 	public SimulatorEss(String thingId) throws ConfigException {

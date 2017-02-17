@@ -29,11 +29,13 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Point;
 import io.openems.core.utilities.Power;
 
+@ThingInfo(title = "Voltage characteristics (Symmetric)")
 public class VoltageCharacteristicController extends Controller {
 
 	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)

@@ -32,7 +32,7 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.ControllerUtils;
 
-@ThingInfo("Self-consumption optimization. Tries to keep the grid meter on zero. For asymmetric Ess.")
+@ThingInfo(title = "Self-consumption optimization (Asymmetric)", description = "Tries to keep the grid meter on zero. For asymmetric Ess.")
 public class BalancingController extends Controller {
 
 	/*

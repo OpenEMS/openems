@@ -30,7 +30,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.system.SystemDevice;
 
-@ThingInfo("Represents the system device")
+@ThingInfo(title = "Operating system")
 public class System extends SystemDevice {
 
 	@ConfigInfo(title = "Sets the system nature", type = SystemNature.class)

@@ -31,7 +31,7 @@ import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
-@ThingInfo("Simulated meter")
+@ThingInfo(title = "Simulator Meter")
 public class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMeterNature {
 
 	public SimulatorMeter(String thingId) throws ConfigException {

@@ -32,6 +32,8 @@ import java.lang.annotation.Target;
 public @interface ConfigInfo {
 	String title();
 
+	String description() default "";
+
 	Class<?> type();
 
 	boolean isOptional() default false;

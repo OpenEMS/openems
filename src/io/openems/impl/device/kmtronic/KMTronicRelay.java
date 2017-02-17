@@ -30,7 +30,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@ThingInfo("Represents a KMTronic Relay board")
+@ThingInfo(title = "KMTronic Relay board")
 public class KMTronicRelay extends ModbusDevice {
 
 	@ConfigInfo(title = "Sets the output nature", type = KMTronicRelayOutput.class)

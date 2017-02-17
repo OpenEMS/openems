@@ -25,9 +25,11 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
+@ThingInfo(title = "Janitza UMG96RM E")
 public class JanitzaUMG96RME extends ModbusDevice {
 
 	public final ConfigChannel<JanitzaUMG96RMEMeter> meter = new ConfigChannel<JanitzaUMG96RMEMeter>("meter", this,
@@ -37,7 +39,8 @@ public class JanitzaUMG96RME extends ModbusDevice {
 		super();
 	}
 
-	@Override protected Set<DeviceNature> getDeviceNatures() {
+	@Override
+	protected Set<DeviceNature> getDeviceNatures() {
 		Set<DeviceNature> natures = new HashSet<>();
 		if (meter.valueOptional().isPresent()) {
 			natures.add(meter.valueOptional().get());

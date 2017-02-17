@@ -33,7 +33,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.core.ThingRepository;
 
-@ThingInfo("Simple app-planner")
+@ThingInfo(title = "App-Planner")
 public class SimpleScheduler extends Scheduler {
 
 	private ThingRepository thingRepository;

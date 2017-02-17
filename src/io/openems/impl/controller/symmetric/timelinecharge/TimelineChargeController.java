@@ -25,8 +25,10 @@ import java.util.List;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
+@ThingInfo(title = "Timeline charge (Symmetric)")
 public class TimelineChargeController extends Controller {
 
 	@ConfigInfo(title = "list of Storages to controll", type = Ess.class)

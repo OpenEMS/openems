@@ -38,14 +38,13 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.core.ThingRepository;
 
-@ThingInfo("Websocket-API (z. B. für Weboberfläche)")
+@ThingInfo(title = "Websocket-API", description = "Required by OpenEMS-UI.")
 public class WebsocketApiController extends Controller implements ChannelChangeListener {
 
 	private volatile WebsocketServer websocketServer = null;
 
-	@ConfigInfo(title = "Sets the websocket port", type = Integer.class)
-	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(8085)
-			.addChangeListener(this);
+	@ConfigInfo(title = "Port", description = "Sets the port of the Websocket-Api Server.", type = Integer.class, defaultValue = "8085")
+	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).addChangeListener(this);
 
 	private final AtomicReference<Optional<Long>> manualP = new AtomicReference<Optional<Long>>(Optional.empty());
 	private final AtomicReference<Optional<Long>> manualQ = new AtomicReference<Optional<Long>>(Optional.empty());

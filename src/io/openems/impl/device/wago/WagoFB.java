@@ -49,7 +49,7 @@ import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@ThingInfo("Represents a WAGO I/O device")
+@ThingInfo(title = "WAGO I/O")
 public class WagoFB extends ModbusDevice {
 
 	@ConfigInfo(title = "Output configuration", type = WagoFBOutput.class)

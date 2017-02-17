@@ -28,10 +28,12 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 
+@ThingInfo(title = "External generator control", description = "Starts an external generator in case of emergency.")
 public class EmergencyGeneratorController extends Controller {
 
 	@ConfigInfo(title = "The ess where the soc should be read from.", type = Ess.class)

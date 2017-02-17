@@ -44,7 +44,7 @@ import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
-@ThingInfo("FENECON Commercial energy storage system")
+@ThingInfo(title = "FENECON Commercial ESS")
 public class FeneconCommercialEss extends ModbusDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
 
 	public FeneconCommercialEss(String thingId) throws ConfigException {

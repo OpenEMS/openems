@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface ThingInfo {
-	String value();
+	String title();
 
-	String text() default "";
+	String description() default "";
 }

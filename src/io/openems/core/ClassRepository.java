@@ -160,7 +160,6 @@ public class ClassRepository {
 					ConfigInfo configAnnotation = getAnnotation(clazz, method.getName());
 					if (configAnnotation != null) {
 						thingConfigChannels.put(clazz, method, configAnnotation);
-						log.info("Found annotation: " + method.getName() + ", " + configAnnotation);
 					} else {
 						log.error("Config-Annotation is missing for method [" + method.getName() + "] in class ["
 								+ clazz.getName() + "]");

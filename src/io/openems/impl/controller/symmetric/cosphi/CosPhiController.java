@@ -23,9 +23,11 @@ package io.openems.impl.controller.symmetric.cosphi;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 
+@ThingInfo(title = "Ess Cos-Phi (Symmetric)", description = "Keeps the Ess at a given cos-phi. For symmetric Ess.")
 public class CosPhiController extends Controller {
 	@ConfigInfo(title = "The storage, which should hold a specific cosPhi.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);

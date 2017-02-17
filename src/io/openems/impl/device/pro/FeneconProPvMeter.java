@@ -37,7 +37,7 @@ import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
-@ThingInfo("FENECON Pro meter")
+@ThingInfo(title = "FENECON Pro Meter")
 public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricMeterNature, SymmetricMeterNature {
 
 	public FeneconProPvMeter(String thingId) throws ConfigException {

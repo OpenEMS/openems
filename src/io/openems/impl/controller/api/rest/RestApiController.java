@@ -26,7 +26,7 @@ import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 
-@ThingInfo("REST-API (z. B. für externe Datenabfrage)")
+@ThingInfo(title = "REST-Api", description = "Use for external access to OpenEMS.")
 public class RestApiController extends Controller {
 
 	public RestApiController() {
@@ -37,8 +37,8 @@ public class RestApiController extends Controller {
 		super(thingId);
 	}
 
-	@ConfigInfo(title = "Sets the port", type = Integer.class)
-	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(8084);
+	@ConfigInfo(title = "Port", description = "Sets the port of the REST-Api Server.", type = Integer.class, defaultValue = "8084")
+	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this);
 
 	@Override
 	public void run() {

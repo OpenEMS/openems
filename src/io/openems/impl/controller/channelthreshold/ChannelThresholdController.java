@@ -28,11 +28,13 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.hysteresis.Hysteresis;
 
+@ThingInfo(title = "Switch channel on threshold")
 public class ChannelThresholdController extends Controller {
 
 	private ThingRepository repo = ThingRepository.getInstance();

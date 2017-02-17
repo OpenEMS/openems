@@ -46,7 +46,7 @@ import io.openems.api.scheduler.Scheduler;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
 
-@ThingInfo("Simple app-planner for reccuring weekly plans")
+@ThingInfo(title = "Weekly App-Planner", description = "Define recurring weekly plans.")
 public class WeekTimeScheduler extends Scheduler {
 
 	private ThingRepository thingRepository;

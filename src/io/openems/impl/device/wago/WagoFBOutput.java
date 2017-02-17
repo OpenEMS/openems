@@ -39,7 +39,7 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusCoilRange;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusCoilRange;
 
-@ThingInfo("WAGO I/O output")
+@ThingInfo(title = "WAGO I/O Output")
 public class WagoFBOutput extends ModbusDeviceNature implements OutputNature {
 
 	@ConfigInfo(title = "Ip-Address to download the wago configuration", type = Inet4Address.class)

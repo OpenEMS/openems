@@ -30,7 +30,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@ThingInfo("Represents a REFU battery inverter device")
+@ThingInfo(title = "REFU battery inverter")
 public class Refu extends ModbusDevice {
 
 	/*

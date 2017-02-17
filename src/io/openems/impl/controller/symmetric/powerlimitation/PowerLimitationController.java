@@ -23,9 +23,11 @@ package io.openems.impl.controller.symmetric.powerlimitation;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
+@ThingInfo(title = "Power limitation (Symmetric)", description = "Limits the active and reactive power of the Ess. For symmetric Ess.")
 public class PowerLimitationController extends Controller {
 
 	@ConfigInfo(title = "The storage which should be limited in power.", type = Ess.class)

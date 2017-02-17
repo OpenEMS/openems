@@ -30,7 +30,7 @@ import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.WriteChannelException;
 
-@ThingInfo("Synchronizes system clocks")
+@ThingInfo(title = "Sychronizes system clocks", description = "Synchronizes the sytem clocks of OpenEMS and a connected real-time clock device.")
 public class ClockSyncController extends Controller {
 	@ConfigInfo(title = "Sets the RealTimeClock device", type = RealTimeClock.class)
 	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this).optional();

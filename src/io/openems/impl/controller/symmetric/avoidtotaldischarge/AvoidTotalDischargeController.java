@@ -26,9 +26,11 @@ import java.util.Set;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
+@ThingInfo(title = "Avoid total discharge of battery (Symmetric)", description = "Makes sure the battery is not going into critically low state of charge. For symmetric Ess.")
 public class AvoidTotalDischargeController extends Controller {
 
 	@ConfigInfo(title = "Storages, where total discharge should be avoided. For excample to reserve load for the Off-Grid power supply.", type = Ess.class)

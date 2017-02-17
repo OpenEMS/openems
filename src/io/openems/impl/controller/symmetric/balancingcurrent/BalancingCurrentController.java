@@ -23,8 +23,10 @@ package io.openems.impl.controller.symmetric.balancingcurrent;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
+@ThingInfo(title = "Balancing current (Symmetric)", description = "Tries to keep the grid meter at a given current. For symmetric Ess.")
 public class BalancingCurrentController extends Controller {
 
 	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)

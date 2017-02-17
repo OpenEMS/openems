@@ -29,7 +29,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
-@ThingInfo("Set fixed active and reactive power for asymmetric ESS")
+@ThingInfo(title = "Fixed active and reactive power (Asymmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For asymmetric Ess.")
 public class FixValueController extends Controller {
 
 	@ConfigInfo(title = "ess to set fix power value", type = Ess.class)

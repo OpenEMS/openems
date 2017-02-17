@@ -39,7 +39,7 @@ import io.openems.impl.protocol.studer.internal.StuderConnection;
 import io.openems.impl.protocol.studer.internal.request.ReadRequest;
 import io.openems.impl.protocol.studer.internal.request.ReadResponse;
 
-@ThingInfo("Bridge to Studer devices")
+@ThingInfo(title = "Studer")
 public class StuderBridge extends Bridge implements ChannelUpdateListener {
 
 	private Optional<StuderConnection> connection = Optional.empty();

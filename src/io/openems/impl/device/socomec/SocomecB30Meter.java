@@ -34,7 +34,7 @@ import io.openems.impl.protocol.modbus.internal.SignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
-@ThingInfo("Socomec B30 meter")
+@ThingInfo(title = "Socomec B30 Meter")
 public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
 	public SocomecB30Meter(String thingId) throws ConfigException {

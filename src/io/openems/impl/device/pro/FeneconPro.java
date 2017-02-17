@@ -30,7 +30,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@ThingInfo("Represents a FENECON Pro device")
+@ThingInfo(title = "FENECON Pro")
 public class FeneconPro extends ModbusDevice {
 
 	/*

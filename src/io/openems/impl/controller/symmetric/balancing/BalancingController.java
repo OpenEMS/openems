@@ -32,7 +32,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
-@ThingInfo("Self-consumption optimization. Tries to keep the grid meter on zero. For symmetric Ess.")
+@ThingInfo(title = "Self-consumption optimization (Symmetric)", description = "Tries to keep the grid meter on zero. For symmetric Ess.")
 public class BalancingController extends Controller {
 
 	@ConfigInfo(title = "All storages which should work as cluster to reach zero power consumption from the grid", type = Ess.class)

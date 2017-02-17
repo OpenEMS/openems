@@ -28,10 +28,12 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 
+@ThingInfo(title = "Thermal power station")
 public class ThermalPowerStationController extends Controller {
 
 	@ConfigInfo(title = "The ess where the soc should be read from.", type = Ess.class)

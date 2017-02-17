@@ -36,10 +36,12 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.persistence.Persistence;
 import io.openems.core.Databus;
 import io.openems.core.utilities.websocket.WebsocketHandler;
 
+@ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
 
 	/*

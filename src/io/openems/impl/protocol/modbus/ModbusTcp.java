@@ -39,7 +39,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.OpenemsModbusException;
 
-@ThingInfo("Bridge to Modbus/TCP devices")
+@ThingInfo(title = "Modbus/TCP")
 public class ModbusTcp extends ModbusBridge implements ChannelUpdateListener {
 	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
 	private Optional<TCPMasterConnection> connection = Optional.empty();

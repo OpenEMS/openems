@@ -23,8 +23,10 @@ package io.openems.impl.controller.symmetric.balancingcosphi;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
+@ThingInfo(title = "Balancing Cos-Phi (Symmetric)", description = "Tries to keep the grid meter at a given cos-phi. For symmetric Ess.")
 public class BalancingCosPhiController extends Controller {
 	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);

@@ -36,7 +36,7 @@ import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsModbusException;
 
-@ThingInfo("Bridge to Modbus/RTU devices")
+@ThingInfo(title = "Modbus/RTU")
 public class ModbusRtu extends ModbusBridge implements ChannelUpdateListener {
 	private Optional<SerialConnection> connection = Optional.empty();
 

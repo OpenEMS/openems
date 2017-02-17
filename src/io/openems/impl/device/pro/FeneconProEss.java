@@ -48,7 +48,7 @@ import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
-@ThingInfo("FENECON Pro energy storage system")
+@ThingInfo(title = "FENECON Pro ESS")
 public class FeneconProEss extends ModbusDeviceNature
 		implements AsymmetricEssNature, RealTimeClockNature, ChannelUpdateListener {
 

@@ -29,7 +29,7 @@ import io.openems.impl.protocol.modbus.internal.CoilElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusCoilRange;
 
-@ThingInfo("KMTronic Relay board outputs")
+@ThingInfo(title = "KMTronic Relay board Output")
 public class KMTronicRelayOutput extends ModbusDeviceNature implements OutputNature {
 
 	private ModbusCoilWriteChannel[] outputs;

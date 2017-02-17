@@ -23,8 +23,10 @@ package io.openems.impl.protocol.studer;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 
+@ThingInfo(title = "Studer")
 public abstract class StuderDevice extends Device {
 
 	private final int sourceAddress = 1;
