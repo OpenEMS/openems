@@ -8,12 +8,17 @@ import { Config } from './config';
 const SUBSCRIBE: string = "fenecon_monitor_v1";
 
 class Summary {
-  public ess = {
+  public storage = {
     things: {},
     soc: null
   };
-  public meter = {
-    things: {}
+  public production = {
+    things: {},
+    activePower: null
+  }
+  public grid = {
+    things: {},
+    activePower: null
   };
 }
 
@@ -60,7 +65,7 @@ export class Device {
     let ignoreNatures = {};
     this.summary = new Summary();
     for (let thing in natures) {
-      let a = natures[thing];
+      let a = natures[thing]["implements"];
       let channels = []
 
       /*
@@ -69,7 +74,7 @@ export class Device {
       // Ess
       if (isInArray(a, "EssNature")) {
         channels.push("Soc");
-        this.summary.ess.things[thing] = true;
+        this.summary.storage.things[thing] = true;
       }
       if (isInArray(a, "AsymmetricEssNature")) {
         channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
@@ -83,7 +88,15 @@ export class Device {
 
       // Meter
       if (isInArray(a, "MeterNature")) {
-        this.summary.meter.things[thing] = true;
+        // get type
+        let type = natures[thing]["channels"]["type"]["value"];
+        if (type === "grid") {
+          this.summary.grid.things[thing] = true;
+        } else if (type === "production") {
+          this.summary.production.things[thing] = true;
+        } else {
+          console.warn("Meter without type: " + thing);
+        }
       }
       if (isInArray(a, "AsymmetricMeterNature") && !ignoreNatures["AsymmetricMeterNature"]) {
         channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
@@ -121,6 +134,7 @@ export class Device {
        */
       if ("config" in metadata) {
         let config = metadata.config;
+        console.log(config);
         // parse influxdb connection
         if ("persistence" in config) {
           for (let persistence of config.persistence) {
@@ -158,13 +172,13 @@ export class Device {
 
       // Calculate summarized data
       let soc = 0;
-      for (let thing in this.summary.ess.things) {
+      for (let thing in this.summary.storage.things) {
         if (thing in data) {
           let ess = data[thing];
           soc += ess["Soc"];
         }
       }
-      this.summary.ess.soc = soc / Object.keys(this.summary.ess.things).length;
+      this.summary.storage.soc = soc / Object.keys(this.summary.storage.things).length;
 
       this.data.next(data);
     }
