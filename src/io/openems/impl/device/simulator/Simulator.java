@@ -46,8 +46,11 @@ public class Simulator extends SimulatorDevice {
 	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = SimulatorEss.class)
 	public final ConfigChannel<SimulatorEss> ess = new ConfigChannel<>("ess", this);
 
-	@ConfigInfo(title = "Meter", description = "Sets the meter nature.", type = SimulatorMeter.class)
-	public final ConfigChannel<SimulatorMeter> meter = new ConfigChannel<>("meter", this);
+	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter nature.", type = SimulatorMeter.class)
+	public final ConfigChannel<SimulatorMeter> gridMeter = new ConfigChannel<>("gridMeter", this);
+
+	@ConfigInfo(title = "Production-Meter", description = "Sets the production meter nature.", type = SimulatorMeter.class)
+	public final ConfigChannel<SimulatorMeter> productionMeter = new ConfigChannel<>("productionMeter", this);
 
 	/*
 	 * Methods
@@ -58,8 +61,11 @@ public class Simulator extends SimulatorDevice {
 		if (ess.valueOptional().isPresent()) {
 			natures.add(ess.valueOptional().get());
 		}
-		if (meter.valueOptional().isPresent()) {
-			natures.add(meter.valueOptional().get());
+		if (gridMeter.valueOptional().isPresent()) {
+			natures.add(gridMeter.valueOptional().get());
+		}
+		if (productionMeter.valueOptional().isPresent()) {
+			natures.add(productionMeter.valueOptional().get());
 		}
 		return natures;
 	}

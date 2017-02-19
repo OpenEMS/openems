@@ -26,7 +26,7 @@ import io.openems.api.doc.ConfigInfo;
 
 public interface MeterNature extends DeviceNature {
 
-	@ConfigInfo(title = "Type", description = "Used to distinct the meters. Use e.g. 'grid' or 'inverter'.", type = String.class, defaultValue = "inverter")
+	@ConfigInfo(title = "Type", description = "Used to distinct the meters. Use e.g. 'grid' or 'production'.", type = String.class, defaultValue = "production")
 	public ConfigChannel<String> type();
 
 }
