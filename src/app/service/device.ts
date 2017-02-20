@@ -190,14 +190,11 @@ export class Device {
             let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
             let meter = data[thing];
             let activePower = meter["ActivePower"];
-            let ratio;
             if (activePower > 0) {
-              ratio = (activePower * 100.) / thingChannels["maxActivePower"]["value"]
+              powerRatio = (activePower * 50.) / thingChannels["maxActivePower"]["value"]
             } else {
-              ratio = (activePower * -100.) / thingChannels["minActivePower"]["value"]
+              powerRatio = (activePower * -50.) / thingChannels["minActivePower"]["value"]
             }
-            powerRatio = ratio / 2 + 50
-            console.log(powerRatio);
             // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
           }
         }

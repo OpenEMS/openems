@@ -14,4 +14,18 @@ export class GridSection extends AbstractSection {
         let centroid = outlineArc.centroid();
         return new SvgImagePosition("assets/img/grid.png", centroid[0] + 10, centroid[1] - 10)
     }
+
+    public setValue(value: number) {
+        if (value > 50) {
+            value = 50;
+        } else if (value < -50) {
+            value = 50;
+        }
+        this.value = value;
+        this.update(this.innerRadius, this.outerRadius);
+    }
+
+    protected getValueStartAngle(): number {
+        return (this.startAngle + this.endAngle) / 2;
+    }
 }
