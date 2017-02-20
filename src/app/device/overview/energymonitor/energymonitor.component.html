@@ -4,6 +4,6 @@
     <md-card-title>Energiemonitor</md-card-title>
   </md-card-header>
   <md-card-content>
-    <app-device-overview-energymonitor-chart [storage]="device.summary.storage.soc" production="0" consumption="0" grid="0"></app-device-overview-energymonitor-chart>
+    <app-device-overview-energymonitor-chart [storage]="device.summary.storage.soc" production="0" consumption="0" [grid]="device.summary.grid.powerRatio"></app-device-overview-energymonitor-chart>
   </md-card-content>
 </md-card>
