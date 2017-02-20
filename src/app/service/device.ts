@@ -143,7 +143,7 @@ export class Device {
        */
       if ("config" in metadata) {
         let config = metadata.config;
-        console.log(config);
+
         // parse influxdb connection
         if ("persistence" in config) {
           for (let persistence of config.persistence) {

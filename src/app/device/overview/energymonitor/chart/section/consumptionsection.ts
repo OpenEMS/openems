@@ -2,7 +2,7 @@ import { AbstractSection, SvgTextPosition, SvgImagePosition } from './abstractse
 
 export class ConsumptionSection extends AbstractSection {
     constructor() {
-        super("Verbrauch", 46, 134);
+        super("Verbrauch", 46, 134, "#FDC507");
     }
 
     protected getTextPosition(outlineArc: any): SvgTextPosition {

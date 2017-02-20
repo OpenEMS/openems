@@ -24,12 +24,12 @@ export abstract class AbstractSection {
     protected outerRadius: number = 0;
     private textPosition: SvgTextPosition;
     private imagePosition: SvgImagePosition;
-    private color: string = "gray";
 
     constructor(
         private name: string,
         protected startAngle: number,
-        protected endAngle: number
+        protected endAngle: number,
+        private color: string
     ) { }
 
     public update(outerRadius: number, innerRadius: number) {

@@ -2,7 +2,7 @@ import { AbstractSection, SvgTextPosition, SvgImagePosition } from './abstractse
 
 export class StorageSection extends AbstractSection {
     constructor() {
-        super("Speicher", 136, 224);
+        super("Speicher", 136, 224, "#009846");
     }
 
     protected getTextPosition(outlineArc: any): SvgTextPosition {

@@ -2,7 +2,7 @@ import { AbstractSection, SvgTextPosition, SvgImagePosition } from './abstractse
 
 export class ProductionSection extends AbstractSection {
     constructor() {
-        super("Erzeugung", 316, 404);
+        super("Erzeugung", 316, 404, "#008DD2");
     }
 
     protected getTextPosition(outlineArc: any): SvgTextPosition {

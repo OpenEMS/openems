@@ -2,7 +2,7 @@ import { AbstractSection, SvgTextPosition, SvgImagePosition } from './abstractse
 
 export class GridSection extends AbstractSection {
     constructor() {
-        super("Netz", 226, 314);
+        super("Netz", 226, 314, "#1d1d1d");
     }
 
     protected getTextPosition(outlineArc: any): SvgTextPosition {
