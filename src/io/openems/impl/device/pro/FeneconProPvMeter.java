@@ -57,6 +57,20 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 		return type;
 	}
 
+	private final ConfigChannel<Long> maxActivePower = new ConfigChannel<Long>("maxActivePower", this);
+
+	@Override
+	public ConfigChannel<Long> maxActivePower() {
+		return maxActivePower;
+	}
+
+	private final ConfigChannel<Long> minActivePower = new ConfigChannel<Long>("minActivePower", this);
+
+	@Override
+	public ConfigChannel<Long> minActivePower() {
+		return minActivePower;
+	}
+
 	/*
 	 * Inherited Channels
 	 */

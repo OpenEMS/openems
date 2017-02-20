@@ -30,6 +30,7 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
@@ -161,17 +162,30 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 	}
 
 	/*
+	 * Fields
+	 */
+	private long lastApparentPower = 0;
+	private long lastSoc = 50;
+	private double lastCosPhi = 0;
+
+	/*
 	 * Methods
 	 */
 	@Override
 	protected void update() {
-		soc.updateValue(getRandom(0, 100));
-		activePower.updateValue(getRandom(-10000, 10000));
-		reactivePower.updateValue(getRandom(-1800, 1800));
-		allowedCharge.updateValue(9000L);
-		allowedDischarge.updateValue(3000L);
-		systemState.updateValue(1L);
-		gridMode.updateValue(0L);
+		lastSoc = SimulatorTools.addRandomLong(lastSoc, 0, 100, 5);
+		this.soc.updateValue(lastSoc);
+		lastApparentPower = SimulatorTools.addRandomLong(lastApparentPower, -10000, 10000, 100);
+		lastCosPhi = SimulatorTools.addRandomDouble(lastCosPhi, -1.5, 1.5, 0.5);
+		long activePower = ControllerUtils.calculateActivePowerFromApparentPower(lastApparentPower, lastCosPhi);
+		long reactivePower = ControllerUtils.calculateReactivePower(activePower, lastCosPhi);
+		this.activePower.updateValue(activePower);
+		this.reactivePower.updateValue(reactivePower);
+		this.apparentPower.updateValue(lastApparentPower);
+		this.allowedCharge.updateValue(9000L);
+		this.allowedDischarge.updateValue(3000L);
+		this.systemState.updateValue(1L);
+		this.gridMode.updateValue(0L);
 	}
 
 }

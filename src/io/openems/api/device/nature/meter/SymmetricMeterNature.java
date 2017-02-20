@@ -20,7 +20,11 @@
  *******************************************************************************/
 package io.openems.api.device.nature.meter;
 
+import java.util.Optional;
+
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.doc.ConfigInfo;
 
 public interface SymmetricMeterNature extends MeterNature {
 
@@ -30,6 +34,12 @@ public interface SymmetricMeterNature extends MeterNature {
 
 	public ReadChannel<Long> activePower();
 
+	@ConfigInfo(title = "maxActivePower", description = "Holds the maximum ever active power.", type = Long.class, defaultValue = "0")
+	public ConfigChannel<Long> maxActivePower();
+
+	@ConfigInfo(title = "minActivePower", description = "Holds the minimum ever active power.", type = Long.class, defaultValue = "0")
+	public ConfigChannel<Long> minActivePower();
+
 	public ReadChannel<Long> apparentPower();
 
 	public ReadChannel<Long> reactivePower();
@@ -37,4 +47,18 @@ public interface SymmetricMeterNature extends MeterNature {
 	public ReadChannel<Long> frequency();
 
 	public ReadChannel<Long> voltage();
+
+	public default void updateMinMaxActivePower() {
+		Optional<Long> activePower = this.activePower().valueOptional();
+		Optional<Long> maxActivePower = this.maxActivePower().valueOptional();
+		Optional<Long> minActivePower = this.minActivePower().valueOptional();
+		if (activePower.isPresent()) {
+			if (!maxActivePower.isPresent() || (activePower.get() > maxActivePower.get())) {
+				maxActivePower().updateValue(activePower.get(), true);
+			}
+			if (!minActivePower.isPresent() || (activePower.get() < minActivePower.get())) {
+				minActivePower().updateValue(activePower.get(), true);
+			}
+		}
+	}
 }

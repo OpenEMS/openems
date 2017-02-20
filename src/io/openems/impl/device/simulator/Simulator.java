@@ -46,11 +46,11 @@ public class Simulator extends SimulatorDevice {
 	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = SimulatorEss.class)
 	public final ConfigChannel<SimulatorEss> ess = new ConfigChannel<>("ess", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter nature.", type = SimulatorMeter.class)
-	public final ConfigChannel<SimulatorMeter> gridMeter = new ConfigChannel<>("gridMeter", this);
+	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter nature.", type = SimulatorGridMeter.class)
+	public final ConfigChannel<SimulatorGridMeter> gridMeter = new ConfigChannel<>("gridMeter", this);
 
-	@ConfigInfo(title = "Production-Meter", description = "Sets the production meter nature.", type = SimulatorMeter.class)
-	public final ConfigChannel<SimulatorMeter> productionMeter = new ConfigChannel<>("productionMeter", this);
+	@ConfigInfo(title = "Production-Meter", description = "Sets the production meter nature.", type = SimulatorProductionMeter.class)
+	public final ConfigChannel<SimulatorProductionMeter> productionMeter = new ConfigChannel<>("productionMeter", this);
 
 	/*
 	 * Methods
