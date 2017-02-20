@@ -10,14 +10,23 @@ const SUBSCRIBE: string = "fenecon_monitor_v1";
 class Summary {
   public storage = {
     things: {},
-    soc: null
+    soc: null,
+    activePower: 0,
+    maxActivePower: 0
   };
   public production = {
     things: {},
-    powerRatio: 0
-  }
+    powerRatio: 0,
+    activePower: 0,
+    maxActivePower: 0
+  };
   public grid = {
     things: {},
+    powerRatio: 0,
+    activePower: 0,
+    maxActivePower: 0
+  };
+  public consumption = {
     powerRatio: 0
   };
 }
@@ -175,13 +184,16 @@ export class Device {
          * Storage
          */
         let soc = 0;
+        let activePower = 0;
         for (let thing in this.summary.storage.things) {
           if (thing in data) {
             let ess = data[thing];
             soc += ess["Soc"];
+            activePower += ess["ActivePower"];
           }
         }
         this.summary.storage.soc = soc / Object.keys(this.summary.storage.things).length;
+        this.summary.storage.activePower = activePower;
       }
 
       {
@@ -189,20 +201,26 @@ export class Device {
          * Grid
          */
         let powerRatio = 0;
+        let activePower = 0;
+        let maxActivePower = 0;
         for (let thing in this.summary.grid.things) {
           if (thing in data) {
             let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
             let meter = data[thing];
-            let activePower = meter["ActivePower"];
+            let power = meter["ActivePower"];
             if (activePower > 0) {
-              powerRatio = (activePower * 50.) / thingChannels["maxActivePower"]["value"]
+              powerRatio = (power * 50.) / thingChannels["maxActivePower"]["value"]
             } else {
-              powerRatio = (activePower * -50.) / thingChannels["minActivePower"]["value"]
+              powerRatio = (power * -50.) / thingChannels["minActivePower"]["value"]
             }
+            activePower += power;
+            maxActivePower += thingChannels["maxActivePower"]["value"];
             // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
           }
         }
         this.summary.grid.powerRatio = powerRatio;
+        this.summary.grid.activePower = activePower;
+        this.summary.grid.maxActivePower = maxActivePower;
       }
 
       {
@@ -210,18 +228,32 @@ export class Device {
          * Production
          */
         let powerRatio = 0;
+        let activePower = 0;
+        let maxActivePower = 0;
         for (let thing in this.summary.production.things) {
           if (thing in data) {
             let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
             let meter = data[thing];
-            let activePower = meter["ActivePower"];
-            powerRatio = (activePower * 100.) / thingChannels["maxActivePower"]["value"]
+            let power = meter["ActivePower"];
+            powerRatio = (power * 100.) / thingChannels["maxActivePower"]["value"]
+            activePower += power;
+            maxActivePower += thingChannels["maxActivePower"]["value"];
             // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
           }
         }
         this.summary.production.powerRatio = powerRatio;
+        this.summary.production.activePower = activePower;
+        this.summary.production.maxActivePower = maxActivePower;
       }
 
+      {
+        /*
+         * Consumption
+         */
+        let activePower = this.summary.grid.activePower + this.summary.production.activePower + this.summary.storage.activePower;
+        let maxActivePower = this.summary.grid.maxActivePower + this.summary.production.maxActivePower + this.summary.storage.maxActivePower;
+        this.summary.consumption.powerRatio = (activePower * 100.) / maxActivePower
+      }
       this.data.next(data);
     }
   }
