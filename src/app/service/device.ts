@@ -171,7 +171,9 @@ export class Device {
       let data = message.currentdata;
 
       {
-        // Storage
+        /*
+         * Storage
+         */
         let soc = 0;
         for (let thing in this.summary.storage.things) {
           if (thing in data) {
@@ -183,7 +185,9 @@ export class Device {
       }
 
       {
-        // Grid
+        /*
+         * Grid
+         */
         let powerRatio = 0;
         for (let thing in this.summary.grid.things) {
           if (thing in data) {
@@ -199,6 +203,23 @@ export class Device {
           }
         }
         this.summary.grid.powerRatio = powerRatio;
+      }
+
+      {
+        /*
+         * Production
+         */
+        let powerRatio = 0;
+        for (let thing in this.summary.production.things) {
+          if (thing in data) {
+            let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
+            let meter = data[thing];
+            let activePower = meter["ActivePower"];
+            powerRatio = (activePower * 100.) / thingChannels["maxActivePower"]["value"]
+            // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
+          }
+        }
+        this.summary.production.powerRatio = powerRatio;
       }
 
       this.data.next(data);
