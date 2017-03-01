@@ -401,6 +401,10 @@ public class Config implements ChannelChangeListener {
 			configFile = Paths.get("C:", "Users", "matthias.rossmann", "Documents", "config.json").toFile();
 		}
 		if (!configFile.isFile()) {
+			configFile = Paths.get("C:", "Users", "emre.bakir", "git", "openems", "etc", "openems.d", "config.json")
+					.toFile();
+		}
+		if (!configFile.isFile()) {
 			throw new ConfigException("No config file found!");
 		}
 		return configFile;
