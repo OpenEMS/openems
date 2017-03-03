@@ -15,7 +15,10 @@ import { AbstractConfig } from '../abstractconfig';
 
 export class DeviceConfigControllerComponent extends AbstractConfig {
 
-    private form: AbstractControl;
+    private controlConfig: AbstractControl;
+    form: FormGroup;
+    control: FormGroup;
+    builder: FormBuilder;
 
     constructor(
         route: ActivatedRoute,
@@ -23,11 +26,37 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
         formBuilder: FormBuilder
     ) {
         super(route, websocketService, formBuilder);
+        this.builder = formBuilder;
     }
 
     initForm(config) {
         console.log(config);
-        this.form = this.buildForm(config.scheduler);
-        console.log(this.form);
+        this.controlConfig = this.buildForm(config);
+        console.log(this.controlConfig);
+        this.form = <FormGroup>this.controlConfig;
+        this.control = this.form.value.scheduler['controllers'];
+        console.log(this.control);
     }
+
+    isArray(value: any) {
+        if (value instanceof Array) {
+            return true;
+        }
+        return false;
+    }
+
+    add(channelTitle: String, channelArray: FormArray): void {
+        if (channelArray instanceof Array) {
+            if (channelTitle == 'Ess') {
+                channelArray.push('');
+                console.log(channelArray);
+                channelArray.markAsDirty();
+            } else if (channelTitle == 'Meters') {
+                channelArray.push('');
+                console.log(channelArray);
+                channelArray.markAsDirty();
+            }
+        }
+    }
+
 }
