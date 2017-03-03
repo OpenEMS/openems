@@ -9,14 +9,14 @@ import { Device } from '../../service/device';
 
 export abstract class AbstractConfig implements OnInit {
 
-  private device: Device;
+  protected device: Device;
   private deviceSubscription: Subscription;
   protected config = null;
 
   constructor(
     private route: ActivatedRoute,
     private websocketService: WebsocketService,
-    private formBuilder: FormBuilder
+    protected formBuilder: FormBuilder
   ) { }
 
   protected abstract initForm(config);

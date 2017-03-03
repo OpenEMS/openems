@@ -1,10 +1,10 @@
 <div *ngIf="form" [formGroup]="form">
     <div fxLayout fxLayoutWrap="wrap" fxFlex formGroupName="scheduler">
         <div formArrayName="controllers">
-            <div *ngFor="let controller of form.value.scheduler['controllers'], let i=index" fxFlex="100%" [formGroupName]="i">
-                {{ controller | json }}
+            <div *ngFor="let controller of form.controls.scheduler.controls['controllers'].controls, let i=index" fxFlex="100%" [formGroupName]="i">
+                {{ controller.value | json }}
                 <div *ngFor="let controllerMeta of form.value._meta['availableControllers'], let j=index">
-                    <div *ngIf="controllerMeta.class == controller.class">
+                    <div *ngIf="controllerMeta.class == controller.value.class">
                         <md-card class="single">
                             <md-card-header>
                                 <md-card-title>
@@ -21,20 +21,22 @@
                                 <md-card class="not_single">
                                     <div *ngFor="let channelMeta of controllerMeta.channels">
                                         <div *ngIf="channelMeta.name != 'rtc' && channelMeta.name != 'priority'">
-                                            <div *ngIf="isArray(controller[channelMeta.name])" [formArrayName]="channelMeta.name">
-                                                <div *ngFor="let channelChannelMeta of controller[channelMeta.name], let k=index">
+                                            <div *ngIf="isArray(controller.value[channelMeta.name])" [formArrayName]="channelMeta.name">
+                                                <div *ngFor="let channelChannelMeta of controller.value[channelMeta.name], let k=index">
                                                     {{ channelMeta.title }}:
                                                     <input [formControlName]="k" type="text" fxFlex.gt="100%" fxFlex.xs="50%">
+                                                    <button (click)="delete(k, controller.controls[channelMeta.name])">delete{{channelMeta.title}}</button>
                                                 </div>
-                                                <button (click)="add(channelMeta.title, form.value.scheduler['controllers'][i][channelMeta.name])">add{{channelMeta.title}}</button>
+                                                <button (click)="add(controller.controls[channelMeta.name])">add{{channelMeta.title}}</button>
                                             </div>
-                                            <div *ngIf="!isArray(controller[channelMeta.name])">
+                                            <div *ngIf="!isArray(controller.value[channelMeta.name])">
                                                 {{ channelMeta.title }}:
                                                 <input [formControlName]="channelMeta.name" type="text" fxFlex.gt="100%" fxFlex.xs="50%">
                                             </div>
                                         </div>
                                     </div>
                                 </md-card>
+                                <button (click)="save(form, i)" [disabled]="form.pristine" style="margin-top: 20px">save</button>
                             </md-card-content>
                         </md-card>
                     </div>
