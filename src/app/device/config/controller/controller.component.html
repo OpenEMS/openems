@@ -1,47 +1,108 @@
 <div *ngIf="form" [formGroup]="form">
-    <div fxLayout fxLayoutWrap="wrap" fxFlex formGroupName="scheduler">
+    <div formGroupName="scheduler">
         <div formArrayName="controllers">
             <div *ngFor="let controller of form.controls.scheduler.controls['controllers'].controls, let i=index" fxFlex="100%" [formGroupName]="i">
-                {{ controller.value | json }}
                 <div *ngFor="let controllerMeta of form.value._meta['availableControllers'], let j=index">
-                    <div *ngIf="controllerMeta.class == controller.value.class">
-                        <md-card class="single">
+                    <div fxLayout fxLayoutWrap="wrap" fxFlex *ngIf="controllerMeta.class == controller.value.class && controller.value.id != ''">
+                        <md-card class="single" fxFlex="100%">
                             <md-card-header>
+                                <md-icon md-card-avatar>apps</md-icon>
                                 <md-card-title>
-                                    <label style="font-weight: bold">Klasse: </label> {{ controllerMeta.class | classname
-                                    }}
+                                    {{ controllerMeta.class | classname }}
                                 </md-card-title>
+                                <md-card-subtitle>
+                                    {{ controller.value.id }}
+                                </md-card-subtitle>
                             </md-card-header>
-                            <md-card-content>
-                                <div fxFlayout fxFlex fxLayoutWrap="wrap" style="margin-bottom: 20px">
-                                    Priorität:
-                                    <input formControlName="priority" type="number" fxFlex.gt="50%" fxFlex.xs="100%"> Name:
-                                    <input formControlName="id" type="text" fxFlex.gt="50%" fxFlex.xs="100%">
+                            <md-card-content style="margin: 20px">
+                                <div fxLayout fxLayoutWrap="wrap">
+                                    <label fxFlex="10%">
+                                        Priorität:
+                                    </label>
+                                    <input formControlName="priority" type="number" fxFlex.gt-md="50%">
                                 </div>
-                                <md-card class="not_single">
-                                    <div *ngFor="let channelMeta of controllerMeta.channels">
-                                        <div *ngIf="channelMeta.name != 'rtc' && channelMeta.name != 'priority'">
-                                            <div *ngIf="isArray(controller.value[channelMeta.name])" [formArrayName]="channelMeta.name">
-                                                <div *ngFor="let channelChannelMeta of controller.value[channelMeta.name], let k=index">
-                                                    {{ channelMeta.title }}:
-                                                    <input [formControlName]="k" type="text" fxFlex.gt="100%" fxFlex.xs="50%">
-                                                    <button (click)="delete(k, controller.controls[channelMeta.name])">delete{{channelMeta.title}}</button>
+                                <div style="margin-top: 20px" *ngFor="let channelMeta of controllerMeta.channels">
+                                    <div *ngIf="channelMeta.name != 'rtc' && channelMeta.name != 'priority'">
+                                        <div *ngIf="isArray(controller.value[channelMeta.name])" [formArrayName]="channelMeta.name">
+                                            <div fxLayout fxLayoutWrap="wrap">
+                                                <div fxFlex="10%">
+                                                    <label>{{ channelMeta.type }}:</label>
                                                 </div>
-                                                <button (click)="add(controller.controls[channelMeta.name])">add{{channelMeta.title}}</button>
-                                            </div>
-                                            <div *ngIf="!isArray(controller.value[channelMeta.name])">
-                                                {{ channelMeta.title }}:
-                                                <input [formControlName]="channelMeta.name" type="text" fxFlex.gt="100%" fxFlex.xs="50%">
+                                                <div *ngFor="let channelChannelMeta of controller.value[channelMeta.name], let k=index">
+                                                    <select [formControlName]="k" fxFlex.gt="33%" fxFlex.xs="100%">
+                                                        <ng-container *ngFor="let nature of form.value._meta['natures'] | keys">
+                                                            <ng-container *ngFor="let natureImplement of nature.value.implements">
+                                                                <option *ngIf="natureImplement == channelMeta.type + 'Nature'" [value]="nature.key">{{ nature.key }}</option>
+                                                            </ng-container>
+                                                        </ng-container>
+                                                    </select>
+                                                    <button (click)="deleteChannel(k, controller.controls[channelMeta.name])" md-mini-fab>
+                                                        <md-icon>delete</md-icon>
+                                                    </button>
+                                                </div>
+                                                <button (click)="add(controller.controls[channelMeta.name])" md-mini-fab>
+                                                    <md-icon>add</md-icon>
+                                                </button>
                                             </div>
                                         </div>
+                                        <div *ngIf="!isArray(controller.value[channelMeta.name])" fxLayout fxLayoutWrap="wrap">
+                                            <label fxFlex="10%">
+                                                {{ channelMeta.title }}:
+                                            </label>
+                                            <input [formControlName]="channelMeta.name" type="text" fxFlex="50%">
+                                        </div>
                                     </div>
-                                </md-card>
-                                <button (click)="save(form, i)" [disabled]="form.pristine" style="margin-top: 20px">save</button>
+                                </div>
+                                <div style="position: absolute;bottom: 0;right: 0; margin: 20px">
+                                    <button (click)="save(controller)" [disabled]="form.pristine" md-mini-fab>
+                                        <md-icon>save</md-icon>
+                                    </button>
+                                    <button (click)="delete(form.controls.scheduler.controls['controllers'], i)" md-mini-fab>
+                                        <md-icon>delete</md-icon>
+                                    </button>
+                                </div>
                             </md-card-content>
                         </md-card>
                     </div>
                 </div>
+                <div *ngIf="controller.value.class == '' || controller.value.id == ''">
+                    <md-card class="single">
+                        <md-card-header>
+                            <md-icon md-card-avatar>stop</md-icon>
+                            <label>Neuer Controller...</label>
+                        </md-card-header>
+                        <md-card-content>
+                            <div fxLayout fxLayoutWrap="wrap" style="margin-bottom: 20px">
+                                <label>Name: </label>
+                                <input formControlName="id" type="text" />
+                                <button [disabled]="form.pristine" (click)="setNameReady()">zur Klasse</button>
+                            </div>
+                            <div *ngIf="nameReady" fxLayout fxLayoutWrap="wrap">
+                                <label>Klasse: </label>
+                                <select formControlName="class" (change)="addChannelsToController(controller, controller.value.class)">
+                                    <option></option>
+                                    <option *ngFor="let availableControllers of form.value._meta['availableControllers']">
+                                        {{ availableControllers.class }}
+                                    </option>
+                                </select>
+                            </div>
+                        </md-card-content>
+                    </md-card>
+                </div>
             </div>
+            <md-card class="not_single">
+                <md-card-header>
+                    <md-icon md-card-avatar>stop</md-icon>
+                    <label>Neuer Controller...</label>
+                </md-card-header>
+                <md-card-content>
+                    <div fxLayout fxLayoutAlign="end start">
+                        <button (click)="addController(form.controls.scheduler.controls['controllers'])" md-mini-fab>
+                            <md-icon>add</md-icon>
+                        </button>
+                    </div>
+                </md-card-content>
+            </md-card>
         </div>
     </div>
 </div>
