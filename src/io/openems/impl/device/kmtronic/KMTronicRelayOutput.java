@@ -36,13 +36,11 @@ public class KMTronicRelayOutput extends ModbusDeviceNature implements OutputNat
 
 	public KMTronicRelayOutput(String thingId) throws ConfigException {
 		super(thingId);
+		outputs = new ModbusCoilWriteChannel[8];
 	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		if (outputs == null) {
-			outputs = new ModbusCoilWriteChannel[8];
-		}
 		return new ModbusProtocol(
 				new WriteableModbusCoilRange(0, new CoilElement(0, outputs[0] = new ModbusCoilWriteChannel("1", this))),
 				new WriteableModbusCoilRange(1, new CoilElement(1, outputs[1] = new ModbusCoilWriteChannel("2", this))),
