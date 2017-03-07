@@ -37,12 +37,12 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
     }
 
     initForm(config) {
-        console.log(config);
+        // console.log(config);
         this.controlConfig = this.buildForm(config);
-        console.log(this.controlConfig);
+        // console.log(this.controlConfig);
         this.form = <FormGroup>this.controlConfig;
         this.control = this.form.value.scheduler['controllers'];
-        console.log(this.control);
+        // console.log(this.control);
     }
 
     setNameReady(): void {
@@ -57,7 +57,7 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
     }
 
     add(channelArray: FormArray): void {
-        console.log(channelArray);
+        // console.log(channelArray);
         channelArray.push(this.formBuilder.control(""));
         channelArray.markAsDirty();
     }
@@ -85,7 +85,7 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
 
     addChannelsToController(controllerForm: FormGroup, clazz: string): void {
         let controllerMeta = <FormArray>this.form.controls['_meta']['controls']['availableControllers'];
-        console.log(controllerForm);
+        // console.log(controllerForm);
 
         for (let indexMeta in controllerMeta.value) {
             // console.log("First For-Loop // get Index of controllerMeta");
@@ -106,7 +106,7 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
                     } else if (!this.isArray(controllerMeta.value[indexMeta].channels[indexChannel])) {
                         // console.log("not Array");
                         controllerForm.addControl(channelName, this.formBuilder.control(""));
-                        console.log(controllerForm);
+                        // console.log(controllerForm);
                     }
                 }
 
@@ -119,13 +119,12 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
     }
 
     deleteChannel(indexChannel: number, channelArray: FormArray): void {
-        console.log(channelArray);
+        // console.log(channelArray);
         channelArray.removeAt(indexChannel);
         channelArray.markAsDirty();
     }
 
     delete(form: FormArray, indexController: number) {
-        console.log(form);
         if (form.controls[indexController]["_meta_new"]) {
             // newly created. No need to delete it at server
             form.removeAt(indexController);
@@ -150,7 +149,6 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
     }
 
     protected save(form: FormGroup) {
-        console.log(form);
         let requests;
         if (form["_meta_new"]) {
             requests = this.getConfigureCreateRequests(form);
@@ -193,7 +191,7 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
             for (let key in formControl) {
                 if (formControl[key].dirty) {
                     let value = formControl[key].value;
-                    console.log(value, typeof value);
+                    // console.log(value, typeof value);
                     // if (typeof value === "object") {
                     //     console.log("X");
                     //     // value is an object -> call getConfigureRequests for sub-object
