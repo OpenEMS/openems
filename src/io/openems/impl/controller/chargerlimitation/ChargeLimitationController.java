@@ -16,6 +16,14 @@ public class ChargeLimitationController extends Controller {
 	@ConfigInfo(title = "The Chargers which are connected to the ess.", type = Charger.class)
 	public ConfigChannel<List<Charger>> chargers = new ConfigChannel<>("chargers", this);
 
+	public ChargeLimitationController() {
+		super();
+	}
+
+	public ChargeLimitationController(String thingId) {
+		super(thingId);
+	}
+
 	@Override
 	public void run() {
 		try {
