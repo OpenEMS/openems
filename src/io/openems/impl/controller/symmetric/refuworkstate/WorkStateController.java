@@ -44,7 +44,10 @@ public class WorkStateController extends Controller {
 
 	private boolean reset = false;
 	private long lastReset = 0L;
+	private long timeErrorOccured = 0L;
 	private int resetCount = 0;
+	private long lastStart = 0L;
+	private boolean isError = false;
 
 	public WorkStateController() {
 		super();
@@ -70,11 +73,18 @@ public class WorkStateController extends Controller {
 				if (ess.systemState.labelOptional().equals(Optional.of(EssNature.STANDBY))) {
 					ess.setWorkState.pushWriteFromLabel(EssNature.START);
 					log.info("start Refu");
+					lastStart = System.currentTimeMillis();
+					isError = false;
 				} else if (!ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
 					ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
+					if (ess.systemState.labelOptional().equals(Optional.of("Error")) && !isError) {
+						timeErrorOccured = System.currentTimeMillis();
+						isError = true;
+					}
 				}
 				if (ess.systemState.labelOptional().equals(Optional.of("Error"))
-						&& lastReset <= System.currentTimeMillis() - 5000 && resetCount < 3) {
+						&& lastReset <= System.currentTimeMillis() - 1000 * 60 * 5 && resetCount < 2
+						&& timeErrorOccured <= System.currentTimeMillis() - 1000 * 3) {
 					if (!reset) {
 						ess.setSystemErrorReset.pushWriteFromLabel(EssNature.ON);
 						reset = true;
@@ -87,7 +97,8 @@ public class WorkStateController extends Controller {
 					ess.setSystemErrorReset.pushWriteFromLabel(EssNature.OFF);
 					reset = false;
 				}
-				if (lastReset <= System.currentTimeMillis() - 30 * 60 * 1000) {
+				if (lastReset <= System.currentTimeMillis() - 2 * 60 * 60 * 1000
+						|| (lastStart <= System.currentTimeMillis() - 1000 * 60 && timeErrorOccured < lastStart)) {
 					resetCount = 0;
 				}
 			} else {
