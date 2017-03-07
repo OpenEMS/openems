@@ -23,25 +23,17 @@ package io.openems.impl.controller.symmetric.powerbyfrequency;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.ControllerUtils;
 
-/*
- * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
- */
+@ThingInfo(title = "Power by frequency (Symmetric)", description = "Tries to keep the grid meter at a given frequency. For symmetric Ess.")
 public class PowerByFrequencyController extends Controller {
-	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
-	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
-	@ConfigInfo(title = "The meter for the frequency meassurement.", type = Meter.class)
-	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	@ConfigInfo(title = "The lower soc limit. Below this limit the storage will charge with more power by the same frequency.", type = Integer.class)
-	public final ConfigChannel<Integer> lowSocLimit = new ConfigChannel<Integer>("lowSocLimit", this).defaultValue(30);
-	@ConfigInfo(title = "The upper soc limit. Above this limit the storage will discharge with more power by the same frequency.", type = Integer.class)
-	public final ConfigChannel<Integer> highSocLimit = new ConfigChannel<Integer>("highSocLimit", this)
-			.defaultValue(70);
-
+	/*
+	 * Constructors
+	 */
 	public PowerByFrequencyController() {
 		super();
 	}
@@ -50,6 +42,24 @@ public class PowerByFrequencyController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
+	public final ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
+
+	@ConfigInfo(title = "Meter", description = "The meter for the frequency meassurement.", type = Meter.class)
+	public final ConfigChannel<Meter> meter = new ConfigChannel<>("meter", this);
+
+	@ConfigInfo(title = "Low SOC-Limit", description = "The low soc limit. Below this limit the Ess will charge with more power by the same frequency.", type = Integer.class, defaultValue = "30")
+	public final ConfigChannel<Integer> lowSocLimit = new ConfigChannel<Integer>("lowSocLimit", this);
+
+	@ConfigInfo(title = "High SOC-Limit", description = "The upper soc limit. Above this limit the Ess will discharge with more power by the same frequency.", type = Integer.class, defaultValue = "70")
+	public final ConfigChannel<Integer> highSocLimit = new ConfigChannel<Integer>("highSocLimit", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

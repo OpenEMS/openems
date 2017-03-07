@@ -32,34 +32,41 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.ControllerUtils;
 
-@ThingInfo("Self-consumption optimization. Tries to keep the grid meter on zero. For asymmetric Ess.")
+@ThingInfo(title = "Self-consumption optimization (Asymmetric)", description = "Tries to keep the grid meter on zero. For asymmetric Ess.")
 public class BalancingController extends Controller {
 
 	/*
-	 * Config
+	 * Constructors
 	 */
-	@ConfigInfo(title = "cosPhi to hold on the ess", type = Double.class)
-	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this).defaultValue(0.95);
-
-	@ConfigInfo(title = "ess to controll. Multiple ess possible", type = Ess.class)
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
-
-	@ConfigInfo(title = "Grid meter to meassure inhous power consumption", type = Meter.class)
-	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
-
-	private long[][] lastWriteValues = new long[3][8];
-	private int index = 0;
-
 	public BalancingController() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public BalancingController(String thingId) {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Cos-Phi", type = Double.class, defaultValue = "0.95")
+	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
+
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
+
+	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
+
+	/*
+	 * Fields
+	 */
+	private long[][] lastWriteValues = new long[3][8];
+	private int index = 0;
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

@@ -32,18 +32,28 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
 
-@ThingInfo("Simulator nature. Provides simulated data for tests.")
+@ThingInfo(title = "Simulator")
 public abstract class SimulatorDeviceNature implements DeviceNature {
-	protected final Logger log;
-	private final String thingId;
-	private List<ThingChannelsUpdatedListener> listeners;
 
+	/*
+	 * Constructors
+	 */
 	public SimulatorDeviceNature(String thingId) throws ConfigException {
 		this.thingId = thingId;
 		log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 	}
 
+	/*
+	 * Fields
+	 */
+	protected final Logger log;
+	private final String thingId;
+	private List<ThingChannelsUpdatedListener> listeners;
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public String id() {
 		return thingId;

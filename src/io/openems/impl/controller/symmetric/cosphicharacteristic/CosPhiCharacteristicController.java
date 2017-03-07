@@ -26,15 +26,32 @@ import java.util.List;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Point;
 
+@ThingInfo(title = "Cos-Phi Characteristics (Symmetric)")
 public class CosPhiCharacteristicController extends Controller {
-	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
-	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "The points of the characteristic (x = PowerRatio, y = cosPhi).", type = Long[].class)
+	/*
+	 * Constructors
+	 */
+	public CosPhiCharacteristicController() {
+		super();
+	}
+
+	public CosPhiCharacteristicController(String id) {
+		super(id);
+	}
+
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
+	public ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
+
+	@ConfigInfo(title = "Cos-Phi characteristic", description = "The points of the characteristic (x = PowerRatio, y = cosPhi).", type = Long[].class)
 	public ConfigChannel<List<Long[]>> cosPhiPoints = new ConfigChannel<List<Long[]>>("cosPhiPoints", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				List<Point> points = new ArrayList<>();
@@ -49,16 +66,14 @@ public class CosPhiCharacteristicController extends Controller {
 				cosPhiCharacteristic = points;
 			});
 
+	/*
+	 * Fields
+	 */
 	public List<Point> cosPhiCharacteristic;
 
-	public CosPhiCharacteristicController() {
-		super();
-	}
-
-	public CosPhiCharacteristicController(String id) {
-		super(id);
-	}
-
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

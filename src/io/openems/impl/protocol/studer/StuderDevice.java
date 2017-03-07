@@ -23,21 +23,29 @@ package io.openems.impl.protocol.studer;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 
+@ThingInfo(title = "Studer")
 public abstract class StuderDevice extends Device {
 
-	private final int sourceAddress = 1;
-
 	/*
-	 * Config
+	 * Constructors
 	 */
-	public final ConfigChannel<Integer> address = new ConfigChannel<Integer>("address", this, Integer.class);
-
 	public StuderDevice() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Address", description = "Sets the device address (e.g. 701).", type = Integer.class)
+	public final ConfigChannel<Integer> address = new ConfigChannel<Integer>("address", this);
+
+	/*
+	 * Methods
+	 */
 	protected final void update(StuderBridge studerBridge) throws OpenemsException {
 		int srcAddress = getSrcAddress(studerBridge);
 		int dstAddress = getDstAddress();

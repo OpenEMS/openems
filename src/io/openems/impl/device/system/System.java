@@ -30,16 +30,25 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.system.SystemDevice;
 
-@ThingInfo("Represents the system device")
+@ThingInfo(title = "Operating system")
 public class System extends SystemDevice {
 
-	@ConfigInfo(title = "Sets the system nature", type = SystemNature.class)
-	public final ConfigChannel<SystemNature> system = new ConfigChannel<SystemNature>("system", this);
-
+	/*
+	 * Constructors
+	 */
 	public System() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "System", description = "Sets the system nature.", type = SystemNature.class)
+	public final ConfigChannel<SystemNature> system = new ConfigChannel<>("system", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	protected Set<DeviceNature> getDeviceNatures() {
 		Set<DeviceNature> natures = new HashSet<>();

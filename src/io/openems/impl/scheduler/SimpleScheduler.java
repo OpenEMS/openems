@@ -28,29 +28,39 @@ import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.core.ThingRepository;
 
-@ThingInfo("Simple app-planner")
+@ThingInfo(title = "App-Planner")
 public class SimpleScheduler extends Scheduler {
 
-	private ThingRepository thingRepository;
-
+	/*
+	 * Constructors
+	 */
 	public SimpleScheduler() {
 		thingRepository = ThingRepository.getInstance();
 	}
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
-			.defaultValue(500);
+	/*
+	 * Config
+	 */
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(500);
 
 	@Override
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
+	/*
+	 * Fields
+	 */
+
+	private ThingRepository thingRepository;
+
+	/*
+	 * Methods
+	 */
 	@Override
 	protected void dispose() {}
 

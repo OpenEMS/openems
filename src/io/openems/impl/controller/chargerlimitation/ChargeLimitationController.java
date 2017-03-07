@@ -5,16 +5,16 @@ import java.util.List;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
+@ThingInfo(title = "Limit battery charge from DC", description = "Limits the maximum charge of the battery from DC connected charger.")
 public class ChargeLimitationController extends Controller {
 
-	@ConfigInfo(title = "The ess where the Charger is connected to.", type = Ess.class)
-	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
-
-	@ConfigInfo(title = "The Chargers which are connected to the ess.", type = Charger.class)
-	public ConfigChannel<List<Charger>> chargers = new ConfigChannel<>("chargers", this);
+	/*
+	 * Constructors
+	 */
 
 	public ChargeLimitationController() {
 		super();
@@ -24,6 +24,20 @@ public class ChargeLimitationController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
+
+	@ConfigInfo(title = "Chargers", description = "Sets the chargers.", type = Charger.class)
+	public ConfigChannel<List<Charger>> chargers = new ConfigChannel<>("chargers", this);
+
+	
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

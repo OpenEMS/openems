@@ -26,29 +26,19 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 /**
- *
  * @author matthias.rossmann
- *         This Controller send the Ess a command to go in Standby if no power is Reqired.
- *         Do not use if Off-Grid Functionality is required.
  */
+@ThingInfo(title = "REFU Workstate (Symmetric)", description = "Sends the Ess to Standby if no power is required. Do not use if Off-Grid functionality is required. For symmetric Ess.")
 public class WorkStateController extends Controller {
 
-	@ConfigInfo(title = "The refu storage to stop/start.", type = Ess.class)
-	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
-	@ConfigInfo(title = "Indicates if the storage should be started or stopped.", type = Boolean.class)
-	public final ConfigChannel<Boolean> start = new ConfigChannel<>("start", this);
-
-	private boolean reset = false;
-	private long lastReset = 0L;
-	private long timeErrorOccured = 0L;
-	private int resetCount = 0;
-	private long lastStart = 0L;
-	private boolean isError = false;
-
+	/*
+	 * Constructors
+	 */
 	public WorkStateController() {
 		super();
 	}
@@ -56,6 +46,29 @@ public class WorkStateController extends Controller {
 	public WorkStateController(String thingId) {
 		super(thingId);
 	}
+	
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
+	public final ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
+
+	@ConfigInfo(title = "Start/Stop", description = "Indicates if the Ess should be started (true) or stopped (false).", type = Boolean.class)
+	public final ConfigChannel<Boolean> start = new ConfigChannel<>("start", this);
+
+	/*
+	 * Fields
+	 */
+	private boolean reset = false;
+	private long lastReset = 0L;
+	private long timeErrorOccured = 0L;
+	private int resetCount = 0;
+	private long lastStart = 0L;
+	private boolean isError = false;
+
+	/*
+	 * Methods
+	 */
 
 	/*
 	 * public static ThingDoc getDescription() {

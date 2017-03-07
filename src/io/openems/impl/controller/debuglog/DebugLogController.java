@@ -28,20 +28,14 @@ import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
-@ThingInfo("Output debug information on the systemlog")
+// TODO Access all relevant channels directly via ThingRepository
+
+@ThingInfo(title = "Output debugging information on systemlog")
 public class DebugLogController extends Controller {
 
-	// TODO Access all relevant channels directly via ThingRepository
-
-	@ConfigInfo(title = "Sets all Ess", type = Ess.class, isOptional = true)
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
-
-	@ConfigInfo(title = "Sets all Meters", type = Meter.class, isOptional = true)
-	public final ConfigChannel<Set<Meter>> meters = new ConfigChannel<Set<Meter>>("meters", this);
-
-	@ConfigInfo(title = "Sets all RealTimeClocks", type = RealTimeClock.class, isOptional = true)
-	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this);
-
+	/*
+	 * Constructors
+	 */
 	public DebugLogController() {
 		super();
 	}
@@ -50,6 +44,21 @@ public class DebugLogController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isOptional = true)
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
+
+	@ConfigInfo(title = "Meters", description = "Sets the meters.", type = Meter.class, isOptional = true)
+	public final ConfigChannel<Set<Meter>> meters = new ConfigChannel<Set<Meter>>("meters", this);
+
+	@ConfigInfo(title = "Real-time clock", description = "Sets the real-time clock.", type = RealTimeClock.class, isOptional = true)
+	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

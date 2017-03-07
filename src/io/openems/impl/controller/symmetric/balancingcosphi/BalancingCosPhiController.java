@@ -23,18 +23,15 @@ package io.openems.impl.controller.symmetric.balancingcosphi;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
+@ThingInfo(title = "Balancing Cos-Phi (Symmetric)", description = "Tries to keep the grid meter at a given cos-phi. For symmetric Ess.")
 public class BalancingCosPhiController extends Controller {
-	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
-	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "The meter which meassures the power from/to the grid", type = Meter.class)
-	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
-
-	@ConfigInfo(title = "The cosPhi to hold on the grid meter.", type = Double.class)
-	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
-
+	/*
+	 * Constructors
+	 */
 	public BalancingCosPhiController() {
 		super();
 	}
@@ -43,6 +40,21 @@ public class BalancingCosPhiController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
+
+	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
+
+	@ConfigInfo(title = "Cos-Phi", description = "Cos-phi which the grid-meter is trying to hold.", type = Double.class)
+	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {
@@ -58,5 +70,4 @@ public class BalancingCosPhiController extends Controller {
 			log.error("Failed to read value.", e);
 		}
 	}
-
 }

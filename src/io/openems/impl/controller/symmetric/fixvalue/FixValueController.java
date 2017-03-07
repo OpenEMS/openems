@@ -29,17 +29,12 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
-@ThingInfo("Set fixed active and reactive power for symmetric ESS")
+@ThingInfo(title = "Fixed active and reactive power (Symmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For symmetric Ess.")
 public class FixValueController extends Controller {
 
-	@ConfigInfo(title = "All storage, which should be set to the p and q values.", type = Ess.class)
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
-
-	@ConfigInfo(title = "The activePower to set for each storage.", type = Integer.class)
-	public ConfigChannel<Integer> p = new ConfigChannel<Integer>("p", this);
-	@ConfigInfo(title = "The reactivePower to set for each storage.", type = Integer.class)
-	public ConfigChannel<Integer> q = new ConfigChannel<Integer>("q", this);
-
+	/*
+	 * Constructors
+	 */
 	public FixValueController() {
 		super();
 	}
@@ -48,6 +43,21 @@ public class FixValueController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
+
+	@ConfigInfo(title = "ActivePower", description = "The active power to set for each Ess.", type = Integer.class)
+	public ConfigChannel<Integer> p = new ConfigChannel<Integer>("p", this);
+
+	@ConfigInfo(title = "ReactivePower", description = "The reactive power to set for each Ess.", type = Integer.class)
+	public ConfigChannel<Integer> q = new ConfigChannel<Integer>("q", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

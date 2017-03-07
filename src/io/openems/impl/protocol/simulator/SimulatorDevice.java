@@ -25,13 +25,19 @@ import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 
-@ThingInfo("Simulated devices")
+@ThingInfo(title = "Simulator")
 public abstract class SimulatorDevice extends Device {
 
+	/*
+	 * Constructors
+	 */
 	public SimulatorDevice() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Methods
+	 */
 	protected final void update() {
 		for (DeviceNature nature : getDeviceNatures()) {
 			if (nature instanceof SimulatorDeviceNature) {

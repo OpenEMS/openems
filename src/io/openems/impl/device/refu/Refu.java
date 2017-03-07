@@ -30,19 +30,25 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@ThingInfo("Represents a REFU battery inverter device")
+@ThingInfo(title = "REFU battery inverter")
 public class Refu extends ModbusDevice {
 
 	/*
-	 * Config
+	 * Constructors
 	 */
-	@ConfigInfo(title = "Sets the ess nature", type = RefuEss.class)
-	public final ConfigChannel<RefuEss> ess = new ConfigChannel<RefuEss>("ess", this);
-
 	public Refu() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = RefuEss.class)
+	public final ConfigChannel<RefuEss> ess = new ConfigChannel<>("ess", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public String toString() {
 		return "FeneconCommercialAC [ess=" + ess + ", getThingId()=" + id() + "]";

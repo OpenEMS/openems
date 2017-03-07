@@ -25,19 +25,32 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
+@ThingInfo(title = "PQ Plus UMD 97")
 public class PqPlusUMD97 extends ModbusDevice {
 
-	public final ConfigChannel<PqPlusUMD97Meter> meter = new ConfigChannel<PqPlusUMD97Meter>("meter", this,
-			PqPlusUMD97Meter.class);
-
+	/*
+	 * Constructors
+	 */
 	public PqPlusUMD97() throws OpenemsException {
 		super();
 	}
 
-	@Override protected Set<DeviceNature> getDeviceNatures() {
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Meter", description = "Sets the meter nature.", type = PqPlusUMD97Meter.class)
+	public final ConfigChannel<PqPlusUMD97Meter> meter = new ConfigChannel<>("meter", this);
+
+	/*
+	 * Methods
+	 */
+	@Override
+	protected Set<DeviceNature> getDeviceNatures() {
 		Set<DeviceNature> natures = new HashSet<>();
 		if (meter.valueOptional().isPresent()) {
 			natures.add(meter.valueOptional().get());

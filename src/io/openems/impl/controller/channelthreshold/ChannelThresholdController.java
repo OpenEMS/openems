@@ -28,17 +28,40 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.hysteresis.Hysteresis;
 
+@ThingInfo(title = "Switch channel on threshold")
 public class ChannelThresholdController extends Controller {
 
-	private ThingRepository repo = ThingRepository.getInstance();
+	/*
+	 * Constructors
+	 */
+	public ChannelThresholdController() {
+		super();
+	}
 
+	public ChannelThresholdController(String thingId) {
+		super(thingId);
+	}
+
+	/*
+	 * Fields
+	 */
+	private ThingRepository repo = ThingRepository.getInstance();
+	private ReadChannel<Long> thresholdChannel;
+	private WriteChannel<Boolean> outputChannel;
+	private Hysteresis thresholdHysteresis;
+	private boolean isActive = false;
+
+	/*
+	 * Config
+	 */
 	@SuppressWarnings("unchecked")
-	@ConfigInfo(title = "the address of the channel, which indicates the switching by the min and max threshold.", type = String.class)
+	@ConfigInfo(title = "Channel", description = "Address of the channel that indicates the switching by the min and max threshold.", type = String.class)
 	public ConfigChannel<String> thresholdChannelName = new ConfigChannel<String>("thresholdChannelAddress", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				Optional<String> channelAddress = (Optional<String>) newValue;
@@ -55,7 +78,7 @@ public class ChannelThresholdController extends Controller {
 			});
 
 	@SuppressWarnings("unchecked")
-	@ConfigInfo(title = "the address of the digital output, which should be switched.", type = String.class)
+	@ConfigInfo(title = "Output", description = "Address of the digital output channel that should be switched.", type = String.class)
 	public ConfigChannel<String> outputChannelName = new ConfigChannel<String>("outputChannelAddress", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				Optional<String> channelAddress = (Optional<String>) newValue;
@@ -70,14 +93,16 @@ public class ChannelThresholdController extends Controller {
 					log.error("'outputChannelAddress' is not configured!");
 				}
 			});
-	@ConfigInfo(title = "value of the lower threshold where the output should be switched on.", type = Long.class)
+
+	@ConfigInfo(title = "Low threshold", description = "Low threshold where the output should be switched on.", type = Long.class)
 	public ConfigChannel<Long> lowerThreshold = new ConfigChannel<Long>("lowerThreshold", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				if (newValue.isPresent()) {
 					createHysteresis();
 				}
 			});
-	@ConfigInfo(title = "value of the upper threshold where the output should be switched off.", type = Long.class)
+
+	@ConfigInfo(title = "High threshold", description = "High threshold where the output should be switched off.", type = Long.class)
 	public ConfigChannel<Long> upperThreshold = new ConfigChannel<Long>("upperThreshold", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				if (newValue.isPresent()) {
@@ -85,19 +110,9 @@ public class ChannelThresholdController extends Controller {
 				}
 			});
 
-	private ReadChannel<Long> thresholdChannel;
-	private WriteChannel<Boolean> outputChannel;
-	private Hysteresis thresholdHysteresis;
-	private boolean isActive = false;
-
-	public ChannelThresholdController() {
-		super();
-	}
-
-	public ChannelThresholdController(String thingId) {
-		super(thingId);
-	}
-
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

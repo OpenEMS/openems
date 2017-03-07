@@ -29,36 +29,47 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
-@ThingInfo("Set fixed active and reactive power for asymmetric ESS")
+@ThingInfo(title = "Fixed active and reactive power (Asymmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For asymmetric Ess.")
 public class FixValueController extends Controller {
 
-	@ConfigInfo(title = "ess to set fix power value", type = Ess.class)
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
-
-	@ConfigInfo(title = "Fixvalue activePower for phase 1", type = Long.class)
-	public final ConfigChannel<Long> activePowerL1 = new ConfigChannel<>("activePowerL1", this);
-	@ConfigInfo(title = "Fixvalue activePower for phase 2", type = Long.class)
-	public final ConfigChannel<Long> activePowerL2 = new ConfigChannel<>("activePowerL2", this);
-	@ConfigInfo(title = "Fixvalue activePower for phase 3", type = Long.class)
-	public final ConfigChannel<Long> activePowerL3 = new ConfigChannel<>("activePowerL3", this);
-
-	@ConfigInfo(title = "Fixvalue reactivePower for phase 1", type = Long.class)
-	public final ConfigChannel<Long> reactivePowerL1 = new ConfigChannel<>("reactivePowerL1", this);
-	@ConfigInfo(title = "Fixvalue reactivePower for phase 2", type = Long.class)
-	public final ConfigChannel<Long> reactivePowerL2 = new ConfigChannel<>("reactivePowerL2", this);
-	@ConfigInfo(title = "Fixvalue reactivePower for phase 3", type = Long.class)
-	public final ConfigChannel<Long> reactivePowerL3 = new ConfigChannel<>("reactivePowerL3", this);
-
+	/*
+	 * Constructors
+	 */
 	public FixValueController() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public FixValueController(String thingId) {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
+
+	@ConfigInfo(title = "ActivePower L1", description = "Fixed active power for phase L1.", type = Long.class)
+	public final ConfigChannel<Long> activePowerL1 = new ConfigChannel<>("activePowerL1", this);
+
+	@ConfigInfo(title = "ActivePower L2", description = "Fixed active power for phase L2.", type = Long.class)
+	public final ConfigChannel<Long> activePowerL2 = new ConfigChannel<>("activePowerL2", this);
+
+	@ConfigInfo(title = "ActivePower L3", description = "Fixed active power for phase L3.", type = Long.class)
+	public final ConfigChannel<Long> activePowerL3 = new ConfigChannel<>("activePowerL3", this);
+
+	@ConfigInfo(title = "ReactivePower L1", description = "Fixed reactive power for phase L1.", type = Long.class)
+	public final ConfigChannel<Long> reactivePowerL1 = new ConfigChannel<>("reactivePowerL1", this);
+
+	@ConfigInfo(title = "ReactivePower L2", description = "Fixed reactive power for phase L2.", type = Long.class)
+	public final ConfigChannel<Long> reactivePowerL2 = new ConfigChannel<>("reactivePowerL2", this);
+
+	@ConfigInfo(title = "ReactivePower L3", description = "Fixed reactive power for phase L3.", type = Long.class)
+	public final ConfigChannel<Long> reactivePowerL3 = new ConfigChannel<>("reactivePowerL3", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

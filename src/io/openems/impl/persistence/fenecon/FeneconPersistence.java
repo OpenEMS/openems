@@ -36,42 +36,43 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.persistence.Persistence;
 import io.openems.core.Databus;
 import io.openems.core.utilities.websocket.WebsocketHandler;
 
+@ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
 
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Sets the 'apikey' for FENECON Cloud", type = String.class)
+	@ConfigInfo(title = "Apikey", description = "Sets the apikey for FENECON Cloud.", type = String.class)
 	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this);
 
-	@ConfigInfo(title = "Sets the connection URI", type = String.class)
-	public final ConfigChannel<String> uri = new ConfigChannel<String>("uri", this)
-			.defaultValue("wss://fenecon.de:443/femsserver");
+	@ConfigInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/femsserver\"")
+	public final ConfigChannel<String> uri = new ConfigChannel<String>("uri", this);
 
-	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
-
-	private List<JsonObject> unsentCache = new ArrayList<>();
-
-	private WebsocketClient websocketClient;
-
-	private static final int DEFAULT_CYCLETIME = 2000;
-
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
 			.defaultValue(DEFAULT_CYCLETIME);
 
 	@Override
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
+	/*
+	 * Fields
+	 */
+	private static final int DEFAULT_CYCLETIME = 2000;
+	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
+	private List<JsonObject> unsentCache = new ArrayList<>();
+	private WebsocketClient websocketClient;
 	private volatile int currentCycleTime = DEFAULT_CYCLETIME;
 
+	/*
+	 * Methods
+	 */
 	/**
 	 * Receives update events for all {@link ReadChannel}s, excluding {@link ConfigChannel}s via the {@link Databus}.
 	 */

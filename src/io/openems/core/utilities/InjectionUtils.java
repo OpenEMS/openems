@@ -45,6 +45,7 @@ import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
+import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
 import io.openems.core.ClassRepository;
@@ -114,8 +115,7 @@ public class InjectionUtils {
 	 * @throws ConfigException
 	 * @throws ReflectionException
 	 */
-	public static Thing getThingInstance(Class<? extends Thing> clazz, Object... args)
-			throws ReflectionException {
+	public static Thing getThingInstance(Class<? extends Thing> clazz, Object... args) throws ReflectionException {
 		Thing thing;
 		try {
 			thing = (Thing) InjectionUtils.getInstance(clazz, args);
@@ -128,7 +128,8 @@ public class InjectionUtils {
 			try {
 				Channel channel = getChannel(thing, member);
 				((ConfigChannel<?>) channel).applyAnnotation(config);
-			} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException
+					| OpenemsException e) {
 				log.warn(e.getMessage());
 			}
 		});

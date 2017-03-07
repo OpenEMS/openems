@@ -30,19 +30,25 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@ThingInfo("Represents a Socomec B30 meter device")
+@ThingInfo(title = "Socomec B30")
 public class SocomecB30 extends ModbusDevice {
 
 	/*
-	 * Config
+	 * Constructors
 	 */
-	@ConfigInfo(title = "Sets the meter nature", type = SocomecB30Meter.class)
-	public final ConfigChannel<SocomecB30Meter> meter = new ConfigChannel<SocomecB30Meter>("meter", this);
-
 	public SocomecB30() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Meter", description = "Sets the meter nature.", type = SocomecB30Meter.class)
+	public final ConfigChannel<SocomecB30Meter> meter = new ConfigChannel<>("meter", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	protected Set<DeviceNature> getDeviceNatures() {
 		Set<DeviceNature> natures = new HashSet<>();

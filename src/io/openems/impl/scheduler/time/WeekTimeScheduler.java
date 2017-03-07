@@ -46,11 +46,19 @@ import io.openems.api.scheduler.Scheduler;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
 
-@ThingInfo("Simple app-planner for reccuring weekly plans")
+@ThingInfo(title = "Weekly App-Planner", description = "Define recurring weekly plans.")
 public class WeekTimeScheduler extends Scheduler {
 
-	private ThingRepository thingRepository;
+	/*
+	 * Constructors
+	 */
+	public WeekTimeScheduler() {
+		thingRepository = ThingRepository.getInstance();
+	}
 
+	/*
+	 * Config
+	 */
 	/*
 	 * JsonArray format:
 	 * [{
@@ -58,36 +66,45 @@ public class WeekTimeScheduler extends Scheduler {
 	 * controllers: [ "controller0", "controller1"]
 	 * }]
 	 */
-	@ConfigInfo(title = "Configures the Controllers for Monday", type = JsonArray.class)
+	@ConfigInfo(title = "Monday", description = "Sets the controllers for monday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> monday = new ConfigChannel<>("monday", this);
-	@ConfigInfo(title = "Configures the Controllers for Tuesday", type = JsonArray.class)
+
+	@ConfigInfo(title = "Tuesday", description = "Sets the controllers for tuesday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> tuesday = new ConfigChannel<>("tuesday", this);
-	@ConfigInfo(title = "Configures the Controllers for Wednesday", type = JsonArray.class)
+
+	@ConfigInfo(title = "Wednesday", description = "Sets the controllers for wednesday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> wednesday = new ConfigChannel<>("wednesday", this);
-	@ConfigInfo(title = "Configures the Controllers for Thursday", type = JsonArray.class)
+
+	@ConfigInfo(title = "Thursday", description = "Sets the controllers for thursday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> thursday = new ConfigChannel<>("thursday", this);
-	@ConfigInfo(title = "Configures the Controllers for Friday", type = JsonArray.class)
+
+	@ConfigInfo(title = "Friday", description = "Sets the controllers for friday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> friday = new ConfigChannel<>("friday", this);
-	@ConfigInfo(title = "Configures the Controllers for Saturday", type = JsonArray.class)
+
+	@ConfigInfo(title = "Saturday", description = "Sets the controllers for saturday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> saturday = new ConfigChannel<>("saturday", this);
-	@ConfigInfo(title = "Configures the Controllers for Sunday", type = JsonArray.class)
+
+	@ConfigInfo(title = "Sunday", description = "Sets the controllers for sunday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> sunday = new ConfigChannel<>("sunday", this);
-	@ConfigInfo(title = "Sets the always enabled Controllers", type = JsonArray.class)
+
+	@ConfigInfo(title = "Always", description = "Sets the controllers that are always activated.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this);
 
-	public WeekTimeScheduler() {
-		thingRepository = ThingRepository.getInstance();
-	}
-
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
-			.defaultValue(500);
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(500);
 
 	@Override
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
+	/*
+	 * Fields
+	 */
+	private ThingRepository thingRepository;
+
+	/*
+	 * Methods
+	 */
 	@Override
 	protected void dispose() {}
 

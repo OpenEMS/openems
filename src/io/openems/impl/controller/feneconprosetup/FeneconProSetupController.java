@@ -26,24 +26,33 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
+@ThingInfo(title = "Initial setup for FENECON Pro", description = "Sets the correct factory settings for FENECON Pro energy storage systems.")
 public class FeneconProSetupController extends Controller {
 
-	@ConfigInfo(title = "Storages of type FeneconPro to run initial setup commands", type = Ess.class)
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
-
+	/*
+	 * Constructors
+	 */
 	public FeneconProSetupController() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public FeneconProSetupController(String thingId) {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

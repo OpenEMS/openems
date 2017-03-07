@@ -30,6 +30,7 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.nature.meter.SymmetricMeterNature;
 
 public class Databus implements ChannelUpdateListener, ChannelChangeListener {
 	private final static Logger log = LoggerFactory.getLogger(Databus.class);
@@ -59,6 +60,11 @@ public class Databus implements ChannelUpdateListener, ChannelChangeListener {
 					((ChannelUpdateListener) persistence).channelUpdated(channel, newValue);
 				}
 			});
+		}
+
+		// Update min/max values of meter
+		if (channel.parent() instanceof SymmetricMeterNature && channel.id().equals("ActivePower")) {
+			((SymmetricMeterNature) channel.parent()).updateMinMaxActivePower();
 		}
 	}
 

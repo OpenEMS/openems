@@ -24,9 +24,12 @@ import java.util.Optional;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.NotImplementedException;
+import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -35,19 +38,6 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	private Class<?> type;
 	private Optional<T> defaultValue = Optional.empty();
 	private boolean isOptional;
-
-	/**
-	 *
-	 * @param id
-	 * @param parent
-	 * @param type
-	 * @deprecated use instead "@ConfigInfo(title="",type=String.class) ConfigChannel(String id, Thing parent)"
-	 */
-	@Deprecated
-	public ConfigChannel(String id, Thing parent, Class<?> type) {
-		super(id, parent);
-		this.type = type;
-	}
 
 	public ConfigChannel(String id, Thing parent) {
 		super(id, parent);
@@ -59,10 +49,20 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	 * This method is called by reflection from {@link InjectionUtils.getThingInstance}
 	 *
 	 * @param parent
+	 * @throws OpenemsException
 	 */
-	public void applyAnnotation(ConfigInfo configAnnotation) {
+	public void applyAnnotation(ConfigInfo configAnnotation) throws OpenemsException {
 		this.type = configAnnotation.type();
 		this.isOptional = configAnnotation.isOptional();
+		if (!configAnnotation.defaultValue().isEmpty()) {
+			JsonElement jValue = null;
+			try {
+				jValue = (new JsonParser()).parse(configAnnotation.defaultValue());
+				this.defaultValue((T) JsonUtils.getAsType(type, jValue));
+			} catch (NotImplementedException | JsonSyntaxException e) {
+				throw new OpenemsException("Unable to set defaultValue [" + jValue + "] " + e.getMessage());
+			}
+		}
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	}
 
 	// TODO: remove, obsolete
-	public ConfigChannel<T> optional() {
+	private ConfigChannel<T> optional() {
 		this.isOptional = true;
 		return this;
 	}

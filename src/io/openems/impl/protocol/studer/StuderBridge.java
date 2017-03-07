@@ -39,29 +39,43 @@ import io.openems.impl.protocol.studer.internal.StuderConnection;
 import io.openems.impl.protocol.studer.internal.request.ReadRequest;
 import io.openems.impl.protocol.studer.internal.request.ReadResponse;
 
-@ThingInfo("Bridge to Studer devices")
+@ThingInfo(title = "Studer")
 public class StuderBridge extends Bridge implements ChannelUpdateListener {
 
-	private Optional<StuderConnection> connection = Optional.empty();
-	protected volatile StuderDevice[] studerdevices = new StuderDevice[0];
-	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
+	private final ChannelUpdateListener channelUpdateListener = new ChannelUpdateListener() {
+		@Override
+		public void channelUpdated(Channel channel, Optional<?> newValue) {
+			triggerInitialize();
+		}
+	};
 
-	@ConfigInfo(title = "Sets the serial interface (e.g. /dev/ttyUSB0)", type = String.class)
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Serial interface", description = "Sets the serial interface (e.g. /dev/ttyUSB0).", type = String.class)
 	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this)
-			.addUpdateListener(this);
+			.addUpdateListener(channelUpdateListener);
 
-	@ConfigInfo(title = "Sets the source address (e.g. '1')", type = Integer.class)
-	public final ConfigChannel<Integer> address = new ConfigChannel<Integer>("address", this).defaultValue(1);
+	@ConfigInfo(title = "Source address", description = "Sets the source address (e.g. 1).", type = Integer.class, defaultValue = "1")
+	public final ConfigChannel<Integer> address = new ConfigChannel<Integer>("address", this);
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
-			.defaultValue(1000);
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
 
 	@Override
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
+	/*
+	 * Fields
+	 */
+	private Optional<StuderConnection> connection = Optional.empty();
+	protected volatile StuderDevice[] studerdevices = new StuderDevice[0];
+	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void dispose() {
 		this.closeConnection();

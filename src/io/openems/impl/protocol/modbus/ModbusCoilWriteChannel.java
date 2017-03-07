@@ -26,7 +26,7 @@ public class ModbusCoilWriteChannel extends ModbusWriteChannel<Boolean> {
 
 	public ModbusCoilWriteChannel(String id, Thing parent) {
 		super(id, parent);
-		// TODO Auto-generated constructor stub
+		// TODO Auto-generated Constructors stub
 	}
 
 	@Override public ModbusCoilWriteChannel required() {

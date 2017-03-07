@@ -29,13 +29,19 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
-@ThingInfo("FENECON Commercial DC inverter")
+@ThingInfo(title = "FENECON Commercial DC-Inverter")
 public class FeneconCommercialInverter extends ModbusDeviceNature implements PvInverterNature {
+
+	/*
+	 * Constructors
+	 */
+	public FeneconCommercialInverter(String thingId) throws ConfigException {
+		super(thingId);
+	}
 
 	/*
 	 * Inherited Channels
 	 */
-
 	private ModbusWriteLongChannel setPvLimit;
 
 	@Override
@@ -43,10 +49,9 @@ public class FeneconCommercialInverter extends ModbusDeviceNature implements PvI
 		return setPvLimit;
 	}
 
-	public FeneconCommercialInverter(String thingId) throws ConfigException {
-		super(thingId);
-	}
-
+	/*
+	 * Methods
+	 */
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		ModbusProtocol protocol = new ModbusProtocol(//

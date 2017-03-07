@@ -36,39 +36,54 @@ import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsModbusException;
 
-@ThingInfo("Bridge to Modbus/RTU devices")
-public class ModbusRtu extends ModbusBridge implements ChannelUpdateListener {
-	private Optional<SerialConnection> connection = Optional.empty();
+@ThingInfo(title = "Modbus/RTU")
+public class ModbusRtu extends ModbusBridge {
+
+	private final ChannelUpdateListener channelUpdateListener = new ChannelUpdateListener() {
+		@Override
+		public void channelUpdated(Channel channel, Optional<?> newValue) {
+			triggerInitialize();
+		}
+	};
 
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Sets the baudrate (e.g. 9600)", type = Integer.class)
-	public final ConfigChannel<Integer> baudrate = new ConfigChannel<Integer>("baudrate", this).addUpdateListener(this);
-	@ConfigInfo(title = "Sets the databits (e.g. 8)", type = Integer.class)
-	public final ConfigChannel<Integer> databits = new ConfigChannel<Integer>("databits", this).addUpdateListener(this);
-	@ConfigInfo(title = "Sets the parity (e.g. even)", type = String.class)
-	public final ConfigChannel<String> parity = new ConfigChannel<String>("parity", this).addUpdateListener(this);
-	@ConfigInfo(title = "Sets the serial interface (e.g. /dev/ttyUSB0)", type = String.class)
-	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this)
-			.addUpdateListener(this);
-	@ConfigInfo(title = "Sets the stopbits (e.g. 1)", type = Integer.class)
-	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this).addUpdateListener(this);
+	@ConfigInfo(title = "Baudrate", description = "Sets the baudrate (e.g. 9600).", type = Integer.class)
+	public final ConfigChannel<Integer> baudrate = new ConfigChannel<Integer>("baudrate", this)
+			.addUpdateListener(channelUpdateListener);
 
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	@ConfigInfo(title = "Databits", description = "Sets the databits (e.g. 8).", type = Integer.class)
+	public final ConfigChannel<Integer> databits = new ConfigChannel<Integer>("databits", this)
+			.addUpdateListener(channelUpdateListener);
+
+	@ConfigInfo(title = "Parity", description = "Sets the parity (e.g. 'even').", type = String.class)
+	public final ConfigChannel<String> parity = new ConfigChannel<String>("parity", this)
+			.addUpdateListener(channelUpdateListener);
+
+	@ConfigInfo(title = "Serial interface", description = "Sets the serial interface (e.g. /dev/ttyUSB0).", type = String.class)
+	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this)
+			.addUpdateListener(channelUpdateListener);
+
+	@ConfigInfo(title = "Stopbits", description = "Sets the stopbits (e.g. 1).", type = Integer.class)
+	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this)
+			.addUpdateListener(channelUpdateListener);
+
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(500);
 
 	@Override
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
-	@Override
-	public void channelUpdated(Channel channel, Optional<?> newValue) {
-		triggerInitialize();
-	}
+	/*
+	 * Fields
+	 */
+	private Optional<SerialConnection> connection = Optional.empty();
 
+	/*
+	 * Methods
+	 */
 	@Override
 	public void dispose() {
 

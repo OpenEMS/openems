@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
@@ -37,19 +38,34 @@ import io.openems.impl.protocol.studer.internal.StuderProtocol;
 import io.openems.impl.protocol.studer.internal.property.ReadProperty;
 import io.openems.impl.protocol.studer.internal.property.WriteProperty;
 
+@ThingInfo(title = "Studer")
 public abstract class StuderDeviceNature implements DeviceNature, ChannelChangeListener {
+
+	/*
+	 * Constructors
+	 */
+	public StuderDeviceNature(String thingId) throws ConfigException {
+		this.thingId = thingId;
+		log = LoggerFactory.getLogger(this.getClass());
+		this.listeners = new ArrayList<>();
+	}
+
+	/*
+	 * Fields
+	 */
 	protected final Logger log;
 	private StuderProtocol protocol = null;
 	private final String thingId;
 	private List<ThingChannelsUpdatedListener> listeners;
 
-	public StuderDeviceNature(String thingId) throws ConfigException {
-		this.thingId = thingId;
-		log = LoggerFactory.getLogger(this.getClass());
-		// this.protocol = defineModbusProtocol();
-		this.listeners = new ArrayList<>();
-	}
+	/*
+	 * Abstract Methods
+	 */
+	protected abstract StuderProtocol defineStuderProtocol() throws ConfigException;
 
+	/*
+	 * Methods
+	 */
 	private StuderProtocol getProtocol() {
 		if (protocol == null) {
 			createStuderProtocol();
@@ -101,8 +117,6 @@ public abstract class StuderDeviceNature implements DeviceNature, ChannelChangeL
 			log.error("Failed to define modbus protocol!", e);
 		}
 	}
-
-	protected abstract StuderProtocol defineStuderProtocol() throws ConfigException;
 
 	protected void update(int srcAddress, int dstAddress, StuderBridge bridge) throws OpenemsException {
 		/**

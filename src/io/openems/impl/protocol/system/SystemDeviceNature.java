@@ -28,7 +28,7 @@ import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 
-@ThingInfo("System nature. Provides general system information.")
+@ThingInfo(title = "Operating system")
 public abstract class SystemDeviceNature implements DeviceNature {
 	protected final Logger log;
 	private final String thingId;

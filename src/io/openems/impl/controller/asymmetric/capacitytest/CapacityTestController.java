@@ -31,24 +31,16 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
+@ThingInfo(title = "Battery capacity test (Asymmetric)", description = "Executes a capacity test. For asymmetric Ess.")
 public class CapacityTestController extends Controller {
 
 	/*
-	 * Config
+	 * Constructors
 	 */
-	@ConfigInfo(title = "power to discharge ess", type = Integer.class)
-	public ConfigChannel<Integer> power = new ConfigChannel<Integer>("power", this).defaultValue(750);
-
-	@ConfigInfo(title = "path to save the logfile", type = String.class)
-	public ConfigChannel<String> logPath = new ConfigChannel<String>("logPath", this);
-
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this, Ess.class);
-
-	private FileWriter fw;
-
 	public CapacityTestController() {
 		super();
 		initialize();
@@ -59,6 +51,26 @@ public class CapacityTestController extends Controller {
 		initialize();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Power", description = "Discharge power of Ess.", type = Integer.class, defaultValue = "750")
+	public ConfigChannel<Integer> power = new ConfigChannel<Integer>("power", this);
+
+	@ConfigInfo(title = "Log-File", description = "Path to save the logfile.", type = Integer.class)
+	public ConfigChannel<String> logPath = new ConfigChannel<String>("logPath", this);
+
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
+
+	/*
+	 * Fields
+	 */
+	private FileWriter fw;
+
+	/*
+	 * Methods
+	 */
 	private void initialize() {
 		logPath.addUpdateListener(new ChannelUpdateListener() {
 

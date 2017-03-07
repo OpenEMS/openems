@@ -401,6 +401,10 @@ public class Config implements ChannelChangeListener {
 			configFile = Paths.get("C:", "Users", "matthias.rossmann", "Documents", "config.json").toFile();
 		}
 		if (!configFile.isFile()) {
+			configFile = Paths.get("C:", "Users", "emre.bakir", "git", "openems", "etc", "openems.d", "config.json")
+					.toFile();
+		}
+		if (!configFile.isFile()) {
 			throw new ConfigException("No config file found!");
 		}
 		return configFile;
@@ -420,18 +424,29 @@ public class Config implements ChannelChangeListener {
 			JsonObject j = getJson(true);
 			JsonObject jMeta = new JsonObject();
 			/*
-			 * Natures
+			 * Devices -> Natures
 			 */
 			JsonObject jDeviceNatures = new JsonObject();
 			thingRepository.getDeviceNatures().forEach(nature -> {
-				JsonArray jNatureClasses = new JsonArray();
+				JsonArray jNatureImplements = new JsonArray();
 				/*
 				 * get important classes/interfaces that are implemented by this nature
 				 */
 				for (Class<?> iface : InjectionUtils.getImportantNatureInterfaces(nature.getClass())) {
-					jNatureClasses.add(iface.getSimpleName());
+					jNatureImplements.add(iface.getSimpleName());
 				}
-				jDeviceNatures.add(nature.id(), jNatureClasses);
+				JsonObject jDeviceNature = new JsonObject();
+				jDeviceNature.add("implements", jNatureImplements);
+				JsonObject jChannels = new JsonObject();
+				thingRepository.getConfigChannels(nature).forEach(channel -> {
+					try {
+						jChannels.add(channel.id(), channel.toJsonObject());
+					} catch (NotImplementedException e) {
+						/* ignore */
+					}
+				});
+				jDeviceNature.add("channels", jChannels);
+				jDeviceNatures.add(nature.id(), jDeviceNature);
 			});
 			jMeta.add("natures", jDeviceNatures);
 			/*
@@ -439,29 +454,29 @@ public class Config implements ChannelChangeListener {
 			 */
 			ClassRepository classRepository = ClassRepository.getInstance();
 			// Controllers
-			JsonArray jControllers = new JsonArray();
+			JsonArray jAvailableControllers = new JsonArray();
 			for (ThingDoc description : classRepository.getAvailableControllers()) {
-				jControllers.add(description.getAsJsonObject());
+				jAvailableControllers.add(description.getAsJsonObject());
 			}
-			jMeta.add("controllers", jControllers);
+			jMeta.add("availableControllers", jAvailableControllers);
 			// Bridges
-			JsonArray jBridges = new JsonArray();
+			JsonArray jAvailableBridges = new JsonArray();
 			for (ThingDoc description : classRepository.getAvailableBridges()) {
-				jBridges.add(description.getAsJsonObject());
+				jAvailableBridges.add(description.getAsJsonObject());
 			}
-			jMeta.add("bridges", jBridges);
+			jMeta.add("availableBridges", jAvailableBridges);
 			// Devices
-			JsonArray jDevices = new JsonArray();
+			JsonArray jAvailableDevices = new JsonArray();
 			for (ThingDoc description : classRepository.getAvailableDevices()) {
-				jDevices.add(description.getAsJsonObject());
+				jAvailableDevices.add(description.getAsJsonObject());
 			}
-			jMeta.add("devices", jDevices);
+			jMeta.add("availableDevices", jAvailableDevices);
 			// Schedulers
-			JsonArray jSchedulers = new JsonArray();
+			JsonArray jAvailableSchedulers = new JsonArray();
 			for (ThingDoc description : classRepository.getAvailableSchedulers()) {
-				jSchedulers.add(description.getAsJsonObject());
+				jAvailableSchedulers.add(description.getAsJsonObject());
 			}
-			jMeta.add("schedulers", jSchedulers);
+			jMeta.add("availableSchedulers", jAvailableSchedulers);
 			j.add("_meta", jMeta);
 			return j;
 		} catch (NotImplementedException | ReflectionException e) {

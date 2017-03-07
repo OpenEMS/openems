@@ -26,20 +26,19 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 /**
- *
  * @author matthias.rossmann
- *         This Controller send the Ess a command to always run.
- *         Use if Off-Grid Functionality is required.
  */
+@ThingInfo(title = "Keep always running (Symmetric)", description = "Tries to keep the Ess always running. Use if Off-Grid functionality is required. For symmetric Ess.")
 public class AlwaysOnController extends Controller {
 
-	@ConfigInfo(title = "All storages, which should allways run.", type = Ess.class)
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
-
+	/*
+	 * Constructors
+	 */
 	public AlwaysOnController() {
 		super();
 	}
@@ -48,6 +47,15 @@ public class AlwaysOnController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {
@@ -62,5 +70,4 @@ public class AlwaysOnController extends Controller {
 			log.error("No Storage Found!", e);
 		}
 	}
-
 }

@@ -27,22 +27,19 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
 /**
- *
  * @author matthias.rossmann
- *         This Controller send the Ess a command to go in Standby if no power is Reqired.
- *         Do not use if Off-Grid Functionality is required.
  */
+@ThingInfo(title = "Energy saving (Symmetric)", description = "Sends the Ess to Standby if no power is required for two minutes. Do not use if Off-Grid functionality is required. For symmetric Ess.")
 public class EnergysavingController extends Controller {
 
-	@ConfigInfo(title = "All ess which should be stopped if the power is more than two minutes zero.", type = Ess.class)
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
-
-	private Long lastTimeValueWritten = 0L;
-
+	/*
+	 * Constructors
+	 */
 	public EnergysavingController() {
 		super();
 	}
@@ -51,6 +48,20 @@ public class EnergysavingController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
+
+	/*
+	 * Fields
+	 */
+	private Long lastTimeValueWritten = 0L;
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

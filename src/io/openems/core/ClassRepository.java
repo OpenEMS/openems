@@ -157,20 +157,12 @@ public class ClassRepository {
 					thingChannels.put(clazz, method);
 				}
 				if (ConfigChannel.class.isAssignableFrom(type)) {
-					ConfigInfo configAnnotation = method.getAnnotation(ConfigInfo.class);
-					if (configAnnotation == null) {
-						// TODO recursive search
-						// Class<?> superclazz = null;
-						// do {
-						// superclazz = clazz.getSuperclass();
-						// if(superclazz != null) {
-						// configAnnotation = method.getAnnotation(ConfigInfo.class);
-						// }
-						// } while(configAnnotation == null || superclazz == null);
+					ConfigInfo configAnnotation = getAnnotation(clazz, method.getName());
+					if (configAnnotation != null) {
+						thingConfigChannels.put(clazz, method, configAnnotation);
+					} else {
 						log.error("Config-Annotation is missing for method [" + method.getName() + "] in class ["
 								+ clazz.getName() + "]");
-					} else {
-						thingConfigChannels.put(clazz, method, configAnnotation);
 					}
 				}
 			}
@@ -190,5 +182,39 @@ public class ClassRepository {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Tries to find the annotation of the method in the class hierarchy
+	 *
+	 * @param clazz
+	 * @return
+	 */
+	private ConfigInfo getAnnotation(Class<?> clazz, String methodName) {
+		Method method;
+		try {
+			method = clazz.getMethod(methodName);
+		} catch (NoSuchMethodException | SecurityException e) {
+			return null;
+		}
+		if (method.isAnnotationPresent(ConfigInfo.class)) {
+			// found annotation
+			return method.getAnnotation(ConfigInfo.class);
+		} else {
+			Class<?> superclazz = clazz.getSuperclass();
+			if (superclazz != null) {
+				ConfigInfo annotation = getAnnotation(superclazz, methodName);
+				if (annotation != null) {
+					return annotation;
+				}
+			}
+			for (Class<?> iface : clazz.getInterfaces()) {
+				ConfigInfo annotation = getAnnotation(iface, methodName);
+				if (annotation != null) {
+					return annotation;
+				}
+			}
+		}
+		return null;
 	}
 }

@@ -20,8 +20,10 @@
  *******************************************************************************/
 package io.openems.impl.device.janitza;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
@@ -30,10 +32,38 @@ import io.openems.impl.protocol.modbus.internal.FloatElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
+@ThingInfo(title = "Janitza UMG96RM Meter")
 public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements SymmetricMeterNature {
 
+	/*
+	 * Constructors
+	 */
 	public JanitzaUMG96RMEMeter(String thingId) throws ConfigException {
 		super(thingId);
+	}
+
+	/*
+	 * Config
+	 */
+	private final ConfigChannel<String> type = new ConfigChannel<String>("type", this);
+
+	@Override
+	public ConfigChannel<String> type() {
+		return type;
+	}
+
+	private final ConfigChannel<Long> maxActivePower = new ConfigChannel<Long>("maxActivePower", this);
+
+	@Override
+	public ConfigChannel<Long> maxActivePower() {
+		return maxActivePower;
+	}
+
+	private final ConfigChannel<Long> minActivePower = new ConfigChannel<Long>("minActivePower", this);
+
+	@Override
+	public ConfigChannel<Long> minActivePower() {
+		return minActivePower;
 	}
 
 	/*
@@ -57,23 +87,36 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 	public ModbusReadLongChannel currentL2;
 	public ModbusReadLongChannel currentL3;
 
-	@Override public ReadChannel<Long> activePower() {
+	@Override
+	public ReadChannel<Long> activePower() {
 		return activePower;
 	}
 
-	@Override public ReadChannel<Long> apparentPower() {
+	@Override
+	public ReadChannel<Long> apparentPower() {
 		return apparentPower;
 	}
 
-	@Override public ReadChannel<Long> reactivePower() {
+	@Override
+	public ReadChannel<Long> reactivePower() {
 		return reactivePower;
 	}
 
-	@Override public ReadChannel<Long> frequency() {
+	@Override
+	public ReadChannel<Long> frequency() {
 		return frequency;
 	}
 
-	@Override protected ModbusProtocol defineModbusProtocol() throws ConfigException {
+	@Override
+	public ReadChannel<Long> voltage() {
+		return voltageL1;
+	}
+
+	/*
+	 * Methods
+	 */
+	@Override
+	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
 				new ModbusRegisterRange(800, //
 						new FloatElement(800, //
@@ -125,9 +168,4 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 										.unit("VA")) //
 				));
 	}
-
-	@Override public ReadChannel<Long> voltage() {
-		return voltageL1;
-	}
-
 }

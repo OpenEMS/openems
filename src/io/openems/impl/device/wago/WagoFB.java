@@ -49,19 +49,33 @@ import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@ThingInfo("Represents a WAGO I/O device")
+@ThingInfo(title = "WAGO I/O")
 public class WagoFB extends ModbusDevice {
 
-	@ConfigInfo(title = "Output configuration", type = WagoFBOutput.class)
-	public final ConfigChannel<WagoFBOutput> output = new ConfigChannel<WagoFBOutput>("output", this);
-
-	@ConfigInfo(title = "Input configuration", type = WagoFBInput.class)
-	public final ConfigChannel<WagoFBInput> input = new ConfigChannel<WagoFBInput>("input", this);
-
+	/*
+	 * Constructors
+	 */
 	public WagoFB() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Output", description = "Sets the output nature.", type = WagoFBOutput.class)
+	public final ConfigChannel<WagoFBOutput> output = new ConfigChannel<>("output", this);
+
+	@ConfigInfo(title = "Input", description = "Sets the input nature.", type = WagoFBInput.class)
+	public final ConfigChannel<WagoFBInput> input = new ConfigChannel<>("input", this);
+
+	/*
+	 * Fields
+	 */
+	private static HashMap<Inet4Address, HashMap<String, List<String>>> configCache = new HashMap<>();
+
+	/*
+	 * Methods
+	 */
 	@Override
 	protected Set<DeviceNature> getDeviceNatures() {
 		Set<DeviceNature> natures = new HashSet<>();
@@ -73,8 +87,6 @@ public class WagoFB extends ModbusDevice {
 		}
 		return natures;
 	}
-
-	private static HashMap<Inet4Address, HashMap<String, List<String>>> configCache = new HashMap<>();
 
 	public static HashMap<String, List<String>> getConfig(Inet4Address ip) throws ConfigException {
 		if (configCache.containsKey(ip)) {

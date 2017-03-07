@@ -38,18 +38,30 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.range.ModbusCoilRange;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 
-@ThingInfo("WAGO I/O input")
+@ThingInfo(title = "WAGO I/O Input")
 public class WagoFBInput extends ModbusDeviceNature implements InputNature {
 
-	@ConfigInfo(title = "Ip-Address to download the wago configuration", type = Inet4Address.class)
-	public ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
-
-	private List<ModbusCoilReadChannel> channel = new ArrayList<>();
-
+	/*
+	 * Constructors
+	 */
 	public WagoFBInput(String thingId) throws ConfigException {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "IP address", description = "IP address of the WAGO device.", type = Inet4Address.class)
+	public ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
+
+	/*
+	 * This Channels
+	 */
+	private List<ModbusCoilReadChannel> channel = new ArrayList<>();
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public ModbusCoilReadChannel[] getInput() {
 		return channel.toArray(new ModbusCoilReadChannel[channel.size()]);

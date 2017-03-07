@@ -30,22 +30,28 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@ThingInfo("Represents a FENECON Pro device")
+@ThingInfo(title = "FENECON Pro")
 public class FeneconPro extends ModbusDevice {
 
 	/*
-	 * Config
+	 * Constructors
 	 */
-	@ConfigInfo(title = "Sets the ess nature", type = FeneconProEss.class)
-	public final ConfigChannel<FeneconProEss> ess = new ConfigChannel<FeneconProEss>("ess", this);
-
-	@ConfigInfo(title = "Sets the meter nature", type = FeneconProPvMeter.class)
-	public final ConfigChannel<FeneconProPvMeter> meter = new ConfigChannel<FeneconProPvMeter>("meter", this);
-
 	public FeneconPro() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = FeneconProEss.class)
+	public final ConfigChannel<FeneconProEss> ess = new ConfigChannel<>("ess", this);
+
+	@ConfigInfo(title = "Meter", description = "Sets the meter nature.", type = FeneconProPvMeter.class)
+	public final ConfigChannel<FeneconProPvMeter> meter = new ConfigChannel<>("meter", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public String toString() {
 		return "FeneconPro [ess=" + ess + ", getThingId()=" + id() + "]";

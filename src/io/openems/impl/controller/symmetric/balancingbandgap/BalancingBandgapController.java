@@ -23,33 +23,15 @@ package io.openems.impl.controller.symmetric.balancingbandgap;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
-/*
- * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
- */
+@ThingInfo(title = "Balancing bandgap (Symmetric)", description = "Tries to keep the grid meter within a bandgap. For symmetric Ess.")
 public class BalancingBandgapController extends Controller {
-	@ConfigInfo(title = "The storage which should be controlled", type = Ess.class)
-	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "The meter which meassures the power from/to the grid", type = Meter.class)
-	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
-
-	@ConfigInfo(title = "Lower limit of the activepower bandgap.", type = Integer.class)
-	public final ConfigChannel<Integer> minActivePower = new ConfigChannel<>("minActivePower", this);
-	@ConfigInfo(title = "Upper limit of the activepower bandgap.", type = Integer.class)
-	public final ConfigChannel<Integer> maxActivePower = new ConfigChannel<>("maxActivePower", this);
-	@ConfigInfo(title = "Lower limit of the reactivepower bandgap.", type = Integer.class)
-	public final ConfigChannel<Integer> minReactivePower = new ConfigChannel<>("minReactivePower", this);
-	@ConfigInfo(title = "Upper limit of the reactivepower bandgap.", type = Integer.class)
-	public final ConfigChannel<Integer> maxReactivePower = new ConfigChannel<>("maxReactivePower", this);
-	@ConfigInfo(title = "sign if activepower bandgap is activated", type = Boolean.class)
-	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this)
-			.defaultValue(true);
-	@ConfigInfo(title = "sign if reactivepower bandgap is activated", type = Boolean.class)
-	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
-			this).defaultValue(true);
-
+	/*
+	 * Constructors
+	 */
 	public BalancingBandgapController() {
 		super();
 	}
@@ -58,6 +40,37 @@ public class BalancingBandgapController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
+
+	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
+
+	@ConfigInfo(title = "Min-ActivePower", description = "Low boundary of active power bandgap.", type = Integer.class)
+	public final ConfigChannel<Integer> minActivePower = new ConfigChannel<>("minActivePower", this);
+
+	@ConfigInfo(title = "Max-ActivePower", description = "High boundary of active power bandgap.", type = Integer.class)
+	public final ConfigChannel<Integer> maxActivePower = new ConfigChannel<>("maxActivePower", this);
+
+	@ConfigInfo(title = "Min-ReactivePower", description = "Low boundary of reactive power bandgap.", type = Integer.class)
+	public final ConfigChannel<Integer> minReactivePower = new ConfigChannel<>("minReactivePower", this);
+
+	@ConfigInfo(title = "Max-ReactivePower", description = "High boundary of reactive power bandgap.", type = Integer.class)
+	public final ConfigChannel<Integer> maxReactivePower = new ConfigChannel<>("maxReactivePower", this);
+
+	@ConfigInfo(title = "Enable ActivePower", description = "Indicates if active power bandgap is enabled.", type = Boolean.class, defaultValue = "true")
+	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this);
+
+	@ConfigInfo(title = "Enable ReactivePower", description = "Indicates if reactive power bandgap is enabled.", type = Boolean.class, defaultValue = "true")
+	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
+			this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

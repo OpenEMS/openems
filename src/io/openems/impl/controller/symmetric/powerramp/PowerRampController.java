@@ -26,26 +26,17 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Power;
 
+@ThingInfo(title = "Power ramp (Symmetric)", description = "Follows a power ramp. For symmetric Ess.")
 public class PowerRampController extends Controller {
 
-	@ConfigInfo(title = "All storage, which should be controlled", type = Ess.class)
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
-
-	@ConfigInfo(title = "The limit where the powerRamp stops.(pos/neg)", type = Integer.class)
-	public ConfigChannel<Integer> pMax = new ConfigChannel<Integer>("pMax", this);
-	@ConfigInfo(title = "How high the step to increase the power is.", type = Integer.class)
-	public ConfigChannel<Integer> pStep = new ConfigChannel<Integer>("pStep", this);
-	@ConfigInfo(title = "The cosPhi to hold.", type = Double.class)
-	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
-	@ConfigInfo(title = "How long to slee till next power step.", type = Integer.class)
-	public ConfigChannel<Integer> sleep = new ConfigChannel<>("sleep", this);
-	private long lastPower;
-	private long lastSet;
-
+	/*
+	 * Constructors
+	 */
 	public PowerRampController() {
 		super();
 	}
@@ -54,6 +45,33 @@ public class PowerRampController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
+
+	@ConfigInfo(title = "Max-ActivePower", description = "The limit where the powerRamp stops. (pos/neg)", type = Integer.class)
+	public ConfigChannel<Integer> pMax = new ConfigChannel<Integer>("pMax", this);
+
+	@ConfigInfo(title = "Cos-Phi", description = "The cos-phi to hold.", type = Double.class)
+	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
+
+	@ConfigInfo(title = "Step", description = "Step to increase power.", type = Integer.class)
+	public ConfigChannel<Integer> pStep = new ConfigChannel<Integer>("pStep", this);
+
+	@ConfigInfo(title = "Step-Wait", description = "Wait till next step in milliseconds.", type = Integer.class)
+	public ConfigChannel<Integer> sleep = new ConfigChannel<>("sleep", this);
+
+	/*
+	 * Fields
+	 */
+	private long lastPower;
+	private long lastSet;
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

@@ -30,29 +30,42 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.simulator.SimulatorDevice;
 
-@ThingInfo("Represents a Simulated device")
+@ThingInfo(title = "Simulator")
 public class Simulator extends SimulatorDevice {
 
 	/*
-	 * Config
+	 * Constructors
 	 */
-	@ConfigInfo(title = "Sets the ess nature", type = SimulatorEss.class)
-	public final ConfigChannel<SimulatorEss> ess = new ConfigChannel<SimulatorEss>("ess", this);
-	@ConfigInfo(title = "Sets the meter nature", type = SimulatorMeter.class)
-	public final ConfigChannel<SimulatorMeter> meter = new ConfigChannel<SimulatorMeter>("meter", this);
-
 	public Simulator() throws OpenemsException {
 		super();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = SimulatorEss.class)
+	public final ConfigChannel<SimulatorEss> ess = new ConfigChannel<>("ess", this);
+
+	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter nature.", type = SimulatorGridMeter.class)
+	public final ConfigChannel<SimulatorGridMeter> gridMeter = new ConfigChannel<>("gridMeter", this);
+
+	@ConfigInfo(title = "Production-Meter", description = "Sets the production meter nature.", type = SimulatorProductionMeter.class)
+	public final ConfigChannel<SimulatorProductionMeter> productionMeter = new ConfigChannel<>("productionMeter", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	protected Set<DeviceNature> getDeviceNatures() {
 		Set<DeviceNature> natures = new HashSet<>();
 		if (ess.valueOptional().isPresent()) {
 			natures.add(ess.valueOptional().get());
 		}
-		if (meter.valueOptional().isPresent()) {
-			natures.add(meter.valueOptional().get());
+		if (gridMeter.valueOptional().isPresent()) {
+			natures.add(gridMeter.valueOptional().get());
+		}
+		if (productionMeter.valueOptional().isPresent()) {
+			natures.add(productionMeter.valueOptional().get());
 		}
 		return natures;
 	}

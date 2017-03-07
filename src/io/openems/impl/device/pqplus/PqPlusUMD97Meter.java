@@ -20,8 +20,10 @@
  *******************************************************************************/
 package io.openems.impl.device.pqplus;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
@@ -30,10 +32,38 @@ import io.openems.impl.protocol.modbus.internal.FloatElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
+@ThingInfo(title = "PQ Plus UMD 97 Meter")
 public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMeterNature {
 
+	/*
+	 * Constructors
+	 */
 	public PqPlusUMD97Meter(String thingId) throws ConfigException {
 		super(thingId);
+	}
+
+	/*
+	 * Config
+	 */
+	private final ConfigChannel<String> type = new ConfigChannel<String>("type", this);
+
+	@Override
+	public ConfigChannel<String> type() {
+		return type;
+	}
+
+	private final ConfigChannel<Long> maxActivePower = new ConfigChannel<Long>("maxActivePower", this);
+
+	@Override
+	public ConfigChannel<Long> maxActivePower() {
+		return maxActivePower;
+	}
+
+	private final ConfigChannel<Long> minActivePower = new ConfigChannel<Long>("minActivePower", this);
+
+	@Override
+	public ConfigChannel<Long> minActivePower() {
+		return minActivePower;
 	}
 
 	/*
@@ -77,6 +107,14 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 		return frequency;
 	}
 
+	@Override
+	public ReadChannel<Long> voltage() {
+		return voltageL1;
+	}
+
+	/*
+	 * Methods
+	 */
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol( //
@@ -128,11 +166,6 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 						new FloatElement(19050, //
 								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHz")) //
 										.multiplier(3)));
-	}
-
-	@Override
-	public ReadChannel<Long> voltage() {
-		return voltageL1;
 	}
 
 }

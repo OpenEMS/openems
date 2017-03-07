@@ -119,7 +119,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 			persistences.add((Persistence) thing);
 		}
 
-		// Add to persistences
+		// Add to device natures
 		if (thing instanceof DeviceNature) {
 			deviceNatures.add((DeviceNature) thing);
 		}

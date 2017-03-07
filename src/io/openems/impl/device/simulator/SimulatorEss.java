@@ -20,56 +20,51 @@
  *******************************************************************************/
 package io.openems.impl.device.simulator;
 
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
-import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
-@ThingInfo("Simulated energy storage system")
-public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssNature, ChannelUpdateListener {
+@ThingInfo(title = "Simulator ESS")
+public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssNature {
 
+	/*
+	 * Constructors
+	 */
 	public SimulatorEss(String thingId) throws ConfigException {
 		super(thingId);
+		minSoc.addUpdateListener((channel, newValue) -> {
+			// If chargeSoc was not set -> set it to minSoc minus 2
+			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
+				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
+			}
+		});
 	}
 
 	/*
 	 * Config
 	 */
-	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this).addUpdateListener(this);
-
+	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 
 	@Override
-	@ConfigInfo(title = "Sets the minimal SOC", type = Integer.class)
 	public ConfigChannel<Integer> minSoc() {
 		return minSoc;
 	}
 
 	@Override
-	@ConfigInfo(title = "Sets the force charge SOC", type = Integer.class, isOptional = true)
 	public ConfigChannel<Integer> chargeSoc() {
 		return chargeSoc;
-	}
-
-	@Override
-	public void channelUpdated(Channel channel, Optional<?> newValue) {
-		// If chargeSoc was not set -> set it to minSoc minus 2
-		if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
-			chargeSoc.updateValue((Integer) newValue.get() - 2, false);
-		}
 	}
 
 	/*
@@ -157,17 +152,6 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 		return allowedApparent;
 	}
 
-	@Override
-	protected void update() {
-		soc.updateValue(getRandom(0, 100));
-		activePower.updateValue(getRandom(-10000, 10000));
-		reactivePower.updateValue(getRandom(-1800, 1800));
-		allowedCharge.updateValue(9000L);
-		allowedDischarge.updateValue(3000L);
-		systemState.updateValue(1L);
-		gridMode.updateValue(0L);
-	}
-
 	private long getRandom(int min, int max) {
 		return ThreadLocalRandom.current().nextLong(min, max + 1);
 	}
@@ -176,4 +160,32 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 	public ReadChannel<Long> maxNominalPower() {
 		return maxNominalPower;
 	}
+
+	/*
+	 * Fields
+	 */
+	private long lastApparentPower = 0;
+	private long lastSoc = 50;
+	private double lastCosPhi = 0;
+
+	/*
+	 * Methods
+	 */
+	@Override
+	protected void update() {
+		lastSoc = SimulatorTools.addRandomLong(lastSoc, 0, 100, 5);
+		this.soc.updateValue(lastSoc);
+		lastApparentPower = SimulatorTools.addRandomLong(lastApparentPower, -10000, 10000, 100);
+		lastCosPhi = SimulatorTools.addRandomDouble(lastCosPhi, -1.5, 1.5, 0.5);
+		long activePower = ControllerUtils.calculateActivePowerFromApparentPower(lastApparentPower, lastCosPhi);
+		long reactivePower = ControllerUtils.calculateReactivePower(activePower, lastCosPhi);
+		this.activePower.updateValue(activePower);
+		this.reactivePower.updateValue(reactivePower);
+		this.apparentPower.updateValue(lastApparentPower);
+		this.allowedCharge.updateValue(9000L);
+		this.allowedDischarge.updateValue(3000L);
+		this.systemState.updateValue(1L);
+		this.gridMode.updateValue(0L);
+	}
+
 }

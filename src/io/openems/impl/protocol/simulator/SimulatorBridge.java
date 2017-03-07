@@ -26,13 +26,25 @@ import java.util.List;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
-import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 
-@ThingInfo("Bridge to simulated devices for tests")
+@ThingInfo(title = "Simulator")
 public class SimulatorBridge extends Bridge {
 	protected volatile SimulatorDevice[] simulatordevices = new SimulatorDevice[0];
 
+	/*
+	 * Config
+	 */
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
+
+	@Override
+	public ConfigChannel<Integer> cycleTime() {
+		return cycleTime;
+	}
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void triggerWrite() {
 		// not implemented
@@ -81,12 +93,4 @@ public class SimulatorBridge extends Bridge {
 		return true;
 	}
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this, Integer.class)
-			.defaultValue(1000);
-
-	@Override
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
-	public ConfigChannel<Integer> cycleTime() {
-		return cycleTime;
-	}
 }

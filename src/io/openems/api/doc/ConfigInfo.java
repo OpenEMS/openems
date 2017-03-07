@@ -32,7 +32,16 @@ import java.lang.annotation.Target;
 public @interface ConfigInfo {
 	String title();
 
+	String description() default "";
+
 	Class<?> type();
 
 	boolean isOptional() default false;
+
+	/**
+	 * String is interpreted as a JsonElement
+	 *
+	 * @return
+	 */
+	String defaultValue() default "";
 }

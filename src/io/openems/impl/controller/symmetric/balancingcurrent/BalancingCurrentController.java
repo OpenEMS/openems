@@ -23,19 +23,15 @@ package io.openems.impl.controller.symmetric.balancingcurrent;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
+@ThingInfo(title = "Balancing current (Symmetric)", description = "Tries to keep the grid meter at a given current. For symmetric Ess.")
 public class BalancingCurrentController extends Controller {
 
-	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
-	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
-
-	@ConfigInfo(title = "The meter which meassures the power from/to the grid", type = Meter.class)
-	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
-
-	@ConfigInfo(title = "The current to hold on the grid meter.", type = Integer.class)
-	public final ConfigChannel<Integer> currentOffset = new ConfigChannel<>("CurrentOffset", this);
-
+	/*
+	 * Constructors
+	 */
 	public BalancingCurrentController() {
 		super();
 	}
@@ -44,6 +40,21 @@ public class BalancingCurrentController extends Controller {
 		super(thingId);
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
+
+	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
+
+	@ConfigInfo(title = "Current offset", description = "The current to hold on the grid-meter.", type = Meter.class)
+	public final ConfigChannel<Integer> currentOffset = new ConfigChannel<>("CurrentOffset", this);
+
+	/*
+	 * Methods
+	 */
 	@Override
 	public void run() {
 		try {

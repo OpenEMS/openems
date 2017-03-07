@@ -29,36 +29,18 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Point;
 import io.openems.core.utilities.Power;
 
+@ThingInfo(title = "Voltage characteristics (Symmetric)")
 public class VoltageCharacteristicController extends Controller {
 
-	@ConfigInfo(title = "The storage, which should be controlled", type = Ess.class)
-	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
-	@ConfigInfo(title = "The meter to meassure the Voltage.", type = Meter.class)
-	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
-	@ConfigInfo(title = "Nennvoltage of the grid.", type = Integer.class)
-	public final ConfigChannel<Integer> uNenn = new ConfigChannel<>("UNenn", this);
-	@ConfigInfo(title = "CharacteristicPoints for the activepower.", type = Long[].class)
-	public final ConfigChannel<List<Long[]>> pByUCharacteristicPoints = new ConfigChannel<>("pByUCharacteristicPoints",
-			this);
-	@ConfigInfo(title = "CharacteristicPoints for the reactivepower.", type = Long[].class)
-	public final ConfigChannel<List<Long[]>> qByUCharacteristicPoints = new ConfigChannel<>("qByUCharacteristicPoints",
-			this);
-	@ConfigInfo(title = "Indicates if the activepower characteristic is active.", type = Boolean.class)
-	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this)
-			.defaultValue(true);
-	@ConfigInfo(title = "Indicates if the reactivepower characteristic is active.", type = Boolean.class)
-	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
-			this).defaultValue(true);
-
-	private List<Point> pCharacteristic;
-
-	private List<Point> qCharacteristic;
-
+	/*
+	 * Constructors
+	 */
 	public VoltageCharacteristicController() {
 		super();
 		initialize();
@@ -69,6 +51,41 @@ public class VoltageCharacteristicController extends Controller {
 		initialize();
 	}
 
+	/*
+	 * Config
+	 */
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
+
+	@ConfigInfo(title = "Meter", description = "The meter to measure the Voltage.", type = Meter.class)
+	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
+
+	@ConfigInfo(title = "Nominal voltage", description = "The nominal voltage of the grid.", type = Integer.class)
+	public final ConfigChannel<Integer> uNenn = new ConfigChannel<>("UNenn", this);
+
+	@ConfigInfo(title = "ActivePower characteristics", description = "Characteristic points for active power.", type = Long[].class)
+	public final ConfigChannel<List<Long[]>> pByUCharacteristicPoints = new ConfigChannel<>("pByUCharacteristicPoints",
+			this);
+
+	@ConfigInfo(title = "ReactivePower characteristics", description = "Characteristic points for reactive power.", type = Long[].class)
+	public final ConfigChannel<List<Long[]>> qByUCharacteristicPoints = new ConfigChannel<>("qByUCharacteristicPoints",
+			this);
+
+	@ConfigInfo(title = "Enable ActivePower", description = "Indicates if active power characteristic is enabled.", type = Boolean.class, defaultValue = "true")
+	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<>("activePowerActivated", this);
+
+	@ConfigInfo(title = "Enable ReactivePower", description = "Indicates if reactive power characteristic is enabled.", type = Boolean.class, defaultValue = "true")
+	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<>("reactivePowerActivated", this);
+
+	/*
+	 * Fields
+	 */
+	private List<Point> pCharacteristic;
+	private List<Point> qCharacteristic;
+
+	/*
+	 * Methods
+	 */
 	private void initialize() {
 		pByUCharacteristicPoints.addChangeListener(new ChannelChangeListener() {
 

@@ -39,35 +39,44 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.OpenemsModbusException;
 
-@ThingInfo("Bridge to Modbus/TCP devices")
-public class ModbusTcp extends ModbusBridge implements ChannelUpdateListener {
-	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
-	private Optional<TCPMasterConnection> connection = Optional.empty();
+@ThingInfo(title = "Modbus/TCP")
+public class ModbusTcp extends ModbusBridge {
 
-	private final static int MODBUS_PORT = 502;
+	private final ChannelUpdateListener channelUpdateListener = new ChannelUpdateListener() {
+		@Override
+		public void channelUpdated(Channel channel, Optional<?> newValue) {
+			triggerInitialize();
+		}
+	};
 
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Sets the IP address (e.g. 10.0.0.15)", type = Inet4Address.class)
-	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this).addUpdateListener(this);
-	@ConfigInfo(title = "Sets the port (default: " + MODBUS_PORT + ")", type = Integer.class)
-	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(MODBUS_PORT)
-			.addUpdateListener(this);
+	@ConfigInfo(title = "IP address", description = "Sets the IP address (e.g. 10.0.0.15).", type = Inet4Address.class)
+	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this)
+			.addUpdateListener(channelUpdateListener);
 
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	@ConfigInfo(title = "Port", description = "Sets the port (e.g. 502).", type = Integer.class, defaultValue = "502")
+	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this)
+			.addUpdateListener(channelUpdateListener);
+
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(500);
 
 	@Override
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
-	@Override
-	public void channelUpdated(Channel channel, Optional<?> newValue) {
-		triggerInitialize();
-	}
+	/*
+	 * Fields
+	 */
+
+	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
+	private Optional<TCPMasterConnection> connection = Optional.empty();
+
+	/*
+	 * Methods
+	 */
 
 	@Override
 	public void dispose() {
