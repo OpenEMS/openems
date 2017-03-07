@@ -50,6 +50,10 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public abstract ConfigChannel<Integer> cycleTime();
 
+	public boolean isInitialized() {
+		return isInitialized.get();
+	}
+
 	/**
 	 * Little helper method: Sleep and don't let yourself interrupt by a ForceRun-Flag. It is not making sense anyway,
 	 * because something is wrong with the setup if we landed here.
