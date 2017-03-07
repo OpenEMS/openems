@@ -56,20 +56,22 @@ public class StatusBitChannel extends ModbusReadChannel<Long> {
 		return result;
 	};
 
-	@Override public Optional<String> labelOptional() {
+	@Override
+	public Optional<String> labelOptional() {
 		Set<String> labels = this.labels();
 		if (labels.isEmpty()) {
 			return Optional.empty();
 		} else {
 			StringJoiner joiner = new StringJoiner(",");
 			for (String label : labels) {
-				joiner.add(label);
+				joiner.add(this.id() + "/" + label);
 			}
 			return Optional.of(joiner.toString());
 		}
 	};
 
-	@Override public StatusBitChannel label(Long value, String label) {
+	@Override
+	public StatusBitChannel label(Long value, String label) {
 		return (StatusBitChannel) super.label(value, label);
 	}
 
