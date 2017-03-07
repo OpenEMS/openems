@@ -32,7 +32,8 @@ public class ModbusReadDoubleChannel extends ModbusReadChannel<Double> {
 	/*
 	 * Builder
 	 */
-	@Override public ModbusReadDoubleChannel unit(String unit) {
+	@Override
+	public ModbusReadDoubleChannel unit(String unit) {
 		return (ModbusReadDoubleChannel) super.unit(unit);
 	}
 
@@ -40,19 +41,23 @@ public class ModbusReadDoubleChannel extends ModbusReadChannel<Double> {
 		return multiplier(Long.valueOf(multiplier));
 	}
 
-	@Override public ModbusReadDoubleChannel multiplier(Long multiplier) {
+	@Override
+	public ModbusReadDoubleChannel multiplier(Long multiplier) {
 		return (ModbusReadDoubleChannel) super.multiplier(multiplier);
 	}
 
-	@Override public ModbusReadDoubleChannel delta(Long delta) {
+	@Override
+	public ModbusReadDoubleChannel delta(Long delta) {
 		return (ModbusReadDoubleChannel) super.delta(delta);
 	}
 
-	@Override public ModbusReadDoubleChannel interval(Double min, Double max) {
+	@Override
+	public ModbusReadDoubleChannel interval(Double min, Double max) {
 		return (ModbusReadDoubleChannel) super.interval(min, max);
 	}
 
-	@Override public ModbusReadDoubleChannel label(Double value, String label) {
+	@Override
+	public ModbusReadDoubleChannel label(Double value, String label) {
 		return (ModbusReadDoubleChannel) super.label(value, label);
 	}
 
@@ -60,16 +65,14 @@ public class ModbusReadDoubleChannel extends ModbusReadChannel<Double> {
 		return label(Double.valueOf(value), label);
 	}
 
-	@Override protected void updateValue(Double value) {
+	@Override
+	protected void updateValue(Double value) {
 		super.updateValue(value);
 	}
 
-	@Override public ReadChannel<Double> required() {
+	@Override
+	public ReadChannel<Double> required() {
 		super.required();
-		if (parent() instanceof DeviceNature) {
-			DeviceNature parent = (DeviceNature) parent();
-			parent.setAsRequired(this);
-		}
 		return this;
 	}
 }

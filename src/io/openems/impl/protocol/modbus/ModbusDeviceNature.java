@@ -143,7 +143,6 @@ public abstract class ModbusDeviceNature implements DeviceNature, ChannelChangeL
 				LinkedHashMap<Integer, LinkedHashMap<ModbusElement, Boolean>> elements = new LinkedHashMap<>();
 				Integer nextStartAddress = null;
 				LinkedHashMap<ModbusElement, Boolean> values = new LinkedHashMap<ModbusElement, Boolean>();
-				;
 				for (ModbusElement element : range.getElements()) {
 					// Test if Channel is a dummy or writable and receive write value
 					boolean value = false;

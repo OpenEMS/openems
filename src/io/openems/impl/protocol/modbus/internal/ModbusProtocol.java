@@ -32,8 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
+import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
-import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRange;
 
@@ -105,7 +105,7 @@ public class ModbusProtocol {
 	}
 
 	public void setAsRequired(Channel channel) {
-		if (channel instanceof ModbusReadLongChannel) {
+		if (channel instanceof ModbusChannel<?>) {
 			ModbusRange range = channelElementMap.get(channel).getModbusRange();
 			otherRanges.remove(range.getStartAddress());
 			requiredRanges.put(range.getStartAddress(), range);
