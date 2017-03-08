@@ -160,14 +160,6 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
         form.markAsPristine();
     }
 
-    protected send(requests: ConfigureRequest[]) {
-        if (requests.length > 0) {
-            this.device.send({
-                configure: requests
-            });
-        }
-    }
-
     protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
         let requests: ConfigureRequest[] = [];
         // let parentId = "";

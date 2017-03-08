@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { WebsocketService } from '../../service/websocket.service';
 import { Device } from '../../service/device';
+import { AbstractConfigForm, ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, ConfigureDeleteRequest } from './abstractconfigform';
 
 
 export abstract class AbstractConfig implements OnInit {
@@ -78,4 +79,14 @@ export abstract class AbstractConfig implements OnInit {
     }
     return this.formBuilder.array(builder);
   }
+
+  protected send(requests: ConfigureRequest[]) {
+    if (requests.length > 0) {
+      this.device.send({
+        configure: requests
+      });
+    }
+  }
+
+
 }
