@@ -33,6 +33,7 @@ public class AvgFiFoQueue {
 
 	public void add(long number) {
 		queue.add(number);
+		lastValue = number;
 	}
 
 	public long avg() {
