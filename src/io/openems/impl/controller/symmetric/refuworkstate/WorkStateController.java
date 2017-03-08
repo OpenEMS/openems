@@ -46,7 +46,7 @@ public class WorkStateController extends Controller {
 	public WorkStateController(String thingId) {
 		super(thingId);
 	}
-
+	
 	/*
 	 * Config
 	 */
@@ -61,10 +61,21 @@ public class WorkStateController extends Controller {
 	 */
 	private boolean reset = false;
 	private long lastReset = 0L;
+	private long timeErrorOccured = 0L;
 	private int resetCount = 0;
+	private long lastStart = 0L;
+	private boolean isError = false;
 
 	/*
 	 * Methods
+	 */
+
+	/*
+	 * public static ThingDoc getDescription() {
+	 * return new ThingDoc("WorkStateController",
+	 * "Handles if the storage system should go to standby or stay in running mode. This is indicated by the configchannel 'start'. Has an error occoured tries this controller to reset the error three times. If the tries to reset the error failed the controller sleep for 30 minutes till it tries another three times to reset the error. This is repeated thill the error disapears."
+	 * );
+	 * }
 	 */
 	@Override
 	public void run() {
@@ -75,11 +86,18 @@ public class WorkStateController extends Controller {
 				if (ess.systemState.labelOptional().equals(Optional.of(EssNature.STANDBY))) {
 					ess.setWorkState.pushWriteFromLabel(EssNature.START);
 					log.info("start Refu");
+					lastStart = System.currentTimeMillis();
+					isError = false;
 				} else if (!ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
 					ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
+					if (ess.systemState.labelOptional().equals(Optional.of("Error")) && !isError) {
+						timeErrorOccured = System.currentTimeMillis();
+						isError = true;
+					}
 				}
 				if (ess.systemState.labelOptional().equals(Optional.of("Error"))
-						&& lastReset <= System.currentTimeMillis() - 5000 && resetCount < 3) {
+						&& lastReset <= System.currentTimeMillis() - 1000 * 60 * 5 && resetCount < 2
+						&& timeErrorOccured <= System.currentTimeMillis() - 1000 * 3) {
 					if (!reset) {
 						ess.setSystemErrorReset.pushWriteFromLabel(EssNature.ON);
 						reset = true;
@@ -92,7 +110,8 @@ public class WorkStateController extends Controller {
 					ess.setSystemErrorReset.pushWriteFromLabel(EssNature.OFF);
 					reset = false;
 				}
-				if (lastReset <= System.currentTimeMillis() - 30 * 60 * 1000) {
+				if (lastReset <= System.currentTimeMillis() - 2 * 60 * 60 * 1000
+						|| (lastStart <= System.currentTimeMillis() - 1000 * 60 && timeErrorOccured < lastStart)) {
 					resetCount = 0;
 				}
 			} else {

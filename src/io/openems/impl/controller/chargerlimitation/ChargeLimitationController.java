@@ -13,6 +13,18 @@ import io.openems.api.exception.WriteChannelException;
 public class ChargeLimitationController extends Controller {
 
 	/*
+	 * Constructors
+	 */
+
+	public ChargeLimitationController() {
+		super();
+	}
+
+	public ChargeLimitationController(String thingId) {
+		super(thingId);
+	}
+
+	/*
 	 * Config
 	 */
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
@@ -20,6 +32,8 @@ public class ChargeLimitationController extends Controller {
 
 	@ConfigInfo(title = "Chargers", description = "Sets the chargers.", type = Charger.class)
 	public ConfigChannel<List<Charger>> chargers = new ConfigChannel<>("chargers", this);
+
+	
 
 	/*
 	 * Methods

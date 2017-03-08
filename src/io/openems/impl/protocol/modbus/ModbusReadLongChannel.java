@@ -32,7 +32,8 @@ public class ModbusReadLongChannel extends ModbusReadChannel<Long> {
 	/*
 	 * Builder
 	 */
-	@Override public ModbusReadLongChannel unit(String unit) {
+	@Override
+	public ModbusReadLongChannel unit(String unit) {
 		return (ModbusReadLongChannel) super.unit(unit);
 	}
 
@@ -40,20 +41,24 @@ public class ModbusReadLongChannel extends ModbusReadChannel<Long> {
 		return multiplier(Long.valueOf(multiplier));
 	}
 
-	@Override public ModbusReadLongChannel multiplier(Long multiplier) {
+	@Override
+	public ModbusReadLongChannel multiplier(Long multiplier) {
 		return (ModbusReadLongChannel) super.multiplier(multiplier);
 	}
 
-	@Override public ModbusReadLongChannel negate() {
+	@Override
+	public ModbusReadLongChannel negate() {
 		super.negate();
 		return this;
 	}
 
-	@Override public ModbusReadLongChannel delta(Long delta) {
+	@Override
+	public ModbusReadLongChannel delta(Long delta) {
 		return (ModbusReadLongChannel) super.delta(delta);
 	}
 
-	@Override public ModbusReadLongChannel interval(Long min, Long max) {
+	@Override
+	public ModbusReadLongChannel interval(Long min, Long max) {
 		return (ModbusReadLongChannel) super.interval(min, max);
 	}
 
@@ -61,7 +66,8 @@ public class ModbusReadLongChannel extends ModbusReadChannel<Long> {
 		return interval(min.longValue(), max.longValue());
 	}
 
-	@Override public ModbusReadLongChannel label(Long value, String label) {
+	@Override
+	public ModbusReadLongChannel label(Long value, String label) {
 		return (ModbusReadLongChannel) super.label(value, label);
 	}
 
@@ -69,16 +75,14 @@ public class ModbusReadLongChannel extends ModbusReadChannel<Long> {
 		return label(Long.valueOf(value), label);
 	}
 
-	@Override protected void updateValue(Long value) {
+	@Override
+	protected void updateValue(Long value) {
 		super.updateValue(value);
 	}
 
-	@Override public ReadChannel<Long> required() {
+	@Override
+	public ReadChannel<Long> required() {
 		super.required();
-		if (parent() instanceof DeviceNature) {
-			DeviceNature parent = (DeviceNature) parent();
-			parent.setAsRequired(this);
-		}
 		return this;
 	}
 }

@@ -21,6 +21,7 @@
 package io.openems.impl.protocol.modbus;
 
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.thing.Thing;
 
 public class ModbusWriteChannel<T> extends WriteChannel<T> implements ModbusChannel<T> {
@@ -29,8 +30,19 @@ public class ModbusWriteChannel<T> extends WriteChannel<T> implements ModbusChan
 		super(id, parent);
 	}
 
-	@Override protected void updateValue(T value) {
+	@Override
+	protected void updateValue(T value) {
 		super.updateValue(value);
+	}
+
+	@Override
+	public ModbusWriteChannel<T> required() {
+		super.required();
+		if (parent() instanceof DeviceNature) {
+			DeviceNature parent = (DeviceNature) parent();
+			parent.setAsRequired(this);
+		}
+		return this;
 	}
 
 }

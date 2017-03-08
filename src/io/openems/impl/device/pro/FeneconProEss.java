@@ -263,6 +263,21 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	public ModbusWriteLongChannel setSetupMode;
 	public ModbusReadLongChannel setupMode;
 	public ModbusReadLongChannel pcsMode;
+	public StatusBitChannel pcsAlarm1L1;
+	public StatusBitChannel pcsAlarm2L1;
+	public StatusBitChannel pcsFault1L1;
+	public StatusBitChannel pcsFault2L1;
+	public StatusBitChannel pcsFault3L1;
+	public StatusBitChannel pcsAlarm1L2;
+	public StatusBitChannel pcsAlarm2L2;
+	public StatusBitChannel pcsFault1L2;
+	public StatusBitChannel pcsFault2L2;
+	public StatusBitChannel pcsFault3L2;
+	public StatusBitChannel pcsAlarm1L3;
+	public StatusBitChannel pcsAlarm2L3;
+	public StatusBitChannel pcsFault1L3;
+	public StatusBitChannel pcsFault2L3;
+	public StatusBitChannel pcsFault3L3;
 
 	/*
 	 * Methods
@@ -371,7 +386,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this).unit("W")),
 				new DummyElement(143, 149),
 				new UnsignedWordElement(150,
-						warning.channel(new StatusBitChannel("PcsAlarm1L1", this)//
+						pcsAlarm1L1 = warning.channel(new StatusBitChannel("PcsAlarm1L1", this)//
 								.label(1, "Grid undervoltage") //
 								.label(2, "Grid overvoltage") //
 								.label(4, "Grid under frequency") //
@@ -383,8 +398,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 								.label(256, "Combination error")//
 								.label(512, "Comm with inverter error")//
 								.label(1024, "Tme error")//
-						)), new UnsignedWordElement(151, warning.channel(new StatusBitChannel("PcsAlarm2L1", this)//
-				)), new UnsignedWordElement(152, warning.channel(new StatusBitChannel("PcsFault1L1", this)//
+						)), new UnsignedWordElement(151, pcsAlarm2L1 = warning.channel(new StatusBitChannel("PcsAlarm2L1", this)//
+				)), new UnsignedWordElement(152, warning.channel(pcsFault1L1 = new StatusBitChannel("PcsFault1L1", this)//
 						.label(1, "Control current overload 100%")//
 						.label(2, "Control current overload 110%")//
 						.label(4, "Control current overload 150%")//
@@ -401,7 +416,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(8192, "Grid current zero drift error")//
 						.label(16384, "PDP protection")//
 						.label(32768, "Hardware control current protection")//
-				)), new UnsignedWordElement(153, warning.channel(new StatusBitChannel("PcsFault2L1", this)//
+				)), new UnsignedWordElement(153, warning.channel(pcsFault2L1 = new StatusBitChannel("PcsFault2L1", this)//
 						.label(1, "Hardware AC volt. protection")//
 						.label(2, "Hardware DC curr. protection")//
 						.label(4, "Hardware temperature protection")//
@@ -418,7 +433,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(8192, "Phase lack")//
 						.label(16384, "Inverter relay fault")//
 						.label(32768, "Grid relay fault")//
-				)), new UnsignedWordElement(154, warning.channel(new StatusBitChannel("PcsFault3L1", this)//
+				)), new UnsignedWordElement(154, warning.channel(pcsFault3L1 = new StatusBitChannel("PcsFault3L1", this)//
 						.label(1, "Control panel overtemp")//
 						.label(2, "Power panel overtemp")//
 						.label(4, "DC input overcurrent")//
@@ -432,7 +447,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(1024, "Phase sync error")//
 						.label(2048, "External PV current zero drift error")//
 						.label(4096, "External grid current zero drift error")//
-				)), new UnsignedWordElement(155, warning.channel(new StatusBitChannel("PcsAlarm1L2", this)//
+				)), new UnsignedWordElement(155, warning.channel(pcsAlarm1L2 = new StatusBitChannel("PcsAlarm1L2", this)//
 						.label(1, "Grid undervoltage") //
 						.label(2, "Grid overvoltage") //
 						.label(4, "Grid under frequency") //
@@ -444,8 +459,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(256, "Combination error")//
 						.label(512, "Comm with inverter error")//
 						.label(1024, "Tme error")//
-				)), new UnsignedWordElement(156, warning.channel(new StatusBitChannel("PcsAlarm2L2", this)//
-				)), new UnsignedWordElement(157, warning.channel(new StatusBitChannel("PcsFault1L2", this)//
+				)), new UnsignedWordElement(156, warning.channel(pcsAlarm2L2 = new StatusBitChannel("PcsAlarm2L2", this)//
+				)), new UnsignedWordElement(157, warning.channel(pcsFault1L2 = new StatusBitChannel("PcsFault1L2", this)//
 						.label(1, "Control current overload 100%")//
 						.label(2, "Control current overload 110%")//
 						.label(4, "Control current overload 150%")//
@@ -462,7 +477,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(8192, "Grid current zero drift error")//
 						.label(16384, "PDP protection")//
 						.label(32768, "Hardware control current protection")//
-				)), new UnsignedWordElement(158, warning.channel(new StatusBitChannel("PcsFault2L2", this)//
+				)), new UnsignedWordElement(158, warning.channel(pcsFault2L2 = new StatusBitChannel("PcsFault2L2", this)//
 						.label(1, "Hardware AC volt. protection")//
 						.label(2, "Hardware DC curr. protection")//
 						.label(4, "Hardware temperature protection")//
@@ -479,7 +494,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(8192, "Phase lack")//
 						.label(16384, "Inverter relay fault")//
 						.label(32768, "Grid relay fault")//
-				)), new UnsignedWordElement(159, warning.channel(new StatusBitChannel("PcsFault3L2", this)//
+				)), new UnsignedWordElement(159, warning.channel(pcsFault3L2 = new StatusBitChannel("PcsFault3L2", this)//
 						.label(1, "Control panel overtemp")//
 						.label(2, "Power panel overtemp")//
 						.label(4, "DC input overcurrent")//
@@ -493,7 +508,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(1024, "Phase sync error")//
 						.label(2048, "External PV current zero drift error")//
 						.label(4096, "External grid current zero drift error")//
-				)), new UnsignedWordElement(160, warning.channel(new StatusBitChannel("PcsAlarm1L3", this)//
+				)), new UnsignedWordElement(160, warning.channel(pcsAlarm1L3 = new StatusBitChannel("PcsAlarm1L3", this)//
 						.label(1, "Grid undervoltage") //
 						.label(2, "Grid overvoltage") //
 						.label(4, "Grid under frequency") //
@@ -505,8 +520,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(256, "Combination error")//
 						.label(512, "Comm with inverter error")//
 						.label(1024, "Tme error")//
-				)), new UnsignedWordElement(161, warning.channel(new StatusBitChannel("PcsAlarm2L3", this)//
-				)), new UnsignedWordElement(162, warning.channel(new StatusBitChannel("PcsFault1L3", this)//
+				)), new UnsignedWordElement(161, warning.channel(pcsAlarm2L3 = new StatusBitChannel("PcsAlarm2L3", this)//
+				)), new UnsignedWordElement(162, warning.channel(pcsFault1L3 = new StatusBitChannel("PcsFault1L3", this)//
 						.label(1, "Control current overload 100%")//
 						.label(2, "Control current overload 110%")//
 						.label(4, "Control current overload 150%")//
@@ -523,7 +538,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(8192, "Grid current zero drift error")//
 						.label(16384, "PDP protection")//
 						.label(32768, "Hardware control current protection")//
-				)), new UnsignedWordElement(163, warning.channel(new StatusBitChannel("PcsFault2L3", this)//
+				)), new UnsignedWordElement(163, warning.channel(pcsFault2L3 = new StatusBitChannel("PcsFault2L3", this)//
 						.label(1, "Hardware AC volt. protection")//
 						.label(2, "Hardware DC curr. protection")//
 						.label(4, "Hardware temperature protection")//
@@ -540,7 +555,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(8192, "Phase lack")//
 						.label(16384, "Inverter relay fault")//
 						.label(32768, "Grid relay fault")//
-				)), new UnsignedWordElement(164, warning.channel(new StatusBitChannel("PcsFault3L3", this)//
+				)), new UnsignedWordElement(164, warning.channel(pcsFault3L3 = new StatusBitChannel("PcsFault3L3", this)//
 						.label(1, "Control panel overtemp")//
 						.label(2, "Power panel overtemp")//
 						.label(4, "DC input overcurrent")//

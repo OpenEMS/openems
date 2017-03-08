@@ -18,31 +18,23 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.protocol.modbus;
+package io.openems.impl.controller.acisland;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.thing.Thing;
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.ess.EssNature;
 
-public class ModbusReadChannel<T> extends ReadChannel<T> implements ModbusChannel<T> {
+@IsThingMap(type = EssNature.class)
+public class Ess extends ThingMap {
 
-	public ModbusReadChannel(String id, Thing parent) {
-		super(id, parent);
-	}
+	public ReadChannel<Long> gridMode;
+	public ReadChannel<Long> soc;
 
-	@Override
-	protected void updateValue(T value) {
-		super.updateValue(value);
-	}
-
-	@Override
-	public ReadChannel<T> required() {
-		super.required();
-		if (parent() instanceof DeviceNature) {
-			DeviceNature parent = (DeviceNature) parent();
-			parent.setAsRequired(this);
-		}
-		return super.required();
+	public Ess(EssNature thing) {
+		super(thing);
+		this.gridMode = thing.gridMode().required();
+		this.soc = thing.soc().required();
 	}
 
 }

@@ -395,11 +395,14 @@ public class Config implements ChannelChangeListener {
 	private File getConfigFile() throws ConfigException {
 		// on production system
 		File configFile = Paths.get("/etc", "openems.d", "config.json").toFile();
-		if (configFile.isFile()) {
-			return configFile;
+		if (!configFile.isFile()) {
+			// on development system
+			configFile = Paths.get("etc", "openems.d", "config.json").toFile();
 		}
-		// on development system
-		return Paths.get("etc", "openems.d", "config.json").toFile();
+		if (!configFile.isFile()) {
+			throw new ConfigException("No config file found!");
+		}
+		return configFile;
 	}
 
 	/**
