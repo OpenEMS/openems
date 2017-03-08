@@ -392,18 +392,14 @@ public class Config implements ChannelChangeListener {
 	/*
 	 * Provides the File path of the config file ("/etc/openems.d/config.json") or a local file on a development machine
 	 */
-	private static File getConfigFile() throws ConfigException {
+	private File getConfigFile() throws ConfigException {
+		// on production system
 		File configFile = Paths.get("/etc", "openems.d", "config.json").toFile();
-		if (!configFile.isFile()) {
-			configFile = Paths.get("D:", "fems", "openems", "etc", "openems.d", "config.json").toFile();
+		if (configFile.isFile()) {
+			return configFile;
 		}
-		if (!configFile.isFile()) {
-			configFile = Paths.get("C:", "Users", "matthias.rossmann", "Documents", "config.json").toFile();
-		}
-		if (!configFile.isFile()) {
-			throw new ConfigException("No config file found!");
-		}
-		return configFile;
+		// on development system
+		return Paths.get("etc", "openems.d", "config.json").toFile();
 	}
 
 	/**
