@@ -167,7 +167,10 @@ public class BalancingController extends Controller {
 						}
 						double diff = maxP - minP;
 						// weight the range of possible power by the useableSoc
-						long p = (long) Math.floor((minP + diff / useableSoc * (100 - ess.useableSoc())) / 100) * 100;
+						long p = (long) Math.floor(
+								(minP + diff / (esss.value().size() * 100 - useableSoc) * (100 - ess.useableSoc()))
+										/ 100)
+								* 100;
 						ess.setActivePower.pushWrite(p);
 						log.info(ess.id() + " Set ActivePower [" + p + "], ReactivePower [" + 0 + "]");
 						calculatedPower -= p;
