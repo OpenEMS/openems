@@ -140,45 +140,7 @@ export class DeviceConfigBridgeComponent extends AbstractConfig {
     console.log(deviceForm);
   }
 
-  delete(form: FormArray, index: number): void {
-    if (form.controls[index]["_meta_new"]) {
-      // newly created. No need to delete it at server
-      form.removeAt(index);
-      form.markAsDirty();
-    } else {
-      let requests = this.getConfigDeleteRequests(form.controls[index]);
-      console.log(requests);
-      // this.send(requests);
-      // form.markAsPristine();
-    }
-  }
-
-  save(form: FormArray, index: number): void {
-    let requests;
-    console.log(form);
-    if (form.controls[index]["_meta_new"]) {
-      requests = this.getConfigureCreateRequests(form.controls[index]);
-    } else {
-      requests = this.getConfigureUpdateRequests(form.controls[index]);
-    }
-    // this.send(requests);
-    form["_meta_new"] = false;
-    // form.markAsPristine();
-  }
-
-  protected getConfigDeleteRequests(form: AbstractControl): ConfigureRequest[] {
-    let requests: ConfigureRequest[] = [];
-    if (form instanceof FormGroup) {
-      requests.push(<ConfigureDeleteRequest>{
-        mode: "delete",
-        thing: form.controls["id"].value
-      });
-    }
-
-    return requests;
-  }
-
-  protected getConfigureCreateRequests(form: AbstractControl): ConfigureRequest[] {
+  protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
     let requests: ConfigureRequest[] = [];
     console.log(form);
     // let parentId = form["_meta_parent_id"];
@@ -188,7 +150,7 @@ export class DeviceConfigBridgeComponent extends AbstractConfig {
       requests.push(<ConfigureCreateRequest>{
         mode: "create",
         object: this.buildValue(<FormGroup>form),
-        parent: parentId
+        parent: "" + parentId
       });
     } else {
       requests.push(<ConfigureCreateRequest>{
@@ -199,46 +161,6 @@ export class DeviceConfigBridgeComponent extends AbstractConfig {
 
     console.log(requests);
     return requests;
-  }
-
-  protected getConfigureUpdateRequests(form: AbstractControl): ConfigureRequest[] {
-    let requests: ConfigureRequest[] = [];
-    console.log(form);
-
-    if (form instanceof FormGroup) {
-      let formControl = form.controls;
-      let id = formControl['id'].value;
-      for (let key in formControl) {
-        if (formControl[key].dirty) {
-          // console.log(formControl[key]);
-          let value = formControl[key].value;
-          // console.log(value, typeof value);
-          // if (typeof value === "object") {
-          //     console.log("X");
-          //     // value is an object -> call getConfigureRequests for sub-object
-          //     return this.getConfigureUpdateRequests(formControl[key], index);
-          // }
-          requests.push(<ConfigureUpdateRequest>{
-            mode: "update",
-            thing: id,
-            channel: key,
-            value: value
-          });
-        }
-      }
-    }
-
-    console.log(requests);
-    return requests;
-  }
-
-  protected buildValue(form: FormGroup): Object {
-    let builder: Object = {};
-    for (let key in form.controls) {
-      // console.log(form.controls[key].value);
-      builder[key] = form.controls[key].value;
-    }
-    return builder;
   }
 
 

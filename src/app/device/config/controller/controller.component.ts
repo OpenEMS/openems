@@ -124,42 +124,6 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
         channelArray.markAsDirty();
     }
 
-    delete(form: FormArray, indexController: number) {
-        if (form.controls[indexController]["_meta_new"]) {
-            // newly created. No need to delete it at server
-            form.removeAt(indexController);
-            form.markAsDirty();
-        } else {
-            let requests = this.getConfigDeleteRequests(form.controls[indexController]);
-            console.log(requests);
-            this.send(requests);
-            form.markAsPristine();
-        }
-    }
-
-    protected getConfigDeleteRequests(form: AbstractControl): ConfigureRequest[] {
-        let requests: ConfigureRequest[] = [];
-        if (form instanceof FormGroup) {
-            requests.push(<ConfigureDeleteRequest>{
-                mode: "delete",
-                thing: form.controls["id"].value
-            });
-        }
-        return requests;
-    }
-
-    protected save(form: FormGroup) {
-        let requests;
-        if (form["_meta_new"]) {
-            requests = this.getConfigureCreateRequests(form);
-        } else {
-            requests = this.getConfigureUpdateRequests(form);
-        }
-        this.send(requests);
-        form["_meta_new"] = false;
-        form.markAsPristine();
-    }
-
     protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
         let requests: ConfigureRequest[] = [];
         // let parentId = "";
@@ -175,54 +139,4 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
         return requests;
     }
 
-    protected getConfigureUpdateRequests(form: AbstractControl): ConfigureRequest[] {
-        let requests: ConfigureRequest[] = [];
-        if (form instanceof FormGroup) {
-            let formControl = form.controls;
-            let id = formControl['id'].value;
-            for (let key in formControl) {
-                if (formControl[key].dirty) {
-                    let value = formControl[key].value;
-                    // console.log(value, typeof value);
-                    // if (typeof value === "object") {
-                    //     console.log("X");
-                    //     // value is an object -> call getConfigureRequests for sub-object
-                    //     return this.getConfigureUpdateRequests(formControl[key], index);
-                    // }
-                    requests.push(<ConfigureUpdateRequest>{
-                        mode: "update",
-                        thing: id,
-                        channel: key,
-                        value: value
-                    });
-                }
-            }
-        }
-        console.log(requests);
-        return requests;
-    }
-
-    protected buildValue(form: FormGroup): Object {
-        let builder: Object = {};
-        for (let key in form.controls) {
-            builder[key] = form.controls[key].value;
-        }
-        return builder;
-    }
-
 }
-
-
-// {
-//     configure: [{
-//         mode: "update",
-//         thing: "_controller0",
-//         channel: "priority",
-//         value: "50"
-//     }, {
-//         mode: "update",
-//         thing: "_controller0",
-//         channel: "esss",
-//         value: ["ess0", "ess1"]
-//     }]
-// }

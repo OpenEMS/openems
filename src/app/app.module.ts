@@ -23,10 +23,6 @@ import { DeviceOverviewEnergymonitorChartComponent } from './device/overview/ene
 import { DeviceOverviewEnergytableComponent } from './device/overview/energytable/energytable.component';
 import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
 import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
-import { FormBridgeSimulatorComponent } from './device/config/bridge/bridge/simulator/simulator.component';
-import { FormBridgeSystemComponent } from './device/config/bridge/bridge/system/system.component';
-import { FormDeviceSimulatorComponent } from './device/config/bridge/device/simulator/simulator.component';
-import { FormDeviceSystemComponent } from './device/config/bridge/device/system/system.component';
 import { DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
 import { DeviceConfigMoreComponent } from './device/config/more/more.component';
 import { FormSchedulerWeekTimeComponent } from './device/config/scheduler/weektime/weektime.component';
@@ -83,11 +79,7 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     DeviceConfigSchedulerComponent,
     DeviceConfigControllerComponent,
     // Form
-    FormBridgeSimulatorComponent,
-    FormBridgeSystemComponent,
     DeviceConfigMoreComponent,
-    FormDeviceSimulatorComponent,
-    FormDeviceSystemComponent,
     FormSchedulerWeekTimeComponent,
     //   Form
     FormControllersComponent,

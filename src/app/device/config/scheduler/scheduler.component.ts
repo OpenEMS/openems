@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { AbstractConfig } from '../abstractconfig';
 import { WebsocketService } from '../../../service/websocket.service';
 import { Device } from '../../../service/device';
+import { ConfigureRequest } from '../abstractconfigform';
 
 @Component({
   selector: 'app-device-config-scheduler',
@@ -27,4 +28,9 @@ export class DeviceConfigSchedulerComponent extends AbstractConfig {
     console.log(config);
     this.form = this.buildForm(config.scheduler);
   }
+
+  protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
+    return;
+  }
+
 }
