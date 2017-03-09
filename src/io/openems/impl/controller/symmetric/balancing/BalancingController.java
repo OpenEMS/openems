@@ -74,12 +74,14 @@ public class BalancingController extends Controller {
 			// Run only if all ess are on-grid
 			if (isOnGrid()) {
 				// Calculate required sum values
-				long calculatedPower = meter.value().activePower.value();
+				meter.value().activePowerAvg.add(meter.value().activePower.value());
+				long calculatedPower = meter.value().activePowerAvg.avg() - 100;
 				long maxChargePower = 0;
 				long maxDischargePower = 0;
 				long useableSoc = 0;
 				for (Ess ess : esss.value()) {
-					calculatedPower += ess.activePower.value();
+					ess.activePowerAvg.add(ess.activePower.value());
+					calculatedPower += ess.activePowerAvg.avg();
 					maxChargePower += ess.setActivePower.writeMin().orElse(0L);
 					maxDischargePower += ess.setActivePower.writeMax().orElse(0L);
 					useableSoc += ess.useableSoc();

@@ -24,11 +24,13 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
+import io.openems.core.utilities.AvgFiFoQueue;
 
 @IsThingMap(type = SymmetricMeterNature.class)
 public class Meter extends ThingMap {
 
 	public final ReadChannel<Long> activePower;
+	public AvgFiFoQueue activePowerAvg = new AvgFiFoQueue(15);
 
 	public Meter(SymmetricMeterNature meter) {
 		super(meter);
