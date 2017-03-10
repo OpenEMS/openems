@@ -19,7 +19,9 @@
                                     <!--<label fxFlex="10%">
                                         Priorität:
                                     </label>-->
-                                    <md-input placeholder="Priorität" formControlName="priority" type="number" fxFlex.gt-md="50%"></md-input>
+                                    <md-input-container fxFlex="50%">
+                                        <input placeholder="Priorität" formControlName="priority" type="number" mdInput>
+                                    </md-input-container>
                                 </div>
                                 <div style="margin-top: 20px" *ngFor="let channelMeta of controllerMeta.channels">
                                     <div *ngIf="channelMeta.name != 'rtc' && channelMeta.name != 'priority'">
@@ -49,7 +51,9 @@
                                             <!--<label fxFlex="10%">
                                                 {{ channelMeta.title }}:
                                             </label>-->
-                                            <md-input placeholder="{{ channelMeta.title }}" [formControlName]="channelMeta.name" type="text" fxFlex="50%"></md-input>
+                                            <md-input-container fxFlex="50%">
+                                                <input placeholder="{{ channelMeta.title }}" [formControlName]="channelMeta.name" type="text" mdInput>
+                                            </md-input-container>
                                         </div>
                                     </div>
                                 </div>
@@ -74,7 +78,9 @@
                         <md-card-content>
                             <div fxLayout fxLayoutWrap="wrap" style="margin-bottom: 20px">
                                 <!--<label>Name: </label>-->
-                                <md-input placeholder="Name" formControlName="id" type="text"></md-input>
+                                <md-input-container>
+                                    <input placeholder="Name" formControlName="id" type="text" mdInput>
+                                </md-input-container>
                                 <button [disabled]="form.pristine" (click)="setNameReady()" md-mini-fab>
                                     <md-icon>send</md-icon>
                                 </button>

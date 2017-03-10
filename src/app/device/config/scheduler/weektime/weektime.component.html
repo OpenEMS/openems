@@ -5,7 +5,7 @@
 
       <div *ngFor="let hour of _form.controls[day.key].controls; let i=index" [formGroupName]="i" fxLayout>
         <md-input-container fxFlex="100px">
-          <input formControlName="time" type="text" placeholder="Startzeit" md-input>
+          <input formControlName="time" type="text" placeholder="Startzeit" mdInput>
         </md-input-container>
         <div fxFlex="50px">
           <button md-mini-fab (click)="removeHour(_form.controls[day.key], i)">

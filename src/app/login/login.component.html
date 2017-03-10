@@ -10,7 +10,7 @@
         </md-card-header>
         <md-card-content fxLayout fxLayoutWrap="wrap">
           <p>Testversion: bitte melden Sie sich mit dem Passwort "<strong>admin</strong>" an.</p>
-          <md-input-container *ngIf="!form._websocket.isConnected" fxFlex="100%"><input formControlName="password" md-input type="password" placeholder="Passwort"></md-input-container>
+          <md-input-container *ngIf="!form._websocket.isConnected" fxFlex="100%"><input formControlName="password" mdInput type="password" placeholder="Passwort"></md-input-container>
           <p fxFlex="100%">{{(form._websocket.event | async)?.message}}</p>
         </md-card-content>
         <md-card-actions fxLayout fxLayoutAlign="end start">

@@ -2,11 +2,11 @@
 
 // NOTE: Theming is currently experimental and not yet publically released!
 
-@include md-core();
+@include mat-core();
 
-$primary: md-palette($md-blue-grey);
-$accent:  md-palette($md-blue-grey, A200, A100, A400);
+$primary: mat-palette($mat-blue-grey);
+$accent:  mat-palette($mat-blue-grey, A200, A100, A400);
 
-$theme: md-light-theme($primary, $accent);
+$theme: mat-light-theme($primary, $accent);
 
 @include angular-material-theme($theme);

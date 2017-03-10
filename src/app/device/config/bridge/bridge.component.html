@@ -16,7 +16,7 @@
                   <p fxFlex="100px"></p>
                   <div fxFlex fxLayout fxLayoutWrap="wrap" *ngFor="let channelMeta of bridgeFormMeta.channels">
                     <md-input-container fxFlex="50%">
-                      <input [formControlName]="channelMeta.name" placeholder="{{ channelMeta.title }}" md-input>
+                      <input [formControlName]="channelMeta.name" placeholder="{{ channelMeta.title }}" mdInput>
                       <span *ngIf="channelMeta.name == 'cycleTime'" md-suffix>ms</span>
                     </md-input-container>
                   </div>
@@ -48,7 +48,7 @@
                           </div>
                           <div fxFlex="50%">
                             <md-input-container>
-                              <input formControlName="id" placeholder="{{ channelDeviceMeta.title }}" md-input>
+                              <input formControlName="id" placeholder="{{ channelDeviceMeta.title }}" mdInput>
                             </md-input-container>
                           </div>
                         </div>
@@ -74,7 +74,7 @@
                       <div fxLayout style="margin-bottom: 20px">
                         <div fxFlex="100px"></div>
                         <md-input-container>
-                          <input formControlName="id" placeholder="Name" md-input>
+                          <input formControlName="id" placeholder="Name" mdInput>
                         </md-input-container>
                         <button (click)="setNameReady()" [disabled]="device.pristine" md-mini-fab>
                           <md-icon>send</md-icon>
@@ -118,7 +118,7 @@
               <div fxLayout style="margin-bottom: 20px">
                 <div fxFlex="100px"></div>
                 <md-input-container>
-                  <input formControlName="id" placeholder="Name" md-input>
+                  <input formControlName="id" placeholder="Name" mdInput>
                 </md-input-container>
                 <button (click)="setNameReady()" [disabled]="bridgeForm.pristine" md-mini-fab>
                   <md-icon>send</md-icon>

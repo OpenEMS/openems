@@ -14,7 +14,7 @@
             <md-select fxFlex="50%" formControlName="class" placeholder="Klasse">
               <md-option *ngFor="let element of config._meta.schedulers" [value]="element.class"><span *ngIf="element.title">{{element.title}}: </span>{{element.class | classname}}</md-option>
             </md-select>
-            <md-input-container fxFlex="50%"><input formControlName="cycleTime" type="number" placeholder="Zyklusdauer" md-input><span md-suffix>ms</span></md-input-container>
+            <md-input-container fxFlex="50%"><input formControlName="cycleTime" type="number" placeholder="Zyklusdauer" mdInput><span md-suffix>ms</span></md-input-container>
           </div>
         </div>
         <ng-container [ngSwitch]="form.controls['class'].value | classname">
