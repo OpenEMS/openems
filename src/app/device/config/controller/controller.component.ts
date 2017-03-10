@@ -6,8 +6,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { WebsocketService } from '../../../service/websocket.service';
 import { WebappService } from '../../../service/webapp.service';
 import { Device } from '../../../service/device';
-import { AbstractConfig } from '../abstractconfig';
-import { AbstractConfigForm, ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, ConfigureDeleteRequest } from '../abstractconfigform';
+import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, ConfigureDeleteRequest } from '../abstractconfig';
 
 @Component({
     selector: 'app-device-config-controller',
@@ -31,9 +30,6 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
         formBuilder: FormBuilder
     ) {
         super(route, websocketService, formBuilder);
-        websocketService.currentDevice.subscribe(device => {
-            this.device = device;
-        });
     }
 
     initForm(config) {

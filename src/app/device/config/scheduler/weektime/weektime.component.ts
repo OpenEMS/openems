@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { AbstractControl, FormArray, FormGroup, FormBuilder } from '@angular/forms';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 
 import { WebsocketService } from '../../../../service/websocket.service';
-import { AbstractConfigForm, ConfigureRequest, ConfigureUpdateRequest } from '../../abstractconfigform';
+import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest } from '../../abstractconfig';
 
 interface Day {
   label: string;
@@ -13,12 +14,13 @@ interface Day {
   selector: 'form-scheduler-weektime',
   templateUrl: './weektime.component.html',
 })
-export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
+export class FormSchedulerWeekTimeComponent extends AbstractConfig {
   constructor(
+    route: ActivatedRoute,
     websocketService: WebsocketService,
-    private formBuilder: FormBuilder
+    formBuilder: FormBuilder
   ) {
-    super(websocketService);
+    super(route, websocketService, formBuilder);
   }
 
   private days: Day[] = [{
@@ -43,6 +45,10 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
     label: "Sonntag",
     key: "sunday"
   }]
+
+  initForm(config) {
+
+  }
 
   @Input()
   set form(form: FormGroup) {
@@ -127,4 +133,9 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
     form["_meta_new"] = false;
     form.markAsPristine();
   }
+
+  protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
+    return;
+  }
+
 }

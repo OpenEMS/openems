@@ -5,20 +5,40 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { WebsocketService } from '../../service/websocket.service';
 import { Device } from '../../service/device';
-import { AbstractConfigForm, ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, ConfigureDeleteRequest } from './abstractconfigform';
 
+export type ConfigureRequestModeType = "update" | "create" | "delete";
+export class ConfigureRequest {
+  mode: ConfigureRequestModeType;
+}
+export interface ConfigureUpdateRequest extends ConfigureRequest {
+  thing: string
+  channel: string;
+  value: Object;
+}
+export interface ConfigureCreateRequest extends ConfigureRequest {
+  object: Object;
+  parent: string;
+}
+export interface ConfigureDeleteRequest extends ConfigureRequest {
+  thing: string;
+}
 
 export abstract class AbstractConfig implements OnInit {
 
   protected device: Device;
   private deviceSubscription: Subscription;
   protected config = null;
+  protected _form: FormGroup;
 
   constructor(
     private route: ActivatedRoute,
     private websocketService: WebsocketService,
     protected formBuilder: FormBuilder
-  ) { }
+  ) {
+    websocketService.currentDevice.subscribe(device => {
+      this.device = device;
+    });
+  }
 
   protected abstract initForm(config);
 
@@ -36,6 +56,29 @@ export abstract class AbstractConfig implements OnInit {
 
   ngOnDestroy() {
     this.deviceSubscription.unsubscribe();
+  }
+
+  protected setForm(form: FormGroup, disabled: string[]) {
+    this._form = form;
+    for (let key of disabled) {
+      let keys = key.split(".");
+      if (keys.length == 1) {
+        // direct key ("id")
+        if (form.controls[key] && form.controls[key] instanceof FormControl) {
+          let control = form.controls[key];
+          control.disable();
+        }
+      } else if (keys.length > 1) {
+        // object path ("ess.id")
+        let parentControl = form.controls[keys[0]];
+        if (parentControl && parentControl instanceof FormGroup) {
+          let control = parentControl.controls[keys[1]];
+          if (control && control instanceof FormControl) {
+            control.disable();
+          }
+        }
+      }
+    }
   }
 
   protected buildForm(item: any, ignoreKeys?: string | string[]): FormControl | FormGroup | FormArray {

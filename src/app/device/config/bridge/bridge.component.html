@@ -1,6 +1,6 @@
 <div *ngIf="form" [formGroup]="form">
   <div formArrayName="things">
-    <md-tab-group (selectChange)="addBridge(form.controls.things.controls, $event)">
+    <md-tab-group (selectChange)="addBridge(form.controls.things, $event)">
       <md-tab *ngFor="let bridgeForm of form.controls.things.controls, let i=index" [formGroupName]="i">
         <div *ngFor="let bridgeFormMeta of form.value._meta['availableBridges'], let j=index">
           <div *ngIf="bridgeFormMeta.class == bridgeForm.value.class && bridgeForm.value.class != '' && bridgeForm.value.id != ''">
@@ -81,12 +81,10 @@
                         </button>
                       </div>
                       <div fxLayout *ngIf="nameReady">
-                        <div fxFlex="100px">
-                          Klasse:
-                        </div>
-                        <select fxFlex="50%" formControlName="class" (change)="addNaturesToDevice(device, device.value.class)">
-                          <option *ngFor="let deviceMeta of form.value._meta['availableDevices']" [value]="deviceMeta.class">{{ deviceMeta.class }}</option>
-                        </select>
+                        <div fxFlex="100px"></div>
+                        <md-select fxFlex="50%" placeholder="Klasse" formControlName="class" (change)="addNaturesToDevice(device, device.value.class)">
+                          <md-option *ngFor="let deviceMeta of form.value._meta['availableDevices']" [value]="deviceMeta.class">{{ deviceMeta.class }}</md-option>
+                        </md-select>
                       </div>
                     </md-card-content>
                   </md-card>
@@ -125,12 +123,10 @@
                 </button>
               </div>
               <div fxLayout *ngIf="nameReady">
-                <div fxFlex="100px">
-                  Klasse:
-                </div>
-                <select fxFlex="50%" formControlName="class" (change)="addChannelsToBridge(bridgeForm, bridgeForm.value.class)">
-                  <option *ngFor="let bridgeMeta of form.value._meta['availableBridges']" [value]="bridgeMeta.class">{{ bridgeMeta.class }}</option>
-                </select>
+                <div fxFlex="100px"></div>
+                <md-select fxFlex="50%" placeholder="Klasse" formControlName="class" (change)="addChannelsToBridge(bridgeForm, bridgeForm.value.class)">
+                  <md-option *ngFor="let bridgeMeta of form.value._meta['availableBridges']" [value]="bridgeMeta.class">{{ bridgeMeta.class }}</md-option>
+                </md-select>
               </div>
             </md-card-content>
           </md-card>

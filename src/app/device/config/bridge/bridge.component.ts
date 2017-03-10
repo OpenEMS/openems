@@ -6,8 +6,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { WebsocketService } from '../../../service/websocket.service';
 import { WebappService } from '../../../service/webapp.service';
 import { Device } from '../../../service/device';
-import { AbstractConfig } from '../abstractconfig';
-import { AbstractConfigForm, ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, ConfigureDeleteRequest } from '../abstractconfigform';
+import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, ConfigureDeleteRequest } from '../abstractconfig';
 
 
 @Component({
@@ -32,9 +31,6 @@ export class DeviceConfigBridgeComponent extends AbstractConfig {
     formBuilder: FormBuilder
   ) {
     super(route, websocketService, formBuilder);
-    websocketService.currentDevice.subscribe(device => {
-      this.device = device;
-    });
   }
 
   initForm(config) {
@@ -59,7 +55,9 @@ export class DeviceConfigBridgeComponent extends AbstractConfig {
       });
 
       group["_meta_new"] = true;
+      console.log(bridgeArray);
       bridgeArray.push(group);
+      bridgeArray.markAsDirty();
       this.indexLastBridge = bridgeArray.length - 1;
       this.createdBridge = true;
       // this.createdController = true;

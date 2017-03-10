@@ -87,7 +87,7 @@
                             </div>
                             <div *ngIf="nameReady" fxLayout fxLayoutWrap="wrap">
                                 <label>Klasse: </label>
-                                <select formControlName="class" (change)="addChannelsToController(controller, controller.value.class)">
+                                <select fxFlex="50%" formControlName="class" (change)="addChannelsToController(controller, controller.value.class)">
                                     <option></option>
                                     <option *ngFor="let availableControllers of form.value._meta['availableControllers']">
                                         {{ availableControllers.class }}
