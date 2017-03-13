@@ -13,22 +13,6 @@
                 </div>
             </div>
             <div fxLayout>
-                <!--<div fxFlex="100px"></div>-->
-                <md-input-container fxFlex="50%">
-                    <input placeholder="OutputChannelAddress" formControlName="onGridOutputChannelAddress" type="text" mdInput>
-                </md-input-container>
-            </div>
-            <div fxLayout fxLayoutWrap="wrap" formArrayName="thresholds">
-                <!--<div fxFlex="100px"></div>-->
-                <div *ngFor="let threshold of schedulerForm.controls['scheduler'].controls['thresholds'].controls, let i=index">
-                    <md-input-container fxFlex="100%">
-                        <input placeholder="Thresholds" [formControlName]="i" mdInput>
-                    </md-input-container>
-                    <button (click)="removeThreshold(schedulerForm.controls['scheduler'].controls['thresholds'], i)" md-mini-fab><md-icon>delete</md-icon></button>
-                </div>
-                <button (click)="addThreshold(schedulerForm.controls['scheduler'].controls['thresholds'].controls)" md-mini-fab><md-icon>add</md-icon></button>
-            </div>
-            <div fxLayout>
                 <div fxFlex="100%"></div>
                 <button (click)="save(schedulerForm.controls['scheduler'])" color="primary" md-mini-fab><md-icon>save</md-icon></button>
                 <button (click)="delete(schedulerForm.controls['scheduler'])" color="primary" md-mini-fab><md-icon>delete</md-icon></button>

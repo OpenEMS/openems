@@ -5,6 +5,7 @@
     <ng-container [ngSwitch]="configForm.controls['scheduler'].controls['class'].value | classname">
       <form-scheduler-weektime *ngSwitchCase="'WeekTimeScheduler'" [form]="configForm"></form-scheduler-weektime>
       <form-scheduler-channelthreshold *ngSwitchCase="'ChannelThresholdScheduler'" [form]="configForm"></form-scheduler-channelthreshold>
+      <form-scheduler-simple *ngSwitchCase="'SimpleScheduler'" [form]="configForm"></form-scheduler-simple>
       <ng-container *ngSwitchCase="''">
         <md-card class="single">
           <md-card-header>

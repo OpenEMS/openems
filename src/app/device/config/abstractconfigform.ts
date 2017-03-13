@@ -39,11 +39,11 @@ export abstract class AbstractConfigForm {
     let requests;
     if (form["_meta_new"]) {
       requests = this.getConfigureCreateRequests(form);
+      form["_meta_new"] = false;
     } else {
       requests = this.getConfigureUpdateRequests(form);
     }
-    this.send(requests);
-    form["_meta_new"] = false;
+    // this.send(requests);
     form.markAsPristine();
   }
 

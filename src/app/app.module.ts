@@ -28,6 +28,7 @@ import { DeviceConfigMoreComponent } from './device/config/more/more.component';
 import { FormSchedulerWeekTimeComponent } from './device/config/scheduler/weektime/weektime.component';
 import { DeviceConfigControllerComponent } from './device/config/controller/controller.component';
 import { FormSchedulerChannelthresholdComponent } from './device/config/scheduler/channelthreshold/channelthreshold.component';
+import { FormSchedulerSimpleComponent } from './device/config/scheduler/simple/simple.component';
 //import { ConfigComponent } from './config/config.component';
 
 /*
@@ -83,6 +84,7 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     DeviceConfigMoreComponent,
     FormSchedulerWeekTimeComponent,
     FormSchedulerChannelthresholdComponent,
+    FormSchedulerSimpleComponent,
     //   Form
     FormControllersComponent,
     FormControllerWebsocketApiComponent,
