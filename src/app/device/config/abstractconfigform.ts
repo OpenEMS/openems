@@ -22,6 +22,11 @@ export interface ConfigureCreateRequest extends ConfigureRequest {
 export interface ConfigureDeleteRequest extends ConfigureRequest {
   thing: string;
 }
+export interface ConfigureUpdateSchedulerRequest extends ConfigureRequest {
+  thing: string
+  class: string;
+  value: Object;
+}
 
 export abstract class AbstractConfigForm {
 
@@ -41,8 +46,14 @@ export abstract class AbstractConfigForm {
       requests = this.getConfigureCreateRequests(form);
       form["_meta_new"] = false;
     } else {
-      requests = this.getConfigureUpdateRequests(form);
+      if (form["_scheduler_new"]) {
+        requests = this.getConfigureUpdateSchedulerRequests(form);
+        form["_scheduler_new"] = false;
+      } else {
+        requests = this.getConfigureUpdateRequests(form);
+      }
     }
+
     // this.send(requests);
     form.markAsPristine();
   }
@@ -111,12 +122,52 @@ export abstract class AbstractConfigForm {
     return requests;
   }
 
+  protected getConfigureUpdateSchedulerRequests(form: AbstractControl): ConfigureRequest[] {
+    let requests: ConfigureRequest[] = [];
+    let builder: Object = {};
+    if (form instanceof FormGroup) {
+      let formControl = form.controls;
+      let id = formControl['id'].value;
+      for (let key in formControl) {
+        if (formControl[key].dirty) {
+          // console.log(formControl[key]);
+          let value = formControl[key].value;
+          console.log(key);
+
+          if (key != 'class') {
+            builder[key] = value;
+          }
+          // console.log(value, typeof value);
+          // if (typeof value === "object") {
+          //     console.log("X");
+          //     // value is an object -> call getConfigureRequests for sub-object
+          //     return this.getConfigureUpdateRequests(formControl[key], index);
+          // }
+        }
+      }
+      requests.push(<ConfigureUpdateSchedulerRequest>{
+        mode: "update",
+        thing: id,
+        class: formControl['class'].value,
+        value: builder
+      });
+    }
+
+    console.log(requests);
+    return requests;
+  }
+
   protected buildValue(form: FormGroup): Object {
     let builder: Object = {};
     for (let key in form.controls) {
       builder[key] = form.controls[key].value;
     }
     return builder;
+  }
+
+  protected createNewScheduler(schedulerForm: FormGroup) {
+    schedulerForm.controls['class'].setValue("");
+    schedulerForm.markAsDirty();
   }
 
 

@@ -14,13 +14,6 @@
           </md-card-header>
           <md-card-content>
             <div fxLayout fxLayoutWrap="wrap">
-              <div fxFlex="100px"></div>
-              <md-input-container>
-                <input placeholder="Name" formControlName="id" mdInput>
-              </md-input-container>
-              <button (click)="setNameReady()" [disabled]="configForm.controls['scheduler'].controls['id'].pristine" md-mini-fab><md-icon>send</md-icon></button>
-            </div>
-            <div *ngIf="nameReady" fxLayout fxLayoutWrap="wrap">
               <div fxFlex="100px">
                 Klasse:
               </div>

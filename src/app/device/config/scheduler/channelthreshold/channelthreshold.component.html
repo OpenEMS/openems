@@ -26,12 +26,12 @@
                     </md-input-container>
                     <button (click)="removeThreshold(schedulerForm.controls['scheduler'].controls['thresholds'], i)" md-mini-fab><md-icon>delete</md-icon></button>
                 </div>
-                <button (click)="addThreshold(schedulerForm.controls['scheduler'].controls['thresholds'].controls)" md-mini-fab><md-icon>add</md-icon></button>
+                <button (click)="addThreshold(schedulerForm.controls['scheduler'].controls['thresholds'])" md-mini-fab><md-icon>add</md-icon></button>
             </div>
             <div fxLayout>
                 <div fxFlex="100%"></div>
-                <button (click)="save(schedulerForm.controls['scheduler'])" color="primary" md-mini-fab><md-icon>save</md-icon></button>
-                <button (click)="delete(schedulerForm.controls['scheduler'])" color="primary" md-mini-fab><md-icon>delete</md-icon></button>
+                <button (click)="save(schedulerForm.controls['scheduler'])" color="primary" md-mini-fab><md-icon>check</md-icon></button>
+                <button (click)="createNewScheduler(schedulerForm.controls['scheduler'])" color="primary" md-mini-fab><md-icon>delete</md-icon></button>
             </div>
         </md-card-content>
     </md-card>

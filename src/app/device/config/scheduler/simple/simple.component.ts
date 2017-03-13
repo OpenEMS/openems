@@ -24,12 +24,10 @@ export class FormSchedulerSimpleComponent extends AbstractConfigForm {
     @Input()
     set form(form: FormGroup) {
         this.schedulerForm = form;
-        console.log(this.schedulerForm);
     }
 
     protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
         return;
     }
-
 
 }

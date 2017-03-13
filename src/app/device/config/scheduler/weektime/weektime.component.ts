@@ -131,13 +131,6 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
     return;
   }
 
-  createNewScheduler() {
-    this.configForm.controls['id'].setValue("");
-    this.configForm.controls['class'].setValue("");
-    this.configForm.markAsDirty();
-  }
-
-
 }
 
 

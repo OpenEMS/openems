@@ -15,7 +15,6 @@ export class DeviceConfigSchedulerComponent extends AbstractConfig {
 
   private form: AbstractControl;
   configForm: FormGroup;
-  nameReady: boolean = false;
 
   constructor(
     route: ActivatedRoute,
@@ -35,10 +34,6 @@ export class DeviceConfigSchedulerComponent extends AbstractConfig {
 
   protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
     return;
-  }
-
-  setNameReady() {
-    this.nameReady = true;
   }
 
   // isArray(value: any) {
@@ -83,9 +78,9 @@ export class DeviceConfigSchedulerComponent extends AbstractConfig {
         break;
       }
     }
+    schedulerForm["_scheduler_new"] = true;
 
     console.log(schedulerForm);
-    this.nameReady = false;
   }
 
 }

@@ -33,6 +33,8 @@ export class FormSchedulerChannelthresholdComponent extends AbstractConfigForm {
     addThreshold(thresholdForm: FormArray) {
         thresholdForm.push(this.formBuilder.control(""));
         // console.log(this.schedulerForm.controls['scheduler']['controls']['thresholds']);
+        // console.log(thresholdForm);
+        thresholdForm.markAsDirty();
     }
 
     removeThreshold(thresholdForm: FormArray, index: number) {
