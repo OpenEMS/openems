@@ -58,10 +58,10 @@
                                     </div>
                                 </div>
                                 <div style="position: absolute;bottom: 0;right: 0; margin: 20px">
-                                    <button (click)="save(controller)" [disabled]="form.pristine" md-mini-fab>
+                                    <button (click)="save(controller)" [disabled]="form.pristine" color="primary" md-mini-fab>
                                         <md-icon>save</md-icon>
                                     </button>
-                                    <button (click)="delete(form.controls.scheduler.controls['controllers'], i)" md-mini-fab>
+                                    <button (click)="delete(form.controls.scheduler.controls['controllers'], i)" color="primary" md-mini-fab>
                                         <md-icon>delete</md-icon>
                                     </button>
                                 </div>

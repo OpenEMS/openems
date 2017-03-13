@@ -3,7 +3,8 @@ import { AbstractControl, FormArray, FormGroup, FormBuilder } from '@angular/for
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
 import { WebsocketService } from '../../../../service/websocket.service';
-import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest } from '../../abstractconfig';
+import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest, ConfigureDeleteRequest } from '../../abstractconfig';
+import { AbstractConfigForm } from '../../abstractconfigform';
 
 interface Day {
   label: string;
@@ -14,13 +15,16 @@ interface Day {
   selector: 'form-scheduler-weektime',
   templateUrl: './weektime.component.html',
 })
-export class FormSchedulerWeekTimeComponent extends AbstractConfig {
+export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
+  configForm: FormGroup;
+  // formBuilder: FormBuilder;
+  config: FormGroup;
+
   constructor(
-    route: ActivatedRoute,
     websocketService: WebsocketService,
-    formBuilder: FormBuilder
+    private formBuilder: FormBuilder
   ) {
-    super(route, websocketService, formBuilder);
+    super(websocketService);
   }
 
   private days: Day[] = [{
@@ -46,17 +50,15 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfig {
     key: "sunday"
   }]
 
-  initForm(config) {
-
-  }
-
   @Input()
   set form(form: FormGroup) {
-    console.log(form);
+    // console.log(form);
+    this.config = form;
+    this.configForm = <FormGroup>form.controls['scheduler'];
     let ignore: string[] = ["id", "class"];
     for (let day of this.days) {
-      if (!form.value[day.key]) {
-        form.addControl(day.key, this.formBuilder.array([
+      if (!this.configForm.value[day.key]) {
+        this.configForm.addControl(day.key, this.formBuilder.array([
           this.formBuilder.group({
             time: this.formBuilder.control(""),
             controllers: this.formBuilder.array([])
@@ -65,10 +67,9 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfig {
       }
     }
 
-    if (!form.value["always"]) {
-      form.addControl("always", this.formBuilder.array([]));
+    if (!this.configForm.value["always"]) {
+      this.configForm.addControl("always", this.formBuilder.array([]));
     }
-    super.setForm(form, ignore);
   }
 
   removeHour(dayForm: FormArray, hourIndex: number) {
@@ -76,13 +77,24 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfig {
     dayForm.markAsDirty();
   }
 
+  protected getConfigDeleteRequests(form: AbstractControl): ConfigureRequest[] {
+    let requests: ConfigureRequest[] = [];
+    if (form instanceof FormGroup) {
+      requests.push(<ConfigureDeleteRequest>{
+        mode: "delete",
+        thing: form.controls["time"].value
+      });
+    }
+
+    return requests;
+  }
+
   addHour(dayForm: FormArray) {
-    dayForm.push(
-      this.formBuilder.group({
-        "time": this.formBuilder.control(""),
-        "controllers": this.formBuilder.array([])
-      })
-    )
+    dayForm.push(this.formBuilder.group({
+      "time": this.formBuilder.control(""),
+      "controllers": this.formBuilder.array([])
+    }))
+
     dayForm.markAsDirty();
   }
 
@@ -91,11 +103,12 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfig {
     controllers.push(
       this.formBuilder.control("")
     );
+
     dayForm.markAsDirty();
   }
 
   addControllerToAlways() {
-    let controllers = <FormArray>this._form.controls["always"];
+    let controllers = <FormArray>this.configForm.controls["always"];
     controllers.push(
       this.formBuilder.control("")
     );
@@ -109,33 +122,48 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfig {
   }
 
   removeControllerFromAlways(controllerIndex: number) {
-    let controllers = <FormArray>this._form.controls["always"];
+    let controllers = <FormArray>this.configForm.controls["always"];
     controllers.removeAt(controllerIndex);
     controllers.markAsDirty();
-  }
-
-  protected save(form: FormGroup) {
-    let requests: ConfigureRequest[] = [];
-    for (let controlName in form.controls) {
-      let control = form.controls[controlName];
-      if (control.dirty) {
-        let request = <ConfigureUpdateRequest>{
-          mode: "update",
-          thing: this._form.controls["id"].value,
-          channel: controlName,
-          value: control.value
-        };
-        requests.push(request);
-      }
-    }
-    console.log(requests);
-    this.send(requests);
-    form["_meta_new"] = false;
-    form.markAsPristine();
   }
 
   protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
     return;
   }
 
+  createNewScheduler() {
+    this.configForm.controls['id'].setValue("");
+    this.configForm.controls['class'].setValue("");
+    this.configForm.markAsDirty();
+  }
+
+
 }
+
+
+// {
+//   mode: update,
+//   thing: _scheduler0,
+//   class: WeekTimeScheduler
+//   value: {
+//     cycleTime:
+//     monday:
+//     ...
+//   } 
+// }
+
+// {
+//   mode: update,
+//   thing: _scheduler0
+//   channel: monday,
+//   value: []
+// }
+
+// {
+//   mode: update,
+//   thing: _scheduler0,
+//   class: SimpleScheduler
+//   value: {
+//     cycleTime:
+//   } 
+// }

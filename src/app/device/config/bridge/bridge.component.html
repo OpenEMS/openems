@@ -22,10 +22,10 @@
                   </div>
                 </div>
                 <div style="position: absolute;bottom: 0;right: 0; margin: 20px">
-                  <button (click)="save(bridgeForm)" [disabled]="form.pristine" md-mini-fab>
+                  <button (click)="save(bridgeForm)" [disabled]="form.pristine" color="primary" md-mini-fab>
                     <md-icon>save</md-icon>
                   </button>
-                  <button (click)="delete(form.controls.things, i)" md-mini-fab>
+                  <button (click)="delete(form.controls.things, i)" color="primary" md-mini-fab>
                     <md-icon>delete</md-icon>
                   </button>
                 </div>
@@ -53,10 +53,10 @@
                           </div>
                         </div>
                         <div style="position: absolute;bottom: 0;right: 0; margin: 20px">
-                          <button (click)="save(device)" [disabled]="form.pristine" md-mini-fab>
+                          <button (click)="save(device)" [disabled]="form.pristine" color="primary" md-mini-fab>
                             <md-icon>save</md-icon>
                           </button>
-                          <button (click)="delete(bridgeForm.controls.devices, k)" md-mini-fab>
+                          <button (click)="delete(bridgeForm.controls.devices, k)" color="primary" md-mini-fab>
                             <md-icon>delete</md-icon>
                           </button>
                         </div>

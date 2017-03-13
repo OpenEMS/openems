@@ -6,7 +6,8 @@ import { Subscription } from 'rxjs/Subscription';
 import { WebsocketService } from '../../../service/websocket.service';
 import { WebappService } from '../../../service/webapp.service';
 import { Device } from '../../../service/device';
-import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, ConfigureDeleteRequest } from '../abstractconfig';
+import { AbstractConfig } from '../abstractconfig';
+import { ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, ConfigureDeleteRequest } from '../abstractconfigform';
 
 @Component({
     selector: 'app-device-config-controller',
