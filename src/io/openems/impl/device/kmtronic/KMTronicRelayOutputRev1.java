@@ -37,7 +37,7 @@ public class KMTronicRelayOutputRev1 extends ModbusDeviceNature implements Outpu
 	 */
 	public KMTronicRelayOutputRev1(String thingId) throws ConfigException {
 		super(thingId);
-		outputs = new ModbusCoilWriteChannel[8];
+		outputs = new ModbusCoilWriteChannel[7];
 	}
 
 	/*
@@ -51,14 +51,14 @@ public class KMTronicRelayOutputRev1 extends ModbusDeviceNature implements Outpu
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		return new ModbusProtocol(
-				new WriteableModbusCoilRange(1, new CoilElement(1, outputs[1] = new ModbusCoilWriteChannel("2", this))),
-				new WriteableModbusCoilRange(2, new CoilElement(2, outputs[2] = new ModbusCoilWriteChannel("3", this))),
-				new WriteableModbusCoilRange(3, new CoilElement(3, outputs[3] = new ModbusCoilWriteChannel("4", this))),
-				new WriteableModbusCoilRange(4, new CoilElement(4, outputs[4] = new ModbusCoilWriteChannel("5", this))),
-				new WriteableModbusCoilRange(5, new CoilElement(5, outputs[5] = new ModbusCoilWriteChannel("6", this))),
-				new WriteableModbusCoilRange(6, new CoilElement(6, outputs[6] = new ModbusCoilWriteChannel("7", this))),
+				new WriteableModbusCoilRange(1, new CoilElement(1, outputs[0] = new ModbusCoilWriteChannel("2", this))),
+				new WriteableModbusCoilRange(2, new CoilElement(2, outputs[1] = new ModbusCoilWriteChannel("3", this))),
+				new WriteableModbusCoilRange(3, new CoilElement(3, outputs[2] = new ModbusCoilWriteChannel("4", this))),
+				new WriteableModbusCoilRange(4, new CoilElement(4, outputs[3] = new ModbusCoilWriteChannel("5", this))),
+				new WriteableModbusCoilRange(5, new CoilElement(5, outputs[4] = new ModbusCoilWriteChannel("6", this))),
+				new WriteableModbusCoilRange(6, new CoilElement(6, outputs[5] = new ModbusCoilWriteChannel("7", this))),
 				new WriteableModbusCoilRange(7,
-						new CoilElement(7, outputs[7] = new ModbusCoilWriteChannel("8", this))));
+						new CoilElement(7, outputs[6] = new ModbusCoilWriteChannel("8", this))));
 	}
 
 	@Override
