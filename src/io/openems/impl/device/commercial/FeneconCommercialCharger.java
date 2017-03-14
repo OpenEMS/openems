@@ -398,8 +398,8 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 										.label(16, "Input breaker")//
 										.label(32, "AC contactor")//
 										.label(64, "Emergency stop button")//
-										.label(128, "NegContactor")),
-						new DummyElement(0xA121, 0xA12F),
+										.label(128, "NegContactor"))),
+				new ModbusRegisterRange(0xA130, //
 						new SignedWordElement(0xA130,
 								bmsDCDCOutputVoltage = new ModbusReadLongChannel("BmsDCDCOutputVoltage", this)
 										.unit("mV").multiplier(2)),
@@ -633,8 +633,8 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 										.label(16, "Input breaker")//
 										.label(32, "AC contactor")//
 										.label(64, "Emergency stop button")//
-										.label(128, "NegContactor")),
-						new DummyElement(0xA421, 0xA42F),
+										.label(128, "NegContactor"))),
+				new ModbusRegisterRange(0xA430, //
 						new SignedWordElement(0xA430,
 								bmsDCDC1OutputVoltage = new ModbusReadLongChannel("BmsDCDC1OutputVoltage", this)
 										.unit("mV").multiplier(2)),
@@ -868,8 +868,8 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 										.label(16, "Input breaker")//
 										.label(32, "AC contactor")//
 										.label(64, "Emergency stop button")//
-										.label(128, "NegContactor")),
-						new DummyElement(0xA721, 0xA72F),
+										.label(128, "NegContactor"))),
+				new ModbusRegisterRange(0xA730, //
 						new SignedWordElement(0xA730,
 								pvDCDCOutputVoltage = new ModbusReadLongChannel("PvDCDCOutputVoltage", this).unit("mV")
 										.multiplier(2)),
@@ -1103,8 +1103,8 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 										.label(16, "Input breaker")//
 										.label(32, "AC contactor")//
 										.label(64, "Emergency stop button")//
-										.label(128, "NegContactor")),
-						new DummyElement(0xAA21, 0xAA2F),
+										.label(128, "NegContactor"))),
+				new ModbusRegisterRange(0xAA30, //
 						new SignedWordElement(0xAA30,
 								pvDCDC1OutputVoltage = new ModbusReadLongChannel("PvDCDC1OutputVoltage", this)
 										.unit("mV").multiplier(2)),
