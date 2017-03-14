@@ -64,43 +64,23 @@ public class AvoidTotalDischargeController extends Controller {
 					switch (state) {
 					case ASC:
 					case DESC:
-						try {
-							long maxPower = (long) (ess.allowedDischarge.value() * multiplier);
-							if (!ess.setActivePower.writeMax().isPresent()
-									|| maxPower < ess.setActivePower.writeMax().get()) {
-								ess.setActivePower.pushWriteMax(maxPower);
+						if (!ess.isChargeSoc) {
+							try {
+								long maxPower = 0;
+								if (!ess.setActivePower.writeMax().isPresent()
+										|| maxPower < ess.setActivePower.writeMax().get()) {
+									ess.setActivePower.pushWriteMax(maxPower);
+								}
+							} catch (WriteChannelException e) {
+								log.error(ess.id() + "Failed to set Max allowed power.", e);
 							}
-						} catch (InvalidValueException e) {
-							log.error(ess.id() + "Value allowedDischarge is not present.", e);
-						} catch (WriteChannelException e) {
-							log.error(ess.id() + "Failed to set Max allowed power.", e);
 						}
 						break;
 					case BELOW:
-						if (ess.isChargeSoc) {
-							try {
-								Optional<Long> currentMinValue = ess.setActivePower.writeMin();
-								if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
-									// Force Charge with minimum of MaxChargePower/5
-									log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
-									ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
-								} else {
-									log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
-									ess.setActivePower.pushWriteMax(-1000L);
-								}
-								if (ess.soc.value() >= ess.minSoc.value()) {
-									ess.isChargeSoc = false;
-								}
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						} else {
+						if (!ess.isChargeSoc) {
 							try {
 								if (ess.soc.value() < ess.chargeSoc.value()) {
 									ess.isChargeSoc = true;
-								} else {
-									ess.setActivePower.pushWriteMax(0L);
 								}
 							} catch (Exception e) {
 								log.error(e.getMessage());
@@ -108,49 +88,27 @@ public class AvoidTotalDischargeController extends Controller {
 						}
 						break;
 					case ABOVE:
+						ess.isChargeSoc = false;
 					default:
 						break;
 					}
+					if (ess.isChargeSoc) {
+						try {
+							Optional<Long> currentMinValue = ess.setActivePower.writeMin();
+							if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
+								// Force Charge with minimum of MaxChargePower/5
+								log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
+								ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
+							} else {
+								log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
+								ess.setActivePower.pushWriteMax(-1000L);
+							}
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
 				});
-				// long maxWrite = ess.allowedDischarge.value();
-				// if (ess.setActivePower.writeMax().isPresent() && ess.setActivePower.writeMax().get() < maxWrite) {
-				// maxWrite = ess.setActivePower.writeMax().get();
-				// }
-				// if (ess.isChargeSoc) {
-				// Optional<Long> currentMinValue = ess.setActivePower.writeMin();
-				// if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
-				// // Force Charge with minimum of MaxChargePower/5
-				// log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
-				// ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
-				// } else {
-				// log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
-				// ess.setActivePower.pushWriteMax(-1000L);
-				// }
-				// if (ess.soc.value() >= ess.minSoc.value()) {
-				// ess.isChargeSoc = false;
-				// }
-				// } else {
-				// if ((ess.soc.value() <= ess.minSoc.value()
-				// || (ess.soc.value() <= ess.minSoc.value() + 3 && ess.maxPowerPercent == 0))
-				// && ess.soc.value() >= ess.chargeSoc.value()) {
-				// log.info("Avoid discharge. Decrease ActivePower");
-				// ess.maxPowerPercent -= powerDecreaseStep.value();
-				// if (ess.maxPowerPercent < 0) {
-				// ess.maxPowerPercent = 0;
-				// }
-				// ess.setActivePower.pushWriteMax(maxWrite / 100 * ess.maxPowerPercent);
-				// } else if (ess.soc.value() > ess.minSoc.value()) {
-				// if (ess.maxPowerPercent + powerDecreaseStep.value() < 100) {
-				// ess.maxPowerPercent += powerDecreaseStep.value();
-				// } else {
-				// ess.maxPowerPercent = 100;
-				// }
-				// ess.setActivePower.pushWriteMax(maxWrite / 100 * ess.maxPowerPercent);
-				// } else if (ess.soc.value() < ess.chargeSoc.value()) {
-				// // SOC < minSoc - 5
-				// ess.isChargeSoc = true;
-				// }
-				// }
 			}
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
