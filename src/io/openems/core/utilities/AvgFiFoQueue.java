@@ -26,9 +26,11 @@ public class AvgFiFoQueue {
 
 	private EvictingQueue<Long> queue;
 	private Long lastValue;
+	private double gradeient;
 
-	public AvgFiFoQueue(int length) {
+	public AvgFiFoQueue(int length, double gradient) {
 		queue = EvictingQueue.create(length);
+		this.gradeient = gradient;
 	}
 
 	public void add(long number) {
@@ -43,7 +45,7 @@ public class AvgFiFoQueue {
 		for (long value : queue) {
 			sum += value * multiplier;
 			divisor += multiplier;
-			multiplier += multiplier;
+			multiplier = (long) ((multiplier) * gradeient);
 		}
 		if (sum == 0) {
 			return 0;
