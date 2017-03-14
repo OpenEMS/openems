@@ -58,8 +58,8 @@ public class Power {
 		this.allowedApparent = allowedApparent;
 		this.setActivePower = setActivePower;
 		this.setReactivePower = setReactivePower;
-		this.activePowerQueue = new AvgFiFoQueue(acivePowerAverage);
-		this.reactivePowerQueue = new AvgFiFoQueue(reactivePowerAverage);
+		this.activePowerQueue = new AvgFiFoQueue(acivePowerAverage, 1);
+		this.reactivePowerQueue = new AvgFiFoQueue(reactivePowerAverage, 1);
 	}
 
 	public void setActivePower(long power) {

@@ -26,7 +26,7 @@ public class Hysteresis {
 
 	private final Long min;
 	private final Long max;
-	private AvgFiFoQueue queue = new AvgFiFoQueue(10);
+	private AvgFiFoQueue queue = new AvgFiFoQueue(10, 1.5);
 
 	public Hysteresis(long min, long max) {
 		this.min = min;
