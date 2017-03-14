@@ -61,8 +61,31 @@ public class ChannelThresholdScheduler extends Scheduler {
 	 * Config
 	 */
 
+	@ConfigInfo(title = "Always", description = "Sets the controllers that are always activated.", type = JsonArray.class)
+	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this);
+
 	@ConfigInfo(title = "the ammount of time to wait till next run.", type = Integer.class)
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(500);
+
+	/*
+	 * "thresholds":[
+	 * {
+	 * "threshold":20,
+	 * "hysteresis": 5,
+	 * "controller":["ctr1","ctr3"]
+	 * },
+	 * {
+	 * "threshold":40,
+	 * "hysteresis": 7,
+	 * "controller":["ctr2","ctr4"]
+	 * },
+	 * {
+	 * "threshold":60,
+	 * "hysteresis": 3,
+	 * "controller":["ctr5","ctr6"]
+	 * },
+	 * ]
+	 */
 
 	@ConfigInfo(title = "Configures the Controllers ", type = JsonArray.class)
 	public ConfigChannel<JsonArray> thresholds = new ConfigChannel<JsonArray>("thresholds", this)
@@ -246,6 +269,16 @@ public class ChannelThresholdScheduler extends Scheduler {
 			}
 		}
 		activeHysteresis = lastHysteresis;
+	}
+
+	private List<Controller> getAlwaysController() {
+		List<Controller> controller = new ArrayList<>();
+		if (always.valueOptional().isPresent()) {
+			for (JsonElement element : always.valueOptional().get()) {
+				controller.add(controllers.get(element.getAsString()));
+			}
+		}
+		return controller;
 	}
 
 	private class Threshold {
