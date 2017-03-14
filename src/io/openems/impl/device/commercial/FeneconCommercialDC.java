@@ -46,8 +46,8 @@ public class FeneconCommercialDC extends ModbusDevice {
 	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = FeneconCommercialEss.class)
 	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<FeneconCommercialEss>("ess", this);
 
-	@ConfigInfo(title = "Inverter", description = "Sets the inverter nature.", type = FeneconCommercialInverter.class)
-	public final ConfigChannel<FeneconCommercialInverter> inverter = new ConfigChannel<>("inverter", this);
+	@ConfigInfo(title = "Inverter", description = "Sets the inverter nature.", type = FeneconCommercialCharger.class)
+	public final ConfigChannel<FeneconCommercialCharger> inverter = new ConfigChannel<>("inverter", this);
 
 	/*
 	 * Methods

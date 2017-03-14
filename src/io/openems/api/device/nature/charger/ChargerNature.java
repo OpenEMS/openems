@@ -26,10 +26,10 @@ import io.openems.api.device.nature.DeviceNature;
 
 public interface ChargerNature extends DeviceNature {
 
-	public WriteChannel<Float> setMaxCurrent();
+	public WriteChannel<Long> setMaxPower();
 
-	public ReadChannel<Float> getBatteryVoltage();
+	public ReadChannel<Long> getActualPower();
 
-	public ReadChannel<Float> getNominalCurrent();
+	public ReadChannel<Long> getNominalPower();
 
 }

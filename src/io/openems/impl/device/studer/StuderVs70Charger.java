@@ -3,7 +3,6 @@ package io.openems.impl.device.studer;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.studer.StuderDeviceNature;
@@ -13,7 +12,7 @@ import io.openems.impl.protocol.studer.internal.object.FloatUserinfoObject;
 import io.openems.impl.protocol.studer.internal.object.IntParameterObject;
 
 @ThingInfo(title = "Studer VS-70 Charger")
-public class StuderVs70Charger extends StuderDeviceNature implements ChargerNature {
+public class StuderVs70Charger extends StuderDeviceNature {
 
 	/*
 	 * Constructors
@@ -29,20 +28,20 @@ public class StuderVs70Charger extends StuderDeviceNature implements ChargerNatu
 	public ReadChannel<Float> nominalCurrent = new StaticValueChannel<Float>("nominalCurrent", this, 70f).unit("A");
 	public WriteChannel<Float> batteryChargeCurrentUnsavedValue;
 
-	@Override
-	public WriteChannel<Float> setMaxCurrent() {
-		return batteryChargeCurrentUnsavedValue;
-	}
-
-	@Override
-	public ReadChannel<Float> getBatteryVoltage() {
-		return batteryVoltage;
-	}
-
-	@Override
-	public ReadChannel<Float> getNominalCurrent() {
-		return nominalCurrent;
-	}
+	// @Override
+	// public WriteChannel<Float> setMaxCurrent() {
+	// return batteryChargeCurrentUnsavedValue;
+	// }
+	//
+	// @Override
+	// public ReadChannel<Float> getBatteryVoltage() {
+	// return batteryVoltage;
+	// }
+	//
+	// @Override
+	// public ReadChannel<Float> getNominalCurrent() {
+	// return nominalCurrent;
+	// }
 
 	/*
 	 * This Channels

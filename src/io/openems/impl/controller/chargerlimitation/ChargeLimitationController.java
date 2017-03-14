@@ -6,8 +6,6 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo(title = "Limit battery charge from DC", description = "Limits the maximum charge of the battery from DC connected charger.")
 public class ChargeLimitationController extends Controller {
@@ -38,32 +36,32 @@ public class ChargeLimitationController extends Controller {
 	 */
 	@Override
 	public void run() {
-		try {
-			Ess ess = this.ess.value();
-			List<Charger> chargers = this.chargers.value();
-			// calculate maximal chargePower
-			float power = ess.allowedCharge.value() + ess.getWrittenActivePower();
-			if (power > 0) {
-				float maxCurrent = 0l;
-				for (Charger c : chargers) {
-					maxCurrent += c.nominalCurrent.value();
-				}
-				for (Charger c : chargers) {
-					c.setPower(power / maxCurrent * c.nominalCurrent.value());
-				}
-				ess.setMaxCharge(ess.allowedCharge.value() - power);
-			} else {
-				for (Charger c : chargers) {
-					c.setPower(0);
-				}
-			}
-		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (WriteChannelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		// try {
+		// Ess ess = this.ess.value();
+		// List<Charger> chargers = this.chargers.value();
+		// // calculate maximal chargePower
+		// float power = ess.allowedCharge.value() + ess.getWrittenActivePower();
+		// if (power > 0) {
+		// float maxCurrent = 0l;
+		// for (Charger c : chargers) {
+		// maxCurrent += c.nominalCurrent.value();
+		// }
+		// for (Charger c : chargers) {
+		// c.setPower(power / maxCurrent * c.nominalCurrent.value());
+		// }
+		// ess.setMaxCharge(ess.allowedCharge.value() - power);
+		// } else {
+		// for (Charger c : chargers) {
+		// c.setPower(0);
+		// }
+		// }
+		// } catch (InvalidValueException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// } catch (WriteChannelException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 	}
 
 }
