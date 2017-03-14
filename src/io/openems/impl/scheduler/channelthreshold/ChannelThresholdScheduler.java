@@ -130,6 +130,7 @@ public class ChannelThresholdScheduler extends Scheduler {
 	@Override
 	protected void forever() {
 		List<Controller> controllers = getActiveControllers();
+		controllers.addAll(getAlwaysController());
 		Collections.sort(controllers, (c1, c2) -> c2.priority.valueOptional().orElse(Integer.MIN_VALUE)
 				- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
 		for (Controller controller : controllers) {
