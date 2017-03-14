@@ -26,7 +26,7 @@ import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.AvgFiFoQueue;
+import io.openems.core.utilities.Power;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
@@ -40,7 +40,7 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> allowedDischarge;
 	public final ReadChannel<Long> gridMode;
 	public final ReadChannel<Long> systemState;
-	public final AvgFiFoQueue activePowerAvg = new AvgFiFoQueue(15);
+	public final Power power;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
@@ -55,7 +55,9 @@ public class Ess extends ThingMap {
 		allowedDischarge = ess.allowedDischarge().required();
 		gridMode = ess.gridMode().required();
 		systemState = ess.systemState().required();
-		// TODO implement Power class
+		this.power = new Power(ess.allowedDischarge().required(), ess.allowedCharge().required(),
+				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required(), 7,
+				7);
 	}
 
 	public long useableSoc() throws InvalidValueException {
