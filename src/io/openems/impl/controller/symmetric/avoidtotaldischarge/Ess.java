@@ -52,16 +52,20 @@ public class Ess extends ThingMap {
 		minSoc = ess.minSoc().required();
 		allowedDischarge = ess.allowedDischarge().required();
 		chargeSoc = ess.chargeSoc().required();
-		minSoc.addChangeListener(new ChannelChangeListener() {
+		ChannelChangeListener hysteresisCreator = new ChannelChangeListener() {
 
-			@Override public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-				if (newValue.isPresent()) {
-					socMinHysteresis = new Hysteresis(((Long) newValue.get()) - 2, ((Long) newValue.get()) + 2);
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+				if (minSoc.valueOptional().isPresent() && chargeSoc.valueOptional().isPresent()) {
+					socMinHysteresis = new Hysteresis(chargeSoc.valueOptional().get(), minSoc.valueOptional().get());
+				} else if (minSoc.valueOptional().isPresent()) {
+					socMinHysteresis = new Hysteresis(minSoc.valueOptional().get() - 3, minSoc.valueOptional().get());
 				}
 			}
-		});
-		if (minSoc.valueOptional().isPresent()) {
-			socMinHysteresis = new Hysteresis(minSoc.valueOptional().get() - 2, minSoc.valueOptional().get() + 2);
-		}
+		};
+		minSoc.addChangeListener(hysteresisCreator);
+		chargeSoc.addChangeListener(hysteresisCreator);
+
+		hysteresisCreator.channelChanged(null, null, null);
 	}
 }
