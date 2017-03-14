@@ -45,16 +45,14 @@ export class DeviceConfigSchedulerComponent extends AbstractConfig {
 
   addChannelsToScheduler(schedulerForm: FormGroup, $event: any) {
     for (let controlName in schedulerForm.controls) {
-      if (controlName != 'id' && controlName != 'class') {
+      if (controlName != 'id' && controlName != 'class' && controlName != 'controllers') {
         schedulerForm.removeControl(controlName);
       }
     }
 
-    console.log(schedulerForm);
     let clazz = $event.target.value;
 
     let schedulerMeta = <FormArray>this.configForm.controls['_meta']['controls']['availableSchedulers'];
-    console.log(schedulerMeta);
 
     for (let indexMeta in schedulerMeta.value) {
       // console.log("First For-Loop // get Index of schedulerMeta");

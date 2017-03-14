@@ -74,9 +74,17 @@
             <table class="full_width">
               <ng-container *ngIf="thing.value.ActivePower != null && thing.value.ReactivePower != null">
                 <tr>
-                  <td>Bezugs-/Einspeiseleistung</td>
+                  <td>Bezugsleistung</td>
                   <td></td>
-                  <td class="align_right">{{ thing.value.ActivePower }}</td>
+                  <td class="align_right" *ngIf="thing.value.ActivePower > 0">{{ thing.value.ActivePower }}</td>
+                  <td class="align_right" *ngIf="thing.value.ActivePower <= 0">0</td>
+                  <td>W</td>
+                </tr>
+                <tr>
+                  <td>Einspeiseleistung</td>
+                  <td></td>
+                  <td class="align_right" *ngIf="thing.value.ActivePower < 0">{{ thing.value.ActivePower | sign }}</td>
+                  <td class="align_right" *ngIf="thing.value.ActivePower >= 0">0</td>
                   <td>W</td>
                 </tr>
                 <tr class="gray_color">

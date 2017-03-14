@@ -30,15 +30,30 @@ export class FormSchedulerChannelthresholdComponent extends AbstractConfigForm {
         return;
     }
 
-    addThreshold(thresholdForm: FormArray) {
+    addControllerToThreshold(thresholdForm: FormArray) {
+        // console.log("addControllerToThreshold");
         thresholdForm.push(this.formBuilder.control(""));
         // console.log(this.schedulerForm.controls['scheduler']['controls']['thresholds']);
         // console.log(thresholdForm);
         thresholdForm.markAsDirty();
     }
 
-    removeThreshold(thresholdForm: FormArray, index: number) {
+    removeControllerFromThreshold(thresholdForm: FormArray, index: number) {
         // console.log(thresholdForm);
+        thresholdForm.removeAt(index);
+        thresholdForm.markAsDirty();
+    }
+
+    addThreshold(thresholdForm: FormArray) {
+        // console.log("addThreshold");
+        thresholdForm.push(this.formBuilder.group({
+            "threshold": this.formBuilder.control(""),
+            "hysteresis": this.formBuilder.control(""),
+            "controller": this.formBuilder.array([])
+        }))
+    }
+
+    removeThreshold(thresholdForm: FormArray, index: number) {
         thresholdForm.removeAt(index);
         thresholdForm.markAsDirty();
     }

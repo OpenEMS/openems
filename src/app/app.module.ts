@@ -61,6 +61,7 @@ import { WebsocketService } from './service/websocket.service';
  */
 import { KeysPipe } from './common/pipe/keys/keys.pipe';
 import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
+import { SignPipe } from './common/pipe/sign/sign.pipe';
 
 @NgModule({
   declarations: [
@@ -95,7 +96,8 @@ import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
     FormSchedulerWeekTimeHoursComponent,
     // pipe
     KeysPipe,
-    ClassnamePipe
+    ClassnamePipe,
+    SignPipe
   ],
   imports: [
     BrowserModule,
