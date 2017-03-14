@@ -48,7 +48,7 @@ public class PowerRampController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
 	@ConfigInfo(title = "Max-ActivePower", description = "The limit where the powerRamp stops. (pos/neg)", type = Integer.class)

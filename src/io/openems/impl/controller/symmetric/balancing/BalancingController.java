@@ -49,7 +49,7 @@ public class BalancingController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public final ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
 	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)

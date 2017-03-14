@@ -337,8 +337,8 @@ public class ConfigUtils {
 		}
 		ClassRepository classRepository = ClassRepository.getInstance();
 		classRepository.getThingConfigChannels(clazz).forEach((member, config) -> {
-			doc.addConfigChannel(
-					new ConfigChannelDoc(member.getName(), config.title(), config.type(), config.isOptional()));
+			doc.addConfigChannel(new ConfigChannelDoc(member.getName(), config.title(), config.type(),
+					config.isOptional(), config.isArray()));
 		});
 		return doc;
 	}

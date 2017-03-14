@@ -63,11 +63,11 @@ public class VoltageCharacteristicController extends Controller {
 	@ConfigInfo(title = "Nominal voltage", description = "The nominal voltage of the grid.", type = Integer.class)
 	public final ConfigChannel<Integer> uNenn = new ConfigChannel<>("UNenn", this);
 
-	@ConfigInfo(title = "ActivePower characteristics", description = "Characteristic points for active power.", type = Long[].class)
+	@ConfigInfo(title = "ActivePower characteristics", description = "Characteristic points for active power.", type = Long[].class, isArray = true)
 	public final ConfigChannel<List<Long[]>> pByUCharacteristicPoints = new ConfigChannel<>("pByUCharacteristicPoints",
 			this);
 
-	@ConfigInfo(title = "ReactivePower characteristics", description = "Characteristic points for reactive power.", type = Long[].class)
+	@ConfigInfo(title = "ReactivePower characteristics", description = "Characteristic points for reactive power.", type = Long[].class, isArray = true)
 	public final ConfigChannel<List<Long[]>> qByUCharacteristicPoints = new ConfigChannel<>("qByUCharacteristicPoints",
 			this);
 

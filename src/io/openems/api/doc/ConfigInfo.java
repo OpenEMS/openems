@@ -38,6 +38,8 @@ public @interface ConfigInfo {
 
 	boolean isOptional() default false;
 
+	boolean isArray() default false;
+
 	/**
 	 * String is interpreted as a JsonElement
 	 *

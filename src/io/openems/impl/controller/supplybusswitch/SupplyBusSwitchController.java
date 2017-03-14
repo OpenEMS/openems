@@ -62,11 +62,11 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Supply-bus", description = "Collection of the switches for the supplyBus each array represents the switches for one supply bus.", type = JsonObject.class)
+	@ConfigInfo(title = "Supply-bus", description = "Collection of the switches for the supplyBus each array represents the switches for one supply bus.", type = JsonObject.class, isArray = true)
 	public ConfigChannel<List<JsonObject>> supplyBusConfig = new ConfigChannel<List<JsonObject>>("supplyBuses", this)
 			.addChangeListener(this);
 
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this).addChangeListener(this);
 
 	@ConfigInfo(title = "Primary-Ess", description = "OpenEMS is supplied by this Ess. Will reserve some load.", type = Ess.class)

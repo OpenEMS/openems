@@ -47,10 +47,10 @@ public class DebugLogController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isOptional = true)
+	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isOptional = true, isArray = true)
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
 
-	@ConfigInfo(title = "Meters", description = "Sets the meters.", type = Meter.class, isOptional = true)
+	@ConfigInfo(title = "Meters", description = "Sets the meters.", type = Meter.class, isOptional = true, isArray = true)
 	public final ConfigChannel<Set<Meter>> meters = new ConfigChannel<Set<Meter>>("meters", this);
 
 	@ConfigInfo(title = "Real-time clock", description = "Sets the real-time clock.", type = RealTimeClock.class, isOptional = true)

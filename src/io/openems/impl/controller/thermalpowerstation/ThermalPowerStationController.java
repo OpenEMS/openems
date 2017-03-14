@@ -53,7 +53,7 @@ public class ThermalPowerStationController extends Controller {
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "Meters", description = "Meters of power producers (e.g. PV).", type = Meter.class)
+	@ConfigInfo(title = "Meters", description = "Meters of power producers (e.g. PV).", type = Meter.class, isArray = true)
 	public ConfigChannel<List<Meter>> meters = new ConfigChannel<>("meters", this);
 
 	@ConfigInfo(title = "Min-SOC", description = "If SOC falls below this min-SOC and power production is below production-limit, thermalpowerstation will start.", type = Long.class)

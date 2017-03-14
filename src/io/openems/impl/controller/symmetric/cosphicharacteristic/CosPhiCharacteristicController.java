@@ -51,7 +51,7 @@ public class CosPhiCharacteristicController extends Controller {
 	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
 
-	@ConfigInfo(title = "Cos-Phi characteristic", description = "The points of the characteristic (x = PowerRatio, y = cosPhi).", type = Long[].class)
+	@ConfigInfo(title = "Cos-Phi characteristic", description = "The points of the characteristic (x = PowerRatio, y = cosPhi).", type = Long[].class, isArray = true)
 	public ConfigChannel<List<Long[]>> cosPhiPoints = new ConfigChannel<List<Long[]>>("cosPhiPoints", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				List<Point> points = new ArrayList<>();

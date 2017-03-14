@@ -30,10 +30,8 @@ public class ChargeLimitationController extends Controller {
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "Chargers", description = "Sets the chargers.", type = Charger.class)
+	@ConfigInfo(title = "Chargers", description = "Sets the chargers.", type = Charger.class, isArray = true)
 	public ConfigChannel<List<Charger>> chargers = new ConfigChannel<>("chargers", this);
-
-	
 
 	/*
 	 * Methods

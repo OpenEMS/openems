@@ -27,12 +27,14 @@ public class ConfigChannelDoc {
 	private final String title;
 	private final Class<?> type;
 	private final boolean optional;
+	private final boolean array;
 
-	public ConfigChannelDoc(String name, String title, Class<?> type, boolean optional) {
+	public ConfigChannelDoc(String name, String title, Class<?> type, boolean optional, boolean array) {
 		this.name = name;
 		this.title = title;
 		this.type = type;
 		this.optional = optional;
+		this.array = array;
 	}
 
 	public JsonObject getAsJsonObject() {
@@ -41,6 +43,7 @@ public class ConfigChannelDoc {
 		j.addProperty("title", title);
 		j.addProperty("type", type.getSimpleName());
 		j.addProperty("optional", optional);
+		j.addProperty("array", array);
 		return j;
 	}
 }
