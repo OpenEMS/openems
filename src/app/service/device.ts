@@ -127,7 +127,7 @@ export class Device {
    */
   public unsubscribe() {
     this.send({
-      subscribe: ""
+      subscribe: {}
     });
   }
 

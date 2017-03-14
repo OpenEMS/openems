@@ -25,7 +25,7 @@
                                 </div>
                                 <div style="margin-top: 20px" *ngFor="let channelMeta of controllerMeta.channels">
                                     <div *ngIf="channelMeta.name != 'rtc' && channelMeta.name != 'priority'">
-                                        <div *ngIf="isArray(controller.value[channelMeta.name])" [formArrayName]="channelMeta.name">
+                                        <div *ngIf="channelMeta.array" [formArrayName]="channelMeta.name">
                                             <div fxLayout fxLayoutWrap="wrap">
                                                 <!--<div fxFlex="10%">
                                                     <label>{{ channelMeta.type }}:</label>
@@ -47,7 +47,7 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        <div *ngIf="!isArray(controller.value[channelMeta.name])" fxLayout fxLayoutWrap="wrap">
+                                        <div *ngIf="!channelMeta.array" fxLayout fxLayoutWrap="wrap">
                                             <!--<label fxFlex="10%">
                                                 {{ channelMeta.title }}:
                                             </label>-->

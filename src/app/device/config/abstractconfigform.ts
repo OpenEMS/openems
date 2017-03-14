@@ -45,16 +45,14 @@ export abstract class AbstractConfigForm {
     if (form["_meta_new"]) {
       requests = this.getConfigureCreateRequests(form);
       form["_meta_new"] = false;
+    } else if (form["_scheduler_new"]) {
+      requests = this.getConfigureUpdateSchedulerRequests(form);
+      form["_scheduler_new"] = false;
     } else {
-      if (form["_scheduler_new"]) {
-        requests = this.getConfigureUpdateSchedulerRequests(form);
-        form["_scheduler_new"] = false;
-      } else {
-        requests = this.getConfigureUpdateRequests(form);
-      }
+      requests = this.getConfigureUpdateRequests(form);
     }
 
-    // this.send(requests);
+    this.send(requests);
     form.markAsPristine();
   }
 
@@ -132,7 +130,6 @@ export abstract class AbstractConfigForm {
         if (formControl[key].dirty) {
           // console.log(formControl[key]);
           let value = formControl[key].value;
-          console.log(key);
 
           if (key != 'class') {
             builder[key] = value;

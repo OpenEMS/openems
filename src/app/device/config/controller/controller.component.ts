@@ -97,7 +97,7 @@ export class DeviceConfigControllerComponent extends AbstractConfig {
 
                     let channelName = controllerMeta.value[indexMeta].channels[indexChannel].name;
 
-                    if (this.isArray(controllerMeta.value[indexMeta].channels[indexChannel])) {
+                    if (controllerMeta.value[indexMeta].channels[indexChannel].array) {
                         // console.log("Array");
                         controllerForm.addControl(channelName, this.formBuilder.array([]));
                     } else if (!this.isArray(controllerMeta.value[indexMeta].channels[indexChannel])) {
