@@ -5,7 +5,10 @@
       <svg:path [attr.d]="section.valuePath" [attr.fill]="section.color" stroke="LightGray"></svg:path>
       <svg:text [attr.x]="section.textPosition.x" [attr.y]="section.textPosition.y" [attr.text-anchor]="section.textPosition.anchor"
         font-family="sans-serif" font-size="20px" fill="color">{{section.name}}</svg:text>
-        <svg:image [attr.x]="section.imagePosition.x" [attr.y]="section.imagePosition.y" width="120" height="70" [attr.xlink:href]="section.imagePosition.image"></svg:image>
+        <svg:text [attr.x]="section.numberPosition.x" [attr.y]="section.numberPosition.y" [attr.text-anchor]="section.numberPosition.anchor"
+          font-family="sans-serif" font-size="20px" fill="color">{{section.numberValue}}</svg:text>
+          <svg:image [attr.x]="section.imagePosition.x" [attr.y]="section.imagePosition.y" [attr.width]="section.imagePosition.width"
+            [attr.height]="section.imagePosition.height" [attr.xlink:href]="section.imagePosition.image"></svg:image>
     </svg:g>
     <svg:g *ngFor="let circle of circles">
       <svg:circle [attr.cx]="circle.x" [attr.cy]="circle.y" stroke-width="1" r="10" stroke="grey" fill="white"></svg:circle>

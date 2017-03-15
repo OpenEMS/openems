@@ -1,6 +1,16 @@
 import * as d3 from 'd3';
+import { DeviceOverviewEnergytableComponent } from '../../../energytable/energytable.component';
+import { Device } from '../../../../../service/device';
 
 export class SvgTextPosition {
+    constructor(
+        public x: number,
+        public y: number,
+        public anchor: "start" | "middle" | "end"
+    ) { }
+}
+
+export class SvgNumberPosition {
     constructor(
         public x: number,
         public y: number,
@@ -13,6 +23,8 @@ export class SvgImagePosition {
         public image: string,
         public x: number,
         public y: number,
+        public width: number,
+        public height: number
     ) { }
 }
 
@@ -24,22 +36,29 @@ export abstract class AbstractSection {
     protected outerRadius: number = 0;
     private textPosition: SvgTextPosition;
     private imagePosition: SvgImagePosition;
+    private numberPosition: SvgNumberPosition;
+    protected height: number = 0;
+    protected width: number = 0;
 
     constructor(
         private name: string,
+        private numberValue: string,
         protected startAngle: number,
         protected endAngle: number,
         private color: string
     ) { }
 
-    public update(outerRadius: number, innerRadius: number) {
+    public update(outerRadius: number, innerRadius: number, height: number, width: number) {
         this.outerRadius = outerRadius;
         this.innerRadius = innerRadius;
+        this.height = height;
+        this.width = width;
         let outlineArc = this.getArc()
             .startAngle(this.deg2rad(this.startAngle))
             .endAngle(this.deg2rad(this.endAngle));
         this.textPosition = this.getTextPosition(outlineArc);
         this.imagePosition = this.getImagePosition(outlineArc);
+        this.numberPosition = this.getNumberPosition(outlineArc);
         this.outlinePath = outlineArc();
         let valueEndAngle = ((this.endAngle - this.startAngle) * this.value) / 100 + this.getValueStartAngle();
         let valueArc = this.getArc()
@@ -50,6 +69,7 @@ export abstract class AbstractSection {
 
     protected abstract getTextPosition(outlineArc: any): SvgTextPosition;
     protected abstract getImagePosition(outlineArc: any): SvgImagePosition;
+    protected abstract getNumberPosition(outlineArc: any): SvgNumberPosition;
 
     public setValue(value: number) {
         if (value > 100) {
@@ -58,7 +78,7 @@ export abstract class AbstractSection {
             value = 0;
         }
         this.value = value;
-        this.update(this.innerRadius, this.outerRadius);
+        this.update(this.innerRadius, this.outerRadius, this.height, this.width);
     }
 
     public getValue(): number {

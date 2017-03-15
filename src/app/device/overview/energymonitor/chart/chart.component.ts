@@ -2,6 +2,7 @@ import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { BaseChartComponent, ColorHelper } from '@swimlane/ngx-charts';
 import * as d3 from 'd3';
 import { StorageSection, ProductionSection, ConsumptionSection, GridSection, AbstractSection } from './section/section';
+import { Device } from '../../../../service/device';
 
 class Circle {
   constructor(
@@ -50,12 +51,13 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
 
   update() {
     super.update();
+    console.log(this.height, this.width);
     this.height = this.width - 100;
     this.translation = `translate(${this.width / 2}, ${this.height / 2})`;
     var outerRadius = Math.min(this.width, this.height) / 2;
     var innerRadius = outerRadius - 30;
     this.sections.forEach(section => {
-      section.update(outerRadius, innerRadius);
+      section.update(outerRadius, innerRadius, this.height, this.width);
     });
   }
 
