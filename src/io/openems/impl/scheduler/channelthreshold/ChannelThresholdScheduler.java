@@ -91,7 +91,9 @@ public class ChannelThresholdScheduler extends Scheduler {
 	public ConfigChannel<JsonArray> thresholds = new ConfigChannel<JsonArray>("thresholds", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				try {
-					loadThresholds();
+					if (isInitialized()) {
+						loadThresholds();
+					}
 				} catch (InvalidValueException e) {
 					log.error("Failed to load thresholds", e);
 				}
