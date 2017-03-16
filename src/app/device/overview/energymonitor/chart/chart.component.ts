@@ -24,25 +24,19 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
   private consumptionSection: AbstractSection = new ConsumptionSection();
   private storageSection: AbstractSection = new StorageSection();
   private sections: AbstractSection[] = [this.gridSection, this.productionSection, this.consumptionSection, this.storageSection];
+  private _device: Device;
 
   @Input()
-  set grid(value: number) {
-    this.gridSection.setValue(value);
-  }
-
-  @Input()
-  set production(value: number) {
-    this.productionSection.setValue(value);
-  }
-
-  @Input()
-  set consumption(value: number) {
-    this.consumptionSection.setValue(value);
-  }
-
-  @Input()
-  set storage(value: number) {
-    this.storageSection.setValue(value);
+  set device(device: Device) {
+    if (this._device) {
+      this._device.data.unsubscribe();
+    }
+    this._device = device;
+    if (device) {
+      device.data.subscribe(() => {
+        this.update();
+      })
+    }
   }
 
   ngOnInit() {
@@ -51,11 +45,16 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
 
   update() {
     super.update();
-    console.log(this.height, this.width);
+    if (this._device) {
+      this.storageSection.setValue(this._device["summary"].storage.soc, this._device["summary"].storage.soc);
+      this.gridSection.setValue(this._device["summary"].grid.activePower, this._device["summary"].grid.powerRatio);
+      this.productionSection.setValue(this._device["summary"].production.activePower, this._device["summary"].production.powerRatio);
+      this.consumptionSection.setValue(Math.round(this._device["summary"].consumption.powerRatio), Math.round(this._device["summary"].consumption.powerRatio));
+    }
     this.height = this.width - 100;
     this.translation = `translate(${this.width / 2}, ${this.height / 2})`;
     var outerRadius = Math.min(this.width, this.height) / 2;
-    var innerRadius = outerRadius - 30;
+    var innerRadius = outerRadius - (outerRadius * 0.1378);
     this.sections.forEach(section => {
       section.update(outerRadius, innerRadius, this.height, this.width);
     });

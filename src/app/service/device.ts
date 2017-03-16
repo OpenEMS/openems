@@ -27,7 +27,8 @@ class Summary {
     maxActivePower: 0
   };
   public consumption = {
-    powerRatio: 0
+    powerRatio: 0,
+    activePower: 0
   };
 }
 
@@ -253,7 +254,10 @@ export class Device {
         let activePower = this.summary.grid.activePower + this.summary.production.activePower + this.summary.storage.activePower;
         let maxActivePower = this.summary.grid.maxActivePower + this.summary.production.maxActivePower + this.summary.storage.maxActivePower;
         this.summary.consumption.powerRatio = (activePower * 100.) / maxActivePower
+        this.summary.consumption.activePower = activePower;
       }
+
+      // send event
       this.data.next(data);
     }
   }

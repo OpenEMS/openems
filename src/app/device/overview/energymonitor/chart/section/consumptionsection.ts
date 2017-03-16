@@ -1,27 +1,21 @@
-import { AbstractSection, SvgTextPosition, SvgImagePosition, SvgNumberPosition } from './abstractsection';
+import { AbstractSection, SvgRectPosition, SvgRect } from './abstractsection';
 
 export class ConsumptionSection extends AbstractSection {
     constructor() {
-        super("Verbrauch", "test", 46, 134, "#FDC507");
+        super("Verbrauch", 46, 134, "#FDC507");
     }
 
-    protected getTextPosition(outlineArc: any): SvgTextPosition {
-        let centroid = outlineArc.centroid();
-        return new SvgTextPosition(centroid[0] - 30, centroid[1] - 50, "end");
+    protected getRectPosition(rect: SvgRect, innerRadius: number): SvgRectPosition {
+        let x = innerRadius - 5 - rect.image.width;
+        let y = ((rect.image.y + rect.image.height) / 2) * (-1);
+        return new SvgRectPosition(x, y);
     }
 
-    protected getNumberPosition(outlineArc: any): SvgNumberPosition {
-        let centroid = outlineArc.centroid();
-        // console.log("CONS", centroid[0], centroid[1]);
-        return new SvgNumberPosition(centroid[0] - 60, centroid[1] - 15, "end");
+    protected getImagePath(): string {
+        return "consumption.png";
     }
 
-    protected getImagePosition(outlineArc: any): SvgImagePosition {
-        let centroid = outlineArc.centroid();
-        let height = this.height * 0.15;
-        let x = centroid[0] * 0.54;
-        let y = x * 0.22;
-        // console.log("CONS", centroid[0], centroid[1]);
-        return new SvgImagePosition("assets/img/consumption.png", centroid[0] - 110, centroid[1] + 10, height, height);
+    protected getValueText(value: number): string {
+        return value + " W";
     }
 }

@@ -1,41 +1,34 @@
-import { AbstractSection, SvgTextPosition, SvgImagePosition, SvgNumberPosition } from './abstractsection';
+import { AbstractSection, SvgRectPosition, SvgRect } from './abstractsection';
 
 export class GridSection extends AbstractSection {
     constructor() {
-        super("Netz", "test", 226, 314, "#1d1d1d");
+        super("Netz", 226, 314, "#1d1d1d");
     }
 
-    protected getTextPosition(outlineArc: any): SvgTextPosition {
-        let centroid = outlineArc.centroid();
-        return new SvgTextPosition(centroid[0] + 50, centroid[1] - 50, "start");
+    protected getRectPosition(rect: SvgRect, innerRadius: number): SvgRectPosition {
+        let x = (innerRadius - 5) * (-1);
+        let y = ((rect.image.y + rect.image.height) / 2) * (-1);
+        return new SvgRectPosition(x, y);
     }
 
-    protected getNumberPosition(outlineArc: any): SvgNumberPosition {
-        let centroid = outlineArc.centroid();
-        // console.log("GRID", centroid[0], centroid[1]);
-        return new SvgNumberPosition(centroid[0] + 50, centroid[1] - 15, "start");
+    protected getImagePath(): string {
+        return "grid.png";
     }
 
-    protected getImagePosition(outlineArc: any): SvgImagePosition {
-        let centroid = outlineArc.centroid();
-        let height = this.height * 0.15;
-        let x = centroid[0] * 0.54;
-        let y = x * 0.22;
-        // console.log("GRID", centroid[0], centroid[1]);
-        return new SvgImagePosition("assets/img/grid.png", centroid[0] + 35, centroid[1] + 10, height, height);
-    }
-
-    public setValue(value: number) {
+    public getValueRatio(value: number) {
         if (value > 50) {
-            value = 50;
+            return 50;
         } else if (value < -50) {
-            value = 50;
+            return 50;
         }
-        this.value = value;
-        this.update(this.innerRadius, this.outerRadius, this.height, this.width);
+        return value;
     }
 
     protected getValueStartAngle(): number {
         return (this.startAngle + this.endAngle) / 2;
+    }
+
+    protected getValueText(value: number): string {
+        return value + " W";
     }
 }

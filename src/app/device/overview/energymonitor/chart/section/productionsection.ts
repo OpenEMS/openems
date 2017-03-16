@@ -1,27 +1,21 @@
-import { AbstractSection, SvgTextPosition, SvgImagePosition, SvgNumberPosition } from './abstractsection';
+import { AbstractSection, SvgRectPosition, SvgRect } from './abstractsection';
 
 export class ProductionSection extends AbstractSection {
     constructor() {
-        super("Erzeugung", "test", 316, 404, "#008DD2");
+        super("Erzeugung", 316, 404, "#008DD2");
     }
 
-    protected getTextPosition(outlineArc: any): SvgTextPosition {
-        let centroid = outlineArc.centroid();
-        return new SvgTextPosition(centroid[0], centroid[1] + 45, "middle");
+    protected getRectPosition(rect: SvgRect, innerRadius: number): SvgRectPosition {
+        let x = (rect.image.width / 2) * (-1);
+        let y = (innerRadius - 5) * (-1);
+        return new SvgRectPosition(x, y);
     }
 
-    protected getNumberPosition(outlineArc: any): SvgNumberPosition {
-        let centroid = outlineArc.centroid();
-        // console.log("PROD", centroid[0], centroid[1]);
-        return new SvgNumberPosition(centroid[0], centroid[1] + 80, "middle");
+    protected getImagePath(): string {
+        return "production.png";
     }
 
-    protected getImagePosition(outlineArc: any): SvgImagePosition {
-        let centroid = outlineArc.centroid();
-        let height = this.height * 0.15;
-        let y = (centroid[1] * 0.4687) * (-1);
-        let x = y * 0.3684;
-        // console.log("PROD", centroid[0], centroid[1]);
-        return new SvgImagePosition("assets/img/production.png", centroid[0] - x, centroid[1] + y, height, height);
+    protected getValueText(value: number): string {
+        return value + " W";
     }
 }
