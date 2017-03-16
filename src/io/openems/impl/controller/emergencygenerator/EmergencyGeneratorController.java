@@ -65,6 +65,10 @@ public class EmergencyGeneratorController extends Controller {
 	@ConfigInfo(title = "Invert-Output", description = "True if the digital output should be inverted.", type = Boolean.class)
 	public ConfigChannel<Boolean> invertOutput = new ConfigChannel<>("invertOutput", this);
 
+	@ConfigInfo(title = "On-Grid output on", description = "This value indicates if the system is On-Grid to start(true) or stop(false) the generator.", type = Boolean.class, isOptional = true)
+	public ConfigChannel<Boolean> onGridOutputOn = new ConfigChannel<Boolean>("onGridOutputOn", this)
+			.defaultValue(false);
+
 	/*
 	 * Fields
 	 */
@@ -141,8 +145,11 @@ public class EmergencyGeneratorController extends Controller {
 				}
 			} else {
 				// Grid voltage is in the allowed range
-				// switch generator off
-				stopGenerator();
+				if (onGridOutputOn.value()) {
+					startGenerator();
+				} else {
+					stopGenerator();
+				}
 			}
 		} catch (InvalidValueException e) {
 			log.error("Failed to read value!", e);
