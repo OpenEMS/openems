@@ -51,7 +51,6 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
       this.productionSection.setValue(this._device["summary"].production.activePower, this._device["summary"].production.powerRatio);
       this.consumptionSection.setValue(Math.round(this._device["summary"].consumption.powerRatio), Math.round(this._device["summary"].consumption.powerRatio));
     }
-    console.log(this.height, this.width);
     this.height = this.width;
     this.translation = `translate(${this.width / 2}, ${this.height / 2})`;
     var outerRadius = Math.min(this.width, this.height) / 2;
