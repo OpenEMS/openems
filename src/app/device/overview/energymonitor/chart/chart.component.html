@@ -1,37 +1,26 @@
 <svg style.width="{{width}}px" style.height="{{height}}px">
-
+  <!--graphic-->
   <svg:g [attr.transform]="translation">
     <svg:g *ngFor="let section of sections">
       <svg:path [attr.d]="section.outlinePath" fill="white" stroke="LightGray"></svg:path>
       <svg:path [attr.d]="section.valuePath" [attr.fill]="section.color" stroke="LightGray"></svg:path>
-      <!--section.rect.valueRatio.x-->
-      <svg:g attr.transform="translate({{section.rectPosition.x}},{{section.rectPosition.y}})">
-        <svg:text fxShow fxHide.xs [attr.x]="section.rect.valueRatio.x" [attr.y]="section.rect.valueRatio.y" [attr.text-anchor]="section.rect.valueRatio.anchor"
-          font-family="sans-serif" font-size="section.rect.valueRatio.fontsize" fill="color">{{section.name}}</svg:text>
-          <svg:text [attr.x]="section.rect.valueText.x" [attr.y]="section.rect.valueText.y" [attr.text-anchor]="section.rect.valueText.anchor"
-            font-family="sans-serif" font-size="section.rect.valueText.fontsize" fill="grey">{{section.valueText}}</svg:text>
-            <svg:image [attr.x]="section.rect.image.x" [attr.y]="section.rect.image.y" [attr.width]="section.rect.image.length" [attr.height]="section.rect.image.length"
-              [attr.xlink:href]="section.rect.image.image"></svg:image>
+      <svg:g attr.transform="translate({{section.squarePosition.x}},{{section.squarePosition.y}})">
+        <svg:text fxShow fxHide.xs [attr.x]="section.square.valueRatio.x" [attr.y]="section.square.valueRatio.y" [attr.text-anchor]="section.square.valueRatio.anchor"
+          font-family="sans-serif" font-size="section.square.valueRatio.fontsize" fill="color">{{section.name}}</svg:text>
+          <svg:text [attr.x]="section.square.valueText.x" [attr.y]="section.square.valueText.y" [attr.text-anchor]="section.square.valueText.anchor"
+            font-family="sans-serif" font-size="section.square.valueText.fontsize" fill="grey">{{section.valueText}}</svg:text>
+            <svg:image [attr.x]="section.square.image.x" [attr.y]="section.square.image.y" [attr.width]="section.square.image.length"
+              [attr.height]="section.square.image.length" [attr.xlink:href]="section.square.image.image"></svg:image>
       </svg:g>
+      <!--circles-->
       <svg:g *ngFor="let circle of section.circles">
         <svg:circle [attr.cx]="circle.x" [attr.cy]="circle.y" stroke-width="1" [attr.r]="circle.radius" stroke="grey" fill="white"></svg:circle>
       </svg:g>
     </svg:g>
 
   </svg:g>
-
-  <!--<svg:g [attr.transform]="rTranslation">
-    <svg style.width="{{rWidth}}px" style.height="{{rHeight}}px" style.background-color="yellow">
-
-      <svg:text [attr.x]="xText" [attr.y]="yText" text-anchor="middle" font-family="sans-serif" style.font-size="{{textSize}}px"
-        fill="black">Speicher</svg:text>
-        <svg:text [attr.x]="xNumber" [attr.y]="yNumber" text-anchor="middle" font-family="sans-serif" style.font-size="{{numberSize}}px"
-          fill="grey">50 %</svg:text>
-          <svg:image x="0" [attr.y]="yImage" style.width="{{rWidth}}px" style.height="{{rWidth}}px" xlink:href="../../../../../../assets/img/storage.png"></svg:image>
-
-    </svg>
-  </svg:g>-->
 </svg>
+<!--legend-->
 <div fxHide fxShow.xs fxLayout fxFlex fxLayoutWrap="wrap" style="margin: 20px">
   <div fxFlex="50%">
     <svg style="width:20px; height:20px; background-color:black" /> Netz

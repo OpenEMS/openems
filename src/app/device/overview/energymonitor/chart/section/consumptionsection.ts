@@ -9,9 +9,9 @@ export class ConsumptionSection extends AbstractSection {
         return new CircleDirection("right");
     }
 
-    protected getRectPosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = innerRadius - 5 - rect.length;
-        let y = (rect.length / 2) * (-1);
+    protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
+        let x = innerRadius - 5 - square.length;
+        let y = (square.length / 2) * (-1);
         return new SvgSquarePosition(x, y);
     }
 

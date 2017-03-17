@@ -25,23 +25,14 @@ export class DeviceConfigSchedulerComponent extends AbstractConfig {
   }
 
   initForm(config) {
-    // console.log("CONFIG", JSON.stringify(config.scheduler));
-    console.log(config);
+    // console.log(config);
     this.configForm = <FormGroup>this.buildForm(config);
-    // console.log(this.configForm);
     this.form = this.buildForm(config.scheduler);
   }
 
   protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
     return;
   }
-
-  // isArray(value: any) {
-  //   if (value instanceof Array) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
 
   addChannelsToScheduler(schedulerForm: FormGroup, $event: any) {
     for (let controlName in schedulerForm.controls) {
@@ -55,11 +46,8 @@ export class DeviceConfigSchedulerComponent extends AbstractConfig {
     let schedulerMeta = <FormArray>this.configForm.controls['_meta']['controls']['availableSchedulers'];
 
     for (let indexMeta in schedulerMeta.value) {
-      // console.log("First For-Loop // get Index of schedulerMeta");
       if (schedulerMeta.value[indexMeta].class == clazz) {
-        // console.log("If statement // if both classes equals");
         for (let indexChannel in schedulerMeta.value[indexMeta].channels) {
-          // console.log("Second For-Loop // get channel of schedulerMeta");
 
           let channelName = schedulerMeta.value[indexMeta].channels[indexChannel].name;
 
@@ -68,8 +56,6 @@ export class DeviceConfigSchedulerComponent extends AbstractConfig {
           } else {
             schedulerForm.addControl(channelName, this.formBuilder.control(""));
           }
-
-          // schedulerForm.addControl(channelName, this.formBuilder.control(""));
 
         }
 

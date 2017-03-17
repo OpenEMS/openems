@@ -9,9 +9,9 @@ export class GridSection extends AbstractSection {
         return new CircleDirection("left");
     }
 
-    protected getRectPosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition {
+    protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
         let x = (innerRadius - 5) * (-1);
-        let y = (rect.length / 2) * (-1);
+        let y = (square.length / 2) * (-1);
         return new SvgSquarePosition(x, y);
     }
 

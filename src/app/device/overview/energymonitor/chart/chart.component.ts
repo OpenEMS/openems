@@ -24,6 +24,7 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
   @Input()
   set device(device: Device) {
     if (this._device) {
+      // device existed before -> unsubscribe
       this._device.data.unsubscribe();
     }
     this._device = device;
@@ -38,9 +39,15 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
     this.update();
   }
 
+  /**
+   * This method is called on every change of values or resolution of the browser window.
+   */
   update() {
     super.update();
     if (this._device) {
+      /*
+       * Set values for energy monitor
+       */
       this.storageSection.setValue(this._device["summary"].storage.soc, this._device["summary"].storage.soc);
       this.gridSection.setValue(this._device["summary"].grid.activePower, this._device["summary"].grid.powerRatio);
       this.productionSection.setValue(this._device["summary"].production.activePower, this._device["summary"].production.powerRatio);
@@ -50,6 +57,7 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
     this.translation = `translate(${this.width / 2}, ${this.height / 2})`;
     var outerRadius = Math.min(this.width, this.height) / 2;
     var innerRadius = outerRadius - (outerRadius * 0.1378);
+    // All sections from update() in section 
     this.sections.forEach(section => {
       section.update(outerRadius, innerRadius, this.height, this.width);
     });
@@ -58,22 +66,4 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
   private deg2rad(value: number): number {
     return value * (Math.PI / 180)
   }
-
-  //   new Circle(-20, 0),
-  //   new Circle(-50, 0),
-  //   new Circle(-80, 0),
-  //   new Circle(-110, 0),
-  //   new Circle(20, 0),
-  //   new Circle(50, 0),
-  //   new Circle(80, 0),
-  //   new Circle(110, 0),
-  //   new Circle(0, -20),
-  //   new Circle(0, -50),
-  //   new Circle(0, -80),
-  //   new Circle(0, -110),
-  //   new Circle(0, 20),
-  //   new Circle(0, 50),
-  //   new Circle(0, 80),
-  //   new Circle(0, 110)
-  // ];
 }

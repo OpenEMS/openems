@@ -9,8 +9,8 @@ export class ProductionSection extends AbstractSection {
         return new CircleDirection("up");
     }
 
-    protected getRectPosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = (rect.length / 2) * (-1);
+    protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
+        let x = (square.length / 2) * (-1);
         let y = (innerRadius - 5) * (-1);
         return new SvgSquarePosition(x, y);
     }

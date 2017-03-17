@@ -50,14 +50,6 @@ export class CircleDirection {
     ) { }
 }
 
-// x = getxxx();
-// let multX = 0;
-// let multY = 0;
-// if(x.direction == "left") {
-//     multX = -1;
-//     multY = 0;
-// }
-
 export abstract class AbstractSection {
     private outlinePath: number = null;
     private valuePath: number = null;
@@ -65,10 +57,8 @@ export abstract class AbstractSection {
     protected valueText: string = "";
     protected innerRadius: number = 0;
     protected outerRadius: number = 0;
-    private textPosition: SvgTextPosition;
-    private imagePosition: SvgImagePosition;
-    private rect: SvgSquare;
-    private rectPosition: SvgSquarePosition;
+    private square: SvgSquare;
+    private squarePosition: SvgSquarePosition;
     protected height: number = 0;
     protected width: number = 0;
     private circles: Circle[] = [];
@@ -88,11 +78,6 @@ export abstract class AbstractSection {
         let outlineArc = this.getArc()
             .startAngle(this.deg2rad(this.startAngle))
             .endAngle(this.deg2rad(this.endAngle));
-        // this.textPosition = this.getTextPosition(outlineArc);
-        // this.imagePosition = this.getImagePosition(outlineArc);
-        // this.numbäerPosition = this.getNumberPosition(outlineArc);
-        this.rect = this.getRect(innerRadius);
-        this.rectPosition = this.getRectPosition(this.rect, innerRadius);
         this.outlinePath = outlineArc();
         let valueEndAngle = ((this.endAngle - this.startAngle) * this.valueRatio) / 100 + this.getValueStartAngle();
         let valueArc = this.getArc()
@@ -100,13 +85,21 @@ export abstract class AbstractSection {
             .endAngle(this.deg2rad(valueEndAngle));
         this.valuePath = valueArc();
 
-        // Calculate circles
+        /**
+         * calculate square
+         */
+        this.square = this.getSquare(innerRadius);
+        this.squarePosition = this.getSquarePosition(this.square, innerRadius);
+
+        /**
+         * Calculate Circles
+         */
         let circleDirection = this.getCircleDirection();
-        let availableInnerRadius = innerRadius - this.rect.image.y - this.rect.image.length;
+        let availableInnerRadius = innerRadius - this.square.image.y - this.square.image.length;
         let radius = Math.round(availableInnerRadius * 0.1);
         let space = {
             min: radius * 2,
-            max: innerRadius - this.rect.image.y - this.rect.image.length - 2 * radius
+            max: innerRadius - this.square.image.y - this.square.image.length - 2 * radius
         }
         let fact = { x: 0, y: 0 };
         if (circleDirection.direction == "left") {
@@ -125,7 +118,14 @@ export abstract class AbstractSection {
         }
     }
 
-    protected getRect(innerRadius: any): SvgSquare {
+    /**
+     * calculate... 
+     * ...length of square and image;
+     * ...x and y of text and image;
+     * ...fontsize of text;
+     * 
+     */
+    protected getSquare(innerRadius: any): SvgSquare {
         let width = innerRadius / 2.5;
 
         let textSize = width / 4;
@@ -150,7 +150,7 @@ export abstract class AbstractSection {
     }
 
     protected abstract getImagePath(): string;
-    protected abstract getRectPosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
+    protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getCircleDirection(): CircleDirection;
     protected abstract getValueText(value: number): string;
 
@@ -163,6 +163,9 @@ export abstract class AbstractSection {
         return valueRatio;
     }
 
+    /**
+     * sets value of displayed text and Ratio
+     */
     public setValue(value: number, valueRatio: number) {
         this.valueRatio = this.getValueRatio(valueRatio);
         this.valueText = this.getValueText(value);

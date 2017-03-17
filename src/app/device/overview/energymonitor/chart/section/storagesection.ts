@@ -9,9 +9,9 @@ export class StorageSection extends AbstractSection {
         return new CircleDirection("down");
     }
 
-    protected getRectPosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition {
-        let x = (rect.length / 2) * (-1);
-        let y = innerRadius - 5 - rect.length;
+    protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
+        let x = (square.length / 2) * (-1);
+        let y = innerRadius - 5 - square.length;
         return new SvgSquarePosition(x, y);
     }
 

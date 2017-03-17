@@ -3,6 +3,7 @@
     <md-tab-group (selectChange)="addBridge(form.controls.things, $event)">
       <md-tab *ngFor="let bridgeForm of form.controls.things.controls, let i=index" [formGroupName]="i">
         <div *ngFor="let bridgeFormMeta of form.value._meta['availableBridges'], let j=index">
+          <!--existing bridge-->
           <div *ngIf="bridgeFormMeta.class == bridgeForm.value.class && bridgeForm.value.class != '' && bridgeForm.value.id != ''">
             <template md-tab-label>{{ bridgeFormMeta.class | classname }}<small>({{ bridgeForm.value.id }})</small></template>
             <md-card class="single">
@@ -64,6 +65,7 @@
                     </md-card>
                   </div>
                 </div>
+                <!--new bridge-->
                 <div *ngIf="device.value.class == '' || device.value.id == ''" [formGroupName]="k">
                   <md-card class="single">
                     <md-card-header>
