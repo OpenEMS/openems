@@ -2,14 +2,9 @@ import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { BaseChartComponent, ColorHelper } from '@swimlane/ngx-charts';
 import * as d3 from 'd3';
 import { StorageSection, ProductionSection, ConsumptionSection, GridSection, AbstractSection } from './section/section';
-import { Device } from '../../../../service/device';
+import { SvgSquarePosition, SvgSquare } from './section/abstractsection';
 
-class Circle {
-  constructor(
-    public x: number,
-    public y: number
-  ) { }
-}
+import { Device } from '../../../../service/device';
 
 @Component({
   selector: 'app-device-overview-energymonitor-chart',
@@ -64,7 +59,6 @@ export class DeviceOverviewEnergymonitorChartComponent extends BaseChartComponen
     return value * (Math.PI / 180)
   }
 
-  private circles: Circle[] = [];
   //   new Circle(-20, 0),
   //   new Circle(-50, 0),
   //   new Circle(-80, 0),

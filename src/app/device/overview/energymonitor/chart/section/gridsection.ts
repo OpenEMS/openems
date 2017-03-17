@@ -1,14 +1,18 @@
-import { AbstractSection, SvgRectPosition, SvgRect } from './abstractsection';
+import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection';
 
 export class GridSection extends AbstractSection {
     constructor() {
         super("Netz", 226, 314, "#1d1d1d");
     }
 
-    protected getRectPosition(rect: SvgRect, innerRadius: number): SvgRectPosition {
+    protected getCircleDirection(): CircleDirection {
+        return new CircleDirection("left");
+    }
+
+    protected getRectPosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition {
         let x = (innerRadius - 5) * (-1);
-        let y = ((rect.image.y + rect.image.height) / 2) * (-1);
-        return new SvgRectPosition(x, y);
+        let y = (rect.length / 2) * (-1);
+        return new SvgSquarePosition(x, y);
     }
 
     protected getImagePath(): string {

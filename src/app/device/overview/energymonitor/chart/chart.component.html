@@ -10,13 +10,14 @@
           font-family="sans-serif" font-size="section.rect.valueRatio.fontsize" fill="color">{{section.name}}</svg:text>
           <svg:text [attr.x]="section.rect.valueText.x" [attr.y]="section.rect.valueText.y" [attr.text-anchor]="section.rect.valueText.anchor"
             font-family="sans-serif" font-size="section.rect.valueText.fontsize" fill="grey">{{section.valueText}}</svg:text>
-            <svg:image [attr.x]="section.rect.image.x" [attr.y]="section.rect.image.y" [attr.width]="section.rect.image.width" [attr.height]="section.rect.image.height"
+            <svg:image [attr.x]="section.rect.image.x" [attr.y]="section.rect.image.y" [attr.width]="section.rect.image.length" [attr.height]="section.rect.image.length"
               [attr.xlink:href]="section.rect.image.image"></svg:image>
       </svg:g>
+      <svg:g *ngFor="let circle of section.circles">
+        <svg:circle [attr.cx]="circle.x" [attr.cy]="circle.y" stroke-width="1" [attr.r]="circle.radius" stroke="grey" fill="white"></svg:circle>
+      </svg:g>
     </svg:g>
-    <svg:g *ngFor="let circle of circles">
-      <svg:circle [attr.cx]="circle.x" [attr.cy]="circle.y" stroke-width="1" r="10" stroke="grey" fill="white"></svg:circle>
-    </svg:g>
+
   </svg:g>
 
   <!--<svg:g [attr.transform]="rTranslation">

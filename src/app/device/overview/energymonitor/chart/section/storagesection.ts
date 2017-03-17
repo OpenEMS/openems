@@ -1,14 +1,18 @@
-import { AbstractSection, SvgRectPosition, SvgRect } from './abstractsection';
+import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection';
 
 export class StorageSection extends AbstractSection {
     constructor() {
         super("Speicher", 136, 224, "#009846");
     }
 
-    protected getRectPosition(rect: SvgRect, innerRadius: number): SvgRectPosition {
-        let x = (rect.image.width / 2) * (-1);
-        let y = innerRadius - 5 - (rect.image.y + rect.image.height);
-        return new SvgRectPosition(x, y);
+    protected getCircleDirection(): CircleDirection {
+        return new CircleDirection("down");
+    }
+
+    protected getRectPosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition {
+        let x = (rect.length / 2) * (-1);
+        let y = innerRadius - 5 - rect.length;
+        return new SvgSquarePosition(x, y);
     }
 
     protected getImagePath(): string {
