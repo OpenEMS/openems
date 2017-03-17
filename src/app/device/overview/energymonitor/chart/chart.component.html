@@ -6,7 +6,7 @@
       <svg:path [attr.d]="section.valuePath" [attr.fill]="section.color" stroke="LightGray"></svg:path>
       <!--section.rect.valueRatio.x-->
       <svg:g attr.transform="translate({{section.rectPosition.x}},{{section.rectPosition.y}})">
-        <svg:text [attr.x]="section.rect.valueRatio.x" [attr.y]="section.rect.valueRatio.y" [attr.text-anchor]="section.rect.valueRatio.anchor"
+        <svg:text fxShow fxHide.xs [attr.x]="section.rect.valueRatio.x" [attr.y]="section.rect.valueRatio.y" [attr.text-anchor]="section.rect.valueRatio.anchor"
           font-family="sans-serif" font-size="section.rect.valueRatio.fontsize" fill="color">{{section.name}}</svg:text>
           <svg:text [attr.x]="section.rect.valueText.x" [attr.y]="section.rect.valueText.y" [attr.text-anchor]="section.rect.valueText.anchor"
             font-family="sans-serif" font-size="section.rect.valueText.fontsize" fill="grey">{{section.valueText}}</svg:text>
@@ -31,3 +31,17 @@
     </svg>
   </svg:g>-->
 </svg>
+<div fxHide fxShow.xs fxLayout fxFlex fxLayoutWrap="wrap" style="margin: 20px">
+  <div fxFlex="50%">
+    <svg style="width:20px; height:20px; background-color:black" /> Netz
+  </div>
+  <div fxFlex="50%">
+    <svg style="width:20px; height:20px; background-color: dodgerblue" /> Erzeugung
+  </div>
+  <div fxFlex="50%">
+    <svg style="width:20px; height:20px; background-color:orange" /> Verbrauch
+  </div>
+  <div fxFlex="50%">
+    <svg style="width:20px; height:20px; background-color:darkgreen" /> Speicher
+  </div>
+</div>
