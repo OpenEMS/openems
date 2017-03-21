@@ -21,6 +21,10 @@
 package io.openems.core.utilities.websocket;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -44,6 +48,7 @@ import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
+import io.openems.api.persistence.QueryablePersistence;
 import io.openems.api.thing.Thing;
 import io.openems.core.Config;
 import io.openems.core.Databus;
@@ -91,11 +96,14 @@ public class WebsocketHandler {
 	 */
 	protected final WebSocket websocket;
 
+	private final ThingRepository thingRepository;
+
 	private WebsocketHandler handler;
 
 	public WebsocketHandler(WebSocket websocket) {
 		this.databus = Databus.getInstance();
 		this.websocket = websocket;
+		this.thingRepository = ThingRepository.getInstance();
 		this.subscriptionTask = () -> {
 			/*
 			 * This task is executed regularly. Sends data to websocket.
@@ -130,6 +138,13 @@ public class WebsocketHandler {
 		 */
 		if (jMessage.has("system")) {
 			system(jMessage.get("system"));
+		}
+
+		/*
+		 * Query command
+		 */
+		if (jMessage.has("query")) {
+			query(jMessage.get("query"));
 		}
 	}
 
@@ -370,6 +385,56 @@ public class WebsocketHandler {
 				throw new OpenemsException("Unknown system message: " + jSystemElement.toString());
 			}
 		} catch (OpenemsException | IOException | InterruptedException e) {
+			log.error(e.getMessage());
+		}
+	}
+
+	/**
+	 * Query command
+	 *
+	 * @param j
+	 */
+	private synchronized void query(JsonElement jQueryElement) {
+		try {
+			JsonObject jQuery = JsonUtils.getAsJsonObject(jQueryElement);
+			String mode = JsonUtils.getAsString(jQuery, "mode");
+			if (mode.equals("history")) {
+				/*
+				 * History query
+				 */
+				String timezoneString = JsonUtils.getAsString(jQuery, "timezone");
+				ZoneId timezone = ZoneId.of(timezoneString);
+				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
+				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jQuery, "toDate", timezone);
+				JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
+				// TODO: calculate resolution
+				ArrayList<String> channelAddresses = new ArrayList<>();
+				for (Entry<String, JsonElement> entry : channels.entrySet()) {
+					String thingId = entry.getKey();
+					JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
+					for (JsonElement channelElement : channelIds) {
+						String channelId = JsonUtils.getAsString(channelElement);
+						channelAddresses.add("\"" + thingId + "/" + channelId + "\"");
+					}
+				}
+				JsonArray jChannels = null;
+				for (QueryablePersistence queryablePersistence : thingRepository.getQueryablePersistences()) {
+					jChannels = queryablePersistence.query(fromDate, toDate, channelAddresses);
+					if (jChannels != null) {
+						break;
+					}
+				}
+				// Send result
+				JsonObject j = new JsonObject();
+				JsonObject jQueryreply = new JsonObject();
+				jQueryreply.addProperty("mode", "history");
+				jQueryreply.add("channels", jChannels);
+				j.add("queryreply", jQueryreply);
+				this.send(j);
+
+				log.info("RESULT: " + j);
+			}
+		} catch (OpenemsException e) {
 			log.error(e.getMessage());
 		}
 	}

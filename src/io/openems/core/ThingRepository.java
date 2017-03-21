@@ -54,6 +54,7 @@ import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.persistence.Persistence;
+import io.openems.api.persistence.QueryablePersistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
@@ -83,6 +84,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 	private Set<Bridge> bridges = new HashSet<>();
 	private Set<Scheduler> schedulers = new HashSet<>();
 	private Set<Persistence> persistences = new HashSet<>();
+	private Set<QueryablePersistence> queryablePersistences = new HashSet<>();
 	private Set<DeviceNature> deviceNatures = new HashSet<>();
 	private final Table<Thing, String, Channel> thingChannels = HashBasedTable.create();
 	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
@@ -117,6 +119,11 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		// Add to persistences
 		if (thing instanceof Persistence) {
 			persistences.add((Persistence) thing);
+		}
+
+		// Add to queryablePersistences
+		if (thing instanceof QueryablePersistence) {
+			queryablePersistences.add((QueryablePersistence) thing);
 		}
 
 		// Add to device natures
@@ -205,7 +212,12 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 			persistences.remove(thing);
 		}
 
-		// Remove from persistences
+		// Remove from queryablePersistences
+		if (thing instanceof QueryablePersistence) {
+			queryablePersistences.remove(thing);
+		}
+
+		// Remove from deviceNatures
 		if (thing instanceof DeviceNature) {
 			deviceNatures.remove(thing);
 		}
@@ -296,6 +308,10 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 	 */
 	public synchronized Set<Persistence> getPersistences() {
 		return Collections.unmodifiableSet(persistences);
+	}
+
+	public synchronized Set<QueryablePersistence> getQueryablePersistences() {
+		return Collections.unmodifiableSet(queryablePersistences);
 	}
 
 	public synchronized Set<Class<? extends Thing>> getThingClasses() {

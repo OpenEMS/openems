@@ -21,6 +21,10 @@
 package io.openems.impl.persistence.influxdb;
 
 import java.net.Inet4Address;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -29,8 +33,14 @@ import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
+import org.influxdb.dto.Query;
+import org.influxdb.dto.QueryResult;
+import org.influxdb.dto.QueryResult.Result;
+import org.influxdb.dto.QueryResult.Series;
 
 import com.google.common.collect.HashMultimap;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
@@ -38,11 +48,12 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.persistence.Persistence;
+import io.openems.api.exception.OpenemsException;
+import io.openems.api.persistence.QueryablePersistence;
 import io.openems.core.Databus;
 
 @ThingInfo(title = "InfluxDB Persistence", description = "Persists data in an InfluxDB time-series database.")
-public class InfluxdbPersistence extends Persistence implements ChannelUpdateListener {
+public class InfluxdbPersistence extends QueryablePersistence implements ChannelUpdateListener {
 
 	/*
 	 * Config
@@ -176,11 +187,83 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 		try {
 			influxdb.createDatabase(DB_NAME);
 		} catch (RuntimeException e) {
-			log.error("Unable to connect to InfluxDB: ", e);
+			log.error("Unable to connect to InfluxDB: " + e.getCause());
 			return Optional.empty();
 		}
 
 		this._influxdb = Optional.of(influxdb);
 		return this._influxdb;
+	}
+
+	/**
+	 *
+	 * <pre>
+	 * Returns:
+	 * [{
+	 *   name: "ess0/Soc",
+	 *   series: [{
+	 *	   name: "2017-03-21T08:55:20Z"
+	 *     value: 50,
+	 *   }]
+	 * }]
+	 * </pre>
+	 */
+	@Override
+	public JsonArray query(ZonedDateTime fromDate, ZonedDateTime toDate, List<String> channelAddresses)
+			throws OpenemsException {
+		// Prepare query string
+		StringBuilder query = new StringBuilder("SELECT ");
+		String addresses = String.join(", ", channelAddresses);
+		query.append(addresses);
+		query.append(" FROM data WHERE time > ");
+		query.append(String.valueOf(fromDate.toEpochSecond()));
+		query.append("s");
+		query.append(" AND time < ");
+		query.append(String.valueOf(toDate.plusDays(1).toEpochSecond()));
+		query.append("s");
+		log.info(query.toString());
+		// Prepare DB connection
+		Optional<InfluxDB> _influxdb = getInfluxDB();
+		if (!_influxdb.isPresent()) {
+			throw new OpenemsException("Unable to connect to InfluxDB.");
+		}
+		InfluxDB influxDB = _influxdb.get();
+
+		// Parse result
+		QueryResult queryResult = influxDB.query(new Query(query.toString(), DB_NAME), TimeUnit.MILLISECONDS);
+		if (queryResult.hasError()) {
+			throw new OpenemsException("InfluxDB query error: " + queryResult.getError());
+		}
+
+		JsonArray j = new JsonArray();
+		for (Result result : queryResult.getResults()) {
+			List<Series> seriess = result.getSeries();
+			if (seriess != null) {
+				for (Series series : seriess) {
+					// Create JsonObject for each channel
+					for (String column : series.getColumns()) {
+						if (!column.equals("time")) {
+							JsonObject jChannel = new JsonObject();
+							jChannel.addProperty("name", column);
+							jChannel.add("values", new JsonArray());
+							j.add(jChannel);
+						}
+					}
+					// Get channel times and values
+					for (List<Object> column : series.getValues()) {
+						Instant timestampInstant = Instant.ofEpochMilli((long) ((Double) column.get(0)).doubleValue());
+						ZonedDateTime timestamp = ZonedDateTime.ofInstant(timestampInstant, fromDate.getZone());
+						String timestampString = timestamp.format(DateTimeFormatter.ISO_INSTANT);
+						for (int i = 1; i < column.size(); i++) {
+							JsonObject jValue = new JsonObject();
+							jValue.addProperty("time", timestampString);
+							jValue.addProperty("value", (Double) column.get(i));
+							((JsonArray) (((JsonObject) j.get(i - 1)).get("values"))).add(jValue);
+						}
+					}
+				}
+			}
+		}
+		return j;
 	}
 }

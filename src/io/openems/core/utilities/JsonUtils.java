@@ -21,6 +21,8 @@
 package io.openems.core.utilities;
 
 import java.net.Inet4Address;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -98,6 +100,19 @@ public class JsonUtils {
 			throw new ReflectionException("[" + memberName + "] is not a String: " + jPrimitive);
 		}
 		return jPrimitive.getAsString();
+	}
+
+	public static ZonedDateTime getAsZonedDateTime(JsonElement jElement, String memberName, ZoneId timezone)
+			throws ReflectionException {
+		String[] date = JsonUtils.getAsString(jElement, memberName).split("\\.");
+		try {
+			int day = Integer.valueOf(date[0]);
+			int month = Integer.valueOf(date[1]);
+			int year = Integer.valueOf(date[2]);
+			return ZonedDateTime.of(year, month, day, 0, 0, 0, 0, timezone);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new ReflectionException("Unable to parse date [" + memberName + "] from [" + jElement + "]: " + e);
+		}
 	}
 
 	public static long getAsLong(JsonElement jElement, String memberName) throws ReflectionException {

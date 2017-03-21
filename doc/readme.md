@@ -212,6 +212,42 @@ on error:
 }
 ```
 
+### [3.4] Query history data
+
+[3.4.1]
+```
+{
+	query: {
+		mode: "history",
+		fromDate: "01.01.2017",
+		toDate: "01.01.2017", 
+		timezone: "GMT",
+		channels: {
+			thing: [channel] 
+		}
+	}
+}
+```
+
+[3.4.2]
+```
+ /* format is for compatibility with ngx-charts */
+{
+    queryreply: {
+    	mode: "history",
+		channels: [
+			{
+				name: "ess0/Soc",
+				series: [{
+					name: ... 
+					value: 50,
+				}]
+			}
+		],
+	}
+}
+```
+
 ### [3.4] System
 ```
 {

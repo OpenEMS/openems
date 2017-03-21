@@ -61,7 +61,7 @@ public class WebsocketServer extends WebSocketServer {
 
 	@Override
 	public void onError(WebSocket conn, Exception ex) {
-		log.info("User[" + getUserName(conn) + "]: error on connection. " + ex.getMessage());
+		log.info("User[" + getUserName(conn) + "]: error on connection. " + ex);
 	}
 
 	@Override
