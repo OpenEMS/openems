@@ -1,6 +1,12 @@
+import { Component, Input } from '@angular/core';
 import * as d3 from 'd3';
 import { DeviceOverviewEnergytableComponent } from '../../../energytable/energytable.component';
 import { Device } from '../../../../../service/device';
+
+export class SectionValue {
+    absolute: number;
+    ratio: number;
+}
 
 export class SvgSquarePosition {
     constructor(
@@ -50,9 +56,13 @@ export class CircleDirection {
     ) { }
 }
 
-export abstract class AbstractSection {
-    private outlinePath: number = null;
-    private valuePath: number = null;
+@Component({
+    selector: 'app-device-overview-energymonitor-chart-abstractsection',
+    templateUrl: './section.component.html'
+})
+export abstract class AbstractSectionComponent {
+    private outlinePath: string = "";
+    private valuePath: string = "";
     protected valueRatio: number = 0;
     protected valueText: string = "";
     protected innerRadius: number = 0;
@@ -70,6 +80,24 @@ export abstract class AbstractSection {
         private color: string
     ) { }
 
+    /**
+     * This method is called on every change of values.
+     */
+    public updateValue(absolute: number, ratio: number) {
+        this.lastValue = { absolute: absolute, ratio: ratio };
+        this.valueRatio = this.getValueRatio(ratio);
+        this.valueText = this.getValueText(absolute);
+        let valueEndAngle = ((this.endAngle - this.startAngle) * this.valueRatio) / 100 + this.getValueStartAngle();
+        let valueArc = this.getArc()
+            .startAngle(this.deg2rad(this.getValueStartAngle()))
+            .endAngle(this.deg2rad(valueEndAngle));
+        this.valuePath = valueArc();
+    }
+    private lastValue = { absolute: 0, ratio: 0 };
+
+    /**
+     * This method is called on every change of resolution of the browser window.
+     */
     public update(outerRadius: number, innerRadius: number, height: number, width: number) {
         this.outerRadius = outerRadius;
         this.innerRadius = innerRadius;
@@ -79,11 +107,6 @@ export abstract class AbstractSection {
             .startAngle(this.deg2rad(this.startAngle))
             .endAngle(this.deg2rad(this.endAngle));
         this.outlinePath = outlineArc();
-        let valueEndAngle = ((this.endAngle - this.startAngle) * this.valueRatio) / 100 + this.getValueStartAngle();
-        let valueArc = this.getArc()
-            .startAngle(this.deg2rad(this.getValueStartAngle()))
-            .endAngle(this.deg2rad(valueEndAngle));
-        this.valuePath = valueArc();
 
         /**
          * calculate square
@@ -116,14 +139,17 @@ export abstract class AbstractSection {
         for (let i = 0; i <= 1; i = i + 1 / (noOfCircles - 1)) {
             this.circles.push(new Circle(((space.max - space.min) * i + space.min) * fact.x, ((space.max - space.min) * i + space.min) * fact.y, radius));
         }
+
+        // now update also the value specific elements
+        this.updateValue(this.lastValue.absolute, this.lastValue.ratio);
     }
 
     /**
-     * calculate... 
+     * calculate...
      * ...length of square and image;
      * ...x and y of text and image;
      * ...fontsize of text;
-     * 
+     *
      */
     protected getSquare(innerRadius: any): SvgSquare {
         let width = innerRadius / 2.5;
@@ -161,15 +187,6 @@ export abstract class AbstractSection {
             return 0;
         }
         return valueRatio;
-    }
-
-    /**
-     * sets value of displayed text and Ratio
-     */
-    public setValue(value: number, valueRatio: number) {
-        this.valueRatio = this.getValueRatio(valueRatio);
-        this.valueText = this.getValueText(value);
-        this.update(this.innerRadius, this.outerRadius, this.height, this.width);
     }
 
     private getArc(): any {

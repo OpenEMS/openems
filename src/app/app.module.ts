@@ -18,8 +18,7 @@ import { AboutComponent } from './about/about.component';
 import { LoginComponent } from './login/login.component';
 import { OverviewComponent } from './overview/overview.component';
 import { DeviceOverviewComponent } from './device/overview/overview.component';
-import { DeviceOverviewEnergymonitorComponent } from './device/overview/energymonitor/energymonitor.component';
-import { DeviceOverviewEnergymonitorChartComponent } from './device/overview/energymonitor/chart/chart.component';
+import { DeviceOverviewEnergymonitorModule } from './device/overview/energymonitor/energymonitor.module';
 import { DeviceOverviewEnergytableComponent } from './device/overview/energytable/energytable.component';
 import { DeviceHistoryComponent } from './device/history/history.component';
 import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
@@ -75,8 +74,6 @@ import { SignPipe } from './common/pipe/sign/sign.pipe';
     OverviewComponent,
     // Device
     DeviceOverviewComponent,
-    DeviceOverviewEnergymonitorComponent,
-    DeviceOverviewEnergymonitorChartComponent,
     DeviceOverviewEnergytableComponent,
     DeviceHistoryComponent,
     DeviceConfigOverviewComponent,
@@ -109,7 +106,9 @@ import { SignPipe } from './common/pipe/sign/sign.pipe';
     NgxChartsModule,
     routing,
     MaterialModule.forRoot(),
-    FlexLayoutModule.forRoot()
+    FlexLayoutModule.forRoot(),
+    // Device
+    DeviceOverviewEnergymonitorModule
   ],
   providers: [
     appRoutingProviders,

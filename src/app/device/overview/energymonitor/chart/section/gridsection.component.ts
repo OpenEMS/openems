@@ -1,6 +1,11 @@
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection';
+import { Component } from '@angular/core';
+import { AbstractSectionComponent, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection.component';
 
-export class GridSection extends AbstractSection {
+@Component({
+    selector: '[app-device-overview-energymonitor-chart-gridsection]',
+    templateUrl: './section.component.html'
+})
+export class GridSectionComponent extends AbstractSectionComponent {
     constructor() {
         super("Netz", 226, 314, "#1d1d1d");
     }

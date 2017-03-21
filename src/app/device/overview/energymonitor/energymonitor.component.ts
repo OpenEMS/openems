@@ -7,7 +7,7 @@ import { Device } from '../../../service/device';
   selector: 'app-device-overview-energymonitor',
   templateUrl: './energymonitor.component.html'
 })
-export class DeviceOverviewEnergymonitorComponent {
+export class EnergymonitorComponent {
 
   @Input()
   private device: Device;

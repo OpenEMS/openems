@@ -1,6 +1,11 @@
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection';
+import { Component } from '@angular/core';
+import { AbstractSectionComponent, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection.component';
 
-export class StorageSection extends AbstractSection {
+@Component({
+    selector: '[app-device-overview-energymonitor-chart-storagesection]',
+    templateUrl: './section.component.html'
+})
+export class StorageSectionComponent extends AbstractSectionComponent {
     constructor() {
         super("Speicher", 136, 224, "#009846");
     }

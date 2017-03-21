@@ -1,6 +1,11 @@
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection';
+import { Component } from '@angular/core';
+import { AbstractSectionComponent, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection.component';
 
-export class ConsumptionSection extends AbstractSection {
+@Component({
+    selector: '[app-device-overview-energymonitor-chart-consumptionsection]',
+    templateUrl: './section.component.html'
+})
+export class ConsumptionSectionComponent extends AbstractSectionComponent {
     constructor() {
         super("Verbrauch", 46, 134, "#FDC507");
     }

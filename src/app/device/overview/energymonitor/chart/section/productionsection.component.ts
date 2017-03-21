@@ -1,6 +1,11 @@
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection';
+import { Component } from '@angular/core';
+import { AbstractSectionComponent, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection.component';
 
-export class ProductionSection extends AbstractSection {
+@Component({
+    selector: '[app-device-overview-energymonitor-chart-productionsection]',
+    templateUrl: './section.component.html'
+})
+export class ProductionSectionComponent extends AbstractSectionComponent {
     constructor() {
         super("Erzeugung", 316, 404, "#008DD2");
     }

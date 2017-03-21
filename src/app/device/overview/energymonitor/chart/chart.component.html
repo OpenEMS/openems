@@ -1,23 +1,10 @@
 <svg style.width="{{width}}px" style.height="{{height}}px">
   <!--graphic-->
   <svg:g [attr.transform]="translation">
-    <svg:g *ngFor="let section of sections">
-      <svg:path [attr.d]="section.outlinePath" fill="white" stroke="LightGray"></svg:path>
-      <svg:path [attr.d]="section.valuePath" [attr.fill]="section.color" stroke="LightGray"></svg:path>
-      <svg:g attr.transform="translate({{section.squarePosition.x}},{{section.squarePosition.y}})">
-        <svg:text fxShow fxHide.xs [attr.x]="section.square.valueRatio.x" [attr.y]="section.square.valueRatio.y" [attr.text-anchor]="section.square.valueRatio.anchor"
-          font-family="sans-serif" font-size="section.square.valueRatio.fontsize" fill="color">{{section.name}}</svg:text>
-          <svg:text [attr.x]="section.square.valueText.x" [attr.y]="section.square.valueText.y" [attr.text-anchor]="section.square.valueText.anchor"
-            font-family="sans-serif" font-size="section.square.valueText.fontsize" fill="grey">{{section.valueText}}</svg:text>
-            <svg:image [attr.x]="section.square.image.x" [attr.y]="section.square.image.y" [attr.width]="section.square.image.length"
-              [attr.height]="section.square.image.length" [attr.xlink:href]="section.square.image.image"></svg:image>
-      </svg:g>
-      <!--circles-->
-      <svg:g *ngFor="let circle of section.circles">
-        <svg:circle [attr.cx]="circle.x" [attr.cy]="circle.y" stroke-width="1" [attr.r]="circle.radius" stroke="grey" fill="white"></svg:circle>
-      </svg:g>
-    </svg:g>
-
+    <svg:g app-device-overview-energymonitor-chart-consumptionsection />
+    <svg:g app-device-overview-energymonitor-chart-gridsection />
+    <svg:g app-device-overview-energymonitor-chart-productionsection />
+    <svg:g app-device-overview-energymonitor-chart-storagesection />
   </svg:g>
 </svg>
 <!--legend-->
