@@ -21,6 +21,7 @@ import { DeviceOverviewComponent } from './device/overview/overview.component';
 import { DeviceOverviewEnergymonitorComponent } from './device/overview/energymonitor/energymonitor.component';
 import { DeviceOverviewEnergymonitorChartComponent } from './device/overview/energymonitor/chart/chart.component';
 import { DeviceOverviewEnergytableComponent } from './device/overview/energytable/energytable.component';
+import { DeviceHistoryComponent } from './device/history/history.component';
 import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
 import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
 import { DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
@@ -77,6 +78,7 @@ import { SignPipe } from './common/pipe/sign/sign.pipe';
     DeviceOverviewEnergymonitorComponent,
     DeviceOverviewEnergymonitorChartComponent,
     DeviceOverviewEnergytableComponent,
+    DeviceHistoryComponent,
     DeviceConfigOverviewComponent,
     DeviceConfigBridgeComponent,
     DeviceConfigSchedulerComponent,
