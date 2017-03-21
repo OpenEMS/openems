@@ -1,0 +1,7 @@
+<div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <!--{{ device.historicData | async | json }}-->
+  <ngx-charts-area-chart [view]="view" [scheme]="colorScheme" [results]="historicData" [gradient]="gradient" [xAxis]="showXAxis"
+    [yAxis]="showYAxis" [legend]="showLegend" [showXAxisLabel]="showXAxisLabel" [showYAxisLabel]="showYAxisLabel" [xAxisLabel]="xAxisLabel"
+    [yAxisLabel]="yAxisLabel" [autoScale]="autoScale" (select)="onSelect($event)">
+  </ngx-charts-area-chart>
+</div>
