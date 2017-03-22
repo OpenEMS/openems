@@ -1,54 +1,11 @@
 <svg style.width="{{width}}px" style.height="{{height}}px">
   <!--graphic-->
   <svg:g [attr.transform]="translation">
-<<<<<<< HEAD
-    <svg:g *ngFor="let section of sections">
-      <svg:path [attr.d]="section.outlinePath" fill="white" stroke="LightGray"></svg:path>
-      <svg:path [attr.d]="section.valuePath" [attr.fill]="section.color" stroke="LightGray"></svg:path>
-      <!--section.rect.valueRatio.x-->
-      <svg:g attr.transform="translate({{section.rectPosition.x}},{{section.rectPosition.y}})">
-        <svg:text fxShow fxHide.xs [attr.x]="section.rect.valueRatio.x" [attr.y]="section.rect.valueRatio.y" [attr.text-anchor]="section.rect.valueRatio.anchor"
-          font-family="sans-serif" font-size="section.rect.valueRatio.fontsize" fill="color">{{section.name}}</svg:text>
-        <svg:text [attr.x]="section.rect.valueText.x" [attr.y]="section.rect.valueText.y" [attr.text-anchor]="section.rect.valueText.anchor"
-          font-family="sans-serif" font-size="section.rect.valueText.fontsize" fill="grey">{{section.valueText}}</svg:text>
-        <svg:image [attr.x]="section.rect.image.x" [attr.y]="section.rect.image.y" [attr.width]="section.rect.image.width" [attr.height]="section.rect.image.height"
-          [attr.xlink:href]="section.rect.image.image"></svg:image>
-      </svg:g>
-    </svg:g>
-    <svg:g *ngFor="let circle of circles">
-      <svg:circle [attr.cx]="circle.x" [attr.cy]="circle.y" stroke-width="1" r="10" stroke="grey" fill="white"></svg:circle>
-    </svg:g>
-  </svg:g>
-
-
-
-
-
-
-
-
-
-
-
-
-  <!--<svg:g [attr.transform]="rTranslation">
-    <svg style.width="{{rWidth}}px" style.height="{{rHeight}}px" style.background-color="yellow">
-
-      <svg:text [attr.x]="xText" [attr.y]="yText" text-anchor="middle" font-family="sans-serif" style.font-size="{{textSize}}px"
-        fill="black">Speicher</svg:text>
-        <svg:text [attr.x]="xNumber" [attr.y]="yNumber" text-anchor="middle" font-family="sans-serif" style.font-size="{{numberSize}}px"
-          fill="grey">50 %</svg:text>
-          <svg:image x="0" [attr.y]="yImage" style.width="{{rWidth}}px" style.height="{{rWidth}}px" xlink:href="../../../../../../assets/img/storage.png"></svg:image>
-
-    </svg>
-  </svg:g>-->
-=======
     <svg:g app-device-overview-energymonitor-chart-consumptionsection />
     <svg:g app-device-overview-energymonitor-chart-gridsection />
     <svg:g app-device-overview-energymonitor-chart-productionsection />
     <svg:g app-device-overview-energymonitor-chart-storagesection />
   </svg:g>
->>>>>>> df023d1bed3fb56c95601c1c9cf36acea486084c
 </svg>
 <!--legend-->
 <div fxHide fxShow.xs fxLayout fxFlex fxLayoutWrap="wrap" style="margin: 20px">
