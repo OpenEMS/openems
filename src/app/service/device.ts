@@ -37,6 +37,7 @@ export class Device {
   public event = new Subject<Notification>();
   public address: string;
   public data = new BehaviorSubject<{ [thing: string]: any }>(null);
+  public historicData = new BehaviorSubject<any[]>(null);
   public config = new BehaviorSubject<Config>(null);
   private online = false;
   private influxdb: {
@@ -130,6 +131,24 @@ export class Device {
     this.send({
       subscribe: {}
     });
+  }
+
+  /**
+   * Send "query" message to websocket
+   */
+  public query(fromDate: Date, toDate: Date, channels: { [thing: string]: string[] }) {
+    function toDateString(date: Date): string {
+      return date.getDate() + "." + date.getMonth() + "." + date.getFullYear();
+    }
+    let obj = {
+      mode: "history",
+      fromDate: toDateString(fromDate),
+      toDate: toDateString(toDate),
+      timezone: "GMT",
+      channels: channels
+    };
+    console.log(obj);
+    this.send({ query: obj });
   }
 
   /**
@@ -259,6 +278,15 @@ export class Device {
 
       // send event
       this.data.next(data);
+    }
+
+    /*
+     * Reply to a query
+     */
+    if ("queryreply" in message) {
+      let result = message.queryreply;
+      console.log(result);
+      this.historicData.next(result);
     }
   }
 }

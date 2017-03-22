@@ -16,9 +16,6 @@
                             </md-card-header>
                             <md-card-content style="margin: 20px">
                                 <div fxLayout fxLayoutWrap="wrap">
-                                    <!--<label fxFlex="10%">
-                                        Priorität:
-                                    </label>-->
                                     <md-input-container fxFlex="50%">
                                         <input placeholder="Priorität" formControlName="priority" type="number" mdInput>
                                     </md-input-container>
@@ -27,9 +24,6 @@
                                     <div *ngIf="channelMeta.name != 'rtc' && channelMeta.name != 'priority'">
                                         <div *ngIf="channelMeta.array" [formArrayName]="channelMeta.name">
                                             <div fxLayout fxLayoutWrap="wrap">
-                                                <!--<div fxFlex="10%">
-                                                    <label>{{ channelMeta.type }}:</label>
-                                                </div>-->
                                                 <div *ngFor="let channelChannelMeta of controller.value[channelMeta.name], let k=index">
                                                     <md-select placeholder="{{ channelMeta.type }}" [formControlName]="k" fxFlex.gt="33%" fxFlex.xs="100%">
                                                         <ng-container *ngFor="let nature of form.value._meta['natures'] | keys">
@@ -48,9 +42,6 @@
                                             </div>
                                         </div>
                                         <div *ngIf="!channelMeta.array" fxLayout fxLayoutWrap="wrap">
-                                            <!--<label fxFlex="10%">
-                                                {{ channelMeta.title }}:
-                                            </label>-->
                                             <md-input-container fxFlex="50%">
                                                 <input placeholder="{{ channelMeta.title }}" [formControlName]="channelMeta.name" type="text" mdInput>
                                             </md-input-container>
@@ -77,7 +68,6 @@
                         </md-card-header>
                         <md-card-content>
                             <div fxLayout fxLayoutWrap="wrap" style="margin-bottom: 20px">
-                                <!--<label>Name: </label>-->
                                 <md-input-container>
                                     <input placeholder="Name" formControlName="id" type="text" mdInput>
                                 </md-input-container>

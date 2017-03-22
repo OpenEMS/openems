@@ -26,6 +26,9 @@ export class FormSchedulerSimpleComponent extends AbstractConfigForm {
         this.schedulerForm = form;
     }
 
+    /**
+     * useless, need to be here because it's abstract in superclass
+     */
     protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
         return;
     }

@@ -52,7 +52,6 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
 
   @Input()
   set form(form: FormGroup) {
-    // console.log(form);
     this.config = form;
     this.configForm = <FormGroup>form.controls['scheduler'];
     let ignore: string[] = ["id", "class"];
@@ -127,36 +126,11 @@ export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
     controllers.markAsDirty();
   }
 
+  /**
+   * useless, need to be here because it's abstract in superclass
+   */
   protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
     return;
   }
 
 }
-
-
-// {
-//   mode: update,
-//   thing: _scheduler0,
-//   class: WeekTimeScheduler
-//   value: {
-//     cycleTime:
-//     monday:
-//     ...
-//   } 
-// }
-
-// {
-//   mode: update,
-//   thing: _scheduler0
-//   channel: monday,
-//   value: []
-// }
-
-// {
-//   mode: update,
-//   thing: _scheduler0,
-//   class: SimpleScheduler
-//   value: {
-//     cycleTime:
-//   } 
-// }

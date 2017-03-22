@@ -40,6 +40,9 @@ export abstract class AbstractConfigForm {
     });
   }
 
+  /**
+   * general save() for whole configuration
+   */
   protected save(form: FormGroup): void {
     let requests;
     if (form["_meta_new"]) {
@@ -98,14 +101,8 @@ export abstract class AbstractConfigForm {
       let id = formControl['id'].value;
       for (let key in formControl) {
         if (formControl[key].dirty) {
-          // console.log(formControl[key]);
           let value = formControl[key].value;
-          // console.log(value, typeof value);
-          // if (typeof value === "object") {
-          //     console.log("X");
-          //     // value is an object -> call getConfigureRequests for sub-object
-          //     return this.getConfigureUpdateRequests(formControl[key], index);
-          // }
+
           requests.push(<ConfigureUpdateRequest>{
             mode: "update",
             thing: id,
@@ -134,12 +131,6 @@ export abstract class AbstractConfigForm {
           if (key != 'class') {
             builder[key] = value;
           }
-          // console.log(value, typeof value);
-          // if (typeof value === "object") {
-          //     console.log("X");
-          //     // value is an object -> call getConfigureRequests for sub-object
-          //     return this.getConfigureUpdateRequests(formControl[key], index);
-          // }
         }
       }
       requests.push(<ConfigureUpdateSchedulerRequest>{
@@ -162,6 +153,9 @@ export abstract class AbstractConfigForm {
     return builder;
   }
 
+  /**
+   * sets class empty to enable selection of another scheduler
+   */
   protected createNewScheduler(schedulerForm: FormGroup) {
     schedulerForm.controls['class'].setValue("");
     schedulerForm.markAsDirty();

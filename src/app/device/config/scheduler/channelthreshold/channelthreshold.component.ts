@@ -26,26 +26,24 @@ export class FormSchedulerChannelthresholdComponent extends AbstractConfigForm {
         this.schedulerForm = form;
     }
 
+    /**
+     * useless, need to be here because it's abstract in superclass
+     */
     protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
         return;
     }
 
     addControllerToThreshold(thresholdForm: FormArray) {
-        // console.log("addControllerToThreshold");
         thresholdForm.push(this.formBuilder.control(""));
-        // console.log(this.schedulerForm.controls['scheduler']['controls']['thresholds']);
-        // console.log(thresholdForm);
         thresholdForm.markAsDirty();
     }
 
     removeControllerFromThreshold(thresholdForm: FormArray, index: number) {
-        // console.log(thresholdForm);
         thresholdForm.removeAt(index);
         thresholdForm.markAsDirty();
     }
 
     addThreshold(thresholdForm: FormArray) {
-        // console.log("addThreshold");
         thresholdForm.push(this.formBuilder.group({
             "threshold": this.formBuilder.control(""),
             "hysteresis": this.formBuilder.control(""),
