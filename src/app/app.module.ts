@@ -63,6 +63,9 @@ import { KeysPipe } from './common/pipe/keys/keys.pipe';
 import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
 import { SignPipe } from './common/pipe/sign/sign.pipe';
 
+// test files
+import { ChartTest } from './device/overview/energymonitor/chart/section/test2';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -97,7 +100,9 @@ import { SignPipe } from './common/pipe/sign/sign.pipe';
     // pipe
     KeysPipe,
     ClassnamePipe,
-    SignPipe
+    SignPipe,
+
+    ChartTest
   ],
   imports: [
     BrowserModule,
