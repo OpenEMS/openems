@@ -1,0 +1,151 @@
+<html>
+
+<head>
+    <title>Animated Circle Using d3.js</title>
+    <!--<meta charset="utf-8">-->
+    <style>
+        circle {
+            fill: none;
+            stroke: pink;
+        }
+        
+        circle {
+            fill: none;
+            stroke: lightblue;
+        }
+    </style>
+
+    <script src="http://mbostock.github.com/d3/d3.v2.js"></script>
+
+</head>
+
+<body>
+
+    <!--Pulsierende Kreise-->
+
+    <table>
+        <tr>
+            <td>
+                <div id="circle2" class="aCircle" style="width:350px; height:350px;"></div>
+            </td>
+            <td>
+                <div id="circle3" class="aCircle" style="width:350px; height:350px;"></div>
+            </td>
+        </tr>
+    </table>
+
+
+    <script>
+        function displayCircleExample(id, startingSizeDataPoint, startingColorPercentage, animate, updateDelay, transitionDelay) {
+
+            var circleRadius = d3.scale.linear().domain([0, 400]).range(["5", 125]);
+
+
+            var circleYaxis = d3.scale.linear().domain([0, 400]).range(["30%", "50%"]);
+            var circleXaxis = d3.scale.linear().domain([0, 400]).range(["30%", "50%"]);
+
+
+            var circleColorRange = d3.scale.linear().domain([0, 33, 67, 100]);
+
+
+            var vis = d3.select(id).append("svg:svg").attr("width", "100%").attr("height", "100%");
+
+            var circle = vis.selectAll("circle").data([1]).enter().append("svg:circle");
+
+            circle
+                .style("fill", circleColorRange(startingColorPercentage))
+                .attr("cx", circleXaxis(startingSizeDataPoint))
+                .attr("cy", circleYaxis(startingSizeDataPoint))
+                .attr("r", circleRadius(startingSizeDataPoint));
+
+
+            var dataA = [80, 100, 105, 95, 130, 150, 170, 160, 250, 275, 255, 275, 320, 350, 320, 350, 310, 280, 310, 305, 315, 295, 275, 265, 240];
+            var dataB = [0, 3, 6, 2, 7, 9, 3, 5, 8, 14, 16, 26, 36, 45, 40, 38, 52, 67, 58, 78, 85, 88, 76, 89, 98, 97, 92, 86, 75, 34, 25, 18, 12, 6, 3, 0, 0];
+
+
+            function redraw(dataValue, colorPercentage) {
+
+                d3.selectAll(id).selectAll("circle")
+                    .transition()
+                    .duration(transitionDelay)
+                    .attr("cy", circleYaxis(dataValue))
+                    .attr("cx", circleXaxis(dataValue))
+                    .attr("r", circleRadius(dataValue))
+                    .style("fill", circleColorRange(colorPercentage));
+            }
+
+
+            if (animate) {
+                setInterval(function () {
+                    var vA = dataA.shift();
+                    dataA.push(vA);
+                    var vB = dataB.shift();
+                    dataB.push(vB);
+
+                    redraw(vA, vB);
+                }, updateDelay);
+            }
+        }
+
+        displayCircleExample("#circle2", 100, 0, true, 1000, 1000);
+        displayCircleExample("#circle3", 100, 0, true, 400, 400);
+    </script>
+
+</body>
+
+<head>
+
+    <style>
+        /*svg1 {
+            background-color: #3b3b3c;
+       } */
+    </style>
+</head>
+
+<!--Größer und Kleiner werdender Kreis-->
+
+<body>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script>
+        var margin = {
+            top: 40,
+            right: 40,
+            bottom: 40,
+            left: 40
+        }, width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+        var y = d3.scale.ordinal().domain(d3.range(1)).rangePoints([0, height]);
+
+        var svg1 = d3.select("body")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        svg1.selectAll("circle")
+            .data(y.domain())
+            .enter()
+            .append("circle")
+            .attr("stroke-width", 20)
+            .attr("r", 10)
+            .attr("cx", width / 2)
+            .attr("cy", y)
+            .each(pulse);
+
+        function pulse() {
+            var circle = svg1.select("circle");
+            (function repeat() {
+                circle = circle.transition()
+                    .duration(2900)
+                    .attr("stroke-width", 10)
+                    .attr("r", 1)
+                    .transition()
+                    .duration(2000)
+                    .attr('stroke-width', 10)
+                    .attr("r", 250)
+                    .ease('sine')
+                    .each("end", repeat);
+            })();
+        }
+    </script>
+</body>
