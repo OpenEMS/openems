@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { WebsocketService, Websocket } from './../service/websocket.service';
-import { Device } from './../service/device';
-import { WebappService } from './../service/webapp.service';
+import { WebsocketService, Websocket, WebappService, Device } from './../shared/shared';
 
 @Component({
-  selector: 'app-overview',
+  selector: 'overview',
   templateUrl: './overview.component.html'
 })
 export class OverviewComponent implements OnInit {

@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 
 import { Device } from './device';
-import { WebappService, Notification } from './webapp.service';
+import { WebappService, Notification } from './service/webapp.service';
 
 export class Websocket {
   public isConnected: boolean = false;

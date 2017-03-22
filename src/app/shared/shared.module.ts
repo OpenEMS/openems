@@ -8,6 +8,18 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RouterModule } from '@angular/router';
 import 'hammerjs';
 
+import { routing, appRoutingProviders } from './../app.routing';
+import { Device } from './device';
+
+/*
+ * Services
+ */
+import { WebappService, Notification } from './service/webapp.service';
+import { WebsocketService, Websocket } from './service/websocket.service';
+
+/*
+ * Pipes
+ */
 import { KeysPipe } from './pipe/keys/keys.pipe';
 import { ClassnamePipe } from './pipe/classname/classname.pipe';
 import { SignPipe } from './pipe/sign/sign.pipe';
@@ -20,7 +32,8 @@ import { SignPipe } from './pipe/sign/sign.pipe';
     NgxChartsModule,
     MaterialModule.forRoot(),
     FlexLayoutModule.forRoot(),
-    RouterModule
+    RouterModule,
+    routing
   ],
   declarations: [
     KeysPipe,

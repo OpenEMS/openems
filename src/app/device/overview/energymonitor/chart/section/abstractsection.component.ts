@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 import * as d3 from 'd3';
+
 import { DeviceOverviewEnergytableComponent } from '../../../energytable/energytable.component';
-import { Device } from '../../../../../service/device';
+import { Device } from '../../../../../shared/shared';
 
 export class SectionValue {
     absolute: number;
@@ -57,7 +58,7 @@ export class CircleDirection {
 }
 
 @Component({
-    selector: 'app-device-overview-energymonitor-chart-abstractsection',
+    selector: 'abstractsection',
     templateUrl: './section.component.html'
 })
 export abstract class AbstractSectionComponent {

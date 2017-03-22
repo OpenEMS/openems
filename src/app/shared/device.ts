@@ -1,8 +1,8 @@
 import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
-import { Notification } from './webapp.service';
-import { Websocket } from './websocket.service';
+import { Notification } from './service/webapp.service';
+import { Websocket } from './service/websocket.service';
 import { Config } from './config';
 
 const SUBSCRIBE: string = "fenecon_monitor_v1";

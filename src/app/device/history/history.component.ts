@@ -4,11 +4,10 @@ import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
 import * as d3shape from 'd3-shape';
 
-import { WebsocketService } from '../../service/websocket.service';
-import { Device } from '../../service/device';
+import { WebsocketService, Device } from '../../shared/shared';
 
 @Component({
-  selector: 'app-device-history',
+  selector: 'history',
   templateUrl: './history.component.html'
 })
 export class DeviceHistoryComponent implements OnInit, OnDestroy {
@@ -18,35 +17,35 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private websocketService: WebsocketService
+    // private websocketService: WebsocketService
   ) { }
 
   ngOnInit() {
-    let date = new Date();
-    this.dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+    // let date = new Date();
+    // this.dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
 
-    this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
-      this.device = device;
-      if (device != null) {
-        device.historicData.subscribe((newData) => {
-          if (newData != null) {
-            console.log("data", newData);
-            let historicData = {
-              name: "ess0/Soc",
-              series: []
-            }
-            for (let newDatum of newData["data"]) {
-              if (newDatum["channels"]["ess0"]["Soc"] != null) {
-                historicData.series.push({ name: new Date(newDatum["time"]), value: newDatum["channels"]["ess0"]["Soc"] });
-              } else {
-                historicData.series.push({ name: new Date(newDatum["time"]), value: 0 });
-              }
-            }
-            this.historicData = [historicData];
-          }
-        })
-      }
-    })
+    // this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
+    //   this.device = device;
+    //   if (device != null) {
+    //     device.historicData.subscribe((newData) => {
+    //       if (newData != null) {
+    //         console.log("data", newData);
+    //         let historicData = {
+    //           name: "ess0/Soc",
+    //           series: []
+    //         }
+    //         for (let newDatum of newData["data"]) {
+    //           if (newDatum["channels"]["ess0"]["Soc"] != null) {
+    //             historicData.series.push({ name: new Date(newDatum["time"]), value: newDatum["channels"]["ess0"]["Soc"] });
+    //           } else {
+    //             historicData.series.push({ name: new Date(newDatum["time"]), value: 0 });
+    //           }
+    //         }
+    //         this.historicData = [historicData];
+    //       }
+    //     })
+    //   }
+    // })
   }
 
   ngOnDestroy() {

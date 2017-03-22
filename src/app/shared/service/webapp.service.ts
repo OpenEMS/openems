@@ -2,7 +2,7 @@ import { Injectable, ViewContainerRef } from '@angular/core';
 import { MdSnackBar } from '@angular/material'
 
 import { WebsocketService } from './websocket.service';
-import { Device } from './device';
+import { Device } from '../device';
 
 type NotificationType = "success" | "error" | "warning" | "info";
 

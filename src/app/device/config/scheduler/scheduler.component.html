@@ -3,9 +3,9 @@
   <div fxFlex="100%" formGroupName="scheduler">
     <!-- Scheduler -->
     <ng-container [ngSwitch]="configForm.controls['scheduler'].controls['class'].value | classname">
-      <form-scheduler-weektime *ngSwitchCase="'WeekTimeScheduler'" [form]="configForm"></form-scheduler-weektime>
-      <form-scheduler-channelthreshold *ngSwitchCase="'ChannelThresholdScheduler'" [form]="configForm"></form-scheduler-channelthreshold>
-      <form-scheduler-simple *ngSwitchCase="'SimpleScheduler'" [form]="configForm"></form-scheduler-simple>
+      <scheduler-weektime *ngSwitchCase="'WeekTimeScheduler'" [form]="configForm"></scheduler-weektime>
+      <scheduler-channelthreshold *ngSwitchCase="'ChannelThresholdScheduler'" [form]="configForm"></scheduler-channelthreshold>
+      <scheduler-simple *ngSwitchCase="'SimpleScheduler'" [form]="configForm"></scheduler-simple>
       <!--New Scheduler-->
       <ng-container *ngSwitchCase="''">
         <md-card class="single">

@@ -3,12 +3,11 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
+import { WebsocketService, Device } from '../../../shared/shared';
 import { AbstractConfig, ConfigureRequest } from '../abstractconfig';
-import { WebsocketService } from '../../../service/websocket.service';
-import { Device } from '../../../service/device';
 
 @Component({
-  selector: 'app-device-config-scheduler',
+  selector: 'scheduler',
   templateUrl: './scheduler.component.html'
 })
 export class DeviceConfigSchedulerComponent extends AbstractConfig {

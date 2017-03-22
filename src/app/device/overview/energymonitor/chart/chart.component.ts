@@ -7,10 +7,10 @@ import { GridSectionComponent } from './section/gridsection.component';
 import { ProductionSectionComponent } from './section/productionsection.component';
 import { StorageSectionComponent } from './section/storagesection.component';
 
-import { Device } from '../../../../service/device';
+import { Device } from '../../../../shared/shared';
 
 @Component({
-  selector: 'app-device-overview-energymonitor-chart',
+  selector: 'energymonitor-chart',
   templateUrl: './chart.component.html'
 })
 export class EnergymonitorChartComponent extends BaseChartComponent implements OnInit, OnChanges, AfterViewInit {

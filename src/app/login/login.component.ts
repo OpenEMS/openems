@@ -1,15 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormGroup, FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Subscription } from 'rxjs/Subscription';
-import { FormGroup, FormBuilder } from '@angular/forms';
 
-import { WebsocketService, Websocket } from '../service/websocket.service';
-import { WebappService, Notification } from '../service/webapp.service';
 import { environment } from '../../environments';
 
+import { WebappService, WebsocketService, Websocket, Notification } from '../shared/shared';
+
 @Component({
-  selector: 'app-login',
+  selector: 'login',
   templateUrl: './login.component.html'
 })
 export class LoginComponent implements OnInit, OnDestroy {

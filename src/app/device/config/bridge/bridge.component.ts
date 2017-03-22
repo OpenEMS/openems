@@ -3,14 +3,12 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
-import { WebsocketService } from '../../../service/websocket.service';
-import { WebappService } from '../../../service/webapp.service';
-import { Device } from '../../../service/device';
+import { WebsocketService, WebappService, Device } from '../../../shared/shared';
 import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, ConfigureDeleteRequest } from '../abstractconfig';
 
 
 @Component({
-  selector: 'app-device-config-bridge',
+  selector: 'bridge',
   templateUrl: './bridge.component.html'
 })
 export class DeviceConfigBridgeComponent extends AbstractConfig {

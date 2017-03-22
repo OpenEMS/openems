@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { AbstractControl, FormArray, FormGroup, FormBuilder } from '@angular/forms';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
-import { WebsocketService } from '../../../../service/websocket.service';
+import { WebsocketService } from '../../../../shared/shared';
 import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest, ConfigureDeleteRequest } from '../../abstractconfig';
 import { AbstractConfigForm } from '../../abstractconfigform';
 
@@ -12,7 +12,7 @@ interface Day {
 }
 
 @Component({
-  selector: 'form-scheduler-weektime',
+  selector: 'scheduler-weektime',
   templateUrl: './weektime.component.html',
 })
 export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {

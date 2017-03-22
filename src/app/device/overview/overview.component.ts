@@ -2,11 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
-import { WebsocketService } from '../../service/websocket.service';
-import { Device } from '../../service/device';
+import { WebsocketService, Websocket, Notification, Device } from '../../shared/shared';
 
 @Component({
-  selector: 'app-device-overview',
+  selector: 'overview',
   templateUrl: './overview.component.html'
 })
 export class DeviceOverviewComponent implements OnInit, OnDestroy {

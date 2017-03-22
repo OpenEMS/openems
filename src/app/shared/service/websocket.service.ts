@@ -3,12 +3,12 @@ import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
-import { environment } from '../../environments';
-import { Websocket } from './websocket';
+import { environment } from '../../../environments';
+import { Websocket } from '../websocket';
 import { WebappService, Notification } from './webapp.service';
-import { Device } from './device';
+import { Device } from '../device';
 
-export { Websocket } from './websocket';
+export { Websocket };
 
 //TODO const DEFAULT_PASSWORD: string = "guest";
 

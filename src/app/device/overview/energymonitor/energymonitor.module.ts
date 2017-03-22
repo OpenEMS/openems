@@ -1,7 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
-import { FlexLayoutModule } from '@angular/flex-layout';
+import { SharedModule } from './../../../shared/shared.module';
 
 import { EnergymonitorComponent } from './energymonitor.component';
 import { EnergymonitorChartComponent } from './chart/chart.component';
@@ -12,9 +10,7 @@ import { StorageSectionComponent } from './chart/section/storagesection.componen
 
 @NgModule({
   imports: [
-    CommonModule,
-    MaterialModule.forRoot(),
-    FlexLayoutModule.forRoot()
+    SharedModule
   ],
   declarations: [
     EnergymonitorComponent,
@@ -24,7 +20,9 @@ import { StorageSectionComponent } from './chart/section/storagesection.componen
     GridSectionComponent,
     StorageSectionComponent
   ],
-  exports: [EnergymonitorComponent]
+  exports: [
+    EnergymonitorComponent
+  ]
 })
 export class DeviceOverviewEnergymonitorModule { }
 

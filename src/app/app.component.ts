@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { WebappService } from './service/webapp.service';
-import { WebsocketService } from './service/websocket.service';
+
 import { environment } from '../environments';
+import { WebappService, WebsocketService } from './shared/shared';
 
 @Component({
-  selector: 'app-root',
+  selector: 'root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })

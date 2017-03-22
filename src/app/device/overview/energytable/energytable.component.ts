@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { Device } from '../../../service/device';
+
+import { Device } from '../../../shared/shared';
 
 @Component({
-  selector: 'app-device-overview-energytable',
+  selector: 'energytable',
   templateUrl: './energytable.component.html'
 })
 export class DeviceOverviewEnergytableComponent {

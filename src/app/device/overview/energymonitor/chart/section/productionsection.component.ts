@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { AbstractSectionComponent, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection.component';
 
 @Component({
-    selector: '[app-device-overview-energymonitor-chart-productionsection]',
+    selector: '[productionsection]',
     templateUrl: './section.component.html'
 })
 export class ProductionSectionComponent extends AbstractSectionComponent {
