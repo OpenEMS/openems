@@ -8,12 +8,13 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import 'hammerjs';
 
 import { routing, appRoutingProviders } from './app.routing';
+import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
 import { environment } from '../environments';
 
-/*
- * Frontend
- */
+import { DeviceModule } from './device/device.module';
+import { OverviewModule } from './overview/overview.module';
+
 import { AboutComponent } from './about/about.component';
 import { LoginComponent } from './login/login.component';
 import { OverviewComponent } from './overview/overview.component';
@@ -39,81 +40,30 @@ import { ConfigurationComponent } from './monitor/configuration/configuration.co
 */
 
 /*
- * Common components
- */
-// Forms
-import { FormControllersComponent } from './common/form/controller/controllers.component';
-import { FormControllerWebsocketApiComponent } from './common/form/controller/websocketapi/websocketapi.component';
-import { FormControllerRestApiComponent } from './common/form/controller/restapi/restapi.component';
-import { FormControllerUniversalComponent } from './common/form/controller/universal/universal.component';
-import { FormControllerNewComponent } from './common/form/controller/new/new.component';
-import { FormSchedulerComponent } from './common/form/scheduler/scheduler.component';
-import { FormSchedulerWeekTimeHoursComponent } from './common/form/scheduler/weektime/hours.component';
-
-/*
  * Services
  */
 import { WebappService } from './service/webapp.service';
 import { WebsocketService } from './service/websocket.service';
 
-/*
- * Pipe
- */
-import { KeysPipe } from './common/pipe/keys/keys.pipe';
-import { ClassnamePipe } from './common/pipe/classname/classname.pipe';
-import { SignPipe } from './common/pipe/sign/sign.pipe';
-
 // test files
 import { ChartTest } from './device/overview/energymonitor/chart/section/test2';
 
 @NgModule({
+  imports: [
+    SharedModule,
+    routing,
+    DeviceOverviewEnergymonitorModule,
+    DeviceHistoryModule,
+    DeviceModule,
+    OverviewModule
+  ],
   declarations: [
     AppComponent,
     // About
     AboutComponent,
     // Login
     LoginComponent,
-    // Overview
-    OverviewComponent,
-    // Device
-    DeviceOverviewComponent,
-    DeviceOverviewEnergytableComponent,
-    DeviceConfigOverviewComponent,
-    DeviceConfigBridgeComponent,
-    DeviceConfigSchedulerComponent,
-    DeviceConfigControllerComponent,
-    // Form
-    DeviceConfigMoreComponent,
-    FormSchedulerWeekTimeComponent,
-    FormSchedulerChannelthresholdComponent,
-    FormSchedulerSimpleComponent,
-    //   Form
-    FormControllersComponent,
-    FormControllerWebsocketApiComponent,
-    FormControllerRestApiComponent,
-    FormControllerUniversalComponent,
-    FormControllerNewComponent,
-    FormSchedulerComponent,
-    FormSchedulerWeekTimeHoursComponent,
-    // pipe
-    KeysPipe,
-    ClassnamePipe,
-    SignPipe,
-
-    ChartTest
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpModule,
-    NgxChartsModule,
-    routing,
-    MaterialModule.forRoot(),
-    FlexLayoutModule.forRoot(),
-    // Device
-    DeviceOverviewEnergymonitorModule,
-    DeviceHistoryModule
+    // KeysPipe
   ],
   providers: [
     appRoutingProviders,

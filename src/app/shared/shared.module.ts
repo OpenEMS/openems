@@ -1,0 +1,43 @@
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpModule } from '@angular/http';
+import { MaterialModule, MdSnackBar } from '@angular/material';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { RouterModule } from '@angular/router';
+import 'hammerjs';
+
+import { KeysPipe } from './pipe/keys/keys.pipe';
+import { ClassnamePipe } from './pipe/classname/classname.pipe';
+import { SignPipe } from './pipe/sign/sign.pipe';
+
+@NgModule({
+  imports: [
+    BrowserModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgxChartsModule,
+    MaterialModule.forRoot(),
+    FlexLayoutModule.forRoot(),
+    RouterModule
+  ],
+  declarations: [
+    KeysPipe,
+    ClassnamePipe,
+    SignPipe
+  ],
+  exports: [
+    KeysPipe,
+    SignPipe,
+    ClassnamePipe,
+    BrowserModule,
+    FormsModule,
+    MaterialModule,
+    FlexLayoutModule,
+    NgxChartsModule,
+    RouterModule,
+    ReactiveFormsModule
+  ]
+})
+export class SharedModule { }
