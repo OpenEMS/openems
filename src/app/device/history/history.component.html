@@ -1,7 +1,10 @@
+<md-input-container>
+  <input #date [value]="dateString" placeholder="Date" type="text" mdInput>
+</md-input-container>
+<button (click)="query(date.value)">Query</button>
+
 <div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
-  <!--{{ device.historicData | async | json }}-->
-  <ngx-charts-area-chart [view]="view" [scheme]="colorScheme" [results]="historicData" [gradient]="gradient" [xAxis]="showXAxis"
-    [yAxis]="showYAxis" [legend]="showLegend" [showXAxisLabel]="showXAxisLabel" [showYAxisLabel]="showYAxisLabel" [xAxisLabel]="xAxisLabel"
-    [yAxisLabel]="yAxisLabel" [autoScale]="autoScale" (select)="onSelect($event)">
-  </ngx-charts-area-chart>
+  <soc-chart [view]="view" [scheme]="colorScheme" [results]="historicData" gradient="true" [curve]="curve" xAxis="true" yAxis="true"
+    legend="true" [showXAxisLabel]="showXAxisLabel" showYAxisLabel="false" xAxisLabel="false" autoScale="false">
+  </soc-chart>
 </div>

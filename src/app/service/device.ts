@@ -138,7 +138,7 @@ export class Device {
    */
   public query(fromDate: Date, toDate: Date, channels: { [thing: string]: string[] }) {
     function toDateString(date: Date): string {
-      return date.getDate() + "." + date.getMonth() + "." + date.getFullYear();
+      return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
     }
     let obj = {
       mode: "history",

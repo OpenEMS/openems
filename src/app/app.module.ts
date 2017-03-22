@@ -20,7 +20,7 @@ import { OverviewComponent } from './overview/overview.component';
 import { DeviceOverviewComponent } from './device/overview/overview.component';
 import { DeviceOverviewEnergymonitorModule } from './device/overview/energymonitor/energymonitor.module';
 import { DeviceOverviewEnergytableComponent } from './device/overview/energytable/energytable.component';
-import { DeviceHistoryComponent } from './device/history/history.component';
+import { DeviceHistoryModule } from './device/history/history.module';
 import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
 import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
 import { DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
@@ -75,7 +75,6 @@ import { SignPipe } from './common/pipe/sign/sign.pipe';
     // Device
     DeviceOverviewComponent,
     DeviceOverviewEnergytableComponent,
-    DeviceHistoryComponent,
     DeviceConfigOverviewComponent,
     DeviceConfigBridgeComponent,
     DeviceConfigSchedulerComponent,
@@ -108,7 +107,8 @@ import { SignPipe } from './common/pipe/sign/sign.pipe';
     MaterialModule.forRoot(),
     FlexLayoutModule.forRoot(),
     // Device
-    DeviceOverviewEnergymonitorModule
+    DeviceOverviewEnergymonitorModule,
+    DeviceHistoryModule
   ],
   providers: [
     appRoutingProviders,

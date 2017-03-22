@@ -77,7 +77,9 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
     super.update();
     // adjust width/height of chart
     let maxHeight = window.innerHeight - 100;
-    if (maxHeight < this.width) {
+    if (maxHeight < 400) {
+      this.width = this.height = 400;
+    } else if (maxHeight < this.width) {
       this.width = this.height = maxHeight;
     } else {
       this.height = this.width;

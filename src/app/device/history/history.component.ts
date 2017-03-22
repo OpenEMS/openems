@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
+import * as d3 from 'd3';
+import * as d3shape from 'd3-shape';
 
 import { WebsocketService } from '../../service/websocket.service';
 import { Device } from '../../service/device';
@@ -12,6 +14,7 @@ import { Device } from '../../service/device';
 export class DeviceHistoryComponent implements OnInit, OnDestroy {
   private device: Device;
   private deviceSubscription: Subscription;
+  private dateString: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -19,10 +22,29 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    let date = new Date();
+    this.dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+
     this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
       if (device != null) {
-        this.device.query(new Date(2017, 3, 21), new Date(2017, 3, 21), { ess0: ["Soc"] });
+        device.historicData.subscribe((newData) => {
+          if (newData != null) {
+            console.log("data", newData);
+            let historicData = {
+              name: "ess0/Soc",
+              series: []
+            }
+            for (let newDatum of newData["data"]) {
+              if (newDatum["channels"]["ess0"]["Soc"] != null) {
+                historicData.series.push({ name: new Date(newDatum["time"]), value: newDatum["channels"]["ess0"]["Soc"] });
+              } else {
+                historicData.series.push({ name: new Date(newDatum["time"]), value: 0 });
+              }
+            }
+            this.historicData = [historicData];
+          }
+        })
       }
     })
   }
@@ -34,17 +56,19 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
     }
   }
 
+  query(dateString: string) {
+    if (this.device != null) {
+      let date = new Date(dateString);
+      this.device.query(date, date, { ess0: ["Soc"] });
+    }
+  }
+
   view: any[] = [700, 400];
 
   // options
-  showXAxis = true;
-  showYAxis = true;
-  gradient = false;
-  showLegend = true;
-  showXAxisLabel = true;
   xAxisLabel = 'Country';
-  showYAxisLabel = true;
   yAxisLabel = 'Population';
+  curve = d3shape.curveBasis;
 
   colorScheme = {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
