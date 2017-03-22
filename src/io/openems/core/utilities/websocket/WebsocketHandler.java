@@ -23,8 +23,6 @@ package io.openems.core.utilities.websocket;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -408,19 +406,10 @@ public class WebsocketHandler {
 				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jQuery, "toDate", timezone);
 				JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
 				// TODO: calculate resolution
-				ArrayList<String> channelAddresses = new ArrayList<>();
-				for (Entry<String, JsonElement> entry : channels.entrySet()) {
-					String thingId = entry.getKey();
-					JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
-					for (JsonElement channelElement : channelIds) {
-						String channelId = JsonUtils.getAsString(channelElement);
-						channelAddresses.add("\"" + thingId + "/" + channelId + "\"");
-					}
-				}
-				JsonArray jChannels = null;
+				JsonArray jData = null;
 				for (QueryablePersistence queryablePersistence : thingRepository.getQueryablePersistences()) {
-					jChannels = queryablePersistence.query(fromDate, toDate, channelAddresses);
-					if (jChannels != null) {
+					jData = queryablePersistence.query(fromDate, toDate, channels);
+					if (jData != null) {
 						break;
 					}
 				}
@@ -428,7 +417,7 @@ public class WebsocketHandler {
 				JsonObject j = new JsonObject();
 				JsonObject jQueryreply = new JsonObject();
 				jQueryreply.addProperty("mode", "history");
-				jQueryreply.add("channels", jChannels);
+				jQueryreply.add("data", jData);
 				j.add("queryreply", jQueryreply);
 				this.send(j);
 

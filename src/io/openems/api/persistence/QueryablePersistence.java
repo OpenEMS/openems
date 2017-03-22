@@ -21,14 +21,14 @@
 package io.openems.api.persistence;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import io.openems.api.exception.OpenemsException;
 
 public abstract class QueryablePersistence extends Persistence {
 
-	public abstract JsonArray query(ZonedDateTime fromDate, ZonedDateTime toDate, List<String> channelAddresses)
+	public abstract JsonArray query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels)
 			throws OpenemsException;
 }

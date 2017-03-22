@@ -160,7 +160,8 @@ on error:
 ```
 {
 	currentdata: [{ 
-		channel, value
+		channel: ...,
+		value: ...
     }]
 }
 ```
@@ -231,19 +232,20 @@ on error:
 
 [3.4.2]
 ```
- /* format is for compatibility with ngx-charts */
 {
     queryreply: {
     	mode: "history",
-		channels: [
-			{
-				name: "ess0/Soc",
-				series: [{
-					name: ... 
-					value: 50,
-				}]
+		fromDate: "2017-01-01",
+		toDate: "2017-01-01", 
+		timezone: "GMT",
+		data: [{
+			time: ...,
+			channels: {
+				'thing': {
+					'channel': 'value'
+				} 
 			}
-		],
+		}]
 	}
 }
 ```
