@@ -7,7 +7,7 @@ import * as d3shape from 'd3-shape';
 import { AreaChartComponent } from '@swimlane/ngx-charts';
 
 @Component({
-  selector: 'soc-chart',
+  selector: 'chart-soc',
   /* this is copied from 'ngx-charts-area-chart': */
   template: `
     <ngx-charts-chart

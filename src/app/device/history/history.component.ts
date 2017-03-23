@@ -98,7 +98,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   ];*/
 
   /**
-   * test data for third chart 
+   * test data for third chart
    */
   private socActivepowerData = [
     {
