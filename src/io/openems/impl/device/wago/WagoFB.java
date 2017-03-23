@@ -49,6 +49,31 @@ import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
+/*
+ * Example config:
+ *
+ * <pre>
+ * {
+ *   "class": "io.openems.impl.protocol.modbus.ModbusTcp",
+ *   "ip": "172.16.86.1",
+ *   "devices": [
+ *     {
+ *       "class": "io.openems.impl.device.wago.WagoFB",
+ *       "modbusUnitId": 1,
+ *       "output": {
+ *         "id": "output0",
+ *         "ip": "172.16.86.1"
+ *       },
+ *       "input": {
+ *         "id": "input0",
+ *         "ip": "172.16.86.1"
+ *       }
+ *     }
+ *   ]
+ * }
+ * </pre>
+ */
+
 @ThingInfo(title = "WAGO I/O")
 public class WagoFB extends ModbusDevice {
 

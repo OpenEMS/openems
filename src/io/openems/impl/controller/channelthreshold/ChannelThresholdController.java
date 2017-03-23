@@ -34,6 +34,21 @@ import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.hysteresis.Hysteresis;
 
+/*
+ * Example config:
+ * <pre>
+ * {
+ *   "class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+ *   "priority": 65,
+ *   "thresholdChannelAddress": "ess0/Soc",
+ *   "outputChannelAddress": "output0/1",
+ *   "lowerThreshold": 75,
+ *   "upperThreshold": 80,
+ *   "invertOutput": true
+ * }
+ * </pre>
+ */
+
 @ThingInfo(title = "Switch channel on threshold")
 public class ChannelThresholdController extends Controller {
 
