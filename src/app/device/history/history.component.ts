@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, Renderer } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
@@ -14,13 +14,19 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   private device: Device;
   private deviceSubscription: Subscription;
   private dateString: string;
+  // private elementRef: NodeListOf<HTMLElement>[] = [];
+  private clazzActive: string = "";
 
   constructor(
     private route: ActivatedRoute,
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private elementRef: ElementRef,
   ) { }
 
   ngOnInit() {
+    //get all buttons
+    // this.elementRef.push(document.getElementsByTagName("button"));
+
     let date = new Date();
     this.dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
 
@@ -140,6 +146,8 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   ];
 
   private getDataToday() {
+    this.changeActiveOnButton(".btnToday");
+
     if (this.device != null) {
       let date = new Date();
       this.device.query(date, date, { ess0: ["Soc"] });
@@ -147,11 +155,48 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   }
 
   private getDataYesterday() {
+    this.changeActiveOnButton(".btnYesterday");
+
     if (this.device != null) {
       let date = new Date();
       let yesterday = date;
       yesterday.setDate(date.getDate() - 1);
       this.device.query(yesterday, yesterday, { ess0: ["Soc"] });
     }
+  }
+
+  private getDataLastWeek() {
+    this.changeActiveOnButton(".btnLastWeek");
+  }
+
+  private getDataLastMonth() {
+    this.changeActiveOnButton(".btnLastMonth");
+  }
+
+  private getDataLastYear() {
+    this.changeActiveOnButton(".btnLastYear");
+  }
+
+  private changeActiveOnButton(clazz: string) {
+    let element: HTMLButtonElement;
+
+    if (this.clazzActive != "") {
+      element = this.elementRef.nativeElement.querySelector(this.clazzActive);
+
+      if (element.classList.contains("active")) {
+        element.classList.remove("active");
+      }
+
+      if (!element.classList.contains("active")) {
+        element = this.elementRef.nativeElement.querySelector(clazz);
+
+        element.classList.add("active");
+      }
+    } else {
+      element = this.elementRef.nativeElement.querySelector(clazz);
+      element.classList.add("active");
+    }
+
+    this.clazzActive = clazz;
   }
 }

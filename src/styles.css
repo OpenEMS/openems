@@ -20,3 +20,8 @@ td.align_right {
 .gray_color {
   color: gray;
 }
+
+button.active {
+  color: black;
+  background-color: lightgreen;
+}
