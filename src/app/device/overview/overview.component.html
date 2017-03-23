@@ -1,4 +1,6 @@
-<div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+<div *ngIf="device" fxLayout fxLayoutAlign="start start" fxLayoutWrap="wrap">
   <energymonitor [device]="device" fxFlex.xs="100%" fxFlex.sm="75%" fxFlex.gt-sm="50%"></energymonitor>
   <energytable [device]="device" fxFlex.xs="100%" fxFlex.sm="75%" fxFlex.gt-sm="50%"></energytable>
+  <history routerLink="/device/{{device.websocket.name}}/{{device.name}}/history" [device]="device" fxFlex.xs="100%" fxFlex.sm="75%"
+    fxFlex.gt-sm="50%"></history>
 </div>
