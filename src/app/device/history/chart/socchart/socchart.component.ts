@@ -113,6 +113,10 @@ import { AreaChartComponent } from '@swimlane/ngx-charts';
 })
 export class SocChartComponent extends AreaChartComponent {
 
+  xAxisTickFormatting = function (d) {
+    return d.format("H:mm");
+  };
+
   getYDomain(): any[] {
     return [0, 100];
   }

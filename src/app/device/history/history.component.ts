@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, ElementRef, Renderer } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
 import * as d3shape from 'd3-shape';
+import * as moment from 'moment';
 
 import { WebsocketService, Device } from '../../shared/shared';
 
@@ -18,8 +19,7 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private websocketService: WebsocketService,
-    private elementRef: ElementRef,
+    private websocketService: WebsocketService
   ) { }
 
   ngOnInit() {
@@ -29,21 +29,31 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
     this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
       if (device != null) {
-        device.historicData.subscribe((newData) => {
+        device.socData.subscribe((newData) => {
           if (newData != null) {
             console.log("data", newData);
-            let historicData = {
+            let socData = {
               name: "ess0/Soc",
+              series: []
+            }
+            let socActivepowerData = {
+              name: "ess0/ActivePower",
               series: []
             }
             for (let newDatum of newData["data"]) {
               if (newDatum["channels"]["ess0"]["Soc"] != null) {
-                historicData.series.push({ name: new Date(newDatum["time"]), value: newDatum["channels"]["ess0"]["Soc"] });
+                socData.series.push({ name: moment(newDatum["time"]), value: newDatum["channels"]["ess0"]["Soc"] });
               } else {
-                historicData.series.push({ name: new Date(newDatum["time"]), value: 0 });
+                socData.series.push({ name: moment(newDatum["time"]), value: 0 });
+              }
+              if (newDatum["channels"]["ess0"]["ActivePower"] != null) {
+                socActivepowerData.series.push({ name: new Date(newDatum["time"]), value: newDatum["channels"]["ess0"]["ActivePower"] });
+              } else {
+                socActivepowerData.series.push({ name: new Date(newDatum["time"]), value: 0 });
               }
             }
-            this.historicData = [historicData];
+            this.socData = [socData];
+            this.socActivepowerData = [socActivepowerData];
           }
         })
       }
@@ -60,7 +70,7 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   query(dateString: string) {
     if (this.device != null) {
       let date = new Date(dateString);
-      this.device.query(date, date, { ess0: ["Soc"] });
+      this.device.query(date, date, { ess0: ["Soc", "ActivePower"] });
     }
   }
 
@@ -78,19 +88,19 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   // line, area
   autoScale = true;
 
-  private historicData = [
+  private socData = [];/* = [
     {
       "name": "ess0/Soc",
       "series": [
         { name: "2017-03-21T08:55:20Z", value: 47.0 }, { name: "2017-03-21T08:55:30Z", value: 47.0 }, { name: "2017-03-21T08:56:20Z", value: 63.0 }
       ]
     }
-  ];
+  ];*/
 
   /**
    * test data for third chart 
    */
-  private historicDataView = [
+  private socActivepowerData = [
     {
       "name": "Eigene PV-Produktion",
       "series": [
@@ -143,11 +153,10 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
 
   private getDataToday() {
     this.clazzActive = "btnToday";
-    // this.changeActiveOnButton(".btnToday");
 
     if (this.device != null) {
       let date = new Date();
-      this.device.query(date, date, { ess0: ["Soc"] });
+      this.device.query(date, date, { ess0: ["Soc", "ActivePower"] });
     }
   }
 
@@ -158,7 +167,7 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
       let date = new Date();
       let yesterday = date;
       yesterday.setDate(date.getDate() - 1);
-      this.device.query(yesterday, yesterday, { ess0: ["Soc"] });
+      this.device.query(yesterday, yesterday, { ess0: ["Soc", "ActivePower"] });
     }
   }
 

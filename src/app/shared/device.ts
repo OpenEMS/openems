@@ -37,7 +37,7 @@ export class Device {
   public event = new Subject<Notification>();
   public address: string;
   public data = new BehaviorSubject<{ [thing: string]: any }>(null);
-  public historicData = new BehaviorSubject<any[]>(null);
+  public socData = new BehaviorSubject<any[]>(null);
   public config = new BehaviorSubject<Config>(null);
   private online = false;
   private influxdb: {
@@ -286,7 +286,7 @@ export class Device {
     if ("queryreply" in message) {
       let result = message.queryreply;
       console.log(result);
-      this.historicData.next(result);
+      this.socData.next(result);
     }
   }
 }
