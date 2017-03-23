@@ -40,6 +40,7 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.SignedWordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
+import io.openems.impl.protocol.modbus.internal.WordOrder;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
@@ -434,16 +435,20 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 						new DummyElement(0xA142, 0xA14F),
 						new UnsignedDoublewordElement(0xA150,
 								bmsDCDCInputTotalChargeEnergy = new ModbusReadLongChannel(
-										"BmsDCDCInputTotalChargeEnergy", this).unit("Wh").multiplier(2)),
+										"BmsDCDCInputTotalChargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA152,
 								bmsDCDCInputTotalDischargeEnergy = new ModbusReadLongChannel(
-										"BmsDCDCInputTotalDischargeEnergy", this).unit("Wh").multiplier(2)),
+										"BmsDCDCInputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA154,
 								bmsDCDCOutputTotalChargeEnergy = new ModbusReadLongChannel(
-										"BmsDCDCOutputTotalChargeEnergy", this).unit("Wh").multiplier(2)),
+										"BmsDCDCOutputTotalChargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA156,
 								bmsDCDCOutputTotalDischargeEnergy = new ModbusReadLongChannel(
-										"BmsDCDCOutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))),
+										"BmsDCDCOutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW)),
 				new ModbusRegisterRange(0xA300, //
 						new UnsignedWordElement(0xA300,
 								bmsDCDC1WorkState = new ModbusReadLongChannel("BmsDCDC1WorkState", this)//
@@ -669,16 +674,20 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 						new DummyElement(0xA442, 0xA44F),
 						new UnsignedDoublewordElement(0xA450,
 								bmsDCDC1InputTotalChargeEnergy = new ModbusReadLongChannel(
-										"BmsDCDC1InputTotalChargeEnergy", this).unit("Wh").multiplier(2)),
+										"BmsDCDC1InputTotalChargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA452,
 								bmsDCDC1InputTotalDischargeEnergy = new ModbusReadLongChannel(
-										"BmsDCDC1InputTotalDischargeEnergy", this).unit("Wh").multiplier(2)),
+										"BmsDCDC1InputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA454,
 								bmsDCDC1OutputTotalChargeEnergy = new ModbusReadLongChannel(
-										"BmsDCDC1OutputTotalChargeEnergy", this).unit("Wh").multiplier(2)),
+										"BmsDCDC1OutputTotalChargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA456,
 								bmsDCDC1OutputTotalDischargeEnergy = new ModbusReadLongChannel(
-										"BmsDCDC1OutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))),
+										"BmsDCDC1OutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW)),
 				new ModbusRegisterRange(0xA600, //
 						new UnsignedWordElement(0xA600,
 								pvDCDCWorkState = new ModbusReadLongChannel("PvDCDCWorkState", this)//
@@ -904,16 +913,19 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 						new DummyElement(0xA742, 0xA74F),
 						new UnsignedDoublewordElement(0xA750,
 								pvDCDCInputTotalChargeEnergy = new ModbusReadLongChannel("PvDCDCInputTotalChargeEnergy",
-										this).unit("Wh").multiplier(2)),
+										this).unit("Wh").multiplier(2)).wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA752,
 								pvDCDCInputTotalDischargeEnergy = new ModbusReadLongChannel(
-										"PvDCDCInputTotalDischargeEnergy", this).unit("Wh").multiplier(2)),
+										"PvDCDCInputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA754,
 								pvDCDCOutputTotalChargeEnergy = new ModbusReadLongChannel(
-										"PvDCDCOutputTotalChargeEnergy", this).unit("Wh").multiplier(2)),
+										"PvDCDCOutputTotalChargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA756,
 								pvDCDCOutputTotalDischargeEnergy = new ModbusReadLongChannel(
-										"PvDCDCOutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))),
+										"PvDCDCOutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW)),
 				new ModbusRegisterRange(0xA900, //
 						new UnsignedWordElement(0xA900,
 								pvDCDC1WorkState = new ModbusReadLongChannel("PvDCDC1WorkState", this)//
@@ -1139,17 +1151,20 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 						new DummyElement(0xAA42, 0xAA4F),
 						new UnsignedDoublewordElement(0xAA50,
 								pvDCDC1InputTotalChargeEnergy = new ModbusReadLongChannel(
-										"PvDCDC1InputTotalChargeEnergy", this).unit("Wh").multiplier(2)),
+										"PvDCDC1InputTotalChargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xAA52,
 								pvDCDC1InputTotalDischargeEnergy = new ModbusReadLongChannel(
-										"PvDCDC1InputTotalDischargeEnergy", this).unit("Wh").multiplier(2)),
+										"PvDCDC1InputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xAA54,
 								pvDCDC1OutputTotalChargeEnergy = new ModbusReadLongChannel(
-										"PvDCDC1OutputTotalChargeEnergy", this).unit("Wh")
-												.multiplier(2)),
+										"PvDCDC1OutputTotalChargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xAA56,
 								pvDCDC1OutputTotalDischargeEnergy = new ModbusReadLongChannel(
-										"PvDCDC1OutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))));
+										"PvDCDC1OutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
+												.wordOrder(WordOrder.LSWMSW)));
 		actualPvPower = new FunctionalChannel<Long>("actualPvPower", this, (channels) -> {
 			long erg = 0;
 			try {

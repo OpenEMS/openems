@@ -38,11 +38,13 @@ public class UnsignedDoublewordElement extends ModbusElement<Long> implements Do
 		super(address, channel);
 	}
 
-	@Override public int getLength() {
+	@Override
+	public int getLength() {
 		return 2;
 	}
 
-	@Override public void setValue(InputRegister register1, InputRegister register2) {
+	@Override
+	public void setValue(InputRegister register1, InputRegister register2) {
 		ByteBuffer buff = ByteBuffer.allocate(4).order(byteOrder);
 		if (wordOrder == WordOrder.MSWLSW) {
 			buff.put(register1.toBytes());
@@ -54,7 +56,18 @@ public class UnsignedDoublewordElement extends ModbusElement<Long> implements Do
 		setValue(Integer.toUnsignedLong(buff.getInt(0)));
 	}
 
-	@Override public Register[] toRegisters(Long value) {
+	public UnsignedDoublewordElement byteOrder(ByteOrder byteOrder) {
+		this.byteOrder = byteOrder;
+		return this;
+	}
+
+	public UnsignedDoublewordElement wordOrder(WordOrder wordOrder) {
+		this.wordOrder = wordOrder;
+		return this;
+	}
+
+	@Override
+	public Register[] toRegisters(Long value) {
 		byte[] b = ByteBuffer.allocate(4).order(byteOrder).putInt(value.intValue()).array();
 		if (wordOrder == WordOrder.MSWLSW) {
 			return new Register[] { new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) };

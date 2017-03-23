@@ -125,6 +125,9 @@ public class ChannelThresholdController extends Controller {
 				}
 			});
 
+	@ConfigInfo(title = "Invert-Output", description = "True if the digital output should be inverted.", type = Boolean.class)
+	public ConfigChannel<Boolean> invertOutput = new ConfigChannel<Boolean>("invertOutput", this).defaultValue(false);
+
 	/*
 	 * Methods
 	 */
@@ -136,37 +139,49 @@ public class ChannelThresholdController extends Controller {
 					try {
 						switch (state) {
 						case ABOVE:
-							outputChannel.pushWrite(false);
+							off();
 							isActive = false;
 							break;
 						case ASC:
 							if (isActive) {
-								outputChannel.pushWrite(true);
+								on();
 							} else {
-								outputChannel.pushWrite(false);
+								off();
 							}
 							break;
 						case BELOW:
-							outputChannel.pushWrite(true);
+							on();
 							isActive = true;
 							break;
 						case DESC:
 							if (isActive) {
-								outputChannel.pushWrite(true);
+								on();
 							} else {
-								outputChannel.pushWrite(false);
+								off();
 							}
 							break;
 						default:
 							break;
 						}
-					} catch (WriteChannelException e) {
+					} catch (WriteChannelException | InvalidValueException e) {
 						log.error("failed to write outputChannel[" + outputChannel.id() + "]", e);
 					}
 				});
 			}
 		} catch (InvalidValueException e) {
 			log.error("thresholdChannel has no valid value!");
+		}
+	}
+
+	private void on() throws InvalidValueException, WriteChannelException {
+		if (outputChannel.value() != true ^ invertOutput.value()) {
+			outputChannel.pushWrite(true ^ invertOutput.value());
+		}
+	}
+
+	private void off() throws InvalidValueException, WriteChannelException {
+		if (outputChannel.value() != false ^ invertOutput.value()) {
+			outputChannel.pushWrite(false ^ invertOutput.value());
 		}
 	}
 
