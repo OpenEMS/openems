@@ -11,7 +11,7 @@ import { WebsocketService, Device } from '../../shared/shared';
   selector: 'history',
   templateUrl: './history.component.html'
 })
-export class DeviceHistoryComponent implements OnInit, OnDestroy {
+export class HistoryComponent implements OnInit, OnDestroy {
   private device: Device;
   private deviceSubscription: Subscription;
   private dateString: string;

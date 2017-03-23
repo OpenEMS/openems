@@ -111,7 +111,7 @@ import { AreaChartComponent } from '@swimlane/ngx-charts';
     </ngx-charts-chart>
   `
 })
-export class SocChartComponent extends AreaChartComponent {
+export class ChartSocComponent extends AreaChartComponent {
 
   xAxisTickFormatting = function (d) {
     return d.format("H:mm");
