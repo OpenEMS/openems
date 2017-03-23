@@ -173,4 +173,8 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   private getDataLastYear() {
     this.clazzActive = "btnLastYear";
   }
+
+  private setOtherTimespan() {
+    this.clazzActive = "btnOtherTimespan";
+  }
 }

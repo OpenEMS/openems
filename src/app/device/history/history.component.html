@@ -21,7 +21,7 @@
           <button md-raised-button [class.active]="clazzActive=='btnYesterday'" (click)="getDataYesterday()" fxFlex="100%">
             Gestern
           </button>
-          <button md-raised-button [class.active]="clazzActive=='btnLastWeek''" (click)="getDataLastWeek()" fxFlex="100%">
+          <button md-raised-button [class.active]="clazzActive=='btnLastWeek'" (click)="getDataLastWeek()" fxFlex="100%">
             letzte Woche
           </button>
           <button md-raised-button [class.active]="clazzActive=='btnLastMonth'" (click)="getDataLastMonth()" fxFlex="100%">
@@ -30,8 +30,7 @@
           <button md-raised-button [class.active]="clazzActive=='btnLastYear'" (click)="getDataLastYear()" fxFlex="100%">
             letztes Jahr
           </button>
-          <button [class.active]="clazzActive=='btnOtherTimespan'" (click)="clazzActive == 'btnOtherTimespan'" md-raised-button fxFlex="100%"
-            style="margin-bottom: 20px">
+          <button [class.active]="clazzActive=='btnOtherTimespan'" (click)="setOtherTimespan()" md-raised-button fxFlex="100%" style="margin-bottom: 20px">
             Anderer Zeitraum
           </button>
           <div *ngIf="clazzActive == 'btnOtherTimespan'" fxFlex="100%">
