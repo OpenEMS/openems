@@ -36,6 +36,7 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.SignedWordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
+import io.openems.impl.protocol.modbus.internal.WordOrder;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
@@ -413,10 +414,10 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 						new DummyElement(0x0203, 0x0207), //
 						new UnsignedDoublewordElement(0x0208, //
 								acChargeEnergy = new ModbusReadLongChannel("AcChargeEnergy", this).unit("Wh")
-										.multiplier(2)),
+										.multiplier(2)).wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0x020A, //
 								acDischargeEnergy = new ModbusReadLongChannel("AcDischargeEnergy", this).unit("Wh")
-										.multiplier(2)),
+										.multiplier(2)).wordOrder(WordOrder.LSWMSW),
 						new DummyElement(0x020C, 0x020F),
 						new SignedWordElement(0x0210, //
 								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").multiplier(2)),

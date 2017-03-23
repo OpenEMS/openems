@@ -46,8 +46,8 @@ public class FeneconCommercialDC extends ModbusDevice {
 	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = FeneconCommercialEss.class)
 	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<FeneconCommercialEss>("ess", this);
 
-	@ConfigInfo(title = "Inverter", description = "Sets the inverter nature.", type = FeneconCommercialCharger.class)
-	public final ConfigChannel<FeneconCommercialCharger> inverter = new ConfigChannel<>("inverter", this);
+	@ConfigInfo(title = "Charger", description = "Sets the inverter nature.", type = FeneconCommercialCharger.class)
+	public final ConfigChannel<FeneconCommercialCharger> charger = new ConfigChannel<>("charger", this);
 
 	/*
 	 * Methods
@@ -63,8 +63,8 @@ public class FeneconCommercialDC extends ModbusDevice {
 		if (ess.valueOptional().isPresent()) {
 			natures.add(ess.valueOptional().get());
 		}
-		if (inverter.valueOptional().isPresent()) {
-			natures.add(inverter.valueOptional().get());
+		if (charger.valueOptional().isPresent()) {
+			natures.add(charger.valueOptional().get());
 		}
 		return natures;
 	}
