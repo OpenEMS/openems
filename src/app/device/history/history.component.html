@@ -2,9 +2,77 @@
   <input #date [value]="dateString" placeholder="Date" type="text" mdInput>
 </md-input-container>
 <button (click)="query(date.value)">Query</button>
-
 <div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
-  <soc-chart [view]="view" [scheme]="colorScheme" [results]="historicData" gradient="true" [curve]="curve" xAxis="true" yAxis="true"
-    legend="true" [showXAxisLabel]="showXAxisLabel" showYAxisLabel="false" xAxisLabel="false" autoScale="false">
-  </soc-chart>
+  <!--{{ device.historicData | async | json }}-->
+  <div fxFlex.xs="100%" fxFlex.gt-sm="25%">
+    <md-card class="single">
+      <md-card-header>
+        <md-card-title>Mustermann</md-card-title>
+        <md-card-subtitle>FEMS 24</md-card-subtitle>
+      </md-card-header>
+      <md-card-content>
+        <div fxLayout fxLayoutWrap="wrap" fxFlex>
+          <button md-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold">
+            Zeitraum
+          </button>
+          <button md-raised-button (click)="getDataToday()" fxFlex="100%">
+            Heute
+          </button>
+          <button md-raised-button (click)="getDataYesterday()" fxFlex="100%">
+            Gestern
+          </button>
+          <button md-raised-button fxFlex="100%">
+            letzte Woche
+          </button>
+          <button md-raised-button fxFlex="100%">
+            letzten Monat
+          </button>
+          <button md-raised-button fxFlex="100%">
+            letztes Jahr
+          </button>
+          <button (click)="otherTimespan = !otherTimespan" md-raised-button fxFlex="100%" style="margin-bottom: 20px">
+            Anderer Zeitraum
+          </button>
+          <div *ngIf="otherTimespan" fxFlex="100%">
+            <div fxFlex="100%" fxLayout>
+              <label fxFlex="75px" style="font-size: 14px;">Datum</label>
+              <label fxFlex="50px" style="font-size: 14px;margin-bottom: 20px;">von:</label>
+            </div>
+            <div fxFlex="100%" fxLayout>
+              <div fxFlex="75px"></div>
+              <label fxFlex="50px" style="font-size: 14px;margin-bottom: 20px">bis:</label>
+            </div>
+            <div fxFlex="100%" fxLayout>
+              <div fxFlex="75px"></div>
+              <button md-raised-button style="font-size: 14px">
+                Los!
+              </button>
+            </div>
+          </div>
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+  <div fxFlex.xs="100%" fxFlex.gt-sm="75%">
+    <md-card class="single" fxLayout fxLayoutWrap="wrap">
+      <md-card-content>
+        <soc-chart fxFlex="100%" fxFlex. [view]="view" [scheme]="colorScheme" [results]="historicData" [curve]="curve" gradient="true"
+          xAxis="true" yAxis="true" legend="true" [showXAxisLabel]="showXAxisLabel" showYAxisLabel="false" xAxisLabel="false"
+          autoScale="false">
+        </soc-chart>
+      </md-card-content>
+    </md-card>
+  </div>
+  <md-card class="single" fxLayout fxLayoutWrap="wrap">
+    <md-card-content>
+      <div fxFlex.gt-sm="25%" fxFlex.xs="100%">
+        <soc-chart [view]="view" [scheme]="colorScheme" [results]="historicData" gradient="true" [curve]="curve" xAxis="true" yAxis="true"
+          legend="true" [showXAxisLabel]="showXAxisLabel" showYAxisLabel="false" xAxisLabel="false" autoScale="false">
+        </soc-chart>
+        <ngx-charts-area-chart fxFlex="100%" [view]="view" [scheme]="colorScheme" [results]="historicDataView" gradient="false" xAxis="false"
+          yAxis="true" legend="true" showXAxisLabel="false" autoScale="false">
+        </ngx-charts-area-chart>
+      </div>
+    </md-card-content>
+  </md-card>
 </div>

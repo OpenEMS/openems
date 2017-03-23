@@ -17,35 +17,35 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    // private websocketService: WebsocketService
+    private websocketService: WebsocketService
   ) { }
 
   ngOnInit() {
-    // let date = new Date();
-    // this.dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+    let date = new Date();
+    this.dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
 
-    // this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
-    //   this.device = device;
-    //   if (device != null) {
-    //     device.historicData.subscribe((newData) => {
-    //       if (newData != null) {
-    //         console.log("data", newData);
-    //         let historicData = {
-    //           name: "ess0/Soc",
-    //           series: []
-    //         }
-    //         for (let newDatum of newData["data"]) {
-    //           if (newDatum["channels"]["ess0"]["Soc"] != null) {
-    //             historicData.series.push({ name: new Date(newDatum["time"]), value: newDatum["channels"]["ess0"]["Soc"] });
-    //           } else {
-    //             historicData.series.push({ name: new Date(newDatum["time"]), value: 0 });
-    //           }
-    //         }
-    //         this.historicData = [historicData];
-    //       }
-    //     })
-    //   }
-    // })
+    this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
+      this.device = device;
+      if (device != null) {
+        device.historicData.subscribe((newData) => {
+          if (newData != null) {
+            console.log("data", newData);
+            let historicData = {
+              name: "ess0/Soc",
+              series: []
+            }
+            for (let newDatum of newData["data"]) {
+              if (newDatum["channels"]["ess0"]["Soc"] != null) {
+                historicData.series.push({ name: new Date(newDatum["time"]), value: newDatum["channels"]["ess0"]["Soc"] });
+              } else {
+                historicData.series.push({ name: new Date(newDatum["time"]), value: 0 });
+              }
+            }
+            this.historicData = [historicData];
+          }
+        })
+      }
+    })
   }
 
   ngOnDestroy() {
@@ -84,4 +84,74 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
       ]
     }
   ];
+
+  /**
+   * test data for third chart 
+   */
+  private historicDataView = [
+    {
+      "name": "Eigene PV-Produktion",
+      "series": [
+        { name: "2017-03-21T15:21", value: 47.0 }, { name: "2017-03-21T15:22", value: 47.0 }, { name: "2017-03-21T15:23", value: 63.0 }
+      ]
+    },
+    {
+      "name": "Durchschnittliche PV-Produktion",
+      "series": [
+        { name: "2017-03-21T15:21", value: 25.0 }, { name: "2017-03-21T15:22", value: 35.0 }, { name: "2017-03-21T15:23", value: 30.0 }
+      ]
+    },
+    {
+      "name": "Eigener Verbrauch",
+      "series": [
+        { name: "2017-03-21T15:21", value: 50.0 }, { name: "2017-03-21T15:22", value: 70.0 }, { name: "2017-03-21T15:23", value: 60.0 }
+      ]
+    },
+    {
+      "name": "Durchschnittlicher Verbrauch",
+      "series": [
+        { name: "2017-03-21T15:21", value: 12.0 }, { name: "2017-03-21T15:22", value: 15.0 }, { name: "2017-03-21T15:23", value: 17.0 }
+      ]
+    },
+    {
+      "name": "Eigene Netzeinspeisung",
+      "series": [
+        { name: "2017-03-21T15:21", value: 15.0 }, { name: "2017-03-21T15:22", value: 20.0 }, { name: "2017-03-21T15:23", value: 25.0 }
+      ]
+    },
+    {
+      "name": "Durchschnittliche Netzeinspeisung",
+      "series": [
+        { name: "2017-03-21T15:21", value: 17.0 }, { name: "2017-03-21T15:22", value: 21.0 }, { name: "2017-03-21T15:23", value: 23.0 }
+      ]
+    },
+    {
+      "name": "Eigener Netzbezug",
+      "series": [
+        { name: "2017-03-21T15:21", value: 5.0 }, { name: "2017-03-21T15:22", value: 10.0 }, { name: "2017-03-21T15:23", value: 15.0 }
+      ]
+    },
+    {
+      "name": "Durchschnittlicher Netzbezug",
+      "series": [
+        { name: "2017-03-21T15:21", value: 7.0 }, { name: "2017-03-21T15:22", value: 10.0 }, { name: "2017-03-21T15:23", value: 12.0 }
+      ]
+    }
+  ];
+
+  private getDataToday() {
+    if (this.device != null) {
+      let date = new Date();
+      this.device.query(date, date, { ess0: ["Soc"] });
+    }
+  }
+
+  private getDataYesterday() {
+    if (this.device != null) {
+      let date = new Date();
+      let yesterday = date;
+      yesterday.setDate(date.getDate() - 1);
+      this.device.query(yesterday, yesterday, { ess0: ["Soc"] });
+    }
+  }
 }
