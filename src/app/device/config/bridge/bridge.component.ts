@@ -11,7 +11,7 @@ import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest, ConfigureCrea
   selector: 'bridge',
   templateUrl: './bridge.component.html'
 })
-export class DeviceConfigBridgeComponent extends AbstractConfig {
+export class BridgeComponent extends AbstractConfig {
 
   private controlConfig: AbstractControl;
   form: FormGroup;

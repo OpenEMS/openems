@@ -5,13 +5,13 @@ import { AppComponent } from './app.component';
 import { AboutComponent } from './about/about.component';
 import { LoginComponent } from './login/login.component';
 import { OverviewComponent } from './overview/overview.component';
-import { DeviceOverviewComponent } from './device/overview/overview.component';
-import { DeviceHistoryComponent } from './device/history/history.component';
-import { DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
-import { DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
-import { DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
-import { DeviceConfigMoreComponent } from './device/config/more/more.component';
-import { DeviceConfigControllerComponent } from './device/config/controller/controller.component';
+import { OverviewComponent as DeviceOverviewComponent } from './device/overview/overview.component';
+import { HistoryComponent as DeviceHistoryComponent } from './device/history/history.component';
+import { OverviewComponent as DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
+import { BridgeComponent as DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
+import { SchedulerComponent as DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
+import { MoreComponent as DeviceConfigMoreComponent } from './device/config/more/more.component';
+import { ControllerComponent as DeviceConfigControllerComponent } from './device/config/controller/controller.component';
 import { ChartTest } from './device/overview/energymonitor/chart/section/test2';
 
 const appRoutes: Routes = [

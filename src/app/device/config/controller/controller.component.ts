@@ -12,7 +12,7 @@ import { ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, Confi
     templateUrl: './controller.component.html'
 })
 
-export class DeviceConfigControllerComponent extends AbstractConfig {
+export class ControllerComponent extends AbstractConfig {
 
     private controlConfig: AbstractControl;
     form: FormGroup;

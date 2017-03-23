@@ -8,7 +8,7 @@ import { WebsocketService, Websocket, Notification, Device } from '../../shared/
   selector: 'overview',
   templateUrl: './overview.component.html'
 })
-export class DeviceOverviewComponent implements OnInit, OnDestroy {
+export class OverviewComponent implements OnInit, OnDestroy {
   private device: Device;
   private deviceSubscription: Subscription;
 

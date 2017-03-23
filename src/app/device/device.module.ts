@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from './../shared/shared.module';
 import { ConfigModule } from './config/config.module';
-import { DeviceHistoryModule } from './history/history.module';
+import { HistoryModule } from './history/history.module';
 import { OverviewModule } from './overview/overview.module';
 
 // test files
@@ -12,7 +12,7 @@ import { ChartTest } from './../device/overview/energymonitor/chart/section/test
     SharedModule,
     ConfigModule,
     OverviewModule,
-    DeviceHistoryModule
+    HistoryModule
   ],
   declarations: [
     ChartTest

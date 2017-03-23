@@ -56,9 +56,9 @@
   <div fxFlex.xs="100%" fxFlex.gt-sm="75%">
     <md-card class="single" fxLayout fxLayoutWrap="wrap">
       <md-card-content>
-        <soc-chart fxFlex="100%" [view]="view" [scheme]="colorScheme" [results]="historicData" gradient="true" [curve]="curve" xAxis="true"
+        <chart-soc fxFlex="100%" [view]="view" [scheme]="colorScheme" [results]="historicData" gradient="true" [curve]="curve" xAxis="true"
           yAxis="true" legend="true" [showXAxisLabel]="showXAxisLabel" showYAxisLabel="false" xAxisLabel="false" autoScale="false">
-        </soc-chart>
+        </chart-soc>
         <ngx-charts-area-chart fxFlex="100%" [view]="view" [scheme]="colorScheme" [results]="historicDataView" [curve]="curve" gradient="false"
           xAxis="false" yAxis="true" legend="true" showXAxisLabel="false" autoScale="false">
         </ngx-charts-area-chart>

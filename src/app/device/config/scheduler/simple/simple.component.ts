@@ -7,11 +7,11 @@ import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest } from '../../
 import { AbstractConfigForm } from '../../abstractconfigform';
 
 @Component({
-    selector: 'scheduler-simple',
+    selector: 'simple',
     templateUrl: './simple.component.html',
 })
 
-export class FormSchedulerSimpleComponent extends AbstractConfigForm {
+export class SimpleComponent extends AbstractConfigForm {
     schedulerForm: FormGroup;
 
     constructor(

@@ -1,18 +1,18 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from './../../shared/shared.module';
-import { DeviceOverviewEnergymonitorModule } from './energymonitor/energymonitor.module';
+import { EnergymonitorModule } from './energymonitor/energymonitor.module';
 import { EnergytableModule } from './energytable/energytable.module';
 
-import { DeviceOverviewComponent } from './overview.component';
+import { OverviewComponent } from './overview.component';
 
 @NgModule({
   imports: [
     SharedModule,
-    DeviceOverviewEnergymonitorModule,
+    EnergymonitorModule,
     EnergytableModule
   ],
   declarations: [
-    DeviceOverviewComponent
+    OverviewComponent
   ]
 })
 export class OverviewModule { }
