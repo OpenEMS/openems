@@ -14,7 +14,6 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   private device: Device;
   private deviceSubscription: Subscription;
   private dateString: string;
-  // private elementRef: NodeListOf<HTMLElement>[] = [];
   private clazzActive: string = "";
 
   constructor(
@@ -24,9 +23,6 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    //get all buttons
-    // this.elementRef.push(document.getElementsByTagName("button"));
-
     let date = new Date();
     this.dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
 
@@ -146,7 +142,8 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   ];
 
   private getDataToday() {
-    this.changeActiveOnButton(".btnToday");
+    this.clazzActive = "btnToday";
+    // this.changeActiveOnButton(".btnToday");
 
     if (this.device != null) {
       let date = new Date();
@@ -155,7 +152,7 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   }
 
   private getDataYesterday() {
-    this.changeActiveOnButton(".btnYesterday");
+    this.clazzActive = "btnYesterday";
 
     if (this.device != null) {
       let date = new Date();
@@ -166,37 +163,14 @@ export class DeviceHistoryComponent implements OnInit, OnDestroy {
   }
 
   private getDataLastWeek() {
-    this.changeActiveOnButton(".btnLastWeek");
+    this.clazzActive = "btnLastWeek";
   }
 
   private getDataLastMonth() {
-    this.changeActiveOnButton(".btnLastMonth");
+    this.clazzActive = "btnLastMonth";
   }
 
   private getDataLastYear() {
-    this.changeActiveOnButton(".btnLastYear");
-  }
-
-  private changeActiveOnButton(clazz: string) {
-    let element: HTMLButtonElement;
-
-    if (this.clazzActive != "") {
-      element = this.elementRef.nativeElement.querySelector(this.clazzActive);
-
-      if (element.classList.contains("active")) {
-        element.classList.remove("active");
-      }
-
-      if (!element.classList.contains("active")) {
-        element = this.elementRef.nativeElement.querySelector(clazz);
-
-        element.classList.add("active");
-      }
-    } else {
-      element = this.elementRef.nativeElement.querySelector(clazz);
-      element.classList.add("active");
-    }
-
-    this.clazzActive = clazz;
+    this.clazzActive = "btnLastYear";
   }
 }
