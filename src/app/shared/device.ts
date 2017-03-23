@@ -1,5 +1,6 @@
 import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import * as moment from 'moment';
 
 import { Notification } from './service/webapp.service';
 import { Websocket } from './service/websocket.service';
@@ -136,14 +137,11 @@ export class Device {
   /**
    * Send "query" message to websocket
    */
-  public query(fromDate: Date, toDate: Date, channels: { [thing: string]: string[] }) {
-    function toDateString(date: Date): string {
-      return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-    }
+  public query(fromDate: any, toDate: any, channels: { [thing: string]: string[] }) {
     let obj = {
       mode: "history",
-      fromDate: toDateString(fromDate),
-      toDate: toDateString(toDate),
+      fromDate: fromDate.format("YYYY-MM-DD"),
+      toDate: toDate.format("YYYY-MM-DD"),
       timezone: "GMT",
       channels: channels
     };

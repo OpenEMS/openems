@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, ElementRef, Renderer } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
 import * as d3shape from 'd3-shape';
+import * as moment from 'moment';
 
 import { WebsocketService, Device } from '../../shared/shared';
 
@@ -13,37 +14,35 @@ import { WebsocketService, Device } from '../../shared/shared';
 export class HistoryComponent implements OnInit, OnDestroy {
   private device: Device;
   private deviceSubscription: Subscription;
-  private dateString: string;
-  private clazzActive: string = "";
+  private activePeriod: string = null;
+  private dataSoc = [];
 
   constructor(
     private route: ActivatedRoute,
     private websocketService: WebsocketService,
-    private elementRef: ElementRef,
   ) { }
 
   ngOnInit() {
-    let date = new Date();
-    this.dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-
     this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
       if (device != null) {
+        // start with loading "today"
+        if (this.activePeriod == null) {
+          this.setPeriod("today");
+        }
+        // handle new data
         device.historicData.subscribe((newData) => {
           if (newData != null) {
             console.log("data", newData);
-            let historicData = {
-              name: "ess0/Soc",
+            let dataSoc = {
+              name: "Ladezustand",
               series: []
             }
             for (let newDatum of newData["data"]) {
-              if (newDatum["channels"]["ess0"]["Soc"] != null) {
-                historicData.series.push({ name: new Date(newDatum["time"]), value: newDatum["channels"]["ess0"]["Soc"] });
-              } else {
-                historicData.series.push({ name: new Date(newDatum["time"]), value: 0 });
-              }
+              let soc = newDatum["channels"]["ess0"]["Soc"] != null ? newDatum["channels"]["ess0"]["Soc"] : 0;
+              dataSoc.series.push({ name: moment(newDatum["time"]), value: soc });
             }
-            this.historicData = [historicData];
+            this.dataSoc = [dataSoc];
           }
         })
       }
@@ -57,18 +56,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  query(dateString: string) {
-    if (this.device != null) {
-      let date = new Date(dateString);
-      this.device.query(date, date, { ess0: ["Soc"] });
-    }
-  }
-
   view: any[] = [700, 400];
-
-  // options
-  xAxisLabel = 'Country';
-  yAxisLabel = 'Population';
   curve = d3shape.curveBasis;
 
   colorScheme = {
@@ -141,40 +129,37 @@ export class HistoryComponent implements OnInit, OnDestroy {
     }
   ];
 
-  private getDataToday() {
-    this.clazzActive = "btnToday";
-    // this.changeActiveOnButton(".btnToday");
-
-    if (this.device != null) {
-      let date = new Date();
-      this.device.query(date, date, { ess0: ["Soc"] });
+  private setPeriod(period: string) {
+    if (!this.device) {
+      period = null;
     }
-  }
-
-  private getDataYesterday() {
-    this.clazzActive = "btnYesterday";
-
-    if (this.device != null) {
-      let date = new Date();
-      let yesterday = date;
-      yesterday.setDate(date.getDate() - 1);
-      this.device.query(yesterday, yesterday, { ess0: ["Soc"] });
+    this.activePeriod = period;
+    this.historicData = [];
+    let fromDate;
+    let toDate;
+    switch (period) {
+      case "today":
+        fromDate = toDate = moment();
+        break;
+      case "yesterday":
+        fromDate = toDate = moment().subtract(1, "days");
+        break;
+      case "lastWeek":
+        fromDate = moment().subtract(1, "weeks");
+        toDate = moment();
+        break;
+      case "lastMonth":
+        fromDate = moment().subtract(1, "months");
+        toDate = moment();
+        break;
+      case "lastYear":
+        fromDate = moment().subtract(1, "years");
+        toDate = moment();
+        break;
+      default:
+        this.activePeriod = null;
+        return;
     }
-  }
-
-  private getDataLastWeek() {
-    this.clazzActive = "btnLastWeek";
-  }
-
-  private getDataLastMonth() {
-    this.clazzActive = "btnLastMonth";
-  }
-
-  private getDataLastYear() {
-    this.clazzActive = "btnLastYear";
-  }
-
-  private setOtherTimespan() {
-    this.clazzActive = "btnOtherTimespan";
+    this.device.query(fromDate, toDate, { ess0: ["Soc"] });
   }
 }
