@@ -9,7 +9,7 @@ import { WebsocketService, WebappService, Device } from '../../../shared/shared'
   selector: 'more',
   templateUrl: './more.component.html'
 })
-export class DeviceConfigMoreComponent implements OnInit {
+export class MoreComponent implements OnInit {
 
   private device: Device;
   private deviceSubscription: Subscription;

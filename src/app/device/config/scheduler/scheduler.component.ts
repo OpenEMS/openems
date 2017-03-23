@@ -10,7 +10,7 @@ import { AbstractConfig, ConfigureRequest } from '../abstractconfig';
   selector: 'scheduler',
   templateUrl: './scheduler.component.html'
 })
-export class DeviceConfigSchedulerComponent extends AbstractConfig {
+export class SchedulerComponent extends AbstractConfig {
 
   private form: AbstractControl;
   configForm: FormGroup;

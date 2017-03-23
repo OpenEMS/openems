@@ -12,10 +12,10 @@ interface Day {
 }
 
 @Component({
-  selector: 'scheduler-weektime',
+  selector: 'weektime',
   templateUrl: './weektime.component.html',
 })
-export class FormSchedulerWeekTimeComponent extends AbstractConfigForm {
+export class WeekTimeComponent extends AbstractConfigForm {
   configForm: FormGroup;
   // formBuilder: FormBuilder;
   config: FormGroup;

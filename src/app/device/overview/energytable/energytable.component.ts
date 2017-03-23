@@ -6,7 +6,7 @@ import { Device } from '../../../shared/shared';
   selector: 'energytable',
   templateUrl: './energytable.component.html'
 })
-export class DeviceOverviewEnergytableComponent {
+export class EnergytableComponent {
 
   @Input()
   private device: Device;

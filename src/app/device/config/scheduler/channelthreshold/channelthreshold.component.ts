@@ -7,11 +7,11 @@ import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest } from '../../
 import { AbstractConfigForm } from '../../abstractconfigform';
 
 @Component({
-    selector: 'scheduler-channelthreshold',
+    selector: 'channelthreshold',
     templateUrl: './channelthreshold.component.html',
 })
 
-export class FormSchedulerChannelthresholdComponent extends AbstractConfigForm {
+export class ChannelthresholdComponent extends AbstractConfigForm {
     schedulerForm: FormGroup;
 
     constructor(

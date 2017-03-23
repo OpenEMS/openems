@@ -24,7 +24,7 @@ import { StorageSectionComponent } from './chart/section/storagesection.componen
     EnergymonitorComponent
   ]
 })
-export class DeviceOverviewEnergymonitorModule { }
+export class EnergymonitorModule { }
 
 
 
