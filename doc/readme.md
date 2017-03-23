@@ -160,7 +160,8 @@ on error:
 ```
 {
 	currentdata: [{ 
-		channel, value
+		channel: ...,
+		value: ...
     }]
 }
 ```
@@ -208,6 +209,43 @@ on error:
 	}, notification: {
 		type: "success" | "error" | "warning" | "info",
 		message: "..."
+	}
+}
+```
+
+### [3.4] Query history data
+
+[3.4.1]
+```
+{
+	query: {
+		mode: "history",
+		fromDate: "01.01.2017",
+		toDate: "01.01.2017", 
+		timezone: "GMT",
+		channels: {
+			thing: [channel] 
+		}
+	}
+}
+```
+
+[3.4.2]
+```
+{
+    queryreply: {
+    	mode: "history",
+		fromDate: "2017-01-01",
+		toDate: "2017-01-01", 
+		timezone: "GMT",
+		data: [{
+			time: ...,
+			channels: {
+				'thing': {
+					'channel': 'value'
+				} 
+			}
+		}]
 	}
 }
 ```

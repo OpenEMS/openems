@@ -21,6 +21,12 @@
 package io.openems.impl.persistence.influxdb;
 
 import java.net.Inet4Address;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -29,8 +35,16 @@ import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
+import org.influxdb.dto.Query;
+import org.influxdb.dto.QueryResult;
+import org.influxdb.dto.QueryResult.Result;
+import org.influxdb.dto.QueryResult.Series;
 
 import com.google.common.collect.HashMultimap;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
@@ -38,11 +52,15 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.persistence.Persistence;
+import io.openems.api.exception.OpenemsException;
+import io.openems.api.exception.ReflectionException;
+import io.openems.api.persistence.QueryablePersistence;
+import io.openems.core.Address;
 import io.openems.core.Databus;
+import io.openems.core.utilities.JsonUtils;
 
 @ThingInfo(title = "InfluxDB Persistence", description = "Persists data in an InfluxDB time-series database.")
-public class InfluxdbPersistence extends Persistence implements ChannelUpdateListener {
+public class InfluxdbPersistence extends QueryablePersistence implements ChannelUpdateListener {
 
 	/*
 	 * Config
@@ -176,11 +194,118 @@ public class InfluxdbPersistence extends Persistence implements ChannelUpdateLis
 		try {
 			influxdb.createDatabase(DB_NAME);
 		} catch (RuntimeException e) {
-			log.error("Unable to connect to InfluxDB: ", e);
+			log.error("Unable to connect to InfluxDB: " + e.getCause());
 			return Optional.empty();
 		}
 
 		this._influxdb = Optional.of(influxdb);
 		return this._influxdb;
+	}
+
+	/**
+	 *
+	 * <pre>
+	 * Returns:
+	 * [{
+	 *   timestamp: "2017-03-21T08:55:20Z",
+	 *   channels: {
+	 *     'thing': {
+	 *       'channel': 'value'
+	 *     }
+	 *   }
+	 * }]
+	}
+	 * </pre>
+	 */
+	@Override
+	public JsonArray query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels) throws OpenemsException {
+		// Prepare query string
+		StringBuilder query = new StringBuilder("SELECT ");
+		query.append(toChannelAddressList(channels));
+		query.append(" FROM data WHERE time > ");
+		query.append(String.valueOf(fromDate.toEpochSecond()));
+		query.append("s");
+		query.append(" AND time < ");
+		query.append(String.valueOf(toDate.plusDays(1).toEpochSecond()));
+		query.append("s");
+		query.append(" GROUP BY time(1h)");
+		log.info(query.toString());
+		// Prepare DB connection
+		Optional<InfluxDB> _influxdb = getInfluxDB();
+		if (!_influxdb.isPresent()) {
+			throw new OpenemsException("Unable to connect to InfluxDB.");
+		}
+		InfluxDB influxDB = _influxdb.get();
+
+		// Parse result
+		QueryResult queryResult = influxDB.query(new Query(query.toString(), DB_NAME), TimeUnit.MILLISECONDS);
+		if (queryResult.hasError()) {
+			throw new OpenemsException("InfluxDB query error: " + queryResult.getError());
+		}
+
+		JsonArray j = new JsonArray();
+		for (Result result : queryResult.getResults()) {
+			List<Series> seriess = result.getSeries();
+			if (seriess != null) {
+				for (Series series : seriess) {
+					// create thing/channel index
+					ArrayList<Address> addressIndex = new ArrayList<>();
+					for (String column : series.getColumns()) {
+						if (column.equals("time")) {
+							continue;
+						}
+						addressIndex.add(Address.fromString(column));
+					}
+					// first: create empty timestamp objects
+					for (List<Object> values : series.getValues()) {
+						JsonObject jTimestamp = new JsonObject();
+						// get timestamp
+						Instant timestampInstant = Instant.ofEpochMilli((long) ((Double) values.get(0)).doubleValue());
+						ZonedDateTime timestamp = ZonedDateTime.ofInstant(timestampInstant, fromDate.getZone());
+						String timestampString = timestamp.format(DateTimeFormatter.ISO_INSTANT);
+						jTimestamp.addProperty("time", timestampString);
+						// add empty channels by copying "channels" parameter
+						JsonObject jChannels = new JsonObject();
+						for (Entry<String, JsonElement> entry : channels.entrySet()) {
+							String thingId = entry.getKey();
+							JsonObject jThing = new JsonObject();
+							JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
+							for (JsonElement channelElement : channelIds) {
+								String channelId = JsonUtils.getAsString(channelElement);
+								jThing.add(channelId, JsonNull.INSTANCE);
+							}
+							jChannels.add(thingId, jThing);
+						}
+						jTimestamp.add("channels", jChannels);
+						j.add(jTimestamp);
+					}
+					// then: add all data
+					for (int columnIndex = 1; columnIndex < series.getColumns().size(); columnIndex++) {
+						for (int timeIndex = 0; timeIndex < series.getValues().size(); timeIndex++) {
+							Double value = (Double) series.getValues().get(timeIndex).get(columnIndex);
+							Address address = addressIndex.get(columnIndex - 1);
+							j.get(timeIndex).getAsJsonObject().get("channels").getAsJsonObject()
+									.get(address.getThingId()).getAsJsonObject()
+									.addProperty(address.getChannelId(), value);
+						}
+					}
+				}
+			}
+		}
+		return j;
+	}
+
+	private String toChannelAddressList(JsonObject channels) throws ReflectionException {
+		ArrayList<String> channelAddresses = new ArrayList<>();
+		for (Entry<String, JsonElement> entry : channels.entrySet()) {
+			String thingId = entry.getKey();
+			JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
+			for (JsonElement channelElement : channelIds) {
+				String channelId = JsonUtils.getAsString(channelElement);
+				channelAddresses
+						.add("MEAN(\"" + thingId + "/" + channelId + "\") AS \"" + thingId + "/" + channelId + "\"");
+			}
+		}
+		return String.join(", ", channelAddresses);
 	}
 }
