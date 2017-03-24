@@ -7,7 +7,7 @@
     <ng-container *ngFor="let thing of device.data | async | keys">
 
       <!-- Storage -->
-      <div *ngIf="device.summary.storage.things[thing.key]" fxFlex>
+      <div *ngIf="device.things.storage[thing.key]" fxFlex>
         <md-card class="single">
           <md-card-header>
             <!--<md-icon md-card-avatar>play</md-icon>-->
@@ -63,7 +63,7 @@
       </div>
 
       <!-- Grid -->
-      <div *ngIf="device.summary.grid.things[thing.key]" fxFlex>
+      <div *ngIf="device.things.grid[thing.key]" fxFlex>
         <md-card class="single">
           <md-card-header>
             <img style="height: 100%" src="assets/img/grid.png" md-card-avatar/>
@@ -120,7 +120,7 @@
       </div>
 
       <!-- Production -->
-      <div *ngIf="device.summary.production.things[thing.key]" fxFlex>
+      <div *ngIf="device.things.production[thing.key]" fxFlex>
         <md-card class="single">
           <md-card-header>
             <img style="height: 100%" src="assets/img/production.png" md-card-avatar/>
