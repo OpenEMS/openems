@@ -1,7 +1,3 @@
-<md-input-container>
-  <input #date [value]="dateString" placeholder="Date" type="text" mdInput>
-</md-input-container>
-<button (click)="query(date.value)">Query</button>
 <div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
   <!--{{ device.historicData | async | json }}-->
   <div fxFlex.xs="100%" fxFlex.gt-sm="25%">
@@ -15,25 +11,25 @@
           <button md-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold">
             Zeitraum
           </button>
-          <button md-raised-button [class.active]="clazzActive=='btnToday'" (click)="getDataToday()" fxFlex="100%">
+          <button md-raised-button [class.active]="activePeriod == 'today'" (click)="setPeriod('today')" fxFlex="100%">
             Heute
           </button>
-          <button md-raised-button [class.active]="clazzActive=='btnYesterday'" (click)="getDataYesterday()" fxFlex="100%">
+          <button md-raised-button [class.active]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%">
             Gestern
           </button>
-          <button md-raised-button [class.active]="clazzActive=='btnLastWeek'" (click)="getDataLastWeek()" fxFlex="100%">
+          <button md-raised-button [class.active]="activePeriod == 'lastWeek'" (click)="setPeriod('lastWeek')" fxFlex="100%">
             letzte Woche
           </button>
-          <button md-raised-button [class.active]="clazzActive=='btnLastMonth'" (click)="getDataLastMonth()" fxFlex="100%">
+          <button md-raised-button [class.active]="activePeriod == 'lastMonth'" (click)="setPeriod('lastMonth')" fxFlex="100%">
             letzten Monat
           </button>
-          <button md-raised-button [class.active]="clazzActive=='btnLastYear'" (click)="getDataLastYear()" fxFlex="100%">
+          <button md-raised-button [class.active]="activePeriod == 'lastYear'" (click)="setPeriod('lastYear')" fxFlex="100%">
             letztes Jahr
           </button>
-          <button [class.active]="clazzActive=='btnOtherTimespan'" (click)="setOtherTimespan()" md-raised-button fxFlex="100%" style="margin-bottom: 20px">
+          <button [class.active]="activePeriod == 'otherTimespan'" (click)="setOtherTimespan()" md-raised-button fxFlex="100%" style="margin-bottom: 20px">
             Anderer Zeitraum
           </button>
-          <div *ngIf="clazzActive == 'btnOtherTimespan'" fxFlex="100%">
+          <div *ngIf="activePeriod == 'otherTimespan'" fxFlex="100%">
             <div fxFlex="100%" fxLayout>
               <label fxFlex="75px" style="font-size: 14px;">Datum</label>
               <label fxFlex="50px" style="font-size: 14px;margin-bottom: 20px;">von:</label>
@@ -55,13 +51,17 @@
   </div>
   <div fxFlex.xs="100%" fxFlex.gt-sm="75%">
     <md-card class="single" fxLayout fxLayoutWrap="wrap">
-      <md-card-content>
-        <chart-soc fxFlex="100%" [view]="view" [scheme]="colorScheme" [results]="historicData" gradient="true" [curve]="curve" xAxis="true"
-          yAxis="true" legend="true" [showXAxisLabel]="showXAxisLabel" showYAxisLabel="false" xAxisLabel="false" autoScale="false">
-        </chart-soc>
-        <ngx-charts-area-chart fxFlex="100%" [view]="view" [scheme]="colorScheme" [results]="historicDataView" [curve]="curve" gradient="false"
-          xAxis="false" yAxis="true" legend="true" showXAxisLabel="false" autoScale="false">
-        </ngx-charts-area-chart>
+      <md-card-content fxLayout fxLayoutWrap="wrap">
+        <div fxFlex="100%" style="height: 250px">
+          <chart-soc fxFlex="100%" [scheme]="colorScheme" [results]="dataSoc" gradient="true" [curve]="curve" xAxis="false" yAxis="false"
+            legend="true" autoScale="false">
+          </chart-soc>
+        </div>
+        <div fxFlex="100%" style="height: 400px">
+          <ngx-charts-area-chart fxFlex="100%" [scheme]="colorScheme" [results]="historicDataView" [curve]="curve" gradient="false"
+            xAxis="false" yAxis="true" legend="true" showXAxisLabel="false" autoScale="false">
+          </ngx-charts-area-chart>
+        </div>
       </md-card-content>
     </md-card>
   </div>

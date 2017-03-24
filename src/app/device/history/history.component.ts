@@ -14,8 +14,9 @@ import { WebsocketService, Device } from '../../shared/shared';
 export class HistoryComponent implements OnInit, OnDestroy {
   private device: Device;
   private deviceSubscription: Subscription;
-  private dateString: string;
-  private clazzActive: string = "";
+  private activePeriod: string = null;
+  private dataSoc = [];
+  private historicData = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -23,37 +24,42 @@ export class HistoryComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    let date = new Date();
-    this.dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-
     this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
       if (device != null) {
         device.socData.subscribe((newData) => {
           if (newData != null) {
             console.log("data", newData);
-            let socData = {
-              name: "ess0/Soc",
-              series: []
+            // start with loading "today"
+            if (this.activePeriod == null) {
+              this.setPeriod("today");
             }
-            let socActivepowerData = {
-              name: "ess0/ActivePower",
-              series: []
-            }
-            for (let newDatum of newData["data"]) {
-              if (newDatum["channels"]["ess0"]["Soc"] != null) {
-                socData.series.push({ name: moment(newDatum["time"]), value: newDatum["channels"]["ess0"]["Soc"] });
-              } else {
-                socData.series.push({ name: moment(newDatum["time"]), value: 0 });
+            // handle new data
+            device.socData.subscribe((newData) => {
+              if (newData != null) {
+                console.log("data", newData);
+                let dataSoc = {
+                  name: "Ladezustand",
+                  series: []
+                }
+                let socActivepowerData = {
+                  name: "ess0/ActivePower",
+                  series: []
+                }
+                for (let newDatum of newData["data"]) {
+                  let soc = newDatum["channels"]["ess0"]["Soc"] != null ? newDatum["channels"]["ess0"]["Soc"] : 0;
+                  dataSoc.series.push({ name: moment(newDatum["time"]), value: soc });
+
+                  if (newDatum["channels"]["ess0"]["ActivePower"] != null) {
+                    socActivepowerData.series.push({ name: new Date(newDatum["time"]), value: newDatum["channels"]["ess0"]["ActivePower"] });
+                  } else {
+                    socActivepowerData.series.push({ name: new Date(newDatum["time"]), value: 0 });
+                  }
+                }
+                this.dataSoc = [dataSoc];
+                this.socActivepowerData = [socActivepowerData];
               }
-              if (newDatum["channels"]["ess0"]["ActivePower"] != null) {
-                socActivepowerData.series.push({ name: new Date(newDatum["time"]), value: newDatum["channels"]["ess0"]["ActivePower"] });
-              } else {
-                socActivepowerData.series.push({ name: new Date(newDatum["time"]), value: 0 });
-              }
-            }
-            this.socData = [socData];
-            this.socActivepowerData = [socActivepowerData];
+            })
           }
         })
       }
@@ -75,10 +81,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
   }
 
   view: any[] = [700, 400];
-
-  // options
-  xAxisLabel = 'Country';
-  yAxisLabel = 'Population';
   curve = d3shape.curveBasis;
 
   colorScheme = {
@@ -151,39 +153,57 @@ export class HistoryComponent implements OnInit, OnDestroy {
     }
   ];
 
-  private getDataToday() {
-    this.clazzActive = "btnToday";
+  // private getDataToday() {
+  //   this.clazzActive = "btnToday";
 
-    if (this.device != null) {
-      let date = new Date();
-      this.device.query(date, date, { ess0: ["Soc", "ActivePower"] });
+  //   if (this.device != null) {
+  //     let date = new Date();
+  //     this.device.query(date, date, { ess0: ["Soc", "ActivePower"] });
+  //   }
+  // }
+
+  // private getDataYesterday() {
+  //   this.clazzActive = "btnYesterday";
+
+  //   if (this.device != null) {
+  //     let date = new Date();
+  //     let yesterday = date;
+  //     yesterday.setDate(date.getDate() - 1);
+  //     this.device.query(yesterday, yesterday, { ess0: ["Soc", "ActivePower"] });
+  //   }
+  // }
+
+  private setPeriod(period: string) {
+    if (!this.device) {
+      period = null;
     }
-  }
-
-  private getDataYesterday() {
-    this.clazzActive = "btnYesterday";
-
-    if (this.device != null) {
-      let date = new Date();
-      let yesterday = date;
-      yesterday.setDate(date.getDate() - 1);
-      this.device.query(yesterday, yesterday, { ess0: ["Soc", "ActivePower"] });
+    this.activePeriod = period;
+    this.historicData = [];
+    let fromDate;
+    let toDate;
+    switch (period) {
+      case "today":
+        fromDate = toDate = moment();
+        break;
+      case "yesterday":
+        fromDate = toDate = moment().subtract(1, "days");
+        break;
+      case "lastWeek":
+        fromDate = moment().subtract(1, "weeks");
+        toDate = moment();
+        break;
+      case "lastMonth":
+        fromDate = moment().subtract(1, "months");
+        toDate = moment();
+        break;
+      case "lastYear":
+        fromDate = moment().subtract(1, "years");
+        toDate = moment();
+        break;
+      default:
+        this.activePeriod = null;
+        return;
     }
-  }
-
-  private getDataLastWeek() {
-    this.clazzActive = "btnLastWeek";
-  }
-
-  private getDataLastMonth() {
-    this.clazzActive = "btnLastMonth";
-  }
-
-  private getDataLastYear() {
-    this.clazzActive = "btnLastYear";
-  }
-
-  private setOtherTimespan() {
-    this.clazzActive = "btnOtherTimespan";
+    this.device.query(fromDate, toDate, { ess0: ["Soc", "ActivePower"] });
   }
 }

@@ -3,7 +3,7 @@
     <md-icon md-card-avatar>timeline</md-icon>
     <md-card-title>Energietabelle</md-card-title>
   </md-card-header>
-  <md-card-content *ngIf="device">
+  <md-card-content>
     <ng-container *ngFor="let thing of device.data | async | keys">
 
       <!-- Storage -->
