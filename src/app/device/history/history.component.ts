@@ -17,7 +17,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private activePeriod: string = null;
   private dataSoc = [];
   private dataEnergy = [];
-  private storageActivepowerData = [];
+  private dateToday: Date = new Date();
 
   constructor(
     private route: ActivatedRoute,
@@ -75,7 +75,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
    * later: needed data for energychart.component.ts
    * current: storage ActivePower is shown on energychart.component.ts
    */
-  // private historicData = [
+  // private dataEnergy = [
   //   {
   //     "name": "Eigene PV-Produktion",
   //     "series": [

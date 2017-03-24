@@ -31,15 +31,15 @@
           </button>
           <div *ngIf="activePeriod == 'otherTimespan'" style="margin-top: 20px" fxFlex="100%">
             <div fxFlex="100%" style="margin-bottom: 20px" fxLayout>
-              <label fxFlex="75px" style="font-size: 14px;margin-top: 20px">Datum</label>
+              <label fxFlex="75px" style="font-size: 14px;margin-top: 20px">Zeitraum</label>
               <md-input-container>
-                <input #from type="date" placeholder="Datum von" style="height: auto" mdInput/>
+                <input #from type="date" [value]="dateToday | date:'yyyy-MM-dd'" placeholder="Datum von" style="height: auto" mdInput/>
               </md-input-container>
             </div>
             <div fxFlex="100%" style="margin-bottom: 20px" fxLayout>
               <div fxFlex="75px"></div>
               <md-input-container>
-                <input #to type="date" placeholder="Datum bis" style="height: auto" mdInput />
+                <input #to type="date" [value]="dateToday | date:'yyyy-MM-dd'" placeholder="Datum bis" style="height: auto" mdInput />
               </md-input-container>
             </div>
             <div fxFlex="100%" fxLayout>
