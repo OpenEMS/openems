@@ -16,7 +16,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private deviceSubscription: Subscription;
   private activePeriod: string = null;
   private dataSoc = [];
-  private historicData = [];
+  private dataEnergy = [];
   private storageActivepowerData = [];
 
   constructor(
@@ -32,26 +32,25 @@ export class HistoryComponent implements OnInit, OnDestroy {
         if (this.activePeriod == null) {
           this.setPeriod("today");
         }
-        device.socData.subscribe((newData) => {
+        device.historyData.subscribe((newData) => {
           if (newData != null) {
-            console.log("data", newData);
             let dataSoc = {
               name: "Ladezustand",
               series: []
             }
-            let storageActivepowerData = {
-              name: "Ausgabeleistung",
+            let dataEnergy = {
+              name: "Erzeugung",
               series: []
             }
-            for (let newDatum of newData["data"]) {
-              let soc = newDatum["channels"]["ess0"]["Soc"] != null ? newDatum["channels"]["ess0"]["Soc"] : 0;
-              dataSoc.series.push({ name: moment(newDatum["time"]), value: soc });
-
-              let storageActivePower = newDatum["channels"]["ess0"]["ActivePower"] != null ? newDatum["channels"]["ess0"]["ActivePower"] : 0;
-              storageActivepowerData.series.push({ name: moment(newDatum["time"]), value: storageActivePower });
+            for (let newDatum of newData) {
+              let timestamp = moment(newDatum["time"]);
+              let soc = newDatum.summary.storage.soc != null ? newDatum.summary.storage.soc : 0;
+              dataSoc.series.push({ name: timestamp, value: soc });
+              let production = newDatum.summary.production.activePower != null ? newDatum.summary.production.activePower : 0;
+              dataEnergy.series.push({ name: timestamp, value: production });
             }
             this.dataSoc = [dataSoc];
-            this.storageActivepowerData = [storageActivepowerData];
+            this.dataEnergy = [dataEnergy];
           }
         })
       }
@@ -142,7 +141,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
       period = null;
     }
     this.activePeriod = period;
-    this.historicData = [];
+    this.dataEnergy = this.dataSoc = [];
     let fromDate;
     let toDate;
     switch (period) {
@@ -172,6 +171,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
         this.activePeriod = null;
         return;
     }
-    this.device.query(fromDate, toDate, { ess0: ["Soc", "ActivePower"] });
+    this.device.query(fromDate, toDate);
   }
 }
