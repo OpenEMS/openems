@@ -21,6 +21,7 @@
 package io.openems.core.utilities.websocket;
 
 import java.io.IOException;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -405,10 +406,15 @@ public class WebsocketHandler {
 				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
 				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jQuery, "toDate", timezone);
 				JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
-				// TODO: calculate resolution
+				// Calculate resolution
+				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
+				int resolution = 60 * 60; // 60 Minutes
+				if (days > 6) {
+					resolution = 24 * 60 * 60; // 60 Minutes
+				}
 				JsonArray jData = null;
 				for (QueryablePersistence queryablePersistence : thingRepository.getQueryablePersistences()) {
-					jData = queryablePersistence.query(fromDate, toDate, channels);
+					jData = queryablePersistence.query(fromDate, toDate, channels, resolution);
 					if (jData != null) {
 						break;
 					}

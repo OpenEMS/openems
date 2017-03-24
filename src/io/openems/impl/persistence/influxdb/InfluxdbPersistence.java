@@ -202,23 +202,9 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 		return this._influxdb;
 	}
 
-	/**
-	 *
-	 * <pre>
-	 * Returns:
-	 * [{
-	 *   timestamp: "2017-03-21T08:55:20Z",
-	 *   channels: {
-	 *     'thing': {
-	 *       'channel': 'value'
-	 *     }
-	 *   }
-	 * }]
-	}
-	 * </pre>
-	 */
 	@Override
-	public JsonArray query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels) throws OpenemsException {
+	public JsonArray query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution)
+			throws OpenemsException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
 		query.append(toChannelAddressList(channels));
@@ -228,7 +214,9 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 		query.append(" AND time < ");
 		query.append(String.valueOf(toDate.plusDays(1).toEpochSecond()));
 		query.append("s");
-		query.append(" GROUP BY time(1h)");
+		query.append(" GROUP BY time(");
+		query.append(resolution);
+		query.append("s)");
 		log.info(query.toString());
 		// Prepare DB connection
 		Optional<InfluxDB> _influxdb = getInfluxDB();

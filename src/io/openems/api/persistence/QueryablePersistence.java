@@ -29,6 +29,30 @@ import io.openems.api.exception.OpenemsException;
 
 public abstract class QueryablePersistence extends Persistence {
 
-	public abstract JsonArray query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels)
+	/**
+	 *
+	 *
+	 * @param fromDate
+	 * @param toDate
+	 * @param channels
+	 * @param resolution
+	 *            in seconds
+	 * @return
+	 * @throws OpenemsException
+	 * 
+	 *             <pre>
+	 * Returns:
+	 * [{
+	 *   timestamp: "2017-03-21T08:55:20Z",
+	 *   channels: {
+	 *     'thing': {
+	 *       'channel': 'value'
+	 *     }
+	 *   }
+	 * }]
+	}
+	 *             </pre>
+	 */
+	public abstract JsonArray query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution)
 			throws OpenemsException;
 }
