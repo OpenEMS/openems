@@ -32,26 +32,26 @@ export class HistoryComponent implements OnInit, OnDestroy {
         if (this.activePeriod == null) {
           this.setPeriod("today");
         }
-        device.socData.subscribe((newData) => {
+        device.historyData.subscribe((newData) => {
           if (newData != null) {
-            console.log("data", newData);
             let dataSoc = {
               name: "Ladezustand",
               series: []
             }
-            let storageActivepowerData = {
-              name: "Ausgabeleistung",
-              series: []
-            }
-            for (let newDatum of newData["data"]) {
-              let soc = newDatum["channels"]["ess0"]["Soc"] != null ? newDatum["channels"]["ess0"]["Soc"] : 0;
+            // let storageActivepowerData = {
+            //   name: "Ausgabeleistung",
+            //   series: []
+            // }
+            for (let newDatum of newData) {
+              console.log(newDatum);
+              let soc = newDatum.summary.storage.soc != null ? newDatum.summary.storage.soc : 0;
               dataSoc.series.push({ name: moment(newDatum["time"]), value: soc });
 
-              let storageActivePower = newDatum["channels"]["ess0"]["ActivePower"] != null ? newDatum["channels"]["ess0"]["ActivePower"] : 0;
-              storageActivepowerData.series.push({ name: moment(newDatum["time"]), value: storageActivePower });
+              // let storageActivePower = newDatum["channels"]["ess0"]["ActivePower"] != null ? newDatum["channels"]["ess0"]["ActivePower"] : 0;
+              // storageActivepowerData.series.push({ name: moment(newDatum["time"]), value: storageActivePower });
             }
             this.dataSoc = [dataSoc];
-            this.storageActivepowerData = [storageActivepowerData];
+            // this.storageActivepowerData = [storageActivepowerData];
           }
         })
       }
@@ -173,7 +173,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
         this.activePeriod = null;
         return;
     }
-    console.log(fromDate, toDate);
-    this.device.query(fromDate, toDate, { ess0: ["Soc", "ActivePower"] });
+    console.log("Start query", performance.now());
+    this.device.query(fromDate, toDate);
   }
 }
