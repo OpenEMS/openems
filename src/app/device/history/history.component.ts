@@ -18,6 +18,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private dataSoc = [];
   private historicData = [];
   private storageActivepowerData = [];
+  private dateFrom: Date = null;
+  private dateTo: Date = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -40,7 +42,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
               series: []
             }
             let storageActivepowerData = {
-              name: "ess0/ActivePower",
+              name: "Ausgabeleistung",
               series: []
             }
             for (let newDatum of newData["data"]) {
@@ -62,13 +64,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
     this.deviceSubscription.unsubscribe();
     if (this.device) {
       this.device.unsubscribe();
-    }
-  }
-
-  query(dateString: string) {
-    if (this.device != null) {
-      let date = new Date(dateString);
-      this.device.query(date, date, { ess0: ["Soc", "ActivePower"] });
     }
   }
 
@@ -134,6 +129,22 @@ export class HistoryComponent implements OnInit, OnDestroy {
   //   }
   // ];
 
+  private setOtherTimespan() {
+    this.activePeriod = "otherTimespan";
+  }
+
+  private setTimespan(from: any, to: any) {
+    this.dateFrom = from;
+    this.dateTo = to;
+
+    if (from == "" && to == "") {
+      this.dateFrom = null;
+      this.dateTo = null;
+    }
+
+    this.setPeriod('otherTimespan');
+  }
+
   private setPeriod(period: string) {
     if (!this.device) {
       period = null;
@@ -160,6 +171,12 @@ export class HistoryComponent implements OnInit, OnDestroy {
       case "lastYear":
         fromDate = moment().subtract(1, "years");
         toDate = moment();
+        break;
+      case "otherTimespan":
+        if (this.dateFrom != null && this.dateTo != null) {
+          fromDate = this.dateFrom;
+          toDate = this.dateTo;
+        }
         break;
       default:
         this.activePeriod = null;

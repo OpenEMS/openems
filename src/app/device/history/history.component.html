@@ -30,17 +30,19 @@
             Anderer Zeitraum
           </button>
           <div *ngIf="activePeriod == 'otherTimespan'" fxFlex="100%">
-            <div fxFlex="100%" fxLayout>
-              <label fxFlex="75px" style="font-size: 14px;">Datum</label>
-              <label fxFlex="50px" style="font-size: 14px;margin-bottom: 20px;">von:</label>
+            <div fxFlex="100%" style="margin-bottom: 20px" fxLayout>
+              <label fxFlex="50px" style="font-size: 14px;">Datum</label>
+              <label fxFlex="40px" style="font-size: 14px;">von:</label>
+              <input #from type="date" style="height: auto" />
+            </div>
+            <div fxFlex="100%" style="margin-bottom: 20px" fxLayout>
+              <div fxFlex="50px"></div>
+              <label fxFlex="40px" style="font-size: 14px;">bis:</label>
+              <input #to type="date" style="height: auto" />
             </div>
             <div fxFlex="100%" fxLayout>
-              <div fxFlex="75px"></div>
-              <label fxFlex="50px" style="font-size: 14px;margin-bottom: 20px">bis:</label>
-            </div>
-            <div fxFlex="100%" fxLayout>
-              <div fxFlex="75px"></div>
-              <button md-raised-button style="font-size: 14px">
+              <div fxFlex="50px"></div>
+              <button md-raised-button style="font-size: 14px" (click)="setTimespan(from.value, to.value)">
                 Los!
               </button>
             </div>
