@@ -133,7 +133,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
   private setTimespan(from: any, to: any) {
     if (from != "" || to != "") {
-      console.log(from, to);
       this.setPeriod('otherTimespan', from, to);
     }
   }
@@ -173,7 +172,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
         this.activePeriod = null;
         return;
     }
-    console.log(fromDate, toDate);
     this.device.query(fromDate, toDate, { ess0: ["Soc", "ActivePower"] });
   }
 }

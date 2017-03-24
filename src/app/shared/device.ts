@@ -138,11 +138,14 @@ export class Device {
    * Send "query" message to websocket
    */
   public query(fromDate: any, toDate: any, channels: { [thing: string]: string[] }) {
+    let offset = new Date().getTimezoneOffset();
+    offset = offset * 60;
+
     let obj = {
       mode: "history",
       fromDate: fromDate.format("YYYY-MM-DD"),
       toDate: toDate.format("YYYY-MM-DD"),
-      timezone: "GMT",
+      timezone: offset,
       channels: channels
     };
     console.log(obj);
