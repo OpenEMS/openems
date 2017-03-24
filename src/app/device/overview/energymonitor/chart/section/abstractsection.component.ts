@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import * as d3 from 'd3';
 
-import { DeviceOverviewEnergytableComponent } from '../../../energytable/energytable.component';
+import { EnergytableComponent } from '../../../energytable/energytable.component';
 import { Device } from '../../../../../shared/shared';
 
 export class SectionValue {

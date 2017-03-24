@@ -17,6 +17,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private activePeriod: string = null;
   private dataSoc = [];
   private historicData = [];
+  private storageActivepowerData = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -27,39 +28,30 @@ export class HistoryComponent implements OnInit, OnDestroy {
     this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
       if (device != null) {
+        // start with loading "today"
+        if (this.activePeriod == null) {
+          this.setPeriod("today");
+        }
         device.socData.subscribe((newData) => {
           if (newData != null) {
             console.log("data", newData);
-            // start with loading "today"
-            if (this.activePeriod == null) {
-              this.setPeriod("today");
+            let dataSoc = {
+              name: "Ladezustand",
+              series: []
             }
-            // handle new data
-            device.socData.subscribe((newData) => {
-              if (newData != null) {
-                console.log("data", newData);
-                let dataSoc = {
-                  name: "Ladezustand",
-                  series: []
-                }
-                let socActivepowerData = {
-                  name: "ess0/ActivePower",
-                  series: []
-                }
-                for (let newDatum of newData["data"]) {
-                  let soc = newDatum["channels"]["ess0"]["Soc"] != null ? newDatum["channels"]["ess0"]["Soc"] : 0;
-                  dataSoc.series.push({ name: moment(newDatum["time"]), value: soc });
+            let storageActivepowerData = {
+              name: "ess0/ActivePower",
+              series: []
+            }
+            for (let newDatum of newData["data"]) {
+              let soc = newDatum["channels"]["ess0"]["Soc"] != null ? newDatum["channels"]["ess0"]["Soc"] : 0;
+              dataSoc.series.push({ name: moment(newDatum["time"]), value: soc });
 
-                  if (newDatum["channels"]["ess0"]["ActivePower"] != null) {
-                    socActivepowerData.series.push({ name: new Date(newDatum["time"]), value: newDatum["channels"]["ess0"]["ActivePower"] });
-                  } else {
-                    socActivepowerData.series.push({ name: new Date(newDatum["time"]), value: 0 });
-                  }
-                }
-                this.dataSoc = [dataSoc];
-                this.socActivepowerData = [socActivepowerData];
-              }
-            })
+              let storageActivePower = newDatum["channels"]["ess0"]["ActivePower"] != null ? newDatum["channels"]["ess0"]["ActivePower"] : 0;
+              storageActivepowerData.series.push({ name: moment(newDatum["time"]), value: storageActivePower });
+            }
+            this.dataSoc = [dataSoc];
+            this.storageActivepowerData = [storageActivepowerData];
           }
         })
       }
@@ -87,91 +79,60 @@ export class HistoryComponent implements OnInit, OnDestroy {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
   };
 
-  // line, area
-  autoScale = true;
-
-  private socData = [];/* = [
-    {
-      "name": "ess0/Soc",
-      "series": [
-        { name: "2017-03-21T08:55:20Z", value: 47.0 }, { name: "2017-03-21T08:55:30Z", value: 47.0 }, { name: "2017-03-21T08:56:20Z", value: 63.0 }
-      ]
-    }
-  ];*/
-
   /**
-   * test data for third chart
+   * later: needed data for energychart.component.ts
+   * current: storage ActivePower is shown on energychart.component.ts
    */
-  private socActivepowerData = [
-    {
-      "name": "Eigene PV-Produktion",
-      "series": [
-        { name: "2017-03-21T15:21", value: 47.0 }, { name: "2017-03-21T15:22", value: 47.0 }, { name: "2017-03-21T15:23", value: 63.0 }
-      ]
-    },
-    {
-      "name": "Durchschnittliche PV-Produktion",
-      "series": [
-        { name: "2017-03-21T15:21", value: 25.0 }, { name: "2017-03-21T15:22", value: 35.0 }, { name: "2017-03-21T15:23", value: 30.0 }
-      ]
-    },
-    {
-      "name": "Eigener Verbrauch",
-      "series": [
-        { name: "2017-03-21T15:21", value: 50.0 }, { name: "2017-03-21T15:22", value: 70.0 }, { name: "2017-03-21T15:23", value: 60.0 }
-      ]
-    },
-    {
-      "name": "Durchschnittlicher Verbrauch",
-      "series": [
-        { name: "2017-03-21T15:21", value: 12.0 }, { name: "2017-03-21T15:22", value: 15.0 }, { name: "2017-03-21T15:23", value: 17.0 }
-      ]
-    },
-    {
-      "name": "Eigene Netzeinspeisung",
-      "series": [
-        { name: "2017-03-21T15:21", value: 15.0 }, { name: "2017-03-21T15:22", value: 20.0 }, { name: "2017-03-21T15:23", value: 25.0 }
-      ]
-    },
-    {
-      "name": "Durchschnittliche Netzeinspeisung",
-      "series": [
-        { name: "2017-03-21T15:21", value: 17.0 }, { name: "2017-03-21T15:22", value: 21.0 }, { name: "2017-03-21T15:23", value: 23.0 }
-      ]
-    },
-    {
-      "name": "Eigener Netzbezug",
-      "series": [
-        { name: "2017-03-21T15:21", value: 5.0 }, { name: "2017-03-21T15:22", value: 10.0 }, { name: "2017-03-21T15:23", value: 15.0 }
-      ]
-    },
-    {
-      "name": "Durchschnittlicher Netzbezug",
-      "series": [
-        { name: "2017-03-21T15:21", value: 7.0 }, { name: "2017-03-21T15:22", value: 10.0 }, { name: "2017-03-21T15:23", value: 12.0 }
-      ]
-    }
-  ];
-
-  // private getDataToday() {
-  //   this.clazzActive = "btnToday";
-
-  //   if (this.device != null) {
-  //     let date = new Date();
-  //     this.device.query(date, date, { ess0: ["Soc", "ActivePower"] });
+  // private historicData = [
+  //   {
+  //     "name": "Eigene PV-Produktion",
+  //     "series": [
+  //       { name: "2017-03-21T15:21", value: 47.0 }, { name: "2017-03-21T15:22", value: 47.0 }, { name: "2017-03-21T15:23", value: 63.0 }
+  //     ]
+  //   },
+  //   {
+  //     "name": "Durchschnittliche PV-Produktion",
+  //     "series": [
+  //       { name: "2017-03-21T15:21", value: 25.0 }, { name: "2017-03-21T15:22", value: 35.0 }, { name: "2017-03-21T15:23", value: 30.0 }
+  //     ]
+  //   },
+  //   {
+  //     "name": "Eigener Verbrauch",
+  //     "series": [
+  //       { name: "2017-03-21T15:21", value: 50.0 }, { name: "2017-03-21T15:22", value: 70.0 }, { name: "2017-03-21T15:23", value: 60.0 }
+  //     ]
+  //   },
+  //   {
+  //     "name": "Durchschnittlicher Verbrauch",
+  //     "series": [
+  //       { name: "2017-03-21T15:21", value: 12.0 }, { name: "2017-03-21T15:22", value: 15.0 }, { name: "2017-03-21T15:23", value: 17.0 }
+  //     ]
+  //   },
+  //   {
+  //     "name": "Eigene Netzeinspeisung",
+  //     "series": [
+  //       { name: "2017-03-21T15:21", value: 15.0 }, { name: "2017-03-21T15:22", value: 20.0 }, { name: "2017-03-21T15:23", value: 25.0 }
+  //     ]
+  //   },
+  //   {
+  //     "name": "Durchschnittliche Netzeinspeisung",
+  //     "series": [
+  //       { name: "2017-03-21T15:21", value: 17.0 }, { name: "2017-03-21T15:22", value: 21.0 }, { name: "2017-03-21T15:23", value: 23.0 }
+  //     ]
+  //   },
+  //   {
+  //     "name": "Eigener Netzbezug",
+  //     "series": [
+  //       { name: "2017-03-21T15:21", value: 5.0 }, { name: "2017-03-21T15:22", value: 10.0 }, { name: "2017-03-21T15:23", value: 15.0 }
+  //     ]
+  //   },
+  //   {
+  //     "name": "Durchschnittlicher Netzbezug",
+  //     "series": [
+  //       { name: "2017-03-21T15:21", value: 7.0 }, { name: "2017-03-21T15:22", value: 10.0 }, { name: "2017-03-21T15:23", value: 12.0 }
+  //     ]
   //   }
-  // }
-
-  // private getDataYesterday() {
-  //   this.clazzActive = "btnYesterday";
-
-  //   if (this.device != null) {
-  //     let date = new Date();
-  //     let yesterday = date;
-  //     yesterday.setDate(date.getDate() - 1);
-  //     this.device.query(yesterday, yesterday, { ess0: ["Soc", "ActivePower"] });
-  //   }
-  // }
+  // ];
 
   private setPeriod(period: string) {
     if (!this.device) {

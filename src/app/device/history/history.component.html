@@ -50,17 +50,17 @@
     </md-card>
   </div>
   <div fxFlex.xs="100%" fxFlex.gt-sm="75%">
-    <md-card class="single" fxLayout fxLayoutWrap="wrap">
-      <md-card-content fxLayout fxLayoutWrap="wrap">
-        <div fxFlex="100%" style="height: 250px">
-          <chart-soc fxFlex="100%" [scheme]="colorScheme" [results]="dataSoc" gradient="true" [curve]="curve" xAxis="false" yAxis="false"
-            legend="true" autoScale="false">
+    <md-card class="single">
+      <md-card-content>
+        <div style="height: 250px">
+          <chart-soc [scheme]="colorScheme" [results]="dataSoc" gradient="true" [curve]="curve" xAxis="false" yAxis="false" legend="true"
+            autoScale="false">
           </chart-soc>
         </div>
-        <div fxFlex="100%" style="height: 400px">
-          <ngx-charts-area-chart fxFlex="100%" [scheme]="colorScheme" [results]="historicDataView" [curve]="curve" gradient="false"
-            xAxis="false" yAxis="true" legend="true" showXAxisLabel="false" autoScale="false">
-          </ngx-charts-area-chart>
+        <div style="height: 400px">
+          <chart-energy [scheme]="colorScheme" [results]="storageActivepowerData" [curve]="curve" gradient="true" xAxis="false" yAxis="false"
+            legend="true" autoScale="false">
+          </chart-energy>
         </div>
       </md-card-content>
     </md-card>

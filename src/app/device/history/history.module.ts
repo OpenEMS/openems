@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
 import { HistoryComponent } from './history.component';
 import { ChartSocComponent } from './chart/socchart/socchart.component';
+import { ChartEnergyComponent } from './chart/energychart/energychart.component';
 
 @NgModule({
   imports: [
@@ -9,7 +10,8 @@ import { ChartSocComponent } from './chart/socchart/socchart.component';
   ],
   declarations: [
     HistoryComponent,
-    ChartSocComponent
+    ChartSocComponent,
+    ChartEnergyComponent
   ]
 })
 export class HistoryModule { }
