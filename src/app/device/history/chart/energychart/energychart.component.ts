@@ -7,9 +7,9 @@ import * as d3shape from 'd3-shape';
 import { AreaChartComponent } from '@swimlane/ngx-charts';
 
 @Component({
-    selector: 'chart-energy',
-    /* this is copied from 'ngx-charts-area-chart': */
-    template: `
+  selector: 'chart-energy',
+  /* this is copied from 'ngx-charts-area-chart': */
+  template: `
     <ngx-charts-chart
       [view]="[width, height]"
       [showLegend]="legend"
@@ -113,7 +113,11 @@ import { AreaChartComponent } from '@swimlane/ngx-charts';
 })
 export class ChartEnergyComponent extends AreaChartComponent {
 
-    xAxisTickFormatting = function (d) {
-        return d.format("H:mm");
-    };
+  xAxisTickFormatting = function (d) {
+    if (d.format("H") == "0") {
+      return d.format("DD.MM.YYYY  H:mm");
+    } else {
+      return d.format("H:mm");
+    }
+  };
 }

@@ -114,7 +114,11 @@ import { AreaChartComponent } from '@swimlane/ngx-charts';
 export class ChartSocComponent extends AreaChartComponent {
 
   xAxisTickFormatting = function (d) {
-    return d.format("H:mm");
+    if (d.format("H") == "0") {
+      return d.format("DD.MM.YYYY  H:mm");
+    } else {
+      return d.format("H:mm");
+    }
   };
 
   getYDomain(): any[] {
