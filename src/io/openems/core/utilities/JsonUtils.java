@@ -102,6 +102,17 @@ public class JsonUtils {
 		return jPrimitive.getAsString();
 	}
 
+	public static int getAsInt(JsonElement jElement, String memberName) throws ReflectionException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
+		if (jPrimitive.isNumber()) {
+			return jPrimitive.getAsInt();
+		} else if (jPrimitive.isString()) {
+			String string = jPrimitive.getAsString();
+			return Integer.parseInt(string);
+		}
+		throw new ReflectionException("[" + memberName + "] is not a Number: " + jPrimitive);
+	}
+
 	public static ZonedDateTime getAsZonedDateTime(JsonElement jElement, String memberName, ZoneId timezone)
 			throws ReflectionException {
 		String[] date = JsonUtils.getAsString(jElement, memberName).split("-");

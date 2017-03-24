@@ -22,6 +22,7 @@ package io.openems.core.utilities.websocket;
 
 import java.io.IOException;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -400,8 +401,9 @@ public class WebsocketHandler {
 				/*
 				 * History query
 				 */
-				String timezoneString = JsonUtils.getAsString(jQuery, "timezone");
-				ZoneId timezone = ZoneId.of(timezoneString);
+				// String timezoneString = JsonUtils.getAsString(jQuery, "timezone");
+				int timezoneDiff = JsonUtils.getAsInt(jQuery, "timezone");
+				ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
 				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
 				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jQuery, "toDate", timezone);
 				JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
