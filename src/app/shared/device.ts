@@ -164,10 +164,9 @@ export class Device {
       mode: "history",
       fromDate: fromDate.format("YYYY-MM-DD"),
       toDate: toDate.format("YYYY-MM-DD"),
-      timezone: "GMT",
+      timezone: new Date().getTimezoneOffset() * 60,
       channels: this.getImportantChannels()
     };
-    console.log(obj);
     this.send({ query: obj });
   }
 

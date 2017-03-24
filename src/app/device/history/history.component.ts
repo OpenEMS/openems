@@ -16,7 +16,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private deviceSubscription: Subscription;
   private activePeriod: string = null;
   private dataSoc = [];
-  private historicData = [];
+  private dataEnergy = [];
   private storageActivepowerData = [];
 
   constructor(
@@ -38,20 +38,19 @@ export class HistoryComponent implements OnInit, OnDestroy {
               name: "Ladezustand",
               series: []
             }
-            // let storageActivepowerData = {
-            //   name: "Ausgabeleistung",
-            //   series: []
-            // }
+            let dataEnergy = {
+              name: "Erzeugung",
+              series: []
+            }
             for (let newDatum of newData) {
-              console.log(newDatum);
+              let timestamp = moment(newDatum["time"]);
               let soc = newDatum.summary.storage.soc != null ? newDatum.summary.storage.soc : 0;
-              dataSoc.series.push({ name: moment(newDatum["time"]), value: soc });
-
-              // let storageActivePower = newDatum["channels"]["ess0"]["ActivePower"] != null ? newDatum["channels"]["ess0"]["ActivePower"] : 0;
-              // storageActivepowerData.series.push({ name: moment(newDatum["time"]), value: storageActivePower });
+              dataSoc.series.push({ name: timestamp, value: soc });
+              let production = newDatum.summary.production.activePower != null ? newDatum.summary.production.activePower : 0;
+              dataEnergy.series.push({ name: timestamp, value: production });
             }
             this.dataSoc = [dataSoc];
-            // this.storageActivepowerData = [storageActivepowerData];
+            this.dataEnergy = [dataEnergy];
           }
         })
       }
@@ -133,7 +132,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
   private setTimespan(from: any, to: any) {
     if (from != "" || to != "") {
-      console.log(from, to);
       this.setPeriod('otherTimespan', from, to);
     }
   }
@@ -143,7 +141,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
       period = null;
     }
     this.activePeriod = period;
-    this.historicData = [];
+    this.dataEnergy = this.dataSoc = [];
     let fromDate;
     let toDate;
     switch (period) {
@@ -173,7 +171,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
         this.activePeriod = null;
         return;
     }
-    console.log("Start query", performance.now());
     this.device.query(fromDate, toDate);
   }
 }
