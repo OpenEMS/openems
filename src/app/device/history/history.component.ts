@@ -18,8 +18,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private dataSoc = [];
   private historicData = [];
   private storageActivepowerData = [];
-  private dateFrom: Date = null;
-  private dateTo: Date = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -134,18 +132,13 @@ export class HistoryComponent implements OnInit, OnDestroy {
   }
 
   private setTimespan(from: any, to: any) {
-    this.dateFrom = from;
-    this.dateTo = to;
-
-    if (from == "" && to == "") {
-      this.dateFrom = null;
-      this.dateTo = null;
+    if (from != "" || to != "") {
+      console.log(from, to);
+      this.setPeriod('otherTimespan', from, to);
     }
-
-    this.setPeriod('otherTimespan');
   }
 
-  private setPeriod(period: string) {
+  private setPeriod(period: string, from?: any, to?: any) {
     if (!this.device) {
       period = null;
     }
@@ -173,15 +166,14 @@ export class HistoryComponent implements OnInit, OnDestroy {
         toDate = moment();
         break;
       case "otherTimespan":
-        if (this.dateFrom != null && this.dateTo != null) {
-          fromDate = this.dateFrom;
-          toDate = this.dateTo;
-        }
+        fromDate = moment(from);
+        toDate = moment(to);
         break;
       default:
         this.activePeriod = null;
         return;
     }
+    console.log(fromDate, toDate);
     this.device.query(fromDate, toDate, { ess0: ["Soc", "ActivePower"] });
   }
 }
