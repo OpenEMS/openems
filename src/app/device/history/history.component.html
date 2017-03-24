@@ -32,16 +32,14 @@
           <div *ngIf="activePeriod == 'otherTimespan'" fxFlex="100%">
             <div fxFlex="100%" style="margin-bottom: 20px" fxLayout>
               <label fxFlex="50px" style="font-size: 14px;margin-top: 20px">Datum</label>
-              <label fxFlex="40px" style="font-size: 14px;margin-top: 20px">von:</label>
               <md-input-container>
-                <input #from type="date" style="height: auto" mdInput/>
+                <input #from type="date" placeholder="Datum von" style="height: auto" mdInput/>
               </md-input-container>
             </div>
             <div fxFlex="100%" style="margin-bottom: 20px" fxLayout>
               <div fxFlex="50px"></div>
-              <label fxFlex="40px" style="font-size: 14px;margin-top: 20px">bis:</label>
               <md-input-container>
-                <input #to type="date" style="height: auto" mdInput />
+                <input #to type="date" placeholder="Datum bis" [value]="moment()" style="height: auto" mdInput />
               </md-input-container>
             </div>
             <div fxFlex="100%" fxLayout>
