@@ -26,19 +26,23 @@
           <button md-raised-button [class.active]="activePeriod == 'lastYear'" (click)="setPeriod('lastYear')" fxFlex="100%">
             letztes Jahr
           </button>
-          <button [class.active]="activePeriod == 'otherTimespan'" (click)="setOtherTimespan()" md-raised-button fxFlex="100%" style="margin-bottom: 20px">
+          <button [class.active]="activePeriod == 'otherTimespan'" (click)="setOtherTimespan()" md-raised-button fxFlex="100%">
             Anderer Zeitraum
           </button>
           <div *ngIf="activePeriod == 'otherTimespan'" fxFlex="100%">
             <div fxFlex="100%" style="margin-bottom: 20px" fxLayout>
-              <label fxFlex="50px" style="font-size: 14px;">Datum</label>
-              <label fxFlex="40px" style="font-size: 14px;">von:</label>
-              <input #from type="date" style="height: auto" />
+              <label fxFlex="50px" style="font-size: 14px;margin-top: 20px">Datum</label>
+              <label fxFlex="40px" style="font-size: 14px;margin-top: 20px">von:</label>
+              <md-input-container>
+                <input #from type="date" style="height: auto" mdInput/>
+              </md-input-container>
             </div>
             <div fxFlex="100%" style="margin-bottom: 20px" fxLayout>
               <div fxFlex="50px"></div>
-              <label fxFlex="40px" style="font-size: 14px;">bis:</label>
-              <input #to type="date" style="height: auto" />
+              <label fxFlex="40px" style="font-size: 14px;margin-top: 20px">bis:</label>
+              <md-input-container>
+                <input #to type="date" style="height: auto" mdInput />
+              </md-input-container>
             </div>
             <div fxFlex="100%" fxLayout>
               <div fxFlex="50px"></div>
