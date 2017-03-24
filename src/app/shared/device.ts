@@ -251,7 +251,7 @@ export class Device {
       summary.consumption.powerRatio = (activePower * 100.) / maxActivePower
       summary.consumption.activePower = activePower;
     }
-    console.log(JSON.stringify(summary));
+    // console.log(JSON.stringify(summary));
     return summary;
   }
 

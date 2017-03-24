@@ -21,7 +21,7 @@ td.align_right {
   color: gray;
 }
 
-button.active {
+button.activated {
   color: black;
   background-color: lightgreen;
 }
