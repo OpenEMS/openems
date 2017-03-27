@@ -42,9 +42,9 @@ public class App {
 	}
 
 	private static void initOdoo(Properties config) throws Exception {
-		log.info("Connect to Odoo");
-		String url = config.getProperty("odoo.url");
 		int port = Integer.valueOf(config.getProperty("odoo.port"));
+		log.info("Connect to Odoo on port [" + port + "]");
+		String url = config.getProperty("odoo.url");
 		String database = config.getProperty("odoo.database");
 		String username = config.getProperty("odoo.username");
 		String password = config.getProperty("odoo.password");
@@ -52,10 +52,10 @@ public class App {
 	}
 
 	private static void initInfluxdb(Properties config) throws Exception {
-		log.info("Connect to InfluxDB");
+		int port = Integer.valueOf(config.getProperty("influx.port"));
+		log.info("Connect to InfluxDB on port [" + port + "]");
 		String database = config.getProperty("influx.database");
 		String url = config.getProperty("influx.url");
-		int port = Integer.valueOf(config.getProperty("influx.port"));
 		String username = config.getProperty("influx.username");
 		String password = config.getProperty("influx.password");
 		Influxdb.initialize(database, url, port, username, password);
@@ -63,13 +63,13 @@ public class App {
 
 	private static void initFemsWebsocket(Properties config) throws Exception {
 		int port = Integer.valueOf(config.getProperty("femswebsocket.port"));
-		log.info("Start FEMS Websocket server on " + port);
+		log.info("Start FEMS Websocket server on port [" + port + "]");
 		FemsWebsocket.initialize(port);
 	}
 
 	private static void initBrowserWebsocket(Properties config) throws Exception {
 		int port = Integer.valueOf(config.getProperty("browserwebsocket.port"));
-		log.info("Start Browser Websocket server on " + port);
+		log.info("Start Browser Websocket server on port [" + port + "]");
 		BrowserWebsocket.initialize(port);
 	}
 }
