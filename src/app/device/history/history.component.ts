@@ -18,6 +18,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private dataSoc = [];
   private dataEnergy = [];
   private dateToday: Date = new Date();
+  private timespanText: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -165,38 +166,36 @@ export class HistoryComponent implements OnInit, OnDestroy {
     switch (period) {
       case "today":
         fromDate = toDate = moment();
+        this.timespanText = "Heute, " + fromDate.format("DD.MM.YYYY");
         break;
       case "yesterday":
         fromDate = toDate = moment().subtract(1, "days");
+        this.timespanText = "Gestern, " + fromDate.format("DD.MM.YYYY");
         break;
       case "lastWeek":
         fromDate = moment().subtract(1, "weeks");
         toDate = moment();
+        this.timespanText = "Letzte Woche, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       case "lastMonth":
         fromDate = moment().subtract(1, "months");
         toDate = moment();
+        this.timespanText = "Letzter Monat, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       case "lastYear":
         fromDate = moment().subtract(1, "years");
         toDate = moment();
+        this.timespanText = "Letztes Jahr, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       case "otherTimespan":
         fromDate = moment(from);
         toDate = moment(to);
+        this.timespanText = "Zeitraum, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       default:
         this.activePeriod = null;
         return;
     }
-    // let labelText = document.getElementById("currTimespan");
-
-    // if (period == "today" || period == "yesterday") {
-    //   labelText.innerText = "" + fromDate;
-    // } else {
-    //   labelText.innerText = fromDate + " bis " + toDate;
-    // }
-
     this.device.query(fromDate, toDate);
   }
 }
