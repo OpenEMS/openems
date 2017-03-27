@@ -43,15 +43,35 @@ export class HistoryComponent implements OnInit, OnDestroy {
               name: "Erzeugung",
               series: []
             }
+            let dataConsumption = {
+              name: "Verbrauch",
+              series: []
+            }
+            let dataToGrid = {
+              name: "Netzeinspeisung",
+              series: []
+            }
+            let dataFromGrid = {
+              name: "Netzbezug",
+              series: []
+            }
             for (let newDatum of newData) {
               let timestamp = moment(newDatum["time"]);
               let soc = newDatum.summary.storage.soc != null ? newDatum.summary.storage.soc : 0;
               dataSoc.series.push({ name: timestamp, value: soc });
               let production = newDatum.summary.production.activePower != null ? newDatum.summary.production.activePower : 0;
               dataEnergy.series.push({ name: timestamp, value: production });
+              let consumption = newDatum.summary.consumption.activePower != null ? newDatum.summary.consumption.activePower : 0;
+              dataConsumption.series.push({ name: timestamp, value: consumption });
+              let grid = newDatum.summary.grid.activePower != null ? newDatum.summary.grid.activePower : 0;
+              if (newDatum.summary.grid.activePower < 0) {
+                dataToGrid.series.push({ name: timestamp, value: (grid * (-1)) });
+              } else {
+                dataFromGrid.series.push({ name: timestamp, value: grid });
+              }
             }
             this.dataSoc = [dataSoc];
-            this.dataEnergy = [dataEnergy];
+            this.dataEnergy = [dataEnergy, dataConsumption, dataToGrid, dataFromGrid];
           }
         })
       }
