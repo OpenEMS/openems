@@ -1,6 +1,10 @@
 package io.openems.femsserver.browserwebsocket;
 
 import java.net.InetSocketAddress;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -12,10 +16,12 @@ import org.slf4j.LoggerFactory;
 
 import com.abercap.odoo.OdooApiException;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.openems.femsserver.core.ConnectionManager;
+import io.openems.femsserver.influx.Influxdb;
 import io.openems.femsserver.odoo.Odoo;
 import io.openems.femsserver.odoo.fems.device.FemsDevice;
 import io.openems.femsserver.utilities.JsonUtils;
@@ -133,6 +139,7 @@ public class BrowserWebsocket extends WebSocketServer {
 				throw new OpenemsException("Connection failed. No session_id given.");
 			}
 		} catch (OpenemsException e) {
+			log.error(e.getMessage());
 			JsonObject j = generateNotification(e.getMessage());
 			WebSocketUtils.send(websocket, j);
 			try {
@@ -171,15 +178,23 @@ public class BrowserWebsocket extends WebSocketServer {
 				String deviceName = JsonUtils.getAsString(jMessage, "device");
 				jMessage.remove("device");
 
-				// Execute for every matching femsWebsocket (should be only one in general)
-				this.connectionManager.getFemsWebsockets(deviceName).forEach(femsWebsocket -> {
-					if (jMessage.has("subscribe")) {
-						// forward subscribe message to fems websocket
-						WebSocketUtils.send(femsWebsocket, jMessage);
-					}
-				});
+				/*
+				 * Forward subscribe message to fems websocket
+				 */
+				if (jMessage.has("subscribe")) {
+					subscribe(deviceName, jMessage.get("subscribe"));
+				}
+
+				/*
+				 * Query command
+				 */
+				if (jMessage.has("query")) {
+					query(deviceName, websocket, jMessage.get("query"));
+				}
 			}
-		} catch (OpenemsException e) {
+		} catch (
+
+		OpenemsException e) {
 			log.error(e.getMessage());
 		}
 	}
@@ -216,5 +231,63 @@ public class BrowserWebsocket extends WebSocketServer {
 		jNotification.addProperty("message", message);
 		j.add("notification", jNotification);
 		return j;
+	}
+
+	/**
+	 * Handle subscriptions
+	 *
+	 * @param j
+	 */
+	private synchronized void subscribe(String deviceName, JsonElement jSubscribeElement) {
+		JsonObject j = new JsonObject();
+		j.add("subscribe", jSubscribeElement);
+		// Execute for every matching femsWebsocket (should be only one in general)
+		this.connectionManager.getFemsWebsockets(deviceName).forEach(femsWebsocket -> {
+			WebSocketUtils.send(femsWebsocket, j);
+		});
+	}
+
+	/**
+	 * Query command
+	 *
+	 * @param j
+	 */
+	private synchronized void query(String deviceName, WebSocket websocket, JsonElement jQueryElement) {
+		try {
+			JsonObject jQuery = JsonUtils.getAsJsonObject(jQueryElement);
+			String mode = JsonUtils.getAsString(jQuery, "mode");
+			int fems = Integer.parseInt(deviceName.substring(4, 5));
+			if (mode.equals("history")) {
+				/*
+				 * History query
+				 */
+				// String timezoneString = JsonUtils.getAsString(jQuery, "timezone");
+				int timezoneDiff = JsonUtils.getAsInt(jQuery, "timezone");
+				ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
+				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
+				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jQuery, "toDate", timezone);
+				JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
+				// Calculate resolution
+				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
+				int resolution = 60 * 60; // 60 Minutes
+				if (days > 6) {
+					resolution = 24 * 60 * 60; // 60 Minutes
+				}
+				JsonArray jData = null;
+				jData = Influxdb.getInstance().query(fems, fromDate, toDate, channels, resolution);
+
+				// Send result
+				JsonObject j = new JsonObject();
+				JsonObject jQueryreply = new JsonObject();
+				jQueryreply.addProperty("mode", "history");
+				jQueryreply.add("data", jData);
+				j.add("queryreply", jQueryreply);
+				WebSocketUtils.sendAsDevice(websocket, j, fems);
+
+				log.info("RESULT: " + j);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
 	}
 }
