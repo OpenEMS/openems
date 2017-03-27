@@ -59,13 +59,11 @@
           <label innerText="hallo" [id]="currTimespan"></label>
         </div>
         <div style="height: 250px">
-          <chart-soc [scheme]="colorScheme" [results]="dataSoc" gradient="true" [curve]="curve" xAxis="false" yAxis="false" legend="true"
-            autoScale="false">
+          <chart-soc [scheme]="colorScheme" [results]="dataSoc">
           </chart-soc>
         </div>
         <div style="height: 400px">
-          <chart-energy [scheme]="colorScheme" [results]="dataEnergy" [curve]="curve" gradient="true" xAxis="false" yAxis="false" legend="true"
-            autoScale="false">
+          <chart-energy [scheme]="colorScheme" [results]="dataEnergy">
           </chart-energy>
         </div>
       </md-card-content>

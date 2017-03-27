@@ -65,9 +65,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  view: any[] = [700, 400];
-  curve = d3shape.curveBasis;
-
   colorScheme = {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
   };
