@@ -70,28 +70,34 @@ export class Device {
   }
 
   private isInArray = (array: any, value: any): boolean => {
+    if (!array || !value) {
+      return false;
+    }
     return array.indexOf(value) > -1;
   }
 
   private refreshThingsFromConfig(): Things {
-    let natures = this.config.getValue()._meta.natures;
     let result = new Things();
-    for (let thing in natures) {
-      let a = natures[thing]["implements"];
-      // Ess
-      if (this.isInArray(a, "EssNature")) {
-        result.storage[thing] = true;
-      }
-      // Meter
-      if (this.isInArray(a, "MeterNature")) {
-        // get type
-        let type = natures[thing]["channels"]["type"]["value"];
-        if (type === "grid") {
-          result.grid[thing] = true;
-        } else if (type === "production") {
-          result.production[thing] = true;
-        } else {
-          console.warn("Meter without type: " + thing);
+    let config = this.config.getValue();
+    if ("_meta" in config && "natures" in config._meta) {
+      let natures = this.config.getValue()._meta.natures;
+      for (let thing in natures) {
+        let a = natures[thing]["implements"];
+        // Ess
+        if (this.isInArray(a, "EssNature")) {
+          result.storage[thing] = true;
+        }
+        // Meter
+        if (this.isInArray(a, "MeterNature")) {
+          // get type
+          let type = natures[thing]["channels"]["type"]["value"];
+          if (type === "grid") {
+            result.grid[thing] = true;
+          } else if (type === "production") {
+            result.production[thing] = true;
+          } else {
+            console.warn("Meter without type: " + thing);
+          }
         }
       }
     }
