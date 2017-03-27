@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
@@ -21,7 +21,8 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private elRef: ElementRef
   ) { }
 
   ngOnInit() {
@@ -171,6 +172,14 @@ export class HistoryComponent implements OnInit, OnDestroy {
         this.activePeriod = null;
         return;
     }
+    // let labelText = document.getElementById("currTimespan");
+
+    // if (period == "today" || period == "yesterday") {
+    //   labelText.innerText = "" + fromDate;
+    // } else {
+    //   labelText.innerText = fromDate + " bis " + toDate;
+    // }
+
     this.device.query(fromDate, toDate);
   }
 }
