@@ -175,8 +175,28 @@
           </md-card-content>
         </md-card>
       </div>
-
-
     </ng-container>
+
+    <!-- Consumption -->
+    <div *ngIf="device.summary.consumption" fxFlex>
+      <md-card class="single">
+        <md-card-header>
+          <img style="height: 100%" src="assets/img/consumption.png" md-card-avatar/>
+          <md-card-title>Verbrauch</md-card-title>
+        </md-card-header>
+        <md-card-content>
+          <table class="full_width">
+            <ng-container *ngIf="device.summary.consumption.activePower != null">
+              <tr>
+                <td>Leistung</td>
+                <td></td>
+                <td class="align_right">{{ device.summary.consumption.activePower }}</td>
+                <td>W</td>
+              </tr>
+            </ng-container>
+          </table>
+        </md-card-content>
+      </md-card>
+    </div>
   </md-card-content>
 </md-card>

@@ -121,7 +121,7 @@ export class ChartSocComponent extends AreaChartComponent {
 
   xAxisTickFormatting = function (d) {
     if (d.hours() == 0) {
-      return d.format("dd, DD.  H:mm");
+      return d.format("dd, DD.");
     } else {
       return d.format("H:mm");
     }
