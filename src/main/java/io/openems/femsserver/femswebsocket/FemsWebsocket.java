@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.abercap.odoo.OdooApiException;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -139,77 +140,21 @@ public class FemsWebsocket extends WebSocketServer {
 			 * New timestamped data
 			 */
 			if (jMessage.has("timedata")) {
-				try {
-					JsonObject jTimedata = JsonUtils.getAsJsonObject(jMessage, "timedata");
-					// Write to InfluxDB
-					try {
-						influxdb.write(device.getNameNumber(), jTimedata);
-						log.info(device.getName() + ": wrote " + jTimedata.entrySet().size() + " timestamps "
-								+ StringUtils.toShortString(jTimedata, 120));
-					} catch (Exception e) {
-						log.error("No InfluxDB-connection: ", e);
-					}
-					// Write some data to Odoo
-					// TODO: this is only to provide feedback for FENECON
-					// Service-Team that the device is online. Replace with
-					// something based on the actual websocket connection
-					device.setLastUpdate();
-					jTimedata.entrySet().forEach(entry -> {
-						try {
-							JsonObject jChannels = JsonUtils.getAsJsonObject(entry.getValue());
-							if (jChannels.has("ess0/Soc")) {
-								int soc = JsonUtils.getAsPrimitive(jChannels, "ess0/Soc").getAsInt();
-								device.setSoc(soc);
-							}
-							if (jChannels.has("system0/PrimaryIpAddress")) {
-								String ipv4 = JsonUtils.getAsPrimitive(jChannels, "system0/PrimaryIpAddress")
-										.getAsString();
-								device.setIpV4(ipv4);
-							}
-						} catch (OpenemsException e) {
-							log.error(e.getMessage());
-						}
-					});
-				} catch (OpenemsException e) {
-					log.error(e.getMessage());
-				}
+				timedata(device, jMessage.get("timedata"));
 			}
 
 			/*
-			 * New timestamped data -> forward to browserWebsockets
+			 * New currentdata data -> forward to browserWebsockets
 			 */
 			if (jMessage.has("currentdata")) {
-				try {
-					JsonObject jCurrentdata = JsonUtils.getAsJsonObject(jMessage, "currentdata");
-					JsonObject j = new JsonObject();
-					j.add("currentdata", jCurrentdata);
-					// log.info("FemsWS: " + websocket + ", " + websocket.isOpen());
-					this.connectionManager.getFemsWebsocketDeviceNames(websocket).forEach(name -> {
-						j.addProperty("device", name);
-						this.connectionManager.getBrowserWebsockets(name).forEach(browserWebsocket -> {
-							// log.info("BrowserWS: " + browserWebsocket + ", " + browserWebsocket.isOpen());
-							WebSocketUtils.send(browserWebsocket, j);
-						});
-					});
-				} catch (OpenemsException e) {
-					log.error(e.getMessage());
-				}
+				currentdata(websocket, jMessage.get("currentdata"));
 			}
 
 			/*
 			 * New metadata
 			 */
 			if (jMessage.has("metadata")) {
-				try {
-					JsonObject jMetadata = JsonUtils.getAsJsonObject(jMessage, "metadata");
-					if (jMetadata.has("config")) {
-						JsonObject jConfig = JsonUtils.getAsJsonObject(jMetadata, "config");
-						log.info(getFemsName(websocket) + ": got config " + StringUtils.toShortString(jConfig, 120));
-						device.setOpenemsConfig(jConfig);
-					}
-				} catch (OpenemsException e) {
-					log.error(e.getMessage());
-				}
+				metadata(device, websocket, jMessage.get("metadata"));
 			}
 
 			// Save data to Odoo
@@ -219,7 +164,6 @@ public class FemsWebsocket extends WebSocketServer {
 				log.error(device.getName() + ": Updating Odoo failed: " + e.getMessage());
 			}
 		});
-
 	}
 
 	/**
@@ -234,5 +178,72 @@ public class FemsWebsocket extends WebSocketServer {
 			joiner.add(name);
 		});
 		return joiner.toString();
+	}
+
+	private void timedata(FemsDevice device, JsonElement jTimedataElement) {
+		try {
+			JsonObject jTimedata = JsonUtils.getAsJsonObject(jTimedataElement);
+			// Write to InfluxDB
+			try {
+				influxdb.write(device.getNameNumber(), jTimedata);
+				log.info(device.getName() + ": wrote " + jTimedata.entrySet().size() + " timestamps "
+						+ StringUtils.toShortString(jTimedata, 120));
+			} catch (Exception e) {
+				log.error("No InfluxDB-connection: ", e);
+			}
+			// Write some data to Odoo
+			// TODO: this is only to provide feedback for FENECON
+			// Service-Team that the device is online. Replace with
+			// something based on the actual websocket connection
+			device.setLastUpdate();
+			jTimedata.entrySet().forEach(entry -> {
+				try {
+					JsonObject jChannels = JsonUtils.getAsJsonObject(entry.getValue());
+					if (jChannels.has("ess0/Soc")) {
+						int soc = JsonUtils.getAsPrimitive(jChannels, "ess0/Soc").getAsInt();
+						device.setSoc(soc);
+					}
+					if (jChannels.has("system0/PrimaryIpAddress")) {
+						String ipv4 = JsonUtils.getAsPrimitive(jChannels, "system0/PrimaryIpAddress").getAsString();
+						device.setIpV4(ipv4);
+					}
+				} catch (OpenemsException e) {
+					log.error(e.getMessage());
+				}
+			});
+		} catch (OpenemsException e) {
+			log.error(e.getMessage());
+		}
+	}
+
+	private void currentdata(WebSocket websocket, JsonElement jCurrentdataElement) {
+		try {
+			JsonObject jCurrentdata = JsonUtils.getAsJsonObject(jCurrentdataElement);
+			JsonObject j = new JsonObject();
+			j.add("currentdata", jCurrentdata);
+			// log.info("FemsWS: " + websocket + ", " + websocket.isOpen());
+			this.connectionManager.getFemsWebsocketDeviceNames(websocket).forEach(name -> {
+				j.addProperty("device", name);
+				this.connectionManager.getBrowserWebsockets(name).forEach(browserWebsocket -> {
+					// log.info("BrowserWS: " + browserWebsocket + ", " + browserWebsocket.isOpen());
+					WebSocketUtils.send(browserWebsocket, j);
+				});
+			});
+		} catch (OpenemsException e) {
+			log.error(e.getMessage());
+		}
+	}
+
+	private void metadata(FemsDevice device, WebSocket websocket, JsonElement jMetadataElement) {
+		try {
+			JsonObject jMetadata = JsonUtils.getAsJsonObject(jMetadataElement);
+			if (jMetadata.has("config")) {
+				JsonObject jConfig = JsonUtils.getAsJsonObject(jMetadata, "config");
+				log.info(getFemsName(websocket) + ": got config " + StringUtils.toShortString(jConfig, 120));
+				device.setOpenemsConfig(jConfig);
+			}
+		} catch (OpenemsException e) {
+			log.error(e.getMessage());
+		}
 	}
 }

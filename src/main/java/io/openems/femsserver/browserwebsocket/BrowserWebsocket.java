@@ -166,7 +166,6 @@ public class BrowserWebsocket extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket websocket, String message) {
 		try {
-			log.info("message: " + message);
 			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 			if (jMessage.has("device")) {
 				String deviceName = JsonUtils.getAsString(jMessage, "device");

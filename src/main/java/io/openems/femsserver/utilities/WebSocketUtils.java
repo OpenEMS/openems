@@ -26,4 +26,9 @@ public class WebSocketUtils {
 			return false;
 		}
 	}
+
+	public static boolean sendAsDevice(WebSocket websocket, JsonObject j, int fems) {
+		j.addProperty("device", "fems" + fems);
+		return send(websocket, j);
+	}
 }
