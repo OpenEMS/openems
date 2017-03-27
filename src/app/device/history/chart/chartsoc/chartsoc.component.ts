@@ -112,6 +112,12 @@ import { AreaChartComponent } from '@swimlane/ngx-charts';
   `
 })
 export class ChartSocComponent extends AreaChartComponent {
+  xAxis = true;
+  yAxis = true;
+  legend = true;
+  gradient = true;
+
+  curve = d3shape.curveCatmullRom;
 
   xAxisTickFormatting = function (d) {
     if (d.format("H") == "0") {

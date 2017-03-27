@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
@@ -18,10 +18,12 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private dataSoc = [];
   private dataEnergy = [];
   private dateToday: Date = new Date();
+  private timespanText: string;
 
   constructor(
     private route: ActivatedRoute,
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private elRef: ElementRef
   ) { }
 
   ngOnInit() {
@@ -42,15 +44,35 @@ export class HistoryComponent implements OnInit, OnDestroy {
               name: "Erzeugung",
               series: []
             }
+            let dataConsumption = {
+              name: "Verbrauch",
+              series: []
+            }
+            let dataToGrid = {
+              name: "Netzeinspeisung",
+              series: []
+            }
+            let dataFromGrid = {
+              name: "Netzbezug",
+              series: []
+            }
             for (let newDatum of newData) {
               let timestamp = moment(newDatum["time"]);
               let soc = newDatum.summary.storage.soc != null ? newDatum.summary.storage.soc : 0;
               dataSoc.series.push({ name: timestamp, value: soc });
               let production = newDatum.summary.production.activePower != null ? newDatum.summary.production.activePower : 0;
               dataEnergy.series.push({ name: timestamp, value: production });
+              let consumption = newDatum.summary.consumption.activePower != null ? newDatum.summary.consumption.activePower : 0;
+              dataConsumption.series.push({ name: timestamp, value: consumption });
+              let grid = newDatum.summary.grid.activePower != null ? newDatum.summary.grid.activePower : 0;
+              if (newDatum.summary.grid.activePower < 0) {
+                dataToGrid.series.push({ name: timestamp, value: (grid * (-1)) });
+              } else {
+                dataFromGrid.series.push({ name: timestamp, value: grid });
+              }
             }
             this.dataSoc = [dataSoc];
-            this.dataEnergy = [dataEnergy];
+            this.dataEnergy = [dataEnergy, dataConsumption, dataToGrid, dataFromGrid];
           }
         })
       }
@@ -63,9 +85,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
       this.device.unsubscribe();
     }
   }
-
-  view: any[] = [700, 400];
-  curve = d3shape.curveBasis;
 
   colorScheme = {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
@@ -147,25 +166,31 @@ export class HistoryComponent implements OnInit, OnDestroy {
     switch (period) {
       case "today":
         fromDate = toDate = moment();
+        this.timespanText = "Heute, " + fromDate.format("DD.MM.YYYY");
         break;
       case "yesterday":
         fromDate = toDate = moment().subtract(1, "days");
+        this.timespanText = "Gestern, " + fromDate.format("DD.MM.YYYY");
         break;
       case "lastWeek":
         fromDate = moment().subtract(1, "weeks");
         toDate = moment();
+        this.timespanText = "Letzte Woche, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       case "lastMonth":
         fromDate = moment().subtract(1, "months");
         toDate = moment();
+        this.timespanText = "Letzter Monat, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       case "lastYear":
         fromDate = moment().subtract(1, "years");
         toDate = moment();
+        this.timespanText = "Letztes Jahr, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       case "otherTimespan":
         fromDate = moment(from);
         toDate = moment(to);
+        this.timespanText = "Zeitraum, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       default:
         this.activePeriod = null;
