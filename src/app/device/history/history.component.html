@@ -1,10 +1,9 @@
 <div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
-  <!--{{ device.historicData | async | json }}-->
   <div fxFlex.xs="100%" fxFlex.gt-sm="25%">
     <md-card class="single">
       <md-card-header>
-        <md-card-title>Mustermann</md-card-title>
-        <md-card-subtitle>FEMS 24</md-card-subtitle>
+        <md-card-title>{{ device.address }}</md-card-title>
+        <md-card-subtitle>{{ device.name }}</md-card-subtitle>
       </md-card-header>
       <md-card-content>
         <div fxLayout fxLayoutWrap="wrap" fxFlex>
