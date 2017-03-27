@@ -249,11 +249,7 @@ export class Device {
       let activePower = summary.grid.activePower + summary.production.activePower + summary.storage.activePower;
       let maxActivePower = summary.grid.maxActivePower + summary.production.maxActivePower + summary.storage.maxActivePower;
       summary.consumption.powerRatio = (activePower * 100.) / maxActivePower;
-      if (activePower < 0) {
-        summary.consumption.activePower = 0;
-      } else {
-        summary.consumption.activePower = activePower;
-      }
+      summary.consumption.activePower = activePower;
     }
     // console.log(JSON.stringify(summary));
     return summary;
