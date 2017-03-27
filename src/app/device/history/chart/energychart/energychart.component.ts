@@ -117,7 +117,7 @@ export class ChartEnergyComponent extends AreaChartComponent {
   legend = true;
   gradient = true;
 
-  curve = d3shape.curveBasis;
+  curve = d3shape.curveCatmullRom;
 
   xAxisTickFormatting = function (d) {
     if (d.format("H") == "0") {
