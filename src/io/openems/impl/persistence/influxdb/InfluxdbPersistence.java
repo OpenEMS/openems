@@ -208,7 +208,9 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
 		query.append(toChannelAddressList(channels));
-		query.append(" FROM data WHERE time > ");
+		query.append(" FROM data WHERE fems = '");
+		query.append(fems);
+		query.append("' AND time > ");
 		query.append(String.valueOf(fromDate.toEpochSecond()));
 		query.append("s");
 		query.append(" AND time < ");
