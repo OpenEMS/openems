@@ -2,24 +2,26 @@
 
 This chapter explains the communication protocol used between the different components.
 
-## [1] Browser <-> FemsServer
+## [1] Client (Browser) <-> Backend (OpenEMS/FemsServer)
 
 ### [1.1] Authenticate
 
-[1.1.1]
+#### [1.1.1] At FemsServer
+
+[1.1.1.1] Authenticate
 Cookie: session_id
 
-[1.1.2] 
-on success:
+[1.1.1.2] On success
 ```
 { result: { devices: ["...",] } }
 ```
-on error:
+
+[1.1.1.3] On error
 ```
 { error }
 ```
 
-[1.1.3]
+[1.1.1.4] Reply
 ```
 {
 	authenticate: {
@@ -33,9 +35,34 @@ on error:
 }
 ```
 
+#### [1.1.2] At OpenEMS
+
+[1.1.2.1] Authenticate
+```
+{
+	authenticate: {
+		mode: login,
+		[password: "...",] 
+		[token: "..."]
+	}
+}
+```
+
+[1.1.2.2] Reply
+```
+{
+	authenticate: {
+		mode: allow, username, token
+	}, metadata: {
+		config: {},
+		backend: "openems"
+	}
+}
+```
+
 ### [1.2] Current data
 
-[1.2.1]
+[1.2.1] Subscribe
 ```
 {
 	device: "...",
@@ -47,7 +74,7 @@ on error:
 }
 ```
 
-[1.2.2]
+[1.2.2] Forward to OpenEMS
 ```
 {
 	subscribe: {
@@ -58,7 +85,7 @@ on error:
 }
 ```
 
-[1.2.3]
+[1.2.3] Reply from OpenEMS
 ```
 {
 	currentdata: [{ 
@@ -67,13 +94,21 @@ on error:
 }
 ```
 
-[1.2.4]
+[1.2.4] Reply
 ```
 {
 	device: "...",
     currentdata: [{ 
     	channel, value
     }]
+}
+```
+
+[1.2.5] Unsubscribe
+```
+{
+	device: "...",
+	subscribe: false
 }
 ```
 
@@ -87,142 +122,17 @@ on error:
 }
 ```
 
-## [2] OpenEMS <-> FemsServer
+### [1.4] Query history data
 
-### [2.1] Authenticate
-
-[2.1.1] 
-
-[2.1.2]
+[1.4.1]
 ```
 {
-	metadata: {
-		config: {},
-		backend: "openems"
-	}
-}
-```
-### [2.2] timestamped data
-
-[2.2.1]
-```
-{
-	timedata: {
-		timestamp: [{
-			channel, value
-		}]
-	}
-}
-```
-
-## [3] Browser <-> OpenEMS
-
-### [3.1] Authenticate
-
-[3.1.1]
-```
-{
-	authenticate: {
-		mode: login,
-		[password: "...",] 
-		[token: "..."]
-	}
-}
-```
-
-[3.1.2]
-```
-{
-	authenticate: {
-		mode: allow, username, token
-	}, metadata: {
-		config: {},
-		backend: "openems"
-	}
-}
-```
-
-
-### [3.2] Current data
-
-[3.2.1]
-```
-{
-	subscribe: {
-		thing0: [
-			channel
-		]
-	}
-}
-```
-
-[3.2.2]
-```
-{
-	currentdata: [{ 
-		channel: ...,
-		value: ...
-    }]
-}
-```
-
-### [3.3] Configuration
-
-[3.3.1]
-```
-{
-	configure: [{
-		mode: "update",
-		thing: "...",
-		channel: "...",
-		value: "..." | { ... }
-	}]
-}
-```
-
-[3.3.2]
-```
-{
-	configure: [{
-		mode: "create",
-		object: { ... },
-		parent: "..."
-	}]
-}
-```
-
-[3.3.3]
-```
-{
-	configure: [{
-		mode: "delete",
-		thing: "..."
-	}]
-}
-```
-
-[3.3.4]
-```
-{
- 	metadata: {
-		config: {}
-	}, notification: {
-		type: "success" | "error" | "warning" | "info",
-		message: "..."
-	}
-}
-```
-
-### [3.4] Query history data
-
-[3.4.1]
-```
-{
+	device: "...",
 	query: {
 		mode: "history",
 		fromDate: "01.01.2017",
 		toDate: "01.01.2017", 
-		timezone: "GMT",
+		timezone: /* offset in seconds */,
 		channels: {
 			thing: [channel] 
 		}
@@ -230,14 +140,14 @@ on error:
 }
 ```
 
-[3.4.2]
+[1.4.2]
 ```
 {
     queryreply: {
     	mode: "history",
 		fromDate: "2017-01-01",
 		toDate: "2017-01-01", 
-		timezone: "GMT",
+		timezone: /* offset in seconds */,
 		data: [{
 			time: ...,
 			channels: {
@@ -250,13 +160,83 @@ on error:
 }
 ```
 
-### [3.4] System
+
+### [1.5] Configuration
+
+### [1.5.1] Update
+```
+{
+	configure: [{
+		mode: "update",
+		thing: "...",
+		channel: "...",
+		value: "..." | { ... }
+	}]
+}
+```
+### [1.5.2] Create
+```
+{
+	configure: [{
+		mode: "create",
+		object: { ... },
+		parent: "..."
+	}]
+}
+```
+
+### [1.5.3] Delete
+```
+{
+	configure: [{
+		mode: "delete",
+		thing: "..."
+	}]
+}
+```
+
+### [1.5.4] Reply
+```
+{
+ 	metadata: {
+		config: {}
+	}, notification: {
+		type: "success" | "error" | "warning" | "info",
+		message: "..."
+	}
+}
+```
+
+### [1.6] System
 ```
 {
  	system: {
  		mode: "systemd-restart",
  		service: "fems-pagekite" | "..."
  	}
+}
+```
+
+## [2] OpenEMS <-> FemsServer
+
+### [2.1] Authenticate
+```
+{
+	metadata: {
+		config: {},
+		backend: "openems"
+	}
+}
+```
+
+### [2.2] timestamped data
+```
+{
+	timedata: {
+		timestamp: [{
+			channel, value
+		}]
+	}
 }
 ```
 
