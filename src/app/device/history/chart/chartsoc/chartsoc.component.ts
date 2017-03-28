@@ -120,8 +120,8 @@ export class ChartSocComponent extends AreaChartComponent {
   curve = d3shape.curveCatmullRom;
 
   xAxisTickFormatting = function (d) {
-    if (d.format("H") == "0") {
-      return d.format("DD.MM.YYYY  H:mm");
+    if (d.hours() == 0) {
+      return d.format("dd, DD.");
     } else {
       return d.format("H:mm");
     }

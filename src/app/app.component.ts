@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { environment } from '../environments';
 import { WebappService, WebsocketService } from './shared/shared';
 
+import * as moment from 'moment';
+
 @Component({
   selector: 'root',
   templateUrl: './app.component.html',
@@ -19,5 +21,7 @@ export class AppComponent {
     private router: Router,
     private webappService: WebappService,
     private websocketService: WebsocketService
-  ) { }
+  ) {
+    moment.locale("de");
+  }
 }
