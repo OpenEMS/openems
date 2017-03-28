@@ -57,10 +57,6 @@ export class CircleDirection {
     ) { }
 }
 
-@Component({
-    selector: 'abstractsection',
-    templateUrl: './section.component.html'
-})
 export abstract class AbstractSectionComponent {
     private outlinePath: string = "";
     private valuePath: string = "";

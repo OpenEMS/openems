@@ -265,7 +265,7 @@ export class Device {
    * Receive new data from websocket
    */
   public receive(message: any) {
-
+    // console.log("receive: ", message);
     if ("metadata" in message) {
       let metadata = message.metadata;
       /*
@@ -320,7 +320,6 @@ export class Device {
     if ("queryreply" in message) {
       let data = message.queryreply.data;
       for (let datum of data) {
-        console.log(datum);
         let sum = this.calculateSummary(datum.channels);
         datum["summary"] = sum;
       }

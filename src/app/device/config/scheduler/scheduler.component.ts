@@ -63,7 +63,7 @@ export class SchedulerComponent extends AbstractConfig {
     }
     schedulerForm["_scheduler_new"] = true;
 
-    console.log(schedulerForm);
+    // console.log(schedulerForm);
   }
 
 }

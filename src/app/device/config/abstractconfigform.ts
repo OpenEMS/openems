@@ -75,7 +75,7 @@ export abstract class AbstractConfigForm {
       form.markAsDirty();
     } else {
       let requests = this.getConfigDeleteRequests(form.controls[index]);
-      console.log(requests);
+      // console.log(requests);
       this.send(requests);
       form.markAsPristine();
     }
@@ -112,7 +112,7 @@ export abstract class AbstractConfigForm {
       }
     }
 
-    console.log(requests);
+    // console.log(requests);
     return requests;
   }
 

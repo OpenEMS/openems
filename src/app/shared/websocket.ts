@@ -214,6 +214,7 @@ export class Websocket {
    */
   public send(device: Device, message: any): void {
     message["device"] = device.name;
+    // console.log(message);
     this.subject.next(message);
   }
 
