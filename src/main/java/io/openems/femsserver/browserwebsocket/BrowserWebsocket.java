@@ -179,10 +179,17 @@ public class BrowserWebsocket extends WebSocketServer {
 				jMessage.remove("device");
 
 				/*
-				 * Forward subscribe message to fems websocket
+				 * Forward Subscribe to data
 				 */
 				if (jMessage.has("subscribe")) {
 					subscribe(deviceName, jMessage.get("subscribe"));
+				}
+
+				/*
+				 * Forward System command
+				 */
+				if (jMessage.has("system")) {
+					system(deviceName, jMessage.get("system"));
 				}
 
 				/*
@@ -241,6 +248,20 @@ public class BrowserWebsocket extends WebSocketServer {
 	private synchronized void subscribe(String deviceName, JsonElement jSubscribeElement) {
 		JsonObject j = new JsonObject();
 		j.add("subscribe", jSubscribeElement);
+		// Execute for every matching femsWebsocket (should be only one in general)
+		this.connectionManager.getFemsWebsockets(deviceName).forEach(femsWebsocket -> {
+			WebSocketUtils.send(femsWebsocket, j);
+		});
+	}
+
+	/**
+	 * System command
+	 *
+	 * @param j
+	 */
+	private synchronized void system(String deviceName, JsonElement jSubscribeElement) {
+		JsonObject j = new JsonObject();
+		j.add("system", jSubscribeElement);
 		// Execute for every matching femsWebsocket (should be only one in general)
 		this.connectionManager.getFemsWebsockets(deviceName).forEach(femsWebsocket -> {
 			WebSocketUtils.send(femsWebsocket, j);
