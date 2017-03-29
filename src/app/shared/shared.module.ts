@@ -24,6 +24,11 @@ import { KeysPipe } from './pipe/keys/keys.pipe';
 import { ClassnamePipe } from './pipe/classname/classname.pipe';
 import { SignPipe } from './pipe/sign/sign.pipe';
 
+/**
+ * Chart
+ */
+import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.component';
+
 @NgModule({
   imports: [
     BrowserModule,
@@ -38,7 +43,8 @@ import { SignPipe } from './pipe/sign/sign.pipe';
   declarations: [
     KeysPipe,
     ClassnamePipe,
-    SignPipe
+    SignPipe,
+    ChartSocComponent
   ],
   exports: [
     KeysPipe,
@@ -50,7 +56,8 @@ import { SignPipe } from './pipe/sign/sign.pipe';
     FlexLayoutModule,
     NgxChartsModule,
     RouterModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ChartSocComponent
   ]
 })
 export class SharedModule { }

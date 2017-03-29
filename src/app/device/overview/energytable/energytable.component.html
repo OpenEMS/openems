@@ -1,220 +1,217 @@
-<md-card class="single" *ngIf="device">
+<md-card class="single_leftright single_top" *ngIf="device">
   <md-card-header>
     <md-icon md-card-avatar>timeline</md-icon>
     <md-card-title>Energietabelle</md-card-title>
   </md-card-header>
-  <md-card-content>
-    <ng-container *ngFor="let thing of device.data | async | keys">
-
-      <!-- Storage -->
-      <div *ngIf="device.things.storage[thing.key]" fxFlex>
-        <md-card class="single">
-          <md-card-header>
-            <!--<md-icon md-card-avatar>play</md-icon>-->
-            <img style="height: 100%" src="assets/img/storage.png" md-card-avatar/>
-            <md-card-title>Speichersystem</md-card-title>
-            <md-card-subtitle>{{ thing.key }}</md-card-subtitle>
-          </md-card-header>
-          <md-card-content>
-            <table class="full_width">
-              <tr>
-                <td style="width:50%">Ladezustand</td>
-                <td style="width:15%"></td>
-                <td style="width:25%" class="align_right">{{ thing.value.Soc }}</td>
-                <td style="width:10%">%</td>
-              </tr>
-              <ng-container *ngIf="thing.value.ActivePower != null && thing.value.ReactivePower != null">
-                <tr>
-                  <td>Beladeleistung</td>
-                  <td></td>
-                  <td class="align_right" *ngIf="thing.value.ActivePower < 0">{{ thing.value.ActivePower | sign }}</td>
-                  <td class="align_right" *ngIf="thing.value.ActivePower >= 0">0</td>
-                  <td>W</td>
-                </tr>
-                <tr>
-                  <td>Entladeleistung</td>
-                  <td></td>
-                  <td class="align_right" *ngIf="thing.value.ActivePower > 0">{{ thing.value.ActivePower }}</td>
-                  <td class="align_right" *ngIf="thing.value.ActivePower <= 0">0</td>
-                  <td>W</td>
-                </tr>
-                <tr class="gray_color">
-                  <td>Blindleistung</td>
-                  <td></td>
-                  <td class="align_right">{{ thing.value.ReactivePower }}</td>
-                  <td>var</td>
-                </tr>
-              </ng-container>
-              <ng-container *ngIf="thing.value.ActivePowerL1 != null&& thing.value.ActivePowerL2 != null && thing.value.ActivePowerL3 != null">
-                <tr>
-                  <td style="width:50%">Ausgabeleistung</td>
-                  <td style="width:15%">L1</td>
-                  <td style="width:25%" class="align_right">{{ thing.value.ActivePowerL1 }}</td>
-                  <td style="width:10%">W</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td>L2</td>
-                  <td class="align_right">{{ thing.value.ActivePowerL2 }}</td>
-                  <td>W</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td>L3</td>
-                  <td class="align_right">{{ thing.value.ActivePowerL3 }}</td>
-                  <td>W</td>
-                </tr>
-              </ng-container>
-            </table>
-          </md-card-content>
-        </md-card>
-      </div>
-
-      <!-- Grid -->
-      <div *ngIf="device.things.grid[thing.key]" fxFlex>
-        <md-card class="single">
-          <md-card-header>
-            <img style="height: 100%" src="assets/img/grid.png" md-card-avatar/>
-            <md-card-title>Netzzähler</md-card-title>
-            <md-card-subtitle>{{ thing.key }}</md-card-subtitle>
-          </md-card-header>
-          <md-card-content>
-            <table class="full_width">
-              <ng-container *ngIf="thing.value.ActivePower != null && thing.value.ReactivePower != null">
-                <tr>
-                  <td style="width:50%">Bezugsleistung</td>
-                  <td style="width:15%"></td>
-                  <td style="width:25%" class="align_right" *ngIf="thing.value.ActivePower > 0">{{ thing.value.ActivePower }}</td>
-                  <td style="width:25%" class="align_right" *ngIf="thing.value.ActivePower <= 0">0</td>
-                  <td style="width:10%">W</td>
-                </tr>
-                <tr>
-                  <td>Einspeiseleistung</td>
-                  <td></td>
-                  <td class="align_right" *ngIf="thing.value.ActivePower < 0">{{ thing.value.ActivePower | sign }}</td>
-                  <td class="align_right" *ngIf="thing.value.ActivePower >= 0">0</td>
-                  <td>W</td>
-                </tr>
-                <tr class="gray_color">
-                  <td>Blindleistung</td>
-                  <td></td>
-                  <td class="align_right">{{ thing.value.ReactivePower }}</td>
-                  <td>var</td>
-                </tr>
-              </ng-container>
-              <ng-container *ngIf="!(thing.value.ActivePower != null && thing.value.ReactivePower != null) && thing.value.ActivePowerL1 != null && thing.value.ActivePowerL2 != null && thing.value.ActivePowerL3 != null">
-                <tr *ngIf="thing.value.ActivePowerL1 < 0">
-                  <td>Netzeinspeisung</td>
-                  <td>L1</td>
-                  <td class="align_right">{{ thing.value.ActivePowerL1 | sign }}</td>
-                  <td>W</td>
-                </tr>
-                <tr *ngIf="thing.value.ActivePowerL1 >= 0">
-                  <td>Netzbezug</td>
-                  <td>L1</td>
-                  <td class="align_right">{{ thing.value.ActivePowerL1 }}</td>
-                  <td>W</td>
-                </tr>
-                <tr *ngIf="thing.value.ActivePowerL2 < 0">
-                  <td>Netzeinspeisung</td>
-                  <td>L2</td>
-                  <td class="align_right">{{ thing.value.ActivePowerL2 | sign }}</td>
-                  <td>W</td>
-                </tr>
-                <tr *ngIf="thing.value.ActivePowerL2 >= 0">
-                  <td>Netzbezug</td>
-                  <td>L2</td>
-                  <td class="align_right">{{ thing.value.ActivePowerL2 }}</td>
-                  <td>W</td>
-                </tr>
-                <tr *ngIf="thing.value.ActivePowerL3 < 0">
-                  <td>Netzeinspeisung</td>
-                  <td>L3</td>
-                  <td class="align_right">{{ thing.value.ActivePowerL3 | sign }}</td>
-                  <td>W</td>
-                </tr>
-                <tr *ngIf="thing.value.ActivePowerL3 >= 0">
-                  <td>Netzbezug</td>
-                  <td>L3</td>
-                  <td class="align_right">{{ thing.value.ActivePowerL3 }}</td>
-                  <td>W</td>
-                </tr>
-              </ng-container>
-            </table>
-          </md-card-content>
-        </md-card>
-      </div>
-
-      <!-- Production -->
-      <div *ngIf="device.things.production[thing.key]" fxFlex>
-        <md-card class="single">
-          <md-card-header>
-            <img style="height: 100%" src="assets/img/production.png" md-card-avatar/>
-            <md-card-title>Erzeugungszähler</md-card-title>
-            <md-card-subtitle>{{ thing.key }}</md-card-subtitle>
-          </md-card-header>
-          <md-card-content>
-            <table class="full_width">
-              <ng-container *ngIf="thing.value.ActivePower != null && thing.value.ReactivePower != null">
-                <tr>
-                  <td style="width:50%">Erzeugung</td>
-                  <td style="width:15%"></td>
-                  <td style="width:25%" class="align_right">{{ thing.value.ActivePower }}</td>
-                  <td style="width:10%">W</td>
-                </tr>
-                <tr class="gray_color">
-                  <td>Blindleistung</td>
-                  <td></td>
-                  <td class="align_right">{{ thing.value.ReactivePower }}</td>
-                  <td>var</td>
-                </tr>
-              </ng-container>
-              <ng-container *ngIf="!(thing.value.ActivePower != null && thing.value.ReactivePower != null) && thing.value.ActivePowerL1 != null && thing.value.ActivePowerL2 != null && thing.value.ActivePowerL3 != null">
-                <tr>
-                  <td>Erzeugung</td>
-                  <td>L1</td>
-                  <td class="align_right">{{ thing.value.ActivePowerL1 }}</td>
-                  <td>W</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td>L2</td>
-                  <td class="align_right">{{ thing.value.ActivePowerL2 }}</td>
-                  <td>W</td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td>L3</td>
-                  <td class="align_right">{{ thing.value.ActivePowerL3 }}</td>
-                  <td>W</td>
-                </tr>
-              </ng-container>
-            </table>
-          </md-card-content>
-        </md-card>
-      </div>
-    </ng-container>
-
-    <!-- Consumption -->
-    <div *ngIf="device.summary.consumption" fxFlex>
-      <md-card class="single">
-        <md-card-header>
-          <img style="height: 100%" src="assets/img/consumption.png" md-card-avatar/>
-          <md-card-title>Verbrauch</md-card-title>
-        </md-card-header>
-        <md-card-content>
-          <table class="full_width">
-            <ng-container *ngIf="device.summary.consumption.activePower != null">
-              <tr>
-                <td style="width:50%">Leistung</td>
-                <td style="width:15%"></td>
-                <td style="width:25%" class="align_right">{{ device.summary.consumption.activePower }}</td>
-                <td style="width:10%">W</td>
-              </tr>
-            </ng-container>
-          </table>
-        </md-card-content>
-      </md-card>
-    </div>
-  </md-card-content>
 </md-card>
+<ng-container *ngFor="let thing of device.data | async | keys">
+
+  <!-- Storage -->
+  <div *ngIf="device.things.storage[thing.key]" fxFlex>
+    <md-card class="single_leftright">
+      <md-card-header>
+        <img style="height: 100%" src="assets/img/storage.png" md-card-avatar/>
+        <md-card-title>Speichersystem</md-card-title>
+        <md-card-subtitle>{{ thing.key }}</md-card-subtitle>
+      </md-card-header>
+      <md-card-content>
+        <table class="full_width">
+          <tr>
+            <td style="width:50%">Ladezustand</td>
+            <td style="width:15%"></td>
+            <td style="width:25%" class="align_right">{{ thing.value.Soc }}</td>
+            <td style="width:10%">%</td>
+          </tr>
+          <ng-container *ngIf="thing.value.ActivePower != null && thing.value.ReactivePower != null">
+            <tr>
+              <td>Beladeleistung</td>
+              <td></td>
+              <td class="align_right" *ngIf="thing.value.ActivePower < 0">{{ thing.value.ActivePower | sign }}</td>
+              <td class="align_right" *ngIf="thing.value.ActivePower >= 0">0</td>
+              <td>W</td>
+            </tr>
+            <tr>
+              <td>Entladeleistung</td>
+              <td></td>
+              <td class="align_right" *ngIf="thing.value.ActivePower > 0">{{ thing.value.ActivePower }}</td>
+              <td class="align_right" *ngIf="thing.value.ActivePower <= 0">0</td>
+              <td>W</td>
+            </tr>
+            <tr class="gray_color">
+              <td>Blindleistung</td>
+              <td></td>
+              <td class="align_right">{{ thing.value.ReactivePower }}</td>
+              <td>var</td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="thing.value.ActivePowerL1 != null&& thing.value.ActivePowerL2 != null && thing.value.ActivePowerL3 != null">
+            <tr>
+              <td style="width:50%">Ausgabeleistung</td>
+              <td style="width:15%">L1</td>
+              <td style="width:25%" class="align_right">{{ thing.value.ActivePowerL1 }}</td>
+              <td style="width:10%">W</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>L2</td>
+              <td class="align_right">{{ thing.value.ActivePowerL2 }}</td>
+              <td>W</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>L3</td>
+              <td class="align_right">{{ thing.value.ActivePowerL3 }}</td>
+              <td>W</td>
+            </tr>
+          </ng-container>
+        </table>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <!-- Grid -->
+  <div *ngIf="device.things.grid[thing.key]" fxFlex>
+    <md-card class="single_leftright">
+      <md-card-header>
+        <img style="height: 100%" src="assets/img/grid.png" md-card-avatar/>
+        <md-card-title>Netzzähler</md-card-title>
+        <md-card-subtitle>{{ thing.key }}</md-card-subtitle>
+      </md-card-header>
+      <md-card-content>
+        <table class="full_width">
+          <ng-container *ngIf="thing.value.ActivePower != null && thing.value.ReactivePower != null">
+            <tr>
+              <td style="width:50%">Bezugsleistung</td>
+              <td style="width:15%"></td>
+              <td style="width:25%" class="align_right" *ngIf="thing.value.ActivePower > 0">{{ thing.value.ActivePower }}</td>
+              <td style="width:25%" class="align_right" *ngIf="thing.value.ActivePower <= 0">0</td>
+              <td style="width:10%">W</td>
+            </tr>
+            <tr>
+              <td>Einspeiseleistung</td>
+              <td></td>
+              <td class="align_right" *ngIf="thing.value.ActivePower < 0">{{ thing.value.ActivePower | sign }}</td>
+              <td class="align_right" *ngIf="thing.value.ActivePower >= 0">0</td>
+              <td>W</td>
+            </tr>
+            <tr class="gray_color">
+              <td>Blindleistung</td>
+              <td></td>
+              <td class="align_right">{{ thing.value.ReactivePower }}</td>
+              <td>var</td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="!(thing.value.ActivePower != null && thing.value.ReactivePower != null) && thing.value.ActivePowerL1 != null && thing.value.ActivePowerL2 != null && thing.value.ActivePowerL3 != null">
+            <tr *ngIf="thing.value.ActivePowerL1 < 0">
+              <td>Netzeinspeisung</td>
+              <td>L1</td>
+              <td class="align_right">{{ thing.value.ActivePowerL1 | sign }}</td>
+              <td>W</td>
+            </tr>
+            <tr *ngIf="thing.value.ActivePowerL1 >= 0">
+              <td>Netzbezug</td>
+              <td>L1</td>
+              <td class="align_right">{{ thing.value.ActivePowerL1 }}</td>
+              <td>W</td>
+            </tr>
+            <tr *ngIf="thing.value.ActivePowerL2 < 0">
+              <td>Netzeinspeisung</td>
+              <td>L2</td>
+              <td class="align_right">{{ thing.value.ActivePowerL2 | sign }}</td>
+              <td>W</td>
+            </tr>
+            <tr *ngIf="thing.value.ActivePowerL2 >= 0">
+              <td>Netzbezug</td>
+              <td>L2</td>
+              <td class="align_right">{{ thing.value.ActivePowerL2 }}</td>
+              <td>W</td>
+            </tr>
+            <tr *ngIf="thing.value.ActivePowerL3 < 0">
+              <td>Netzeinspeisung</td>
+              <td>L3</td>
+              <td class="align_right">{{ thing.value.ActivePowerL3 | sign }}</td>
+              <td>W</td>
+            </tr>
+            <tr *ngIf="thing.value.ActivePowerL3 >= 0">
+              <td>Netzbezug</td>
+              <td>L3</td>
+              <td class="align_right">{{ thing.value.ActivePowerL3 }}</td>
+              <td>W</td>
+            </tr>
+          </ng-container>
+        </table>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <!-- Production -->
+  <div *ngIf="device.things.production[thing.key]" fxFlex>
+    <md-card class="single_leftright">
+      <md-card-header>
+        <img style="height: 100%" src="assets/img/production.png" md-card-avatar/>
+        <md-card-title>Erzeugungszähler</md-card-title>
+        <md-card-subtitle>{{ thing.key }}</md-card-subtitle>
+      </md-card-header>
+      <md-card-content>
+        <table class="full_width">
+          <ng-container *ngIf="thing.value.ActivePower != null && thing.value.ReactivePower != null">
+            <tr>
+              <td style="width:50%">Erzeugung</td>
+              <td style="width:15%"></td>
+              <td style="width:25%" class="align_right">{{ thing.value.ActivePower }}</td>
+              <td style="width:10%">W</td>
+            </tr>
+            <tr class="gray_color">
+              <td>Blindleistung</td>
+              <td></td>
+              <td class="align_right">{{ thing.value.ReactivePower }}</td>
+              <td>var</td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="!(thing.value.ActivePower != null && thing.value.ReactivePower != null) && thing.value.ActivePowerL1 != null && thing.value.ActivePowerL2 != null && thing.value.ActivePowerL3 != null">
+            <tr>
+              <td>Erzeugung</td>
+              <td>L1</td>
+              <td class="align_right">{{ thing.value.ActivePowerL1 }}</td>
+              <td>W</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>L2</td>
+              <td class="align_right">{{ thing.value.ActivePowerL2 }}</td>
+              <td>W</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>L3</td>
+              <td class="align_right">{{ thing.value.ActivePowerL3 }}</td>
+              <td>W</td>
+            </tr>
+          </ng-container>
+        </table>
+      </md-card-content>
+    </md-card>
+  </div>
+</ng-container>
+
+<!-- Consumption -->
+<div *ngIf="device.summary.consumption" fxFlex>
+  <md-card class="single_leftright">
+    <md-card-header>
+      <img style="height: 100%" src="assets/img/consumption.png" md-card-avatar/>
+      <md-card-title>Verbrauch</md-card-title>
+    </md-card-header>
+    <md-card-content>
+      <table class="full_width">
+        <ng-container *ngIf="device.summary.consumption.activePower != null">
+          <tr>
+            <td style="width:50%">Leistung</td>
+            <td style="width:15%"></td>
+            <td style="width:25%" class="align_right">{{ device.summary.consumption.activePower }}</td>
+            <td style="width:10%">W</td>
+          </tr>
+        </ng-container>
+      </table>
+    </md-card-content>
+  </md-card>
+</div>

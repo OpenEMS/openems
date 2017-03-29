@@ -4,9 +4,13 @@ md-card.single  {
   margin: 20px;
 }
 
-md-card.not_single {
+md-card.single_leftright {
   margin-left: 20px;
   margin-right: 20px;
+}
+
+md-card.single_top {
+  margin-top: 20px;
 }
 
 table.full_width {
