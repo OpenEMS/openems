@@ -63,6 +63,7 @@ public class AuthenticatedWebsocketHandler extends WebsocketHandler {
 	 */
 	@Override
 	public void onMessage(JsonObject jMessage) {
+//		log.info(jMessage.toString());
 		/*
 		 * Authenticate user and send immediate reply
 		 */

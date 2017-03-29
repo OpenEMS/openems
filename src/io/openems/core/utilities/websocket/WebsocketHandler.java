@@ -54,6 +54,7 @@ import io.openems.core.Config;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
+import io.openems.core.utilities.StringUtils;
 
 /**
  * Handles a Websocket connection to a browser, femsserver,...
@@ -227,7 +228,9 @@ public class WebsocketHandler {
 	 * Sends an initial message to the browser after it was successfully connected
 	 */
 	public boolean sendConnectionSuccessfulReply() {
-		return this.send(this.createConnectionSuccessfulReply());
+		JsonObject j = this.createConnectionSuccessfulReply();
+		log.info("Send Connection Successful Reply: " + StringUtils.toShortString(j, 100));
+		return this.send(j);
 	}
 
 	/**
@@ -236,12 +239,8 @@ public class WebsocketHandler {
 	 * <pre>
 	 * {
 	 *   metadata: {
-	 *     devices: [{
-	 *       name: {...},
-	 *       config: {...}
-	 *       online: true
-	 *     }],
-	 *     backend: "openems"
+	 *       config: {...},
+	 *       backend: "openems"
 	 *   }
 	 * }
 	 * </pre>
