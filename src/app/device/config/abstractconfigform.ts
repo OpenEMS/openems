@@ -140,7 +140,7 @@ export abstract class AbstractConfigForm {
       });
     }
 
-    console.log(requests);
+    // console.log(requests);
     return requests;
   }
 

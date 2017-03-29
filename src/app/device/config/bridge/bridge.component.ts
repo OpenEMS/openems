@@ -53,7 +53,7 @@ export class BridgeComponent extends AbstractConfig {
       });
 
       group["_meta_new"] = true;
-      console.log(bridgeArray);
+      // console.log(bridgeArray);
       bridgeArray.push(group);
       bridgeArray.markAsDirty();
       this.indexLastBridge = bridgeArray.length - 1;

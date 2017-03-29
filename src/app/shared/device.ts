@@ -180,6 +180,16 @@ export class Device {
    * Calculate summary data from websocket reply
    */
   public calculateSummary(data: any): Summary {
+    function getActivePower(o: any): number {
+      if ("ActivePowerL1" in o && o.ActivePowerL1 != null && "ActivePowerL2" in o && o.ActivePowerL2 != null && "ActivePowerL3" in o && o.ActivePowerL3 != null) {
+        return o.ActivePowerL1 + o.ActivePowerL2 + o.ActivePowerL3;
+      } else if ("ActivePower" in o && o.ActivePower != null) {
+        return o.ActivePower;
+      } else {
+        return 0;
+      }
+    }
+
     let summary = new Summary();
     {
       /*
@@ -191,7 +201,7 @@ export class Device {
         if (thing in data) {
           let ess = data[thing];
           soc += ess["Soc"];
-          activePower += ess["ActivePower"];
+          activePower += getActivePower(ess);
         }
       }
       summary.storage.soc = soc / Object.keys(this.things.storage).length;
@@ -209,7 +219,7 @@ export class Device {
         if (thing in data) {
           let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
           let meter = data[thing];
-          let power = meter["ActivePower"];
+          let power = getActivePower(meter);
           if (activePower > 0) {
             powerRatio = (power * 50.) / thingChannels["maxActivePower"]["value"]
           } else {
@@ -236,7 +246,7 @@ export class Device {
         if (thing in data) {
           let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
           let meter = data[thing];
-          let power = meter["ActivePower"];
+          let power = getActivePower(meter);
           powerRatio = (power * 100.) / thingChannels["maxActivePower"]["value"]
           activePower += power;
           maxActivePower += thingChannels["maxActivePower"]["value"];
@@ -257,7 +267,7 @@ export class Device {
       summary.consumption.powerRatio = (activePower * 100.) / maxActivePower;
       summary.consumption.activePower = activePower;
     }
-    // console.log(JSON.stringify(summary));
+    // console.log(JSON.stringify(data), JSON.stringify(summary));
     return summary;
   }
 
