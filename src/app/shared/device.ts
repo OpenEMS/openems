@@ -329,9 +329,11 @@ export class Device {
      */
     if ("queryreply" in message) {
       let data = message.queryreply.data;
-      for (let datum of data) {
-        let sum = this.calculateSummary(datum.channels);
-        datum["summary"] = sum;
+      if (data != null) {
+        for (let datum of data) {
+          let sum = this.calculateSummary(datum.channels);
+          datum["summary"] = sum;
+        }
       }
       this.historyData.next(data);
     }
