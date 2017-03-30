@@ -413,18 +413,15 @@ public class WebsocketHandler {
 				if (days > 6) {
 					resolution = 24 * 60 * 60; // 60 Minutes
 				}
-				JsonArray jData = null;
+				JsonObject jQueryreply = null;
 				for (QueryablePersistence queryablePersistence : thingRepository.getQueryablePersistences()) {
-					jData = queryablePersistence.query(fromDate, toDate, channels, resolution);
-					if (jData != null) {
+					jQueryreply = queryablePersistence.query(fromDate, toDate, channels, resolution);
+					if (jQueryreply != null) {
 						break;
 					}
 				}
 				// Send result
 				JsonObject j = new JsonObject();
-				JsonObject jQueryreply = new JsonObject();
-				jQueryreply.addProperty("mode", "history");
-				jQueryreply.add("data", jData);
 				j.add("queryreply", jQueryreply);
 				this.send(j);
 

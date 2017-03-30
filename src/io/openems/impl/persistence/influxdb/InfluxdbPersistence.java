@@ -203,7 +203,68 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	}
 
 	@Override
-	public JsonArray query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution)
+	public JsonObject query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution)
+			throws OpenemsException {
+
+		JsonObject jQueryreply = new JsonObject();
+		jQueryreply.addProperty("mode", "history");
+		JsonArray jData = this.queryData(fromDate, toDate, channels, resolution);
+		jQueryreply.add("data", jData);
+		JsonObject jkWh = this.querykWh(fromDate, toDate, channels, resolution);
+		jQueryreply.add("kWh", jkWh);
+
+		return jQueryreply;
+	}
+
+	private JsonObject querykWh(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution)
+			throws OpenemsException {
+		// Prepare kWh query string
+		StringBuilder query = new StringBuilder("SELECT ");
+		query.append(toChannelAddressListAvg(channels));
+		query.append(" FROM data WHERE ");
+		if (fems.valueOptional().isPresent()) {
+			query.append("fems = '");
+			query.append(fems.valueOptional().get());
+			query.append("' AND ");
+		}
+		query.append("time > ");
+		query.append(String.valueOf(fromDate.toEpochSecond()));
+		query.append("s");
+		query.append(" AND time < ");
+		query.append(String.valueOf(toDate.plusDays(1).toEpochSecond()));
+		query.append("s");
+		log.info(query.toString());
+
+		QueryResult queryResult = this.executeQuery(query.toString());
+
+		JsonArray j = new JsonArray();
+
+		// AVG data
+		JsonObject jThing = new JsonObject();
+		for (Result result : queryResult.getResults()) {
+			List<Series> series = result.getSeries();
+			if (series != null) {
+				for (Series serie : series) {
+					ArrayList<Address> addressIndex = new ArrayList<>();
+					for (String column : serie.getColumns()) {
+						if (column.equals("time")) {
+							continue;
+						}
+						addressIndex.add(Address.fromString(column));
+					}
+					for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
+						jThing.addProperty(addressIndex.get(columnIndex).toString(),
+								(Double) serie.getValues().get(0).get(columnIndex + 1));
+					}
+				}
+			}
+		}
+		j.add(jThing);
+
+		return jThing;
+	}
+
+	private JsonArray queryData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution)
 			throws OpenemsException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
@@ -224,18 +285,8 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 		query.append(resolution);
 		query.append("s)");
 		log.info(query.toString());
-		// Prepare DB connection
-		Optional<InfluxDB> _influxdb = getInfluxDB();
-		if (!_influxdb.isPresent()) {
-			throw new OpenemsException("Unable to connect to InfluxDB.");
-		}
-		InfluxDB influxDB = _influxdb.get();
 
-		// Parse result
-		QueryResult queryResult = influxDB.query(new Query(query.toString(), DB_NAME), TimeUnit.MILLISECONDS);
-		if (queryResult.hasError()) {
-			throw new OpenemsException("InfluxDB query error: " + queryResult.getError());
-		}
+		QueryResult queryResult = this.executeQuery(query.toString());
 
 		JsonArray j = new JsonArray();
 		for (Result result : queryResult.getResults()) {
@@ -302,4 +353,38 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 		}
 		return String.join(", ", channelAddresses);
 	}
+
+	private String toChannelAddressListAvg(JsonObject channels) throws ReflectionException {
+		ArrayList<String> channelAddresses = new ArrayList<>();
+		for (Entry<String, JsonElement> entry : channels.entrySet()) {
+			String thingId = entry.getKey();
+			JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
+			for (JsonElement channelElement : channelIds) {
+				String channelId = JsonUtils.getAsString(channelElement);
+				if (channelId.equals("ActivePower")) {
+					channelAddresses.add("MEAN(\"" + thingId + "/" + channelId + "\") * 24 / 1000 AS \"" + thingId + "/"
+							+ channelId + "\"");
+				}
+			}
+		}
+		return String.join(", ", channelAddresses);
+	}
+
+	private QueryResult executeQuery(String query) throws OpenemsException {
+		// Prepare DB connection
+		Optional<InfluxDB> _influxdb = getInfluxDB();
+		if (!_influxdb.isPresent()) {
+			throw new OpenemsException("Unable to connect to InfluxDB.");
+		}
+		InfluxDB influxDB = _influxdb.get();
+
+		// Parse result
+		QueryResult queryResult = influxDB.query(new Query(query, DB_NAME), TimeUnit.MILLISECONDS);
+		if (queryResult.hasError()) {
+			throw new OpenemsException("InfluxDB query error: " + queryResult.getError());
+		}
+
+		return queryResult;
+	}
+
 }

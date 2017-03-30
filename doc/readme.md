@@ -155,7 +155,10 @@ Cookie: session_id
 					'channel': 'value'
 				} 
 			}
-		}]
+		}],
+		kWh: {
+			'channel': 'value'
+		}
 	}
 }
 ```
