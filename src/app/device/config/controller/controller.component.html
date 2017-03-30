@@ -2,6 +2,7 @@
     <div formGroupName="scheduler">
         <div formArrayName="controllers">
             <div *ngFor="let controller of form.controls.scheduler.controls['controllers'].controls, let i=index" fxFlex="100%" [formGroupName]="i">
+                <!--existing controller-->
                 <div *ngFor="let controllerMeta of form.value._meta['availableControllers'], let j=index">
                     <div fxLayout fxLayoutWrap="wrap" fxFlex *ngIf="controllerMeta.class == controller.value.class && controller.value.id != ''">
                         <md-card class="single" fxFlex="100%">
@@ -60,6 +61,7 @@
                         </md-card>
                     </div>
                 </div>
+                <!--New controller-->
                 <div *ngIf="controller.value.class == '' || controller.value.id == ''">
                     <md-card class="single">
                         <md-card-header>
