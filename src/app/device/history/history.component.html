@@ -2,6 +2,7 @@
   <div fxFlex.xs="100%" fxFlex.gt-sm="25%">
     <md-card class="single">
       <md-card-header>
+        <md-icon md-card-avatar>account_circle</md-icon>
         <md-card-title>{{ device.address }}</md-card-title>
         <md-card-subtitle>{{ device.name }}</md-card-subtitle>
       </md-card-header>
@@ -54,10 +55,11 @@
   </div>
   <div fxFlex.xs="100%" fxFlex.gt-sm="75%">
     <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>event</md-icon>
+        <md-card-title style="font-size: 16px">{{ timespanText }}</md-card-title>
+      </md-card-header>
       <md-card-content>
-        <div style="margin: 20px">
-          <label style="font-size: 16px">{{ timespanText }}</label>
-        </div>
         <div style="height: 250px">
           <chart-soc [scheme]="colorScheme" [results]="dataSoc">
           </chart-soc>
