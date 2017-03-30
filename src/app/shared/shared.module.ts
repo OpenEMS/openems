@@ -35,8 +35,8 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     FormsModule,
     ReactiveFormsModule,
     NgxChartsModule,
-    MaterialModule.forRoot(),
-    FlexLayoutModule.forRoot(),
+    MaterialModule,
+    FlexLayoutModule,
     RouterModule,
     routing
   ],
