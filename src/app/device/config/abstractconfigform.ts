@@ -29,7 +29,7 @@ export interface ConfigureUpdateSchedulerRequest extends ConfigureRequest {
 
 export abstract class AbstractConfigForm {
 
-  protected device: Device;
+  public device: Device;
 
   constructor(
     protected websocketService: WebsocketService,

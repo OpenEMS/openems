@@ -12,15 +12,16 @@ import * as moment from 'moment';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  public environment = environment;
+
   private navCollapsed: boolean = true;
   private menuitems: any[];
   private connections: string;
-  private environment = environment;
 
   constructor(
+    public websocketService: WebsocketService,
     private router: Router,
-    private webappService: WebappService,
-    private websocketService: WebsocketService
+    private webappService: WebappService
   ) {
     moment.locale("de");
   }

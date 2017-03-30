@@ -115,7 +115,7 @@ export class ChartTest {
         pulsetime = value;
     }
 
-    private circles: Circle[] = [
+    public circles: Circle[] = [
         new Circle(-30, 0),
         new Circle(-70, 0),
         new Circle(-110, 0),

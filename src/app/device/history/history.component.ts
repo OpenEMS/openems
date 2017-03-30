@@ -12,7 +12,9 @@ import { WebsocketService, Device } from '../../shared/shared';
   templateUrl: './history.component.html'
 })
 export class HistoryComponent implements OnInit, OnDestroy {
-  private device: Device;
+
+  public device: Device;
+
   private deviceSubscription: Subscription;
   private activePeriod: string = null;
   private dataSoc = [];

@@ -11,7 +11,8 @@ import { WebsocketService, Device } from '../../../shared/shared';
 })
 export class OverviewComponent implements OnInit, OnDestroy {
 
-  private device: Device;
+  public device: Device;
+
   private deviceSubscription: Subscription;
 
   constructor(
