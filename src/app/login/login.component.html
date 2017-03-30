@@ -3,8 +3,8 @@
     <form [formGroup]="form" (ngSubmit)="doLogin(form)">
       <md-card class="single">
         <md-card-header>
-          <md-icon *ngIf="form._websocket.isConnected" md-card-avatar>play_arrow</md-icon>
-          <md-icon *ngIf="!form._websocket.isConnected" md-card-avatar>stop</md-icon>
+          <md-icon *ngIf="form._websocket.isConnected" md-card-avatar>face</md-icon>
+          <md-icon *ngIf="!form._websocket.isConnected" md-card-avatar>pan_tool</md-icon>
           <md-card-title>{{form._websocket.name}}</md-card-title>
           <md-card-subtitle>{{form._websocket.url}}</md-card-subtitle>
         </md-card-header>
