@@ -90,9 +90,6 @@ public class Power {
 		long minReactivePower = getMinReactivePower();
 		long maxReactivePower = getMaxReactivePower();
 
-		// calculate cosPhi
-		double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
-
 		// variables for reducedPower
 		long reducedActivePower = 0L;
 		long reducedReactivePower = 0L;
@@ -105,6 +102,9 @@ public class Power {
 		if (setReactivePower.peekWrite().isPresent()) {
 			this.reactivePower = setReactivePower.peekWrite().get();
 		}
+
+		// calculate cosPhi
+		double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
 
 		if (minActivePower <= activePower && activePower <= maxActivePower && minReactivePower <= reactivePower
 				&& reactivePower <= maxReactivePower) {
@@ -273,13 +273,7 @@ public class Power {
 	public long getMaxReactivePower() {
 		long maxPower = 0;
 		boolean valid = false;
-		if (allowedDischarge.valueOptional().isPresent()) {
-			maxPower = allowedDischarge.valueOptional().get();
-			valid = true;
-		}
-		if (valid && allowedApparent.valueOptional().isPresent()) {
-			maxPower = Math.min(maxPower, allowedApparent.valueOptional().get());
-		} else if (allowedApparent.valueOptional().isPresent()) {
+		if (allowedApparent.valueOptional().isPresent()) {
 			maxPower = allowedApparent.valueOptional().get();
 			valid = true;
 		}
@@ -302,13 +296,7 @@ public class Power {
 	public long getMinReactivePower() {
 		long minPower = 0;
 		boolean valid = false;
-		if (allowedCharge.valueOptional().isPresent()) {
-			minPower = allowedCharge.valueOptional().get();
-			valid = true;
-		}
-		if (valid && allowedApparent.valueOptional().isPresent()) {
-			minPower = Math.max(minPower, allowedApparent.valueOptional().get() * -1);
-		} else if (allowedApparent.valueOptional().isPresent()) {
+		if (allowedApparent.valueOptional().isPresent()) {
 			minPower = allowedApparent.valueOptional().get() * -1;
 			valid = true;
 		}
