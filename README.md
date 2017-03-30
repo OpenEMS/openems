@@ -1,6 +1,7 @@
 # OpenemsGui
 
 This project was generated with [angular-cli](https://github.com/angular/angular-cli) version 1.0.0-beta.26.
+Dependencies are managed by yarn: `ng set --global packageManager=yarn` and `yarn install`.
 
 ## Development server
 
