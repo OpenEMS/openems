@@ -11,5 +11,5 @@ import { Device } from '../../../shared/shared';
 export class EnergymonitorComponent {
 
   @Input()
-  private device: Device;
+  public device: Device;
 }

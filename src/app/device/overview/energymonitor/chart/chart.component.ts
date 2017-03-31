@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, OnChanges, AfterViewInit, ViewChild, QueryList, ElementRef } from '@angular/core';
 import { BaseChartComponent, ColorHelper } from '@swimlane/ngx-charts';
 import * as d3 from 'd3';
-import { AbstractSectionComponent, SectionValue, SvgSquarePosition, SvgSquare } from './section/abstractsection.component';
+import { AbstractSection, SectionValue, SvgSquarePosition, SvgSquare } from './section/abstractsection.component';
 import { ConsumptionSectionComponent } from './section/consumptionsection.component';
 import { GridSectionComponent } from './section/gridsection.component';
 import { ProductionSectionComponent } from './section/productionsection.component';
@@ -27,8 +27,9 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
   @ViewChild(StorageSectionComponent)
   private storageSection: StorageSectionComponent;
 
+  public translation: string;
+
   private style: string;
-  private translation: string;
   private _device: Device;
 
   @Input()

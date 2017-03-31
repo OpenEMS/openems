@@ -9,5 +9,5 @@ import { Device } from '../../../shared/shared';
 export class EnergytableComponent {
 
   @Input()
-  private device: Device;
+  public device: Device;
 }

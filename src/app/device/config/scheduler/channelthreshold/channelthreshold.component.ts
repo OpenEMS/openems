@@ -10,12 +10,12 @@ import { AbstractConfigForm } from '../../abstractconfigform';
     selector: 'channelthreshold',
     templateUrl: './channelthreshold.component.html',
 })
-
 export class ChannelthresholdComponent extends AbstractConfigForm {
-    schedulerForm: FormGroup;
+
+    public schedulerForm: FormGroup;
 
     constructor(
-        websocketService: WebsocketService,
+        public websocketService: WebsocketService,
         private formBuilder: FormBuilder
     ) {
         super(websocketService);

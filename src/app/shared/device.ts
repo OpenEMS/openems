@@ -38,13 +38,16 @@ class Summary {
 }
 
 export class Device {
-  private things: Things
+
+  public summary: Summary = new Summary();
   public event = new Subject<Notification>();
   public address: string;
   public data = new BehaviorSubject<{ [thing: string]: any }>(null);
   public historyData = new BehaviorSubject<any[]>(null);
   public historykWh = new BehaviorSubject<any[]>(null);
   public config = new BehaviorSubject<Config>(null);
+
+  private things: Things
   private online = false;
   private influxdb: {
     ip: string,
@@ -52,8 +55,6 @@ export class Device {
     password: string,
     fems: string
   }
-
-  private summary: Summary = new Summary();
 
   constructor(
     public name: string,

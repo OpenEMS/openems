@@ -1,21 +1,21 @@
 <div [formGroup]="schedulerForm">
-    <md-card class="single" formGroupName="scheduler">
-        <md-card-header>
-            <md-icon md-card-avatar>schedule</md-icon>
-            <md-card-title>{{ schedulerForm.controls['scheduler'].value.class | classname }}</md-card-title>
-            <md-card-subtitle>{{ schedulerForm.controls['scheduler'].value.id }}</md-card-subtitle>
-        </md-card-header>
-        <md-card-content>
-            <div fxLayout>
-                <div fxFlex fxLayout fxLayoutWrap="wrap">
-                    <md-input-container fxFlex="50%"><input formControlName="cycleTime" type="number" placeholder="Zyklusdauer" mdInput><span md-suffix>ms</span></md-input-container>
-                </div>
-            </div>
-            <div fxLayout>
-                <div fxFlex="100%"></div>
-                <button (click)="save(schedulerForm.controls['scheduler'])" color="primary" md-mini-fab><md-icon>check</md-icon></button>
-                <button (click)="createNewScheduler(schedulerForm.controls['scheduler'])" color="primary" md-mini-fab><md-icon>delete</md-icon></button>
-            </div>
-        </md-card-content>
-    </md-card>
+  <md-card class="single" formGroupName="scheduler">
+    <md-card-header>
+      <md-icon md-card-avatar>schedule</md-icon>
+      <md-card-title>{{ schedulerForm.controls['scheduler'].value.class | classname }}</md-card-title>
+      <md-card-subtitle>{{ schedulerForm.controls['scheduler'].value.id }}</md-card-subtitle>
+    </md-card-header>
+    <md-card-content>
+      <div fxLayout>
+        <div fxFlex fxLayout fxLayoutWrap="wrap">
+          <md-input-container fxFlex="50%"><input formControlName="cycleTime" type="number" placeholder="Zyklusdauer" mdInput><span md-suffix>ms</span></md-input-container>
+        </div>
+      </div>
+      <div fxLayout>
+        <div fxFlex="100%"></div>
+        <button (click)="save(schedulerForm.controls['scheduler'])" color="primary" md-mini-fab><md-icon>check</md-icon></button>
+        <button (click)="createNewScheduler(schedulerForm.controls['scheduler'])" color="primary" md-mini-fab><md-icon>delete</md-icon></button>
+      </div>
+    </md-card-content>
+  </md-card>
 </div>
