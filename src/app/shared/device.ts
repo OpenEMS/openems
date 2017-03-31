@@ -162,17 +162,22 @@ export class Device {
     });
   }
 
-  private getkWhResult(): { [thing: string]: [string] } {
+  private getkWhResult(channels: { [thing: string]: [string] }): { [thing: string]: [string] } {
     let kWh = {};
-    let thingChannel = []
-    for (let thing in this.things['grid']) {
-      kWh[thing] = "grid";
-    }
-    for (let thing in this.things['production']) {
-      kWh[thing] = "production";
-    }
-    for (let thing in this.things['storage']) {
-      kWh[thing] = "storage";
+    let thingChannel = [];
+
+    for (let type in this.things) {
+      for (let thing in this.things[type]) {
+        for (let channel in channels[thing]) {
+          if (channels[thing][channel] == "ActivePower") {
+            kWh[thing + "/ActivePower"] = type;
+          } else if (channels[thing][channel] == "ActivePowerL1" || channels[thing][channel] == "ActivePowerL2" || channels[thing][channel] == "ActivePowerL3") {
+            kWh[thing + "/ActivePowerL1"] = type;
+            kWh[thing + "/ActivePowerL2"] = type;
+            kWh[thing + "/ActivePowerL3"] = type;
+          }
+        }
+      }
     }
     return kWh;
   }
@@ -187,7 +192,7 @@ export class Device {
       toDate: toDate.format("YYYY-MM-DD"),
       timezone: new Date().getTimezoneOffset() * 60,
       channels: this.getImportantChannels(),
-      kWh: this.getkWhResult()
+      kWh: this.getkWhResult(this.getImportantChannels())
     };
     console.log(obj);
     this.send({ query: obj });
