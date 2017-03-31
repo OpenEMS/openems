@@ -28,6 +28,7 @@
       "environmentSource": "environments/environment.ts",
       "environments": {
         "femsserver": "environments/femsserver.ts",
+        "femsserver-dev": "environments/femsserver-dev.ts",
         "openems": "environments/openems.ts",
         "dev": "environments/environment.ts"
       }

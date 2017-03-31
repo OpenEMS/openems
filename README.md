@@ -5,7 +5,7 @@ Dependencies are managed by yarn: `ng set --global packageManager=yarn` and `yar
 
 ## Development server
 
-Run `ng serve --env=femsserver` to serve for FemsServer-Backend.
+Run `ng serve --env=femsserver-dev` to serve for FemsServer-Backend.
 
 Run `ng serve` to serve for OpenEMS-Backend.
 
