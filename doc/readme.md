@@ -133,8 +133,13 @@ Cookie: session_id
 		fromDate: "01.01.2017",
 		toDate: "01.01.2017", 
 		timezone: /* offset in seconds */,
-		channels: {
-			thing: [channel] 
+		data: {
+			channels: {
+				thing: [channel] 
+			}
+		},
+		kWh: {
+			"thing/channel": 'grid' | 'production' | 'storage',
 		}
 	}
 }
@@ -157,7 +162,20 @@ Cookie: session_id
 			}
 		}],
 		kWh: {
-			'channel': 'value'
+			'meter0/ActivePower': {
+				'sell': ...,
+				'buy': ...,
+				'type': 'grid' | 'production' | 'storage'
+			},
+			'meter1/ActivePower': {
+				'value': value,
+				'type': 'grid' | 'production' | 'storage'
+			},
+			'ess0/ActivePower': {
+				'charge: ...,
+				'discharge': ...,
+				'type': 'grid' | 'production' | 'storage'
+			}
 		}
 	}
 }

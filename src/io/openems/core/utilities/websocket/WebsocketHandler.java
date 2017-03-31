@@ -407,6 +407,7 @@ public class WebsocketHandler {
 				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
 				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jQuery, "toDate", timezone);
 				JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
+				JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 				// Calculate resolution
 				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
 				int resolution = 60 * 60; // 60 Minutes
@@ -415,7 +416,7 @@ public class WebsocketHandler {
 				}
 				JsonObject jQueryreply = null;
 				for (QueryablePersistence queryablePersistence : thingRepository.getQueryablePersistences()) {
-					jQueryreply = queryablePersistence.query(fromDate, toDate, channels, resolution);
+					jQueryreply = queryablePersistence.query(fromDate, toDate, channels, resolution, kWh);
 					if (jQueryreply != null) {
 						break;
 					}

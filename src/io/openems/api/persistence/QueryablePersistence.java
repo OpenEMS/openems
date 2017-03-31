@@ -52,6 +52,6 @@ public abstract class QueryablePersistence extends Persistence {
 	}
 	 *             </pre>
 	 */
-	public abstract JsonObject query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution)
-			throws OpenemsException;
+	public abstract JsonObject query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution,
+			JsonObject kWh) throws OpenemsException;
 }
