@@ -329,6 +329,7 @@ export class Device {
      */
     if ("queryreply" in message) {
       let data = message.queryreply.data;
+      console.log(message.queryreply);
       if (data != null) {
         for (let datum of data) {
           let sum = this.calculateSummary(datum.channels);
