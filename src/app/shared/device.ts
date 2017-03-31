@@ -351,13 +351,21 @@ export class Device {
      * Reply to a query
      */
     if ("queryreply" in message) {
-      let data = message.queryreply.data;
-      let kWh = message.queryreply.kWh;
-      console.log(message.queryreply);
-      if (data != null) {
-        for (let datum of data) {
-          let sum = this.calculateSummary(datum.channels);
-          datum["summary"] = sum;
+      // console.log(message.queryreply);
+      let data = null;
+      let kWh = null;
+      // history data
+      if (message.queryreply != null) {
+        if ("data" in message.queryreply && message.queryreply.data != null) {
+          data = message.queryreply.data;
+          for (let datum of data) {
+            let sum = this.calculateSummary(datum.channels);
+            datum["summary"] = sum;
+          }
+        }
+        // kWh data
+        if ("kwh" in message.queryreply) {
+          kWh = message.queryreply.kWh;
         }
       }
       this.historyData.next(data);
