@@ -46,9 +46,6 @@ public class Power {
 	private boolean activePowerValid = false;
 	private boolean reactivePowerValid = false;
 
-	private final AvgFiFoQueue activePowerQueue;
-	private final AvgFiFoQueue reactivePowerQueue;
-
 	public Power(ReadChannel<Long> allowedDischarge, ReadChannel<Long> allowedCharge, ReadChannel<Long> allowedApparent,
 			WriteChannel<Long> setActivePower, WriteChannel<Long> setReactivePower, int acivePowerAverage,
 			int reactivePowerAverage) {
@@ -58,8 +55,6 @@ public class Power {
 		this.allowedApparent = allowedApparent;
 		this.setActivePower = setActivePower;
 		this.setReactivePower = setReactivePower;
-		this.activePowerQueue = new AvgFiFoQueue(acivePowerAverage, 1);
-		this.reactivePowerQueue = new AvgFiFoQueue(reactivePowerAverage, 1);
 	}
 
 	public void setActivePower(long power) {
@@ -73,11 +68,11 @@ public class Power {
 	}
 
 	public long getActivePower() {
-		return this.activePowerQueue.avg();
+		return this.activePower;
 	}
 
 	public long getReactivePower() {
-		return this.reactivePowerQueue.avg();
+		return this.reactivePower;
 	}
 
 	/**
@@ -95,11 +90,11 @@ public class Power {
 		long reducedReactivePower = 0L;
 
 		// Check if active power is already set
-		if (setActivePower.peekWrite().isPresent()) {
+		if (setActivePower.getWriteValue().isPresent()) {
 			this.activePower = setActivePower.peekWrite().get();
 		}
 		// Check if reactive power is already set
-		if (setReactivePower.peekWrite().isPresent()) {
+		if (setReactivePower.getWriteValue().isPresent()) {
 			this.reactivePower = setReactivePower.peekWrite().get();
 		}
 
@@ -182,24 +177,22 @@ public class Power {
 	 */
 	public void writePower() {
 		try {
-			activePowerQueue.add(activePower);
+			// activePowerQueue.add(activePower);
 			if (activePowerValid) {
-				setActivePower.pushWrite(activePowerQueue.avg());
+				setActivePower.pushWrite(activePower);
 			}
-			reactivePowerQueue.add(reactivePower);
+			// reactivePowerQueue.add(reactivePower);
 			if (reactivePowerValid) {
-				setReactivePower.pushWrite(reactivePowerQueue.avg());
+				setReactivePower.pushWrite(reactivePower);
 			}
 		} catch (WriteChannelException e) {
 			this.reducePower();
 			try {
-				activePowerQueue.add(activePower);
 				if (activePowerValid) {
-					setActivePower.pushWrite(activePowerQueue.avg());
+					setActivePower.pushWrite(activePower);
 				}
-				reactivePowerQueue.add(reactivePower);
 				if (reactivePowerValid) {
-					setReactivePower.pushWrite(reactivePowerQueue.avg());
+					setReactivePower.pushWrite(reactivePower);
 				}
 			} catch (WriteChannelException e1) {
 				log.error("Failed to reduce and set Power!", e1);
