@@ -73,10 +73,10 @@ export abstract class AbstractSectionComponent {
     protected width: number = 0;
 
     constructor(
-        public color: string,
         private name: string,
         protected startAngle: number,
         protected endAngle: number,
+        public color: string
     ) { }
 
     /**
