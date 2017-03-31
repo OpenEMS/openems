@@ -43,6 +43,7 @@ export class Device {
   public address: string;
   public data = new BehaviorSubject<{ [thing: string]: any }>(null);
   public historyData = new BehaviorSubject<any[]>(null);
+  public historykWh = new BehaviorSubject<any[]>(null);
   public config = new BehaviorSubject<Config>(null);
   private online = false;
   private influxdb: {
@@ -194,7 +195,6 @@ export class Device {
       channels: this.getImportantChannels(),
       kWh: this.getkWhResult(this.getImportantChannels())
     };
-    console.log(obj);
     this.send({ query: obj });
   }
 
@@ -351,6 +351,7 @@ export class Device {
      */
     if ("queryreply" in message) {
       let data = message.queryreply.data;
+      let kWh = message.queryreply.kWh;
       console.log(message.queryreply);
       if (data != null) {
         for (let datum of data) {
@@ -359,6 +360,7 @@ export class Device {
         }
       }
       this.historyData.next(data);
+      this.historykWh.next(kWh);
     }
   }
 }

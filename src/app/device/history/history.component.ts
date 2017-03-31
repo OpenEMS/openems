@@ -19,6 +19,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private activePeriod: string = null;
   private dataSoc = [];
   private dataEnergy = [];
+  private datakWh = [];
   private dateToday: Date = new Date();
   private timespanText: string;
 
@@ -36,6 +37,51 @@ export class HistoryComponent implements OnInit, OnDestroy {
         if (this.activePeriod == null) {
           this.setPeriod("today");
         }
+        device.historykWh.subscribe((newkWh) => {
+          if (newkWh != null) {
+            let kWhGridBuy = {
+              name: "",
+              value: 0
+            }
+            let kWhGridSell = {
+              name: "",
+              value: 0
+            }
+            let kWhProduction = {
+              name: "Erzeugung",
+              value: 0
+            }
+            let kWhStorageCharge = {
+              name: "",
+              value: 0
+            }
+            let kWhStorageDischarge = {
+              name: "",
+              value: 0
+            }
+            for (let type in newkWh) {
+              if (newkWh[type].type == "production") {
+                let production = newkWh[type].value != null ? newkWh[type].value : 0;
+                kWhProduction.value = production;
+              } else if (newkWh[type].type == "grid") {
+                let gridBuy = newkWh[type].buy != null ? newkWh[type].buy : 0;
+                kWhGridBuy.name = "Netzbezug";
+                kWhGridBuy.value = gridBuy;
+                let gridSell = newkWh[type].sell != null ? newkWh[type].sell : 0;
+                kWhGridSell.name = "Netzeinspeiung";
+                kWhGridSell.value = (gridSell * (-1));
+              } else {
+                let storageCharge = newkWh[type].charge != null ? newkWh[type].charge : 0;
+                kWhStorageCharge.name = "Batteriebeladung";
+                kWhStorageCharge.value = storageCharge;
+                let storageDischarge = newkWh[type].discharge != null ? newkWh[type].discharge : 0;
+                kWhStorageDischarge.name = "Batterieentladung";
+                kWhStorageDischarge.value = (storageDischarge * (-1));
+              }
+            }
+            this.datakWh = [kWhProduction, kWhGridBuy, kWhGridSell, kWhStorageCharge, kWhStorageDischarge];
+          }
+        })
         device.historyData.subscribe((newData) => {
           if (newData != null) {
             let dataSoc = {

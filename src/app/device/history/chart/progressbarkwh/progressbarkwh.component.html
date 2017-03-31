@@ -1,0 +1,9 @@
+<div fxLayout fxLayoutWrap="wrap" *ngFor="let data of this.datakWh, let i=index">
+    <p fxFlex="100px">{{ data.name }}</p>
+    <p fxFlex="75px" style="text-align: right">{{ getkWhValue(data.value) }} kWh</p>
+    <div fxFlex="5px"></div>
+    <section fxFlex="75%" style="margin-top: 20px">
+        <md-progress-bar [color]="color" [mode]="mode" [value]="getValue(i)" [bufferValue]="bufferValue">
+        </md-progress-bar>
+    </section>
+</div>
