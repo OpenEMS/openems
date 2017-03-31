@@ -17,8 +17,8 @@ interface Day {
 })
 export class WeekTimeComponent extends AbstractConfigForm {
 
-  private configForm: FormGroup;
-  private config: FormGroup;
+  public configForm: FormGroup;
+  public config: FormGroup;
 
   constructor(
     public websocketService: WebsocketService,
@@ -27,7 +27,7 @@ export class WeekTimeComponent extends AbstractConfigForm {
     super(websocketService);
   }
 
-  private days: Day[] = [{
+  public days: Day[] = [{
     label: "Montag",
     key: "monday"
   }, {

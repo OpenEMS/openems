@@ -1,7 +1,8 @@
 <div *ngIf="form" [formGroup]="form">
     <div formGroupName="scheduler">
         <div formArrayName="controllers">
-            <div *ngFor="let controller of form.controls.scheduler.controls['controllers'].controls, let i=index" fxFlex="100%" [formGroupName]="i">
+            <div *ngFor="let controller of form.controls.scheduler['controls']['controllers']['controls'], let i=index" fxFlex="100%"
+                [formGroupName]="i">
                 <!--existing controller-->
                 <div *ngFor="let controllerMeta of form.value._meta['availableControllers'], let j=index">
                     <div fxLayout fxLayoutWrap="wrap" fxFlex *ngIf="controllerMeta.class == controller.value.class && controller.value.id != ''">
@@ -33,11 +34,11 @@
                                                             </ng-container>
                                                         </ng-container>
                                                     </md-select>
-                                                    <button (click)="deleteChannel(k, controller.controls[channelMeta.name])" md-mini-fab>
+                                                    <button (click)="deleteChannel(k, controller['controls'][channelMeta.name])" md-mini-fab>
                                                         <md-icon>delete</md-icon>
                                                     </button>
                                                 </div>
-                                                <button (click)="add(controller.controls[channelMeta.name])" md-mini-fab>
+                                                <button (click)="add(controller['controls'][channelMeta.name])" md-mini-fab>
                                                     <md-icon>add</md-icon>
                                                 </button>
                                             </div>
@@ -53,7 +54,7 @@
                                     <button (click)="save(controller)" [disabled]="form.pristine" color="primary" md-mini-fab>
                                         <md-icon>save</md-icon>
                                     </button>
-                                    <button (click)="delete(form.controls.scheduler.controls['controllers'], i)" color="primary" md-mini-fab>
+                                    <button (click)="delete(form.controls.scheduler['controls']['controllers'], i)" color="primary" md-mini-fab>
                                         <md-icon>delete</md-icon>
                                     </button>
                                 </div>
@@ -97,7 +98,7 @@
                 </md-card-header>
                 <md-card-content>
                     <div fxLayout fxLayoutAlign="end start">
-                        <button (click)="addController(form.controls.scheduler.controls['controllers'])" md-mini-fab>
+                        <button (click)="addController(form.controls.scheduler['controls']['controllers'])" md-mini-fab>
                             <md-icon>add</md-icon>
                         </button>
                     </div>

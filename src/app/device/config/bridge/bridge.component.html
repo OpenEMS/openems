@@ -1,7 +1,7 @@
 <div *ngIf="form" [formGroup]="form">
   <div formArrayName="things">
     <md-tab-group (selectChange)="addBridge(form.controls.things, $event)">
-      <md-tab *ngFor="let bridgeForm of form.controls.things.controls, let i=index" [formGroupName]="i">
+      <md-tab *ngFor="let bridgeForm of form.controls.things['controls'], let i=index" [formGroupName]="i">
         <div *ngFor="let bridgeFormMeta of form.value._meta['availableBridges'], let j=index">
           <!--existing bridge-->
           <div *ngIf="bridgeFormMeta.class == bridgeForm.value.class && bridgeForm.value.class != '' && bridgeForm.value.id != ''">
@@ -33,7 +33,7 @@
               </md-card-content>
             </md-card>
             <div *ngIf="bridgeForm.controls.devices">
-              <div *ngFor="let device of bridgeForm.controls.devices.controls, let k=index" formArrayName="devices">
+              <div *ngFor="let device of bridgeForm.controls.devices['controls'], let k=index" formArrayName="devices">
                 <div *ngFor="let deviceMeta of form.value._meta['availableDevices']" [formGroupName]="k">
                   <div *ngIf="deviceMeta.class == device.value.class && device.value.class != '' && device.value.id != ''">
                     <md-card class="single">

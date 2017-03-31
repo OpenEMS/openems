@@ -2,7 +2,7 @@
   <!--<button routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config">scheduler</button>-->
   <div fxFlex="100%" formGroupName="scheduler">
     <!-- Scheduler -->
-    <ng-container [ngSwitch]="configForm.controls['scheduler'].controls['class'].value | classname">
+    <ng-container [ngSwitch]="configForm.controls['scheduler']['controls']['class'].value | classname">
       <weektime *ngSwitchCase="'WeekTimeScheduler'" [form]="configForm"></weektime>
       <channelthreshold *ngSwitchCase="'ChannelThresholdScheduler'" [form]="configForm"></channelthreshold>
       <simple *ngSwitchCase="'SimpleScheduler'" [form]="configForm"></simple>
@@ -20,7 +20,7 @@
               </div>
               <select formControlName="class" (change)="addChannelsToScheduler(configForm.controls['scheduler'], $event)">
                 <option></option>
-                <option *ngFor="let availableScheduler of configForm.controls['_meta'].controls['availableSchedulers'].controls" [value]="availableScheduler.value.class">
+                <option *ngFor="let availableScheduler of configForm.controls['_meta']['controls']['availableSchedulers']['controls']" [value]="availableScheduler.value.class">
                   {{ availableScheduler.value.class }}
                 </option>
               </select>

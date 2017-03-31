@@ -18,7 +18,7 @@
       <md-tab *ngFor="let day of days">
         <ng-template md-tab-label>{{ day.label }}</ng-template>
         <div [formArrayName]="day.key">
-          <div *ngFor="let hour of configForm.controls[day.key].controls; let i=index" [formGroupName]="i" fxLayout>
+          <div *ngFor="let hour of configForm.controls[day.key]['controls']; let i=index" [formGroupName]="i" fxLayout>
             <md-input-container fxFlex="100px">
               <input formControlName="time" type="text" placeholder="Startzeit" mdInput>
             </md-input-container>
@@ -28,11 +28,11 @@
               </button>
             </div>
             <div formArrayName="controllers" fxFlex fxLayout fxLayoutWrap="wrap">
-              <div *ngFor="let controller of hour.controls.controllers.controls; let j=index" fxLayout fxFlex.gt-md="33%" fxFlex.sm="50%"
+              <div *ngFor="let controller of hour['controls']['controllers']['controls']; let j=index" fxLayout fxFlex.gt-md="33%" fxFlex.sm="50%"
                 fxFlex.xs="100%">
                 <div class="flex-container" fxFlex fxLayout>
                   <md-select [formControlName]="j" placeholder="App" fxFlex="100%">
-                    <md-option *ngFor="let element of configForm.controls.controllers.controls" [value]="element.value.id">{{ element.value.id }}</md-option>
+                    <md-option *ngFor="let element of configForm.controls.controllers['controls']" [value]="element.value.id">{{ element.value.id }}</md-option>
                   </md-select>
                 </div>
                 <div class="flex-container" fxFlex="50px">
@@ -57,10 +57,10 @@
       <md-tab>
         <ng-template md-tab-label>Immer</ng-template>
         <div formArrayName="always" fxFlex fxLayout fxLayoutWrap="wrap">
-          <div *ngFor="let controller of configForm.controls['always'].controls; let j=index" fxLayout fxFlex="33%">
+          <div *ngFor="let controller of configForm.controls['always']['controls']; let j=index" fxLayout fxFlex="33%">
             <div fxFlex fxLayout>
               <md-select [formControlName]="j" placeholder="App" fxFlex="100%">
-                <md-option *ngFor="let element of configForm.controls.controllers.controls" [value]="element.value.id">{{ element.value.id }}</md-option>
+                <md-option *ngFor="let element of configForm.controls.controllers['controls']" [value]="element.value.id">{{ element.value.id }}</md-option>
               </md-select>
             </div>
             <div fxFlex="50px">

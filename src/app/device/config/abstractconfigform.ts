@@ -42,20 +42,21 @@ export abstract class AbstractConfigForm {
   /**
    * general save() for whole configuration
    */
-  protected save(form: FormGroup): void {
-    let requests;
-    if (form["_meta_new"]) {
-      requests = this.getConfigureCreateRequests(form);
-      form["_meta_new"] = false;
-    } else if (form["_scheduler_new"]) {
-      requests = this.getConfigureUpdateSchedulerRequests(form);
-      form["_scheduler_new"] = false;
-    } else {
-      requests = this.getConfigureUpdateRequests(form);
+  public save(form: AbstractControl): void {
+    if (form instanceof FormGroup) {
+      let requests;
+      if (form["_meta_new"]) {
+        requests = this.getConfigureCreateRequests(form);
+        form["_meta_new"] = false;
+      } else if (form["_scheduler_new"]) {
+        requests = this.getConfigureUpdateSchedulerRequests(form);
+        form["_scheduler_new"] = false;
+      } else {
+        requests = this.getConfigureUpdateRequests(form);
+      }
+      this.send(requests);
+      form.markAsPristine();
     }
-
-    this.send(requests);
-    form.markAsPristine();
   }
 
   protected abstract getConfigureCreateRequests(form: FormGroup): ConfigureRequest[];
@@ -155,10 +156,10 @@ export abstract class AbstractConfigForm {
   /**
    * sets class empty to enable selection of another scheduler
    */
-  protected createNewScheduler(schedulerForm: FormGroup) {
-    schedulerForm.controls['class'].setValue("");
-    schedulerForm.markAsDirty();
+  public createNewScheduler(schedulerForm: AbstractControl) {
+    if (schedulerForm instanceof FormGroup) {
+      schedulerForm.controls['class'].setValue("");
+      schedulerForm.markAsDirty();
+    }
   }
-
-
 }

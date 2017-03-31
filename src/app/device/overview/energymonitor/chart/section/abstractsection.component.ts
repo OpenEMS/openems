@@ -68,7 +68,7 @@ export class CircleDirection {
 
 let pulsetime = 1000;
 
-export class AbstractSection {
+export abstract class AbstractSection {
 
     public valuePath: string = "";
     public outlinePath: string = "";
