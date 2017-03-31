@@ -1,5 +1,5 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
-import { AbstractSectionComponent, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
+import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
 import { Observable } from "rxjs/Rx";
 
 
@@ -26,7 +26,7 @@ let pulsetimeright = 2000;
         ])
     ]
 })
-export class ConsumptionSectionComponent extends AbstractSectionComponent implements OnInit {
+export class ConsumptionSectionComponent extends AbstractSection implements OnInit {
     constructor() {
         super("Verbrauch", 46, 134, "#FDC507");
     }

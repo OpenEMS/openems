@@ -68,12 +68,7 @@ export class CircleDirection {
 
 let pulsetime = 1000;
 
-@Component({
-    selector: 'abstractsection',
-    templateUrl: './section.component.html',
-
-})
-export abstract class AbstractSectionComponent {
+export class AbstractSection {
 
     public valuePath: string = "";
     public outlinePath: string = "";
@@ -95,6 +90,7 @@ export abstract class AbstractSectionComponent {
     private setPulsetime(value: number) {
         pulsetime = value;
     }
+
     constructor(
         private name: string,
         protected startAngle: number,

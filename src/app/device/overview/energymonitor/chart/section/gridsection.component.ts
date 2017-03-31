@@ -1,5 +1,5 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
-import { AbstractSectionComponent, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
+import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
 import { Observable } from "rxjs/Rx";
 
 let pulsetime = 1000;
@@ -26,11 +26,11 @@ let pulsetimeleft = 2000;
     ]
 })
 
-export class GridSectionComponent extends AbstractSectionComponent implements OnInit {
+export class GridSectionComponent extends AbstractSection implements OnInit {
     constructor() {
         super("Netz", 226, 314, "#1d1d1d");
     }
-    // if ( ... <= 0 ) { 
+    // if ( ... <= 0 ) {
     ngOnInit() {
         Observable.interval(pulsetimeleft)
             .subscribe(x => {

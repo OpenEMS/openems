@@ -1,5 +1,5 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
-import { AbstractSectionComponent, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
+import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
 import { Observable } from "rxjs/Rx";
 
 
@@ -26,7 +26,7 @@ let pulsetimedown = 2000;
         ])
     ]
 })
-export class StorageSectionComponent extends AbstractSectionComponent implements OnInit {
+export class StorageSectionComponent extends AbstractSection implements OnInit {
     constructor() {
         super("Speicher", 136, 224, "#009846");
     }
@@ -41,7 +41,7 @@ export class StorageSectionComponent extends AbstractSectionComponent implements
                 }
             })
     }
-    // if (Ausgabeleistung1 = Ausgabeleistung2) { 
+    // if (Ausgabeleistung1 = Ausgabeleistung2) {
     // fill: white;
     // }
     // } else {
