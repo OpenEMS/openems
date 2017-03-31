@@ -14,9 +14,10 @@ import { WebappService, WebsocketService, Websocket, Notification } from '../sha
 })
 export class LoginComponent implements OnInit, OnDestroy {
 
+  public backend = environment.backend;
+
   private forms: FormGroup[] = [];
   private websocketSubscriptions: Subscription[] = [];
-  private backend;
 
   constructor(
     private websocketService: WebsocketService,
@@ -26,8 +27,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.backend = environment.backend;
-
     this.websocketService.clearCurrentDevice();
     for (let websocketName in this.websocketService.websockets) {
       let websocket = this.websocketService.websockets[websocketName];

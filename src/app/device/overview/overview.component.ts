@@ -9,12 +9,14 @@ import { WebsocketService, Websocket, Notification, Device } from '../../shared/
   templateUrl: './overview.component.html'
 })
 export class OverviewComponent implements OnInit, OnDestroy {
-  private device: Device;
+
+  public device: Device;
+
   private deviceSubscription: Subscription;
 
   constructor(
-    private route: ActivatedRoute,
-    private websocketService: WebsocketService
+    public websocketService: WebsocketService,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {

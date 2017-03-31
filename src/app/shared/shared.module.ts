@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
@@ -31,12 +31,12 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
 
 @NgModule({
   imports: [
-    BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
     NgxChartsModule,
-    MaterialModule.forRoot(),
-    FlexLayoutModule.forRoot(),
+    MaterialModule,
+    FlexLayoutModule,
     RouterModule,
     routing
   ],
@@ -50,7 +50,7 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     KeysPipe,
     SignPipe,
     ClassnamePipe,
-    BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     MaterialModule,
     FlexLayoutModule,

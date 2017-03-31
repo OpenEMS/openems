@@ -11,10 +11,11 @@ import * as moment from 'moment';
   templateUrl: './history.component.html'
 })
 export class HistoryComponent implements OnInit {
-  private dataSoc = [];
 
   @Input()
-  private device: Device;
+  public device: Device;
+
+  private dataSoc = [];
 
   ngOnInit() {
     if (this.device != null) {
