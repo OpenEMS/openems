@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, trigger, state, style, transition, animate } from '@angular/core';
 import * as d3 from 'd3';
 
 import { EnergytableComponent } from '../../../energytable/energytable.component';
@@ -44,11 +44,20 @@ export class SvgImagePosition {
 }
 
 export class Circle {
+    public state: "one" | "two" = "one";
     constructor(
         public x: number,
         public y: number,
         public radius: number
     ) { }
+
+    public switchState() {
+        if (this.state == 'one') {
+            this.state = 'two';
+        } else {
+            this.state = 'one';
+        }
+    }
 }
 
 export class CircleDirection {
@@ -57,13 +66,19 @@ export class CircleDirection {
     ) { }
 }
 
-export abstract class AbstractSectionComponent {
+let pulsetime = 1000;
+
+export class AbstractSection {
 
     public valuePath: string = "";
     public outlinePath: string = "";
     public circles: Circle[] = [];
     public square: SvgSquare;
     public squarePosition: SvgSquarePosition;
+    public pulsetimeup: number;
+    public pulsetimedown: number;
+    public pulsetimeright: number;
+    public pulsetimeleft: number;
 
     protected valueRatio: number = 0;
     protected valueText: string = "";
@@ -71,6 +86,10 @@ export abstract class AbstractSectionComponent {
     protected outerRadius: number = 0;
     protected height: number = 0;
     protected width: number = 0;
+
+    private setPulsetime(value: number) {
+        pulsetime = value;
+    }
 
     constructor(
         private name: string,

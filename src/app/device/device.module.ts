@@ -4,8 +4,6 @@ import { ConfigModule } from './config/config.module';
 import { HistoryModule } from './history/history.module';
 import { OverviewModule } from './overview/overview.module';
 
-// test files
-import { ChartTest } from './../device/overview/energymonitor/chart/section/test2';
 
 @NgModule({
   imports: [
@@ -15,7 +13,6 @@ import { ChartTest } from './../device/overview/energymonitor/chart/section/test
     HistoryModule
   ],
   declarations: [
-    ChartTest
   ]
 })
 export class DeviceModule { }

@@ -1,14 +1,46 @@
-import { Component } from '@angular/core';
-import { AbstractSectionComponent, SvgSquarePosition, SvgSquare, CircleDirection } from './abstractsection.component';
+import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
+import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
+import { Observable } from "rxjs/Rx";
+
+
+let pulsetime = 500;
+let pulsetimeup = 2000;
 
 @Component({
     selector: '[productionsection]',
-    templateUrl: './section.component.html'
+    templateUrl: './section.component.html',
+    animations: [
+        trigger('circle', [
+            state('one', style({
+                r: 7,
+                fill: 'none',
+                stroke: 'white'
+            })),
+            state('two', style({
+                r: 7,
+                fill: 'none',
+                stroke: 'blue'
+            })),
+            transition('one => two', animate(pulsetime + 'ms')),
+            transition('two => one', animate(pulsetime + 'ms'))
+        ])
+    ]
 })
-export class ProductionSectionComponent extends AbstractSectionComponent {
+export class ProductionSectionComponent extends AbstractSection implements OnInit {
     constructor() {
         super("Erzeugung", 316, 404, "#008DD2");
     }
+    ngOnInit() {
+        Observable.interval(pulsetimeup)
+            .subscribe(x => {
+                for (let i = 0; i < this.circles.length; i++) {
+                    setTimeout(() => {
+                        this.circles[this.circles.length - i - 1].switchState();
+                    }, pulsetime / 4 * i);
+                }
+            })
+    }
+
 
     protected getCircleDirection(): CircleDirection {
         return new CircleDirection("up");

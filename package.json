@@ -1,7 +1,7 @@
 {
   "name": "openems-gui",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "AGPL",
   "angular-cli": {},
   "scripts": {
     "ng": "ng",
