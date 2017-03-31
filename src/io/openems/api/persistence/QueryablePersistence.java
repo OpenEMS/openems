@@ -22,13 +22,36 @@ package io.openems.api.persistence;
 
 import java.time.ZonedDateTime;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.api.exception.OpenemsException;
 
 public abstract class QueryablePersistence extends Persistence {
 
-	public abstract JsonArray query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels)
-			throws OpenemsException;
+	/**
+	 *
+	 *
+	 * @param fromDate
+	 * @param toDate
+	 * @param channels
+	 * @param resolution
+	 *            in seconds
+	 * @return
+	 * @throws OpenemsException
+	 *
+	 *             <pre>
+	 * Returns:
+	 * [{
+	 *   timestamp: "2017-03-21T08:55:20Z",
+	 *   channels: {
+	 *     'thing': {
+	 *       'channel': 'value'
+	 *     }
+	 *   }
+	 * }]
+	}
+	 *             </pre>
+	 */
+	public abstract JsonObject query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution,
+			JsonObject kWh) throws OpenemsException;
 }

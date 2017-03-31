@@ -202,46 +202,210 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 		return this._influxdb;
 	}
 
-	/**
-	 *
-	 * <pre>
-	 * Returns:
-	 * [{
-	 *   timestamp: "2017-03-21T08:55:20Z",
-	 *   channels: {
-	 *     'thing': {
-	 *       'channel': 'value'
-	 *     }
-	 *   }
-	 * }]
-	}
-	 * </pre>
-	 */
 	@Override
-	public JsonArray query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels) throws OpenemsException {
-		// Prepare query string
+	public JsonObject query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution,
+			JsonObject kWh) throws OpenemsException {
+
+		JsonObject jQueryreply = new JsonObject();
+		jQueryreply.addProperty("mode", "history");
+		JsonArray jData = this.queryData(fromDate, toDate, channels, resolution);
+		jQueryreply.add("data", jData);
+		JsonObject jkWh = this.querykWh(fromDate, toDate, channels, resolution, kWh);
+		jQueryreply.add("kWh", jkWh);
+
+		return jQueryreply;
+	}
+
+	private JsonObject querykWh(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution,
+			JsonObject kWh) throws OpenemsException {
+		log.info(kWh.get("ess0/ActivePower").toString());
+		String gridThing = this.getGridThing(kWh);
+		String storageThing = this.getStorageThing(kWh);
+
+		// Prepare kWh query string
 		StringBuilder query = new StringBuilder("SELECT ");
-		query.append(toChannelAddressList(channels));
-		query.append(" FROM data WHERE time > ");
+		query.append(toChannelAddressListAvg(channels));
+		query.append(" FROM data WHERE ");
+		if (fems.valueOptional().isPresent()) {
+			query.append("fems = '");
+			query.append(fems.valueOptional().get());
+			query.append("' AND ");
+		}
+		query.append("time > ");
 		query.append(String.valueOf(fromDate.toEpochSecond()));
 		query.append("s");
 		query.append(" AND time < ");
 		query.append(String.valueOf(toDate.plusDays(1).toEpochSecond()));
 		query.append("s");
-		query.append(" GROUP BY time(1h)");
+		query.append(" AND \"" + gridThing + "\" >= 0");
+		query.append(" AND \"" + storageThing + "\" >= 0");
 		log.info(query.toString());
-		// Prepare DB connection
-		Optional<InfluxDB> _influxdb = getInfluxDB();
-		if (!_influxdb.isPresent()) {
-			throw new OpenemsException("Unable to connect to InfluxDB.");
-		}
-		InfluxDB influxDB = _influxdb.get();
 
-		// Parse result
-		QueryResult queryResult = influxDB.query(new Query(query.toString(), DB_NAME), TimeUnit.MILLISECONDS);
-		if (queryResult.hasError()) {
-			throw new OpenemsException("InfluxDB query error: " + queryResult.getError());
+		QueryResult queryResult = this.executeQuery(query.toString());
+
+		JsonArray j = new JsonArray();
+
+		// AVG data
+		JsonObject jThing = new JsonObject();
+		for (Result result : queryResult.getResults()) {
+			List<Series> series = result.getSeries();
+			if (series != null) {
+				for (Series serie : series) {
+					ArrayList<Address> addressIndex = new ArrayList<>();
+					for (String column : serie.getColumns()) {
+						if (column.equals("time")) {
+							continue;
+						}
+						addressIndex.add(Address.fromString(column));
+					}
+					for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
+						JsonObject element = new JsonObject();
+						if (addressIndex.get(columnIndex).toString().equals(gridThing)) {
+							element.addProperty("buy", (Double) serie.getValues().get(0).get(columnIndex + 1));
+							element.addProperty("sell",
+									this.querySellToGrid(fromDate, toDate, channels, resolution, gridThing));
+							element.addProperty("type",
+									JsonUtils.getAsString(kWh.get(addressIndex.get(columnIndex).toString())));
+						} else if (addressIndex.get(columnIndex).toString().equals(storageThing)) {
+							element.addProperty("charge", (Double) serie.getValues().get(0).get(columnIndex + 1));
+							element.addProperty("discharge",
+									this.queryDischargeStorage(fromDate, toDate, channels, resolution, gridThing));
+							element.addProperty("type",
+									JsonUtils.getAsString(kWh.get(addressIndex.get(columnIndex).toString())));
+						} else {
+							element.addProperty("value", (Double) serie.getValues().get(0).get(columnIndex + 1));
+							element.addProperty("type",
+									JsonUtils.getAsString(kWh.get(addressIndex.get(columnIndex).toString())));
+						}
+						jThing.add(addressIndex.get(columnIndex).toString(), element);
+					}
+				}
+			}
 		}
+		j.add(jThing);
+
+		return jThing;
+	}
+
+	private double querySellToGrid(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution,
+			String gridThing) throws OpenemsException {
+		// Prepare SellToGrid query string
+		StringBuilder query = new StringBuilder("SELECT ");
+		query.append("MEAN(\"" + gridThing + "\") * 24 / 1000 as \"" + gridThing + "\"");
+		query.append(" FROM data WHERE ");
+		if (fems.valueOptional().isPresent()) {
+			query.append("fems = '");
+			query.append(fems.valueOptional().get());
+			query.append("' AND ");
+		}
+		query.append("time > ");
+		query.append(String.valueOf(fromDate.toEpochSecond()));
+		query.append("s");
+		query.append(" AND time < ");
+		query.append(String.valueOf(toDate.plusDays(1).toEpochSecond()));
+		query.append("s");
+		query.append(" AND \"" + gridThing + "\" <= 0");
+
+		QueryResult queryResult = this.executeQuery(query.toString());
+
+		JsonArray j = new JsonArray();
+		double value = 0;
+
+		// AVG data
+		JsonObject jThing = new JsonObject();
+		for (Result result : queryResult.getResults()) {
+			List<Series> series = result.getSeries();
+			if (series != null) {
+				for (Series serie : series) {
+					ArrayList<Address> addressIndex = new ArrayList<>();
+					for (String column : serie.getColumns()) {
+						if (column.equals("time")) {
+							continue;
+						}
+						addressIndex.add(Address.fromString(column));
+					}
+					for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
+						value = (Double) serie.getValues().get(0).get(columnIndex + 1);
+					}
+				}
+			}
+		}
+		j.add(jThing);
+
+		return value;
+	}
+
+	private double queryDischargeStorage(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
+			int resolution, String storageThing) throws OpenemsException {
+		// Prepare SellToGrid query string
+		StringBuilder query = new StringBuilder("SELECT ");
+		query.append("MEAN(\"" + storageThing + "\") * 24 / 1000 as \"" + storageThing + "\"");
+		query.append(" FROM data WHERE ");
+		if (fems.valueOptional().isPresent()) {
+			query.append("fems = '");
+			query.append(fems.valueOptional().get());
+			query.append("' AND ");
+		}
+		query.append("time > ");
+		query.append(String.valueOf(fromDate.toEpochSecond()));
+		query.append("s");
+		query.append(" AND time < ");
+		query.append(String.valueOf(toDate.plusDays(1).toEpochSecond()));
+		query.append("s");
+		query.append(" AND \"" + storageThing + "\" <= 0");
+
+		QueryResult queryResult = this.executeQuery(query.toString());
+
+		JsonArray j = new JsonArray();
+		double value = 0;
+
+		// AVG data
+		JsonObject jThing = new JsonObject();
+		for (Result result : queryResult.getResults()) {
+			List<Series> series = result.getSeries();
+			if (series != null) {
+				for (Series serie : series) {
+					ArrayList<Address> addressIndex = new ArrayList<>();
+					for (String column : serie.getColumns()) {
+						if (column.equals("time")) {
+							continue;
+						}
+						addressIndex.add(Address.fromString(column));
+					}
+					for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
+						value = (Double) serie.getValues().get(0).get(columnIndex + 1);
+					}
+				}
+			}
+		}
+		j.add(jThing);
+
+		return value;
+	}
+
+	private JsonArray queryData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution)
+			throws OpenemsException {
+		// Prepare query string
+		StringBuilder query = new StringBuilder("SELECT ");
+		query.append(toChannelAddressList(channels));
+		query.append(" FROM data WHERE ");
+		if (fems.valueOptional().isPresent()) {
+			query.append("fems = '");
+			query.append(fems.valueOptional().get());
+			query.append("' AND ");
+		}
+		query.append("time > ");
+		query.append(String.valueOf(fromDate.toEpochSecond()));
+		query.append("s");
+		query.append(" AND time < ");
+		query.append(String.valueOf(toDate.plusDays(1).toEpochSecond()));
+		query.append("s");
+		query.append(" GROUP BY time(");
+		query.append(resolution);
+		query.append("s)");
+		log.info(query.toString());
+
+		QueryResult queryResult = this.executeQuery(query.toString());
 
 		JsonArray j = new JsonArray();
 		for (Result result : queryResult.getResults()) {
@@ -308,4 +472,60 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 		}
 		return String.join(", ", channelAddresses);
 	}
+
+	private String toChannelAddressListAvg(JsonObject channels) throws ReflectionException {
+		ArrayList<String> channelAddresses = new ArrayList<>();
+		for (Entry<String, JsonElement> entry : channels.entrySet()) {
+			String thingId = entry.getKey();
+			JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
+			for (JsonElement channelElement : channelIds) {
+				String channelId = JsonUtils.getAsString(channelElement);
+				if (channelId.equals("ActivePower")) {
+					channelAddresses.add("MEAN(\"" + thingId + "/" + channelId + "\") * 24 / 1000 AS \"" + thingId + "/"
+							+ channelId + "\"");
+				}
+			}
+		}
+		return String.join(", ", channelAddresses);
+	}
+
+	private String getGridThing(JsonObject kWh) throws ReflectionException {
+		String gridThing = "";
+		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
+			String thingId = entry.getKey();
+			if (JsonUtils.getAsString(entry.getValue()).equals("grid")) {
+				gridThing = thingId;
+			}
+		}
+		return gridThing;
+	}
+
+	private String getStorageThing(JsonObject kWh) throws ReflectionException {
+		String storageThing = "";
+		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
+			String thingId = entry.getKey();
+			if (JsonUtils.getAsString(entry.getValue()).equals("storage")) {
+				storageThing = thingId;
+			}
+		}
+		return storageThing;
+	}
+
+	private QueryResult executeQuery(String query) throws OpenemsException {
+		// Prepare DB connection
+		Optional<InfluxDB> _influxdb = getInfluxDB();
+		if (!_influxdb.isPresent()) {
+			throw new OpenemsException("Unable to connect to InfluxDB.");
+		}
+		InfluxDB influxDB = _influxdb.get();
+
+		// Parse result
+		QueryResult queryResult = influxDB.query(new Query(query, DB_NAME), TimeUnit.MILLISECONDS);
+		if (queryResult.hasError()) {
+			throw new OpenemsException("InfluxDB query error: " + queryResult.getError());
+		}
+
+		return queryResult;
+	}
+
 }

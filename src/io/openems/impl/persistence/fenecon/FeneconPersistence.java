@@ -212,7 +212,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			WebsocketClient newWebsocketClient = new WebsocketClient(new URI(uri), apikey);
 			if (newWebsocketClient.connectBlocking()) {
 				// successful -> return connected websocket
-				log.info("FENECON persistence connected to uri [" + uri + "]");
+				log.info("FENECON persistence connected [" + uri + "]");
 				this.websocketClient = newWebsocketClient;
 				return Optional.of(newWebsocketClient);
 			} else {

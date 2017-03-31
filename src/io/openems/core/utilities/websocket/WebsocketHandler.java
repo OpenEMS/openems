@@ -21,7 +21,9 @@
 package io.openems.core.utilities.websocket;
 
 import java.io.IOException;
+import java.time.Period;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -52,6 +54,7 @@ import io.openems.core.Config;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
+import io.openems.core.utilities.StringUtils;
 
 /**
  * Handles a Websocket connection to a browser, femsserver,...
@@ -225,7 +228,9 @@ public class WebsocketHandler {
 	 * Sends an initial message to the browser after it was successfully connected
 	 */
 	public boolean sendConnectionSuccessfulReply() {
-		return this.send(this.createConnectionSuccessfulReply());
+		JsonObject j = this.createConnectionSuccessfulReply();
+		log.info("Send Connection Successful Reply: " + StringUtils.toShortString(j, 100));
+		return this.send(j);
 	}
 
 	/**
@@ -234,12 +239,8 @@ public class WebsocketHandler {
 	 * <pre>
 	 * {
 	 *   metadata: {
-	 *     devices: [{
-	 *       name: {...},
-	 *       config: {...}
-	 *       online: true
-	 *     }],
-	 *     backend: "openems"
+	 *       config: {...},
+	 *       backend: "openems"
 	 *   }
 	 * }
 	 * </pre>
@@ -400,24 +401,28 @@ public class WebsocketHandler {
 				/*
 				 * History query
 				 */
-				String timezoneString = JsonUtils.getAsString(jQuery, "timezone");
-				ZoneId timezone = ZoneId.of(timezoneString);
+				// String timezoneString = JsonUtils.getAsString(jQuery, "timezone");
+				int timezoneDiff = JsonUtils.getAsInt(jQuery, "timezone");
+				ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
 				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
 				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jQuery, "toDate", timezone);
 				JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
-				// TODO: calculate resolution
-				JsonArray jData = null;
+				JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
+				// Calculate resolution
+				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
+				int resolution = 60 * 60; // 60 Minutes
+				if (days > 6) {
+					resolution = 24 * 60 * 60; // 60 Minutes
+				}
+				JsonObject jQueryreply = null;
 				for (QueryablePersistence queryablePersistence : thingRepository.getQueryablePersistences()) {
-					jData = queryablePersistence.query(fromDate, toDate, channels);
-					if (jData != null) {
+					jQueryreply = queryablePersistence.query(fromDate, toDate, channels, resolution, kWh);
+					if (jQueryreply != null) {
 						break;
 					}
 				}
 				// Send result
 				JsonObject j = new JsonObject();
-				JsonObject jQueryreply = new JsonObject();
-				jQueryreply.addProperty("mode", "history");
-				jQueryreply.add("data", jData);
 				j.add("queryreply", jQueryreply);
 				this.send(j);
 
