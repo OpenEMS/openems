@@ -46,7 +46,7 @@ public class WorkStateController extends Controller {
 	public WorkStateController(String thingId) {
 		super(thingId);
 	}
-	
+
 	/*
 	 * Config
 	 */
@@ -65,6 +65,11 @@ public class WorkStateController extends Controller {
 	private int resetCount = 0;
 	private long lastStart = 0L;
 	private boolean isError = false;
+	private State currentState = State.GOSTART;
+
+	private enum State {
+		START, STOP, GOSTART, ERROR, RESETERRORON, RESETERROROFF
+	}
 
 	/*
 	 * Methods
@@ -82,41 +87,113 @@ public class WorkStateController extends Controller {
 		Ess ess;
 		try {
 			ess = this.ess.value();
-			if (start.value()) {
-				if (ess.systemState.labelOptional().equals(Optional.of(EssNature.STANDBY))) {
-					ess.setWorkState.pushWriteFromLabel(EssNature.START);
-					log.info("start Refu");
-					lastStart = System.currentTimeMillis();
-					isError = false;
-				} else if (!ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
-					ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
-					if (ess.systemState.labelOptional().equals(Optional.of("Error")) && !isError) {
-						timeErrorOccured = System.currentTimeMillis();
-						isError = true;
-					}
-				}
-				if (ess.systemState.labelOptional().equals(Optional.of("Error"))
-						&& lastReset <= System.currentTimeMillis() - 1000 * 60 * 5 && resetCount < 2
-						&& timeErrorOccured <= System.currentTimeMillis() - 1000 * 3) {
-					if (!reset) {
-						ess.setSystemErrorReset.pushWriteFromLabel(EssNature.ON);
-						reset = true;
-						log.info("Reset Refu error");
-						lastReset = System.currentTimeMillis();
-						resetCount++;
-					}
-				}
-				if (reset) {
-					ess.setSystemErrorReset.pushWriteFromLabel(EssNature.OFF);
-					reset = false;
-				}
-				if (lastReset <= System.currentTimeMillis() - 2 * 60 * 60 * 1000
-						|| (lastStart <= System.currentTimeMillis() - 1000 * 60 && timeErrorOccured < lastStart)) {
-					resetCount = 0;
-				}
-			} else {
+			// if (start.value()) {
+			// if () {
+			// ess.setWorkState.pushWriteFromLabel(EssNature.START);
+			// log.info("start Refu");
+			// lastStart = System.currentTimeMillis();
+			// isError = false;
+			// } else if (!ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+			// ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
+			// if (ess.systemState.labelOptional().equals(Optional.of("Error")) && !isError) {
+			// timeErrorOccured = System.currentTimeMillis();
+			// isError = true;
+			// }
+			// }
+			// if (ess.systemState.labelOptional().equals(Optional.of("Error"))
+			// && lastReset <= System.currentTimeMillis() - 1000 * 60 * 5 && resetCount < 2
+			// && timeErrorOccured <= System.currentTimeMillis() - 1000 * 3) {
+			// if (!reset) {
+			// ess.setSystemErrorReset.pushWriteFromLabel(EssNature.ON);
+			// reset = true;
+			// log.info("Reset Refu error");
+			// lastReset = System.currentTimeMillis();
+			// resetCount++;
+			// }
+			// }
+			// if (reset) {
+			// ess.setSystemErrorReset.pushWriteFromLabel(EssNature.OFF);
+			// reset = false;
+			// }
+			// if (lastReset <= System.currentTimeMillis() - 2 * 60 * 60 * 1000
+			// || (lastStart <= System.currentTimeMillis() - 1000 * 60 && timeErrorOccured < lastStart)) {
+			// resetCount = 0;
+			// }
+			// } else {
+			// ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
+			// log.info("stop Refu");
+			// }
+			switch (currentState) {
+			case ERROR:
+				log.info("Error");
 				ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
-				log.info("stop Refu");
+				if (lastReset <= System.currentTimeMillis() - 2 * 60 * 60 * 1000) {
+					currentState = State.RESETERRORON;
+				}
+				break;
+			case GOSTART:
+				log.info("Go Start");
+				if (start.value()) {
+					if (ess.systemState.labelOptional().equals(Optional.of(EssNature.STANDBY))) {
+						ess.setWorkState.pushWriteFromLabel(EssNature.START);
+					} else if (ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+						currentState = State.START;
+					} else if (ess.systemState.labelOptional().equals(Optional.of("Error"))) {
+						currentState = State.ERROR;
+					} else {
+						currentState = State.STOP;
+					}
+				} else {
+					currentState = State.STOP;
+				}
+				break;
+			case RESETERROROFF:
+				log.info("RESETERROROFF");
+				if (ess.setSystemErrorReset.labelOptional().equals(Optional.of(EssNature.OFF))) {
+					currentState = State.GOSTART;
+					lastReset = System.currentTimeMillis();
+				} else {
+					ess.setSystemErrorReset.pushWriteFromLabel(EssNature.OFF);
+				}
+				break;
+			case RESETERRORON:
+				log.info("RESETERRORON");
+				if (ess.setSystemErrorReset.labelOptional().equals(Optional.of(EssNature.ON))) {
+					currentState = State.RESETERROROFF;
+				} else {
+					ess.setSystemErrorReset.pushWriteFromLabel(EssNature.ON);
+				}
+				break;
+			case START:
+				log.info("START");
+				if (ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+					if (!start.value()) {
+						currentState = State.STOP;
+					}
+				} else if (ess.systemState.labelOptional().equals(Optional.of("Error"))) {
+					currentState = State.ERROR;
+				} else {
+					currentState = State.GOSTART;
+				}
+				break;
+			case STOP:
+				log.info("STOP");
+				if (ess.systemState.labelOptional().equals(Optional.of(EssNature.STOP))
+						|| ess.systemState.labelOptional().equals(Optional.of(EssNature.STANDBY))
+						|| ess.systemState.labelOptional().equals(Optional.of("Init"))
+						|| ess.systemState.labelOptional().equals(Optional.of("Pre-operation"))) {
+					if (start.value()) {
+						currentState = State.GOSTART;
+					}
+				} else if (ess.systemState.labelOptional().equals(Optional.of("Error"))) {
+					currentState = State.ERROR;
+				} else {
+					ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
+				}
+				break;
+			default:
+				break;
+
 			}
 		} catch (InvalidValueException | WriteChannelException e) {
 			e.printStackTrace();
