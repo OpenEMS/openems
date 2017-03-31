@@ -66,7 +66,7 @@ public class AvoidTotalDischargeController extends Controller {
 				}
 			});
 	private boolean isStart = false;
-	private long timeStartOccured = 0L;
+	private long timeStartOccured = System.currentTimeMillis();
 	private long lastPower = 0L;
 	private Hysteresis socMaxHysteresis;
 
@@ -83,14 +83,15 @@ public class AvoidTotalDischargeController extends Controller {
 		try {
 			Ess ess = this.ess.value();
 
-			if (ess.systemState.value() == 4 && !isStart) {
-				timeStartOccured = System.currentTimeMillis();
-				isStart = true;
-			} else if (ess.systemState.value() != 4) {
+			if (ess.systemState.value() == 4 ) {
+				if (!isStart) {
+					timeStartOccured = System.currentTimeMillis();
+					isStart = true;
+				}
+			} else {
 				isStart = false;
 				lastPower = 0L;
 			}
-
 			if (isStart && timeStartOccured + powerDelay.value() <= System.currentTimeMillis()) {
 				lastPower += powerStep.value();
 				if (lastPower > ess.nominalPower.value()) {
