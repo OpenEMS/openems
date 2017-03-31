@@ -12,7 +12,6 @@ import { BridgeComponent as DeviceConfigBridgeComponent } from './device/config/
 import { SchedulerComponent as DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
 import { MoreComponent as DeviceConfigMoreComponent } from './device/config/more/more.component';
 import { ControllerComponent as DeviceConfigControllerComponent } from './device/config/controller/controller.component';
-import { ChartTest } from './device/overview/energymonitor/chart/section/test2';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -32,7 +31,6 @@ const appRoutes: Routes = [
   { path: 'device/:websocket/:device/config/more', component: DeviceConfigMoreComponent },
   { path: 'device/:websocket/:device/config/controller', component: DeviceConfigControllerComponent },
 
-  { path: 'x', component: ChartTest }
 ];
 
 export const appRoutingProviders: any[] = [
