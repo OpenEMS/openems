@@ -148,6 +148,10 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		}
 	}
 
+	public synchronized Optional<T> getWriteValue() {
+		return writeValue;
+	}
+
 	/**
 	 * Stores the write value in a format suitable for writing to hardware and initializes this
 	 * {@link WriteChannel}. This method is called internally immediately after the {@link Scheduler} finished all
