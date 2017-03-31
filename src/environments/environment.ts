@@ -5,12 +5,12 @@ export const environment: Environment = {
   /*
    * OpenEMS
    */
-  // backend: "openems",
-  // url: "ws://" + location.hostname + ":8085",
+  backend: "openems",
+  url: "ws://" + location.hostname + ":8085",
 
   /*
    * FEMS-Server
    */
-  backend: "femsserver",
-  url: "ws://" + location.hostname + ":8087",
+  // backend: "femsserver",
+  // url: "ws://" + location.hostname + ":8087",
 };
