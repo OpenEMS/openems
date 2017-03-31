@@ -74,20 +74,23 @@ let pulsetime = 1000;
 
 })
 export abstract class AbstractSectionComponent {
-    private outlinePath: string = "";
-    private valuePath: string = "";
+
+    public valuePath: string = "";
+    public outlinePath: string = "";
+    public circles: Circle[] = [];
+    public square: SvgSquare;
+    public squarePosition: SvgSquarePosition;
+    public pulsetimeup: number;
+    public pulsetimedown: number;
+    public pulsetimeright: number;
+    public pulsetimeleft: number;
+
     protected valueRatio: number = 0;
     protected valueText: string = "";
     protected innerRadius: number = 0;
     protected outerRadius: number = 0;
-    private square: SvgSquare;
-    private squarePosition: SvgSquarePosition;
     protected height: number = 0;
     protected width: number = 0;
-    protected circles: Circle[] = [];
-    public pulsetimeup: number;
-    public pulsetimedown: number;
-    public pulsetimeright: number;
 
     private setPulsetime(value: number) {
         pulsetime = value;
@@ -96,7 +99,7 @@ export abstract class AbstractSectionComponent {
         private name: string,
         protected startAngle: number,
         protected endAngle: number,
-        private color: string
+        public color: string
     ) { }
 
     /**

@@ -11,11 +11,11 @@ import { WebsocketService, WebappService, Device } from '../../../shared/shared'
 })
 export class MoreComponent implements OnInit {
 
-  private device: Device;
-  private deviceSubscription: Subscription;
+  public device: Device;
+  public manualPQForm: FormGroup;
+  public manualMessageForm: FormGroup;
 
-  private manualPQForm: FormGroup;
-  private manualMessageForm: FormGroup;
+  private deviceSubscription: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -41,15 +41,15 @@ export class MoreComponent implements OnInit {
     this.deviceSubscription.unsubscribe();
   }
 
-  private applyManualPQ(form: FormGroup) {
+  public applyManualPQ(form: FormGroup) {
     this.device.send({ manualPQ: form["value"] });
   }
 
-  private removeManualPQ() {
+  public removeManualPQ() {
     this.device.send({ manualPQ: {} });
   }
 
-  private setInverterState(state: boolean) {
+  public setInverterState(state: boolean) {
     this.device.send({
       channel: {
         thing: "RefuWorkState0",
@@ -59,7 +59,7 @@ export class MoreComponent implements OnInit {
     });
   }
 
-  private sendManualMessage(form: FormGroup) {
+  public sendManualMessage(form: FormGroup) {
     try {
       let obj = JSON.parse(form["value"]["message"]);
       this.device.send(obj);

@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
@@ -24,33 +24,40 @@ import { KeysPipe } from './pipe/keys/keys.pipe';
 import { ClassnamePipe } from './pipe/classname/classname.pipe';
 import { SignPipe } from './pipe/sign/sign.pipe';
 
+/**
+ * Chart
+ */
+import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.component';
+
 @NgModule({
   imports: [
-    BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
     NgxChartsModule,
-    MaterialModule.forRoot(),
-    FlexLayoutModule.forRoot(),
+    MaterialModule,
+    FlexLayoutModule,
     RouterModule,
     routing
   ],
   declarations: [
     KeysPipe,
     ClassnamePipe,
-    SignPipe
+    SignPipe,
+    ChartSocComponent
   ],
   exports: [
     KeysPipe,
     SignPipe,
     ClassnamePipe,
-    BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     MaterialModule,
     FlexLayoutModule,
     NgxChartsModule,
     RouterModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ChartSocComponent
   ]
 })
 export class SharedModule { }

@@ -29,7 +29,7 @@ export interface ConfigureUpdateSchedulerRequest extends ConfigureRequest {
 
 export abstract class AbstractConfigForm {
 
-  protected device: Device;
+  public device: Device;
 
   constructor(
     protected websocketService: WebsocketService,
@@ -75,7 +75,7 @@ export abstract class AbstractConfigForm {
       form.markAsDirty();
     } else {
       let requests = this.getConfigDeleteRequests(form.controls[index]);
-      console.log(requests);
+      // console.log(requests);
       this.send(requests);
       form.markAsPristine();
     }
@@ -112,7 +112,7 @@ export abstract class AbstractConfigForm {
       }
     }
 
-    console.log(requests);
+    // console.log(requests);
     return requests;
   }
 
@@ -140,7 +140,7 @@ export abstract class AbstractConfigForm {
       });
     }
 
-    console.log(requests);
+    // console.log(requests);
     return requests;
   }
 

@@ -74,7 +74,7 @@ export class ControllerComponent extends AbstractConfig {
             controllerArray.push(group);
             this.indexLastController = controllerArray.length - 1;
             this.createdController = true;
-            console.log(this.indexLastController);
+            // console.log(this.indexLastController);
         }
     }
 
@@ -130,7 +130,7 @@ export class ControllerComponent extends AbstractConfig {
             object: this.buildValue(form)
         });
 
-        console.log(requests);
+        // console.log(requests);
         return requests;
     }
 

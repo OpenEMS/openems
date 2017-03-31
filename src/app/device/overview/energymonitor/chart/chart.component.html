@@ -1,24 +1,28 @@
-<svg style.width="{{width}}px" style.height="{{height}}px">
-  <!--graphic-->
-  <svg:g [attr.transform]="translation">
-    <svg:g consumptionsection />
-    <svg:g gridsection />
-    <svg:g productionsection />
-    <svg:g storagesection />
-  </svg:g>
-</svg>
-<!--legend-->
-<div fxHide fxShow.xs fxLayout fxFlex fxLayoutWrap="wrap" style="margin: 20px">
-  <div fxFlex="50%">
-    <svg style="width:20px; height:20px; background-color:black" /> Netz
+<div fxLayout fxFlex fxLayoutWrap="wrap" fxLayoutAlign="center center">
+  <div fxFlex="{{width}}px">
+    <svg style.width="{{width}}px" style.height="{{height}}px">
+      <!--graphic-->
+      <svg:g [attr.transform]="translation">
+        <svg:g consumptionsection />
+        <svg:g gridsection />
+        <svg:g productionsection />
+        <svg:g storagesection />
+      </svg:g>
+    </svg>
   </div>
-  <div fxFlex="50%">
-    <svg style="width:20px; height:20px; background-color: dodgerblue" /> Erzeugung
-  </div>
-  <div fxFlex="50%">
-    <svg style="width:20px; height:20px; background-color:orange" /> Verbrauch
-  </div>
-  <div fxFlex="50%">
-    <svg style="width:20px; height:20px; background-color:darkgreen" /> Speicher
+  <!--legend-->
+  <div fxHide fxShow.xs fxLayout fxFlex="100%" fxLayoutWrap="wrap" style="margin: 20px">
+    <div fxFlex="50%">
+      <svg style="width:20px; height:20px; background-color:#000000" /> Netz
+    </div>
+    <div fxFlex="50%">
+      <svg style="width:20px; height:20px; background-color: #008dd2" /> Erzeugung
+    </div>
+    <div fxFlex="50%">
+      <svg style="width:20px; height:20px; background-color:#fdc507" /> Verbrauch
+    </div>
+    <div fxFlex="50%">
+      <svg style="width:20px; height:20px; background-color:#009846" /> Speicher
+    </div>
   </div>
 </div>

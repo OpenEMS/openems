@@ -1,51 +1,49 @@
 <div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
-  <!--{{ device.historicData | async | json }}-->
   <div fxFlex.xs="100%" fxFlex.gt-sm="25%">
     <md-card class="single">
       <md-card-header>
-        <md-card-title>Mustermann</md-card-title>
-        <md-card-subtitle>FEMS 24</md-card-subtitle>
+        <md-icon md-card-avatar>account_circle</md-icon>
+        <md-card-title>{{ device.address }}</md-card-title>
+        <md-card-subtitle>{{ device.name }}</md-card-subtitle>
       </md-card-header>
       <md-card-content>
         <div fxLayout fxLayoutWrap="wrap" fxFlex>
           <button md-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold">
             Zeitraum
           </button>
-          <button md-raised-button [class.active]="activePeriod == 'today'" (click)="setPeriod('today')" fxFlex="100%">
+          <button md-raised-button [class.activated]="activePeriod == 'today'" (click)="setPeriod('today')" fxFlex="100%">
             Heute
           </button>
-          <button md-raised-button [class.active]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%">
+          <button md-raised-button [class.activated]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%">
             Gestern
           </button>
-          <button md-raised-button [class.active]="activePeriod == 'lastWeek'" (click)="setPeriod('lastWeek')" fxFlex="100%">
+          <button md-raised-button [class.activated]="activePeriod == 'lastWeek'" (click)="setPeriod('lastWeek')" fxFlex="100%">
             letzte Woche
           </button>
-          <button md-raised-button [class.active]="activePeriod == 'lastMonth'" (click)="setPeriod('lastMonth')" fxFlex="100%">
+          <button md-raised-button [class.activated]="activePeriod == 'lastMonth'" (click)="setPeriod('lastMonth')" fxFlex="100%">
             letzten Monat
           </button>
-          <button md-raised-button [class.active]="activePeriod == 'lastYear'" (click)="setPeriod('lastYear')" fxFlex="100%">
+          <button md-raised-button [class.activated]="activePeriod == 'lastYear'" (click)="setPeriod('lastYear')" fxFlex="100%">
             letztes Jahr
           </button>
-          <button [class.active]="activePeriod == 'otherTimespan'" (click)="setOtherTimespan()" md-raised-button fxFlex="100%">
+          <button [class.activated]="activePeriod == 'otherTimespan'" (click)="setOtherTimespan()" md-raised-button fxFlex="100%">
             Anderer Zeitraum
           </button>
-          <div *ngIf="activePeriod == 'otherTimespan'" fxFlex="100%">
-            <div fxFlex="100%" style="margin-bottom: 20px" fxLayout>
-              <label fxFlex="50px" style="font-size: 14px;margin-top: 20px">Datum</label>
-              <label fxFlex="40px" style="font-size: 14px;margin-top: 20px">von:</label>
+          <div *ngIf="activePeriod == 'otherTimespan'" style="margin-top: 20px" fxFlex="100%">
+            <div fxFlex="100%" fxLayout>
+              <div fxFlex="75px"></div>
               <md-input-container>
-                <input #from type="date" style="height: auto" mdInput/>
-              </md-input-container>
-            </div>
-            <div fxFlex="100%" style="margin-bottom: 20px" fxLayout>
-              <div fxFlex="50px"></div>
-              <label fxFlex="40px" style="font-size: 14px;margin-top: 20px">bis:</label>
-              <md-input-container>
-                <input #to type="date" style="height: auto" mdInput />
+                <input #from type="date" [value]="dateToday | date:'yyyy-MM-dd'" placeholder="Datum von" style="height: auto" mdInput/>
               </md-input-container>
             </div>
             <div fxFlex="100%" fxLayout>
-              <div fxFlex="50px"></div>
+              <div fxFlex="75px"></div>
+              <md-input-container>
+                <input #to type="date" [value]="dateToday | date:'yyyy-MM-dd'" placeholder="Datum bis" style="height: auto" mdInput />
+              </md-input-container>
+            </div>
+            <div fxFlex="100%" fxLayout>
+              <div fxFlex="75px"></div>
               <button md-raised-button style="font-size: 14px" (click)="setTimespan(from.value, to.value)">
                 Los!
               </button>
@@ -57,15 +55,17 @@
   </div>
   <div fxFlex.xs="100%" fxFlex.gt-sm="75%">
     <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>event</md-icon>
+        <md-card-title style="font-size: 16px">{{ timespanText }}</md-card-title>
+      </md-card-header>
       <md-card-content>
         <div style="height: 250px">
-          <chart-soc [scheme]="colorScheme" [results]="dataSoc" gradient="true" [curve]="curve" xAxis="false" yAxis="false" legend="true"
-            autoScale="false">
+          <chart-soc [scheme]="colorScheme" [results]="dataSoc">
           </chart-soc>
         </div>
         <div style="height: 400px">
-          <chart-energy [scheme]="colorScheme" [results]="storageActivepowerData" [curve]="curve" gradient="true" xAxis="false" yAxis="false"
-            legend="true" autoScale="false">
+          <chart-energy [scheme]="colorScheme" [results]="dataEnergy">
           </chart-energy>
         </div>
       </md-card-content>

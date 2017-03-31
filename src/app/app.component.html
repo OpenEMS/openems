@@ -28,9 +28,9 @@
           </button>
       </div>
       <!-- TODO enable settings also for 'femsserver' backend -->
-      <!--<div *ngIf="false" fxFlex="50px">-->
-      <div *ngIf="true" fxFlex="50px">
-        <button routerLinkActive="active" routerLink="/device/{{ (websocketService.currentDevice | async)?.websocket.name }}/{{(websocketService.currentDevice | async)?.name }}/config"
+      <div *ngIf="false" fxFlex="50px">
+        <!--<div *ngIf="true" fxFlex="50px">-->
+        <button routerLink="/device/{{ (websocketService.currentDevice | async)?.websocket.name }}/{{(websocketService.currentDevice | async)?.name }}/config"
           md-icon-button>
           <md-icon>settings</md-icon>
           </button>

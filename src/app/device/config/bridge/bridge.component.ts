@@ -37,7 +37,7 @@ export class BridgeComponent extends AbstractConfig {
     // console.log(this.controlConfig);
     this.form = <FormGroup>this.controlConfig;
     // console.log(this.control);
-    console.log(this.form);
+    // console.log(this.form);
   }
 
   setNameReady(): void {
@@ -53,14 +53,14 @@ export class BridgeComponent extends AbstractConfig {
       });
 
       group["_meta_new"] = true;
-      console.log(bridgeArray);
+      // console.log(bridgeArray);
       bridgeArray.push(group);
       bridgeArray.markAsDirty();
       this.indexLastBridge = bridgeArray.length - 1;
       this.createdBridge = true;
       // this.createdController = true;
       // console.log(bridgeArray);
-      console.log(this.indexLastBridge);
+      // console.log(this.indexLastBridge);
     }
   }
 
@@ -81,7 +81,7 @@ export class BridgeComponent extends AbstractConfig {
       group["_meta_parent_id"] = indexParent;
       deviceArray.push(group);
       this.createdDevice = true;
-      console.log(bridgeForm);
+      // console.log(bridgeForm);
     }
   }
 
@@ -133,12 +133,12 @@ export class BridgeComponent extends AbstractConfig {
 
     this.nameReady = false;
     this.createdDevice = false;
-    console.log(deviceForm);
+    // console.log(deviceForm);
   }
 
   protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
     let requests: ConfigureRequest[] = [];
-    console.log(form);
+    // console.log(form);
     // let parentId = form["_meta_parent_id"];
     if (form["_meta_parent_id"] != null) {
       let parentId = form["_meta_parent_id"];
@@ -155,7 +155,7 @@ export class BridgeComponent extends AbstractConfig {
       });
     }
 
-    console.log(requests);
+    // console.log(requests);
     return requests;
   }
 

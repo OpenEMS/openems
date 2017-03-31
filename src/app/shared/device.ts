@@ -8,21 +8,25 @@ import { Config } from './config';
 
 const SUBSCRIBE: string = "fenecon_monitor_v1";
 
+class Things {
+  storage = {};
+  production = {};
+  grid = {};
+  consumption = {};
+}
+
 class Summary {
   public storage = {
-    things: {},
     soc: null,
     activePower: 0,
     maxActivePower: 0
   };
   public production = {
-    things: {},
     powerRatio: 0,
     activePower: 0,
     maxActivePower: 0
   };
   public grid = {
-    things: {},
     powerRatio: 0,
     activePower: 0,
     maxActivePower: 0
@@ -34,11 +38,11 @@ class Summary {
 }
 
 export class Device {
-
+  private things: Things
   public event = new Subject<Notification>();
   public address: string;
   public data = new BehaviorSubject<{ [thing: string]: any }>(null);
-  public socData = new BehaviorSubject<any[]>(null);
+  public historyData = new BehaviorSubject<any[]>(null);
   public config = new BehaviorSubject<Config>(null);
   private online = false;
   private influxdb: {
@@ -65,17 +69,45 @@ export class Device {
     this.websocket.send(this, value);
   }
 
-  /**
-   * Send "subscribe" message to websocket
-   */
-  public subscribe() {
-    let isInArray = (array: any, value: any): boolean => {
-      return array.indexOf(value) > -1;
+  private isInArray = (array: any, value: any): boolean => {
+    if (!array || !value) {
+      return false;
     }
-    let subscribe = {}
+    return array.indexOf(value) > -1;
+  }
+
+  private refreshThingsFromConfig(): Things {
+    let result = new Things();
+    let config = this.config.getValue();
+    if ("_meta" in config && "natures" in config._meta) {
+      let natures = this.config.getValue()._meta.natures;
+      for (let thing in natures) {
+        let a = natures[thing]["implements"];
+        // Ess
+        if (this.isInArray(a, "EssNature")) {
+          result.storage[thing] = true;
+        }
+        // Meter
+        if (this.isInArray(a, "MeterNature")) {
+          // get type
+          let type = natures[thing]["channels"]["type"]["value"];
+          if (type === "grid") {
+            result.grid[thing] = true;
+          } else if (type === "production") {
+            result.production[thing] = true;
+          } else {
+            console.warn("Meter without type: " + thing);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  private getImportantChannels(): { [thing: string]: [string] } {
     let natures = this.config.getValue()._meta.natures;
     let ignoreNatures = {};
-    this.summary = new Summary();
+    let result = {}
     for (let thing in natures) {
       let a = natures[thing]["implements"];
       let channels = []
@@ -84,42 +116,38 @@ export class Device {
        * Find important Channels to subscribe
        */
       // Ess
-      if (isInArray(a, "EssNature")) {
+      if (this.isInArray(a, "EssNature")) {
         channels.push("Soc");
-        this.summary.storage.things[thing] = true;
       }
-      if (isInArray(a, "AsymmetricEssNature")) {
+      if (this.isInArray(a, "AsymmetricEssNature")) {
         channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
       }
-      if (isInArray(a, "SymmetricEssNature")) {
+      if (this.isInArray(a, "SymmetricEssNature")) {
         channels.push("ActivePower", "ReactivePower");
       }
-      if (isInArray(a, "FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
+      if (this.isInArray(a, "FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
         ignoreNatures["AsymmetricMeterNature"] = true;
       }
 
       // Meter
-      if (isInArray(a, "MeterNature")) {
-        // get type
-        let type = natures[thing]["channels"]["type"]["value"];
-        if (type === "grid") {
-          this.summary.grid.things[thing] = true;
-        } else if (type === "production") {
-          this.summary.production.things[thing] = true;
-        } else {
-          console.warn("Meter without type: " + thing);
-        }
-      }
-      if (isInArray(a, "AsymmetricMeterNature") && !ignoreNatures["AsymmetricMeterNature"]) {
+      if (this.isInArray(a, "AsymmetricMeterNature") && !ignoreNatures["AsymmetricMeterNature"]) {
         channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
       }
-      if (isInArray(a, "SymmetricMeterNature")) {
+      if (this.isInArray(a, "SymmetricMeterNature")) {
         channels.push("ActivePower", "ReactivePower");
       }
 
-      subscribe[thing] = channels;
+      result[thing] = channels;
     }
+    return result;
+  }
 
+  /**
+   * Send "subscribe" message to websocket
+   */
+  public subscribe() {
+    this.summary = new Summary();
+    let subscribe = this.getImportantChannels();
     this.send({
       subscribe: subscribe
     });
@@ -134,26 +162,142 @@ export class Device {
     });
   }
 
+  private getkWhResult(channels: { [thing: string]: [string] }): { [thing: string]: [string] } {
+    let kWh = {};
+    let thingChannel = [];
+
+    for (let type in this.things) {
+      for (let thing in this.things[type]) {
+        for (let channel in channels[thing]) {
+          if (channels[thing][channel] == "ActivePower") {
+            kWh[thing + "/ActivePower"] = type;
+          } else if (channels[thing][channel] == "ActivePowerL1" || channels[thing][channel] == "ActivePowerL2" || channels[thing][channel] == "ActivePowerL3") {
+            kWh[thing + "/ActivePowerL1"] = type;
+            kWh[thing + "/ActivePowerL2"] = type;
+            kWh[thing + "/ActivePowerL3"] = type;
+          }
+        }
+      }
+    }
+    return kWh;
+  }
+
   /**
    * Send "query" message to websocket
    */
-  public query(fromDate: any, toDate: any, channels: { [thing: string]: string[] }) {
+  public query(fromDate: any, toDate: any) {
     let obj = {
       mode: "history",
       fromDate: fromDate.format("YYYY-MM-DD"),
       toDate: toDate.format("YYYY-MM-DD"),
-      timezone: "GMT",
-      channels: channels
+      timezone: new Date().getTimezoneOffset() * 60,
+      channels: this.getImportantChannels(),
+      kWh: this.getkWhResult(this.getImportantChannels())
     };
     console.log(obj);
     this.send({ query: obj });
   }
 
   /**
+   * Calculate summary data from websocket reply
+   */
+  public calculateSummary(data: any): Summary {
+    function getActivePower(o: any): number {
+      if ("ActivePowerL1" in o && o.ActivePowerL1 != null && "ActivePowerL2" in o && o.ActivePowerL2 != null && "ActivePowerL3" in o && o.ActivePowerL3 != null) {
+        return o.ActivePowerL1 + o.ActivePowerL2 + o.ActivePowerL3;
+      } else if ("ActivePower" in o && o.ActivePower != null) {
+        return o.ActivePower;
+      } else {
+        return 0;
+      }
+    }
+
+    let summary = new Summary();
+    {
+      /*
+       * Storage
+       */
+      let soc = 0;
+      let activePower = 0;
+      for (let thing in this.things.storage) {
+        if (thing in data) {
+          let ess = data[thing];
+          soc += ess["Soc"];
+          activePower += getActivePower(ess);
+        }
+      }
+      summary.storage.soc = soc / Object.keys(this.things.storage).length;
+      summary.storage.activePower = activePower;
+    }
+
+    {
+      /*
+       * Grid
+       */
+      let powerRatio = 0;
+      let activePower = 0;
+      let maxActivePower = 0;
+      for (let thing in this.things.grid) {
+        if (thing in data) {
+          let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
+          let meter = data[thing];
+          let power = getActivePower(meter);
+          if (activePower > 0) {
+            powerRatio = (power * 50.) / thingChannels["maxActivePower"]["value"]
+          } else {
+            powerRatio = (power * -50.) / thingChannels["minActivePower"]["value"]
+          }
+          activePower += power;
+          maxActivePower += thingChannels["maxActivePower"]["value"];
+          // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
+        }
+      }
+      summary.grid.powerRatio = powerRatio;
+      summary.grid.activePower = activePower;
+      summary.grid.maxActivePower = maxActivePower;
+    }
+
+    {
+      /*
+       * Production
+       */
+      let powerRatio = 0;
+      let activePower = 0;
+      let maxActivePower = 0;
+      for (let thing in this.things.production) {
+        if (thing in data) {
+          let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
+          let meter = data[thing];
+          let power = getActivePower(meter);
+          powerRatio = (power * 100.) / thingChannels["maxActivePower"]["value"]
+          activePower += power;
+          maxActivePower += thingChannels["maxActivePower"]["value"];
+          // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
+        }
+      }
+      summary.production.powerRatio = powerRatio;
+      summary.production.activePower = activePower;
+      summary.production.maxActivePower = maxActivePower;
+    }
+
+    {
+      /*
+       * Consumption
+       */
+      let activePower = summary.grid.activePower + summary.production.activePower + summary.storage.activePower;
+      let maxActivePower = summary.grid.maxActivePower + summary.production.maxActivePower + summary.storage.maxActivePower;
+      summary.consumption.powerRatio = (activePower * 100.) / maxActivePower;
+      summary.consumption.activePower = activePower;
+    }
+    // console.log(JSON.stringify(data), JSON.stringify(summary));
+    return summary;
+  }
+
+  /**
    * Receive new data from websocket
    */
   public receive(message: any) {
-
+    // console.log("receive: ", message);
     if ("metadata" in message) {
       let metadata = message.metadata;
       /*
@@ -182,6 +326,7 @@ export class Device {
         }
         // store all config
         this.config.next(config);
+        this.things = this.refreshThingsFromConfig();
       }
 
       if ("online" in metadata) {
@@ -196,84 +341,7 @@ export class Device {
      */
     if ("currentdata" in message) {
       let data = message.currentdata;
-
-      {
-        /*
-         * Storage
-         */
-        let soc = 0;
-        let activePower = 0;
-        for (let thing in this.summary.storage.things) {
-          if (thing in data) {
-            let ess = data[thing];
-            soc += ess["Soc"];
-            activePower += ess["ActivePower"];
-          }
-        }
-        this.summary.storage.soc = soc / Object.keys(this.summary.storage.things).length;
-        this.summary.storage.activePower = activePower;
-      }
-
-      {
-        /*
-         * Grid
-         */
-        let powerRatio = 0;
-        let activePower = 0;
-        let maxActivePower = 0;
-        for (let thing in this.summary.grid.things) {
-          if (thing in data) {
-            let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
-            let meter = data[thing];
-            let power = meter["ActivePower"];
-            if (activePower > 0) {
-              powerRatio = (power * 50.) / thingChannels["maxActivePower"]["value"]
-            } else {
-              powerRatio = (power * -50.) / thingChannels["minActivePower"]["value"]
-            }
-            activePower += power;
-            maxActivePower += thingChannels["maxActivePower"]["value"];
-            // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
-          }
-        }
-        this.summary.grid.powerRatio = powerRatio;
-        this.summary.grid.activePower = activePower;
-        this.summary.grid.maxActivePower = maxActivePower;
-      }
-
-      {
-        /*
-         * Production
-         */
-        let powerRatio = 0;
-        let activePower = 0;
-        let maxActivePower = 0;
-        for (let thing in this.summary.production.things) {
-          if (thing in data) {
-            let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
-            let meter = data[thing];
-            let power = meter["ActivePower"];
-            powerRatio = (power * 100.) / thingChannels["maxActivePower"]["value"]
-            activePower += power;
-            maxActivePower += thingChannels["maxActivePower"]["value"];
-            // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
-          }
-        }
-        this.summary.production.powerRatio = powerRatio;
-        this.summary.production.activePower = activePower;
-        this.summary.production.maxActivePower = maxActivePower;
-      }
-
-      {
-        /*
-         * Consumption
-         */
-        let activePower = this.summary.grid.activePower + this.summary.production.activePower + this.summary.storage.activePower;
-        let maxActivePower = this.summary.grid.maxActivePower + this.summary.production.maxActivePower + this.summary.storage.maxActivePower;
-        this.summary.consumption.powerRatio = (activePower * 100.) / maxActivePower
-        this.summary.consumption.activePower = activePower;
-      }
-
+      this.summary = this.calculateSummary(data);
       // send event
       this.data.next(data);
     }
@@ -282,9 +350,15 @@ export class Device {
      * Reply to a query
      */
     if ("queryreply" in message) {
-      let result = message.queryreply;
-      console.log(result);
-      this.socData.next(result);
+      let data = message.queryreply.data;
+      console.log(message.queryreply);
+      if (data != null) {
+        for (let datum of data) {
+          let sum = this.calculateSummary(datum.channels);
+          datum["summary"] = sum;
+        }
+      }
+      this.historyData.next(data);
     }
   }
 }

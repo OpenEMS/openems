@@ -12,7 +12,7 @@ export class OverviewComponent implements OnInit {
   private devices: Device[] = [];
 
   constructor(
-    private websocketService: WebsocketService,
+    public websocketService: WebsocketService,
     private webappService: WebappService,
     private router: Router
   ) { }

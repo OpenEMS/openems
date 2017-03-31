@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
@@ -12,16 +12,20 @@ import { WebsocketService, Device } from '../../shared/shared';
   templateUrl: './history.component.html'
 })
 export class HistoryComponent implements OnInit, OnDestroy {
-  private device: Device;
+
+  public device: Device;
+
   private deviceSubscription: Subscription;
   private activePeriod: string = null;
   private dataSoc = [];
-  private historicData = [];
-  private storageActivepowerData = [];
+  private dataEnergy = [];
+  private dateToday: Date = new Date();
+  private timespanText: string;
 
   constructor(
     private route: ActivatedRoute,
-    private websocketService: WebsocketService
+    private websocketService: WebsocketService,
+    private elRef: ElementRef
   ) { }
 
   ngOnInit() {
@@ -32,26 +36,45 @@ export class HistoryComponent implements OnInit, OnDestroy {
         if (this.activePeriod == null) {
           this.setPeriod("today");
         }
-        device.socData.subscribe((newData) => {
+        device.historyData.subscribe((newData) => {
           if (newData != null) {
-            console.log("data", newData);
             let dataSoc = {
               name: "Ladezustand",
               series: []
             }
-            let storageActivepowerData = {
-              name: "Ausgabeleistung",
+            let dataEnergy = {
+              name: "Erzeugung",
               series: []
             }
-            for (let newDatum of newData["data"]) {
-              let soc = newDatum["channels"]["ess0"]["Soc"] != null ? newDatum["channels"]["ess0"]["Soc"] : 0;
-              dataSoc.series.push({ name: moment(newDatum["time"]), value: soc });
-
-              let storageActivePower = newDatum["channels"]["ess0"]["ActivePower"] != null ? newDatum["channels"]["ess0"]["ActivePower"] : 0;
-              storageActivepowerData.series.push({ name: moment(newDatum["time"]), value: storageActivePower });
+            let dataConsumption = {
+              name: "Verbrauch",
+              series: []
+            }
+            let dataToGrid = {
+              name: "Netzeinspeisung",
+              series: []
+            }
+            let dataFromGrid = {
+              name: "Netzbezug",
+              series: []
+            }
+            for (let newDatum of newData) {
+              let timestamp = moment(newDatum["time"]);
+              let soc = newDatum.summary.storage.soc != null ? newDatum.summary.storage.soc : 0;
+              dataSoc.series.push({ name: timestamp, value: soc });
+              let production = newDatum.summary.production.activePower != null ? newDatum.summary.production.activePower : 0;
+              dataEnergy.series.push({ name: timestamp, value: production });
+              let consumption = newDatum.summary.consumption.activePower != null ? newDatum.summary.consumption.activePower : 0;
+              dataConsumption.series.push({ name: timestamp, value: consumption });
+              let grid = newDatum.summary.grid.activePower != null ? newDatum.summary.grid.activePower : 0;
+              if (newDatum.summary.grid.activePower < 0) {
+                dataToGrid.series.push({ name: timestamp, value: (grid * (-1)) });
+              } else {
+                dataFromGrid.series.push({ name: timestamp, value: grid });
+              }
             }
             this.dataSoc = [dataSoc];
-            this.storageActivepowerData = [storageActivepowerData];
+            this.dataEnergy = [dataEnergy, dataConsumption, dataToGrid, dataFromGrid];
           }
         })
       }
@@ -65,9 +88,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  view: any[] = [700, 400];
-  curve = d3shape.curveBasis;
-
   colorScheme = {
     domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
   };
@@ -76,7 +96,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
    * later: needed data for energychart.component.ts
    * current: storage ActivePower is shown on energychart.component.ts
    */
-  // private historicData = [
+  // private dataEnergy = [
   //   {
   //     "name": "Eigene PV-Produktion",
   //     "series": [
@@ -133,7 +153,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
   private setTimespan(from: any, to: any) {
     if (from != "" || to != "") {
-      console.log(from, to);
       this.setPeriod('otherTimespan', from, to);
     }
   }
@@ -143,37 +162,42 @@ export class HistoryComponent implements OnInit, OnDestroy {
       period = null;
     }
     this.activePeriod = period;
-    this.historicData = [];
+    this.dataEnergy = this.dataSoc = [];
     let fromDate;
     let toDate;
     switch (period) {
       case "today":
         fromDate = toDate = moment();
+        this.timespanText = "Heute, " + fromDate.format("DD.MM.YYYY");
         break;
       case "yesterday":
         fromDate = toDate = moment().subtract(1, "days");
+        this.timespanText = "Gestern, " + fromDate.format("DD.MM.YYYY");
         break;
       case "lastWeek":
         fromDate = moment().subtract(1, "weeks");
         toDate = moment();
+        this.timespanText = "Letzte Woche, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       case "lastMonth":
         fromDate = moment().subtract(1, "months");
         toDate = moment();
+        this.timespanText = "Letzter Monat, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       case "lastYear":
         fromDate = moment().subtract(1, "years");
         toDate = moment();
+        this.timespanText = "Letztes Jahr, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       case "otherTimespan":
         fromDate = moment(from);
         toDate = moment(to);
+        this.timespanText = "Zeitraum, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
         break;
       default:
         this.activePeriod = null;
         return;
     }
-    console.log(fromDate, toDate);
-    this.device.query(fromDate, toDate, { ess0: ["Soc", "ActivePower"] });
+    this.device.query(fromDate, toDate);
   }
 }
