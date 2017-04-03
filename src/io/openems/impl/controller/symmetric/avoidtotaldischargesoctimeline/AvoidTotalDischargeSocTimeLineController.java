@@ -37,6 +37,7 @@ import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.impl.controller.symmetric.avoidtotaldischargesoctimeline.Ess.State;
 
 @ThingInfo(title = "Avoid total discharge of battery (Symmetric)", description = "Makes sure the battery is not going into critically low state of charge. For symmetric Ess.")
 public class AvoidTotalDischargeSocTimeLineController extends Controller {
@@ -98,24 +99,33 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller {
 		try {
 			LocalTime time = LocalTime.now();
 			for (Ess ess : esss.value()) {
-				// Hysteresis
-				if (ess.soc.value() > ess.getMinSoc(time)) {
-					// Above
-					ess.isChargeSoc = false;
-				} else if (ess.soc.value() < ess.getChargeSoc(time)) {
-					// Below
-					if (!ess.isChargeSoc) {
+				switch (ess.currentState) {
+				case CHARGESOC:
+					if (ess.soc.value() > ess.getMinSoc(time)) {
+						ess.currentState = State.MINSOC;
+					} else {
 						try {
-							if (ess.soc.value() < ess.getChargeSoc(time)) {
-								ess.isChargeSoc = true;
+							Optional<Long> currentMinValue = ess.setActivePower.writeMin();
+							if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
+								// Force Charge with minimum of MaxChargePower/5
+								log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
+								ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
+							} else {
+								log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
+								ess.setActivePower.pushWriteMax(-1000L);
 							}
 						} catch (Exception e) {
-							log.error(e.getMessage());
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
 					}
-				} else {
-					// Between
-					if (!ess.isChargeSoc) {
+					break;
+				case MINSOC:
+					if (ess.soc.value() < ess.getChargeSoc(time)) {
+						ess.currentState = State.CHARGESOC;
+					} else if (ess.soc.value() >= ess.getMinSoc(time) + 5) {
+						ess.currentState = State.NORMAL;
+					} else {
 						try {
 							long maxPower = 0;
 							if (!ess.setActivePower.writeMax().isPresent()
@@ -126,24 +136,14 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller {
 							log.error(ess.id() + "Failed to set Max allowed power.", e);
 						}
 					}
+					break;
+				case NORMAL:
+					if (ess.soc.value() <= ess.getMinSoc(time)) {
+						ess.currentState = State.MINSOC;
+					}
+					break;
 				}
 
-				if (ess.isChargeSoc) {
-					try {
-						Optional<Long> currentMinValue = ess.setActivePower.writeMin();
-						if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
-							// Force Charge with minimum of MaxChargePower/5
-							log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
-							ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
-						} else {
-							log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
-							ess.setActivePower.pushWriteMax(-1000L);
-						}
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
 			}
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
