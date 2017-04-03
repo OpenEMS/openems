@@ -18,11 +18,14 @@
         <button (click)="sidenav.toggle()" md-icon-button><md-icon>menu</md-icon></button>
       </div>
       <div fxFlex>
-        <button *ngIf="!(websocketService.currentDevice | async)" routerLink="/overview" md-button><h3>FEMS</h3></button>
-        <button *ngIf="websocketService.currentDevice | async" routerLink="/device/{{ (websocketService.currentDevice | async)?.websocket.name }}/{{ (websocketService.currentDevice | async)?.name }}/overview"
-          md-button>
+        <button routerLink="/overview" md-button><h3>Übersicht</h3></button>
+        <ng-container *ngIf="websocketService.currentDevice | async">
+          <span> > </span>
+          <button routerLink="/device/{{ (websocketService.currentDevice | async)?.websocket.name }}/{{ (websocketService.currentDevice | async)?.name }}/overview"
+            md-button>
           <h3>FEMS <small>({{ (websocketService.currentDevice | async)?.address }})</small></h3>
           </button>
+        </ng-container>
       </div>
       <div *ngIf="!environment.production" fxFlex="50px">
         <button routerLink="/device/{{ (websocketService.currentDevice | async)?.websocket.name }}/{{(websocketService.currentDevice | async)?.name }}/config"
