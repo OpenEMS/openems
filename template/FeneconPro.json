@@ -23,7 +23,8 @@
 					"class": "io.openems.impl.device.socomec.Socomec",
 					"modbusUnitId": 5,
 					"meter": {
-						"id": "meter0"
+						"id": "meter0",
+						"type": "grid"
 					}
 				}
 			]
@@ -48,10 +49,7 @@
 			{
 				"priority": 50,
 				"class": "io.openems.impl.controller.asymmetric.balancing.BalancingController",
-				"esss": [
-					"ess0",
-					"ess1"
-				],
+				"esss": "ess0",
 				"meter": "meter0"
 			},
 			{

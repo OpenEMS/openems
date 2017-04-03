@@ -24,7 +24,6 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.api.exception.OpenemsException;
-import io.openems.api.exception.ReflectionException;
 import io.openems.core.Address;
 import io.openems.core.utilities.JsonUtils;
 
@@ -143,7 +142,6 @@ public class InfluxdbQueryWrapper {
 
 	private static JsonObject querykWh(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
 			ZonedDateTime toDate, JsonObject channels, int resolution, JsonObject kWh) throws OpenemsException {
-		log.info(kWh.get("ess0/ActivePower").toString());
 		String gridThing = getGridThing(kWh);
 		String storageThing = getStorageThing(kWh);
 
@@ -309,7 +307,7 @@ public class InfluxdbQueryWrapper {
 		return value;
 	}
 
-	private static String toChannelAddressList(JsonObject channels) throws ReflectionException {
+	private static String toChannelAddressList(JsonObject channels) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();
 		for (Entry<String, JsonElement> entry : channels.entrySet()) {
 			String thingId = entry.getKey();
@@ -333,7 +331,7 @@ public class InfluxdbQueryWrapper {
 		return queryResult;
 	}
 
-	private static String getGridThing(JsonObject kWh) throws ReflectionException {
+	private static String getGridThing(JsonObject kWh) throws OpenemsException {
 		String gridThing = "";
 		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
 			String thingId = entry.getKey();
@@ -344,7 +342,7 @@ public class InfluxdbQueryWrapper {
 		return gridThing;
 	}
 
-	private static String getStorageThing(JsonObject kWh) throws ReflectionException {
+	private static String getStorageThing(JsonObject kWh) throws OpenemsException {
 		String storageThing = "";
 		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
 			String thingId = entry.getKey();
@@ -355,7 +353,7 @@ public class InfluxdbQueryWrapper {
 		return storageThing;
 	}
 
-	private static String toChannelAddressListAvg(JsonObject channels) throws ReflectionException {
+	private static String toChannelAddressListAvg(JsonObject channels) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();
 		for (Entry<String, JsonElement> entry : channels.entrySet()) {
 			String thingId = entry.getKey();

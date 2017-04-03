@@ -401,7 +401,6 @@ public class WebsocketHandler {
 				/*
 				 * History query
 				 */
-				// String timezoneString = JsonUtils.getAsString(jQuery, "timezone");
 				int timezoneDiff = JsonUtils.getAsInt(jQuery, "timezone");
 				ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
 				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
