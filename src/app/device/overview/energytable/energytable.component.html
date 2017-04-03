@@ -105,10 +105,10 @@
             </ng-container>
             <ng-container *ngIf="!(thing.value.ActivePower != null && thing.value.ReactivePower != null) && thing.value.ActivePowerL1 != null && thing.value.ActivePowerL2 != null && thing.value.ActivePowerL3 != null">
               <tr *ngIf="thing.value.ActivePowerL1 < 0">
-                <td>Netzeinspeisung</td>
-                <td>L1</td>
-                <td class="align_right">{{ thing.value.ActivePowerL1 | sign }}</td>
-                <td>W</td>
+                <td style="width:50%">Netzeinspeisung</td>
+                <td style="width:15%">L1</td>
+                <td style="width:25%" class="align_right">{{ thing.value.ActivePowerL1 | sign }}</td>
+                <td style="width:10%">W</td>
               </tr>
               <tr *ngIf="thing.value.ActivePowerL1 >= 0">
                 <td>Netzbezug</td>
@@ -172,10 +172,10 @@
             </ng-container>
             <ng-container *ngIf="!(thing.value.ActivePower != null && thing.value.ReactivePower != null) && thing.value.ActivePowerL1 != null && thing.value.ActivePowerL2 != null && thing.value.ActivePowerL3 != null">
               <tr>
-                <td>Erzeugung</td>
-                <td>L1</td>
-                <td class="align_right">{{ thing.value.ActivePowerL1 }}</td>
-                <td>W</td>
+                <td style="width:50%">Erzeugung</td>
+                <td style="width:15%">L1</td>
+                <td style="width:25%" class="align_right">{{ thing.value.ActivePowerL1 }}</td>
+                <td style="width:10%">W</td>
               </tr>
               <tr>
                 <td></td>

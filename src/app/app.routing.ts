@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { AboutComponent } from './about/about.component';
-import { LoginComponent } from './login/login.component';
+import { OverviewComponent } from './overview/overview.component';
 import { OverviewComponent as DeviceOverviewComponent } from './device/overview/overview.component';
 import { HistoryComponent as DeviceHistoryComponent } from './device/history/history.component';
 import { OverviewComponent as DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
@@ -13,8 +13,8 @@ import { MoreComponent as DeviceConfigMoreComponent } from './device/config/more
 import { ControllerComponent as DeviceConfigControllerComponent } from './device/config/controller/controller.component';
 
 const appRoutes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
+  { path: '', redirectTo: 'overview', pathMatch: 'full' },
+  { path: 'overview', component: OverviewComponent },
 
   { path: 'about', component: AboutComponent },
 

@@ -7,7 +7,7 @@ import { appRoutingProviders } from './app.routing';
 import { SharedModule } from './shared/shared.module';
 import { WebappService, WebsocketService } from './shared/shared';
 import { AboutModule } from './about/about.module';
-import { LoginModule } from './login/login.module';
+import { OverviewModule } from './overview/overview.module';
 import { DeviceModule } from './device/device.module';
 
 import { AppComponent } from './app.component';
@@ -17,7 +17,7 @@ import { AppComponent } from './app.component';
     SharedModule,
     AboutModule,
     DeviceModule,
-    LoginModule
+    OverviewModule
   ],
   declarations: [
     AppComponent

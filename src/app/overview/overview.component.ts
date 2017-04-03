@@ -9,14 +9,14 @@ import { environment } from '../../environments';
 import { WebappService, WebsocketService, Websocket, Notification } from '../shared/shared';
 
 @Component({
-  selector: 'login',
-  templateUrl: './login.component.html'
+  selector: 'overview',
+  templateUrl: './overview.component.html'
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class OverviewComponent implements OnInit, OnDestroy {
 
   public backend = environment.backend;
 
-  private forms: FormGroup[] = [];
+  public forms: FormGroup[] = [];
   private websocketSubscriptions: Subscription[] = [];
 
   constructor(

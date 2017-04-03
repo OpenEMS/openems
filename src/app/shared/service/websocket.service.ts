@@ -54,7 +54,7 @@ export class WebsocketService {
   }
 
   /**
-   * Parses the route params, sets the current device and returns it - or redirects to login and returns null
+   * Parses the route params, sets the current device and returns it - or redirects to overview and returns null
    */
   public setCurrentDevice(params: Params): BehaviorSubject<Device> {
     let timeout = null;
@@ -80,10 +80,10 @@ export class WebsocketService {
           worker(params);
         }, 1000);
       } else {
-        // failed -> redirect to /login
+        // failed -> redirect to /overview
         this.currentDevice.next(null);
-        console.info("Redirect to /login");
-        this.router.navigate(['/login']);
+        console.info("Redirect to /overview");
+        this.router.navigate(['/overview']);
       }
     }
     worker(params);
