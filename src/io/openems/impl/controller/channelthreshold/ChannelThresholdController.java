@@ -136,7 +136,7 @@ public class ChannelThresholdController extends Controller {
 				}
 			} else {
 				if (thresholdChannel.value() >= lowerThreshold.value() + hysteresis.value()
-						|| thresholdChannel.value() <= upperThreshold.value()) {
+						&& thresholdChannel.value() <= upperThreshold.value()) {
 					isActive = true;
 				} else {
 					off();
