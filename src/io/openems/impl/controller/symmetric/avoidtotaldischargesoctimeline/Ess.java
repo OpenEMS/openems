@@ -39,10 +39,14 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> soc;
 	public final ReadChannel<Long> systemState;
 	public int maxPowerPercent = 100;
-	public boolean isChargeSoc = false;
 	public final ReadChannel<Long> allowedDischarge;
 	public final ReadChannel<Integer> chargeSoc;
 	private TreeMap<LocalTime, Soc> timeline = new TreeMap<>();
+	public State currentState = State.NORMAL;
+
+	public enum State {
+		NORMAL, MINSOC, CHARGESOC
+	}
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
