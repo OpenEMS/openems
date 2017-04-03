@@ -29,6 +29,7 @@ import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.impl.controller.symmetric.avoidtotaldischarge.Ess.State;
 
 @ThingInfo(title = "Avoid total discharge of battery (Symmetric)", description = "Makes sure the battery is not going into critically low state of charge. For symmetric Ess.")
 public class AvoidTotalDischargeController extends Controller {
@@ -60,39 +61,11 @@ public class AvoidTotalDischargeController extends Controller {
 				/*
 				 * Calculate SetActivePower according to MinSoc
 				 */
-				ess.socMinHysteresis.apply(ess.soc.value(), (state, multiplier) -> {
-					switch (state) {
-					case ASC:
-					case DESC:
-						if (!ess.isChargeSoc) {
-							try {
-								long maxPower = 0;
-								if (!ess.setActivePower.writeMax().isPresent()
-										|| maxPower < ess.setActivePower.writeMax().get()) {
-									ess.setActivePower.pushWriteMax(maxPower);
-								}
-							} catch (WriteChannelException e) {
-								log.error(ess.id() + "Failed to set Max allowed power.", e);
-							}
-						}
-						break;
-					case BELOW:
-						if (!ess.isChargeSoc) {
-							try {
-								if (ess.soc.value() < ess.chargeSoc.value()) {
-									ess.isChargeSoc = true;
-								}
-							} catch (Exception e) {
-								log.error(e.getMessage());
-							}
-						}
-						break;
-					case ABOVE:
-						ess.isChargeSoc = false;
-					default:
-						break;
-					}
-					if (ess.isChargeSoc) {
+				switch (ess.currentState) {
+				case CHARGESOC:
+					if (ess.soc.value() > ess.minSoc.value()) {
+						ess.currentState = State.MINSOC;
+					} else {
 						try {
 							Optional<Long> currentMinValue = ess.setActivePower.writeMin();
 							if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
@@ -108,7 +81,30 @@ public class AvoidTotalDischargeController extends Controller {
 							e.printStackTrace();
 						}
 					}
-				});
+					break;
+				case MINSOC:
+					if (ess.soc.value() < ess.chargeSoc.value()) {
+						ess.currentState = State.CHARGESOC;
+					} else if (ess.soc.value() >= ess.minSoc.value() + 5) {
+						ess.currentState = State.NORMAL;
+					} else {
+						try {
+							long maxPower = 0;
+							if (!ess.setActivePower.writeMax().isPresent()
+									|| maxPower < ess.setActivePower.writeMax().get()) {
+								ess.setActivePower.pushWriteMax(maxPower);
+							}
+						} catch (WriteChannelException e) {
+							log.error(ess.id() + "Failed to set Max allowed power.", e);
+						}
+					}
+					break;
+				case NORMAL:
+					if (ess.soc.value() <= ess.minSoc.value()) {
+						ess.currentState = State.MINSOC;
+					}
+					break;
+				}
 			}
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
