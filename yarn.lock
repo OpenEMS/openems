@@ -90,9 +90,9 @@
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@angular/core/-/core-4.0.1.tgz#0b110a001012076ea696460ccd922707bcdf51ba"
 
-"@angular/flex-layout@2.0.0-rc.1":
-  version "2.0.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@angular/flex-layout/-/flex-layout-2.0.0-rc.1.tgz#96fa7f85b2c4bacf2784913a2d607e2ed23dc7f1"
+"@angular/flex-layout@2.0.0-beta.7":
+  version "2.0.0-beta.7"
+  resolved "https://registry.yarnpkg.com/@angular/flex-layout/-/flex-layout-2.0.0-beta.7.tgz#a8191243bf70515ced59f5d89b9ed6ee470fb645"
 
 "@angular/forms@^4.0.0":
   version "4.0.1"
