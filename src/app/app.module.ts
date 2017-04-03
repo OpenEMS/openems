@@ -9,7 +9,6 @@ import { WebappService, WebsocketService } from './shared/shared';
 import { AboutModule } from './about/about.module';
 import { LoginModule } from './login/login.module';
 import { DeviceModule } from './device/device.module';
-import { OverviewModule } from './overview/overview.module';
 
 import { AppComponent } from './app.component';
 
@@ -18,8 +17,7 @@ import { AppComponent } from './app.component';
     SharedModule,
     AboutModule,
     DeviceModule,
-    LoginModule,
-    OverviewModule
+    LoginModule
   ],
   declarations: [
     AppComponent

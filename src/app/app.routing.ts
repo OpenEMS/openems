@@ -4,7 +4,6 @@ import { Routes, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
 import { AboutComponent } from './about/about.component';
 import { LoginComponent } from './login/login.component';
-import { OverviewComponent } from './overview/overview.component';
 import { OverviewComponent as DeviceOverviewComponent } from './device/overview/overview.component';
 import { HistoryComponent as DeviceHistoryComponent } from './device/history/history.component';
 import { OverviewComponent as DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
@@ -18,7 +17,6 @@ const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
 
   { path: 'about', component: AboutComponent },
-  { path: 'overview', component: OverviewComponent },
 
   { path: 'device/:websocket/:device', redirectTo: 'device/:websocket/:device/overview', pathMatch: 'full' },
   { path: 'device/:websocket/:device/overview', component: DeviceOverviewComponent },

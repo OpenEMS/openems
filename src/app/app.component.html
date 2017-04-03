@@ -4,9 +4,6 @@
       <md-list-item>
         <button routerLinkActive="active" routerLink="/login" md-button>An-/Abmelden</button>
       </md-list-item>
-      <md-list-item>
-        <button routerLinkActive="active" routerLink="/overview" md-button>Übersicht</button>
-      </md-list-item>
       <md-list-item *ngIf="environment.backend == 'openems'">
         <a href="/grafana/dashboard/file/fems-asymmetric.json" md-button>Historie</a>
       </md-list-item>
@@ -39,7 +36,7 @@
     <div fxFlex="100%">
       <router-outlet></router-outlet>
     </div>
-    <div fxFlex="100%">
+    <div *ngIf="environment.production" fxFlex="100%">
       <md-card class="single">
         <md-card-title>Neues FENECON Online-Monitoring</md-card-title>
         <md-card-content>

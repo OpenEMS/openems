@@ -9,9 +9,10 @@
           <md-card-subtitle>{{form._websocket.url}}</md-card-subtitle>
         </md-card-header>
         <md-card-content fxLayout fxLayoutWrap="wrap">
-          <p>Testversion: bitte melden Sie sich mit dem Passwort "<strong>admin</strong>" an.</p>
           <md-input-container *ngIf="!form._websocket.isConnected" fxFlex="100%"><input formControlName="password" mdInput type="password" placeholder="Passwort"></md-input-container>
-          <p fxFlex="100%">{{(form._websocket.event | async)?.message}}</p>
+          <p fxFlex="100%">
+            <ng-container *ngIf="!form._websocket.isConnected">Testversion: bitte melden Sie sich mit dem Passwort "<strong>admin</strong>" an.</ng-container> {{(form._websocket.event
+            | async)?.message}}</p>
         </md-card-content>
         <md-card-actions fxLayout fxLayoutAlign="end start">
           <button type="submit" md-fab *ngIf="!form._websocket.isConnected" (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>
@@ -19,6 +20,16 @@
         </md-card-actions>
       </md-card>
     </form>
+    <ng-container *ngFor="let dev of form._websocket.devices | keys">
+      <md-card class="single" routerLink="/device/{{ form._websocket.name }}/{{ dev.key }}">
+        <md-card-header>
+          <md-icon *ngIf="dev.value.online" md-card-avatar color="primary">folder</md-icon>
+          <md-icon *ngIf="!dev.value.online" md-card-avatar>error</md-icon>
+          <md-card-title>{{ dev.key }} <span *ngIf="!dev.value.online"><br/>FEMS ist offline!</span></md-card-title>
+          <md-card-subtitle>{{ form._websocket.name }}</md-card-subtitle>
+        </md-card-header>
+      </md-card>
+    </ng-container>
   </div>
 </div>
 

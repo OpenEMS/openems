@@ -58,9 +58,16 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   websocketEvent(value: Notification) {
     let allConnected = true;
+    let noOfConnectedDevices = 0;
+    let lastDevice = null;
     for (let websocketName in this.websocketService.websockets) {
       let websocket = this.websocketService.websockets[websocketName];
-      if (!websocket.isConnected) {
+      if (websocket.isConnected) {
+        for (let deviceName in websocket.devices) {
+          noOfConnectedDevices++;
+          lastDevice = websocket.devices[deviceName];
+        }
+      } else {
         allConnected = false;
         break;
       }
@@ -70,7 +77,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         type: "success",
         message: "Alle Verbindungen hergestellt."
       });
-      this.router.navigate(['/overview']);
+      if (noOfConnectedDevices == 1) {
+        console.log("device");
+      }
     }
   }
 }
