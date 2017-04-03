@@ -79,13 +79,13 @@ public class BalancingSurplusController extends Controller {
 	}
 
 	private long getSurplusPower() throws InvalidValueException {
+		long power = 0l;
 		if (ess.value().soc.value() >= surplusMinSoc.value()) {
-			long power = 0l;
 			for (Charger c : chargers.value()) {
 				power += c.power.value();
 			}
 		}
-		return 0;
+		return power;
 	}
 
 }

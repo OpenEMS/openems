@@ -1175,7 +1175,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 			} catch (InvalidValueException e) {
 				return null;
 			}
-		}, pvDCDCOutputPower);
+		}, pvDCDCInputPower, pvDCDC1InputPower);
 		return protocol;
 	}
 
