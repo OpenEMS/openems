@@ -13,7 +13,6 @@ import { ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, Confi
 })
 
 export class ControllerComponent extends AbstractConfig {
-
     private controlConfig: AbstractControl;
     form: FormGroup;
     control: FormGroup;
@@ -40,6 +39,27 @@ export class ControllerComponent extends AbstractConfig {
         // console.log(this.control);
     }
 
+    /**
+     * gets default name for new controller
+     */
+    private getNameOfController(controllerArray: FormArray): string {
+        let nameTag = "controller";
+        let nameIndex = 0;
+        let availableName = nameTag + nameIndex;
+        console.log(controllerArray.value[0].id);
+
+        for (let i = 0; i < controllerArray.length; i++) {
+            if (controllerArray.value[i].id.substring(0, 1) != "_") {
+                if (controllerArray.value[i].id == availableName) {
+                    nameIndex = nameIndex + 1;
+                    availableName = nameTag + nameIndex;
+                }
+            }
+        }
+
+        return availableName;
+    }
+
     setNameReady(): void {
         this.nameReady = true;
     }
@@ -58,29 +78,24 @@ export class ControllerComponent extends AbstractConfig {
     }
 
     addController(controllerArray: FormArray): void {
+        let availableName = this.getNameOfController(controllerArray);
         if (!this.createdController) {
-            // console.log(controllerArray);
             let group = this.formBuilder.group({
-                "id": this.formBuilder.control(""),
+                "id": this.formBuilder.control(availableName),
                 "class": this.formBuilder.control(""),
             });
-            // controllerArray.push(this.formBuilder.group({
-            //     "id": this.formBuilder.control(""),
-            //     "class": this.formBuilder.control("")
-            // }));
-            controllerArray.markAsDirty();
 
             group["_meta_new"] = true;
             controllerArray.push(group);
+            controllerArray.markAsDirty();
             this.indexLastController = controllerArray.length - 1;
             this.createdController = true;
-            // console.log(this.indexLastController);
         }
     }
 
     addChannelsToController(controllerForm: FormGroup, clazz: string): void {
         let controllerMeta = <FormArray>this.form.controls['_meta']['controls']['availableControllers'];
-        // console.log(controllerForm);
+        console.log(controllerForm);
 
         for (let indexMeta in controllerMeta.value) {
             // console.log("First For-Loop // get Index of controllerMeta");
