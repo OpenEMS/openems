@@ -105,7 +105,7 @@ public class BrowserWebsocket extends WebSocketServer {
 					     devices: [{
 					       name, online,...
 					     }]
-
+					
 					   }
 					 }
 					 * </pre>
@@ -277,31 +277,27 @@ public class BrowserWebsocket extends WebSocketServer {
 		try {
 			JsonObject jQuery = JsonUtils.getAsJsonObject(jQueryElement);
 			String mode = JsonUtils.getAsString(jQuery, "mode");
-			int fems = Integer.parseInt(deviceName.substring(4, 5));
+			int fems = Integer.parseInt(deviceName.substring(4));
 			if (mode.equals("history")) {
 				/*
 				 * History query
 				 */
-				// String timezoneString = JsonUtils.getAsString(jQuery, "timezone");
 				int timezoneDiff = JsonUtils.getAsInt(jQuery, "timezone");
 				ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
 				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
 				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jQuery, "toDate", timezone);
 				JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
-				// Calculate resolution
+				JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
 				int resolution = 60 * 60; // 60 Minutes
 				if (days > 6) {
 					resolution = 24 * 60 * 60; // 60 Minutes
 				}
-				JsonArray jData = null;
-				jData = Influxdb.getInstance().query(fems, fromDate, toDate, channels, resolution);
+				JsonObject jQueryreply = Influxdb.getInstance().query(fems, fromDate, toDate, channels, resolution,
+						kWh);
 
 				// Send result
 				JsonObject j = new JsonObject();
-				JsonObject jQueryreply = new JsonObject();
-				jQueryreply.addProperty("mode", "history");
-				jQueryreply.add("data", jData);
 				j.add("queryreply", jQueryreply);
 				WebSocketUtils.sendAsDevice(websocket, j, fems);
 
@@ -309,6 +305,7 @@ public class BrowserWebsocket extends WebSocketServer {
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 }
