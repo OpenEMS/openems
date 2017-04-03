@@ -110,20 +110,13 @@ public class ChannelThresholdController extends Controller {
 			});
 
 	@ConfigInfo(title = "Low threshold", description = "Low threshold where the output should be switched on.", type = Long.class)
-	public ConfigChannel<Long> lowerThreshold = new ConfigChannel<Long>("lowerThreshold", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				if (newValue.isPresent()) {
-					createHysteresis();
-				}
-			});
+	public ConfigChannel<Long> lowerThreshold = new ConfigChannel<Long>("lowerThreshold", this);
 
 	@ConfigInfo(title = "High threshold", description = "High threshold where the output should be switched off.", type = Long.class)
-	public ConfigChannel<Long> upperThreshold = new ConfigChannel<Long>("upperThreshold", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				if (newValue.isPresent()) {
-					createHysteresis();
-				}
-			});
+	public ConfigChannel<Long> upperThreshold = new ConfigChannel<Long>("upperThreshold", this);
+
+	@ConfigInfo(title = "Hysteresis", description = "Hysteresis for lower and upper threshold", type = Long.class)
+	public ConfigChannel<Long> hysteresis = new ConfigChannel<>("hysteresis", this);
 
 	@ConfigInfo(title = "Invert-Output", description = "True if the digital output should be inverted.", type = Boolean.class)
 	public ConfigChannel<Boolean> invertOutput = new ConfigChannel<Boolean>("invertOutput", this).defaultValue(false);
@@ -134,62 +127,37 @@ public class ChannelThresholdController extends Controller {
 	@Override
 	public void run() {
 		try {
-			if (thresholdHysteresis != null) {
-				thresholdHysteresis.apply(thresholdChannel.value(), (state, multiplier) -> {
-					try {
-						switch (state) {
-						case ABOVE:
-							off();
-							isActive = false;
-							break;
-						case ASC:
-							if (isActive) {
-								on();
-							} else {
-								off();
-							}
-							break;
-						case BELOW:
-							on();
-							isActive = true;
-							break;
-						case DESC:
-							if (isActive) {
-								on();
-							} else {
-								off();
-							}
-							break;
-						default:
-							break;
-						}
-					} catch (WriteChannelException | InvalidValueException e) {
-						log.error("failed to write outputChannel[" + outputChannel.id() + "]", e);
-					}
-				});
+			if (isActive) {
+				if (thresholdChannel.value() < lowerThreshold.value()
+						|| thresholdChannel.value() > upperThreshold.value() + hysteresis.value()) {
+					isActive = false;
+				} else {
+					on();
+				}
+			} else {
+				if (thresholdChannel.value() >= lowerThreshold.value() + hysteresis.value()
+						&& thresholdChannel.value() <= upperThreshold.value()) {
+					isActive = true;
+				} else {
+					off();
+				}
 			}
 		} catch (InvalidValueException e) {
 			log.error("thresholdChannel has no valid value!");
+		} catch (WriteChannelException e) {
+			log.error("failed to write outputChannel[" + outputChannel.id() + "]", e);
 		}
 	}
 
 	private void on() throws InvalidValueException, WriteChannelException {
-		if (outputChannel.value() != true ^ invertOutput.value()) {
+		if (outputChannel.value() != (true ^ invertOutput.value())) {
 			outputChannel.pushWrite(true ^ invertOutput.value());
 		}
 	}
 
 	private void off() throws InvalidValueException, WriteChannelException {
-		if (outputChannel.value() != false ^ invertOutput.value()) {
+		if (outputChannel.value() != (false ^ invertOutput.value())) {
 			outputChannel.pushWrite(false ^ invertOutput.value());
-		}
-	}
-
-	private void createHysteresis() {
-		try {
-			thresholdHysteresis = new Hysteresis(lowerThreshold.value(), upperThreshold.value());
-		} catch (InvalidValueException e) {
-			log.error("lower or upper Threshold is invalid! Can't create Hysteresis!");
 		}
 	}
 
