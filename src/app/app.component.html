@@ -27,7 +27,7 @@
           </button>
         </ng-container>
       </div>
-      <div *ngIf="!environment.production" fxFlex="50px">
+      <div *ngIf="(websocketService.currentDevice | async)?.role == 'owner'" fxFlex="50px">
         <button routerLink="/device/{{ (websocketService.currentDevice | async)?.websocket.name }}/{{(websocketService.currentDevice | async)?.name }}/config"
           md-icon-button>
           <md-icon>settings</md-icon>

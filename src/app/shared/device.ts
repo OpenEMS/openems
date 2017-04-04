@@ -49,6 +49,7 @@ export class Device {
 
   private things: Things
   private online = false;
+
   private influxdb: {
     ip: string,
     username: string,
@@ -58,12 +59,18 @@ export class Device {
 
   constructor(
     public name: string,
-    public websocket: Websocket
+    public websocket: Websocket,
+    public role: string = "guest"
   ) {
     if (this.name == 'fems') {
       this.address = this.websocket.name;
     } else {
       this.address = this.websocket.name + ": " + this.name;
+    }
+    if (this.role == 'owner' || this.role == 'admin') {
+      this.role = 'owner';
+    } else {
+      this.role = 'guest';
     }
   }
 
@@ -334,6 +341,10 @@ export class Device {
         this.online = metadata.online;
       } else {
         this.online = true;
+      }
+
+      if ("role" in metadata) {
+        this.role = metadata.role;
       }
     }
 

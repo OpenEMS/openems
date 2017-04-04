@@ -15,6 +15,7 @@ export class Websocket {
   public backend: "femsserver" | "openems" = null;
 
   private websocket: WebSocket;
+  private username: string = "";
 
   constructor(
     public name: string,
@@ -108,8 +109,8 @@ export class Websocket {
               this.webappService.setToken(this.name, message.authenticate.token);
             }
             if ("username" in message.authenticate) {
-              let username = message.authenticate.username;
-              this.event.next({ type: "success", message: "Angemeldet als " + username + "." });
+              this.username = message.authenticate.username;
+              this.event.next({ type: "success", message: "Angemeldet als " + this.username + "." });
             } else {
               this.event.next({ type: "success", message: "Angemeldet." });
             }
@@ -131,7 +132,7 @@ export class Websocket {
             this.devices = {};
             for (let newDevice of newDevices) {
               let name = newDevice["name"];
-              let device = new Device(name, this);
+              let device = new Device(name, this, this.username);
               device.receive({
                 metadata: newDevice
               });
@@ -140,7 +141,7 @@ export class Websocket {
           } else {
             // only one device
             this.devices = {
-              fems: new Device("fems", this)
+              fems: new Device("fems", this, this.username)
             };
           }
           if ("backend" in message.metadata) {
