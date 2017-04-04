@@ -21,6 +21,7 @@ export class ControllerComponent extends AbstractConfig {
     indexLastController: number;
     nameReady: boolean = false;
     createdController: boolean = false;
+    selectedController: string = "";
 
     constructor(
         route: ActivatedRoute,
@@ -37,6 +38,13 @@ export class ControllerComponent extends AbstractConfig {
         this.form = <FormGroup>this.controlConfig;
         this.control = this.form.value.scheduler['controllers'];
         // console.log(this.control);
+    }
+
+    /**
+     * sets selectedController
+     */
+    public setSelectedController(value: string) {
+        this.selectedController = value;
     }
 
     /**

@@ -7,7 +7,7 @@
                 <div *ngFor="let controllerMeta of form.value._meta['availableControllers'], let j=index">
                     <div fxLayout fxLayoutWrap="wrap" fxFlex *ngIf="controllerMeta.class == controller.value.class && controller.value.id != ''">
                         <md-card class="single" fxFlex="100%">
-                            <md-card-header>
+                            <md-card-header (click)="setSelectedController(controller.value.id)">
                                 <md-icon md-card-avatar>apps</md-icon>
                                 <md-card-title>
                                     {{ controllerMeta.class | classname }}
@@ -16,7 +16,7 @@
                                     {{ controller.value.id }}
                                 </md-card-subtitle>
                             </md-card-header>
-                            <md-card-content style="margin: 20px">
+                            <md-card-content style="margin: 20px" *ngIf="selectedController == controller.value.id">
                                 <div fxLayout fxLayoutWrap="wrap">
                                     <md-input-container fxFlex="50%">
                                         <input placeholder="Priorität" formControlName="priority" type="number" mdInput>
