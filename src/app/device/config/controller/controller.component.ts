@@ -22,6 +22,7 @@ export class ControllerComponent extends AbstractConfig {
     nameReady: boolean = false;
     createdController: boolean = false;
     selectedController: string = "";
+    newController: boolean = false;
 
     constructor(
         route: ActivatedRoute,
@@ -54,7 +55,6 @@ export class ControllerComponent extends AbstractConfig {
         let nameTag = "controller";
         let nameIndex = 0;
         let availableName = nameTag + nameIndex;
-        console.log(controllerArray.value[0].id);
 
         for (let i = 0; i < controllerArray.length; i++) {
             if (controllerArray.value[i].id.substring(0, 1) != "_") {
@@ -98,6 +98,8 @@ export class ControllerComponent extends AbstractConfig {
             controllerArray.markAsDirty();
             this.indexLastController = controllerArray.length - 1;
             this.createdController = true;
+            this.newController = true;
+            this.selectedController = "";
         }
     }
 
@@ -134,6 +136,7 @@ export class ControllerComponent extends AbstractConfig {
 
         this.nameReady = false;
         this.createdController = false;
+        this.newController = false;
     }
 
     deleteChannel(indexChannel: number, channelArray: FormArray): void {
