@@ -88,10 +88,10 @@ public class BrowserWebsocket extends WebSocketServer {
 			if (sessionId != null) {
 				try {
 					log.info("Incoming browser websocket using session [" + sessionId + "].");
-					JsonObject jOdoo = this.odoo.getFemsInfo(sessionId);
+					JsonObject jOdooResult = this.odoo.getFemsInfo(sessionId);
 					// successfully logged in (otherwise an exception was thrown)
-					JsonArray jOdooDeviceNames = JsonUtils.getAsJsonArray(jOdoo, "devices");
-					List<FemsDevice> devices = this.odoo.getDevicesForNames(jOdooDeviceNames);
+					JsonArray jOdooDevices = JsonUtils.getAsJsonArray(jOdooResult, "devices");
+					List<FemsDevice> devices = this.odoo.getDevicesForNames(jOdooDevices);
 					connectionManager.addBrowserWebsocket(websocket, devices);
 					/**
 					 * send initial message
@@ -105,7 +105,7 @@ public class BrowserWebsocket extends WebSocketServer {
 					     devices: [{
 					       name, online,...
 					     }]
-					
+
 					   }
 					 }
 					 * </pre>
@@ -119,6 +119,7 @@ public class BrowserWebsocket extends WebSocketServer {
 						try {
 							JsonObject jDevice = device.toJsonObject();
 							jDevice.addProperty("online", connectionManager.isFemsOnline(device.getName()));
+							jDevice.addProperty("role", device.getRole());
 							jDevices.add(jDevice);
 						} catch (Exception e) {
 							e.printStackTrace();

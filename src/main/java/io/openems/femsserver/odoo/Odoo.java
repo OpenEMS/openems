@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.abercap.odoo.OdooApiException;
 import com.abercap.odoo.Session;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -92,17 +93,33 @@ public class Odoo {
 		return devices;
 	}
 
-	public List<FemsDevice> getDevicesForNames(JsonArray jNames) throws OdooApiException, XmlRpcException {
+	/**
+	 *
+	 * @param jNames
+	 *            [{ name: 'fems1', role: 'guest' }]
+	 * @return
+	 * @throws OdooApiException
+	 * @throws XmlRpcException
+	 * @throws OpenemsException
+	 */
+	public List<FemsDevice> getDevicesForNames(JsonArray jDevices)
+			throws OdooApiException, XmlRpcException, OpenemsException {
 		// TODO optimize: use only one call to searchAndReadObject
 		List<FemsDevice> devices = new ArrayList<>();
-		jNames.forEach(jName -> {
-			String name = jName.getAsString();
+		for (JsonElement jDeviceElement : jDevices) {
+			JsonObject jDevice = JsonUtils.getAsJsonObject(jDeviceElement);
+			String name = JsonUtils.getAsString(jDevice, "name");
+			String role = JsonUtils.getAsString(jDevice, "role");
 			try {
-				devices.addAll(femsDeviceModel.searchAndReadObject("name", "=", name));
+				List<FemsDevice> nameDevices = femsDeviceModel.searchAndReadObject("name", "=", name);
+				nameDevices.forEach(device -> {
+					device.setRole(role);
+				});
+				devices.addAll(nameDevices);
 			} catch (XmlRpcException | OdooApiException e) {
 				log.error(e.getMessage());
 			}
-		});
+		}
 		return devices;
 	}
 

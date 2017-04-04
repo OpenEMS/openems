@@ -25,6 +25,7 @@ public class FemsDevice extends OdooObject {
 	}
 
 	private WebSocket ws = null;
+	private String role = "guest";
 
 	public FemsDevice(OdooModel<?> model, Row row) {
 		super(model, row);
@@ -86,6 +87,14 @@ public class FemsDevice extends OdooObject {
 
 	public void removeWebSocket() {
 		setWebSocket(null);
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public String getRole() {
+		return role;
 	}
 
 	public JsonObject toJsonObject() {
