@@ -6,6 +6,7 @@ import { AboutComponent } from './about/about.component';
 import { OverviewComponent } from './overview/overview.component';
 import { OverviewComponent as DeviceOverviewComponent } from './device/overview/overview.component';
 import { HistoryComponent as DeviceHistoryComponent } from './device/history/history.component';
+import { LogComponent as DeviceLogComponent } from './device/log/log.component';
 import { OverviewComponent as DeviceConfigOverviewComponent } from './device/config/overview/overview.component';
 import { BridgeComponent as DeviceConfigBridgeComponent } from './device/config/bridge/bridge.component';
 import { SchedulerComponent as DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
@@ -21,6 +22,7 @@ const appRoutes: Routes = [
   { path: 'device/:websocket/:device', redirectTo: 'device/:websocket/:device/overview', pathMatch: 'full' },
   { path: 'device/:websocket/:device/overview', component: DeviceOverviewComponent },
   { path: 'device/:websocket/:device/history', component: DeviceHistoryComponent },
+  { path: 'device/:websocket/:device/log', component: DeviceLogComponent },
 
   { path: 'device/:websocket/:device/config', redirectTo: 'device/:websocket/:device/config/overview', pathMatch: 'full' },
   { path: 'device/:websocket/:device/config/overview', component: DeviceConfigOverviewComponent },

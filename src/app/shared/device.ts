@@ -6,13 +6,19 @@ import { Notification } from './service/webapp.service';
 import { Websocket } from './service/websocket.service';
 import { Config } from './config';
 
-const SUBSCRIBE: string = "fenecon_monitor_v1";
-
 class Things {
   storage = {};
   production = {};
   grid = {};
   consumption = {};
+}
+
+export class Log {
+  timestamp: number;
+  time: string;
+  level: string;
+  source: string;
+  message: string;
 }
 
 class Summary {
@@ -46,6 +52,7 @@ export class Device {
   public historyData = new BehaviorSubject<any[]>(null);
   public historykWh = new BehaviorSubject<any[]>(null);
   public config = new BehaviorSubject<Config>(null);
+  public log = new Subject<Log>();
 
   private things: Things
   private online = false;
@@ -152,22 +159,48 @@ export class Device {
   }
 
   /**
-   * Send "subscribe" message to websocket
+   * Subscribe to channels
    */
-  public subscribe() {
+  public subscribeChannels() {
     this.summary = new Summary();
-    let subscribe = this.getImportantChannels();
+    let channels = this.getImportantChannels();
     this.send({
-      subscribe: subscribe
+      subscribe: {
+        channels: channels
+      }
     });
   }
 
   /**
-   * Send "unsubscribe" message to websocket
+   * Unsubscribe from channels
    */
-  public unsubscribe() {
+  public unsubscribeChannels() {
     this.send({
-      subscribe: {}
+      subscribe: {
+        channels: {}
+      }
+    });
+  }
+
+  /**
+   * Subscribe to log
+   */
+  public subscribeLog(key: "all" | "info" | "warning" | "error") {
+    this.send({
+      subscribe: {
+        log: key
+      }
+    });
+  }
+
+  /**
+   * Unsubscribe from channels
+   */
+  public unsubscribeLog() {
+    this.send({
+      subscribe: {
+        log: ""
+      }
     });
   }
 
@@ -356,6 +389,14 @@ export class Device {
       this.summary = this.calculateSummary(data);
       // send event
       this.data.next(data);
+    }
+
+    /*
+     * log
+     */
+    if ("log" in message) {
+      let log = message.log;
+      this.log.next(log);
     }
 
     /*

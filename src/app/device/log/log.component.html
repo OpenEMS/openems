@@ -1,0 +1,27 @@
+<div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div fxFlex="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>code</md-icon>
+        <md-card-title>{{ device.address }}</md-card-title>
+        <md-card-subtitle>{{ device.name }}</md-card-subtitle>
+      </md-card-header>
+      <md-card-content>
+        <table class="full_width">
+          <tr>
+            <th>Zeitpunkt</th>
+            <th>Level</th>
+            <th>Quelle</th>
+            <th>Nachricht</th>
+          </tr>
+          <tr *ngFor="let log of logs">
+            <td>{{ log.time }}</td>
+            <td>{{ log.level }}</td>
+            <td style="word-break: break-all">{{ log.source }}</td>
+            <td>{{ log.message }}</td>
+          </tr>
+        </table>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>
