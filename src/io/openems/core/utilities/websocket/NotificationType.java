@@ -21,5 +21,5 @@
 package io.openems.core.utilities.websocket;
 
 public enum NotificationType {
-	SUCCESS, ERROR, WARNING, INFO;
+	SUCCESS, ERROR, WARNING, INFO, LOG;
 }

@@ -67,9 +67,12 @@ Cookie: session_id
 {
 	device: "...",
 	subscribe: {
-		thing0: [
-			channel
-		]
+		channels: {
+			thing0: [
+				channel
+			]
+		},
+		log: "all" | "info" | "warning" | "error"
 	}
 }
 ```
@@ -77,11 +80,7 @@ Cookie: session_id
 [1.2.2] Forward to OpenEMS
 ```
 {
-	subscribe: {
-		thing0: [
-			channel
-		]
-	}
+	subscribe: ...
 }
 ```
 
@@ -108,7 +107,10 @@ Cookie: session_id
 ```
 {
 	device: "...",
-	subscribe: false
+	subscribe: {
+		channels: {},
+		log: ""
+	}
 }
 ```
 
@@ -118,6 +120,19 @@ Cookie: session_id
 	device: "...",
 	notification: {
 		message: "...
+	}
+}
+```
+
+### [1.3] Log
+```
+{
+	device: "...",
+	log: {
+		timestamp: ...,
+		level: ...,
+		source: ...,
+		message: ...
 	}
 }
 ```

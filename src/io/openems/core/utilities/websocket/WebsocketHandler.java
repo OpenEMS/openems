@@ -97,6 +97,11 @@ public class WebsocketHandler {
 	 */
 	protected final WebSocket websocket;
 
+	/**
+	 * Which log is currently subscribed? "" if none.
+	 */
+	private String subscribeLog = "";
+
 	private final ThingRepository thingRepository;
 
 	private WebsocketHandler handler;
@@ -156,31 +161,43 @@ public class WebsocketHandler {
 	 */
 	private synchronized void subscribe(JsonElement jSubscribeElement) {
 		try {
-			// unsubscribe regular task
-			if (subscriptionFuture != null) {
-				subscriptionFuture.cancel(true);
-			}
-			// clear subscriptions
-			this.subscribedChannels.clear();
-			// add subscriptions
 			JsonObject jSubscribe = JsonUtils.getAsJsonObject(jSubscribeElement);
-			jSubscribe.entrySet().forEach(entry -> {
-				try {
-					String thing = entry.getKey();
-					JsonArray jChannels = JsonUtils.getAsJsonArray(entry.getValue());
-					for (JsonElement jChannel : jChannels) {
-						String channel = JsonUtils.getAsString(jChannel);
-						this.subscribedChannels.put(thing, channel);
-					}
-				} catch (OpenemsException e) {
-					log.error(e.getMessage());
+			if (jSubscribe.has("channels")) {
+				/*
+				 * Subscribe to channels
+				 */
+				// unsubscribe regular task
+				if (subscriptionFuture != null) {
+					subscriptionFuture.cancel(true);
 				}
-			});
-			// schedule task
-			if (!this.subscribedChannels.isEmpty()) {
-				subscriptionFuture = subscriptionExecutor.scheduleWithFixedDelay(this.subscriptionTask, 0, 3,
-						TimeUnit.SECONDS);
+				// clear subscriptions
+				this.subscribedChannels.clear();
+				JsonObject jSubscribeChannels = JsonUtils.getAsJsonObject(jSubscribe, "channels");
+				jSubscribeChannels.entrySet().forEach(entry -> {
+					try {
+						String thing = entry.getKey();
+						JsonArray jChannels = JsonUtils.getAsJsonArray(entry.getValue());
+						for (JsonElement jChannel : jChannels) {
+							String channel = JsonUtils.getAsString(jChannel);
+							this.subscribedChannels.put(thing, channel);
+						}
+					} catch (OpenemsException e) {
+						log.error(e.getMessage());
+					}
+				});
+				// schedule task
+				if (!this.subscribedChannels.isEmpty()) {
+					subscriptionFuture = subscriptionExecutor.scheduleWithFixedDelay(this.subscriptionTask, 0, 3,
+							TimeUnit.SECONDS);
+				}
+			} else if (jSubscribe.has("log")) {
+				/*
+				 * Subscribe to log
+				 */
+				String log = JsonUtils.getAsString(jSubscribe, "log");
+				this.subscribeLog = log;
 			}
+
 		} catch (OpenemsException e) {
 			log.error(e.getMessage());
 		}
@@ -521,5 +538,26 @@ public class WebsocketHandler {
 		jMessage.addProperty("type", type.name().toLowerCase());
 		jMessage.addProperty("message", message);
 		return jMessage;
+	}
+
+	/**
+	 * Send a log message to the websocket
+	 *
+	 * @param message2
+	 * @param timestamp
+	 */
+	public synchronized boolean sendLog(long timestamp, String level, String source, String message) {
+		if (this.subscribeLog.isEmpty()) {
+			return true;
+		}
+		// send notification to websocket
+		JsonObject j = new JsonObject();
+		JsonObject jLog = new JsonObject();
+		jLog.addProperty("timestamp", timestamp);
+		jLog.addProperty("level", level);
+		jLog.addProperty("source", source);
+		jLog.addProperty("message", message);
+		j.add("log", jLog);
+		return this.send(j);
 	}
 }
