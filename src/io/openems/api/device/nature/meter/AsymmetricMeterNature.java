@@ -20,7 +20,11 @@
  *******************************************************************************/
 package io.openems.api.device.nature.meter;
 
+import java.util.Optional;
+
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.doc.ConfigInfo;
 
 public interface AsymmetricMeterNature extends MeterNature {
 
@@ -50,4 +54,25 @@ public interface AsymmetricMeterNature extends MeterNature {
 	public ReadChannel<Long> voltageL2();
 
 	public ReadChannel<Long> voltageL3();
+
+	@ConfigInfo(title = "maxActivePower", description = "Holds the maximum ever active power.", type = Long.class, defaultValue = "0")
+	public ConfigChannel<Long> maxActivePower();
+
+	@ConfigInfo(title = "minActivePower", description = "Holds the minimum ever active power.", type = Long.class, defaultValue = "0")
+	public ConfigChannel<Long> minActivePower();
+
+	public default void updateMinMaxAsymmetricActivePower() {
+		Optional<Long> activePowerL1 = this.activePowerL1().valueOptional();
+		Optional<Long> activePowerL2 = this.activePowerL2().valueOptional();
+		Optional<Long> activePowerL3 = this.activePowerL3().valueOptional();
+		Optional<Long> maxActivePower = this.maxActivePower().valueOptional();
+		Optional<Long> minActivePower = this.minActivePower().valueOptional();
+		long activePower = activePowerL1.orElse(0L) + activePowerL2.orElse(0L) + activePowerL3.orElse(0L);
+		if (maxActivePower.orElse(Long.MIN_VALUE) < activePower) {
+			maxActivePower().updateValue(activePower, true);
+		}
+		if (minActivePower.orElse(Long.MAX_VALUE) > activePower) {
+			minActivePower().updateValue(activePower, true);
+		}
+	}
 }

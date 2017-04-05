@@ -48,17 +48,16 @@ public interface SymmetricMeterNature extends MeterNature {
 
 	public ReadChannel<Long> voltage();
 
-	public default void updateMinMaxActivePower() {
-		Optional<Long> activePower = this.activePower().valueOptional();
+	public default void updateMinMaxSymmetricActivePower() {
+		Optional<Long> activePowerOptional = this.activePower().valueOptional();
 		Optional<Long> maxActivePower = this.maxActivePower().valueOptional();
 		Optional<Long> minActivePower = this.minActivePower().valueOptional();
-		if (activePower.isPresent()) {
-			if (!maxActivePower.isPresent() || (activePower.get() > maxActivePower.get())) {
-				maxActivePower().updateValue(activePower.get(), true);
-			}
-			if (!minActivePower.isPresent() || (activePower.get() < minActivePower.get())) {
-				minActivePower().updateValue(activePower.get(), true);
-			}
+		long activePower = activePowerOptional.orElse(0L);
+		if (maxActivePower.orElse(Long.MIN_VALUE) < activePower) {
+			maxActivePower().updateValue(activePower, true);
+		}
+		if (minActivePower.orElse(Long.MAX_VALUE) > activePower) {
+			minActivePower().updateValue(activePower, true);
 		}
 	}
 }
