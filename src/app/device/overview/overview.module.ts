@@ -5,7 +5,6 @@ import { EnergymonitorModule } from './energymonitor/energymonitor.module';
 import { EnergytableComponent } from './energytable/energytable.component';
 import { HistoryComponent } from './history/history.component';
 import { OverviewComponent } from './overview.component';
-import { LogComponent } from './log/log.component';
 
 @NgModule({
   imports: [
@@ -15,8 +14,7 @@ import { LogComponent } from './log/log.component';
   declarations: [
     OverviewComponent,
     EnergytableComponent,
-    HistoryComponent,
-    LogComponent
+    HistoryComponent
   ]
 })
 export class OverviewModule { }

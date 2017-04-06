@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
-import { WebsocketService, Device, Log } from '../../shared/shared';
+import { WebsocketService, Device, Log } from '../../../shared/shared';
 
 import * as moment from 'moment';
 

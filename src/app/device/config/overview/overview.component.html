@@ -50,6 +50,15 @@
       </md-card-content>
     </md-card>
   </div>
+  <!-- call log -->
+  <div routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/log" fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>code</md-icon>
+        <md-card-title>Log</md-card-title>
+      </md-card-header>
+    </md-card>
+  </div>
   <!--call more configuration-->
   <div routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/more" fxFlex="50%" fxFlex.xs="100%">
     <md-card class="single">
