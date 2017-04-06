@@ -130,8 +130,7 @@ export class Device {
       }
       if (this.isInArray(a, "AsymmetricEssNature")) {
         channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
-      }
-      if (this.isInArray(a, "SymmetricEssNature")) {
+      } else if (this.isInArray(a, "SymmetricEssNature")) {
         channels.push("ActivePower", "ReactivePower");
       }
       if (this.isInArray(a, "FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
@@ -141,8 +140,7 @@ export class Device {
       // Meter
       if (this.isInArray(a, "AsymmetricMeterNature") && !ignoreNatures["AsymmetricMeterNature"]) {
         channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
-      }
-      if (this.isInArray(a, "SymmetricMeterNature")) {
+      } else if (this.isInArray(a, "SymmetricMeterNature")) {
         channels.push("ActivePower", "ReactivePower");
       }
 
@@ -188,6 +186,7 @@ export class Device {
         }
       }
     }
+
     return kWh;
   }
 
@@ -375,7 +374,7 @@ export class Device {
           }
         }
         // kWh data
-        if ("kwh" in message.queryreply) {
+        if ("kWh" in message.queryreply) {
           kWh = message.queryreply.kWh;
         }
       }

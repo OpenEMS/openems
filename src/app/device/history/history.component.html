@@ -3,7 +3,7 @@
     <md-card class="single">
       <md-card-header>
         <md-icon md-card-avatar>account_circle</md-icon>
-        <md-card-title>{{ device.address }}</md-card-title>
+        <md-card-title>{{ device.websocket.name }}</md-card-title>
         <md-card-subtitle>{{ device.name }}</md-card-subtitle>
       </md-card-header>
       <md-card-content>
@@ -54,7 +54,7 @@
     </md-card>
   </div>
   <div fxFlex.xs="100%" fxFlex.gt-sm="75%" fxLayout fxLayoutWrap="wrap">
-    <!--<div fxFlex="100%">
+    <div fxFlex="100%">
       <md-card class="single">
         <md-card-header>
           <md-icon md-card-avatar>event</md-icon>
@@ -64,7 +64,7 @@
           <progressbar-kwh [result]="datakWh"></progressbar-kwh>
         </md-card-content>
       </md-card>
-    </div>-->
+    </div>
     <div fxFlex="100%">
       <md-card class="single">
         <md-card-header>
