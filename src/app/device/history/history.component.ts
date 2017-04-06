@@ -62,21 +62,26 @@ export class HistoryComponent implements OnInit {
             for (let type in newkWh) {
               if (newkWh[type].type == "production") {
                 let production = newkWh[type].value != null ? newkWh[type].value : 0;
-                kWhProduction.value = production;
+                console.log("production", production);
+                kWhProduction.value = Math.round(production);
               } else if (newkWh[type].type == "grid") {
                 let gridBuy = newkWh[type].buy != null ? newkWh[type].buy : 0;
+                console.log("gridBuy", gridBuy);
                 kWhGridBuy.name = "Netzbezug";
-                kWhGridBuy.value = gridBuy;
+                kWhGridBuy.value = Math.round(gridBuy);
                 let gridSell = newkWh[type].sell != null ? newkWh[type].sell : 0;
+                console.log("gridSell", gridSell);
                 kWhGridSell.name = "Netzeinspeiung";
-                kWhGridSell.value = (gridSell * (-1));
+                kWhGridSell.value = Math.round((gridSell * (-1)));
               } else {
                 let storageCharge = newkWh[type].charge != null ? newkWh[type].charge : 0;
+                console.log("storageCharge", storageCharge);
                 kWhStorageCharge.name = "Batteriebeladung";
-                kWhStorageCharge.value = storageCharge;
+                kWhStorageCharge.value = Math.round((storageCharge * (-1)));
                 let storageDischarge = newkWh[type].discharge != null ? newkWh[type].discharge : 0;
+                console.log("storageDischarge", storageDischarge);
                 kWhStorageDischarge.name = "Batterieentladung";
-                kWhStorageDischarge.value = (storageDischarge * (-1));
+                kWhStorageDischarge.value = Math.round(storageDischarge);
               }
             }
             this.datakWh = [kWhProduction, kWhGridBuy, kWhGridSell, kWhStorageCharge, kWhStorageDischarge];
