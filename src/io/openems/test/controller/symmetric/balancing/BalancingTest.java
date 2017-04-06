@@ -43,18 +43,20 @@ public class BalancingTest {
 		ess.setActivePower.shadowCopyAndReset();
 		ess.setReactivePower.shadowCopyAndReset();
 		ess.setWorkState.shadowCopyAndReset();
-	}
-
-	@Test
-	public void powerCalculationWithoutLimitations() {
-		ess.activePower.setValue(1000L);
-		meter.activePower.setValue(-500L);
+		ess.activePower.setValue(0L);
+		meter.activePower.setValue(0L);
 		ess.soc.setValue(35L);
 		ess.minSoc.setValue(15);
 		ess.chargeSoc.setValue(10);
 		ess.allowedApparent.setValue(40000L);
 		ess.allowedCharge.setValue(-40000L);
 		ess.allowedDischarge.setValue(40000L);
+	}
+
+	@Test
+	public void powerCalculationWithoutLimitations() {
+		ess.activePower.setValue(1000L);
+		meter.activePower.setValue(-500L);
 		try {
 			ess.setActivePower.pushWriteMax(40000L);
 
@@ -71,11 +73,6 @@ public class BalancingTest {
 	public void powerCalculationWithDischargeLimit() {
 		ess.activePower.setValue(1000L);
 		meter.activePower.setValue(-500L);
-		ess.soc.setValue(35L);
-		ess.minSoc.setValue(15);
-		ess.chargeSoc.setValue(10);
-		ess.allowedApparent.setValue(40000L);
-		ess.allowedCharge.setValue(-40000L);
 		ess.allowedDischarge.setValue(300L);
 		try {
 			ess.setActivePower.pushWriteMax(40000L);
@@ -93,12 +90,7 @@ public class BalancingTest {
 	public void powerCalculationWithChargeLimit() {
 		ess.activePower.setValue(100L);
 		meter.activePower.setValue(-500L);
-		ess.soc.setValue(35L);
-		ess.minSoc.setValue(15);
-		ess.chargeSoc.setValue(10);
-		ess.allowedApparent.setValue(40000L);
 		ess.allowedCharge.setValue(-100L);
-		ess.allowedDischarge.setValue(40000L);
 		try {
 			ess.setActivePower.pushWriteMax(40000L);
 
@@ -115,12 +107,6 @@ public class BalancingTest {
 	public void powerCalculationWithPositiveSetActivePowerMaxLimit() {
 		ess.activePower.setValue(1000L);
 		meter.activePower.setValue(-500L);
-		ess.soc.setValue(35L);
-		ess.minSoc.setValue(15);
-		ess.chargeSoc.setValue(10);
-		ess.allowedApparent.setValue(40000L);
-		ess.allowedCharge.setValue(-40000L);
-		ess.allowedDischarge.setValue(40000L);
 		try {
 			ess.setActivePower.pushWriteMax(300L);
 
@@ -137,12 +123,6 @@ public class BalancingTest {
 	public void powerCalculationWithNegativeSetActivePowerMaxLimit() {
 		ess.activePower.setValue(1000L);
 		meter.activePower.setValue(-500L);
-		ess.soc.setValue(35L);
-		ess.minSoc.setValue(15);
-		ess.chargeSoc.setValue(10);
-		ess.allowedApparent.setValue(40000L);
-		ess.allowedCharge.setValue(-40000L);
-		ess.allowedDischarge.setValue(40000L);
 		try {
 			ess.setActivePower.pushWriteMax(-300L);
 
@@ -159,12 +139,6 @@ public class BalancingTest {
 	public void powerCalculationWithPositiveSetActivePowerMinLimit() {
 		ess.activePower.setValue(100L);
 		meter.activePower.setValue(-500L);
-		ess.soc.setValue(35L);
-		ess.minSoc.setValue(15);
-		ess.chargeSoc.setValue(10);
-		ess.allowedApparent.setValue(40000L);
-		ess.allowedCharge.setValue(-40000L);
-		ess.allowedDischarge.setValue(40000L);
 		try {
 			ess.setActivePower.pushWriteMax(40000L);
 
@@ -181,12 +155,6 @@ public class BalancingTest {
 	public void powerCalculationWithNegativeSetActivePowerMinLimit() {
 		ess.activePower.setValue(100L);
 		meter.activePower.setValue(-500L);
-		ess.soc.setValue(35L);
-		ess.minSoc.setValue(15);
-		ess.chargeSoc.setValue(10);
-		ess.allowedApparent.setValue(40000L);
-		ess.allowedCharge.setValue(-40000L);
-		ess.allowedDischarge.setValue(40000L);
 		try {
 			ess.setActivePower.pushWriteMax(40000L);
 
