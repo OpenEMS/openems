@@ -118,7 +118,9 @@ public class WebsocketServer extends WebSocketServer {
 	 */
 	public static void broadcastLog(long timestamp, String level, String source, String message) {
 		websockets.forEach((websocket, handler) -> {
-			handler.sendLog(timestamp, level, source, message);
+			if (handler.authenticationIsValid()) {
+				handler.sendLog(timestamp, level, source, message);
+			}
 		});
 	}
 

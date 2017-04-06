@@ -100,7 +100,7 @@ public class WebsocketHandler {
 	/**
 	 * Which log is currently subscribed? "" if none.
 	 */
-	private String subscribeLog = "";
+	private volatile String subscribeLog = "";
 
 	private final ThingRepository thingRepository;
 
@@ -442,7 +442,7 @@ public class WebsocketHandler {
 				j.add("queryreply", jQueryreply);
 				this.send(j);
 
-				log.info("RESULT: " + j);
+				// log.info("RESULT: " + j);
 			}
 		} catch (OpenemsException e) {
 			log.error(e.getMessage());
@@ -546,9 +546,9 @@ public class WebsocketHandler {
 	 * @param message2
 	 * @param timestamp
 	 */
-	public synchronized boolean sendLog(long timestamp, String level, String source, String message) {
+	public void sendLog(long timestamp, String level, String source, String message) {
 		if (this.subscribeLog.isEmpty()) {
-			return true;
+			return;
 		}
 		// send notification to websocket
 		JsonObject j = new JsonObject();
@@ -558,6 +558,8 @@ public class WebsocketHandler {
 		jLog.addProperty("source", source);
 		jLog.addProperty("message", message);
 		j.add("log", jLog);
-		return this.send(j);
+		new Thread(() -> {
+			this.send(j);
+		}).start();
 	}
 }
