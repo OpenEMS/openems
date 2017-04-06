@@ -1,0 +1,41 @@
+{
+	"things": [
+		{
+			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
+			"serialinterface": "COM8",
+			"baudrate": 19200,
+			"databits": 8,
+			"parity": "none",
+			"stopbits": 1,
+			"devices": [
+				{
+					"class": "io.openems.impl.device.byd.Bem125ktla01",
+					"modbusUnitId": 10,
+					"ess": {
+						"id": "ess0",
+						"minSoc": 15
+					},
+					"meter": {
+						"id": "meter0"
+					}
+				}
+			]
+		}
+	],
+	"scheduler": {
+		"class": "io.openems.impl.scheduler.SimpleScheduler",
+		"controllers": [
+			{
+				"priority": 150,
+				"class": "io.openems.impl.controller.debuglog.DebugLogController",
+				"esss": ["ess0"]
+			}
+		]
+	},
+	"persistence": [
+		{
+			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
+			"apikey": "BAm6jQt50MsjMCRYlgs6"
+		}
+	]	
+}
