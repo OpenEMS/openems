@@ -40,6 +40,7 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> allowedDischarge;
 	public final ReadChannel<Long> gridMode;
 	public final ReadChannel<Long> systemState;
+	public final ReadChannel<Long> nominalPower;
 	public final Power power;
 
 	public Ess(SymmetricEssNature ess) {
@@ -48,7 +49,7 @@ public class Ess extends ThingMap {
 
 		setActivePower = ess.setActivePower().required();
 		setReactivePower = ess.setReactivePower().required();
-
+		this.nominalPower = ess.maxNominalPower().required();
 		soc = ess.soc().required();
 		activePower = ess.activePower().required();
 		allowedCharge = ess.allowedCharge().required();
