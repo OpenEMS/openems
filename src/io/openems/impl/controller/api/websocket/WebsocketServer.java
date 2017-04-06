@@ -40,7 +40,7 @@ public class WebsocketServer extends WebSocketServer {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketServer.class);
 
-	private final ConcurrentHashMap<WebSocket, AuthenticatedWebsocketHandler> websockets = new ConcurrentHashMap<>();
+	private final static ConcurrentHashMap<WebSocket, AuthenticatedWebsocketHandler> websockets = new ConcurrentHashMap<>();
 	private final ThingRepository thingRepository;
 	private final ClassRepository classRepository;
 	private final WebsocketApiController controller;
@@ -99,9 +99,35 @@ public class WebsocketServer extends WebSocketServer {
 		}
 	}
 
-	// public void broadcastNotification(NotificationType type, String message) {
+	/**
+	 * Returns true if at least one websocket connection is existing; otherwise false
+	 *
+	 * @return
+	 */
+	public static boolean isConnected() {
+		return !websockets.isEmpty();
+	}
+
+	/**
+	 * Send a message to all connected websockets
+	 *
+	 * @param string
+	 * @param timestamp
+	 *
+	 * @param jMessage
+	 */
+	public static void broadcastLog(long timestamp, String level, String source, String message) {
+		websockets.forEach((websocket, handler) -> {
+			if (handler.authenticationIsValid()) {
+				handler.sendLog(timestamp, level, source, message);
+			}
+		});
+	}
+
+	// public static void sendToAll(NotificationType type, String message) {
 	// websockets.forEach((websocket, handler) -> {
-	// handler.sendNotification(type, message);
+	// handler.send(jMessage);
 	// });
 	// }
+
 }
