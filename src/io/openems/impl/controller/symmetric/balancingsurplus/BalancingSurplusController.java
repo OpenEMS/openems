@@ -27,7 +27,6 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.impl.controller.symmetric.balancingoffset.Ess;
 
 @ThingInfo(title = "Self-consumption optimization with surplus feed-in (Symmetric)", description = "Tries to keep the grid meter on zero. For symmetric Ess. If ess is over the surplusMinSoc, the ess discharges with the power of the chargers. ")
 public class BalancingSurplusController extends Controller {
@@ -70,7 +69,7 @@ public class BalancingSurplusController extends Controller {
 			long calculatedPower = meter.value().activePower.value() + ess.activePower.value();
 			if (calculatedPower >= 0) {
 				calculatedPower -= getSurplusPower();
-			} else {
+			} else if (getPvVoltage() >= 400 && ess.soc.value() > surplusMinSoc.value()) {
 				calculatedPower = getSurplusPower();
 			}
 			ess.power.setActivePower(calculatedPower);
@@ -89,8 +88,22 @@ public class BalancingSurplusController extends Controller {
 			for (Charger c : chargers.value()) {
 				power += c.power.value();
 			}
+			long multiplier = ess.value().soc.value() - surplusMinSoc.value() - 2;
+			if (multiplier > 0) {
+				power += ess.value().nominalPower.value() * 0.25 / (100 - surplusMinSoc.value() - 2) * multiplier;
+			}
 		}
 		return power;
+	}
+
+	private long getPvVoltage() throws InvalidValueException {
+		long voltage = 0;
+		for (Charger c : chargers.value()) {
+			if (c.inputVoltage.value() > voltage) {
+				voltage = c.inputVoltage.value();
+			}
+		}
+		return voltage;
 	}
 
 }

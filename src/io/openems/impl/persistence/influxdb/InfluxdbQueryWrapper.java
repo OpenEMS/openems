@@ -141,12 +141,74 @@ public class InfluxdbQueryWrapper {
 
 	private static JsonObject querykWh(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
 			ZonedDateTime toDate, JsonObject channels, int resolution, JsonObject kWh) throws OpenemsException {
-		String gridThing = getGridThing(kWh);
-		String storageThing = getStorageThing(kWh);
+		JsonArray gridThing = getGridThing(kWh);
+		JsonArray storageThing = getStorageThing(kWh);
+		JsonArray things = new JsonArray();
+		things.addAll(storageThing);
+		things.addAll(gridThing);
+
+		JsonObject jThing = new JsonObject();
+
+		for (int i = 0; i < things.size(); i++) {
+			// Prepare kWh query string
+			StringBuilder query = new StringBuilder("SELECT ");
+			query.append("MEAN(\"" + JsonUtils.getAsString(things.get(i)) + "\") * 24 / 1000 AS \""
+					+ JsonUtils.getAsString(things.get(i)) + "\"");
+			query.append(" FROM data WHERE ");
+			if (fems.isPresent()) {
+				query.append("fems = '");
+				query.append(fems.get());
+				query.append("' AND ");
+			}
+			query.append("time > ");
+			query.append(String.valueOf(fromDate.toEpochSecond()));
+			query.append("s");
+			query.append(" AND time < ");
+			query.append(String.valueOf(toDate.toEpochSecond()));
+			query.append("s");
+			query.append(" AND \"" + JsonUtils.getAsString(things.get(i)) + "\" >= 0");
+			log.info(query.toString());
+
+			QueryResult queryResult = executeQuery(influxdb, query.toString());
+
+			// AVG data
+			for (Result result : queryResult.getResults()) {
+				List<Series> series = result.getSeries();
+				if (series != null) {
+					for (Series serie : series) {
+						ArrayList<Address> addressIndex = new ArrayList<>();
+						for (String column : serie.getColumns()) {
+							if (column.equals("time")) {
+								continue;
+							}
+							addressIndex.add(Address.fromString(column));
+						}
+						if (JsonUtils.getAsString(things.get(i)).equals(addressIndex.get(0).toString())) {
+							JsonObject element = new JsonObject();
+							if (gridThing.contains(things.get(i))) {
+								element.addProperty("buy", (Double) serie.getValues().get(0).get(1));
+								element.addProperty("sell", querySellToGrid(influxdb, fems, fromDate, toDate, channels,
+										resolution, JsonUtils.getAsString(things.get(i))));
+								element.addProperty("type",
+										JsonUtils.getAsString(kWh.get(JsonUtils.getAsString(things.get(i)))));
+							}
+							if (storageThing.contains(things.get(i))) {
+								element.addProperty("discharge", (Double) serie.getValues().get(0).get(1));
+								element.addProperty("charge", queryChargeStorage(influxdb, fems, fromDate, toDate,
+										channels, resolution, JsonUtils.getAsString(things.get(i))));
+								element.addProperty("type",
+										JsonUtils.getAsString(kWh.get(JsonUtils.getAsString(things.get(i)))));
+							}
+							jThing.add(JsonUtils.getAsString(things.get(i)), element);
+						}
+					}
+				}
+			}
+		}
 
 		// Prepare kWh query string
 		StringBuilder query = new StringBuilder("SELECT ");
-		query.append(toChannelAddressListAvg(channels));
+		query.append(toChannelAddressListAvg(channels, things));
 		query.append(" FROM data WHERE ");
 		if (fems.isPresent()) {
 			query.append("fems = '");
@@ -159,16 +221,11 @@ public class InfluxdbQueryWrapper {
 		query.append(" AND time < ");
 		query.append(String.valueOf(toDate.toEpochSecond()));
 		query.append("s");
-		query.append(" AND \"" + gridThing + "\" >= 0");
-		query.append(" AND \"" + storageThing + "\" >= 0");
 		log.info(query.toString());
 
 		QueryResult queryResult = executeQuery(influxdb, query.toString());
 
-		JsonArray j = new JsonArray();
-
 		// AVG data
-		JsonObject jThing = new JsonObject();
 		for (Result result : queryResult.getResults()) {
 			List<Series> series = result.getSeries();
 			if (series != null) {
@@ -182,30 +239,15 @@ public class InfluxdbQueryWrapper {
 					}
 					for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
 						JsonObject element = new JsonObject();
-						if (addressIndex.get(columnIndex).toString().equals(gridThing)) {
-							element.addProperty("buy", (Double) serie.getValues().get(0).get(columnIndex + 1));
-							element.addProperty("sell",
-									querySellToGrid(influxdb, fems, fromDate, toDate, channels, resolution, gridThing));
-							element.addProperty("type",
-									JsonUtils.getAsString(kWh.get(addressIndex.get(columnIndex).toString())));
-						} else if (addressIndex.get(columnIndex).toString().equals(storageThing)) {
-							element.addProperty("charge", (Double) serie.getValues().get(0).get(columnIndex + 1));
-							element.addProperty("discharge", queryDischargeStorage(influxdb, fems, fromDate, toDate,
-									channels, resolution, gridThing));
-							element.addProperty("type",
-									JsonUtils.getAsString(kWh.get(addressIndex.get(columnIndex).toString())));
-						} else {
-							element.addProperty("value", (Double) serie.getValues().get(0).get(columnIndex + 1));
-							element.addProperty("type",
-									JsonUtils.getAsString(kWh.get(addressIndex.get(columnIndex).toString())));
-						}
+						element.addProperty("value", (Double) serie.getValues().get(0).get(columnIndex + 1));
+						element.addProperty("type",
+								JsonUtils.getAsString(kWh.get(addressIndex.get(columnIndex).toString())));
 						jThing.add(addressIndex.get(columnIndex).toString(), element);
 					}
 				}
 			}
 		}
-		j.add(jThing);
-
+		log.info(jThing.toString());
 		return jThing;
 	}
 
@@ -257,7 +299,7 @@ public class InfluxdbQueryWrapper {
 		return value;
 	}
 
-	private static double queryDischargeStorage(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
+	private static double queryChargeStorage(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
 			ZonedDateTime toDate, JsonObject channels, int resolution, String storageThing) throws OpenemsException {
 		// Prepare SellToGrid query string
 		StringBuilder query = new StringBuilder("SELECT ");
@@ -330,38 +372,47 @@ public class InfluxdbQueryWrapper {
 		return queryResult;
 	}
 
-	private static String getGridThing(JsonObject kWh) throws OpenemsException {
-		String gridThing = "";
+	private static JsonArray getGridThing(JsonObject kWh) throws OpenemsException {
+		JsonArray gridThing = new JsonArray();
 		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
 			String thingId = entry.getKey();
 			if (JsonUtils.getAsString(entry.getValue()).equals("grid")) {
-				gridThing = thingId;
+				gridThing.add(thingId);
 			}
 		}
 		return gridThing;
 	}
 
-	private static String getStorageThing(JsonObject kWh) throws OpenemsException {
-		String storageThing = "";
+	private static JsonArray getStorageThing(JsonObject kWh) throws OpenemsException {
+		JsonArray storageThing = new JsonArray();
 		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
 			String thingId = entry.getKey();
 			if (JsonUtils.getAsString(entry.getValue()).equals("storage")) {
-				storageThing = thingId;
+				storageThing.add(thingId);
 			}
 		}
 		return storageThing;
 	}
 
-	private static String toChannelAddressListAvg(JsonObject channels) throws OpenemsException {
+	private static String toChannelAddressListAvg(JsonObject channels, JsonArray things) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();
 		for (Entry<String, JsonElement> entry : channels.entrySet()) {
 			String thingId = entry.getKey();
 			JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
 			for (JsonElement channelElement : channelIds) {
 				String channelId = JsonUtils.getAsString(channelElement);
-				if (channelId.equals("ActivePower")) {
-					channelAddresses.add("MEAN(\"" + thingId + "/" + channelId + "\") * 24 / 1000 AS \"" + thingId + "/"
-							+ channelId + "\"");
+				if (channelId.contains("ActivePower")) {
+					String name = thingId + "/" + channelId;
+					boolean isGridOrStorage = false;
+					for (int i = 0; i < things.size(); i++) {
+						if (JsonUtils.getAsString(things.get(i)).equals(name)) {
+							isGridOrStorage = true;
+						}
+					}
+					if (!isGridOrStorage) {
+						channelAddresses.add("MEAN(\"" + thingId + "/" + channelId + "\") * 24 / 1000 AS \"" + thingId
+								+ "/" + channelId + "\"");
+					}
 				}
 			}
 		}

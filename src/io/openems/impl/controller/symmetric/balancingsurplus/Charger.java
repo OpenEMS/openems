@@ -9,10 +9,12 @@ import io.openems.api.device.nature.charger.ChargerNature;
 public class Charger extends ThingMap {
 
 	public final ReadChannel<Long> power;
+	public final ReadChannel<Long> inputVoltage;
 
 	public Charger(ChargerNature thing) {
 		super(thing);
 		this.power = thing.getActualPower().required();
+		this.inputVoltage = thing.getInputVoltage().required();
 	}
 
 }

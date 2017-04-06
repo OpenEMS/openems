@@ -32,4 +32,6 @@ public interface ChargerNature extends DeviceNature {
 
 	public ReadChannel<Long> getNominalPower();
 
+	public ReadChannel<Long> getInputVoltage();
+
 }

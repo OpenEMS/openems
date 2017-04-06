@@ -285,25 +285,25 @@ public class BalancingController extends Controller {
 		long maxPower = 0;
 		long minPower = 0;
 		percentage = Math.abs(percentage);
-		if (ess.allowedApparent.value() * 3 < ess.allowedDischarge.value()) {
-			maxPower = ControllerUtils.calculateActivePowerFromApparentPower(
-					(long) (ess.allowedApparent.value() * 3 * percentage), cosPhi);
+		if (ess.allowedApparent.value() < ess.allowedDischarge.value()) {
+			maxPower = ControllerUtils
+					.calculateActivePowerFromApparentPower((long) (ess.allowedApparent.value() * percentage), cosPhi);
 		} else {
 			maxPower = ControllerUtils
 					.calculateActivePowerFromApparentPower((long) (ess.allowedDischarge.value() * percentage), cosPhi);
 		}
-		if (ess.allowedApparent.value() * 3 < ess.allowedCharge.value()) {
+		if (ess.allowedApparent.value() < ess.allowedCharge.value()) {
 			minPower = ControllerUtils.calculateActivePowerFromApparentPower(
-					(long) (ess.allowedApparent.value() * -3 * percentage), cosPhi);
+					(long) (ess.allowedApparent.value() * -1 * percentage), cosPhi);
 		} else {
 			minPower = ControllerUtils.calculateActivePowerFromApparentPower(
-					(long) (ess.allowedCharge.value() * -1 * percentage), cosPhi);
+					(long) (ess.allowedCharge.value() / 3 * -1 * percentage), cosPhi);
 		}
-		if (minPower < ess.allowedApparent.value() * -1) {
-			minPower = ess.allowedApparent.value() * -1;
+		if (minPower < ess.allowedApparent.value() / 3 * -1) {
+			minPower = ess.allowedApparent.value() / 3 * -1;
 		}
-		if (maxPower > ess.allowedApparent.value()) {
-			maxPower = ess.allowedApparent.value();
+		if (maxPower > ess.allowedApparent.value() / 3) {
+			maxPower = ess.allowedApparent.value() / 3;
 		}
 		return new Tupel<Long>(minPower, maxPower);
 	}

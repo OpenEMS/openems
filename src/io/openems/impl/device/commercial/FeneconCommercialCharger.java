@@ -64,6 +64,8 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 
 	public ReadChannel<Long> actualPvPower;
 
+	public ReadChannel<Long> inputVoltage;
+
 	/*
 	 * BMS DCDC
 	 */
@@ -1176,6 +1178,19 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 				return null;
 			}
 		}, pvDCDCInputPower, pvDCDC1InputPower);
+		inputVoltage = new FunctionalChannel<Long>("inputVoltage", this, (channels) -> {
+			long erg = 0;
+			try {
+				for (ReadChannel<Long> ch : channels) {
+					if (erg < ch.value()) {
+						erg = ch.value();
+					}
+				}
+				return erg;
+			} catch (InvalidValueException e) {
+				return null;
+			}
+		}, pvDCDCInputVoltage, pvDCDC1InputVoltage);
 		return protocol;
 	}
 
@@ -1192,6 +1207,11 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 	@Override
 	public ReadChannel<Long> getActualPower() {
 		return actualPvPower;
+	}
+
+	@Override
+	public ReadChannel<Long> getInputVoltage() {
+		return inputVoltage;
 	}
 
 }

@@ -78,7 +78,8 @@ public class EmergencyGeneratorController extends Controller {
 	private WriteChannel<Boolean> outputChannel;
 	private boolean generatorOn = false;
 	private long timeOnGrid = 0L;
-	private boolean switchedToOnGrid = false;
+	private boolean switchedToOnGrid = true;
+	private long startTime = System.currentTimeMillis();
 
 	/*
 	 * Methods
@@ -102,48 +103,53 @@ public class EmergencyGeneratorController extends Controller {
 
 	@Override
 	public void run() {
-		try {
-			// Check if grid is available
-			if (!meter.value().voltage.valueOptional().isPresent()) {
-				// no meassurable voltage => Off-Grid
-				if (!generatorOn && ess.value().soc.value() <= minSoc.value()) {
-					// switch generator on
-					startGenerator();
-					generatorOn = true;
-					System.out.println("1: storage is empty. Start generator.");
-				} else if (generatorOn && ess.value().soc.value() >= maxSoc.value()) {
-					// switch generator off
-					stopGenerator();
-					generatorOn = false;
-					System.out.println("Storage is full. Stop generator.");
-				} else if (generatorOn) {
-					startGenerator();
-					System.out.println("3: ");
-				} else if (!generatorOn) {
-					stopGenerator();
-					System.out.println("4: ");
-				}
-				switchedToOnGrid = false;
-			} else {
-				// Grid voltage is in the allowed range
-				if (switchedToOnGrid) {
-					if (timeOnGrid + switchDelay.value() <= System.currentTimeMillis()) {
-						if (onGridOutputOn.value()) {
-							startGenerator();
-						} else {
-							stopGenerator();
-						}
+		if (startTime + 1000 * 15 <= System.currentTimeMillis()) {
+			try {
+				// Check if grid is available
+				if (!meter.value().voltage.valueOptional().isPresent()) {
+					// no meassurable voltage => Off-Grid
+					if (!generatorOn && ess.value().soc.valueOptional().isPresent()
+							&& ess.value().soc.value() <= minSoc.value()) {
+						// switch generator on
+						startGenerator();
+						generatorOn = true;
+						System.out.println("1: storage is empty. Start generator.");
+					} else if (generatorOn && (!ess.value().soc.valueOptional().isPresent()
+							|| ess.value().soc.value() >= maxSoc.value())) {
+						// switch generator off
+						stopGenerator();
+						generatorOn = false;
+						System.out.println("Storage is full. Stop generator.");
+					} else if (generatorOn) {
+						startGenerator();
+						System.out.println("3: ");
+					} else if (!generatorOn) {
+						stopGenerator();
+						System.out.println("4: ");
 					}
+					switchedToOnGrid = false;
 				} else {
-					stopGenerator();
-					timeOnGrid = System.currentTimeMillis();
-					switchedToOnGrid = true;
+					// Grid voltage is in the allowed range
+					if (switchedToOnGrid) {
+						if (timeOnGrid + switchDelay.value() <= System.currentTimeMillis()) {
+							if (onGridOutputOn.value()) {
+								startGenerator();
+							} else {
+								stopGenerator();
+							}
+						}
+					} else {
+						stopGenerator();
+						timeOnGrid = System.currentTimeMillis();
+						switchedToOnGrid = true;
+					}
 				}
+			} catch (InvalidValueException e) {
+				log.error("Failed to read value!", e);
+			} catch (WriteChannelException e) {
+				log.error("Error due write to output [" + outputChannelAddress.valueOptional().orElse("<none>") + "]",
+						e);
 			}
-		} catch (InvalidValueException e) {
-			log.error("Failed to read value!", e);
-		} catch (WriteChannelException e) {
-			log.error("Error due write to output [" + outputChannelAddress.valueOptional().orElse("<none>") + "]", e);
 		}
 	}
 
@@ -151,12 +157,14 @@ public class EmergencyGeneratorController extends Controller {
 		if (outputChannel.value() != true ^ invertOutput.value()) {
 			outputChannel.pushWrite(true ^ invertOutput.value());
 		}
+		generatorOn = true;
 	}
 
 	private void stopGenerator() throws InvalidValueException, WriteChannelException {
 		if (outputChannel.value() != false ^ invertOutput.value()) {
 			outputChannel.pushWrite(false ^ invertOutput.value());
 		}
+		generatorOn = false;
 	}
 
 }
