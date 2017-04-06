@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -38,11 +38,15 @@ public class BalancingTest {
 		controller.meter.updateValue(meterThingMap, true);
 	}
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {}
+	@Before
+	public void beforeTest() {
+		ess.setActivePower.shadowCopyAndReset();
+		ess.setReactivePower.shadowCopyAndReset();
+		ess.setWorkState.shadowCopyAndReset();
+	}
 
 	@Test
-	public void test() {
+	public void powerCalculationWithoutLimitations() {
 		ess.activePower.setValue(1000L);
 		meter.activePower.setValue(-500L);
 		ess.soc.setValue(35L);
@@ -58,6 +62,138 @@ public class BalancingTest {
 			controller.run();
 			long setActivePower = ess.setActivePower.getWriteValue().get();
 			assertEquals(400L, setActivePower);
+		} catch (WriteChannelException e) {
+			fail("unexpected WriteChannelException" + e.getMessage());
+		}
+	}
+
+	@Test
+	public void powerCalculationWithDischargeLimit() {
+		ess.activePower.setValue(1000L);
+		meter.activePower.setValue(-500L);
+		ess.soc.setValue(35L);
+		ess.minSoc.setValue(15);
+		ess.chargeSoc.setValue(10);
+		ess.allowedApparent.setValue(40000L);
+		ess.allowedCharge.setValue(-40000L);
+		ess.allowedDischarge.setValue(300L);
+		try {
+			ess.setActivePower.pushWriteMax(40000L);
+
+			ess.setActivePower.pushWriteMin(-40000L);
+			controller.run();
+			long setActivePower = ess.setActivePower.getWriteValue().get();
+			assertEquals(300L, setActivePower);
+		} catch (WriteChannelException e) {
+			fail("unexpected WriteChannelException" + e.getMessage());
+		}
+	}
+
+	@Test
+	public void powerCalculationWithChargeLimit() {
+		ess.activePower.setValue(100L);
+		meter.activePower.setValue(-500L);
+		ess.soc.setValue(35L);
+		ess.minSoc.setValue(15);
+		ess.chargeSoc.setValue(10);
+		ess.allowedApparent.setValue(40000L);
+		ess.allowedCharge.setValue(-100L);
+		ess.allowedDischarge.setValue(40000L);
+		try {
+			ess.setActivePower.pushWriteMax(40000L);
+
+			ess.setActivePower.pushWriteMin(-40000L);
+			controller.run();
+			long setActivePower = ess.setActivePower.getWriteValue().get();
+			assertEquals(-100L, setActivePower);
+		} catch (WriteChannelException e) {
+			fail("unexpected WriteChannelException" + e.getMessage());
+		}
+	}
+
+	@Test
+	public void powerCalculationWithPositiveSetActivePowerMaxLimit() {
+		ess.activePower.setValue(1000L);
+		meter.activePower.setValue(-500L);
+		ess.soc.setValue(35L);
+		ess.minSoc.setValue(15);
+		ess.chargeSoc.setValue(10);
+		ess.allowedApparent.setValue(40000L);
+		ess.allowedCharge.setValue(-40000L);
+		ess.allowedDischarge.setValue(40000L);
+		try {
+			ess.setActivePower.pushWriteMax(300L);
+
+			ess.setActivePower.pushWriteMin(-40000L);
+			controller.run();
+			long setActivePower = ess.setActivePower.getWriteValue().get();
+			assertEquals(300L, setActivePower);
+		} catch (WriteChannelException e) {
+			fail("unexpected WriteChannelException" + e.getMessage());
+		}
+	}
+
+	@Test
+	public void powerCalculationWithNegativeSetActivePowerMaxLimit() {
+		ess.activePower.setValue(1000L);
+		meter.activePower.setValue(-500L);
+		ess.soc.setValue(35L);
+		ess.minSoc.setValue(15);
+		ess.chargeSoc.setValue(10);
+		ess.allowedApparent.setValue(40000L);
+		ess.allowedCharge.setValue(-40000L);
+		ess.allowedDischarge.setValue(40000L);
+		try {
+			ess.setActivePower.pushWriteMax(-300L);
+
+			ess.setActivePower.pushWriteMin(-40000L);
+			controller.run();
+			long setActivePower = ess.setActivePower.getWriteValue().get();
+			assertEquals(-300L, setActivePower);
+		} catch (WriteChannelException e) {
+			fail("unexpected WriteChannelException" + e.getMessage());
+		}
+	}
+
+	@Test
+	public void powerCalculationWithPositiveSetActivePowerMinLimit() {
+		ess.activePower.setValue(100L);
+		meter.activePower.setValue(-500L);
+		ess.soc.setValue(35L);
+		ess.minSoc.setValue(15);
+		ess.chargeSoc.setValue(10);
+		ess.allowedApparent.setValue(40000L);
+		ess.allowedCharge.setValue(-40000L);
+		ess.allowedDischarge.setValue(40000L);
+		try {
+			ess.setActivePower.pushWriteMax(40000L);
+
+			ess.setActivePower.pushWriteMin(400L);
+			controller.run();
+			long setActivePower = ess.setActivePower.getWriteValue().get();
+			assertEquals(400L, setActivePower);
+		} catch (WriteChannelException e) {
+			fail("unexpected WriteChannelException" + e.getMessage());
+		}
+	}
+
+	@Test
+	public void powerCalculationWithNegativeSetActivePowerMinLimit() {
+		ess.activePower.setValue(100L);
+		meter.activePower.setValue(-500L);
+		ess.soc.setValue(35L);
+		ess.minSoc.setValue(15);
+		ess.chargeSoc.setValue(10);
+		ess.allowedApparent.setValue(40000L);
+		ess.allowedCharge.setValue(-40000L);
+		ess.allowedDischarge.setValue(40000L);
+		try {
+			ess.setActivePower.pushWriteMax(40000L);
+
+			ess.setActivePower.pushWriteMin(-400L);
+			controller.run();
+			long setActivePower = ess.setActivePower.getWriteValue().get();
+			assertEquals(-400L, setActivePower);
 		} catch (WriteChannelException e) {
 			fail("unexpected WriteChannelException" + e.getMessage());
 		}
