@@ -18,6 +18,8 @@ export class LogComponent implements OnInit {
   private MAX_LOG_ENTRIES = 200;
   private deviceSubscription: Subscription;
 
+  private isSubscribed: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private websocketService: WebsocketService,
@@ -26,18 +28,52 @@ export class LogComponent implements OnInit {
   ngOnInit() {
     this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
-      if (device != null) {
-        device.subscribeLog("all");
-        device.log.subscribe(log => {
+      if (this.device != null) {
+        this.subscribeLog();
+        this.device.log.subscribe(log => {
           log.time = moment(log.timestamp).format("DD.MM.YYYY HH:mm:ss");
+          switch (log.level) {
+            case 'INFO':
+              log.color = 'green';
+              break;
+            case 'WARN':
+              log.color = 'orange';
+              break;
+            case 'DEBUG':
+              log.color = 'gray';
+              break;
+            case 'ERROR':
+              log.color = 'red';
+              break;
+          };
           this.logs.unshift(log);
           if (this.logs.length > this.MAX_LOG_ENTRIES) {
             this.logs.length = this.MAX_LOG_ENTRIES;
           }
-        });
+        })
       }
-    })
+    });
   }
+
+  public toggleSubscribe($event: any /*MdSlideToggleChange*/) {
+    if ($event.checked) {
+      this.subscribeLog();
+    } else {
+      this.unsubscribeLog();
+    }
+  }
+
+  public subscribeLog() {
+    if (this.device != null) {
+      this.device.subscribeLog("all");
+      this.isSubscribed = true;
+    };
+  }
+
+  public unsubscribeLog() {
+    this.device.unsubscribeLog();
+    this.isSubscribed = false;
+  };
 
   ngOnDestroy() {
     this.deviceSubscription.unsubscribe();

@@ -15,8 +15,9 @@ class Things {
 
 export class Log {
   timestamp: number;
-  time: string;
+  time: string = "";
   level: string;
+  color: string = "black";
   source: string;
   message: string;
 }
