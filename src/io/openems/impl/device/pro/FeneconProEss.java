@@ -88,7 +88,6 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	private ModbusReadLongChannel activePowerL1;
 	private ModbusReadLongChannel activePowerL2;
 	private ModbusReadLongChannel activePowerL3;
-	private ModbusReadLongChannel allowedApparent;
 	private ModbusReadLongChannel reactivePowerL1;
 	private ModbusReadLongChannel reactivePowerL2;
 	private ModbusReadLongChannel reactivePowerL3;
@@ -99,6 +98,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	private ModbusWriteLongChannel setReactivePowerL1;
 	private ModbusWriteLongChannel setReactivePowerL2;
 	private ModbusWriteLongChannel setReactivePowerL3;
+	private ReadChannel<Long> allowedApparent;
 	// RealTimeClock
 	private ModbusWriteLongChannel rtcYear;
 	private ModbusWriteLongChannel rtcMonth;
@@ -240,6 +240,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	/*
 	 * This Channels
 	 */
+	public ModbusReadLongChannel phaseAllowedApparent;
 	public ModbusReadLongChannel frequencyL3;
 	public ModbusReadLongChannel frequencyL2;
 	public ModbusReadLongChannel frequencyL1;
@@ -378,7 +379,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 				new UnsignedWordElement(133, //
 						frequencyL3 = new ModbusReadLongChannel("FrequencyL3", this).unit("mHz").multiplier(1)),
 				new UnsignedWordElement(134, //
-						allowedApparent = new ModbusReadLongChannel("AllowedApparentPower", this).unit("VA")),
+						phaseAllowedApparent = new ModbusReadLongChannel("PhaseAllowedApparentPower", this).unit("VA")),
 				new DummyElement(135, 140),
 				new UnsignedWordElement(141, //
 						allowedCharge = new ModbusReadLongChannel("AllowedCharge", this).unit("W")),
@@ -661,6 +662,16 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 				return null;
 			}
 		}, systemState).label(0L, OFF_GRID).label(1L, ON_GRID);
+		allowedApparent = new FunctionalChannel<Long>("AllowedApparent", this, (channels) -> {
+			ReadChannel<Long> apparent = channels[0];
+			try {
+				return apparent.value() * 3;
+			} catch (InvalidValueException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return 0l;
+		}, phaseAllowedApparent);
 
 		return protokol;
 	}
