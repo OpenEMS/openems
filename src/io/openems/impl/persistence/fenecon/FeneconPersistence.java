@@ -147,8 +147,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		/*
 		 * Send to Server
 		 */
-		Optional<WebsocketHandler> websocketHandler = getWebsocketHandler();
-		if (websocketHandler.isPresent() && websocketHandler.get().send(j)) {
+		if (this.send(j)) {
 			/*
 			 * Sent successfully
 			 */
@@ -160,7 +159,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 				JsonObject jCachedTimedata = iterator.next();
 				JsonObject jCached = new JsonObject();
 				jCached.add("timedata", jCachedTimedata);
-				boolean cacheWasSent = websocketHandler.get().send(jCached);
+				boolean cacheWasSent = this.send(jCached);
 				if (cacheWasSent) {
 					iterator.remove();
 				}
@@ -178,11 +177,22 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	}
 
 	/**
+	 * Send message to websocket
+	 *
+	 * @param j
+	 * @return
+	 */
+	private boolean send(JsonObject j) {
+		Optional<WebsocketHandler> websocketHandler = getWebsocketHandler();
+		return websocketHandler.isPresent() && websocketHandler.get().send(j);
+	}
+
+	/**
 	 * Gets the websocket handler
 	 *
 	 * @return
 	 */
-	Optional<WebsocketHandler> getWebsocketHandler() {
+	public Optional<WebsocketHandler> getWebsocketHandler() {
 		Optional<WebsocketClient> websocketClient = getWebsocketClient();
 		if (websocketClient.isPresent()) {
 			return Optional.of(websocketClient.get().getWebsocketHandler());

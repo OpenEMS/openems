@@ -27,7 +27,7 @@
 			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line] %msg%ex{10}%n</pattern>
 		</encoder>
 	</appender>
-	<appender name="WEBSOCKET" class="io.openems.impl.controller.api.websocket.WebsocketLogAppender">
+	<appender name="WEBSOCKET" class="io.openems.core.utilities.websocket.WebsocketLogAppender">
 	</appender>
 	<!-- <logger name="io.openems" level="DEBUG" additivity="false"> -->
 	<logger name="io.openems" level="INFO" additivity="false">
