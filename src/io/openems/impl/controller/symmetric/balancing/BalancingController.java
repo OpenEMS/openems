@@ -30,7 +30,6 @@ import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo(title = "Self-consumption optimization (Symmetric)", description = "Tries to keep the grid meter on zero. For symmetric Ess. Ess-Cluster is supported.")
 public class BalancingController extends Controller {
@@ -125,7 +124,7 @@ public class BalancingController extends Controller {
 						long p = (long) (Math.ceil((minP + diff / useableSoc * ess.useableSoc()) / 100) * 100);
 						ess.power.setActivePower(p);
 						ess.power.writePower();
-						log.info(ess.id() + " Set ActivePower [" + ess.power.getActivePower() + "], ReactivePower ["
+						log.debug(ess.id() + " Set ActivePower [" + ess.power.getActivePower() + "], ReactivePower ["
 								+ ess.power.getReactivePower() + "]");
 						calculatedPower -= p;
 					}
@@ -174,7 +173,7 @@ public class BalancingController extends Controller {
 								* 100;
 						ess.power.setActivePower(p);
 						ess.power.writePower();
-						log.info(ess.id() + " Set ActivePower [" + ess.power.getActivePower() + "], ReactivePower ["
+						log.debug(ess.id() + " Set ActivePower [" + ess.power.getActivePower() + "], ReactivePower ["
 								+ ess.power.getReactivePower() + "]");
 						calculatedPower -= p;
 					}

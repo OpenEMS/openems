@@ -266,7 +266,7 @@ public class BalancingController extends Controller {
 
 			ess.getSetActivePower(phase).pushWrite(power);
 			ess.getSetReactivePower(phase).pushWrite(reactivePower);
-			log.info("Set ActivePower [" + power + "], ReactivePower [" + reactivePower + "] at phase " + phase);
+			log.debug("Set ActivePower [" + power + "], ReactivePower [" + reactivePower + "] at phase " + phase);
 		}
 	}
 
