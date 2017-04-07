@@ -75,11 +75,6 @@ export class Device {
     } else {
       this.address = this.websocket.name + ": " + this.name;
     }
-    if (this.role == 'owner' || this.role == 'admin') {
-      this.role = 'owner';
-    } else {
-      this.role = 'guest';
-    }
   }
 
   public send(value: any) {

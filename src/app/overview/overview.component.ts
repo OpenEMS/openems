@@ -56,6 +56,11 @@ export class OverviewComponent implements OnInit, OnDestroy {
     websocket.close();
   }
 
+  reconnectFemsserver(form: FormGroup) {
+    let websocket: Websocket = form['_websocket'];
+    websocket.connectWithTokenOrSessionId();
+  }
+
   websocketEvent(value: Notification) {
     let allConnected = true;
     let noOfConnectedDevices = 0;
