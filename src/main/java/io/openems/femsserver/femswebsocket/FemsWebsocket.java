@@ -151,6 +151,13 @@ public class FemsWebsocket extends WebSocketServer {
 			}
 
 			/*
+			 * New log -> forward to browserWebsockets
+			 */
+			if (jMessage.has("log")) {
+				log(websocket, jMessage.get("log"));
+			}
+
+			/*
 			 * New metadata
 			 */
 			if (jMessage.has("metadata")) {
@@ -216,6 +223,9 @@ public class FemsWebsocket extends WebSocketServer {
 		}
 	}
 
+	/**
+	 * Forward currentdata to browserWebsockets
+	 */
 	private void currentdata(WebSocket websocket, JsonElement jCurrentdataElement) {
 		try {
 			JsonObject jCurrentdata = JsonUtils.getAsJsonObject(jCurrentdataElement);
@@ -226,6 +236,24 @@ public class FemsWebsocket extends WebSocketServer {
 				j.addProperty("device", name);
 				this.connectionManager.getBrowserWebsockets(name).forEach(browserWebsocket -> {
 					// log.info("BrowserWS: " + browserWebsocket + ", " + browserWebsocket.isOpen());
+					log.info(name + ": forward currentdata to Browser: " + StringUtils.toShortString(j, 100));
+					WebSocketUtils.send(browserWebsocket, j);
+				});
+			});
+		} catch (OpenemsException e) {
+			log.error(e.getMessage());
+		}
+	}
+
+	private void log(WebSocket websocket, JsonElement jLogElement) {
+		try {
+			JsonObject jLog = JsonUtils.getAsJsonObject(jLogElement);
+			JsonObject j = new JsonObject();
+			j.add("log", jLog);
+			this.connectionManager.getFemsWebsocketDeviceNames(websocket).forEach(name -> {
+				j.addProperty("device", name);
+				this.connectionManager.getBrowserWebsockets(name).forEach(browserWebsocket -> {
+					log.info(name + ": forward log to Browser: " + StringUtils.toShortString(j, 100));
 					WebSocketUtils.send(browserWebsocket, j);
 				});
 			});

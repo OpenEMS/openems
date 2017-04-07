@@ -26,6 +26,7 @@ import io.openems.femsserver.odoo.Odoo;
 import io.openems.femsserver.odoo.fems.device.FemsDevice;
 import io.openems.femsserver.utilities.JsonUtils;
 import io.openems.femsserver.utilities.OpenemsException;
+import io.openems.femsserver.utilities.StringUtils;
 import io.openems.femsserver.utilities.WebSocketUtils;
 
 /**
@@ -105,7 +106,7 @@ public class BrowserWebsocket extends WebSocketServer {
 					     devices: [{
 					       name, online,...
 					     }]
-
+					
 					   }
 					 }
 					 * </pre>
@@ -251,6 +252,7 @@ public class BrowserWebsocket extends WebSocketServer {
 		j.add("subscribe", jSubscribeElement);
 		// Execute for every matching femsWebsocket (should be only one in general)
 		this.connectionManager.getFemsWebsockets(deviceName).forEach(femsWebsocket -> {
+			log.info(deviceName + ": forward subscribe to FEMS " + StringUtils.toShortString(j, 100));
 			WebSocketUtils.send(femsWebsocket, j);
 		});
 	}
@@ -265,6 +267,7 @@ public class BrowserWebsocket extends WebSocketServer {
 		j.add("system", jSubscribeElement);
 		// Execute for every matching femsWebsocket (should be only one in general)
 		this.connectionManager.getFemsWebsockets(deviceName).forEach(femsWebsocket -> {
+			log.info(deviceName + ": forward system call to FEMS " + StringUtils.toShortString(j, 100));
 			WebSocketUtils.send(femsWebsocket, j);
 		});
 	}
@@ -301,8 +304,6 @@ public class BrowserWebsocket extends WebSocketServer {
 				JsonObject j = new JsonObject();
 				j.add("queryreply", jQueryreply);
 				WebSocketUtils.sendAsDevice(websocket, j, fems);
-
-				log.info("RESULT: " + j);
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage());

@@ -84,7 +84,6 @@ public class InfluxdbQueryWrapper {
 		query.append(" GROUP BY time(");
 		query.append(resolution);
 		query.append("s) fill(previous)");
-		log.info(query.toString());
 
 		QueryResult queryResult = executeQuery(influxdb, query.toString());
 
