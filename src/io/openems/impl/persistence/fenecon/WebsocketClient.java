@@ -53,6 +53,7 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 				Stream.of(new SimpleEntry<>("apikey", apikey))
 						.collect(Collectors.toMap((se) -> se.getKey(), (se) -> se.getValue())),
 				0);
+		log.info("Start new websocket connection to [" + uri.getPath() + "]");
 		if (uri.toString().startsWith("wss")) {
 			try {
 				SSLContext sslContext = null;
@@ -68,17 +69,17 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 
 	@Override
 	public void onClose(int code, String reason, boolean remote) {
-		log.info("Websocket closed. Code[" + code + "] Reason[" + reason + "]");
+		log.info("Websocket [" + this.getURI().toString() + "] closed. Code[" + code + "] Reason[" + reason + "]");
 	}
 
 	@Override
 	public void onError(Exception ex) {
-		log.warn("Websocket error: " + ex.getMessage());
+		log.warn("Websocket [" + this.getURI().toString() + "] error: " + ex);
 	}
 
 	@Override
 	public void onOpen(ServerHandshake handshakedata) {
-		log.info("Websocket opened");
+		log.info("Websocket [" + this.getURI().toString() + "] opened");
 	}
 
 	/**

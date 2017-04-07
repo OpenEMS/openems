@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
@@ -67,7 +68,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	private static final int DEFAULT_CYCLETIME = 2000;
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
 	private List<JsonObject> unsentCache = new ArrayList<>();
-	private WebsocketClient websocketClient;
+	private volatile WebsocketClient websocketClient;
 	private volatile int currentCycleTime = DEFAULT_CYCLETIME;
 
 	/*
@@ -205,7 +206,9 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 *
 	 * @return
 	 */
-	Optional<WebsocketClient> getWebsocketClient() {
+	private AtomicBoolean isAlreadyConnecting = new AtomicBoolean(false);
+
+	public Optional<WebsocketClient> getWebsocketClient() {
 		// return existing and opened websocket
 		if (this.websocketClient != null && this.websocketClient.getConnection().isOpen()) {
 			return Optional.of(this.websocketClient);
@@ -214,33 +217,39 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		if (!this.apikey.valueOptional().isPresent() || !this.uri.valueOptional().isPresent()) {
 			return Optional.empty();
 		}
+		// from here only one thread is allowed to enter
+		if (isAlreadyConnecting.getAndSet(true)) {
+			return Optional.empty();
+		}
 		String uri = this.uri.valueOptional().get();
 		String apikey = this.apikey.valueOptional().get();
+		WebsocketClient newWebsocketClient = null;
 		try {
 			// create new websocket
 			// TODO: check server certificate
-			WebsocketClient newWebsocketClient = new WebsocketClient(new URI(uri), apikey);
+			newWebsocketClient = new WebsocketClient(new URI(uri), apikey);
+			log.info("FENECON persistence is connecting... [" + uri + "]");
 			if (newWebsocketClient.connectBlocking()) {
 				// successful -> return connected websocket
 				log.info("FENECON persistence connected [" + uri + "]");
-				this.websocketClient = newWebsocketClient;
-				return Optional.of(newWebsocketClient);
 			} else {
 				// not connected -> return empty
 				log.warn("FENECON persistence failed connection to uri [" + uri + "]");
-				this.websocketClient = null;
-				return Optional.empty();
+				newWebsocketClient = null;
 			}
 		} catch (URISyntaxException e) {
 			log.error("Invalid uri: " + e.getMessage());
-			return Optional.empty();
+			// newWebsocketClient = null;
 		} catch (InterruptedException e) {
 			log.warn("Websocket connection interrupted: " + e.getMessage());
-			return Optional.empty();
+			newWebsocketClient = null;
 		} catch (Exception e) {
 			log.warn("Websocket exception: " + e.getMessage());
-			return Optional.empty();
+			newWebsocketClient = null;
 		}
+		this.websocketClient = newWebsocketClient;
+		isAlreadyConnecting.set(false);
+		return Optional.ofNullable(newWebsocketClient);
 	}
 
 	private void increaseCycleTime() {

@@ -148,8 +148,12 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 			queue.clear();
 		}
 		// write to DB
-		influxDB.write(batchPoints);
-		log.debug("Wrote [" + batchPoints.getPoints().size() + "] points to InfluxDB");
+		try {
+			influxDB.write(batchPoints);
+			log.debug("Wrote [" + batchPoints.getPoints().size() + "] points to InfluxDB");
+		} catch (RuntimeException e) {
+			log.error("Error writing to InfluxDB: " + e);
+		}
 	}
 
 	@Override
