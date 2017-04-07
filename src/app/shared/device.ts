@@ -54,6 +54,9 @@ export class Device {
   public historykWh = new BehaviorSubject<any[]>(null);
   public config = new BehaviorSubject<Config>(null);
   public log = new Subject<Log>();
+  private comment: string = '';
+  private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
+  private producttype: 'Pro 9-12' | 'MiniES 3-3' | 'PRO Hybrid 9-10' | 'PRO Compact 3-10' | 'COMMERCIAL 40-45' | 'INDUSTRIAL' | '' = '';
 
   private things: Things
   private online = false;
@@ -75,6 +78,7 @@ export class Device {
     } else {
       this.address = this.websocket.name + ": " + this.name;
     }
+    this.comment = name;
   }
 
   public send(value: any) {
@@ -371,8 +375,20 @@ export class Device {
         this.online = true;
       }
 
+      if ("comment" in metadata) {
+        this.comment = metadata.comment;
+      }
+
       if ("role" in metadata) {
         this.role = metadata.role;
+      }
+
+      if ("state" in metadata) {
+        this.state = metadata.state;
+      }
+
+      if ("producttype" in metadata) {
+        this.producttype = metadata.producttype;
       }
     }
 

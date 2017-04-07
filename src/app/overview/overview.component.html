@@ -32,15 +32,19 @@
         </ng-container>
       </md-card>
     </form>
+
+    <!-- List of devices -->
     <ng-container *ngFor="let dev of form._websocket.devices | keys">
-      <md-card class="single" routerLink="/device/{{ form._websocket.name }}/{{ dev.key }}">
-        <md-card-header>
-          <md-icon *ngIf="dev.value.online" md-card-avatar color="primary">folder</md-icon>
-          <md-icon *ngIf="!dev.value.online" md-card-avatar>error</md-icon>
-          <md-card-title>{{ dev.key }} <span *ngIf="!dev.value.online"><br/>FEMS ist offline!</span></md-card-title>
-          <md-card-subtitle>{{ form._websocket.name }}</md-card-subtitle>
-        </md-card-header>
-      </md-card>
+      <ng-container *ngIf="dev.value.state != 'inactive'">
+        <md-card class="single" routerLink="/device/{{ form._websocket.name }}/{{ dev.key }}">
+          <md-card-header>
+            <md-icon *ngIf="dev.value.online" md-card-avatar color="primary">folder</md-icon>
+            <md-icon *ngIf="!dev.value.online" md-card-avatar>error</md-icon>
+            <md-card-title>{{ dev.value.comment }} <span *ngIf="!dev.value.online"><br/>FEMS ist offline!</span></md-card-title>
+            <md-card-subtitle>{{ dev.key }}: {{ dev.value.producttype }}</md-card-subtitle>
+          </md-card-header>
+        </md-card>
+      </ng-container>
     </ng-container>
   </div>
 </div>
