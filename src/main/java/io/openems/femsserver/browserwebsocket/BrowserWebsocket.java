@@ -106,7 +106,7 @@ public class BrowserWebsocket extends WebSocketServer {
 					     devices: [{
 					       name, online,...
 					     }]
-					
+
 					   }
 					 }
 					 * </pre>
@@ -120,7 +120,6 @@ public class BrowserWebsocket extends WebSocketServer {
 						try {
 							JsonObject jDevice = device.toJsonObject();
 							jDevice.addProperty("online", connectionManager.isFemsOnline(device.getName()));
-							jDevice.addProperty("role", device.getRole());
 							jDevices.add(jDevice);
 						} catch (Exception e) {
 							e.printStackTrace();

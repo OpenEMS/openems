@@ -133,6 +133,7 @@ public class FemsWebsocket extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket websocket, String message) {
 		this.connectionManager.getFemsWebsocketDevices(websocket).forEach(device -> {
+			// TODO: set device to active if it was inactive
 			device.setLastMessage();
 			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 

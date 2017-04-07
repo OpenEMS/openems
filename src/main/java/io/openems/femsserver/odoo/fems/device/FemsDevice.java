@@ -14,14 +14,18 @@ import io.openems.femsserver.odoo.OdooObject;
 public class FemsDevice extends OdooObject {
 	private static final String NAME = "name";
 	private static final String NAME_NUMBER = "name_number";
+	private static final String COMMENT = "comment";
 	private static final String SOC = "soc";
 	private static final String LASTMESSAGE = "lastmessage";
 	private static final String LASTUPDATE = "lastupdate";
 	private static final String IPV4 = "ipv4";
 	private static final String OPENEMS_CONFIG = "openems_config";
+	private static final String STATE = "state";
+	private static final String PRODUCT_TYPE = "producttype";
 
 	protected static String[] getFields() {
-		return new String[] { NAME, NAME_NUMBER, SOC, LASTMESSAGE, LASTUPDATE, IPV4, OPENEMS_CONFIG };
+		return new String[] { NAME, NAME_NUMBER, COMMENT, SOC, LASTMESSAGE, LASTUPDATE, IPV4, OPENEMS_CONFIG, STATE,
+				PRODUCT_TYPE };
 	}
 
 	private WebSocket ws = null;
@@ -41,6 +45,18 @@ public class FemsDevice extends OdooObject {
 		} catch (Exception e) {
 			return "UNKNOWN";
 		}
+	}
+
+	public String getComment() {
+		return get(COMMENT).toString();
+	}
+
+	public String getState() {
+		return get(STATE).toString();
+	}
+
+	public String getProductType() {
+		return get(PRODUCT_TYPE).toString();
 	}
 
 	public JsonObject getOpenemsConfig() {
@@ -100,7 +116,11 @@ public class FemsDevice extends OdooObject {
 	public JsonObject toJsonObject() {
 		JsonObject j = new JsonObject();
 		j.addProperty("name", getName());
+		j.addProperty("comment", getComment());
 		j.add("config", getOpenemsConfig());
+		j.addProperty("role", getRole());
+		j.addProperty("state", getState());
+		j.addProperty("producttype", getProductType());
 		return j;
 	}
 }
