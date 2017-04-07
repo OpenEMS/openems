@@ -129,6 +129,9 @@ public class BalancingController extends Controller {
 				}
 				calculatePower(calculatedPowers[i - 1], maxDischargePowerPhase, maxChargePowerPhase, i, useableSoc);
 			}
+			for (Ess ess : esss.value()) {
+				log.debug(ess.getSetValueLog());
+			}
 
 		} catch (InvalidValueException | WriteChannelException e) {
 			log.error(e.getMessage());
@@ -266,7 +269,7 @@ public class BalancingController extends Controller {
 
 			ess.getSetActivePower(phase).pushWrite(power);
 			ess.getSetReactivePower(phase).pushWrite(reactivePower);
-			log.info("Set ActivePower [" + power + "], ReactivePower [" + reactivePower + "] at phase " + phase);
+			// log.info("Set ActivePower [" + power + "], ReactivePower [" + reactivePower + "] at phase " + phase);
 		}
 	}
 

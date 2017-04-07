@@ -115,4 +115,12 @@ public class Ess extends ThingMap {
 		}
 		return channel;
 	}
+
+	public String getSetValueLog() {
+		return String.format(
+				"%s : Set ActivePower L1: %d W L2: %d W L3: %d W , Set ReactivePower L1: %d Var L2: %d Var L3: %d Var",
+				id(), setActivePowerL1.peekWrite().orElse(null), setActivePowerL2.peekWrite().orElse(null),
+				setActivePowerL3.peekWrite().orElse(null), setReactivePowerL1.peekWrite().orElse(null),
+				setReactivePowerL2.peekWrite().orElse(null), setReactivePowerL3.peekWrite().orElse(null));
+	}
 }
