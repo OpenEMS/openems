@@ -12,7 +12,6 @@ import { WebsocketService, WebappService, Device } from '../../../shared/shared'
 export class MoreComponent implements OnInit {
 
   public device: Device;
-  public manualPQForm: FormGroup;
   public manualMessageForm: FormGroup;
 
   private deviceSubscription: Subscription;
@@ -28,10 +27,6 @@ export class MoreComponent implements OnInit {
     this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
     })
-    this.manualPQForm = this.formBuilder.group({
-      "p": this.formBuilder.control(''),
-      "q": this.formBuilder.control('')
-    });
     this.manualMessageForm = this.formBuilder.group({
       "message": this.formBuilder.control('')
     });
@@ -39,24 +34,6 @@ export class MoreComponent implements OnInit {
 
   ngOnDestroy() {
     this.deviceSubscription.unsubscribe();
-  }
-
-  public applyManualPQ(form: FormGroup) {
-    this.device.send({ manualPQ: form["value"] });
-  }
-
-  public removeManualPQ() {
-    this.device.send({ manualPQ: {} });
-  }
-
-  public setInverterState(state: boolean) {
-    this.device.send({
-      channel: {
-        thing: "RefuWorkState0",
-        channel: "start",
-        value: state
-      }
-    });
   }
 
   public sendManualMessage(form: FormGroup) {
