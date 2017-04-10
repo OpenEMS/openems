@@ -2,11 +2,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
-import { MaterialModule, MdSnackBar } from '@angular/material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RouterModule } from '@angular/router';
 import 'hammerjs';
+
+import { MyMaterialModule } from './material.module';
 
 import { routing, appRoutingProviders } from './../app.routing';
 import { Device } from './device';
@@ -35,7 +36,7 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     FormsModule,
     ReactiveFormsModule,
     NgxChartsModule,
-    MaterialModule,
+    MyMaterialModule,
     FlexLayoutModule,
     RouterModule,
     routing
@@ -52,7 +53,7 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     ClassnamePipe,
     BrowserAnimationsModule,
     FormsModule,
-    MaterialModule,
+    MyMaterialModule,
     FlexLayoutModule,
     NgxChartsModule,
     RouterModule,

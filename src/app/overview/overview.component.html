@@ -19,6 +19,11 @@
               | async)?.message}}</p>
           </ng-container>
         </md-card-content>
+        <ng-container *ngIf="backend == 'femsserver' && !form._websocket.isConnected">
+          <md-card-actions fxLayout fxLayoutAlign="end start">
+            <button type="submit" md-fab (click)="reconnectFemsserver(form)" color="primary"><md-icon>autorenew</md-icon></button>
+          </md-card-actions>
+        </ng-container>
         <ng-container *ngIf="backend == 'openems'">
           <md-card-actions fxLayout fxLayoutAlign="end start">
             <button type="submit" md-fab *ngIf="!form._websocket.isConnected" (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>
@@ -27,15 +32,19 @@
         </ng-container>
       </md-card>
     </form>
+
+    <!-- List of devices -->
     <ng-container *ngFor="let dev of form._websocket.devices | keys">
-      <md-card class="single" routerLink="/device/{{ form._websocket.name }}/{{ dev.key }}">
-        <md-card-header>
-          <md-icon *ngIf="dev.value.online" md-card-avatar color="primary">folder</md-icon>
-          <md-icon *ngIf="!dev.value.online" md-card-avatar>error</md-icon>
-          <md-card-title>{{ dev.key }} <span *ngIf="!dev.value.online"><br/>FEMS ist offline!</span></md-card-title>
-          <md-card-subtitle>{{ form._websocket.name }}</md-card-subtitle>
-        </md-card-header>
-      </md-card>
+      <ng-container *ngIf="dev.value.state != 'inactive'">
+        <md-card class="single" routerLink="/device/{{ form._websocket.name }}/{{ dev.key }}">
+          <md-card-header>
+            <md-icon *ngIf="dev.value.online" md-card-avatar color="primary">folder</md-icon>
+            <md-icon *ngIf="!dev.value.online" md-card-avatar>error</md-icon>
+            <md-card-title>{{ dev.value.comment }} <span *ngIf="!dev.value.online"><br/>FEMS ist offline!</span></md-card-title>
+            <md-card-subtitle>{{ dev.key }}: {{ dev.value.producttype }}</md-card-subtitle>
+          </md-card-header>
+        </md-card>
+      </ng-container>
     </ng-container>
   </div>
 </div>

@@ -23,7 +23,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
       if (device != null) {
-        device.subscribe();
+        device.subscribeChannels();
       }
     })
   }
@@ -31,7 +31,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.deviceSubscription.unsubscribe();
     if (this.device) {
-      this.device.unsubscribe();
+      this.device.unsubscribeChannels();
     }
   }
 }

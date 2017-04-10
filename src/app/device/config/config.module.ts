@@ -4,6 +4,7 @@ import { SchedulerModule } from './scheduler/scheduler.module';
 
 import { OverviewComponent } from './overview/overview.component';
 import { BridgeComponent } from './bridge/bridge.component';
+import { LogComponent } from './log/log.component';
 import { MoreComponent } from './more/more.component';
 import { ControllerComponent } from './controller/controller.component';
 
@@ -15,6 +16,7 @@ import { ControllerComponent } from './controller/controller.component';
   declarations: [
     OverviewComponent,
     BridgeComponent,
+    LogComponent,
     MoreComponent,
     ControllerComponent,
   ]

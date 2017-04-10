@@ -4,7 +4,6 @@ import { ConfigModule } from './config/config.module';
 import { HistoryModule } from './history/history.module';
 import { OverviewModule } from './overview/overview.module';
 
-
 @NgModule({
   imports: [
     SharedModule,

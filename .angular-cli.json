@@ -21,8 +21,7 @@
       "styles": [
         "styles.css",
         "../node_modules/@swimlane/ngx-charts/release/index.css",
-        "../node_modules/material-design-icons/iconfont/material-icons.css",
-        "material2-app-theme.scss"
+        "../node_modules/material-design-icons/iconfont/material-icons.css"
       ],
       "scripts": [],
       "environmentSource": "environments/environment.ts",
