@@ -53,10 +53,7 @@ export class Device {
   public historyData = new BehaviorSubject<any[]>(null);
   public historykWh = new BehaviorSubject<any[]>(null);
   public config = new BehaviorSubject<Config>(null);
-<<<<<<< HEAD
-=======
   public log = new Subject<Log>();
->>>>>>> 828c905f22722a87d6f40e64448bee7575a88198
   private comment: string = '';
   private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
   private producttype: 'Pro 9-12' | 'MiniES 3-3' | 'PRO Hybrid 9-10' | 'PRO Compact 3-10' | 'COMMERCIAL 40-45' | 'INDUSTRIAL' | '' = '';
@@ -82,14 +79,11 @@ export class Device {
       this.address = this.websocket.name + ": " + this.name;
     }
     this.comment = name;
-<<<<<<< HEAD
     if (this.role == 'owner' || this.role == 'admin') {
       this.role = 'owner';
     } else {
       this.role = 'guest';
     }
-=======
->>>>>>> 828c905f22722a87d6f40e64448bee7575a88198
   }
 
   public send(value: any) {
