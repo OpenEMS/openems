@@ -1,7 +1,4 @@
-@import '~@angular/material/core/theming/all-theme';
-
-// NOTE: Theming is currently experimental and not yet publically released!
-
+@import '~@angular/material/theming';
 @include mat-core();
 
 $primary: mat-palette($mat-blue-grey);
