@@ -6,13 +6,20 @@ import { Notification } from './service/webapp.service';
 import { Websocket } from './service/websocket.service';
 import { Config } from './config';
 
-const SUBSCRIBE: string = "fenecon_monitor_v1";
-
 class Things {
   storage = {};
   production = {};
   grid = {};
   consumption = {};
+}
+
+export class Log {
+  timestamp: number;
+  time: string = "";
+  level: string;
+  color: string = "black";
+  source: string;
+  message: string;
 }
 
 class Summary {
@@ -46,6 +53,10 @@ export class Device {
   public historyData = new BehaviorSubject<any[]>(null);
   public historykWh = new BehaviorSubject<any[]>(null);
   public config = new BehaviorSubject<Config>(null);
+<<<<<<< HEAD
+=======
+  public log = new Subject<Log>();
+>>>>>>> 828c905f22722a87d6f40e64448bee7575a88198
   private comment: string = '';
   private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
   private producttype: 'Pro 9-12' | 'MiniES 3-3' | 'PRO Hybrid 9-10' | 'PRO Compact 3-10' | 'COMMERCIAL 40-45' | 'INDUSTRIAL' | '' = '';
@@ -71,11 +82,14 @@ export class Device {
       this.address = this.websocket.name + ": " + this.name;
     }
     this.comment = name;
+<<<<<<< HEAD
     if (this.role == 'owner' || this.role == 'admin') {
       this.role = 'owner';
     } else {
       this.role = 'guest';
     }
+=======
+>>>>>>> 828c905f22722a87d6f40e64448bee7575a88198
   }
 
   public send(value: any) {
@@ -154,22 +168,48 @@ export class Device {
   }
 
   /**
-   * Send "subscribe" message to websocket
+   * Subscribe to channels
    */
-  public subscribe() {
+  public subscribeChannels() {
     this.summary = new Summary();
-    let subscribe = this.getImportantChannels();
+    let channels = this.getImportantChannels();
     this.send({
-      subscribe: subscribe
+      subscribe: {
+        channels: channels
+      }
     });
   }
 
   /**
-   * Send "unsubscribe" message to websocket
+   * Unsubscribe from channels
    */
-  public unsubscribe() {
+  public unsubscribeChannels() {
     this.send({
-      subscribe: {}
+      subscribe: {
+        channels: {}
+      }
+    });
+  }
+
+  /**
+   * Subscribe to log
+   */
+  public subscribeLog(key: "all" | "info" | "warning" | "error") {
+    this.send({
+      subscribe: {
+        log: key
+      }
+    });
+  }
+
+  /**
+   * Unsubscribe from channels
+   */
+  public unsubscribeLog() {
+    this.send({
+      subscribe: {
+        log: ""
+      }
     });
   }
 
@@ -371,6 +411,14 @@ export class Device {
       this.summary = this.calculateSummary(data);
       // send event
       this.data.next(data);
+    }
+
+    /*
+     * log
+     */
+    if ("log" in message) {
+      let log = message.log;
+      this.log.next(log);
     }
 
     /*

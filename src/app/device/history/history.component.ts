@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
+import { Component, OnInit, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
@@ -11,7 +11,7 @@ import { WebsocketService, Device } from '../../shared/shared';
   selector: 'history',
   templateUrl: './history.component.html'
 })
-export class HistoryComponent implements OnInit, OnDestroy {
+export class HistoryComponent implements OnInit {
 
   public device: Device;
 
@@ -125,13 +125,6 @@ export class HistoryComponent implements OnInit, OnDestroy {
         })
       }
     })
-  }
-
-  ngOnDestroy() {
-    this.deviceSubscription.unsubscribe();
-    if (this.device) {
-      this.device.unsubscribe();
-    }
   }
 
   colorScheme = {
