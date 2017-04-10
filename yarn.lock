@@ -1460,6 +1460,10 @@ d3-format@1, d3-format@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/d3-format/-/d3-format-1.1.1.tgz#26e094e7b0fa925d3615aa6f43b265c5ca82b46e"
 
+d3-format@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/d3-format/-/d3-format-1.2.0.tgz#6b480baa886885d4651dc248a8f4ac9da16db07a"
+
 d3-geo@1.6.3:
   version "1.6.3"
   resolved "https://registry.yarnpkg.com/d3-geo/-/d3-geo-1.6.3.tgz#21683a43a061eaba21a7f254b51d5937eb640756"
@@ -1556,9 +1560,9 @@ d3-voronoi@1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/d3-voronoi/-/d3-voronoi-1.1.2.tgz#1687667e8f13a2d158c80c1480c5a29cb0d8973c"
 
-d3-zoom@1.1.3:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/d3-zoom/-/d3-zoom-1.1.3.tgz#0bd488622f22dc0534894f744a40ec979599fdc4"
+d3-zoom@1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/d3-zoom/-/d3-zoom-1.1.4.tgz#903fd2c988b5cace43f00dcf7aae09470c9cc12d"
   dependencies:
     d3-dispatch "1"
     d3-drag "1"
@@ -1566,9 +1570,9 @@ d3-zoom@1.1.3:
     d3-selection "1"
     d3-transition "1"
 
-d3@4.7.3:
-  version "4.7.3"
-  resolved "https://registry.yarnpkg.com/d3/-/d3-4.7.3.tgz#1bc7b0282b41d97642bdb673372c88e81ecca4a3"
+d3@4.7.4:
+  version "4.7.4"
+  resolved "https://registry.yarnpkg.com/d3/-/d3-4.7.4.tgz#a2f40eb57decc51bc469010d48ae74a20e025772"
   dependencies:
     d3-array "1.1.1"
     d3-axis "1.0.6"
@@ -1599,7 +1603,7 @@ d3@4.7.3:
     d3-timer "1.0.5"
     d3-transition "1.0.4"
     d3-voronoi "1.1.2"
-    d3-zoom "1.1.3"
+    d3-zoom "1.1.4"
 
 dashdash@^1.12.0:
   version "1.14.1"
