@@ -64,7 +64,8 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 				throw new Exception("Could not initialize SSL connection");
 			}
 		}
-		this.websocketHandler = new WebsocketHandler(this.getConnection());
+		this.websocketHandler = new WebsocketHandler(this.getConnection(),
+				null /* second parameter is only for local websocket access */);
 	}
 
 	@Override

@@ -250,6 +250,13 @@ Cookie: session_id
  		mode: "systemd-restart",
  		service: "fems-pagekite" | "..."
  	}
+ 	system: {
+ 		mode: "manualpq-start",
+ 		ess: "...",
+ 		active: true | false
+ 		p: ...,
+ 		q: ...
+ 	}
 }
 ```
 

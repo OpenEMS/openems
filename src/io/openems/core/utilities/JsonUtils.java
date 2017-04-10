@@ -137,6 +137,14 @@ public class JsonUtils {
 		throw new ReflectionException("[" + memberName + "] is not a Number: " + jPrimitive);
 	}
 
+	public static boolean getAsBoolean(JsonElement jElement, String memberName) throws ReflectionException {
+		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
+		if (jPrimitive.isBoolean()) {
+			return jPrimitive.getAsBoolean();
+		}
+		throw new ReflectionException("[" + memberName + "] is not a Boolean: " + jPrimitive);
+	}
+
 	public static JsonElement getSubElement(JsonElement jElement, String memberName) throws ReflectionException {
 		JsonObject jObject = getAsJsonObject(jElement);
 		if (!jObject.has(memberName)) {
@@ -187,6 +195,14 @@ public class JsonUtils {
 		throw new NotImplementedException("Converter for [" + value + "]" + " of type [" //
 				+ value.getClass().getSimpleName() + "]" //
 				+ " to JSON is not implemented.");
+	}
+
+	public static Object getAsType(Optional<Class<?>> typeOptional, JsonElement j) throws NotImplementedException {
+		if (!typeOptional.isPresent()) {
+			throw new NotImplementedException("Type of Channel was not set: " + j.getAsString());
+		}
+		Class<?> type = typeOptional.get();
+		return getAsType(type, j);
 	}
 
 	public static Object getAsType(Class<?> type, JsonElement j) throws NotImplementedException {

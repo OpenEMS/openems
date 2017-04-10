@@ -35,7 +35,7 @@ import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
 
 public class ConfigChannel<T> extends WriteChannel<T> {
-	private Class<?> type;
+
 	private Optional<T> defaultValue = Optional.empty();
 	private boolean isOptional;
 
@@ -52,13 +52,13 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	 * @throws OpenemsException
 	 */
 	public void applyAnnotation(ConfigInfo configAnnotation) throws OpenemsException {
-		this.type = configAnnotation.type();
+		this.type = Optional.of(configAnnotation.type());
 		this.isOptional = configAnnotation.isOptional();
 		if (!configAnnotation.defaultValue().isEmpty()) {
 			JsonElement jValue = null;
 			try {
 				jValue = (new JsonParser()).parse(configAnnotation.defaultValue());
-				this.defaultValue((T) JsonUtils.getAsType(type, jValue));
+				this.defaultValue((T) JsonUtils.getAsType(type.get(), jValue));
 			} catch (NotImplementedException | JsonSyntaxException e) {
 				throw new OpenemsException("Unable to set defaultValue [" + jValue + "] " + e.getMessage());
 			}
@@ -75,17 +75,13 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 		return (ConfigChannel<T>) super.addChangeListener(listeners);
 	}
 
-	public Class<?> type() {
-		return this.type;
-	}
-
 	@Override
 	public void updateValue(Object value, boolean triggerEvent) {
 		super.updateValue((T) value, triggerEvent);
 	}
 
 	public void updateValue(JsonElement jValue, boolean triggerEvent) throws NotImplementedException {
-		T value = (T) JsonUtils.getAsType(type, jValue);
+		T value = (T) JsonUtils.getAsType(type.get(), jValue);
 		this.updateValue(value, triggerEvent);
 	}
 

@@ -31,6 +31,7 @@ import io.openems.api.exception.ReflectionException;
 import io.openems.api.security.Authentication;
 import io.openems.api.security.Session;
 import io.openems.core.utilities.JsonUtils;
+import io.openems.impl.controller.api.websocket.WebsocketApiController;
 
 /**
  * Extends {@link WebsocketHandler} with authentication functionality, like session token
@@ -47,8 +48,8 @@ public class AuthenticatedWebsocketHandler extends WebsocketHandler {
 	 */
 	private Session session = null;
 
-	public AuthenticatedWebsocketHandler(WebSocket websocket) {
-		super(websocket);
+	public AuthenticatedWebsocketHandler(WebSocket websocket, WebsocketApiController controller) {
+		super(websocket, controller);
 	}
 
 	public boolean authenticationIsValid() {
@@ -63,7 +64,7 @@ public class AuthenticatedWebsocketHandler extends WebsocketHandler {
 	 */
 	@Override
 	public void onMessage(JsonObject jMessage) {
-//		log.info(jMessage.toString());
+		// log.info(jMessage.toString());
 		/*
 		 * Authenticate user and send immediate reply
 		 */
@@ -86,28 +87,6 @@ public class AuthenticatedWebsocketHandler extends WebsocketHandler {
 		if (jMessage.has("authenticate")) {
 			sendConnectionSuccessfulReply();
 		}
-
-		// TODO
-		/*
-		 * Set a channel
-		 */
-		// if (jDevice.has("config")) {
-		// config(jDevice.get("config"), handler);
-		// }
-
-		/*
-		 * Set manual P/Q values
-		 */
-		// if (jDevice.has("manualPQ")) {
-		// manualPQ(jDevice.get("manualPQ"), handler);
-		// }
-
-		/*
-		 * Set channel
-		 */
-		// if (jDevice.has("channel")) {
-		// channel(jDevice.get("channel"), handler);
-		// }
 
 		/*
 		 * Rest -> forward to super class

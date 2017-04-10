@@ -35,6 +35,7 @@ import com.google.gson.JsonParser;
 import io.openems.core.ClassRepository;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.websocket.AuthenticatedWebsocketHandler;
+import io.openems.core.utilities.websocket.Notification;
 
 public class WebsocketServer extends WebSocketServer {
 
@@ -78,7 +79,7 @@ public class WebsocketServer extends WebSocketServer {
 	@Override
 	public void onOpen(WebSocket conn, ClientHandshake handshake) {
 		log.info("Incoming connection...");
-		websockets.put(conn, new AuthenticatedWebsocketHandler(conn));
+		websockets.put(conn, new AuthenticatedWebsocketHandler(conn, this.controller));
 	}
 
 	/**
@@ -124,10 +125,19 @@ public class WebsocketServer extends WebSocketServer {
 		});
 	}
 
-	// public static void sendToAll(NotificationType type, String message) {
-	// websockets.forEach((websocket, handler) -> {
-	// handler.send(jMessage);
-	// });
-	// }
-
+	/**
+	 * Send a notification to all connected websockets
+	 *
+	 * @param string
+	 * @param timestamp
+	 *
+	 * @param jMessage
+	 */
+	public static void broadcastNotification(Notification notification) {
+		websockets.forEach((websocket, handler) -> {
+			if (handler.authenticationIsValid()) {
+				handler.sendNotification(notification.getType(), notification.getMessage());
+			}
+		});
+	}
 }
