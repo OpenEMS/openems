@@ -32,7 +32,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
       let websocket = this.websocketService.websockets[websocketName];
       this.websocketSubscriptions.push(websocket.event.subscribe((value) => this.websocketEvent(value)));
       let form: FormGroup = this.formBuilder.group({
-        "password": this.formBuilder.control('')
+        "password": this.formBuilder.control('owner')
       });
       form['_websocket'] = websocket;
       this.forms.push(form);

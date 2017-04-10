@@ -15,7 +15,7 @@
           <ng-container *ngIf="backend == 'openems'">
             <md-input-container *ngIf="!form._websocket.isConnected" fxFlex="100%"><input formControlName="password" mdInput type="password" placeholder="Passwort"></md-input-container>
             <p fxFlex="100%">
-              <ng-container *ngIf="!form._websocket.isConnected">Testversion: bitte melden Sie sich mit dem Passwort "<strong>admin</strong>" an.</ng-container><br/>{{(form._websocket.event
+              <ng-container *ngIf="!form._websocket.isConnected">Testversion: bitte melden Sie sich mit dem Passwort "<strong>owner</strong>" an.</ng-container><br/>{{(form._websocket.event
               | async)?.message}}</p>
           </ng-container>
         </md-card-content>
