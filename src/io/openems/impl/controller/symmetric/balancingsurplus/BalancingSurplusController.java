@@ -57,6 +57,8 @@ public class BalancingSurplusController extends Controller {
 	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
+	private long surplus = 0L;
+
 	/*
 	 * Methods
 	 */
@@ -66,12 +68,12 @@ public class BalancingSurplusController extends Controller {
 		try {
 			Ess ess = this.ess.value();
 			// Calculate required sum values
-			long calculatedPower = meter.value().activePower.value() + ess.activePower.value();
-			if (calculatedPower >= 0) {
-				calculatedPower -= getSurplusPower();
-			} else if (getPvVoltage() >= 400 && ess.soc.value() > surplusMinSoc.value()) {
-				calculatedPower = getSurplusPower();
+			long calculatedPower = meter.value().activePower.value() - surplus + ess.activePower.value();
+			surplus = getSurplusPower() - calculatedPower;
+			if (getPvVoltage() < 300000) {
+				surplus = 0l;
 			}
+			calculatedPower += surplus;
 			ess.power.setActivePower(calculatedPower);
 			ess.power.writePower();
 			// print info message to log
