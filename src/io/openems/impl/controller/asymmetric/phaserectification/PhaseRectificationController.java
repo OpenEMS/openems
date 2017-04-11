@@ -39,7 +39,6 @@ public class PhaseRectificationController extends Controller {
 			essL1 -= essPowerAvg;
 			essL2 -= essPowerAvg;
 			essL3 -= essPowerAvg;
-			log.info(meterL1 + ", " + meterL2 + ", " + meterL3);
 			long meterPowerAvg = (meterL1 + meterL2 + meterL3) / 3;
 			long meterL1Delta = meterPowerAvg - meterL1;
 			long meterL2Delta = meterPowerAvg - meterL2;
@@ -47,17 +46,27 @@ public class PhaseRectificationController extends Controller {
 			long activePowerL1 = essL1 + meterL1Delta;
 			long activePowerL2 = essL2 + meterL2Delta;
 			long activePowerL3 = essL3 + meterL3Delta;
-			log.info(activePowerL1 + ", " + activePowerL2 + ", " + activePowerL3);
-			if (activePowerL1 > ess.allowedApparent.value() / 3) {
-				activePowerL1 = ess.allowedApparent.value() / 3;
+			if (Math.abs(activePowerL1) > ess.allowedApparent.value() / 3) {
+				if (activePowerL1 >= 0) {
+					activePowerL1 = ess.allowedApparent.value() / 3;
+				} else {
+					activePowerL1 = ess.allowedApparent.value() / 3 * -1;
+				}
 			}
-			if (activePowerL2 > ess.allowedApparent.value() / 3) {
-				activePowerL2 = ess.allowedApparent.value() / 3;
+			if (Math.abs(activePowerL2) > ess.allowedApparent.value() / 3) {
+				if (activePowerL2 >= 0) {
+					activePowerL2 = ess.allowedApparent.value() / 3;
+				} else {
+					activePowerL2 = ess.allowedApparent.value() / 3 * -1;
+				}
 			}
-			if (activePowerL3 > ess.allowedApparent.value() / 3) {
-				activePowerL3 = ess.allowedApparent.value() / 3;
+			if (Math.abs(activePowerL3) > ess.allowedApparent.value() / 3) {
+				if (activePowerL3 >= 0) {
+					activePowerL3 = ess.allowedApparent.value() / 3;
+				} else {
+					activePowerL3 = ess.allowedApparent.value() / 3 * -1;
+				}
 			}
-			log.info(activePowerL1 + ", " + activePowerL2 + ", " + activePowerL3);
 			ess.setActivePowerL1.pushWrite(activePowerL1);
 			ess.setActivePowerL2.pushWrite(activePowerL2);
 			ess.setActivePowerL3.pushWrite(activePowerL3);
