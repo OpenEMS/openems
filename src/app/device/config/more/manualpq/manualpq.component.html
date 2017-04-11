@@ -1,13 +1,13 @@
 <ng-container *ngIf="device">
-  <ng-container *ngFor="let bridge of (device.config | async)?.things">
-    <ng-container *ngFor="let device of bridge.devices">
-      <ng-container *ngIf="device.class == 'io.openems.impl.device.refu.Refu'">
+  <ng-container *ngFor="let nat of (device.config | async)?._meta.natures | keys">
+    <ng-container *ngFor="let implements of nat.value.implements">
+      <ng-container *ngIf="implements == 'EssNature'">
 
         <md-card class="single">
           <md-card-header>
             <md-icon md-card-avatar>stop</md-icon>
             <md-card-title>Leistungsvorgabe</md-card-title>
-            <md-card-subtitle>Manuelle Vorgabe von Wirk- und Blindleistung</md-card-subtitle>
+            <md-card-subtitle>{{ nat.key }}</md-card-subtitle>
           </md-card-header>
           <md-card-content [formGroup]="manualPQForm" fxLayout fxLayoutWrap="wrap">
             <div fxFlex="100%">
@@ -19,8 +19,8 @@
               <div fxFlex></div>
             </div>
             <div fxFlex="100%">
-              <button md-raised-button (click)="applyManualPQ(device.ess.id, manualPQForm)" class="btn btn-default">Übernehmen</button>
-              <button md-raised-button (click)="removeManualPQ(device.ess.id)" class="btn btn-default">Zurücksetzen</button>
+              <button md-raised-button (click)="applyManualPQ(nat.key, manualPQForm)" class="btn btn-default">Übernehmen</button>
+              <button md-raised-button (click)="removeManualPQ(nat.key)" class="btn btn-default">Zurücksetzen</button>
             </div>
           </md-card-content>
         </md-card>

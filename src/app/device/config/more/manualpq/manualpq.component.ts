@@ -21,6 +21,7 @@ export class ManualpqComponent {
   public manualPQForm: FormGroup;
 
   ngOnInit() {
+    // TODO: this is not working for multiple ESS
     this.manualPQForm = this.formBuilder.group({
       "p": this.formBuilder.control(''),
       "q": this.formBuilder.control('')
