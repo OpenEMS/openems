@@ -27,17 +27,21 @@ public class ModbusWriteLongChannel extends ModbusWriteChannel<Long> {
 
 	public ModbusWriteLongChannel(String id, DeviceNature nature) {
 		super(id, nature);
+		this.type(Long.class);
 	}
 
-	@Override protected void updateValue(Long value) {
+	@Override
+	protected void updateValue(Long value) {
 		super.updateValue(value);
 	}
 
-	@Override public ModbusWriteLongChannel unit(String unit) {
+	@Override
+	public ModbusWriteLongChannel unit(String unit) {
 		return (ModbusWriteLongChannel) super.unit(unit);
 	}
 
-	@Override public ModbusWriteLongChannel multiplier(Long multiplier) {
+	@Override
+	public ModbusWriteLongChannel multiplier(Long multiplier) {
 		return (ModbusWriteLongChannel) super.multiplier(multiplier);
 	}
 
@@ -45,7 +49,8 @@ public class ModbusWriteLongChannel extends ModbusWriteChannel<Long> {
 		return multiplier(Long.valueOf(multiplier));
 	}
 
-	@Override public ModbusWriteLongChannel label(Long value, String label) {
+	@Override
+	public ModbusWriteLongChannel label(Long value, String label) {
 		return (ModbusWriteLongChannel) super.label(value, label);
 	}
 
@@ -53,11 +58,13 @@ public class ModbusWriteLongChannel extends ModbusWriteChannel<Long> {
 		return this.label(Long.valueOf(value), label);
 	}
 
-	@Override public ModbusWriteLongChannel maxWriteChannel(ReadChannel<Long> channel) {
+	@Override
+	public ModbusWriteLongChannel maxWriteChannel(ReadChannel<Long> channel) {
 		return (ModbusWriteLongChannel) super.maxWriteChannel(channel);
 	}
 
-	@Override public ModbusWriteLongChannel minWriteChannel(ReadChannel<Long> channel) {
+	@Override
+	public ModbusWriteLongChannel minWriteChannel(ReadChannel<Long> channel) {
 		return (ModbusWriteLongChannel) super.minWriteChannel(channel);
 	}
 }

@@ -23,20 +23,32 @@ package io.openems.impl.controller.api.websocket;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
-import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
+import io.openems.api.thing.Thing;
 import io.openems.core.ThingRepository;
+import io.openems.core.utilities.websocket.Notification;
+import io.openems.core.utilities.websocket.NotificationType;
+
+class PQ {
+	public final long p;
+	public final long q;
+	public boolean firstRun = true;
+
+	public PQ(long p, long q) {
+		this.p = p;
+		this.q = q;
+	}
+}
 
 @ThingInfo(title = "Websocket-API", description = "Required by OpenEMS-UI.")
 public class WebsocketApiController extends Controller implements ChannelChangeListener {
@@ -63,8 +75,7 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	/*
 	 * Fields
 	 */
-	private final AtomicReference<Optional<Long>> manualP = new AtomicReference<Optional<Long>>(Optional.empty());
-	private final AtomicReference<Optional<Long>> manualQ = new AtomicReference<Optional<Long>>(Optional.empty());
+	private final ConcurrentHashMap<String, PQ> manualpq = new ConcurrentHashMap<>();
 	private final ThingRepository thingRepository;
 	private volatile WebsocketServer websocketServer = null;
 	private HashMap<String, String> lastMessages = new HashMap<>();
@@ -85,43 +96,42 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 			}
 		}
 
-		try {
-			Optional<Long> pOptional = manualP.get();
-			Optional<Long> qOptional = manualQ.get();
-			if (pOptional.isPresent() && qOptional.isPresent()) {
-				long p = pOptional.get();
-				long q = qOptional.get();
-				String message = "P=" + p + ",Q=" + q;
-				for (DeviceNature nature : thingRepository.getDeviceNatures()) {
-					if (nature instanceof EssNature) {
-						if (nature instanceof AsymmetricEssNature) {
-							AsymmetricEssNature e = (AsymmetricEssNature) nature;
-							e.setActivePowerL1().pushWrite(p / 3);
-							e.setActivePowerL2().pushWrite(p / 3);
-							e.setActivePowerL3().pushWrite(p / 3);
-							e.setReactivePowerL1().pushWrite(q / 3);
-							e.setReactivePowerL2().pushWrite(q / 3);
-							e.setReactivePowerL3().pushWrite(q / 3);
-						} else if (nature instanceof SymmetricEssNature) {
-							SymmetricEssNature e = (SymmetricEssNature) nature;
-							e.setActivePower().pushWrite(p);
-							e.setReactivePower().pushWrite(q);
-						} else {
-							throw new OpenemsException("Undefined EssNature.");
-						}
-						String lastMessage = lastMessages.get(nature.id());
-						if (lastMessage == null || !lastMessage.equals(message)) {
-							// TODO
-							// ws.broadcastNotification(NotificationType.INFO,
-							// "Leistungsvorgabe an [" + nature.id() + "] gesendet: " + message);
-							// lastMessages.put(nature.id(), message);
-						}
+		manualpq.forEach((thingId, pq) -> {
+			try {
+				Thing thing = thingRepository.getThing(thingId);
+				if (thing == null) {
+					throw new OpenemsException("Ess[" + thingId + "] is not registered.");
+				} else if (thing instanceof AsymmetricEssNature) {
+					AsymmetricEssNature e = (AsymmetricEssNature) thing;
+					long p = pq.p / 3;
+					long q = pq.q / 3;
+					e.setActivePowerL1().pushWrite(p);
+					e.setActivePowerL2().pushWrite(p);
+					e.setActivePowerL3().pushWrite(p);
+					e.setReactivePowerL1().pushWrite(q);
+					e.setReactivePowerL2().pushWrite(q);
+					e.setReactivePowerL3().pushWrite(q);
+					if (pq.firstRun) {
+						Notification.send(NotificationType.INFO, "Started manual PQ for Ess[" + thingId
+								+ "]. Asymmetric output on each phase: p[+" + p + "], q[" + q + "]");
 					}
+				} else if (thing instanceof SymmetricEssNature) {
+					SymmetricEssNature e = (SymmetricEssNature) thing;
+					e.setActivePower().pushWrite(pq.p);
+					e.setReactivePower().pushWrite(pq.q);
+					if (pq.firstRun) {
+						Notification.send(NotificationType.INFO, "Started manual PQ for Ess[" + thingId
+								+ "]. Symmetric output: p[+" + pq.p + "], q[" + pq.q + "]");
+					}
+				} else {
+					throw new OpenemsException("Ess[" + thingId + "] is not an Ess.");
 				}
+			} catch (OpenemsException e) {
+				Notification.send(NotificationType.ERROR, e.getMessage());
+			} finally {
+				pq.firstRun = false;
 			}
-		} catch (OpenemsException e1) {
-			e1.printStackTrace();
-		}
+		});
 	}
 
 	@Override
@@ -138,13 +148,11 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 		}
 	}
 
-	protected void setManualPQ(long p, long q) {
-		this.manualP.set(Optional.of(p));
-		this.manualQ.set(Optional.of(q));
+	public void setManualPQ(String ess, long p, long q) {
+		this.manualpq.put(ess, new PQ(p, q));
 	}
 
-	protected void resetManualPQ() {
-		this.manualP.set(Optional.empty());
-		this.manualQ.set(Optional.empty());
+	public void resetManualPQ(String ess) {
+		this.manualpq.remove(ess);
 	}
 }

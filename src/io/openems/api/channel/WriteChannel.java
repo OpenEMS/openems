@@ -23,13 +23,18 @@ package io.openems.api.channel;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import com.google.gson.JsonElement;
+
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.api.thing.Thing;
+import io.openems.core.utilities.JsonUtils;
 
 public class WriteChannel<T> extends ReadChannel<T> {
 
+	protected Optional<Class<?>> type = Optional.empty();
 	private final Interval<ReadChannel<T>> writeChannelInterval = new Interval<ReadChannel<T>>();
 	private final Interval<T> writeInterval = new Interval<T>();
 	private Optional<T> writeValue = Optional.empty();
@@ -37,6 +42,35 @@ public class WriteChannel<T> extends ReadChannel<T> {
 
 	public WriteChannel(String id, Thing parent) {
 		super(id, parent);
+	}
+
+	/**
+	 * Returns the type
+	 *
+	 * @return
+	 */
+	public void type(Class<?> type) {
+		this.type = Optional.ofNullable(type);
+	}
+
+	/**
+	 * Returns the type
+	 *
+	 * @return
+	 */
+	public Optional<Class<?>> type() {
+		return this.type;
+	}
+
+	/**
+	 * Returns the value as the correct type required by this Channel
+	 *
+	 * @param j
+	 * @return
+	 * @throws NotImplementedException
+	 */
+	public T getAsType(JsonElement j) throws NotImplementedException {
+		return (T) JsonUtils.getAsType(type.get(), j);
 	}
 
 	/**
@@ -197,6 +231,16 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		log.debug("Write to [" + address() + "] -> " + value);
 		checkIntervalBoundaries(value);
 		writeValue = Optional.of(value);
+	}
+
+	public void pushWrite(JsonElement j) throws WriteChannelException, NotImplementedException {
+		T value = (T) JsonUtils.getAsType(this.type, j);
+		this.pushWrite(value);
+	}
+
+	public void pushWrite(Class<?> type, JsonElement j) throws WriteChannelException, NotImplementedException {
+		T value = (T) JsonUtils.getAsType(type, j);
+		this.pushWrite(value);
 	}
 
 	/**

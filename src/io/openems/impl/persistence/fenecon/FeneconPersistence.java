@@ -23,12 +23,11 @@ package io.openems.impl.persistence.fenecon;
 import java.net.Inet4Address;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
 
@@ -67,7 +66,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 */
 	private static final int DEFAULT_CYCLETIME = 2000;
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
-	private List<JsonObject> unsentCache = new ArrayList<>();
+	private EvictingQueue<JsonObject> unsentCache = EvictingQueue.create(1000);
 	private volatile WebsocketClient websocketClient;
 	private volatile int currentCycleTime = DEFAULT_CYCLETIME;
 

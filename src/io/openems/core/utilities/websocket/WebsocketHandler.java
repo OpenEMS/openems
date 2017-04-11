@@ -44,6 +44,7 @@ import com.google.gson.JsonObject;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
@@ -55,6 +56,7 @@ import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
 import io.openems.core.utilities.StringUtils;
+import io.openems.impl.controller.api.websocket.WebsocketApiController;
 
 /**
  * Handles a Websocket connection to a browser, femsserver,...
@@ -102,14 +104,20 @@ public class WebsocketHandler {
 	 */
 	private volatile String subscribeLog = "";
 
+	/**
+	 * Connected WebsocketApiController
+	 */
+	private WebsocketApiController controller;
+
 	private final ThingRepository thingRepository;
 
 	private WebsocketHandler handler;
 
-	public WebsocketHandler(WebSocket websocket) {
+	public WebsocketHandler(WebSocket websocket, WebsocketApiController controller) {
 		this.databus = Databus.getInstance();
 		this.websocket = websocket;
 		this.thingRepository = ThingRepository.getInstance();
+		this.controller = controller;
 		this.subscriptionTask = () -> {
 			/*
 			 * This task is executed regularly. Sends data to websocket.
@@ -289,7 +297,6 @@ public class WebsocketHandler {
 		try {
 			JsonArray jConfigs = JsonUtils.getAsJsonArray(jConfigsElement);
 			ThingRepository thingRepository = ThingRepository.getInstance();
-			JsonObject jNotification = new JsonObject();
 			for (JsonElement jConfigElement : jConfigs) {
 				JsonObject jConfig = JsonUtils.getAsJsonObject(jConfigElement);
 				String mode = JsonUtils.getAsString(jConfig, "mode");
@@ -304,14 +311,22 @@ public class WebsocketHandler {
 					if (channelOptional.isPresent()) {
 						Channel channel = channelOptional.get();
 						if (channel instanceof ConfigChannel<?>) {
+							/*
+							 * ConfigChannel
+							 */
 							ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
 							configChannel.updateValue(jValue, true);
-							log.info("Updated channel " + channel.address() + " with " + jValue);
-							// TODO send notification
-
-							jNotification = createNotification(NotificationType.SUCCESS,
+							Notification.send(NotificationType.SUCCESS,
 									"Successfully updated [" + channel.address() + "] to [" + jValue + "]");
 
+						} else if (channel instanceof WriteChannel<?>) {
+							/*
+							 * WriteChannel
+							 */
+							WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
+							writeChannel.pushWrite(jValue);
+							Notification.send(NotificationType.SUCCESS,
+									"Successfully set [" + channel.address() + "] to [" + jValue + "]");
 						}
 					} else {
 						throw new ConfigException("Unable to find " + jConfig.toString());
@@ -339,10 +354,7 @@ public class WebsocketHandler {
 							Device device = thingRepository.createDevice(jObject);
 							parentBridge.addDevice(device);
 							Config.getInstance().writeConfigFile();
-							log.info("Device [" + device.id() + "] wurde erstellt.");
-							// TODO send notification
-							jNotification = createNotification(NotificationType.SUCCESS,
-									"Device [" + device.id() + "] wurde erstellt.");
+							Notification.send(NotificationType.SUCCESS, "Device [" + device.id() + "] wurde erstellt.");
 							break;
 						}
 					}
@@ -353,10 +365,7 @@ public class WebsocketHandler {
 					String thingId = JsonUtils.getAsString(jConfig, "thing");
 					thingRepository.removeThing(thingId);
 					Config.getInstance().writeConfigFile();
-					// TODO send notification
-					jNotification = createNotification(NotificationType.SUCCESS,
-							"Controller [" + thingId + "] wurde " + " gel�scht.");
-					log.info("Controller [" + thingId + "] wurde gelöscht.");
+					Notification.send(NotificationType.SUCCESS, "Controller [" + thingId + "] wurde " + " gel�scht.");
 				} else {
 					throw new OpenemsException("Modus [" + mode + "] ist nicht implementiert.");
 				}
@@ -366,12 +375,9 @@ public class WebsocketHandler {
 			jMetadata.add("config", Config.getInstance().getMetaConfigJson());
 			JsonObject j = new JsonObject();
 			j.add("metadata", jMetadata);
-			j.add("notification", jNotification);
 			this.send(j);
 		} catch (OpenemsException | ClassNotFoundException e) {
-			log.error(e.getMessage());
-			this.createNotification(NotificationType.ERROR, e.getMessage());
-			// TODO: send notification to websocket
+			Notification.send(NotificationType.ERROR, e.getMessage());
 		}
 	}
 
@@ -381,10 +387,14 @@ public class WebsocketHandler {
 	 * @param j
 	 */
 	private synchronized void system(JsonElement jSystemElement) {
+		JsonObject jNotification = new JsonObject();
 		try {
 			JsonObject jSystem = JsonUtils.getAsJsonObject(jSystemElement);
 			String mode = JsonUtils.getAsString(jSystem, "mode");
 			if (mode.equals("systemd-restart")) {
+				/*
+				 * Restart systemd service
+				 */
 				String service = JsonUtils.getAsString(jSystem, "service");
 				if (service.equals("fems-pagekite")) {
 					ProcessBuilder builder = new ProcessBuilder("/bin/systemctl", "restart", "fems-pagekite");
@@ -397,11 +407,31 @@ public class WebsocketHandler {
 				} else {
 					throw new OpenemsException("Unknown systemd-restart service: " + jSystemElement.toString());
 				}
+
+			} else if (mode.equals("manualpq")) {
+				/*
+				 * Manual PQ settings
+				 */
+				String ess = JsonUtils.getAsString(jSystem, "ess");
+				Boolean active = JsonUtils.getAsBoolean(jSystem, "active");
+				if (active) {
+					Long p = JsonUtils.getAsLong(jSystem, "p");
+					Long q = JsonUtils.getAsLong(jSystem, "q");
+					if (this.controller == null) {
+						throw new OpenemsException("Local access only. Controller is null.");
+					}
+					this.controller.setManualPQ(ess, p, q);
+					Notification.send(NotificationType.SUCCESS,
+							"Leistungsvorgabe gesetzt: ess[" + ess + "], p[" + p + "], q[" + q + "]");
+				} else {
+					this.controller.resetManualPQ(ess);
+					Notification.send(NotificationType.SUCCESS, "Leistungsvorgabe gestoppt: ess[" + ess + "]");
+				}
 			} else {
 				throw new OpenemsException("Unknown system message: " + jSystemElement.toString());
 			}
 		} catch (OpenemsException | IOException | InterruptedException e) {
-			log.error(e.getMessage());
+			Notification.send(NotificationType.ERROR, e.getMessage());
 		}
 	}
 
@@ -519,25 +549,15 @@ public class WebsocketHandler {
 	 * @return true if successful, otherwise false
 	 */
 	// TODO
-	public synchronized JsonObject createNotification(NotificationType type, String message) {
-		// log message to syslog
-		switch (type) {
-		case INFO:
-		case SUCCESS:
-			log.info(message);
-			break;
-		case ERROR:
-			log.error(message);
-			break;
-		case WARNING:
-			log.warn(message);
-			break;
-		}
-		// send notification to websocket
-		JsonObject jMessage = new JsonObject();
-		jMessage.addProperty("type", type.name().toLowerCase());
-		jMessage.addProperty("message", message);
-		return jMessage;
+	public synchronized void sendNotification(NotificationType type, String message) {
+		JsonObject jNotification = new JsonObject();
+		jNotification.addProperty("type", type.name().toLowerCase());
+		jNotification.addProperty("message", message);
+		JsonObject j = new JsonObject();
+		j.add("notification", jNotification);
+		new Thread(() -> {
+			this.send(j);
+		}).start();
 	}
 
 	/**

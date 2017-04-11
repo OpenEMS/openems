@@ -192,7 +192,7 @@ public class InjectionUtils {
 		/*
 		 * Get the ThingMap class
 		 */
-		Class<?> thingMapClass = channel.type();
+		Class<?> thingMapClass = channel.type().get();
 
 		/*
 		 * Get the referenced Thing class
