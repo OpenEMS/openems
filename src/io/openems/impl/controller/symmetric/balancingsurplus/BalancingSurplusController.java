@@ -70,7 +70,7 @@ public class BalancingSurplusController extends Controller {
 			// Calculate required sum values
 			long calculatedPower = meter.value().activePower.value() - surplus + ess.activePower.value();
 			surplus = getSurplusPower() - calculatedPower;
-			if (getPvVoltage() < 300000) {
+			if (getPvVoltage() < 300000 || surplus < 0) {
 				surplus = 0l;
 			}
 			calculatedPower += surplus;
