@@ -33,7 +33,7 @@ import io.openems.api.exception.WriteChannelException;
  * @author matthias.rossmann
  *
  */
-public class Power {
+public class SymmetricPower {
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private final ReadChannel<Long> allowedDischarge;
@@ -46,9 +46,9 @@ public class Power {
 	private boolean activePowerValid = false;
 	private boolean reactivePowerValid = false;
 
-	public Power(ReadChannel<Long> allowedDischarge, ReadChannel<Long> allowedCharge, ReadChannel<Long> allowedApparent,
-			WriteChannel<Long> setActivePower, WriteChannel<Long> setReactivePower, int acivePowerAverage,
-			int reactivePowerAverage) {
+	public SymmetricPower(ReadChannel<Long> allowedDischarge, ReadChannel<Long> allowedCharge,
+			ReadChannel<Long> allowedApparent, WriteChannel<Long> setActivePower, WriteChannel<Long> setReactivePower,
+			int acivePowerAverage, int reactivePowerAverage) {
 		super();
 		this.allowedDischarge = allowedDischarge;
 		this.allowedCharge = allowedCharge;
@@ -167,7 +167,7 @@ public class Power {
 			}
 		}
 		log.info("Reduce activePower from [{}] to [{}] and reactivePower from [{}] to [{}]",
-				new Object[] { activePower, reducedReactivePower, reactivePower, reducedReactivePower });
+				new Object[] { activePower, reducedActivePower, reactivePower, reducedReactivePower });
 		this.activePower = reducedActivePower;
 		this.reactivePower = reducedReactivePower;
 	}
