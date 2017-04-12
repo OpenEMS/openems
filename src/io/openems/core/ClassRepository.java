@@ -113,7 +113,7 @@ public class ClassRepository {
 	public Collection<ThingDoc> getAvailableBridges() throws ReflectionException {
 		if (bridges.isEmpty()) {
 			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.protocol",
-					Bridge.class, "Bridge")) {
+					Bridge.class, "")) {
 				ThingDoc description = ConfigUtils.getThingDescription(clazz);
 				bridges.put((Class<? extends Bridge>) clazz, description);
 			}

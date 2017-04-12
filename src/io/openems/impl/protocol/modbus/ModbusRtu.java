@@ -69,7 +69,7 @@ public class ModbusRtu extends ModbusBridge {
 	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this)
 			.addUpdateListener(channelUpdateListener);
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(500);
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
 
 	@Override
 	public ConfigChannel<Integer> cycleTime() {
