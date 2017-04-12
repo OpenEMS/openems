@@ -38,6 +38,14 @@ public class ControllerUtils {
 		return (long) (Math.tan(Math.acos(cosPhi)) * activePower);
 	}
 
+	public static long calculateReactivePower(long activePower, long apparentPower) {
+		return (long) Math.sqrt(Math.pow(apparentPower, 2) - Math.pow(activePower, 2));
+	}
+
+	public static long calculateActivePower(long reactivePower, long apparentPower) {
+		return (long) Math.sqrt(Math.pow(apparentPower, 2) - Math.pow(reactivePower, 2));
+	}
+
 	public static long calculateApparentPower(long activePower, long reactivePower) {
 		return (long) Math.sqrt(Math.pow(activePower, 2) + Math.pow(reactivePower, 2));
 	}
