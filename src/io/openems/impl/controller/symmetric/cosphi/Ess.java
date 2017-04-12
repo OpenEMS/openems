@@ -25,7 +25,7 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.core.utilities.Power;
+import io.openems.core.utilities.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
@@ -35,7 +35,7 @@ public class Ess extends ThingMap {
 	public final String id;
 	public final ReadChannel<Long> allowedCharge;
 	public final ReadChannel<Long> allowedDischarge;
-	public final Power power;
+	public final SymmetricPower power;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
@@ -44,7 +44,7 @@ public class Ess extends ThingMap {
 		id = ess.id();
 		allowedCharge = ess.allowedCharge();
 		allowedDischarge = ess.allowedDischarge();
-		this.power = new Power(ess.allowedDischarge().required(), ess.allowedCharge().required(),
+		this.power = new SymmetricPower(ess.allowedDischarge().required(), ess.allowedCharge().required(),
 				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required(), 1,
 				1);
 	}

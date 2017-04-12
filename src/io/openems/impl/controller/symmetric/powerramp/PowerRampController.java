@@ -29,7 +29,7 @@ import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
-import io.openems.core.utilities.Power;
+import io.openems.core.utilities.SymmetricPower;
 
 @ThingInfo(title = "Power ramp (Symmetric)", description = "Follows a power ramp. For symmetric Ess.")
 public class PowerRampController extends Controller {
@@ -81,7 +81,7 @@ public class PowerRampController extends Controller {
 							&& ess.gridMode.labelOptional().get().equals(EssNature.OFF_GRID)) {
 						lastPower = 0;
 					}
-					Power power = ess.power;
+					SymmetricPower power = ess.power;
 					if (lastSet + sleep.value() < System.currentTimeMillis()) {
 						if (Math.abs(lastPower + pStep.value()) <= Math.abs(pMax.value())) {
 							power.setActivePower(lastPower + pStep.value());

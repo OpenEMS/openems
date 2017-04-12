@@ -26,7 +26,7 @@ import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.Power;
+import io.openems.core.utilities.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
@@ -41,7 +41,7 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> allowedDischarge;
 	public final ReadChannel<Long> systemState;
 	public final ReadChannel<Long> maxNominalPower;
-	public final Power power;
+	public final SymmetricPower power;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
@@ -57,7 +57,7 @@ public class Ess extends ThingMap {
 		systemState = ess.systemState().required();
 		reactivePower = ess.reactivePower().required();
 		maxNominalPower = ess.maxNominalPower().required();
-		this.power = new Power(ess.allowedDischarge().required(), ess.allowedCharge().required(),
+		this.power = new SymmetricPower(ess.allowedDischarge().required(), ess.allowedCharge().required(),
 				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required(), 1,
 				1);
 	}

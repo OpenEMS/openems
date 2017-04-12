@@ -33,7 +33,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Point;
-import io.openems.core.utilities.Power;
+import io.openems.core.utilities.SymmetricPower;
 
 @ThingInfo(title = "Voltage characteristics (Symmetric)")
 public class VoltageCharacteristicController extends Controller {
@@ -124,7 +124,7 @@ public class VoltageCharacteristicController extends Controller {
 	@Override
 	public void run() {
 		try {
-			Power power = ess.value().power;
+			SymmetricPower power = ess.value().power;
 			double uRatio = (double) meter.value().voltage.value() / (double) uNenn.value() * 100.0;
 			long nominalActivePower = ess.value().maxNominalPower.value();
 			long nominalReactivePower = ess.value().maxNominalPower.value();
