@@ -65,7 +65,7 @@ public class ChannelThresholdScheduler extends Scheduler {
 	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this);
 
 	@ConfigInfo(title = "the ammount of time to wait till next run.", type = Integer.class)
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(500);
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
 
 	/*
 	 * "thresholds":[

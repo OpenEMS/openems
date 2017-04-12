@@ -60,7 +60,7 @@ public class ModbusTcp extends ModbusBridge {
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this)
 			.addUpdateListener(channelUpdateListener);
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(500);
+	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
 
 	@Override
 	public ConfigChannel<Integer> cycleTime() {
