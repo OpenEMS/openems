@@ -1,34 +1,46 @@
 {
-	"things": [
-		{
-			"class": "io.openems.impl.protocol.simulator.SimulatorBridge",
-			"devices": [
-				{
-					"class": "io.openems.impl.device.simulator.Simulator",
-					"ess": {
-						"id": "ess0",
-						"minSoc": 15,
-						"chargeSoc": 10
-					},
-					"meter": {}
-				}
-			]
-		}
-	],
-	"scheduler": {
-		"class": "io.openems.impl.scheduler.SimpleScheduler",
-		"controllers": [
-			{
-				"priority": 150,
-				"class": "io.openems.impl.controller.api.rest.RestApiController",
-				"esss": "ess0"
-			}
-		]
-	},
-	"persistence": [
-		{
-			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
-			"apikey": "p2MU5wJEIJ4umrNjEaQT"
-		}
-	]
+  "things": [
+    {
+      "class": "io.openems.impl.protocol.system.SystemBridge",
+      "devices": [
+        {
+          "class": "io.openems.impl.device.system.System",
+          "system": {
+            "id": "system0"
+          }
+        }
+      ]
+    },
+    {
+      "class": "io.openems.impl.protocol.simulator.SimulatorBridge",
+      "devices": [
+        {
+          "class": "io.openems.impl.device.simulator.Simulator",
+          "gridMeter": {
+            "id": "meter0"
+          },
+          "productionMeter": {
+            "id": "meter1"
+          },
+          "ess": {
+            "id": "ess0",
+            "minSoc": 15
+          }
+        }
+      ]
+    }
+  ],
+  "scheduler": {
+    "class": "io.openems.impl.scheduler.SimpleScheduler",
+    "controllers": [
+      {
+        "class": "io.openems.impl.controller.api.websocket.WebsocketApiController",
+        "priority": 0
+      },
+      {
+        "class": "io.openems.impl.controller.api.rest.RestApiController",
+        "priority": 150
+      }
+    ]
+  }
 }
