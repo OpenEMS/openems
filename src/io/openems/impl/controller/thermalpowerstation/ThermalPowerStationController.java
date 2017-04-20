@@ -36,6 +36,20 @@ import io.openems.core.ThingRepository;
 @ThingInfo(title = "Thermal power station")
 public class ThermalPowerStationController extends Controller {
 
+	private enum State {
+		ON, OFF, SWITCHON, SWITCHOFF, UNDEFINED
+	}
+
+	/*
+	 * Fields
+	 */
+	private ThingRepository repo = ThingRepository.getInstance();
+	private Long lastTimeBelowProductionlimit = System.currentTimeMillis();
+	public WriteChannel<Boolean> outputChannel;
+	private int switchOnCount = 0;
+	private int switchOffCount = 0;
+	private State currentState = State.UNDEFINED;
+
 	/*
 	 * Constructors
 	 */
@@ -71,17 +85,6 @@ public class ThermalPowerStationController extends Controller {
 	@ConfigInfo(title = "Invert Output", description = "True if the digital output should be inverted.", type = Boolean.class)
 	public ConfigChannel<Boolean> invertOutput = new ConfigChannel<>("invertOutput", this);
 
-	/*
-	 * Fields
-	 */
-	private ThingRepository repo = ThingRepository.getInstance();
-	private Long lastTimeBelowProductionlimit = System.currentTimeMillis();
-	private WriteChannel<Boolean> outputChannel;
-	private boolean outputOn = true;
-
-	/*
-	 * Methods
-	 */
 	@SuppressWarnings("unchecked")
 	@ConfigInfo(title = "the address of the Digital Output where the generator is connected to.", type = String.class)
 	public ConfigChannel<String> outputChannelAddress = new ConfigChannel<String>("outputChannelAddress", this)
@@ -98,6 +101,9 @@ public class ThermalPowerStationController extends Controller {
 					log.error("'outputChannelAddress' is not configured!");
 				}
 			});
+	/*
+	 * Methods
+	 */
 
 	@Override
 	public void run() {
@@ -105,23 +111,65 @@ public class ThermalPowerStationController extends Controller {
 			if (getProductionPower() <= productionLimit.value()) {
 				lastTimeBelowProductionlimit = System.currentTimeMillis();
 			}
-			if (!outputOn && ess.value().soc.value() <= minSoc.value()
-					&& getProductionPower() <= productionLimit.value()) {
-				// switch generator on
-				startGenerator();
-				outputOn = true;
-			} else if (outputOn && (ess.value().soc.value() >= maxSoc.value() || lastTimeBelowProductionlimit
-					+ limitTimeRange.value() * 60 * 1000 <= System.currentTimeMillis())) {
-				// switch generator off
-				stopGenerator();
-				outputOn = false;
-			} else if (outputOn) {
-				startGenerator();
-			} else if (!outputOn) {
-				stopGenerator();
+			switch (currentState) {
+			case OFF:
+				if (isOff()) {
+					if (ess.value().soc.value() <= minSoc.value() && lastTimeBelowProductionlimit
+							+ limitTimeRange.value() * 60 * 1000 > System.currentTimeMillis()) {
+						currentState = State.SWITCHON;
+					}
+				} else {
+					currentState = State.SWITCHOFF;
+				}
+				break;
+			case ON:
+				if (isOff()) {
+					currentState = State.SWITCHON;
+				} else {
+					if (ess.value().soc.value() >= maxSoc.value() || lastTimeBelowProductionlimit
+							+ limitTimeRange.value() * 60 * 1000 <= System.currentTimeMillis()) {
+						currentState = State.SWITCHOFF;
+					}
+				}
+				break;
+			case SWITCHOFF:
+				if (isOff()) {
+					currentState = State.OFF;
+					switchOffCount = 0;
+				} else {
+					stopGenerator();
+					switchOffCount++;
+					if (switchOffCount > 5) {
+						log.error("tried " + switchOffCount + " times to switch " + outputChannelAddress.value()
+								+ " off without success!");
+					}
+				}
+				break;
+			case SWITCHON:
+				if (isOff()) {
+					startGenerator();
+					switchOnCount++;
+					if (switchOnCount > 5) {
+						log.error("tried " + switchOnCount + " times to switch " + outputChannelAddress.value()
+								+ " on without success!");
+					}
+				} else {
+					currentState = State.ON;
+					switchOnCount = 0;
+				}
+				break;
+			case UNDEFINED:
+				if (isOff()) {
+					currentState = State.OFF;
+				} else {
+					currentState = State.ON;
+				}
+			default:
+
+				break;
 			}
-		} catch (InvalidValueException e) {
-			log.error("Failed to read value!", e);
+		} catch (InvalidValueException e1) {
+			log.error("Failed to read value!", e1);
 		} catch (WriteChannelException e) {
 			log.error("Error due write to output [" + outputChannelAddress.valueOptional().orElse("<none>") + "]", e);
 		}
@@ -137,6 +185,10 @@ public class ThermalPowerStationController extends Controller {
 		if (outputChannel.value() != false ^ invertOutput.value()) {
 			outputChannel.pushWrite(false ^ invertOutput.value());
 		}
+	}
+
+	private boolean isOff() throws InvalidValueException {
+		return outputChannel.value() == false ^ invertOutput.value();
 	}
 
 	private Long getProductionPower() throws InvalidValueException {
