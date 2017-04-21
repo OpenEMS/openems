@@ -20,28 +20,21 @@
  *******************************************************************************/
 package io.openems.impl.controller.asymmetric.fixvalue;
 
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
+import io.openems.core.utilities.AsymmetricPower;
 
 @IsThingMap(type = AsymmetricEssNature.class)
 public class Ess extends ThingMap {
-	public WriteChannel<Long> setActivePowerL1;
-	public WriteChannel<Long> setActivePowerL2;
-	public WriteChannel<Long> setActivePowerL3;
-	public WriteChannel<Long> setReactivePowerL1;
-	public WriteChannel<Long> setReactivePowerL2;
-	public WriteChannel<Long> setReactivePowerL3;
+	public AsymmetricPower power;
 
 	public Ess(AsymmetricEssNature ess) {
 		super(ess);
-		setActivePowerL1 = ess.setActivePowerL1().required();
-		setActivePowerL2 = ess.setActivePowerL2().required();
-		setActivePowerL3 = ess.setActivePowerL3().required();
-		setReactivePowerL1 = ess.setReactivePowerL1().required();
-		setReactivePowerL2 = ess.setReactivePowerL2().required();
-		setReactivePowerL3 = ess.setReactivePowerL3().required();
+		power = new AsymmetricPower(ess.allowedDischarge().required(), ess.allowedCharge().required(),
+				ess.allowedApparent().required(), ess.setActivePowerL1().required(), ess.setActivePowerL2().required(),
+				ess.setActivePowerL3().required(), ess.setReactivePowerL1().required(),
+				ess.setReactivePowerL2().required(), ess.setReactivePowerL3().required());
 	}
 
 }

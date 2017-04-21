@@ -27,19 +27,18 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo(title = "Fixed active and reactive power (Asymmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For asymmetric Ess.")
-public class FixValueController extends Controller {
+public class FixValueActivePowerController extends Controller {
 
 	/*
 	 * Constructors
 	 */
-	public FixValueController() {
+	public FixValueActivePowerController() {
 		super();
 	}
 
-	public FixValueController(String thingId) {
+	public FixValueActivePowerController(String thingId) {
 		super(thingId);
 	}
 
@@ -58,15 +57,6 @@ public class FixValueController extends Controller {
 	@ConfigInfo(title = "ActivePower L3", description = "Fixed active power for phase L3.", type = Long.class)
 	public final ConfigChannel<Long> activePowerL3 = new ConfigChannel<>("activePowerL3", this);
 
-	@ConfigInfo(title = "ReactivePower L1", description = "Fixed reactive power for phase L1.", type = Long.class)
-	public final ConfigChannel<Long> reactivePowerL1 = new ConfigChannel<>("reactivePowerL1", this);
-
-	@ConfigInfo(title = "ReactivePower L2", description = "Fixed reactive power for phase L2.", type = Long.class)
-	public final ConfigChannel<Long> reactivePowerL2 = new ConfigChannel<>("reactivePowerL2", this);
-
-	@ConfigInfo(title = "ReactivePower L3", description = "Fixed reactive power for phase L3.", type = Long.class)
-	public final ConfigChannel<Long> reactivePowerL3 = new ConfigChannel<>("reactivePowerL3", this);
-
 	/*
 	 * Methods
 	 */
@@ -74,46 +64,11 @@ public class FixValueController extends Controller {
 	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
-				try {
-					ess.setActivePowerL1.pushWrite(activePowerL1.value());
-				} catch (WriteChannelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				try {
-					ess.setActivePowerL2.pushWrite(activePowerL2.value());
-				} catch (WriteChannelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				try {
-					ess.setActivePowerL3.pushWrite(activePowerL3.value());
-				} catch (WriteChannelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				try {
-					ess.setReactivePowerL1.pushWrite(reactivePowerL1.value());
-				} catch (WriteChannelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				try {
-					ess.setReactivePowerL2.pushWrite(reactivePowerL2.value());
-				} catch (WriteChannelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				try {
-					ess.setReactivePowerL3.pushWrite(reactivePowerL3.value());
-				} catch (WriteChannelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				ess.power.setActivePower(activePowerL1.value(), activePowerL2.value(), activePowerL3.value());
+				ess.power.writePower();
 			}
 		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Failed to read Value", e);
 		}
 	}
 
