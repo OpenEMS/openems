@@ -34,6 +34,9 @@ public class Ess extends ThingMap {
 	public ReadChannel<Long> activePowerL1;
 	public ReadChannel<Long> activePowerL2;
 	public ReadChannel<Long> activePowerL3;
+	public ReadChannel<Long> reactivePowerL1;
+	public ReadChannel<Long> reactivePowerL2;
+	public ReadChannel<Long> reactivePowerL3;
 	public ReadChannel<Long> allowedCharge;
 	public ReadChannel<Long> allowedDischarge;
 	public ReadChannel<Integer> minSoc;
@@ -52,6 +55,9 @@ public class Ess extends ThingMap {
 		activePowerL1 = ess.activePowerL1().required();
 		activePowerL2 = ess.activePowerL2().required();
 		activePowerL3 = ess.activePowerL3().required();
+		reactivePowerL1 = ess.reactivePowerL1().required();
+		reactivePowerL2 = ess.reactivePowerL2().required();
+		reactivePowerL3 = ess.reactivePowerL3().required();
 		allowedCharge = ess.allowedCharge().required();
 		allowedDischarge = ess.allowedDischarge().required();
 		minSoc = ess.minSoc().required();
@@ -73,54 +79,6 @@ public class Ess extends ThingMap {
 
 	public long useableSoc() throws InvalidValueException {
 		return soc.value() - minSoc.value();
-	}
-
-	public ReadChannel<Long> getActivePower(int phase) {
-		ReadChannel<Long> channel = null;
-		switch (phase) {
-		case 1:
-			channel = activePowerL1;
-			break;
-		case 2:
-			channel = activePowerL2;
-			break;
-		case 3:
-			channel = activePowerL3;
-			break;
-		}
-		return channel;
-	}
-
-	public WriteChannel<Long> getSetActivePower(int phase) {
-		WriteChannel<Long> channel = null;
-		switch (phase) {
-		case 1:
-			channel = setActivePowerL1;
-			break;
-		case 2:
-			channel = setActivePowerL2;
-			break;
-		case 3:
-			channel = setActivePowerL3;
-			break;
-		}
-		return channel;
-	}
-
-	public WriteChannel<Long> getSetReactivePower(int phase) {
-		WriteChannel<Long> channel = null;
-		switch (phase) {
-		case 1:
-			channel = setReactivePowerL1;
-			break;
-		case 2:
-			channel = setReactivePowerL2;
-			break;
-		case 3:
-			channel = setReactivePowerL3;
-			break;
-		}
-		return channel;
 	}
 
 	public String getSetValueLog() {
