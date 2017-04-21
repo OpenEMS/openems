@@ -3,8 +3,10 @@ package io.openems.impl.controller.asymmetric.phaserectification;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
+@ThingInfo(title = "PhaseRectification")
 public class PhaseRectificationActivePowerController extends Controller {
 
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
