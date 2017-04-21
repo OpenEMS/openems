@@ -4,9 +4,8 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 
-public class PhaseRectificationController extends Controller {
+public class PhaseRectificationActivePowerController extends Controller {
 
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
@@ -14,14 +13,12 @@ public class PhaseRectificationController extends Controller {
 	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	public PhaseRectificationController() {
+	public PhaseRectificationActivePowerController() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	public PhaseRectificationController(String thingId) {
+	public PhaseRectificationActivePowerController(String thingId) {
 		super(thingId);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -46,34 +43,10 @@ public class PhaseRectificationController extends Controller {
 			long activePowerL1 = essL1 + meterL1Delta;
 			long activePowerL2 = essL2 + meterL2Delta;
 			long activePowerL3 = essL3 + meterL3Delta;
-			if (Math.abs(activePowerL1) > ess.allowedApparent.value() / 3) {
-				if (activePowerL1 >= 0) {
-					activePowerL1 = ess.allowedApparent.value() / 3;
-				} else {
-					activePowerL1 = ess.allowedApparent.value() / 3 * -1;
-				}
-			}
-			if (Math.abs(activePowerL2) > ess.allowedApparent.value() / 3) {
-				if (activePowerL2 >= 0) {
-					activePowerL2 = ess.allowedApparent.value() / 3;
-				} else {
-					activePowerL2 = ess.allowedApparent.value() / 3 * -1;
-				}
-			}
-			if (Math.abs(activePowerL3) > ess.allowedApparent.value() / 3) {
-				if (activePowerL3 >= 0) {
-					activePowerL3 = ess.allowedApparent.value() / 3;
-				} else {
-					activePowerL3 = ess.allowedApparent.value() / 3 * -1;
-				}
-			}
-			ess.setActivePowerL1.pushWrite(activePowerL1);
-			ess.setActivePowerL2.pushWrite(activePowerL2);
-			ess.setActivePowerL3.pushWrite(activePowerL3);
+			ess.power.setActivePower(activePowerL1, activePowerL2, activePowerL3);
+			ess.power.writePower();
 		} catch (InvalidValueException e) {
 			log.error("can't read value", e);
-		} catch (WriteChannelException e) {
-			log.error("can't write value", e);
 		}
 	}
 

@@ -10,13 +10,13 @@ import org.junit.Test;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.impl.controller.asymmetric.phaserectification.Ess;
 import io.openems.impl.controller.asymmetric.phaserectification.Meter;
-import io.openems.impl.controller.asymmetric.phaserectification.PhaseRectificationController;
+import io.openems.impl.controller.asymmetric.phaserectification.PhaseRectificationActivePowerController;
 import io.openems.test.utils.devicenatures.UnitTestAsymmetricEssNature;
 import io.openems.test.utils.devicenatures.UnitTestAsymmetricMeterNature;
 
-public class PhaseRectificationTest {
+public class PhaseRectificationActivePowerTest {
 
-	private static PhaseRectificationController controller;
+	private static PhaseRectificationActivePowerController controller;
 	private static UnitTestAsymmetricEssNature ess;
 	private static UnitTestAsymmetricMeterNature meter;
 	private static Ess essThingMap;
@@ -26,7 +26,7 @@ public class PhaseRectificationTest {
 	public static void setUpBeforeClass() throws Exception {
 		ess = new UnitTestAsymmetricEssNature("ess0");
 		meter = new UnitTestAsymmetricMeterNature("meter0");
-		controller = new PhaseRectificationController();
+		controller = new PhaseRectificationActivePowerController();
 		essThingMap = new Ess(ess);
 		meterThingMap = new Meter(meter);
 		controller.ess.updateValue(essThingMap, true);
