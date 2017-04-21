@@ -46,7 +46,7 @@ public class ThermalPowerStationTest {
 		controller.meters.updateValue(meters, true);
 		controller.outputChannel = outputChannel;
 		controller.productionLimit.updateValue(1000L, true);
-		controller.limitTimeRange.updateValue(15L, true);
+		controller.limitTimeRange.updateValue(1L, true);
 		controller.minSoc.updateValue(15L, true);
 		controller.maxSoc.updateValue(95L, true);
 		controller.invertOutput.updateValue(false, true);
@@ -91,6 +91,30 @@ public class ThermalPowerStationTest {
 		assertEquals(true, outputChannel.getWriteValue().isPresent());
 		output = outputChannel.getWriteValue().get();
 		assertEquals(true, output);
+	}
+
+	@Test
+	public void test3() {
+		ess.soc.setValue(15L);
+		meter.activePower.setValue(5000L);
+		outputChannel.setValue(true);
+		outputChannel.shadowCopyAndReset();
+		controller.run();
+		assertEquals(false, outputChannel.getWriteValue().isPresent());
+		try {
+			Thread.sleep(1000 * 2);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		controller.run();
+		outputChannel.shadowCopyAndReset();
+		assertEquals(false, outputChannel.getWriteValue().isPresent());
+		outputChannel.shadowCopyAndReset();
+		controller.run();
+		assertEquals(true, outputChannel.getWriteValue().isPresent());
+		boolean output = outputChannel.getWriteValue().get();
+		assertEquals(false, output);
 	}
 
 }

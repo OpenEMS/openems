@@ -114,8 +114,8 @@ public class ThermalPowerStationController extends Controller {
 			switch (currentState) {
 			case OFF:
 				if (isOff()) {
-					if (ess.value().soc.value() <= minSoc.value() && lastTimeBelowProductionlimit
-							+ limitTimeRange.value() * 60 * 1000 > System.currentTimeMillis()) {
+					if (ess.value().soc.value() <= minSoc.value()
+							&& lastTimeBelowProductionlimit + limitTimeRange.value() > System.currentTimeMillis()) {
 						currentState = State.SWITCHON;
 					}
 				} else {
@@ -126,8 +126,8 @@ public class ThermalPowerStationController extends Controller {
 				if (isOff()) {
 					currentState = State.SWITCHON;
 				} else {
-					if (ess.value().soc.value() >= maxSoc.value() || lastTimeBelowProductionlimit
-							+ limitTimeRange.value() * 60 * 1000 <= System.currentTimeMillis()) {
+					if (ess.value().soc.value() >= maxSoc.value()
+							|| lastTimeBelowProductionlimit + limitTimeRange.value() <= System.currentTimeMillis()) {
 						currentState = State.SWITCHOFF;
 					}
 				}
