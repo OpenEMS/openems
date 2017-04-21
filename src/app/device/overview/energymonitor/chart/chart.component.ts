@@ -63,11 +63,19 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
       this.gridSection.updateValue(this._device["summary"].grid.activePower, this._device["summary"].grid.powerRatio);
       this.consumptionSection.updateValue(Math.round(this._device["summary"].consumption.activePower), Math.round(this._device["summary"].consumption.powerRatio));
       this.productionSection.updateValue(this._device["summary"].production.activePower, this._device["summary"].production.powerRatio);
+      this.storageSection.updateEnergyFlow(this._device["summary"].storage.activePower);
+      this.gridSection.updateEnergyFlow(this._device["summary"].grid.activePower);
+      this.consumptionSection.updateEnergyFlow(Math.round(this._device["summary"].consumption.activePower));
+      this.productionSection.updateEnergyFlow(this._device["summary"].production.activePower);
     } else {
       this.storageSection.updateValue(null, null);
       this.gridSection.updateValue(null, null);
       this.consumptionSection.updateValue(null, null);
       this.productionSection.updateValue(null, null);
+      this.storageSection.updateEnergyFlow(0);
+      this.gridSection.updateEnergyFlow(0);
+      this.consumptionSection.updateEnergyFlow(0);
+      this.productionSection.updateEnergyFlow(0);
     }
   }
 

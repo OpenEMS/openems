@@ -19,7 +19,12 @@ let pulsetimeup = 2000;
             state('two', style({
                 r: 7,
                 fill: 'none',
-                stroke: 'blue'
+                stroke: '#008DD2'
+            })),
+            state('three', style({
+                r: 7,
+                fill: 'none',
+                stroke: 'none'
             })),
             transition('one => two', animate(pulsetime + 'ms')),
             transition('two => one', animate(pulsetime + 'ms'))
@@ -27,20 +32,32 @@ let pulsetimeup = 2000;
     ]
 })
 export class ProductionSectionComponent extends AbstractSection implements OnInit {
+    value: number;
     constructor() {
         super("Erzeugung", 316, 404, "#008DD2");
     }
+
     ngOnInit() {
         Observable.interval(pulsetimeup)
             .subscribe(x => {
-                for (let i = 0; i < this.circles.length; i++) {
-                    setTimeout(() => {
-                        this.circles[this.circles.length - i - 1].switchState();
-                    }, pulsetime / 4 * i);
+                if (this.value > 0) {
+                    for (let i = 0; i < this.circles.length; i++) {
+                        setTimeout(() => {
+                            this.circles[this.circles.length - i - 1].switchState();
+                        }, pulsetime / 4 * i);
+                    }
+                } else {
+                    for (let i = 0; i < this.circles.length; i++) {
+                        setTimeout(() => {
+                        }, );
+                    }
                 }
             })
     }
 
+    public updateEnergyFlow(value: number) {
+        this.value = value;
+    }
 
     protected getCircleDirection(): CircleDirection {
         return new CircleDirection("up");

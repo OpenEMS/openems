@@ -18,8 +18,15 @@ let pulsetimeleft = 2000;
             state('two', style({
                 r: 7,
                 fill: 'none',
-                stroke: 'black'
+                stroke: '#1d1d1d'
             })),
+            state('three', style({
+                r: 7,
+                fill: 'none',
+                stroke: 'none'
+            })),
+
+
             transition('one => two', animate(pulsetime + 'ms')),
             transition('two => one', animate(pulsetime + 'ms'))
         ])
@@ -27,37 +34,41 @@ let pulsetimeleft = 2000;
 })
 
 export class GridSectionComponent extends AbstractSection implements OnInit {
+    value: number;
     constructor() {
         super("Netz", 226, 314, "#1d1d1d");
     }
-    // if ( ... <= 0 ) {
+
     ngOnInit() {
         Observable.interval(pulsetimeleft)
             .subscribe(x => {
-                for (let i = 0; i < this.circles.length; i++) {
-                    setTimeout(() => {
-                        this.circles[this.circles.length - i - 1].switchState();
-                    }, pulsetime / 4 * i);
+                if (this.value > 0) {
+                    for (let i = 0; i < this.circles.length; i++) {
+                        setTimeout(() => {
+                            this.circles[this.circles.length - i - 1].switchState();
+                        }, pulsetimeleft / 4 * i);
+                    }
+                } else if (this.value < 0) {
+                    for (let i = 0; i < this.circles.length; i++) {
+                        setTimeout(() => {
+                            this.circles[i].switchState();
+                        }, pulsetimeleft / 4 * i);
+                    }
+                } else {
+                    for (let i = 0; i < this.circles.length; i++) {
+                        setTimeout(() => {
+                            this.circles[i].hide();
+                        }, );
+                    }
                 }
             })
     }
 
-    // if (... = ...) {
-    //fill: 'white',
-    // }
-    // } else {
-    // ngOnInit() {
-    //     Observable.interval(pulsetimeleft)
-    //         .subscribe(x => {
-    //             for (let i = 0; i < this.circles.length; i++) {
-    //                 setTimeout(() => {
-    //                     this.circles[i].switchState();
-    //                 }, pulsetime / 4 * i);
-    //             }
-    //         })
-    // }
 
-    // }
+
+    public updateEnergyFlow(value: number) {
+        this.value = value;
+    }
 
 
     protected getCircleDirection(): CircleDirection {

@@ -44,7 +44,7 @@ export class SvgImagePosition {
 }
 
 export class Circle {
-    public state: "one" | "two" = "one";
+    public state: "one" | "two" | "three" = "one";
     constructor(
         public x: number,
         public y: number,
@@ -54,9 +54,15 @@ export class Circle {
     public switchState() {
         if (this.state == 'one') {
             this.state = 'two';
+        } else if (this.state == 'two') {
+            this.state = 'one';
         } else {
             this.state = 'one';
         }
+    }
+
+    public hide() {
+        this.state = 'three';
     }
 }
 
@@ -111,6 +117,7 @@ export abstract class AbstractSection {
             .endAngle(this.deg2rad(valueEndAngle));
         this.valuePath = valueArc();
     }
+
     private lastValue = { absolute: 0, ratio: 0 };
 
     /**
@@ -197,6 +204,7 @@ export abstract class AbstractSection {
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getCircleDirection(): CircleDirection;
     protected abstract getValueText(value: number): string;
+    public abstract updateEnergyFlow(value: number);
 
     protected getValueRatio(valueRatio: number): number {
         if (valueRatio > 100) {
