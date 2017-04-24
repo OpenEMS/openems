@@ -61,7 +61,7 @@ public class BalancingController extends Controller {
 	/*
 	 * Fields
 	 */
-	private long[][] lastWriteValues = new long[3][8];
+	private long[][] lastWriteValues = new long[3][3];
 	private int index = 0;
 
 	/*
