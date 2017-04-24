@@ -217,7 +217,7 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature {
 										.label(2, "Pre-operation") //
 										.label(3, STANDBY) //
 										.label(4, START) //
-										.label(5, "Error")),
+										.label(5, FAULT)),
 						new UnsignedWordElement(0x101,
 								warning.channel(new StatusBitChannel("SystemError1", this).label(1, "BMS In Error")//
 										.label(2, "BMS Overvoltage")//

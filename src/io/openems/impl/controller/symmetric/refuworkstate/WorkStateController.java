@@ -138,7 +138,7 @@ public class WorkStateController extends Controller {
 						ess.setWorkState.pushWriteFromLabel(EssNature.START);
 					} else if (ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
 						currentState = State.START;
-					} else if (ess.systemState.labelOptional().equals(Optional.of("Error"))) {
+					} else if (ess.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))) {
 						currentState = State.ERROR;
 					} else {
 						currentState = State.STOP;
@@ -170,7 +170,7 @@ public class WorkStateController extends Controller {
 					if (!start.value()) {
 						currentState = State.STOP;
 					}
-				} else if (ess.systemState.labelOptional().equals(Optional.of("Error"))) {
+				} else if (ess.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))) {
 					currentState = State.ERROR;
 				} else {
 					currentState = State.GOSTART;
@@ -185,7 +185,7 @@ public class WorkStateController extends Controller {
 					if (start.value()) {
 						currentState = State.GOSTART;
 					}
-				} else if (ess.systemState.labelOptional().equals(Optional.of("Error"))) {
+				} else if (ess.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))) {
 					currentState = State.ERROR;
 				} else {
 					ess.setWorkState.pushWriteFromLabel(EssNature.STOP);

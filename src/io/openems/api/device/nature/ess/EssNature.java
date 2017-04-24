@@ -42,6 +42,7 @@ public interface EssNature extends DeviceNature {
 	public final String STANDBY = "Standby";
 	public final String START = "Start";
 	public final String STOP = "Stop";
+	public final String FAULT = "Fault";
 
 	/*
 	 * Config

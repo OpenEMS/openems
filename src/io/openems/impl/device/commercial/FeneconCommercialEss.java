@@ -209,7 +209,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(4, "PV-Charge") //
 										.label(8, "Standby") //
 										.label(16, START) //
-										.label(32, "Fault") //
+										.label(32, FAULT) //
 										.label(64, "Debug")), //
 						new UnsignedWordElement(0x0102, //
 								controlMode = new ModbusReadLongChannel("ControlMode", this) //
