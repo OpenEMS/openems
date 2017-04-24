@@ -57,8 +57,7 @@ public class Ess extends ThingMap {
 		gridMode = ess.gridMode().required();
 		systemState = ess.systemState().required();
 		this.power = new SymmetricPower(ess.allowedDischarge().required(), ess.allowedCharge().required(),
-				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required(), 7,
-				7);
+				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required());
 	}
 
 	public long useableSoc() throws InvalidValueException {

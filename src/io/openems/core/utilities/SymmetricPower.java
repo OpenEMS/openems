@@ -47,8 +47,7 @@ public class SymmetricPower {
 	private boolean reactivePowerValid = false;
 
 	public SymmetricPower(ReadChannel<Long> allowedDischarge, ReadChannel<Long> allowedCharge,
-			ReadChannel<Long> allowedApparent, WriteChannel<Long> setActivePower, WriteChannel<Long> setReactivePower,
-			int acivePowerAverage, int reactivePowerAverage) {
+			ReadChannel<Long> allowedApparent, WriteChannel<Long> setActivePower, WriteChannel<Long> setReactivePower) {
 		super();
 		this.allowedDischarge = allowedDischarge;
 		this.allowedCharge = allowedCharge;
@@ -176,6 +175,7 @@ public class SymmetricPower {
 	 * Writes active and reactive power to the setActive-/setReactivePower Channel if the value was set
 	 */
 	public void writePower() {
+		this.reducePower();
 		try {
 			// activePowerQueue.add(activePower);
 			if (activePowerValid) {
@@ -186,17 +186,7 @@ public class SymmetricPower {
 				setReactivePower.pushWrite(reactivePower);
 			}
 		} catch (WriteChannelException e) {
-			this.reducePower();
-			try {
-				if (activePowerValid) {
-					setActivePower.pushWrite(activePower);
-				}
-				if (reactivePowerValid) {
-					setReactivePower.pushWrite(reactivePower);
-				}
-			} catch (WriteChannelException e1) {
-				log.error("Failed to reduce and set Power!", e1);
-			}
+			log.error("Failed to reduce and set Power!", e);
 		}
 	}
 

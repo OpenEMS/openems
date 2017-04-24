@@ -21,40 +21,34 @@
 package io.openems.impl.controller.symmetric.powerbyfrequency;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
 	public final ReadChannel<Integer> minSoc;
-	public final WriteChannel<Long> setActivePower;
-	public final WriteChannel<Long> setReactivePower;
 	public final ReadChannel<Long> soc;
 	public final ReadChannel<Long> activePower;
 	public final ReadChannel<Long> reactivePower;
-	public final ReadChannel<Long> allowedCharge;
-	public final ReadChannel<Long> allowedDischarge;
 	public final ReadChannel<Long> systemState;
 	public final ReadChannel<Long> maxNominalPower;
+	public final SymmetricPower power;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
 		minSoc = ess.minSoc().required();
 
-		setActivePower = ess.setActivePower().required();
-		setReactivePower = ess.setReactivePower().required();
-
 		soc = ess.soc().required();
 		activePower = ess.activePower().required();
-		allowedCharge = ess.allowedCharge().required();
-		allowedDischarge = ess.allowedDischarge().required();
 		systemState = ess.systemState().required();
 		reactivePower = ess.reactivePower().required();
 		maxNominalPower = ess.maxNominalPower().required();
+		this.power = new SymmetricPower(ess.allowedDischarge().required(), ess.allowedCharge().required(),
+				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required());
 	}
 
 	public long useableSoc() throws InvalidValueException {

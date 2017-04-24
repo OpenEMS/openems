@@ -25,8 +25,6 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
-import io.openems.core.utilities.ControllerUtils;
 
 @ThingInfo(title = "Power by frequency (Symmetric)", description = "Tries to keep the grid meter at a given frequency. For symmetric Ess.")
 public class PowerByFrequencyController extends Controller {
@@ -82,13 +80,10 @@ public class PowerByFrequencyController extends Controller {
 					activePower = (long) (ess.maxNominalPower.value() * (300 - 0.006 * meter.frequency.value()));
 				}
 			}
-			// reduce power to max Discharge
-			activePower = ControllerUtils.reduceActivePower(activePower, 0,
-					ess.setActivePower.writeMin().orElse(ess.allowedCharge.value()),
-					ess.setActivePower.writeMax().orElse(ess.allowedDischarge.value()));
-			ess.setActivePower.pushWrite(activePower);
-			log.info(ess.id() + " Set ActivePower [" + activePower + "]");
-		} catch (InvalidValueException | WriteChannelException e) {
+			ess.power.setActivePower(activePower);
+			ess.power.writePower();
+			log.info(ess.id() + " Set ActivePower [" + ess.power.getActivePower() + "]");
+		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
 		}
 	}

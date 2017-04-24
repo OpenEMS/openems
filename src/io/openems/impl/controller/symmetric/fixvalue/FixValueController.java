@@ -27,7 +27,6 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo(title = "Fixed active and reactive power (Symmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For symmetric Ess.")
 public class FixValueController extends Controller {
@@ -62,12 +61,9 @@ public class FixValueController extends Controller {
 	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
-				try {
-					ess.setActivePower.pushWrite((long) p.value());
-					ess.setReactivePower.pushWrite((long) q.value());
-				} catch (WriteChannelException | InvalidValueException e) {
-					log.error("Failed to write fixed P/Q value for Ess " + ess.id, e);
-				}
+				ess.power.setActivePower(p.value());
+				ess.power.setReactivePower(q.value());
+				ess.power.writePower();
 			}
 		} catch (InvalidValueException e) {
 			log.error("No ess found.", e);
