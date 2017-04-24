@@ -62,7 +62,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 
 	public ModbusWriteChannel<Long> pvPowerLimitCommand;
 
-	public ReadChannel<Long> actualPvPower;
+	public ReadChannel<Long> actualPower;
 
 	public ReadChannel<Long> inputVoltage;
 
@@ -1167,7 +1167,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 								pvDCDC1OutputTotalDischargeEnergy = new ModbusReadLongChannel(
 										"PvDCDC1OutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
 												.wordOrder(WordOrder.LSWMSW)));
-		actualPvPower = new FunctionalChannel<Long>("actualPvPower", this, (channels) -> {
+		actualPower = new FunctionalChannel<Long>("ActualPower", this, (channels) -> {
 			long erg = 0;
 			try {
 				for (ReadChannel<Long> ch : channels) {
@@ -1178,7 +1178,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 				return null;
 			}
 		}, pvDCDCInputPower, pvDCDC1InputPower);
-		inputVoltage = new FunctionalChannel<Long>("inputVoltage", this, (channels) -> {
+		inputVoltage = new FunctionalChannel<Long>("InputVoltage", this, (channels) -> {
 			long erg = 0;
 			try {
 				for (ReadChannel<Long> ch : channels) {
@@ -1206,7 +1206,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 
 	@Override
 	public ReadChannel<Long> getActualPower() {
-		return actualPvPower;
+		return actualPower;
 	}
 
 	@Override
