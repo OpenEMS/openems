@@ -46,6 +46,9 @@ public class Simulator extends SimulatorDevice {
 	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = SimulatorEss.class)
 	public final ConfigChannel<SimulatorEss> ess = new ConfigChannel<>("ess", this);
 
+	@ConfigInfo(title = "Charger", description = "Sets the Charger nature.", type = SimulatorCharger.class)
+	public final ConfigChannel<SimulatorCharger> charger = new ConfigChannel<>("charger", this);
+
 	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter nature.", type = SimulatorGridMeter.class)
 	public final ConfigChannel<SimulatorGridMeter> gridMeter = new ConfigChannel<>("gridMeter", this);
 
@@ -66,6 +69,9 @@ public class Simulator extends SimulatorDevice {
 		}
 		if (productionMeter.valueOptional().isPresent()) {
 			natures.add(productionMeter.valueOptional().get());
+		}
+		if (charger.valueOptional().isPresent()) {
+			natures.add(charger.valueOptional().get());
 		}
 		return natures;
 	}
