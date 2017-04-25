@@ -112,6 +112,8 @@ public abstract class ModbusDeviceNature implements DeviceNature, ChannelChangeL
 			}
 		} catch (ConfigException e) {
 			log.error("Failed to define modbus protocol!", e);
+		} catch (Throwable t) {
+			log.error("Some error occured while create ModbusProtocol", t);
 		}
 	}
 
