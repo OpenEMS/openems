@@ -312,4 +312,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return j;
 	}
 
+	@Override
+	public String toString() {
+		return address() + ": " + value.toString();
+	}
 }

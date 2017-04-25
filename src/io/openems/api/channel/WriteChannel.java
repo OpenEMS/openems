@@ -306,4 +306,9 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		writeChannelInterval.max(channel);
 		return this;
 	}
+
+	@Override
+	public String toString() {
+		return address() + ", readValue: " + valueOptional().toString() + ",writeValue: " + writeValue.toString();
+	}
 }
