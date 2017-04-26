@@ -198,7 +198,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		if (newValue == null) {
 			this.value = Optional.empty();
 		}
-		if (newValue instanceof Number && (multiplier.isPresent() || delta.isPresent())) {
+		if (newValue instanceof Number && (multiplier.isPresent() || delta.isPresent() || negate)) {
 			// special treatment for Numbers with given multiplier or delta
 			Number number = (Number) newValue;
 			long multiplier = 1;
