@@ -104,6 +104,8 @@ public class SymmetricPower {
 				&& reactivePower <= maxReactivePower) {
 			// activePower and reactivePower are in allowed value range
 			// no need to reduce power
+			reducedActivePower = activePower;
+			reducedReactivePower = reactivePower;
 		} else if ((minActivePower > activePower || activePower > maxActivePower)
 				&& (minReactivePower > reactivePower || reactivePower > maxReactivePower)) {
 			// activePower and reactivePower are out of allowed value range
