@@ -58,6 +58,7 @@ public class BalancingSurplusController extends Controller {
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
 	private long surplus = 0L;
+	private boolean surplusOn = false;
 
 	/*
 	 * Methods
@@ -86,7 +87,12 @@ public class BalancingSurplusController extends Controller {
 
 	private long getSurplusPower() throws InvalidValueException {
 		long power = 0l;
-		if (ess.value().soc.value() >= surplusMinSoc.value()) {
+		if (ess.value().soc.value() >= surplusMinSoc.value() + 2) {
+			surplusOn = true;
+		} else if (ess.value().soc.value() < surplusMinSoc.value()) {
+			surplusOn = false;
+		}
+		if (surplusOn) {
 			for (Charger c : chargers.value()) {
 				power += c.power.value();
 			}
