@@ -1,0 +1,19 @@
+{
+	"class": "io.openems.impl.device.kmtronic.KMTronicRelayRev1",
+	"output": {
+		"id": "output0"
+	},
+	"modbusUnitId": 1
+}
+
+
+{
+	"class": "io.openems.impl.controller.acisland.AcIsland",
+	"minSoc": 90,
+	"onGridOutputChannelAddress": "output0/2",
+	"offGridOutputChannelAddress": "output0/3",
+	"maxSoc": 95,
+	"switchDelay": 10000,
+	"ess": "ess0",
+	"priority": 0
+}
