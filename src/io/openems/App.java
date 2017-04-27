@@ -20,32 +20,31 @@
  *******************************************************************************/
 package io.openems;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.ReflectionException;
-import io.openems.api.exception.WriteChannelException;
 import io.openems.core.Config;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
-	public static void main(String[] args) throws ConfigException, FileNotFoundException, ReflectionException,
-			WriteChannelException, IOException, InterruptedException {
+	public static void main(String[] args) {
 		log.info("OpenEMS started");
 
 		// configure Restlet logging
 		Engine.getInstance().setLoggerFacade(new Slf4jLoggerFacade());
 
-		// Get config directory
-		Config config = Config.getInstance();
-		config.readConfigFile();
+		// Get config
+		try {
+			Config config = Config.getInstance();
+			config.readConfigFile();
+		} catch (Exception e) {
+			log.error("OpenEMS start failed: " + e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
+		}
 		log.info("OpenEMS config loaded");
 	}
 }

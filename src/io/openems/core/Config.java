@@ -20,13 +20,12 @@
  *******************************************************************************/
 package io.openems.core;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -63,6 +62,12 @@ import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
 
 public class Config implements ChannelChangeListener {
+
+	private final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+	private final static String CONFIG_PATH = "etc/openems.d";
+	private final static String CONFIG_FILE_NAME = "config.json";
+	private final static String CONFIG_BACKUP_FILE_NAME = "config.backup.json";
+
 	private final static Logger log = LoggerFactory.getLogger(Config.class);
 	private static Config instance;
 
@@ -74,19 +79,39 @@ public class Config implements ChannelChangeListener {
 	}
 
 	private final ThingRepository thingRepository;
-	private final File file;
+	private final Path configFile;
+	private final Path configBackupFile;
 
 	public Config() throws ConfigException {
 		thingRepository = ThingRepository.getInstance();
-		this.file = getConfigFile();
+		this.configFile = getConfigFile();
+		this.configBackupFile = getConfigBackupFile();
 	}
 
-	public synchronized void readConfigFile()
-			throws IOException, FileNotFoundException, ReflectionException, ConfigException, WriteChannelException {
+	public synchronized void readConfigFile() throws Exception {
+		// Read configuration from default config file
+		try {
+			readConfigFromFile(configFile);
+			log.info("Read configuration from file [" + configFile.toString() + "]");
+			return;
+		} catch (Exception e) {
+			log.warn("Failed to read configuration from file [" + configFile.toString() + "]");
+		}
+		// Read configuration from backup config file
+		try {
+			readConfigFromFile(configBackupFile);
+			log.info("Read configuration from backup file [" + configBackupFile.toString() + "]");
+		} catch (Exception e) {
+			log.warn("Failed to read configuration backup file [" + configFile.toString() + "]");
+			throw e;
+		}
+	}
+
+	private synchronized void readConfigFromFile(Path path) throws Exception {
 		JsonObject jConfig = new JsonObject();
-		log.info("Read configuration from " + file.getAbsolutePath());
 		JsonParser parser = new JsonParser();
-		JsonElement jsonElement = parser.parse(new FileReader(file));
+		String config = new String(Files.readAllBytes(path), DEFAULT_CHARSET);
+		JsonElement jsonElement = parser.parse(config);
 		jConfig = jsonElement.getAsJsonObject();
 		jConfig = addDefaultConfig(jConfig);
 		// apply config
@@ -185,13 +210,20 @@ public class Config implements ChannelChangeListener {
 	}
 
 	public synchronized void writeConfigFile() throws OpenemsException {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		JsonObject jConfig = getJsonComplete();
-		try (Writer writer = new FileWriter(file)) {
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			gson.toJson(jConfig, writer);
-			log.info("Wrote configuration to " + file.getAbsolutePath());
+		String config = gson.toJson(jConfig);
+		try {
+			// create backup
+			Files.copy(configFile, configBackupFile, StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
-			throw new ConfigException("Unable to write to file [" + file.getAbsolutePath() + "]");
+			throw new ConfigException("Unable to create backup file [" + configBackupFile.toString() + "]");
+		}
+		try {
+			// write file
+			Files.write(this.configFile, config.getBytes(DEFAULT_CHARSET));
+		} catch (IOException e) {
+			throw new ConfigException("Unable to write config file [" + configFile.toString() + "]");
 		}
 	}
 
@@ -389,20 +421,27 @@ public class Config implements ChannelChangeListener {
 		}
 	}
 
-	/*
+	/**
 	 * Provides the File path of the config file ("/etc/openems.d/config.json") or a local file on a development machine
 	 */
-	private File getConfigFile() throws ConfigException {
-		// on production system
-		File configFile = Paths.get("/etc", "openems.d", "config.json").toFile();
-		if (!configFile.isFile()) {
-			// on development system
-			configFile = Paths.get("etc", "openems.d", "config.json").toFile();
+	private Path getConfigFile() {
+		String relativePath = CONFIG_PATH + "/" + CONFIG_FILE_NAME;
+		Path configFile = Paths.get(relativePath);
+		if (Files.isReadable(configFile)) {
+			// we are on development system
+			return configFile;
 		}
-		if (!configFile.isFile()) {
-			throw new ConfigException("No config file found!");
-		}
-		return configFile;
+		return Paths.get("/" + relativePath);
+	}
+
+	/**
+	 * Provides the File path of the config backup file ("/etc/openems.d/config.backup.json") or a local file on a
+	 * development machine
+	 */
+	private Path getConfigBackupFile() {
+		Path configFile = getConfigFile();
+		Path backupFile = configFile.getParent().resolve(CONFIG_BACKUP_FILE_NAME);
+		return backupFile;
 	}
 
 	/**
