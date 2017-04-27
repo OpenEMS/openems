@@ -2,13 +2,13 @@
   <md-sidenav #sidenav mode="push">
     <md-list>
       <md-list-item>
-        <button routerLinkActive="active" routerLink="/overview" md-button>Übersicht</button>
+        <button routerLinkActive="active" routerLink="/overview" md-button i18n>Übersicht</button>
       </md-list-item>
       <md-list-item *ngIf="environment.backend == 'openems'">
-        <a href="/grafana/dashboard/file/fems-asymmetric.json" md-button>Historie</a>
+        <a href="/grafana/dashboard/file/fems-asymmetric.json" md-button i18n>Historie</a>
       </md-list-item>
       <md-list-item>
-        <button routerLinkActive="active" routerLink="/about" md-button>Über FEMS-UI</button>
+        <button routerLinkActive="active" routerLink="/about" md-button i18n>Über FEMS-UI</button>
       </md-list-item>
     </md-list>
   </md-sidenav>

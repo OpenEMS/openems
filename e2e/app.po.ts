@@ -1,6 +1,6 @@
 import { browser, element, by } from 'protractor';
 
-export class OpenemsGuiPage {
+export class Ng20170527Page {
   navigateTo() {
     return browser.get('/');
   }

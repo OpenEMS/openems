@@ -1,10 +1,10 @@
-import { OpenemsGuiPage } from './app.po';
+import { Ng20170527Page } from './app.po';
 
-describe('openems-gui App', function() {
-  let page: OpenemsGuiPage;
+describe('ng20170527 App', () => {
+  let page: Ng20170527Page;
 
   beforeEach(() => {
-    page = new OpenemsGuiPage();
+    page = new Ng20170527Page();
   });
 
   it('should display message saying app works', () => {

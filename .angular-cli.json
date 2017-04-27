@@ -57,9 +57,6 @@
   },
   "defaults": {
     "styleExt": "css",
-    "component": {
-      "inlineTemplate": false,
-      "spec": true
-    }
+    "component": {}
   }
 }
