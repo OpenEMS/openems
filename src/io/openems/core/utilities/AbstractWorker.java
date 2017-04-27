@@ -35,6 +35,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	private Mutex initializedMutex = new Mutex(false);
 	private final AtomicBoolean isForceRun = new AtomicBoolean(false);
 	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
+	private final AtomicBoolean isStopped = new AtomicBoolean(false);
 	protected final Logger log;
 
 	/**
@@ -100,6 +101,12 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	 */
 	protected abstract boolean initialize();
 
+	@Override
+	public void interrupt() {
+		// TODO Auto-generated method stub
+		super.interrupt();
+	}
+
 	/**
 	 * Executes the Thread. Calls {@link forever} till the Thread gets interrupted.
 	 */
@@ -107,7 +114,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	public final void run() {
 		long bridgeExceptionSleep = 1; // seconds
 		this.initialize.set(true);
-		while (!isInterrupted()) {
+		while (!isStopped.get()) {
 			try {
 				/*
 				 * Initialize Bridge
@@ -138,6 +145,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 						isForceRun.set(false);
 					} else {
 						// otherwise forward the exception
+						isStopped.set(true);
 						throw e;
 					}
 				}
@@ -162,6 +170,10 @@ public abstract class AbstractWorker extends Thread implements Thing {
 		if (!isForceRun.getAndSet(true)) {
 			this.interrupt();
 		}
+	}
+
+	public void shutdown() {
+		isStopped.set(true);
 	}
 
 	/**
