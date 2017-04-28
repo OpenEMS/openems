@@ -30,7 +30,8 @@
         "femsserver": "environments/femsserver.ts",
         "femsserver-dev": "environments/femsserver-dev.ts",
         "openems": "environments/openems.ts",
-        "dev": "environments/environment.ts"
+        "dev": "environments/environment.ts",
+        "project-VA6403": "environments/project-VA6403.ts"
       }
     }
   ],
