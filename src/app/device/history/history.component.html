@@ -8,25 +8,25 @@
       </md-card-header>
       <md-card-content>
         <div fxLayout fxLayoutWrap="wrap" fxFlex>
-          <button md-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold">
+          <button md-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold" i18n>
             Zeitraum
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'today'" (click)="setPeriod('today')" fxFlex="100%">
+          <button md-raised-button [class.activated]="activePeriod == 'today'" (click)="setPeriod('today')" fxFlex="100%" i18n>
             Heute
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%">
+          <button md-raised-button [class.activated]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%" i18n>
             Gestern
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'lastWeek'" (click)="setPeriod('lastWeek')" fxFlex="100%">
+          <button md-raised-button [class.activated]="activePeriod == 'lastWeek'" (click)="setPeriod('lastWeek')" fxFlex="100%" i18n>
             letzte Woche
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'lastMonth'" (click)="setPeriod('lastMonth')" fxFlex="100%">
+          <button md-raised-button [class.activated]="activePeriod == 'lastMonth'" (click)="setPeriod('lastMonth')" fxFlex="100%" i18n>
             letzten Monat
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'lastYear'" (click)="setPeriod('lastYear')" fxFlex="100%">
+          <button md-raised-button [class.activated]="activePeriod == 'lastYear'" (click)="setPeriod('lastYear')" fxFlex="100%" i18n>
             letztes Jahr
           </button>
-          <button [class.activated]="activePeriod == 'otherTimespan'" (click)="setOtherTimespan()" md-raised-button fxFlex="100%">
+          <button [class.activated]="activePeriod == 'otherTimespan'" (click)="setOtherTimespan()" md-raised-button fxFlex="100%" i18n>
             Anderer Zeitraum
           </button>
           <div *ngIf="activePeriod == 'otherTimespan'" style="margin-top: 20px" fxLayout fxLayoutWrap="wrap" fxFlex="100%">
@@ -44,7 +44,7 @@
             </div>
             <div fxFlex="100%">
               <div fxFlex="75px"></div>
-              <button md-raised-button style="font-size: 14px" (click)="setTimespan(from.value, to.value)">
+              <button md-raised-button style="font-size: 14px" (click)="setTimespan(from.value, to.value)" i18n>
                 Los!
               </button>
             </div>

@@ -115,6 +115,10 @@ export class Device {
             console.warn("Meter without type: " + thing);
           }
         }
+        // Charger
+        if (this.isInArray(a, "ChargerNature")) {
+          result.production[thing] = true;
+        }
       }
     }
     return result;

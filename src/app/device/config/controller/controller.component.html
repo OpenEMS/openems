@@ -67,7 +67,7 @@
                     <md-card class="single">
                         <md-card-header>
                             <md-icon md-card-avatar>stop</md-icon>
-                            <label>Neuer Controller...</label>
+                            <label i18n>Neuer Controller...</label>
                         </md-card-header>
                         <md-card-content>
                             <div fxLayout fxLayoutWrap="wrap" style="margin-bottom: 20px">
@@ -79,7 +79,7 @@
                                 </button>
                             </div>
                             <div *ngIf="nameReady" fxLayout fxLayoutWrap="wrap">
-                                <label>Klasse: </label>
+                                <label i18n>Klasse: </label>
                                 <select fxFlex="50%" formControlName="class" (change)="addChannelsToController(controller, controller.value.class)">
                                     <option></option>
                                     <option *ngFor="let availableControllers of form.value._meta['availableControllers']">
@@ -94,7 +94,7 @@
             <md-card class="single_leftright" *ngIf="newController == false" fxFlex="100%">
                 <md-card-header>
                     <md-icon md-card-avatar>stop</md-icon>
-                    <label>Neuer Controller...</label>
+                    <label i18n>Neuer Controller...</label>
                 </md-card-header>
                 <md-card-content>
                     <div fxLayout fxLayoutAlign="end start">
