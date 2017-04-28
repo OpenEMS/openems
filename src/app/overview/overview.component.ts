@@ -14,8 +14,6 @@ import { WebappService, WebsocketService, Websocket, Notification } from '../sha
 })
 export class OverviewComponent implements OnInit, OnDestroy {
 
-  public backend = environment.backend;
-
   public forms: FormGroup[] = [];
   private websocketSubscriptions: Subscription[] = [];
 

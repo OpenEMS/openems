@@ -10,13 +10,6 @@ import { Device } from '../device';
 
 export { Websocket };
 
-//TODO const DEFAULT_PASSWORD: string = "guest";
-
-const DEFAULT_WEBSOCKETS = [{
-  name: location.hostname,
-  url: environment.url
-}];
-
 @Injectable()
 export class WebsocketService {
   public websockets: { [name: string]: Websocket } = {};
@@ -28,9 +21,9 @@ export class WebsocketService {
     private webappService: WebappService,
   ) {
     // initialize websockets
-    for (var defaultWebsocket of DEFAULT_WEBSOCKETS) {
+    for (var defaultWebsocket of environment.websockets) {
       // load default websockets
-      let websocket = new Websocket(defaultWebsocket.name, defaultWebsocket.url, webappService);
+      let websocket = new Websocket(defaultWebsocket.name, defaultWebsocket.url, defaultWebsocket.backend, webappService);
       this.websockets[websocket.name] = websocket;
       // try to connect using token or session_id
       websocket.connectWithTokenOrSessionId();

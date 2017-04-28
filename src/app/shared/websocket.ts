@@ -12,7 +12,6 @@ export class Websocket {
   public event: Subject<Notification> = new Subject<Notification>();
   public subject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public devices: { [name: string]: Device } = {};
-  public backend: "femsserver" | "openems" = null;
 
   private websocket: WebSocket;
   private username: string = "";
@@ -20,7 +19,8 @@ export class Websocket {
   constructor(
     public name: string,
     public url: string,
-    private webappService: WebappService
+    public backend: "femsserver" | "openems",
+    private webappService: WebappService,
   ) { }
 
   /**

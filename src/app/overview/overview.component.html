@@ -9,22 +9,22 @@
           <md-card-subtitle>{{form._websocket.url}}</md-card-subtitle>
         </md-card-header>
         <md-card-content fxLayout fxLayoutWrap="wrap">
-          <ng-container *ngIf="backend == 'femsserver'">
+          <ng-container *ngIf="form._websocket.backend == 'femsserver'">
             <p fxFlex="100%">{{(form._websocket.event | async)?.message}}</p>
           </ng-container>
-          <ng-container *ngIf="backend == 'openems'">
+          <ng-container *ngIf="form._websocket.backend == 'openems'">
             <md-input-container *ngIf="!form._websocket.isConnected" fxFlex="100%"><input formControlName="password" mdInput type="password" placeholder="Passwort"></md-input-container>
             <p fxFlex="100%">
               <ng-container *ngIf="!form._websocket.isConnected">Testversion: bitte melden Sie sich mit dem Passwort "<strong>owner</strong>" an.</ng-container><br/>{{(form._websocket.event
               | async)?.message}}</p>
           </ng-container>
         </md-card-content>
-        <ng-container *ngIf="backend == 'femsserver' && !form._websocket.isConnected">
+        <ng-container *ngIf="form._websocket.backend == 'femsserver' && !form._websocket.isConnected">
           <md-card-actions fxLayout fxLayoutAlign="end start">
             <button type="submit" md-fab (click)="reconnectFemsserver(form)" color="primary"><md-icon>autorenew</md-icon></button>
           </md-card-actions>
         </ng-container>
-        <ng-container *ngIf="backend == 'openems'">
+        <ng-container *ngIf="form._websocket.backend == 'openems'">
           <md-card-actions fxLayout fxLayoutAlign="end start">
             <button type="submit" md-fab *ngIf="!form._websocket.isConnected" (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>
             <button type="button" md-fab *ngIf="form._websocket.isConnected" (click)="doLogout(form)" color="accent"><md-icon>close</md-icon></button>
