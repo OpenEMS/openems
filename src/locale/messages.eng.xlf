@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+        <!DOCTYPE messagebundle [
+            <!ELEMENT messagebundle (msg)*>
+            <!ATTLIST messagebundle class CDATA #IMPLIED>
+
+            <!ELEMENT msg (#PCDATA|ph|source)*>
+            <!ATTLIST msg id CDATA #IMPLIED>
+            <!ATTLIST msg seq CDATA #IMPLIED>
+            <!ATTLIST msg name CDATA #IMPLIED>
+            <!ATTLIST msg desc CDATA #IMPLIED>
+            <!ATTLIST msg meaning CDATA #IMPLIED>
+            <!ATTLIST msg obsolete (obsolete) #IMPLIED>
+            <!ATTLIST msg xml:space (default|preserve) "default">
+            <!ATTLIST msg is_hidden CDATA #IMPLIED>
+
+            <!ELEMENT source (#PCDATA)>
+
+            <!ELEMENT ph (#PCDATA|ex)*>
+            <!ATTLIST ph name CDATA #REQUIRED>
+
+            <!ELEMENT ex (#PCDATA)>
+            ]>-->
+        <messagebundle>
+            <trans-unit id="4535751031165613881" datatype="html">
+                <source>Übersicht</source>
+                <target>Overview</target>
+            </trans-unit>
+            <trans-unit id="7384399776886660516" datatype="html">
+                <source>Historie</source>
+                <target>History</target>
+            </trans-unit>
+            <trans-unit id="8881007532518446486" datatype="html">
+                <source>Über FEMS-UI</source>
+                <target>About FEMS-UI</target>
+            </trans-unit>
+        </messagebundle>
+    </body>
+  </file>
+</xliff>

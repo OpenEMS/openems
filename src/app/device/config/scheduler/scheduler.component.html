@@ -11,11 +11,11 @@
         <md-card class="single">
           <md-card-header>
             <md-icon md-card-avatar>scheduler</md-icon>
-            <md-card-title>Neuer Scheduler...</md-card-title>
+            <md-card-title i18n>Neuer Scheduler...</md-card-title>
           </md-card-header>
           <md-card-content>
             <div fxLayout fxLayoutWrap="wrap">
-              <div fxFlex="100px">
+              <div fxFlex="100px" i18n>
                 Klasse:
               </div>
               <select formControlName="class" (change)="addChannelsToScheduler(configForm.controls['scheduler'], $event)">
@@ -28,7 +28,7 @@
           </md-card-content>
         </md-card>
       </ng-container>
-      <ng-container *ngSwitchDefault>
+      <ng-container *ngSwitchDefault i18n>
         <p><b>Formular nicht implementiert:</b> {{ form.value | json }}<br/>Das sollte nicht passieren. Bitte kontaktieren Sie
           <a href="mailto:fems@fenecon.de">fems@fenecon.de</a>.</p>
       </ng-container>

@@ -3,7 +3,7 @@
   <md-card fxFlex="100%" class="single_leftright single_top">
     <md-card-header>
       <md-icon md-card-avatar>format_list_bulleted</md-icon>
-      <md-card-title>Energietabelle</md-card-title>
+      <md-card-title i18n>Energietabelle</md-card-title>
     </md-card-header>
   </md-card>
   <ng-container *ngFor="let thing of device.data | async | keys">
@@ -12,35 +12,35 @@
     <ng-container *ngIf="device.things.storage[thing.key]">
       <md-card class="single_leftright" fxFlex="100%">
         <md-card-header>
-          <img style="height: 100%" src="assets/img/storage.png" md-card-avatar/>
-          <md-card-title>Speichersystem</md-card-title>
+          <img src="assets/img/storage.png" md-card-avatar/>
+          <md-card-title i18n>Speichersystem</md-card-title>
           <md-card-subtitle>{{ thing.key }}</md-card-subtitle>
         </md-card-header>
         <md-card-content>
           <table class="full_width">
             <tr>
-              <td style="width:50%">Ladezustand</td>
+              <td style="width:50%" i18n>Ladezustand</td>
               <td style="width:15%"></td>
               <td style="width:25%" class="align_right">{{ thing.value.Soc }}</td>
               <td style="width:10%">%</td>
             </tr>
             <ng-container *ngIf="thing.value.ActivePower != null && thing.value.ReactivePower != null">
               <tr>
-                <td>Beladeleistung</td>
+                <td i18n>Beladeleistung</td>
                 <td></td>
                 <td class="align_right" *ngIf="thing.value.ActivePower < 0">{{ thing.value.ActivePower | sign }}</td>
                 <td class="align_right" *ngIf="thing.value.ActivePower >= 0">0</td>
                 <td>W</td>
               </tr>
               <tr>
-                <td>Entladeleistung</td>
+                <td i18n>Entladeleistung</td>
                 <td></td>
                 <td class="align_right" *ngIf="thing.value.ActivePower > 0">{{ thing.value.ActivePower }}</td>
                 <td class="align_right" *ngIf="thing.value.ActivePower <= 0">0</td>
                 <td>W</td>
               </tr>
               <tr class="gray_color">
-                <td>Blindleistung</td>
+                <td i18n>Blindleistung</td>
                 <td></td>
                 <td class="align_right">{{ thing.value.ReactivePower }}</td>
                 <td>var</td>
@@ -48,7 +48,7 @@
             </ng-container>
             <ng-container *ngIf="thing.value.ActivePowerL1 != null&& thing.value.ActivePowerL2 != null && thing.value.ActivePowerL3 != null">
               <tr>
-                <td style="width:50%">Ausgabeleistung</td>
+                <td style="width:50%" i18n>Ausgabeleistung</td>
                 <td style="width:15%">L1</td>
                 <td style="width:25%" class="align_right">{{ thing.value.ActivePowerL1 }}</td>
                 <td style="width:10%">W</td>
@@ -75,7 +75,7 @@
     <ng-container *ngIf="device.things.grid[thing.key]">
       <md-card class="single_leftright" fxFlex="100%">
         <md-card-header>
-          <img style="height: 100%" src="assets/img/grid.png" md-card-avatar/>
+          <img src="assets/img/grid.png" md-card-avatar/>
           <md-card-title>Netzzähler</md-card-title>
           <md-card-subtitle>{{ thing.key }}</md-card-subtitle>
         </md-card-header>
@@ -83,21 +83,21 @@
           <table class="full_width">
             <ng-container *ngIf="thing.value.ActivePower != null && thing.value.ReactivePower != null">
               <tr>
-                <td style="width:50%">Bezugsleistung</td>
+                <td style="width:50%" i18n>Bezugsleistung</td>
                 <td style="width:15%"></td>
                 <td style="width:25%" class="align_right" *ngIf="thing.value.ActivePower > 0">{{ thing.value.ActivePower }}</td>
                 <td style="width:25%" class="align_right" *ngIf="thing.value.ActivePower <= 0">0</td>
                 <td style="width:10%">W</td>
               </tr>
               <tr>
-                <td>Einspeiseleistung</td>
+                <td i18n>Einspeiseleistung</td>
                 <td></td>
                 <td class="align_right" *ngIf="thing.value.ActivePower < 0">{{ thing.value.ActivePower | sign }}</td>
                 <td class="align_right" *ngIf="thing.value.ActivePower >= 0">0</td>
                 <td>W</td>
               </tr>
               <tr class="gray_color">
-                <td>Blindleistung</td>
+                <td i18n>Blindleistung</td>
                 <td></td>
                 <td class="align_right">{{ thing.value.ReactivePower }}</td>
                 <td>var</td>
@@ -105,37 +105,37 @@
             </ng-container>
             <ng-container *ngIf="!(thing.value.ActivePower != null && thing.value.ReactivePower != null) && thing.value.ActivePowerL1 != null && thing.value.ActivePowerL2 != null && thing.value.ActivePowerL3 != null">
               <tr *ngIf="thing.value.ActivePowerL1 < 0">
-                <td style="width:50%">Netzeinspeisung</td>
+                <td style="width:50%" i18n>Netzeinspeisung</td>
                 <td style="width:15%">L1</td>
                 <td style="width:25%" class="align_right">{{ thing.value.ActivePowerL1 | sign }}</td>
                 <td style="width:10%">W</td>
               </tr>
               <tr *ngIf="thing.value.ActivePowerL1 >= 0">
-                <td>Netzbezug</td>
+                <td i18n>Netzbezug</td>
                 <td>L1</td>
                 <td class="align_right">{{ thing.value.ActivePowerL1 }}</td>
                 <td>W</td>
               </tr>
               <tr *ngIf="thing.value.ActivePowerL2 < 0">
-                <td>Netzeinspeisung</td>
+                <td i18n>Netzeinspeisung</td>
                 <td>L2</td>
                 <td class="align_right">{{ thing.value.ActivePowerL2 | sign }}</td>
                 <td>W</td>
               </tr>
               <tr *ngIf="thing.value.ActivePowerL2 >= 0">
-                <td>Netzbezug</td>
+                <td i18n>Netzbezug</td>
                 <td>L2</td>
                 <td class="align_right">{{ thing.value.ActivePowerL2 }}</td>
                 <td>W</td>
               </tr>
               <tr *ngIf="thing.value.ActivePowerL3 < 0">
-                <td>Netzeinspeisung</td>
+                <td i18n>Netzeinspeisung</td>
                 <td>L3</td>
                 <td class="align_right">{{ thing.value.ActivePowerL3 | sign }}</td>
                 <td>W</td>
               </tr>
               <tr *ngIf="thing.value.ActivePowerL3 >= 0">
-                <td>Netzbezug</td>
+                <td i18n>Netzbezug</td>
                 <td>L3</td>
                 <td class="align_right">{{ thing.value.ActivePowerL3 }}</td>
                 <td>W</td>
@@ -150,21 +150,21 @@
     <ng-container *ngIf="device.things.production[thing.key]">
       <md-card class="single_leftright" fxFlex="100%">
         <md-card-header>
-          <img style="height: 100%" src="assets/img/production.png" md-card-avatar/>
-          <md-card-title>Erzeugungszähler</md-card-title>
+          <img src="assets/img/production.png" md-card-avatar/>
+          <md-card-title i18n>Erzeugungszähler</md-card-title>
           <md-card-subtitle>{{ thing.key }}</md-card-subtitle>
         </md-card-header>
         <md-card-content>
           <table class="full_width">
             <ng-container *ngIf="thing.value.ActivePower != null && thing.value.ReactivePower != null">
               <tr>
-                <td style="width:50%">Erzeugung</td>
+                <td style="width:50%" i18n>Erzeugung</td>
                 <td style="width:15%"></td>
                 <td style="width:25%" class="align_right">{{ thing.value.ActivePower }}</td>
                 <td style="width:10%">W</td>
               </tr>
               <tr class="gray_color">
-                <td>Blindleistung</td>
+                <td i18n>Blindleistung</td>
                 <td></td>
                 <td class="align_right">{{ thing.value.ReactivePower }}</td>
                 <td>var</td>
@@ -172,7 +172,7 @@
             </ng-container>
             <ng-container *ngIf="!(thing.value.ActivePower != null && thing.value.ReactivePower != null) && thing.value.ActivePowerL1 != null && thing.value.ActivePowerL2 != null && thing.value.ActivePowerL3 != null">
               <tr>
-                <td style="width:50%">Erzeugung</td>
+                <td style="width:50%" i18n>Erzeugung</td>
                 <td style="width:15%">L1</td>
                 <td style="width:25%" class="align_right">{{ thing.value.ActivePowerL1 }}</td>
                 <td style="width:10%">W</td>
@@ -200,14 +200,14 @@
   <ng-container *ngIf="device.summary.consumption">
     <md-card class="single_leftright" fxFlex="100%">
       <md-card-header>
-        <img style="height: 100%" src="assets/img/consumption.png" md-card-avatar/>
-        <md-card-title>Verbrauch</md-card-title>
+        <img src="assets/img/consumption.png" md-card-avatar/>
+        <md-card-title i18n>Verbrauch</md-card-title>
       </md-card-header>
       <md-card-content>
         <table class="full_width">
           <ng-container *ngIf="device.summary.consumption.activePower != null">
             <tr>
-              <td style="width:50%">Leistung</td>
+              <td style="width:50%" i18n>Leistung</td>
               <td style="width:15%"></td>
               <td style="width:25%" class="align_right">{{ device.summary.consumption.activePower }}</td>
               <td style="width:10%">W</td>
