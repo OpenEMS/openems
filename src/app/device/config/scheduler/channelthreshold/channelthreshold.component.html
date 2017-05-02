@@ -64,7 +64,8 @@
                 <md-tab>
                     <ng-template md-tab-label>Always</ng-template>
                     <div formArrayName="always" fxFlex fxLayout fxLayoutWrap="wrap">
-                        <div *ngFor="let controller of schedulerForm.controls.scheduler.controls.always.controls; let j=index" fxLayout fxFlex="33%">
+                        <div *ngFor="let controller of schedulerForm.controls['scheduler']['controls']['always']['controls']; let j=index" fxLayout
+                            fxFlex="33%">
                             <div fxFlex fxLayout>
                                 <md-select [formControlName]="j" placeholder="App" fxFlex="100%">
                                     <md-option *ngFor="let element of schedulerForm.controls['scheduler']['controls']['controllers']['controls']" [value]="element.value.id">{{ element.value.id }}</md-option>
