@@ -13,48 +13,73 @@
             </div>
             <div fxLayout>
                 <md-input-container fxFlex="50%">
-                    <input placeholder="OutputChannelAddress" formControlName="onGridOutputChannelAddress" type="text" mdInput>
+                    <input placeholder="ThresholdChannelAddress" formControlName="thresholdChannelAddress" type="text" mdInput>
                 </md-input-container>
             </div>
-            <div formArrayName="thresholds">
-                <div fxLayout *ngFor="let threshold of schedulerForm.controls['scheduler']['controls']['thresholds']['controls'], let i=index"
-                    [formGroupName]="i">
-                    <md-input-container fxFlex="100px">
-                        <input placeholder="Threshold" type="number" formControlName="threshold" mdInput>
-                    </md-input-container>
-                    <div fxFlex="50px">
-                        <button (click)="removeThreshold(schedulerForm.controls['scheduler']['controls']['thresholds'], i)" md-mini-fab><md-icon>delete</md-icon></button>
+            <md-tab-group>
+                <md-tab>
+                    <ng-template md-tab-label>Thresholds</ng-template>
+                    <div formArrayName="thresholds">
+                        <div fxLayout *ngFor="let threshold of schedulerForm.controls['scheduler']['controls']['thresholds']['controls'], let i=index"
+                            [formGroupName]="i">
+                            <md-input-container fxFlex="100px">
+                                <input placeholder="Threshold" type="number" formControlName="threshold" mdInput>
+                            </md-input-container>
+                            <div fxFlex="50px">
+                                <button (click)="removeThreshold(schedulerForm.controls['scheduler']['controls']['thresholds'], i)" md-mini-fab><md-icon>delete</md-icon></button>
+                            </div>
+                            <div formArrayName="controller" fxFlex fxLayout fxLayoutWrap="wrap">
+                                <div *ngFor="let controller of threshold.controls['controller']['controls'], let j=index" fxLayout fxFlex.gt-md="33%" fxFlex.sm="50%"
+                                    fxFlex.xs="100%">
+                                    <div class="flex-container" fxFlex fxLayout>
+                                        <md-select [formControlName]="j" placeholder="App" fxFlex="100%">
+                                            <md-option *ngFor="let element of schedulerForm.controls['scheduler']['controls']['controllers']['controls']" [value]="element.value.id">{{ element.value.id }}</md-option>
+                                        </md-select>
+                                    </div>
+                                    <div class="flex-container" fxFlex="50px">
+                                        <button (click)="removeControllerFromThreshold(schedulerForm.controls['scheduler']['controls']['thresholds']['controls'][i]['controls']['controller'], i)"
+                                            md-mini-fab>
+                                    <md-icon>delete</md-icon>
+                                    </button>
+                                    </div>
+                                </div>
+                                <div class="flex-container" fxFlex="60px">
+                                    <button (click)="addControllerToThreshold(schedulerForm.controls['scheduler']['controls']['thresholds']['controls'][i]['controls']['controller'])"
+                                        md-mini-fab>
+                            <md-icon>add</md-icon>
+                            </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div fxLayout>
+                            <div fxFlex="100px"></div>
+                            <div fxFlex="50px">
+                                <button (click)="addThreshold(schedulerForm.controls['scheduler']['controls']['thresholds'])" md-mini-fab><md-icon>add</md-icon></button>
+                            </div>
+                        </div>
                     </div>
-                    <div formArrayName="controller" fxFlex fxLayout fxLayoutWrap="wrap">
-                        <div *ngFor="let controller of threshold.controls['controller']['controls'], let j=index" fxLayout fxFlex.gt-md="33%" fxFlex.sm="50%"
-                            fxFlex.xs="100%">
-                            <div class="flex-container" fxFlex fxLayout>
+                </md-tab>
+
+                <!-- Always -->
+                <md-tab>
+                    <ng-template md-tab-label>Always</ng-template>
+                    <div formArrayName="always" fxFlex fxLayout fxLayoutWrap="wrap">
+                        <div *ngFor="let controller of schedulerForm.controls.scheduler.controls.always.controls; let j=index" fxLayout fxFlex="33%">
+                            <div fxFlex fxLayout>
                                 <md-select [formControlName]="j" placeholder="App" fxFlex="100%">
                                     <md-option *ngFor="let element of schedulerForm.controls['scheduler']['controls']['controllers']['controls']" [value]="element.value.id">{{ element.value.id }}</md-option>
                                 </md-select>
                             </div>
-                            <div class="flex-container" fxFlex="50px">
-                                <button (click)="removeControllerFromThreshold(schedulerForm.controls['scheduler']['controls']['thresholds']['controls'][i]['controls']['controller'], i)"
-                                    md-mini-fab>
-                                    <md-icon>delete</md-icon>
-                                    </button>
+                            <div fxFlex="50px">
+                                <button md-mini-fab (click)="removeControllerFromAlways(j)"><md-icon>delete</md-icon></button>
                             </div>
                         </div>
-                        <div class="flex-container" fxFlex="60px">
-                            <button (click)="addControllerToThreshold(schedulerForm.controls['scheduler']['controls']['thresholds']['controls'][i]['controls']['controller'])"
-                                md-mini-fab>
-                            <md-icon>add</md-icon>
-                            </button>
+                        <div fxFlex="50px">
+                            <button md-mini-fab (click)="addControllerToAlways()"><md-icon>add</md-icon></button>
                         </div>
                     </div>
-                </div>
-                <div fxLayout>
-                    <div fxFlex="100px"></div>
-                    <div fxFlex="50px">
-                        <button (click)="addThreshold(schedulerForm.controls['scheduler']['controls']['thresholds'])" md-mini-fab><md-icon>add</md-icon></button>
-                    </div>
-                </div>
-            </div>
+                </md-tab>
+            </md-tab-group>
             <div fxLayout>
                 <div fxFlex="100%"></div>
                 <button (click)="save(schedulerForm.controls['scheduler'])" color="primary" md-mini-fab><md-icon>check</md-icon></button>

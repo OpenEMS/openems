@@ -56,4 +56,17 @@ export class ChannelthresholdComponent extends AbstractConfigForm {
         thresholdForm.markAsDirty();
     }
 
+    public addControllerToAlways() {
+        let controllers = <FormArray>this.schedulerForm.controls["scheduler"]["controls"]["always"];
+        controllers.push(
+            this.formBuilder.control("")
+        );
+        controllers.markAsDirty();
+    }
+
+    public removeControllerFromAlways(controllerIndex: number) {
+        let controllers = <FormArray>this.schedulerForm.controls["scheduler"]["controls"]["always"];
+        controllers.removeAt(controllerIndex);
+        controllers.markAsDirty();
+    }
 }

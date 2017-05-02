@@ -106,18 +106,18 @@ export class WeekTimeComponent extends AbstractConfigForm {
     dayForm.markAsDirty();
   }
 
+  public removeControllerFromHour(dayForm: FormArray, hourIndex: number, controllerIndex: number) {
+    let controllers = <FormArray>dayForm.controls[hourIndex]["controls"]["controllers"];
+    controllers.removeAt(controllerIndex);
+    dayForm.markAsDirty();
+  }
+
   public addControllerToAlways() {
     let controllers = <FormArray>this.configForm.controls["always"];
     controllers.push(
       this.formBuilder.control("")
     );
     controllers.markAsDirty();
-  }
-
-  public removeControllerFromHour(dayForm: FormArray, hourIndex: number, controllerIndex: number) {
-    let controllers = <FormArray>dayForm.controls[hourIndex]["controls"]["controllers"];
-    controllers.removeAt(controllerIndex);
-    dayForm.markAsDirty();
   }
 
   public removeControllerFromAlways(controllerIndex: number) {
