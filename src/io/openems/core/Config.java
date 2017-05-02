@@ -102,7 +102,7 @@ public class Config implements ChannelChangeListener {
 			readConfigFromFile(configBackupFile);
 			log.info("Read configuration from backup file [" + configBackupFile.toString() + "]");
 		} catch (Exception e) {
-			log.warn("Failed to read configuration backup file [" + configFile.toString() + "]");
+			log.warn("Failed to read configuration backup file [" + configFile.toString() + "]", e);
 			throw e;
 		}
 	}
