@@ -95,7 +95,7 @@ public class Config implements ChannelChangeListener {
 			log.info("Read configuration from file [" + configFile.toString() + "]");
 			return;
 		} catch (Exception e) {
-			log.warn("Failed to read configuration from file [" + configFile.toString() + "]");
+			log.warn("Failed to read configuration from file [" + configFile.toString() + "] ", e);
 		}
 		// Read configuration from backup config file
 		try {
