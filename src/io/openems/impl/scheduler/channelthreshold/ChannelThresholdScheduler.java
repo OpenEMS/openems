@@ -101,7 +101,7 @@ public class ChannelThresholdScheduler extends Scheduler {
 
 	@SuppressWarnings("unchecked")
 	@ConfigInfo(title = "the address of the channel to switch the controllers by thresholds.", type = String.class)
-	public ConfigChannel<String> onGridOutputChannelAddress = new ConfigChannel<String>("thresholdChannelAddress", this)
+	public ConfigChannel<String> thresholdChannelAddress = new ConfigChannel<String>("thresholdChannelAddress", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				Optional<String> channelAddress = (Optional<String>) newValue;
 				if (channelAddress.isPresent()) {
