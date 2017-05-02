@@ -1,0 +1,10 @@
+{
+	"class": "io.openems.impl.controller.debuglog.DebugLogController",
+	"esss": [
+		"ess0"
+	],
+	"priority": 150,
+	"meters": [
+		"meter0"
+	]
+}
