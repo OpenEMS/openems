@@ -20,7 +20,7 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
-public interface FunctionalChannelFunction<T> {
+public interface FunctionalReadChannelFunction<T> {
 
 	public T handle(ReadChannel<T>... channels);
 }

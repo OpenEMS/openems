@@ -20,7 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.device.commercial;
 
-import io.openems.api.channel.FunctionalChannel;
+import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
@@ -1167,7 +1167,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 								pvDCDC1OutputTotalDischargeEnergy = new ModbusReadLongChannel(
 										"PvDCDC1OutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
 												.wordOrder(WordOrder.LSWMSW)));
-		actualPower = new FunctionalChannel<Long>("ActualPower", this, (channels) -> {
+		actualPower = new FunctionalReadChannel<Long>("ActualPower", this, (channels) -> {
 			long erg = 0;
 			try {
 				for (ReadChannel<Long> ch : channels) {
@@ -1178,7 +1178,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 				return null;
 			}
 		}, pvDCDCInputPower, pvDCDC1InputPower);
-		inputVoltage = new FunctionalChannel<Long>("InputVoltage", this, (channels) -> {
+		inputVoltage = new FunctionalReadChannel<Long>("InputVoltage", this, (channels) -> {
 			long erg = 0;
 			try {
 				for (ReadChannel<Long> ch : channels) {

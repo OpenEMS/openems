@@ -20,33 +20,68 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import io.openems.api.thing.Thing;
 
-public class FunctionalChannel<T> extends ReadChannel<T> implements ChannelUpdateListener {
+public class FunctionalReadChannel<T> extends ReadChannel<T> implements ChannelUpdateListener {
 
-	private ReadChannel<T>[] channels;
-	private FunctionalChannelFunction<T> func;
+	private List<ReadChannel<T>> channels = new ArrayList<>();
+	private FunctionalReadChannelFunction<T> func;
 
-	public FunctionalChannel(String id, Thing parent, FunctionalChannelFunction<T> function,
+	public FunctionalReadChannel(String id, Thing parent, FunctionalReadChannelFunction<T> function,
 			ReadChannel<T>... channels) {
 		super(id, parent);
-		this.channels = channels;
+		this.channels.addAll(Arrays.asList(channels));
 		this.func = function;
 		for (Channel c : channels) {
 			c.addUpdateListener(this);
 		}
 	}
 
-	@Override
-	public void channelUpdated(Channel channel, Optional<?> newValue) {
-		updateValue(func.handle(channels));
+	public FunctionalReadChannel(String id, Thing parent, FunctionalReadChannelFunction<T> function) {
+		super(id, parent);
+		this.func = function;
+		for (Channel c : channels) {
+			c.addUpdateListener(this);
+		}
+	}
+
+	public void addChannel(ReadChannel<T> channel) {
+		synchronized (channels) {
+			this.channels.add(channel);
+			channel.addUpdateListener(this);
+		}
+	}
+
+	public void removeChannel(ReadChannel<T> channel) {
+		synchronized (this.channels) {
+			channel.removeUpdateListener(this);
+			this.channels.remove(channel);
+		}
 	}
 
 	@Override
-	public FunctionalChannel<T> label(T value, String label) {
+	public void channelUpdated(Channel channel, Optional<?> newValue) {
+		synchronized (this.channels) {
+			ReadChannel<T>[] channels = new ReadChannel[this.channels.size()];
+			this.channels.toArray(channels);
+			updateValue(func.handle(channels));
+		}
+	}
+
+	@Override
+	public FunctionalReadChannel<T> label(T value, String label) {
 		super.label(value, label);
+		return this;
+	}
+
+	@Override
+	public FunctionalReadChannel<T> unit(String unit) {
+		super.unit(unit);
 		return this;
 	}
 }

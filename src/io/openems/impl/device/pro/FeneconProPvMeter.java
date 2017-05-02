@@ -21,7 +21,7 @@
 package io.openems.impl.device.pro;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.FunctionalChannel;
+import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
@@ -217,7 +217,7 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 						new UnsignedWordElement(2266, //
 								activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")
 										.delta(10000L))));
-		activePower = new FunctionalChannel<Long>("reactive", this, (channels) -> {
+		activePower = new FunctionalReadChannel<Long>("reactive", this, (channels) -> {
 			ReadChannel<Long> L1 = channels[0];
 			ReadChannel<Long> L2 = channels[1];
 			ReadChannel<Long> L3 = channels[2];
@@ -227,7 +227,7 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 				return null;
 			}
 		}, activePowerL1, activePowerL2, activePowerL3);
-		reactivePower = new FunctionalChannel<Long>("reactive", this, (channels) -> {
+		reactivePower = new FunctionalReadChannel<Long>("reactive", this, (channels) -> {
 			ReadChannel<Long> L1 = channels[0];
 			ReadChannel<Long> L2 = channels[1];
 			ReadChannel<Long> L3 = channels[2];
