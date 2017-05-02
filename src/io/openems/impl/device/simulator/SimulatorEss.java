@@ -86,6 +86,7 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 	private ModbusWriteLongChannel setWorkState = new ModbusWriteLongChannel("SetWorkState", this);
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
+	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 50000L).unit("Wh");
 
 	@Override
 	public ReadChannel<Long> gridMode() {
@@ -186,6 +187,11 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 		this.allowedDischarge.updateValue(3000L);
 		this.systemState.updateValue(1L);
 		this.gridMode.updateValue(0L);
+	}
+
+	@Override
+	public StaticValueChannel<Long> capacity() {
+		return capacity;
 	}
 
 }

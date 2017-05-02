@@ -82,6 +82,7 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	private ModbusWriteChannel setReactivePower;
 	private ModbusWriteChannel setWorkState;
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 0L);
+	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 170000L).unit("Wh");
 	public StatusBitChannels warning;
 
 	public ModbusReadChannel sysAlarmInfo;
@@ -254,5 +255,10 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 								new UnsignedDoublewordElement(0x130C, //
 										batteryStackTotalDischarge = new ModbusReadLongChannel(
 												"BatteryStackTotalDischarge", this).unit("kWh"))));
+	}
+
+	@Override
+	public StaticValueChannel<Long> capacity() {
+		return capacity;
 	}
 }

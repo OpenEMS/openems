@@ -3,9 +3,11 @@ package io.openems.test.utils.devicenatures;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
+import io.openems.impl.device.simulator.SimulatorTools;
 import io.openems.test.utils.channel.UnitTestConfigChannel;
 import io.openems.test.utils.channel.UnitTestReadChannel;
 import io.openems.test.utils.channel.UnitTestWriteChannel;
@@ -33,6 +35,8 @@ public class UnitTestAsymmetricEssNature implements AsymmetricEssNature {
 	public UnitTestWriteChannel<Long> setReactivePowerL2 = new UnitTestWriteChannel<>("SetReactivePowerL2", this);
 	public UnitTestWriteChannel<Long> setReactivePowerL3 = new UnitTestWriteChannel<>("SetReactivePowerL3", this);
 	public UnitTestWriteChannel<Long> setWorkState = new UnitTestWriteChannel<>("SetWorkState", this);
+	public StaticValueChannel<Long> capacity = new StaticValueChannel<Long>("Capacity", this,
+			SimulatorTools.getRandomLong(3000, 50000));
 
 	private final String id;
 
@@ -159,6 +163,11 @@ public class UnitTestAsymmetricEssNature implements AsymmetricEssNature {
 	@Override
 	public WriteChannel<Long> setReactivePowerL3() {
 		return setReactivePowerL3;
+	}
+
+	@Override
+	public ReadChannel<Long> capacity() {
+		return capacity;
 	}
 
 }

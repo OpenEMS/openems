@@ -89,8 +89,9 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature {
 	private ModbusWriteLongChannel setActivePower;
 	private ModbusWriteLongChannel setReactivePower;
 	private ModbusWriteLongChannel setWorkState;
-	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 96600L)
+	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 100000L)
 			.unit("VA").unit("VA");
+	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 130000L).unit("Wh");
 	public StatusBitChannels warning;
 
 	/*
@@ -477,6 +478,11 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature {
 						new SignedWordElement(0x207, //
 								setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this)//
 										.unit("W").multiplier(2))));
+	}
+
+	@Override
+	public StaticValueChannel<Long> capacity() {
+		return capacity;
 	}
 
 }

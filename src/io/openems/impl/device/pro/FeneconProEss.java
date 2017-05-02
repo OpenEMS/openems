@@ -21,8 +21,9 @@
 package io.openems.impl.device.pro;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.FunctionalChannel;
+import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
@@ -106,6 +107,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	private ModbusWriteLongChannel rtcHour;
 	private ModbusWriteLongChannel rtcMinute;
 	private ModbusWriteLongChannel rtcSecond;
+	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 12000L).unit("Wh");
 
 	@Override
 	public ReadChannel<Long> allowedCharge() {
@@ -650,7 +652,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 
 		//
 		);
-		gridMode = new FunctionalChannel<Long>("GridMode", this, (channels) -> {
+		gridMode = new FunctionalReadChannel<Long>("GridMode", this, (channels) -> {
 			ReadChannel<Long> state = channels[0];
 			try {
 				if (state.value() == 1L) {
@@ -662,7 +664,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 				return null;
 			}
 		}, systemState).label(0L, OFF_GRID).label(1L, ON_GRID);
-		allowedApparent = new FunctionalChannel<Long>("AllowedApparent", this, (channels) -> {
+		allowedApparent = new FunctionalReadChannel<Long>("AllowedApparent", this, (channels) -> {
 			ReadChannel<Long> apparent = channels[0];
 			try {
 				return apparent.value() * 3;
@@ -674,6 +676,11 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 		}, phaseAllowedApparent);
 
 		return protokol;
+	}
+
+	@Override
+	public StaticValueChannel<Long> capacity() {
+		return capacity;
 	}
 
 	// @IsChannel(id = "PcsAlarm1PhaseA")

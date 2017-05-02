@@ -21,7 +21,7 @@
 package io.openems.impl.device.mini;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.FunctionalChannel;
+import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
@@ -101,7 +101,8 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 	private ModbusWriteLongChannel rtcMinute;
 	private ModbusWriteLongChannel rtcSecond;
 	private StaticValueChannel<Long> nominalPower = new StaticValueChannel<Long>("maxNominalPower", this, 3000l)
-			.unit("W");
+			.unit("VA");
+	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 3000L).unit("Wh");
 
 	@Override
 	public ReadChannel<Long> allowedCharge() {
@@ -432,7 +433,7 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 										.label(4, "Debug")//
 										.label(5, "SmoothPv")//
 										.label(6, "Remote"))));
-		gridMode = new FunctionalChannel<Long>("GridMode", this, (channels) -> {
+		gridMode = new FunctionalReadChannel<Long>("GridMode", this, (channels) -> {
 			ReadChannel<Long> state = channels[0];
 			try {
 				if (state.value() == 1L) {
@@ -444,7 +445,7 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 				return null;
 			}
 		}, systemState).label(0L, OFF_GRID).label(1L, ON_GRID);
-		apparentPower = new FunctionalChannel<Long>("ApparentPower", this, (channels) -> {
+		apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this, (channels) -> {
 			ReadChannel<Long> activePower = channels[0];
 			ReadChannel<Long> reactivePower = channels[1];
 			try {
@@ -466,6 +467,12 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 	@Override
 	public ReadChannel<Long> maxNominalPower() {
 		return nominalPower;
+	}
+
+	@Override
+	public StaticValueChannel<Long> capacity() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

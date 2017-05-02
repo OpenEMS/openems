@@ -88,6 +88,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	private ModbusWriteLongChannel setWorkState;
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
+	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 40000L).unit("Wh");
 	public StatusBitChannels warning;
 
 	@Override
@@ -504,6 +505,11 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 						new UnsignedWordElement(0x1402,
 								soc = new ModbusReadLongChannel("Soc", this).unit("%").interval(0, 100))));
 
+	}
+
+	@Override
+	public StaticValueChannel<Long> capacity() {
+		return capacity;
 	}
 
 	// @IsChannel(id = "BatteryAccumulatedCharge")
