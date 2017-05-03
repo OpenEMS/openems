@@ -392,7 +392,7 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 
 	@Override
 	public WriteChannel<Long> setWorkState() {
-		return setWorkState();
+		return setWorkState;
 	}
 
 	@Override
