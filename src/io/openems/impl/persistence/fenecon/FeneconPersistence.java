@@ -68,7 +68,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
 	private EvictingQueue<JsonObject> unsentCache = EvictingQueue.create(1000);
 	private volatile WebsocketClient websocketClient;
-	private volatile int currentCycleTime = DEFAULT_CYCLETIME;
+	private volatile Integer configuredCycleTime = DEFAULT_CYCLETIME;
 
 	/*
 	 * Methods
@@ -80,7 +80,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		if (channel == cycleTime) {
 			// Cycle Time
-			this.currentCycleTime = cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
+			this.configuredCycleTime = cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
 		}
 
 		if (!(channel instanceof ReadChannel<?>)) {
@@ -152,7 +152,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			 * Sent successfully
 			 */
 			// reset cycleTime
-			this.currentCycleTime = cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
+			resetCycleTime();
 
 			// resend from cache
 			for (Iterator<JsonObject> iterator = unsentCache.iterator(); iterator.hasNext();) {
@@ -212,51 +212,75 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		if (this.websocketClient != null && this.websocketClient.getConnection().isOpen()) {
 			return Optional.of(this.websocketClient);
 		}
+		this.websocketClient = null;
 		// check config
 		if (!this.apikey.valueOptional().isPresent() || !this.uri.valueOptional().isPresent()) {
 			return Optional.empty();
 		}
+		// a connection is already requested -> return null
 		// from here only one thread is allowed to enter
 		if (isAlreadyConnecting.getAndSet(true)) {
 			return Optional.empty();
 		}
 		String uri = this.uri.valueOptional().get();
 		String apikey = this.apikey.valueOptional().get();
-		WebsocketClient newWebsocketClient = null;
-		try {
-			// create new websocket
-			// TODO: check server certificate
-			newWebsocketClient = new WebsocketClient(new URI(uri), apikey);
-			log.info("FENECON persistence is connecting... [" + uri + "]");
-			if (newWebsocketClient.connectBlocking()) {
-				// successful -> return connected websocket
-				log.info("FENECON persistence connected [" + uri + "]");
-			} else {
-				// not connected -> return empty
-				log.warn("FENECON persistence failed connection to uri [" + uri + "]");
+		// Try to connect in asynchronous thread
+		Runnable task = () -> {
+			WebsocketClient newWebsocketClient = null;
+			try {
+				// create new websocket
+				// TODO: check server certificate
+				newWebsocketClient = new WebsocketClient(new URI(uri), apikey);
+				log.info("FENECON persistence is connecting... [" + uri + "]");
+				if (newWebsocketClient.connectBlocking(10)) {
+					// successful -> return connected websocket
+					log.info("FENECON persistence connected [" + uri + "]");
+				} else {
+					// not connected -> return empty
+					log.warn("FENECON persistence failed connection to uri [" + uri + "]");
+					newWebsocketClient = null;
+				}
+			} catch (URISyntaxException e) {
+				log.error("Invalid uri: " + e.getMessage());
+				// newWebsocketClient = null;
+			} catch (InterruptedException e) {
+				log.warn("Websocket connection interrupted: " + e.getMessage());
+				newWebsocketClient = null;
+			} catch (Exception e) {
+				log.warn("Websocket exception: " + e.getMessage());
 				newWebsocketClient = null;
 			}
-		} catch (URISyntaxException e) {
-			log.error("Invalid uri: " + e.getMessage());
-			// newWebsocketClient = null;
-		} catch (InterruptedException e) {
-			log.warn("Websocket connection interrupted: " + e.getMessage());
-			newWebsocketClient = null;
-		} catch (Exception e) {
-			log.warn("Websocket exception: " + e.getMessage());
-			newWebsocketClient = null;
-		}
-		this.websocketClient = newWebsocketClient;
-		isAlreadyConnecting.set(false);
-		return Optional.ofNullable(newWebsocketClient);
+			this.websocketClient = newWebsocketClient;
+			isAlreadyConnecting.set(false);
+		};
+		Thread thread = new Thread(task);
+		thread.start();
+		// while connecting -> still returning null
+		return Optional.empty();
 	}
 
 	private void increaseCycleTime() {
-		// TODO increase max cycle time for production
+		int currentCycleTime = this.cycleTime().valueOptional().orElse(DEFAULT_CYCLETIME);
+		int newCycleTime;
 		if (currentCycleTime < 30000 /* 30 seconds */) {
-			currentCycleTime *= 2;
+			newCycleTime = currentCycleTime * 2;
+		} else {
+			newCycleTime = currentCycleTime;
 		}
-		log.info("New cycle time: " + cycleTime);
+		if (currentCycleTime != newCycleTime) {
+			this.cycleTime().updateValue(newCycleTime, false);
+			log.info("New cycle time: " + newCycleTime);
+		}
+	}
+
+	private void resetCycleTime() {
+		int currentCycleTime = this.cycleTime().valueOptional().orElse(DEFAULT_CYCLETIME);
+		int newCycleTime = this.configuredCycleTime;
+		this.cycleTime().updateValue(newCycleTime, false);
+		if (currentCycleTime != newCycleTime) {
+			this.cycleTime().updateValue(newCycleTime, false);
+			log.info("Reset cycle time: " + newCycleTime);
+		}
 	}
 
 	@Override

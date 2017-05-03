@@ -33,6 +33,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import info.faljse.SDNotify.SDNotify;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
@@ -110,6 +111,9 @@ public class WeekTimeScheduler extends Scheduler {
 
 	@Override
 	protected void forever() {
+		// kick the watchdog
+		SDNotify.sendWatchdog();
+
 		try {
 			List<Controller> controllers = getActiveControllers();
 			controllers.addAll(getAlwaysController());
