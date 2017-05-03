@@ -29,6 +29,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import info.faljse.SDNotify.SDNotify;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
@@ -131,6 +132,9 @@ public class ChannelThresholdScheduler extends Scheduler {
 
 	@Override
 	protected void forever() {
+		// kick the watchdog
+		SDNotify.sendNotify();
+
 		List<Controller> controllers = getActiveControllers();
 		controllers.addAll(getAlwaysController());
 		Collections.sort(controllers, (c1, c2) -> c2.priority.valueOptional().orElse(Integer.MIN_VALUE)

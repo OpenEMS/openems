@@ -25,6 +25,7 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.faljse.SDNotify.SDNotify;
 import io.openems.core.Config;
 
 public class App {
@@ -46,5 +47,7 @@ public class App {
 			System.exit(1);
 		}
 		log.info("OpenEMS config loaded");
+		// kick the watchdog: READY
+		SDNotify.sendNotify();
 	}
 }
