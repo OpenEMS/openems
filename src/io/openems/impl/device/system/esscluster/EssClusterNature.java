@@ -478,6 +478,7 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 							}
 						}
 					}
+					capacity.channelUpdated(null, null);
 				}
 			} catch (InvalidValueException e) {
 				log.error("esss value is invalid!", e);
