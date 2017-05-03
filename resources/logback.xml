@@ -29,15 +29,8 @@
 	</appender>
 	<appender name="WEBSOCKET" class="io.openems.core.utilities.websocket.WebsocketLogAppender">
 	</appender>
-	<!-- <logger name="io.openems" level="DEBUG" additivity="false"> -->
-	<logger name="io.openems" level="INFO" additivity="false">
+	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="WEBSOCKET" />
-	</logger>
-	<logger name="LogService" level="INFO" additivity="false">
-		<appender-ref ref="STDOUT" />
-	</logger>
-	<root level="WARN">
-		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>
