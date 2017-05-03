@@ -24,6 +24,8 @@ import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -92,9 +94,18 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 		this.websocketHandler.onMessage(jMessage);
 	}
 
-	@Override
-	public boolean connectBlocking() throws InterruptedException {
-		boolean connected = super.connectBlocking();
+	private CountDownLatch connectLatch = new CountDownLatch(1);
+
+	/**
+	 * Same as connect but blocks until the websocket connected or failed to do so.<br>
+	 * Returns whether it succeeded or not.
+	 *
+	 * Overrides original method to use timeout of 10 seconds
+	 */
+	public boolean connectBlocking(long timeoutSeconds) throws InterruptedException {
+		connect();
+		connectLatch.await(timeoutSeconds, TimeUnit.SECONDS);
+		boolean connected = getConnection().isOpen();
 		if (connected) {
 			this.websocketHandler.sendConnectionSuccessfulReply();
 		}
