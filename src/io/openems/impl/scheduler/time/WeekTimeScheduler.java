@@ -112,7 +112,7 @@ public class WeekTimeScheduler extends Scheduler {
 	@Override
 	protected void forever() {
 		// kick the watchdog
-		SDNotify.sendNotify();
+		SDNotify.sendWatchdog();
 
 		try {
 			List<Controller> controllers = getActiveControllers();

@@ -133,7 +133,7 @@ public class ChannelThresholdScheduler extends Scheduler {
 	@Override
 	protected void forever() {
 		// kick the watchdog
-		SDNotify.sendNotify();
+		SDNotify.sendWatchdog();
 
 		List<Controller> controllers = getActiveControllers();
 		controllers.addAll(getAlwaysController());
