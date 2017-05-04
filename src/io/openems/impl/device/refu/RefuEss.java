@@ -150,26 +150,26 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature {
 	// public StatusBitChannel batteryAlarm5;
 	public StatusBitChannel batteryAlarm6;
 	public StatusBitChannel batteryAlarm7;
-	public ModbusReadLongChannel batteryInformation1;
-	public ModbusReadLongChannel batteryInformation2;
-	public ModbusReadLongChannel batteryInformation3;
-	public ModbusReadLongChannel batteryInformation4;
-	public ModbusReadLongChannel batteryInformation5;
-	public ModbusReadLongChannel batteryInformation6;
-	public ModbusReadLongChannel batteryInformation7;
-	public ModbusReadLongChannel batteryInformation8;
-	public ModbusReadLongChannel batteryInformation9;
-	public ModbusReadLongChannel batteryInformation10;
-	public ModbusReadLongChannel batteryInformation11;
-	public ModbusReadLongChannel batteryInformation12;
-	public ModbusReadLongChannel batteryInformation13;
-	public ModbusReadLongChannel batteryInformation14;
-	public ModbusReadLongChannel batteryInformation15;
-	public ModbusReadLongChannel batteryInformation16;
-	public ModbusReadLongChannel batteryInformation17;
-	public ModbusReadLongChannel batteryInformation18;
-	public ModbusReadLongChannel batteryInformation19;
-	public ModbusReadLongChannel batteryInformation20;
+	// public ModbusReadLongChannel batteryInformation1;
+	// public ModbusReadLongChannel batteryInformation2;
+	// public ModbusReadLongChannel batteryInformation3;
+	// public ModbusReadLongChannel batteryInformation4;
+	// public ModbusReadLongChannel batteryInformation5;
+	// public ModbusReadLongChannel batteryInformation6;
+	// public ModbusReadLongChannel batteryInformation7;
+	// public ModbusReadLongChannel batteryInformation8;
+	// public ModbusReadLongChannel batteryInformation9;
+	// public ModbusReadLongChannel batteryInformation10;
+	// public ModbusReadLongChannel batteryInformation11;
+	// public ModbusReadLongChannel batteryInformation12;
+	// public ModbusReadLongChannel batteryInformation13;
+	// public ModbusReadLongChannel batteryInformation14;
+	// public ModbusReadLongChannel batteryInformation15;
+	// public ModbusReadLongChannel batteryInformation16;
+	// public ModbusReadLongChannel batteryInformation17;
+	// public ModbusReadLongChannel batteryInformation18;
+	// public ModbusReadLongChannel batteryInformation19;
+	// public ModbusReadLongChannel batteryInformation20;
 
 	@Override
 	public ReadChannel<Long> gridMode() {
@@ -514,52 +514,52 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature {
 						new DummyElement(0x204, 0x206),
 						new SignedWordElement(0x207, //
 								setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this)//
-										.unit("W").multiplier(2))),
-				new ModbusInputRegisterRange(0x6040,
-						new UnsignedWordElement(0x6040, //
-								batteryInformation1 = new ModbusReadLongChannel("BatteryInformation1", this)),
-						new UnsignedWordElement(0x6041, //
-								batteryInformation2 = new ModbusReadLongChannel("BatteryInformation2", this)),
-						new UnsignedWordElement(0x6042, //
-								batteryInformation3 = new ModbusReadLongChannel("BatteryInformation3", this)),
-						new UnsignedWordElement(0x6043, //
-								batteryInformation4 = new ModbusReadLongChannel("BatteryInformation4", this))),
-				new ModbusInputRegisterRange(0x6840,
-						new UnsignedWordElement(0x6840, //
-								batteryInformation5 = new ModbusReadLongChannel("BatteryInformation5", this)),
-						new UnsignedWordElement(0x6841, //
-								batteryInformation6 = new ModbusReadLongChannel("BatteryInformation6", this)),
-						new UnsignedWordElement(0x6842, //
-								batteryInformation7 = new ModbusReadLongChannel("BatteryInformation7", this)),
-						new UnsignedWordElement(0x6843, //
-								batteryInformation8 = new ModbusReadLongChannel("BatteryInformation8", this))),
-				new ModbusInputRegisterRange(0x7640,
-						new UnsignedWordElement(0x7640, //
-								batteryInformation9 = new ModbusReadLongChannel("BatteryInformation9", this)),
-						new UnsignedWordElement(0x7641, //
-								batteryInformation10 = new ModbusReadLongChannel("BatteryInformation10", this)),
-						new UnsignedWordElement(0x7642, //
-								batteryInformation11 = new ModbusReadLongChannel("BatteryInformation11", this)),
-						new UnsignedWordElement(0x7643, //
-								batteryInformation12 = new ModbusReadLongChannel("BatteryInformation12", this))),
-				new ModbusInputRegisterRange(0x8440,
-						new UnsignedWordElement(0x8440, //
-								batteryInformation13 = new ModbusReadLongChannel("BatteryInformation13", this)),
-						new UnsignedWordElement(0x8441, //
-								batteryInformation14 = new ModbusReadLongChannel("BatteryInformation14", this)),
-						new UnsignedWordElement(0x8442, //
-								batteryInformation15 = new ModbusReadLongChannel("BatteryInformation15", this)),
-						new UnsignedWordElement(0x8443, //
-								batteryInformation16 = new ModbusReadLongChannel("BatteryInformation16", this))),
-				new ModbusInputRegisterRange(0x9240,
-						new UnsignedWordElement(0x9240, //
-								batteryInformation17 = new ModbusReadLongChannel("BatteryInformation17", this)),
-						new UnsignedWordElement(0x9241, //
-								batteryInformation18 = new ModbusReadLongChannel("BatteryInformation18", this)),
-						new UnsignedWordElement(0x9242, //
-								batteryInformation19 = new ModbusReadLongChannel("BatteryInformation19", this)),
-						new UnsignedWordElement(0x9243, //
-								batteryInformation20 = new ModbusReadLongChannel("BatteryInformation20", this))));
+										.unit("W").multiplier(2))));
+		// new ModbusInputRegisterRange(0x6040,
+		// new UnsignedWordElement(0x6040, //
+		// batteryInformation1 = new ModbusReadLongChannel("BatteryInformation1", this)),
+		// new UnsignedWordElement(0x6041, //
+		// batteryInformation2 = new ModbusReadLongChannel("BatteryInformation2", this)),
+		// new UnsignedWordElement(0x6042, //
+		// batteryInformation3 = new ModbusReadLongChannel("BatteryInformation3", this)),
+		// new UnsignedWordElement(0x6043, //
+		// batteryInformation4 = new ModbusReadLongChannel("BatteryInformation4", this))),
+		// new ModbusInputRegisterRange(0x6840,
+		// new UnsignedWordElement(0x6840, //
+		// batteryInformation5 = new ModbusReadLongChannel("BatteryInformation5", this)),
+		// new UnsignedWordElement(0x6841, //
+		// batteryInformation6 = new ModbusReadLongChannel("BatteryInformation6", this)),
+		// new UnsignedWordElement(0x6842, //
+		// batteryInformation7 = new ModbusReadLongChannel("BatteryInformation7", this)),
+		// new UnsignedWordElement(0x6843, //
+		// batteryInformation8 = new ModbusReadLongChannel("BatteryInformation8", this))),
+		// new ModbusInputRegisterRange(0x7640,
+		// new UnsignedWordElement(0x7640, //
+		// batteryInformation9 = new ModbusReadLongChannel("BatteryInformation9", this)),
+		// new UnsignedWordElement(0x7641, //
+		// batteryInformation10 = new ModbusReadLongChannel("BatteryInformation10", this)),
+		// new UnsignedWordElement(0x7642, //
+		// batteryInformation11 = new ModbusReadLongChannel("BatteryInformation11", this)),
+		// new UnsignedWordElement(0x7643, //
+		// batteryInformation12 = new ModbusReadLongChannel("BatteryInformation12", this))),
+		// new ModbusInputRegisterRange(0x8440,
+		// new UnsignedWordElement(0x8440, //
+		// batteryInformation13 = new ModbusReadLongChannel("BatteryInformation13", this)),
+		// new UnsignedWordElement(0x8441, //
+		// batteryInformation14 = new ModbusReadLongChannel("BatteryInformation14", this)),
+		// new UnsignedWordElement(0x8442, //
+		// batteryInformation15 = new ModbusReadLongChannel("BatteryInformation15", this)),
+		// new UnsignedWordElement(0x8443, //
+		// batteryInformation16 = new ModbusReadLongChannel("BatteryInformation16", this))),
+		// new ModbusInputRegisterRange(0x9240,
+		// new UnsignedWordElement(0x9240, //
+		// batteryInformation17 = new ModbusReadLongChannel("BatteryInformation17", this)),
+		// new UnsignedWordElement(0x9241, //
+		// batteryInformation18 = new ModbusReadLongChannel("BatteryInformation18", this)),
+		// new UnsignedWordElement(0x9242, //
+		// batteryInformation19 = new ModbusReadLongChannel("BatteryInformation19", this)),
+		// new UnsignedWordElement(0x9243, //
+		// batteryInformation20 = new ModbusReadLongChannel("BatteryInformation20", this))));
 	}
 
 	@Override
