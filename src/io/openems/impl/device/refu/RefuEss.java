@@ -135,6 +135,41 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature {
 	public ModbusReadLongChannel reactivePowerL2;
 	public ModbusReadLongChannel reactivePowerL3;
 	public ModbusReadLongChannel maxAcPower;
+	public StatusBitChannel batteryFault1;
+	public StatusBitChannel batteryFault2;
+	public StatusBitChannel batteryFault3;
+	public StatusBitChannel batteryFault4;
+	public StatusBitChannel batteryFault5;
+	public StatusBitChannel batteryFault6;
+	public StatusBitChannel batteryFault7;
+	public StatusBitChannel batteryFault8;
+	public StatusBitChannel batteryAlarm1;
+	public StatusBitChannel batteryAlarm2;
+	public StatusBitChannel batteryAlarm3;
+	public StatusBitChannel batteryAlarm4;
+	// public StatusBitChannel batteryAlarm5;
+	public StatusBitChannel batteryAlarm6;
+	public StatusBitChannel batteryAlarm7;
+	public ModbusReadLongChannel batteryInformation1;
+	public ModbusReadLongChannel batteryInformation2;
+	public ModbusReadLongChannel batteryInformation3;
+	public ModbusReadLongChannel batteryInformation4;
+	public ModbusReadLongChannel batteryInformation5;
+	public ModbusReadLongChannel batteryInformation6;
+	public ModbusReadLongChannel batteryInformation7;
+	public ModbusReadLongChannel batteryInformation8;
+	public ModbusReadLongChannel batteryInformation9;
+	public ModbusReadLongChannel batteryInformation10;
+	public ModbusReadLongChannel batteryInformation11;
+	public ModbusReadLongChannel batteryInformation12;
+	public ModbusReadLongChannel batteryInformation13;
+	public ModbusReadLongChannel batteryInformation14;
+	public ModbusReadLongChannel batteryInformation15;
+	public ModbusReadLongChannel batteryInformation16;
+	public ModbusReadLongChannel batteryInformation17;
+	public ModbusReadLongChannel batteryInformation18;
+	public ModbusReadLongChannel batteryInformation19;
+	public ModbusReadLongChannel batteryInformation20;
 
 	@Override
 	public ReadChannel<Long> gridMode() {
@@ -346,7 +381,7 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature {
 										.unit("�C")),
 						new DummyElement(0x12D),
 						new UnsignedWordElement(0x12E,
-								warning.channel(new StatusBitChannel("BatteryAlarm1", this)//
+								batteryAlarm1 = warning.channel(new StatusBitChannel("BatteryAlarm1", this)//
 										.label(1, "Normal charging over-current ")//
 										.label(2, "Charginig current over limit")//
 										.label(4, "Discharging current over limit")//
@@ -363,79 +398,81 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature {
 										.label(8192, "Discharging serious over current")//
 										.label(16384, "Abnormal capacity alarm"))),
 						new UnsignedWordElement(0x12F,
-								warning.channel(new StatusBitChannel("BatteryAlarm2", this)//
+								batteryAlarm2 = warning.channel(new StatusBitChannel("BatteryAlarm2", this)//
 										.label(1, "EEPROM parameter failure")//
 										.label(2, "Switch off inside combined cabinet")//
 										.label(32, "Should not be connected to grid due to the DC side condition")//
 										.label(128, "Emergency stop require from system controller"))),
 						new UnsignedWordElement(0x130,
-								warning.channel(new StatusBitChannel("BatteryAlarm3", this)//
+								batteryAlarm3 = warning.channel(new StatusBitChannel("BatteryAlarm3", this)//
 										.label(1, "Battery group 1 enable and not connected to grid")//
 										.label(2, "Battery group 2 enable and not connected to grid")//
 										.label(4, "Battery group 3 enable and not connected to grid")//
 										.label(8, "Battery group 4 enable and not connected to grid"))),
 						new UnsignedWordElement(0x131,
-								warning.channel(new StatusBitChannel("BatteryAlarm4", this)//
+								batteryAlarm4 = warning.channel(new StatusBitChannel("BatteryAlarm4", this)//
 										.label(1, "The isolation switch of battery group 1 open")//
 										.label(2, "The isolation switch of battery group 2 open")//
 										.label(4, "The isolation switch of battery group 3 open")//
 										.label(8, "The isolation switch of battery group 4 open"))),
 						new DummyElement(0x132),
 						new UnsignedWordElement(0x133,
-								warning.channel(new StatusBitChannel("BatteryAlarm6", this)//
+								batteryAlarm6 = warning.channel(new StatusBitChannel("BatteryAlarm6", this)//
 										.label(1, "Balancing sampling failure of battery group 1")//
 										.label(2, "Balancing sampling failure of battery group 2")//
 										.label(4, "Balancing sampling failure of battery group 3")//
 										.label(8, "Balancing sampling failure of battery group 4"))),
 						new UnsignedWordElement(0x134,
-								warning.channel(new StatusBitChannel("BatteryAlarm7", this)//
+								batteryAlarm7 = warning.channel(new StatusBitChannel("BatteryAlarm7", this)//
 										.label(1, "Balancing control failure of battery group 1")//
 										.label(2, "Balancing control failure of battery group 2")//
 										.label(4, "Balancing control failure of battery group 3")//
 										.label(8, "Balancing control failure of battery group 4"))),
-						new UnsignedWordElement(0x135, warning.channel(new StatusBitChannel("BatteryFault1", this)//
-								.label(1, "No enable batery group or usable battery group")//
-								.label(2, "Normal leakage of battery group")//
-								.label(4, "Serious leakage of battery group")//
-								.label(8, "Battery start failure")//
-								.label(16, "Battery stop failure")//
-								.label(32, "Interruption of CAN Communication between battery group and controller")//
-								.label(1024, "Emergency stop abnormal of auxiliary collector")//
-								.label(2048, "Leakage self detection on negative")//
-								.label(4096, "Leakage self detection on positive")//
-								.label(8192, "Self detection failure on battery"))),
+						new UnsignedWordElement(0x135,
+								batteryFault1 = warning.channel(new StatusBitChannel("BatteryFault1", this)//
+										.label(1, "No enable batery group or usable battery group")//
+										.label(2, "Normal leakage of battery group")//
+										.label(4, "Serious leakage of battery group")//
+										.label(8, "Battery start failure")//
+										.label(16, "Battery stop failure")//
+										.label(32,
+												"Interruption of CAN Communication between battery group and controller")//
+										.label(1024, "Emergency stop abnormal of auxiliary collector")//
+										.label(2048, "Leakage self detection on negative")//
+										.label(4096, "Leakage self detection on positive")//
+										.label(8192, "Self detection failure on battery"))),
 						new UnsignedWordElement(0x136,
-								warning.channel(new StatusBitChannel("BatteryFault2", this)//
+								batteryFault2 = warning.channel(new StatusBitChannel("BatteryFault2", this)//
 										.label(1, "CAN Communication interruption between battery group and group 1")//
 										.label(2, "CAN Communication interruption between battery group and group 2")//
 										.label(4, "CAN Communication interruption between battery group and group 3")//
 										.label(8, "CAN Communication interruption between battery group and group 4"))),
 						new UnsignedWordElement(0x137,
-								warning.channel(new StatusBitChannel("BatteryFault3", this)//
+								batteryFault3 = warning.channel(new StatusBitChannel("BatteryFault3", this)//
 										.label(1, "Main contractor abnormal in battery self detect group 1")//
 										.label(2, "Main contractor abnormal in battery self detect group 2")//
 										.label(4, "Main contractor abnormal in battery self detect group 3")//
 										.label(8, "Main contractor abnormal in battery self detect group 4"))),
 						new UnsignedWordElement(0x138,
-								warning.channel(new StatusBitChannel("BatteryFault4", this)//
+								batteryFault4 = warning.channel(new StatusBitChannel("BatteryFault4", this)//
 										.label(1, "Pre-charge contractor abnormal on battery self detect group 1")//
 										.label(2, "Pre-charge contractor abnormal on battery self detect group 2")//
 										.label(4, "Pre-charge contractor abnormal on battery self detect group 3")//
 										.label(8, "Pre-charge contractor abnormal on battery self detect group 4"))),
 						new UnsignedWordElement(0x139,
-								warning.channel(new StatusBitChannel("BatteryFault5", this)//
+								batteryFault5 = warning.channel(new StatusBitChannel("BatteryFault5", this)//
 										.label(1, "Main contact failure on battery control group 1")//
 										.label(2, "Main contact failure on battery control group 2")//
 										.label(4, "Main contact failure on battery control group 3")//
 										.label(8, "Main contact failure on battery control group 4"))),
 						new UnsignedWordElement(0x13A,
-								warning.channel(new StatusBitChannel("BatteryFault6", this)//
+								batteryFault6 = warning.channel(new StatusBitChannel("BatteryFault6", this)//
 										.label(1, "Pre-charge failure on battery control group 1")//
 										.label(2, "Pre-charge failure on battery control group 2")//
 										.label(4, "Pre-charge failure on battery control group 3")//
 										.label(8, "Pre-charge failure on battery control group 4"))),
 						new UnsignedWordElement(0x13B,
-								warning.channel(new StatusBitChannel("BatteryFault7", this)//
+								batteryFault7 = warning.channel(new StatusBitChannel("BatteryFault7", this)//
 										.label(4, "Sampling circuit abnormal for BMU")//
 										.label(8, "Power cable disconnect failure")//
 										.label(16, "Sampling circuit disconnect failure")//
@@ -448,7 +485,7 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature {
 										.label(16384, "BMUPower contactor circuit detection abnormal")//
 										.label(32768, "Central contactor circuit detection abnormal"))),
 						new UnsignedWordElement(0x13C,
-								warning.channel(new StatusBitChannel("BatteryFault8", this)//
+								batteryFault8 = warning.channel(new StatusBitChannel("BatteryFault8", this)//
 										.label(4, "Serious temperature fault")//
 										.label(8, "Communication fault for system controller")//
 										.label(128, "Frog alarm")//
@@ -477,7 +514,52 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature {
 						new DummyElement(0x204, 0x206),
 						new SignedWordElement(0x207, //
 								setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this)//
-										.unit("W").multiplier(2))));
+										.unit("W").multiplier(2))),
+				new ModbusInputRegisterRange(0x6040,
+						new UnsignedWordElement(0x6040, //
+								batteryInformation1 = new ModbusReadLongChannel("BatteryInformation1", this)),
+						new UnsignedWordElement(0x6041, //
+								batteryInformation2 = new ModbusReadLongChannel("BatteryInformation2", this)),
+						new UnsignedWordElement(0x6042, //
+								batteryInformation3 = new ModbusReadLongChannel("BatteryInformation3", this)),
+						new UnsignedWordElement(0x6043, //
+								batteryInformation4 = new ModbusReadLongChannel("BatteryInformation4", this))),
+				new ModbusInputRegisterRange(0x6840,
+						new UnsignedWordElement(0x6840, //
+								batteryInformation5 = new ModbusReadLongChannel("BatteryInformation5", this)),
+						new UnsignedWordElement(0x6841, //
+								batteryInformation6 = new ModbusReadLongChannel("BatteryInformation6", this)),
+						new UnsignedWordElement(0x6842, //
+								batteryInformation7 = new ModbusReadLongChannel("BatteryInformation7", this)),
+						new UnsignedWordElement(0x6843, //
+								batteryInformation8 = new ModbusReadLongChannel("BatteryInformation8", this))),
+				new ModbusInputRegisterRange(0x7640,
+						new UnsignedWordElement(0x7640, //
+								batteryInformation9 = new ModbusReadLongChannel("BatteryInformation9", this)),
+						new UnsignedWordElement(0x7641, //
+								batteryInformation10 = new ModbusReadLongChannel("BatteryInformation10", this)),
+						new UnsignedWordElement(0x7642, //
+								batteryInformation11 = new ModbusReadLongChannel("BatteryInformation11", this)),
+						new UnsignedWordElement(0x7643, //
+								batteryInformation12 = new ModbusReadLongChannel("BatteryInformation12", this))),
+				new ModbusInputRegisterRange(0x8440,
+						new UnsignedWordElement(0x8440, //
+								batteryInformation13 = new ModbusReadLongChannel("BatteryInformation13", this)),
+						new UnsignedWordElement(0x8441, //
+								batteryInformation14 = new ModbusReadLongChannel("BatteryInformation14", this)),
+						new UnsignedWordElement(0x8442, //
+								batteryInformation15 = new ModbusReadLongChannel("BatteryInformation15", this)),
+						new UnsignedWordElement(0x8443, //
+								batteryInformation16 = new ModbusReadLongChannel("BatteryInformation16", this))),
+				new ModbusInputRegisterRange(0x9240,
+						new UnsignedWordElement(0x9240, //
+								batteryInformation17 = new ModbusReadLongChannel("BatteryInformation17", this)),
+						new UnsignedWordElement(0x9241, //
+								batteryInformation18 = new ModbusReadLongChannel("BatteryInformation18", this)),
+						new UnsignedWordElement(0x9242, //
+								batteryInformation19 = new ModbusReadLongChannel("BatteryInformation19", this)),
+						new UnsignedWordElement(0x9243, //
+								batteryInformation20 = new ModbusReadLongChannel("BatteryInformation20", this))));
 	}
 
 	@Override
