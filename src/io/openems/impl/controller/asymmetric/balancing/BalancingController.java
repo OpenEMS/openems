@@ -61,7 +61,7 @@ public class BalancingController extends Controller {
 	/*
 	 * Fields
 	 */
-	private long[][] lastWriteValues = new long[3][3];
+	private long[][] lastWriteValues = new long[3][5];
 	private int index = 0;
 
 	/*
@@ -84,6 +84,12 @@ public class BalancingController extends Controller {
 				calculatedPowers[1] += ess.activePowerL2.value();
 				calculatedPowers[2] += ess.activePowerL3.value();
 			}
+			for (int i = 0; i < 3; i++) {
+				lastWriteValues[i][index] = calculatedPowers[i];
+				calculatedPowers[i] = getAvgPower(i + 1);
+			}
+			index++;
+			index %= lastWriteValues[0].length;
 			// Calculate required sum values
 			long useableSoc = 0;
 			for (Ess ess : esss.value()) {
