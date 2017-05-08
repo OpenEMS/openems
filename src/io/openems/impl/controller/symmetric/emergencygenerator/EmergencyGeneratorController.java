@@ -76,10 +76,19 @@ public class EmergencyGeneratorController extends Controller {
 	 */
 	private ThingRepository repo = ThingRepository.getInstance();
 	private WriteChannel<Boolean> outputChannel;
-	private boolean generatorOn = false;
 	private long timeOnGrid = 0L;
-	private boolean switchedToOnGrid = true;
+	private long timeOffGrid = 0L;
 	private long startTime = System.currentTimeMillis();
+	private State currentState = State.UNKNOWN;
+	private OffGridState currentOffGridState;
+
+	private enum State {
+		GOONGRID1, GOONGRID2, ONGRID, GOOFFGRID, OFFGRID, UNKNOWN
+	}
+
+	private enum OffGridState {
+		STOPGENERATOR, STARTGENERATOR, STOP, RUNNING
+	}
 
 	/*
 	 * Methods
@@ -105,45 +114,127 @@ public class EmergencyGeneratorController extends Controller {
 	public void run() {
 		if (startTime + 1000 * 15 <= System.currentTimeMillis()) {
 			try {
-				// Check if grid is available
-				if (!meter.value().voltage.valueOptional().isPresent()) {
-					// no meassurable voltage => Off-Grid
-					if (!generatorOn && ess.value().soc.valueOptional().isPresent()
-							&& ess.value().soc.value() <= minSoc.value()) {
-						// switch generator on
-						startGenerator();
-						generatorOn = true;
-						System.out.println("1: storage is empty. Start generator.");
-					} else if (generatorOn && (!ess.value().soc.valueOptional().isPresent()
-							|| ess.value().soc.value() >= maxSoc.value())) {
-						// switch generator off
+				switch (currentState) {
+				case GOOFFGRID:
+					if (isOff()) {
+						if (timeOffGrid + switchDelay.value() <= System.currentTimeMillis()) {
+							currentState = State.OFFGRID;
+						}
+					} else {
 						stopGenerator();
-						generatorOn = false;
-						System.out.println("Storage is full. Stop generator.");
-					} else if (generatorOn) {
-						startGenerator();
-						System.out.println("3: ");
-					} else if (!generatorOn) {
-						stopGenerator();
-						System.out.println("4: ");
+						timeOffGrid = System.currentTimeMillis();
 					}
-					switchedToOnGrid = false;
-				} else {
-					// Grid voltage is in the allowed range
-					if (switchedToOnGrid) {
+					break;
+				case GOONGRID1:
+					if (isOff()) {
 						if (timeOnGrid + switchDelay.value() <= System.currentTimeMillis()) {
-							if (onGridOutputOn.value()) {
-								startGenerator();
-							} else {
-								stopGenerator();
-							}
+							currentState = State.GOONGRID2;
 						}
 					} else {
 						stopGenerator();
 						timeOnGrid = System.currentTimeMillis();
-						switchedToOnGrid = true;
 					}
+					break;
+				case GOONGRID2:
+					// check if outputstate is correct according to onGridOutputOn => !(1^1) = 1, !(1^0) = 0,
+					// !(0^1) = 0, !(0^0) = 1
+					if (!(onGridOutputOn.value() ^ isOn())) {
+						currentState = State.ONGRID;
+					} else {
+						if (onGridOutputOn.value()) {
+							startGenerator();
+						} else {
+							stopGenerator();
+						}
+					}
+					break;
+				case ONGRID:
+					if (meter.value().voltage.valueOptional().isPresent()) {
+						if (onGridOutputOn.value() ^ isOn()) {
+							currentState = State.GOONGRID2;
+						}
+					} else {
+						currentState = State.GOOFFGRID;
+					}
+					break;
+				case OFFGRID:
+					if (meter.value().voltage.valueOptional().isPresent()) {
+						currentState = State.GOONGRID1;
+					} else {
+						switch (currentOffGridState) {
+						case RUNNING:
+							if (!ess.value().soc.valueOptional().isPresent()
+									|| ess.value().soc.value() >= maxSoc.value()) {
+								currentOffGridState = OffGridState.STOPGENERATOR;
+							}
+							break;
+						case STARTGENERATOR:
+							if (isOn()) {
+								currentOffGridState = OffGridState.RUNNING;
+							} else {
+								startGenerator();
+							}
+							break;
+						case STOP:
+							if (ess.value().soc.valueOptional().isPresent()
+									&& ess.value().soc.value() <= minSoc.value()) {
+								currentOffGridState = OffGridState.STARTGENERATOR;
+							}
+							break;
+						case STOPGENERATOR:
+							if (isOff()) {
+								currentOffGridState = OffGridState.STOP;
+							} else {
+								stopGenerator();
+							}
+							break;
+						}
+					}
+				case UNKNOWN:
+				default:
+					if (meter.value().voltage.valueOptional().isPresent()) {
+						currentState = State.GOONGRID2;
+					} else {
+						currentState = State.GOOFFGRID;
+					}
+					break;
+
 				}
+				// // Check if grid is available
+				// if (!meter.value().voltage.valueOptional().isPresent()) {
+				// // no meassurable voltage => Off-Grid
+				// if (!generatorOn && ess.value().soc.valueOptional().isPresent()
+				// && ess.value().soc.value() <= minSoc.value()) {
+				// // switch generator on
+				// startGenerator();
+				// generatorOn = true;
+				// } else if (generatorOn && (!ess.value().soc.valueOptional().isPresent()
+				// || ess.value().soc.value() >= maxSoc.value())) {
+				// // switch generator off
+				// stopGenerator();
+				// generatorOn = false;
+				// } else if (generatorOn) {
+				// startGenerator();
+				// } else if (!generatorOn) {
+				// stopGenerator();
+				// }
+				// switchedToOnGrid = false;
+				// } else {
+				// // Grid voltage is in the allowed range
+				// if (switchedToOnGrid) {
+				// if (timeOnGrid + switchDelay.value() <= System.currentTimeMillis()) {
+				// if (onGridOutputOn.value()) {
+				// startGenerator();
+				// } else {
+				// stopGenerator();
+				// }
+				// }
+				// } else {
+				// stopGenerator();
+				// timeOnGrid = System.currentTimeMillis();
+				// switchedToOnGrid = true;
+				// }
+				// }
 			} catch (InvalidValueException e) {
 				log.error("Failed to read value!", e);
 			} catch (WriteChannelException e) {
@@ -151,20 +242,27 @@ public class EmergencyGeneratorController extends Controller {
 						e);
 			}
 		}
+
 	}
 
 	private void startGenerator() throws WriteChannelException, InvalidValueException {
 		if (outputChannel.value() != true ^ invertOutput.value()) {
 			outputChannel.pushWrite(true ^ invertOutput.value());
 		}
-		generatorOn = true;
 	}
 
 	private void stopGenerator() throws InvalidValueException, WriteChannelException {
 		if (outputChannel.value() != false ^ invertOutput.value()) {
 			outputChannel.pushWrite(false ^ invertOutput.value());
 		}
-		generatorOn = false;
+	}
+
+	private boolean isOff() throws InvalidValueException {
+		return outputChannel.value() == false ^ invertOutput.value();
+	}
+
+	private boolean isOn() throws InvalidValueException {
+		return outputChannel.value() == true ^ invertOutput.value();
 	}
 
 }
