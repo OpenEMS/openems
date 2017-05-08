@@ -1,6 +1,6 @@
 # OpenemsGui
 
-This project was generated with [angular-cli](https://github.com/angular/angular-cli) version 1.0.0-beta.26.
+This project was generated with [angular-cli](https://github.com/angular/angular-cli) version 1.0.2.
 Dependencies are managed by yarn: `ng set --global packageManager=yarn` and `yarn install`.
 
 ## Development server
@@ -20,6 +20,10 @@ Build for femsserver:
 Build for openems:
 
 `ng build -prod --env=openems --base-href /`
+
+Bulid for projects:
+
+`ng build -prod --env=project-VA6403 --base-href /`
 
 ## Further help
 
