@@ -44,7 +44,7 @@ public class ThermalPowerStationController extends Controller {
 	 * Fields
 	 */
 	private ThingRepository repo = ThingRepository.getInstance();
-	private Long lastTimeBelowProductionlimit = System.currentTimeMillis();
+	private Long lastTimeAboveProductionlimit = System.currentTimeMillis();
 	public WriteChannel<Boolean> outputChannel;
 	private int switchOnCount = 0;
 	private int switchOffCount = 0;
@@ -108,14 +108,14 @@ public class ThermalPowerStationController extends Controller {
 	@Override
 	public void run() {
 		try {
-			if (getProductionPower() <= productionLimit.value()) {
-				lastTimeBelowProductionlimit = System.currentTimeMillis();
+			if (getProductionPower() >= productionLimit.value()) {
+				lastTimeAboveProductionlimit = System.currentTimeMillis();
 			}
 			switch (currentState) {
 			case OFF:
 				if (isOff()) {
 					if (ess.value().soc.value() <= minSoc.value()
-							&& lastTimeBelowProductionlimit + limitTimeRange.value() > System.currentTimeMillis()) {
+							&& lastTimeAboveProductionlimit + limitTimeRange.value() <= System.currentTimeMillis()) {
 						currentState = State.SWITCHON;
 					}
 				} else {
@@ -127,7 +127,7 @@ public class ThermalPowerStationController extends Controller {
 					currentState = State.SWITCHON;
 				} else {
 					if (ess.value().soc.value() >= maxSoc.value()
-							|| lastTimeBelowProductionlimit + limitTimeRange.value() <= System.currentTimeMillis()) {
+							|| lastTimeAboveProductionlimit + limitTimeRange.value() > System.currentTimeMillis()) {
 						currentState = State.SWITCHOFF;
 					}
 				}

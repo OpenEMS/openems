@@ -72,21 +72,32 @@ public class ThermalPowerStationTest {
 		meter.activePower.setValue(0L);
 		outputChannel.setValue(true);
 		outputChannel.shadowCopyAndReset();
+		// OFF
 		controller.run();
 		assertEquals(false, outputChannel.getWriteValue().isPresent());
 		outputChannel.shadowCopyAndReset();
+		// SWITCH OFF
 		controller.run();
 		assertEquals(true, outputChannel.getWriteValue().isPresent());
 		boolean output = outputChannel.getWriteValue().get();
 		assertEquals(false, output);
 		outputChannel.setValue(false);
 		outputChannel.shadowCopyAndReset();
+		// SWITCH OFF
 		controller.run();
 		assertEquals(false, outputChannel.getWriteValue().isPresent());
 		outputChannel.shadowCopyAndReset();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// OFF
 		controller.run();
 		assertEquals(false, outputChannel.getWriteValue().isPresent());
 		outputChannel.shadowCopyAndReset();
+		// SWITCH ON
 		controller.run();
 		assertEquals(true, outputChannel.getWriteValue().isPresent());
 		output = outputChannel.getWriteValue().get();
@@ -99,10 +110,11 @@ public class ThermalPowerStationTest {
 		meter.activePower.setValue(5000L);
 		outputChannel.setValue(true);
 		outputChannel.shadowCopyAndReset();
+		// OFF
 		controller.run();
 		assertEquals(false, outputChannel.getWriteValue().isPresent());
 		try {
-			Thread.sleep(1000 * 2);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
