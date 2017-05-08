@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.offGridIndication;
+package io.openems.impl.controller.onGridIndication;
 
 import java.util.Optional;
 
@@ -31,10 +31,10 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 
-public class OffGridIndicationController extends Controller {
+public class OnGridIndicationController extends Controller {
 
 	private ThingRepository repo = ThingRepository.getInstance();
-	private WriteChannel<Boolean> offGridOutputChannel;
+	private WriteChannel<Boolean> onGridOutputChannel;
 	private State currentState = State.UNKNOWN;
 	private boolean isProducerDisconnected = false;
 	private long timeProducerDisconnected;
@@ -53,28 +53,28 @@ public class OffGridIndicationController extends Controller {
 	public ConfigChannel<Long> switchDelay = new ConfigChannel<Long>("switchDelay", this).defaultValue(10000L);
 
 	@SuppressWarnings("unchecked")
-	@ConfigInfo(title = "the address of the Digital Output to signal off-Grid.", type = String.class)
-	public ConfigChannel<String> offGridOutputChannelAddress = new ConfigChannel<String>("offGridOutputChannelAddress",
+	@ConfigInfo(title = "the address of the Digital Output to singal on-Grid.", type = String.class)
+	public ConfigChannel<String> onGridOutputChannelAddress = new ConfigChannel<String>("onGridOutputChannelAddress",
 			this).addChangeListener((channel, newValue, oldValue) -> {
 				Optional<String> channelAddress = (Optional<String>) newValue;
 				if (channelAddress.isPresent()) {
 					Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
 					if (ch.isPresent()) {
-						offGridOutputChannel = (WriteChannel<Boolean>) ch.get();
-						offGridOutputChannel.required();
+						onGridOutputChannel = (WriteChannel<Boolean>) ch.get();
+						onGridOutputChannel.required();
 					} else {
 						log.error("Channel " + channelAddress.get() + " not found");
 					}
 				} else {
-					log.error("'offGridOutputChannelAddress' is not configured!");
+					log.error("'onGridOutputChannelAddress' is not configured!");
 				}
 			});
 
-	public OffGridIndicationController() {
+	public OnGridIndicationController() {
 		super();
 	}
 
-	public OffGridIndicationController(String thingId) {
+	public OnGridIndicationController(String thingId) {
 		super(thingId);
 	}
 
@@ -85,18 +85,16 @@ public class OffGridIndicationController extends Controller {
 				Meter meter = this.meter.value();
 				switch (currentState) {
 				case OFFGRID:
-					if (isOffGrid()) {
+					if (isOff()) {
 						if (meter.voltage.valueOptional().isPresent()) {
 							currentState = State.SWITCHTOONGRID;
-						} else {
-							offGridOutputChannel.pushWrite(true);
 						}
 					} else {
 						currentState = State.SWITCHTOOFFGRID;
 					}
 					break;
 				case ONGRID: {
-					if (isOff()) {
+					if (isOnGrid()) {
 						if (!meter.voltage.valueOptional().isPresent()) {
 							currentState = State.SWITCHTOOFFGRID;
 						}
@@ -107,25 +105,29 @@ public class OffGridIndicationController extends Controller {
 					break;
 				case SWITCHTOOFFGRID:
 					if (isOff()) {
-						if (!isProducerDisconnected) {
-							isProducerDisconnected = true;
-							timeProducerDisconnected = System.currentTimeMillis();
-						}
-						if (timeProducerDisconnected + switchDelay.value() <= System.currentTimeMillis()
-								&& isProducerDisconnected) {
-							offGridOutputChannel.pushWrite(true);
-							currentState = State.OFFGRID;
-						}
+						currentState = State.OFFGRID;
 					} else {
-						isProducerDisconnected = false;
-						offGridOutputChannel.pushWrite(false);
+						onGridOutputChannel.pushWrite(false);
 					}
 					break;
 				case SWITCHTOONGRID:
-					if (isOff()) {
+					if (isOnGrid()) {
 						currentState = State.ONGRID;
+						isProducerDisconnected = false;
 					} else {
-						offGridOutputChannel.pushWrite(false);
+						if (isOff()) {
+							if (!isProducerDisconnected) {
+								isProducerDisconnected = true;
+								timeProducerDisconnected = System.currentTimeMillis();
+							}
+							if (timeProducerDisconnected + switchDelay.value() <= System.currentTimeMillis()
+									&& isProducerDisconnected) {
+								onGridOutputChannel.pushWrite(true);
+							}
+						} else {
+							isProducerDisconnected = false;
+							onGridOutputChannel.pushWrite(false);
+						}
 					}
 					break;
 				default: {
@@ -146,12 +148,12 @@ public class OffGridIndicationController extends Controller {
 		}
 	}
 
-	private boolean isOffGrid() throws InvalidValueException {
-		return offGridOutputChannel.value() == true;
+	private boolean isOff() throws InvalidValueException {
+		return onGridOutputChannel.value() == false;
 	}
 
-	private boolean isOff() throws InvalidValueException {
-		return offGridOutputChannel.value() == false;
+	private boolean isOnGrid() throws InvalidValueException {
+		return onGridOutputChannel.value() == true;
 	}
 
 }
