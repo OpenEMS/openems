@@ -130,9 +130,17 @@ public class OffGridIndicationController extends Controller {
 					break;
 				default: {
 					if (meter.voltage.valueOptional().isPresent()) {
-						currentState = State.SWITCHTOONGRID;
+						if (isOff()) {
+							currentState = State.ONGRID;
+						} else {
+							currentState = State.SWITCHTOONGRID;
+						}
 					} else {
-						currentState = State.SWITCHTOOFFGRID;
+						if (isOffGrid()) {
+							currentState = State.OFFGRID;
+						} else {
+							currentState = State.SWITCHTOOFFGRID;
+						}
 					}
 				}
 					break;
