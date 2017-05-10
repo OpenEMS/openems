@@ -26,6 +26,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -48,6 +49,9 @@ public class OnGridIndicationController extends Controller {
 
 	@ConfigInfo(title = "The ess where the grid state should be read from.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
+
+	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
+	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
 	@ConfigInfo(title = "time to wait before switch output on.", type = Long.class)
 	public ConfigChannel<Long> switchDelay = new ConfigChannel<Long>("switchDelay", this).defaultValue(10000L);
@@ -83,10 +87,14 @@ public class OnGridIndicationController extends Controller {
 		if (startTime + 1000 * 15 <= System.currentTimeMillis()) {
 			try {
 				Meter meter = this.meter.value();
+				Ess ess = this.ess.value();
 				switch (currentState) {
 				case OFFGRID:
 					if (isOff()) {
-						if (meter.voltage.valueOptional().isPresent()) {
+						// if (meter.voltage.valueOptional().isPresent()) {
+						// currentState = State.SWITCHTOONGRID;
+						// }
+						if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 							currentState = State.SWITCHTOONGRID;
 						}
 					} else {
@@ -132,9 +140,17 @@ public class OnGridIndicationController extends Controller {
 					break;
 				default: {
 					if (meter.voltage.valueOptional().isPresent()) {
-						currentState = State.SWITCHTOONGRID;
+						if (isOnGrid()) {
+							currentState = State.ONGRID;
+						} else {
+							currentState = State.SWITCHTOONGRID;
+						}
 					} else {
-						currentState = State.SWITCHTOOFFGRID;
+						if (isOff()) {
+							currentState = State.OFFGRID;
+						} else {
+							currentState = State.SWITCHTOOFFGRID;
+						}
 					}
 				}
 					break;
