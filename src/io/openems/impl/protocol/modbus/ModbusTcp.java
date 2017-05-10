@@ -26,7 +26,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
@@ -131,7 +130,6 @@ public class ModbusTcp extends ModbusBridge {
 			try {
 				TCPMasterConnection tcpCon = new TCPMasterConnection(ip.value());
 				tcpCon.setPort(port.valueOptional().orElse(502));
-				tcpCon.getModbusTransport().setTimeout(cycleTime.valueOptional().orElse(Modbus.DEFAULT_TIMEOUT));
 				connection = Optional.of(tcpCon);
 			} catch (InvalidValueException e) {
 				throw new OpenemsModbusException("Modbus-TCP is not configured completely");
@@ -139,7 +137,11 @@ public class ModbusTcp extends ModbusBridge {
 		}
 		if (!connection.get().isConnected()) {
 			try {
-				connection.get().connect();
+				TCPMasterConnection tcpCon = connection.get();
+				tcpCon.connect();
+				if (cycleTime.valueOptional().isPresent()) {
+					tcpCon.getModbusTransport().setTimeout(cycleTime.valueOptional().get());
+				}
 			} catch (Exception e) {
 				throw new OpenemsModbusException("Unable to open Modbus-TCP connection: " + ip.valueOptional().get());
 			}

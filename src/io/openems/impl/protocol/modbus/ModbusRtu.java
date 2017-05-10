@@ -147,13 +147,15 @@ public class ModbusRtu extends ModbusBridge {
 			params.setStopbits(stopbits.valueOptional().get());
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
-			SerialConnection serialCon = new SerialConnection(params);
-			serialCon.getModbusTransport().setTimeout(cycleTime.valueOptional().orElse(Modbus.DEFAULT_TIMEOUT));
-			connection = Optional.of(serialCon);
+			connection = Optional.of(new SerialConnection(params));
 		}
 		if (!connection.get().isOpen()) {
 			try {
-				connection.get().open();
+				SerialConnection serialCon = connection.get();
+				serialCon.open();
+				if (cycleTime.valueOptional().isPresent()) {
+					serialCon.getModbusTransport().setTimeout(cycleTime.valueOptional().get());
+				}
 			} catch (Exception e) {
 				throw new OpenemsModbusException("Unable to open Modbus-RTU connection: " + connection);
 			}
