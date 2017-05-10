@@ -257,6 +257,38 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	public ModbusReadLongChannel batteryGroupAlarm;
 	public ModbusReadLongChannel batteryCurrent;
 	public ModbusReadLongChannel batteryVoltage;
+	public ModbusReadLongChannel batteryVoltageSection1;
+	public ModbusReadLongChannel batteryVoltageSection2;
+	public ModbusReadLongChannel batteryVoltageSection3;
+	public ModbusReadLongChannel batteryVoltageSection4;
+	public ModbusReadLongChannel batteryVoltageSection5;
+	public ModbusReadLongChannel batteryVoltageSection6;
+	public ModbusReadLongChannel batteryVoltageSection7;
+	public ModbusReadLongChannel batteryVoltageSection8;
+	public ModbusReadLongChannel batteryVoltageSection9;
+	public ModbusReadLongChannel batteryVoltageSection10;
+	public ModbusReadLongChannel batteryVoltageSection11;
+	public ModbusReadLongChannel batteryVoltageSection12;
+	public ModbusReadLongChannel batteryVoltageSection13;
+	public ModbusReadLongChannel batteryVoltageSection14;
+	public ModbusReadLongChannel batteryVoltageSection15;
+	public ModbusReadLongChannel batteryVoltageSection16;
+	public ModbusReadLongChannel batteryTemperatureSection1;
+	public ModbusReadLongChannel batteryTemperatureSection2;
+	public ModbusReadLongChannel batteryTemperatureSection3;
+	public ModbusReadLongChannel batteryTemperatureSection4;
+	public ModbusReadLongChannel batteryTemperatureSection5;
+	public ModbusReadLongChannel batteryTemperatureSection6;
+	public ModbusReadLongChannel batteryTemperatureSection7;
+	public ModbusReadLongChannel batteryTemperatureSection8;
+	public ModbusReadLongChannel batteryTemperatureSection9;
+	public ModbusReadLongChannel batteryTemperatureSection10;
+	public ModbusReadLongChannel batteryTemperatureSection11;
+	public ModbusReadLongChannel batteryTemperatureSection12;
+	public ModbusReadLongChannel batteryTemperatureSection13;
+	public ModbusReadLongChannel batteryTemperatureSection14;
+	public ModbusReadLongChannel batteryTemperatureSection15;
+	public ModbusReadLongChannel batteryTemperatureSection16;
 	public ModbusReadLongChannel batteryGroupState;
 	public ModbusReadLongChannel totalBatteryDischargeEnergy;
 	public ModbusReadLongChannel totalBatteryChargeEnergy;
@@ -597,6 +629,101 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						new SignedWordElement(211,
 								setReactivePowerL3 = new ModbusWriteLongChannel("SetReactivePowerL3", this).unit("Var")//
 						)), //
+				new ModbusRegisterRange(3020, new UnsignedWordElement(3020,
+						batteryVoltageSection1 = new ModbusReadLongChannel("BatteryVoltageSection1", this).unit("mV")),
+						new UnsignedWordElement(3021,
+								batteryVoltageSection2 = new ModbusReadLongChannel("BatteryVoltageSection2", this)
+										.unit("mV")),
+						new UnsignedWordElement(3022,
+								batteryVoltageSection3 = new ModbusReadLongChannel("BatteryVoltageSection3", this)
+										.unit("mV")),
+						new UnsignedWordElement(3023,
+								batteryVoltageSection4 = new ModbusReadLongChannel("BatteryVoltageSection4", this)
+										.unit("mV")),
+						new UnsignedWordElement(3024,
+								batteryVoltageSection5 = new ModbusReadLongChannel("BatteryVoltageSection5", this)
+										.unit("mV")),
+						new UnsignedWordElement(3025,
+								batteryVoltageSection6 = new ModbusReadLongChannel("BatteryVoltageSection6", this)
+										.unit("mV")),
+						new UnsignedWordElement(3026,
+								batteryVoltageSection7 = new ModbusReadLongChannel("BatteryVoltageSection7", this)
+										.unit("mV")),
+						new UnsignedWordElement(3027,
+								batteryVoltageSection8 = new ModbusReadLongChannel("BatteryVoltageSection8", this)
+										.unit("mV")),
+						new UnsignedWordElement(3028,
+								batteryVoltageSection9 = new ModbusReadLongChannel("BatteryVoltageSection9", this)
+										.unit("mV")),
+						new UnsignedWordElement(3029,
+								batteryVoltageSection10 = new ModbusReadLongChannel("BatteryVoltageSection10", this)
+										.unit("mV")),
+						new UnsignedWordElement(3030,
+								batteryVoltageSection11 = new ModbusReadLongChannel("BatteryVoltageSection11", this)
+										.unit("mV")),
+						new UnsignedWordElement(3031,
+								batteryVoltageSection12 = new ModbusReadLongChannel("BatteryVoltageSection12", this)
+										.unit("mV")),
+						new UnsignedWordElement(3032,
+								batteryVoltageSection13 = new ModbusReadLongChannel("BatteryVoltageSection13", this)
+										.unit("mV")),
+						new UnsignedWordElement(3033,
+								batteryVoltageSection14 = new ModbusReadLongChannel("BatteryVoltageSection14", this)
+										.unit("mV")),
+						new UnsignedWordElement(3034,
+								batteryVoltageSection15 = new ModbusReadLongChannel("BatteryVoltageSection15", this)
+										.unit("mV")),
+						new UnsignedWordElement(3035,
+								batteryVoltageSection16 = new ModbusReadLongChannel("BatteryVoltageSection16", this)
+										.unit("mV")),
+						new UnsignedWordElement(3036,
+								batteryTemperatureSection1 = new ModbusReadLongChannel("BatteryTemperatureSection1",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3037,
+								batteryTemperatureSection2 = new ModbusReadLongChannel("BatteryTemperatureSection2",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3038,
+								batteryTemperatureSection3 = new ModbusReadLongChannel("BatteryTemperatureSection3",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3039,
+								batteryTemperatureSection4 = new ModbusReadLongChannel("BatteryTemperatureSection4",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3040,
+								batteryTemperatureSection5 = new ModbusReadLongChannel("BatteryTemperatureSection5",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3041,
+								batteryTemperatureSection6 = new ModbusReadLongChannel("BatteryTemperatureSection6",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3042,
+								batteryTemperatureSection7 = new ModbusReadLongChannel("BatteryTemperatureSection7",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3043,
+								batteryTemperatureSection8 = new ModbusReadLongChannel("BatteryTemperatureSection8",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3044,
+								batteryTemperatureSection9 = new ModbusReadLongChannel("BatteryTemperatureSection9",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3045,
+								batteryTemperatureSection10 = new ModbusReadLongChannel("BatteryTemperatureSection10",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3046,
+								batteryTemperatureSection11 = new ModbusReadLongChannel("BatteryTemperatureSection11",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3047,
+								batteryTemperatureSection12 = new ModbusReadLongChannel("BatteryTemperatureSection12",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3048,
+								batteryTemperatureSection13 = new ModbusReadLongChannel("BatteryTemperatureSection13",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3049,
+								batteryTemperatureSection14 = new ModbusReadLongChannel("BatteryTemperatureSection14",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3050,
+								batteryTemperatureSection15 = new ModbusReadLongChannel("BatteryTemperatureSection15",
+										this).unit("°C").delta(-40L)),
+						new UnsignedWordElement(3051,
+								batteryTemperatureSection16 = new ModbusReadLongChannel("BatteryTemperatureSection16",
+										this).unit("°C").delta(-40L))),
 				new WriteableModbusRegisterRange(9014, //
 						new UnsignedWordElement(9014, rtcYear = new ModbusWriteLongChannel("Year", this)),
 						new UnsignedWordElement(9015, rtcMonth = new ModbusWriteLongChannel("Month", this)),
