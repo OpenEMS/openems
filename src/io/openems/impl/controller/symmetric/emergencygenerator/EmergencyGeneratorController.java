@@ -80,7 +80,7 @@ public class EmergencyGeneratorController extends Controller {
 	private long timeOffGrid = 0L;
 	private long startTime = System.currentTimeMillis();
 	private State currentState = State.UNKNOWN;
-	private OffGridState currentOffGridState;
+	private OffGridState currentOffGridState = OffGridState.STOP;
 
 	private enum State {
 		GOONGRID1, GOONGRID2, ONGRID, GOOFFGRID, OFFGRID, UNKNOWN
@@ -160,6 +160,7 @@ public class EmergencyGeneratorController extends Controller {
 				case OFFGRID:
 					if (meter.value().voltage.valueOptional().isPresent()) {
 						currentState = State.GOONGRID1;
+						currentOffGridState = OffGridState.STOP;
 					} else {
 						switch (currentOffGridState) {
 						case RUNNING:
@@ -190,6 +191,7 @@ public class EmergencyGeneratorController extends Controller {
 							break;
 						}
 					}
+					break;
 				case UNKNOWN:
 				default:
 					if (meter.value().voltage.valueOptional().isPresent()) {
