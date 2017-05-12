@@ -20,9 +20,12 @@
  *******************************************************************************/
 package io.openems.impl.device.simulator;
 
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.FunctionalReadChannel;
+import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
@@ -30,10 +33,13 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
+import io.openems.test.utils.channel.UnitTestWriteChannel;
 
 @ThingInfo(title = "Simulator ESS")
 public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssNature {
@@ -49,7 +55,36 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
 			}
 		});
+		long initialSoc = SimulatorTools.addRandomLong(50, 0, 100, 20);
+		this.energy = capacity.valueOptional().get() / 100 * initialSoc;
+		this.soc = new FunctionalReadChannel<Long>("Soc", this, new FunctionalReadChannelFunction<Long>() {
+
+			@Override
+			public Long handle(ReadChannel<Long>... channels) {
+				try {
+					energy -= channels[0].value() / 3600.0;
+				} catch (InvalidValueException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try {
+					if (energy > capacity.value()) {
+						energy = capacity.value();
+					}
+					return (long) (energy / capacity.value() * 100.0);
+				} catch (InvalidValueException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return 0L;
+			}
+
+		}, this.activePower);
 	}
+
+	private double energy;
+	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(5, 1);
+	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(5, 1);
 
 	/*
 	 * Config
@@ -71,22 +106,24 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 	 * Inherited Channels
 	 */
 	private StatusBitChannels warning = new StatusBitChannels("Warning", this);;
-	private SimulatorReadChannel soc = new SimulatorReadChannel("Soc", this).unit("%");
+	private FunctionalReadChannel<Long> soc;
 	private SimulatorReadChannel activePower = new SimulatorReadChannel("ActivePower", this);
 	private SimulatorReadChannel allowedApparent = new SimulatorReadChannel("AllowedApparent", this);
 	private SimulatorReadChannel allowedCharge = new SimulatorReadChannel("AllowedCharge", this);
 	private SimulatorReadChannel allowedDischarge = new SimulatorReadChannel("AllowedDischarge", this);
 	private SimulatorReadChannel apparentPower = new SimulatorReadChannel("ApparentPower", this);
-	private SimulatorReadChannel gridMode = new SimulatorReadChannel("GridMode", this);
+	private SimulatorReadChannel gridMode = new SimulatorReadChannel("GridMode", this).label(0, ON_GRID).label(1,
+			OFF_GRID);
 	private SimulatorReadChannel reactivePower = new SimulatorReadChannel("ReactivePower", this);
 	private SimulatorReadChannel systemState = new SimulatorReadChannel("SystemState", this) //
 			.label(1, START).label(2, STOP);
-	private ModbusWriteLongChannel setActivePower = new ModbusWriteLongChannel("SetActivePower", this);
-	private ModbusWriteLongChannel setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this);
+	private UnitTestWriteChannel<Long> setActivePower = new UnitTestWriteChannel<Long>("SetActivePower", this)
+			.maxWriteChannel(allowedDischarge).minWriteChannel(allowedCharge);
+	private UnitTestWriteChannel<Long> setReactivePower = new UnitTestWriteChannel<Long>("SetReactivePower", this);
 	private ModbusWriteLongChannel setWorkState = new ModbusWriteLongChannel("SetWorkState", this);
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
-	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 50000L).unit("Wh");
+	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 5000L).unit("Wh");
 
 	@Override
 	public ReadChannel<Long> gridMode() {
@@ -166,7 +203,6 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 	 * Fields
 	 */
 	private long lastApparentPower = 0;
-	private long lastSoc = 50;
 	private double lastCosPhi = 0;
 
 	/*
@@ -174,16 +210,24 @@ public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssN
 	 */
 	@Override
 	protected void update() {
-		lastSoc = SimulatorTools.addRandomLong(lastSoc, 0, 100, 5);
-		this.soc.updateValue(lastSoc);
-		lastApparentPower = SimulatorTools.addRandomLong(lastApparentPower, -10000, 10000, 100);
-		lastCosPhi = SimulatorTools.addRandomDouble(lastCosPhi, -1.5, 1.5, 0.5);
-		long activePower = ControllerUtils.calculateActivePowerFromApparentPower(lastApparentPower, lastCosPhi);
-		long reactivePower = ControllerUtils.calculateReactivePower(activePower, lastCosPhi);
-		this.activePower.updateValue(activePower);
-		this.reactivePower.updateValue(reactivePower);
-		this.apparentPower.updateValue(lastApparentPower);
-		this.allowedCharge.updateValue(9000L);
+		Optional<Long> activePower = setActivePower.getWrittenValue();
+		if (activePower.isPresent()) {
+			activePowerQueue.add(activePower.get());
+		}
+		Optional<Long> reactivePower = setReactivePower.getWrittenValue();
+		if (reactivePower.isPresent()) {
+			reactivePowerQueue.add(reactivePower.get());
+		}
+		// lastApparentPower = SimulatorTools.addRandomLong(lastApparentPower, -10000, 10000, 500);
+		// lastCosPhi = SimulatorTools.addRandomDouble(lastCosPhi, -1.5, 1.5, 0.5);
+		//
+		// long activePower = ControllerUtils.calculateActivePowerFromApparentPower(lastApparentPower, lastCosPhi);
+		// long reactivePower = ControllerUtils.calculateReactivePower(activePower, lastCosPhi);
+		this.activePower.updateValue(activePowerQueue.avg());
+		this.reactivePower.updateValue(reactivePowerQueue.avg());
+		this.apparentPower
+				.updateValue(ControllerUtils.calculateApparentPower(activePowerQueue.avg(), reactivePowerQueue.avg()));
+		this.allowedCharge.updateValue(-9000L);
 		this.allowedDischarge.updateValue(3000L);
 		this.systemState.updateValue(1L);
 		this.gridMode.updateValue(0L);
