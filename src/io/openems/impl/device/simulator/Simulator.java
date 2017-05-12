@@ -43,16 +43,16 @@ public class Simulator extends SimulatorDevice {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = SimulatorEss.class)
+	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = SimulatorEss.class, isOptional = true)
 	public final ConfigChannel<SimulatorEss> ess = new ConfigChannel<>("ess", this);
 
-	@ConfigInfo(title = "Charger", description = "Sets the Charger nature.", type = SimulatorCharger.class)
+	@ConfigInfo(title = "Charger", description = "Sets the Charger nature.", type = SimulatorCharger.class, isOptional = true)
 	public final ConfigChannel<SimulatorCharger> charger = new ConfigChannel<>("charger", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter nature.", type = SimulatorGridMeter.class)
+	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter nature.", type = SimulatorGridMeter.class, isOptional = true)
 	public final ConfigChannel<SimulatorGridMeter> gridMeter = new ConfigChannel<>("gridMeter", this);
 
-	@ConfigInfo(title = "Production-Meter", description = "Sets the production meter nature.", type = SimulatorProductionMeter.class)
+	@ConfigInfo(title = "Production-Meter", description = "Sets the production meter nature.", type = SimulatorProductionMeter.class, isOptional = true)
 	public final ConfigChannel<SimulatorProductionMeter> productionMeter = new ConfigChannel<>("productionMeter", this);
 
 	/*

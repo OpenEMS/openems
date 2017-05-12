@@ -38,7 +38,7 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	private final Interval<ReadChannel<T>> writeChannelInterval = new Interval<ReadChannel<T>>();
 	private final Interval<T> writeInterval = new Interval<T>();
 	private Optional<T> writeValue = Optional.empty();
-	private Optional<T> writeShadowCopy = Optional.empty();
+	protected Optional<T> writeShadowCopy = Optional.empty();
 
 	public WriteChannel(String id, Thing parent) {
 		super(id, parent);

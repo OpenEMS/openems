@@ -23,11 +23,10 @@ package io.openems.impl.device.simulator;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
-import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
-import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
 @ThingInfo(title = "Simulator Meter")
 public abstract class SimulatorMeter extends SimulatorDeviceNature implements SymmetricMeterNature {
@@ -66,26 +65,10 @@ public abstract class SimulatorMeter extends SimulatorDeviceNature implements Sy
 	/*
 	 * Inherited Channels
 	 */
-	private SimulatorReadChannel activePower = new SimulatorReadChannel("ActivePower", this);
-	private SimulatorReadChannel apparentPower = new SimulatorReadChannel("ApparentPower", this);
-	private SimulatorReadChannel reactivePower = new SimulatorReadChannel("ReactivePower", this);
-	private SimulatorReadChannel frequency = new SimulatorReadChannel("Frequency", this);
-	private SimulatorReadChannel voltage = new SimulatorReadChannel("Voltage", this);
-
-	@Override
-	public ReadChannel<Long> activePower() {
-		return activePower;
-	}
-
-	@Override
-	public ReadChannel<Long> apparentPower() {
-		return apparentPower;
-	}
-
-	@Override
-	public ReadChannel<Long> reactivePower() {
-		return reactivePower;
-	}
+	@ConfigInfo(type = Long.class, title = "Frequency")
+	public ConfigChannel<Long> frequency = new ConfigChannel<Long>("frequency", this);
+	@ConfigInfo(type = Long.class, title = "Voltage")
+	public ConfigChannel<Long> voltage = new ConfigChannel<Long>("voltage", this);
 
 	@Override
 	public ReadChannel<Long> frequency() {
@@ -100,38 +83,27 @@ public abstract class SimulatorMeter extends SimulatorDeviceNature implements Sy
 	/*
 	 * Fields
 	 */
-	private long lastApparentPower = 0;
-	private double lastCosPhi = 0.9;
-	private long lastVoltage = 230000;
-	private long lastFrequency = 50000;
-
-	/*
-	 * Abstract Methods
-	 */
-	protected abstract long getMinApparentPower();
-
-	protected abstract long getMaxApparentPower();
-
-	protected abstract double getMinCosPhi();
-
-	protected abstract double getMaxCosPhi();
+	// private long lastApparentPower = 0;
+	// private double lastCosPhi = 0.9;
+	// private long lastVoltage = 230000;
+	// private long lastFrequency = 50000;
 
 	/*
 	 * Methods
 	 */
 	@Override
 	protected void update() {
-		lastApparentPower = SimulatorTools.addRandomLong(lastApparentPower, getMinApparentPower(),
-				getMaxApparentPower(), 3000);
-		lastCosPhi = SimulatorTools.addRandomDouble(lastCosPhi, getMinCosPhi(), getMaxCosPhi(), 0.1);
-		long activePower = ControllerUtils.calculateActivePowerFromApparentPower(lastApparentPower, lastCosPhi);
-		long reactivePower = ControllerUtils.calculateReactivePower(activePower, lastCosPhi);
-		this.activePower.updateValue(activePower);
-		this.reactivePower.updateValue(reactivePower);
-		this.apparentPower.updateValue(lastApparentPower);
-		lastVoltage = SimulatorTools.addRandomLong(lastVoltage, 220000, 240000, 1000);
-		this.voltage.updateValue(lastVoltage);
-		lastFrequency = SimulatorTools.addRandomLong(lastFrequency, 48000, 52000, 1000);
-		this.frequency.updateValue(lastFrequency);
+		// lastApparentPower = SimulatorTools.addRandomLong(lastApparentPower, getMinApparentPower(),
+		// getMaxApparentPower(), 3000);
+		// lastCosPhi = SimulatorTools.addRandomDouble(lastCosPhi, getMinCosPhi(), getMaxCosPhi(), 0.1);
+		// long activePower = ControllerUtils.calculateActivePowerFromApparentPower(lastApparentPower, lastCosPhi);
+		// long reactivePower = ControllerUtils.calculateReactivePower(activePower, lastCosPhi);
+		// this.activePower.updateValue(activePower);
+		// this.reactivePower.updateValue(reactivePower);
+		// this.apparentPower.updateValue(ControllerUtils.calculateApparentPower(activePower, reactivePower));
+		// lastVoltage = SimulatorTools.addRandomLong(lastVoltage, 220000, 240000, 1000);
+		// this.voltage.updateValue(lastVoltage);
+		// lastFrequency = SimulatorTools.addRandomLong(lastFrequency, 48000, 52000, 1000);
+		// this.frequency.updateValue(lastFrequency);
 	}
 }
