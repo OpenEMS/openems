@@ -22,5 +22,15 @@ package io.openems.api.channel;
 
 public interface FunctionalWriteChannelFunction<T> {
 
-	public void handle(T newValue, String newLabel, WriteChannel<T>... channels);
+	public void setValue(T newValue, String newLabel, WriteChannel<T>... channels);
+
+	public T getValue(ReadChannel<T>... channels);
+
+	public T getMinValue(WriteChannel<T>... channels);
+
+	public T getMaxValue(WriteChannel<T>... channels);
+
+	public void setMinValue(T newValue, String newLabel, WriteChannel<T>... channels);
+
+	public void setMaxValue(T newValue, String newLabel, WriteChannel<T>... channels);
 }

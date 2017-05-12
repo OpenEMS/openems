@@ -26,6 +26,7 @@ import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.api.thing.ThingChannelsUpdatedListener;
 import io.openems.core.ThingRepository;
 
 public class EssClusterNature implements SymmetricEssNature, ChannelChangeListener {
@@ -33,6 +34,7 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 	private final String id;
 
 	private final Logger log;
+	private List<ThingChannelsUpdatedListener> listeners;
 
 	private static ThingRepository repo = ThingRepository.getInstance();
 
@@ -237,22 +239,10 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 	private StatusBitChannels warning = new StatusBitChannels("Warning", this);
 
 	private FunctionalWriteChannel<Long> setWorkState = new FunctionalWriteChannel<Long>("SetWorkState", this,
-			new FunctionalReadChannelFunction<Long>() {
+			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					for (ReadChannel<Long> state : channels) {
-						if (state.labelOptional().equals(Optional.of(EssNature.ON))) {
-							return 1L;
-						}
-					}
-					return 0L;
-				}
-
-			}, new FunctionalWriteChannelFunction<Long>() {
-
-				@Override
-				public void handle(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
 					for (WriteChannel<Long> channel : channels) {
 						try {
 							channel.pushWriteFromLabel(newLabel);
@@ -262,26 +252,75 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 					}
 				}
 
+				@Override
+				public Long getValue(ReadChannel<Long>... channels) {
+					for (ReadChannel<Long> state : channels) {
+						if (state.labelOptional().equals(Optional.of(EssNature.ON))) {
+							return 1L;
+						}
+					}
+					return 0L;
+				}
+
+				@Override
+				public Long getMinValue(WriteChannel<Long>... channels) {
+					long min = Long.MIN_VALUE;
+					for (WriteChannel<Long> channelMin : channels) {
+						if (channelMin.writeMin().isPresent() && channelMin.writeMin().get() > min) {
+							min = channelMin.writeMin().get();
+						}
+					}
+					if (min == Long.MIN_VALUE) {
+						return null;
+					} else {
+						return min;
+					}
+				}
+
+				@Override
+				public Long getMaxValue(WriteChannel<Long>... channels) {
+					long max = Long.MAX_VALUE;
+					for (WriteChannel<Long> channelMax : channels) {
+						if (channelMax.writeMax().isPresent() && channelMax.writeMax().get() < max) {
+							max = channelMax.writeMax().get();
+						}
+					}
+					if (max == Long.MAX_VALUE) {
+						return null;
+					} else {
+						return max;
+					}
+				}
+
+				@Override
+				public void setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+					for (WriteChannel<Long> channel : channels) {
+						try {
+							channel.pushWriteMin(newValue);
+						} catch (WriteChannelException e) {
+							log.error("Can't set value for channel " + channel.address(), e);
+						}
+					}
+				}
+
+				@Override
+				public void setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+					for (WriteChannel<Long> channel : channels) {
+						try {
+							channel.pushWriteMax(newValue);
+						} catch (WriteChannelException e) {
+							log.error("Can't set value for channel " + channel.address(), e);
+						}
+					}
+				}
+
 			}).label(0L, EssNature.OFF).label(1L, EssNature.ON);
 
 	private FunctionalWriteChannel<Long> setActivePower = new FunctionalWriteChannel<Long>("SetActivePower", this,
-			new FunctionalReadChannelFunction<Long>() {
-				@Override
-				public Long handle(io.openems.api.channel.ReadChannel<Long>[] channels) {
-					long sum = 0L;
-					for (ReadChannel<Long> channel : channels) {
-						try {
-							sum += channel.value();
-						} catch (InvalidValueException e) {
-							log.error("Can't read ActivePower from " + channel.address());
-						}
-					}
-					return sum;
-				}
-			}, new FunctionalWriteChannelFunction<Long>() {
+			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void handle(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
 					long power = 0L;
 					if (channels.length > 0) {
 						power = newValue / channels.length;
@@ -295,11 +334,102 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 					}
 				}
 
+				@Override
+				public Long getValue(ReadChannel<Long>... channels) {
+					long sum = 0L;
+					for (ReadChannel<Long> channel : channels) {
+						try {
+							sum += channel.value();
+						} catch (InvalidValueException e) {
+							log.error("Can't read ActivePower from " + channel.address());
+						}
+					}
+					return sum;
+				}
+
+				@Override
+				public Long getMinValue(WriteChannel<Long>... channels) {
+					long min = 0L;
+					boolean isPresent = false;
+					for (WriteChannel<Long> channelMin : channels) {
+						if (channelMin.writeMin().isPresent()) {
+							min += channelMin.writeMin().get();
+							isPresent = true;
+						}
+					}
+					if (isPresent) {
+						return min;
+					}
+					return null;
+				}
+
+				@Override
+				public Long getMaxValue(WriteChannel<Long>... channels) {
+					long max = 0L;
+					boolean isPresent = false;
+					for (WriteChannel<Long> channelMax : channels) {
+						if (channelMax.writeMax().isPresent()) {
+							max += channelMax.writeMax().get();
+							isPresent = true;
+						}
+					}
+					if (isPresent) {
+						return max;
+					}
+					return null;
+				}
+
+				@Override
+				public void setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+					long power = 0L;
+					if (channels.length > 0) {
+						power = newValue / channels.length;
+					}
+					for (WriteChannel<Long> channel : channels) {
+						try {
+							channel.pushWriteMin(power);
+						} catch (WriteChannelException e) {
+							log.error("Failed to write " + power + " to " + channel.address(), e);
+						}
+					}
+				}
+
+				@Override
+				public void setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+					long power = 0L;
+					if (channels.length > 0) {
+						power = newValue / channels.length;
+					}
+					for (WriteChannel<Long> channel : channels) {
+						try {
+							channel.pushWriteMax(power);
+						} catch (WriteChannelException e) {
+							log.error("Failed to write " + power + " to " + channel.address(), e);
+						}
+					}
+				}
+
 			});
 	private FunctionalWriteChannel<Long> setReactivePower = new FunctionalWriteChannel<Long>("SetReactivePower", this,
-			new FunctionalReadChannelFunction<Long>() {
+			new FunctionalWriteChannelFunction<Long>() {
+
 				@Override
-				public Long handle(io.openems.api.channel.ReadChannel<Long>[] channels) {
+				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+					long power = 0L;
+					if (channels.length > 0) {
+						power = newValue / channels.length;
+					}
+					for (WriteChannel<Long> channel : channels) {
+						try {
+							channel.pushWrite(power);
+						} catch (WriteChannelException e) {
+							log.error("Failed to write " + power + " to " + channel.address(), e);
+						}
+					}
+				}
+
+				@Override
+				public Long getValue(ReadChannel<Long>... channels) {
 					long sum = 0L;
 					for (ReadChannel<Long> channel : channels) {
 						try {
@@ -310,17 +440,64 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 					}
 					return sum;
 				}
-			}, new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void handle(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public Long getMinValue(WriteChannel<Long>... channels) {
+					long min = 0L;
+					boolean isPresent = false;
+					for (WriteChannel<Long> channelMin : channels) {
+						if (channelMin.writeMin().isPresent()) {
+							min += channelMin.writeMin().get();
+							isPresent = true;
+						}
+					}
+					if (isPresent) {
+						return min;
+					}
+					return null;
+				}
+
+				@Override
+				public Long getMaxValue(WriteChannel<Long>... channels) {
+					long max = 0L;
+					boolean isPresent = false;
+					for (WriteChannel<Long> channelMax : channels) {
+						if (channelMax.writeMax().isPresent()) {
+							max += channelMax.writeMax().get();
+							isPresent = true;
+						}
+					}
+					if (isPresent) {
+						return max;
+					}
+					return null;
+
+				}
+
+				@Override
+				public void setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
 					long power = 0L;
 					if (channels.length > 0) {
 						power = newValue / channels.length;
 					}
 					for (WriteChannel<Long> channel : channels) {
 						try {
-							channel.pushWrite(power);
+							channel.pushWriteMin(power);
+						} catch (WriteChannelException e) {
+							log.error("Failed to write " + power + " to " + channel.address(), e);
+						}
+					}
+				}
+
+				@Override
+				public void setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+					long power = 0L;
+					if (channels.length > 0) {
+						power = newValue / channels.length;
+					}
+					for (WriteChannel<Long> channel : channels) {
+						try {
+							channel.pushWriteMax(power);
 						} catch (WriteChannelException e) {
 							log.error("Failed to write " + power + " to " + channel.address(), e);
 						}
@@ -333,6 +510,7 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 		super();
 		this.id = id;
 		log = LoggerFactory.getLogger(this.getClass());
+		this.listeners = new ArrayList<>();
 	}
 
 	@Override
@@ -431,6 +609,16 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 	}
 
 	@Override
+	public void addListener(ThingChannelsUpdatedListener listener) {
+		this.listeners.add(listener);
+	}
+
+	@Override
+	public void removeListener(ThingChannelsUpdatedListener listener) {
+		this.listeners.remove(listener);
+	}
+
+	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		if (channel.equals(esss)) {
 			Set<DeviceNature> natures = repo.getDeviceNatures();
@@ -483,6 +671,13 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 			} catch (InvalidValueException e) {
 				log.error("esss value is invalid!", e);
 			}
+		}
+	}
+
+	@Override
+	public void init() {
+		for (ThingChannelsUpdatedListener listener : this.listeners) {
+			listener.thingChannelsUpdated(this);
 		}
 	}
 

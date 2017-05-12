@@ -11,25 +11,21 @@ import io.openems.api.thing.Thing;
 public class FunctionalWriteChannel<T> extends WriteChannel<T> implements ChannelUpdateListener {
 
 	private List<WriteChannel<T>> channels = new ArrayList<>();
-	private FunctionalReadChannelFunction<T> readFunc;
-	private FunctionalWriteChannelFunction<T> writeFunc;
+	private FunctionalWriteChannelFunction<T> writeValueFunc;
 
-	public FunctionalWriteChannel(String id, Thing parent, FunctionalReadChannelFunction<T> function,
-			FunctionalWriteChannelFunction<T> writeFunction, WriteChannel<T>... channels) {
+	public FunctionalWriteChannel(String id, Thing parent, FunctionalWriteChannelFunction<T> writeValueFunction,
+			WriteChannel<T>... channels) {
 		super(id, parent);
 		this.channels.addAll(Arrays.asList(channels));
-		this.readFunc = function;
-		this.writeFunc = writeFunction;
+		this.writeValueFunc = writeValueFunction;
 		for (Channel c : channels) {
 			c.addUpdateListener(this);
 		}
 	}
 
-	public FunctionalWriteChannel(String id, Thing parent, FunctionalReadChannelFunction<T> function,
-			FunctionalWriteChannelFunction<T> writeFunction) {
+	public FunctionalWriteChannel(String id, Thing parent, FunctionalWriteChannelFunction<T> writeFunction) {
 		super(id, parent);
-		this.readFunc = function;
-		this.writeFunc = writeFunction;
+		this.writeValueFunc = writeFunction;
 		for (Channel c : channels) {
 			c.addUpdateListener(this);
 		}
@@ -54,18 +50,40 @@ public class FunctionalWriteChannel<T> extends WriteChannel<T> implements Channe
 		synchronized (this.channels) {
 			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
-			updateValue(readFunc.handle(channels));
+			updateValue(writeValueFunc.getValue(channels));
 		}
 	}
 
 	@Override
 	public void pushWrite(T value) throws WriteChannelException {
 		synchronized (this.channels) {
+			super.pushWrite(value);
 			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
 			String label = labels.get(value);
-			writeFunc.handle(value, label, channels);
-			super.pushWrite(value);
+			writeValueFunc.setValue(value, label, channels);
+		}
+	}
+
+	@Override
+	public void pushWriteMax(T value) throws WriteChannelException {
+		synchronized (this.channels) {
+			super.pushWriteMax(value);
+			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
+			this.channels.toArray(channels);
+			String label = labels.get(value);
+			writeValueFunc.setMaxValue(value, label, channels);
+		}
+	}
+
+	@Override
+	public void pushWriteMin(T value) throws WriteChannelException {
+		synchronized (this.channels) {
+			super.pushWriteMin(value);
+			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
+			this.channels.toArray(channels);
+			String label = labels.get(value);
+			writeValueFunc.setMinValue(value, label, channels);
 		}
 	}
 
@@ -79,6 +97,33 @@ public class FunctionalWriteChannel<T> extends WriteChannel<T> implements Channe
 	public FunctionalWriteChannel<T> unit(String unit) {
 		super.unit(unit);
 		return this;
+	}
+
+	@Override
+	public Optional<T> writeMin() {
+		synchronized (this.channels) {
+			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
+			this.channels.toArray(channels);
+			T erg = writeValueFunc.getMinValue(channels);
+			if (erg != null) {
+				return Optional.of(erg);
+			}
+			return Optional.empty();
+		}
+
+	}
+
+	@Override
+	public Optional<T> writeMax() {
+		synchronized (this.channels) {
+			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
+			this.channels.toArray(channels);
+			T erg = writeValueFunc.getMaxValue(channels);
+			if (erg != null) {
+				return Optional.of(erg);
+			}
+			return Optional.empty();
+		}
 	}
 
 }
