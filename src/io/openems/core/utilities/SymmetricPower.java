@@ -167,8 +167,10 @@ public class SymmetricPower {
 						cosPhi);
 			}
 		}
-		log.info("Reduce activePower from [{}] to [{}] and reactivePower from [{}] to [{}]",
-				new Object[] { activePower, reducedActivePower, reactivePower, reducedReactivePower });
+		if (activePower != reducedActivePower || reactivePower != reducedReactivePower) {
+			log.info("Reduce activePower from [{}] to [{}] and reactivePower from [{}] to [{}]",
+					new Object[] { activePower, reducedActivePower, reactivePower, reducedReactivePower });
+		}
 		this.activePower = reducedActivePower;
 		this.reactivePower = reducedReactivePower;
 	}
