@@ -26,6 +26,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -51,6 +52,9 @@ public class OffGridIndicationController extends Controller {
 
 	@ConfigInfo(title = "time to wait before switch output on.", type = Long.class)
 	public ConfigChannel<Long> switchDelay = new ConfigChannel<Long>("switchDelay", this).defaultValue(10000L);
+
+	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
+	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
 	@SuppressWarnings("unchecked")
 	@ConfigInfo(title = "the address of the Digital Output to signal off-Grid.", type = String.class)
@@ -83,13 +87,13 @@ public class OffGridIndicationController extends Controller {
 		if (startTime + 1000 * 15 <= System.currentTimeMillis()) {
 			try {
 				Meter meter = this.meter.value();
+				Ess ess = this.ess.value();
 				switch (currentState) {
 				case OFFGRID:
 					if (isOffGrid()) {
-						if (meter.voltage.valueOptional().isPresent()) {
+						if (meter.voltage.valueOptional().isPresent()
+								|| ess.gridMode.valueOptional().equals(Optional.of(EssNature.ON_GRID))) {
 							currentState = State.SWITCHTOONGRID;
-						} else {
-							offGridOutputChannel.pushWrite(true);
 						}
 					} else {
 						currentState = State.SWITCHTOOFFGRID;
@@ -97,7 +101,8 @@ public class OffGridIndicationController extends Controller {
 					break;
 				case ONGRID: {
 					if (isOff()) {
-						if (!meter.voltage.valueOptional().isPresent()) {
+						if (!meter.voltage.valueOptional().isPresent()
+								&& ess.gridMode.valueOptional().equals(Optional.of(EssNature.OFF_GRID))) {
 							currentState = State.SWITCHTOOFFGRID;
 						}
 					} else {
@@ -129,7 +134,8 @@ public class OffGridIndicationController extends Controller {
 					}
 					break;
 				default: {
-					if (meter.voltage.valueOptional().isPresent()) {
+					if (meter.voltage.valueOptional().isPresent()
+							|| ess.gridMode.equals(Optional.of(EssNature.ON_GRID))) {
 						if (isOff()) {
 							currentState = State.ONGRID;
 						} else {

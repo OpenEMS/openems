@@ -201,9 +201,9 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		if (newValue instanceof Number && (multiplier.isPresent() || delta.isPresent() || negate)) {
 			// special treatment for Numbers with given multiplier or delta
 			Number number = (Number) newValue;
-			long multiplier = 1;
+			double multiplier = 1;
 			if (this.multiplier.isPresent()) {
-				multiplier = (long) Math.pow(10, this.multiplier.get());
+				multiplier = Math.pow(10, this.multiplier.get());
 			}
 			if (this.negate) {
 				multiplier *= -1;
@@ -212,7 +212,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 			if (this.delta.isPresent()) {
 				delta = this.delta.get();
 			}
-			number = number.longValue() * multiplier - delta;
+			number = (long) (number.longValue() * multiplier - delta);
 			this.value = (Optional<T>) Optional.of(number);
 		} else {
 			this.value = Optional.ofNullable(newValue);
@@ -278,12 +278,12 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	 * @return rounded value
 	 */
 	protected synchronized long roundToHardwarePrecision(long value) {
-		long multiplier = 1;
+		double multiplier = 1;
 		if (this.multiplier.isPresent()) {
-			multiplier = (long) Math.pow(10, this.multiplier.get());
+			multiplier = Math.pow(10, this.multiplier.get());
 		}
 		if (value % multiplier != 0) {
-			long roundedValue = (value / multiplier) * multiplier;
+			long roundedValue = (long) ((value / multiplier) * multiplier);
 			log.warn("Value [" + value + "] is too precise for device. Will round to [" + roundedValue + "]");
 		}
 		return value;

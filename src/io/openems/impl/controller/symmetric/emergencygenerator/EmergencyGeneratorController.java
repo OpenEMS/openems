@@ -26,6 +26,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
@@ -149,7 +150,8 @@ public class EmergencyGeneratorController extends Controller {
 					}
 					break;
 				case ONGRID:
-					if (meter.value().voltage.valueOptional().isPresent()) {
+					if (meter.value().voltage.valueOptional().isPresent()
+							&& ess.value().gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 						if (onGridOutputOn.value() ^ isOn()) {
 							currentState = State.GOONGRID2;
 						}
