@@ -37,7 +37,20 @@ export class BridgeComponent extends AbstractConfig {
     // console.log(this.controlConfig);
     this.form = <FormGroup>this.controlConfig;
     // console.log(this.control);
-    // console.log(this.form);
+    console.log(this.form);
+    this.checkDeviceChannel();
+  }
+
+  checkDeviceChannel(): void {
+    let metaDevice = this.form.controls['_meta']['controls']['availableDevices']['controls'];
+    let thingBridge = this.form.controls['things']['controls'];
+
+    for (let bridge of thingBridge) {
+      for (let bridgeDevice of bridge.controls['devices']['controls']) {
+        console.log(bridgeDevice);
+        this.addNaturesToDevice(bridgeDevice, bridgeDevice.controls['class'].value);
+      }
+    }
   }
 
   setNameReady(): void {

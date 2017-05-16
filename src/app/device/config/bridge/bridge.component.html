@@ -43,6 +43,7 @@
                         <md-card-subtitle>{{ device.value.id }}</md-card-subtitle>
                       </md-card-header>
                       <md-card-content>
+                        {{ device.value["productionMeter"] | json }}
                         <div fxLayout fxLayoutWrap="wrap" fxFlex *ngFor="let channelDeviceMeta of deviceMeta.channels" [formGroupName]="channelDeviceMeta.name">
                           <!--TODO: ID is not enough!-->
                           <!--<div fxFlex="100px">
