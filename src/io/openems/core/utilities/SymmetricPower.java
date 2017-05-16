@@ -270,7 +270,7 @@ public class SymmetricPower {
 			maxPower = setReactivePower.writeMax().get();
 		}
 		if (!valid) {
-			log.error("Failed to get Max value for ReactivePower! Return 0.");
+			log.debug("Failed to get Max value for ReactivePower! Return 0.");
 		}
 		return maxPower;
 	}
@@ -293,7 +293,7 @@ public class SymmetricPower {
 			minPower = setReactivePower.writeMin().get();
 		}
 		if (!valid) {
-			log.error("Failed to get Min value for ReactivePower! Return 0.");
+			log.debug("Failed to get Min value for ReactivePower! Return 0.");
 		}
 		return minPower;
 	}
