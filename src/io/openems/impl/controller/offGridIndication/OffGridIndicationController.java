@@ -92,7 +92,7 @@ public class OffGridIndicationController extends Controller {
 				case OFFGRID:
 					if (isOffGrid()) {
 						if (meter.voltage.valueOptional().isPresent()
-								|| ess.gridMode.valueOptional().equals(Optional.of(EssNature.ON_GRID))) {
+								|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 							currentState = State.SWITCHTOONGRID;
 						}
 					} else {
@@ -102,7 +102,7 @@ public class OffGridIndicationController extends Controller {
 				case ONGRID: {
 					if (isOff()) {
 						if (!meter.voltage.valueOptional().isPresent()
-								&& ess.gridMode.valueOptional().equals(Optional.of(EssNature.OFF_GRID))) {
+								&& ess.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
 							currentState = State.SWITCHTOOFFGRID;
 						}
 					} else {
@@ -135,7 +135,7 @@ public class OffGridIndicationController extends Controller {
 					break;
 				default: {
 					if (meter.voltage.valueOptional().isPresent()
-							|| ess.gridMode.equals(Optional.of(EssNature.ON_GRID))) {
+							|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 						if (isOff()) {
 							currentState = State.ONGRID;
 						} else {
