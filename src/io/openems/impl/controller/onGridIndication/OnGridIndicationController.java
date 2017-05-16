@@ -141,7 +141,7 @@ public class OnGridIndicationController extends Controller {
 					break;
 				default: {
 					if (meter.voltage.valueOptional().isPresent()
-							|| ess.gridMode.equals(Optional.of(EssNature.ON_GRID))) {
+							|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 						if (isOnGrid()) {
 							currentState = State.ONGRID;
 						} else {
