@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.symmetric.emergencygenerator;
+package io.openems.impl.controller.symmetric.offGridPowerStation;
 
 import java.util.Optional;
 
@@ -33,17 +33,17 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 
-@ThingInfo(title = "External generator control", description = "Starts an external generator in case of emergency.")
-public class EmergencyGeneratorController extends Controller {
+@ThingInfo(title = "External power station control", description = "Starts an thermal power station in case of off-Grid and empty ess.")
+public class OffGridPowerStationController extends Controller {
 
 	/*
 	 * Constructors
 	 */
-	public EmergencyGeneratorController() {
+	public OffGridPowerStationController() {
 		super();
 	}
 
-	public EmergencyGeneratorController(String thingId) {
+	public OffGridPowerStationController(String thingId) {
 		super(thingId);
 	}
 

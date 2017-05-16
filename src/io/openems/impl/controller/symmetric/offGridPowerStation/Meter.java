@@ -18,23 +18,21 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.symmetric.emergencygenerator;
+package io.openems.impl.controller.symmetric.offGridPowerStation;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.ess.EssNature;
+import io.openems.api.device.nature.meter.SymmetricMeterNature;
 
-@IsThingMap(type = EssNature.class)
-public class Ess extends ThingMap {
+@IsThingMap(type = SymmetricMeterNature.class)
+public class Meter extends ThingMap {
 
-	public ReadChannel<Long> gridMode;
-	public ReadChannel<Long> soc;
+	public final ReadChannel<Long> voltage;
 
-	public Ess(EssNature ess) {
-		super(ess);
-		gridMode = ess.gridMode().required();
-		soc = ess.soc().required();
+	public Meter(SymmetricMeterNature meter) {
+		super(meter);
+		voltage = meter.voltage().required();
 	}
 
 }
