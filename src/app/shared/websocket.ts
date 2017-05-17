@@ -107,8 +107,7 @@ export class Websocket {
             this.isConnected = true;
             if ("token" in message.authenticate) {
               this.webappService.setToken(this.name, message.authenticate.token);
-            }
-            if ("username" in message.authenticate) {
+            } else if ("username" in message.authenticate) {
               this.username = message.authenticate.username;
               this.event.next({ type: "success", message: "Angemeldet als " + this.username + "." });
             } else {
@@ -179,6 +178,7 @@ export class Websocket {
       }, (/* complete */) => {
         this.initialize();
         clearTimeout(timeout);
+        console.log("complete");
         if (status == null) {
           status = { type: "error", message: "Verbindung beendet." };
           this.event.next(status);
