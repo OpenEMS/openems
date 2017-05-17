@@ -40,7 +40,7 @@ import io.openems.api.exception.WriteChannelException;
 import io.openems.impl.controller.symmetric.avoidtotaldischargesoctimeline.Ess.State;
 
 @ThingInfo(title = "Avoid total discharge of battery (Symmetric)", description = "Makes sure the battery is not going into critically low state of charge. For symmetric Ess.")
-public class AvoidTotalDischargeSocTimeLineController extends Controller {
+public class AvoidTotalDischargeSocTimeLineController extends Controller implements ChannelChangeListener {
 
 	/*
 	 * Constructors
@@ -57,39 +57,11 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller {
 	 * Config
 	 */
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
-	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
+	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this).addChangeListener(this);
 
 	@ConfigInfo(title = "Soc timeline", description = "This option configures an minsoc at a time for an ess. If no minsoc for an ess is configured the controller uses the minsoc of the ess.", type = JsonArray.class)
 	public final ConfigChannel<JsonArray> socTimeline = new ConfigChannel<JsonArray>("socTimeline", this)
-			.addChangeListener(new ChannelChangeListener() {
-
-				@Override
-				public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-					if (newValue.isPresent() && newValue.get() instanceof JsonArray) {
-						JsonArray timeline = (JsonArray) newValue.get();
-						for (JsonElement e : timeline) {
-							JsonObject obj = e.getAsJsonObject();
-							int minSoc = obj.get("minSoc").getAsInt();
-							int chargeSoc = obj.get("chargeSoc").getAsInt();
-							LocalTime time = LocalTime.parse(obj.get("time").getAsString(),
-									DateTimeFormatter.ISO_LOCAL_TIME);
-							JsonArray storages = obj.get("esss").getAsJsonArray();
-							for (JsonElement storage : storages) {
-								Ess ess;
-								try {
-									ess = getEss(storage.getAsString());
-									if (ess != null) {
-										ess.addTime(time, minSoc, chargeSoc);
-									}
-								} catch (InvalidValueException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-							}
-						}
-					}
-				}
-			});
+			.addChangeListener(this);
 
 	/*
 	 * Methods
@@ -157,6 +129,35 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+		if (channel.equals(esss) || channel.equals(socTimeline)) {
+			if (esss.valueOptional().isPresent() && socTimeline.valueOptional().isPresent()
+					&& socTimeline.valueOptional().get() instanceof JsonArray) {
+				JsonArray timeline = socTimeline.valueOptional().get();
+				for (JsonElement e : timeline) {
+					JsonObject obj = e.getAsJsonObject();
+					int minSoc = obj.get("minSoc").getAsInt();
+					int chargeSoc = obj.get("chargeSoc").getAsInt();
+					LocalTime time = LocalTime.parse(obj.get("time").getAsString(), DateTimeFormatter.ISO_LOCAL_TIME);
+					JsonArray storages = obj.get("esss").getAsJsonArray();
+					for (JsonElement storage : storages) {
+						Ess ess;
+						try {
+							ess = getEss(storage.getAsString());
+							if (ess != null) {
+								ess.addTime(time, minSoc, chargeSoc);
+							}
+						} catch (InvalidValueException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		}
 	}
 
 }
