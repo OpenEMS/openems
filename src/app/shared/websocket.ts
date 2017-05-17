@@ -107,7 +107,8 @@ export class Websocket {
             this.isConnected = true;
             if ("token" in message.authenticate) {
               this.webappService.setToken(this.name, message.authenticate.token);
-            } else if ("username" in message.authenticate) {
+            }
+            if ("username" in message.authenticate) {
               this.username = message.authenticate.username;
               this.event.next({ type: "success", message: "Angemeldet als " + this.username + "." });
             } else {
