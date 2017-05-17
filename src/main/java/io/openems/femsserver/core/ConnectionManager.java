@@ -1,16 +1,23 @@
 package io.openems.femsserver.core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.framing.CloseFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.femsserver.odoo.Odoo;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import io.openems.femsserver.odoo.fems.device.FemsDevice;
 import io.openems.femsserver.utilities.ManyToMany;
 
@@ -27,11 +34,7 @@ public class ConnectionManager {
 		return ConnectionManager.instance;
 	}
 
-	private Odoo odoo;
-
-	private ConnectionManager() {
-		this.odoo = Odoo.getInstance();
-	}
+	private ConnectionManager() {}
 
 	/**
 	 * Stores info about FEMS devices
@@ -43,7 +46,7 @@ public class ConnectionManager {
 	 * Stores all active websockets to FEMS devices
 	 * Key: Websocket to FEMS - Value: fems-name (e.g. "fems7")
 	 */
-	private ManyToMany<WebSocket, String> femsWebsockets = new ManyToMany<>();
+	private Multimap<WebSocket, String> femsWebsockets = HashMultimap.create();
 
 	/**
 	 * Stores all active websockets to browsers
@@ -52,7 +55,7 @@ public class ConnectionManager {
 	private ManyToMany<WebSocket, String> browserWebsockets = new ManyToMany<>();
 
 	/**
-	 * Stores a websocket connection to FEMS together with the connected FemsDevice objects
+	 * Stores a websocket connection to FEMS and the connected FemsDevice objects
 	 *
 	 * @param webSocket
 	 * @param device
@@ -61,13 +64,13 @@ public class ConnectionManager {
 		devices.forEach(device -> {
 			String name = device.getName();
 			/*
-			 * Check if femsDevice already existed in cache. If so, refresh and reuse it. Otherwise add it.
+			 * Store the FemsDevice
 			 */
+			// Check if femsDevice already existed in cache. If so, refresh and reuse it. Otherwise add it.
 			if (this.femsDevices.containsKey(name)) {
 				// refresh an existing FemsDevice object
 				FemsDevice existingDevice = this.femsDevices.get(name);
 				existingDevice.refreshFrom(device);
-				device = existingDevice;
 			} else {
 				// put new object
 				this.femsDevices.put(name, device);
@@ -75,6 +78,17 @@ public class ConnectionManager {
 			/*
 			 * Store the websocket connection
 			 */
+			// close old websocket connection(s) to this device
+			for (Iterator<Entry<WebSocket, String>> it = this.femsWebsockets.entries().iterator(); it.hasNext();) {
+				Entry<WebSocket, String> entry = it.next();
+				if (entry.getValue().equals(name)) {
+					WebSocket oldWebsocket = entry.getKey();
+					oldWebsocket.close(CloseFrame.POLICY_VALIDATION, "Another websocket ["
+							+ websocket.getRemoteSocketAddress().getHostString() + "] connected for [" + name + "].");
+					it.remove();
+				}
+			}
+			// add new websocket for this device
 			this.femsWebsockets.put(websocket, name);
 		});
 	}
@@ -85,7 +99,7 @@ public class ConnectionManager {
 	 * @param WebSocket
 	 */
 	public synchronized void removeFemsWebsocket(WebSocket websocket) {
-		this.femsWebsockets.removeAllKeys(websocket);
+		this.femsWebsockets.removeAll(websocket);
 	}
 
 	/**
@@ -108,8 +122,14 @@ public class ConnectionManager {
 	 * @param name
 	 * @return
 	 */
-	public synchronized Set<WebSocket> getFemsWebsockets(String name) {
-		return Collections.unmodifiableSet(this.femsWebsockets.getKeys(name));
+	public synchronized Optional<WebSocket> getFemsWebsocket(String name) {
+		for (Iterator<Entry<WebSocket, String>> it = this.femsWebsockets.entries().iterator(); it.hasNext();) {
+			Entry<WebSocket, String> entry = it.next();
+			if (entry.getValue().equals(name)) {
+				return Optional.of(entry.getKey());
+			}
+		}
+		return Optional.empty();
 	}
 
 	/**
@@ -118,8 +138,8 @@ public class ConnectionManager {
 	 * @param websocket
 	 * @return
 	 */
-	public Set<String> getFemsWebsocketDeviceNames(WebSocket websocket) {
-		return Collections.unmodifiableSet(this.femsWebsockets.getValues(websocket));
+	public synchronized Collection<String> getFemsWebsocketDeviceNames(WebSocket websocket) {
+		return Collections.unmodifiableCollection(this.femsWebsockets.get(websocket));
 	}
 
 	/**
@@ -160,7 +180,7 @@ public class ConnectionManager {
 	}
 
 	public synchronized boolean isFemsOnline(String name) {
-		return this.femsWebsockets.getKeys(name).size() > 0;
+		return this.femsWebsockets.containsValue(name);
 	}
 
 	/**
