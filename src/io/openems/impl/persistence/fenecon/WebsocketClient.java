@@ -21,17 +21,14 @@
 package io.openems.impl.persistence.fenecon;
 
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
-import org.java_websocket.client.DefaultSSLWebSocketClientFactory;
 import org.java_websocket.drafts.Draft_10;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
@@ -57,14 +54,15 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 				0);
 		log.info("Start new websocket connection to [" + uri.getPath() + "]");
 		if (uri.toString().startsWith("wss")) {
-			try {
-				SSLContext sslContext = null;
-				sslContext = SSLContext.getInstance("TLS");
-				sslContext.init(null, null, null);
-				this.setWebSocketFactory(new DefaultSSLWebSocketClientFactory(sslContext));
-			} catch (NoSuchAlgorithmException | KeyManagementException e) {
-				throw new Exception("Could not initialize SSL connection");
-			}
+			// try {
+			// SSLContext sslContext = null;
+			// sslContext = SSLContext.getInstance("TLS");
+			// sslContext.init(null, null, null);
+			// this.setWebSocketFactory(new DefaultSSLWebSocketClientFactory(sslContext));
+			// } catch (NoSuchAlgorithmException | KeyManagementException e) {
+			// throw new Exception("Could not initialize SSL connection");
+			// }
+			this.setSocket(SSLSocketFactory.getDefault().createSocket());
 		}
 		this.websocketHandler = new WebsocketHandler(this.getConnection(),
 				null /* second parameter is only for local websocket access */);
@@ -72,11 +70,13 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 
 	@Override
 	public void onClose(int code, String reason, boolean remote) {
+		this.close();
 		log.info("Websocket [" + this.getURI().toString() + "] closed. Code[" + code + "] Reason[" + reason + "]");
 	}
 
 	@Override
 	public void onError(Exception ex) {
+		this.close();
 		log.warn("Websocket [" + this.getURI().toString() + "] error: " + ex);
 	}
 

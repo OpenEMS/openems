@@ -140,4 +140,9 @@ public class WebsocketServer extends WebSocketServer {
 			}
 		});
 	}
+
+	@Override
+	public void onStart() {
+
+	}
 }
