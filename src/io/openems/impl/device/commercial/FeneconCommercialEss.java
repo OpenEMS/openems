@@ -195,6 +195,18 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	public ModbusReadLongChannel transformerTemperatureL2;
 	public ModbusReadLongChannel allowedApparent;
 	public ModbusReadLongChannel activePower;
+	public StatusBitChannel suggestiveInformation1;
+	public StatusBitChannel suggestiveInformation2;
+	public StatusBitChannel suggestiveInformation3;
+	public StatusBitChannel suggestiveInformation4;
+	public StatusBitChannel suggestiveInformation5;
+	public StatusBitChannel suggestiveInformation6;
+	public StatusBitChannel suggestiveInformation7;
+	public StatusBitChannel abnormity1;
+	public StatusBitChannel abnormity2;
+	public StatusBitChannel abnormity3;
+	public StatusBitChannel abnormity4;
+	public StatusBitChannel abnormity5;
 
 	/*
 	 * Methods
@@ -246,23 +258,27 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(1, "CESS")), //
 						new DummyElement(0x010B, 0x010F), //
 						new UnsignedWordElement(0x0110, //
-								warning.channel(new StatusBitChannel("SuggestiveInformation1", this) //
-										.label(4, "EmergencyStop") //
-										.label(64, "KeyManualStop"))), //
+								suggestiveInformation1 = warning
+										.channel(new StatusBitChannel("SuggestiveInformation1", this) //
+												.label(4, "EmergencyStop") //
+												.label(64, "KeyManualStop"))), //
 						new UnsignedWordElement(0x0111, //
-								warning.channel(new StatusBitChannel("SuggestiveInformation2", this) //
-										.label(4, "EmergencyStop") //
-										.label(64, "KeyManualStop"))), //
+								suggestiveInformation2 = warning
+										.channel(new StatusBitChannel("SuggestiveInformation2", this) //
+												.label(4, "EmergencyStop") //
+												.label(64, "KeyManualStop"))), //
 						new DummyElement(0x0112, 0x0124), //
 						new UnsignedWordElement(0x0125, //
-								warning.channel(new StatusBitChannel("SuggestiveInformation3", this) //
-										.label(1, "Inverter communication abnormity") //
-										.label(2, "Battery stack communication abnormity") //
-										.label(4, "Multifunctional ammeter communication abnormity") //
-										.label(16, "Remote communication abnormity"))), //
+								suggestiveInformation3 = warning
+										.channel(new StatusBitChannel("SuggestiveInformation3", this) //
+												.label(1, "Inverter communication abnormity") //
+												.label(2, "Battery stack communication abnormity") //
+												.label(4, "Multifunctional ammeter communication abnormity") //
+												.label(16, "Remote communication abnormity"))), //
 						new UnsignedWordElement(0x0126, //
-								warning.channel(new StatusBitChannel("SuggestiveInformation4", this) //
-										.label(8, "Transformer severe overtemperature"))), //
+								suggestiveInformation4 = warning
+										.channel(new StatusBitChannel("SuggestiveInformation4", this) //
+												.label(8, "Transformer severe overtemperature"))), //
 						new DummyElement(0x0127, 0x014F), //
 						new UnsignedWordElement(0x0150, //
 								switchState = new StatusBitChannel("BatteryStringSwitchState", this) //
@@ -274,7 +290,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 				), //
 				new ModbusRegisterRange(0x0180, //
 						new UnsignedWordElement(0x0180,
-								warning.channel(new StatusBitChannel("Abnormity1", this)//
+								abnormity1 = warning.channel(new StatusBitChannel("Abnormity1", this)//
 										.label(1, "DC precharge contactor close unsuccessfully") //
 										.label(2, "AC precharge contactor close unsuccessfully") //
 										.label(4, "AC main contactor close unsuccessfully") //
@@ -290,7 +306,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(4096, "Master stop suddenly"))),
 						new DummyElement(0x0181),
 						new UnsignedWordElement(0x0182,
-								warning.channel(new StatusBitChannel("Abnormity2", this) //
+								abnormity2 = warning.channel(new StatusBitChannel("Abnormity2", this) //
 										.label(1, "DC short circuit protection") //
 										.label(2, "DC overvoltage protection") //
 										.label(4, "DC undervoltage protection") //
@@ -309,7 +325,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(16384, "Phase 2 grid voltage sampling invalidation") //
 										.label(32768, "Phase 3 grid voltage sampling invalidation"))),
 						new UnsignedWordElement(0x0183,
-								warning.channel(new StatusBitChannel("Abnormity3", this) //
+								abnormity3 = warning.channel(new StatusBitChannel("Abnormity3", this) //
 										.label(1, "Phase 1 invert voltage sampling invalidation") //
 										.label(2, "Phase 2 invert voltage sampling invalidation") //
 										.label(4, "Phase 3 invert voltage sampling invalidation") //
@@ -327,7 +343,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(16384, "Unadaptable phase sequence error protection")//
 										.label(132768, "DSP protection"))),
 						new UnsignedWordElement(0x0184,
-								warning.channel(new StatusBitChannel("Abnormity4", this) //
+								abnormity4 = warning.channel(new StatusBitChannel("Abnormity4", this) //
 										.label(1, "Phase 1 grid voltage severe overvoltage protection") //
 										.label(2, "Phase 1 grid voltage general overvoltage protection") //
 										.label(4, "Phase 2 grid voltage severe overvoltage protection") //
@@ -343,7 +359,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(4096, "Phase 3 Inverter voltage general overvoltage protection") //
 										.label(8192, "Inverter peak voltage high protection cause by AC disconnect"))),
 						new UnsignedWordElement(0x0185,
-								warning.channel(new StatusBitChannel("Abnormity5", this) //
+								abnormity5 = warning.channel(new StatusBitChannel("Abnormity5", this) //
 										.label(1, "Phase 1 grid loss") //
 										.label(2, "Phase 2 grid loss") //
 										.label(4, "Phase 3 grid loss") //
@@ -359,50 +375,53 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 										.label(4096, "Phase 3 Inverter voltage general overvoltage protection") //
 										.label(8192, "Inverter peak voltage high protection cause by AC disconnect"))),
 						new UnsignedWordElement(0x0186,
-								warning.channel(new StatusBitChannel("SuggestiveInformation5", this) //
-										.label(1, "DC precharge contactor inspection abnormity") //
-										.label(2, "DC breaker 1 inspection abnormity ") //
-										.label(4, "DC breaker 2 inspection abnormity ") //
-										.label(8, "AC precharge contactor inspection abnormity ") //
-										.label(16, "AC main contactor inspection abnormity ") //
-										.label(32, "AC breaker inspection abnormity ") //
-										.label(64, "DC breaker 1 close unsuccessfully") //
-										.label(128, "DC breaker 2 close unsuccessfully") //
-										.label(256, "Control signal close abnormally inspected by system") //
-										.label(512, "Control signal open abnormally inspected by system") //
-										.label(1024, "Neutral wire contactor close unsuccessfully") //
-										.label(2048, "Neutral wire contactor open unsuccessfully") //
-										.label(4096, "Work door open") //
-										.label(8192, "Emergency stop") //
-										.label(16384, "AC breaker close unsuccessfully")//
-										.label(132768, "Control switch stop"))),
+								suggestiveInformation5 = warning
+										.channel(new StatusBitChannel("SuggestiveInformation5", this) //
+												.label(1, "DC precharge contactor inspection abnormity") //
+												.label(2, "DC breaker 1 inspection abnormity ") //
+												.label(4, "DC breaker 2 inspection abnormity ") //
+												.label(8, "AC precharge contactor inspection abnormity ") //
+												.label(16, "AC main contactor inspection abnormity ") //
+												.label(32, "AC breaker inspection abnormity ") //
+												.label(64, "DC breaker 1 close unsuccessfully") //
+												.label(128, "DC breaker 2 close unsuccessfully") //
+												.label(256, "Control signal close abnormally inspected by system") //
+												.label(512, "Control signal open abnormally inspected by system") //
+												.label(1024, "Neutral wire contactor close unsuccessfully") //
+												.label(2048, "Neutral wire contactor open unsuccessfully") //
+												.label(4096, "Work door open") //
+												.label(8192, "Emergency stop") //
+												.label(16384, "AC breaker close unsuccessfully")//
+												.label(132768, "Control switch stop"))),
 						new UnsignedWordElement(0x0187,
-								warning.channel(new StatusBitChannel("SuggestiveInformation6", this) //
-										.label(1, "General overload") //
-										.label(2, "Severe overload") //
-										.label(4, "Battery current over limit") //
-										.label(8, "Power decrease caused by overtemperature") //
-										.label(16, "Inverter general overtemperature") //
-										.label(32, "AC three-phase current unbalance") //
-										.label(64, "Rstore factory setting unsuccessfully") //
-										.label(128, "Pole-board invalidation") //
-										.label(256, "Self-inspection failed") //
-										.label(512, "Receive BMS fault and stop") //
-										.label(1024, "Refrigeration equipment invalidation") //
-										.label(2048, "Large temperature difference among IGBT three phases") //
-										.label(4096, "EEPROM parameters over range") //
-										.label(8192, "EEPROM parameters backup failed") //
-										.label(16384, "DC breaker close unsuccessfully"))),
+								suggestiveInformation6 = warning
+										.channel(new StatusBitChannel("SuggestiveInformation6", this) //
+												.label(1, "General overload") //
+												.label(2, "Severe overload") //
+												.label(4, "Battery current over limit") //
+												.label(8, "Power decrease caused by overtemperature") //
+												.label(16, "Inverter general overtemperature") //
+												.label(32, "AC three-phase current unbalance") //
+												.label(64, "Rstore factory setting unsuccessfully") //
+												.label(128, "Pole-board invalidation") //
+												.label(256, "Self-inspection failed") //
+												.label(512, "Receive BMS fault and stop") //
+												.label(1024, "Refrigeration equipment invalidation") //
+												.label(2048, "Large temperature difference among IGBT three phases") //
+												.label(4096, "EEPROM parameters over range") //
+												.label(8192, "EEPROM parameters backup failed") //
+												.label(16384, "DC breaker close unsuccessfully"))),
 						new UnsignedWordElement(0x0188,
-								warning.channel(new StatusBitChannel("SuggestiveInformation7", this) //
-										.label(1, "Communication between inverter and BSMU disconnected") //
-										.label(2, "Communication between inverter and Master disconnected") //
-										.label(4, "Communication between inverter and UC disconnected") //
-										.label(8, "BMS start overtime controlled by PCS") //
-										.label(16, "BMS stop overtime controlled by PCS") //
-										.label(32, "Sync signal invalidation") //
-										.label(64, "Sync signal continuous caputure fault") //
-										.label(128, "Sync signal several times caputure fault")))),
+								suggestiveInformation7 = warning
+										.channel(new StatusBitChannel("SuggestiveInformation7", this) //
+												.label(1, "Communication between inverter and BSMU disconnected") //
+												.label(2, "Communication between inverter and Master disconnected") //
+												.label(4, "Communication between inverter and UC disconnected") //
+												.label(8, "BMS start overtime controlled by PCS") //
+												.label(16, "BMS stop overtime controlled by PCS") //
+												.label(32, "Sync signal invalidation") //
+												.label(64, "Sync signal continuous caputure fault") //
+												.label(128, "Sync signal several times caputure fault")))),
 				new ModbusRegisterRange(0x0200, //
 						new SignedWordElement(0x0200, //
 								batteryVoltage = new ModbusReadLongChannel("BatteryVoltage", this).unit("mV")
