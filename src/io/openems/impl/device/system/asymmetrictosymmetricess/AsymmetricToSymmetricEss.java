@@ -1,0 +1,31 @@
+package io.openems.impl.device.system.asymmetrictosymmetricess;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import io.openems.api.channel.ConfigChannel;
+import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ConfigInfo;
+import io.openems.api.exception.OpenemsException;
+import io.openems.impl.protocol.system.SystemDevice;
+
+public class AsymmetricToSymmetricEss extends SystemDevice {
+
+	@ConfigInfo(title = "AsymmetricToSymmetricEss", description = "Sets the wrapper nature to use asymmetric ess as symmetric ess.", type = AsymmetricToSymmetricEssNature.class)
+	public final ConfigChannel<AsymmetricToSymmetricEssNature> wrapper = new ConfigChannel<>("wrapper", this);
+
+	public AsymmetricToSymmetricEss() throws OpenemsException {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	protected Set<DeviceNature> getDeviceNatures() {
+		Set<DeviceNature> natures = new HashSet<>();
+		if (wrapper.valueOptional().isPresent()) {
+			natures.add(wrapper.valueOptional().get());
+		}
+		return natures;
+	}
+
+}
