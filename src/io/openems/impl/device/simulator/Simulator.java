@@ -43,8 +43,10 @@ public class Simulator extends SimulatorDevice {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = SimulatorEss.class, isOptional = true)
-	public final ConfigChannel<SimulatorEss> ess = new ConfigChannel<>("ess", this);
+	@ConfigInfo(title = "symmetric Ess", description = "Sets the symmetric Ess nature.", type = SimulatorSymmetricEss.class, isOptional = true)
+	public final ConfigChannel<SimulatorSymmetricEss> symmetricEss = new ConfigChannel<>("symmetricEss", this);
+	@ConfigInfo(title = "asymmetric Ess", description = "Sets the asymmetric Ess nature.", type = SimulatorAsymmetricEss.class, isOptional = true)
+	public final ConfigChannel<SimulatorAsymmetricEss> asymmetricEss = new ConfigChannel<>("asymmetricEss", this);
 
 	@ConfigInfo(title = "Charger", description = "Sets the Charger nature.", type = SimulatorCharger.class, isOptional = true)
 	public final ConfigChannel<SimulatorCharger> charger = new ConfigChannel<>("charger", this);
@@ -61,8 +63,11 @@ public class Simulator extends SimulatorDevice {
 	@Override
 	protected Set<DeviceNature> getDeviceNatures() {
 		Set<DeviceNature> natures = new HashSet<>();
-		if (ess.valueOptional().isPresent()) {
-			natures.add(ess.valueOptional().get());
+		if (symmetricEss.valueOptional().isPresent()) {
+			natures.add(symmetricEss.valueOptional().get());
+		}
+		if (asymmetricEss.valueOptional().isPresent()) {
+			natures.add(asymmetricEss.valueOptional().get());
 		}
 		if (gridMeter.valueOptional().isPresent()) {
 			natures.add(gridMeter.valueOptional().get());

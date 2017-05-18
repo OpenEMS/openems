@@ -42,12 +42,12 @@ import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 import io.openems.test.utils.channel.UnitTestWriteChannel;
 
 @ThingInfo(title = "Simulator ESS")
-public class SimulatorEss extends SimulatorDeviceNature implements SymmetricEssNature {
+public class SimulatorSymmetricEss extends SimulatorDeviceNature implements SymmetricEssNature {
 
 	/*
 	 * Constructors
 	 */
-	public SimulatorEss(String thingId) throws ConfigException {
+	public SimulatorSymmetricEss(String thingId) throws ConfigException {
 		super(thingId);
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
