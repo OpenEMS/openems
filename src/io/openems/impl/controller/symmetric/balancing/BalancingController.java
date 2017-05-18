@@ -79,8 +79,8 @@ public class BalancingController extends Controller {
 				long useableSoc = 0;
 				for (Ess ess : esss.value()) {
 					calculatedPower += ess.activePower.value();
-					maxChargePower += ess.setActivePower.writeMin().orElse(0L);
-					maxDischargePower += ess.setActivePower.writeMax().orElse(0L);
+					maxChargePower += ess.setActivePower.writeMin().orElse(ess.allowedCharge.value());
+					maxDischargePower += ess.setActivePower.writeMax().orElse(ess.allowedDischarge.value());
 					useableSoc += ess.useableSoc();
 				}
 				if (calculatedPower > 0) {
