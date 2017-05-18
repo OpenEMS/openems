@@ -35,6 +35,7 @@ public class FunctionalWriteChannel<T> extends WriteChannel<T> implements Channe
 		synchronized (channels) {
 			this.channels.add(channel);
 			channel.addUpdateListener(this);
+			update();
 		}
 	}
 
@@ -42,11 +43,16 @@ public class FunctionalWriteChannel<T> extends WriteChannel<T> implements Channe
 		synchronized (this.channels) {
 			channel.removeUpdateListener(this);
 			this.channels.remove(channel);
+			update();
 		}
 	}
 
 	@Override
 	public void channelUpdated(Channel channel, Optional<?> newValue) {
+		update();
+	}
+
+	private void update() {
 		synchronized (this.channels) {
 			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);

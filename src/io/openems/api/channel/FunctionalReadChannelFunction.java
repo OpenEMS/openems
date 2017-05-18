@@ -20,7 +20,9 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
+import io.openems.api.exception.InvalidValueException;
+
 public interface FunctionalReadChannelFunction<T> {
 
-	public T handle(ReadChannel<T>... channels);
+	public T handle(ReadChannel<T>... channels) throws InvalidValueException;
 }

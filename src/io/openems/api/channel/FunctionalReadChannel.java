@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import io.openems.api.exception.InvalidValueException;
 import io.openems.api.thing.Thing;
 
 public class FunctionalReadChannel<T> extends ReadChannel<T> implements ChannelUpdateListener {
@@ -54,6 +55,7 @@ public class FunctionalReadChannel<T> extends ReadChannel<T> implements ChannelU
 		synchronized (channels) {
 			this.channels.add(channel);
 			channel.addUpdateListener(this);
+			update();
 		}
 	}
 
@@ -61,15 +63,24 @@ public class FunctionalReadChannel<T> extends ReadChannel<T> implements ChannelU
 		synchronized (this.channels) {
 			channel.removeUpdateListener(this);
 			this.channels.remove(channel);
+			update();
 		}
 	}
 
 	@Override
 	public void channelUpdated(Channel channel, Optional<?> newValue) {
+		update();
+	}
+
+	private void update() {
 		synchronized (this.channels) {
 			ReadChannel<T>[] channels = new ReadChannel[this.channels.size()];
 			this.channels.toArray(channels);
-			updateValue(func.handle(channels));
+			try {
+				updateValue(func.handle(channels));
+			} catch (InvalidValueException e) {
+				updateValue(null);
+			}
 		}
 	}
 

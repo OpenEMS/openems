@@ -20,9 +20,11 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
+import io.openems.api.exception.WriteChannelException;
+
 public interface FunctionalWriteChannelFunction<T> {
 
-	public void setValue(T newValue, String newLabel, WriteChannel<T>... channels);
+	public void setValue(T newValue, String newLabel, WriteChannel<T>... channels) throws WriteChannelException;
 
 	public T getValue(ReadChannel<T>... channels);
 
@@ -30,7 +32,7 @@ public interface FunctionalWriteChannelFunction<T> {
 
 	public T getMaxValue(WriteChannel<T>... channels);
 
-	public void setMinValue(T newValue, String newLabel, WriteChannel<T>... channels);
+	public void setMinValue(T newValue, String newLabel, WriteChannel<T>... channels) throws WriteChannelException;
 
-	public void setMaxValue(T newValue, String newLabel, WriteChannel<T>... channels);
+	public void setMaxValue(T newValue, String newLabel, WriteChannel<T>... channels) throws WriteChannelException;
 }
