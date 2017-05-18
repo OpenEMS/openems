@@ -70,6 +70,8 @@ public interface EssNature extends DeviceNature {
 
 	public ReadChannel<Long> capacity();
 
+	public ReadChannel<Long> maxNominalPower();
+
 	public StatusBitChannels warning();
 
 	/*

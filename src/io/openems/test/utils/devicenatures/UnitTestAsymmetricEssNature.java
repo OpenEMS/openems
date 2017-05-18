@@ -37,6 +37,8 @@ public class UnitTestAsymmetricEssNature implements AsymmetricEssNature {
 	public UnitTestWriteChannel<Long> setWorkState = new UnitTestWriteChannel<>("SetWorkState", this);
 	public StaticValueChannel<Long> capacity = new StaticValueChannel<Long>("Capacity", this,
 			SimulatorTools.getRandomLong(3000, 50000));
+	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
+			.unit("VA");
 
 	private final String id;
 
@@ -168,6 +170,11 @@ public class UnitTestAsymmetricEssNature implements AsymmetricEssNature {
 	@Override
 	public ReadChannel<Long> capacity() {
 		return capacity;
+	}
+
+	@Override
+	public ReadChannel<Long> maxNominalPower() {
+		return maxNominalPower;
 	}
 
 }

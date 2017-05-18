@@ -108,6 +108,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	private ModbusWriteLongChannel rtcMinute;
 	private ModbusWriteLongChannel rtcSecond;
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 12000L).unit("Wh");
+	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 9000L)
+			.unit("VA");
 
 	@Override
 	public ReadChannel<Long> allowedCharge() {
@@ -788,6 +790,11 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	@Override
 	public StaticValueChannel<Long> capacity() {
 		return capacity;
+	}
+
+	@Override
+	public ReadChannel<Long> maxNominalPower() {
+		return maxNominalPower;
 	}
 
 }
