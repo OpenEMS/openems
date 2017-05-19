@@ -170,7 +170,7 @@ public class ChannelThresholdScheduler extends Scheduler {
 				controllers.addAll(activeHysteresis.controllers);
 			}
 		} catch (InvalidValueException e) {
-			log.error("Can't read thresholdChannel.");
+			log.error("Can't read thresholdChannel.", e);
 		}
 		return controllers;
 	}
