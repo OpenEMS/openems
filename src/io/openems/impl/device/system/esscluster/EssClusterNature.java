@@ -24,14 +24,14 @@ import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
 import io.openems.core.ThingRepository;
+import io.openems.impl.protocol.system.SystemDeviceNature;
 
-public class EssClusterNature implements SymmetricEssNature, ChannelChangeListener {
-
-	private final String id;
+public class EssClusterNature extends SystemDeviceNature implements SymmetricEssNature, ChannelChangeListener {
 
 	private final Logger log;
 	private List<ThingChannelsUpdatedListener> listeners;
@@ -506,9 +506,8 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 
 			});
 
-	public EssClusterNature(String id) {
-		super();
-		this.id = id;
+	public EssClusterNature(String id) throws ConfigException {
+		super(id);
 		log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 	}
@@ -516,11 +515,6 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 	@Override
 	public void setAsRequired(Channel channel) {
 		// unused
-	}
-
-	@Override
-	public String id() {
-		return id;
 	}
 
 	@Override
@@ -621,56 +615,72 @@ public class EssClusterNature implements SymmetricEssNature, ChannelChangeListen
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		if (channel.equals(esss)) {
-			Set<DeviceNature> natures = repo.getDeviceNatures();
-			JsonArray essIds;
-			try {
-				essIds = esss.value();
-				// remove old ess
-				for (SymmetricEssNature ess : this.essList) {
-					soc.removeChannel(ess.soc());
-					gridMode.removeChannel(ess.gridMode());
-					systemState.removeChannel(ess.systemState());
-					allowedCharge.removeChannel(ess.allowedCharge());
-					allowedDischarge.removeChannel(ess.allowedDischarge());
-					allowedApparent.removeChannel(ess.allowedApparent());
-					activePower.removeChannel(ess.activePower());
-					reactivePower.removeChannel(ess.reactivePower());
-					apparentPower.removeChannel(ess.apparentPower());
-					maxNominalPower.removeChannel(ess.maxNominalPower());
-					capacity.removeChannel(ess.capacity());
-					setWorkState.removeChannel(ess.setWorkState());
-					setActivePower.removeChannel(ess.setActivePower());
-					setReactivePower.removeChannel(ess.setReactivePower());
-				}
-				essList.clear();
-				if (essIds != null) {
-					for (DeviceNature nature : natures) {
-						if (nature instanceof SymmetricEssNature) {
-							if (essIds.toString().contains(nature.id())) {
-								SymmetricEssNature ess = (SymmetricEssNature) nature;
-								essList.add(ess);
-								soc.addChannel(ess.soc());
-								gridMode.addChannel(ess.gridMode());
-								systemState.addChannel(ess.systemState());
-								allowedCharge.addChannel(ess.allowedCharge());
-								allowedDischarge.addChannel(ess.allowedDischarge());
-								allowedApparent.addChannel(ess.allowedApparent());
-								activePower.addChannel(ess.activePower());
-								reactivePower.addChannel(ess.reactivePower());
-								apparentPower.addChannel(ess.apparentPower());
-								maxNominalPower.addChannel(ess.maxNominalPower());
-								capacity.addChannel(ess.capacity());
-								setWorkState.addChannel(ess.setWorkState());
-								setActivePower.addChannel(ess.setActivePower());
-								setReactivePower.addChannel(ess.setReactivePower());
-							}
+			loadEss();
+		}
+	}
+
+	private void loadEss() {
+		Set<DeviceNature> natures = repo.getDeviceNatures();
+		JsonArray essIds;
+		try {
+			essIds = esss.value();
+			// remove old ess
+			for (SymmetricEssNature ess : this.essList) {
+				soc.removeChannel(ess.soc());
+				gridMode.removeChannel(ess.gridMode());
+				systemState.removeChannel(ess.systemState());
+				allowedCharge.removeChannel(ess.allowedCharge());
+				allowedDischarge.removeChannel(ess.allowedDischarge());
+				allowedApparent.removeChannel(ess.allowedApparent());
+				activePower.removeChannel(ess.activePower());
+				reactivePower.removeChannel(ess.reactivePower());
+				apparentPower.removeChannel(ess.apparentPower());
+				maxNominalPower.removeChannel(ess.maxNominalPower());
+				capacity.removeChannel(ess.capacity());
+				setWorkState.removeChannel(ess.setWorkState());
+				setActivePower.removeChannel(ess.setActivePower());
+				setReactivePower.removeChannel(ess.setReactivePower());
+			}
+			essList.clear();
+			if (essIds != null) {
+				for (DeviceNature nature : natures) {
+					if (nature instanceof SymmetricEssNature) {
+						if (essIds.toString().contains(nature.id())) {
+							SymmetricEssNature ess = (SymmetricEssNature) nature;
+							essList.add(ess);
+							soc.addChannel(ess.soc());
+							gridMode.addChannel(ess.gridMode());
+							systemState.addChannel(ess.systemState());
+							allowedCharge.addChannel(ess.allowedCharge());
+							allowedDischarge.addChannel(ess.allowedDischarge());
+							allowedApparent.addChannel(ess.allowedApparent());
+							activePower.addChannel(ess.activePower());
+							reactivePower.addChannel(ess.reactivePower());
+							apparentPower.addChannel(ess.apparentPower());
+							maxNominalPower.addChannel(ess.maxNominalPower());
+							capacity.addChannel(ess.capacity());
+							setWorkState.addChannel(ess.setWorkState());
+							setActivePower.addChannel(ess.setActivePower());
+							setReactivePower.addChannel(ess.setReactivePower());
 						}
 					}
-					// capacity.channelUpdated(null, null);
 				}
-			} catch (InvalidValueException e) {
-				log.error("esss value is invalid!", e);
+				// capacity.channelUpdated(null, null);
 			}
+		} catch (InvalidValueException e) {
+			log.error("esss value is invalid!", e);
+		}
+	}
+
+	@Override
+	protected void update() {
+		try {
+			if (esss.value().size() != essList.size()) {
+				loadEss();
+			}
+		} catch (InvalidValueException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
