@@ -23,15 +23,16 @@ import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ConfigInfo;
+import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ControllerUtils;
+import io.openems.impl.protocol.system.SystemDeviceNature;
 
-public class AsymmetricToSymmetricEssNature implements SymmetricEssNature, ChannelChangeListener {
-
-	private final String id;
+public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
+		implements SymmetricEssNature, ChannelChangeListener {
 
 	private final Logger log;
 	private List<ThingChannelsUpdatedListener> listeners;
@@ -494,9 +495,8 @@ public class AsymmetricToSymmetricEssNature implements SymmetricEssNature, Chann
 
 			}).label(0L, EssNature.OFF).label(1L, EssNature.ON);
 
-	public AsymmetricToSymmetricEssNature(String id) {
-		super();
-		this.id = id;
+	public AsymmetricToSymmetricEssNature(String id) throws ConfigException {
+		super(id);
 		log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 	}
@@ -504,11 +504,6 @@ public class AsymmetricToSymmetricEssNature implements SymmetricEssNature, Chann
 	@Override
 	public void setAsRequired(Channel channel) {
 		// unused
-	}
-
-	@Override
-	public String id() {
-		return id;
 	}
 
 	@Override
@@ -609,67 +604,71 @@ public class AsymmetricToSymmetricEssNature implements SymmetricEssNature, Chann
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		if (channel.equals(essId)) {
-			Set<DeviceNature> natures = repo.getDeviceNatures();
-			String essId;
-			try {
-				essId = this.essId.value();
-				if (ess != null) {
-					// remove old ess
-					activePower.removeChannel(ess.activePowerL1());
-					activePower.removeChannel(ess.activePowerL2());
-					activePower.removeChannel(ess.activePowerL3());
-					reactivePower.removeChannel(ess.reactivePowerL1());
-					reactivePower.removeChannel(ess.reactivePowerL2());
-					reactivePower.removeChannel(ess.reactivePowerL3());
-					setActivePower.removeChannel(ess.setActivePowerL1());
-					setActivePower.removeChannel(ess.setActivePowerL2());
-					setActivePower.removeChannel(ess.setActivePowerL3());
-					setReactivePower.removeChannel(ess.setReactivePowerL1());
-					setReactivePower.removeChannel(ess.setReactivePowerL2());
-					setReactivePower.removeChannel(ess.setReactivePowerL3());
-					allowedCharge.removeChannel(ess.allowedCharge());
-					allowedDischarge.removeChannel(ess.allowedDischarge());
-					allowedApparent.removeChannel(ess.allowedApparent());
-					systemState.removeChannel(ess.systemState());
-					setWorkState.removeChannel(ess.setWorkState());
-					capacity.removeChannel(ess.capacity());
-					maxNominalPower.removeChannel(ess.maxNominalPower());
-					gridMode.removeChannel(ess.gridMode());
-					soc.removeChannel(ess.soc());
-					ess = null;
-				}
-				for (DeviceNature nature : natures) {
-					if (nature instanceof AsymmetricEssNature) {
-						if (essId.contains(nature.id())) {
-							AsymmetricEssNature ess = (AsymmetricEssNature) nature;
-							this.ess = ess;
-							activePower.addChannel(ess.activePowerL1());
-							activePower.addChannel(ess.activePowerL2());
-							activePower.addChannel(ess.activePowerL3());
-							reactivePower.addChannel(ess.reactivePowerL1());
-							reactivePower.addChannel(ess.reactivePowerL2());
-							reactivePower.addChannel(ess.reactivePowerL3());
-							setActivePower.addChannel(ess.setActivePowerL1());
-							setActivePower.addChannel(ess.setActivePowerL2());
-							setActivePower.addChannel(ess.setActivePowerL3());
-							setReactivePower.addChannel(ess.setReactivePowerL1());
-							setReactivePower.addChannel(ess.setReactivePowerL2());
-							setReactivePower.addChannel(ess.setReactivePowerL3());
-							allowedCharge.addChannel(ess.allowedCharge());
-							allowedDischarge.addChannel(ess.allowedDischarge());
-							allowedApparent.addChannel(ess.allowedApparent());
-							systemState.addChannel(ess.systemState());
-							setWorkState.addChannel(ess.setWorkState());
-							capacity.addChannel(ess.capacity());
-							maxNominalPower.addChannel(ess.maxNominalPower());
-							gridMode.addChannel(ess.gridMode());
-							soc.addChannel(ess.soc());
-						}
+			loadEss();
+		}
+	}
+
+	private void loadEss() {
+		Set<DeviceNature> natures = repo.getDeviceNatures();
+		String essId;
+		try {
+			essId = this.essId.value();
+			if (ess != null) {
+				// remove old ess
+				activePower.removeChannel(ess.activePowerL1());
+				activePower.removeChannel(ess.activePowerL2());
+				activePower.removeChannel(ess.activePowerL3());
+				reactivePower.removeChannel(ess.reactivePowerL1());
+				reactivePower.removeChannel(ess.reactivePowerL2());
+				reactivePower.removeChannel(ess.reactivePowerL3());
+				setActivePower.removeChannel(ess.setActivePowerL1());
+				setActivePower.removeChannel(ess.setActivePowerL2());
+				setActivePower.removeChannel(ess.setActivePowerL3());
+				setReactivePower.removeChannel(ess.setReactivePowerL1());
+				setReactivePower.removeChannel(ess.setReactivePowerL2());
+				setReactivePower.removeChannel(ess.setReactivePowerL3());
+				allowedCharge.removeChannel(ess.allowedCharge());
+				allowedDischarge.removeChannel(ess.allowedDischarge());
+				allowedApparent.removeChannel(ess.allowedApparent());
+				systemState.removeChannel(ess.systemState());
+				setWorkState.removeChannel(ess.setWorkState());
+				capacity.removeChannel(ess.capacity());
+				maxNominalPower.removeChannel(ess.maxNominalPower());
+				gridMode.removeChannel(ess.gridMode());
+				soc.removeChannel(ess.soc());
+				ess = null;
+			}
+			for (DeviceNature nature : natures) {
+				if (nature instanceof AsymmetricEssNature) {
+					if (essId.contains(nature.id())) {
+						AsymmetricEssNature ess = (AsymmetricEssNature) nature;
+						this.ess = ess;
+						activePower.addChannel(ess.activePowerL1());
+						activePower.addChannel(ess.activePowerL2());
+						activePower.addChannel(ess.activePowerL3());
+						reactivePower.addChannel(ess.reactivePowerL1());
+						reactivePower.addChannel(ess.reactivePowerL2());
+						reactivePower.addChannel(ess.reactivePowerL3());
+						setActivePower.addChannel(ess.setActivePowerL1());
+						setActivePower.addChannel(ess.setActivePowerL2());
+						setActivePower.addChannel(ess.setActivePowerL3());
+						setReactivePower.addChannel(ess.setReactivePowerL1());
+						setReactivePower.addChannel(ess.setReactivePowerL2());
+						setReactivePower.addChannel(ess.setReactivePowerL3());
+						allowedCharge.addChannel(ess.allowedCharge());
+						allowedDischarge.addChannel(ess.allowedDischarge());
+						allowedApparent.addChannel(ess.allowedApparent());
+						systemState.addChannel(ess.systemState());
+						setWorkState.addChannel(ess.setWorkState());
+						capacity.addChannel(ess.capacity());
+						maxNominalPower.addChannel(ess.maxNominalPower());
+						gridMode.addChannel(ess.gridMode());
+						soc.addChannel(ess.soc());
 					}
 				}
-			} catch (InvalidValueException e) {
-				log.error("esss value is invalid!", e);
 			}
+		} catch (InvalidValueException e) {
+			log.error("esss value is invalid!", e);
 		}
 	}
 
@@ -677,6 +676,13 @@ public class AsymmetricToSymmetricEssNature implements SymmetricEssNature, Chann
 	public void init() {
 		for (ThingChannelsUpdatedListener listener : this.listeners) {
 			listener.thingChannelsUpdated(this);
+		}
+	}
+
+	@Override
+	protected void update() {
+		if (ess == null) {
+			loadEss();
 		}
 	}
 
