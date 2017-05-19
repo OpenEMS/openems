@@ -20,9 +20,16 @@
  *******************************************************************************/
 package io.openems.impl.device.simulator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.FunctionalReadChannelFunction;
@@ -30,10 +37,14 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.api.thing.Thing;
+import io.openems.core.ThingRepository;
 import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -42,7 +53,13 @@ import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 import io.openems.test.utils.channel.UnitTestWriteChannel;
 
 @ThingInfo(title = "Simulator ESS")
-public class SimulatorSymmetricEss extends SimulatorDeviceNature implements SymmetricEssNature {
+public class SimulatorSymmetricEss extends SimulatorDeviceNature implements SymmetricEssNature, ChannelChangeListener {
+
+	private List<ChargerNature> chargerList;
+	private ThingRepository repo = ThingRepository.getInstance();
+	private double energy;
+	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(5, 1);
+	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(5, 1);
 
 	/*
 	 * Constructors
@@ -67,6 +84,16 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				if (chargerList != null) {
+					for (ChargerNature charger : chargerList) {
+						try {
+							energy += charger.getActualPower().value() / 3600.0;
+						} catch (InvalidValueException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
 				try {
 					if (energy > capacity.value()) {
 						energy = capacity.value();
@@ -81,10 +108,6 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 
 		}, this.activePower);
 	}
-
-	private double energy;
-	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(5, 1);
-	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(5, 1);
 
 	/*
 	 * Config
@@ -124,6 +147,8 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 5000L).unit("Wh");
+	@ConfigInfo(title = "charger", type = JsonArray.class)
+	public ConfigChannel<JsonArray> charger = new ConfigChannel<JsonArray>("charger", this).addChangeListener(this);
 
 	@Override
 	public ReadChannel<Long> gridMode() {
@@ -210,6 +235,10 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	 */
 	@Override
 	protected void update() {
+		if (chargerList == null) {
+			chargerList = new ArrayList<>();
+			getCharger();
+		}
 		Optional<Long> activePower = setActivePower.getWrittenValue();
 		if (activePower.isPresent()) {
 			activePowerQueue.add(activePower.get());
@@ -236,6 +265,37 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	@Override
 	public StaticValueChannel<Long> capacity() {
 		return capacity;
+	}
+
+	@Override
+	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+		if (channel.equals(charger)) {
+			if (chargerList != null) {
+				getCharger();
+			}
+		}
+	}
+
+	private void getCharger() {
+		if (chargerList != null) {
+			for (ChargerNature charger : chargerList) {
+				soc.removeChannel(charger.getActualPower());
+			}
+			chargerList.clear();
+			if (charger.valueOptional().isPresent()) {
+				JsonArray ids = charger.valueOptional().get();
+				for (JsonElement e : ids) {
+					Optional<Thing> t = repo.getThingById(e.getAsString());
+					if (t.isPresent()) {
+						if (t.get() instanceof ChargerNature) {
+							ChargerNature charger = (ChargerNature) t.get();
+							chargerList.add(charger);
+							soc.addChannel(charger.getActualPower());
+						}
+					}
+				}
+			}
+		}
 	}
 
 }
