@@ -158,7 +158,7 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 5000L).unit("Wh");
-	@ConfigInfo(title = "charger", type = JsonArray.class)
+	@ConfigInfo(title = "charger", type = JsonArray.class, isOptional = true)
 	public ConfigChannel<JsonArray> charger = new ConfigChannel<JsonArray>("charger", this).addChangeListener(this);
 
 	@Override
