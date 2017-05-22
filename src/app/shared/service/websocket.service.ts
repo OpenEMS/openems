@@ -34,7 +34,14 @@ export class WebsocketService {
           message: websocket.name + ": " + notification.message
         }
         this.event.next(n);
-        if (!websocket.isConnected) {
+        // console.log("WEBSOCKET isConnected", websocket.isConnected);
+        if (!websocket.connectionClosed && !websocket.isConnected) {
+          setTimeout(() => {
+            websocket.connectWithTokenOrSessionId();
+          }, 1000);
+        }
+        // console.log("WEBSOCKET AFTER isConnected", websocket.isConnected);
+        if (!websocket.isConnected && websocket.connectionClosed) {
           let device = this.currentDevice.getValue();
           if (device) {
             if (device.websocket === websocket) {

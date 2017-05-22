@@ -12,6 +12,7 @@ export class Websocket {
   public event: Subject<Notification> = new Subject<Notification>();
   public subject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public devices: { [name: string]: Device } = {};
+  public connectionClosed: boolean = false;
 
   private websocket: WebSocket;
   private username: string = "";
@@ -170,19 +171,28 @@ export class Websocket {
         }
 
       }, (error: any) => {
-        this.initialize();
-        clearTimeout(timeout);
-        if (!status) {
-          status = { type: "error", message: "Verbindungsfehler." };
-          this.event.next(status);
+        if (this.connectionClosed && this.isConnected) {
+          this.initialize();
+          clearTimeout(timeout);
+          if (!status) {
+            status = { type: "error", message: "Verbindungsfehler." };
+            this.event.next(status);
+          }
+        } else {
+          this.isConnected = false;
+          this.event.next({ type: "warning", message: "Verbindung unterbrochen" });
         }
       }, (/* complete */) => {
-        this.initialize();
-        clearTimeout(timeout);
-        console.log("complete");
-        if (status == null) {
-          status = { type: "error", message: "Verbindung beendet." };
-          this.event.next(status);
+        if (this.connectionClosed && this.isConnected) {
+          this.initialize();
+          clearTimeout(timeout);
+          if (status == null) {
+            status = { type: "error", message: "Verbindung beendet." };
+            this.event.next(status);
+          }
+        } else {
+          this.isConnected = false;
+          this.event.next({ type: "warning", message: "Verbindung unterbrochen" });
         }
         // REDIRECT if current device was this one
       });
@@ -198,7 +208,7 @@ export class Websocket {
     this.websocket = null;
     this.isConnected = false;
     this.subject = new BehaviorSubject<any>(null);
-    this.devices = {}
+    this.devices = {};
   }
 
   /**
