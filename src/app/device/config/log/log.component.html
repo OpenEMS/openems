@@ -1,4 +1,7 @@
 <div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div fxFlex="100%" style="background-color: black;height: 40px;" *ngIf="device.websocket.isConnected == false">
+    <span fxFlex="100%" style="color: red;font-size: 22px;text-align:center;height: 40px">{{ device.websocket.connectionLostOutput }}</span>
+  </div>
   <div fxFlex="100%">
     <md-card class="single">
       <md-card-header>

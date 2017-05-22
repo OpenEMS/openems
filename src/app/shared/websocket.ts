@@ -13,6 +13,7 @@ export class Websocket {
   public subject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public devices: { [name: string]: Device } = {};
   public connectionClosed: boolean = false;
+  public connectionLostOutput: string = "Verbindungsaufbau..."
 
   private websocket: WebSocket;
   private username: string = "";

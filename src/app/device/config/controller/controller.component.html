@@ -1,6 +1,9 @@
 <div *ngIf="form" [formGroup]="form">
     <div formGroupName="scheduler">
         <div fxLayout fxLayoutWrap="wrap" formArrayName="controllers">
+            <div fxFlex="100%" style="background-color: black;height: 40px;" *ngIf="device.websocket.isConnected == false">
+                <span fxFlex="100%" style="color: red;font-size: 22px;text-align:center;height: 40px">{{ device.websocket.connectionLostOutput }}</span>
+            </div>
             <div fxFlex.xs="100%" fxFlex.gt-xs="50%" *ngFor="let controller of form.controls.scheduler['controls']['controllers']['controls'], let i=index"
                 [formGroupName]="i">
                 <!--existing controller-->

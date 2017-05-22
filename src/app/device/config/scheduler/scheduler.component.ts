@@ -14,6 +14,7 @@ export class SchedulerComponent extends AbstractConfig {
 
   private form: AbstractControl;
   configForm: FormGroup;
+  device: Device = null;
 
   constructor(
     route: ActivatedRoute,

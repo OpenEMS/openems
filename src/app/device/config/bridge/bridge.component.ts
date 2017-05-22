@@ -47,7 +47,6 @@ export class BridgeComponent extends AbstractConfig {
 
     for (let bridge of thingBridge) {
       for (let bridgeDevice of bridge.controls['devices']['controls']) {
-        console.log(bridgeDevice);
         this.addNaturesToDevice(bridgeDevice, bridgeDevice.controls['class'].value);
       }
     }
@@ -100,19 +99,10 @@ export class BridgeComponent extends AbstractConfig {
 
   addChannelsToBridge(bridgeForm: FormGroup, clazz: string): void {
     let bridgeMeta = <FormArray>this.form.controls['_meta']['controls']['availableBridges'];
-    // console.log(bridgeForm);
 
     for (let indexMeta in bridgeMeta.value) {
-      // console.log("First For-Loop // get Index of bridgeMeta");
-      // console.log(bridgeMeta.value[indexMeta]);
-      // console.log(bridgeForm);
       if (bridgeMeta.value[indexMeta].class == clazz) {
-        // console.log("If statement // if both classes equals");
-        // console.log(bridgeMeta.value[indexMeta].channels);
         for (let indexChannel in bridgeMeta.value[indexMeta].channels) {
-          // console.log("Second For-Loop // get channel of bridgeMeta");
-          // console.log(bridgeMeta.value[indexMeta].channels[indexChannel]);
-
           let channelName = bridgeMeta.value[indexMeta].channels[indexChannel].name;
 
           bridgeForm.addControl(channelName, this.formBuilder.control(""));

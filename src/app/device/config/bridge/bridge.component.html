@@ -6,13 +6,13 @@
           <!--existing bridge-->
           <ng-container *ngIf="bridgeForm.value.class != '' && bridgeForm.value.id != '' && bridgeMeta.class == bridgeForm.value.class">
             <ng-template md-tab-label>{{ bridgeMeta.class | classname }}<small>({{ bridgeForm.value.id }})</small></ng-template>
-            <md-card class="single">
+            <md-card class="single" *ngIf="device.websocket.isConnected == true">
               <md-card-header>
                 <md-icon md-card-avatar>device_hub</md-icon>
                 <md-card-title>{{ bridgeMeta.class | classname }}</md-card-title>
                 <md-card-subtitle>{{ bridgeForm.value.id }}</md-card-subtitle>
               </md-card-header>
-              <md-card-content>
+              <md-card-content *ngIf="device.websocket.isConnected == true">
                 <div fxLayout>
                   <p fxFlex="100px"></p>
                   <div fxFlex fxLayout fxLayoutWrap="wrap" *ngFor="let channelMeta of bridgeMeta.channels">
@@ -32,7 +32,12 @@
                 </div>
               </md-card-content>
             </md-card>
-            <div *ngIf="bridgeForm.controls.devices">
+            <md-card class="single" *ngIf="device.websocket.isConnected == false">
+              <md-card-content>
+                <span>{{ device.websocket.connectionLostOutput }}</span>
+              </md-card-content>
+            </md-card>
+            <div *ngIf="bridgeForm.controls.devices && device.websocket.isConnected == true">
               <div *ngFor="let device of bridgeForm.controls.devices.controls, let k=index" formArrayName="devices">
                 <div *ngFor="let deviceMeta of form.value._meta.availableDevices" [formGroupName]="k">
                   <div *ngIf="device.value.class != '' && device.value.id != '' && deviceMeta.class == device.value.class">
@@ -43,16 +48,21 @@
                         <md-card-subtitle>{{ device.value.id }}</md-card-subtitle>
                       </md-card-header>
                       <md-card-content>
-                        {{ device.value["productionMeter"] | json }}
+                        <div fxFlex="100px"></div>
+                        <div fxFlex="50%">
+                          <md-input-container>
+                            <input formControlName="id" placeholder="ID" mdInput>
+                          </md-input-container>
+                        </div>
                         <div fxLayout fxLayoutWrap="wrap" fxFlex *ngFor="let channelDeviceMeta of deviceMeta.channels" [formGroupName]="channelDeviceMeta.name">
                           <!--TODO: ID is not enough!-->
-                          <!--<div fxFlex="100px">
-                            {{ channelDeviceMeta.title }}
-                          </div>
-                          <div fxFlex="50%">
-                            <md-input-container>
-                              <input formControlName="id" placeholder="{{ channelDeviceMeta.title }}" mdInput>
-                            </md-input-container>
+                          <!--<div fxFlex="100%" *ngIf="channelDeviceMeta.array == true">
+                            <div fxFlex="100px"></div>
+                            <div fxFlex="50%">
+                              <md-input-container>
+                                <input [formControlName]="channelDeviceMeta.name" placeholder="{{ channelDeviceMeta.title }}" mdInput>
+                              </md-input-container>
+                            </div>
                           </div>-->
                         </div>
                         <div style="position: absolute;bottom: 0;right: 0; margin: 20px">
@@ -95,7 +105,14 @@
                 </div>
               </div>
             </div>
-            <md-card class="single_leftright">
+            <div *ngIf="device.websocket.isConnected == false">
+              <md-card class="single">
+                <md-card-content>
+                  <span>{{ device.websocket.connectionLostOutput }}</span>
+                </md-card-content>
+              </md-card>
+            </div>
+            <md-card class="single_leftright" *ngIf="device.websocket.isConnected == true">
               <md-card-header>
                 <md-icon md-card-avatar>stop</md-icon>
                 <md-card-title i18n>Neues Gerät...</md-card-title>
@@ -144,45 +161,3 @@
     </md-tab-group>
   </div>
 </div>
-
-<!-- Devices -->
-<!--<ng-container *ngIf="deviceForms.hasOwnProperty(bridgeForm.controls['id'].value)">
-              <md-card *ngFor="let deviceForm of deviceForms[bridgeForm.controls['id'].value]" class="single_leftright">
-                <md-card-header>
-                  <md-icon md-card-avatar>stop</md-icon>
-                  <md-card-title>{{ deviceForm.controls["class"].value | classname }}</md-card-title>
-                  <md-card-subtitle>{{ deviceForm.controls["id"].value }}</md-card-subtitle>
-                </md-card-header>
-                <md-card-content [formGroup]="deviceForm">
-                  <div fxLayout>
-                    <p fxFlex="100px"></p>
-                    <div fxFlex fxLayout fxLayoutWrap="wrap">
-                      <md-select fxFlex="50%" formControlName="class" placeholder="Klasse">
-                        <md-option *ngFor="let element of config._meta.devices" [value]="element.class"><span *ngIf="element.title">{{element.title}}: </span>{{element.class | classname}}</md-option>
-                      </md-select>
-                    </div>
-                  </div>
-                  <ng-container [ngSwitch]="deviceForm.controls['class'].value | classname">
-                    <form-device-simulator *ngSwitchCase="'Simulator'" [form]="deviceForm"></form-device-simulator>
-                    <form-device-system *ngSwitchCase="'System'" [form]="deviceForm"></form-device-system>
-                    <ng-container *ngSwitchDefault>
-                      <p><b>Formular nicht implementiert:</b> {{deviceForm.value | json}}<br/>Das sollte nicht passieren. Bitte
-                        kontaktieren Sie <a href="mailto:fems@fenecon.de">fems@fenecon.de</a>.</p>
-                    </ng-container>
-                  </ng-container>
-                </md-card-content>
-              </md-card>
-            </ng-container>-->
-
-<!-- New Device -->
-<!--<md-card class="single_leftright">
-              <md-card-header>
-                <md-icon md-card-avatar>stop</md-icon>
-                <md-card-title>Neues Gerät...</md-card-title>
-              </md-card-header>
-              <md-card-content>
-                <div fxLayout fxLayoutAlign="end start">
-                  <button md-mini-fab (click)="addNewDevice(bridgeForm.controls['id'].value)" color="primary"><md-icon>add</md-icon></button>
-                </div>
-              </md-card-content>
-            </md-card>-->
