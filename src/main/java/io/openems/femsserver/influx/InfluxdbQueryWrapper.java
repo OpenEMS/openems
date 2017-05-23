@@ -37,8 +37,8 @@ public class InfluxdbQueryWrapper {
 		// Prepare return object
 		JsonObject jQueryreply = new JsonObject();
 		jQueryreply.addProperty("mode", "history");
-		JsonArray jData;
-		JsonObject jkWh;
+		JsonArray jData = new JsonArray();
+		JsonObject jkWh = new JsonObject();
 
 		// Prepare date
 		toDate = toDate.plusDays(1).truncatedTo(ChronoUnit.DAYS);
@@ -53,8 +53,13 @@ public class InfluxdbQueryWrapper {
 
 		if (_influxdb.isPresent()) {
 			InfluxDB influxdb = _influxdb.get();
-			jData = InfluxdbQueryWrapper.queryData(influxdb, fems, fromDate, toDate, channels, resolution);
-			jkWh = InfluxdbQueryWrapper.querykWh(influxdb, fems, fromDate, toDate, channels, resolution, kWh);
+			// TODO fix data
+			if (fromDate.toLocalDate().equals(toDate.minusWeeks(1).toLocalDate())
+					|| (fromDate.toLocalDate().isAfter(toDate.minusWeeks(1).toLocalDate()) && fromDate.isBefore(toDate))
+					|| fromDate.toLocalDate().equals(toDate.toLocalDate())) {
+				jData = InfluxdbQueryWrapper.queryData(influxdb, fems, fromDate, toDate, channels, resolution);
+				jkWh = InfluxdbQueryWrapper.querykWh(influxdb, fems, fromDate, toDate, channels, resolution, kWh);
+			}
 		} else {
 			jData = new JsonArray();
 			jkWh = new JsonObject();
@@ -141,169 +146,169 @@ public class InfluxdbQueryWrapper {
 
 	private static JsonObject querykWh(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
 			ZonedDateTime toDate, JsonObject channels, int resolution, JsonObject kWh) throws OpenemsException {
-		String gridThing = getGridThing(kWh);
-		String storageThing = getStorageThing(kWh);
+		JsonArray gridThing = getGridThing(kWh);
+		JsonArray storageThing = getStorageThing(kWh);
+		JsonArray things = new JsonArray();
+		things.addAll(storageThing);
+		things.addAll(gridThing);
 
-		// Prepare kWh query string
-		StringBuilder query = new StringBuilder("SELECT ");
-		query.append(toChannelAddressListAvg(channels));
-		query.append(" FROM data WHERE ");
-		if (fems.isPresent()) {
-			query.append("fems = '");
-			query.append(fems.get());
-			query.append("' AND ");
-		}
-		query.append("time > ");
-		query.append(String.valueOf(fromDate.toEpochSecond()));
-		query.append("s");
-		query.append(" AND time < ");
-		query.append(String.valueOf(toDate.toEpochSecond()));
-		query.append("s");
-		query.append(" AND \"" + gridThing + "\" >= 0");
-		query.append(" AND \"" + storageThing + "\" >= 0");
-		log.info(query.toString());
-
-		QueryResult queryResult = executeQuery(influxdb, query.toString());
-
-		JsonArray j = new JsonArray();
-
-		// AVG data
 		JsonObject jThing = new JsonObject();
-		for (Result result : queryResult.getResults()) {
-			List<Series> series = result.getSeries();
-			if (series != null) {
-				for (Series serie : series) {
-					ArrayList<Address> addressIndex = new ArrayList<>();
-					for (String column : serie.getColumns()) {
-						if (column.equals("time")) {
-							continue;
-						}
-						addressIndex.add(Address.fromString(column));
-					}
-					for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
-						JsonObject element = new JsonObject();
-						if (addressIndex.get(columnIndex).toString().equals(gridThing)) {
-							element.addProperty("buy", (Double) serie.getValues().get(0).get(columnIndex + 1));
-							element.addProperty("sell",
-									querySellToGrid(influxdb, fems, fromDate, toDate, channels, resolution, gridThing));
-							element.addProperty("type",
-									JsonUtils.getAsString(kWh.get(addressIndex.get(columnIndex).toString())));
-						} else if (addressIndex.get(columnIndex).toString().equals(storageThing)) {
-							element.addProperty("charge", (Double) serie.getValues().get(0).get(columnIndex + 1));
-							element.addProperty("discharge", queryDischargeStorage(influxdb, fems, fromDate, toDate,
-									channels, resolution, gridThing));
-							element.addProperty("type",
-									JsonUtils.getAsString(kWh.get(addressIndex.get(columnIndex).toString())));
-						} else {
-							element.addProperty("value", (Double) serie.getValues().get(0).get(columnIndex + 1));
-							element.addProperty("type",
-									JsonUtils.getAsString(kWh.get(addressIndex.get(columnIndex).toString())));
-						}
-						jThing.add(addressIndex.get(columnIndex).toString(), element);
+		ArrayList<String> productionChannels = toChannelAddressListAvg(channels, things);
+
+		for (int i = 0; i < productionChannels.size(); i++) {
+			// SUM data
+			StringBuilder query = new StringBuilder("SELECT SUM(AP) FROM (SELECT MEAN(\"");
+			query.append(productionChannels.get(i));
+			query.append("\") AS AP FROM data WHERE ");
+			if (fems.isPresent()) {
+				query.append("fems = '");
+				query.append(fems.get());
+				query.append("' AND ");
+			}
+			query.append("time > ");
+			query.append(String.valueOf(fromDate.toEpochSecond()));
+			query.append("s");
+			query.append(" AND time < ");
+			query.append(String.valueOf(toDate.toEpochSecond()));
+			query.append("s");
+			query.append(" GROUP BY time(1s) fill(previous))");
+			log.info(query.toString());
+
+			QueryResult queryResult = executeQuery(influxdb, query.toString());
+
+			Double sumProduction = 0.0;
+			for (Result result : queryResult.getResults()) {
+				for (Series serie : result.getSeries()) {
+					for (List<Object> l : serie.getValues()) {
+						sumProduction = (Double) l.get(1);
 					}
 				}
 			}
-		}
-		j.add(jThing);
 
+			// FIRST data
+			query = new StringBuilder("SELECT FIRST(\"");
+			query.append(productionChannels.get(i));
+			query.append("\") FROM data WHERE ");
+			if (fems.isPresent()) {
+				query.append("fems = '");
+				query.append(fems.get());
+				query.append("' AND ");
+			}
+			query.append("time > ");
+			query.append(String.valueOf(fromDate.toEpochSecond()));
+			query.append("s");
+			query.append(" AND time < ");
+			query.append(String.valueOf(toDate.toEpochSecond()));
+			query.append("s");
+			log.info(query.toString());
+
+			queryResult = executeQuery(influxdb, query.toString());
+
+			int second = 0;
+			for (Result result : queryResult.getResults()) {
+				for (Series serie : result.getSeries()) {
+					for (List<Object> l : serie.getValues()) {
+						Instant timestampInstant = Instant.ofEpochMilli((long) ((Double) l.get(0)).doubleValue());
+						ZonedDateTime timestamp = ZonedDateTime.ofInstant(timestampInstant, fromDate.getZone());
+						if (timestamp.equals(fromDate)) {
+							System.out.println("nothing null");
+						} else {
+							second = timestamp.getSecond();
+						}
+					}
+				}
+			}
+
+			// LAST data
+			query = new StringBuilder("SELECT LAST(\"");
+			query.append(productionChannels.get(i));
+			query.append("\") FROM data WHERE ");
+			if (fems.isPresent()) {
+				query.append("fems = '");
+				query.append(fems.get());
+				query.append("' AND ");
+			}
+			query.append("time < ");
+			query.append(String.valueOf(fromDate.toEpochSecond()));
+			query.append("s");
+			log.info(query.toString());
+
+			queryResult = executeQuery(influxdb, query.toString());
+
+			if (queryResult.getResults() != null) {
+				for (Result result : queryResult.getResults()) {
+					if (result.getSeries() != null) {
+						for (Series serie : result.getSeries()) {
+							if (serie.getValues() != null) {
+								for (List<Object> l : serie.getValues()) {
+									if (l.get(1) != null) {
+										sumProduction += (Double) l.get(1) * second;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			long datediff = toDate.toEpochSecond() - fromDate.toEpochSecond();
+			Double avg = sumProduction / 3600 / 1000;
+
+			JsonObject element = new JsonObject();
+			element.addProperty("value", avg);
+			element.addProperty("type", JsonUtils.getAsString(kWh.get(productionChannels.get(i))));
+			jThing.add(productionChannels.get(i).toString(), element);
+		}
+
+		log.info(jThing.toString());
 		return jThing;
 	}
 
-	private static double querySellToGrid(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
-			ZonedDateTime toDate, JsonObject channels, int resolution, String gridThing) throws OpenemsException {
-		// Prepare SellToGrid query string
-		StringBuilder query = new StringBuilder("SELECT ");
-		query.append("MEAN(\"" + gridThing + "\") * 24 / 1000 as \"" + gridThing + "\"");
-		query.append(" FROM data WHERE ");
-		if (fems.isPresent()) {
-			query.append("fems = '");
-			query.append(fems.get());
-			query.append("' AND ");
-		}
-		query.append("time > ");
-		query.append(String.valueOf(fromDate.toEpochSecond()));
-		query.append("s");
-		query.append(" AND time < ");
-		query.append(String.valueOf(toDate.plusDays(1).toEpochSecond()));
-		query.append("s");
-		query.append(" AND \"" + gridThing + "\" <= 0");
-
-		QueryResult queryResult = executeQuery(influxdb, query.toString());
-
-		JsonArray j = new JsonArray();
-		double value = 0;
-
-		// AVG data
-		JsonObject jThing = new JsonObject();
-		for (Result result : queryResult.getResults()) {
-			List<Series> series = result.getSeries();
-			if (series != null) {
-				for (Series serie : series) {
-					ArrayList<Address> addressIndex = new ArrayList<>();
-					for (String column : serie.getColumns()) {
-						if (column.equals("time")) {
-							continue;
-						}
-						addressIndex.add(Address.fromString(column));
-					}
-					for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
-						value = (Double) serie.getValues().get(0).get(columnIndex + 1);
-					}
-				}
+	private static JsonArray getGridThing(JsonObject kWh) throws OpenemsException {
+		JsonArray gridThing = new JsonArray();
+		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
+			String thingId = entry.getKey();
+			if (JsonUtils.getAsString(entry.getValue()).equals("grid")) {
+				gridThing.add(thingId);
 			}
 		}
-		j.add(jThing);
-
-		return value;
+		return gridThing;
 	}
 
-	private static double queryDischargeStorage(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
-			ZonedDateTime toDate, JsonObject channels, int resolution, String storageThing) throws OpenemsException {
-		// Prepare SellToGrid query string
-		StringBuilder query = new StringBuilder("SELECT ");
-		// TODO calculate distance between fromDate and toDate
-		query.append("MEAN(\"" + storageThing + "\") * 24 / 1000 as \"" + storageThing + "\"");
-		query.append(" FROM data WHERE ");
-		if (fems.isPresent()) {
-			query.append("fems = '");
-			query.append(fems.get());
-			query.append("' AND ");
+	private static JsonArray getStorageThing(JsonObject kWh) throws OpenemsException {
+		JsonArray storageThing = new JsonArray();
+		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
+			String thingId = entry.getKey();
+			if (JsonUtils.getAsString(entry.getValue()).equals("storage")) {
+				storageThing.add(thingId);
+			}
 		}
-		query.append("time > ");
-		query.append(String.valueOf(fromDate.toEpochSecond()));
-		query.append("s");
-		query.append(" AND time < ");
-		query.append(String.valueOf(toDate.plusDays(1).toEpochSecond()));
-		query.append("s");
-		query.append(" AND \"" + storageThing + "\" <= 0");
+		return storageThing;
+	}
 
-		QueryResult queryResult = executeQuery(influxdb, query.toString());
-
-		JsonArray j = new JsonArray();
-		double value = 0;
-
-		// AVG data
-		JsonObject jThing = new JsonObject();
-		for (Result result : queryResult.getResults()) {
-			List<Series> series = result.getSeries();
-			if (series != null) {
-				for (Series serie : series) {
-					ArrayList<Address> addressIndex = new ArrayList<>();
-					for (String column : serie.getColumns()) {
-						if (column.equals("time")) {
-							continue;
+	private static ArrayList<String> toChannelAddressListAvg(JsonObject channels, JsonArray things)
+			throws OpenemsException {
+		ArrayList<String> channelAddresses = new ArrayList<>();
+		for (Entry<String, JsonElement> entry : channels.entrySet()) {
+			String thingId = entry.getKey();
+			JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
+			for (JsonElement channelElement : channelIds) {
+				String channelId = JsonUtils.getAsString(channelElement);
+				if (channelId.contains("ActivePower")) {
+					String name = thingId + "/" + channelId;
+					boolean isGridOrStorage = false;
+					for (int i = 0; i < things.size(); i++) {
+						if (JsonUtils.getAsString(things.get(i)).equals(name)) {
+							isGridOrStorage = true;
 						}
-						addressIndex.add(Address.fromString(column));
 					}
-					for (int columnIndex = 0; columnIndex < addressIndex.size(); columnIndex++) {
-						value = (Double) serie.getValues().get(0).get(columnIndex + 1);
+					if (!isGridOrStorage) {
+						channelAddresses.add(thingId + "/" + channelId);
 					}
 				}
 			}
 		}
-		j.add(jThing);
-
-		return value;
+		return channelAddresses;
 	}
 
 	private static String toChannelAddressList(JsonObject channels) throws OpenemsException {
@@ -322,49 +327,15 @@ public class InfluxdbQueryWrapper {
 
 	private static QueryResult executeQuery(InfluxDB influxdb, String query) throws OpenemsException {
 		// Parse result
-		QueryResult queryResult = influxdb.query(new Query(query, DB_NAME), TimeUnit.MILLISECONDS);
+		QueryResult queryResult;
+		try {
+			queryResult = influxdb.query(new Query(query, DB_NAME), TimeUnit.MILLISECONDS);
+		} catch (RuntimeException e) {
+			throw new OpenemsException("InfluxDB query runtime error: " + e.getMessage());
+		}
 		if (queryResult.hasError()) {
 			throw new OpenemsException("InfluxDB query error: " + queryResult.getError());
 		}
-
 		return queryResult;
-	}
-
-	private static String getGridThing(JsonObject kWh) throws OpenemsException {
-		String gridThing = "";
-		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
-			String thingId = entry.getKey();
-			if (JsonUtils.getAsString(entry.getValue()).equals("grid")) {
-				gridThing = thingId;
-			}
-		}
-		return gridThing;
-	}
-
-	private static String getStorageThing(JsonObject kWh) throws OpenemsException {
-		String storageThing = "";
-		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
-			String thingId = entry.getKey();
-			if (JsonUtils.getAsString(entry.getValue()).equals("storage")) {
-				storageThing = thingId;
-			}
-		}
-		return storageThing;
-	}
-
-	private static String toChannelAddressListAvg(JsonObject channels) throws OpenemsException {
-		ArrayList<String> channelAddresses = new ArrayList<>();
-		for (Entry<String, JsonElement> entry : channels.entrySet()) {
-			String thingId = entry.getKey();
-			JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
-			for (JsonElement channelElement : channelIds) {
-				String channelId = JsonUtils.getAsString(channelElement);
-				if (channelId.equals("ActivePower")) {
-					channelAddresses.add("MEAN(\"" + thingId + "/" + channelId + "\") * 24 / 1000 AS \"" + thingId + "/"
-							+ channelId + "\"");
-				}
-			}
-		}
-		return String.join(", ", channelAddresses);
 	}
 }
