@@ -275,4 +275,9 @@ public class FemsWebsocket extends WebSocketServer {
 			log.error(e.getMessage());
 		}
 	}
+
+	@Override
+	public void onStart() {
+
+	}
 }

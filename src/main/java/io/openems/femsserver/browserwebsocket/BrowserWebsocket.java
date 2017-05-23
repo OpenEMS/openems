@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.java_websocket.WebSocket;
@@ -249,11 +250,12 @@ public class BrowserWebsocket extends WebSocketServer {
 	private synchronized void subscribe(String deviceName, JsonElement jSubscribeElement) {
 		JsonObject j = new JsonObject();
 		j.add("subscribe", jSubscribeElement);
-		// Execute for every matching femsWebsocket (should be only one in general)
-		this.connectionManager.getFemsWebsockets(deviceName).forEach(femsWebsocket -> {
+		Optional<WebSocket> websocketOptional = this.connectionManager.getFemsWebsocket(deviceName);
+		if (websocketOptional.isPresent()) {
+			WebSocket websocket = websocketOptional.get();
 			log.info(deviceName + ": forward subscribe to FEMS " + StringUtils.toShortString(j, 100));
-			WebSocketUtils.send(femsWebsocket, j);
-		});
+			WebSocketUtils.send(websocket, j);
+		}
 	}
 
 	/**
@@ -264,11 +266,12 @@ public class BrowserWebsocket extends WebSocketServer {
 	private synchronized void system(String deviceName, JsonElement jSubscribeElement) {
 		JsonObject j = new JsonObject();
 		j.add("system", jSubscribeElement);
-		// Execute for every matching femsWebsocket (should be only one in general)
-		this.connectionManager.getFemsWebsockets(deviceName).forEach(femsWebsocket -> {
+		Optional<WebSocket> websocketOptional = this.connectionManager.getFemsWebsocket(deviceName);
+		if (websocketOptional.isPresent()) {
+			WebSocket websocket = websocketOptional.get();
 			log.info(deviceName + ": forward system call to FEMS " + StringUtils.toShortString(j, 100));
-			WebSocketUtils.send(femsWebsocket, j);
-		});
+			WebSocketUtils.send(websocket, j);
+		}
 	}
 
 	/**
@@ -308,5 +311,10 @@ public class BrowserWebsocket extends WebSocketServer {
 			log.error(e.getMessage());
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void onStart() {
+
 	}
 }
