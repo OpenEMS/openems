@@ -151,7 +151,7 @@ public class OffGridPowerStationController extends Controller {
 					break;
 				case ONGRID:
 					if (meter.value().voltage.valueOptional().isPresent()
-							&& ess.value().gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+							|| ess.value().gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 						if (onGridOutputOn.value() ^ isOn()) {
 							currentState = State.GOONGRID2;
 						}
@@ -193,6 +193,7 @@ public class OffGridPowerStationController extends Controller {
 							break;
 						}
 					}
+					log.info("current Off-Grid State: " + currentOffGridState);
 					break;
 				case UNKNOWN:
 				default:
@@ -204,6 +205,7 @@ public class OffGridPowerStationController extends Controller {
 					break;
 
 				}
+				log.info("current State: " + currentState);
 				// // Check if grid is available
 				// if (!meter.value().voltage.valueOptional().isPresent()) {
 				// // no meassurable voltage => Off-Grid
