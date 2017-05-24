@@ -129,6 +129,7 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 		}
 		super.update();
 		long activePower = activePowerConsumption.valueOptional().orElse(0L);
+		activePower = activePower + SimulatorTools.getRandomLong((int) activePower / -10, (int) activePower / 10);
 		long reactivePower = reactivePowerConsumption.valueOptional().orElse(0L);
 		for (EssNature entry : essNatures) {
 			if (entry instanceof SymmetricEssNature) {
