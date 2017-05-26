@@ -8,6 +8,16 @@ import io.openems.api.thing.Thing;
 
 public class UnitTestWriteChannel<T> extends WriteChannel<T> {
 
+	public UnitTestWriteChannel(String deviceName, String id) {
+		super(id, new Thing() {
+
+			@Override
+			public String id() {
+				return id;
+			}
+		});
+	}
+
 	public UnitTestWriteChannel(String id, Thing parent) {
 		super(id, parent);
 	}
