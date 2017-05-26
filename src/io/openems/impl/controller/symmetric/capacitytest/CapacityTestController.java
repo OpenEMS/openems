@@ -59,7 +59,10 @@ public class CapacityTestController extends Controller {
 	@ConfigInfo(title = "Power", description = "Discharge power of Ess.", type = Integer.class, defaultValue = "750")
 	public ConfigChannel<Integer> power = new ConfigChannel<Integer>("power", this);
 
-	@ConfigInfo(title = "Log-File", description = "Path to save the logfile.", type = Integer.class)
+	@ConfigInfo(title = "Sleep", description = "Time to sleep after empty ess before start capacityTest.", type = Integer.class, defaultValue = "750")
+	public ConfigChannel<Integer> sleep = new ConfigChannel<Integer>("sleep", this);
+
+	@ConfigInfo(title = "Log-File", description = "Path to save the logfile.", type = String.class)
 	public ConfigChannel<String> logPath = new ConfigChannel<String>("logPath", this);
 
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
@@ -100,28 +103,30 @@ public class CapacityTestController extends Controller {
 			for (Ess ess : esss.value()) {
 				ess.setWorkState.pushWriteFromLabel(EssNature.START);
 				if (ess.empty) {
-					// Capacitytest
-					if (ess.full) {
-						// fully discharge ess
-						ess.setActivePower.pushWrite((long) power.value());
-					} else {
-						// fully charge ess
-						ess.setActivePower.pushWrite((long) power.value() * -1);
-						if (ess.allowedCharge.value() <= 100l
-								&& ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
-							ess.full = true;
+					if (ess.timeEmpty + sleep.value() <= System.currentTimeMillis()) {
+						// Capacitytest
+						if (ess.full) {
+							// fully discharge ess
+							ess.setActivePower.pushWrite((long) power.value());
+						} else {
+							// fully charge ess
+							ess.setActivePower.pushWrite((long) power.value() * -1);
+							if (ess.allowedCharge.value() <= 100l
+									&& ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+								ess.full = true;
+							}
 						}
+						fw.append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + ";"
+								+ ess.activePower.value() + ";" + ess.soc.value() + "\n");
+						fw.flush();
 					}
-					fw.append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + ";"
-							+ ess.activePower.value() + ";" + ess.soc.value() + "\n");
-					fw.flush();
 				} else {
 					// prepare for capacityTest
 					// Empty ess
 					ess.setActivePower.pushWrite(ess.allowedDischarge.value());
-					if (ess.allowedDischarge.value() <= 100l
-							&& ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+					if (ess.soc.value() <= ess.minSoc.value()) {
 						ess.empty = true;
+						ess.timeEmpty = System.currentTimeMillis();
 					}
 				}
 			}

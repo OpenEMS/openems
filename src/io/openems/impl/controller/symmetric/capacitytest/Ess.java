@@ -39,6 +39,7 @@ public class Ess extends ThingMap {
 	public ReadChannel<Long> systemState;
 	public boolean empty = false;
 	public boolean full = false;
+	public long timeEmpty = 0;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);

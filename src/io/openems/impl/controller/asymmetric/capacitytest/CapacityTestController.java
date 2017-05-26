@@ -59,7 +59,7 @@ public class CapacityTestController extends Controller {
 	@ConfigInfo(title = "Power", description = "Discharge power of Ess.", type = Integer.class, defaultValue = "750")
 	public ConfigChannel<Integer> power = new ConfigChannel<Integer>("power", this);
 
-	@ConfigInfo(title = "Log-File", description = "Path to save the logfile.", type = Integer.class)
+	@ConfigInfo(title = "Log-File", description = "Path to save the logfile.", type = String.class)
 	public ConfigChannel<String> logPath = new ConfigChannel<String>("logPath", this);
 
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
