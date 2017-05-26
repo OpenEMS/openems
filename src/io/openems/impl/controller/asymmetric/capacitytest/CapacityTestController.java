@@ -22,6 +22,8 @@ package io.openems.impl.controller.asymmetric.capacitytest;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,8 +83,7 @@ public class CapacityTestController extends Controller {
 						fw.close();
 					}
 					fw = new FileWriter(logPath.value());
-					fw.write(
-							"time;activePowerL1;activePowerL2;activePowerL3;batteryCurrent;batteryPower;batteryVoltage;voltageL1;voltageL2;voltageL3;currentL1;currentL2;currentL3;soc;totalBatteryChargeEnergy;totalBatteryDischargeEnergy\n");
+					fw.write("time;activePowerL1;activePowerL2;activePowerL3;soc\n");
 				} catch (IOException e) {
 					log.error(e.getMessage());
 				} catch (InvalidValueException e) {
@@ -97,23 +98,38 @@ public class CapacityTestController extends Controller {
 	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
-				if (!ess.empty) {
-					ess.setActivePowerL1.pushWrite((long) power.value());
-					ess.setActivePowerL2.pushWrite((long) power.value());
-					ess.setActivePowerL3.pushWrite((long) power.value());
-					ess.setWorkState.pushWriteFromLabel(EssNature.START);
-					fw.append(System.currentTimeMillis() + ";" + ess.activePowerL1.value() + ";"
-							+ ess.activePowerL2.value() + ";" + ess.activePowerL3.value() + ";"
-							+ ess.batteryCurrent.value() + ";" + ess.batteryPower.value() + ";"
-							+ ess.batteryVoltage.value() + ";" + ess.voltageL1.value() + ";" + ess.voltageL2.value()
-							+ ";" + ess.voltageL3.value() + ";" + ess.currentL1.value() + ";" + ess.currentL2.value()
-							+ ";" + ess.currentL3.value() + ";" + ess.soc.value() + ";"
-							+ ess.totalBatteryChargeEnergy.value() + ";" + ess.totalBatteryDischargeEnergy.value()
-							+ "\n");
+				ess.setWorkState.pushWriteFromLabel(EssNature.START);
+				if (ess.empty) {
+					// Capacitytest
+					if (ess.full) {
+						// fully discharge ess
+						ess.setActivePowerL1.pushWrite((long) power.value());
+						ess.setActivePowerL2.pushWrite((long) power.value());
+						ess.setActivePowerL3.pushWrite((long) power.value());
+					} else {
+						// fully charge ess
+						ess.setActivePowerL1.pushWrite((long) power.value() * -1);
+						ess.setActivePowerL2.pushWrite((long) power.value() * -1);
+						ess.setActivePowerL3.pushWrite((long) power.value() * -1);
+						if (ess.allowedCharge.value() <= 100l
+								&& ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+							ess.full = true;
+						}
+					}
+					fw.append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + ";"
+							+ ess.activePowerL1.value() + ";" + ess.activePowerL2.value() + ";"
+							+ ess.activePowerL3.value() + ";" + ess.soc.value() + "\n");
 					fw.flush();
-				}
-				if (ess.soc.value() <= ess.minSoc.value()) {
-					ess.empty = true;
+				} else {
+					// prepare for capacityTest
+					// Empty ess
+					ess.setActivePowerL1.pushWrite(ess.allowedDischarge.value() / 3);
+					ess.setActivePowerL2.pushWrite(ess.allowedDischarge.value() / 3);
+					ess.setActivePowerL3.pushWrite(ess.allowedDischarge.value() / 3);
+					if (ess.allowedDischarge.value() <= 100l
+							&& ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+						ess.empty = true;
+					}
 				}
 			}
 		} catch (InvalidValueException e) {

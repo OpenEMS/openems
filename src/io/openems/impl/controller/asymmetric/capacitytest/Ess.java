@@ -24,9 +24,9 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.impl.device.pro.FeneconProEss;
+import io.openems.api.device.nature.ess.AsymmetricEssNature;
 
-@IsThingMap(type = FeneconProEss.class)
+@IsThingMap(type = AsymmetricEssNature.class)
 public class Ess extends ThingMap {
 	public ReadChannel<Long> soc;
 	public ReadChannel<Long> activePowerL1;
@@ -43,20 +43,11 @@ public class Ess extends ThingMap {
 	public WriteChannel<Long> setReactivePowerL2;
 	public WriteChannel<Long> setReactivePowerL3;
 	public ReadChannel<Long> allowedApparent;
-	public ReadChannel<Long> totalBatteryChargeEnergy;
-	public ReadChannel<Long> totalBatteryDischargeEnergy;
-	public ReadChannel<Long> currentL1;
-	public ReadChannel<Long> currentL2;
-	public ReadChannel<Long> currentL3;
-	public ReadChannel<Long> voltageL1;
-	public ReadChannel<Long> voltageL2;
-	public ReadChannel<Long> voltageL3;
-	public ReadChannel<Long> batteryCurrent;
-	public ReadChannel<Long> batteryVoltage;
-	public ReadChannel<Long> batteryPower;
+	public ReadChannel<Long> systemState;
 	public boolean empty = false;
+	public boolean full = false;
 
-	public Ess(FeneconProEss ess) {
+	public Ess(AsymmetricEssNature ess) {
 		super(ess);
 		activePowerL1 = ess.activePowerL1().required();
 		activePowerL2 = ess.activePowerL2().required();
@@ -73,16 +64,6 @@ public class Ess extends ThingMap {
 		soc = ess.soc().required();
 		setWorkState = ess.setWorkState().required();
 		allowedApparent = ess.allowedApparent().required();
-		totalBatteryChargeEnergy = ess.totalBatteryChargeEnergy.required();
-		totalBatteryDischargeEnergy = ess.totalBatteryDischargeEnergy.required();
-		currentL1 = ess.currentL1.required();
-		currentL2 = ess.currentL2.required();
-		currentL3 = ess.currentL3.required();
-		voltageL1 = ess.voltageL1.required();
-		voltageL2 = ess.voltageL2.required();
-		voltageL3 = ess.voltageL3.required();
-		batteryCurrent = ess.batteryCurrent.required();
-		batteryPower = ess.batteryPower.required();
-		batteryVoltage = ess.batteryVoltage.required();
+		systemState = ess.systemState().required();
 	}
 }
