@@ -4,12 +4,15 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.AsymmetricPower;
 import io.openems.test.utils.devicenatures.UnitTestAsymmetricEssNature;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AsymmetricPowerTest {
 
 	private static AsymmetricPower power;
@@ -34,7 +37,7 @@ public class AsymmetricPowerTest {
 	}
 
 	@Test
-	public void noLimit() {
+	public void test1() {
 		ess.allowedDischarge.setValue(10000L);
 		ess.allowedCharge.setValue(-10000L);
 		ess.allowedApparent.setValue(10000L);
@@ -56,7 +59,7 @@ public class AsymmetricPowerTest {
 	}
 
 	@Test
-	public void apparentPowerLimit() {
+	public void test2() {
 		ess.allowedDischarge.setValue(10000L);
 		ess.allowedCharge.setValue(-10000L);
 		ess.allowedApparent.setValue(3000L);
@@ -78,7 +81,7 @@ public class AsymmetricPowerTest {
 	}
 
 	@Test
-	public void apparentPowerLimitActivePowerFirst() {
+	public void test3() {
 		ess.allowedDischarge.setValue(10000L);
 		ess.allowedCharge.setValue(-10000L);
 		ess.allowedApparent.setValue(3000L);
@@ -101,7 +104,7 @@ public class AsymmetricPowerTest {
 	}
 
 	@Test
-	public void chargeLimit() {
+	public void test4() {
 		ess.allowedDischarge.setValue(10000L);
 		ess.allowedCharge.setValue(-800L);
 		ess.allowedApparent.setValue(10000L);
@@ -123,7 +126,7 @@ public class AsymmetricPowerTest {
 	}
 
 	@Test
-	public void dischargeLimit() {
+	public void test5() {
 		ess.allowedDischarge.setValue(1000L);
 		ess.allowedCharge.setValue(-10000L);
 		ess.allowedApparent.setValue(10000L);
@@ -145,7 +148,7 @@ public class AsymmetricPowerTest {
 	}
 
 	@Test
-	public void phaseLimitMaxPos() throws WriteChannelException {
+	public void test6() throws WriteChannelException {
 		ess.allowedDischarge.setValue(10000L);
 		ess.allowedCharge.setValue(-10000L);
 		ess.allowedApparent.setValue(10000L);
@@ -168,7 +171,7 @@ public class AsymmetricPowerTest {
 	}
 
 	@Test
-	public void phaseLimitMaxNeg() throws WriteChannelException {
+	public void test7() throws WriteChannelException {
 		ess.allowedDischarge.setValue(10000L);
 		ess.allowedCharge.setValue(-10000L);
 		ess.allowedApparent.setValue(10000L);
@@ -191,7 +194,7 @@ public class AsymmetricPowerTest {
 	}
 
 	@Test
-	public void phaseLimitMinPos() throws WriteChannelException {
+	public void test8() throws WriteChannelException {
 		ess.allowedDischarge.setValue(10000L);
 		ess.allowedCharge.setValue(-10000L);
 		ess.allowedApparent.setValue(10000L);
@@ -214,7 +217,7 @@ public class AsymmetricPowerTest {
 	}
 
 	@Test
-	public void phaseLimitMinNeg() throws WriteChannelException {
+	public void test9() throws WriteChannelException {
 		ess.allowedDischarge.setValue(10000L);
 		ess.allowedCharge.setValue(-10000L);
 		ess.allowedApparent.setValue(10000L);

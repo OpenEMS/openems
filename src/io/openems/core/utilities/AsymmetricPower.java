@@ -217,7 +217,13 @@ public class AsymmetricPower {
 			log.error("Failed to reduce and set Power!", e1);
 		}
 		activePowerValid = false;
+		activePower[0] = 0;
+		activePower[1] = 0;
+		activePower[2] = 0;
 		reactivePowerValid = false;
+		reactivePower[0] = 0;
+		reactivePower[1] = 0;
+		reactivePower[2] = 0;
 	}
 
 }
