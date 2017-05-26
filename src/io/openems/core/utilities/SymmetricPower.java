@@ -192,6 +192,10 @@ public class SymmetricPower {
 		} catch (WriteChannelException e) {
 			log.error("Failed to reduce and set Power!", e);
 		}
+		activePowerValid = false;
+		reactivePowerValid = false;
+		activePower = 0L;
+		reactivePower = 0L;
 	}
 
 	/**
