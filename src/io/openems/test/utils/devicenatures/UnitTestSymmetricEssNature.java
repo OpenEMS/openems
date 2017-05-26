@@ -6,6 +6,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.impl.device.simulator.SimulatorTools;
 import io.openems.test.utils.channel.UnitTestConfigChannel;
@@ -16,7 +17,8 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 
 	public UnitTestConfigChannel<Integer> minSoc = new UnitTestConfigChannel<>("minSoc", this);
 	public UnitTestConfigChannel<Integer> chargeSoc = new UnitTestConfigChannel<>("chargeSoc", this);
-	public UnitTestReadChannel<Long> gridMode = new UnitTestReadChannel<>("gridMode", this);
+	public UnitTestReadChannel<Long> gridMode = new UnitTestReadChannel<Long>("gridMode", this)
+			.label(0L, EssNature.OFF_GRID).label(1L, EssNature.ON_GRID);
 	public UnitTestReadChannel<Long> soc = new UnitTestReadChannel<>("Soc", this);
 	public UnitTestReadChannel<Long> systemState = new UnitTestReadChannel<>("SystemState", this);
 	public UnitTestReadChannel<Long> allowedCharge = new UnitTestReadChannel<>("AllowedCharge", this);
