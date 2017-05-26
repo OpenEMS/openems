@@ -327,8 +327,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 				new UnsignedWordElement(100, //
 						systemState = new ModbusReadLongChannel("SystemState", this) //
 								.label(0, STANDBY) //
-								.label(1, EssNature.OFF_GRID) //
-								.label(2, EssNature.ON_GRID) //
+								.label(1, "Start Off-Grid") //
+								.label(2, START) //
 								.label(3, FAULT) //
 								.label(4, "Off-grid PV")),
 				new UnsignedWordElement(101, //
