@@ -12,8 +12,6 @@ export class Websocket {
   public event: Subject<Notification> = new Subject<Notification>();
   public subject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public devices: { [name: string]: Device } = {};
-  public connectionClosed: boolean = false;
-  public connectionLostOutput: string = "Verbindungsaufbau..."
 
   private websocket: WebSocket;
   private username: string = "";
@@ -172,28 +170,19 @@ export class Websocket {
         }
 
       }, (error: any) => {
-        if (this.connectionClosed && this.isConnected) {
-          this.initialize();
-          clearTimeout(timeout);
-          if (!status) {
-            status = { type: "error", message: "Verbindungsfehler." };
-            this.event.next(status);
-          }
-        } else {
-          this.isConnected = false;
-          this.event.next({ type: "warning", message: "Verbindung unterbrochen" });
+        this.initialize();
+        clearTimeout(timeout);
+        if (!status) {
+          status = { type: "error", message: "Verbindungsfehler." };
+          this.event.next(status);
         }
       }, (/* complete */) => {
-        if (this.connectionClosed && this.isConnected) {
-          this.initialize();
-          clearTimeout(timeout);
-          if (status == null) {
-            status = { type: "error", message: "Verbindung beendet." };
-            this.event.next(status);
-          }
-        } else {
-          this.isConnected = false;
-          this.event.next({ type: "warning", message: "Verbindung unterbrochen" });
+        this.initialize();
+        clearTimeout(timeout);
+        console.log("complete");
+        if (status == null) {
+          status = { type: "error", message: "Verbindung beendet." };
+          this.event.next(status);
         }
         // REDIRECT if current device was this one
       });
@@ -209,7 +198,7 @@ export class Websocket {
     this.websocket = null;
     this.isConnected = false;
     this.subject = new BehaviorSubject<any>(null);
-    this.devices = {};
+    this.devices = {}
   }
 
   /**
