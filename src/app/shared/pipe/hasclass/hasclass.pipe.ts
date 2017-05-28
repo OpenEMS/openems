@@ -2,6 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 /**
  * Runs a deep search in the given object for a property 'class' with the given parameter. Similar to "isclass"-pipe, but with deep search.
+ * Use like: *ngIf="bridge | hasclass:'io.openems.impl.protocol.simulator.SimulatorBridge'"
  */
 @Pipe({
   name: 'hasclass'
