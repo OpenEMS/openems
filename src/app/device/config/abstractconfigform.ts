@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Subject } from 'rxjs/Subject';
 
 import { WebsocketService, Device } from '../../shared/shared';
 
@@ -27,16 +29,24 @@ export interface ConfigureUpdateSchedulerRequest extends ConfigureRequest {
   value: Object;
 }
 
-export abstract class AbstractConfigForm {
+export abstract class AbstractConfigForm implements OnDestroy, OnInit {
 
-  public device: Device;
+  protected device: BehaviorSubject<Device> = new BehaviorSubject<Device>(null);
+  protected ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
     protected websocketService: WebsocketService,
-  ) {
-    websocketService.currentDevice.subscribe(device => {
-      this.device = device;
+  ) { }
+
+  ngOnInit() {
+    this.websocketService.currentDevice.takeUntil(this.ngUnsubscribe).subscribe(device => {
+      this.device.next(device);
     });
+  }
+
+  ngOnDestroy() {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 
   /**
@@ -63,9 +73,14 @@ export abstract class AbstractConfigForm {
 
   protected send(requests: ConfigureRequest[]) {
     if (requests.length > 0) {
-      this.device.send({
-        configure: requests
-      });
+      let device = this.device.getValue();
+      if (device != null) {
+        device.send({
+          configure: requests
+        });
+      } else {
+        // TODO: error message: no current device!
+      }
     }
   }
 

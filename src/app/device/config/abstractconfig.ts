@@ -25,7 +25,6 @@ export interface ConfigureDeleteRequest extends ConfigureRequest {
 
 export abstract class AbstractConfig extends AbstractConfigForm implements OnInit {
 
-  private deviceSubscription: Subscription;
   protected config = null;
   protected _form: FormGroup;
 
@@ -35,19 +34,16 @@ export abstract class AbstractConfig extends AbstractConfigForm implements OnIni
     protected formBuilder: FormBuilder
   ) {
     super(websocketService);
-    // websocketService.currentDevice.subscribe(device => {
-    //   this.device = device;
-    // });
   }
 
   protected abstract initForm(config);
 
   ngOnInit() {
-    // console.log("ngOnInit");
-    this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
-      this.device = device;
-      if (device && device.config) {
-        device.config.subscribe(config => {
+    super.ngOnInit();
+    this.websocketService.setCurrentDevice(this.route.snapshot.params);
+    this.device.takeUntil(this.ngUnsubscribe).subscribe(device => {
+      if (device != null) {
+        device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
           this.config = config;
           this.initForm(config);
         });
@@ -56,7 +52,7 @@ export abstract class AbstractConfig extends AbstractConfigForm implements OnIni
   }
 
   ngOnDestroy() {
-    this.deviceSubscription.unsubscribe();
+    super.ngOnDestroy();
   }
 
   protected setForm(form: FormGroup, disabled: string[]) {
