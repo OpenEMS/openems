@@ -1,5 +1,5 @@
-<div *ngIf="device" fxLayout fxLayoutWrap="wrap">
-  <div *ngFor="let form of forms">
+<div *ngIf="device | async" fxLayout fxLayoutWrap="wrap">
+  <div *ngFor="let form of forms" fxFlex.gt-xs="50%" fxFlex.xs="100%">
     <md-card class="single">
       <md-card-header>
         <md-icon md-card-avatar>explore</md-icon>
@@ -74,6 +74,29 @@
                                         <md-icon>save</md-icon>
                                     </button>
       </md-card-actions>
+    </md-card>
+  </div>
+  <div fxFlex.gt-xs="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>explore</md-icon>
+        <md-card-title>Data</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <div *ngFor="let thing of keys(data)">
+          <h1>{{ thing }}</h1>
+          <div *ngFor="let channel of keys(data[thing])">
+            <h2>{{ channel }}</h2>
+            <div>
+              <span *ngFor="let record of data[thing][channel]">
+                {{ record.name }} <b>{{ record.value }}</b><br/>
+              </span>
+              <!--<ngx-charts-line-chart [results]="data[thing][channel]" gradient="false" xAxis="true" yAxis="true" autoScale="true">
+              </ngx-charts-line-chart>-->
+            </div>
+          </div>
+        </div>
+      </md-card-content>
     </md-card>
   </div>
 </div>
