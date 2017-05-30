@@ -21,9 +21,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private websocketService: WebsocketService,
     private router: Router,
     private formBuilder: FormBuilder,
-    private webapp: WebappService
-  ) {
-
+    private webapp: WebappService) {
   }
 
   ngOnInit() {
@@ -47,14 +45,12 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   doLogin(form: FormGroup) {
     let websocket: Websocket = form['_websocket'];
-    let password: string = form.value['password'];
-    websocket.connectionClosed = false;
+    let password: string = form.value['password']
     websocket.connectWithPassword(password);
   }
 
   doLogout(form: FormGroup) {
     let websocket: Websocket = form['_websocket'];
-    websocket.connectionClosed = true;
     websocket.close();
   }
 

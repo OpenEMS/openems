@@ -12,6 +12,7 @@ import { SchedulerComponent as DeviceConfigSchedulerComponent } from './device/c
 import { LogComponent as DeviceConfigLogComponent } from './device/config/log/log.component';
 import { MoreComponent as DeviceConfigMoreComponent } from './device/config/more/more.component';
 import { ControllerComponent as DeviceConfigControllerComponent } from './device/config/controller/controller.component';
+import { SimulatorComponent as DeviceConfigSimulatorComponent } from './device/config/simulator/simulator.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'overview', pathMatch: 'full' },
@@ -30,6 +31,7 @@ const appRoutes: Routes = [
   { path: 'device/:websocket/:device/config/scheduler', component: DeviceConfigSchedulerComponent },
   { path: 'device/:websocket/:device/config/more', component: DeviceConfigMoreComponent },
   { path: 'device/:websocket/:device/config/controller', component: DeviceConfigControllerComponent },
+  { path: 'device/:websocket/:device/config/simulator', component: DeviceConfigSimulatorComponent },
 
 ];
 

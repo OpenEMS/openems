@@ -16,7 +16,6 @@ export class BridgeComponent extends AbstractConfig {
   private controlConfig: AbstractControl;
   form: FormGroup;
   control: FormGroup;
-  device: Device;
   private deviceForms: { [bridge: string]: AbstractControl[] } = {};
   nameReady: boolean = false;
   indexLastBridge: number;

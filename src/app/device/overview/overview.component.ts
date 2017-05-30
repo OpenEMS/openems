@@ -23,7 +23,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
       if (device != null) {
-        device.subscribeChannels();
+        device.subscribeImportantChannels();
       }
     })
   }

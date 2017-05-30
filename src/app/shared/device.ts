@@ -161,11 +161,18 @@ export class Device {
   }
 
   /**
-   * Subscribe to channels
+   * Subscribe to important channels
    */
-  public subscribeChannels() {
-    this.summary = new Summary();
+  public subscribeImportantChannels() {
     let channels = this.getImportantChannels();
+    this.subscribeChannels(channels);
+  }
+
+  /**
+   * Subscribe to specified channels
+   */
+  public subscribeChannels(channels: any) {
+    this.summary = new Summary();
     this.send({
       subscribe: {
         channels: channels

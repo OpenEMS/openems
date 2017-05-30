@@ -7,6 +7,7 @@ import { OverviewComponent } from './overview/overview.component';
 import { BridgeComponent } from './bridge/bridge.component';
 import { LogComponent } from './log/log.component';
 import { ControllerComponent } from './controller/controller.component';
+import { SimulatorComponent } from './simulator/simulator.component';
 
 @NgModule({
   imports: [
@@ -19,6 +20,7 @@ import { ControllerComponent } from './controller/controller.component';
     BridgeComponent,
     LogComponent,
     ControllerComponent,
+    SimulatorComponent
   ]
 })
 export class ConfigModule { }

@@ -50,6 +50,24 @@
       </md-card-content>
     </md-card>
   </div>
+  <!-- call simulator ui: -->
+  <ng-container *ngIf="(device.config | async)?.things | hasclass:'io.openems.impl.device.simulator.Simulator'">
+    <div routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/simulator" fxFlex="50%" fxFlex.xs="100%">
+      <md-card class="single">
+        <md-card-header>
+          <md-icon md-card-avatar>explore</md-icon>
+          <md-card-title>Simulator</md-card-title>
+        </md-card-header>
+        <md-card-content>
+          <md-list dense fxLayout fxLayoutWrap="wrap">
+            <md-list-item fxFlex="50%">
+              <p md-line i18n>Simulationen ausführen</p>
+            </md-list-item>
+          </md-list>
+        </md-card-content>
+      </md-card>
+    </div>
+  </ng-container>
   <!-- call log -->
   <div routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/log" fxFlex="50%" fxFlex.xs="100%">
     <md-card class="single">
@@ -57,6 +75,13 @@
         <md-icon md-card-avatar>code</md-icon>
         <md-card-title>Log</md-card-title>
       </md-card-header>
+      <md-card-content>
+        <md-list dense fxLayout fxLayoutWrap="wrap">
+          <md-list-item fxFlex="50%">
+            <p md-line i18n>Live Systemprotokoll</p>
+          </md-list-item>
+        </md-list>
+      </md-card-content>
     </md-card>
   </div>
   <!--call more configuration-->

@@ -16,7 +16,6 @@ export class ControllerComponent extends AbstractConfig {
     private controlConfig: AbstractControl;
     form: FormGroup;
     control: FormGroup;
-    device: Device = null;
     private deviceForms: { [bridge: string]: AbstractControl[] } = {};
     indexLastController: number;
     nameReady: boolean = false;

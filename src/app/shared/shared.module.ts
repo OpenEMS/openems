@@ -24,6 +24,8 @@ import { WebsocketService, Websocket } from './service/websocket.service';
 import { KeysPipe } from './pipe/keys/keys.pipe';
 import { ClassnamePipe } from './pipe/classname/classname.pipe';
 import { SignPipe } from './pipe/sign/sign.pipe';
+import { IsclassPipe } from './pipe/isclass/isclass.pipe';
+import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
 
 /**
  * Chart
@@ -42,15 +44,23 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     routing
   ],
   declarations: [
+    // pipes
     KeysPipe,
     ClassnamePipe,
     SignPipe,
+    IsclassPipe,
+    HasclassPipe,
+    // components
     ChartSocComponent
   ],
   exports: [
+    // pipes
     KeysPipe,
     SignPipe,
     ClassnamePipe,
+    IsclassPipe,
+    HasclassPipe,
+    // modules
     BrowserAnimationsModule,
     FormsModule,
     MyMaterialModule,
@@ -58,6 +68,7 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     NgxChartsModule,
     RouterModule,
     ReactiveFormsModule,
+    // components
     ChartSocComponent
   ]
 })
