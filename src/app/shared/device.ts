@@ -286,10 +286,14 @@ export class Device {
           let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
           let meter = data[thing];
           let power = getActivePower(meter);
-          if (activePower > 0) {
-            powerRatio = (power * 50.) / thingChannels["maxActivePower"]["value"]
+          if (thingChannels["maxActivePower"]) {
+            if (activePower > 0) {
+              powerRatio = (power * 50.) / thingChannels["maxActivePower"]["value"]
+            } else {
+              powerRatio = (power * -50.) / thingChannels["minActivePower"]["value"]
+            }
           } else {
-            powerRatio = (power * -50.) / thingChannels["minActivePower"]["value"]
+            console.log("no maxActivePower Grid");
           }
           activePower += power;
           maxActivePower += thingChannels["maxActivePower"]["value"];
@@ -313,10 +317,14 @@ export class Device {
           let thingChannels = this.config.getValue()._meta.natures[thing]["channels"];
           let meter = data[thing];
           let power = getActivePower(meter);
-          powerRatio = (power * 100.) / thingChannels["maxActivePower"]["value"]
-          activePower += power;
-          maxActivePower += thingChannels["maxActivePower"]["value"];
-          // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
+          if (thingChannels["maxActivePower"]) {
+            powerRatio = (power * 100.) / thingChannels["maxActivePower"]["value"]
+            activePower += power;
+            maxActivePower += thingChannels["maxActivePower"]["value"];
+            // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
+          } else {
+            console.log("no maxActivePower Production");
+          }
         }
       }
       summary.production.powerRatio = powerRatio;
