@@ -114,6 +114,12 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	 */
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
+	@ConfigInfo(title = "GridMode", type = Long.class)
+	public ConfigChannel<Long> gridMode = new ConfigChannel<Long>("GridMode", this).label(0L, ON_GRID)
+			.label(1L, OFF_GRID).defaultValue(0L);
+	@ConfigInfo(title = "SystemState", type = Long.class)
+	public ConfigChannel<Long> systemState = new ConfigChannel<Long>("SystemState", this) //
+			.label(1L, START).label(2L, STOP).label(5L, FAULT).defaultValue(1L);
 
 	@Override
 	public ConfigChannel<Integer> minSoc() {
@@ -131,19 +137,16 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private StatusBitChannels warning = new StatusBitChannels("Warning", this);;
 	private FunctionalReadChannel<Long> soc;
 	private SimulatorReadChannel activePower = new SimulatorReadChannel("ActivePower", this);
-	private SimulatorReadChannel allowedApparent = new SimulatorReadChannel("AllowedApparent", this);
+	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel<Long>("AllowedApparent", this, 40000L);
 	private SimulatorReadChannel allowedCharge = new SimulatorReadChannel("AllowedCharge", this);
 	private SimulatorReadChannel allowedDischarge = new SimulatorReadChannel("AllowedDischarge", this);
 	private SimulatorReadChannel apparentPower = new SimulatorReadChannel("ApparentPower", this);
-	private SimulatorReadChannel gridMode = new SimulatorReadChannel("GridMode", this).label(0, ON_GRID).label(1,
-			OFF_GRID);
 	private SimulatorReadChannel reactivePower = new SimulatorReadChannel("ReactivePower", this);
-	private SimulatorReadChannel systemState = new SimulatorReadChannel("SystemState", this) //
-			.label(1, START).label(2, STOP);
 	private UnitTestWriteChannel<Long> setActivePower = new UnitTestWriteChannel<Long>("SetActivePower", this)
 			.maxWriteChannel(allowedDischarge).minWriteChannel(allowedCharge);
 	private UnitTestWriteChannel<Long> setReactivePower = new UnitTestWriteChannel<Long>("SetReactivePower", this);
-	private ModbusWriteLongChannel setWorkState = new ModbusWriteLongChannel("SetWorkState", this);
+	private ModbusWriteLongChannel setWorkState = new ModbusWriteLongChannel("SetWorkState", this).label(1, START)
+			.label(2, STOP);
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 5000L).unit("Wh");
@@ -258,8 +261,6 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 				.updateValue(ControllerUtils.calculateApparentPower(activePowerQueue.avg(), reactivePowerQueue.avg()));
 		this.allowedCharge.updateValue(-9000L);
 		this.allowedDischarge.updateValue(3000L);
-		this.systemState.updateValue(1L);
-		this.gridMode.updateValue(0L);
 	}
 
 	@Override
