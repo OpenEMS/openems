@@ -20,10 +20,12 @@
  *******************************************************************************/
 package io.openems.impl.device.simulator;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.charger.ChargerNature;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -41,6 +43,12 @@ public class SimulatorCharger extends SimulatorDeviceNature implements ChargerNa
 	}
 
 	/*
+	 * Config-Channels
+	 */
+	@ConfigInfo(title = "PowerConfig", type = Long.class)
+	public ConfigChannel<Long> powerConfig = new ConfigChannel<>("powerConfig", this);
+
+	/*
 	 * Inherited Channels
 	 */
 	private SimulatorReadChannel voltage = new SimulatorReadChannel("InputVoltage", this).unit("mV");
@@ -52,17 +60,17 @@ public class SimulatorCharger extends SimulatorDeviceNature implements ChargerNa
 	 * Fields
 	 */
 	private long lastVoltage = 0;
-	private long lastPower = 0;
 
 	/*
 	 * Methods
 	 */
 	@Override
 	protected void update() {
-		lastPower = SimulatorTools.addRandomLong(lastPower, 0, 10000, 100);
+		long power = SimulatorTools.addRandomLong(powerConfig.valueOptional().orElse(0L), 0,
+				(long) (powerConfig.valueOptional().orElse(0L) * 1.10), 100);
 		lastVoltage = SimulatorTools.addRandomLong(lastVoltage, 300000, 600000, 100);
 		this.voltage.updateValue(lastVoltage);
-		this.power.updateValue(lastPower);
+		this.power.updateValue(power);
 	}
 
 	@Override
