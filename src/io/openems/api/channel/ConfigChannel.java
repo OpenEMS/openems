@@ -116,4 +116,10 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	public String toString() {
 		return "ConfigChannel[" + this.valueOptional().toString() + "]";
 	}
+
+	@Override
+	public ConfigChannel<T> label(T value, String label) {
+		super.label(value, label);
+		return this;
+	}
 }
