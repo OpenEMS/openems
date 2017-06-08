@@ -36,6 +36,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	private final AtomicBoolean isForceRun = new AtomicBoolean(false);
 	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 	private final AtomicBoolean isStopped = new AtomicBoolean(false);
+	private long cycleStart = 0;
 	protected final Logger log;
 
 	/**
@@ -115,6 +116,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 		long bridgeExceptionSleep = 1; // seconds
 		this.initialize.set(true);
 		while (!isStopped.get()) {
+			cycleStart = System.currentTimeMillis();
 			try {
 				/*
 				 * Initialize Bridge
@@ -137,7 +139,10 @@ public abstract class AbstractWorker extends Thread implements Thing {
 				 * Wait for next cycle
 				 */
 				try {
-					Thread.sleep(cycleTime().valueOptional().get()); // TODO add cycle time
+					long sleep = cycleTime().valueOptional().get() - (System.currentTimeMillis() - cycleStart);
+					if (sleep > 0) {
+						Thread.sleep(sleep); // TODO add cycle time
+					}
 				} catch (InterruptedException e) {
 					if (isForceRun.get()) {
 						// check if a "forceRun" was triggereed. In that case Thread.sleep is interrupted and run() is
