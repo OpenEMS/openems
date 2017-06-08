@@ -40,8 +40,8 @@ public class AvgFiFoQueue {
 
 	public long avg() {
 		long sum = 0;
-		long multiplier = 1;
-		long divisor = 0;
+		double multiplier = 1;
+		double divisor = 0;
 		for (long value : queue) {
 			sum += value * multiplier;
 			divisor += multiplier;
@@ -50,12 +50,17 @@ public class AvgFiFoQueue {
 		if (sum == 0) {
 			return 0;
 		} else {
-			return sum / divisor;
+			return (long) (sum / divisor);
 		}
 	}
 
 	public Long lastAddedValue() {
 		return lastValue;
+	}
+
+	@Override
+	public String toString() {
+		return "Avg: " + avg();
 	}
 
 }
