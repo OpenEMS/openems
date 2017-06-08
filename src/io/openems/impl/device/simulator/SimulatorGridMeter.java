@@ -36,13 +36,16 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 	@ConfigInfo(title = "producer", type = JsonArray.class)
 	public ConfigChannel<JsonArray> producer = new ConfigChannel<JsonArray>("producer", this).addChangeListener(this);
 	@ConfigInfo(title = "activePowerConsumption", type = Long.class)
-	public ConfigChannel<Long> activePowerConsumption = new ConfigChannel<>("activePowerConsumption", this);
+	public ConfigChannel<Long> activePowerConsumption = new ConfigChannel<Long>("activePowerConsumption", this)
+			.addChangeListener(this);
 	@ConfigInfo(title = "reactivePowerConsumption", type = Long.class)
 	public ConfigChannel<Long> reactivePowerConsumption = new ConfigChannel<>("reactivePowerConsumption", this);
 
 	private ThingRepository repo = ThingRepository.getInstance();
 	private List<EssNature> essNatures;
 	private List<MeterNature> meterNatures = new ArrayList<>();
+	private LoadGenerator activePowerLoad = new FixValueLoadGenerator();
+	private LoadGenerator reactivePowerLoad = new RandomLoadGenerator(-500, 500);
 
 	public SimulatorGridMeter(String thingId) throws ConfigException {
 		super(thingId);
@@ -84,6 +87,8 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 			if (meterNatures != null) {
 				getMeterNatures();
 			}
+		} else if (channel.equals(activePowerConsumption)) {
+			((FixValueLoadGenerator) activePowerLoad).setValue(activePowerConsumption.valueOptional().orElse(0L));
 		}
 	}
 
@@ -128,9 +133,15 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 			getMeterNatures();
 		}
 		super.update();
-		long activePower = activePowerConsumption.valueOptional().orElse(0L);
+		long activePower = 0;
+		if (activePowerLoad != null) {
+			activePower = activePowerLoad.getLoad();
+		}
 		activePower = activePower + SimulatorTools.getRandomLong((int) activePower / -10, (int) activePower / 10);
-		long reactivePower = reactivePowerConsumption.valueOptional().orElse(0L);
+		long reactivePower = 0;
+		if (reactivePowerLoad != null) {
+			reactivePower = reactivePowerLoad.getLoad();
+		}
 		for (EssNature entry : essNatures) {
 			if (entry instanceof SymmetricEssNature) {
 				SymmetricEssNature ess = (SymmetricEssNature) entry;
