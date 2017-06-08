@@ -29,7 +29,6 @@ import io.openems.impl.device.pro.FeneconProEss;
 @IsThingMap(type = FeneconProEss.class)
 public class Ess extends ThingMap {
 
-	public ReadChannel<Long> workMode;
 	public WriteChannel<Long> setPcsMode;
 	public WriteChannel<Long> setSetupMode;
 	public ReadChannel<Long> pcsMode;
@@ -37,7 +36,6 @@ public class Ess extends ThingMap {
 
 	public Ess(FeneconProEss ess) {
 		super(ess);
-		workMode = ess.workMode.required();
 		setPcsMode = ess.setPcsMode;
 		setSetupMode = ess.setSetupMode;
 		pcsMode = ess.pcsMode;
