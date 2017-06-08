@@ -57,7 +57,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							nominalKWhSum += capacity;
 							actualCapacity += (capacity / 100.0) * ess.soc().value();
 						} catch (InvalidValueException e) {
-							log.error("Can't read values of " + ess.id(), e);
+							log.debug("Can't read values of " + ess.id(), e);
 						}
 					}
 					return (long) (actualCapacity / nominalKWhSum * 100.0);
@@ -74,7 +74,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 						try {
 							sum += ess.allowedCharge().value();
 						} catch (InvalidValueException e) {
-							log.error("Can't read values of " + ess.id(), e);
+							log.debug("Can't read values of " + ess.id(), e);
 						}
 					}
 					return sum;
@@ -91,7 +91,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 						try {
 							sum += ess.allowedDischarge().value();
 						} catch (InvalidValueException e) {
-							log.error("Can't read values of " + ess.id(), e);
+							log.debug("Can't read values of " + ess.id(), e);
 						}
 					}
 					return sum;
@@ -108,7 +108,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 						try {
 							sum += ess.allowedApparent().value();
 						} catch (InvalidValueException e) {
-							log.error("Can't read values of " + ess.id(), e);
+							log.debug("Can't read values of " + ess.id(), e);
 						}
 					}
 					return sum;
@@ -125,7 +125,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 						try {
 							sum += ess.activePower().value();
 						} catch (InvalidValueException e) {
-							log.error("Can't read values of " + ess.id(), e);
+							log.debug("Can't read values of " + ess.id(), e);
 						}
 					}
 					return sum;
@@ -142,7 +142,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 						try {
 							sum += ess.reactivePower().value();
 						} catch (InvalidValueException e) {
-							log.error("Can't read values of " + ess.id(), e);
+							log.debug("Can't read values of " + ess.id(), e);
 						}
 					}
 					return sum;
@@ -159,7 +159,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 						try {
 							sum += ess.apparentPower().value();
 						} catch (InvalidValueException e) {
-							log.error("Can't read values of " + ess.id(), e);
+							log.debug("Can't read values of " + ess.id(), e);
 						}
 					}
 					return sum;
@@ -176,7 +176,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 						try {
 							sum += ess.maxNominalPower().value();
 						} catch (InvalidValueException e) {
-							log.error("Can't read values of " + ess.id(), e);
+							log.debug("Can't read values of " + ess.id(), e);
 						}
 					}
 					return sum;
@@ -193,7 +193,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 						try {
 							sum += ess.capacity().value();
 						} catch (InvalidValueException e) {
-							log.error("Can't read values of " + ess.id(), e);
+							log.debug("Can't read values of " + ess.id(), e);
 						}
 					}
 					return sum;
@@ -235,7 +235,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 					return 1L;
 				}
 
-			}).label(0L, EssNature.OFF).label(1L, EssNature.ON).label(2L, EssNature.FAULT).label(3L, "UNDEFINED");
+			}).label(0L, EssNature.STOP).label(1L, EssNature.START).label(2L, EssNature.FAULT).label(3L, "UNDEFINED");
 	private StatusBitChannels warning = new StatusBitChannels("Warning", this);
 
 	private FunctionalWriteChannel<Long> setWorkState = new FunctionalWriteChannel<Long>("SetWorkState", this,
@@ -255,7 +255,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				@Override
 				public Long getValue(ReadChannel<Long>... channels) {
 					for (ReadChannel<Long> state : channels) {
-						if (state.labelOptional().equals(Optional.of(EssNature.ON))) {
+						if (state.labelOptional().equals(Optional.of(EssNature.START))) {
 							return 1L;
 						}
 					}
@@ -314,7 +314,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 					}
 				}
 
-			}).label(0L, EssNature.OFF).label(1L, EssNature.ON);
+			}).label(0L, EssNature.STOP).label(1L, EssNature.START);
 
 	private FunctionalWriteChannel<Long> setActivePower = new FunctionalWriteChannel<Long>("SetActivePower", this,
 			new FunctionalWriteChannelFunction<Long>() {
