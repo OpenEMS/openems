@@ -39,9 +39,9 @@ public class Ess extends ThingMap {
 		super(ess);
 		gridMode = ess.gridMode().required();
 		soc = ess.soc().required();
-		setActivePowerL1 = ess.setActivePowerL1();
-		setActivePowerL2 = ess.setActivePowerL2();
-		setActivePowerL3 = ess.setActivePowerL3();
+		setActivePowerL1 = ess.setActivePowerL1().required();
+		setActivePowerL2 = ess.setActivePowerL2().required();
+		setActivePowerL3 = ess.setActivePowerL3().required();
 	}
 
 }
