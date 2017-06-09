@@ -258,6 +258,12 @@ public class WebsocketHandler {
 		return this.send(j);
 	}
 
+	public boolean sendConnectionFailedReply() {
+		JsonObject j = this.createConnectionFailedReply();
+		log.info("Send Connection Failed Reply: " + StringUtils.toShortString(j, 100));
+		return this.send(j);
+	}
+
 	/**
 	 * Creates an initial message to the browser after it was successfully connected
 	 *
@@ -284,6 +290,17 @@ public class WebsocketHandler {
 		}
 		jMetadata.addProperty("backend", "openems");
 		j.add("metadata", jMetadata);
+
+		return j;
+	}
+
+	protected JsonObject createConnectionFailedReply() {
+		JsonObject j = new JsonObject();
+
+		JsonObject jAuthenticate = new JsonObject();
+		jAuthenticate.addProperty("mode", "deny");
+
+		j.add("authenticate", jAuthenticate);
 
 		return j;
 	}

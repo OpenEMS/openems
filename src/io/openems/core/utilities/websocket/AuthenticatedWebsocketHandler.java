@@ -77,6 +77,7 @@ public class AuthenticatedWebsocketHandler extends WebsocketHandler {
 		 */
 		if (!authenticationIsValid()) {
 			// no user authenticated till now -> exit
+			sendConnectionFailedReply();
 			this.websocket.close();
 			return;
 		}
@@ -162,6 +163,13 @@ public class AuthenticatedWebsocketHandler extends WebsocketHandler {
 		jAuthenticate.addProperty("username", this.session.getUser().getName());
 		jAuthenticate.addProperty("token", this.session.getToken());
 		j.add("authenticate", jAuthenticate);
+
+		return j;
+	}
+
+	@Override
+	protected JsonObject createConnectionFailedReply() {
+		JsonObject j = super.createConnectionFailedReply();
 
 		return j;
 	}

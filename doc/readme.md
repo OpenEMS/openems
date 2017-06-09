@@ -50,12 +50,19 @@ Cookie: session_id
 
 [1.1.2.2] Reply
 ```
+successful
 {
 	authenticate: {
 		mode: allow, username, token
 	}, metadata: {
 		config: {},
 		backend: "openems"
+	}
+}
+failed
+{
+	authenticate: {
+		mode: deny
 	}
 }
 ```
