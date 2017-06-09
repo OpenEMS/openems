@@ -6,13 +6,13 @@
           <!--existing bridge-->
           <ng-container *ngIf="bridgeForm.value.class != '' && bridgeForm.value.id != '' && bridgeMeta.class == bridgeForm.value.class">
             <ng-template md-tab-label>{{ bridgeMeta.class | classname }}<small>({{ bridgeForm.value.id }})</small></ng-template>
-            <md-card class="single" *ngIf="device.websocket.isConnected == true">
+            <md-card class="single">
               <md-card-header>
                 <md-icon md-card-avatar>device_hub</md-icon>
                 <md-card-title>{{ bridgeMeta.class | classname }}</md-card-title>
                 <md-card-subtitle>{{ bridgeForm.value.id }}</md-card-subtitle>
               </md-card-header>
-              <md-card-content *ngIf="device.websocket.isConnected == true">
+              <md-card-content>
                 <div fxLayout>
                   <p fxFlex="100px"></p>
                   <div fxFlex fxLayout fxLayoutWrap="wrap" *ngFor="let channelMeta of bridgeMeta.channels">
@@ -32,12 +32,7 @@
                 </div>
               </md-card-content>
             </md-card>
-            <md-card class="single" *ngIf="device.websocket.isConnected == false">
-              <md-card-content>
-                <span>{{ device.websocket.connectionLostOutput }}</span>
-              </md-card-content>
-            </md-card>
-            <div *ngIf="bridgeForm.controls.devices && device.websocket.isConnected == true">
+            <div *ngIf="bridgeForm.controls.devices">
               <div *ngFor="let device of bridgeForm.controls.devices.controls, let k=index" formArrayName="devices">
                 <div *ngFor="let deviceMeta of form.value._meta.availableDevices" [formGroupName]="k">
                   <div *ngIf="device.value.class != '' && device.value.id != '' && deviceMeta.class == device.value.class">
@@ -105,14 +100,7 @@
                 </div>
               </div>
             </div>
-            <div *ngIf="device.websocket.isConnected == false">
-              <md-card class="single">
-                <md-card-content>
-                  <span>{{ device.websocket.connectionLostOutput }}</span>
-                </md-card-content>
-              </md-card>
-            </div>
-            <md-card class="single_leftright" *ngIf="device.websocket.isConnected == true">
+            <md-card class="single_leftright">
               <md-card-header>
                 <md-icon md-card-avatar>stop</md-icon>
                 <md-card-title i18n>Neues Gerät...</md-card-title>

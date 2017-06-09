@@ -19,11 +19,11 @@
               | async)?.message}}</p>
           </ng-container>
         </md-card-content>
-        <ng-container *ngIf="form._websocket.backend == 'femsserver' && !form._websocket.isConnected">
+        <!--<ng-container *ngIf="form._websocket.backend == 'femsserver' && !form._websocket.isConnected">
           <md-card-actions fxLayout fxLayoutAlign="end start">
             <button type="submit" md-fab (click)="reconnectFemsserver(form)" color="primary"><md-icon>autorenew</md-icon></button>
           </md-card-actions>
-        </ng-container>
+        </ng-container>-->
         <ng-container *ngIf="form._websocket.backend == 'openems'">
           <md-card-actions fxLayout fxLayoutAlign="end start">
             <button type="submit" md-fab *ngIf="!form._websocket.isConnected" (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>

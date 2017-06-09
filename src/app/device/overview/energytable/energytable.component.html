@@ -5,15 +5,12 @@
       <md-icon md-card-avatar>format_list_bulleted</md-icon>
       <md-card-title i18n>Energietabelle</md-card-title>
     </md-card-header>
-    <md-card-content *ngIf="device.websocket.isConnected == false">
-      <span>{{ device.websocket.connectionLostOutput }}</span>
-    </md-card-content>
   </md-card>
   <ng-container *ngFor="let thing of device.data | async | keys">
 
     <!-- Storage -->
     <ng-container *ngIf="device.things.storage[thing.key]">
-      <md-card *ngIf="device.websocket.isConnected == true" class="single_leftright" fxFlex="100%">
+      <md-card class="single_leftright" fxFlex="100%">
         <md-card-header>
           <img src="assets/img/storage.png" md-card-avatar/>
           <md-card-title i18n>Speichersystem</md-card-title>
@@ -76,7 +73,7 @@
 
     <!-- Grid -->
     <ng-container *ngIf="device.things.grid[thing.key]">
-      <md-card *ngIf="device.websocket.isConnected == true" class="single_leftright" fxFlex="100%">
+      <md-card class="single_leftright" fxFlex="100%">
         <md-card-header>
           <img src="assets/img/grid.png" md-card-avatar/>
           <md-card-title>Netzzähler</md-card-title>
@@ -151,7 +148,7 @@
 
     <!-- Production -->
     <ng-container *ngIf="device.things.production[thing.key]">
-      <md-card *ngIf="device.websocket.isConnected == true" class="single_leftright" fxFlex="100%">
+      <md-card class="single_leftright" fxFlex="100%">
         <md-card-header>
           <img src="assets/img/production.png" md-card-avatar/>
           <md-card-title i18n>Erzeugungszähler</md-card-title>
@@ -201,7 +198,7 @@
 
   <!-- Consumption -->
   <ng-container *ngIf="device.summary.consumption">
-    <md-card *ngIf="device.websocket.isConnected == true" class="single_leftright" fxFlex="100%">
+    <md-card class="single_leftright" fxFlex="100%">
       <md-card-header>
         <img src="assets/img/consumption.png" md-card-avatar/>
         <md-card-title i18n>Verbrauch</md-card-title>

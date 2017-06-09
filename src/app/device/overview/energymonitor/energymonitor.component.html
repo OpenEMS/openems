@@ -4,7 +4,6 @@
     <md-card-title i18n>Energiemonitor</md-card-title>
   </md-card-header>
   <md-card-content>
-    <energymonitor-chart *ngIf="device.websocket.isConnected == true" [device]="device" fxLayoutAlign="center start"></energymonitor-chart>
-    <span *ngIf="device.websocket.isConnected == false">{{ device.websocket.connectionLostOutput }}</span>
+    <energymonitor-chart [device]="device" fxLayoutAlign="center start"></energymonitor-chart>
   </md-card-content>
 </md-card>

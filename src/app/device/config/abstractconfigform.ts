@@ -31,7 +31,7 @@ export interface ConfigureUpdateSchedulerRequest extends ConfigureRequest {
 
 export abstract class AbstractConfigForm implements OnDestroy, OnInit {
 
-  protected device: BehaviorSubject<Device> = new BehaviorSubject<Device>(null);
+  public device: BehaviorSubject<Device> = new BehaviorSubject<Device>(null);
   protected ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(

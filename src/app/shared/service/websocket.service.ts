@@ -75,7 +75,6 @@ export class WebsocketService {
       } else {
         // failed -> redirect to /overview
         this.currentDevice.next(null);
-        console.info("Redirect to /overview");
         this.router.navigate(['/overview']);
       }
     }

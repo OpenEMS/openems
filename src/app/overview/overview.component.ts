@@ -45,18 +45,19 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   doLogin(form: FormGroup) {
     let websocket: Websocket = form['_websocket'];
-    let password: string = form.value['password']
+    let password: string = form.value['password'];
     websocket.connectWithPassword(password);
   }
 
   doLogout(form: FormGroup) {
     let websocket: Websocket = form['_websocket'];
+    websocket.isConnected = false;
     websocket.close();
   }
 
   reconnectFemsserver(form: FormGroup) {
     let websocket: Websocket = form['_websocket'];
-    websocket.connectWithTokenOrSessionId();
+    // websocket.connectWithTokenOrSessionId();
   }
 
   websocketEvent(value: Notification) {
