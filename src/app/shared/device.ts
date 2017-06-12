@@ -79,7 +79,6 @@ export class Device {
       this.address = this.websocket.name + ": " + this.name;
     }
     this.comment = name;
-    console.log("new device")
   }
 
   public send(value: any) {
