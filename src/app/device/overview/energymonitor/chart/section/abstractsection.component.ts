@@ -93,12 +93,14 @@ export abstract class AbstractSection {
     protected height: number = 0;
     protected width: number = 0;
 
+    protected lastValue = { absolute: 0, ratio: 0 };
+
     private setPulsetime(value: number) {
         pulsetime = value;
     }
 
     constructor(
-        private name: string,
+        public name: string,
         protected startAngle: number,
         protected endAngle: number,
         public color: string
@@ -117,8 +119,6 @@ export abstract class AbstractSection {
             .endAngle(this.deg2rad(valueEndAngle));
         this.valuePath = valueArc();
     }
-
-    private lastValue = { absolute: 0, ratio: 0 };
 
     /**
      * This method is called on every change of resolution of the browser window.
@@ -204,7 +204,6 @@ export abstract class AbstractSection {
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getCircleDirection(): CircleDirection;
     protected abstract getValueText(value: number): string;
-    public abstract updateEnergyFlow(value: number);
 
     protected getValueRatio(valueRatio: number): number {
         if (valueRatio > 100) {

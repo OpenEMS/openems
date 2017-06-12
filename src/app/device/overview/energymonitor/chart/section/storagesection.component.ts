@@ -32,7 +32,7 @@ let pulsetimedown = 2000;
     ]
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit {
-    value: number;
+
     constructor() {
         super("Speicher", 136, 224, "#009846");
     }
@@ -40,7 +40,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     ngOnInit() {
         Observable.interval(pulsetimedown)
             .subscribe(x => {
-                if (this.value > 0) {
+                if (this.lastValue.absolute > 0) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[i].switchState();
@@ -55,13 +55,6 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
                 }
             })
     }
-
-
-    public updateEnergyFlow(value: number) {
-        this.value = value;
-    }
-
-
 
     protected getCircleDirection(): CircleDirection {
         return new CircleDirection("down");

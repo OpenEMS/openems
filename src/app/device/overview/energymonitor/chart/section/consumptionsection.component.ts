@@ -2,6 +2,8 @@ import { Component, OnInit, trigger, state, style, transition, animate } from '@
 import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
 import { Observable } from "rxjs/Rx";
 
+const DEFAULT_TEXT = "Verbrauch";
+const DEFAULT_WARN_TEXT = "Verbrauch & unbekannte Erzeuger";
 
 let pulsetime = 1000;
 let pulsetimeright = 2000;
@@ -32,15 +34,15 @@ let pulsetimeright = 2000;
     ]
 })
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit {
-    value: number;
+
     constructor() {
-        super("Verbrauch", 46, 134, "#FDC507");
+        super(DEFAULT_TEXT, 46, 134, "#FDC507");
     }
 
     ngOnInit() {
         Observable.interval(pulsetimeright)
             .subscribe(x => {
-                if (this.value > 0) {
+                if (this.lastValue.absolute > 0) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[i].switchState();
@@ -56,8 +58,13 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
             })
     }
 
-    public updateEnergyFlow(value: number) {
-        this.value = value;
+    public updateValue(absolute: number, ratio: number) {
+        if (absolute < 0) {
+            this.name = DEFAULT_WARN_TEXT;
+        } else {
+            this.name = DEFAULT_TEXT;
+        }
+        super.updateValue(absolute, ratio);
     }
 
     protected getCircleDirection(): CircleDirection {

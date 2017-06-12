@@ -34,7 +34,7 @@ let pulsetimeleft = 2000;
 })
 
 export class GridSectionComponent extends AbstractSection implements OnInit {
-    value: number;
+
     constructor() {
         super("Netz", 226, 314, "#1d1d1d");
     }
@@ -42,13 +42,13 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     ngOnInit() {
         Observable.interval(pulsetimeleft)
             .subscribe(x => {
-                if (this.value > 0) {
+                if (this.lastValue.absolute > 0) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[this.circles.length - i - 1].switchState();
                         }, pulsetimeleft / 4 * i);
                     }
-                } else if (this.value < 0) {
+                } else if (this.lastValue.absolute < 0) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[i].switchState();
@@ -63,13 +63,6 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
                 }
             })
     }
-
-
-
-    public updateEnergyFlow(value: number) {
-        this.value = value;
-    }
-
 
     protected getCircleDirection(): CircleDirection {
         return new CircleDirection("left");
