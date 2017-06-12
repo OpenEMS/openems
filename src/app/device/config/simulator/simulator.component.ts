@@ -5,14 +5,16 @@ import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from 
 
 import { WebsocketService, Device, Log } from '../../../shared/shared';
 import { AbstractConfig, ConfigureRequest } from '../abstractconfig';
+import 'rxjs/add/operator/retryWhen';
+import 'rxjs/add/operator/delay';
 
 import * as moment from 'moment';
 
 interface SimulatorForm {
   id: string,
-  class: string,
-  gridMeter: FormGroup,
-  productionMeter: FormGroup
+  class: string
+  // gridMeter: FormGroup,
+  // productionMeter: FormGroup
 }
 
 class DataIndex {
@@ -54,9 +56,19 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
           ],
           meter1: [
             "ActivePower"
+          ],
+          cluster0: [
+            "ActivePower", "Soc"
+          ],
+          output0: [
+            "1", "2", "3", "4", "5", "6", "7", "8"
+          ],
+          sps0: [
+            "PivotOn", "Borehole1On", "Borehole2On", "Borehole3On", "Clima1On", "Clima2On", "OfficeOn", "TraineeCenterOn", "SignalBus1On", "SignalBus2On", "SignalOnGrid", "SignalWatchdog",
+            "WaterLevelBorehole1On", "WaterLevelBorehole1Off", "WaterLevelBorehole2On", "WaterLevelBorehole2Off", "WaterLevelBorehole3On", "WaterLevelBorehole3Off"
           ]
         });
-        device.data.takeUntil(this.ngUnsubscribe).subscribe(data => {
+        device.data.subscribe(data => {
           // subscribed to data
           if (data != null) {
             for (let thing in data) {
@@ -65,18 +77,22 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
               }
               for (let channel in data[thing]) {
                 let newData = { name: moment(), value: <number>data[thing][channel] };
-                if (!this.data[thing][channel]) {
-                  // create new array
-                  this.data[thing][channel] = [];
-                }
-                if (this.data[thing][channel].length > 9) {
-                  // max 10 entries
-                  this.data[thing][channel].shift();
-                }
-                this.data[thing][channel] = [...this.data[thing][channel], newData];
+                // if (!this.data[thing][channel]) {
+                //   // create new array
+                //   this.data[thing][channel] = [];
+                // }
+                // if (this.data[thing][channel].length > 9) {
+                //   // max 10 entries
+                //   this.data[thing][channel].shift();
+                // }
+                this.data[thing][channel] = newData;
               }
             }
           }
+        }, error => {
+          console.error("error", error);
+        }, () => {
+          console.error("complete");
         });
       }
     });
@@ -92,17 +108,23 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
 
   initForm(config) {
     // finds all Simulator device configurations and adds them to "forms"
+    this.forms = [];
     if (config["things"]) {
       for (let bridge of config.things) {
         if (bridge["class"] && bridge.class == 'io.openems.impl.protocol.simulator.SimulatorBridge' && bridge["devices"]) {
           for (let simulator of bridge.devices) {
-            if (simulator["class"] && simulator.class == 'io.openems.impl.device.simulator.Simulator' && simulator["gridMeter"] && simulator["productionMeter"]) {
-              this.forms.push({
+            if (simulator["class"] && simulator.class == 'io.openems.impl.device.simulator.Simulator') {
+              let form = {
                 id: simulator.id,
                 class: simulator.class,
-                gridMeter: <FormGroup>this.buildForm(simulator.gridMeter),
-                productionMeter: <FormGroup>this.buildForm(simulator.productionMeter)
-              });
+              }
+              for (let key of Object.keys(simulator)) {
+                if (key == 'id' || key == 'class') {
+                  continue;
+                }
+                form[key] = <FormGroup>this.buildForm(simulator[key]);
+              }
+              this.forms.push(form);
             }
           }
         }

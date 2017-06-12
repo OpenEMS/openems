@@ -6,7 +6,7 @@
         <md-card-title>Simulator</md-card-title>
         <md-card-subtitle>{{ form.id }}: {{ form.class }}</md-card-subtitle>
       </md-card-header>
-      <md-card-content>
+      <md-card-content *ngIf="form.gridMeter">
         <div fxLayout fxLayoutWrap="wrap" [formGroup]="form.gridMeter">
           <div fxFlex="200px">
             <p style="font-weight: bold">Grid-Meter</p>
@@ -36,12 +36,12 @@
           </div>
         </div>
       </md-card-content>
-      <md-card-actions style="text-align: right">
+      <md-card-actions *ngIf="form.gridMeter" style="text-align: right">
         <button (click)="save(form.gridMeter)" [disabled]="form.gridMeter.pristine" color="primary" md-mini-fab>
                                         <md-icon>save</md-icon>
                                     </button>
       </md-card-actions>
-      <md-card-content>
+      <md-card-content *ngIf="form.productionMeter">
         <div fxLayout fxLayoutWrap="wrap" [formGroup]="form.productionMeter">
           <div fxFlex="200px">
             <p style="font-weight: bold">Production-Meter</p>
@@ -69,8 +69,48 @@
           </div>
         </div>
       </md-card-content>
-      <md-card-actions style="text-align: right">
+      <md-card-actions *ngIf="form.productionMeter" style="text-align: right">
         <button (click)="save(form.productionMeter)" [disabled]="form.productionMeter.pristine" color="primary" md-mini-fab>
+                                        <md-icon>save</md-icon>
+                                    </button>
+      </md-card-actions>
+
+      <md-card-content *ngIf="form.symmetricEss">
+        <div fxLayout fxLayoutWrap="wrap" [formGroup]="form.symmetricEss">
+          <div fxFlex="200px">
+            <p style="font-weight: bold">Symmetric ESS</p>
+            <p>Id: {{ form.symmetricEss.value.id }}</p>
+          </div>
+          <div fxFlex fxLayout fxLayoutWrap="wrap">
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Grid Mode" formControlName="GridMode" type="number" mdInput>
+            </md-input-container>
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="System State" formControlName="SystemState" type="number" mdInput>
+            </md-input-container>
+          </div>
+        </div>
+      </md-card-content>
+      <md-card-actions *ngIf="form.symmetricEss" style="text-align: right">
+        <button (click)="save(form.symmetricEss)" [disabled]="form.symmetricEss.pristine" color="primary" md-mini-fab>
+                                        <md-icon>save</md-icon>
+                                    </button>
+      </md-card-actions>
+      <md-card-content *ngIf="form.charger">
+        <div fxLayout fxLayoutWrap="wrap" [formGroup]="form.charger">
+          <div fxFlex="200px">
+            <p style="font-weight: bold">Charger</p>
+            <p>Id: {{ form.charger.value.id }}</p>
+          </div>
+          <div fxFlex fxLayout fxLayoutWrap="wrap">
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Power" formControlName="powerConfig" type="number" mdInput>
+            </md-input-container>
+          </div>
+        </div>
+      </md-card-content>
+      <md-card-actions *ngIf="form.charger" style="text-align: right">
+        <button (click)="save(form.charger)" [disabled]="form.charger.pristine" color="primary" md-mini-fab>
                                         <md-icon>save</md-icon>
                                     </button>
       </md-card-actions>
@@ -84,16 +124,16 @@
       </md-card-header>
       <md-card-content>
         <div *ngFor="let thing of keys(data)">
-          <h1>{{ thing }}</h1>
+          <h3>{{ thing }}</h3>
           <div *ngFor="let channel of keys(data[thing])">
-            <h2>{{ channel }}</h2>
-            <div>
+            <span>{{ channel }}:{{ data[thing][channel].value }}</span>
+            <!--<div>
               <span *ngFor="let record of data[thing][channel]">
                 {{ record.name }} <b>{{ record.value }}</b><br/>
               </span>
-              <!--<ngx-charts-line-chart [results]="data[thing][channel]" gradient="false" xAxis="true" yAxis="true" autoScale="true">
-              </ngx-charts-line-chart>-->
-            </div>
+              <ngx-charts-line-chart [results]="data[thing][channel]" gradient="false" xAxis="true" yAxis="true" autoScale="true">
+              </ngx-charts-line-chart>
+          </div>-->
           </div>
         </div>
       </md-card-content>
