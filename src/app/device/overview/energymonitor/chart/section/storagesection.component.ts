@@ -78,6 +78,10 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getValueText(value: number): string {
+        if (value == null || value.toString() == "NaN") {
+            return "0 %";
+        }
+
         return value + " %";
     }
 }
