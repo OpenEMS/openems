@@ -74,8 +74,8 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     }
 
     protected getValueText(value: number): string {
-        if (value == null || value.toString() == "NaN") {
-            return "0 W";
+        if (value == null || Number.isNaN(value)) {
+            return "Kein Wert";
         }
 
         return value + " W";

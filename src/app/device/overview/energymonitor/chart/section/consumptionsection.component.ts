@@ -75,8 +75,8 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     protected getValueText(value: number): string {
-        if (value == null || value.toString() == "NaN") {
-            return "0 W";
+        if (value == null || Number.isNaN(value)) {
+            return "Kein Wert";
         }
 
         return value + " W";
