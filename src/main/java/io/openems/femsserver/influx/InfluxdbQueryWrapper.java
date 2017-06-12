@@ -156,7 +156,9 @@ public class InfluxdbQueryWrapper {
 		ArrayList<String> productionChannels = toChannelAddressListAvg(channels, things);
 
 		for (int i = 0; i < productionChannels.size(); i++) {
-			// SUM data
+			/*
+			 * SUM data
+			 */
 			StringBuilder query = new StringBuilder("SELECT SUM(AP) FROM (SELECT MEAN(\"");
 			query.append(productionChannels.get(i));
 			query.append("\") AS AP FROM data WHERE ");
@@ -172,20 +174,25 @@ public class InfluxdbQueryWrapper {
 			query.append(String.valueOf(toDate.toEpochSecond()));
 			query.append("s");
 			query.append(" GROUP BY time(1s) fill(previous))");
-			log.info(query.toString());
 
 			QueryResult queryResult = executeQuery(influxdb, query.toString());
 
 			Double sumProduction = 0.0;
-			for (Result result : queryResult.getResults()) {
-				for (Series serie : result.getSeries()) {
-					for (List<Object> l : serie.getValues()) {
-						sumProduction = (Double) l.get(1);
+			try {
+				for (Result result : queryResult.getResults()) {
+					for (Series serie : result.getSeries()) {
+						for (List<Object> l : serie.getValues()) {
+							sumProduction = (Double) l.get(1);
+						}
 					}
 				}
+			} catch (Exception e) {
+				log.warn("Error parsing SUM production: " + e);
 			}
 
-			// FIRST data
+			/*
+			 * FIRST production data
+			 */
 			query = new StringBuilder("SELECT FIRST(\"");
 			query.append(productionChannels.get(i));
 			query.append("\") FROM data WHERE ");
@@ -200,26 +207,31 @@ public class InfluxdbQueryWrapper {
 			query.append(" AND time < ");
 			query.append(String.valueOf(toDate.toEpochSecond()));
 			query.append("s");
-			log.info(query.toString());
 
 			queryResult = executeQuery(influxdb, query.toString());
 
 			int second = 0;
-			for (Result result : queryResult.getResults()) {
-				for (Series serie : result.getSeries()) {
-					for (List<Object> l : serie.getValues()) {
-						Instant timestampInstant = Instant.ofEpochMilli((long) ((Double) l.get(0)).doubleValue());
-						ZonedDateTime timestamp = ZonedDateTime.ofInstant(timestampInstant, fromDate.getZone());
-						if (timestamp.equals(fromDate)) {
-							System.out.println("nothing null");
-						} else {
-							second = timestamp.getSecond();
+			try {
+				for (Result result : queryResult.getResults()) {
+					for (Series serie : result.getSeries()) {
+						for (List<Object> l : serie.getValues()) {
+							Instant timestampInstant = Instant.ofEpochMilli((long) ((Double) l.get(0)).doubleValue());
+							ZonedDateTime timestamp = ZonedDateTime.ofInstant(timestampInstant, fromDate.getZone());
+							if (timestamp.equals(fromDate)) {
+								log.info("Parsing FIRST: nothing null");
+							} else {
+								second = timestamp.getSecond();
+							}
 						}
 					}
 				}
+			} catch (Exception e) {
+				log.warn("Error parsing FIRST production: " + e);
 			}
 
-			// LAST data
+			/*
+			 * LAST data
+			 */
 			query = new StringBuilder("SELECT LAST(\"");
 			query.append(productionChannels.get(i));
 			query.append("\") FROM data WHERE ");
@@ -231,27 +243,29 @@ public class InfluxdbQueryWrapper {
 			query.append("time < ");
 			query.append(String.valueOf(fromDate.toEpochSecond()));
 			query.append("s");
-			log.info(query.toString());
 
 			queryResult = executeQuery(influxdb, query.toString());
 
-			if (queryResult.getResults() != null) {
-				for (Result result : queryResult.getResults()) {
-					if (result.getSeries() != null) {
-						for (Series serie : result.getSeries()) {
-							if (serie.getValues() != null) {
-								for (List<Object> l : serie.getValues()) {
-									if (l.get(1) != null) {
-										sumProduction += (Double) l.get(1) * second;
+			try {
+				if (queryResult.getResults() != null) {
+					for (Result result : queryResult.getResults()) {
+						if (result.getSeries() != null) {
+							for (Series serie : result.getSeries()) {
+								if (serie.getValues() != null) {
+									for (List<Object> l : serie.getValues()) {
+										if (l.get(1) != null) {
+											sumProduction += (Double) l.get(1) * second;
+										}
 									}
 								}
 							}
 						}
 					}
 				}
+			} catch (Exception e) {
+				log.warn("Error parsing LAST production: " + e);
 			}
 
-			long datediff = toDate.toEpochSecond() - fromDate.toEpochSecond();
 			Double avg = sumProduction / 3600 / 1000;
 
 			JsonObject element = new JsonObject();
@@ -260,7 +274,6 @@ public class InfluxdbQueryWrapper {
 			jThing.add(productionChannels.get(i).toString(), element);
 		}
 
-		log.info(jThing.toString());
 		return jThing;
 	}
 

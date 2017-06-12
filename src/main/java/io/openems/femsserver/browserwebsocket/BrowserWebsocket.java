@@ -107,7 +107,7 @@ public class BrowserWebsocket extends WebSocketServer {
 					     devices: [{
 					       name, online,...
 					     }]
-
+					
 					   }
 					 }
 					 * </pre>
@@ -308,7 +308,7 @@ public class BrowserWebsocket extends WebSocketServer {
 				WebSocketUtils.sendAsDevice(websocket, j, fems);
 			}
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			log.error("Error", e);
 			e.printStackTrace();
 		}
 	}
