@@ -39,6 +39,7 @@ import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
+import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -57,6 +58,8 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 
 	private List<ChargerNature> chargerList;
 	private ThingRepository repo = ThingRepository.getInstance();
+	private LoadGenerator offGridActivePowerGenerator = new RandomLoadGenerator(-10000, 10000);
+	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator(-500, 500);
 
 	/*
 	 * Constructors
@@ -225,41 +228,62 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 			chargerList = new ArrayList<>();
 			getCharger();
 		}
-		Optional<Long> activePowerL1 = setActivePowerL1.getWrittenValue();
-		if (activePowerL1.isPresent()) {
-			activePowerQueueL1.add(activePowerL1.get());
+		Optional<Long> writtenActivePowerL1 = setActivePowerL1.getWrittenValue();
+		if (writtenActivePowerL1.isPresent()) {
+			activePowerQueueL1.add(writtenActivePowerL1.get());
 		}
-		Optional<Long> activePowerL2 = setActivePowerL2.getWrittenValue();
-		if (activePowerL2.isPresent()) {
-			activePowerQueueL2.add(activePowerL2.get());
+		Optional<Long> writtenActivePowerL2 = setActivePowerL2.getWrittenValue();
+		if (writtenActivePowerL2.isPresent()) {
+			activePowerQueueL2.add(writtenActivePowerL2.get());
 		}
-		Optional<Long> activePowerL3 = setActivePowerL3.getWrittenValue();
-		if (activePowerL3.isPresent()) {
-			activePowerQueueL3.add(activePowerL3.get());
+		Optional<Long> writtenActivePowerL3 = setActivePowerL3.getWrittenValue();
+		if (writtenActivePowerL3.isPresent()) {
+			activePowerQueueL3.add(writtenActivePowerL3.get());
 		}
-		Optional<Long> reactivePowerL1 = setReactivePowerL1.getWrittenValue();
-		if (reactivePowerL1.isPresent()) {
-			reactivePowerQueueL1.add(reactivePowerL1.get());
+		Optional<Long> writtenReactivePowerL1 = setReactivePowerL1.getWrittenValue();
+		if (writtenReactivePowerL1.isPresent()) {
+			reactivePowerQueueL1.add(writtenReactivePowerL1.get());
 		}
-		Optional<Long> reactivePowerL2 = setReactivePowerL2.getWrittenValue();
-		if (reactivePowerL2.isPresent()) {
-			reactivePowerQueueL2.add(reactivePowerL2.get());
+		Optional<Long> writtenReactivePowerL2 = setReactivePowerL2.getWrittenValue();
+		if (writtenReactivePowerL2.isPresent()) {
+			reactivePowerQueueL2.add(writtenReactivePowerL2.get());
 		}
-		Optional<Long> reactivePowerL3 = setReactivePowerL3.getWrittenValue();
-		if (reactivePowerL3.isPresent()) {
-			reactivePowerQueueL3.add(reactivePowerL3.get());
+		Optional<Long> writtenReactivePowerL3 = setReactivePowerL3.getWrittenValue();
+		if (writtenReactivePowerL3.isPresent()) {
+			reactivePowerQueueL3.add(writtenReactivePowerL3.get());
 		}
 		// lastApparentPower = SimulatorTools.addRandomLong(lastApparentPower, -10000, 10000, 500);
 		// lastCosPhi = SimulatorTools.addRandomDouble(lastCosPhi, -1.5, 1.5, 0.5);
 		//
 		// long activePower = ControllerUtils.calculateActivePowerFromApparentPower(lastApparentPower, lastCosPhi);
 		// long reactivePower = ControllerUtils.calculateReactivePower(activePower, lastCosPhi);
-		this.activePowerL1.updateValue(activePowerQueueL1.avg());
-		this.activePowerL2.updateValue(activePowerQueueL2.avg());
-		this.activePowerL3.updateValue(activePowerQueueL3.avg());
-		this.reactivePowerL1.updateValue(reactivePowerQueueL1.avg());
-		this.reactivePowerL2.updateValue(reactivePowerQueueL2.avg());
-		this.reactivePowerL3.updateValue(reactivePowerQueueL3.avg());
+		long activePowerL1 = 0;
+		long activePowerL2 = 0;
+		long activePowerL3 = 0;
+		long reactivePowerL1 = 0;
+		long reactivePowerL2 = 0;
+		long reactivePowerL3 = 0;
+		if (this.gridMode.valueOptional().equals(Optional.of(EssNature.OFF_GRID))) {
+			activePowerL1 = offGridActivePowerGenerator.getLoad() / 3;
+			activePowerL2 = offGridActivePowerGenerator.getLoad() / 3;
+			activePowerL3 = offGridActivePowerGenerator.getLoad() / 3;
+			reactivePowerL1 = offGridReactivePowerGenerator.getLoad() / 3;
+			reactivePowerL2 = offGridReactivePowerGenerator.getLoad() / 3;
+			reactivePowerL3 = offGridReactivePowerGenerator.getLoad() / 3;
+		} else {
+			activePowerL1 = activePowerQueueL1.avg();
+			activePowerL2 = activePowerQueueL2.avg();
+			activePowerL3 = activePowerQueueL3.avg();
+			reactivePowerL1 = reactivePowerQueueL1.avg();
+			reactivePowerL2 = reactivePowerQueueL2.avg();
+			reactivePowerL3 = reactivePowerQueueL3.avg();
+		}
+		this.activePowerL1.updateValue(activePowerL1);
+		this.activePowerL2.updateValue(activePowerL2);
+		this.activePowerL3.updateValue(activePowerL3);
+		this.reactivePowerL1.updateValue(reactivePowerL1);
+		this.reactivePowerL2.updateValue(reactivePowerL2);
+		this.reactivePowerL3.updateValue(reactivePowerL3);
 		this.allowedCharge.updateValue(-9000L);
 		this.allowedDischarge.updateValue(3000L);
 		this.systemState.updateValue(1L);

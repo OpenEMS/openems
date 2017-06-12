@@ -38,6 +38,7 @@ import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.charger.ChargerNature;
+import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
@@ -60,6 +61,8 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private double energy;
 	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(5, 1);
 	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(5, 1);
+	private LoadGenerator offGridActivePowerGenerator = new RandomLoadGenerator(-10000, 10000);
+	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator(-500, 500);
 
 	/*
 	 * Constructors
@@ -242,23 +245,31 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 			chargerList = new ArrayList<>();
 			getCharger();
 		}
-		Optional<Long> activePower = setActivePower.getWrittenValue();
-		if (activePower.isPresent()) {
-			activePowerQueue.add(activePower.get());
+		Optional<Long> writtenActivePower = setActivePower.getWrittenValue();
+		if (writtenActivePower.isPresent()) {
+			activePowerQueue.add(writtenActivePower.get());
 		}
-		Optional<Long> reactivePower = setReactivePower.getWrittenValue();
-		if (reactivePower.isPresent()) {
-			reactivePowerQueue.add(reactivePower.get());
+		Optional<Long> writtenReactivePower = setReactivePower.getWrittenValue();
+		if (writtenReactivePower.isPresent()) {
+			reactivePowerQueue.add(writtenReactivePower.get());
 		}
 		// lastApparentPower = SimulatorTools.addRandomLong(lastApparentPower, -10000, 10000, 500);
 		// lastCosPhi = SimulatorTools.addRandomDouble(lastCosPhi, -1.5, 1.5, 0.5);
 		//
 		// long activePower = ControllerUtils.calculateActivePowerFromApparentPower(lastApparentPower, lastCosPhi);
 		// long reactivePower = ControllerUtils.calculateReactivePower(activePower, lastCosPhi);
-		this.activePower.updateValue(activePowerQueue.avg());
-		this.reactivePower.updateValue(reactivePowerQueue.avg());
-		this.apparentPower
-				.updateValue(ControllerUtils.calculateApparentPower(activePowerQueue.avg(), reactivePowerQueue.avg()));
+		long activePower = 0;
+		long reactivePower = 0;
+		if (this.gridMode.valueOptional().equals(Optional.of(EssNature.OFF_GRID))) {
+			activePower = offGridActivePowerGenerator.getLoad();
+			reactivePower = offGridReactivePowerGenerator.getLoad();
+		} else {
+			activePower = activePowerQueue.avg();
+			reactivePower = reactivePowerQueue.avg();
+		}
+		this.activePower.updateValue(activePower);
+		this.reactivePower.updateValue(reactivePower);
+		this.apparentPower.updateValue(ControllerUtils.calculateApparentPower(activePower, reactivePower));
 		this.allowedCharge.updateValue(-9000L);
 		this.allowedDischarge.updateValue(3000L);
 	}
