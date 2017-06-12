@@ -92,6 +92,10 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     }
 
     protected getValueText(value: number): string {
+        if (value == null || Number.isNaN(value)) {
+            return "Kein Wert";
+        }
+
         return value + " W";
     }
 }

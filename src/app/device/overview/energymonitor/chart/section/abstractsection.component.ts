@@ -210,7 +210,7 @@ export abstract class AbstractSection {
             return 100;
         } else if (valueRatio < 0) {
             return 0;
-        } else if (valueRatio == null || valueRatio.toString() == "NaN") {
+        } else if (valueRatio == null || Number.isNaN(valueRatio)) {
             return 0;
         }
         return valueRatio;
