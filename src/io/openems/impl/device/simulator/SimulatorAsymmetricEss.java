@@ -263,7 +263,7 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 		long reactivePowerL1 = 0;
 		long reactivePowerL2 = 0;
 		long reactivePowerL3 = 0;
-		if (this.gridMode.valueOptional().equals(Optional.of(EssNature.OFF_GRID))) {
+		if (this.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
 			activePowerL1 = offGridActivePowerGenerator.getLoad() / 3;
 			activePowerL2 = offGridActivePowerGenerator.getLoad() / 3;
 			activePowerL3 = offGridActivePowerGenerator.getLoad() / 3;

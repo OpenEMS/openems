@@ -260,7 +260,7 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 		// long reactivePower = ControllerUtils.calculateReactivePower(activePower, lastCosPhi);
 		long activePower = 0;
 		long reactivePower = 0;
-		if (this.gridMode.valueOptional().equals(Optional.of(EssNature.OFF_GRID))) {
+		if (this.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
 			activePower = offGridActivePowerGenerator.getLoad();
 			reactivePower = offGridReactivePowerGenerator.getLoad();
 		} else {
