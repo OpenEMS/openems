@@ -211,6 +211,8 @@ export abstract class AbstractSection {
             return 100;
         } else if (valueRatio < 0) {
             return 0;
+        } else if (valueRatio == null || valueRatio.toString() == "NaN") {
+            return 0;
         }
         return valueRatio;
     }
