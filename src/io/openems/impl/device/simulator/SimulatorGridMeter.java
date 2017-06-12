@@ -172,8 +172,22 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 						+ meter.reactivePowerL3().valueOptional().orElse(0L);
 			}
 		}
-		this.activePower.updateValue(activePower);
-		this.reactivePower.updateValue(reactivePower);
+		if (isOffGrid(essNatures)) {
+			this.activePower.updateValue(null);
+			this.reactivePower.updateValue(null);
+		} else {
+			this.activePower.updateValue(activePower);
+			this.reactivePower.updateValue(reactivePower);
+		}
+	}
+
+	private boolean isOffGrid(List<EssNature> esss) {
+		for (EssNature ess : esss) {
+			if (ess.gridMode().labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
