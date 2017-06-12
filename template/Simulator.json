@@ -1,63 +1,74 @@
 {
-  "things": [
-    {
-      "class": "io.openems.impl.protocol.system.SystemBridge",
-      "devices": [
-        {
-          "class": "io.openems.impl.device.system.System",
-          "system": {
-            "id": "system0"
-          }
-        }
-      ]
-    },
-    {
-      "class": "io.openems.impl.protocol.simulator.SimulatorBridge",
-      "devices": [
-        {
-          "class": "io.openems.impl.device.simulator.Simulator",
-          "gridMeter": {
-            "id": "meter0",
-            "minActivePower": -15000,
-            "reactivePowerConsumption": 300,
-            "esss": [
-              "ess0"
-            ],
-            "producer": [
-              "meter1"
-            ],
-            "voltage": 230000,
-            "activePowerConsumption": 5000,
-            "frequency": 50000,
-            "maxActivePower": 15000
-          },
-          "productionMeter": {
-            "id": "meter1",
-            "ActivePower": 5000,
-            "voltage": 230000,
-            "frequency": 50000,
-            "maxActivePower": 11000,
-            "ReactivePower": 500
-          },
-          "ess": {
-            "id": "ess0",
-            "minSoc": 15
-          }
-        }
-      ]
-    }
-  ],
-  "scheduler": {
-    "class": "io.openems.impl.scheduler.SimpleScheduler",
-    "controllers": [
-      {
-        "class": "io.openems.impl.controller.api.websocket.WebsocketApiController",
-        "priority": 0
-      },
-      {
-        "class": "io.openems.impl.controller.api.rest.RestApiController",
-        "priority": 150
-      }
-    ]
-  }
+	"things": [
+		{
+			"class": "io.openems.impl.protocol.system.SystemBridge",
+			"devices": [
+				{
+					"class": "io.openems.impl.device.system.System",
+					"system": {
+						"id": "system0"
+					}
+				}
+			]
+		},
+		{
+			"class": "io.openems.impl.protocol.simulator.SimulatorBridge",
+			"devices": [
+				{
+					"class": "io.openems.impl.device.simulator.Simulator",
+					"gridMeter": {
+						"id": "meter0",
+						"minActivePower": -15000,
+						"reactivePowerConsumption": 300,
+						"esss": [
+							"ess0"
+						],
+						"producer": [
+							"meter1"
+						],
+						"voltage": 230000,
+						"activePowerConsumption": 5000,
+						"frequency": 50000,
+						"maxActivePower": 15000
+					},
+					"productionMeter": {
+						"id": "meter1",
+						"ActivePower": 5000,
+						"voltage": 230000,
+						"frequency": 50000,
+						"maxActivePower": 11000,
+						"ReactivePower": 500
+					},
+					"symmetricEss": {
+						"id": "ess0",
+						"minSoc": 15
+					}
+				}
+			]
+		}
+	],
+	"scheduler": {
+		"class": "io.openems.impl.scheduler.SimpleScheduler",
+		"controllers": [
+			{
+				"class": "io.openems.impl.controller.api.websocket.WebsocketApiController",
+				"priority": 0
+			},
+			{
+				"class": "io.openems.impl.controller.api.rest.RestApiController",
+				"priority": 150
+			},
+			{
+				"priority": 10,
+				"class": "io.openems.impl.controller.debuglog.DebugLogController",
+				"esss": [
+					"ess0"
+				],
+				"meters": [
+					"meter0",
+					"meter1"
+				]
+			}
+		]
+	}
 }
