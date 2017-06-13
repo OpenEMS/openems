@@ -1,11 +1,8 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
-
-import { Device } from '../../../shared/shared';
-
-import * as d3 from 'd3';
-import * as d3shape from 'd3-shape';
 import * as moment from 'moment';
+
+import { Device, Dataset } from '../../../shared/shared';
 
 @Component({
   selector: 'history',
@@ -15,6 +12,9 @@ export class HistoryComponent implements OnInit, OnDestroy {
 
   @Input()
   public device: Device;
+
+  public datasets: Dataset[];
+  public labels: moment.Moment[];
 
   private dataSoc = [];
   private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -43,34 +43,37 @@ export class HistoryComponent implements OnInit, OnDestroy {
          * Receive data and prepare for chart
          */
         this.device.queryreply.takeUntil(this.ngUnsubscribe).subscribe(queryreplies => {
-          // prepare datas array and prefill with each device
-          let datas: {
-            [thing: string]: {
-              name: moment.Moment,
-              value: number
-            }[]
-          } = {};
-          essDevices.forEach(device => datas[device] = []);
-
-          if (queryreplies != null) {
+          if (queryreplies == null) {
+            // reset datasets and labels
+            this.datasets = null;
+            this.labels = null;
+          } else {
+            // prepare datas array and prefill with each device
+            let datasets: {
+              [thing: string]: number[];
+            } = {};
+            let labels: moment.Moment[] = [];
+            essDevices.forEach(device => datasets[device] = []);
             for (let reply of queryreplies) {
               // read timestamp and soc of each device' reply
-              let timestamp = moment(reply.time);
-              let soc = 0;
+              labels.push(moment(reply.time));
               essDevices.forEach(device => {
+                let soc = 0;
                 if (device in reply.channels && "Soc" in reply.channels[device] && reply.channels[device]["Soc"]) {
-                  datas[device].push({ name: timestamp, value: reply.channels[device].Soc });
+                  soc = Math.round(reply.channels[device].Soc);
                 }
+                datasets[device].push(soc);
               });
             }
-          }
-          // refresh global dataSoc array
-          this.dataSoc = [];
-          for (let device in datas) {
-            this.dataSoc.push({
-              name: "Ladezustand (" + device + ")",
-              series: datas[device]
-            });
+            // refresh global datasets and labels
+            this.datasets = [];
+            for (let device in datasets) {
+              this.datasets.push({
+                label: "Ladezustand (" + device + ")",
+                data: datasets[device]
+              });
+            }
+            this.labels = labels;
           }
         });
       });
