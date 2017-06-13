@@ -37,92 +37,92 @@ export class HistoryComponent implements OnInit {
         if (this.activePeriod == null) {
           this.setPeriod("today");
         }
-        device.historykWh.subscribe((newkWh) => {
-          if (newkWh != null) {
-            let kWhGridBuy = {
-              name: "",
-              value: 0
-            }
-            let kWhGridSell = {
-              name: "",
-              value: 0
-            }
-            let kWhProduction = {
-              name: "Erzeugung",
-              value: 0
-            }
-            let kWhStorageCharge = {
-              name: "",
-              value: 0
-            }
-            let kWhStorageDischarge = {
-              name: "",
-              value: 0
-            }
-            for (let type in newkWh) {
-              if (newkWh[type].type == "production") {
-                let production = newkWh[type].value != null ? newkWh[type].value : 0;
-                kWhProduction.value = Math.round(production);
-              } else if (newkWh[type].type == "grid") {
-                let gridBuy = newkWh[type].buy != null ? newkWh[type].buy : 0;
-                kWhGridBuy.name = "Netzbezug";
-                kWhGridBuy.value = Math.round(gridBuy);
-                let gridSell = newkWh[type].sell != null ? newkWh[type].sell : 0;
-                kWhGridSell.name = "Netzeinspeiung";
-                kWhGridSell.value = Math.round((gridSell * (-1)));
-              } else {
-                let storageCharge = newkWh[type].charge != null ? newkWh[type].charge : 0;
-                kWhStorageCharge.name = "Batteriebeladung";
-                kWhStorageCharge.value = Math.round((storageCharge * (-1)));
-                let storageDischarge = newkWh[type].discharge != null ? newkWh[type].discharge : 0;
-                kWhStorageDischarge.name = "Batterieentladung";
-                kWhStorageDischarge.value = Math.round(storageDischarge);
-              }
-            }
-            this.datakWh = [kWhProduction, kWhGridBuy, kWhGridSell, kWhStorageCharge, kWhStorageDischarge];
-          }
-        })
-        device.historyData.subscribe((newData) => {
-          if (newData != null) {
-            let dataSoc = {
-              name: "Ladezustand",
-              series: []
-            }
-            let dataEnergy = {
-              name: "Erzeugung",
-              series: []
-            }
-            let dataConsumption = {
-              name: "Verbrauch",
-              series: []
-            }
-            let dataToGrid = {
-              name: "Netzeinspeisung",
-              series: []
-            }
-            let dataFromGrid = {
-              name: "Netzbezug",
-              series: []
-            }
-            for (let newDatum of newData) {
-              let timestamp = moment(newDatum["time"]);
-              let soc = newDatum.summary.storage.soc != null ? newDatum.summary.storage.soc : 0;
-              dataSoc.series.push({ name: timestamp, value: soc });
-              let production = newDatum.summary.production.activePower != null ? newDatum.summary.production.activePower : 0;
-              dataEnergy.series.push({ name: timestamp, value: production });
-              let consumption = newDatum.summary.consumption.activePower != null ? newDatum.summary.consumption.activePower : 0;
-              dataConsumption.series.push({ name: timestamp, value: consumption });
-              let grid = newDatum.summary.grid.activePower != null ? newDatum.summary.grid.activePower : 0;
-              if (newDatum.summary.grid.activePower < 0) {
-                dataToGrid.series.push({ name: timestamp, value: (grid * (-1)) });
-              } else {
-                dataFromGrid.series.push({ name: timestamp, value: grid });
-              }
-            }
-            this.dataSoc = [dataSoc];
-            this.dataEnergy = [dataEnergy, dataConsumption, dataToGrid, dataFromGrid];
-          }
-        })
+        // device.historykWh.subscribe((newkWh) => {
+        //   if (newkWh != null) {
+        //     let kWhGridBuy = {
+        //       name: "",
+        //       value: 0
+        //     }
+        //     let kWhGridSell = {
+        //       name: "",
+        //       value: 0
+        //     }
+        //     let kWhProduction = {
+        //       name: "Erzeugung",
+        //       value: 0
+        //     }
+        //     let kWhStorageCharge = {
+        //       name: "",
+        //       value: 0
+        //     }
+        //     let kWhStorageDischarge = {
+        //       name: "",
+        //       value: 0
+        //     }
+        //     for (let type in newkWh) {
+        //       if (newkWh[type].type == "production") {
+        //         let production = newkWh[type].value != null ? newkWh[type].value : 0;
+        //         kWhProduction.value = Math.round(production);
+        //       } else if (newkWh[type].type == "grid") {
+        //         let gridBuy = newkWh[type].buy != null ? newkWh[type].buy : 0;
+        //         kWhGridBuy.name = "Netzbezug";
+        //         kWhGridBuy.value = Math.round(gridBuy);
+        //         let gridSell = newkWh[type].sell != null ? newkWh[type].sell : 0;
+        //         kWhGridSell.name = "Netzeinspeiung";
+        //         kWhGridSell.value = Math.round((gridSell * (-1)));
+        //       } else {
+        //         let storageCharge = newkWh[type].charge != null ? newkWh[type].charge : 0;
+        //         kWhStorageCharge.name = "Batteriebeladung";
+        //         kWhStorageCharge.value = Math.round((storageCharge * (-1)));
+        //         let storageDischarge = newkWh[type].discharge != null ? newkWh[type].discharge : 0;
+        //         kWhStorageDischarge.name = "Batterieentladung";
+        //         kWhStorageDischarge.value = Math.round(storageDischarge);
+        //       }
+        //     }
+        //     this.datakWh = [kWhProduction, kWhGridBuy, kWhGridSell, kWhStorageCharge, kWhStorageDischarge];
+        //   }
+        // })
+        // device.historyData.subscribe((newData) => {
+        //   if (newData != null) {
+        //     let dataSoc = {
+        //       name: "Ladezustand",
+        //       series: []
+        //     }
+        //     let dataEnergy = {
+        //       name: "Erzeugung",
+        //       series: []
+        //     }
+        //     let dataConsumption = {
+        //       name: "Verbrauch",
+        //       series: []
+        //     }
+        //     let dataToGrid = {
+        //       name: "Netzeinspeisung",
+        //       series: []
+        //     }
+        //     let dataFromGrid = {
+        //       name: "Netzbezug",
+        //       series: []
+        //     }
+        //     for (let newDatum of newData) {
+        //       let timestamp = moment(newDatum["time"]);
+        //       let soc = newDatum.summary.storage.soc != null ? newDatum.summary.storage.soc : 0;
+        //       dataSoc.series.push({ name: timestamp, value: soc });
+        //       let production = newDatum.summary.production.activePower != null ? newDatum.summary.production.activePower : 0;
+        //       dataEnergy.series.push({ name: timestamp, value: production });
+        //       let consumption = newDatum.summary.consumption.activePower != null ? newDatum.summary.consumption.activePower : 0;
+        //       dataConsumption.series.push({ name: timestamp, value: consumption });
+        //       let grid = newDatum.summary.grid.activePower != null ? newDatum.summary.grid.activePower : 0;
+        //       if (newDatum.summary.grid.activePower < 0) {
+        //         dataToGrid.series.push({ name: timestamp, value: (grid * (-1)) });
+        //       } else {
+        //         dataFromGrid.series.push({ name: timestamp, value: grid });
+        //       }
+        //     }
+        //     this.dataSoc = [dataSoc];
+        //     this.dataEnergy = [dataEnergy, dataConsumption, dataToGrid, dataFromGrid];
+        //   }
+        // })
       }
     })
   }
@@ -237,6 +237,6 @@ export class HistoryComponent implements OnInit {
         this.activePeriod = null;
         return;
     }
-    this.device.query(fromDate, toDate);
+    this.device.query(fromDate, toDate, { 'ess0': ['ActivePower'] });
   }
 }
