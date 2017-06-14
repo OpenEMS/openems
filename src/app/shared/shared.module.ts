@@ -5,6 +5,7 @@ import { HttpModule } from '@angular/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RouterModule } from '@angular/router';
+import { ChartsModule } from 'ng2-charts/ng2-charts';
 import 'hammerjs';
 
 import { MyMaterialModule } from './material.module';
@@ -41,6 +42,7 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     MyMaterialModule,
     FlexLayoutModule,
     RouterModule,
+    ChartsModule,
     routing
   ],
   declarations: [
