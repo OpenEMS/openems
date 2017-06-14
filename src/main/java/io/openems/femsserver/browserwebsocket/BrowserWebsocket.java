@@ -107,7 +107,7 @@ public class BrowserWebsocket extends WebSocketServer {
 					     devices: [{
 					       name, online,...
 					     }]
-					
+
 					   }
 					 }
 					 * </pre>
@@ -134,6 +134,13 @@ public class BrowserWebsocket extends WebSocketServer {
 
 				} catch (OpenemsException | OdooApiException | XmlRpcException e) {
 					// Authentication failed
+					JsonObject j = new JsonObject();
+
+					JsonObject jAuthenticate = new JsonObject();
+					jAuthenticate.addProperty("mode", "deny");
+
+					j.add("authenticate", jAuthenticate);
+					WebSocketUtils.send(websocket, j);
 					throw new OpenemsException(
 							"Connection using session [" + sessionId + "] failed: " + e.getMessage());
 				}
