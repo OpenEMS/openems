@@ -24,7 +24,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.security.User;
 
-public class SimulatorReadChannel extends ReadChannel<Long> {
+public class SimulatorReadChannel<T> extends ReadChannel<T> {
 
 	public SimulatorReadChannel(String id, DeviceNature nature) {
 		super(id, nature);
@@ -33,39 +33,37 @@ public class SimulatorReadChannel extends ReadChannel<Long> {
 	/*
 	 * Builder
 	 */
-	@Override public SimulatorReadChannel unit(String unit) {
-		return (SimulatorReadChannel) super.unit(unit);
+	@Override
+	public SimulatorReadChannel<T> unit(String unit) {
+		return (SimulatorReadChannel<T>) super.unit(unit);
 	}
 
-	public SimulatorReadChannel multiplier(int multiplier) {
+	public SimulatorReadChannel<T> multiplier(int multiplier) {
 		return multiplier(Long.valueOf(multiplier));
 	}
 
-	@Override public SimulatorReadChannel multiplier(Long multiplier) {
-		return (SimulatorReadChannel) super.multiplier(multiplier);
+	@Override
+	public SimulatorReadChannel<T> multiplier(Long multiplier) {
+		return (SimulatorReadChannel<T>) super.multiplier(multiplier);
 	}
 
-	@Override public SimulatorReadChannel interval(Long min, Long max) {
-		return (SimulatorReadChannel) super.interval(min, max);
+	@Override
+	public SimulatorReadChannel<T> interval(T min, T max) {
+		return (SimulatorReadChannel<T>) super.interval(min, max);
 	}
 
-	public SimulatorReadChannel interval(Integer min, Integer max) {
-		return interval(min.longValue(), max.longValue());
+	@Override
+	public SimulatorReadChannel<T> label(T value, String label) {
+		return (SimulatorReadChannel<T>) super.label(value, label);
 	}
 
-	@Override public SimulatorReadChannel label(Long value, String label) {
-		return (SimulatorReadChannel) super.label(value, label);
-	}
-
-	public SimulatorReadChannel label(int value, String label) {
-		return label(Long.valueOf(value), label);
-	}
-
-	@Override public void updateValue(Long value) {
+	@Override
+	public void updateValue(T value) {
 		super.updateValue(value);
 	}
 
-	@Override public SimulatorReadChannel required() {
+	@Override
+	public SimulatorReadChannel<T> required() {
 		super.required();
 		if (parent() instanceof DeviceNature) {
 			DeviceNature parent = (DeviceNature) parent();
@@ -74,7 +72,8 @@ public class SimulatorReadChannel extends ReadChannel<Long> {
 		return this;
 	}
 
-	@Override public SimulatorReadChannel user(User... roles) {
-		return (SimulatorReadChannel) super.user(roles);
+	@Override
+	public SimulatorReadChannel<T> user(User... roles) {
+		return (SimulatorReadChannel<T>) super.user(roles);
 	}
 }
