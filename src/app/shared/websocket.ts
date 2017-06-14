@@ -1,4 +1,5 @@
 import { EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
@@ -23,6 +24,7 @@ export class Websocket {
   private messages: Observable<any>;
   private inputStream: QueueingSubject<any>;
   private websocketSubscription: Subscription = new Subscription();
+  private router: Router;
 
   constructor(
     public name: string,
@@ -100,6 +102,7 @@ export class Websocket {
       }
       retryCounter++;
     }).delay(1000)).subscribe(message => {
+      console.log("message", message);
       retryCounter = 0;
       // Receive authentication token
       if ("authenticate" in message && "mode" in message.authenticate) {
@@ -118,6 +121,9 @@ export class Websocket {
           }
         } else {
           // close websocket
+          if (this.backend == "femsserver") {
+            this.router.navigateByUrl("/web/login?redirect=/m/overview");
+          }
           this.webappService.removeToken(this.name);
           this.isConnected = false;
           status = { type: "error", message: "Keine Verbindung: Authentifizierung fehlgeschlagen." };
