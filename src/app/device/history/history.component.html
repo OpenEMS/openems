@@ -72,14 +72,13 @@
           <md-card-title style="font-size: 16px">{{ timespanText }}</md-card-title>
         </md-card-header>
         <md-card-content>
-          <!--<div style="height: 250px">
-            <chart-soc [scheme]="colorScheme" [results]="dataSoc">
-            </chart-soc>
-          </div>-->
-          <div style="height: 400px">
+          <div style="height: 250px">
+            <chart-soc [device]="device" [essDevices]="essDevices" [fromDate]="fromDate" [toDate]="toDate"></chart-soc>
+          </div>
+          <!--<div style="height: 400px">
             <chart-energy [scheme]="colorScheme" [results]="dataEnergy">
             </chart-energy>
-          </div>
+          </div>-->
         </md-card-content>
       </md-card>
     </div>
