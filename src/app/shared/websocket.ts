@@ -131,19 +131,26 @@ export class Websocket {
         if ("devices" in message.metadata) {
           // receive device specific data
           let newDevices = message.metadata.devices;
-          this.devices = {};
           for (let newDevice of newDevices) {
             let name = newDevice["name"];
-            let device = new Device(name, this, this.username);
+            let device;
+            if (name in this.devices) {
+              device = this.devices[name];
+            } else {
+              device = new Device(name, this, this.username);
+              this.devices[name] = device;
+            }
             device.receive({
               metadata: newDevice
             });
-            this.devices[name] = device;
           }
         } else {
           // only one device
-          this.devices = {
-            fems: new Device("fems", this, this.username)
+          if (!("fems" in this.devices)) {
+            // device was not existing
+            this.devices = {
+              fems: new Device("fems", this, this.username)
+            }
           }
         }
         if ("backend" in message.metadata) {

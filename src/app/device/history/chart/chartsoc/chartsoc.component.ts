@@ -1,134 +1,65 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-import * as d3 from 'd3';
-import * as d3shape from 'd3-shape';
+import { Component, Input } from '@angular/core';
+import * as moment from 'moment';
 
-import { AreaChartComponent } from '@swimlane/ngx-charts';
+import { Dataset } from './../../../../shared/shared';
 
 @Component({
   selector: 'chart-soc',
-  /* this is copied from 'ngx-charts-area-chart': */
-  template: `
-    <ngx-charts-chart
-      [view]="[width, height]"
-      [showLegend]="legend"
-      [legendOptions]="legendOptions"
-      [activeEntries]="activeEntries"
-      (legendLabelClick)="onClick($event)"
-      (legendLabelActivate)="onActivate($event)"
-      (legendLabelDeactivate)="onDeactivate($event)">
-      <svg:defs>
-        <svg:clipPath [attr.id]="clipPathId">
-          <svg:rect
-            [attr.width]="dims.width + 10"
-            [attr.height]="dims.height + 10"
-            [attr.transform]="'translate(-5, -5)'"/>
-        </svg:clipPath>
-      </svg:defs>
-      <svg:g [attr.transform]="transform" class="area-chart chart">
-        <svg:g ngx-charts-x-axis
-          *ngIf="xAxis"
-          [xScale]="xScale"
-          [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showXAxisLabel"
-          [labelText]="xAxisLabel"
-          [tickFormatting]="xAxisTickFormatting"
-          (dimensionsChanged)="updateXAxisHeight($event)">
-        </svg:g>
-        <svg:g ngx-charts-y-axis
-          *ngIf="yAxis"
-          [yScale]="yScale"
-          [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showYAxisLabel"
-          [labelText]="yAxisLabel"
-          [tickFormatting]="yAxisTickFormatting"
-          (dimensionsChanged)="updateYAxisWidth($event)">
-        </svg:g>
-        <svg:g [attr.clip-path]="clipPath">
-          <svg:g *ngFor="let series of results; trackBy:trackBy">
-            <svg:g ngx-charts-area-series
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [colors]="colors"
-              [data]="series"
-              [activeEntries]="activeEntries"
-              [scaleType]="scaleType"
-              [gradient]="gradient"
-              [curve]="curve"
-            />
-          </svg:g>
-          <svg:g ngx-charts-area-tooltip
-            [xSet]="xSet"
-            [xScale]="xScale"
-            [yScale]="yScale"
-            [results]="results"
-            [height]="dims.height"
-            [colors]="colors"
-            (hover)="updateHoveredVertical($event)"
-          />
-          <svg:g *ngFor="let series of results">
-            <svg:g ngx-charts-circle-series
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [colors]="colors"
-              [activeEntries]="activeEntries"
-              [data]="series"
-              [scaleType]="scaleType"
-              [visibleValue]="hoveredVertical"
-              (select)="onClick($event, series)"
-              (activate)="onActivate($event)"
-              (deactivate)="onDeactivate($event)"
-            />
-          </svg:g>
-        </svg:g>
-      </svg:g>
-      <svg:g ngx-charts-timeline
-        *ngIf="timeline && scaleType === 'time'"
-        [attr.transform]="timelineTransform"
-        [results]="results"
-        [view]="[timelineWidth, height]"
-        [height]="timelineHeight"
-        [scheme]="scheme"
-        [customColors]="customColors"
-        [legend]="legend"
-        [scaleType]="scaleType"
-        (onDomainChange)="updateDomain($event)">
-        <svg:g *ngFor="let series of results; trackBy:trackBy">
-          <svg:g ngx-charts-area-series
-            [xScale]="timelineXScale"
-            [yScale]="timelineYScale"
-            [colors]="colors"
-            [data]="series"
-            [scaleType]="scaleType"
-            [gradient]="gradient"
-            [curve]="curve"
-          />
-        </svg:g>
-      </svg:g>
-    </ngx-charts-chart>
-  `
+  templateUrl: './chartsoc.component.html'
 })
-export class ChartSocComponent extends AreaChartComponent {
-  xAxis = true;
-  yAxis = true;
-  legend = true;
-  gradient = true;
+export class ChartSocComponent {
 
-  curve = d3shape.curveCatmullRom;
-
-  xAxisTickFormatting = function (d) {
-    if (d.hours() == 0) {
-      return d.format("dd, DD.");
+  @Input()
+  set labels(labels: moment.Moment[]) {
+    if (labels == null || labels.length == 0) {
+      this._labels = null;
     } else {
-      return d.format("H:mm");
+      this._labels = labels;
+      // TODO: show full day in labels
+      //this.options.scales.xAxes[0].ticks["max"] = labels[labels.length - 1].endOf('day');
     }
-  };
-
-  getYDomain(): any[] {
-    return [0, 100];
   }
 
+  @Input()
+  set datasets(datasets: Dataset[]) {
+    if (datasets == null || datasets.length == 0) {
+      this._datasets = null;
+    } else {
+      this._datasets = datasets;
+    }
+  }
+
+  private _labels: moment.Moment[] = null;
+  private _datasets: Dataset[] = null;
+
+  private colors = [{
+    backgroundColor: 'rgba(0,152,70,0.2)',
+    borderColor: 'rgba(0,152,70,1)',
+  }];
+
+  private options = {
+    maintainAspectRatio: false,
+    legend: {
+      position: 'right'
+    },
+    elements: {
+      point: {
+        radius: 0,
+        hitRadius: 10,
+        hoverRadius: 10
+      }
+    },
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true,
+          max: 100
+        }
+      }],
+      xAxes: [{
+        type: 'time',
+        ticks: {}
+      }]
+    }
+  };
 }

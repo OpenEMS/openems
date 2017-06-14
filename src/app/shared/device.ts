@@ -44,16 +44,27 @@ class Summary {
   };
 }
 
+class QueryReply {
+  channels: {
+    [thing: string]: {
+      [channel: string]: number
+    }
+  }
+  time: string
+}
+
 export class Device {
 
   public summary: Summary = new Summary();
   public event = new Subject<Notification>();
   public address: string;
   public data = new BehaviorSubject<{ [thing: string]: any }>(null);
-  public historyData = new BehaviorSubject<any[]>(null);
-  public historykWh = new BehaviorSubject<any[]>(null);
+  public queryreply = new BehaviorSubject<QueryReply[]>(null);
   public config = new BehaviorSubject<Config>(null);
   public log = new Subject<Log>();
+
+  //public historykWh = new BehaviorSubject<any[]>(null);
+
   private comment: string = '';
   private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
   private producttype: 'Pro 9-12' | 'MiniES 3-3' | 'PRO Hybrid 9-10' | 'PRO Compact 3-10' | 'COMMERCIAL 40-45' | 'INDUSTRIAL' | '' = '';
@@ -237,14 +248,15 @@ export class Device {
   /**
    * Send "query" message to websocket
    */
-  public query(fromDate: any, toDate: any) {
+  // TODO: this.getImportantChannels()
+  // TODO: kWh: this.getkWhResult(this.getImportantChannels())
+  public query(fromDate: moment.Moment, toDate: moment.Moment, channels: {}) {
     let obj = {
       mode: "history",
       fromDate: fromDate.format("YYYY-MM-DD"),
       toDate: toDate.format("YYYY-MM-DD"),
       timezone: new Date().getTimezoneOffset() * 60,
-      channels: this.getImportantChannels(),
-      kWh: this.getkWhResult(this.getImportantChannels())
+      channels: channels
     };
     this.send({ query: obj });
   }
@@ -433,25 +445,28 @@ export class Device {
      * Reply to a query
      */
     if ("queryreply" in message) {
-      // console.log(message.queryreply);
       let data = null;
-      let kWh = null;
-      // history data
-      if (message.queryreply != null) {
-        if ("data" in message.queryreply && message.queryreply.data != null) {
-          data = message.queryreply.data;
-          for (let datum of data) {
-            let sum = this.calculateSummary(datum.channels);
-            datum["summary"] = sum;
-          }
-        }
-        // kWh data
-        if ("kWh" in message.queryreply) {
-          kWh = message.queryreply.kWh;
-        }
+      if ("data" in message.queryreply && message.queryreply.data != null) {
+        // console.log(message.queryreply);
+        data = message.queryreply.data;
       }
-      this.historyData.next(data);
-      this.historykWh.next(kWh);
+      //let kWh = null;
+      // history data
+      // if (message.queryreply != null) {
+      //   if ("data" in message.queryreply && message.queryreply.data != null) {
+      //     data = message.queryreply.data;
+      //     for (let datum of data) {
+      //       let sum = this.calculateSummary(datum.channels);
+      //       datum["summary"] = sum;
+      //     }
+      //   }
+      //   // kWh data
+      //   if ("kWh" in message.queryreply) {
+      //     kWh = message.queryreply.kWh;
+      //   }
+      // }
+      this.queryreply.next(data);
+      //this.historykWh.next(kWh);
     }
   }
 }

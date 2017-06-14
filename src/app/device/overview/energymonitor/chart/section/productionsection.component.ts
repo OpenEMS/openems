@@ -32,7 +32,7 @@ let pulsetimeup = 2000;
     ]
 })
 export class ProductionSectionComponent extends AbstractSection implements OnInit {
-    value: number;
+
     constructor() {
         super("Erzeugung", 316, 404, "#008DD2");
     }
@@ -40,7 +40,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     ngOnInit() {
         Observable.interval(pulsetimeup)
             .subscribe(x => {
-                if (this.value > 0) {
+                if (this.lastValue.absolute > 0) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[this.circles.length - i - 1].switchState();
@@ -53,10 +53,6 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
                     }
                 }
             })
-    }
-
-    public updateEnergyFlow(value: number) {
-        this.value = value;
     }
 
     protected getCircleDirection(): CircleDirection {
