@@ -40,9 +40,4 @@ public class UnitTestWriteChannel<T> extends WriteChannel<T> {
 		return (UnitTestWriteChannel<T>) super.minWriteChannel(channel);
 	}
 
-	@Override
-	public void updateValue(T value) {
-		super.updateValue(value);
-	}
-
 }
