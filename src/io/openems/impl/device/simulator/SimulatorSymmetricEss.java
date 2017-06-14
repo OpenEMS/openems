@@ -61,7 +61,7 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private double energy;
 	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(5, 1);
 	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(5, 1);
-	private LoadGenerator offGridActivePowerGenerator = new RandomLoadGenerator(-10000, 10000);
+	private LoadGenerator offGridActivePowerGenerator = new RandomLoadGenerator(1000, 10000);
 	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator(-500, 500);
 
 	/*
@@ -260,12 +260,14 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 		// long reactivePower = ControllerUtils.calculateReactivePower(activePower, lastCosPhi);
 		long activePower = 0;
 		long reactivePower = 0;
-		if (this.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
-			activePower = offGridActivePowerGenerator.getLoad();
-			reactivePower = offGridReactivePowerGenerator.getLoad();
-		} else {
-			activePower = activePowerQueue.avg();
-			reactivePower = reactivePowerQueue.avg();
+		if (this.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+			if (this.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
+				activePower = offGridActivePowerGenerator.getLoad();
+				reactivePower = offGridReactivePowerGenerator.getLoad();
+			} else {
+				activePower = activePowerQueue.avg();
+				reactivePower = reactivePowerQueue.avg();
+			}
 		}
 		this.activePower.updateValue(activePower);
 		this.reactivePower.updateValue(reactivePower);
