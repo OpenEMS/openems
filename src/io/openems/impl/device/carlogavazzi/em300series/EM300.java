@@ -30,7 +30,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@ThingInfo(title = "Socomec")
+@ThingInfo(title = "Carlog Gavazzi EM300")
 public class EM300 extends ModbusDevice {
 
 	/*
