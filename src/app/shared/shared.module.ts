@@ -28,10 +28,10 @@ import { SignPipe } from './pipe/sign/sign.pipe';
 import { IsclassPipe } from './pipe/isclass/isclass.pipe';
 import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
 
-/**
- * Chart
+/*
+ * Components
  */
-import { SocChartComponent } from '../device/history/chart/socchart/socchart.component';
+import { SocChartComponent } from './../device/history/chart/socchart/socchart.component';
 
 @NgModule({
   imports: [
@@ -64,6 +64,7 @@ import { SocChartComponent } from '../device/history/chart/socchart/socchart.com
     HasclassPipe,
     // modules
     BrowserAnimationsModule,
+    ChartsModule,
     FormsModule,
     MyMaterialModule,
     FlexLayoutModule,

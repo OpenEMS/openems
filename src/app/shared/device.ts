@@ -1,5 +1,6 @@
 import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { UUID } from 'angular2-uuid';
 import * as moment from 'moment';
 
 import { Notification } from './service/webapp.service';
@@ -44,13 +45,16 @@ class Summary {
   };
 }
 
-class QueryReply {
-  channels: {
-    [thing: string]: {
-      [channel: string]: number
+export class QueryReply {
+  requestId: string;
+  data: [{
+    time: string
+    channels: {
+      [thing: string]: {
+        [channel: string]: number
+      }
     }
-  }
-  time: string
+  }]
 }
 
 export class Device {
@@ -59,7 +63,7 @@ export class Device {
   public event = new Subject<Notification>();
   public address: string;
   public data = new BehaviorSubject<{ [thing: string]: any }>(null);
-  public queryreply = new BehaviorSubject<QueryReply[]>(null);
+  public queryreply = new Subject<QueryReply>();
   public config = new BehaviorSubject<Config>(null);
   public log = new Subject<Log>();
 
@@ -92,8 +96,11 @@ export class Device {
     this.comment = name;
   }
 
-  public send(value: any) {
+  public send(value: any): string {
+    let requestId = UUID.UUID();
+    value["requestId"] = requestId;
     this.websocket.send(this, value);
+    return requestId;
   }
 
   private isInArray = (array: any, value: any): boolean => {
@@ -250,7 +257,8 @@ export class Device {
    */
   // TODO: this.getImportantChannels()
   // TODO: kWh: this.getkWhResult(this.getImportantChannels())
-  public query(fromDate: moment.Moment, toDate: moment.Moment, channels: {}) {
+  public query(fromDate: moment.Moment, toDate: moment.Moment, channels: {}): Subject<QueryReply> {
+    // create query object
     let obj = {
       mode: "history",
       fromDate: fromDate.format("YYYY-MM-DD"),
@@ -258,7 +266,27 @@ export class Device {
       timezone: new Date().getTimezoneOffset() * 60,
       channels: channels
     };
-    this.send({ query: obj });
+    // send query and receive requestId
+    let requestId = this.send({ query: obj });
+
+    // prepare result
+    let ngUnsubscribe: Subject<void> = new Subject<void>();
+    let result = new Subject<QueryReply>();
+    // timeout after 10 seconds
+    setTimeout(() => {
+      result.error("Query timeout");
+      result.complete();
+    }, 10000);
+    // wait for queryreply with this requestId
+    this.queryreply.takeUntil(ngUnsubscribe).subscribe(queryreply => {
+      if (queryreply.requestId == requestId) {
+        ngUnsubscribe.next();
+        ngUnsubscribe.complete();
+        result.next(queryreply);
+        result.complete();
+      }
+    });
+    return result;
   }
 
   /**
@@ -445,11 +473,12 @@ export class Device {
      * Reply to a query
      */
     if ("queryreply" in message) {
-      let data = null;
-      if ("data" in message.queryreply && message.queryreply.data != null) {
-        // console.log(message.queryreply);
-        data = message.queryreply.data;
+      if (!("requestId" in message)) {
+        throw ("No requestId in message: " + message);
       }
+      message.queryreply["requestId"] = message.requestId;
+      this.queryreply.next(message.queryreply);
+
       //let kWh = null;
       // history data
       // if (message.queryreply != null) {
@@ -465,7 +494,6 @@ export class Device {
       //     kWh = message.queryreply.kWh;
       //   }
       // }
-      this.queryreply.next(data);
       //this.historykWh.next(kWh);
     }
   }

@@ -1,129 +1,113 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
-import * as d3 from 'd3';
-import * as d3shape from 'd3-shape';
+import { Component, Input, OnInit, OnChanges, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
+import { Subject } from 'rxjs/Subject';
+import { BaseChartDirective } from 'ng2-charts/ng2-charts';
+import * as moment from 'moment';
 
-import { AreaChartComponent } from '@swimlane/ngx-charts';
+import { Dataset, EMPTY_DATASET, Device, Config, QueryReply } from './../../../../shared/shared';
 
 @Component({
-  selector: 'chart-energy',
-  /* this is copied from 'ngx-charts-area-chart': */
-  template: `
-    <ngx-charts-chart
-      [view]="[width, height]"
-      [showLegend]="legend"
-      [legendOptions]="legendOptions"
-      [activeEntries]="activeEntries"
-      (legendLabelClick)="onClick($event)"
-      (legendLabelActivate)="onActivate($event)"
-      (legendLabelDeactivate)="onDeactivate($event)">
-      <svg:defs>
-        <svg:clipPath [attr.id]="clipPathId">
-          <svg:rect
-            [attr.width]="dims.width + 10"
-            [attr.height]="dims.height + 10"
-            [attr.transform]="'translate(-5, -5)'"/>
-        </svg:clipPath>
-      </svg:defs>
-      <svg:g [attr.transform]="transform" class="area-chart chart">
-        <svg:g ngx-charts-x-axis
-          *ngIf="xAxis"
-          [xScale]="xScale"
-          [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showXAxisLabel"
-          [labelText]="xAxisLabel"
-          [tickFormatting]="xAxisTickFormatting"
-          (dimensionsChanged)="updateXAxisHeight($event)">
-        </svg:g>
-        <svg:g ngx-charts-y-axis
-          *ngIf="yAxis"
-          [yScale]="yScale"
-          [dims]="dims"
-          [showGridLines]="showGridLines"
-          [showLabel]="showYAxisLabel"
-          [labelText]="yAxisLabel"
-          [tickFormatting]="yAxisTickFormatting"
-          (dimensionsChanged)="updateYAxisWidth($event)">
-        </svg:g>
-        <svg:g [attr.clip-path]="clipPath">
-          <svg:g *ngFor="let series of results; trackBy:trackBy">
-            <svg:g ngx-charts-area-series
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [colors]="colors"
-              [data]="series"
-              [activeEntries]="activeEntries"
-              [scaleType]="scaleType"
-              [gradient]="gradient"
-              [curve]="curve"
-            />
-          </svg:g>
-          <svg:g ngx-charts-area-tooltip
-            [xSet]="xSet"
-            [xScale]="xScale"
-            [yScale]="yScale"
-            [results]="results"
-            [height]="dims.height"
-            [colors]="colors"
-            (hover)="updateHoveredVertical($event)"
-          />
-          <svg:g *ngFor="let series of results">
-            <svg:g ngx-charts-circle-series
-              [xScale]="xScale"
-              [yScale]="yScale"
-              [colors]="colors"
-              [activeEntries]="activeEntries"
-              [data]="series"
-              [scaleType]="scaleType"
-              [visibleValue]="hoveredVertical"
-              (select)="onClick($event, series)"
-              (activate)="onActivate($event)"
-              (deactivate)="onDeactivate($event)"
-            />
-          </svg:g>
-        </svg:g>
-      </svg:g>
-      <svg:g ngx-charts-timeline
-        *ngIf="timeline && scaleType === 'time'"
-        [attr.transform]="timelineTransform"
-        [results]="results"
-        [view]="[timelineWidth, height]"
-        [height]="timelineHeight"
-        [scheme]="scheme"
-        [customColors]="customColors"
-        [legend]="legend"
-        [scaleType]="scaleType"
-        (onDomainChange)="updateDomain($event)">
-        <svg:g *ngFor="let series of results; trackBy:trackBy">
-          <svg:g ngx-charts-area-series
-            [xScale]="timelineXScale"
-            [yScale]="timelineYScale"
-            [colors]="colors"
-            [data]="series"
-            [scaleType]="scaleType"
-            [gradient]="gradient"
-            [curve]="curve"
-          />
-        </svg:g>
-      </svg:g>
-    </ngx-charts-chart>
-  `
+  selector: 'energychart',
+  templateUrl: './energychart.component.html'
 })
-export class ChartEnergyComponent extends AreaChartComponent {
-  xAxis = true;
-  yAxis = true;
-  legend = true;
-  gradient = true;
+export class EnergyChartComponent implements OnChanges {
 
-  curve = d3shape.curveCatmullRom;
+  @Input() private device: Device;
+  @Input() private fromDate: moment.Moment;
+  @Input() private toDate: moment.Moment;
 
-  xAxisTickFormatting = function (d) {
-    if (d.hours() == 0) {
-      return d.format("dd, DD.");
-    } else {
-      return d.format("H:mm");
+  @ViewChild('energyChart') private chart: BaseChartDirective;
+
+  public labels: moment.Moment[] = [];
+  public datasets: Dataset[] = EMPTY_DATASET;
+
+  private ngUnsubscribe: Subject<void> = new Subject<void>();
+  private queryreplySubject: Subject<QueryReply>;
+
+  private colors = [{
+    backgroundColor: 'rgba(0,152,70,0.2)',
+    borderColor: 'rgba(0,152,70,1)',
+  }];
+
+  private options: {} = {
+    maintainAspectRatio: false,
+    legend: {
+      position: 'right'
+    },
+    elements: {
+      point: {
+        radius: 0,
+        hitRadius: 10,
+        hoverRadius: 10
+      }
+    },
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true,
+          max: 100
+        }
+      }],
+      xAxes: [{
+        type: 'time',
+        time: {}
+      }]
     }
   };
+
+  ngOnChanges(changes: any) {
+    // close old queryreplySubject
+    if (this.queryreplySubject != null) {
+      this.queryreplySubject.complete();
+    }
+    // create channels for query
+    let channels = {};
+    channels = { ess0: ["ActivePower"] };
+    // this.essDevices.forEach(device => channels[device] = ['Soc']);
+    // execute query
+    let queryreplySubject = this.device.query(this.fromDate, this.toDate, channels);
+    queryreplySubject.subscribe(queryreply => {
+      // prepare datas array and prefill with each device
+      let tmpData: {
+        [thing: string]: number[];
+      } = {};
+      let labels: moment.Moment[] = [];
+      console.log(queryreply);
+      // this.essDevices.forEach(device => tmpData[device] = []);
+      // for (let reply of queryreply.data) {
+      //   // read timestamp and soc of each device' reply
+      //   labels.push(moment(reply.time));
+      //   this.essDevices.forEach(device => {
+      //     let soc = 0;
+      //     if (device in reply.channels && "Soc" in reply.channels[device] && reply.channels[device]["Soc"]) {
+      //       soc = Math.round(reply.channels[device].Soc);
+      //     }
+      //     tmpData[device].push(soc);
+      //   });
+      // }
+      // // refresh global datasets and labels
+      // let datasets = [];
+      // for (let device in tmpData) {
+      //   datasets.push({
+      //     label: "Ladezustand (" + device + ")",
+      //     data: tmpData[device]
+      //   });
+      // }
+      // this.datasets = datasets;
+      // this.labels = labels;
+      // setTimeout(() => {
+      //   // Workaround, because otherwise chart data and labels are not refreshed...
+      //   if (this.chart) {
+      //     this.chart.ngOnChanges({} as SimpleChanges);
+      //   }
+      // }, 0);
+    }, error => {
+      this.datasets = EMPTY_DATASET;
+      this.labels = [];
+    });
+  }
+
+  ngOnDestroy() {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
 }

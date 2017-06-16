@@ -3,25 +3,26 @@ import { Subject } from 'rxjs/Subject';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import * as moment from 'moment';
 
-import { Dataset, EMPTY_DATASET, Device, Config } from './../../../../shared/shared';
+import { Dataset, EMPTY_DATASET, Device, Config, QueryReply } from './../../../../shared/shared';
 
 @Component({
   selector: 'socchart',
   templateUrl: './socchart.component.html'
 })
-export class SocChartComponent implements OnInit, OnChanges {
+export class SocChartComponent implements OnChanges {
 
   @Input() private device: Device;
   @Input() private essDevices: string[];
   @Input() private fromDate: moment.Moment;
   @Input() private toDate: moment.Moment;
 
+  @ViewChild('socChart') private chart: BaseChartDirective;
+
   public labels: moment.Moment[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
 
-  @ViewChild('socChart') chart: BaseChartDirective;
-
   private ngUnsubscribe: Subject<void> = new Subject<void>();
+  private queryreplySubject: Subject<QueryReply>;
 
   private colors = [{
     backgroundColor: 'rgba(0,152,70,0.2)',
@@ -55,60 +56,53 @@ export class SocChartComponent implements OnInit, OnChanges {
   };
 
   ngOnChanges(changes: any) {
+    // close old queryreplySubject
+    if (this.queryreplySubject != null) {
+      this.queryreplySubject.complete();
+    }
     // create channels for query
     let channels = {};
     this.essDevices.forEach(device => channels[device] = ['Soc']);
     // execute query
-    this.device.query(this.fromDate, this.toDate, channels);
-  }
-
-  ngOnInit() {
-    if (this.device != null) {
-      /**
-       * Receive data and prepare for chart
-       */
-      this.device.queryreply.takeUntil(this.ngUnsubscribe).subscribe(queryreplies => {
-        if (queryreplies == null) {
-          // reset datasets and labels
-          this.datasets = EMPTY_DATASET;
-          this.labels = [];
-        } else {
-          // prepare datas array and prefill with each device
-          let tmpData: {
-            [thing: string]: number[];
-          } = {};
-          let labels: moment.Moment[] = [];
-          this.essDevices.forEach(device => tmpData[device] = []);
-          for (let reply of queryreplies) {
-            // read timestamp and soc of each device' reply
-            labels.push(moment(reply.time));
-            this.essDevices.forEach(device => {
-              let soc = 0;
-              if (device in reply.channels && "Soc" in reply.channels[device] && reply.channels[device]["Soc"]) {
-                soc = Math.round(reply.channels[device].Soc);
-              }
-              tmpData[device].push(soc);
-            });
+    let queryreplySubject = this.device.query(this.fromDate, this.toDate, channels);
+    queryreplySubject.subscribe(queryreply => {
+      // prepare datas array and prefill with each device
+      let tmpData: {
+        [thing: string]: number[];
+      } = {};
+      let labels: moment.Moment[] = [];
+      this.essDevices.forEach(device => tmpData[device] = []);
+      for (let reply of queryreply.data) {
+        // read timestamp and soc of each device' reply
+        labels.push(moment(reply.time));
+        this.essDevices.forEach(device => {
+          let soc = 0;
+          if (device in reply.channels && "Soc" in reply.channels[device] && reply.channels[device]["Soc"]) {
+            soc = Math.round(reply.channels[device].Soc);
           }
-          // refresh global datasets and labels
-          let datasets = [];
-          for (let device in tmpData) {
-            datasets.push({
-              label: "Ladezustand (" + device + ")",
-              data: tmpData[device]
-            });
-          }
-          this.datasets = datasets;
-          this.labels = labels;
+          tmpData[device].push(soc);
+        });
+      }
+      // refresh global datasets and labels
+      let datasets = [];
+      for (let device in tmpData) {
+        datasets.push({
+          label: "Ladezustand (" + device + ")",
+          data: tmpData[device]
+        });
+      }
+      this.datasets = datasets;
+      this.labels = labels;
+      setTimeout(() => {
+        // Workaround, because otherwise chart data and labels are not refreshed...
+        if (this.chart) {
+          this.chart.ngOnChanges({} as SimpleChanges);
         }
-        setTimeout(() => {
-          // Workaround, because otherwise chart data and labels are not refreshed...
-          if (this.chart) {
-            this.chart.ngOnChanges({} as SimpleChanges);
-          }
-        }, 0);
-      });
-    }
+      }, 0);
+    }, error => {
+      this.datasets = EMPTY_DATASET;
+      this.labels = [];
+    });
   }
 
   ngOnDestroy() {

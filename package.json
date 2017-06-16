@@ -25,6 +25,7 @@
     "@angular/platform-server": "4.2.2",
     "@angular/router": "4.2.2",
     "@swimlane/ngx-charts": "5.3.1",
+    "angular2-uuid": "^1.1.1",
     "chart.js": "^2.6.0",
     "classlist.js": "^1.1.20150312",
     "core-js": "^2.4.1",
