@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import * as moment from 'moment';
@@ -9,7 +9,7 @@ import { Dataset, EMPTY_DATASET, Device, Config } from './../../../../shared/sha
   selector: 'chart-soc',
   templateUrl: './chartsoc.component.html'
 })
-export class ChartSocComponent implements OnInit, OnChanges, AfterViewInit {
+export class ChartSocComponent implements OnInit, OnChanges {
 
   @Input() private device: Device;
   @Input() private essDevices: string[];
@@ -19,20 +19,7 @@ export class ChartSocComponent implements OnInit, OnChanges, AfterViewInit {
   public labels: moment.Moment[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
 
-  //@ViewChild('socChart') chart: BaseChartDirective;
   @ViewChild('socChart') chart: BaseChartDirective;
-
-  ngAfterViewInit() {
-    console.log(this.chart);
-  }
-
-  // private labels = [moment("2017-01-01 00:00"), moment("2017-01-02 00:00"), moment("2017-01-03 00:00")];
-  // private datasets = [
-  //   {
-  //     label: "# of Votes",
-  //     data: [12, 19, 3]
-  //   }
-  // ];
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
@@ -114,22 +101,12 @@ export class ChartSocComponent implements OnInit, OnChanges, AfterViewInit {
           this.datasets = datasets;
           this.labels = labels;
         }
-        console.log("count data: " + this.datasets[0].data.length, "count labels: " + this.labels.length);
-        // this.chart.ngOnChanges({
-        //   datasets: {
-        //     currentValue: this.datasets,
-        //     previousValue: null,
-        //     firstChange: false,
-        //     isFirstChange: () => false
-        //   },
-        //   labels: {
-        //     currentValue: this.labels,
-        //     previousValue: null,
-        //     firstChange: false,
-        //     isFirstChange: () => false
-        //   },
-        // });
-        this.chart.ngOnChanges({});
+        setTimeout(() => {
+          // Workaround, because otherwise chart data and labels are not refreshed...
+          if (this.chart) {
+            this.chart.ngOnChanges({} as SimpleChanges);
+          }
+        }, 0);
       });
     }
   }
