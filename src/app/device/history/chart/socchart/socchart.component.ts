@@ -6,10 +6,10 @@ import * as moment from 'moment';
 import { Dataset, EMPTY_DATASET, Device, Config } from './../../../../shared/shared';
 
 @Component({
-  selector: 'chart-soc',
-  templateUrl: './chartsoc.component.html'
+  selector: 'socchart',
+  templateUrl: './socchart.component.html'
 })
-export class ChartSocComponent implements OnInit, OnChanges {
+export class SocChartComponent implements OnInit, OnChanges {
 
   @Input() private device: Device;
   @Input() private essDevices: string[];

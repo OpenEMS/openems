@@ -31,7 +31,7 @@ import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
 /**
  * Chart
  */
-import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.component';
+import { SocChartComponent } from '../device/history/chart/socchart/socchart.component';
 
 @NgModule({
   imports: [
@@ -53,7 +53,7 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     IsclassPipe,
     HasclassPipe,
     // components
-    ChartSocComponent
+    SocChartComponent
   ],
   exports: [
     // pipes
@@ -71,7 +71,7 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     RouterModule,
     ReactiveFormsModule,
     // components
-    ChartSocComponent
+    SocChartComponent
   ]
 })
 export class SharedModule { }
