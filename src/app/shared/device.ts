@@ -403,7 +403,8 @@ export class Device {
        * config
        */
       if ("config" in metadata) {
-        let config = metadata.config;
+        let config: Config = new Config();
+        Object.assign(config, metadata.config);
 
         // parse influxdb connection
         if ("persistence" in config) {

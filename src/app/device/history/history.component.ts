@@ -36,15 +36,7 @@ export class HistoryComponent implements OnInit {
       this.device = device;
       if (device != null) {
         device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-          // get all configured ESS devices
-          let essDevices: string[] = [];
-          let natures = config._meta.natures;
-          for (let nature in natures) {
-            if (natures[nature].implements.includes("EssNature")) {
-              essDevices.push(nature);
-            }
-          }
-          this.essDevices = essDevices;
+          this.essDevices = config.getEssDevices();
         });
       }
     })

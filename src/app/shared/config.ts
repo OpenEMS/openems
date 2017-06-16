@@ -31,8 +31,8 @@ interface Bridge extends Thing {
     }]
 }
 
-export interface Config {
-    _meta: {
+export class Config {
+    public _meta: {
         natures: {
             [thing: string]: {
                 channels: {},
@@ -43,8 +43,24 @@ export interface Config {
         controllers: [ThingClass],
         schedulers: [ThingClass],
         devices: [ThingClass]
-    },
-    persistence: [{ class: string }],
-    scheduler: Scheduler,
-    things: Bridge[]
+    };
+    public persistence: [{ class: string }];
+    public scheduler: Scheduler;
+    public things: Bridge[]
+
+    /**
+     * Returns a list of device-ids which are EssNatures.
+     * e.g. ["ess0", "ess1"]
+     */
+    public getEssDevices(): string[] {
+        // get all configured ESS devices
+        let essDevices: string[] = [];
+        let natures = this._meta.natures;
+        for (let nature in natures) {
+            if (natures[nature].implements.includes("EssNature")) {
+                essDevices.push(nature);
+            }
+        }
+        return essDevices;
+    }
 }
