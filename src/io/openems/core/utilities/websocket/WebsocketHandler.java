@@ -49,6 +49,7 @@ import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
+import io.openems.api.exception.ReflectionException;
 import io.openems.api.persistence.QueryablePersistence;
 import io.openems.api.thing.Thing;
 import io.openems.core.Config;
@@ -134,6 +135,19 @@ public class WebsocketHandler {
 	 */
 	public void onMessage(JsonObject jMessage) {
 		/*
+		 * Get unique request id
+		 */
+		// TODO: pass requestId everywhere
+		String requestId = "";
+		if (jMessage.has("requestId")) {
+			try {
+				requestId = JsonUtils.getAsString(jMessage, "requestId");
+			} catch (ReflectionException e) {
+				log.warn("Invalid requestId: " + e.getMessage());
+			}
+		}
+
+		/*
 		 * Subscribe to data
 		 */
 		if (jMessage.has("subscribe")) {
@@ -158,7 +172,7 @@ public class WebsocketHandler {
 		 * Query command
 		 */
 		if (jMessage.has("query")) {
-			query(jMessage.get("query"));
+			query(requestId, jMessage.get("query"));
 		}
 	}
 
@@ -457,7 +471,7 @@ public class WebsocketHandler {
 	 *
 	 * @param j
 	 */
-	private synchronized void query(JsonElement jQueryElement) {
+	private synchronized void query(String requestId, JsonElement jQueryElement) {
 		try {
 			JsonObject jQuery = JsonUtils.getAsJsonObject(jQueryElement);
 			String mode = JsonUtils.getAsString(jQuery, "mode");
@@ -473,9 +487,14 @@ public class WebsocketHandler {
 				// TODO JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 				// Calculate resolution
 				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
+				// TODO: better calculation of sensible resolution
 				int resolution = 10 * 60; // 10 Minutes
-				if (days > 6) {
-					resolution = 24 * 60 * 60; // 60 Minutes
+				if (days > 25) {
+					resolution = 24 * 60 * 60; // 1 Day
+				} else if (days > 6) {
+					resolution = 3 * 60 * 60; // 3 Hours
+				} else if (days > 2) {
+					resolution = 60 * 60; // 60 Minutes
 				}
 				JsonObject jQueryreply = null;
 				for (QueryablePersistence queryablePersistence : thingRepository.getQueryablePersistences()) {
@@ -486,7 +505,7 @@ public class WebsocketHandler {
 					}
 				}
 				// Send result
-				JsonObject j = new JsonObject();
+				JsonObject j = bootstrapReply(requestId);
 				j.add("queryreply", jQueryreply);
 				this.send(j);
 
@@ -599,5 +618,11 @@ public class WebsocketHandler {
 		new Thread(() -> {
 			this.send(j);
 		}).start();
+	}
+
+	private JsonObject bootstrapReply(String requestId) {
+		JsonObject j = new JsonObject();
+		j.addProperty("requestId", requestId);
+		return j;
 	}
 }
