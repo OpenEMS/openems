@@ -2,7 +2,7 @@ import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import * as moment from 'moment';
 
-import { Device, Dataset } from '../../../shared/shared';
+import { Device, Dataset, ChannelAddresses } from '../../../shared/shared';
 
 @Component({
   selector: 'history',
@@ -13,7 +13,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   @Input()
   public device: Device;
 
-  public essDevices: string[] = [];
+  public socChannels: ChannelAddresses = {};
   public fromDate = moment();
   public toDate = moment();
 
@@ -22,7 +22,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   ngOnInit() {
     if (this.device != null) {
       this.device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-        this.essDevices = config.getEssDevices();
+        this.socChannels = config.getEssSocChannels();
       });
     }
   }

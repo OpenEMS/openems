@@ -103,26 +103,19 @@ export class Device {
     return requestId;
   }
 
-  private isInArray = (array: any, value: any): boolean => {
-    if (!array || !value) {
-      return false;
-    }
-    return array.indexOf(value) > -1;
-  }
-
   private refreshThingsFromConfig(): Things {
     let result = new Things();
     let config = this.config.getValue();
     if ("_meta" in config && "natures" in config._meta) {
       let natures = this.config.getValue()._meta.natures;
       for (let thing in natures) {
-        let a = natures[thing]["implements"];
+        let i = natures[thing]["implements"];
         // Ess
-        if (this.isInArray(a, "EssNature")) {
+        if (i.includes("EssNature")) {
           result.storage[thing] = true;
         }
         // Meter
-        if (this.isInArray(a, "MeterNature")) {
+        if (i.includes("MeterNature")) {
           // get type
           let type = natures[thing]["channels"]["type"]["value"];
           if (type === "grid") {
@@ -134,46 +127,10 @@ export class Device {
           }
         }
         // Charger
-        if (this.isInArray(a, "ChargerNature")) {
+        if (i.includes("ChargerNature")) {
           result.production[thing] = true;
         }
       }
-    }
-    return result;
-  }
-
-  private getImportantChannels(): { [thing: string]: [string] } {
-    let natures = this.config.getValue()._meta.natures;
-    let ignoreNatures = {};
-    let result = {}
-    for (let thing in natures) {
-      let a = natures[thing]["implements"];
-      let channels = []
-
-      /*
-       * Find important Channels to subscribe
-       */
-      // Ess
-      if (this.isInArray(a, "EssNature")) {
-        channels.push("Soc");
-      }
-      if (this.isInArray(a, "AsymmetricEssNature")) {
-        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
-      } else if (this.isInArray(a, "SymmetricEssNature")) {
-        channels.push("ActivePower", "ReactivePower");
-      }
-      if (this.isInArray(a, "FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
-        ignoreNatures["AsymmetricMeterNature"] = true;
-      }
-
-      // Meter
-      if (this.isInArray(a, "AsymmetricMeterNature") && !ignoreNatures["AsymmetricMeterNature"]) {
-        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
-      } else if (this.isInArray(a, "SymmetricMeterNature")) {
-        channels.push("ActivePower", "ReactivePower");
-      }
-
-      result[thing] = channels;
     }
     return result;
   }
@@ -182,7 +139,7 @@ export class Device {
    * Subscribe to important channels
    */
   public subscribeImportantChannels() {
-    let channels = this.getImportantChannels();
+    let channels = this.config.getValue().getImportantChannels();
     this.subscribeChannels(channels);
   }
 
