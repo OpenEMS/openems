@@ -97,6 +97,8 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 				try {
 					if (energy > capacity.value()) {
 						energy = capacity.value();
+					} else if (energy < 0) {
+						energy = 0;
 					}
 					return (long) (energy / capacity.value() * 100.0);
 				} catch (InvalidValueException e) {
