@@ -1,4 +1,5 @@
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
+import { MdSnackBar } from '@angular/material';
 
 import { environment } from '../environments';
 
@@ -22,6 +23,13 @@ import { AppComponent } from './app.component';
   ],
   bootstrap: [
     AppComponent
+  ],
+  providers: [
+    MdSnackBar,
+    {
+      provide: ErrorHandler,
+      useExisting: WebappService
+    }
   ]
 })
 export class AppModule { }

@@ -22,7 +22,7 @@
           </md-card-content>
           <ng-container *ngIf="websocket.backend == 'openems'">
             <md-card-actions fxLayout fxLayoutAlign="end start">
-              <button type="submit" md-fab *ngIf="!websocket.isConnected" (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>
+              <button type="button" md-fab *ngIf="!websocket.isConnected" (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>
               <button type="button" md-fab *ngIf="websocket.isConnected" (click)="doLogout(form)" color="accent"><md-icon>close</md-icon></button>
             </md-card-actions>
           </ng-container>
