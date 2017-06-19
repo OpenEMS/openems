@@ -51,6 +51,7 @@ export class WebappService implements ErrorHandler {
    * Handles an application error
    */
   public handleError(error: any) {
+    console.error(error);
     let notification: Notification = {
       type: "error",
       message: error
