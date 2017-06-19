@@ -6,18 +6,19 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RouterModule } from '@angular/router';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
+import { MdSnackBar } from '@angular/material';
 import 'hammerjs';
 
 import { MyMaterialModule } from './material.module';
 
 import { routing, appRoutingProviders } from './../app.routing';
-import { Device } from './device';
 
 /*
  * Services
  */
 import { WebappService, Notification } from './service/webapp.service';
 import { WebsocketService, Websocket } from './service/websocket.service';
+import { TemplateHelper } from './service/templatehelper';
 
 /*
  * Pipes
@@ -73,6 +74,13 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     ReactiveFormsModule,
     // components
     SocChartComponent
+  ],
+  providers: [
+    TemplateHelper,
+    WebappService,
+    WebsocketService,
+    appRoutingProviders,
+    MdSnackBar
   ]
 })
 export class SharedModule { }

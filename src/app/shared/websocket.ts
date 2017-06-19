@@ -12,7 +12,7 @@ import websocketConnect from 'rxjs-websockets';
 import 'rxjs/add/operator/retryWhen';
 import 'rxjs/add/operator/delay';
 
-import { Device } from './device';
+import { Device } from './device/device';
 import { WebappService, Notification } from './service/webapp.service';
 
 export class Websocket {
@@ -103,11 +103,13 @@ export class Websocket {
       retryCounter++;
     }).delay(1000)).subscribe(message => {
       retryCounter = 0;
+
       // Receive authentication token
       if ("authenticate" in message && "mode" in message.authenticate) {
         let mode = message.authenticate.mode;
+
         if (mode === "allow") {
-          // this.inputStream = new QueueingSubject<any>();
+          // authentication successful
           this.isConnected = true;
           if ("token" in message.authenticate) {
             this.webappService.setToken(this.name, message.authenticate.token);
@@ -118,8 +120,9 @@ export class Websocket {
           } else {
             this.event.next({ type: "success", message: "Angemeldet." });
           }
+
         } else {
-          // close websocket
+          // authentication denied -> close websocket
           if (this.backend == "femsserver") {
             this.router.navigateByUrl("/web/login?redirect=/m/overview");
           }

@@ -1,7 +1,7 @@
 import { Injectable, ErrorHandler } from '@angular/core';
 
 import { WebsocketService } from './websocket.service';
-import { Device } from '../device';
+import { Device } from '../shared';
 
 import { Subject } from 'rxjs/Subject';
 
@@ -48,27 +48,8 @@ export class WebappService implements ErrorHandler {
   }
 
   /**
-   * Helps to use an object inside an *ngFor loop. Returns the object keys.
-   * Source: https://stackoverflow.com/a/39896058
+   * Handles an application error
    */
-  keys(object: {}) {
-    return Object.keys(object);
-  }
-
-  /**
-   * Helps to use an object inside an *ngFor loop. Returns the object key value pairs.
-   */
-  keyvalues(object: {}) {
-    if (!object) {
-      return object;
-    }
-    let keyvalues = [];
-    for (let key in object) {
-      keyvalues.push({ key: key, value: object[key] });
-    }
-    return keyvalues;
-  }
-
   public handleError(error: any) {
     let notification: Notification = {
       type: "error",

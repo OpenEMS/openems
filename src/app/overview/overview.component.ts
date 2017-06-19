@@ -7,7 +7,7 @@ import { Subject } from 'rxjs/Subject';
 
 import { environment } from '../../environments';
 
-import { WebappService, WebsocketService, Websocket, Notification } from '../shared/shared';
+import { WebappService, WebsocketService, Websocket, Notification, TemplateHelper } from '../shared/shared';
 
 @Component({
   selector: 'overview',
@@ -21,9 +21,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   constructor(
     private websocketService: WebsocketService,
+    private webappService: WebappService,
+    private tmpl: TemplateHelper,
     private router: Router,
-    private formBuilder: FormBuilder,
-    private webapp: WebappService) {
+    private formBuilder: FormBuilder) {
   }
 
   ngOnInit() {
@@ -73,7 +74,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
       }
     }
     if (allConnected) {
-      this.webapp.notify({
+      this.webappService.notify({
         type: "success",
         message: "Alle Verbindungen hergestellt."
       });

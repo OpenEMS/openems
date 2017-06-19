@@ -3,7 +3,7 @@ import { Subject } from 'rxjs/Subject';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import * as moment from 'moment';
 
-import { Dataset, EMPTY_DATASET, Device, Config, QueryReply } from './../../../../shared/shared';
+import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, ChannelAddresses } from './../../../../shared/shared';
 
 @Component({
   selector: 'socchart',
@@ -12,7 +12,7 @@ import { Dataset, EMPTY_DATASET, Device, Config, QueryReply } from './../../../.
 export class SocChartComponent implements OnChanges {
 
   @Input() private device: Device;
-  @Input() private essDevices: string[];
+  @Input() private socChannels: ChannelAddresses;
   @Input() private fromDate: moment.Moment;
   @Input() private toDate: moment.Moment;
 
@@ -60,28 +60,27 @@ export class SocChartComponent implements OnChanges {
     if (this.queryreplySubject != null) {
       this.queryreplySubject.complete();
     }
-    // create channels for query
-    let channels = {};
-    this.essDevices.forEach(device => channels[device] = ['Soc']);
     // execute query
-    let queryreplySubject = this.device.query(this.fromDate, this.toDate, channels);
+    let queryreplySubject = this.device.query(this.fromDate, this.toDate, this.socChannels);
     queryreplySubject.subscribe(queryreply => {
       // prepare datas array and prefill with each device
       let tmpData: {
         [thing: string]: number[];
       } = {};
       let labels: moment.Moment[] = [];
-      this.essDevices.forEach(device => tmpData[device] = []);
+      for (let thing in this.socChannels) {
+        tmpData[thing] = [];
+      }
       for (let reply of queryreply.data) {
         // read timestamp and soc of each device' reply
         labels.push(moment(reply.time));
-        this.essDevices.forEach(device => {
+        for (let thing in this.socChannels) {
           let soc = 0;
-          if (device in reply.channels && "Soc" in reply.channels[device] && reply.channels[device]["Soc"]) {
-            soc = Math.round(reply.channels[device].Soc);
+          if (thing in reply.channels && "Soc" in reply.channels[thing] && reply.channels[thing]["Soc"]) {
+            soc = Math.round(reply.channels[thing].Soc);
           }
-          tmpData[device].push(soc);
-        });
+          tmpData[thing].push(soc);
+        }
       }
       // refresh global datasets and labels
       let datasets = [];

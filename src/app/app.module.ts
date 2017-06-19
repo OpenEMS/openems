@@ -2,7 +2,6 @@ import { NgModule, ErrorHandler } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
 
 import { environment } from '../environments';
-import { appRoutingProviders } from './app.routing';
 
 import { SharedModule } from './shared/shared.module';
 import { WebappService, WebsocketService } from './shared/shared';
@@ -26,10 +25,7 @@ import { AppComponent } from './app.component';
     AppComponent
   ],
   providers: [
-    appRoutingProviders,
     MdSnackBar,
-    WebappService,
-    WebsocketService,
     {
       provide: ErrorHandler,
       useExisting: WebappService

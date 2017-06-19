@@ -6,7 +6,7 @@ import * as d3 from 'd3';
 import * as d3shape from 'd3-shape';
 import * as moment from 'moment';
 
-import { WebsocketService, Device } from '../../shared/shared';
+import { WebsocketService, Device, ChannelAddresses } from '../../shared/shared';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherTimespan";
 
@@ -17,7 +17,7 @@ type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear
 export class HistoryComponent implements OnInit {
 
   public device: Device = null;
-  public essDevices: string[] = [];
+  public socChannels: ChannelAddresses = {};
   public fromDate = moment();
   public toDate = moment();
   public activePeriodText: string = "";
@@ -36,15 +36,7 @@ export class HistoryComponent implements OnInit {
       this.device = device;
       if (device != null) {
         device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-          // get all configured ESS devices
-          let essDevices: string[] = [];
-          let natures = config._meta.natures;
-          for (let nature in natures) {
-            if (natures[nature].implements.includes("EssNature")) {
-              essDevices.push(nature);
-            }
-          }
-          this.essDevices = essDevices;
+          this.socChannels = config.getEssSocChannels();
         });
       }
     })
@@ -52,7 +44,7 @@ export class HistoryComponent implements OnInit {
 
   ngOnDestroy() {
     if (this.device) {
-      this.device.unsubscribeChannels();
+      this.device.unsubscribeCurrentData();
     }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();

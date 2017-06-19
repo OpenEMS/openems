@@ -6,7 +6,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { environment } from '../../../environments';
 import { Websocket } from '../websocket';
 import { WebappService, Notification } from './webapp.service';
-import { Device } from '../device';
+import { Device } from '../device/device';
 
 export { Websocket };
 
@@ -82,6 +82,9 @@ export class WebsocketService {
     return this.currentDevice;
   }
 
+  /**
+   * Clears the current device
+   */
   public clearCurrentDevice() {
     this.currentDevice.next(null);
   }

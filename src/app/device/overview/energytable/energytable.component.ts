@@ -1,6 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs/Subject';
 
-import { Device } from '../../../shared/shared';
+
+import { Device, Data, Config, TemplateHelper } from '../../../shared/shared';
 
 @Component({
   selector: 'energytable',
@@ -9,5 +11,10 @@ import { Device } from '../../../shared/shared';
 export class EnergytableComponent {
 
   @Input()
-  public device: Device;
+  private currentData: Data;
+
+  @Input()
+  public config: Config;
+
+  constructor(public tmpl: TemplateHelper) { }
 }

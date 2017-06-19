@@ -50,7 +50,7 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
     this.device.takeUntil(this.ngUnsubscribe).subscribe(device => {
       // subscribed to device
       if (device != null) {
-        device.subscribeChannels({
+        device.subscribeCurrentData({
           meter0: [
             "ActivePower", "minActivePower"
           ],
@@ -79,8 +79,7 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
           ess3: [
             "Soc", "SystemState"
           ]
-        });
-        device.data.subscribe(data => {
+        }).takeUntil(this.ngUnsubscribe).subscribe(data => {
           // subscribed to data
           if (data != null) {
             for (let thing in data) {
@@ -113,7 +112,7 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
   ngOnDestroy() {
     let device = this.device.getValue();
     if (device != null) {
-      device.unsubscribeChannels();
+      device.unsubscribeCurrentData();
     }
     super.ngOnDestroy();
   }

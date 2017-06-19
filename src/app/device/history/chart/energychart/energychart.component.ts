@@ -59,10 +59,9 @@ export class EnergyChartComponent implements OnChanges {
     if (this.queryreplySubject != null) {
       this.queryreplySubject.complete();
     }
-    // create channels for query
-    let channels = {};
+    // create channels for query    
+    let channels = this.device.config.getValue().getPowerChannels();
     channels = { ess0: ["ActivePower"] };
-    // this.essDevices.forEach(device => channels[device] = ['Soc']);
     // execute query
     let queryreplySubject = this.device.query(this.fromDate, this.toDate, channels);
     queryreplySubject.subscribe(queryreply => {
