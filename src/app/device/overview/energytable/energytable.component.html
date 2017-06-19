@@ -155,6 +155,14 @@
       </md-card-header>
       <md-card-content *ngIf="currentData.data[thing] as data">
         <table class="full_width">
+          <ng-container *ngIf="data.ActualPower != null">
+            <tr>
+              <td style="width:50%" i18n>Erzeugung</td>
+              <td style="width:15%"></td>
+              <td style="width:25%" class="align_right">{{ data.ActualPower }}</td>
+              <td style="width:10%">W</td>
+            </tr>
+          </ng-container>
           <ng-container *ngIf="data.ActivePower != null && data.ReactivePower != null">
             <tr>
               <td style="width:50%" i18n>Erzeugung</td>
