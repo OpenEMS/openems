@@ -3,7 +3,7 @@ import { Subject } from 'rxjs/Subject';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import * as moment from 'moment';
 
-import { Dataset, EMPTY_DATASET, Device, Config, QueryReply } from './../../../../shared/shared';
+import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, Summary } from './../../../../shared/shared';
 
 @Component({
   selector: 'energychart',
@@ -24,8 +24,14 @@ export class EnergyChartComponent implements OnChanges {
   private queryreplySubject: Subject<QueryReply>;
 
   private colors = [{
-    backgroundColor: 'rgba(0,152,70,0.2)',
-    borderColor: 'rgba(0,152,70,1)',
+    backgroundColor: 'rgba(37,154,24,0.2)',
+    borderColor: 'rgba(37,154,24,1)',
+  }, {
+    backgroundColor: 'rgba(221,223,1,0.2)',
+    borderColor: 'rgba(221,223,1,1)',
+  }, {
+    backgroundColor: 'rgba(45,143,171,0.2)',
+    borderColor: 'rgba(45,143,171,1)',
   }];
 
   private options: {} = {
@@ -43,8 +49,7 @@ export class EnergyChartComponent implements OnChanges {
     scales: {
       yAxes: [{
         ticks: {
-          beginAtZero: true,
-          max: 100
+          beginAtZero: true
         }
       }],
       xAxes: [{
@@ -59,46 +64,43 @@ export class EnergyChartComponent implements OnChanges {
     if (this.queryreplySubject != null) {
       this.queryreplySubject.complete();
     }
-    // create channels for query    
+    // create channels for query
     let channels = this.device.config.getValue().getPowerChannels();
-    channels = { ess0: ["ActivePower"] };
     // execute query
     let queryreplySubject = this.device.query(this.fromDate, this.toDate, channels);
     queryreplySubject.subscribe(queryreply => {
-      // prepare datas array and prefill with each device
-      let tmpData: {
-        [thing: string]: number[];
-      } = {};
+      // prepare datasets and labels
+      let activePowers = {
+        production: [],
+        grid: [],
+        consumption: []
+      }
       let labels: moment.Moment[] = [];
-      console.log(queryreply);
-      // this.essDevices.forEach(device => tmpData[device] = []);
-      // for (let reply of queryreply.data) {
-      //   // read timestamp and soc of each device' reply
-      //   labels.push(moment(reply.time));
-      //   this.essDevices.forEach(device => {
-      //     let soc = 0;
-      //     if (device in reply.channels && "Soc" in reply.channels[device] && reply.channels[device]["Soc"]) {
-      //       soc = Math.round(reply.channels[device].Soc);
-      //     }
-      //     tmpData[device].push(soc);
-      //   });
-      // }
-      // // refresh global datasets and labels
-      // let datasets = [];
-      // for (let device in tmpData) {
-      //   datasets.push({
-      //     label: "Ladezustand (" + device + ")",
-      //     data: tmpData[device]
-      //   });
-      // }
-      // this.datasets = datasets;
-      // this.labels = labels;
-      // setTimeout(() => {
-      //   // Workaround, because otherwise chart data and labels are not refreshed...
-      //   if (this.chart) {
-      //     this.chart.ngOnChanges({} as SimpleChanges);
-      //   }
-      // }, 0);
+      for (let reply of queryreply.data) {
+        labels.push(moment(reply.time));
+        let data = new Summary(this.device.config.getValue(), reply.channels);
+        activePowers.grid.push(data.grid.activePower);
+        activePowers.production.push(data.production.activePower);
+        activePowers.consumption.push(data.consumption.activePower);
+      }
+      this.datasets = [{
+        label: "Erzeugung",
+        data: activePowers.production
+      }, {
+        label: "Netz",
+        data: activePowers.grid
+      }, {
+        label: "Verbrauch",
+        data: activePowers.consumption
+      }];
+      this.labels = labels;
+      setTimeout(() => {
+        // Workaround, because otherwise chart data and labels are not refreshed...
+        if (this.chart) {
+          this.chart.ngOnChanges({} as SimpleChanges);
+        }
+      });
+
     }, error => {
       this.datasets = EMPTY_DATASET;
       this.labels = [];

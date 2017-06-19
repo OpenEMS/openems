@@ -23,7 +23,6 @@ export class HistoryComponent implements OnInit {
   public activePeriodText: string = "";
 
   private activePeriod: PeriodString = "today";
-
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(

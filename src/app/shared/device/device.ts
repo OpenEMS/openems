@@ -22,11 +22,7 @@ export class QueryReply {
   requestId: string;
   data: [{
     time: string
-    channels: {
-      [thing: string]: {
-        [channel: string]: number
-      }
-    }
+    channels: ChannelData
   }]
 }
 
