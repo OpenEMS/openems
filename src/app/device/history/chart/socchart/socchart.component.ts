@@ -6,16 +6,17 @@ import * as moment from 'moment';
 import { Dataset, EMPTY_DATASET, Device, Config, QueryReply } from './../../../../shared/shared';
 
 @Component({
-  selector: 'energychart',
-  templateUrl: './energychart.component.html'
+  selector: 'socchart',
+  templateUrl: './socchart.component.html'
 })
-export class EnergyChartComponent implements OnChanges {
+export class SocChartComponent implements OnChanges {
 
   @Input() private device: Device;
+  @Input() private essDevices: string[];
   @Input() private fromDate: moment.Moment;
   @Input() private toDate: moment.Moment;
 
-  @ViewChild('energyChart') private chart: BaseChartDirective;
+  @ViewChild('socChart') private chart: BaseChartDirective;
 
   public labels: moment.Moment[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
@@ -61,8 +62,7 @@ export class EnergyChartComponent implements OnChanges {
     }
     // create channels for query
     let channels = {};
-    channels = { ess0: ["ActivePower"] };
-    // this.essDevices.forEach(device => channels[device] = ['Soc']);
+    this.essDevices.forEach(device => channels[device] = ['Soc']);
     // execute query
     let queryreplySubject = this.device.query(this.fromDate, this.toDate, channels);
     queryreplySubject.subscribe(queryreply => {
@@ -71,35 +71,34 @@ export class EnergyChartComponent implements OnChanges {
         [thing: string]: number[];
       } = {};
       let labels: moment.Moment[] = [];
-      console.log(queryreply);
-      // this.essDevices.forEach(device => tmpData[device] = []);
-      // for (let reply of queryreply.data) {
-      //   // read timestamp and soc of each device' reply
-      //   labels.push(moment(reply.time));
-      //   this.essDevices.forEach(device => {
-      //     let soc = 0;
-      //     if (device in reply.channels && "Soc" in reply.channels[device] && reply.channels[device]["Soc"]) {
-      //       soc = Math.round(reply.channels[device].Soc);
-      //     }
-      //     tmpData[device].push(soc);
-      //   });
-      // }
-      // // refresh global datasets and labels
-      // let datasets = [];
-      // for (let device in tmpData) {
-      //   datasets.push({
-      //     label: "Ladezustand (" + device + ")",
-      //     data: tmpData[device]
-      //   });
-      // }
-      // this.datasets = datasets;
-      // this.labels = labels;
-      // setTimeout(() => {
-      //   // Workaround, because otherwise chart data and labels are not refreshed...
-      //   if (this.chart) {
-      //     this.chart.ngOnChanges({} as SimpleChanges);
-      //   }
-      // }, 0);
+      this.essDevices.forEach(device => tmpData[device] = []);
+      for (let reply of queryreply.data) {
+        // read timestamp and soc of each device' reply
+        labels.push(moment(reply.time));
+        this.essDevices.forEach(device => {
+          let soc = 0;
+          if (device in reply.channels && "Soc" in reply.channels[device] && reply.channels[device]["Soc"]) {
+            soc = Math.round(reply.channels[device].Soc);
+          }
+          tmpData[device].push(soc);
+        });
+      }
+      // refresh global datasets and labels
+      let datasets = [];
+      for (let device in tmpData) {
+        datasets.push({
+          label: "Ladezustand (" + device + ")",
+          data: tmpData[device]
+        });
+      }
+      this.datasets = datasets;
+      this.labels = labels;
+      setTimeout(() => {
+        // Workaround, because otherwise chart data and labels are not refreshed...
+        if (this.chart) {
+          this.chart.ngOnChanges({} as SimpleChanges);
+        }
+      }, 0);
     }, error => {
       this.datasets = EMPTY_DATASET;
       this.labels = [];

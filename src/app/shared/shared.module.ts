@@ -28,10 +28,10 @@ import { SignPipe } from './pipe/sign/sign.pipe';
 import { IsclassPipe } from './pipe/isclass/isclass.pipe';
 import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
 
-/**
- * Chart
+/*
+ * Components
  */
-import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.component';
+import { SocChartComponent } from './../device/history/chart/socchart/socchart.component';
 
 @NgModule({
   imports: [
@@ -53,7 +53,7 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     IsclassPipe,
     HasclassPipe,
     // components
-    ChartSocComponent
+    SocChartComponent
   ],
   exports: [
     // pipes
@@ -64,6 +64,7 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     HasclassPipe,
     // modules
     BrowserAnimationsModule,
+    ChartsModule,
     FormsModule,
     MyMaterialModule,
     FlexLayoutModule,
@@ -71,7 +72,7 @@ import { ChartSocComponent } from '../device/history/chart/chartsoc/chartsoc.com
     RouterModule,
     ReactiveFormsModule,
     // components
-    ChartSocComponent
+    SocChartComponent
   ]
 })
 export class SharedModule { }

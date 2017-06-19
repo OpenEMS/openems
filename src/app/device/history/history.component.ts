@@ -1,11 +1,14 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
+import { Subject } from 'rxjs/Subject';
 import * as d3 from 'd3';
 import * as d3shape from 'd3-shape';
 import * as moment from 'moment';
 
 import { WebsocketService, Device } from '../../shared/shared';
+
+type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherTimespan";
 
 @Component({
   selector: 'history',
@@ -13,123 +16,180 @@ import { WebsocketService, Device } from '../../shared/shared';
 })
 export class HistoryComponent implements OnInit {
 
-  public device: Device;
+  public device: Device = null;
+  public essDevices: string[] = [];
+  public fromDate = moment();
+  public toDate = moment();
+  public activePeriodText: string = "";
 
-  private deviceSubscription: Subscription;
-  private activePeriod: string = null;
-  private dataSoc = [];
-  private dataEnergy = [];
-  private datakWh = [];
-  private dateToday: Date = new Date();
-  private timespanText: string;
+  private activePeriod: PeriodString = "today";
+
+  private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
-    private route: ActivatedRoute,
-    private websocketService: WebsocketService,
-    private elRef: ElementRef
+    public websocketService: WebsocketService,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
-    this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
+    this.websocketService.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
       this.device = device;
       if (device != null) {
-        // start with loading "today"
-        if (this.activePeriod == null) {
-          this.setPeriod("today");
-        }
-        // device.historykWh.subscribe((newkWh) => {
-        //   if (newkWh != null) {
-        //     let kWhGridBuy = {
-        //       name: "",
-        //       value: 0
-        //     }
-        //     let kWhGridSell = {
-        //       name: "",
-        //       value: 0
-        //     }
-        //     let kWhProduction = {
-        //       name: "Erzeugung",
-        //       value: 0
-        //     }
-        //     let kWhStorageCharge = {
-        //       name: "",
-        //       value: 0
-        //     }
-        //     let kWhStorageDischarge = {
-        //       name: "",
-        //       value: 0
-        //     }
-        //     for (let type in newkWh) {
-        //       if (newkWh[type].type == "production") {
-        //         let production = newkWh[type].value != null ? newkWh[type].value : 0;
-        //         kWhProduction.value = Math.round(production);
-        //       } else if (newkWh[type].type == "grid") {
-        //         let gridBuy = newkWh[type].buy != null ? newkWh[type].buy : 0;
-        //         kWhGridBuy.name = "Netzbezug";
-        //         kWhGridBuy.value = Math.round(gridBuy);
-        //         let gridSell = newkWh[type].sell != null ? newkWh[type].sell : 0;
-        //         kWhGridSell.name = "Netzeinspeiung";
-        //         kWhGridSell.value = Math.round((gridSell * (-1)));
-        //       } else {
-        //         let storageCharge = newkWh[type].charge != null ? newkWh[type].charge : 0;
-        //         kWhStorageCharge.name = "Batteriebeladung";
-        //         kWhStorageCharge.value = Math.round((storageCharge * (-1)));
-        //         let storageDischarge = newkWh[type].discharge != null ? newkWh[type].discharge : 0;
-        //         kWhStorageDischarge.name = "Batterieentladung";
-        //         kWhStorageDischarge.value = Math.round(storageDischarge);
-        //       }
-        //     }
-        //     this.datakWh = [kWhProduction, kWhGridBuy, kWhGridSell, kWhStorageCharge, kWhStorageDischarge];
-        //   }
-        // })
-        // device.historyData.subscribe((newData) => {
-        //   if (newData != null) {
-        //     let dataSoc = {
-        //       name: "Ladezustand",
-        //       series: []
-        //     }
-        //     let dataEnergy = {
-        //       name: "Erzeugung",
-        //       series: []
-        //     }
-        //     let dataConsumption = {
-        //       name: "Verbrauch",
-        //       series: []
-        //     }
-        //     let dataToGrid = {
-        //       name: "Netzeinspeisung",
-        //       series: []
-        //     }
-        //     let dataFromGrid = {
-        //       name: "Netzbezug",
-        //       series: []
-        //     }
-        //     for (let newDatum of newData) {
-        //       let timestamp = moment(newDatum["time"]);
-        //       let soc = newDatum.summary.storage.soc != null ? newDatum.summary.storage.soc : 0;
-        //       dataSoc.series.push({ name: timestamp, value: soc });
-        //       let production = newDatum.summary.production.activePower != null ? newDatum.summary.production.activePower : 0;
-        //       dataEnergy.series.push({ name: timestamp, value: production });
-        //       let consumption = newDatum.summary.consumption.activePower != null ? newDatum.summary.consumption.activePower : 0;
-        //       dataConsumption.series.push({ name: timestamp, value: consumption });
-        //       let grid = newDatum.summary.grid.activePower != null ? newDatum.summary.grid.activePower : 0;
-        //       if (newDatum.summary.grid.activePower < 0) {
-        //         dataToGrid.series.push({ name: timestamp, value: (grid * (-1)) });
-        //       } else {
-        //         dataFromGrid.series.push({ name: timestamp, value: grid });
-        //       }
-        //     }
-        //     this.dataSoc = [dataSoc];
-        //     this.dataEnergy = [dataEnergy, dataConsumption, dataToGrid, dataFromGrid];
-        //   }
-        // })
+        device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
+          // get all configured ESS devices
+          let essDevices: string[] = [];
+          let natures = config._meta.natures;
+          for (let nature in natures) {
+            if (natures[nature].implements.includes("EssNature")) {
+              essDevices.push(nature);
+            }
+          }
+          this.essDevices = essDevices;
+        });
       }
     })
   }
 
-  colorScheme = {
-    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
-  };
+  ngOnDestroy() {
+    if (this.device) {
+      this.device.unsubscribeChannels();
+    }
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
+
+  /**
+   * This is called by the input button on the UI.
+   * @param period
+   * @param from
+   * @param to
+   */
+  private setPeriod(period: PeriodString, from?: any, to?: any) {
+    this.activePeriod = period;
+    switch (period) {
+      case "yesterday":
+        this.fromDate = this.toDate = moment().subtract(1, "days");
+        this.activePeriodText = "Gestern, " + this.fromDate.format("DD.MM.YYYY");
+        break;
+      case "lastWeek":
+        this.fromDate = moment().subtract(1, "weeks");
+        this.toDate = moment();
+        this.activePeriodText = "Letzte Woche, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+        break;
+      case "lastMonth":
+        this.fromDate = moment().subtract(1, "months");
+        this.toDate = moment();
+        this.activePeriodText = "Letzter Monat, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+        break;
+      case "lastYear":
+        this.fromDate = moment().subtract(1, "years");
+        this.toDate = moment();
+        this.activePeriodText = "Letztes Jahr, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+        break;
+      case "otherTimespan":
+        this.fromDate = moment(from);
+        this.toDate = moment(to);
+        this.activePeriodText = "Zeitraum, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+        break;
+      case "today":
+      default:
+        this.fromDate = this.toDate = moment();
+        this.activePeriodText = "Heute, " + this.fromDate.format("DD.MM.YYYY");
+        break;
+    }
+  }
+
+
+  // start with loading "today"
+  // if (this.activePeriod == null) {
+  //   this.setPeriod("today");
+  // }
+  // device.historykWh.subscribe((newkWh) => {
+  //   if (newkWh != null) {
+  //     let kWhGridBuy = {
+  //       name: "",
+  //       value: 0
+  //     }
+  //     let kWhGridSell = {
+  //       name: "",
+  //       value: 0
+  //     }
+  //     let kWhProduction = {
+  //       name: "Erzeugung",
+  //       value: 0
+  //     }
+  //     let kWhStorageCharge = {
+  //       name: "",
+  //       value: 0
+  //     }
+  //     let kWhStorageDischarge = {
+  //       name: "",
+  //       value: 0
+  //     }
+  //     for (let type in newkWh) {
+  //       if (newkWh[type].type == "production") {
+  //         let production = newkWh[type].value != null ? newkWh[type].value : 0;
+  //         kWhProduction.value = Math.round(production);
+  //       } else if (newkWh[type].type == "grid") {
+  //         let gridBuy = newkWh[type].buy != null ? newkWh[type].buy : 0;
+  //         kWhGridBuy.name = "Netzbezug";
+  //         kWhGridBuy.value = Math.round(gridBuy);
+  //         let gridSell = newkWh[type].sell != null ? newkWh[type].sell : 0;
+  //         kWhGridSell.name = "Netzeinspeiung";
+  //         kWhGridSell.value = Math.round((gridSell * (-1)));
+  //       } else {
+  //         let storageCharge = newkWh[type].charge != null ? newkWh[type].charge : 0;
+  //         kWhStorageCharge.name = "Batteriebeladung";
+  //         kWhStorageCharge.value = Math.round((storageCharge * (-1)));
+  //         let storageDischarge = newkWh[type].discharge != null ? newkWh[type].discharge : 0;
+  //         kWhStorageDischarge.name = "Batterieentladung";
+  //         kWhStorageDischarge.value = Math.round(storageDischarge);
+  //       }
+  //     }
+  //     this.datakWh = [kWhProduction, kWhGridBuy, kWhGridSell, kWhStorageCharge, kWhStorageDischarge];
+  //   }
+  // })
+  // device.historyData.subscribe((newData) => {
+  //   if (newData != null) {
+  //     let dataSoc = {
+  //       name: "Ladezustand",
+  //       series: []
+  //     }
+  //     let dataEnergy = {
+  //       name: "Erzeugung",
+  //       series: []
+  //     }
+  //     let dataConsumption = {
+  //       name: "Verbrauch",
+  //       series: []
+  //     }
+  //     let dataToGrid = {
+  //       name: "Netzeinspeisung",
+  //       series: []
+  //     }
+  //     let dataFromGrid = {
+  //       name: "Netzbezug",
+  //       series: []
+  //     }
+  //     for (let newDatum of newData) {
+  //       let timestamp = moment(newDatum["time"]);
+  //       let soc = newDatum.summary.storage.soc != null ? newDatum.summary.storage.soc : 0;
+  //       dataSoc.series.push({ name: timestamp, value: soc });
+  //       let production = newDatum.summary.production.activePower != null ? newDatum.summary.production.activePower : 0;
+  //       dataEnergy.series.push({ name: timestamp, value: production });
+  //       let consumption = newDatum.summary.consumption.activePower != null ? newDatum.summary.consumption.activePower : 0;
+  //       dataConsumption.series.push({ name: timestamp, value: consumption });
+  //       let grid = newDatum.summary.grid.activePower != null ? newDatum.summary.grid.activePower : 0;
+  //       if (newDatum.summary.grid.activePower < 0) {
+  //         dataToGrid.series.push({ name: timestamp, value: (grid * (-1)) });
+  //       } else {
+  //         dataFromGrid.series.push({ name: timestamp, value: grid });
+  //       }
+  //     }
+  //     this.dataSoc = [dataSoc];
+  //     this.dataEnergy = [dataEnergy, dataConsumption, dataToGrid, dataFromGrid];
+  //   }
+  // })
 
   /**
    * later: needed data for energychart.component.ts
@@ -186,57 +246,15 @@ export class HistoryComponent implements OnInit {
   //   }
   // ];
 
-  private setOtherTimespan() {
-    this.activePeriod = "otherTimespan";
-  }
+  // private setOtherTimespan() {
+  //   this.activePeriod = "otherTimespan";
+  // }
 
-  private setTimespan(from: any, to: any) {
-    if (from != "" || to != "") {
-      this.setPeriod('otherTimespan', from, to);
-    }
-  }
+  // private setTimespan(from: any, to: any) {
+  //   if (from != "" || to != "") {
+  //     this.setPeriod('otherTimespan', from, to);
+  //   }
+  // }
 
-  private setPeriod(period: string, from?: any, to?: any) {
-    if (!this.device) {
-      period = null;
-    }
-    this.activePeriod = period;
-    this.dataEnergy = this.dataSoc = [];
-    let fromDate;
-    let toDate;
-    switch (period) {
-      case "today":
-        fromDate = toDate = moment();
-        this.timespanText = "Heute, " + fromDate.format("DD.MM.YYYY");
-        break;
-      case "yesterday":
-        fromDate = toDate = moment().subtract(1, "days");
-        this.timespanText = "Gestern, " + fromDate.format("DD.MM.YYYY");
-        break;
-      case "lastWeek":
-        fromDate = moment().subtract(1, "weeks");
-        toDate = moment();
-        this.timespanText = "Letzte Woche, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
-        break;
-      case "lastMonth":
-        fromDate = moment().subtract(1, "months");
-        toDate = moment();
-        this.timespanText = "Letzter Monat, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
-        break;
-      case "lastYear":
-        fromDate = moment().subtract(1, "years");
-        toDate = moment();
-        this.timespanText = "Letztes Jahr, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
-        break;
-      case "otherTimespan":
-        fromDate = moment(from);
-        toDate = moment(to);
-        this.timespanText = "Zeitraum, " + fromDate.format("DD.MM.YYYY") + " bis " + toDate.format("DD.MM.YYYY");
-        break;
-      default:
-        this.activePeriod = null;
-        return;
-    }
-    this.device.query(fromDate, toDate, { 'ess0': ['ActivePower'] });
-  }
+
 }

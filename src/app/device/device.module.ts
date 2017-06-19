@@ -10,8 +10,6 @@ import { OverviewModule } from './overview/overview.module';
     ConfigModule,
     OverviewModule,
     HistoryModule
-  ],
-  declarations: [
   ]
 })
 export class DeviceModule { }
