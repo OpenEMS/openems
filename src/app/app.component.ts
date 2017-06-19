@@ -10,8 +10,7 @@ import { WebappService, WebsocketService, Device, Notification } from './shared/
 
 @Component({
   selector: 'root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit, OnDestroy {
   public environment = environment;

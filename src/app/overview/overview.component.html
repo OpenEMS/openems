@@ -32,7 +32,7 @@
       <!-- List of devices -->
       <ng-container *ngFor="let dev of tmpl.keyvalues(websocket.devices)">
         <ng-container *ngIf="dev.value.state != 'inactive'">
-          <md-card class="single" routerLink="/device/{{ websocket.name }}/{{ dev.key }}">
+          <md-card class="single" routerLink="/device/{{ websocket.name }}/{{ dev.key }}" style="cursor: pointer">
             <md-card-header>
               <md-icon *ngIf="dev.value.online" md-card-avatar color="primary">folder</md-icon>
               <md-icon *ngIf="!dev.value.online" md-card-avatar>error</md-icon>
