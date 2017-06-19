@@ -61,11 +61,23 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
             "ActivePower", "Soc"
           ],
           output0: [
-            "1", "2", "3", "4", "5", "6", "7", "8"
+            "DO1", "DO2", "DO3", "DO4", "DO5", "DO6", "DO7", "DO8"
           ],
           sps0: [
             "PivotOn", "Borehole1On", "Borehole2On", "Borehole3On", "Clima1On", "Clima2On", "OfficeOn", "TraineeCenterOn", "SignalBus1On", "SignalBus2On", "SignalOnGrid", "SignalWatchdog",
             "WaterLevelBorehole1On", "WaterLevelBorehole1Off", "WaterLevelBorehole2On", "WaterLevelBorehole2Off", "WaterLevelBorehole3On", "WaterLevelBorehole3Off"
+          ],
+          ess0: [
+            "Soc", "SystemState"
+          ],
+          ess1: [
+            "Soc", "SystemState"
+          ],
+          ess2: [
+            "Soc", "SystemState"
+          ],
+          ess3: [
+            "Soc", "SystemState"
           ]
         });
         device.data.subscribe(data => {
@@ -73,7 +85,7 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
           if (data != null) {
             for (let thing in data) {
               if (!this.data[thing]) {
-                this.data[thing] = {};
+                this.data[thing] = [];
               }
               for (let channel in data[thing]) {
                 let newData = { name: moment(), value: <number>data[thing][channel] };
