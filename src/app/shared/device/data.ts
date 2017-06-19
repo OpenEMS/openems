@@ -26,13 +26,20 @@ export class Summary {
      */
     constructor(config: Config, data: ChannelData) {
         function getActivePower(o: any): number {
+            let activePower = 0;
             if ("ActivePowerL1" in o && o.ActivePowerL1 != null && "ActivePowerL2" in o && o.ActivePowerL2 != null && "ActivePowerL3" in o && o.ActivePowerL3 != null) {
-                return o.ActivePowerL1 + o.ActivePowerL2 + o.ActivePowerL3;
+                activePower = o.ActivePowerL1 + o.ActivePowerL2 + o.ActivePowerL3;
             } else if ("ActivePower" in o && o.ActivePower != null) {
-                return o.ActivePower;
+                activePower = o.ActivePower;
             } else {
-                return 0;
+                activePower = 0;
             }
+
+            if ("ActualPower" in o && o.ActualPower != null) {
+                activePower += o.ActualPower;
+            }
+
+            return activePower;
         }
 
         {
@@ -96,16 +103,29 @@ export class Summary {
                     let thingChannels = config._meta.natures[thing].channels;
                     let meter = data[thing];
                     let power = getActivePower(meter);
+                    activePower += power;
                     if (thingChannels["maxActivePower"]) {
-                        powerRatio = (power * 100.) / thingChannels["maxActivePower"]["value"]
-                        activePower += power;
                         maxActivePower += thingChannels["maxActivePower"]["value"];
                         // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
                     } else {
-                        console.log("no maxActivePower Production");
+                        // no maxActivePower
+                    }
+                    if (thingChannels["maxActualPower"]) {
+                        maxActivePower += thingChannels["maxActualPower"]["value"];
+                    } else {
+                        // no maxActualPower
                     }
                 }
             }
+
+            if (maxActivePower == 0) {
+                throw "Teilen durch 0 nicht möglich!";
+            } else if (activePower == 0) {
+                powerRatio = 0;
+            } else {
+                powerRatio = (activePower * 100.) / maxActivePower;
+            }
+
             this.production.powerRatio = powerRatio;
             this.production.activePower = activePower;
             this.production.maxActivePower = maxActivePower;
