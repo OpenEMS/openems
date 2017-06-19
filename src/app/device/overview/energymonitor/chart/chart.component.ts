@@ -30,6 +30,8 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
   @ViewChild(StorageSectionComponent)
   public storageSection: StorageSectionComponent;
 
+  @ViewChild('energymonitorChart') private chartDiv: ElementRef;
+
   @Input()
   set currentData(currentData: Data) {
     this.updateValue(currentData);
@@ -39,6 +41,7 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
 
   private style: string;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
+  private marginLeft: number = 0;
 
   ngOnInit() {
     // make sure chart is redrawn on window resize
@@ -80,10 +83,9 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
    */
   private updateOnWindowResize(): void {
     // adjust width/height of chart
-    let maxHeight = window.innerHeight - 100;
-    if (maxHeight < 400) {
-      this.width = this.height = 400;
-    } else if (maxHeight < this.width) {
+    let chartOffsetTop = this.cumulativeOffsetTop(this.chartDiv);
+    let maxHeight = window.innerHeight - chartOffsetTop - 20;
+    if (maxHeight < this.width) {
       this.width = this.height = maxHeight;
     } else {
       this.height = this.width;
@@ -95,9 +97,24 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
     [this.consumptionSection, this.gridSection, this.productionSection, this.storageSection].forEach(section => {
       section.update(outerRadius, innerRadius, this.height, this.width);
     });
+
   }
 
   private deg2rad(value: number): number {
     return value * (Math.PI / 180)
+  }
+
+  /**
+   * Finds the absolute offsetTop of an element
+   * Source: https://stackoverflow.com/a/1480137
+   */
+  private cumulativeOffsetTop(elementRef: ElementRef): number {
+    var top = 0;
+    let element = elementRef.nativeElement;
+    do {
+      top += element.offsetTop || 0;
+      element = element.offsetParent;
+    } while (element);
+    return top;
   }
 }
