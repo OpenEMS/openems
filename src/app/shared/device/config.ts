@@ -97,7 +97,7 @@ export class Config {
     /**
      * Return ChannelAddresses of power channels
      */
-    public getPowerChannels(): { [thing: string]: [string] } {
+    public getPowerChannels(): ChannelAddresses {
         let natures = this._meta.natures;
         let ignoreNatures = {};
         let result = {}

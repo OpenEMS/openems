@@ -97,7 +97,7 @@ export class SocChartComponent implements OnChanges {
         if (this.chart) {
           this.chart.ngOnChanges({} as SimpleChanges);
         }
-      }, 0);
+      });
     }, error => {
       this.datasets = EMPTY_DATASET;
       this.labels = [];
