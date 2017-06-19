@@ -1,9 +1,9 @@
-<md-card class="single" *ngIf="device">
+<md-card class="single" *ngIf="currentData">
   <md-card-header>
     <md-icon md-card-avatar>visibility</md-icon>
     <md-card-title i18n>Energiemonitor</md-card-title>
   </md-card-header>
   <md-card-content>
-    <energymonitor-chart [device]="device" fxLayoutAlign="center start"></energymonitor-chart>
+    <energymonitor-chart [currentData]="currentData" fxLayoutAlign="center start"></energymonitor-chart>
   </md-card-content>
 </md-card>

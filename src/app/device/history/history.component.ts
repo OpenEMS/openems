@@ -44,7 +44,7 @@ export class HistoryComponent implements OnInit {
 
   ngOnDestroy() {
     if (this.device) {
-      this.device.unsubscribeChannels();
+      this.device.unsubscribeCurrentData();
     }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();

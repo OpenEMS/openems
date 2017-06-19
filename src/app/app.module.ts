@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
-import { MdSnackBar } from '@angular/material';
 
 import { environment } from '../environments';
-import { appRoutingProviders } from './app.routing';
 
 import { SharedModule } from './shared/shared.module';
 import { WebappService, WebsocketService } from './shared/shared';
@@ -24,12 +22,6 @@ import { AppComponent } from './app.component';
   ],
   bootstrap: [
     AppComponent
-  ],
-  providers: [
-    appRoutingProviders,
-    MdSnackBar,
-    WebappService,
-    WebsocketService
   ]
 })
 export class AppModule { }

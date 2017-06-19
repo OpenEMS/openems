@@ -1,5 +1,5 @@
 export interface ChannelAddresses {
-    [thing: string]: [string];
+    [thing: string]: string[];
 }
 
 interface Channel {
@@ -36,7 +36,7 @@ interface Bridge extends Thing {
 }
 
 export class Config {
-    public _meta: {
+    public readonly _meta: {
         natures: {
             [thing: string]: {
                 channels: {},
@@ -48,25 +48,41 @@ export class Config {
         schedulers: [ThingClass],
         devices: [ThingClass]
     };
-    public persistence: [{ class: string }];
-    public scheduler: Scheduler;
-    public things: Bridge[]
+    public readonly persistence: [{ class: string }];
+    public readonly scheduler: Scheduler;
+    public readonly things: Bridge[]
 
-    /**
-     * Returns a list of thing ids which are EssNatures.
-     * e.g. ["ess0", "ess1"]
-     */
-    public getEssThings(): string[] {
-        // get all configured ESS devices
-        let essThings: string[] = [];
+    // A list of thing ids which are EssNatures. (e.g. ["ess0", "ess1"])
+    public readonly storageThings: string[] = [];
+    public readonly gridMeters: string[] = [];
+    public readonly productionMeters: string[] = [];
+
+    constructor(config: any) {
+        Object.assign(this, config);
+
         let natures = this._meta.natures;
         for (let thing in natures) {
             let i = natures[thing].implements;
+            // Ess
             if (i.includes("EssNature")) {
-                essThings.push(thing);
+                this.storageThings.push(thing);
+            }
+            // Meter
+            if (i.includes("MeterNature")) {
+                let type = natures[thing].channels["type"]["value"];
+                if (type === "grid") {
+                    this.gridMeters.push(thing);
+                } else if (type === "production") {
+                    this.productionMeters.push(thing);
+                } else {
+                    console.warn("Meter without type: " + thing);
+                }
+            }
+            // Charger
+            if (i.includes("ChargerNature")) {
+                this.productionMeters.push(thing);
             }
         }
-        return essThings;
     }
 
     /**
@@ -74,7 +90,7 @@ export class Config {
      */
     public getEssSocChannels(): ChannelAddresses {
         let channels: ChannelAddresses = {};
-        this.getEssThings().forEach(device => channels[device] = ['Soc']);
+        this.storageThings.forEach(device => channels[device] = ['Soc']);
         return channels;
     }
 
@@ -87,7 +103,7 @@ export class Config {
         let result = {}
         for (let thing in natures) {
             let i = natures[thing].implements;
-            let channels = []
+            let channels = [];
 
             if (i.includes("AsymmetricEssNature")) {
                 channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
@@ -112,9 +128,30 @@ export class Config {
     /**
      * Return ChannelAddresses of power and soc channels
      */
-    public getImportantChannels(): { [thing: string]: [string] } {
-        let channels: ChannelAddresses = {};
-        Object.assign(channels, this.getPowerChannels(), this.getEssSocChannels());
+    public getImportantChannels(): ChannelAddresses {
+        let channels: ChannelAddresses = this.getPowerChannels();
+        let essChannels = this.getEssSocChannels();
+        for (let thing in essChannels) {
+            if (thing in channels) {
+                let arr = essChannels[thing];
+                channels[thing] = channels[thing].concat(arr);
+            } else {
+                channels[thing] = essChannels[thing];
+            }
+        }
         return channels;
     }
 }
+
+//   private refreshThingsFromConfig(): Things {
+//     let result = new Things();
+//     let config = this.config.getValue();
+//     if ("_meta" in config && "natures" in config._meta) {
+//       let natures = this.config.getValue()._meta.natures;
+//       for (let thing in natures) {
+//         let i = natures[thing]["implements"];
+
+//       }
+//     }
+//     return result;
+//   }

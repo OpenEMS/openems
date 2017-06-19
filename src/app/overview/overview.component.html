@@ -1,44 +1,46 @@
 <div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
   <div *ngFor="let form of forms" fxFlex="50%" fxFlex.xs="100%">
-    <form [formGroup]="form" (ngSubmit)="doLogin(form)">
-      <md-card class="single">
-        <md-card-header>
-          <md-icon *ngIf="form._websocket.isConnected" md-card-avatar>face</md-icon>
-          <md-icon *ngIf="!form._websocket.isConnected" md-card-avatar>stop</md-icon>
-          <md-card-title>{{form._websocket.name}}</md-card-title>
-          <md-card-subtitle>{{form._websocket.url}}</md-card-subtitle>
-        </md-card-header>
-        <md-card-content fxLayout fxLayoutWrap="wrap">
-          <ng-container *ngIf="form._websocket.backend == 'femsserver'">
-            <p fxFlex="100%">{{(form._websocket.event | async)?.message}}</p>
-          </ng-container>
-          <ng-container *ngIf="form._websocket.backend == 'openems'">
-            <md-input-container *ngIf="!form._websocket.isConnected" fxFlex="100%"><input formControlName="password" mdInput type="password" placeholder="Passwort"></md-input-container>
-            <p fxFlex="100%">
-              <ng-container *ngIf="!form._websocket.isConnected" i18n>Testversion: bitte melden Sie sich mit dem Passwort "<strong>owner</strong>" an.</ng-container><br/>{{(form._websocket.event
-              | async)?.message}}</p>
-          </ng-container>
-        </md-card-content>
-        <ng-container *ngIf="form._websocket.backend == 'openems'">
-          <md-card-actions fxLayout fxLayoutAlign="end start">
-            <button type="submit" md-fab *ngIf="!form._websocket.isConnected" (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>
-            <button type="button" md-fab *ngIf="form._websocket.isConnected" (click)="doLogout(form)" color="accent"><md-icon>close</md-icon></button>
-          </md-card-actions>
-        </ng-container>
-      </md-card>
-    </form>
-
-    <!-- List of devices -->
-    <ng-container *ngFor="let dev of webapp.keyvalues(form._websocket.devices)">
-      <ng-container *ngIf="dev.value.state != 'inactive'">
-        <md-card class="single" routerLink="/device/{{ form._websocket.name }}/{{ dev.key }}">
+    <ng-container *ngIf="form._websocket as websocket">
+      <form [formGroup]="form" (ngSubmit)="doLogin(form)">
+        <md-card class="single">
           <md-card-header>
-            <md-icon *ngIf="dev.value.online" md-card-avatar color="primary">folder</md-icon>
-            <md-icon *ngIf="!dev.value.online" md-card-avatar>error</md-icon>
-            <md-card-title>{{ dev.value.comment }} <span *ngIf="!dev.value.online" i18n><br/>FEMS ist offline!</span></md-card-title>
-            <md-card-subtitle>{{ dev.key }}: {{ dev.value.producttype }}</md-card-subtitle>
+            <md-icon *ngIf="websocket.isConnected" md-card-avatar>face</md-icon>
+            <md-icon *ngIf="!websocket.isConnected" md-card-avatar>stop</md-icon>
+            <md-card-title>{{websocket.name}}</md-card-title>
+            <md-card-subtitle>{{websocket.url}}</md-card-subtitle>
           </md-card-header>
+          <md-card-content fxLayout fxLayoutWrap="wrap">
+            <ng-container *ngIf="websocket.backend == 'femsserver'">
+              <p fxFlex="100%">{{ (websocket.event | async)?.message }}</p>
+            </ng-container>
+            <ng-container *ngIf="websocket.backend == 'openems'">
+              <md-input-container *ngIf="!websocket.isConnected" fxFlex="100%"><input formControlName="password" mdInput type="password" placeholder="Passwort"></md-input-container>
+              <p fxFlex="100%">
+                <ng-container *ngIf="!websocket.isConnected" i18n>Testversion: bitte melden Sie sich mit dem Passwort "<strong>owner</strong>" an.</ng-container><br/>{{(websocket.event
+                | async)?.message }}</p>
+            </ng-container>
+          </md-card-content>
+          <ng-container *ngIf="websocket.backend == 'openems'">
+            <md-card-actions fxLayout fxLayoutAlign="end start">
+              <button type="submit" md-fab *ngIf="!websocket.isConnected" (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>
+              <button type="button" md-fab *ngIf="websocket.isConnected" (click)="doLogout(form)" color="accent"><md-icon>close</md-icon></button>
+            </md-card-actions>
+          </ng-container>
         </md-card>
+      </form>
+
+      <!-- List of devices -->
+      <ng-container *ngFor="let dev of tmpl.keyvalues(websocket.devices)">
+        <ng-container *ngIf="dev.value.state != 'inactive'">
+          <md-card class="single" routerLink="/device/{{ websocket.name }}/{{ dev.key }}">
+            <md-card-header>
+              <md-icon *ngIf="dev.value.online" md-card-avatar color="primary">folder</md-icon>
+              <md-icon *ngIf="!dev.value.online" md-card-avatar>error</md-icon>
+              <md-card-title>{{ dev.value.comment }} <span *ngIf="!dev.value.online" i18n><br/>FEMS ist offline!</span></md-card-title>
+              <md-card-subtitle *ngIf="dev.value.producttype">{{ dev.key }}: {{ dev.value.producttype }}</md-card-subtitle>
+            </md-card-header>
+          </md-card>
+        </ng-container>
       </ng-container>
     </ng-container>
   </div>

@@ -1,13 +1,15 @@
-import { Component, Input, OnInit, OnChanges, AfterViewInit, ViewChild, QueryList, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, OnDestroy, AfterViewInit, ViewChild, QueryList, ElementRef } from '@angular/core';
 import { BaseChartComponent, ColorHelper } from '@swimlane/ngx-charts';
+import { Subject } from 'rxjs/Subject';
 import * as d3 from 'd3';
+
 import { AbstractSection, SectionValue, SvgSquarePosition, SvgSquare } from './section/abstractsection.component';
 import { ConsumptionSectionComponent } from './section/consumptionsection.component';
 import { GridSectionComponent } from './section/gridsection.component';
 import { ProductionSectionComponent } from './section/productionsection.component';
 import { StorageSectionComponent } from './section/storagesection.component';
 
-import { Device } from '../../../../shared/shared';
+import { Device, Data } from '../../../../shared/shared';
 
 @Component({
   selector: 'energymonitor-chart',
@@ -27,42 +29,32 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
   @ViewChild(StorageSectionComponent)
   public storageSection: StorageSectionComponent;
 
+  @Input()
+  set currentData(currentData: Data) {
+    this.updateValue(currentData);
+  }
+
   public translation: string;
 
   private style: string;
-  private _device: Device;
-
-  @Input()
-  set device(device: Device) {
-    if (this._device) {
-      // device existed before -> unsubscribe
-      this._device.data.unsubscribe();
-    }
-    this._device = device;
-    if (device) {
-      device.data.subscribe(() => {
-        this.updateValue();
-      })
-    }
-  }
 
   ngOnInit() {
     this.update();
-    this.updateValue();
   }
 
   /**
    * This method is called on every change of values.
    */
-  updateValue() {
-    if (this._device) {
+  updateValue(currentData: Data) {
+    if (currentData) {
       /*
        * Set values for energy monitor
        */
-      this.storageSection.updateValue(this._device["summary"].storage.soc, this._device["summary"].storage.soc);
-      this.gridSection.updateValue(this._device["summary"].grid.activePower, this._device["summary"].grid.powerRatio);
-      this.consumptionSection.updateValue(Math.round(this._device["summary"].consumption.activePower), Math.round(this._device["summary"].consumption.powerRatio));
-      this.productionSection.updateValue(this._device["summary"].production.activePower, this._device["summary"].production.powerRatio);
+      let summary = currentData.summary;
+      this.storageSection.updateValue(summary.storage.soc, summary.storage.soc);
+      this.gridSection.updateValue(summary.grid.activePower, summary.grid.powerRatio);
+      this.consumptionSection.updateValue(Math.round(summary.consumption.activePower), Math.round(summary.consumption.powerRatio));
+      this.productionSection.updateValue(summary.production.activePower, summary.production.powerRatio);
     } else {
       this.storageSection.updateValue(null, null);
       this.gridSection.updateValue(null, null);

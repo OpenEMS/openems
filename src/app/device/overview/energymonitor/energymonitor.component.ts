@@ -1,8 +1,9 @@
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { BaseChartComponent, ColorHelper } from '@swimlane/ngx-charts';
+import { Subject } from 'rxjs/Subject';
 import * as d3 from 'd3';
 
-import { Device } from '../../../shared/shared';
+import { Data } from '../../../shared/shared';
 
 @Component({
   selector: 'energymonitor',
@@ -11,5 +12,5 @@ import { Device } from '../../../shared/shared';
 export class EnergymonitorComponent {
 
   @Input()
-  public device: Device;
+  public currentData: Data;
 }

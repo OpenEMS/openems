@@ -2,7 +2,7 @@ import { Injectable, ViewContainerRef } from '@angular/core';
 import { MdSnackBar } from '@angular/material'
 
 import { WebsocketService } from './websocket.service';
-import { Device } from '../device';
+import { Device } from '../shared';
 
 type NotificationType = "success" | "error" | "warning" | "info";
 
@@ -55,27 +55,5 @@ export class WebappService {
     //   this.snackBar.open(notification.message, null, { duration: 2000 });
     // }
 
-  }
-
-  /**
-   * Helps to use an object inside an *ngFor loop. Returns the object keys.
-   * Source: https://stackoverflow.com/a/39896058
-   */
-  keys(object: {}) {
-    return Object.keys(object);
-  }
-
-  /**
-   * Helps to use an object inside an *ngFor loop. Returns the object key value pairs.
-   */
-  keyvalues(object: {}) {
-    if (!object) {
-      return object;
-    }
-    let keyvalues = [];
-    for (let key in object) {
-      keyvalues.push({ key: key, value: object[key] });
-    }
-    return keyvalues;
   }
 }
