@@ -120,6 +120,10 @@ export class Config {
             } else if (i.includes("SymmetricMeterNature")) {
                 channels.push("ActivePower", "ReactivePower");
             }
+            // Charger
+            if (i.includes("ChargerNature")) {
+                channels.push("ActualPower");
+            }
             result[thing] = channels;
         }
         return result;
