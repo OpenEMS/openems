@@ -33,7 +33,7 @@ export class AppComponent {
   ngOnInit() {
     if (this.webappService.notificationEvent) {
       this.webappService.notificationEvent.takeUntil(this.ngUnsubscribe).subscribe(notification => {
-        this.snackBar.open(notification.message, null, { duration: 2000 });
+        this.snackBar.open(notification.message, null, { duration: 3000 });
       });
     }
   }
