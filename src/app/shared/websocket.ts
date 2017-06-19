@@ -102,7 +102,6 @@ export class Websocket {
       }
       retryCounter++;
     }).delay(1000)).subscribe(message => {
-      console.log("message", message);
       retryCounter = 0;
       // Receive authentication token
       if ("authenticate" in message && "mode" in message.authenticate) {

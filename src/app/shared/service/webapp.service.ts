@@ -1,8 +1,9 @@
-import { Injectable, ViewContainerRef } from '@angular/core';
-import { MdSnackBar } from '@angular/material'
+import { Injectable, ErrorHandler } from '@angular/core';
 
 import { WebsocketService } from './websocket.service';
 import { Device } from '../device';
+
+import { Subject } from 'rxjs/Subject';
 
 type NotificationType = "success" | "error" | "warning" | "info";
 
@@ -12,11 +13,11 @@ export interface Notification {
 }
 
 @Injectable()
-export class WebappService {
+export class WebappService implements ErrorHandler {
 
-  constructor(
-    private snackBar: MdSnackBar
-  ) { }
+  public notificationEvent: Subject<Notification> = new Subject<Notification>();
+
+  constructor() { }
 
   /**
    * Gets the token for this id from localstorage
@@ -43,18 +44,7 @@ export class WebappService {
    * Shows a nofication using toastr
    */
   public notify(notification: Notification) {
-    this.snackBar.open(notification.message, null, { duration: 2000 });
-    // if (notification.type == "success") {
-    //   this.toastr.success(notification.message);
-    // } else if (notification.type == "error") {
-    //   this.toastr.error(notification.message);
-    // } else if (notification.type == "warning") {
-    //   this.toastr.warning(notification.message);
-    // } else {
-    //   //this.toastr.info(notification.message);
-    //   this.snackBar.open(notification.message, null, { duration: 2000 });
-    // }
-
+    this.notificationEvent.next(notification);
   }
 
   /**
@@ -77,5 +67,13 @@ export class WebappService {
       keyvalues.push({ key: key, value: object[key] });
     }
     return keyvalues;
+  }
+
+  public handleError(error: any) {
+    let notification: Notification = {
+      type: "error",
+      message: error
+    };
+    this.notify(notification);
   }
 }

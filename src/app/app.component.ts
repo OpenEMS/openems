@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ViewContainerRef, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { MdSnackBar } from '@angular/material';
+import { Subject } from 'rxjs/Subject';
 
 import { environment } from '../environments';
-import { WebappService, WebsocketService } from './shared/shared';
+import { WebappService, WebsocketService, Notification } from './shared/shared';
 
 import * as moment from 'moment';
 
@@ -13,6 +15,7 @@ import * as moment from 'moment';
 })
 export class AppComponent {
   public environment = environment;
+  public ngUnsubscribe: Subject<void> = new Subject<void>();
 
   private navCollapsed: boolean = true;
   private menuitems: any[];
@@ -21,8 +24,23 @@ export class AppComponent {
   constructor(
     public websocketService: WebsocketService,
     private router: Router,
-    private webappService: WebappService
+    private webappService: WebappService,
+    private snackBar: MdSnackBar
   ) {
     moment.locale("de");
   }
+
+  ngOnInit() {
+    if (this.webappService.notificationEvent) {
+      this.webappService.notificationEvent.takeUntil(this.ngUnsubscribe).subscribe(notification => {
+        this.snackBar.open(notification.message, null, { duration: 2000 });
+      });
+    }
+  }
+
+  ngOnDestroy() {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
+
 }
