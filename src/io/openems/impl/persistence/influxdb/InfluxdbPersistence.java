@@ -62,6 +62,9 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	@ConfigInfo(title = "Password", description = "Password for InfluxDB.", type = String.class, defaultValue = "root")
 	public final ConfigChannel<String> password = new ConfigChannel<>("password", this);
 
+	@ConfigInfo(title = "Database", description = "Database name for InfluxDB.", type = String.class, defaultValue = "db")
+	public final ConfigChannel<String> database = new ConfigChannel<>("database", this);
+
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(10000);
 
 	@Override
@@ -72,7 +75,6 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	/*
 	 * Fields
 	 */
-	private final String DB_NAME = "db";
 	private Optional<InfluxDB> _influxdb = Optional.empty();
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
 
@@ -129,7 +131,7 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 		/*
 		 * Convert FieldVales in queue to Points
 		 */
-		BatchPoints batchPoints = BatchPoints.database(DB_NAME) //
+		BatchPoints batchPoints = BatchPoints.database(database.valueOptional().orElse("db")) //
 				.tag("fems", String.valueOf(fems.valueOptional().get())) //
 				/* .retentionPolicy("autogen") */.build();
 		synchronized (queue) {
@@ -181,7 +183,7 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 
 		InfluxDB influxdb = InfluxDBFactory.connect("http://" + ip + ":8086", username, password);
 		try {
-			influxdb.createDatabase(DB_NAME);
+			influxdb.createDatabase(database.valueOptional().orElse("db"));
 		} catch (RuntimeException e) {
 			log.error("Unable to connect to InfluxDB: " + e.getCause());
 			return Optional.empty();
