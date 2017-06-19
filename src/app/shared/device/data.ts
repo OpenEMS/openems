@@ -103,6 +103,7 @@ export class Summary {
                     let thingChannels = config._meta.natures[thing].channels;
                     let meter = data[thing];
                     let power = getActivePower(meter);
+                    // console.log(thing, data[thing], power);
                     activePower += power;
                     if (thingChannels["maxActivePower"]) {
                         maxActivePower += thingChannels["maxActivePower"]["value"];
@@ -119,9 +120,7 @@ export class Summary {
             }
 
             if (maxActivePower == 0) {
-                throw "Teilen durch 0 nicht möglich!";
-            } else if (activePower == 0) {
-                powerRatio = 0;
+                powerRatio = 100;
             } else {
                 powerRatio = (activePower * 100.) / maxActivePower;
             }
