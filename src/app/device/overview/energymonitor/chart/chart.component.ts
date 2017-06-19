@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, OnChanges, OnDestroy, AfterViewInit, ViewChild, QueryList, ElementRef } from '@angular/core';
 import { BaseChartComponent, ColorHelper } from '@swimlane/ngx-charts';
 import { Subject } from 'rxjs/Subject';
+import { Observable } from 'rxjs/Observable';
 import * as d3 from 'd3';
 
 import { AbstractSection, SectionValue, SvgSquarePosition, SvgSquare } from './section/abstractsection.component';
@@ -37,9 +38,20 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
   public translation: string;
 
   private style: string;
+  private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   ngOnInit() {
-    this.update();
+    // make sure chart is redrawn on window resize
+    this.updateOnWindowResize();
+    const source = Observable.fromEvent(window, 'resize', null, null);
+    const subscription = source.takeUntil(this.ngUnsubscribe).debounceTime(200).delay(100).subscribe(e => {
+      this.updateOnWindowResize();
+    });
+  }
+
+  ngOnDestroy() {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 
   /**
@@ -66,8 +78,7 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
   /**
    * This method is called on every change of resolution of the browser window.
    */
-  update() {
-    super.update();
+  private updateOnWindowResize(): void {
     // adjust width/height of chart
     let maxHeight = window.innerHeight - 100;
     if (maxHeight < 400) {
