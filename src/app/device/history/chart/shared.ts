@@ -1,4 +1,26 @@
-export type CHART_OPTIONS = {
+import * as moment from 'moment';
+
+export type Data = {
+    labels: moment.Moment[],
+    datasets: {
+        backgroundColor: string,
+        borderColor: string,
+        data: number[],
+        label: string,
+        _meta: {}
+    }[]
+}
+
+export type TooltipItem = {
+    datasetIndex: number,
+    index: number,
+    x: number,
+    xLabel: moment.Moment,
+    y: number,
+    yLabel: number
+}
+
+export type ChartOptions = {
     maintainAspectRatio: boolean,
     legend: {
         position: "bottom"
@@ -37,10 +59,17 @@ export type CHART_OPTIONS = {
                 }
             }
         }]
+    },
+    tooltips: {
+        mode: "label",
+        callbacks: {
+            label?(tooltipItem: TooltipItem, data: Data): string,
+            title?(tooltipItems: TooltipItem[], data: Data): string
+        }
     }
 }
 
-export const DEFAULT_TIME_CHART_OPTIONS: CHART_OPTIONS = {
+export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
     maintainAspectRatio: false,
     legend: {
         position: 'bottom'
@@ -78,5 +107,14 @@ export const DEFAULT_TIME_CHART_OPTIONS: CHART_OPTIONS = {
                 }
             }
         }]
+    },
+    tooltips: {
+        mode: 'label',
+        callbacks: {
+            title(tooltipItems: TooltipItem[], data: Data): string {
+                return tooltipItems[0].xLabel.format("LLLL");
+            }
+        }
     }
 };
+

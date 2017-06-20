@@ -17,7 +17,9 @@
           <button md-raised-button [class.activated]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%" i18n>
             Gestern
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'lastWeek'" (click)="setPeriod('lastWeek')" fxFlex="100%" i18n>
+          <!-- TODO reactivate -->
+          <!--<button md-raised-button [class.activated]="activePeriod == 'lastWeek'" (click)="setPeriod('lastWeek')" fxFlex="100%"
+            i18n>
             letzte Woche
           </button>
           <button md-raised-button [class.activated]="activePeriod == 'lastMonth'" (click)="setPeriod('lastMonth')" fxFlex="100%" i18n>
@@ -25,26 +27,27 @@
           </button>
           <button md-raised-button [class.activated]="activePeriod == 'lastYear'" (click)="setPeriod('lastYear')" fxFlex="100%" i18n>
             letztes Jahr
-          </button>
-          <button [class.activated]="activePeriod == 'otherTimespan'" (click)="setOtherTimespan()" md-raised-button fxFlex="100%" i18n>
+          </button>-->
+          <button [class.activated]="activePeriod == 'otherTimespan'" (click)="showOtherTimespan = !showOtherTimespan" md-raised-button
+            fxFlex="100%" i18n>
             Anderer Zeitraum
           </button>
-          <div *ngIf="activePeriod == 'otherTimespan'" style="margin-top: 20px" fxLayout fxLayoutWrap="wrap" fxFlex="100%">
+          <div *ngIf="showOtherTimespan" style="margin-top: 20px" fxLayout fxLayoutWrap="wrap" fxFlex="100%">
             <div fxFlex="100%">
               <div fxFlex="75px"></div>
               <md-input-container>
-                <input #from type="date" [value]="dateToday | date:'yyyy-MM-dd'" placeholder="Datum von" style="height: auto" mdInput/>
+                <input #from type="date" [value]="fromDate | date:'yyyy-MM-dd'" placeholder="Datum von" style="height: auto" mdInput/>
               </md-input-container>
             </div>
             <div fxFlex="100%">
               <div fxFlex="75px"></div>
               <md-input-container>
-                <input #to type="date" [value]="dateToday | date:'yyyy-MM-dd'" placeholder="Datum bis" style="height: auto" mdInput />
+                <input #to type="date" [value]="toDate | date:'yyyy-MM-dd'" placeholder="Datum bis" style="height: auto" mdInput />
               </md-input-container>
             </div>
             <div fxFlex="100%">
               <div fxFlex="75px"></div>
-              <button md-raised-button style="font-size: 14px" (click)="setTimespan(from.value, to.value)" i18n>
+              <button md-raised-button style="font-size: 14px" (click)="setPeriod('otherTimespan', from.value, to.value)" i18n>
                 Los!
               </button>
             </div>

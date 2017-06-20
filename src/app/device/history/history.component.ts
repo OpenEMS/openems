@@ -21,6 +21,7 @@ export class HistoryComponent implements OnInit {
   public fromDate = null;
   public toDate = null;
   public activePeriodText: string = "";
+  public showOtherTimespan = false;
 
   private activePeriod: PeriodString = "today";
   private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -58,6 +59,9 @@ export class HistoryComponent implements OnInit {
    */
   private setPeriod(period: PeriodString, from?: any, to?: any) {
     this.activePeriod = period;
+    if (period != "otherTimespan") {
+      this.showOtherTimespan = false;
+    }
     switch (period) {
       case "yesterday":
         this.fromDate = this.toDate = moment().subtract(1, "days");
@@ -79,8 +83,13 @@ export class HistoryComponent implements OnInit {
         this.activePeriodText = "Letztes Jahr, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
         break;
       case "otherTimespan":
-        this.fromDate = moment(from);
-        this.toDate = moment(to);
+        let fromDate = moment(from);
+        let toDate = moment(to);
+        if (fromDate > toDate) {
+          toDate = fromDate;
+        }
+        this.fromDate = fromDate;
+        this.toDate = toDate;
         this.activePeriodText = "Zeitraum, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
         break;
       case "today":
@@ -91,6 +100,9 @@ export class HistoryComponent implements OnInit {
     }
   }
 
+  // private setOtherTimespan() {
+  //   this.activePeriod = "otherTimespan";
+  // }
 
   // start with loading "today"
   // if (this.activePeriod == null) {
@@ -238,9 +250,7 @@ export class HistoryComponent implements OnInit {
   //   }
   // ];
 
-  // private setOtherTimespan() {
-  //   this.activePeriod = "otherTimespan";
-  // }
+
 
   // private setTimespan(from: any, to: any) {
   //   if (from != "" || to != "") {

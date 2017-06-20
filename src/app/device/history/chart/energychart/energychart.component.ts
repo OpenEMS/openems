@@ -4,7 +4,8 @@ import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import * as moment from 'moment';
 
 import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, Summary } from './../../../../shared/shared';
-import { DEFAULT_TIME_CHART_OPTIONS, CHART_OPTIONS } from './../shared';
+import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
+import { TemplateHelper } from './../../../../shared/service/templatehelper';
 
 @Component({
   selector: 'energychart',
@@ -17,6 +18,8 @@ export class EnergyChartComponent implements OnChanges {
   @Input() private toDate: moment.Moment;
 
   @ViewChild('energyChart') private chart: BaseChartDirective;
+
+  constructor(private tmpl: TemplateHelper) { }
 
   public labels: moment.Moment[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
@@ -35,11 +38,14 @@ export class EnergyChartComponent implements OnChanges {
     backgroundColor: 'rgba(45,143,171,0.2)',
     borderColor: 'rgba(45,143,171,1)',
   }];
-  private options: CHART_OPTIONS;
+  private options: ChartOptions;
 
   ngOnInit() {
-    let options = JSON.parse(JSON.stringify(DEFAULT_TIME_CHART_OPTIONS));
+    let options = <ChartOptions>this.tmpl.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
+    options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
+      return data.datasets[tooltipItem.datasetIndex].label + ": " + tooltipItem.yLabel.toPrecision(2) + " kW";
+    }
     this.options = options;
   }
 
@@ -65,9 +71,9 @@ export class EnergyChartComponent implements OnChanges {
       for (let reply of queryreply.data) {
         labels.push(moment(reply.time));
         let data = new Summary(this.device.config.getValue(), reply.channels);
-        activePowers.grid.push(data.grid.activePower / 1000);
-        activePowers.production.push(data.production.activePower / 1000);
-        activePowers.consumption.push(data.consumption.activePower / 1000);
+        activePowers.grid.push(data.grid.activePower / -1000); // convert to kW and invert value
+        activePowers.production.push(data.production.activePower / 1000); // convert to kW
+        activePowers.consumption.push(data.consumption.activePower / 1000); // convert to kW
       }
       this.datasets = [{
         label: "Erzeugung",

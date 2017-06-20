@@ -138,7 +138,6 @@ export class Device {
   /**
    * Send "query" message to websocket
    */
-  // TODO: this.getImportantChannels()
   // TODO: kWh: this.getkWhResult(this.getImportantChannels())
   public query(fromDate: moment.Moment, toDate: moment.Moment, channels: ChannelAddresses): Subject<QueryReply> {
     // create query object
@@ -151,7 +150,6 @@ export class Device {
     };
     // send query and receive requestId
     let requestId = this.send({ query: obj });
-
     // prepare result
     let ngUnsubscribe: Subject<void> = new Subject<void>();
     let result = new Subject<QueryReply>();

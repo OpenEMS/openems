@@ -4,7 +4,8 @@ import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import * as moment from 'moment';
 
 import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, ChannelAddresses } from './../../../../shared/shared';
-import { DEFAULT_TIME_CHART_OPTIONS, CHART_OPTIONS } from './../shared';
+import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions } from './../shared';
+import { TemplateHelper } from './../../../../shared/service/templatehelper';
 
 @Component({
   selector: 'socchart',
@@ -19,6 +20,8 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('socChart') private chart: BaseChartDirective;
 
+  constructor(private tmpl: TemplateHelper) { }
+
   public labels: moment.Moment[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
   public loading: boolean = true;
@@ -30,10 +33,10 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
     backgroundColor: 'rgba(0,152,70,0.2)',
     borderColor: 'rgba(0,152,70,1)',
   }];
-  private options: CHART_OPTIONS;
+  private options: ChartOptions;
 
   ngOnInit() {
-    let options = JSON.parse(JSON.stringify(DEFAULT_TIME_CHART_OPTIONS));
+    let options = <ChartOptions>this.tmpl.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = "Prozent";
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
@@ -79,8 +82,6 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
       this.datasets = datasets;
       this.labels = labels;
       this.loading = false;
-      // set y-axis scale
-      let chartDuration = moment.duration(labels[labels.length - 1].diff(labels[0]));
       setTimeout(() => {
         // Workaround, because otherwise chart data and labels are not refreshed...
         if (this.chart) {
