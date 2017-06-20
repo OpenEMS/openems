@@ -504,9 +504,14 @@ public class WebsocketHandler {
 						break;
 					}
 				}
-				// Send result
 				JsonObject j = bootstrapReply(requestId);
-				j.add("queryreply", jQueryreply);
+				// Check if queryable persistence is available
+				if (jQueryreply != null) {
+					// Send result
+					j.add("queryreply", jQueryreply);
+				} else {
+					j.addProperty("error", "No Queryable persistence found!");
+				}
 				this.send(j);
 
 				// log.info("RESULT: " + j);
