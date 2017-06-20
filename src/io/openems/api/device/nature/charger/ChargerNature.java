@@ -20,11 +20,18 @@
  *******************************************************************************/
 package io.openems.api.device.nature.charger;
 
+import java.util.Optional;
+
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ConfigInfo;
 
 public interface ChargerNature extends DeviceNature {
+
+	@ConfigInfo(title = "maxActualPower", description = "Holds the maximum ever actual power.", type = Long.class, defaultValue = "0")
+	public ConfigChannel<Long> maxActualPower();
 
 	public WriteChannel<Long> setMaxPower();
 
@@ -33,5 +40,14 @@ public interface ChargerNature extends DeviceNature {
 	public ReadChannel<Long> getNominalPower();
 
 	public ReadChannel<Long> getInputVoltage();
+
+	public default void updateMaxChargerActualPower() {
+		Optional<Long> actualPowerOptional = this.getActualPower().valueOptional();
+		Optional<Long> maxActualPower = this.maxActualPower().valueOptional();
+		long actualPower = actualPowerOptional.orElse(0L);
+		if (maxActualPower.orElse(Long.MIN_VALUE) < actualPower) {
+			maxActualPower().updateValue(actualPower, true);
+		}
+	}
 
 }

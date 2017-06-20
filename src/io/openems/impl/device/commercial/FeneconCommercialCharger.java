@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.device.commercial;
 
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
@@ -65,6 +66,13 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 	public ReadChannel<Long> actualPower;
 
 	public ReadChannel<Long> inputVoltage;
+
+	private final ConfigChannel<Long> maxActualPower = new ConfigChannel<Long>("maxActualPower", this);
+
+	@Override
+	public ConfigChannel<Long> maxActualPower() {
+		return maxActualPower;
+	}
 
 	/*
 	 * BMS DCDC

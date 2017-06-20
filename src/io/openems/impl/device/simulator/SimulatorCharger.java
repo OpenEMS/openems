@@ -61,6 +61,13 @@ public class SimulatorCharger extends SimulatorDeviceNature implements ChargerNa
 	 */
 	private long lastVoltage = 0;
 
+	private final ConfigChannel<Long> maxActualPower = new ConfigChannel<Long>("maxActualPower", this);
+
+	@Override
+	public ConfigChannel<Long> maxActualPower() {
+		return maxActualPower;
+	}
+
 	/*
 	 * Methods
 	 */
