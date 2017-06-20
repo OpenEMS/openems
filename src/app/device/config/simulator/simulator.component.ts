@@ -41,7 +41,9 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
   }
 
   keys(object: {}) {
-    return Object.keys(object);
+    let keys = Object.keys(object);
+    keys.sort();
+    return keys;
   }
 
   ngOnInit() {
@@ -64,30 +66,31 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
             "DO1", "DO2", "DO3", "DO4", "DO5", "DO6", "DO7", "DO8"
           ],
           sps0: [
-            "PivotOn", "Borehole1On", "Borehole2On", "Borehole3On", "Clima1On", "Clima2On", "OfficeOn", "TraineeCenterOn", "SignalBus1On", "SignalBus2On", "SignalOnGrid", "SignalWatchdog",
+            "SetPivotOn", "SetBorehole1On", "SetBorehole2On", "SetBorehole3On", "SetClima1On", "SetClima2On", "SetOfficeOn", "SetTraineeCenterOn", "SignalBus1On", "SignalBus2On", "SignalOnGrid", "SignalWatchdog",
             "WaterLevelBorehole1On", "WaterLevelBorehole1Off", "WaterLevelBorehole2On", "WaterLevelBorehole2Off", "WaterLevelBorehole3On", "WaterLevelBorehole3Off"
           ],
           ess0: [
-            "Soc", "SystemState"
+            "Soc", "SystemState", "ActivePower"
           ],
           ess1: [
-            "Soc", "SystemState"
+            "Soc", "SystemState", "ActivePower"
           ],
           ess2: [
-            "Soc", "SystemState"
+            "Soc", "SystemState", "ActivePower"
           ],
           ess3: [
-            "Soc", "SystemState"
+            "Soc", "SystemState", "ActivePower"
           ]
         }).takeUntil(this.ngUnsubscribe).subscribe(data => {
+          let tmpData = {};
           // subscribed to data
-          if (data != null) {
-            for (let thing in data) {
-              if (!this.data[thing]) {
-                this.data[thing] = [];
+          if (data.data != null) {
+            for (let thing in data.data) {
+              if (!tmpData[thing]) {
+                tmpData[thing] = {};
               }
-              for (let channel in data[thing]) {
-                let newData = { name: moment(), value: <number>data[thing][channel] };
+              for (let channel in data.data[thing]) {
+                let newData = { name: moment(), value: <number>data.data[thing][channel] };
                 // if (!this.data[thing][channel]) {
                 //   // create new array
                 //   this.data[thing][channel] = [];
@@ -96,10 +99,11 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
                 //   // max 10 entries
                 //   this.data[thing][channel].shift();
                 // }
-                this.data[thing][channel] = newData;
+                tmpData[thing][channel] = newData;
               }
             }
           }
+          this.data = tmpData;
         }, error => {
           console.error("error", error);
         }, () => {
