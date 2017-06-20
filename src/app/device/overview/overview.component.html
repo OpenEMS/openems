@@ -1,9 +1,5 @@
 <div *ngIf="device" fxLayoutAlign="start start" fxLayoutWrap="wrap">
-  <div fxFlex.xs="100%" fxFlex.sm="75%" fxFlex.gt-sm="50%" fxLayout fxLayoutWrap="wrap">
-    <energymonitor fxFlex="100%" [currentData]="currentData"></energymonitor>
-    <history fxFlex="100%" routerLink="/device/{{device.websocket.name}}/{{device.name}}/history" [device]="device" style="cursor: pointer"></history>
-  </div>
-  <div fxFlex.xs="100%" fxFlex.sm="75%" fxFlex.gt-sm="50%" fxLayout fxLayoutWrap="wrap">
-    <energytable [currentData]="currentData" [config]="config" fxFlex="100%"></energytable>
-  </div>
+  <energymonitor fxFlex.lt-md="100%" fxFlex.md="66%" fxFlex.gt-md="33%" [currentData]="currentData"></energymonitor>
+  <energytable fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%" [currentData]="currentData" [config]="config" fxFlex="100%"></energytable>
+  <history fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%" [device]="device"></history>
 </div>
