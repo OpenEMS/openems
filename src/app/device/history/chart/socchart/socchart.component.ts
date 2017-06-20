@@ -1,15 +1,16 @@
-import { Component, Input, OnInit, OnChanges, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, OnDestroy, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import * as moment from 'moment';
 
 import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, ChannelAddresses } from './../../../../shared/shared';
+import { DEFAULT_TIME_CHART_OPTIONS, CHART_OPTIONS } from './../shared';
 
 @Component({
   selector: 'socchart',
   templateUrl: './socchart.component.html'
 })
-export class SocChartComponent implements OnChanges {
+export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() private device: Device;
   @Input() private socChannels: ChannelAddresses;
@@ -20,6 +21,7 @@ export class SocChartComponent implements OnChanges {
 
   public labels: moment.Moment[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
+  public loading: boolean = true;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
   private queryreplySubject: Subject<QueryReply>;
@@ -28,38 +30,22 @@ export class SocChartComponent implements OnChanges {
     backgroundColor: 'rgba(0,152,70,0.2)',
     borderColor: 'rgba(0,152,70,1)',
   }];
+  private options: CHART_OPTIONS;
 
-  private options: {} = {
-    maintainAspectRatio: false,
-    legend: {
-      position: 'right'
-    },
-    elements: {
-      point: {
-        radius: 0,
-        hitRadius: 10,
-        hoverRadius: 10
-      }
-    },
-    scales: {
-      yAxes: [{
-        ticks: {
-          beginAtZero: true,
-          max: 100
-        }
-      }],
-      xAxes: [{
-        type: 'time',
-        time: {}
-      }]
-    }
-  };
+  ngOnInit() {
+    let options = JSON.parse(JSON.stringify(DEFAULT_TIME_CHART_OPTIONS));
+    options.scales.yAxes[0].scaleLabel.labelString = "Prozent";
+    options.scales.yAxes[0].ticks.max = 100;
+    this.options = options;
+  }
 
   ngOnChanges(changes: any) {
     // close old queryreplySubject
     if (this.queryreplySubject != null) {
       this.queryreplySubject.complete();
     }
+    // show loading...
+    this.loading = true;
     // execute query
     let queryreplySubject = this.device.query(this.fromDate, this.toDate, this.socChannels);
     queryreplySubject.subscribe(queryreply => {
@@ -92,15 +78,21 @@ export class SocChartComponent implements OnChanges {
       }
       this.datasets = datasets;
       this.labels = labels;
+      this.loading = false;
+      // set y-axis scale
+      let chartDuration = moment.duration(labels[labels.length - 1].diff(labels[0]));
       setTimeout(() => {
         // Workaround, because otherwise chart data and labels are not refreshed...
         if (this.chart) {
           this.chart.ngOnChanges({} as SimpleChanges);
         }
       });
+
     }, error => {
       this.datasets = EMPTY_DATASET;
       this.labels = [];
+      // TODO should be error message
+      this.loading = true;
     });
   }
 

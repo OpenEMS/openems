@@ -18,8 +18,8 @@ export class HistoryComponent implements OnInit {
 
   public device: Device = null;
   public socChannels: ChannelAddresses = {};
-  public fromDate = moment();
-  public toDate = moment();
+  public fromDate = null;
+  public toDate = null;
   public activePeriodText: string = "";
 
   private activePeriod: PeriodString = "today";
@@ -39,6 +39,7 @@ export class HistoryComponent implements OnInit {
         });
       }
     })
+    this.setPeriod("today");
   }
 
   ngOnDestroy() {
