@@ -24,10 +24,6 @@ export class WebsocketService {
     for (var defaultWebsocket of environment.websockets) {
       // load default websockets
       let websocket = new Websocket(defaultWebsocket.name, defaultWebsocket.url, defaultWebsocket.backend, webappService);
-      this.websockets[websocket.name] = websocket;
-      // try to connect using token or session_id
-      websocket.connectWithTokenOrSessionId();
-
       websocket.event.subscribe(notification => {
         let n = {
           type: notification.type,
@@ -43,6 +39,7 @@ export class WebsocketService {
           }
         }
       });
+      this.websockets[websocket.name] = websocket;
     }
   }
 

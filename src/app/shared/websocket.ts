@@ -31,17 +31,22 @@ export class Websocket {
     public url: string,
     public backend: "femsserver" | "openems",
     private webappService: WebappService,
-  ) { }
+  ) {
+    // try to auto connect using token or session_id
+    setTimeout(() => {
+      this.connectWithTokenOrSessionId(false);
+    })
+  }
 
   /**
    * Opens a connection using a stored token or a cookie with a session_id for this websocket
    */
-  public connectWithTokenOrSessionId() {
+  public connectWithTokenOrSessionId(throwErrorOnDeny: boolean = true) {
     var token = this.webappService.getToken(this.name);
     if (token) {
-      this.connect(null, token);
+      this.connect(null, token, throwErrorOnDeny);
     } else if (document.cookie.indexOf("session_id=") != -1) {
-      this.connect(null, null);
+      this.connect(null, null, throwErrorOnDeny);
     }
   }
 
@@ -55,7 +60,7 @@ export class Websocket {
   /**
    * Tries to connect using given password or token.
    */
-  private connect(password: string, token: string) {
+  private connect(password: string, token: string, throwErrorOnDeny: boolean = true) {
     if (this.messages) {
       return;
     }
@@ -65,23 +70,18 @@ export class Websocket {
       this.inputStream = new QueueingSubject<any>()
     ).messages.share();
 
-    // Status description is here:
-    let status: Notification = null;
-
-    let a = {
+    let authenticate = {
       mode: "login"
     };
     if (password) {
-      a["password"] = password;
+      authenticate["password"] = password;
     } else if (token) {
-      a["token"] = token;
+      authenticate["token"] = token;
     }
 
-    let authenticate = {
-      authenticate: a
-    };
-
-    this.send(null, authenticate);
+    this.send(null, {
+      authenticate: authenticate
+    });
 
     /**
      * called on every receive of message from server
@@ -125,11 +125,12 @@ export class Websocket {
           // authentication denied -> close websocket
           if (this.backend == "femsserver") {
             this.router.navigateByUrl("/web/login?redirect=/m/overview");
+          } else if (throwErrorOnDeny) {
+            let status: Notification = { type: "error", message: "Keine Verbindung: Authentifizierung fehlgeschlagen." };
+            this.event.next(status);
           }
           this.webappService.removeToken(this.name);
           this.isConnected = false;
-          status = { type: "error", message: "Keine Verbindung: Authentifizierung fehlgeschlagen." };
-          this.event.next(status);
           this.initialize();
         }
       }
