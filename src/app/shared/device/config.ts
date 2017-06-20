@@ -60,27 +60,31 @@ export class Config {
     constructor(config: any) {
         Object.assign(this, config);
 
-        let natures = this._meta.natures;
-        for (let thing in natures) {
-            let i = natures[thing].implements;
-            // Ess
-            if (i.includes("EssNature")) {
-                this.storageThings.push(thing);
-            }
-            // Meter
-            if (i.includes("MeterNature")) {
-                let type = natures[thing].channels["type"]["value"];
-                if (type === "grid") {
-                    this.gridMeters.push(thing);
-                } else if (type === "production") {
-                    this.productionMeters.push(thing);
-                } else {
-                    console.warn("Meter without type: " + thing);
+        if (this._meta && "natures" in this._meta) {
+            let natures = this._meta.natures;
+            for (let thing in natures) {
+                if ("implements" in natures[thing]) {
+                    let i = natures[thing].implements;
+                    // Ess
+                    if (i.includes("EssNature")) {
+                        this.storageThings.push(thing);
+                    }
+                    // Meter
+                    if (i.includes("MeterNature")) {
+                        let type = natures[thing].channels["type"]["value"];
+                        if (type === "grid") {
+                            this.gridMeters.push(thing);
+                        } else if (type === "production") {
+                            this.productionMeters.push(thing);
+                        } else {
+                            console.warn("Meter without type: " + thing);
+                        }
+                    }
+                    // Charger
+                    if (i.includes("ChargerNature")) {
+                        this.productionMeters.push(thing);
+                    }
                 }
-            }
-            // Charger
-            if (i.includes("ChargerNature")) {
-                this.productionMeters.push(thing);
             }
         }
     }
