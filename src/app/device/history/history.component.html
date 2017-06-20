@@ -1,10 +1,9 @@
 <div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
-  <div fxFlex.xs="100%" fxFlex.sm="40%" fxFlex.md="30%" fxFlex.lg="30%">
+  <div fxFlex.xs="100%" fxFlex.sm="50%" fxFlex.md="35%" fxFlex.lg="25%" fxFlex.gt-lg="20%">
     <md-card class="single">
       <md-card-header>
         <md-icon md-card-avatar>account_circle</md-icon>
         <md-card-title>{{ device.websocket.name }}</md-card-title>
-        <md-card-subtitle>{{ device.name }}</md-card-subtitle>
       </md-card-header>
       <md-card-content>
         <div fxLayout fxLayoutWrap="wrap" fxFlex>
@@ -56,7 +55,7 @@
       </md-card-content>
     </md-card>
   </div>
-  <div fxFlex.xs="100%" fxFlex.sm="60%" fxFlex.dm="70%" fxFlex.lg="70%" fxLayout fxLayoutWrap="wrap">
+  <div fxFlex.lt-md="100%" fxFlex.md="65%" fxFlex.lg="75%" fxFlex.gt-lg="80%" fxLayout fxLayoutWrap="wrap">
     <!--<div fxFlex="100%">
       <md-card class="single">
         <md-card-header>
@@ -72,7 +71,7 @@
       <md-card class="single">
         <md-card-header>
           <md-icon md-card-avatar>event</md-icon>
-          <md-card-title style="font-size: 16px">{{ activePeriodText }}</md-card-title>
+          <md-card-title>Gewählter Zeitraum: {{ activePeriodText }}</md-card-title>
         </md-card-header>
         <md-card-content>
           <div style="height: 250px">

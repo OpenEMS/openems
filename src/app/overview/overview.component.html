@@ -6,7 +6,7 @@
           <md-card-header *ngIf="!websocket.isConnected">
             <md-icon md-card-avatar>stop</md-icon>
             <md-card-title>Verbindung zu <b>{{ websocket.name }}</b> getrennt.</md-card-title>
-            <md-card-subtitle><small>{{websocket.url}}</small></md-card-subtitle>
+            <md-card-subtitle><small>{{ websocket.url }}</small></md-card-subtitle>
           </md-card-header>
           <md-card-header *ngIf="websocket.isConnected">
             <md-icon md-card-avatar>face</md-icon>

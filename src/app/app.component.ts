@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
-import { Router } from '@angular/router';
 import { Subject } from 'rxjs/Subject';
 
 import * as moment from 'moment';
@@ -22,7 +21,6 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     public websocketService: WebsocketService,
     private webappService: WebappService,
-    private router: Router,
     private snackBar: MdSnackBar
   ) { }
 
