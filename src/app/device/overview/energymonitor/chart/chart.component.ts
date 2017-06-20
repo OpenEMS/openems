@@ -82,14 +82,6 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
    * This method is called on every change of resolution of the browser window.
    */
   private updateOnWindowResize(): void {
-    // adjust width/height of chart
-    // let chartOffsetTop = this.cumulativeOffsetTop(this.chartDiv);
-    // let maxHeight = window.innerHeight - chartOffsetTop - 20;
-    // if (maxHeight < this.width) {
-    //   this.width = this.height = maxHeight;
-    // } else {
-
-    // }
     this.height = this.width;
     this.translation = `translate(${this.width / 2}, ${this.height / 2})`;
     var outerRadius = Math.min(this.width, this.height) / 2;

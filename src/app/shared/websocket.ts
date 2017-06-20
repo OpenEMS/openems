@@ -116,7 +116,7 @@ export class Websocket {
           }
           if ("username" in message.authenticate) {
             this.username = message.authenticate.username;
-            this.event.next({ type: "success", message: "Angemeldet als " + this.username + "." });
+            this.event.next({ type: "success", message: "Angemeldet als Benutzer \"" + this.username + "\"." });
           } else {
             this.event.next({ type: "success", message: "Angemeldet." });
           }

@@ -25,10 +25,8 @@
           </button>
           <button routerLink="/device/{{ currentDevice.websocket.name }}/{{ currentDevice.name }}/overview" md-button>Energiemonitor <small>({{ currentDevice.address }})</small></button>
         </div>
-        <div fxFlex="50px">
-          <button routerLink="/device/{{ currentDevice.websocket.name }}/{{ currentDevice.name }}/config" md-icon-button>
-          <md-icon>settings</md-icon>
-          </button>
+        <div fxFlex="50px" *ngIf="currentDevice.role == 'admin'">
+          <button routerLink="/device/{{ currentDevice.websocket.name }}/{{ currentDevice.name }}/config" md-icon-button><md-icon>settings</md-icon></button>
         </div>
       </ng-container>
       <ng-container *ngIf="!currentDevice">
