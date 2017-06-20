@@ -8,4 +8,7 @@
       <socchart [device]="device" [socChannels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart>
     </div>
   </md-card-content>
+  <md-card-actions>
+    <button md-raised-button color="primary" routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/history">Details...</button>
+  </md-card-actions>
 </md-card>

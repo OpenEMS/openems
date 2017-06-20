@@ -44,8 +44,8 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
   private marginLeft: number = 0;
 
   ngOnInit() {
-    // make sure chart is redrawn on window resize
-    this.updateOnWindowResize();
+    // make sure chart is redrawn in the beginning and on window resize
+    setTimeout(() => this.updateOnWindowResize(), 100);
     const source = Observable.fromEvent(window, 'resize', null, null);
     const subscription = source.takeUntil(this.ngUnsubscribe).debounceTime(200).delay(100).subscribe(e => {
       this.updateOnWindowResize();
@@ -83,13 +83,14 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
    */
   private updateOnWindowResize(): void {
     // adjust width/height of chart
-    let chartOffsetTop = this.cumulativeOffsetTop(this.chartDiv);
-    let maxHeight = window.innerHeight - chartOffsetTop - 20;
-    if (maxHeight < this.width) {
-      this.width = this.height = maxHeight;
-    } else {
-      this.height = this.width;
-    }
+    // let chartOffsetTop = this.cumulativeOffsetTop(this.chartDiv);
+    // let maxHeight = window.innerHeight - chartOffsetTop - 20;
+    // if (maxHeight < this.width) {
+    //   this.width = this.height = maxHeight;
+    // } else {
+
+    // }
+    this.height = this.width;
     this.translation = `translate(${this.width / 2}, ${this.height / 2})`;
     var outerRadius = Math.min(this.width, this.height) / 2;
     var innerRadius = outerRadius - (outerRadius * 0.1378);
@@ -97,24 +98,9 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
     [this.consumptionSection, this.gridSection, this.productionSection, this.storageSection].forEach(section => {
       section.update(outerRadius, innerRadius, this.height, this.width);
     });
-
   }
 
   private deg2rad(value: number): number {
     return value * (Math.PI / 180)
-  }
-
-  /**
-   * Finds the absolute offsetTop of an element
-   * Source: https://stackoverflow.com/a/1480137
-   */
-  private cumulativeOffsetTop(elementRef: ElementRef): number {
-    var top = 0;
-    let element = elementRef.nativeElement;
-    do {
-      top += element.offsetTop || 0;
-      element = element.offsetParent;
-    } while (element);
-    return top;
   }
 }
