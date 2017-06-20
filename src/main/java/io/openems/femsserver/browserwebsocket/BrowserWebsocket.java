@@ -300,14 +300,16 @@ public class BrowserWebsocket extends WebSocketServer {
 				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
 				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jQuery, "toDate", timezone);
 				JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
-				JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
+				// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
 				int resolution = 60 * 60; // 60 Minutes
 				if (days > 6) {
 					resolution = 24 * 60 * 60; // 60 Minutes
 				}
-				JsonObject jQueryreply = Influxdb.getInstance().query(fems, fromDate, toDate, channels, resolution,
-						kWh);
+				JsonObject jQueryreply = Influxdb.getInstance().query(fems, fromDate, toDate, channels, resolution/*
+																													 * ,
+																													 * kWh
+																													 */);
 
 				// Send result
 				JsonObject j = new JsonObject();

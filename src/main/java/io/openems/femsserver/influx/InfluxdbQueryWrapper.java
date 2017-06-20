@@ -33,7 +33,7 @@ public class InfluxdbQueryWrapper {
 	private final static String DB_NAME = "db";
 
 	public static JsonObject query(Optional<InfluxDB> _influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
-			ZonedDateTime toDate, JsonObject channels, int resolution, JsonObject kWh) throws OpenemsException {
+			ZonedDateTime toDate, JsonObject channels, int resolution/* , JsonObject kWh */) throws OpenemsException {
 		// Prepare return object
 		JsonObject jQueryreply = new JsonObject();
 		jQueryreply.addProperty("mode", "history");
@@ -58,7 +58,7 @@ public class InfluxdbQueryWrapper {
 					|| (fromDate.toLocalDate().isAfter(toDate.minusWeeks(1).toLocalDate()) && fromDate.isBefore(toDate))
 					|| fromDate.toLocalDate().equals(toDate.toLocalDate())) {
 				jData = InfluxdbQueryWrapper.queryData(influxdb, fems, fromDate, toDate, channels, resolution);
-				jkWh = InfluxdbQueryWrapper.querykWh(influxdb, fems, fromDate, toDate, channels, resolution, kWh);
+				// jkWh = InfluxdbQueryWrapper.querykWh(influxdb, fems, fromDate, toDate, channels, resolution, kWh);
 			}
 		} else {
 			jData = new JsonArray();

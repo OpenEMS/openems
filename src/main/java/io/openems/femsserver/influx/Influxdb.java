@@ -117,9 +117,9 @@ public class Influxdb {
 	}
 
 	public JsonObject query(int _fems, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
-			int resolution, JsonObject kWh) throws OpenemsException {
+			int resolution/* , JsonObject kWh */) throws OpenemsException {
 		Optional<Integer> fems = Optional.of(_fems);
 		Optional<InfluxDB> influxdb = Optional.of(influxDB);
-		return InfluxdbQueryWrapper.query(influxdb, fems, fromDate, toDate, channels, resolution, kWh);
+		return InfluxdbQueryWrapper.query(influxdb, fems, fromDate, toDate, channels, resolution/* , kWh */);
 	}
 }
