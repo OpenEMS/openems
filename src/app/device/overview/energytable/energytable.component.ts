@@ -11,7 +11,7 @@ import { Device, Data, Config, TemplateHelper } from '../../../shared/shared';
 export class EnergytableComponent {
 
   @Input()
-  private currentData: Data;
+  public currentData: Data;
 
   @Input()
   public config: Config;

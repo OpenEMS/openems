@@ -11,10 +11,10 @@ import { WebsocketService, Websocket, Notification, Device, Data, Config } from 
 })
 export class OverviewComponent implements OnInit, OnDestroy {
 
+  public device: Device;
   public currentData: Data;
   public config: Config;
 
-  private device: Device;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(

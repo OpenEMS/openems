@@ -106,8 +106,6 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
           this.data = tmpData;
         }, error => {
           console.error("error", error);
-        }, () => {
-          console.error("complete");
         });
       }
     });
