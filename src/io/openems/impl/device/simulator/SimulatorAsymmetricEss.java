@@ -58,8 +58,8 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 
 	private List<ChargerNature> chargerList;
 	private ThingRepository repo = ThingRepository.getInstance();
-	private LoadGenerator offGridActivePowerGenerator = new RandomLoadGenerator(-10000, 10000);
-	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator(-500, 500);
+	private LoadGenerator offGridActivePowerGenerator = new RandomLoadGenerator();
+	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator();
 
 	/*
 	 * Constructors

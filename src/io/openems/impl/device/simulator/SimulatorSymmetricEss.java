@@ -61,8 +61,8 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private double energy;
 	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(5, 1);
 	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(5, 1);
-	private LoadGenerator offGridActivePowerGenerator = new RandomLoadGenerator(1000, 10000);
-	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator(-500, 500);
+	private LoadGenerator offGridActivePowerGenerator = new RandomLoadGenerator();
+	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator();
 
 	/*
 	 * Constructors

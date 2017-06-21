@@ -45,7 +45,7 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 	private List<EssNature> essNatures;
 	private List<MeterNature> meterNatures = new ArrayList<>();
 	private LoadGenerator activePowerLoad = new FixValueLoadGenerator();
-	private LoadGenerator reactivePowerLoad = new RandomLoadGenerator(-500, 500);
+	private LoadGenerator reactivePowerLoad = new RandomLoadGenerator();
 
 	public SimulatorGridMeter(String thingId) throws ConfigException {
 		super(thingId);

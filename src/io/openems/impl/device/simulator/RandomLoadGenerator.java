@@ -1,5 +1,7 @@
 package io.openems.impl.device.simulator;
 
+import com.google.gson.JsonObject;
+
 public class RandomLoadGenerator implements LoadGenerator {
 
 	private long min;
@@ -21,10 +23,15 @@ public class RandomLoadGenerator implements LoadGenerator {
 		this.max = max;
 	}
 
-	public RandomLoadGenerator(long min, long max) {
+	public RandomLoadGenerator(JsonObject config) {
 		super();
-		this.min = min;
-		this.max = max;
+		this.min = config.get("min").getAsLong();
+		this.max = config.get("max").getAsLong();
+	}
+
+	public RandomLoadGenerator() {
+		this.min = -1000;
+		this.max = 1000;
 	}
 
 	@Override
