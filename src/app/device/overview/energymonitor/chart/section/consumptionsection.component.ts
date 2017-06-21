@@ -1,9 +1,8 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
 import { Observable } from "rxjs/Rx";
 
-const DEFAULT_TEXT = "Verbrauch";
-const DEFAULT_WARN_TEXT = "Verbrauch & unbekannte Erzeuger";
+import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
+import { LABELS } from './../../../../../shared/shared';
 
 let pulsetime = 1000;
 let pulsetimeright = 2000;
@@ -36,7 +35,7 @@ let pulsetimeright = 2000;
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit {
 
     constructor() {
-        super(DEFAULT_TEXT, 46, 134, "#FDC507");
+        super(LABELS.consumption, 46, 134, "#FDC507");
     }
 
     ngOnInit() {
@@ -60,9 +59,9 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
 
     public updateValue(absolute: number, ratio: number) {
         if (absolute < 0) {
-            this.name = DEFAULT_WARN_TEXT;
+            this.name = LABELS.consumption_warning;
         } else {
-            this.name = DEFAULT_TEXT;
+            this.name = LABELS.consumption;
         }
         super.updateValue(absolute, ratio);
     }

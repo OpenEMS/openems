@@ -104,37 +104,37 @@
           </ng-container>
           <ng-container *ngIf="!(data.ActivePower != null && data.ReactivePower != null) && data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
             <tr *ngIf="data.ActivePowerL1 < 0">
-              <td style="width:50%" i18n>Netzeinspeisung</td>
+              <td style="width:50%" i18n>{{ labels.grid_sell }}</td>
               <td style="width:15%">L1</td>
               <td style="width:25%" class="align_right">{{ data.ActivePowerL1 | sign }}</td>
               <td style="width:10%">W</td>
             </tr>
             <tr *ngIf="data.ActivePowerL1 >= 0">
-              <td i18n>Netzbezug</td>
+              <td i18n>{{ labels.grid_buy }}</td>
               <td>L1</td>
               <td class="align_right">{{ data.ActivePowerL1 }}</td>
               <td>W</td>
             </tr>
             <tr *ngIf="data.ActivePowerL2 < 0">
-              <td i18n>Netzeinspeisung</td>
+              <td i18n>{{ labels.grid_sell }}</td>
               <td>L2</td>
               <td class="align_right">{{ data.ActivePowerL2 | sign }}</td>
               <td>W</td>
             </tr>
             <tr *ngIf="data.ActivePowerL2 >= 0">
-              <td i18n>Netzbezug</td>
+              <td i18n>{{ labels.grid_buy }}</td>
               <td>L2</td>
               <td class="align_right">{{ data.ActivePowerL2 }}</td>
               <td>W</td>
             </tr>
             <tr *ngIf="data.ActivePowerL3 < 0">
-              <td i18n>Netzeinspeisung</td>
+              <td i18n>{{ labels.grid_sell }}</td>
               <td>L3</td>
               <td class="align_right">{{ data.ActivePowerL3 | sign }}</td>
               <td>W</td>
             </tr>
             <tr *ngIf="data.ActivePowerL3 >= 0">
-              <td i18n>Netzbezug</td>
+              <td i18n>{{ labels.grid_buy }}</td>
               <td>L3</td>
               <td class="align_right">{{ data.ActivePowerL3 }}</td>
               <td>W</td>
@@ -157,7 +157,7 @@
         <table class="full_width">
           <ng-container *ngIf="data.ActualPower != null">
             <tr>
-              <td style="width:50%" i18n>Erzeugung</td>
+              <td style="width:50%" i18n>{{ labels.production }}</td>
               <td style="width:15%"></td>
               <td style="width:25%" class="align_right">{{ data.ActualPower }}</td>
               <td style="width:10%">W</td>
@@ -165,7 +165,7 @@
           </ng-container>
           <ng-container *ngIf="data.ActivePower != null && data.ReactivePower != null">
             <tr>
-              <td style="width:50%" i18n>Erzeugung</td>
+              <td style="width:50%" i18n>{{ labels.production }}</td>
               <td style="width:15%"></td>
               <td style="width:25%" class="align_right">{{ data.ActivePower }}</td>
               <td style="width:10%">W</td>
@@ -179,7 +179,7 @@
           </ng-container>
           <ng-container *ngIf="!(data.ActivePower != null && data.ReactivePower != null) && data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
             <tr>
-              <td style="width:50%" i18n>Erzeugung</td>
+              <td style="width:50%" i18n>{{ labels.production }}</td>
               <td style="width:15%">L1</td>
               <td style="width:25%" class="align_right">{{ data.ActivePowerL1 }}</td>
               <td style="width:10%">W</td>
@@ -207,7 +207,7 @@
     <md-card class="single_leftright" fxFlex="100%">
       <md-card-header>
         <img src="assets/img/consumption.png" md-card-avatar/>
-        <md-card-title i18n>Verbrauch</md-card-title>
+        <md-card-title i18n>{{ labels.consumption }}</md-card-title>
       </md-card-header>
       <md-card-content>
         <table class="full_width">

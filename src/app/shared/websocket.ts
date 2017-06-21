@@ -24,13 +24,12 @@ export class Websocket {
   private messages: Observable<any>;
   private inputStream: QueueingSubject<any>;
   private websocketSubscription: Subscription = new Subscription();
-  private router: Router;
 
   constructor(
     public name: string,
     public url: string,
     public backend: "femsserver" | "openems",
-    private webappService: WebappService,
+    private webappService: WebappService
   ) {
     // try to auto connect using token or session_id
     setTimeout(() => {
@@ -124,7 +123,7 @@ export class Websocket {
         } else {
           // authentication denied -> close websocket
           if (this.backend == "femsserver") {
-            this.router.navigateByUrl("/web/login?redirect=/m/overview");
+            window.location.href = "/web/login?redirect=/m/overview";
           } else if (throwErrorOnDeny) {
             let status: Notification = { type: "error", message: "Keine Verbindung: Authentifizierung fehlgeschlagen." };
             this.event.next(status);

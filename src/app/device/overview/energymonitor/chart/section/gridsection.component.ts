@@ -1,6 +1,8 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
 import { Observable } from "rxjs/Rx";
+
+import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
+import { LABELS } from './../../../../../shared/shared';
 
 let pulsetime = 1000;
 let pulsetimeleft = 2000;
@@ -36,7 +38,7 @@ let pulsetimeleft = 2000;
 export class GridSectionComponent extends AbstractSection implements OnInit {
 
     constructor() {
-        super("Netz", 226, 314, "#1d1d1d");
+        super(LABELS.grid, 226, 314, "#1d1d1d");
     }
 
     ngOnInit() {
@@ -62,6 +64,16 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
                     }
                 }
             })
+    }
+
+    public updateValue(absolute: number, ratio: number) {
+        if (absolute < 0) {
+            this.name = LABELS.grid_sell;
+            absolute *= -1;
+        } else {
+            this.name = LABELS.grid_buy;
+        }
+        super.updateValue(absolute, ratio);
     }
 
     protected getCircleDirection(): CircleDirection {

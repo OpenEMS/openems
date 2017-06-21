@@ -1,7 +1,8 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
 import { Observable } from "rxjs/Rx";
 
+import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
+import { LABELS } from './../../../../../shared/shared';
 
 let pulsetime = 500;
 let pulsetimeup = 2000;
@@ -34,7 +35,7 @@ let pulsetimeup = 2000;
 export class ProductionSectionComponent extends AbstractSection implements OnInit {
 
     constructor() {
-        super("Erzeugung", 316, 404, "#008DD2");
+        super(LABELS.production, 316, 404, "#008DD2");
     }
 
     ngOnInit() {

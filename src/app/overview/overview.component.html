@@ -33,13 +33,9 @@
             <md-card-header>
               <md-icon *ngIf="dev.value.online" md-card-avatar color="primary">folder</md-icon>
               <md-icon *ngIf="!dev.value.online" md-card-avatar>error</md-icon>
-              <ng-container *ngIf="websocket.backend == 'openems'">
-                <md-card-title>Zum Energiemonitor...</md-card-title>
-              </ng-container>
-              <ng-container *ngIf="websocket.backend == 'femsserver'">
-                <md-card-title>{{ dev.value.comment }} <span *ngIf="!dev.value.online" i18n><br/>FEMS ist offline!</span></md-card-title>
-                <md-card-subtitle>{{ dev.key }}: {{ dev.value.producttype }}</md-card-subtitle>
-              </ng-container>
+              <md-card-title *ngIf="websocket.backend == 'openems'">Zum Energiemonitor...</md-card-title>
+              <md-card-title *ngIf="websocket.backend == 'femsserver'">{{ dev.value.comment }} <span *ngIf="!dev.value.online" i18n><br/>FEMS ist offline!</span></md-card-title>
+              <md-card-subtitle *ngIf="websocket.backend == 'femsserver'">{{ dev.key }}: {{ dev.value.producttype }}</md-card-subtitle>
             </md-card-header>
             <md-card-actions fxLayout fxLayoutAlign="end start">
               <button type="button" md-fab routerLink="/device/{{ websocket.name }}/{{ dev.key }}"><md-icon>navigate_next</md-icon></button>

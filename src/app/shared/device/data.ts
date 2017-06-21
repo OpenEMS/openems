@@ -49,14 +49,18 @@ export class Summary {
             let soc = 0;
             let activePower = 0;
             let essThings = config.storageThings;
+            let countSoc = 0;
             for (let thing of essThings) {
                 if (thing in data) {
                     let ess = data[thing];
-                    soc += ess["Soc"];
+                    if ("Soc" in ess && ess.Soc != null) {
+                        soc += ess.Soc;
+                        countSoc += 1;
+                    }
                     activePower += getActivePower(ess);
                 }
             }
-            this.storage.soc = soc / Object.keys(essThings).length;
+            this.storage.soc = soc / countSoc;
             this.storage.activePower = activePower;
         }
 
@@ -118,6 +122,13 @@ export class Summary {
                     }
                 }
             }
+
+            // correct negative production
+            if (activePower < 0) {
+                console.warn("negative production? ", this)
+                activePower = 0;
+            }
+            if (maxActivePower < 0) { maxActivePower = 0; }
 
             if (maxActivePower == 0) {
                 powerRatio = 100;

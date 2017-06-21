@@ -3,7 +3,7 @@ import { Subject } from 'rxjs/Subject';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import * as moment from 'moment';
 
-import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, Summary } from './../../../../shared/shared';
+import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, Summary, LABELS } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
 import { TemplateHelper } from './../../../../shared/service/templatehelper';
 
@@ -44,7 +44,17 @@ export class EnergyChartComponent implements OnChanges {
     let options = <ChartOptions>this.tmpl.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
-      return data.datasets[tooltipItem.datasetIndex].label + ": " + tooltipItem.yLabel.toPrecision(2) + " kW";
+      let label = data.datasets[tooltipItem.datasetIndex].label;
+      let value = tooltipItem.yLabel;
+      if (label === LABELS.grid) {
+        if (value < 0) {
+          value *= -1;
+          label = LABELS.grid_buy;
+        } else {
+          label = LABELS.grid_sell;
+        }
+      }
+      return label + ": " + value.toPrecision(2) + " kW";
     }
     this.options = options;
   }
@@ -76,13 +86,13 @@ export class EnergyChartComponent implements OnChanges {
         activePowers.consumption.push(data.consumption.activePower / 1000); // convert to kW
       }
       this.datasets = [{
-        label: "Erzeugung",
+        label: LABELS.production,
         data: activePowers.production
       }, {
-        label: "Netz",
+        label: LABELS.grid,
         data: activePowers.grid
       }, {
-        label: "Verbrauch",
+        label: LABELS.consumption,
         data: activePowers.consumption
       }];
       this.labels = labels;

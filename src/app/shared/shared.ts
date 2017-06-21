@@ -5,4 +5,13 @@ import { TemplateHelper } from './service/templatehelper';
 import { WebappService, Notification } from './service/webapp.service';
 import { WebsocketService, Websocket } from './service/websocket.service';
 
-export { WebappService, TemplateHelper, Notification, WebsocketService, Websocket, Device, Log, Dataset, EMPTY_DATASET, Config, QueryReply, ChannelAddresses, Data, Summary };
+const LABELS = {
+    production: "Erzeugung",
+    consumption: "Verbrauch",
+    consumption_warning: "Verbrauch & unbekannte Erzeuger",
+    grid: "Netz",
+    grid_buy: "Netzbezug",
+    grid_sell: "Netzeinspeisung"
+}
+
+export { WebappService, TemplateHelper, Notification, WebsocketService, Websocket, Device, Log, Dataset, EMPTY_DATASET, Config, QueryReply, ChannelAddresses, Data, Summary, LABELS };
