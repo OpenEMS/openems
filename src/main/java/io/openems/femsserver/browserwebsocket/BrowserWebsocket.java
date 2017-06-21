@@ -107,7 +107,7 @@ public class BrowserWebsocket extends WebSocketServer {
 					     devices: [{
 					       name, online,...
 					     }]
-
+					
 					   }
 					 }
 					 * </pre>
@@ -312,9 +312,14 @@ public class BrowserWebsocket extends WebSocketServer {
 				JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
 				// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
-				int resolution = 60 * 60; // 60 Minutes
-				if (days > 6) {
-					resolution = 24 * 60 * 60; // 60 Minutes
+				// TODO: better calculation of sensible resolution
+				int resolution = 5 * 60; // 5 Minutes
+				if (days > 25) {
+					resolution = 24 * 60 * 60; // 1 Day
+				} else if (days > 6) {
+					resolution = 3 * 60 * 60; // 3 Hours
+				} else if (days > 2) {
+					resolution = 60 * 60; // 60 Minutes
 				}
 				JsonObject jQueryreply = Influxdb.getInstance().query(fems, fromDate, toDate, channels, resolution/*
 																													 * ,
