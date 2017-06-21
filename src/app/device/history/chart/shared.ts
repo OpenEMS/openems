@@ -30,6 +30,9 @@ export type ChartOptions = {
             radius: number,
             hitRadius: number,
             hoverRadius: number
+        },
+        line: {
+            borderWidth: number
         }
     },
     scales: {
@@ -79,6 +82,9 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
             radius: 0,
             hitRadius: 10,
             hoverRadius: 10
+        },
+        line: {
+            borderWidth: 1
         }
     },
     scales: {
