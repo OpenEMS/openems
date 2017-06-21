@@ -67,7 +67,7 @@
 		{
 			"class": "io.openems.impl.persistence.influxdb.InfluxdbPersistence",
 			"ip": "127.0.0.1",
-			"fems": 
+			"fems": 'X'
 		},
 		{
 			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",

@@ -18,6 +18,7 @@
 					"class": "io.openems.impl.device.simulator.Simulator",
 					"gridMeter": {
 						"id": "meter0",
+						"type": "grid",
 						"minActivePower": -15000,
 						"reactivePowerConsumption": 300,
 						"esss": [
@@ -33,6 +34,7 @@
 					},
 					"productionMeter": {
 						"id": "meter1",
+						"type": "production",
 						"ActivePower": 5000,
 						"voltage": 230000,
 						"frequency": 50000,
