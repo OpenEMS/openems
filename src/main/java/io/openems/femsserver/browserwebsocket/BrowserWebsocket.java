@@ -182,10 +182,19 @@ public class BrowserWebsocket extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket websocket, String message) {
 		try {
+			String requestId = "";
 			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 			if (jMessage.has("device")) {
 				String deviceName = JsonUtils.getAsString(jMessage, "device");
 				jMessage.remove("device");
+
+				if (jMessage.has("requestId")) {
+					try {
+						requestId = JsonUtils.getAsString(jMessage, "requestId");
+					} catch (Exception e) {
+						log.warn("Invalid requestId: " + e.getMessage());
+					}
+				}
 
 				/*
 				 * Forward Subscribe to data
@@ -205,7 +214,7 @@ public class BrowserWebsocket extends WebSocketServer {
 				 * Query command
 				 */
 				if (jMessage.has("query")) {
-					query(deviceName, websocket, jMessage.get("query"));
+					query(requestId, deviceName, websocket, jMessage.get("query"));
 				}
 			}
 		} catch (
@@ -286,7 +295,8 @@ public class BrowserWebsocket extends WebSocketServer {
 	 *
 	 * @param j
 	 */
-	private synchronized void query(String deviceName, WebSocket websocket, JsonElement jQueryElement) {
+	private synchronized void query(String requestId, String deviceName, WebSocket websocket,
+			JsonElement jQueryElement) {
 		try {
 			JsonObject jQuery = JsonUtils.getAsJsonObject(jQueryElement);
 			String mode = JsonUtils.getAsString(jQuery, "mode");
@@ -311,15 +321,25 @@ public class BrowserWebsocket extends WebSocketServer {
 																													 * kWh
 																													 */);
 
+				JsonObject j = bootstrapReply(requestId);
 				// Send result
-				JsonObject j = new JsonObject();
-				j.add("queryreply", jQueryreply);
+				if (jQueryreply != null) {
+					j.add("queryreply", jQueryreply);
+				} else {
+					j.addProperty("error", "No Queryable persistence found!");
+				}
 				WebSocketUtils.sendAsDevice(websocket, j, fems);
 			}
 		} catch (Exception e) {
 			log.error("Error", e);
 			e.printStackTrace();
 		}
+	}
+
+	private JsonObject bootstrapReply(String requestId) {
+		JsonObject j = new JsonObject();
+		j.addProperty("requestId", requestId);
+		return j;
 	}
 
 	@Override
