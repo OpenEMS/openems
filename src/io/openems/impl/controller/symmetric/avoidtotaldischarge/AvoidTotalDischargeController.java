@@ -25,6 +25,7 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
@@ -50,6 +51,8 @@ public class AvoidTotalDischargeController extends Controller {
 	 */
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
+	@ConfigInfo(title = "Max Soc", description = "If the System is full the charge is blocked untill the soc decrease below the maxSoc.", type = Long.class)
+	public final ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
 
 	/*
 	 * Methods
@@ -102,6 +105,20 @@ public class AvoidTotalDischargeController extends Controller {
 				case NORMAL:
 					if (ess.soc.value() <= ess.minSoc.value()) {
 						ess.currentState = State.MINSOC;
+					} else if (ess.soc.value() >= 99 && ess.allowedCharge.value() == 0
+							&& ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+						ess.currentState = State.FULL;
+					}
+					break;
+				case FULL:
+					try {
+						ess.setActivePower.pushWriteMin(0L);
+					} catch (WriteChannelException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					if (ess.soc.value() < maxSoc.value()) {
+						ess.currentState = State.NORMAL;
 					}
 					break;
 				}

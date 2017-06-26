@@ -40,12 +40,13 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> systemState;
 	public int maxPowerPercent = 100;
 	public final ReadChannel<Long> allowedDischarge;
+	public final ReadChannel<Long> allowedCharge;
 	public final ReadChannel<Integer> chargeSoc;
 	public Hysteresis socMinHysteresis;
 	public State currentState = State.NORMAL;
 
 	public enum State {
-		NORMAL, MINSOC, CHARGESOC
+		NORMAL, MINSOC, CHARGESOC, FULL;
 	}
 
 	public Ess(SymmetricEssNature ess) {
@@ -55,6 +56,7 @@ public class Ess extends ThingMap {
 		soc = ess.soc().required();
 		minSoc = ess.minSoc().required();
 		allowedDischarge = ess.allowedDischarge().required();
+		allowedCharge = ess.allowedCharge().required();
 		chargeSoc = ess.chargeSoc().required();
 		ChannelChangeListener hysteresisCreator = new ChannelChangeListener() {
 
