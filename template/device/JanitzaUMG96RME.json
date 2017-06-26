@@ -1,0 +1,8 @@
+{
+	"class": "io.openems.impl.device.janitza.JanitzaUMG96RME",
+	"modbusUnitId": 1,
+	"meter": {
+		"id": "meter0",
+		"type": "grid"
+	}
+}

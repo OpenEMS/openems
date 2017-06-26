@@ -1,3 +1,4 @@
+{
   "scheduler": {
     "class": "io.openems.impl.scheduler.time.WeekTimeScheduler",
     "controllers": [
@@ -19,4 +20,5 @@
     "friday": [],
     "saturday": [],
     "sunday": []
-  },
+  }
+}
