@@ -1,0 +1,12 @@
+{
+	"things": [
+		{
+			"class": "io.openems.impl.protocol.modbus.ModbusTcp",
+			"ip": "10.0.0.1",
+			"port": 502,
+			"cycleTime": 1000,
+			"devices": [
+			]
+		}
+	]
+}
