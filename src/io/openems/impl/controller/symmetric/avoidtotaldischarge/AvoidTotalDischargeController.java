@@ -51,7 +51,7 @@ public class AvoidTotalDischargeController extends Controller {
 	 */
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
-	@ConfigInfo(title = "Max Soc", description = "If the System is full the charge is blocked untill the soc decrease below the maxSoc.", type = Long.class)
+	@ConfigInfo(title = "Max Soc", description = "If the System is full the charge is blocked untill the soc decrease below the maxSoc.", type = Long.class, defaultValue = "95")
 	public final ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
 
 	/*
