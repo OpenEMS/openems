@@ -1,11 +1,14 @@
 package io.openems.impl.device.simulator;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
@@ -35,17 +38,18 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 	public ConfigChannel<JsonArray> esss = new ConfigChannel<JsonArray>("esss", this).addChangeListener(this);
 	@ConfigInfo(title = "producer", type = JsonArray.class)
 	public ConfigChannel<JsonArray> producer = new ConfigChannel<JsonArray>("producer", this).addChangeListener(this);
-	@ConfigInfo(title = "activePowerConsumption", type = Long.class)
-	public ConfigChannel<Long> activePowerConsumption = new ConfigChannel<Long>("activePowerConsumption", this)
-			.addChangeListener(this);
-	@ConfigInfo(title = "reactivePowerConsumption", type = Long.class)
-	public ConfigChannel<Long> reactivePowerConsumption = new ConfigChannel<>("reactivePowerConsumption", this);
+	@ConfigInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
+	public ConfigChannel<JsonObject> activePowerGeneratorConfig = new ConfigChannel<JsonObject>(
+			"activePowerGeneratorConfig", this).addChangeListener(this);
+	@ConfigInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
+	public ConfigChannel<JsonObject> reactivePowerGeneratorConfig = new ConfigChannel<JsonObject>(
+			"reactivePowerGeneratorConfig", this).addChangeListener(this);
 
 	private ThingRepository repo = ThingRepository.getInstance();
 	private List<EssNature> essNatures;
 	private List<MeterNature> meterNatures = new ArrayList<>();
-	private LoadGenerator activePowerLoad = new FixValueLoadGenerator();
-	private LoadGenerator reactivePowerLoad = new RandomLoadGenerator();
+	private LoadGenerator activePowerLoad;
+	private LoadGenerator reactivePowerLoad;
 
 	public SimulatorGridMeter(String thingId) throws ConfigException {
 		super(thingId);
@@ -87,9 +91,50 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 			if (meterNatures != null) {
 				getMeterNatures();
 			}
-		} else if (channel.equals(activePowerConsumption)) {
-			((FixValueLoadGenerator) activePowerLoad).setValue(activePowerConsumption.valueOptional().orElse(0L));
+		} else if (channel.equals(activePowerGeneratorConfig)) {
+			if (activePowerGeneratorConfig.valueOptional().isPresent()) {
+				activePowerLoad = getGenerator(activePowerGeneratorConfig.valueOptional().get());
+			}
+		} else if (channel.equals(reactivePowerGeneratorConfig)) {
+			if (reactivePowerGeneratorConfig.valueOptional().isPresent()) {
+				reactivePowerLoad = getGenerator(reactivePowerGeneratorConfig.valueOptional().get());
+			}
 		}
+	}
+
+	private LoadGenerator getGenerator(JsonObject config) {
+		try {
+			Class<?> clazz = Class.forName(config.get("className").getAsString());
+			if (config.get("config") != null) {
+				try {
+					Constructor<?> constructor = clazz.getConstructor(JsonObject.class);
+					return (LoadGenerator) constructor.newInstance(config.get("config").getAsJsonObject());
+				} catch (NoSuchMethodException e) {
+
+				}
+			}
+			return (LoadGenerator) clazz.newInstance();
+
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	private void getEssNatures() {
@@ -137,7 +182,8 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 		if (activePowerLoad != null) {
 			activePower = activePowerLoad.getLoad();
 		}
-		activePower = activePower + SimulatorTools.getRandomLong((int) activePower / -10, (int) activePower / 10);
+		activePower = activePower
+				+ SimulatorTools.getRandomLong((int) Math.abs(activePower) / -10, (int) Math.abs(activePower) / 10);
 		long reactivePower = 0;
 		if (reactivePowerLoad != null) {
 			reactivePower = reactivePowerLoad.getLoad();

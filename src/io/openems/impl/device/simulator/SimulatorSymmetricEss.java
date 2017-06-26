@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.device.simulator;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +29,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
@@ -61,8 +64,14 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private double energy;
 	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(5, 1);
 	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(5, 1);
-	private LoadGenerator offGridActivePowerGenerator = new RandomLoadGenerator();
-	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator();
+	@ConfigInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
+	public ConfigChannel<JsonObject> activePowerGeneratorConfig = new ConfigChannel<JsonObject>(
+			"activePowerGeneratorConfig", this).addChangeListener(this).addChangeListener(this);
+	@ConfigInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
+	public ConfigChannel<JsonObject> reactivePowerGeneratorConfig = new ConfigChannel<JsonObject>(
+			"reactivePowerGeneratorConfig", this).addChangeListener(this).addChangeListener(this);
+	private LoadGenerator offGridActivePowerGenerator;
+	private LoadGenerator offGridReactivePowerGenerator;
 
 	/*
 	 * Constructors
@@ -289,7 +298,50 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 			if (chargerList != null) {
 				getCharger();
 			}
+		} else if (channel.equals(activePowerGeneratorConfig)) {
+			if (activePowerGeneratorConfig.valueOptional().isPresent()) {
+				offGridActivePowerGenerator = getGenerator(activePowerGeneratorConfig.valueOptional().get());
+			}
+		} else if (channel.equals(reactivePowerGeneratorConfig)) {
+			if (reactivePowerGeneratorConfig.valueOptional().isPresent()) {
+				offGridReactivePowerGenerator = getGenerator(reactivePowerGeneratorConfig.valueOptional().get());
+			}
 		}
+	}
+
+	private LoadGenerator getGenerator(JsonObject config) {
+		try {
+			Class<?> clazz = Class.forName(config.get("className").getAsString());
+			if (config.get("config") != null) {
+				try {
+					Constructor<?> constructor = clazz.getConstructor(JsonObject.class);
+					return (LoadGenerator) constructor.newInstance(config.get("config").getAsJsonObject());
+				} catch (NoSuchMethodException e) {
+
+				}
+			}
+			return (LoadGenerator) clazz.newInstance();
+
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	private void getCharger() {
