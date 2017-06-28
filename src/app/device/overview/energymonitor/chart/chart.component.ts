@@ -1,5 +1,4 @@
 import { Component, Input, OnInit, OnChanges, OnDestroy, AfterViewInit, ViewChild, QueryList, ElementRef } from '@angular/core';
-import { BaseChartComponent, ColorHelper } from '@swimlane/ngx-charts';
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
 import * as d3 from 'd3';
@@ -16,7 +15,7 @@ import { Device, Data } from '../../../../shared/shared';
   selector: 'energymonitor-chart',
   templateUrl: './chart.component.html'
 })
-export class EnergymonitorChartComponent extends BaseChartComponent implements OnInit, OnChanges, AfterViewInit {
+export class EnergymonitorChartComponent implements OnInit, OnDestroy {
 
   @ViewChild(ConsumptionSectionComponent)
   public consumptionSection: ConsumptionSectionComponent;
@@ -38,6 +37,8 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
   }
 
   public translation: string;
+  public width: number;
+  public height: number;
 
   private style: string;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -82,7 +83,7 @@ export class EnergymonitorChartComponent extends BaseChartComponent implements O
    * This method is called on every change of resolution of the browser window.
    */
   private updateOnWindowResize(): void {
-    this.height = this.width;
+    this.height = this.width = this.chartDiv.nativeElement.offsetParent.offsetWidth;
     this.translation = `translate(${this.width / 2}, ${this.height / 2})`;
     var outerRadius = Math.min(this.width, this.height) / 2;
     var innerRadius = outerRadius - (outerRadius * 0.1378);
