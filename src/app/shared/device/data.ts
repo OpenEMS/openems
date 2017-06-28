@@ -8,7 +8,9 @@ export class Summary {
     };
     public readonly production = {
         powerRatio: 0,
-        activePower: 0,
+        activePower: 0, // sum of activePowerAC and activePowerDC
+        activePowerAC: 0,
+        activePowerDC: 0,
         maxActivePower: 0
     };
     public readonly grid = {
@@ -26,20 +28,13 @@ export class Summary {
      */
     constructor(config: Config, data: ChannelData) {
         function getActivePower(o: any): number {
-            let activePower = 0;
             if ("ActivePowerL1" in o && o.ActivePowerL1 != null && "ActivePowerL2" in o && o.ActivePowerL2 != null && "ActivePowerL3" in o && o.ActivePowerL3 != null) {
-                activePower = o.ActivePowerL1 + o.ActivePowerL2 + o.ActivePowerL3;
+                return o.ActivePowerL1 + o.ActivePowerL2 + o.ActivePowerL3;
             } else if ("ActivePower" in o && o.ActivePower != null) {
-                activePower = o.ActivePower;
+                return o.ActivePower;
             } else {
-                activePower = 0;
+                return 0;
             }
-
-            if ("ActualPower" in o && o.ActualPower != null) {
-                activePower += o.ActualPower;
-            }
-
-            return activePower;
         }
 
         {
@@ -87,7 +82,6 @@ export class Summary {
                     }
                     activePower += power;
                     maxActivePower += thingChannels["maxActivePower"]["value"];
-                    // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
                 }
             }
             this.grid.powerRatio = powerRatio;
@@ -100,18 +94,19 @@ export class Summary {
              * Production
              */
             let powerRatio = 0;
-            let activePower = 0;
+            let activePowerAC = 0;
+            let activePowerDC = 0;
             let maxActivePower = 0;
             for (let thing of config.productionMeters) {
                 if (thing in data) {
                     let thingChannels = config._meta.natures[thing].channels;
                     let meter = data[thing];
-                    let power = getActivePower(meter);
-                    // console.log(thing, data[thing], power);
-                    activePower += power;
+                    activePowerAC += getActivePower(meter);
+                    if ("ActualPower" in meter && meter.ActualPower != null) {
+                        activePowerDC += meter.ActualPower;
+                    }
                     if (thingChannels["maxActivePower"]) {
                         maxActivePower += thingChannels["maxActivePower"]["value"];
-                        // + meter["ActivePowerL1"] + meter["ActivePowerL2"] + meter["ActivePowerL3"];
                     } else {
                         // no maxActivePower
                     }
@@ -124,20 +119,22 @@ export class Summary {
             }
 
             // correct negative production
-            if (activePower < 0) {
+            if (activePowerAC < 0) {
                 console.warn("negative production? ", this)
-                activePower = 0;
+                activePowerAC = 0;
             }
             if (maxActivePower < 0) { maxActivePower = 0; }
 
             if (maxActivePower == 0) {
                 powerRatio = 100;
             } else {
-                powerRatio = (activePower * 100.) / maxActivePower;
+                powerRatio = ((activePowerAC + activePowerDC) * 100.) / maxActivePower;
             }
 
             this.production.powerRatio = powerRatio;
-            this.production.activePower = activePower;
+            this.production.activePowerAC = activePowerAC;
+            this.production.activePowerDC = activePowerDC;
+            this.production.activePower = activePowerAC + activePowerDC;
             this.production.maxActivePower = maxActivePower;
         }
 
@@ -145,7 +142,7 @@ export class Summary {
             /*
              * Consumption
              */
-            let activePower = this.grid.activePower + this.production.activePower + this.storage.activePower;
+            let activePower = this.grid.activePower + this.production.activePowerAC + this.storage.activePower;
             let maxActivePower = this.grid.maxActivePower + this.production.maxActivePower + this.storage.maxActivePower;
             this.consumption.powerRatio = (activePower * 100.) / maxActivePower;
             this.consumption.activePower = activePower;
