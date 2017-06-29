@@ -84,7 +84,16 @@
                         </configuration>
                     </execution>
                     <!-- build -->
-                    <!--<execution><id>npm build</id><phase>compile</phase><goals><goal>npm</goal></goals><configuration><arguments>run-script ${build-script}</arguments></configuration></execution>-->
+                    <execution>
+                        <id>npm build</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run-script ${build-script}</arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
