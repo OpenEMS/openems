@@ -89,7 +89,7 @@ export class Websocket {
     this.websocketSubscription = this.messages.retryWhen(errors => errors.do(error => {
       // Websocket tries to reconnect ==> send authentication only one time
       if (retryCounter == 0) {
-        this.inputStream.next(authenticate);
+        this.inputStream.next({ authenticate: authenticate });
       } else if (retryCounter == 10) {
         // disconnect user and redirect to login
         this.isConnected = false;
@@ -102,7 +102,6 @@ export class Websocket {
       retryCounter++;
     }).delay(1000)).subscribe(message => {
       retryCounter = 0;
-
       // Receive authentication token
       if ("authenticate" in message && "mode" in message.authenticate) {
         let mode = message.authenticate.mode;
@@ -121,6 +120,8 @@ export class Websocket {
           }
 
         } else {
+          throwErrorOnDeny = true;
+          this.isConnected = false;
           // authentication denied -> close websocket
           if (this.backend == "femsserver") {
             window.location.href = "/web/login?redirect=/m/overview";
@@ -129,7 +130,6 @@ export class Websocket {
             this.event.next(status);
           }
           this.webappService.removeToken(this.name);
-          this.isConnected = false;
           this.initialize();
         }
       }
