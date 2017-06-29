@@ -6,6 +6,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build-openems": "ng build -prod --env=openems --base-href=/ --output-path=target/openems",
+    "build-femsserver": "ng build -prod --env=femsserver --base-href=/m/ --output-path=target/femsserver",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -25,6 +27,7 @@
     "@angular/platform-server": "4.2.2",
     "@angular/router": "4.2.2",
     "@swimlane/ngx-charts": "5.3.1",
+    "@types/d3": "4.9.0",
     "angular2-uuid": "^1.1.1",
     "chart.js": "^2.6.0",
     "classlist.js": "^1.1.20150312",
@@ -54,7 +57,6 @@
   "devDependencies": {
     "@angular/cli": "1.1.2",
     "@angular/compiler-cli": "4.2.2",
-    "@types/d3": "4.9.0",
     "@types/jasmine": "2.5.45",
     "@types/node": "~6.0.60",
     "codelyzer": "~3.0.1",
