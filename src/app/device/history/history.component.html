@@ -1,0 +1,87 @@
+<div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div fxFlex.xs="100%" fxFlex.sm="50%" fxFlex.md="35%" fxFlex.lg="25%" fxFlex.gt-lg="20%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>account_circle</md-icon>
+        <md-card-title>{{ device.websocket.name }}</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <div fxLayout fxLayoutWrap="wrap" fxFlex>
+          <button md-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold" i18n>
+            Zeitraum
+          </button>
+          <button md-raised-button [class.activated]="activePeriod == 'today'" (click)="setPeriod('today')" fxFlex="100%" i18n>
+            Heute
+          </button>
+          <button md-raised-button [class.activated]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%" i18n>
+            Gestern
+          </button>
+          <!-- TODO reactivate -->
+          <!--<button md-raised-button [class.activated]="activePeriod == 'lastWeek'" (click)="setPeriod('lastWeek')" fxFlex="100%"
+            i18n>
+            letzte Woche
+          </button>
+          <button md-raised-button [class.activated]="activePeriod == 'lastMonth'" (click)="setPeriod('lastMonth')" fxFlex="100%" i18n>
+            letzten Monat
+          </button>
+          <button md-raised-button [class.activated]="activePeriod == 'lastYear'" (click)="setPeriod('lastYear')" fxFlex="100%" i18n>
+            letztes Jahr
+          </button>-->
+          <button [class.activated]="activePeriod == 'otherTimespan'" (click)="showOtherTimespan = !showOtherTimespan" md-raised-button
+            fxFlex="100%" i18n>
+            Anderer Zeitraum
+          </button>
+          <div *ngIf="showOtherTimespan" style="margin-top: 20px" fxLayout fxLayoutWrap="wrap" fxFlex="100%">
+            <div fxFlex="100%">
+              <div fxFlex="75px"></div>
+              <md-input-container>
+                <input #from type="date" [value]="fromDate | date:'yyyy-MM-dd'" placeholder="Datum von" style="height: auto" mdInput/>
+              </md-input-container>
+            </div>
+            <div fxFlex="100%">
+              <div fxFlex="75px"></div>
+              <md-input-container>
+                <input #to type="date" [value]="toDate | date:'yyyy-MM-dd'" placeholder="Datum bis" style="height: auto" mdInput />
+              </md-input-container>
+            </div>
+            <div fxFlex="100%">
+              <div fxFlex="75px"></div>
+              <button md-raised-button style="font-size: 14px" (click)="setPeriod('otherTimespan', from.value, to.value)" i18n>
+                Los!
+              </button>
+            </div>
+          </div>
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+  <div fxFlex.lt-md="100%" fxFlex.md="65%" fxFlex.lg="75%" fxFlex.gt-lg="80%" fxLayout fxLayoutWrap="wrap">
+    <!--<div fxFlex="100%">
+      <md-card class="single">
+        <md-card-header>
+          <md-icon md-card-avatar>event</md-icon>
+          <md-card-title style="font-size: 16px">{{ timespanText }}</md-card-title>
+        </md-card-header>
+        <md-card-content>
+          <progressbar-kwh [result]="datakWh"></progressbar-kwh>
+        </md-card-content>
+      </md-card>
+    </div>-->
+    <div fxFlex="100%">
+      <md-card class="single">
+        <md-card-header>
+          <md-icon md-card-avatar>event</md-icon>
+          <md-card-title>Gewählter Zeitraum: {{ activePeriodText }}</md-card-title>
+        </md-card-header>
+        <md-card-content>
+          <div style="height: 250px">
+            <socchart [device]="device" [socChannels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart>
+          </div>
+          <div style="height: 500px">
+            <energychart [device]="device" [fromDate]="fromDate" [toDate]="toDate"></energychart>
+          </div>
+        </md-card-content>
+      </md-card>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<ng-container *ngIf="device">
+  <ng-container *ngFor="let nat of (device.config | async)?._meta.natures | keys">
+    <ng-container *ngFor="let implements of nat.value.implements">
+      <ng-container *ngIf="implements == 'EssNature'">
+
+        <md-card class="single">
+          <md-card-header>
+            <md-icon md-card-avatar>stop</md-icon>
+            <md-card-title i18n>Leistungsvorgabe</md-card-title>
+            <md-card-subtitle>{{ nat.key }}</md-card-subtitle>
+          </md-card-header>
+          <md-card-content [formGroup]="manualPQForm" fxLayout fxLayoutWrap="wrap">
+            <div fxFlex="100%">
+              <md-input-container fxFlex="200px"><input formControlName="p" type="number" placeholder="Wirkleistung (P)" mdInput><span md-suffix>W</span></md-input-container>
+              <div fxFlex></div>
+            </div>
+            <div fxFlex="100%">
+              <md-input-container fxFlex="200px"><input formControlName="q" type="number" placeholder="Blindleistung (Q)" mdInput><span md-suffix>Var</span></md-input-container>
+              <div fxFlex></div>
+            </div>
+            <div fxFlex="100%">
+              <button md-raised-button (click)="applyManualPQ(nat.key, manualPQForm)" class="btn btn-default" i18n>Übernehmen</button>
+              <button md-raised-button (click)="removeManualPQ(nat.key)" class="btn btn-default" i18n>Zurücksetzen</button>
+            </div>
+          </md-card-content>
+        </md-card>
+
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</ng-container>

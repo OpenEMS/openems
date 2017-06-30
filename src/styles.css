@@ -1,0 +1,31 @@
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+md-card.single  {
+  margin: 20px;
+}
+
+md-card.single_leftright {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+md-card.single_top {
+  margin-top: 20px;
+}
+
+table.full_width {
+  width: 100%;
+}
+
+td.align_right {
+  text-align: right;
+}
+
+.gray_color {
+  color: gray;
+}
+
+button.activated {
+  color: black;
+  background-color: lightgreen;
+}

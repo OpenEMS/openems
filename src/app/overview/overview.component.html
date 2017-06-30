@@ -1,0 +1,48 @@
+<div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div *ngFor="let form of forms" fxFlex="50%" fxFlex.xs="100%">
+    <ng-container *ngIf="form._websocket as websocket">
+      <form [formGroup]="form" (ngSubmit)="doLogin(form)">
+        <md-card class="single">
+          <md-card-header *ngIf="!websocket.isConnected">
+            <md-icon md-card-avatar>stop</md-icon>
+            <md-card-title>Verbindung zu <b>{{ websocket.name }}</b> getrennt.</md-card-title>
+            <md-card-subtitle><small>{{ websocket.url }}</small></md-card-subtitle>
+          </md-card-header>
+          <md-card-header *ngIf="websocket.isConnected">
+            <md-icon md-card-avatar>face</md-icon>
+            <md-card-title>Verbindung zu <b>{{ websocket.name }}</b> hergestellt.</md-card-title>
+          </md-card-header>
+          <md-card-content fxLayout fxLayoutWrap="wrap">
+            <ng-container *ngIf="websocket.backend == 'openems'">
+              <md-input-container *ngIf="!websocket.isConnected" fxFlex="100%"><input formControlName="password" mdInput type="password" placeholder="Passwort"></md-input-container>
+            </ng-container>
+            <!-- Messages -->
+            <p fxFlex="100%">{{ (websocket.event | async)?.message }}</p>
+          </md-card-content>
+          <md-card-actions *ngIf="websocket.backend == 'openems'" fxLayout fxLayoutAlign="end start">
+            <button type="button" md-fab *ngIf="!websocket.isConnected" (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>
+            <button type="button" md-fab *ngIf="websocket.isConnected" (click)="doLogout(form)" color="accent"><md-icon>exit_to_app</md-icon></button>
+          </md-card-actions>
+        </md-card>
+      </form>
+
+      <!-- List of devices -->
+      <ng-container *ngFor="let dev of tmpl.keyvalues(websocket.devices)">
+        <ng-container *ngIf="dev.value.state != 'inactive'">
+          <md-card class="single">
+            <md-card-header>
+              <md-icon *ngIf="dev.value.online" md-card-avatar color="primary">folder</md-icon>
+              <md-icon *ngIf="!dev.value.online" md-card-avatar>error</md-icon>
+              <md-card-title *ngIf="websocket.backend == 'openems'">Zum Energiemonitor...</md-card-title>
+              <md-card-title *ngIf="websocket.backend == 'femsserver'">{{ dev.value.comment }} <span *ngIf="!dev.value.online" i18n><br/>FEMS ist offline!</span></md-card-title>
+              <md-card-subtitle *ngIf="websocket.backend == 'femsserver'">{{ dev.key }}: {{ dev.value.producttype }}</md-card-subtitle>
+            </md-card-header>
+            <md-card-actions fxLayout fxLayoutAlign="end start">
+              <button type="button" md-fab routerLink="/device/{{ websocket.name }}/{{ dev.key }}"><md-icon>navigate_next</md-icon></button>
+            </md-card-actions>
+          </md-card>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

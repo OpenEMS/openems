@@ -1,0 +1,147 @@
+<div *ngIf="device | async" fxLayout fxLayoutWrap="wrap">
+  <div *ngFor="let form of forms" fxFlex.gt-xs="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>explore</md-icon>
+        <md-card-title>Simulator</md-card-title>
+        <md-card-subtitle>{{ form.id }}: {{ form.class }}</md-card-subtitle>
+      </md-card-header>
+      <md-card-content *ngIf="form.gridMeter">
+        <div fxLayout fxLayoutWrap="wrap" [formGroup]="form.gridMeter">
+          <div fxFlex="200px">
+            <p style="font-weight: bold">Grid-Meter</p>
+            <p>Id: {{ form.gridMeter.value.id }}<br>Producer-Id: {{ form.gridMeter.value.producer | json }}<br>Ess-Id: {{ form.gridMeter.value.esss
+              | json }}
+            </p>
+          </div>
+          <div fxFlex fxLayout fxLayoutWrap="wrap">
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Min Active Power" formControlName="minActivePower" type="number" mdInput>
+            </md-input-container>
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Max Active Power" formControlName="maxActivePower" type="number" mdInput>
+            </md-input-container>
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Consumption Active Power" formControlName="activePowerConsumption" type="number" mdInput>
+            </md-input-container>
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Consumption Reactive Power" formControlName="reactivePowerConsumption" type="number" mdInput>
+            </md-input-container>
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Frequency" formControlName="frequency" type="number" mdInput>
+            </md-input-container>
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Voltage" formControlName="voltage" type="number" mdInput>
+            </md-input-container>
+          </div>
+        </div>
+      </md-card-content>
+      <md-card-actions *ngIf="form.gridMeter" style="text-align: right">
+        <button (click)="save(form.gridMeter)" [disabled]="form.gridMeter.pristine" color="primary" md-mini-fab>
+                                        <md-icon>save</md-icon>
+                                    </button>
+      </md-card-actions>
+      <md-card-content *ngIf="form.productionMeter">
+        <div fxLayout fxLayoutWrap="wrap" [formGroup]="form.productionMeter">
+          <div fxFlex="200px">
+            <p style="font-weight: bold">Production-Meter</p>
+            <p>Id: {{ form.productionMeter.value.id }}</p>
+          </div>
+          <div fxFlex fxLayout fxLayoutWrap="wrap">
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Min Active Power" formControlName="minActivePower" type="number" mdInput>
+            </md-input-container>
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Max Active Power" formControlName="maxActivePower" type="number" mdInput>
+            </md-input-container>
+            <!--<md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Active Power" formControlName="ActivePower" type="number" mdInput>
+            </md-input-container>
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Reactive Power" formControlName="ReactivePower" type="number" mdInput>
+            </md-input-container>-->
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Frequency" formControlName="frequency" type="number" mdInput>
+            </md-input-container>
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Voltage" formControlName="voltage" type="number" mdInput>
+            </md-input-container>
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="ActivePowerGeneratorConfig" formControlName="activePowerGeneratorConfig" type="json" mdInput>
+            </md-input-container>
+          </div>
+        </div>
+      </md-card-content>
+      <md-card-actions *ngIf="form.productionMeter" style="text-align: right">
+        <button (click)="save(form.productionMeter)" [disabled]="form.productionMeter.pristine" color="primary" md-mini-fab>
+                                        <md-icon>save</md-icon>
+                                    </button>
+      </md-card-actions>
+
+      <md-card-content *ngIf="form.symmetricEss">
+        <div fxLayout fxLayoutWrap="wrap" [formGroup]="form.symmetricEss">
+          <div fxFlex="200px">
+            <p style="font-weight: bold">Symmetric ESS</p>
+            <p>Id: {{ form.symmetricEss.value.id }}</p>
+          </div>
+          <div fxFlex fxLayout fxLayoutWrap="wrap">
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Grid Mode" formControlName="GridMode" type="number" mdInput>
+            </md-input-container>
+            <span>(0=On-Grid,1=Off-Grid)</span>
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="System State" formControlName="SystemState" type="number" mdInput>
+            </md-input-container>
+            <span>(1=Start,2=Stop,5=Fehler)</span>
+          </div>
+        </div>
+      </md-card-content>
+      <md-card-actions *ngIf="form.symmetricEss" style="text-align: right">
+        <button (click)="save(form.symmetricEss)" [disabled]="form.symmetricEss.pristine" color="primary" md-mini-fab>
+                                        <md-icon>save</md-icon>
+                                    </button>
+      </md-card-actions>
+      <md-card-content *ngIf="form.charger">
+        <div fxLayout fxLayoutWrap="wrap" [formGroup]="form.charger">
+          <div fxFlex="200px">
+            <p style="font-weight: bold">Charger</p>
+            <p>Id: {{ form.charger.value.id }}</p>
+          </div>
+          <div fxFlex fxLayout fxLayoutWrap="wrap">
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="Power" formControlName="powerConfig" type="number" mdInput>
+            </md-input-container>
+          </div>
+        </div>
+      </md-card-content>
+      <md-card-actions *ngIf="form.charger" style="text-align: right">
+        <button (click)="save(form.charger)" [disabled]="form.charger.pristine" color="primary" md-mini-fab>
+                                        <md-icon>save</md-icon>
+                                    </button>
+      </md-card-actions>
+    </md-card>
+  </div>
+  <div fxFlex.gt-xs="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>explore</md-icon>
+        <md-card-title>Data</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <div *ngFor="let thing of keys(data)">
+          <h3>{{ thing }}</h3>
+          <div *ngFor="let channel of keys(data[thing])">
+            <span>{{ channel }}:{{ data[thing][channel].value }}</span>
+            <!--<div>
+              <span *ngFor="let record of data[thing][channel]">
+                {{ record.name }} <b>{{ record.value }}</b><br/>
+              </span>
+              <ngx-charts-line-chart [results]="data[thing][channel]" gradient="false" xAxis="true" yAxis="true" autoScale="true">
+              </ngx-charts-line-chart>
+          </div>-->
+          </div>
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>

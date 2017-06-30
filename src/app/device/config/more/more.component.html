@@ -1,0 +1,19 @@
+<refu [device]="device"></refu>
+
+<manualpq [device]="device"></manualpq>
+
+<md-card class="single">
+  <md-card-header>
+    <md-icon md-card-avatar>stop</md-icon>
+    <md-card-title i18n>Manueller Befehl</md-card-title>
+  </md-card-header>
+  <md-card-content [formGroup]="manualMessageForm" fxLayout fxLayoutWrap="wrap">
+    <div fxFlex="100%" fxLayout>
+      <md-input-container fxFlex="100%"><input formControlName="message" placeholder="JSON" mdInput></md-input-container>
+      <div fxFlex></div>
+    </div>
+    <div fxFlex="100%">
+      <button md-raised-button (click)="sendManualMessage(manualMessageForm)" class="btn btn-default" i18n>Senden</button>
+    </div>
+  </md-card-content>
+</md-card>

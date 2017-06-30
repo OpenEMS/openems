@@ -1,0 +1,147 @@
+
+<project 
+    xmlns="http://maven.apache.org/POM/4.0.0" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.openems</groupId>
+    <artifactId>openems</artifactId>
+    <version>1.1.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <scm>
+        <url>https://github.com/OpenEMS/openems-gui</url>
+        <connection>scm:git:git://github.com/OpenEMS/openems-gui.git</connection>
+    </scm>
+    <properties>
+        <!-- node.js -->
+        <node.version>v6.10.0</node.version>
+        <yarn.version>v0.16.1</yarn.version>
+        <!-- maven plugins -->
+        <frontend-maven-plugin.version>1.4</frontend-maven-plugin.version>
+        <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
+        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+        <maven-replacer-plugin.version>1.5.3</maven-replacer-plugin.version>
+    </properties>
+    <profiles>
+        <!-- FemsServer -->
+        <profile>
+            <id>femsserver</id>
+            <properties>
+                <output-path>target/femsserver</output-path>
+                <build-script>build-femsserver</build-script>
+            </properties>
+        </profile>
+        <!-- OpenEMS -->
+        <profile>
+            <id>openems</id>
+            <properties>
+                <output-path>target/openems</output-path>
+                <build-script>build-openems</build-script>
+            </properties>
+        </profile>
+    </profiles>
+    <build>
+        <plugins>
+            <plugin>
+                <!-- Clean output directory -->
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>${maven-clean-plugin.version}</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>target</directory>
+                            <includes>
+                                <include>*</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend-maven-plugin.version}</version>
+                <executions>
+                    <!-- install node and yarn -->
+                    <execution>
+                        <id>install node and yarn</id>
+                        <goals>
+                            <goal>install-node-and-yarn</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <nodeVersion>${node.version}</nodeVersion>
+                            <yarnVersion>${yarn.version}</yarnVersion>
+                        </configuration>
+                    </execution>
+                    <!-- install npm dependencies -->
+                    <execution>
+                        <id>yarn install</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <!-- build -->
+                    <execution>
+                        <id>npm build</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run-script ${build-script}</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- Receive GIT commit number -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>true</doCheck>
+                    <doUpdate>true</doUpdate>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Write Version number to file -->
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>${maven-replacer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <basedir>${output-path}</basedir>
+                    <includes>
+                        <include>main.**.bundle.js</include>
+                    </includes>
+                    <replacements>
+                        <replacement>
+                            <token>COMMIT_ID</token>
+                            <value>${buildNumber}</value>
+                        </replacement>
+                    </replacements>
+                </configuration>
+            </plugin>
+            <!-- Start OpenEMS-UI -->
+            <!--<plugin><groupId>org.codehaus.mojo</groupId><artifactId>exec-maven-plugin</artifactId><version>${exec-maven-plugin.version}</version><executions><execution><id>start-openems-ui</id><phase>generate-sources</phase><configuration><executable>npm</executable><arguments><argument>start</argument></arguments></configuration><goals><goal>exec</goal></goals></execution></executions></plugin>-->
+        </plugins>
+    </build>
+</project>

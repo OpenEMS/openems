@@ -1,0 +1,151 @@
+<div *ngIf="form" [formGroup]="form">
+  <div formArrayName="things">
+    <md-tab-group (selectChange)="addBridge(form.controls.things, $event)">
+      <md-tab *ngFor="let bridgeForm of form.controls.things.controls, let i=index" [formGroupName]="i">
+        <ng-container *ngFor="let bridgeMeta of form.value._meta.availableBridges, let j=index">
+          <!--existing bridge-->
+          <ng-container *ngIf="bridgeForm.value.class != '' && bridgeForm.value.id != '' && bridgeMeta.class == bridgeForm.value.class">
+            <ng-template md-tab-label>{{ bridgeMeta.class | classname }}<small>({{ bridgeForm.value.id }})</small></ng-template>
+            <md-card class="single">
+              <md-card-header>
+                <md-icon md-card-avatar>device_hub</md-icon>
+                <md-card-title>{{ bridgeMeta.class | classname }}</md-card-title>
+                <md-card-subtitle>{{ bridgeForm.value.id }}</md-card-subtitle>
+              </md-card-header>
+              <md-card-content>
+                <div fxLayout>
+                  <p fxFlex="100px"></p>
+                  <div fxFlex fxLayout fxLayoutWrap="wrap" *ngFor="let channelMeta of bridgeMeta.channels">
+                    <md-input-container fxFlex="50%">
+                      <input [formControlName]="channelMeta.name" placeholder="{{ channelMeta.title }}" mdInput>
+                      <span *ngIf="channelMeta.name == 'cycleTime'" md-suffix>ms</span>
+                    </md-input-container>
+                  </div>
+                </div>
+                <div style="position: absolute;bottom: 0;right: 0; margin: 20px">
+                  <button (click)="save(bridgeForm)" [disabled]="form.pristine" color="primary" md-mini-fab>
+                    <md-icon>save</md-icon>
+                  </button>
+                  <button (click)="delete(form.controls.things, i)" color="primary" md-mini-fab>
+                    <md-icon>delete</md-icon>
+                  </button>
+                </div>
+              </md-card-content>
+            </md-card>
+            <div *ngIf="bridgeForm.controls.devices">
+              <div *ngFor="let device of bridgeForm.controls.devices.controls, let k=index" formArrayName="devices">
+                <div *ngFor="let deviceMeta of form.value._meta.availableDevices" [formGroupName]="k">
+                  <div *ngIf="device.value.class != '' && device.value.id != '' && deviceMeta.class == device.value.class">
+                    <md-card class="single">
+                      <md-card-header>
+                        <md-icon md-card-avatar>stop</md-icon>
+                        <md-card-title>{{ deviceMeta.class | classname }}</md-card-title>
+                        <md-card-subtitle>{{ device.value.id }}</md-card-subtitle>
+                      </md-card-header>
+                      <md-card-content>
+                        <div fxFlex="100px"></div>
+                        <div fxFlex="50%">
+                          <md-input-container>
+                            <input formControlName="id" placeholder="ID" mdInput>
+                          </md-input-container>
+                        </div>
+                        <div fxLayout fxLayoutWrap="wrap" fxFlex *ngFor="let channelDeviceMeta of deviceMeta.channels" [formGroupName]="channelDeviceMeta.name">
+                          <!--TODO: ID is not enough!-->
+                          <!--<div fxFlex="100%" *ngIf="channelDeviceMeta.array == true">
+                            <div fxFlex="100px"></div>
+                            <div fxFlex="50%">
+                              <md-input-container>
+                                <input [formControlName]="channelDeviceMeta.name" placeholder="{{ channelDeviceMeta.title }}" mdInput>
+                              </md-input-container>
+                            </div>
+                          </div>-->
+                        </div>
+                        <div style="position: absolute;bottom: 0;right: 0; margin: 20px">
+                          <button (click)="save(device)" [disabled]="form.pristine" color="primary" md-mini-fab>
+                            <md-icon>save</md-icon>
+                          </button>
+                          <button (click)="delete(bridgeForm.controls.devices, k)" color="primary" md-mini-fab>
+                            <md-icon>delete</md-icon>
+                          </button>
+                        </div>
+                      </md-card-content>
+                    </md-card>
+                  </div>
+                </div>
+                <!--new bridge-->
+                <div *ngIf="device.value.class == '' || device.value.id == ''" [formGroupName]="k">
+                  <md-card class="single">
+                    <md-card-header>
+                      <md-icon md-card-avatar>stop</md-icon>
+                      <md-card-title i18n>Neues Gerät...</md-card-title>
+                    </md-card-header>
+                    <md-card-content>
+                      <div fxLayout style="margin-bottom: 20px">
+                        <div fxFlex="100px"></div>
+                        <md-input-container>
+                          <input formControlName="id" placeholder="Name" mdInput>
+                        </md-input-container>
+                        <button (click)="setNameReady()" [disabled]="device.pristine" md-mini-fab>
+                          <md-icon>send</md-icon>
+                        </button>
+                      </div>
+                      <div fxLayout *ngIf="nameReady">
+                        <div fxFlex="100px"></div>
+                        <md-select fxFlex="50%" placeholder="Klasse" formControlName="class" (change)="addNaturesToDevice(device, device.value.class)">
+                          <md-option *ngFor="let deviceMeta of form.value._meta['availableDevices']" [value]="deviceMeta.class">{{ deviceMeta.class }}</md-option>
+                        </md-select>
+                      </div>
+                    </md-card-content>
+                  </md-card>
+                </div>
+              </div>
+            </div>
+            <md-card class="single_leftright">
+              <md-card-header>
+                <md-icon md-card-avatar>stop</md-icon>
+                <md-card-title i18n>Neues Gerät...</md-card-title>
+              </md-card-header>
+              <md-card-content>
+                <div style="position: absolute;right: 0;bottom: 0;margin: 20px">
+                  <button (click)="addDeviceToBridge(bridgeForm, i)" md-mini-fab>
+                    <md-icon>add</md-icon>
+                  </button>
+                </div>
+              </md-card-content>
+            </md-card>
+          </ng-container>
+        </ng-container>
+        <div *ngIf="bridgeForm.value.id == '' || bridgeForm.value.class == ''">
+          <md-card class="single">
+            <md-card-header>
+              <md-icon md-card-avatar>add_circle_outline</md-icon>
+              <md-card-title i18n>Neue Verbindung...</md-card-title>
+            </md-card-header>
+            <md-card-content>
+              <div fxLayout style="margin-bottom: 20px">
+                <div fxFlex="100px"></div>
+                <md-input-container>
+                  <input formControlName="id" placeholder="Name" mdInput>
+                </md-input-container>
+                <button (click)="setNameReady()" [disabled]="bridgeForm.pristine" md-mini-fab>
+                  <md-icon>send</md-icon>
+                </button>
+              </div>
+              <div fxLayout *ngIf="nameReady">
+                <div fxFlex="100px"></div>
+                <md-select fxFlex="50%" placeholder="Klasse" formControlName="class" (change)="addChannelsToBridge(bridgeForm, bridgeForm.value.class)">
+                  <md-option *ngFor="let bridgeMeta of form.value._meta['availableBridges']" [value]="bridgeMeta.class">{{ bridgeMeta.class }}</md-option>
+                </md-select>
+              </div>
+            </md-card-content>
+          </md-card>
+        </div>
+      </md-tab>
+      <md-tab>
+        <ng-template md-tab-label><span i18n>Neue Verbindung...</span>
+          <md-icon>add_circle_outline</md-icon>
+        </ng-template>
+      </md-tab>
+    </md-tab-group>
+  </div>
+</div>

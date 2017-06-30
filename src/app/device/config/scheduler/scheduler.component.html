@@ -1,0 +1,37 @@
+<div *ngIf="device" fxLayout fxLayoutWrap="wrap" [formGroup]="configForm">
+  <!--<button routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config">scheduler</button>-->
+  <div fxFlex="100%" formGroupName="scheduler">
+    <!-- Scheduler -->
+    <ng-container [ngSwitch]="configForm.controls['scheduler']['controls']['class'].value | classname">
+      <weektime *ngSwitchCase="'WeekTimeScheduler'" [form]="configForm"></weektime>
+      <channelthreshold *ngSwitchCase="'ChannelThresholdScheduler'" [form]="configForm"></channelthreshold>
+      <simple *ngSwitchCase="'SimpleScheduler'" [form]="configForm"></simple>
+      <!--New Scheduler-->
+      <ng-container *ngSwitchCase="''">
+        <md-card class="single">
+          <md-card-header>
+            <md-icon md-card-avatar>scheduler</md-icon>
+            <md-card-title i18n>Neuer Scheduler...</md-card-title>
+          </md-card-header>
+          <md-card-content>
+            <div fxLayout fxLayoutWrap="wrap">
+              <div fxFlex="100px" i18n>
+                Klasse:
+              </div>
+              <select formControlName="class" (change)="addChannelsToScheduler(configForm.controls['scheduler'], $event)">
+                <option></option>
+                <option *ngFor="let availableScheduler of configForm.controls['_meta']['controls']['availableSchedulers']['controls']" [value]="availableScheduler.value.class">
+                  {{ availableScheduler.value.class }}
+                </option>
+              </select>
+            </div>
+          </md-card-content>
+        </md-card>
+      </ng-container>
+      <ng-container *ngSwitchDefault i18n>
+        <p><b>Formular nicht implementiert:</b> {{ form.value | json }}<br/>Das sollte nicht passieren. Bitte kontaktieren Sie
+          <a href="mailto:fems@fenecon.de">fems@fenecon.de</a>.</p>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

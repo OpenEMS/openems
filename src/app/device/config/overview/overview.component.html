@@ -1,0 +1,103 @@
+<div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <!--call bridge configuration-->
+  <div fxFlex="50%" fxFlex.xs="100%">
+    <md-card routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/bridge" class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>device_hub</md-icon>
+        <md-card-title>Verbindungen und Geräte</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <md-list dense fxLayout fxLayoutWrap="wrap">
+          <md-list-item *ngFor="let bridge of (device.config | async)?.things" fxFlex="50%">
+            <p md-line>{{ bridge.class | classname }}</p>
+            <p md-line><small>{{ bridge.id }}</small></p>
+          </md-list-item>
+        </md-list>
+      </md-card-content>
+    </md-card>
+  </div>
+  <!--call scheduler configuration-->
+  <div fxFlex="50%" fxFlex.xs="100%">
+    <md-card routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/scheduler" class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>schedule</md-icon>
+        <md-card-title>App-Planer</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <md-list dense fxLayout fxLayoutWrap="wrap">
+          <md-list-item fxFlex="50%">
+            <p md-line>{{ (device.config | async)?.scheduler.class | classname }}</p>
+            <p md-line><small>{{ (device.config | async)?.scheduler.id }}</small></p>
+          </md-list-item>
+        </md-list>
+      </md-card-content>
+    </md-card>
+  </div>
+  <!--call controller configuration-->
+  <div routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/controller" fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>apps</md-icon>
+        <md-card-title>Apps</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <md-list dense fxLayout fxLayoutWrap="wrap">
+          <md-list-item *ngFor="let controller of (device.config | async)?.scheduler.controllers" fxFlex="50%">
+            <p md-line>{{ controller.class | classname }}</p>
+            <p md-line><small>{{ controller.id }}</small></p>
+          </md-list-item>
+        </md-list>
+      </md-card-content>
+    </md-card>
+  </div>
+  <!-- call simulator ui: -->
+  <ng-container *ngIf="(device.config | async)?.things | hasclass:'io.openems.impl.device.simulator.Simulator'">
+    <div routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/simulator" fxFlex="50%" fxFlex.xs="100%">
+      <md-card class="single">
+        <md-card-header>
+          <md-icon md-card-avatar>explore</md-icon>
+          <md-card-title>Simulator</md-card-title>
+        </md-card-header>
+        <md-card-content>
+          <md-list dense fxLayout fxLayoutWrap="wrap">
+            <md-list-item fxFlex="50%">
+              <p md-line i18n>Simulationen ausführen</p>
+            </md-list-item>
+          </md-list>
+        </md-card-content>
+      </md-card>
+    </div>
+  </ng-container>
+  <!-- call log -->
+  <div routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/log" fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>code</md-icon>
+        <md-card-title>Log</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <md-list dense fxLayout fxLayoutWrap="wrap">
+          <md-list-item fxFlex="50%">
+            <p md-line i18n>Live Systemprotokoll</p>
+          </md-list-item>
+        </md-list>
+      </md-card-content>
+    </md-card>
+  </div>
+  <!--call more configuration-->
+  <div routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config/more" fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>more_horiz</md-icon>
+        <md-card-title i18n>Mehr...</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <md-list dense fxLayout fxLayoutWrap="wrap">
+          <md-list-item fxFlex="50%">
+            <p md-line i18n>Manuelle Steuerung</p>
+          </md-list-item>
+        </md-list>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>

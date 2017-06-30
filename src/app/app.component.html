@@ -1,0 +1,44 @@
+<md-sidenav-container fullscreen>
+  <md-sidenav #sidenav mode="push">
+    <md-list>
+      <md-list-item>
+        <button routerLinkActive="active" routerLink="/overview" md-button i18n>Übersicht</button>
+      </md-list-item>
+      <md-list-item *ngIf="environment.websockets[0].backend == 'openems'">
+        <a href="/grafana/dashboard/file/fems-asymmetric.json" md-button i18n>Historie</a>
+      </md-list-item>
+      <md-list-item>
+        <button routerLinkActive="active" routerLink="/about" md-button i18n>Über FEMS-UI</button>
+      </md-list-item>
+    </md-list>
+  </md-sidenav>
+  <div fxLayout="row" fxLayoutAlign="space-between left">
+    <md-toolbar color="primary">
+      <div fxFlex="40px">
+        <button routerLinkActive="active" (click)="sidenav.toggle()" md-icon-button><md-icon>menu</md-icon></button>
+      </div>
+      <ng-container *ngIf="currentDevice">
+        <div fxFlex>
+          <button routerLink="/overview" md-button>FEMS</button>
+          <button md-icon-button style="cursor:default">
+            <md-icon>keyboard_arrow_right</md-icon>
+          </button>
+          <button routerLink="/device/{{ currentDevice.websocket.name }}/{{ currentDevice.name }}/overview" md-button>Energiemonitor <small>({{ currentDevice.address }})</small></button>
+        </div>
+        <div fxFlex="50px" *ngIf="currentDevice.role == 'admin'">
+          <button routerLink="/device/{{ currentDevice.websocket.name }}/{{ currentDevice.name }}/config" md-icon-button><md-icon>settings</md-icon></button>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="!currentDevice">
+        <div>
+          <button routerLink="/overview" md-button>FEMS</button>
+        </div>
+      </ng-container>
+    </md-toolbar>
+  </div>
+  <div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+    <div fxFlex="100%">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</md-sidenav-container>
