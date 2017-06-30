@@ -7,7 +7,9 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RouterModule } from '@angular/router';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { MdSnackBar } from '@angular/material';
+import { SpinnerModule } from 'angular-spinners';
 import { TranslateModule } from '@ngx-translate/core';
+
 import 'hammerjs';
 
 import { MyMaterialModule } from './material.module';
@@ -34,6 +36,7 @@ import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
  * Components
  */
 import { SocChartComponent } from './../device/history/chart/socchart/socchart.component';
+import { SpinnerComponent } from './spinner.component';
 
 @NgModule({
   imports: [
@@ -45,6 +48,7 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     FlexLayoutModule,
     RouterModule,
     ChartsModule,
+    SpinnerModule,
     routing
   ],
   declarations: [
@@ -55,7 +59,8 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     IsclassPipe,
     HasclassPipe,
     // components
-    SocChartComponent
+    SocChartComponent,
+    SpinnerComponent
   ],
   exports: [
     // pipes
@@ -75,14 +80,16 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     ReactiveFormsModule,
     TranslateModule,
     // components
-    SocChartComponent
+    SocChartComponent,
+    SpinnerComponent
   ],
   providers: [
     TemplateHelper,
     WebappService,
     WebsocketService,
     appRoutingProviders,
-    MdSnackBar
+    MdSnackBar,
+    SpinnerComponent
   ]
 })
 export class SharedModule { }

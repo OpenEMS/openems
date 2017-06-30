@@ -28,6 +28,7 @@
     "@angular/router": "4.2.2",
     "@ngx-translate/core": "^7.0.0",
     "@swimlane/ngx-charts": "5.3.1",
+    "angular-spinners": "^5.0.4",
     "@types/d3": "4.9.0",
     "angular2-uuid": "^1.1.1",
     "chart.js": "^2.6.0",
