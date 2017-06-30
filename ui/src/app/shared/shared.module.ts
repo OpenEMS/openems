@@ -7,6 +7,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RouterModule } from '@angular/router';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { MdSnackBar } from '@angular/material';
+import { TranslateModule } from '@ngx-translate/core';
 import 'hammerjs';
 
 import { MyMaterialModule } from './material.module';
@@ -72,6 +73,7 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     NgxChartsModule,
     RouterModule,
     ReactiveFormsModule,
+    TranslateModule,
     // components
     SocChartComponent
   ],

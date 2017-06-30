@@ -5,12 +5,12 @@
         <md-card class="single">
           <md-card-header *ngIf="!websocket.isConnected">
             <md-icon md-card-avatar>stop</md-icon>
-            <md-card-title>Verbindung zu <b>{{ websocket.name }}</b> getrennt.</md-card-title>
+            <md-card-title translate [translateParams]="{value: websocket.name}">Overview.ConnectionFailed</md-card-title>
             <md-card-subtitle><small>{{ websocket.url }}</small></md-card-subtitle>
           </md-card-header>
           <md-card-header *ngIf="websocket.isConnected">
             <md-icon md-card-avatar>face</md-icon>
-            <md-card-title>Verbindung zu <b>{{ websocket.name }}</b> hergestellt.</md-card-title>
+            <md-card-title translate [translateParams]="{value: websocket.name}">Overview.ConnectionSuccessful</md-card-title>
           </md-card-header>
           <md-card-content fxLayout fxLayoutWrap="wrap">
             <ng-container *ngIf="websocket.backend == 'openems'">

@@ -14,5 +14,12 @@
       <li><a target="_blank" href="https://github.com/OpenEMS/openems-gui/commit/COMMIT_ID" i18n>Dieser Build</a></li>
     </ul>
     <p i18n>Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter <a href="mailto:fems@fenecon.de">fems@fenecon.de</a>.</p>
+    <hr/>
+    <p>Sprache wählen:</p>
+    <ul>
+      <select #langSelect (change)="translate.use(langSelect.value)">
+          <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>
+        </select>
+    </ul>
   </md-card-content>
 </md-card>
