@@ -4,6 +4,9 @@ import * as moment from 'moment';
 
 import { Device, Dataset, ChannelAddresses } from '../../../shared/shared';
 
+// spinner component
+import { SpinnerComponent } from '../../../shared/spinner.component';
+
 @Component({
   selector: 'history',
   templateUrl: './history.component.html'
@@ -16,13 +19,16 @@ export class HistoryComponent implements OnInit, OnDestroy {
   public socChannels: ChannelAddresses = {};
   public fromDate = moment();
   public toDate = moment();
+  public loading: boolean = true;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   ngOnInit() {
     if (this.device != null) {
+      this.loading = true;
       this.device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
         this.socChannels = config.getEssSocChannels();
+        this.loading = false;
       });
     }
   }

@@ -7,6 +7,9 @@ import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, Summary, LABELS } f
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
 import { TemplateHelper } from './../../../../shared/service/templatehelper';
 
+// spinner component
+import { SpinnerComponent } from '../../../../shared/spinner.component';
+
 @Component({
   selector: 'energychart',
   templateUrl: './energychart.component.html'

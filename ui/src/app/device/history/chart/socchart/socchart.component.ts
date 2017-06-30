@@ -7,6 +7,9 @@ import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, ChannelAddresses } 
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions } from './../shared';
 import { TemplateHelper } from './../../../../shared/service/templatehelper';
 
+// spinner component
+import { SpinnerComponent } from '../../../../shared/spinner.component';
+
 @Component({
   selector: 'socchart',
   templateUrl: './socchart.component.html'

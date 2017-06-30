@@ -4,9 +4,15 @@
     <md-card-title i18n>Historie</md-card-title>
   </md-card-header>
   <md-card-content>
-    <div style="height: 150px">
-      <socchart [device]="device" [socChannels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart>
+    <!--spinner-->
+    <div *ngIf="loading; else chart">
+      <spinner-animation></spinner-animation>
     </div>
+    <ng-template #chart>
+      <div style="height: 150px">
+        <socchart [device]="device" [socChannels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart>
+      </div>
+    </ng-template>
   </md-card-content>
   <md-card-actions fxLayout fxLayoutAlign="end start">
     <button md-fab routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/history"><md-icon>navigate_next</md-icon></button>
