@@ -25,10 +25,12 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.impl.controller.asymmetric.avoidtotaldischarge.Ess.State;
 
 @ThingInfo(title = "Avoid total discharge of battery (Asymmetric)", description = "Makes sure the battery is not going into critically low state of charge. For asymmetric Ess.")
 public class AvoidTotalDischargeController extends Controller {
@@ -62,44 +64,94 @@ public class AvoidTotalDischargeController extends Controller {
 				/*
 				 * Calculate SetActivePower according to MinSoc
 				 */
-				if (ess.soc.value() < ess.minSoc.value() && ess.soc.value() >= ess.minSoc.value() - 5) {
-					// SOC < minSoc && SOC >= minSoc - 5
-					log.info("Avoid discharge. Set ActivePower=Max[0]");
-					ess.setActivePowerL1.pushWriteMax(0L);
-					ess.setActivePowerL2.pushWriteMax(0L);
-					ess.setActivePowerL3.pushWriteMax(0L);
-				} else if (ess.soc.value() < ess.minSoc.value() - 5) {
-					// SOC < minSoc - 5
-					Optional<Long> currentMinValueL1 = ess.setActivePowerL1.writeMin();
-					Optional<Long> currentMinValueL2 = ess.setActivePowerL2.writeMin();
-					Optional<Long> currentMinValueL3 = ess.setActivePowerL3.writeMin();
-					if (currentMinValueL1.isPresent()) {
-						// Force Charge with minimum of MaxChargePower/5
-						log.info("Force charge. Set ActivePower=Max[" + currentMinValueL1.get() / 5 + "]");
-						ess.setActivePowerL1.pushWriteMax(currentMinValueL1.get() / 5);
+				switch (ess.currentState) {
+				case CHARGESOC:
+					if (ess.soc.value() > ess.minSoc.value()) {
+						ess.currentState = State.MINSOC;
 					} else {
-						log.info("Avoid discharge. Set ActivePower=Min[1000 W]");
-						ess.setActivePowerL1.pushWriteMax(-1000L);
+						try {
+							Optional<Long> currentMinValueL1 = ess.setActivePowerL1.writeMin();
+							if (currentMinValueL1.isPresent() && currentMinValueL1.get() < 0) {
+								// Force Charge with minimum of MaxChargePower/5
+								log.info("Force charge. Set ActivePowerL1=Max[" + currentMinValueL1.get() / 5 + "]");
+								ess.setActivePowerL1.pushWriteMax(currentMinValueL1.get() / 5);
+							} else {
+								log.info("Avoid discharge. Set ActivePowerL1=Max[-1000 W]");
+								ess.setActivePowerL1.pushWriteMax(-1000L);
+							}
+							Optional<Long> currentMinValueL2 = ess.setActivePowerL2.writeMin();
+							if (currentMinValueL2.isPresent() && currentMinValueL2.get() < 0) {
+								// Force Charge with minimum of MaxChargePower/5
+								log.info("Force charge. Set ActivePowerL2=Max[" + currentMinValueL2.get() / 5 + "]");
+								ess.setActivePowerL2.pushWriteMax(currentMinValueL2.get() / 5);
+							} else {
+								log.info("Avoid discharge. Set ActivePowerL2=Max[-1000 W]");
+								ess.setActivePowerL2.pushWriteMax(-1000L);
+							}
+							Optional<Long> currentMinValueL3 = ess.setActivePowerL3.writeMin();
+							if (currentMinValueL3.isPresent() && currentMinValueL3.get() < 0) {
+								// Force Charge with minimum of MaxChargePower/5
+								log.info("Force charge. Set ActivePowerL3=Max[" + currentMinValueL3.get() / 5 + "]");
+								ess.setActivePowerL3.pushWriteMax(currentMinValueL3.get() / 5);
+							} else {
+								log.info("Avoid discharge. Set ActivePowerL3=Max[-1000 W]");
+								ess.setActivePowerL3.pushWriteMax(-1000L);
+							}
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
-					if (currentMinValueL2.isPresent()) {
-						// Force Charge with minimum of MaxChargePower/5
-						log.info("Force charge. Set ActivePower=Max[" + currentMinValueL2.get() / 5 + "]");
-						ess.setActivePowerL2.pushWriteMax(currentMinValueL2.get() / 5);
+					break;
+				case MINSOC:
+					if (ess.soc.value() < ess.chargeSoc.value()) {
+						ess.currentState = State.CHARGESOC;
+					} else if (ess.soc.value() >= ess.minSoc.value() + 5) {
+						ess.currentState = State.NORMAL;
 					} else {
-						log.info("Avoid discharge. Set ActivePower=Min[1000 W]");
-						ess.setActivePowerL2.pushWriteMax(-1000L);
+						try {
+							long maxPower = 0;
+							if (!ess.setActivePowerL1.writeMax().isPresent()
+									|| maxPower < ess.setActivePowerL1.writeMax().get()) {
+								ess.setActivePowerL1.pushWriteMax(maxPower);
+							}
+							if (!ess.setActivePowerL2.writeMax().isPresent()
+									|| maxPower < ess.setActivePowerL2.writeMax().get()) {
+								ess.setActivePowerL2.pushWriteMax(maxPower);
+							}
+							if (!ess.setActivePowerL3.writeMax().isPresent()
+									|| maxPower < ess.setActivePowerL3.writeMax().get()) {
+								ess.setActivePowerL3.pushWriteMax(maxPower);
+							}
+						} catch (WriteChannelException e) {
+							log.error(ess.id() + "Failed to set Max allowed power.", e);
+						}
 					}
-					if (currentMinValueL3.isPresent()) {
-						// Force Charge with minimum of MaxChargePower/5
-						log.info("Force charge. Set ActivePower=Max[" + currentMinValueL3.get() / 5 + "]");
-						ess.setActivePowerL3.pushWriteMax(currentMinValueL3.get() / 5);
-					} else {
-						log.info("Avoid discharge. Set ActivePower=Min[1000 W]");
-						ess.setActivePowerL3.pushWriteMax(-1000L);
+					break;
+				case NORMAL:
+					if (ess.soc.value() <= ess.minSoc.value()) {
+						ess.currentState = State.MINSOC;
+					} else if (ess.soc.value() >= 99 && ess.allowedCharge.value() == 0
+							&& ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+						ess.currentState = State.FULL;
 					}
+					break;
+				case FULL:
+					try {
+						ess.setActivePowerL1.pushWriteMin(0L);
+						ess.setActivePowerL2.pushWriteMin(0L);
+						ess.setActivePowerL3.pushWriteMin(0L);
+					} catch (WriteChannelException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					if (ess.soc.value() < maxSoc.value()) {
+						ess.currentState = State.NORMAL;
+					}
+					break;
 				}
 			}
-		} catch (InvalidValueException | WriteChannelException e) {
+		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
 		}
 	}
