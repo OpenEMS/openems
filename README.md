@@ -16,6 +16,13 @@ The OpenEMS stack contains three parts:
  * Wide range of supported devices - (battery) inverters, meters, etc. - and protocols
  * Modern web-based real-time user interface
 
+#### Screenshots
+<img src="/doc/img/screenshots/overview.png" width="100" align="left"/>
+<img src="/doc/img/screenshots/energymonitor.png" width="100" align="left"/>
+<img src="/doc/img/screenshots/energytable.png" width="100" align="left"/>
+<img src="/doc/img/screenshots/briefhistorie.png" width="100" align="left"/>
+<img src="/doc/img/screenshots/historysoc.png" width="100" align="left"/>
+<img src="/doc/img/screenshots/historyenergy.png" width="100"/>
 
 ## Get started
 
