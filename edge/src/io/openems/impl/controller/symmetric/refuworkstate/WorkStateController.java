@@ -61,6 +61,7 @@ public class WorkStateController extends Controller {
 	 */
 	private boolean reset = false;
 	private long lastReset = 0L;
+	private Long errorOccured = 0L;
 	private long timeErrorOccured = 0L;
 	private int resetCount = 0;
 	private long lastStart = 0L;
@@ -126,9 +127,14 @@ public class WorkStateController extends Controller {
 			switch (currentState) {
 			case ERROR:
 				log.info("Error");
+				if (errorOccured == null) {
+					errorOccured = System.currentTimeMillis();
+				}
 				ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
-				if (lastReset <= System.currentTimeMillis() - 2 * 60 * 60 * 1000) {
+				if (errorOccured != null && errorOccured <= System.currentTimeMillis() - 30 * 1000
+						&& lastReset <= System.currentTimeMillis() - 2 * 60 * 60 * 1000) {
 					currentState = State.RESETERRORON;
+					errorOccured = null;
 				}
 				break;
 			case GOSTART:
@@ -166,7 +172,8 @@ public class WorkStateController extends Controller {
 				break;
 			case START:
 				log.info("START");
-				if (ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+				if (ess.systemState.labelOptional().equals(Optional.of(EssNature.START))
+						|| ess.systemState.labelOptional().equals(Optional.of(EssNature.STANDBY))) {
 					if (!start.value()) {
 						currentState = State.STOP;
 					}
