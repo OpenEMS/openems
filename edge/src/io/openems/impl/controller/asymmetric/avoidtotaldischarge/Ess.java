@@ -31,16 +31,25 @@ import io.openems.api.exception.InvalidValueException;
 public class Ess extends ThingMap {
 	public ReadChannel<Long> soc;
 	public ReadChannel<Integer> minSoc;
+	public ReadChannel<Integer> chargeSoc;
 	public WriteChannel<Long> setActivePowerL1;
 	public WriteChannel<Long> setActivePowerL2;
 	public WriteChannel<Long> setActivePowerL3;
 	public WriteChannel<Long> setReactivePowerL1;
 	public WriteChannel<Long> setReactivePowerL2;
 	public WriteChannel<Long> setReactivePowerL3;
+	public ReadChannel<Long> systemState;
+	public ReadChannel<Long> allowedCharge;
+	public State currentState = State.NORMAL;
+
+	public enum State {
+		NORMAL, MINSOC, CHARGESOC, FULL;
+	}
 
 	public Ess(AsymmetricEssNature ess) {
 		super(ess);
 		minSoc = ess.minSoc().required();
+		chargeSoc = ess.chargeSoc().required();
 		setActivePowerL1 = ess.setActivePowerL1().required();
 		setActivePowerL2 = ess.setActivePowerL2().required();
 		setActivePowerL3 = ess.setActivePowerL3().required();
@@ -48,6 +57,8 @@ public class Ess extends ThingMap {
 		setReactivePowerL2 = ess.setReactivePowerL2().required();
 		setReactivePowerL3 = ess.setReactivePowerL3().required();
 		soc = ess.soc().required();
+		systemState = ess.systemState().required();
+		allowedCharge = ess.allowedCharge().required();
 	}
 
 	public long useableSoc() throws InvalidValueException {
