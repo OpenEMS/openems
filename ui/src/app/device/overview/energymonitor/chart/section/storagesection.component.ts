@@ -46,11 +46,15 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
                             this.circles[i].switchState();
                         }, pulsetime / 4 * i);
                     }
+                } else if (this.lastValue.absolute == 0) {
+                    for (let i = 0; i < this.circles.length; i++) {
+                        this.circles[i].hide();
+                    }
                 } else {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[i].switchState();
-                        }, pulsetimedown / 4 * i);
+                        })
                     }
                 }
             })
@@ -75,6 +79,6 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             return "Kein Wert";
         }
 
-        return value + " %";
+        return this.lastValue.ratio + " %";
     }
 }
