@@ -3,6 +3,7 @@
     {
       "class": "io.openems.impl.protocol.modbus.ModbusTcp",
       "ip": "10.4.0.15",
+      "cycleTime": 500,
       "devices": [
         {
           "id": "_device0",
@@ -26,6 +27,7 @@
       "parity": "none",
       "baudrate": 9600,
       "stopbits": 1,
+      "cycleTime": 500,
       "devices": [
         {
           "id": "_device1",
@@ -41,9 +43,10 @@
   ],
   "scheduler": {
     "class": "io.openems.impl.scheduler.SimpleScheduler",
+    "cycleTime": 500,
     "controllers": [
       {
-        "class": "io.openems.impl.controller.symmetric.commercialenergysaver.EnergysavingController",
+        "class": "io.openems.impl.controller.symmetric.commercialworkstate.AlwaysOnController",
         "priority": 0,
         "esss": [
           "ess0"
