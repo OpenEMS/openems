@@ -109,6 +109,9 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	public JsonObject toJsonObject() throws NotImplementedException {
 		JsonObject j = super.toJsonObject();
 		j.addProperty("writeable", true);
+		if (this.type.isPresent()) {
+			j.addProperty("type", this.type.get().getSimpleName());
+		}
 		return j;
 	}
 
