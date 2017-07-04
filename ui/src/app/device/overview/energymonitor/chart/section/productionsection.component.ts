@@ -47,10 +47,13 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
                             this.circles[this.circles.length - i - 1].switchState();
                         }, pulsetime / 4 * i);
                     }
+                } else if (this.lastValue.absolute == 0) {
+                    for (let i = 0; i < this.circles.length; i++) {
+                        this.circles[this.circles.length - i - 1].hide();
+                    }
                 } else {
                     for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                        }, );
+                        this.circles[this.circles.length - i - 1].switchState();
                     }
                 }
             })
