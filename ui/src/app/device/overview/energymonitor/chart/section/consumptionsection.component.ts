@@ -47,11 +47,15 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
                             this.circles[i].switchState();
                         }, pulsetimeright / 4 * i);
                     }
-                } else {
+                } else if (this.lastValue.absolute < 0) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[this.circles.length - i - 1].switchState();
                         }, pulsetimeright / 4 * i);
+                    }
+                } else {
+                    for (let i = 0; i < this.circles.length; i++) {
+                        this.circles[this.circles.length - i - 1].hide();
                     }
                 }
             })

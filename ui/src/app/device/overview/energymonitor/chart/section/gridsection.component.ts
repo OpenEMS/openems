@@ -44,13 +44,13 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     ngOnInit() {
         Observable.interval(pulsetimeleft)
             .subscribe(x => {
-                if (this.lastValue.absolute > 0) {
+                if (this.lastValue.absolute < 0) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[this.circles.length - i - 1].switchState();
                         }, pulsetimeleft / 4 * i);
                     }
-                } else if (this.lastValue.absolute < 0) {
+                } else if (this.lastValue.absolute > 0) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[i].switchState();
@@ -58,9 +58,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
                     }
                 } else {
                     for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[i].hide();
-                        }, );
+                        this.circles[i].hide();
                     }
                 }
             })
