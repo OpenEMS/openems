@@ -21,14 +21,12 @@
 package io.openems.impl.controller.supplybusswitch;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
@@ -62,15 +60,15 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Supply-bus", description = "Collection of the switches for the supplyBus each array represents the switches for one supply bus.", type = JsonObject.class, isArray = true)
-	public ConfigChannel<List<JsonObject>> supplyBusConfig = new ConfigChannel<List<JsonObject>>("supplyBuses", this)
+	@ConfigInfo(title = "Supply-bus", description = "Collection of the switches for the supplyBus each array represents the switches for one supply bus.", type = JsonArray.class, isArray = true)
+	public ConfigChannel<JsonArray> supplyBusConfig = new ConfigChannel<JsonArray>("supplyBusConfig", this)
 			.addChangeListener(this);
 
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this).addChangeListener(this);
 
-	@ConfigInfo(title = "Primary-Ess", description = "OpenEMS is supplied by this Ess. Will reserve some load.", type = Ess.class)
-	public final ConfigChannel<Ess> primaryEss = new ConfigChannel<Ess>("primaryEss", this);
+	@ConfigInfo(title = "Switch-Delay", description = "delay to expire between ess disconnected and next ess connected.", type = Long.class, defaultValue = "10000")
+	public final ConfigChannel<Long> switchDelay = new ConfigChannel<Long>("switchDelay", this);
 
 	/*
 	 * Fields
@@ -84,58 +82,9 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 	@Override
 	public void run() {
 		try {
-			// TODO handling for primary ess
-			HashMap<Ess, Supplybus> activeEss = getActiveEss();
-			List<Ess> inactiveEss = getInactiveEss(activeEss.keySet());
 
 			for (Supplybus sb : supplybuses) {
-				switch (sb.getState()) {
-				case CONNECTED: {
-					Ess active = sb.getActiveEss();
-					// check if ess with lager soc is available
-					Ess mostLoad = getLargestSoc(inactiveEss);
-					if (active.soc.value() < active.minSoc.value() && mostLoad.useableSoc() > 0) {
-						sb.disconnect();
-						try {
-							active.stop();
-						} catch (WriteChannelException e) {
-							log.error("Can't stop ess[" + active.id() + "]", e);
-						}
-					}
-				}
-					break;
-				case CONNECTING: {
-					// if not connected send connect command again
-					if (!sb.isConnected()) {
-						sb.connect(sb.getActiveEss());
-					}
-				}
-					break;
-				case DISCONNECTED: {
-					Ess mostLoad = getLargestSoc(inactiveEss);
-					// only connect if soc is larger than 4% or Ess is On-Grid
-					if (mostLoad.soc.value() > 4
-							|| mostLoad.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
-						try {
-							mostLoad.start();
-							sb.connect(mostLoad);
-						} catch (WriteChannelException e) {
-							log.error("Can't start ess[" + mostLoad.id() + "]", e);
-						}
-					}
-				}
-					break;
-				case DISCONNECTING: {
-					// if not disconnected send disconnect command again
-					if (!sb.isDisconnected()) {
-						sb.disconnect();
-					}
-				}
-					break;
-				default:
-					break;
-
-				}
+				sb.run();
 			}
 			if (isOnGrid()) {
 				// start all ess
@@ -149,9 +98,6 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 			}
 		} catch (InvalidValueException e1) {
 			log.error("failed to get collection of configured 'esss'", e1);
-		} catch (SupplyBusException e) {
-			e.supplybus.disconnect();
-			log.error("there was more than one connection to " + e.supplybus.getName(), e);
 		}
 	}
 
@@ -166,53 +112,41 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-		if (supplyBusConfig.valueOptional().isPresent() && esss.valueOptional().isPresent()) {
-			if (esss.valueOptional().get().size() <= supplyBusConfig.valueOptional().get().size()) {
-				log.error("there must be one more ess than supply buses!");
-			} else {
-				supplybuses = generateSupplybuses();
-			}
-		}
-	}
-
-	private List<Ess> getInactiveEss(Collection<Ess> activeEss) throws InvalidValueException {
-		List<Ess> inactiveEsss = new ArrayList<>();
-		inactiveEsss.addAll(esss.value());
-		inactiveEsss.removeAll(activeEss);
-		return inactiveEsss;
-	}
-
-	private Ess getLargestSoc(List<Ess> esss) {
-		Ess largestSoc = null;
-		for (Ess ess : esss) {
-			try {
-				if (largestSoc == null || largestSoc.useableSoc() < ess.useableSoc()) {
-					largestSoc = ess;
+		if (channel.equals(supplyBusConfig) || channel.equals(esss)) {
+			if (supplyBusConfig.valueOptional().isPresent() && esss.valueOptional().isPresent()) {
+				if (esss.valueOptional().get().size() <= supplyBusConfig.valueOptional().get().size()) {
+					log.error("there must be one more ess than supply buses!");
+				} else {
+					supplybuses = generateSupplybuses();
 				}
-			} catch (InvalidValueException e) {
-				log.error("failed to read soc of " + ess.id(), e);
+			}
+		} else if (channel.equals(switchDelay)) {
+			if (supplybuses != null) {
+				for (Supplybus sb : supplybuses) {
+					try {
+						sb.setSwitchDelay(switchDelay.value());
+					} catch (InvalidValueException e) {
+						log.error("failed to read switchDelay config.", e);
+					}
+				}
 			}
 		}
-		return largestSoc;
-	}
-
-	private HashMap<Ess, Supplybus> getActiveEss() throws SupplyBusException {
-		HashMap<Ess, Supplybus> activeEsss = new HashMap<>();
-		for (Supplybus sb : supplybuses) {
-			Ess activeEss = sb.getActiveEss();
-			if (activeEss != null) {
-				activeEsss.put(activeEss, sb);
-			}
-		}
-		return activeEsss;
 	}
 
 	private List<Supplybus> generateSupplybuses() {
-		if (esss.valueOptional().isPresent() && supplyBusConfig.valueOptional().isPresent()) {
+		if (esss.valueOptional().isPresent() && supplyBusConfig.valueOptional().isPresent()
+				&& switchDelay.valueOptional().isPresent()) {
 			List<Supplybus> buses = new ArrayList<>();
-			for (JsonObject bus : supplyBusConfig.valueOptional().get()) {
+			for (JsonElement bus : supplyBusConfig.valueOptional().get()) {
 				try {
 					String name = JsonUtils.getAsString(bus, "bus");
+					String primaryEssName = JsonUtils.getAsString(bus, "primaryEss");
+					JsonElement supplybusOnIndicationElement = bus.getAsJsonObject().get("supplybusOnIndication");
+					Optional<Channel> supplybusOnIndication = Optional.empty();
+					if (supplybusOnIndicationElement != null) {
+						supplybusOnIndication = repo.getChannelByAddress(supplybusOnIndicationElement.getAsString());
+					}
+					Ess primaryEss = getEss(primaryEssName);
 					HashMap<Ess, WriteChannel<Boolean>> switchEssMapping = new HashMap<>();
 					JsonArray switches = JsonUtils.getAsJsonArray(bus, "switches");
 					for (JsonElement e : switches) {
@@ -222,9 +156,16 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 								Ess ess = getEss(essName);
 								String channelAddress = JsonUtils.getAsString(e, "switchAddress");
 								Optional<Channel> outputChannel = repo.getChannelByAddress(channelAddress);
-								if (ess != null && outputChannel.isPresent()
-										&& outputChannel.get() instanceof WriteChannel<?>) {
-									switchEssMapping.put(ess, (WriteChannel<Boolean>) outputChannel.get());
+								if (ess != null) {
+									if (outputChannel.isPresent() && outputChannel.get() instanceof WriteChannel<?>) {
+										WriteChannel<Boolean> channel = (WriteChannel<Boolean>) outputChannel.get();
+										channel.required();
+										switchEssMapping.put(ess, channel);
+									} else {
+										log.error(channelAddress + " not found!");
+									}
+								} else {
+									log.error(essName + "not found!");
 								}
 							} catch (InvalidValueException e1) {
 								log.error(essName + " is missing in the 'esss' config parameter", e1);
@@ -233,10 +174,19 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 							log.error("can't find JsonElement 'ess' or 'switchAddress'!", e2);
 						}
 					}
-					Supplybus sb = new Supplybus(switchEssMapping, name);
+					WriteChannel<Long> supplybusOnIndicationChannel = null;
+					if (supplybusOnIndication.isPresent()) {
+						if (supplybusOnIndication.get() instanceof WriteChannel<?>) {
+							supplybusOnIndicationChannel = (WriteChannel<Long>) supplybusOnIndication.get();
+						}
+					}
+					Supplybus sb = new Supplybus(switchEssMapping, name, primaryEss, switchDelay.value(),
+							supplybusOnIndicationChannel);
 					buses.add(sb);
 				} catch (ReflectionException e) {
 					log.error("can't find JsonElement 'bus' or 'switches' in config parameter 'supplyBuses'!", e);
+				} catch (InvalidValueException e3) {
+					log.error("primaryEss not found", e3);
 				}
 			}
 			return buses;

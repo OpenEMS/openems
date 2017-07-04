@@ -22,13 +22,16 @@ package io.openems.impl.controller.supplybusswitch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
@@ -37,53 +40,173 @@ public class Supplybus {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private HashMap<Ess, WriteChannel<Boolean>> switchEssMapping;
+	private WriteChannel<Long> supplybusOnIndication;
+	private Ess primaryEss;
 
 	private Ess activeEss;
 
+	private long lastTimeDisconnected;
+
+	private long switchDelay;
+
 	enum State {
-		CONNECTED, DISCONNECTING, DISCONNECTED, CONNECTING
+		CONNECTED, DISCONNECTING, DISCONNECTED, CONNECTING, UNKNOWN
 	}
 
 	private State state;
 
 	private String name;
 
-	public Supplybus(HashMap<Ess, WriteChannel<Boolean>> switchEssMapping, String name) {
+	public Supplybus(HashMap<Ess, WriteChannel<Boolean>> switchEssMapping, String name, Ess primaryEss,
+			long switchDelay, WriteChannel<Long> supplybusOnIndication) {
 		this.switchEssMapping = switchEssMapping;
 		this.name = name;
-		state = State.DISCONNECTING;
-		try {
-			activeEss = getActiveEss();
-			if (activeEss != null) {
-				state = State.CONNECTED;
-				activeEss.setActiveSupplybus(this);
-			}
-		} catch (SupplyBusException e) {
-			disconnect();
-		}
+		this.primaryEss = primaryEss;
+		this.switchDelay = switchDelay;
+		this.supplybusOnIndication = supplybusOnIndication;
+		state = State.UNKNOWN;
 	}
 
-	public State getState() {
-		return state;
-	}
-
-	public void setState(State state) {
-		this.state = state;
+	public void setSwitchDelay(long delay) {
+		this.switchDelay = delay;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public Ess getActiveEss() throws SupplyBusException {
+	public void run() throws InvalidValueException {
+		System.out.println(state);
+		switch (state) {
+		case CONNECTED: {
+			Ess active;
+			try {
+				active = getActiveEss();
+				if (active == null || active != this.activeEss) {
+					state = State.DISCONNECTING;
+				} else {
+					// check if ess is empty
+					if ((active.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))
+							&& active.soc.value() < active.minSoc.value())
+							|| active.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))) {
+						disconnect();
+						try {
+							active.stop();
+						} catch (WriteChannelException e) {
+							log.error("Can't stop ess[" + active.id() + "]", e);
+						}
+					} else {
+						if (supplybusOnIndication != null) {
+							try {
+								supplybusOnIndication.pushWrite(1L);
+							} catch (WriteChannelException e) {
+								log.error("can't set supplybusOnIndication", e);
+							}
+						}
+					}
+				}
+			} catch (SupplyBusException e1) {
+				state = State.DISCONNECTING;
+			}
+		}
+			break;
+		case CONNECTING: {
+			// if not connected send connect command again
+			if (isConnected()) {
+				state = State.CONNECTED;
+			} else {
+				if (lastTimeDisconnected + switchDelay <= System.currentTimeMillis()) {
+					if (activeEss != null) {
+						connect(activeEss);
+					} else {
+						state = State.DISCONNECTING;
+					}
+				}
+			}
+		}
+			break;
+		case DISCONNECTED: {
+			Ess mostLoad = getLargestSoc();
+			// only connect if soc is larger than minSoc + 5 or Ess is On-Grid
+			if (mostLoad != null) {
+				if (mostLoad.soc.value() > mostLoad.minSoc.value() + 5) {
+					try {
+						// connect(mostLoad);
+						activeEss = mostLoad;
+						activeEss.start();
+						activeEss.setActiveSupplybus(this);
+						lastTimeDisconnected = System.currentTimeMillis();
+						state = State.CONNECTING;
+					} catch (WriteChannelException e) {
+						log.error("Can't start ess[" + activeEss.id() + "]", e);
+					}
+				}
+			} else {
+				// all ess empty check if On-Grid
+				List<Ess> onGridEss = getOnGridEss();
+				if (onGridEss.size() > 0) {
+					try {
+						// connect(mostLoad);
+						activeEss = onGridEss.get(0);
+						activeEss.start();
+						activeEss.setActiveSupplybus(this);
+						lastTimeDisconnected = System.currentTimeMillis();
+						state = State.CONNECTING;
+					} catch (WriteChannelException e) {
+						log.error("Can't start ess[" + activeEss.id() + "]", e);
+					}
+				}
+			}
+			if (supplybusOnIndication != null) {
+				try {
+					supplybusOnIndication.pushWrite(0L);
+				} catch (WriteChannelException e) {
+					log.error("can't set supplybusOnIndication", e);
+				}
+			}
+		}
+			break;
+		case DISCONNECTING: {
+			// if not disconnected send disconnect command again
+			if (isDisconnected()) {
+				state = State.DISCONNECTED;
+			} else {
+				disconnect();
+				if (supplybusOnIndication != null) {
+					try {
+						supplybusOnIndication.pushWrite(0L);
+					} catch (WriteChannelException e) {
+						log.error("can't set supplybusOnIndication", e);
+					}
+				}
+			}
+		}
+			break;
+		case UNKNOWN: {
+			try {
+				activeEss = getActiveEss();
+				if (activeEss != null && activeEss.getActiveSupplybus() == null) {
+					state = State.CONNECTED;
+					activeEss.setActiveSupplybus(this);
+				} else {
+					state = State.DISCONNECTING;
+				}
+			} catch (SupplyBusException e) {
+				disconnect();
+			}
+		}
+			break;
+		default:
+			break;
+
+		}
+	}
+
+	public Ess getActiveEss() throws SupplyBusException, InvalidValueException {
 		List<Ess> activeEss = new ArrayList<>();
 		for (Entry<Ess, WriteChannel<Boolean>> entry : switchEssMapping.entrySet()) {
-			try {
-				if (entry.getValue().value()) {
-					activeEss.add(entry.getKey());
-				}
-			} catch (InvalidValueException e) {
-				log.error("Failed to read digital output " + entry.getValue().address(), e);
+			if (entry.getValue().value()) {
+				activeEss.add(entry.getKey());
 			}
 		}
 		if (activeEss.size() > 1) {
@@ -107,24 +230,21 @@ public class Supplybus {
 			activeEss.setActiveSupplybus(null);
 		}
 		activeEss = null;
-		state = State.DISCONNECTING;
 	}
 
 	public boolean isConnected() {
 		if (activeEss != null) {
 			WriteChannel<Boolean> sOn = switchEssMapping.get(activeEss);
 			if (sOn.valueOptional().isPresent() && sOn.valueOptional().get()) {
-				state = State.CONNECTED;
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public boolean isDisconnected() {
+	public boolean isDisconnected() throws InvalidValueException {
 		try {
 			if (getActiveEss() == null) {
-				state = State.DISCONNECTED;
 				return true;
 			}
 		} catch (SupplyBusException e) {
@@ -133,17 +253,65 @@ public class Supplybus {
 		return false;
 	}
 
-	public void connect(Ess ess) throws SupplyBusException {
-		if (getActiveEss() == null && activeEss == null && ess != null) {
-			activeEss = ess;
-			activeEss.setActiveSupplybus(this);
-			WriteChannel<Boolean> sOn = switchEssMapping.get(ess);
-			state = State.CONNECTING;
-			try {
-				sOn.pushWrite(true);
-			} catch (WriteChannelException e) {
-				log.error("Failed to write connect command to digital output " + sOn.address(), e);
+	public void connect(Ess ess) throws InvalidValueException {
+		try {
+			if (getActiveEss() == null && ess != null) {
+				activeEss = ess;
+				activeEss.setActiveSupplybus(this);
+				WriteChannel<Boolean> sOn = switchEssMapping.get(ess);
+				try {
+					sOn.pushWrite(true);
+				} catch (WriteChannelException e) {
+					log.error("Failed to write connect command to digital output " + sOn.address(), e);
+				}
 			}
+		} catch (SupplyBusException e) {
+			log.error("can't connect ess", e);
 		}
 	}
+
+	public Ess getLargestSoc() {
+		List<Ess> esss = new ArrayList<>(switchEssMapping.keySet());
+		// remove empty ess and fault ess
+		for (Iterator<Ess> iter = esss.iterator(); iter.hasNext();) {
+			Ess ess = iter.next();
+			try {
+				if (ess.soc.value() < ess.minSoc.value()
+						|| ess.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))
+						|| ess.getActiveSupplybus() != null) {
+					iter.remove();
+				}
+			} catch (InvalidValueException e) {
+				iter.remove();
+			}
+		}
+		if (esss.size() > 1) {
+			esss.remove(primaryEss);
+		}
+		Ess largestSoc = null;
+		for (Ess ess : esss) {
+			try {
+				if (largestSoc == null || largestSoc.useableSoc() < ess.useableSoc()) {
+					largestSoc = ess;
+				}
+			} catch (InvalidValueException e) {
+				log.error("failed to read soc of " + ess.id(), e);
+			}
+		}
+		return largestSoc;
+	}
+
+	private List<Ess> getOnGridEss() {
+		List<Ess> esss = new ArrayList<>(switchEssMapping.keySet());
+		for (Iterator<Ess> iter = esss.iterator(); iter.hasNext();) {
+			Ess ess = iter.next();
+			if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))
+					|| ess.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))
+					|| ess.getActiveSupplybus() != null) {
+				iter.remove();
+			}
+		}
+		return esss;
+	}
+
 }

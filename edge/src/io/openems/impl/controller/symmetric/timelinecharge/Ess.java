@@ -25,33 +25,25 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.core.utilities.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	public final WriteChannel<Long> setActivePower;
-	public final WriteChannel<Long> setReactivePower;
 	public final ReadChannel<Long> soc;
 	public final ReadChannel<Long> activePower;
 	public final ReadChannel<Long> reactivePower;
-	public final ReadChannel<Long> allowedCharge;
-	public final ReadChannel<Long> allowedDischarge;
 	public final ReadChannel<Long> gridMode;
-	public final SymmetricPower power;
+	public final ReadChannel<Long> capacity;
+	public final WriteChannel<Long> setActivePower;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
-		setActivePower = ess.setActivePower().required();
-		setReactivePower = ess.setReactivePower().required();
-		reactivePower = ess.reactivePower();
+		reactivePower = ess.reactivePower().required();
 		soc = ess.soc().required();
 		activePower = ess.activePower().required();
-		allowedCharge = ess.allowedCharge().required();
-		allowedDischarge = ess.allowedDischarge().required();
 		gridMode = ess.gridMode().required();
-		this.power = new SymmetricPower(allowedDischarge, allowedCharge, ess.allowedApparent(), setActivePower,
-				setReactivePower);
+		this.capacity = ess.capacity().required();
+		this.setActivePower = ess.setActivePower().required();
 	}
 
 }

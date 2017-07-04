@@ -47,7 +47,7 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> systemState;
 	private Supplybus activeSupplybus;
 
-	public Supplybus getActieSupplybus() {
+	public Supplybus getActiveSupplybus() {
 		return activeSupplybus;
 	}
 

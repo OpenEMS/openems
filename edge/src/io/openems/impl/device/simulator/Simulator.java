@@ -57,8 +57,12 @@ public class Simulator extends SimulatorDevice {
 	@ConfigInfo(title = "Production-Meter", description = "Sets the production meter nature.", type = SimulatorProductionMeter.class, isOptional = true)
 	public final ConfigChannel<SimulatorProductionMeter> productionMeter = new ConfigChannel<>("productionMeter", this);
 
+	@ConfigInfo(title = "Sps", description = "Sets the Riedmann sps nature.", type = SimulatorRiedmannNature.class, isOptional = true)
+	public final ConfigChannel<SimulatorRiedmannNature> sps = new ConfigChannel<>("sps", this);
+	
 	@ConfigInfo(title = "Output", description = "Sets the output nature.", type = SimulatorOutput.class, isOptional = true)
 	public final ConfigChannel<SimulatorOutput> output = new ConfigChannel<>("output", this);
+	
 
 	/*
 	 * Methods
@@ -80,6 +84,9 @@ public class Simulator extends SimulatorDevice {
 		}
 		if (charger.valueOptional().isPresent()) {
 			natures.add(charger.valueOptional().get());
+		}
+		if (sps.valueOptional().isPresent()) {
+			natures.add(sps.valueOptional().get());
 		}
 		if (output.valueOptional().isPresent()) {
 			natures.add(output.valueOptional().get());
