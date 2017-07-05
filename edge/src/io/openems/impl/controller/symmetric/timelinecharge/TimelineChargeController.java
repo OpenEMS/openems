@@ -20,9 +20,14 @@
  *******************************************************************************/
 package io.openems.impl.controller.symmetric.timelinecharge;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -37,10 +42,13 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
+import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.api.exception.ReflectionException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.ControllerUtils;
+import io.openems.core.utilities.JsonUtils;
 
 @ThingInfo(title = "Timeline charge (Symmetric)")
 public class TimelineChargeController extends Controller implements ChannelChangeListener {
@@ -71,9 +79,31 @@ public class TimelineChargeController extends Controller implements ChannelChang
 	@ConfigInfo(title = "Charger", description = "Sets the Chargers connected to the ess.", type = Charger.class, isArray = true)
 	public final ConfigChannel<Set<Charger>> chargers = new ConfigChannel<Set<Charger>>("chargers", this);
 
-	@ConfigInfo(title = "Soc Timeline", description = "soc to hold untill the next soc point.", type = JsonArray.class)
-	public final ConfigChannel<JsonArray> socTimeline = new ConfigChannel<JsonArray>("SocTimeline", this)
-			.addChangeListener(this);
+	@ConfigInfo(title = "Monday", description = "Sets the soc limits for monday.", type = JsonArray.class)
+	public ConfigChannel<JsonArray> monday = new ConfigChannel<>("monday", this);
+
+	@ConfigInfo(title = "Tuesday", description = "Sets the soc limits for tuesday.", type = JsonArray.class)
+	public ConfigChannel<JsonArray> tuesday = new ConfigChannel<>("tuesday", this);
+
+	@ConfigInfo(title = "Wednesday", description = "Sets the soc limits for wednesday.", type = JsonArray.class)
+	public ConfigChannel<JsonArray> wednesday = new ConfigChannel<>("wednesday", this);
+
+	@ConfigInfo(title = "Thursday", description = "Sets the soc limits for thursday.", type = JsonArray.class)
+	public ConfigChannel<JsonArray> thursday = new ConfigChannel<>("thursday", this);
+
+	@ConfigInfo(title = "Friday", description = "Sets the soc limits for friday.", type = JsonArray.class)
+	public ConfigChannel<JsonArray> friday = new ConfigChannel<>("friday", this);
+
+	@ConfigInfo(title = "Saturday", description = "Sets the soc limits for saturday.", type = JsonArray.class)
+	public ConfigChannel<JsonArray> saturday = new ConfigChannel<>("saturday", this);
+
+	@ConfigInfo(title = "Sunday", description = "Sets the soc limits for sunday.", type = JsonArray.class)
+	public ConfigChannel<JsonArray> sunday = new ConfigChannel<>("sunday", this);
+
+	// @ConfigInfo(title = "Soc Timeline", description = "soc to hold untill the next soc point.", type =
+	// JsonArray.class)
+	// public final ConfigChannel<JsonArray> socTimeline = new ConfigChannel<JsonArray>("SocTimeline", this)
+	// .addChangeListener(this);
 
 	/*
 	 * Fields
@@ -192,19 +222,19 @@ public class TimelineChargeController extends Controller implements ChannelChang
 		}
 	}
 
-	private Entry<LocalDateTime, Integer> getSoc() {
-		Entry<LocalDateTime, Integer> lastSocPoint = socPoints.floorEntry(LocalDateTime.now());
-		Entry<LocalDateTime, Integer> nextSocPoint = socPoints.higherEntry(LocalDateTime.now());
-		if (nextSocPoint != null) {
-			return nextSocPoint;
-		}
-		return lastSocPoint;
-	}
+	// private Entry<LocalDateTime, Integer> getSoc() {
+	// Entry<LocalDateTime, Integer> lastSocPoint = socPoints.floorEntry(LocalDateTime.now());
+	// Entry<LocalDateTime, Integer> nextSocPoint = socPoints.higherEntry(LocalDateTime.now());
+	// if (nextSocPoint != null) {
+	// return nextSocPoint;
+	// }
+	// return lastSocPoint;
+	// }
 
-	private int getCurrentSoc() {
-		Entry<LocalDateTime, Integer> socPoint = socPoints.floorEntry(LocalDateTime.now());
-		return socPoint.getValue();
-	}
+	// private int getCurrentSoc() {
+	// Entry<LocalDateTime, Integer> socPoint = socPoints.floorEntry(LocalDateTime.now());
+	// return socPoint.getValue();
+	// }
 
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
@@ -221,6 +251,101 @@ public class TimelineChargeController extends Controller implements ChannelChang
 					}
 				}
 			}
+		}
+	}
+
+	private JsonArray getJsonOfDay(DayOfWeek day) throws InvalidValueException {
+		switch (day) {
+		case FRIDAY:
+			return friday.value();
+		case SATURDAY:
+			return saturday.value();
+		case SUNDAY:
+			return sunday.value();
+		case THURSDAY:
+			return thursday.value();
+		case TUESDAY:
+			return tuesday.value();
+		case WEDNESDAY:
+			return wednesday.value();
+		default:
+		case MONDAY:
+			return monday.value();
+		}
+	}
+
+	private Integer getCurrentSoc() throws InvalidValueException {
+		JsonArray jHours = getJsonOfDay(LocalDate.now().getDayOfWeek());
+		LocalTime time = LocalTime.now();
+		Integer soc = null;
+		int count = 1;
+		while (soc == null && count < 8) {
+			try {
+				soc = floorSoc(jHours, time);
+			} catch (IndexOutOfBoundsException e) {
+				time = LocalTime.MAX;
+				jHours = getJsonOfDay(LocalDate.now().getDayOfWeek().minus(count));
+			}
+			count++;
+		}
+		return soc;
+	}
+
+	private Integer getSoc() {
+		JsonArray jHours = getJsonOfDay(LocalDate.now().getDayOfWeek());
+		LocalTime time = LocalTime.now();
+		Integer soc = null;
+		int count = 1;
+		while (soc == null && count < 8) {
+			try {
+				soc = floorSoc(jHours, time);
+			} catch (IndexOutOfBoundsException e) {
+				time = LocalTime.MAX;
+				jHours = getJsonOfDay(LocalDate.now().getDayOfWeek().minus(count));
+			}
+			count++;
+		}
+		return soc;
+	}
+
+	private int floorSoc(JsonArray jHours, LocalTime time)
+			throws ConfigException {
+		try {
+		// fill times map; sorted by hour
+		TreeMap<LocalTime, Integer> times = new TreeMap<>();
+		for (JsonElement jHourElement : jHours) {
+			JsonObject jHour = JsonUtils.getAsJsonObject(jHourElement);
+			String hourTime = JsonUtils.getAsString(jHour, "time");
+			int jsoc = JsonUtils.getAsInt(jHourElement, "soc");
+			times.put(LocalTime.parse(hourTime), jsoc);
+		}
+		// return matching controllers
+		if (times.floorEntry(time) != null) {
+			int soc = times.floorEntry(time).getValue();
+			return soc;
+		} else {
+			throw new IndexOutOfBoundsException("No smaller time found");
+		}
+		}catch(ReflectionException e) {
+			throw new ConfigException(,)
+		}
+	}
+
+	private int higherSoc(JsonArray jHours, LocalTime time) throws ConfigException, ReflectionException {
+		// fill times map; sorted by hour
+		TreeMap<LocalTime, Integer> times = new TreeMap<>();
+		for (JsonElement jHourElement : jHours) {
+			JsonObject jHour = JsonUtils.getAsJsonObject(jHourElement);
+			String hourTime = JsonUtils.getAsString(jHour, "time");
+			int jsoc = JsonUtils.getAsInt(jHourElement, "soc");
+			times.put(LocalTime.parse(hourTime), jsoc);
+		}
+		// return matching controllers
+		if (times.floorEntry(time) != null) {
+			int soc = times.floorEntry(time).getValue();
+			return soc;
+		} else {
+			throw new IndexOutOfBoundsException("No smaller time found");
 		}
 	}
 
