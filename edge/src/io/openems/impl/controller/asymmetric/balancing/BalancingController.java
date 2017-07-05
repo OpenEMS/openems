@@ -242,7 +242,7 @@ public class BalancingController extends Controller {
 					minPower = 0;
 				}
 				// check maximal power to avoid larger charges then calculatedPower
-				maxPower = ess.getSetActivePower(phase).writeMin().orElse(ess.allowedCharge.value() / -3);
+				maxPower = ess.getSetActivePower(phase).writeMin().orElse(ess.allowedCharge.value() / 3);
 				if (calculatedPower > maxPower) {
 					maxPower = calculatedPower;
 				}
@@ -286,7 +286,7 @@ public class BalancingController extends Controller {
 
 		maxPower = (long) ((double) ess.allowedDischarge.value() * percentage);
 
-		minPower = (long) ((double) ess.allowedCharge.value() * -1 * percentage);
+		minPower = (long) ((double) ess.allowedCharge.value() * percentage);
 
 		if (ControllerUtils.calculateApparentPower(minPower, cosPhi) > ess.allowedApparent.value() / 3) {
 			minPower = ControllerUtils.calculateActivePowerFromApparentPower(ess.allowedApparent.value() / 3, cosPhi)
