@@ -1,0 +1,30 @@
+<div [formGroup]="_form">
+    <div formGroupName="scheduler">
+        <div formArrayName="controllers">
+            <div [formGroupName]="index">
+                <md-tab-group>
+                    <md-tab *ngFor="let day of days">
+                        <ng-template md-tab-label>{{ day.label }}</ng-template>
+                        <div [formArrayName]="day.key">
+                            <div style="margin-top: 20px" *ngFor="let dayControl of _form.controls['scheduler']['controls']['controllers']['controls'][index]['controls'][day.key]['controls']; let i=index"
+                                [formGroupName]="i" fxLayout>
+                                <md-input-container fxFlex="100px">
+                                    <input formControlName="time" type="text" placeholder="Zeitpunkt" mdInput>
+                                </md-input-container>
+                                <div fxFlex="50px"></div>
+                                <md-input-container fxFlex="100px">
+                                    <input formControlName="soc" type="number" placeholder="Soc %" mdInput>
+                                </md-input-container>
+                                <div fxFlex="25px"></div>
+                                <button md-mini-fab (click)="deleteTimeline(_form.controls['scheduler']['controls']['controllers']['controls'][index]['controls'][day.key], i)"><md-icon>delete</md-icon></button>
+                            </div>
+                        </div>
+                        <div fxFlex="50px" style="margin: 20px">
+                            <button md-mini-fab (click)="addTimeline(_form.controls['scheduler']['controls']['controllers']['controls'][index]['controls'][day.key])"><md-icon>add</md-icon></button>
+                        </div>
+                    </md-tab>
+                </md-tab-group>
+            </div>
+        </div>
+    </div>
+</div>

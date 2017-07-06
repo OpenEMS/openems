@@ -3,63 +3,89 @@
         <div fxLayout fxLayoutWrap="wrap" formArrayName="controllers">
             <div fxFlex.xs="100%" fxFlex.gt-xs="50%" *ngFor="let controller of form.controls.scheduler['controls']['controllers']['controls'], let i=index"
                 [formGroupName]="i">
-                <!--existing controller-->
-                <div *ngFor="let controllerMeta of form.value._meta['availableControllers'], let j=index">
-                    <ng-container *ngIf="controllerMeta.class == controller.value.class && controller.value.id != ''">
-                        <md-card class="single">
-                            <md-card-header (click)="setSelectedController(controller.value.id)">
-                                <md-icon md-card-avatar>apps</md-icon>
-                                <md-card-title>
-                                    {{ controllerMeta.class | classname }}
-                                </md-card-title>
-                                <md-card-subtitle>
-                                    {{ controller.value.id }}
-                                </md-card-subtitle>
-                            </md-card-header>
-                            <md-card-content style="margin: 20px" *ngIf="selectedController == controller.value.id">
-                                <div fxLayout fxLayoutWrap="wrap">
-                                    <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
-                                        <input placeholder="Priorität" formControlName="priority" type="number" mdInput>
-                                    </md-input-container>
-                                </div>
-                                <div style="margin-top: 20px" *ngFor="let channelMeta of controllerMeta.channels">
-                                    <ng-container *ngIf="channelMeta.name != 'priority'">
-                                        <md-input-container *ngIf="!channelMeta.array" fxFlex.gt-xs="50%" fxFlex.xs="100%">
-                                            <input placeholder="{{ channelMeta.title }}" [formControlName]="channelMeta.name" type="text" mdInput>
+                <ng-container *ngIf="controller.value.class == 'io.openems.impl.controller.symmetric.timelinecharge.TimelineChargeController'">
+                    <md-card class="single">
+                        <md-card-header>
+                            <md-icon md-card-avatar>apps</md-icon>
+                            <md-card-title>
+                                {{ controller.value.class | classname }}
+                            </md-card-title>
+                            <md-card-subtitle>
+                                {{ controller.value.id }}
+                            </md-card-subtitle>
+                        </md-card-header>
+                        <md-card-content style="margin: 20px">
+                            <timelinecharge-controller [form]="form" [index]="i"></timelinecharge-controller>
+                            <div style="position: absolute;bottom: 0;right: 0; margin: 20px">
+                                <button (click)="save(controller)" [disabled]="form.pristine" color="primary" md-mini-fab>
+                                    <md-icon>save</md-icon>
+                                </button>
+                                <button (click)="delete(form.controls.scheduler['controls']['controllers'], i)" color="primary" md-mini-fab>
+                                    <md-icon>delete</md-icon>
+                                </button>
+                            </div>
+                        </md-card-content>
+                    </md-card>
+                </ng-container>
+                <ng-container *ngIf="controller.value.class != 'io.openems.impl.controller.symmetric.timelinecharge.TimelineChargeController'">
+                    <!--existing controller-->
+                    <div *ngFor="let controllerMeta of form.value._meta['availableControllers'], let j=index">
+                        <ng-container *ngIf="controllerMeta.class == controller.value.class && controller.value.id != ''">
+                            <md-card class="single">
+                                <md-card-header (click)="setSelectedController(controller.value.id)">
+                                    <md-icon md-card-avatar>apps</md-icon>
+                                    <md-card-title>
+                                        {{ controllerMeta.class | classname }}
+                                    </md-card-title>
+                                    <md-card-subtitle>
+                                        {{ controller.value.id }}
+                                    </md-card-subtitle>
+                                </md-card-header>
+                                <md-card-content style="margin: 20px" *ngIf="selectedController == controller.value.id">
+                                    <div fxLayout fxLayoutWrap="wrap">
+                                        <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+                                            <input placeholder="Priorität" formControlName="priority" type="number" mdInput>
                                         </md-input-container>
-                                        <div *ngIf="channelMeta.array" [formArrayName]="channelMeta.name">
-                                            <div fxLayout fxLayoutWrap="wrap">
-                                                <div *ngFor="let channelChannelMeta of controller.value[channelMeta.name], let k=index">
-                                                    <md-select placeholder="{{ channelMeta.type }}" [formControlName]="k" fxFlex.gt="33%" fxFlex.xs="100%">
-                                                        <ng-container *ngFor="let nature of form.value._meta['natures'] | keys">
-                                                            <ng-container *ngFor="let natureImplement of nature.value.implements">
-                                                                <md-option *ngIf="natureImplement == channelMeta.type + 'Nature'" [value]="nature.key">{{ nature.key }}</md-option>
+                                    </div>
+                                    <div style="margin-top: 20px" *ngFor="let channelMeta of controllerMeta.channels">
+                                        <ng-container *ngIf="channelMeta.name != 'priority'">
+                                            <md-input-container *ngIf="!channelMeta.array" fxFlex.gt-xs="50%" fxFlex.xs="100%">
+                                                <input placeholder="{{ channelMeta.title }}" [formControlName]="channelMeta.name" type="text" mdInput>
+                                            </md-input-container>
+                                            <div *ngIf="channelMeta.array" [formArrayName]="channelMeta.name">
+                                                <div fxLayout fxLayoutWrap="wrap">
+                                                    <div *ngFor="let channelChannelMeta of controller.value[channelMeta.name], let k=index">
+                                                        <md-select placeholder="{{ channelMeta.type }}" [formControlName]="k" fxFlex.gt="33%" fxFlex.xs="100%">
+                                                            <ng-container *ngFor="let nature of form.value._meta['natures'] | keys">
+                                                                <ng-container *ngFor="let natureImplement of nature.value.implements">
+                                                                    <md-option *ngIf="natureImplement == channelMeta.type + 'Nature'" [value]="nature.key">{{ nature.key }}</md-option>
+                                                                </ng-container>
                                                             </ng-container>
-                                                        </ng-container>
-                                                    </md-select>
-                                                    <button (click)="deleteChannel(k, controller['controls'][channelMeta.name])" md-mini-fab>
+                                                        </md-select>
+                                                        <button (click)="deleteChannel(k, controller['controls'][channelMeta.name])" md-mini-fab>
                                                         <md-icon>delete</md-icon>
                                                     </button>
-                                                </div>
-                                                <button (click)="add(controller['controls'][channelMeta.name])" md-mini-fab>
+                                                    </div>
+                                                    <button (click)="add(controller['controls'][channelMeta.name])" md-mini-fab>
                                                     <md-icon>add</md-icon>
                                                 </button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </ng-container>
-                                </div>
-                                <div style="position: absolute;bottom: 0;right: 0; margin: 20px">
-                                    <button (click)="save(controller)" [disabled]="form.pristine" color="primary" md-mini-fab>
+                                        </ng-container>
+                                    </div>
+                                    <div style="position: absolute;bottom: 0;right: 0; margin: 20px">
+                                        <button (click)="save(controller)" [disabled]="form.pristine" color="primary" md-mini-fab>
                                         <md-icon>save</md-icon>
                                     </button>
-                                    <button (click)="delete(form.controls.scheduler['controls']['controllers'], i)" color="primary" md-mini-fab>
+                                        <button (click)="delete(form.controls.scheduler['controls']['controllers'], i)" color="primary" md-mini-fab>
                                         <md-icon>delete</md-icon>
                                     </button>
-                                </div>
-                            </md-card-content>
-                        </md-card>
-                    </ng-container>
-                </div>
+                                    </div>
+                                </md-card-content>
+                            </md-card>
+                        </ng-container>
+                    </div>
+                </ng-container>
                 <!--New controller-->
                 <div *ngIf="controller.value.class == '' || controller.value.id == ''">
                     <md-card class="single">
