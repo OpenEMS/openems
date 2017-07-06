@@ -1,6 +1,134 @@
 {
   "things": [
     {
+      "class": "io.openems.impl.protocol.simulator.SimulatorBridge",
+      "devices": [
+        {
+          "class": "io.openems.impl.device.simulator.Simulator",
+          "gridMeter": {
+            "id": "meter0",
+            "esss": [
+              "ess0",
+              "ess1",
+              "ess2",
+              "ess3"
+            ],
+            "frequency": 50000,
+            "voltage": 230000,
+            "activePowerGeneratorConfig": {
+              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
+              "config": {
+                "min": -500,
+                "max": 0
+              }
+            },
+            "producer": [
+              "meter1"
+            ],
+            "minActivePower": -25676,
+            "type": "grid",
+            "maxActivePower": 64437,
+            "reactivePowerGeneratorConfig": {
+              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
+              "config": {
+                "min": 0,
+                "max": 1000
+              }
+            }
+          },
+          "productionMeter": {
+            "id": "meter1",
+            "activePowerGeneratorConfig": {
+              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
+              "config": {
+                "min": -500,
+                "max": 0
+              }
+            },
+            "maxActivePower": 11000,
+            "reactivePowerGeneratorConfig": {
+              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
+              "config": {
+                "min": 0,
+                "max": 1000
+              }
+            },
+            "voltage": 230000,
+            "minActivePower": -500,
+            "frequency": 50000
+          },
+          "charger": {
+            "id": "charger0",
+            "powerConfig": 0,
+            "maxActualPower": 20100
+          },
+          "symmetricEss": {
+            "id": "ess0",
+            "minSoc": 15,
+            "chargeSoc": 13,
+            "reactivePowerGeneratorConfig": {
+              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
+              "config": {
+                "min": 0,
+                "max": 1000
+              }
+            },
+            "charger": [
+              "charger0"
+            ],
+            "activePowerGeneratorConfig": {
+              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
+              "config": {
+                "min": -500,
+                "max": 0
+              }
+            }
+          },
+          "output": {
+            "id": "output0"
+          },
+          "sps": {
+            "id": "sps0"
+          }
+        }
+      ]
+    },
+    {
+      "class": "io.openems.impl.protocol.simulator.SimulatorBridge",
+      "devices": [
+        {
+          "class": "io.openems.impl.device.simulator.Simulator",
+          "symmetricEss": {
+            "id": "ess2",
+            "charger": [
+              "charger2"
+            ],
+            "reactivePowerGeneratorConfig": {
+              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
+              "config": {
+                "min": 0,
+                "max": 1000
+              }
+            },
+            "chargeSoc": 13,
+            "minSoc": 15,
+            "activePowerGeneratorConfig": {
+              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
+              "config": {
+                "min": -500,
+                "max": 0
+              }
+            }
+          },
+          "charger": {
+            "id": "charger2",
+            "maxActualPower": 38100,
+            "powerConfig": 0
+          }
+        }
+      ]
+    },
+    {
       "class": "io.openems.impl.protocol.system.SystemBridge",
       "devices": [
         {
@@ -13,14 +141,14 @@
           "class": "io.openems.impl.device.system.esscluster.EssCluster",
           "cluster": {
             "id": "cluster0",
+            "minSoc": 20,
             "chargeSoc": 10,
             "esss": [
               "ess0",
               "ess1",
               "ess2",
               "ess3"
-            ],
-            "minSoc": 20
+            ]
           }
         }
       ]
@@ -30,46 +158,12 @@
       "devices": [
         {
           "class": "io.openems.impl.device.simulator.Simulator",
-          "sps": {
-            "id": "sps0"
-          },
-          "gridMeter": {
-            "id": "meter0",
-            "voltage": 230000,
-            "frequency": 50000,
-            "type": "grid",
-            "producer": [
-              "meter1"
-            ],
-            "esss": [
-              "ess0",
-              "ess1",
-              "ess2",
-              "ess3"
-            ],
-            "minActivePower": -25676,
-            "activePowerGeneratorConfig": {
-              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
-              "config": {
-                "min": -500,
-                "max": 0
-              }
-            },
-            "reactivePowerGeneratorConfig": {
-              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
-              "config": {
-                "min": 0,
-                "max": 1000
-              }
-            },
-            "maxActivePower": 64437
-          },
           "symmetricEss": {
-            "id": "ess0",
-            "charger": [
-              "charger0"
-            ],
+            "id": "ess1",
             "chargeSoc": 13,
+            "charger": [
+              "charger1"
+            ],
             "activePowerGeneratorConfig": {
               "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
               "config": {
@@ -77,31 +171,8 @@
                 "max": 0
               }
             },
-            "reactivePowerGeneratorConfig": {
-              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
-              "config": {
-                "min": 0,
-                "max": 1000
-              }
-            },
-            "minSoc": 15
-          },
-          "output": {
-            "id": "output0"
-          },
-          "productionMeter": {
-            "id": "meter1",
-            "voltage": 230000,
-            "activePowerGeneratorConfig": {
-              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
-              "config": {
-                "min": -500,
-                "max": 0
-              }
-            },
-            "maxActivePower": 11000,
-            "frequency": 50000,
-            "minActivePower": -500,
+            "SystemState": 5,
+            "minSoc": 15,
             "reactivePowerGeneratorConfig": {
               "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
               "config": {
@@ -111,9 +182,9 @@
             }
           },
           "charger": {
-            "id": "charger0",
-            "maxActualPower": 20100,
-            "powerConfig": 20000
+            "id": "charger1",
+            "maxActualPower": 50100,
+            "powerConfig": 10000
           }
         }
       ]
@@ -125,48 +196,8 @@
           "class": "io.openems.impl.device.simulator.Simulator",
           "symmetricEss": {
             "id": "ess3",
-            "minSoc": 15,
-            "chargeSoc": 13,
-            "activePowerGeneratorConfig": {
-              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
-              "config": {
-                "min": -500,
-                "max": 0
-              }
-            },
-            "reactivePowerGeneratorConfig": {
-              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
-              "config": {
-                "min": 0,
-                "max": 1000
-              }
-            },
             "charger": [
               "charger3"
-            ]
-          },
-          "charger": {
-            "id": "charger3",
-            "maxActualPower": 50100,
-            "powerConfig": 50000
-          }
-        }
-      ]
-    },
-    {
-      "class": "io.openems.impl.protocol.simulator.SimulatorBridge",
-      "devices": [
-        {
-          "class": "io.openems.impl.device.simulator.Simulator",
-          "charger": {
-            "id": "charger2",
-            "powerConfig": 38000,
-            "maxActualPower": 38100
-          },
-          "symmetricEss": {
-            "id": "ess2",
-            "charger": [
-              "charger2"
             ],
             "minSoc": 15,
             "activePowerGeneratorConfig": {
@@ -184,42 +215,11 @@
               }
             },
             "chargeSoc": 13
-          }
-        }
-      ]
-    },
-    {
-      "class": "io.openems.impl.protocol.simulator.SimulatorBridge",
-      "devices": [
-        {
-          "class": "io.openems.impl.device.simulator.Simulator",
-          "symmetricEss": {
-            "id": "ess1",
-            "chargeSoc": 13,
-            "charger": [
-              "charger1"
-            ],
-            "minSoc": 15,
-            "activePowerGeneratorConfig": {
-              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
-              "config": {
-                "min": -500,
-                "max": 0
-              }
-            },
-            "reactivePowerGeneratorConfig": {
-              "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
-              "config": {
-                "min": 0,
-                "max": 1000
-              }
-            },
-            "SystemState": 5
           },
           "charger": {
-            "id": "charger1",
+            "id": "charger3",
             "maxActualPower": 50100,
-            "powerConfig": 50000
+            "powerConfig": 1000
           }
         }
       ]
@@ -229,53 +229,8 @@
     "class": "io.openems.impl.scheduler.SimpleScheduler",
     "controllers": [
       {
-        "class": "io.openems.impl.controller.riedmann.RiedmannController",
-        "socLoad3Off": 20,
-        "socLoad1Off": 40,
-        "socLoad2Off": 30,
-        "ess": "cluster0",
-        "priority": 500,
-        "sps": "sps0",
-        "socLoad4Off": 10
-      },
-      {
-        "class": "io.openems.impl.controller.api.rest.RestApiController",
-        "priority": -2147483648
-      },
-      {
-        "class": "io.openems.impl.controller.symmetric.balancing.BalancingController",
-        "priority": 50,
-        "esss": [
-          "cluster0"
-        ],
-        "meter": "meter0"
-      },
-      {
         "class": "io.openems.impl.controller.api.websocket.WebsocketApiController",
         "priority": -2147483648
-      },
-      {
-        "class": "io.openems.impl.controller.symmetric.timelinecharge.TimelineChargeController",
-        "ess": "cluster0",
-        "meter": "meter0",
-        "chargers": [
-          "charger1",
-          "charger2",
-          "charger0",
-          "charger3"
-        ],
-        "priority": 200,
-        "SocTimeline": [
-          {
-            "time": "2017-06-06T11:30:00",
-            "soc": 60
-          },
-          {
-            "time": "2017-06-06T17:30:00",
-            "soc": 80
-          }
-        ],
-        "allowedApparent": 10000
       },
       {
         "class": "io.openems.impl.controller.supplybusswitch.SupplyBusSwitchController",
@@ -327,14 +282,18 @@
             ]
           }
         ],
-        "switchDelay": 5000,
+        "priority": 100,
         "esss": [
           "ess0",
+          "ess3",
           "ess2",
-          "ess1",
-          "ess3"
+          "ess1"
         ],
-        "priority": 100
+        "switchDelay": 5000
+      },
+      {
+        "class": "io.openems.impl.controller.api.rest.RestApiController",
+        "priority": -2147483648
       },
       {
         "class": "io.openems.impl.controller.debuglog.DebugLogController",
@@ -345,6 +304,79 @@
         "meters": [
           "meter0"
         ]
+      },
+      {
+        "class": "io.openems.impl.controller.riedmann.RiedmannController",
+        "socLoad1Off": 40,
+        "socLoad3Off": 20,
+        "socLoad4Off": 10,
+        "sps": "sps0",
+        "socLoad2Off": 30,
+        "priority": 500,
+        "ess": "cluster0"
+      },
+      {
+        "class": "io.openems.impl.controller.symmetric.timelinecharge.TimelineChargeController",
+        "saturday": [
+          {
+            "time": "11:30:00",
+            "soc": 80
+          }
+        ],
+        "thursday": [
+          {
+            "time": "11:30:00",
+            "soc": 50
+          }
+        ],
+        "tuesday": [
+          {
+            "time": "11:30:00",
+            "soc": 80
+          }
+        ],
+        "priority": 200,
+        "sunday": [
+          {
+            "time": "11:30:00",
+            "soc": 30
+          }
+        ],
+        "allowedApparent": 10000,
+        "ess": "cluster0",
+        "wednesday": [
+          {
+            "time": "17:20:00",
+            "soc": 90
+          }
+        ],
+        "friday": [
+          {
+            "time": "11:30:00",
+            "soc": 60
+          }
+        ],
+        "monday": [
+          {
+            "time": "11:30:00",
+            "soc": 60
+          }
+        ],
+        "chargers": [
+          "charger2",
+          "charger1",
+          "charger0",
+          "charger3"
+        ],
+        "meter": "meter0"
+      },
+      {
+        "class": "io.openems.impl.controller.symmetric.balancing.BalancingController",
+        "esss": [
+          "cluster0"
+        ],
+        "priority": 50,
+        "meter": "meter0"
       }
     ]
   },
