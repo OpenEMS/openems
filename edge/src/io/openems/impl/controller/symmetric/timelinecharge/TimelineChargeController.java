@@ -24,10 +24,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -36,8 +34,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
@@ -51,7 +47,7 @@ import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.JsonUtils;
 
 @ThingInfo(title = "Timeline charge (Symmetric)")
-public class TimelineChargeController extends Controller implements ChannelChangeListener {
+public class TimelineChargeController extends Controller {
 
 	/*
 	 * Constructors
@@ -110,7 +106,6 @@ public class TimelineChargeController extends Controller implements ChannelChang
 	 */
 	private AvgFiFoQueue floatingChargerPower = new AvgFiFoQueue(10, 1);
 	private State currentState = State.NORMAL;
-	private TreeMap<LocalDateTime, Integer> socPoints = new TreeMap<>();
 
 	public enum State {
 		NORMAL, MINSOC, CHARGESOC
@@ -143,20 +138,20 @@ public class TimelineChargeController extends Controller implements ChannelChang
 				}
 			}
 			floatingChargerPower.add(chargerPower);
-			Entry<LocalDateTime, Integer> socPoint = getSoc();
-			double requiredEnergy = ((double) ess.capacity.value() / 100.0 * socPoint.getValue())
+			SocPoint socPoint = getSoc();
+			double requiredEnergy = ((double) ess.capacity.value() / 100.0 * socPoint.getSoc())
 					- ((double) ess.capacity.value() / 100.0 * ess.soc.value());
 			long requiredTimeCharger = (long) (requiredEnergy / floatingChargerPower.avg() * 3600.0);
 			long requiredTimeGrid = (long) (requiredEnergy / (floatingChargerPower.avg() + allowedApparentCharge)
 					* 3600.0);
 			log.info("RequiredTimeCharger: " + requiredTimeCharger + ", RequiredTimeGrid: " + requiredTimeGrid);
 			if (floatingChargerPower.avg() >= 1000
-					&& !LocalDateTime.now().plusSeconds(requiredTimeCharger).isBefore(socPoint.getKey())
-					&& LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getKey())) {
+					&& !LocalDateTime.now().plusSeconds(requiredTimeCharger).isBefore(socPoint.getTime())
+					&& LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())) {
 				// Prevent discharge -> load with Pv
 				ess.setActivePower.pushWriteMax(0L);
-			} else if (!LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getKey())
-					&& socPoint.getKey().isAfter(LocalDateTime.now())) {
+			} else if (!LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())
+					&& socPoint.getTime().isAfter(LocalDateTime.now())) {
 				// Load with grid + pv
 				long maxPower = allowedApparentCharge * -1;
 				if (ess.setActivePower.writeMin().isPresent() && ess.setActivePower.writeMin().get() > maxPower) {
@@ -165,7 +160,7 @@ public class TimelineChargeController extends Controller implements ChannelChang
 				ess.setActivePower.pushWriteMax(maxPower);
 			} else {
 				// soc point in the past -> Hold load
-				int minSoc = getCurrentSoc();
+				int minSoc = getCurrentSoc().getSoc();
 				int chargeSoc = minSoc - 5;
 				if (chargeSoc <= 1) {
 					chargeSoc = 1;
@@ -236,24 +231,6 @@ public class TimelineChargeController extends Controller implements ChannelChang
 	// return socPoint.getValue();
 	// }
 
-	@Override
-	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-		if (channel.equals(socTimeline)) {
-			if (newValue.isPresent()) {
-				JsonArray array = (JsonArray) newValue.get();
-				for (JsonElement e : array) {
-					if (e.isJsonObject()) {
-						JsonObject point = e.getAsJsonObject();
-						LocalDateTime time = LocalDateTime.parse(point.get("time").getAsString(),
-								DateTimeFormatter.ISO_DATE_TIME);
-						Integer soc = point.get("soc").getAsInt();
-						socPoints.put(time, soc);
-					}
-				}
-			}
-		}
-	}
-
 	private JsonArray getJsonOfDay(DayOfWeek day) throws InvalidValueException {
 		switch (day) {
 		case FRIDAY:
@@ -274,79 +251,144 @@ public class TimelineChargeController extends Controller implements ChannelChang
 		}
 	}
 
-	private Integer getCurrentSoc() throws InvalidValueException {
-		JsonArray jHours = getJsonOfDay(LocalDate.now().getDayOfWeek());
-		LocalTime time = LocalTime.now();
-		Integer soc = null;
-		int count = 1;
-		while (soc == null && count < 8) {
-			try {
-				soc = floorSoc(jHours, time);
-			} catch (IndexOutOfBoundsException e) {
-				time = LocalTime.MAX;
-				jHours = getJsonOfDay(LocalDate.now().getDayOfWeek().minus(count));
-			}
-			count++;
-		}
-		return soc;
-	}
+	// private Integer getCurrentSoc() throws InvalidValueException {
+	// Integer soc = null;
+	// try {
+	// JsonArray jHours = getJsonOfDay(LocalDate.now().getDayOfWeek());
+	// LocalTime time = LocalTime.now();
+	// int count = 1;
+	// while (soc == null && count < 8) {
+	// try {
+	// Entry<LocalTime, Integer> entry = floorSoc(jHours, time);
+	// if (entry != null) {
+	// soc = entry.getValue();
+	// }
+	// } catch (IndexOutOfBoundsException e) {
+	// time = LocalTime.MAX;
+	// jHours = getJsonOfDay(LocalDate.now().getDayOfWeek().minus(count));
+	// }
+	// count++;
+	// }
+	// } catch (ConfigException e) {
+	// log.error("failed to find soc", e);
+	// }
+	// return soc;
+	// }
 
-	private Integer getSoc() {
-		JsonArray jHours = getJsonOfDay(LocalDate.now().getDayOfWeek());
-		LocalTime time = LocalTime.now();
-		Integer soc = null;
-		int count = 1;
-		while (soc == null && count < 8) {
-			try {
-				soc = floorSoc(jHours, time);
-			} catch (IndexOutOfBoundsException e) {
-				time = LocalTime.MAX;
-				jHours = getJsonOfDay(LocalDate.now().getDayOfWeek().minus(count));
-			}
-			count++;
-		}
-		return soc;
-	}
-
-	private int floorSoc(JsonArray jHours, LocalTime time)
-			throws ConfigException {
+	private SocPoint getCurrentSoc() {
+		SocPoint soc = null;
+		JsonArray jHours;
 		try {
-		// fill times map; sorted by hour
-		TreeMap<LocalTime, Integer> times = new TreeMap<>();
-		for (JsonElement jHourElement : jHours) {
-			JsonObject jHour = JsonUtils.getAsJsonObject(jHourElement);
-			String hourTime = JsonUtils.getAsString(jHour, "time");
-			int jsoc = JsonUtils.getAsInt(jHourElement, "soc");
-			times.put(LocalTime.parse(hourTime), jsoc);
+			jHours = getJsonOfDay(LocalDate.now().getDayOfWeek());
+			LocalTime time = LocalTime.now();
+			int count = 1;
+			while (soc == null && count < 8) {
+				try {
+					Entry<LocalTime, Integer> entry = floorSoc(jHours, time);
+					soc = new SocPoint(LocalDateTime.of(LocalDate.now().minusDays(count), entry.getKey()),
+							entry.getValue());
+				} catch (IndexOutOfBoundsException e) {
+					time = LocalTime.MIN;
+					jHours = getJsonOfDay(LocalDate.now().getDayOfWeek().minus(count));
+				}
+				count++;
+			}
+		} catch (InvalidValueException | ConfigException e1) {
+			log.error("failed to find soc", e1);
 		}
-		// return matching controllers
-		if (times.floorEntry(time) != null) {
-			int soc = times.floorEntry(time).getValue();
-			return soc;
-		} else {
-			throw new IndexOutOfBoundsException("No smaller time found");
+		if (soc == null) {
+			soc = new SocPoint(LocalDateTime.MIN, 10);
 		}
-		}catch(ReflectionException e) {
-			throw new ConfigException(,)
+		return soc;
+	}
+
+	private SocPoint getSoc() {
+		SocPoint soc = null;
+		JsonArray jHours;
+		try {
+			jHours = getJsonOfDay(LocalDate.now().getDayOfWeek());
+			LocalTime time = LocalTime.now();
+			int count = 1;
+			while (soc == null && count < 8) {
+				try {
+					Entry<LocalTime, Integer> entry = higherSoc(jHours, time);
+					soc = new SocPoint(LocalDateTime.of(LocalDate.now().plusDays(count - 1), entry.getKey()),
+							entry.getValue());
+				} catch (IndexOutOfBoundsException e) {
+					time = LocalTime.MIN;
+					jHours = getJsonOfDay(LocalDate.now().getDayOfWeek().plus(count));
+				}
+				count++;
+			}
+		} catch (InvalidValueException | ConfigException e1) {
+			log.error("failed to find soc", e1);
+		}
+		if (soc == null) {
+			soc = new SocPoint(LocalDateTime.MIN, 10);
+		}
+		return soc;
+	}
+
+	private Entry<LocalTime, Integer> floorSoc(JsonArray jHours, LocalTime time) throws ConfigException {
+		try {
+			// fill times map; sorted by hour
+			TreeMap<LocalTime, Integer> times = new TreeMap<>();
+			for (JsonElement jHourElement : jHours) {
+				JsonObject jHour = JsonUtils.getAsJsonObject(jHourElement);
+				String hourTime = JsonUtils.getAsString(jHour, "time");
+				int jsoc = JsonUtils.getAsInt(jHourElement, "soc");
+				times.put(LocalTime.parse(hourTime), jsoc);
+			}
+			// return matching controllers
+			if (times.floorEntry(time) != null) {
+				return times.floorEntry(time);
+			} else {
+				throw new IndexOutOfBoundsException("No smaller time found");
+			}
+		} catch (ReflectionException e) {
+			throw new ConfigException("cant read config", e);
 		}
 	}
 
-	private int higherSoc(JsonArray jHours, LocalTime time) throws ConfigException, ReflectionException {
+	private Map.Entry<LocalTime, Integer> higherSoc(JsonArray jHours, LocalTime time) throws ConfigException {
 		// fill times map; sorted by hour
-		TreeMap<LocalTime, Integer> times = new TreeMap<>();
-		for (JsonElement jHourElement : jHours) {
-			JsonObject jHour = JsonUtils.getAsJsonObject(jHourElement);
-			String hourTime = JsonUtils.getAsString(jHour, "time");
-			int jsoc = JsonUtils.getAsInt(jHourElement, "soc");
-			times.put(LocalTime.parse(hourTime), jsoc);
+		try {
+			TreeMap<LocalTime, Integer> times = new TreeMap<>();
+			for (JsonElement jHourElement : jHours) {
+				JsonObject jHour = JsonUtils.getAsJsonObject(jHourElement);
+				String hourTime = JsonUtils.getAsString(jHour, "time");
+				int jsoc = JsonUtils.getAsInt(jHourElement, "soc");
+				times.put(LocalTime.parse(hourTime), jsoc);
+			}
+			// return matching controllers
+			if (times.higherEntry(time) != null) {
+				return times.higherEntry(time);
+			} else {
+				throw new IndexOutOfBoundsException("No smaller time found");
+			}
+		} catch (ReflectionException e) {
+			throw new ConfigException("cant read config", e);
 		}
-		// return matching controllers
-		if (times.floorEntry(time) != null) {
-			int soc = times.floorEntry(time).getValue();
+	}
+
+	private class SocPoint {
+		private final LocalDateTime time;
+		private final int soc;
+
+		public SocPoint(java.time.LocalDateTime time, int soc) {
+			super();
+			this.time = time;
+			this.soc = soc;
+		}
+
+		public LocalDateTime getTime() {
+			return time;
+		}
+
+		public int getSoc() {
 			return soc;
-		} else {
-			throw new IndexOutOfBoundsException("No smaller time found");
 		}
+
 	}
 
 }
