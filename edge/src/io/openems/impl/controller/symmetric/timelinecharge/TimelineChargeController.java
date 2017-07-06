@@ -127,7 +127,7 @@ public class TimelineChargeController extends Controller {
 			try {
 				ess.setActivePower.pushWriteMin(allowedApparentCharge * -1);
 			} catch (WriteChannelException e) {
-				log.error("Failed to set writeMin to " + (allowedApparentCharge * -1), e);
+				log.warn("Failed to set writeMin to " + (allowedApparentCharge * -1));
 			}
 			long chargerPower = 0L;
 			for (Charger c : chargers.value()) {
