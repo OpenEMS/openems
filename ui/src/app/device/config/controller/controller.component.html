@@ -5,7 +5,7 @@
                 [formGroupName]="i">
                 <ng-container *ngIf="controller.value.class == 'io.openems.impl.controller.symmetric.timelinecharge.TimelineChargeController'">
                     <md-card class="single">
-                        <md-card-header>
+                        <md-card-header (click)="setSelectedController(controller.value.id)">
                             <md-icon md-card-avatar>apps</md-icon>
                             <md-card-title>
                                 {{ controller.value.class | classname }}
@@ -14,7 +14,7 @@
                                 {{ controller.value.id }}
                             </md-card-subtitle>
                         </md-card-header>
-                        <md-card-content style="margin: 20px">
+                        <md-card-content style="margin: 20px" *ngIf="selectedController == controller.value.id">
                             <timelinecharge-controller [form]="form" [index]="i"></timelinecharge-controller>
                             <div style="position: absolute;bottom: 0;right: 0; margin: 20px">
                                 <button (click)="save(controller)" [disabled]="form.pristine" color="primary" md-mini-fab>
