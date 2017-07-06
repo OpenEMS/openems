@@ -30,10 +30,9 @@ import io.openems.core.utilities.JsonUtils;
 public class InfluxdbQueryWrapper {
 
 	private final static Logger log = LoggerFactory.getLogger(InfluxdbQueryWrapper.class);
-	private final static String DB_NAME = "db";
 
 	public static JsonObject query(Optional<InfluxDB> _influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
-			ZonedDateTime toDate, JsonObject channels, int resolution) throws OpenemsException {
+			ZonedDateTime toDate, JsonObject channels, int resolution, String dbName) throws OpenemsException {
 		// Prepare return object
 		JsonObject jQueryreply = new JsonObject();
 		jQueryreply.addProperty("mode", "history");
@@ -53,8 +52,9 @@ public class InfluxdbQueryWrapper {
 
 		if (_influxdb.isPresent()) {
 			InfluxDB influxdb = _influxdb.get();
-			jData = InfluxdbQueryWrapper.queryData(influxdb, fems, fromDate, toDate, channels, resolution);
-			// TODO jkWh = InfluxdbQueryWrapper.querykWh(influxdb, fems, fromDate, toDate, channels, resolution, kWh);
+			jData = InfluxdbQueryWrapper.queryData(influxdb, fems, fromDate, toDate, channels, resolution, dbName);
+			// TODO jkWh = InfluxdbQueryWrapper.querykWh(influxdb, fems, fromDate, toDate, channels, resolution, kWh,
+			// dbName);
 		} else {
 			jData = new JsonArray();
 			jkWh = new JsonObject();
@@ -65,7 +65,7 @@ public class InfluxdbQueryWrapper {
 	}
 
 	private static JsonArray queryData(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
-			ZonedDateTime toDate, JsonObject channels, int resolution) throws OpenemsException {
+			ZonedDateTime toDate, JsonObject channels, int resolution, String dbName) throws OpenemsException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
 		query.append(toChannelAddressList(channels));
@@ -85,7 +85,7 @@ public class InfluxdbQueryWrapper {
 		query.append(resolution);
 		query.append("s) fill(previous)");
 
-		QueryResult queryResult = executeQuery(influxdb, query.toString());
+		QueryResult queryResult = executeQuery(influxdb, query.toString(), dbName);
 
 		JsonArray j = new JsonArray();
 		for (Result result : queryResult.getResults()) {
@@ -140,7 +140,8 @@ public class InfluxdbQueryWrapper {
 	}
 
 	private static JsonObject querykWh(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
-			ZonedDateTime toDate, JsonObject channels, int resolution, JsonObject kWh) throws OpenemsException {
+			ZonedDateTime toDate, JsonObject channels, int resolution, JsonObject kWh, String dbName)
+			throws OpenemsException {
 		JsonArray gridThing = getGridThing(kWh);
 		JsonArray storageThing = getStorageThing(kWh);
 		JsonArray things = new JsonArray();
@@ -170,7 +171,7 @@ public class InfluxdbQueryWrapper {
 			query.append("s");
 			query.append(" GROUP BY time(1s) fill(previous))");
 
-			QueryResult queryResult = executeQuery(influxdb, query.toString());
+			QueryResult queryResult = executeQuery(influxdb, query.toString(), dbName);
 
 			Double sumProduction = 0.0;
 			try {
@@ -203,7 +204,7 @@ public class InfluxdbQueryWrapper {
 			query.append(String.valueOf(toDate.toEpochSecond()));
 			query.append("s");
 
-			queryResult = executeQuery(influxdb, query.toString());
+			queryResult = executeQuery(influxdb, query.toString(), dbName);
 
 			int second = 0;
 			try {
@@ -239,7 +240,7 @@ public class InfluxdbQueryWrapper {
 			query.append(String.valueOf(fromDate.toEpochSecond()));
 			query.append("s");
 
-			queryResult = executeQuery(influxdb, query.toString());
+			queryResult = executeQuery(influxdb, query.toString(), dbName);
 
 			try {
 				if (queryResult.getResults() != null) {
@@ -333,11 +334,11 @@ public class InfluxdbQueryWrapper {
 		return String.join(", ", channelAddresses);
 	}
 
-	private static QueryResult executeQuery(InfluxDB influxdb, String query) throws OpenemsException {
+	private static QueryResult executeQuery(InfluxDB influxdb, String query, String dbName) throws OpenemsException {
 		// Parse result
 		QueryResult queryResult;
 		try {
-			queryResult = influxdb.query(new Query(query, DB_NAME), TimeUnit.MILLISECONDS);
+			queryResult = influxdb.query(new Query(query, dbName), TimeUnit.MILLISECONDS);
 		} catch (RuntimeException e) {
 			throw new OpenemsException("InfluxDB query runtime error: " + e.getMessage());
 		}
