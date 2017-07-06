@@ -1,7 +1,9 @@
 package io.openems.impl.device.system.esscluster;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -321,11 +323,25 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 
 				@Override
 				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
-					long power = 0L;
-					if (channels.length > 0) {
-						power = newValue / channels.length;
+					long socSum = 0L;
+					Map<String, Long> soc = new HashMap<>();
+					for (SymmetricEssNature ess : essList) {
+						if (ess.soc().valueOptional().isPresent()) {
+							socSum += ess.soc().valueOptional().get();
+							soc.put(ess.id(), ess.soc().valueOptional().get());
+						} else {
+							soc.put(ess.id(), 0L);
+						}
 					}
 					for (WriteChannel<Long> channel : channels) {
+						long power = 0L;
+						if (channels.length > 0) {
+							if (newValue >= 0) {
+								power = newValue / (channels.length * 100) * soc.get(channel.parent().id());
+							} else {
+								power = newValue / (channels.length * 100) * (100 - soc.get(channel.parent().id()));
+							}
+						}
 						try {
 							channel.pushWrite(power);
 						} catch (WriteChannelException e) {
