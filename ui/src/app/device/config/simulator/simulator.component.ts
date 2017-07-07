@@ -148,5 +148,13 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
   protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
     return;
   }
+
+  public setValueActivePowerGeneratorConfig(form: FormGroup): String {
+    let activePowerGeneratorConfig: any = form.controls.activePowerGeneratorConfig;
+    let value: String = JSON.stringify(activePowerGeneratorConfig.value);
+
+    return value;
+  }
+
 }
 

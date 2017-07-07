@@ -22,12 +22,6 @@
               <input placeholder="Max Active Power" formControlName="maxActivePower" type="number" mdInput>
             </md-input-container>
             <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
-              <input placeholder="Consumption Active Power" formControlName="activePowerConsumption" type="number" mdInput>
-            </md-input-container>
-            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
-              <input placeholder="Consumption Reactive Power" formControlName="reactivePowerConsumption" type="number" mdInput>
-            </md-input-container>
-            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
               <input placeholder="Frequency" formControlName="frequency" type="number" mdInput>
             </md-input-container>
             <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
@@ -38,8 +32,8 @@
       </md-card-content>
       <md-card-actions *ngIf="form.gridMeter" style="text-align: right">
         <button (click)="save(form.gridMeter)" [disabled]="form.gridMeter.pristine" color="primary" md-mini-fab>
-                                        <md-icon>save</md-icon>
-                                    </button>
+          <md-icon>save</md-icon>
+        </button>
       </md-card-actions>
       <md-card-content *ngIf="form.productionMeter">
         <div fxLayout fxLayoutWrap="wrap" [formGroup]="form.productionMeter">
@@ -66,9 +60,10 @@
             <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
               <input placeholder="Voltage" formControlName="voltage" type="number" mdInput>
             </md-input-container>
-            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
-              <input placeholder="ActivePowerGeneratorConfig" formControlName="activePowerGeneratorConfig" type="json" mdInput>
-            </md-input-container>
+            <!--<md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">-->
+            <textarea fxFlex.gt-xs="75%" fxFlex.xs="100%" rows="auto" placeholder="ActivePowerGeneratorConfig" [value]="setValueActivePowerGeneratorConfig(form.productionMeter)"
+              type="text"></textarea>
+            <!--</md-input-container>-->
           </div>
         </div>
       </md-card-content>
