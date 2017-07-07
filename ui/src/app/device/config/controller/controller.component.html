@@ -3,6 +3,7 @@
         <div fxLayout fxLayoutWrap="wrap" formArrayName="controllers">
             <div fxFlex.xs="100%" fxFlex.gt-xs="50%" *ngFor="let controller of form.controls.scheduler['controls']['controllers']['controls'], let i=index"
                 [formGroupName]="i">
+                <!--existing controller-->
                 <ng-container *ngIf="controller.value.class == 'io.openems.impl.controller.symmetric.timelinecharge.TimelineChargeController'">
                     <md-card class="single">
                         <md-card-header (click)="setSelectedController(controller.value.id)">
@@ -28,7 +29,6 @@
                     </md-card>
                 </ng-container>
                 <ng-container *ngIf="controller.value.class != 'io.openems.impl.controller.symmetric.timelinecharge.TimelineChargeController'">
-                    <!--existing controller-->
                     <div *ngFor="let controllerMeta of form.value._meta['availableControllers'], let j=index">
                         <ng-container *ngIf="controllerMeta.class == controller.value.class && controller.value.id != ''">
                             <md-card class="single">
