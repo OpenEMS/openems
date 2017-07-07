@@ -21,6 +21,7 @@ export class TimelineChargeComponent {
     @Input()
     set form(value: FormGroup) {
         this._form = value;
+        console.log(this._form);
     }
 
     @Input()
@@ -61,6 +62,18 @@ export class TimelineChargeComponent {
     public deleteTimeline(day: FormArray, index: number) {
         day.removeAt(index);
         day.markAsDirty();
+    }
+
+    public deleteCharger(charger: FormArray, index: number) {
+        charger.removeAt(index);
+        charger.markAsDirty();
+    }
+
+    public addCharger(charger: FormArray) {
+        charger.push(
+            this.formBuilder.control("")
+        );
+        charger.markAsDirty();
     }
 
 }

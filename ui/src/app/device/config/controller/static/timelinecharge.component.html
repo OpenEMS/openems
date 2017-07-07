@@ -2,6 +2,49 @@
     <div formGroupName="scheduler">
         <div formArrayName="controllers">
             <div [formGroupName]="index">
+                <div fxLayout fxLayoutWrap="wrap">
+                    <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+                        <input placeholder="Priorität" formControlName="priority" type="number" mdInput>
+                    </md-input-container>
+                </div>
+                <div style="margin-top: 20px" fxLayout fxLayoutWrap="wrap">
+                    <div fxFlex="100%">
+                        <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+                            <input placeholder="Ess" formControlName="ess" type="text" mdInput>
+                        </md-input-container>
+                    </div>
+                    <div fxFlex="100%">
+                        <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+                            <input placeholder="AllowedApparent" formControlName="allowedApparent" type="text" mdInput>
+                        </md-input-container>
+                    </div>
+                    <div fxFlex="100%">
+                        <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+                            <input placeholder="Meter" formControlName="meter" type="text" mdInput>
+                        </md-input-container>
+                    </div>
+                    <div fxFlex="100%" formArrayName="chargers">
+                        <div fxLayout fxLayoutWrap="wrap">
+                            <div *ngFor="let channelMeta of _form.controls.scheduler['controls']['controllers']['controls'][index].value['chargers'], let k=index">
+                                <md-select style="margin: 20px" placeholder="Charger" [formControlName]="k" fxFlex.gt="33%" fxFlex.xs="100%">
+                                    <ng-container *ngFor="let nature of _form.value._meta['natures'] | keys">
+                                        <ng-container *ngFor="let natureImplement of nature.value.implements">
+                                            <md-option *ngIf="natureImplement == 'ChargerNature'" [value]="nature.key">{{ nature.key }}</md-option>
+                                        </ng-container>
+                                    </ng-container>
+                                </md-select>
+                                <button (click)="deleteCharger(_form.controls.scheduler['controls']['controllers']['controls'][index]['controls']['chargers'], k)"
+                                    md-mini-fab>
+                                    <md-icon>delete</md-icon>
+                                </button>
+                            </div>
+                            <button (click)="addCharger(_form.controls.scheduler['controls']['controllers']['controls'][index]['controls']['chargers'])"
+                                md-mini-fab>
+                                <md-icon>add</md-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <md-tab-group>
                     <md-tab *ngFor="let day of days">
                         <ng-template md-tab-label>{{ day.label }}</ng-template>

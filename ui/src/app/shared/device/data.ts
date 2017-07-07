@@ -120,7 +120,7 @@ export class Summary {
 
             // correct negative production
             if (activePowerAC < 0) {
-                console.warn("negative production? ", this)
+                // console.warn("negative production? ", this)
                 activePowerAC = 0;
             }
             if (maxActivePower < 0) { maxActivePower = 0; }
