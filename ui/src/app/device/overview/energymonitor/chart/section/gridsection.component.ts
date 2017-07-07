@@ -36,6 +36,7 @@ let pulsetimeleft = 2000;
 })
 
 export class GridSectionComponent extends AbstractSection implements OnInit {
+    private sellToGrid: boolean;
 
     constructor() {
         super(LABELS.grid, 226, 314, "#1d1d1d");
@@ -44,19 +45,19 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     ngOnInit() {
         Observable.interval(pulsetimeleft)
             .subscribe(x => {
-                if (this.lastValue.absolute < 0) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[this.circles.length - i - 1].switchState();
-                        }, pulsetimeleft / 4 * i);
-                    }
-                } else if (this.lastValue.absolute > 0) {
+                if (this.sellToGrid) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[i].switchState();
                         }, pulsetimeleft / 4 * i);
                     }
-                } else {
+                } else if (!this.sellToGrid) {
+                    for (let i = 0; i < this.circles.length; i++) {
+                        setTimeout(() => {
+                            this.circles[this.circles.length - i - 1].switchState();
+                        }, pulsetimeleft / 4 * i);
+                    }
+                } else if (this.sellToGrid == null) {
                     for (let i = 0; i < this.circles.length; i++) {
                         this.circles[i].hide();
                     }
@@ -67,9 +68,14 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     public updateValue(absolute: number, ratio: number) {
         if (absolute < 0) {
             this.name = LABELS.grid_sell;
+            this.sellToGrid = true;
             absolute *= -1;
+        } else if (absolute > 0) {
+            this.name = LABELS.grid_buy;
+            this.sellToGrid = false;
         } else {
             this.name = LABELS.grid_buy;
+            this.sellToGrid = null;
         }
         super.updateValue(absolute, ratio);
     }

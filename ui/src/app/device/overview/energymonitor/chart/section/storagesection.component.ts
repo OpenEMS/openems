@@ -43,7 +43,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
                 if (this.lastValue.absolute > 0) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
-                            this.circles[i].switchState();
+                            this.circles[this.circles.length - i - 1].switchState();
                         }, pulsetime / 4 * i);
                     }
                 } else if (this.lastValue.absolute == 0) {
