@@ -32,8 +32,8 @@
       </md-card-content>
       <md-card-actions *ngIf="form.gridMeter" style="text-align: right">
         <button (click)="save(form.gridMeter)" [disabled]="form.gridMeter.pristine" color="primary" md-mini-fab>
-                                        <md-icon>save</md-icon>
-                                    </button>
+          <md-icon>save</md-icon>
+        </button>
       </md-card-actions>
       <md-card-content *ngIf="form.productionMeter">
         <div fxLayout fxLayoutWrap="wrap" [formGroup]="form.productionMeter">
@@ -60,9 +60,9 @@
             <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
               <input placeholder="Voltage" formControlName="voltage" type="number" mdInput>
             </md-input-container>
-            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
-              <input placeholder="ActivePowerGeneratorConfig" formControlName="activePowerGeneratorConfig" mdInput>
-            </md-input-container>
+            <span fxFlex.gt-xs="75%" fxFlex.xs="100%">ActivePowerGeneratorConfig</span>
+            <textarea fxFlex.gt-xs="75%" fxFlex.xs="100%" rows="auto" [value]="setJsonObjectToString(form.productionMeter.controls.activePowerGeneratorConfig)"
+              type="text"></textarea>
           </div>
         </div>
       </md-card-content>

@@ -27,6 +27,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import io.openems.api.security.User;
+
 @Retention(RUNTIME)
 @Target({ FIELD, METHOD })
 public @interface ConfigInfo {
@@ -39,6 +41,8 @@ public @interface ConfigInfo {
 	boolean isOptional() default false;
 
 	boolean isArray() default false;
+
+	User accessLevel() default User.ADMIN;
 
 	/**
 	 * String is interpreted as a JsonElement

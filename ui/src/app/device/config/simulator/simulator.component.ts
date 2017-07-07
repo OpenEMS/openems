@@ -148,5 +148,12 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
   protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {
     return;
   }
+
+  public setJsonObjectToString(form: FormGroup): String {
+    let value: String = JSON.stringify(form.value);
+
+    return value;
+  }
+
 }
 
