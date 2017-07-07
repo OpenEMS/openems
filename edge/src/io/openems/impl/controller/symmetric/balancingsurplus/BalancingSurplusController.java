@@ -27,6 +27,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.AvgFiFoQueue;
 
 @ThingInfo(title = "Self-consumption optimization with surplus feed-in (Symmetric)", description = "Tries to keep the grid meter on zero. For symmetric Ess. If ess is over the surplusMinSoc, the ess discharges with the power of the chargers. ")
 public class BalancingSurplusController extends Controller {
@@ -57,6 +58,9 @@ public class BalancingSurplusController extends Controller {
 	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
+	private AvgFiFoQueue meterActivePower = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue essActivePower = new AvgFiFoQueue(2, 1.5);
+
 	private long surplus = 0L;
 	private boolean surplusOn = false;
 
@@ -68,18 +72,20 @@ public class BalancingSurplusController extends Controller {
 	public void run() {
 		try {
 			Ess ess = this.ess.value();
+			meterActivePower.add(meter.value().activePower.value());
+			essActivePower.add(ess.activePower.value());
 			// Calculate required sum values
-			long calculatedPower = meter.value().activePower.value() - surplus + ess.activePower.value();
-			surplus = getSurplusPower() - calculatedPower;
+			long calculatedPower = meterActivePower.avg() - surplus + essActivePower.avg();
+			surplus = getSurplusPower();
+			if (calculatedPower < 0) {
+				surplus -= calculatedPower;
+			}
 			if (getPvVoltage() < 300000 || surplus < 0) {
 				surplus = 0l;
 			}
 			calculatedPower += surplus;
 			ess.power.setActivePower(calculatedPower);
 			ess.power.writePower();
-			// print info message to log
-			String message = ess.id() + " Set ActivePower [" + ess.power.getActivePower() + "]";
-			log.info(message);
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
 		}
