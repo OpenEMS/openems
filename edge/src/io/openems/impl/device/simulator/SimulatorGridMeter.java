@@ -182,8 +182,7 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 		if (activePowerLoad != null) {
 			activePower = activePowerLoad.getLoad();
 		}
-		activePower = activePower
-				+ SimulatorTools.getRandomLong((int) Math.abs(activePower) / -10, (int) Math.abs(activePower) / 10);
+		activePower = activePower + SimulatorTools.getRandomLong(-1000, +1000);
 		long reactivePower = 0;
 		if (reactivePowerLoad != null) {
 			reactivePower = reactivePowerLoad.getLoad();

@@ -197,6 +197,7 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	public JsonObject query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution)
 			throws OpenemsException {
 		Optional<InfluxDB> _influxdb = getInfluxDB();
-		return InfluxdbQueryWrapper.query(_influxdb, fems.valueOptional(), fromDate, toDate, channels, resolution);
+		return InfluxdbQueryWrapper.query(_influxdb, fems.valueOptional(), fromDate, toDate, channels, resolution,
+				database.valueOptional().orElse("db"));
 	}
 }
