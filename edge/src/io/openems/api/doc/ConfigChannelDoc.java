@@ -22,19 +22,24 @@ package io.openems.api.doc;
 
 import com.google.gson.JsonObject;
 
+import io.openems.api.security.User;
+
 public class ConfigChannelDoc {
 	private final String name;
 	private final String title;
 	private final Class<?> type;
 	private final boolean optional;
 	private final boolean array;
+	private final User accessLevel;
 
-	public ConfigChannelDoc(String name, String title, Class<?> type, boolean optional, boolean array) {
+	public ConfigChannelDoc(String name, String title, Class<?> type, boolean optional, boolean array,
+			User accessLevel) {
 		this.name = name;
 		this.title = title;
 		this.type = type;
 		this.optional = optional;
 		this.array = array;
+		this.accessLevel = accessLevel;
 	}
 
 	public JsonObject getAsJsonObject() {
@@ -44,6 +49,7 @@ public class ConfigChannelDoc {
 		j.addProperty("type", type.getSimpleName());
 		j.addProperty("optional", optional);
 		j.addProperty("array", array);
+		j.addProperty("accessLevel", accessLevel.name());
 		return j;
 	}
 }

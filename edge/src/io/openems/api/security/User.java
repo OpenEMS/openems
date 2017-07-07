@@ -256,4 +256,11 @@ public enum User {
 	public User[] getRoles() {
 		return this.roles;
 	}
+
+	public boolean hasRole(User role) {
+		if (Arrays.asList(getRoles()).contains(role)) {
+			return true;
+		}
+		return false;
+	}
 }
