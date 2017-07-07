@@ -149,9 +149,8 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
     return;
   }
 
-  public setValueActivePowerGeneratorConfig(form: FormGroup): String {
-    let activePowerGeneratorConfig: any = form.controls.activePowerGeneratorConfig;
-    let value: String = JSON.stringify(activePowerGeneratorConfig.value);
+  public setJsonObjectToString(form: FormGroup): String {
+    let value: String = JSON.stringify(form.value);
 
     return value;
   }

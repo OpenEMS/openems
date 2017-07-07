@@ -61,7 +61,7 @@
               <input placeholder="Voltage" formControlName="voltage" type="number" mdInput>
             </md-input-container>
             <!--<md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">-->
-            <textarea fxFlex.gt-xs="75%" fxFlex.xs="100%" rows="auto" placeholder="ActivePowerGeneratorConfig" [value]="setValueActivePowerGeneratorConfig(form.productionMeter)"
+            <textarea fxFlex.gt-xs="75%" fxFlex.xs="100%" rows="auto" [value]="setJsonObjectToString(form.productionMeter.controls.activePowerGeneratorConfig)"
               type="text"></textarea>
             <!--</md-input-container>-->
           </div>
