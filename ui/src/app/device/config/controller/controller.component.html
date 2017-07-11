@@ -24,10 +24,10 @@
                                 </div>
                                 <div style="margin-top: 20px" *ngFor="let channelMeta of controllerMeta.channels">
                                     <ng-container *ngIf="channelMeta.name != 'priority'">
-                                        <md-input-container *ngIf="!channelMeta.array" fxFlex.gt-xs="50%" fxFlex.xs="100%">
+                                        <md-input-container *ngIf="!channelMeta.array  && hasAccesslevel(channelMeta.accessLevel)" fxFlex.gt-xs="50%" fxFlex.xs="100%">
                                             <input placeholder="{{ channelMeta.title }}" [formControlName]="channelMeta.name" type="text" mdInput>
                                         </md-input-container>
-                                        <div *ngIf="channelMeta.array" [formArrayName]="channelMeta.name">
+                                        <div *ngIf="channelMeta.array && hasAccesslevel(channelMeta.accessLevel)" [formArrayName]="channelMeta.name">
                                             <div fxLayout fxLayoutWrap="wrap">
                                                 <div *ngFor="let channelChannelMeta of controller.value[channelMeta.name], let k=index">
                                                     <md-select placeholder="{{ channelMeta.type }}" [formControlName]="k" fxFlex.gt="33%" fxFlex.xs="100%">
