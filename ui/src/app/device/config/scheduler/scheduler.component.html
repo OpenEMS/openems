@@ -1,4 +1,4 @@
-<div *ngIf="device" fxLayout fxLayoutWrap="wrap" [formGroup]="configForm">
+<div *ngIf="device && configForm" fxLayout fxLayoutWrap="wrap" [formGroup]="configForm">
   <!--<button routerLink="/device/{{ device.websocket.name }}/{{ device.name }}/config">scheduler</button>-->
   <div fxFlex="100%" formGroupName="scheduler">
     <!-- Scheduler -->
