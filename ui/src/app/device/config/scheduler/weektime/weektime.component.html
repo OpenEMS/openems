@@ -17,7 +17,7 @@
     <md-tab-group>
       <md-tab *ngFor="let day of days">
         <ng-template md-tab-label>{{ day.label }}</ng-template>
-        <div [formArrayName]="day.key">
+        <div [formArrayName]="day.key" style="margin-top: 30px">
           <div *ngFor="let hour of configForm.controls[day.key]['controls']; let i=index" [formGroupName]="i" fxLayout>
             <md-input-container fxFlex="100px">
               <input formControlName="time" type="text" placeholder="Startzeit" mdInput>

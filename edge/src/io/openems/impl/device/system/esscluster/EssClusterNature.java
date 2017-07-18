@@ -322,16 +322,36 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
-					long socSum = 0L;
+				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
+						throws WriteChannelException {
+					long minValue = 0L;
+					boolean minValueValid = false;
+					long maxValue = 0L;
+					boolean maxValueValid = false;
 					Map<String, Long> soc = new HashMap<>();
 					for (SymmetricEssNature ess : essList) {
 						if (ess.soc().valueOptional().isPresent()) {
-							socSum += ess.soc().valueOptional().get();
 							soc.put(ess.id(), ess.soc().valueOptional().get());
 						} else {
 							soc.put(ess.id(), 0L);
 						}
+						if (ess.setActivePower().writeMin().isPresent()) {
+							minValue += ess.setActivePower().writeMin().get();
+							minValueValid = true;
+						}
+						if (ess.setActivePower().writeMax().isPresent()) {
+							maxValue += ess.setActivePower().writeMax().get();
+							maxValueValid = true;
+						}
+					}
+					System.out.println("min: " + minValue + ", max: " + maxValue);
+					if (maxValueValid && maxValue < newValue) {
+						throw new WriteChannelException("Value [" + newValue + "] for [" + setActivePower.address()
+								+ "] is out of boundaries. Max value [" + maxValue + "] had already been set");
+					}
+					if (minValueValid && minValue > newValue) {
+						throw new WriteChannelException("Value [" + newValue + "] for [" + setActivePower.address()
+								+ "] is out of boundaries. Min value [" + minValue + "] had already been set");
 					}
 					for (WriteChannel<Long> channel : channels) {
 						long power = 0L;
@@ -397,32 +417,12 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 
 				@Override
 				public void setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
-					long power = 0L;
-					if (channels.length > 0) {
-						power = newValue / channels.length;
-					}
-					for (WriteChannel<Long> channel : channels) {
-						try {
-							channel.pushWriteMin(power);
-						} catch (WriteChannelException e) {
-							log.error("Failed to write " + power + " to " + channel.address(), e);
-						}
-					}
+					// don't forward the maxValue otherwise the pushWrite with power weight by soc will break
 				}
 
 				@Override
 				public void setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
-					long power = 0L;
-					if (channels.length > 0) {
-						power = newValue / channels.length;
-					}
-					for (WriteChannel<Long> channel : channels) {
-						try {
-							channel.pushWriteMax(power);
-						} catch (WriteChannelException e) {
-							log.error("Failed to write " + power + " to " + channel.address(), e);
-						}
-					}
+					// don't forward the maxValue otherwise the pushWrite with power weight by soc will break
 				}
 
 			});

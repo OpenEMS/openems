@@ -223,7 +223,7 @@ public class Config implements ChannelChangeListener {
 			// write file
 			Files.write(this.configFile, config.getBytes(DEFAULT_CHARSET));
 		} catch (IOException e) {
-			throw new ConfigException("Unable to write config file [" + configFile.toString() + "]");
+			throw new ConfigException("Unable to write config file [" + configFile.toString() + "]", e);
 		}
 	}
 
