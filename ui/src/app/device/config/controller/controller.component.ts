@@ -78,6 +78,30 @@ export class ControllerComponent extends AbstractConfig {
         return false;
     }
 
+    displayPriority(value: any) {
+        for (let channel of value) {
+            if (channel["name"] == 'priority') {
+                return super.hasAccesslevel(channel["accessLevel"]);
+            }
+        }
+    }
+
+    displayCreateNewController() {
+        return super.hasAccesslevel("admin");
+    }
+
+    hasControllerChannelToDisplay(controller: any) {
+        if (super.hasAccesslevel("admin")) {
+            return true;
+        }
+        for (let channel of controller["channels"]) {
+            if (super.hasAccesslevel(channel["accessLevel"])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     add(channelArray: FormArray): void {
         // console.log(channelArray);
         channelArray.push(this.formBuilder.control(""));
