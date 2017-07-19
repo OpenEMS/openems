@@ -142,9 +142,19 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 					String name = JsonUtils.getAsString(bus, "bus");
 					String primaryEssName = JsonUtils.getAsString(bus, "primaryEss");
 					JsonElement supplybusOnIndicationElement = bus.getAsJsonObject().get("supplybusOnIndication");
+					JsonElement loads = bus.getAsJsonObject().get("loads");
 					Optional<Channel> supplybusOnIndication = Optional.empty();
 					if (supplybusOnIndicationElement != null) {
 						supplybusOnIndication = repo.getChannelByAddress(supplybusOnIndicationElement.getAsString());
+					}
+					List<WriteChannel<Long>> loadChannels = new ArrayList<>();
+					if (loads != null) {
+						for (JsonElement load : loads.getAsJsonArray()) {
+							Optional<Channel> loadChannel = repo.getChannelByAddress(load.getAsString());
+							if (loadChannel.isPresent() && loadChannel.get() instanceof WriteChannel<?>) {
+								loadChannels.add((WriteChannel<Long>) loadChannel.get());
+							}
+						}
 					}
 					Ess primaryEss = getEss(primaryEssName);
 					HashMap<Ess, WriteChannel<Boolean>> switchEssMapping = new HashMap<>();
@@ -181,7 +191,7 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 						}
 					}
 					Supplybus sb = new Supplybus(switchEssMapping, name, primaryEss, switchDelay.value(),
-							supplybusOnIndicationChannel);
+							supplybusOnIndicationChannel, loadChannels);
 					buses.add(sb);
 				} catch (ReflectionException e) {
 					log.error("can't find JsonElement 'bus' or 'switches' in config parameter 'supplyBuses'!", e);

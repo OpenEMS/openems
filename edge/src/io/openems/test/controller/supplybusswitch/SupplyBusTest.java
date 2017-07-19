@@ -2,6 +2,7 @@ package io.openems.test.controller.supplybusswitch;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.junit.Before;
@@ -55,7 +56,7 @@ public class SupplyBusTest {
 		output4 = new UnitTestWriteChannel<>("output", "3");
 		essSet.put(essMap4, output4);
 		sbOnIndication = new UnitTestWriteChannel<>("custom", "sb1On");
-		sb = new Supplybus(essSet, "sb1", essMap1, 1000L, sbOnIndication);
+		sb = new Supplybus(essSet, "sb1", essMap1, 1000L, sbOnIndication, new ArrayList<>());
 	}
 
 	@Before

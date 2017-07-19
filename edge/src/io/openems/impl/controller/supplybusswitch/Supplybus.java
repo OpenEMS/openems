@@ -41,6 +41,7 @@ public class Supplybus {
 
 	private HashMap<Ess, WriteChannel<Boolean>> switchEssMapping;
 	private WriteChannel<Long> supplybusOnIndication;
+	private List<WriteChannel<Long>> loads;
 	private Ess primaryEss;
 
 	private Ess activeEss;
@@ -58,13 +59,17 @@ public class Supplybus {
 	private String name;
 
 	public Supplybus(HashMap<Ess, WriteChannel<Boolean>> switchEssMapping, String name, Ess primaryEss,
-			long switchDelay, WriteChannel<Long> supplybusOnIndication) {
+			long switchDelay, WriteChannel<Long> supplybusOnIndication, List<WriteChannel<Long>> loads) {
 		this.switchEssMapping = switchEssMapping;
 		this.name = name;
 		this.primaryEss = primaryEss;
 		this.switchDelay = switchDelay;
 		this.supplybusOnIndication = supplybusOnIndication;
 		state = State.UNKNOWN;
+		this.loads = loads;
+		for (WriteChannel<Long> load : loads) {
+			System.out.println(load.address());
+		}
 	}
 
 	public void setSwitchDelay(long delay) {
