@@ -58,8 +58,8 @@ public class BalancingSurplusController extends Controller {
 	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	private AvgFiFoQueue meterActivePower = new AvgFiFoQueue(2, 1.5);
-	private AvgFiFoQueue essActivePower = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue meterActivePower = new AvgFiFoQueue(3, 1.5);
+	private AvgFiFoQueue essActivePower = new AvgFiFoQueue(3, 1.5);
 
 	private long surplus = 0L;
 	private boolean surplusOn = false;
@@ -73,12 +73,13 @@ public class BalancingSurplusController extends Controller {
 		try {
 			Ess ess = this.ess.value();
 			meterActivePower.add(meter.value().activePower.value());
-			essActivePower.add(ess.activePower.value());
+			essActivePower.add((ess.activePower.value() - surplus));
 			// Calculate required sum values
-			long calculatedPower = meterActivePower.avg() - surplus + essActivePower.avg();
+			long calculatedPower = meterActivePower.avg() + essActivePower.avg();
 			surplus = getSurplusPower();
-			if (calculatedPower < 0) {
-				surplus -= calculatedPower;
+			// in case the storage has surplus it isn't allowed to charge the storage ac
+			if (calculatedPower < 0 && surplus > 0) {
+				calculatedPower = 0;
 			}
 			if (getPvVoltage() < 300000 || surplus < 0) {
 				surplus = 0l;
