@@ -94,9 +94,13 @@ export class ControllerComponent extends AbstractConfig {
         if (super.hasAccesslevel("admin")) {
             return true;
         }
-        for (let channel of controller["channels"]) {
-            if (super.hasAccesslevel(channel["accessLevel"])) {
-                return true;
+        for (let controllerMeta of this.form.value._meta['availableControllers']) {
+            if (controller.value.class == controllerMeta.class) {
+                for (let channel of controllerMeta["channels"]) {
+                    if (super.hasAccesslevel(channel["accessLevel"])) {
+                        return true;
+                    }
+                }
             }
         }
         return false;

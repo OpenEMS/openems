@@ -21,7 +21,6 @@ export class TimelineChargeComponent {
     @Input()
     set form(value: FormGroup) {
         this._form = value;
-        console.log(this._form);
     }
 
     @Input()
