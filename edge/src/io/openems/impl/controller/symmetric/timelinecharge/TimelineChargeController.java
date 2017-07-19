@@ -42,6 +42,7 @@ import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.api.security.User;
 import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -75,31 +76,26 @@ public class TimelineChargeController extends Controller {
 	@ConfigInfo(title = "Charger", description = "Sets the Chargers connected to the ess.", type = Charger.class, isArray = true)
 	public final ConfigChannel<Set<Charger>> chargers = new ConfigChannel<Set<Charger>>("chargers", this);
 
-	@ConfigInfo(title = "Monday", description = "Sets the soc limits for monday.", type = JsonArray.class)
+	@ConfigInfo(title = "Monday", description = "Sets the soc limits for monday.", type = JsonArray.class, accessLevel = User.OWNER)
 	public ConfigChannel<JsonArray> monday = new ConfigChannel<>("monday", this);
 
-	@ConfigInfo(title = "Tuesday", description = "Sets the soc limits for tuesday.", type = JsonArray.class)
+	@ConfigInfo(title = "Tuesday", description = "Sets the soc limits for tuesday.", type = JsonArray.class, accessLevel = User.OWNER)
 	public ConfigChannel<JsonArray> tuesday = new ConfigChannel<>("tuesday", this);
 
-	@ConfigInfo(title = "Wednesday", description = "Sets the soc limits for wednesday.", type = JsonArray.class)
+	@ConfigInfo(title = "Wednesday", description = "Sets the soc limits for wednesday.", type = JsonArray.class, accessLevel = User.OWNER)
 	public ConfigChannel<JsonArray> wednesday = new ConfigChannel<>("wednesday", this);
 
-	@ConfigInfo(title = "Thursday", description = "Sets the soc limits for thursday.", type = JsonArray.class)
+	@ConfigInfo(title = "Thursday", description = "Sets the soc limits for thursday.", type = JsonArray.class, accessLevel = User.OWNER)
 	public ConfigChannel<JsonArray> thursday = new ConfigChannel<>("thursday", this);
 
-	@ConfigInfo(title = "Friday", description = "Sets the soc limits for friday.", type = JsonArray.class)
+	@ConfigInfo(title = "Friday", description = "Sets the soc limits for friday.", type = JsonArray.class, accessLevel = User.OWNER)
 	public ConfigChannel<JsonArray> friday = new ConfigChannel<>("friday", this);
 
-	@ConfigInfo(title = "Saturday", description = "Sets the soc limits for saturday.", type = JsonArray.class)
+	@ConfigInfo(title = "Saturday", description = "Sets the soc limits for saturday.", type = JsonArray.class, accessLevel = User.OWNER)
 	public ConfigChannel<JsonArray> saturday = new ConfigChannel<>("saturday", this);
 
-	@ConfigInfo(title = "Sunday", description = "Sets the soc limits for sunday.", type = JsonArray.class)
+	@ConfigInfo(title = "Sunday", description = "Sets the soc limits for sunday.", type = JsonArray.class, accessLevel = User.OWNER)
 	public ConfigChannel<JsonArray> sunday = new ConfigChannel<>("sunday", this);
-
-	// @ConfigInfo(title = "Soc Timeline", description = "soc to hold untill the next soc point.", type =
-	// JsonArray.class)
-	// public final ConfigChannel<JsonArray> socTimeline = new ConfigChannel<JsonArray>("SocTimeline", this)
-	// .addChangeListener(this);
 
 	/*
 	 * Fields
