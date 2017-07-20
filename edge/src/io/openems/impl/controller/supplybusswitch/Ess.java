@@ -75,14 +75,16 @@ public class Ess extends ThingMap {
 	}
 
 	public void start() throws WriteChannelException {
-		if (systemState.labelOptional().isPresent() && systemState.labelOptional().equals(Optional.of(EssNature.OFF))) {
-			setWorkState.pushWriteFromLabel(EssNature.ON);
+		if (systemState.labelOptional().isPresent() && (systemState.labelOptional().equals(Optional.of(EssNature.STOP))
+				|| systemState.labelOptional().equals(Optional.of(EssNature.STANDBY)))) {
+			setWorkState.pushWriteFromLabel(EssNature.START);
 		}
 	}
 
-	public void stop() throws WriteChannelException {
-		if (systemState.labelOptional().isPresent() && systemState.labelOptional().equals(Optional.of(EssNature.ON))) {
-			setWorkState.pushWriteFromLabel(EssNature.OFF);
+	public void standby() throws WriteChannelException {
+		if (systemState.labelOptional().isPresent()
+				&& systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+			setWorkState.pushWriteFromLabel(EssNature.STANDBY);
 		}
 	}
 

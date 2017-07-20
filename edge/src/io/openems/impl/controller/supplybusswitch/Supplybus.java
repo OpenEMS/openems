@@ -42,7 +42,10 @@ public class Supplybus {
 	private HashMap<Ess, WriteChannel<Boolean>> switchEssMapping;
 	private WriteChannel<Long> supplybusOnIndication;
 	private List<WriteChannel<Long>> loads;
+	private Boolean[] loadState;
 	private Ess primaryEss;
+	private int loadIndex = 0;
+	private long timeLoadSwitched = 0L;
 
 	private Ess activeEss;
 
@@ -67,9 +70,7 @@ public class Supplybus {
 		this.supplybusOnIndication = supplybusOnIndication;
 		state = State.UNKNOWN;
 		this.loads = loads;
-		for (WriteChannel<Long> load : loads) {
-			System.out.println(load.address());
-		}
+		this.loadState = new Boolean[loads.size()];
 	}
 
 	public void setSwitchDelay(long delay) {
@@ -81,7 +82,17 @@ public class Supplybus {
 	}
 
 	public void run() throws InvalidValueException {
-		System.out.println(state);
+		// WriteLoad values
+		for (int i = 0; i < loads.size(); i++) {
+			if (loadState[i] != null && loadState[i] == false) {
+				try {
+					loads.get(i).pushWrite(0L);
+				} catch (WriteChannelException e) {
+					log.warn("Failed to set loadState.", e);
+				}
+			}
+		}
+		log.info(state.toString());
 		switch (state) {
 		case CONNECTED: {
 			Ess active;
@@ -94,12 +105,7 @@ public class Supplybus {
 					if ((active.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))
 							&& active.soc.value() < active.minSoc.value())
 							|| active.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))) {
-						disconnect();
-						try {
-							active.stop();
-						} catch (WriteChannelException e) {
-							log.error("Can't stop ess[" + active.id() + "]", e);
-						}
+						state = State.DISCONNECTING;
 					} else {
 						if (supplybusOnIndication != null) {
 							try {
@@ -118,7 +124,14 @@ public class Supplybus {
 		case CONNECTING: {
 			// if not connected send connect command again
 			if (isConnected()) {
-				state = State.CONNECTED;
+				// TODO connect all loads after ess connected and started
+				try {
+					if (connectLoads()) {
+						state = State.CONNECTED;
+					}
+				} catch (WriteChannelException e) {
+					log.warn("Can't start load.", e);
+				}
 			} else {
 				if (lastTimeDisconnected + switchDelay <= System.currentTimeMillis()) {
 					if (activeEss != null) {
@@ -176,13 +189,32 @@ public class Supplybus {
 			if (isDisconnected()) {
 				state = State.DISCONNECTED;
 			} else {
-				disconnect();
-				if (supplybusOnIndication != null) {
-					try {
-						supplybusOnIndication.pushWrite(0L);
-					} catch (WriteChannelException e) {
-						log.error("can't set supplybusOnIndication", e);
+				// TODO disconnect all loads before disconnection
+				try {
+					if (disconnectLoads()) {
+						disconnect();
+						try {
+							Ess active = getActiveEss();
+							try {
+								if (active != null) {
+									active.standby();
+								}
+							} catch (WriteChannelException e) {
+								log.error("Can't stop ess[" + active.id() + "]", e);
+							}
+						} catch (SupplyBusException e) {
+							log.error("get Active Ess failed!", e);
+						}
+						if (supplybusOnIndication != null) {
+							try {
+								supplybusOnIndication.pushWrite(0L);
+							} catch (WriteChannelException e) {
+								log.error("can't set supplybusOnIndication", e);
+							}
+						}
 					}
+				} catch (WriteChannelException e) {
+					log.warn("Can't stop load!", e);
 				}
 			}
 		}
@@ -310,13 +342,61 @@ public class Supplybus {
 		List<Ess> esss = new ArrayList<>(switchEssMapping.keySet());
 		for (Iterator<Ess> iter = esss.iterator(); iter.hasNext();) {
 			Ess ess = iter.next();
-			if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))
+			if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))
 					|| ess.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))
 					|| ess.getActiveSupplybus() != null) {
 				iter.remove();
 			}
 		}
 		return esss;
+	}
+
+	private boolean disconnectLoads() throws InvalidValueException, WriteChannelException {
+		if (timeLoadSwitched + switchDelay <= System.currentTimeMillis()) {
+			if (loadIndex < loads.size()) {
+				WriteChannel<Long> load = loads.get(loadIndex);
+				if (load.value() == 0L) {
+					loadIndex++;
+				} else {
+					loadState[loadIndex] = false;
+					timeLoadSwitched = System.currentTimeMillis();
+				}
+				return false;
+			} else {
+				loadIndex = 0;
+				for (WriteChannel<Long> load : loads) {
+					if (load.value() != 0L) {
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean connectLoads() throws WriteChannelException, InvalidValueException {
+		if (timeLoadSwitched + switchDelay <= System.currentTimeMillis()) {
+			if (loadIndex < loads.size()) {
+				WriteChannel<Long> load = loads.get(loadIndex);
+				if (loadState[loadIndex] != null && loadState[loadIndex] == true) {
+					loadIndex++;
+				} else {
+					loadState[loadIndex] = true;
+					timeLoadSwitched = System.currentTimeMillis();
+				}
+				return false;
+			} else {
+				loadIndex = 0;
+				for (Boolean load : loadState) {
+					if (!load) {
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
