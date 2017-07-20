@@ -213,6 +213,11 @@ public class Config implements ChannelChangeListener {
 		return jConfig;
 	}
 
+	/**
+	 * Writes the config file. Holds a backup config file and restores it on error. Method is executed asynchronously.
+	 *
+	 * @throws NotImplementedException
+	 */
 	public void writeConfigFile() throws NotImplementedException {
 		JsonObject jConfig = getJsonComplete();
 		Runnable writeConfigRunnable = new Runnable() {
@@ -221,7 +226,9 @@ public class Config implements ChannelChangeListener {
 				Gson gson = new GsonBuilder().setPrettyPrinting().create();
 				String config = gson.toJson(jConfig);
 				try {
-					// create backup
+					/*
+					 * create backup of config file
+					 */
 					Files.copy(configFile, configBackupFile, StandardCopyOption.REPLACE_EXISTING);
 				} catch (IOException e) {
 					ConfigException ex = new ConfigException(
@@ -230,7 +237,9 @@ public class Config implements ChannelChangeListener {
 				}
 
 				try {
-					// write file
+					/*
+					 * write config file
+					 */
 					Files.write(configFile, config.getBytes(DEFAULT_CHARSET));
 				} catch (IOException e) {
 					ConfigException ex = new ConfigException(
@@ -238,7 +247,9 @@ public class Config implements ChannelChangeListener {
 					log.error(ex.getMessage(), ex);
 
 					try {
-						// recover backup file
+						/*
+						 * On error: recover backup file
+						 */
 						Files.copy(configBackupFile, configFile, StandardCopyOption.REPLACE_EXISTING);
 					} catch (IOException e2) {
 						ConfigException ex2 = new ConfigException(
