@@ -196,7 +196,7 @@ public class Supplybus {
 						try {
 							Ess active = getActiveEss();
 							try {
-								if (active != null) {
+								if (active != null && !active.equals(primaryEss)) {
 									active.standby();
 								}
 							} catch (WriteChannelException e) {
