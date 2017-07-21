@@ -13,7 +13,9 @@ interface ThingClass {
     class: string,
     text: string,
     title: string,
-    channels: Channel[]
+    channels: {
+        [thing: string]: Channel[]
+    }
 }
 
 interface Thing {
@@ -43,10 +45,18 @@ export class Config {
                 implements: string[]
             }
         },
-        bridges: [ThingClass],
-        controllers: [ThingClass],
-        schedulers: [ThingClass],
-        devices: [ThingClass]
+        availableBridges: {
+            [thing: string]: ThingClass
+        },
+        availableControllers: {
+            [thing: string]: ThingClass
+        },
+        availableSchedulers: {
+            [thing: string]: ThingClass
+        },
+        availableDevices: {
+            [thing: string]: ThingClass
+        }
     };
     public readonly persistence: [{ class: string }];
     public readonly scheduler: Scheduler;
@@ -59,6 +69,7 @@ export class Config {
 
     constructor(config: any) {
         Object.assign(this, config);
+        console.log(this._meta)
 
         let storageThings: string[] = []
         let gridMeters: string[] = [];

@@ -488,27 +488,27 @@ public class Config implements ChannelChangeListener {
 			 */
 			ClassRepository classRepository = ClassRepository.getInstance();
 			// Controllers
-			JsonArray jAvailableControllers = new JsonArray();
+			JsonObject jAvailableControllers = new JsonObject();
 			for (ThingDoc description : classRepository.getAvailableControllers()) {
-				jAvailableControllers.add(description.getAsJsonObject());
+				jAvailableControllers.add(description.getClazz().getName(), description.getAsJsonObject());
 			}
 			jMeta.add("availableControllers", jAvailableControllers);
 			// Bridges
-			JsonArray jAvailableBridges = new JsonArray();
+			JsonObject jAvailableBridges = new JsonObject();
 			for (ThingDoc description : classRepository.getAvailableBridges()) {
-				jAvailableBridges.add(description.getAsJsonObject());
+				jAvailableBridges.add(description.getClazz().getName(), description.getAsJsonObject());
 			}
 			jMeta.add("availableBridges", jAvailableBridges);
 			// Devices
-			JsonArray jAvailableDevices = new JsonArray();
+			JsonObject jAvailableDevices = new JsonObject();
 			for (ThingDoc description : classRepository.getAvailableDevices()) {
-				jAvailableDevices.add(description.getAsJsonObject());
+				jAvailableDevices.add(description.getClazz().getName(), description.getAsJsonObject());
 			}
 			jMeta.add("availableDevices", jAvailableDevices);
 			// Schedulers
-			JsonArray jAvailableSchedulers = new JsonArray();
+			JsonObject jAvailableSchedulers = new JsonObject();
 			for (ThingDoc description : classRepository.getAvailableSchedulers()) {
-				jAvailableSchedulers.add(description.getAsJsonObject());
+				jAvailableSchedulers.add(description.getClazz().getName(), description.getAsJsonObject());
 			}
 			jMeta.add("availableSchedulers", jAvailableSchedulers);
 			j.add("_meta", jMeta);

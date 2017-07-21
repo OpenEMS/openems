@@ -6,6 +6,7 @@ import * as moment from 'moment';
 import { Notification, Websocket } from '../shared';
 import { Config, ChannelAddresses } from './config';
 import { Data, ChannelData, Summary } from './data';
+import { Role, ROLES } from '../type/role';
 
 export { Data, ChannelData, Summary, Config, ChannelAddresses };
 
@@ -33,6 +34,7 @@ export class Device {
   public config = new BehaviorSubject<Config>(null);
   public log = new Subject<Log>();
   public producttype: 'Pro 9-12' | 'MiniES 3-3' | 'PRO Hybrid 9-10' | 'PRO Compact 3-10' | 'COMMERCIAL 40-45' | 'INDUSTRIAL' | '' = '';
+  public role: Role = ROLES.guest;
 
   //public historykWh = new BehaviorSubject<any[]>(null);
   private comment: string = '';
@@ -40,7 +42,6 @@ export class Device {
   private queryreply = new Subject<QueryReply>();
   private currentData = new BehaviorSubject<Data>(null);
   private ngUnsubscribeCurrentData: Subject<void> = new Subject<void>();
-
   private online = false;
 
   private influxdb: {
@@ -53,8 +54,9 @@ export class Device {
   constructor(
     public name: string,
     public websocket: Websocket,
-    public role: string = "guest"
+    private roleName: string
   ) {
+    this.setRole(roleName);
     if (this.name == 'fems') {
       this.address = this.websocket.name;
     } else {
@@ -216,7 +218,7 @@ export class Device {
       }
 
       if ("role" in metadata) {
-        this.role = metadata.role;
+        this.setRole(metadata.role);
       }
 
       if ("state" in metadata) {
@@ -270,6 +272,15 @@ export class Device {
       //   }
       // }
       //this.historykWh.next(kWh);
+    }
+  }
+
+  private setRole(role: string) {
+    if (role in ROLES) {
+      this.role = ROLES[role];
+    } else {
+      console.warn("Role '" + role + "' not found.")
+      this.role = ROLES.guest;
     }
   }
 }

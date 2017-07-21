@@ -42,6 +42,10 @@ public class ConfigChannelDoc {
 		this.accessLevel = accessLevel;
 	}
 
+	public String getName() {
+		return name;
+	}
+
 	public JsonObject getAsJsonObject() {
 		JsonObject j = new JsonObject();
 		j.addProperty("name", name);

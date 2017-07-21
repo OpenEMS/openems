@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { WebsocketService, WebappService, Device } from '../../../shared/shared';
 import { AbstractConfig } from '../abstractconfig';
 import { ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, ConfigureDeleteRequest } from '../abstractconfigform';
+import { TemplateHelper } from './../../../shared/service/templatehelper';
 
 @Component({
     selector: 'controller',
@@ -13,7 +14,8 @@ import { ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, Confi
 })
 
 export class ControllerComponent extends AbstractConfig {
-    private controlConfig: AbstractControl;
+    public currentControllerIndex: number = 0;
+
     form: FormGroup;
     control: FormGroup;
     private deviceForms: { [bridge: string]: AbstractControl[] } = {};
@@ -26,18 +28,14 @@ export class ControllerComponent extends AbstractConfig {
     constructor(
         route: ActivatedRoute,
         websocketService: WebsocketService,
-        formBuilder: FormBuilder
+        formBuilder: FormBuilder,
+        private tmpl: TemplateHelper
     ) {
         super(route, websocketService, formBuilder);
     }
 
     initForm(config) {
-        // console.log(config);
-        this.controlConfig = this.buildForm(config);
-        // console.log(this.controlConfig);
-        this.form = <FormGroup>this.controlConfig;
-        this.control = this.form.value.scheduler['controllers'];
-        // console.log(this.control);
+        this.form = <FormGroup>this.buildForm(config);
     }
 
     /**

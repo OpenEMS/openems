@@ -48,6 +48,14 @@ export class TemplateHelper {
   }
 
   /**
+   * Returns the short classname
+   */
+  classname(value): string {
+    let parts = value.split(".");
+    return parts[parts.length - 1];
+  }
+
+  /**
    * Creates a deep copy of the object
    */
   deepCopy(obj) {
