@@ -292,12 +292,11 @@ public class RiedmannNatureImpl extends ModbusDeviceNature implements RiedmannNa
 						new SignedWordElement(24,
 								setWaterLevelBorehole3On = new ModbusWriteLongChannel("SetWaterLevelBorehole3On",
 										this)),
-						new SignedWordElement(25,
-								setWaterLevelBorehole3Off = new ModbusWriteLongChannel("SetWaterLevelBorehole3Off",
-										this))),
+						new SignedWordElement(25, setWaterLevelBorehole3Off = new ModbusWriteLongChannel(
+								"SetWaterLevelBorehole3Off", this))),
 				new ModbusRegisterRange(50, //
 						new SignedWordElement(50, //
-								waterlevel = new ModbusReadLongChannel("Waterlevel", this).unit("cm")), //
+								waterlevel = new ModbusReadLongChannel("WaterLevel", this).unit("cm")), //
 						new SignedWordElement(51, //
 								getPivotOn = new ModbusReadLongChannel("GetPivotOn", this)), //
 						new SignedWordElement(52, //
@@ -326,8 +325,7 @@ public class RiedmannNatureImpl extends ModbusDeviceNature implements RiedmannNa
 								switchStatePivotDrive = new ModbusReadLongChannel("SwitchStatePivotDrive", this)), //
 						new SignedWordElement(64, //
 								error = new ModbusReadLongChannel("error", this)), //
-						new DummyElement(65, 69),
-						new SignedWordElement(70, //
+						new DummyElement(65, 69), new SignedWordElement(70, //
 								getWaterLevelBorehole1On = new ModbusReadLongChannel("GetWaterLevelBorehole1On", this)), //
 						new SignedWordElement(71, //
 								getWaterLevelBorehole1Off = new ModbusReadLongChannel("GetWaterLevelBorehole1Off",
