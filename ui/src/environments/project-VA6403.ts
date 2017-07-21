@@ -1,26 +1,30 @@
-import { Environment } from "./environment.type";
+import { Environment } from "../app/shared/type/environment";
+import { Backend } from "../app/shared/type/backend";
 
-export const environment: Environment = {
-  production: true,
-  websockets: [{
+class VA6403Environment extends Environment {
+  public readonly production = true;
+
+  public readonly websockets = [{
     name: "Station D04",
     url: "ws://" + location.hostname + (location.port ? ":" + location.port : "") + "/websocket-d04",
-    backend: "openems"
+    backend: Backend.OpenEMS
   }, {
     name: "Station D02",
     url: "ws://" + location.hostname + (location.port ? ":" + location.port : "") + "/websocket-d02",
-    backend: "openems"
+    backend: Backend.OpenEMS
   }, {
     name: "Station J08",
     url: "ws://" + location.hostname + (location.port ? ":" + location.port : "") + "/websocket-j08",
-    backend: "openems"
+    backend: Backend.OpenEMS
   }, {
     name: "Station D12",
     url: "ws://" + location.hostname + (location.port ? ":" + location.port : "") + "/websocket-d12",
-    backend: "openems"
+    backend: Backend.OpenEMS
   }, {
     name: "Station D10",
     url: "ws://" + location.hostname + (location.port ? ":" + location.port : "") + "/websocket-d10",
-    backend: "openems"
-  }]
-};
+    backend: Backend.OpenEMS
+  }];
+}
+
+export const environment = new VA6403Environment();
