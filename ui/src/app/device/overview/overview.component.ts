@@ -4,6 +4,8 @@ import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 
 import { WebsocketService, Websocket, Notification, Device, Data, Config } from '../../shared/shared';
+import { CustomFieldDefinition } from '../../shared/type/customfielddefinition';
+import { environment } from '../../../environments';
 
 @Component({
   selector: 'overview',
@@ -14,6 +16,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   public device: Device;
   public currentData: Data;
   public config: Config;
+  public customFields: CustomFieldDefinition = {};
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
@@ -28,9 +31,23 @@ export class OverviewComponent implements OnInit, OnDestroy {
       if (device != null) {
         this.device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
           this.config = config;
+          this.customFields = environment.getCustomFields(config);
+          console.log(this.customFields);
           let channels = config.getImportantChannels();
+          /*
+           * Add custom fields for fieldstatus component
+           */
+          for (let thing in this.customFields) {
+            let thingChannels = []
+            for (let channel in this.customFields[thing]) {
+              thingChannels.push(channel);
+            }
+            channels[thing] = thingChannels;
+          }
+
           device.subscribeCurrentData(channels).takeUntil(this.ngUnsubscribe).subscribe(currentData => {
             this.currentData = currentData;
+            console.log(currentData.data.sps0);
           });
         })
       }
