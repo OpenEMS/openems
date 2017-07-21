@@ -32,7 +32,6 @@ export class OverviewComponent implements OnInit, OnDestroy {
         this.device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
           this.config = config;
           this.customFields = environment.getCustomFields(config);
-          console.log(this.customFields);
           let channels = config.getImportantChannels();
           /*
            * Add custom fields for fieldstatus component
