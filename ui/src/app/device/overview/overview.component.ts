@@ -47,7 +47,6 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
           device.subscribeCurrentData(channels).takeUntil(this.ngUnsubscribe).subscribe(currentData => {
             this.currentData = currentData;
-            console.log(currentData.data.sps0);
           });
         })
       }

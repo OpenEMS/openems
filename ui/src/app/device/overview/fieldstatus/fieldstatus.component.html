@@ -13,10 +13,11 @@
         </tr>
 
         <ng-container *ngFor="let thing of tmpl.keys(fielddefinition)">
-          <tr>
+          <!-- Shows Headline
+            <tr>
             <td><b>{{ thing }}</b></td>
             <td></td>
-          </tr>
+          </tr> -->
 
           <tr *ngFor="let channel of tmpl.keys(fielddefinition[thing])">
             <ng-container *ngIf="fielddefinition[thing][channel] as field">
