@@ -1,10 +1,14 @@
-import { Environment } from "./environment.type";
+import { Environment } from "../app/shared/type/environment";
+import { Backend } from "../app/shared/type/backend";
 
-export const environment: Environment = {
-  production: false,
-  websockets: [{
+class DefaultEnvironment extends Environment {
+  public readonly production = false;
+
+  public readonly websockets = [{
     name: "FEMS",
     url: "ws://" + location.hostname + ":8085",
-    backend: "openems"
-  }]
-};
+    backend: Backend.OpenEMS
+  }];
+}
+
+export const environment = new DefaultEnvironment();
