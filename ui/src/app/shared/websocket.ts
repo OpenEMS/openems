@@ -14,6 +14,7 @@ import 'rxjs/add/operator/delay';
 
 import { Device } from './device/device';
 import { WebappService, Notification } from './service/webapp.service';
+import { Backend } from './type/backend';
 
 export class Websocket {
   public isConnected: boolean = false;
@@ -28,7 +29,7 @@ export class Websocket {
   constructor(
     public name: string,
     public url: string,
-    public backend: "femsserver" | "openems",
+    public backend: Backend,
     private webappService: WebappService
   ) {
     // try to auto connect using token or session_id
@@ -123,7 +124,7 @@ export class Websocket {
           throwErrorOnDeny = true;
           this.isConnected = false;
           // authentication denied -> close websocket
-          if (this.backend == "femsserver") {
+          if (this.backend == Backend.FemsServer) {
             window.location.href = "/web/login?redirect=/m/overview";
           } else if (throwErrorOnDeny) {
             let status: Notification = { type: "error", message: "Keine Verbindung: Authentifizierung fehlgeschlagen." };

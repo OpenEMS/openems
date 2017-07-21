@@ -11,14 +11,14 @@ export class TemplateHelper {
    * Helps to use an object inside an *ngFor loop. Returns the object keys.
    * Source: https://stackoverflow.com/a/39896058
    */
-  keys(object: {}) {
+  keys(object: {}): string[] {
     return Object.keys(object);
   }
 
   /**
    * Helps to use an object inside an *ngFor loop. Returns the object key value pairs.
    */
-  keyvalues(object: {}) {
+  keyvalues(object: {}): any[] | {} {
     if (!object) {
       return object;
     }
@@ -27,6 +27,17 @@ export class TemplateHelper {
       keyvalues.push({ key: key, value: object[key] });
     }
     return keyvalues;
+  }
+
+  /**
+   * Returns true if an object has a property
+   */
+  has(object: {}, property: string): boolean {
+    if (property in object) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
