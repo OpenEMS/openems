@@ -41,6 +41,13 @@ export class TemplateHelper {
   }
 
   /**
+   * Returns a sorted array
+   */
+  sort(array: string[]) {
+    return array.sort();
+  }
+
+  /**
    * Creates a deep copy of the object
    */
   deepCopy(obj) {
