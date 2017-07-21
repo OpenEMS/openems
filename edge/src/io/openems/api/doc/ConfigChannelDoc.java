@@ -53,7 +53,7 @@ public class ConfigChannelDoc {
 		j.addProperty("type", type.getSimpleName());
 		j.addProperty("optional", optional);
 		j.addProperty("array", array);
-		j.addProperty("accessLevel", accessLevel.name());
+		j.addProperty("accessLevel", accessLevel.name().toLowerCase());
 		return j;
 	}
 }

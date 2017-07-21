@@ -14,6 +14,7 @@ import { TemplateHelper } from './../../../shared/service/templatehelper';
 })
 
 export class ControllerComponent extends AbstractConfig {
+
     public currentControllerIndex: number = 0;
 
     form: FormGroup;
@@ -72,34 +73,6 @@ export class ControllerComponent extends AbstractConfig {
     isArray(value: any) {
         if (value instanceof Array) {
             return true;
-        }
-        return false;
-    }
-
-    displayPriority(value: any) {
-        for (let channel of value) {
-            if (channel["name"] == 'priority') {
-                return super.hasAccesslevel(channel["accessLevel"]);
-            }
-        }
-    }
-
-    displayCreateNewController() {
-        return super.hasAccesslevel("admin");
-    }
-
-    hasControllerChannelToDisplay(controller: any) {
-        if (super.hasAccesslevel("admin")) {
-            return true;
-        }
-        for (let controllerMeta of this.form.value._meta['availableControllers']) {
-            if (controller.value.class == controllerMeta.class) {
-                for (let channel of controllerMeta["channels"]) {
-                    if (super.hasAccesslevel(channel["accessLevel"])) {
-                        return true;
-                    }
-                }
-            }
         }
         return false;
     }

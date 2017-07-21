@@ -11,13 +11,13 @@
     <!-- Currently selected controller -->
     <div fxFlex.xs="100%" fxFlex.gt-xs="70%" *ngIf="form.controls.scheduler.controls.controllers.controls[currentControllerIndex] as controller">
         <div *ngIf="form.value._meta.availableControllers[controller.value.class] as controllerMeta">
-            {{ controllerMeta | json }}
+            <!-- {{ controllerMeta.channels.priority.getAccessLevelRole() }} {{ controllerMeta | json }} -->
         </div>
         <p>{{ controller.value | json }}</p>
     </div>
 </div>
 
-<div *ngIf="form" [formGroup]="form">
+<!-- <div *ngIf="form" [formGroup]="form">
     <div formGroupName="scheduler">
         <div fxLayout fxLayoutWrap="wrap" formArrayName="controllers">
             <ng-container *ngFor="let controller of form.controls.scheduler['controls']['controllers']['controls'], let i=index" [formGroupName]="i">
@@ -38,4 +38,4 @@
             </md-card>
         </div>
     </div>
-</div>
+</div> -->

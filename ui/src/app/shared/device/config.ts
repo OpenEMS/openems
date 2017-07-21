@@ -1,3 +1,5 @@
+import { Role, ROLES } from '../type/role';
+
 export interface ChannelAddresses {
     [thing: string]: string[];
 }
@@ -6,7 +8,9 @@ interface Channel {
     name: string,
     title: string,
     type: "Integer" | "String"
-    optional: boolean
+    optional: boolean,
+    array: boolean,
+    accessLevel: string
 }
 
 interface ThingClass {

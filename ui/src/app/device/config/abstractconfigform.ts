@@ -49,23 +49,6 @@ export abstract class AbstractConfigForm implements OnDestroy, OnInit {
     this.ngUnsubscribe.complete();
   }
 
-  public hasAccesslevel(accesslevel: String): boolean {
-    let hasRight: boolean = false;
-    let device: Device = this.websocketService.currentDevice.getValue();
-    let role: String = device.role;
-    // console.log(accesslevel);
-    // console.log(role);
-    if (role == "admin") {
-      hasRight = true;
-    } else if (accesslevel == "OWNER" && role == "owner") {
-      hasRight = true;
-    } else {
-      hasRight = false;
-    }
-
-    return hasRight;
-  }
-
   /**
    * general save() for whole configuration
    */
