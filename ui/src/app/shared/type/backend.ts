@@ -1,4 +1,4 @@
 export enum Backend {
-    FemsServer, // = "femsserver",
-    OpenEMS // = "openems"
+    FemsServer = <any>"femsserver",
+    OpenEMS = <any>"openems"
 }
