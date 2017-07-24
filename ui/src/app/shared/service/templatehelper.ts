@@ -45,6 +45,9 @@ export class TemplateHelper {
    * Returns a sorted array
    */
   sort(obj: any[], ascending: boolean = true, property?: string) {
+    if (obj == null) {
+      return obj;
+    }
     return obj.sort((a, b) => {
       if (property) {
         a = a[property];

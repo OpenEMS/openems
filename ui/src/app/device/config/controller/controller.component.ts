@@ -15,7 +15,7 @@ import { TemplateHelper } from './../../../shared/service/templatehelper';
 
 export class ControllerComponent extends AbstractConfig {
 
-    public currentControllerIndex: number = 0;
+    public currentControllerIndex: number = -1;
 
     form: FormGroup;
     control: FormGroup;

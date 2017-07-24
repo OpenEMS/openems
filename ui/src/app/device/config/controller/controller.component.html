@@ -1,41 +1,60 @@
-<div *ngIf="form" fxLayout>
-    <!-- List of all Controllers -->
-    <div fxFlex.xs="100%" fxFlex.gt-xs="30%" *ngIf="form.value.scheduler.controllers as controllers">
-        <div class="single" fxFlex>
-            <md-button-toggle-group fxFlex vertical="true" [(ngModel)]="currentControllerIndex">
-                <md-button-toggle *ngFor="let controller of controllers, let i=index" [value]="i">{{ tmpl.classname(controller.class) }}<br/><small>{{ controller.id }}</small></md-button-toggle>
-            </md-button-toggle-group>
-        </div>
-    </div>
+<div fxLayout="row" fxLayoutWrap="wrap" *ngIf="form?.controls.scheduler?.controls.controllers as controllers">
 
-    <!-- Currently selected controller -->
-    <div fxFlex.xs="100%" fxFlex.gt-xs="70%" *ngIf="form.controls.scheduler.controls.controllers.controls[currentControllerIndex] as controller">
-        <div *ngIf="form.value._meta.availableControllers[controller.value.class] as controllerMeta">
-            <!-- {{ controllerMeta.channels.priority.getAccessLevelRole() }} {{ controllerMeta | json }} -->
-        </div>
-        <p>{{ controller.value | json }}</p>
-    </div>
-</div>
-
-<!-- <div *ngIf="form" [formGroup]="form">
-    <div formGroupName="scheduler">
-        <div fxLayout fxLayoutWrap="wrap" formArrayName="controllers">
-            <ng-container *ngFor="let controller of form.controls.scheduler['controls']['controllers']['controls'], let i=index" [formGroupName]="i">
-
-            </ng-container>
-            <md-card class="single_leftright" *ngIf="displayCreateNewController() && newController == false" fxFlex="100%">
-                <md-card-header>
-                    <md-icon md-card-avatar>stop</md-icon>
-                    <label i18n>Neuer Controller...</label>
-                </md-card-header>
-                <md-card-content>
-                    <div fxLayout fxLayoutAlign="end start">
-                        <button (click)="addController(form.controls.scheduler['controls']['controllers'])" md-mini-fab>
-                            <md-icon>add</md-icon>
-                        </button>
+    <ng-container *ngIf="controllers.controls[currentControllerIndex] as controller; else no_selection">
+        <ng-container *ngIf="tmpl.meta(controller.value.class, 'controller') as meta">
+            <!-- Headline: current controller -->
+            <md-toolbar>
+                <div fxFlex="100%" fxLayout="row">
+                    <div fxFlex>{{ meta.title }}</div>
+                    <div fxFlex="50px">
+                        <button md-icon-button (click)="currentControllerIndex = -1"><md-icon>keyboard_arrow_down</md-icon></button>
                     </div>
-                </md-card-content>
-            </md-card>
+                </div>
+            </md-toolbar>
+
+            <!-- Details: current controller -->
+            <div fxFlex.xs="100%" fxFlex.gt-xs="70%">
+                {{ meta | json }}
+                <p>{{ controller.value | json }}</p>
+            </div>
+        </ng-container>
+    </ng-container>
+
+    <!-- List all Controllers -->
+    <ng-template #no_selection>
+        <div fxFlex="100%" fxLayout fxLayoutWrap="wrap">
+            <div fxFlex="33%" *ngFor="let controller of controllers.value, let i=index">
+                <md-card class="single">
+                    <md-card-header>
+                        <md-icon md-card-avatar>apps</md-icon>
+                        <ng-container *ngIf="tmpl.meta(controller.class, 'controller') as meta; else no_meta">
+                            <md-card-title>{{ meta.title }}</md-card-title>
+                        </ng-container>
+                        <ng-template #no_meta>
+                            <md-card-title>{{ tmpl.classname(controller.class) }}</md-card-title>
+                        </ng-template>
+                    </md-card-header>
+                    <md-card-content>
+                        <table class="full_width">
+                            <tr>
+                                <td>Interne ID:</td>
+                                <td>{{ controller.id }}</td>
+                            </tr>
+                            <tr>
+                                <td>App:</td>
+                                <td>{{ tmpl.classname(controller.class) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Priorität:</td>
+                                <td>{{ controller.priority }}</td>
+                            </tr>
+                        </table>
+                    </md-card-content>
+                    <md-card-actions fxLayout fxLayoutAlign="end start">
+                        <button md-fab (click)="currentControllerIndex = i"><md-icon>navigate_next</md-icon></button>
+                    </md-card-actions>
+                </md-card>
+            </div>
         </div>
-    </div>
-</div> -->
+    </ng-template>
+</div>
