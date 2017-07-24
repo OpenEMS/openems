@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -40,6 +41,7 @@ import { SpinnerComponent } from './spinner.component';
 @NgModule({
   imports: [
     BrowserAnimationsModule,
+    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MyMaterialModule,
@@ -70,6 +72,7 @@ import { SpinnerComponent } from './spinner.component';
     // modules
     BrowserAnimationsModule,
     ChartsModule,
+    CommonModule,
     FormsModule,
     MyMaterialModule,
     FlexLayoutModule,
