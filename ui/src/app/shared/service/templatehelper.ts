@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-
+import { WebsocketService } from './websocket.service'
 
 @Injectable()
 export class TemplateHelper {
 
   constructor(
+    private websocketService: WebsocketService
   ) { }
 
   /**
@@ -43,8 +44,23 @@ export class TemplateHelper {
   /**
    * Returns a sorted array
    */
-  sort(array: string[]) {
-    return array.sort();
+  sort(obj: any[], ascending: boolean = true, property?: string) {
+    return obj.sort((a, b) => {
+      if (property) {
+        a = a[property];
+        b = b[property];
+      }
+      let result = 0;
+      if (a > b) {
+        result = 1;
+      } else if (a < b) {
+        result = -1;
+      }
+      if (!ascending) {
+        result *= -1;
+      }
+      return result;
+    })
   }
 
   /**
@@ -90,5 +106,21 @@ export class TemplateHelper {
     }
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
+  }
+
+  /**
+   * Receive meta information for thing/channel/...
+   */
+  meta(identifier: string, type: 'controller' | 'channel'): {} {
+    let property = type == 'controller' ? 'availableControllers' : type;
+    let device = this.websocketService.currentDevice.getValue();
+    if (device) {
+      let config = device.config.getValue();
+      let meta = config._meta[property];
+      if (identifier in meta) {
+        return (meta[identifier]);
+      }
+    }
+    return null;
   }
 }
