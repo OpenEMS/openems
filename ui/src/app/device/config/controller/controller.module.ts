@@ -3,6 +3,8 @@ import { SharedModule } from './../../../shared/shared.module';
 
 import { OverviewComponent } from './overview/overview.component';
 import { DetailsComponent } from './details/details.component';
+import { FormInputComponent } from './forminput/forminput.component';
+import { TimelineChargeComponent } from './details/timelinecharge/timelinecharge.component';
 
 @NgModule({
   imports: [
@@ -10,7 +12,9 @@ import { DetailsComponent } from './details/details.component';
   ],
   declarations: [
     OverviewComponent,
-    DetailsComponent
+    DetailsComponent,
+    FormInputComponent,
+    TimelineChargeComponent
   ]
 })
 export class ControllerModule { }

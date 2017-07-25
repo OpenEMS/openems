@@ -1,53 +1,31 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 
-interface Day {
-    label: string;
-    key: string;
-}
+import { Controller } from '../../controller';
 
 @Component({
-    selector: 'timelinecharge-controller',
+    selector: 'timelinecharge',
     templateUrl: './timelinecharge.component.html'
 })
 
 export class TimelineChargeComponent {
-    public _form: FormGroup;
+
+    @Input()
+    public controller: Controller;
 
     constructor(
         private formBuilder: FormBuilder
     ) { }
 
-    @Input()
-    set form(value: FormGroup) {
-        this._form = value;
-    }
-
-    @Input()
-    public index: number;
-
-    public days: Day[] = [{
-        label: "Montag",
-        key: "monday"
-    }, {
-        label: "Dienstag",
-        key: "tuesday"
-    }, {
-        label: "Mittwoch",
-        key: "wednesday"
-    }, {
-        label: "Donnerstag",
-        key: "thursday"
-    }, {
-        label: "Freitag",
-        key: "friday"
-    }, {
-        label: "Samstag",
-        key: "saturday"
-    }, {
-        label: "Sonntag",
-        key: "sunday"
-    }]
+    public days: string[] = [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday"
+    ];
 
     public addTimeline(day: FormArray) {
         day.push(this.formBuilder.group({

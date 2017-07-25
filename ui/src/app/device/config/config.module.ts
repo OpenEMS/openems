@@ -9,7 +9,6 @@ import { ControllerModule } from './controller/controller.module';
 
 import { LogComponent } from './log/log.component';
 import { SimulatorComponent } from './simulator/simulator.component';
-import { TimelineChargeComponent } from './controller/static/timelinecharge.component';
 
 @NgModule({
   imports: [
@@ -22,8 +21,7 @@ import { TimelineChargeComponent } from './controller/static/timelinecharge.comp
     OverviewComponent,
     BridgeComponent,
     LogComponent,
-    SimulatorComponent,
-    TimelineChargeComponent
+    SimulatorComponent
   ]
 })
 export class ConfigModule { }
