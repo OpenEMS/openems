@@ -31,6 +31,18 @@ export class TemplateHelper {
   }
 
   /**
+   * Helps to use an object inside an *ngFor loop. Returns the object values.
+   * Source: https://stackoverflow.com/a/39896058
+   */
+  values(object: {}): any[] {
+    let values = [];
+    for (let key in object) {
+      values.push(object[key]);
+    }
+    return values;
+  }
+
+  /**
    * Returns true if an object has a property
    */
   has(object: {}, property: string): boolean {

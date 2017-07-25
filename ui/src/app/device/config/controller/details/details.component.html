@@ -1,0 +1,48 @@
+<md-card class="single" *ngIf="controller && _device" [formGroup]="controller.form">
+    <md-card-header>
+        <md-icon md-card-avatar>apps</md-icon>
+        <md-card-title>{{ controller.meta.title }}</md-card-title>
+        <md-card-subtitle>{{ controller.form.value.id }}: {{ controller.form.value.class }}</md-card-subtitle>
+    </md-card-header>
+    <md-card-content fxLayout fxLayoutWrap="wrap">
+        <ng-container *ngFor="let channelMeta of tmpl.values(controller.meta.channels)">
+            <!-- Access allowed -->
+            <ng-container *ngIf="role.isHigherAs(channelMeta.accessLevel)">
+                <!-- array -->
+                <div *ngIf="channelMeta.array == true; else no_array" [formArrayName]="channelMeta.name" fxFlex="100%">
+                    <p fxFlex="100px">{{ channelMeta.title }}</p>
+                    <div fxFlex fxLayoutWrap="wrap">
+                        <div *ngFor="let channel of controller.form.value[channelMeta.name], let i=index" fxFlex="33%">
+                            <select [formControlName]="i" fxFlex>
+                                <option value=""></option>
+                                <ng-container *ngFor="let nature of tmpl.keyvalues((_device.config | async)?._meta.natures)">
+                                    <ng-container *ngFor="let natureImplement of nature.value.implements">
+                                        <option *ngIf="natureImplement == channelMeta.type + 'Nature'" [value]="nature.key">{{ nature.key }}</option>
+                                        <!-- TODO check if nature.key is already in this array -->
+                                    </ng-container>
+                                </ng-container>
+                            </select>
+                            <div fxFlex="50px">
+                                <button (click)="controller.deleteFromChannel(channelMeta.name, i)" md-mini-fab><md-icon>delete</md-icon></button>
+                            </div>
+                        </div>
+                        <div fxFlex="50px" *ngIf="controller.form.value[channelMeta.name].slice(-1)[0] != ''">
+                            <button (click)="controller.addToChannel(channelMeta.name)" md-mini-fab><md-icon>add</md-icon></button>
+                        </div>
+                    </div>
+                </div>
+                <!-- no array -->
+                <ng-template #no_array>
+                    <md-input-container fxFlex="100%">
+                        <input [placeholder]="channelMeta.title" [formControlName]="channelMeta.name" type="number" mdInput/>
+                        <!-- TODO apply correct type -->
+                    </md-input-container>
+                </ng-template>
+            </ng-container>
+        </ng-container>
+        <p>{{ controller.form.value | json }}</p>
+    </md-card-content>
+    <md-card-actions fxLayout fxLayoutAlign="end start">
+        <button [disabled]="controller.form.pristine" md-fab (click)="controller.save(_device)"><md-icon>save</md-icon></button>
+    </md-card-actions>
+</md-card>

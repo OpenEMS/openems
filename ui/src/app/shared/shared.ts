@@ -1,5 +1,6 @@
 import { routing, appRoutingProviders } from './../app.routing';
-import { Device, Log, QueryReply, Data, Config, ChannelAddresses, Summary } from './device/device';
+import { Device, Log, QueryReply, Data, ChannelAddresses, Summary } from './device/device';
+import { Config, Meta, ThingMeta } from './device/config';
 import { Dataset, EMPTY_DATASET } from './chart';
 import { TemplateHelper } from './service/templatehelper';
 import { WebappService, Notification } from './service/webapp.service';
@@ -14,4 +15,4 @@ const LABELS = {
     grid_sell: "Netzeinspeisung"
 }
 
-export { WebappService, TemplateHelper, Notification, WebsocketService, Websocket, Device, Log, Dataset, EMPTY_DATASET, Config, QueryReply, ChannelAddresses, Data, Summary, LABELS };
+export { WebappService, TemplateHelper, Notification, WebsocketService, Websocket, Device, Log, Dataset, EMPTY_DATASET, Config, Meta, ThingMeta, QueryReply, ChannelAddresses, Data, Summary, LABELS };

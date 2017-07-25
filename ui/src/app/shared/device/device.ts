@@ -65,6 +65,9 @@ export class Device {
     this.comment = name;
   }
 
+  /**
+   * Sends a message to websocket, returns the unique request id
+   */
   public send(value: any): string {
     let requestId = UUID.UUID();
     value["requestId"] = requestId;
