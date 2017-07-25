@@ -19,7 +19,8 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 	 * Config-Channel
 	 */
 	@ConfigInfo(title = "System Stop", description = "This configuration stops the system.", type = Boolean.class)
-	public ConfigChannel<Boolean> signalSystemStop = new ConfigChannel<Boolean>("systemStop", this).defaultValue(true);
+	public ConfigChannel<Boolean> signalSystemStop = new ConfigChannel<Boolean>("signalSystemStop", this)
+			.defaultValue(true);
 	@ConfigInfo(title = "Waterlevel Borehole 1 On", description = "This configuration sets the waterlevel to start Borehole Pump 1", type = Long.class)
 	public ConfigChannel<Long> setWaterLevelBorehole1On = new ConfigChannel<Long>("wl1On", this).defaultValue(50L);
 	@ConfigInfo(title = "Waterlevel Borehole 1 Off", description = "This configuration sets the waterlevel to stop Borehole Pump 1", type = Long.class)
