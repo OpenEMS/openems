@@ -35,6 +35,9 @@ export class FormInputComponent {
     @Input()
     public allMeta: Meta;
 
+    @Input()
+    public showTitle: boolean = true;
+
     public type: string;
     public specialType: string;
 

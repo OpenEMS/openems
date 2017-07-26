@@ -32,8 +32,8 @@
         </ng-container>
         <!-- Special cases -->
         <timelinecharge fxFlex="100%" *ngIf="tmpl.classname(controller.form.value.class) == 'TimelineChargeController'" [controller]="controller"></timelinecharge>
-        <p>{{ controller.form.value | json }}</p>
-        <p>{{ controller.meta | json }}</p>
+        <!-- <p>{{ controller.form.value | json }}</p> -->
+        <!-- <p>{{ controller.meta | json }}</p> -->
     </md-card-content>
     <md-card-actions fxLayout fxLayoutAlign="end start">
         <button [disabled]="controller.form.pristine" md-fab (click)="controller.save(_device)"><md-icon>save</md-icon></button>

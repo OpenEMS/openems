@@ -23,7 +23,7 @@
         <ng-container *ngIf="specialType; else no_special_type">
             <!-- Select from nature list -->
             <div *ngIf="specialType == 'selectNature'; else no_select_nature">
-                <p fxFlex="100px">{{ meta.title }}</p>
+                <p *ngIf="showTitle" fxFlex="100px">{{ meta.title }}</p>
                 <select fxFlex [formControlName]="controlName" fxFlex>
                 <option value=""></option>
                 <ng-container *ngFor="let nature of tmpl.keyvalues(allMeta.natures)">
@@ -50,9 +50,10 @@
         </ng-container>
         <ng-template #no_special_type>
             <!-- Simple input field -->
-            <md-input-container fxFlex="100%" [formGroup]="form">
-                <input [placeholder]="meta.title" [formControlName]="controlName" [type]="type" mdInput/>
-            </md-input-container>
+            <p *ngIf="showTitle" fxFlex="100px">{{ meta.title }}</p>
+            <div [formGroup]="form">
+                <input [placeholder]="meta.title" [formControlName]="controlName" [type]="type" />
+            </div>
         </ng-template>
     </ng-template>
 </div>

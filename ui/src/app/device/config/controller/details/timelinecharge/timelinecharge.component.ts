@@ -27,30 +27,18 @@ export class TimelineChargeComponent {
         "sunday"
     ];
 
-    public addTimeline(day: FormArray) {
-        day.push(this.formBuilder.group({
+    public addToDay(day: string) {
+        let form = <FormArray>this.controller.form.controls[day];
+        form.push(this.formBuilder.group({
             "time": this.formBuilder.control(""),
             "soc": this.formBuilder.control("")
         }));
-
-        day.markAsDirty();
+        form.markAsDirty();
     }
 
-    public deleteTimeline(day: FormArray, index: number) {
-        day.removeAt(index);
-        day.markAsDirty();
+    public deleteFromDay(day: string, index: number) {
+        let form = <FormArray>this.controller.form.controls[day];
+        form.removeAt(index);
+        form.markAsDirty();
     }
-
-    public deleteCharger(charger: FormArray, index: number) {
-        charger.removeAt(index);
-        charger.markAsDirty();
-    }
-
-    public addCharger(charger: FormArray) {
-        charger.push(
-            this.formBuilder.control("")
-        );
-        charger.markAsDirty();
-    }
-
 }
