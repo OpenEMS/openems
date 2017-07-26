@@ -1,8 +1,8 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
 import { Observable } from "rxjs/Rx";
+import { TranslateService } from '@ngx-translate/core';
 
 import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
-import { LABELS } from './../../../../../shared/shared';
 
 let pulsetime = 1000;
 let pulsetimeright = 2000;
@@ -34,8 +34,8 @@ let pulsetimeright = 2000;
 })
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit {
 
-    constructor() {
-        super(LABELS.consumption, 46, 134, "#FDC507");
+    constructor(translate: TranslateService) {
+        super('General.Consumption', 46, 134, "#FDC507", translate);
     }
 
     ngOnInit() {
@@ -62,10 +62,11 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     }
 
     public updateValue(absolute: number, ratio: number) {
+        // TODO
         if (absolute < 0) {
-            this.name = LABELS.consumption_warning;
+            this.name = this.translate.instant('DeviceOverview.Energymonitor.ConsumptionWarning');
         } else {
-            this.name = LABELS.consumption;
+            this.name = this.translate.instant('General.Consumption');
         }
         super.updateValue(absolute, ratio);
     }

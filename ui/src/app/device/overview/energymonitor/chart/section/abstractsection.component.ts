@@ -1,4 +1,5 @@
 import { Component, Input, trigger, state, style, transition, animate } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import * as d3 from 'd3';
 
 import { EnergytableComponent } from '../../../energytable/energytable.component';
@@ -85,6 +86,7 @@ export abstract class AbstractSection {
     public pulsetimedown: number;
     public pulsetimeright: number;
     public pulsetimeleft: number;
+    public name: string = "";
 
     protected valueRatio: number = 0;
     protected valueText: string = "";
@@ -100,11 +102,14 @@ export abstract class AbstractSection {
     }
 
     constructor(
-        public name: string,
+        translateName: string,
         protected startAngle: number,
         protected endAngle: number,
-        public color: string
-    ) { }
+        public color: string,
+        protected translate: TranslateService
+    ) {
+        this.name = translate.instant(translateName);
+    }
 
     /**
      * This method is called on every change of values.

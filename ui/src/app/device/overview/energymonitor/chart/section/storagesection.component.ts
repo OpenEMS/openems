@@ -1,4 +1,5 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
 import { Observable } from "rxjs/Rx";
 
@@ -33,8 +34,8 @@ let pulsetimedown = 2000;
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit {
 
-    constructor() {
-        super("Speicher", 136, 224, "#009846");
+    constructor(translate: TranslateService) {
+        super('DeviceOverview.Energymonitor.Storage', 136, 224, "#009846", translate);
     }
 
     ngOnInit() {

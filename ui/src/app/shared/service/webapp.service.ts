@@ -1,9 +1,11 @@
 import { Injectable, ErrorHandler } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs/Subject';
+
+import * as moment from 'moment';
 
 import { WebsocketService } from './websocket.service';
 import { Device } from '../shared';
-
-import { Subject } from 'rxjs/Subject';
 
 type NotificationType = "success" | "error" | "warning" | "info";
 
@@ -17,7 +19,20 @@ export class WebappService implements ErrorHandler {
 
   public notificationEvent: Subject<Notification> = new Subject<Notification>();
 
-  constructor() { }
+  constructor(
+    private translate: TranslateService
+  ) {
+    // this language will be used as a fallback when a translation isn't found in the current language
+    translate.setDefaultLang('en');
+  }
+
+  /**
+   * Sets the application language
+   */
+  public setLang(id: 'de' | 'en') {
+    this.translate.use('de');
+    moment.locale("de");
+  }
 
   /**
    * Gets the token for this id from localstorage

@@ -1,8 +1,8 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable } from "rxjs/Rx";
 
 import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
-import { LABELS } from './../../../../../shared/shared';
 
 let pulsetime = 1000;
 let pulsetimeleft = 2000;
@@ -38,8 +38,8 @@ let pulsetimeleft = 2000;
 export class GridSectionComponent extends AbstractSection implements OnInit {
     private sellToGrid: boolean;
 
-    constructor() {
-        super(LABELS.grid, 226, 314, "#1d1d1d");
+    constructor(translate: TranslateService) {
+        super('General.Grid', 226, 314, "#1d1d1d", translate);
     }
 
     ngOnInit() {
@@ -67,14 +67,14 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
 
     public updateValue(absolute: number, ratio: number) {
         if (absolute < 0) {
-            this.name = LABELS.grid_sell;
+            this.name = this.translate.instant('General.GridSell');
             this.sellToGrid = true;
             absolute *= -1;
         } else if (absolute > 0) {
-            this.name = LABELS.grid_buy;
+            this.name = this.translate.instant('General.GridBuy');
             this.sellToGrid = false;
         } else {
-            this.name = LABELS.grid_buy;
+            this.name = this.translate.instant('General.Grid');
             this.sellToGrid = null;
         }
         super.updateValue(absolute, ratio);

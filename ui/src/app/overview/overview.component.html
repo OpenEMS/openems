@@ -33,8 +33,8 @@
             <md-card-header>
               <md-icon *ngIf="dev.value.online" md-card-avatar color="primary">folder</md-icon>
               <md-icon *ngIf="!dev.value.online" md-card-avatar>error</md-icon>
-              <md-card-title *ngIf="websocket.backend == 'openems'">Zum Energiemonitor...</md-card-title>
-              <md-card-title *ngIf="websocket.backend == 'femsserver'">{{ dev.value.comment }} <span *ngIf="!dev.value.online" i18n><br/>FEMS ist offline!</span></md-card-title>
+              <md-card-title *ngIf="websocket.backend == 'openems'" translate>Overview.ToEnergymonitor</md-card-title>
+              <md-card-title *ngIf="websocket.backend == 'femsserver'" translate>{{ dev.value.comment }} <span *ngIf="!dev.value.online"><br/>Overview.IsOffline</span></md-card-title>
               <md-card-subtitle *ngIf="websocket.backend == 'femsserver'">{{ dev.key }}: {{ dev.value.producttype }}</md-card-subtitle>
             </md-card-header>
             <md-card-actions fxLayout fxLayoutAlign="end start">

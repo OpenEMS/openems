@@ -75,7 +75,6 @@ export class Config {
 
     constructor(config: any) {
         Object.assign(this, config);
-        console.log(this._meta)
 
         let storageThings: string[] = []
         let gridMeters: string[] = [];
