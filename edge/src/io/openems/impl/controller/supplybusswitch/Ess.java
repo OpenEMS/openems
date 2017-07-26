@@ -20,8 +20,6 @@
  *******************************************************************************/
 package io.openems.impl.controller.supplybusswitch;
 
-import java.util.Optional;
-
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
@@ -46,6 +44,11 @@ public class Ess extends ThingMap {
 	public final WriteChannel<Long> setWorkState;
 	public final ReadChannel<Long> systemState;
 	private Supplybus activeSupplybus;
+	private WorkState currentState;
+
+	enum WorkState {
+		START, STOP, STANDBY
+	}
 
 	public Supplybus getActiveSupplybus() {
 		return activeSupplybus;
@@ -74,17 +77,37 @@ public class Ess extends ThingMap {
 		return soc.value() - minSoc.value();
 	}
 
-	public void start() throws WriteChannelException {
-		if (systemState.labelOptional().isPresent() && (systemState.labelOptional().equals(Optional.of(EssNature.STOP))
-				|| systemState.labelOptional().equals(Optional.of(EssNature.STANDBY)))) {
-			setWorkState.pushWriteFromLabel(EssNature.START);
-		}
+	public void start() {
+		currentState = WorkState.START;
+		// if (systemState.labelOptional().isPresent() &&
+		// (systemState.labelOptional().equals(Optional.of(EssNature.STOP))
+		// || systemState.labelOptional().equals(Optional.of(EssNature.STANDBY)))) {
+		// setWorkState.pushWriteFromLabel(EssNature.START);
+		// }
 	}
 
-	public void standby() throws WriteChannelException {
-		if (systemState.labelOptional().isPresent()
-				&& systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+	public void standby() {
+		currentState = WorkState.STANDBY;
+		// if (systemState.labelOptional().isPresent()
+		// && systemState.labelOptional().equals(Optional.of(EssNature.START))) {
+		// setWorkState.pushWriteFromLabel(EssNature.STANDBY);
+		// }
+	}
+
+	public void setWorkState() throws WriteChannelException {
+		switch (currentState) {
+		case STANDBY:
 			setWorkState.pushWriteFromLabel(EssNature.STANDBY);
+			break;
+		case START:
+			setWorkState.pushWriteFromLabel(EssNature.START);
+			break;
+		case STOP:
+			setWorkState.pushWriteFromLabel(EssNature.STOP);
+			break;
+		default:
+			setWorkState.pushWriteFromLabel(EssNature.STANDBY);
+			break;
 		}
 	}
 

@@ -148,31 +148,23 @@ public class Supplybus {
 			// only connect if soc is larger than minSoc + 5 or Ess is On-Grid
 			if (mostLoad != null) {
 				if (mostLoad.soc.value() > mostLoad.minSoc.value() + 5) {
-					try {
-						// connect(mostLoad);
-						activeEss = mostLoad;
-						activeEss.start();
-						activeEss.setActiveSupplybus(this);
-						lastTimeDisconnected = System.currentTimeMillis();
-						state = State.CONNECTING;
-					} catch (WriteChannelException e) {
-						log.error("Can't start ess[" + activeEss.id() + "]", e);
-					}
+					// connect(mostLoad);
+					activeEss = mostLoad;
+					activeEss.start();
+					activeEss.setActiveSupplybus(this);
+					lastTimeDisconnected = System.currentTimeMillis();
+					state = State.CONNECTING;
 				}
 			} else {
 				// all ess empty check if On-Grid
 				List<Ess> onGridEss = getOnGridEss();
 				if (onGridEss.size() > 0) {
-					try {
-						// connect(mostLoad);
-						activeEss = onGridEss.get(0);
-						activeEss.start();
-						activeEss.setActiveSupplybus(this);
-						lastTimeDisconnected = System.currentTimeMillis();
-						state = State.CONNECTING;
-					} catch (WriteChannelException e) {
-						log.error("Can't start ess[" + activeEss.id() + "]", e);
-					}
+					// connect(mostLoad);
+					activeEss = onGridEss.get(0);
+					activeEss.start();
+					activeEss.setActiveSupplybus(this);
+					lastTimeDisconnected = System.currentTimeMillis();
+					state = State.CONNECTING;
 				}
 			}
 			if (supplybusOnIndication != null) {
@@ -195,12 +187,8 @@ public class Supplybus {
 						disconnect();
 						try {
 							Ess active = getActiveEss();
-							try {
-								if (active != null && !active.equals(primaryEss)) {
-									active.standby();
-								}
-							} catch (WriteChannelException e) {
-								log.error("Can't stop ess[" + active.id() + "]", e);
+							if (active != null && !active.equals(primaryEss)) {
+								active.standby();
 							}
 						} catch (SupplyBusException e) {
 							log.error("get Active Ess failed!", e);
@@ -322,9 +310,9 @@ public class Supplybus {
 				iter.remove();
 			}
 		}
-		if (esss.size() > 1) {
-			esss.remove(primaryEss);
-		}
+		// if (esss.size() > 1) {
+		// esss.remove(primaryEss);
+		// }
 		Ess largestSoc = null;
 		for (Ess ess : esss) {
 			try {
