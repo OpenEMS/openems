@@ -1,5 +1,4 @@
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
-import { BaseChartComponent, ColorHelper } from '@swimlane/ngx-charts';
 import { Subject } from 'rxjs/Subject';
 import * as d3 from 'd3';
 

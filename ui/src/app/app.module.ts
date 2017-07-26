@@ -1,3 +1,4 @@
+import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -19,6 +20,7 @@ import { MyTranslateLoader } from './shared/translate';
 
 @NgModule({
   imports: [
+    BrowserModule,
     SharedModule,
     AboutModule,
     DeviceModule,

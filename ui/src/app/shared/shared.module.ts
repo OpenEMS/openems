@@ -1,9 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { RouterModule } from '@angular/router';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { MdSnackBar } from '@angular/material';
@@ -41,9 +41,9 @@ import { SpinnerComponent } from './spinner.component';
 @NgModule({
   imports: [
     BrowserAnimationsModule,
+    CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    NgxChartsModule,
     MyMaterialModule,
     FlexLayoutModule,
     RouterModule,
@@ -72,10 +72,10 @@ import { SpinnerComponent } from './spinner.component';
     // modules
     BrowserAnimationsModule,
     ChartsModule,
+    CommonModule,
     FormsModule,
     MyMaterialModule,
     FlexLayoutModule,
-    NgxChartsModule,
     RouterModule,
     ReactiveFormsModule,
     TranslateModule,

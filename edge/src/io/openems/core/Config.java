@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,11 +83,13 @@ public class Config implements ChannelChangeListener {
 	private final ThingRepository thingRepository;
 	private final Path configFile;
 	private final Path configBackupFile;
+	private final ExecutorService writeConfigExecutor;
 
 	public Config() throws ConfigException {
 		thingRepository = ThingRepository.getInstance();
 		this.configFile = getConfigFile();
 		this.configBackupFile = getConfigBackupFile();
+		this.writeConfigExecutor = Executors.newSingleThreadExecutor();
 	}
 
 	public synchronized void readConfigFile() throws Exception {
@@ -209,22 +213,53 @@ public class Config implements ChannelChangeListener {
 		return jConfig;
 	}
 
-	public synchronized void writeConfigFile() throws OpenemsException {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	/**
+	 * Writes the config file. Holds a backup config file and restores it on error. Method is executed asynchronously.
+	 *
+	 * @throws NotImplementedException
+	 */
+	public void writeConfigFile() throws NotImplementedException {
 		JsonObject jConfig = getJsonComplete();
-		String config = gson.toJson(jConfig);
-		try {
-			// create backup
-			Files.copy(configFile, configBackupFile, StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {
-			throw new ConfigException("Unable to create backup file [" + configBackupFile.toString() + "]");
-		}
-		try {
-			// write file
-			Files.write(this.configFile, config.getBytes(DEFAULT_CHARSET));
-		} catch (IOException e) {
-			throw new ConfigException("Unable to write config file [" + configFile.toString() + "]", e);
-		}
+		Runnable writeConfigRunnable = new Runnable() {
+			@Override
+			public void run() {
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				String config = gson.toJson(jConfig);
+				try {
+					/*
+					 * create backup of config file
+					 */
+					Files.copy(configFile, configBackupFile, StandardCopyOption.REPLACE_EXISTING);
+				} catch (IOException e) {
+					ConfigException ex = new ConfigException(
+							"Unable to create backup file [" + configBackupFile.toString() + "]");
+					log.error(ex.getMessage(), ex);
+				}
+
+				try {
+					/*
+					 * write config file
+					 */
+					Files.write(configFile, config.getBytes(DEFAULT_CHARSET));
+				} catch (IOException e) {
+					ConfigException ex = new ConfigException(
+							"Unable to write config file [" + configFile.toString() + "]", e);
+					log.error(ex.getMessage(), ex);
+
+					try {
+						/*
+						 * On error: recover backup file
+						 */
+						Files.copy(configBackupFile, configFile, StandardCopyOption.REPLACE_EXISTING);
+					} catch (IOException e2) {
+						ConfigException ex2 = new ConfigException(
+								"Unable to recover backup file [" + configBackupFile.toString() + "]");
+						log.error(ex.getMessage(), ex);
+					}
+				}
+			}
+		};
+		this.writeConfigExecutor.execute(writeConfigRunnable);
 	}
 
 	public synchronized void parseJsonConfig(JsonObject jConfig)
