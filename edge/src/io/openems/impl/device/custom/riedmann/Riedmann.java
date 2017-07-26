@@ -11,8 +11,8 @@ import io.openems.impl.protocol.modbus.ModbusDevice;
 
 public class Riedmann extends ModbusDevice {
 
-	@ConfigInfo(title = "", type = RiedmannNature.class)
-	public final ConfigChannel<RiedmannNature> device = new ConfigChannel<RiedmannNature>("device", this);
+	@ConfigInfo(title = "", type = RiedmannNatureImpl.class)
+	public final ConfigChannel<RiedmannNatureImpl> device = new ConfigChannel<RiedmannNatureImpl>("device", this);
 
 	public Riedmann() throws OpenemsException {
 		super();
