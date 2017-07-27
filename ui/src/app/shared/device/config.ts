@@ -4,6 +4,27 @@ export interface ChannelAddresses {
     [thing: string]: string[];
 }
 
+export interface Meta {
+    natures: {
+        [thing: string]: {
+            channels: {},
+            implements: string[]
+        }
+    },
+    availableBridges: {
+        [thing: string]: ThingMeta
+    },
+    availableControllers: {
+        [thing: string]: ThingMeta
+    },
+    availableSchedulers: {
+        [thing: string]: ThingMeta
+    },
+    availableDevices: {
+        [thing: string]: ThingMeta
+    }
+}
+
 interface Channel {
     name: string,
     title: string,
@@ -13,7 +34,7 @@ interface Channel {
     accessLevel: string
 }
 
-interface ThingClass {
+export interface ThingMeta {
     class: string,
     text: string,
     title: string,
@@ -42,26 +63,7 @@ interface Bridge extends Thing {
 }
 
 export class Config {
-    public readonly _meta: {
-        natures: {
-            [thing: string]: {
-                channels: {},
-                implements: string[]
-            }
-        },
-        availableBridges: {
-            [thing: string]: ThingClass
-        },
-        availableControllers: {
-            [thing: string]: ThingClass
-        },
-        availableSchedulers: {
-            [thing: string]: ThingClass
-        },
-        availableDevices: {
-            [thing: string]: ThingClass
-        }
-    };
+    public readonly _meta: Meta;
     public readonly persistence: [{ class: string }];
     public readonly scheduler: Scheduler;
     public readonly things: Bridge[]
@@ -73,7 +75,6 @@ export class Config {
 
     constructor(config: any) {
         Object.assign(this, config);
-        console.log(this._meta)
 
         let storageThings: string[] = []
         let gridMeters: string[] = [];

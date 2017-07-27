@@ -5,8 +5,15 @@ export class Role {
         public readonly level: number
     ) { };
 
-    public isHigherAs(role: Role): boolean {
-        return this.level >= role.level;
+    public isHigherAs(role: Role | string): boolean {
+        if (typeof role === 'string') {
+            role = ROLES.getRole(role);
+        }
+        if (role) {
+            return this.level >= role.level;
+        } else {
+            return false;
+        }
     }
 }
 
@@ -17,8 +24,8 @@ export const ROLES = {
     admin: new Role("admin", 3),
 
     getRole(name: string): Role {
-        if (this.accessLevel in ROLES) {
-            return ROLES[this.accessLevel];
+        if (name in ROLES) {
+            return ROLES[name];
         }
     }
 };

@@ -225,5 +225,4 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 			updateWaterLevelBorehole3On = true;
 		}
 	}
-
 }

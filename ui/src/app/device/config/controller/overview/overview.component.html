@@ -1,0 +1,47 @@
+<div fxLayout="row" fxLayoutWrap="wrap" fxLayoutAlign="center start">
+
+  <ng-container *ngIf="controllers[currentControllerIndex] as controller; else no_selection">
+    <!-- Headline: current controller -->
+    <md-toolbar>
+      <button md-icon-button (click)="currentControllerIndex = -1"><md-icon>keyboard_arrow_left</md-icon></button>
+    </md-toolbar>
+
+    <!-- Details: current controller -->
+    <div fxFlex.xs="100%" fxFlex.gt-xs="70%">
+      <controllerDetails [controller]="controller" [device]="device"></controllerDetails>
+    </div>
+  </ng-container>
+
+  <!-- List all Controllers -->
+  <ng-template #no_selection>
+    <div fxFlex="100%" fxLayout fxLayoutWrap="wrap">
+      <div fxFlex="33%" *ngFor="let controller of controllers, let i=index">
+        <md-card class="single">
+          <md-card-header>
+            <md-icon md-card-avatar>apps</md-icon>
+            <md-card-title>{{ controller.meta.title }}</md-card-title>
+          </md-card-header>
+          <md-card-content>
+            <table class="full_width">
+              <tr>
+                <td>Interne ID:</td>
+                <td>{{ controller.form.value.id }}</td>
+              </tr>
+              <tr>
+                <td>App:</td>
+                <td>{{ tmpl.classname(controller.form.value.class) }}</td>
+              </tr>
+              <tr>
+                <td>Priorität:</td>
+                <td>{{ controller.form.value.priority }}</td>
+              </tr>
+            </table>
+          </md-card-content>
+          <md-card-actions fxLayout fxLayoutAlign="end start">
+            <button md-fab (click)="currentControllerIndex = i"><md-icon>navigate_next</md-icon></button>
+          </md-card-actions>
+        </md-card>
+      </div>
+    </div>
+  </ng-template>
+</div>

@@ -51,8 +51,29 @@ Bulid for projects:
 
 To get more help on the `angular-cli` use `ng help` or go check out the [Angular-CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
-### Subscribe
+### Development hints
+
+#### i18n - internationalization
+
+Translation is based on [ngx-translate](https://github.com/ngx-translate). The language can be changed at runtime in the "Über FEMS-UI" dialog.
+
+##### In HTML template use:
+
+`<p translate>General.StorageSystem</p>`
+
+* add attribute 'translate'
+* content of the tag is the path to translation in [translate.ts](app/shared/translate.ts) file
+
+##### In typescript code use:
+```
+import { TranslateService } from '@ngx-translate/core';
+constructor(translate: TranslateService) {}
+this.translate.instant('General.StorageSystem')
+```
+
+#### Subscribe
 For "subscribe" please follow this: https://stackoverflow.com/questions/38008334/angular-rxjs-when-should-i-unsubscribe-from-subscription
+```
 import { Subject } from 'rxjs/Subject';
 private ngUnsubscribe: Subject<void> = new Subject<void>();
 ngOnInit() {
@@ -64,3 +85,4 @@ ngOnDestroy() {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 }
+```

@@ -12,9 +12,30 @@ export class MyTranslateLoader implements TranslateLoader {
                  * German translation
                  */
                 {
+                    General: {
+                        Grid: "Netz",
+                        GridBuy: "Netzbezug",
+                        GridSell: "Netzeinspeisung",
+                        Production: "Erzeugung",
+                        Consumption: "Verbrauch",
+                        Power: "Leistung",
+                        StorageSystem: "Speichersystem"
+                    },
                     Overview: {
                         ConnectionSuccessful: "Verbindung zu {{value}} hergestellt.",
-                        ConnectionFailed: "Verbindung zu {{value}} getrennt."
+                        ConnectionFailed: "Verbindung zu {{value}} getrennt.",
+                        ToEnergymonitor: "Zum Energiemonitor...",
+                        IsOffline: "FEMS ist offline!"
+                    },
+                    DeviceOverview: {
+                        Energymonitor: {
+                            Title: "Energiemonitor",
+                            ConsumptionWarning: "Verbrauch & unbekannte Erzeuger",
+                            Storage: "Speicher",
+                        },
+                        Energytable: {
+                            Title: "Energietabelle"
+                        }
                     }
                 }
             );
@@ -24,9 +45,30 @@ export class MyTranslateLoader implements TranslateLoader {
                  * English translation
                  */
                 {
+                    General: {
+                        GridBuy: "Buy from grid",
+                        GridSell: "Sell to grid",
+                        Production: "Production",
+                        Consumption: "Consumption",
+                        Power: "Power",
+                        Grid: "Grid",
+                        StorageSystem: "Storage System"
+                    },
                     Overview: {
                         ConnectionSuccessful: "Successfully connected to {{value}}.",
-                        ConnectionFailed: "Connection to {{value}} failed."
+                        ConnectionFailed: "Connection to {{value}} failed.",
+                        ToEnergymonitor: "To Energymonitor...",
+                        IsOffline: "FEMS is offline!"
+                    },
+                    DeviceOverview: {
+                        Energymonitor: {
+                            Title: "Energymonitor",
+                            ConsumptionWarning: "Consumption & unknown producers",
+                            Storage: "Storage"
+                        },
+                        Energytable: {
+                            Title: "Energytable"
+                        }
                     }
                 }
             );

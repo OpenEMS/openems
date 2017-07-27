@@ -1,9 +1,10 @@
 import { Component, Input, OnInit, OnChanges, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
+import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
-import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, Summary, LABELS } from './../../../../shared/shared';
+import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, Summary } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
 import { TemplateHelper } from './../../../../shared/service/templatehelper';
 
@@ -22,7 +23,10 @@ export class EnergyChartComponent implements OnChanges {
 
   @ViewChild('energyChart') private chart: BaseChartDirective;
 
-  constructor(private tmpl: TemplateHelper) { }
+  constructor(
+    private tmpl: TemplateHelper,
+    private translate: TranslateService
+  ) { }
 
   public labels: moment.Moment[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
@@ -49,12 +53,12 @@ export class EnergyChartComponent implements OnChanges {
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      if (label === LABELS.grid) {
+      if (label === this.translate.instant('General.Grid')) {
         if (value < 0) {
           value *= -1;
-          label = LABELS.grid_buy;
+          label = this.translate.instant('General.GridBuy');
         } else {
-          label = LABELS.grid_sell;
+          label = this.translate.instant('General.GridSell')
         }
       }
       return label + ": " + value.toPrecision(2) + " kW";
@@ -89,13 +93,13 @@ export class EnergyChartComponent implements OnChanges {
         activePowers.consumption.push(data.consumption.activePower / 1000); // convert to kW
       }
       this.datasets = [{
-        label: LABELS.production,
+        label: this.translate.instant('General.Production'),
         data: activePowers.production
       }, {
-        label: LABELS.grid,
+        label: this.translate.instant('General.Grid'),
         data: activePowers.grid
       }, {
-        label: LABELS.consumption,
+        label: this.translate.instant('General.Consumption'),
         data: activePowers.consumption
       }];
       this.labels = labels;

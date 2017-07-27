@@ -11,7 +11,7 @@ import { BridgeComponent as DeviceConfigBridgeComponent } from './device/config/
 import { SchedulerComponent as DeviceConfigSchedulerComponent } from './device/config/scheduler/scheduler.component';
 import { LogComponent as DeviceConfigLogComponent } from './device/config/log/log.component';
 import { MoreComponent as DeviceConfigMoreComponent } from './device/config/more/more.component';
-import { ControllerComponent as DeviceConfigControllerComponent } from './device/config/controller/controller.component';
+import { OverviewComponent as DeviceControllerOverviewComponent } from './device/config/controller/overview/overview.component';
 import { SimulatorComponent as DeviceConfigSimulatorComponent } from './device/config/simulator/simulator.component';
 
 const appRoutes: Routes = [
@@ -30,7 +30,9 @@ const appRoutes: Routes = [
   { path: 'device/:websocket/:device/config/bridge', component: DeviceConfigBridgeComponent },
   { path: 'device/:websocket/:device/config/scheduler', component: DeviceConfigSchedulerComponent },
   { path: 'device/:websocket/:device/config/more', component: DeviceConfigMoreComponent },
-  { path: 'device/:websocket/:device/config/controller', component: DeviceConfigControllerComponent },
+
+  { path: 'device/:websocket/:device/config/controller', redirectTo: 'device/:websocket/:device/config/controller/overview', pathMatch: 'full' },
+  { path: 'device/:websocket/:device/config/controller/overview', component: DeviceControllerOverviewComponent },
   { path: 'device/:websocket/:device/config/simulator', component: DeviceConfigSimulatorComponent },
 
 ];
