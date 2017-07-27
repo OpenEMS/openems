@@ -4,7 +4,8 @@
 	"thresholdChannelAddress": "ess0/Soc",
 	"outputChannelAddress": "output0/0",
 	"lowerThreshold": 40,
-	"upperThreshold": 45
+	"upperThreshold": 45,
+	"hysteresis": 5
 },
 {
 	"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
@@ -13,5 +14,6 @@
 	"outputChannelAddress": "output0/1",
 	"lowerThreshold": 75,
 	"upperThreshold": 80,
-	"invertOutput": true
+	"invertOutput": true,
+	"hysteresis": 5
 }
