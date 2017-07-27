@@ -93,17 +93,13 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 				try {
 					energy -= channels[0].value() / 3600.0;
 				} catch (InvalidValueException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+
 				}
 				if (chargerList != null) {
 					for (ChargerNature charger : chargerList) {
 						try {
 							energy += charger.getActualPower().value() / 3600.0;
-						} catch (InvalidValueException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+						} catch (InvalidValueException e) {}
 					}
 				}
 				try {

@@ -344,7 +344,6 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							maxValueValid = true;
 						}
 					}
-					System.out.println("min: " + minValue + ", max: " + maxValue);
 					if (maxValueValid && maxValue < newValue) {
 						throw new WriteChannelException("Value [" + newValue + "] for [" + setActivePower.address()
 								+ "] is out of boundaries. Max value [" + maxValue + "] had already been set");
