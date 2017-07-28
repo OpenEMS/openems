@@ -2,7 +2,7 @@
 
 ## Architecture
 
-![Architecture](doc/edge/architecture.jpg)
+![Architecture](../doc/architecture.jpg)
 
 -	Hardware (battery systems, inverters, meters,…) or external services are at the bottom of the graph.
 -	“Bridges” are the physical connection layer to a device (like Modbus/TCP or RTU). There can be several devices per Bridge.
