@@ -39,7 +39,17 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
   private colors = [{
     backgroundColor: 'rgba(0,152,70,0.2)',
     borderColor: 'rgba(0,152,70,1)',
-  }];
+  }, {
+    backgroundColor: 'rgba(23,93,20,0.2)',
+    borderColor: 'rgba(23,93,20,1)'
+  }, {
+    backgroundColor: 'rgba(139,222,135,0.2)',
+    borderColor: 'rgba(139,222,135,1)'
+  }, {
+    backgroundColor: 'rgba(53,192,78,0.2)',
+    borderColor: 'rgba(53,192,78,1)'
+  }
+  ];
   private options: ChartOptions;
 
   ngOnInit() {
