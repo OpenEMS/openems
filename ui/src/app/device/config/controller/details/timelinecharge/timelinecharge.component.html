@@ -4,9 +4,9 @@
             <ng-template md-tab-label>{{ controller.meta.channels[day].title }}</ng-template>
             <div [formArrayName]="day">
                 <div *ngFor="let entry of controller.form.value[day]; let i=index" [formGroupName]="i" fxLayout>
-                    <p fxFlex="100px">Zeitpunkt</p>
+                    <p fxFlex="100px">ConfigOverview.ConfigLog.Timestamp</p>
                     <input fxFlex formControlName="time" type="text">
-                    <p fxFlex="100px">SOC [%]</p>
+                    <p fxFlex="100px"><span translate>General.Soc</span> [%]</p>
                     <input fxFlex formControlName="soc" type="number">
                     <div fxFlex="50px">
                         <button md-mini-fab (click)="deleteFromDay(day, i)"><md-icon>delete</md-icon></button>

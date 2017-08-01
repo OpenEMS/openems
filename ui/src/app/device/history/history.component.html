@@ -7,14 +7,14 @@
       </md-card-header>
       <md-card-content>
         <div fxLayout fxLayoutWrap="wrap" fxFlex>
-          <button md-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold" i18n>
-            Zeitraum
+          <button md-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold">
+            <span translate>DeviceHistory.Period</span>
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'today'" (click)="setPeriod('today')" fxFlex="100%" i18n>
-            Heute
+          <button md-raised-button [class.activated]="activePeriod == 'today'" (click)="setPeriod('today')" fxFlex="100%">
+            <span translate>DeviceHistory.Today</span>
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%" i18n>
-            Gestern
+          <button md-raised-button [class.activated]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%">
+            <span translate>DeviceHistory.Yesterday</span>
           </button>
           <!-- TODO reactivate -->
           <!--<button md-raised-button [class.activated]="activePeriod == 'lastWeek'" (click)="setPeriod('lastWeek')" fxFlex="100%"
@@ -28,8 +28,8 @@
             letztes Jahr
           </button>-->
           <button [class.activated]="activePeriod == 'otherTimespan'" (click)="showOtherTimespan = !showOtherTimespan" md-raised-button
-            fxFlex="100%" i18n>
-            Anderer Zeitraum
+            fxFlex="100%">
+            <span translate>DeviceHistory.OtherPeriod</span>
           </button>
           <div *ngIf="showOtherTimespan" style="margin-top: 20px" fxLayout fxLayoutWrap="wrap" fxFlex="100%">
             <div fxFlex="100%">
@@ -46,8 +46,8 @@
             </div>
             <div fxFlex="100%">
               <div fxFlex="75px"></div>
-              <button md-raised-button style="font-size: 14px" (click)="setPeriod('otherTimespan', from.value, to.value)" i18n>
-                Los!
+              <button md-raised-button style="font-size: 14px" (click)="setPeriod('otherTimespan', from.value, to.value)">
+                <span translate>DeviceHistory.Go</span>
               </button>
             </div>
           </div>
@@ -71,7 +71,7 @@
       <md-card class="single">
         <md-card-header>
           <md-icon md-card-avatar>event</md-icon>
-          <md-card-title>Gewählter Zeitraum: {{ activePeriodText }}</md-card-title>
+          <md-card-title><span translate>DeviceHistory.SelectedPeriod</span> {{ activePeriodText }}</md-card-title>
         </md-card-header>
         <md-card-content>
           <div style="height: 250px">

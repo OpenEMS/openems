@@ -30,8 +30,8 @@ export class WebappService implements ErrorHandler {
    * Sets the application language
    */
   public setLang(id: 'de' | 'en') {
-    this.translate.use('de');
-    moment.locale("de");
+    this.translate.use(id);
+    moment.locale(id);
   }
 
   /**

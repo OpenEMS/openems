@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, OnChanges, OnDestroy, ViewChild, AfterViewInit, SimpleChanges } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
+import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
 import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, ChannelAddresses } from './../../../../shared/shared';
@@ -23,7 +24,10 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
 
   @ViewChild('socChart') private chart: BaseChartDirective;
 
-  constructor(private tmpl: TemplateHelper) { }
+  constructor(
+    private tmpl: TemplateHelper,
+    private translate: TranslateService
+  ) { }
 
   public labels: moment.Moment[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
@@ -40,7 +44,7 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit() {
     let options = <ChartOptions>this.tmpl.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = "Prozent";
+    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percent');
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }
@@ -78,7 +82,7 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
       let datasets = [];
       for (let device in tmpData) {
         datasets.push({
-          label: "Ladezustand (" + device + ")",
+          label: this.translate.instant('General.Soc') + " (" + device + ")",
           data: tmpData[device]
         });
       }

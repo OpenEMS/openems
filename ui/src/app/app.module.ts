@@ -16,7 +16,7 @@ import { AppComponent } from './app.component';
 
 // services
 import { WebappService, WebsocketService } from './shared/shared';
-import { MyTranslateLoader } from './shared/translate';
+import { MyTranslateLoader } from './shared/translate/translate';
 
 @NgModule({
   imports: [

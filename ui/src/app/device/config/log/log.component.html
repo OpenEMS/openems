@@ -8,14 +8,14 @@
       </md-card-header>
       <md-card-content>
         <div>
-          <md-slide-toggle (change)="toggleSubscribe($event)" [checked]="isSubscribed" i18n>Automatische Aktualisierung</md-slide-toggle>
+          <md-slide-toggle (change)="toggleSubscribe($event)" [checked]="isSubscribed"><span translate>ConfigOverview.ConfigLog.AutomaticUpdating</span></md-slide-toggle>
         </div>
         <table class="full_width">
           <tr>
-            <th i18n>Zeitpunkt</th>
-            <th i18n>Level</th>
-            <th i18n>Quelle</th>
-            <th i18n>Nachricht</th>
+            <th><span translate>ConfigOverview.ConfigLog.Timestamp</span></th>
+            <th><span translate>ConfigOverview.ConfigLog.Level</span></th>
+            <th><span translate>ConfigOverview.ConfigLog.Source</span></th>
+            <th><span translate>ConfigOverview.ConfigLog.Message</span></th>
           </tr>
           <tr *ngFor="let log of logs" [style.color]="log.color">
             <td>{{ log.time }}</td>
