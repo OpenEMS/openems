@@ -124,7 +124,14 @@ public class Supplybus {
 		case CONNECTING: {
 			// if not connected send connect command again
 			if (isConnected()) {
-				// TODO connect all loads after ess connected and started
+				if (supplybusOnIndication != null) {
+					try {
+						supplybusOnIndication.pushWrite(1L);
+					} catch (WriteChannelException e) {
+						log.error("can't set supplybusOnIndication", e);
+					}
+				}
+				// connect all loads after ess connected and started
 				try {
 					if (connectLoads()) {
 						state = State.CONNECTED;
@@ -165,6 +172,8 @@ public class Supplybus {
 					activeEss.setActiveSupplybus(this);
 					lastTimeDisconnected = System.currentTimeMillis();
 					state = State.CONNECTING;
+				} else {
+					log.error("no ess to connect");
 				}
 			}
 			if (supplybusOnIndication != null) {
@@ -181,7 +190,7 @@ public class Supplybus {
 			if (isDisconnected()) {
 				state = State.DISCONNECTED;
 			} else {
-				// TODO disconnect all loads before disconnection
+				// disconnect all loads before disconnection
 				try {
 					if (disconnectLoads()) {
 						disconnect();
