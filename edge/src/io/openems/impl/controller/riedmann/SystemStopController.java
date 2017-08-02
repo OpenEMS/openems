@@ -10,14 +10,14 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
-@ThingInfo(title = "Test write")
+@ThingInfo(title = "SystemStopController")
 public class SystemStopController extends Controller {
 
 	/*
 	 * Config-Channel
 	 */
 	@ConfigInfo(title = "System Stop", description = "This configuration stops the system.", type = Boolean.class)
-	public ConfigChannel<Boolean> signalSystemStop = new ConfigChannel<Boolean>("systemStop", this).defaultValue(true);
+	public ConfigChannel<Boolean> signalSystemStop = new ConfigChannel<Boolean>("signalSystemStop", this);
 
 	@ConfigInfo(title = "SPS", description = "The sps which should be controlled.", type = Custom.class)
 	public ConfigChannel<Custom> sps = new ConfigChannel<>("sps", this);
