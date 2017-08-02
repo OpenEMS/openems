@@ -29,7 +29,7 @@
 			</fileNamePattern>
 			<minIndex>1</minIndex>
 			<maxIndex>3</maxIndex>
-			<totalSizeCap>1MB</totalSizeCap>
+			<totalSizeCap>10MB</totalSizeCap>
 		</rollingPolicy>
 		<triggeringPolicy
 			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
