@@ -36,14 +36,14 @@ export class EnergyChartComponent implements OnChanges {
   private queryreplySubject: Subject<QueryReply>;
 
   private colors = [{
-    backgroundColor: 'rgba(37,154,24,0.2)',
-    borderColor: 'rgba(37,154,24,1)',
+    backgroundColor: 'rgba(45,143,171,0.2)',
+    borderColor: 'rgba(45,143,171,1)',
+  }, {
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    borderColor: 'rgba(0,0,0,1)',
   }, {
     backgroundColor: 'rgba(221,223,1,0.2)',
     borderColor: 'rgba(221,223,1,1)',
-  }, {
-    backgroundColor: 'rgba(45,143,171,0.2)',
-    borderColor: 'rgba(45,143,171,1)',
   }];
   private options: ChartOptions;
 
