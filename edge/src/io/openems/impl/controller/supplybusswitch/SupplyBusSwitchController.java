@@ -87,7 +87,7 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 				sb.run();
 			}
 			for (Ess ess : esss.value()) {
-				if (isOnGrid()) {
+				if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 					// start all ess
 					ess.start();
 				}
