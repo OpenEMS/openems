@@ -16,7 +16,7 @@ class VA7282Environment extends Environment {
       sps0: {
         WaterLevel: {
           title: "Water level",
-          unit: "foot"
+          unit: "centimeter"
         },
         GetPivotOn: {
           title: "Pivot",
