@@ -11,7 +11,17 @@ export const TRANSLATION = {
         NoValue: "No value",
         Soc: "State of charge",
         Percentage: "Percentage",
-        More: "More..."
+        More: "More...",
+        To: "to",
+        Weektime: {
+            Monday: "Monday",
+            Tuesday: "Tuesday",
+            Wednesday: "Wednesday",
+            Thursday: "Thursday",
+            Friday: "Friday",
+            Saturday: "Saturday",
+            Sunday: "Sunday"
+        }
     },
     Menu: {
         Overview: "Overview",
@@ -24,84 +34,79 @@ export const TRANSLATION = {
         ToEnergymonitor: "To Energymonitor...",
         IsOffline: "FEMS is offline!"
     },
-    DeviceOverview: {
-        Energymonitor: {
-            Title: "Energymonitor",
-            ConsumptionWarning: "Consumption & unknown producers",
-            Storage: "Storage",
-            ChargePower: "Charge power",
-            DischargePower: "Discharge power",
-            ReactivePower: "Reactive power",
-            ActivePower: "Active power",
-            GridMeter: "Grid meter",
-            ProductionMeter: "Production meter"
-        },
-        Energytable: {
-            Title: "Energytable"
-        }
-    },
-    DeviceHistory: {
-        SelectedPeriod: "Selected period: ",
-        OtherPeriod: "Other period:",
-        Period: "Period",
-        Today: "Today",
-        Yesterday: "Yesterday",
-        LastWeek: "Last week",
-        LastMonth: "Last month",
-        LastYear: "Last year",
-        Go: "Go!"
-    },
-    ConfigOverview: {
-        Bridge: "Connections and devices",
-        Scheduler: "Applicationplanner",
-        Controller: "Applications",
-        Simulator: "Simulator",
-        ExecuteSimulator: "Execute simulations",
-        Log: "Log",
-        LiveLog: "Live system log",
-        ManualControl: "Manual control",
-        ConfigMore: {
-            ManualCommand: "Manual command",
-            Send: "Send",
-            RefuInverter: "REFU Inverter",
-            RefuStartStop: "Start/Stop inverter",
-            RefuStart: "Start",
-            RefuStop: "Stop",
-            ManualpqPowerSpecification: "Power specification",
-            ManualpqSubmit: "Submit",
-            ManualpqReset: "Reset"
-        },
-        ConfigScheduler: {
-            NewScheduler: "New scheduler...",
-            Class: "Class:",
-            NotImplemented: "Form not implemented: ",
-            Contact: "This shouldn't happen. Please contact ",
-            Always: "Always",
-            Weektime: {
-                Monday: "Monday",
-                Tuesday: "Tuesday",
-                Wednesday: "Wednesday",
-                Thursday: "Thursday",
-                Friday: "Friday",
-                Saturday: "Saturday",
-                Sunday: "Sunday"
+    Device: {
+        Overview: {
+            Energymonitor: {
+                Title: "Energymonitor",
+                ConsumptionWarning: "Consumption & unknown producers",
+                Storage: "Storage",
+                ChargePower: "Charge power",
+                DischargePower: "Discharge power",
+                ReactivePower: "Reactive power",
+                ActivePower: "Active power",
+                GridMeter: "Grid meter",
+                ProductionMeter: "Production meter"
+            },
+            Energytable: {
+                Title: "Energytable"
             }
         },
-        ConfigLog: {
-            AutomaticUpdating: "Automatic updating",
-            Timestamp: "Timestamp",
-            Level: "Level",
-            Source: "Source",
-            Message: "Message"
+        History: {
+            SelectedPeriod: "Selected period: ",
+            OtherPeriod: "Other period:",
+            Period: "Period",
+            Today: "Today",
+            Yesterday: "Yesterday",
+            LastWeek: "Last week",
+            LastMonth: "Last month",
+            LastYear: "Last year",
+            Go: "Go!"
         },
-        ConfigController: {
-            InternallyID: "Internally ID:",
-            App: "App:",
-            Priority: "Priority:"
-        },
-        ConfigBridge: {
-            NewDevice: "New device...",
-            NewConnection: "New connection..."
+        Config: {
+            Overview: {
+                Bridge: "Connections and devices",
+                Scheduler: "Applicationplanner",
+                Controller: "Applications",
+                Simulator: "Simulator",
+                ExecuteSimulator: "Execute simulations",
+                Log: "Log",
+                LiveLog: "Live system log",
+                ManualControl: "Manual control",
+            },
+            More: {
+                ManualCommand: "Manual command",
+                Send: "Send",
+                RefuInverter: "REFU Inverter",
+                RefuStartStop: "Start/Stop inverter",
+                RefuStart: "Start",
+                RefuStop: "Stop",
+                ManualpqPowerSpecification: "Power specification",
+                ManualpqSubmit: "Submit",
+                ManualpqReset: "Reset"
+            },
+            Scheduler: {
+                NewScheduler: "New scheduler...",
+                Class: "Class:",
+                NotImplemented: "Form not implemented: ",
+                Contact: "This shouldn't happen. Please contact ",
+                Always: "Always"
+            },
+            Log: {
+                AutomaticUpdating: "Automatic updating",
+                Timestamp: "Timestamp",
+                Level: "Level",
+                Source: "Source",
+                Message: "Message"
+            },
+            Controller: {
+                InternallyID: "Internally ID:",
+                App: "App:",
+                Priority: "Priority:"
+            },
+            Bridge: {
+                NewDevice: "New device...",
+                NewConnection: "New connection..."
+            }
         }
     },
     About: {

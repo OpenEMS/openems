@@ -26,7 +26,9 @@ export class EnergyChartComponent implements OnChanges {
   constructor(
     private tmpl: TemplateHelper,
     private translate: TranslateService
-  ) { }
+  ) {
+    console.log(this.device);
+  }
 
   public labels: moment.Moment[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
@@ -53,12 +55,15 @@ export class EnergyChartComponent implements OnChanges {
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      if (label == "Netz") {
+      let grid = this.translate.instant('General.Grid');
+      let gridBuy = this.translate.instant('General.GridBuy');
+      let gridSell = this.translate.instant('General.GridSell');
+      if (label == grid) {
         if (value < 0) {
           value *= -1;
-          label = "Netzbezug";
+          label = gridBuy;
         } else {
-          label = "Netzeinspeisung";
+          label = gridSell;
         }
       }
       return label + ": " + value.toPrecision(2) + " kW";

@@ -64,7 +64,7 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
     public updateValue(absolute: number, ratio: number) {
         // TODO
         if (absolute < 0) {
-            this.name = this.translate.instant('DeviceOverview.Energymonitor.ConsumptionWarning');
+            this.name = this.translate.instant('Device.Overview.Energymonitor.ConsumptionWarning');
         } else {
             this.name = this.translate.instant('General.Consumption');
         }

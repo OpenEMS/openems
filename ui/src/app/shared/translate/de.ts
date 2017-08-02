@@ -11,7 +11,17 @@ export const TRANSLATION = {
         NoValue: "Kein Wert",
         Soc: "Ladezustand",
         Percentage: "Prozent",
-        More: "Mehr..."
+        More: "Mehr...",
+        To: "bis",
+        Weektime: {
+            Monday: "Montag",
+            Tuesday: "Dienstag",
+            Wednesday: "Mittwoch",
+            Thursday: "Donnerstag",
+            Friday: "Freitag",
+            Saturday: "Samstag",
+            Sunday: "Sonntag"
+        }
     },
     Menu: {
         Overview: "Übersicht",
@@ -24,84 +34,79 @@ export const TRANSLATION = {
         ToEnergymonitor: "Zum Energiemonitor...",
         IsOffline: "FEMS ist offline!"
     },
-    DeviceOverview: {
-        Energymonitor: {
-            Title: "Energiemonitor",
-            ConsumptionWarning: "Verbrauch & unbekannte Erzeuger",
-            Storage: "Speicher",
-            ChargePower: "Beladeleistung",
-            DischargePower: "Entladeleistung",
-            ReactivePower: "Blindleistung",
-            ActivePower: "Ausgabeleistung",
-            GridMeter: "Netzzähler",
-            ProductionMeter: "Erzeugungszähler"
-        },
-        Energytable: {
-            Title: "Energietabelle"
-        }
-    },
-    DeviceHistory: {
-        SelectedPeriod: "Gewählter Zeitraum: ",
-        OtherPeriod: "Anderer Zeitraum:",
-        Period: "Zeitraum",
-        Today: "Heute",
-        Yesterday: "Gestern",
-        LastWeek: "Letzte Woche",
-        LastMonth: "Letzter Monat",
-        LastYear: "Letztes Jahr",
-        Go: "Los!"
-    },
-    ConfigOverview: {
-        Bridge: "Verbindungen und Geräte",
-        Scheduler: "Anwendungsplaner",
-        Controller: "Anwendungen",
-        Simulator: "Simulator",
-        ExecuteSimulator: "Simulationen ausführen",
-        Log: "Log",
-        LiveLog: "Live Systemprotokoll",
-        ManualControl: "Manuelle Steuerung",
-        ConfigMore: {
-            ManualCommand: "Manueller Befehl",
-            Send: "Senden",
-            RefuInverter: "REFU Wechselrichter",
-            RefuStartStop: "Wechselrichter starten/stoppen",
-            RefuStart: "Starten",
-            RefuStop: "Stoppen",
-            ManualpqPowerSpecification: "Leistungsvorgabe",
-            ManualpqSubmit: "Übernehmen",
-            ManualpqReset: "Zurücksetzen"
-        },
-        ConfigScheduler: {
-            NewScheduler: "Neuer Scheduler...",
-            Class: "Klasse:",
-            NotImplemented: "Formular nicht implementiert: ",
-            Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie",
-            Always: "Immer",
-            Weektime: {
-                Monday: "Montag",
-                Tuesday: "Dienstag",
-                Wednesday: "Mittwoch",
-                Thursday: "Donnerstag",
-                Friday: "Freitag",
-                Saturday: "Samstag",
-                Sunday: "Sonntag"
+    Device: {
+        Overview: {
+            Energymonitor: {
+                Title: "Energiemonitor",
+                ConsumptionWarning: "Verbrauch & unbekannte Erzeuger",
+                Storage: "Speicher",
+                ChargePower: "Beladeleistung",
+                DischargePower: "Entladeleistung",
+                ReactivePower: "Blindleistung",
+                ActivePower: "Ausgabeleistung",
+                GridMeter: "Netzzähler",
+                ProductionMeter: "Erzeugungszähler"
+            },
+            Energytable: {
+                Title: "Energietabelle"
             }
         },
-        ConfigLog: {
-            AutomaticUpdating: "Automatische Aktualisierung",
-            Timestamp: "Zeitpunkt",
-            Level: "Level",
-            Source: "Quelle",
-            Message: "Nachricht"
+        History: {
+            SelectedPeriod: "Gewählter Zeitraum: ",
+            OtherPeriod: "Anderer Zeitraum:",
+            Period: "Zeitraum",
+            Today: "Heute",
+            Yesterday: "Gestern",
+            LastWeek: "Letzte Woche",
+            LastMonth: "Letzter Monat",
+            LastYear: "Letztes Jahr",
+            Go: "Los!"
         },
-        ConfigController: {
-            InternallyID: "Interne ID:",
-            App: "Anwendung:",
-            Priority: "Priorität:"
-        },
-        ConfigBridge: {
-            NewDevice: "Neues Gerät...",
-            NewConnection: "Neue Verbindung..."
+        Config: {
+            Overview: {
+                Bridge: "Verbindungen und Geräte",
+                Scheduler: "Anwendungsplaner",
+                Controller: "Anwendungen",
+                Simulator: "Simulator",
+                ExecuteSimulator: "Simulationen ausführen",
+                Log: "Log",
+                LiveLog: "Live Systemprotokoll",
+                ManualControl: "Manuelle Steuerung"
+            },
+            More: {
+                ManualCommand: "Manueller Befehl",
+                Send: "Senden",
+                RefuInverter: "REFU Wechselrichter",
+                RefuStartStop: "Wechselrichter starten/stoppen",
+                RefuStart: "Starten",
+                RefuStop: "Stoppen",
+                ManualpqPowerSpecification: "Leistungsvorgabe",
+                ManualpqSubmit: "Übernehmen",
+                ManualpqReset: "Zurücksetzen"
+            },
+            Scheduler: {
+                NewScheduler: "Neuer Scheduler...",
+                Class: "Klasse:",
+                NotImplemented: "Formular nicht implementiert: ",
+                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie",
+                Always: "Immer"
+            },
+            Log: {
+                AutomaticUpdating: "Automatische Aktualisierung",
+                Timestamp: "Zeitpunkt",
+                Level: "Level",
+                Source: "Quelle",
+                Message: "Nachricht"
+            },
+            Controller: {
+                InternallyID: "Interne ID:",
+                App: "Anwendung:",
+                Priority: "Priorität:"
+            },
+            Bridge: {
+                NewDevice: "Neues Gerät...",
+                NewConnection: "Neue Verbindung..."
+            }
         }
     },
     About: {

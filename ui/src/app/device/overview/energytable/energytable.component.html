@@ -3,7 +3,7 @@
   <md-card fxFlex="100%" class="single_leftright single_top">
     <md-card-header>
       <md-icon md-card-avatar>format_list_bulleted</md-icon>
-      <md-card-title translate>DeviceOverview.Energymonitor.Title</md-card-title>
+      <md-card-title translate>Device.Overview.Energymonitor.Title</md-card-title>
     </md-card-header>
   </md-card>
 
@@ -25,21 +25,21 @@
           </tr>
           <ng-container *ngIf="data.ActivePower != null && data.ReactivePower != null">
             <tr>
-              <td translate>DeviceOverview.Energymonitor.Charging</td>
+              <td translate>Device.Overview.Energymonitor.ChargePower</td>
               <td></td>
               <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign }}</td>
               <td class="align_right" *ngIf="data.ActivePower >= 0">0</td>
               <td>W</td>
             </tr>
             <tr>
-              <td translate>DeviceOverview.Energymonitor.Discharging</td>
+              <td translate>Device.Overview.Energymonitor.DischargePower</td>
               <td></td>
               <td class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower }}</td>
               <td class="align_right" *ngIf="data.ActivePower <= 0">0</td>
               <td>W</td>
             </tr>
             <tr class="gray_color">
-              <td translate>DeviceOverview.Energymonitor.ReactivePower</td>
+              <td translate>Device.Overview.Energymonitor.ReactivePower</td>
               <td></td>
               <td class="align_right">{{ data.ReactivePower }}</td>
               <td>var</td>
@@ -47,7 +47,7 @@
           </ng-container>
           <ng-container *ngIf="data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
             <tr>
-              <td style="width:50%" translate>DeviceOverview.Energymonitor.ActivePower</td>
+              <td style="width:50%" translate>Device.Overview.Energymonitor.ActivePower</td>
               <td style="width:15%">L1</td>
               <td style="width:25%" class="align_right">{{ data.ActivePowerL1 }}</td>
               <td style="width:10%">W</td>
@@ -75,7 +75,7 @@
     <md-card class="single_leftright" fxFlex="100%">
       <md-card-header>
         <img src="assets/img/grid.png" md-card-avatar/>
-        <md-card-title translate>DeviceOverview.Energymonitor.GridCounter</md-card-title>
+        <md-card-title translate>Device.Overview.Energymonitor.GridMeter</md-card-title>
         <md-card-subtitle>{{ thing }}</md-card-subtitle>
       </md-card-header>
       <md-card-content *ngIf="currentData.data[thing] as data">
@@ -96,7 +96,7 @@
               <td>W</td>
             </tr>
             <tr class="gray_color">
-              <td translate>DeviceOverview.Energymonitor.ReactivePower</td>
+              <td translate>Device.Overview.Energymonitor.ReactivePower</td>
               <td></td>
               <td class="align_right">{{ data.ReactivePower }}</td>
               <td>var</td>
@@ -150,7 +150,7 @@
     <md-card class="single_leftright" fxFlex="100%">
       <md-card-header>
         <img src="assets/img/production.png" md-card-avatar/>
-        <md-card-title translate>DeviceOverview.Energymonitor.ProductionCounter</md-card-title>
+        <md-card-title translate>Device.Overview.Energymonitor.ProductionMeter</md-card-title>
         <md-card-subtitle>{{ thing }}</md-card-subtitle>
       </md-card-header>
       <md-card-content *ngIf="currentData.data[thing] as data">
@@ -171,7 +171,7 @@
               <td style="width:10%">W</td>
             </tr>
             <tr class="gray_color">
-              <td translate>DeviceOverview.Energymonitor.ReactivePower</td>
+              <td translate>Device.Overview.Energymonitor.ReactivePower</td>
               <td></td>
               <td class="align_right">{{ data.ReactivePower }}</td>
               <td>var</td>

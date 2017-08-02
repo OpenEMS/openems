@@ -11,12 +11,12 @@
         <md-card class="single">
           <md-card-header>
             <md-icon md-card-avatar>scheduler</md-icon>
-            <md-card-title translate>ConfigOverview.ConfigScheduler.NewScheduler</md-card-title>
+            <md-card-title translate>Device.Config.Scheduler.NewScheduler</md-card-title>
           </md-card-header>
           <md-card-content>
             <div fxLayout fxLayoutWrap="wrap">
               <div fxFlex="100px" translate>
-                ConfigOverview.ConfigScheduler.Class
+                Device.Config.Scheduler.Class
               </div>
               <select formControlName="class" (change)="addChannelsToScheduler(configForm.controls['scheduler'], $event)">
                 <option></option>
@@ -29,7 +29,7 @@
         </md-card>
       </ng-container>
       <ng-container *ngSwitchDefault>
-        <p><b translate>ConfigOverview.ConfigScheduler.NotImplemented</b> {{ form.value | json }}<br/><span translate>ConfigOverview.ConfigScheduler.Contact</span>
+        <p><b translate>Device.Config.Scheduler.NotImplemented</b> {{ form.value | json }}<br/><span translate>Device.Config.Scheduler.Contact</span>
           <a href="mailto:fems@fenecon.de">fems@fenecon.de</a>.</p>
       </ng-container>
     </ng-container>

@@ -30,25 +30,25 @@ export class WeekTimeComponent extends AbstractConfigForm {
   }
 
   public days: Day[] = [{
-    label: this.translate.instant('ConfigScheduler.Weektime.Monday'),
+    label: this.translate.instant('Device.Config.Scheduler.Weektime.Monday'),
     key: "monday"
   }, {
-    label: this.translate.instant('ConfigScheduler.Weektime.Tuesday'),
+    label: this.translate.instant('Device.Config.Scheduler.Weektime.Tuesday'),
     key: "tuesday"
   }, {
-    label: this.translate.instant('ConfigScheduler.Weektime.Wednesday'),
+    label: this.translate.instant('Device.Config.Scheduler.Weektime.Wednesday'),
     key: "wednesday"
   }, {
-    label: this.translate.instant('ConfigScheduler.Weektime.Thursday'),
+    label: this.translate.instant('Device.Config.Scheduler.Weektime.Thursday'),
     key: "thursday"
   }, {
-    label: this.translate.instant('ConfigScheduler.Weektime.Friday'),
+    label: this.translate.instant('Device.Config.Scheduler.Weektime.Friday'),
     key: "friday"
   }, {
-    label: this.translate.instant('ConfigScheduler.Weektime.Saturday'),
+    label: this.translate.instant('Device.Config.Scheduler.Weektime.Saturday'),
     key: "saturday"
   }, {
-    label: this.translate.instant('ConfigScheduler.Weektime.Sunday'),
+    label: this.translate.instant('Device.Config.Scheduler.Weektime.Sunday'),
     key: "sunday"
   }]
 
