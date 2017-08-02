@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -46,6 +47,10 @@ public class StatusBitChannel extends ModbusReadChannel<Long> {
 		Optional<Long> valueOptional = valueOptional();
 		if (valueOptional.isPresent()) {
 			long value = valueOptional.get();
+			long max = Collections.max(this.labels.keySet());
+			if (max * 2 <= value) {
+				value = value & (max - 1);
+			}
 			for (Entry<Long, String> entry : this.labels.descendingMap().entrySet()) {
 				if (entry.getKey() <= value) {
 					result.add(entry.getValue());
