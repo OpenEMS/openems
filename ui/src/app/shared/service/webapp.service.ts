@@ -20,7 +20,7 @@ export class WebappService implements ErrorHandler {
   public notificationEvent: Subject<Notification> = new Subject<Notification>();
 
   constructor(
-    private translate: TranslateService
+    public translate: TranslateService
   ) {
     // this language will be used as a fallback when a translation isn't found in the current language
     translate.setDefaultLang('en');

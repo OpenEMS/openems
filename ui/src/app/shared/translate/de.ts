@@ -112,7 +112,14 @@ export const TRANLSATION = {
         Sourcecode: "Quellcode",
         CurrentDevelopments: "Aktuelle Entwicklungen",
         Build: "Dieser Build",
-        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter ",
+        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter",
         Language: "Sprache wählen:"
+    },
+    Notifications: {
+        Failed: "Verbindungsaufbau fehlgeschlagen.",
+        LoggedInAs: "Angemeldet als Benutzer",
+        LoggedIn: "Angemeldet.",
+        AuthenticationFailed: "Keine Verbindung: Authentifizierung fehlgeschlagen.",
+        Closed: "Verbindung beendet."
     }
 }

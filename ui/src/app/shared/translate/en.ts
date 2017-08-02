@@ -112,7 +112,14 @@ export const TRANLSATION = {
         Sourcecode: "Source code",
         CurrentDevelopments: "Current developments",
         Build: "This build",
-        Contact: "Please contact our FEMS team for further information or suggestions about the system at ",
+        Contact: "Please contact our FEMS team for further information or suggestions about the system at",
         Language: "Select language:"
+    },
+    Notifications: {
+        Failed: "Connection failed.",
+        LoggedInAs: "Logged in as",
+        LoggedIn: "Logged in.",
+        AuthenticationFailed: "No Connection: Authentication failed.",
+        Closed: "Connection closed."
     }
 }
