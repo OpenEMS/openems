@@ -12,7 +12,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
-@ThingInfo(title = "Test write")
+@ThingInfo(title = "Sps parameter Controller")
 public class RiedmannController extends Controller implements ChannelChangeListener {
 
 	/*
