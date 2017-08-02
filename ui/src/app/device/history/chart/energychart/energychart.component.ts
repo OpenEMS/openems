@@ -27,7 +27,9 @@ export class EnergyChartComponent implements OnChanges {
     private tmpl: TemplateHelper,
     private translate: TranslateService
   ) {
-    console.log(this.device);
+    this.grid = this.translate.instant('General.Grid');
+    this.gridBuy = this.translate.instant('General.GridBuy');
+    this.gridSell = this.translate.instant('General.GridSell');
   }
 
   public labels: moment.Moment[] = [];
@@ -36,6 +38,9 @@ export class EnergyChartComponent implements OnChanges {
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
   private queryreplySubject: Subject<QueryReply>;
+  private grid: String = "";
+  private gridBuy: String = "";
+  private gridSell: String = "";
 
   private colors = [{
     backgroundColor: 'rgba(45,143,171,0.2)',
@@ -55,15 +60,15 @@ export class EnergyChartComponent implements OnChanges {
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      let grid = this.translate.instant('General.Grid');
-      let gridBuy = this.translate.instant('General.GridBuy');
-      let gridSell = this.translate.instant('General.GridSell');
-      if (label == grid) {
+      // let grid = this.translate.instant('General.Grid');
+      // let gridBuy = this.translate.instant('General.GridBuy');
+      // let gridSell = this.translate.instant('General.GridSell');
+      if (label == this.grid) {
         if (value < 0) {
           value *= -1;
-          label = gridBuy;
+          label = this.gridBuy;
         } else {
-          label = gridSell;
+          label = this.gridSell;
         }
       }
       return label + ": " + value.toPrecision(2) + " kW";
