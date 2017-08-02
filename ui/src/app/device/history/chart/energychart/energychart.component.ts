@@ -53,12 +53,12 @@ export class EnergyChartComponent implements OnChanges {
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      if (label == this.translate.instant('General.Grid')) {
+      if (label == "Netz") {
         if (value < 0) {
           value *= -1;
-          label = this.translate.instant('General.GridBuy');
+          label = "Netzbezug";
         } else {
-          label = this.translate.instant('General.GridSell');
+          label = "Netzeinspeisung";
         }
       }
       return label + ": " + value.toPrecision(2) + " kW";
