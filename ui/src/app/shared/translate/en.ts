@@ -1,23 +1,24 @@
 export const TRANSLATION = {
     General: {
+        Grid: "Grid",
         GridBuy: "Buy from grid",
         GridSell: "Sell to grid",
         Production: "Production",
         Consumption: "Consumption",
         Power: "Power",
-        Grid: "Grid",
         StorageSystem: "Storage System",
         History: "History",
         NoValue: "No value",
         Soc: "State of charge",
-        Percent: "Percent"
+        Percentage: "Percentage",
+        More: "More..."
     },
     Menu: {
         Overview: "Overview",
         AboutUI: "About FEMS-UI"
     },
     Overview: {
-        AllConnected: "All connections made.",
+        AllConnected: "All connections established.",
         ConnectionSuccessful: "Successfully connected to {{value}}.",
         ConnectionFailed: "Connection to {{value}} failed.",
         ToEnergymonitor: "To Energymonitor...",
@@ -28,12 +29,12 @@ export const TRANSLATION = {
             Title: "Energymonitor",
             ConsumptionWarning: "Consumption & unknown producers",
             Storage: "Storage",
-            Charging: "Charging power",
-            Discharging: "Discharging power",
+            ChargePower: "Charge power",
+            DischargePower: "Discharge power",
             ReactivePower: "Reactive power",
             ActivePower: "Active power",
-            GridCounter: "Grid meter",
-            ProductionCounter: "Production meter"
+            GridMeter: "Grid meter",
+            ProductionMeter: "Production meter"
         },
         Energytable: {
             Title: "Energytable"
@@ -52,13 +53,12 @@ export const TRANSLATION = {
     },
     ConfigOverview: {
         Bridge: "Connections and devices",
-        Scheduler: "App-planner",
-        Controller: "Apps",
+        Scheduler: "Applicationplanner",
+        Controller: "Applications",
         Simulator: "Simulator",
         ExecuteSimulator: "Execute simulations",
         Log: "Log",
         LiveLog: "Live system log",
-        More: "More...",
         ManualControl: "Manual control",
         ConfigMore: {
             ManualCommand: "Manual command",

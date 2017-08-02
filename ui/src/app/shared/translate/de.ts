@@ -10,7 +10,8 @@ export const TRANSLATION = {
         History: "Historie",
         NoValue: "Kein Wert",
         Soc: "Ladezustand",
-        Percent: "Prozent"
+        Percentage: "Prozent",
+        More: "Mehr..."
     },
     Menu: {
         Overview: "Übersicht",
@@ -28,12 +29,12 @@ export const TRANSLATION = {
             Title: "Energiemonitor",
             ConsumptionWarning: "Verbrauch & unbekannte Erzeuger",
             Storage: "Speicher",
-            Charging: "Beladeleistung",
-            Discharging: "Entladeleistung",
+            ChargePower: "Beladeleistung",
+            DischargePower: "Entladeleistung",
             ReactivePower: "Blindleistung",
             ActivePower: "Ausgabeleistung",
-            GridCounter: "Netzzähler",
-            ProductionCounter: "Erzeugungszähler"
+            GridMeter: "Netzzähler",
+            ProductionMeter: "Erzeugungszähler"
         },
         Energytable: {
             Title: "Energietabelle"
@@ -58,7 +59,6 @@ export const TRANSLATION = {
         ExecuteSimulator: "Simulationen ausführen",
         Log: "Log",
         LiveLog: "Live Systemprotokoll",
-        More: "Mehr...",
         ManualControl: "Manuelle Steuerung",
         ConfigMore: {
             ManualCommand: "Manueller Befehl",
