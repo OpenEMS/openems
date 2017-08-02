@@ -1,4 +1,4 @@
-export const TRANLSATION = {
+export const TRANSLATION = {
     General: {
         GridBuy: "Buy from grid",
         GridSell: "Sell to grid",

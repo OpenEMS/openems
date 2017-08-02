@@ -1,4 +1,4 @@
-export const TRANLSATION = {
+export const TRANSLATION = {
     General: {
         Grid: "Netz",
         GridBuy: "Netzbezug",
