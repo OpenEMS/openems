@@ -29,8 +29,7 @@
         </md-card>
       </ng-container>
       <ng-container *ngSwitchDefault>
-        <p><b translate>Device.Config.Scheduler.NotImplemented</b> {{ form.value | json }}<br/><span translate>Device.Config.Scheduler.Contact</span>
-          <a href="mailto:fems@fenecon.de">fems@fenecon.de</a>.</p>
+        <p><b translate>Device.Config.Scheduler.NotImplemented</b> {{ form.value | json }}<br/><span [innerHTML]="'Device.Config.Scheduler.Contact' | translate"></span></p>
       </ng-container>
     </ng-container>
   </div>

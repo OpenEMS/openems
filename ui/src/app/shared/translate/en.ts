@@ -13,7 +13,7 @@ export const TRANSLATION = {
         Percentage: "Percentage",
         More: "More...",
         To: "to",
-        Weektime: {
+        Week: {
             Monday: "Monday",
             Tuesday: "Tuesday",
             Wednesday: "Wednesday",
@@ -88,7 +88,7 @@ export const TRANSLATION = {
                 NewScheduler: "New scheduler...",
                 Class: "Class:",
                 NotImplemented: "Form not implemented: ",
-                Contact: "This shouldn't happen. Please contact ",
+                Contact: "This shouldn't happen. Please contact <a href=\"mailto:fems@fenecon.de\">fems@fenecon.de</a>.",
                 Always: "Always"
             },
             Log: {
@@ -117,7 +117,7 @@ export const TRANSLATION = {
         Sourcecode: "Source code",
         CurrentDevelopments: "Current developments",
         Build: "This build",
-        Contact: "Please contact our FEMS team for further information or suggestions about the system at",
+        Contact: "Please contact our FEMS team for further information or suggestions about the system at <a href=\"mailto:fems@fenecon.de\">fems@fenecon.de</a>.",
         Language: "Select language:"
     },
     Notifications: {
