@@ -115,7 +115,7 @@ export class Websocket {
           }
           if ("username" in message.authenticate) {
             this.username = message.authenticate.username;
-            this.event.next({ type: "success", message: this.webappService.translate.instant('Notifications.LoggedInAs') + " \"" + this.username + "\"." });
+            this.event.next({ type: "success", message: this.webappService.translate.instant('Notifications.LoggedInAs', { value: this.username }) });
           } else {
             this.event.next({ type: "success", message: this.webappService.translate.instant('Notifications.LoggedIn') });
           }
