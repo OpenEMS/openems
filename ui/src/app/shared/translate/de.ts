@@ -88,7 +88,7 @@ export const TRANSLATION = {
                 NewScheduler: "Neuer Scheduler...",
                 Class: "Klasse:",
                 NotImplemented: "Formular nicht implementiert: ",
-                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:fems@fenecon.de\">fems@fenecon.de</a>.",
+                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.",
                 Always: "Immer"
             },
             Log: {
@@ -117,12 +117,12 @@ export const TRANSLATION = {
         Sourcecode: "Quellcode",
         CurrentDevelopments: "Aktuelle Entwicklungen",
         Build: "Dieser Build",
-        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter <a href=\"mailto:fems@fenecon.de\">fems@fenecon.de</a>.",
+        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.",
         Language: "Sprache wählen:"
     },
     Notifications: {
         Failed: "Verbindungsaufbau fehlgeschlagen.",
-        LoggedInAs: "Angemeldet als Benutzer",
+        LoggedInAs: "Angemeldet als Benutzer {{value}}.",
         LoggedIn: "Angemeldet.",
         AuthenticationFailed: "Keine Verbindung: Authentifizierung fehlgeschlagen.",
         Closed: "Verbindung beendet."
