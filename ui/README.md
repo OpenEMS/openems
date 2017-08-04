@@ -29,7 +29,7 @@ If you want to build despite "Cannot create the build number because you have lo
 
 2. Extract zip file somewhere (example: C:\bin\apache-maven-3.5.0)
 
-3. Add "C:\Users\stefan.feilmeier\bin\apache-maven-3.5.0\bin" to global PATH (see https://maven.apache.org/install.html for details)
+3. Add "C:\bin\apache-maven-3.5.0\bin" to global PATH (see https://maven.apache.org/install.html for details)
 
 ## Build using angular-cli
 
