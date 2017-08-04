@@ -134,6 +134,9 @@ public class FemsWebsocket extends WebSocketServer {
 	public void onMessage(WebSocket websocket, String message) {
 		this.connectionManager.getFemsWebsocketDevices(websocket).forEach(device -> {
 			// TODO: set device to active if it was inactive
+			if (device.getState().equals("inactive")) {
+				device.setState("active");
+			}
 			device.setLastMessage();
 			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 
