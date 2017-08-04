@@ -122,7 +122,7 @@ export const TRANSLATION = {
     },
     Notifications: {
         Failed: "Connection failed.",
-        LoggedInAs: "Logged in as {{value}}.",
+        LoggedInAs: "Logged in as \"{{value}}\".",
         LoggedIn: "Logged in.",
         AuthenticationFailed: "No Connection: Authentication failed.",
         Closed: "Connection closed."
