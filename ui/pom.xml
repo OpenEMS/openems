@@ -79,9 +79,6 @@
                         <goals>
                             <goal>yarn</goal>
                         </goals>
-                        <configuration>
-                            <arguments>install</arguments>
-                        </configuration>
                     </execution>
                     <!-- build -->
                     <execution>
