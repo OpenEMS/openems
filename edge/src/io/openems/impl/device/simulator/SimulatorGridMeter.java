@@ -173,7 +173,7 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 			essNatures = new ArrayList<>();
 			getEssNatures();
 		}
-		if (meterNatures == null) {
+		if (meterNatures == null || meterNatures.empty();) {
 			meterNatures = new ArrayList<>();
 			getMeterNatures();
 		}
