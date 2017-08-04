@@ -122,7 +122,7 @@ export const TRANSLATION = {
     },
     Notifications: {
         Failed: "Verbindungsaufbau fehlgeschlagen.",
-        LoggedInAs: "Angemeldet als Benutzer {{value}}.",
+        LoggedInAs: "Angemeldet als Benutzer \"{{value}}\".",
         LoggedIn: "Angemeldet.",
         AuthenticationFailed: "Keine Verbindung: Authentifizierung fehlgeschlagen.",
         Closed: "Verbindung beendet."
