@@ -54,7 +54,7 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit() {
     let options = <ChartOptions>this.tmpl.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
-    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percent');
+    options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }
