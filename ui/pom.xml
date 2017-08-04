@@ -75,10 +75,13 @@
                     </execution>
                     <!-- install npm dependencies -->
                     <execution>
-                        <id>yarn install</id>
+                        <id>npm install</id>
                         <goals>
-                            <goal>yarn</goal>
+                            <goal>npm</goal>
                         </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
                     </execution>
                     <!-- build -->
                     <execution>
