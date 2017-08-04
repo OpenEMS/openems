@@ -8,8 +8,8 @@
     <version>1.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <scm>
-        <url>https://github.com/OpenEMS/openems-gui</url>
-        <connection>scm:git:git://github.com/OpenEMS/openems-gui.git</connection>
+        <url>https://github.com/OpenEMS/openems</url>
+        <connection>scm:git:git://github.com/OpenEMS/openems.git</connection>
     </scm>
     <properties>
         <!-- node.js -->
