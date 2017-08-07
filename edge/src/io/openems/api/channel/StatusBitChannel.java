@@ -45,7 +45,7 @@ public class StatusBitChannel extends ModbusReadChannel<Long> {
 	public Set<String> labels() {
 		Set<String> result = new HashSet<>();
 		Optional<Long> valueOptional = valueOptional();
-		if (valueOptional.isPresent()) {
+		if (valueOptional.isPresent() && !this.labels.isEmpty()) {
 			long value = valueOptional.get();
 			long max = Collections.max(this.labels.keySet());
 			if (max * 2 <= value) {
