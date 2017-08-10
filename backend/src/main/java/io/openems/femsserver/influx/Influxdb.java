@@ -33,7 +33,7 @@ public class Influxdb {
 
 	private static Influxdb instance;
 
-	private static HashMap<String, Number> hmapData = new HashMap<String, Number>();
+	private static HashMap<String, Object> hmapData = new HashMap<String, Object>();
 
 	public static void initialize(String database, String url, int port, String username, String password)
 			throws Exception {
@@ -99,38 +99,28 @@ public class Influxdb {
 							String channel = jChannelEntry.getKey();
 							JsonPrimitive jValue = JsonUtils.getAsPrimitive(jChannelEntry.getValue());
 
-							if (hmapData.size() == 0) {
+							if (hmapData.containsKey(channel)) {
+								hmapData.replace(channel, hmapData.get(channel),
+										(hmapData.get(channel) instanceof Number) ? jValue.getAsNumber()
+												: jValue.getAsString());
+							} else {
 								if (jValue.isNumber()) {
 									hmapData.put(channel, jValue.getAsNumber());
+								} else if (jValue.isString()) {
+									hmapData.put(channel, jValue.getAsString());
 								} else {
 									log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel
 											+ "]");
 								}
-							} else {
-								if (hmapData.containsKey(channel)) {
-									hmapData.replace(channel, hmapData.get(channel), jValue.getAsNumber());
-								} else {
-									if (jValue.isNumber()) {
-										hmapData.put(channel, jValue.getAsNumber());
-									} else {
-										log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel
-												+ "]");
-									}
-								}
 							}
 
 							for (String key : hmapData.keySet()) {
-								builder.addField(key, hmapData.get(key));
+								if (hmapData.get(key) instanceof Number) {
+									builder.addField(key, (Number) hmapData.get(key));
+								} else if (hmapData.get(key) instanceof String) {
+									builder.addField(key, (String) hmapData.get(key));
+								}
 							}
-							// log.info(builder.build().toString());
-
-							// if (jValue.isNumber()) {
-							// builder.addField(channel, jValue.getAsNumber());
-							// } else if (jValue.isString()) {
-							// builder.addField(channel, jValue.getAsString());
-							// } else {
-							// log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel + "]");
-							// }
 						} catch (OpenemsException e) {
 							log.error("InfluxDB data error: " + e.getMessage());
 						}
