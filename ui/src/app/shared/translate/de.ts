@@ -12,7 +12,7 @@ export const TRANSLATION = {
         Soc: "Ladezustand",
         Percentage: "Prozent",
         More: "Mehr...",
-        To: "von {{value1}} bis {{value2}}",
+        PeriodFromTo: "von {{value1}} bis {{value2}}", // value1 = start date, value2 = end date
         Week: {
             Monday: "Montag",
             Tuesday: "Dienstag",
@@ -29,8 +29,8 @@ export const TRANSLATION = {
     },
     Overview: {
         AllConnected: "Alle Verbindungen hergestellt.",
-        ConnectionSuccessful: "Verbindung zu {{value}} hergestellt.",
-        ConnectionFailed: "Verbindung zu {{value}} getrennt.",
+        ConnectionSuccessful: "Verbindung zu {{value}} hergestellt.", // value = name of websocket
+        ConnectionFailed: "Verbindung zu {{value}} getrennt.", // value = name of websocket
         ToEnergymonitor: "Zum Energiemonitor...",
         IsOffline: "FEMS ist offline!"
     },
@@ -88,7 +88,7 @@ export const TRANSLATION = {
                 NewScheduler: "Neuer Scheduler...",
                 Class: "Klasse:",
                 NotImplemented: "Formular nicht implementiert: ",
-                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.",
+                Contact: "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
                 Always: "Immer"
             },
             Log: {
@@ -117,12 +117,12 @@ export const TRANSLATION = {
         Sourcecode: "Quellcode",
         CurrentDevelopments: "Aktuelle Entwicklungen",
         Build: "Dieser Build",
-        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.",
+        Contact: "Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
         Language: "Sprache wählen:"
     },
     Notifications: {
         Failed: "Verbindungsaufbau fehlgeschlagen.",
-        LoggedInAs: "Angemeldet als Benutzer \"{{value}}\".",
+        LoggedInAs: "Angemeldet als Benutzer \"{{value}}\".", // value = username
         LoggedIn: "Angemeldet.",
         AuthenticationFailed: "Keine Verbindung: Authentifizierung fehlgeschlagen.",
         Closed: "Verbindung beendet."

@@ -12,7 +12,7 @@ export const TRANSLATION = {
         Soc: "Stav nabití",
         Percentage: "Procenta",
         More: "Další",
-        To: "{{value1}} do {{value2}}",
+        PeriodFromTo: "{{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
         Week: {
             Monday: "Pondělí",
             Tuesday: "Úterý",
@@ -29,8 +29,8 @@ export const TRANSLATION = {
     },
     Overview: {
         AllConnected: "Všechna připojení aktivní.",
-        ConnectionSuccessful: "Úspěšně připojeno k {{value}}.",
-        ConnectionFailed: "Připojení k {{value}} selhalo.",
+        ConnectionSuccessful: "Úspěšně připojeno k {{value}}.", // value = name of websocket
+        ConnectionFailed: "Připojení k {{value}} selhalo.", // value = name of websocket
         ToEnergymonitor: "Do Monitoringu energetických toků…",
         IsOffline: "FEMS je ve stavu offline!"
     },
@@ -88,7 +88,7 @@ export const TRANSLATION = {
                 NewScheduler: "Nový plánovač...",
                 Class: "Třída:",
                 NotImplemented: "Zadání nebylo implementováno: ",
-                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.",
+                Contact: "Došlo k chybě. Prosím kontaktujte <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
                 Always: "Vždy"
             },
             Log: {
@@ -117,12 +117,12 @@ export const TRANSLATION = {
         Sourcecode: "Zdrojový kód",
         CurrentDevelopments: "Aktuální vývoj",
         Build: "Tento projekt",
-        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš FEMS tým na <a href=\"mailto:{{value}}\">{{value}}</a>.",
+        Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš FEMS tým na <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
         Language: "Zvolte jazyk:"
     },
     Notifications: {
         Failed: "Připojení selhalo.",
-        LoggedInAs: "Uživatel přihlášen jako {{value}}.",
+        LoggedInAs: "Uživatel přihlášen jako {{value}}.", // value = username
         LoggedIn: "Přihlášení proběhlo úspěšně.",
         AuthenticationFailed: "Žádné připojení: Ověření uživatele selhalo.",
         Closed: "Připojení ukončeno."

@@ -12,7 +12,7 @@ export const TRANSLATION = {
         Soc: "State of charge",
         Percentage: "Percentage",
         More: "More...",
-        To: "from {{value1}} to {{value2}}",
+        PeriodFromTo: "from {{value1}} to {{value2}}", // value1 = beginning date, value2 = end date
         Week: {
             Monday: "Monday",
             Tuesday: "Tuesday",
@@ -29,8 +29,8 @@ export const TRANSLATION = {
     },
     Overview: {
         AllConnected: "All connections established.",
-        ConnectionSuccessful: "Successfully connected to {{value}}.",
-        ConnectionFailed: "Connection to {{value}} failed.",
+        ConnectionSuccessful: "Successfully connected to {{value}}.", // value = name of websocket
+        ConnectionFailed: "Connection to {{value}} failed.", // value = name of websocket
         ToEnergymonitor: "To Energymonitor...",
         IsOffline: "FEMS is offline!"
     },
@@ -88,7 +88,7 @@ export const TRANSLATION = {
                 NewScheduler: "New scheduler...",
                 Class: "Class:",
                 NotImplemented: "Form not implemented: ",
-                Contact: "This shouldn't happen. Please contact <a href=\"mailto:{{value}}\">{{value}}</a>.",
+                Contact: "This shouldn't happen. Please contact <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
                 Always: "Always"
             },
             Log: {
@@ -117,12 +117,12 @@ export const TRANSLATION = {
         Sourcecode: "Source code",
         CurrentDevelopments: "Current developments",
         Build: "This build",
-        Contact: "Please contact our FEMS team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.",
+        Contact: "Please contact our FEMS team for further information or suggestions about the system at <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
         Language: "Select language:"
     },
     Notifications: {
         Failed: "Connection failed.",
-        LoggedInAs: "Logged in as \"{{value}}\".",
+        LoggedInAs: "Logged in as \"{{value}}\".", // value = username
         LoggedIn: "Logged in.",
         AuthenticationFailed: "No Connection: Authentication failed.",
         Closed: "Connection closed."
