@@ -1,6 +1,7 @@
 package io.openems.femsserver.influx;
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +32,8 @@ public class Influxdb {
 	private static Logger log = LoggerFactory.getLogger(Influxdb.class);
 
 	private static Influxdb instance;
+
+	private static HashMap<String, Number> hmapData = new HashMap<String, Number>();
 
 	public static void initialize(String database, String url, int port, String username, String password)
 			throws Exception {
@@ -95,13 +98,39 @@ public class Influxdb {
 						try {
 							String channel = jChannelEntry.getKey();
 							JsonPrimitive jValue = JsonUtils.getAsPrimitive(jChannelEntry.getValue());
-							if (jValue.isNumber()) {
-								builder.addField(channel, jValue.getAsNumber());
-							} else if (jValue.isString()) {
-								builder.addField(channel, jValue.getAsString());
+
+							if (hmapData.size() == 0) {
+								if (jValue.isNumber()) {
+									hmapData.put(channel, jValue.getAsNumber());
+								} else {
+									log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel
+											+ "]");
+								}
 							} else {
-								log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel + "]");
+								if (hmapData.containsKey(channel)) {
+									hmapData.replace(channel, hmapData.get(channel), jValue.getAsNumber());
+								} else {
+									if (jValue.isNumber()) {
+										hmapData.put(channel, jValue.getAsNumber());
+									} else {
+										log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel
+												+ "]");
+									}
+								}
 							}
+
+							for (String key : hmapData.keySet()) {
+								builder.addField(key, hmapData.get(key));
+							}
+							// log.info(builder.build().toString());
+
+							// if (jValue.isNumber()) {
+							// builder.addField(channel, jValue.getAsNumber());
+							// } else if (jValue.isString()) {
+							// builder.addField(channel, jValue.getAsString());
+							// } else {
+							// log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel + "]");
+							// }
 						} catch (OpenemsException e) {
 							log.error("InfluxDB data error: " + e.getMessage());
 						}
