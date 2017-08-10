@@ -200,23 +200,23 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 								activeEnergyL1 = new ModbusReadLongChannel("ActiveEnergyL1", this)
 										.unit("Wh").multiplier(2)),
 						new DummyElement(2037, 2065), new UnsignedWordElement(2066, //
-								orginalActivePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")
-										.delta(10000L))),
+								orginalActivePowerL1 = new ModbusReadLongChannel("OriginalActivePowerL1", this)
+										.unit("W").delta(10000L))),
 				new ModbusRegisterRange(2135, //
 						new UnsignedDoublewordElement(2135, //
-								activeEnergyL2 = new ModbusReadLongChannel("ActiveEnergyL2", this).unit(
-										"Wh").multiplier(2)),
+								activeEnergyL2 = new ModbusReadLongChannel("ActiveEnergyL2", this)
+										.unit("Wh").multiplier(2)),
 						new DummyElement(2137, 2165), new UnsignedWordElement(2166, //
-								orginalActivePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")
-										.delta(10000L))),
+								orginalActivePowerL2 = new ModbusReadLongChannel("OriginalActivePowerL2", this)
+										.unit("W").delta(10000L))),
 				new ModbusRegisterRange(2235, //
 						new UnsignedDoublewordElement(2235, //
 								activeEnergyL3 = new ModbusReadLongChannel("ActiveEnergyL3", this)
 										.unit("Wh").multiplier(2)),
 						new DummyElement(2237, 2265), new UnsignedWordElement(2266, //
-								orginalActivePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")
-										.delta(10000L))));
-		activePowerL1 = new FunctionalReadChannel<Long>("activePowerL1", this, (channels) -> {
+								orginalActivePowerL3 = new ModbusReadLongChannel("OriginalActivePowerL3", this)
+										.unit("W").delta(10000L))));
+		activePowerL1 = new FunctionalReadChannel<Long>("ActivePowerL1", this, (channels) -> {
 			ReadChannel<Long> power = channels[0];
 			try {
 				if (power.value() >= 0) {
@@ -228,7 +228,7 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 				return null;
 			}
 		}, orginalActivePowerL1);
-		activePowerL2 = new FunctionalReadChannel<Long>("activePowerL2", this, (channels) -> {
+		activePowerL2 = new FunctionalReadChannel<Long>("ActivePowerL2", this, (channels) -> {
 			ReadChannel<Long> power = channels[0];
 			try {
 				if (power.value() >= 0) {
@@ -240,7 +240,7 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 				return null;
 			}
 		}, orginalActivePowerL2);
-		activePowerL3 = new FunctionalReadChannel<Long>("activePowerL3", this, (channels) -> {
+		activePowerL3 = new FunctionalReadChannel<Long>("ActivePowerL3", this, (channels) -> {
 			ReadChannel<Long> power = channels[0];
 			try {
 				if (power.value() >= 0) {
@@ -252,7 +252,7 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 				return null;
 			}
 		}, orginalActivePowerL3);
-		activePower = new FunctionalReadChannel<Long>("activePower", this, (channels) -> {
+		activePower = new FunctionalReadChannel<Long>("ActivePower", this, (channels) -> {
 			ReadChannel<Long> L1 = channels[0];
 			ReadChannel<Long> L2 = channels[1];
 			ReadChannel<Long> L3 = channels[2];
@@ -262,7 +262,7 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 				return null;
 			}
 		}, activePowerL1, activePowerL2, activePowerL3);
-		reactivePower = new FunctionalReadChannel<Long>("reactivePower", this, (channels) -> {
+		reactivePower = new FunctionalReadChannel<Long>("ReactivePower", this, (channels) -> {
 			ReadChannel<Long> L1 = channels[0];
 			ReadChannel<Long> L2 = channels[1];
 			ReadChannel<Long> L3 = channels[2];
