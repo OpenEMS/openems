@@ -12,7 +12,7 @@ export const TRANSLATION = {
         Soc: "Ladezustand",
         Percentage: "Prozent",
         More: "Mehr...",
-        To: "bis",
+        To: "von {{value1}} bis {{value2}}",
         Week: {
             Monday: "Montag",
             Tuesday: "Dienstag",

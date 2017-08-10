@@ -72,17 +72,17 @@ export class HistoryComponent implements OnInit {
       case "lastWeek":
         this.fromDate = moment().subtract(1, "weeks");
         this.toDate = moment();
-        this.activePeriodText = this.translate.instant('Device.History.LastWeek') + ", " + this.fromDate.format("DD.MM.YYYY") + " " + this.translate.instant('General.To') + " " + this.toDate.format("DD.MM.YYYY");
+        this.activePeriodText = this.translate.instant('Device.History.LastWeek') + ", " + this.translate.instant('General.To', { value1: this.fromDate.format("DD.MM.YYYY"), value2: this.toDate.format("DD.MM.YYYY") });
         break;
       case "lastMonth":
         this.fromDate = moment().subtract(1, "months");
         this.toDate = moment();
-        this.activePeriodText = this.translate.instant('Device.History.LastMonth') + ", " + this.fromDate.format("DD.MM.YYYY") + " " + this.translate.instant('General.To') + " " + this.toDate.format("DD.MM.YYYY");
+        this.activePeriodText = this.translate.instant('Device.History.LastMonth') + ", " + this.translate.instant('General.To', { value1: this.fromDate.format("DD.MM.YYYY"), value2: this.toDate.format("DD.MM.YYYY") });
         break;
       case "lastYear":
         this.fromDate = moment().subtract(1, "years");
         this.toDate = moment();
-        this.activePeriodText = this.translate.instant('Device.History.LastYear') + ", " + this.fromDate.format("DD.MM.YYYY") + " " + this.translate.instant('General.To') + " " + this.toDate.format("DD.MM.YYYY");
+        this.activePeriodText = this.translate.instant('Device.History.LastYear') + ", " + this.translate.instant('General.To', { value1: this.fromDate.format("DD.MM.YYYY"), value2: this.toDate.format("DD.MM.YYYY") });
         break;
       case "otherTimespan":
         let fromDate = moment(from);
@@ -92,7 +92,7 @@ export class HistoryComponent implements OnInit {
         }
         this.fromDate = fromDate;
         this.toDate = toDate;
-        this.activePeriodText = this.translate.instant('Device.History.Period') + ", " + this.fromDate.format("DD.MM.YYYY") + " " + this.translate.instant('General.To') + " " + this.toDate.format("DD.MM.YYYY");
+        this.activePeriodText = this.translate.instant('Device.History.Period') + ", " + this.translate.instant('General.To', { value1: this.fromDate.format("DD.MM.YYYY"), value2: this.toDate.format("DD.MM.YYYY") });
         break;
       case "today":
       default:

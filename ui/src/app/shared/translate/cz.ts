@@ -12,7 +12,7 @@ export const TRANSLATION = {
         Soc: "Stav nabití",
         Percentage: "Procenta",
         More: "Další",
-        To: "do",
+        To: "{{value1}} do {{value2}}",
         Week: {
             Monday: "Pondělí",
             Tuesday: "Úterý",
