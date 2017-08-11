@@ -102,8 +102,8 @@ public class Influxdb {
 		// Prepare data for writing to InfluxDB
 		data.entrySet().forEach(dataEntry -> {
 			Long timestamp = dataEntry.getKey();
-			// use lastDataCache only if we receive the latest data
-			boolean useLastDataCache = timestamp > this.lastTimestamp;
+			// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
+			boolean useLastDataCache = timestamp > this.lastTimestamp && timestamp < this.lastTimestamp + 60000;
 			lastTimestamp = timestamp;
 			Builder builder = Point.measurement("data") // this builds a InfluxDB record ("point") for a given timestamp
 					.time(timestamp, TimeUnit.MILLISECONDS);
