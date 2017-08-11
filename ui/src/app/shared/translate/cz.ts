@@ -10,7 +10,7 @@ export const TRANSLATION = {
         History: "Historie",
         NoValue: "Žádná hodnota",
         Soc: "Stav nabití",
-        Percentage: "Procenta",
+        Percentage: "Procentuální vyjádření",
         More: "Další",
         PeriodFromTo: "{{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
         Week: {
@@ -116,7 +116,7 @@ export const TRANSLATION = {
         Fems: "Více o FEMS",
         Sourcecode: "Zdrojový kód",
         CurrentDevelopments: "Aktuální vývoj",
-        Build: "Tento projekt",
+        Build: "Aktuální verze",
         Contact: "S případnými návrhy a pro další informace k systému prosím kontaktujte náš FEMS tým na <a href=\"mailto:{{value}}\">{{value}}</a>.", // value = Mail from FEMS-Team
         Language: "Zvolte jazyk:"
     },
