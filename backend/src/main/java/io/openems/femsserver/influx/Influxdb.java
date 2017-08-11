@@ -31,11 +31,7 @@ public class Influxdb {
 	private final String DB_NAME = "db";
 
 	private static Logger log = LoggerFactory.getLogger(Influxdb.class);
-
 	private static Influxdb instance;
-
-	private static HashMap<String, Object> hmapData = new HashMap<String, Object>();
-	private static Long lastTimestamp = Long.valueOf(0);
 
 	public static void initialize(String database, String url, int port, String username, String password)
 			throws Exception {
@@ -60,6 +56,8 @@ public class Influxdb {
 	}
 
 	private InfluxDB influxDB;
+	private HashMap<String, Object> lastDataCache = new HashMap<String, Object>();
+	private Long lastTimestamp = Long.valueOf(0);
 
 	private Influxdb() {
 
@@ -87,64 +85,81 @@ public class Influxdb {
 				.tag("fems", fems) //
 				.retentionPolicy("default").build();
 
-		TreeMap<Long, JsonObject> jDataTree = new TreeMap<Long, JsonObject>();
-
+		// Sort data by timestamp
+		TreeMap<Long, JsonObject> data = new TreeMap<Long, JsonObject>();
 		jData.entrySet().forEach(timestampEntry -> {
 			String timestampString = timestampEntry.getKey();
 			Long timestamp = Long.valueOf(timestampString);
 			JsonObject jChannels;
 			try {
 				jChannels = JsonUtils.getAsJsonObject(timestampEntry.getValue());
-				jDataTree.put(timestamp, jChannels);
+				data.put(timestamp, jChannels);
 			} catch (OpenemsException e) {
-				log.error("InfluxDB data error: " + e.getMessage());
+				log.error("Data error: " + e.getMessage());
 			}
 		});
 
-		jDataTree.entrySet().forEach(timestampEntry -> {
-			Long timestamp = timestampEntry.getKey();
-			if (timestamp > lastTimestamp) {
-				JsonObject jChannels;
-				try {
-					jChannels = JsonUtils.getAsJsonObject(timestampEntry.getValue());
-					if (jChannels.entrySet().size() > 0) {
-						Builder builder = Point.measurement("data") //
-								.time(timestamp, TimeUnit.MILLISECONDS);
-						jChannels.entrySet().forEach(jChannelEntry -> {
-							try {
-								String channel = jChannelEntry.getKey();
-								JsonPrimitive jValue = JsonUtils.getAsPrimitive(jChannelEntry.getValue());
-								if (jValue.isNumber()) {
-									hmapData.put(channel, jValue.getAsNumber());
-								} else if (jValue.isString()) {
-									hmapData.put(channel, jValue.getAsString());
-								} else {
-									log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel
-											+ "]");
-								}
-							} catch (OpenemsException e) {
-								log.error("InfluxDB data error: " + e.getMessage());
+		// Prepare data for writing to InfluxDB
+		data.entrySet().forEach(dataEntry -> {
+			Long timestamp = dataEntry.getKey();
+			// use lastDataCache only if we receive the latest data
+			boolean useLastDataCache = timestamp > this.lastTimestamp;
+			lastTimestamp = timestamp;
+			Builder builder = Point.measurement("data") // this builds a InfluxDB record ("point") for a given timestamp
+					.time(timestamp, TimeUnit.MILLISECONDS);
+
+			JsonObject jChannels = dataEntry.getValue();
+			if (jChannels.entrySet().size() > 0) {
+				jChannels.entrySet().forEach(channelEntry -> {
+					String channel = channelEntry.getKey();
+					JsonPrimitive jValue;
+					try {
+						jValue = JsonUtils.getAsPrimitive(channelEntry.getValue());
+						if (jValue.isNumber()) {
+							Number value = jValue.getAsNumber();
+							builder.addField(channel, value);
+							if (useLastDataCache) {
+								this.lastDataCache.put(channel, value);
 							}
-						});
-						for (String key : hmapData.keySet()) {
-							if (hmapData.get(key) instanceof Number) {
-								builder.addField(key, (Number) hmapData.get(key));
-							} else if (hmapData.get(key) instanceof String) {
-								builder.addField(key, (String) hmapData.get(key));
+
+						} else if (jValue.isString()) {
+							String value = jValue.getAsString();
+							builder.addField(channel, value);
+							if (useLastDataCache) {
+								this.lastDataCache.put(channel, value);
 							}
+
+						} else {
+							log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel + "]");
 						}
-						batchPoints.point(builder.build());
-						lastTimestamp = timestamp;
+					} catch (OpenemsException e) {
+						log.error("Data error: " + e.getMessage());
 					}
-				} catch (OpenemsException e) {
-					log.error("InfluxDB data error: " + e.getMessage());
+
+				});
+
+				// only for latest data: add the cached data to the InfluxDB point.
+				if (useLastDataCache) {
+					this.lastDataCache.entrySet().forEach(cacheEntry -> {
+						String field = cacheEntry.getKey();
+						Object value = cacheEntry.getValue();
+						if (value instanceof Number) {
+							builder.addField(field, (Number) value);
+						} else if (value instanceof String) {
+							builder.addField(field, (String) value);
+						} else {
+							log.warn("Unknown type in InfluxDB. This should never happen.");
+						}
+					});
 				}
-			} else {
-				// current timestamp is smaller than the last one saved in the DB
+
+				// add the point to the batch
+				batchPoints.point(builder.build());
 			}
 		});
 		// write to DB
 		influxDB.write(batchPoints);
+
 	}
 
 	public JsonObject query(int _fems, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
