@@ -3,6 +3,7 @@ package io.openems.femsserver.influx;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import org.influxdb.InfluxDB;
@@ -34,6 +35,7 @@ public class Influxdb {
 	private static Influxdb instance;
 
 	private static HashMap<String, Object> hmapData = new HashMap<String, Object>();
+	private static Long lastTimestamp = Long.valueOf(0);
 
 	public static void initialize(String database, String url, int port, String username, String password)
 			throws Exception {
@@ -85,25 +87,33 @@ public class Influxdb {
 				.tag("fems", fems) //
 				.retentionPolicy("default").build();
 
+		TreeMap<Long, JsonObject> jDataTree = new TreeMap<Long, JsonObject>();
+
 		jData.entrySet().forEach(timestampEntry -> {
 			String timestampString = timestampEntry.getKey();
+			Long timestamp = Long.valueOf(timestampString);
 			JsonObject jChannels;
 			try {
 				jChannels = JsonUtils.getAsJsonObject(timestampEntry.getValue());
-				if (jChannels.entrySet().size() > 0) {
-					Long timestamp = Long.valueOf(timestampString);
-					Builder builder = Point.measurement("data") //
-							.time(timestamp, TimeUnit.MILLISECONDS);
-					jChannels.entrySet().forEach(jChannelEntry -> {
-						try {
-							String channel = jChannelEntry.getKey();
-							JsonPrimitive jValue = JsonUtils.getAsPrimitive(jChannelEntry.getValue());
+				jDataTree.put(timestamp, jChannels);
+			} catch (OpenemsException e) {
+				log.error("InfluxDB data error: " + e.getMessage());
+			}
+		});
 
-							if (hmapData.containsKey(channel)) {
-								hmapData.replace(channel, hmapData.get(channel),
-										(hmapData.get(channel) instanceof Number) ? jValue.getAsNumber()
-												: jValue.getAsString());
-							} else {
+		jDataTree.entrySet().forEach(timestampEntry -> {
+			Long timestamp = timestampEntry.getKey();
+			if (timestamp > lastTimestamp) {
+				JsonObject jChannels;
+				try {
+					jChannels = JsonUtils.getAsJsonObject(timestampEntry.getValue());
+					if (jChannels.entrySet().size() > 0) {
+						Builder builder = Point.measurement("data") //
+								.time(timestamp, TimeUnit.MILLISECONDS);
+						jChannels.entrySet().forEach(jChannelEntry -> {
+							try {
+								String channel = jChannelEntry.getKey();
+								JsonPrimitive jValue = JsonUtils.getAsPrimitive(jChannelEntry.getValue());
 								if (jValue.isNumber()) {
 									hmapData.put(channel, jValue.getAsNumber());
 								} else if (jValue.isString()) {
@@ -112,23 +122,25 @@ public class Influxdb {
 									log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel
 											+ "]");
 								}
+							} catch (OpenemsException e) {
+								log.error("InfluxDB data error: " + e.getMessage());
 							}
-
-							for (String key : hmapData.keySet()) {
-								if (hmapData.get(key) instanceof Number) {
-									builder.addField(key, (Number) hmapData.get(key));
-								} else if (hmapData.get(key) instanceof String) {
-									builder.addField(key, (String) hmapData.get(key));
-								}
+						});
+						for (String key : hmapData.keySet()) {
+							if (hmapData.get(key) instanceof Number) {
+								builder.addField(key, (Number) hmapData.get(key));
+							} else if (hmapData.get(key) instanceof String) {
+								builder.addField(key, (String) hmapData.get(key));
 							}
-						} catch (OpenemsException e) {
-							log.error("InfluxDB data error: " + e.getMessage());
 						}
-					});
-					batchPoints.point(builder.build());
+						batchPoints.point(builder.build());
+						lastTimestamp = timestamp;
+					}
+				} catch (OpenemsException e) {
+					log.error("InfluxDB data error: " + e.getMessage());
 				}
-			} catch (OpenemsException e) {
-				log.error("InfluxDB data error: " + e.getMessage());
+			} else {
+				// current timestamp is smaller than the last one saved in the DB
 			}
 		});
 		// write to DB
