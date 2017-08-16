@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { MdSnackBar } from '@angular/material';
 import { SpinnerModule } from 'angular-spinners';
+import { LoadingModule } from 'ngx-loading';
 import { TranslateModule } from '@ngx-translate/core';
 
 import 'hammerjs';
@@ -49,6 +50,7 @@ import { SpinnerComponent } from './spinner.component';
     RouterModule,
     ChartsModule,
     SpinnerModule,
+    LoadingModule,
     routing
   ],
   declarations: [
@@ -81,7 +83,8 @@ import { SpinnerComponent } from './spinner.component';
     TranslateModule,
     // components
     SocChartComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    LoadingModule
   ],
   providers: [
     TemplateHelper,
