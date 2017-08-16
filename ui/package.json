@@ -29,7 +29,6 @@
     "@angular/router": "^4.0.0",
     "@ngx-translate/core": "^7.1.0",
     "@types/d3": "4.10.0",
-    "angular-spinners": "^5.0.4",
     "angular2-uuid": "^1.1.1",
     "chart.js": "^2.6.0",
     "classlist.js": "^1.1.20150312",
