@@ -13,7 +13,7 @@ export const TRANSLATION = {
         Percentage: "Procentuální vyjádření",
         More: "Další",
         PeriodFromTo: "{{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
-        DateFormat: "YYYY-MM-DD", // e.g. German: DD.MM.YYYY, English: YYYY-MM-DD (DD = Day, MM = Month, YYYY = Year)
+        DateFormat: "DD.MM.YYYY", // e.g. German: DD.MM.YYYY, English: YYYY-MM-DD (DD = Day, MM = Month, YYYY = Year)
         Week: {
             Monday: "Pondělí",
             Tuesday: "Úterý",
