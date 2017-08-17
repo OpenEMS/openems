@@ -1,6 +1,6 @@
-<spinner-animation *ngIf="!loading; else chart"></spinner-animation>
+<spinner-animation *ngIf="loading; else chart"></spinner-animation>
 <ng-template #chart>
-  <div *ngIf="loading" style="width: 100%; height: 100%">
+  <div *ngIf="!loading" style="width: 100%; height: 100%">
     <canvas #socChart="base-chart" baseChart [datasets]="datasets" [labels]="labels" [options]="options" [colors]="colors" chartType="line"></canvas>
   </div>
 </ng-template>

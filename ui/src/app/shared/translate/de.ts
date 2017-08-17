@@ -13,6 +13,7 @@ export const TRANSLATION = {
         Percentage: "Prozent",
         More: "Mehr...",
         PeriodFromTo: "von {{value1}} bis {{value2}}", // value1 = start date, value2 = end date
+        DateFormat: "DD.MM.YYYY", // z.B. Englisch: YYYY-MM-DD (DD = Tag, MM = Monat, YYYY = Jahr)
         Week: {
             Monday: "Montag",
             Tuesday: "Dienstag",
