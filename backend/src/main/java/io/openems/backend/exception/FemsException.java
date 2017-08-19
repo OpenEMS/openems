@@ -1,4 +1,4 @@
-package io.openems.femsserver.exception;
+package io.openems.backend.exception;
 
 public class FemsException extends Exception {
 

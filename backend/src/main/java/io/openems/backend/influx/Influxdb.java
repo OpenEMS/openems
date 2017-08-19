@@ -1,4 +1,4 @@
-package io.openems.femsserver.influx;
+package io.openems.backend.influx;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import io.openems.femsserver.utilities.JsonUtils;
-import io.openems.femsserver.utilities.OpenemsException;
+import io.openems.backend.utilities.JsonUtils;
+import io.openems.backend.utilities.OpenemsException;
 
 public class Influxdb {
 

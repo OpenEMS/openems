@@ -1,26 +1,26 @@
-package io.openems.femsserver;
+package io.openems.backend;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.femsserver.browserwebsocket.BrowserWebsocket;
-import io.openems.femsserver.femswebsocket.FemsWebsocket;
-import io.openems.femsserver.influx.Influxdb;
-import io.openems.femsserver.odoo.Odoo;
+import io.openems.backend.browserwebsocket.BrowserWebsocket;
+import io.openems.backend.influx.Influxdb;
+import io.openems.backend.odoo.Odoo;
+import io.openems.backend.openemswebsocket.OpenemsWebsocket;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
 	public static void main(String[] args) throws Exception {
-		log.info("FEMS-Server starting...");
+		log.info("OpenEMS-Backend starting...");
 
 		// Configure everything
 		initOdoo();
 		initInfluxdb();
-		initFemsWebsocket();
+		initOpenemsWebsocket();
 		initBrowserWebsocket();
 
-		log.info("FEMS-Server started.");
+		log.info("OpenEMS-Backend started.");
 	}
 
 	private static void initOdoo() throws Exception {
@@ -43,10 +43,10 @@ public class App {
 		Influxdb.initialize(database, url, port, username, password);
 	}
 
-	private static void initFemsWebsocket() throws Exception {
+	private static void initOpenemsWebsocket() throws Exception {
 		int port = Integer.valueOf(System.getenv("OPENEMS_WEBSOCKET_PORT"));
-		log.info("Start FEMS Websocket server on port [" + port + "]");
-		FemsWebsocket.initialize(port);
+		log.info("Start OpenEMS Websocket server on port [" + port + "]");
+		OpenemsWebsocket.initialize(port);
 	}
 
 	private static void initBrowserWebsocket() throws Exception {
