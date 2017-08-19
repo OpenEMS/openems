@@ -55,6 +55,7 @@ public abstract class OdooObject {
 				// send max once per minute
 				this.model.writeObject(this.row, changesOnly);
 				this.lastWrite = now;
+				log.info("Updated Odoo record");
 			}
 		} finally {
 			isChangedSinceLastWrite = false;
