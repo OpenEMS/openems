@@ -72,6 +72,12 @@ public class Influxdb {
 			log.error("Unable to connect to InfluxDB: " + e.getMessage());
 			throw new Exception(e.getMessage());
 		}
+		try {
+			influxDB.createDatabase(DB_NAME);
+		} catch (RuntimeException e) {
+			log.error("Unable to create InfluxDB database: " + DB_NAME);
+			throw new Exception(e.getMessage());
+		}
 	}
 
 	/**
@@ -83,7 +89,7 @@ public class Influxdb {
 	public void write(String fems, JsonObject jData) {
 		BatchPoints batchPoints = BatchPoints.database(database) //
 				.tag("fems", fems) //
-				.retentionPolicy("default").build();
+				.build();
 
 		// Sort data by timestamp
 		TreeMap<Long, JsonObject> data = new TreeMap<Long, JsonObject>();
