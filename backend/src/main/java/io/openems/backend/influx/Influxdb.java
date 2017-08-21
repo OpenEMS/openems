@@ -1,9 +1,10 @@
 package io.openems.backend.influx;
 
 import java.time.ZonedDateTime;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.influxdb.InfluxDB;
@@ -14,6 +15,9 @@ import org.influxdb.dto.Point.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -56,8 +60,10 @@ public class Influxdb {
 	}
 
 	private InfluxDB influxDB;
-	private HashMap<String, Object> lastDataCache = new HashMap<String, Object>();
-	private Long lastTimestamp = Long.valueOf(0);
+	// 1st: fems; 2nd: channel; 3rd: value
+	private Table<String, String, Object> lastDataCache = Tables.synchronizedTable(HashBasedTable.create());
+	// fems : timestamp
+	private Map<String, Long> lastTimestampMap = new ConcurrentHashMap<String, Long>();
 
 	private Influxdb() {
 
@@ -72,12 +78,14 @@ public class Influxdb {
 			log.error("Unable to connect to InfluxDB: " + e.getMessage());
 			throw new Exception(e.getMessage());
 		}
-		try {
-			influxDB.createDatabase(DB_NAME);
-		} catch (RuntimeException e) {
-			log.error("Unable to create InfluxDB database: " + DB_NAME);
-			throw new Exception(e.getMessage());
-		}
+		/*
+		 * try {
+		 * influxDB.createDatabase(DB_NAME);
+		 * } catch (RuntimeException e) {
+		 * log.error("Unable to create InfluxDB database: " + DB_NAME);
+		 * throw new Exception(e.getMessage());
+		 * }
+		 */
 	}
 
 	/**
@@ -87,6 +95,8 @@ public class Influxdb {
 	 * "timestamp2" { "channel1": value, "channel2": value } }
 	 */
 	public void write(String fems, JsonObject jData) {
+		final Long lastTimestamp = this.lastTimestampMap.getOrDefault(fems, 0l);
+
 		BatchPoints batchPoints = BatchPoints.database(database) //
 				.tag("fems", fems) //
 				.build();
@@ -109,8 +119,8 @@ public class Influxdb {
 		data.entrySet().forEach(dataEntry -> {
 			Long timestamp = dataEntry.getKey();
 			// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
-			boolean useLastDataCache = timestamp > this.lastTimestamp && timestamp < this.lastTimestamp + 60000;
-			lastTimestamp = timestamp;
+			boolean useLastDataCache = timestamp > lastTimestamp && timestamp < lastTimestamp + 60000;
+			this.lastTimestampMap.put(fems, timestamp);
 			Builder builder = Point.measurement("data") // this builds a InfluxDB record ("point") for a given timestamp
 					.time(timestamp, TimeUnit.MILLISECONDS);
 
@@ -125,14 +135,14 @@ public class Influxdb {
 							Number value = jValue.getAsNumber();
 							builder.addField(channel, value);
 							if (useLastDataCache) {
-								this.lastDataCache.put(channel, value);
+								this.lastDataCache.put(fems, channel, value);
 							}
 
 						} else if (jValue.isString()) {
 							String value = jValue.getAsString();
 							builder.addField(channel, value);
 							if (useLastDataCache) {
-								this.lastDataCache.put(channel, value);
+								this.lastDataCache.put(fems, channel, value);
 							}
 
 						} else {
@@ -146,7 +156,7 @@ public class Influxdb {
 
 				// only for latest data: add the cached data to the InfluxDB point.
 				if (useLastDataCache) {
-					this.lastDataCache.entrySet().forEach(cacheEntry -> {
+					this.lastDataCache.row(fems).entrySet().forEach(cacheEntry -> {
 						String field = cacheEntry.getKey();
 						Object value = cacheEntry.getValue();
 						if (value instanceof Number) {
