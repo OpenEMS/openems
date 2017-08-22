@@ -3,7 +3,7 @@ package io.openems.backend;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.browserwebsocket.BrowserWebsocket;
+import io.openems.backend.browserwebsocket.BrowserWebsocketProvider;
 import io.openems.backend.influx.InfluxdbProvider;
 import io.openems.backend.odoo.OdooProvider;
 import io.openems.backend.openemswebsocket.OpenemsWebsocketProvider;
@@ -52,6 +52,6 @@ public class App {
 	private static void initBrowserWebsocket() throws Exception {
 		int port = Integer.valueOf(System.getenv("BROWSER_WEBSOCKET_PORT"));
 		log.info("Start Browser Websocket server on port [" + port + "]");
-		BrowserWebsocket.initialize(port);
+		BrowserWebsocketProvider.initialize(port);
 	}
 }

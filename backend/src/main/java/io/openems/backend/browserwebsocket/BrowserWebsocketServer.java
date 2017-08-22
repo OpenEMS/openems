@@ -20,10 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.backend.core.ConnectionManagerALT;
 import io.openems.backend.influx.InfluxdbProvider;
-import io.openems.backend.odoo.Odoo;
-import io.openems.backend.odoo.OdooProvider;
 import io.openems.backend.odoo.device.Device;
 import io.openems.backend.utilities.JsonUtils;
 import io.openems.backend.utilities.OpenemsException;
@@ -37,46 +34,12 @@ import io.openems.backend.utilities.WebSocketUtils;
  * @author stefan.feilmeier
  *
  */
-public class BrowserWebsocket extends WebSocketServer {
+public class BrowserWebsocketServer extends WebSocketServer {
 
-	private static Logger log = LoggerFactory.getLogger(BrowserWebsocket.class);
+	private Logger log = LoggerFactory.getLogger(BrowserWebsocketServer.class);
 
-	private static BrowserWebsocket instance;
-
-	/**
-	 * Initialize and start the Websocketserver
-	 *
-	 * @param port
-	 * @throws Exception
-	 */
-	public static synchronized void initialize(int port) throws Exception {
-		BrowserWebsocket ws = new BrowserWebsocket(port);
-		ws.start();
-	}
-
-	/**
-	 * Returns the singleton instance
-	 *
-	 * @return
-	 */
-	public static synchronized BrowserWebsocket getInstance() {
-		return BrowserWebsocket.instance;
-	}
-
-	/**
-	 * Holds a reference to the ConnectionManager singleton
-	 */
-	private final ConnectionManagerALT connectionManager;
-
-	/**
-	 * Holds a reference to the Odoo singleton
-	 */
-	private final Odoo odoo;
-
-	private BrowserWebsocket(int port) throws Exception {
+	protected BrowserWebsocketServer(int port) throws Exception {
 		super(new InetSocketAddress(port));
-		this.connectionManager = ConnectionManagerALT.getInstance();
-		this.odoo = OdooProvider.getInstance();
 	}
 
 	/**
