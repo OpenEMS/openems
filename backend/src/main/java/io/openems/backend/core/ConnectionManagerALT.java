@@ -18,29 +18,29 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import io.openems.backend.odoo.fems.device.FemsDevice;
+import io.openems.backend.odoo.device.Device;
 import io.openems.backend.utilities.ManyToMany;
 
-public class ConnectionManager {
+public class ConnectionManagerALT {
 
-	private static Logger log = LoggerFactory.getLogger(ConnectionManager.class);
+	private static Logger log = LoggerFactory.getLogger(ConnectionManagerALT.class);
 
-	private static ConnectionManager instance;
+	private static ConnectionManagerALT instance;
 
-	public static synchronized ConnectionManager getInstance() {
-		if (ConnectionManager.instance == null) {
-			ConnectionManager.instance = new ConnectionManager();
+	public static synchronized ConnectionManagerALT getInstance() {
+		if (ConnectionManagerALT.instance == null) {
+			ConnectionManagerALT.instance = new ConnectionManagerALT();
 		}
-		return ConnectionManager.instance;
+		return ConnectionManagerALT.instance;
 	}
 
-	private ConnectionManager() {}
+	private ConnectionManagerALT() {}
 
 	/**
 	 * Stores info about FEMS devices
 	 * Key: fems-name (e.g. "fems7") - Value: FemsDevice object
 	 */
-	private HashMap<String, FemsDevice> femsDevices = new HashMap<>();
+	private HashMap<String, Device> femsDevices = new HashMap<>();
 
 	/**
 	 * Stores all active websockets to FEMS devices
@@ -60,7 +60,7 @@ public class ConnectionManager {
 	 * @param webSocket
 	 * @param device
 	 */
-	public synchronized void addFemsWebsocket(WebSocket websocket, List<FemsDevice> devices) {
+	public synchronized void addFemsWebsocket(WebSocket websocket, List<Device> devices) {
 		devices.forEach(device -> {
 			String name = device.getName();
 			/*
@@ -69,7 +69,7 @@ public class ConnectionManager {
 			// Check if femsDevice already existed in cache. If so, refresh and reuse it. Otherwise add it.
 			if (this.femsDevices.containsKey(name)) {
 				// refresh an existing FemsDevice object
-				FemsDevice existingDevice = this.femsDevices.get(name);
+				Device existingDevice = this.femsDevices.get(name);
 				existingDevice.refreshFrom(device);
 			} else {
 				// put new object
@@ -108,8 +108,8 @@ public class ConnectionManager {
 	 * @param websocket
 	 * @return
 	 */
-	public synchronized List<FemsDevice> getFemsWebsocketDevices(WebSocket websocket) {
-		List<FemsDevice> devices = new ArrayList<>();
+	public synchronized List<Device> getFemsWebsocketDevices(WebSocket websocket) {
+		List<Device> devices = new ArrayList<>();
 		this.getFemsWebsocketDeviceNames(websocket).forEach(name -> {
 			devices.add(this.femsDevices.get(name));
 		});
@@ -148,7 +148,7 @@ public class ConnectionManager {
 	 * @param webSocket
 	 * @param device
 	 */
-	public synchronized void addBrowserWebsocket(WebSocket websocket, List<FemsDevice> devices) {
+	public synchronized void addBrowserWebsocket(WebSocket websocket, List<Device> devices) {
 		devices.forEach(device -> {
 			String name = device.getName();
 			/*
@@ -156,7 +156,7 @@ public class ConnectionManager {
 			 */
 			if (this.femsDevices.containsKey(name)) {
 				// refresh an existing FemsDevice object
-				FemsDevice existingDevice = this.femsDevices.get(name);
+				Device existingDevice = this.femsDevices.get(name);
 				existingDevice.refreshFrom(device);
 				device = existingDevice;
 			} else {

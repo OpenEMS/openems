@@ -63,7 +63,7 @@ public abstract class OdooObject {
 		}
 	}
 
-	public void put(String fieldName, Object value) {
+	protected void put(String fieldName, Object value) {
 		try {
 			this.row.put(fieldName, value);
 		} catch (OdooApiException e) {
@@ -83,14 +83,13 @@ public abstract class OdooObject {
 				// send max once per minute
 				this.model.writeObject(this.row, changesOnly);
 				this.lastWrite = now;
-				log.info("Updated Odoo record");
 			}
 		} finally {
 			isChangedSinceLastWrite = false;
 		}
 	}
 
-	public Date odooCompatibleNow() {
+	protected Date odooCompatibleNow() {
 		Instant instant = Instant.now();
 		int seconds = ZonedDateTime.of(LocalDateTime.ofInstant(instant, ZoneOffset.UTC), ZoneId.systemDefault())
 				.getOffset().getTotalSeconds();

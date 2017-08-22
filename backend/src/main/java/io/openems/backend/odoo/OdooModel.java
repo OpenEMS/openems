@@ -46,6 +46,21 @@ public abstract class OdooModel<T extends OdooObject> {
 	}
 
 	/**
+	 * Reads all objects of this model
+	 *
+	 * @return
+	 * @throws XmlRpcException
+	 * @throws OdooApiException
+	 */
+	public List<T> readObjectsWhere(String fieldName, String comparison, Object value)
+			throws XmlRpcException, OdooApiException {
+		FilterCollection filter = new FilterCollection();
+		filter.add(fieldName, comparison, value);
+		RowCollection rows = oa.searchAndReadObject(filter, getFields());
+		return convertRowCollectionToList(rows);
+	}
+
+	/**
 	 * Converts a RowCollection to a list of POJOs
 	 *
 	 * @param rows
@@ -56,13 +71,6 @@ public abstract class OdooModel<T extends OdooObject> {
 	protected void writeObject(Row row, boolean changesOnly) throws OdooApiException, XmlRpcException {
 		oa.writeObject(row, changesOnly);
 	}
-
-	// public List<T> searchAndReadObject(String fieldName, String comparison, Object value)
-	// throws XmlRpcException, OdooApiException {
-	// FilterCollection filters = new FilterCollection();
-	// filters.add(fieldName, comparison, value);
-	// return searchAndReadObject(filters);
-	// }
 
 	protected abstract String getModelId();
 

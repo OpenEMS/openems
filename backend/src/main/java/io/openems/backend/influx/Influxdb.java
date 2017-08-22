@@ -26,38 +26,13 @@ import io.openems.backend.utilities.OpenemsException;
 
 public class Influxdb {
 
-	protected String database;
-	protected String url;
-	protected int port;
-	protected String username;
-	protected String password;
+	private final Logger log = LoggerFactory.getLogger(Influxdb.class);
 
-	private final String DB_NAME = "db";
-
-	private static Logger log = LoggerFactory.getLogger(Influxdb.class);
-	private static Influxdb instance;
-
-	public static void initialize(String database, String url, int port, String username, String password)
-			throws Exception {
-		if (database == null || url == null || username == null || password == null) {
-			throw new Exception("Config missing: database [" + database + "], url [" + url + "], port [" + port
-					+ "] username [" + username + "], password [" + password + "]");
-		}
-		Influxdb influxdb = getInstance();
-		influxdb.database = database;
-		influxdb.url = url;
-		influxdb.port = port;
-		influxdb.username = username;
-		influxdb.password = password;
-		influxdb.connect();
-	}
-
-	public static synchronized Influxdb getInstance() throws Exception {
-		if (Influxdb.instance == null) {
-			Influxdb.instance = new Influxdb();
-		}
-		return Influxdb.instance;
-	}
+	private String database;
+	private String url;
+	private int port;
+	private String username;
+	private String password;
 
 	private InfluxDB influxDB;
 	// 1st: fems; 2nd: channel; 3rd: value
@@ -65,8 +40,13 @@ public class Influxdb {
 	// fems : timestamp
 	private Map<String, Long> lastTimestampMap = new ConcurrentHashMap<String, Long>();
 
-	private Influxdb() {
-
+	protected Influxdb(String database, String url, int port, String username, String password) throws Exception {
+		this.database = database;
+		this.url = url;
+		this.port = port;
+		this.username = username;
+		this.password = password;
+		this.connect();
 	}
 
 	private void connect() throws Exception {

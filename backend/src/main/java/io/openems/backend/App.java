@@ -4,9 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.browserwebsocket.BrowserWebsocket;
-import io.openems.backend.influx.Influxdb;
-import io.openems.backend.odoo.Odoo;
-import io.openems.backend.openemswebsocket.OpenemsWebsocket;
+import io.openems.backend.influx.InfluxdbProvider;
+import io.openems.backend.odoo.OdooProvider;
+import io.openems.backend.openemswebsocket.OpenemsWebsocketProvider;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
@@ -16,8 +16,8 @@ public class App {
 
 		// Configure everything
 		initOdoo();
-		// initInfluxdb();
-		// initOpenemsWebsocket();
+		initInfluxdb();
+		initOpenemsWebsocket();
 		// initBrowserWebsocket();
 
 		log.info("OpenEMS-Backend started.");
@@ -30,7 +30,7 @@ public class App {
 		String database = System.getenv("ODOO_DATABASE");
 		String username = System.getenv("ODOO_USERNAME");
 		String password = System.getenv("ODOO_PASSWORD");
-		Odoo.initialize(url, port, database, username, password);
+		OdooProvider.initialize(url, port, database, username, password);
 	}
 
 	private static void initInfluxdb() throws Exception {
@@ -40,13 +40,13 @@ public class App {
 		String url = System.getenv("INFLUX_URL");
 		String username = System.getenv("INFLUX_USERNAME");
 		String password = System.getenv("INFLUX_PASSWORD");
-		Influxdb.initialize(database, url, port, username, password);
+		InfluxdbProvider.initialize(database, url, port, username, password);
 	}
 
 	private static void initOpenemsWebsocket() throws Exception {
 		int port = Integer.valueOf(System.getenv("OPENEMS_WEBSOCKET_PORT"));
 		log.info("Start OpenEMS Websocket server on port [" + port + "]");
-		OpenemsWebsocket.initialize(port);
+		OpenemsWebsocketProvider.initialize(port);
 	}
 
 	private static void initBrowserWebsocket() throws Exception {

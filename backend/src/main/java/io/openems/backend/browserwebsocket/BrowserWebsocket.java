@@ -5,26 +5,26 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.xmlrpc.XmlRpcException;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.abercap.odoo.OdooApiException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.backend.core.ConnectionManager;
-import io.openems.backend.influx.Influxdb;
+import io.openems.backend.core.ConnectionManagerALT;
+import io.openems.backend.influx.InfluxdbProvider;
 import io.openems.backend.odoo.Odoo;
-import io.openems.backend.odoo.fems.device.FemsDevice;
+import io.openems.backend.odoo.OdooProvider;
+import io.openems.backend.odoo.device.Device;
 import io.openems.backend.utilities.JsonUtils;
 import io.openems.backend.utilities.OpenemsException;
 import io.openems.backend.utilities.StringUtils;
@@ -66,7 +66,7 @@ public class BrowserWebsocket extends WebSocketServer {
 	/**
 	 * Holds a reference to the ConnectionManager singleton
 	 */
-	private final ConnectionManager connectionManager;
+	private final ConnectionManagerALT connectionManager;
 
 	/**
 	 * Holds a reference to the Odoo singleton
@@ -75,8 +75,8 @@ public class BrowserWebsocket extends WebSocketServer {
 
 	private BrowserWebsocket(int port) throws Exception {
 		super(new InetSocketAddress(port));
-		this.connectionManager = ConnectionManager.getInstance();
-		this.odoo = Odoo.getInstance();
+		this.connectionManager = ConnectionManagerALT.getInstance();
+		this.odoo = OdooProvider.getInstance();
 	}
 
 	/**
@@ -90,10 +90,12 @@ public class BrowserWebsocket extends WebSocketServer {
 			if (sessionId != null) {
 				try {
 					log.info("Incoming browser websocket using session [" + sessionId + "].");
-					JsonObject jOdooResult = this.odoo.getFemsInfo(sessionId);
+					JsonObject jOdooResult = null;
+					// TODO this.odoo.getFemsInfo(sessionId);
 					// successfully logged in (otherwise an exception was thrown)
 					JsonArray jOdooDevices = JsonUtils.getAsJsonArray(jOdooResult, "devices");
-					List<FemsDevice> devices = this.odoo.getDevicesForNames(jOdooDevices);
+					List<Device> devices = new ArrayList<>();
+					// TODO this.odoo.getDevicesForNames(jOdooDevices);
 					connectionManager.addBrowserWebsocket(websocket, devices);
 					/**
 					 * send initial message
@@ -132,7 +134,7 @@ public class BrowserWebsocket extends WebSocketServer {
 					j.add("metadata", jMetadata);
 					WebSocketUtils.send(websocket, j);
 
-				} catch (OpenemsException | OdooApiException | XmlRpcException e) {
+				} catch (OpenemsException e) {
 					// Authentication failed
 					JsonObject j = new JsonObject();
 
@@ -321,10 +323,11 @@ public class BrowserWebsocket extends WebSocketServer {
 				} else if (days > 2) {
 					resolution = 60 * 60; // 60 Minutes
 				}
-				JsonObject jQueryreply = Influxdb.getInstance().query(fems, fromDate, toDate, channels, resolution/*
-																													 * ,
-																													 * kWh
-																													 */);
+				JsonObject jQueryreply = InfluxdbProvider.getInstance().query(fems, fromDate, toDate, channels,
+						resolution/*
+									 * ,
+									 * kWh
+									 */);
 
 				JsonObject j = bootstrapReply(requestId);
 				// Send result

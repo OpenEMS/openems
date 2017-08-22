@@ -10,34 +10,18 @@ import io.openems.backend.odoo.device.DeviceModel;
 
 public class Odoo {
 
-	private static Logger log = LoggerFactory.getLogger(Odoo.class);
-	private static Odoo instance;
-
-	public static synchronized void initialize(String url, int port, String database, String username, String password)
-			throws Exception {
-		if (url == null || database == null || username == null || password == null) {
-			throw new Exception("Config missing: database [" + database + "], url [" + url + "], port [" + port
-					+ "] username [" + username + "], password [" + password + "]");
-		}
-		Odoo odoo = getInstance();
-		odoo.session = new Session(url, port, database, username, password);
-		odoo.connect();
-		odoo.deviceModel = new DeviceModel(odoo.session);
-		odoo.deviceCache = new DeviceCache();
-	}
-
-	public static synchronized Odoo getInstance() {
-		if (Odoo.instance == null) {
-			Odoo.instance = new Odoo();
-		}
-		return Odoo.instance;
-	}
+	private final Logger log = LoggerFactory.getLogger(Odoo.class);
 
 	private Session session;
 	private DeviceModel deviceModel;
 	private DeviceCache deviceCache;
 
-	private Odoo() {}
+	protected Odoo(String url, int port, String database, String username, String password) throws Exception {
+		this.session = new Session(url, port, database, username, password);
+		this.connect();
+		this.deviceModel = new DeviceModel(this.session);
+		this.deviceCache = new DeviceCache();
+	}
 
 	private void connect() throws Exception {
 		session.startSession();
