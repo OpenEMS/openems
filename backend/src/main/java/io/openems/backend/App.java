@@ -16,9 +16,9 @@ public class App {
 
 		// Configure everything
 		initOdoo();
-		initInfluxdb();
-		initOpenemsWebsocket();
-		initBrowserWebsocket();
+		// initInfluxdb();
+		// initOpenemsWebsocket();
+		// initBrowserWebsocket();
 
 		log.info("OpenEMS-Backend started.");
 	}

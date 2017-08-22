@@ -11,30 +11,60 @@ import com.abercap.odoo.Row;
 import com.abercap.odoo.RowCollection;
 import com.abercap.odoo.Session;
 
+/**
+ * Represents an abstract model in Odoo object relational mapper
+ *
+ * @author stefan.feilmeier
+ *
+ * @param <T>
+ */
 public abstract class OdooModel<T extends OdooObject> {
 	private final ObjectAdapter oa;
 
+	/**
+	 * Initializes the model with a Odoo session
+	 *
+	 * @param session
+	 * @throws XmlRpcException
+	 * @throws OdooApiException
+	 */
 	public OdooModel(Session session) throws XmlRpcException, OdooApiException {
-		oa = session.getObjectAdapter(getObjectName());
+		oa = session.getObjectAdapter(getModelId());
 	}
-	
+
+	/**
+	 * Reads all objects of this model
+	 *
+	 * @return
+	 * @throws XmlRpcException
+	 * @throws OdooApiException
+	 */
+	public List<T> readAllObjects() throws XmlRpcException, OdooApiException {
+		FilterCollection filter = new FilterCollection();
+		RowCollection rows = oa.searchAndReadObject(filter, getFields());
+		return convertRowCollectionToList(rows);
+	}
+
+	/**
+	 * Converts a RowCollection to a list of POJOs
+	 *
+	 * @param rows
+	 * @return
+	 */
+	protected abstract List<T> convertRowCollectionToList(RowCollection rows);
+
 	protected void writeObject(Row row, boolean changesOnly) throws OdooApiException, XmlRpcException {
 		oa.writeObject(row, changesOnly);
 	}
-	
-	protected RowCollection _searchAndReadObject(FilterCollection filters) throws XmlRpcException, OdooApiException {
-		return oa.searchAndReadObject(filters, getFields());	
-	}
-	
-	public abstract List<T> searchAndReadObject(FilterCollection filters) throws XmlRpcException, OdooApiException;
-	
-	public List<T> searchAndReadObject(String fieldName, String comparison, Object value) throws XmlRpcException, OdooApiException {
-		FilterCollection filters = new FilterCollection();
-		filters.add(fieldName, comparison, value);
-		return searchAndReadObject(filters);
-	}
-	
-	protected abstract String getObjectName();
-	
+
+	// public List<T> searchAndReadObject(String fieldName, String comparison, Object value)
+	// throws XmlRpcException, OdooApiException {
+	// FilterCollection filters = new FilterCollection();
+	// filters.add(fieldName, comparison, value);
+	// return searchAndReadObject(filters);
+	// }
+
+	protected abstract String getModelId();
+
 	protected abstract String[] getFields();
 }

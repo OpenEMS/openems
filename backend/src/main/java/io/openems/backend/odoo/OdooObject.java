@@ -14,6 +14,12 @@ import org.slf4j.LoggerFactory;
 import com.abercap.odoo.OdooApiException;
 import com.abercap.odoo.Row;
 
+/**
+ * Represents a record object in Odoo
+ *
+ * @author stefan.feilmeier
+ *
+ */
 public abstract class OdooObject {
 	private final Logger log = LoggerFactory.getLogger(OdooObject.class);
 	private Row row;
@@ -31,8 +37,30 @@ public abstract class OdooObject {
 		this.model = o.model;
 	}
 
+	/**
+	 * Gets the value of the given field
+	 *
+	 * @param fieldName
+	 * @return
+	 */
 	public Object get(String fieldName) {
 		return this.row.get(fieldName);
+	}
+
+	/**
+	 * Gets the value of the given field or a defaultValue (to avoid null)
+	 *
+	 * @param fieldName
+	 * @param defaultValue
+	 * @return
+	 */
+	public Object getOr(String fieldName, Object defaultValue) {
+		Object value = this.row.get(fieldName);
+		if (value == null) {
+			return defaultValue;
+		} else {
+			return value;
+		}
 	}
 
 	public void put(String fieldName, Object value) {
