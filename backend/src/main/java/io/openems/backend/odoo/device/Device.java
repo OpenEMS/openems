@@ -13,7 +13,6 @@ import io.openems.backend.odoo.OdooObject;
 
 public class Device extends OdooObject {
 	private WebSocket ws = null;
-	private String role = "guest";
 
 	public Device(OdooModel<?> model, Row row) {
 		super(model, row);

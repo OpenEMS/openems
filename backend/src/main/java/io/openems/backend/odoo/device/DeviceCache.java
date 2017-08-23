@@ -14,7 +14,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 
-import io.openems.backend.odoo.OdooProvider;
+import io.openems.backend.odoo.Odoo;
 
 /**
  * Caches information about all available devices.
@@ -28,13 +28,13 @@ public class DeviceCache {
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	// 1st: database id; 2nd: name; 3rd: Device
-	public BiMap<Integer, Device> devices = Maps.synchronizedBiMap(HashBiMap.create());
+	public BiMap<String, Device> devices = Maps.synchronizedBiMap(HashBiMap.create());
 
 	private Runnable refreshDeviceInfo = () -> {
 		log.info("Refresh device information from Odoo...");
 		try {
-			for (Device device : OdooProvider.getInstance().getDeviceModel().readAllObjects()) {
-				this.devices.put(device.getId(), device);
+			for (Device device : Odoo.instance().getDeviceModel().readAllObjects()) {
+				this.devices.put(device.getName(), device);
 				// TODO replace only if updated + send event
 			}
 		} catch (XmlRpcException | OdooApiException e) {
@@ -53,11 +53,8 @@ public class DeviceCache {
 	 * @param id
 	 * @return
 	 */
-	public Optional<Device> getDeviceForId(Integer id) {
-		if (id == null) {
-			return Optional.empty();
-		}
-		Device device = this.devices.get(id);
+	public Optional<Device> getDeviceForName(String deviceName) {
+		Device device = this.devices.get(deviceName);
 		if (device == null) {
 			return Optional.empty();
 		}
