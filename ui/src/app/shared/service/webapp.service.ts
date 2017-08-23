@@ -1,6 +1,7 @@
 import { Injectable, ErrorHandler } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs/Subject';
+import { Cookie } from 'ng2-cookies';
 
 import * as moment from 'moment';
 
@@ -40,21 +41,21 @@ export class WebappService implements ErrorHandler {
    * Gets the token for this id from localstorage
    */
   public getToken(id: string): string {
-    return localStorage.getItem(id + "_token");
+    return Cookie.get(id + "_token");
   }
 
   /**
    * Sets the token for this id in localstorage
    */
   public setToken(id: string, token: string) {
-    localStorage.setItem(id + "_token", token);
+    Cookie.set(id + "_token", token);
   }
 
   /**
    * Removes the token for this id from localstorage
    */
   public removeToken(id: string) {
-    localStorage.removeItem(id + "_token");
+    Cookie.delete(id + "_token");
   }
 
   /**

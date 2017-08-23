@@ -49,6 +49,7 @@
     "material-design-icons-iconfont": "3.0.3",
     "moment": "2.18.1",
     "ng2-charts": "^1.6.0",
+    "ng2-cookies": "^1.0.12",
     "queueing-subject": "^0.1.1",
     "roboto-fontface": "0.8.0",
     "rxjs": "^5.4.1",
