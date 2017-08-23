@@ -1,167 +1,36 @@
 package io.openems.backend.influx;
 
-import java.time.ZonedDateTime;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
-import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBFactory;
-import org.influxdb.dto.BatchPoints;
-import org.influxdb.dto.Point;
-import org.influxdb.dto.Point.Builder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-
-import io.openems.backend.utilities.JsonUtils;
-import io.openems.backend.utilities.OpenemsException;
-
+/**
+ * Provider for OpenemsWebsocketServer singleton
+ *
+ * @author stefan.feilmeier
+ *
+ */
 public class Influxdb {
 
-	private final Logger log = LoggerFactory.getLogger(Influxdb.class);
+	private static InfluxdbSingleton instance;
 
-	private String database;
-	private String url;
-	private int port;
-	private String username;
-	private String password;
-
-	private InfluxDB influxDB;
-	// 1st: fems; 2nd: channel; 3rd: value
-	private Table<String, String, Object> lastDataCache = Tables.synchronizedTable(HashBasedTable.create());
-	// fems : timestamp
-	private Map<String, Long> lastTimestampMap = new ConcurrentHashMap<String, Long>();
-
-	protected Influxdb(String database, String url, int port, String username, String password) throws Exception {
-		this.database = database;
-		this.url = url;
-		this.port = port;
-		this.username = username;
-		this.password = password;
-		this.connect();
-	}
-
-	private void connect() throws Exception {
-		InfluxDB influxDB = InfluxDBFactory.connect("http://" + url + ":" + port, username, password);
-		this.influxDB = influxDB;
-		try {
-			influxDB.ping();
-		} catch (RuntimeException e) {
-			log.error("Unable to connect to InfluxDB: " + e.getMessage());
-			throw new Exception(e.getMessage());
+	/**
+	 * Initialize InfluxDB object
+	 *
+	 * @param port
+	 * @throws Exception
+	 */
+	public static void initialize(String database, String url, int port, String username, String password)
+			throws Exception {
+		if (database == null || url == null || username == null || password == null) {
+			throw new Exception("Config missing: database [" + database + "], url [" + url + "], port [" + port
+					+ "] username [" + username + "], password [" + password + "]");
 		}
-		/*
-		 * try {
-		 * influxDB.createDatabase(DB_NAME);
-		 * } catch (RuntimeException e) {
-		 * log.error("Unable to create InfluxDB database: " + DB_NAME);
-		 * throw new Exception(e.getMessage());
-		 * }
-		 */
+		Influxdb.instance = new InfluxdbSingleton(database, url, port, username, password);
 	}
 
 	/**
-	 * Takes a JsonObject and writes the points to influxDB.
+	 * Returns the singleton instance
 	 *
-	 * Format: { "timestamp1" { "channel1": value, "channel2": value },
-	 * "timestamp2" { "channel1": value, "channel2": value } }
+	 * @return
 	 */
-	public void write(String fems, JsonObject jData) {
-		final Long lastTimestamp = this.lastTimestampMap.getOrDefault(fems, 0l);
-
-		BatchPoints batchPoints = BatchPoints.database(database) //
-				.tag("fems", fems) //
-				.build();
-
-		// Sort data by timestamp
-		TreeMap<Long, JsonObject> data = new TreeMap<Long, JsonObject>();
-		jData.entrySet().forEach(timestampEntry -> {
-			String timestampString = timestampEntry.getKey();
-			Long timestamp = Long.valueOf(timestampString);
-			JsonObject jChannels;
-			try {
-				jChannels = JsonUtils.getAsJsonObject(timestampEntry.getValue());
-				data.put(timestamp, jChannels);
-			} catch (OpenemsException e) {
-				log.error("Data error: " + e.getMessage());
-			}
-		});
-
-		// Prepare data for writing to InfluxDB
-		data.entrySet().forEach(dataEntry -> {
-			Long timestamp = dataEntry.getKey();
-			// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
-			boolean useLastDataCache = timestamp > lastTimestamp && timestamp < lastTimestamp + 60000;
-			this.lastTimestampMap.put(fems, timestamp);
-			Builder builder = Point.measurement("data") // this builds a InfluxDB record ("point") for a given timestamp
-					.time(timestamp, TimeUnit.MILLISECONDS);
-
-			JsonObject jChannels = dataEntry.getValue();
-			if (jChannels.entrySet().size() > 0) {
-				jChannels.entrySet().forEach(channelEntry -> {
-					String channel = channelEntry.getKey();
-					JsonPrimitive jValue;
-					try {
-						jValue = JsonUtils.getAsPrimitive(channelEntry.getValue());
-						if (jValue.isNumber()) {
-							Number value = jValue.getAsNumber();
-							builder.addField(channel, value);
-							if (useLastDataCache) {
-								this.lastDataCache.put(fems, channel, value);
-							}
-
-						} else if (jValue.isString()) {
-							String value = jValue.getAsString();
-							builder.addField(channel, value);
-							if (useLastDataCache) {
-								this.lastDataCache.put(fems, channel, value);
-							}
-
-						} else {
-							log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel + "]");
-						}
-					} catch (OpenemsException e) {
-						log.error("Data error: " + e.getMessage());
-					}
-
-				});
-
-				// only for latest data: add the cached data to the InfluxDB point.
-				if (useLastDataCache) {
-					this.lastDataCache.row(fems).entrySet().forEach(cacheEntry -> {
-						String field = cacheEntry.getKey();
-						Object value = cacheEntry.getValue();
-						if (value instanceof Number) {
-							builder.addField(field, (Number) value);
-						} else if (value instanceof String) {
-							builder.addField(field, (String) value);
-						} else {
-							log.warn("Unknown type in InfluxDB. This should never happen.");
-						}
-					});
-				}
-
-				// add the point to the batch
-				batchPoints.point(builder.build());
-			}
-		});
-		// write to DB
-		influxDB.write(batchPoints);
-
-	}
-
-	public JsonObject query(int _fems, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
-			int resolution/* , JsonObject kWh */) throws OpenemsException {
-		Optional<Integer> fems = Optional.of(_fems);
-		Optional<InfluxDB> influxdb = Optional.of(influxDB);
-		return InfluxdbQueryWrapper.query(influxdb, fems, fromDate, toDate, channels, resolution/* , kWh */);
+	public static synchronized InfluxdbSingleton instance() {
+		return Influxdb.instance;
 	}
 }

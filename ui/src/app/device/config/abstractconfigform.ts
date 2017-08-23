@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Subject } from 'rxjs/Subject';
 
-import { WebsocketService, Device } from '../../shared/shared';
+import { Websocket, Device } from '../../shared/shared';
 
 export type ConfigureRequestModeType = "update" | "create" | "delete";
 export class ConfigureRequest {
@@ -35,11 +35,11 @@ export abstract class AbstractConfigForm implements OnDestroy, OnInit {
   protected ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
-    protected websocketService: WebsocketService,
+    protected websocket: Websocket,
   ) { }
 
   ngOnInit() {
-    this.websocketService.currentDevice.takeUntil(this.ngUnsubscribe).subscribe(device => {
+    this.websocket.currentDevice.takeUntil(this.ngUnsubscribe).subscribe(device => {
       this.device.next(device);
     });
   }

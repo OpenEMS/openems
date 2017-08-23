@@ -6,7 +6,7 @@ import * as moment from 'moment';
 
 import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, Summary } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
-import { TemplateHelper } from './../../../../shared/service/templatehelper';
+import { Utils } from './../../../../shared/service/utils';
 
 // spinner component
 import { SpinnerComponent } from '../../../../shared/spinner.component';
@@ -24,7 +24,7 @@ export class EnergyChartComponent implements OnChanges {
   @ViewChild('energyChart') private chart: BaseChartDirective;
 
   constructor(
-    private tmpl: TemplateHelper,
+    private utils: Utils,
     private translate: TranslateService
   ) {
     this.grid = this.translate.instant('General.Grid');
@@ -55,7 +55,7 @@ export class EnergyChartComponent implements OnChanges {
   private options: ChartOptions;
 
   ngOnInit() {
-    let options = <ChartOptions>this.tmpl.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = <ChartOptions>this.utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;

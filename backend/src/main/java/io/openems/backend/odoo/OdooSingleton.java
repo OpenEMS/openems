@@ -20,13 +20,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.backend.browserwebsocket.DeviceInfo;
 import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.browserwebsocket.session.BrowserSessionData;
 import io.openems.backend.odoo.device.DeviceCache;
 import io.openems.backend.odoo.device.DeviceModel;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.SessionData;
+import io.openems.common.types.Device;
 import io.openems.common.utils.JsonUtils;
 
 public class OdooSingleton {
@@ -160,12 +160,12 @@ public class OdooSingleton {
 						JsonObject jResult = JsonUtils.getAsJsonObject(j, "result");
 						data.setUserId(JsonUtils.getAsInt(jResult, "user"));
 						JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
-						List<DeviceInfo> deviceInfos = new ArrayList<>();
+						List<Device> deviceInfos = new ArrayList<>();
 						for (JsonElement jDevice : jDevices) {
-							deviceInfos.add(new DeviceInfo(JsonUtils.getAsString(jDevice, "name"),
+							deviceInfos.add(new Device(JsonUtils.getAsString(jDevice, "name"),
 									JsonUtils.getAsString(jDevice, "role")));
 						}
-						data.setDeviceInfos(deviceInfos);
+						data.setDevices(deviceInfos);
 						session.setValid();
 						return;
 					}

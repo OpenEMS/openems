@@ -8,38 +8,30 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { environment } from '../../environments';
 
-import { WebappService, WebsocketService, Websocket, Notification, TemplateHelper } from '../shared/shared';
+import { Service, Websocket, Notification, Utils } from '../shared/shared';
 
 @Component({
   selector: 'overview',
   templateUrl: './overview.component.html'
 })
 export class OverviewComponent implements OnInit, OnDestroy {
-
-  public forms: FormGroup[] = [];
+  public env = environment;
+  public form: FormGroup;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
-    private websocketService: WebsocketService,
-    private webappService: WebappService,
-    private tmpl: TemplateHelper,
-    private router: Router,
-    private formBuilder: FormBuilder,
-    private translate: TranslateService) {
+    private websocket: Websocket,
+    private utils: Utils,
+    private translate: TranslateService,
+    formBuilder: FormBuilder) {
+    this.form = formBuilder.group({
+      "password": formBuilder.control('user')
+    });
   }
 
   ngOnInit() {
-    this.websocketService.clearCurrentDevice();
-    for (let websocketName in this.websocketService.websockets) {
-      let websocket = this.websocketService.websockets[websocketName];
-      websocket.event.takeUntil(this.ngUnsubscribe).subscribe(notification => this.websocketEvent(notification));
-      let form: FormGroup = this.formBuilder.group({
-        "password": this.formBuilder.control('user')
-      });
-      form['_websocket'] = websocket;
-      this.forms.push(form);
-    }
+    this.websocket.clearCurrentDevice();
   }
 
   ngOnDestroy() {
@@ -47,39 +39,12 @@ export class OverviewComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  doLogin(form: FormGroup) {
-    let websocket: Websocket = form['_websocket'];
-    let password: string = form.value['password'];
-    websocket.connectWithPassword(password);
+  doLogin() {
+    let password: string = this.form.value['password'];
+    this.websocket.connectWithPassword(password);
   }
 
   doLogout(form: FormGroup) {
-    let websocket: Websocket = form['_websocket'];
-    websocket.isConnected = false;
-    websocket.close();
-  }
-
-  websocketEvent(notification: Notification) {
-    let allConnected = true;
-    let noOfConnectedDevices = 0;
-    let lastDevice = null;
-    for (let websocketName in this.websocketService.websockets) {
-      let websocket = this.websocketService.websockets[websocketName];
-      if (websocket.isConnected) {
-        for (let deviceName in websocket.devices) {
-          noOfConnectedDevices++;
-          lastDevice = websocket.devices[deviceName];
-        }
-      } else {
-        allConnected = false;
-        break;
-      }
-    }
-    if (allConnected) {
-      this.webappService.notify({
-        type: "success",
-        message: this.translate.instant('Overview.AllConnected')
-      });
-    }
+    this.websocket.close();
   }
 }

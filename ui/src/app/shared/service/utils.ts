@@ -1,25 +1,23 @@
+import { Websocket } from './websocket';
 import { Injectable } from '@angular/core';
-import { WebsocketService } from './websocket.service'
 
 @Injectable()
-export class TemplateHelper {
+export class Utils {
 
-  constructor(
-    private websocketService: WebsocketService
-  ) { }
+  constructor(private websocket: Websocket) { }
 
   /**
    * Helps to use an object inside an *ngFor loop. Returns the object keys.
    * Source: https://stackoverflow.com/a/39896058
    */
-  keys(object: {}): string[] {
+  public keys(object: {}): string[] {
     return Object.keys(object);
   }
 
   /**
    * Helps to use an object inside an *ngFor loop. Returns the object key value pairs.
    */
-  keyvalues(object: {}): any[] | {} {
+  public keyvalues(object: {}): any[] | {} {
     if (!object) {
       return object;
     }
@@ -34,7 +32,7 @@ export class TemplateHelper {
    * Helps to use an object inside an *ngFor loop. Returns the object values.
    * Source: https://stackoverflow.com/a/39896058
    */
-  values(object: {}): any[] {
+  public values(object: {}): any[] {
     let values = [];
     for (let key in object) {
       values.push(object[key]);
@@ -45,7 +43,7 @@ export class TemplateHelper {
   /**
    * Returns true if an object has a property
    */
-  has(object: {}, property: string): boolean {
+  public has(object: {}, property: string): boolean {
     if (property in object) {
       return true;
     } else {
@@ -56,7 +54,7 @@ export class TemplateHelper {
   /**
    * Returns a sorted array
    */
-  sort(obj: any[], ascending: boolean = true, property?: string) {
+  public sort(obj: any[], ascending: boolean = true, property?: string) {
     if (obj == null) {
       return obj;
     }
@@ -81,7 +79,7 @@ export class TemplateHelper {
   /**
    * Returns the short classname
    */
-  classname(value): string {
+  public classname(value): string {
     let parts = value.split(".");
     return parts[parts.length - 1];
   }
@@ -89,7 +87,7 @@ export class TemplateHelper {
   /**
    * Creates a deep copy of the object
    */
-  deepCopy(obj) {
+  public deepCopy(obj) {
     var copy;
 
     // Handle the 3 simple types, and null or undefined
@@ -126,9 +124,9 @@ export class TemplateHelper {
   /**
    * Receive meta information for thing/channel/...
    */
-  meta(identifier: string, type: 'controller' | 'channel'): {} {
+  public meta(identifier: string, type: 'controller' | 'channel'): {} {
     let property = type == 'controller' ? 'availableControllers' : type;
-    let device = this.websocketService.currentDevice.getValue();
+    let device = this.websocket.currentDevice.getValue();
     if (device) {
       let config = device.config.getValue();
       let meta = config._meta[property];

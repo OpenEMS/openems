@@ -28,7 +28,7 @@ import io.openems.backend.influx.Influxdb;
 import io.openems.backend.odoo.Odoo;
 import io.openems.backend.utilities.StringUtils;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.session.Session;
+import io.openems.common.types.Device;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
@@ -89,7 +89,12 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 			JsonObject jReply;
 			BrowserSessionData data = session.getData();
 			if (session.isValid()) {
-				jReply = DefaultMessages.connectionSuccessfulReply(session.getToken());
+				// add isOnline information
+				for (Device device : data.getDevices()) {
+					device.setOnline(false); // TODO match with OpenemsWebsocket
+				}
+
+				jReply = DefaultMessages.connectionSuccessfulReply(session.getToken(), data.getDevices());
 				log.info("Browser connected. User [" + data.getUserId().orElse(0) + "] Session ["
 						+ data.getOdooSessionId().orElse("") + "]");
 			} else {
@@ -158,9 +163,6 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 		/*
 		 * Check validity of Session
 		 */
-		Session session = this.websockets.get(websocket);
-		log.info("Session: " + session);
-
 		//
 		// if (jMessage.has("device")) {
 		// String deviceName = JsonUtils.getAsString(jMessage, "device");

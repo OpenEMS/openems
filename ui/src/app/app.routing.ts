@@ -20,20 +20,21 @@ const appRoutes: Routes = [
 
   { path: 'about', component: AboutComponent },
 
-  { path: 'device/:websocket/:device', redirectTo: 'device/:websocket/:device/overview', pathMatch: 'full' },
-  { path: 'device/:websocket/:device/overview', component: DeviceOverviewComponent },
-  { path: 'device/:websocket/:device/history', component: DeviceHistoryComponent },
-  { path: 'device/:websocket/:device/log', component: DeviceConfigLogComponent },
+  { path: 'device/:device', redirectTo: 'device/:device/overview', pathMatch: 'full' },
+  { path: 'device/:device/overview', component: DeviceOverviewComponent },
+  { path: 'device/:device/history', component: DeviceHistoryComponent },
+  { path: 'device/:device/log', component: DeviceConfigLogComponent },
 
-  { path: 'device/:websocket/:device/config', redirectTo: 'device/:websocket/:device/config/overview', pathMatch: 'full' },
-  { path: 'device/:websocket/:device/config/overview', component: DeviceConfigOverviewComponent },
-  { path: 'device/:websocket/:device/config/bridge', component: DeviceConfigBridgeComponent },
-  { path: 'device/:websocket/:device/config/scheduler', component: DeviceConfigSchedulerComponent },
-  { path: 'device/:websocket/:device/config/more', component: DeviceConfigMoreComponent },
+  /* TODO: update Odoo direct monitoring links to reflect path changes */
+  { path: 'device/:device/config', redirectTo: 'device/:device/config/overview', pathMatch: 'full' },
+  { path: 'device/:device/config/overview', component: DeviceConfigOverviewComponent },
+  { path: 'device/:device/config/bridge', component: DeviceConfigBridgeComponent },
+  { path: 'device/:device/config/scheduler', component: DeviceConfigSchedulerComponent },
+  { path: 'device/:device/config/more', component: DeviceConfigMoreComponent },
 
-  { path: 'device/:websocket/:device/config/controller', redirectTo: 'device/:websocket/:device/config/controller/overview', pathMatch: 'full' },
-  { path: 'device/:websocket/:device/config/controller/overview', component: DeviceControllerOverviewComponent },
-  { path: 'device/:websocket/:device/config/simulator', component: DeviceConfigSimulatorComponent },
+  { path: 'device/:device/config/controller', redirectTo: 'device/:device/config/controller/overview', pathMatch: 'full' },
+  { path: 'device/:device/config/controller/overview', component: DeviceControllerOverviewComponent },
+  { path: 'device/:device/config/simulator', component: DeviceConfigSimulatorComponent },
 
 ];
 

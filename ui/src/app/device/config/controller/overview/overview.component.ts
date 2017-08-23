@@ -3,8 +3,8 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormBuilder } from '@angular/forms';
 import { Subject } from 'rxjs/Subject';
 
-import { TemplateHelper } from './../../../../shared/service/templatehelper';
-import { WebsocketService, Device } from '../../../../shared/shared';
+import { Utils } from './../../../../shared/service/utils';
+import { Websocket, Device } from '../../../../shared/shared';
 import { Controller } from '../controller';
 
 @Component({
@@ -21,13 +21,13 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private websocketService: WebsocketService,
+    private websocket: Websocket,
     private formBuilder: FormBuilder,
-    private tmpl: TemplateHelper
+    private utils: Utils
   ) { }
 
   ngOnInit() {
-    this.websocketService.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
+    this.websocket.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
       this.device = device;
       if (device != null) {
         device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {

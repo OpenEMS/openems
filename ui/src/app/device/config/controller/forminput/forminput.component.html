@@ -4,7 +4,7 @@
         <ng-container *ngIf="specialType; else no_special_type">
             <!-- Select from nature list -->
             <select *ngIf="specialType == 'selectNature'; else no_select" [formControlName]="controlName" fxFlex>
-                <ng-container *ngFor="let nature of tmpl.keyvalues(allMeta.natures)">
+                <ng-container *ngFor="let nature of utils.keyvalues(allMeta.natures)">
                     <ng-container *ngFor="let natureImplement of nature.value.implements">
                         <option *ngIf="natureImplement == type" [value]="nature.key">{{ nature.key }}</option>
                     <!-- TODO check if nature.key is already in this array -->
@@ -26,7 +26,7 @@
                 <p *ngIf="showTitle" fxFlex="100px">{{ meta.title }}</p>
                 <select fxFlex [formControlName]="controlName" fxFlex>
                 <option value=""></option>
-                <ng-container *ngFor="let nature of tmpl.keyvalues(allMeta.natures)">
+                <ng-container *ngFor="let nature of utils.keyvalues(allMeta.natures)">
                     <ng-container *ngFor="let natureImplement of nature.value.implements">
                         <option *ngIf="natureImplement == type" [value]="nature.key">{{ nature.key }}</option>
                         <!-- TODO check if nature.key is already in this array -->

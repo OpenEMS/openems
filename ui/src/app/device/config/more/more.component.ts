@@ -3,7 +3,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
-import { WebsocketService, WebappService, Device } from '../../../shared/shared';
+import { Websocket, Service, Device } from '../../../shared/shared';
 
 @Component({
   selector: 'more',
@@ -18,13 +18,13 @@ export class MoreComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private websocketService: WebsocketService,
-    private webappService: WebappService,
+    private websocket: Websocket,
+    private webappService: Service,
     private formBuilder: FormBuilder
   ) { }
 
   ngOnInit() {
-    this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
+    this.deviceSubscription = this.websocket.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
     })
     this.manualMessageForm = this.formBuilder.group({

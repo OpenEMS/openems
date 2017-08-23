@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import io.openems.backend.browserwebsocket.DeviceInfo;
 import io.openems.common.session.SessionData;
+import io.openems.common.types.Device;
 
 public class BrowserSessionData extends SessionData {
 	private Optional<Integer> userId = Optional.empty();
 	private Optional<String> odooSessionId = Optional.empty();
-	private List<DeviceInfo> deviceInfos = new ArrayList<>();
+	private List<Device> devices = new ArrayList<>();
 
 	public Optional<String> getOdooSessionId() {
 		return odooSessionId;
@@ -20,8 +20,8 @@ public class BrowserSessionData extends SessionData {
 		this.odooSessionId = Optional.ofNullable(odooSessionId);
 	}
 
-	public void setDeviceInfos(List<DeviceInfo> deviceInfos) {
-		this.deviceInfos = deviceInfos;
+	public void setDevices(List<Device> deviceInfos) {
+		this.devices = deviceInfos;
 	}
 
 	public void setUserId(Integer userId) {
@@ -32,7 +32,7 @@ public class BrowserSessionData extends SessionData {
 		return userId;
 	}
 
-	public List<DeviceInfo> getDeviceInfos() {
-		return deviceInfos;
+	public List<Device> getDevices() {
+		return devices;
 	}
 }

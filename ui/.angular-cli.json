@@ -28,13 +28,10 @@
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {
-        "femsserver": "environments/femsserver.ts",
-        "femsserver-dev": "environments/femsserver-dev.ts",
-        "femsserver-local": "environments/femsserver-local.ts",
-        "openems": "environments/openems.ts",
-        "dev": "environments/environment.ts",
-        "project-VA6403": "environments/project-VA6403.ts",
-        "project-VA7282": "environments/project-VA7282.ts"
+        "backend": "environments/openems-backend.ts",
+        "backend-dev": "environments/openems-backend-dev.ts",
+        "edge": "environments/openems-edge.ts",
+        "dev": "environments/environment.ts"
       }
     }
   ],

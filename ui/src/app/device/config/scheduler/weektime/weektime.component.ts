@@ -3,7 +3,7 @@ import { AbstractControl, FormArray, FormGroup, FormBuilder } from '@angular/for
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
-import { WebsocketService } from '../../../../shared/shared';
+import { Websocket } from '../../../../shared/shared';
 import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest, ConfigureDeleteRequest } from '../../abstractconfig';
 import { AbstractConfigForm } from '../../abstractconfigform';
 
@@ -22,11 +22,11 @@ export class WeekTimeComponent extends AbstractConfigForm {
   public config: FormGroup;
 
   constructor(
-    public websocketService: WebsocketService,
+    public websocket: Websocket,
     private formBuilder: FormBuilder,
     private translate: TranslateService
   ) {
-    super(websocketService);
+    super(websocket);
   }
 
   public days: Day[] = [{

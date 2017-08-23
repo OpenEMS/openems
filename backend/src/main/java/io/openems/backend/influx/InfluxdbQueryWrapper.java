@@ -24,8 +24,8 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.utilities.Address;
-import io.openems.backend.utilities.JsonUtils;
-import io.openems.backend.utilities.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
 
 public class InfluxdbQueryWrapper {
 

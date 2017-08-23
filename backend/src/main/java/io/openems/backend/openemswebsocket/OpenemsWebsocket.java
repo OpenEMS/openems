@@ -6,9 +6,9 @@ package io.openems.backend.openemswebsocket;
  * @author stefan.feilmeier
  *
  */
-public class OpenemsWebsocketProvider {
+public class OpenemsWebsocket {
 
-	private static OpenemsWebsocketServer instance;
+	private static OpenemsWebsocketSingleton instance;
 
 	/**
 	 * Initialize and start the Websocketserver
@@ -17,8 +17,8 @@ public class OpenemsWebsocketProvider {
 	 * @throws Exception
 	 */
 	public static synchronized void initialize(int port) throws Exception {
-		OpenemsWebsocketProvider.instance = new OpenemsWebsocketServer(port);
-		OpenemsWebsocketProvider.instance.start();
+		OpenemsWebsocket.instance = new OpenemsWebsocketSingleton(port);
+		OpenemsWebsocket.instance.start();
 	}
 
 	/**
@@ -26,7 +26,7 @@ public class OpenemsWebsocketProvider {
 	 *
 	 * @return
 	 */
-	public static synchronized OpenemsWebsocketServer getInstance() {
-		return OpenemsWebsocketProvider.instance;
+	public static synchronized OpenemsWebsocketSingleton getInstance() {
+		return OpenemsWebsocket.instance;
 	}
 }

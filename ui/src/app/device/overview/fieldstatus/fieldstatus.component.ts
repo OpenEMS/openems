@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subject } from 'rxjs/Subject';
 
-import { WebsocketService, Device, Data, Config, TemplateHelper } from '../../../shared/shared';
+import { Websocket, Device, Data, Config, Utils } from '../../../shared/shared';
 import { CustomFieldDefinition } from '../../../shared/type/customfielddefinition';
 
 @Component({
@@ -17,5 +17,5 @@ export class FieldstatusComponent {
   @Input()
   public fielddefinition: CustomFieldDefinition;
 
-  constructor(public tmpl: TemplateHelper) { }
+  constructor(public utils: Utils) { }
 }

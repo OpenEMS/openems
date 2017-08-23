@@ -3,7 +3,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 
-import { WebsocketService, Device, Log } from '../../../shared/shared';
+import { Websocket, Device, Log } from '../../../shared/shared';
 import { AbstractConfig, ConfigureRequest } from '../abstractconfig';
 import 'rxjs/add/operator/retryWhen';
 import 'rxjs/add/operator/delay';
@@ -34,10 +34,10 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
 
   constructor(
     route: ActivatedRoute,
-    websocketService: WebsocketService,
+    websocket: Websocket,
     formBuilder: FormBuilder,
   ) {
-    super(route, websocketService, formBuilder);
+    super(route, websocket, formBuilder);
   }
 
   keys(object: {}) {

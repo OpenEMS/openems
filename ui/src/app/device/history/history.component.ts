@@ -7,7 +7,7 @@ import * as d3shape from 'd3-shape';
 import * as moment from 'moment';
 import { TranslateService } from '@ngx-translate/core';
 
-import { WebsocketService, Device, ChannelAddresses } from '../../shared/shared';
+import { Websocket, Device, ChannelAddresses } from '../../shared/shared';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherTimespan";
 
@@ -28,13 +28,13 @@ export class HistoryComponent implements OnInit {
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
-    public websocketService: WebsocketService,
+    public websocket: Websocket,
     private route: ActivatedRoute,
     private translate: TranslateService
   ) { }
 
   ngOnInit() {
-    this.websocketService.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
+    this.websocket.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
       this.device = device;
       if (device != null) {
         device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {

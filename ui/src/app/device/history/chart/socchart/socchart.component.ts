@@ -6,7 +6,7 @@ import * as moment from 'moment';
 
 import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, ChannelAddresses } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions } from './../shared';
-import { TemplateHelper } from './../../../../shared/service/templatehelper';
+import { Utils } from './../../../../shared/service/utils';
 
 // spinner component
 import { SpinnerComponent } from '../../../../shared/spinner.component';
@@ -25,7 +25,7 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('socChart') private chart: BaseChartDirective;
 
   constructor(
-    private tmpl: TemplateHelper,
+    private utils: Utils,
     private translate: TranslateService
   ) { }
 
@@ -53,7 +53,7 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
   private options: ChartOptions;
 
   ngOnInit() {
-    let options = <ChartOptions>this.tmpl.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = <ChartOptions>this.utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;

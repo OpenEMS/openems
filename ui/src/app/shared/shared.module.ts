@@ -19,9 +19,9 @@ import { routing, appRoutingProviders } from './../app.routing';
 /*
  * Services
  */
-import { WebappService, Notification } from './service/webapp.service';
-import { WebsocketService, Websocket } from './service/websocket.service';
-import { TemplateHelper } from './service/templatehelper';
+import { Service, Notification } from './service/service';
+import { Websocket } from './service/websocket';
+import { Utils } from './service/utils';
 
 /*
  * Pipes
@@ -84,9 +84,9 @@ import { SpinnerComponent } from './spinner.component';
     SpinnerComponent
   ],
   providers: [
-    TemplateHelper,
-    WebappService,
-    WebsocketService,
+    Utils,
+    Service,
+    Websocket,
     appRoutingProviders,
     MdSnackBar,
     SpinnerComponent

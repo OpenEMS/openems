@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
-import { WebsocketService, Device, Log } from '../../../shared/shared';
+import { Websocket, Device, Log } from '../../../shared/shared';
 
 import * as moment from 'moment';
 
@@ -22,11 +22,11 @@ export class LogComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private websocketService: WebsocketService,
+    private websocket: Websocket,
   ) { }
 
   ngOnInit() {
-    this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
+    this.deviceSubscription = this.websocket.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
       this.device = device;
       if (this.device != null) {
         this.subscribeLog();

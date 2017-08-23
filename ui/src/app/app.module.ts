@@ -15,7 +15,7 @@ import { DeviceModule } from './device/device.module';
 import { AppComponent } from './app.component';
 
 // services
-import { WebappService, WebsocketService } from './shared/shared';
+import { Websocket, Service } from './shared/shared';
 import { MyTranslateLoader } from './shared/translate/translate';
 
 @NgModule({
@@ -39,7 +39,7 @@ import { MyTranslateLoader } from './shared/translate/translate';
     MdSnackBar,
     {
       provide: ErrorHandler,
-      useExisting: WebappService
+      useExisting: Service
     }
   ]
 })

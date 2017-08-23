@@ -1,8 +1,8 @@
-package io.openems.backend.browserwebsocket;
+package io.openems.common.types;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.odoo.info.Role;
+import io.openems.common.session.Role;
 
 /**
  * Helper class to store tuple of device name and role
@@ -10,11 +10,12 @@ import io.openems.backend.odoo.info.Role;
  * @author stefan.feilmeier
  *
  */
-public class DeviceInfo {
+public class Device {
 	private final String name;
 	private final Role role;
-
-	public DeviceInfo(String name, String role) {
+	private boolean online = false;
+	
+	public Device(String name, String role) {
 		this.name = name;
 		this.role = Role.getRole(role);
 	}
@@ -26,11 +27,12 @@ public class DeviceInfo {
 	public Role getRole() {
 		return role;
 	}
-
-	public JsonObject toJsonObject() {
-		JsonObject j = new JsonObject();
-		j.addProperty("name", this.name);
-		j.addProperty("role", this.role.toString());
-		return j;
+	
+	public void setOnline(boolean online) {
+		this.online = online;
+	}
+	
+	public boolean isOnline() {
+		return online;
 	}
 }

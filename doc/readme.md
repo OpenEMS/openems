@@ -2,9 +2,140 @@
 
 This chapter explains the communication protocol used between the different components.
 
-## [1] Client (Browser) <-> Backend (OpenEMS/FemsServer)
+## [1] Client (Browser) <-> OpenEMS Edge/OpenEMS Backend
 
 ### [1.1] Authenticate
+
+[1.1.1] Authenticate Client -> OpenEMS Backend
+
+[1.1.1.1] Automatic
+
+Using cookie information (session_id + token)
+
+[1.1.1.1] Manual login
+
+currently forwarded to Odoo login page
+
+[1.1.2] Authenticate Client -> OpenEMS Edge
+
+//TODO
+
+[1.1.3] Authentication reply
+
+[1.1.3.1] Authentication successful
+
+```
+{
+	authenticate: {
+		mode: "allow",
+		token: String,
+		role: "admin" | "installer" | "owner" | "guest"
+	}, metadata: {
+		user: {
+			id: Integer
+		},
+		devices: [{
+			name: String,
+			role: "admin" | "installer" | "owner" | "guest",
+			online: boolean
+		}]
+	}
+}
+```
+
+- authenticate.role is only sent for OpenEMS Edge
+- metadata.devices is only sent for OpenEMS Backend
+
+[1.1.3.2] Authentication failed
+{
+	authenticate: {
+		mode: deny
+	}
+}
+
+// TODO rework from here...
+
+
+
+
+
+
+[1.1.1] Authenticate Client -> Backend
+
+```
+{
+	authenticate: {
+		mode: login,
+		[password: "...",]
+		[token: "..."]
+	}
+}
+```
+
+
+
+
+
+
+[1.1.1] Client -> OpenEMS Backend
+
+Cookie: session_id
+
+[1.1.1.1] OpenEMS Backend -> Odoo
+
+[1.1.1.1.1] Authenticate
+Cookie: session_id
+
+[1.1.1.1.2] Odoo reply on success
+```
+{
+	result: {
+		user: Integer,
+		devices: [{
+			name: String,
+			role: ADMIN | INSTALLER | OWNER | GUEST
+		}]
+	}
+}
+```
+
+[1.1.1.1.3] Odoo reply on error
+```
+{ error }
+// TODO
+```
+
+#### [1.1.2] At OpenEMS
+
+
+
+
+
+
+[1.1.2.2] Reply
+```
+successful
+{
+	authenticate: {
+		mode: allow, username, token
+	}, metadata: {
+		config: {},
+		backend: "openems"
+	}
+}
+failed
+{
+	authenticate: {
+		mode: deny
+	}
+}
+```
+
+
+
+
+
+
 
 #### [1.1.1] At FemsServer
 
@@ -64,6 +195,16 @@ failed
 	authenticate: {
 		mode: deny
 	}
+}
+```
+
+### [1.2] Connect to device
+
+#### [1.2.1] At FemsServer
+```
+{
+	device: "...",
+	connect: true
 }
 ```
 
