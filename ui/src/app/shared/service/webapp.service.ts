@@ -23,7 +23,7 @@ export class WebappService implements ErrorHandler {
     public translate: TranslateService
   ) {
     // add language
-    translate.addLangs(["de", "en", "cz"]);
+    translate.addLangs(["de", "en", "cz", "nl"]);
     // this language will be used as a fallback when a translation isn't found in the current language
     translate.setDefaultLang('de');
   }
@@ -31,7 +31,7 @@ export class WebappService implements ErrorHandler {
   /**
    * Sets the application language
    */
-  public setLang(id: 'de' | 'en' | 'cz') {
+  public setLang(id: 'de' | 'en' | 'cz' | 'nl') {
     this.translate.use(id);
     moment.locale(id);
   }
