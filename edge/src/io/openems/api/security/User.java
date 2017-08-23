@@ -36,8 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.exception.OpenemsException;
+import io.openems.common.utils.SecureRandomSingleton;
 import io.openems.core.Config;
-import io.openems.core.utilities.SecureRandomSingleton;
 
 public enum User {
 	/*

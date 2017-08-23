@@ -23,7 +23,7 @@ package io.openems.api.security;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-import io.openems.core.utilities.SecureRandomSingleton;
+import io.openems.common.utils.SecureRandomSingleton;
 
 public class Session {
 
