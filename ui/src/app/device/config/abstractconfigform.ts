@@ -39,9 +39,10 @@ export abstract class AbstractConfigForm implements OnDestroy, OnInit {
   ) { }
 
   ngOnInit() {
-    this.websocket.currentDevice.takeUntil(this.ngUnsubscribe).subscribe(device => {
-      this.device.next(device);
-    });
+    // TODO
+    // this.websocket.currentDevice.takeUntil(this.ngUnsubscribe).subscribe(device => {
+    //   this.device.next(device);
+    // });
   }
 
   ngOnDestroy() {

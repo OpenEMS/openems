@@ -27,16 +27,19 @@ export class OverviewComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.websocket.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
-      this.device = device;
-      if (device != null) {
-        device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-          if (config != null) {
-            this.controllers = Controller.getControllers(config, this.formBuilder);
-          }
-        });
-      }
-    });
+    //this.websocket.setCurrentDevice(this.route.snapshot.params);
+
+    // TODO
+    // this.websocket.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
+    //   this.device = device;
+    //   if (device != null) {
+    //     device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
+    //       if (config != null) {
+    //         this.controllers = Controller.getControllers(config, this.formBuilder);
+    //       }
+    //     });
+    //   }
+    // });
   }
 
   ngOnDestroy() {

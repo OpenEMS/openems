@@ -24,13 +24,14 @@ export class HistoryComponent implements OnInit, OnDestroy {
   private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   ngOnInit() {
-    if (this.device != null) {
-      this.loading = true;
-      this.device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-        this.socChannels = config.getEssSocChannels();
-        this.loading = false;
-      });
-    }
+    // TODO
+    // if (this.device != null) {
+    //   this.loading = true;
+    //   this.device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
+    //     this.socChannels = config.getEssSocChannels();
+    //     this.loading = false;
+    //   });
+    // }
   }
 
   ngOnDestroy() {

@@ -133,6 +133,7 @@ public class WebsocketHandler {
 	 * Message event of websocket. Handles a new message.
 	 */
 	public void onMessage(JsonObject jMessage) {
+		log.info(jMessage.toString());
 		/*
 		 * Get unique request id
 		 */

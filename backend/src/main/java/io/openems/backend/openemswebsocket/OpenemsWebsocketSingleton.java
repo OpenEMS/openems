@@ -141,13 +141,15 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 	public void onMessage(WebSocket websocket, String message) {
 		Device device = websockets.get(websocket).getData().getDevice();
 		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-		log.info(jMessage.toString());
 
 		/*
 		 * New timestamped data
 		 */
 		if (jMessage.has("timedata")) {
 			timedata(device, jMessage.get("timedata"));
+		} else {
+
+			log.info(jMessage.toString());
 		}
 
 		// /*
@@ -170,13 +172,13 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 		// if (jMessage.has("metadata")) {
 		// metadata(device, websocket, jMessage.get("metadata"));
 		// }
-		//
-		// // Save data to Odoo
-		// try {
-		// device.writeObject();
-		// } catch (OdooApiException | XmlRpcException e) {
-		// log.error(device.getName() + ": Updating Odoo failed: " + e.getMessage());
-		// }
+
+		// Save data to Odoo
+		try {
+			device.writeObject();
+		} catch (OpenemsException e) {
+			log.error(device.getName() + ": " + e.getMessage());
+		}
 	}
 
 	private void timedata(Device device, JsonElement jTimedataElement) {
@@ -191,9 +193,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 				log.error("No InfluxDB-connection: ", e);
 			}
 			// Write some data to Odoo
-			// TODO: this is only to provide feedback for FENECON
-			// Service-Team that the device is online. Replace with
-			// something based on the actual websocket connection
+			// This is only to provide feedback for FENECON Service-Team that the device is online.
 			device.setLastUpdate();
 			jTimedata.entrySet().forEach(entry -> {
 				try {
@@ -291,13 +291,26 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 	 * @param name
 	 * @return
 	 */
-	public boolean isDeviceOnline(String deviceName) {
+	public boolean isOpenemsWebsocketConnected(String deviceName) {
 		Optional<OpenemsSession> sessionOpt = this.sessionManager.getSessionByDeviceName(deviceName);
 		if (!sessionOpt.isPresent()) {
 			return false;
 		}
 		return true;
-		// OpenemsSession session = sessionOpt.get();
-		// this.websockets.inverse().get(session)
+	}
+
+	/**
+	 * Returns the OpenemsWebsocket for the given device
+	 *
+	 * @param name
+	 * @return
+	 */
+	public Optional<WebSocket> getOpenemsWebsocket(String deviceName) {
+		Optional<OpenemsSession> sessionOpt = this.sessionManager.getSessionByDeviceName(deviceName);
+		if (!sessionOpt.isPresent()) {
+			return Optional.empty();
+		}
+		OpenemsSession session = sessionOpt.get();
+		return Optional.ofNullable(this.websockets.inverse().get(session));
 	}
 }

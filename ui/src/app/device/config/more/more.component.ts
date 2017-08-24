@@ -24,9 +24,10 @@ export class MoreComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.deviceSubscription = this.websocket.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
-      this.device = device;
-    })
+    // TODO
+    // this.deviceSubscription = this.websocket.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
+    //   this.device = device;
+    // })
     this.manualMessageForm = this.formBuilder.group({
       "message": this.formBuilder.control('')
     });

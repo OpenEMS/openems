@@ -93,7 +93,7 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 				// add isOnline information
 				OpenemsWebsocketSingleton openemsWebsocket = OpenemsWebsocket.instance();
 				for (Device device : data.getDevices()) {
-					device.setOnline(openemsWebsocket.isDeviceOnline(device.getName()));
+					device.setOnline(openemsWebsocket.isOpenemsWebsocketConnected(device.getName()));
 				}
 
 				// send connection successful to browser
@@ -157,44 +157,26 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 	 */
 	@Override
 	public void onMessage(WebSocket websocket, String message) {
-		log.info(message);
-		String requestId = "";
 		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
+		log.info(jMessage.toString());
+
+		// Get deviceName if given
+		Optional<String> deviceNameOpt = Optional.empty();
+		try {
+			deviceNameOpt = Optional.ofNullable(JsonUtils.getAsString(jMessage, "device"));
+		} catch (OpenemsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		/*
-		 * // * Try to get a Session from authentication message
-		 * //
+		 * Forward to OpenEMS Edge
 		 */
-		// if (jMessage.has("authenticate")) {
-		// Optional<Session> existingSessionOpt = authenticate(jMessage.get("authenticate"));
-		// if (existingSessionOpt.isPresent()) {
-		// Session existingSession = existingSessionOpt.get();
-		// // if the session is still connected to another websocket, close that old websocket
-		// WebSocket existingWebsocket = this.websockets.inverse().get(existingSession);
-		// if (existingWebsocket != null) {
-		// this.websockets.remove(existingWebsocket);
-		// }
-		// // replace the session that was created in onOpen with the existing session
-		// this.websockets.forcePut(websocket, existingSession);
-		// }
-		// }
+		if (jMessage.has("config") && deviceNameOpt.isPresent()) {
+			String deviceName = deviceNameOpt.get();
+			forwardMessageToOpenems(websocket, jMessage, deviceName);
+		}
 
-		/*
-		 * Check validity of Session
-		 */
-		//
-		// if (jMessage.has("device")) {
-		// String deviceName = JsonUtils.getAsString(jMessage, "device");
-		// jMessage.remove("device");
-		//
-		// if (jMessage.has("requestId")) {
-		// try {
-		// requestId = JsonUtils.getAsString(jMessage, "requestId");
-		// } catch (Exception e) {
-		// log.warn("Invalid requestId: " + e.getMessage());
-		// }
-		// }
-		//
 		// /*
 		// * Register interconnection to OpenEMS
 		// */
@@ -215,14 +197,23 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 		// if (jMessage.has("system")) {
 		// system(deviceName, jMessage.get("system"));
 		// }
-		//
-		// /*
-		// * Query command
-		// */
-		// if (jMessage.has("query")) {
-		// query(requestId, deviceName, websocket, jMessage.get("query"));
-		// }
-		// }
+
+	}
+
+	/**
+	 * Forward message to OpenEMS websocket
+	 */
+	private void forwardMessageToOpenems(WebSocket websocket, JsonObject jMessage, String deviceName) {
+		BrowserSession session = this.websockets.get(websocket);
+		jMessage.addProperty("token", session.getToken());
+		Optional<WebSocket> openemsWebsocketOpt = OpenemsWebsocket.instance().getOpenemsWebsocket(deviceName);
+		if (openemsWebsocketOpt.isPresent()) {
+			WebSocket openemsWebsocket = openemsWebsocketOpt.get();
+			if (WebSocketUtils.send(openemsWebsocket, jMessage)) {
+				return;
+			}
+		}
+		log.warn("Unable to forward to OpenEMS: " + jMessage);
 	}
 
 	/**
@@ -303,39 +294,43 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 		WebSocketUtils.send(openemsWebsocket, j);
 	}
 
-	/**
-	 * System command
-	 *
-	 * @param j
-	 */
-	private synchronized void system(String deviceName, JsonElement jSubscribeElement) {
-		JsonObject j = new JsonObject();
-		j.add("system", jSubscribeElement);
-		Optional<WebSocket> openemsWebsocketOpt = ConnectionManager.instance()
-				.getOpenemsWebsocketFromDeviceName(deviceName);
-		if (!openemsWebsocketOpt.isPresent()) {
-			log.warn("Trying to forward system call to [" + deviceName + "], but it is not online");
-		}
-		WebSocket openemsWebsocket = openemsWebsocketOpt.get();
-		log.info(deviceName + ": forward system call to OpenEMS " + StringUtils.toShortString(j, 100));
-		WebSocketUtils.send(openemsWebsocket, j);
-	}
+	// /**
+	// * System command
+	// *
+	// * @param j
+	// */
+	// private synchronized void system(String deviceName, JsonElement jSubscribeElement) {
+	// JsonObject j = new JsonObject();
+	// j.add("system", jSubscribeElement);
+	// Optional<WebSocket> openemsWebsocketOpt = ConnectionManager.instance()
+	// .getOpenemsWebsocketFromDeviceName(deviceName);
+	// if (!openemsWebsocketOpt.isPresent()) {
+	// log.warn("Trying to forward system call to [" + deviceName + "], but it is not online");
+	// }
+	// WebSocket openemsWebsocket = openemsWebsocketOpt.get();
+	// log.info(deviceName + ": forward system call to OpenEMS " + StringUtils.toShortString(j, 100));
+	// WebSocketUtils.send(openemsWebsocket, j);
+	// }
 
 	/**
 	 * Query command
 	 *
 	 * @param j
 	 */
-	private synchronized void query(String requestId, String deviceName, WebSocket websocket,
-			JsonElement jQueryElement) {
+	private synchronized void query(String deviceName, WebSocket websocket, JsonElement jQueryElement) {
 		try {
 			JsonObject jQuery = JsonUtils.getAsJsonObject(jQueryElement);
 			String mode = JsonUtils.getAsString(jQuery, "mode");
-			int fems = Integer.parseInt(deviceName.substring(4));
-			if (mode.equals("history")) {
+			if (mode.equals("config")) {
+				/*
+				 * Query current config -> forward to OpenEMS
+				 */
+
+			} else if (mode.equals("history")) {
 				/*
 				 * History query
 				 */
+				int fems = Integer.parseInt(deviceName.substring(4));
 				int timezoneDiff = JsonUtils.getAsInt(jQuery, "timezone");
 				ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
 				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
@@ -357,14 +352,16 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 																												 * kWh
 																												 */);
 
-				JsonObject j = bootstrapReply(requestId);
-				// Send result
-				if (jQueryreply != null) {
-					j.add("queryreply", jQueryreply);
-				} else {
-					j.addProperty("error", "No Queryable persistence found!");
-				}
-				WebSocketUtils.sendAsDevice(websocket, j, fems);
+				JsonObject j;
+				// TODO
+				// = bootstrapReply(requestId);
+				// // Send result
+				// if (jQueryreply != null) {
+				// j.add("queryreply", jQueryreply);
+				// } else {
+				// j.addProperty("error", "No Queryable persistence found!");
+				// }
+				// WebSocketUtils.sendAsDevice(websocket, j, fems);
 			}
 		} catch (Exception e) {
 			log.error("Error", e);

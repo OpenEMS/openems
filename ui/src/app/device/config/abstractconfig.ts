@@ -40,15 +40,16 @@ export abstract class AbstractConfig extends AbstractConfigForm implements OnIni
 
   ngOnInit() {
     super.ngOnInit();
-    this.websocket.setCurrentDevice(this.route.snapshot.params);
-    this.device.takeUntil(this.ngUnsubscribe).subscribe(device => {
-      if (device != null) {
-        device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-          this.config = config;
-          this.initForm(config);
-        });
-      }
-    });
+    // TODO
+    // this.websocket.setCurrentDevice(this.route.snapshot.params);
+    // this.device.takeUntil(this.ngUnsubscribe).subscribe(device => {
+    //   if (device != null) {
+    //     device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
+    //       this.config = config;
+    //       this.initForm(config);
+    //     });
+    //   }
+    // });
   }
 
   ngOnDestroy() {

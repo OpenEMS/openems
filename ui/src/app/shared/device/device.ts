@@ -6,6 +6,8 @@ import * as moment from 'moment';
 import { Notification, Websocket } from '../shared';
 import { Config, ChannelAddresses } from './config';
 import { Data, ChannelData, Summary } from './data';
+import { DefaultMessages } from '../service/defaultmessages';
+import { Utils } from '../service/utils';
 import { Role, ROLES } from '../type/role';
 
 export { Data, ChannelData, Summary, Config, ChannelAddresses };
@@ -30,12 +32,13 @@ export class QueryReply {
 export class Device {
   public event = new Subject<Notification>();
   public address: string;
-  public config = new BehaviorSubject<Config>(null);
   public log = new Subject<Log>();
 
   //public historykWh = new BehaviorSubject<any[]>(null);
+  private config = new BehaviorSubject<Config>(null);
   private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
   private queryreply = new Subject<QueryReply>();
+  private ngUnsubscribeQueryReply: Subject<void> = new Subject<void>();
   private currentData = new BehaviorSubject<Data>(null);
   private ngUnsubscribeCurrentData: Subject<void> = new Subject<void>();
 
@@ -56,13 +59,34 @@ export class Device {
   ) { }
 
   /**
-   * Sends a message to websocket, returns the unique request id
+   * Returns a promise for a config. If a config is availabe, returns immediately. Otherwise queries backend.
    */
-  public send(value: any): string {
-    let requestId = UUID.UUID();
-    value["requestId"] = requestId;
+  public getConfig(): Promise<Config> {
+    let currentConfig = this.config.getValue();
+    if (currentConfig != null) {
+      // config is available
+      return Promise.resolve(currentConfig);
+    } else {
+      // query new config
+      return this.timeoutPromise(1000, new Promise((resolve, reject) => {
+        let message = DefaultMessages.refreshConfig();
+        this.send(message);
+        this.queryreply.takeUntil(this.ngUnsubscribeQueryReply).subscribe(queryreply => {
+          console.log(queryreply);
+          if (queryreply.requestId == message.requestId) {
+            console.log(queryreply);
+            resolve();
+          }
+        })
+      }));
+    }
+  }
+
+  /**
+   * Sends a message to websocket
+   */
+  public send(value: any): void {
     this.websocket.send(this, value);
-    return requestId;
   }
 
   /**
@@ -155,12 +179,12 @@ export class Device {
     }, 10000);
     // wait for queryreply with this requestId
     this.queryreply.takeUntil(ngUnsubscribe).subscribe(queryreply => {
-      if (queryreply.requestId == requestId) {
-        ngUnsubscribe.next();
-        ngUnsubscribe.complete();
-        result.next(queryreply);
-        result.complete();
-      }
+      // if (queryreply.requestId == requestId) {
+      //   ngUnsubscribe.next();
+      //   ngUnsubscribe.complete();
+      //   result.next(queryreply);
+      //   result.complete();
+      // }
     });
     return result;
   }
@@ -255,5 +279,26 @@ export class Device {
       // }
       //this.historykWh.next(kWh);
     }
+  }
+
+
+  /**
+   * Promise with timeout
+   * Source: https://italonascimento.github.io/applying-a-timeout-to-your-promises/
+   */
+  private timeoutPromise = function (ms, promise) {
+    // Create a promise that rejects in <ms> milliseconds
+    let timeout = new Promise((resolve, reject) => {
+      let id = setTimeout(() => {
+        clearTimeout(id);
+        reject('Timed out in ' + ms + 'ms.')
+      }, ms)
+    })
+
+    // Returns a race between our timeout and the passed in promise
+    return Promise.race([
+      promise,
+      timeout
+    ])
   }
 }

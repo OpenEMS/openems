@@ -2,7 +2,7 @@
 
 This chapter explains the communication protocol used between the different components.
 
-## [1] Client (Browser) <-> OpenEMS Edge/OpenEMS Backend
+## [1] OpenEMS UI <-> OpenEMS Edge/OpenEMS Backend
 
 ### [1.1] Authenticate
 
@@ -10,7 +10,7 @@ This chapter explains the communication protocol used between the different comp
 
 [1.1.1.1] Automatic
 
-Using cookie information (session_id + token)
+Using cookie information (session_id + token) in handshake
 
 [1.1.1.1] Manual login
 
@@ -51,11 +51,138 @@ currently forwarded to Odoo login page
 [1.1.3.2] Authentication failed
 {
 	authenticate: {
-		mode: deny
+		mode: "deny"
 	}
 }
 
+## [1.2] OpenEMS UI <-> OpenEMS Backend <-> OpenEMS Edge
+
+Following commands are all the same, no matter if UI is connected to Edge or to Backend. Backend is transparently proxying requests to a connected Edge if necessary.
+
+### [1.2.1] Receive current configuration
+
+[1.2.1.1] UI -> Edge/Backend
+
+```
+{
+	device: String,
+	config: {
+		mode: "refresh"
+	}
+}
+```
+
+### [1.2.1] Current live data
+
+[1.2.1.1] Subscribe to current data: UI -> Edge/Backend
+
+```
+{
+	device: "...",
+	subscribe: {
+		channels: {
+			thing0: [
+				channel
+			]
+		},
+		log: "all" | "info" | "warning" | "error"
+	}
+}
+```
+
+
+
+
+
+[1.2.2] Forward to OpenEMS
+```
+{
+	subscribe: ...
+}
+```
+
+[1.2.3] Reply from OpenEMS
+```
+{
+	currentdata: [{ 
+		channel, value
+    }]
+}
+```
+
+[1.2.4] Reply
+```
+{
+	device: "...",
+    currentdata: [{ 
+    	channel, value
+    }]
+}
+```
+
+[1.2.5] Unsubscribe
+```
+{
+	device: "...",
+	subscribe: {
+		channels: {},
+		log: ""
+	}
+}
+```
+
+
+
+## [2] OpenEMS Edge <-> OpenEMS Backend
+
+### [2.1] Authenticate
+
+[2.1.1] Authenticate OpenEMS Edge -> OpenEMS Backend
+
+Using apikey in handshake
+
+[2.1.2] Authentication reply
+
+[2.1.2.1] Authentication successful
+
+```
+{
+	authenticate: {
+		mode: "allow"
+	}
+}
+```
+
+[2.1.2.2] Authentication failed
+{
+	authenticate: {
+		mode: "deny",
+		message: String
+	}
+}
+
+### [2.2] Timestamped data: OpenEMS Edge -> OpenEMS Backend
+```
+{
+	timedata: {
+		timestamp (Long): {
+			channel: String,
+			value: String | Number
+		}
+	}
+}
+```
+
+
+
 // TODO rework from here...
+
+
+
+
+
+
+
 
 
 
@@ -202,67 +329,8 @@ failed
 
 ### [1.2] Connect to device
 
-#### [1.2.1] At FemsServer
-```
-{
-	device: "...",
-	connect: true
-}
-```
 
-### [1.2] Current data
 
-[1.2.1] Subscribe
-```
-{
-	device: "...",
-	subscribe: {
-		channels: {
-			thing0: [
-				channel
-			]
-		},
-		log: "all" | "info" | "warning" | "error"
-	}
-}
-```
-
-[1.2.2] Forward to OpenEMS
-```
-{
-	subscribe: ...
-}
-```
-
-[1.2.3] Reply from OpenEMS
-```
-{
-	currentdata: [{ 
-		channel, value
-    }]
-}
-```
-
-[1.2.4] Reply
-```
-{
-	device: "...",
-    currentdata: [{ 
-    	channel, value
-    }]
-}
-```
-
-[1.2.5] Unsubscribe
-```
-{
-	device: "...",
-	subscribe: {
-		channels: {},
-		log: ""
-	}
-}
-```
 
 ### [1.3] Notification
 ```
@@ -407,29 +475,6 @@ failed
  		p: ...,
  		q: ...
  	}
-}
-```
-
-## [2] OpenEMS <-> FemsServer
-
-### [2.1] Authenticate
-```
-{
-	metadata: {
-		config: {},
-		backend: "openems"
-	}
-}
-```
-
-### [2.2] timestamped data
-```
-{
-	timedata: {
-		timestamp: [{
-			channel, value
-		}]
-	}
 }
 ```
 

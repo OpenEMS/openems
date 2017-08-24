@@ -81,7 +81,9 @@ export class EnergyChartComponent implements OnChanges {
     // show loading...
     this.loading = true;
     // create channels for query
-    let channels = this.device.config.getValue().getPowerChannels();
+    // TODO
+    //let channels = this.device.config.getValue().getPowerChannels();
+    let channels = {}
     // execute query
     let queryreplySubject = this.device.query(this.fromDate, this.toDate, channels);
     queryreplySubject.subscribe(queryreply => {
@@ -92,13 +94,14 @@ export class EnergyChartComponent implements OnChanges {
         consumption: []
       }
       let labels: moment.Moment[] = [];
-      for (let reply of queryreply.data) {
-        labels.push(moment(reply.time));
-        let data = new Summary(this.device.config.getValue(), reply.channels);
-        activePowers.grid.push(data.grid.activePower / -1000); // convert to kW and invert value
-        activePowers.production.push(data.production.activePower / 1000); // convert to kW
-        activePowers.consumption.push(data.consumption.activePower / 1000); // convert to kW
-      }
+      // TODO
+      // for (let reply of queryreply.data) {
+      //   labels.push(moment(reply.time));
+      //   let data = new Summary(this.device.config.getValue(), reply.channels);
+      //   activePowers.grid.push(data.grid.activePower / -1000); // convert to kW and invert value
+      //   activePowers.production.push(data.production.activePower / 1000); // convert to kW
+      //   activePowers.consumption.push(data.consumption.activePower / 1000); // convert to kW
+      // }
       this.datasets = [{
         label: this.translate.instant('General.Production'),
         data: activePowers.production

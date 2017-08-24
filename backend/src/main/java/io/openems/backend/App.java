@@ -21,6 +21,7 @@ public class App {
 		initBrowserWebsocket();
 
 		log.info("OpenEMS-Backend started.");
+		log.info("");
 	}
 
 	private static void initOdoo() throws Exception {

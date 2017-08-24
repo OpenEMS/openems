@@ -22,9 +22,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.deviceSubscription = this.websocket.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
-      this.device = device;
-    })
+    // TODO
+    // this.deviceSubscription = this.websocket.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
+    //   this.device = device;
+    // })
   }
 
   ngOnDestroy() {

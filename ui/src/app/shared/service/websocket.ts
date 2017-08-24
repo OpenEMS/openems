@@ -16,7 +16,7 @@ import { ROLES } from '../type/role';
 export class Websocket {
   public devices: { [name: string]: Device } = {};
   public event = new Subject<Notification>();
-  public currentDevice = new BehaviorSubject<Device>(null);
+  public currentDevice: Device = null;
   public status: "online" | "connecting" | "failed" = "connecting";
 
   private username: string = "";
@@ -35,43 +35,30 @@ export class Websocket {
   }
 
   /**
-   * Parses the route params, sets the current device and returns it - or redirects to overview and returns null
+   * Parses the route params, sets the current device and returns it - or redirects to overview and throws error if the device is not existing
    */
-  public setCurrentDevice(params: Params): BehaviorSubject<Device> {
-    let timeout = null;
-    let retryCounter = 0;
-    let worker = (params: Params): boolean => {
-      retryCounter++;
-      if ('device' in params) {
-        let deviceName = params['device'];
-        let device = this.getDevice(deviceName);
-        if (device) {
-          // found it -> we quit here
-          this.currentDevice.next(device);
-          device.send({ connect: true });
-          return;
-        }
-      }
-      if (retryCounter < 10) {
-        // retry 10 times
-        timeout = setTimeout(() => {
-          worker(params);
-        }, 1000);
-      } else {
-        // failed -> redirect to /overview
-        this.currentDevice.next(null);
-        this.router.navigate(['/overview']);
-      }
+  public getCurrentDeviceFromRoute(route: ActivatedRoute): Device {
+    let deviceName = route.snapshot.params["device"];
+    let device = null;
+    if (deviceName in this.devices) {
+      device = this.devices[deviceName];
     }
-    worker(params);
-    return this.currentDevice;
+    //this.currentDevice = device;
+    if (device == null) {
+      this.router.navigate(['/overview']);
+      throw new URIError("Device [" + deviceName + "] not found."); // TODO translate
+    }
+    if (device.config == null) {
+      device.refreshConfig();
+    }
+    return device;
   }
 
   /**
    * Clears the current device
    */
   public clearCurrentDevice() {
-    this.currentDevice.next(null);
+    this.currentDevice = null;
   }
 
   /**
@@ -255,17 +242,6 @@ export class Websocket {
     } else {
       message["device"] = device.name;
       this.inputStream.next(message);
-    }
-  }
-
-  /**
-   * Returns the websocket with the given name
-   */
-  public getDevice(name: string) {
-    if (name in this.devices) {
-      return this.devices[name];
-    } else {
-      return null;
     }
   }
 }

@@ -124,16 +124,17 @@ export class Utils {
   /**
    * Receive meta information for thing/channel/...
    */
-  public meta(identifier: string, type: 'controller' | 'channel'): {} {
-    let property = type == 'controller' ? 'availableControllers' : type;
-    let device = this.websocket.currentDevice.getValue();
-    if (device) {
-      let config = device.config.getValue();
-      let meta = config._meta[property];
-      if (identifier in meta) {
-        return (meta[identifier]);
-      }
-    }
-    return null;
-  }
+  // TODO
+  // public meta(identifier: string, type: 'controller' | 'channel'): {} {
+  //   let property = type == 'controller' ? 'availableControllers' : type;
+  //   let device = this.websocket.currentDevice;
+  //   if (device) {
+  //     let config = device.config.getValue();
+  //     let meta = config._meta[property];
+  //     if (identifier in meta) {
+  //       return (meta[identifier]);
+  //     }
+  //   }
+  //   return null;
+  // }
 }

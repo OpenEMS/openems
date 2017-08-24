@@ -37,10 +37,11 @@ import { MyTranslateLoader } from './shared/translate/translate';
   ],
   providers: [
     MdSnackBar,
-    {
-      provide: ErrorHandler,
-      useExisting: Service
-    }
+    //TODO
+    // {
+    //   provide: ErrorHandler,
+    //   useExisting: Service
+    // }
   ]
 })
 export class AppModule { }

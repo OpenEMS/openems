@@ -26,33 +26,34 @@ export class LogComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.deviceSubscription = this.websocket.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
-      this.device = device;
-      if (this.device != null) {
-        this.subscribeLog();
-        this.device.log.subscribe(log => {
-          log.time = moment(log.timestamp).format("DD.MM.YYYY HH:mm:ss");
-          switch (log.level) {
-            case 'INFO':
-              log.color = 'green';
-              break;
-            case 'WARN':
-              log.color = 'orange';
-              break;
-            case 'DEBUG':
-              log.color = 'gray';
-              break;
-            case 'ERROR':
-              log.color = 'red';
-              break;
-          };
-          this.logs.unshift(log);
-          if (this.logs.length > this.MAX_LOG_ENTRIES) {
-            this.logs.length = this.MAX_LOG_ENTRIES;
-          }
-        })
-      }
-    });
+    //TODO
+    // this.deviceSubscription = this.websocket.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
+    //   this.device = device;
+    //   if (this.device != null) {
+    //     this.subscribeLog();
+    //     this.device.log.subscribe(log => {
+    //       log.time = moment(log.timestamp).format("DD.MM.YYYY HH:mm:ss");
+    //       switch (log.level) {
+    //         case 'INFO':
+    //           log.color = 'green';
+    //           break;
+    //         case 'WARN':
+    //           log.color = 'orange';
+    //           break;
+    //         case 'DEBUG':
+    //           log.color = 'gray';
+    //           break;
+    //         case 'ERROR':
+    //           log.color = 'red';
+    //           break;
+    //       };
+    //       this.logs.unshift(log);
+    //       if (this.logs.length > this.MAX_LOG_ENTRIES) {
+    //         this.logs.length = this.MAX_LOG_ENTRIES;
+    //       }
+    //     })
+    //   }
+    // });
   }
 
   public toggleSubscribe($event: any /*MdSlideToggleChange*/) {

@@ -18,7 +18,7 @@
       <div fxFlex="40px">
         <button routerLinkActive="active" (click)="sidenav.toggle()" md-icon-button><md-icon>menu</md-icon></button>
       </div>
-      <ng-container *ngIf="(websocket.currentDevice | async) as currentDevice">
+      <ng-container *ngIf="websocket.currentDevice as currentDevice">
         <div fxFlex>
           <button routerLink="/overview" md-button>FEMS</button>
           <button md-icon-button style="cursor:default">

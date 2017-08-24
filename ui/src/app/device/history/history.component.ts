@@ -34,14 +34,15 @@ export class HistoryComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.websocket.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
-      this.device = device;
-      if (device != null) {
-        device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-          this.socChannels = config.getEssSocChannels();
-        });
-      }
-    })
+    // TODO
+    // this.websocket.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
+    //   this.device = device;
+    //   if (device != null) {
+    //     device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
+    //       this.socChannels = config.getEssSocChannels();
+    //     });
+    //   }
+    // })
     this.setPeriod("today");
   }
 
