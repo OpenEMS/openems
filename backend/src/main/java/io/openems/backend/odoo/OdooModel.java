@@ -1,4 +1,4 @@
-package io.openems.femsserver.odoo;
+package io.openems.backend.odoo;
 
 import java.util.List;
 

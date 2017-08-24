@@ -67,7 +67,7 @@ A number of devices, protocols and services are already implemented in OpenEMS:
 
 ### Inbound protocols
 
- * JSON/REST
+ * [JSON/REST](doc/rest-api.md)
  * JSON/Websocket
  * [Modbus/TCP (in development)](/OpenEMS/openems/issues/2)
 

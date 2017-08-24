@@ -1,4 +1,4 @@
-package io.openems.femsserver.odoo.fems.device;
+package io.openems.backend.odoo.fems.device;
 
 import org.java_websocket.WebSocket;
 
@@ -8,8 +8,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.femsserver.odoo.OdooModel;
-import io.openems.femsserver.odoo.OdooObject;
+import io.openems.backend.odoo.OdooModel;
+import io.openems.backend.odoo.OdooObject;
 
 public class FemsDevice extends OdooObject {
 	private static final String NAME = "name";

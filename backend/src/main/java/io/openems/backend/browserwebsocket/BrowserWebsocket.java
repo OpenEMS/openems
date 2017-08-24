@@ -1,4 +1,4 @@
-package io.openems.femsserver.browserwebsocket;
+package io.openems.backend.browserwebsocket;
 
 import java.net.InetSocketAddress;
 import java.time.Period;
@@ -21,14 +21,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.femsserver.core.ConnectionManager;
-import io.openems.femsserver.influx.Influxdb;
-import io.openems.femsserver.odoo.Odoo;
-import io.openems.femsserver.odoo.fems.device.FemsDevice;
-import io.openems.femsserver.utilities.JsonUtils;
-import io.openems.femsserver.utilities.OpenemsException;
-import io.openems.femsserver.utilities.StringUtils;
-import io.openems.femsserver.utilities.WebSocketUtils;
+import io.openems.backend.core.ConnectionManager;
+import io.openems.backend.influx.Influxdb;
+import io.openems.backend.odoo.Odoo;
+import io.openems.backend.odoo.fems.device.FemsDevice;
+import io.openems.backend.utilities.JsonUtils;
+import io.openems.backend.utilities.OpenemsException;
+import io.openems.backend.utilities.StringUtils;
+import io.openems.backend.utilities.WebSocketUtils;
 
 /**
  * Handles connections from a browser (for FENECON Online-Monitoring).

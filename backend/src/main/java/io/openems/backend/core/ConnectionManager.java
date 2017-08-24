@@ -1,4 +1,4 @@
-package io.openems.femsserver.core;
+package io.openems.backend.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import io.openems.femsserver.odoo.fems.device.FemsDevice;
-import io.openems.femsserver.utilities.ManyToMany;
+import io.openems.backend.odoo.fems.device.FemsDevice;
+import io.openems.backend.utilities.ManyToMany;
 
 public class ConnectionManager {
 
