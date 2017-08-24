@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import com.abercap.odoo.OdooApiException;
 import com.abercap.odoo.Row;
 
+import io.openems.common.exceptions.OpenemsException;
+
 /**
  * Represents a record object in Odoo
  *
@@ -72,11 +74,11 @@ public abstract class OdooObject {
 		isChangedSinceLastWrite = true;
 	}
 
-	public void writeObject() throws OdooApiException, XmlRpcException {
+	public void writeObject() throws OpenemsException {
 		this.writeObject(true);
 	}
 
-	public void writeObject(boolean changesOnly) throws OdooApiException, XmlRpcException {
+	public void writeObject(boolean changesOnly) throws OpenemsException {
 		long now = System.currentTimeMillis();
 		try {
 			if (isChangedSinceLastWrite && now - lastWrite > 60000) {
@@ -84,6 +86,8 @@ public abstract class OdooObject {
 				this.model.writeObject(this.row, changesOnly);
 				this.lastWrite = now;
 			}
+		} catch (OdooApiException | XmlRpcException e) {
+			throw new OpenemsException("Unable to write to Odoo: " + e.getMessage());
 		} finally {
 			isChangedSinceLastWrite = false;
 		}

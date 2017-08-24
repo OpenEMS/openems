@@ -18,12 +18,12 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.persistence.fenecon;
+package io.openems.common.types;
 
-public class NullFieldValue extends FieldValue<Object> {
+public class NumberFieldValue extends FieldValue<Number> {
 
-	public NullFieldValue(String field) {
-		super(field, null);
+	public NumberFieldValue(String field, Number value) {
+		super(field, value);
 	}
 
 }

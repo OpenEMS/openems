@@ -26,6 +26,8 @@ import io.openems.backend.browserwebsocket.session.BrowserSessionManager;
 import io.openems.backend.core.ConnectionManager;
 import io.openems.backend.influx.Influxdb;
 import io.openems.backend.odoo.Odoo;
+import io.openems.backend.openemswebsocket.OpenemsWebsocket;
+import io.openems.backend.openemswebsocket.OpenemsWebsocketSingleton;
 import io.openems.backend.utilities.StringUtils;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.Device;
@@ -41,7 +43,7 @@ import io.openems.common.websocket.WebSocketUtils;
  */
 public class BrowserWebsocketSingleton extends WebSocketServer {
 
-	private Logger log = LoggerFactory.getLogger(BrowserWebsocketSingleton.class);
+	private final Logger log = LoggerFactory.getLogger(BrowserWebsocketSingleton.class);
 
 	private final BiMap<WebSocket, BrowserSession> websockets = Maps.synchronizedBiMap(HashBiMap.create());
 	private final BrowserSessionManager sessionManager = new BrowserSessionManager();
@@ -77,32 +79,43 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 
 			// create new session if no existing one was found
 			if (session == null) {
-				BrowserSessionData metaData = new BrowserSessionData();
-				metaData.setOdooSessionId(sessionId);
-				session = sessionManager.createNewSession(metaData);
+				BrowserSessionData sessionData = new BrowserSessionData();
+				sessionData.setOdooSessionId(sessionId);
+				session = sessionManager.createNewSession(sessionData);
 			}
 
 			// check Odoo session and refresh info from Odoo
 			Odoo.instance().getInfoWithSession(session);
 
 			// check if the session is now valid and send reply to browser
-			JsonObject jReply;
 			BrowserSessionData data = session.getData();
 			if (session.isValid()) {
 				// add isOnline information
+				OpenemsWebsocketSingleton openemsWebsocket = OpenemsWebsocket.instance();
 				for (Device device : data.getDevices()) {
-					device.setOnline(false); // TODO match with OpenemsWebsocket
+					device.setOnline(openemsWebsocket.isDeviceOnline(device.getName()));
 				}
 
-				jReply = DefaultMessages.connectionSuccessfulReply(session.getToken(), data.getDevices());
+				// send connection successful to browser
+				JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
+						data.getDevices());
 				log.info("Browser connected. User [" + data.getUserId().orElse(0) + "] Session ["
 						+ data.getOdooSessionId().orElse("") + "]");
+				WebSocketUtils.send(websocket, jReply);
+
+				// add websocket to local cache
+				this.websockets.forcePut(websocket, session);
+
 			} else {
-				jReply = DefaultMessages.connectionFailedReply();
+				// send connection failed to browser
+				JsonObject jReply = DefaultMessages.browserConnectionFailedReply();
+				WebSocketUtils.send(websocket, jReply);
 				log.info("Browser connection failed. User [" + data.getUserId() + "] Session ["
 						+ data.getOdooSessionId() + "]");
+
+				// close websocket
+				websocket.close();
 			}
-			WebSocketUtils.send(websocket, jReply);
 
 		} catch (OpenemsException e) {
 			// TODO Auto-generated catch block
@@ -130,7 +143,13 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 	 */
 	@Override
 	public void onError(WebSocket websocket, Exception ex) {
-		log.info("Error on connection to [" + websocket + "]: " + ex.getMessage());
+		BrowserSession session = this.websockets.get(websocket);
+		if (session != null) {
+			log.warn("Browser connection error. User [" + session.getData().getUserId() + "] Session ["
+					+ session.getData().getOdooSessionId() + "]: " + ex.getMessage());
+		} else {
+			log.warn("Browser connection error: " + ex.getMessage());
+		}
 	}
 
 	/**

@@ -3,10 +3,10 @@ package io.openems.backend;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.browserwebsocket.BrowserWebsocketProvider;
-import io.openems.backend.influx.InfluxdbProvider;
-import io.openems.backend.odoo.OdooProvider;
-import io.openems.backend.openemswebsocket.OpenemsWebsocketProvider;
+import io.openems.backend.browserwebsocket.BrowserWebsocket;
+import io.openems.backend.influx.Influxdb;
+import io.openems.backend.odoo.Odoo;
+import io.openems.backend.openemswebsocket.OpenemsWebsocket;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
@@ -18,7 +18,7 @@ public class App {
 		initOdoo();
 		initInfluxdb();
 		initOpenemsWebsocket();
-		// initBrowserWebsocket();
+		initBrowserWebsocket();
 
 		log.info("OpenEMS-Backend started.");
 	}
@@ -30,7 +30,7 @@ public class App {
 		String database = System.getenv("ODOO_DATABASE");
 		String username = System.getenv("ODOO_USERNAME");
 		String password = System.getenv("ODOO_PASSWORD");
-		OdooProvider.initialize(url, port, database, username, password);
+		Odoo.initialize(url, port, database, username, password);
 	}
 
 	private static void initInfluxdb() throws Exception {
@@ -40,18 +40,18 @@ public class App {
 		String url = System.getenv("INFLUX_URL");
 		String username = System.getenv("INFLUX_USERNAME");
 		String password = System.getenv("INFLUX_PASSWORD");
-		InfluxdbProvider.initialize(database, url, port, username, password);
+		Influxdb.initialize(database, url, port, username, password);
 	}
 
 	private static void initOpenemsWebsocket() throws Exception {
 		int port = Integer.valueOf(System.getenv("OPENEMS_WEBSOCKET_PORT"));
 		log.info("Start OpenEMS Websocket server on port [" + port + "]");
-		OpenemsWebsocketProvider.initialize(port);
+		OpenemsWebsocket.initialize(port);
 	}
 
 	private static void initBrowserWebsocket() throws Exception {
 		int port = Integer.valueOf(System.getenv("BROWSER_WEBSOCKET_PORT"));
 		log.info("Start Browser Websocket server on port [" + port + "]");
-		BrowserWebsocketProvider.initialize(port);
+		BrowserWebsocket.initialize(port);
 	}
 }

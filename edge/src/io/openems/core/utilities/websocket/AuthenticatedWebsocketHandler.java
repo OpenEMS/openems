@@ -77,7 +77,7 @@ public class AuthenticatedWebsocketHandler extends WebsocketHandler {
 		 */
 		if (!authenticationIsValid()) {
 			// no user authenticated till now -> exit
-			sendConnectionFailedReply();
+			// sendConnectionFailedReply();
 			this.websocket.close();
 			return;
 		}
@@ -86,7 +86,7 @@ public class AuthenticatedWebsocketHandler extends WebsocketHandler {
 		 * Send message on initial call
 		 */
 		if (jMessage.has("authenticate")) {
-			sendConnectionSuccessfulReply();
+			// sendConnectionSuccessfulReply();
 		}
 
 		/*
@@ -153,26 +153,26 @@ public class AuthenticatedWebsocketHandler extends WebsocketHandler {
 	 *
 	 * @param handler
 	 */
-	@Override
-	protected JsonObject createConnectionSuccessfulReply() {
-		JsonObject j = super.createConnectionSuccessfulReply();
+	// @Override
+	// protected JsonObject createConnectionSuccessfulReply() {
+	// JsonObject j = super.createConnectionSuccessfulReply();
+	//
+	// // Authentication data
+	// JsonObject jAuthenticate = new JsonObject();
+	// jAuthenticate.addProperty("mode", "allow");
+	// jAuthenticate.addProperty("username", this.session.getUser().getName());
+	// jAuthenticate.addProperty("token", this.session.getToken());
+	// j.add("authenticate", jAuthenticate);
+	//
+	// return j;
+	// }
 
-		// Authentication data
-		JsonObject jAuthenticate = new JsonObject();
-		jAuthenticate.addProperty("mode", "allow");
-		jAuthenticate.addProperty("username", this.session.getUser().getName());
-		jAuthenticate.addProperty("token", this.session.getToken());
-		j.add("authenticate", jAuthenticate);
-
-		return j;
-	}
-
-	@Override
-	protected JsonObject createConnectionFailedReply() {
-		JsonObject j = super.createConnectionFailedReply();
-
-		return j;
-	}
+	// @Override
+	// protected JsonObject createConnectionFailedReply() {
+	// JsonObject j = super.createConnectionFailedReply();
+	//
+	// return j;
+	// }
 
 	/**
 	 * Gets the user name of this user, avoiding null

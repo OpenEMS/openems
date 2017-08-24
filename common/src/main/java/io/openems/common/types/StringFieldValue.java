@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.persistence.fenecon;
+package io.openems.common.types;
 
 public class StringFieldValue extends FieldValue<String> {
 

@@ -38,6 +38,11 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.persistence.Persistence;
+import io.openems.common.types.FieldValue;
+import io.openems.common.types.NullFieldValue;
+import io.openems.common.types.NumberFieldValue;
+import io.openems.common.types.StringFieldValue;
+import io.openems.common.websocket.DefaultMessages;
 import io.openems.core.Databus;
 import io.openems.core.utilities.websocket.WebsocketHandler;
 
@@ -65,7 +70,9 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 * Fields
 	 */
 	private static final int DEFAULT_CYCLETIME = 2000;
+	// Queue of data for the next cycle
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
+	// Unsent queue (FIFO)
 	private EvictingQueue<JsonObject> unsentCache = EvictingQueue.create(1000);
 	private volatile WebsocketClient websocketClient;
 	private volatile Integer configuredCycleTime = DEFAULT_CYCLETIME;
@@ -78,16 +85,21 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 */
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+		// Update cycleTime of FENECON Persistence
 		if (channel == cycleTime) {
-			// Cycle Time
 			this.configuredCycleTime = cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
 		}
 
+		// Ignore anything that is not a ReadChannel
 		if (!(channel instanceof ReadChannel<?>)) {
 			return;
 		}
 		ReadChannel<?> readChannel = (ReadChannel<?>) channel;
 
+		// Get timestamp and round to seconds
+		Long timestamp = System.currentTimeMillis() / 1000 * 1000;
+
+		// Read and format value from channel
 		String field = readChannel.address();
 		FieldValue<?> fieldValue;
 		if (!newValue.isPresent()) {
@@ -107,10 +119,45 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 				return;
 			}
 		}
-		// Round time to Seconds
-		Long timestamp = System.currentTimeMillis() / 1000 * 1000;
+
+		// Add timestamp + value to queue
 		synchronized (queue) {
 			queue.put(timestamp, fieldValue);
+		}
+	}
+
+	@Override
+	protected void forever() {
+		// Convert FieldVales in queue to JsonObject
+		JsonObject j;
+		synchronized (queue) {
+			j = DefaultMessages.timestampedData(queue);
+			queue.clear();
+		}
+
+		// Send data to Server
+		if (this.send(j)) {
+			// Successful
+
+			// reset cycleTime
+			resetCycleTime();
+
+			// resend from cache
+			for (Iterator<JsonObject> iterator = unsentCache.iterator(); iterator.hasNext();) {
+				JsonObject jCached = iterator.next();
+				boolean cacheWasSent = this.send(jCached);
+				if (cacheWasSent) {
+					iterator.remove();
+				}
+			}
+		} else {
+			// Failed to send
+
+			// increase cycleTime
+			increaseCycleTime();
+
+			// cache data for later
+			unsentCache.add(j);
 		}
 	}
 
@@ -118,61 +165,6 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	protected void dispose() {
 		if (this.websocketClient != null) {
 			this.websocketClient.close();
-		}
-	}
-
-	@Override
-	protected void forever() {
-		JsonObject jTimedata = new JsonObject();
-		/*
-		 * Convert FieldVales in queue to JsonObject
-		 */
-		synchronized (queue) {
-			queue.asMap().forEach((timestamp, fieldValues) -> {
-				JsonObject jTimestamp = new JsonObject();
-				fieldValues.forEach(fieldValue -> {
-					if (fieldValue instanceof NumberFieldValue) {
-						jTimestamp.addProperty(fieldValue.field, ((NumberFieldValue) fieldValue).value);
-					} else if (fieldValue instanceof StringFieldValue) {
-						jTimestamp.addProperty(fieldValue.field, ((StringFieldValue) fieldValue).value);
-					}
-				});
-				jTimedata.add(String.valueOf(timestamp), jTimestamp);
-			});
-			queue.clear();
-		}
-		// build Json
-		JsonObject j = new JsonObject();
-		j.add("timedata", jTimedata);
-		/*
-		 * Send to Server
-		 */
-		if (this.send(j)) {
-			/*
-			 * Sent successfully
-			 */
-			// reset cycleTime
-			resetCycleTime();
-
-			// resend from cache
-			for (Iterator<JsonObject> iterator = unsentCache.iterator(); iterator.hasNext();) {
-				JsonObject jCachedTimedata = iterator.next();
-				JsonObject jCached = new JsonObject();
-				jCached.add("timedata", jCachedTimedata);
-				boolean cacheWasSent = this.send(jCached);
-				if (cacheWasSent) {
-					iterator.remove();
-				}
-			}
-		} else {
-			/*
-			 * Unable to send
-			 */
-			// increase cycleTime
-			increaseCycleTime();
-
-			// cache data for later
-			unsentCache.add(jTimedata);
 		}
 	}
 
@@ -273,13 +265,15 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		}
 	}
 
+	/**
+	 * Cycletime is adjusted if connection to Backend fails. This method resets it to configured or default value.
+	 */
 	private void resetCycleTime() {
 		int currentCycleTime = this.cycleTime().valueOptional().orElse(DEFAULT_CYCLETIME);
 		int newCycleTime = this.configuredCycleTime;
 		this.cycleTime().updateValue(newCycleTime, false);
 		if (currentCycleTime != newCycleTime) {
 			this.cycleTime().updateValue(newCycleTime, false);
-			log.info("Reset cycle time: " + newCycleTime);
 		}
 	}
 

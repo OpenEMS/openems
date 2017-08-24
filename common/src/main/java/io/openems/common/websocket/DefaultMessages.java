@@ -2,10 +2,14 @@ package io.openems.common.websocket;
 
 import java.util.List;
 
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.types.Device;
+import io.openems.common.types.FieldValue;
+import io.openems.common.types.NumberFieldValue;
+import io.openems.common.types.StringFieldValue;
 
 public class DefaultMessages {
 
@@ -30,7 +34,7 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject connectionSuccessfulReply(String token, List<Device> devices) {
+	public static JsonObject browserConnectionSuccessfulReply(String token, List<Device> devices) {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "allow");
 		jAuthenticate.addProperty("token", token);
@@ -66,11 +70,86 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject connectionFailedReply() {
+	public static JsonObject browserConnectionFailedReply() {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "deny");
 		JsonObject j = new JsonObject();
 		j.add("authenticate", jAuthenticate);
+		return j;
+	}
+	
+	/**
+	 * <pre>
+	 *	{
+	 *		authenticate: {
+	 *			mode: "allow"
+	 *		}
+	 *	}
+	 * </pre>
+	 * 
+	 * @param token
+	 * @return
+	 */
+	public static JsonObject openemsConnectionSuccessfulReply() {
+		JsonObject jAuthenticate = new JsonObject();
+		jAuthenticate.addProperty("mode", "allow");
+		JsonObject j = new JsonObject();
+		j.add("authenticate", jAuthenticate);
+		return j;
+	}
+	
+	/**
+	 * <pre>
+	 *	{
+	 *		authenticate: {
+	 *			mode: "deny",
+	 *			message: String
+	 *		}
+	 *	}
+	 * </pre>
+	 * 
+	 * @param token
+	 * @return
+	 */
+	public static JsonObject openemsConnectionFailedReply(String message) {
+		JsonObject jAuthenticate = new JsonObject();
+		jAuthenticate.addProperty("mode", "deny");
+		jAuthenticate.addProperty("message", message);
+		JsonObject j = new JsonObject();
+		j.add("authenticate", jAuthenticate);
+		return j;
+	}
+	
+	/**
+	 * <pre>
+	 *	{
+	 *		timedata: {
+	 *			timestamp (Long): {
+	 *				channel: String,
+	 *				value: String | Number
+	 *			}
+	 *		}
+	 *	}
+	 * </pre>
+	 * 
+	 * @param token
+	 * @return
+	 */
+	public static JsonObject timestampedData(Multimap<Long, FieldValue<?>> data) {
+		JsonObject jTimedata = new JsonObject();
+		data.asMap().forEach((timestamp, fieldValues) -> {
+			JsonObject jTimestamp = new JsonObject();
+			fieldValues.forEach(fieldValue -> {
+				if (fieldValue instanceof NumberFieldValue) {
+					jTimestamp.addProperty(fieldValue.field, ((NumberFieldValue) fieldValue).value);
+				} else if (fieldValue instanceof StringFieldValue) {
+					jTimestamp.addProperty(fieldValue.field, ((StringFieldValue) fieldValue).value);
+				}
+			});
+			jTimedata.add(String.valueOf(timestamp), jTimestamp);
+		});
+		JsonObject j = new JsonObject();
+		j.add("timedata", jTimedata);
 		return j;
 	}
 }

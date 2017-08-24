@@ -28,23 +28,25 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.openems.common.utils.SecureRandomSingleton;
 
-public abstract class SessionManager<T extends Session, V extends SessionData> {
+public abstract class SessionManager<T extends Session<?>, V extends SessionData> {
 
 	private final static int SESSION_ID_LENGTH = 130;
 
-	// TODO: invalidate old sessions in separate thread
+	// TODO: invalidate old sessions in separate thread: call _removeSession to do so
 	private final Map<String, T> sessions = new ConcurrentHashMap<>();
 	
 	protected SessionManager() {}
 	
-	public T createNewSession(V data) {
-		String token = this.generateToken();
+	public T createNewSession(String token, V data) {
 		T session = this._createNewSession(token, data);
-		this.sessions.put(token, session);
+		this._putSession(token, session);
 		return session;
 	}
 	
-	protected abstract T _createNewSession(String token, V data);
+	public T createNewSession(V data) {
+		String token = this.generateToken();
+		return this.createNewSession(token, data);
+	}
 	
 	public Optional<T> getSessionByToken(String token) {
 		return Optional.ofNullable(this.sessions.get(token));
@@ -54,13 +56,50 @@ public abstract class SessionManager<T extends Session, V extends SessionData> {
 		T session = this.sessions.get(token);
 		if(session != null) {
 			session.setInvalid();
-			this.sessions.remove(token);
+			this._removeSession(token);
 		}
+	}
+	
+	public void removeSession(Session<?> session) {
+		session.setInvalid();
+		this.removeSession(session.getToken());
 	}
 	
 	protected String generateToken() {
 		// Source: http://stackoverflow.com/a/41156
 		SecureRandom sr = SecureRandomSingleton.getInstance();
 		return new BigInteger(SESSION_ID_LENGTH, sr).toString(32);
+	}
+	
+	/*
+	 * Those methods are prone to be overwritten by inheritance
+	 */
+	/**
+	 * Replies a Session object of type T
+	 * 
+	 * @param token
+	 * @param data
+	 * @return
+	 */
+	protected abstract T _createNewSession(String token, V data);
+	
+	/**
+	 * This method is always called when adding a session to local database 
+	 * 
+	 * @param token
+	 * @param session
+	 */
+	protected void _putSession(String token, T session) {
+		this.sessions.put(token, session);
+	}
+	
+	/**
+	 * This method is always called when removing a session from local database 
+	 * 
+	 * @param token
+	 * @param session
+	 */
+	protected void _removeSession(String token) {
+		this.sessions.remove(token);
 	}
 }

@@ -3,30 +3,33 @@ package io.openems.backend.openemswebsocket;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 
-import org.apache.xmlrpc.XmlRpcException;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.abercap.odoo.OdooApiException;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.backend.core.ConnectionManager;
-import io.openems.backend.exception.FemsException;
 import io.openems.backend.influx.Influxdb;
 import io.openems.backend.odoo.Odoo;
 import io.openems.backend.odoo.device.Device;
+import io.openems.backend.openemswebsocket.session.OpenemsSession;
+import io.openems.backend.openemswebsocket.session.OpenemsSessionData;
+import io.openems.backend.openemswebsocket.session.OpenemsSessionManager;
 import io.openems.backend.utilities.StringUtils;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.WebSocketUtils;
 
 /**
  * Handles connections to OpenEMS-Devices.
- * Needs to be initialized before it can be used as a singleton.
  *
  * @author stefan.feilmeier
  *
@@ -35,33 +38,68 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 
 	private final Logger log = LoggerFactory.getLogger(OpenemsWebsocketSingleton.class);
 
+	private final BiMap<WebSocket, OpenemsSession> websockets = Maps.synchronizedBiMap(HashBiMap.create());
+	private final OpenemsSessionManager sessionManager = new OpenemsSessionManager();
+
 	protected OpenemsWebsocketSingleton(int port) throws Exception {
 		super(new InetSocketAddress(port));
 	}
 
 	/**
-	 * Open event of websocket. Expects an "apikey" authentication. On success tells the ConnectionManager
-	 * to keep the websocket. On failure closes the websocket.
+	 * Open event of websocket. Parses the "apikey" and stores it in a new Session.
 	 */
 	@Override
 	public void onOpen(WebSocket websocket, ClientHandshake handshake) {
+		String apikey = "";
+		String deviceName = "";
 		try {
-			if (handshake.hasFieldValue("apikey")) {
-				String apikey = handshake.getFieldValue("apikey");
-				try {
-					Optional<Device> deviceOpt = Odoo.instance().getDeviceModel().getDeviceForApikey(apikey);
-					if (!deviceOpt.isPresent()) {
-						throw new FemsException("Unable to find device for apikey [" + apikey + "]");
-					}
-					Device device = deviceOpt.get();
-					ConnectionManager.instance().addOpenemsWebsocket(websocket, device.getName());
-					log.info("Opened connection to [" + device.getName() + "]");
-				} catch (OdooApiException | XmlRpcException e) {
-					throw new FemsException("Unable to query for apikey [" + apikey + "]: " + e.getMessage());
-				}
+			// get apikey from handshake
+			Optional<String> apikeyOpt = parseApikeyFromHandshake(handshake);
+			if (!apikeyOpt.isPresent()) {
+				throw new OpenemsException("Apikey is missing in handshake");
 			}
-		} catch (FemsException e) {
-			log.warn("Connection failed: " + e.getMessage());
+			apikey = apikeyOpt.get();
+
+			// get device for apikey
+			Optional<Device> deviceOpt = Odoo.instance().getDeviceModel().getDeviceForApikey(apikey);
+			if (!deviceOpt.isPresent()) {
+				throw new OpenemsException("Unable to find device for apikey [" + apikey + "]");
+			}
+			Device device = deviceOpt.get();
+			deviceName = device.getName();
+
+			// create new session if no existing one was found
+			OpenemsSessionData sessionData = new OpenemsSessionData(device);
+			OpenemsSession session = sessionManager.createNewSession(apikey, sessionData);
+			session.setValid();
+
+			// send successful reply to openems
+			JsonObject jReply = DefaultMessages.openemsConnectionSuccessfulReply();
+			log.info("OpenEMS connected. Device [" + deviceName + "]");
+			WebSocketUtils.send(websocket, jReply);
+
+			// add websocket to local cache
+			this.websockets.forcePut(websocket, session);
+
+			try {
+				// set device active in Odoo
+				if (device.getState().equals("inactive")) {
+					device.setState("active");
+				}
+				device.setLastMessage();
+				device.writeObject();
+			} catch (OpenemsException e) {
+				// this error does not stop the connection
+				log.warn(e.getMessage());
+			}
+
+		} catch (OpenemsException e) {
+			// send connection failed to OpenEMS
+			JsonObject jReply = DefaultMessages.openemsConnectionFailedReply(e.getMessage());
+			WebSocketUtils.send(websocket, jReply);
+			log.info("OpenEMS connection failed. Device [" + deviceName + "] Apikey [" + apikey + "]");
+
+			// close websocket
 			websocket.close();
 		}
 	}
@@ -71,9 +109,15 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 	 */
 	@Override
 	public void onClose(WebSocket websocket, int code, String reason, boolean remote) {
-		log.info("Close connection to [" + this.getDeviceName(websocket) + "]" //
-				+ " Code [" + code + "] Reason [" + reason + "]");
-		ConnectionManager.instance().removeOpenemsWebsocket(websocket);
+		OpenemsSession session = this.websockets.get(websocket);
+		if (session != null) {
+			log.info("OpenEMS connection closed. Device [" + session.getData().getDevice().getName() + "] Code [" + code
+					+ "] Reason [" + reason + "]");
+		} else {
+			log.info("Browser connection closed. Code [" + code + "] Reason [" + reason + "]");
+		}
+		sessionManager.removeSession(session);
+		this.websockets.remove(websocket);
 	}
 
 	/**
@@ -81,7 +125,13 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 	 */
 	@Override
 	public void onError(WebSocket websocket, Exception ex) {
-		log.info("Error on connection to [" + this.getDeviceName(websocket) + "]: " + ex.getMessage());
+		OpenemsSession session = this.websockets.get(websocket);
+		if (session != null) {
+			log.warn("OpenEMS connection error. Device [" + session.getData().getDevice().getName() + "]: "
+					+ ex.getMessage());
+		} else {
+			log.warn("OpenEMS connection error: " + ex.getMessage());
+		}
 	}
 
 	/**
@@ -89,21 +139,9 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 	 */
 	@Override
 	public void onMessage(WebSocket websocket, String message) {
-		Optional<Device> deviceOpt = getDevice(websocket);
-		if (!deviceOpt.isPresent()) {
-			log.warn("Device not found for websocket[" + websocket + "]");
-			return;
-		}
-
-		Device device = deviceOpt.get();
-		/*
-		 * set active in Odoo
-		 */
-		if (device.getState().equals("inactive")) {
-			device.setState("active");
-		}
-		device.setLastMessage();
+		Device device = websockets.get(websocket).getData().getDevice();
 		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
+		log.info(jMessage.toString());
 
 		/*
 		 * New timestamped data
@@ -112,33 +150,33 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			timedata(device, jMessage.get("timedata"));
 		}
 
-		/*
-		 * New currentdata data -> forward to browserWebsockets
-		 */
-		if (jMessage.has("currentdata")) {
-			currentdata(websocket, jMessage.get("currentdata"));
-		}
-
-		/*
-		 * New log -> forward to browserWebsockets
-		 */
-		if (jMessage.has("log")) {
-			log(websocket, jMessage.get("log"));
-		}
-
-		/*
-		 * New metadata
-		 */
-		if (jMessage.has("metadata")) {
-			metadata(device, websocket, jMessage.get("metadata"));
-		}
-
-		// Save data to Odoo
-		try {
-			device.writeObject();
-		} catch (OdooApiException | XmlRpcException e) {
-			log.error(device.getName() + ": Updating Odoo failed: " + e.getMessage());
-		}
+		// /*
+		// * New currentdata data -> forward to browserWebsockets
+		// */
+		// if (jMessage.has("currentdata")) {
+		// currentdata(websocket, jMessage.get("currentdata"));
+		// }
+		//
+		// /*
+		// * New log -> forward to browserWebsockets
+		// */
+		// if (jMessage.has("log")) {
+		// log(websocket, jMessage.get("log"));
+		// }
+		//
+		// /*
+		// * New metadata
+		// */
+		// if (jMessage.has("metadata")) {
+		// metadata(device, websocket, jMessage.get("metadata"));
+		// }
+		//
+		// // Save data to Odoo
+		// try {
+		// device.writeObject();
+		// } catch (OdooApiException | XmlRpcException e) {
+		// log.error(device.getName() + ": Updating Odoo failed: " + e.getMessage());
+		// }
 	}
 
 	private void timedata(Device device, JsonElement jTimedataElement) {
@@ -220,7 +258,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			JsonObject jMetadata = JsonUtils.getAsJsonObject(jMetadataElement);
 			if (jMetadata.has("config")) {
 				JsonObject jConfig = JsonUtils.getAsJsonObject(jMetadata, "config");
-				log.info(getDeviceName(websocket) + ": got config " + StringUtils.toShortString(jConfig, 120));
+				// log.info(getDeviceName(websocket) + ": got config " + StringUtils.toShortString(jConfig, 120));
 				device.setOpenemsConfig(jConfig);
 			}
 		} catch (OpenemsException e) {
@@ -234,31 +272,32 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 	}
 
 	/**
-	 * Returns the device for this websocket
+	 * Parses the apikey from websocket onOpen handshake
 	 *
-	 * @param websocket
+	 * @param handshake
 	 * @return
 	 */
-	private Optional<Device> getDevice(WebSocket websocket) {
-		Optional<String> deviceName = ConnectionManager.instance().getDeviceNameFromOpenemsWebsocket(websocket);
-		if (!deviceName.isPresent()) {
-			return Optional.empty();
+	private Optional<String> parseApikeyFromHandshake(ClientHandshake handshake) {
+		if (handshake.hasFieldValue("apikey")) {
+			String apikey = handshake.getFieldValue("apikey");
+			return Optional.ofNullable(apikey);
 		}
-		return Odoo.instance().getDeviceCache().getDeviceForName(deviceName.get());
+		return Optional.empty();
 	}
 
 	/**
-	 * Returns the device name for this websocket, or UNKNOWN if not existing
+	 * Returns true if this device is currently connected
 	 *
-	 * @param websocket
+	 * @param name
 	 * @return
 	 */
-	private String getDeviceName(WebSocket websocket) {
-		Optional<Device> deviceOpt = getDevice(websocket);
-		if (deviceOpt.isPresent()) {
-			return deviceOpt.get().getName();
-		} else {
-			return "UNKNOWN";
+	public boolean isDeviceOnline(String deviceName) {
+		Optional<OpenemsSession> sessionOpt = this.sessionManager.getSessionByDeviceName(deviceName);
+		if (!sessionOpt.isPresent()) {
+			return false;
 		}
+		return true;
+		// OpenemsSession session = sessionOpt.get();
+		// this.websockets.inverse().get(session)
 	}
 }

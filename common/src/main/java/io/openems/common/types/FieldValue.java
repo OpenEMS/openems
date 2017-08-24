@@ -18,12 +18,14 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.persistence.fenecon;
+package io.openems.common.types;
 
-public class NumberFieldValue extends FieldValue<Number> {
+public abstract class FieldValue<T> {
+	public final String field;
+	public final T value;
 
-	public NumberFieldValue(String field, Number value) {
-		super(field, value);
+	public FieldValue(String field, T value) {
+		this.field = field;
+		this.value = value;
 	}
-
 }

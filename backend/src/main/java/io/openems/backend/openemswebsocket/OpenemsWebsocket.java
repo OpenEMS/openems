@@ -26,7 +26,7 @@ public class OpenemsWebsocket {
 	 *
 	 * @return
 	 */
-	public static synchronized OpenemsWebsocketSingleton getInstance() {
+	public static synchronized OpenemsWebsocketSingleton instance() {
 		return OpenemsWebsocket.instance;
 	}
 }

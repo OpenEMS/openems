@@ -11,6 +11,7 @@ import com.abercap.odoo.RowCollection;
 import com.abercap.odoo.Session;
 
 import io.openems.backend.odoo.OdooModel;
+import io.openems.common.exceptions.OpenemsException;
 
 public class DeviceModel extends OdooModel<Device> {
 
@@ -36,13 +37,16 @@ public class DeviceModel extends OdooModel<Device> {
 	 *
 	 * @param apikey
 	 * @return device or null
-	 * @throws OdooApiException
-	 * @throws XmlRpcException
+	 * @throws OpenemsException
 	 */
-	public Optional<Device> getDeviceForApikey(String apikey) throws OdooApiException, XmlRpcException {
-		List<Device> devices = this.readObjectsWhere("apikey", "=", apikey);
+	public Optional<Device> getDeviceForApikey(String apikey) throws OpenemsException {
+		List<Device> devices;
+		try {
+			devices = this.readObjectsWhere("apikey", "=", apikey);
+		} catch (XmlRpcException | OdooApiException e) {
+			throw new OpenemsException("Unable to find device for apikey: " + e.getMessage());
+		}
 		if (devices.size() > 0) {
-			// TODO Add devices to cache
 			return Optional.of(devices.get(0));
 		} else {
 			return Optional.empty();

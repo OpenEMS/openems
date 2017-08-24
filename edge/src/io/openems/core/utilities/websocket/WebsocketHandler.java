@@ -56,7 +56,6 @@ import io.openems.core.Config;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
-import io.openems.core.utilities.StringUtils;
 import io.openems.impl.controller.api.websocket.WebsocketApiController;
 
 /**
@@ -266,58 +265,59 @@ public class WebsocketHandler {
 	/**
 	 * Sends an initial message to the browser after it was successfully connected
 	 */
-	public boolean sendConnectionSuccessfulReply() {
-		JsonObject j = this.createConnectionSuccessfulReply();
-		log.info("Send Connection Successful Reply: " + StringUtils.toShortString(j, 100));
-		return this.send(j);
-	}
+	// public boolean sendConnectionSuccessfulReply() {
+	// // TODO this is not necessary for OpenEMS Edge -> OpenEMS Backend connection
+	// JsonObject j = this.createConnectionSuccessfulReply();
+	// log.info("Send Connection Successful Reply: " + StringUtils.toShortString(j, 100));
+	// return this.send(j);
+	// }
+	//
+	// public boolean sendConnectionFailedReply() {
+	// JsonObject j = this.createConnectionFailedReply();
+	// log.info("Send Connection Failed Reply: " + StringUtils.toShortString(j, 100));
+	// return this.send(j);
+	// }
 
-	public boolean sendConnectionFailedReply() {
-		JsonObject j = this.createConnectionFailedReply();
-		log.info("Send Connection Failed Reply: " + StringUtils.toShortString(j, 100));
-		return this.send(j);
-	}
+	// /**
+	// * Creates an initial message to the browser after it was successfully connected
+	// *
+	// * <pre>
+	// * {
+	// * metadata: {
+	// * config: {...},
+	// * backend: "openems"
+	// * }
+	// * }
+	// * </pre>
+	// *
+	// * @param handler
+	// */
+	// protected JsonObject createConnectionSuccessfulReply() {
+	// JsonObject j = new JsonObject();
+	//
+	// // Metadata
+	// JsonObject jMetadata = new JsonObject();
+	// try {
+	// jMetadata.add("config", Config.getInstance().getMetaConfigJson());
+	// } catch (ConfigException e) {
+	// log.error(e.getMessage());
+	// }
+	// jMetadata.addProperty("backend", "openems");
+	// j.add("metadata", jMetadata);
+	//
+	// return j;
+	// }
 
-	/**
-	 * Creates an initial message to the browser after it was successfully connected
-	 *
-	 * <pre>
-	 * {
-	 *   metadata: {
-	 *       config: {...},
-	 *       backend: "openems"
-	 *   }
-	 * }
-	 * </pre>
-	 *
-	 * @param handler
-	 */
-	protected JsonObject createConnectionSuccessfulReply() {
-		JsonObject j = new JsonObject();
-
-		// Metadata
-		JsonObject jMetadata = new JsonObject();
-		try {
-			jMetadata.add("config", Config.getInstance().getMetaConfigJson());
-		} catch (ConfigException e) {
-			log.error(e.getMessage());
-		}
-		jMetadata.addProperty("backend", "openems");
-		j.add("metadata", jMetadata);
-
-		return j;
-	}
-
-	protected JsonObject createConnectionFailedReply() {
-		JsonObject j = new JsonObject();
-
-		JsonObject jAuthenticate = new JsonObject();
-		jAuthenticate.addProperty("mode", "deny");
-
-		j.add("authenticate", jAuthenticate);
-
-		return j;
-	}
+	// protected JsonObject createConnectionFailedReply() {
+	// JsonObject j = new JsonObject();
+	//
+	// JsonObject jAuthenticate = new JsonObject();
+	// jAuthenticate.addProperty("mode", "deny");
+	//
+	// j.add("authenticate", jAuthenticate);
+	//
+	// return j;
+	// }
 
 	/**
 	 * Set configuration

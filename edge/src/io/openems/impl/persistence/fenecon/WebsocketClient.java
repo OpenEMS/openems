@@ -97,18 +97,15 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 	private CountDownLatch connectLatch = new CountDownLatch(1);
 
 	/**
-	 * Same as connect but blocks until the websocket connected or failed to do so.<br>
+	 * Same as connect but blocks until the websocket connected or failed to do so.
 	 * Returns whether it succeeded or not.
 	 *
-	 * Overrides original method to use timeout of 10 seconds
+	 * Overrides original method to be able to use custom timeout
 	 */
 	public boolean connectBlocking(long timeoutSeconds) throws InterruptedException {
 		connect();
 		connectLatch.await(timeoutSeconds, TimeUnit.SECONDS);
 		boolean connected = getConnection().isOpen();
-		if (connected) {
-			this.websocketHandler.sendConnectionSuccessfulReply();
-		}
 		return connected;
 	}
 

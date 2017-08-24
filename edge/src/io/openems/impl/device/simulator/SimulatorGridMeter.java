@@ -218,7 +218,6 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 			}
 		}
 		for (MeterNature entry : meterNatures) {
-			System.out.println(entry.id());
 			if (entry instanceof SymmetricMeterNature) {
 				SymmetricMeterNature meter = (SymmetricMeterNature) entry;
 				activePower -= meter.activePower().valueOptional().orElse(0L);
