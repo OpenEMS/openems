@@ -5,7 +5,7 @@ export class DefaultMessages {
     public static refreshConfig() {
         return {
             device: String,
-            requestId: UUID.UUID(),
+            id: [UUID.UUID()],
             config: {
                 mode: "query",
                 language: 'de'

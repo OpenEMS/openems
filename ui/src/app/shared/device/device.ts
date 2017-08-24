@@ -73,7 +73,7 @@ export class Device {
         this.send(message);
         this.queryreply.takeUntil(this.ngUnsubscribeQueryReply).subscribe(queryreply => {
           console.log(queryreply);
-          if (queryreply.requestId == message.requestId) {
+          if (queryreply.requestId == message.id.pop()) {
             console.log(queryreply);
             resolve();
           }

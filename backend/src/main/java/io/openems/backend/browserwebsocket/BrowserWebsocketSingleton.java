@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -174,7 +175,11 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 		 */
 		if (jMessage.has("config") && deviceNameOpt.isPresent()) {
 			String deviceName = deviceNameOpt.get();
-			forwardMessageToOpenems(websocket, jMessage, deviceName);
+			try {
+				forwardMessageToOpenems(websocket, jMessage, deviceName);
+			} catch (OpenemsException e) {
+				log.error(deviceName + ": Unable to forward message: " + e.getMessage());
+			}
 		}
 
 		// /*
@@ -201,19 +206,30 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 	}
 
 	/**
-	 * Forward message to OpenEMS websocket
+	 * Forward message to OpenEMS websocket.
+	 *
+	 * @throws OpenemsException
 	 */
-	private void forwardMessageToOpenems(WebSocket websocket, JsonObject jMessage, String deviceName) {
+	private void forwardMessageToOpenems(WebSocket websocket, JsonObject jMessage, String deviceName)
+			throws OpenemsException {
+		// add session token to message id for identification
 		BrowserSession session = this.websockets.get(websocket);
-		jMessage.addProperty("token", session.getToken());
+		JsonArray jId = JsonUtils.getAsJsonArray(jMessage, "id");
+		jId.add(session.getToken());
+		jMessage.add("id", jId);
+
+		// get OpenEMS websocket and forward message
 		Optional<WebSocket> openemsWebsocketOpt = OpenemsWebsocket.instance().getOpenemsWebsocket(deviceName);
 		if (openemsWebsocketOpt.isPresent()) {
 			WebSocket openemsWebsocket = openemsWebsocketOpt.get();
 			if (WebSocketUtils.send(openemsWebsocket, jMessage)) {
 				return;
+			} else {
+				throw new OpenemsException("Sending failed");
 			}
+		} else {
+			throw new OpenemsException("Device is not connected.");
 		}
-		log.warn("Unable to forward to OpenEMS: " + jMessage);
 	}
 
 	/**

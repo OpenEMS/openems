@@ -57,7 +57,16 @@ currently forwarded to Odoo login page
 
 ## [1.2] OpenEMS UI <-> OpenEMS Backend <-> OpenEMS Edge
 
-Following commands are all the same, no matter if UI is connected to Edge or to Backend. Backend is transparently proxying requests to a connected Edge if necessary.
+Following commands are all the same, no matter if UI is connected to Edge or to Backend. 
+
+Backend is transparently proxying requests to a connected Edge if necessary, adding the UI token as identifier to the request id:
+
+```
+{
+	id: [..., token],
+	...
+}
+```
 
 ### [1.2.1] Receive current configuration
 
@@ -66,11 +75,23 @@ Following commands are all the same, no matter if UI is connected to Edge or to 
 ```
 {
 	device: String,
+	id: [UUID],
 	config: {
-		mode: "refresh"
+		mode: "query",
+		language: 'de' | 'en' | ...
 	}
 }
 ```
+
+[1.2.1.2] Edge/Backend -> UI
+
+```
+
+```
+
+
+
+
 
 ### [1.2.1] Current live data
 
