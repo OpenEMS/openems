@@ -28,15 +28,12 @@ export class QueryReply {
 }
 
 export class Device {
-
   public event = new Subject<Notification>();
   public address: string;
   public config = new BehaviorSubject<Config>(null);
   public log = new Subject<Log>();
-  public producttype: 'Pro 9-12' | 'MiniES 3-3' | 'PRO Hybrid 9-10' | 'PRO Compact 3-10' | 'COMMERCIAL 40-45' | 'INDUSTRIAL' | '' = '';
 
   //public historykWh = new BehaviorSubject<any[]>(null);
-  private comment: string = '';
   private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
   private queryreply = new Subject<QueryReply>();
   private currentData = new BehaviorSubject<Data>(null);
@@ -51,12 +48,12 @@ export class Device {
 
   constructor(
     public readonly name: string,
+    public readonly comment: string,
+    public readonly producttype: string,
     public readonly role: Role,
     public readonly online: boolean,
     private websocket: Websocket
-  ) {
-    this.comment = name;
-  }
+  ) { }
 
   /**
    * Sends a message to websocket, returns the unique request id
@@ -210,16 +207,8 @@ export class Device {
       //   this.online = true;
       // }
 
-      if ("comment" in metadata) {
-        this.comment = metadata.comment;
-      }
-
       if ("state" in metadata) {
         this.state = metadata.state;
-      }
-
-      if ("producttype" in metadata) {
-        this.producttype = metadata.producttype;
       }
     }
 

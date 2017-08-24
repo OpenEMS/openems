@@ -39,13 +39,12 @@
           <md-icon *ngIf="device.online" md-card-avatar color="primary">folder</md-icon>
           <md-icon *ngIf="!device.online" md-card-avatar>error</md-icon>
           <md-card-title *ngIf="env.backend == 'openems_edge'" translate>Overview.ToEnergymonitor</md-card-title>
-          <md-card-title *ngIf="env.backend == 'openems_backend'" translate>
-            <span>{{ device.name }} <span *ngIf="!device.online"><br/>Overview.IsOffline</span></span>
-            <!-- TODO show device.comment -->
+          <md-card-title *ngIf="env.backend == 'openems_backend'">
+            <span>{{ device.comment }} <span *ngIf="!device.online"><br/><span translate>Overview.IsOffline</span></span>
+            </span>
           </md-card-title>
           <md-card-subtitle *ngIf="env.backend == 'openems_backend'">
             <span>{{ device.name }}: {{ device.producttype }}</span>
-            <!-- TODO producttype is not available -->
           </md-card-subtitle>
         </md-card-header>
         <md-card-actions fxLayout fxLayoutAlign="end start">

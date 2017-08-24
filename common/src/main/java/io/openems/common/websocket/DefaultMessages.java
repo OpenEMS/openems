@@ -18,6 +18,8 @@ public class DefaultMessages {
 	 *		}, metadata: {
 	 *			devices: [{
 	 *				name: String,
+	 *				comment: String,
+	 *				producttype: String,
 	 *				role: "admin" | "installer" | "owner" | "guest",
 	 *				online: boolean
 	 *			}]
@@ -40,6 +42,8 @@ public class DefaultMessages {
 			for(Device device : devices) {
 				JsonObject jDevice = new JsonObject();
 				jDevice.addProperty("name", device.getName());
+				jDevice.addProperty("comment", device.getComment());
+				jDevice.addProperty("producttype", device.getProducttype());
 				jDevice.addProperty("role", device.getRole().toString());
 				jDevice.addProperty("online", device.isOnline());
 				jDevices.add(jDevice);

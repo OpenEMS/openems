@@ -1,7 +1,5 @@
 package io.openems.common.types;
 
-import com.google.gson.JsonObject;
-
 import io.openems.common.session.Role;
 
 /**
@@ -12,11 +10,15 @@ import io.openems.common.session.Role;
  */
 public class Device {
 	private final String name;
+	private final String comment;
+	private final String producttype;
 	private final Role role;
 	private boolean online = false;
 	
-	public Device(String name, String role) {
+	public Device(String name, String comment, String producttype, String role) {
 		this.name = name;
+		this.comment = comment;
+		this.producttype = producttype;
 		this.role = Role.getRole(role);
 	}
 
@@ -34,5 +36,13 @@ public class Device {
 	
 	public boolean isOnline() {
 		return online;
+	}
+	
+	public String getComment() {
+		return comment;
+	}
+	
+	public String getProducttype() {
+		return producttype;
 	}
 }

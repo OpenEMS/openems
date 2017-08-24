@@ -162,7 +162,10 @@ public class OdooSingleton {
 						JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
 						List<Device> deviceInfos = new ArrayList<>();
 						for (JsonElement jDevice : jDevices) {
-							deviceInfos.add(new Device(JsonUtils.getAsString(jDevice, "name"),
+							deviceInfos.add(new Device( //
+									JsonUtils.getAsString(jDevice, "name"), //
+									JsonUtils.getAsString(jDevice, "comment"), //
+									JsonUtils.getAsString(jDevice, "producttype"), //
 									JsonUtils.getAsString(jDevice, "role")));
 						}
 						data.setDevices(deviceInfos);

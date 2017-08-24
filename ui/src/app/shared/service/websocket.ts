@@ -150,7 +150,7 @@ export class Websocket {
             // for OpenEMS Edge we have only one device
             let role = ROLES.getRole(message.authenticate.role);
             this.devices = {
-              fems: new Device("fems", role, true, this)
+              fems: new Device("fems", "FEMS", "", role, true, this)
             }
           }
 
@@ -183,11 +183,14 @@ export class Websocket {
         if ("devices" in message.metadata) {
           let newDevices = {};
           for (let deviceParam of message.metadata.devices) {
-            let name = deviceParam["name"];
-            let role = deviceParam["role"];
-            let online = deviceParam["online"];
-            let newDevice = new Device(name, role, online, this);
-            newDevices[name] = newDevice;
+            let newDevice = new Device(
+              deviceParam["name"],
+              deviceParam["comment"],
+              deviceParam["producttype"],
+              deviceParam["role"],
+              deviceParam["online"], this
+            );
+            newDevices[newDevice.name] = newDevice;
             // TODO
             // device.receive({
             //   metadata: newDevice
