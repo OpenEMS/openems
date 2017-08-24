@@ -12,7 +12,7 @@ export const TRANSLATION = {
         Soc: "Laadstatus",
         Percentage: "Procent",
         More: "Meer…",
-        PeriodFromTo: "tot", // value1 = beginning date, value2 = end date
+        PeriodFromTo: "van {{value1}} tot {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "DD-MM-YYYY", // e.g. German: DD.MM.YYYY, English: YYYY-MM-DD (DD = Day, MM = Month, YYYY = Year)
         Week: {
             Monday: "Maandag",
