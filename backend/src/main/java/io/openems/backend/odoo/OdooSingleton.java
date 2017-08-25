@@ -113,7 +113,8 @@ public class OdooSingleton {
 	 * @return
 	 * @throws OpenemsException
 	 */
-	public void getInfoWithSession(BrowserSession session) {
+	public void getInfoWithSession(BrowserSession session) throws OpenemsException {
+		HttpURLConnection connection = null;
 		try {
 			// get session_id from Session
 			SessionData sessionData = session.getData();
@@ -129,57 +130,55 @@ public class OdooSingleton {
 			// send request to Odoo
 			String charset = "US-ASCII";
 			String query = String.format("session_id=%s", URLEncoder.encode(sessionId, charset));
-			HttpURLConnection connection = (HttpURLConnection) new URL(this.url + "/openems_backend/info?" + query)
-					.openConnection();
-			try {
-				connection.setConnectTimeout(5000);// 5 secs
-				connection.setReadTimeout(5000);// 5 secs
-				connection.setRequestProperty("Accept-Charset", charset);
-				connection.setRequestMethod("POST");
-				connection.setDoOutput(true);
-				connection.setRequestProperty("Content-Type", "application/json");
+			connection = (HttpURLConnection) new URL(this.url + "/openems_backend/info?" + query).openConnection();
+			connection.setConnectTimeout(5000);// 5 secs
+			connection.setReadTimeout(5000);// 5 secs
+			connection.setRequestProperty("Accept-Charset", charset);
+			connection.setRequestMethod("POST");
+			connection.setDoOutput(true);
+			connection.setRequestProperty("Content-Type", "application/json");
 
-				OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-				out.write("{}");
-				out.flush();
-				out.close();
+			OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+			out.write("{}");
+			out.flush();
+			out.close();
 
-				InputStream is = connection.getInputStream();
-				BufferedReader br = new BufferedReader(new InputStreamReader(is));
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					JsonObject j = (new JsonParser()).parse(line).getAsJsonObject();
-					if (j.has("error")) {
-						JsonObject jError = JsonUtils.getAsJsonObject(j, "error");
-						String errorMessage = JsonUtils.getAsString(jError, "message");
-						throw new OpenemsException(errorMessage);
-					}
-
-					if (j.has("result")) {
-						// parse the result
-						JsonObject jResult = JsonUtils.getAsJsonObject(j, "result");
-						data.setUserId(JsonUtils.getAsInt(jResult, "user"));
-						JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
-						List<Device> deviceInfos = new ArrayList<>();
-						for (JsonElement jDevice : jDevices) {
-							deviceInfos.add(new Device( //
-									JsonUtils.getAsString(jDevice, "name"), //
-									JsonUtils.getAsString(jDevice, "comment"), //
-									JsonUtils.getAsString(jDevice, "producttype"), //
-									JsonUtils.getAsString(jDevice, "role")));
-						}
-						data.setDevices(deviceInfos);
-						session.setValid();
-						return;
-					}
+			InputStream is = connection.getInputStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				JsonObject j = (new JsonParser()).parse(line).getAsJsonObject();
+				if (j.has("error")) {
+					JsonObject jError = JsonUtils.getAsJsonObject(j, "error");
+					String errorMessage = JsonUtils.getAsString(jError, "message");
+					throw new OpenemsException(errorMessage);
 				}
-			} finally {
+
+				if (j.has("result")) {
+					// parse the result
+					JsonObject jResult = JsonUtils.getAsJsonObject(j, "result");
+					data.setUserId(JsonUtils.getAsInt(jResult, "user"));
+					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
+					List<Device> deviceInfos = new ArrayList<>();
+					for (JsonElement jDevice : jDevices) {
+						deviceInfos.add(new Device( //
+								JsonUtils.getAsString(jDevice, "name"), //
+								JsonUtils.getAsString(jDevice, "comment"), //
+								JsonUtils.getAsString(jDevice, "producttype"), //
+								JsonUtils.getAsString(jDevice, "role")));
+					}
+					data.setDevices(deviceInfos);
+					session.setValid();
+					return;
+				}
+			}
+		} catch (IOException e) {
+			throw new OpenemsException(e.getMessage());
+		} finally {
+			if (connection != null) {
 				connection.disconnect();
 			}
-			throw new OpenemsException("No result from Odoo");
-		} catch (IOException | OpenemsException e) {
-			log.warn(e.getMessage());
-			session.setInvalid();
 		}
+		throw new OpenemsException("No result from Odoo");
 	}
 }

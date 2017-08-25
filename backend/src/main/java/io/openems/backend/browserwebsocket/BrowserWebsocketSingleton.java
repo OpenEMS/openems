@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
@@ -58,11 +59,14 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 	 */
 	@Override
 	public void onOpen(WebSocket websocket, ClientHandshake handshake) {
+		// Prepare session information
+		String error = "";
+		BrowserSession session = null;
+		String sessionId = null;
+
 		try {
-			// Prepare session information
-			BrowserSession session = null;
+			// get cookie information
 			JsonObject jCookie = parseCookieFromHandshake(handshake);
-			String sessionId;
 			sessionId = JsonUtils.getAsString(jCookie, "session_id");
 
 			// try to get token of an existing, valid session from cookie
@@ -77,50 +81,50 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 					}
 				}
 			}
-
-			// create new session if no existing one was found
-			if (session == null) {
-				BrowserSessionData sessionData = new BrowserSessionData();
-				sessionData.setOdooSessionId(sessionId);
-				session = sessionManager.createNewSession(sessionData);
-			}
-
-			// check Odoo session and refresh info from Odoo
-			Odoo.instance().getInfoWithSession(session);
-
-			// check if the session is now valid and send reply to browser
-			BrowserSessionData data = session.getData();
-			if (session.isValid()) {
-				// add isOnline information
-				OpenemsWebsocketSingleton openemsWebsocket = OpenemsWebsocket.instance();
-				for (Device device : data.getDevices()) {
-					device.setOnline(openemsWebsocket.isOpenemsWebsocketConnected(device.getName()));
-				}
-
-				// send connection successful to browser
-				JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
-						data.getDevices());
-				log.info("Browser connected. User [" + data.getUserId().orElse(0) + "] Session ["
-						+ data.getOdooSessionId().orElse("") + "]");
-				WebSocketUtils.send(websocket, jReply);
-
-				// add websocket to local cache
-				this.websockets.forcePut(websocket, session);
-
-			} else {
-				// send connection failed to browser
-				JsonObject jReply = DefaultMessages.browserConnectionFailedReply();
-				WebSocketUtils.send(websocket, jReply);
-				log.info("Browser connection failed. User [" + data.getUserId() + "] Session ["
-						+ data.getOdooSessionId() + "]");
-
-				// close websocket
-				websocket.close();
-			}
-
 		} catch (OpenemsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			error = e.getMessage();
+		}
+
+		// create new session if no existing one was found
+		if (session == null) {
+			BrowserSessionData sessionData = new BrowserSessionData();
+			sessionData.setOdooSessionId(sessionId);
+			session = sessionManager.createNewSession(sessionData);
+		}
+
+		// check Odoo session and refresh info from Odoo
+		try {
+			Odoo.instance().getInfoWithSession(session);
+		} catch (OpenemsException e) {
+			error = e.getMessage();
+		}
+
+		// check if the session is now valid and send reply to browser
+		BrowserSessionData data = session.getData();
+		if (error.isEmpty() && session.isValid()) {
+			// add isOnline information
+			OpenemsWebsocketSingleton openemsWebsocket = OpenemsWebsocket.instance();
+			for (Device device : data.getDevices()) {
+				device.setOnline(openemsWebsocket.isOpenemsWebsocketConnected(device.getName()));
+			}
+
+			// send connection successful to browser
+			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(), data.getDevices());
+			log.info("Browser connected. User [" + data.getUserId().orElse(-1) + "] Session ["
+					+ data.getOdooSessionId().orElse("") + "]");
+			WebSocketUtils.send(websocket, jReply);
+
+			// add websocket to local cache
+			this.websockets.forcePut(websocket, session);
+
+		} else {
+			// send connection failed to browser
+			JsonObject jReply = DefaultMessages.browserConnectionFailedReply();
+			WebSocketUtils.send(websocket, jReply);
+			log.info("Browser connection failed. User [" + data.getUserId().orElse(-1) + "] Session ["
+					+ data.getOdooSessionId().orElse("") + "] Error [" + error + "]");
+
+			websocket.closeConnection(CloseFrame.REFUSE, error);
 		}
 	}
 
