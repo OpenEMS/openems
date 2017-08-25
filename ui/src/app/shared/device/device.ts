@@ -59,7 +59,7 @@ export class Device {
   ) { }
 
   /**
-   * Returns a promise for a config. If a config is availabe, returns immediately. Otherwise queries backend.
+   * Returns a promise for a config. If a config is availabe, returns immediately. Otherwise queries backend. Returns anyway after a timeout.
    */
   public getConfig(): Promise<Config> {
     let currentConfig = this.config.getValue();
