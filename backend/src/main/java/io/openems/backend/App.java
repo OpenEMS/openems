@@ -6,9 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.browserwebsocket.BrowserWebsocket;
-import io.openems.backend.influx.Influxdb;
 import io.openems.backend.metadata.Metadata;
 import io.openems.backend.openemswebsocket.OpenemsWebsocket;
+import io.openems.backend.timedata.Timedata;
 import io.openems.common.utils.EnvUtils;
 
 public class App {
@@ -19,7 +19,7 @@ public class App {
 
 		// Configure everything
 		initMetadataProvider();
-		initInfluxdb();
+		initTimedataProvider();
 		initOpenemsWebsocket();
 		initBrowserWebsocket();
 
@@ -35,6 +35,7 @@ public class App {
 	private static void initMetadataProvider() throws Exception {
 		Optional<String> metadataOpt = EnvUtils.getAsOptionalString("METADATA");
 		if (metadataOpt.isPresent() && metadataOpt.get().equals("DUMMY")) {
+			log.info("Start Dummy Metadata provider");
 			Metadata.initializeDummy();
 		} else {
 			int port = EnvUtils.getAsInt("ODOO_PORT");
@@ -47,14 +48,20 @@ public class App {
 		}
 	}
 
-	private static void initInfluxdb() throws Exception {
-		int port = Integer.valueOf(System.getenv("INFLUX_PORT"));
-		String url = EnvUtils.getAsString("INFLUX_URL");
-		String database = EnvUtils.getAsString("INFLUX_DATABASE");
-		log.info("Connect to InfluxDB. Url [" + url + ":" + port + "], Database [" + database + "]");
-		String username = EnvUtils.getAsString("INFLUX_USERNAME");
-		String password = EnvUtils.getAsString("INFLUX_PASSWORD");
-		Influxdb.initialize(database, url, port, username, password);
+	private static void initTimedataProvider() throws Exception {
+		Optional<String> timedataOpt = EnvUtils.getAsOptionalString("TIMEDATA");
+		if (timedataOpt.isPresent() && timedataOpt.get().equals("DUMMY")) {
+			log.info("Start Dummy Timedata provider");
+			Timedata.initializeDummy();
+		} else {
+			int port = Integer.valueOf(System.getenv("INFLUX_PORT"));
+			String url = EnvUtils.getAsString("INFLUX_URL");
+			String database = EnvUtils.getAsString("INFLUX_DATABASE");
+			log.info("Connect to InfluxDB. Url [" + url + ":" + port + "], Database [" + database + "]");
+			String username = EnvUtils.getAsString("INFLUX_USERNAME");
+			String password = EnvUtils.getAsString("INFLUX_PASSWORD");
+			Timedata.initializeInfluxdb(database, url, port, username, password);
+		}
 	}
 
 	private static void initOpenemsWebsocket() throws Exception {

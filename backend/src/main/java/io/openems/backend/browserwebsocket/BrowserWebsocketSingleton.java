@@ -26,10 +26,10 @@ import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.browserwebsocket.session.BrowserSessionData;
 import io.openems.backend.browserwebsocket.session.BrowserSessionManager;
 import io.openems.backend.core.ConnectionManager;
-import io.openems.backend.influx.Influxdb;
 import io.openems.backend.metadata.Metadata;
 import io.openems.backend.openemswebsocket.OpenemsWebsocket;
 import io.openems.backend.openemswebsocket.OpenemsWebsocketSingleton;
+import io.openems.backend.timedata.Timedata;
 import io.openems.backend.utilities.StringUtils;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.Device;
@@ -367,7 +367,7 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 				} else if (days > 2) {
 					resolution = 60 * 60; // 60 Minutes
 				}
-				JsonObject jQueryreply = Influxdb.instance().query(fems, fromDate, toDate, channels, resolution/*
+				JsonObject jQueryreply = Timedata.instance().query(fems, fromDate, toDate, channels, resolution/*
 																												 * ,
 																												 * kWh
 																												 */);

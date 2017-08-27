@@ -10,6 +10,7 @@ import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.browserwebsocket.session.BrowserSessionData;
 import io.openems.backend.metadata.api.MetadataSingleton;
 import io.openems.backend.metadata.api.device.MetadataDeviceModel;
+import io.openems.backend.metadata.dummy.device.MetadataDummyDeviceModel;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.SessionData;
 import io.openems.common.types.Device;
@@ -17,9 +18,11 @@ import io.openems.common.types.Device;
 public class MetadataDummySingleton implements MetadataSingleton {
 	private final Logger log = LoggerFactory.getLogger(MetadataDummySingleton.class);
 
-	private MetadataDeviceModel deviceModel;
+	private MetadataDummyDeviceModel deviceModel;
 
-	public MetadataDummySingleton() {}
+	public MetadataDummySingleton() {
+		this.deviceModel = new MetadataDummyDeviceModel();
+	}
 
 	/**
 	 * Returns static device data
@@ -32,8 +35,11 @@ public class MetadataDummySingleton implements MetadataSingleton {
 		SessionData sessionData = session.getData();
 		BrowserSessionData data = (BrowserSessionData) sessionData;
 		data.setUserId(0);
+		// Allow access to all available devices
 		List<Device> deviceInfos = new ArrayList<>();
-		deviceInfos.add(new Device("name", "comment", "producttype", "admin"));
+		for (Device device : this.deviceModel.getAllDevices()) {
+			deviceInfos.add(device);
+		}
 		data.setDevices(deviceInfos);
 		session.setValid();
 		return;

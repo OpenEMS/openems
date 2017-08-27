@@ -1,4 +1,4 @@
-package io.openems.backend.influx;
+package io.openems.backend.timedata.influx;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
@@ -21,10 +21,11 @@ import com.google.common.collect.Tables;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.backend.timedata.api.TimedataSingleton;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
-public class InfluxdbSingleton {
+public class InfluxdbSingleton implements TimedataSingleton {
 
 	private final Logger log = LoggerFactory.getLogger(InfluxdbSingleton.class);
 
@@ -40,8 +41,7 @@ public class InfluxdbSingleton {
 	// fems : timestamp
 	private Map<String, Long> lastTimestampMap = new ConcurrentHashMap<String, Long>();
 
-	protected InfluxdbSingleton(String database, String url, int port, String username, String password)
-			throws Exception {
+	public InfluxdbSingleton(String database, String url, int port, String username, String password) throws Exception {
 		this.database = database;
 		this.url = url;
 		this.port = port;
@@ -75,11 +75,11 @@ public class InfluxdbSingleton {
 	 * Format: { "timestamp1" { "channel1": value, "channel2": value },
 	 * "timestamp2" { "channel1": value, "channel2": value } }
 	 */
-	public void write(String fems, JsonObject jData) {
-		final Long lastTimestamp = this.lastTimestampMap.getOrDefault(fems, 0l);
+	public void write(String name, JsonObject jData) {
+		final Long lastTimestamp = this.lastTimestampMap.getOrDefault(name, 0l);
 
 		BatchPoints batchPoints = BatchPoints.database(database) //
-				.tag("fems", fems) //
+				.tag("fems", name) //
 				.build();
 
 		// Sort data by timestamp
@@ -101,7 +101,7 @@ public class InfluxdbSingleton {
 			Long timestamp = dataEntry.getKey();
 			// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
 			boolean useLastDataCache = timestamp > lastTimestamp && timestamp < lastTimestamp + 60000;
-			this.lastTimestampMap.put(fems, timestamp);
+			this.lastTimestampMap.put(name, timestamp);
 			Builder builder = Point.measurement("data") // this builds a InfluxDB record ("point") for a given timestamp
 					.time(timestamp, TimeUnit.MILLISECONDS);
 
@@ -116,18 +116,18 @@ public class InfluxdbSingleton {
 							Number value = jValue.getAsNumber();
 							builder.addField(channel, value);
 							if (useLastDataCache) {
-								this.lastDataCache.put(fems, channel, value);
+								this.lastDataCache.put(name, channel, value);
 							}
 
 						} else if (jValue.isString()) {
 							String value = jValue.getAsString();
 							builder.addField(channel, value);
 							if (useLastDataCache) {
-								this.lastDataCache.put(fems, channel, value);
+								this.lastDataCache.put(name, channel, value);
 							}
 
 						} else {
-							log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel + "]");
+							log.warn(name + ": Ignore unknown type [" + jValue + "] for channel [" + channel + "]");
 						}
 					} catch (OpenemsException e) {
 						log.error("Data error: " + e.getMessage());
@@ -137,7 +137,7 @@ public class InfluxdbSingleton {
 
 				// only for latest data: add the cached data to the InfluxDB point.
 				if (useLastDataCache) {
-					this.lastDataCache.row(fems).entrySet().forEach(cacheEntry -> {
+					this.lastDataCache.row(name).entrySet().forEach(cacheEntry -> {
 						String field = cacheEntry.getKey();
 						Object value = cacheEntry.getValue();
 						if (value instanceof Number) {

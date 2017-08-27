@@ -1,4 +1,4 @@
-package io.openems.backend.influx;
+package io.openems.backend.timedata.influx;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;

@@ -5,7 +5,7 @@ import io.openems.backend.metadata.dummy.MetadataDummySingleton;
 import io.openems.backend.metadata.odoo.OdooSingleton;
 
 /**
- * Provider for Odoo singleton
+ * Provider for Metadata singleton
  *
  * @author stefan.feilmeier
  *

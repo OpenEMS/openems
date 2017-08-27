@@ -16,12 +16,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.backend.influx.Influxdb;
 import io.openems.backend.metadata.Metadata;
 import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.backend.openemswebsocket.session.OpenemsSession;
 import io.openems.backend.openemswebsocket.session.OpenemsSessionData;
 import io.openems.backend.openemswebsocket.session.OpenemsSessionManager;
+import io.openems.backend.timedata.Timedata;
 import io.openems.backend.utilities.StringUtils;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
@@ -127,10 +127,9 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 	public void onError(WebSocket websocket, Exception ex) {
 		OpenemsSession session = this.websockets.get(websocket);
 		if (session != null) {
-			log.warn("OpenEMS connection error. Device [" + session.getData().getDevice().getName() + "]: "
-					+ ex.getMessage());
+			log.warn("OpenEMS connection error. Device [" + session.getData().getDevice().getName() + "]: ", ex);
 		} else {
-			log.warn("OpenEMS connection error: " + ex.getMessage());
+			log.warn("OpenEMS connection error: ", ex);
 		}
 	}
 
@@ -186,7 +185,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			JsonObject jTimedata = JsonUtils.getAsJsonObject(jTimedataElement);
 			// Write to InfluxDB
 			try {
-				Influxdb.instance().write(device.getNameNumber(), jTimedata);
+				Timedata.instance().write(device.getNameNumber(), jTimedata);
 				log.info(device.getName() + ": wrote " + jTimedata.entrySet().size() + " timestamps "
 						+ StringUtils.toShortString(jTimedata, 120));
 			} catch (Exception e) {
