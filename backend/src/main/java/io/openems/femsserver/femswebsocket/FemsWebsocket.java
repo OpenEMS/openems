@@ -133,7 +133,12 @@ public class FemsWebsocket extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket websocket, String message) {
 		this.connectionManager.getFemsWebsocketDevices(websocket).forEach(device -> {
-			// TODO: set device to active if it was inactive
+			/**
+			 * set active in Odoo
+			 */
+			if (device.getState().equals("inactive")) {
+				device.setState("active");
+			}
 			device.setLastMessage();
 			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 

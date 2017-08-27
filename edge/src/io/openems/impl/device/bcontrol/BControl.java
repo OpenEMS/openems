@@ -10,7 +10,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@ThingInfo(title = "B-Conrol Energy Meter")
+@ThingInfo(title = "B-Control Energy Meter")
 public class BControl extends ModbusDevice {
 
 	public BControl() throws OpenemsException {

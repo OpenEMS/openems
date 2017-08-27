@@ -2,20 +2,20 @@
   <md-card-header>
     <md-icon md-card-avatar>announcement</md-icon>
     <md-card-title>FEMS UI</md-card-title>
-    <md-card-subtitle i18n>Benutzeroberfläche für FEMS und OpenEMS</md-card-subtitle>
+    <md-card-subtitle translate>About.UI</md-card-subtitle>
   </md-card-header>
   <md-card-content>
-    <p i18n>Diese Benutzeroberfläche wird von FENECON als Open-Source-Software entwickelt.</p>
+    <p translate>About.Developed</p>
     <ul>
-      <li><a target="_blank" href="https://fenecon.de" i18n>Mehr zu FENECON</a></li>
-      <li><a target="_blank" href="https://fenecon.de/page/stromspeicher-fems" i18n>Mehr zu FEMS</a></li>
-      <li><a target="_blank" href="https://github.com/OpenEMS/openems-gui" i18n>Quellcode</a></li>
-      <li><a target="_blank" href="https://github.com/OpenEMS/openems-gui/commits/master" i18n>Aktuelle Entwicklungen</a></li>
-      <li><a target="_blank" href="https://github.com/OpenEMS/openems-gui/commit/COMMIT_ID" i18n>Dieser Build</a></li>
+      <li><a target="_blank" href="https://fenecon.de" translate>About.Fenecon</a></li>
+      <li><a target="_blank" href="https://fenecon.de/page/stromspeicher-fems" translate>About.Fems</a></li>
+      <li><a target="_blank" href="https://github.com/OpenEMS/openems-gui" translate>About.Sourcecode</a></li>
+      <li><a target="_blank" href="https://github.com/OpenEMS/openems-gui/commits/master" translate>About.CurrentDevelopments</a></li>
+      <li><a target="_blank" href="https://github.com/OpenEMS/openems-gui/commit/COMMIT_ID" translate>About.Build</a></li>
     </ul>
-    <p i18n>Für Rückfragen und Anregungen zum System, wenden Sie sich bitte an unser FEMS-Team unter <a href="mailto:fems@fenecon.de">fems@fenecon.de</a>.</p>
+    <p><span [innerHTML]="'About.Contact' | translate:{value: 'fems@fenecon.de'}"></span></p>
     <hr/>
-    <p>Sprache wählen:</p>
+    <p translate>About.Language</p>
     <ul>
       <select #langSelect (change)="translate.use(langSelect.value)">
           <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>

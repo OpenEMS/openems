@@ -26,6 +26,7 @@ import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.Thing;
 import io.openems.core.ThingRepository;
+import io.openems.core.ThingsChangedListener;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
@@ -46,13 +47,35 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 			"reactivePowerGeneratorConfig", this).addChangeListener(this);
 
 	private ThingRepository repo = ThingRepository.getInstance();
-	private List<EssNature> essNatures;
+	private List<EssNature> essNatures = new ArrayList<>();
 	private List<MeterNature> meterNatures = new ArrayList<>();
 	private LoadGenerator activePowerLoad;
 	private LoadGenerator reactivePowerLoad;
 
 	public SimulatorGridMeter(String thingId) throws ConfigException {
 		super(thingId);
+		repo.addThingChangedListener(new ThingsChangedListener() {
+
+			@Override
+			public void thingChanged(Thing thing, Action action) {
+				if (esss.valueOptional().isPresent()) {
+					JsonArray ids = esss.valueOptional().get();
+					for (JsonElement id : ids) {
+						if (id.getAsString().equals(thing.id())) {
+							getEssNatures();
+						}
+					}
+				}
+				if (producer.valueOptional().isPresent()) {
+					JsonArray ids = producer.valueOptional().get();
+					for (JsonElement id : ids) {
+						if (id.getAsString().equals(thing.id())) {
+							getMeterNatures();
+						}
+					}
+				}
+			}
+		});
 		this.apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this,
 				new FunctionalReadChannelFunction<Long>() {
 
@@ -169,14 +192,6 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 
 	@Override
 	protected void update() {
-		if (essNatures == null) {
-			essNatures = new ArrayList<>();
-			getEssNatures();
-		}
-		if (meterNatures == null) {
-			meterNatures = new ArrayList<>();
-			getMeterNatures();
-		}
 		super.update();
 		long activePower = 0;
 		if (activePowerLoad != null) {
@@ -203,6 +218,7 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 			}
 		}
 		for (MeterNature entry : meterNatures) {
+			System.out.println(entry.id());
 			if (entry instanceof SymmetricMeterNature) {
 				SymmetricMeterNature meter = (SymmetricMeterNature) entry;
 				activePower -= meter.activePower().valueOptional().orElse(0L);

@@ -56,6 +56,9 @@ public class DebugLogController extends Controller {
 	@ConfigInfo(title = "Real-time clock", description = "Sets the real-time clock.", type = RealTimeClock.class, isOptional = true)
 	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this);
 
+	@ConfigInfo(title = "EVCSs", description = "Sets the evcs.", type = Evcs.class, isOptional = true, isArray = true)
+	public final ConfigChannel<Set<Evcs>> evcss = new ConfigChannel<Set<Evcs>>("evcss", this);
+
 	/*
 	 * Methods
 	 */
@@ -76,6 +79,12 @@ public class DebugLogController extends Controller {
 			if (esss.valueOptional().isPresent()) {
 				for (Ess ess : esss.value()) {
 					b.append(ess.toString());
+					b.append(" ");
+				}
+			}
+			if (evcss.valueOptional().isPresent()) {
+				for (Evcs evcs : evcss.value()) {
+					b.append(evcs.toString());
 					b.append(" ");
 				}
 			}

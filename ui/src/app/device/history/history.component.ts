@@ -5,6 +5,7 @@ import { Subject } from 'rxjs/Subject';
 import * as d3 from 'd3';
 import * as d3shape from 'd3-shape';
 import * as moment from 'moment';
+import { TranslateService } from '@ngx-translate/core';
 
 import { WebsocketService, Device, ChannelAddresses } from '../../shared/shared';
 
@@ -28,7 +29,8 @@ export class HistoryComponent implements OnInit {
 
   constructor(
     public websocketService: WebsocketService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private translate: TranslateService
   ) { }
 
   ngOnInit() {
@@ -65,22 +67,22 @@ export class HistoryComponent implements OnInit {
     switch (period) {
       case "yesterday":
         this.fromDate = this.toDate = moment().subtract(1, "days");
-        this.activePeriodText = "Gestern, " + this.fromDate.format("DD.MM.YYYY");
+        this.activePeriodText = this.translate.instant('Device.History.Yesterday') + ", " + this.fromDate.format("DD.MM.YYYY");
         break;
       case "lastWeek":
         this.fromDate = moment().subtract(1, "weeks");
         this.toDate = moment();
-        this.activePeriodText = "Letzte Woche, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+        this.activePeriodText = this.translate.instant('Device.History.LastWeek') + ", " + this.translate.instant('General.PeriodFromTo', { value1: this.fromDate.format("DD.MM.YYYY"), value2: this.toDate.format("DD.MM.YYYY") });
         break;
       case "lastMonth":
         this.fromDate = moment().subtract(1, "months");
         this.toDate = moment();
-        this.activePeriodText = "Letzter Monat, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+        this.activePeriodText = this.translate.instant('Device.History.LastMonth') + ", " + this.translate.instant('General.PeriodFromTo', { value1: this.fromDate.format("DD.MM.YYYY"), value2: this.toDate.format("DD.MM.YYYY") });
         break;
       case "lastYear":
         this.fromDate = moment().subtract(1, "years");
         this.toDate = moment();
-        this.activePeriodText = "Letztes Jahr, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+        this.activePeriodText = this.translate.instant('Device.History.LastYear') + ", " + this.translate.instant('General.PeriodFromTo', { value1: this.fromDate.format("DD.MM.YYYY"), value2: this.toDate.format("DD.MM.YYYY") });
         break;
       case "otherTimespan":
         let fromDate = moment(from);
@@ -90,12 +92,12 @@ export class HistoryComponent implements OnInit {
         }
         this.fromDate = fromDate;
         this.toDate = toDate;
-        this.activePeriodText = "Zeitraum, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+        this.activePeriodText = this.translate.instant('Device.History.Period') + ", " + this.translate.instant('General.PeriodFromTo', { value1: this.fromDate.format("DD.MM.YYYY"), value2: this.toDate.format("DD.MM.YYYY") });
         break;
       case "today":
       default:
         this.fromDate = this.toDate = moment();
-        this.activePeriodText = "Heute, " + this.fromDate.format("DD.MM.YYYY");
+        this.activePeriodText = this.translate.instant('Device.History.Today') + ", " + this.fromDate.format("DD.MM.YYYY");
         break;
     }
   }

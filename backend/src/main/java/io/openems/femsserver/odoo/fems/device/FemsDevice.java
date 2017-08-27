@@ -73,6 +73,10 @@ public class FemsDevice extends OdooObject {
 		put(OPENEMS_CONFIG, gson.toJson(j));
 	}
 
+	public void setState(String active) {
+		put(STATE, active);
+	}
+
 	public void setSoc(int value) {
 		put(SOC, value);
 	}

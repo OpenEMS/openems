@@ -1,6 +1,7 @@
 package io.openems.femsserver.influx;
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +32,8 @@ public class Influxdb {
 	private static Logger log = LoggerFactory.getLogger(Influxdb.class);
 
 	private static Influxdb instance;
+
+	private static HashMap<String, Object> hmapData = new HashMap<String, Object>();
 
 	public static void initialize(String database, String url, int port, String username, String password)
 			throws Exception {
@@ -95,12 +98,28 @@ public class Influxdb {
 						try {
 							String channel = jChannelEntry.getKey();
 							JsonPrimitive jValue = JsonUtils.getAsPrimitive(jChannelEntry.getValue());
-							if (jValue.isNumber()) {
-								builder.addField(channel, jValue.getAsNumber());
-							} else if (jValue.isString()) {
-								builder.addField(channel, jValue.getAsString());
+
+							if (hmapData.containsKey(channel)) {
+								hmapData.replace(channel, hmapData.get(channel),
+										(hmapData.get(channel) instanceof Number) ? jValue.getAsNumber()
+												: jValue.getAsString());
 							} else {
-								log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel + "]");
+								if (jValue.isNumber()) {
+									hmapData.put(channel, jValue.getAsNumber());
+								} else if (jValue.isString()) {
+									hmapData.put(channel, jValue.getAsString());
+								} else {
+									log.warn(fems + ": Ignore unknown type [" + jValue + "] for channel [" + channel
+											+ "]");
+								}
+							}
+
+							for (String key : hmapData.keySet()) {
+								if (hmapData.get(key) instanceof Number) {
+									builder.addField(key, (Number) hmapData.get(key));
+								} else if (hmapData.get(key) instanceof String) {
+									builder.addField(key, (String) hmapData.get(key));
+								}
 							}
 						} catch (OpenemsException e) {
 							log.error("InfluxDB data error: " + e.getMessage());

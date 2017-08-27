@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -58,6 +59,7 @@ import io.openems.api.persistence.QueryablePersistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
+import io.openems.core.ThingsChangedListener.Action;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -89,6 +91,15 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 	private final Table<Thing, String, Channel> thingChannels = HashBasedTable.create();
 	private HashMultimap<Thing, ConfigChannel<?>> thingConfigChannels = HashMultimap.create();
 	private HashMultimap<Thing, WriteChannel<?>> thingWriteChannels = HashMultimap.create();
+	private List<ThingsChangedListener> thingListeners = new LinkedList<>();
+
+	public void addThingChangedListener(ThingsChangedListener listener) {
+		this.thingListeners.add(listener);
+	}
+
+	public void removeThingChangedListener(ThingsChangedListener listener) {
+		this.thingListeners.remove(listener);
+	}
 
 	/**
 	 * Add a Thing to the Repository and cache its Channels and other information for later usage.
@@ -173,6 +184,9 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 				log.warn("Unable to add Channel. Member [" + member.getName() + "]", e);
 			}
 		}
+		for (ThingsChangedListener listener : thingListeners) {
+			listener.thingChanged(thing, Action.ADD);
+		}
 	}
 
 	/**
@@ -240,6 +254,9 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		// Remove Listener
 		thing.removeListener(this);
 		// TODO further cleaning if required
+		for (ThingsChangedListener listener : thingListeners) {
+			listener.thingChanged(thing, Action.REMOVE);
+		}
 	}
 
 	public Thing getThing(String thingId) {

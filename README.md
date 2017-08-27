@@ -24,6 +24,53 @@ The OpenEMS stack contains three parts:
 <img src="/doc/img/screenshots/historysoc.png" width="100" align="left"/>
 <img src="/doc/img/screenshots/historyenergy.png" width="100"/>
 
+## Compatibility
+
+A number of devices, protocols and services are already implemented in OpenEMS:
+
+### Integrated energy storage sytems / inverters / battery chargers
+
+ * [FENECON Mini 3-3 and 3-6 (testing)](https://fenecon.de/page/stromspeicher-mini-es)
+ * [FENECON Pro 9-12](https://fenecon.de/page/stromspeicher-pro)
+ * [FENECON Commercial AC](https://fenecon.de/page/stromspeicher-commercial)
+ * [FENECON Commercial DC](https://fenecon.de/page/stromspeicher-commercial)
+ * [REFU battery inverter](http://www.refu-energy.de/hybrid-power-applications/)
+ * [Studer VS 70 (testing)](http://www.studer-innotec.com/de/produkte/variostring-reihe/vs-70-313)
+
+### Meters
+
+ * [SOCOMEC Diris](http://www.socomec.de/multimessgerate_de.html)
+ * [B-Control Energy Meter](https://www.b-control.com)
+ * [Janitza UMG 96RM-E](https://www.janitza.de/umg-96rm-e.html)
+ * [Carlog Gavazzi EM300](http://www.gavazzi.de/index.php/13-control/47-em100-und-em300-serie)
+ * [PQ plus UMD 97](http://www.pq-plus.de/news/pqplus/umd-97-messgeraet.html)
+
+### Input/Output
+
+ * [FEMS Relais 8-Kanal RS485](https://fenecon.de/page/stromspeicher-fems)
+ * [FEMS Relais 8-Kanal TCP](https://fenecon.de/page/stromspeicher-fems)
+ * [WAGO Fieldbus](http://www.wago.de/produkte/produktkatalog/automatisierungskomponenten/modulares-wago-io-system-ip20-serie-750-753/feldbuskoppler/index.jsp)
+ * [KMTronic relay board](https://www.kmtronic.com/)
+
+### Electric Vehicle Charging Stations (EVCS)
+
+ * [KEBA KeContact P30 (testing)](http://www.keba.com/de/emobility/elektromobilitaet)
+
+### Data persistence / logging / monitoring
+
+ * [InfluxDB](https://www.influxdata.com)
+
+### Outbound Protocols
+
+ * Modbus/TCP
+ * Modbus/RTU
+
+### Inbound protocols
+
+ * JSON/REST
+ * JSON/Websocket
+ * [Modbus/TCP (in development)](/OpenEMS/openems/issues/2)
+
 ## Get started
 
 The target of this short guide is to quickly setup a development environment on your local machine. First you are going to setup OpenEMS Edge to simulate an energy storage system. The second part is setting up the OpenEMS UI.

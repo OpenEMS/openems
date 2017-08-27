@@ -81,7 +81,7 @@ public class BalancingSurplusController extends Controller {
 			if (calculatedPower < 0 && surplus > 0) {
 				calculatedPower = 0;
 			}
-			if (getPvVoltage() < 300000 || surplus < 0) {
+			if (getPvVoltage() < 200000 || surplus < 0) {
 				surplus = 0l;
 			}
 			calculatedPower += surplus;

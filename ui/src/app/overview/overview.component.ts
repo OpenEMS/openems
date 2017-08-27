@@ -4,6 +4,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
+import { TranslateService } from '@ngx-translate/core';
 
 import { environment } from '../../environments';
 
@@ -24,7 +25,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private webappService: WebappService,
     private tmpl: TemplateHelper,
     private router: Router,
-    private formBuilder: FormBuilder) {
+    private formBuilder: FormBuilder,
+    private translate: TranslateService) {
   }
 
   ngOnInit() {
@@ -76,7 +78,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     if (allConnected) {
       this.webappService.notify({
         type: "success",
-        message: "Alle Verbindungen hergestellt."
+        message: this.translate.instant('Overview.AllConnected')
       });
     }
   }

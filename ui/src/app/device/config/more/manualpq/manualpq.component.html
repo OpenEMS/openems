@@ -6,7 +6,7 @@
         <md-card class="single">
           <md-card-header>
             <md-icon md-card-avatar>stop</md-icon>
-            <md-card-title i18n>Leistungsvorgabe</md-card-title>
+            <md-card-title translate>Device.Config.More.ManualpqPowerSpecification</md-card-title>
             <md-card-subtitle>{{ nat.key }}</md-card-subtitle>
           </md-card-header>
           <md-card-content [formGroup]="manualPQForm" fxLayout fxLayoutWrap="wrap">
@@ -19,8 +19,8 @@
               <div fxFlex></div>
             </div>
             <div fxFlex="100%">
-              <button md-raised-button (click)="applyManualPQ(nat.key, manualPQForm)" class="btn btn-default" i18n>Übernehmen</button>
-              <button md-raised-button (click)="removeManualPQ(nat.key)" class="btn btn-default" i18n>Zurücksetzen</button>
+              <button md-raised-button (click)="applyManualPQ(nat.key, manualPQForm)" class="btn btn-default"><span translate>Device.Config.More.ManualpqSubmit</span></button>
+              <button md-raised-button (click)="removeManualPQ(nat.key)" class="btn btn-default"><span translate>Device.Config.More.ManualpqReset</span></button>
             </div>
           </md-card-content>
         </md-card>

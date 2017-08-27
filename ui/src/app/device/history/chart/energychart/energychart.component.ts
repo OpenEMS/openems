@@ -26,7 +26,11 @@ export class EnergyChartComponent implements OnChanges {
   constructor(
     private tmpl: TemplateHelper,
     private translate: TranslateService
-  ) { }
+  ) {
+    this.grid = this.translate.instant('General.Grid');
+    this.gridBuy = this.translate.instant('General.GridBuy');
+    this.gridSell = this.translate.instant('General.GridSell');
+  }
 
   public labels: moment.Moment[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
@@ -34,16 +38,19 @@ export class EnergyChartComponent implements OnChanges {
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
   private queryreplySubject: Subject<QueryReply>;
+  private grid: String = "";
+  private gridBuy: String = "";
+  private gridSell: String = "";
 
   private colors = [{
-    backgroundColor: 'rgba(37,154,24,0.2)',
-    borderColor: 'rgba(37,154,24,1)',
+    backgroundColor: 'rgba(45,143,171,0.2)',
+    borderColor: 'rgba(45,143,171,1)',
+  }, {
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    borderColor: 'rgba(0,0,0,1)',
   }, {
     backgroundColor: 'rgba(221,223,1,0.2)',
     borderColor: 'rgba(221,223,1,1)',
-  }, {
-    backgroundColor: 'rgba(45,143,171,0.2)',
-    borderColor: 'rgba(45,143,171,1)',
   }];
   private options: ChartOptions;
 
@@ -53,12 +60,12 @@ export class EnergyChartComponent implements OnChanges {
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
       let value = tooltipItem.yLabel;
-      if (label === this.translate.instant('General.Grid')) {
+      if (label == this.grid) {
         if (value < 0) {
           value *= -1;
-          label = this.translate.instant('General.GridBuy');
+          label = this.gridBuy;
         } else {
-          label = this.translate.instant('General.GridSell')
+          label = this.gridSell;
         }
       }
       return label + ": " + value.toPrecision(2) + " kW";

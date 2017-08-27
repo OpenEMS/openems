@@ -97,7 +97,7 @@ export class Websocket {
         this.close();
         this.webappService.notify({
           type: "error",
-          message: "Verbindungsaufbau fehlgeschlagen."
+          message: this.webappService.translate.instant('Notifications.Failed')
         });
       }
       retryCounter++;
@@ -115,9 +115,9 @@ export class Websocket {
           }
           if ("username" in message.authenticate) {
             this.username = message.authenticate.username;
-            this.event.next({ type: "success", message: "Angemeldet als Benutzer \"" + this.username + "\"." });
+            this.event.next({ type: "success", message: this.webappService.translate.instant('Notifications.LoggedInAs', { value: this.username }) });
           } else {
-            this.event.next({ type: "success", message: "Angemeldet." });
+            this.event.next({ type: "success", message: this.webappService.translate.instant('Notifications.LoggedIn') });
           }
 
         } else {
@@ -127,7 +127,7 @@ export class Websocket {
           if (this.backend == Backend.FemsServer) {
             window.location.href = "/web/login?redirect=/m/overview";
           } else if (throwErrorOnDeny) {
-            let status: Notification = { type: "error", message: "Keine Verbindung: Authentifizierung fehlgeschlagen." };
+            let status: Notification = { type: "error", message: this.webappService.translate.instant('Notifications.AuthenticationFailed') };
             this.event.next(status);
           }
           this.webappService.removeToken(this.name);
@@ -208,7 +208,7 @@ export class Websocket {
     if (!this.isConnected) {
       this.webappService.removeToken(this.name);
       this.initialize();
-      var status: Notification = { type: "error", message: "Verbindung beendet." };
+      var status: Notification = { type: "error", message: this.webappService.translate.instant('Notifications.Closed') };
       this.event.next(status);
     }
   }
