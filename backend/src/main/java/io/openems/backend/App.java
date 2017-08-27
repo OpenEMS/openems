@@ -1,11 +1,13 @@
 package io.openems.backend;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.browserwebsocket.BrowserWebsocket;
 import io.openems.backend.influx.Influxdb;
-import io.openems.backend.odoo.Odoo;
+import io.openems.backend.metadata.Metadata;
 import io.openems.backend.openemswebsocket.OpenemsWebsocket;
 import io.openems.common.utils.EnvUtils;
 
@@ -16,7 +18,7 @@ public class App {
 		log.info("OpenEMS-Backend starting...");
 
 		// Configure everything
-		initOdoo();
+		initMetadataProvider();
 		initInfluxdb();
 		initOpenemsWebsocket();
 		initBrowserWebsocket();
@@ -25,14 +27,24 @@ public class App {
 		log.info("");
 	}
 
-	private static void initOdoo() throws Exception {
-		int port = EnvUtils.getAsInt("ODOO_PORT");
-		String url = EnvUtils.getAsString("ODOO_URL");
-		String database = EnvUtils.getAsString("ODOO_DATABASE");
-		log.info("Connect to Odoo. Url [" + url + ":" + port + "] Database [" + database + "]");
-		String username = EnvUtils.getAsString("ODOO_USERNAME");
-		String password = EnvUtils.getAsString("ODOO_PASSWORD");
-		Odoo.initialize(url, port, database, username, password);
+	/**
+	 * Configures a metadata provider. It uses either Odoo as backend or a simple Dummy provider.
+	 *
+	 * @throws Exception
+	 */
+	private static void initMetadataProvider() throws Exception {
+		Optional<String> metadataOpt = EnvUtils.getAsOptionalString("METADATA");
+		if (metadataOpt.isPresent() && metadataOpt.get().equals("DUMMY")) {
+			Metadata.initializeDummy();
+		} else {
+			int port = EnvUtils.getAsInt("ODOO_PORT");
+			String url = EnvUtils.getAsString("ODOO_URL");
+			String database = EnvUtils.getAsString("ODOO_DATABASE");
+			log.info("Connect to Odoo. Url [" + url + ":" + port + "] Database [" + database + "]");
+			String username = EnvUtils.getAsString("ODOO_USERNAME");
+			String password = EnvUtils.getAsString("ODOO_PASSWORD");
+			Metadata.initializeOdoo(url, port, database, username, password);
+		}
 	}
 
 	private static void initInfluxdb() throws Exception {

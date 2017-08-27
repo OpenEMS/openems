@@ -1,4 +1,4 @@
-package io.openems.backend.odoo;
+package io.openems.backend.metadata.odoo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,26 +22,25 @@ import com.google.gson.JsonParser;
 
 import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.browserwebsocket.session.BrowserSessionData;
-import io.openems.backend.odoo.device.DeviceCache;
-import io.openems.backend.odoo.device.DeviceModel;
+import io.openems.backend.metadata.api.MetadataSingleton;
+import io.openems.backend.metadata.api.device.MetadataDeviceModel;
+import io.openems.backend.metadata.odoo.device.OdooDeviceModel;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.SessionData;
 import io.openems.common.types.Device;
 import io.openems.common.utils.JsonUtils;
 
-public class OdooSingleton {
+public class OdooSingleton implements MetadataSingleton {
 	private final Logger log = LoggerFactory.getLogger(OdooSingleton.class);
 
 	private Session session;
-	private DeviceModel deviceModel;
-	private DeviceCache deviceCache;
+	private MetadataDeviceModel deviceModel;
 	private final String url;
 
-	protected OdooSingleton(String url, int port, String database, String username, String password) throws Exception {
+	public OdooSingleton(String url, int port, String database, String username, String password) throws Exception {
 		this.session = new Session(url, port, database, username, password);
 		this.connect();
-		this.deviceModel = new DeviceModel(this.session);
-		this.deviceCache = new DeviceCache();
+		this.deviceModel = new OdooDeviceModel(this.session);
 		this.url = "http://" + url + ":" + port;
 	}
 
@@ -49,12 +48,9 @@ public class OdooSingleton {
 		session.startSession();
 	}
 
-	public DeviceModel getDeviceModel() {
+	@Override
+	public MetadataDeviceModel getDeviceModel() {
 		return deviceModel;
-	}
-
-	public DeviceCache getDeviceCache() {
-		return deviceCache;
 	}
 
 	// public List<Device> getDevicesForApikey(String apikey) throws OdooApiException, XmlRpcException {
@@ -113,6 +109,7 @@ public class OdooSingleton {
 	 * @return
 	 * @throws OpenemsException
 	 */
+	@Override
 	public void getInfoWithSession(BrowserSession session) throws OpenemsException {
 		HttpURLConnection connection = null;
 		try {

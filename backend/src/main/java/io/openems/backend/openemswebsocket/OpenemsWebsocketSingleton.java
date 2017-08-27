@@ -17,8 +17,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.openems.backend.influx.Influxdb;
-import io.openems.backend.odoo.Odoo;
-import io.openems.backend.odoo.device.Device;
+import io.openems.backend.metadata.Metadata;
+import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.backend.openemswebsocket.session.OpenemsSession;
 import io.openems.backend.openemswebsocket.session.OpenemsSessionData;
 import io.openems.backend.openemswebsocket.session.OpenemsSessionManager;
@@ -61,11 +61,11 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			apikey = apikeyOpt.get();
 
 			// get device for apikey
-			Optional<Device> deviceOpt = Odoo.instance().getDeviceModel().getDeviceForApikey(apikey);
+			Optional<MetadataDevice> deviceOpt = Metadata.instance().getDeviceModel().getDeviceForApikey(apikey);
 			if (!deviceOpt.isPresent()) {
 				throw new OpenemsException("Unable to find device for apikey [" + apikey + "]");
 			}
-			Device device = deviceOpt.get();
+			MetadataDevice device = deviceOpt.get();
 			deviceName = device.getName();
 
 			// create new session if no existing one was found
@@ -82,7 +82,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			this.websockets.forcePut(websocket, session);
 
 			try {
-				// set device active in Odoo
+				// set device active (in Odoo)
 				if (device.getState().equals("inactive")) {
 					device.setState("active");
 				}
@@ -139,7 +139,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 	 */
 	@Override
 	public void onMessage(WebSocket websocket, String message) {
-		Device device = websockets.get(websocket).getData().getDevice();
+		MetadataDevice device = websockets.get(websocket).getData().getDevice();
 		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 
 		/*
@@ -181,7 +181,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 		}
 	}
 
-	private void timedata(Device device, JsonElement jTimedataElement) {
+	private void timedata(MetadataDevice device, JsonElement jTimedataElement) {
 		try {
 			JsonObject jTimedata = JsonUtils.getAsJsonObject(jTimedataElement);
 			// Write to InfluxDB
@@ -253,7 +253,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 		// }
 	}
 
-	private void metadata(Device device, WebSocket websocket, JsonElement jMetadataElement) {
+	private void metadata(MetadataDevice device, WebSocket websocket, JsonElement jMetadataElement) {
 		try {
 			JsonObject jMetadata = JsonUtils.getAsJsonObject(jMetadataElement);
 			if (jMetadata.has("config")) {

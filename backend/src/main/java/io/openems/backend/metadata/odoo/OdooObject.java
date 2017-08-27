@@ -1,4 +1,4 @@
-package io.openems.backend.odoo;
+package io.openems.backend.metadata.odoo;
 
 import java.time.Instant;
 import java.time.LocalDateTime;

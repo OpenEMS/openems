@@ -1,4 +1,4 @@
-package io.openems.backend.odoo.device;
+package io.openems.backend.metadata.odoo.device;
 
 public class Field {
 	protected static final String ID = "id";

@@ -27,7 +27,7 @@ import io.openems.backend.browserwebsocket.session.BrowserSessionData;
 import io.openems.backend.browserwebsocket.session.BrowserSessionManager;
 import io.openems.backend.core.ConnectionManager;
 import io.openems.backend.influx.Influxdb;
-import io.openems.backend.odoo.Odoo;
+import io.openems.backend.metadata.Metadata;
 import io.openems.backend.openemswebsocket.OpenemsWebsocket;
 import io.openems.backend.openemswebsocket.OpenemsWebsocketSingleton;
 import io.openems.backend.utilities.StringUtils;
@@ -94,7 +94,7 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 
 		// check Odoo session and refresh info from Odoo
 		try {
-			Odoo.instance().getInfoWithSession(session);
+			Metadata.instance().getInfoWithSession(session);
 		} catch (OpenemsException e) {
 			error = e.getMessage();
 		}

@@ -1,4 +1,4 @@
-package io.openems.backend.odoo.device;
+package io.openems.backend.metadata.odoo.device;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,12 +10,14 @@ import com.abercap.odoo.OdooApiException;
 import com.abercap.odoo.RowCollection;
 import com.abercap.odoo.Session;
 
-import io.openems.backend.odoo.OdooModel;
+import io.openems.backend.metadata.api.device.MetadataDevice;
+import io.openems.backend.metadata.api.device.MetadataDeviceModel;
+import io.openems.backend.metadata.odoo.OdooModel;
 import io.openems.common.exceptions.OpenemsException;
 
-public class DeviceModel extends OdooModel<Device> {
+public class OdooDeviceModel extends OdooModel<OdooDevice> implements MetadataDeviceModel {
 
-	public DeviceModel(Session session) throws XmlRpcException, OdooApiException {
+	public OdooDeviceModel(Session session) throws XmlRpcException, OdooApiException {
 		super(session);
 	}
 
@@ -30,17 +32,9 @@ public class DeviceModel extends OdooModel<Device> {
 				Field.LASTUPDATE, Field.IPV4, Field.OPENEMS_CONFIG, Field.STATE, Field.PRODUCT_TYPE };
 	}
 
-	/**
-	 * Gets the device for this apikey.
-	 *
-	 * Note: if there is more than one matching device it returns the first match.
-	 *
-	 * @param apikey
-	 * @return device or null
-	 * @throws OpenemsException
-	 */
-	public Optional<Device> getDeviceForApikey(String apikey) throws OpenemsException {
-		List<Device> devices;
+	@Override
+	public Optional<MetadataDevice> getDeviceForApikey(String apikey) throws OpenemsException {
+		List<OdooDevice> devices;
 		try {
 			devices = this.readObjectsWhere("apikey", "=", apikey);
 		} catch (XmlRpcException | OdooApiException e) {
@@ -54,10 +48,10 @@ public class DeviceModel extends OdooModel<Device> {
 	}
 
 	@Override
-	protected List<Device> convertRowCollectionToList(RowCollection rows) {
-		List<Device> result = new ArrayList<>();
+	protected List<OdooDevice> convertRowCollectionToList(RowCollection rows) {
+		List<OdooDevice> result = new ArrayList<>();
 		rows.forEach(row -> {
-			result.add(new Device(this, row));
+			result.add(new OdooDevice(this, row));
 		});
 		return result;
 	}

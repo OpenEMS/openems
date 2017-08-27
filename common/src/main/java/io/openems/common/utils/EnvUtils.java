@@ -1,5 +1,7 @@
 package io.openems.common.utils;
 
+import java.util.Optional;
+
 import io.openems.common.exceptions.OpenemsException;
 
 public class EnvUtils {
@@ -9,6 +11,11 @@ public class EnvUtils {
 			throw new OpenemsException("ENV [" + name + "] is not set");
 		}
 		return value;
+	};
+	
+	public static Optional<String> getAsOptionalString(String name) {
+		String value = System.getenv(name);
+		return Optional.ofNullable(value);
 	};
 
 	public static int getAsInt(String name) throws OpenemsException {

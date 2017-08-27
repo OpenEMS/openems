@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import io.openems.backend.odoo.device.Device;
+import io.openems.backend.metadata.odoo.device.OdooDevice;
 import io.openems.backend.utilities.ManyToMany;
 
 public class ConnectionManagerALT {
@@ -40,7 +40,7 @@ public class ConnectionManagerALT {
 	 * Stores info about FEMS devices
 	 * Key: fems-name (e.g. "fems7") - Value: FemsDevice object
 	 */
-	private HashMap<String, Device> femsDevices = new HashMap<>();
+	private HashMap<String, OdooDevice> femsDevices = new HashMap<>();
 
 	/**
 	 * Stores all active websockets to FEMS devices
@@ -60,7 +60,7 @@ public class ConnectionManagerALT {
 	 * @param webSocket
 	 * @param device
 	 */
-	public synchronized void addFemsWebsocket(WebSocket websocket, List<Device> devices) {
+	public synchronized void addFemsWebsocket(WebSocket websocket, List<OdooDevice> devices) {
 		devices.forEach(device -> {
 			String name = device.getName();
 			/*
@@ -69,7 +69,7 @@ public class ConnectionManagerALT {
 			// Check if femsDevice already existed in cache. If so, refresh and reuse it. Otherwise add it.
 			if (this.femsDevices.containsKey(name)) {
 				// refresh an existing FemsDevice object
-				Device existingDevice = this.femsDevices.get(name);
+				OdooDevice existingDevice = this.femsDevices.get(name);
 				existingDevice.refreshFrom(device);
 			} else {
 				// put new object
@@ -108,8 +108,8 @@ public class ConnectionManagerALT {
 	 * @param websocket
 	 * @return
 	 */
-	public synchronized List<Device> getFemsWebsocketDevices(WebSocket websocket) {
-		List<Device> devices = new ArrayList<>();
+	public synchronized List<OdooDevice> getFemsWebsocketDevices(WebSocket websocket) {
+		List<OdooDevice> devices = new ArrayList<>();
 		this.getFemsWebsocketDeviceNames(websocket).forEach(name -> {
 			devices.add(this.femsDevices.get(name));
 		});
@@ -148,7 +148,7 @@ public class ConnectionManagerALT {
 	 * @param webSocket
 	 * @param device
 	 */
-	public synchronized void addBrowserWebsocket(WebSocket websocket, List<Device> devices) {
+	public synchronized void addBrowserWebsocket(WebSocket websocket, List<OdooDevice> devices) {
 		devices.forEach(device -> {
 			String name = device.getName();
 			/*
@@ -156,7 +156,7 @@ public class ConnectionManagerALT {
 			 */
 			if (this.femsDevices.containsKey(name)) {
 				// refresh an existing FemsDevice object
-				Device existingDevice = this.femsDevices.get(name);
+				OdooDevice existingDevice = this.femsDevices.get(name);
 				existingDevice.refreshFrom(device);
 				device = existingDevice;
 			} else {

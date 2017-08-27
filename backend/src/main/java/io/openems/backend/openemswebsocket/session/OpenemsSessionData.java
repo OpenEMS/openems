@@ -1,16 +1,16 @@
 package io.openems.backend.openemswebsocket.session;
 
-import io.openems.backend.odoo.device.Device;
+import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.common.session.SessionData;
 
 public class OpenemsSessionData extends SessionData {
-	private final Device device;
+	private final MetadataDevice device;
 
-	public OpenemsSessionData(Device device) {
+	public OpenemsSessionData(MetadataDevice device) {
 		this.device = device;
 	}
 
-	public Device getDevice() {
+	public MetadataDevice getDevice() {
 		return device;
 	}
 }
