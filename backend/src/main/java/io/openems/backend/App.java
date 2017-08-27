@@ -7,6 +7,7 @@ import io.openems.backend.browserwebsocket.BrowserWebsocket;
 import io.openems.backend.influx.Influxdb;
 import io.openems.backend.odoo.Odoo;
 import io.openems.backend.openemswebsocket.OpenemsWebsocket;
+import io.openems.common.utils.EnvUtils;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
@@ -25,33 +26,33 @@ public class App {
 	}
 
 	private static void initOdoo() throws Exception {
-		int port = Integer.valueOf(System.getenv("ODOO_PORT"));
-		log.info("Connect to Odoo on port [" + port + "]");
-		String url = System.getenv("ODOO_URL");
-		String database = System.getenv("ODOO_DATABASE");
-		String username = System.getenv("ODOO_USERNAME");
-		String password = System.getenv("ODOO_PASSWORD");
+		int port = EnvUtils.getAsInt("ODOO_PORT");
+		String url = EnvUtils.getAsString("ODOO_URL");
+		String database = EnvUtils.getAsString("ODOO_DATABASE");
+		log.info("Connect to Odoo. Url [" + url + ":" + port + "] Database [" + database + "]");
+		String username = EnvUtils.getAsString("ODOO_USERNAME");
+		String password = EnvUtils.getAsString("ODOO_PASSWORD");
 		Odoo.initialize(url, port, database, username, password);
 	}
 
 	private static void initInfluxdb() throws Exception {
 		int port = Integer.valueOf(System.getenv("INFLUX_PORT"));
-		log.info("Connect to InfluxDB on port [" + port + "]");
-		String database = System.getenv("INFLUX_DATABASE");
-		String url = System.getenv("INFLUX_URL");
-		String username = System.getenv("INFLUX_USERNAME");
-		String password = System.getenv("INFLUX_PASSWORD");
+		String url = EnvUtils.getAsString("INFLUX_URL");
+		String database = EnvUtils.getAsString("INFLUX_DATABASE");
+		log.info("Connect to InfluxDB. Url [" + url + ":" + port + "], Database [" + database + "]");
+		String username = EnvUtils.getAsString("INFLUX_USERNAME");
+		String password = EnvUtils.getAsString("INFLUX_PASSWORD");
 		Influxdb.initialize(database, url, port, username, password);
 	}
 
 	private static void initOpenemsWebsocket() throws Exception {
-		int port = Integer.valueOf(System.getenv("OPENEMS_WEBSOCKET_PORT"));
+		int port = EnvUtils.getAsInt("OPENEMS_WEBSOCKET_PORT");
 		log.info("Start OpenEMS Websocket server on port [" + port + "]");
 		OpenemsWebsocket.initialize(port);
 	}
 
 	private static void initBrowserWebsocket() throws Exception {
-		int port = Integer.valueOf(System.getenv("BROWSER_WEBSOCKET_PORT"));
+		int port = EnvUtils.getAsInt("BROWSER_WEBSOCKET_PORT");
 		log.info("Start Browser Websocket server on port [" + port + "]");
 		BrowserWebsocket.initialize(port);
 	}

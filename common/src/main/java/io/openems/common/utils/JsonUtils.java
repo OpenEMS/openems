@@ -13,7 +13,7 @@ import io.openems.common.exceptions.OpenemsException;
 public class JsonUtils {
 	public static JsonArray getAsJsonArray(JsonElement jElement) throws OpenemsException {
 		if (!jElement.isJsonArray()) {
-			throw new OpenemsException("Config is not a JsonArray: " + jElement);
+			throw new OpenemsException("This is not a JsonArray: " + jElement);
 		}
 		return jElement.getAsJsonArray();
 	};
@@ -21,14 +21,14 @@ public class JsonUtils {
 	public static JsonArray getAsJsonArray(JsonElement jElement, String memberName) throws OpenemsException {
 		JsonElement jSubElement = getSubElement(jElement, memberName);
 		if (!jSubElement.isJsonArray()) {
-			throw new OpenemsException("Config [" + memberName + "] is not a JsonArray: " + jSubElement);
+			throw new OpenemsException("Element [" + memberName + "] is not a JsonArray: " + jSubElement);
 		}
 		return jSubElement.getAsJsonArray();
 	};
 
 	public static JsonObject getAsJsonObject(JsonElement jElement) throws OpenemsException {
 		if (!jElement.isJsonObject()) {
-			throw new OpenemsException("Config is not a JsonObject: " + jElement);
+			throw new OpenemsException("This is not a JsonObject: " + jElement);
 		}
 		return jElement.getAsJsonObject();
 	};
@@ -36,7 +36,7 @@ public class JsonUtils {
 	public static JsonObject getAsJsonObject(JsonElement jElement, String memberName) throws OpenemsException {
 		JsonElement jsubElement = getSubElement(jElement, memberName);
 		if (!jsubElement.isJsonObject()) {
-			throw new OpenemsException("Config is not a JsonObject: " + jsubElement);
+			throw new OpenemsException("Element [" + memberName + "] is not a JsonObject: " + jsubElement);
 		}
 		return jsubElement.getAsJsonObject();
 	};
@@ -48,7 +48,7 @@ public class JsonUtils {
 
 	public static JsonPrimitive getAsPrimitive(JsonElement jElement) throws OpenemsException {
 		if (!jElement.isJsonPrimitive()) {
-			throw new OpenemsException("Element is not a JsonPrimitive: " + jElement);
+			throw new OpenemsException("This is not a JsonPrimitive: " + jElement);
 		}
 		return jElement.getAsJsonPrimitive();
 	}
@@ -56,7 +56,7 @@ public class JsonUtils {
 	public static String getAsString(JsonElement jElement) throws OpenemsException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
 		if (!jPrimitive.isString()) {
-			throw new OpenemsException("Element is not a String: " + jPrimitive);
+			throw new OpenemsException("This is not a String: " + jPrimitive);
 		}
 		return jPrimitive.getAsString();
 	}
@@ -64,7 +64,7 @@ public class JsonUtils {
 	public static boolean getAsBoolean(JsonElement jElement) throws OpenemsException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
 		if (!jPrimitive.isBoolean()) {
-			throw new OpenemsException("Element is not a Boolean: " + jPrimitive);
+			throw new OpenemsException("This is not a Boolean: " + jPrimitive);
 		}
 		return jPrimitive.getAsBoolean();
 	}
@@ -72,7 +72,7 @@ public class JsonUtils {
 	public static String getAsString(JsonElement jElement, String memberName) throws OpenemsException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (!jPrimitive.isString()) {
-			throw new OpenemsException("[" + memberName + "] is not a String: " + jPrimitive);
+			throw new OpenemsException("Element [" + memberName + "] is not a String: " + jPrimitive);
 		}
 		return jPrimitive.getAsString();
 	}
@@ -85,13 +85,13 @@ public class JsonUtils {
 			String string = jPrimitive.getAsString();
 			return Integer.parseInt(string);
 		}
-		throw new OpenemsException("[" + memberName + "] is not a Number: " + jPrimitive);
+		throw new OpenemsException("Element [" + memberName + "] is not an Integer: " + jPrimitive);
 	}
 
 	public static boolean getAsBoolean(JsonElement jElement, String memberName) throws OpenemsException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (!jPrimitive.isBoolean()) {
-			throw new OpenemsException("[" + memberName + "] is not a String: " + jPrimitive);
+			throw new OpenemsException("Element [" + memberName + "] is not a Boolean: " + jPrimitive);
 		}
 		return jPrimitive.getAsBoolean();
 	}
@@ -105,14 +105,14 @@ public class JsonUtils {
 			int day = Integer.valueOf(date[2]);
 			return ZonedDateTime.of(year, month, day, 0, 0, 0, 0, timezone);
 		} catch (ArrayIndexOutOfBoundsException e) {
-			throw new OpenemsException("Unable to parse date [" + memberName + "] from [" + jElement + "]: " + e);
+			throw new OpenemsException("Element [" + memberName + "] is not a Date: " + jElement + ". Error: " + e);
 		}
 	}
 
 	public static JsonElement getSubElement(JsonElement jElement, String memberName) throws OpenemsException {
 		JsonObject jObject = getAsJsonObject(jElement);
 		if (!jObject.has(memberName)) {
-			throw new OpenemsException("[" + memberName + "] is missing in Config: " + jElement);
+			throw new OpenemsException("Element [" + memberName + "] is not a Subelement of: " + jElement);
 		}
 		return jObject.get(memberName);
 	}
