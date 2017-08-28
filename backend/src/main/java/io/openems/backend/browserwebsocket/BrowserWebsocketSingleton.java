@@ -216,6 +216,11 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 	 */
 	private void forwardMessageToOpenems(WebSocket websocket, JsonObject jMessage, String deviceName)
 			throws OpenemsException {
+		// remove device from message
+		if (jMessage.has("device")) {
+			jMessage.remove("device");
+		}
+
 		// add session token to message id for identification
 		BrowserSession session = this.websockets.get(websocket);
 		JsonArray jId = JsonUtils.getAsJsonArray(jMessage, "id");
@@ -398,5 +403,20 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 	@Override
 	public void onStart() {
 
+	}
+
+	/**
+	 * Returns the BrowserWebsocket for the given token
+	 *
+	 * @param name
+	 * @return
+	 */
+	public Optional<WebSocket> getBrowserWebsocketByToken(String token) {
+		Optional<BrowserSession> sessionOpt = this.sessionManager.getSessionByToken(token);
+		if (!sessionOpt.isPresent()) {
+			return Optional.empty();
+		}
+		BrowserSession session = sessionOpt.get();
+		return Optional.ofNullable(this.websockets.inverse().get(session));
 	}
 }

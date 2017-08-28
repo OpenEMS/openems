@@ -434,6 +434,16 @@ public class Config implements ChannelChangeListener {
 		return jConfig;
 	}
 
+	public synchronized JsonObject getJsonForUi(String language) {
+		try {
+			JsonObject j = getJson(false);
+			return j;
+		} catch (NotImplementedException e) {
+			e.printStackTrace();
+			return new JsonObject();
+		}
+	}
+
 	private synchronized JsonObject getJsonComplete() throws NotImplementedException {
 		JsonObject jConfig = getJson(false);
 		/*

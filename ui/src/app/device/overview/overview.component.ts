@@ -25,12 +25,12 @@ export class OverviewComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    let device = this.websocket.getCurrentDeviceFromRoute(this.route);
-    device.getConfig().then(config => {
-      console.log(config);
-    }).catch(reason => {
-      console.error(reason);
-    })
+    this.websocket.getCurrentDeviceFromRoute(this.route).then(device => {
+      device.getConfig().then(config => {
+      }).catch(reason => {
+      })
+    });
+
 
     // TODO
     // this.websocket.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {

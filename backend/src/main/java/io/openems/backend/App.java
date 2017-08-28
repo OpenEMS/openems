@@ -23,8 +23,8 @@ public class App {
 		initOpenemsWebsocket();
 		initBrowserWebsocket();
 
-		log.info("OpenEMS-Backend started.");
-		log.info("");
+		log.info("OpenEMS Backend started.");
+		log.info("================================================================================");
 	}
 
 	/**

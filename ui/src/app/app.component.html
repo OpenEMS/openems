@@ -18,7 +18,7 @@
       <div fxFlex="40px">
         <button routerLinkActive="active" (click)="sidenav.toggle()" md-icon-button><md-icon>menu</md-icon></button>
       </div>
-      <ng-container *ngIf="websocket.currentDevice as currentDevice">
+      <ng-container *ngIf="(websocket.currentDevice | async) as currentDevice">
         <div fxFlex>
           <button routerLink="/overview" md-button>FEMS</button>
           <button md-icon-button style="cursor:default">
@@ -30,11 +30,11 @@
           <button routerLink="/device/{{ currentDevice.name }}/config" md-icon-button><md-icon>settings</md-icon></button>
         </div>
       </ng-container>
-      <ng-container *ngIf="!currentDevice">
+      <!-- <ng-container *ngIf="!currentDevice">
         <div>
           <button routerLink="/overview" md-button>FEMS</button>
         </div>
-      </ng-container>
+      </ng-container> -->
     </md-toolbar>
   </div>
   <div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">

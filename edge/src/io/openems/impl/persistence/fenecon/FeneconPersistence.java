@@ -44,7 +44,6 @@ import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.core.Databus;
-import io.openems.core.utilities.websocket.WebsocketHandler;
 
 @ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
@@ -175,7 +174,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 * @return
 	 */
 	private boolean send(JsonObject j) {
-		Optional<WebsocketHandler> websocketHandler = getWebsocketHandler();
+		Optional<FeneconPersistenceWebsocketHandler> websocketHandler = getWebsocketHandler();
 		return websocketHandler.isPresent() && websocketHandler.get().send(j);
 	}
 
@@ -184,7 +183,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 *
 	 * @return
 	 */
-	public Optional<WebsocketHandler> getWebsocketHandler() {
+	public Optional<FeneconPersistenceWebsocketHandler> getWebsocketHandler() {
 		Optional<WebsocketClient> websocketClient = getWebsocketClient();
 		if (websocketClient.isPresent()) {
 			return Optional.of(websocketClient.get().getWebsocketHandler());
@@ -261,7 +260,6 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		}
 		if (currentCycleTime != newCycleTime) {
 			this.cycleTime().updateValue(newCycleTime, false);
-			log.info("New cycle time: " + newCycleTime);
 		}
 	}
 

@@ -16,7 +16,7 @@ public class TimedataDummySingleton implements TimedataSingleton {
 
 	@Override
 	public void write(String name, JsonObject jData) {
-		log.info("Timedata Dummy. Would write data: " + StringUtils.toShortString(jData, 100));
+		log.debug("Timedata Dummy. Would write data: " + StringUtils.toShortString(jData, 100));
 	}
 
 	@Override

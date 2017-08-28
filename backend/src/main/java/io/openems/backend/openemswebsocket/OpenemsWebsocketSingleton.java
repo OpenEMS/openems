@@ -12,10 +12,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.openems.backend.browserwebsocket.BrowserWebsocket;
 import io.openems.backend.metadata.Metadata;
 import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.backend.openemswebsocket.session.OpenemsSession;
@@ -139,44 +141,74 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket websocket, String message) {
 		MetadataDevice device = websockets.get(websocket).getData().getDevice();
-		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-
-		/*
-		 * New timestamped data
-		 */
-		if (jMessage.has("timedata")) {
-			timedata(device, jMessage.get("timedata"));
-		} else {
-
-			log.info(jMessage.toString());
-		}
-
-		// /*
-		// * New currentdata data -> forward to browserWebsockets
-		// */
-		// if (jMessage.has("currentdata")) {
-		// currentdata(websocket, jMessage.get("currentdata"));
-		// }
-		//
-		// /*
-		// * New log -> forward to browserWebsockets
-		// */
-		// if (jMessage.has("log")) {
-		// log(websocket, jMessage.get("log"));
-		// }
-		//
-		// /*
-		// * New metadata
-		// */
-		// if (jMessage.has("metadata")) {
-		// metadata(device, websocket, jMessage.get("metadata"));
-		// }
-
-		// Save data to Odoo
 		try {
+			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
+
+			// TODO Debugging
+			if (!jMessage.has("timedata")) {
+				log.info(jMessage.toString());
+			}
+
+			// Is this a reply?
+			if (jMessage.has("id")) {
+				forwardReplyToBrowser(jMessage);
+			}
+
+			/*
+			 * New timestamped data
+			 */
+			if (jMessage.has("timedata")) {
+				timedata(device, jMessage.get("timedata"));
+			}
+			// /*
+			// * New currentdata data -> forward to browserWebsockets
+			// */
+			// if (jMessage.has("currentdata")) {
+			// currentdata(websocket, jMessage.get("currentdata"));
+			// }
+			//
+			// /*
+			// * New log -> forward to browserWebsockets
+			// */
+			// if (jMessage.has("log")) {
+			// log(websocket, jMessage.get("log"));
+			// }
+			//
+			// /*
+			// * New metadata
+			// */
+			// if (jMessage.has("metadata")) {
+			// metadata(device, websocket, jMessage.get("metadata"));
+			// }
+
+			// Save data to Odoo
+
 			device.writeObject();
 		} catch (OpenemsException e) {
 			log.error(device.getName() + ": " + e.getMessage());
+		}
+	}
+
+	private void forwardReplyToBrowser(JsonObject jMessage) {
+		try {
+			// get browser websocket
+			JsonArray jId = JsonUtils.getAsJsonArray(jMessage, "id");
+			String token = JsonUtils.getAsString(jId.get(jId.size() - 1));
+			Optional<WebSocket> browserWebsocketOpt = BrowserWebsocket.instance().getBrowserWebsocketByToken(token);
+			if (!browserWebsocketOpt.isPresent()) {
+				log.warn("Browser websocket is not connected.");
+				return;
+			}
+			WebSocket browserWebsocket = browserWebsocketOpt.get();
+
+			// remove token from message id
+			jId.remove(jId.size() - 1);
+			jMessage.add("id", jId);
+
+			// send
+			WebSocketUtils.send(browserWebsocket, jMessage);
+		} catch (OpenemsException e) {
+			log.warn(e.getMessage());
 		}
 	}
 
@@ -186,7 +218,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			// Write to InfluxDB
 			try {
 				Timedata.instance().write(device.getNameNumber(), jTimedata);
-				log.info(device.getName() + ": wrote " + jTimedata.entrySet().size() + " timestamps "
+				log.debug(device.getName() + ": wrote " + jTimedata.entrySet().size() + " timestamps "
 						+ StringUtils.toShortString(jTimedata, 120));
 			} catch (Exception e) {
 				log.error("No InfluxDB-connection: ", e);

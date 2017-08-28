@@ -7,6 +7,7 @@ import { Notification, Websocket } from '../shared';
 import { Config, ChannelAddresses } from './config';
 import { Data, ChannelData, Summary } from './data';
 import { DefaultMessages } from '../service/defaultmessages';
+import { DefaultTypes } from '../service/defaulttypes';
 import { Utils } from '../service/utils';
 import { Role, ROLES } from '../type/role';
 
@@ -30,24 +31,17 @@ export class QueryReply {
 }
 
 export class Device {
+  public config: BehaviorSubject<DefaultTypes.Config> = new BehaviorSubject<DefaultTypes.Config>(null);
+
   public event = new Subject<Notification>();
   public address: string;
   public log = new Subject<Log>();
 
   //public historykWh = new BehaviorSubject<any[]>(null);
-  private config = new BehaviorSubject<Config>(null);
   private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
-  private queryreply = new Subject<QueryReply>();
   private ngUnsubscribeQueryReply: Subject<void> = new Subject<void>();
   private currentData = new BehaviorSubject<Data>(null);
   private ngUnsubscribeCurrentData: Subject<void> = new Subject<void>();
-
-  private influxdb: {
-    ip: string,
-    username: string,
-    password: string,
-    fems: string
-  }
 
   constructor(
     public readonly name: string,
@@ -55,32 +49,60 @@ export class Device {
     public readonly producttype: string,
     public readonly role: Role,
     public readonly online: boolean,
+    private replyStream: Subject<DefaultMessages.Reply>,
     private websocket: Websocket
   ) { }
 
   /**
-   * Returns a promise for a config. If a config is availabe, returns immediately. Otherwise queries backend. Returns anyway after a timeout.
+   * Returns a promise for a config. If a config is availabe, returns immediately. 
+   * Otherwise queries backend. Returns anyway after a timeout.
    */
-  public getConfig(): Promise<Config> {
-    let currentConfig = this.config.getValue();
-    if (currentConfig != null) {
-      // config is available
-      return Promise.resolve(currentConfig);
+  public getConfig(): Promise<DefaultTypes.Config> {
+    let configPromise: Promise<DefaultTypes.Config>;
+    if (this.configQueryIsCurrentlyRunning) {
+      // debounce calls to this method
+      let ngUnsubscribeWaitForConfig = new Subject<any>();
+      this.config.takeUntil(ngUnsubscribeWaitForConfig).subscribe(config => {
+        configPromise = Promise.resolve(config);
+      });
+
+    } else if (this.config.getValue() != null) {
+      // config is immediately available
+      configPromise = Promise.resolve(this.config.getValue());
+
     } else {
-      // query new config
-      return this.timeoutPromise(1000, new Promise((resolve, reject) => {
-        let message = DefaultMessages.refreshConfig();
+      // debounce calls to this method
+      this.configQueryIsCurrentlyRunning = true;
+      // query new config with timeout
+      configPromise = Utils.timeoutPromise(Websocket.TIMEOUT, new Promise<DefaultTypes.Config>((resolve, reject) => {
+        let message = DefaultMessages.configQuery();
         this.send(message);
-        this.queryreply.takeUntil(this.ngUnsubscribeQueryReply).subscribe(queryreply => {
-          console.log(queryreply);
-          if (queryreply.requestId == message.id.pop()) {
-            console.log(queryreply);
-            resolve();
+        // wait for answer
+        let ngUnsubscribeQueryReply = new Subject<any>();
+        this.replyStream.takeUntil(ngUnsubscribeQueryReply).subscribe(reply => {
+          if (reply.id.pop() == message.id.pop()) {
+            // stop waiting for an answer
+            ngUnsubscribeQueryReply.next();
+            ngUnsubscribeQueryReply.complete();
+            // clean datatype
+            delete reply.id;
+            // set local config and  resolve Promise
+            let config = (<DefaultMessages.ConfigQueryReply>reply).config;
+            this.config.next(config);
+            resolve(config);
+            // debounce
+            this.configQueryIsCurrentlyRunning = false;
           }
         })
       }));
+      // empty config on error
+      configPromise.catch(reason => {
+        this.config.next(null);
+      })
     }
+    return configPromise;
   }
+  private configQueryIsCurrentlyRunning: boolean = false;
 
   /**
    * Sends a message to websocket
@@ -178,7 +200,7 @@ export class Device {
       result.complete();
     }, 10000);
     // wait for queryreply with this requestId
-    this.queryreply.takeUntil(ngUnsubscribe).subscribe(queryreply => {
+    this.replyStream.takeUntil(ngUnsubscribe).subscribe(queryreply => {
       // if (queryreply.requestId == requestId) {
       //   ngUnsubscribe.next();
       //   ngUnsubscribe.complete();
@@ -189,116 +211,38 @@ export class Device {
     return result;
   }
 
-  /**
-   * Receive new data from websocket
+  /*
+   * currentdata
    */
-  public receive(message: any) {
-    if ("metadata" in message) {
-      let metadata = message.metadata;
-      /*
-       * config
-       */
-      if ("config" in metadata) {
-        let config: Config = new Config(metadata.config);
+  // if ("currentdata" in message) {
+  //   let data: Data = new Data(<ChannelData>message.currentdata, this.config.getValue());
+  //   this.currentData.next(data);
+  // }
 
-        // parse influxdb connection
-        if ("persistence" in config) {
-          for (let persistence of config.persistence) {
-            if (persistence.class == "io.openems.impl.persistence.influxdb.InfluxdbPersistence" &&
-              "ip" in persistence && "username" in persistence && "password" in persistence && "fems" in persistence) {
-              let ip = persistence["ip"];
-              if (ip == "127.0.0.1" || ip == "localhost") { // rewrite localhost to remote ip
-                ip = location.hostname;
-              }
-              this.influxdb = {
-                ip: ip,
-                username: persistence["username"],
-                password: persistence["password"],
-                fems: persistence["fems"]
-              }
-            }
-          }
-        }
-        // store all config
-        this.config.next(config);
-        //TODO this.things = this.refreshThingsFromConfig();
-      }
-
-      // TODO
-      // if ("online" in metadata) {
-      //   this.online = metadata.online;
-      // } else {
-      //   this.online = true;
-      // }
-
-      if ("state" in metadata) {
-        this.state = metadata.state;
-      }
-    }
-
-    /*
-     * currentdata
-     */
-    if ("currentdata" in message) {
-      let data: Data = new Data(<ChannelData>message.currentdata, this.config.getValue());
-      this.currentData.next(data);
-    }
-
-    /*
-     * log
-     */
-    if ("log" in message) {
-      let log = message.log;
-      this.log.next(log);
-    }
-
-    /*
-     * Reply to a query
-     */
-    if ("queryreply" in message) {
-      if (!("requestId" in message)) {
-        throw ("No requestId in message: " + message);
-      }
-      message.queryreply["requestId"] = message.requestId;
-      this.queryreply.next(message.queryreply);
-
-      //let kWh = null;
-      // history data
-      // if (message.queryreply != null) {
-      //   if ("data" in message.queryreply && message.queryreply.data != null) {
-      //     data = message.queryreply.data;
-      //     for (let datum of data) {
-      //       let sum = this.calculateSummary(datum.channels);
-      //       datum["summary"] = sum;
-      //     }
-      //   }
-      //   // kWh data
-      //   if ("kWh" in message.queryreply) {
-      //     kWh = message.queryreply.kWh;
-      //   }
-      // }
-      //this.historykWh.next(kWh);
-    }
-  }
-
-
-  /**
-   * Promise with timeout
-   * Source: https://italonascimento.github.io/applying-a-timeout-to-your-promises/
+  /*
+   * log
    */
-  private timeoutPromise = function (ms, promise) {
-    // Create a promise that rejects in <ms> milliseconds
-    let timeout = new Promise((resolve, reject) => {
-      let id = setTimeout(() => {
-        clearTimeout(id);
-        reject('Timed out in ' + ms + 'ms.')
-      }, ms)
-    })
+  // if ("log" in message) {
+  //   let log = message.log;
+  //   this.log.next(log);
+  // }
 
-    // Returns a race between our timeout and the passed in promise
-    return Promise.race([
-      promise,
-      timeout
-    ])
-  }
+
+  //let kWh = null;
+  // history data
+  // if (message.queryreply != null) {
+  //   if ("data" in message.queryreply && message.queryreply.data != null) {
+  //     data = message.queryreply.data;
+  //     for (let datum of data) {
+  //       let sum = this.calculateSummary(datum.channels);
+  //       datum["summary"] = sum;
+  //     }
+  //   }
+  //   // kWh data
+  //   if ("kWh" in message.queryreply) {
+  //     kWh = message.queryreply.kWh;
+  //   }
+  // }
+  //this.historykWh.next(kWh);
+  // }
 }

@@ -14,29 +14,18 @@ import { Service, Websocket, Notification, Utils } from '../shared/shared';
   selector: 'overview',
   templateUrl: './overview.component.html'
 })
-export class OverviewComponent implements OnInit, OnDestroy {
+export class OverviewComponent {
   public env = environment;
   public form: FormGroup;
-
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
     private websocket: Websocket,
     private utils: Utils,
     private translate: TranslateService,
-    formBuilder: FormBuilder) {
+    private formBuilder: FormBuilder) {
     this.form = formBuilder.group({
       "password": formBuilder.control('user')
     });
-  }
-
-  ngOnInit() {
-    this.websocket.clearCurrentDevice();
-  }
-
-  ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
   }
 
   doLogin() {

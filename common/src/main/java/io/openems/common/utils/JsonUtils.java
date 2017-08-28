@@ -2,6 +2,8 @@ package io.openems.common.utils;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Map.Entry;
+import java.util.Optional;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -26,6 +28,14 @@ public class JsonUtils {
 		return jSubElement.getAsJsonArray();
 	};
 
+	public static Optional<JsonArray> getAsOptionalJsonArray(JsonElement jElement, String memberName) {
+		try {
+			return Optional.of(getAsJsonArray(jElement, memberName));
+		} catch (OpenemsException e) {
+			return Optional.empty();
+		}
+	}
+	
 	public static JsonObject getAsJsonObject(JsonElement jElement) throws OpenemsException {
 		if (!jElement.isJsonObject()) {
 			throw new OpenemsException("This is not a JsonObject: " + jElement);
@@ -41,6 +51,14 @@ public class JsonUtils {
 		return jsubElement.getAsJsonObject();
 	};
 
+	public static Optional<JsonObject> getAsOptionalJsonObject(JsonElement jElement, String memberName) {
+		try {
+			return Optional.of(getAsJsonObject(jElement, memberName));
+		} catch (OpenemsException e) {
+			return Optional.empty();
+		}
+	}
+	
 	public static JsonPrimitive getAsPrimitive(JsonElement jElement, String memberName) throws OpenemsException {
 		JsonElement jSubElement = getSubElement(jElement, memberName);
 		return getAsPrimitive(jSubElement);
@@ -117,4 +135,28 @@ public class JsonUtils {
 		return jObject.get(memberName);
 	}
 
+	/**
+	 * Merges the second Object into the first object
+	 * 
+	 * @param j1
+	 * @param j2
+	 * @return
+	 */
+	public static JsonObject merge(JsonObject j1, JsonObject j2) {
+		// TODO be smarter: merge down the tree
+		for(Entry<String, JsonElement> entry : j2.entrySet()) {
+			j1.add(entry.getKey(), entry.getValue());
+		}
+		return j1;
+	}
+	
+	public static Optional<JsonObject> merge(Optional<JsonObject> j1Opt, Optional<JsonObject> j2Opt) {
+		if(j1Opt.isPresent() && j2Opt.isPresent()) {
+			return Optional.of(JsonUtils.merge(j1Opt.get(), j2Opt.get()));
+		}
+		if(j1Opt.isPresent()) {
+			return j1Opt;
+		}
+		return j2Opt;
+	}
 }

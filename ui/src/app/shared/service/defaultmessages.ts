@@ -1,8 +1,9 @@
 import { UUID } from 'angular2-uuid';
 
-export class DefaultMessages {
+import { DefaultTypes } from './defaulttypes';
 
-    public static refreshConfig() {
+export class DefaultMessages {
+    public static configQuery() {
         return {
             device: String,
             id: [UUID.UUID()],
@@ -12,4 +13,14 @@ export class DefaultMessages {
             }
         }
     };
+}
+
+export module DefaultMessages {
+    export interface Reply {
+        id: string[]
+    }
+
+    export interface ConfigQueryReply extends Reply {
+        config: DefaultTypes.Config
+    }
 }

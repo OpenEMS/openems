@@ -33,7 +33,7 @@
     </form>
 
     <!-- List of devices -->
-    <ng-container *ngFor="let device of utils.values(websocket.devices)">
+    <ng-container *ngFor="let device of utils.values(websocket.devices | async)">
       <md-card class="single">
         <md-card-header>
           <md-icon *ngIf="device.online" md-card-avatar color="primary">folder</md-icon>

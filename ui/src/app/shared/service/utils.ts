@@ -4,6 +4,26 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class Utils {
 
+  /**
+   * Promise with timeout
+   * Source: https://italonascimento.github.io/applying-a-timeout-to-your-promises/
+   */
+  public static timeoutPromise = function (ms, promise) {
+    // Create a promise that rejects in <ms> milliseconds
+    let timeout = new Promise((resolve, reject) => {
+      let id = setTimeout(() => {
+        clearTimeout(id);
+        reject('Timed out in ' + ms + 'ms.')
+      }, ms)
+    })
+
+    // Returns a race between our timeout and the passed in promise
+    return Promise.race([
+      promise,
+      timeout
+    ])
+  }
+
   constructor(private websocket: Websocket) { }
 
   /**
@@ -120,6 +140,7 @@ export class Utils {
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
   }
+
 
   /**
    * Receive meta information for thing/channel/...

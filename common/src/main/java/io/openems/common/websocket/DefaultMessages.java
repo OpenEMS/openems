@@ -152,4 +152,23 @@ public class DefaultMessages {
 		j.add("timedata", jTimedata);
 		return j;
 	}
+
+	
+	/**
+	 * <pre>
+	 *	{
+	 *		config: {
+	 *			...
+	 *		}
+	 *	}
+	 * </pre>
+	 * 
+	 * @param token
+	 * @return
+	 */
+	public static JsonObject configQueryReply(JsonObject config) {
+		JsonObject j = new JsonObject();
+		j.add("config", config);
+		return j;
+	}
 }

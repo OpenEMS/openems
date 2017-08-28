@@ -8,21 +8,32 @@ import websocketConnect from 'rxjs-websockets';
 
 import { environment as env } from '../../../environments';
 import { Service, Notification } from './service';
+import { Utils } from './utils';
 import { Device } from '../device/device';
 import { Backend } from '../type/backend';
 import { ROLES } from '../type/role';
 
 @Injectable()
 export class Websocket {
-  public devices: { [name: string]: Device } = {};
+  public static readonly TIMEOUT = 5000;
+
+  // holds references of device names (=key) to Device objects (=value)
+  public devices: BehaviorSubject<{ [name: string]: Device }> = new BehaviorSubject({});
+  public currentDevice: BehaviorSubject<Device> = new BehaviorSubject<Device>(null);
   public event = new Subject<Notification>();
-  public currentDevice: Device = null;
   public status: "online" | "connecting" | "failed" = "connecting";
 
   private username: string = "";
   private messages: Observable<any>;
   private inputStream: Subject<any>;
   private websocketSubscription: Subscription = new Subscription();
+  private queryreply = new Subject<{ id: string[] }>();
+
+  // holds streams for each device; triggered on message reply for the device
+  private replyStreams: { [deviceName: string]: Subject<any> } = {};
+
+  // tracks which message id (=key) is connected with which deviceName (=value)
+  private pendingQueryReplies: { [id: string]: string } = {};
 
   constructor(
     private router: Router,
@@ -35,30 +46,50 @@ export class Websocket {
   }
 
   /**
-   * Parses the route params, sets the current device and returns it - or redirects to overview and throws error if the device is not existing
+   * Parses the route params, sets the current device and returns it - or 
+   * redirects to overview after a timeout if the device is not existing
    */
-  public getCurrentDeviceFromRoute(route: ActivatedRoute): Device {
+  public getCurrentDeviceFromRoute(route: ActivatedRoute): Promise<Device> {
     let deviceName = route.snapshot.params["device"];
-    let device = null;
-    if (deviceName in this.devices) {
-      device = this.devices[deviceName];
+    let devicePromise: Promise<Device>;
+    if (deviceName in this.devices.value) {
+      // device is immediately available
+      devicePromise = Promise.resolve(this.devices.value[deviceName]);
+
+    } else {
+      // wait for devices
+      devicePromise = Utils.timeoutPromise(Websocket.TIMEOUT, new Promise<Device>((resolve, reject) => {
+        let ngUnsubscribeWaitForDevices = new Subject<any>();
+        this.devices.takeUntil(ngUnsubscribeWaitForDevices).subscribe(devices => {
+          if (deviceName in devices) {
+            // stop waiting for devices
+            ngUnsubscribeWaitForDevices.next();
+            ngUnsubscribeWaitForDevices.complete();
+            // resolve Promise
+            resolve(devices[deviceName]);
+          }
+        })
+      }));
     }
-    //this.currentDevice = device;
-    if (device == null) {
+
+    devicePromise.then(device => {
+      // ask device to query config
+      device.getConfig();
+      this.currentDevice.next(device);
+    }).catch(reason => {
+      // timeout: redirect to overview
+      this.currentDevice.next(null);
       this.router.navigate(['/overview']);
-      throw new URIError("Device [" + deviceName + "] not found."); // TODO translate
-    }
-    if (device.config == null) {
-      device.refreshConfig();
-    }
-    return device;
+      throw new URIError("Device [" + deviceName + "] not found."); // TODO translate 
+    });
+    return devicePromise;
   }
 
   /**
    * Clears the current device
    */
   public clearCurrentDevice() {
-    this.currentDevice = null;
+    this.currentDevice.next(null);
   }
 
   /**
@@ -119,6 +150,7 @@ export class Websocket {
 
     }).delay(1000))/* TODO what is this delay for? */.subscribe(message => {
       retryCounter = 0;
+      console.log(message);
 
       // Receive authentication token
       if ("authenticate" in message && "mode" in message.authenticate) {
@@ -136,9 +168,12 @@ export class Websocket {
           if ("role" in message.authenticate && env.backend == Backend.OpenEMS_Edge) {
             // for OpenEMS Edge we have only one device
             let role = ROLES.getRole(message.authenticate.role);
-            this.devices = {
-              fems: new Device("fems", "FEMS", "", role, true, this)
-            }
+            let deviceName = "fems";
+            let replyStream = new Subject<any>();
+            this.replyStreams[deviceName] = replyStream;
+            this.devices.next({
+              fems: new Device(deviceName, "FEMS", "", role, true, replyStream, this)
+            });
           }
 
           // TODO username is deprecated
@@ -165,17 +200,34 @@ export class Websocket {
         }
       }
 
+      // Receive a reply with a message id -> forward to devices' replyStream
+      if ("id" in message && message.id instanceof Array) {
+        let id = message.id[0];
+        if (id in this.pendingQueryReplies) {
+          let deviceName = this.pendingQueryReplies[id]
+          if (deviceName in this.replyStreams) {
+            this.replyStreams[deviceName].next(message);
+          }
+        }
+        //this.queryreply.next(message);
+      }
+
       // receive metadata
       if ("metadata" in message) {
         if ("devices" in message.metadata) {
           let newDevices = {};
           for (let deviceParam of message.metadata.devices) {
+            let deviceName = deviceParam["name"];
+            let replyStream = new Subject<any>();
+            this.replyStreams[deviceName] = replyStream;
             let newDevice = new Device(
-              deviceParam["name"],
+              deviceName,
               deviceParam["comment"],
               deviceParam["producttype"],
               deviceParam["role"],
-              deviceParam["online"], this
+              deviceParam["online"],
+              replyStream,
+              this
             );
             newDevices[newDevice.name] = newDevice;
             // TODO
@@ -183,21 +235,7 @@ export class Websocket {
             //   metadata: newDevice
             // });
           }
-          this.devices = newDevices;
-        }
-      }
-
-      // receive device specific data
-      if ("device" in message) {
-        // device was specified -> forward
-        if (this.devices[message.device]) {
-          let device = this.devices[message.device];
-          device.receive(message);
-        }
-      } else if (Object.keys(this.devices).length == 1) {
-        // device was not specified, but we have only one
-        for (let key in this.devices) {
-          this.devices[key].receive(message);
+          this.devices.next(newDevices);
         }
       }
 
@@ -216,7 +254,7 @@ export class Websocket {
     if (this.status != "online") { // TODO why this if?
       this.websocketSubscription.unsubscribe();
       this.messages = null;
-      this.devices = {};
+      this.devices.next({});
     }
   }
 
@@ -237,6 +275,9 @@ export class Websocket {
    * Sends a message to the websocket
    */
   public send(device: Device, message: any): void {
+    if ("id" in message) {
+      this.pendingQueryReplies[message.id[0]] = device.name;
+    }
     if (device == null) {
       this.inputStream.next(message);
     } else {

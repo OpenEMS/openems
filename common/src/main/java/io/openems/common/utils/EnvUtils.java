@@ -5,6 +5,10 @@ import java.util.Optional;
 import io.openems.common.exceptions.OpenemsException;
 
 public class EnvUtils {
+	public static boolean isSet(String name) {
+		return System.getenv(name) != null;
+	};
+	
 	public static String getAsString(String name) throws OpenemsException {
 		String value = System.getenv(name);
 		if (value == null || value.isEmpty()) {

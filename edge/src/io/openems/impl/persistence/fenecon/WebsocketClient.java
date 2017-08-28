@@ -22,6 +22,7 @@ package io.openems.impl.persistence.fenecon;
 
 import java.net.URI;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -34,16 +35,21 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.core.utilities.websocket.WebsocketHandler;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
+import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.WebSocketUtils;
+import io.openems.core.Config;
 
 public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketClient.class);
 
-	private final WebsocketHandler websocketHandler;
+	private final FeneconPersistenceWebsocketHandler websocketHandler; // TODO remove
 
 	public WebsocketClient(URI uri, String apikey) throws Exception {
 		super( //
@@ -64,8 +70,7 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 			// }
 			this.setSocket(SSLSocketFactory.getDefault().createSocket());
 		}
-		this.websocketHandler = new WebsocketHandler(this.getConnection(),
-				null /* second parameter is only for local websocket access */);
+		this.websocketHandler = new FeneconPersistenceWebsocketHandler(this.getConnection());
 	}
 
 	@Override
@@ -91,7 +96,52 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 	@Override
 	public void onMessage(String message) {
 		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-		this.websocketHandler.onMessage(jMessage);
+		// this.websocketHandler.onMessage(jMessage);
+		log.info(jMessage.toString());
+
+		// get message id -> used for reply
+		Optional<JsonArray> jIdOpt = JsonUtils.getAsOptionalJsonArray(jMessage, "id");
+		log.info("Message-ID: " + jIdOpt);
+
+		// prepare reply (every reply is going to be merged into this object)
+		Optional<JsonObject> jReplyOpt = Optional.empty();
+
+		/*
+		 * Config
+		 */
+		Optional<JsonObject> jConfig = JsonUtils.getAsOptionalJsonObject(jMessage, "config");
+		if (jConfig.isPresent()) {
+			jReplyOpt = JsonUtils.merge(jReplyOpt, //
+					config(jConfig.get()) //
+			);
+		}
+
+		// send reply
+		if (jReplyOpt.isPresent()) {
+			JsonObject jReply = jReplyOpt.get();
+			if (jIdOpt.isPresent()) {
+				jReply.add("id", jIdOpt.get());
+			}
+			WebSocketUtils.send(this.getConnection(), jReply);
+		}
+	}
+
+	private synchronized Optional<JsonObject> config(JsonObject jConfig) {
+		try {
+			String mode = JsonUtils.getAsString(jConfig, "mode");
+
+			if (mode.equals("query")) {
+				/*
+				 * Query current config
+				 */
+				String language = JsonUtils.getAsString(jConfig, "language");
+				JsonObject jReplyConfig = Config.getInstance().getJsonForUi(language);
+				return Optional.of(DefaultMessages.configQueryReply(jReplyConfig));
+			}
+		} catch (OpenemsException e) {
+			log.warn(e.getMessage());
+		}
+		return Optional.empty();
 	}
 
 	private CountDownLatch connectLatch = new CountDownLatch(1);
@@ -114,7 +164,7 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 	 *
 	 * @return
 	 */
-	public WebsocketHandler getWebsocketHandler() {
+	public FeneconPersistenceWebsocketHandler getWebsocketHandler() {
 		return this.websocketHandler;
 	}
 }
