@@ -4,7 +4,8 @@ import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
-import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, Summary } from './../../../../shared/shared';
+import { Device } from '../../../../shared/device/device';
+import { Dataset, EMPTY_DATASET, Config, QueryReply, Summary } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
 import { Utils } from './../../../../shared/service/utils';
 

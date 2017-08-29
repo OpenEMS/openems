@@ -7,7 +7,8 @@ import * as d3shape from 'd3-shape';
 import * as moment from 'moment';
 import { TranslateService } from '@ngx-translate/core';
 
-import { Websocket, Device, ChannelAddresses } from '../../shared/shared';
+import { Device } from '../../shared/device/device';
+import { Websocket, ChannelAddresses } from '../../shared/shared';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherTimespan";
 

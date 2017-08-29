@@ -4,7 +4,8 @@ import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
-import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, ChannelAddresses } from './../../../../shared/shared';
+import { Device } from '../../../../shared/device/device';
+import { Dataset, EMPTY_DATASET, Config, QueryReply, ChannelAddresses } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions } from './../shared';
 import { Utils } from './../../../../shared/service/utils';
 
@@ -18,7 +19,7 @@ import { SpinnerComponent } from '../../../../shared/spinner.component';
 export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() private device: Device;
-  @Input() private socChannels: ChannelAddresses;
+  @Input() private socChannels: any; // ChannelAddresses;
   @Input() private fromDate: moment.Moment;
   @Input() private toDate: moment.Moment;
 

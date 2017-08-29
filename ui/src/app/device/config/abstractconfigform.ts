@@ -5,7 +5,8 @@ import { Subscription } from 'rxjs/Subscription';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Subject } from 'rxjs/Subject';
 
-import { Websocket, Device } from '../../shared/shared';
+import { Websocket } from '../../shared/shared';
+import { Device } from '../../shared/device/device';
 
 export type ConfigureRequestModeType = "update" | "create" | "delete";
 export class ConfigureRequest {

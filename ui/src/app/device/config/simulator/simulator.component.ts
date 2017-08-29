@@ -3,7 +3,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 
-import { Websocket, Device, Log } from '../../../shared/shared';
+import { Websocket, Log } from '../../../shared/shared';
 import { AbstractConfig, ConfigureRequest } from '../abstractconfig';
 import 'rxjs/add/operator/retryWhen';
 import 'rxjs/add/operator/delay';

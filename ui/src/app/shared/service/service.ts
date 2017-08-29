@@ -5,7 +5,7 @@ import { Cookie } from 'ng2-cookies';
 import * as moment from 'moment';
 
 import { Websocket } from './websocket';
-import { Device } from '../shared';
+import { Device } from '../device/device';
 
 type NotificationType = "success" | "error" | "warning" | "info";
 
@@ -15,7 +15,8 @@ export interface Notification {
 }
 
 @Injectable()
-export class Service implements ErrorHandler {
+// TODO export class Service implements ErrorHandler {
+export class Service {
     public notificationEvent: Subject<Notification> = new Subject<Notification>();
 
     constructor(
@@ -66,13 +67,13 @@ export class Service implements ErrorHandler {
     /**
      * Handles an application error
      */
-    public handleError(error: any) {
-        console.error(error);
-        let notification: Notification = {
-            type: "error",
-            message: error
-        };
-        this.notify(notification);
-    }
+    // public handleError(error: any) {
+    //     console.error(error);
+    //     let notification: Notification = {
+    //         type: "error",
+    //         message: error
+    //     };
+    //     this.notify(notification);
+    // }
 
 }

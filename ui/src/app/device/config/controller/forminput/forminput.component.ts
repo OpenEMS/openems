@@ -2,7 +2,8 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { Controller } from '../controller';
-import { Utils, Device, Meta } from '../../../../shared/shared';
+import { Device } from '../../../../shared/device/device';
+import { Utils, Meta } from '../../../../shared/shared';
 import { Role, ROLES } from '../../../../shared/type/role';
 
 interface ArrayPath {

@@ -3,7 +3,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 
-import { Websocket, Notification, Device, Data, Config } from '../../shared/shared';
+import { Websocket, Notification, Data, Config } from '../../shared/shared';
 import { CustomFieldDefinition } from '../../shared/type/customfielddefinition';
 import { environment } from '../../../environments';
 
@@ -14,10 +14,7 @@ import { environment } from '../../../environments';
 export class OverviewComponent implements OnInit, OnDestroy {
 
   public currentData: Data;
-  public config: Config;
   public customFields: CustomFieldDefinition = {};
-
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
     public websocket: Websocket,
@@ -25,12 +22,13 @@ export class OverviewComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.websocket.getCurrentDeviceFromRoute(this.route).then(device => {
-      device.getConfig().then(config => {
-      }).catch(reason => {
-      })
-    });
-
+    this.websocket.setCurrentDevice(this.route)
+      .filter(device => device != null)
+      .first()
+      .flatMap(device => device.config)
+      .subscribe(config => {
+        console.log("Conf: ", config);
+      });
 
     // TODO
     // this.websocket.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
@@ -63,7 +61,5 @@ export class OverviewComponent implements OnInit, OnDestroy {
     // if (this.device) {
     //   this.device.unsubscribeCurrentData();
     // }
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
   }
 }

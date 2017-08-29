@@ -4,7 +4,8 @@ import { FormBuilder } from '@angular/forms';
 import { Subject } from 'rxjs/Subject';
 
 import { Utils } from './../../../../shared/service/utils';
-import { Websocket, Device } from '../../../../shared/shared';
+import { Websocket } from '../../../../shared/shared';
+import { Device } from '../../../../shared/device/device';
 import { Controller } from '../controller';
 
 @Component({

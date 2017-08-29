@@ -9,7 +9,7 @@ import { GridSectionComponent } from './section/gridsection.component';
 import { ProductionSectionComponent } from './section/productionsection.component';
 import { StorageSectionComponent } from './section/storagesection.component';
 
-import { Device, Data } from '../../../../shared/shared';
+import { Data } from '../../../../shared/shared';
 
 @Component({
   selector: 'energymonitor-chart',

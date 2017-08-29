@@ -3,7 +3,8 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
-import { Websocket, Service, Device } from '../../../shared/shared';
+import { Websocket, Service } from '../../../shared/shared';
+import { Device } from '../../../shared/device/device';
 
 @Component({
   selector: 'more',

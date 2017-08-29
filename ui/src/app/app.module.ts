@@ -36,11 +36,12 @@ import { MyTranslateLoader } from './shared/translate/translate';
     AppComponent
   ],
   providers: [
-    MdSnackBar,
-    {
-      provide: ErrorHandler,
-      useExisting: Service
-    }
+    MdSnackBar
+    // ,
+    // {
+    //   provide: ErrorHandler,
+    //   useExisting: Service
+    // }
   ]
 })
 export class AppModule { }

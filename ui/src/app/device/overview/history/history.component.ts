@@ -2,7 +2,8 @@ import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import * as moment from 'moment';
 
-import { Device, Dataset, ChannelAddresses } from '../../../shared/shared';
+import { Device } from '../../../shared/device/device';
+import { Dataset, ChannelAddresses } from '../../../shared/shared';
 
 // spinner component
 import { SpinnerComponent } from '../../../shared/spinner.component';

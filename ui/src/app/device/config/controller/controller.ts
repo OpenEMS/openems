@@ -1,7 +1,8 @@
 import { FormGroup, FormBuilder } from '@angular/forms';
 
 import { Thing } from '../thing';
-import { Websocket, Device, Config, Meta, ThingMeta } from '../../../shared/shared';
+import { Websocket, Config, Meta, ThingMeta } from '../../../shared/shared';
+import { Device } from '../../../shared/device/device';
 
 export class Controller extends Thing {
     public readonly meta: ThingMeta;

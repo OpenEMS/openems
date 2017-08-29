@@ -5,6 +5,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import websocketConnect from 'rxjs-websockets';
+import 'rxjs/add/operator/timeout';
 
 import { environment as env } from '../../../environments';
 import { Service, Notification } from './service';
@@ -12,14 +13,24 @@ import { Utils } from './utils';
 import { Device } from '../device/device';
 import { Backend } from '../type/backend';
 import { ROLES } from '../type/role';
+import { DefaultTypes } from '../service/defaulttypes';
 
 @Injectable()
 export class Websocket {
   public static readonly TIMEOUT = 5000;
 
   // holds references of device names (=key) to Device objects (=value)
-  public devices: BehaviorSubject<{ [name: string]: Device }> = new BehaviorSubject({});
-  public currentDevice: BehaviorSubject<Device> = new BehaviorSubject<Device>(null);
+  private _devices: BehaviorSubject<{ [name: string]: Device }> = new BehaviorSubject({});
+  public get devices() {
+    return this._devices;
+  }
+
+  // holds the currently selected device
+  private _currentDevice: BehaviorSubject<Device> = new BehaviorSubject<Device>(null);
+  public get currentDevice() {
+    return this._currentDevice;
+  }
+
   public event = new Subject<Notification>();
   public status: "online" | "connecting" | "failed" = "connecting";
 
@@ -29,8 +40,8 @@ export class Websocket {
   private websocketSubscription: Subscription = new Subscription();
   private queryreply = new Subject<{ id: string[] }>();
 
-  // holds streams for each device; triggered on message reply for the device
-  private replyStreams: { [deviceName: string]: Subject<any> } = {};
+  // holds stream per device (=key1) and message-id (=key2); triggered on message reply for the device
+  private replyStreams: { [deviceName: string]: { [messageId: string]: Subject<any> } } = {};
 
   // tracks which message id (=key) is connected with which deviceName (=value)
   private pendingQueryReplies: { [id: string]: string } = {};
@@ -43,6 +54,30 @@ export class Websocket {
     setTimeout(() => {
       this.connectWithTokenOrSessionId(false);
     })
+  }
+
+  /**
+   * Parses the route params and sets the current device
+   */
+  public setCurrentDevice(route: ActivatedRoute): Subject<Device> {
+    let deviceName = route.snapshot.params["device"];
+    this.devices
+      .filter(devices => deviceName in devices)
+      .first()
+      .map(devices => devices[deviceName])
+      .subscribe(device => {
+        // set current device
+        this.currentDevice.next(device);
+        // TODO device.setActive();
+      }, error => {
+        console.error("Error while setting current device: ", error);
+      })
+    return this.currentDevice;
+    // TODO redirect on timeout
+    // timeout: redirect to overview
+    // this.currentDevice.next(null);
+    // this.router.navigate(['/overview']);
+    // throw new URIError("Device [" + deviceName + "] not found."); // TODO translate 
   }
 
   /**
@@ -77,10 +112,7 @@ export class Websocket {
       device.getConfig();
       this.currentDevice.next(device);
     }).catch(reason => {
-      // timeout: redirect to overview
-      this.currentDevice.next(null);
-      this.router.navigate(['/overview']);
-      throw new URIError("Device [" + deviceName + "] not found."); // TODO translate 
+
     });
     return devicePromise;
   }
@@ -169,7 +201,7 @@ export class Websocket {
             // for OpenEMS Edge we have only one device
             let role = ROLES.getRole(message.authenticate.role);
             let deviceName = "fems";
-            let replyStream = new Subject<any>();
+            let replyStream: { [messageId: string]: Subject<any> } = {};
             this.replyStreams[deviceName] = replyStream;
             this.devices.next({
               fems: new Device(deviceName, "FEMS", "", role, true, replyStream, this)
@@ -203,29 +235,28 @@ export class Websocket {
       // Receive a reply with a message id -> forward to devices' replyStream
       if ("id" in message && message.id instanceof Array) {
         let id = message.id[0];
-        if (id in this.pendingQueryReplies) {
-          let deviceName = this.pendingQueryReplies[id]
-          if (deviceName in this.replyStreams) {
-            this.replyStreams[deviceName].next(message);
+        for (let deviceName in this.replyStreams) {
+          if (id in this.replyStreams[deviceName]) {
+            this.replyStreams[deviceName][id].next(message);
+            break;
           }
         }
-        //this.queryreply.next(message);
       }
 
       // receive metadata
       if ("metadata" in message) {
         if ("devices" in message.metadata) {
+          let devices = <DefaultTypes.MessageMetadataDevice[]>message.metadata.devices;
           let newDevices = {};
-          for (let deviceParam of message.metadata.devices) {
-            let deviceName = deviceParam["name"];
-            let replyStream = new Subject<any>();
-            this.replyStreams[deviceName] = replyStream;
+          for (let device of devices) {
+            let replyStream: { [messageId: string]: Subject<any> } = {};
+            this.replyStreams[device.name] = replyStream;
             let newDevice = new Device(
-              deviceName,
-              deviceParam["comment"],
-              deviceParam["producttype"],
-              deviceParam["role"],
-              deviceParam["online"],
+              device.name,
+              device.comment,
+              device.producttype,
+              ROLES.getRole(device.role),
+              device.online,
               replyStream,
               this
             );

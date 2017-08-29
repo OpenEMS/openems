@@ -1,8 +1,7 @@
 import { Component, Input, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 
-
-import { Device, Data, Config, Utils } from '../../../shared/shared';
+import { Data, Config, Utils } from '../../../shared/shared';
 
 @Component({
   selector: 'energytable',

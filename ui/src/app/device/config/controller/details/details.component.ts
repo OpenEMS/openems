@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 
 import { Controller } from '../controller';
-import { Utils, Device } from '../../../../shared/shared';
+import { Utils } from '../../../../shared/shared';
+import { Device } from '../../../../shared/device/device';
 import { Role, ROLES } from '../../../../shared/type/role';
 
 @Component({
