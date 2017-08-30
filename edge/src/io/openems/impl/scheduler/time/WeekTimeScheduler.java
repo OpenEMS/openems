@@ -91,12 +91,12 @@ public class WeekTimeScheduler extends Scheduler {
 	@ConfigInfo(title = "Always", description = "Sets the controllers that are always activated.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this);
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
-
-	@Override
-	public ConfigChannel<Integer> cycleTime() {
-		return cycleTime;
-	}
+	// private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
+	//
+	// @Override
+	// public ConfigChannel<Integer> cycleTime() {
+	// return cycleTime;
+	// }
 
 	/*
 	 * Fields
@@ -110,7 +110,7 @@ public class WeekTimeScheduler extends Scheduler {
 	protected void dispose() {}
 
 	@Override
-	protected void forever() {
+	protected void execute() {
 		// kick the watchdog
 		SDNotify.sendWatchdog();
 

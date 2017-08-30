@@ -53,10 +53,10 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	@ConfigInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/femsserver\"")
 	public final ConfigChannel<String> uri = new ConfigChannel<String>("uri", this);
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
 			.defaultValue(DEFAULT_CYCLETIME);
 
-	@Override
 	public ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
@@ -290,5 +290,10 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			increaseCycleTime();
 		}
 		return getWebsocketClient().isPresent();
+	}
+
+	@Override
+	protected int getCycleTime() {
+		return cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
 	}
 }
