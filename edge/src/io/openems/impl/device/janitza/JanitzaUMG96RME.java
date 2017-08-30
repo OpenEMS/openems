@@ -23,6 +23,7 @@ package io.openems.impl.device.janitza;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ConfigInfo;
@@ -36,8 +37,8 @@ public class JanitzaUMG96RME extends ModbusDevice {
 	/*
 	 * Constructors
 	 */
-	public JanitzaUMG96RME() throws OpenemsException {
-		super();
+	public JanitzaUMG96RME(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*

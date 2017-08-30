@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.device.kmtronic;
 
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.OutputNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -35,8 +36,8 @@ public class KMTronicRelayOutputRev1 extends ModbusDeviceNature implements Outpu
 	/*
 	 * Constructors
 	 */
-	public KMTronicRelayOutputRev1(String thingId) throws ConfigException {
-		super(thingId);
+	public KMTronicRelayOutputRev1(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		outputs = new ModbusCoilWriteChannel[7];
 	}
 

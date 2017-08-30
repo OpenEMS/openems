@@ -23,6 +23,7 @@ package io.openems.impl.device.mini;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ConfigInfo;
@@ -36,8 +37,8 @@ public class FeneconMini extends ModbusDevice {
 	/*
 	 * Constructors
 	 */
-	public FeneconMini() throws OpenemsException {
-		super();
+	public FeneconMini(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*

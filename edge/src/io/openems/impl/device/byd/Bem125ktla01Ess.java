@@ -26,6 +26,7 @@ import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -45,8 +46,8 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	/*
 	 * Constructors
 	 */
-	public Bem125ktla01Ess(String thingId) throws ConfigException {
-		super(thingId);
+	public Bem125ktla01Ess(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
@@ -250,8 +251,7 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 												"BatteryStackTotalCapacity", this).unit("Wh")),
 								new UnsignedDoublewordElement(0x130A, //
 										batteryStackTotalCharge = new ModbusReadLongChannel("BatteryStackTotalCharge",
-												this).unit(
-														"kWh")),
+												this).unit("kWh")),
 								new UnsignedDoublewordElement(0x130C, //
 										batteryStackTotalDischarge = new ModbusReadLongChannel(
 												"BatteryStackTotalDischarge", this).unit("kWh"))));
