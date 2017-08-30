@@ -198,7 +198,11 @@ public abstract class Bridge extends Thread implements Thing {
 				}
 				// run all tasks to read required Channels
 				for (BridgeReadTask task : requiredReadTasks) {
-					task.runTask();
+					try {
+						task.runTask();
+					} catch (Exception e) {
+						log.error("failed to execute ReadTask.", e);
+					}
 				}
 				long timeUntilWrite = scheduler.getCycleStartTime() + scheduler.getRequiredTime() + 10;
 				if (readTasks.size() > 0) {
@@ -213,7 +217,11 @@ public abstract class Bridge extends Thread implements Thing {
 				while (!written) {
 					if (isWriteTriggered.get()) {
 						for (BridgeWriteTask task : writeTasks) {
-							task.runTask();
+							try {
+								task.runTask();
+							} catch (Exception e) {
+								log.error("failed to execute WriteTask.", e);
+							}
 						}
 						isWriteTriggered.set(false);
 						written = true;
@@ -257,7 +265,11 @@ public abstract class Bridge extends Thread implements Thing {
 			if (System.currentTimeMillis() + nextReadTask.getRequiredTime() >= timeFinished) {
 				break;
 			}
-			nextReadTask.runTask();
+			try {
+				nextReadTask.runTask();
+			} catch (Exception e) {
+				log.error("failed to execute ReadTask.", e);
+			}
 			readOtherTaskCount++;
 			readOtherTaskIndex++;
 			readOtherTaskIndex %= tasks.size();

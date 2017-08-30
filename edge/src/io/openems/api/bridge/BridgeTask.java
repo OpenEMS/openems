@@ -21,12 +21,12 @@ public abstract class BridgeTask {
 		return sum / requiredTimes.size();
 	}
 
-	public void runTask() {
+	public void runTask() throws Exception {
 		long timeBefore = System.currentTimeMillis();
 		this.run();
 		this.requiredTimes.add(System.currentTimeMillis() - timeBefore);
 	}
 
-	protected abstract void run();
+	protected abstract void run() throws Exception;
 
 }
