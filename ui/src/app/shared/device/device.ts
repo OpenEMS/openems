@@ -58,19 +58,20 @@ export class Device {
   }
 
   // holds device configuration; gets new configuration on first subscribe 
-  public config: Observable<String> = Observable.create((observer: Observer<any>) => {
-    // send query
-    let message = DefaultMessages.configQuery();
-    let messageId = message.id[0];
-    // observer.next(message)
-    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
-    this.send(message);
-    // wait for reply
-    this.replyStreams[messageId].first().subscribe(reply => {
-      observer.next((<DefaultMessages.ConfigQueryReply>reply).config);
-    });
-    // TODO add timeout
-  }).publishReplay(1).refCount();
+  public config: Observable<DefaultTypes.Config> = Observable
+    .create((observer: Observer<DefaultTypes.Config>) => {
+      // send query
+      let message = DefaultMessages.configQuery();
+      let messageId = message.id[0];
+      // observer.next(message)
+      this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
+      this.send(message);
+      // wait for reply
+      this.replyStreams[messageId].first().subscribe(reply => {
+        observer.next((<DefaultMessages.ConfigQueryReply>reply).config);
+      });
+      // TODO add timeout
+    }).publishReplay(1).refCount();
 
   public event = new Subject<Notification>();
   public address: string;

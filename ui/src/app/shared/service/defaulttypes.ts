@@ -1,8 +1,17 @@
 export module DefaultTypes {
+  export interface Thing {
+    id: string,
+    class: string
+  }
+
   export interface Config {
-    persistence: any[],
-    scheduler: any,
-    things: any[]
+    bridge: {
+      [id: string]: Thing
+    }
+  }
+
+  export interface ChannelAddresses {
+    [thing: string]: string[];
   }
 
   export interface MessageMetadataDevice {

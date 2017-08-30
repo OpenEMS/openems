@@ -404,7 +404,7 @@ public class WebsocketHandler {
 			}
 			// Send new config
 			JsonObject jMetadata = new JsonObject();
-			jMetadata.add("config", Config.getInstance().getMetaConfigJson());
+			// TODO jMetadata.add("config", Config.getInstance().getMetaConfigJson());
 			JsonObject j = new JsonObject();
 			j.add("metadata", jMetadata);
 			this.send(j);

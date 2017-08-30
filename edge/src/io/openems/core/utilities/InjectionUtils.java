@@ -263,24 +263,28 @@ public class InjectionUtils {
 	 * @param clazz
 	 * @return
 	 */
-	public static Set<Class<?>> getImportantNatureInterfaces(Class<?> clazz) {
-		Set<Class<?>> ifaces = new HashSet<>();
-		if (clazz == null // at the top
-				|| clazz.equals(DeviceNature.class) // we are at the DeviceNature interface
-				|| !DeviceNature.class.isAssignableFrom(clazz) // clazz is not derived from DeviceNature
-		) {
+	public static Set<Class<? extends Thing>> getImplements(Class<? extends Thing> clazz) {
+		Set<Class<? extends Thing>> ifaces = new HashSet<>();
+		// stop at certain classes
+		if (clazz == null || clazz.equals(Thing.class) || clazz.equals(AbstractWorker.class)
+				|| clazz.equals(DeviceNature.class)) {
 			return ifaces;
 		}
 		// myself
 		ifaces.add(clazz);
 		// super interfaces
 		for (Class<?> iface : clazz.getInterfaces()) {
-			if (DeviceNature.class.isAssignableFrom(iface)) {
-				ifaces.addAll(getImportantNatureInterfaces(iface));
+			if (Thing.class.isAssignableFrom(iface)) {
+				Class<? extends Thing> thingIface = (Class<? extends Thing>) iface;
+				ifaces.addAll(getImplements(thingIface));
 			}
 		}
 		// super classes
-		ifaces.addAll(getImportantNatureInterfaces(clazz.getSuperclass()));
+		Class<?> superclazz = clazz.getSuperclass();
+		if (superclazz != null && Thing.class.isAssignableFrom(superclazz)) {
+			Class<? extends Thing> thingSuperclazz = (Class<? extends Thing>) superclazz;
+			ifaces.addAll(getImplements(thingSuperclazz));
+		}
 		return ifaces;
 	}
 }

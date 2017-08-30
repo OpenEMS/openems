@@ -28,15 +28,15 @@ currently forwarded to Odoo login page
 {
 	authenticate: {
 		mode: "allow",
-		token: String,
+		token: string,
 		role: "admin" | "installer" | "owner" | "guest"
 	}, metadata: {
 		user: {
 			id: Integer
 		},
 		devices: [{
-			name: String,
-			comment: String,
+			name: string,
+			comment: string,
 			producttype: "Pro 9-12" | "MiniES 3-3" | "PRO Hybrid 9-10" | "PRO Compact 3-10" | "COMMERCIAL 40-45" | "INDUSTRIAL",
 			role: "admin" | "installer" | "owner" | "guest",
 			online: boolean
@@ -74,7 +74,7 @@ Backend is transparently proxying requests to a connected Edge if necessary, add
 
 ```
 {
-	device: String,
+	device: string,
 	id: [UUID],
 	config: {
 		mode: "query",
@@ -86,9 +86,34 @@ Backend is transparently proxying requests to a connected Edge if necessary, add
 [1.2.1.2] Edge/Backend -> UI
 
 ```
-
+{
+	id: [UUID],
+	config: {
+		things: {
+			[id: string]: {
+				id: string,
+				class: string,
+				[channel: string]: any
+			}
+		}
+		meta: {
+			[class: string]: {
+				implements: [string],
+				channels: {
+					[channel: string]: {
+						name: string,
+						title: string,
+						type: string | string[],
+						optional: boolean,
+						array: boolean,
+						accessLevel: string
+					}
+				}
+			}
+		}
+	}
+}
 ```
-
 
 
 

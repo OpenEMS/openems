@@ -44,6 +44,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
+import io.openems.core.ConfigFormat;
 
 public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 
@@ -126,6 +127,12 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 		}
 	}
 
+	/**
+	 * Handle "config" messages
+	 *
+	 * @param jConfig
+	 * @return
+	 */
 	private synchronized Optional<JsonObject> config(JsonObject jConfig) {
 		try {
 			String mode = JsonUtils.getAsString(jConfig, "mode");
@@ -135,7 +142,7 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 				 * Query current config
 				 */
 				String language = JsonUtils.getAsString(jConfig, "language");
-				JsonObject jReplyConfig = Config.getInstance().getJsonForUi(language);
+				JsonObject jReplyConfig = Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, language);
 				return Optional.of(DefaultMessages.configQueryReply(jReplyConfig));
 			}
 		} catch (OpenemsException e) {

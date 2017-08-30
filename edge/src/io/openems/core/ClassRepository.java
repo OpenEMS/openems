@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 
 import io.openems.api.bridge.Bridge;
@@ -99,6 +100,14 @@ public class ClassRepository {
 		return Collections.unmodifiableMap(thingConfigChannels.row(clazz));
 	}
 
+	public Iterable<ThingDoc> getAvailableThings() throws ReflectionException {
+		return Iterables.concat( //
+				getAvailableBridges(), //
+				getAvailableControllers(), //
+				getAvailableDevices(), //
+				getAvailableSchedulers());
+	}
+
 	public Collection<ThingDoc> getAvailableControllers() throws ReflectionException {
 		if (controllers.isEmpty()) {
 			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.controller",
@@ -144,41 +153,39 @@ public class ClassRepository {
 	}
 
 	private void parseClass(Class<? extends Thing> clazz) {
-		if (Thing.class.isAssignableFrom(Thing.class)) {
-			for (Method method : clazz.getMethods()) {
-				Class<?> type = null;
-				if (method.getReturnType().isArray()) {
-					Class<?> rtype = method.getReturnType();
-					type = rtype.getComponentType();
+		for (Method method : clazz.getMethods()) {
+			Class<?> type = null;
+			if (method.getReturnType().isArray()) {
+				Class<?> rtype = method.getReturnType();
+				type = rtype.getComponentType();
+			} else {
+				type = method.getReturnType();
+			}
+			if (Channel.class.isAssignableFrom(type)) {
+				thingChannels.put(clazz, method);
+			}
+			if (ConfigChannel.class.isAssignableFrom(type)) {
+				ConfigInfo configAnnotation = getAnnotation(clazz, method.getName());
+				if (configAnnotation != null) {
+					thingConfigChannels.put(clazz, method, configAnnotation);
 				} else {
-					type = method.getReturnType();
-				}
-				if (Channel.class.isAssignableFrom(type)) {
-					thingChannels.put(clazz, method);
-				}
-				if (ConfigChannel.class.isAssignableFrom(type)) {
-					ConfigInfo configAnnotation = getAnnotation(clazz, method.getName());
-					if (configAnnotation != null) {
-						thingConfigChannels.put(clazz, method, configAnnotation);
-					} else {
-						log.error("Config-Annotation is missing for method [" + method.getName() + "] in class ["
-								+ clazz.getName() + "]");
-					}
+					log.error("Config-Annotation is missing for method [" + method.getName() + "] in class ["
+							+ clazz.getName() + "]");
 				}
 			}
-			for (Field field : clazz.getFields()) {
-				Class<?> type = field.getType();
-				if (Channel.class.isAssignableFrom(type)) {
-					thingChannels.put(clazz, field);
-				}
-				if (ConfigChannel.class.isAssignableFrom(type)) {
-					ConfigInfo configAnnotation = field.getAnnotation(ConfigInfo.class);
-					if (configAnnotation == null) {
-						log.error("Config-Annotation is missing for field [" + field.getName() + "] in class ["
-								+ clazz.getName() + "]");
-					} else {
-						thingConfigChannels.put(clazz, field, configAnnotation);
-					}
+		}
+		for (Field field : clazz.getFields()) {
+			Class<?> type = field.getType();
+			if (Channel.class.isAssignableFrom(type)) {
+				thingChannels.put(clazz, field);
+			}
+			if (ConfigChannel.class.isAssignableFrom(type)) {
+				ConfigInfo configAnnotation = field.getAnnotation(ConfigInfo.class);
+				if (configAnnotation == null) {
+					log.error("Config-Annotation is missing for field [" + field.getName() + "] in class ["
+							+ clazz.getName() + "]");
+				} else {
+					thingConfigChannels.put(clazz, field, configAnnotation);
 				}
 			}
 		}

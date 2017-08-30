@@ -1,12 +1,9 @@
 <div *ngIf="(websocket.currentDevice | async) as currentDevice" fxLayoutAlign="start start" fxLayoutWrap="wrap">
-  <ng-container *ngIf="(currentDevice.config | async) as config">
-    {{ config | json }}
-    <!-- <energymonitor fxFlex.lt-md="100%" fxFlex.md="66%" fxFlex.gt-md="33%" [currentData]="currentData"></energymonitor> -->
-    <!-- <energytable fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%" [currentData]="currentData" [config]="config" fxFlex="100%"></energytable> -->
-    <!-- <div fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%">
+  <!-- <energymonitor fxFlex.lt-md="100%" fxFlex.md="66%" fxFlex.gt-md="33%" [currentData]="currentData"></energymonitor> -->
+  <!-- <energytable fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%" [currentData]="currentData" [config]="config" fxFlex="100%"></energytable> -->
+  <!-- <div fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%">
     <history [device]="device"></history>
     <fieldstatus [currentData]="currentData" [fielddefinition]="customFields"></fieldstatus>
   </div> -->
-    <!-- TODO -->
-  </ng-container>
+  <!-- TODO -->
 </div>
