@@ -81,16 +81,6 @@ public abstract class ModbusBridge extends Bridge {
 	 * Methods
 	 */
 
-	// private void writeAllDevices() {
-	// for (ModbusDevice modbusdevice : modbusdevices) {
-	// try {
-	// modbusdevice.write(this);
-	// } catch (OpenemsException e) {
-	// log.error("Error while writing to ModbusDevice [" + modbusdevice.id() + "]: " + e.getMessage());
-	// }
-	// }
-	// }
-
 	@Override
 	protected boolean initialize() {
 		/*

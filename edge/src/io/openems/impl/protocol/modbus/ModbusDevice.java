@@ -47,23 +47,6 @@ public abstract class ModbusDevice extends Device {
 	/*
 	 * Methods
 	 */
-	// protected final void update(ModbusBridge modbusBridge) throws ConfigException, ReflectionException {
-	// int modbusUnitId = getModbusUnitId();
-	// for (DeviceNature nature : getDeviceNatures()) {
-	// if (nature instanceof ModbusDeviceNature) {
-	// ((ModbusDeviceNature) nature).update(modbusUnitId, modbusBridge);
-	// }
-	// }
-	// }
-	//
-	// protected final void write(ModbusBridge modbusBridge) throws ConfigException, ReflectionException {
-	// int modbusUnitId = getModbusUnitId();
-	// for (DeviceNature nature : getDeviceNatures()) {
-	// if (nature instanceof ModbusDeviceNature) {
-	// ((ModbusDeviceNature) nature).write(modbusUnitId, modbusBridge);
-	// }
-	// }
-	// }
 
 	protected int getModbusUnitId() throws ConfigException {
 		Optional<Integer> modbusUnitId = this.modbusUnitId.valueOptional();
