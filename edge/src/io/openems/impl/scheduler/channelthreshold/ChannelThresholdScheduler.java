@@ -65,9 +65,6 @@ public class ChannelThresholdScheduler extends Scheduler {
 	@ConfigInfo(title = "Always", description = "Sets the controllers that are always activated.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this);
 
-	// @ConfigInfo(title = "the ammount of time to wait till next run.", type = Integer.class)
-	// private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
-
 	/*
 	 * "thresholds":[
 	 * {
@@ -116,12 +113,6 @@ public class ChannelThresholdScheduler extends Scheduler {
 					log.error("'thresholdChannelAddress' is not configured!");
 				}
 			});
-
-	// @Override
-	// @ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
-	// public ConfigChannel<Integer> cycleTime() {
-	// return cycleTime;
-	// }
 
 	/*
 	 * Methods

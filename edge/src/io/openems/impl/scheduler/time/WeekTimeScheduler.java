@@ -91,13 +91,6 @@ public class WeekTimeScheduler extends Scheduler {
 	@ConfigInfo(title = "Always", description = "Sets the controllers that are always activated.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this);
 
-	// private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
-	//
-	// @Override
-	// public ConfigChannel<Integer> cycleTime() {
-	// return cycleTime;
-	// }
-
 	/*
 	 * Fields
 	 */
