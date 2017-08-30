@@ -24,23 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.api.bridge.Bridge;
-import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
 
 @ThingInfo(title = "Simulator")
 public class SimulatorBridge extends Bridge {
 	protected volatile SimulatorDevice[] simulatordevices = new SimulatorDevice[0];
-
-	/*
-	 * Config
-	 */
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
-
-	@Override
-	public ConfigChannel<Integer> cycleTime() {
-		return cycleTime;
-	}
 
 	/*
 	 * Methods
@@ -53,13 +42,6 @@ public class SimulatorBridge extends Bridge {
 	@Override
 	protected void dispose() {
 		// nothing to dispose
-	}
-
-	@Override
-	protected void forever() {
-		for (SimulatorDevice device : simulatordevices) {
-			device.update();
-		}
 	}
 
 	@Override

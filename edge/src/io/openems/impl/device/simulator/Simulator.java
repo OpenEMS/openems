@@ -23,6 +23,7 @@ package io.openems.impl.device.simulator;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ConfigInfo;
@@ -36,8 +37,8 @@ public class Simulator extends SimulatorDevice {
 	/*
 	 * Constructors
 	 */
-	public Simulator() throws OpenemsException {
-		super();
+	public Simulator(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*
@@ -59,10 +60,9 @@ public class Simulator extends SimulatorDevice {
 
 	@ConfigInfo(title = "Sps", description = "Sets the Riedmann sps nature.", type = SimulatorRiedmannNature.class, isOptional = true)
 	public final ConfigChannel<SimulatorRiedmannNature> sps = new ConfigChannel<>("sps", this);
-	
+
 	@ConfigInfo(title = "Output", description = "Sets the output nature.", type = SimulatorOutput.class, isOptional = true)
 	public final ConfigChannel<SimulatorOutput> output = new ConfigChannel<>("output", this);
-	
 
 	/*
 	 * Methods

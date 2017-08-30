@@ -22,6 +22,7 @@ package io.openems.impl.device.simulator;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
@@ -34,8 +35,8 @@ public abstract class SimulatorMeter extends SimulatorDeviceNature implements Sy
 	/*
 	 * Constructors
 	 */
-	public SimulatorMeter(String thingId) throws ConfigException {
-		super(thingId);
+	public SimulatorMeter(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
