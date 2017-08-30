@@ -41,6 +41,9 @@ if [ ! -e $FINISHED_1 ]; then
 	echo "# Remove fems from devices list"
 	/bin/sed --expression='2d' /boot/uboot/fems-setup/devices --in-place
 	
+	echo "# Write Apikey into /etc/fems"
+	/usr/bin/head -n 2 devices | tail -n 1 | cut -d ";" -f 3 > /mnt/etc/fems
+	
 	echo "# Mark first stage as finished"
 	touch /mnt$FINISHED_1
 	/bin/umount /mnt
