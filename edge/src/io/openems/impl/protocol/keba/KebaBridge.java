@@ -45,13 +45,7 @@ public class KebaBridge extends Bridge {
 	/*
 	 * Config
 	 */
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(10000);
 	private ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(9070);
-
-	@Override
-	public ConfigChannel<Integer> cycleTime() {
-		return cycleTime;
-	}
 
 	/*
 	 * Fields
@@ -75,38 +69,38 @@ public class KebaBridge extends Bridge {
 		// set the Write-flag
 		isWriteTriggered.set(true);
 		// start "run()" again as fast as possible
-		triggerForceRun();
+		// triggerForceRun();
 	}
 
-	@Override
-	protected void forever() {
-		log.info("KebaBridge... forever");
-		for (KebaDevice kebadevice : kebadevices) {
-			log.info("KebaBridge... forever: " + kebadevice.id());
-			// if Write-flag was set -> start writing for all Devices immediately
-			if (isWriteTriggered.get()) {
-				isWriteTriggered.set(false);
-				writeAllDevices();
-			}
-			// Poll update for all reports
-			try {
-				log.info("KebaBridge... update: " + kebadevice.id());
-				kebadevice.update();
-			} catch (InterruptedException e) {
-				log.warn("Updating KebaDevice [{}] was interrupted: {}", kebadevice.id(), e.getMessage());
-			}
-		}
-	}
-
-	private void writeAllDevices() {
-		for (KebaDevice kebadevice : kebadevices) {
-			try {
-				kebadevice.write();
-			} catch (InterruptedException e) {
-				log.error("Error while writing to KebaDevice [" + kebadevice.id() + "]: " + e.getMessage());
-			}
-		}
-	}
+	// @Override
+	// protected void forever() {
+	// log.info("KebaBridge... forever");
+	// for (KebaDevice kebadevice : kebadevices) {
+	// log.info("KebaBridge... forever: " + kebadevice.id());
+	// // if Write-flag was set -> start writing for all Devices immediately
+	// if (isWriteTriggered.get()) {
+	// isWriteTriggered.set(false);
+	// writeAllDevices();
+	// }
+	// // Poll update for all reports
+	// try {
+	// log.info("KebaBridge... update: " + kebadevice.id());
+	// kebadevice.update();
+	// } catch (InterruptedException e) {
+	// log.warn("Updating KebaDevice [{}] was interrupted: {}", kebadevice.id(), e.getMessage());
+	// }
+	// }
+	// }
+	//
+	// private void writeAllDevices() {
+	// for (KebaDevice kebadevice : kebadevices) {
+	// try {
+	// kebadevice.write();
+	// } catch (InterruptedException e) {
+	// log.error("Error while writing to KebaDevice [" + kebadevice.id() + "]: " + e.getMessage());
+	// }
+	// }
+	// }
 
 	@Override
 	protected void dispose() {
