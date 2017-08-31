@@ -32,13 +32,25 @@ public class AvoidTotalChargeController extends Controller {
     @ConfigInfo(title = "Production Meters", description = "Sets the production meter.", type = io.openems.impl.controller.symmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = true)
     public final ConfigChannel<Set<io.openems.impl.controller.symmetric.avoidtotalcharge.Meter>> productionMeters = new ConfigChannel<>("productionMeters", this);
 
-    @ConfigInfo(title = "Graph", description = "Sets the socMaxVals.", type = Long[].class, isArray = true, accessLevel = User.OWNER)
-    public final ConfigChannel<Long[]> graph = new ConfigChannel<>("graph", this);
+    @ConfigInfo(title = "Graph 1", description = "Sets the socMaxVals.", type = Long[].class, isArray = true, accessLevel = User.OWNER)
+    public final ConfigChannel<Long[]> graph1 = new ConfigChannel<>("graph1", this);
+    //TODO: implement fixed length and min/max values (accessible by OWNER !)
+
+    @ConfigInfo(title = "Graph 2", description = "Sets the socMaxVals.", type = Long[].class, isArray = true, accessLevel = User.OWNER)
+    public final ConfigChannel<Long[]> graph2 = new ConfigChannel<>("graph2", this);
     //TODO: implement fixed length and min/max values (accessible by OWNER !)
 
     @ConfigInfo(title = "Critical Percentage", description = "If the productionMeter's power raises above this percentage of its peak value, the graph-value may be neglected.", type = Long.class, accessLevel = User.OWNER, defaultValue = "100", isArray = false)
     public final ConfigChannel<Long> criticalPercentage = new ConfigChannel<Long>("criticalPercentage", this);
     //TODO: implement min/max values (accessible by OWNER !)
+
+    @ConfigInfo(title = "Graph 1 active", description = "Activate Graph 1 (If no graph is activated, all values are set to 100)", type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = false)
+    public final ConfigChannel<Boolean> graph1active = new ConfigChannel<>("graph1active", this);
+
+    @ConfigInfo(title = "Graph 2 active", description = "Activate Graph 2 (If no graph is activated, all values are set to 100)", type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = false)
+    public final ConfigChannel<Boolean> graph2active = new ConfigChannel<>("graph2active", this);
+
+
 
     /*
      * Constructors
@@ -68,31 +80,47 @@ public class AvoidTotalChargeController extends Controller {
             }
             avgMinActivePower = avgMinActivePower / esss.value().size();
 
+            /**
+             * generate ChargingGraph and get maxWantedSoc value
+             */
+            int graphMode = 0;
+            Optional<Boolean> g1aOptional = graph1active.valueOptional();
+            Optional<Boolean> g2aOptional = graph2active.valueOptional();
+
+            if (g1aOptional.isPresent() && g1aOptional.get()){
+                graphMode = 1;
+            } else if (g2aOptional.isPresent() && g2aOptional.get()){
+                graphMode = 2;
+            }
+
+            Map<Integer, Double> m = new HashMap<Integer, Double>(0);
+            for (int i = 0; i < 24; i++) {
+                if (graphMode == 1){
+                    m.put(i, new Double((double) graph1.value()[i] / 100.0));
+                }else if (graphMode == 2){
+                    m.put(i, new Double((double) graph2.value()[i] / 100.0));
+                }else {
+                    m.put(i, 1.0);
+                }
+            }
+            ManualGraph mg = new ManualGraph(m);
+            Long maxWantedSoc = (long) (100 * mg.getCurrentVal());
+
+            /**
+             * get the power relatively produced to the producer's peak value
+             */
+            Long maxAbsoluteProducedPower = 0L;
+            Long relativeProducedPower = 0L;
+            Long absoluteProducedPower = 0L;
+
+            for (io.openems.impl.controller.symmetric.avoidtotalcharge.Meter meter : productionMeters.value()){
+                absoluteProducedPower += meter.activePower.value();
+                maxAbsoluteProducedPower += meter.maxActivePower.value();
+            }
+
+            relativeProducedPower = 100 * absoluteProducedPower / maxAbsoluteProducedPower;
+
             for (Ess ess : esss.value()) {
-
-                /**
-                 * generate ChargingGraph and get maxWantedSoc value
-                 */
-                Map<Integer, Double> m = new HashMap<Integer, Double>(0);
-                for (int i = 0; i < 24; i++) {
-                    m.put(i, new Double((double) graph.value()[i] / 100.0));
-                }
-                ManualGraph mg = new ManualGraph(m);
-                Long maxWantedSoc = (long) (100 * mg.getCurrentVal());
-
-                /**
-                 * get the power relatively produced to the producer's peak value
-                 */
-                Long maxAbsoluteProducedPower = 0L;
-                Long relativeProducedPower = 0L;
-                Long absoluteProducedPower = 0L;
-
-                for (io.openems.impl.controller.symmetric.avoidtotalcharge.Meter meter : productionMeters.value()){
-                    absoluteProducedPower += meter.activePower.value();
-                    maxAbsoluteProducedPower += meter.maxActivePower.value();
-                }
-
-                relativeProducedPower = 100 * absoluteProducedPower / maxAbsoluteProducedPower;
 
 
                 /**
