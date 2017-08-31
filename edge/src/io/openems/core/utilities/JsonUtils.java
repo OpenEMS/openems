@@ -191,6 +191,15 @@ public class JsonUtils {
 			 * JsonElement
 			 */
 			return (JsonElement) value;
+		} else if (value instanceof Long[]){
+			/*
+			 * Long-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (Long l : (Long[]) value){
+				js.add(new JsonPrimitive((Long) l));
+			}
+			return js;
 		}
 		throw new NotImplementedException("Converter for [" + value + "]" + " of type [" //
 				+ value.getClass().getSimpleName() + "]" //
@@ -233,7 +242,6 @@ public class JsonUtils {
 				 * Asking for a String
 				 */
 				return j.getAsString();
-
 			} else if (JsonObject.class.isAssignableFrom(type)) {
 				/*
 				 * Asking for a JsonObject
@@ -244,6 +252,24 @@ public class JsonUtils {
 				 * Asking for a JsonArray
 				 */
 				return j.getAsJsonArray();
+			} else if (type.isArray()){
+				/**
+				 * Asking for Array
+				 */
+				if(Long.class.isAssignableFrom(type.getComponentType())){
+					/**
+					 * Asking for ArrayOfLong
+					 */
+					if(j.isJsonArray()){
+						JsonArray js = j.getAsJsonArray();
+						Long[] la = new Long[js.size()];
+						for(int i = 0; i < js.size(); i++){
+							la[i] = js.get(i).getAsLong();
+						}
+						return la;
+					}
+
+				}
 			}
 		} catch (IllegalStateException e) {
 			throw new IllegalStateException("Failed to parse JsonElement [" + j + "]", e);
