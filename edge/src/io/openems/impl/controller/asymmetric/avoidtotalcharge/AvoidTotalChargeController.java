@@ -1,21 +1,21 @@
-package io.openems.impl.controller.symmetric.avoidtotalcharge;
+package io.openems.impl.controller.asymmetric.avoidtotalcharge;
 
 /**
  * Created by maxo2 on 29.08.2017.
  */
-import java.util.*;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.device.nature.meter.MeterNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 import io.openems.api.security.User;
-import io.openems.impl.controller.symmetric.avoidtotalcharge.Ess.State;
-import io.openems.impl.controller.symmetric.balancing.Meter;
+import io.openems.impl.controller.symmetric.avoidtotalcharge.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @ThingInfo(title = "Avoid total charge of battery. (Symmetric)", description = "Provides control over the battery's maximum state of charge at a specific time of day. For symmetric Ess.")
 public class AvoidTotalChargeController extends Controller {
@@ -26,11 +26,11 @@ public class AvoidTotalChargeController extends Controller {
     @ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
     public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
 
-    @ConfigInfo(title = "Grid Meter", description = "Sets the grid meter.", type = io.openems.impl.controller.symmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = false)
-    public final ConfigChannel<io.openems.impl.controller.symmetric.avoidtotalcharge.Meter> gridMeter = new ConfigChannel<>("gridMeter", this);
+    @ConfigInfo(title = "Grid Meter", description = "Sets the grid meter.", type = Meter.class, isOptional = false, isArray = false)
+    public final ConfigChannel<Meter> gridMeter = new ConfigChannel<>("gridMeter", this);
 
-    @ConfigInfo(title = "Production Meters", description = "Sets the production meter.", type = io.openems.impl.controller.symmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = true)
-    public final ConfigChannel<Set<io.openems.impl.controller.symmetric.avoidtotalcharge.Meter>> productionMeters = new ConfigChannel<>("productionMeters", this);
+    @ConfigInfo(title = "Production Meters", description = "Sets the production meter.", type = Meter.class, isOptional = false, isArray = true)
+    public final ConfigChannel<Set<Meter>> productionMeters = new ConfigChannel<>("productionMeters", this);
 
     @ConfigInfo(title = "Graph 1", description = "Sets the socMaxVals.", type = Long[].class, isArray = true, accessLevel = User.OWNER)
     public final ConfigChannel<Long[]> graph1 = new ConfigChannel<>("graph1", this);
@@ -75,7 +75,7 @@ public class AvoidTotalChargeController extends Controller {
              */
             Long avgAllowedCharge = 0L;
 
-            for (Ess ess : esss.value()) {
+            for (io.openems.impl.controller.asymmetric.avoidtotalcharge.Ess ess : esss.value()) {
                 avgAllowedCharge += ess.allowedCharge.value();
             }
             avgAllowedCharge = avgAllowedCharge / esss.value().size();
@@ -103,7 +103,7 @@ public class AvoidTotalChargeController extends Controller {
                     m.put(i, 1.0);
                 }
             }
-            ManualGraph mg = new ManualGraph(m);
+            io.openems.impl.controller.symmetric.avoidtotalcharge.ManualGraph mg = new io.openems.impl.controller.symmetric.avoidtotalcharge.ManualGraph(m);
             Long maxWantedSoc = (long) (100 * mg.getCurrentVal());
 
             /**
@@ -112,13 +112,13 @@ public class AvoidTotalChargeController extends Controller {
             Long maxAbsoluteProducedPower = 0L;
             Long relativeFeededPower = 0L;
 
-            for (io.openems.impl.controller.symmetric.avoidtotalcharge.Meter meter : productionMeters.value()){
+            for (io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter meter : productionMeters.value()){
                 maxAbsoluteProducedPower += meter.maxActivePower.value();
             }
 
             relativeFeededPower = -100 * gridMeter.value().activePower.value() / maxAbsoluteProducedPower;
 
-            for (Ess ess : esss.value()) {
+            for (io.openems.impl.controller.asymmetric.avoidtotalcharge.Ess ess : esss.value()) {
 
 
                 /**
@@ -135,20 +135,26 @@ public class AvoidTotalChargeController extends Controller {
                         if (spareProducedPower < 0L){
                             try {
                                 Long totalActivePower = (long) (((double) ess.allowedCharge.value() / (double) avgAllowedCharge) * ((double) spareProducedPower / (double) esss.value().size()));
-                                ess.setActivePower.pushWrite(totalActivePower);
+                                ess.setActivePowerL1.pushWrite(totalActivePower / 3);
+                                ess.setActivePowerL2.pushWrite(totalActivePower / 3);
+                                ess.setActivePowerL3.pushWrite(totalActivePower / 3);
                             } catch (Exception e) {
                                 log.error(e.getMessage(),e);
                             }
                         } else {
                             try {
-                                ess.setActivePower.pushWriteMin(0L);
+                                ess.setActivePowerL1.pushWriteMin(0L);
+                                ess.setActivePowerL2.pushWriteMin(0L);
+                                ess.setActivePowerL3.pushWriteMin(0L);
                             } catch (Exception e) {
                                 log.error(e.getMessage(),e);
                             }
                         }
                     } else {
                         try {
-                            ess.setActivePower.pushWriteMin(0L);
+                            ess.setActivePowerL1.pushWriteMin(0L);
+                            ess.setActivePowerL2.pushWriteMin(0L);
+                            ess.setActivePowerL3.pushWriteMin(0L);
                         } catch (Exception e) {
                             log.error(e.getMessage(),e);
                         }
