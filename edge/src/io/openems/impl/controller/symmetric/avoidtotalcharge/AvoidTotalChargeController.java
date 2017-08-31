@@ -98,15 +98,26 @@ public class AvoidTotalChargeController extends Controller {
                 /**
                  * check if state of charge is above the value specified by the user and deny charging in
                  * case. However, in case the critical percentage was reached by the average
-                 * relativeProducedPower allow charging nevertheless.
+                 * relativeProducedPower and the spareProducedPower is negative (-> grid is taking the
+                 * maxFeedablePower) allow charging nevertheless.
                  */
                 if (ess.soc.value() >= maxWantedSoc) {
                     if(relativeProducedPower >= criticalPercentage.value()) {
-                        Long spareProducedPower = gridMeter.value().activePower.value() + criticalPercentage.value() * maxAbsoluteProducedPower;
+                        double factor = (double) criticalPercentage.value() / (double) 100;
+                        double maxFeedablePower = factor * (double) maxAbsoluteProducedPower;
+                        double av = (double) gridMeter.value().activePower.value();
+                        Long spareProducedPower = (long) (av + maxFeedablePower);
                         if (spareProducedPower < 0L){
                             try {
-                                ess.setActivePower.pushWriteMin((ess.allowedCharge.value() / avgMinActivePower) * (spareProducedPower / esss.value().size()));
+                                Long minValue = (ess.allowedCharge.value() / avgMinActivePower) * (spareProducedPower / esss.value().size());
+                                ess.setActivePower.pushWriteMin(minValue);
                                 ess.setActivePower.pushWriteMax(0L);
+                            } catch (Exception e) {
+                                log.error(e.getMessage(),e);
+                            }
+                        } else {
+                            try {
+                                ess.setActivePower.pushWriteMin(0L);
                             } catch (Exception e) {
                                 log.error(e.getMessage(),e);
                             }
