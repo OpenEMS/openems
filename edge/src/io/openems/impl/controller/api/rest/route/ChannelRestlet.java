@@ -102,6 +102,7 @@ public class ChannelRestlet extends OpenemsRestlet {
 		} else if (request.getMethod().equals(Method.POST)) {
 			JsonParser parser = new JsonParser();
 			String httpPost = request.getEntityAsText();
+			System.out.println("httpPost: " + httpPost);
 			JsonObject jHttpPost = parser.parse(httpPost).getAsJsonObject();
 			setValue(channel, jHttpPost);
 		}
