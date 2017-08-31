@@ -17,26 +17,26 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-@ThingInfo(title = "Avoid total charge of battery. (Symmetric)", description = "Provides control over the battery's maximum state of charge at a specific time of day. For symmetric Ess.")
+@ThingInfo(title = "Avoid total charge of battery. (Asymmetric)", description = "Provides control over the battery's maximum state of charge at a specific time of day. For symmetric Ess.")
 public class AvoidTotalChargeController extends Controller {
 
     /*
      * Config
      */
-    @ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
-    public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
+    @ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Ess.class, isArray = true)
+    public final ConfigChannel<Set<io.openems.impl.controller.asymmetric.avoidtotalcharge.Ess>> esss = new ConfigChannel<Set<io.openems.impl.controller.asymmetric.avoidtotalcharge.Ess>>("esss", this);
 
-    @ConfigInfo(title = "Grid Meter", description = "Sets the grid meter.", type = Meter.class, isOptional = false, isArray = false)
-    public final ConfigChannel<Meter> gridMeter = new ConfigChannel<>("gridMeter", this);
+    @ConfigInfo(title = "Grid Meter", description = "Sets the grid meter.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = false)
+    public final ConfigChannel<io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter> gridMeter = new ConfigChannel<>("gridMeter", this);
 
-    @ConfigInfo(title = "Production Meters", description = "Sets the production meter.", type = Meter.class, isOptional = false, isArray = true)
-    public final ConfigChannel<Set<Meter>> productionMeters = new ConfigChannel<>("productionMeters", this);
+    @ConfigInfo(title = "Production Meters", description = "Sets the production meter.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = true)
+    public final ConfigChannel<Set<io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter>> productionMeters = new ConfigChannel<>("productionMeters", this);
 
-    @ConfigInfo(title = "Graph 1", description = "Sets the socMaxVals.", type = Long[].class, isArray = true, accessLevel = User.OWNER)
+    @ConfigInfo(title = "Graph 1", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, accessLevel = User.OWNER)
     public final ConfigChannel<Long[]> graph1 = new ConfigChannel<>("graph1", this);
     //TODO: implement fixed length and min/max values (accessible by OWNER !)
 
-    @ConfigInfo(title = "Graph 2", description = "Sets the socMaxVals.", type = Long[].class, isArray = true, accessLevel = User.OWNER)
+    @ConfigInfo(title = "Graph 2", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, accessLevel = User.OWNER)
     public final ConfigChannel<Long[]> graph2 = new ConfigChannel<>("graph2", this);
     //TODO: implement fixed length and min/max values (accessible by OWNER !)
 
@@ -44,10 +44,10 @@ public class AvoidTotalChargeController extends Controller {
     public final ConfigChannel<Long> criticalPercentage = new ConfigChannel<Long>("criticalPercentage", this);
     //TODO: implement min/max values (accessible by OWNER !)
 
-    @ConfigInfo(title = "Graph 1 active", description = "Activate Graph 1 (If no graph is activated, all values are set to 100)", type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = false)
+    @ConfigInfo(title = "Graph 1 active", description = "Activate Graph 1 (If no graph is activated, all values are set to 100)", defaultValue = "true" ,type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = false)
     public final ConfigChannel<Boolean> graph1active = new ConfigChannel<>("graph1active", this);
 
-    @ConfigInfo(title = "Graph 2 active", description = "Activate Graph 2 (If no graph is activated, all values are set to 100)", type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = false)
+    @ConfigInfo(title = "Graph 2 active", description = "Activate Graph 2 (If no graph is activated, all values are set to 100)", defaultValue = "false" ,type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = false)
     public final ConfigChannel<Boolean> graph2active = new ConfigChannel<>("graph2active", this);
 
 
