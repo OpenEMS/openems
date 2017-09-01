@@ -23,18 +23,26 @@ package io.openems.impl.controller.asymmetric.avoidtotalcharge;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.meter.SymmetricMeterNature;
+import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 
-@IsThingMap(type = SymmetricMeterNature.class)
+@IsThingMap(type = AsymmetricMeterNature.class)
 public class Meter extends ThingMap {
 
-	public final ReadChannel<Long> activePower;
+	public final ReadChannel<Long> activePowerL1;
+	public final ReadChannel<Long> activePowerL2;
+	public final ReadChannel<Long> activePowerL3;
 	public final ReadChannel<Long> maxActivePower;
 
-	public Meter(SymmetricMeterNature meter) {
+	public Meter(AsymmetricMeterNature meter) {
 		super(meter);
-		activePower = meter.activePower().required();
+		activePowerL1 = meter.activePowerL1().required();
+		activePowerL2 = meter.activePowerL1().required();
+		activePowerL3 = meter.activePowerL3().required();
 		maxActivePower = meter.maxActivePower().required();
+	}
+
+	public final Long totalActivePower() throws io.openems.api.exception.InvalidValueException {
+		return activePowerL1.value() + activePowerL2.value() + activePowerL3.value();
 	}
 
 }

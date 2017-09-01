@@ -33,6 +33,9 @@ public class BalancedRandomLoadGenerator implements LoadGenerator {
 
     public BalancedRandomLoadGenerator(JsonObject config) {
         super();
+        /**
+         * Try to get config values or use default ones instead.
+         */
         this.min = config.get("min").getAsLong();
         this.max = config.get("max").getAsLong();
         try {
@@ -57,6 +60,9 @@ public class BalancedRandomLoadGenerator implements LoadGenerator {
     }
 
     public BalancedRandomLoadGenerator() {
+        /**
+         * Set default config values.
+         */
         this.min = -1000;
         this.max = 1000;
         last = (max + min) / 2;
@@ -69,6 +75,10 @@ public class BalancedRandomLoadGenerator implements LoadGenerator {
 
     public long getLoad() {
         double nev = 0;
+
+        /**
+         * Change modes by chance. The modes specify whether the according changeValue is positive or negative.
+         */
 
         if(longTermMode == 0 || Math.random() < (dayCircleSpeedFactor * 0.00004) || ((last == max || last == min) && Math.random() < 0.0002)){
             if(Math.random() < 0.5){
@@ -93,12 +103,22 @@ public class BalancedRandomLoadGenerator implements LoadGenerator {
                 shortTermMode = -1;
             }
         }
+
+        /**
+         * Calculate the change applied to the last value. This values are influenced by the dayCircleSpeedFactor and the difference
+         * between max and min value. While the longTermChange has a rather small gradient (it's simulating the sun's day circle),
+         * the midTermMode has a higher one, because it stands for the weather situation.
+         */
+
         double longTermChange = dayCircleSpeedFactor * longTermMode * ((double) (max - min) / (0.6 * Math.pow(10,(double) (long) Math.log10(max - min) + 2)));
         double midTermChange = dayCircleSpeedFactor * midTermMode * ((double) (max - min) / (1.5 * Math.pow(10,(double) (long) Math.log10(max - min) + 2)));
         double shortTermChange = Math.sqrt(dayCircleSpeedFactor) * shortTermMode * ((double) (max - min) / (1.0 * Math.pow(10,(double) (long) Math.log10(max - min) + 2)));
 
         nev = last + (longTermChange + midTermChange + shortTermChange);
 
+        /**
+         * Make sure the new value does not exceed the min and max values and return.
+         */
         if (nev > max){
             nev = max;
         }
