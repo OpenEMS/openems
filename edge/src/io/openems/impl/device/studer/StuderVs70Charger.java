@@ -3,6 +3,7 @@ package io.openems.impl.device.studer;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.studer.StuderDeviceNature;
@@ -17,8 +18,8 @@ public class StuderVs70Charger extends StuderDeviceNature {
 	/*
 	 * Constructors
 	 */
-	public StuderVs70Charger(String thingId) throws ConfigException {
-		super(thingId);
+	public StuderVs70Charger(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
