@@ -109,16 +109,16 @@ public class AvoidTotalChargeController extends Controller {
             /**
              * get the power feeded to the grid relatively to the producer's peak value
              */
-            Long maxAbsoluteProducedPower = 0L;
+            Long maxAbsoluteProducablePower = 0L;
             Long relativeFeededPower = 0L;
 
             for (io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter meter : productionMeters.value()){
-                maxAbsoluteProducedPower += meter.maxActivePower.value();
+                maxAbsoluteProducablePower += meter.maxActivePower.value();
             }
 
-            relativeFeededPower = -100 * gridMeter.value().totalActivePower() / maxAbsoluteProducedPower;
+            relativeFeededPower = -100 * gridMeter.value().totalActivePower() / maxAbsoluteProducablePower;
 
-            for (io.openems.impl.controller.asymmetric.avoidtotalcharge.Ess ess : esss.value()) {
+            for (Ess ess : esss.value()) {
 
 
                 /**
@@ -129,12 +129,12 @@ public class AvoidTotalChargeController extends Controller {
                  */
                 if (ess.soc.value() >= maxWantedSoc) {
                     if(relativeFeededPower >= criticalPercentage.value()) {
-                        double factor = (double) criticalPercentage.value() / (double) 100;
-                        double maxFeedablePower = factor * (double) maxAbsoluteProducedPower;
-                        Long spareProducedPower = (long) ((double) gridMeter.value().totalActivePower() + maxFeedablePower);
+                        long spareProducedPower = (long) ((((double) (relativeFeededPower - criticalPercentage.value())) / 100.0) * (double) (-1 * maxAbsoluteProducablePower));
+
                         if (spareProducedPower < 0L){
                             try {
                                 Long totalActivePower = (long) (((double) ess.allowedCharge.value() / (double) avgAllowedCharge) * ((double) spareProducedPower / (double) esss.value().size()));
+                                
                                 ess.setActivePowerL1.pushWrite(getAsymmetricActivePower(totalActivePower,gridMeter.value().activePowerL1.value(),gridMeter.value().totalActivePower()));
                                 ess.setActivePowerL2.pushWrite(getAsymmetricActivePower(totalActivePower,gridMeter.value().activePowerL2.value(),gridMeter.value().totalActivePower()));
                                 ess.setActivePowerL3.pushWrite(getAsymmetricActivePower(totalActivePower,gridMeter.value().activePowerL3.value(),gridMeter.value().totalActivePower()));

@@ -110,14 +110,14 @@ public class AvoidTotalChargeController extends Controller {
             /**
              * get the power feeded to the grid relatively to the producer's peak value
              */
-            Long maxAbsoluteProducedPower = 0L;
+            Long maxAbsoluteProducablePower = 0L;
             Long relativeFeededPower = 0L;
 
             for (io.openems.impl.controller.symmetric.avoidtotalcharge.Meter meter : productionMeters.value()){
-                maxAbsoluteProducedPower += meter.maxActivePower.value();
+                maxAbsoluteProducablePower += meter.maxActivePower.value();
             }
 
-            relativeFeededPower = -100 * gridMeter.value().activePower.value() / maxAbsoluteProducedPower;
+            relativeFeededPower = -100 * gridMeter.value().activePower.value() / maxAbsoluteProducablePower;
 
             for (Ess ess : esss.value()) {
 
@@ -130,12 +130,12 @@ public class AvoidTotalChargeController extends Controller {
                  */
                 if (ess.soc.value() >= maxWantedSoc) {
                     if(relativeFeededPower >= criticalPercentage.value()) {
-                        double factor = (double) criticalPercentage.value() / (double) 100;
-                        double maxFeedablePower = factor * (double) maxAbsoluteProducedPower;
-                        Long spareProducedPower = (long) ((double) gridMeter.value().activePower.value() + maxFeedablePower);
+                        long spareProducedPower = (long) ((((double) (relativeFeededPower - criticalPercentage.value())) / 100.0) * (double) (-1 * maxAbsoluteProducablePower));
+
                         if (spareProducedPower < 0L){
                             try {
                                 Long totalActivePower = (long) (((double) ess.allowedCharge.value() / (double) avgAllowedCharge) * ((double) spareProducedPower / (double) esss.value().size()));
+
                                 ess.setActivePower.pushWrite(totalActivePower);
                             } catch (Exception e) {
                                 log.error(e.getMessage(),e);
