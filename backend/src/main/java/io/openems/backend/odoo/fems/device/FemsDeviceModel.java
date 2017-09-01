@@ -1,4 +1,4 @@
-package io.openems.femsserver.odoo.fems.device;
+package io.openems.backend.odoo.fems.device;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import com.abercap.odoo.OdooApiException;
 import com.abercap.odoo.RowCollection;
 import com.abercap.odoo.Session;
 
-import io.openems.femsserver.odoo.OdooModel;
+import io.openems.backend.odoo.OdooModel;
 
 public class FemsDeviceModel extends OdooModel<FemsDevice> {
 

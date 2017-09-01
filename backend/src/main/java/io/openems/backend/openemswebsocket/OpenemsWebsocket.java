@@ -1,4 +1,4 @@
-package io.openems.femsserver.femswebsocket;
+package io.openems.backend.openemswebsocket;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -16,15 +16,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.femsserver.core.ConnectionManager;
-import io.openems.femsserver.exception.FemsException;
-import io.openems.femsserver.influx.Influxdb;
-import io.openems.femsserver.odoo.Odoo;
-import io.openems.femsserver.odoo.fems.device.FemsDevice;
-import io.openems.femsserver.utilities.JsonUtils;
-import io.openems.femsserver.utilities.OpenemsException;
-import io.openems.femsserver.utilities.StringUtils;
-import io.openems.femsserver.utilities.WebSocketUtils;
+import io.openems.backend.core.ConnectionManager;
+import io.openems.backend.exception.FemsException;
+import io.openems.backend.influx.Influxdb;
+import io.openems.backend.odoo.Odoo;
+import io.openems.backend.odoo.fems.device.FemsDevice;
+import io.openems.backend.utilities.JsonUtils;
+import io.openems.backend.utilities.OpenemsException;
+import io.openems.backend.utilities.StringUtils;
+import io.openems.backend.utilities.WebSocketUtils;
 
 /**
  * Handles connections to FEMS/OpenEMS-Devices.
@@ -33,11 +33,11 @@ import io.openems.femsserver.utilities.WebSocketUtils;
  * @author stefan.feilmeier
  *
  */
-public class FemsWebsocket extends WebSocketServer {
+public class OpenemsWebsocket extends WebSocketServer {
 
-	private static Logger log = LoggerFactory.getLogger(FemsWebsocket.class);
+	private static Logger log = LoggerFactory.getLogger(OpenemsWebsocket.class);
 
-	private static FemsWebsocket instance;
+	private static OpenemsWebsocket instance;
 
 	/**
 	 * Initialize and start the Websocketserver
@@ -46,7 +46,7 @@ public class FemsWebsocket extends WebSocketServer {
 	 * @throws Exception
 	 */
 	public static synchronized void initialize(int port) throws Exception {
-		FemsWebsocket ws = new FemsWebsocket(port);
+		OpenemsWebsocket ws = new OpenemsWebsocket(port);
 		ws.start();
 	}
 
@@ -55,8 +55,8 @@ public class FemsWebsocket extends WebSocketServer {
 	 *
 	 * @return
 	 */
-	public static synchronized FemsWebsocket getInstance() {
-		return FemsWebsocket.instance;
+	public static synchronized OpenemsWebsocket getInstance() {
+		return OpenemsWebsocket.instance;
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class FemsWebsocket extends WebSocketServer {
 	 */
 	private final Odoo odoo;
 
-	private FemsWebsocket(int port) throws Exception {
+	private OpenemsWebsocket(int port) throws Exception {
 		super(new InetSocketAddress(port));
 		this.influxdb = Influxdb.getInstance();
 		this.connectionManager = ConnectionManager.getInstance();

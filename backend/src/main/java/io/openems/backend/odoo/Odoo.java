@@ -1,4 +1,4 @@
-package io.openems.femsserver.odoo;
+package io.openems.backend.odoo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,10 +22,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.femsserver.odoo.fems.device.FemsDevice;
-import io.openems.femsserver.odoo.fems.device.FemsDeviceModel;
-import io.openems.femsserver.utilities.JsonUtils;
-import io.openems.femsserver.utilities.OpenemsException;
+import io.openems.backend.odoo.fems.device.FemsDevice;
+import io.openems.backend.odoo.fems.device.FemsDeviceModel;
+import io.openems.backend.utilities.JsonUtils;
+import io.openems.backend.utilities.OpenemsException;
 
 public class Odoo {
 
