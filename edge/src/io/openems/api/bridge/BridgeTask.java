@@ -1,10 +1,13 @@
 package io.openems.api.bridge;
 
+import java.util.Queue;
+
 import com.google.common.collect.EvictingQueue;
+import com.google.common.collect.Queues;
 
 public abstract class BridgeTask {
 
-	private EvictingQueue<Long> requiredTimes;
+	private Queue<Long> requiredTimes;
 
 	public BridgeTask() {
 		requiredTimes = EvictingQueue.create(5);
@@ -14,17 +17,21 @@ public abstract class BridgeTask {
 	}
 
 	public long getRequiredTime() {
-		long sum = 0;
-		for (Long l : requiredTimes) {
-			sum += l;
+		synchronized (requiredTimes) {
+			long sum = 0;
+			for (Long l : requiredTimes) {
+				sum += l;
+			}
+			return sum / requiredTimes.size();
 		}
-		return sum / requiredTimes.size();
 	}
 
 	public void runTask() throws Exception {
 		long timeBefore = System.currentTimeMillis();
 		this.run();
-		this.requiredTimes.add(System.currentTimeMillis() - timeBefore);
+		synchronized (requiredTimes) {
+			this.requiredTimes.add(System.currentTimeMillis() - timeBefore);
+		}
 	}
 
 	protected abstract void run() throws Exception;
