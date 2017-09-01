@@ -16,6 +16,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
@@ -30,11 +31,20 @@ import io.openems.core.ThingsChangedListener;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
-public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeListener {
+public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeListener, AsymmetricMeterNature {
 
-	private SimulatorReadChannel activePower = new SimulatorReadChannel("ActivePower", this);
+	private SimulatorReadChannel<Long> activePower = new SimulatorReadChannel<>("ActivePower", this);
+	private SimulatorReadChannel<Long> activePowerL1 = new SimulatorReadChannel<>("ActivePowerL1", this);
+	private SimulatorReadChannel<Long> activePowerL2 = new SimulatorReadChannel<>("ActivePowerL2", this);
+	private SimulatorReadChannel<Long> activePowerL3 = new SimulatorReadChannel<>("ActivePowerL3", this);
 	private FunctionalReadChannel<Long> apparentPower;
-	private SimulatorReadChannel reactivePower = new SimulatorReadChannel("ReactivePower", this);
+	private FunctionalReadChannel<Long> apparentPowerL1;
+	private FunctionalReadChannel<Long> apparentPowerL2;
+	private FunctionalReadChannel<Long> apparentPowerL3;
+	private SimulatorReadChannel<Long> reactivePower = new SimulatorReadChannel<>("ReactivePower", this);
+	private SimulatorReadChannel<Long> reactivePowerL1 = new SimulatorReadChannel<>("ReactivePowerL1", this);
+	private SimulatorReadChannel<Long> reactivePowerL2 = new SimulatorReadChannel<>("ReactivePowerL2", this);
+	private SimulatorReadChannel<Long> reactivePowerL3 = new SimulatorReadChannel<>("ReactivePowerL3", this);
 	@ConfigInfo(title = "esss", type = JsonArray.class)
 	public ConfigChannel<JsonArray> esss = new ConfigChannel<JsonArray>("esss", this).addChangeListener(this);
 	@ConfigInfo(title = "producer", type = JsonArray.class)
@@ -52,8 +62,8 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 	private LoadGenerator activePowerLoad;
 	private LoadGenerator reactivePowerLoad;
 
-	public SimulatorGridMeter(String thingId) throws ConfigException {
-		super(thingId);
+	public SimulatorGridMeter(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		repo.addThingChangedListener(new ThingsChangedListener() {
 
 			@Override
@@ -86,6 +96,36 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 					}
 
 				}, activePower, reactivePower);
+		this.apparentPowerL1 = new FunctionalReadChannel<Long>("ApparentPowerL1", this,
+				new FunctionalReadChannelFunction<Long>() {
+
+					@Override
+					public Long handle(ReadChannel<Long>... channels) {
+						return ControllerUtils.calculateApparentPower(channels[0].valueOptional().orElse(0L),
+								channels[1].valueOptional().orElse(0L));
+					}
+
+				}, activePowerL1, reactivePowerL1);
+		this.apparentPowerL2 = new FunctionalReadChannel<Long>("ApparentPowerL2", this,
+				new FunctionalReadChannelFunction<Long>() {
+
+					@Override
+					public Long handle(ReadChannel<Long>... channels) {
+						return ControllerUtils.calculateApparentPower(channels[0].valueOptional().orElse(0L),
+								channels[1].valueOptional().orElse(0L));
+					}
+
+				}, activePowerL2, reactivePowerL2);
+		this.apparentPowerL3 = new FunctionalReadChannel<Long>("ApparentPowerL3", this,
+				new FunctionalReadChannelFunction<Long>() {
+
+					@Override
+					public Long handle(ReadChannel<Long>... channels) {
+						return ControllerUtils.calculateApparentPower(channels[0].valueOptional().orElse(0L),
+								channels[1].valueOptional().orElse(0L));
+					}
+
+				}, activePowerL3, reactivePowerL3);
 
 	}
 
@@ -194,51 +234,98 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 	protected void update() {
 		super.update();
 		long activePower = 0;
+		long activePowerL1 = 0;
+		long activePowerL2 = 0;
+		long activePowerL3 = 0;
 		if (activePowerLoad != null) {
-			activePower = activePowerLoad.getLoad();
+			long load = activePowerLoad.getLoad();
+			activePower = load;
+			activePowerL1 = load / 3;
+			activePowerL2 = load / 3;
+			activePowerL3 = load / 3;
 		}
-		activePower = activePower + SimulatorTools.getRandomLong(-1000, +1000);
 		long reactivePower = 0;
+		long reactivePowerL1 = 0;
+		long reactivePowerL2 = 0;
+		long reactivePowerL3 = 0;
 		if (reactivePowerLoad != null) {
 			reactivePower = reactivePowerLoad.getLoad();
+			reactivePowerL1 = reactivePower / 3;
+			reactivePowerL2 = reactivePower / 3;
+			reactivePowerL3 = reactivePower / 3;
 		}
 		for (EssNature entry : essNatures) {
 			if (entry instanceof SymmetricEssNature) {
 				SymmetricEssNature ess = (SymmetricEssNature) entry;
 				activePower -= ess.activePower().valueOptional().orElse(0L);
+				activePowerL1 -= ess.activePower().valueOptional().orElse(0L) / 3;
+				activePowerL2 -= ess.activePower().valueOptional().orElse(0L) / 3;
+				activePowerL3 -= ess.activePower().valueOptional().orElse(0L) / 3;
 				reactivePower -= ess.reactivePower().valueOptional().orElse(0L);
+				reactivePowerL1 -= ess.reactivePower().valueOptional().orElse(0L) / 3;
+				reactivePowerL2 -= ess.reactivePower().valueOptional().orElse(0L) / 3;
+				reactivePowerL3 -= ess.reactivePower().valueOptional().orElse(0L) / 3;
 			} else if (entry instanceof AsymmetricEssNature) {
 				AsymmetricEssNature ess = (AsymmetricEssNature) entry;
 				activePower -= ess.activePowerL1().valueOptional().orElse(0L)
 						+ ess.activePowerL2().valueOptional().orElse(0L)
 						+ ess.activePowerL3().valueOptional().orElse(0L);
+				activePowerL1 -= ess.activePowerL1().valueOptional().orElse(0L);
+				activePowerL2 -= ess.activePowerL2().valueOptional().orElse(0L);
+				activePowerL3 -= ess.activePowerL3().valueOptional().orElse(0L);
 				reactivePower -= ess.reactivePowerL1().valueOptional().orElse(0L)
 						+ ess.reactivePowerL2().valueOptional().orElse(0L)
 						+ ess.reactivePowerL3().valueOptional().orElse(0L);
+				reactivePowerL1 -= ess.reactivePowerL1().valueOptional().orElse(0L);
+				reactivePowerL2 -= ess.reactivePowerL2().valueOptional().orElse(0L);
+				reactivePowerL3 -= ess.reactivePowerL3().valueOptional().orElse(0L);
 			}
 		}
 		for (MeterNature entry : meterNatures) {
-			System.out.println(entry.id());
 			if (entry instanceof SymmetricMeterNature) {
 				SymmetricMeterNature meter = (SymmetricMeterNature) entry;
 				activePower -= meter.activePower().valueOptional().orElse(0L);
+				activePowerL1 -= meter.activePower().valueOptional().orElse(0L) / 3;
+				activePowerL2 -= meter.activePower().valueOptional().orElse(0L) / 3;
+				activePowerL3 -= meter.activePower().valueOptional().orElse(0L) / 3;
 				reactivePower -= meter.reactivePower().valueOptional().orElse(0L);
+				reactivePowerL1 -= meter.reactivePower().valueOptional().orElse(0L) / 3;
+				reactivePowerL2 -= meter.reactivePower().valueOptional().orElse(0L) / 3;
+				reactivePowerL3 -= meter.reactivePower().valueOptional().orElse(0L) / 3;
 			} else if (entry instanceof AsymmetricMeterNature) {
 				AsymmetricMeterNature meter = (AsymmetricMeterNature) entry;
-				activePower += meter.activePowerL1().valueOptional().orElse(0L)
+				activePower -= meter.activePowerL1().valueOptional().orElse(0L)
 						+ meter.activePowerL2().valueOptional().orElse(0L)
 						+ meter.activePowerL3().valueOptional().orElse(0L);
-				reactivePower += meter.reactivePowerL1().valueOptional().orElse(0L)
+				activePowerL1 -= meter.activePowerL1().valueOptional().orElse(0L);
+				activePowerL2 -= meter.activePowerL2().valueOptional().orElse(0L);
+				activePowerL3 -= meter.activePowerL3().valueOptional().orElse(0L);
+				reactivePower -= meter.reactivePowerL1().valueOptional().orElse(0L)
 						+ meter.reactivePowerL2().valueOptional().orElse(0L)
 						+ meter.reactivePowerL3().valueOptional().orElse(0L);
+				reactivePowerL1 -= meter.reactivePowerL1().valueOptional().orElse(0L);
+				reactivePowerL2 -= meter.reactivePowerL2().valueOptional().orElse(0L);
+				reactivePowerL3 -= meter.reactivePowerL3().valueOptional().orElse(0L);
 			}
 		}
 		if (isOffGrid(essNatures)) {
 			this.activePower.updateValue(null);
+			this.activePowerL1.updateValue(null);
+			this.activePowerL2.updateValue(null);
+			this.activePowerL3.updateValue(null);
 			this.reactivePower.updateValue(null);
+			this.reactivePowerL1.updateValue(null);
+			this.reactivePowerL2.updateValue(null);
+			this.reactivePowerL3.updateValue(null);
 		} else {
 			this.activePower.updateValue(activePower);
+			this.activePowerL1.updateValue(activePowerL1);
+			this.activePowerL2.updateValue(activePowerL2);
+			this.activePowerL3.updateValue(activePowerL3);
 			this.reactivePower.updateValue(reactivePower);
+			this.reactivePowerL1.updateValue(reactivePowerL1);
+			this.reactivePowerL2.updateValue(reactivePowerL2);
+			this.reactivePowerL3.updateValue(reactivePowerL3);
 		}
 	}
 
@@ -249,6 +336,72 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public ReadChannel<Long> activePowerL1() {
+		return activePowerL1;
+	}
+
+	@Override
+	public ReadChannel<Long> activePowerL2() {
+		return activePowerL2;
+	}
+
+	@Override
+	public ReadChannel<Long> activePowerL3() {
+		return activePowerL3;
+	}
+
+	@Override
+	public ReadChannel<Long> reactivePowerL1() {
+		return reactivePowerL1;
+	}
+
+	@Override
+	public ReadChannel<Long> reactivePowerL2() {
+		return reactivePowerL2;
+	}
+
+	@Override
+	public ReadChannel<Long> reactivePowerL3() {
+		return reactivePowerL3;
+	}
+
+	@Override
+	public ReadChannel<Long> currentL1() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ReadChannel<Long> currentL2() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ReadChannel<Long> currentL3() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ReadChannel<Long> voltageL1() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ReadChannel<Long> voltageL2() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ReadChannel<Long> voltageL3() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

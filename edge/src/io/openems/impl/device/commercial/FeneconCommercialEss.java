@@ -25,6 +25,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -46,8 +47,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	/*
 	 * Constructors
 	 */
-	public FeneconCommercialEss(String thingId) throws ConfigException {
-		super(thingId);
+	public FeneconCommercialEss(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {

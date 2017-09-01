@@ -18,6 +18,7 @@ import io.openems.api.channel.FunctionalWriteChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
@@ -495,8 +496,8 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 
 			}).label(0L, EssNature.OFF).label(1L, EssNature.ON);
 
-	public AsymmetricToSymmetricEssNature(String id) throws ConfigException {
-		super(id);
+	public AsymmetricToSymmetricEssNature(String id, Device parent) throws ConfigException {
+		super(id, parent);
 		log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 	}

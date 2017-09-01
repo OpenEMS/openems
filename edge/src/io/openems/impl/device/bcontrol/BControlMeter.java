@@ -4,6 +4,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.exception.ConfigException;
@@ -17,8 +18,8 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
 
 public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
-	public BControlMeter(String thingId) throws ConfigException {
-		super(thingId);
+	public BControlMeter(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
@@ -186,15 +187,13 @@ public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterN
 								apparentPowerPos = new ModbusReadLongChannel("ApparentPowerPos", this).unit("VA")
 										.multiplier(-1)),
 						new UnsignedDoublewordElement(18,
-								apparentPowerNeg = new ModbusReadLongChannel("ApparentPowerNeg", this).unit("VA")
-										.multiplier(-1)),
-						new DummyElement(20, 25),
-						new UnsignedDoublewordElement(26, //
+								apparentPowerNeg = new ModbusReadLongChannel("ApparentPowerNeg", this)
+										.unit("VA").multiplier(-1)),
+						new DummyElement(20, 25), new UnsignedDoublewordElement(26, //
 								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHZ"))),
-				new ModbusInputRegisterRange(40,
-						new UnsignedDoublewordElement(40, //
-								activePowerL1Pos = new ModbusReadLongChannel("ActivePowerL1Pos", this).unit("W")
-										.multiplier(-1)),
+				new ModbusInputRegisterRange(40, new UnsignedDoublewordElement(40, //
+						activePowerL1Pos = new ModbusReadLongChannel("ActivePowerL1Pos", this).unit("W")
+								.multiplier(-1)),
 						new UnsignedDoublewordElement(42, //
 								activePowerL1Neg = new ModbusReadLongChannel("ActivePowerL1Neg", this).unit("W")
 										.multiplier(-1)),
@@ -202,17 +201,15 @@ public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterN
 								reactivePowerL1Pos = new ModbusReadLongChannel("ReactivePowerL1Pos", this).unit("W")
 										.multiplier(-1)),
 						new UnsignedDoublewordElement(46, //
-								reactivePowerL1Neg = new ModbusReadLongChannel("ActivePowerL1Neg", this).unit("W")
-										.multiplier(-1)),
-						new DummyElement(48, 59),
-						new UnsignedDoublewordElement(60, //
+								reactivePowerL1Neg = new ModbusReadLongChannel("ActivePowerL1Neg", this)
+										.unit("W").multiplier(-1)),
+						new DummyElement(48, 59), new UnsignedDoublewordElement(60, //
 								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")),
 						new UnsignedDoublewordElement(62, //
 								voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV"))),
-				new ModbusInputRegisterRange(80,
-						new UnsignedDoublewordElement(80, //
-								activePowerL2Pos = new ModbusReadLongChannel("ActivePowerL2Pos", this).unit("W")
-										.multiplier(-1)),
+				new ModbusInputRegisterRange(80, new UnsignedDoublewordElement(80, //
+						activePowerL2Pos = new ModbusReadLongChannel("ActivePowerL2Pos", this).unit("W")
+								.multiplier(-1)),
 						new UnsignedDoublewordElement(82, //
 								activePowerL2Neg = new ModbusReadLongChannel("ActivePowerL2Neg", this).unit("W")
 										.multiplier(-1)),
@@ -220,17 +217,15 @@ public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterN
 								reactivePowerL2Pos = new ModbusReadLongChannel("ReactivePowerL2Pos", this).unit("W")
 										.multiplier(-1)),
 						new UnsignedDoublewordElement(86, //
-								reactivePowerL2Neg = new ModbusReadLongChannel("ActivePowerL2Neg", this).unit("W")
-										.multiplier(-1)),
-						new DummyElement(88, 99),
-						new UnsignedDoublewordElement(100, //
+								reactivePowerL2Neg = new ModbusReadLongChannel("ActivePowerL2Neg", this)
+										.unit("W").multiplier(-1)),
+						new DummyElement(88, 99), new UnsignedDoublewordElement(100, //
 								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA")),
 						new UnsignedDoublewordElement(102, //
 								voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV"))),
-				new ModbusInputRegisterRange(120,
-						new UnsignedDoublewordElement(120, //
-								activePowerL3Pos = new ModbusReadLongChannel("ActivePowerL3Pos", this).unit("W")
-										.multiplier(-1)),
+				new ModbusInputRegisterRange(120, new UnsignedDoublewordElement(120, //
+						activePowerL3Pos = new ModbusReadLongChannel("ActivePowerL3Pos", this).unit("W")
+								.multiplier(-1)),
 						new UnsignedDoublewordElement(122, //
 								activePowerL3Neg = new ModbusReadLongChannel("ActivePowerL3Neg", this).unit("W")
 										.multiplier(-1)),
@@ -238,10 +233,9 @@ public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterN
 								reactivePowerL3Pos = new ModbusReadLongChannel("ReactivePowerL3Pos", this).unit("W")
 										.multiplier(-1)),
 						new UnsignedDoublewordElement(126, //
-								reactivePowerL3Neg = new ModbusReadLongChannel("ActivePowerL3Neg", this).unit("W")
-										.multiplier(-1)),
-						new DummyElement(128, 139),
-						new UnsignedDoublewordElement(140, //
+								reactivePowerL3Neg = new ModbusReadLongChannel("ActivePowerL3Neg", this)
+										.unit("W").multiplier(-1)),
+						new DummyElement(128, 139), new UnsignedDoublewordElement(140, //
 								currentL3 = new ModbusReadLongChannel("CurrentL3", this).unit("mA")),
 						new UnsignedDoublewordElement(142, //
 								voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV"))));

@@ -26,7 +26,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.api.bridge.BridgeReadTask;
+import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -35,13 +38,24 @@ import io.openems.api.thing.ThingChannelsUpdatedListener;
 @ThingInfo(title = "Simulator")
 public abstract class SimulatorDeviceNature implements DeviceNature {
 
+	private Device parent;
+	private List<BridgeReadTask> readTasks = new ArrayList<>();
+
 	/*
 	 * Constructors
 	 */
-	public SimulatorDeviceNature(String thingId) throws ConfigException {
+	public SimulatorDeviceNature(String thingId, Device parent) throws ConfigException {
 		this.thingId = thingId;
+		this.parent = parent;
 		log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
+		readTasks.add(new BridgeReadTask() {
+
+			@Override
+			protected void run() throws Exception {
+				SimulatorDeviceNature.this.update();
+			}
+		});
 	}
 
 	/*
@@ -67,6 +81,28 @@ public abstract class SimulatorDeviceNature implements DeviceNature {
 	@Override
 	public void removeListener(ThingChannelsUpdatedListener listener) {
 		this.listeners.remove(listener);
+	}
+
+	@Override
+	public List<BridgeReadTask> getReadTasks() {
+		// not required
+		return null;
+	}
+
+	@Override
+	public List<BridgeReadTask> getRequiredReadTasks() {
+		return readTasks;
+	}
+
+	@Override
+	public List<BridgeWriteTask> getWriteTasks() {
+		// not required
+		return null;
+	}
+
+	@Override
+	public Device getParent() {
+		return this.parent;
 	}
 
 	@Override

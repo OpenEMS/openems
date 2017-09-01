@@ -22,6 +22,7 @@ import io.openems.api.channel.FunctionalWriteChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
@@ -521,8 +522,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 
 			});
 
-	public EssClusterNature(String id) throws ConfigException {
-		super(id);
+	public EssClusterNature(String id, Device parent) throws ConfigException {
+		super(id, parent);
 		log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 	}

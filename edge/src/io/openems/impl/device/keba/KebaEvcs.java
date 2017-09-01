@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.evcs.EvcsNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -36,8 +37,8 @@ public class KebaEvcs extends KebaDeviceNature implements EvcsNature {
 	/*
 	 * Constructors
 	 */
-	public KebaEvcs(String thingId) throws ConfigException {
-		super(thingId);
+	public KebaEvcs(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		log.info("Constructor KebaEvcs");
 	}
 

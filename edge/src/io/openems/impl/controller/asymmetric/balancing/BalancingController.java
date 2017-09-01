@@ -123,6 +123,8 @@ public class BalancingController extends Controller {
 				} else if (calculatedPowers[i - 1] < maxChargePowerPhase) {
 					calculatedPowers[i - 1] = maxChargePowerPhase;
 				}
+				log.info("calculatedPower: " + calculatedPowers[i - 1] + ", maxDischarge: " + maxDischargePowerPhase
+						+ ", maxCharge: " + maxChargePowerPhase);
 				calculatePower(calculatedPowers[i - 1], maxDischargePowerPhase, maxChargePowerPhase, i, useableSoc);
 			}
 			for (Ess ess : esss.value()) {

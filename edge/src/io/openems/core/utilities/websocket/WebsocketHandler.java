@@ -382,7 +382,7 @@ public class WebsocketHandler {
 						Thing parentThing = thingRepository.getThing(parentId);
 						if (parentThing instanceof Bridge) {
 							Bridge parentBridge = (Bridge) parentThing;
-							Device device = thingRepository.createDevice(jObject);
+							Device device = thingRepository.createDevice(jObject, parentBridge);
 							parentBridge.addDevice(device);
 							Config.getInstance().writeConfigFile();
 							Notification.send(NotificationType.SUCCESS, "Device [" + device.id() + "] wurde erstellt.");

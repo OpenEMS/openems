@@ -65,10 +65,10 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	@ConfigInfo(title = "Database", description = "Database name for InfluxDB.", type = String.class, defaultValue = "db")
 	public final ConfigChannel<String> database = new ConfigChannel<>("database", this);
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(10000);
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(10000);
 
-	@Override
-	public ConfigChannel<Integer> cycleTime() {
+	private ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
@@ -199,5 +199,10 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 		Optional<InfluxDB> _influxdb = getInfluxDB();
 		return InfluxdbQueryWrapper.query(_influxdb, fems.valueOptional(), fromDate, toDate, channels, resolution,
 				database.valueOptional().orElse("db"));
+	}
+
+	@Override
+	protected int getCycleTime() {
+		return cycleTime.valueOptional().orElse(10000);
 	}
 }
