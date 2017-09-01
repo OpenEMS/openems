@@ -40,6 +40,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 
+// TODO merge this class with the one in Common
 public class JsonUtils {
 	public static JsonArray getAsJsonArray(JsonElement jElement) throws ReflectionException {
 		if (!jElement.isJsonArray()) {

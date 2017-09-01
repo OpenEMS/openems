@@ -92,12 +92,12 @@ Backend is transparently proxying requests to a connected Edge if necessary, add
 		things: {
 			[id: string]: {
 				id: string,
-				class: string,
+				class: string | string[],
 				[channel: string]: any
 			}
-		}
+		},
 		meta: {
-			[class: string]: {
+			[clazz: string]: {
 				implements: [string],
 				channels: {
 					[channel: string]: {
@@ -115,10 +115,38 @@ Backend is transparently proxying requests to a connected Edge if necessary, add
 }
 ```
 
+### [1.2.2] Current live data
+
+[1.2.2.1] UI -> Edge/Backend
+
+```
+{
+	id: [string],
+	device: string,
+	currentData: {
+		mode: "subscribe",
+		channels: {
+			[thingId: string]: string[]
+		}
+	}
+}
+```
+
+[1.2.1.2] Edge/Backend -> UI
+
+```
+{
+	currentData: {[{ 
+		channel: string,
+		value: any
+    }]}
+}
+```
 
 
 
-### [1.2.1] Current live data
+
+// TODO from here
 
 [1.2.1.1] Subscribe to current data: UI -> Edge/Backend
 

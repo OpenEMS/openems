@@ -1,17 +1,64 @@
 export module DefaultTypes {
-  export interface Thing {
-    id: string,
-    class: string
-  }
-
-  export interface Config {
-    bridge: {
-      [id: string]: Thing
-    }
-  }
 
   export interface ChannelAddresses {
     [thing: string]: string[];
+  }
+
+  export interface Config {
+    things: {
+      [id: string]: {
+        id: string,
+        class: string | string[],
+        [channel: string]: any
+      }
+    },
+    meta: {
+      [clazz: string]: {
+        implements: [string],
+        channels: {
+          [channel: string]: {
+            name: string,
+            title: string,
+            type: string | string[],
+            optional: boolean,
+            array: boolean,
+            accessLevel: string
+          }
+        }
+      }
+    }
+  }
+
+  export interface CurrentDataAndSummary {
+    data: CurrentData,
+    summary: Summary
+  }
+
+  export interface CurrentData {
+    [thing: string]: {
+      [channel: string]: any
+    }
+  }
+
+  export interface Summary {
+    storage: {
+      soc: number,
+      activePower: number,
+      maxActivePower: number
+    }, production: {
+      powerRatio: number,
+      activePower: number, // sum of activePowerAC and activePowerDC
+      activePowerAC: number,
+      activePowerDC: number,
+      maxActivePower: number
+    }, grid: {
+      powerRatio: number,
+      activePower: number,
+      maxActivePower: number
+    }, consumption: {
+      powerRatio: number,
+      activePower: number
+    }
   }
 
   export interface MessageMetadataDevice {
@@ -22,12 +69,3 @@ export module DefaultTypes {
     online: boolean
   }
 }
-
-/*
-  private influxdb: {
-    ip: string,
-    username: string,
-    password: string,
-    fems: string
-  }
-*/

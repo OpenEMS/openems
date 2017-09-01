@@ -152,7 +152,6 @@ public class DefaultMessages {
 		j.add("timedata", jTimedata);
 		return j;
 	}
-
 	
 	/**
 	 * <pre>
@@ -169,6 +168,27 @@ public class DefaultMessages {
 	public static JsonObject configQueryReply(JsonObject config) {
 		JsonObject j = new JsonObject();
 		j.add("config", config);
+		return j;
+	}
+	
+	/**
+	 * <pre>
+	 *	{
+	 *		id: string,
+	 *		currentData: {[{ 
+	 *			channel: string,
+	 *			value: any
+     *		}]}
+	 *	}
+	 * </pre>
+	 * 
+	 * @param token
+	 * @return
+	 */
+	public static JsonObject currentData(JsonArray jId, JsonObject jCurrentData) {
+		JsonObject j = new JsonObject();
+		j.add("id", jId);
+		j.add("currentData", jCurrentData);
 		return j;
 	}
 }

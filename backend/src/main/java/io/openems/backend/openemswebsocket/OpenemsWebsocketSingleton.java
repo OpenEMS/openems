@@ -146,7 +146,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 
 			// TODO Debugging
 			if (!jMessage.has("timedata")) {
-				log.info(jMessage.toString());
+				log.info("Received from " + device.getName() + ": " + jMessage.toString());
 			}
 
 			// Is this a reply?
@@ -206,6 +206,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			jMessage.add("id", jId);
 
 			// send
+			log.info("Forward to Browser: " + jMessage);
 			WebSocketUtils.send(browserWebsocket, jMessage);
 		} catch (OpenemsException e) {
 			log.warn(e.getMessage());

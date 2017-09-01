@@ -13,6 +13,17 @@ export class DefaultMessages {
             }
         }
     };
+
+    public static currentDataSubscribe(channels: DefaultTypes.ChannelAddresses) {
+        return {
+            device: String,
+            id: ["currentData"],
+            currentData: {
+                mode: "subscribe",
+                channels: channels
+            }
+        }
+    };
 }
 
 export module DefaultMessages {
@@ -22,5 +33,9 @@ export module DefaultMessages {
 
     export interface ConfigQueryReply extends Reply {
         config: DefaultTypes.Config
+    }
+
+    export interface CurrentDataReply extends Reply {
+        currentData: DefaultTypes.CurrentData
     }
 }

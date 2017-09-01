@@ -23,7 +23,6 @@ package io.openems.api.doc;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.api.thing.Thing;
@@ -71,11 +70,7 @@ public class ThingDoc {
 			jChannels.add(config.getName(), config.getAsJsonObject());
 		}
 		j.add("channels", jChannels);
-		JsonArray jImplements = new JsonArray();
-		for (Class<? extends Thing> implement : InjectionUtils.getImplements(getClazz())) {
-			jImplements.add(implement.getName());
-		}
-		j.add("implements", jImplements);
+		j.add("implements", InjectionUtils.getImplementsAsJson(getClazz()));
 		return j;
 	}
 }

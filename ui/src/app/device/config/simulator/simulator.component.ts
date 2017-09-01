@@ -84,25 +84,26 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
         }).takeUntil(this.ngUnsubscribe).subscribe(data => {
           let tmpData = {};
           // subscribed to data
-          if (data.data != null) {
-            for (let thing in data.data) {
-              if (!tmpData[thing]) {
-                tmpData[thing] = {};
-              }
-              for (let channel in data.data[thing]) {
-                let newData = { name: moment(), value: <number>data.data[thing][channel] };
-                // if (!this.data[thing][channel]) {
-                //   // create new array
-                //   this.data[thing][channel] = [];
-                // }
-                // if (this.data[thing][channel].length > 9) {
-                //   // max 10 entries
-                //   this.data[thing][channel].shift();
-                // }
-                tmpData[thing][channel] = newData;
-              }
-            }
-          }
+          // TODO
+          // if (data.data != null) {
+          //   for (let thing in data.data) {
+          //     if (!tmpData[thing]) {
+          //       tmpData[thing] = {};
+          //     }
+          //     for (let channel in data.data[thing]) {
+          //       let newData = { name: moment(), value: <number>data.data[thing][channel] };
+          //       // if (!this.data[thing][channel]) {
+          //       //   // create new array
+          //       //   this.data[thing][channel] = [];
+          //       // }
+          //       // if (this.data[thing][channel].length > 9) {
+          //       //   // max 10 entries
+          //       //   this.data[thing][channel].shift();
+          //       // }
+          //       tmpData[thing][channel] = newData;
+          //     }
+          //   }
+          // }
           this.data = tmpData;
         }, error => {
           console.error("error", error);

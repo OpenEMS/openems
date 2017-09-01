@@ -20,13 +20,13 @@
  *******************************************************************************/
 package io.openems.impl.persistence.fenecon;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 
 import org.java_websocket.WebSocket;
-import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +41,14 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.OpenemsException;
-import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
+import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
+import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
-import io.openems.core.utilities.JsonUtils;
 import io.openems.core.utilities.websocket.Notification;
 import io.openems.core.utilities.websocket.NotificationType;
 
@@ -57,27 +59,17 @@ import io.openems.core.utilities.websocket.NotificationType;
  */
 public class FeneconPersistenceWebsocketHandler {
 
-	private static Logger log = LoggerFactory.getLogger(FeneconPersistenceWebsocketHandler.class);
-
-	/**
-	 * Holds thingId and channelId, subscribed by this websocket
-	 */
-	private final HashMultimap<String, String> subscribedChannels = HashMultimap.create();
+	private Logger log = LoggerFactory.getLogger(FeneconPersistenceWebsocketHandler.class);
 
 	/**
 	 * Executor for subscriptions task
 	 */
-	private static ScheduledExecutorService subscriptionExecutor = Executors.newScheduledThreadPool(1);
+	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
 
 	/**
-	 * Task regularly send subscriped to data
+	 * Holds subscribers to current data
 	 */
-	// private final Runnable subscriptionTask;
-
-	/**
-	 * Holds the scheduled subscription task
-	 */
-	private ScheduledFuture<?> subscriptionFuture = null;
+	private final HashMap<String, CurrentDataWorker> currentDataSubscribers = new HashMap<>();
 
 	/**
 	 * Holds the websocket connection
@@ -89,19 +81,8 @@ public class FeneconPersistenceWebsocketHandler {
 	 */
 	private volatile String subscribeLog = "";
 
-	private FeneconPersistenceWebsocketHandler handler;
-
 	public FeneconPersistenceWebsocketHandler(WebSocket websocket) {
 		this.websocket = websocket;
-		// this.subscriptionTask = () -> {
-		// /*
-		// * This task is executed regularly. Sends data to websocket.
-		// */
-		// JsonObject j = new JsonObject();
-		// // JsonObject jCurrentdata = getSubscribedData();
-		// // j.add("currentdata", jCurrentdata);
-		// this.send(j);
-		// };
 	}
 
 	/**
@@ -109,46 +90,101 @@ public class FeneconPersistenceWebsocketHandler {
 	 */
 	public void onMessage(JsonObject jMessage) {
 		log.info(jMessage.toString());
+
+		// get message id -> used for reply
+		Optional<JsonArray> jIdOpt = JsonUtils.getAsOptionalJsonArray(jMessage, "id");
+
+		// prepare reply (every reply is going to be merged into this object with this unique message id)
+		Optional<JsonObject> jReplyOpt = Optional.empty();
+
 		/*
-		 * Get unique request id
+		 * Config
 		 */
-		// TODO: pass requestId everywhere
-		String requestId = "";
-		if (jMessage.has("requestId")) {
-			try {
-				requestId = JsonUtils.getAsString(jMessage, "requestId");
-			} catch (ReflectionException e) {
-				log.warn("Invalid requestId: " + e.getMessage());
+		Optional<JsonObject> jConfigOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "config");
+		if (jConfigOpt.isPresent()) {
+			jReplyOpt = JsonUtils.merge(jReplyOpt, //
+					config(jConfigOpt.get()) //
+			);
+		}
+
+		/*
+		 * Subscribe to currentData
+		 */
+		Optional<JsonObject> jCurrentDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "currentData");
+		if (jCurrentDataOpt.isPresent() && jIdOpt.isPresent()) {
+			jReplyOpt = JsonUtils.merge(jReplyOpt, //
+					currentData(jIdOpt.get(), jCurrentDataOpt.get()) //
+			);
+		}
+
+		// send reply
+		if (jReplyOpt.isPresent()) {
+			JsonObject jReply = jReplyOpt.get();
+			if (jIdOpt.isPresent()) {
+				jReply.add("id", jIdOpt.get());
 			}
+			WebSocketUtils.send(this.websocket, jReply);
 		}
+		//
+		// log.info(jMessage.toString());
+		// /*
+		// * Get unique request id
+		// */
+		// // TODO: pass requestId everywhere
+		// String requestId = "";
+		// if (jMessage.has("requestId")) {
+		// try {
+		// requestId = JsonUtils.getAsString(jMessage, "requestId");
+		// } catch (ReflectionException e) {
+		// log.warn("Invalid requestId: " + e.getMessage());
+		// }
+		// }
 
-		/*
-		 * Subscribe to data
-		 */
-		if (jMessage.has("subscribe")) {
-			subscribe(jMessage.get("subscribe"));
-		}
+		//
+		// /*
+		// * Configuration
+		// */
+		// if (jMessage.has("configure")) {
+		// configure(jMessage.get("configure"));
+		// }
+		//
+		// /*
+		// * System command
+		// */
+		// if (jMessage.has("system")) {
+		// // system(jMessage.get("system"));
+		// }
+		//
+		// /*
+		// * Query command
+		// */
+		// if (jMessage.has("query")) {
+		// query(requestId, jMessage.get("query"));
+		// }
+	}
 
-		/*
-		 * Configuration
-		 */
-		if (jMessage.has("configure")) {
-			configure(jMessage.get("configure"));
-		}
+	/**
+	 * Handle "config" messages
+	 *
+	 * @param jConfig
+	 * @return
+	 */
+	private synchronized Optional<JsonObject> config(JsonObject jConfig) {
+		try {
+			String mode = JsonUtils.getAsString(jConfig, "mode");
 
-		/*
-		 * System command
-		 */
-		if (jMessage.has("system")) {
-			// system(jMessage.get("system"));
+			if (mode.equals("query")) {
+				/*
+				 * Query current config
+				 */
+				String language = JsonUtils.getAsString(jConfig, "language");
+				JsonObject jReplyConfig = Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, language);
+				return Optional.of(DefaultMessages.configQueryReply(jReplyConfig));
+			}
+		} catch (OpenemsException e) {
+			log.warn(e.getMessage());
 		}
-
-		/*
-		 * Query command
-		 */
-		if (jMessage.has("query")) {
-			query(requestId, jMessage.get("query"));
-		}
+		return Optional.empty();
 	}
 
 	/**
@@ -156,87 +192,51 @@ public class FeneconPersistenceWebsocketHandler {
 	 *
 	 * @param j
 	 */
-	private synchronized void subscribe(JsonElement jSubscribeElement) {
-		// try {
-		// JsonObject jSubscribe = JsonUtils.getAsJsonObject(jSubscribeElement);
-		// if (jSubscribe.has("channels")) {
-		// /*
-		// * Subscribe to channels
-		// */
-		// // unsubscribe regular task
-		// if (subscriptionFuture != null) {
-		// subscriptionFuture.cancel(true);
-		// }
-		// // clear subscriptions
-		// this.subscribedChannels.clear();
-		// JsonObject jSubscribeChannels = JsonUtils.getAsJsonObject(jSubscribe, "channels");
-		// jSubscribeChannels.entrySet().forEach(entry -> {
-		// try {
-		// String thing = entry.getKey();
-		// JsonArray jChannels = JsonUtils.getAsJsonArray(entry.getValue());
-		// for (JsonElement jChannel : jChannels) {
-		// String channel = JsonUtils.getAsString(jChannel);
-		// this.subscribedChannels.put(thing, channel);
-		// }
-		// } catch (OpenemsException e) {
-		// log.error(e.getMessage());
-		// }
-		// });
-		// // schedule task
-		// if (!this.subscribedChannels.isEmpty()) {
-		// subscriptionFuture = subscriptionExecutor.scheduleWithFixedDelay(this.subscriptionTask, 0, 3,
-		// TimeUnit.SECONDS);
-		// }
-		// } else if (jSubscribe.has("log")) {
-		// /*
-		// * Subscribe to log
-		// */
-		// String log = JsonUtils.getAsString(jSubscribe, "log");
-		// this.subscribeLog = log;
-		// }
-		//
-		// } catch (OpenemsException e) {
-		// log.error(e.getMessage());
-		// }
-	}
-
-	/**
-	 * Gets a json object with all subscribed channels
-	 *
-	 * @return
-	 */
-	// private JsonObject getSubscribedData() {
-	// JsonObject jData = new JsonObject();
-	// subscribedChannels.keys().forEach(thingId -> {
-	// JsonObject jThingData = new JsonObject();
-	// subscribedChannels.get(thingId).forEach(channelId -> {
-	// Optional<?> value = databus.getValue(thingId, channelId);
-	// JsonElement jValue;
-	// try {
-	// jValue = JsonUtils.getAsJsonElement(value.orElse(null));
-	// jThingData.add(channelId, jValue);
-	// } catch (NotImplementedException e) {
-	// log.error(e.getMessage());
-	// }
-	// });
-	// jData.add(thingId, jThingData);
-	// });
-	// return jData;
-	// }
-
-	/**
-	 * Sends a message to the websocket
-	 *
-	 * @param jMessage
-	 */
-	public boolean send(JsonObject jMessage) {
+	private synchronized Optional<JsonObject> currentData(JsonArray jId, JsonObject jCurrentData) {
 		try {
-			this.websocket.send(jMessage.toString());
-			return true;
-		} catch (WebsocketNotConnectedException e) {
-			return false;
+			String mode = JsonUtils.getAsString(jCurrentData, "mode");
+
+			if (mode.equals("subscribe")) {
+				/*
+				 * Subscribe to channels
+				 */
+				String messageId = jId.get(1).getAsString();
+
+				// remove old worker if existed
+				CurrentDataWorker worker = this.currentDataSubscribers.remove(messageId);
+				if (worker != null) {
+					worker.dispose();
+				}
+				// parse subscribed channels
+				HashMultimap<String, String> channels = HashMultimap.create();
+				JsonObject jSubscribeChannels = JsonUtils.getAsJsonObject(jCurrentData, "channels");
+				for (Entry<String, JsonElement> entry : jSubscribeChannels.entrySet()) {
+					String thing = entry.getKey();
+					JsonArray jChannels = JsonUtils.getAsJsonArray(entry.getValue());
+					for (JsonElement jChannel : jChannels) {
+						String channel = JsonUtils.getAsString(jChannel);
+						channels.put(thing, channel);
+					}
+				}
+				if (!channels.isEmpty()) {
+					// create new worker
+					worker = new CurrentDataWorker(jId, channels, this.executor, this.websocket);
+					this.currentDataSubscribers.put(messageId, worker);
+				}
+			}
+		} catch (OpenemsException e) {
+			log.warn(e.getMessage());
 		}
+		return Optional.empty();
 	}
+
+	// } else if (jSubscribe.has("log")) {
+	/// *
+	// * Subscribe to log
+	// */
+	// String log = JsonUtils.getAsString(jSubscribe, "log");
+	// this.subscribeLog = log;
+	// }
 
 	/**
 	 * Sends an initial message to the browser after it was successfully connected
@@ -382,7 +382,7 @@ public class FeneconPersistenceWebsocketHandler {
 			// TODO jMetadata.add("config", Config.getInstance().getMetaConfigJson());
 			JsonObject j = new JsonObject();
 			j.add("metadata", jMetadata);
-			this.send(j);
+			WebSocketUtils.send(this.websocket, j);
 		} catch (OpenemsException | ClassNotFoundException e) {
 			Notification.send(NotificationType.ERROR, e.getMessage());
 		}
@@ -574,7 +574,7 @@ public class FeneconPersistenceWebsocketHandler {
 		JsonObject j = new JsonObject();
 		j.add("notification", jNotification);
 		new Thread(() -> {
-			this.send(j);
+			WebSocketUtils.send(websocket, j);
 		}).start();
 	}
 
@@ -597,7 +597,7 @@ public class FeneconPersistenceWebsocketHandler {
 		jLog.addProperty("message", message);
 		j.add("log", jLog);
 		new Thread(() -> {
-			this.send(j);
+			WebSocketUtils.send(websocket, j);
 		}).start();
 	}
 

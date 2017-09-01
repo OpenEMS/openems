@@ -81,43 +81,6 @@ export class Websocket {
   }
 
   /**
-   * Parses the route params, sets the current device and returns it - or 
-   * redirects to overview after a timeout if the device is not existing
-   */
-  public getCurrentDeviceFromRoute(route: ActivatedRoute): Promise<Device> {
-    let deviceName = route.snapshot.params["device"];
-    let devicePromise: Promise<Device>;
-    if (deviceName in this.devices.value) {
-      // device is immediately available
-      devicePromise = Promise.resolve(this.devices.value[deviceName]);
-
-    } else {
-      // wait for devices
-      devicePromise = Utils.timeoutPromise(Websocket.TIMEOUT, new Promise<Device>((resolve, reject) => {
-        let ngUnsubscribeWaitForDevices = new Subject<any>();
-        this.devices.takeUntil(ngUnsubscribeWaitForDevices).subscribe(devices => {
-          if (deviceName in devices) {
-            // stop waiting for devices
-            ngUnsubscribeWaitForDevices.next();
-            ngUnsubscribeWaitForDevices.complete();
-            // resolve Promise
-            resolve(devices[deviceName]);
-          }
-        })
-      }));
-    }
-
-    devicePromise.then(device => {
-      // ask device to query config
-      device.getConfig();
-      this.currentDevice.next(device);
-    }).catch(reason => {
-
-    });
-    return devicePromise;
-  }
-
-  /**
    * Clears the current device
    */
   public clearCurrentDevice() {
@@ -184,7 +147,9 @@ export class Websocket {
       retryCounter = 0;
       console.log(message);
 
-      // Receive authentication token
+      /*
+       * Authenticate
+       */
       if ("authenticate" in message && "mode" in message.authenticate) {
         let mode = message.authenticate.mode;
 
@@ -232,8 +197,11 @@ export class Websocket {
         }
       }
 
-      // Receive a reply with a message id -> forward to devices' replyStream
+      /*
+       * Query reply
+       */
       if ("id" in message && message.id instanceof Array) {
+        // Receive a reply with a message id -> forward to devices' replyStream
         let id = message.id[0];
         for (let deviceName in this.replyStreams) {
           if (id in this.replyStreams[deviceName]) {
@@ -243,7 +211,9 @@ export class Websocket {
         }
       }
 
-      // receive metadata
+      /*
+       * Metadata
+       */
       if ("metadata" in message) {
         if ("devices" in message.metadata) {
           let devices = <DefaultTypes.MessageMetadataDevice[]>message.metadata.devices;
@@ -261,10 +231,6 @@ export class Websocket {
               this
             );
             newDevices[newDevice.name] = newDevice;
-            // TODO
-            // device.receive({
-            //   metadata: newDevice
-            // });
           }
           this.devices.next(newDevices);
         }

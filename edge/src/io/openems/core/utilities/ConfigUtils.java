@@ -121,7 +121,9 @@ public class ConfigUtils {
 				// ignore generated id names starting with "_"
 				j.addProperty("id", thing.id());
 			}
-			if (!(value instanceof DeviceNature)) {
+			if (format == ConfigFormat.OPENEMS_UI && value instanceof DeviceNature) {
+				j.add("class", InjectionUtils.getImplementsAsJson(thing.getClass()));
+			} else {
 				// class is not needed for DeviceNatures
 				j.addProperty("class", thing.getClass().getCanonicalName());
 			}

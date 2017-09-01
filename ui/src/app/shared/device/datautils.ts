@@ -1,41 +1,39 @@
-import { Config } from './config';
+import { DefaultTypes } from '../service/defaulttypes';
+import { ConfigUtils } from './configutils';
 
-export class Summary {
-    public readonly storage = {
-        soc: null,
-        activePower: 0,
-        maxActivePower: 0
-    };
-    public readonly production = {
-        powerRatio: 0,
-        activePower: 0, // sum of activePowerAC and activePowerDC
-        activePowerAC: 0,
-        activePowerDC: 0,
-        maxActivePower: 0
-    };
-    public readonly grid = {
-        powerRatio: 0,
-        activePower: 0,
-        maxActivePower: 0
-    };
-    public readonly consumption = {
-        powerRatio: 0,
-        activePower: 0
-    };
+export class DataUtils {
 
-    /**
-     * Calculate summary data from websocket reply
-     */
-    constructor(config: Config, data: ChannelData) {
-        function getActivePower(o: any): number {
-            if ("ActivePowerL1" in o && o.ActivePowerL1 != null && "ActivePowerL2" in o && o.ActivePowerL2 != null && "ActivePowerL3" in o && o.ActivePowerL3 != null) {
-                return o.ActivePowerL1 + o.ActivePowerL2 + o.ActivePowerL3;
-            } else if ("ActivePower" in o && o.ActivePower != null) {
-                return o.ActivePower;
-            } else {
-                return 0;
-            }
+    private static getActivePower(o: any): number {
+        if ("ActivePowerL1" in o && o.ActivePowerL1 != null && "ActivePowerL2" in o && o.ActivePowerL2 != null && "ActivePowerL3" in o && o.ActivePowerL3 != null) {
+            return o.ActivePowerL1 + o.ActivePowerL2 + o.ActivePowerL3;
+        } else if ("ActivePower" in o && o.ActivePower != null) {
+            return o.ActivePower;
+        } else {
+            return 0;
         }
+    }
+
+    public static calculateSummary(currentData: DefaultTypes.CurrentData, config: DefaultTypes.Config): DefaultTypes.Summary {
+        let result: DefaultTypes.Summary = {
+            storage: {
+                soc: null,
+                activePower: null,
+                maxActivePower: null
+            }, production: {
+                powerRatio: null,
+                activePower: null, // sum of activePowerAC and activePowerDC
+                activePowerAC: null,
+                activePowerDC: null,
+                maxActivePower: null
+            }, grid: {
+                powerRatio: null,
+                activePower: null,
+                maxActivePower: null
+            }, consumption: {
+                powerRatio: null,
+                activePower: null
+            }
+        };
 
         {
             /*
@@ -43,20 +41,19 @@ export class Summary {
              */
             let soc = 0;
             let activePower = 0;
-            let essThings = config.storageThings;
             let countSoc = 0;
-            for (let thing of essThings) {
-                if (thing in data) {
-                    let ess = data[thing];
+            for (let thing of ConfigUtils.getEssNatures(config)) {
+                if (thing in currentData) {
+                    let ess = currentData[thing];
                     if ("Soc" in ess && ess.Soc != null) {
                         soc += ess.Soc;
                         countSoc += 1;
                     }
-                    activePower += getActivePower(ess);
+                    activePower += DataUtils.getActivePower(ess);
                 }
             }
-            this.storage.soc = soc / countSoc;
-            this.storage.activePower = activePower;
+            result.storage.soc = soc / countSoc;
+            result.storage.activePower = activePower;
         }
 
         {
@@ -66,12 +63,11 @@ export class Summary {
             let powerRatio = 0;
             let activePower = 0;
             let maxActivePower = 0;
-            for (let thing of config.gridMeters) {
-                if (thing in data) {
-                    let thingChannels = config._meta.natures[thing].channels;
-                    let meter = data[thing];
-                    let power = getActivePower(meter);
-                    if (thingChannels["maxActivePower"]) {
+            for (let thing of ConfigUtils.getMeterNatures(config)) {
+                if (thing in currentData && thing in config.things && "type" in config.things[thing] && config.things[thing]["type"]) {
+                    let meter = currentData[thing];
+                    let power = DataUtils.getActivePower(meter);
+                    if ("maxActivePower" in meter && meter.maxActivePower != null) {
                         if (activePower > 0) {
                             powerRatio = (power * 50.) / thingChannels["maxActivePower"]["value"]
                         } else {
@@ -147,23 +143,7 @@ export class Summary {
             this.consumption.powerRatio = (activePower * 100.) / maxActivePower;
             this.consumption.activePower = activePower;
         }
-    }
-}
-
-export class ChannelData {
-    [thing: string]: {
-        [channel: string]: number;
-    }
-}
-
-export class Data {
-    public readonly summary: Summary;
-
-    constructor(
-        public readonly data: ChannelData,
-        private config: Config
-    ) {
-        this.summary = new Summary(config, data);
+        return result;
     }
 }
 

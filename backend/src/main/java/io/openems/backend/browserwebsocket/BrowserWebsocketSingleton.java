@@ -163,7 +163,7 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket websocket, String message) {
 		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-		log.info(jMessage.toString());
+		log.info("Received from Browser: " + jMessage.toString());
 
 		// Get deviceName if given
 		Optional<String> deviceNameOpt = Optional.empty();
@@ -177,7 +177,7 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 		/*
 		 * Forward to OpenEMS Edge
 		 */
-		if (jMessage.has("config") && deviceNameOpt.isPresent()) {
+		if (deviceNameOpt.isPresent() && (jMessage.has("config") || jMessage.has("currentData"))) {
 			String deviceName = deviceNameOpt.get();
 			try {
 				forwardMessageToOpenems(websocket, jMessage, deviceName);
@@ -223,7 +223,12 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 
 		// add session token to message id for identification
 		BrowserSession session = this.websockets.get(websocket);
-		JsonArray jId = JsonUtils.getAsJsonArray(jMessage, "id");
+		JsonArray jId;
+		if (jMessage.has("id")) {
+			jId = JsonUtils.getAsJsonArray(jMessage, "id");
+		} else {
+			jId = new JsonArray();
+		}
 		jId.add(session.getToken());
 		jMessage.add("id", jId);
 
@@ -231,6 +236,7 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 		Optional<WebSocket> openemsWebsocketOpt = OpenemsWebsocket.instance().getOpenemsWebsocket(deviceName);
 		if (openemsWebsocketOpt.isPresent()) {
 			WebSocket openemsWebsocket = openemsWebsocketOpt.get();
+			log.info("Forward to " + deviceName + ": " + jMessage);
 			if (WebSocketUtils.send(openemsWebsocket, jMessage)) {
 				return;
 			} else {

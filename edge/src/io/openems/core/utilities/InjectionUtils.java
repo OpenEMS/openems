@@ -37,6 +37,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import io.openems.api.channel.Channel;
@@ -286,5 +287,18 @@ public class InjectionUtils {
 			ifaces.addAll(getImplements(thingSuperclazz));
 		}
 		return ifaces;
+	}
+
+	public static JsonArray getImplementsAsJson(Class<? extends Thing> clazz) {
+		JsonArray j = new JsonArray();
+		for (Class<? extends Thing> implement : InjectionUtils.getImplements(clazz)) {
+			if (DeviceNature.class.isAssignableFrom(clazz)) {
+				// use simple name for DeviceNatures for readability
+				j.add(implement.getSimpleName());
+			} else {
+				j.add(implement.getCanonicalName());
+			}
+		}
+		return j;
 	}
 }
