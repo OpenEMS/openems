@@ -68,7 +68,7 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(10000);
 
-	public ConfigChannel<Integer> cycleTime() {
+	private ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 

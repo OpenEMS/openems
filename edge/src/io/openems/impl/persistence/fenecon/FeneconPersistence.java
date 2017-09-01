@@ -57,7 +57,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
 			.defaultValue(DEFAULT_CYCLETIME);
 
-	public ConfigChannel<Integer> cycleTime() {
+	private ConfigChannel<Integer> cycleTime() {
 		return cycleTime;
 	}
 
