@@ -20,7 +20,6 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.StringJoiner;
@@ -44,7 +43,6 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.api.bridge.Bridge;
-import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsModbusException;
 import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
@@ -52,11 +50,6 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 
 @ThingInfo(title = "Modbus")
 public abstract class ModbusBridge extends Bridge {
-
-	/*
-	 * Fields
-	 */
-	protected volatile ModbusDevice[] modbusdevices = new ModbusDevice[0];
 
 	/*
 	 * Abstract Methods
@@ -83,23 +76,6 @@ public abstract class ModbusBridge extends Bridge {
 
 	@Override
 	protected boolean initialize() {
-		/*
-		 * Copy and cast devices to local modbusdevices array
-		 */
-		if (devices.isEmpty()) {
-			return false;
-		}
-		List<ModbusDevice> modbusdevices = new ArrayList<>();
-		for (Device device : devices) {
-			if (device instanceof ModbusDevice) {
-				modbusdevices.add((ModbusDevice) device);
-			}
-		}
-		ModbusDevice[] newModbusdevices = modbusdevices.stream().toArray(ModbusDevice[]::new);
-		if (newModbusdevices == null) {
-			newModbusdevices = new ModbusDevice[0];
-		}
-		this.modbusdevices = newModbusdevices;
 		/*
 		 * Create a new SerialConnection
 		 */

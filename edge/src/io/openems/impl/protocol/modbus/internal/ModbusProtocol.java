@@ -37,9 +37,6 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRange;
 public class ModbusProtocol {
 	private static Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
 	private final Map<Channel, ModbusElement> channelElementMap = new ConcurrentHashMap<>();
-	// private final Map<Integer, ModbusRange> otherRanges = new ConcurrentHashMap<>(); // key = startAddress
-	// private final LinkedList<Integer> otherRangesQueue = new LinkedList<>();
-	// requiredRanges stays empty till someone calls "setAsRequired()"
 	private final Map<Integer, ModbusRange> readRanges = new ConcurrentHashMap<>(); // key = startAddress
 	private final Map<Integer, WriteableModbusRange> writableRanges = new ConcurrentHashMap<>(); // key =
 																									// startAddress
@@ -69,24 +66,6 @@ public class ModbusProtocol {
 		}
 	}
 
-	// public Optional<ModbusRange> getNextOtherRange() {
-	// if (otherRangesQueue.isEmpty()) {
-	// otherRangesQueue.addAll(otherRanges.keySet());
-	// }
-	// Integer address = otherRangesQueue.poll();
-	// if (address == null) {
-	// return Optional.empty();
-	// }
-	// return Optional.ofNullable(otherRanges.get(address));
-	// }
-
-	// public Collection<ModbusRange> getOtherRanges() {
-	// if (otherRanges.isEmpty()) {
-	// return Collections.unmodifiableCollection(new ArrayList<ModbusRange>());
-	// }
-	// return Collections.unmodifiableCollection(otherRanges.values());
-	// }
-
 	public Collection<ModbusRange> getReadRanges() {
 		if (readRanges.isEmpty()) {
 			return Collections.unmodifiableCollection(new ArrayList<ModbusRange>());
@@ -100,14 +79,6 @@ public class ModbusProtocol {
 		}
 		return Collections.unmodifiableCollection(writableRanges.values());
 	}
-
-	// public void setAsRequired(Channel channel) {
-	// if (channel instanceof ModbusChannel<?>) {
-	// ModbusRange range = channelElementMap.get(channel).getModbusRange();
-	// otherRanges.remove(range.getStartAddress());
-	// requiredRanges.put(range.getStartAddress(), range);
-	// }
-	// }
 
 	public ModbusRange getRangeByChannel(Channel channel) {
 		return channelElementMap.get(channel).getModbusRange();

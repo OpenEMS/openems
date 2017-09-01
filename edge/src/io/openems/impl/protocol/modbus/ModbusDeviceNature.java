@@ -111,7 +111,6 @@ public abstract class ModbusDeviceNature implements DeviceNature, ChannelChangeL
 	 * Sets a Channel as required. The Range with this Channel will be added to ModbusProtocol.RequiredRanges.
 	 */
 	public void setAsRequired(Channel channel) {
-		// getProtocol().setAsRequired(channel);
 		ModbusRange range = getProtocol().getRangeByChannel(channel);
 		Iterator<BridgeReadTask> i = otherReadTasks.iterator();
 		while (i.hasNext()) {

@@ -48,13 +48,9 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class, isOptional = true)
 	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this);
 
-	// @Override
-	// public ConfigChannel<Integer> cycleTime() {
-	// return cycleTime;
-	// }
 	@Override
 	protected int getCycleTime() {
 		int time = cycleTime.valueOptional().orElse(500);
