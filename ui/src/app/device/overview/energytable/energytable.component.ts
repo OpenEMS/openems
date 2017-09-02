@@ -1,7 +1,9 @@
 import { Component, Input, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 
-import { Data, Config, Utils } from '../../../shared/shared';
+import { Utils } from '../../../shared/service/utils';
+import { DefaultTypes } from '../../../shared/service/defaulttypes';
+import { CurrentDataAndSummary } from '../../../shared/device/currentdata';
 
 @Component({
   selector: 'energytable',
@@ -10,10 +12,10 @@ import { Data, Config, Utils } from '../../../shared/shared';
 export class EnergytableComponent {
 
   @Input()
-  public currentData: Data;
+  public currentData: CurrentDataAndSummary;
 
   @Input()
-  public config: Config;
+  public config: DefaultTypes.Config;
 
   constructor(public utils: Utils) { }
 }

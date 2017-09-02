@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
 import { Device } from '../../../../shared/device/device';
-import { Dataset, EMPTY_DATASET, Config, QueryReply, Summary } from './../../../../shared/shared';
+import { Dataset, EMPTY_DATASET, QueryReply, Summary } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
 import { Utils } from './../../../../shared/service/utils';
 
@@ -75,59 +75,60 @@ export class EnergyChartComponent implements OnChanges {
   }
 
   ngOnChanges(changes: any) {
-    // close old queryreplySubject
-    if (this.queryreplySubject != null) {
-      this.queryreplySubject.complete();
-    }
-    // show loading...
-    this.loading = true;
-    // create channels for query
     // TODO
-    //let channels = this.device.config.getValue().getPowerChannels();
-    let channels = {}
-    // execute query
-    let queryreplySubject = this.device.query(this.fromDate, this.toDate, channels);
-    queryreplySubject.subscribe(queryreply => {
-      // prepare datasets and labels
-      let activePowers = {
-        production: [],
-        grid: [],
-        consumption: []
-      }
-      let labels: moment.Moment[] = [];
-      // TODO
-      // for (let reply of queryreply.data) {
-      //   labels.push(moment(reply.time));
-      //   let data = new Summary(this.device.config.getValue(), reply.channels);
-      //   activePowers.grid.push(data.grid.activePower / -1000); // convert to kW and invert value
-      //   activePowers.production.push(data.production.activePower / 1000); // convert to kW
-      //   activePowers.consumption.push(data.consumption.activePower / 1000); // convert to kW
-      // }
-      this.datasets = [{
-        label: this.translate.instant('General.Production'),
-        data: activePowers.production
-      }, {
-        label: this.translate.instant('General.Grid'),
-        data: activePowers.grid
-      }, {
-        label: this.translate.instant('General.Consumption'),
-        data: activePowers.consumption
-      }];
-      this.labels = labels;
-      this.loading = false;
-      setTimeout(() => {
-        // Workaround, because otherwise chart data and labels are not refreshed...
-        if (this.chart) {
-          this.chart.ngOnChanges({} as SimpleChanges);
-        }
-      });
+    // // close old queryreplySubject
+    // if (this.queryreplySubject != null) {
+    //   this.queryreplySubject.complete();
+    // }
+    // // show loading...
+    // this.loading = true;
+    // // create channels for query
+    // // TODO
+    // //let channels = this.device.config.getValue().getPowerChannels();
+    // let channels = {}
+    // // execute query
+    // let queryreplySubject = this.device.query(this.fromDate, this.toDate, channels);
+    // queryreplySubject.subscribe(queryreply => {
+    //   // prepare datasets and labels
+    //   let activePowers = {
+    //     production: [],
+    //     grid: [],
+    //     consumption: []
+    //   }
+    //   let labels: moment.Moment[] = [];
+    //   // TODO
+    //   // for (let reply of queryreply.data) {
+    //   //   labels.push(moment(reply.time));
+    //   //   let data = new Summary(this.device.config.getValue(), reply.channels);
+    //   //   activePowers.grid.push(data.grid.activePower / -1000); // convert to kW and invert value
+    //   //   activePowers.production.push(data.production.activePower / 1000); // convert to kW
+    //   //   activePowers.consumption.push(data.consumption.activePower / 1000); // convert to kW
+    //   // }
+    //   this.datasets = [{
+    //     label: this.translate.instant('General.Production'),
+    //     data: activePowers.production
+    //   }, {
+    //     label: this.translate.instant('General.Grid'),
+    //     data: activePowers.grid
+    //   }, {
+    //     label: this.translate.instant('General.Consumption'),
+    //     data: activePowers.consumption
+    //   }];
+    //   this.labels = labels;
+    //   this.loading = false;
+    //   setTimeout(() => {
+    //     // Workaround, because otherwise chart data and labels are not refreshed...
+    //     if (this.chart) {
+    //       this.chart.ngOnChanges({} as SimpleChanges);
+    //     }
+    //   });
 
-    }, error => {
-      this.datasets = EMPTY_DATASET;
-      this.labels = [];
-      // TODO should be error message
-      this.loading = true;
-    });
+    // }, error => {
+    //   this.datasets = EMPTY_DATASET;
+    //   this.labels = [];
+    //   // TODO should be error message
+    //   this.loading = true;
+    // });
   }
 
   ngOnDestroy() {

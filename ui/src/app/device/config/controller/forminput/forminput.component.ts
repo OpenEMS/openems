@@ -3,7 +3,7 @@ import { FormGroup } from '@angular/forms';
 
 import { Controller } from '../controller';
 import { Device } from '../../../../shared/device/device';
-import { Utils, Meta } from '../../../../shared/shared';
+import { Utils } from '../../../../shared/shared';
 import { Role, ROLES } from '../../../../shared/type/role';
 
 interface ArrayPath {
@@ -34,7 +34,7 @@ export class FormInputComponent {
     public meta: any
 
     @Input()
-    public allMeta: Meta;
+    public allMeta: any;
 
     @Input()
     public showTitle: boolean = true;

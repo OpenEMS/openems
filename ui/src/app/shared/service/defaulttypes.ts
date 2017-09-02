@@ -29,11 +29,6 @@ export module DefaultTypes {
     }
   }
 
-  export interface CurrentDataAndSummary {
-    data: CurrentData,
-    summary: Summary
-  }
-
   export interface CurrentData {
     [thing: string]: {
       [channel: string]: any
@@ -54,7 +49,8 @@ export module DefaultTypes {
     }, grid: {
       powerRatio: number,
       activePower: number,
-      maxActivePower: number
+      maxActivePower: number,
+      minActivePower: number
     }, consumption: {
       powerRatio: number,
       activePower: number

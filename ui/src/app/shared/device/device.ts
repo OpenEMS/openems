@@ -7,14 +7,12 @@ import { UUID } from 'angular2-uuid';
 import * as moment from 'moment';
 
 import { Notification, Websocket } from '../shared';
-import { Config, ChannelAddresses } from './config';
-import { Data, ChannelData, Summary } from './data';
+import { ConfigImpl } from './config';
+import { CurrentDataAndSummary } from './currentdata';
 import { DefaultMessages } from '../service/defaultmessages';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Utils } from '../service/utils';
 import { Role, ROLES } from '../type/role';
-
-export { Data, ChannelData, Summary, Config, ChannelAddresses };
 
 export class Log {
   timestamp: number;
@@ -23,14 +21,6 @@ export class Log {
   color: string = "black";
   source: string;
   message: string;
-}
-
-export class QueryReply {
-  requestId: string;
-  data: [{
-    time: string
-    channels: ChannelData
-  }]
 }
 
 export class Device {
@@ -46,15 +36,17 @@ export class Device {
   ) {
     // prepare stream/obersable for currentData
     let currentDataStream = replyStreams["currentData"] = new Subject<DefaultMessages.CurrentDataReply>();
-    this.currentData = currentDataStream.map(message => message.currentData);
+    this.currentData = currentDataStream
+      .map(message => message.currentData)
+      .combineLatest(this.config, (currentData, config) => new CurrentDataAndSummary(currentData, config));
   }
 
   // holds current data
-  public currentData: Observable<DefaultTypes.CurrentData>;
+  public currentData: Observable<CurrentDataAndSummary>;
 
   // holds device configuration; gets new configuration on first subscribe
-  public config: Observable<DefaultTypes.Config> = Observable
-    .create((observer: Observer<DefaultTypes.Config>) => {
+  public config: Observable<ConfigImpl> = Observable
+    .create((observer: Observer<ConfigImpl>) => {
       // send query
       let message = DefaultMessages.configQuery();
       let messageId = message.id[0];
@@ -62,7 +54,9 @@ export class Device {
       this.send(message);
       // wait for reply
       this.replyStreams[messageId].first().subscribe(reply => {
-        observer.next((<DefaultMessages.ConfigQueryReply>reply).config);
+        let config = (<DefaultMessages.ConfigQueryReply>reply).config;
+        let configImpl = new ConfigImpl(config)
+        observer.next(configImpl);
       });
       // TODO add timeout
     }).publishReplay(1).refCount();
@@ -84,7 +78,7 @@ export class Device {
   /**
    * Subscribe to current data of specified channels
    */
-  public subscribeCurrentData(channels: ChannelAddresses): Observable<DefaultTypes.CurrentData> {
+  public subscribeCurrentData(channels: DefaultTypes.ChannelAddresses): Observable<CurrentDataAndSummary> {
     // send subscribe
     let message = DefaultMessages.currentDataSubscribe(channels);
     this.send(message);
@@ -92,22 +86,20 @@ export class Device {
     return this.currentData;
   }
 
-
-
-
-
-
-
   /**
    * Unsubscribe from current data
    */
   public unsubscribeCurrentData() {
-    this.send({
-      subscribe: {
-        channels: {}
-      }
-    });
+    this.subscribeCurrentData({});
   }
+
+
+
+
+
+
+
+
 
   /**
    * Subscribe to log
@@ -135,36 +127,37 @@ export class Device {
    * Send "query" message to websocket
    */
   // TODO: kWh: this.getkWhResult(this.getImportantChannels())
-  public query(fromDate: moment.Moment, toDate: moment.Moment, channels: ChannelAddresses): Subject<QueryReply> {
-    // create query object
-    let obj = {
-      mode: "history",
-      fromDate: fromDate.format("YYYY-MM-DD"),
-      toDate: toDate.format("YYYY-MM-DD"),
-      timezone: new Date().getTimezoneOffset() * 60,
-      channels: channels
-    };
-    // send query and receive requestId
-    let requestId = this.send({ query: obj });
-    // prepare result
-    let ngUnsubscribe: Subject<void> = new Subject<void>();
-    let result = new Subject<QueryReply>();
-    // timeout after 10 seconds
-    setTimeout(() => {
-      result.error("Query timeout");
-      result.complete();
-    }, 10000);
-    // wait for queryreply with this requestId
-    // this.replyStream.takeUntil(ngUnsubscribe).subscribe(queryreply => {
-    // if (queryreply.requestId == requestId) {
-    //   ngUnsubscribe.next();
-    //   ngUnsubscribe.complete();
-    //   result.next(queryreply);
-    //   result.complete();
-    // }
-    // });
-    return result;
-  }
+  // TODO query data
+  // public query(fromDate: moment.Moment, toDate: moment.Moment, channels: ChannelAddresses): Subject<QueryReply> {
+  //   // create query object
+  //   let obj = {
+  //     mode: "history",
+  //     fromDate: fromDate.format("YYYY-MM-DD"),
+  //     toDate: toDate.format("YYYY-MM-DD"),
+  //     timezone: new Date().getTimezoneOffset() * 60,
+  //     channels: channels
+  //   };
+  //   // send query and receive requestId
+  //   let requestId = this.send({ query: obj });
+  //   // prepare result
+  //   let ngUnsubscribe: Subject<void> = new Subject<void>();
+  //   let result = new Subject<QueryReply>();
+  //   // timeout after 10 seconds
+  //   setTimeout(() => {
+  //     result.error("Query timeout");
+  //     result.complete();
+  //   }, 10000);
+  // wait for queryreply with this requestId
+  // this.replyStream.takeUntil(ngUnsubscribe).subscribe(queryreply => {
+  // if (queryreply.requestId == requestId) {
+  //   ngUnsubscribe.next();
+  //   ngUnsubscribe.complete();
+  //   result.next(queryreply);
+  //   result.complete();
+  // }
+  // });
+  // return result;
+  // }
 
   /*
    * log

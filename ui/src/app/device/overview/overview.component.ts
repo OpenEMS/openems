@@ -3,9 +3,12 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 
+import { Device } from '../../shared/device/device';
+import { DefaultTypes } from '../../shared/service/defaulttypes';
 import { Utils } from '../../shared/shared';
-import { ConfigUtils } from '../../shared/device/configutils';
-import { Websocket, Notification, Data, Config } from '../../shared/shared';
+import { ConfigImpl } from '../../shared/device/config';
+import { CurrentDataAndSummary } from '../../shared/device/currentdata';
+import { Websocket, Notification, Data } from '../../shared/shared';
 import { CustomFieldDefinition } from '../../shared/type/customfielddefinition';
 import { environment } from '../../../environments';
 
@@ -15,8 +18,10 @@ import { environment } from '../../../environments';
 })
 export class OverviewComponent implements OnInit, OnDestroy {
 
-  public currentData: Data;
-  public customFields: CustomFieldDefinition = {};
+  public device: Device
+  public config: ConfigImpl = null;
+  public currentData: CurrentDataAndSummary = null;
+  //public customFields: CustomFieldDefinition = {};
 
   private stopCurrentData: Subject<void> = new Subject<void>();
 
@@ -31,9 +36,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
       .filter(device => device != null)
       .first()
       .subscribe(device => {
+        this.device = device;
         device.config.first().subscribe(config => {
-          console.log("Conf: ", config.things);
-          let channels = ConfigUtils.getImportantChannels(config);
+          this.config = config;
+          let channels = config.getImportantChannels();
           // TODO fieldstatus
           // /*
           //  * Add custom fields for fieldstatus component
@@ -46,25 +52,20 @@ export class OverviewComponent implements OnInit, OnDestroy {
           //   channels[thing] = thingChannels;
           // }
           device.subscribeCurrentData(channels).takeUntil(this.stopCurrentData).subscribe(currentData => {
-            console.log("Data: ", currentData);
+            this.currentData = currentData;
           });
         })
-      });
+      })
   }
 
-  // TODO
-  // this.websocket.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
-  //   this.device = device;
-  //   if (device != null) {
-  //     this.device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-  //       this.config = config;
-  //       this.customFields = environment.getCustomFields(config);
-
-  // })
-
   ngOnDestroy() {
-    // if (this.device) {
-    //   this.device.unsubscribeCurrentData();
-    // }
+    if (this.device) {
+      this.device.unsubscribeCurrentData();
+    }
+    this.device = null;
+    this.config = null;
+    this.currentData = null;
+    this.stopCurrentData.next();
+    this.stopCurrentData.complete();
   }
 }

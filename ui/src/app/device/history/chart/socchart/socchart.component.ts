@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
 import { Device } from '../../../../shared/device/device';
-import { Dataset, EMPTY_DATASET, Config, QueryReply, ChannelAddresses } from './../../../../shared/shared';
+import { Dataset, EMPTY_DATASET, QueryReply, ChannelAddresses } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions } from './../shared';
 import { Utils } from './../../../../shared/service/utils';
 
@@ -60,59 +60,60 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
     this.options = options;
   }
 
+  // TODO
   ngOnChanges(changes: any) {
-    // close old queryreplySubject
-    if (this.queryreplySubject != null) {
-      this.queryreplySubject.complete();
-    }
-    // show loading...
-    this.loading = true;
-    // execute query
-    let queryreplySubject = this.device.query(this.fromDate, this.toDate, this.socChannels);
-    queryreplySubject.subscribe(queryreply => {
-      // prepare datas array and prefill with each device
-      let tmpData: {
-        [thing: string]: number[];
-      } = {};
-      let labels: moment.Moment[] = [];
-      for (let thing in this.socChannels) {
-        tmpData[thing] = [];
-      }
-      for (let reply of queryreply.data) {
-        // read timestamp and soc of each device' reply
-        labels.push(moment(reply.time));
-        for (let thing in this.socChannels) {
-          let soc = 0;
-          if (thing in reply.channels && "Soc" in reply.channels[thing] && reply.channels[thing]["Soc"]) {
-            soc = Math.round(reply.channels[thing].Soc);
-          }
-          tmpData[thing].push(soc);
-        }
-      }
-      // refresh global datasets and labels
-      let datasets = [];
-      for (let device in tmpData) {
-        datasets.push({
-          label: this.translate.instant('General.Soc') + " (" + device + ")",
-          data: tmpData[device]
-        });
-      }
-      this.datasets = datasets;
-      this.labels = labels;
-      this.loading = false;
-      setTimeout(() => {
-        // Workaround, because otherwise chart data and labels are not refreshed...
-        if (this.chart) {
-          this.chart.ngOnChanges({} as SimpleChanges);
-        }
-      });
+    //   // close old queryreplySubject
+    //   if (this.queryreplySubject != null) {
+    //     this.queryreplySubject.complete();
+    //   }
+    //   // show loading...
+    //   this.loading = true;
+    //   // execute query
+    //   let queryreplySubject = this.device.query(this.fromDate, this.toDate, this.socChannels);
+    //   queryreplySubject.subscribe(queryreply => {
+    //     // prepare datas array and prefill with each device
+    //     let tmpData: {
+    //       [thing: string]: number[];
+    //     } = {};
+    //     let labels: moment.Moment[] = [];
+    //     for (let thing in this.socChannels) {
+    //       tmpData[thing] = [];
+    //     }
+    //     for (let reply of queryreply.data) {
+    //       // read timestamp and soc of each device' reply
+    //       labels.push(moment(reply.time));
+    //       for (let thing in this.socChannels) {
+    //         let soc = 0;
+    //         if (thing in reply.channels && "Soc" in reply.channels[thing] && reply.channels[thing]["Soc"]) {
+    //           soc = Math.round(reply.channels[thing].Soc);
+    //         }
+    //         tmpData[thing].push(soc);
+    //       }
+    //     }
+    //     // refresh global datasets and labels
+    //     let datasets = [];
+    //     for (let device in tmpData) {
+    //       datasets.push({
+    //         label: this.translate.instant('General.Soc') + " (" + device + ")",
+    //         data: tmpData[device]
+    //       });
+    //     }
+    //     this.datasets = datasets;
+    //     this.labels = labels;
+    //     this.loading = false;
+    //     setTimeout(() => {
+    //       // Workaround, because otherwise chart data and labels are not refreshed...
+    //       if (this.chart) {
+    //         this.chart.ngOnChanges({} as SimpleChanges);
+    //       }
+    //     });
 
-    }, error => {
-      this.datasets = EMPTY_DATASET;
-      this.labels = [];
-      // TODO should be error message
-      this.loading = true;
-    });
+    //   }, error => {
+    //     this.datasets = EMPTY_DATASET;
+    //     this.labels = [];
+    //     // TODO should be error message
+    //     this.loading = true;
+    //   });
   }
 
   ngOnDestroy() {
