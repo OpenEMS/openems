@@ -22,8 +22,11 @@ package io.openems.common.session;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.openems.common.utils.SecureRandomSingleton;
@@ -69,6 +72,10 @@ public abstract class SessionManager<T extends Session<?>, V extends SessionData
 		// Source: http://stackoverflow.com/a/41156
 		SecureRandom sr = SecureRandomSingleton.getInstance();
 		return new BigInteger(SESSION_ID_LENGTH, sr).toString(32);
+	}
+	
+	public Collection<T> getSessions() {
+		return Collections.unmodifiableCollection(this.sessions.values());
 	}
 	
 	/*

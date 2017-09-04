@@ -8,12 +8,13 @@ import websocketConnect from 'rxjs-websockets';
 import 'rxjs/add/operator/timeout';
 
 import { environment as env } from '../../../environments';
-import { Service, Notification } from './service';
+import { Service } from './service';
 import { Utils } from './utils';
 import { Device } from '../device/device';
 import { Backend } from '../type/backend';
 import { ROLES } from '../type/role';
 import { DefaultTypes } from '../service/defaulttypes';
+import { DefaultMessages } from '../service/defaultmessages';
 
 @Injectable()
 export class Websocket {
@@ -31,11 +32,12 @@ export class Websocket {
     return this._currentDevice;
   }
 
-  public event = new Subject<Notification>();
+  public event = new Subject<DefaultTypes.Notification>();
   public status: "online" | "connecting" | "failed" = "connecting";
 
   private username: string = "";
   private messages: Observable<any>;
+  public noOfConnectedWebsockets: number;
   private inputStream: Subject<any>;
   private websocketSubscription: Subscription = new Subscription();
   private queryreply = new Subject<{ id: string[] }>();
@@ -48,7 +50,7 @@ export class Websocket {
 
   constructor(
     private router: Router,
-    private webappService: Service,
+    private service: Service,
   ) {
     // try to auto connect using token or session_id
     setTimeout(() => {
@@ -60,24 +62,34 @@ export class Websocket {
    * Parses the route params and sets the current device
    */
   public setCurrentDevice(route: ActivatedRoute): Subject<Device> {
+    let onTimeout = () => {
+      // Timeout: redirect to overview
+      this.router.navigate(['/overview']);
+      subscription.unsubscribe();
+    }
+
     let deviceName = route.snapshot.params["device"];
-    this.devices
+    let subscription = this.devices
       .filter(devices => deviceName in devices)
       .first()
       .map(devices => devices[deviceName])
       .subscribe(device => {
-        // set current device
-        this.currentDevice.next(device);
-        // TODO device.setActive();
+        if (device == null || !device.online) {
+          onTimeout();
+        } else {
+          // set current device
+          this.currentDevice.next(device);
+        }
       }, error => {
         console.error("Error while setting current device: ", error);
       })
+    setTimeout(() => {
+      let device = this.currentDevice.getValue();
+      if (device == null || !device.online) {
+        onTimeout();
+      }
+    }, Websocket.TIMEOUT);
     return this.currentDevice;
-    // TODO redirect on timeout
-    // timeout: redirect to overview
-    // this.currentDevice.next(null);
-    // this.router.navigate(['/overview']);
-    // throw new URIError("Device [" + deviceName + "] not found."); // TODO translate 
   }
 
   /**
@@ -109,10 +121,31 @@ export class Websocket {
       return;
     }
 
-    this.messages = websocketConnect(
+    const { messages, connectionStatus } = websocketConnect(
       env.url,
       this.inputStream = new Subject<any>()
-    ).messages.share();
+    );
+    connectionStatus.subscribe(noOfConnectedWebsockets => {
+      this.noOfConnectedWebsockets = noOfConnectedWebsockets;
+      if (noOfConnectedWebsockets == 0 && this.status == 'online') {
+        this.service.notify({
+          message: "Connection lost. Trying to reconnect.", // TODO translate
+          type: 'warning'
+        });
+        // TODO show spinners everywhere
+        this.status = 'connecting';
+      } else if (noOfConnectedWebsockets > 0 && this.status == 'connecting') {
+        this.service.notify({
+          message: "Connection established.", // TODO translate
+          type: 'info'
+        });
+        let device = this.currentDevice.getValue();
+        if (device != null) {
+          device.websocketReconnected();
+        }
+      }
+    });
+    this.messages = messages.share();
 
     // send authentication if given
     if (password) {
@@ -125,28 +158,26 @@ export class Websocket {
       });
     }
 
-    /**
-     * called on every receive of message from server
-     */
-    let retryCounter = 0;
-    this.websocketSubscription = this.messages.retryWhen(errors => errors.do(error => {
-      // on more than 10 tries -> disconnect user and redirect to login
-      if (retryCounter == 10) {
-        // TODO: reevaluate if we should really stop after 10 tries
-        this.status = "failed";
-        this.close();
-        this.webappService.notify({
-          type: "error",
-          message: this.webappService.translate.instant('Notifications.Failed')
-        });
-      }
-      retryCounter++;
-      return errors.delay(200);
+    /* errors.do(error => {
+          // on more than 10 tries -> disconnect user and redirect to login
+          if (retryCounter == 10) {
+            // TODO: reevaluate if we should really stop after 10 tries
+            this.status = "failed";
+            this.close();
+            this.webappService.notify({
+              type: "error",
+              message: this.webappService.translate.instant('Notifications.Failed')
+            });
+          }
+          retryCounter++;
+          return errors.delay(200);
+        }).delay(1000))*/
+    this.websocketSubscription = this.messages.retryWhen(errors => {
+      return errors.delay(1000);
 
-    }).delay(1000))/* TODO what is this delay for? */.subscribe(message => {
-      retryCounter = 0;
-      //console.log(message);
-
+    }).subscribe(message => {
+      // called on every receive of message from server
+      console.log(message);
       /*
        * Authenticate
        */
@@ -159,7 +190,7 @@ export class Websocket {
 
           if ("token" in message.authenticate) {
             // received login token -> save in cookie
-            this.webappService.setToken(message.authenticate.token);
+            this.service.setToken(message.authenticate.token);
           }
 
           if ("role" in message.authenticate && env.backend == Backend.OpenEMS_Edge) {
@@ -176,22 +207,22 @@ export class Websocket {
           // TODO username is deprecated
           if ("username" in message.authenticate) {
             this.username = message.authenticate.username;
-            this.event.next({ type: "success", message: this.webappService.translate.instant('Notifications.LoggedInAs', { value: this.username }) });
+            this.event.next({ type: "success", message: this.service.translate.instant('Notifications.LoggedInAs', { value: this.username }) });
           } else {
-            this.event.next({ type: "success", message: this.webappService.translate.instant('Notifications.LoggedIn') });
+            this.event.next({ type: "success", message: this.service.translate.instant('Notifications.LoggedIn') });
           }
 
         } else {
           // authentication denied -> close websocket
           this.status = "failed";
-          this.webappService.removeToken();
+          this.service.removeToken();
           this.initialize();
           if (env.backend == Backend.OpenEMS_Backend) {
             console.log("would redirect...") // TODO fix redirect
             //window.location.href = "/web/login?redirect=/m/overview";
           }
           if (throwErrorOnDeny) {
-            let status: Notification = { type: "error", message: this.webappService.translate.instant('Notifications.AuthenticationFailed') };
+            let status: DefaultTypes.Notification = { type: "error", message: this.service.translate.instant('Notifications.AuthenticationFailed') };
             this.event.next(status);
           }
         }
@@ -238,9 +269,35 @@ export class Websocket {
 
       // receive notification
       if ("notification" in message) {
-        this.webappService.notify(message.notification);
+        let notification = message.notification;
+        let n: DefaultTypes.Notification;
+        if ("code" in notification) {
+          // handle specific notification codes - see Java source for details
+          let code = notification.code;
+          let params = notification.params;
+          switch (code) {
+            case 100: /* device disconnected -> mark as offline */ {
+              let deviceId = params[0];
+              if (deviceId in this.devices.getValue()) {
+                this.devices.getValue()[deviceId].setOnline(false);
+              }
+              break;
+            }
+            case 101: /* device reconnected -> mark as online */ {
+              let deviceId = params[0];
+              if (deviceId in this.devices.getValue()) {
+                let device = this.devices.getValue()[deviceId];
+                device.setOnline(true);
+                if (this.currentDevice.getValue() == device) {
+                  device.websocketReconnected();
+                }
+              }
+              break;
+            }
+          }
+        }
+        this.service.notify(<DefaultTypes.Notification>notification);
       }
-
     });
   }
 
@@ -261,9 +318,9 @@ export class Websocket {
   public close() {
     console.info("Closing websocket");
     if (this.status != "online") { // TODO why this if?
-      this.webappService.removeToken();
+      this.service.removeToken();
       this.initialize();
-      var status: Notification = { type: "info", message: this.webappService.translate.instant('Notifications.Closed') };
+      var status: DefaultTypes.Notification = { type: "info", message: this.service.translate.instant('Notifications.Closed') };
       this.event.next(status);
     }
   }
@@ -272,6 +329,7 @@ export class Websocket {
    * Sends a message to the websocket
    */
   public send(device: Device, message: any): void {
+    console.log("SEND: ", message);
     if ("id" in message) {
       this.pendingQueryReplies[message.id[0]] = device.name;
     }

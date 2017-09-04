@@ -27,16 +27,15 @@ import com.google.gson.JsonParser;
 import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.browserwebsocket.session.BrowserSessionData;
 import io.openems.backend.browserwebsocket.session.BrowserSessionManager;
-import io.openems.backend.core.ConnectionManager;
 import io.openems.backend.metadata.Metadata;
 import io.openems.backend.openemswebsocket.OpenemsWebsocket;
 import io.openems.backend.openemswebsocket.OpenemsWebsocketSingleton;
 import io.openems.backend.timedata.Timedata;
-import io.openems.backend.utilities.StringUtils;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.Device;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 
 /**
@@ -166,9 +165,6 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 	public void onMessage(WebSocket websocket, String message) {
 		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 		Optional<JsonArray> jMessageId = JsonUtils.getAsOptionalJsonArray(jMessage, "id");
-
-		log.info("Received from Browser: " + jMessage.toString());
-
 		Optional<String> deviceNameOpt = JsonUtils.getAsOptionalString(jMessage, "device");
 
 		/*
@@ -245,7 +241,6 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 		Optional<WebSocket> openemsWebsocketOpt = OpenemsWebsocket.instance().getOpenemsWebsocket(deviceName);
 		if (openemsWebsocketOpt.isPresent()) {
 			WebSocket openemsWebsocket = openemsWebsocketOpt.get();
-			log.info("Forward to " + deviceName + ": " + jMessage);
 			if (WebSocketUtils.send(openemsWebsocket, jMessage)) {
 				return;
 			} else {
@@ -290,50 +285,7 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 		return j;
 	}
 
-	/**
-	 * Handle connect: interconnects browser and OpenEMS websocket
-	 */
-	private synchronized void connect(WebSocket browserWebsocket, String deviceName, JsonElement jConnectElement) {
-		boolean connect;
-		try {
-			connect = JsonUtils.getAsBoolean(jConnectElement);
-		} catch (OpenemsException e) {
-			log.warn("Unable to parse connect [" + jConnectElement + "]: " + e.getMessage());
-			return;
-			// TODO send notification
-		}
-		Optional<WebSocket> openemsWebsocketOpt = ConnectionManager.instance()
-				.getOpenemsWebsocketFromDeviceName(deviceName);
-		if (!openemsWebsocketOpt.isPresent()) {
-			log.warn("Trying to connect [" + connect + "] with [" + deviceName + "], but it is not online");
-			return;
-			// TODO send notification
-		}
-		WebSocket openemsWebsocket = openemsWebsocketOpt.get();
-		if (connect) {
-			ConnectionManager.instance().addWebsocketInterconnection(browserWebsocket, openemsWebsocket);
-		} else {
-			ConnectionManager.instance().removeWebsocketInterconnection(browserWebsocket, openemsWebsocket);
-		}
-	}
-
-	/**
-	 * Handle subscriptions
-	 */
-	private synchronized void subscribe(String deviceName, JsonElement jSubscribeElement) {
-		JsonObject j = new JsonObject();
-		j.add("subscribe", jSubscribeElement);
-		Optional<WebSocket> openemsWebsocketOpt = ConnectionManager.instance()
-				.getOpenemsWebsocketFromDeviceName(deviceName);
-		if (!openemsWebsocketOpt.isPresent()) {
-			log.warn("Trying to forward subscribe to [" + deviceName + "], but it is not online");
-		}
-		WebSocket openemsWebsocket = openemsWebsocketOpt.get();
-		log.info(deviceName + ": forward subscribe to OpenEMS " + StringUtils.toShortString(j, 100));
-		// TODO: subscribes should be handled here instead of at OpenEMS to avoid unsubscribing somebody else
-		WebSocketUtils.send(openemsWebsocket, j);
-	}
-
+	// TODO
 	// /**
 	// * System command
 	// *
@@ -391,7 +343,6 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 				// send reply
 				JsonObject j = DefaultMessages.historicDataQueryReply(jMessageId, jData);
 				WebSocketUtils.send(websocket, j);
-				log.info("sent: " + j.toString());
 			}
 		} catch (Exception e) {
 			log.error("Error", e);
@@ -417,5 +368,39 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 		}
 		BrowserSession session = sessionOpt.get();
 		return Optional.ofNullable(this.websockets.inverse().get(session));
+	}
+
+	/**
+	 * OpenEMS Websocket tells us, when the connection to an OpenEMS Edge is closed
+	 *
+	 * @param name
+	 */
+	public void openemsConnectionClosed(String name) {
+		for (BrowserSession session : this.sessionManager.getSessions()) {
+			for (Device device : session.getData().getDevices()) {
+				if (name.equals(device.getName())) {
+					WebSocket ws = this.websockets.inverse().get(session);
+					JsonObject j = DefaultMessages.notification(Notification.OPENEMS_EDGE_CONNECTION_ClOSED, name);
+					WebSocketUtils.send(ws, j);
+				}
+			}
+		}
+	}
+
+	/**
+	 * OpenEMS Websocket tells us, when the connection to an OpenEMS Edge is openend
+	 *
+	 * @param name
+	 */
+	public void openemsConnectionOpened(String name) {
+		for (BrowserSession session : this.sessionManager.getSessions()) {
+			for (Device device : session.getData().getDevices()) {
+				if (name.equals(device.getName())) {
+					WebSocket ws = this.websockets.inverse().get(session);
+					JsonObject j = DefaultMessages.notification(Notification.OPENEMS_EDGE_CONNECTION_OPENED, name);
+					WebSocketUtils.send(ws, j);
+				}
+			}
+		}
 	}
 }

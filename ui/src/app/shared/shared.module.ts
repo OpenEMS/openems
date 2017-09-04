@@ -19,7 +19,7 @@ import { routing, appRoutingProviders } from './../app.routing';
 /*
  * Services
  */
-import { Service, Notification } from './service/service';
+import { Service } from './service/service';
 import { Websocket } from './service/websocket';
 import { Utils } from './service/utils';
 

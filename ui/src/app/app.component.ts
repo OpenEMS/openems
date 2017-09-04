@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
 import { environment } from '../environments';
-import { Service, Websocket, Notification } from './shared/shared';
+import { Service, Websocket } from './shared/shared';
 
 @Component({
   selector: 'root',

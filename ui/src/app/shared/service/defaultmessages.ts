@@ -55,7 +55,7 @@ export module DefaultMessages {
     }
 
     export interface CurrentDataReply extends Reply {
-        currentData: DefaultTypes.CurrentData
+        currentData: DefaultTypes.Data
     }
 
     export interface HistoricDataReply extends Reply {

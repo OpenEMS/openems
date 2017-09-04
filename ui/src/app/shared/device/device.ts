@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import { UUID } from 'angular2-uuid';
 import * as moment from 'moment';
 
-import { Notification, Websocket } from '../shared';
+import { Websocket } from '../shared';
 import { ConfigImpl } from './config';
 import { CurrentDataAndSummary } from './currentdata';
 import { DefaultMessages } from '../service/defaultmessages';
@@ -30,7 +30,7 @@ export class Device {
     public readonly comment: string,
     public readonly producttype: string,
     public readonly role: Role,
-    public readonly online: boolean,
+    public online: boolean,
     private replyStreams: { [id: string]: Subject<DefaultMessages.Reply> },
     private websocket: Websocket
   ) {
@@ -67,6 +67,7 @@ export class Device {
 
   //public historykWh = new BehaviorSubject<any[]>(null);
   private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
+  private subscribeCurrentDataChannels: DefaultTypes.ChannelAddresses = {};
 
   /**
    * Sends a message to websocket
@@ -82,6 +83,7 @@ export class Device {
     // send subscribe
     let message = DefaultMessages.currentDataSubscribe(channels);
     this.send(message);
+    this.subscribeCurrentDataChannels = channels;
     // TODO timeout
     return this.currentData;
   }
@@ -113,6 +115,19 @@ export class Device {
         resolve(historicData);
       });
     })
+  }
+
+  /**
+   * This method is called, when the websocket was disconnected and got reconnected (e.g. restarting OpenEMS backend, network failure,...)
+   */
+  public websocketReconnected() {
+    // resubscribe current data
+    console.log("resubscribe current data")
+    this.subscribeCurrentData(this.subscribeCurrentDataChannels);
+  }
+
+  public setOnline(online: boolean) {
+    this.online = online;
   }
 
 

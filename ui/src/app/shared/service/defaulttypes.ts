@@ -71,4 +71,13 @@ export module DefaultTypes {
     role: string,
     online: boolean
   }
+
+  export type NotificationType = "success" | "error" | "warning" | "info";
+
+  export interface Notification {
+    type: NotificationType;
+    message: string;
+    code?: number,
+    params?: string[]
+  }
 }

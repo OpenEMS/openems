@@ -1,10 +1,10 @@
 import { routing, appRoutingProviders } from './../app.routing';
 import { Dataset, EMPTY_DATASET } from './chart';
-import { Service, Notification } from './service/service';
+import { Service } from './service/service';
 import { Utils } from './service/utils';
 import { Websocket } from './service/websocket';
 
-export { Service, Utils, Notification, Websocket, Dataset, EMPTY_DATASET };
+export { Service, Utils, Websocket, Dataset, EMPTY_DATASET };
 
 //TODO
 export interface Log { }

@@ -218,4 +218,33 @@ public class DefaultMessages {
 		j.add("historicData", jHistoricData);
 		return j;
 	}
+	
+	/**
+	 * <pre>
+	 *	{
+	 *		notification: {
+	 *			status: string,
+	 *			message: string,
+	 *			code: number,
+	 *			params: string[]
+	 *		}
+	 *	}
+	 * </pre>
+	 * 
+	 * @return
+	 */
+	public static JsonObject notification(Notification code, Object... params) {
+		JsonObject j = new JsonObject();
+		JsonObject jNotification = new JsonObject();
+		jNotification.addProperty("status", code.getStatus());
+		jNotification.addProperty("message", String.format(code.getMessage(), params));
+		jNotification.addProperty("code", code.getValue());
+		JsonArray jParams = new JsonArray();
+		for(Object param : params) {
+			jParams.add(param.toString());
+		}
+		jNotification.add("params", jParams);
+		j.add("notification", jNotification);
+		return j;
+	}
 }

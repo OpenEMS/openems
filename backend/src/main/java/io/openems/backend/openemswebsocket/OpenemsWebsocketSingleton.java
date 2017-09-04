@@ -95,6 +95,9 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 				log.warn(e.getMessage());
 			}
 
+			// announce browserWebsocket that this OpenEMS Edge was connected
+			BrowserWebsocket.instance().openemsConnectionOpened(deviceName);
+
 		} catch (OpenemsException e) {
 			// send connection failed to OpenEMS
 			JsonObject jReply = DefaultMessages.openemsConnectionFailedReply(e.getMessage());
@@ -115,6 +118,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 		if (session != null) {
 			log.info("OpenEMS connection closed. Device [" + session.getData().getDevice().getName() + "] Code [" + code
 					+ "] Reason [" + reason + "]");
+			BrowserWebsocket.instance().openemsConnectionClosed(session.getData().getDevice().getName());
 		} else {
 			log.info("Browser connection closed. Code [" + code + "] Reason [" + reason + "]");
 		}
@@ -208,11 +212,6 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			// remove token from message id
 			jId.remove(jId.size() - 1);
 			jMessage.add("id", jId);
-
-			// TODO debug log
-			if (!jMessage.has("currentData")) {
-				log.info("Forward to Browser: " + jMessage);
-			}
 
 			// send
 			WebSocketUtils.send(browserWebsocket, jMessage);

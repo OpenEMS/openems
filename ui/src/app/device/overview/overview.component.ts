@@ -8,7 +8,7 @@ import { DefaultTypes } from '../../shared/service/defaulttypes';
 import { Utils } from '../../shared/shared';
 import { ConfigImpl } from '../../shared/device/config';
 import { CurrentDataAndSummary } from '../../shared/device/currentdata';
-import { Websocket, Notification, Data } from '../../shared/shared';
+import { Websocket, Data } from '../../shared/shared';
 import { CustomFieldDefinition } from '../../shared/type/customfielddefinition';
 import { environment } from '../../../environments';
 

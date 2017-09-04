@@ -21,6 +21,8 @@ import io.openems.core.Databus;
 
 public class CurrentDataWorker {
 
+	private final static int UPDATE_INTERVAL_IN_SECONDS = 1;
+
 	private Logger log = LoggerFactory.getLogger(CurrentDataWorker.class);
 
 	/**
@@ -41,8 +43,13 @@ public class CurrentDataWorker {
 			/*
 			 * This task is executed regularly. Sends data to websocket.
 			 */
+			if (!websocket.isOpen()) {
+				// disconnected; stop worker
+				this.dispose();
+				return;
+			}
 			WebSocketUtils.send(websocket, DefaultMessages.currentData(jId, getSubscribedData()));
-		}, 0, 3, TimeUnit.SECONDS);
+		}, 0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
 	}
 
 	public void dispose() {

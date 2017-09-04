@@ -6,18 +6,12 @@ import * as moment from 'moment';
 
 import { Websocket } from './websocket';
 import { Device } from '../device/device';
-
-type NotificationType = "success" | "error" | "warning" | "info";
-
-export interface Notification {
-    type: NotificationType;
-    message: string;
-}
+import { DefaultTypes } from './defaulttypes';
 
 @Injectable()
 // TODO export class Service implements ErrorHandler {
 export class Service {
-    public notificationEvent: Subject<Notification> = new Subject<Notification>();
+    public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
 
     constructor(
         public translate: TranslateService
@@ -60,7 +54,7 @@ export class Service {
     /**
      * Shows a nofication using toastr
      */
-    public notify(notification: Notification) {
+    public notify(notification: DefaultTypes.Notification) {
         this.notificationEvent.next(notification);
     }
 

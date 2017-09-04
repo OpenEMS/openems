@@ -9,7 +9,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { environment } from '../../environments';
 
-import { Service, Websocket, Notification, Utils } from '../shared/shared';
+import { Service, Websocket, Utils } from '../shared/shared';
 
 @Component({
   selector: 'overview',

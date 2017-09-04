@@ -169,7 +169,7 @@ For 'unsubscribe' the channels object is empty.
 }
 ```
 
-[1.4.2] Edge/Backend -> UI
+[2.3.2] Edge/Backend -> UI
 ```
 {
 	id: [UUID],
@@ -198,6 +198,19 @@ For 'unsubscribe' the channels object is empty.
 		//		'type': 'grid' | 'production' | 'storage'
 		//	}
 		//}
+	}
+}
+```
+
+### [2.4] Notification
+
+```
+{
+ 	notification: {
+		type: "success" | "error" | "warning" | "info",
+		message: "...",
+		code?: number,
+		params?: string[]
 	}
 }
 ```
@@ -243,15 +256,7 @@ For 'unsubscribe' the channels object is empty.
 
 
 
-### [1.3] Notification
-```
-{
-	device: "...",
-	notification: {
-		message: "...
-	}
-}
-```
+
 
 ### [1.3] Log
 ```
