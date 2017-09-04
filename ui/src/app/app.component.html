@@ -24,7 +24,7 @@
           <button md-icon-button style="cursor:default">
             <md-icon>keyboard_arrow_right</md-icon>
           </button>
-          <button routerLink="/device/{{ currentDevice.name }}/overview" md-button>Energiemonitor <small>({{ currentDevice.address }})</small></button>
+          <button routerLink="/device/{{ currentDevice.name }}/overview" md-button>Energiemonitor <small>({{ currentDevice.name }})</small></button>
         </div>
         <div fxFlex="50px" *ngIf="currentDevice.role != 'guest'">
           <button routerLink="/device/{{ currentDevice.name }}/config" md-icon-button><md-icon>settings</md-icon></button>

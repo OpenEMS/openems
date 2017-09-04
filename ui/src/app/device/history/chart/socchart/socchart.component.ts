@@ -20,7 +20,7 @@ import { SpinnerComponent } from '../../../../shared/spinner.component';
 export class SocChartComponent implements OnInit, OnChanges {
 
   @Input() private device: Device;
-  @Input() private socChannels: DefaultTypes.ChannelAddresses;
+  @Input() private channels: DefaultTypes.ChannelAddresses;
   @Input() private fromDate: moment.Moment;
   @Input() private toDate: moment.Moment;
 
@@ -60,7 +60,7 @@ export class SocChartComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     this.loading = true;
-    this.device.historicDataQuery(this.fromDate, this.toDate, this.socChannels).then(historicData => {
+    this.device.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
       // stop loading spinner
       this.loading = false;
       // prepare datas array and prefill with each device
@@ -68,14 +68,14 @@ export class SocChartComponent implements OnInit, OnChanges {
         [thing: string]: number[];
       } = {};
       let labels: moment.Moment[] = [];
-      for (let thing in this.socChannels) {
+      for (let thing in this.channels) {
         tmpData[thing] = [];
       }
       for (let record of historicData.data) {
         // read timestamp and soc of each device
         labels.push(moment(record.time));
-        for (let thing in this.socChannels) {
-          let soc = 0;
+        for (let thing in this.channels) {
+          let soc = null;
           if (thing in record.channels && "Soc" in record.channels[thing] && record.channels[thing]["Soc"] != null) {
             soc = Math.round(record.channels[thing].Soc);
           }

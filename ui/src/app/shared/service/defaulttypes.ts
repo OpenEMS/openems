@@ -29,7 +29,7 @@ export module DefaultTypes {
     }
   }
 
-  export interface CurrentData {
+  export interface Data {
     [thing: string]: {
       [channel: string]: any
     }
@@ -38,11 +38,7 @@ export module DefaultTypes {
   export interface HistoricData {
     data: [{
       time: string,
-      channels: {
-        [thing: string]: {
-          [channel: string]: any
-        }
-      }
+      channels: Data
     }]
   }
 

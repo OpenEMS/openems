@@ -145,7 +145,7 @@ export class Websocket {
 
     }).delay(1000))/* TODO what is this delay for? */.subscribe(message => {
       retryCounter = 0;
-      console.log(message);
+      //console.log(message);
 
       /*
        * Authenticate

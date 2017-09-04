@@ -1,14 +1,15 @@
 import { DefaultTypes } from '../service/defaulttypes';
 import { ConfigImpl } from './config';
+import { Utils } from '../service/utils';
 
 export class CurrentDataAndSummary {
     public readonly summary: DefaultTypes.Summary;
 
-    constructor(public data: DefaultTypes.CurrentData, config: ConfigImpl) {
+    constructor(public data: DefaultTypes.Data, config: ConfigImpl) {
         this.summary = this.calculateSummary(data, config);
     }
 
-    private calculateSummary(currentData: DefaultTypes.CurrentData, config: ConfigImpl): DefaultTypes.Summary {
+    private calculateSummary(currentData: DefaultTypes.Data, config: ConfigImpl): DefaultTypes.Summary {
         let result: DefaultTypes.Summary = {
             storage: {
                 soc: null,
@@ -35,24 +36,20 @@ export class CurrentDataAndSummary {
             /*
              * Storage
              */
-            let soc = 0;
-            let activePower = 0;
+            let soc = null;
+            let activePower = null;
             let countSoc = 0;
             for (let thing of config.storageThings) {
                 if (thing in currentData) {
-                    let ess = currentData[thing];
-                    if ("Soc" in ess) {
-                        if (ess.Soc == null) {
-                            soc = ess.Soc;
-                        } else {
-                            soc += ess.Soc;
-                        }
+                    let essData = currentData[thing];
+                    if ("Soc" in essData) {
+                        soc = Utils.addSafely(soc, essData.Soc);
                         countSoc += 1;
                     }
-                    activePower += this.getActivePower(ess);
+                    activePower = Utils.addSafely(activePower, this.getActivePower(essData));
                 }
             }
-            result.storage.soc = soc / countSoc;
+            result.storage.soc = Utils.divideSafely(soc, countSoc);
             result.storage.activePower = activePower;
         }
 
@@ -61,13 +58,13 @@ export class CurrentDataAndSummary {
              * Grid
              */
             let powerRatio = 0;
-            let activePower = 0;
+            let activePower = null;
             let maxActivePower = 0;
             let minActivePower = 0;
             for (let thing of config.gridMeters) {
                 let meterData = currentData[thing];
                 let meterConfig = config.things[thing];
-                activePower += this.getActivePower(meterData);
+                activePower = Utils.addSafely(activePower, this.getActivePower(meterData));
                 if ("maxActivePower" in meterConfig) {
                     maxActivePower += meterConfig.maxActivePower;
                 }
@@ -76,10 +73,12 @@ export class CurrentDataAndSummary {
                 }
             }
             // calculate ratio
-            if (activePower > 0) {
-                powerRatio = 50 * activePower / maxActivePower
-            } else {
-                powerRatio = -50 * activePower / minActivePower
+            if (activePower == null) {
+                if (activePower > 0) {
+                    powerRatio = 50 * activePower / maxActivePower
+                } else {
+                    powerRatio = -50 * activePower / minActivePower
+                }
             }
             result.grid.powerRatio = powerRatio;
             result.grid.activePower = activePower;
@@ -92,15 +91,15 @@ export class CurrentDataAndSummary {
              * Production
              */
             let powerRatio = 0;
-            let activePowerAC = 0;
-            let activePowerDC = 0;
+            let activePowerAC = null;
+            let activePowerDC = null;
             let maxActivePower = 0;
             for (let thing of config.productionMeters) {
                 let meterData = currentData[thing];
                 let meterConfig = config.things[thing];
-                activePowerAC += this.getActivePower(meterData);
+                activePowerAC = Utils.addSafely(activePowerAC, this.getActivePower(meterData));
                 if ("ActualPower" in meterData && meterData.ActualPower != null) {
-                    activePowerDC += meterData.ActualPower;
+                    activePowerDC = Utils.addSafely(activePowerDC, meterData.ActualPower);
                 }
                 if ("maxActivePower" in meterConfig) {
                     maxActivePower += meterConfig.maxActivePower;
@@ -120,13 +119,14 @@ export class CurrentDataAndSummary {
             if (maxActivePower == 0) {
                 powerRatio = 100;
             } else {
-                powerRatio = ((activePowerAC + activePowerDC) * 100.) / maxActivePower;
+                let activePowerACDC = Utils.addSafely(activePowerAC, activePowerDC);
+                powerRatio = Utils.divideSafely(activePowerACDC, (maxActivePower / 100));
             }
 
             result.production.powerRatio = powerRatio;
             result.production.activePowerAC = activePowerAC;
             result.production.activePowerDC = activePowerDC;
-            result.production.activePower = activePowerAC + activePowerDC;
+            result.production.activePower = Utils.addSafely(activePowerAC, activePowerDC);
             result.production.maxActivePower = maxActivePower;
         }
 
@@ -134,9 +134,9 @@ export class CurrentDataAndSummary {
             /*
              * Consumption
              */
-            let activePower = result.grid.activePower + result.production.activePowerAC + result.storage.activePower;
+            let activePower = Utils.addSafely(Utils.addSafely(result.grid.activePower, result.production.activePowerAC), result.storage.activePower);
             let maxActivePower = result.grid.maxActivePower + result.production.maxActivePower + result.storage.maxActivePower;
-            result.consumption.powerRatio = (activePower * 100.) / maxActivePower;
+            result.consumption.powerRatio = Utils.divideSafely(activePower, (maxActivePower / 100));
             result.consumption.activePower = activePower;
         }
         return result;
@@ -148,7 +148,7 @@ export class CurrentDataAndSummary {
         } else if ("ActivePower" in o && o.ActivePower != null) {
             return o.ActivePower;
         } else {
-            return 0;
+            return null;
         }
     }
 }

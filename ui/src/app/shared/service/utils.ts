@@ -1,4 +1,3 @@
-import { Websocket } from './websocket';
 import { Injectable } from '@angular/core';
 
 @Injectable()
@@ -24,7 +23,7 @@ export class Utils {
     ])
   }
 
-  constructor(private websocket: Websocket) { }
+  constructor() { }
 
   /**
    * Helps to use an object inside an *ngFor loop. Returns the object keys.
@@ -141,6 +140,31 @@ export class Utils {
     throw new Error("Unable to copy obj! Its type isn't supported.");
   }
 
+  public static addSafely(v1: number, v2: number): number {
+    if (v1 == null) {
+      return v2;
+    } else if (v2 == null) {
+      return v1;
+    } else {
+      return v1 + v2;
+    }
+  }
+
+  public static divideSafely(v1: number, v2: number): number {
+    if (v1 == null || v2 == null) {
+      return null;
+    } else {
+      return v1 / v2;
+    }
+  }
+
+  public static multiplySafely(v1: number, v2: number): number {
+    if (v1 == null || v2 == null) {
+      return null;
+    } else {
+      return v1 * v2;
+    }
+  }
 
   /**
    * Receive meta information for thing/channel/...

@@ -8,7 +8,9 @@ import * as moment from 'moment';
 import { TranslateService } from '@ngx-translate/core';
 
 import { Device } from '../../shared/device/device';
-import { Websocket, ChannelAddresses } from '../../shared/shared';
+import { ConfigImpl } from '../../shared/device/config';
+import { DefaultTypes } from '../../shared/service/defaulttypes';
+import { Websocket } from '../../shared/service/websocket';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherTimespan";
 
@@ -19,14 +21,15 @@ type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear
 export class HistoryComponent implements OnInit {
 
   public device: Device = null;
-  public socChannels: ChannelAddresses = {};
+  public config: ConfigImpl = null;
+  public socChannels: DefaultTypes.ChannelAddresses = {};
+  public powerChannels: DefaultTypes.ChannelAddresses = {};
   public fromDate = null;
   public toDate = null;
   public activePeriodText: string = "";
   public showOtherTimespan = false;
 
   private activePeriod: PeriodString = "today";
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
     public websocket: Websocket,
@@ -35,24 +38,18 @@ export class HistoryComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // TODO
-    // this.websocket.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
-    //   this.device = device;
-    //   if (device != null) {
-    //     device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-    //       this.socChannels = config.getEssSocChannels();
-    //     });
-    //   }
-    // })
+    this.websocket.setCurrentDevice(this.route)
+      .filter(device => device != null)
+      .first()
+      .subscribe(device => {
+        this.device = device;
+        device.config.first().subscribe(config => {
+          this.config = config;
+          this.socChannels = config.getEssSocChannels();
+          this.powerChannels = config.getPowerChannels();
+        })
+      });
     this.setPeriod("today");
-  }
-
-  ngOnDestroy() {
-    if (this.device) {
-      this.device.unsubscribeCurrentData();
-    }
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
   }
 
   /**
