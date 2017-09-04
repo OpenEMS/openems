@@ -30,6 +30,10 @@ export class ConfigImpl implements DefaultTypes.Config {
     public readonly storageThings: string[] = [];
     public readonly gridMeters: string[] = [];
     public readonly productionMeters: string[] = [];
+    public readonly bridges: string[] = [];
+    public readonly scheduler: string = null;
+    public readonly controllers: string[] = [];
+    public readonly simulatorDevices: string[] = [];
 
     constructor(private readonly config: DefaultTypes.Config) {
         Object.assign(this, config);
@@ -37,35 +41,71 @@ export class ConfigImpl implements DefaultTypes.Config {
         let storageThings: string[] = []
         let gridMeters: string[] = [];
         let productionMeters: string[] = [];
+        let bridges: string[] = [];
+        let scheduler: string = null;
+        let controllers: string[] = [];
+        let simulatorDevices: string[] = [];
 
         for (let thingId in config.things) {
             let thing = config.things[thingId];
             let i = config.things[thingId].class;
-            // Ess
-            if (i.includes("EssNature") && !i.includes("EssClusterNature") /* ignore cluster */) {
-                storageThings.push(thingId);
-            }
-            // Meter
-            if (i.includes("MeterNature")) {
-                if ("type" in thing) {
-                    if (thing.type == 'grid') {
-                        gridMeters.push(thingId);
-                    } else if (thing.type === "production") {
-                        productionMeters.push(thingId);
-                    } else {
-                        console.warn("Meter without type: " + thing);
+            if (i instanceof Array) {
+                /*
+                 * Natures
+                 */
+                // Ess
+                if (i.includes("EssNature") && !i.includes("EssClusterNature") /* ignore cluster */) {
+                    storageThings.push(thingId);
+                }
+                // Meter
+                if (i.includes("MeterNature")) {
+                    if ("type" in thing) {
+                        if (thing.type == 'grid') {
+                            gridMeters.push(thingId);
+                        } else if (thing.type === "production") {
+                            productionMeters.push(thingId);
+                        } else {
+                            console.warn("Meter without type: " + thing);
+                        }
                     }
                 }
-            }
-            // Charger
-            if (i.includes("ChargerNature")) {
-                productionMeters.push(thingId);
+                // Charger
+                if (i.includes("ChargerNature")) {
+                    productionMeters.push(thingId);
+                }
+            } else {
+                /*
+                 * Other Things
+                 */
+                if (i in config.meta) {
+                    i = config.meta[i].implements
+                    // Bridge
+                    if (i.includes("io.openems.api.bridge.Bridge")) {
+                        bridges.push(thingId);
+                    }
+                    // Scheduler
+                    if (i.includes("io.openems.api.scheduler.Scheduler")) {
+                        scheduler = thingId;
+                    }
+                    // Controller
+                    if (i.includes("io.openems.api.controller.Controller")) {
+                        controllers.push(thingId);
+                    }
+                    // Simulator Devices
+                    if (i.includes("io.openems.impl.device.simulator.Simulator")) {
+                        simulatorDevices.push(thingId);
+                    }
+                }
             }
         }
 
         this.storageThings = storageThings.sort();
         this.gridMeters = gridMeters.sort();
         this.productionMeters = productionMeters.sort();
+        this.bridges = bridges.sort();
+        this.scheduler = scheduler;
+        this.controllers = controllers;
+        this.simulatorDevices = simulatorDevices;
     }
 
     /**

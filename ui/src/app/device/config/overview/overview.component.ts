@@ -10,7 +10,7 @@ import { Websocket } from '../../../shared/shared';
   selector: 'overview',
   templateUrl: './overview.component.html'
 })
-export class OverviewComponent implements OnInit, OnDestroy {
+export class OverviewComponent implements OnInit {
 
   public device: Device;
 
@@ -23,13 +23,6 @@ export class OverviewComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    // TODO
-    // this.deviceSubscription = this.websocket.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
-    //   this.device = device;
-    // })
-  }
-
-  ngOnDestroy() {
-    this.deviceSubscription.unsubscribe();
+    this.websocket.setCurrentDevice(this.route);
   }
 }
