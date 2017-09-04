@@ -247,4 +247,26 @@ public class DefaultMessages {
 		j.add("notification", jNotification);
 		return j;
 	}
+	
+	/**
+	 * <pre>
+	 *	{
+	 *		currentData: {
+	 *			mode: 'subscribe',
+	 *			channels: {}
+	 *		}
+	 *	}
+	 * </pre>
+	 * 
+	 * @return
+	 */
+	public static JsonObject currentDataSubscribe(JsonArray jId, JsonObject jChannels) {
+		JsonObject j = new JsonObject();
+		j.add("id", jId);
+		JsonObject jCurrentData = new JsonObject();
+		jCurrentData.addProperty("mode", "subscribe");
+		jCurrentData.add("channels", jChannels);
+		j.add("currentData", jCurrentData);
+		return j;
+	}
 }

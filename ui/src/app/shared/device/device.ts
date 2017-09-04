@@ -117,15 +117,6 @@ export class Device {
     })
   }
 
-  /**
-   * This method is called, when the websocket was disconnected and got reconnected (e.g. restarting OpenEMS backend, network failure,...)
-   */
-  public websocketReconnected() {
-    // resubscribe current data
-    console.log("resubscribe current data")
-    this.subscribeCurrentData(this.subscribeCurrentDataChannels);
-  }
-
   public setOnline(online: boolean) {
     this.online = online;
   }

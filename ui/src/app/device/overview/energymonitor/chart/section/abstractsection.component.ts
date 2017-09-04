@@ -115,6 +115,7 @@ export abstract class AbstractSection {
      * This method is called on every change of values.
      */
     public updateValue(absolute: number, ratio: number) {
+        // TODO smoothly resize the arc
         this.lastValue = { absolute: absolute, ratio: ratio };
         this.valueRatio = this.getValueRatio(ratio);
         this.valueText = this.getValueText(absolute);

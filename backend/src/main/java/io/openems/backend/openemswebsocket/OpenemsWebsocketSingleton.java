@@ -155,7 +155,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 
 			// Is this a reply?
 			if (jMessage.has("id")) {
-				forwardReplyToBrowser(jMessage);
+				forwardReplyToBrowser(websocket, jMessage);
 			}
 
 			/*
@@ -193,14 +193,18 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 		}
 	}
 
-	private void forwardReplyToBrowser(JsonObject jMessage) {
+	private void forwardReplyToBrowser(WebSocket openemsWebsocket, JsonObject jMessage) {
 		try {
 			// get browser websocket
 			JsonArray jId = JsonUtils.getAsJsonArray(jMessage, "id");
 			String token = JsonUtils.getAsString(jId.get(jId.size() - 1));
 			Optional<WebSocket> browserWebsocketOpt = BrowserWebsocket.instance().getBrowserWebsocketByToken(token);
 			if (!browserWebsocketOpt.isPresent()) {
-				log.warn("Browser websocket is not connected.");
+				log.warn("Browser websocket is not connected: " + jMessage);
+				if (jMessage.has("currentData")) {
+					// unsubscribe obsolete browser websocket
+					WebSocketUtils.send(openemsWebsocket, DefaultMessages.currentDataSubscribe(jId, new JsonObject()));
+				}
 				return;
 				// TODO: do an unsubscribe, otherwise OpenEMS keeps sending data unnecessarily:
 				// [orker-13] [INFO ] [msWebsocketSingleton:149] Received from openems0:

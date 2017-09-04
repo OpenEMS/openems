@@ -24,6 +24,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   //public customFields: CustomFieldDefinition = {};
 
   private stopCurrentData: Subject<void> = new Subject<void>();
+  private currentDataTimeout: number;
 
   constructor(
     public websocket: Websocket,
@@ -53,6 +54,13 @@ export class OverviewComponent implements OnInit, OnDestroy {
           // }
           device.subscribeCurrentData(channels).takeUntil(this.stopCurrentData).subscribe(currentData => {
             this.currentData = currentData;
+            clearInterval(this.currentDataTimeout);
+            this.currentDataTimeout = window.setInterval(() => {
+              this.currentData = null;
+              if (this.websocket.status == 'online') {
+                device.subscribeCurrentData(channels);
+              }
+            }, Websocket.TIMEOUT);
           });
         })
       })

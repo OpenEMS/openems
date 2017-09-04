@@ -34,10 +34,6 @@ export class MoreComponent implements OnInit {
     });
   }
 
-  ngOnDestroy() {
-    this.deviceSubscription.unsubscribe();
-  }
-
   public sendManualMessage(form: FormGroup) {
     try {
       let obj = JSON.parse(form["value"]["message"]);

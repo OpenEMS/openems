@@ -139,10 +139,6 @@ export class Websocket {
           message: "Connection established.", // TODO translate
           type: 'info'
         });
-        let device = this.currentDevice.getValue();
-        if (device != null) {
-          device.websocketReconnected();
-        }
       }
     });
     this.messages = messages.share();
@@ -177,7 +173,7 @@ export class Websocket {
 
     }).subscribe(message => {
       // called on every receive of message from server
-      console.log(message);
+      // console.log(message);
       /*
        * Authenticate
        */
@@ -288,9 +284,6 @@ export class Websocket {
               if (deviceId in this.devices.getValue()) {
                 let device = this.devices.getValue()[deviceId];
                 device.setOnline(true);
-                if (this.currentDevice.getValue() == device) {
-                  device.websocketReconnected();
-                }
               }
               break;
             }
