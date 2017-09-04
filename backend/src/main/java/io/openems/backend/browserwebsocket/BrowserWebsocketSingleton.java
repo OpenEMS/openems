@@ -6,6 +6,8 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
@@ -163,26 +165,33 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 	@Override
 	public void onMessage(WebSocket websocket, String message) {
 		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
+		Optional<JsonArray> jMessageId = JsonUtils.getAsOptionalJsonArray(jMessage, "id");
+
 		log.info("Received from Browser: " + jMessage.toString());
 
-		// Get deviceName if given
-		Optional<String> deviceNameOpt = Optional.empty();
-		try {
-			deviceNameOpt = Optional.ofNullable(JsonUtils.getAsString(jMessage, "device"));
-		} catch (OpenemsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Optional<String> deviceNameOpt = JsonUtils.getAsOptionalString(jMessage, "device");
 
 		/*
-		 * Forward to OpenEMS Edge
+		 * With existing device name
 		 */
-		if (deviceNameOpt.isPresent() && (jMessage.has("config") || jMessage.has("currentData"))) {
+		if (deviceNameOpt.isPresent()) {
 			String deviceName = deviceNameOpt.get();
-			try {
-				forwardMessageToOpenems(websocket, jMessage, deviceName);
-			} catch (OpenemsException e) {
-				log.error(deviceName + ": Unable to forward message: " + e.getMessage());
+			/*
+			 * Query historic data
+			 */
+			if (jMessage.has("historicData")) {
+				historicData(jMessageId, deviceName, websocket, jMessage.get("historicData"));
+			}
+
+			/*
+			 * Forward to OpenEMS Edge
+			 */
+			if (jMessage.has("config") || jMessage.has("currentData")) {
+				try {
+					forwardMessageToOpenems(websocket, jMessage, deviceName);
+				} catch (OpenemsException e) {
+					log.error(deviceName + ": Unable to forward message: " + e.getMessage());
+				}
 			}
 		}
 
@@ -348,25 +357,24 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 	 *
 	 * @param j
 	 */
-	private synchronized void query(String deviceName, WebSocket websocket, JsonElement jQueryElement) {
+	private synchronized void historicData(Optional<JsonArray> jMessageIdOpt, String deviceName, WebSocket websocket,
+			JsonElement jHistoricDataElement) {
 		try {
-			JsonObject jQuery = JsonUtils.getAsJsonObject(jQueryElement);
-			String mode = JsonUtils.getAsString(jQuery, "mode");
-			if (mode.equals("config")) {
+			JsonObject jHistoricData = JsonUtils.getAsJsonObject(jHistoricDataElement);
+			String mode = JsonUtils.getAsString(jHistoricData, "mode");
+			if (mode.equals("query")) {
+				JsonArray jMessageId = jMessageIdOpt.get();
 				/*
-				 * Query current config -> forward to OpenEMS
+				 * Query historic data
 				 */
-
-			} else if (mode.equals("history")) {
-				/*
-				 * History query
-				 */
-				int fems = Integer.parseInt(deviceName.substring(4));
-				int timezoneDiff = JsonUtils.getAsInt(jQuery, "timezone");
+				Matcher matcher = Pattern.compile("\\d+").matcher(deviceName); // extracts '0' from 'openems0'
+				matcher.find();
+				int deviceId = Integer.valueOf(matcher.group());
+				int timezoneDiff = JsonUtils.getAsInt(jHistoricData, "timezone");
 				ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
-				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
-				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jQuery, "toDate", timezone);
-				JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
+				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jHistoricData, "fromDate", timezone);
+				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jHistoricData, "toDate", timezone).plusDays(1);
+				JsonObject channels = JsonUtils.getAsJsonObject(jHistoricData, "channels");
 				// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
 				// TODO: better calculation of sensible resolution
@@ -378,32 +386,17 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 				} else if (days > 2) {
 					resolution = 60 * 60; // 60 Minutes
 				}
-				JsonObject jQueryreply = Timedata.instance().query(fems, fromDate, toDate, channels, resolution/*
-																												 * ,
-																												 * kWh
-																												 */);
-
-				JsonObject j;
-				// TODO
-				// = bootstrapReply(requestId);
-				// // Send result
-				// if (jQueryreply != null) {
-				// j.add("queryreply", jQueryreply);
-				// } else {
-				// j.addProperty("error", "No Queryable persistence found!");
-				// }
-				// WebSocketUtils.sendAsDevice(websocket, j, fems);
+				JsonArray jData = Timedata.instance().queryHistoricData(deviceId, fromDate, toDate, channels,
+						resolution);
+				// send reply
+				JsonObject j = DefaultMessages.historicDataQueryReply(jMessageId, jData);
+				WebSocketUtils.send(websocket, j);
+				log.info("sent: " + j.toString());
 			}
 		} catch (Exception e) {
 			log.error("Error", e);
 			e.printStackTrace();
 		}
-	}
-
-	private JsonObject bootstrapReply(String requestId) {
-		JsonObject j = new JsonObject();
-		j.addProperty("requestId", requestId);
-		return j;
 	}
 
 	@Override

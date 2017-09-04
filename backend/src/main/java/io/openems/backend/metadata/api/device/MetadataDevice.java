@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.api.device;
 
+import java.util.Optional;
+
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -8,7 +10,7 @@ public interface MetadataDevice {
 
 	Integer getId();
 
-	String getNameNumber();
+	Optional<Integer> getNameNumber();
 
 	String getName();
 

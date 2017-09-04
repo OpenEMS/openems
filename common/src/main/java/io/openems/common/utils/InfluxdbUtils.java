@@ -1,9 +1,8 @@
-package io.openems.backend.timedata.influx;
+package io.openems.common.utils;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -15,69 +14,28 @@ import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.dto.QueryResult.Result;
 import org.influxdb.dto.QueryResult.Series;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.utilities.Address;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
+import io.openems.common.types.ChannelAddress;
 
-public class InfluxdbQueryWrapper {
+public class InfluxdbUtils {
 
-	private final static Logger log = LoggerFactory.getLogger(InfluxdbQueryWrapper.class);
 	private final static String DB_NAME = "db";
 
-	public static JsonObject query(Optional<InfluxDB> _influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
-			ZonedDateTime toDate, JsonObject channels, int resolution/* , JsonObject kWh */) throws OpenemsException {
-		// Prepare return object
-		JsonObject jQueryreply = new JsonObject();
-		jQueryreply.addProperty("mode", "history");
-		JsonArray jData = new JsonArray();
-		JsonObject jkWh = new JsonObject();
-
-		// Prepare date
-		toDate = toDate.plusDays(1).truncatedTo(ChronoUnit.DAYS);
-
-		ZonedDateTime nowDate = ZonedDateTime.now();
-		if (nowDate.isBefore(toDate)) {
-			toDate = nowDate;
-		}
-		if (fromDate.isAfter(toDate)) {
-			fromDate = toDate;
-		}
-
-		if (_influxdb.isPresent()) {
-			InfluxDB influxdb = _influxdb.get();
-			// TODO fix data
-			if (fromDate.toLocalDate().equals(toDate.minusWeeks(1).toLocalDate())
-					|| (fromDate.toLocalDate().isAfter(toDate.minusWeeks(1).toLocalDate()) && fromDate.isBefore(toDate))
-					|| fromDate.toLocalDate().equals(toDate.toLocalDate())) {
-				jData = InfluxdbQueryWrapper.queryData(influxdb, fems, fromDate, toDate, channels, resolution);
-				// jkWh = InfluxdbQueryWrapper.querykWh(influxdb, fems, fromDate, toDate, channels, resolution, kWh);
-			}
-		} else {
-			jData = new JsonArray();
-			jkWh = new JsonObject();
-		}
-		jQueryreply.add("data", jData);
-		jQueryreply.add("kWh", jkWh);
-		return jQueryreply;
-	}
-
-	private static JsonArray queryData(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
+	public static JsonArray queryHistoricData(InfluxDB influxdb, Optional<Integer> deviceId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, JsonObject channels, int resolution) throws OpenemsException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
 		query.append(toChannelAddressList(channels));
 		query.append(" FROM data WHERE ");
-		if (fems.isPresent()) {
+		if (deviceId.isPresent()) {
 			query.append("fems = '");
-			query.append(fems.get());
+			query.append(deviceId.get());
 			query.append("' AND ");
 		}
 		query.append("time > ");
@@ -88,7 +46,7 @@ public class InfluxdbQueryWrapper {
 		query.append("s");
 		query.append(" GROUP BY time(");
 		query.append(resolution);
-		query.append("s) fill(previous)");
+		query.append("s) fill(null)");
 
 		QueryResult queryResult = executeQuery(influxdb, query.toString());
 
@@ -98,12 +56,12 @@ public class InfluxdbQueryWrapper {
 			if (seriess != null) {
 				for (Series series : seriess) {
 					// create thing/channel index
-					ArrayList<Address> addressIndex = new ArrayList<>();
+					ArrayList<ChannelAddress> addressIndex = new ArrayList<>();
 					for (String column : series.getColumns()) {
 						if (column.equals("time")) {
 							continue;
 						}
-						addressIndex.add(Address.fromString(column));
+						addressIndex.add(ChannelAddress.fromString(column));
 					}
 					// first: create empty timestamp objects
 					for (List<Object> values : series.getValues()) {
@@ -132,7 +90,7 @@ public class InfluxdbQueryWrapper {
 					for (int columnIndex = 1; columnIndex < series.getColumns().size(); columnIndex++) {
 						for (int timeIndex = 0; timeIndex < series.getValues().size(); timeIndex++) {
 							Double value = (Double) series.getValues().get(timeIndex).get(columnIndex);
-							Address address = addressIndex.get(columnIndex - 1);
+							ChannelAddress address = addressIndex.get(columnIndex - 1);
 							j.get(timeIndex).getAsJsonObject().get("channels").getAsJsonObject()
 									.get(address.getThingId()).getAsJsonObject()
 									.addProperty(address.getChannelId(), value);
@@ -187,7 +145,7 @@ public class InfluxdbQueryWrapper {
 					}
 				}
 			} catch (Exception e) {
-				log.warn("Error parsing SUM production: " + e);
+				System.out.println("Error parsing SUM production: " + e);
 			}
 
 			/*
@@ -218,7 +176,7 @@ public class InfluxdbQueryWrapper {
 							Instant timestampInstant = Instant.ofEpochMilli((long) ((Double) l.get(0)).doubleValue());
 							ZonedDateTime timestamp = ZonedDateTime.ofInstant(timestampInstant, fromDate.getZone());
 							if (timestamp.equals(fromDate)) {
-								log.info("Parsing FIRST: nothing null");
+								System.out.println("Parsing FIRST: nothing null");
 							} else {
 								second = timestamp.getSecond();
 							}
@@ -226,7 +184,7 @@ public class InfluxdbQueryWrapper {
 					}
 				}
 			} catch (Exception e) {
-				log.warn("Error parsing FIRST production: " + e);
+				System.out.println("Error parsing FIRST production: " + e);
 			}
 
 			/*
@@ -263,7 +221,7 @@ public class InfluxdbQueryWrapper {
 					}
 				}
 			} catch (Exception e) {
-				log.warn("Error parsing LAST production: " + e);
+				System.out.println("Error parsing LAST production: " + e);
 			}
 
 			Double avg = sumProduction / 3600 / 1000;

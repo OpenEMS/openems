@@ -145,7 +145,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 
 			// TODO Debugging
-			if (!jMessage.has("timedata")) {
+			if (!jMessage.has("timedata") && !jMessage.has("currentData")) {
 				log.info("Received from " + device.getName() + ": " + jMessage.toString());
 			}
 
@@ -209,8 +209,12 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			jId.remove(jId.size() - 1);
 			jMessage.add("id", jId);
 
+			// TODO debug log
+			if (!jMessage.has("currentData")) {
+				log.info("Forward to Browser: " + jMessage);
+			}
+
 			// send
-			log.info("Forward to Browser: " + jMessage);
 			WebSocketUtils.send(browserWebsocket, jMessage);
 		} catch (OpenemsException e) {
 			log.warn(e.getMessage());

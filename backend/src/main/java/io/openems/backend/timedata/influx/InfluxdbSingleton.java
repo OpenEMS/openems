@@ -18,11 +18,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.timedata.api.TimedataSingleton;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.InfluxdbUtils;
 import io.openems.common.utils.JsonUtils;
 
 public class InfluxdbSingleton implements TimedataSingleton {
@@ -36,10 +38,10 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	private String password;
 
 	private InfluxDB influxDB;
-	// 1st: fems; 2nd: channel; 3rd: value
-	private Table<String, String, Object> lastDataCache = Tables.synchronizedTable(HashBasedTable.create());
-	// fems : timestamp
-	private Map<String, Long> lastTimestampMap = new ConcurrentHashMap<String, Long>();
+	// 1st: deviceId; 2nd: channel; 3rd: value
+	private Table<Integer, String, Object> lastDataCache = Tables.synchronizedTable(HashBasedTable.create());
+	// key: deviceId; value: timestamp
+	private Map<Integer, Long> lastTimestampMap = new ConcurrentHashMap<Integer, Long>();
 
 	public InfluxdbSingleton(String database, String url, int port, String username, String password) throws Exception {
 		this.database = database;
@@ -75,11 +77,13 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	 * Format: { "timestamp1" { "channel1": value, "channel2": value },
 	 * "timestamp2" { "channel1": value, "channel2": value } }
 	 */
-	public void write(String name, JsonObject jData) {
-		final Long lastTimestamp = this.lastTimestampMap.getOrDefault(name, 0l);
+	@Override
+	public void write(Optional<Integer> deviceIdOpt, JsonObject jData) {
+		int deviceId = deviceIdOpt.orElse(0);
+		final Long lastTimestamp = this.lastTimestampMap.getOrDefault(deviceId, 0l);
 
 		BatchPoints batchPoints = BatchPoints.database(database) //
-				.tag("fems", name) //
+				.tag("fems", String.valueOf(deviceId)) //
 				.build();
 
 		// Sort data by timestamp
@@ -101,7 +105,7 @@ public class InfluxdbSingleton implements TimedataSingleton {
 			Long timestamp = dataEntry.getKey();
 			// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
 			boolean useLastDataCache = timestamp > lastTimestamp && timestamp < lastTimestamp + 60000;
-			this.lastTimestampMap.put(name, timestamp);
+			this.lastTimestampMap.put(deviceId, timestamp);
 			Builder builder = Point.measurement("data") // this builds a InfluxDB record ("point") for a given timestamp
 					.time(timestamp, TimeUnit.MILLISECONDS);
 
@@ -116,18 +120,18 @@ public class InfluxdbSingleton implements TimedataSingleton {
 							Number value = jValue.getAsNumber();
 							builder.addField(channel, value);
 							if (useLastDataCache) {
-								this.lastDataCache.put(name, channel, value);
+								this.lastDataCache.put(deviceId, channel, value);
 							}
 
 						} else if (jValue.isString()) {
 							String value = jValue.getAsString();
 							builder.addField(channel, value);
 							if (useLastDataCache) {
-								this.lastDataCache.put(name, channel, value);
+								this.lastDataCache.put(deviceId, channel, value);
 							}
 
 						} else {
-							log.warn(name + ": Ignore unknown type [" + jValue + "] for channel [" + channel + "]");
+							log.warn(deviceId + ": Ignore unknown type [" + jValue + "] for channel [" + channel + "]");
 						}
 					} catch (OpenemsException e) {
 						log.error("Data error: " + e.getMessage());
@@ -137,7 +141,7 @@ public class InfluxdbSingleton implements TimedataSingleton {
 
 				// only for latest data: add the cached data to the InfluxDB point.
 				if (useLastDataCache) {
-					this.lastDataCache.row(name).entrySet().forEach(cacheEntry -> {
+					this.lastDataCache.row(deviceId).entrySet().forEach(cacheEntry -> {
 						String field = cacheEntry.getKey();
 						Object value = cacheEntry.getValue();
 						if (value instanceof Number) {
@@ -159,10 +163,10 @@ public class InfluxdbSingleton implements TimedataSingleton {
 
 	}
 
-	public JsonObject query(int _fems, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
+	@Override
+	public JsonArray queryHistoricData(int deviceId, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
 			int resolution/* , JsonObject kWh */) throws OpenemsException {
-		Optional<Integer> fems = Optional.of(_fems);
-		Optional<InfluxDB> influxdb = Optional.of(influxDB);
-		return InfluxdbQueryWrapper.query(influxdb, fems, fromDate, toDate, channels, resolution/* , kWh */);
+		Optional<Integer> deviceIdOpt = Optional.of(deviceId);
+		return InfluxdbUtils.queryHistoricData(influxDB, deviceIdOpt, fromDate, toDate, channels, resolution);
 	}
 }

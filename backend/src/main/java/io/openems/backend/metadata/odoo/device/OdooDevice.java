@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.odoo.device;
 
+import java.util.Optional;
+
 import com.abercap.odoo.Row;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,7 +17,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		super(model, row);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#getId()
 	 */
 	@Override
@@ -23,15 +27,22 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		return (Integer) get(Field.ID);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#getNameNumber()
 	 */
 	@Override
-	public String getNameNumber() {
-		return getOr(Field.NAME_NUMBER, "").toString();
+	public Optional<Integer> getNameNumber() {
+		try {
+			return Optional.ofNullable(Integer.valueOf(Field.NAME_NUMBER));
+		} catch (Exception e) { /* ignore */ }
+		return Optional.empty();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#getName()
 	 */
 	@Override
@@ -39,7 +50,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		return getOr(Field.NAME, "UNKNOWN").toString();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#getComment()
 	 */
 	@Override
@@ -47,7 +60,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		return getOr(Field.COMMENT, "").toString();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#getState()
 	 */
 	@Override
@@ -55,7 +70,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		return getOr(Field.STATE, "").toString();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#getProductType()
 	 */
 	@Override
@@ -63,7 +80,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		return getOr(Field.PRODUCT_TYPE, "").toString();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#getOpenemsConfig()
 	 */
 	@Override
@@ -76,7 +95,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#setOpenemsConfig(com.google.gson.JsonObject)
 	 */
 	@Override
@@ -85,7 +106,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		put(Field.OPENEMS_CONFIG, gson.toJson(j));
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#setState(java.lang.String)
 	 */
 	@Override
@@ -93,7 +116,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		put(Field.STATE, active);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#setSoc(int)
 	 */
 	@Override
@@ -101,7 +126,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		put(Field.SOC, value);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#setLastMessage()
 	 */
 	@Override
@@ -109,7 +136,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		put(Field.LASTMESSAGE, this.odooCompatibleNow());
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#setLastUpdate()
 	 */
 	@Override
@@ -117,7 +146,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 		put(Field.LASTUPDATE, this.odooCompatibleNow());
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#setIpV4(java.lang.String)
 	 */
 	@Override

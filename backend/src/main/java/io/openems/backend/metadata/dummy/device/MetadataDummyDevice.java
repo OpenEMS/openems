@@ -1,5 +1,9 @@
 package io.openems.backend.metadata.dummy.device;
 
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +36,14 @@ public class MetadataDummyDevice extends Device implements MetadataDevice {
 	}
 
 	@Override
-	public String getNameNumber() {
-		return super.getName();
+	public Optional<Integer> getNameNumber() {
+		try {
+			Matcher matcher = Pattern.compile("\\d+").matcher(this.getName()); // extracts '0' from 'openems0'
+			matcher.find();
+			return Optional.ofNullable(Integer.valueOf(matcher.group()));
+		} catch (Exception e) {
+			return Optional.empty();
+		}
 	}
 
 	@Override

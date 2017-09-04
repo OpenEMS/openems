@@ -174,7 +174,7 @@ public class DefaultMessages {
 	/**
 	 * <pre>
 	 *	{
-	 *		id: string,
+	 *		id: [string],
 	 *		currentData: {[{ 
 	 *			channel: string,
 	 *			value: any
@@ -182,13 +182,40 @@ public class DefaultMessages {
 	 *	}
 	 * </pre>
 	 * 
-	 * @param token
 	 * @return
 	 */
 	public static JsonObject currentData(JsonArray jId, JsonObject jCurrentData) {
 		JsonObject j = new JsonObject();
 		j.add("id", jId);
 		j.add("currentData", jCurrentData);
+		return j;
+	}
+	
+	/**
+	 * <pre>
+	 *	{
+	 *		id: [string]
+	 *		historicData: {
+	 *			data: [{
+	 *				time: ...,
+	 *				channels: {
+	 *					thing: {
+	 *						channel: any
+	 *					} 
+	 *				}
+	 *			}]
+	 *		}
+	 *	}
+	 * </pre>
+	 * 
+	 * @return
+	 */
+	public static JsonObject historicDataQueryReply(JsonArray jId, JsonArray jData) {
+		JsonObject j = new JsonObject();
+		j.add("id", jId);
+		JsonObject jHistoricData = new JsonObject();
+		jHistoricData.add("data", jData);
+		j.add("historicData", jHistoricData);
 		return j;
 	}
 }

@@ -93,10 +93,60 @@ export class Device {
     this.subscribeCurrentData({});
   }
 
+  /**
+   * Query data
+   */
+  // TODO: kWh: this.getkWhResult(this.getImportantChannels())
+  public historicDataQuery(fromDate: moment.Moment, toDate: moment.Moment, channels: DefaultTypes.ChannelAddresses): Promise<DefaultTypes.HistoricData> {
+    // send query
+    let timezone = new Date().getTimezoneOffset() * 60;
+    let message = DefaultMessages.historicDataQuery(fromDate, toDate, timezone, channels);
+    let messageId = message.id[0];
+    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
+    this.send(message);
+    // wait for reply
+    return new Promise((resolve, reject) => {
+      this.replyStreams[messageId].first().subscribe(reply => {
+        let historicData = (<DefaultMessages.HistoricDataReply>reply).historicData;
+        this.replyStreams[messageId].unsubscribe();
+        delete this.replyStreams[messageId];
+        resolve(historicData);
+      });
+    })
+  }
 
 
 
 
+
+  // // create query object
+  // let obj = {
+  //   mode: "history",
+  //   fromDate: fromDate.format("YYYY-MM-DD"),
+  //   toDate: toDate.format("YYYY-MM-DD"),
+  //   timezone: new Date().getTimezoneOffset() * 60,
+  //   channels: channels
+  // };
+  // // send query and receive requestId
+  // let requestId = this.send({ query: obj });
+  // // prepare result
+  // let ngUnsubscribe: Subject<void> = new Subject<void>();
+  // let result = new Subject<QueryReply>();
+  // // timeout after 10 seconds
+  // setTimeout(() => {
+  //   result.error("Query timeout");
+  //   result.complete();
+  // }, 10000);
+  // wait for queryreply with this requestId
+  // this.replyStream.takeUntil(ngUnsubscribe).subscribe(queryreply => {
+  //   if (queryreply.requestId == requestId) {
+  //     ngUnsubscribe.next();
+  //     ngUnsubscribe.complete();
+  //     result.next(queryreply);
+  //     result.complete();
+  //   }
+  // });
+  // return result;
 
 
 
@@ -123,41 +173,6 @@ export class Device {
     });
   }
 
-  /**
-   * Send "query" message to websocket
-   */
-  // TODO: kWh: this.getkWhResult(this.getImportantChannels())
-  // TODO query data
-  // public query(fromDate: moment.Moment, toDate: moment.Moment, channels: ChannelAddresses): Subject<QueryReply> {
-  //   // create query object
-  //   let obj = {
-  //     mode: "history",
-  //     fromDate: fromDate.format("YYYY-MM-DD"),
-  //     toDate: toDate.format("YYYY-MM-DD"),
-  //     timezone: new Date().getTimezoneOffset() * 60,
-  //     channels: channels
-  //   };
-  //   // send query and receive requestId
-  //   let requestId = this.send({ query: obj });
-  //   // prepare result
-  //   let ngUnsubscribe: Subject<void> = new Subject<void>();
-  //   let result = new Subject<QueryReply>();
-  //   // timeout after 10 seconds
-  //   setTimeout(() => {
-  //     result.error("Query timeout");
-  //     result.complete();
-  //   }, 10000);
-  // wait for queryreply with this requestId
-  // this.replyStream.takeUntil(ngUnsubscribe).subscribe(queryreply => {
-  // if (queryreply.requestId == requestId) {
-  //   ngUnsubscribe.next();
-  //   ngUnsubscribe.complete();
-  //   result.next(queryreply);
-  //   result.complete();
-  // }
-  // });
-  // return result;
-  // }
 
   /*
    * log

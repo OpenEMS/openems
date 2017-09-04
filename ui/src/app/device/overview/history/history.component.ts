@@ -1,42 +1,33 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import * as moment from 'moment';
 
+import { ConfigImpl } from '../../../shared/device/config';
 import { Device } from '../../../shared/device/device';
-import { Dataset, ChannelAddresses } from '../../../shared/shared';
-
-// spinner component
+import { DefaultTypes } from '../../../shared/service/defaulttypes';
 import { SpinnerComponent } from '../../../shared/spinner.component';
 
 @Component({
   selector: 'history',
   templateUrl: './history.component.html'
 })
-export class HistoryComponent implements OnInit, OnDestroy {
+export class HistoryComponent implements OnChanges {
 
-  @Input()
-  public device: Device;
+  @Input() public config: ConfigImpl;
 
-  public socChannels: ChannelAddresses = {};
+  @Input() public device: Device;
+
+  ngOnChanges() {
+    if (this.device != null && this.config != null) {
+      this.socChannels = this.config.getEssSocChannels();
+    } else {
+      this.socChannels = {};
+    }
+  }
+
+  public socChannels: DefaultTypes.ChannelAddresses = {};
+
+  // show the chart for today
   public fromDate = moment();
   public toDate = moment();
-  public loading: boolean = true;
-
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
-
-  ngOnInit() {
-    // TODO
-    // if (this.device != null) {
-    //   this.loading = true;
-    //   this.device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-    //     this.socChannels = config.getEssSocChannels();
-    //     this.loading = false;
-    //   });
-    // }
-  }
-
-  ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-  }
 }

@@ -85,7 +85,6 @@ export class CurrentDataAndSummary {
             result.grid.activePower = activePower;
             result.grid.maxActivePower = maxActivePower;
             result.grid.minActivePower = minActivePower;
-            console.log("grid", result.grid)
         }
 
         {

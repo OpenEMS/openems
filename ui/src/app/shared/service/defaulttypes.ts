@@ -35,6 +35,17 @@ export module DefaultTypes {
     }
   }
 
+  export interface HistoricData {
+    data: [{
+      time: string,
+      channels: {
+        [thing: string]: {
+          [channel: string]: any
+        }
+      }
+    }]
+  }
+
   export interface Summary {
     storage: {
       soc: number,

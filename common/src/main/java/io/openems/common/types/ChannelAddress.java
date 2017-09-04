@@ -1,10 +1,10 @@
-package io.openems.backend.utilities;
+package io.openems.common.types;
 
-public class Address {
+public class ChannelAddress {
 	private final String thingId;
 	private final String channelId;
 
-	public Address(String thingId, String channelId) {
+	public ChannelAddress(String thingId, String channelId) {
 		super();
 		this.thingId = thingId;
 		this.channelId = channelId;
@@ -23,10 +23,10 @@ public class Address {
 		return thingId + "/" + channelId;
 	}
 
-	public static Address fromString(String address) {
+	public static ChannelAddress fromString(String address) {
 		String[] addressArray = address.split("/");
 		String thingId = addressArray[0];
 		String channelId = addressArray[1];
-		return new Address(thingId, channelId);
+		return new ChannelAddress(thingId, channelId);
 	}
 }

@@ -12,6 +12,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsException;
 
+// TODO use getAsOptional***() as basis for getAs***() to avoid unnecessary exceptions
 public class JsonUtils {
 	public static JsonArray getAsJsonArray(JsonElement jElement) throws OpenemsException {
 		if (!jElement.isJsonArray()) {
@@ -87,6 +88,14 @@ public class JsonUtils {
 		return jPrimitive.getAsBoolean();
 	}
 
+	public static Optional<String> getAsOptionalString(JsonElement jElement, String memberName) {
+		try {
+			return Optional.of(getAsString(jElement, memberName));
+		} catch (OpenemsException e) {
+			return Optional.empty();
+		}
+	}
+	
 	public static String getAsString(JsonElement jElement, String memberName) throws OpenemsException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (!jPrimitive.isString()) {
@@ -114,6 +123,14 @@ public class JsonUtils {
 		return jPrimitive.getAsBoolean();
 	}
 
+	/**
+	 * Takes a json in the form 'YYYY-MM-DD' and converts it to a ZonedDateTime with hour, minute and second set to zero.
+	 * @param jElement
+	 * @param memberName
+	 * @param timezone
+	 * @return
+	 * @throws OpenemsException
+	 */
 	public static ZonedDateTime getAsZonedDateTime(JsonElement jElement, String memberName, ZoneId timezone)
 			throws OpenemsException {
 		String[] date = JsonUtils.getAsString(jElement, memberName).split("-");
