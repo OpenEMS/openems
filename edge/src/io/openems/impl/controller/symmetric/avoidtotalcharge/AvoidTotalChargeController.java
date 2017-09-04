@@ -23,8 +23,8 @@ public class AvoidTotalChargeController extends Controller {
     /*
      * Config
      */
-    @ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
-    public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
+    @ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = io.openems.impl.controller.symmetric.avoidtotalcharge.Ess.class, isArray = true)
+    public final ConfigChannel<Set<io.openems.impl.controller.symmetric.avoidtotalcharge.Ess>> esss = new ConfigChannel<Set<io.openems.impl.controller.symmetric.avoidtotalcharge.Ess>>("esss", this);
 
     @ConfigInfo(title = "Grid Meter", description = "Sets the grid meter.", type = io.openems.impl.controller.symmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = false)
     public final ConfigChannel<io.openems.impl.controller.symmetric.avoidtotalcharge.Meter> gridMeter = new ConfigChannel<>("gridMeter", this);
@@ -32,11 +32,11 @@ public class AvoidTotalChargeController extends Controller {
     @ConfigInfo(title = "Production Meters", description = "Sets the production meter.", type = io.openems.impl.controller.symmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = true)
     public final ConfigChannel<Set<io.openems.impl.controller.symmetric.avoidtotalcharge.Meter>> productionMeters = new ConfigChannel<>("productionMeters", this);
 
-    @ConfigInfo(title = "Graph 1", description = "Sets the socMaxVals.", type = Long[].class, isArray = true, accessLevel = User.OWNER)
+    @ConfigInfo(title = "Graph 1", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, accessLevel = User.OWNER, isOptional = true)
     public final ConfigChannel<Long[]> graph1 = new ConfigChannel<>("graph1", this);
     //TODO: implement fixed length and min/max values (accessible by OWNER !)
 
-    @ConfigInfo(title = "Graph 2", description = "Sets the socMaxVals.", type = Long[].class, isArray = true, accessLevel = User.OWNER)
+    @ConfigInfo(title = "Graph 2", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, accessLevel = User.OWNER, isOptional = true)
     public final ConfigChannel<Long[]> graph2 = new ConfigChannel<>("graph2", this);
     //TODO: implement fixed length and min/max values (accessible by OWNER !)
 
@@ -44,11 +44,12 @@ public class AvoidTotalChargeController extends Controller {
     public final ConfigChannel<Long> criticalPercentage = new ConfigChannel<Long>("criticalPercentage", this);
     //TODO: implement min/max values (accessible by OWNER !)
 
-    @ConfigInfo(title = "Graph 1 active", description = "Activate Graph 1 (If no graph is activated, all values are set to 100)", type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = false)
+    @ConfigInfo(title = "Graph 1 active", description = "Activate Graph 1 (If no graph is activated, all values are set to 100)", defaultValue = "true" ,type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = true)
     public final ConfigChannel<Boolean> graph1active = new ConfigChannel<>("graph1active", this);
 
-    @ConfigInfo(title = "Graph 2 active", description = "Activate Graph 2 (If no graph is activated, all values are set to 100)", type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = false)
+    @ConfigInfo(title = "Graph 2 active", description = "Activate Graph 2 (If no graph is activated, all values are set to 100)", defaultValue = "false" ,type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = true)
     public final ConfigChannel<Boolean> graph2active = new ConfigChannel<>("graph2active", this);
+
 
 
 
@@ -109,14 +110,14 @@ public class AvoidTotalChargeController extends Controller {
             /**
              * get the power feeded to the grid relatively to the producer's peak value
              */
-            Long maxAbsoluteProducedPower = 0L;
+            Long maxAbsoluteProducablePower = 0L;
             Long relativeFeededPower = 0L;
 
             for (io.openems.impl.controller.symmetric.avoidtotalcharge.Meter meter : productionMeters.value()){
-                maxAbsoluteProducedPower += meter.maxActivePower.value();
+                maxAbsoluteProducablePower += meter.maxActivePower.value();
             }
 
-            relativeFeededPower = -100 * gridMeter.value().activePower.value() / maxAbsoluteProducedPower;
+            relativeFeededPower = -100 * gridMeter.value().activePower.value() / maxAbsoluteProducablePower;
 
             for (Ess ess : esss.value()) {
 
@@ -129,12 +130,12 @@ public class AvoidTotalChargeController extends Controller {
                  */
                 if (ess.soc.value() >= maxWantedSoc) {
                     if(relativeFeededPower >= criticalPercentage.value()) {
-                        double factor = (double) criticalPercentage.value() / (double) 100;
-                        double maxFeedablePower = factor * (double) maxAbsoluteProducedPower;
-                        Long spareProducedPower = (long) ((double) gridMeter.value().activePower.value() + maxFeedablePower);
+                        long spareProducedPower = (long) ((((double) (relativeFeededPower - criticalPercentage.value())) / 100.0) * (double) (-1 * maxAbsoluteProducablePower));
+
                         if (spareProducedPower < 0L){
                             try {
                                 Long totalActivePower = (long) (((double) ess.allowedCharge.value() / (double) avgAllowedCharge) * ((double) spareProducedPower / (double) esss.value().size()));
+
                                 ess.setActivePower.pushWrite(totalActivePower);
                             } catch (Exception e) {
                                 log.error(e.getMessage(),e);

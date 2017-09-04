@@ -146,9 +146,9 @@
   dependencies:
     tslib "^1.7.1"
 
-"@angular/platform-server@4.3.3":
-  version "4.3.3"
-  resolved "https://registry.yarnpkg.com/@angular/platform-server/-/platform-server-4.3.3.tgz#404c00208d7258d4f9a54c9a5dda2147b21b6c9b"
+"@angular/platform-server@^4.0.0":
+  version "4.3.6"
+  resolved "https://registry.yarnpkg.com/@angular/platform-server/-/platform-server-4.3.6.tgz#369d49844f1c0a9a10c7cba9b0cb78c2520741a5"
   dependencies:
     parse5 "^3.0.1"
     tslib "^1.7.1"
