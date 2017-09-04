@@ -26,20 +26,25 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.api.bridge.BridgeReadTask;
+import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
 
 public abstract class KebaDeviceNature implements DeviceNature {
 
+	private Device parent;
 	protected final Logger log;
 
 	private final String thingId;
 	private List<ThingChannelsUpdatedListener> listeners;
 
-	public KebaDeviceNature(String thingId) throws ConfigException {
+	public KebaDeviceNature(String thingId, Device parent) throws ConfigException {
 		this.thingId = thingId;
+		this.parent = parent;
 		log = LoggerFactory.getLogger(this.getClass());
 		log.info("Constructor KebaDeviceNature");
 		this.listeners = new ArrayList<>();
@@ -58,6 +63,29 @@ public abstract class KebaDeviceNature implements DeviceNature {
 	@Override
 	public String id() {
 		return thingId;
+	}
+
+	@Override
+	public List<BridgeReadTask> getReadTasks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<BridgeWriteTask> getWriteTasks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<BridgeReadTask> getRequiredReadTasks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Device getParent() {
+		return parent;
 	}
 
 	@Override

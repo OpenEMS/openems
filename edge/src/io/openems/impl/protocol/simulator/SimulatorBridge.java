@@ -20,46 +20,19 @@
  *******************************************************************************/
 package io.openems.impl.protocol.simulator;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.openems.api.bridge.Bridge;
-import io.openems.api.channel.ConfigChannel;
-import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
 
 @ThingInfo(title = "Simulator")
 public class SimulatorBridge extends Bridge {
-	protected volatile SimulatorDevice[] simulatordevices = new SimulatorDevice[0];
-
-	/*
-	 * Config
-	 */
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
-
-	@Override
-	public ConfigChannel<Integer> cycleTime() {
-		return cycleTime;
-	}
 
 	/*
 	 * Methods
 	 */
-	@Override
-	public void triggerWrite() {
-		// not implemented
-	}
 
 	@Override
 	protected void dispose() {
 		// nothing to dispose
-	}
-
-	@Override
-	protected void forever() {
-		for (SimulatorDevice device : simulatordevices) {
-			device.update();
-		}
 	}
 
 	@Override
@@ -68,28 +41,11 @@ public class SimulatorBridge extends Bridge {
 		 * Wait a little bit, because the simulator is much faster than real hardware.
 		 * Otherwise the system waits 10 seconds to call initialize() again.
 		 */
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		/*
-		 * Copy and cast devices to local simulatordevices array
-		 */
-		if (devices.isEmpty()) {
-			return false;
-		}
-		List<SimulatorDevice> simulatordevices = new ArrayList<>();
-		for (Device device : devices) {
-			if (device instanceof SimulatorDevice) {
-				simulatordevices.add((SimulatorDevice) device);
-			}
-		}
-		SimulatorDevice[] newSimulatordevices = simulatordevices.stream().toArray(SimulatorDevice[]::new);
-		if (newSimulatordevices == null) {
-			newSimulatordevices = new SimulatorDevice[0];
-		}
-		this.simulatordevices = newSimulatordevices;
+		// try {
+		// Thread.sleep(1000);
+		// } catch (InterruptedException e) {
+		// e.printStackTrace();
+		// }
 		return true;
 	}
 

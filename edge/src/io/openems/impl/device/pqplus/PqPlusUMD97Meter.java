@@ -22,6 +22,7 @@ package io.openems.impl.device.pqplus;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -38,8 +39,8 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 	/*
 	 * Constructors
 	 */
-	public PqPlusUMD97Meter(String thingId) throws ConfigException {
-		super(thingId);
+	public PqPlusUMD97Meter(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
@@ -125,8 +126,7 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 								.multiplier(3),
 						new FloatElement(19004, voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV"))
 								.multiplier(3),
-						new DummyElement(19006, 19011),
-						new FloatElement(19012, //
+						new DummyElement(19006, 19011), new FloatElement(19012, //
 								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")).multiplier(3),
 						new FloatElement(19014, //
 								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA")).multiplier(3),
@@ -146,8 +146,7 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 						new FloatElement(19026, //
 								activePower = new ModbusReadLongChannel("ActivePower", this) //
 										.unit("W")), //
-						new DummyElement(19028, 19033),
-						new FloatElement(19034, //
+						new DummyElement(19028, 19033), new FloatElement(19034, //
 								apparentPower = new ModbusReadLongChannel("ApparentPower", this) //
 										.unit("VA")), //
 						new FloatElement(19036, //
@@ -162,8 +161,7 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 						new FloatElement(19042, //
 								reactivePower = new ModbusReadLongChannel("ReactivePower", this) //
 										.unit("Var")), //
-						new DummyElement(19044, 19049),
-						new FloatElement(19050, //
+						new DummyElement(19044, 19049), new FloatElement(19050, //
 								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHz")) //
 										.multiplier(3)));
 	}

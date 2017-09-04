@@ -1,8 +1,13 @@
 package io.openems.test.utils.devicenatures;
 
+import java.util.List;
+
+import io.openems.api.bridge.BridgeReadTask;
+import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.test.utils.channel.UnitTestReadChannel;
 
@@ -112,6 +117,30 @@ public class UnitTestAsymmetricMeterNature implements AsymmetricMeterNature {
 
 	@Override
 	public ConfigChannel<Long> minActivePower() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Device getParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<BridgeReadTask> getRequiredReadTasks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<BridgeReadTask> getReadTasks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<BridgeWriteTask> getWriteTasks() {
 		// TODO Auto-generated method stub
 		return null;
 	}

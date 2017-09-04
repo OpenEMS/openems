@@ -23,6 +23,7 @@ package io.openems.impl.device.kmtronic;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ConfigInfo;
@@ -36,8 +37,8 @@ public class KMTronicRelay extends ModbusDevice {
 	/*
 	 * Constructors
 	 */
-	public KMTronicRelay() throws OpenemsException {
-		super();
+	public KMTronicRelay(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*

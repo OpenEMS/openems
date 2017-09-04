@@ -58,7 +58,6 @@ import io.openems.api.exception.WriteChannelException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.security.User;
-import io.openems.core.utilities.AbstractWorker;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -301,9 +300,16 @@ public class Config implements ChannelChangeListener {
 			JsonArray jDevices = JsonUtils.getAsJsonArray(jBridge, "devices");
 			for (JsonElement jDeviceElement : jDevices) {
 				JsonObject jDevice = JsonUtils.getAsJsonObject(jDeviceElement);
-				Device device = thingRepository.createDevice(jDevice);
+				Device device = thingRepository.createDevice(jDevice, bridge);
 				devices.add(device);
 				bridge.addDevice(device);
+			}
+			/*
+			 * Init bridge
+			 */
+			bridge.init();
+			for (Device d : bridge.getDevices()) {
+				d.init();
 			}
 		}
 
@@ -326,7 +332,9 @@ public class Config implements ChannelChangeListener {
 				JsonObject jController = JsonUtils.getAsJsonObject(jControllerElement);
 				Controller controller = thingRepository.createController(jController);
 				scheduler.addController(controller);
+				controller.init();
 			}
+			scheduler.init();
 		}
 
 		/*
@@ -342,6 +350,7 @@ public class Config implements ChannelChangeListener {
 				log.debug("Add Persistence[" + persistence.id() + "], Implementation["
 						+ persistence.getClass().getSimpleName() + "]");
 				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);
+				persistence.init();
 			}
 		}
 
@@ -350,7 +359,7 @@ public class Config implements ChannelChangeListener {
 		 */
 		thingRepository.getThings().forEach(thing -> {
 			if (thing instanceof Thread) {
-				((AbstractWorker) thing).start();
+				((Thread) thing).start();
 			}
 		});
 

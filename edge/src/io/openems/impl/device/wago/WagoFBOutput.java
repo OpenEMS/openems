@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.OutputNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
@@ -45,8 +46,8 @@ public class WagoFBOutput extends ModbusDeviceNature implements OutputNature {
 	/*
 	 * Constructors
 	 */
-	public WagoFBOutput(String thingId) throws ConfigException {
-		super(thingId);
+	public WagoFBOutput(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*

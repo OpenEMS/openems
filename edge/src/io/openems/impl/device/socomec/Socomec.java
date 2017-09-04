@@ -23,6 +23,7 @@ package io.openems.impl.device.socomec;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ConfigInfo;
@@ -36,8 +37,8 @@ public class Socomec extends ModbusDevice {
 	/*
 	 * Constructors
 	 */
-	public Socomec() throws OpenemsException {
-		super();
+	public Socomec(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*

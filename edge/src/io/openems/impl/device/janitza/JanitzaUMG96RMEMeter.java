@@ -22,6 +22,7 @@ package io.openems.impl.device.janitza;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -38,8 +39,8 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 	/*
 	 * Constructors
 	 */
-	public JanitzaUMG96RMEMeter(String thingId) throws ConfigException {
-		super(thingId);
+	public JanitzaUMG96RMEMeter(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
@@ -129,8 +130,7 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 								.multiplier(3),
 						new FloatElement(812, voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV"))
 								.multiplier(3),
-						new DummyElement(814, 859),
-						new FloatElement(860, //
+						new DummyElement(814, 859), new FloatElement(860, //
 								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")).multiplier(3),
 						new FloatElement(862, //
 								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA")).multiplier(3),
@@ -162,8 +162,7 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 						new FloatElement(882, //
 								reactivePower = new ModbusReadLongChannel("ReactivePower", this) //
 										.unit("Var")), //
-						new DummyElement(884, 889),
-						new FloatElement(890, //
+						new DummyElement(884, 889), new FloatElement(890, //
 								apparentPower = new ModbusReadLongChannel("ApparentPower", this) //
 										.unit("VA")) //
 				));

@@ -20,12 +20,16 @@
  *******************************************************************************/
 package io.openems.api.device;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.bridge.Bridge;
+import io.openems.api.bridge.BridgeReadTask;
+import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
@@ -37,9 +41,10 @@ public abstract class Device implements Thing {
 	private Bridge bridge = null;
 	private final String thingId;
 
-	public Device() throws OpenemsException {
+	public Device(Bridge parent) throws OpenemsException {
 		this.thingId = THINGID_PREFIX + instanceCounter++;
 		log = LoggerFactory.getLogger(this.getClass());
+		this.bridge = parent;
 	}
 
 	public Bridge getBridge() {
@@ -51,5 +56,46 @@ public abstract class Device implements Thing {
 		return this.thingId;
 	}
 
+	@Override
+	public void init() {
+		Thing.super.init();
+		for (DeviceNature nature : getDeviceNatures()) {
+			nature.init();
+		}
+	}
+
 	protected abstract Set<DeviceNature> getDeviceNatures();
+
+	public List<BridgeReadTask> getRequiredReadTasks() {
+		List<BridgeReadTask> readTasks = new ArrayList<>();
+		for (DeviceNature nature : getDeviceNatures()) {
+			List<BridgeReadTask> natureRequiredReadTasks = nature.getRequiredReadTasks();
+			if (natureRequiredReadTasks != null) {
+				readTasks.addAll(natureRequiredReadTasks);
+			}
+		}
+		return readTasks;
+	}
+
+	public List<BridgeReadTask> getReadTasks() {
+		List<BridgeReadTask> readTasks = new ArrayList<>();
+		for (DeviceNature nature : getDeviceNatures()) {
+			List<BridgeReadTask> natureReadTasks = nature.getReadTasks();
+			if (natureReadTasks != null) {
+				readTasks.addAll(natureReadTasks);
+			}
+		}
+		return readTasks;
+	}
+
+	public List<BridgeWriteTask> getWriteTasks() {
+		List<BridgeWriteTask> writeTasks = new ArrayList<>();
+		for (DeviceNature nature : getDeviceNatures()) {
+			List<BridgeWriteTask> natureWriteTasks = nature.getWriteTasks();
+			if (natureWriteTasks != null) {
+				writeTasks.addAll(natureWriteTasks);
+			}
+		}
+		return writeTasks;
+	}
 }

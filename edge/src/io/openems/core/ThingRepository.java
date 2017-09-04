@@ -399,12 +399,13 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		return controller;
 	}
 
-	public Device createDevice(JsonObject jDevice) throws ReflectionException {
+	public Device createDevice(JsonObject jDevice, Bridge parent) throws ReflectionException {
 		String deviceClass = JsonUtils.getAsString(jDevice, "class");
-		Device device = (Device) InjectionUtils.getThingInstance(deviceClass);
+		Device device = (Device) InjectionUtils.getThingInstance(deviceClass, parent);
 		log.debug("Add Device[" + device.id() + "], Implementation[" + device.getClass().getSimpleName() + "]");
 		this.addThing(device);
-		ConfigUtils.injectConfigChannels(this.getConfigChannels(device), jDevice);
+		// instanciate DeviceNatures with Device reference
+		ConfigUtils.injectConfigChannels(this.getConfigChannels(device), jDevice, device);
 		return device;
 	}
 

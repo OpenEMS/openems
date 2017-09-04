@@ -12,6 +12,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.core.utilities.ControllerUtils;
@@ -35,8 +36,8 @@ public class SimulatorProductionMeter extends SimulatorMeter implements ChannelC
 	private LoadGenerator activePowerGenerator;
 	private LoadGenerator reactivePowerGenerator;
 
-	public SimulatorProductionMeter(String thingId) throws ConfigException {
-		super(thingId);
+	public SimulatorProductionMeter(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		this.apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this,
 				new FunctionalReadChannelFunction<Long>() {
 
