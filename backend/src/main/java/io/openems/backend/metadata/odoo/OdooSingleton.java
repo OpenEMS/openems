@@ -11,9 +11,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.abercap.odoo.Session;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -31,8 +28,6 @@ import io.openems.common.types.Device;
 import io.openems.common.utils.JsonUtils;
 
 public class OdooSingleton implements MetadataSingleton {
-	private final Logger log = LoggerFactory.getLogger(OdooSingleton.class);
-
 	private Session session;
 	private MetadataDeviceModel deviceModel;
 	private final String url;
@@ -52,55 +47,6 @@ public class OdooSingleton implements MetadataSingleton {
 	public MetadataDeviceModel getDeviceModel() {
 		return deviceModel;
 	}
-
-	// public List<Device> getDevicesForApikey(String apikey) throws OdooApiException, XmlRpcException {
-	// List<Device> devices = deviceModel.searchAndReadObject("apikey", "=", apikey);
-	// return devices;
-	// }
-	//
-	// public List<Device> getDevicesForName(String name) throws OdooApiException, XmlRpcException {
-	// List<Device> devices = deviceModel.searchAndReadObject("name", "=", name);
-	// return devices;
-	// }
-	//
-	// public List<Device> getDevicesForNames(List<String> names) throws OdooApiException, XmlRpcException {
-	// // TODO optimize: use only one call to searchAndReadObject
-	// List<Device> devices = new ArrayList<>();
-	// for (String name : names) {
-	// devices.addAll(deviceModel.searchAndReadObject("name", "=", name));
-	// }
-	// return devices;
-	// }
-
-	/**
-	 *
-	 * @param jNames
-	 *            [{ name: 'fems1', role: 'guest' }]
-	 * @return
-	 * @throws OdooApiException
-	 * @throws XmlRpcException
-	 * @throws OpenemsException
-	 */
-	// public List<Device> getDevicesForNames(JsonArray jDevices)
-	// throws OdooApiException, XmlRpcException, OpenemsException {
-	// // TODO optimize: use only one call to searchAndReadObject
-	// List<Device> devices = new ArrayList<>();
-	// for (JsonElement jDeviceElement : jDevices) {
-	// JsonObject jDevice = JsonUtils.getAsJsonObject(jDeviceElement);
-	// String name = JsonUtils.getAsString(jDevice, "name");
-	// String role = JsonUtils.getAsString(jDevice, "role");
-	// try {
-	// List<Device> nameDevices = deviceModel.searchAndReadObject("name", "=", name);
-	// nameDevices.forEach(device -> {
-	// device.setRole(role);
-	// });
-	// devices.addAll(nameDevices);
-	// } catch (XmlRpcException | OdooApiException e) {
-	// log.error(e.getMessage());
-	// }
-	// }
-	// return devices;
-	// }
 
 	/**
 	 * Tries to authenticate at the Odoo server using a sessionId from a cookie. Updates the Session object accordingly.

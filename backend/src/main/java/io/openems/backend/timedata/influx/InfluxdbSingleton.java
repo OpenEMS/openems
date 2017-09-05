@@ -2,6 +2,7 @@ package io.openems.backend.timedata.influx;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -80,7 +81,7 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	@Override
 	public void write(Optional<Integer> deviceIdOpt, JsonObject jData) {
 		int deviceId = deviceIdOpt.orElse(0);
-		final Long lastTimestamp = this.lastTimestampMap.getOrDefault(deviceId, 0l);
+		long lastTimestamp = this.lastTimestampMap.getOrDefault(deviceId, 0l);
 
 		BatchPoints batchPoints = BatchPoints.database(database) //
 				.tag("fems", String.valueOf(deviceId)) //
@@ -101,7 +102,7 @@ public class InfluxdbSingleton implements TimedataSingleton {
 		});
 
 		// Prepare data for writing to InfluxDB
-		data.entrySet().forEach(dataEntry -> {
+		for (Entry<Long, JsonObject> dataEntry : data.entrySet()) {
 			Long timestamp = dataEntry.getKey();
 			// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
 			boolean useLastDataCache = timestamp > lastTimestamp && timestamp < lastTimestamp + 60000;
@@ -157,8 +158,11 @@ public class InfluxdbSingleton implements TimedataSingleton {
 
 				// add the point to the batch
 				batchPoints.point(builder.build());
+
+				// set last timestamp
+				lastTimestamp = timestamp;
 			}
-		});
+		}
 		// write to DB
 		influxDB.write(batchPoints);
 

@@ -148,8 +148,8 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 		try {
 			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 
-			// TODO Debugging
-			if (!jMessage.has("timedata") && !jMessage.has("currentData")) {
+			// TODO Remove after Debugging
+			if (!jMessage.has("timedata") && !jMessage.has("currentData") && !jMessage.has("log")) {
 				log.info("Received from " + device.getName() + ": " + jMessage.toString());
 			}
 
@@ -164,29 +164,8 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			if (jMessage.has("timedata")) {
 				timedata(device, jMessage.get("timedata"));
 			}
-			// /*
-			// * New currentdata data -> forward to browserWebsockets
-			// */
-			// if (jMessage.has("currentdata")) {
-			// currentdata(websocket, jMessage.get("currentdata"));
-			// }
-			//
-			// /*
-			// * New log -> forward to browserWebsockets
-			// */
-			// if (jMessage.has("log")) {
-			// log(websocket, jMessage.get("log"));
-			// }
-			//
-			// /*
-			// * New metadata
-			// */
-			// if (jMessage.has("metadata")) {
-			// metadata(device, websocket, jMessage.get("metadata"));
-			// }
 
 			// Save data to Odoo
-
 			device.writeObject();
 		} catch (OpenemsException e) {
 			log.error(device.getName() + ": " + e.getMessage());
@@ -249,57 +228,6 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 					log.error(e.getMessage());
 				}
 			});
-		} catch (OpenemsException e) {
-			log.error(e.getMessage());
-		}
-	}
-
-	/**
-	 * Forward currentdata to browserWebsockets
-	 */
-	private void currentdata(WebSocket websocket, JsonElement jCurrentdataElement) {
-		// try {
-		// JsonObject jCurrentdata = JsonUtils.getAsJsonObject(jCurrentdataElement);
-		// JsonObject j = new JsonObject();
-		// j.add("currentdata", jCurrentdata);
-		// this.connectionManager.getFemsWebsocketDeviceNames(websocket).forEach(name -> {
-		// j.addProperty("device", name);
-		// this.connectionManager.getBrowserWebsockets(name).forEach(browserWebsocket -> {
-		// // log.info("BrowserWS: " + browserWebsocket + ", " + browserWebsocket.isOpen());
-		// log.info(name + ": forward currentdata to Browser: " + StringUtils.toShortString(j, 100));
-		// WebSocketUtils.send(browserWebsocket, j);
-		// });
-		// });
-		// } catch (OpenemsException e) {
-		// log.error(e.getMessage());
-		// }
-	}
-
-	private void log(WebSocket websocket, JsonElement jLogElement) {
-		// try {
-		// JsonObject jLog = JsonUtils.getAsJsonObject(jLogElement);
-		// JsonObject j = new JsonObject();
-		// j.add("log", jLog);
-		// this.connectionManager.getFemsWebsocketDeviceNames(websocket).forEach(name -> {
-		// j.addProperty("device", name);
-		// this.connectionManager.getBrowserWebsockets(name).forEach(browserWebsocket -> {
-		// log.info(name + ": forward log to Browser: " + StringUtils.toShortString(j, 100));
-		// WebSocketUtils.send(browserWebsocket, j);
-		// });
-		// });
-		// } catch (OpenemsException e) {
-		// log.error(e.getMessage());
-		// }
-	}
-
-	private void metadata(MetadataDevice device, WebSocket websocket, JsonElement jMetadataElement) {
-		try {
-			JsonObject jMetadata = JsonUtils.getAsJsonObject(jMetadataElement);
-			if (jMetadata.has("config")) {
-				JsonObject jConfig = JsonUtils.getAsJsonObject(jMetadata, "config");
-				// log.info(getDeviceName(websocket) + ": got config " + StringUtils.toShortString(jConfig, 120));
-				device.setOpenemsConfig(jConfig);
-			}
 		} catch (OpenemsException e) {
 			log.error(e.getMessage());
 		}

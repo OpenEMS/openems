@@ -273,21 +273,22 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 		return j;
 	}
 
-	/**
-	 * Generates a generic notification message
-	 *
-	 * @param message
-	 * @return
-	 */
-	private JsonObject generateNotification(String message) {
-		JsonObject j = new JsonObject();
-		JsonObject jNotification = new JsonObject();
-		jNotification.addProperty("message", message);
-		j.add("notification", jNotification);
-		return j;
-	}
+	// TODO notification handling
+	// /**
+	// * Generates a generic notification message
+	// *
+	// * @param message
+	// * @return
+	// */
+	// private JsonObject generateNotification(String message) {
+	// JsonObject j = new JsonObject();
+	// JsonObject jNotification = new JsonObject();
+	// jNotification.addProperty("message", message);
+	// j.add("notification", jNotification);
+	// return j;
+	// }
 
-	// TODO
+	// TODO system command
 	// /**
 	// * System command
 	// *

@@ -38,12 +38,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.WriteChannel;
-import io.openems.api.device.Device;
-import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.Thing;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
@@ -52,8 +47,6 @@ import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
 import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
-import io.openems.core.utilities.websocket.Notification;
-import io.openems.core.utilities.websocket.NotificationType;
 
 /**
  * Handles a Websocket connection to a browser, femsserver,...
@@ -91,6 +84,14 @@ public class FeneconPersistenceWebsocketHandler {
 
 	public FeneconPersistenceWebsocketHandler(WebSocket websocket) {
 		this.websocket = websocket;
+	}
+
+	/**
+	 * OnOpen event of websocket.
+	 */
+	public void onOpen() {
+		// on open: send current status of all channels
+		sendCurrentStatusOfAllChannels();
 	}
 
 	/**
@@ -143,42 +144,6 @@ public class FeneconPersistenceWebsocketHandler {
 			}
 			WebSocketUtils.send(this.websocket, jReply);
 		}
-		//
-		// log.info(jMessage.toString());
-		// /*
-		// * Get unique request id
-		// */
-		// // TODO: pass requestId everywhere
-		// String requestId = "";
-		// if (jMessage.has("requestId")) {
-		// try {
-		// requestId = JsonUtils.getAsString(jMessage, "requestId");
-		// } catch (ReflectionException e) {
-		// log.warn("Invalid requestId: " + e.getMessage());
-		// }
-		// }
-
-		//
-		// /*
-		// * Configuration
-		// */
-		// if (jMessage.has("configure")) {
-		// configure(jMessage.get("configure"));
-		// }
-		//
-		// /*
-		// * System command
-		// */
-		// if (jMessage.has("system")) {
-		// // system(jMessage.get("system"));
-		// }
-		//
-		// /*
-		// * Query command
-		// */
-		// if (jMessage.has("query")) {
-		// query(requestId, jMessage.get("query"));
-		// }
 	}
 
 	/**
@@ -275,161 +240,106 @@ public class FeneconPersistenceWebsocketHandler {
 		return Optional.empty();
 	}
 
-	/**
-	 * Sends an initial message to the browser after it was successfully connected
-	 */
-	// public boolean sendConnectionSuccessfulReply() {
-	// // TODO this is not necessary for OpenEMS Edge -> OpenEMS Backend connection
-	// JsonObject j = this.createConnectionSuccessfulReply();
-	// log.info("Send Connection Successful Reply: " + StringUtils.toShortString(j, 100));
-	// return this.send(j);
-	// }
-	//
-	// public boolean sendConnectionFailedReply() {
-	// JsonObject j = this.createConnectionFailedReply();
-	// log.info("Send Connection Failed Reply: " + StringUtils.toShortString(j, 100));
-	// return this.send(j);
-	// }
-
+	// TODO handle config command
 	// /**
-	// * Creates an initial message to the browser after it was successfully connected
+	// * Set configuration
 	// *
-	// * <pre>
-	// * {
-	// * metadata: {
-	// * config: {...},
-	// * backend: "openems"
-	// * }
-	// * }
-	// * </pre>
-	// *
-	// * @param handler
+	// * @param j
 	// */
-	// protected JsonObject createConnectionSuccessfulReply() {
-	// JsonObject j = new JsonObject();
-	//
-	// // Metadata
-	// JsonObject jMetadata = new JsonObject();
+	// private synchronized void configure(JsonElement jConfigsElement) {
 	// try {
-	// jMetadata.add("config", Config.getInstance().getMetaConfigJson());
-	// } catch (ConfigException e) {
-	// log.error(e.getMessage());
-	// }
-	// jMetadata.addProperty("backend", "openems");
-	// j.add("metadata", jMetadata);
+	// JsonArray jConfigs = JsonUtils.getAsJsonArray(jConfigsElement);
+	// ThingRepository thingRepository = ThingRepository.getInstance();
+	// for (JsonElement jConfigElement : jConfigs) {
+	// JsonObject jConfig = JsonUtils.getAsJsonObject(jConfigElement);
+	// String mode = JsonUtils.getAsString(jConfig, "mode");
+	// if (mode.equals("update")) {
+	// /*
+	// * Channel Set mode
+	// */
+	// String thingId = JsonUtils.getAsString(jConfig, "thing");
+	// String channelId = JsonUtils.getAsString(jConfig, "channel");
+	// JsonElement jValue = JsonUtils.getSubElement(jConfig, "value");
+	// Optional<Channel> channelOptional = thingRepository.getChannel(thingId, channelId);
+	// if (channelOptional.isPresent()) {
+	// Channel channel = channelOptional.get();
+	// if (channel instanceof ConfigChannel<?>) {
+	// /*
+	// * ConfigChannel
+	// */
+	// ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
+	// configChannel.updateValue(jValue, true);
+	// Notification.send(NotificationType.SUCCESS,
+	// "Successfully updated [" + channel.address() + "] to [" + jValue + "]");
 	//
-	// return j;
+	// } else if (channel instanceof WriteChannel<?>) {
+	// /*
+	// * WriteChannel
+	// */
+	// WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
+	// writeChannel.pushWrite(jValue);
+	// Notification.send(NotificationType.SUCCESS,
+	// "Successfully set [" + channel.address() + "] to [" + jValue + "]");
 	// }
-
-	// protected JsonObject createConnectionFailedReply() {
+	// } else {
+	// throw new ConfigException("Unable to find " + jConfig.toString());
+	// }
+	// } else if (mode.equals("create")) {
+	// /*
+	// * Create new Thing
+	// */
+	// JsonObject jObject = JsonUtils.getAsJsonObject(jConfig, "object");
+	// String parentId = JsonUtils.getAsString(jConfig, "parent");
+	// String thingId = JsonUtils.getAsString(jObject, "id");
+	// if (thingId.startsWith("_")) {
+	// throw new ConfigException("IDs starting with underscore are reserved for internal use.");
+	// }
+	// if (thingRepository.getThingById(thingId).isPresent()) {
+	// throw new ConfigException("Thing Id is already existing.");
+	// }
+	// String clazzName = JsonUtils.getAsString(jObject, "class");
+	// Class<?> clazz = Class.forName(clazzName);
+	// if (Device.class.isAssignableFrom(clazz)) {
+	// // Device
+	// Thing parentThing = thingRepository.getThing(parentId);
+	// if (parentThing instanceof Bridge) {
+	// Bridge parentBridge = (Bridge) parentThing;
+	// Device device = thingRepository.createDevice(jObject);
+	// parentBridge.addDevice(device);
+	// Config.getInstance().writeConfigFile();
+	// Notification.send(NotificationType.SUCCESS, "Device [" + device.id() + "] wurde erstellt.");
+	// break;
+	// }
+	// }
+	// } else if (mode.equals("delete")) {
+	// /*
+	// * Delete a Thing
+	// */
+	// String thingId = JsonUtils.getAsString(jConfig, "thing");
+	// thingRepository.removeThing(thingId);
+	// Config.getInstance().writeConfigFile();
+	// Notification.send(NotificationType.SUCCESS, "Controller [" + thingId + "] wurde " + " gel�scht.");
+	// } else {
+	// throw new OpenemsException("Modus [" + mode + "] ist nicht implementiert.");
+	// }
+	// }
+	// // Send new config
+	// JsonObject jMetadata = new JsonObject();
+	// // TODO jMetadata.add("config", Config.getInstance().getMetaConfigJson());
 	// JsonObject j = new JsonObject();
-	//
-	// JsonObject jAuthenticate = new JsonObject();
-	// jAuthenticate.addProperty("mode", "deny");
-	//
-	// j.add("authenticate", jAuthenticate);
-	//
-	// return j;
+	// j.add("metadata", jMetadata);
+	// WebSocketUtils.send(this.websocket, j);
+	// } catch (OpenemsException | ClassNotFoundException e) {
+	// Notification.send(NotificationType.ERROR, e.getMessage());
+	// }
 	// }
 
-	/**
-	 * Set configuration
-	 *
-	 * @param j
-	 */
-	private synchronized void configure(JsonElement jConfigsElement) {
-		try {
-			JsonArray jConfigs = JsonUtils.getAsJsonArray(jConfigsElement);
-			ThingRepository thingRepository = ThingRepository.getInstance();
-			for (JsonElement jConfigElement : jConfigs) {
-				JsonObject jConfig = JsonUtils.getAsJsonObject(jConfigElement);
-				String mode = JsonUtils.getAsString(jConfig, "mode");
-				if (mode.equals("update")) {
-					/*
-					 * Channel Set mode
-					 */
-					String thingId = JsonUtils.getAsString(jConfig, "thing");
-					String channelId = JsonUtils.getAsString(jConfig, "channel");
-					JsonElement jValue = JsonUtils.getSubElement(jConfig, "value");
-					Optional<Channel> channelOptional = thingRepository.getChannel(thingId, channelId);
-					if (channelOptional.isPresent()) {
-						Channel channel = channelOptional.get();
-						if (channel instanceof ConfigChannel<?>) {
-							/*
-							 * ConfigChannel
-							 */
-							ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
-							configChannel.updateValue(jValue, true);
-							Notification.send(NotificationType.SUCCESS,
-									"Successfully updated [" + channel.address() + "] to [" + jValue + "]");
-
-						} else if (channel instanceof WriteChannel<?>) {
-							/*
-							 * WriteChannel
-							 */
-							WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
-							writeChannel.pushWrite(jValue);
-							Notification.send(NotificationType.SUCCESS,
-									"Successfully set [" + channel.address() + "] to [" + jValue + "]");
-						}
-					} else {
-						throw new ConfigException("Unable to find " + jConfig.toString());
-					}
-				} else if (mode.equals("create")) {
-					/*
-					 * Create new Thing
-					 */
-					JsonObject jObject = JsonUtils.getAsJsonObject(jConfig, "object");
-					String parentId = JsonUtils.getAsString(jConfig, "parent");
-					String thingId = JsonUtils.getAsString(jObject, "id");
-					if (thingId.startsWith("_")) {
-						throw new ConfigException("IDs starting with underscore are reserved for internal use.");
-					}
-					if (thingRepository.getThingById(thingId).isPresent()) {
-						throw new ConfigException("Thing Id is already existing.");
-					}
-					String clazzName = JsonUtils.getAsString(jObject, "class");
-					Class<?> clazz = Class.forName(clazzName);
-					if (Device.class.isAssignableFrom(clazz)) {
-						// Device
-						Thing parentThing = thingRepository.getThing(parentId);
-						if (parentThing instanceof Bridge) {
-							Bridge parentBridge = (Bridge) parentThing;
-							Device device = thingRepository.createDevice(jObject);
-							parentBridge.addDevice(device);
-							Config.getInstance().writeConfigFile();
-							Notification.send(NotificationType.SUCCESS, "Device [" + device.id() + "] wurde erstellt.");
-							break;
-						}
-					}
-				} else if (mode.equals("delete")) {
-					/*
-					 * Delete a Thing
-					 */
-					String thingId = JsonUtils.getAsString(jConfig, "thing");
-					thingRepository.removeThing(thingId);
-					Config.getInstance().writeConfigFile();
-					Notification.send(NotificationType.SUCCESS, "Controller [" + thingId + "] wurde " + " gel�scht.");
-				} else {
-					throw new OpenemsException("Modus [" + mode + "] ist nicht implementiert.");
-				}
-			}
-			// Send new config
-			JsonObject jMetadata = new JsonObject();
-			// TODO jMetadata.add("config", Config.getInstance().getMetaConfigJson());
-			JsonObject j = new JsonObject();
-			j.add("metadata", jMetadata);
-			WebSocketUtils.send(this.websocket, j);
-		} catch (OpenemsException | ClassNotFoundException e) {
-			Notification.send(NotificationType.ERROR, e.getMessage());
-		}
-	}
-
-	/**
-	 * System command
-	 *
-	 * @param j
-	 */
+	// TODO handle system command
+	// /**
+	// * System command
+	// *
+	// * @param j
+	// */
 	// private synchronized void system(JsonElement jSystemElement) {
 	// JsonObject jNotification = new JsonObject();
 	// try {
@@ -479,80 +389,26 @@ public class FeneconPersistenceWebsocketHandler {
 	// }
 	// }
 
-	/**
-	 * Query command
-	 *
-	 * @param j
-	 */
-	private synchronized void query(String requestId, JsonElement jQueryElement) {
-		// try {
-		// JsonObject jQuery = JsonUtils.getAsJsonObject(jQueryElement);
-		// String mode = JsonUtils.getAsString(jQuery, "mode");
-		// if (mode.equals("history")) {
-		// /*
-		// * History query
-		// */
-		// int timezoneDiff = JsonUtils.getAsInt(jQuery, "timezone");
-		// ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
-		// ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jQuery, "fromDate", timezone);
-		// ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jQuery, "toDate", timezone);
-		// JsonObject channels = JsonUtils.getAsJsonObject(jQuery, "channels");
-		// // TODO JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
-		// // Calculate resolution
-		// int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
-		// // TODO: better calculation of sensible resolution
-		// int resolution = 10 * 60; // 10 Minutes
-		// if (days > 25) {
-		// resolution = 24 * 60 * 60; // 1 Day
-		// } else if (days > 6) {
-		// resolution = 3 * 60 * 60; // 3 Hours
-		// } else if (days > 2) {
-		// resolution = 60 * 60; // 60 Minutes
-		// }
-		// JsonObject jQueryreply = null;
-		// for (QueryablePersistence queryablePersistence : thingRepository.getQueryablePersistences()) {
-		// // TODO jQueryreply = queryablePersistence.query(fromDate, toDate, channels, resolution, kWh);
-		// jQueryreply = queryablePersistence.query(fromDate, toDate, channels, resolution);
-		// if (jQueryreply != null) {
-		// break;
-		// }
-		// }
-		// JsonObject j = bootstrapReply(requestId);
-		// // Check if queryable persistence is available
-		// if (jQueryreply != null) {
-		// // Send result
-		// j.add("queryreply", jQueryreply);
-		// } else {
-		// j.addProperty("error", "No Queryable persistence found!");
-		// }
-		// this.send(j);
-		//
-		// // log.info("RESULT: " + j);
-		// }
-		// } catch (OpenemsException e) {
-		// log.error(e.getMessage());
-		// }
-	}
+	// TODO handle manual PQ
+	// private void manualPQ(JsonElement j, AuthenticatedWebsocketHandler handler) {
+	// try {
+	// JsonObject jPQ = JsonUtils.getAsJsonObject(j);
+	// if (jPQ.has("p") && jPQ.has("q")) {
+	// long p = JsonUtils.getAsLong(jPQ, "p");
+	// long q = JsonUtils.getAsLong(jPQ, "q");
+	// this.controller.setManualPQ(p, q);
+	// handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabe gesetzt: P=" + p + ",Q=" + q);
+	// } else {
+	// // stop manual PQ
+	// this.controller.resetManualPQ();
+	// handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabe zurückgesetzt");
+	// }
+	// } catch (ReflectionException e) {
+	// handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabewerte falsch: " + e.getMessage());
+	// }
+	// }
 
-	/*
-	 * private void manualPQ(JsonElement j, AuthenticatedWebsocketHandler handler) {
-	 * try {
-	 * JsonObject jPQ = JsonUtils.getAsJsonObject(j);
-	 * if (jPQ.has("p") && jPQ.has("q")) {
-	 * long p = JsonUtils.getAsLong(jPQ, "p");
-	 * long q = JsonUtils.getAsLong(jPQ, "q");
-	 * this.controller.setManualPQ(p, q);
-	 * handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabe gesetzt: P=" + p + ",Q=" + q);
-	 * } else {
-	 * // stop manual PQ
-	 * this.controller.resetManualPQ();
-	 * handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabe zurückgesetzt");
-	 * }
-	 * } catch (ReflectionException e) {
-	 * handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabewerte falsch: " + e.getMessage());
-	 * }
-	 * }
-	 */
+	// TODO handle channel commands
 	// private void channel(JsonElement jChannelElement, AuthenticatedWebsocketHandler handler) {
 	// try {
 	// JsonObject jChannel = JsonUtils.getAsJsonObject(jChannelElement);
@@ -603,17 +459,17 @@ public class FeneconPersistenceWebsocketHandler {
 	 * @param mesage
 	 * @return true if successful, otherwise false
 	 */
-	// TODO
-	public synchronized void sendNotification(NotificationType type, String message) {
-		JsonObject jNotification = new JsonObject();
-		jNotification.addProperty("type", type.name().toLowerCase());
-		jNotification.addProperty("message", message);
-		JsonObject j = new JsonObject();
-		j.add("notification", jNotification);
-		new Thread(() -> {
-			WebSocketUtils.send(websocket, j);
-		}).start();
-	}
+	// TODO send notification
+	// public synchronized void sendNotification(NotificationType type, String message) {
+	// JsonObject jNotification = new JsonObject();
+	// jNotification.addProperty("type", type.name().toLowerCase());
+	// jNotification.addProperty("message", message);
+	// JsonObject j = new JsonObject();
+	// j.add("notification", jNotification);
+	// new Thread(() -> {
+	// WebSocketUtils.send(websocket, j);
+	// }).start();
+	// }
 
 	/**
 	 * Send a log message to the websocket. This method is called by logback
@@ -633,5 +489,24 @@ public class FeneconPersistenceWebsocketHandler {
 			JsonObject j = DefaultMessages.log(jId, timestamp, level, source, message);
 			logExecutor.execute(() -> WebSocketUtils.send(websocket, j));
 		}
+	}
+
+	/**
+	 * On OnOpen-Event, send current status of all channels. This is additionally to FeneconPersistence's
+	 * "channelChanged" event, where only changes are sent
+	 */
+	private void sendCurrentStatusOfAllChannels() {
+		ThingRepository thingRepository = ThingRepository.getInstance();
+		for (Thing thing : thingRepository.getThings()) {
+			for (Channel channel : thingRepository.getChannels(thing)) {
+
+			}
+		}
+
+		// TODO Auto-generated method stub
+		System.out.println("Onopen...");
+		JsonObject j = new JsonObject();
+		j.addProperty("Hallo", "Welt");
+		WebSocketUtils.send(this.websocket, j);
 	}
 }
