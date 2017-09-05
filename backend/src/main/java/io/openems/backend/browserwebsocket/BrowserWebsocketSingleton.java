@@ -182,7 +182,7 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 			/*
 			 * Forward to OpenEMS Edge
 			 */
-			if (jMessage.has("config") || jMessage.has("currentData")) {
+			if (jMessage.has("config") || jMessage.has("currentData") || jMessage.has("log")) {
 				try {
 					forwardMessageToOpenems(websocket, jMessage, deviceName);
 				} catch (OpenemsException e) {

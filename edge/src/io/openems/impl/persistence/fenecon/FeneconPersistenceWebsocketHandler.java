@@ -21,8 +21,10 @@
 package io.openems.impl.persistence.fenecon;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -77,9 +79,9 @@ public class FeneconPersistenceWebsocketHandler {
 	protected final WebSocket websocket;
 
 	/**
-	 * Which log is currently subscribed? "" if none.
+	 * Holds subscribers to system log
 	 */
-	private volatile String subscribeLog = "";
+	private final Set<String> logSubscribers = new HashSet<>();
 
 	public FeneconPersistenceWebsocketHandler(WebSocket websocket) {
 		this.websocket = websocket;
@@ -114,6 +116,16 @@ public class FeneconPersistenceWebsocketHandler {
 		if (jCurrentDataOpt.isPresent() && jIdOpt.isPresent()) {
 			jReplyOpt = JsonUtils.merge(jReplyOpt, //
 					currentData(jIdOpt.get(), jCurrentDataOpt.get()) //
+			);
+		}
+
+		/*
+		 * Subscribe to log
+		 */
+		Optional<JsonObject> jLogOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "log");
+		if (jLogOpt.isPresent() && jIdOpt.isPresent()) {
+			jReplyOpt = JsonUtils.merge(jReplyOpt, //
+					log(jIdOpt.get(), jLogOpt.get()) //
 			);
 		}
 
@@ -188,7 +200,7 @@ public class FeneconPersistenceWebsocketHandler {
 	}
 
 	/**
-	 * Handle subscriptions
+	 * Handle current data subscriptions
 	 *
 	 * @param j
 	 */
@@ -230,13 +242,32 @@ public class FeneconPersistenceWebsocketHandler {
 		return Optional.empty();
 	}
 
-	// } else if (jSubscribe.has("log")) {
-	/// *
-	// * Subscribe to log
-	// */
-	// String log = JsonUtils.getAsString(jSubscribe, "log");
-	// this.subscribeLog = log;
-	// }
+	/**
+	 * Handle system log subscriptions
+	 *
+	 * @param j
+	 */
+	private synchronized Optional<JsonObject> log(JsonArray jId, JsonObject jLog) {
+		try {
+			String mode = JsonUtils.getAsString(jLog, "mode");
+			String messageId = jId.get(1).getAsString();
+
+			if (mode.equals("subscribe")) {
+				/*
+				 * Subscribe to system log
+				 */
+				this.logSubscribers.add(messageId);
+			} else if (mode.equals("unsubscribe")) {
+				/*
+				 * Unsubscribe from system log
+				 */
+				this.logSubscribers.remove(messageId);
+			}
+		} catch (OpenemsException e) {
+			log.warn(e.getMessage());
+		}
+		return Optional.empty();
+	}
 
 	/**
 	 * Sends an initial message to the browser after it was successfully connected
@@ -579,31 +610,24 @@ public class FeneconPersistenceWebsocketHandler {
 	}
 
 	/**
-	 * Send a log message to the websocket
+	 * Send a log message to the websocket. This method is called by logback
 	 *
 	 * @param message2
 	 * @param timestamp
 	 */
 	public void sendLog(long timestamp, String level, String source, String message) {
-		if (this.subscribeLog.isEmpty()) {
+		if (this.logSubscribers.isEmpty()) {
+			// nobody subscribed
 			return;
 		}
-		// send notification to websocket
-		JsonObject j = new JsonObject();
-		JsonObject jLog = new JsonObject();
-		jLog.addProperty("timestamp", timestamp);
-		jLog.addProperty("level", level);
-		jLog.addProperty("source", source);
-		jLog.addProperty("message", message);
-		j.add("log", jLog);
-		new Thread(() -> {
-			WebSocketUtils.send(websocket, j);
-		}).start();
-	}
-
-	private JsonObject bootstrapReply(String requestId) {
-		JsonObject j = new JsonObject();
-		j.addProperty("requestId", requestId);
-		return j;
+		for (String id : this.logSubscribers) {
+			JsonArray jId = new JsonArray();
+			jId.add("log");
+			jId.add(id);
+			JsonObject j = DefaultMessages.log(jId, timestamp, level, source, message);
+			new Thread(() -> {
+				WebSocketUtils.send(websocket, j);
+			}).start();
+		}
 	}
 }

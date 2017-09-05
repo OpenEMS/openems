@@ -1,3 +1,5 @@
+import * as moment from 'moment';
+
 export module DefaultTypes {
 
   export interface ChannelAddresses {
@@ -79,5 +81,13 @@ export module DefaultTypes {
     message: string;
     code?: number,
     params?: string[]
+  }
+
+  export interface Log {
+    time: number | string,
+    level: string,
+    source: string,
+    message: string,
+    color?: string /* is added later */
   }
 }

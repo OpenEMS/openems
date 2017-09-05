@@ -35,7 +35,6 @@ public class CurrentDataWorker {
 	 */
 	private final ScheduledFuture<?> future;
 
-	// TODO stop this task when the connection dies without unsubscribe
 	public CurrentDataWorker(JsonArray jId, HashMultimap<String, String> channels, ScheduledExecutorService executor,
 			WebSocket websocket) {
 		this.channels = channels;

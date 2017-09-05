@@ -39,10 +39,17 @@ export class Device {
     this.currentData = currentDataStream
       .map(message => message.currentData)
       .combineLatest(this.config, (currentData, config) => new CurrentDataAndSummary(currentData, config));
+    // prepare stream/obersable for log
+    let logStream = replyStreams["log"] = new Subject<DefaultMessages.LogReply>();
+    this.log = logStream
+      .map(message => message.log);
   }
 
   // holds current data
   public currentData: Observable<CurrentDataAndSummary>;
+
+  // holds log
+  public log: Observable<DefaultTypes.Log>;
 
   // holds device configuration; gets new configuration on first subscribe
   public config: Observable<ConfigImpl> = Observable
@@ -63,7 +70,6 @@ export class Device {
 
   public event = new Subject<Notification>();
   public address: string;
-  public log = new Subject<Log>();
 
   //public historykWh = new BehaviorSubject<any[]>(null);
   private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
@@ -128,23 +134,18 @@ export class Device {
   /**
    * Subscribe to log
    */
-  public subscribeLog(key: "all" | "info" | "warning" | "error") {
-    this.send({
-      subscribe: {
-        log: key
-      }
-    });
+  public subscribeLog(): Observable<DefaultTypes.Log> {
+    let message = DefaultMessages.logSubscribe();
+    this.send(message);
+    return this.log;
   }
 
   /**
-   * Unsubscribe from channels
+   * Unsubscribe from log
    */
   public unsubscribeLog() {
-    this.send({
-      subscribe: {
-        log: ""
-      }
-    });
+    let message = DefaultMessages.logUnsubscribe();
+    this.send(message);
   }
 
 

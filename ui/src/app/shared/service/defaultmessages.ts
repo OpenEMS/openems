@@ -43,6 +43,26 @@ export class DefaultMessages {
             }
         }
     };
+
+    public static logSubscribe() {
+        return {
+            device: String,
+            id: ["log"],
+            log: {
+                mode: "subscribe",
+            }
+        }
+    };
+
+    public static logUnsubscribe() {
+        return {
+            device: String,
+            id: ["log"],
+            log: {
+                mode: "unsubscribe",
+            }
+        }
+    };
 }
 
 export module DefaultMessages {
@@ -60,5 +80,9 @@ export module DefaultMessages {
 
     export interface HistoricDataReply extends Reply {
         historicData: DefaultTypes.HistoricData
+    }
+
+    export interface LogReply extends Reply {
+        log: DefaultTypes.Log
     }
 }

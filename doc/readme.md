@@ -215,6 +215,43 @@ For 'unsubscribe' the channels object is empty.
 }
 ```
 
+### [2.5] Current system log
+
+[2.2.1] UI -> Edge/Backend
+
+```
+{
+	id: [string],
+	device: string,
+	log: {
+		mode: "subscribe"
+	}
+}
+```
+
+```
+{
+	id: [string],
+	device: string,
+	log: {
+		mode: "unsubscribe"
+	}
+}
+```
+
+[2.2.2] Edge/Backend -> UI
+
+```
+{
+	log: {
+		timestamp: number,
+		level: string,
+		source: string,
+		message: string
+    }
+}
+```
+
 ## [3] OpenEMS Edge <-> OpenEMS Backend
 
 ### [3.1] Timestamped data

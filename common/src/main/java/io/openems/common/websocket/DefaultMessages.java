@@ -269,4 +269,31 @@ public class DefaultMessages {
 		j.add("currentData", jCurrentData);
 		return j;
 	}
+	
+	/**
+	 * <pre>
+	 *	{
+	 *		id: [string],
+	 *		log: {
+	 *			times: number,
+	 *			level: string,
+	 *			source: string,
+	 *			message: string
+	 *		}
+	 *	}
+	 * </pre>
+	 * 
+	 * @return
+	 */
+	public static JsonObject log(JsonArray jId, long timestamp, String level, String source, String message) {
+		JsonObject j = new JsonObject();
+		j.add("id", jId);
+		JsonObject jLog = new JsonObject();
+		jLog.addProperty("time", timestamp);
+		jLog.addProperty("level", level);
+		jLog.addProperty("source", source);
+		jLog.addProperty("message", message);
+		j.add("log", jLog);
+		return j;
+	}
 }
