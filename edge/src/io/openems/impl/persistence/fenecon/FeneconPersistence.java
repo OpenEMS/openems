@@ -24,20 +24,24 @@ import java.net.Inet4Address;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.HashMultimap;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.persistence.Persistence;
+import io.openems.api.thing.Thing;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NullFieldValue;
 import io.openems.common.types.NumberFieldValue;
@@ -45,6 +49,7 @@ import io.openems.common.types.StringFieldValue;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Databus;
+import io.openems.core.ThingRepository;
 
 @ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
@@ -53,10 +58,10 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 * Config
 	 */
 	@ConfigInfo(title = "Apikey", description = "Sets the apikey for FENECON Cloud.", type = String.class)
-	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this);
+	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this).doNotPersist();
 
 	@ConfigInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/femsserver\"")
-	public final ConfigChannel<String> uri = new ConfigChannel<String>("uri", this);
+	public final ConfigChannel<String> uri = new ConfigChannel<String>("uri", this).doNotPersist();
 
 	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
 			.defaultValue(DEFAULT_CYCLETIME);
@@ -89,41 +94,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		if (channel == cycleTime) {
 			this.configuredCycleTime = cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
 		}
-
-		// Ignore anything that is not a ReadChannel
-		if (!(channel instanceof ReadChannel<?>)) {
-			return;
-		}
-		ReadChannel<?> readChannel = (ReadChannel<?>) channel;
-
-		// Get timestamp and round to seconds
-		Long timestamp = System.currentTimeMillis() / 1000 * 1000;
-
-		// Read and format value from channel
-		String field = readChannel.address();
-		FieldValue<?> fieldValue;
-		if (!newValue.isPresent()) {
-			fieldValue = new NullFieldValue(field);
-		} else {
-			Object value = newValue.get();
-			if (value instanceof Number) {
-				fieldValue = new NumberFieldValue(field, (Number) value);
-			} else if (value instanceof String) {
-				fieldValue = new StringFieldValue(field, (String) value);
-			} else if (value instanceof Inet4Address) {
-				fieldValue = new StringFieldValue(field, ((Inet4Address) value).getHostAddress());
-			} else if (value instanceof Boolean) {
-				fieldValue = new NumberFieldValue(field, ((Boolean) value) ? 1 : 0);
-			} else {
-				log.warn("FENECON Persistence for value type [" + value.getClass().getName() + "] is not implemented.");
-				return;
-			}
-		}
-
-		// Add timestamp + value to queue
-		synchronized (queue) {
-			queue.put(timestamp, fieldValue);
-		}
+		this.addChannelValueToQueue(channel, newValue);
 	}
 
 	@Override
@@ -227,6 +198,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 				if (newWebsocketClient.connectBlocking(10)) {
 					// successful -> return connected websocket
 					log.info("FENECON persistence connected [" + uri + "]");
+					// Add current status of all channels to queue
+					this.addCurrentValueOfAllChannelsToQueue();
 				} else {
 					// not connected -> return empty
 					log.warn("FENECON persistence failed connection to uri [" + uri + "]");
@@ -283,5 +256,84 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			increaseCycleTime();
 		}
 		return getWebsocketClient().isPresent();
+	}
+
+	/**
+	 * Add a channel value to the send queue
+	 *
+	 * @param channel
+	 * @param valueOpt
+	 */
+	private void addChannelValueToQueue(Channel channel) {
+		if (!(channel instanceof ReadChannel<?>)) {
+			// TODO check for more types - see other addChannelValueToQueue method
+			return;
+		}
+		ReadChannel<?> readChannel = (ReadChannel<?>) channel;
+		this.addChannelValueToQueue(channel, readChannel.valueOptional());
+	}
+
+	/**
+	 * Add a channel value to the send queue
+	 *
+	 * @param channel
+	 * @param valueOpt
+	 */
+	private void addChannelValueToQueue(Channel channel, Optional<?> valueOpt) {
+		// Ignore anything that is not a ReadChannel
+		if (!(channel instanceof ReadChannel<?>)) {
+			return;
+		}
+		ReadChannel<?> readChannel = (ReadChannel<?>) channel;
+		// Ignore channels that shall not be persisted
+		if (readChannel.isDoNotPersist()) {
+			return;
+		}
+
+		// Get timestamp and round to seconds
+		Long timestamp = System.currentTimeMillis() / 1000 * 1000;
+
+		// Read and format value from channel
+		String field = readChannel.address();
+		FieldValue<?> fieldValue;
+		if (!valueOpt.isPresent()) {
+			fieldValue = new NullFieldValue(field);
+		} else {
+			Object value = valueOpt.get();
+			if (value instanceof Number) {
+				fieldValue = new NumberFieldValue(field, (Number) value);
+			} else if (value instanceof String) {
+				fieldValue = new StringFieldValue(field, (String) value);
+			} else if (value instanceof Inet4Address) {
+				fieldValue = new StringFieldValue(field, ((Inet4Address) value).getHostAddress());
+			} else if (value instanceof Boolean) {
+				fieldValue = new NumberFieldValue(field, ((Boolean) value) ? 1 : 0);
+			} else if (value instanceof DeviceNature || value instanceof JsonElement || value instanceof Map) {
+				// ignore
+				return;
+			} else {
+				log.warn("FENECON Persistence for value type [" + value.getClass().getName() + "] of channel ["
+						+ channel.address() + "] is not implemented.");
+				return;
+			}
+		}
+
+		// Add timestamp + value to queue
+		synchronized (queue) {
+			queue.put(timestamp, fieldValue);
+		}
+	}
+
+	/**
+	 * On websocket open, add current values of all channels to queue. This is to prepare upcoming "channelChanged"
+	 * events, where only changes are sent
+	 */
+	private void addCurrentValueOfAllChannelsToQueue() {
+		ThingRepository thingRepository = ThingRepository.getInstance();
+		for (Thing thing : thingRepository.getThings()) {
+			for (Channel channel : thingRepository.getChannels(thing)) {
+				this.addChannelValueToQueue(channel);
+			}
+		}
 	}
 }

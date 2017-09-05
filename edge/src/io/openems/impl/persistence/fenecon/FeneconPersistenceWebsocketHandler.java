@@ -38,15 +38,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.api.channel.Channel;
-import io.openems.api.thing.Thing;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
 import io.openems.core.ConfigFormat;
-import io.openems.core.ThingRepository;
 
 /**
  * Handles a Websocket connection to a browser, femsserver,...
@@ -84,14 +81,6 @@ public class FeneconPersistenceWebsocketHandler {
 
 	public FeneconPersistenceWebsocketHandler(WebSocket websocket) {
 		this.websocket = websocket;
-	}
-
-	/**
-	 * OnOpen event of websocket.
-	 */
-	public void onOpen() {
-		// on open: send current status of all channels
-		sendCurrentStatusOfAllChannels();
 	}
 
 	/**
@@ -491,22 +480,4 @@ public class FeneconPersistenceWebsocketHandler {
 		}
 	}
 
-	/**
-	 * On OnOpen-Event, send current status of all channels. This is additionally to FeneconPersistence's
-	 * "channelChanged" event, where only changes are sent
-	 */
-	private void sendCurrentStatusOfAllChannels() {
-		ThingRepository thingRepository = ThingRepository.getInstance();
-		for (Thing thing : thingRepository.getThings()) {
-			for (Channel channel : thingRepository.getChannels(thing)) {
-
-			}
-		}
-
-		// TODO Auto-generated method stub
-		System.out.println("Onopen...");
-		JsonObject j = new JsonObject();
-		j.addProperty("Hallo", "Welt");
-		WebSocketUtils.send(this.websocket, j);
-	}
 }

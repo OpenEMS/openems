@@ -63,6 +63,7 @@ import io.openems.impl.controller.api.websocket.WebsocketApiController;
  *
  * @author stefan.feilmeier
  */
+// merge with fenecon websocket handler
 public class WebsocketHandler {
 
 	protected final static String DEFAULT_DEVICE_NAME = "fems";

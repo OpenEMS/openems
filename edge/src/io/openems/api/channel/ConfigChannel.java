@@ -125,4 +125,9 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 		super.label(value, label);
 		return this;
 	}
+
+	@Override
+	public ConfigChannel<T> doNotPersist() {
+		return (ConfigChannel<T>) super.doNotPersist();
+	}
 }

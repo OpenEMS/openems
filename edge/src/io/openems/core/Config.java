@@ -439,6 +439,7 @@ public class Config implements ChannelChangeListener {
 	 * @return
 	 * @throws NotImplementedException
 	 */
+	// TODO make use of language tag
 	public synchronized JsonObject getJson(ConfigFormat format, String language) throws NotImplementedException {
 		JsonObject jConfig = new JsonObject();
 		if (format == ConfigFormat.FILE) {
