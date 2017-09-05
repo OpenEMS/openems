@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -82,6 +83,11 @@ public class FeneconPersistenceWebsocketHandler {
 	 * Holds subscribers to system log
 	 */
 	private final Set<String> logSubscribers = new HashSet<>();
+
+	/**
+	 * Executor for system log task
+	 */
+	private final ExecutorService logExecutor = Executors.newCachedThreadPool();
 
 	public FeneconPersistenceWebsocketHandler(WebSocket websocket) {
 		this.websocket = websocket;
@@ -625,9 +631,7 @@ public class FeneconPersistenceWebsocketHandler {
 			jId.add("log");
 			jId.add(id);
 			JsonObject j = DefaultMessages.log(jId, timestamp, level, source, message);
-			new Thread(() -> {
-				WebSocketUtils.send(websocket, j);
-			}).start();
+			logExecutor.execute(() -> WebSocketUtils.send(websocket, j));
 		}
 	}
 }
