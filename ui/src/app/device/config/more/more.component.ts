@@ -15,20 +15,20 @@ export class MoreComponent implements OnInit {
   public device: Device;
   public manualMessageForm: FormGroup;
 
-  private deviceSubscription: Subscription;
-
   constructor(
     private route: ActivatedRoute,
     private websocket: Websocket,
-    private webappService: Service,
+    private service: Service,
     private formBuilder: FormBuilder
   ) { }
 
   ngOnInit() {
-    // TODO
-    // this.deviceSubscription = this.websocket.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
-    //   this.device = device;
-    // })
+    this.websocket.setCurrentDevice(this.route)
+      .filter(device => device != null)
+      .first()
+      .subscribe(device => {
+        this.device = device;
+      });
     this.manualMessageForm = this.formBuilder.group({
       "message": this.formBuilder.control('')
     });
@@ -39,7 +39,7 @@ export class MoreComponent implements OnInit {
       let obj = JSON.parse(form["value"]["message"]);
       this.device.send(obj);
     } catch (e) {
-      this.webappService.notify({
+      this.service.notify({
         type: "error",
         message: (<Error>e).message
       });

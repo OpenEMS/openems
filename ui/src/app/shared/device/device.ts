@@ -117,45 +117,13 @@ export class Device {
     })
   }
 
+  /**
+   * Mark this device as online or offline
+   * @param online 
+   */
   public setOnline(online: boolean) {
     this.online = online;
   }
-
-
-
-
-
-  // // create query object
-  // let obj = {
-  //   mode: "history",
-  //   fromDate: fromDate.format("YYYY-MM-DD"),
-  //   toDate: toDate.format("YYYY-MM-DD"),
-  //   timezone: new Date().getTimezoneOffset() * 60,
-  //   channels: channels
-  // };
-  // // send query and receive requestId
-  // let requestId = this.send({ query: obj });
-  // // prepare result
-  // let ngUnsubscribe: Subject<void> = new Subject<void>();
-  // let result = new Subject<QueryReply>();
-  // // timeout after 10 seconds
-  // setTimeout(() => {
-  //   result.error("Query timeout");
-  //   result.complete();
-  // }, 10000);
-  // wait for queryreply with this requestId
-  // this.replyStream.takeUntil(ngUnsubscribe).subscribe(queryreply => {
-  //   if (queryreply.requestId == requestId) {
-  //     ngUnsubscribe.next();
-  //     ngUnsubscribe.complete();
-  //     result.next(queryreply);
-  //     result.complete();
-  //   }
-  // });
-  // return result;
-
-
-
 
   /**
    * Subscribe to log

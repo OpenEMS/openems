@@ -54,6 +54,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
           // }
           device.subscribeCurrentData(channels).takeUntil(this.stopCurrentData).subscribe(currentData => {
             this.currentData = currentData;
+            // resubscribe on timeout
             clearInterval(this.currentDataTimeout);
             this.currentDataTimeout = window.setInterval(() => {
               this.currentData = null;
@@ -67,6 +68,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    clearInterval(this.currentDataTimeout);
     if (this.device) {
       this.device.unsubscribeCurrentData();
     }
