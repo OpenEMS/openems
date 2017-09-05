@@ -106,7 +106,8 @@ public class InfluxdbSingleton implements TimedataSingleton {
 			// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
 			boolean useLastDataCache = timestamp > lastTimestamp && timestamp < lastTimestamp + 60000;
 			this.lastTimestampMap.put(deviceId, timestamp);
-			Builder builder = Point.measurement("data") // this builds a InfluxDB record ("point") for a given timestamp
+			Builder builder = Point.measurement("data") // this builds an InfluxDB record ("point") for a given
+														// timestamp
 					.time(timestamp, TimeUnit.MILLISECONDS);
 
 			JsonObject jChannels = dataEntry.getValue();

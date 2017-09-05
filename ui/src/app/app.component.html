@@ -24,6 +24,7 @@
           <button md-icon-button style="cursor:default">
             <md-icon>keyboard_arrow_right</md-icon>
           </button>
+          <!-- TODO show breadcrumbs like 'Energymonitor > History', 'Energymonitor > Settings' -->
           <button routerLink="/device/{{ currentDevice.name }}/overview" md-button>Energiemonitor <small>({{ currentDevice.name }})</small></button>
         </div>
         <div fxFlex="50px" *ngIf="currentDevice.role != 'guest'">

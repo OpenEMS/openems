@@ -206,10 +206,6 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 					WebSocketUtils.send(openemsWebsocket, DefaultMessages.currentDataSubscribe(jId, new JsonObject()));
 				}
 				return;
-				// TODO: do an unsubscribe, otherwise OpenEMS keeps sending data unnecessarily:
-				// [orker-13] [INFO ] [msWebsocketSingleton:149] Received from openems0:
-				// {"id":["currentData","9s8pebngh23g07m9c7o3lrkh3s"],"currentData":{"meter0":{"ActivePower":-169,"ReactivePower":16},"ess0":{"ActivePower":0,"ReactivePower":0,"Soc":39},"meter1":{"ActivePower":-25,"ReactivePower":98}}}
-				// [orker-13] [WARN ] [msWebsocketSingleton:199] Browser websocket is not connected.
 			}
 			WebSocket browserWebsocket = browserWebsocketOpt.get();
 
