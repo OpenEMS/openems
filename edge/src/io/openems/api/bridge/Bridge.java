@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.api.channel.DebugChannel;
 import io.openems.api.device.Device;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
@@ -50,6 +51,7 @@ public abstract class Bridge extends Thread implements Thing {
 	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 	protected final List<Device> devices = Collections.synchronizedList(new LinkedList<Device>());
 	protected final Logger log;
+	private DebugChannel<Long> requiredCycleTime = new DebugChannel<>("RequiredCycleTime", this);
 
 	/**
 	 * Initialize the Thread with a name
@@ -249,6 +251,7 @@ public abstract class Bridge extends Thread implements Thing {
 				log.error("Bridge-Exception! Retry later: ", e);
 				bridgeExceptionSleep = bridgeExceptionSleep(bridgeExceptionSleep);
 			}
+			requiredCycleTime.setValue(System.currentTimeMillis() - cycleStart);
 		}
 		dispose();
 		System.out.println("BridgeWorker was interrupted. Exiting gracefully...");
