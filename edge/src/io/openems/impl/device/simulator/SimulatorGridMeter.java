@@ -38,9 +38,6 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 	private SimulatorReadChannel<Long> activePowerL2 = new SimulatorReadChannel<>("ActivePowerL2", this);
 	private SimulatorReadChannel<Long> activePowerL3 = new SimulatorReadChannel<>("ActivePowerL3", this);
 	private FunctionalReadChannel<Long> apparentPower;
-	private FunctionalReadChannel<Long> apparentPowerL1;
-	private FunctionalReadChannel<Long> apparentPowerL2;
-	private FunctionalReadChannel<Long> apparentPowerL3;
 	private SimulatorReadChannel<Long> reactivePower = new SimulatorReadChannel<>("ReactivePower", this);
 	private SimulatorReadChannel<Long> reactivePowerL1 = new SimulatorReadChannel<>("ReactivePowerL1", this);
 	private SimulatorReadChannel<Long> reactivePowerL2 = new SimulatorReadChannel<>("ReactivePowerL2", this);
@@ -96,36 +93,6 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 					}
 
 				}, activePower, reactivePower);
-		this.apparentPowerL1 = new FunctionalReadChannel<Long>("ApparentPowerL1", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) {
-						return ControllerUtils.calculateApparentPower(channels[0].valueOptional().orElse(0L),
-								channels[1].valueOptional().orElse(0L));
-					}
-
-				}, activePowerL1, reactivePowerL1);
-		this.apparentPowerL2 = new FunctionalReadChannel<Long>("ApparentPowerL2", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) {
-						return ControllerUtils.calculateApparentPower(channels[0].valueOptional().orElse(0L),
-								channels[1].valueOptional().orElse(0L));
-					}
-
-				}, activePowerL2, reactivePowerL2);
-		this.apparentPowerL3 = new FunctionalReadChannel<Long>("ApparentPowerL3", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) {
-						return ControllerUtils.calculateApparentPower(channels[0].valueOptional().orElse(0L),
-								channels[1].valueOptional().orElse(0L));
-					}
-
-				}, activePowerL3, reactivePowerL3);
 
 	}
 
