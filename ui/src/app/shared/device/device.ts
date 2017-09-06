@@ -79,7 +79,7 @@ export class Device {
    * Sends a message to websocket
    */
   public send(value: any): void {
-    this.websocket.send(this, value);
+    this.websocket.send(value, this);
   }
 
   /**

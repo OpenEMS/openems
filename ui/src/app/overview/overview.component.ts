@@ -10,6 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments';
 
 import { Service, Websocket, Utils } from '../shared/shared';
+import { DefaultMessages } from '../shared/service/defaultmessages';
 
 @Component({
   selector: 'overview',
@@ -31,7 +32,7 @@ export class OverviewComponent {
 
   doLogin() {
     let password: string = this.form.value['password'];
-    this.websocket.connectWithPassword(password);
+    this.websocket.send(DefaultMessages.authenticateLogin(password));
   }
 
   doLogout(form: FormGroup) {

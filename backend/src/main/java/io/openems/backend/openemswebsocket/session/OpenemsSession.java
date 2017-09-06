@@ -8,4 +8,8 @@ public class OpenemsSession extends Session<OpenemsSessionData> {
 		super(token, data);
 	}
 
+	@Override
+	public String toString() {
+		return "Device [" + getData().getDevice().getName() + "]";
+	}
 }

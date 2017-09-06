@@ -18,7 +18,20 @@ currently forwarded to Odoo login page
 
 [1.1.2] Authenticate Client -> OpenEMS Edge
 
-//TODO
+[1.1.2.1] Automatic
+
+// TODO
+
+[1.1.2.2] Manual login
+```
+{
+	authenticate: {
+		mode: "login",
+		username?: string,
+		password?: string
+	}
+}
+```
 
 [1.1.3] Authentication reply
 
@@ -29,12 +42,12 @@ currently forwarded to Odoo login page
 	authenticate: {
 		mode: "allow",
 		token: string,
-		role: "admin" | "installer" | "owner" | "guest"
+		role?: "admin" | "installer" | "owner" | "guest"
 	}, metadata: {
 		user: {
 			id: Integer
 		},
-		devices: [{
+		devices?: [{
 			name: string,
 			comment: string,
 			producttype: "Pro 9-12" | "MiniES 3-3" | "PRO Hybrid 9-10" | "PRO Compact 3-10" | "COMMERCIAL 40-45" | "INDUSTRIAL",
@@ -271,43 +284,7 @@ For 'unsubscribe' the channels object is empty.
 
 
 
-
 // TODO from here
-
-[1.2.1.1] Subscribe to current data: UI -> Edge/Backend
-
-```
-{
-	device: "...",
-	subscribe: {
-		log: "all" | "info" | "warning" | "error"
-	}
-}
-```
-
-
-
-
-// TODO rework from here...
-
-
-
-
-
-
-### [1.3] Log
-```
-{
-	device: "...",
-	log: {
-		timestamp: ...,
-		level: ...,
-		source: ...,
-		message: ...
-	}
-}
-```
-
 
 
 ### [1.5] Configuration

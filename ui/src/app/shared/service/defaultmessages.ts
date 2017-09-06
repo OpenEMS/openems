@@ -4,6 +4,17 @@ import * as moment from 'moment';
 import { DefaultTypes } from './defaulttypes';
 
 export class DefaultMessages {
+    public static authenticateLogin(password: string, username?: string) {
+        let m = {
+            authenticate: {
+                mode: "login",
+                password: password
+            }
+        };
+        if (username) m.authenticate["username"] = username;
+        return m;
+    };
+
     public static configQuery() {
         return {
             device: String,

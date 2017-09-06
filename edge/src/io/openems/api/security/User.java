@@ -27,6 +27,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Decoder;
+import java.util.Optional;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -129,24 +130,28 @@ public enum User {
 	 * @param password
 	 * @return the authenticated User or null if authentication failed
 	 */
-	public static User authenticate(String password) {
+	public static Optional<User> authenticate(String password) {
 		// Search for any user with the given password
 		for (User user : USERS) {
 			if (user.checkPassword(password)) {
-				return user;
+				log.info("Authentication successful with password only for user [" + user.getName() + "].");
+				return Optional.ofNullable(user);
 			}
 		}
-		return null;
+		log.info("Authentication failed with password only.");
+		return Optional.empty();
 	}
 
-	public static User authenticate(String username, String password) {
+	public static Optional<User> authenticate(String username, String password) {
 		// Search for user with given username
 		for (User user : USERS) {
 			if (username.equals(user.getName())) {
 				if (user.checkPassword(password)) {
-					return user;
+					log.info("Authentication successful for user[" + username + "].");
+					return Optional.of(user);
 				} else {
-					return null;
+					log.info("Authentication failed for user[" + username + "]: wrong password");
+					return Optional.empty();
 				}
 			}
 		}

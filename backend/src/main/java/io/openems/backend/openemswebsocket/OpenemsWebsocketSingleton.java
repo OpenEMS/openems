@@ -1,21 +1,13 @@
 package io.openems.backend.openemswebsocket;
 
-import java.net.InetSocketAddress;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
-import org.java_websocket.server.WebSocketServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import io.openems.backend.browserwebsocket.BrowserWebsocket;
 import io.openems.backend.metadata.Metadata;
@@ -27,6 +19,7 @@ import io.openems.backend.timedata.Timedata;
 import io.openems.backend.utilities.StringUtils;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 
@@ -36,15 +29,10 @@ import io.openems.common.websocket.WebSocketUtils;
  * @author stefan.feilmeier
  *
  */
-public class OpenemsWebsocketSingleton extends WebSocketServer {
-
-	private final Logger log = LoggerFactory.getLogger(OpenemsWebsocketSingleton.class);
-
-	private final BiMap<WebSocket, OpenemsSession> websockets = Maps.synchronizedBiMap(HashBiMap.create());
-	private final OpenemsSessionManager sessionManager = new OpenemsSessionManager();
+public class OpenemsWebsocketSingleton extends AbstractWebsocketServer<OpenemsSession, OpenemsSessionManager> {
 
 	protected OpenemsWebsocketSingleton(int port) throws Exception {
-		super(new InetSocketAddress(port));
+		super(port, new OpenemsSessionManager());
 	}
 
 	/**
@@ -110,62 +98,42 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 	}
 
 	/**
-	 * Close event of websocket. Removes the websocket.
+	 * Close event of websocket. Removes the session and the websocket.
 	 */
 	@Override
 	public void onClose(WebSocket websocket, int code, String reason, boolean remote) {
 		OpenemsSession session = this.websockets.get(websocket);
-		if (session != null) {
-			log.info("OpenEMS connection closed. Device [" + session.getData().getDevice().getName() + "] Code [" + code
-					+ "] Reason [" + reason + "]");
-			BrowserWebsocket.instance().openemsConnectionClosed(session.getData().getDevice().getName());
-		} else {
-			log.info("Browser connection closed. Code [" + code + "] Reason [" + reason + "]");
-		}
 		sessionManager.removeSession(session);
-		this.websockets.remove(websocket);
-	}
-
-	/**
-	 * Error event of websocket. Logs the error.
-	 */
-	@Override
-	public void onError(WebSocket websocket, Exception ex) {
-		OpenemsSession session = this.websockets.get(websocket);
-		if (session != null) {
-			log.warn("OpenEMS connection error. Device [" + session.getData().getDevice().getName() + "]: ", ex);
-		} else {
-			log.warn("OpenEMS connection error: ", ex);
-		}
+		super.onClose(websocket, code, reason, remote);
 	}
 
 	/**
 	 * Message event of websocket. Handles a new message. At this point the device is already authenticated.
 	 */
 	@Override
-	public void onMessage(WebSocket websocket, String message) {
+	protected void onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
+			Optional<String> deviceNameOpt) {
 		MetadataDevice device = websockets.get(websocket).getData().getDevice();
+
+		// TODO Remove after Debugging
+		if (!jMessage.has("timedata") && !jMessage.has("currentData") && !jMessage.has("log")) {
+			log.info("Received from " + device.getName() + ": " + jMessage.toString());
+		}
+
+		// Is this a reply?
+		if (jMessage.has("id")) {
+			forwardReplyToBrowser(websocket, jMessage);
+		}
+
+		/*
+		 * New timestamped data
+		 */
+		if (jMessage.has("timedata")) {
+			timedata(device, jMessage.get("timedata"));
+		}
+
+		// Save data to Odoo
 		try {
-			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-
-			// TODO Remove after Debugging
-			if (!jMessage.has("timedata") && !jMessage.has("currentData") && !jMessage.has("log")) {
-				log.info("Received from " + device.getName() + ": " + jMessage.toString());
-			}
-
-			// Is this a reply?
-			if (jMessage.has("id")) {
-				forwardReplyToBrowser(websocket, jMessage);
-			}
-
-			/*
-			 * New timestamped data
-			 */
-			if (jMessage.has("timedata")) {
-				timedata(device, jMessage.get("timedata"));
-			}
-
-			// Save data to Odoo
 			device.writeObject();
 		} catch (OpenemsException e) {
 			log.error(device.getName() + ": " + e.getMessage());
@@ -177,7 +145,7 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 			// get browser websocket
 			JsonArray jId = JsonUtils.getAsJsonArray(jMessage, "id");
 			String token = JsonUtils.getAsString(jId.get(jId.size() - 1));
-			Optional<WebSocket> browserWebsocketOpt = BrowserWebsocket.instance().getBrowserWebsocketByToken(token);
+			Optional<WebSocket> browserWebsocketOpt = BrowserWebsocket.instance().getWebsocketByToken(token);
 			if (!browserWebsocketOpt.isPresent()) {
 				log.warn("Browser websocket is not connected: " + jMessage);
 				if (jMessage.has("currentData")) {
@@ -231,11 +199,6 @@ public class OpenemsWebsocketSingleton extends WebSocketServer {
 		} catch (OpenemsException e) {
 			log.error(e.getMessage());
 		}
-	}
-
-	@Override
-	public void onStart() {
-
 	}
 
 	/**

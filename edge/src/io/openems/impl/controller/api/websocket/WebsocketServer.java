@@ -20,129 +20,217 @@
  *******************************************************************************/
 package io.openems.impl.controller.api.websocket;
 
-import java.net.InetSocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Optional;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
-import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-import io.openems.core.ClassRepository;
-import io.openems.core.ThingRepository;
-import io.openems.core.utilities.websocket.AuthenticatedWebsocketHandler;
-import io.openems.core.utilities.websocket.Notification;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
+import io.openems.common.websocket.AbstractWebsocketServer;
+import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.Notification;
+import io.openems.common.websocket.WebSocketUtils;
+import io.openems.impl.controller.api.websocket.session.WebsocketApiSession;
+import io.openems.impl.controller.api.websocket.session.WebsocketApiSessionManager;
 
-public class WebsocketServer extends WebSocketServer {
+public class WebsocketServer extends AbstractWebsocketServer<WebsocketApiSession, WebsocketApiSessionManager> {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketServer.class);
 
-	private final static ConcurrentHashMap<WebSocket, AuthenticatedWebsocketHandler> websockets = new ConcurrentHashMap<>();
-	private final ThingRepository thingRepository;
-	private final ClassRepository classRepository;
 	private final WebsocketApiController controller;
 
 	public WebsocketServer(WebsocketApiController controller, int port) {
-		super(new InetSocketAddress(port));
-		this.thingRepository = ThingRepository.getInstance();
-		this.classRepository = ClassRepository.getInstance();
+		super(port, new WebsocketApiSessionManager());
 		this.controller = controller;
 	}
 
-	@Override
-	public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-		log.info("User[" + getUserName(conn) + "]: close connection." //
-				+ " Code [" + code + "] Reason [" + reason + "]");
-		websockets.remove(conn);
-	}
-
-	@Override
-	public void onError(WebSocket conn, Exception ex) {
-		log.info("User[" + getUserName(conn) + "]: error on connection. " + ex);
-	}
-
-	@Override
-	public void onMessage(WebSocket websocket, String message) {
-		AuthenticatedWebsocketHandler handler = websockets.get(websocket);
-		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-		handler.onMessage(jMessage);
-
-		if (!handler.authenticationIsValid()) {
-			websockets.remove(websocket);
-		}
-	}
-
-	@Override
-	public void onOpen(WebSocket conn, ClientHandshake handshake) {
-		log.info("Incoming connection...");
-		websockets.put(conn, new AuthenticatedWebsocketHandler(conn, this.controller));
-	}
-
 	/**
-	 * Gets the user name of this user, avoiding null
-	 *
-	 * @param conn
-	 * @return
+	 * Open event of websocket. Parses the Odoo "session_id" and stores it in a new Session.
 	 */
-	private String getUserName(WebSocket conn) {
-		if (conn == null) {
-			return "NOT_CONNECTED";
-		}
-		AuthenticatedWebsocketHandler handler = websockets.get(conn);
-		if (handler == null) {
-			return "NOT_CONNECTED";
-		} else {
-			return handler.getUserName();
-		}
-	}
-
-	/**
-	 * Returns true if at least one websocket connection is existing; otherwise false
-	 *
-	 * @return
-	 */
-	public static boolean isConnected() {
-		return !websockets.isEmpty();
-	}
-
-	/**
-	 * Send a message to all connected websockets
-	 *
-	 * @param string
-	 * @param timestamp
-	 *
-	 * @param jMessage
-	 */
-	public static void broadcastLog(long timestamp, String level, String source, String message) {
-		websockets.forEach((websocket, handler) -> {
-			if (handler.authenticationIsValid()) {
-				handler.sendLog(timestamp, level, source, message);
+	@Override
+	public void onOpen(WebSocket websocket, ClientHandshake handshake) {
+		JsonObject jHandshake = this.parseCookieFromHandshake(handshake);
+		Optional<String> tokenOpt = JsonUtils.getAsOptionalString(jHandshake, "token");
+		if (tokenOpt.isPresent()) {
+			String token = tokenOpt.get();
+			Optional<WebsocketApiSession> sessionOpt = this.sessionManager.getSessionByToken(token);
+			if (sessionOpt.isPresent()) {
+				WebsocketApiSession session = sessionOpt.get();
+				WebSocket oldWebsocket = this.websockets.inverse().get(session);
+				if (oldWebsocket != null) {
+					// TODO to avoid this, websockets needs to be able to handle more than one websocket per session
+					oldWebsocket.closeConnection(CloseFrame.REFUSE, "Another client connected with this token");
+				}
+				// add to websockets
+				this.websockets.forcePut(websocket, session);
+				// send connection successful to browser
+				JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
+						Optional.of(session.getData().getRole()), new ArrayList<>());
+				log.info("Browser connected by session. User [" + session.getData().getUser() + "] Session ["
+						+ session.getToken() + "]");
+				WebSocketUtils.send(websocket, jReply);
+				return;
 			}
-		});
-	}
-
-	/**
-	 * Send a notification to all connected websockets
-	 *
-	 * @param string
-	 * @param timestamp
-	 *
-	 * @param jMessage
-	 */
-	public static void broadcastNotification(Notification notification) {
-		websockets.forEach((websocket, handler) -> {
-			if (handler.authenticationIsValid()) {
-				handler.sendNotification(notification.getType(), notification.getMessage());
-			}
-		});
+		}
+		// if we are here, automatic authentication was not possible -> notify client
+		WebSocketUtils.send(websocket,
+				DefaultMessages.notification(Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, tokenOpt.orElse("")));
 	}
 
 	@Override
-	public void onStart() {
+	protected void onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
+			Optional<String> deviceNameOpt) {
+		log.info(jMessage.toString());
 
+		/*
+		 * Authenticate
+		 */
+		Optional<WebsocketApiSession> sessionOpt = Optional.empty();
+		if (jMessage.has("authenticate")) {
+			// authenticate by username/password
+			sessionOpt = authenticate(jMessage.get("authenticate"));
+		}
+		if (!sessionOpt.isPresent()) {
+			// check if there is an existing session
+			sessionOpt = Optional.ofNullable(this.websockets.get(websocket));
+		}
+		if (!sessionOpt.isPresent()) {
+			/*
+			 * send authentication failed reply
+			 */
+			JsonObject jReply = DefaultMessages.browserConnectionFailedReply();
+			WebSocketUtils.send(websocket, jReply);
+			websocket.closeConnection(CloseFrame.REFUSE, "Authentication failed");
+			return;
+		}
+		WebsocketApiSession session = sessionOpt.get();
+		/*
+		 * On initial authentication...
+		 */
+		if (jMessage.has("authenticate")) {
+			// add to websockets
+			this.websockets.put(websocket, session);
+			// send connection successful to browser
+			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
+					Optional.of(session.getData().getRole()), new ArrayList<>());
+			log.info("Browser connected by authentication. User [" + session.getData().getUser() + "] Session ["
+					+ session.getToken() + "]");
+			WebSocketUtils.send(websocket, jReply);
+		}
+
+		// TODO handle all cases
+		// /*
+		// * Rest -> forward to super class
+		// */
+		// super.onMessage(jMessage);
+		//
+		// AuthenticatedWebsocketHandler handler = websockets.get(websocket);
+		// handler.onMessage(jMessage);
+		//
+		// if (!handler.authenticationIsValid()) {
+		// websockets.remove(websocket);
+		// }
 	}
+
+	/**
+	 * Authenticates a user according to the "authenticate" message. Stores the session if valid.
+	 *
+	 * @param jAuthenticateElement
+	 * @param handler
+	 */
+	private Optional<WebsocketApiSession> authenticate(JsonElement jAuthenticateElement) {
+		try {
+			JsonObject jAuthenticate = JsonUtils.getAsJsonObject(jAuthenticateElement);
+			if (jAuthenticate.has("mode")) {
+				String mode = JsonUtils.getAsString(jAuthenticate, "mode");
+				if (mode.equals("login")) {
+					if (jAuthenticate.has("password")) {
+						/*
+						 * Authenticate using username and password
+						 */
+						String password = JsonUtils.getAsString(jAuthenticate, "password");
+						if (jAuthenticate.has("username")) {
+							String username = JsonUtils.getAsString(jAuthenticate, "username");
+							return this.sessionManager.authByUserPassword(username, password);
+						} else {
+							return this.sessionManager.authByPassword(password);
+						}
+					}
+				}
+			}
+		} catch (OpenemsException e) { /* ignore */ }
+		return Optional.empty();
+	}
+
+	// TODO
+	// /**
+	// * Gets the user name of this user, avoiding null
+	// *
+	// * @param conn
+	// * @return
+	// */
+	// private String getUserName(WebSocket conn) {
+	// if (conn == null) {
+	// return "NOT_CONNECTED";
+	// }
+	// AuthenticatedWebsocketHandler handler = websockets.get(conn);
+	// if (handler == null) {
+	// return "NOT_CONNECTED";
+	// } else {
+	// return handler.getUserName();
+	// }
+	// }
+
+	// TODO
+	// /**
+	// * Returns true if at least one websocket connection is existing; otherwise false
+	// *
+	// * @return
+	// */
+	// public static boolean isConnected() {
+	// return !websockets.isEmpty();
+	// }
+
+	// TODO
+	// /**
+	// * Send a message to all connected websockets
+	// *
+	// * @param string
+	// * @param timestamp
+	// *
+	// * @param jMessage
+	// */
+	// public static void broadcastLog(long timestamp, String level, String source, String message) {
+	// websockets.forEach((websocket, handler) -> {
+	// if (handler.authenticationIsValid()) {
+	// handler.sendLog(timestamp, level, source, message);
+	// }
+	// });
+	// }
+
+	// TODO
+	// /**
+	// * Send a notification to all connected websockets
+	// *
+	// * @param string
+	// * @param timestamp
+	// *
+	// * @param jMessage
+	// */
+	// public static void broadcastNotification(Notification notification) {
+	// websockets.forEach((websocket, handler) -> {
+	// if (handler.authenticationIsValid()) {
+	// handler.sendNotification(notification.getType(), notification.getMessage());
+	// }
+	// });
+	// }
 }

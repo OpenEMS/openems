@@ -1,6 +1,5 @@
 package io.openems.backend.browserwebsocket;
 
-import java.net.InetSocketAddress;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -12,17 +11,10 @@ import java.util.regex.Pattern;
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
-import org.java_websocket.server.WebSocketServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.browserwebsocket.session.BrowserSessionData;
@@ -34,6 +26,7 @@ import io.openems.backend.timedata.Timedata;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.Device;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
@@ -44,15 +37,10 @@ import io.openems.common.websocket.WebSocketUtils;
  * @author stefan.feilmeier
  *
  */
-public class BrowserWebsocketSingleton extends WebSocketServer {
-
-	private final Logger log = LoggerFactory.getLogger(BrowserWebsocketSingleton.class);
-
-	private final BiMap<WebSocket, BrowserSession> websockets = Maps.synchronizedBiMap(HashBiMap.create());
-	private final BrowserSessionManager sessionManager = new BrowserSessionManager();
+public class BrowserWebsocketSingleton extends AbstractWebsocketServer<BrowserSession, BrowserSessionManager> {
 
 	protected BrowserWebsocketSingleton(int port) throws Exception {
-		super(new InetSocketAddress(port));
+		super(port, new BrowserSessionManager());
 	}
 
 	/**
@@ -110,7 +98,8 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 			}
 
 			// send connection successful to browser
-			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(), data.getDevices());
+			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(), Optional.empty(),
+					data.getDevices());
 			log.info("Browser connected. User [" + data.getUserId().orElse(-1) + "] Session ["
 					+ data.getOdooSessionId().orElse("") + "]");
 			WebSocketUtils.send(websocket, jReply);
@@ -130,43 +119,11 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 	}
 
 	/**
-	 * Close event of websocket. Removes the websocket.
-	 */
-	@Override
-	public void onClose(WebSocket websocket, int code, String reason, boolean remote) {
-		BrowserSession session = this.websockets.get(websocket);
-		if (session != null) {
-			log.info("Browser connection closed. User [" + session.getData().getUserId() + "] Session ["
-					+ session.getData().getOdooSessionId() + "]" + " Code [" + code + "] Reason [" + reason + "]");
-		} else {
-			log.info("Browser connection closed. Code [" + code + "] Reason [" + reason + "]");
-		}
-		this.websockets.remove(websocket);
-	}
-
-	/**
-	 * Error event of websocket. Logs the error.
-	 */
-	@Override
-	public void onError(WebSocket websocket, Exception ex) {
-		BrowserSession session = this.websockets.get(websocket);
-		if (session != null) {
-			log.warn("Browser connection error. User [" + session.getData().getUserId() + "] Session ["
-					+ session.getData().getOdooSessionId() + "]: " + ex.getMessage());
-		} else {
-			log.warn("Browser connection error: " + ex.getMessage());
-		}
-	}
-
-	/**
 	 * Message event of websocket. Handles a new message.
 	 */
 	@Override
-	public void onMessage(WebSocket websocket, String message) {
-		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-		Optional<JsonArray> jMessageId = JsonUtils.getAsOptionalJsonArray(jMessage, "id");
-		Optional<String> deviceNameOpt = JsonUtils.getAsOptionalString(jMessage, "device");
-
+	protected void onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
+			Optional<String> deviceNameOpt) {
 		/*
 		 * With existing device name
 		 */
@@ -176,7 +133,7 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 			 * Query historic data
 			 */
 			if (jMessage.has("historicData")) {
-				historicData(jMessageId, deviceName, websocket, jMessage.get("historicData"));
+				historicData(jMessageIdOpt, deviceName, websocket, jMessage.get("historicData"));
 			}
 
 			/*
@@ -192,28 +149,13 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 				}
 			}
 		}
-
-		// /*
-		// * Register interconnection to OpenEMS
-		// */
-		// if (jMessage.has("connect")) {
-		// connect(websocket, deviceName, jMessage.get("connect"));
-		// }
-		//
-		// /*
-		// * Forward Subscribe to data
-		// */
-		// if (jMessage.has("subscribe")) {
-		// subscribe(deviceName, jMessage.get("subscribe"));
-		// }
-		//
+		// TODO system command
 		// /*
 		// * Forward System command
 		// */
 		// if (jMessage.has("system")) {
 		// system(deviceName, jMessage.get("system"));
 		// }
-
 	}
 
 	/**
@@ -251,26 +193,6 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 		} else {
 			throw new OpenemsException("Device is not connected.");
 		}
-	}
-
-	/**
-	 * Get cookie from handshake
-	 *
-	 * @param handshake
-	 * @return cookie as JsonObject
-	 */
-	private JsonObject parseCookieFromHandshake(ClientHandshake handshake) {
-		JsonObject j = new JsonObject();
-		if (handshake.hasFieldValue("cookie")) {
-			String cookieString = handshake.getFieldValue("cookie");
-			for (String cookieVariable : cookieString.split("; ")) {
-				String[] keyValue = cookieVariable.split("=");
-				if (keyValue.length == 2) {
-					j.addProperty(keyValue[0], keyValue[1]);
-				}
-			}
-		}
-		return j;
 	}
 
 	// TODO notification handling
@@ -351,26 +273,6 @@ public class BrowserWebsocketSingleton extends WebSocketServer {
 			log.error("Error", e);
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public void onStart() {
-
-	}
-
-	/**
-	 * Returns the BrowserWebsocket for the given token
-	 *
-	 * @param name
-	 * @return
-	 */
-	public Optional<WebSocket> getBrowserWebsocketByToken(String token) {
-		Optional<BrowserSession> sessionOpt = this.sessionManager.getSessionByToken(token);
-		if (!sessionOpt.isPresent()) {
-			return Optional.empty();
-		}
-		BrowserSession session = sessionOpt.get();
-		return Optional.ofNullable(this.websockets.inverse().get(session));
 	}
 
 	/**

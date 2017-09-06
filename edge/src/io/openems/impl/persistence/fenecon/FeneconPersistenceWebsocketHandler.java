@@ -46,7 +46,7 @@ import io.openems.core.Config;
 import io.openems.core.ConfigFormat;
 
 /**
- * Handles a Websocket connection to a browser, femsserver,...
+ * Handles a Websocket connection to a browser, OpenEMS backend,...
  *
  * @author stefan.feilmeier
  */

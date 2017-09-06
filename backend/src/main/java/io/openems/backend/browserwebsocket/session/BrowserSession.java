@@ -8,4 +8,8 @@ public class BrowserSession extends Session<BrowserSessionData> {
 		super(token, data);
 	}
 
+	@Override
+	public String toString() {
+		return "User [" + getData().getUserId() + "] Session [" + getData().getOdooSessionId() + "]";
+	}
 }

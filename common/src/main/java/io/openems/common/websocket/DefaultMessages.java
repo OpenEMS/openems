@@ -1,6 +1,7 @@
 package io.openems.common.websocket;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonArray;
@@ -29,14 +30,19 @@ public class DefaultMessages {
 	 *			}]
 	 *		}
 	 *	}
+	 * - authenticate.role is only sent for OpenEMS Edge
+	 * - metadata.devices is only sent for OpenEMS Backend
 	 * </pre>
 	 * 
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject browserConnectionSuccessfulReply(String token, List<Device> devices) {
+	public static JsonObject browserConnectionSuccessfulReply(String token, Optional<String> roleOpt, List<Device> devices) {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "allow");
+		if(roleOpt.isPresent()) {
+			jAuthenticate.addProperty("role", roleOpt.get());
+		}
 		jAuthenticate.addProperty("token", token);
 		JsonObject j = new JsonObject();
 		j.add("authenticate", jAuthenticate);

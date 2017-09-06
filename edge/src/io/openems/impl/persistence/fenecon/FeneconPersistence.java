@@ -51,6 +51,7 @@ import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
 
+// TODO make sure this is registered as ChannelChangeListener also to ConfigChannels
 @ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
 
