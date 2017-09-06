@@ -20,14 +20,24 @@ export class OverviewComponent {
   public env = environment;
   public form: FormGroup;
 
+  private stopOnDestroy: Subject<void> = new Subject<void>();
+
   constructor(
     private websocket: Websocket,
     private utils: Utils,
     private translate: TranslateService,
-    private formBuilder: FormBuilder) {
+    private formBuilder: FormBuilder,
+    private router: Router) {
     this.form = formBuilder.group({
       "password": formBuilder.control('user')
     });
+    websocket.devices.takeUntil(this.stopOnDestroy).subscribe(devices => {
+      if (Object.keys(devices).length == 1) {
+        // redirect if only one device
+        let device = devices[Object.keys(devices)[0]];
+        this.router.navigate(['/device', device.name]);
+      }
+    })
   }
 
   doLogin() {
@@ -37,5 +47,10 @@ export class OverviewComponent {
 
   doLogout(form: FormGroup) {
     this.websocket.close();
+  }
+
+  onDestroy() {
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
   }
 }

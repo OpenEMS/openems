@@ -33,11 +33,11 @@ export class Websocket {
     return this._currentDevice;
   }
 
-  public status: "online" | "connecting" | "waiting for authentication" | "failed" = "connecting";
+  public status: DefaultTypes.ConnectionStatus = "connecting";
+  public noOfConnectedWebsockets: number;
 
   private username: string = "";
   private messages: Observable<any>;
-  public noOfConnectedWebsockets: number;
   private inputStream: Subject<any>;
   private websocketSubscription: Subscription = new Subscription();
   private queryreply = new Subject<{ id: string[] }>();

@@ -2,6 +2,8 @@ import * as moment from 'moment';
 
 export module DefaultTypes {
 
+  export type ConnectionStatus = "online" | "connecting" | "waiting for authentication" | "failed";
+
   export interface ChannelAddresses {
     [thing: string]: string[];
   }
