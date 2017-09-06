@@ -20,8 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.protocol.simulator;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.device.Device;
-import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 
@@ -31,18 +31,8 @@ public abstract class SimulatorDevice extends Device {
 	/*
 	 * Constructors
 	 */
-	public SimulatorDevice() throws OpenemsException {
-		super();
+	public SimulatorDevice(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
-	/*
-	 * Methods
-	 */
-	protected final void update() {
-		for (DeviceNature nature : getDeviceNatures()) {
-			if (nature instanceof SimulatorDeviceNature) {
-				((SimulatorDeviceNature) nature).update();
-			}
-		}
-	}
 }

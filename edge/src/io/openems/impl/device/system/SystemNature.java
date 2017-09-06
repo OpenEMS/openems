@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.system.SystemDeviceNature;
@@ -40,8 +41,8 @@ public class SystemNature extends SystemDeviceNature implements io.openems.api.d
 	/*
 	 * Constructors
 	 */
-	public SystemNature(String thingId) throws ConfigException {
-		super(thingId);
+	public SystemNature(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		try {
 			OPENEMS_STATIC_IPS = new Inet4Address[] { //
 					// 192.168.100.100

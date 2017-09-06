@@ -22,6 +22,7 @@ package io.openems.impl.device.socomec;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
@@ -40,8 +41,8 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	/*
 	 * Constructors
 	 */
-	public SocomecMeter(String thingId) throws ConfigException {
-		super(thingId);
+	public SocomecMeter(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
@@ -215,8 +216,7 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 						new SignedDoublewordElement(0xc56C, //
 								apparentPower = new ModbusReadLongChannel("ApparentPower", this).unit("VA")
 										.multiplier(1)),
-						new DummyElement(0xc56E, 0xc56F),
-						new SignedDoublewordElement(0xc570, //
+						new DummyElement(0xc56E, 0xc56F), new SignedDoublewordElement(0xc570, //
 								activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")
 										.multiplier(1)),
 						new SignedDoublewordElement(0xc572, //
@@ -236,16 +236,16 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 										.multiplier(1))),
 				new ModbusRegisterRange(0xc652, //
 						new UnsignedDoublewordElement(0xc652, //
-								activePositiveEnergy = new ModbusReadLongChannel("ActivePositiveEnergy", this)
-										.unit("kWh")),
+								activePositiveEnergy = new ModbusReadLongChannel(
+										"ActivePositiveEnergy", this).unit("kWh")),
 						new UnsignedDoublewordElement(0xc654, //
-								reactivePositiveEnergy = new ModbusReadLongChannel("ReactivePositiveEnergy", this)
-										.unit("kvarh")),
+								reactivePositiveEnergy = new ModbusReadLongChannel(
+										"ReactivePositiveEnergy", this).unit("kvarh")),
 						new UnsignedDoublewordElement(0xc656, //
 								apparentEnergy = new ModbusReadLongChannel("ApparentEnergy", this).unit("kVAh")),
 						new UnsignedDoublewordElement(0xc658, //
-								activeNegativeEnergy = new ModbusReadLongChannel("ActiveNegativeEnergy", this)
-										.unit("kWh")),
+								activeNegativeEnergy = new ModbusReadLongChannel(
+										"ActiveNegativeEnergy", this).unit("kWh")),
 						new UnsignedDoublewordElement(0xc65a, //
 								reactiveNegativeEnergy = new ModbusReadLongChannel("ReactiveNegativeEnergy", this)
 										.unit("kvarh"))));

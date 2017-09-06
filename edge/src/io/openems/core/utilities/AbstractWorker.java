@@ -26,8 +26,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.api.channel.ConfigChannel;
-import io.openems.api.doc.ConfigInfo;
 import io.openems.api.thing.Thing;
 
 public abstract class AbstractWorker extends Thread implements Thing {
@@ -49,8 +47,10 @@ public abstract class AbstractWorker extends Thread implements Thing {
 		this.setName(name);
 	}
 
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
-	public abstract ConfigChannel<Integer> cycleTime();
+	// @ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	// public abstract ConfigChannel<Integer> cycleTime();
+
+	protected abstract int getCycleTime();
 
 	public boolean isInitialized() {
 		return isInitialized.get();
@@ -128,7 +128,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 						initializedMutex.release();
 						initialize.set(false);
 					} else {
-						initializedMutex.awaitOrTimeout(cycleTime().valueOptional().get() * 10, TimeUnit.MILLISECONDS);
+						initializedMutex.awaitOrTimeout(getCycleTime() * 10, TimeUnit.MILLISECONDS);
 					}
 				}
 				/*
@@ -139,7 +139,7 @@ public abstract class AbstractWorker extends Thread implements Thing {
 				 * Wait for next cycle
 				 */
 				try {
-					long sleep = cycleTime().valueOptional().get() - (System.currentTimeMillis() - cycleStart);
+					long sleep = getCycleTime() - (System.currentTimeMillis() - cycleStart);
 					if (sleep > 0) {
 						Thread.sleep(sleep); // TODO add cycle time
 					}

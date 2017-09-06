@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.InputNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
@@ -44,8 +45,8 @@ public class WagoFBInput extends ModbusDeviceNature implements InputNature {
 	/*
 	 * Constructors
 	 */
-	public WagoFBInput(String thingId) throws ConfigException {
-		super(thingId);
+	public WagoFBInput(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*

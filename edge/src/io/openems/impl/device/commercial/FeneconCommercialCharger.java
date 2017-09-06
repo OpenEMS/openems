@@ -27,6 +27,7 @@ import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -51,8 +52,8 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 	/*
 	 * Constructors
 	 */
-	public FeneconCommercialCharger(String thingId) throws ConfigException {
-		super(thingId);
+	public FeneconCommercialCharger(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
@@ -216,10 +217,9 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
 		ModbusProtocol protocol = new ModbusProtocol(//
-				new WriteableModbusRegisterRange(0x0503,
-						new UnsignedWordElement(0x0503,
-								pvPowerLimitCommand = new ModbusWriteLongChannel("PvPowerLimitCommand", this)
-										.multiplier(2).unit("W"))),
+				new WriteableModbusRegisterRange(0x0503, new UnsignedWordElement(0x0503,
+						pvPowerLimitCommand = new ModbusWriteLongChannel("PvPowerLimitCommand", this).multiplier(2)
+								.unit("W"))),
 				new ModbusRegisterRange(0xA000, //
 						new UnsignedWordElement(0xA000,
 								bmsDCDCWorkState = new ModbusReadLongChannel("BmsDCDCWorkState", this)//
@@ -457,8 +457,8 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA156,
 								bmsDCDCOutputTotalDischargeEnergy = new ModbusReadLongChannel(
-										"BmsDCDCOutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW)),
+										"BmsDCDCOutputTotalDischargeEnergy", this).unit("Wh")
+												.multiplier(2)).wordOrder(WordOrder.LSWMSW)),
 				new ModbusRegisterRange(0xA300, //
 						new UnsignedWordElement(0xA300,
 								bmsDCDC1WorkState = new ModbusReadLongChannel("BmsDCDC1WorkState", this)//
@@ -696,8 +696,8 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA456,
 								bmsDCDC1OutputTotalDischargeEnergy = new ModbusReadLongChannel(
-										"BmsDCDC1OutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW)),
+										"BmsDCDC1OutputTotalDischargeEnergy", this).unit("Wh")
+												.multiplier(2)).wordOrder(WordOrder.LSWMSW)),
 				new ModbusRegisterRange(0xA600, //
 						new UnsignedWordElement(0xA600,
 								pvDCDCWorkState = new ModbusReadLongChannel("PvDCDCWorkState", this)//
@@ -934,8 +934,8 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 												.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA756,
 								pvDCDCOutputTotalDischargeEnergy = new ModbusReadLongChannel(
-										"PvDCDCOutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW)),
+										"PvDCDCOutputTotalDischargeEnergy", this).unit("Wh")
+												.multiplier(2)).wordOrder(WordOrder.LSWMSW)),
 				new ModbusRegisterRange(0xA900, //
 						new UnsignedWordElement(0xA900,
 								pvDCDC1WorkState = new ModbusReadLongChannel("PvDCDC1WorkState", this)//

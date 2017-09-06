@@ -6,6 +6,8 @@ public class RandomLoadGenerator implements LoadGenerator {
 
 	private long min;
 	private long max;
+	private int delta;
+	private long lastValue;
 
 	public long getMin() {
 		return min;
@@ -23,10 +25,19 @@ public class RandomLoadGenerator implements LoadGenerator {
 		this.max = max;
 	}
 
+	public int getDelta() {
+		return delta;
+	}
+
+	public void setDelta(int delta) {
+		this.delta = delta;
+	}
+
 	public RandomLoadGenerator(JsonObject config) {
 		super();
 		this.min = config.get("min").getAsLong();
 		this.max = config.get("max").getAsLong();
+		this.delta = config.get("delta").getAsInt();
 	}
 
 	public RandomLoadGenerator() {
@@ -36,7 +47,8 @@ public class RandomLoadGenerator implements LoadGenerator {
 
 	@Override
 	public long getLoad() {
-		return min + (int) (Math.random() * ((max - min) + 1));
+		this.lastValue = SimulatorTools.addRandomLong(lastValue, min, max, delta);
+		return lastValue;
 	}
 
 }

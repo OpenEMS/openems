@@ -22,6 +22,7 @@ package io.openems.impl.device.socomec;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
@@ -40,8 +41,8 @@ public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMete
 	/*
 	 * Constructors
 	 */
-	public SocomecB30Meter(String thingId) throws ConfigException {
-		super(thingId);
+	public SocomecB30Meter(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
@@ -197,8 +198,7 @@ public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMete
 								voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV").multiplier(1)),
 						new UnsignedDoublewordElement(0x4810, //
 								voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV").multiplier(1)),
-						new DummyElement(0x4812, 0x4819),
-						new UnsignedDoublewordElement(0x481A, //
+						new DummyElement(0x4812, 0x4819), new UnsignedDoublewordElement(0x481A, //
 								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")),
 						new UnsignedDoublewordElement(0x481C, //
 								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA")),
@@ -209,11 +209,9 @@ public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMete
 								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W")),
 						new SignedDoublewordElement(0x482E, //
 								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("Var")),
-						new DummyElement(0x4830, 0x4833),
-						new SignedDoublewordElement(0x4834, //
+						new DummyElement(0x4830, 0x4833), new SignedDoublewordElement(0x4834, //
 								apparentPower = new ModbusReadLongChannel("ApparentPower", this).unit("VA")),
-						new DummyElement(0x4836, 0x4837),
-						new SignedDoublewordElement(0x4838, //
+						new DummyElement(0x4836, 0x4837), new SignedDoublewordElement(0x4838, //
 								activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")),
 						new SignedDoublewordElement(0x483A, //
 								activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")),
@@ -227,18 +225,15 @@ public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMete
 								reactivePowerL3 = new ModbusReadLongChannel("ReactivePowerL3", this).unit("Var"))),
 				new ModbusRegisterRange(0x4D83, //
 						new UnsignedDoublewordElement(0x4D83, //
-								activePositiveEnergy = new ModbusReadLongChannel("ActivePositiveEnergy", this)
-										.unit("kWh")),
-						new DummyElement(0x4D85),
-						new UnsignedDoublewordElement(0x4D86, //
-								activeNegativeEnergy = new ModbusReadLongChannel("ActiveNegativeEnergy", this)
-										.unit("kWh")),
-						new DummyElement(0x4D88),
-						new UnsignedDoublewordElement(0x4D89, //
-								reactivePositiveEnergy = new ModbusReadLongChannel("ReactivePositiveEnergy", this)
-										.unit("kvarh")),
-						new DummyElement(0x4D8B),
-						new UnsignedDoublewordElement(0x4D8C, //
+								activePositiveEnergy = new ModbusReadLongChannel("ActivePositiveEnergy",
+										this).unit("kWh")),
+						new DummyElement(0x4D85), new UnsignedDoublewordElement(0x4D86, //
+								activeNegativeEnergy = new ModbusReadLongChannel("ActiveNegativeEnergy",
+										this).unit("kWh")),
+						new DummyElement(0x4D88), new UnsignedDoublewordElement(0x4D89, //
+								reactivePositiveEnergy = new ModbusReadLongChannel("ReactivePositiveEnergy",
+										this).unit("kvarh")),
+						new DummyElement(0x4D8B), new UnsignedDoublewordElement(0x4D8C, //
 								reactiveNegativeEnergy = new ModbusReadLongChannel("ReactiveNegativeEnergy", this)
 										.unit("kvarh")),
 						new DummyElement(0x4D8E), new UnsignedDoublewordElement(0x4D8F, //

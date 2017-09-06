@@ -16,12 +16,6 @@
           </div>
           <div fxFlex fxLayout fxLayoutWrap="wrap">
             <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
-              <input placeholder="Min Active Power" formControlName="minActivePower" type="number" mdInput>
-            </md-input-container>
-            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
-              <input placeholder="Max Active Power" formControlName="maxActivePower" type="number" mdInput>
-            </md-input-container>
-            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
               <input placeholder="Frequency" formControlName="frequency" type="number" mdInput>
             </md-input-container>
             <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
@@ -42,18 +36,6 @@
             <p>Id: {{ form.productionMeter.value.id }}</p>
           </div>
           <div fxFlex fxLayout fxLayoutWrap="wrap">
-            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
-              <input placeholder="Min Active Power" formControlName="minActivePower" type="number" mdInput>
-            </md-input-container>
-            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
-              <input placeholder="Max Active Power" formControlName="maxActivePower" type="number" mdInput>
-            </md-input-container>
-            <!--<md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
-              <input placeholder="Active Power" formControlName="ActivePower" type="number" mdInput>
-            </md-input-container>
-            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
-              <input placeholder="Reactive Power" formControlName="ReactivePower" type="number" mdInput>
-            </md-input-container>-->
             <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
               <input placeholder="Frequency" formControlName="frequency" type="number" mdInput>
             </md-input-container>
@@ -92,6 +74,24 @@
       </md-card-content>
       <md-card-actions *ngIf="form.symmetricEss" style="text-align: right">
         <button (click)="save(form.symmetricEss)" [disabled]="form.symmetricEss.pristine" color="primary" md-mini-fab>
+                                        <md-icon>save</md-icon>
+                                    </button>
+      </md-card-actions>
+      <md-card-content *ngIf="form.asymmetricEss">
+        <div fxLayout fxLayoutWrap="wrap" [formGroup]="form.asymmetricEss">
+          <div fxFlex="200px">
+            <p style="font-weight: bold">Asymmetric ESS</p>
+            <p>Id: {{ form.asymmetricEss.value.id }}</p>
+          </div>
+          <div fxFlex fxLayout fxLayoutWrap="wrap">
+            <md-input-container fxFlex.gt-xs="50%" fxFlex.xs="100%">
+              <input placeholder="ActivePower overwrite" formControlName="Power" type="number" mdInput>
+            </md-input-container>
+          </div>
+        </div>
+      </md-card-content>
+      <md-card-actions *ngIf="form.asymmetricEss" style="text-align: right">
+        <button (click)="save(form.asymmetricEss)" [disabled]="form.asymmetricEss.pristine" color="primary" md-mini-fab>
                                         <md-icon>save</md-icon>
                                     </button>
       </md-card-actions>

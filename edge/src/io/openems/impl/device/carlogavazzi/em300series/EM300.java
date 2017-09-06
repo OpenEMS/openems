@@ -23,6 +23,7 @@ package io.openems.impl.device.carlogavazzi.em300series;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ConfigInfo;
@@ -36,8 +37,8 @@ public class EM300 extends ModbusDevice {
 	/*
 	 * Constructors
 	 */
-	public EM300() throws OpenemsException {
-		super();
+	public EM300(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*

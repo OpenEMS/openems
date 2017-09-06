@@ -20,9 +20,9 @@
  *******************************************************************************/
 package io.openems.impl.protocol.studer;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
-import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
@@ -33,8 +33,8 @@ public abstract class StuderDevice extends Device {
 	/*
 	 * Constructors
 	 */
-	public StuderDevice() throws OpenemsException {
-		super();
+	public StuderDevice(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*
@@ -46,38 +46,8 @@ public abstract class StuderDevice extends Device {
 	/*
 	 * Methods
 	 */
-	protected final void update(StuderBridge studerBridge) throws OpenemsException {
-		int srcAddress = getSrcAddress(studerBridge);
-		int dstAddress = getDstAddress();
-		for (DeviceNature nature : getDeviceNatures()) {
-			if (nature instanceof StuderDeviceNature) {
-				((StuderDeviceNature) nature).update(srcAddress, dstAddress, studerBridge);
-			}
-		}
-	}
 
-	protected final void write(StuderBridge studerBridge) throws OpenemsException {
-		int srcAddress = getSrcAddress(studerBridge);
-		int dstAddress = getDstAddress();
-		for (DeviceNature nature : getDeviceNatures()) {
-			if (nature instanceof StuderDeviceNature) {
-				((StuderDeviceNature) nature).write(srcAddress, dstAddress, studerBridge);
-			}
-		}
-	}
-
-	private int getSrcAddress(StuderBridge studerBridge) throws OpenemsException {
-		int srcAddress;
-		try {
-			srcAddress = studerBridge.address.value();
-		} catch (Throwable e) {
-			e.printStackTrace();
-			throw new OpenemsException("Unable to find srcAddress: " + e.getMessage());
-		}
-		return srcAddress;
-	}
-
-	private int getDstAddress() throws OpenemsException {
+	protected int getDstAddress() throws OpenemsException {
 		int dstAddress;
 		try {
 			dstAddress = this.address.value();

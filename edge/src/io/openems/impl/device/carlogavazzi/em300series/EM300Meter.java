@@ -22,6 +22,7 @@ package io.openems.impl.device.carlogavazzi.em300series;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
@@ -42,8 +43,8 @@ public class EM300Meter extends ModbusDeviceNature implements SymmetricMeterNatu
 	/*
 	 * Constructors
 	 */
-	public EM300Meter(String thingId) throws ConfigException {
-		super(thingId);
+	public EM300Meter(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
@@ -197,9 +198,8 @@ public class EM300Meter extends ModbusDeviceNature implements SymmetricMeterNatu
 								voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV").multiplier(2)),
 						new SignedDoublewordElement(5, //
 								voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV").multiplier(2))),
-				new ModbusInputRegisterRange(13,
-						new SignedDoublewordElement(13, //
-								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")),
+				new ModbusInputRegisterRange(13, new SignedDoublewordElement(13, //
+						currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")),
 						new SignedDoublewordElement(15, //
 								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA")),
 						new SignedDoublewordElement(17, //
@@ -220,20 +220,18 @@ public class EM300Meter extends ModbusDeviceNature implements SymmetricMeterNatu
 								reactivePowerL2 = new ModbusReadLongChannel("ReactivePowerL2", this).unit("var")
 										.multiplier(-1)),
 						new SignedDoublewordElement(29, //
-								reactivePowerL3 = new ModbusReadLongChannel("ReactivePowerL3", this).unit("var")
-										.multiplier(-1)),
-						new DummyElement(31, 40),
-						new SignedDoublewordElement(41, //
+								reactivePowerL3 = new ModbusReadLongChannel("ReactivePowerL3", this)
+										.unit("var").multiplier(-1)),
+						new DummyElement(31, 40), new SignedDoublewordElement(41, //
 								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").multiplier(-1)),
 						new SignedDoublewordElement(43, //
 								apparentPower = new ModbusReadLongChannel("ApparentPower", this).unit("VA")
 										.multiplier(-1)),
 						new SignedDoublewordElement(45, //
-								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("var")
-										.multiplier(-1))),
-				new ModbusInputRegisterRange(52,
-						new SignedWordElement(52, //
-								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHZ").multiplier(2)),
+								reactivePower = new ModbusReadLongChannel("ReactivePower", this)
+										.unit("var").multiplier(-1))),
+				new ModbusInputRegisterRange(52, new SignedWordElement(52, //
+						frequency = new ModbusReadLongChannel("Frequency", this).unit("mHZ").multiplier(2)),
 						new UnsignedDoublewordElement(53, //
 								activePositiveEnergy = new ModbusReadLongChannel("ActivePositiveEnergy", this)
 										.unit("kWh").multiplier(1)),
@@ -242,8 +240,8 @@ public class EM300Meter extends ModbusDeviceNature implements SymmetricMeterNatu
 										.unit("kvarh").multiplier(-1))),
 				new ModbusRegisterRange(79, //
 						new UnsignedDoublewordElement(79, //
-								activeNegativeEnergy = new ModbusReadLongChannel("ActiveNegativeEnergy", this)
-										.unit("kWh").multiplier(-1)),
+								activeNegativeEnergy = new ModbusReadLongChannel(
+										"ActiveNegativeEnergy", this).unit("kWh").multiplier(-1)),
 						new UnsignedDoublewordElement(81, //
 								reactiveNegativeEnergy = new ModbusReadLongChannel("ReactiveNegativeEnergy", this)
 										.unit("kvarh").multiplier(-1))));

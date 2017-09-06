@@ -40,6 +40,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
@@ -62,8 +63,8 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private List<ChargerNature> chargerList;
 	private ThingRepository repo = ThingRepository.getInstance();
 	private double energy;
-	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(5, 1);
-	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(5, 1);
+	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(3, 1);
+	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(3, 1);
 	@ConfigInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
 	public ConfigChannel<JsonObject> activePowerGeneratorConfig = new ConfigChannel<JsonObject>(
 			"activePowerGeneratorConfig", this).addChangeListener(this).addChangeListener(this);
@@ -76,8 +77,8 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	/*
 	 * Constructors
 	 */
-	public SimulatorSymmetricEss(String thingId) throws ConfigException {
-		super(thingId);
+	public SimulatorSymmetricEss(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
