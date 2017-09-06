@@ -40,15 +40,17 @@ import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.impl.controller.api.websocket.session.WebsocketApiSession;
+import io.openems.impl.controller.api.websocket.session.WebsocketApiSessionData;
 import io.openems.impl.controller.api.websocket.session.WebsocketApiSessionManager;
 
-public class WebsocketServer extends AbstractWebsocketServer<WebsocketApiSession, WebsocketApiSessionManager> {
+public class WebsocketApiServer
+		extends AbstractWebsocketServer<WebsocketApiSession, WebsocketApiSessionData, WebsocketApiSessionManager> {
 
-	private static Logger log = LoggerFactory.getLogger(WebsocketServer.class);
+	private static Logger log = LoggerFactory.getLogger(WebsocketApiServer.class);
 
 	private final WebsocketApiController controller;
 
-	public WebsocketServer(WebsocketApiController controller, int port) {
+	public WebsocketApiServer(WebsocketApiController controller, int port) {
 		super(port, new WebsocketApiSessionManager());
 		this.controller = controller;
 	}
@@ -65,18 +67,20 @@ public class WebsocketServer extends AbstractWebsocketServer<WebsocketApiSession
 			Optional<WebsocketApiSession> sessionOpt = this.sessionManager.getSessionByToken(token);
 			if (sessionOpt.isPresent()) {
 				WebsocketApiSession session = sessionOpt.get();
-				WebSocket oldWebsocket = this.websockets.inverse().get(session);
+				WebSocket oldWebsocket = session.getData().getWebsocketHandler().getWebsocket();
 				if (oldWebsocket != null) {
 					// TODO to avoid this, websockets needs to be able to handle more than one websocket per session
 					oldWebsocket.closeConnection(CloseFrame.REFUSE, "Another client connected with this token");
 				}
+				// refresh session
+				session.getData().getWebsocketHandler().setWebsocket(websocket);
 				// add to websockets
 				this.websockets.forcePut(websocket, session);
 				// send connection successful to browser
 				JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
 						Optional.of(session.getData().getRole()), new ArrayList<>());
-				log.info("Browser connected by session. User [" + session.getData().getUser() + "] Session ["
-						+ session.getToken() + "]");
+				log.info("Websocket [" + websocket + "] connected by session. User [" + session.getData().getUser()
+						+ "] Session [" + session.getToken() + "]");
 				WebSocketUtils.send(websocket, jReply);
 				return;
 			}
@@ -89,7 +93,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WebsocketApiSession
 	@Override
 	protected void onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt) {
-		log.info(jMessage.toString());
+		// log.info("RECV: websocket[" + websocket + "]" + jMessage.toString());
 
 		/*
 		 * Authenticate
@@ -97,7 +101,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WebsocketApiSession
 		Optional<WebsocketApiSession> sessionOpt = Optional.empty();
 		if (jMessage.has("authenticate")) {
 			// authenticate by username/password
-			sessionOpt = authenticate(jMessage.get("authenticate"));
+			sessionOpt = authenticate(jMessage.get("authenticate"), websocket);
 		}
 		if (!sessionOpt.isPresent()) {
 			// check if there is an existing session
@@ -127,18 +131,10 @@ public class WebsocketServer extends AbstractWebsocketServer<WebsocketApiSession
 			WebSocketUtils.send(websocket, jReply);
 		}
 
-		// TODO handle all cases
-		// /*
-		// * Rest -> forward to super class
-		// */
-		// super.onMessage(jMessage);
-		//
-		// AuthenticatedWebsocketHandler handler = websockets.get(websocket);
-		// handler.onMessage(jMessage);
-		//
-		// if (!handler.authenticationIsValid()) {
-		// websockets.remove(websocket);
-		// }
+		/*
+		 * Rest -> forward to websocket handler
+		 */
+		session.getData().getWebsocketHandler().onMessage(jMessage);
 	}
 
 	/**
@@ -147,7 +143,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WebsocketApiSession
 	 * @param jAuthenticateElement
 	 * @param handler
 	 */
-	private Optional<WebsocketApiSession> authenticate(JsonElement jAuthenticateElement) {
+	private Optional<WebsocketApiSession> authenticate(JsonElement jAuthenticateElement, WebSocket websocket) {
 		try {
 			JsonObject jAuthenticate = JsonUtils.getAsJsonObject(jAuthenticateElement);
 			if (jAuthenticate.has("mode")) {
@@ -160,9 +156,9 @@ public class WebsocketServer extends AbstractWebsocketServer<WebsocketApiSession
 						String password = JsonUtils.getAsString(jAuthenticate, "password");
 						if (jAuthenticate.has("username")) {
 							String username = JsonUtils.getAsString(jAuthenticate, "username");
-							return this.sessionManager.authByUserPassword(username, password);
+							return this.sessionManager.authByUserPassword(username, password, websocket);
 						} else {
-							return this.sessionManager.authByPassword(password);
+							return this.sessionManager.authByPassword(password, websocket);
 						}
 					}
 				}
@@ -171,66 +167,17 @@ public class WebsocketServer extends AbstractWebsocketServer<WebsocketApiSession
 		return Optional.empty();
 	}
 
-	// TODO
-	// /**
-	// * Gets the user name of this user, avoiding null
-	// *
-	// * @param conn
-	// * @return
-	// */
-	// private String getUserName(WebSocket conn) {
-	// if (conn == null) {
-	// return "NOT_CONNECTED";
-	// }
-	// AuthenticatedWebsocketHandler handler = websockets.get(conn);
-	// if (handler == null) {
-	// return "NOT_CONNECTED";
-	// } else {
-	// return handler.getUserName();
-	// }
-	// }
-
-	// TODO
-	// /**
-	// * Returns true if at least one websocket connection is existing; otherwise false
-	// *
-	// * @return
-	// */
-	// public static boolean isConnected() {
-	// return !websockets.isEmpty();
-	// }
-
-	// TODO
-	// /**
-	// * Send a message to all connected websockets
-	// *
-	// * @param string
-	// * @param timestamp
-	// *
-	// * @param jMessage
-	// */
-	// public static void broadcastLog(long timestamp, String level, String source, String message) {
-	// websockets.forEach((websocket, handler) -> {
-	// if (handler.authenticationIsValid()) {
-	// handler.sendLog(timestamp, level, source, message);
-	// }
-	// });
-	// }
-
-	// TODO
-	// /**
-	// * Send a notification to all connected websockets
-	// *
-	// * @param string
-	// * @param timestamp
-	// *
-	// * @param jMessage
-	// */
-	// public static void broadcastNotification(Notification notification) {
-	// websockets.forEach((websocket, handler) -> {
-	// if (handler.authenticationIsValid()) {
-	// handler.sendNotification(notification.getType(), notification.getMessage());
-	// }
-	// });
-	// }
+	/**
+	 * Send a log entry to all connected websockets
+	 *
+	 * @param string
+	 * @param timestamp
+	 *
+	 * @param jMessage
+	 */
+	public void broadcastLog(long timestamp, String level, String source, String message) {
+		for (WebsocketApiSession session : this.sessionManager.getSessions()) {
+			session.getData().getWebsocketHandler().sendLog(timestamp, level, source, message);
+		}
+	}
 }

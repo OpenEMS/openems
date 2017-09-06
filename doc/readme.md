@@ -28,7 +28,7 @@ currently forwarded to Odoo login page
 	authenticate: {
 		mode: "login",
 		username?: string,
-		password?: string
+		password: string
 	}
 }
 ```

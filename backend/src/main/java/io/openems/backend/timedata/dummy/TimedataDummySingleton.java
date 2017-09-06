@@ -22,8 +22,8 @@ public class TimedataDummySingleton implements TimedataSingleton {
 	}
 
 	@Override
-	public JsonArray queryHistoricData(int deviceId, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
-			int resolution) throws OpenemsException {
+	public JsonArray queryHistoricData(Optional<Integer> deviceIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate,
+			JsonObject channels, int resolution) throws OpenemsException {
 		log.info("Timedata Dummy. Would query data: From [" + fromDate + "], To [" + toDate + "] Channels [" + channels
 				+ "] Resolution [" + resolution + "]");
 		return new JsonArray();

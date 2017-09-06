@@ -1,9 +1,5 @@
 package io.openems.backend.browserwebsocket;
 
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,9 +7,10 @@ import java.util.regex.Pattern;
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.browserwebsocket.session.BrowserSession;
@@ -37,7 +34,9 @@ import io.openems.common.websocket.WebSocketUtils;
  * @author stefan.feilmeier
  *
  */
-public class BrowserWebsocketSingleton extends AbstractWebsocketServer<BrowserSession, BrowserSessionManager> {
+public class BrowserWebsocketSingleton
+		extends AbstractWebsocketServer<BrowserSession, BrowserSessionData, BrowserSessionManager> {
+	private final Logger log = LoggerFactory.getLogger(BrowserWebsocketSingleton.class);
 
 	protected BrowserWebsocketSingleton(int port) throws Exception {
 		super(port, new BrowserSessionManager());
@@ -74,8 +73,8 @@ public class BrowserWebsocketSingleton extends AbstractWebsocketServer<BrowserSe
 			error = e.getMessage();
 		}
 
-		// create new session if no existing one was found
 		if (session == null) {
+			// create new session if no existing one was found
 			BrowserSessionData sessionData = new BrowserSessionData();
 			sessionData.setOdooSessionId(sessionId);
 			session = sessionManager.createNewSession(sessionData);
@@ -133,7 +132,20 @@ public class BrowserWebsocketSingleton extends AbstractWebsocketServer<BrowserSe
 			 * Query historic data
 			 */
 			if (jMessage.has("historicData")) {
-				historicData(jMessageIdOpt, deviceName, websocket, jMessage.get("historicData"));
+				// parse deviceId
+				Matcher matcher = Pattern.compile("\\d+").matcher(deviceName); // extracts '0' from 'openems0'
+				matcher.find();
+				Optional<Integer> deviceIdOpt = Optional.ofNullable(Integer.valueOf(matcher.group()));
+				JsonArray jMessageId = jMessageIdOpt.get();
+				try {
+					JsonObject jHistoricData = JsonUtils.getAsJsonObject(jMessage, "historicData");
+					JsonObject jReply = WebSocketUtils.historicData(jMessageId, jHistoricData, deviceIdOpt,
+							Timedata.instance());
+					WebSocketUtils.send(websocket, jReply);
+				} catch (OpenemsException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 			/*
@@ -149,13 +161,6 @@ public class BrowserWebsocketSingleton extends AbstractWebsocketServer<BrowserSe
 				}
 			}
 		}
-		// TODO system command
-		// /*
-		// * Forward System command
-		// */
-		// if (jMessage.has("system")) {
-		// system(deviceName, jMessage.get("system"));
-		// }
 	}
 
 	/**
@@ -228,52 +233,6 @@ public class BrowserWebsocketSingleton extends AbstractWebsocketServer<BrowserSe
 	// log.info(deviceName + ": forward system call to OpenEMS " + StringUtils.toShortString(j, 100));
 	// WebSocketUtils.send(openemsWebsocket, j);
 	// }
-
-	/**
-	 * Query command
-	 *
-	 * @param j
-	 */
-	private synchronized void historicData(Optional<JsonArray> jMessageIdOpt, String deviceName, WebSocket websocket,
-			JsonElement jHistoricDataElement) {
-		try {
-			JsonObject jHistoricData = JsonUtils.getAsJsonObject(jHistoricDataElement);
-			String mode = JsonUtils.getAsString(jHistoricData, "mode");
-			if (mode.equals("query")) {
-				JsonArray jMessageId = jMessageIdOpt.get();
-				/*
-				 * Query historic data
-				 */
-				Matcher matcher = Pattern.compile("\\d+").matcher(deviceName); // extracts '0' from 'openems0'
-				matcher.find();
-				int deviceId = Integer.valueOf(matcher.group());
-				int timezoneDiff = JsonUtils.getAsInt(jHistoricData, "timezone");
-				ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
-				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jHistoricData, "fromDate", timezone);
-				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jHistoricData, "toDate", timezone).plusDays(1);
-				JsonObject channels = JsonUtils.getAsJsonObject(jHistoricData, "channels");
-				// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
-				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
-				// TODO: better calculation of sensible resolution
-				int resolution = 5 * 60; // 5 Minutes
-				if (days > 25) {
-					resolution = 24 * 60 * 60; // 1 Day
-				} else if (days > 6) {
-					resolution = 3 * 60 * 60; // 3 Hours
-				} else if (days > 2) {
-					resolution = 60 * 60; // 60 Minutes
-				}
-				JsonArray jData = Timedata.instance().queryHistoricData(deviceId, fromDate, toDate, channels,
-						resolution);
-				// send reply
-				JsonObject j = DefaultMessages.historicDataQueryReply(jMessageId, jData);
-				WebSocketUtils.send(websocket, j);
-			}
-		} catch (Exception e) {
-			log.error("Error", e);
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * OpenEMS Websocket tells us, when the connection to an OpenEMS Edge is closed

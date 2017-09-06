@@ -51,22 +51,8 @@ export class Device {
   // holds log
   public log: Observable<DefaultTypes.Log>;
 
-  // holds device configuration; gets new configuration on first subscribe
-  public config: Observable<ConfigImpl> = Observable
-    .create((observer: Observer<ConfigImpl>) => {
-      // send query
-      let message = DefaultMessages.configQuery();
-      let messageId = message.id[0];
-      this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
-      this.send(message);
-      // wait for reply
-      this.replyStreams[messageId].first().subscribe(reply => {
-        let config = (<DefaultMessages.ConfigQueryReply>reply).config;
-        let configImpl = new ConfigImpl(config)
-        observer.next(configImpl);
-      });
-      // TODO add timeout
-    }).publishReplay(1).refCount();
+  // holds config
+  public config: BehaviorSubject<ConfigImpl> = new BehaviorSubject<ConfigImpl>(null);
 
   public event = new Subject<Notification>();
   public address: string;
@@ -74,6 +60,35 @@ export class Device {
   //public historykWh = new BehaviorSubject<any[]>(null);
   private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
   private subscribeCurrentDataChannels: DefaultTypes.ChannelAddresses = {};
+
+  /*
+   * Called by websocket, when this device is set as currentDevice
+   */
+  public markAsCurrentDevice() {
+    if (this.config.getValue() == null) {
+      this.refreshConfig();
+    }
+  }
+
+  /*
+   * Refresh the config
+   */
+  public refreshConfig(): BehaviorSubject<ConfigImpl> {
+    let message = DefaultMessages.configQuery();
+    let messageId = message.id[0];
+    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
+    this.send(message);
+    // wait for reply
+    this.replyStreams[messageId].first().subscribe(reply => {
+      let config = (<DefaultMessages.ConfigQueryReply>reply).config;
+      let configImpl = new ConfigImpl(config)
+      this.config.next(configImpl);
+      this.replyStreams[messageId].unsubscribe();
+      delete this.replyStreams[messageId];
+    });
+    // TODO add timeout
+    return this.config;
+  }
 
   /**
    * Sends a message to websocket

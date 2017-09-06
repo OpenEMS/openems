@@ -17,12 +17,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.openems.common.session.Session;
+import io.openems.common.session.SessionData;
 import io.openems.common.session.SessionManager;
 import io.openems.common.utils.JsonUtils;
 
-public abstract class AbstractWebsocketServer<S extends Session<?>, M extends SessionManager<?, ?>>
+public abstract class AbstractWebsocketServer<S extends Session<D>, D extends SessionData, M extends SessionManager<S, D>>
 		extends WebSocketServer {
-	protected final Logger log;
+	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketServer.class);
 	protected final M sessionManager;
 	protected final BiMap<WebSocket, S> websockets = Maps.synchronizedBiMap(HashBiMap.create());
 
@@ -30,10 +31,17 @@ public abstract class AbstractWebsocketServer<S extends Session<?>, M extends Se
 
 	public AbstractWebsocketServer(int port, M sessionManager) {
 		super(new InetSocketAddress(port));
-		this.log = LoggerFactory.getLogger(this.getClass());
 		this.sessionManager = sessionManager;
 	}
-
+	
+	/**
+	 * Open event of websocket.
+	 */
+	@Override
+	public void onOpen(WebSocket arg0, ClientHandshake arg1) {
+		log.info("Websocket opened.");
+	}
+	
 	/**
 	 * Close event of websocket. Removes the websocket. Keeps the session
 	 */
@@ -46,7 +54,7 @@ public abstract class AbstractWebsocketServer<S extends Session<?>, M extends Se
 		} else {
 			sessionString = session.toString();
 		}
-		log.info("Browser connection closed. " + sessionString + " Code [" + code + "] Reason [" + reason + "]");
+		log.info("Websocket closed. " + sessionString + " Code [" + code + "] Reason [" + reason + "]");
 		this.websockets.remove(websocket);
 	}
 
@@ -62,7 +70,7 @@ public abstract class AbstractWebsocketServer<S extends Session<?>, M extends Se
 		} else {
 			sessionString = session.toString();
 		}
-		log.warn("Browser connection error. " + sessionString + ": " + ex.getMessage());
+		log.warn("Websocket error. " + sessionString + ": " + ex.getMessage());
 	}
 	
 	/**
@@ -109,7 +117,6 @@ public abstract class AbstractWebsocketServer<S extends Session<?>, M extends Se
 	 * @return
 	 */
 	public Optional<WebSocket> getWebsocketByToken(String token) {
-		@SuppressWarnings("unchecked")
 		Optional<S> sessionOpt = (Optional<S>) this.sessionManager.getSessionByToken(token);
 		if (!sessionOpt.isPresent()) {
 			return Optional.empty();

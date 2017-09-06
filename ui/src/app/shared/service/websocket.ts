@@ -79,6 +79,7 @@ export class Websocket {
         } else {
           // set current device
           this.currentDevice.next(device);
+          device.markAsCurrentDevice();
         }
       }, error => {
         console.error("Error while setting current device: ", error);
@@ -120,11 +121,6 @@ export class Websocket {
         });
         // TODO show spinners everywhere
         this.status = 'connecting';
-      } else if (noOfConnectedWebsockets > 0 && this.status == 'connecting') {
-        this.service.notify({
-          message: "Connection established.", // TODO translate
-          type: 'info'
-        });
       }
     });
     this.messages = messages.share();
@@ -133,7 +129,7 @@ export class Websocket {
 
     }).subscribe(message => {
       // called on every receive of message from server
-      console.log(message);
+      // console.log(message);
       /*
        * Authenticate
        */
@@ -175,6 +171,8 @@ export class Websocket {
           if (env.backend == Backend.OpenEMS_Backend) {
             console.log("would redirect...") // TODO fix redirect
             //window.location.href = "/web/login?redirect=/m/overview";
+          } else if (env.backend == Backend.OpenEMS_Edge) {
+            this.router.navigate(['/overview']);
           }
         }
       }
@@ -249,6 +247,7 @@ export class Websocket {
             // ask for authentication info
             this.status = "waiting for authentication";
             notify = false;
+            this.router.navigate["/overview"];
           }
         }
         if (notify) {
@@ -262,11 +261,9 @@ export class Websocket {
    * Reset everything to default
    */
   private initialize() {
-    if (this.status != "online") { // TODO why this if?
-      this.websocketSubscription.unsubscribe();
-      this.messages = null;
-      this.devices.next({});
-    }
+    this.websocketSubscription.unsubscribe();
+    this.messages = null;
+    this.devices.next({});
   }
 
   /**
@@ -287,7 +284,7 @@ export class Websocket {
    * Sends a message to the websocket
    */
   public send(message: any, device?: Device): void {
-    console.log("SEND: ", message, device);
+    // console.log("SEND: ", message);
     if (device) {
       if ("id" in message) {
         this.pendingQueryReplies[message.id[0]] = device.name;

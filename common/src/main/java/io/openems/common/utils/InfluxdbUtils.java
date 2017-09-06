@@ -25,9 +25,7 @@ import io.openems.common.types.ChannelAddress;
 
 public class InfluxdbUtils {
 
-	private final static String DB_NAME = "db";
-
-	public static JsonArray queryHistoricData(InfluxDB influxdb, Optional<Integer> deviceId, ZonedDateTime fromDate,
+	public static JsonArray queryHistoricData(InfluxDB influxdb, String database, Optional<Integer> deviceId, ZonedDateTime fromDate,
 			ZonedDateTime toDate, JsonObject channels, int resolution) throws OpenemsException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
@@ -48,7 +46,7 @@ public class InfluxdbUtils {
 		query.append(resolution);
 		query.append("s) fill(null)");
 
-		QueryResult queryResult = executeQuery(influxdb, query.toString());
+		QueryResult queryResult = executeQuery(influxdb,database, query.toString());
 
 		JsonArray j = new JsonArray();
 		for (Result result : queryResult.getResults()) {
@@ -102,7 +100,7 @@ public class InfluxdbUtils {
 		return j;
 	}
 
-	private static JsonObject querykWh(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
+	private static JsonObject querykWh(InfluxDB influxdb, String database, Optional<Integer> fems, ZonedDateTime fromDate,
 			ZonedDateTime toDate, JsonObject channels, int resolution, JsonObject kWh) throws OpenemsException {
 		JsonArray gridThing = getGridThing(kWh);
 		JsonArray storageThing = getStorageThing(kWh);
@@ -133,7 +131,7 @@ public class InfluxdbUtils {
 			query.append("s");
 			query.append(" GROUP BY time(1s) fill(previous))");
 
-			QueryResult queryResult = executeQuery(influxdb, query.toString());
+			QueryResult queryResult = executeQuery(influxdb, database, query.toString());
 
 			Double sumProduction = 0.0;
 			try {
@@ -166,7 +164,7 @@ public class InfluxdbUtils {
 			query.append(String.valueOf(toDate.toEpochSecond()));
 			query.append("s");
 
-			queryResult = executeQuery(influxdb, query.toString());
+			queryResult = executeQuery(influxdb, database, query.toString());
 
 			int second = 0;
 			try {
@@ -202,7 +200,7 @@ public class InfluxdbUtils {
 			query.append(String.valueOf(fromDate.toEpochSecond()));
 			query.append("s");
 
-			queryResult = executeQuery(influxdb, query.toString());
+			queryResult = executeQuery(influxdb, query.toString(), database);
 
 			try {
 				if (queryResult.getResults() != null) {
@@ -296,11 +294,11 @@ public class InfluxdbUtils {
 		return String.join(", ", channelAddresses);
 	}
 
-	private static QueryResult executeQuery(InfluxDB influxdb, String query) throws OpenemsException {
+	private static QueryResult executeQuery(InfluxDB influxdb, String database, String query) throws OpenemsException {
 		// Parse result
 		QueryResult queryResult;
 		try {
-			queryResult = influxdb.query(new Query(query, DB_NAME), TimeUnit.MILLISECONDS);
+			queryResult = influxdb.query(new Query(query, database), TimeUnit.MILLISECONDS);
 		} catch (RuntimeException e) {
 			throw new OpenemsException("InfluxDB query runtime error: " + e.getMessage());
 		}

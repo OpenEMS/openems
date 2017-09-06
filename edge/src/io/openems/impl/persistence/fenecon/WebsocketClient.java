@@ -37,11 +37,13 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
+
 public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketClient.class);
 
-	private final FeneconPersistenceWebsocketHandler websocketHandler; // TODO remove
+	private final EdgeWebsocketHandler websocketHandler; // TODO remove
 
 	public WebsocketClient(URI uri, String apikey) throws Exception {
 		super( //
@@ -62,7 +64,7 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 			// }
 			this.setSocket(SSLSocketFactory.getDefault().createSocket());
 		}
-		this.websocketHandler = new FeneconPersistenceWebsocketHandler(this.getConnection());
+		this.websocketHandler = new EdgeWebsocketHandler(this.getConnection());
 	}
 
 	@Override
@@ -111,7 +113,7 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 	 *
 	 * @return
 	 */
-	public FeneconPersistenceWebsocketHandler getWebsocketHandler() {
+	public EdgeWebsocketHandler getWebsocketHandler() {
 		return this.websocketHandler;
 	}
 }

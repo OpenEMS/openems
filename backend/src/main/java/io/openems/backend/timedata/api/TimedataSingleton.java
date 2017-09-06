@@ -1,14 +1,12 @@
 package io.openems.backend.timedata.api;
 
-import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.api.TimedataSource;
 
-public interface TimedataSingleton {
+public interface TimedataSingleton extends TimedataSource {
 	/**
 	 * Takes a JsonObject and writes the points to database.
 	 *
@@ -26,23 +24,4 @@ public interface TimedataSingleton {
 	 * </pre>
 	 */
 	public void write(Optional<Integer> deviceId, JsonObject jData);
-
-	/**
-	 * Queries the database and returns a JsonArray of the form
-	 *
-	 * <pre>
-	 *
-	 * </pre>
-	 *
-	 *
-	 * @param deviceId
-	 * @param fromDate
-	 * @param toDate
-	 * @param channels
-	 * @param resolution
-	 * @return
-	 * @throws OpenemsException
-	 */
-	public JsonArray queryHistoricData(int deviceId, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
-			int resolution/* , JsonObject kWh */) throws OpenemsException;
 }

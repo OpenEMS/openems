@@ -169,9 +169,9 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	}
 
 	@Override
-	public JsonArray queryHistoricData(int deviceId, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
-			int resolution/* , JsonObject kWh */) throws OpenemsException {
-		Optional<Integer> deviceIdOpt = Optional.of(deviceId);
-		return InfluxdbUtils.queryHistoricData(influxDB, deviceIdOpt, fromDate, toDate, channels, resolution);
+	public JsonArray queryHistoricData(Optional<Integer> deviceIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate,
+			JsonObject channels, int resolution) throws OpenemsException {
+		return InfluxdbUtils.queryHistoricData(influxDB, this.database, deviceIdOpt, fromDate, toDate, channels,
+				resolution);
 	}
 }

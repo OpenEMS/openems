@@ -1,14 +1,15 @@
 package io.openems.common.session;
 
-public class Session<T> {
+public class Session<D extends SessionData> {
 	private final String token;
 	private boolean valid = false;
+	
 	/**
 	 * store additional metadata to this session
 	 */
-	private final T data;
+	private final D data;
 
-	protected Session(String token, T data) {
+	protected Session(String token, D data) {
 		this.token = token;
 		this.data = data;
 	}
@@ -29,7 +30,7 @@ public class Session<T> {
 		return this.valid;
 	}
 	
-	public T getData() {
+	public D getData() {
 		return data;
 	}
 

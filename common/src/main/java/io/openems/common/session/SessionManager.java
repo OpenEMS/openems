@@ -28,41 +28,43 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.java_websocket.WebSocket;
+
 import io.openems.common.utils.SecureRandomSingleton;
 
-public abstract class SessionManager<T extends Session<?>, V extends SessionData> {
+public abstract class SessionManager<S extends Session<D>, D extends SessionData> {
 
 	private final static int SESSION_ID_LENGTH = 130;
 
 	// TODO: invalidate old sessions in separate thread: call _removeSession to do so
-	private final Map<String, T> sessions = new ConcurrentHashMap<>();
+	private final Map<String, S> sessions = new ConcurrentHashMap<>();
 	
 	protected SessionManager() {}
 	
-	public T createNewSession(String token, V data) {
-		T session = this._createNewSession(token, data);
+	public S createNewSession(String token, D data) {
+		S session = this._createNewSession(token, data);
 		this._putSession(token, session);
 		return session;
 	}
 	
-	public T createNewSession(V data) {
+	public S createNewSession(D data) {
 		String token = this.generateToken();
 		return this.createNewSession(token, data);
 	}
 	
-	public Optional<T> getSessionByToken(String token) {
+	public Optional<S> getSessionByToken(String token) {
 		return Optional.ofNullable(this.sessions.get(token));
 	}
 	
 	public void removeSession(String token) {
-		T session = this.sessions.get(token);
+		S session = this.sessions.get(token);
 		if(session != null) {
 			session.setInvalid();
 			this._removeSession(token);
 		}
 	}
 	
-	public void removeSession(Session<?> session) {
+	public void removeSession(Session<D> session) {
 		session.setInvalid();
 		this.removeSession(session.getToken());
 	}
@@ -73,7 +75,7 @@ public abstract class SessionManager<T extends Session<?>, V extends SessionData
 		return new BigInteger(SESSION_ID_LENGTH, sr).toString(32);
 	}
 	
-	public Collection<T> getSessions() {
+	public Collection<S> getSessions() {
 		return Collections.unmodifiableCollection(this.sessions.values());
 	}
 	
@@ -87,7 +89,7 @@ public abstract class SessionManager<T extends Session<?>, V extends SessionData
 	 * @param data
 	 * @return
 	 */
-	protected abstract T _createNewSession(String token, V data);
+	protected abstract S _createNewSession(String token, D data);
 	
 	/**
 	 * This method is always called when adding a session to local database 
@@ -95,7 +97,7 @@ public abstract class SessionManager<T extends Session<?>, V extends SessionData
 	 * @param token
 	 * @param session
 	 */
-	protected void _putSession(String token, T session) {
+	protected void _putSession(String token, S session) {
 		this.sessions.put(token, session);
 	}
 	

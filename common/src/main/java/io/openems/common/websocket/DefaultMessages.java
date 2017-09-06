@@ -302,4 +302,24 @@ public class DefaultMessages {
 		j.add("log", jLog);
 		return j;
 	}
+
+	/**
+	 * <pre>
+	 *	{
+	 *		id: [string],
+	 *		log: {
+	 *			mode: "unsubscribe"
+	 *		}
+	 *	}
+	 * </pre>
+	 * 
+	 * @return
+	 */
+	public static JsonObject logUnsubscribe(JsonArray jId) {
+		JsonObject j = new JsonObject();
+		j.add("id", jId);
+		JsonObject jLog = new JsonObject();
+		jLog.addProperty("mode", "unsubscribe");
+		return j;
+	}
 }

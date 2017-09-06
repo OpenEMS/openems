@@ -50,6 +50,7 @@ import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
+import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 
 // TODO make sure this is registered as ChannelChangeListener also to ConfigChannels
 @ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
@@ -147,8 +148,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 * @return
 	 */
 	private boolean send(JsonObject j) {
-		Optional<FeneconPersistenceWebsocketHandler> websocketHandler = getWebsocketHandler();
-		return websocketHandler.isPresent() && WebSocketUtils.send(websocketHandler.get().websocket, j);
+		Optional<EdgeWebsocketHandler> websocketHandler = getWebsocketHandler();
+		return websocketHandler.isPresent() && WebSocketUtils.send(websocketHandler.get().getWebsocket(), j);
 	}
 
 	/**
@@ -156,7 +157,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 *
 	 * @return
 	 */
-	public Optional<FeneconPersistenceWebsocketHandler> getWebsocketHandler() {
+	public Optional<EdgeWebsocketHandler> getWebsocketHandler() {
 		Optional<WebsocketClient> websocketClient = getWebsocketClient();
 		if (websocketClient.isPresent()) {
 			return Optional.of(websocketClient.get().getWebsocketHandler());

@@ -18,12 +18,12 @@ import { environment } from '../../../environments';
 })
 export class OverviewComponent implements OnInit, OnDestroy {
 
-  public device: Device
+  public device: Device = null
   public config: ConfigImpl = null;
   public currentData: CurrentDataAndSummary = null;
   //public customFields: CustomFieldDefinition = {};
 
-  private stopCurrentData: Subject<void> = new Subject<void>();
+  private stopOnDestroy: Subject<void> = new Subject<void>();
   private currentDataTimeout: number;
 
   constructor(
@@ -34,37 +34,49 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.websocket.setCurrentDevice(this.route)
-      .filter(device => device != null)
-      .first()
+      .takeUntil(this.stopOnDestroy)
       .subscribe(device => {
         this.device = device;
-        device.config.first().subscribe(config => {
-          this.config = config;
-          let channels = config.getImportantChannels();
-          // TODO fieldstatus
-          // /*
-          //  * Add custom fields for fieldstatus component
-          //  */
-          // for (let thing in this.customFields) {
-          //   let thingChannels = []
-          //   for (let channel in this.customFields[thing]) {
-          //     thingChannels.push(channel);
-          //   }
-          //   channels[thing] = thingChannels;
-          // }
-          device.subscribeCurrentData(channels).takeUntil(this.stopCurrentData).subscribe(currentData => {
-            this.currentData = currentData;
-            // resubscribe on timeout
-            clearInterval(this.currentDataTimeout);
-            this.currentDataTimeout = window.setInterval(() => {
-              this.currentData = null;
-              if (this.websocket.status == 'online') {
-                device.subscribeCurrentData(channels);
+        if (device == null) {
+          this.config = null;
+        } else {
+
+          device.config
+            .takeUntil(this.stopOnDestroy)
+            .subscribe(config => {
+              this.config = config;
+              if (config != null) {
+
+                let channels = config.getImportantChannels();
+                device.subscribeCurrentData(channels)
+                  .takeUntil(this.stopOnDestroy)
+                  .subscribe(currentData => {
+                    this.currentData = currentData;
+
+                    // resubscribe on timeout
+                    clearInterval(this.currentDataTimeout);
+                    this.currentDataTimeout = window.setInterval(() => {
+                      this.currentData = null;
+                      if (this.websocket.status == 'online') {
+                        device.subscribeCurrentData(channels);
+                      }
+                    }, Websocket.TIMEOUT);
+                  });
               }
-            }, Websocket.TIMEOUT);
-          });
-        })
-      })
+              // TODO fieldstatus
+              // /*
+              //  * Add custom fields for fieldstatus component
+              //  */
+              // for (let thing in this.customFields) {
+              //   let thingChannels = []
+              //   for (let channel in this.customFields[thing]) {
+              //     thingChannels.push(channel);
+              //   }
+              //   channels[thing] = thingChannels;
+              // }
+            });
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -75,7 +87,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     this.device = null;
     this.config = null;
     this.currentData = null;
-    this.stopCurrentData.next();
-    this.stopCurrentData.complete();
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
   }
 }

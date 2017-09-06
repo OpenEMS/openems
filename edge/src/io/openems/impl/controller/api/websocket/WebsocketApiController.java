@@ -21,7 +21,6 @@
 package io.openems.impl.controller.api.websocket;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -77,8 +76,7 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	 */
 	private final ConcurrentHashMap<String, PQ> manualpq = new ConcurrentHashMap<>();
 	private final ThingRepository thingRepository;
-	private volatile WebsocketServer websocketServer = null;
-	private HashMap<String, String> lastMessages = new HashMap<>();
+	private volatile WebsocketApiServer websocketApiServer = null;
 
 	/*
 	 * Methods
@@ -86,10 +84,10 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	@Override
 	public void run() {
 		// Start Websocket-Api server
-		if (websocketServer == null && port.valueOptional().isPresent()) {
+		if (websocketApiServer == null && port.valueOptional().isPresent()) {
 			try {
-				websocketServer = new WebsocketServer(this, port.valueOptional().get());
-				websocketServer.start();
+				websocketApiServer = new WebsocketApiServer(this, port.valueOptional().get());
+				websocketApiServer.start();
 				log.info("Websocket-Api started on port [" + port.valueOptional().orElse(0) + "].");
 			} catch (Exception e) {
 				log.error(e.getMessage() + ": " + e.getCause());
@@ -137,14 +135,14 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		if (channel.equals(port)) {
-			if (this.websocketServer != null) {
+			if (this.websocketApiServer != null) {
 				try {
-					this.websocketServer.stop();
+					this.websocketApiServer.stop();
 				} catch (IOException | InterruptedException e) {
 					log.error("Error closing websocket on port [" + oldValue + "]: " + e.getMessage());
 				}
 			}
-			this.websocketServer = null;
+			this.websocketApiServer = null;
 		}
 	}
 
@@ -154,5 +152,17 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 
 	public void resetManualPQ(String ess) {
 		this.manualpq.remove(ess);
+	}
+
+	/**
+	 * Send a log entry to all connected websockets
+	 *
+	 * @param string
+	 * @param timestamp
+	 *
+	 * @param jMessage
+	 */
+	public void broadcastLog(long timestamp, String level, String source, String message) {
+		this.websocketApiServer.broadcastLog(timestamp, level, source, message);
 	}
 }

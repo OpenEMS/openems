@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.persistence.fenecon;
+package io.openems.core.utilities.websocket;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -38,36 +37,34 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.api.persistence.QueryablePersistence;
+import io.openems.common.api.TimedataSource;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
 import io.openems.core.ConfigFormat;
+import io.openems.core.ThingRepository;
 
 /**
  * Handles a Websocket connection to a browser, OpenEMS backend,...
  *
  * @author stefan.feilmeier
  */
-public class FeneconPersistenceWebsocketHandler {
+public class EdgeWebsocketHandler {
 
-	private Logger log = LoggerFactory.getLogger(FeneconPersistenceWebsocketHandler.class);
+	private Logger log = LoggerFactory.getLogger(EdgeWebsocketHandler.class);
 
 	/**
-	 * Executor for subscriptions task
+	 * Holds the websocket connection
 	 */
-	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+	protected WebSocket websocket;
 
 	/**
 	 * Holds subscribers to current data
 	 */
 	private final HashMap<String, CurrentDataWorker> currentDataSubscribers = new HashMap<>();
-
-	/**
-	 * Holds the websocket connection
-	 */
-	protected final WebSocket websocket;
 
 	/**
 	 * Holds subscribers to system log
@@ -79,28 +76,39 @@ public class FeneconPersistenceWebsocketHandler {
 	 */
 	private final ExecutorService logExecutor = Executors.newCachedThreadPool();
 
-	public FeneconPersistenceWebsocketHandler(WebSocket websocket) {
+	public EdgeWebsocketHandler(WebSocket websocket) {
 		this.websocket = websocket;
 	}
 
-	/**
-	 * Message event of websocket. Handles a new message.
-	 */
-	public void onMessage(JsonObject jMessage) {
-		log.info(jMessage.toString());
+	public void setWebsocket(WebSocket websocket) {
+		this.websocket = websocket;
+	}
 
+	public WebSocket getWebsocket() {
+		return websocket;
+	}
+
+	/**
+	 * Handles a message from Websocket.
+	 *
+	 * @param jMessage
+	 */
+	public final void onMessage(JsonObject jMessage) {
 		// get message id -> used for reply
 		Optional<JsonArray> jIdOpt = JsonUtils.getAsOptionalJsonArray(jMessage, "id");
 
 		// prepare reply (every reply is going to be merged into this object with this unique message id)
-		Optional<JsonObject> jReplyOpt = Optional.empty();
+		JsonObject jReply = new JsonObject();
+
+		// init deviceId as empty. It's only needed in backend
+		Optional<Integer> deviceIdOpt = Optional.empty();
 
 		/*
 		 * Config
 		 */
 		Optional<JsonObject> jConfigOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "config");
 		if (jConfigOpt.isPresent()) {
-			jReplyOpt = JsonUtils.merge(jReplyOpt, //
+			jReply = JsonUtils.merge(jReply, //
 					config(jConfigOpt.get()) //
 			);
 		}
@@ -110,9 +118,30 @@ public class FeneconPersistenceWebsocketHandler {
 		 */
 		Optional<JsonObject> jCurrentDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "currentData");
 		if (jCurrentDataOpt.isPresent() && jIdOpt.isPresent()) {
-			jReplyOpt = JsonUtils.merge(jReplyOpt, //
+			jReply = JsonUtils.merge(jReply, //
 					currentData(jIdOpt.get(), jCurrentDataOpt.get()) //
 			);
+		}
+
+		/*
+		 * Query historic data
+		 */
+		// Optional<JsonArray> jMessageIdOpt, String deviceName, WebSocket websocket, JsonElement jHistoricDataElement
+		Optional<JsonObject> jhistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
+		if (jhistoricDataOpt.isPresent() && jIdOpt.isPresent()) {
+			// select first QueryablePersistence (by default the running InfluxdbPersistence)
+			TimedataSource timedataSource = null;
+			for (QueryablePersistence queryablePersistence : ThingRepository.getInstance().getQueryablePersistences()) {
+				timedataSource = queryablePersistence;
+				break;
+			}
+			if (timedataSource == null) {
+				// TODO create notification that there is no datasource available
+			} else {
+				jReply = JsonUtils.merge(jReply, //
+						WebSocketUtils.historicData(jIdOpt.get(), jhistoricDataOpt.get(), deviceIdOpt, timedataSource) //
+				);
+			}
 		}
 
 		/*
@@ -120,18 +149,17 @@ public class FeneconPersistenceWebsocketHandler {
 		 */
 		Optional<JsonObject> jLogOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "log");
 		if (jLogOpt.isPresent() && jIdOpt.isPresent()) {
-			jReplyOpt = JsonUtils.merge(jReplyOpt, //
+			jReply = JsonUtils.merge(jReply, //
 					log(jIdOpt.get(), jLogOpt.get()) //
 			);
 		}
 
 		// send reply
-		if (jReplyOpt.isPresent()) {
-			JsonObject jReply = jReplyOpt.get();
+		if (jReply.entrySet().size() > 0) {
 			if (jIdOpt.isPresent()) {
 				jReply.add("id", jIdOpt.get());
 			}
-			WebSocketUtils.send(this.websocket, jReply);
+			WebSocketUtils.send(websocket, jReply);
 		}
 	}
 
@@ -141,7 +169,7 @@ public class FeneconPersistenceWebsocketHandler {
 	 * @param jConfig
 	 * @return
 	 */
-	private synchronized Optional<JsonObject> config(JsonObject jConfig) {
+	private synchronized JsonObject config(JsonObject jConfig) {
 		try {
 			String mode = JsonUtils.getAsString(jConfig, "mode");
 
@@ -151,12 +179,12 @@ public class FeneconPersistenceWebsocketHandler {
 				 */
 				String language = JsonUtils.getAsString(jConfig, "language");
 				JsonObject jReplyConfig = Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, language);
-				return Optional.of(DefaultMessages.configQueryReply(jReplyConfig));
+				return DefaultMessages.configQueryReply(jReplyConfig);
 			}
 		} catch (OpenemsException e) {
 			log.warn(e.getMessage());
 		}
-		return Optional.empty();
+		return new JsonObject();
 	}
 
 	/**
@@ -164,7 +192,7 @@ public class FeneconPersistenceWebsocketHandler {
 	 *
 	 * @param j
 	 */
-	private synchronized Optional<JsonObject> currentData(JsonArray jId, JsonObject jCurrentData) {
+	private synchronized JsonObject currentData(JsonArray jId, JsonObject jCurrentData) {
 		try {
 			String mode = JsonUtils.getAsString(jCurrentData, "mode");
 
@@ -172,7 +200,7 @@ public class FeneconPersistenceWebsocketHandler {
 				/*
 				 * Subscribe to channels
 				 */
-				String messageId = jId.get(1).getAsString();
+				String messageId = jId.get(jId.size() - 1).getAsString();
 
 				// remove old worker if existed
 				CurrentDataWorker worker = this.currentDataSubscribers.remove(messageId);
@@ -192,14 +220,14 @@ public class FeneconPersistenceWebsocketHandler {
 				}
 				if (!channels.isEmpty()) {
 					// create new worker
-					worker = new CurrentDataWorker(jId, channels, this.executor, this.websocket);
+					worker = new CurrentDataWorker(jId, channels, this);
 					this.currentDataSubscribers.put(messageId, worker);
 				}
 			}
 		} catch (OpenemsException e) {
 			log.warn(e.getMessage());
 		}
-		return Optional.empty();
+		return new JsonObject();
 	}
 
 	/**
@@ -207,10 +235,10 @@ public class FeneconPersistenceWebsocketHandler {
 	 *
 	 * @param j
 	 */
-	private synchronized Optional<JsonObject> log(JsonArray jId, JsonObject jLog) {
+	private synchronized JsonObject log(JsonArray jId, JsonObject jLog) {
 		try {
 			String mode = JsonUtils.getAsString(jLog, "mode");
-			String messageId = jId.get(1).getAsString();
+			String messageId = jId.get(jId.size() - 1).getAsString();
 
 			if (mode.equals("subscribe")) {
 				/*
@@ -226,7 +254,7 @@ public class FeneconPersistenceWebsocketHandler {
 		} catch (OpenemsException e) {
 			log.warn(e.getMessage());
 		}
-		return Optional.empty();
+		return new JsonObject();
 	}
 
 	// TODO handle config command
@@ -476,7 +504,9 @@ public class FeneconPersistenceWebsocketHandler {
 			jId.add("log");
 			jId.add(id);
 			JsonObject j = DefaultMessages.log(jId, timestamp, level, source, message);
-			logExecutor.execute(() -> WebSocketUtils.send(websocket, j));
+			logExecutor.execute(() -> {
+				WebSocketUtils.send(websocket, j);
+			});
 		}
 	}
 

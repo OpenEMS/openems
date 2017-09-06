@@ -71,14 +71,14 @@ this.translate.instant('General.StorageSystem')
 For "subscribe" please follow this: https://stackoverflow.com/questions/38008334/angular-rxjs-when-should-i-unsubscribe-from-subscription
 ```
 import { Subject } from 'rxjs/Subject';
-private ngUnsubscribe: Subject<void> = new Subject<void>();
+private stopOnDestroy: Subject<void> = new Subject<void>();
 ngOnInit() {
-    /*subject*/.takeUntil(this.ngUnsubscribe).subscribe(/*variable*/ => {
+    /*subject*/.takeUntil(this.stopOnDestroy).subscribe(/*variable*/ => {
         ...
     });
 }
 ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
 }
 ```

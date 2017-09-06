@@ -32,6 +32,7 @@ import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
 
 import com.google.common.collect.HashMultimap;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
@@ -42,6 +43,7 @@ import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.persistence.QueryablePersistence;
+import io.openems.common.utils.InfluxdbUtils;
 import io.openems.core.Databus;
 
 @ThingInfo(title = "InfluxDB Persistence", description = "Persists data in an InfluxDB time-series database.")
@@ -194,10 +196,17 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	}
 
 	@Override
-	public JsonObject query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution)
-			throws OpenemsException {
-		Optional<InfluxDB> _influxdb = getInfluxDB();
-		return InfluxdbQueryWrapper.query(_influxdb, fems.valueOptional(), fromDate, toDate, channels, resolution,
-				database.valueOptional().orElse("db"));
+	public JsonArray queryHistoricData(Optional<Integer> deviceIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate,
+			JsonObject channels, int resolution) throws io.openems.common.exceptions.OpenemsException {
+		Optional<InfluxDB> influxdbOpt = getInfluxDB();
+		if (!influxdbOpt.isPresent()) {
+			throw new OpenemsException("InfluxDB is not available");
+		}
+		Optional<String> databaseOpt = this.database.valueOptional();
+		if (!databaseOpt.isPresent()) {
+			throw new OpenemsException("InfluxDB database is not available");
+		}
+		return InfluxdbUtils.queryHistoricData(influxdbOpt.get(), databaseOpt.get(), deviceIdOpt, fromDate, toDate,
+				channels, resolution);
 	}
 }

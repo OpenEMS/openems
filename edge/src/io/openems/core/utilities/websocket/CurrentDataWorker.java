@@ -1,11 +1,11 @@
-package io.openems.impl.persistence.fenecon;
+package io.openems.core.utilities.websocket;
 
 import java.util.Optional;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +26,11 @@ public class CurrentDataWorker {
 	private Logger log = LoggerFactory.getLogger(CurrentDataWorker.class);
 
 	/**
+	 * Executor for subscriptions task
+	 */
+	private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+
+	/**
 	 * Holds thingId and channelId, subscribed by this websocket
 	 */
 	private final HashMultimap<String, String> channels;
@@ -35,19 +40,20 @@ public class CurrentDataWorker {
 	 */
 	private final ScheduledFuture<?> future;
 
-	public CurrentDataWorker(JsonArray jId, HashMultimap<String, String> channels, ScheduledExecutorService executor,
-			WebSocket websocket) {
+	public CurrentDataWorker(JsonArray jId, HashMultimap<String, String> channels,
+			EdgeWebsocketHandler edgeWebsocketHandler) {
 		this.channels = channels;
-		this.future = executor.scheduleWithFixedDelay(() -> {
+		this.future = this.executor.scheduleWithFixedDelay(() -> {
 			/*
 			 * This task is executed regularly. Sends data to websocket.
 			 */
-			if (!websocket.isOpen()) {
+			if (!edgeWebsocketHandler.getWebsocket().isOpen()) {
 				// disconnected; stop worker
 				this.dispose();
 				return;
 			}
-			WebSocketUtils.send(websocket, DefaultMessages.currentData(jId, getSubscribedData()));
+			WebSocketUtils.send(edgeWebsocketHandler.getWebsocket(),
+					DefaultMessages.currentData(jId, getSubscribedData()));
 		}, 0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
 	}
 

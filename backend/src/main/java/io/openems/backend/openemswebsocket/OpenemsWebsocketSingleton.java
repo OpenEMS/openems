@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -29,7 +31,9 @@ import io.openems.common.websocket.WebSocketUtils;
  * @author stefan.feilmeier
  *
  */
-public class OpenemsWebsocketSingleton extends AbstractWebsocketServer<OpenemsSession, OpenemsSessionManager> {
+public class OpenemsWebsocketSingleton
+		extends AbstractWebsocketServer<OpenemsSession, OpenemsSessionData, OpenemsSessionManager> {
+	private final Logger log = LoggerFactory.getLogger(OpenemsWebsocketSingleton.class);
 
 	protected OpenemsWebsocketSingleton(int port) throws Exception {
 		super(port, new OpenemsSessionManager());
@@ -40,6 +44,7 @@ public class OpenemsWebsocketSingleton extends AbstractWebsocketServer<OpenemsSe
 	 */
 	@Override
 	public void onOpen(WebSocket websocket, ClientHandshake handshake) {
+		super.onOpen(websocket, handshake);
 		String apikey = "";
 		String deviceName = "";
 		try {
@@ -58,7 +63,7 @@ public class OpenemsWebsocketSingleton extends AbstractWebsocketServer<OpenemsSe
 			MetadataDevice device = deviceOpt.get();
 			deviceName = device.getName();
 
-			// create new session if no existing one was found
+			// create new session
 			OpenemsSessionData sessionData = new OpenemsSessionData(device);
 			OpenemsSession session = sessionManager.createNewSession(apikey, sessionData);
 			session.setValid();
@@ -151,6 +156,10 @@ public class OpenemsWebsocketSingleton extends AbstractWebsocketServer<OpenemsSe
 				if (jMessage.has("currentData")) {
 					// unsubscribe obsolete browser websocket
 					WebSocketUtils.send(openemsWebsocket, DefaultMessages.currentDataSubscribe(jId, new JsonObject()));
+				}
+				if (jMessage.has("log")) {
+					// unsubscribe obsolete browser websocket
+					WebSocketUtils.send(openemsWebsocket, DefaultMessages.logUnsubscribe(jId));
 				}
 				return;
 			}

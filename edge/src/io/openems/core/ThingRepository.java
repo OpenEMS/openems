@@ -84,6 +84,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 	private final BiMap<String, Thing> thingIds = HashBiMap.create();
 	private HashMultimap<Class<? extends Thing>, Thing> thingClasses = HashMultimap.create();
 	private Set<Bridge> bridges = new HashSet<>();
+	// TODO scheduler should not be a set, but only one value
 	private Set<Scheduler> schedulers = new HashSet<>();
 	private Set<Persistence> persistences = new HashSet<>();
 	private Set<QueryablePersistence> queryablePersistences = new HashSet<>();

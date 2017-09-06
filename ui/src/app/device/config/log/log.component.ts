@@ -20,7 +20,7 @@ export class LogComponent implements OnInit {
   public isSubscribed: boolean = false;
 
   private MAX_LOG_ENTRIES = 200;
-  private stopLog: Subject<void> = new Subject<void>();
+  private stopOnDestroy: Subject<void> = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -29,8 +29,7 @@ export class LogComponent implements OnInit {
 
   ngOnInit() {
     this.websocket.setCurrentDevice(this.route)
-      .filter(device => device != null)
-      .first()
+      .takeUntil(this.stopOnDestroy)
       .subscribe(device => {
         this.device = device;
         this.subscribeLog();
@@ -58,7 +57,7 @@ export class LogComponent implements OnInit {
     }
 
     if (this.device != null) {
-      this.device.subscribeLog().takeUntil(this.stopLog).subscribe(log => {
+      this.device.subscribeLog().takeUntil(this.stopOnDestroy).subscribe(log => {
         log.time = moment(log.time).format("DD.MM.YYYY HH:mm:ss");
         switch (log.level) {
           case 'INFO':
@@ -84,14 +83,15 @@ export class LogComponent implements OnInit {
   }
 
   public unsubscribeLog() {
-    this.device.unsubscribeLog();
-    this.stopLog.next();
-    this.stopLog.complete();
+    if (this.device != null) {
+      this.device.unsubscribeLog();
+    }
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
     this.isSubscribed = false;
   };
 
   ngOnDestroy() {
-    this.stopLog.next();
-    this.stopLog.complete();
+    this.unsubscribeLog();
   }
 }
