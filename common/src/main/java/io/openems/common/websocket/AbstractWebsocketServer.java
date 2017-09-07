@@ -39,7 +39,6 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 	 */
 	@Override
 	public void onOpen(WebSocket arg0, ClientHandshake arg1) {
-		log.info("Websocket opened.");
 	}
 	
 	/**

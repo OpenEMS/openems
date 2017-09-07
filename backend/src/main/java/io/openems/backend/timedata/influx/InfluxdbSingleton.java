@@ -1,5 +1,7 @@
 package io.openems.backend.timedata.influx;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,6 +22,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -115,28 +118,9 @@ public class InfluxdbSingleton implements TimedataSingleton {
 			if (jChannels.entrySet().size() > 0) {
 				jChannels.entrySet().forEach(channelEntry -> {
 					String channel = channelEntry.getKey();
-					JsonPrimitive jValue;
-					try {
-						jValue = JsonUtils.getAsPrimitive(channelEntry.getValue());
-						if (jValue.isNumber()) {
-							Number value = jValue.getAsNumber();
-							builder.addField(channel, value);
-							if (useLastDataCache) {
-								this.lastDataCache.put(deviceId, channel, value);
-							}
-
-						} else if (jValue.isString()) {
-							String value = jValue.getAsString();
-							builder.addField(channel, value);
-							if (useLastDataCache) {
-								this.lastDataCache.put(deviceId, channel, value);
-							}
-
-						} else {
-							log.warn(deviceId + ": Ignore unknown type [" + jValue + "] for channel [" + channel + "]");
-						}
-					} catch (OpenemsException e) {
-						log.error("Data error: " + e.getMessage());
+					Optional<Object> valueOpt = this.addChannelToBuilder(builder, channel, channelEntry.getValue());
+					if (valueOpt.isPresent() && useLastDataCache) {
+						this.lastDataCache.put(deviceId, channel, valueOpt.get());
 					}
 
 				});
@@ -144,15 +128,9 @@ public class InfluxdbSingleton implements TimedataSingleton {
 				// only for latest data: add the cached data to the InfluxDB point.
 				if (useLastDataCache) {
 					this.lastDataCache.row(deviceId).entrySet().forEach(cacheEntry -> {
-						String field = cacheEntry.getKey();
+						String channel = cacheEntry.getKey();
 						Object value = cacheEntry.getValue();
-						if (value instanceof Number) {
-							builder.addField(field, (Number) value);
-						} else if (value instanceof String) {
-							builder.addField(field, (String) value);
-						} else {
-							log.warn("Unknown type in InfluxDB. This should never happen.");
-						}
+						this.addChannelToBuilder(builder, channel, value);
 					});
 				}
 
@@ -165,7 +143,61 @@ public class InfluxdbSingleton implements TimedataSingleton {
 		}
 		// write to DB
 		influxDB.write(batchPoints);
+	}
 
+	/**
+	 * Add value to Influx Builder in the correct data format
+	 *
+	 * @param builder
+	 * @param channel
+	 * @param value
+	 * @return
+	 */
+	private Optional<Object> addChannelToBuilder(Builder builder, String channel, Object value) {
+		if (value == null) {
+			return Optional.empty();
+		}
+		// convert JsonElement
+		if (value instanceof JsonElement) {
+			JsonElement jValueElement = (JsonElement) value;
+			if (jValueElement.isJsonPrimitive()) {
+				JsonPrimitive jValue = jValueElement.getAsJsonPrimitive();
+				if (jValue.isNumber()) {
+					try {
+						// Avoid GSONs LazilyParsedNumber
+						value = NumberFormat.getInstance().parse(jValue.toString());
+					} catch (ParseException e) {
+						log.error("Unable to parse Number: " + e.getMessage());
+						value = jValue.getAsNumber();
+					}
+				} else if (jValue.isBoolean()) {
+					value = jValue.getAsBoolean();
+				} else if (jValue.isString()) {
+					value = jValue.getAsString();
+				}
+			}
+		}
+		if (value instanceof Number) {
+			Number numberValue = (Number) value;
+			if (numberValue instanceof Integer) {
+				builder.addField(channel, numberValue.intValue());
+				return Optional.of(numberValue.intValue());
+			} else if (numberValue instanceof Double) {
+				builder.addField(channel, numberValue.doubleValue());
+				return Optional.of(numberValue.doubleValue());
+			} else {
+				builder.addField(channel, numberValue);
+				return Optional.of(numberValue);
+			}
+		} else if (value instanceof Boolean) {
+			builder.addField(channel, (Boolean) value);
+			return Optional.of(value);
+		} else if (value instanceof String) {
+			builder.addField(channel, (String) value);
+			return Optional.of(value);
+		}
+		log.warn("Unknown type of value [" + value + "] channel [" + channel + "]. This should never happen.");
+		return Optional.empty();
 	}
 
 	@Override
