@@ -187,7 +187,7 @@ public class OpenemsWebsocketSingleton
 				log.debug(device.getName() + ": wrote " + jTimedata.entrySet().size() + " timestamps "
 						+ StringUtils.toShortString(jTimedata, 120));
 			} catch (Exception e) {
-				log.error("No InfluxDB-connection: ", e);
+				log.error("Unable to write Timedata: ", e);
 			}
 			// Write some data to Odoo
 			// This is only to provide feedback for FENECON Service-Team that the device is online.
