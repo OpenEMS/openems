@@ -39,6 +39,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   public translation: string;
   public width: number;
   public height: number;
+  public loading: boolean = true;
 
   private style: string;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -66,12 +67,14 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
       /*
        * Set values for energy monitor
        */
+      this.loading = false;
       let summary = currentData.summary;
       this.storageSection.updateValue(summary.storage.activePower, summary.storage.soc);
       this.gridSection.updateValue(summary.grid.activePower, summary.grid.powerRatio);
       this.consumptionSection.updateValue(Math.round(summary.consumption.activePower), Math.round(summary.consumption.powerRatio));
       this.productionSection.updateValue(summary.production.activePower, summary.production.powerRatio);
     } else {
+      this.loading = false;
       this.storageSection.updateValue(null, null);
       this.gridSection.updateValue(null, null);
       this.consumptionSection.updateValue(null, null);
