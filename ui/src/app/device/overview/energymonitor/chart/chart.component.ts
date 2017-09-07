@@ -8,8 +8,7 @@ import { ConsumptionSectionComponent } from './section/consumptionsection.compon
 import { GridSectionComponent } from './section/gridsection.component';
 import { ProductionSectionComponent } from './section/productionsection.component';
 import { StorageSectionComponent } from './section/storagesection.component';
-
-import { Device, Data } from '../../../../shared/shared';
+import { CurrentDataAndSummary } from '../../../../shared/device/currentdata';
 
 @Component({
   selector: 'energymonitor-chart',
@@ -32,18 +31,19 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   @ViewChild('energymonitorChart') private chartDiv: ElementRef;
 
   @Input()
-  set currentData(currentData: Data) {
+  set currentData(currentData: CurrentDataAndSummary) {
+    this.loading = currentData == null;
     this.updateValue(currentData);
   }
 
   public translation: string;
   public width: number;
   public height: number;
-  public loading: boolean = true;
 
   private style: string;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
   private marginLeft: number = 0;
+  private loading: boolean = true;
 
   ngOnInit() {
     // make sure chart is redrawn in the beginning and on window resize
@@ -62,19 +62,17 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   /**
    * This method is called on every change of values.
    */
-  updateValue(currentData: Data) {
+  updateValue(currentData: CurrentDataAndSummary) {
     if (currentData) {
       /*
        * Set values for energy monitor
        */
-      this.loading = false;
       let summary = currentData.summary;
       this.storageSection.updateValue(summary.storage.activePower, summary.storage.soc);
       this.gridSection.updateValue(summary.grid.activePower, summary.grid.powerRatio);
       this.consumptionSection.updateValue(Math.round(summary.consumption.activePower), Math.round(summary.consumption.powerRatio));
       this.productionSection.updateValue(summary.production.activePower, summary.production.powerRatio);
     } else {
-      this.loading = false;
       this.storageSection.updateValue(null, null);
       this.gridSection.updateValue(null, null);
       this.consumptionSection.updateValue(null, null);

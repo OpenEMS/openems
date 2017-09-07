@@ -5,7 +5,7 @@
         <md-card-subtitle>{{ controller.form.value.id }}: {{ controller.form.value.class }}</md-card-subtitle>
     </md-card-header>
     <md-card-content fxLayout fxLayoutWrap="wrap">
-        <ng-container *ngFor="let channelMeta of tmpl.values(controller.meta.channels)">
+        <ng-container *ngFor="let channelMeta of utils.values(controller.meta.channels)">
             <!-- Access allowed -->
             <ng-container *ngIf="role.isHigherAs(channelMeta.accessLevel)">
                 <!-- array -->
@@ -31,7 +31,7 @@
             </ng-container>
         </ng-container>
         <!-- Special cases -->
-        <timelinecharge fxFlex="100%" *ngIf="tmpl.classname(controller.form.value.class) == 'TimelineChargeController'" [controller]="controller"></timelinecharge>
+        <timelinecharge fxFlex="100%" *ngIf="utils.classname(controller.form.value.class) == 'TimelineChargeController'" [controller]="controller"></timelinecharge>
         <!-- <p>{{ controller.form.value | json }}</p> -->
         <!-- <p>{{ controller.meta | json }}</p> -->
     </md-card-content>

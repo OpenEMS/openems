@@ -1,8 +1,9 @@
-<div *ngIf="device" fxLayoutAlign="start start" fxLayoutWrap="wrap">
+<div fxLayoutAlign="start start" fxLayoutWrap="wrap">
   <energymonitor fxFlex.lt-md="100%" fxFlex.md="66%" fxFlex.gt-md="33%" [currentData]="currentData"></energymonitor>
   <energytable fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%" [currentData]="currentData" [config]="config" fxFlex="100%"></energytable>
   <div fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%">
-    <history [device]="device"></history>
-    <fieldstatus [currentData]="currentData" [fielddefinition]="customFields"></fieldstatus>
+    <history [device]="device" [config]="config"></history>
+    <!-- TODO -->
+    <!-- <fieldstatus [currentData]="currentData" [fielddefinition]="customFields"></fieldstatus> -->
   </div>
 </div>

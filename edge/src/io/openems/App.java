@@ -42,11 +42,14 @@ public class App {
 			Config config = Config.getInstance();
 			config.readConfigFile();
 		} catch (Exception e) {
-			log.error("OpenEMS start failed: " + e.getMessage());
+			log.error("OpenEMS Edge start failed: " + e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 		}
-		log.info("OpenEMS config loaded");
+
+		log.info("OpenEMS Edge started");
+		log.info("================================================================================");
+
 		// kick the watchdog: READY
 		SDNotify.sendNotify();
 	}

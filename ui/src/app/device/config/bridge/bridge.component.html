@@ -1,3 +1,7 @@
+<md-card class="single">
+  <md-card-header>TODO: migrate BridgeComponent to new config layout</md-card-header>
+</md-card>
+
 <div *ngIf="form" [formGroup]="form">
   <div formArrayName="things">
     <md-tab-group (selectChange)="addBridge(form.controls.things, $event)">

@@ -20,7 +20,7 @@
  *******************************************************************************/
 package io.openems.api.exception;
 
-public class OpenemsException extends Exception {
+public class OpenemsException extends io.openems.common.exceptions.OpenemsException {
 
 	private static final long serialVersionUID = 2244921342821407476L;
 

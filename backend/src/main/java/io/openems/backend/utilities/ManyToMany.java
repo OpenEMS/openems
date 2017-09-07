@@ -31,10 +31,21 @@ public class ManyToMany<K, V> {
 		return changed;
 	}
 
+	public boolean remove(K key, V value) {
+		return keysToValues.remove(key, value) && valuesToKeys.remove(value, key);
+	}
+
 	public void removeAllKeys(K key) {
 		keysToValues.get(key).forEach(value -> {
 			valuesToKeys.removeAll(value);
 		});
 		keysToValues.removeAll(key);
+	}
+
+	public void removeAllValues(V value) {
+		valuesToKeys.get(value).forEach(key -> {
+			keysToValues.removeAll(key);
+		});
+		valuesToKeys.removeAll(value);
 	}
 }

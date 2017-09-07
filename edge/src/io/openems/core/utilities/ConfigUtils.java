@@ -57,6 +57,7 @@ import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
 import io.openems.core.ClassRepository;
+import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
 
 public class ConfigUtils {
@@ -89,18 +90,7 @@ public class ConfigUtils {
 	 * @return
 	 * @throws NotImplementedException
 	 */
-	public static JsonElement getAsJsonElement(Object value) throws NotImplementedException {
-		return getAsJsonElement(value, false);
-	}
-
-	/**
-	 * Converts an object to a JsonElement
-	 *
-	 * @param value
-	 * @return
-	 * @throws NotImplementedException
-	 */
-	public static JsonElement getAsJsonElement(Object value, boolean includeEverything) throws NotImplementedException {
+	public static JsonElement getAsJsonElement(Object value, ConfigFormat format) throws NotImplementedException {
 		// null
 		if (value == null) {
 			return null;
@@ -127,17 +117,33 @@ public class ConfigUtils {
 			 */
 			Thing thing = (Thing) value;
 			JsonObject j = new JsonObject();
-			if (includeEverything || !thing.id().startsWith("_")) {
+			if (format == ConfigFormat.OPENEMS_UI || !thing.id().startsWith("_")) {
 				// ignore generated id names starting with "_"
 				j.addProperty("id", thing.id());
 			}
-			if (!(value instanceof DeviceNature)) {
+			if (format == ConfigFormat.OPENEMS_UI && value instanceof DeviceNature) {
+				j.add("class", InjectionUtils.getImplementsAsJson(thing.getClass()));
+			} else {
 				// class is not needed for DeviceNatures
 				j.addProperty("class", thing.getClass().getCanonicalName());
 			}
 			ThingRepository thingRepository = ThingRepository.getInstance();
 			for (ConfigChannel<?> channel : thingRepository.getConfigChannels(thing)) {
-				JsonElement jChannel = ConfigUtils.getAsJsonElement(channel, includeEverything);
+				JsonElement jChannel = null;
+				if (format == ConfigFormat.FILE) {
+					jChannel = ConfigUtils.getAsJsonElement(channel, format);
+
+				} else if (format == ConfigFormat.OPENEMS_UI) {
+					Optional<Class<?>> channelTypeOpt = channel.type();
+					if (channelTypeOpt.isPresent()) {
+						Class<?> channelType = channelTypeOpt.get();
+						if (DeviceNature.class.isAssignableFrom(channelType)) {
+							// ignore
+						} else {
+							jChannel = ConfigUtils.getAsJsonElement(channel, format);
+						}
+					}
+				}
 				if (jChannel != null) {
 					j.add(channel.id(), jChannel);
 				}
@@ -151,12 +157,12 @@ public class ConfigUtils {
 			if (!channel.valueOptional().isPresent()) {
 				// no value set
 				return null;
-			} else if (!includeEverything && channel.getDefaultValue().equals(channel.valueOptional())) {
+			} else if (format == ConfigFormat.FILE && channel.getDefaultValue().equals(channel.valueOptional())) {
 				// default value not changed
 				return null;
 			} else {
 				// recursive call
-				return ConfigUtils.getAsJsonElement(channel.valueOptional().get(), includeEverything);
+				return ConfigUtils.getAsJsonElement(channel.valueOptional().get(), format);
 			}
 		} else if (value instanceof ThingMap) {
 			/*
@@ -169,7 +175,7 @@ public class ConfigUtils {
 			 */
 			JsonArray jArray = new JsonArray();
 			for (Object v : (List<?>) value) {
-				jArray.add(ConfigUtils.getAsJsonElement(v, includeEverything));
+				jArray.add(ConfigUtils.getAsJsonElement(v, format));
 			}
 			return jArray;
 		} else if (value instanceof Set<?>) {
@@ -178,7 +184,7 @@ public class ConfigUtils {
 			 */
 			JsonArray jArray = new JsonArray();
 			for (Object v : (Set<?>) value) {
-				jArray.add(ConfigUtils.getAsJsonElement(v, includeEverything));
+				jArray.add(ConfigUtils.getAsJsonElement(v, format));
 			}
 			return jArray;
 		}

@@ -1,12 +1,15 @@
 package io.openems.backend;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.browserwebsocket.BrowserWebsocket;
-import io.openems.backend.influx.Influxdb;
-import io.openems.backend.odoo.Odoo;
+import io.openems.backend.metadata.Metadata;
 import io.openems.backend.openemswebsocket.OpenemsWebsocket;
+import io.openems.backend.timedata.Timedata;
+import io.openems.common.utils.EnvUtils;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
@@ -15,42 +18,60 @@ public class App {
 		log.info("OpenEMS-Backend starting...");
 
 		// Configure everything
-		initOdoo();
-		initInfluxdb();
+		initMetadataProvider();
+		initTimedataProvider();
 		initOpenemsWebsocket();
 		initBrowserWebsocket();
 
-		log.info("OpenEMS-Backend started.");
+		log.info("OpenEMS Backend started.");
+		log.info("================================================================================");
 	}
 
-	private static void initOdoo() throws Exception {
-		int port = Integer.valueOf(System.getenv("ODOO_PORT"));
-		log.info("Connect to Odoo on port [" + port + "]");
-		String url = System.getenv("ODOO_URL");
-		String database = System.getenv("ODOO_DATABASE");
-		String username = System.getenv("ODOO_USERNAME");
-		String password = System.getenv("ODOO_PASSWORD");
-		Odoo.initialize(url, port, database, username, password);
+	/**
+	 * Configures a metadata provider. It uses either Odoo as backend or a simple Dummy provider.
+	 *
+	 * @throws Exception
+	 */
+	private static void initMetadataProvider() throws Exception {
+		Optional<String> metadataOpt = EnvUtils.getAsOptionalString("METADATA");
+		if (metadataOpt.isPresent() && metadataOpt.get().equals("DUMMY")) {
+			log.info("Start Dummy Metadata provider");
+			Metadata.initializeDummy();
+		} else {
+			int port = EnvUtils.getAsInt("ODOO_PORT");
+			String url = EnvUtils.getAsString("ODOO_URL");
+			String database = EnvUtils.getAsString("ODOO_DATABASE");
+			log.info("Connect to Odoo. Url [" + url + ":" + port + "] Database [" + database + "]");
+			String username = EnvUtils.getAsString("ODOO_USERNAME");
+			String password = EnvUtils.getAsString("ODOO_PASSWORD");
+			Metadata.initializeOdoo(url, port, database, username, password);
+		}
 	}
 
-	private static void initInfluxdb() throws Exception {
-		int port = Integer.valueOf(System.getenv("INFLUX_PORT"));
-		log.info("Connect to InfluxDB on port [" + port + "]");
-		String database = System.getenv("INFLUX_DATABASE");
-		String url = System.getenv("INFLUX_URL");
-		String username = System.getenv("INFLUX_USERNAME");
-		String password = System.getenv("INFLUX_PASSWORD");
-		Influxdb.initialize(database, url, port, username, password);
+	private static void initTimedataProvider() throws Exception {
+		Optional<String> timedataOpt = EnvUtils.getAsOptionalString("TIMEDATA");
+		if (timedataOpt.isPresent() && timedataOpt.get().equals("DUMMY")) {
+			log.info("Start Dummy Timedata provider");
+			Timedata.initializeDummy();
+		} else {
+			int port = Integer.valueOf(System.getenv("INFLUX_PORT"));
+			String url = EnvUtils.getAsString("INFLUX_URL");
+			String database = EnvUtils.getAsString("INFLUX_DATABASE");
+			log.info("Connect to InfluxDB. Url [" + url + ":" + port + "], Database [" + database + "]");
+			String username = EnvUtils.getAsString("INFLUX_USERNAME");
+			String password = EnvUtils.getAsString("INFLUX_PASSWORD");
+			Timedata.initializeInfluxdb(database, url, port, username, password);
+		}
 	}
 
 	private static void initOpenemsWebsocket() throws Exception {
-		int port = Integer.valueOf(System.getenv("OPENEMS_WEBSOCKET_PORT"));
+		int port = EnvUtils.getAsInt("OPENEMS_WEBSOCKET_PORT");
 		log.info("Start OpenEMS Websocket server on port [" + port + "]");
 		OpenemsWebsocket.initialize(port);
 	}
 
 	private static void initBrowserWebsocket() throws Exception {
-		int port = Integer.valueOf(System.getenv("BROWSER_WEBSOCKET_PORT"));
+		int port = EnvUtils.getAsInt("BROWSER_WEBSOCKET_PORT");
 		log.info("Start Browser Websocket server on port [" + port + "]");
 		BrowserWebsocket.initialize(port);
 	}

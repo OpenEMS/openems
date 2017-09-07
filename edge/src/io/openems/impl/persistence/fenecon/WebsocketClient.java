@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.core.utilities.websocket.WebsocketHandler;
+import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 
 public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketClient.class);
 
-	private final WebsocketHandler websocketHandler;
+	private final EdgeWebsocketHandler websocketHandler; // TODO remove
 
 	public WebsocketClient(URI uri, String apikey) throws Exception {
 		super( //
@@ -64,8 +64,7 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 			// }
 			this.setSocket(SSLSocketFactory.getDefault().createSocket());
 		}
-		this.websocketHandler = new WebsocketHandler(this.getConnection(),
-				null /* second parameter is only for local websocket access */);
+		this.websocketHandler = new EdgeWebsocketHandler(this.getConnection());
 	}
 
 	@Override
@@ -97,18 +96,15 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 	private CountDownLatch connectLatch = new CountDownLatch(1);
 
 	/**
-	 * Same as connect but blocks until the websocket connected or failed to do so.<br>
+	 * Same as connect but blocks until the websocket connected or failed to do so.
 	 * Returns whether it succeeded or not.
 	 *
-	 * Overrides original method to use timeout of 10 seconds
+	 * Overrides original method to be able to use custom timeout
 	 */
 	public boolean connectBlocking(long timeoutSeconds) throws InterruptedException {
 		connect();
 		connectLatch.await(timeoutSeconds, TimeUnit.SECONDS);
 		boolean connected = getConnection().isOpen();
-		if (connected) {
-			this.websocketHandler.sendConnectionSuccessfulReply();
-		}
 		return connected;
 	}
 
@@ -117,7 +113,7 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 	 *
 	 * @return
 	 */
-	public WebsocketHandler getWebsocketHandler() {
+	public EdgeWebsocketHandler getWebsocketHandler() {
 		return this.websocketHandler;
 	}
 }

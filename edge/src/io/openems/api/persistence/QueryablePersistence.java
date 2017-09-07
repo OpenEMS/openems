@@ -20,38 +20,8 @@
  *******************************************************************************/
 package io.openems.api.persistence;
 
-import java.time.ZonedDateTime;
+import io.openems.common.api.TimedataSource;
 
-import com.google.gson.JsonObject;
+public abstract class QueryablePersistence extends Persistence implements TimedataSource {
 
-import io.openems.api.exception.OpenemsException;
-
-public abstract class QueryablePersistence extends Persistence {
-
-	/**
-	 *
-	 *
-	 * @param fromDate
-	 * @param toDate
-	 * @param channels
-	 * @param resolution
-	 *            in seconds
-	 * @return
-	 * @throws OpenemsException
-	 *
-	 *             <pre>
-	 * Returns:
-	 * [{
-	 *   timestamp: "2017-03-21T08:55:20Z",
-	 *   channels: {
-	 *     'thing': {
-	 *       'channel': 'value'
-	 *     }
-	 *   }
-	 * }]
-	}
-	 *             </pre>
-	 */
-	public abstract JsonObject query(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution)
-			throws OpenemsException;
 }

@@ -7,7 +7,6 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { RouterModule } from '@angular/router';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { MdSnackBar } from '@angular/material';
-import { SpinnerModule } from 'angular-spinners';
 import { LoadingModule } from 'ngx-loading';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -20,9 +19,9 @@ import { routing, appRoutingProviders } from './../app.routing';
 /*
  * Services
  */
-import { WebappService, Notification } from './service/webapp.service';
-import { WebsocketService, Websocket } from './service/websocket.service';
-import { TemplateHelper } from './service/templatehelper';
+import { Service } from './service/service';
+import { Websocket } from './service/websocket';
+import { Utils } from './service/utils';
 
 /*
  * Pipes
@@ -37,7 +36,6 @@ import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
  * Components
  */
 import { SocChartComponent } from './../device/history/chart/socchart/socchart.component';
-import { SpinnerComponent } from './spinner.component';
 
 @NgModule({
   imports: [
@@ -49,7 +47,6 @@ import { SpinnerComponent } from './spinner.component';
     FlexLayoutModule,
     RouterModule,
     ChartsModule,
-    SpinnerModule,
     LoadingModule,
     routing
   ],
@@ -61,8 +58,7 @@ import { SpinnerComponent } from './spinner.component';
     IsclassPipe,
     HasclassPipe,
     // components
-    SocChartComponent,
-    SpinnerComponent
+    SocChartComponent
   ],
   exports: [
     // pipes
@@ -83,16 +79,14 @@ import { SpinnerComponent } from './spinner.component';
     TranslateModule,
     // components
     SocChartComponent,
-    SpinnerComponent,
     LoadingModule
   ],
   providers: [
-    TemplateHelper,
-    WebappService,
-    WebsocketService,
+    Utils,
+    Service,
+    Websocket,
     appRoutingProviders,
-    MdSnackBar,
-    SpinnerComponent
+    MdSnackBar
   ]
 })
 export class SharedModule { }

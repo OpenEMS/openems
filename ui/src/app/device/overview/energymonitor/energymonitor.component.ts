@@ -2,7 +2,7 @@ import { Component, Input, OnInit, OnChanges } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import * as d3 from 'd3';
 
-import { Data } from '../../../shared/shared';
+import { CurrentDataAndSummary } from '../../../shared/device/currentdata';
 
 @Component({
   selector: 'energymonitor',
@@ -11,5 +11,5 @@ import { Data } from '../../../shared/shared';
 export class EnergymonitorComponent {
 
   @Input()
-  public currentData: Data;
+  public currentData: CurrentDataAndSummary;
 }

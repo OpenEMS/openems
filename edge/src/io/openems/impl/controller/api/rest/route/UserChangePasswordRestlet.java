@@ -41,7 +41,8 @@ public class UserChangePasswordRestlet extends OpenemsRestlet {
 		super();
 	}
 
-	@Override public void handle(Request request, Response response) {
+	@Override
+	public void handle(Request request, Response response) {
 		super.handle(request, response);
 
 		// get user

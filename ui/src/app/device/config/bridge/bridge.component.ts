@@ -3,7 +3,8 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
-import { WebsocketService, WebappService, Device } from '../../../shared/shared';
+import { Device } from '../../../shared/device/device';
+import { Websocket, Service } from '../../../shared/shared';
 import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest, ConfigureCreateRequest, ConfigureDeleteRequest } from '../abstractconfig';
 
 
@@ -24,10 +25,10 @@ export class BridgeComponent extends AbstractConfig {
 
   constructor(
     route: ActivatedRoute,
-    websocketService: WebsocketService,
+    websocket: Websocket,
     formBuilder: FormBuilder
   ) {
-    super(route, websocketService, formBuilder);
+    super(route, websocket, formBuilder);
   }
 
   initForm(config) {

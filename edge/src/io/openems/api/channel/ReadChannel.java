@@ -55,6 +55,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private String unit = "";
 	private boolean isRequired = false;
 	protected final Set<User> users = new HashSet<>();
+	protected boolean doNotPersist = false;
 
 	private final Set<ChannelUpdateListener> updateListeners = ConcurrentHashMap.newKeySet();
 	private final Set<ChannelChangeListener> changeListeners = ConcurrentHashMap.newKeySet();
@@ -129,6 +130,11 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		for (User user : users) {
 			this.users.add(user);
 		}
+		return this;
+	}
+
+	public ReadChannel<T> doNotPersist() {
+		this.doNotPersist = true;
 		return this;
 	}
 
@@ -301,6 +307,10 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 
 	public boolean isRequired() {
 		return this.isRequired;
+	}
+
+	public boolean isDoNotPersist() {
+		return doNotPersist;
 	}
 
 	@Override

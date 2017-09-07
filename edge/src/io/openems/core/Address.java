@@ -1,5 +1,6 @@
 package io.openems.core;
 
+// TODO move this to common package (types/ChannelAddress)
 public class Address {
 	private final String thingId;
 	private final String channelId;
