@@ -22,7 +22,10 @@ package io.openems.api.doc;
 
 import com.google.gson.JsonObject;
 
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
 import io.openems.api.security.User;
+import io.openems.core.utilities.InjectionUtils;
 
 public class ConfigChannelDoc {
 	private final String name;
@@ -50,7 +53,14 @@ public class ConfigChannelDoc {
 		JsonObject j = new JsonObject();
 		j.addProperty("name", name);
 		j.addProperty("title", title);
-		j.addProperty("type", type.getSimpleName());
+		if (ThingMap.class.isAssignableFrom(type)) {
+			// for ThingMap type: get the types from annotation and return JsonArray
+			IsThingMap isThingMapAnnotation = type.getAnnotation(IsThingMap.class);
+			j.add("type", InjectionUtils.getImplementsAsJson(isThingMapAnnotation.type()));
+		} else {
+			// for simple types, use only simple name (e.g. 'Long', 'Integer',...)
+			j.addProperty("type", type.getSimpleName());
+		}
 		j.addProperty("optional", optional);
 		j.addProperty("array", array);
 		j.addProperty("accessLevel", accessLevel.name().toLowerCase());

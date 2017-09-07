@@ -1,17 +1,12 @@
 import { CustomFieldDefinition } from './customfielddefinition';
-import { Backend } from './backend';
-import { Config } from "../device/config";
+import { DefaultTypes } from '../service/defaulttypes';
 
 export abstract class Environment {
   public readonly abstract production: boolean;
+  public readonly abstract url: string;
+  public readonly abstract backend: DefaultTypes.Backend;
 
-  public abstract websockets: {
-    name: string,
-    url: string,
-    backend: Backend
-  }[];
-
-  public getCustomFields(config: Config): CustomFieldDefinition {
+  public getCustomFields(): CustomFieldDefinition {
     return {};
   }
 }

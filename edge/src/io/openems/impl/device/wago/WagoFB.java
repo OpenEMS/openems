@@ -41,6 +41,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ConfigInfo;
@@ -80,8 +81,8 @@ public class WagoFB extends ModbusDevice {
 	/*
 	 * Constructors
 	 */
-	public WagoFB() throws OpenemsException {
-		super();
+	public WagoFB(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*

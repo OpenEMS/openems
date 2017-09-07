@@ -1,4 +1,16 @@
 {
+	"class": "io.openems.impl.device.kmtronic.KMTronicRelayRev1",
+	"output": {
+		"id": "output0"
+	},
+	"modbusUnitId": 1
+}
+
+
+
+
+
+{
 	"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
 	"priority": 60,
 	"thresholdChannelAddress": "ess0/Soc",

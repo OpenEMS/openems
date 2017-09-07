@@ -3,7 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as d3 from 'd3';
 
 import { EnergytableComponent } from '../../../energytable/energytable.component';
-import { Device } from '../../../../../shared/shared';
+import { Device } from '../../../../../shared/device/device';
 
 export class SectionValue {
     absolute: number;
@@ -115,6 +115,7 @@ export abstract class AbstractSection {
      * This method is called on every change of values.
      */
     public updateValue(absolute: number, ratio: number) {
+        // TODO smoothly resize the arc
         this.lastValue = { absolute: absolute, ratio: ratio };
         this.valueRatio = this.getValueRatio(ratio);
         this.valueText = this.getValueText(absolute);

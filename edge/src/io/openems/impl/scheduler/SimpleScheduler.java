@@ -26,12 +26,10 @@ import java.util.List;
 
 import info.faljse.SDNotify.SDNotify;
 import io.openems.api.bridge.Bridge;
-import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.scheduler.Scheduler;
-import io.openems.core.ThingRepository;
 
 @ThingInfo(title = "App-Planner")
 public class SimpleScheduler extends Scheduler {
@@ -40,24 +38,8 @@ public class SimpleScheduler extends Scheduler {
 	 * Constructors
 	 */
 	public SimpleScheduler() {
-		thingRepository = ThingRepository.getInstance();
+
 	}
-
-	/*
-	 * Config
-	 */
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
-
-	@Override
-	public ConfigChannel<Integer> cycleTime() {
-		return cycleTime;
-	}
-
-	/*
-	 * Fields
-	 */
-
-	private ThingRepository thingRepository;
 
 	/*
 	 * Methods
@@ -66,10 +48,9 @@ public class SimpleScheduler extends Scheduler {
 	protected void dispose() {}
 
 	@Override
-	protected void forever() {
+	protected void execute() {
 		// kick the watchdog
 		SDNotify.sendWatchdog();
-
 		List<Controller> controllers = new ArrayList<>(this.controllers.values());
 		Collections.sort(controllers, (c1, c2) -> c2.priority.valueOptional().orElse(Integer.MIN_VALUE)
 				- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
@@ -89,4 +70,5 @@ public class SimpleScheduler extends Scheduler {
 	protected boolean initialize() {
 		return true;
 	}
+
 }

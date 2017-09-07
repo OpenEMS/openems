@@ -3,7 +3,8 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
-import { WebsocketService, Device } from '../../shared/shared';
+import { Device } from '../../shared/device/device';
+import { Websocket } from '../../shared/shared';
 import { AbstractConfigForm } from './abstractconfigform';
 
 export type ConfigureRequestModeType = "update" | "create" | "delete";
@@ -30,25 +31,26 @@ export abstract class AbstractConfig extends AbstractConfigForm implements OnIni
 
   constructor(
     private route: ActivatedRoute,
-    websocketService: WebsocketService,
+    websocket: Websocket,
     protected formBuilder: FormBuilder
   ) {
-    super(websocketService);
+    super(websocket);
   }
 
   protected abstract initForm(config);
 
   ngOnInit() {
     super.ngOnInit();
-    this.websocketService.setCurrentDevice(this.route.snapshot.params);
-    this.device.takeUntil(this.ngUnsubscribe).subscribe(device => {
-      if (device != null) {
-        device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-          this.config = config;
-          this.initForm(config);
-        });
-      }
-    });
+    // TODO
+    // this.websocket.setCurrentDevice(this.route.snapshot.params);
+    // this.device.takeUntil(this.ngUnsubscribe).subscribe(device => {
+    //   if (device != null) {
+    //     device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
+    //       this.config = config;
+    //       this.initForm(config);
+    //     });
+    //   }
+    // });
   }
 
   ngOnDestroy() {

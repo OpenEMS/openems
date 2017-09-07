@@ -20,11 +20,9 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
@@ -45,21 +43,13 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.api.bridge.Bridge;
-import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.OpenemsModbusException;
 import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 
 @ThingInfo(title = "Modbus")
 public abstract class ModbusBridge extends Bridge {
-
-	/*
-	 * Fields
-	 */
-	protected volatile ModbusDevice[] modbusdevices = new ModbusDevice[0];
-	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
 
 	/*
 	 * Abstract Methods
@@ -83,60 +73,9 @@ public abstract class ModbusBridge extends Bridge {
 	/*
 	 * Methods
 	 */
-	@Override
-	public void triggerWrite() {
-		// set the Write-flag
-		isWriteTriggered.set(true);
-		// start "run()" again as fast as possible
-		triggerForceRun();
-	}
-
-	@Override
-	protected void forever() {
-		for (ModbusDevice modbusdevice : modbusdevices) {
-			// if Write-flag was set -> start writing for all Devices immediately
-			if (isWriteTriggered.get()) {
-				isWriteTriggered.set(false);
-				writeAllDevices();
-			}
-			// Update this Device
-			try {
-				modbusdevice.update(this);
-			} catch (OpenemsException e) {
-				log.error(e.getMessage());
-			}
-		}
-	}
-
-	private void writeAllDevices() {
-		for (ModbusDevice modbusdevice : modbusdevices) {
-			try {
-				modbusdevice.write(this);
-			} catch (OpenemsException e) {
-				log.error("Error while writing to ModbusDevice [" + modbusdevice.id() + "]: " + e.getMessage());
-			}
-		}
-	}
 
 	@Override
 	protected boolean initialize() {
-		/*
-		 * Copy and cast devices to local modbusdevices array
-		 */
-		if (devices.isEmpty()) {
-			return false;
-		}
-		List<ModbusDevice> modbusdevices = new ArrayList<>();
-		for (Device device : devices) {
-			if (device instanceof ModbusDevice) {
-				modbusdevices.add((ModbusDevice) device);
-			}
-		}
-		ModbusDevice[] newModbusdevices = modbusdevices.stream().toArray(ModbusDevice[]::new);
-		if (newModbusdevices == null) {
-			newModbusdevices = new ModbusDevice[0];
-		}
-		this.modbusdevices = newModbusdevices;
 		/*
 		 * Create a new SerialConnection
 		 */

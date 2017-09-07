@@ -27,6 +27,7 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -45,8 +46,8 @@ public class SimulatorRiedmannNature extends SimulatorDeviceNature implements Ri
 	/*
 	 * Constructors
 	 */
-	public SimulatorRiedmannNature(String thingId) throws ConfigException {
-		super(thingId);
+	public SimulatorRiedmannNature(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*

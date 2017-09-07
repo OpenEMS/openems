@@ -26,6 +26,7 @@ import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
@@ -48,8 +49,8 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 	/*
 	 * Constructors
 	 */
-	public RefuEss(String thingId) throws ConfigException {
-		super(thingId);
+	public RefuEss(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
@@ -280,7 +281,9 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 										.label(256, "Overcurrent warning")//
 										.label(512, "BMS Ready")//
 										.label(1024, "TREX Ready")//
-								)), new UnsignedWordElement(0x102, communicationInformations = new StatusBitChannel("CommunicationInformations", this)//
+								)),
+						new UnsignedWordElement(0x102,
+								communicationInformations = new StatusBitChannel("CommunicationInformations", this)//
 										.label(1, "Gateway Initialized")//
 										.label(2, "Modbus Slave Status")//
 										.label(4, "Modbus Master Status")//
@@ -298,7 +301,8 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 								.label(4096, "DC relays 1 close")//
 								.label(8192, "DC relays 2 close")//
 								.label(16384, "Mains OK")//
-						), new UnsignedWordElement(0x104, errorCode = new ModbusReadLongChannel("ErrorCode", this)), new UnsignedWordElement(0x105, dcDcStatus = new StatusBitChannel("DCDCStatus", this)//
+						), new UnsignedWordElement(0x104, errorCode = new ModbusReadLongChannel("ErrorCode", this)),
+						new UnsignedWordElement(0x105, dcDcStatus = new StatusBitChannel("DCDCStatus", this)//
 								.label(1, "Ready to Power on")//
 								.label(2, "Ready for Operating")//
 								.label(4, "Enabled")//
@@ -306,7 +310,10 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 								.label(128, "DCDC Warning")//
 								.label(256, "Voltage/Current mode")//
 								.label(512, "Power mode")//
-						), new UnsignedWordElement(0x106, dcDcError = new ModbusReadLongChannel("DCDCError", this)), new SignedWordElement(0x107, batteryCurrentPcs = new ModbusReadLongChannel("BatteryCurrentPcs", this).unit("mA").multiplier(2)), //
+						), new UnsignedWordElement(0x106, dcDcError = new ModbusReadLongChannel("DCDCError", this)),
+						new SignedWordElement(0x107,
+								batteryCurrentPcs = new ModbusReadLongChannel("BatteryCurrentPcs", this).unit("mA")
+										.multiplier(2)), //
 						new SignedWordElement(0x108,
 								batteryVoltagePcs = new ModbusReadLongChannel("BatteryVoltagePcs", this).unit("mV")
 										.multiplier(2)), //
@@ -388,11 +395,11 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 								allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this).unit("W")
 										.multiplier(2)),
 						new SignedDoublewordElement(0x126, //
-								batteryChargeEnergy = new ModbusReadLongChannel("BatteryChargeEnergy", this)
-										.unit("kWh")).wordorder(WordOrder.LSWMSW),
+								batteryChargeEnergy = new ModbusReadLongChannel("BatteryChargeEnergy",
+										this).unit("kWh")).wordorder(WordOrder.LSWMSW),
 						new SignedDoublewordElement(0x128, //
-								batteryDischargeEnergy = new ModbusReadLongChannel("BatteryDischargeEnergy", this)
-										.unit("kWh")).wordorder(WordOrder.LSWMSW),
+								batteryDischargeEnergy = new ModbusReadLongChannel(
+										"BatteryDischargeEnergy", this).unit("kWh")).wordorder(WordOrder.LSWMSW),
 						new UnsignedWordElement(0x12A, //
 								batteryOperationStatus = new StatusBitChannel("BatteryOperationStatus", this)
 										.label(1, "Battery group 1 operating")//
@@ -506,19 +513,22 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 										.label(8, "Pre-charge failure on battery control group 4"))),
 						new UnsignedWordElement(0x13D,
 								batteryFault7 = warning.channel(new StatusBitChannel("BatteryFault7", this)//
-								)), new UnsignedWordElement(0x13E, batteryFault8 = warning.channel(new StatusBitChannel("BatteryFault8", this)//
-						)), new UnsignedWordElement(0x13F, batteryFault9 = warning.channel(new StatusBitChannel("BatteryFault9", this)//
-								.label(4, "Sampling circuit abnormal for BMU")//
-								.label(8, "Power cable disconnect failure")//
-								.label(16, "Sampling circuit disconnect failure")//
-								.label(64, "CAN disconnect for master and slave")//
-								.label(512, "Sammpling circuit failure")//
-								.label(1024, "Single battery failure")//
-								.label(2048, "Circuit detection abnormal for main contactor")//
-								.label(4096, "Circuit detection abnormal for main contactor")//
-								.label(8192, "Circuit detection abnormal for Fancontactor")//
-								.label(16384, "BMUPower contactor circuit detection abnormal")//
-								.label(32768, "Central contactor circuit detection abnormal"))),
+								)), new UnsignedWordElement(0x13E,
+										batteryFault8 = warning.channel(new StatusBitChannel("BatteryFault8", this)//
+										)),
+						new UnsignedWordElement(0x13F,
+								batteryFault9 = warning.channel(new StatusBitChannel("BatteryFault9", this)//
+										.label(4, "Sampling circuit abnormal for BMU")//
+										.label(8, "Power cable disconnect failure")//
+										.label(16, "Sampling circuit disconnect failure")//
+										.label(64, "CAN disconnect for master and slave")//
+										.label(512, "Sammpling circuit failure")//
+										.label(1024, "Single battery failure")//
+										.label(2048, "Circuit detection abnormal for main contactor")//
+										.label(4096, "Circuit detection abnormal for main contactor")//
+										.label(8192, "Circuit detection abnormal for Fancontactor")//
+										.label(16384, "BMUPower contactor circuit detection abnormal")//
+										.label(32768, "Central contactor circuit detection abnormal"))),
 						new UnsignedWordElement(0x140,
 								batteryFault10 = warning.channel(new StatusBitChannel("BatteryFault10", this)//
 										.label(4, "Serious temperature fault")//
@@ -532,61 +542,84 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 										.label(16384, "BMU power contactor open"))),
 						new UnsignedWordElement(0x141,
 								batteryFault11 = warning.channel(new StatusBitChannel("BatteryFault11", this)//
-								)), new UnsignedWordElement(0x142, batteryFault12 = warning.channel(new StatusBitChannel("BatteryFault12", this)//
-						)), new UnsignedWordElement(0x143, batteryFault13 = warning.channel(new StatusBitChannel("BatteryFault13", this)//
-						)), new UnsignedWordElement(0x144, batteryFault14 = warning.channel(new StatusBitChannel("BatteryFault14", this)//
-						)), new UnsignedWordElement(0x145, batteryGroupControlStatus = warning.channel(new StatusBitChannel("BatteryGroupControlStatus", this)//
-						)), new UnsignedWordElement(0x146, errorLog1 = warning.channel(new StatusBitChannel("ErrorLog1", this)//
-						)), new UnsignedWordElement(0x147, errorLog2 = warning.channel(new StatusBitChannel("ErrorLog2", this)//
-						)), new UnsignedWordElement(0x148, errorLog3 = warning.channel(new StatusBitChannel("ErrorLog3", this)//
-						)), new UnsignedWordElement(0x149, errorLog4 = warning.channel(new StatusBitChannel("ErrorLog4", this)//
-						)), new UnsignedWordElement(0x14a, errorLog5 = warning.channel(new StatusBitChannel("ErrorLog5", this)//
-						)), new UnsignedWordElement(0x14b, errorLog6 = warning.channel(new StatusBitChannel("ErrorLog6", this)//
-						)), new UnsignedWordElement(0x14c, errorLog7 = warning.channel(new StatusBitChannel("ErrorLog7", this)//
-						)), new UnsignedWordElement(0x14d, errorLog8 = warning.channel(new StatusBitChannel("ErrorLog8", this)//
-						)), new UnsignedWordElement(0x14e, errorLog9 = warning.channel(new StatusBitChannel("ErrorLog9", this)//
-						)), new UnsignedWordElement(0x14f, errorLog10 = warning.channel(new StatusBitChannel("ErrorLog10", this)//
-						)), new UnsignedWordElement(0x150, errorLog11 = warning.channel(new StatusBitChannel("ErrorLog11", this)//
-						)), new UnsignedWordElement(0x151, errorLog12 = warning.channel(new StatusBitChannel("ErrorLog12", this)//
-						)), new UnsignedWordElement(0x152, errorLog13 = warning.channel(new StatusBitChannel("ErrorLog13", this)//
-						)), new UnsignedWordElement(0x153, errorLog14 = warning.channel(new StatusBitChannel("ErrorLog14", this)//
-						)), new UnsignedWordElement(0x154, errorLog15 = warning.channel(new StatusBitChannel("ErrorLog15", this)//
-						)), new UnsignedWordElement(0x155, errorLog16 = warning.channel(new StatusBitChannel("ErrorLog16", this)//
-						))), new WriteableModbusRegisterRange(0x200, //
-								new UnsignedWordElement(0x200, //
-										setWorkState = new ModbusWriteLongChannel("SetWorkState", this) //
-												.label(0, STOP) //
-												.label(1, START)),
-								new UnsignedWordElement(0x201, //
-										setSystemErrorReset = new ModbusWriteLongChannel("SetSystemErrorReset", this)//
-												.label(0, OFF)//
-												.label(1, ON)),
-								new UnsignedWordElement(0x202, //
-										setOperationMode = new ModbusWriteLongChannel("SetOperationMode", this)//
-												.label(0, "P/Q Set point")//
-												.label(1, "IAC / cosphi set point"))),
-				new WriteableModbusRegisterRange(0x203,
-						new SignedWordElement(0x203, //
-								setActivePower = new ModbusWriteLongChannel("SetActivePower", this)//
-										.unit("W").multiplier(2))),
-				new WriteableModbusRegisterRange(0x204,
-						new SignedWordElement(0x204, //
-								setActivePowerL1 = new ModbusWriteLongChannel("SetActivePowerL1", this)//
-										.unit("W").multiplier(2)),
+								)), new UnsignedWordElement(0x142,
+										batteryFault12 = warning.channel(new StatusBitChannel("BatteryFault12", this)//
+										)),
+						new UnsignedWordElement(0x143,
+								batteryFault13 = warning.channel(new StatusBitChannel("BatteryFault13", this)//
+								)), new UnsignedWordElement(0x144,
+										batteryFault14 = warning.channel(new StatusBitChannel("BatteryFault14", this)//
+										)), new UnsignedWordElement(0x145, batteryGroupControlStatus = warning
+												.channel(new StatusBitChannel("BatteryGroupControlStatus", this)//
+						)), new UnsignedWordElement(0x146,
+								errorLog1 = warning.channel(new StatusBitChannel("ErrorLog1", this)//
+								)), new UnsignedWordElement(0x147,
+										errorLog2 = warning.channel(new StatusBitChannel("ErrorLog2", this)//
+										)), new UnsignedWordElement(0x148,
+												errorLog3 = warning.channel(new StatusBitChannel("ErrorLog3", this)//
+												)),
+						new UnsignedWordElement(0x149,
+								errorLog4 = warning.channel(new StatusBitChannel("ErrorLog4", this)//
+								)), new UnsignedWordElement(0x14a,
+										errorLog5 = warning.channel(new StatusBitChannel("ErrorLog5", this)//
+										)), new UnsignedWordElement(0x14b,
+												errorLog6 = warning.channel(new StatusBitChannel("ErrorLog6", this)//
+												)),
+						new UnsignedWordElement(0x14c,
+								errorLog7 = warning.channel(new StatusBitChannel("ErrorLog7", this)//
+								)), new UnsignedWordElement(0x14d,
+										errorLog8 = warning.channel(new StatusBitChannel("ErrorLog8", this)//
+										)), new UnsignedWordElement(0x14e,
+												errorLog9 = warning.channel(new StatusBitChannel("ErrorLog9", this)//
+												)),
+						new UnsignedWordElement(0x14f,
+								errorLog10 = warning.channel(new StatusBitChannel("ErrorLog10", this)//
+								)), new UnsignedWordElement(0x150,
+										errorLog11 = warning.channel(new StatusBitChannel("ErrorLog11", this)//
+										)), new UnsignedWordElement(0x151,
+												errorLog12 = warning.channel(new StatusBitChannel("ErrorLog12", this)//
+												)),
+						new UnsignedWordElement(0x152,
+								errorLog13 = warning.channel(new StatusBitChannel("ErrorLog13", this)//
+								)), new UnsignedWordElement(0x153,
+										errorLog14 = warning.channel(new StatusBitChannel("ErrorLog14", this)//
+										)), new UnsignedWordElement(0x154,
+												errorLog15 = warning.channel(new StatusBitChannel("ErrorLog15", this)//
+												)),
+						new UnsignedWordElement(0x155,
+								errorLog16 = warning.channel(new StatusBitChannel("ErrorLog16", this)//
+								))), new WriteableModbusRegisterRange(0x200, //
+										new UnsignedWordElement(0x200, //
+												setWorkState = new ModbusWriteLongChannel("SetWorkState", this) //
+														.label(0, STOP) //
+														.label(1, START)),
+										new UnsignedWordElement(0x201, //
+												setSystemErrorReset = new ModbusWriteLongChannel("SetSystemErrorReset",
+														this)//
+																.label(0, OFF)//
+																.label(1, ON)),
+										new UnsignedWordElement(0x202, //
+												setOperationMode = new ModbusWriteLongChannel("SetOperationMode", this)//
+														.label(0, "P/Q Set point")//
+														.label(1, "IAC / cosphi set point"))),
+				new WriteableModbusRegisterRange(0x203, new SignedWordElement(0x203, //
+						setActivePower = new ModbusWriteLongChannel("SetActivePower", this)//
+								.unit("W").multiplier(2))),
+				new WriteableModbusRegisterRange(0x204, new SignedWordElement(0x204, //
+						setActivePowerL1 = new ModbusWriteLongChannel("SetActivePowerL1", this)//
+								.unit("W").multiplier(2)),
 						new SignedWordElement(0x205, //
 								setActivePowerL2 = new ModbusWriteLongChannel("SetActivePowerL2", this)//
 										.unit("W").multiplier(2)),
 						new SignedWordElement(0x206, //
 								setActivePowerL3 = new ModbusWriteLongChannel("SetActivePowerL3", this)//
 										.unit("W").multiplier(2))),
-				new WriteableModbusRegisterRange(0x207,
-						new SignedWordElement(0x207, //
-								setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this)//
-										.unit("W").multiplier(2))),
-				new WriteableModbusRegisterRange(0x208,
-						new SignedWordElement(0x208, //
-								setReactivePowerL1 = new ModbusWriteLongChannel("SetReactivePowerL1", this)//
-										.unit("W").multiplier(2)),
+				new WriteableModbusRegisterRange(0x207, new SignedWordElement(0x207, //
+						setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this)//
+								.unit("W").multiplier(2))),
+				new WriteableModbusRegisterRange(0x208, new SignedWordElement(0x208, //
+						setReactivePowerL1 = new ModbusWriteLongChannel("SetReactivePowerL1", this)//
+								.unit("W").multiplier(2)),
 						new SignedWordElement(0x209, //
 								setReactivePowerL2 = new ModbusWriteLongChannel("SetReactivePowerL2", this)//
 										.unit("W").multiplier(2)),

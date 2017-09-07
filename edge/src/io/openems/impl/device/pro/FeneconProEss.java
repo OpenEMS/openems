@@ -27,6 +27,7 @@ import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
@@ -50,8 +51,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	/*
 	 * Constructors
 	 */
-	public FeneconProEss(String thingId) throws ConfigException {
-		super(thingId);
+	public FeneconProEss(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {

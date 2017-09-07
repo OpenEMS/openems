@@ -84,6 +84,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 	private final BiMap<String, Thing> thingIds = HashBiMap.create();
 	private HashMultimap<Class<? extends Thing>, Thing> thingClasses = HashMultimap.create();
 	private Set<Bridge> bridges = new HashSet<>();
+	// TODO scheduler should not be a set, but only one value
 	private Set<Scheduler> schedulers = new HashSet<>();
 	private Set<Persistence> persistences = new HashSet<>();
 	private Set<QueryablePersistence> queryablePersistences = new HashSet<>();
@@ -399,12 +400,13 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		return controller;
 	}
 
-	public Device createDevice(JsonObject jDevice) throws ReflectionException {
+	public Device createDevice(JsonObject jDevice, Bridge parent) throws ReflectionException {
 		String deviceClass = JsonUtils.getAsString(jDevice, "class");
-		Device device = (Device) InjectionUtils.getThingInstance(deviceClass);
+		Device device = (Device) InjectionUtils.getThingInstance(deviceClass, parent);
 		log.debug("Add Device[" + device.id() + "], Implementation[" + device.getClass().getSimpleName() + "]");
 		this.addThing(device);
-		ConfigUtils.injectConfigChannels(this.getConfigChannels(device), jDevice);
+		// instanciate DeviceNatures with Device reference
+		ConfigUtils.injectConfigChannels(this.getConfigChannels(device), jDevice, device);
 		return device;
 	}
 

@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 
 import { Controller } from '../controller';
-import { TemplateHelper, Device } from '../../../../shared/shared';
+import { Utils } from '../../../../shared/shared';
+import { Device } from '../../../../shared/device/device';
 import { Role, ROLES } from '../../../../shared/type/role';
 
 @Component({
@@ -25,5 +26,5 @@ export class DetailsComponent {
     public _device: Device
     public role: Role = ROLES.guest;
 
-    constructor(public tmpl: TemplateHelper) { }
+    constructor(public utils: Utils) { }
 }

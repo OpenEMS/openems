@@ -1,226 +1,229 @@
-<div *ngIf="currentData && config" fxLayout fxLayoutAlign="start start" fxLayoutWrap="wrap">
+<div fxLayout fxLayoutAlign="start start" fxLayoutWrap="wrap">
 
   <md-card fxFlex="100%" class="single_leftright single_top">
+    <ngx-loading [show]="!(currentData && config)"></ngx-loading>
     <md-card-header>
       <md-icon md-card-avatar>format_list_bulleted</md-icon>
-      <md-card-title translate>Device.Overview.Energymonitor.Title</md-card-title>
+      <md-card-title translate>Device.Overview.Energytable.Title</md-card-title>
     </md-card-header>
   </md-card>
 
-  <!-- Storage -->
-  <ng-container *ngFor="let thing of config.storageThings">
-    <md-card class="single_leftright" fxFlex="100%">
-      <md-card-header>
-        <img src="assets/img/storage.png" md-card-avatar/>
-        <md-card-title translate>General.StorageSystem</md-card-title>
-        <md-card-subtitle>{{ thing }}</md-card-subtitle>
-      </md-card-header>
-      <md-card-content *ngIf="currentData.data[thing] as data">
-        <table class="full_width">
-          <tr>
-            <td style="width:50%" translate>General.Soc</td>
-            <td style="width:15%"></td>
-            <td style="width:25%" class="align_right">{{ data.Soc }}</td>
-            <td style="width:10%">%</td>
-          </tr>
-          <ng-container *ngIf="data.ActivePower != null && data.ReactivePower != null">
+  <ng-container *ngIf="currentData && config">
+    <!-- Storage -->
+    <ng-container *ngFor="let thing of config.storageThings">
+      <md-card class="single_leftright" fxFlex="100%">
+        <md-card-header>
+          <img src="assets/img/storage.png" md-card-avatar/>
+          <md-card-title translate>General.StorageSystem</md-card-title>
+          <md-card-subtitle>{{ thing }}</md-card-subtitle>
+        </md-card-header>
+        <md-card-content *ngIf="currentData.data[thing] as data">
+          <table class="full_width">
             <tr>
-              <td translate>Device.Overview.Energymonitor.ChargePower</td>
-              <td></td>
-              <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign }}</td>
-              <td class="align_right" *ngIf="data.ActivePower >= 0">0</td>
-              <td>W</td>
+              <td style="width:50%" translate>General.Soc</td>
+              <td style="width:15%"></td>
+              <td style="width:25%" class="align_right">{{ data.Soc }}</td>
+              <td style="width:10%">%</td>
             </tr>
-            <tr>
-              <td translate>Device.Overview.Energymonitor.DischargePower</td>
-              <td></td>
-              <td class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower }}</td>
-              <td class="align_right" *ngIf="data.ActivePower <= 0">0</td>
-              <td>W</td>
-            </tr>
-            <tr class="gray_color">
-              <td translate>Device.Overview.Energymonitor.ReactivePower</td>
-              <td></td>
-              <td class="align_right">{{ data.ReactivePower }}</td>
-              <td>var</td>
-            </tr>
-          </ng-container>
-          <ng-container *ngIf="data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
-            <tr>
-              <td style="width:50%" translate>Device.Overview.Energymonitor.ActivePower</td>
-              <td style="width:15%">L1</td>
-              <td style="width:25%" class="align_right">{{ data.ActivePowerL1 }}</td>
-              <td style="width:10%">W</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>L2</td>
-              <td class="align_right">{{ data.ActivePowerL2 }}</td>
-              <td>W</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>L3</td>
-              <td class="align_right">{{ data.ActivePowerL3 }}</td>
-              <td>W</td>
-            </tr>
-          </ng-container>
-        </table>
-      </md-card-content>
-    </md-card>
-  </ng-container>
+            <ng-container *ngIf="data.ActivePower != null && data.ReactivePower != null">
+              <tr>
+                <td translate>Device.Overview.Energymonitor.ChargePower</td>
+                <td></td>
+                <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign }}</td>
+                <td class="align_right" *ngIf="data.ActivePower >= 0">0</td>
+                <td>W</td>
+              </tr>
+              <tr>
+                <td translate>Device.Overview.Energymonitor.DischargePower</td>
+                <td></td>
+                <td class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower }}</td>
+                <td class="align_right" *ngIf="data.ActivePower <= 0">0</td>
+                <td>W</td>
+              </tr>
+              <tr class="gray_color">
+                <td translate>Device.Overview.Energymonitor.ReactivePower</td>
+                <td></td>
+                <td class="align_right">{{ data.ReactivePower }}</td>
+                <td>var</td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
+              <tr>
+                <td style="width:50%" translate>Device.Overview.Energymonitor.ActivePower</td>
+                <td style="width:15%">L1</td>
+                <td style="width:25%" class="align_right">{{ data.ActivePowerL1 }}</td>
+                <td style="width:10%">W</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>L2</td>
+                <td class="align_right">{{ data.ActivePowerL2 }}</td>
+                <td>W</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>L3</td>
+                <td class="align_right">{{ data.ActivePowerL3 }}</td>
+                <td>W</td>
+              </tr>
+            </ng-container>
+          </table>
+        </md-card-content>
+      </md-card>
+    </ng-container>
 
-  <!-- Grid -->
-  <ng-container *ngFor="let thing of config.gridMeters">
-    <md-card class="single_leftright" fxFlex="100%">
-      <md-card-header>
-        <img src="assets/img/grid.png" md-card-avatar/>
-        <md-card-title translate>Device.Overview.Energymonitor.GridMeter</md-card-title>
-        <md-card-subtitle>{{ thing }}</md-card-subtitle>
-      </md-card-header>
-      <md-card-content *ngIf="currentData.data[thing] as data">
-        <table class="full_width">
-          <ng-container *ngIf="data.ActivePower != null && data.ReactivePower != null">
-            <tr>
-              <td style="width:50%" translate>General.GridBuy</td>
-              <td style="width:15%"></td>
-              <td style="width:25%" class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower }}</td>
-              <td style="width:25%" class="align_right" *ngIf="data.ActivePower <= 0">0</td>
-              <td style="width:10%">W</td>
-            </tr>
-            <tr>
-              <td translate>General.GridSell</td>
-              <td></td>
-              <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign }}</td>
-              <td class="align_right" *ngIf="data.ActivePower >= 0">0</td>
-              <td>W</td>
-            </tr>
-            <tr class="gray_color">
-              <td translate>Device.Overview.Energymonitor.ReactivePower</td>
-              <td></td>
-              <td class="align_right">{{ data.ReactivePower }}</td>
-              <td>var</td>
-            </tr>
-          </ng-container>
-          <ng-container *ngIf="!(data.ActivePower != null && data.ReactivePower != null) && data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
-            <tr *ngIf="data.ActivePowerL1 < 0">
-              <td style="width:50%" translate>General.GridSell</td>
-              <td style="width:15%">L1</td>
-              <td style="width:25%" class="align_right">{{ data.ActivePowerL1 | sign }}</td>
-              <td style="width:10%">W</td>
-            </tr>
-            <tr *ngIf="data.ActivePowerL1 >= 0">
-              <td translate>General.GridBuy</td>
-              <td>L1</td>
-              <td class="align_right">{{ data.ActivePowerL1 }}</td>
-              <td>W</td>
-            </tr>
-            <tr *ngIf="data.ActivePowerL2 < 0">
-              <td translate>General.GridSell</td>
-              <td>L2</td>
-              <td class="align_right">{{ data.ActivePowerL2 | sign }}</td>
-              <td>W</td>
-            </tr>
-            <tr *ngIf="data.ActivePowerL2 >= 0">
-              <td translate>General.GridBuy</td>
-              <td>L2</td>
-              <td class="align_right">{{ data.ActivePowerL2 }}</td>
-              <td>W</td>
-            </tr>
-            <tr *ngIf="data.ActivePowerL3 < 0">
-              <td translate>General.GridSell</td>
-              <td>L3</td>
-              <td class="align_right">{{ data.ActivePowerL3 | sign }}</td>
-              <td>W</td>
-            </tr>
-            <tr *ngIf="data.ActivePowerL3 >= 0">
-              <td translate>General.GridBuy</td>
-              <td>L3</td>
-              <td class="align_right">{{ data.ActivePowerL3 }}</td>
-              <td>W</td>
-            </tr>
-          </ng-container>
-        </table>
-      </md-card-content>
-    </md-card>
-  </ng-container>
+    <!-- Grid -->
+    <ng-container *ngFor="let thing of config.gridMeters">
+      <md-card class="single_leftright" fxFlex="100%">
+        <md-card-header>
+          <img src="assets/img/grid.png" md-card-avatar/>
+          <md-card-title translate>Device.Overview.Energymonitor.GridMeter</md-card-title>
+          <md-card-subtitle>{{ thing }}</md-card-subtitle>
+        </md-card-header>
+        <md-card-content *ngIf="currentData.data[thing] as data">
+          <table class="full_width">
+            <ng-container *ngIf="data.ActivePower != null && data.ReactivePower != null">
+              <tr>
+                <td style="width:50%" translate>General.GridBuy</td>
+                <td style="width:15%"></td>
+                <td style="width:25%" class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower }}</td>
+                <td style="width:25%" class="align_right" *ngIf="data.ActivePower <= 0">0</td>
+                <td style="width:10%">W</td>
+              </tr>
+              <tr>
+                <td translate>General.GridSell</td>
+                <td></td>
+                <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign }}</td>
+                <td class="align_right" *ngIf="data.ActivePower >= 0">0</td>
+                <td>W</td>
+              </tr>
+              <tr class="gray_color">
+                <td translate>Device.Overview.Energymonitor.ReactivePower</td>
+                <td></td>
+                <td class="align_right">{{ data.ReactivePower }}</td>
+                <td>var</td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="!(data.ActivePower != null && data.ReactivePower != null) && data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
+              <tr *ngIf="data.ActivePowerL1 < 0">
+                <td style="width:50%" translate>General.GridSell</td>
+                <td style="width:15%">L1</td>
+                <td style="width:25%" class="align_right">{{ data.ActivePowerL1 | sign }}</td>
+                <td style="width:10%">W</td>
+              </tr>
+              <tr *ngIf="data.ActivePowerL1 >= 0">
+                <td translate>General.GridBuy</td>
+                <td>L1</td>
+                <td class="align_right">{{ data.ActivePowerL1 }}</td>
+                <td>W</td>
+              </tr>
+              <tr *ngIf="data.ActivePowerL2 < 0">
+                <td translate>General.GridSell</td>
+                <td>L2</td>
+                <td class="align_right">{{ data.ActivePowerL2 | sign }}</td>
+                <td>W</td>
+              </tr>
+              <tr *ngIf="data.ActivePowerL2 >= 0">
+                <td translate>General.GridBuy</td>
+                <td>L2</td>
+                <td class="align_right">{{ data.ActivePowerL2 }}</td>
+                <td>W</td>
+              </tr>
+              <tr *ngIf="data.ActivePowerL3 < 0">
+                <td translate>General.GridSell</td>
+                <td>L3</td>
+                <td class="align_right">{{ data.ActivePowerL3 | sign }}</td>
+                <td>W</td>
+              </tr>
+              <tr *ngIf="data.ActivePowerL3 >= 0">
+                <td translate>General.GridBuy</td>
+                <td>L3</td>
+                <td class="align_right">{{ data.ActivePowerL3 }}</td>
+                <td>W</td>
+              </tr>
+            </ng-container>
+          </table>
+        </md-card-content>
+      </md-card>
+    </ng-container>
 
-  <!-- Production -->
-  <ng-container *ngFor="let thing of config.productionMeters">
-    <md-card class="single_leftright" fxFlex="100%">
-      <md-card-header>
-        <img src="assets/img/production.png" md-card-avatar/>
-        <md-card-title translate>Device.Overview.Energymonitor.ProductionMeter</md-card-title>
-        <md-card-subtitle>{{ thing }}</md-card-subtitle>
-      </md-card-header>
-      <md-card-content *ngIf="currentData.data[thing] as data">
-        <table class="full_width">
-          <ng-container *ngIf="data.ActualPower != null">
-            <tr>
-              <td style="width:50%" translate>General.Production</td>
-              <td style="width:15%"></td>
-              <td style="width:25%" class="align_right">{{ data.ActualPower }}</td>
-              <td style="width:10%">W</td>
-            </tr>
-          </ng-container>
-          <ng-container *ngIf="data.ActivePower != null && data.ReactivePower != null">
-            <tr>
-              <td style="width:50%" translate>General.Production</td>
-              <td style="width:15%"></td>
-              <td style="width:25%" class="align_right">{{ data.ActivePower }}</td>
-              <td style="width:10%">W</td>
-            </tr>
-            <tr class="gray_color">
-              <td translate>Device.Overview.Energymonitor.ReactivePower</td>
-              <td></td>
-              <td class="align_right">{{ data.ReactivePower }}</td>
-              <td>var</td>
-            </tr>
-          </ng-container>
-          <ng-container *ngIf="!(data.ActivePower != null && data.ReactivePower != null) && data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
-            <tr>
-              <td style="width:50%" translate>General.Production</td>
-              <td style="width:15%">L1</td>
-              <td style="width:25%" class="align_right">{{ data.ActivePowerL1 }}</td>
-              <td style="width:10%">W</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>L2</td>
-              <td class="align_right">{{ data.ActivePowerL2 }}</td>
-              <td>W</td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>L3</td>
-              <td class="align_right">{{ data.ActivePowerL3 }}</td>
-              <td>W</td>
-            </tr>
-          </ng-container>
-        </table>
-      </md-card-content>
-    </md-card>
-  </ng-container>
+    <!-- Production -->
+    <ng-container *ngFor="let thing of config.productionMeters">
+      <md-card class="single_leftright" fxFlex="100%">
+        <md-card-header>
+          <img src="assets/img/production.png" md-card-avatar/>
+          <md-card-title translate>Device.Overview.Energymonitor.ProductionMeter</md-card-title>
+          <md-card-subtitle>{{ thing }}</md-card-subtitle>
+        </md-card-header>
+        <md-card-content *ngIf="currentData.data[thing] as data">
+          <table class="full_width">
+            <ng-container *ngIf="data.ActualPower != null">
+              <tr>
+                <td style="width:50%" translate>General.Production</td>
+                <td style="width:15%"></td>
+                <td style="width:25%" class="align_right">{{ data.ActualPower }}</td>
+                <td style="width:10%">W</td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="data.ActivePower != null && data.ReactivePower != null">
+              <tr>
+                <td style="width:50%" translate>General.Production</td>
+                <td style="width:15%"></td>
+                <td style="width:25%" class="align_right">{{ data.ActivePower }}</td>
+                <td style="width:10%">W</td>
+              </tr>
+              <tr class="gray_color">
+                <td translate>Device.Overview.Energymonitor.ReactivePower</td>
+                <td></td>
+                <td class="align_right">{{ data.ReactivePower }}</td>
+                <td>var</td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="!(data.ActivePower != null && data.ReactivePower != null) && data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
+              <tr>
+                <td style="width:50%" translate>General.Production</td>
+                <td style="width:15%">L1</td>
+                <td style="width:25%" class="align_right">{{ data.ActivePowerL1 }}</td>
+                <td style="width:10%">W</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>L2</td>
+                <td class="align_right">{{ data.ActivePowerL2 }}</td>
+                <td>W</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>L3</td>
+                <td class="align_right">{{ data.ActivePowerL3 }}</td>
+                <td>W</td>
+              </tr>
+            </ng-container>
+          </table>
+        </md-card-content>
+      </md-card>
+    </ng-container>
 
-  <!-- Consumption -->
-  <ng-container *ngIf="currentData.summary.consumption as data">
-    <md-card class="single_leftright" fxFlex="100%">
-      <md-card-header>
-        <img src="assets/img/consumption.png" md-card-avatar/>
-        <md-card-title translate>General.Consumption</md-card-title>
-      </md-card-header>
-      <md-card-content>
-        <table class="full_width">
-          <ng-container *ngIf="data.activePower != null">
-            <tr>
-              <td style="width:50%" translate>General.Power</td>
-              <td style="width:15%"></td>
-              <td style="width:25%" class="align_right">{{ data.activePower }}</td>
-              <td style="width:10%">W</td>
-            </tr>
-          </ng-container>
-        </table>
-      </md-card-content>
-    </md-card>
+    <!-- Consumption -->
+    <ng-container *ngIf="currentData.summary.consumption as data">
+      <md-card class="single_leftright" fxFlex="100%">
+        <md-card-header>
+          <img src="assets/img/consumption.png" md-card-avatar/>
+          <md-card-title translate>General.Consumption</md-card-title>
+        </md-card-header>
+        <md-card-content>
+          <table class="full_width">
+            <ng-container *ngIf="data.activePower != null">
+              <tr>
+                <td style="width:50%" translate>General.Power</td>
+                <td style="width:15%"></td>
+                <td style="width:25%" class="align_right">{{ data.activePower }}</td>
+                <td style="width:10%">W</td>
+              </tr>
+            </ng-container>
+          </table>
+        </md-card-content>
+      </md-card>
+    </ng-container>
   </ng-container>
 </div>

@@ -22,6 +22,7 @@ package io.openems.impl.controller.asymmetric.balancing;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
@@ -103,7 +104,7 @@ public class BalancingController extends Controller {
 				long maxChargePowerPhase = 0L;
 				long maxDischargePowerPhase = 0L;
 				for (Ess ess : esss.value()) {
-					Tupel<Long> minMax = calculateMinMaxValues(ess, percentage, cosPhi.value());
+					Tupel<Long> minMax = calculateMinMaxValues(ess, percentage, cosPhi.value(), i);
 					maxDischargePowerPhase += minMax.b;
 					maxChargePowerPhase += minMax.a;
 					try {
@@ -279,14 +280,26 @@ public class BalancingController extends Controller {
 	 * @return a Tupel with value a minPower and value b maxPower
 	 * @throws InvalidValueException
 	 */
-	private Tupel<Long> calculateMinMaxValues(Ess ess, double percentage, double cosPhi) throws InvalidValueException {
+	private Tupel<Long> calculateMinMaxValues(Ess ess, double percentage, double cosPhi, int phase)
+			throws InvalidValueException {
 		long maxPower = 0;
 		long minPower = 0;
 		percentage = Math.abs(percentage);
 
+		Optional<Long> writeMin = ess.getSetActivePower(phase).writeMin();
+		Optional<Long> writeMax = ess.getSetActivePower(phase).writeMax();
+
 		maxPower = (long) ((double) ess.allowedDischarge.value() * percentage);
 
+		if (writeMax.isPresent() && maxPower > writeMax.get()) {
+			maxPower = writeMax.get();
+		}
+
 		minPower = (long) ((double) ess.allowedCharge.value() * percentage);
+
+		if (writeMin.isPresent() && minPower < writeMin.get()) {
+			minPower = writeMin.get();
+		}
 
 		if (ControllerUtils.calculateApparentPower(minPower, cosPhi) > ess.allowedApparent.value() / 3) {
 			minPower = ControllerUtils.calculateActivePowerFromApparentPower(ess.allowedApparent.value() / 3, cosPhi)

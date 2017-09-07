@@ -5,9 +5,9 @@ Dependencies are managed by yarn: `ng set --global packageManager=yarn` and `yar
 
 ## Development server
 
-Run `ng serve --env=femsserver-dev` to serve for FemsServer-Backend.
+Run `ng serve --env=backend-dev` to serve for OpenEMS Backend.
 
-Run `ng serve` to serve for OpenEMS-Backend.
+Run `ng serve` to serve for OpenEMS Edge.
 
 ## Build using maven
 
@@ -35,17 +35,13 @@ If you want to build despite "Cannot create the build number because you have lo
 
 Run `ng build` to build the project. The build artifacts will be stored in the `target` directory. Use the `-prod` flag for a production build.
 
-Build for femsserver:
+Build for OpenEMS Backend:
 
-`ng build -prod --env=femsserver --base-href /m/`
+`ng build -prod --env=backend --base-href /m/`
 
-Build for openems:
+Build for OpenEMS Edge:
 
-`ng build -prod --env=openems --base-href /`
-
-Bulid for projects:
-
-`ng build -prod --env=project-VA6403 --base-href /`
+`ng build -prod --env=edge --base-href /`
 
 ## Further help
 
@@ -75,14 +71,14 @@ this.translate.instant('General.StorageSystem')
 For "subscribe" please follow this: https://stackoverflow.com/questions/38008334/angular-rxjs-when-should-i-unsubscribe-from-subscription
 ```
 import { Subject } from 'rxjs/Subject';
-private ngUnsubscribe: Subject<void> = new Subject<void>();
+private stopOnDestroy: Subject<void> = new Subject<void>();
 ngOnInit() {
-    /*subject*/.takeUntil(this.ngUnsubscribe).subscribe(/*variable*/ => {
+    /*subject*/.takeUntil(this.stopOnDestroy).subscribe(/*variable*/ => {
         ...
     });
 }
 ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
 }
 ```

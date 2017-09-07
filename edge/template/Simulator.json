@@ -22,14 +22,16 @@
               "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
               "config": {
                 "min": -500,
-                "max": 0
+                "max": 1000,
+                "delta": 100
               }
             },
             "reactivePowerGeneratorConfig": {
               "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
               "config": {
                 "min": 0,
-                "max": 1000
+                "max": 1000,
+                "delta": 50
               }
             },
             "minSoc": 15,
@@ -41,7 +43,8 @@
               "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
               "config": {
                 "min": 0,
-                "max": 1000
+                "max": 1000,
+                "delta": 50
               }
             },
             "voltage": 230000,
@@ -51,8 +54,9 @@
             "activePowerGeneratorConfig": {
               "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
               "config": {
-                "min": -500,
-                "max": 0
+                "min": 0,
+                "max": 10000,
+                "delta": 120
               }
             }
           },
@@ -62,8 +66,9 @@
             "activePowerGeneratorConfig": {
               "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
               "config": {
-                "min": -500,
-                "max": 0
+                "min": 0,
+                "max": 5000,
+                "delta": 250
               }
             },
             "voltage": 230000,
@@ -80,7 +85,8 @@
               "className": "io.openems.impl.device.simulator.RandomLoadGenerator",
               "config": {
                 "min": 0,
-                "max": 1000
+                "max": 1000,
+                "delta": 100
               }
             }
           }
@@ -105,6 +111,21 @@
         "esss": [
           "ess0"
         ]
+      },
+      {
+        "class": "io.openems.impl.controller.symmetric.avoidtotaldischarge.AvoidTotalDischargeController",
+        "priority": 100,
+        "esss": [
+          "ess0"
+        ]
+      },
+      {
+        "class": "io.openems.impl.controller.symmetric.balancing.BalancingController",
+        "esss": [
+          "ess0"
+        ],
+        "meter": "meter0",
+        "priority": 50
       },
       {
         "class": "io.openems.impl.controller.api.websocket.WebsocketApiController",

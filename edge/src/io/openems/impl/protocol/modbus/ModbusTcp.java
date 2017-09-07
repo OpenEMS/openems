@@ -60,13 +60,6 @@ public class ModbusTcp extends ModbusBridge {
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this)
 			.addUpdateListener(channelUpdateListener);
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
-
-	@Override
-	public ConfigChannel<Integer> cycleTime() {
-		return cycleTime;
-	}
-
 	/*
 	 * Fields
 	 */
@@ -139,9 +132,7 @@ public class ModbusTcp extends ModbusBridge {
 			try {
 				TCPMasterConnection tcpCon = connection.get();
 				tcpCon.connect();
-				if (cycleTime.valueOptional().isPresent()) {
-					tcpCon.getModbusTransport().setTimeout(cycleTime.valueOptional().get());
-				}
+				tcpCon.getModbusTransport().setTimeout(1000);
 			} catch (Exception e) {
 				throw new OpenemsModbusException("Unable to open Modbus-TCP connection: " + ip.valueOptional().get());
 			}

@@ -21,8 +21,6 @@
 package io.openems.impl.protocol.studer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,7 +28,6 @@ import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.device.Device;
 import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
@@ -59,18 +56,10 @@ public class StuderBridge extends Bridge implements ChannelUpdateListener {
 	@ConfigInfo(title = "Source address", description = "Sets the source address (e.g. 1).", type = Integer.class, defaultValue = "1")
 	public final ConfigChannel<Integer> address = new ConfigChannel<Integer>("address", this);
 
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
-
-	@Override
-	public ConfigChannel<Integer> cycleTime() {
-		return cycleTime;
-	}
-
 	/*
 	 * Fields
 	 */
 	private Optional<StuderConnection> connection = Optional.empty();
-	protected volatile StuderDevice[] studerdevices = new StuderDevice[0];
 	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
 
 	/*
@@ -84,44 +73,6 @@ public class StuderBridge extends Bridge implements ChannelUpdateListener {
 	@Override
 	public void channelUpdated(Channel channel, Optional<?> newValue) {
 		triggerInitialize();
-	}
-
-	@Override
-	public void triggerWrite() {
-		// set the Write-flag
-		isWriteTriggered.set(true);
-		// start "run()" again as fast as possible
-		triggerForceRun();
-	}
-
-	@Override
-	protected void forever() {
-		for (StuderDevice studerdevice : studerdevices) {
-			// if Write-flag was set -> start writing for all Devices immediately
-			if (isWriteTriggered.get()) {
-				isWriteTriggered.set(false);
-				writeAllDevices();
-			}
-			// Update this Device
-			try {
-				studerdevice.update(this);
-			} catch (OpenemsException e) {
-				log.error(e.getMessage());
-			}
-		}
-	}
-
-	/**
-	 * Starts writing at all StuderDevices
-	 */
-	private void writeAllDevices() {
-		for (StuderDevice studerdevice : studerdevices) {
-			try {
-				studerdevice.write(this);
-			} catch (OpenemsException e) {
-				log.error("Error while writing to StuderDevice [" + studerdevice.id() + "]: " + e.getMessage());
-			}
-		}
 	}
 
 	/**
@@ -159,23 +110,6 @@ public class StuderBridge extends Bridge implements ChannelUpdateListener {
 	@Override
 	protected boolean initialize() {
 		/*
-		 * Copy and cast devices to local studerdevices array
-		 */
-		if (devices.isEmpty()) {
-			return false;
-		}
-		List<StuderDevice> studerdevices = new ArrayList<>();
-		for (Device device : devices) {
-			if (device instanceof StuderDevice) {
-				studerdevices.add((StuderDevice) device);
-			}
-		}
-		StuderDevice[] newStuderdevices = studerdevices.stream().toArray(StuderDevice[]::new);
-		if (newStuderdevices == null) {
-			newStuderdevices = new StuderDevice[0];
-		}
-		this.studerdevices = newStuderdevices;
-		/*
 		 * Create a new SerialConnection
 		 */
 		closeConnection();
@@ -194,5 +128,16 @@ public class StuderBridge extends Bridge implements ChannelUpdateListener {
 		StuderConnection connection = getConnection();
 		connection.setRequest(request);
 		connection.execute();
+	}
+
+	protected int getSrcAddress() throws OpenemsException {
+		int srcAddress;
+		try {
+			srcAddress = this.address.value();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			throw new OpenemsException("Unable to find srcAddress: " + e.getMessage());
+		}
+		return srcAddress;
 	}
 }

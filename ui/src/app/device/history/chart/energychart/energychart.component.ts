@@ -4,13 +4,15 @@ import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
-import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, Summary } from './../../../../shared/shared';
+import { Device } from '../../../../shared/device/device';
+import { ConfigImpl } from '../../../../shared/device/config';
+import { DefaultTypes } from '../../../../shared/service/defaulttypes';
+import { Dataset, EMPTY_DATASET } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions, TooltipItem, Data } from './../shared';
-import { TemplateHelper } from './../../../../shared/service/templatehelper';
+import { Utils } from './../../../../shared/service/utils';
+import { CurrentDataAndSummary } from '../../../../shared/device/currentdata';
 
-// spinner component
-import { SpinnerComponent } from '../../../../shared/spinner.component';
-
+// TODO grid should be shown as "Netzeinspeisung"/"Netzbezug" instead of positive/negative value
 @Component({
   selector: 'energychart',
   templateUrl: './energychart.component.html'
@@ -18,13 +20,15 @@ import { SpinnerComponent } from '../../../../shared/spinner.component';
 export class EnergyChartComponent implements OnChanges {
 
   @Input() private device: Device;
+  @Input() private config: ConfigImpl;
+  @Input() private channels: DefaultTypes.ChannelAddresses;
   @Input() private fromDate: moment.Moment;
   @Input() private toDate: moment.Moment;
 
   @ViewChild('energyChart') private chart: BaseChartDirective;
 
   constructor(
-    private tmpl: TemplateHelper,
+    private utils: Utils,
     private translate: TranslateService
   ) {
     this.grid = this.translate.instant('General.Grid');
@@ -37,7 +41,6 @@ export class EnergyChartComponent implements OnChanges {
   public loading: boolean = true;
 
   private ngUnsubscribe: Subject<void> = new Subject<void>();
-  private queryreplySubject: Subject<QueryReply>;
   private grid: String = "";
   private gridBuy: String = "";
   private gridSell: String = "";
@@ -55,7 +58,7 @@ export class EnergyChartComponent implements OnChanges {
   private options: ChartOptions;
 
   ngOnInit() {
-    let options = <ChartOptions>this.tmpl.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = <ChartOptions>this.utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = "kW";
     options.tooltips.callbacks.label = function (tooltipItem: TooltipItem, data: Data) {
       let label = data.datasets[tooltipItem.datasetIndex].label;
@@ -73,18 +76,11 @@ export class EnergyChartComponent implements OnChanges {
     this.options = options;
   }
 
-  ngOnChanges(changes: any) {
-    // close old queryreplySubject
-    if (this.queryreplySubject != null) {
-      this.queryreplySubject.complete();
-    }
-    // show loading...
+  ngOnChanges() {
     this.loading = true;
-    // create channels for query
-    let channels = this.device.config.getValue().getPowerChannels();
-    // execute query
-    let queryreplySubject = this.device.query(this.fromDate, this.toDate, channels);
-    queryreplySubject.subscribe(queryreply => {
+    this.device.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
+      // prepare datas array and prefill with each device
+
       // prepare datasets and labels
       let activePowers = {
         production: [],
@@ -92,12 +88,12 @@ export class EnergyChartComponent implements OnChanges {
         consumption: []
       }
       let labels: moment.Moment[] = [];
-      for (let reply of queryreply.data) {
-        labels.push(moment(reply.time));
-        let data = new Summary(this.device.config.getValue(), reply.channels);
-        activePowers.grid.push(data.grid.activePower / -1000); // convert to kW and invert value
-        activePowers.production.push(data.production.activePower / 1000); // convert to kW
-        activePowers.consumption.push(data.consumption.activePower / 1000); // convert to kW
+      for (let record of historicData.data) {
+        labels.push(moment(record.time));
+        let data = new CurrentDataAndSummary(record.channels, this.config);
+        activePowers.grid.push(Utils.divideSafely(data.summary.grid.activePower, -1000)); // convert to kW and invert value
+        activePowers.production.push(Utils.divideSafely(data.summary.production.activePower, 1000)); // convert to kW
+        activePowers.consumption.push(Utils.divideSafely(data.summary.consumption.activePower, 1000)); // convert to kW
       }
       this.datasets = [{
         label: this.translate.instant('General.Production'),
@@ -110,6 +106,7 @@ export class EnergyChartComponent implements OnChanges {
         data: activePowers.consumption
       }];
       this.labels = labels;
+      // stop loading spinner
       this.loading = false;
       setTimeout(() => {
         // Workaround, because otherwise chart data and labels are not refreshed...
@@ -117,17 +114,9 @@ export class EnergyChartComponent implements OnChanges {
           this.chart.ngOnChanges({} as SimpleChanges);
         }
       });
-
-    }, error => {
+    }).catch(error => {
       this.datasets = EMPTY_DATASET;
       this.labels = [];
-      // TODO should be error message
-      this.loading = true;
     });
-  }
-
-  ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
   }
 }

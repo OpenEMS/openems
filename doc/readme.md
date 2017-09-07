@@ -2,206 +2,290 @@
 
 This chapter explains the communication protocol used between the different components.
 
-## [1] Client (Browser) <-> Backend (OpenEMS/FemsServer)
+## [1] OpenEMS UI <-> OpenEMS Edge/OpenEMS Backend
 
 ### [1.1] Authenticate
 
-#### [1.1.1] At FemsServer
+[1.1.1] Authenticate Client -> OpenEMS Backend
 
-[1.1.1.1] Authenticate
-Cookie: session_id
+[1.1.1.1] Automatic
 
-[1.1.1.2] On success
-```
-{ result: { devices: ["...",] } }
-```
+Using cookie information (session_id + token) in handshake
 
-[1.1.1.3] On error
-```
-{ error }
-```
+[1.1.1.1] Manual login
 
-[1.1.1.4] Reply
+currently forwarded to Odoo login page
+
+[1.1.2] Authenticate Client -> OpenEMS Edge
+
+[1.1.2.1] Automatic
+
+// TODO
+
+[1.1.2.2] Manual login
 ```
 {
 	authenticate: {
-		mode: allow, username, token
+		mode: "login",
+		username?: string,
+		password: string
+	}
+}
+```
+
+[1.1.3] Authentication reply
+
+[1.1.3.1] Authentication successful
+
+```
+{
+	authenticate: {
+		mode: "allow",
+		token: string,
+		role?: "admin" | "installer" | "owner" | "guest"
 	}, metadata: {
-		devices: [{
-			name, config, online
-		}],
-		backend: "femsserver"
-	}
-}
-```
-
-#### [1.1.2] At OpenEMS
-
-[1.1.2.1] Authenticate
-```
-{
-	authenticate: {
-		mode: login,
-		[password: "...",] 
-		[token: "..."]
-	}
-}
-```
-
-[1.1.2.2] Reply
-```
-successful
-{
-	authenticate: {
-		mode: allow, username, token
-	}, metadata: {
-		config: {},
-		backend: "openems"
-	}
-}
-failed
-{
-	authenticate: {
-		mode: deny
-	}
-}
-```
-
-### [1.2] Current data
-
-[1.2.1] Subscribe
-```
-{
-	device: "...",
-	subscribe: {
-		channels: {
-			thing0: [
-				channel
-			]
+		user: {
+			id: Integer
 		},
-		log: "all" | "info" | "warning" | "error"
+		devices?: [{
+			name: string,
+			comment: string,
+			producttype: "Pro 9-12" | "MiniES 3-3" | "PRO Hybrid 9-10" | "PRO Compact 3-10" | "COMMERCIAL 40-45" | "INDUSTRIAL",
+			role: "admin" | "installer" | "owner" | "guest",
+			online: boolean
+		}]
 	}
 }
 ```
 
-[1.2.2] Forward to OpenEMS
+- authenticate.role is only sent for OpenEMS Edge
+- metadata.devices is only sent for OpenEMS Backend
+
+[1.1.3.2] Authentication failed
+{
+	authenticate: {
+		mode: "deny"
+	}
+}
+
+## [2] OpenEMS UI <-> OpenEMS Backend <-> OpenEMS Edge
+
+Following commands are all the same, no matter if UI is connected to Edge or to Backend. 
+
+Backend is transparently proxying requests to a connected Edge if necessary, adding the UI token as identifier to the message id:
+
 ```
 {
-	subscribe: ...
+	id: [..., token],
+	...
 }
 ```
 
-[1.2.3] Reply from OpenEMS
-```
-{
-	currentdata: [{ 
-		channel, value
-    }]
-}
-```
+### [2.1] Receive current configuration
 
-[1.2.4] Reply
-```
-{
-	device: "...",
-    currentdata: [{ 
-    	channel, value
-    }]
-}
-```
+[2.1.1] UI -> Edge/Backend
 
-[1.2.5] Unsubscribe
 ```
 {
-	device: "...",
-	subscribe: {
-		channels: {},
-		log: ""
+	device: string,
+	id: [UUID],
+	config: {
+		mode: "query",
+		language: 'de' | 'en' | ...
 	}
 }
 ```
 
-### [1.3] Notification
+[2.1.2] Edge/Backend -> UI
+
 ```
 {
-	device: "...",
-	notification: {
-		message: "...
-	}
-}
-```
-
-### [1.3] Log
-```
-{
-	device: "...",
-	log: {
-		timestamp: ...,
-		level: ...,
-		source: ...,
-		message: ...
-	}
-}
-```
-
-### [1.4] Query history data
-
-[1.4.1]
-```
-{
-	device: "...",
-	query: {
-		mode: "history",
-		fromDate: "01.01.2017",
-		toDate: "01.01.2017", 
-		timezone: /* offset in seconds */,
-		data: {
-			channels: {
-				thing: [channel] 
+	id: [UUID],
+	config: {
+		things: {
+			[id: string]: {
+				id: string,
+				class: string | string[],
+				[channel: string]: any
 			}
 		},
-		kWh: {
-			"thing/channel": 'grid' | 'production' | 'storage',
+		meta: {
+			[clazz: string]: {
+				implements: [string],
+				channels: {
+					[channel: string]: {
+						name: string,
+						title: string,
+						type: string | string[],
+						optional: boolean,
+						array: boolean,
+						accessLevel: string
+					}
+				}
+			}
 		}
 	}
 }
 ```
 
-[1.4.2]
+### [2.2] Current live data
+
+[2.2.1] UI -> Edge/Backend
+
+For 'unsubscribe' the channels object is empty.
+
 ```
 {
-    queryreply: {
-    	mode: "history",
-		fromDate: "2017-01-01",
-		toDate: "2017-01-01", 
-		timezone: /* offset in seconds */,
+	id: [string],
+	device: string,
+	currentData: {
+		mode: "subscribe",
+		channels: {
+			[thingId: string]: string[]
+		}
+	}
+}
+```
+
+[2.2.2] Edge/Backend -> UI
+
+```
+{
+	device?: string,
+	currentData: {[{ 
+		channel: string,
+		value: any
+    }]}
+}
+```
+
+### [2.3] Query historic data
+
+[2.3.1] UI -> Edge/Backend
+```
+{
+	id: [string],
+	device: string,
+	historicData: {
+		mode: "query",
+		fromDate: date,
+		toDate: date, 
+		timezone: number /* offset in seconds */,
+		channels: {
+			thing: [
+				channel: string
+			] 
+		}
+		// kwhChannels: {
+		//	address: 'grid' | 'production' | 'storage',
+		// }
+	}
+}
+```
+
+[2.3.2] Edge/Backend -> UI
+```
+{
+	id: [UUID],
+    historicData: {
 		data: [{
-			time: ...,
+			time: string,
 			channels: {
-				'thing': {
+				thing: {
 					'channel': 'value'
 				} 
 			}
-		}],
-		kWh: {
-			'meter0/ActivePower': {
-				'sell': ...,
-				'buy': ...,
-				'type': 'grid' | 'production' | 'storage'
-			},
-			'meter1/ActivePower': {
-				'value': value,
-				'type': 'grid' | 'production' | 'storage'
-			},
-			'ess0/ActivePower': {
-				'charge: ...,
-				'discharge': ...,
-				'type': 'grid' | 'production' | 'storage'
-			}
+		}]
+		// kWh: {
+		//	'meter0/ActivePower': {
+		//		'sell': ...,
+		//		'buy': ...,
+		//		'type': 'grid' | 'production' | 'storage'
+		//	},
+		//	'meter1/ActivePower': {
+		//		'value': value,
+		//		'type': 'grid' | 'production' | 'storage'
+		//	},
+		//	'ess0/ActivePower': {
+		//		'charge: ...,
+		//		'discharge': ...,
+		//		'type': 'grid' | 'production' | 'storage'
+		//	}
+		//}
+	}
+}
+```
+
+### [2.4] Notification
+
+```
+{
+ 	notification: {
+		type: "success" | "error" | "warning" | "info",
+		message: "...",
+		code?: number,
+		params?: string[]
+	}
+}
+```
+
+### [2.5] Current system log
+
+[2.2.1] UI -> Edge/Backend
+
+```
+{
+	id: [string],
+	device: string,
+	log: {
+		mode: "subscribe"
+	}
+}
+```
+
+```
+{
+	id: [string],
+	device: string,
+	log: {
+		mode: "unsubscribe"
+	}
+}
+```
+
+[2.2.2] Edge/Backend -> UI
+
+```
+{
+	log: {
+		timestamp: number,
+		level: string,
+		source: string,
+		message: string
+    }
+}
+```
+
+## [3] OpenEMS Edge <-> OpenEMS Backend
+
+### [3.1] Timestamped data
+```
+{
+	timedata: {
+		timestamp (Long): {
+			channel: String,
+			value: String | Number
 		}
 	}
 }
 ```
+
+
+
+
+
+
+// TODO from here
 
 
 ### [1.5] Configuration
@@ -264,29 +348,6 @@ failed
  		p: ...,
  		q: ...
  	}
-}
-```
-
-## [2] OpenEMS <-> FemsServer
-
-### [2.1] Authenticate
-```
-{
-	metadata: {
-		config: {},
-		backend: "openems"
-	}
-}
-```
-
-### [2.2] timestamped data
-```
-{
-	timedata: {
-		timestamp: [{
-			channel, value
-		}]
-	}
 }
 ```
 

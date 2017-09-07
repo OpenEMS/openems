@@ -26,6 +26,7 @@ import java.util.List;
 import com.google.gson.JsonObject;
 
 import io.openems.api.thing.Thing;
+import io.openems.core.utilities.InjectionUtils;
 
 public class ThingDoc {
 
@@ -69,6 +70,7 @@ public class ThingDoc {
 			jChannels.add(config.getName(), config.getAsJsonObject());
 		}
 		j.add("channels", jChannels);
+		j.add("implements", InjectionUtils.getImplementsAsJson(getClazz()));
 		return j;
 	}
 }

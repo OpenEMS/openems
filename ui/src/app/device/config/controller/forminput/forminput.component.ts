@@ -2,7 +2,8 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { Controller } from '../controller';
-import { TemplateHelper, Device, Meta } from '../../../../shared/shared';
+import { Device } from '../../../../shared/device/device';
+import { Utils } from '../../../../shared/shared';
 import { Role, ROLES } from '../../../../shared/type/role';
 
 interface ArrayPath {
@@ -33,7 +34,7 @@ export class FormInputComponent {
     public meta: any
 
     @Input()
-    public allMeta: Meta;
+    public allMeta: any;
 
     @Input()
     public showTitle: boolean = true;
@@ -41,7 +42,7 @@ export class FormInputComponent {
     public type: string;
     public specialType: string;
 
-    constructor(public tmpl: TemplateHelper) { }
+    constructor(public utils: Utils) { }
 
     ngOnChanges(changes: any) {
         switch (this.meta.type) {

@@ -30,8 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +60,7 @@ import io.openems.api.exception.WriteChannelException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.security.User;
-import io.openems.core.utilities.AbstractWorker;
+import io.openems.api.thing.Thing;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -219,7 +221,9 @@ public class Config implements ChannelChangeListener {
 	 * @throws NotImplementedException
 	 */
 	public void writeConfigFile() throws NotImplementedException {
-		JsonObject jConfig = getJsonComplete();
+		// get config as json
+		JsonObject jConfig = getJson(ConfigFormat.FILE);
+
 		Runnable writeConfigRunnable = new Runnable() {
 			@Override
 			public void run() {
@@ -301,9 +305,16 @@ public class Config implements ChannelChangeListener {
 			JsonArray jDevices = JsonUtils.getAsJsonArray(jBridge, "devices");
 			for (JsonElement jDeviceElement : jDevices) {
 				JsonObject jDevice = JsonUtils.getAsJsonObject(jDeviceElement);
-				Device device = thingRepository.createDevice(jDevice);
+				Device device = thingRepository.createDevice(jDevice, bridge);
 				devices.add(device);
 				bridge.addDevice(device);
+			}
+			/*
+			 * Init bridge
+			 */
+			bridge.init();
+			for (Device d : bridge.getDevices()) {
+				d.init();
 			}
 		}
 
@@ -326,7 +337,9 @@ public class Config implements ChannelChangeListener {
 				JsonObject jController = JsonUtils.getAsJsonObject(jControllerElement);
 				Controller controller = thingRepository.createController(jController);
 				scheduler.addController(controller);
+				controller.init();
 			}
+			scheduler.init();
 		}
 
 		/*
@@ -342,6 +355,7 @@ public class Config implements ChannelChangeListener {
 				log.debug("Add Persistence[" + persistence.id() + "], Implementation["
 						+ persistence.getClass().getSimpleName() + "]");
 				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);
+				persistence.init();
 			}
 		}
 
@@ -350,7 +364,7 @@ public class Config implements ChannelChangeListener {
 		 */
 		thingRepository.getThings().forEach(thing -> {
 			if (thing instanceof Thread) {
-				((AbstractWorker) thing).start();
+				((Thread) thing).start();
 			}
 		});
 
@@ -360,18 +374,28 @@ public class Config implements ChannelChangeListener {
 		for (ConfigChannel<?> channel : thingRepository.getConfigChannels()) {
 			channel.addChangeListener(this);
 		}
+
+		/*
+		 * After 10 seconds: build the ClassRepository cache to speed up future calls
+		 * (this speeds up the first opening of the UI, as the cache does not need to be built)
+		 */
+		Executors.newScheduledThreadPool(1).schedule(() -> {
+			try {
+				ClassRepository.getInstance().getAvailableThings();
+			} catch (ReflectionException e) { /* ignore */}
+		}, 10, TimeUnit.SECONDS);
 	}
 
-	public JsonArray getBridgesJson(boolean includeEverything) throws NotImplementedException {
+	public JsonArray getBridgesJson(ConfigFormat format) throws NotImplementedException {
 		JsonArray jBridges = new JsonArray();
 		for (Bridge bridge : thingRepository.getBridges()) {
-			JsonObject jBridge = (JsonObject) ConfigUtils.getAsJsonElement(bridge, includeEverything);
+			JsonObject jBridge = (JsonObject) ConfigUtils.getAsJsonElement(bridge, format);
 			/*
 			 * Device
 			 */
 			JsonArray jDevices = new JsonArray();
 			for (Device device : bridge.getDevices()) {
-				JsonObject jDevice = (JsonObject) ConfigUtils.getAsJsonElement(device, includeEverything);
+				JsonObject jDevice = (JsonObject) ConfigUtils.getAsJsonElement(device, format);
 				jDevices.add(jDevice);
 			}
 			jBridge.add("devices", jDevices);
@@ -380,16 +404,16 @@ public class Config implements ChannelChangeListener {
 		return jBridges;
 	}
 
-	public JsonObject getSchedulerJson(boolean includeEverything) throws NotImplementedException {
+	public JsonObject getSchedulerJson(ConfigFormat format) throws NotImplementedException {
 		JsonObject jScheduler = null;
 		for (Scheduler scheduler : thingRepository.getSchedulers()) {
-			jScheduler = (JsonObject) ConfigUtils.getAsJsonElement(scheduler, includeEverything);
+			jScheduler = (JsonObject) ConfigUtils.getAsJsonElement(scheduler, format);
 			/*
 			 * Controller
 			 */
 			JsonArray jControllers = new JsonArray();
 			for (Controller controller : scheduler.getControllers()) {
-				jControllers.add(ConfigUtils.getAsJsonElement(controller, includeEverything));
+				jControllers.add(ConfigUtils.getAsJsonElement(controller, format));
 			}
 			jScheduler.add("controllers", jControllers);
 			break; // TODO only one Scheduler supported
@@ -397,10 +421,10 @@ public class Config implements ChannelChangeListener {
 		return jScheduler;
 	}
 
-	public JsonArray getPersistenceJson(boolean includeEverything) throws NotImplementedException {
+	public JsonArray getPersistenceJson(ConfigFormat format) throws NotImplementedException {
 		JsonArray jPersistences = new JsonArray();
 		for (Persistence persistence : thingRepository.getPersistences()) {
-			JsonObject jPersistence = (JsonObject) ConfigUtils.getAsJsonElement(persistence, includeEverything);
+			JsonObject jPersistence = (JsonObject) ConfigUtils.getAsJsonElement(persistence, format);
 			jPersistences.add(jPersistence);
 		}
 		return jPersistences;
@@ -417,29 +441,65 @@ public class Config implements ChannelChangeListener {
 		return jUsers;
 	}
 
-	public synchronized JsonObject getJson(boolean includeEverything) throws NotImplementedException {
-		JsonObject jConfig = new JsonObject();
-		/*
-		 * Bridge
-		 */
-		jConfig.add("things", getBridgesJson(includeEverything));
-		/*
-		 * Scheduler
-		 */
-		jConfig.add("scheduler", getSchedulerJson(includeEverything));
-		/*
-		 * Persistence
-		 */
-		jConfig.add("persistence", getPersistenceJson(includeEverything));
-		return jConfig;
+	/**
+	 * Gets the Config as Json in the given format in english language
+	 *
+	 * @param format
+	 * @return
+	 * @throws NotImplementedException
+	 */
+	public synchronized JsonObject getJson(ConfigFormat format) throws NotImplementedException {
+		return this.getJson(format, "en"); // TODO use proper language tag
 	}
 
-	private synchronized JsonObject getJsonComplete() throws NotImplementedException {
-		JsonObject jConfig = getJson(false);
-		/*
-		 * Users
-		 */
-		jConfig.add("users", getUsersJson());
+	/**
+	 * Gets the Config as Json in the given format
+	 *
+	 * @param format
+	 * @return
+	 * @throws NotImplementedException
+	 */
+	// TODO make use of language tag
+	public synchronized JsonObject getJson(ConfigFormat format, String language) throws NotImplementedException {
+		JsonObject jConfig = new JsonObject();
+		if (format == ConfigFormat.FILE) {
+			/*
+			 * Prepare Json in format for config.json file
+			 */
+			// Bridge
+			jConfig.add("things", getBridgesJson(format));
+			// Scheduler
+			jConfig.add("scheduler", getSchedulerJson(format));
+			// Persistence
+			jConfig.add("persistence", getPersistenceJson(format));
+			// Users
+			jConfig.add("users", getUsersJson());
+
+		} else {
+			/*
+			 * Prepare Json in format for OpenEMS UI
+			 */
+			// things...
+			JsonObject jThings = new JsonObject();
+			Set<Thing> things = ThingRepository.getInstance().getThings();
+			for (Thing thing : things) {
+				JsonObject jThing = (JsonObject) ConfigUtils.getAsJsonElement(thing, format);
+				jThings.add(thing.id(), jThing);
+			}
+			jConfig.add("things", jThings);
+			// meta...
+			JsonObject jMeta = new JsonObject();
+			try {
+				Iterable<ThingDoc> availableThings = ClassRepository.getInstance().getAvailableThings();
+				for (ThingDoc availableThing : availableThings) {
+					jMeta.add(availableThing.getClazz().getName(), availableThing.getAsJsonObject());
+				}
+			} catch (ReflectionException e) {
+				log.error(e.getMessage());
+				e.printStackTrace();
+			}
+			jConfig.add("meta", jMeta);
+		}
 		return jConfig;
 	}
 
@@ -477,80 +537,5 @@ public class Config implements ChannelChangeListener {
 		Path configFile = getConfigFile();
 		Path backupFile = configFile.getParent().resolve(CONFIG_BACKUP_FILE_NAME);
 		return backupFile;
-	}
-
-	/**
-	 * Generates a JsonObject including the current configuration as well as meta-data about available controllers,
-	 * bridges,...
-	 *
-	 * @return
-	 */
-	public JsonObject getMetaConfigJson() {
-		try {
-			/*
-			 * Json Config
-			 */
-			JsonObject j = getJson(true);
-			JsonObject jMeta = new JsonObject();
-			/*
-			 * Devices -> Natures
-			 */
-			JsonObject jDeviceNatures = new JsonObject();
-			thingRepository.getDeviceNatures().forEach(nature -> {
-				JsonArray jNatureImplements = new JsonArray();
-				/*
-				 * get important classes/interfaces that are implemented by this nature
-				 */
-				for (Class<?> iface : InjectionUtils.getImportantNatureInterfaces(nature.getClass())) {
-					jNatureImplements.add(iface.getSimpleName());
-				}
-				JsonObject jDeviceNature = new JsonObject();
-				jDeviceNature.add("implements", jNatureImplements);
-				JsonObject jChannels = new JsonObject();
-				thingRepository.getConfigChannels(nature).forEach(channel -> {
-					try {
-						jChannels.add(channel.id(), channel.toJsonObject());
-					} catch (NotImplementedException e) {
-						/* ignore */
-					}
-				});
-				jDeviceNature.add("channels", jChannels);
-				jDeviceNatures.add(nature.id(), jDeviceNature);
-			});
-			jMeta.add("natures", jDeviceNatures);
-			/*
-			 * Available
-			 */
-			ClassRepository classRepository = ClassRepository.getInstance();
-			// Controllers
-			JsonObject jAvailableControllers = new JsonObject();
-			for (ThingDoc description : classRepository.getAvailableControllers()) {
-				jAvailableControllers.add(description.getClazz().getName(), description.getAsJsonObject());
-			}
-			jMeta.add("availableControllers", jAvailableControllers);
-			// Bridges
-			JsonObject jAvailableBridges = new JsonObject();
-			for (ThingDoc description : classRepository.getAvailableBridges()) {
-				jAvailableBridges.add(description.getClazz().getName(), description.getAsJsonObject());
-			}
-			jMeta.add("availableBridges", jAvailableBridges);
-			// Devices
-			JsonObject jAvailableDevices = new JsonObject();
-			for (ThingDoc description : classRepository.getAvailableDevices()) {
-				jAvailableDevices.add(description.getClazz().getName(), description.getAsJsonObject());
-			}
-			jMeta.add("availableDevices", jAvailableDevices);
-			// Schedulers
-			JsonObject jAvailableSchedulers = new JsonObject();
-			for (ThingDoc description : classRepository.getAvailableSchedulers()) {
-				jAvailableSchedulers.add(description.getClazz().getName(), description.getAsJsonObject());
-			}
-			jMeta.add("availableSchedulers", jAvailableSchedulers);
-			j.add("_meta", jMeta);
-			return j;
-		} catch (NotImplementedException | ReflectionException e) {
-			log.warn("Unable to create config: " + e.getMessage());
-			return new JsonObject();
-		}
 	}
 }

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { TRANSLATION as DE } from './de';
 import { TRANSLATION as EN } from './en';
 import { TRANSLATION as CZ } from './cz';
+import { TRANSLATION as NL } from './nl';
 
 export class MyTranslateLoader implements TranslateLoader {
 
@@ -14,6 +15,8 @@ export class MyTranslateLoader implements TranslateLoader {
             return Observable.of(DE);
         } else if (lang == 'cz') {
             return Observable.of(CZ);
+        } else if (lang == 'nl') {
+            return Observable.of(NL);
         } else {
             return Observable.of(EN);
         }

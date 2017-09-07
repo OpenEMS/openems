@@ -20,8 +20,6 @@
  *******************************************************************************/
 package io.openems.impl.protocol.keba;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -32,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
 
 @ThingInfo(title = "KEBA KeContact Bridge")
@@ -45,19 +42,12 @@ public class KebaBridge extends Bridge {
 	/*
 	 * Config
 	 */
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(10000);
 	private ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(9070);
-
-	@Override
-	public ConfigChannel<Integer> cycleTime() {
-		return cycleTime;
-	}
 
 	/*
 	 * Fields
 	 */
 	private Logger log = LoggerFactory.getLogger(KebaBridge.class);
-	protected volatile KebaDevice[] kebadevices = new KebaDevice[0];
 	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private ScheduledFuture<?> receivingJob = null;
@@ -71,44 +61,6 @@ public class KebaBridge extends Bridge {
 	}
 
 	@Override
-	public void triggerWrite() {
-		// set the Write-flag
-		isWriteTriggered.set(true);
-		// start "run()" again as fast as possible
-		triggerForceRun();
-	}
-
-	@Override
-	protected void forever() {
-		log.info("KebaBridge... forever");
-		for (KebaDevice kebadevice : kebadevices) {
-			log.info("KebaBridge... forever: " + kebadevice.id());
-			// if Write-flag was set -> start writing for all Devices immediately
-			if (isWriteTriggered.get()) {
-				isWriteTriggered.set(false);
-				writeAllDevices();
-			}
-			// Poll update for all reports
-			try {
-				log.info("KebaBridge... update: " + kebadevice.id());
-				kebadevice.update();
-			} catch (InterruptedException e) {
-				log.warn("Updating KebaDevice [{}] was interrupted: {}", kebadevice.id(), e.getMessage());
-			}
-		}
-	}
-
-	private void writeAllDevices() {
-		for (KebaDevice kebadevice : kebadevices) {
-			try {
-				kebadevice.write();
-			} catch (InterruptedException e) {
-				log.error("Error while writing to KebaDevice [" + kebadevice.id() + "]: " + e.getMessage());
-			}
-		}
-	}
-
-	@Override
 	protected void dispose() {
 		if (this.receivingJob != null) {
 			this.receivingJob.cancel(true);
@@ -118,23 +70,6 @@ public class KebaBridge extends Bridge {
 
 	@Override
 	protected boolean initialize() {
-		/*
-		 * Copy and cast devices to local kebadevices array
-		 */
-		if (devices.isEmpty()) {
-			return false;
-		}
-		List<KebaDevice> kebadevices = new ArrayList<>();
-		for (Device device : devices) {
-			if (device instanceof KebaDevice) {
-				kebadevices.add((KebaDevice) device);
-			}
-		}
-		KebaDevice[] newKebadevices = kebadevices.stream().toArray(KebaDevice[]::new);
-		if (newKebadevices == null) {
-			newKebadevices = new KebaDevice[0];
-		}
-		this.kebadevices = newKebadevices;
 		/*
 		 * Restart ReceivingRunnable
 		 */

@@ -4,37 +4,33 @@ import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
-import { Dataset, EMPTY_DATASET, Device, Config, QueryReply, ChannelAddresses } from './../../../../shared/shared';
+import { Device } from '../../../../shared/device/device';
+import { DefaultTypes } from '../../../../shared/service/defaulttypes';
+import { Dataset, EMPTY_DATASET } from './../../../../shared/shared';
 import { DEFAULT_TIME_CHART_OPTIONS, ChartOptions } from './../shared';
-import { TemplateHelper } from './../../../../shared/service/templatehelper';
-
-// spinner component
-import { SpinnerComponent } from '../../../../shared/spinner.component';
+import { Utils } from './../../../../shared/service/utils';
 
 @Component({
   selector: 'socchart',
   templateUrl: './socchart.component.html'
 })
-export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
+export class SocChartComponent implements OnInit, OnChanges {
 
   @Input() private device: Device;
-  @Input() private socChannels: ChannelAddresses;
+  @Input() private channels: DefaultTypes.ChannelAddresses;
   @Input() private fromDate: moment.Moment;
   @Input() private toDate: moment.Moment;
 
   @ViewChild('socChart') private chart: BaseChartDirective;
 
   constructor(
-    private tmpl: TemplateHelper,
+    private utils: Utils,
     private translate: TranslateService
   ) { }
 
   public labels: moment.Moment[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
   public loading: boolean = true;
-
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
-  private queryreplySubject: Subject<QueryReply>;
 
   private colors = [{
     backgroundColor: 'rgba(0,152,70,0.2)',
@@ -53,37 +49,34 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
   private options: ChartOptions;
 
   ngOnInit() {
-    let options = <ChartOptions>this.tmpl.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
+    let options = <ChartOptions>this.utils.deepCopy(DEFAULT_TIME_CHART_OPTIONS);
     options.scales.yAxes[0].scaleLabel.labelString = this.translate.instant('General.Percentage');
     options.scales.yAxes[0].ticks.max = 100;
     this.options = options;
   }
 
-  ngOnChanges(changes: any) {
-    // close old queryreplySubject
-    if (this.queryreplySubject != null) {
-      this.queryreplySubject.complete();
-    }
-    // show loading...
+  ngOnChanges() {
     this.loading = true;
-    // execute query
-    let queryreplySubject = this.device.query(this.fromDate, this.toDate, this.socChannels);
-    queryreplySubject.subscribe(queryreply => {
+    if (Object.keys(this.channels).length === 0) {
+      return;
+    }
+    // TODO stop previous subscribe; show only results for latest query. Otherwise the chart misbehaves on fast switch of period
+    this.device.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
       // prepare datas array and prefill with each device
       let tmpData: {
         [thing: string]: number[];
       } = {};
       let labels: moment.Moment[] = [];
-      for (let thing in this.socChannels) {
+      for (let thing in this.channels) {
         tmpData[thing] = [];
       }
-      for (let reply of queryreply.data) {
-        // read timestamp and soc of each device' reply
-        labels.push(moment(reply.time));
-        for (let thing in this.socChannels) {
-          let soc = 0;
-          if (thing in reply.channels && "Soc" in reply.channels[thing] && reply.channels[thing]["Soc"]) {
-            soc = Math.round(reply.channels[thing].Soc);
+      for (let record of historicData.data) {
+        // read timestamp and soc of each device
+        labels.push(moment(record.time));
+        for (let thing in this.channels) {
+          let soc = null;
+          if (thing in record.channels && "Soc" in record.channels[thing] && record.channels[thing]["Soc"] != null) {
+            soc = Math.round(record.channels[thing].Soc);
           }
           tmpData[thing].push(soc);
         }
@@ -98,6 +91,7 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
       }
       this.datasets = datasets;
       this.labels = labels;
+      // stop loading spinner
       this.loading = false;
       setTimeout(() => {
         // Workaround, because otherwise chart data and labels are not refreshed...
@@ -105,17 +99,12 @@ export class SocChartComponent implements OnInit, OnChanges, OnDestroy {
           this.chart.ngOnChanges({} as SimpleChanges);
         }
       });
-
-    }, error => {
+    }).catch(error => {
       this.datasets = EMPTY_DATASET;
       this.labels = [];
-      // TODO should be error message
-      this.loading = true;
+      // stop loading spinner
+      this.loading = false;
+      // TODO error message
     });
-  }
-
-  ngOnDestroy() {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-  }
+  };
 }

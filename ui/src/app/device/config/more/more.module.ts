@@ -4,6 +4,7 @@ import { SharedModule } from './../../../shared/shared.module';
 import { MoreComponent } from './more.component';
 import { RefuComponent } from './refu/refu.component';
 import { ManualpqComponent } from './manualpq/manualpq.component';
+import { RawConfigComponent } from './rawconfig/rawconfig.component';
 
 @NgModule({
   imports: [
@@ -12,7 +13,8 @@ import { ManualpqComponent } from './manualpq/manualpq.component';
   declarations: [
     MoreComponent,
     RefuComponent,
-    ManualpqComponent
+    ManualpqComponent,
+    RawConfigComponent
   ]
 })
 export class MoreModule { }

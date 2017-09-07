@@ -27,6 +27,7 @@ import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
@@ -51,8 +52,8 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 	/*
 	 * Constructors
 	 */
-	public FeneconMiniEss(String thingId) throws ConfigException {
-		super(thingId);
+	public FeneconMiniEss(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
@@ -301,41 +302,34 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 				new DummyElement(115, 117), //
 				new SignedWordElement(118, //
 						currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA").multiplier(2)),
-				new DummyElement(119, 120),
-				new UnsignedWordElement(121, //
+				new DummyElement(119, 120), new UnsignedWordElement(121, //
 						voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV").multiplier(2)),
-				new DummyElement(122, 123),
-				new SignedWordElement(124, //
+				new DummyElement(122, 123), new SignedWordElement(124, //
 						activePower = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")),
-				new DummyElement(125, 126),
-				new SignedWordElement(127, //
+				new DummyElement(125, 126), new SignedWordElement(127, //
 						reactivePower = new ModbusReadLongChannel("ReactivePowerL1", this).unit("var")),
-				new DummyElement(128, 130),
-				new UnsignedWordElement(131, //
+				new DummyElement(128, 130), new UnsignedWordElement(131, //
 						frequencyL1 = new ModbusReadLongChannel("FrequencyL1", this).unit("mHz").multiplier(1)),
-				new DummyElement(132, 133),
-				new UnsignedWordElement(134, //
+				new DummyElement(132, 133), new UnsignedWordElement(134, //
 						phaseAllowedApparent = new ModbusReadLongChannel("PhaseAllowedApparentPower", this).unit("VA")),
-				new DummyElement(135, 140),
-				new UnsignedWordElement(141, //
+				new DummyElement(135, 140), new UnsignedWordElement(141, //
 						allowedCharge = new ModbusReadLongChannel("AllowedCharge", this).unit("W").negate()),
 				new UnsignedWordElement(142, //
 						allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this).unit("W")),
 				new DummyElement(143, 149),
-				new UnsignedWordElement(150,
-						pcsAlarm1L1 = warning.channel(new StatusBitChannel("PcsAlarm1L1", this)//
-								.label(1, "Grid undervoltage") //
-								.label(2, "Grid overvoltage") //
-								.label(4, "Grid under frequency") //
-								.label(8, "Grid over frequency") //
-								.label(16, "Grid power supply off") //
-								.label(32, "Grid condition unmeet")//
-								.label(64, "DC under voltage")//
-								.label(128, "Input over resistance")//
-								.label(256, "Combination error")//
-								.label(512, "Comm with inverter error")//
-								.label(1024, "Tme error")//
-						)), new UnsignedWordElement(151, pcsAlarm2L1 = warning.channel(new StatusBitChannel("PcsAlarm2L1", this)//
+				new UnsignedWordElement(150, pcsAlarm1L1 = warning.channel(new StatusBitChannel("PcsAlarm1L1", this)//
+						.label(1, "Grid undervoltage") //
+						.label(2, "Grid overvoltage") //
+						.label(4, "Grid under frequency") //
+						.label(8, "Grid over frequency") //
+						.label(16, "Grid power supply off") //
+						.label(32, "Grid condition unmeet")//
+						.label(64, "DC under voltage")//
+						.label(128, "Input over resistance")//
+						.label(256, "Combination error")//
+						.label(512, "Comm with inverter error")//
+						.label(1024, "Tme error")//
+				)), new UnsignedWordElement(151, pcsAlarm2L1 = warning.channel(new StatusBitChannel("PcsAlarm2L1", this)//
 				)), new UnsignedWordElement(152, warning.channel(pcsFault1L1 = new StatusBitChannel("PcsFault1L1", this)//
 						.label(1, "Control current overload 100%")//
 						.label(2, "Control current overload 110%")//
@@ -386,13 +380,12 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 						.label(4096, "External grid current zero drift error")//
 				))), //
 				new WriteableModbusRegisterRange(200, //
-						new UnsignedWordElement(200,
-								setWorkState = new ModbusWriteLongChannel("SetWorkState", this)//
-										.label(0, "Local control") //
-										.label(1, START) // "Remote control on grid starting"
-										.label(2, "Remote control off grid starting") //
-										.label(3, STOP)//
-										.label(4, "Emergency Stop"))),
+						new UnsignedWordElement(200, setWorkState = new ModbusWriteLongChannel("SetWorkState", this)//
+								.label(0, "Local control") //
+								.label(1, START) // "Remote control on grid starting"
+								.label(2, "Remote control off grid starting") //
+								.label(3, STOP)//
+								.label(4, "Emergency Stop"))),
 				new WriteableModbusRegisterRange(201, //
 						new SignedWordElement(201,
 								setActivePower = new ModbusWriteLongChannel("SetActivePower", this).unit("W")), //
@@ -410,29 +403,26 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 								setSetupMode = new ModbusWriteLongChannel("SetSetupMode", this).label(0, EssNature.OFF)
 										.label(1, EssNature.ON))),
 				new WriteableModbusRegisterRange(30559,
-						new UnsignedWordElement(30559,
-								setPcsMode = new ModbusWriteLongChannel("SetPcsMode", this)//
-										.label(0, "Emergency")//
-										.label(1, "ConsumersPeakPattern")//
-										.label(2, "Economic")//
-										.label(3, "Eco")//
-										.label(4, "Debug")//
-										.label(5, "SmoothPv")//
-										.label(6, "Remote"))),
+						new UnsignedWordElement(30559, setPcsMode = new ModbusWriteLongChannel("SetPcsMode", this)//
+								.label(0, "Emergency")//
+								.label(1, "ConsumersPeakPattern")//
+								.label(2, "Economic")//
+								.label(3, "Eco")//
+								.label(4, "Debug")//
+								.label(5, "SmoothPv")//
+								.label(6, "Remote"))),
 				new ModbusRegisterRange(30157,
-						new UnsignedWordElement(30157,
-								setupMode = new ModbusReadLongChannel("SetupMode", this)//
-										.label(0, EssNature.OFF)//
-										.label(1, EssNature.ON)),
-						new UnsignedWordElement(30158,
-								pcsMode = new ModbusReadLongChannel("PcsMode", this)//
-										.label(0, "Emergency")//
-										.label(1, "ConsumersPeakPattern")//
-										.label(2, "Economic")//
-										.label(3, "Eco")//
-										.label(4, "Debug")//
-										.label(5, "SmoothPv")//
-										.label(6, "Remote"))));
+						new UnsignedWordElement(30157, setupMode = new ModbusReadLongChannel("SetupMode", this)//
+								.label(0, EssNature.OFF)//
+								.label(1, EssNature.ON)),
+						new UnsignedWordElement(30158, pcsMode = new ModbusReadLongChannel("PcsMode", this)//
+								.label(0, "Emergency")//
+								.label(1, "ConsumersPeakPattern")//
+								.label(2, "Economic")//
+								.label(3, "Eco")//
+								.label(4, "Debug")//
+								.label(5, "SmoothPv")//
+								.label(6, "Remote"))));
 		gridMode = new FunctionalReadChannel<Long>("GridMode", this, (channels) -> {
 			ReadChannel<Long> state = channels[0];
 			try {

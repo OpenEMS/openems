@@ -3,8 +3,6 @@ package io.openems.core.utilities.websocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.impl.controller.api.websocket.WebsocketServer;
-
 public class Notification {
 	private Logger log = LoggerFactory.getLogger(Notification.class);
 
@@ -38,7 +36,7 @@ public class Notification {
 			log.warn(this.message);
 			break;
 		}
-		WebsocketServer.broadcastNotification(this);
+		// TODO WebsocketServer.broadcastNotification(this);
 	}
 
 	public static void send(NotificationType type, String message) {

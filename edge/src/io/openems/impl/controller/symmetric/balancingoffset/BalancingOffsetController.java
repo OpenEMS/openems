@@ -42,12 +42,12 @@ public class BalancingOffsetController extends Controller {
 	 */
 	public BalancingOffsetController() {
 		super();
-		init();
+		// init();
 	}
 
 	public BalancingOffsetController(String thingId) {
 		super(thingId);
-		init();
+		// init();
 	}
 
 	/*

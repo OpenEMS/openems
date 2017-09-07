@@ -20,23 +20,16 @@
  *******************************************************************************/
 package io.openems.impl.protocol.system;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.device.Device;
-import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 
 @ThingInfo(title = "Operating system")
 public abstract class SystemDevice extends Device {
 
-	public SystemDevice() throws OpenemsException {
-		super();
+	public SystemDevice(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
-	protected final void update() {
-		for (DeviceNature nature : getDeviceNatures()) {
-			if (nature instanceof SystemDeviceNature) {
-				((SystemDeviceNature) nature).update();
-			}
-		}
-	}
 }
