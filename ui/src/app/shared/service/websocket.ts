@@ -11,7 +11,6 @@ import { environment as env } from '../../../environments';
 import { Service } from './service';
 import { Utils } from './utils';
 import { Device } from '../device/device';
-import { Backend } from '../type/backend';
 import { ROLES } from '../type/role';
 import { DefaultTypes } from '../service/defaulttypes';
 import { DefaultMessages } from '../service/defaultmessages';
@@ -129,7 +128,7 @@ export class Websocket {
 
     }).subscribe(message => {
       // called on every receive of message from server
-      console.log(message);
+      // console.log(message);
       /*
        * Authenticate
        */
@@ -145,7 +144,7 @@ export class Websocket {
             this.service.setToken(message.authenticate.token);
           }
 
-          if ("role" in message.authenticate && env.backend == Backend.OpenEMS_Edge) {
+          if ("role" in message.authenticate && env.backend === "OpenEMS Edge") {
             // for OpenEMS Edge we have only one device
             let role = ROLES.getRole(message.authenticate.role);
             let replyStream: { [messageId: string]: Subject<any> } = {};
@@ -168,10 +167,10 @@ export class Websocket {
           this.status = "failed";
           this.service.removeToken();
           this.initialize();
-          if (env.backend == Backend.OpenEMS_Backend) {
+          if (env.backend === "OpenEMS Backend") {
             console.log("would redirect...") // TODO fix redirect
             //window.location.href = "/web/login?redirect=/m/overview";
-          } else if (env.backend == Backend.OpenEMS_Edge) {
+          } else if (env.backend === "OpenEMS Edge") {
             this.router.navigate(['/overview']);
           }
         }
@@ -181,12 +180,21 @@ export class Websocket {
        * Query reply
        */
       if ("id" in message && message.id instanceof Array) {
-        // Receive a reply with a message id -> forward to devices' replyStream
         let id = message.id[0];
-        for (let deviceName in this.replyStreams) {
-          if (id in this.replyStreams[deviceName]) {
+        let deviceName = Websocket.DEFAULT_DEVICENAME;
+        if ("device" in message) {
+          // Receive a reply with a message id and a device -> forward to devices' replyStream
+          deviceName = message.device;
+          if (deviceName in this.replyStreams && id in this.replyStreams[deviceName]) {
             this.replyStreams[deviceName][id].next(message);
-            break;
+          }
+        } else {
+          // Receive a reply with a message id -> find device and forward to devices' replyStream
+          for (let deviceName in this.replyStreams) {
+            if (id in this.replyStreams[deviceName]) {
+              this.replyStreams[deviceName][id].next(message);
+              break;
+            }
           }
         }
       }

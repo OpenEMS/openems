@@ -1,10 +1,10 @@
 import { CustomFieldDefinition } from './customfielddefinition';
-import { Backend } from './backend';
+import { DefaultTypes } from '../service/defaulttypes';
 
 export abstract class Environment {
   public readonly abstract production: boolean;
   public readonly abstract url: string;
-  public readonly abstract backend: Backend;
+  public readonly abstract backend: DefaultTypes.Backend;
 
   public getCustomFields(): CustomFieldDefinition {
     return {};

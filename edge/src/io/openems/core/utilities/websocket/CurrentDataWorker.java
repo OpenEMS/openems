@@ -14,15 +14,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.NotImplementedException;
-import io.openems.common.utils.JsonUtils;
+import io.openems.api.exception.NotImplementedException;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Databus;
+import io.openems.core.utilities.JsonUtils;
 
 public class CurrentDataWorker {
 
-	private final static int UPDATE_INTERVAL_IN_SECONDS = 1;
+	private final static int UPDATE_INTERVAL_IN_SECONDS = 2;
 
 	private Logger log = LoggerFactory.getLogger(CurrentDataWorker.class);
 

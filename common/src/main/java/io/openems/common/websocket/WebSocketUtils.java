@@ -71,7 +71,7 @@ public class WebSocketUtils {
 				return DefaultMessages.historicDataQueryReply(jMessageId, jData);
 			}
 		} catch (Exception e) {
-			log.error("Error", e);
+			log.error("HistoricData Error: ", e);
 			e.printStackTrace();
 		}
 		return new JsonObject();

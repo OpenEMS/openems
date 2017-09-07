@@ -39,11 +39,11 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   public translation: string;
   public width: number;
   public height: number;
+  public loading: boolean = true;
 
   private style: string;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
   private marginLeft: number = 0;
-  private loading: boolean = true;
 
   ngOnInit() {
     // make sure chart is redrawn in the beginning and on window resize

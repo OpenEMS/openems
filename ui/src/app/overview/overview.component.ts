@@ -23,8 +23,8 @@ export class OverviewComponent {
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
   constructor(
-    private websocket: Websocket,
-    private utils: Utils,
+    public websocket: Websocket,
+    public utils: Utils,
     private translate: TranslateService,
     private formBuilder: FormBuilder,
     private router: Router) {

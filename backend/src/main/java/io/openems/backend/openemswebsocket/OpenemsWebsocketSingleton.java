@@ -3,6 +3,7 @@ package io.openems.backend.openemswebsocket;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,10 +96,9 @@ public class OpenemsWebsocketSingleton
 			// send connection failed to OpenEMS
 			JsonObject jReply = DefaultMessages.openemsConnectionFailedReply(e.getMessage());
 			WebSocketUtils.send(websocket, jReply);
-			log.info("OpenEMS connection failed. Device [" + deviceName + "] Apikey [" + apikey + "]");
-
 			// close websocket
-			websocket.close();
+			websocket.closeConnection(CloseFrame.REFUSE,
+					"OpenEMS connection failed. Device [" + deviceName + "] Apikey [" + apikey + "]");
 		}
 	}
 
@@ -120,14 +120,14 @@ public class OpenemsWebsocketSingleton
 			Optional<String> deviceNameOpt) {
 		MetadataDevice device = websockets.get(websocket).getData().getDevice();
 
-		// TODO Remove after Debugging
-		if (!jMessage.has("timedata") && !jMessage.has("currentData") && !jMessage.has("log")) {
-			log.info("Received from " + device.getName() + ": " + jMessage.toString());
-		}
+		// if (!jMessage.has("timedata") && !jMessage.has("currentData") && !jMessage.has("log")
+		// && !jMessage.has("config")) {
+		// log.info("Received from " + device.getName() + ": " + jMessage.toString());
+		// }
 
 		// Is this a reply?
 		if (jMessage.has("id")) {
-			forwardReplyToBrowser(websocket, jMessage);
+			forwardReplyToBrowser(websocket, device.getName(), jMessage);
 		}
 
 		/*
@@ -145,7 +145,7 @@ public class OpenemsWebsocketSingleton
 		}
 	}
 
-	private void forwardReplyToBrowser(WebSocket openemsWebsocket, JsonObject jMessage) {
+	private void forwardReplyToBrowser(WebSocket openemsWebsocket, String deviceName, JsonObject jMessage) {
 		try {
 			// get browser websocket
 			JsonArray jId = JsonUtils.getAsJsonArray(jMessage, "id");
@@ -168,6 +168,8 @@ public class OpenemsWebsocketSingleton
 			// remove token from message id
 			jId.remove(jId.size() - 1);
 			jMessage.add("id", jId);
+			// always add device name
+			jMessage.addProperty("device", deviceName);
 
 			// send
 			WebSocketUtils.send(browserWebsocket, jMessage);
@@ -190,6 +192,7 @@ public class OpenemsWebsocketSingleton
 			// Write some data to Odoo
 			// This is only to provide feedback for FENECON Service-Team that the device is online.
 			device.setLastUpdate();
+			device.setLastMessage();
 			jTimedata.entrySet().forEach(entry -> {
 				try {
 					JsonObject jChannels = JsonUtils.getAsJsonObject(entry.getValue());

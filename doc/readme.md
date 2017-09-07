@@ -151,6 +151,7 @@ For 'unsubscribe' the channels object is empty.
 
 ```
 {
+	device?: string,
 	currentData: {[{ 
 		channel: string,
 		value: any

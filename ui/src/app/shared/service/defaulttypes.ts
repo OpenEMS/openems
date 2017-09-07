@@ -2,6 +2,8 @@ import * as moment from 'moment';
 
 export module DefaultTypes {
 
+  export type Backend = "OpenEMS Backend" | "OpenEMS Edge";
+
   export type ConnectionStatus = "online" | "connecting" | "waiting for authentication" | "failed";
 
   export interface ChannelAddresses {

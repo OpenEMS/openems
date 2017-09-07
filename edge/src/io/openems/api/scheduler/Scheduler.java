@@ -37,6 +37,7 @@ import io.openems.core.ThingRepository;
 import io.openems.core.utilities.AbstractWorker;
 
 public abstract class Scheduler extends AbstractWorker implements Thing {
+	private final static int DEFAULT_CYCLETIME = 1000;
 	public final static String THINGID_PREFIX = "_scheduler";
 	private static int instanceCounter = 0;
 	protected final Map<String, Controller> controllers = new ConcurrentHashMap<>();
@@ -49,11 +50,12 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 	 * Config
 	 */
 	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class, isOptional = true)
-	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this);
+	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
+			.defaultValue(DEFAULT_CYCLETIME);
 
 	@Override
 	protected int getCycleTime() {
-		int time = cycleTime.valueOptional().orElse(500);
+		int time = cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
 		if (actualCycleTime != null) {
 			time = actualCycleTime;
 		}

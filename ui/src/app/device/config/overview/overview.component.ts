@@ -18,7 +18,7 @@ export class OverviewComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private websocket: Websocket,
+    public websocket: Websocket,
     private formBuilder: FormBuilder
   ) { }
 

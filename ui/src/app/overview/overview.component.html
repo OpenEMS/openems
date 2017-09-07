@@ -1,6 +1,6 @@
 <div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
   <div fxFlex="50%" fxFlex.xs="100%">
-    <form [formGroup]="form" (ngSubmit)="doLogin(form)">
+    <form [formGroup]="form" (ngSubmit)="doLogin()">
       <md-card class="single">
         <md-card-header *ngIf="websocket.status == 'online'">
           <md-icon md-card-avatar>face</md-icon>
@@ -20,7 +20,7 @@
           <md-card-subtitle><small>{{ websocket.url }}</small></md-card-subtitle>
         </md-card-header>
         <!-- Waiting for authentication -->
-        <ng-container *ngIf="env.backend == 'openems_edge' && websocket.status == 'waiting for authentication'">
+        <ng-container *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'waiting for authentication'">
           <md-card-header>
             <md-icon md-card-avatar>stop</md-icon>
             <md-card-title>Bitte geben Sie Ihre Zugangsdaten ein</md-card-title>
@@ -32,7 +32,7 @@
             <p fxFlex="100%">{{ (websocket.event | async)?.message }}</p>
           </md-card-content>
           <md-card-actions fxLayout fxLayoutAlign="end start">
-            <button type="button" md-fab (click)="doLogin(form)" color="primary"><md-icon>check</md-icon></button>
+            <button type="button" md-fab (click)="doLogin()" color="primary"><md-icon>check</md-icon></button>
             <!-- TODO <button type="button" md-fab *ngIf="websocket.status === 'online'" (click)="doLogout(form)" color="accent"><md-icon>exit_to_app</md-icon></button> -->
           </md-card-actions>
         </ng-container>
@@ -45,12 +45,12 @@
         <md-card-header>
           <md-icon *ngIf="device.online" md-card-avatar color="primary">folder</md-icon>
           <md-icon *ngIf="!device.online" md-card-avatar>error</md-icon>
-          <md-card-title *ngIf="env.backend == 'openems_edge'" translate>Overview.ToEnergymonitor</md-card-title>
-          <md-card-title *ngIf="env.backend == 'openems_backend'">
+          <md-card-title *ngIf="env.backend === 'OpenEMS Edge'" translate>Overview.ToEnergymonitor</md-card-title>
+          <md-card-title *ngIf="env.backend === 'OpenEMS Backend'">
             <span>{{ device.comment }} <span *ngIf="!device.online"><br/><span translate>Overview.IsOffline</span></span>
             </span>
           </md-card-title>
-          <md-card-subtitle *ngIf="env.backend == 'openems_backend'">
+          <md-card-subtitle *ngIf="env.backend === 'OpenEMS Backend'">
             <span>{{ device.name }}: {{ device.producttype }}</span>
           </md-card-subtitle>
         </md-card-header>
