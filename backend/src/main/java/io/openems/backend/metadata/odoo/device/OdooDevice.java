@@ -35,7 +35,7 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 	@Override
 	public Optional<Integer> getNameNumber() {
 		try {
-			return Optional.ofNullable(Integer.valueOf(Field.NAME_NUMBER));
+			return Optional.ofNullable(Integer.valueOf(get(Field.NAME_NUMBER).toString()));
 		} catch (Exception e) { /* ignore */ }
 		return Optional.empty();
 	}
