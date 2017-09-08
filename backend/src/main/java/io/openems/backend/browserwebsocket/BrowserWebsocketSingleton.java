@@ -99,6 +99,7 @@ public class BrowserWebsocketSingleton
 			// send connection successful to browser
 			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(), Optional.empty(),
 					data.getDevices());
+			// TODO write user name to log output
 			log.info("Browser connected. User [" + data.getUserId().orElse(-1) + "] Session ["
 					+ data.getOdooSessionId().orElse("") + "]");
 			WebSocketUtils.send(websocket, jReply);
