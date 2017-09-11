@@ -24,6 +24,7 @@ import java.net.Inet4Address;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -308,7 +309,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			} else if (value instanceof Boolean) {
 				fieldValue = new NumberFieldValue(field, ((Boolean) value) ? 1 : 0);
 			} else if (value instanceof DeviceNature || value instanceof JsonElement || value instanceof Map
-					|| value instanceof Set) {
+					|| value instanceof Set || value instanceof List) {
 				// ignore
 				return;
 			} else {
