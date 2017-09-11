@@ -73,7 +73,7 @@ public class BalancingController extends Controller {
 			// Run only if all ess are on-grid
 			if (isOnGrid()) {
 				// Calculate required sum values
-				long calculatedPower = meter.value().activePower.value() - 100;
+				long calculatedPower = meter.value().activePower.value();
 				long maxChargePower = 0;
 				long maxDischargePower = 0;
 				long useableSoc = 0;
