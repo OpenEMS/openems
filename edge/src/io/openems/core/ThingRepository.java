@@ -334,7 +334,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 
 	/**
 	 * Returns the ChannelDoc for a given Channel
-	 * 
+	 *
 	 * @param channelAddress
 	 * @return
 	 */
@@ -396,6 +396,11 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		return Optional.ofNullable(channel);
 	}
 
+	public Optional<Channel> getChannel(ChannelAddress channelAddress) {
+		return this.getChannel(channelAddress.getThingId(), channelAddress.getChannelId());
+	}
+
+	@Deprecated
 	public Optional<Channel> getChannelByAddress(String address) {
 		String[] args = address.split("/");
 		if (args.length == 2) {

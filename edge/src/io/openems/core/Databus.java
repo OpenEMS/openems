@@ -91,9 +91,9 @@ public class Databus implements ChannelUpdateListener, ChannelChangeListener {
 	}
 
 	public Optional<?> getValue(String thingId, String channelId) {
-		Optional<Channel> channel = thingRepository.getChannel(thingId, channelId);
-		if (channel.isPresent() && channel.get() instanceof ReadChannel<?>) {
-			return ((ReadChannel<?>) channel.get()).valueOptional();
+		Optional<Channel> channelOpt = thingRepository.getChannel(thingId, channelId);
+		if (channelOpt.isPresent()) {
+			return this.getValue(channelOpt.get());
 		} else {
 			return Optional.empty();
 		}
@@ -101,5 +101,13 @@ public class Databus implements ChannelUpdateListener, ChannelChangeListener {
 
 	public Optional<?> getValue(ChannelAddress channelAddress) {
 		return this.getValue(channelAddress.getThingId(), channelAddress.getChannelId());
+	}
+
+	public Optional<?> getValue(Channel channel) {
+		if (channel instanceof ReadChannel<?>) {
+			return ((ReadChannel<?>) channel).valueOptional();
+		} else {
+			return Optional.empty();
+		}
 	}
 }

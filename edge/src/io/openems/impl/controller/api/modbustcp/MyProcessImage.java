@@ -21,11 +21,13 @@ import com.ghgande.j2mod.modbus.procimg.ProcessImage;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleInputRegister;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.core.Databus;
+import io.openems.core.ThingRepository;
 import io.openems.core.utilities.BitUtils;
 
 /**
@@ -53,10 +55,12 @@ public class MyProcessImage implements ProcessImage {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());;
 	private final int unitId;
 	private final Databus databus;
+	private final ThingRepository thingRepository;
 
 	protected MyProcessImage(int unitId) {
 		this.unitId = unitId;
 		this.databus = Databus.getInstance();
+		this.thingRepository = ThingRepository.getInstance();
 	}
 
 	protected synchronized void clearMapping() {
@@ -93,23 +97,30 @@ public class MyProcessImage implements ProcessImage {
 	}
 
 	/**
-	 * Data type converters. Always returns an array with length 2.
+	 * Data type converter.
 	 *
 	 * @param object
 	 * @return
 	 * @throws NotImplementedException
 	 */
-	private InputRegister[] toInputRegister(Optional<?> objectOpt) throws NotImplementedException {
-		if (!objectOpt.isPresent()) {
-			return new InputRegister[] { new SimpleInputRegister() };
+	private InputRegister[] toInputRegister(Optional<?> objectOpt, int bitLength) throws NotImplementedException {
+		if (objectOpt.isPresent()) {
+			Object object = objectOpt.get();
+			byte[] b = BitUtils.toBytes(object);
+			InputRegister[] result = new InputRegister[b.length / 2];
+			for (int i = 0; i < b.length / 2; i++) {
+				result[i] = new SimpleInputRegister(b[i * 2], b[i * 2 + 1]);
+			}
+			return result;
+		} else {
+			// object is null. Build an empty Array with the needed length
+			int registers = bitLength / 16;
+			InputRegister[] result = new InputRegister[bitLength / 16];
+			for (int i = 0; i < registers; i++) {
+				result[i] = new SimpleInputRegister();
+			}
+			return result;
 		}
-		Object object = objectOpt.get();
-		byte[] b = BitUtils.toBytes(object);
-		InputRegister[] result = new InputRegister[b.length / 2];
-		for (int i = 0; i < b.length / 2; i++) {
-			result[i] = new SimpleInputRegister(b[i * 2], b[i * 2 + 1]);
-		}
-		return result;
 	}
 
 	/*
@@ -168,10 +179,16 @@ public class MyProcessImage implements ProcessImage {
 				this.throwIllegalAddressException("No mapping defined for Modbus address [" + ref + "].");
 			}
 			ChannelAddress channelAddress = refs.get(ref);
-			Optional<?> valueOpt = databus.getValue(channelAddress);
+			Optional<Channel> channelOpt = thingRepository.getChannel(channelAddress);
+			if (!channelOpt.isPresent()) {
+				this.throwIllegalAddressException("Channel does not exist [" + channelAddress + "]");
+			}
+			Channel channel = channelOpt.get();
+			Optional<?> valueOpt = databus.getValue(channel);
+			int bitLength = this.channel2Doc.get(channelAddress).getBitLengthOpt().get(); // we checked before
 			InputRegister[] value;
 			try {
-				value = toInputRegister(valueOpt);
+				value = toInputRegister(valueOpt, bitLength);
 				// add value to result
 				for (int j = 0; j < value.length; j++) {
 					if (i + j > result.length - 1) {

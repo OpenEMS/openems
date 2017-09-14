@@ -57,7 +57,7 @@ public class ModbusTcpApiController extends Controller {
 			});
 
 	@SuppressWarnings("unchecked")
-	@ChannelInfo(title = "Mapping", description = "Defines the Modbus-to-Channel-mapping.", type = JsonObject.class, defaultValue = "{}")
+	@ChannelInfo(title = "Mapping", description = "Defines the Modbus-to-Channel-mapping.", type = JsonObject.class, defaultValue = "{ '0': 'system0/OpenemsVersionMajor' }")
 	public final ConfigChannel<JsonObject> mapping = new ConfigChannel<JsonObject>("mapping", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				this.updateChannelMapping((Optional<JsonObject>) newValue);
@@ -96,7 +96,6 @@ public class ModbusTcpApiController extends Controller {
 	}
 
 	protected void updateChannelMapping(Optional<JsonObject> jMappingOpt) {
-		log.info("updateChannelMapping " + jMappingOpt);
 		processImage.clearMapping();
 
 		ThingRepository thingRepository = ThingRepository.getInstance();
@@ -112,7 +111,6 @@ public class ModbusTcpApiController extends Controller {
 					} else {
 						throw new OpenemsException("ChannelDoc for channel [" + channelAddress + "] is not available.");
 					}
-					log.info("Add channel mapping: " + ref + ", " + channelAddress);
 				} catch (Exception e) {
 					log.error("Unable to add channel mapping: " + e.getMessage());
 				}
