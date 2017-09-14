@@ -25,13 +25,17 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.api.thing.ThingChannelsUpdatedListener;
 import io.openems.impl.protocol.system.SystemDeviceNature;
 import io.openems.impl.protocol.system.SystemReadChannel;
 
@@ -66,14 +70,33 @@ public class SystemNature extends SystemDeviceNature implements io.openems.api.d
 		return primaryIpAddress;
 	}
 
+	private StaticValueChannel<String> openemsVersion = new StaticValueChannel<String>("OpenemsVersion", this,
+			getClass().getPackage().getImplementationVersion());
+
+	@Override
+	public ReadChannel<String> openemsVersion() {
+		return openemsVersion;
+	}
+
 	/*
 	 * Fields
 	 */
 	private final Inet4Address[] OPENEMS_STATIC_IPS;
+	private List<ThingChannelsUpdatedListener> listeners = new ArrayList<>();;
 
 	/*
 	 * Methods
 	 */
+	@Override
+	public void addListener(ThingChannelsUpdatedListener listener) {
+		this.listeners.add(listener);
+	}
+
+	@Override
+	public void removeListener(ThingChannelsUpdatedListener listener) {
+		this.listeners.remove(listener);
+	}
+
 	@Override
 	protected void update() {
 		// Get IP address
@@ -119,5 +142,12 @@ public class SystemNature extends SystemDeviceNature implements io.openems.api.d
 			primaryIpAddress = OPENEMS_STATIC_IPS[0];
 		}
 		return primaryIpAddress;
+	}
+
+	@Override
+	public void init() {
+		for (ThingChannelsUpdatedListener listener : this.listeners) {
+			listener.thingChannelsUpdated(this);
+		}
 	}
 }
