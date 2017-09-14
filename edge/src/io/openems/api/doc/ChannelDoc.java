@@ -27,7 +27,7 @@ import io.openems.api.controller.ThingMap;
 import io.openems.api.security.User;
 import io.openems.core.utilities.InjectionUtils;
 
-public class ConfigChannelDoc {
+public class ChannelDoc {
 	private final String name;
 	private final String title;
 	private final Class<?> type;
@@ -35,7 +35,7 @@ public class ConfigChannelDoc {
 	private final boolean array;
 	private final User accessLevel;
 
-	public ConfigChannelDoc(String name, String title, Class<?> type, boolean optional, boolean array,
+	public ChannelDoc(String name, String title, Class<?> type, boolean optional, boolean array,
 			User accessLevel) {
 		this.name = name;
 		this.title = title;

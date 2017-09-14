@@ -33,7 +33,7 @@ public class ThingDoc {
 	private final Class<? extends Thing> clazz;
 	private String title = "";
 	private String text = "";
-	private final List<ConfigChannelDoc> configChannels = new ArrayList<>();
+	private final List<ChannelDoc> configChannels = new ArrayList<>();
 
 	public ThingDoc(Class<? extends Thing> clazz) {
 		this.clazz = clazz;
@@ -56,7 +56,7 @@ public class ThingDoc {
 		return clazz;
 	}
 
-	public void addConfigChannel(ConfigChannelDoc config) {
+	public void addConfigChannel(ChannelDoc config) {
 		this.configChannels.add(config);
 	}
 
@@ -66,7 +66,7 @@ public class ThingDoc {
 		j.addProperty("title", getTitle());
 		j.addProperty("text", getText());
 		JsonObject jChannels = new JsonObject();
-		for (ConfigChannelDoc config : this.configChannels) {
+		for (ChannelDoc config : this.configChannels) {
 			jChannels.add(config.getName(), config.getAsJsonObject());
 		}
 		j.add("channels", jChannels);

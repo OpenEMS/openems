@@ -49,7 +49,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigChannelDoc;
+import io.openems.api.doc.ChannelDoc;
 import io.openems.api.doc.ThingDoc;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -350,7 +350,7 @@ public class ConfigUtils {
 		}
 		ClassRepository classRepository = ClassRepository.getInstance();
 		classRepository.getThingConfigChannels(clazz).forEach((member, config) -> {
-			doc.addConfigChannel(new ConfigChannelDoc(member.getName(), config.title(), config.type(),
+			doc.addConfigChannel(new ChannelDoc(member.getName(), config.title(), config.type(),
 					config.isOptional(), config.isArray(), config.accessLevel()));
 		});
 		return doc;
