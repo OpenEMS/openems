@@ -20,6 +20,9 @@
  *******************************************************************************/
 package io.openems.api.doc;
 
+import java.lang.reflect.Member;
+import java.util.Optional;
+
 import com.google.gson.JsonObject;
 
 import io.openems.api.controller.IsThingMap;
@@ -28,38 +31,78 @@ import io.openems.api.security.User;
 import io.openems.core.utilities.InjectionUtils;
 
 public class ChannelDoc {
+	private final Member member;
 	private final String name;
 	private final String title;
-	private final Class<?> type;
+	private final String description;
+	private final Optional<Class<?>> typeOpt;
 	private final boolean optional;
 	private final boolean array;
 	private final User accessLevel;
+	private final String defaultValue;
 
-	public ChannelDoc(String name, String title, Class<?> type, boolean optional, boolean array,
-			User accessLevel) {
+	public ChannelDoc(Member member, String name, Optional<ChannelInfo> channelInfoOpt) {
+		this.member = member;
 		this.name = name;
-		this.title = title;
-		this.type = type;
-		this.optional = optional;
-		this.array = array;
-		this.accessLevel = accessLevel;
+		if (channelInfoOpt.isPresent()) {
+			ChannelInfo channelInfo = channelInfoOpt.get();
+			this.title = channelInfo.title();
+			this.description = channelInfo.description();
+			this.typeOpt = Optional.of(channelInfo.type());
+			this.optional = channelInfo.isOptional();
+			this.array = channelInfo.isOptional();
+			this.accessLevel = channelInfo.accessLevel();
+			this.defaultValue = channelInfo.defaultValue();
+		} else {
+			this.title = ChannelInfo.DEFAULT_TITLE;
+			this.description = ChannelInfo.DEFAULT_DESCRIPTION;
+			this.typeOpt = Optional.empty();
+			this.optional = ChannelInfo.DEFAULT_IS_OPTIONAL;
+			this.array = ChannelInfo.DEFAULT_IS_ARRAY;
+			this.accessLevel = ChannelInfo.DEFAULT_ACCESS_LEVEL;
+			this.defaultValue = ChannelInfo.DEFAULT_VALUE;
+		}
+	}
+
+	public Member getMember() {
+		return member;
 	}
 
 	public String getName() {
 		return name;
 	}
 
+	public String getDescription() {
+		return description;
+	}
+
+	public Optional<Class<?>> getType() {
+		return typeOpt;
+	}
+
+	public boolean isOptional() {
+		return optional;
+	}
+
+	public String getDefaultValue() {
+		return defaultValue;
+	}
+
 	public JsonObject getAsJsonObject() {
 		JsonObject j = new JsonObject();
-		j.addProperty("name", name);
-		j.addProperty("title", title);
-		if (ThingMap.class.isAssignableFrom(type)) {
-			// for ThingMap type: get the types from annotation and return JsonArray
-			IsThingMap isThingMapAnnotation = type.getAnnotation(IsThingMap.class);
-			j.add("type", InjectionUtils.getImplementsAsJson(isThingMapAnnotation.type()));
-		} else {
-			// for simple types, use only simple name (e.g. 'Long', 'Integer',...)
-			j.addProperty("type", type.getSimpleName());
+		j.addProperty("name", this.name);
+		j.addProperty("title", this.title);
+		j.addProperty("description", this.description);
+		if (typeOpt.isPresent()) {
+			Class<?> type = this.typeOpt.get();
+			if (ThingMap.class.isAssignableFrom(type)) {
+				// for ThingMap type: get the types from annotation and return JsonArray
+				IsThingMap isThingMapAnnotation = type.getAnnotation(IsThingMap.class);
+				j.add("type", InjectionUtils.getImplementsAsJson(isThingMapAnnotation.type()));
+			} else {
+				// for simple types, use only simple name (e.g. 'Long', 'Integer',...)
+				j.addProperty("type", type.getSimpleName());
+			}
 		}
 		j.addProperty("optional", optional);
 		j.addProperty("array", array);

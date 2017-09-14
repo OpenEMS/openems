@@ -27,7 +27,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
-import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
@@ -51,13 +51,13 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	 * @param parent
 	 * @throws OpenemsException
 	 */
-	public void applyAnnotation(ChannelInfo configAnnotation) throws OpenemsException {
-		this.type = Optional.of(configAnnotation.type());
-		this.isOptional = configAnnotation.isOptional();
-		if (!configAnnotation.defaultValue().isEmpty()) {
+	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
+		this.type = channelDoc.getType();
+		this.isOptional = channelDoc.isOptional();
+		if (!channelDoc.getDefaultValue().isEmpty()) {
 			JsonElement jValue = null;
 			try {
-				jValue = (new JsonParser()).parse(configAnnotation.defaultValue());
+				jValue = (new JsonParser()).parse(channelDoc.getDefaultValue());
 				this.defaultValue((T) JsonUtils.getAsType(type.get(), jValue));
 			} catch (NotImplementedException | JsonSyntaxException e) {
 				throw new OpenemsException("Unable to set defaultValue [" + jValue + "] " + e.getMessage());

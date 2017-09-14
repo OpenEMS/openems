@@ -49,14 +49,10 @@ import com.google.gson.JsonPrimitive;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ChannelDoc;
-import io.openems.api.doc.ThingDoc;
-import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
-import io.openems.core.ClassRepository;
 import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
 
@@ -337,23 +333,6 @@ public class ConfigUtils {
 						"The Json object for ConfigChannel [" + channel.address() + "] is no array!");
 			}
 		}
-	}
-
-	public static ThingDoc getThingDescription(Class<? extends Thing> clazz) {
-		ThingDoc doc = new ThingDoc(clazz);
-
-		ThingInfo thing = clazz.getAnnotation(ThingInfo.class);
-		if (thing == null) {
-			log.warn("Thing [" + clazz.getName() + "] has no @ThingInfo annotation");
-		} else {
-			doc.setThingDescription(thing);
-		}
-		ClassRepository classRepository = ClassRepository.getInstance();
-		classRepository.getThingConfigChannels(clazz).forEach((member, config) -> {
-			doc.addConfigChannel(new ChannelDoc(member.getName(), config.title(), config.type(),
-					config.isOptional(), config.isArray(), config.accessLevel()));
-		});
-		return doc;
 	}
 
 	public static Set<Class<? extends Thing>> getAvailableClasses(String topLevelPackage, Class<? extends Thing> clazz,

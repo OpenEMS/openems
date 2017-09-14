@@ -32,15 +32,23 @@ import io.openems.api.security.User;
 @Retention(RUNTIME)
 @Target({ FIELD, METHOD })
 public @interface ChannelInfo {
-	String title();
 
-	String description() default "";
+	public static final String DEFAULT_DESCRIPTION = "";
+	public static final String DEFAULT_TITLE = "";
+	public static final boolean DEFAULT_IS_OPTIONAL = false;
+	public static final boolean DEFAULT_IS_ARRAY = false;
+	public static final User DEFAULT_ACCESS_LEVEL = User.ADMIN;
+	public static final String DEFAULT_VALUE = "";
+
+	String title() default DEFAULT_TITLE;
+
+	String description() default DEFAULT_DESCRIPTION;
 
 	Class<?> type();
 
-	boolean isOptional() default false;
+	boolean isOptional() default DEFAULT_IS_OPTIONAL;
 
-	boolean isArray() default false;
+	boolean isArray() default DEFAULT_IS_ARRAY;
 
 	User accessLevel() default User.ADMIN;
 
@@ -49,5 +57,5 @@ public @interface ChannelInfo {
 	 *
 	 * @return
 	 */
-	String defaultValue() default "";
+	String defaultValue() default DEFAULT_VALUE;
 }

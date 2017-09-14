@@ -45,6 +45,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.ReflectionException;
@@ -125,15 +126,15 @@ public class InjectionUtils {
 			throw new ReflectionException("Class [" + clazz.getName() + "] is not a Thing");
 		}
 		ClassRepository classRepository = ClassRepository.getInstance();
-		classRepository.getThingConfigChannels(clazz).forEach((member, config) -> {
+		for (ChannelDoc channelDoc : classRepository.getThingDoc(clazz).getConfigChannelDocs()) {
 			try {
-				Channel channel = getChannel(thing, member);
-				((ConfigChannel<?>) channel).applyAnnotation(config);
+				Channel channel = getChannel(thing, channelDoc.getMember());
+				((ConfigChannel<?>) channel).applyChannelDoc(channelDoc);
 			} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException
 					| OpenemsException e) {
 				log.warn(e.getMessage());
 			}
-		});
+		}
 		return thing;
 
 	}

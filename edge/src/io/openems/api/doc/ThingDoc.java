@@ -21,7 +21,13 @@
 package io.openems.api.doc;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import com.google.gson.JsonObject;
 
@@ -33,7 +39,8 @@ public class ThingDoc {
 	private final Class<? extends Thing> clazz;
 	private String title = "";
 	private String text = "";
-	private final List<ChannelDoc> configChannels = new ArrayList<>();
+	private final Map<String, ChannelDoc> channels = new HashMap<>();
+	private final Set<String> configChannels = new HashSet<>();
 
 	public ThingDoc(Class<? extends Thing> clazz) {
 		this.clazz = clazz;
@@ -56,8 +63,29 @@ public class ThingDoc {
 		return clazz;
 	}
 
-	public void addConfigChannel(ChannelDoc config) {
-		this.configChannels.add(config);
+	public void addChannelDoc(ChannelDoc doc) {
+		this.channels.put(doc.getName(), doc);
+	}
+
+	public void addConfigChannelDoc(ChannelDoc doc) {
+		this.addChannelDoc(doc);
+		this.configChannels.add(doc.getName());
+	}
+
+	public Optional<ChannelDoc> getChannelDoc(String channelId) {
+		return Optional.ofNullable(this.channels.get(channelId));
+	}
+
+	public Collection<ChannelDoc> getChannelDocs() {
+		return Collections.unmodifiableCollection(this.channels.values());
+	}
+
+	public Collection<ChannelDoc> getConfigChannelDocs() {
+		Collection<ChannelDoc> result = new ArrayList<ChannelDoc>(this.configChannels.size());
+		for (String configChannel : this.configChannels) {
+			result.add(this.channels.get(configChannel));
+		}
+		return Collections.unmodifiableCollection(result);
 	}
 
 	public JsonObject getAsJsonObject() {
@@ -66,8 +94,8 @@ public class ThingDoc {
 		j.addProperty("title", getTitle());
 		j.addProperty("text", getText());
 		JsonObject jChannels = new JsonObject();
-		for (ChannelDoc config : this.configChannels) {
-			jChannels.add(config.getName(), config.getAsJsonObject());
+		for (String configChannel : this.configChannels) {
+			jChannels.add(configChannel, this.channels.get(configChannel).getAsJsonObject());
 		}
 		j.add("channels", jChannels);
 		j.add("implements", InjectionUtils.getImplementsAsJson(getClazz()));
