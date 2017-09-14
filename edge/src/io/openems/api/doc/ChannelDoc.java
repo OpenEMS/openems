@@ -23,19 +23,28 @@ package io.openems.api.doc;
 import java.lang.reflect.Member;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonObject;
 
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
+import io.openems.api.exception.NotImplementedException;
 import io.openems.api.security.User;
+import io.openems.core.utilities.BitUtils;
 import io.openems.core.utilities.InjectionUtils;
 
 public class ChannelDoc {
+	private final Logger log = LoggerFactory.getLogger(ChannelDoc.class);
+
 	private final Member member;
 	private final String name;
 	private final String title;
 	private final String description;
 	private final Optional<Class<?>> typeOpt;
+	// number of bits required for this datatype
+	private final Optional<Integer> bitLengthOpt;
 	private final boolean optional;
 	private final boolean array;
 	private final User accessLevel;
@@ -49,6 +58,13 @@ public class ChannelDoc {
 			this.title = channelInfo.title();
 			this.description = channelInfo.description();
 			this.typeOpt = Optional.of(channelInfo.type());
+			Integer bitLength = null;
+			try {
+				bitLength = BitUtils.getBitLength(channelInfo.type());
+			} catch (NotImplementedException e) {
+				log.warn("Unable to get BitLength for Channel [" + name + "]: " + e.getMessage());
+			}
+			this.bitLengthOpt = Optional.ofNullable(bitLength);
 			this.optional = channelInfo.isOptional();
 			this.array = channelInfo.isOptional();
 			this.accessLevel = channelInfo.accessLevel();
@@ -57,6 +73,7 @@ public class ChannelDoc {
 			this.title = ChannelInfo.DEFAULT_TITLE;
 			this.description = ChannelInfo.DEFAULT_DESCRIPTION;
 			this.typeOpt = Optional.empty();
+			this.bitLengthOpt = Optional.empty();
 			this.optional = ChannelInfo.DEFAULT_IS_OPTIONAL;
 			this.array = ChannelInfo.DEFAULT_IS_ARRAY;
 			this.accessLevel = ChannelInfo.DEFAULT_ACCESS_LEVEL;
@@ -76,8 +93,12 @@ public class ChannelDoc {
 		return description;
 	}
 
-	public Optional<Class<?>> getType() {
+	public Optional<Class<?>> getTypeOpt() {
 		return typeOpt;
+	}
+
+	public Optional<Integer> getBitLengthOpt() {
+		return bitLengthOpt;
 	}
 
 	public boolean isOptional() {

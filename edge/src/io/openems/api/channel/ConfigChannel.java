@@ -52,7 +52,7 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	 * @throws OpenemsException
 	 */
 	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
-		this.type = channelDoc.getType();
+		this.type = channelDoc.getTypeOpt();
 		this.isOptional = channelDoc.isOptional();
 		if (!channelDoc.getDefaultValue().isEmpty()) {
 			JsonElement jValue = null;
