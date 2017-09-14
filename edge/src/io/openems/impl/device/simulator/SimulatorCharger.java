@@ -26,7 +26,7 @@ import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -46,7 +46,7 @@ public class SimulatorCharger extends SimulatorDeviceNature implements ChargerNa
 	/*
 	 * Config-Channels
 	 */
-	@ConfigInfo(title = "PowerConfig", type = Long.class)
+	@ChannelInfo(title = "PowerConfig", type = Long.class)
 	public ConfigChannel<Long> powerConfig = new ConfigChannel<>("powerConfig", this);
 
 	/*

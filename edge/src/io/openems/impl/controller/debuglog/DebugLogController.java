@@ -24,7 +24,7 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
@@ -47,16 +47,16 @@ public class DebugLogController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isOptional = true, isArray = true)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isOptional = true, isArray = true)
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
 
-	@ConfigInfo(title = "Meters", description = "Sets the meters.", type = Meter.class, isOptional = true, isArray = true)
+	@ChannelInfo(title = "Meters", description = "Sets the meters.", type = Meter.class, isOptional = true, isArray = true)
 	public final ConfigChannel<Set<Meter>> meters = new ConfigChannel<Set<Meter>>("meters", this);
 
-	@ConfigInfo(title = "Real-time clock", description = "Sets the real-time clock.", type = RealTimeClock.class, isOptional = true)
+	@ChannelInfo(title = "Real-time clock", description = "Sets the real-time clock.", type = RealTimeClock.class, isOptional = true)
 	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this);
 
-	@ConfigInfo(title = "EVCSs", description = "Sets the evcs.", type = Evcs.class, isOptional = true, isArray = true)
+	@ChannelInfo(title = "EVCSs", description = "Sets the evcs.", type = Evcs.class, isOptional = true, isArray = true)
 	public final ConfigChannel<Set<Evcs>> evcss = new ConfigChannel<Set<Evcs>>("evcss", this);
 
 	/*

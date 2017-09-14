@@ -23,7 +23,7 @@ import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -40,7 +40,7 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 
 	private static ThingRepository repo = ThingRepository.getInstance();
 
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices for the proxy.", type = String.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices for the proxy.", type = String.class)
 	public ConfigChannel<String> essId = new ConfigChannel<String>("essId", this).addChangeListener(this);
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);

@@ -30,7 +30,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
@@ -68,7 +68,7 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Port", description = "Sets the port of the Websocket-Api Server.", type = Integer.class, defaultValue = "8085")
+	@ChannelInfo(title = "Port", description = "Sets the port of the Websocket-Api Server.", type = Integer.class, defaultValue = "8085")
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).addChangeListener(this);
 
 	/*

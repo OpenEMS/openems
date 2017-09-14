@@ -34,7 +34,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.ReflectionException;
@@ -60,14 +60,14 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Supply-bus", description = "Collection of the switches for the supplyBus each array represents the switches for one supply bus.", type = JsonArray.class, isArray = true)
+	@ChannelInfo(title = "Supply-bus", description = "Collection of the switches for the supplyBus each array represents the switches for one supply bus.", type = JsonArray.class, isArray = true)
 	public ConfigChannel<JsonArray> supplyBusConfig = new ConfigChannel<JsonArray>("supplyBusConfig", this)
 			.addChangeListener(this);
 
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this).addChangeListener(this);
 
-	@ConfigInfo(title = "Switch-Delay", description = "delay to expire between ess disconnected and next ess connected.", type = Long.class, defaultValue = "10000")
+	@ChannelInfo(title = "Switch-Delay", description = "delay to expire between ess disconnected and next ess connected.", type = Long.class, defaultValue = "10000")
 	public final ConfigChannel<Long> switchDelay = new ConfigChannel<Long>("switchDelay", this);
 
 	/*

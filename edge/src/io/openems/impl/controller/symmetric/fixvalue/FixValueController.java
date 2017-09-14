@@ -24,7 +24,7 @@ import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
@@ -45,13 +45,13 @@ public class FixValueController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
-	@ConfigInfo(title = "ActivePower", description = "The active power to set for each Ess.", type = Integer.class)
+	@ChannelInfo(title = "ActivePower", description = "The active power to set for each Ess.", type = Integer.class)
 	public ConfigChannel<Integer> p = new ConfigChannel<Integer>("p", this);
 
-	@ConfigInfo(title = "ReactivePower", description = "The reactive power to set for each Ess.", type = Integer.class)
+	@ChannelInfo(title = "ReactivePower", description = "The reactive power to set for each Ess.", type = Integer.class)
 	public ConfigChannel<Integer> q = new ConfigChannel<Integer>("q", this);
 
 	/*

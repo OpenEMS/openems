@@ -38,7 +38,7 @@ import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
@@ -67,28 +67,28 @@ public class WeekTimeScheduler extends Scheduler {
 	 * controllers: [ "controller0", "controller1"]
 	 * }]
 	 */
-	@ConfigInfo(title = "Monday", description = "Sets the controllers for monday.", type = JsonArray.class)
+	@ChannelInfo(title = "Monday", description = "Sets the controllers for monday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> monday = new ConfigChannel<>("monday", this);
 
-	@ConfigInfo(title = "Tuesday", description = "Sets the controllers for tuesday.", type = JsonArray.class)
+	@ChannelInfo(title = "Tuesday", description = "Sets the controllers for tuesday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> tuesday = new ConfigChannel<>("tuesday", this);
 
-	@ConfigInfo(title = "Wednesday", description = "Sets the controllers for wednesday.", type = JsonArray.class)
+	@ChannelInfo(title = "Wednesday", description = "Sets the controllers for wednesday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> wednesday = new ConfigChannel<>("wednesday", this);
 
-	@ConfigInfo(title = "Thursday", description = "Sets the controllers for thursday.", type = JsonArray.class)
+	@ChannelInfo(title = "Thursday", description = "Sets the controllers for thursday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> thursday = new ConfigChannel<>("thursday", this);
 
-	@ConfigInfo(title = "Friday", description = "Sets the controllers for friday.", type = JsonArray.class)
+	@ChannelInfo(title = "Friday", description = "Sets the controllers for friday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> friday = new ConfigChannel<>("friday", this);
 
-	@ConfigInfo(title = "Saturday", description = "Sets the controllers for saturday.", type = JsonArray.class)
+	@ChannelInfo(title = "Saturday", description = "Sets the controllers for saturday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> saturday = new ConfigChannel<>("saturday", this);
 
-	@ConfigInfo(title = "Sunday", description = "Sets the controllers for sunday.", type = JsonArray.class)
+	@ChannelInfo(title = "Sunday", description = "Sets the controllers for sunday.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> sunday = new ConfigChannel<>("sunday", this);
 
-	@ConfigInfo(title = "Always", description = "Sets the controllers that are always activated.", type = JsonArray.class)
+	@ChannelInfo(title = "Always", description = "Sets the controllers that are always activated.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this);
 
 	/*

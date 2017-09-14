@@ -28,7 +28,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.Device;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.core.ThingRepository;
@@ -53,7 +53,7 @@ public class SimulatorRiedmannNature extends SimulatorDeviceNature implements Ri
 	/*
 	 * Fields
 	 */
-	@ConfigInfo(title = "WaterLevel", type = Long.class)
+	@ChannelInfo(title = "WaterLevel", type = Long.class)
 	private ConfigChannel<Long> waterLevel = new ConfigChannel<Long>("WaterLevel", this).defaultValue(30L);
 	private SimulatorWriteChannel<Long> setPivotOn = new SimulatorWriteChannel<Long>("SetPivotOn", this, 1L);
 	private SimulatorWriteChannel<Long> setBorehole1On = new SimulatorWriteChannel<>("SetBorehole1On", this, 1L);
@@ -64,19 +64,19 @@ public class SimulatorRiedmannNature extends SimulatorDeviceNature implements Ri
 	private SimulatorWriteChannel<Long> setOfficeOn = new SimulatorWriteChannel<>("SetOfficeOn", this, 1L);
 	private SimulatorWriteChannel<Long> setTraineeCenterOn = new SimulatorWriteChannel<>("SetTraineeCenterOn", this,
 			1L);
-	@ConfigInfo(title = "AutomaticMode", type = Long.class)
+	@ChannelInfo(title = "AutomaticMode", type = Long.class)
 	private ConfigChannel<Long> automaticMode = new ConfigChannel<Long>("AutomaticMode", this).defaultValue(1L);
-	@ConfigInfo(title = "ManualMode", type = Long.class)
+	@ChannelInfo(title = "ManualMode", type = Long.class)
 	private ConfigChannel<Long> manualMode = new ConfigChannel<Long>("ManualMode", this).defaultValue(0L);
-	@ConfigInfo(title = "EmergencyStop", type = Long.class)
+	@ChannelInfo(title = "EmergencyStop", type = Long.class)
 	private ConfigChannel<Long> emergencyStop = new ConfigChannel<Long>("EmergencyStop", this).defaultValue(0L);
-	@ConfigInfo(title = "SwitchStatePivotPump", type = Long.class)
+	@ChannelInfo(title = "SwitchStatePivotPump", type = Long.class)
 	private ConfigChannel<Long> switchStatePivotPump = new ConfigChannel<Long>("SwitchStatePivotPump", this)
 			.defaultValue(1L);
-	@ConfigInfo(title = "SwitchStatePivotDrive", type = Long.class)
+	@ChannelInfo(title = "SwitchStatePivotDrive", type = Long.class)
 	private ConfigChannel<Long> switchStatePivotDrive = new ConfigChannel<Long>("SwitchStatePivotDrive", this)
 			.defaultValue(1L);
-	@ConfigInfo(title = "Error", type = Long.class)
+	@ChannelInfo(title = "Error", type = Long.class)
 	private ConfigChannel<Long> error = new ConfigChannel<Long>("Error", this).defaultValue(0L);
 	private SimulatorReadChannel waterLevelBorehole1On = new SimulatorReadChannel("WaterLevelBorehole1On", this);
 	private SimulatorReadChannel waterLevelBorehole1Off = new SimulatorReadChannel("WaterLevelBorehole1Off", this);

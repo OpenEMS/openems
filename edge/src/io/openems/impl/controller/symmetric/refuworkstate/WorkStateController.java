@@ -25,7 +25,7 @@ import java.util.Optional;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -50,10 +50,10 @@ public class WorkStateController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
 	public final ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
 
-	@ConfigInfo(title = "Start/Stop", description = "Indicates if the Ess should be started (true) or stopped (false).", type = Boolean.class)
+	@ChannelInfo(title = "Start/Stop", description = "Indicates if the Ess should be started (true) or stopped (false).", type = Boolean.class)
 	public final ConfigChannel<Boolean> start = new ConfigChannel<>("start", this);
 
 	/*

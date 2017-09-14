@@ -40,7 +40,7 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.thing.Thing;
@@ -61,13 +61,13 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Apikey", description = "Sets the apikey for FENECON Cloud.", type = String.class)
+	@ChannelInfo(title = "Apikey", description = "Sets the apikey for FENECON Cloud.", type = String.class)
 	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this).doNotPersist();
 
-	@ConfigInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/openems-backend\"")
+	@ChannelInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/openems-backend\"")
 	public final ConfigChannel<String> uri = new ConfigChannel<String>("uri", this).doNotPersist();
 
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	@ChannelInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
 			.defaultValue(DEFAULT_CYCLETIME);
 

@@ -53,12 +53,15 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ChannelDoc;
+import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.persistence.QueryablePersistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
+import io.openems.common.types.ChannelAddress;
 import io.openems.core.ThingsChangedListener.Action;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
@@ -147,8 +150,9 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		thing.addListener(this);
 
 		// Add Channels thingConfigChannels
-		Set<Member> members = classRepository.getThingChannels(thing.getClass());
-		for (Member member : members) {
+		ThingDoc thingDoc = classRepository.getThingDoc(thing.getClass());
+		for (ChannelDoc channelDoc : thingDoc.getConfigChannelDocs()) {
+			Member member = channelDoc.getMember();
 			try {
 				List<Channel> channels = new ArrayList<>();
 				if (member instanceof Method) {
@@ -328,6 +332,22 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		return Collections.unmodifiableSet(persistences);
 	}
 
+	/**
+	 * Returns the ChannelDoc for a given Channel
+	 * 
+	 * @param channelAddress
+	 * @return
+	 */
+	public synchronized Optional<ChannelDoc> getChannelDoc(ChannelAddress channelAddress) {
+		Thing thing = getThing(channelAddress.getThingId());
+		if (thing == null) {
+			return Optional.empty();
+		}
+		ThingDoc thingDoc = ClassRepository.getInstance().getThingDoc(thing.getClass());
+		Optional<ChannelDoc> channelDoc = thingDoc.getChannelDoc(channelAddress.getChannelId());
+		return channelDoc;
+	}
+
 	public synchronized Set<QueryablePersistence> getQueryablePersistences() {
 		return Collections.unmodifiableSet(queryablePersistences);
 	}
@@ -427,8 +447,9 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		thingWriteChannels.removeAll(thing);
 
 		// Add Channels to thingChannels, thingConfigChannels and thingWriteChannels
-		Set<Member> members = classRepository.getThingChannels(thing.getClass());
-		for (Member member : members) {
+		ThingDoc thingDoc = classRepository.getThingDoc(thing.getClass());
+		for (ChannelDoc channelDoc : thingDoc.getChannelDocs()) {
+			Member member = channelDoc.getMember();
 			try {
 				List<Channel> channels = new ArrayList<>();
 				if (member instanceof Method) {

@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 
 public interface SymmetricMeterNature extends MeterNature {
 
@@ -34,10 +34,10 @@ public interface SymmetricMeterNature extends MeterNature {
 
 	public ReadChannel<Long> activePower();
 
-	@ConfigInfo(title = "maxActivePower", description = "Holds the maximum ever active power.", type = Long.class, defaultValue = "0")
+	@ChannelInfo(title = "maxActivePower", description = "Holds the maximum ever active power.", type = Long.class, defaultValue = "0")
 	public ConfigChannel<Long> maxActivePower();
 
-	@ConfigInfo(title = "minActivePower", description = "Holds the minimum ever active power.", type = Long.class, defaultValue = "0")
+	@ChannelInfo(title = "minActivePower", description = "Holds the minimum ever active power.", type = Long.class, defaultValue = "0")
 	public ConfigChannel<Long> minActivePower();
 
 	public ReadChannel<Long> apparentPower();
