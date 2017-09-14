@@ -31,4 +31,6 @@ public interface SystemNature extends DeviceNature {
 	 * Read Channels
 	 */
 	public ReadChannel<Inet4Address> primaryIpAddress();
+
+	public ReadChannel<String> openemsVersion();
 }
