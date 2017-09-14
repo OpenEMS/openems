@@ -30,7 +30,7 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.DebugChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.system.SystemDevice;
@@ -48,9 +48,9 @@ public class System extends SystemDevice {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "System", description = "Sets the system nature.", type = SystemNature.class)
+	@ChannelInfo(title = "System", description = "Sets the system nature.", type = SystemNature.class)
 	public final ConfigChannel<SystemNature> system = new ConfigChannel<>("system", this);
-	@ConfigInfo(title = "Debug", description = "Enables DebugChannels to write into database", type = Boolean.class, isOptional = true, defaultValue = "false")
+	@ChannelInfo(title = "Debug", description = "Enables DebugChannels to write into database", type = Boolean.class, isOptional = true, defaultValue = "false")
 	public final ConfigChannel<Boolean> debug = new ConfigChannel<Boolean>("debug", this)
 			.addChangeListener(new ChannelChangeListener() {
 

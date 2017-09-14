@@ -27,7 +27,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
@@ -51,7 +51,7 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	 * @param parent
 	 * @throws OpenemsException
 	 */
-	public void applyAnnotation(ConfigInfo configAnnotation) throws OpenemsException {
+	public void applyAnnotation(ChannelInfo configAnnotation) throws OpenemsException {
 		this.type = Optional.of(configAnnotation.type());
 		this.isOptional = configAnnotation.isOptional();
 		if (!configAnnotation.defaultValue().isEmpty()) {

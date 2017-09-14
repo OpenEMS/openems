@@ -23,7 +23,7 @@ package io.openems.impl.protocol.studer;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 
@@ -40,7 +40,7 @@ public abstract class StuderDevice extends Device {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Address", description = "Sets the device address (e.g. 701).", type = Integer.class)
+	@ChannelInfo(title = "Address", description = "Sets the device address (e.g. 701).", type = Integer.class)
 	public final ConfigChannel<Integer> address = new ConfigChannel<Integer>("address", this);
 
 	/*

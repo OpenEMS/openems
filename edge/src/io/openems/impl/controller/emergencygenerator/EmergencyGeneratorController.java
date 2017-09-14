@@ -27,7 +27,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -50,22 +50,22 @@ public class EmergencyGeneratorController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "Grid-meter", description = "Sets the grid-meter to detect if the system is Off-Grid or On-Grid.", type = Meter.class)
+	@ChannelInfo(title = "Grid-meter", description = "Sets the grid-meter to detect if the system is Off-Grid or On-Grid.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	@ConfigInfo(title = "Min-SOC", description = "If the SOC falls under this value and the system is Off-Grid the generator starts.", type = Long.class)
+	@ChannelInfo(title = "Min-SOC", description = "If the SOC falls under this value and the system is Off-Grid the generator starts.", type = Long.class)
 	public ConfigChannel<Long> minSoc = new ConfigChannel<Long>("minSoc", this);
 
-	@ConfigInfo(title = "Max-SOC", description = "If the system is Off-Grid and the generator is running, the generator stops if the SOC level increases over the Max-SOC.", type = Long.class)
+	@ChannelInfo(title = "Max-SOC", description = "If the system is Off-Grid and the generator is running, the generator stops if the SOC level increases over the Max-SOC.", type = Long.class)
 	public ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
 
-	@ConfigInfo(title = "Invert-Output", description = "True if the digital output should be inverted.", type = Boolean.class)
+	@ChannelInfo(title = "Invert-Output", description = "True if the digital output should be inverted.", type = Boolean.class)
 	public ConfigChannel<Boolean> invertOutput = new ConfigChannel<>("invertOutput", this);
 
-	@ConfigInfo(title = "On-Grid output on", description = "This value indicates if the system is On-Grid to start(true) or stop(false) the generator.", type = Boolean.class, isOptional = true)
+	@ChannelInfo(title = "On-Grid output on", description = "This value indicates if the system is On-Grid to start(true) or stop(false) the generator.", type = Boolean.class, isOptional = true)
 	public ConfigChannel<Boolean> onGridOutputOn = new ConfigChannel<Boolean>("onGridOutputOn", this)
 			.defaultValue(false);
 
@@ -82,7 +82,7 @@ public class EmergencyGeneratorController extends Controller {
 	 * Methods
 	 */
 	@SuppressWarnings("unchecked")
-	@ConfigInfo(title = "the address of the Digital Output where the generator is connected to.", type = String.class)
+	@ChannelInfo(title = "the address of the Digital Output where the generator is connected to.", type = String.class)
 	public ConfigChannel<String> outputChannelAddress = new ConfigChannel<String>("outputChannelAddress", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				Optional<String> channelAddress = (Optional<String>) newValue;

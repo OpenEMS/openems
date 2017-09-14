@@ -31,7 +31,7 @@ import io.openems.api.security.User;
 
 @Retention(RUNTIME)
 @Target({ FIELD, METHOD })
-public @interface ConfigInfo {
+public @interface ChannelInfo {
 	String title();
 
 	String description() default "";

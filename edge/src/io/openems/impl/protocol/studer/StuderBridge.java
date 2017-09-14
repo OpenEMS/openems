@@ -28,7 +28,7 @@ import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.studer.internal.Request;
@@ -49,11 +49,11 @@ public class StuderBridge extends Bridge implements ChannelUpdateListener {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Serial interface", description = "Sets the serial interface (e.g. /dev/ttyUSB0).", type = String.class)
+	@ChannelInfo(title = "Serial interface", description = "Sets the serial interface (e.g. /dev/ttyUSB0).", type = String.class)
 	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this)
 			.addUpdateListener(channelUpdateListener);
 
-	@ConfigInfo(title = "Source address", description = "Sets the source address (e.g. 1).", type = Integer.class, defaultValue = "1")
+	@ChannelInfo(title = "Source address", description = "Sets the source address (e.g. 1).", type = Integer.class, defaultValue = "1")
 	public final ConfigChannel<Integer> address = new ConfigChannel<Integer>("address", this);
 
 	/*

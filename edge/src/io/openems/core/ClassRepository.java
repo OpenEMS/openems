@@ -42,7 +42,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.scheduler.Scheduler;
@@ -66,7 +66,7 @@ public class ClassRepository {
 	}
 
 	private HashMultimap<Class<? extends Thing>, Member> thingChannels = HashMultimap.create();
-	private Table<Class<? extends Thing>, Member, ConfigInfo> thingConfigChannels = HashBasedTable.create();
+	private Table<Class<? extends Thing>, Member, ChannelInfo> thingConfigChannels = HashBasedTable.create();
 	private HashMap<Class<? extends Bridge>, ThingDoc> bridges = new HashMap<>();
 	private HashMap<Class<? extends Scheduler>, ThingDoc> schedulers = new HashMap<>();
 	private HashMap<Class<? extends Device>, ThingDoc> devices = new HashMap<>();
@@ -93,7 +93,7 @@ public class ClassRepository {
 	 * @param clazz
 	 * @return
 	 */
-	public Map<Member, ConfigInfo> getThingConfigChannels(Class<? extends Thing> clazz) {
+	public Map<Member, ChannelInfo> getThingConfigChannels(Class<? extends Thing> clazz) {
 		if (!thingConfigChannels.containsRow(clazz)) {
 			parseClass(clazz);
 		}
@@ -165,7 +165,7 @@ public class ClassRepository {
 				thingChannels.put(clazz, method);
 			}
 			if (ConfigChannel.class.isAssignableFrom(type)) {
-				ConfigInfo configAnnotation = getAnnotation(clazz, method.getName());
+				ChannelInfo configAnnotation = getAnnotation(clazz, method.getName());
 				if (configAnnotation != null) {
 					thingConfigChannels.put(clazz, method, configAnnotation);
 				} else {
@@ -180,7 +180,7 @@ public class ClassRepository {
 				thingChannels.put(clazz, field);
 			}
 			if (ConfigChannel.class.isAssignableFrom(type)) {
-				ConfigInfo configAnnotation = field.getAnnotation(ConfigInfo.class);
+				ChannelInfo configAnnotation = field.getAnnotation(ChannelInfo.class);
 				if (configAnnotation == null) {
 					log.error("Config-Annotation is missing for field [" + field.getName() + "] in class ["
 							+ clazz.getName() + "]");
@@ -197,26 +197,26 @@ public class ClassRepository {
 	 * @param clazz
 	 * @return
 	 */
-	private ConfigInfo getAnnotation(Class<?> clazz, String methodName) {
+	private ChannelInfo getAnnotation(Class<?> clazz, String methodName) {
 		Method method;
 		try {
 			method = clazz.getMethod(methodName);
 		} catch (NoSuchMethodException | SecurityException e) {
 			return null;
 		}
-		if (method.isAnnotationPresent(ConfigInfo.class)) {
+		if (method.isAnnotationPresent(ChannelInfo.class)) {
 			// found annotation
-			return method.getAnnotation(ConfigInfo.class);
+			return method.getAnnotation(ChannelInfo.class);
 		} else {
 			Class<?> superclazz = clazz.getSuperclass();
 			if (superclazz != null) {
-				ConfigInfo annotation = getAnnotation(superclazz, methodName);
+				ChannelInfo annotation = getAnnotation(superclazz, methodName);
 				if (annotation != null) {
 					return annotation;
 				}
 			}
 			for (Class<?> iface : clazz.getInterfaces()) {
-				ConfigInfo annotation = getAnnotation(iface, methodName);
+				ChannelInfo annotation = getAnnotation(iface, methodName);
 				if (annotation != null) {
 					return annotation;
 				}

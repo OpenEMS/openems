@@ -22,7 +22,7 @@ package io.openems.impl.controller.asymmetric.balancingcurrent;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
@@ -43,13 +43,13 @@ public class BalancingCurrentController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	@ConfigInfo(title = "Current offset", description = "The current to hold on the grid-meter.", type = Meter.class)
+	@ChannelInfo(title = "Current offset", description = "The current to hold on the grid-meter.", type = Meter.class)
 	public final ConfigChannel<Integer> currentOffset = new ConfigChannel<>("CurrentOffset", this);
 
 	/*

@@ -26,20 +26,20 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.hysteresis.Hysteresis;
 
 public class AvoidTotalDischargeController extends Controller {
 
-	@ConfigInfo(title = "Storage, where total discharge should be avoided. For excample to reserve load for the Off-Grid power supply.", type = Ess.class)
+	@ChannelInfo(title = "Storage, where total discharge should be avoided. For excample to reserve load for the Off-Grid power supply.", type = Ess.class)
 	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
-	@ConfigInfo(title = "Delay, to allow Power after start", type = Long.class)
+	@ChannelInfo(title = "Delay, to allow Power after start", type = Long.class)
 	public final ConfigChannel<Long> powerDelay = new ConfigChannel<>("powerDelay", this);
-	@ConfigInfo(title = "Step to increase the allowed power after start delay.", type = Long.class)
+	@ChannelInfo(title = "Step to increase the allowed power after start delay.", type = Long.class)
 	public final ConfigChannel<Long> powerStep = new ConfigChannel<>("powerStep", this);
-	@ConfigInfo(title = "Soc limit to stop chargePower.", type = Long.class)
+	@ChannelInfo(title = "Soc limit to stop chargePower.", type = Long.class)
 	public final ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this)
 			.addChangeListener(new ChannelChangeListener() {
 
@@ -52,7 +52,7 @@ public class AvoidTotalDischargeController extends Controller {
 					}
 				}
 			});
-	@ConfigInfo(title = "Soc hysteresis for max Soc limit.", type = Long.class)
+	@ChannelInfo(title = "Soc hysteresis for max Soc limit.", type = Long.class)
 	public final ConfigChannel<Long> socHysteresis = new ConfigChannel<Long>("socHysteresis", this)
 			.addChangeListener(new ChannelChangeListener() {
 

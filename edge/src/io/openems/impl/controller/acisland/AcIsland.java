@@ -27,7 +27,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
@@ -47,19 +47,19 @@ public class AcIsland extends Controller {
 
 	// ConfigChannel
 
-	@ConfigInfo(title = "soc to disconnect the producer if the system is Off-Grid.", type = Long.class)
+	@ChannelInfo(title = "soc to disconnect the producer if the system is Off-Grid.", type = Long.class)
 	public ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this).defaultValue(85L);
-	@ConfigInfo(title = "soc to connect the producer if the system is Off-Grid.", type = Long.class)
+	@ChannelInfo(title = "soc to connect the producer if the system is Off-Grid.", type = Long.class)
 	public ConfigChannel<Long> minSoc = new ConfigChannel<Long>("minSoc", this).defaultValue(70L);
 
-	@ConfigInfo(title = "The ess where the grid state should be read from.", type = Ess.class)
+	@ChannelInfo(title = "The ess where the grid state should be read from.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "time to wait before switch output on.", type = Long.class)
+	@ChannelInfo(title = "time to wait before switch output on.", type = Long.class)
 	public ConfigChannel<Long> switchDelay = new ConfigChannel<Long>("switchDelay", this).defaultValue(10000L);
 
 	@SuppressWarnings("unchecked")
-	@ConfigInfo(title = "the address of the Digital Output where the on grid connection of producer is connected to.", type = String.class)
+	@ChannelInfo(title = "the address of the Digital Output where the on grid connection of producer is connected to.", type = String.class)
 	public ConfigChannel<String> onGridOutputChannelAddress = new ConfigChannel<String>("onGridOutputChannelAddress",
 			this).addChangeListener((channel, newValue, oldValue) -> {
 				Optional<String> channelAddress = (Optional<String>) newValue;
@@ -77,7 +77,7 @@ public class AcIsland extends Controller {
 			});
 
 	@SuppressWarnings("unchecked")
-	@ConfigInfo(title = "the address of the Digital Output where the off grid connection of producer is connected to.", type = String.class)
+	@ChannelInfo(title = "the address of the Digital Output where the off grid connection of producer is connected to.", type = String.class)
 	public ConfigChannel<String> offGridOutputChannelAddress = new ConfigChannel<String>("offGridOutputChannelAddress",
 			this).addChangeListener((channel, newValue, oldValue) -> {
 				Optional<String> channelAddress = (Optional<String>) newValue;

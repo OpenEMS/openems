@@ -23,7 +23,7 @@ import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.MeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.Thing;
 import io.openems.core.ThingRepository;
@@ -42,14 +42,14 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 	private SimulatorReadChannel<Long> reactivePowerL1 = new SimulatorReadChannel<>("ReactivePowerL1", this);
 	private SimulatorReadChannel<Long> reactivePowerL2 = new SimulatorReadChannel<>("ReactivePowerL2", this);
 	private SimulatorReadChannel<Long> reactivePowerL3 = new SimulatorReadChannel<>("ReactivePowerL3", this);
-	@ConfigInfo(title = "esss", type = JsonArray.class)
+	@ChannelInfo(title = "esss", type = JsonArray.class)
 	public ConfigChannel<JsonArray> esss = new ConfigChannel<JsonArray>("esss", this).addChangeListener(this);
-	@ConfigInfo(title = "producer", type = JsonArray.class)
+	@ChannelInfo(title = "producer", type = JsonArray.class)
 	public ConfigChannel<JsonArray> producer = new ConfigChannel<JsonArray>("producer", this).addChangeListener(this);
-	@ConfigInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
+	@ChannelInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
 	public ConfigChannel<JsonObject> activePowerGeneratorConfig = new ConfigChannel<JsonObject>(
 			"activePowerGeneratorConfig", this).addChangeListener(this);
-	@ConfigInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
+	@ChannelInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
 	public ConfigChannel<JsonObject> reactivePowerGeneratorConfig = new ConfigChannel<JsonObject>(
 			"reactivePowerGeneratorConfig", this).addChangeListener(this);
 

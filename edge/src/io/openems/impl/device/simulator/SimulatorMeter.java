@@ -24,7 +24,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
@@ -66,9 +66,9 @@ public abstract class SimulatorMeter extends SimulatorDeviceNature implements Sy
 	/*
 	 * Inherited Channels
 	 */
-	@ConfigInfo(type = Long.class, title = "Frequency")
+	@ChannelInfo(type = Long.class, title = "Frequency")
 	public ConfigChannel<Long> frequency = new ConfigChannel<Long>("frequency", this);
-	@ConfigInfo(type = Long.class, title = "Voltage")
+	@ChannelInfo(type = Long.class, title = "Voltage")
 	public ConfigChannel<Long> voltage = new ConfigChannel<Long>("voltage", this);
 
 	@Override

@@ -44,7 +44,7 @@ import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
@@ -65,10 +65,10 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private double energy;
 	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(3, 1);
 	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(3, 1);
-	@ConfigInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
+	@ChannelInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
 	public ConfigChannel<JsonObject> activePowerGeneratorConfig = new ConfigChannel<JsonObject>(
 			"activePowerGeneratorConfig", this).addChangeListener(this).addChangeListener(this);
-	@ConfigInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
+	@ChannelInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
 	public ConfigChannel<JsonObject> reactivePowerGeneratorConfig = new ConfigChannel<JsonObject>(
 			"reactivePowerGeneratorConfig", this).addChangeListener(this).addChangeListener(this);
 	private LoadGenerator offGridActivePowerGenerator;
@@ -125,10 +125,10 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	 */
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
-	@ConfigInfo(title = "GridMode", type = Long.class)
+	@ChannelInfo(title = "GridMode", type = Long.class)
 	public ConfigChannel<Long> gridMode = new ConfigChannel<Long>("GridMode", this).label(0L, ON_GRID)
 			.label(1L, OFF_GRID).defaultValue(0L);
-	@ConfigInfo(title = "SystemState", type = Long.class)
+	@ChannelInfo(title = "SystemState", type = Long.class)
 	public ConfigChannel<Long> systemState = new ConfigChannel<Long>("SystemState", this) //
 			.label(1L, START).label(2L, STOP).label(5L, FAULT).defaultValue(1L);
 
@@ -161,7 +161,7 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 5000L).unit("Wh");
-	@ConfigInfo(title = "charger", type = JsonArray.class, isOptional = true)
+	@ChannelInfo(title = "charger", type = JsonArray.class, isOptional = true)
 	public ConfigChannel<JsonArray> charger = new ConfigChannel<JsonArray>("charger", this).addChangeListener(this);
 
 	@Override

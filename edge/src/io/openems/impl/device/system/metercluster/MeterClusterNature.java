@@ -17,7 +17,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.thing.Thing;
@@ -68,7 +68,7 @@ public class MeterClusterNature extends SimulatorDeviceNature
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Meter", description = "Sets the Meter devices for the cluster.", type = JsonArray.class)
+	@ChannelInfo(title = "Meter", description = "Sets the Meter devices for the cluster.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> meter = new ConfigChannel<JsonArray>("meter", this).addChangeListener(this);
 
 	private final ConfigChannel<String> type = new ConfigChannel<String>("type", this);

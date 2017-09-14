@@ -28,7 +28,7 @@ import java.util.List;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.InputNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
@@ -52,7 +52,7 @@ public class WagoFBInput extends ModbusDeviceNature implements InputNature {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "IP address", description = "IP address of the WAGO device.", type = Inet4Address.class)
+	@ChannelInfo(title = "IP address", description = "IP address of the WAGO device.", type = Inet4Address.class)
 	public ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
 
 	/*

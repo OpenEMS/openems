@@ -13,7 +13,7 @@ import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.Device;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
@@ -24,10 +24,10 @@ public class SimulatorProductionMeter extends SimulatorMeter implements ChannelC
 	// public ConfigChannel<Long> activePower = new ConfigChannel("ActivePower", this);
 	// @ConfigInfo(title = "ReactivePower", type = Long.class)
 	// public ConfigChannel<Long> reactivePower = new ConfigChannel<Long>("ReactivePower", this);
-	@ConfigInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
+	@ChannelInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
 	public ConfigChannel<JsonObject> activePowerGeneratorConfig = new ConfigChannel<JsonObject>(
 			"activePowerGeneratorConfig", this).addChangeListener(this);
-	@ConfigInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
+	@ChannelInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
 	public ConfigChannel<JsonObject> reactivePowerGeneratorConfig = new ConfigChannel<JsonObject>(
 			"reactivePowerGeneratorConfig", this).addChangeListener(this);
 	private SimulatorReadChannel<Long> activePower = new SimulatorReadChannel<>("ActivePower", this);

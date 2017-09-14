@@ -26,7 +26,7 @@ import java.util.Set;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
@@ -44,7 +44,7 @@ public class FeneconCommercialAC extends ModbusDevice {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = FeneconCommercialEss.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess nature.", type = FeneconCommercialEss.class)
 	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<>("ess", this);
 
 	/*
