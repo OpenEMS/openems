@@ -68,19 +68,19 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 	}
 
 	@Override
-	public void onClose(int code, String reason, boolean remote) {
+	public final void onClose(int code, String reason, boolean remote) {
 		this.close();
 		log.info("Websocket [" + this.getURI().toString() + "] closed. Code[" + code + "] Reason[" + reason + "]");
 	}
 
 	@Override
-	public void onError(Exception ex) {
+	public final void onError(Exception ex) {
 		this.close();
 		log.warn("Websocket [" + this.getURI().toString() + "] error: " + ex);
 	}
 
 	@Override
-	public void onOpen(ServerHandshake handshakedata) {
+	public final void onOpen(ServerHandshake handshakedata) {
 		log.info("Websocket [" + this.getURI().toString() + "] opened");
 	}
 
@@ -88,7 +88,7 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 	 * Message event of websocket. Forwards a new message to the handler.
 	 */
 	@Override
-	public void onMessage(String message) {
+	public final void onMessage(String message) {
 		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 		this.websocketHandler.onMessage(jMessage);
 	}
@@ -102,9 +102,12 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 	 * Overrides original method to be able to use custom timeout
 	 */
 	public boolean connectBlocking(long timeoutSeconds) throws InterruptedException {
+		boolean connected = false;
 		connect();
-		connectLatch.await(timeoutSeconds, TimeUnit.SECONDS);
-		boolean connected = getConnection().isOpen();
+		for (int i = 0; i < timeoutSeconds && !connected; i++) {
+			connectLatch.await(1, TimeUnit.SECONDS);
+			connected = getConnection().isOpen();
+		}
 		return connected;
 	}
 

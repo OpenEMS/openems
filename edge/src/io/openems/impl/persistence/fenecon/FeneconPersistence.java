@@ -28,10 +28,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.HashMultimap;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -39,6 +42,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -75,6 +79,9 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 * Fields
 	 */
 	private static final int DEFAULT_CYCLETIME = 2000;
+	private final ExecutorService connectExecutor = Executors
+			.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("FePers-%d").build());
+
 	// Queue of data for the next cycle
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
 	// Unsent queue (FIFO)
@@ -218,8 +225,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			this.websocketClient = newWebsocketClient;
 			isAlreadyConnecting.set(false);
 		};
-		Thread thread = new Thread(task);
-		thread.start();
+		this.connectExecutor.submit(task);
 		// while connecting -> still returning null
 		return Optional.empty();
 	}
@@ -309,7 +315,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			} else if (value instanceof Boolean) {
 				fieldValue = new NumberFieldValue(field, ((Boolean) value) ? 1 : 0);
 			} else if (value instanceof DeviceNature || value instanceof JsonElement || value instanceof Map
-					|| value instanceof Set || value instanceof List) {
+					|| value instanceof Set || value instanceof List || value instanceof ThingMap) {
 				// ignore
 				return;
 			} else {
