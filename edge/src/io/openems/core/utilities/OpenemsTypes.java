@@ -1,5 +1,7 @@
 package io.openems.core.utilities;
 
+import java.net.Inet4Address;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -18,7 +20,15 @@ public enum OpenemsTypes {
 	/*
 	 * Primitives
 	 */
-	INTEGER, LONG, BOOLEAN, STRING, //
+	INTEGER, LONG, DOUBLE, BOOLEAN, STRING, //
+	/*
+	 * Arrays of primitives
+	 */
+	LONG_ARRAY,
+	/*
+	 * Complex types
+	 */
+	INET_4_ADDRESS,
 	/*
 	 * Json
 	 */
@@ -35,11 +45,20 @@ public enum OpenemsTypes {
 		} else if (Long.class.isAssignableFrom(type)) {
 			return LONG;
 
+		} else if (Double.class.isAssignableFrom(type)) {
+			return DOUBLE;
+
 		} else if (Boolean.class.isAssignableFrom(type)) {
 			return BOOLEAN;
 
 		} else if (String.class.isAssignableFrom(type)) {
 			return STRING;
+
+		} else if (Long[].class.isAssignableFrom(type)) {
+			return LONG_ARRAY;
+
+		} else if (Inet4Address.class.isAssignableFrom(type)) {
+			return INET_4_ADDRESS;
 
 		} else if (JsonArray.class.isAssignableFrom(type)) {
 			return JSON_ARRAY;

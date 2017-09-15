@@ -25,7 +25,10 @@ public class BitUtils {
 		case BOOLEAN:
 			return BITS_BOOLEAN;
 
+		case DOUBLE: // TODO
+		case INET_4_ADDRESS: // TODO
 		case STRING:
+		case LONG_ARRAY:
 		case JSON_ARRAY:
 		case JSON_OBJECT:
 		case DEVICE_NATURE:
@@ -46,7 +49,10 @@ public class BitUtils {
 			return ByteBuffer.allocate(BYTES_LONG).order(BYTE_ODER).putLong((Long) value).array();
 
 		case BOOLEAN: // TODO put boolean value in a byte
+		case DOUBLE: // TODO
+		case INET_4_ADDRESS: // TODO
 		case STRING:
+		case LONG_ARRAY:
 		case JSON_ARRAY:
 		case JSON_OBJECT:
 		case DEVICE_NATURE:
