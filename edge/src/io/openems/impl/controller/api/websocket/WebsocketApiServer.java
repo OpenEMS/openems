@@ -59,7 +59,7 @@ public class WebsocketApiServer
 	 * Open event of websocket. Parses the Odoo "session_id" and stores it in a new Session.
 	 */
 	@Override
-	public void onOpen(WebSocket websocket, ClientHandshake handshake) {
+	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
 		JsonObject jHandshake = this.parseCookieFromHandshake(handshake);
 		Optional<String> tokenOpt = JsonUtils.getAsOptionalString(jHandshake, "token");
 		if (tokenOpt.isPresent()) {
@@ -91,7 +91,7 @@ public class WebsocketApiServer
 	}
 
 	@Override
-	protected void onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
+	protected void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt) {
 		// log.info("RECV: websocket[" + websocket + "]" + jMessage.toString());
 

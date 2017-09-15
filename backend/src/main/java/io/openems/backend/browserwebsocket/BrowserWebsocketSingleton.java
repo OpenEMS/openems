@@ -46,7 +46,7 @@ public class BrowserWebsocketSingleton
 	 * Open event of websocket. Parses the Odoo "session_id" and stores it in a new Session.
 	 */
 	@Override
-	public void onOpen(WebSocket websocket, ClientHandshake handshake) {
+	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
 		// Prepare session information
 		String error = "";
 		BrowserSession session = null;
@@ -122,7 +122,7 @@ public class BrowserWebsocketSingleton
 	 * Message event of websocket. Handles a new message.
 	 */
 	@Override
-	protected void onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
+	protected void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt) {
 		/*
 		 * With existing device name
