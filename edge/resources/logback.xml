@@ -14,7 +14,7 @@
 <configuration>
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]%msg%ex{10}%n</pattern>
+			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line] %msg%ex{10}%n</pattern>
 		</encoder>
 	</appender>
 	<appender name="WEBSOCKET"
@@ -31,7 +31,7 @@
 		</rollingPolicy>
 
 		<encoder>
-			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]%msg%ex{10}%n</pattern>
+			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line] %msg%ex{10}%n</pattern>
 		</encoder>
 	</appender>
 	<logger name="errors" level="ERROR" additivity="false">

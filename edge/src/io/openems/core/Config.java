@@ -297,7 +297,7 @@ public class Config implements ChannelChangeListener {
 			String bridgeClass = JsonUtils.getAsString(jBridge, "class");
 			Bridge bridge = (Bridge) InjectionUtils.getThingInstance(bridgeClass);
 			thingRepository.addThing(bridge);
-			log.debug("Add Bridge[" + bridge.id() + "], Implementation[" + bridge.getClass().getSimpleName() + "]");
+			log.info("Add Bridge[" + bridge.id() + "], Implementation[" + bridge.getClass().getSimpleName() + "]");
 			ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(bridge), jBridge);
 			/*
 			 * read each Device in "things" array
@@ -353,7 +353,7 @@ public class Config implements ChannelChangeListener {
 				String persistenceClass = JsonUtils.getAsString(jPersistence, "class");
 				Persistence persistence = (Persistence) InjectionUtils.getThingInstance(persistenceClass);
 				thingRepository.addThing(persistence);
-				log.debug("Add Persistence[" + persistence.id() + "], Implementation["
+				log.info("Add Persistence[" + persistence.id() + "], Implementation["
 						+ persistence.getClass().getSimpleName() + "]");
 				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);
 				persistence.init();
