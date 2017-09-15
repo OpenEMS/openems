@@ -114,7 +114,7 @@ public class ChannelThresholdController extends Controller {
 	public ConfigChannel<Long> upperThreshold = new ConfigChannel<Long>("upperThreshold", this);
 
 	@ChannelInfo(title = "Hysteresis", description = "Hysteresis for lower and upper threshold", type = Long.class)
-	public ConfigChannel<Long> hysteresis = new ConfigChannel<>("hysteresis", this);
+	public ConfigChannel<Long> hysteresis = new ConfigChannel<Long>("hysteresis", this);
 
 	@ChannelInfo(title = "Invert-Output", description = "True if the digital output should be inverted.", type = Boolean.class)
 	public ConfigChannel<Boolean> invertOutput = new ConfigChannel<Boolean>("invertOutput", this).defaultValue(false);
@@ -124,38 +124,52 @@ public class ChannelThresholdController extends Controller {
 	 */
 	@Override
 	public void run() {
+		// Check if all parameters are available
+		long threshold;
+		long lowerThreshold;
+		long upperThreshold;
+		long hysteresis;
+		boolean invertOutput;
+		try {
+			threshold = this.thresholdChannel.value();
+			lowerThreshold = this.lowerThreshold.value();
+			upperThreshold = this.upperThreshold.value();
+			hysteresis = this.hysteresis.value();
+			invertOutput = this.invertOutput.value();
+		} catch (InvalidValueException e) {
+			log.error("ChannelThresholdController error: " + e.getMessage());
+			return;
+		}
 		try {
 			if (isActive) {
-				if (thresholdChannel.value() < lowerThreshold.value()
-						|| thresholdChannel.value() > upperThreshold.value() + hysteresis.value()) {
+				if (threshold < lowerThreshold || threshold > upperThreshold + hysteresis) {
 					isActive = false;
 				} else {
-					on();
+					on(invertOutput);
 				}
 			} else {
-				if (thresholdChannel.value() >= lowerThreshold.value() + hysteresis.value()
-						&& thresholdChannel.value() <= upperThreshold.value()) {
+				if (threshold >= lowerThreshold + hysteresis && threshold <= upperThreshold) {
 					isActive = true;
 				} else {
-					off();
+					off(invertOutput);
 				}
 			}
-		} catch (InvalidValueException e) {
-			log.error("thresholdChannel has no valid value!");
 		} catch (WriteChannelException e) {
-			log.error("failed to write outputChannel[" + outputChannel.id() + "]", e);
+			log.error("Failed to write Channel[" + outputChannel.address() + "]: " + e.getMessage());
 		}
 	}
 
-	private void on() throws InvalidValueException, WriteChannelException {
-		if (outputChannel.value() != (true ^ invertOutput.value())) {
-			outputChannel.pushWrite(true ^ invertOutput.value());
+	private void on(boolean invertOutput) throws WriteChannelException {
+		Optional<Boolean> currentValueOpt = this.outputChannel.valueOptional();
+		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (true ^ invertOutput)) {
+			outputChannel.pushWrite(true ^ invertOutput);
 		}
 	}
 
-	private void off() throws InvalidValueException, WriteChannelException {
-		if (outputChannel.value() != (false ^ invertOutput.value())) {
-			outputChannel.pushWrite(false ^ invertOutput.value());
+	private void off(boolean invertOutput) throws WriteChannelException {
+		Optional<Boolean> currentValueOpt = this.outputChannel.valueOptional();
+		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (false ^ invertOutput)) {
+			outputChannel.pushWrite(false ^ invertOutput);
 		}
 	}
 
