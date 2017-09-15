@@ -202,7 +202,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 					this.addCurrentValueOfAllChannelsToQueue();
 				} else {
 					// not connected -> return empty
-					log.warn("FENECON persistence failed connection to uri [" + uri + "]");
+					log.error("FENECON persistence failed connection to uri [" + uri + "]");
 					newWebsocketClient = null;
 				}
 			} catch (URISyntaxException e) {

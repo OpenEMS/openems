@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 
 import javax.net.ssl.SSLSocketFactory;
 
-import org.java_websocket.drafts.Draft_10;
+import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +48,12 @@ public class WebsocketClient extends org.java_websocket.client.WebSocketClient {
 	public WebsocketClient(URI uri, String apikey) throws Exception {
 		super( //
 				uri, //
-				new Draft_10(), //
+				new Draft_6455(), //
 				Stream.of(new SimpleEntry<>("apikey", apikey))
 						.collect(Collectors.toMap((se) -> se.getKey(), (se) -> se.getValue())),
 				0);
-		log.info("Start new websocket connection to [" + uri.getPath() + "]");
-		if (uri.toString().startsWith("wss")) {
+		log.info("Start new websocket connection to [" + uri + "]");
+		if (uri.getScheme().toString().equals("wss")) {
 			// try {
 			// SSLContext sslContext = null;
 			// sslContext = SSLContext.getInstance("TLS");
