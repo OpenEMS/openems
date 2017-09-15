@@ -30,7 +30,7 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 
 	protected abstract void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt);
-
+	
 	protected abstract void _onOpen(WebSocket websocket, ClientHandshake handshake);
 
 	public AbstractWebsocketServer(int port, M sessionManager) {

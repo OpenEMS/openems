@@ -48,6 +48,7 @@ public class OpenemsWebsocketSingleton
 		String apikey = "";
 		String deviceName = "";
 		try {
+
 			// get apikey from handshake
 			Optional<String> apikeyOpt = parseApikeyFromHandshake(handshake);
 			if (!apikeyOpt.isPresent()) {
@@ -72,7 +73,6 @@ public class OpenemsWebsocketSingleton
 			JsonObject jReply = DefaultMessages.openemsConnectionSuccessfulReply();
 			log.info("OpenEMS connected. Device [" + deviceName + "]");
 			WebSocketUtils.send(websocket, jReply);
-
 			// add websocket to local cache
 			this.websockets.forcePut(websocket, session);
 

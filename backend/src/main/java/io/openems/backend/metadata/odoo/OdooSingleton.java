@@ -100,7 +100,9 @@ public class OdooSingleton implements MetadataSingleton {
 				if (j.has("result")) {
 					// parse the result
 					JsonObject jResult = JsonUtils.getAsJsonObject(j, "result");
-					data.setUserId(JsonUtils.getAsInt(jResult, "user"));
+					JsonObject jUser = JsonUtils.getAsJsonObject(jResult, "user");
+					data.setUserId(JsonUtils.getAsInt(jUser, "id"));
+					data.setUserName(JsonUtils.getAsString(jUser, "name"));
 					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
 					List<Device> deviceInfos = new ArrayList<>();
 					for (JsonElement jDevice : jDevices) {

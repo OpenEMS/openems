@@ -100,7 +100,7 @@ public class BrowserWebsocketSingleton
 			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(), Optional.empty(),
 					data.getDevices());
 			// TODO write user name to log output
-			log.info("Browser connected. User [" + data.getUserId().orElse(-1) + "] Session ["
+			log.info("Browser connected. User [" + data.getUserName() + "] Session ["
 					+ data.getOdooSessionId().orElse("") + "]");
 			WebSocketUtils.send(websocket, jReply);
 
@@ -111,7 +111,7 @@ public class BrowserWebsocketSingleton
 			// send connection failed to browser
 			JsonObject jReply = DefaultMessages.browserConnectionFailedReply();
 			WebSocketUtils.send(websocket, jReply);
-			log.info("Browser connection failed. User [" + data.getUserId().orElse(-1) + "] Session ["
+			log.info("Browser connection failed. User [" + data.getUserName() + "] Session ["
 					+ data.getOdooSessionId().orElse("") + "] Error [" + error + "]");
 
 			websocket.closeConnection(CloseFrame.REFUSE, error);
@@ -262,8 +262,10 @@ public class BrowserWebsocketSingleton
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
 					WebSocket ws = this.websockets.inverse().get(session);
-					JsonObject j = DefaultMessages.notification(Notification.EDGE_CONNECTION_OPENED, name);
-					WebSocketUtils.send(ws, j);
+					if (ws != null) {
+						JsonObject j = DefaultMessages.notification(Notification.EDGE_CONNECTION_OPENED, name);
+						WebSocketUtils.send(ws, j);
+					}
 				}
 			}
 		}
