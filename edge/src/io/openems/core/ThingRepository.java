@@ -158,7 +158,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 				Channel channel = getChannel(thing, channelDoc.getMember());
 				channel.applyChannelDoc(channelDoc);
 			} catch (OpenemsException e) {
-				log.warn(e.getMessage());
+				log.debug(e.getMessage());
 			}
 		}
 
@@ -542,6 +542,10 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		}
 		if (channelObj == null) {
 			throw new OpenemsException("Channel is null. Thing [" + thing.id() + "] Member [" + member.getName() + "]");
+		}
+		if (!(channelObj instanceof Channel)) {
+			throw new OpenemsException("This is not a channel. Thing [" + thing.id() + "] Member [" + member.getName()
+					+ "] Channel [" + channelObj + "]");
 		}
 		return (Channel) channelObj;
 	}
