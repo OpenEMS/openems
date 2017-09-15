@@ -27,10 +27,10 @@ public class ChannelAddress {
 
 	public static ChannelAddress fromString(String address) throws OpenemsException {
 		try {
-		String[] addressArray = address.split("/");
-		String thingId = addressArray[0];
-		String channelId = addressArray[1];
-		return new ChannelAddress(thingId, channelId);
+			String[] addressArray = address.split("/");
+			String thingId = addressArray[0];
+			String channelId = addressArray[1];
+			return new ChannelAddress(thingId, channelId);
 		} catch (Exception e) {
 			throw new OpenemsException("This [" + address + "] is not a valid channel address.");
 		}

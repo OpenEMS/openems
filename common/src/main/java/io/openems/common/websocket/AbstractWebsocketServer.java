@@ -1,6 +1,7 @@
 package io.openems.common.websocket;
 
 import java.net.InetSocketAddress;
+import java.util.Iterator;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
@@ -45,7 +46,8 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 		try {
 			this._onOpen(websocket, handshake);
 		} catch (Throwable e) {
-			log.error("onOpen-Error [" + handshake.toString() + "]: " + e.getMessage());
+			log.error("onOpen-Error [" + this.handshakeToJsonObject(handshake) + "]: ");
+			e.printStackTrace();
 		}
 	}
 
@@ -115,6 +117,21 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 		return j;
 	}
 
+	/**
+	 * Converts a Handshake to a JsonObject
+	 * 
+	 * @param handshake
+	 * @return
+	 */
+	protected JsonObject handshakeToJsonObject(ClientHandshake handshake) {
+		JsonObject j = new JsonObject();
+		for (Iterator<String> iter = handshake.iterateHttpFields(); iter.hasNext(); ) {
+		    String field = iter.next();
+		    j.addProperty(field, handshake.getFieldValue(field));
+		}
+		return j;
+	}
+	
 	@Override
 	public final void onStart() {
 		// nothing to do

@@ -364,6 +364,7 @@ public class Config implements ChannelChangeListener {
 		 * Configuration is finished -> start all worker threads
 		 */
 		thingRepository.getThings().forEach(thing -> {
+			// TODO use executor
 			if (thing instanceof Thread) {
 				((Thread) thing).start();
 			}
