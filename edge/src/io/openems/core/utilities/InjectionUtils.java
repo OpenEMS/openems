@@ -23,8 +23,6 @@ package io.openems.core.utilities;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -40,17 +38,13 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
-import io.openems.core.ClassRepository;
 import io.openems.core.ThingRepository;
 
 public class InjectionUtils {
@@ -125,29 +119,8 @@ public class InjectionUtils {
 			e.printStackTrace();
 			throw new ReflectionException("Class [" + clazz.getName() + "] is not a Thing");
 		}
-		ClassRepository classRepository = ClassRepository.getInstance();
-		for (ChannelDoc channelDoc : classRepository.getThingDoc(clazz).getConfigChannelDocs()) {
-			try {
-				Channel channel = getChannel(thing, channelDoc.getMember());
-				((ConfigChannel<?>) channel).applyChannelDoc(channelDoc);
-			} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException
-					| OpenemsException e) {
-				log.warn(e.getMessage());
-			}
-		}
 		return thing;
 
-	}
-
-	private static Channel getChannel(Thing thing, Member member)
-			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		if (member instanceof Field) {
-			Field f = (Field) member;
-			return (Channel) f.get(thing);
-		} else {
-			Method m = (Method) member;
-			return (Channel) m.invoke(thing, null);
-		}
 	}
 
 	/**

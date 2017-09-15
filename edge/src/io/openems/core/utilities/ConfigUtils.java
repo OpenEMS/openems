@@ -70,7 +70,7 @@ public class ConfigUtils {
 			throws ReflectionException {
 		for (ConfigChannel<?> channel : channels) {
 			if (!jConfig.has(channel.id()) && (channel.valueOptional().isPresent() || channel.isOptional())) {
-				// Element for this Channel is not existing existing in the configuration, but a default value was set
+				// Element for this Channel is not existing in the configuration, but a default value was set
 				continue;
 			}
 			JsonElement jChannel = JsonUtils.getSubElement(jConfig, channel.id());

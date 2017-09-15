@@ -24,9 +24,12 @@ import java.util.Set;
 
 import com.google.gson.JsonObject;
 
+import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.NotImplementedException;
+import io.openems.api.exception.OpenemsException;
 import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
+import io.openems.core.utilities.InjectionUtils;
 
 //TODO change to generic to use Generic ChannelUpdate/ChangeListener
 public interface Channel {
@@ -82,4 +85,13 @@ public interface Channel {
 	 * @return
 	 */
 	public Set<User> users();
+
+	/**
+	 * Sets values for this Channel using its annotation
+	 *
+	 * This method is called by reflection from {@link InjectionUtils.getThingInstance}
+	 *
+	 * @throws OpenemsException
+	 */
+	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException;
 }

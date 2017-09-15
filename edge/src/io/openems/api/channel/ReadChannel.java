@@ -33,11 +33,14 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.NotImplementedException;
+import io.openems.api.exception.OpenemsException;
 import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
 import io.openems.core.Databus;
+import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
 
 public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
@@ -46,6 +49,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private final String id;
 	private final Thing parent;
 	private Optional<T> value = Optional.empty();
+	private Optional<Class<?>> type = Optional.empty();
 
 	protected Optional<Long> delta = Optional.empty();
 	protected TreeMap<T, String> labels = new TreeMap<T, String>();
@@ -181,6 +185,28 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	@Override
 	public Set<User> users() {
 		return Collections.unmodifiableSet(users);
+	}
+
+	/**
+	 * Returns the type
+	 *
+	 * @return
+	 */
+	public Optional<Class<?>> type() {
+		return this.type;
+	}
+
+	/**
+	 * Sets values for this ReadChannel using its annotation
+	 *
+	 * This method is called by reflection from {@link InjectionUtils.getThingInstance}
+	 *
+	 * @param parent
+	 * @throws OpenemsException
+	 */
+	@Override
+	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
+		this.type = channelDoc.getTypeOpt();
 	}
 
 	/**

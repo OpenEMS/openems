@@ -44,8 +44,7 @@ public class OpenemsWebsocketSingleton
 	 * Open event of websocket. Parses the "apikey" and stores it in a new Session.
 	 */
 	@Override
-	public void onOpen(WebSocket websocket, ClientHandshake handshake) {
-		super.onOpen(websocket, handshake);
+	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
 		String apikey = "";
 		String deviceName = "";
 		try {
@@ -116,7 +115,7 @@ public class OpenemsWebsocketSingleton
 	 * Message event of websocket. Handles a new message. At this point the device is already authenticated.
 	 */
 	@Override
-	protected void onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
+	protected void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt) {
 		MetadataDevice device = websockets.get(websocket).getData().getDevice();
 
