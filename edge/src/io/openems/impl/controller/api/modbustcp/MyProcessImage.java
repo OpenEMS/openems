@@ -26,6 +26,7 @@ import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.core.ApiWorker;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.BitUtils;
@@ -56,11 +57,13 @@ public class MyProcessImage implements ProcessImage {
 	private final int unitId;
 	private final Databus databus;
 	private final ThingRepository thingRepository;
+	private final ApiWorker apiWorker;
 
-	protected MyProcessImage(int unitId) {
+	protected MyProcessImage(int unitId, ApiWorker apiWorker) {
 		this.unitId = unitId;
 		this.databus = Databus.getInstance();
 		this.thingRepository = ThingRepository.getInstance();
+		this.apiWorker = apiWorker;
 	}
 
 	protected synchronized void clearMapping() {

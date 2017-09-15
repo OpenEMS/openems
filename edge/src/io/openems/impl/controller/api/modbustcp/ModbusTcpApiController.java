@@ -16,6 +16,7 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.core.ApiWorker;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
 
@@ -26,7 +27,8 @@ public class ModbusTcpApiController extends Controller {
 	public static final int MAX_CONCURRENT_CONNECTIONS = 2;
 
 	private Optional<ModbusSlave> slaveOpt = Optional.empty();
-	private final MyProcessImage processImage = new MyProcessImage(UNIT_ID);
+	private final ApiWorker apiWorker = new ApiWorker();
+	private final MyProcessImage processImage = new MyProcessImage(UNIT_ID, apiWorker);
 
 	/*
 	 * Constructors
@@ -68,7 +70,7 @@ public class ModbusTcpApiController extends Controller {
 	 */
 	@Override
 	public void run() {
-		// TODO write channels + timeout
+		this.apiWorker.writeChannels();
 	}
 
 	protected void restartSlave(Optional<Integer> portOpt) {

@@ -64,16 +64,15 @@ public class ThingDoc {
 	}
 
 	public void addChannelDoc(ChannelDoc doc) {
-		this.channels.put(doc.getName(), doc);
+		this.channels.put(doc.getName().toLowerCase(), doc);
 	}
 
 	public void addConfigChannelDoc(ChannelDoc doc) {
-		this.addChannelDoc(doc);
-		this.configChannels.add(doc.getName());
+		this.configChannels.add(doc.getName().toLowerCase());
 	}
 
 	public Optional<ChannelDoc> getChannelDoc(String channelId) {
-		return Optional.ofNullable(this.channels.get(channelId));
+		return Optional.ofNullable(this.channels.get(channelId.toLowerCase()));
 	}
 
 	public Collection<ChannelDoc> getChannelDocs() {

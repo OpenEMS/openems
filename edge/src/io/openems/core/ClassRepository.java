@@ -152,6 +152,7 @@ public class ClassRepository {
 
 	/**
 	 * Returns the cached ThingDoc or parses the class and adds it to the cache.
+	 * Field annotations have higher priority than method annotations!
 	 *
 	 * @param clazz
 	 */
@@ -192,13 +193,13 @@ public class ClassRepository {
 		// parse all fields
 		for (Field field : clazz.getFields()) {
 			Class<?> type = field.getType();
-			ChannelDoc channelDoc = new ChannelDoc(field, field.getName(),
-					Optional.ofNullable(field.getAnnotation(ChannelInfo.class)));
 			if (Channel.class.isAssignableFrom(type)) {
+				ChannelDoc channelDoc = new ChannelDoc(field, field.getName(),
+						Optional.ofNullable(field.getAnnotation(ChannelInfo.class)));
 				thingDoc.addChannelDoc(channelDoc);
-			}
-			if (ConfigChannel.class.isAssignableFrom(type)) {
-				thingDoc.addConfigChannelDoc(channelDoc);
+				if (ConfigChannel.class.isAssignableFrom(type)) {
+					thingDoc.addConfigChannelDoc(channelDoc);
+				}
 			}
 		}
 		return thingDoc;

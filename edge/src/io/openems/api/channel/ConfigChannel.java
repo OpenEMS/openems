@@ -51,14 +51,15 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	 * @param parent
 	 * @throws OpenemsException
 	 */
+	@Override
 	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
-		this.type = channelDoc.getTypeOpt();
+		super.applyChannelDoc(channelDoc);
 		this.isOptional = channelDoc.isOptional();
 		if (!channelDoc.getDefaultValue().isEmpty()) {
 			JsonElement jValue = null;
 			try {
 				jValue = (new JsonParser()).parse(channelDoc.getDefaultValue());
-				this.defaultValue((T) JsonUtils.getAsType(type.get(), jValue));
+				this.defaultValue((T) JsonUtils.getAsType(type().get(), jValue));
 			} catch (NotImplementedException | JsonSyntaxException e) {
 				throw new OpenemsException("Unable to set defaultValue [" + jValue + "] " + e.getMessage());
 			}
@@ -81,7 +82,7 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	}
 
 	public void updateValue(JsonElement jValue, boolean triggerEvent) throws NotImplementedException {
-		T value = (T) JsonUtils.getAsType(type.get(), jValue);
+		T value = (T) JsonUtils.getAsType(type().get(), jValue);
 		this.updateValue(value, triggerEvent);
 	}
 
@@ -109,8 +110,8 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	public JsonObject toJsonObject() throws NotImplementedException {
 		JsonObject j = super.toJsonObject();
 		j.addProperty("writeable", true);
-		if (this.type.isPresent()) {
-			j.addProperty("type", this.type.get().getSimpleName());
+		if (this.type().isPresent()) {
+			j.addProperty("type", this.type().get().getSimpleName());
 		}
 		return j;
 	}
