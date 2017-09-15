@@ -31,7 +31,6 @@ import io.openems.api.device.Device;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
-import io.openems.core.ThingRepository;
 import io.openems.impl.device.custom.riedmann.RiedmannNature;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
@@ -40,8 +39,6 @@ import io.openems.test.utils.channel.UnitTestWriteChannel;
 
 @ThingInfo(title = "Simulator ESS")
 public class SimulatorRiedmannNature extends SimulatorDeviceNature implements RiedmannNature, ChannelChangeListener {
-
-	private ThingRepository repo = ThingRepository.getInstance();
 
 	/*
 	 * Constructors
@@ -78,12 +75,18 @@ public class SimulatorRiedmannNature extends SimulatorDeviceNature implements Ri
 			.defaultValue(1L);
 	@ChannelInfo(title = "Error", type = Long.class)
 	private ConfigChannel<Long> error = new ConfigChannel<Long>("Error", this).defaultValue(0L);
-	private SimulatorReadChannel waterLevelBorehole1On = new SimulatorReadChannel("WaterLevelBorehole1On", this);
-	private SimulatorReadChannel waterLevelBorehole1Off = new SimulatorReadChannel("WaterLevelBorehole1Off", this);
-	private SimulatorReadChannel waterLevelBorehole2On = new SimulatorReadChannel("WaterLevelBorehole2On", this);
-	private SimulatorReadChannel waterLevelBorehole2Off = new SimulatorReadChannel("WaterLevelBorehole2Off", this);
-	private SimulatorReadChannel waterLevelBorehole3On = new SimulatorReadChannel("WaterLevelBorehole3On", this);
-	private SimulatorReadChannel waterLevelBorehole3Off = new SimulatorReadChannel("WaterLevelBorehole3Off", this);
+	private SimulatorReadChannel<Long> waterLevelBorehole1On = new SimulatorReadChannel<Long>("WaterLevelBorehole1On",
+			this);
+	private SimulatorReadChannel<Long> waterLevelBorehole1Off = new SimulatorReadChannel<Long>("WaterLevelBorehole1Off",
+			this);
+	private SimulatorReadChannel<Long> waterLevelBorehole2On = new SimulatorReadChannel<Long>("WaterLevelBorehole2On",
+			this);
+	private SimulatorReadChannel<Long> waterLevelBorehole2Off = new SimulatorReadChannel<Long>("WaterLevelBorehole2Off",
+			this);
+	private SimulatorReadChannel<Long> waterLevelBorehole3On = new SimulatorReadChannel<Long>("WaterLevelBorehole3On",
+			this);
+	private SimulatorReadChannel<Long> waterLevelBorehole3Off = new SimulatorReadChannel<Long>("WaterLevelBorehole3Off",
+			this);
 	private UnitTestWriteChannel<Long> setWaterLevelBorehole1On = new UnitTestWriteChannel<Long>(
 			"SetWaterLevelBorehole1On", this);
 	private UnitTestWriteChannel<Long> setWaterLevelBorehole1Off = new UnitTestWriteChannel<Long>(

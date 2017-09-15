@@ -10,8 +10,6 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.security.User;
-import io.openems.impl.controller.symmetric.avoidtotalcharge.*;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

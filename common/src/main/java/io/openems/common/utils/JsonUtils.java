@@ -1,6 +1,5 @@
 package io.openems.common.utils;
 
-import java.net.Inet4Address;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;

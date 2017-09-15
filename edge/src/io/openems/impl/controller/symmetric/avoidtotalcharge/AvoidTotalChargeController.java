@@ -7,15 +7,10 @@ import java.util.*;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.device.nature.meter.MeterNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 import io.openems.api.security.User;
-import io.openems.impl.controller.symmetric.avoidtotalcharge.Ess.State;
-import io.openems.impl.controller.symmetric.balancing.Meter;
 
 @ThingInfo(title = "Avoid total charge of battery. (Symmetric)", description = "Provides control over the battery's maximum state of charge at a specific time of day. For symmetric Ess.")
 public class AvoidTotalChargeController extends Controller {

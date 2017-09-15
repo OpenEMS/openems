@@ -16,7 +16,6 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
-import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.FunctionalWriteChannel;
 import io.openems.api.channel.FunctionalWriteChannelFunction;
 import io.openems.api.channel.ReadChannel;
@@ -36,7 +35,7 @@ import io.openems.impl.protocol.system.SystemDeviceNature;
 
 public class EssClusterNature extends SystemDeviceNature implements SymmetricEssNature, ChannelChangeListener {
 
-	private final Logger log;
+	private final Logger log = LoggerFactory.getLogger(EssClusterNature.class);
 	private List<ThingChannelsUpdatedListener> listeners;
 
 	private static ThingRepository repo = ThingRepository.getInstance();
@@ -46,198 +45,140 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 	private List<SymmetricEssNature> essList = new ArrayList<>();
-	private FunctionalReadChannel<Long> soc = new FunctionalReadChannel<Long>("Soc", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					double nominalKWhSum = 0;
-					double actualCapacity = 0;
-					for (SymmetricEssNature ess : EssClusterNature.this.essList) {
-						long capacity;
-						try {
-							capacity = ess.capacity().value();
-							nominalKWhSum += capacity;
-							actualCapacity += (capacity / 100.0) * ess.soc().value();
-						} catch (InvalidValueException e) {
-							log.debug("Can't read values of " + ess.id(), e);
-						}
-					}
-					return (long) (actualCapacity / nominalKWhSum * 100.0);
-				}
-
-			}).unit("%");
+	private FunctionalReadChannel<Long> soc = new FunctionalReadChannel<Long>("Soc", this, (channels) -> {
+		double nominalKWhSum = 0;
+		double actualCapacity = 0;
+		for (SymmetricEssNature ess : EssClusterNature.this.essList) {
+			long capacity;
+			try {
+				capacity = ess.capacity().value();
+				nominalKWhSum += capacity;
+				actualCapacity += (capacity / 100.0) * ess.soc().value();
+			} catch (InvalidValueException e) {
+				log.debug("Can't read values of " + ess.id(), e);
+			}
+		}
+		return (long) (actualCapacity / nominalKWhSum * 100.0);
+	}).unit("%");
 	private FunctionalReadChannel<Long> allowedCharge = new FunctionalReadChannel<Long>("AllowedCharge", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					long sum = 0L;
-					for (SymmetricEssNature ess : EssClusterNature.this.essList) {
-						try {
-							sum += ess.allowedCharge().value();
-						} catch (InvalidValueException e) {
-							log.debug("Can't read values of " + ess.id(), e);
-						}
+			(channels) -> {
+				long sum = 0L;
+				for (SymmetricEssNature ess : EssClusterNature.this.essList) {
+					try {
+						sum += ess.allowedCharge().value();
+					} catch (InvalidValueException e) {
+						log.debug("Can't read values of " + ess.id(), e);
 					}
-					return sum;
 				}
-
+				return sum;
 			}).unit("W");
 	private FunctionalReadChannel<Long> allowedDischarge = new FunctionalReadChannel<Long>("AllowedDischarge", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					long sum = 0L;
-					for (SymmetricEssNature ess : EssClusterNature.this.essList) {
-						try {
-							sum += ess.allowedDischarge().value();
-						} catch (InvalidValueException e) {
-							log.debug("Can't read values of " + ess.id(), e);
-						}
+			(channels) -> {
+				long sum = 0L;
+				for (SymmetricEssNature ess : EssClusterNature.this.essList) {
+					try {
+						sum += ess.allowedDischarge().value();
+					} catch (InvalidValueException e) {
+						log.debug("Can't read values of " + ess.id(), e);
 					}
-					return sum;
 				}
-
+				return sum;
 			}).unit("W");
 	private FunctionalReadChannel<Long> allowedApparent = new FunctionalReadChannel<Long>("AllowedApparent", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					long sum = 0L;
-					for (SymmetricEssNature ess : EssClusterNature.this.essList) {
-						try {
-							sum += ess.allowedApparent().value();
-						} catch (InvalidValueException e) {
-							log.debug("Can't read values of " + ess.id(), e);
-						}
+			(channels) -> {
+				long sum = 0L;
+				for (SymmetricEssNature ess : EssClusterNature.this.essList) {
+					try {
+						sum += ess.allowedApparent().value();
+					} catch (InvalidValueException e) {
+						log.debug("Can't read values of " + ess.id(), e);
 					}
-					return sum;
 				}
-
+				return sum;
 			}).unit("VA");
 	private FunctionalReadChannel<Long> activePower = new FunctionalReadChannel<Long>("ActivePower", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					long sum = 0L;
-					for (SymmetricEssNature ess : EssClusterNature.this.essList) {
-						try {
-							sum += ess.activePower().value();
-						} catch (InvalidValueException e) {
-							log.debug("Can't read values of " + ess.id(), e);
-						}
+			(channels) -> {
+				long sum = 0L;
+				for (SymmetricEssNature ess : EssClusterNature.this.essList) {
+					try {
+						sum += ess.activePower().value();
+					} catch (InvalidValueException e) {
+						log.debug("Can't read values of " + ess.id(), e);
 					}
-					return sum;
 				}
-
+				return sum;
 			}).unit("W");
 	private FunctionalReadChannel<Long> reactivePower = new FunctionalReadChannel<Long>("ReactivePower", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					long sum = 0L;
-					for (SymmetricEssNature ess : EssClusterNature.this.essList) {
-						try {
-							sum += ess.reactivePower().value();
-						} catch (InvalidValueException e) {
-							log.debug("Can't read values of " + ess.id(), e);
-						}
+			(channels) -> {
+				long sum = 0L;
+				for (SymmetricEssNature ess : EssClusterNature.this.essList) {
+					try {
+						sum += ess.reactivePower().value();
+					} catch (InvalidValueException e) {
+						log.debug("Can't read values of " + ess.id(), e);
 					}
-					return sum;
 				}
-
+				return sum;
 			}).unit("Var");
 	private FunctionalReadChannel<Long> apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					long sum = 0L;
-					for (SymmetricEssNature ess : EssClusterNature.this.essList) {
-						try {
-							sum += ess.apparentPower().value();
-						} catch (InvalidValueException e) {
-							log.debug("Can't read values of " + ess.id(), e);
-						}
+			(channels) -> {
+				long sum = 0L;
+				for (SymmetricEssNature ess : EssClusterNature.this.essList) {
+					try {
+						sum += ess.apparentPower().value();
+					} catch (InvalidValueException e) {
+						log.debug("Can't read values of " + ess.id(), e);
 					}
-					return sum;
 				}
-
+				return sum;
 			}).unit("VA");
 	private FunctionalReadChannel<Long> maxNominalPower = new FunctionalReadChannel<Long>("MaxNominalPower", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					long sum = 0L;
-					for (SymmetricEssNature ess : EssClusterNature.this.essList) {
-						try {
-							sum += ess.maxNominalPower().value();
-						} catch (InvalidValueException e) {
-							log.debug("Can't read values of " + ess.id(), e);
-						}
+			(channels) -> {
+				long sum = 0L;
+				for (SymmetricEssNature ess : EssClusterNature.this.essList) {
+					try {
+						sum += ess.maxNominalPower().value();
+					} catch (InvalidValueException e) {
+						log.debug("Can't read values of " + ess.id(), e);
 					}
-					return sum;
 				}
-
+				return sum;
 			}).unit("VA");
-	private FunctionalReadChannel<Long> capacity = new FunctionalReadChannel<Long>("Capacity", this,
-			new FunctionalReadChannelFunction<Long>() {
+	private FunctionalReadChannel<Long> capacity = new FunctionalReadChannel<Long>("Capacity", this, (channels) -> {
+		long sum = 0L;
+		for (SymmetricEssNature ess : EssClusterNature.this.essList) {
+			try {
+				sum += ess.capacity().value();
+			} catch (InvalidValueException e) {
+				log.debug("Can't read values of " + ess.id(), e);
+			}
+		}
+		return sum;
+	}).unit("Wh");
 
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					long sum = 0L;
-					for (SymmetricEssNature ess : EssClusterNature.this.essList) {
-						try {
-							sum += ess.capacity().value();
-						} catch (InvalidValueException e) {
-							log.debug("Can't read values of " + ess.id(), e);
-						}
-					}
-					return sum;
-				}
-
-			}).unit("Wh");
-
-	private FunctionalReadChannel<Long> gridMode = new FunctionalReadChannel<Long>("GridMode", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					for (SymmetricEssNature ess : essList) {
-						if (ess.gridMode().labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
-							return 1L;
-						}
-					}
-					return 0L;
-				}
-
-			}).label(0L, EssNature.OFF_GRID).label(1L, EssNature.ON_GRID);
+	private FunctionalReadChannel<Long> gridMode = new FunctionalReadChannel<Long>("GridMode", this, (channels) -> {
+		for (SymmetricEssNature ess : essList) {
+			if (ess.gridMode().labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+				return 1L;
+			}
+		}
+		return 0L;
+	}).label(0L, EssNature.OFF_GRID).label(1L, EssNature.ON_GRID);
 	private FunctionalReadChannel<Long> systemState = new FunctionalReadChannel<Long>("SystemState", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					for (SymmetricEssNature ess : essList) {
-						if (!ess.systemState().labelOptional().equals(Optional.of(EssNature.ON))) {
-							if (ess.systemState().labelOptional().equals(Optional.of(EssNature.OFF))) {
-								return 0L;
-							} else if (ess.systemState().labelOptional().equals(Optional.of(EssNature.FAULT))) {
-								return 2L;
-							} else {
-								return 3L;
-							}
-
+			(channels) -> {
+				for (SymmetricEssNature ess : essList) {
+					if (!ess.systemState().labelOptional().equals(Optional.of(EssNature.ON))) {
+						if (ess.systemState().labelOptional().equals(Optional.of(EssNature.OFF))) {
+							return 0L;
+						} else if (ess.systemState().labelOptional().equals(Optional.of(EssNature.FAULT))) {
+							return 2L;
+						} else {
+							return 3L;
 						}
-					}
-					return 1L;
-				}
 
+					}
+				}
+				return 1L;
 			}).label(0L, EssNature.STOP).label(1L, EssNature.START).label(2L, EssNature.FAULT).label(3L, "UNDEFINED");
 	private StatusBitChannels warning = new StatusBitChannels("Warning", this);
 
@@ -245,7 +186,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					for (WriteChannel<Long> channel : channels) {
 						try {
 							channel.pushWriteFromLabel(newLabel);
@@ -256,7 +198,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getValue(ReadChannel<Long>... channels) {
+				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
 					for (ReadChannel<Long> state : channels) {
 						if (state.labelOptional().equals(Optional.of(EssNature.START))) {
 							return 1L;
@@ -266,7 +208,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMinValue(WriteChannel<Long>... channels) {
+				public Long getMinValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long min = Long.MIN_VALUE;
 					for (WriteChannel<Long> channelMin : channels) {
 						if (channelMin.writeMin().isPresent() && channelMin.writeMin().get() > min) {
@@ -281,7 +223,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMaxValue(WriteChannel<Long>... channels) {
+				public Long getMaxValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long max = Long.MAX_VALUE;
 					for (WriteChannel<Long> channelMax : channels) {
 						if (channelMax.writeMax().isPresent() && channelMax.writeMax().get() < max) {
@@ -296,7 +238,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public void setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setMinValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					for (WriteChannel<Long> channel : channels) {
 						try {
 							channel.pushWriteMin(newValue);
@@ -307,7 +250,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public void setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setMaxValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					for (WriteChannel<Long> channel : channels) {
 						try {
 							channel.pushWriteMax(newValue);
@@ -323,8 +267,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
-						throws WriteChannelException {
+				public void setValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
 					long minValue = 0L;
 					boolean minValueValid = false;
 					long maxValue = 0L;
@@ -371,7 +315,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getValue(ReadChannel<Long>... channels) {
+				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
 					long sum = 0L;
 					for (ReadChannel<Long> channel : channels) {
 						try {
@@ -384,7 +328,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMinValue(WriteChannel<Long>... channels) {
+				public Long getMinValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long min = 0L;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMin : channels) {
@@ -400,7 +344,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMaxValue(WriteChannel<Long>... channels) {
+				public Long getMaxValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long max = 0L;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMax : channels) {
@@ -416,12 +360,14 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public void setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setMinValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					// don't forward the maxValue otherwise the pushWrite with power weight by soc will break
 				}
 
 				@Override
-				public void setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setMaxValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					// don't forward the maxValue otherwise the pushWrite with power weight by soc will break
 				}
 
@@ -430,7 +376,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long power = 0L;
 					if (channels.length > 0) {
 						power = newValue / channels.length;
@@ -445,7 +392,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getValue(ReadChannel<Long>... channels) {
+				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
 					long sum = 0L;
 					for (ReadChannel<Long> channel : channels) {
 						try {
@@ -458,7 +405,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMinValue(WriteChannel<Long>... channels) {
+				public Long getMinValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long min = 0L;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMin : channels) {
@@ -474,7 +421,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMaxValue(WriteChannel<Long>... channels) {
+				public Long getMaxValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long max = 0L;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMax : channels) {
@@ -491,7 +438,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public void setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setMinValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long power = 0L;
 					if (channels.length > 0) {
 						power = newValue / channels.length;
@@ -506,7 +454,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public void setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setMaxValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long power = 0L;
 					if (channels.length > 0) {
 						power = newValue / channels.length;
@@ -524,7 +473,6 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 
 	public EssClusterNature(String id, Device parent) throws ConfigException {
 		super(id, parent);
-		log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 	}
 

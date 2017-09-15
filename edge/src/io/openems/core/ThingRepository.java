@@ -412,13 +412,12 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		return this.getChannel(channelAddress.getThingId(), channelAddress.getChannelId());
 	}
 
-	@Deprecated
 	public Optional<Channel> getChannelByAddress(String address) {
-		String[] args = address.split("/");
-		if (args.length == 2) {
-			return getChannel(args[0], args[1]);
+		try {
+			return getChannel(ChannelAddress.fromString(address));
+		} catch (io.openems.common.exceptions.OpenemsException e) {
+			return Optional.empty();
 		}
-		return Optional.empty();
 	}
 
 	public Controller createController(JsonObject jController) throws ReflectionException {
@@ -534,7 +533,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		} else {
 			Method m = (Method) member;
 			try {
-				channelObj = m.invoke(thing, null);
+				channelObj = m.invoke(thing, new Object[0]);
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new OpenemsException(
 						"Unable to get Channel. Thing [" + thing.id() + "] Method [" + m.getName() + "]");

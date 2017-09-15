@@ -51,7 +51,8 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	 * @throws NotImplementedException
 	 */
 	public T getAsType(JsonElement j) throws NotImplementedException {
-		return (T) JsonUtils.getAsType(type().get(), j);
+		@SuppressWarnings("unchecked") T result = (T) JsonUtils.getAsType(type().get(), j);
+		return result;
 	}
 
 	/**
@@ -214,17 +215,18 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		writeValue = Optional.of(value);
 	}
 
-	public void pushWriteFromObject(Object value) throws WriteChannelException {
-		this.pushWrite((T) value);
+	public void pushWriteFromObject(Object valueObj) throws WriteChannelException {
+		@SuppressWarnings("unchecked") T value = (T) valueObj;
+		this.pushWrite(value);
 	}
 
 	public void pushWrite(JsonElement j) throws WriteChannelException, NotImplementedException {
-		T value = (T) JsonUtils.getAsType(this.type(), j);
+		@SuppressWarnings("unchecked") T value = (T) JsonUtils.getAsType(this.type(), j);
 		this.pushWrite(value);
 	}
 
 	public void pushWrite(Class<?> type, JsonElement j) throws WriteChannelException, NotImplementedException {
-		T value = (T) JsonUtils.getAsType(type, j);
+		@SuppressWarnings("unchecked") T value = (T) JsonUtils.getAsType(type, j);
 		this.pushWrite(value);
 	}
 

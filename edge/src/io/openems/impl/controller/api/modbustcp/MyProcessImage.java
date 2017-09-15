@@ -57,13 +57,13 @@ public class MyProcessImage implements ProcessImage {
 	private final int unitId;
 	private final Databus databus;
 	private final ThingRepository thingRepository;
-	private final ApiWorker apiWorker;
+	// private final ApiWorker apiWorker;
 
 	protected MyProcessImage(int unitId, ApiWorker apiWorker) {
 		this.unitId = unitId;
 		this.databus = Databus.getInstance();
 		this.thingRepository = ThingRepository.getInstance();
-		this.apiWorker = apiWorker;
+		// this.apiWorker = apiWorker;
 	}
 
 	protected synchronized void clearMapping() {

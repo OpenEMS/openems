@@ -23,7 +23,9 @@ public class SimulatorOutput extends SimulatorDeviceNature implements OutputNatu
 
 	public SimulatorOutput(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.array = new SimulatorWriteChannel[] { do1, do2, do3, do4, do5, do6, do7, do8, do9, do10 };
+		@SuppressWarnings("unchecked") SimulatorWriteChannel<Boolean>[] array = new SimulatorWriteChannel[] { do1, do2,
+				do3, do4, do5, do6, do7, do8, do9, do10 };
+		this.array = array;
 	}
 
 	@Override

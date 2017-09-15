@@ -3,7 +3,6 @@ package io.openems.api.bridge;
 import java.util.Queue;
 
 import com.google.common.collect.EvictingQueue;
-import com.google.common.collect.Queues;
 
 public abstract class BridgeTask {
 

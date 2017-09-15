@@ -59,7 +59,8 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 			JsonElement jValue = null;
 			try {
 				jValue = (new JsonParser()).parse(channelDoc.getDefaultValue());
-				this.defaultValue((T) JsonUtils.getAsType(type().get(), jValue));
+				@SuppressWarnings("unchecked") T value = (T) JsonUtils.getAsType(type().get(), jValue);
+				this.defaultValue(value);
 			} catch (NotImplementedException | JsonSyntaxException e) {
 				throw new OpenemsException("Unable to set defaultValue [" + jValue + "] " + e.getMessage());
 			}
@@ -77,12 +78,13 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	}
 
 	@Override
-	public void updateValue(Object value, boolean triggerEvent) {
-		super.updateValue((T) value, triggerEvent);
+	public void updateValue(Object valueObj, boolean triggerEvent) {
+		@SuppressWarnings("unchecked") T value = (T) valueObj;
+		super.updateValue(value, triggerEvent);
 	}
 
 	public void updateValue(JsonElement jValue, boolean triggerEvent) throws NotImplementedException {
-		T value = (T) JsonUtils.getAsType(type().get(), jValue);
+		@SuppressWarnings("unchecked") T value = (T) JsonUtils.getAsType(type().get(), jValue);
 		this.updateValue(value, triggerEvent);
 	}
 
@@ -94,12 +96,6 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 
 	public Optional<T> getDefaultValue() {
 		return this.defaultValue;
-	}
-
-	// TODO: remove, obsolete
-	private ConfigChannel<T> optional() {
-		this.isOptional = true;
-		return this;
 	}
 
 	public boolean isOptional() {

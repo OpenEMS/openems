@@ -8,8 +8,8 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 
+import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.utilities.ManyToMany;
-import io.openems.common.session.Session;
 
 public class ConnectionManagerSingleton {
 
@@ -18,7 +18,7 @@ public class ConnectionManagerSingleton {
 	/**
 	 * Stores active websockets to browsers
 	 */
-	private final BiMap<WebSocket, Session> browserWebsockets = Maps.synchronizedBiMap(HashBiMap.create());
+	private final BiMap<WebSocket, BrowserSession> browserWebsockets = Maps.synchronizedBiMap(HashBiMap.create());
 
 	/**
 	 * Stores active websockets to openems devices (value = deviceName, e.g. 'fems5')
@@ -44,7 +44,7 @@ public class ConnectionManagerSingleton {
 	/*
 	 * Helper methods for Browser websockets
 	 */
-	public void addBrowserWebsocket(WebSocket websocket, Session session) {
+	public void addBrowserWebsocket(WebSocket websocket, BrowserSession session) {
 		this.browserWebsockets.put(websocket, session);
 	}
 

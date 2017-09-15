@@ -219,7 +219,8 @@ public class ConfigUtils {
 			/*
 			 * Asking for a Thing
 			 */
-			return getThingFromConfig((Class<Thing>) type, j, args);
+			@SuppressWarnings("unchecked") Class<Thing> thingType = (Class<Thing>) type;
+			return getThingFromConfig(thingType, j, args);
 
 		} else if (ThingMap.class.isAssignableFrom(type)) {
 			/*
@@ -344,7 +345,8 @@ public class ConfigUtils {
 				if (classInfo.getName().endsWith(suffix)) {
 					Class<?> thisClazz = classInfo.load();
 					if (clazz.isAssignableFrom(thisClazz)) {
-						clazzes.add((Class<? extends Thing>) thisClazz);
+						@SuppressWarnings("unchecked") Class<? extends Thing> thisThingClazz = (Class<? extends Thing>) thisClazz;
+						clazzes.add(thisThingClazz);
 					}
 				}
 			}

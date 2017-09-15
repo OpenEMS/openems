@@ -56,7 +56,7 @@ public class CosPhiCharacteristicController extends Controller {
 			.addChangeListener((channel, newValue, oldValue) -> {
 				List<Point> points = new ArrayList<>();
 				if (newValue.isPresent()) {
-					List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();
+					@SuppressWarnings("unchecked") List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();
 					for (Long[] arr : cosPhiPoints) {
 						points.add(new Point(arr[0], arr[1]));
 					}

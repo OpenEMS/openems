@@ -86,7 +86,7 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 		// Start Websocket-Api server
 		if (websocketApiServer == null && port.valueOptional().isPresent()) {
 			try {
-				websocketApiServer = new WebsocketApiServer(this, port.valueOptional().get());
+				websocketApiServer = new WebsocketApiServer(port.valueOptional().get());
 				websocketApiServer.start();
 				log.info("Websocket-Api started on port [" + port.valueOptional().orElse(0) + "].");
 			} catch (Exception e) {

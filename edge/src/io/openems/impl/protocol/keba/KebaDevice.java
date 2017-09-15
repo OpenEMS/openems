@@ -88,6 +88,7 @@ public abstract class KebaDevice extends Device {
 			dSocket.send(packet);
 			// dSocket.close();
 			log.info("Sent...");
+			dSocket.close();
 			Thread.sleep(REPORT_DELAY);
 		}
 	}

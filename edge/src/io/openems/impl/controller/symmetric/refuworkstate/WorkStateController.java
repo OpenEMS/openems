@@ -59,13 +59,8 @@ public class WorkStateController extends Controller {
 	/*
 	 * Fields
 	 */
-	private boolean reset = false;
 	private long lastReset = 0L;
 	private Long errorOccured = 0L;
-	private long timeErrorOccured = 0L;
-	private int resetCount = 0;
-	private long lastStart = 0L;
-	private boolean isError = false;
 	private State currentState = State.GOSTART;
 
 	private enum State {

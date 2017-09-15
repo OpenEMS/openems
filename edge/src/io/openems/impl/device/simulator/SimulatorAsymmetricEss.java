@@ -23,7 +23,6 @@ package io.openems.impl.device.simulator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -32,7 +31,6 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
-import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
@@ -75,40 +73,35 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 		});
 		long initialSoc = SimulatorTools.addRandomLong(90, 90, 100, 5);
 		this.energy = capacity.valueOptional().get() / 100 * initialSoc;
-		this.soc = new FunctionalReadChannel<Long>("Soc", this, new FunctionalReadChannelFunction<Long>() {
-
-			@Override
-			public Long handle(ReadChannel<Long>... channels) {
-				try {
-					energy -= (channels[0].value() + channels[1].value() + channels[2].value()) / 3600.0;
-				} catch (InvalidValueException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				if (chargerList != null) {
-					for (ChargerNature charger : chargerList) {
-						try {
-							energy += charger.getActualPower().value() / 3600.0;
-						} catch (InvalidValueException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-				try {
-					if (energy > capacity.value()) {
-						energy = capacity.value();
-					} else if (energy < 0) {
-						energy = 0;
-					}
-					return (long) (energy / capacity.value() * 100.0);
-				} catch (InvalidValueException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return 0L;
+		this.soc = new FunctionalReadChannel<Long>("Soc", this, (channels) -> {
+			try {
+				energy -= (channels[0].value() + channels[1].value() + channels[2].value()) / 3600.0;
+			} catch (InvalidValueException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-
+			if (chargerList != null) {
+				for (ChargerNature charger : chargerList) {
+					try {
+						energy += charger.getActualPower().value() / 3600.0;
+					} catch (InvalidValueException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			try {
+				if (energy > capacity.value()) {
+					energy = capacity.value();
+				} else if (energy < 0) {
+					energy = 0;
+				}
+				return (long) (energy / capacity.value() * 100.0);
+			} catch (InvalidValueException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return 0L;
 		}, this.activePowerL1, this.activePowerL2, this.activePowerL3);
 	}
 
@@ -146,7 +139,8 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 	private SimulatorReadChannel<Long> activePowerL1 = new SimulatorReadChannel<>("ActivePoweL1", this);
 	private SimulatorReadChannel<Long> activePowerL2 = new SimulatorReadChannel<>("ActivePoweL2", this);
 	private SimulatorReadChannel<Long> activePowerL3 = new SimulatorReadChannel<>("ActivePoweL3", this);
-	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel("AllowedApparent", this, (40000L / 3));
+	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel<Long>("AllowedApparent", this,
+			(40000L / 3));
 	private SimulatorReadChannel<Long> allowedCharge = new SimulatorReadChannel<>("AllowedCharge", this);
 	private SimulatorReadChannel<Long> allowedDischarge = new SimulatorReadChannel<>("AllowedDischarge", this);
 	private SimulatorReadChannel<Long> gridMode = new SimulatorReadChannel<Long>("GridMode", this).label(0L, ON_GRID)
@@ -210,20 +204,10 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 		return allowedApparent;
 	}
 
-	private long getRandom(int min, int max) {
-		return ThreadLocalRandom.current().nextLong(min, max + 1);
-	}
-
 	@Override
 	public ReadChannel<Long> maxNominalPower() {
 		return maxNominalPower;
 	}
-
-	/*
-	 * Fields
-	 */
-	private long lastApparentPower = 0;
-	private double lastCosPhi = 0;
 
 	/*
 	 * Methods

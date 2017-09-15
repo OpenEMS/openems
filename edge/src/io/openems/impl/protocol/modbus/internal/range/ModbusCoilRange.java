@@ -28,9 +28,10 @@ public class ModbusCoilRange extends ModbusRange {
 		super(startAddress, elements);
 	}
 
-	@Override public ModbusElement<Boolean>[] getElements() {
-		// TODO Auto-generated method stub
-		return super.getElements();
+	@SuppressWarnings("unchecked")
+	@Override
+	public ModbusElement<Boolean>[] getElements() {
+		return (ModbusElement<Boolean>[]) super.getElements();
 	}
 
 }

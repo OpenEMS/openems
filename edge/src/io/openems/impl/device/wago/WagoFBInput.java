@@ -79,7 +79,7 @@ public class WagoFBInput extends ModbusDeviceNature implements InputNature {
 				case "DI": {
 					List<CoilElement> elements = new ArrayList<>();
 					int count = 0;
-					for (String channel : channels.get(key)) {
+					for (@SuppressWarnings("unused") String channel : channels.get(key)) {
 						ModbusCoilReadChannel ch = new ModbusCoilReadChannel(Integer.toString(count), this);
 						this.channel.add(ch);
 						elements.add(new CoilElement(count, ch));

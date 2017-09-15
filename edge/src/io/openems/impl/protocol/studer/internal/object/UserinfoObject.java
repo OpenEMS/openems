@@ -15,7 +15,8 @@ public abstract class UserinfoObject<T> extends StuderObject<T> {
 
 	@Override
 	public StuderProperty<T>[] getProperties() {
-		return new StuderProperty[] { value };
+		@SuppressWarnings("unchecked") StuderProperty<T>[] properties = new StuderProperty[] { value };
+		return properties;
 	}
 
 	protected abstract ReadProperty<T> initValue();

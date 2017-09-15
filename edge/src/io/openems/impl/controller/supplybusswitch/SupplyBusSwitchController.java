@@ -152,7 +152,9 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 						for (JsonElement load : loads.getAsJsonArray()) {
 							Optional<Channel> loadChannel = repo.getChannelByAddress(load.getAsString());
 							if (loadChannel.isPresent() && loadChannel.get() instanceof WriteChannel<?>) {
-								loadChannels.add((WriteChannel<Long>) loadChannel.get());
+								@SuppressWarnings("unchecked") WriteChannel<Long> writeChannel = (WriteChannel<Long>) loadChannel
+										.get();
+								loadChannels.add(writeChannel);
 							}
 						}
 					}
@@ -168,7 +170,8 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 								Optional<Channel> outputChannel = repo.getChannelByAddress(channelAddress);
 								if (ess != null) {
 									if (outputChannel.isPresent() && outputChannel.get() instanceof WriteChannel<?>) {
-										WriteChannel<Boolean> channel = (WriteChannel<Boolean>) outputChannel.get();
+										@SuppressWarnings("unchecked") WriteChannel<Boolean> channel = (WriteChannel<Boolean>) outputChannel
+												.get();
 										channel.required();
 										switchEssMapping.put(ess, channel);
 									} else {
@@ -187,7 +190,9 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 					WriteChannel<Long> supplybusOnIndicationChannel = null;
 					if (supplybusOnIndication.isPresent()) {
 						if (supplybusOnIndication.get() instanceof WriteChannel<?>) {
-							supplybusOnIndicationChannel = (WriteChannel<Long>) supplybusOnIndication.get();
+							@SuppressWarnings("unchecked") WriteChannel<Long> writeChannel = (WriteChannel<Long>) supplybusOnIndication
+									.get();
+							supplybusOnIndicationChannel = writeChannel;
 						}
 					}
 					Supplybus sb = new Supplybus(switchEssMapping, name, primaryEss, switchDelay.value(),

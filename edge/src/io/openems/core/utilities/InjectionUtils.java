@@ -32,9 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
@@ -48,7 +45,7 @@ import io.openems.api.thing.Thing;
 import io.openems.core.ThingRepository;
 
 public class InjectionUtils {
-	private final static Logger log = LoggerFactory.getLogger(InjectionUtils.class);
+	// private final static Logger log = LoggerFactory.getLogger(InjectionUtils.class);
 
 	/**
 	 * Creates an instance of the given {@link Class}. {@link Object} arguments are optional.
@@ -250,14 +247,14 @@ public class InjectionUtils {
 		// super interfaces
 		for (Class<?> iface : clazz.getInterfaces()) {
 			if (Thing.class.isAssignableFrom(iface)) {
-				Class<? extends Thing> thingIface = (Class<? extends Thing>) iface;
+				@SuppressWarnings("unchecked") Class<? extends Thing> thingIface = (Class<? extends Thing>) iface;
 				ifaces.addAll(getImplements(thingIface));
 			}
 		}
 		// super classes
 		Class<?> superclazz = clazz.getSuperclass();
 		if (superclazz != null && Thing.class.isAssignableFrom(superclazz)) {
-			Class<? extends Thing> thingSuperclazz = (Class<? extends Thing>) superclazz;
+			@SuppressWarnings("unchecked") Class<? extends Thing> thingSuperclazz = (Class<? extends Thing>) superclazz;
 			ifaces.addAll(getImplements(thingSuperclazz));
 		}
 		return ifaces;

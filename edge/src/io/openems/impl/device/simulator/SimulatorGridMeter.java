@@ -14,7 +14,6 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
-import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
@@ -85,17 +84,10 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 				}
 			}
 		});
-		this.apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) {
-						return ControllerUtils.calculateApparentPower(channels[0].valueOptional().orElse(0L),
-								channels[1].valueOptional().orElse(0L));
-					}
-
-				}, activePower, reactivePower);
-
+		this.apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this, (channels) -> {
+			return ControllerUtils.calculateApparentPower(channels[0].valueOptional().orElse(0L),
+					channels[1].valueOptional().orElse(0L));
+		}, activePower, reactivePower);
 	}
 
 	@Override

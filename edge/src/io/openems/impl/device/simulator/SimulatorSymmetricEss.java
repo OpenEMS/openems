@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -35,7 +34,6 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
-import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
@@ -87,36 +85,31 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 		});
 		long initialSoc = SimulatorTools.addRandomLong(50, 0, 100, 20);
 		this.energy = capacity.valueOptional().get() / 100 * initialSoc;
-		this.soc = new FunctionalReadChannel<Long>("Soc", this, new FunctionalReadChannelFunction<Long>() {
+		this.soc = new FunctionalReadChannel<Long>("Soc", this, (channels) -> {
+			try {
+				energy -= channels[0].value() / 3600.0;
+			} catch (InvalidValueException e) {
 
-			@Override
-			public Long handle(ReadChannel<Long>... channels) {
-				try {
-					energy -= channels[0].value() / 3600.0;
-				} catch (InvalidValueException e) {
-
-				}
-				if (chargerList != null) {
-					for (ChargerNature charger : chargerList) {
-						try {
-							energy += charger.getActualPower().value() / 3600.0;
-						} catch (InvalidValueException e) {}
-					}
-				}
-				try {
-					if (energy > capacity.value()) {
-						energy = capacity.value();
-					} else if (energy < 0) {
-						energy = 0;
-					}
-					return (long) (energy / capacity.value() * 100.0);
-				} catch (InvalidValueException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return 0L;
 			}
-
+			if (chargerList != null) {
+				for (ChargerNature charger : chargerList) {
+					try {
+						energy += charger.getActualPower().value() / 3600.0;
+					} catch (InvalidValueException e) {}
+				}
+			}
+			try {
+				if (energy > capacity.value()) {
+					energy = capacity.value();
+				} else if (energy < 0) {
+					energy = 0;
+				}
+				return (long) (energy / capacity.value() * 100.0);
+			} catch (InvalidValueException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return 0L;
 		}, this.activePower);
 	}
 
@@ -147,12 +140,12 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	 */
 	private StatusBitChannels warning = new StatusBitChannels("Warning", this);;
 	private FunctionalReadChannel<Long> soc;
-	private SimulatorReadChannel activePower = new SimulatorReadChannel("ActivePower", this);
+	private SimulatorReadChannel<Long> activePower = new SimulatorReadChannel<Long>("ActivePower", this);
 	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel<Long>("AllowedApparent", this, 40000L);
-	private SimulatorReadChannel allowedCharge = new SimulatorReadChannel("AllowedCharge", this);
-	private SimulatorReadChannel allowedDischarge = new SimulatorReadChannel("AllowedDischarge", this);
-	private SimulatorReadChannel apparentPower = new SimulatorReadChannel("ApparentPower", this);
-	private SimulatorReadChannel reactivePower = new SimulatorReadChannel("ReactivePower", this);
+	private SimulatorReadChannel<Long> allowedCharge = new SimulatorReadChannel<Long>("AllowedCharge", this);
+	private SimulatorReadChannel<Long> allowedDischarge = new SimulatorReadChannel<Long>("AllowedDischarge", this);
+	private SimulatorReadChannel<Long> apparentPower = new SimulatorReadChannel<Long>("ApparentPower", this);
+	private SimulatorReadChannel<Long> reactivePower = new SimulatorReadChannel<Long>("ReactivePower", this);
 	private UnitTestWriteChannel<Long> setActivePower = new UnitTestWriteChannel<Long>("SetActivePower", this)
 			.maxWriteChannel(allowedDischarge).minWriteChannel(allowedCharge);
 	private UnitTestWriteChannel<Long> setReactivePower = new UnitTestWriteChannel<Long>("SetReactivePower", this);
@@ -229,20 +222,10 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 		return allowedApparent;
 	}
 
-	private long getRandom(int min, int max) {
-		return ThreadLocalRandom.current().nextLong(min, max + 1);
-	}
-
 	@Override
 	public ReadChannel<Long> maxNominalPower() {
 		return maxNominalPower;
 	}
-
-	/*
-	 * Fields
-	 */
-	private long lastApparentPower = 0;
-	private double lastCosPhi = 0;
 
 	/*
 	 * Methods

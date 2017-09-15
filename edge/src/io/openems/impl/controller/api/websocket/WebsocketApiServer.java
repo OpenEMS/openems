@@ -48,11 +48,8 @@ public class WebsocketApiServer
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketApiServer.class);
 
-	private final WebsocketApiController controller;
-
-	public WebsocketApiServer(WebsocketApiController controller, int port) {
+	public WebsocketApiServer(int port) {
 		super(port, new WebsocketApiSessionManager());
-		this.controller = controller;
 	}
 
 	/**

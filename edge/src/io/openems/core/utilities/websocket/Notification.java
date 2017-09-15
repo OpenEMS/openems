@@ -35,6 +35,8 @@ public class Notification {
 		case WARNING:
 			log.warn(this.message);
 			break;
+		case LOG:
+			// ignore
 		}
 		// TODO WebsocketServer.broadcastNotification(this);
 	}

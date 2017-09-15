@@ -22,7 +22,6 @@ package io.openems.impl.protocol.studer;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
@@ -60,7 +59,6 @@ public class StuderBridge extends Bridge implements ChannelUpdateListener {
 	 * Fields
 	 */
 	private Optional<StuderConnection> connection = Optional.empty();
-	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
 
 	/*
 	 * Methods

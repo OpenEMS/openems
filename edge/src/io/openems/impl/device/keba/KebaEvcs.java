@@ -55,8 +55,8 @@ public class KebaEvcs extends KebaDeviceNature implements EvcsNature {
 	/*
 	 * This Channels
 	 */
-	private KebaReadChannel<String> product = new KebaReadChannel<String>("Product", this);
-	private KebaReadChannel<String> serial = new KebaReadChannel<String>("Serial", this);
+	// private KebaReadChannel<String> product = new KebaReadChannel<String>("Product", this);
+	// private KebaReadChannel<String> serial = new KebaReadChannel<String>("Serial", this);
 
 	@Override
 	protected List<String> getWriteMessages() {

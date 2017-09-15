@@ -36,7 +36,7 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRange;
 
 public class ModbusProtocol {
 	private static Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
-	private final Map<Channel, ModbusElement> channelElementMap = new ConcurrentHashMap<>();
+	private final Map<Channel, ModbusElement<?>> channelElementMap = new ConcurrentHashMap<>();
 	private final Map<Integer, ModbusRange> readRanges = new ConcurrentHashMap<>(); // key = startAddress
 	private final Map<Integer, WriteableModbusRange> writableRanges = new ConcurrentHashMap<>(); // key =
 																									// startAddress
@@ -58,7 +58,7 @@ public class ModbusProtocol {
 		// fill readRanges Map
 		readRanges.put(range.getStartAddress(), range);
 		// fill channelElementMap
-		for (ModbusElement element : range.getElements()) {
+		for (ModbusElement<?> element : range.getElements()) {
 			if (element.getChannel() != null) {
 				// ignore Elements without Channel (DummyChannels)
 				channelElementMap.put(element.getChannel(), element);
@@ -91,7 +91,7 @@ public class ModbusProtocol {
 	 */
 	private void checkRange(ModbusRange range) {
 		int address = range.getStartAddress();
-		for (ModbusElement element : range.getElements()) {
+		for (ModbusElement<?> element : range.getElements()) {
 			if (element.getAddress() != address) {
 				log.error("Start address of Element is wrong. It is " + element.getAddress() + "/0x"
 						+ Integer.toHexString(element.getAddress()) + ", should be " + address + "/0x"

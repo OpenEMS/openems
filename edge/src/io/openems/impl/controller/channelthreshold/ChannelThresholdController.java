@@ -32,7 +32,6 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
-import io.openems.core.utilities.hysteresis.Hysteresis;
 
 /*
  * Example config:
@@ -69,7 +68,6 @@ public class ChannelThresholdController extends Controller {
 	private ThingRepository repo = ThingRepository.getInstance();
 	private ReadChannel<Long> thresholdChannel;
 	private WriteChannel<Boolean> outputChannel;
-	private Hysteresis thresholdHysteresis;
 	private boolean isActive = false;
 
 	/*

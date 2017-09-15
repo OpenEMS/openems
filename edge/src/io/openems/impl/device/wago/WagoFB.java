@@ -144,7 +144,7 @@ public class WagoFB extends ModbusDevice {
 				while (moduleNode != null) {
 					if (moduleNode.getNodeType() == Node.ELEMENT_NODE) {
 						NamedNodeMap moduleAttrs = moduleNode.getAttributes();
-						String article = moduleAttrs.getNamedItem("ARTIKELNR").getNodeValue();
+						// String article = moduleAttrs.getNamedItem("ARTIKELNR").getNodeValue();
 						String moduletype = moduleAttrs.getNamedItem("MODULETYPE").getNodeValue();
 						if (!moduleCounter.containsKey(moduletype)) {
 							moduleCounter.put(moduletype, 0);

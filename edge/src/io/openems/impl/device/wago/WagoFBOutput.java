@@ -80,7 +80,7 @@ public class WagoFBOutput extends ModbusDeviceNature implements OutputNature {
 				case "DO": {
 					List<CoilElement> elements = new ArrayList<>();
 					int count = 0;
-					for (String channel : channels.get(key)) {
+					for (@SuppressWarnings("unused") String channel : channels.get(key)) {
 						ModbusCoilWriteChannel ch = new ModbusCoilWriteChannel(Integer.toString(count), this);
 						this.channel.add(ch);
 						elements.add(new CoilElement(512 + count, ch));

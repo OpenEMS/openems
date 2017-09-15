@@ -52,8 +52,8 @@ public class SimulatorCharger extends SimulatorDeviceNature implements ChargerNa
 	/*
 	 * Inherited Channels
 	 */
-	private SimulatorReadChannel voltage = new SimulatorReadChannel("InputVoltage", this).unit("mV");
-	private SimulatorReadChannel power = new SimulatorReadChannel("ActualPower", this).unit("W");
+	private SimulatorReadChannel<Long> voltage = new SimulatorReadChannel<Long>("InputVoltage", this).unit("mV");
+	private SimulatorReadChannel<Long> power = new SimulatorReadChannel<Long>("ActualPower", this).unit("W");
 	private StaticValueChannel<Long> nominalPower = new StaticValueChannel<Long>("NominalPower", this, 60000l);
 	private ModbusWriteLongChannel setMaxPower = new ModbusWriteLongChannel("SetMaxPower", this);
 

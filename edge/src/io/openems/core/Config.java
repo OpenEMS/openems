@@ -259,7 +259,7 @@ public class Config implements ChannelChangeListener {
 					} catch (IOException e2) {
 						ConfigException ex2 = new ConfigException(
 								"Unable to recover backup file [" + configBackupFile.toString() + "]");
-						log.error(ex.getMessage(), ex);
+						log.error(ex2.getMessage(), ex2);
 					}
 				}
 			}
