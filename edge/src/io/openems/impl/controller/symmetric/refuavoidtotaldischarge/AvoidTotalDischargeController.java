@@ -27,10 +27,12 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.hysteresis.Hysteresis;
 
+@ThingInfo(title = "REFU: Avoid Total Discharge")
 public class AvoidTotalDischargeController extends Controller {
 
 	@ChannelInfo(title = "Storage, where total discharge should be avoided. For excample to reserve load for the Off-Grid power supply.", type = Ess.class)
@@ -83,7 +85,7 @@ public class AvoidTotalDischargeController extends Controller {
 		try {
 			Ess ess = this.ess.value();
 
-			if (ess.systemState.value() == 4 ) {
+			if (ess.systemState.value() == 4) {
 				if (!isStart) {
 					timeStartOccured = System.currentTimeMillis();
 					isStart = true;

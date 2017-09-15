@@ -7,9 +7,11 @@ import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
+@ThingInfo(title = "Custom: Riedmann PLC")
 public class Riedmann extends ModbusDevice {
 
 	@ChannelInfo(title = "", type = RiedmannNature.class)

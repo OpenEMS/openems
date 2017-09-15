@@ -28,10 +28,12 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 
+@ThingInfo(title = "On-Grid Indication")
 public class OnGridIndicationController extends Controller {
 
 	private ThingRepository repo = ThingRepository.getInstance();

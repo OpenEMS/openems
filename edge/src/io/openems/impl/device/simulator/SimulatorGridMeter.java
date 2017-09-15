@@ -24,6 +24,7 @@ import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.MeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.Thing;
 import io.openems.core.ThingRepository;
@@ -31,6 +32,7 @@ import io.openems.core.ThingsChangedListener;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
+@ThingInfo(title = "Simulated Grid Meter")
 public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeListener, AsymmetricMeterNature {
 
 	private SimulatorReadChannel<Long> activePower = new SimulatorReadChannel<>("ActivePower", this);
