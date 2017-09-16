@@ -126,7 +126,7 @@ export class Websocket {
     this.websocketSubscription = this.messages.retryWhen(errors => {
       return errors.delay(1000);
 
-    }).subscribe(message => {
+    }).map(message => JSON.parse(message)).subscribe(message => {
       // called on every receive of message from server
       // console.log(message);
       /*
@@ -168,8 +168,11 @@ export class Websocket {
           this.service.removeToken();
           this.initialize();
           if (env.backend === "OpenEMS Backend") {
-            console.log("would redirect...") // TODO fix redirect
-            //window.location.href = "/web/login?redirect=/m/overview";
+            if (env.production) {
+              window.location.href = "/web/login?redirect=/m/overview";
+            } else {
+              console.log("would redirect...");
+            }
           } else if (env.backend === "OpenEMS Edge") {
             this.router.navigate(['/overview']);
           }
@@ -298,9 +301,7 @@ export class Websocket {
         this.pendingQueryReplies[message.id[0]] = device.name;
       }
       message["device"] = device.name;
-      this.inputStream.next(message);
-    } else {
-      this.inputStream.next(message);
     }
+    this.inputStream.next(JSON.stringify(message));
   }
 }
