@@ -162,7 +162,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 
 	public T value() throws InvalidValueException {
 		return valueOptional()
-				.orElseThrow(() -> new InvalidValueException("No Value available. Channel [" + this.id + "]"));
+				.orElseThrow(() -> new InvalidValueException("No Value available. Channel [" + this.address() + "]"));
 	};
 
 	public Optional<T> valueOptional() {
