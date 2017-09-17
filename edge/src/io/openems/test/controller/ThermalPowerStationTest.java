@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,7 +45,7 @@ public class ThermalPowerStationTest {
 		List<Meter> meters = new ArrayList<>();
 		meters.add(meterThingMap);
 		controller.meters.updateValue(meters, true);
-		controller.outputChannel = outputChannel;
+		controller.outputChannelOpt = Optional.of(outputChannel);
 		controller.productionLimit.updateValue(1000L, true);
 		controller.limitTimeRange.updateValue(1L, true);
 		controller.minSoc.updateValue(15L, true);
