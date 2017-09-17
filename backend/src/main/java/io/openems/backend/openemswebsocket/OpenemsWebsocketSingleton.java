@@ -71,7 +71,7 @@ public class OpenemsWebsocketSingleton
 
 			// send successful reply to openems
 			JsonObject jReply = DefaultMessages.openemsConnectionSuccessfulReply();
-			log.info("OpenEMS connected. Device [" + deviceName + "]");
+			log.info("Device [" + deviceName + "] connected");
 			WebSocketUtils.send(websocket, jReply);
 			// add websocket to local cache
 			this.websockets.forcePut(websocket, session);
@@ -85,7 +85,7 @@ public class OpenemsWebsocketSingleton
 				device.writeObject();
 			} catch (OpenemsException e) {
 				// this error does not stop the connection
-				log.warn(e.getMessage());
+				log.error("Device [" + deviceName + "] error: " + e.getMessage());
 			}
 
 			// announce browserWebsocket that this OpenEMS Edge was connected
@@ -140,7 +140,7 @@ public class OpenemsWebsocketSingleton
 		try {
 			device.writeObject();
 		} catch (OpenemsException e) {
-			log.error(device.getName() + ": " + e.getMessage());
+			log.error("Device [" + device.getName() + "] error: " + e.getMessage());
 		}
 	}
 
@@ -151,7 +151,7 @@ public class OpenemsWebsocketSingleton
 			String token = JsonUtils.getAsString(jId.get(jId.size() - 1));
 			Optional<WebSocket> browserWebsocketOpt = BrowserWebsocket.instance().getWebsocketByToken(token);
 			if (!browserWebsocketOpt.isPresent()) {
-				log.warn("Browser websocket is not connected. Device [" + deviceName + "] Message ["
+				log.warn("Device [" + deviceName + "] Browser websocket is not connected. Message ["
 						+ StringUtils.toShortString(jMessage, 100) + "]");
 				if (jMessage.has("currentData")) {
 					// unsubscribe obsolete browser websocket
@@ -174,7 +174,7 @@ public class OpenemsWebsocketSingleton
 			// send
 			WebSocketUtils.send(browserWebsocket, jMessage);
 		} catch (OpenemsException e) {
-			log.warn(e.getMessage());
+			log.error("Device [" + deviceName + "] error: " + e.getMessage());
 		}
 	}
 
@@ -205,11 +205,11 @@ public class OpenemsWebsocketSingleton
 						device.setIpV4(ipv4);
 					}
 				} catch (OpenemsException e) {
-					log.error(e.getMessage());
+					log.error("Device [" + device.getName() + "] error: " + e.getMessage());
 				}
 			});
 		} catch (OpenemsException e) {
-			log.error(e.getMessage());
+			log.error("Device [" + device.getName() + "] error: " + e.getMessage());
 		}
 	}
 

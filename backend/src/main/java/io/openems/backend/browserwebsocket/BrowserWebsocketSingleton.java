@@ -100,8 +100,8 @@ public class BrowserWebsocketSingleton
 			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(), Optional.empty(),
 					data.getDevices());
 			// TODO write user name to log output
-			log.info("Browser connected. User [" + data.getUserName() + "] Session ["
-					+ data.getOdooSessionId().orElse("") + "]");
+			log.info("User [" + data.getUserName() + "] connected with Session [" + data.getOdooSessionId().orElse("")
+					+ "]");
 			WebSocketUtils.send(websocket, jReply);
 
 			// add websocket to local cache
@@ -111,7 +111,7 @@ public class BrowserWebsocketSingleton
 			// send connection failed to browser
 			JsonObject jReply = DefaultMessages.browserConnectionFailedReply();
 			WebSocketUtils.send(websocket, jReply);
-			log.info("Browser connection failed. User [" + data.getUserName() + "] Session ["
+			log.warn("User [" + data.getUserName() + "] connection failed. Session ["
 					+ data.getOdooSessionId().orElse("") + "] Error [" + error + "]");
 
 			websocket.closeConnection(CloseFrame.REFUSE, error);
@@ -158,7 +158,7 @@ public class BrowserWebsocketSingleton
 				} catch (OpenemsException e) {
 					WebSocketUtils.send(websocket, DefaultMessages.notification(Notification.EDGE_UNABLE_TO_FORWARD,
 							deviceName, e.getMessage()));
-					log.error(deviceName + ": Unable to forward message: " + e.getMessage());
+					log.error("Unable to forward to Device [" + deviceName + "] : " + e.getMessage());
 				}
 			}
 		}

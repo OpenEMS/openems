@@ -63,7 +63,7 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 		} else {
 			sessionString = session.toString();
 		}
-		log.info("Websocket closed. " + sessionString + " Code [" + code + "] Reason [" + reason + "]");
+		log.info(sessionString + " Websocket closed. Code [" + code + "] Reason [" + reason + "]");
 		this.websockets.remove(websocket);
 	}
 
@@ -79,7 +79,7 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 		} else {
 			sessionString = session.toString();
 		}
-		log.warn("Websocket error. " + sessionString + ": " + ex.getMessage());
+		log.warn(sessionString + " Websocket error: " + ex.getMessage());
 	}
 
 	/**
