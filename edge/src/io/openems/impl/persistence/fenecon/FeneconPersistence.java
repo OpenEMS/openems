@@ -28,13 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.HashMultimap;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -53,7 +49,6 @@ import io.openems.common.types.NullFieldValue;
 import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
 import io.openems.common.websocket.DefaultMessages;
-import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
@@ -76,22 +71,70 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			.defaultValue(DEFAULT_CYCLETIME);
 
 	/*
+	 * Constructor
+	 */
+	public FeneconPersistence() {
+		this.websocketHandler = new EdgeWebsocketHandler();
+		this.reconnectingWebsocket = new ReconnectingWebsocket(this.websocketHandler, () -> {
+			/*
+			 * onOpen
+			 */
+			log.info("FENECON persistence connected [" + uri.valueOptional().orElse("") + "]");
+			// Add current status of all channels to queue
+			this.addCurrentValueOfAllChannelsToQueue();
+		}, () -> {
+			/*
+			 * onClose
+			 */
+			log.error("FENECON persistence closed connection to uri [" + uri.valueOptional().orElse("") + "]");
+		});
+	}
+
+	@Override
+	public void init() {
+		this.updateWebsocketParams();
+	}
+
+	/*
 	 * Fields
 	 */
 	private static final int DEFAULT_CYCLETIME = 2000;
-	private final ExecutorService connectExecutor = Executors
-			.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("FePers-%d").build());
+	private final EdgeWebsocketHandler websocketHandler;
+	private final ReconnectingWebsocket reconnectingWebsocket;
 
 	// Queue of data for the next cycle
 	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
 	// Unsent queue (FIFO)
 	private EvictingQueue<JsonObject> unsentCache = EvictingQueue.create(1000);
-	private volatile WebsocketClient websocketClient;
 	private volatile Integer configuredCycleTime = DEFAULT_CYCLETIME;
 
 	/*
 	 * Methods
 	 */
+	private void updateWebsocketParams() {
+		// TODO call on channel update URI + apikey
+		Optional<String> apikeyOpt = this.apikey.valueOptional();
+		if (apikeyOpt.isPresent()) {
+			// set apikey header
+			this.reconnectingWebsocket.addHttpHeader("apikey", apikeyOpt.get());
+
+			Optional<String> uriOpt = this.uri.valueOptional();
+			if (uriOpt.isPresent()) {
+				try {
+					URI uri = new URI(uriOpt.get());
+					this.reconnectingWebsocket.setUri(Optional.of(uri));
+				} catch (URISyntaxException e) {
+					log.error("URI [" + uriOpt.get() + "] is invalid: " + e.getMessage());
+					this.reconnectingWebsocket.setUri(Optional.empty());
+					return;
+				}
+			} else {
+				// URI is not present
+				this.reconnectingWebsocket.setUri(Optional.empty());
+			}
+		}
+	}
+
 	/**
 	 * Receives update events for all {@link ReadChannel}s, excluding {@link ConfigChannel}s via the {@link Databus}.
 	 */
@@ -141,9 +184,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 	@Override
 	protected void dispose() {
-		if (this.websocketClient != null) {
-			this.websocketClient.close();
-		}
+		this.reconnectingWebsocket.dispose();
 	}
 
 	/**
@@ -153,8 +194,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 * @return
 	 */
 	private boolean send(JsonObject j) {
-		Optional<EdgeWebsocketHandler> websocketHandler = getWebsocketHandler();
-		return websocketHandler.isPresent() && WebSocketUtils.send(websocketHandler.get().getWebsocket(), j);
+		return this.websocketHandler.send(j);
 	}
 
 	/**
@@ -162,72 +202,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 *
 	 * @return
 	 */
-	public Optional<EdgeWebsocketHandler> getWebsocketHandler() {
-		Optional<WebsocketClient> websocketClient = getWebsocketClient();
-		if (websocketClient.isPresent()) {
-			return Optional.of(websocketClient.get().getWebsocketHandler());
-		}
-		return Optional.empty();
-	}
-
-	/**
-	 * Gets the websocket client
-	 *
-	 * @return
-	 */
-	private AtomicBoolean isAlreadyConnecting = new AtomicBoolean(false);
-
-	public Optional<WebsocketClient> getWebsocketClient() {
-		// return existing and opened websocket
-		if (this.websocketClient != null && this.websocketClient.getConnection().isOpen()) {
-			return Optional.of(this.websocketClient);
-		}
-		this.websocketClient = null;
-		// check config
-		if (!this.apikey.valueOptional().isPresent() || !this.uri.valueOptional().isPresent()) {
-			return Optional.empty();
-		}
-		// a connection is already requested -> return null
-		// from here only one thread is allowed to enter
-		if (isAlreadyConnecting.getAndSet(true)) {
-			return Optional.empty();
-		}
-		String uri = this.uri.valueOptional().get();
-		String apikey = this.apikey.valueOptional().get();
-		// Try to connect in asynchronous thread
-		Runnable task = () -> {
-			WebsocketClient newWebsocketClient = null;
-			try {
-				// create new websocket
-				// TODO: check server certificate
-				newWebsocketClient = new WebsocketClient(new URI(uri), apikey);
-				log.info("FENECON persistence is connecting... [" + uri + "]");
-				if (newWebsocketClient.connectBlocking(10)) {
-					// successful -> return connected websocket
-					log.info("FENECON persistence connected [" + uri + "]");
-					// Add current status of all channels to queue
-					this.addCurrentValueOfAllChannelsToQueue();
-				} else {
-					// not connected -> return empty
-					log.error("FENECON persistence failed connection to uri [" + uri + "]");
-					newWebsocketClient = null;
-				}
-			} catch (URISyntaxException e) {
-				log.error("Invalid uri: " + e.getMessage());
-				// newWebsocketClient = null;
-			} catch (InterruptedException e) {
-				log.warn("Websocket connection interrupted: " + e.getMessage());
-				newWebsocketClient = null;
-			} catch (Exception e) {
-				log.warn("Websocket exception: " + e.getMessage());
-				newWebsocketClient = null;
-			}
-			this.websocketClient = newWebsocketClient;
-			isAlreadyConnecting.set(false);
-		};
-		this.connectExecutor.submit(task);
-		// while connecting -> still returning null
-		return Optional.empty();
+	public EdgeWebsocketHandler getWebsocketHandler() {
+		return this.websocketHandler;
 	}
 
 	private void increaseCycleTime() {
@@ -253,15 +229,6 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		if (currentCycleTime != newCycleTime) {
 			this.cycleTime.updateValue(newCycleTime, false);
 		}
-	}
-
-	@Override
-	protected boolean initialize() {
-		boolean successful = getWebsocketClient().isPresent();
-		if (!successful) {
-			increaseCycleTime();
-		}
-		return getWebsocketClient().isPresent();
 	}
 
 	/**
@@ -347,5 +314,10 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	@Override
 	protected int getCycleTime() {
 		return cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
+	}
+
+	@Override
+	protected boolean initialize() {
+		return this.reconnectingWebsocket.websocketIsOpen();
 	}
 }

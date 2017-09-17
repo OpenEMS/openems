@@ -64,10 +64,11 @@ public class WebsocketApiServer
 			Optional<WebsocketApiSession> sessionOpt = this.sessionManager.getSessionByToken(token);
 			if (sessionOpt.isPresent()) {
 				WebsocketApiSession session = sessionOpt.get();
-				WebSocket oldWebsocket = session.getData().getWebsocketHandler().getWebsocket();
-				if (oldWebsocket != null) {
+				Optional<WebSocket> oldWebsocketOpt = session.getData().getWebsocketHandler().getWebsocket();
+				if (oldWebsocketOpt.isPresent()) {
 					// TODO to avoid this, websockets needs to be able to handle more than one websocket per session
-					oldWebsocket.closeConnection(CloseFrame.REFUSE, "Another client connected with this token");
+					oldWebsocketOpt.get().closeConnection(CloseFrame.REFUSE,
+							"Another client connected with this token");
 				}
 				// refresh session
 				session.getData().getWebsocketHandler().setWebsocket(websocket);

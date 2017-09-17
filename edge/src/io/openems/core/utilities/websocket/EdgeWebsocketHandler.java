@@ -59,7 +59,7 @@ public class EdgeWebsocketHandler {
 	/**
 	 * Holds the websocket connection
 	 */
-	protected WebSocket websocket;
+	protected Optional<WebSocket> websocket = Optional.empty();
 
 	/**
 	 * Holds subscribers to current data
@@ -76,15 +76,17 @@ public class EdgeWebsocketHandler {
 	 */
 	private final ExecutorService logExecutor = Executors.newCachedThreadPool();
 
+	public EdgeWebsocketHandler() {}
+
 	public EdgeWebsocketHandler(WebSocket websocket) {
-		this.websocket = websocket;
+		this.websocket = Optional.ofNullable(websocket);
 	}
 
 	public void setWebsocket(WebSocket websocket) {
-		this.websocket = websocket;
+		this.websocket = Optional.ofNullable(websocket);
 	}
 
-	public WebSocket getWebsocket() {
+	public Optional<WebSocket> getWebsocket() {
 		return websocket;
 	}
 
@@ -159,7 +161,7 @@ public class EdgeWebsocketHandler {
 			if (jIdOpt.isPresent()) {
 				jReply.add("id", jIdOpt.get());
 			}
-			WebSocketUtils.send(websocket, jReply);
+			WebSocketUtils.send(this.websocket, jReply);
 		}
 	}
 
@@ -489,6 +491,15 @@ public class EdgeWebsocketHandler {
 	// }
 
 	/**
+	 * Send a message to the websocket.
+	 *
+	 * @param message
+	 */
+	public boolean send(JsonObject j) {
+		return WebSocketUtils.send(this.websocket, j);
+	}
+
+	/**
 	 * Send a log message to the websocket. This method is called by logback
 	 *
 	 * @param message2
@@ -504,8 +515,9 @@ public class EdgeWebsocketHandler {
 			jId.add("log");
 			jId.add(id);
 			JsonObject j = DefaultMessages.log(jId, timestamp, level, source, message);
+			// TODO reevaluate if it is necessary to do this async; ie if websocket.send returns directly or not
 			logExecutor.execute(() -> {
-				WebSocketUtils.send(websocket, j);
+				this.send(j);
 			});
 		}
 	}

@@ -151,7 +151,8 @@ public class OpenemsWebsocketSingleton
 			String token = JsonUtils.getAsString(jId.get(jId.size() - 1));
 			Optional<WebSocket> browserWebsocketOpt = BrowserWebsocket.instance().getWebsocketByToken(token);
 			if (!browserWebsocketOpt.isPresent()) {
-				log.warn("Browser websocket is not connected. Device [" + deviceName + "] Message [" + jMessage + "]");
+				log.warn("Browser websocket is not connected. Device [" + deviceName + "] Message ["
+						+ StringUtils.toShortString(jMessage, 100) + "]");
 				if (jMessage.has("currentData")) {
 					// unsubscribe obsolete browser websocket
 					WebSocketUtils.send(openemsWebsocket, DefaultMessages.currentDataSubscribe(jId, new JsonObject()));
