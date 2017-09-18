@@ -55,11 +55,6 @@
 				"priority": 1,
 				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
 				"rtc": "ess0"
-			},
-			{
-				"priority": 0,
-				"class": "io.openems.impl.controller.feneconprosetup.FeneconProSetupController",
-				"esss": "ess0"
 			}
 		]
 	},
