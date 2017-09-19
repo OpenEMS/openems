@@ -23,6 +23,7 @@ package io.openems.impl.controller.symmetric.refuworkstate;
 import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.DebugChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -55,6 +56,11 @@ public class WorkStateController extends Controller {
 
 	@ChannelInfo(title = "Start/Stop", description = "Indicates if the Ess should be started (true) or stopped (false).", type = Boolean.class)
 	public final ConfigChannel<Boolean> start = new ConfigChannel<>("start", this);
+
+	/*
+	 * DebugChannel
+	 */
+	private DebugChannel<Long> systemstate = new DebugChannel<>("SystemState", this);
 
 	/*
 	 * Fields
@@ -122,6 +128,7 @@ public class WorkStateController extends Controller {
 			switch (currentState) {
 			case ERROR:
 				log.info("Error");
+				systemstate.setValue(1L);
 				if (errorOccured == null) {
 					errorOccured = System.currentTimeMillis();
 				}
@@ -134,6 +141,7 @@ public class WorkStateController extends Controller {
 				break;
 			case GOSTART:
 				log.info("Go Start");
+				systemstate.setValue(2L);
 				if (start.value()) {
 					if (ess.systemState.labelOptional().equals(Optional.of(EssNature.STANDBY))) {
 						ess.setWorkState.pushWriteFromLabel(EssNature.START);
@@ -150,6 +158,7 @@ public class WorkStateController extends Controller {
 				break;
 			case RESETERROROFF:
 				log.info("RESETERROROFF");
+				systemstate.setValue(3L);
 				if (ess.setSystemErrorReset.labelOptional().equals(Optional.of(EssNature.OFF))) {
 					currentState = State.GOSTART;
 					lastReset = System.currentTimeMillis();
@@ -159,6 +168,7 @@ public class WorkStateController extends Controller {
 				break;
 			case RESETERRORON:
 				log.info("RESETERRORON");
+				systemstate.setValue(4L);
 				if (ess.setSystemErrorReset.labelOptional().equals(Optional.of(EssNature.ON))) {
 					currentState = State.RESETERROROFF;
 				} else {
@@ -167,8 +177,8 @@ public class WorkStateController extends Controller {
 				break;
 			case START:
 				log.info("START");
-				if (ess.systemState.labelOptional().equals(Optional.of(EssNature.START))
-						|| ess.systemState.labelOptional().equals(Optional.of(EssNature.STANDBY))) {
+				systemstate.setValue(5L);
+				if (ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
 					if (!start.value()) {
 						currentState = State.STOP;
 					}
@@ -180,6 +190,7 @@ public class WorkStateController extends Controller {
 				break;
 			case STOP:
 				log.info("STOP");
+				systemstate.setValue(6L);
 				if (ess.systemState.labelOptional().equals(Optional.of(EssNature.STOP))
 						|| ess.systemState.labelOptional().equals(Optional.of(EssNature.STANDBY))
 						|| ess.systemState.labelOptional().equals(Optional.of("Init"))
