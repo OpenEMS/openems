@@ -8,7 +8,7 @@ import java.util.Optional;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.api.thing.Thing;
 
-public class FunctionalWriteChannel<T> extends WriteChannel<T> implements ChannelUpdateListener {
+public class FunctionalWriteChannel<T extends Comparable<T>> extends WriteChannel<T> implements ChannelUpdateListener {
 
 	private List<WriteChannel<T>> channels = new ArrayList<>();
 	private FunctionalWriteChannelFunction<T> writeValueFunc;
@@ -112,6 +112,11 @@ public class FunctionalWriteChannel<T> extends WriteChannel<T> implements Channe
 			this.channels.toArray(channels);
 			T erg = writeValueFunc.getMinValue(channels);
 			if (erg != null) {
+				if (super.writeMin().isPresent()) {
+					if (erg.compareTo(super.writeMin().get()) < 0) {
+						return super.writeMin();
+					}
+				}
 				return Optional.of(erg);
 			}
 			return Optional.empty();
@@ -126,6 +131,11 @@ public class FunctionalWriteChannel<T> extends WriteChannel<T> implements Channe
 			this.channels.toArray(channels);
 			T erg = writeValueFunc.getMaxValue(channels);
 			if (erg != null) {
+				if (super.writeMax().isPresent()) {
+					if (erg.compareTo(super.writeMax().get()) > 0) {
+						return super.writeMax();
+					}
+				}
 				return Optional.of(erg);
 			}
 			return Optional.empty();
