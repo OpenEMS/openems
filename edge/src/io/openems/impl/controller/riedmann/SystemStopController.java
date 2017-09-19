@@ -5,7 +5,7 @@ import java.util.Optional;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -16,12 +16,12 @@ public class SystemStopController extends Controller {
 	/*
 	 * Config-Channel
 	 */
-	@ConfigInfo(title = "System Stop", description = "This configuration stops the system.", type = Boolean.class)
+	@ChannelInfo(title = "System Stop", description = "This configuration stops the system.", type = Boolean.class)
 	public ConfigChannel<Boolean> signalSystemStop = new ConfigChannel<Boolean>("signalSystemStop", this);
 
-	@ConfigInfo(title = "SPS", description = "The sps which should be controlled.", type = Custom.class)
+	@ChannelInfo(title = "SPS", description = "The sps which should be controlled.", type = Custom.class)
 	public ConfigChannel<Custom> sps = new ConfigChannel<>("sps", this);
-	@ConfigInfo(title = "ESS", description = "The ess to stop on system stop. Also used for Off-Grid indication for the SPS. ", type = Ess.class)
+	@ChannelInfo(title = "ESS", description = "The ess to stop on system stop. Also used for Off-Grid indication for the SPS. ", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
 
 	/*

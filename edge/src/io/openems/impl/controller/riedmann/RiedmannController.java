@@ -19,9 +19,6 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 	 * Config-Channel
 	 */
 
-	@ChannelInfo(title = "System Stop", description = "This configuration stops the system.", type = Boolean.class)
-	public ConfigChannel<Boolean> signalSystemStop = new ConfigChannel<Boolean>("signalSystemStop", this)
-			.defaultValue(true);
 	@ChannelInfo(title = "Waterlevel Borehole 1 On", description = "This configuration sets the waterlevel to start Borehole Pump 1", type = Long.class)
 	public ConfigChannel<Long> setWaterLevelBorehole1On = new ConfigChannel<Long>("wl1On", this).defaultValue(50L);
 	@ChannelInfo(title = "Waterlevel Borehole 1 Off", description = "This configuration sets the waterlevel to stop Borehole Pump 1", type = Long.class)
@@ -78,27 +75,6 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 		try {
 			Ess ess = this.ess.value();
 			Custom sps = this.sps.value();
-			// Grid-Mode
-			try {
-				if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
-					sps.signalGridOn.pushWrite(0L);
-				} else {
-					sps.signalGridOn.pushWrite(1L);
-				}
-			} catch (WriteChannelException e) {
-				log.error("Failed to set off-Grid indication to sps.", e);
-			}
-			// Stop
-			try {
-				if (signalSystemStop.value()) {
-					ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
-					sps.signalSystemStop.pushWrite(1L);
-				} else {
-					sps.signalSystemStop.pushWrite(0L);
-				}
-			} catch (WriteChannelException e) {
-				log.error("Failed to set system stop!", e);
-			}
 			// Watchdog
 			try {
 				if (watchdogState) {

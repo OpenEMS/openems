@@ -36,6 +36,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
+import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
