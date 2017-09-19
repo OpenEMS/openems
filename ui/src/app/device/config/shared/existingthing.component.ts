@@ -60,7 +60,7 @@ export class ExistingThingComponent implements OnChanges {
           this.formPristine = pristine;
           // store message
           this.messages[message.config.channel] = message;
-          console.log(this.messages)
+          // console.log(this.messages)
         });
     });
   }

@@ -112,6 +112,16 @@ export class ChannelComponent implements OnChanges, OnDestroy {
     this.stopOnDestroy.complete();
   }
 
+  public addToArray() {
+    let array = <FormArray>this.form.controls["channelValue"];
+    array.push(this.formBuilder.control(""));
+  }
+
+  public removeFromArray(index: number) {
+    let array = <FormArray>this.form.controls["channelValue"];
+    array.removeAt(index);
+  }
+
   protected buildForm(item: any, ignoreKeys?: string | string[]): FormControl | FormGroup | FormArray {
     if (typeof item === "function") {
       // ignore
