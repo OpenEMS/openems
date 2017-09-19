@@ -1,5 +1,6 @@
 package io.openems.api.bridge;
 
+import java.util.Collections;
 import java.util.Queue;
 
 import com.google.common.collect.EvictingQueue;
@@ -17,11 +18,7 @@ public abstract class BridgeTask {
 
 	public long getRequiredTime() {
 		synchronized (requiredTimes) {
-			long sum = 0;
-			for (Long l : requiredTimes) {
-				sum += l;
-			}
-			return sum / requiredTimes.size();
+			return Collections.max(requiredTimes);
 		}
 	}
 
