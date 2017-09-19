@@ -1,6 +1,7 @@
 package io.openems.common.websocket;
 
 import java.net.InetSocketAddress;
+import java.util.Iterator;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
@@ -27,20 +28,29 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 	protected final M sessionManager;
 	protected final BiMap<WebSocket, S> websockets = Maps.synchronizedBiMap(HashBiMap.create());
 
-	protected abstract void onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt, Optional<String> deviceNameOpt);
+	protected abstract void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
+			Optional<String> deviceNameOpt);
+	
+	protected abstract void _onOpen(WebSocket websocket, ClientHandshake handshake);
 
 	public AbstractWebsocketServer(int port, M sessionManager) {
 		super(new InetSocketAddress(port));
 		this.sessionManager = sessionManager;
 	}
-	
+
 	/**
 	 * Open event of websocket.
 	 */
 	@Override
-	public void onOpen(WebSocket arg0, ClientHandshake arg1) {
+	public final void onOpen(WebSocket websocket, ClientHandshake handshake) {
+		try {
+			this._onOpen(websocket, handshake);
+		} catch (Throwable e) {
+			log.error("onOpen-Error [" + this.handshakeToJsonObject(handshake) + "]: ");
+			e.printStackTrace();
+		}
 	}
-	
+
 	/**
 	 * Close event of websocket. Removes the websocket. Keeps the session
 	 */
@@ -53,7 +63,7 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 		} else {
 			sessionString = session.toString();
 		}
-		log.info("Websocket closed. " + sessionString + " Code [" + code + "] Reason [" + reason + "]");
+		log.info(sessionString + " Websocket closed. Code [" + code + "] Reason [" + reason + "]. Total websockets [" + this.websockets.size() + "]");
 		this.websockets.remove(websocket);
 	}
 
@@ -69,20 +79,23 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 		} else {
 			sessionString = session.toString();
 		}
-		log.warn("Websocket error. " + sessionString + ": " + ex.getMessage());
+		log.warn(sessionString + " Websocket error: " + ex.getMessage());
 	}
-	
+
 	/**
 	 * Message event of websocket. Handles a new message.
 	 */
 	@Override
 	public final void onMessage(WebSocket websocket, String message) {
-		JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-		Optional<JsonArray> jMessageId = JsonUtils.getAsOptionalJsonArray(jMessage, "id");
-		Optional<String> deviceNameOpt = JsonUtils.getAsOptionalString(jMessage, "device");
-		this.onMessage(websocket, jMessage, jMessageId, deviceNameOpt);
+		try {
+			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
+			Optional<JsonArray> jMessageId = JsonUtils.getAsOptionalJsonArray(jMessage, "id");
+			Optional<String> deviceNameOpt = JsonUtils.getAsOptionalString(jMessage, "device");
+			this._onMessage(websocket, jMessage, jMessageId, deviceNameOpt);
+		} catch (Throwable e) {
+			log.error("onMessage-Error [" + message + "]: " + e.getMessage());
+		}
 	}
-	
 
 	/**
 	 * Get cookie from handshake
@@ -104,6 +117,21 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 		return j;
 	}
 
+	/**
+	 * Converts a Handshake to a JsonObject
+	 * 
+	 * @param handshake
+	 * @return
+	 */
+	protected JsonObject handshakeToJsonObject(ClientHandshake handshake) {
+		JsonObject j = new JsonObject();
+		for (Iterator<String> iter = handshake.iterateHttpFields(); iter.hasNext(); ) {
+		    String field = iter.next();
+		    j.addProperty(field, handshake.getFieldValue(field));
+		}
+		return j;
+	}
+	
 	@Override
 	public final void onStart() {
 		// nothing to do
@@ -123,5 +151,5 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 		S session = sessionOpt.get();
 		return Optional.ofNullable(this.websockets.inverse().get(session));
 	}
-	
+
 }

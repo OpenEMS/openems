@@ -8,6 +8,7 @@ import io.openems.common.session.SessionData;
 import io.openems.common.types.Device;
 
 public class BrowserSessionData extends SessionData {
+	private String userName = "";
 	private Optional<Integer> userId = Optional.empty();
 	private Optional<String> odooSessionId = Optional.empty();
 	private List<Device> devices = new ArrayList<>();
@@ -28,8 +29,16 @@ public class BrowserSessionData extends SessionData {
 		this.userId = Optional.of(userId);
 	}
 
+	public void setUserName(String name) {
+		this.userName = name;
+	}
+
 	public Optional<Integer> getUserId() {
 		return userId;
+	}
+
+	public String getUserName() {
+		return userName;
 	}
 
 	public List<Device> getDevices() {

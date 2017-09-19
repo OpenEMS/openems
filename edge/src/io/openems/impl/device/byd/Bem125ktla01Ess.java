@@ -69,39 +69,39 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	/*
 	 * Inherited Channels
 	 */
-	private ModbusReadChannel soc;
+	private ModbusReadChannel<Long> soc;
 	private StaticValueChannel<Long> allowedCharge = new StaticValueChannel<Long>("AllowedCharge", this, 0L);
 	private StaticValueChannel<Long> allowedDischarge = new StaticValueChannel<Long>("AllowedDischarge", this, 0L);
 	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel<>("allowedApparent", this, 0L).unit("VA")
 			.unit("VA");
-	private ModbusReadChannel apparentPower;
+	private ModbusReadChannel<Long> apparentPower;
 	private StaticValueChannel<Long> gridMode = new StaticValueChannel<Long>("GridMode", this, 0L);
 	private StaticValueChannel<Long> activePower = new StaticValueChannel<Long>("ActivePower", this, 0L);
 	private StaticValueChannel<Long> reactivePower = new StaticValueChannel<Long>("ActivePower", this, 0L);
 	private StaticValueChannel<Long> systemState = new StaticValueChannel<Long>("SystemState", this, 0L);;
-	private ModbusWriteChannel setActivePower;
-	private ModbusWriteChannel setReactivePower;
-	private ModbusWriteChannel setWorkState;
+	private ModbusWriteChannel<Long> setActivePower;
+	private ModbusWriteChannel<Long> setReactivePower;
+	private ModbusWriteChannel<Long> setWorkState;
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 0L);
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 170000L).unit("Wh");
 	public StatusBitChannels warning;
 
-	public ModbusReadChannel sysAlarmInfo;
+	public ModbusReadChannel<Long> sysAlarmInfo;
 	public StatusBitChannel sysWorkStatus;
 	public StatusBitChannel sysControlMode;
 	public StatusBitChannel sysAlarmInfo2;
-	public ModbusReadChannel batteryStackVoltage;
-	public ModbusReadChannel batteryStackCurrent;
-	public ModbusReadChannel batteryStackPower;
-	public ModbusReadChannel batteryStackSoc;
-	public ModbusReadChannel batteryStackSoh;
-	public ModbusReadChannel batteryStackMaxChargeCurrent;
-	public ModbusReadChannel batteryStackMaxDischargeCurrent;
-	public ModbusReadChannel batteryStackMaxChargePower;
-	public ModbusReadChannel batteryStackMaxDischargePower;
-	public ModbusReadChannel batteryStackTotalCapacity;
-	public ModbusReadChannel batteryStackTotalCharge;
-	public ModbusReadChannel batteryStackTotalDischarge;
+	public ModbusReadChannel<Long> batteryStackVoltage;
+	public ModbusReadChannel<Long> batteryStackCurrent;
+	public ModbusReadChannel<Long> batteryStackPower;
+	public ModbusReadChannel<Long> batteryStackSoc;
+	public ModbusReadChannel<Long> batteryStackSoh;
+	public ModbusReadChannel<Long> batteryStackMaxChargeCurrent;
+	public ModbusReadChannel<Long> batteryStackMaxDischargeCurrent;
+	public ModbusReadChannel<Long> batteryStackMaxChargePower;
+	public ModbusReadChannel<Long> batteryStackMaxDischargePower;
+	public ModbusReadChannel<Long> batteryStackTotalCapacity;
+	public ModbusReadChannel<Long> batteryStackTotalCharge;
+	public ModbusReadChannel<Long> batteryStackTotalDischarge;
 
 	@Override
 	public ReadChannel<Long> gridMode() {

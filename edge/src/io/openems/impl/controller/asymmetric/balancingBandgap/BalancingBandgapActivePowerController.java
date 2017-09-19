@@ -22,9 +22,10 @@ package io.openems.impl.controller.asymmetric.balancingBandgap;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.AvgFiFoQueue;
 
 @ThingInfo(title = "Self-consumption optimization (Asymmetric)", description = "Tries to keep the grid meter on zero. For asymmetric Ess.")
 public class BalancingBandgapActivePowerController extends Controller {
@@ -46,29 +47,36 @@ public class BalancingBandgapActivePowerController extends Controller {
 	// @ConfigInfo(title = "Cos-Phi", type = Double.class, defaultValue = "0.95")
 	// public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
 
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> esss = new ConfigChannel<Ess>("esss", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	@ConfigInfo(title = "Max-ActivePowerL1", description = "High boundary of active power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Max-ActivePowerL1", description = "High boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> maxActivePowerL1 = new ConfigChannel<>("maxActivePowerL1", this);
 
-	@ConfigInfo(title = "Min-ReactivePowerL1", description = "Low boundary of reactive power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Min-ReactivePowerL1", description = "Low boundary of reactive power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> minActivePowerL1 = new ConfigChannel<>("minActivePowerL1", this);
 
-	@ConfigInfo(title = "Max-ActivePowerL2", description = "High boundary of active power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Max-ActivePowerL2", description = "High boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> maxActivePowerL2 = new ConfigChannel<>("maxActivePowerL2", this);
 
-	@ConfigInfo(title = "Min-ReactivePowerL2", description = "Low boundary of reactive power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Min-ReactivePowerL2", description = "Low boundary of reactive power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> minActivePowerL2 = new ConfigChannel<>("minActivePowerL2", this);
 
-	@ConfigInfo(title = "Max-ActivePowerL3", description = "High boundary of active power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Max-ActivePowerL3", description = "High boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> maxActivePowerL3 = new ConfigChannel<>("maxActivePowerL3", this);
 
-	@ConfigInfo(title = "Min-ReactivePowerL3", description = "Low boundary of reactive power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Min-ReactivePowerL3", description = "Low boundary of reactive power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> minActivePowerL3 = new ConfigChannel<>("minActivePowerL3", this);
+
+	private AvgFiFoQueue meterL1 = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue meterL2 = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue meterL3 = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue essL1 = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue essL2 = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue essL3 = new AvgFiFoQueue(2, 1.5);
 
 	/*
 	 * Methods
@@ -80,12 +88,18 @@ public class BalancingBandgapActivePowerController extends Controller {
 			// calculateRequiredPower
 			Meter meter = this.meter.value();
 			Ess ess = this.esss.value();
-			calculatedPowers[0] = meter.activePowerL1.value();
-			calculatedPowers[1] = meter.activePowerL2.value();
-			calculatedPowers[2] = meter.activePowerL3.value();
-			calculatedPowers[0] += ess.activePowerL1.value();
-			calculatedPowers[1] += ess.activePowerL2.value();
-			calculatedPowers[2] += ess.activePowerL3.value();
+			meterL1.add(meter.activePowerL1.value());
+			meterL2.add(meter.activePowerL2.value());
+			meterL3.add(meter.activePowerL3.value());
+			this.essL1.add(ess.activePowerL1.value());
+			this.essL2.add(ess.activePowerL2.value());
+			this.essL3.add(ess.activePowerL3.value());
+			calculatedPowers[0] = meterL1.avg();
+			calculatedPowers[1] = meterL2.avg();
+			calculatedPowers[2] = meterL3.avg();
+			calculatedPowers[0] += essL1.avg();
+			calculatedPowers[1] += essL2.avg();
+			calculatedPowers[2] += essL3.avg();
 			if (calculatedPowers[0] >= maxActivePowerL1.value()) {
 				calculatedPowers[0] -= maxActivePowerL1.value();
 			} else if (calculatedPowers[0] <= minActivePowerL1.value()) {

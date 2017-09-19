@@ -1,5 +1,7 @@
 package io.openems.common.types;
 
+import io.openems.common.exceptions.OpenemsException;
+
 public class ChannelAddress {
 	private final String thingId;
 	private final String channelId;
@@ -23,10 +25,14 @@ public class ChannelAddress {
 		return thingId + "/" + channelId;
 	}
 
-	public static ChannelAddress fromString(String address) {
-		String[] addressArray = address.split("/");
-		String thingId = addressArray[0];
-		String channelId = addressArray[1];
-		return new ChannelAddress(thingId, channelId);
+	public static ChannelAddress fromString(String address) throws OpenemsException {
+		try {
+			String[] addressArray = address.split("/");
+			String thingId = addressArray[0];
+			String channelId = addressArray[1];
+			return new ChannelAddress(thingId, channelId);
+		} catch (Exception e) {
+			throw new OpenemsException("This [" + address + "] is not a valid channel address.");
+		}
 	}
 }

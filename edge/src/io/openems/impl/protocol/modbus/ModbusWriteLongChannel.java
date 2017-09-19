@@ -27,7 +27,6 @@ public class ModbusWriteLongChannel extends ModbusWriteChannel<Long> {
 
 	public ModbusWriteLongChannel(String id, DeviceNature nature) {
 		super(id, nature);
-		this.type(Long.class);
 	}
 
 	@Override

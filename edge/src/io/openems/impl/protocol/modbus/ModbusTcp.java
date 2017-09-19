@@ -34,7 +34,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.OpenemsModbusException;
@@ -52,11 +52,11 @@ public class ModbusTcp extends ModbusBridge {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "IP address", description = "Sets the IP address (e.g. 10.0.0.15).", type = Inet4Address.class)
+	@ChannelInfo(title = "IP address", description = "Sets the IP address (e.g. 10.0.0.15).", type = Inet4Address.class)
 	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this)
 			.addUpdateListener(channelUpdateListener);
 
-	@ConfigInfo(title = "Port", description = "Sets the port (e.g. 502).", type = Integer.class, defaultValue = "502")
+	@ChannelInfo(title = "Port", description = "Sets the port (e.g. 502).", type = Integer.class, defaultValue = "502")
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this)
 			.addUpdateListener(channelUpdateListener);
 

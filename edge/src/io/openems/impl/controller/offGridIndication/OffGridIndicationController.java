@@ -27,7 +27,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -49,17 +49,17 @@ public class OffGridIndicationController extends Controller {
 
 	// ConfigChannel
 
-	@ConfigInfo(title = "The ess where the grid state should be read from.", type = Meter.class)
+	@ChannelInfo(title = "The ess where the grid state should be read from.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	@ConfigInfo(title = "time to wait before switch output on.", type = Long.class)
+	@ChannelInfo(title = "time to wait before switch output on.", type = Long.class)
 	public ConfigChannel<Long> switchDelay = new ConfigChannel<Long>("switchDelay", this).defaultValue(10000L);
 
-	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
 	@SuppressWarnings("unchecked")
-	@ConfigInfo(title = "the address of the Digital Output to signal off-Grid.", type = String.class)
+	@ChannelInfo(title = "the address of the Digital Output to signal off-Grid.", type = String.class)
 	public ConfigChannel<String> offGridOutputChannelAddress = new ConfigChannel<String>("offGridOutputChannelAddress",
 			this).addChangeListener((channel, newValue, oldValue) -> {
 				Optional<String> channelAddress = (Optional<String>) newValue;

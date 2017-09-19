@@ -266,6 +266,22 @@ For 'unsubscribe' the channels object is empty.
 }
 ```
 
+### [2.6] Set configuration
+
+### [2.6.1] Update existing things/channels
+```
+{
+	device: string,
+	id: [UUID],
+	config: {
+		mode: "update",
+		thing: "...",
+		channel: "...",
+		value: "..." | { ... }
+	}
+}
+```
+
 ## [3] OpenEMS Edge <-> OpenEMS Backend
 
 ### [3.1] Timestamped data
@@ -288,19 +304,7 @@ For 'unsubscribe' the channels object is empty.
 // TODO from here
 
 
-### [1.5] Configuration
 
-### [1.5.1] Update
-```
-{
-	configure: [{
-		mode: "update",
-		thing: "...",
-		channel: "...",
-		value: "..." | { ... }
-	}]
-}
-```
 ### [1.5.2] Create
 ```
 {

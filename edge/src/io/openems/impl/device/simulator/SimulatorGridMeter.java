@@ -14,7 +14,6 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
-import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
@@ -23,7 +22,8 @@ import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.MeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.Thing;
 import io.openems.core.ThingRepository;
@@ -31,6 +31,7 @@ import io.openems.core.ThingsChangedListener;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
+@ThingInfo(title = "Simulated Grid Meter")
 public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeListener, AsymmetricMeterNature {
 
 	private SimulatorReadChannel<Long> activePower = new SimulatorReadChannel<>("ActivePower", this);
@@ -42,14 +43,14 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 	private SimulatorReadChannel<Long> reactivePowerL1 = new SimulatorReadChannel<>("ReactivePowerL1", this);
 	private SimulatorReadChannel<Long> reactivePowerL2 = new SimulatorReadChannel<>("ReactivePowerL2", this);
 	private SimulatorReadChannel<Long> reactivePowerL3 = new SimulatorReadChannel<>("ReactivePowerL3", this);
-	@ConfigInfo(title = "esss", type = JsonArray.class)
+	@ChannelInfo(title = "esss", type = JsonArray.class)
 	public ConfigChannel<JsonArray> esss = new ConfigChannel<JsonArray>("esss", this).addChangeListener(this);
-	@ConfigInfo(title = "producer", type = JsonArray.class)
+	@ChannelInfo(title = "producer", type = JsonArray.class)
 	public ConfigChannel<JsonArray> producer = new ConfigChannel<JsonArray>("producer", this).addChangeListener(this);
-	@ConfigInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
+	@ChannelInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
 	public ConfigChannel<JsonObject> activePowerGeneratorConfig = new ConfigChannel<JsonObject>(
 			"activePowerGeneratorConfig", this).addChangeListener(this);
-	@ConfigInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
+	@ChannelInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
 	public ConfigChannel<JsonObject> reactivePowerGeneratorConfig = new ConfigChannel<JsonObject>(
 			"reactivePowerGeneratorConfig", this).addChangeListener(this);
 
@@ -83,17 +84,10 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 				}
 			}
 		});
-		this.apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) {
-						return ControllerUtils.calculateApparentPower(channels[0].valueOptional().orElse(0L),
-								channels[1].valueOptional().orElse(0L));
-					}
-
-				}, activePower, reactivePower);
-
+		this.apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this, (channels) -> {
+			return ControllerUtils.calculateApparentPower(channels[0].valueOptional().orElse(0L),
+					channels[1].valueOptional().orElse(0L));
+		}, activePower, reactivePower);
 	}
 
 	@Override

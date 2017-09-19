@@ -2,17 +2,17 @@ package io.openems.impl.controller.asymmetric.phaserectification;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
 @ThingInfo(title = "PhaseRectificationReactivePowerController", description = "Sets the ess to the required reactivepower to get all three phases on the meter to the same level.")
 public class PhaseRectificationReactivePowerController extends Controller {
 
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
 	public PhaseRectificationReactivePowerController() {

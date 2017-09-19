@@ -44,11 +44,11 @@ public class OpenemsWebsocketSingleton
 	 * Open event of websocket. Parses the "apikey" and stores it in a new Session.
 	 */
 	@Override
-	public void onOpen(WebSocket websocket, ClientHandshake handshake) {
-		super.onOpen(websocket, handshake);
+	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
 		String apikey = "";
 		String deviceName = "";
 		try {
+
 			// get apikey from handshake
 			Optional<String> apikeyOpt = parseApikeyFromHandshake(handshake);
 			if (!apikeyOpt.isPresent()) {
@@ -71,11 +71,11 @@ public class OpenemsWebsocketSingleton
 
 			// send successful reply to openems
 			JsonObject jReply = DefaultMessages.openemsConnectionSuccessfulReply();
-			log.info("OpenEMS connected. Device [" + deviceName + "]");
 			WebSocketUtils.send(websocket, jReply);
-
 			// add websocket to local cache
 			this.websockets.forcePut(websocket, session);
+
+			log.info("Device [" + deviceName + "] connected. Total websockets [" + this.websockets.size() + "]");
 
 			try {
 				// set device active (in Odoo)
@@ -86,7 +86,7 @@ public class OpenemsWebsocketSingleton
 				device.writeObject();
 			} catch (OpenemsException e) {
 				// this error does not stop the connection
-				log.warn(e.getMessage());
+				log.error("Device [" + deviceName + "] error: " + e.getMessage());
 			}
 
 			// announce browserWebsocket that this OpenEMS Edge was connected
@@ -116,7 +116,7 @@ public class OpenemsWebsocketSingleton
 	 * Message event of websocket. Handles a new message. At this point the device is already authenticated.
 	 */
 	@Override
-	protected void onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
+	protected void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt) {
 		MetadataDevice device = websockets.get(websocket).getData().getDevice();
 
@@ -141,7 +141,7 @@ public class OpenemsWebsocketSingleton
 		try {
 			device.writeObject();
 		} catch (OpenemsException e) {
-			log.error(device.getName() + ": " + e.getMessage());
+			log.error("Device [" + device.getName() + "] error: " + e.getMessage());
 		}
 	}
 
@@ -152,7 +152,8 @@ public class OpenemsWebsocketSingleton
 			String token = JsonUtils.getAsString(jId.get(jId.size() - 1));
 			Optional<WebSocket> browserWebsocketOpt = BrowserWebsocket.instance().getWebsocketByToken(token);
 			if (!browserWebsocketOpt.isPresent()) {
-				log.warn("Browser websocket is not connected: " + jMessage);
+				log.warn("Device [" + deviceName + "] Browser websocket is not connected. Message ["
+						+ StringUtils.toShortString(jMessage, 100) + "]");
 				if (jMessage.has("currentData")) {
 					// unsubscribe obsolete browser websocket
 					WebSocketUtils.send(openemsWebsocket, DefaultMessages.currentDataSubscribe(jId, new JsonObject()));
@@ -174,7 +175,7 @@ public class OpenemsWebsocketSingleton
 			// send
 			WebSocketUtils.send(browserWebsocket, jMessage);
 		} catch (OpenemsException e) {
-			log.warn(e.getMessage());
+			log.error("Device [" + deviceName + "] error: " + e.getMessage());
 		}
 	}
 
@@ -205,11 +206,11 @@ public class OpenemsWebsocketSingleton
 						device.setIpV4(ipv4);
 					}
 				} catch (OpenemsException e) {
-					log.error(e.getMessage());
+					log.error("Device [" + device.getName() + "] error: " + e.getMessage());
 				}
 			});
 		} catch (OpenemsException e) {
-			log.error(e.getMessage());
+			log.error("Device [" + device.getName() + "] error: " + e.getMessage());
 		}
 	}
 

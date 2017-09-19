@@ -24,15 +24,18 @@ import io.openems.api.exception.WriteChannelException;
 
 public interface FunctionalWriteChannelFunction<T> {
 
-	public void setValue(T newValue, String newLabel, WriteChannel<T>... channels) throws WriteChannelException;
+	public void setValue(T newValue, String newLabel, @SuppressWarnings("unchecked") WriteChannel<T>... channels)
+			throws WriteChannelException;
 
-	public T getValue(ReadChannel<T>... channels);
+	public T getValue(@SuppressWarnings("unchecked") ReadChannel<T>... channels);
 
-	public T getMinValue(WriteChannel<T>... channels);
+	public T getMinValue(@SuppressWarnings("unchecked") WriteChannel<T>... channels);
 
-	public T getMaxValue(WriteChannel<T>... channels);
+	public T getMaxValue(@SuppressWarnings("unchecked") WriteChannel<T>... channels);
 
-	public void setMinValue(T newValue, String newLabel, WriteChannel<T>... channels) throws WriteChannelException;
+	public void setMinValue(T newValue, String newLabel, @SuppressWarnings("unchecked") WriteChannel<T>... channels)
+			throws WriteChannelException;
 
-	public void setMaxValue(T newValue, String newLabel, WriteChannel<T>... channels) throws WriteChannelException;
+	public void setMaxValue(T newValue, String newLabel, @SuppressWarnings("unchecked") WriteChannel<T>... channels)
+			throws WriteChannelException;
 }

@@ -46,7 +46,7 @@ public class BrowserWebsocketSingleton
 	 * Open event of websocket. Parses the Odoo "session_id" and stores it in a new Session.
 	 */
 	@Override
-	public void onOpen(WebSocket websocket, ClientHandshake handshake) {
+	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
 		// Prepare session information
 		String error = "";
 		BrowserSession session = null;
@@ -100,19 +100,21 @@ public class BrowserWebsocketSingleton
 			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(), Optional.empty(),
 					data.getDevices());
 			// TODO write user name to log output
-			log.info("Browser connected. User [" + data.getUserId().orElse(-1) + "] Session ["
-					+ data.getOdooSessionId().orElse("") + "]");
 			WebSocketUtils.send(websocket, jReply);
 
 			// add websocket to local cache
 			this.websockets.forcePut(websocket, session);
 
+			log.info("User [" + data.getUserName() + "] connected with Session [" + data.getOdooSessionId().orElse("")
+					+ "]. Total websockets [" + this.websockets.size() + "]");
+
 		} else {
 			// send connection failed to browser
 			JsonObject jReply = DefaultMessages.browserConnectionFailedReply();
 			WebSocketUtils.send(websocket, jReply);
-			log.info("Browser connection failed. User [" + data.getUserId().orElse(-1) + "] Session ["
-					+ data.getOdooSessionId().orElse("") + "] Error [" + error + "]");
+			log.warn("User [" + data.getUserName() + "] connection failed. Session ["
+					+ data.getOdooSessionId().orElse("") + "] Error [" + error + "]. Total websockets ["
+					+ this.websockets.size() + "]");
 
 			websocket.closeConnection(CloseFrame.REFUSE, error);
 		}
@@ -122,7 +124,7 @@ public class BrowserWebsocketSingleton
 	 * Message event of websocket. Handles a new message.
 	 */
 	@Override
-	protected void onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
+	protected void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt) {
 		/*
 		 * With existing device name
@@ -158,7 +160,7 @@ public class BrowserWebsocketSingleton
 				} catch (OpenemsException e) {
 					WebSocketUtils.send(websocket, DefaultMessages.notification(Notification.EDGE_UNABLE_TO_FORWARD,
 							deviceName, e.getMessage()));
-					log.error(deviceName + ": Unable to forward message: " + e.getMessage());
+					log.error("Unable to forward to Device [" + deviceName + "] : " + e.getMessage());
 				}
 			}
 		}
@@ -262,8 +264,10 @@ public class BrowserWebsocketSingleton
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
 					WebSocket ws = this.websockets.inverse().get(session);
-					JsonObject j = DefaultMessages.notification(Notification.EDGE_CONNECTION_OPENED, name);
-					WebSocketUtils.send(ws, j);
+					if (ws != null) {
+						JsonObject j = DefaultMessages.notification(Notification.EDGE_CONNECTION_OPENED, name);
+						WebSocketUtils.send(ws, j);
+					}
 				}
 			}
 		}

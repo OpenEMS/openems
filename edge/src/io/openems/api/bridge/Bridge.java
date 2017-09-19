@@ -276,8 +276,6 @@ public abstract class Bridge extends Thread implements Thing {
 		BridgeReadTask nextReadTask = null;
 		if (readOtherTaskCount + 1 < tasks.size()) {
 			nextReadTask = tasks.get(readOtherTaskIndex);
-		} else {
-			nextReadTask = null;
 		}
 		while (nextReadTask != null) {
 			if (System.currentTimeMillis() + nextReadTask.getRequiredTime() >= timeFinished) {
@@ -297,14 +295,6 @@ public abstract class Bridge extends Thread implements Thing {
 				nextReadTask = null;
 			}
 		}
-	}
-
-	private long getWriteTime() {
-		long time = 0l;
-		for (BridgeWriteTask task : getWriteTasks()) {
-			time += task.getRequiredTime();
-		}
-		return time;
 	}
 
 	private long getNextReadTime() {

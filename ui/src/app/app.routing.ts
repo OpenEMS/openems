@@ -12,8 +12,11 @@ import { SchedulerComponent as DeviceConfigSchedulerComponent } from './device/c
 import { LogComponent as DeviceConfigLogComponent } from './device/config/log/log.component';
 import { MoreComponent as DeviceConfigMoreComponent } from './device/config/more/more.component';
 import { RawConfigComponent as DeviceConfigRawConfigComponent } from './device/config/more/rawconfig/rawconfig.component';
+import { ConfigAllComponent as DeviceConfigConfigAllComponent } from './device/config/configall/configall.component';
 import { OverviewComponent as DeviceControllerOverviewComponent } from './device/config/controller/overview/overview.component';
 import { SimulatorComponent as DeviceConfigSimulatorComponent } from './device/config/simulator/simulator.component';
+import { DebugModeComponent as ConfigDebugModeComponent } from './config/debugmode/debugmode.component';
+
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'overview', pathMatch: 'full' },
@@ -31,13 +34,14 @@ const appRoutes: Routes = [
   { path: 'device/:device/config/overview', component: DeviceConfigOverviewComponent },
   { path: 'device/:device/config/bridge', component: DeviceConfigBridgeComponent },
   { path: 'device/:device/config/scheduler', component: DeviceConfigSchedulerComponent },
+  { path: 'device/:device/config/all', component: DeviceConfigConfigAllComponent },
   { path: 'device/:device/config/more', component: DeviceConfigMoreComponent },
   { path: 'device/:device/config/more/rawconfig', component: DeviceConfigRawConfigComponent },
-
   { path: 'device/:device/config/controller', redirectTo: 'device/:device/config/controller/overview', pathMatch: 'full' },
   { path: 'device/:device/config/controller/overview', component: DeviceControllerOverviewComponent },
   { path: 'device/:device/config/simulator', component: DeviceConfigSimulatorComponent },
 
+  { path: 'config/debugmode', component: ConfigDebugModeComponent },
 ];
 
 export const appRoutingProviders: any[] = [

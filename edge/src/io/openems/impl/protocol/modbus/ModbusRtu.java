@@ -32,7 +32,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsModbusException;
 
@@ -49,23 +49,23 @@ public class ModbusRtu extends ModbusBridge {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Baudrate", description = "Sets the baudrate (e.g. 9600).", type = Integer.class)
+	@ChannelInfo(title = "Baudrate", description = "Sets the baudrate (e.g. 9600).", type = Integer.class)
 	public final ConfigChannel<Integer> baudrate = new ConfigChannel<Integer>("baudrate", this)
 			.addUpdateListener(channelUpdateListener);
 
-	@ConfigInfo(title = "Databits", description = "Sets the databits (e.g. 8).", type = Integer.class)
+	@ChannelInfo(title = "Databits", description = "Sets the databits (e.g. 8).", type = Integer.class)
 	public final ConfigChannel<Integer> databits = new ConfigChannel<Integer>("databits", this)
 			.addUpdateListener(channelUpdateListener);
 
-	@ConfigInfo(title = "Parity", description = "Sets the parity (e.g. 'even').", type = String.class)
+	@ChannelInfo(title = "Parity", description = "Sets the parity (e.g. 'even').", type = String.class)
 	public final ConfigChannel<String> parity = new ConfigChannel<String>("parity", this)
 			.addUpdateListener(channelUpdateListener);
 
-	@ConfigInfo(title = "Serial interface", description = "Sets the serial interface (e.g. /dev/ttyUSB0).", type = String.class)
+	@ChannelInfo(title = "Serial interface", description = "Sets the serial interface (e.g. /dev/ttyUSB0).", type = String.class)
 	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this)
 			.addUpdateListener(channelUpdateListener);
 
-	@ConfigInfo(title = "Stopbits", description = "Sets the stopbits (e.g. 1).", type = Integer.class)
+	@ChannelInfo(title = "Stopbits", description = "Sets the stopbits (e.g. 1).", type = Integer.class)
 	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this)
 			.addUpdateListener(channelUpdateListener);
 

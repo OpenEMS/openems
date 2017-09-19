@@ -26,9 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.api.channel.Channel;
 import io.openems.impl.protocol.studer.internal.object.StuderObject;
 import io.openems.impl.protocol.studer.internal.property.ReadProperty;
@@ -42,7 +39,7 @@ import io.openems.impl.protocol.studer.internal.property.WriteProperty;
  */
 public class StuderProtocol {
 
-	private static Logger log = LoggerFactory.getLogger(StuderProtocol.class);
+	// private static Logger log = LoggerFactory.getLogger(StuderProtocol.class);
 
 	private final Map<Channel, StuderProperty<?>> channelPropertyMap = new ConcurrentHashMap<>();
 	private final Set<ReadProperty<?>> readProperties = ConcurrentHashMap.newKeySet();

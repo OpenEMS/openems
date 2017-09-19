@@ -114,6 +114,14 @@ export class ConfigImpl implements DefaultTypes.Config {
     public getPowerChannels(): DefaultTypes.ChannelAddresses {
         let ignoreNatures = { EssClusterNature: true };
         let result: DefaultTypes.ChannelAddresses = {}
+        // Set "ignoreNatures"
+        for (let thingId of this.storageThings) {
+            let i = this.config.things[thingId].class;
+            if (i.includes("FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
+                ignoreNatures["AsymmetricMeterNature"] = true;
+            }
+        }
+        // Parse all things
         for (let thingId in this.config.things) {
             let i = this.config.things[thingId].class;
             let channels = [];
@@ -123,9 +131,6 @@ export class ConfigImpl implements DefaultTypes.Config {
                     channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
                 } else if (i.includes("SymmetricEssNature")) {
                     channels.push("ActivePower", "ReactivePower");
-                }
-                if (i.includes("FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
-                    ignoreNatures["AsymmetricMeterNature"] = true;
                 }
             }
             // Meter

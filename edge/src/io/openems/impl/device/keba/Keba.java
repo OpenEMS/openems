@@ -27,7 +27,7 @@ import java.util.Set;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.keba.KebaDevice;
@@ -54,10 +54,10 @@ public class Keba extends KebaDevice {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "IP", description = "IP address of the Keba EVCS.", type = Inet4Address.class)
+	@ChannelInfo(title = "IP", description = "IP address of the Keba EVCS.", type = Inet4Address.class)
 	public ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
 
-	@ConfigInfo(title = "evcs", description = "Sets the EVCS nature.", type = KebaEvcs.class)
+	@ChannelInfo(title = "evcs", description = "Sets the EVCS nature.", type = KebaEvcs.class)
 	public final ConfigChannel<KebaEvcs> evcs = new ConfigChannel<KebaEvcs>("evcs", this);
 
 	/*

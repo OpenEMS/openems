@@ -6,6 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,8 @@ public class CurrentDataWorker {
 			/*
 			 * This task is executed regularly. Sends data to websocket.
 			 */
-			if (!edgeWebsocketHandler.getWebsocket().isOpen()) {
+			Optional<WebSocket> wsOpt = edgeWebsocketHandler.getWebsocket();
+			if (!(wsOpt.isPresent() && wsOpt.get().isOpen())) {
 				// disconnected; stop worker
 				this.dispose();
 				return;

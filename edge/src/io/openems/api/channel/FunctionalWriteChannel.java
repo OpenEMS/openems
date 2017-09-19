@@ -14,7 +14,7 @@ public class FunctionalWriteChannel<T extends Comparable<T>> extends WriteChanne
 	private FunctionalWriteChannelFunction<T> writeValueFunc;
 
 	public FunctionalWriteChannel(String id, Thing parent, FunctionalWriteChannelFunction<T> writeValueFunction,
-			WriteChannel<T>... channels) {
+			@SuppressWarnings("unchecked") WriteChannel<T>... channels) {
 		super(id, parent);
 		this.channels.addAll(Arrays.asList(channels));
 		this.writeValueFunc = writeValueFunction;
@@ -54,7 +54,7 @@ public class FunctionalWriteChannel<T extends Comparable<T>> extends WriteChanne
 
 	private void update() {
 		synchronized (this.channels) {
-			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
+			@SuppressWarnings("unchecked") WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
 			updateValue(writeValueFunc.getValue(channels));
 		}
@@ -64,7 +64,7 @@ public class FunctionalWriteChannel<T extends Comparable<T>> extends WriteChanne
 	public void pushWrite(T value) throws WriteChannelException {
 		synchronized (this.channels) {
 			super.pushWrite(value);
-			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
+			@SuppressWarnings("unchecked") WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
 			String label = labels.get(value);
 			writeValueFunc.setValue(value, label, channels);
@@ -75,7 +75,7 @@ public class FunctionalWriteChannel<T extends Comparable<T>> extends WriteChanne
 	public void pushWriteMax(T value) throws WriteChannelException {
 		synchronized (this.channels) {
 			super.pushWriteMax(value);
-			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
+			@SuppressWarnings("unchecked") WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
 			String label = labels.get(value);
 			writeValueFunc.setMaxValue(value, label, channels);
@@ -86,7 +86,7 @@ public class FunctionalWriteChannel<T extends Comparable<T>> extends WriteChanne
 	public void pushWriteMin(T value) throws WriteChannelException {
 		synchronized (this.channels) {
 			super.pushWriteMin(value);
-			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
+			@SuppressWarnings("unchecked") WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
 			String label = labels.get(value);
 			writeValueFunc.setMinValue(value, label, channels);
@@ -108,7 +108,7 @@ public class FunctionalWriteChannel<T extends Comparable<T>> extends WriteChanne
 	@Override
 	public Optional<T> writeMin() {
 		synchronized (this.channels) {
-			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
+			@SuppressWarnings("unchecked") WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
 			T erg = writeValueFunc.getMinValue(channels);
 			if (erg != null) {
@@ -127,7 +127,7 @@ public class FunctionalWriteChannel<T extends Comparable<T>> extends WriteChanne
 	@Override
 	public Optional<T> writeMax() {
 		synchronized (this.channels) {
-			WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
+			@SuppressWarnings("unchecked") WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
 			T erg = writeValueFunc.getMaxValue(channels);
 			if (erg != null) {

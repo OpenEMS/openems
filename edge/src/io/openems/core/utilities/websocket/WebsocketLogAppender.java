@@ -1,7 +1,5 @@
 package io.openems.core.utilities.websocket;
 
-import java.util.Optional;
-
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import io.openems.api.controller.Controller;
@@ -33,10 +31,7 @@ public class WebsocketLogAppender extends AppenderBase<ILoggingEvent> {
 		ThingRepository.getInstance().getPersistences().forEach((persistence) -> {
 			if (persistence instanceof FeneconPersistence) {
 				FeneconPersistence p = (FeneconPersistence) persistence;
-				Optional<EdgeWebsocketHandler> handler = p.getWebsocketHandler();
-				if (handler.isPresent()) {
-					handler.get().sendLog(timestamp, level, source, message);
-				}
+				p.getWebsocketHandler().sendLog(timestamp, level, source, message);
 			}
 		});
 	}

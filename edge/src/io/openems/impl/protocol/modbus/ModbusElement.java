@@ -75,7 +75,8 @@ public abstract class ModbusElement<T> {
 		}
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return "ModbusElement: Implementation[" + this.getClass().getSimpleName() + "], ModbusAddress[" + address + "]"
 				+ (channel != null ? ", ChannelAddress[" + channel.address() + "]" : "");
 	}

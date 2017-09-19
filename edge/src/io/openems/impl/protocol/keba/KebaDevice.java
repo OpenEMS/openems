@@ -34,7 +34,7 @@ import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsException;
 
@@ -56,10 +56,10 @@ public abstract class KebaDevice extends Device {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "IP address", description = "Sets the IP address (e.g. 192.168.25.11).", type = Inet4Address.class)
+	@ChannelInfo(title = "IP address", description = "Sets the IP address (e.g. 192.168.25.11).", type = Inet4Address.class)
 	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
 
-	@ConfigInfo(title = "Port", description = "Sets the port (e.g. 7090).", type = Integer.class, defaultValue = "7090")
+	@ChannelInfo(title = "Port", description = "Sets the port (e.g. 7090).", type = Integer.class, defaultValue = "7090")
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this);
 
 	// protected void update() throws InterruptedException {
@@ -88,6 +88,7 @@ public abstract class KebaDevice extends Device {
 			dSocket.send(packet);
 			// dSocket.close();
 			log.info("Sent...");
+			dSocket.close();
 			Thread.sleep(REPORT_DELAY);
 		}
 	}

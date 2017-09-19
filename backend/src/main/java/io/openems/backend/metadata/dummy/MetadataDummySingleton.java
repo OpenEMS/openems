@@ -3,9 +3,6 @@ package io.openems.backend.metadata.dummy;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.browserwebsocket.session.BrowserSessionData;
 import io.openems.backend.metadata.api.MetadataSingleton;
@@ -16,7 +13,7 @@ import io.openems.common.session.SessionData;
 import io.openems.common.types.Device;
 
 public class MetadataDummySingleton implements MetadataSingleton {
-	private final Logger log = LoggerFactory.getLogger(MetadataDummySingleton.class);
+	// private final Logger log = LoggerFactory.getLogger(MetadataDummySingleton.class);
 
 	private MetadataDummyDeviceModel deviceModel;
 

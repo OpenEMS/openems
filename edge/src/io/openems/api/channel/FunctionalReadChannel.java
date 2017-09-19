@@ -33,6 +33,7 @@ public class FunctionalReadChannel<T> extends ReadChannel<T> implements ChannelU
 	private List<ReadChannel<T>> channels = new ArrayList<>();
 	private FunctionalReadChannelFunction<T> func;
 
+	@SafeVarargs
 	public FunctionalReadChannel(String id, Thing parent, FunctionalReadChannelFunction<T> function,
 			ReadChannel<T>... channels) {
 		super(id, parent);
@@ -74,7 +75,7 @@ public class FunctionalReadChannel<T> extends ReadChannel<T> implements ChannelU
 
 	private void update() {
 		synchronized (this.channels) {
-			ReadChannel<T>[] channels = new ReadChannel[this.channels.size()];
+			@SuppressWarnings("unchecked") ReadChannel<T>[] channels = new ReadChannel[this.channels.size()];
 			this.channels.toArray(channels);
 			try {
 				updateValue(func.handle(channels));

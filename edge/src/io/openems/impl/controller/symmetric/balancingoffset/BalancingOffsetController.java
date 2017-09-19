@@ -26,7 +26,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -53,22 +53,22 @@ public class BalancingOffsetController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public final ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<>("meter", this);
 
-	@ConfigInfo(title = "Offset ActivePower", description = "The offset of the active power from zero to hold on the grid meter.", type = Integer.class)
+	@ChannelInfo(title = "Offset ActivePower", description = "The offset of the active power from zero to hold on the grid meter.", type = Integer.class)
 	public final ConfigChannel<Integer> activePowerOffset = new ConfigChannel<>("activePowerOffset", this);
 
-	@ConfigInfo(title = "Offset ReactivePower", description = "The offset of the reactive power from zero to hold on the grid meter.", type = Integer.class)
+	@ChannelInfo(title = "Offset ReactivePower", description = "The offset of the reactive power from zero to hold on the grid meter.", type = Integer.class)
 	public final ConfigChannel<Integer> reactivePowerOffset = new ConfigChannel<>("reactivePowerOffset", this);
 
-	@ConfigInfo(title = "Enable ActivePower", description = "Indicates if active power is enabled.", type = Boolean.class, defaultValue = "true")
+	@ChannelInfo(title = "Enable ActivePower", description = "Indicates if active power is enabled.", type = Boolean.class, defaultValue = "true")
 	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this);
 
-	@ConfigInfo(title = "Enable ReactivePower", description = "Indicates if reactive power is enabled.", type = Boolean.class, defaultValue = "true")
+	@ChannelInfo(title = "Enable ReactivePower", description = "Indicates if reactive power is enabled.", type = Boolean.class, defaultValue = "true")
 	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
 			this);
 

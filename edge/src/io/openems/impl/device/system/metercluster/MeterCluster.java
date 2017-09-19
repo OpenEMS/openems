@@ -6,13 +6,15 @@ import java.util.Set;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.system.SystemDevice;
 
+@ThingInfo(title = "Meter Cluster")
 public class MeterCluster extends SystemDevice {
 
-	@ConfigInfo(title = "EssCluster", description = "Sets the cluster nature.", type = MeterClusterNature.class)
+	@ChannelInfo(title = "EssCluster", description = "Sets the cluster nature.", type = MeterClusterNature.class)
 	public final ConfigChannel<MeterClusterNature> cluster = new ConfigChannel<>("cluster", this);
 
 	public MeterCluster(Bridge parent) throws OpenemsException {

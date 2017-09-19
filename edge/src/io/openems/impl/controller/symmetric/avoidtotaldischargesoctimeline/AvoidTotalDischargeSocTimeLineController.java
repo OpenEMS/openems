@@ -33,7 +33,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -56,10 +56,10 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this).addChangeListener(this);
 
-	@ConfigInfo(title = "Soc timeline", description = "This option configures an minsoc at a time for an ess. If no minsoc for an ess is configured the controller uses the minsoc of the ess.", type = JsonArray.class)
+	@ChannelInfo(title = "Soc timeline", description = "This option configures an minsoc at a time for an ess. If no minsoc for an ess is configured the controller uses the minsoc of the ess.", type = JsonArray.class)
 	public final ConfigChannel<JsonArray> socTimeline = new ConfigChannel<JsonArray>("socTimeline", this)
 			.addChangeListener(this);
 

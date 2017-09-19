@@ -43,10 +43,10 @@ public class ModbusBridgeWriteTask extends BridgeWriteTask {
 			 * Build a list of start-addresses of elements without holes. The start-addresses map to a list
 			 * of elements and their values (sorted by order of insertion using LinkedHashMap)
 			 */
-			LinkedHashMap<Integer, LinkedHashMap<ModbusElement, Boolean>> elements = new LinkedHashMap<>();
+			LinkedHashMap<Integer, LinkedHashMap<ModbusElement<?>, Boolean>> elements = new LinkedHashMap<>();
 			Integer nextStartAddress = null;
-			LinkedHashMap<ModbusElement, Boolean> values = new LinkedHashMap<ModbusElement, Boolean>();
-			for (ModbusElement element : range.getElements()) {
+			LinkedHashMap<ModbusElement<?>, Boolean> values = new LinkedHashMap<ModbusElement<?>, Boolean>();
+			for (ModbusElement<?> element : range.getElements()) {
 				// Test if Channel is a dummy or writable and receive write value
 				boolean value = false;
 				if (element instanceof DummyElement) {
@@ -64,7 +64,7 @@ public class ModbusBridgeWriteTask extends BridgeWriteTask {
 				}
 				// Test if there is a "hole", if yes -> create new values map
 				if (nextStartAddress == null || nextStartAddress != element.getAddress()) {
-					values = new LinkedHashMap<ModbusElement, Boolean>();
+					values = new LinkedHashMap<ModbusElement<?>, Boolean>();
 					elements.put(element.getAddress(), values);
 				}
 				// store this element and the value
@@ -76,14 +76,14 @@ public class ModbusBridgeWriteTask extends BridgeWriteTask {
 			/*
 			 * Write all elements
 			 */
-			for (Entry<Integer, LinkedHashMap<ModbusElement, Boolean>> entry : elements.entrySet()) {
+			for (Entry<Integer, LinkedHashMap<ModbusElement<?>, Boolean>> entry : elements.entrySet()) {
 				/*
 				 * Get start address and all registers
 				 */
 				int address = entry.getKey();
 				List<Boolean> coils = new ArrayList<>();
-				for (Entry<ModbusElement, Boolean> value : entry.getValue().entrySet()) {
-					ModbusElement element = value.getKey();
+				for (Entry<ModbusElement<?>, Boolean> value : entry.getValue().entrySet()) {
+					ModbusElement<?> element = value.getKey();
 					if (element instanceof CoilElement) {
 						coils.add(value.getValue());
 					} else { // DummyElement -> write false;
@@ -108,11 +108,11 @@ public class ModbusBridgeWriteTask extends BridgeWriteTask {
 			 * Build a list of start-addresses of elements without holes. The start-addresses map to a list
 			 * of elements and their values (sorted by order of insertion using LinkedHashMap)
 			 */
-			LinkedHashMap<Integer, LinkedHashMap<ModbusElement, Long>> elements = new LinkedHashMap<>();
+			LinkedHashMap<Integer, LinkedHashMap<ModbusElement<?>, Long>> elements = new LinkedHashMap<>();
 			Integer nextStartAddress = null;
-			LinkedHashMap<ModbusElement, Long> values = new LinkedHashMap<ModbusElement, Long>();
+			LinkedHashMap<ModbusElement<?>, Long> values = new LinkedHashMap<ModbusElement<?>, Long>();
 			;
-			for (ModbusElement element : range.getElements()) {
+			for (ModbusElement<?> element : range.getElements()) {
 				// Test if Channel is a dummy or writable and receive write value
 				long value = 0L;
 				if (element instanceof DummyElement) {
@@ -130,7 +130,7 @@ public class ModbusBridgeWriteTask extends BridgeWriteTask {
 				}
 				// Test if there is a "hole", if yes -> create new values map
 				if (nextStartAddress == null || nextStartAddress != element.getAddress()) {
-					values = new LinkedHashMap<ModbusElement, Long>();
+					values = new LinkedHashMap<ModbusElement<?>, Long>();
 					elements.put(element.getAddress(), values);
 				}
 				// store this element and the value
@@ -142,14 +142,14 @@ public class ModbusBridgeWriteTask extends BridgeWriteTask {
 			/*
 			 * Write all elements
 			 */
-			for (Entry<Integer, LinkedHashMap<ModbusElement, Long>> entry : elements.entrySet()) {
+			for (Entry<Integer, LinkedHashMap<ModbusElement<?>, Long>> entry : elements.entrySet()) {
 				/*
 				 * Get start address and all registers
 				 */
 				int address = entry.getKey();
 				List<Register> registers = new ArrayList<>();
-				for (Entry<ModbusElement, Long> value : entry.getValue().entrySet()) {
-					ModbusElement element = value.getKey();
+				for (Entry<ModbusElement<?>, Long> value : entry.getValue().entrySet()) {
+					ModbusElement<?> element = value.getKey();
 					if (element instanceof WordElement) {
 						registers.add( //
 								((WordElement) element).toRegister(value.getValue()));

@@ -24,7 +24,7 @@ import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class WriteableModbusRegisterRange extends ModbusRegisterRange implements WriteableModbusRange {
 
-	public WriteableModbusRegisterRange(int startAddress, ModbusElement... elements) {
+	public WriteableModbusRegisterRange(int startAddress, ModbusElement<?>... elements) {
 		super(startAddress, elements);
 	}
 

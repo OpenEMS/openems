@@ -22,11 +22,11 @@ package io.openems.api.device.nature.meter;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 
 public interface MeterNature extends DeviceNature {
 
-	@ConfigInfo(title = "Type", description = "Used to distinct the meters. Use e.g. 'grid' or 'production'.", type = String.class, defaultValue = "production")
+	@ChannelInfo(title = "Type", description = "Used to distinct the meters. Use e.g. 'grid' or 'production'.", type = String.class, defaultValue = "production")
 	public ConfigChannel<String> type();
 
 }

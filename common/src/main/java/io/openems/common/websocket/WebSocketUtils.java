@@ -16,10 +16,20 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.api.TimedataSource;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 
 public class WebSocketUtils {
 
 	private static Logger log = LoggerFactory.getLogger(WebSocketUtils.class);
+	
+	public static boolean send(Optional<WebSocket> websocketOpt, JsonObject j) {
+		if(!websocketOpt.isPresent()) {
+			log.error("Websocket is not available. Unable to send ["+ StringUtils.toShortString(j,100) +"]");
+			return false;
+		} else {
+			return WebSocketUtils.send(websocketOpt.get(), j);
+		}
+	}
 	
 	/**
 	 * Send a message to a websocket
@@ -33,6 +43,7 @@ public class WebSocketUtils {
 			websocket.send(j.toString());
 			return true;
 		} catch (WebsocketNotConnectedException e) {
+			log.error("Websocket is not connected. Unable to send ["+ StringUtils.toShortString(j,100) +"]");
 			return false;
 		}
 	}

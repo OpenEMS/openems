@@ -28,7 +28,7 @@ import java.util.List;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.OutputNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
@@ -53,7 +53,7 @@ public class WagoFBOutput extends ModbusDeviceNature implements OutputNature {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "IP", description = "IP address of the WAGO device.", type = Inet4Address.class)
+	@ChannelInfo(title = "IP", description = "IP address of the WAGO device.", type = Inet4Address.class)
 	public ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
 
 	/*
@@ -80,7 +80,7 @@ public class WagoFBOutput extends ModbusDeviceNature implements OutputNature {
 				case "DO": {
 					List<CoilElement> elements = new ArrayList<>();
 					int count = 0;
-					for (String channel : channels.get(key)) {
+					for (@SuppressWarnings("unused") String channel : channels.get(key)) {
 						ModbusCoilWriteChannel ch = new ModbusCoilWriteChannel(Integer.toString(count), this);
 						this.channel.add(ch);
 						elements.add(new CoilElement(512 + count, ch));

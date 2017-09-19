@@ -1,4 +1,4 @@
-<div *ngIf="device && config" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+<div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
   <div fxFlex.xs="100%" fxFlex.sm="50%" fxFlex.md="35%" fxFlex.lg="25%" fxFlex.gt-lg="20%">
     <md-card class="single">
       <md-card-header>
@@ -30,26 +30,8 @@
             fxFlex="100%">
             <span translate>Device.History.OtherPeriod</span>
           </button>
+          <my-date-range-picker [options]="dateRangePickerOptions" [(ngModel)]="dateRange" (dateRangeChanged)="onDateRangeChanged($event)"></my-date-range-picker>
           <div *ngIf="showOtherTimespan" style="margin-top: 20px" fxLayout fxLayoutWrap="wrap" fxFlex="100%">
-            <div fxFlex="100%">
-              <div fxFlex="75px"></div>
-              <md-input-container>
-                <input #from type="date" [value]="fromDate | date:'yyyy-MM-dd'" placeholder="Datum von" style="height: auto" mdInput/>
-              </md-input-container>
-            </div>
-            <!-- TODO use daterange-picker https://www.npmjs.com/package/ng2-daterange-picker -->
-            <div fxFlex="100%">
-              <div fxFlex="75px"></div>
-              <md-input-container>
-                <input #to type="date" [value]="toDate | date:'yyyy-MM-dd'" placeholder="Datum bis" style="height: auto" mdInput />
-              </md-input-container>
-            </div>
-            <div fxFlex="100%">
-              <div fxFlex="75px"></div>
-              <button md-raised-button style="font-size: 14px" (click)="setPeriod('otherTimespan', from.value, to.value)">
-                <span translate>Device.History.Go</span>
-              </button>
-            </div>
           </div>
         </div>
       </md-card-content>

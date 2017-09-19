@@ -22,7 +22,7 @@ package io.openems.impl.controller.api.rest;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 
@@ -43,7 +43,7 @@ public class RestApiController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Port", description = "Sets the port of the REST-Api Server.", type = Integer.class, defaultValue = "8084")
+	@ChannelInfo(title = "Port", description = "Sets the port of the REST-Api Server.", type = Integer.class, defaultValue = "8084")
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this);
 
 	/*

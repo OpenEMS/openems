@@ -3,8 +3,6 @@ import { MdSnackBar } from '@angular/material';
 import { Subject } from 'rxjs/Subject';
 import { TranslateService } from '@ngx-translate/core';
 
-import * as moment from 'moment';
-
 import { environment } from '../environments';
 import { Service, Websocket } from './shared/shared';
 

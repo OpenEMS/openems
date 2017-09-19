@@ -41,7 +41,7 @@ public class ModbusBridgeReadTask extends BridgeReadTask {
 
 				// Fill channels
 				int position = 0;
-				for (ModbusElement<Boolean> element : range.getElements()) {
+				for (ModbusElement<?> element : range.getElements()) {
 					if (element instanceof CoilElement) {
 						// Use _one_ Register for the element
 						((CoilElement) element).setValue(coils[position]);
@@ -57,7 +57,7 @@ public class ModbusBridgeReadTask extends BridgeReadTask {
 						e.getMessage());
 				modbusBridge.triggerInitialize();
 				// set all elements to invalid
-				for (ModbusElement<Boolean> element : range.getElements()) {
+				for (ModbusElement<?> element : range.getElements()) {
 					element.setValue(null);
 				}
 			}
@@ -68,7 +68,7 @@ public class ModbusBridgeReadTask extends BridgeReadTask {
 
 				// Fill channels
 				int position = 0;
-				for (ModbusElement element : range.getElements()) {
+				for (ModbusElement<?> element : range.getElements()) {
 					if (element instanceof DummyElement) {
 						// ignore dummy
 					} else if (element instanceof WordElement) {
@@ -89,7 +89,7 @@ public class ModbusBridgeReadTask extends BridgeReadTask {
 						e.getMessage());
 				modbusBridge.triggerInitialize();
 				// set all elements to invalid
-				for (ModbusElement element : range.getElements()) {
+				for (ModbusElement<?> element : range.getElements()) {
 					element.setValue(null);
 				}
 			}
