@@ -100,19 +100,21 @@ public class BrowserWebsocketSingleton
 			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(), Optional.empty(),
 					data.getDevices());
 			// TODO write user name to log output
-			log.info("User [" + data.getUserName() + "] connected with Session [" + data.getOdooSessionId().orElse("")
-					+ "]");
 			WebSocketUtils.send(websocket, jReply);
 
 			// add websocket to local cache
 			this.websockets.forcePut(websocket, session);
+
+			log.info("User [" + data.getUserName() + "] connected with Session [" + data.getOdooSessionId().orElse("")
+					+ "]. Total websockets [" + this.websockets.size() + "]");
 
 		} else {
 			// send connection failed to browser
 			JsonObject jReply = DefaultMessages.browserConnectionFailedReply();
 			WebSocketUtils.send(websocket, jReply);
 			log.warn("User [" + data.getUserName() + "] connection failed. Session ["
-					+ data.getOdooSessionId().orElse("") + "] Error [" + error + "]");
+					+ data.getOdooSessionId().orElse("") + "] Error [" + error + "]. Total websockets ["
+					+ this.websockets.size() + "]");
 
 			websocket.closeConnection(CloseFrame.REFUSE, error);
 		}
