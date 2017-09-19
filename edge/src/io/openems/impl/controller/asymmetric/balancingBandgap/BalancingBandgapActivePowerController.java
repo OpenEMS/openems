@@ -25,6 +25,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.AvgFiFoQueue;
 
 @ThingInfo(title = "Self-consumption optimization (Asymmetric)", description = "Tries to keep the grid meter on zero. For asymmetric Ess.")
 public class BalancingBandgapActivePowerController extends Controller {
@@ -70,6 +71,13 @@ public class BalancingBandgapActivePowerController extends Controller {
 	@ChannelInfo(title = "Min-ReactivePowerL3", description = "Low boundary of reactive power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> minActivePowerL3 = new ConfigChannel<>("minActivePowerL3", this);
 
+	private AvgFiFoQueue meterL1 = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue meterL2 = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue meterL3 = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue essL1 = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue essL2 = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue essL3 = new AvgFiFoQueue(2, 1.5);
+
 	/*
 	 * Methods
 	 */
@@ -80,12 +88,18 @@ public class BalancingBandgapActivePowerController extends Controller {
 			// calculateRequiredPower
 			Meter meter = this.meter.value();
 			Ess ess = this.esss.value();
-			calculatedPowers[0] = meter.activePowerL1.value();
-			calculatedPowers[1] = meter.activePowerL2.value();
-			calculatedPowers[2] = meter.activePowerL3.value();
-			calculatedPowers[0] += ess.activePowerL1.value();
-			calculatedPowers[1] += ess.activePowerL2.value();
-			calculatedPowers[2] += ess.activePowerL3.value();
+			meterL1.add(meter.activePowerL1.value());
+			meterL2.add(meter.activePowerL2.value());
+			meterL3.add(meter.activePowerL3.value());
+			this.essL1.add(ess.activePowerL1.value());
+			this.essL2.add(ess.activePowerL2.value());
+			this.essL3.add(ess.activePowerL3.value());
+			calculatedPowers[0] = meterL1.avg();
+			calculatedPowers[1] = meterL2.avg();
+			calculatedPowers[2] = meterL3.avg();
+			calculatedPowers[0] += essL1.avg();
+			calculatedPowers[1] += essL2.avg();
+			calculatedPowers[2] += essL3.avg();
 			if (calculatedPowers[0] >= maxActivePowerL1.value()) {
 				calculatedPowers[0] -= maxActivePowerL1.value();
 			} else if (calculatedPowers[0] <= minActivePowerL1.value()) {
