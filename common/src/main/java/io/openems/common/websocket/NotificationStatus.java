@@ -18,8 +18,8 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.core.utilities.websocket;
+package io.openems.common.websocket;
 
-public enum NotificationType {
+public enum NotificationStatus {
 	SUCCESS, ERROR, WARNING, INFO, LOG;
 }
