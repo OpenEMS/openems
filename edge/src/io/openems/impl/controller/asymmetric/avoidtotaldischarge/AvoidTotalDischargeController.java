@@ -26,7 +26,7 @@ import java.util.Set;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -49,9 +49,9 @@ public class AvoidTotalDischargeController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
-	@ConfigInfo(title = "Max Soc", description = "If the System is full the charge is blocked untill the soc decrease below the maxSoc.", type = Long.class, defaultValue = "95")
+	@ChannelInfo(title = "Max Soc", description = "If the System is full the charge is blocked untill the soc decrease below the maxSoc.", type = Long.class, defaultValue = "95")
 	public final ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
 
 	/*
@@ -79,6 +79,10 @@ public class AvoidTotalDischargeController extends Controller {
 								log.info("Avoid discharge. Set ActivePowerL1=Max[-1000 W]");
 								ess.setActivePowerL1.pushWriteMax(-1000L);
 							}
+						} catch (WriteChannelException e) {
+							log.error("Unable to set ActivePowerL1: " + e.getMessage());
+						}
+						try {
 							Optional<Long> currentMinValueL2 = ess.setActivePowerL2.writeMin();
 							if (currentMinValueL2.isPresent() && currentMinValueL2.get() < 0) {
 								// Force Charge with minimum of MaxChargePower/5
@@ -88,6 +92,10 @@ public class AvoidTotalDischargeController extends Controller {
 								log.info("Avoid discharge. Set ActivePowerL2=Max[-1000 W]");
 								ess.setActivePowerL2.pushWriteMax(-1000L);
 							}
+						} catch (WriteChannelException e) {
+							log.error("Unable to set ActivePowerL2: " + e.getMessage());
+						}
+						try {
 							Optional<Long> currentMinValueL3 = ess.setActivePowerL3.writeMin();
 							if (currentMinValueL3.isPresent() && currentMinValueL3.get() < 0) {
 								// Force Charge with minimum of MaxChargePower/5
@@ -97,9 +105,8 @@ public class AvoidTotalDischargeController extends Controller {
 								log.info("Avoid discharge. Set ActivePowerL3=Max[-1000 W]");
 								ess.setActivePowerL3.pushWriteMax(-1000L);
 							}
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						} catch (WriteChannelException e) {
+							log.error("Unable to set ActivePowerL3: " + e.getMessage());
 						}
 					}
 					break;
@@ -139,11 +146,18 @@ public class AvoidTotalDischargeController extends Controller {
 				case FULL:
 					try {
 						ess.setActivePowerL1.pushWriteMin(0L);
+					} catch (WriteChannelException e) {
+						log.error("Unable to set ActivePowerL1: " + e.getMessage());
+					}
+					try {
 						ess.setActivePowerL2.pushWriteMin(0L);
+					} catch (WriteChannelException e) {
+						log.error("Unable to set ActivePowerL2: " + e.getMessage());
+					}
+					try {
 						ess.setActivePowerL3.pushWriteMin(0L);
 					} catch (WriteChannelException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						log.error("Unable to set ActivePowerL3: " + e.getMessage());
 					}
 					if (ess.soc.value() < maxSoc.value()) {
 						ess.currentState = State.NORMAL;

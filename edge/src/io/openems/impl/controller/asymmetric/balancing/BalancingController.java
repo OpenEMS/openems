@@ -22,11 +22,12 @@ package io.openems.impl.controller.asymmetric.balancing;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -49,13 +50,13 @@ public class BalancingController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Cos-Phi", type = Double.class, defaultValue = "0.95")
+	@ChannelInfo(title = "Cos-Phi", type = Double.class, defaultValue = "0.95")
 	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
 
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
 	/*
@@ -103,7 +104,7 @@ public class BalancingController extends Controller {
 				long maxChargePowerPhase = 0L;
 				long maxDischargePowerPhase = 0L;
 				for (Ess ess : esss.value()) {
-					Tupel<Long> minMax = calculateMinMaxValues(ess, percentage, cosPhi.value());
+					Tupel<Long> minMax = calculateMinMaxValues(ess, percentage, cosPhi.value(), i);
 					maxDischargePowerPhase += minMax.b;
 					maxChargePowerPhase += minMax.a;
 					try {
@@ -279,14 +280,26 @@ public class BalancingController extends Controller {
 	 * @return a Tupel with value a minPower and value b maxPower
 	 * @throws InvalidValueException
 	 */
-	private Tupel<Long> calculateMinMaxValues(Ess ess, double percentage, double cosPhi) throws InvalidValueException {
+	private Tupel<Long> calculateMinMaxValues(Ess ess, double percentage, double cosPhi, int phase)
+			throws InvalidValueException {
 		long maxPower = 0;
 		long minPower = 0;
 		percentage = Math.abs(percentage);
 
+		Optional<Long> writeMin = ess.getSetActivePower(phase).writeMin();
+		Optional<Long> writeMax = ess.getSetActivePower(phase).writeMax();
+
 		maxPower = (long) ((double) ess.allowedDischarge.value() * percentage);
 
+		if (writeMax.isPresent() && maxPower > writeMax.get()) {
+			maxPower = writeMax.get();
+		}
+
 		minPower = (long) ((double) ess.allowedCharge.value() * percentage);
+
+		if (writeMin.isPresent() && minPower < writeMin.get()) {
+			minPower = writeMin.get();
+		}
 
 		if (ControllerUtils.calculateApparentPower(minPower, cosPhi) > ess.allowedApparent.value() / 3) {
 			minPower = ControllerUtils.calculateActivePowerFromApparentPower(ess.allowedApparent.value() / 3, cosPhi)

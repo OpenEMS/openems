@@ -20,7 +20,7 @@
       "prefix": "app",
       "styles": [
         "styles.css",
-        "../node_modules/material-design-icons/iconfont/material-icons.css",
+        "../node_modules/material-design-icons-iconfont/dist/material-design-icons.css",
         "theme.scss"
       ],
       "scripts": [
@@ -28,13 +28,10 @@
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {
-        "femsserver": "environments/femsserver.ts",
-        "femsserver-dev": "environments/femsserver-dev.ts",
-        "femsserver-local": "environments/femsserver-local.ts",
-        "openems": "environments/openems.ts",
-        "dev": "environments/environment.ts",
-        "project-VA6403": "environments/project-VA6403.ts",
-        "project-VA7282": "environments/project-VA7282.ts"
+        "backend": "environments/openems-backend.ts",
+        "backend-dev": "environments/openems-backend-dev.ts",
+        "edge": "environments/openems-edge.ts",
+        "dev": "environments/environment.ts"
       }
     }
   ],
@@ -45,16 +42,13 @@
   },
   "lint": [
     {
-      "project": "src/tsconfig.app.json",
-      "exclude": "**/node_modules/**"
+      "project": "src/tsconfig.app.json"
     },
     {
-      "project": "src/tsconfig.spec.json",
-      "exclude": "**/node_modules/**"
+      "project": "src/tsconfig.spec.json"
     },
     {
-      "project": "e2e/tsconfig.e2e.json",
-      "exclude": "**/node_modules/**"
+      "project": "e2e/tsconfig.e2e.json"
     }
   ],
   "test": {

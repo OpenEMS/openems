@@ -1,4 +1,7 @@
-<ng-container *ngIf="device">
+<md-card class="single">
+  <md-card-header>TODO: adjust ManualpqComponent to new config layout</md-card-header>
+</md-card>
+<!-- <ng-container *ngIf="device">
   <ng-container *ngFor="let nat of (device.config | async)?._meta.natures | keys">
     <ng-container *ngFor="let implements of nat.value.implements">
       <ng-container *ngIf="implements == 'EssNature'">
@@ -6,7 +9,7 @@
         <md-card class="single">
           <md-card-header>
             <md-icon md-card-avatar>stop</md-icon>
-            <md-card-title i18n>Leistungsvorgabe</md-card-title>
+            <md-card-title translate>Device.Config.More.ManualpqPowerSpecification</md-card-title>
             <md-card-subtitle>{{ nat.key }}</md-card-subtitle>
           </md-card-header>
           <md-card-content [formGroup]="manualPQForm" fxLayout fxLayoutWrap="wrap">
@@ -19,8 +22,8 @@
               <div fxFlex></div>
             </div>
             <div fxFlex="100%">
-              <button md-raised-button (click)="applyManualPQ(nat.key, manualPQForm)" class="btn btn-default" i18n>Übernehmen</button>
-              <button md-raised-button (click)="removeManualPQ(nat.key)" class="btn btn-default" i18n>Zurücksetzen</button>
+              <button md-raised-button (click)="applyManualPQ(nat.key, manualPQForm)" class="btn btn-default"><span translate>Device.Config.More.ManualpqSubmit</span></button>
+              <button md-raised-button (click)="removeManualPQ(nat.key)" class="btn btn-default"><span translate>Device.Config.More.ManualpqReset</span></button>
             </div>
           </md-card-content>
         </md-card>
@@ -28,4 +31,4 @@
       </ng-container>
     </ng-container>
   </ng-container>
-</ng-container>
+</ng-container> -->

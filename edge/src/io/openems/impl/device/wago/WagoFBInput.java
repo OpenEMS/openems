@@ -26,8 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.InputNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
@@ -44,14 +45,14 @@ public class WagoFBInput extends ModbusDeviceNature implements InputNature {
 	/*
 	 * Constructors
 	 */
-	public WagoFBInput(String thingId) throws ConfigException {
-		super(thingId);
+	public WagoFBInput(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "IP address", description = "IP address of the WAGO device.", type = Inet4Address.class)
+	@ChannelInfo(title = "IP address", description = "IP address of the WAGO device.", type = Inet4Address.class)
 	public ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
 
 	/*
@@ -78,7 +79,7 @@ public class WagoFBInput extends ModbusDeviceNature implements InputNature {
 				case "DI": {
 					List<CoilElement> elements = new ArrayList<>();
 					int count = 0;
-					for (String channel : channels.get(key)) {
+					for (@SuppressWarnings("unused") String channel : channels.get(key)) {
 						ModbusCoilReadChannel ch = new ModbusCoilReadChannel(Integer.toString(count), this);
 						this.channel.add(ch);
 						elements.add(new CoilElement(count, ch));

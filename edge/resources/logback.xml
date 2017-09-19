@@ -14,8 +14,7 @@
 <configuration>
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]
-				%msg%ex{10}%n</pattern>
+			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]%msg%ex{10}%n</pattern>
 		</encoder>
 	</appender>
 	<appender name="WEBSOCKET"
@@ -26,7 +25,7 @@
 		<file>/var/log/openems.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
 			<fileNamePattern>/var/log/openems.%i.log.zip
-			</fileNamePattern>
+			</fileNamePattern> 
 			<minIndex>1</minIndex>
 			<maxIndex>3</maxIndex>
 			<totalSizeCap>10MB</totalSizeCap>
@@ -36,8 +35,7 @@
 			<maxFileSize>5KB</maxFileSize>
 		</triggeringPolicy>
 		<encoder>
-			<pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n
-			</pattern>
+			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]%msg%ex{10}%n</pattern>
 		</encoder>
 	</appender>
 	<root level="INFO">

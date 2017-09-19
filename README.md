@@ -1,3 +1,5 @@
+[![Dependency Status](https://www.versioneye.com/user/projects/59a3dd596725bd004562717b/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/59a3dd596725bd004562717b)
+
 # OpenEMS
 ## Open Source Energy Management System
 
@@ -23,6 +25,53 @@ The OpenEMS stack contains three parts:
 <img src="/doc/img/screenshots/briefhistorie.png" width="100" align="left"/>
 <img src="/doc/img/screenshots/historysoc.png" width="100" align="left"/>
 <img src="/doc/img/screenshots/historyenergy.png" width="100"/>
+
+## Compatibility
+
+A number of devices, protocols and services are already implemented in OpenEMS:
+
+### Integrated energy storage sytems / inverters / battery chargers
+
+ * [FENECON Mini 3-3 and 3-6 (testing)](https://fenecon.de/page/stromspeicher-mini-es)
+ * [FENECON Pro 9-12](https://fenecon.de/page/stromspeicher-pro)
+ * [FENECON Commercial AC](https://fenecon.de/page/stromspeicher-commercial)
+ * [FENECON Commercial DC](https://fenecon.de/page/stromspeicher-commercial)
+ * [REFU battery inverter](http://www.refu-energy.de/hybrid-power-applications/)
+ * [Studer VS 70 (testing)](http://www.studer-innotec.com/de/produkte/variostring-reihe/vs-70-313)
+
+### Meters
+
+ * [SOCOMEC Diris](http://www.socomec.de/multimessgerate_de.html)
+ * [B-Control Energy Meter](https://www.b-control.com)
+ * [Janitza UMG 96RM-E](https://www.janitza.de/umg-96rm-e.html)
+ * [Carlog Gavazzi EM300](http://www.gavazzi.de/index.php/13-control/47-em100-und-em300-serie)
+ * [PQ plus UMD 97](http://www.pq-plus.de/news/pqplus/umd-97-messgeraet.html)
+
+### Input/Output
+
+ * [FEMS Relais 8-Kanal RS485](https://fenecon.de/page/stromspeicher-fems)
+ * [FEMS Relais 8-Kanal TCP](https://fenecon.de/page/stromspeicher-fems)
+ * [WAGO Fieldbus](http://www.wago.de/produkte/produktkatalog/automatisierungskomponenten/modulares-wago-io-system-ip20-serie-750-753/feldbuskoppler/index.jsp)
+ * [KMTronic relay board](https://www.kmtronic.com/)
+
+### Electric Vehicle Charging Stations (EVCS)
+
+ * [KEBA KeContact P30 (testing)](http://www.keba.com/de/emobility/elektromobilitaet)
+
+### Data persistence / logging / monitoring
+
+ * [InfluxDB](https://www.influxdata.com)
+
+### Outbound Protocols
+
+ * Modbus/TCP
+ * Modbus/RTU
+
+### Inbound protocols
+
+ * [JSON/REST](doc/rest-api.md)
+ * JSON/Websocket
+ * [Modbus/TCP (in development)](/OpenEMS/openems/issues/2)
 
 ## Get started
 
@@ -80,6 +129,93 @@ The target of this short guide is to quickly setup a development environment on 
     
 8. Open a browser at http://localhost:4200
 
+### How to configure OpenEMS
+
+The configuration of OpenEMS is placed in the json file /etc/openems.d/config.json.
+To parameterize a Bridge,Device,DeviceNature, Scheduler, Controller or Persistance you have to use ConfigChannels. A ConfigChannel represents one parameter the Thing needs. The value of the ConfigChannel will be automatically parsed by OpenEMS on the configuration read. Each thing will be instantiated by reflection so you have to define a "class" property, which is the qualified name of the desired class.
+The file is split into three sections:
+1. `things`:
+	In the things section you need to set all devices to communicate with.
+    Therefore you have to use a so called "Bridge". A Bridge connects several devices(Hardware) with the same protocol to openems. For example you want to read the data of a Socomec Meter and FeneconPro which are connected to the same RS485 Bus, you have to use a ModbusRtu bridge and set the Socomec Meter and FeneconPro as devices for this bridge. Each bridge/device has ConfigChannels to provide the paremters to establish the connection. The required parameters can be found in the according class. A device has DeviceNatures, where each nature requires a unique id. This id is used as reference by the controllers.
+2. `scheduler`: The Scheduler executes the controllers according to the programmed behaviour. For example the SimpleScheduler orders and executes the Controller by the configured priority. Controllers are the smallest divisible logical control unit. Each Controller needs at least one device reference to do the work.
+3. `persistance`:
+
+Example configuration:
+```
+{
+	"things": [
+		{
+			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
+			"serialinterface": "/dev/ttyUSB0",
+			"baudrate": 9600,
+			"databits": 8,
+			"parity": "none",
+			"stopbits": 1,
+			"devices": [
+				{
+					"class": "io.openems.impl.device.pro.FeneconPro",
+					"modbusUnitId": 4,
+					"ess": {
+						"id": "ess0",
+						"minSoc": 15
+					},
+					"meter": {
+						"id": "meter1"
+					}
+				},
+				{
+					"class": "io.openems.impl.device.socomec.Socomec",
+					"modbusUnitId": 5,
+					"meter": {
+						"id": "meter0",
+						"type": "grid"
+					}
+				}
+			]
+		}
+	],
+	"scheduler": {
+		"class": "io.openems.impl.scheduler.SimpleScheduler",
+		"controllers": [
+			{
+				"priority": 150,
+				"class": "io.openems.impl.controller.debuglog.DebugLogController",
+				"esss": [ "ess0" ],
+				"meters": [ "meter0", "meter1" ],
+				"rtc": "ess0"
+			},
+			{
+				"priority": 100,
+				"class": "io.openems.impl.controller.asymmetric.avoidtotaldischarge.AvoidTotalDischargeController",
+				"esss": "ess0"
+			},
+			{
+				"priority": 50,
+				"class": "io.openems.impl.controller.asymmetric.balancing.BalancingController",
+				"esss": "ess0",
+				"meter": "meter0"
+			},
+			{
+				"priority": 1,
+				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
+				"rtc": "ess0"
+			},
+			{
+				"priority": 0,
+				"class": "io.openems.impl.controller.feneconprosetup.FeneconProSetupController",
+				"esss": "ess0"
+			}
+		]
+	},
+	"persistence": [
+		{
+			"class": "io.openems.impl.persistence.influxdb.InfluxdbPersistence",
+			"ip": "127.0.0.1",
+			"fems": 0
+		}
+	]	
+}
+```
 
 ## Professional services and support
 

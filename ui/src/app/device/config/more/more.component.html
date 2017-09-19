@@ -1,19 +1,63 @@
-<refu [device]="device"></refu>
+<div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div *ngIf="device" fxFlex="50%" fxFlex.xs="100%">
+    <refu [device]="device"></refu>
+  </div>
 
-<manualpq [device]="device"></manualpq>
+  <div *ngIf="device" fxFlex="50%" fxFlex.xs="100%">
+    <manualpq [device]="device"></manualpq>
+  </div>
 
-<md-card class="single">
-  <md-card-header>
-    <md-icon md-card-avatar>stop</md-icon>
-    <md-card-title i18n>Manueller Befehl</md-card-title>
-  </md-card-header>
-  <md-card-content [formGroup]="manualMessageForm" fxLayout fxLayoutWrap="wrap">
-    <div fxFlex="100%" fxLayout>
-      <md-input-container fxFlex="100%"><input formControlName="message" placeholder="JSON" mdInput></md-input-container>
-      <div fxFlex></div>
-    </div>
-    <div fxFlex="100%">
-      <button md-raised-button (click)="sendManualMessage(manualMessageForm)" class="btn btn-default" i18n>Senden</button>
-    </div>
-  </md-card-content>
-</md-card>
+  <div fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>stop</md-icon>
+        <md-card-title translate>Device.Config.More.ManualCommand</md-card-title>
+      </md-card-header>
+      <md-card-content [formGroup]="manualMessageForm" fxLayout fxLayoutWrap="wrap">
+        <div fxFlex="100%" fxLayout>
+          <md-input-container fxFlex="100%"><input formControlName="message" placeholder="JSON" mdInput></md-input-container>
+          <div fxFlex></div>
+        </div>
+        <div fxFlex="100%">
+          <button md-raised-button (click)="sendManualMessage(manualMessageForm)" class="btn btn-default"><span translate>Device.Config.More.Send</span></button>
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <div *ngIf="device" routerLink="/device/{{ device.name }}/config/more/rawconfig" fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>more_horiz</md-icon>
+        <md-card-title translate>Display technical data</md-card-title>
+        <!-- TODO translate -->
+      </md-card-header>
+      <md-card-content>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <div *ngIf="device" routerLink="/device/{{ device.name }}/config/all" fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>more_horiz</md-icon>
+        <md-card-title translate>All Config</md-card-title>
+        <!-- TODO translate -->
+      </md-card-header>
+      <md-card-content>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <div routerLink="/config/debugmode" fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>more_horiz</md-icon>
+        <md-card-title translate>Debug Mode</md-card-title>
+        <!-- TODO translate -->
+      </md-card-header>
+      <md-card-content>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>

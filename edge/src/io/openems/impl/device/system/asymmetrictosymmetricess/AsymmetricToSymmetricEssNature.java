@@ -12,17 +12,17 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
-import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.FunctionalWriteChannel;
 import io.openems.api.channel.FunctionalWriteChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -34,138 +34,104 @@ import io.openems.impl.protocol.system.SystemDeviceNature;
 public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 		implements SymmetricEssNature, ChannelChangeListener {
 
-	private final Logger log;
+	private final Logger log = LoggerFactory.getLogger(AsymmetricToSymmetricEssNature.class);
+
 	private List<ThingChannelsUpdatedListener> listeners;
 
 	private static ThingRepository repo = ThingRepository.getInstance();
 
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices for the proxy.", type = String.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices for the proxy.", type = String.class)
 	public ConfigChannel<String> essId = new ConfigChannel<String>("essId", this).addChangeListener(this);
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 	private AsymmetricEssNature ess;
 
-	private FunctionalReadChannel<Long> soc = new FunctionalReadChannel<Long>("Soc", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-					if (channels.length > 0) {
-						return channels[0].value();
-					}
-					return null;
-				}
-
-			}).unit("%");
+	private FunctionalReadChannel<Long> soc = new FunctionalReadChannel<Long>("Soc", this, (channels) -> {
+		if (channels.length > 0) {
+			return channels[0].value();
+		}
+		return null;
+	}).unit("%");
 
 	private FunctionalReadChannel<Long> allowedCharge = new FunctionalReadChannel<Long>("AllowedCharge", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-					if (channels.length > 0) {
-						return channels[0].value();
-					}
-					return null;
+			(channels) -> {
+				if (channels.length > 0) {
+					return channels[0].value();
 				}
-
+				return null;
 			}).unit("W");
 	private FunctionalReadChannel<Long> allowedDischarge = new FunctionalReadChannel<Long>("AllowedDischarge", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-					if (channels.length > 0) {
-						return channels[0].value();
-					}
-					return null;
+			(channels) -> {
+				if (channels.length > 0) {
+					return channels[0].value();
 				}
-
+				return null;
 			}).unit("W");
 	private FunctionalReadChannel<Long> allowedApparent = new FunctionalReadChannel<Long>("AllowedApparent", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-					if (channels.length > 0) {
-						return channels[0].value();
-					}
-					return null;
+			(channels) -> {
+				if (channels.length > 0) {
+					return channels[0].value();
 				}
-
+				return null;
 			}).unit("VA");
 
 	private FunctionalReadChannel<Long> activePower = new FunctionalReadChannel<Long>("ActivePower", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					long sum = 0L;
-					try {
-						sum += ess.activePowerL1().value();
-					} catch (InvalidValueException e) {
-						log.error("Can't read values of " + ess.id(), e);
-					}
-					try {
-						sum += ess.activePowerL2().value();
-					} catch (InvalidValueException e) {
-						log.error("Can't read values of " + ess.id(), e);
-					}
-					try {
-						sum += ess.activePowerL3().value();
-					} catch (InvalidValueException e) {
-						log.error("Can't read values of " + ess.id(), e);
-					}
-					return sum;
+			(channels) -> {
+				long sum = 0L;
+				try {
+					sum += ess.activePowerL1().value();
+				} catch (InvalidValueException e) {
+					log.error("Can't read values of " + ess.id(), e);
 				}
-
+				try {
+					sum += ess.activePowerL2().value();
+				} catch (InvalidValueException e) {
+					log.error("Can't read values of " + ess.id(), e);
+				}
+				try {
+					sum += ess.activePowerL3().value();
+				} catch (InvalidValueException e) {
+					log.error("Can't read values of " + ess.id(), e);
+				}
+				return sum;
 			}).unit("W");
 	private FunctionalReadChannel<Long> reactivePower = new FunctionalReadChannel<Long>("ReactivePower", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					long sum = 0L;
-					try {
-						sum += ess.reactivePowerL1().value();
-					} catch (InvalidValueException e) {
-						log.error("Can't read values of " + ess.id(), e);
-					}
-					try {
-						sum += ess.reactivePowerL2().value();
-					} catch (InvalidValueException e) {
-						log.error("Can't read values of " + ess.id(), e);
-					}
-					try {
-						sum += ess.reactivePowerL3().value();
-					} catch (InvalidValueException e) {
-						log.error("Can't read values of " + ess.id(), e);
-					}
-					return sum;
+			(channels) -> {
+				long sum = 0L;
+				try {
+					sum += ess.reactivePowerL1().value();
+				} catch (InvalidValueException e) {
+					log.error("Can't read values of " + ess.id(), e);
 				}
-
+				try {
+					sum += ess.reactivePowerL2().value();
+				} catch (InvalidValueException e) {
+					log.error("Can't read values of " + ess.id(), e);
+				}
+				try {
+					sum += ess.reactivePowerL3().value();
+				} catch (InvalidValueException e) {
+					log.error("Can't read values of " + ess.id(), e);
+				}
+				return sum;
 			}).unit("Var");
 	private FunctionalReadChannel<Long> apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					long sum = 0L;
-					try {
-						sum = ControllerUtils.calculateApparentPower(channels[0].value(), channels[1].value());
-					} catch (InvalidValueException e) {
-						log.error("Can't read values of " + ess.id(), e);
-					}
-					return sum;
+			(channels) -> {
+				long sum = 0L;
+				try {
+					sum = ControllerUtils.calculateApparentPower(channels[0].value(), channels[1].value());
+				} catch (InvalidValueException e) {
+					log.error("Can't read values of " + ess.id(), e);
 				}
-
+				return sum;
 			}, activePower, reactivePower).unit("VA");
 
 	private FunctionalWriteChannel<Long> setActivePower = new FunctionalWriteChannel<Long>("SetActivePower", this,
 			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long power = newValue / 3;
 					for (WriteChannel<Long> channel : channels) {
 						try {
@@ -177,7 +143,7 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public Long getValue(ReadChannel<Long>... channels) {
+				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
 					long sum = 0L;
 					for (ReadChannel<Long> channel : channels) {
 						try {
@@ -190,7 +156,7 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public Long getMinValue(WriteChannel<Long>... channels) {
+				public Long getMinValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long min = Long.MIN_VALUE;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMin : channels) {
@@ -206,7 +172,7 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public Long getMaxValue(WriteChannel<Long>... channels) {
+				public Long getMaxValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long max = Long.MAX_VALUE;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMax : channels) {
@@ -222,8 +188,8 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public void setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
-						throws WriteChannelException {
+				public void setMinValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
 					long min = 0L;
 					min = newValue / 3;
 					if (min < getMinValue(channels)) {
@@ -241,8 +207,8 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public void setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
-						throws WriteChannelException {
+				public void setMaxValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
 					long max = 0L;
 					max = newValue / 3;
 					if (max > getMaxValue(channels)) {
@@ -264,7 +230,8 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long power = 0L;
 					if (channels.length > 0) {
 						power = newValue / channels.length;
@@ -279,7 +246,7 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public Long getValue(ReadChannel<Long>... channels) {
+				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
 					long sum = 0L;
 					for (ReadChannel<Long> channel : channels) {
 						try {
@@ -292,7 +259,7 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public Long getMinValue(WriteChannel<Long>... channels) {
+				public Long getMinValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long min = Long.MIN_VALUE;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMin : channels) {
@@ -308,7 +275,7 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public Long getMaxValue(WriteChannel<Long>... channels) {
+				public Long getMaxValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long max = Long.MAX_VALUE;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMax : channels) {
@@ -324,8 +291,8 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public void setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
-						throws WriteChannelException {
+				public void setMinValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
 					long min = 0L;
 					min = newValue / 3;
 					if (getMinValue(channels) != null && min < getMinValue(channels)) {
@@ -343,8 +310,8 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public void setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
-						throws WriteChannelException {
+				public void setMaxValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
 					long max = 0L;
 					max = newValue / 3;
 					if (getMaxValue(channels) != null && max > getMaxValue(channels)) {
@@ -364,58 +331,36 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 			});
 
 	private FunctionalReadChannel<Long> maxNominalPower = new FunctionalReadChannel<Long>("MaxNominalPower", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-					if (channels.length > 0) {
-						return channels[0].value();
-					}
-					return null;
+			(channels) -> {
+				if (channels.length > 0) {
+					return channels[0].value();
 				}
-
+				return null;
 			}).unit("VA");
-	private FunctionalReadChannel<Long> capacity = new FunctionalReadChannel<Long>("Capacity", this,
-			new FunctionalReadChannelFunction<Long>() {
+	private FunctionalReadChannel<Long> capacity = new FunctionalReadChannel<Long>("Capacity", this, (channels) -> {
+		if (channels.length > 0) {
+			return channels[0].value();
+		}
+		return null;
+	}).unit("Wh");
 
-				@Override
-				public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-					if (channels.length > 0) {
-						return channels[0].value();
-					}
-					return null;
-				}
-
-			}).unit("Wh");
-
-	private FunctionalReadChannel<Long> gridMode = new FunctionalReadChannel<Long>("GridMode", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					if (channels[0].labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
-						return 1L;
-					}
-					return 0L;
-				}
-
-			}).label(0L, EssNature.OFF_GRID).label(1L, EssNature.ON_GRID);
+	private FunctionalReadChannel<Long> gridMode = new FunctionalReadChannel<Long>("GridMode", this, (channels) -> {
+		if (channels[0].labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+			return 1L;
+		}
+		return 0L;
+	}).label(0L, EssNature.OFF_GRID).label(1L, EssNature.ON_GRID);
 	private FunctionalReadChannel<Long> systemState = new FunctionalReadChannel<Long>("SystemState", this,
-			new FunctionalReadChannelFunction<Long>() {
-
-				@Override
-				public Long handle(ReadChannel<Long>... channels) {
-					if (channels[0].labelOptional().equals(Optional.of(EssNature.ON))) {
-						return 1L;
-					} else if (channels[0].labelOptional().equals(Optional.of(EssNature.OFF))) {
-						return 0L;
-					} else if (channels[0].labelOptional().equals(Optional.of(EssNature.FAULT))) {
-						return 2L;
-					} else {
-						return 3L;
-					}
+			(channels) -> {
+				if (channels[0].labelOptional().equals(Optional.of(EssNature.ON))) {
+					return 1L;
+				} else if (channels[0].labelOptional().equals(Optional.of(EssNature.OFF))) {
+					return 0L;
+				} else if (channels[0].labelOptional().equals(Optional.of(EssNature.FAULT))) {
+					return 2L;
+				} else {
+					return 3L;
 				}
-
 			}).label(0L, EssNature.OFF).label(1L, EssNature.ON).label(2L, EssNature.FAULT).label(3L, "UNDEFINED");
 	private StatusBitChannels warning = new StatusBitChannels("Warning", this);
 
@@ -423,7 +368,8 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void setValue(Long newValue, String newLabel, WriteChannel<Long>... channels) {
+				public void setValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					for (WriteChannel<Long> channel : channels) {
 						try {
 							channel.pushWriteFromLabel(newLabel);
@@ -434,7 +380,7 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public Long getValue(ReadChannel<Long>... channels) {
+				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
 					if (channels.length > 0) {
 						if (channels[0].labelOptional().equals(Optional.of(EssNature.ON))) {
 							return 1L;
@@ -444,7 +390,7 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public Long getMinValue(WriteChannel<Long>... channels) {
+				public Long getMinValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					if (channels.length > 0 && channels[0].writeMin().isPresent()) {
 						return channels[0].writeMin().get();
 					}
@@ -452,7 +398,7 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public Long getMaxValue(WriteChannel<Long>... channels) {
+				public Long getMaxValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					if (channels.length > 0 && channels[0].writeMax().isPresent()) {
 						return channels[0].writeMax().get();
 					}
@@ -460,8 +406,8 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public void setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
-						throws WriteChannelException {
+				public void setMinValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
 					if (getMinValue(channels) != null && newValue < getMinValue(channels)) {
 						throw new WriteChannelException(
 								"Value [" + newValue + "] for [ GridMode ] is out of boundaries. Different min value ["
@@ -477,8 +423,8 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 				}
 
 				@Override
-				public void setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
-						throws WriteChannelException {
+				public void setMaxValue(Long newValue, String newLabel,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
 					if (getMaxValue(channels) != null && newValue < getMaxValue(channels)) {
 						throw new WriteChannelException(
 								"Value [" + newValue + "] for [ GridMode ] is out of boundaries. Different max value ["
@@ -495,9 +441,8 @@ public class AsymmetricToSymmetricEssNature extends SystemDeviceNature
 
 			}).label(0L, EssNature.OFF).label(1L, EssNature.ON);
 
-	public AsymmetricToSymmetricEssNature(String id) throws ConfigException {
-		super(id);
-		log = LoggerFactory.getLogger(this.getClass());
+	public AsymmetricToSymmetricEssNature(String id, Device parent) throws ConfigException {
+		super(id, parent);
 		this.listeners = new ArrayList<>();
 	}
 

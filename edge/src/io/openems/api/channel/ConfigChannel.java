@@ -27,7 +27,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
@@ -51,14 +51,16 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	 * @param parent
 	 * @throws OpenemsException
 	 */
-	public void applyAnnotation(ConfigInfo configAnnotation) throws OpenemsException {
-		this.type = Optional.of(configAnnotation.type());
-		this.isOptional = configAnnotation.isOptional();
-		if (!configAnnotation.defaultValue().isEmpty()) {
+	@Override
+	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
+		super.applyChannelDoc(channelDoc);
+		this.isOptional = channelDoc.isOptional();
+		if (!channelDoc.getDefaultValue().isEmpty()) {
 			JsonElement jValue = null;
 			try {
-				jValue = (new JsonParser()).parse(configAnnotation.defaultValue());
-				this.defaultValue((T) JsonUtils.getAsType(type.get(), jValue));
+				jValue = (new JsonParser()).parse(channelDoc.getDefaultValue());
+				@SuppressWarnings("unchecked") T value = (T) JsonUtils.getAsType(type().get(), jValue);
+				this.defaultValue(value);
 			} catch (NotImplementedException | JsonSyntaxException e) {
 				throw new OpenemsException("Unable to set defaultValue [" + jValue + "] " + e.getMessage());
 			}
@@ -76,12 +78,13 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	}
 
 	@Override
-	public void updateValue(Object value, boolean triggerEvent) {
-		super.updateValue((T) value, triggerEvent);
+	public void updateValue(Object valueObj, boolean triggerEvent) {
+		@SuppressWarnings("unchecked") T value = (T) valueObj;
+		super.updateValue(value, triggerEvent);
 	}
 
 	public void updateValue(JsonElement jValue, boolean triggerEvent) throws NotImplementedException {
-		T value = (T) JsonUtils.getAsType(type.get(), jValue);
+		@SuppressWarnings("unchecked") T value = (T) JsonUtils.getAsType(type().get(), jValue);
 		this.updateValue(value, triggerEvent);
 	}
 
@@ -95,12 +98,6 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 		return this.defaultValue;
 	}
 
-	// TODO: remove, obsolete
-	private ConfigChannel<T> optional() {
-		this.isOptional = true;
-		return this;
-	}
-
 	public boolean isOptional() {
 		return isOptional;
 	}
@@ -109,8 +106,8 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	public JsonObject toJsonObject() throws NotImplementedException {
 		JsonObject j = super.toJsonObject();
 		j.addProperty("writeable", true);
-		if (this.type.isPresent()) {
-			j.addProperty("type", this.type.get().getSimpleName());
+		if (this.type().isPresent()) {
+			j.addProperty("type", this.type().get().getSimpleName());
 		}
 		return j;
 	}
@@ -124,5 +121,10 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	public ConfigChannel<T> label(T value, String label) {
 		super.label(value, label);
 		return this;
+	}
+
+	@Override
+	public ConfigChannel<T> doNotPersist() {
+		return (ConfigChannel<T>) super.doNotPersist();
 	}
 }

@@ -24,8 +24,9 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -38,21 +39,21 @@ public class SimulatorCharger extends SimulatorDeviceNature implements ChargerNa
 	/*
 	 * Constructors
 	 */
-	public SimulatorCharger(String thingId) throws ConfigException {
-		super(thingId);
+	public SimulatorCharger(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
 	 * Config-Channels
 	 */
-	@ConfigInfo(title = "PowerConfig", type = Long.class)
+	@ChannelInfo(title = "PowerConfig", type = Long.class)
 	public ConfigChannel<Long> powerConfig = new ConfigChannel<>("powerConfig", this);
 
 	/*
 	 * Inherited Channels
 	 */
-	private SimulatorReadChannel voltage = new SimulatorReadChannel("InputVoltage", this).unit("mV");
-	private SimulatorReadChannel power = new SimulatorReadChannel("ActualPower", this).unit("W");
+	private SimulatorReadChannel<Long> voltage = new SimulatorReadChannel<Long>("InputVoltage", this).unit("mV");
+	private SimulatorReadChannel<Long> power = new SimulatorReadChannel<Long>("ActualPower", this).unit("W");
 	private StaticValueChannel<Long> nominalPower = new StaticValueChannel<Long>("NominalPower", this, 60000l);
 	private ModbusWriteLongChannel setMaxPower = new ModbusWriteLongChannel("SetMaxPower", this);
 

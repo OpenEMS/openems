@@ -1,6 +1,6 @@
 {
 	"id": "peakshaving0",
-	"class": "io.openems.impl.controller.symmetric.balancingbandgap",
+	"class": "io.openems.impl.controller.symmetric.balancingbandgap.BalancingBandgapController",
 	"ess": "ess0",
 	"priority": 150,
 	"meter": "meter0",

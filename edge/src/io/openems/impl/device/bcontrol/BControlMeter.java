@@ -2,12 +2,11 @@ package io.openems.impl.device.bcontrol;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
-import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.InvalidValueException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.internal.DummyElement;
@@ -17,8 +16,8 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
 
 public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
-	public BControlMeter(String thingId) throws ConfigException {
-		super(thingId);
+	public BControlMeter(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
@@ -186,15 +185,13 @@ public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterN
 								apparentPowerPos = new ModbusReadLongChannel("ApparentPowerPos", this).unit("VA")
 										.multiplier(-1)),
 						new UnsignedDoublewordElement(18,
-								apparentPowerNeg = new ModbusReadLongChannel("ApparentPowerNeg", this).unit("VA")
-										.multiplier(-1)),
-						new DummyElement(20, 25),
-						new UnsignedDoublewordElement(26, //
+								apparentPowerNeg = new ModbusReadLongChannel("ApparentPowerNeg", this)
+										.unit("VA").multiplier(-1)),
+						new DummyElement(20, 25), new UnsignedDoublewordElement(26, //
 								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHZ"))),
-				new ModbusInputRegisterRange(40,
-						new UnsignedDoublewordElement(40, //
-								activePowerL1Pos = new ModbusReadLongChannel("ActivePowerL1Pos", this).unit("W")
-										.multiplier(-1)),
+				new ModbusInputRegisterRange(40, new UnsignedDoublewordElement(40, //
+						activePowerL1Pos = new ModbusReadLongChannel("ActivePowerL1Pos", this).unit("W")
+								.multiplier(-1)),
 						new UnsignedDoublewordElement(42, //
 								activePowerL1Neg = new ModbusReadLongChannel("ActivePowerL1Neg", this).unit("W")
 										.multiplier(-1)),
@@ -202,17 +199,15 @@ public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterN
 								reactivePowerL1Pos = new ModbusReadLongChannel("ReactivePowerL1Pos", this).unit("W")
 										.multiplier(-1)),
 						new UnsignedDoublewordElement(46, //
-								reactivePowerL1Neg = new ModbusReadLongChannel("ActivePowerL1Neg", this).unit("W")
-										.multiplier(-1)),
-						new DummyElement(48, 59),
-						new UnsignedDoublewordElement(60, //
+								reactivePowerL1Neg = new ModbusReadLongChannel("ActivePowerL1Neg", this)
+										.unit("W").multiplier(-1)),
+						new DummyElement(48, 59), new UnsignedDoublewordElement(60, //
 								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")),
 						new UnsignedDoublewordElement(62, //
 								voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV"))),
-				new ModbusInputRegisterRange(80,
-						new UnsignedDoublewordElement(80, //
-								activePowerL2Pos = new ModbusReadLongChannel("ActivePowerL2Pos", this).unit("W")
-										.multiplier(-1)),
+				new ModbusInputRegisterRange(80, new UnsignedDoublewordElement(80, //
+						activePowerL2Pos = new ModbusReadLongChannel("ActivePowerL2Pos", this).unit("W")
+								.multiplier(-1)),
 						new UnsignedDoublewordElement(82, //
 								activePowerL2Neg = new ModbusReadLongChannel("ActivePowerL2Neg", this).unit("W")
 										.multiplier(-1)),
@@ -220,17 +215,15 @@ public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterN
 								reactivePowerL2Pos = new ModbusReadLongChannel("ReactivePowerL2Pos", this).unit("W")
 										.multiplier(-1)),
 						new UnsignedDoublewordElement(86, //
-								reactivePowerL2Neg = new ModbusReadLongChannel("ActivePowerL2Neg", this).unit("W")
-										.multiplier(-1)),
-						new DummyElement(88, 99),
-						new UnsignedDoublewordElement(100, //
+								reactivePowerL2Neg = new ModbusReadLongChannel("ActivePowerL2Neg", this)
+										.unit("W").multiplier(-1)),
+						new DummyElement(88, 99), new UnsignedDoublewordElement(100, //
 								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA")),
 						new UnsignedDoublewordElement(102, //
 								voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV"))),
-				new ModbusInputRegisterRange(120,
-						new UnsignedDoublewordElement(120, //
-								activePowerL3Pos = new ModbusReadLongChannel("ActivePowerL3Pos", this).unit("W")
-										.multiplier(-1)),
+				new ModbusInputRegisterRange(120, new UnsignedDoublewordElement(120, //
+						activePowerL3Pos = new ModbusReadLongChannel("ActivePowerL3Pos", this).unit("W")
+								.multiplier(-1)),
 						new UnsignedDoublewordElement(122, //
 								activePowerL3Neg = new ModbusReadLongChannel("ActivePowerL3Neg", this).unit("W")
 										.multiplier(-1)),
@@ -238,85 +231,39 @@ public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterN
 								reactivePowerL3Pos = new ModbusReadLongChannel("ReactivePowerL3Pos", this).unit("W")
 										.multiplier(-1)),
 						new UnsignedDoublewordElement(126, //
-								reactivePowerL3Neg = new ModbusReadLongChannel("ActivePowerL3Neg", this).unit("W")
-										.multiplier(-1)),
-						new DummyElement(128, 139),
-						new UnsignedDoublewordElement(140, //
+								reactivePowerL3Neg = new ModbusReadLongChannel("ActivePowerL3Neg", this)
+										.unit("W").multiplier(-1)),
+						new DummyElement(128, 139), new UnsignedDoublewordElement(140, //
 								currentL3 = new ModbusReadLongChannel("CurrentL3", this).unit("mA")),
 						new UnsignedDoublewordElement(142, //
 								voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV"))));
-		activePower = new FunctionalReadChannel<Long>("ActivePower", this, new FunctionalReadChannelFunction<Long>() {
-
-			@Override
-			public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-				return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-			}
+		activePower = new FunctionalReadChannel<Long>("ActivePower", this, (channels) -> {
+			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
 		}, activePowerPos, activePowerNeg);
-		activePowerL1 = new FunctionalReadChannel<Long>("ActivePowerL1", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-						return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-					}
-				}, activePowerL1Pos, activePowerL1Neg);
-		activePowerL2 = new FunctionalReadChannel<Long>("ActivePowerL2", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-						return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-					}
-				}, activePowerL2Pos, activePowerL2Neg);
-		activePowerL3 = new FunctionalReadChannel<Long>("ActivePowerL3", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-						return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-					}
-				}, activePowerL3Pos, activePowerL3Neg);
-		reactivePower = new FunctionalReadChannel<Long>("ReactivePower", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-						return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-					}
-				}, reactivePowerPos, reactivePowerNeg);
-		reactivePowerL1 = new FunctionalReadChannel<Long>("ReactivePowerL1", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-						return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-					}
-				}, reactivePowerL1Pos, reactivePowerL1Neg);
-		reactivePowerL2 = new FunctionalReadChannel<Long>("ReactivePowerL2", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-						return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-					}
-				}, reactivePowerL2Pos, reactivePowerL2Neg);
-		reactivePowerL3 = new FunctionalReadChannel<Long>("ReactivePowerL3", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-						return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-					}
-				}, reactivePowerL3Pos, reactivePowerL3Neg);
-		apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this,
-				new FunctionalReadChannelFunction<Long>() {
-
-					@Override
-					public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-						return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-					}
-				}, apparentPowerPos, apparentPowerNeg);
+		activePowerL1 = new FunctionalReadChannel<Long>("ActivePowerL1", this, (channels) -> {
+			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
+		}, activePowerL1Pos, activePowerL1Neg);
+		activePowerL2 = new FunctionalReadChannel<Long>("ActivePowerL2", this, (channels) -> {
+			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
+		}, activePowerL2Pos, activePowerL2Neg);
+		activePowerL3 = new FunctionalReadChannel<Long>("ActivePowerL3", this, (channels) -> {
+			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
+		}, activePowerL3Pos, activePowerL3Neg);
+		reactivePower = new FunctionalReadChannel<Long>("ReactivePower", this, (channels) -> {
+			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
+		}, reactivePowerPos, reactivePowerNeg);
+		reactivePowerL1 = new FunctionalReadChannel<Long>("ReactivePowerL1", this, (channels) -> {
+			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
+		}, reactivePowerL1Pos, reactivePowerL1Neg);
+		reactivePowerL2 = new FunctionalReadChannel<Long>("ReactivePowerL2", this, (channels) -> {
+			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
+		}, reactivePowerL2Pos, reactivePowerL2Neg);
+		reactivePowerL3 = new FunctionalReadChannel<Long>("ReactivePowerL3", this, (channels) -> {
+			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
+		}, reactivePowerL3Pos, reactivePowerL3Neg);
+		apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this, (channels) -> {
+			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
+		}, apparentPowerPos, apparentPowerNeg);
 		return mp;
 	}
-
 }

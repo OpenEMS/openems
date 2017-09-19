@@ -20,9 +20,23 @@
  *******************************************************************************/
 package io.openems.api.device.nature;
 
+import java.util.List;
+
+import io.openems.api.bridge.BridgeReadTask;
+import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
+import io.openems.api.device.Device;
 import io.openems.api.thing.Thing;
 
 public interface DeviceNature extends Thing {
+
+	public Device getParent();
+
 	public void setAsRequired(Channel channel);
+
+	public List<BridgeReadTask> getRequiredReadTasks();
+
+	public List<BridgeReadTask> getReadTasks();
+
+	public List<BridgeWriteTask> getWriteTasks();
 }

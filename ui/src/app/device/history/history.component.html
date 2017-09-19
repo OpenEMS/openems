@@ -7,49 +7,31 @@
       </md-card-header>
       <md-card-content>
         <div fxLayout fxLayoutWrap="wrap" fxFlex>
-          <button md-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold" i18n>
-            Zeitraum
+          <button md-raised-button fxFlex="100%" disabled="true" style="color: black;font-weight: bold">
+            <span translate>Device.History.Period</span>
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'today'" (click)="setPeriod('today')" fxFlex="100%" i18n>
-            Heute
+          <button md-raised-button [class.activated]="activePeriod == 'today'" (click)="setPeriod('today')" fxFlex="100%">
+            <span translate>Device.History.Today</span>
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%" i18n>
-            Gestern
+          <button md-raised-button [class.activated]="activePeriod == 'yesterday'" (click)="setPeriod('yesterday')" fxFlex="100%">
+            <span translate>Device.History.Yesterday</span>
           </button>
           <!-- TODO reactivate -->
-          <!--<button md-raised-button [class.activated]="activePeriod == 'lastWeek'" (click)="setPeriod('lastWeek')" fxFlex="100%"
-            i18n>
-            letzte Woche
+          <!--<button md-raised-button [class.activated]="activePeriod == 'lastWeek'" (click)="setPeriod('lastWeek')" fxFlex="100%">
+            <span translate>letzte Woche</span>
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'lastMonth'" (click)="setPeriod('lastMonth')" fxFlex="100%" i18n>
-            letzten Monat
+          <button md-raised-button [class.activated]="activePeriod == 'lastMonth'" (click)="setPeriod('lastMonth')" fxFlex="100%">
+            <span translate>letzten Monat</span>
           </button>
-          <button md-raised-button [class.activated]="activePeriod == 'lastYear'" (click)="setPeriod('lastYear')" fxFlex="100%" i18n>
-            letztes Jahr
+          <button md-raised-button [class.activated]="activePeriod == 'lastYear'" (click)="setPeriod('lastYear')" fxFlex="100%">
+            <span translate>letztes Jahr</span>
           </button>-->
           <button [class.activated]="activePeriod == 'otherTimespan'" (click)="showOtherTimespan = !showOtherTimespan" md-raised-button
-            fxFlex="100%" i18n>
-            Anderer Zeitraum
+            fxFlex="100%">
+            <span translate>Device.History.OtherPeriod</span>
           </button>
+          <my-date-range-picker [options]="dateRangePickerOptions" [(ngModel)]="dateRange" (dateRangeChanged)="onDateRangeChanged($event)"></my-date-range-picker>
           <div *ngIf="showOtherTimespan" style="margin-top: 20px" fxLayout fxLayoutWrap="wrap" fxFlex="100%">
-            <div fxFlex="100%">
-              <div fxFlex="75px"></div>
-              <md-input-container>
-                <input #from type="date" [value]="fromDate | date:'yyyy-MM-dd'" placeholder="Datum von" style="height: auto" mdInput/>
-              </md-input-container>
-            </div>
-            <div fxFlex="100%">
-              <div fxFlex="75px"></div>
-              <md-input-container>
-                <input #to type="date" [value]="toDate | date:'yyyy-MM-dd'" placeholder="Datum bis" style="height: auto" mdInput />
-              </md-input-container>
-            </div>
-            <div fxFlex="100%">
-              <div fxFlex="75px"></div>
-              <button md-raised-button style="font-size: 14px" (click)="setPeriod('otherTimespan', from.value, to.value)" i18n>
-                Los!
-              </button>
-            </div>
           </div>
         </div>
       </md-card-content>
@@ -71,14 +53,14 @@
       <md-card class="single">
         <md-card-header>
           <md-icon md-card-avatar>event</md-icon>
-          <md-card-title>Gewählter Zeitraum: {{ activePeriodText }}</md-card-title>
+          <md-card-title><span translate>Device.History.SelectedPeriod</span> {{ activePeriodText }}</md-card-title>
         </md-card-header>
         <md-card-content>
           <div style="height: 250px">
-            <socchart [device]="device" [socChannels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart>
+            <socchart [device]="device" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart>
           </div>
           <div style="height: 500px">
-            <energychart [device]="device" [fromDate]="fromDate" [toDate]="toDate"></energychart>
+            <energychart [device]="device" [channels]="powerChannels" [config]="config" [fromDate]="fromDate" [toDate]="toDate"></energychart>
           </div>
         </md-card-content>
       </md-card>

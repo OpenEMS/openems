@@ -7,7 +7,7 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -18,32 +18,36 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 	/*
 	 * Config-Channel
 	 */
-	@ConfigInfo(title = "Waterlevel Borehole 1 On", description = "This configuration sets the waterlevel to start Borehole Pump 1", type = Long.class)
+
+	@ChannelInfo(title = "System Stop", description = "This configuration stops the system.", type = Boolean.class)
+	public ConfigChannel<Boolean> signalSystemStop = new ConfigChannel<Boolean>("signalSystemStop", this)
+			.defaultValue(true);
+	@ChannelInfo(title = "Waterlevel Borehole 1 On", description = "This configuration sets the waterlevel to start Borehole Pump 1", type = Long.class)
 	public ConfigChannel<Long> setWaterLevelBorehole1On = new ConfigChannel<Long>("wl1On", this).defaultValue(50L);
-	@ConfigInfo(title = "Waterlevel Borehole 1 Off", description = "This configuration sets the waterlevel to stop Borehole Pump 1", type = Long.class)
+	@ChannelInfo(title = "Waterlevel Borehole 1 Off", description = "This configuration sets the waterlevel to stop Borehole Pump 1", type = Long.class)
 	public ConfigChannel<Long> setWaterLevelBorehole1Off = new ConfigChannel<Long>("wl1Off", this).defaultValue(100L);
-	@ConfigInfo(title = "Waterlevel Borehole 2 On", description = "This configuration sets the waterlevel to start Borehole Pump 2", type = Long.class)
+	@ChannelInfo(title = "Waterlevel Borehole 2 On", description = "This configuration sets the waterlevel to start Borehole Pump 2", type = Long.class)
 	public ConfigChannel<Long> setWaterLevelBorehole2On = new ConfigChannel<Long>("wl2On", this).defaultValue(200L);
-	@ConfigInfo(title = "Waterlevel Borehole 2 Off", description = "This configuration sets the waterlevel to stop Borehole Pump 2", type = Long.class)
+	@ChannelInfo(title = "Waterlevel Borehole 2 Off", description = "This configuration sets the waterlevel to stop Borehole Pump 2", type = Long.class)
 	public ConfigChannel<Long> setWaterLevelBorehole2Off = new ConfigChannel<Long>("wl2Off", this).defaultValue(300L);
-	@ConfigInfo(title = "Waterlevel Borehole 3 On", description = "This configuration sets the waterlevel to start Borehole Pump 3", type = Long.class)
+	@ChannelInfo(title = "Waterlevel Borehole 3 On", description = "This configuration sets the waterlevel to start Borehole Pump 3", type = Long.class)
 	public ConfigChannel<Long> setWaterLevelBorehole3On = new ConfigChannel<Long>("wl3On", this).defaultValue(400L);
-	@ConfigInfo(title = "Waterlevel Borehole 3 Off", description = "This configuration sets the waterlevel to stop Borehole Pump 3", type = Long.class)
+	@ChannelInfo(title = "Waterlevel Borehole 3 Off", description = "This configuration sets the waterlevel to stop Borehole Pump 3", type = Long.class)
 	public ConfigChannel<Long> setWaterLevelBorehole3Off = new ConfigChannel<Long>("wl3Off", this).defaultValue(500L);
-	@ConfigInfo(title = "Soc Hysteresis", description = "hysteresis for the switching of the loads.", type = Long.class)
+	@ChannelInfo(title = "Soc Hysteresis", description = "hysteresis for the switching of the loads.", type = Long.class)
 	public ConfigChannel<Long> socHysteresis = new ConfigChannel<Long>("socHysteresis", this).defaultValue(10L);
-	@ConfigInfo(title = "Soc Load 1 Off", description = "Below this Soc the Load 1 will be disconnected.", type = Long.class)
+	@ChannelInfo(title = "Soc Load 1 Off", description = "Below this Soc the Load 1 will be disconnected.", type = Long.class)
 	public ConfigChannel<Long> socLoad1Off = new ConfigChannel<>("socLoad1Off", this);
-	@ConfigInfo(title = "Soc Load 2 Off", description = "Below this Soc the Load 2 will be disconnected.", type = Long.class)
+	@ChannelInfo(title = "Soc Load 2 Off", description = "Below this Soc the Load 2 will be disconnected.", type = Long.class)
 	public ConfigChannel<Long> socLoad2Off = new ConfigChannel<>("socLoad2Off", this);
-	@ConfigInfo(title = "Soc Load 3 Off", description = "Below this Soc the Load 3 will be disconnected.", type = Long.class)
+	@ChannelInfo(title = "Soc Load 3 Off", description = "Below this Soc the Load 3 will be disconnected.", type = Long.class)
 	public ConfigChannel<Long> socLoad3Off = new ConfigChannel<>("socLoad3Off", this);
-	@ConfigInfo(title = "Soc Load 4 Off", description = "Below this Soc the Load 4 will be disconnected.", type = Long.class)
+	@ChannelInfo(title = "Soc Load 4 Off", description = "Below this Soc the Load 4 will be disconnected.", type = Long.class)
 	public ConfigChannel<Long> socLoad4Off = new ConfigChannel<>("socLoad4Off", this);
 
-	@ConfigInfo(title = "SPS", description = "The sps which should be controlled.", type = Custom.class)
+	@ChannelInfo(title = "SPS", description = "The sps which should be controlled.", type = Custom.class)
 	public ConfigChannel<Custom> sps = new ConfigChannel<>("sps", this);
-	@ConfigInfo(title = "ESS", description = "The ess to stop on system stop. Also used for Off-Grid indication for the SPS. ", type = Ess.class)
+	@ChannelInfo(title = "ESS", description = "The ess to stop on system stop. Also used for Off-Grid indication for the SPS. ", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
 
 	/*
@@ -74,6 +78,27 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 		try {
 			Ess ess = this.ess.value();
 			Custom sps = this.sps.value();
+			// Grid-Mode
+			try {
+				if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
+					sps.signalGridOn.pushWrite(0L);
+				} else {
+					sps.signalGridOn.pushWrite(1L);
+				}
+			} catch (WriteChannelException e) {
+				log.error("Failed to set off-Grid indication to sps.", e);
+			}
+			// Stop
+			try {
+				if (signalSystemStop.value()) {
+					ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
+					sps.signalSystemStop.pushWrite(1L);
+				} else {
+					sps.signalSystemStop.pushWrite(0L);
+				}
+			} catch (WriteChannelException e) {
+				log.error("Failed to set system stop!", e);
+			}
 			// Watchdog
 			try {
 				if (watchdogState) {

@@ -8,8 +8,7 @@ import { ConsumptionSectionComponent } from './section/consumptionsection.compon
 import { GridSectionComponent } from './section/gridsection.component';
 import { ProductionSectionComponent } from './section/productionsection.component';
 import { StorageSectionComponent } from './section/storagesection.component';
-
-import { Device, Data } from '../../../../shared/shared';
+import { CurrentDataAndSummary } from '../../../../shared/device/currentdata';
 
 @Component({
   selector: 'energymonitor-chart',
@@ -32,13 +31,15 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   @ViewChild('energymonitorChart') private chartDiv: ElementRef;
 
   @Input()
-  set currentData(currentData: Data) {
+  set currentData(currentData: CurrentDataAndSummary) {
+    this.loading = currentData == null;
     this.updateValue(currentData);
   }
 
   public translation: string;
   public width: number;
   public height: number;
+  public loading: boolean = true;
 
   private style: string;
   private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -61,7 +62,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
   /**
    * This method is called on every change of values.
    */
-  updateValue(currentData: Data) {
+  updateValue(currentData: CurrentDataAndSummary) {
     if (currentData) {
       /*
        * Set values for energy monitor

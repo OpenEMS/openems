@@ -20,36 +20,38 @@
  *******************************************************************************/
 package io.openems.impl.controller.api.rest.internal;
 
+import java.util.Optional;
+
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.security.Verifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.api.security.Authentication;
-import io.openems.api.security.Session;
+import io.openems.api.security.User;
 
 public class OpenemsVerifier implements Verifier {
 
 	private final static Logger log = LoggerFactory.getLogger(OpenemsVerifier.class);
 
-	@Override public int verify(Request request, Response response) {
+	@Override
+	public int verify(Request request, Response response) {
 		if (request.getChallengeResponse() == null) {
 			log.warn("Authentication failed: No authentication data available.");
 			return RESULT_MISSING;
 		} else {
 			String username = getIdentifier(request, response);
 			String password = new String(getSecret(request, response));
-			Session session = Authentication.getInstance().byUserPassword(username, password);
+			Optional<User> userOpt = User.authenticate(username, password);
 
-			if (session == null || !session.isValid()) {
+			if (userOpt.isPresent()) {
+				User user = userOpt.get();
+				request.getClientInfo().setUser(new org.restlet.security.User(user.getName()));
+				request.getChallengeResponse().setIdentifier(user.getName());
+				return RESULT_VALID;
+			} else {
 				log.warn("Authentication failed.");
 				return RESULT_INVALID;
-			} else {
-				// log.info("Authentication successful: logged in as " + user.getName());
-				request.getClientInfo().setUser(new org.restlet.security.User(session.getUser().getName()));
-				request.getChallengeResponse().setIdentifier(session.getUser().getName());
-				return RESULT_VALID;
 			}
 		}
 	}

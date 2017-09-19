@@ -1,14 +1,18 @@
 import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Observer } from 'rxjs/Observer';
+import { Observable } from 'rxjs/Observable';
 import { UUID } from 'angular2-uuid';
 import * as moment from 'moment';
 
-import { Notification, Websocket } from '../shared';
-import { Config, ChannelAddresses } from './config';
-import { Data, ChannelData, Summary } from './data';
+import { Websocket } from '../shared';
+import { ConfigImpl } from './config';
+import { CurrentDataAndSummary } from './currentdata';
+import { DefaultMessages } from '../service/defaultmessages';
+import { DefaultTypes } from '../service/defaulttypes';
+import { Utils } from '../service/utils';
 import { Role, ROLES } from '../type/role';
-
-export { Data, ChannelData, Summary, Config, ChannelAddresses };
 
 export class Log {
   timestamp: number;
@@ -19,271 +23,171 @@ export class Log {
   message: string;
 }
 
-export class QueryReply {
-  requestId: string;
-  data: [{
-    time: string
-    channels: ChannelData
-  }]
-}
-
 export class Device {
+
+  constructor(
+    public readonly name: string,
+    public readonly comment: string,
+    public readonly producttype: string,
+    public readonly role: Role,
+    public online: boolean,
+    private replyStreams: { [id: string]: Subject<DefaultMessages.Reply> },
+    private websocket: Websocket
+  ) {
+    // prepare stream/obersable for currentData
+    let currentDataStream = replyStreams["currentData"] = new Subject<DefaultMessages.CurrentDataReply>();
+    this.currentData = currentDataStream
+      .map(message => message.currentData)
+      .combineLatest(this.config, (currentData, config) => new CurrentDataAndSummary(currentData, config));
+    // prepare stream/obersable for log
+    let logStream = replyStreams["log"] = new Subject<DefaultMessages.LogReply>();
+    this.log = logStream
+      .map(message => message.log);
+  }
+
+  // holds current data
+  public currentData: Observable<CurrentDataAndSummary>;
+
+  // holds log
+  public log: Observable<DefaultTypes.Log>;
+
+  // holds config
+  public config: BehaviorSubject<ConfigImpl> = new BehaviorSubject<ConfigImpl>(null);
 
   public event = new Subject<Notification>();
   public address: string;
-  public config = new BehaviorSubject<Config>(null);
-  public log = new Subject<Log>();
-  public producttype: 'Pro 9-12' | 'MiniES 3-3' | 'PRO Hybrid 9-10' | 'PRO Compact 3-10' | 'COMMERCIAL 40-45' | 'INDUSTRIAL' | '' = '';
-  public role: Role = ROLES.guest;
 
   //public historykWh = new BehaviorSubject<any[]>(null);
-  private comment: string = '';
   private state: 'active' | 'inactive' | 'test' | 'installed-on-stock' | '' = '';
-  private queryreply = new Subject<QueryReply>();
-  private currentData = new BehaviorSubject<Data>(null);
-  private ngUnsubscribeCurrentData: Subject<void> = new Subject<void>();
-  private online = false;
+  private subscribeCurrentDataChannels: DefaultTypes.ChannelAddresses = {};
 
-  private influxdb: {
-    ip: string,
-    username: string,
-    password: string,
-    fems: string
-  }
-
-  constructor(
-    public name: string,
-    public websocket: Websocket,
-    private roleName: string
-  ) {
-    this.setRole(roleName);
-    if (this.name == 'fems') {
-      this.address = this.websocket.name;
-    } else {
-      this.address = this.websocket.name + ": " + this.name;
+  /*
+   * Called by websocket, when this device is set as currentDevice
+   */
+  public markAsCurrentDevice() {
+    if (this.config.getValue() == null) {
+      this.refreshConfig();
     }
-    this.comment = name;
+  }
+
+  /*
+   * Refresh the config
+   */
+  public refreshConfig(): BehaviorSubject<ConfigImpl> {
+    let message = DefaultMessages.configQuery();
+    let messageId = message.id[0];
+    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
+    this.send(message);
+    // wait for reply
+    this.replyStreams[messageId].first().subscribe(reply => {
+      let config = (<DefaultMessages.ConfigQueryReply>reply).config;
+      let configImpl = new ConfigImpl(config)
+      this.config.next(configImpl);
+      this.replyStreams[messageId].unsubscribe();
+      delete this.replyStreams[messageId];
+    });
+    // TODO add timeout
+    return this.config;
   }
 
   /**
-   * Sends a message to websocket, returns the unique request id
+   * Sends a message to websocket
    */
-  public send(value: any): string {
-    let requestId = UUID.UUID();
-    value["requestId"] = requestId;
-    this.websocket.send(this, value);
-    return requestId;
+  public send(value: any): void {
+    this.websocket.send(value, this);
   }
 
   /**
-   * Subscribe to specified channels
+   * Subscribe to current data of specified channels
    */
-  public subscribeCurrentData(channels: ChannelAddresses): Subject<Data> {
+  public subscribeCurrentData(channels: DefaultTypes.ChannelAddresses): Observable<CurrentDataAndSummary> {
     // send subscribe
-    this.send({
-      subscribe: {
-        channels: channels
-      }
-    });
-    // prepare result
-    let result = new Subject<Data>();
-    let gotData: boolean = false;
-    // timeout after 10 seconds
-    setTimeout(() => {
-      if (!gotData) {
-        result.error("CurrentData timeout");
-        result.complete();
-      }
-    }, 10000);
-    // wait for current data
-    this.currentData.takeUntil(this.ngUnsubscribeCurrentData).subscribe(currentData => {
-      gotData = true;
-      result.next(currentData);
-    });
-    return result;
+    let message = DefaultMessages.currentDataSubscribe(channels);
+    this.send(message);
+    this.subscribeCurrentDataChannels = channels;
+    // TODO timeout
+    return this.currentData;
   }
 
   /**
-   * Unsubscribe from channels
+   * Unsubscribe from current data
    */
   public unsubscribeCurrentData() {
-    if (!this.ngUnsubscribeCurrentData.isStopped) {
-      this.ngUnsubscribeCurrentData.next();
-      this.ngUnsubscribeCurrentData.complete();
-    }
-    this.send({
-      subscribe: {
-        channels: {}
-      }
-    });
+    this.subscribeCurrentData({});
+  }
+
+  /**
+   * Query data
+   */
+  // TODO: kWh: this.getkWhResult(this.getImportantChannels())
+  public historicDataQuery(fromDate: moment.Moment, toDate: moment.Moment, channels: DefaultTypes.ChannelAddresses): Promise<DefaultTypes.HistoricData> {
+    // send query
+    let timezone = new Date().getTimezoneOffset() * 60;
+    let message = DefaultMessages.historicDataQuery(fromDate, toDate, timezone, channels);
+    let messageId = message.id[0];
+    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
+    this.send(message);
+    // wait for reply
+    return new Promise((resolve, reject) => {
+      this.replyStreams[messageId].first().subscribe(reply => {
+        let historicData = (<DefaultMessages.HistoricDataReply>reply).historicData;
+        this.replyStreams[messageId].unsubscribe();
+        delete this.replyStreams[messageId];
+        resolve(historicData);
+      });
+    })
+  }
+
+  /**
+   * Mark this device as online or offline
+   * @param online 
+   */
+  public setOnline(online: boolean) {
+    this.online = online;
   }
 
   /**
    * Subscribe to log
    */
-  public subscribeLog(key: "all" | "info" | "warning" | "error") {
-    this.send({
-      subscribe: {
-        log: key
-      }
-    });
+  public subscribeLog(): Observable<DefaultTypes.Log> {
+    let message = DefaultMessages.logSubscribe();
+    this.send(message);
+    return this.log;
   }
 
   /**
-   * Unsubscribe from channels
+   * Unsubscribe from log
    */
   public unsubscribeLog() {
-    this.send({
-      subscribe: {
-        log: ""
-      }
-    });
+    let message = DefaultMessages.logUnsubscribe();
+    this.send(message);
   }
 
-  /**
-   * Send "query" message to websocket
+
+  /*
+   * log
    */
-  // TODO: kWh: this.getkWhResult(this.getImportantChannels())
-  public query(fromDate: moment.Moment, toDate: moment.Moment, channels: ChannelAddresses): Subject<QueryReply> {
-    // create query object
-    let obj = {
-      mode: "history",
-      fromDate: fromDate.format("YYYY-MM-DD"),
-      toDate: toDate.format("YYYY-MM-DD"),
-      timezone: new Date().getTimezoneOffset() * 60,
-      channels: channels
-    };
-    // send query and receive requestId
-    let requestId = this.send({ query: obj });
-    // prepare result
-    let ngUnsubscribe: Subject<void> = new Subject<void>();
-    let result = new Subject<QueryReply>();
-    // timeout after 10 seconds
-    setTimeout(() => {
-      result.error("Query timeout");
-      result.complete();
-    }, 10000);
-    // wait for queryreply with this requestId
-    this.queryreply.takeUntil(ngUnsubscribe).subscribe(queryreply => {
-      if (queryreply.requestId == requestId) {
-        ngUnsubscribe.next();
-        ngUnsubscribe.complete();
-        result.next(queryreply);
-        result.complete();
-      }
-    });
-    return result;
-  }
+  // if ("log" in message) {
+  //   let log = message.log;
+  //   this.log.next(log);
+  // }
 
-  /**
-   * Receive new data from websocket
-   */
-  public receive(message: any) {
-    if ("metadata" in message) {
-      let metadata = message.metadata;
-      /*
-       * config
-       */
-      if ("config" in metadata) {
-        let config: Config = new Config(metadata.config);
 
-        // parse influxdb connection
-        if ("persistence" in config) {
-          for (let persistence of config.persistence) {
-            if (persistence.class == "io.openems.impl.persistence.influxdb.InfluxdbPersistence" &&
-              "ip" in persistence && "username" in persistence && "password" in persistence && "fems" in persistence) {
-              let ip = persistence["ip"];
-              if (ip == "127.0.0.1" || ip == "localhost") { // rewrite localhost to remote ip
-                ip = location.hostname;
-              }
-              this.influxdb = {
-                ip: ip,
-                username: persistence["username"],
-                password: persistence["password"],
-                fems: persistence["fems"]
-              }
-            }
-          }
-        }
-        // store all config
-        this.config.next(config);
-        //TODO this.things = this.refreshThingsFromConfig();
-      }
-
-      if ("online" in metadata) {
-        this.online = metadata.online;
-      } else {
-        this.online = true;
-      }
-
-      if ("comment" in metadata) {
-        this.comment = metadata.comment;
-      }
-
-      if ("role" in metadata) {
-        this.setRole(metadata.role);
-      }
-
-      if ("state" in metadata) {
-        this.state = metadata.state;
-      }
-
-      if ("producttype" in metadata) {
-        this.producttype = metadata.producttype;
-      }
-    }
-
-    /*
-     * currentdata
-     */
-    if ("currentdata" in message) {
-      let data: Data = new Data(<ChannelData>message.currentdata, this.config.getValue());
-      this.currentData.next(data);
-    }
-
-    /*
-     * log
-     */
-    if ("log" in message) {
-      let log = message.log;
-      this.log.next(log);
-    }
-
-    /*
-     * Reply to a query
-     */
-    if ("queryreply" in message) {
-      if (!("requestId" in message)) {
-        throw ("No requestId in message: " + message);
-      }
-      message.queryreply["requestId"] = message.requestId;
-      this.queryreply.next(message.queryreply);
-
-      //let kWh = null;
-      // history data
-      // if (message.queryreply != null) {
-      //   if ("data" in message.queryreply && message.queryreply.data != null) {
-      //     data = message.queryreply.data;
-      //     for (let datum of data) {
-      //       let sum = this.calculateSummary(datum.channels);
-      //       datum["summary"] = sum;
-      //     }
-      //   }
-      //   // kWh data
-      //   if ("kWh" in message.queryreply) {
-      //     kWh = message.queryreply.kWh;
-      //   }
-      // }
-      //this.historykWh.next(kWh);
-    }
-  }
-
-  private setRole(role: string) {
-    if (role in ROLES) {
-      this.role = ROLES[role];
-    } else {
-      console.warn("Role '" + role + "' not found.")
-      this.role = ROLES.guest;
-    }
-  }
+  //let kWh = null;
+  // history data
+  // if (message.queryreply != null) {
+  //   if ("data" in message.queryreply && message.queryreply.data != null) {
+  //     data = message.queryreply.data;
+  //     for (let datum of data) {
+  //       let sum = this.calculateSummary(datum.channels);
+  //       datum["summary"] = sum;
+  //     }
+  //   }
+  //   // kWh data
+  //   if ("kWh" in message.queryreply) {
+  //     kWh = message.queryreply.kWh;
+  //   }
+  // }
+  //this.historykWh.next(kWh);
+  // }
 }

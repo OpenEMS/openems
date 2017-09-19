@@ -23,7 +23,6 @@ package io.openems.impl.device.simulator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -32,15 +31,15 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
-import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
@@ -64,50 +63,45 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 	/*
 	 * Constructors
 	 */
-	public SimulatorAsymmetricEss(String thingId) throws ConfigException {
-		super(thingId);
+	public SimulatorAsymmetricEss(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
 			}
 		});
-		long initialSoc = SimulatorTools.addRandomLong(50, 0, 100, 20);
+		long initialSoc = SimulatorTools.addRandomLong(90, 90, 100, 5);
 		this.energy = capacity.valueOptional().get() / 100 * initialSoc;
-		this.soc = new FunctionalReadChannel<Long>("Soc", this, new FunctionalReadChannelFunction<Long>() {
-
-			@Override
-			public Long handle(ReadChannel<Long>... channels) {
-				try {
-					energy -= (channels[0].value() + channels[1].value() + channels[2].value()) / 3600.0;
-				} catch (InvalidValueException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				if (chargerList != null) {
-					for (ChargerNature charger : chargerList) {
-						try {
-							energy += charger.getActualPower().value() / 3600.0;
-						} catch (InvalidValueException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-				try {
-					if (energy > capacity.value()) {
-						energy = capacity.value();
-					} else if (energy < 0) {
-						energy = 0;
-					}
-					return (long) (energy / capacity.value() * 100.0);
-				} catch (InvalidValueException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return 0L;
+		this.soc = new FunctionalReadChannel<Long>("Soc", this, (channels) -> {
+			try {
+				energy -= (channels[0].value() + channels[1].value() + channels[2].value()) / 3600.0;
+			} catch (InvalidValueException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-
+			if (chargerList != null) {
+				for (ChargerNature charger : chargerList) {
+					try {
+						energy += charger.getActualPower().value() / 3600.0;
+					} catch (InvalidValueException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			try {
+				if (energy > capacity.value()) {
+					energy = capacity.value();
+				} else if (energy < 0) {
+					energy = 0;
+				}
+				return (long) (energy / capacity.value() * 100.0);
+			} catch (InvalidValueException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return 0L;
 		}, this.activePowerL1, this.activePowerL2, this.activePowerL3);
 	}
 
@@ -124,6 +118,8 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 	 */
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
+	@ChannelInfo(title = "Power", type = Long.class, isOptional = true)
+	public ConfigChannel<Long> power = new ConfigChannel<Long>("Power", this);
 
 	@Override
 	public ConfigChannel<Integer> minSoc() {
@@ -140,30 +136,32 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 	 */
 	private StatusBitChannels warning = new StatusBitChannels("Warning", this);;
 	private FunctionalReadChannel<Long> soc;
-	private SimulatorReadChannel activePowerL1 = new SimulatorReadChannel("ActivePoweL1", this);
-	private SimulatorReadChannel activePowerL2 = new SimulatorReadChannel("ActivePoweL2", this);
-	private SimulatorReadChannel activePowerL3 = new SimulatorReadChannel("ActivePoweL3", this);
-	private SimulatorReadChannel allowedApparent = new SimulatorReadChannel("AllowedApparent", this);
-	private SimulatorReadChannel allowedCharge = new SimulatorReadChannel("AllowedCharge", this);
-	private SimulatorReadChannel allowedDischarge = new SimulatorReadChannel("AllowedDischarge", this);
-	private SimulatorReadChannel gridMode = new SimulatorReadChannel("GridMode", this).label(0, ON_GRID).label(1,
-			OFF_GRID);
-	private SimulatorReadChannel reactivePowerL1 = new SimulatorReadChannel("ReactivePowerL1", this);
-	private SimulatorReadChannel reactivePowerL2 = new SimulatorReadChannel("ReactivePowerL2", this);
-	private SimulatorReadChannel reactivePowerL3 = new SimulatorReadChannel("ReactivePowerL3", this);
-	private SimulatorReadChannel systemState = new SimulatorReadChannel("SystemState", this) //
-			.label(1, START).label(2, STOP);
+	private SimulatorReadChannel<Long> activePowerL1 = new SimulatorReadChannel<>("ActivePoweL1", this);
+	private SimulatorReadChannel<Long> activePowerL2 = new SimulatorReadChannel<>("ActivePoweL2", this);
+	private SimulatorReadChannel<Long> activePowerL3 = new SimulatorReadChannel<>("ActivePoweL3", this);
+	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel<Long>("AllowedApparent", this,
+			(40000L / 3));
+	private SimulatorReadChannel<Long> allowedCharge = new SimulatorReadChannel<>("AllowedCharge", this);
+	private SimulatorReadChannel<Long> allowedDischarge = new SimulatorReadChannel<>("AllowedDischarge", this);
+	private SimulatorReadChannel<Long> gridMode = new SimulatorReadChannel<Long>("GridMode", this).label(0L, ON_GRID)
+			.label(1L, OFF_GRID);
+	private SimulatorReadChannel<Long> reactivePowerL1 = new SimulatorReadChannel<>("ReactivePowerL1", this);
+	private SimulatorReadChannel<Long> reactivePowerL2 = new SimulatorReadChannel<>("ReactivePowerL2", this);
+	private SimulatorReadChannel<Long> reactivePowerL3 = new SimulatorReadChannel<>("ReactivePowerL3", this);
+	private SimulatorReadChannel<Long> systemState = new SimulatorReadChannel<Long>("SystemState", this) //
+			.label(1L, START).label(2L, STOP);
 	private UnitTestWriteChannel<Long> setActivePowerL1 = new UnitTestWriteChannel<Long>("SetActivePowerL1", this);
 	private UnitTestWriteChannel<Long> setActivePowerL2 = new UnitTestWriteChannel<Long>("SetActivePowerL2", this);
 	private UnitTestWriteChannel<Long> setActivePowerL3 = new UnitTestWriteChannel<Long>("SetActivePowerL3", this);
 	private UnitTestWriteChannel<Long> setReactivePowerL1 = new UnitTestWriteChannel<Long>("SetReactivePowerL1", this);
 	private UnitTestWriteChannel<Long> setReactivePowerL2 = new UnitTestWriteChannel<Long>("SetReactivePowerL2", this);
 	private UnitTestWriteChannel<Long> setReactivePowerL3 = new UnitTestWriteChannel<Long>("SetReactivePowerL3", this);
-	private ModbusWriteLongChannel setWorkState = new ModbusWriteLongChannel("SetWorkState", this);
+	private ModbusWriteLongChannel setWorkState = new ModbusWriteLongChannel("SetWorkState", this).label(1L, START)
+			.label(2L, STOP);
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 5000L).unit("Wh");
-	@ConfigInfo(title = "charger", type = JsonArray.class, isOptional = true)
+	@ChannelInfo(title = "charger", type = JsonArray.class, isOptional = true)
 	public ConfigChannel<JsonArray> charger = new ConfigChannel<JsonArray>("charger", this).addChangeListener(this);
 
 	@Override
@@ -206,20 +204,10 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 		return allowedApparent;
 	}
 
-	private long getRandom(int min, int max) {
-		return ThreadLocalRandom.current().nextLong(min, max + 1);
-	}
-
 	@Override
 	public ReadChannel<Long> maxNominalPower() {
 		return maxNominalPower;
 	}
-
-	/*
-	 * Fields
-	 */
-	private long lastApparentPower = 0;
-	private double lastCosPhi = 0;
 
 	/*
 	 * Methods
@@ -230,29 +218,35 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 			chargerList = new ArrayList<>();
 			getCharger();
 		}
-		Optional<Long> writtenActivePowerL1 = setActivePowerL1.getWrittenValue();
-		if (writtenActivePowerL1.isPresent()) {
-			activePowerQueueL1.add(writtenActivePowerL1.get());
-		}
-		Optional<Long> writtenActivePowerL2 = setActivePowerL2.getWrittenValue();
-		if (writtenActivePowerL2.isPresent()) {
-			activePowerQueueL2.add(writtenActivePowerL2.get());
-		}
-		Optional<Long> writtenActivePowerL3 = setActivePowerL3.getWrittenValue();
-		if (writtenActivePowerL3.isPresent()) {
-			activePowerQueueL3.add(writtenActivePowerL3.get());
-		}
-		Optional<Long> writtenReactivePowerL1 = setReactivePowerL1.getWrittenValue();
-		if (writtenReactivePowerL1.isPresent()) {
-			reactivePowerQueueL1.add(writtenReactivePowerL1.get());
-		}
-		Optional<Long> writtenReactivePowerL2 = setReactivePowerL2.getWrittenValue();
-		if (writtenReactivePowerL2.isPresent()) {
-			reactivePowerQueueL2.add(writtenReactivePowerL2.get());
-		}
-		Optional<Long> writtenReactivePowerL3 = setReactivePowerL3.getWrittenValue();
-		if (writtenReactivePowerL3.isPresent()) {
-			reactivePowerQueueL3.add(writtenReactivePowerL3.get());
+		if (power.valueOptional().isPresent() && power.valueOptional().get() != 0) {
+			activePowerQueueL1.add(power.valueOptional().get() / 3);
+			activePowerQueueL2.add(power.valueOptional().get() / 3);
+			activePowerQueueL3.add(power.valueOptional().get() / 3);
+		} else {
+			Optional<Long> writtenActivePowerL1 = setActivePowerL1.getWrittenValue();
+			if (writtenActivePowerL1.isPresent()) {
+				activePowerQueueL1.add(writtenActivePowerL1.get());
+			}
+			Optional<Long> writtenActivePowerL2 = setActivePowerL2.getWrittenValue();
+			if (writtenActivePowerL2.isPresent()) {
+				activePowerQueueL2.add(writtenActivePowerL2.get());
+			}
+			Optional<Long> writtenActivePowerL3 = setActivePowerL3.getWrittenValue();
+			if (writtenActivePowerL3.isPresent()) {
+				activePowerQueueL3.add(writtenActivePowerL3.get());
+			}
+			Optional<Long> writtenReactivePowerL1 = setReactivePowerL1.getWrittenValue();
+			if (writtenReactivePowerL1.isPresent()) {
+				reactivePowerQueueL1.add(writtenReactivePowerL1.get());
+			}
+			Optional<Long> writtenReactivePowerL2 = setReactivePowerL2.getWrittenValue();
+			if (writtenReactivePowerL2.isPresent()) {
+				reactivePowerQueueL2.add(writtenReactivePowerL2.get());
+			}
+			Optional<Long> writtenReactivePowerL3 = setReactivePowerL3.getWrittenValue();
+			if (writtenReactivePowerL3.isPresent()) {
+				reactivePowerQueueL3.add(writtenReactivePowerL3.get());
+			}
 		}
 		// lastApparentPower = SimulatorTools.addRandomLong(lastApparentPower, -10000, 10000, 500);
 		// lastCosPhi = SimulatorTools.addRandomDouble(lastCosPhi, -1.5, 1.5, 0.5);
@@ -290,6 +284,24 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 		this.allowedDischarge.updateValue(3000L);
 		this.systemState.updateValue(1L);
 		this.gridMode.updateValue(0L);
+		try {
+			long multiplier = 100 - this.soc.value();
+			if (multiplier > 10) {
+				multiplier = 10;
+			}
+			this.allowedCharge.updateValue((maxNominalPower.value() / 10 * multiplier) * -1);
+		} catch (InvalidValueException e) {
+			e.printStackTrace();
+		}
+		try {
+			long multiplier = this.soc.value();
+			if (multiplier > 10) {
+				multiplier = 10;
+			}
+			this.allowedDischarge.updateValue(maxNominalPower.value() / 10 * multiplier);
+		} catch (InvalidValueException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

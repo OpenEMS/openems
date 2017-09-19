@@ -22,6 +22,8 @@ package io.openems.impl.device.janitza;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.device.Device;
+import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -33,13 +35,13 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
 @ThingInfo(title = "Janitza UMG96RM Meter")
-public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements SymmetricMeterNature {
+public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
 	/*
 	 * Constructors
 	 */
-	public JanitzaUMG96RMEMeter(String thingId) throws ConfigException {
-		super(thingId);
+	public JanitzaUMG96RMEMeter(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	/*
@@ -70,22 +72,26 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 	 * Inherited Channels
 	 */
 	private ModbusReadLongChannel activePower;
-	public ModbusReadLongChannel activePowerL1;
-	public ModbusReadLongChannel activePowerL2;
-	public ModbusReadLongChannel activePowerL3;
+	private ModbusReadLongChannel activePowerL1;
+	private ModbusReadLongChannel activePowerL2;
+	private ModbusReadLongChannel activePowerL3;
 	private ModbusReadLongChannel apparentPower;
 	private ModbusReadLongChannel reactivePower;
-	public ModbusReadLongChannel reactivePowerL1;
-	public ModbusReadLongChannel reactivePowerL2;
-	public ModbusReadLongChannel reactivePowerL3;
-	public ModbusReadLongChannel current;
+	private ModbusReadLongChannel reactivePowerL1;
+	private ModbusReadLongChannel reactivePowerL2;
+	private ModbusReadLongChannel reactivePowerL3;
 	private ModbusReadLongChannel frequency;
-	public ModbusReadLongChannel voltageL1;
-	public ModbusReadLongChannel voltageL2;
-	public ModbusReadLongChannel voltageL3;
-	public ModbusReadLongChannel currentL1;
-	public ModbusReadLongChannel currentL2;
-	public ModbusReadLongChannel currentL3;
+	private ModbusReadLongChannel voltageL1;
+	private ModbusReadLongChannel voltageL2;
+	private ModbusReadLongChannel voltageL3;
+	private ModbusReadLongChannel currentL1;
+	private ModbusReadLongChannel currentL2;
+	private ModbusReadLongChannel currentL3;
+
+	/*
+	 * Channels
+	 */
+	public ModbusReadLongChannel current;
 
 	@Override
 	public ReadChannel<Long> activePower() {
@@ -129,8 +135,7 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 								.multiplier(3),
 						new FloatElement(812, voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV"))
 								.multiplier(3),
-						new DummyElement(814, 859),
-						new FloatElement(860, //
+						new DummyElement(814, 859), new FloatElement(860, //
 								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")).multiplier(3),
 						new FloatElement(862, //
 								currentL2 = new ModbusReadLongChannel("CurrentL2", this).unit("mA")).multiplier(3),
@@ -162,10 +167,69 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 						new FloatElement(882, //
 								reactivePower = new ModbusReadLongChannel("ReactivePower", this) //
 										.unit("Var")), //
-						new DummyElement(884, 889),
-						new FloatElement(890, //
+						new DummyElement(884, 889), new FloatElement(890, //
 								apparentPower = new ModbusReadLongChannel("ApparentPower", this) //
 										.unit("VA")) //
 				));
+	}
+
+	@Override
+	public ReadChannel<Long> activePowerL1() {
+		return activePowerL1;
+	}
+
+	@Override
+	public ReadChannel<Long> activePowerL2() {
+		return activePowerL2;
+	}
+
+	@Override
+	public ReadChannel<Long> activePowerL3() {
+		return activePowerL3;
+	}
+
+	@Override
+	public ReadChannel<Long> reactivePowerL1() {
+		return reactivePowerL1;
+	}
+
+	@Override
+	public ReadChannel<Long> reactivePowerL2() {
+		return reactivePowerL2;
+	}
+
+	@Override
+	public ReadChannel<Long> reactivePowerL3() {
+		return reactivePowerL3;
+	}
+
+	@Override
+	public ReadChannel<Long> currentL1() {
+		return currentL1;
+	}
+
+	@Override
+	public ReadChannel<Long> currentL2() {
+		return currentL2;
+	}
+
+	@Override
+	public ReadChannel<Long> currentL3() {
+		return currentL3;
+	}
+
+	@Override
+	public ReadChannel<Long> voltageL1() {
+		return voltageL1;
+	}
+
+	@Override
+	public ReadChannel<Long> voltageL2() {
+		return voltageL2;
+	}
+
+	@Override
+	public ReadChannel<Long> voltageL3() {
+		return voltageL3;
 	}
 }

@@ -15,8 +15,6 @@ import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
 import org.influxdb.dto.QueryResult.Result;
 import org.influxdb.dto.QueryResult.Series;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -29,7 +27,7 @@ import io.openems.core.utilities.JsonUtils;
 
 public class InfluxdbQueryWrapper {
 
-	private final static Logger log = LoggerFactory.getLogger(InfluxdbQueryWrapper.class);
+	// private final static Logger log = LoggerFactory.getLogger(InfluxdbQueryWrapper.class);
 
 	public static JsonObject query(Optional<InfluxDB> _influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
 			ZonedDateTime toDate, JsonObject channels, int resolution, String dbName) throws OpenemsException {
@@ -139,186 +137,187 @@ public class InfluxdbQueryWrapper {
 		return j;
 	}
 
-	private static JsonObject querykWh(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
-			ZonedDateTime toDate, JsonObject channels, int resolution, JsonObject kWh, String dbName)
-			throws OpenemsException {
-		JsonArray gridThing = getGridThing(kWh);
-		JsonArray storageThing = getStorageThing(kWh);
-		JsonArray things = new JsonArray();
-		things.addAll(storageThing);
-		things.addAll(gridThing);
+	// TODO
+	// private static JsonObject querykWh(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
+	// ZonedDateTime toDate, JsonObject channels, int resolution, JsonObject kWh, String dbName)
+	// throws OpenemsException {
+	// JsonArray gridThing = getGridThing(kWh);
+	// JsonArray storageThing = getStorageThing(kWh);
+	// JsonArray things = new JsonArray();
+	// things.addAll(storageThing);
+	// things.addAll(gridThing);
+	//
+	// JsonObject jThing = new JsonObject();
+	// ArrayList<String> productionChannels = toChannelAddressListAvg(channels, things);
+	//
+	// for (int i = 0; i < productionChannels.size(); i++) {
+	// /*
+	// * SUM data
+	// */
+	// StringBuilder query = new StringBuilder("SELECT SUM(AP) FROM (SELECT MEAN(\"");
+	// query.append(productionChannels.get(i));
+	// query.append("\") AS AP FROM data WHERE ");
+	// if (fems.isPresent()) {
+	// query.append("fems = '");
+	// query.append(fems.get());
+	// query.append("' AND ");
+	// }
+	// query.append("time > ");
+	// query.append(String.valueOf(fromDate.toEpochSecond()));
+	// query.append("s");
+	// query.append(" AND time < ");
+	// query.append(String.valueOf(toDate.toEpochSecond()));
+	// query.append("s");
+	// query.append(" GROUP BY time(1s) fill(previous))");
+	//
+	// QueryResult queryResult = executeQuery(influxdb, query.toString(), dbName);
+	//
+	// Double sumProduction = 0.0;
+	// try {
+	// for (Result result : queryResult.getResults()) {
+	// for (Series serie : result.getSeries()) {
+	// for (List<Object> l : serie.getValues()) {
+	// sumProduction = (Double) l.get(1);
+	// }
+	// }
+	// }
+	// } catch (Exception e) {
+	// log.warn("Error parsing SUM production: " + e);
+	// }
+	//
+	// /*
+	// * FIRST production data
+	// */
+	// query = new StringBuilder("SELECT FIRST(\"");
+	// query.append(productionChannels.get(i));
+	// query.append("\") FROM data WHERE ");
+	// if (fems.isPresent()) {
+	// query.append("fems = '");
+	// query.append(fems.get());
+	// query.append("' AND ");
+	// }
+	// query.append("time > ");
+	// query.append(String.valueOf(fromDate.toEpochSecond()));
+	// query.append("s");
+	// query.append(" AND time < ");
+	// query.append(String.valueOf(toDate.toEpochSecond()));
+	// query.append("s");
+	//
+	// queryResult = executeQuery(influxdb, query.toString(), dbName);
+	//
+	// int second = 0;
+	// try {
+	// for (Result result : queryResult.getResults()) {
+	// for (Series serie : result.getSeries()) {
+	// for (List<Object> l : serie.getValues()) {
+	// Instant timestampInstant = Instant.ofEpochMilli((long) ((Double) l.get(0)).doubleValue());
+	// ZonedDateTime timestamp = ZonedDateTime.ofInstant(timestampInstant, fromDate.getZone());
+	// if (timestamp.equals(fromDate)) {
+	// log.info("Parsing FIRST: nothing null");
+	// } else {
+	// second = timestamp.getSecond();
+	// }
+	// }
+	// }
+	// }
+	// } catch (Exception e) {
+	// log.warn("Error parsing FIRST production: " + e);
+	// }
+	//
+	// /*
+	// * LAST data
+	// */
+	// query = new StringBuilder("SELECT LAST(\"");
+	// query.append(productionChannels.get(i));
+	// query.append("\") FROM data WHERE ");
+	// if (fems.isPresent()) {
+	// query.append("fems = '");
+	// query.append(fems.get());
+	// query.append("' AND ");
+	// }
+	// query.append("time < ");
+	// query.append(String.valueOf(fromDate.toEpochSecond()));
+	// query.append("s");
+	//
+	// queryResult = executeQuery(influxdb, query.toString(), dbName);
+	//
+	// try {
+	// if (queryResult.getResults() != null) {
+	// for (Result result : queryResult.getResults()) {
+	// if (result.getSeries() != null) {
+	// for (Series serie : result.getSeries()) {
+	// if (serie.getValues() != null) {
+	// for (List<Object> l : serie.getValues()) {
+	// if (l.get(1) != null) {
+	// sumProduction += (Double) l.get(1) * second;
+	// }
+	// }
+	// }
+	// }
+	// }
+	// }
+	// }
+	// } catch (Exception e) {
+	// log.warn("Error parsing LAST production: " + e);
+	// }
+	//
+	// Double avg = sumProduction / 3600 / 1000;
+	//
+	// JsonObject element = new JsonObject();
+	// element.addProperty("value", avg);
+	// element.addProperty("type", JsonUtils.getAsString(kWh.get(productionChannels.get(i))));
+	// jThing.add(productionChannels.get(i).toString(), element);
+	// }
+	//
+	// return jThing;
+	// }
 
-		JsonObject jThing = new JsonObject();
-		ArrayList<String> productionChannels = toChannelAddressListAvg(channels, things);
+	// private static JsonArray getGridThing(JsonObject kWh) throws OpenemsException {
+	// JsonArray gridThing = new JsonArray();
+	// for (Entry<String, JsonElement> entry : kWh.entrySet()) {
+	// String thingId = entry.getKey();
+	// if (JsonUtils.getAsString(entry.getValue()).equals("grid")) {
+	// gridThing.add(thingId);
+	// }
+	// }
+	// return gridThing;
+	// }
 
-		for (int i = 0; i < productionChannels.size(); i++) {
-			/*
-			 * SUM data
-			 */
-			StringBuilder query = new StringBuilder("SELECT SUM(AP) FROM (SELECT MEAN(\"");
-			query.append(productionChannels.get(i));
-			query.append("\") AS AP FROM data WHERE ");
-			if (fems.isPresent()) {
-				query.append("fems = '");
-				query.append(fems.get());
-				query.append("' AND ");
-			}
-			query.append("time > ");
-			query.append(String.valueOf(fromDate.toEpochSecond()));
-			query.append("s");
-			query.append(" AND time < ");
-			query.append(String.valueOf(toDate.toEpochSecond()));
-			query.append("s");
-			query.append(" GROUP BY time(1s) fill(previous))");
+	// private static JsonArray getStorageThing(JsonObject kWh) throws OpenemsException {
+	// JsonArray storageThing = new JsonArray();
+	// for (Entry<String, JsonElement> entry : kWh.entrySet()) {
+	// String thingId = entry.getKey();
+	// if (JsonUtils.getAsString(entry.getValue()).equals("storage")) {
+	// storageThing.add(thingId);
+	// }
+	// }
+	// return storageThing;
+	// }
 
-			QueryResult queryResult = executeQuery(influxdb, query.toString(), dbName);
-
-			Double sumProduction = 0.0;
-			try {
-				for (Result result : queryResult.getResults()) {
-					for (Series serie : result.getSeries()) {
-						for (List<Object> l : serie.getValues()) {
-							sumProduction = (Double) l.get(1);
-						}
-					}
-				}
-			} catch (Exception e) {
-				log.warn("Error parsing SUM production: " + e);
-			}
-
-			/*
-			 * FIRST production data
-			 */
-			query = new StringBuilder("SELECT FIRST(\"");
-			query.append(productionChannels.get(i));
-			query.append("\") FROM data WHERE ");
-			if (fems.isPresent()) {
-				query.append("fems = '");
-				query.append(fems.get());
-				query.append("' AND ");
-			}
-			query.append("time > ");
-			query.append(String.valueOf(fromDate.toEpochSecond()));
-			query.append("s");
-			query.append(" AND time < ");
-			query.append(String.valueOf(toDate.toEpochSecond()));
-			query.append("s");
-
-			queryResult = executeQuery(influxdb, query.toString(), dbName);
-
-			int second = 0;
-			try {
-				for (Result result : queryResult.getResults()) {
-					for (Series serie : result.getSeries()) {
-						for (List<Object> l : serie.getValues()) {
-							Instant timestampInstant = Instant.ofEpochMilli((long) ((Double) l.get(0)).doubleValue());
-							ZonedDateTime timestamp = ZonedDateTime.ofInstant(timestampInstant, fromDate.getZone());
-							if (timestamp.equals(fromDate)) {
-								log.info("Parsing FIRST: nothing null");
-							} else {
-								second = timestamp.getSecond();
-							}
-						}
-					}
-				}
-			} catch (Exception e) {
-				log.warn("Error parsing FIRST production: " + e);
-			}
-
-			/*
-			 * LAST data
-			 */
-			query = new StringBuilder("SELECT LAST(\"");
-			query.append(productionChannels.get(i));
-			query.append("\") FROM data WHERE ");
-			if (fems.isPresent()) {
-				query.append("fems = '");
-				query.append(fems.get());
-				query.append("' AND ");
-			}
-			query.append("time < ");
-			query.append(String.valueOf(fromDate.toEpochSecond()));
-			query.append("s");
-
-			queryResult = executeQuery(influxdb, query.toString(), dbName);
-
-			try {
-				if (queryResult.getResults() != null) {
-					for (Result result : queryResult.getResults()) {
-						if (result.getSeries() != null) {
-							for (Series serie : result.getSeries()) {
-								if (serie.getValues() != null) {
-									for (List<Object> l : serie.getValues()) {
-										if (l.get(1) != null) {
-											sumProduction += (Double) l.get(1) * second;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			} catch (Exception e) {
-				log.warn("Error parsing LAST production: " + e);
-			}
-
-			Double avg = sumProduction / 3600 / 1000;
-
-			JsonObject element = new JsonObject();
-			element.addProperty("value", avg);
-			element.addProperty("type", JsonUtils.getAsString(kWh.get(productionChannels.get(i))));
-			jThing.add(productionChannels.get(i).toString(), element);
-		}
-
-		return jThing;
-	}
-
-	private static JsonArray getGridThing(JsonObject kWh) throws OpenemsException {
-		JsonArray gridThing = new JsonArray();
-		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
-			String thingId = entry.getKey();
-			if (JsonUtils.getAsString(entry.getValue()).equals("grid")) {
-				gridThing.add(thingId);
-			}
-		}
-		return gridThing;
-	}
-
-	private static JsonArray getStorageThing(JsonObject kWh) throws OpenemsException {
-		JsonArray storageThing = new JsonArray();
-		for (Entry<String, JsonElement> entry : kWh.entrySet()) {
-			String thingId = entry.getKey();
-			if (JsonUtils.getAsString(entry.getValue()).equals("storage")) {
-				storageThing.add(thingId);
-			}
-		}
-		return storageThing;
-	}
-
-	private static ArrayList<String> toChannelAddressListAvg(JsonObject channels, JsonArray things)
-			throws OpenemsException {
-		ArrayList<String> channelAddresses = new ArrayList<>();
-		for (Entry<String, JsonElement> entry : channels.entrySet()) {
-			String thingId = entry.getKey();
-			JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
-			for (JsonElement channelElement : channelIds) {
-				String channelId = JsonUtils.getAsString(channelElement);
-				if (channelId.contains("ActivePower")) {
-					String name = thingId + "/" + channelId;
-					boolean isGridOrStorage = false;
-					for (int i = 0; i < things.size(); i++) {
-						if (JsonUtils.getAsString(things.get(i)).equals(name)) {
-							isGridOrStorage = true;
-						}
-					}
-					if (!isGridOrStorage) {
-						channelAddresses.add(thingId + "/" + channelId);
-					}
-				}
-			}
-		}
-		return channelAddresses;
-	}
+	// private static ArrayList<String> toChannelAddressListAvg(JsonObject channels, JsonArray things)
+	// throws OpenemsException {
+	// ArrayList<String> channelAddresses = new ArrayList<>();
+	// for (Entry<String, JsonElement> entry : channels.entrySet()) {
+	// String thingId = entry.getKey();
+	// JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
+	// for (JsonElement channelElement : channelIds) {
+	// String channelId = JsonUtils.getAsString(channelElement);
+	// if (channelId.contains("ActivePower")) {
+	// String name = thingId + "/" + channelId;
+	// boolean isGridOrStorage = false;
+	// for (int i = 0; i < things.size(); i++) {
+	// if (JsonUtils.getAsString(things.get(i)).equals(name)) {
+	// isGridOrStorage = true;
+	// }
+	// }
+	// if (!isGridOrStorage) {
+	// channelAddresses.add(thingId + "/" + channelId);
+	// }
+	// }
+	// }
+	// }
+	// return channelAddresses;
+	// }
 
 	private static String toChannelAddressList(JsonObject channels) throws OpenemsException {
 		ArrayList<String> channelAddresses = new ArrayList<>();

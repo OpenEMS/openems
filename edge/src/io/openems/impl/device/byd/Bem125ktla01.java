@@ -23,9 +23,10 @@ package io.openems.impl.device.byd;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
@@ -39,14 +40,14 @@ public class Bem125ktla01 extends ModbusDevice {
 	/*
 	 * Constructors
 	 */
-	public Bem125ktla01() throws OpenemsException {
-		super();
+	public Bem125ktla01(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess nature.", type = Bem125ktla01Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess nature.", type = Bem125ktla01Ess.class)
 	public final ConfigChannel<Bem125ktla01Ess> ess = new ConfigChannel<Bem125ktla01Ess>("ess", this);
 
 	/*

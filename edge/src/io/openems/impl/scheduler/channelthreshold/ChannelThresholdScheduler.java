@@ -36,7 +36,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
@@ -62,11 +62,8 @@ public class ChannelThresholdScheduler extends Scheduler {
 	 * Config
 	 */
 
-	@ConfigInfo(title = "Always", description = "Sets the controllers that are always activated.", type = JsonArray.class)
+	@ChannelInfo(title = "Always", description = "Sets the controllers that are always activated.", type = JsonArray.class)
 	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this);
-
-	@ConfigInfo(title = "the ammount of time to wait till next run.", type = Integer.class)
-	private ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(1000);
 
 	/*
 	 * "thresholds":[
@@ -88,7 +85,7 @@ public class ChannelThresholdScheduler extends Scheduler {
 	 * ]
 	 */
 
-	@ConfigInfo(title = "Configures the Controllers ", type = JsonArray.class)
+	@ChannelInfo(title = "Configures the Controllers ", type = JsonArray.class)
 	public ConfigChannel<JsonArray> thresholds = new ConfigChannel<JsonArray>("thresholds", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				try {
@@ -101,7 +98,7 @@ public class ChannelThresholdScheduler extends Scheduler {
 			});
 
 	@SuppressWarnings("unchecked")
-	@ConfigInfo(title = "the address of the channel to switch the controllers by thresholds.", type = String.class)
+	@ChannelInfo(title = "the address of the channel to switch the controllers by thresholds.", type = String.class)
 	public ConfigChannel<String> thresholdChannelAddress = new ConfigChannel<String>("thresholdChannelAddress", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				Optional<String> channelAddress = (Optional<String>) newValue;
@@ -117,12 +114,6 @@ public class ChannelThresholdScheduler extends Scheduler {
 				}
 			});
 
-	@Override
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
-	public ConfigChannel<Integer> cycleTime() {
-		return cycleTime;
-	}
-
 	/*
 	 * Methods
 	 */
@@ -131,7 +122,7 @@ public class ChannelThresholdScheduler extends Scheduler {
 	protected void dispose() {}
 
 	@Override
-	protected void forever() {
+	protected void execute() {
 		// kick the watchdog
 		SDNotify.sendWatchdog();
 

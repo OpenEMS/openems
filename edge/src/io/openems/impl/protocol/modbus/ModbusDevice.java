@@ -22,51 +22,33 @@ package io.openems.impl.protocol.modbus;
 
 import java.util.Optional;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
-import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsException;
-import io.openems.api.exception.ReflectionException;
 
 public abstract class ModbusDevice extends Device {
 
 	/*
 	 * Constructors
 	 */
-	public ModbusDevice() throws OpenemsException {
-		super();
+	public ModbusDevice(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Unit-ID", description = "Sets the Modbus unit-id.", type = Integer.class)
+	@ChannelInfo(title = "Unit-ID", description = "Sets the Modbus unit-id.", type = Integer.class)
 	public final ConfigChannel<Integer> modbusUnitId = new ConfigChannel<Integer>("modbusUnitId", this);
 
 	/*
 	 * Methods
 	 */
-	protected final void update(ModbusBridge modbusBridge) throws ConfigException, ReflectionException {
-		int modbusUnitId = getModbusUnitId();
-		for (DeviceNature nature : getDeviceNatures()) {
-			if (nature instanceof ModbusDeviceNature) {
-				((ModbusDeviceNature) nature).update(modbusUnitId, modbusBridge);
-			}
-		}
-	}
 
-	protected final void write(ModbusBridge modbusBridge) throws ConfigException, ReflectionException {
-		int modbusUnitId = getModbusUnitId();
-		for (DeviceNature nature : getDeviceNatures()) {
-			if (nature instanceof ModbusDeviceNature) {
-				((ModbusDeviceNature) nature).write(modbusUnitId, modbusBridge);
-			}
-		}
-	}
-
-	private int getModbusUnitId() throws ConfigException {
+	protected int getModbusUnitId() throws ConfigException {
 		Optional<Integer> modbusUnitId = this.modbusUnitId.valueOptional();
 		if (modbusUnitId.isPresent()) {
 			return modbusUnitId.get();

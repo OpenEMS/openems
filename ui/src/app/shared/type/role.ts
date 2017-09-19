@@ -5,7 +5,7 @@ export class Role {
         public readonly level: number
     ) { };
 
-    public isHigherAs(role: Role | string): boolean {
+    public isHigherThan(role: Role | string): boolean {
         if (typeof role === 'string') {
             role = ROLES.getRole(role);
         }
@@ -23,9 +23,16 @@ export const ROLES = {
     installer: new Role("installer", 2),
     admin: new Role("admin", 3),
 
+    /**
+     * Gets the role of a string
+     * @param name of the role
+     */
     getRole(name: string): Role {
-        if (name in ROLES) {
+        if (name.toLowerCase() in ROLES) {
             return ROLES[name];
+        } else {
+            console.warn("Role '" + name + "' not found.")
+            return ROLES.guest;
         }
     }
 };

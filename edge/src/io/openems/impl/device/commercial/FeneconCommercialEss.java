@@ -25,6 +25,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -46,8 +47,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	/*
 	 * Constructors
 	 */
-	public FeneconCommercialEss(String thingId) throws ConfigException {
-		super(thingId);
+	public FeneconCommercialEss(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
@@ -274,7 +275,10 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 												.label(1, "Inverter communication abnormity") //
 												.label(2, "Battery stack communication abnormity") //
 												.label(4, "Multifunctional ammeter communication abnormity") //
-												.label(16, "Remote communication abnormity"))), //
+												.label(16, "Remote communication abnormity")//
+												.label(256, "PV DC1 communication abnormity")//
+												.label(512, "PV DC2 communication abnormity")//
+								)), //
 						new UnsignedWordElement(0x0126, //
 								suggestiveInformation4 = warning
 										.channel(new StatusBitChannel("SuggestiveInformation4", this) //
@@ -438,8 +442,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 						new UnsignedDoublewordElement(0x020A, //
 								acDischargeEnergy = new ModbusReadLongChannel("AcDischargeEnergy", this).unit("Wh")
 										.multiplier(2)).wordOrder(WordOrder.LSWMSW),
-						new DummyElement(0x020C, 0x020F),
-						new SignedWordElement(0x0210, //
+						new DummyElement(0x020C, 0x020F), new SignedWordElement(0x0210, //
 								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").multiplier(2)),
 						new SignedWordElement(0x0211, //
 								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("var")
@@ -484,8 +487,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 						new SignedWordElement(0x0228, //
 								inverterActivePower = new ModbusReadLongChannel("InverterActivePower", this).unit("W")
 										.multiplier(2)), //
-						new DummyElement(0x0229, 0x022F),
-						new SignedWordElement(0x0230, //
+						new DummyElement(0x0229, 0x022F), new SignedWordElement(0x0230, //
 								allowedCharge = new ModbusReadLongChannel("AllowedCharge", this).unit("W")
 										.multiplier(2)), //
 						new UnsignedWordElement(0x0231, //
@@ -494,15 +496,13 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 						new UnsignedWordElement(0x0232, //
 								allowedApparent = new ModbusReadLongChannel("AllowedApparent", this).unit("VA")
 										.multiplier(2)), //
-						new DummyElement(0x0233, 0x23F),
-						new SignedWordElement(0x0240, //
+						new DummyElement(0x0233, 0x23F), new SignedWordElement(0x0240, //
 								ipmTemperatureL1 = new ModbusReadLongChannel("IpmTemperatureL1", this).unit("�C")), //
 						new SignedWordElement(0x0241, //
 								ipmTemperatureL2 = new ModbusReadLongChannel("IpmTemperatureL2", this).unit("�C")), //
 						new SignedWordElement(0x0242, //
 								ipmTemperatureL3 = new ModbusReadLongChannel("IpmTemperatureL3", this).unit("�C")), //
-						new DummyElement(0x0243, 0x0248),
-						new SignedWordElement(0x0249, //
+						new DummyElement(0x0243, 0x0248), new SignedWordElement(0x0249, //
 								transformerTemperatureL2 = new ModbusReadLongChannel("TransformerTemperatureL2", this)
 										.unit("�C"))),
 				new WriteableModbusRegisterRange(0x0500, //

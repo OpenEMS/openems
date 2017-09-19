@@ -1,5 +1,5 @@
 import { FormGroup, FormBuilder, FormControl, FormArray, AbstractControl } from '@angular/forms';
-import { Device } from '../../shared/shared';
+import { Device } from '../../shared/device/device';
 
 type ConfigureRequestModeType = "update" | "create" | "delete";
 class ConfigureRequest {

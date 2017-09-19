@@ -1,0 +1,103 @@
+{
+	"things": [
+		{
+			"class": "io.openems.impl.protocol.modbus.ModbusTcp",
+			"ip": "10.4.0.15",
+			"port": 502,
+			"devices": [
+				{
+					"class": "io.openems.impl.device.commercial.FeneconCommercialDC",
+					"ess": {
+						"id": "ess0",
+						"minSoc": 15,
+						"chargeSoc": 10
+					},
+					"charger": {
+						"id": "charger0"
+					},
+					"modbusUnitId": 100
+				}
+			]
+		},
+		{
+			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
+			"serialinterface": "/dev/ttyUSB0",
+			"baudrate": 9600,
+			"databits": 8,
+			"parity": "none",
+			"stopbits": 1,
+			"devices": [
+				{
+					"class": "io.openems.impl.device.socomec.Socomec",
+					"modbusUnitId": 5,
+					"meter": {
+						"id": "meter0",
+						"type": "grid"
+					}
+				}
+			]
+		}
+	],
+	"scheduler": {
+		"class": "io.openems.impl.scheduler.SimpleScheduler",
+		"controllers": [
+			{
+				"class": "io.openems.impl.controller.symmetric.commercialworkstate.AlwaysOnController",
+				"priority": 0,
+				"esss": [
+					"ess0"
+				]
+			},
+			{
+				"class": "io.openems.impl.controller.symmetric.avoidtotaldischarge.AvoidTotalDischargeController",
+				"priority": 100,
+				"esss": [
+					"ess0"
+				],
+				"maxSoc": 95
+			},
+			{
+				"class": "io.openems.impl.controller.symmetric.balancingsurplus.BalancingSurplusController",
+				"meter": "meter0",
+				"ess": "ess0",
+				"priority": 50,
+				"surplusMinSoc": 85,
+				"chargers": [
+					"charger0"
+				]
+			},
+			{
+				"class": "io.openems.impl.controller.debuglog.DebugLogController",
+				"priority": 151,
+				"esss": [
+					"ess0"
+				],
+				"meters": [
+					"meter0",
+					"meter1"
+				]
+			},
+			{
+				"class": "io.openems.impl.controller.api.websocket.WebsocketApiController",
+				"port": 8085,
+				"priority": -2147483648
+			},
+			{
+				"class": "io.openems.impl.controller.api.rest.RestApiController",
+				"priority": -2147483648,
+				"port": 8084
+			}
+		]
+	},
+	"persistence": [
+		{
+			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
+			"apikey": ""
+		},
+		{
+			"class": "io.openems.impl.persistence.influxdb.InfluxdbPersistence",
+			"ip": "127.0.0.1",
+			"fems": 0
+		}
+	]
+}

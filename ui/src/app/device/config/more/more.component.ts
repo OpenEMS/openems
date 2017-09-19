@@ -3,7 +3,8 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
-import { WebsocketService, WebappService, Device } from '../../../shared/shared';
+import { Websocket, Service } from '../../../shared/shared';
+import { Device } from '../../../shared/device/device';
 
 @Component({
   selector: 'more',
@@ -14,26 +15,23 @@ export class MoreComponent implements OnInit {
   public device: Device;
   public manualMessageForm: FormGroup;
 
-  private deviceSubscription: Subscription;
-
   constructor(
     private route: ActivatedRoute,
-    private websocketService: WebsocketService,
-    private webappService: WebappService,
+    private websocket: Websocket,
+    private service: Service,
     private formBuilder: FormBuilder
   ) { }
 
   ngOnInit() {
-    this.deviceSubscription = this.websocketService.setCurrentDevice(this.route.snapshot.params).subscribe(device => {
-      this.device = device;
-    })
+    this.websocket.setCurrentDevice(this.route)
+      .filter(device => device != null)
+      .first()
+      .subscribe(device => {
+        this.device = device;
+      });
     this.manualMessageForm = this.formBuilder.group({
       "message": this.formBuilder.control('')
     });
-  }
-
-  ngOnDestroy() {
-    this.deviceSubscription.unsubscribe();
   }
 
   public sendManualMessage(form: FormGroup) {
@@ -41,7 +39,7 @@ export class MoreComponent implements OnInit {
       let obj = JSON.parse(form["value"]["message"]);
       this.device.send(obj);
     } catch (e) {
-      this.webappService.notify({
+      this.service.notify({
         type: "error",
         message: (<Error>e).message
       });

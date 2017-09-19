@@ -1,12 +1,17 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 import * as d3 from 'd3';
 import * as d3shape from 'd3-shape';
 import * as moment from 'moment';
+import { TranslateService } from '@ngx-translate/core';
+import { IMyDate, IMyDateRange, IMyDrpOptions, IMyDateRangeModel } from 'mydaterangepicker';
 
-import { WebsocketService, Device, ChannelAddresses } from '../../shared/shared';
+import { Device } from '../../shared/device/device';
+import { ConfigImpl } from '../../shared/device/config';
+import { DefaultTypes } from '../../shared/service/defaulttypes';
+import { Websocket } from '../../shared/service/websocket';
 
 type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherTimespan";
 
@@ -14,41 +19,81 @@ type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear
   selector: 'history',
   templateUrl: './history.component.html'
 })
-export class HistoryComponent implements OnInit {
+export class HistoryComponent implements OnInit, OnDestroy {
+
+  private readonly TODAY = moment();
+  private readonly YESTERDAY = moment().subtract(1, "days");
+  private readonly TOMORROW = moment().add(1, "days");
 
   public device: Device = null;
-  public socChannels: ChannelAddresses = {};
-  public fromDate = null;
-  public toDate = null;
+  public config: ConfigImpl = null;
+  public socChannels: DefaultTypes.ChannelAddresses = {};
+  public powerChannels: DefaultTypes.ChannelAddresses = {};
+  private dateRange: IMyDateRange;
+  public fromDate = this.TODAY;
+  public toDate = this.TODAY;
   public activePeriodText: string = "";
   public showOtherTimespan = false;
+  private dateRangePickerOptions: IMyDrpOptions = {
+    showClearBtn: false,
+    showApplyBtn: false,
+    dateFormat: 'dd.mm.yyyy',
+    disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the device is available
+    disableSince: this.momentToIMyDate(this.TOMORROW),
+    showWeekNumbers: true,
+    showClearDateRangeBtn: false,
+    editableDateRangeField: false,
+    openSelectorOnInputClick: true
+  };
 
+  private stopOnDestroy: Subject<void> = new Subject<void>();
   private activePeriod: PeriodString = "today";
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(
-    public websocketService: WebsocketService,
-    private route: ActivatedRoute
+    public websocket: Websocket,
+    private route: ActivatedRoute,
+    private translate: TranslateService
   ) { }
 
   ngOnInit() {
-    this.websocketService.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
-      this.device = device;
-      if (device != null) {
-        device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-          this.socChannels = config.getEssSocChannels();
-        });
-      }
-    })
+    this.websocket.setCurrentDevice(this.route)
+      .takeUntil(this.stopOnDestroy)
+      .subscribe(device => {
+        this.device = device;
+        if (device == null) {
+          this.config = null;
+        } else {
+          device.config
+            .takeUntil(this.stopOnDestroy)
+            .subscribe(config => {
+              this.config = config;
+              if (config) {
+                this.socChannels = config.getEssSocChannels();
+                this.powerChannels = config.getPowerChannels();
+              } else {
+                this.socChannels = {};
+                this.powerChannels = {};
+              }
+            });
+        }
+      });
     this.setPeriod("today");
   }
 
-  ngOnDestroy() {
-    if (this.device) {
-      this.device.unsubscribeCurrentData();
+  onDateRangeChanged(event: IMyDateRangeModel) {
+    let fromDate: moment.Moment = moment(event.beginJsDate);
+    let toDate: moment.Moment = moment(event.endJsDate);
+    if (fromDate.isSame(toDate, "day")) {
+      // only one day selected
+      if (this.TODAY.isSame(fromDate, "day")) {
+        this.setPeriod("today");
+        return;
+      } else if (this.YESTERDAY.isSame(fromDate, "day")) {
+        this.setPeriod("yesterday");
+        return;
+      }
     }
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.setPeriod("otherTimespan", fromDate, toDate);
   }
 
   /**
@@ -63,46 +108,63 @@ export class HistoryComponent implements OnInit {
       this.showOtherTimespan = false;
     }
     switch (period) {
-      case "yesterday":
-        this.fromDate = this.toDate = moment().subtract(1, "days");
-        this.activePeriodText = "Gestern, " + this.fromDate.format("DD.MM.YYYY");
+      case "yesterday": {
+        let yesterday = moment().subtract(1, "days");
+        this.setDateRange(yesterday, yesterday);
+        this.activePeriodText = this.translate.instant('Device.History.Yesterday') + ", " + yesterday.format(this.translate.instant('General.DateFormat'));
         break;
-      case "lastWeek":
-        this.fromDate = moment().subtract(1, "weeks");
-        this.toDate = moment();
-        this.activePeriodText = "Letzte Woche, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+      }
+      case "lastWeek": {
+        let oneWeekAgo = moment().subtract(1, "weeks");
+        let today = moment();
+        this.setDateRange(oneWeekAgo, today);
+        this.activePeriodText = this.translate.instant('Device.History.LastWeek') + ", " + this.translate.instant('General.PeriodFromTo', { value1: oneWeekAgo.format(this.translate.instant('General.DateFormat')), value2: today.format(this.translate.instant('General.DateFormat')) });
         break;
-      case "lastMonth":
-        this.fromDate = moment().subtract(1, "months");
-        this.toDate = moment();
-        this.activePeriodText = "Letzter Monat, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+      }
+      case "lastMonth": {
+        let oneMonthAgo = moment().subtract(1, "months");
+        let today = moment();
+        this.setDateRange(oneMonthAgo, today);
+        this.activePeriodText = this.translate.instant('Device.History.LastMonth') + ", " + this.translate.instant('General.PeriodFromTo', { value1: oneMonthAgo.format(this.translate.instant('General.DateFormat')), value2: today.format(this.translate.instant('General.DateFormat')) });
         break;
-      case "lastYear":
-        this.fromDate = moment().subtract(1, "years");
-        this.toDate = moment();
-        this.activePeriodText = "Letztes Jahr, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+      }
+      case "lastYear": {
+        let oneYearAgo = moment().subtract(1, "years");
+        let today = moment();
+        this.setDateRange(oneYearAgo, today);
+        this.activePeriodText = this.translate.instant('Device.History.LastYear') + ", " + this.translate.instant('General.PeriodFromTo', { value1: oneYearAgo.format(this.translate.instant('General.DateFormat')), value2: today.format(this.translate.instant('General.DateFormat')) });
         break;
+      }
       case "otherTimespan":
         let fromDate = moment(from);
         let toDate = moment(to);
         if (fromDate > toDate) {
           toDate = fromDate;
         }
-        this.fromDate = fromDate;
-        this.toDate = toDate;
-        this.activePeriodText = "Zeitraum, " + this.fromDate.format("DD.MM.YYYY") + " bis " + this.toDate.format("DD.MM.YYYY");
+        this.setDateRange(fromDate, toDate);
+        this.activePeriodText = this.translate.instant('Device.History.Period') + ", " + this.translate.instant('General.PeriodFromTo', { value1: fromDate.format(this.translate.instant('General.DateFormat')), value2: toDate.format(this.translate.instant('General.DateFormat')) });
         break;
       case "today":
       default:
-        this.fromDate = this.toDate = moment();
-        this.activePeriodText = "Heute, " + this.fromDate.format("DD.MM.YYYY");
+        let today = moment();
+        this.setDateRange(today, today);
+        this.activePeriodText = this.translate.instant('Device.History.Today') + ", " + today.format(this.translate.instant('General.DateFormat'));
         break;
     }
   }
 
-  // private setOtherTimespan() {
-  //   this.activePeriod = "otherTimespan";
-  // }
+  private setDateRange(fromDate: moment.Moment, toDate: moment.Moment) {
+    this.fromDate = fromDate;
+    this.toDate = toDate;
+    this.dateRange = {
+      beginDate: this.momentToIMyDate(fromDate),
+      endDate: this.momentToIMyDate(toDate)
+    }
+  }
+
+  private momentToIMyDate(date: moment.Moment): IMyDate {
+    return { year: date.year(), month: date.month() + 1, day: date.date() }
+  }
 
   // start with loading "today"
   // if (this.activePeriod == null) {
@@ -257,6 +319,11 @@ export class HistoryComponent implements OnInit {
   //     this.setPeriod('otherTimespan', from, to);
   //   }
   // }
+
+  ngOnDestroy() {
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
+  }
 
 
 }

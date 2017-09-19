@@ -24,7 +24,7 @@ import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class ModbusInputRegisterRange extends ModbusRegisterRange {
 
-	public ModbusInputRegisterRange(int startAddress, ModbusElement... elements) {
+	public ModbusInputRegisterRange(int startAddress, ModbusElement<?>... elements) {
 		super(startAddress, elements);
 	}
 

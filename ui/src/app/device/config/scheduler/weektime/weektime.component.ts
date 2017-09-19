@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { AbstractControl, FormArray, FormGroup, FormBuilder } from '@angular/forms';
 import { Router, ActivatedRoute, Params } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
-import { WebsocketService } from '../../../../shared/shared';
+import { Websocket } from '../../../../shared/shared';
 import { AbstractConfig, ConfigureRequest, ConfigureUpdateRequest, ConfigureDeleteRequest } from '../../abstractconfig';
 import { AbstractConfigForm } from '../../abstractconfigform';
 
@@ -21,32 +22,33 @@ export class WeekTimeComponent extends AbstractConfigForm {
   public config: FormGroup;
 
   constructor(
-    public websocketService: WebsocketService,
-    private formBuilder: FormBuilder
+    public websocket: Websocket,
+    private formBuilder: FormBuilder,
+    private translate: TranslateService
   ) {
-    super(websocketService);
+    super(websocket);
   }
 
   public days: Day[] = [{
-    label: "Montag",
+    label: this.translate.instant('General.Week.Monday'),
     key: "monday"
   }, {
-    label: "Dienstag",
+    label: this.translate.instant('General.Week.Tuesday'),
     key: "tuesday"
   }, {
-    label: "Mittwoch",
+    label: this.translate.instant('General.Week.Wednesday'),
     key: "wednesday"
   }, {
-    label: "Donnerstag",
+    label: this.translate.instant('General.Week.Thursday'),
     key: "thursday"
   }, {
-    label: "Freitag",
+    label: this.translate.instant('General.Week.Friday'),
     key: "friday"
   }, {
-    label: "Samstag",
+    label: this.translate.instant('General.Week.Saturday'),
     key: "saturday"
   }, {
-    label: "Sonntag",
+    label: this.translate.instant('General.Week.Sunday'),
     key: "sunday"
   }]
 

@@ -34,6 +34,9 @@ public class App {
 	public static void main(String[] args) {
 		log.info("OpenEMS started");
 
+		// kick the watchdog: READY
+		SDNotify.sendNotify();
+
 		// configure Restlet logging
 		Engine.getInstance().setLoggerFacade(new Slf4jLoggerFacade());
 
@@ -42,12 +45,12 @@ public class App {
 			Config config = Config.getInstance();
 			config.readConfigFile();
 		} catch (Exception e) {
-			log.error("OpenEMS start failed: " + e.getMessage());
+			log.error("OpenEMS Edge start failed: " + e.getMessage());
 			e.printStackTrace();
 			System.exit(1);
 		}
-		log.info("OpenEMS config loaded");
-		// kick the watchdog: READY
-		SDNotify.sendNotify();
+
+		log.info("OpenEMS Edge started");
+		log.info("================================================================================");
 	}
 }

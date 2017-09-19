@@ -24,7 +24,7 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
@@ -45,16 +45,16 @@ public class FixValueReactivePowerController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
 
-	@ConfigInfo(title = "ReactivePower L1", description = "Fixed reactive power for phase L1.", type = Long.class)
+	@ChannelInfo(title = "ReactivePower L1", description = "Fixed reactive power for phase L1.", type = Long.class)
 	public final ConfigChannel<Long> reactivePowerL1 = new ConfigChannel<>("reactivePowerL1", this);
 
-	@ConfigInfo(title = "ReactivePower L2", description = "Fixed reactive power for phase L2.", type = Long.class)
+	@ChannelInfo(title = "ReactivePower L2", description = "Fixed reactive power for phase L2.", type = Long.class)
 	public final ConfigChannel<Long> reactivePowerL2 = new ConfigChannel<>("reactivePowerL2", this);
 
-	@ConfigInfo(title = "ReactivePower L3", description = "Fixed reactive power for phase L3.", type = Long.class)
+	@ChannelInfo(title = "ReactivePower L3", description = "Fixed reactive power for phase L3.", type = Long.class)
 	public final ConfigChannel<Long> reactivePowerL3 = new ConfigChannel<>("reactivePowerL3", this);
 
 	/*

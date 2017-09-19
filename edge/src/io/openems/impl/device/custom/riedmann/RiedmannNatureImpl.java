@@ -1,5 +1,6 @@
 package io.openems.impl.device.custom.riedmann;
 
+import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;
@@ -255,8 +256,8 @@ public class RiedmannNatureImpl extends ModbusDeviceNature implements RiedmannNa
 		return setWaterLevelBorehole3Off;
 	}
 
-	public RiedmannNatureImpl(String thingId) throws ConfigException {
-		super(thingId);
+	public RiedmannNatureImpl(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 	}
 
 	@Override

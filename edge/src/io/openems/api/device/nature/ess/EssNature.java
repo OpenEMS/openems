@@ -25,7 +25,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 
 public interface EssNature extends DeviceNature {
 	/*
@@ -47,10 +47,10 @@ public interface EssNature extends DeviceNature {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Min-SOC", description = "Sets the minimal SOC.", type = Integer.class)
+	@ChannelInfo(title = "Min-SOC", description = "Sets the minimal SOC.", type = Integer.class)
 	public ConfigChannel<Integer> minSoc();
 
-	@ConfigInfo(title = "Charge-SOC", description = "Sets the force charge SOC.", type = Integer.class, isOptional = true)
+	@ChannelInfo(title = "Charge-SOC", description = "Sets the force charge SOC.", type = Integer.class, isOptional = true)
 	public ConfigChannel<Integer> chargeSoc();
 
 	/*
@@ -58,6 +58,7 @@ public interface EssNature extends DeviceNature {
 	 */
 	public ReadChannel<Long> gridMode();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> soc();
 
 	public ReadChannel<Long> systemState();

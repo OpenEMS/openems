@@ -1,0 +1,7 @@
+{
+  "class": "io.openems.impl.device.kmtronic.KMTronicRelayRev1",
+  "modbusUnitId": 1,
+  "output": {
+    "id": "output0"
+  }
+}

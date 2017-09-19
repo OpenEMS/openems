@@ -1,7 +1,8 @@
-<md-card class="single" *ngIf="currentData">
+<md-card class="single">
+  <!-- TODO show empty chart if currentData is null - instead of nothing -->
   <md-card-header>
     <md-icon md-card-avatar>visibility</md-icon>
-    <md-card-title translate>DeviceOverview.Energymonitor.Title</md-card-title>
+    <md-card-title translate>Device.Overview.Energymonitor.Title</md-card-title>
   </md-card-header>
   <md-card-content>
     <energymonitor-chart [currentData]="currentData" fxLayoutAlign="center start"></energymonitor-chart>

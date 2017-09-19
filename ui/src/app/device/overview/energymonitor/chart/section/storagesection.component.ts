@@ -35,7 +35,7 @@ let pulsetimedown = 2000;
 export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     constructor(translate: TranslateService) {
-        super('DeviceOverview.Energymonitor.Storage', 136, 224, "#009846", translate);
+        super('Device.Overview.Energymonitor.Storage', 136, 224, "#009846", translate);
     }
 
     ngOnInit() {
@@ -77,7 +77,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     protected getValueText(value: number): string {
         if (value == null || Number.isNaN(value)) {
-            return "Kein Wert";
+            return this.translate.instant('NoValue');
         }
 
         return this.lastValue.ratio + " %";

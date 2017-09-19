@@ -25,7 +25,7 @@ import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
@@ -48,15 +48,15 @@ public class CosPhiCharacteristicController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
 
-	@ConfigInfo(title = "Cos-Phi characteristic", description = "The points of the characteristic (x = PowerRatio, y = cosPhi).", type = Long[].class, isArray = true)
+	@ChannelInfo(title = "Cos-Phi characteristic", description = "The points of the characteristic (x = PowerRatio, y = cosPhi).", type = Long[].class, isArray = true)
 	public ConfigChannel<List<Long[]>> cosPhiPoints = new ConfigChannel<List<Long[]>>("cosPhiPoints", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				List<Point> points = new ArrayList<>();
 				if (newValue.isPresent()) {
-					List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();
+					@SuppressWarnings("unchecked") List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();
 					for (Long[] arr : cosPhiPoints) {
 						points.add(new Point(arr[0], arr[1]));
 					}

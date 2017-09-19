@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -35,15 +34,15 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
-import io.openems.api.channel.FunctionalReadChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
@@ -62,12 +61,12 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private List<ChargerNature> chargerList;
 	private ThingRepository repo = ThingRepository.getInstance();
 	private double energy;
-	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(5, 1);
-	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(5, 1);
-	@ConfigInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
+	private AvgFiFoQueue activePowerQueue = new AvgFiFoQueue(3, 1);
+	private AvgFiFoQueue reactivePowerQueue = new AvgFiFoQueue(3, 1);
+	@ChannelInfo(title = "ActivePowerGeneratorConfig", type = JsonObject.class)
 	public ConfigChannel<JsonObject> activePowerGeneratorConfig = new ConfigChannel<JsonObject>(
 			"activePowerGeneratorConfig", this).addChangeListener(this).addChangeListener(this);
-	@ConfigInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
+	@ChannelInfo(title = "ReactivePowerGeneratorConfig", type = JsonObject.class)
 	public ConfigChannel<JsonObject> reactivePowerGeneratorConfig = new ConfigChannel<JsonObject>(
 			"reactivePowerGeneratorConfig", this).addChangeListener(this).addChangeListener(this);
 	private LoadGenerator offGridActivePowerGenerator;
@@ -76,8 +75,8 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	/*
 	 * Constructors
 	 */
-	public SimulatorSymmetricEss(String thingId) throws ConfigException {
-		super(thingId);
+	public SimulatorSymmetricEss(String thingId, Device parent) throws ConfigException {
+		super(thingId, parent);
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
@@ -86,36 +85,31 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 		});
 		long initialSoc = SimulatorTools.addRandomLong(50, 0, 100, 20);
 		this.energy = capacity.valueOptional().get() / 100 * initialSoc;
-		this.soc = new FunctionalReadChannel<Long>("Soc", this, new FunctionalReadChannelFunction<Long>() {
+		this.soc = new FunctionalReadChannel<Long>("Soc", this, (channels) -> {
+			try {
+				energy -= channels[0].value() / 3600.0;
+			} catch (InvalidValueException e) {
 
-			@Override
-			public Long handle(ReadChannel<Long>... channels) {
-				try {
-					energy -= channels[0].value() / 3600.0;
-				} catch (InvalidValueException e) {
-
-				}
-				if (chargerList != null) {
-					for (ChargerNature charger : chargerList) {
-						try {
-							energy += charger.getActualPower().value() / 3600.0;
-						} catch (InvalidValueException e) {}
-					}
-				}
-				try {
-					if (energy > capacity.value()) {
-						energy = capacity.value();
-					} else if (energy < 0) {
-						energy = 0;
-					}
-					return (long) (energy / capacity.value() * 100.0);
-				} catch (InvalidValueException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return 0L;
 			}
-
+			if (chargerList != null) {
+				for (ChargerNature charger : chargerList) {
+					try {
+						energy += charger.getActualPower().value() / 3600.0;
+					} catch (InvalidValueException e) {}
+				}
+			}
+			try {
+				if (energy > capacity.value()) {
+					energy = capacity.value();
+				} else if (energy < 0) {
+					energy = 0;
+				}
+				return (long) (energy / capacity.value() * 100.0);
+			} catch (InvalidValueException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return 0L;
 		}, this.activePower);
 	}
 
@@ -124,10 +118,10 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	 */
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
-	@ConfigInfo(title = "GridMode", type = Long.class)
+	@ChannelInfo(title = "GridMode", type = Long.class)
 	public ConfigChannel<Long> gridMode = new ConfigChannel<Long>("GridMode", this).label(0L, ON_GRID)
 			.label(1L, OFF_GRID).defaultValue(0L);
-	@ConfigInfo(title = "SystemState", type = Long.class)
+	@ChannelInfo(title = "SystemState", type = Long.class)
 	public ConfigChannel<Long> systemState = new ConfigChannel<Long>("SystemState", this) //
 			.label(1L, START).label(2L, STOP).label(5L, FAULT).defaultValue(1L);
 
@@ -146,12 +140,12 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	 */
 	private StatusBitChannels warning = new StatusBitChannels("Warning", this);;
 	private FunctionalReadChannel<Long> soc;
-	private SimulatorReadChannel activePower = new SimulatorReadChannel("ActivePower", this);
+	private SimulatorReadChannel<Long> activePower = new SimulatorReadChannel<Long>("ActivePower", this);
 	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel<Long>("AllowedApparent", this, 40000L);
-	private SimulatorReadChannel allowedCharge = new SimulatorReadChannel("AllowedCharge", this);
-	private SimulatorReadChannel allowedDischarge = new SimulatorReadChannel("AllowedDischarge", this);
-	private SimulatorReadChannel apparentPower = new SimulatorReadChannel("ApparentPower", this);
-	private SimulatorReadChannel reactivePower = new SimulatorReadChannel("ReactivePower", this);
+	private SimulatorReadChannel<Long> allowedCharge = new SimulatorReadChannel<Long>("AllowedCharge", this);
+	private SimulatorReadChannel<Long> allowedDischarge = new SimulatorReadChannel<Long>("AllowedDischarge", this);
+	private SimulatorReadChannel<Long> apparentPower = new SimulatorReadChannel<Long>("ApparentPower", this);
+	private SimulatorReadChannel<Long> reactivePower = new SimulatorReadChannel<Long>("ReactivePower", this);
 	private UnitTestWriteChannel<Long> setActivePower = new UnitTestWriteChannel<Long>("SetActivePower", this)
 			.maxWriteChannel(allowedDischarge).minWriteChannel(allowedCharge);
 	private UnitTestWriteChannel<Long> setReactivePower = new UnitTestWriteChannel<Long>("SetReactivePower", this);
@@ -160,7 +154,7 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 5000L).unit("Wh");
-	@ConfigInfo(title = "charger", type = JsonArray.class, isOptional = true)
+	@ChannelInfo(title = "charger", type = JsonArray.class, isOptional = true)
 	public ConfigChannel<JsonArray> charger = new ConfigChannel<JsonArray>("charger", this).addChangeListener(this);
 
 	@Override
@@ -228,20 +222,10 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 		return allowedApparent;
 	}
 
-	private long getRandom(int min, int max) {
-		return ThreadLocalRandom.current().nextLong(min, max + 1);
-	}
-
 	@Override
 	public ReadChannel<Long> maxNominalPower() {
 		return maxNominalPower;
 	}
-
-	/*
-	 * Fields
-	 */
-	private long lastApparentPower = 0;
-	private double lastCosPhi = 0;
 
 	/*
 	 * Methods

@@ -24,7 +24,7 @@ import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.AvgFiFoQueue;
@@ -46,16 +46,16 @@ public class BalancingSurplusController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
 	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "Charger", description = "Sets the Chargers connected to the ess.", type = Charger.class, isArray = true)
+	@ChannelInfo(title = "Charger", description = "Sets the Chargers connected to the ess.", type = Charger.class, isArray = true)
 	public final ConfigChannel<Set<Charger>> chargers = new ConfigChannel<Set<Charger>>("chargers", this);
 
-	@ConfigInfo(title = "Surplus min soc", description = "The required Soc to start surplus feed-in.", type = Long.class)
+	@ChannelInfo(title = "Surplus min soc", description = "The required Soc to start surplus feed-in.", type = Long.class)
 	public final ConfigChannel<Long> surplusMinSoc = new ConfigChannel<Long>("surplusMinSoc", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
 	private AvgFiFoQueue meterActivePower = new AvgFiFoQueue(3, 1.5);
@@ -81,7 +81,7 @@ public class BalancingSurplusController extends Controller {
 			if (calculatedPower < 0 && surplus > 0) {
 				calculatedPower = 0;
 			}
-			if (getPvVoltage() < 300000 || surplus < 0) {
+			if (getPvVoltage() < 200000 || surplus < 0) {
 				surplus = 0l;
 			}
 			calculatedPower += surplus;

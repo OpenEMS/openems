@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.persistence.influxdb;
 
+//TODO move to common package
 public class NumberFieldValue extends FieldValue<Number> {
 
 	public NumberFieldValue(String field, Number value) {

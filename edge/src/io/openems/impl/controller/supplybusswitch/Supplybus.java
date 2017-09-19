@@ -375,7 +375,6 @@ public class Supplybus {
 	private boolean connectLoads() throws WriteChannelException, InvalidValueException {
 		if (timeLoadSwitched + switchDelay <= System.currentTimeMillis()) {
 			if (loadIndex < loads.size()) {
-				WriteChannel<Long> load = loads.get(loadIndex);
 				if (loadState[loadIndex] != null && loadState[loadIndex] == true) {
 					loadIndex++;
 				} else {

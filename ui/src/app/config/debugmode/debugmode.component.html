@@ -1,0 +1,13 @@
+<div fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div fxFlex="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>code</md-icon>
+        <md-card-title>Debug-Mode</md-card-title>
+      </md-card-header>
+      <md-card-content>
+        <md-slide-toggle (change)="toggleMode($event)" [checked]="env.debugMode">Debug-Mode</md-slide-toggle>
+      </md-card-content>
+    </md-card>
+  </div>
+</div>

@@ -238,6 +238,7 @@ public class SambiaOffGridLoadGenerator implements LoadGenerator {
 		return power;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void loadChannels() {
 		if (do1 == null) {
 			do1 = (WriteChannel<Boolean>) repo.getChannelByAddress("output0/DO1").orElse(null);

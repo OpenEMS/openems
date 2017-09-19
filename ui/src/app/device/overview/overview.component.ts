@@ -3,7 +3,12 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 
-import { WebsocketService, Websocket, Notification, Device, Data, Config } from '../../shared/shared';
+import { Device } from '../../shared/device/device';
+import { DefaultTypes } from '../../shared/service/defaulttypes';
+import { Utils } from '../../shared/shared';
+import { ConfigImpl } from '../../shared/device/config';
+import { CurrentDataAndSummary } from '../../shared/device/currentdata';
+import { Websocket } from '../../shared/shared';
 import { CustomFieldDefinition } from '../../shared/type/customfielddefinition';
 import { environment } from '../../../environments';
 
@@ -13,50 +18,76 @@ import { environment } from '../../../environments';
 })
 export class OverviewComponent implements OnInit, OnDestroy {
 
-  public device: Device;
-  public currentData: Data;
-  public config: Config;
-  public customFields: CustomFieldDefinition = {};
+  public device: Device = null
+  public config: ConfigImpl = null;
+  public currentData: CurrentDataAndSummary = null;
+  //public customFields: CustomFieldDefinition = {};
 
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
+  private stopOnDestroy: Subject<void> = new Subject<void>();
+  private currentDataTimeout: number;
 
   constructor(
-    public websocketService: WebsocketService,
-    private route: ActivatedRoute
+    public websocket: Websocket,
+    private route: ActivatedRoute,
+    public utils: Utils
   ) { }
 
   ngOnInit() {
-    this.websocketService.setCurrentDevice(this.route.snapshot.params).takeUntil(this.ngUnsubscribe).subscribe(device => {
-      this.device = device;
-      if (device != null) {
-        this.device.config.takeUntil(this.ngUnsubscribe).subscribe(config => {
-          this.config = config;
-          this.customFields = environment.getCustomFields(config);
-          let channels = config.getImportantChannels();
-          /*
-           * Add custom fields for fieldstatus component
-           */
-          for (let thing in this.customFields) {
-            let thingChannels = []
-            for (let channel in this.customFields[thing]) {
-              thingChannels.push(channel);
-            }
-            channels[thing] = thingChannels;
-          }
+    this.websocket.setCurrentDevice(this.route)
+      .takeUntil(this.stopOnDestroy)
+      .subscribe(device => {
+        this.device = device;
+        if (device == null) {
+          this.config = null;
+        } else {
 
-          device.subscribeCurrentData(channels).takeUntil(this.ngUnsubscribe).subscribe(currentData => {
-            this.currentData = currentData;
-          });
-        })
-      }
-    })
+          device.config
+            .takeUntil(this.stopOnDestroy)
+            .subscribe(config => {
+              this.config = config;
+              if (config != null) {
+
+                let channels = config.getImportantChannels();
+                device.subscribeCurrentData(channels)
+                  .takeUntil(this.stopOnDestroy)
+                  .subscribe(currentData => {
+                    this.currentData = currentData;
+
+                    // resubscribe on timeout
+                    clearInterval(this.currentDataTimeout);
+                    this.currentDataTimeout = window.setInterval(() => {
+                      this.currentData = null;
+                      if (this.websocket.status == 'online') {
+                        device.subscribeCurrentData(channels);
+                      }
+                    }, Websocket.TIMEOUT);
+                  });
+              }
+              // TODO fieldstatus
+              // /*
+              //  * Add custom fields for fieldstatus component
+              //  */
+              // for (let thing in this.customFields) {
+              //   let thingChannels = []
+              //   for (let channel in this.customFields[thing]) {
+              //     thingChannels.push(channel);
+              //   }
+              //   channels[thing] = thingChannels;
+              // }
+            });
+        }
+      });
   }
 
   ngOnDestroy() {
+    clearInterval(this.currentDataTimeout);
     if (this.device) {
       this.device.unsubscribeCurrentData();
     }
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.device = null;
+    this.config = null;
+    this.currentData = null;
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
   }
 }

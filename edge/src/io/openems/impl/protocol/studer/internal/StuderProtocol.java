@@ -22,14 +22,9 @@ package io.openems.impl.protocol.studer.internal;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
 import io.openems.impl.protocol.studer.internal.object.StuderObject;
@@ -44,14 +39,14 @@ import io.openems.impl.protocol.studer.internal.property.WriteProperty;
  */
 public class StuderProtocol {
 
-	private static Logger log = LoggerFactory.getLogger(StuderProtocol.class);
+	// private static Logger log = LoggerFactory.getLogger(StuderProtocol.class);
 
 	private final Map<Channel, StuderProperty<?>> channelPropertyMap = new ConcurrentHashMap<>();
-	private final Set<ReadProperty<?>> requiredProperties = ConcurrentHashMap.newKeySet();
+	private final Set<ReadProperty<?>> readProperties = ConcurrentHashMap.newKeySet();
 	// requiredProperties stays empty till someone calls "setAsRequired()"
 	private final Set<WriteProperty<?>> writableProperties = ConcurrentHashMap.newKeySet();
-	private final Set<ReadProperty<?>> otherProperties = ConcurrentHashMap.newKeySet();
-	private final LinkedList<ReadProperty<?>> otherPropertiesQueue = new LinkedList<>();
+	// private final Set<ReadProperty<?>> otherProperties = ConcurrentHashMap.newKeySet();
+	// private final LinkedList<ReadProperty<?>> otherPropertiesQueue = new LinkedList<>();
 
 	public StuderProtocol(StuderObject<?>... objects) {
 		for (StuderObject<?> object : objects) {
@@ -72,32 +67,36 @@ public class StuderProtocol {
 			}
 			if (property instanceof ReadProperty) {
 				// fill otherProperties
-				otherProperties.add((ReadProperty<?>) property);
+				readProperties.add((ReadProperty<?>) property);
 			}
 		}
 	}
 
-	public Optional<ReadProperty<?>> getNextOtherProperty() {
-		if (otherPropertiesQueue.isEmpty()) {
-			otherPropertiesQueue.addAll(otherProperties);
-		}
-		ReadProperty<?> property = otherPropertiesQueue.poll();
-		return Optional.ofNullable(property);
-	}
+	// public Optional<ReadProperty<?>> getNextOtherProperty() {
+	// if (otherPropertiesQueue.isEmpty()) {
+	// otherPropertiesQueue.addAll(otherProperties);
+	// }
+	// ReadProperty<?> property = otherPropertiesQueue.poll();
+	// return Optional.ofNullable(property);
+	// }
 
-	public Collection<ReadProperty<?>> getRequiredProperties() {
-		return Collections.unmodifiableSet(requiredProperties);
+	public Collection<ReadProperty<?>> getReadProperties() {
+		return Collections.unmodifiableSet(readProperties);
 	}
 
 	public Collection<WriteProperty<?>> getWritableProperties() {
 		return Collections.unmodifiableSet(writableProperties);
 	}
 
-	public void setAsRequired(Channel channel) {
-		StuderProperty<?> property = channelPropertyMap.get(channel);
-		if (property != null && property instanceof ReadProperty) {
-			otherProperties.remove(property);
-			requiredProperties.add((ReadProperty<?>) property);
-		}
+	public StuderProperty<?> getPropertyByChannel(Channel channel) {
+		return channelPropertyMap.get(channel);
 	}
+
+	// public void setAsRequired(Channel channel) {
+	// StuderProperty<?> property = channelPropertyMap.get(channel);
+	// if (property != null && property instanceof ReadProperty) {
+	// otherProperties.remove(property);
+	// readProperties.add((ReadProperty<?>) property);
+	// }
+	// }
 }

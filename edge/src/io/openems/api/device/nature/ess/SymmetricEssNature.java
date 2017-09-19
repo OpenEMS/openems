@@ -22,11 +22,13 @@ package io.openems.api.device.nature.ess;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.doc.ChannelInfo;
 
 public interface SymmetricEssNature extends EssNature {
 	/*
 	 * ReadChannels
 	 */
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> activePower();
 
 	public ReadChannel<Long> apparentPower();

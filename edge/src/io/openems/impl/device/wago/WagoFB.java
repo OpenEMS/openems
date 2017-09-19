@@ -41,9 +41,10 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsException;
@@ -80,17 +81,17 @@ public class WagoFB extends ModbusDevice {
 	/*
 	 * Constructors
 	 */
-	public WagoFB() throws OpenemsException {
-		super();
+	public WagoFB(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Output", description = "Sets the output nature.", type = WagoFBOutput.class)
+	@ChannelInfo(title = "Output", description = "Sets the output nature.", type = WagoFBOutput.class)
 	public final ConfigChannel<WagoFBOutput> output = new ConfigChannel<>("output", this);
 
-	@ConfigInfo(title = "Input", description = "Sets the input nature.", type = WagoFBInput.class)
+	@ChannelInfo(title = "Input", description = "Sets the input nature.", type = WagoFBInput.class)
 	public final ConfigChannel<WagoFBInput> input = new ConfigChannel<>("input", this);
 
 	/*
@@ -143,7 +144,7 @@ public class WagoFB extends ModbusDevice {
 				while (moduleNode != null) {
 					if (moduleNode.getNodeType() == Node.ELEMENT_NODE) {
 						NamedNodeMap moduleAttrs = moduleNode.getAttributes();
-						String article = moduleAttrs.getNamedItem("ARTIKELNR").getNodeValue();
+						// String article = moduleAttrs.getNamedItem("ARTIKELNR").getNodeValue();
 						String moduletype = moduleAttrs.getNamedItem("MODULETYPE").getNodeValue();
 						if (!moduleCounter.containsKey(moduletype)) {
 							moduleCounter.put(moduletype, 0);

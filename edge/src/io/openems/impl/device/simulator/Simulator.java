@@ -23,9 +23,10 @@ package io.openems.impl.device.simulator;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.simulator.SimulatorDevice;
@@ -36,33 +37,32 @@ public class Simulator extends SimulatorDevice {
 	/*
 	 * Constructors
 	 */
-	public Simulator() throws OpenemsException {
-		super();
+	public Simulator(Bridge parent) throws OpenemsException {
+		super(parent);
 	}
 
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "symmetric Ess", description = "Sets the symmetric Ess nature.", type = SimulatorSymmetricEss.class, isOptional = true)
+	@ChannelInfo(title = "symmetric Ess", description = "Sets the symmetric Ess nature.", type = SimulatorSymmetricEss.class, isOptional = true)
 	public final ConfigChannel<SimulatorSymmetricEss> symmetricEss = new ConfigChannel<>("symmetricEss", this);
-	@ConfigInfo(title = "asymmetric Ess", description = "Sets the asymmetric Ess nature.", type = SimulatorAsymmetricEss.class, isOptional = true)
+	@ChannelInfo(title = "asymmetric Ess", description = "Sets the asymmetric Ess nature.", type = SimulatorAsymmetricEss.class, isOptional = true)
 	public final ConfigChannel<SimulatorAsymmetricEss> asymmetricEss = new ConfigChannel<>("asymmetricEss", this);
 
-	@ConfigInfo(title = "Charger", description = "Sets the Charger nature.", type = SimulatorCharger.class, isOptional = true)
+	@ChannelInfo(title = "Charger", description = "Sets the Charger nature.", type = SimulatorCharger.class, isOptional = true)
 	public final ConfigChannel<SimulatorCharger> charger = new ConfigChannel<>("charger", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter nature.", type = SimulatorGridMeter.class, isOptional = true)
+	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter nature.", type = SimulatorGridMeter.class, isOptional = true)
 	public final ConfigChannel<SimulatorGridMeter> gridMeter = new ConfigChannel<>("gridMeter", this);
 
-	@ConfigInfo(title = "Production-Meter", description = "Sets the production meter nature.", type = SimulatorProductionMeter.class, isOptional = true)
+	@ChannelInfo(title = "Production-Meter", description = "Sets the production meter nature.", type = SimulatorProductionMeter.class, isOptional = true)
 	public final ConfigChannel<SimulatorProductionMeter> productionMeter = new ConfigChannel<>("productionMeter", this);
 
-	@ConfigInfo(title = "Sps", description = "Sets the Riedmann sps nature.", type = SimulatorRiedmannNature.class, isOptional = true)
+	@ChannelInfo(title = "Sps", description = "Sets the Riedmann sps nature.", type = SimulatorRiedmannNature.class, isOptional = true)
 	public final ConfigChannel<SimulatorRiedmannNature> sps = new ConfigChannel<>("sps", this);
-	
-	@ConfigInfo(title = "Output", description = "Sets the output nature.", type = SimulatorOutput.class, isOptional = true)
+
+	@ChannelInfo(title = "Output", description = "Sets the output nature.", type = SimulatorOutput.class, isOptional = true)
 	public final ConfigChannel<SimulatorOutput> output = new ConfigChannel<>("output", this);
-	
 
 	/*
 	 * Methods

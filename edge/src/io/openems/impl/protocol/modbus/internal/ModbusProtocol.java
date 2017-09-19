@@ -23,27 +23,21 @@ package io.openems.impl.protocol.modbus.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.Channel;
-import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRange;
 
 public class ModbusProtocol {
 	private static Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
-	private final Map<Channel, ModbusElement> channelElementMap = new ConcurrentHashMap<>();
-	private final Map<Integer, ModbusRange> otherRanges = new ConcurrentHashMap<>(); // key = startAddress
-	private final LinkedList<Integer> otherRangesQueue = new LinkedList<>();
-	// requiredRanges stays empty till someone calls "setAsRequired()"
-	private final Map<Integer, ModbusRange> requiredRanges = new ConcurrentHashMap<>(); // key = startAddress
+	private final Map<Channel, ModbusElement<?>> channelElementMap = new ConcurrentHashMap<>();
+	private final Map<Integer, ModbusRange> readRanges = new ConcurrentHashMap<>(); // key = startAddress
 	private final Map<Integer, WriteableModbusRange> writableRanges = new ConcurrentHashMap<>(); // key =
 																									// startAddress
 
@@ -61,10 +55,10 @@ public class ModbusProtocol {
 			WriteableModbusRange writableRange = (WriteableModbusRange) range;
 			writableRanges.put(writableRange.getStartAddress(), writableRange);
 		}
-		// fill otherRanges Map
-		otherRanges.put(range.getStartAddress(), range);
+		// fill readRanges Map
+		readRanges.put(range.getStartAddress(), range);
 		// fill channelElementMap
-		for (ModbusElement element : range.getElements()) {
+		for (ModbusElement<?> element : range.getElements()) {
 			if (element.getChannel() != null) {
 				// ignore Elements without Channel (DummyChannels)
 				channelElementMap.put(element.getChannel(), element);
@@ -72,29 +66,11 @@ public class ModbusProtocol {
 		}
 	}
 
-	public Optional<ModbusRange> getNextOtherRange() {
-		if (otherRangesQueue.isEmpty()) {
-			otherRangesQueue.addAll(otherRanges.keySet());
-		}
-		Integer address = otherRangesQueue.poll();
-		if (address == null) {
-			return Optional.empty();
-		}
-		return Optional.ofNullable(otherRanges.get(address));
-	}
-
-	public Collection<ModbusRange> getOtherRanges() {
-		if (otherRanges.isEmpty()) {
+	public Collection<ModbusRange> getReadRanges() {
+		if (readRanges.isEmpty()) {
 			return Collections.unmodifiableCollection(new ArrayList<ModbusRange>());
 		}
-		return Collections.unmodifiableCollection(otherRanges.values());
-	}
-
-	public Collection<ModbusRange> getRequiredRanges() {
-		if (requiredRanges.isEmpty()) {
-			return Collections.unmodifiableCollection(new ArrayList<ModbusRange>());
-		}
-		return Collections.unmodifiableCollection(requiredRanges.values());
+		return Collections.unmodifiableCollection(readRanges.values());
 	}
 
 	public Collection<WriteableModbusRange> getWritableRanges() {
@@ -104,12 +80,8 @@ public class ModbusProtocol {
 		return Collections.unmodifiableCollection(writableRanges.values());
 	}
 
-	public void setAsRequired(Channel channel) {
-		if (channel instanceof ModbusChannel<?>) {
-			ModbusRange range = channelElementMap.get(channel).getModbusRange();
-			otherRanges.remove(range.getStartAddress());
-			requiredRanges.put(range.getStartAddress(), range);
-		}
+	public ModbusRange getRangeByChannel(Channel channel) {
+		return channelElementMap.get(channel).getModbusRange();
 	}
 
 	/**
@@ -119,7 +91,7 @@ public class ModbusProtocol {
 	 */
 	private void checkRange(ModbusRange range) {
 		int address = range.getStartAddress();
-		for (ModbusElement element : range.getElements()) {
+		for (ModbusElement<?> element : range.getElements()) {
 			if (element.getAddress() != address) {
 				log.error("Start address of Element is wrong. It is " + element.getAddress() + "/0x"
 						+ Integer.toHexString(element.getAddress()) + ", should be " + address + "/0x"

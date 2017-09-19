@@ -27,8 +27,9 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
+import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
@@ -45,7 +46,7 @@ public class ThermalPowerStationController extends Controller {
 	 */
 	private ThingRepository repo = ThingRepository.getInstance();
 	private Long lastTimeAboveProductionlimit = System.currentTimeMillis();
-	public WriteChannel<Boolean> outputChannel;
+	public Optional<WriteChannel<Boolean>> outputChannelOpt = Optional.empty();
 	private int switchOnCount = 0;
 	private int switchOffCount = 0;
 	private State currentState = State.UNDEFINED;
@@ -64,36 +65,38 @@ public class ThermalPowerStationController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "Meters", description = "Meters of power producers (e.g. PV).", type = Meter.class, isArray = true)
+	@ChannelInfo(title = "Meters", description = "Meters of power producers (e.g. PV).", type = Meter.class, isArray = true)
 	public ConfigChannel<List<Meter>> meters = new ConfigChannel<>("meters", this);
 
-	@ConfigInfo(title = "Min-SOC", description = "If SOC falls below this min-SOC and power production is below production-limit, thermalpowerstation will start.", type = Long.class)
+	@ChannelInfo(title = "Min-SOC", description = "If SOC falls below this min-SOC and power production is below production-limit, thermalpowerstation will start.", type = Long.class)
 	public ConfigChannel<Long> minSoc = new ConfigChannel<Long>("minSoc", this);
 
-	@ConfigInfo(title = "Max-SOC", description = "If the SOC rises above max-SOC the thermalpowerstation will stop.", type = Long.class)
+	@ChannelInfo(title = "Max-SOC", description = "If the SOC rises above max-SOC the thermalpowerstation will stop.", type = Long.class)
 	public ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
 
-	@ConfigInfo(title = "Production limit", description = "If SOC falls below this min-SOC and power production is below production-limit, thermalpowerstation will start.", type = Long.class)
+	@ChannelInfo(title = "Production limit", description = "If SOC falls below this min-SOC and power production is below production-limit, thermalpowerstation will start.", type = Long.class)
 	public ConfigChannel<Long> productionLimit = new ConfigChannel<>("productionLimit", this);
 
-	@ConfigInfo(title = "Production limit period", description = "Indicates how long the production power must be below production-limit to start the powerstation. Time in minutes.", type = Long.class)
+	@ChannelInfo(title = "Production limit period", description = "Indicates how long the production power must be below production-limit to start the powerstation. Time in minutes.", type = Long.class)
 	public ConfigChannel<Long> limitTimeRange = new ConfigChannel<>("limitTimeRange", this);
 
-	@ConfigInfo(title = "Invert Output", description = "True if the digital output should be inverted.", type = Boolean.class)
+	@ChannelInfo(title = "Invert Output", description = "True if the digital output should be inverted.", type = Boolean.class)
 	public ConfigChannel<Boolean> invertOutput = new ConfigChannel<>("invertOutput", this);
 
 	@SuppressWarnings("unchecked")
-	@ConfigInfo(title = "the address of the Digital Output where the generator is connected to.", type = String.class)
+	@ChannelInfo(title = "the address of the Digital Output where the generator is connected to.", type = String.class)
 	public ConfigChannel<String> outputChannelAddress = new ConfigChannel<String>("outputChannelAddress", this)
 			.addChangeListener((channel, newValue, oldValue) -> {
 				Optional<String> channelAddress = (Optional<String>) newValue;
 				if (channelAddress.isPresent()) {
-					Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
-					if (ch.isPresent()) {
-						outputChannel = (WriteChannel<Boolean>) ch.get();
+					Optional<Channel> channelOpt = repo.getChannelByAddress(channelAddress.get());
+					if (channelOpt.isPresent()) {
+						this.outputChannelOpt = Optional.of( //
+								((WriteChannel<Boolean>) channelOpt.get()).required());
+						// TODO should not be necessary to set outputChannel as required
 					} else {
 						log.error("Channel " + channelAddress.get() + " not found");
 					}
@@ -107,15 +110,37 @@ public class ThermalPowerStationController extends Controller {
 
 	@Override
 	public void run() {
+		// Get all required values - or abort with error
+		long productionPower;
+		long productionLimit;
+		boolean isOff;
+		long soc;
+		long minSoc;
+		long maxSoc;
+		long limitTimeRange;
+		boolean invertOutput;
 		try {
-			if (getProductionPower() >= productionLimit.value()) {
+			isOff = this.isOff();
+			productionPower = this.getProductionPower();
+			productionLimit = this.productionLimit.value();
+			soc = this.ess.value().soc.value();
+			minSoc = this.minSoc.value();
+			maxSoc = this.maxSoc.value();
+			limitTimeRange = this.limitTimeRange.value();
+			invertOutput = this.invertOutput.value();
+		} catch (InvalidValueException | ConfigException e) {
+			log.error(e.getMessage());
+			return;
+		}
+
+		try {
+			if (productionPower >= productionLimit) {
 				lastTimeAboveProductionlimit = System.currentTimeMillis();
 			}
 			switch (currentState) {
 			case OFF:
-				if (isOff()) {
-					if (ess.value().soc.value() <= minSoc.value()
-							&& lastTimeAboveProductionlimit + limitTimeRange.value() <= System.currentTimeMillis()) {
+				if (isOff) {
+					if (soc <= minSoc && lastTimeAboveProductionlimit + limitTimeRange <= System.currentTimeMillis()) {
 						currentState = State.SWITCHON;
 					}
 				} else {
@@ -123,34 +148,33 @@ public class ThermalPowerStationController extends Controller {
 				}
 				break;
 			case ON:
-				if (isOff()) {
+				if (isOff) {
 					currentState = State.SWITCHON;
 				} else {
-					if (ess.value().soc.value() >= maxSoc.value()
-							|| lastTimeAboveProductionlimit + limitTimeRange.value() > System.currentTimeMillis()) {
+					if (soc >= maxSoc || lastTimeAboveProductionlimit + limitTimeRange > System.currentTimeMillis()) {
 						currentState = State.SWITCHOFF;
 					}
 				}
 				break;
 			case SWITCHOFF:
-				if (isOff()) {
+				if (isOff) {
 					currentState = State.OFF;
 					switchOffCount = 0;
 				} else {
-					stopGenerator();
+					stopGenerator(invertOutput);
 					switchOffCount++;
 					if (switchOffCount > 5) {
-						log.error("tried " + switchOffCount + " times to switch " + outputChannelAddress.value()
+						log.error("tried " + switchOffCount + " times to switch " + outputChannelAddress
 								+ " off without success!");
 					}
 				}
 				break;
 			case SWITCHON:
-				if (isOff()) {
-					startGenerator();
+				if (isOff) {
+					startGenerator(invertOutput);
 					switchOnCount++;
 					if (switchOnCount > 5) {
-						log.error("tried " + switchOnCount + " times to switch " + outputChannelAddress.value()
+						log.error("tried " + switchOnCount + " times to switch " + outputChannelAddress
 								+ " on without success!");
 					}
 				} else {
@@ -159,7 +183,7 @@ public class ThermalPowerStationController extends Controller {
 				}
 				break;
 			case UNDEFINED:
-				if (isOff()) {
+				if (isOff) {
 					currentState = State.OFF;
 				} else {
 					currentState = State.ON;
@@ -168,30 +192,42 @@ public class ThermalPowerStationController extends Controller {
 
 				break;
 			}
-		} catch (InvalidValueException e1) {
-			log.error("Failed to read value!", e1);
-		} catch (WriteChannelException e) {
-			log.error("Error due write to output [" + outputChannelAddress.valueOptional().orElse("<none>") + "]", e);
+
+		} catch (WriteChannelException | ConfigException e) {
+			log.error("Error writing [" + outputChannelAddress + "]: " + e.getMessage());
 		}
 	}
 
-	private void startGenerator() throws WriteChannelException, InvalidValueException {
-		if (outputChannel.value() != true ^ invertOutput.value()) {
-			outputChannel.pushWrite(true ^ invertOutput.value());
+	private WriteChannel<Boolean> getOutputChannel() throws ConfigException {
+		if (this.outputChannelOpt.isPresent()) {
+			return this.outputChannelOpt.get();
+		} else {
+			throw new ConfigException("outputChannel is not available.");
 		}
 	}
 
-	private void stopGenerator() throws InvalidValueException, WriteChannelException {
-		if (outputChannel.value() != false ^ invertOutput.value()) {
-			outputChannel.pushWrite(false ^ invertOutput.value());
+	private void startGenerator(boolean invertOutput) throws WriteChannelException, ConfigException {
+		WriteChannel<Boolean> outputChannel = getOutputChannel();
+		Optional<Boolean> output = outputChannel.valueOptional();
+		if (!output.isPresent() || output.get() != true ^ invertOutput) {
+			outputChannel.pushWrite(true ^ invertOutput);
 		}
 	}
 
-	private boolean isOff() throws InvalidValueException {
+	private void stopGenerator(boolean invertOutput) throws WriteChannelException, ConfigException {
+		WriteChannel<Boolean> outputChannel = getOutputChannel();
+		Optional<Boolean> output = outputChannel.valueOptional();
+		if (!output.isPresent() || output.get() != false ^ invertOutput) {
+			outputChannel.pushWrite(false ^ invertOutput);
+		}
+	}
+
+	private boolean isOff() throws InvalidValueException, ConfigException {
+		WriteChannel<Boolean> outputChannel = getOutputChannel();
 		return outputChannel.value() == false ^ invertOutput.value();
 	}
 
-	private Long getProductionPower() throws InvalidValueException {
+	private long getProductionPower() throws InvalidValueException {
 		Long power = 0L;
 		for (Meter m : meters.value()) {
 			power += m.power.value();

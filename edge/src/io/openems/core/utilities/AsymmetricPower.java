@@ -42,7 +42,9 @@ public class AsymmetricPower {
 	private final ReadChannel<Long> allowedDischarge;
 	private final ReadChannel<Long> allowedCharge;
 	private final ReadChannel<Long> allowedApparent;
+	@SuppressWarnings("unchecked")
 	private final WriteChannel<Long>[] setActivePower = new WriteChannel[3];
+	@SuppressWarnings("unchecked")
 	private final WriteChannel<Long>[] setReactivePower = new WriteChannel[3];
 	private long[] activePower = new long[3];
 	private long[] reactivePower = new long[3];

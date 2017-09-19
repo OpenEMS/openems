@@ -1,0 +1,48 @@
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
+import { Subject } from 'rxjs/Subject';
+
+import { Utils } from '../../../shared/service/utils';
+import { Device } from '../../../shared/device/device';
+import { Websocket } from '../../../shared/shared';
+import { DefaultTypes } from '../../../shared/service/defaulttypes';
+import { ConfigImpl } from '../../../shared/device/config';
+
+import * as moment from 'moment';
+
+@Component({
+  selector: 'configall',
+  templateUrl: './configall.component.html'
+})
+export class ConfigAllComponent implements OnInit {
+
+  public device: Device = null;
+  public config: ConfigImpl = null;
+  private stopOnDestroy: Subject<void> = new Subject<void>();
+
+  constructor(
+    private route: ActivatedRoute,
+    private websocket: Websocket,
+    public utils: Utils
+  ) { }
+
+  ngOnInit() {
+    this.websocket.setCurrentDevice(this.route)
+      .takeUntil(this.stopOnDestroy)
+      .filter(device => device != null)
+      .subscribe(device => {
+        this.device = device;
+        device.config
+          .filter(device => device != null)
+          .takeUntil(this.stopOnDestroy).subscribe(config => {
+            this.config = config;
+          });
+      });
+  }
+
+  ngOnDestroy() {
+    this.stopOnDestroy.next();
+    this.stopOnDestroy.complete();
+  }
+}
