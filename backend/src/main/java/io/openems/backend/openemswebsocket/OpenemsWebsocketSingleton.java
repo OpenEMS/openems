@@ -71,10 +71,11 @@ public class OpenemsWebsocketSingleton
 
 			// send successful reply to openems
 			JsonObject jReply = DefaultMessages.openemsConnectionSuccessfulReply();
-			log.info("Device [" + deviceName + "] connected");
 			WebSocketUtils.send(websocket, jReply);
 			// add websocket to local cache
 			this.websockets.forcePut(websocket, session);
+
+			log.info("Device [" + deviceName + "] connected. Total websockets [" + this.websockets.size() + "]");
 
 			try {
 				// set device active (in Odoo)

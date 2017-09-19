@@ -66,7 +66,7 @@ public class ChannelDoc {
 			}
 			this.bitLengthOpt = Optional.ofNullable(bitLength);
 			this.optional = channelInfo.isOptional();
-			this.array = channelInfo.isOptional();
+			this.array = channelInfo.isArray();
 			this.accessLevel = channelInfo.accessLevel();
 			this.defaultValue = channelInfo.defaultValue();
 		} else {

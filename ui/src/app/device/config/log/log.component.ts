@@ -13,7 +13,7 @@ import * as moment from 'moment';
   selector: 'log',
   templateUrl: './log.component.html'
 })
-export class LogComponent implements OnInit {
+export class LogComponent implements OnInit, OnDestroy {
 
   public device: Device = null;
   public logs: DefaultTypes.Log[] = [];

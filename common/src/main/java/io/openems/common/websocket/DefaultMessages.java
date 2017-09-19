@@ -242,7 +242,7 @@ public class DefaultMessages {
 	public static JsonObject notification(Notification code, Object... params) {
 		JsonObject j = new JsonObject();
 		JsonObject jNotification = new JsonObject();
-		jNotification.addProperty("status", code.getStatus());
+		jNotification.addProperty("status", code.getStatus().toString().toLowerCase());
 		jNotification.addProperty("message", String.format(code.getMessage(), params));
 		jNotification.addProperty("code", code.getValue());
 		JsonArray jParams = new JsonArray();

@@ -128,7 +128,9 @@ export class Websocket {
 
     }).map(message => JSON.parse(message)).subscribe(message => {
       // called on every receive of message from server
-      // console.log(message);
+      if (env.debugMode) {
+        console.log("RECV", message);
+      }
       /*
        * Authenticate
        */
@@ -295,7 +297,9 @@ export class Websocket {
    * Sends a message to the websocket
    */
   public send(message: any, device?: Device): void {
-    // console.log("SEND: ", message);
+    if (env.debugMode) {
+      console.log("SEND: ", message);
+    }
     if (device) {
       if ("id" in message) {
         this.pendingQueryReplies[message.id[0]] = device.name;

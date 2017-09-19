@@ -5,7 +5,7 @@ export class Role {
         public readonly level: number
     ) { };
 
-    public isHigherAs(role: Role | string): boolean {
+    public isHigherThan(role: Role | string): boolean {
         if (typeof role === 'string') {
             role = ROLES.getRole(role);
         }
