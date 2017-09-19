@@ -6,13 +6,13 @@ import java.util.Set;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.system.SystemDevice;
 
 public class AsymmetricSymmetricCombinationEss extends SystemDevice {
 
-	@ConfigInfo(title = "AsymmetricSymmetricCombinationEss", description = "Sets the wrapper nature to use asymmetric and symmetric controller together.", type = AsymmetricSymmetricCombinationEssNature.class)
+	@ChannelInfo(title = "AsymmetricSymmetricCombinationEss", description = "Sets the wrapper nature to use asymmetric and symmetric controller together.", type = AsymmetricSymmetricCombinationEssNature.class)
 	public final ConfigChannel<AsymmetricSymmetricCombinationEssNature> wrapper = new ConfigChannel<>("wrapper", this);
 
 	public AsymmetricSymmetricCombinationEss(Bridge parent) throws OpenemsException {
