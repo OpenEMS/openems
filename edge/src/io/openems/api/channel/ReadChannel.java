@@ -302,6 +302,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	 * @return
 	 */
 	public ReadChannel<T> required() {
+		this.isRequired = true;
 		return this;
 	};
 
