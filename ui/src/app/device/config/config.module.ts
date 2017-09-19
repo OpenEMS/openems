@@ -7,6 +7,9 @@ import { OverviewComponent } from './overview/overview.component';
 import { BridgeComponent } from './bridge/bridge.component';
 import { ControllerModule } from './controller/controller.module';
 
+import { ConfigAllComponent } from './configall/configall.component';
+import { ExistingThingComponent } from './shared/existingthing.component';
+import { ChannelComponent } from './shared/channel.component';
 import { LogComponent } from './log/log.component';
 import { SimulatorComponent } from './simulator/simulator.component';
 
@@ -21,7 +24,10 @@ import { SimulatorComponent } from './simulator/simulator.component';
     OverviewComponent,
     BridgeComponent,
     LogComponent,
-    SimulatorComponent
+    SimulatorComponent,
+    ConfigAllComponent,
+    ChannelComponent,
+    ExistingThingComponent
   ]
 })
 export class ConfigModule { }

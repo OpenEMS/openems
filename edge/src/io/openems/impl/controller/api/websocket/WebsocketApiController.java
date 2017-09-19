@@ -34,9 +34,9 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
+import io.openems.common.websocket.NotificationStatus;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.websocket.Notification;
-import io.openems.core.utilities.websocket.NotificationType;
 
 class PQ {
 	public final long p;
@@ -110,7 +110,7 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 					e.setReactivePowerL2().pushWrite(q);
 					e.setReactivePowerL3().pushWrite(q);
 					if (pq.firstRun) {
-						Notification.send(NotificationType.INFO, "Started manual PQ for Ess[" + thingId
+						Notification.send(NotificationStatus.INFO, "Started manual PQ for Ess[" + thingId
 								+ "]. Asymmetric output on each phase: p[+" + p + "], q[" + q + "]");
 					}
 				} else if (thing instanceof SymmetricEssNature) {
@@ -118,14 +118,14 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 					e.setActivePower().pushWrite(pq.p);
 					e.setReactivePower().pushWrite(pq.q);
 					if (pq.firstRun) {
-						Notification.send(NotificationType.INFO, "Started manual PQ for Ess[" + thingId
+						Notification.send(NotificationStatus.INFO, "Started manual PQ for Ess[" + thingId
 								+ "]. Symmetric output: p[+" + pq.p + "], q[" + pq.q + "]");
 					}
 				} else {
 					throw new OpenemsException("Ess[" + thingId + "] is not an Ess.");
 				}
 			} catch (OpenemsException e) {
-				Notification.send(NotificationType.ERROR, e.getMessage());
+				Notification.send(NotificationStatus.ERROR, e.getMessage());
 			} finally {
 				pq.firstRun = false;
 			}

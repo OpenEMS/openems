@@ -9,7 +9,7 @@ import { Device } from '../device/device';
 import { DefaultTypes } from './defaulttypes';
 
 @Injectable()
-export class Service  implements ErrorHandler {
+export class Service implements ErrorHandler {
     public notificationEvent: Subject<DefaultTypes.Notification> = new Subject<DefaultTypes.Notification>();
 
     constructor(
