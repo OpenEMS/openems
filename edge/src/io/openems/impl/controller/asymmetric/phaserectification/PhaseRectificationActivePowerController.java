@@ -7,7 +7,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.AvgFiFoQueue;
 
-@ThingInfo(title = "PhaseRectification")
+@ThingInfo(title = "PhaseRectificationActivePowerController", description = "Sets the ess to the required activepower to get all three phases on the meter to the same level.")
 public class PhaseRectificationActivePowerController extends Controller {
 
 	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
