@@ -19,7 +19,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   public form: FormGroup = null;
   public meta = null;
   public type: string;
-  public specialType: string;
+  public specialType: "simple" | "ignore" | "boolean" | "selectNature" = "simple";
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -45,7 +45,8 @@ export class ChannelComponent implements OnChanges, OnDestroy {
       let channelMeta = thingMeta.channels[this.channelId];
       this.meta = channelMeta;
       // set form input type and specialType-flag
-      switch (this.meta.type) {
+      let metaType = this.meta.type;
+      switch (metaType) {
         case 'Boolean':
           this.specialType = 'boolean';
           break;
@@ -53,26 +54,42 @@ export class ChannelComponent implements OnChanges, OnDestroy {
         case 'Long':
           this.type = 'number';
           break;
-        case 'Ess':
-        case 'Meter':
-        case 'RealTimeClock':
-        case 'Charger':
-          this.specialType = 'selectNature';
-          this.type = this.meta.type + 'Nature';
-          break;
+        // case 'Ess':
+        // case 'Meter':
+        // case 'RealTimeClock':
+        // case 'Charger':
+        //   this.specialType = 'selectNature';
+        //   this.type = this.meta.type + 'Nature';
+        //   break;
         case 'JsonArray':
         case 'JsonObject':
           this.specialType = 'ignore';
           break;
         default:
-          console.warn("Unknown type: " + this.meta.type);
-          this.type = 'string';
+          if (metaType in this.config.meta) {
+            // this is actually another thing -> ignore here
+            let otherThingMeta = this.config.meta[metaType];
+            console.warn("Ignore embedded thing", otherThingMeta);
+            this.specialType = 'ignore';
+          } else if (this.config.meta instanceof Array) {
+            // this is a DeviceNature id
+            this.specialType = 'selectNature';
+            this.type = this.meta.type + 'Nature';
+          } else {
+            console.warn("Unknown type: " + this.meta.type, this.meta);
+            this.type = 'string';
+          }
       }
       // console.log(this.thingId, this.channelId, thingConfig, channelMeta, this.config, this.role);
 
-      // build form
+      // get value or default value
       let value = thingConfig[this.channelId];
-      this.form = this.buildFormGroup({ channelValue: thingConfig[this.channelId] });
+      if (value == null) {
+        value = channelMeta.defaultValue;
+      }
+
+      // build form
+      this.form = this.buildFormGroup({ channelValue: value });
       // console.log(this.form);
 
       // subscribe to form changes and build websocket message

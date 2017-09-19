@@ -188,36 +188,41 @@ public class EdgeWebsocketHandler {
 				return DefaultMessages.configQueryReply(jReplyConfig);
 
 			} else if (mode.equals("update")) {
-				/*
-				 * Update thing/channel config
-				 */
-				String thingId = JsonUtils.getAsString(jConfig, "thing");
-				String channelId = JsonUtils.getAsString(jConfig, "channel");
-				JsonElement jValue = JsonUtils.getSubElement(jConfig, "value");
-				Optional<Channel> channelOpt = ThingRepository.getInstance().getChannel(thingId, channelId);
-				if (channelOpt.isPresent()) {
-					Channel channel = channelOpt.get();
-					if (channel instanceof ConfigChannel<?>) {
-						/*
-						 * ConfigChannel
-						 */
-						ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
-						configChannel.updateValue(jValue, true);
-						WebSocketUtils.send(websocket, DefaultMessages.notification(
-								Notification.EDGE_CHANNEL_UPDATE_SUCCESS, channel.address() + " => " + jValue));
+				try {
+					/*
+					 * Update thing/channel config
+					 */
+					String thingId = JsonUtils.getAsString(jConfig, "thing");
+					String channelId = JsonUtils.getAsString(jConfig, "channel");
+					JsonElement jValue = JsonUtils.getSubElement(jConfig, "value");
+					Optional<Channel> channelOpt = ThingRepository.getInstance().getChannel(thingId, channelId);
+					if (channelOpt.isPresent()) {
+						Channel channel = channelOpt.get();
+						if (channel instanceof ConfigChannel<?>) {
+							/*
+							 * ConfigChannel
+							 */
+							ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
+							configChannel.updateValue(jValue, true);
+							WebSocketUtils.send(websocket, DefaultMessages.notification(
+									Notification.EDGE_CHANNEL_UPDATE_SUCCESS, channel.address() + " => " + jValue));
 
-					} else if (channel instanceof WriteChannel<?>) {
-						/*
-						 * WriteChannel
-						 */
-						// TODO use Worker...
-						// WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
-						// writeChannel.pushWrite(jValue);
-						// Notification.send(NotificationType.SUCCESS,
-						// "Successfully set [" + channel.address() + "] to [" + jValue + "]");
+						} else if (channel instanceof WriteChannel<?>) {
+							/*
+							 * WriteChannel
+							 */
+							// TODO use Worker...
+							// WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
+							// writeChannel.pushWrite(jValue);
+							// Notification.send(NotificationType.SUCCESS,
+							// "Successfully set [" + channel.address() + "] to [" + jValue + "]");
+						}
+					} else {
+						throw new OpenemsException("Unable to find " + jConfig.toString());
 					}
-				} else {
-					throw new OpenemsException("Unable to find " + jConfig.toString());
+				} catch (OpenemsException e) {
+					WebSocketUtils.send(websocket,
+							DefaultMessages.notification(Notification.EDGE_CHANNEL_UPDATE_FAILED, e.getMessage()));
 				}
 			}
 		} catch (OpenemsException e) {

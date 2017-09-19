@@ -7,26 +7,26 @@
     <ng-container *ngIf="role.isHigherThan(meta.accessLevel)">
         <!-- array -->
         <div *ngIf="meta.array == true; else no_array" formArrayName="channelValue" fxFlex="100%">
-            {{ channelId }}
+            Array: {{ channelId }}
         </div>
         <!-- no array -->
         <ng-template #no_array>
-            <ng-container *ngIf="specialType; else no_special_type">
-                <p>SpecialType: {{ specialType }}</p>
-                <!-- Select from nature list -->
-                <div *ngIf="specialType == 'selectNature'; else no_select_nature">
-                    <p>SELECTNATURE</p>
-                </div>
-                <ng-template #no_select_nature>
-                    {{ channelId }}
-                </ng-template>
+            <ng-container [ngSwitch]="specialType">
+                <ng-container *ngSwitchCase="'ignore'">
+                    <!-- ignore -->
+                </ng-container>
+                <ng-container *ngSwitchCase="'boolean'">
+                    <md-slide-toggle formControlName="channelValue">{{ meta.title }}</md-slide-toggle>
+                </ng-container>
+                <ng-container *ngSwitchCase="'deviceNature'"><i>deviceNature</i></ng-container>
+                <ng-container *ngSwitchCase="'simple'">
+                    <!-- Simple input field -->
+                    <md-form-field>
+                        <input mdInput [placeholder]="meta.title" formControlName="channelValue" [type]="type">
+                    </md-form-field>
+                </ng-container>
+                <ng-container *ngSwitchDefault>undefined: {{ specialType }} - {{ form.value | json }}</ng-container>
             </ng-container>
-            <ng-template #no_special_type>
-                <!-- Simple input field -->
-                <md-form-field>
-                    <input mdInput [placeholder]="meta.title" formControlName="channelValue" [type]="type">
-                </md-form-field>
-            </ng-template>
         </ng-template>
     </ng-container>
 </div>

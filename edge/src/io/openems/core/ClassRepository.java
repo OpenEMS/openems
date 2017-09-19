@@ -40,6 +40,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
+import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingDoc;
@@ -69,6 +70,7 @@ public class ClassRepository {
 	private Set<Class<? extends Bridge>> bridges = new HashSet<>();
 	private Set<Class<? extends Scheduler>> schedulers = new HashSet<>();
 	private Set<Class<? extends Device>> devices = new HashSet<>();
+	private Set<Class<? extends DeviceNature>> deviceNatures = new HashSet<>();
 	private Set<Class<? extends Controller>> controllers = new HashSet<>();
 	private HashMap<Class<? extends Thing>, ThingDoc> thingDocs = new HashMap<>();
 
@@ -79,6 +81,7 @@ public class ClassRepository {
 				getAvailableBridges(), //
 				getAvailableControllers(), //
 				getAvailableDevices(), //
+				getAvailableDeviceNatures(), //
 				getAvailableSchedulers());
 	}
 
@@ -118,7 +121,7 @@ public class ClassRepository {
 
 	@SuppressWarnings("unchecked")
 	public Collection<ThingDoc> getAvailableDevices() throws ReflectionException {
-		// update cache of available bridges
+		// update cache of available devices
 		if (devices.isEmpty()) {
 			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.device", Device.class,
 					"")) {
@@ -134,8 +137,26 @@ public class ClassRepository {
 	}
 
 	@SuppressWarnings("unchecked")
+	public Collection<ThingDoc> getAvailableDeviceNatures() throws ReflectionException {
+		// TODO merge with getAvailableNatures to avoid parsing twice
+		// update cache of available device natures
+		if (deviceNatures.isEmpty()) {
+			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.device",
+					DeviceNature.class, "")) {
+				this.deviceNatures.add((Class<? extends DeviceNature>) clazz);
+			}
+		}
+		// create result
+		Collection<ThingDoc> deviceNatureDocs = new ArrayList<>();
+		for (Class<? extends DeviceNature> clazz : this.deviceNatures) {
+			deviceNatureDocs.add(this.getThingDoc(clazz));
+		}
+		return Collections.unmodifiableCollection(deviceNatureDocs);
+	}
+
+	@SuppressWarnings("unchecked")
 	public Collection<ThingDoc> getAvailableSchedulers() throws ReflectionException {
-		// update cache of available bridges
+		// update cache of available schedulers
 		if (this.schedulers.isEmpty()) {
 			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.scheduler",
 					Scheduler.class, "Scheduler")) {
