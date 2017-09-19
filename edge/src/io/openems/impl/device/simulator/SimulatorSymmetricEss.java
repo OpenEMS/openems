@@ -119,10 +119,10 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 	@ChannelInfo(title = "GridMode", type = Long.class)
-	public ConfigChannel<Long> gridMode = new ConfigChannel<Long>("GridMode", this).label(0L, ON_GRID)
+	public ConfigChannel<Long> gridMode = new ConfigChannel<Long>("gridMode", this).label(0L, ON_GRID)
 			.label(1L, OFF_GRID).defaultValue(0L);
 	@ChannelInfo(title = "SystemState", type = Long.class)
-	public ConfigChannel<Long> systemState = new ConfigChannel<Long>("SystemState", this) //
+	public ConfigChannel<Long> systemState = new ConfigChannel<Long>("systemState", this) //
 			.label(1L, START).label(2L, STOP).label(5L, FAULT).defaultValue(1L);
 
 	@Override

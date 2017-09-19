@@ -19,14 +19,16 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   public form: FormGroup = null;
   public meta = null;
   public type: string;
-  public specialType: "simple" | "ignore" | "boolean" | "selectNature" = "simple";
+  public specialType: "simple" | "ignore" | "boolean" | "selectNature" | "deviceNature" = "simple";
 
+  private isJson = false;
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
   @Input() public thingId: string = null;
   @Input() public channelId: string = null;
   @Input() public config: ConfigImpl = null;
-  @Input() public role: Role = ROLES.guest;
+  @Input() public role: Role = ROLES.guest; // TODO in device
+  @Input() public device: Device = null;
 
   @Output() public message: Subject<DefaultTypes.ConfigUpdate> = new Subject<DefaultTypes.ConfigUpdate>();
 
@@ -44,33 +46,46 @@ export class ChannelComponent implements OnChanges, OnDestroy {
       let thingMeta = this.config.meta[clazz];
       let channelMeta = thingMeta.channels[this.channelId];
       this.meta = channelMeta;
+
+      // get value or default value
+      let value = thingConfig[this.channelId];
+      if (value == null) {
+        value = channelMeta.defaultValue;
+      }
+
       // set form input type and specialType-flag
       let metaType = this.meta.type;
       switch (metaType) {
         case 'Boolean':
           this.specialType = 'boolean';
           break;
+
         case 'Integer':
         case 'Long':
           this.type = 'number';
           break;
-        // case 'Ess':
-        // case 'Meter':
-        // case 'RealTimeClock':
-        // case 'Charger':
-        //   this.specialType = 'selectNature';
-        //   this.type = this.meta.type + 'Nature';
-        //   break;
+
+        case 'String':
+          this.type = 'string';
+          break;
+
         case 'JsonArray':
         case 'JsonObject':
-          this.specialType = 'ignore';
+          this.specialType = 'simple';
+          this.isJson = true;
+          value = JSON.stringify(value);
           break;
+
         default:
           if (metaType in this.config.meta) {
-            // this is actually another thing -> ignore here
+            // this is a DeviceNature
             let otherThingMeta = this.config.meta[metaType];
-            console.warn("Ignore embedded thing", otherThingMeta);
-            this.specialType = 'ignore';
+            if (value == null || value == '') {
+              // TODO create thing
+              this.specialType = 'ignore';
+            } else {
+              this.specialType = 'deviceNature';
+            }
           } else if (this.config.meta instanceof Array) {
             // this is a DeviceNature id
             this.specialType = 'selectNature';
@@ -80,30 +95,20 @@ export class ChannelComponent implements OnChanges, OnDestroy {
             this.type = 'string';
           }
       }
-      // console.log(this.thingId, this.channelId, thingConfig, channelMeta, this.config, this.role);
-
-      // get value or default value
-      let value = thingConfig[this.channelId];
-      if (value == null) {
-        value = channelMeta.defaultValue;
-      }
 
       // build form
-      this.form = this.buildFormGroup({ channelValue: value });
-      // console.log(this.form);
+      this.form = this.buildFormGroup({ channelConfig: value });
 
       // subscribe to form changes and build websocket message
       this.form.valueChanges
         .takeUntil(this.stopOnDestroy)
-        .map(data => data["channelValue"])
+        .map(data => data["channelConfig"])
         .subscribe(value => {
+          if (this.isJson) {
+            value = JSON.parse(value);
+          }
           this.message.next(DefaultMessages.configUpdate(this.thingId, this.channelId, value));
         });
-
-
-      // this.meta = this.config.meta[thingConfig.class];
-      // this.form = this.buildFormGroup(thingConfig);
-      // console.log(thingConfig, this.meta, this.form);
     }
   }
 
@@ -113,12 +118,12 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   }
 
   public addToArray() {
-    let array = <FormArray>this.form.controls["channelValue"];
+    let array = <FormArray>this.form.controls["channelConfig"];
     array.push(this.formBuilder.control(""));
   }
 
   public removeFromArray(index: number) {
-    let array = <FormArray>this.form.controls["channelValue"];
+    let array = <FormArray>this.form.controls["channelConfig"];
     array.removeAt(index);
   }
 

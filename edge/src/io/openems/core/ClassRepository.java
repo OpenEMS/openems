@@ -203,7 +203,7 @@ public class ClassRepository {
 			}
 			if (Channel.class.isAssignableFrom(type)) {
 				Optional<ChannelInfo> channelInfoOpt = getAnnotationForMethod(clazz, method.getName());
-				String channelId = StringUtils.capitalizeFirstLetter(method.getName());
+				String channelId = method.getName();
 				ChannelDoc channelDoc = new ChannelDoc(method, channelId, channelInfoOpt);
 				thingDoc.addChannelDoc(channelDoc);
 				if (ConfigChannel.class.isAssignableFrom(type)) {
@@ -215,7 +215,8 @@ public class ClassRepository {
 		for (Field field : clazz.getFields()) {
 			Class<?> type = field.getType();
 			if (Channel.class.isAssignableFrom(type)) {
-				ChannelDoc channelDoc = new ChannelDoc(field, field.getName(),
+				String channelId = field.getName();
+				ChannelDoc channelDoc = new ChannelDoc(field, channelId,
 						Optional.ofNullable(field.getAnnotation(ChannelInfo.class)));
 				thingDoc.addChannelDoc(channelDoc);
 				if (ConfigChannel.class.isAssignableFrom(type)) {
@@ -223,6 +224,9 @@ public class ClassRepository {
 				}
 			}
 		}
+		// add to cache
+		this.thingDocs.put(clazz, thingDoc);
+
 		return thingDoc;
 	}
 

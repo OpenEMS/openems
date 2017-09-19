@@ -218,7 +218,7 @@ public class EdgeWebsocketHandler {
 							// "Successfully set [" + channel.address() + "] to [" + jValue + "]");
 						}
 					} else {
-						throw new OpenemsException("Unable to find " + jConfig.toString());
+						throw new OpenemsException("Unable to find Channel [" + thingId + "/" + channelId + "]");
 					}
 				} catch (OpenemsException e) {
 					WebSocketUtils.send(websocket,
