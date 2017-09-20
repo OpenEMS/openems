@@ -113,7 +113,7 @@ public class ReconnectingWebsocket {
 			while (true) {
 				try {
 					// wait for websocket close or check once in a minute
-					WEBSOCKET_CLOSED.awaitOrTimeout(10, TimeUnit.SECONDS);
+					WEBSOCKET_CLOSED.awaitOrTimeout(1, TimeUnit.MINUTES);
 
 					if (WEBSOCKET_OPT.isPresent()) {
 						WebSocket ws = WEBSOCKET_OPT.get();
