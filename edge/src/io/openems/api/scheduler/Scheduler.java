@@ -92,7 +92,12 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 		}
 		maxTime = (maxTime + 100) / 100 * 100;
 		if (maxTime > cycleTime.valueOptional().orElse(500)) {
-			actualCycleTime = (int) maxTime;
+			// prevent cycleTime to get too big otherwise stuck bridge stops whole framework
+			if (maxTime > cycleTime.valueOptional().orElse(500) * 3) {
+				actualCycleTime = cycleTime.valueOptional().orElse(500) * 3;
+			} else {
+				actualCycleTime = (int) maxTime;
+			}
 		} else {
 			actualCycleTime = cycleTime.valueOptional().orElse(500);
 		}
