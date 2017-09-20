@@ -13,7 +13,7 @@
         <!-- <p>{{ controller.form.value | json }}</p> -->
         <!-- <p>{{ controller.meta | json }}</p> -->
         <md-list dense>
-            <md-list-item *ngFor="let message of utils.values(messages)">Update "{{ message.config.thing }}/{{ message.config.channel }}" to {{ message.config.value }}.</md-list-item>
+            <md-list-item *ngFor="let message of utils.values(messages)">Update "{{ message.config.thing }}/{{ message.config.channel }}" to "{{ message.config.value }}".</md-list-item>
         </md-list>
     </md-card-content>
     <md-card-actions fxLayout fxLayoutAlign="end start">
