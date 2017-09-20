@@ -38,8 +38,8 @@ export class Websocket {
   private username: string = "";
   private messages: Observable<any>;
   private inputStream: Subject<any>;
-  private websocketSubscription: Subscription = new Subscription();
   private queryreply = new Subject<{ id: string[] }>();
+  private stopOnInitialize: Subject<void> = new Subject<void>();
 
   // holds stream per device (=key1) and message-id (=key2); triggered on message reply for the device
   private replyStreams: { [deviceName: string]: { [messageId: string]: Subject<any> } } = {};
@@ -111,19 +111,21 @@ export class Websocket {
       env.url,
       this.inputStream = new Subject<any>()
     );
-    connectionStatus.subscribe(noOfConnectedWebsockets => {
-      this.noOfConnectedWebsockets = noOfConnectedWebsockets;
-      if (noOfConnectedWebsockets == 0 && this.status == 'online') {
-        this.service.notify({
-          message: "Connection lost. Trying to reconnect.", // TODO translate
-          type: 'warning'
-        });
-        // TODO show spinners everywhere
-        this.status = 'connecting';
-      }
-    });
+    connectionStatus
+      .takeUntil(this.stopOnInitialize)
+      .subscribe(noOfConnectedWebsockets => {
+        this.noOfConnectedWebsockets = noOfConnectedWebsockets;
+        if (noOfConnectedWebsockets == 0 && this.status == 'online') {
+          this.service.notify({
+            message: "Connection lost. Trying to reconnect.", // TODO translate
+            type: 'warning'
+          });
+          // TODO show spinners everywhere
+          this.status = 'connecting';
+        }
+      });
     this.messages = messages.share();
-    this.websocketSubscription = this.messages.retryWhen(errors => {
+    this.messages.takeUntil(this.stopOnInitialize).retryWhen(errors => {
       return errors.delay(1000);
 
     }).map(message => JSON.parse(message)).subscribe(message => {
@@ -277,23 +279,21 @@ export class Websocket {
    * Reset everything to default
    */
   private initialize() {
-    this.websocketSubscription.unsubscribe();
+    this.stopOnInitialize.next();
+    this.stopOnInitialize.complete();
     this.messages = null;
+    this.noOfConnectedWebsockets = 0;
     this.devices.next({});
   }
 
   /**
-   * Closes the connection.
+   * Logs out without closing the connection.
    */
-  public close() {
-    console.info("Closing websocket");
-    if (this.status != "online") { // TODO why this if?
-      this.service.removeToken();
-      this.initialize();
-      // TODO
-      // var status: DefaultTypes.Notification = { type: "info", message: this.service.translate.instant('Notifications.Closed') };
-      // this.event.next(status);
-    }
+  public logOut() {
+    // TODO this is not a real logOut... should send a message, without stopping the websocket
+    this.status = "waiting for authentication";
+    this.service.removeToken();
+    this.devices.next({});
   }
 
   /**

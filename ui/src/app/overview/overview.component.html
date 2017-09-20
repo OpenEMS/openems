@@ -33,7 +33,12 @@
           </md-card-content>
           <md-card-actions fxLayout fxLayoutAlign="end start">
             <button type="button" md-fab (click)="doLogin()" color="primary"><md-icon>check</md-icon></button>
-            <!-- TODO <button type="button" md-fab *ngIf="websocket.status === 'online'" (click)="doLogout(form)" color="accent"><md-icon>exit_to_app</md-icon></button> -->
+          </md-card-actions>
+        </ng-container>
+        <!-- Logout from OpenEMS Edge -->
+        <ng-container *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'online'">
+          <md-card-actions fxLayout fxLayoutAlign="end start">
+            <button type="button" md-fab (click)="doLogout()" color="accent"><md-icon>exit_to_app</md-icon></button>
           </md-card-actions>
         </ng-container>
       </md-card>

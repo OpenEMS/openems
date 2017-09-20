@@ -102,13 +102,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
       // subscribe to form changes and build websocket message
       this.form.valueChanges
         .takeUntil(this.stopOnDestroy)
-        .map(data => data["channelConfig"])
-        .subscribe(value => {
-          if (this.isJson) {
-            value = JSON.parse(value);
-          }
-          this.message.next(DefaultMessages.configUpdate(this.thingId, this.channelId, value));
-        });
+        .subscribe(() => this.updateMessage());
     }
   }
 
@@ -117,14 +111,26 @@ export class ChannelComponent implements OnChanges, OnDestroy {
     this.stopOnDestroy.complete();
   }
 
+  private updateMessage() {
+    let value = this.form.value["channelConfig"];
+    if (this.isJson) {
+      value = JSON.parse(value);
+    }
+    this.message.next(DefaultMessages.configUpdate(this.thingId, this.channelId, value));
+  }
+
   public addToArray() {
     let array = <FormArray>this.form.controls["channelConfig"];
     array.push(this.formBuilder.control(""));
+    this.form.markAsDirty();
+    this.updateMessage();
   }
 
   public removeFromArray(index: number) {
     let array = <FormArray>this.form.controls["channelConfig"];
     array.removeAt(index);
+    this.form.markAsDirty();
+    this.updateMessage();
   }
 
   protected buildForm(item: any, ignoreKeys?: string | string[]): FormControl | FormGroup | FormArray {

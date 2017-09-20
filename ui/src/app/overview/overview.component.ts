@@ -47,7 +47,7 @@ export class OverviewComponent {
   }
 
   doLogout(form: FormGroup) {
-    this.websocket.close();
+    this.websocket.logOut();
   }
 
   onDestroy() {
