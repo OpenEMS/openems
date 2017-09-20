@@ -158,8 +158,8 @@ public class BrowserWebsocketSingleton
 				try {
 					forwardMessageToOpenems(websocket, jMessage, deviceName);
 				} catch (OpenemsException e) {
-					WebSocketUtils.send(websocket, DefaultMessages.notification(Notification.EDGE_UNABLE_TO_FORWARD,
-							deviceName, e.getMessage()));
+					WebSocketUtils.sendNotification(websocket, Notification.EDGE_UNABLE_TO_FORWARD, deviceName,
+							e.getMessage());
 					log.error("Unable to forward to Device [" + deviceName + "] : " + e.getMessage());
 				}
 			}

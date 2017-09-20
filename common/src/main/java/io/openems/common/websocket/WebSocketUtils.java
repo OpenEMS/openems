@@ -21,16 +21,38 @@ import io.openems.common.utils.StringUtils;
 public class WebSocketUtils {
 
 	private static Logger log = LoggerFactory.getLogger(WebSocketUtils.class);
-	
+
 	public static boolean send(Optional<WebSocket> websocketOpt, JsonObject j) {
-		if(!websocketOpt.isPresent()) {
-			log.error("Websocket is not available. Unable to send ["+ StringUtils.toShortString(j,100) +"]");
+		if (!websocketOpt.isPresent()) {
+			log.error("Websocket is not available. Unable to send [" + StringUtils.toShortString(j, 100) + "]");
 			return false;
 		} else {
 			return WebSocketUtils.send(websocketOpt.get(), j);
 		}
 	}
-	
+		
+	public static boolean sendNotification(WebSocket websocket, Notification code, Object... params) {
+		String message = String.format(code.getMessage(), params);
+		String logMessage = "Notification [" + code.getValue() + "]: " + message;
+		// log message
+		switch (code.getStatus()) {
+		case INFO:
+		case LOG:
+		case SUCCESS:
+			log.info(logMessage);
+			break;
+		case ERROR:
+			log.error(logMessage);
+			break;
+		case WARNING:
+			log.warn(logMessage);
+			break;
+		}
+
+		JsonObject j = DefaultMessages.notification(code, message, params);
+		return WebSocketUtils.send(websocket, j);
+	}
+
 	/**
 	 * Send a message to a websocket
 	 *
@@ -43,17 +65,18 @@ public class WebSocketUtils {
 			websocket.send(j.toString());
 			return true;
 		} catch (WebsocketNotConnectedException e) {
-			log.error("Websocket is not connected. Unable to send ["+ StringUtils.toShortString(j,100) +"]");
+			log.error("Websocket is not connected. Unable to send [" + StringUtils.toShortString(j, 100) + "]");
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Query history command
 	 *
 	 * @param j
 	 */
-	public static JsonObject historicData(JsonArray jMessageId, JsonObject jHistoricData, Optional<Integer> deviceId, TimedataSource timedataSource) {
+	public static JsonObject historicData(JsonArray jMessageId, JsonObject jHistoricData, Optional<Integer> deviceId,
+			TimedataSource timedataSource) {
 		try {
 			String mode = JsonUtils.getAsString(jHistoricData, "mode");
 			if (mode.equals("query")) {
@@ -76,8 +99,7 @@ public class WebSocketUtils {
 				} else if (days > 2) {
 					resolution = 60 * 60; // 60 Minutes
 				}
-				JsonArray jData = timedataSource.queryHistoricData(deviceId, fromDate, toDate, channels,
-						resolution);
+				JsonArray jData = timedataSource.queryHistoricData(deviceId, fromDate, toDate, channels, resolution);
 				// send reply
 				return DefaultMessages.historicDataQueryReply(jMessageId, jData);
 			}

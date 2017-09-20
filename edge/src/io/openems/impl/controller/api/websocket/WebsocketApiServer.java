@@ -84,8 +84,8 @@ public class WebsocketApiServer
 			}
 		}
 		// if we are here, automatic authentication was not possible -> notify client
-		WebSocketUtils.send(websocket,
-				DefaultMessages.notification(Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, tokenOpt.orElse("")));
+		WebSocketUtils.sendNotification(websocket, Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED,
+				tokenOpt.orElse(""));
 	}
 
 	@Override
