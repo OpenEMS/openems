@@ -50,6 +50,7 @@ import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
 import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
+import io.openems.core.utilities.ConfigUtils;
 
 /**
  * Handles a Websocket connection to a browser, OpenEMS backend,...
@@ -203,7 +204,8 @@ public class EdgeWebsocketHandler {
 							 * ConfigChannel
 							 */
 							ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
-							configChannel.updateValue(jValue, true);
+							Object value = ConfigUtils.getConfigObject(configChannel, jValue);
+							configChannel.updateValue(value, true);
 							WebSocketUtils.send(websocket, DefaultMessages.notification(
 									Notification.EDGE_CHANNEL_UPDATE_SUCCESS, channel.address() + " => " + jValue));
 

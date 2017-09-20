@@ -179,7 +179,7 @@ public class ConfigUtils {
 	 * @return
 	 * @throws ReflectionException
 	 */
-	private static Object getConfigObject(ConfigChannel<?> channel, JsonElement j, Object... args)
+	public static Object getConfigObject(ConfigChannel<?> channel, JsonElement j, Object... args)
 			throws ReflectionException {
 		Optional<Class<?>> typeOptional = channel.type();
 		if (!typeOptional.isPresent()) {
