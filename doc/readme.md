@@ -119,7 +119,8 @@ Backend is transparently proxying requests to a connected Edge if necessary, add
 						type: string | string[],
 						optional: boolean,
 						array: boolean,
-						accessLevel: string
+						accessLevel: string,
+						defaultValue: string
 					}
 				}
 			}

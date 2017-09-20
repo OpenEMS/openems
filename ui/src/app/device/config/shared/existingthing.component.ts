@@ -35,6 +35,10 @@ export class ExistingThingComponent implements OnChanges {
         this.config = config;
       });
   }
+  get device(): Device {
+    return this._device;
+  }
+
   @Input() public thingId: string = null;
 
   @ViewChildren(ChannelComponent)
@@ -60,7 +64,6 @@ export class ExistingThingComponent implements OnChanges {
           this.formPristine = pristine;
           // store message
           this.messages[message.config.channel] = message;
-          console.log(this.messages)
         });
     });
   }
@@ -68,11 +71,7 @@ export class ExistingThingComponent implements OnChanges {
   ngOnChanges() {
     if (this.config != null && this.thingId != null && this.thingId in this.config.things) {
       this.thing = this.config.things[this.thingId];
-      if (this.thing.class instanceof Array) {
-        return;
-      }
       this.meta = this.config.meta[this.thing.class];
-      // console.log(thingConfig, this.meta);
     }
   }
 
@@ -83,7 +82,7 @@ export class ExistingThingComponent implements OnChanges {
 
   public save() {
     for (let message of this.utils.values(this.messages)) {
-      this._device.send(message);
+      this.device.send(message);
     }
     this.messages = {};
     this.formPristine = true;

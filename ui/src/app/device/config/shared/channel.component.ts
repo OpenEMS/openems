@@ -19,14 +19,16 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   public form: FormGroup = null;
   public meta = null;
   public type: string;
-  public specialType: string;
+  public specialType: "simple" | "ignore" | "boolean" | "selectNature" | "deviceNature" = "simple";
 
+  private isJson = false;
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
   @Input() public thingId: string = null;
   @Input() public channelId: string = null;
   @Input() public config: ConfigImpl = null;
-  @Input() public role: Role = ROLES.guest;
+  @Input() public role: Role = ROLES.guest; // TODO in device
+  @Input() public device: Device = null;
 
   @Output() public message: Subject<DefaultTypes.ConfigUpdate> = new Subject<DefaultTypes.ConfigUpdate>();
 
@@ -44,55 +46,85 @@ export class ChannelComponent implements OnChanges, OnDestroy {
       let thingMeta = this.config.meta[clazz];
       let channelMeta = thingMeta.channels[this.channelId];
       this.meta = channelMeta;
+
+      // get value or default value
+      let value = thingConfig[this.channelId];
+      if (value == null) {
+        value = channelMeta.defaultValue;
+      }
+
       // set form input type and specialType-flag
-      switch (this.meta.type) {
+      let metaType = this.meta.type;
+      switch (metaType) {
         case 'Boolean':
           this.specialType = 'boolean';
           break;
+
         case 'Integer':
         case 'Long':
           this.type = 'number';
           break;
-        case 'Ess':
-        case 'Meter':
-        case 'RealTimeClock':
-        case 'Charger':
-          this.specialType = 'selectNature';
-          this.type = this.meta.type + 'Nature';
+
+        case 'String':
+          this.type = 'string';
           break;
+
         case 'JsonArray':
         case 'JsonObject':
-          this.specialType = 'ignore';
+          this.specialType = 'simple';
+          this.isJson = true;
+          value = JSON.stringify(value);
           break;
+
         default:
-          console.warn("Unknown type: " + this.meta.type);
-          this.type = 'string';
+          if (metaType in this.config.meta) {
+            // this is a DeviceNature
+            let otherThingMeta = this.config.meta[metaType];
+            if (value == null || value == '') {
+              // TODO create thing
+              this.specialType = 'ignore';
+            } else {
+              this.specialType = 'deviceNature';
+            }
+          } else if (this.config.meta instanceof Array) {
+            // this is a DeviceNature id
+            this.specialType = 'selectNature';
+            this.type = this.meta.type + 'Nature';
+          } else {
+            console.warn("Unknown type: " + this.meta.type, this.meta);
+            this.type = 'string';
+          }
       }
-      // console.log(this.thingId, this.channelId, thingConfig, channelMeta, this.config, this.role);
 
       // build form
-      let value = thingConfig[this.channelId];
-      this.form = this.buildFormGroup({ channelValue: thingConfig[this.channelId] });
-      // console.log(this.form);
+      this.form = this.buildFormGroup({ channelConfig: value });
 
       // subscribe to form changes and build websocket message
       this.form.valueChanges
         .takeUntil(this.stopOnDestroy)
-        .map(data => data["channelValue"])
+        .map(data => data["channelConfig"])
         .subscribe(value => {
+          if (this.isJson) {
+            value = JSON.parse(value);
+          }
           this.message.next(DefaultMessages.configUpdate(this.thingId, this.channelId, value));
         });
-
-
-      // this.meta = this.config.meta[thingConfig.class];
-      // this.form = this.buildFormGroup(thingConfig);
-      // console.log(thingConfig, this.meta, this.form);
     }
   }
 
   ngOnDestroy() {
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();
+  }
+
+  public addToArray() {
+    let array = <FormArray>this.form.controls["channelConfig"];
+    array.push(this.formBuilder.control(""));
+  }
+
+  public removeFromArray(index: number) {
+    let array = <FormArray>this.form.controls["channelConfig"];
+    array.removeAt(index);
   }
 
   protected buildForm(item: any, ignoreKeys?: string | string[]): FormControl | FormGroup | FormArray {

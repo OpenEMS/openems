@@ -1,32 +1,48 @@
 <div *ngIf="form" [formGroup]="form">
-    <!-- <p>Address: {{ thingId }}: {{ channelId }}</p>
-    <p>Form: {{ form.value | json }}</p>
-    <p>Role: {{ role | json }}</p>
-    <p>Meta: {{ meta | json }}</p> -->
-
     <ng-container *ngIf="role.isHigherThan(meta.accessLevel)">
         <!-- array -->
-        <div *ngIf="meta.array == true; else no_array" formArrayName="channelValue" fxFlex="100%">
-            {{ channelId }}
+        <div *ngIf="meta.array == true; else no_array" formArrayName="channelConfig" fxFlex="100%" fxLayout>
+            <div *ngFor="let oneChannelConfig of form.value.channelConfig, let i=index" fxFlex="30%">
+                <div [ngSwitch]="specialType" fxFlex>
+                    <ng-container *ngSwitchCase="'ignore'">
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'boolean'">
+                        <md-slide-toggle [formControlName]="i">{{ meta.title }}</md-slide-toggle>
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'deviceNature'"><i>deviceNature</i></ng-container>
+                    <ng-container *ngSwitchCase="'simple'">
+                        <md-form-field fxFlex="100%">
+                            <input mdInput [placeholder]="meta.title" [formControlName]="i" [type]="type">
+                        </md-form-field>
+                    </ng-container>
+                    <ng-container *ngSwitchDefault>undefined: {{ specialType }} - {{ form.value | json }}</ng-container>
+                </div>
+                <div fxFlex="50px">
+                    <button (click)="removeFromArray(i)" md-mini-fab><md-icon>delete</md-icon></button>
+                </div>
+            </div>
+            <div fxFlex="50px">
+                <button [disabled]="form.value.channelConfig[form.value.channelConfig.length-1] == ''" (click)="addToArray()" md-mini-fab><md-icon>add</md-icon></button>
+            </div>
         </div>
         <!-- no array -->
         <ng-template #no_array>
-            <ng-container *ngIf="specialType; else no_special_type">
-                <p>SpecialType: {{ specialType }}</p>
-                <!-- Select from nature list -->
-                <div *ngIf="specialType == 'selectNature'; else no_select_nature">
-                    <p>SELECTNATURE</p>
-                </div>
-                <ng-template #no_select_nature>
-                    {{ channelId }}
-                </ng-template>
+            <ng-container [ngSwitch]="specialType">
+                <ng-container *ngSwitchCase="'ignore'">
+                </ng-container>
+                <ng-container *ngSwitchCase="'boolean'">
+                    <md-slide-toggle formControlName="channelConfig">{{ meta.title }}</md-slide-toggle>
+                </ng-container>
+                <ng-container *ngSwitchCase="'deviceNature'">
+                    <existingthing [thingId]="form.value.channelConfig.id" [device]="device"></existingthing>
+                </ng-container>
+                <ng-container *ngSwitchCase="'simple'">
+                    <md-form-field fxFlex="100%">
+                        <input mdInput [placeholder]="meta.title" formControlName="channelConfig" [type]="type">
+                    </md-form-field>
+                </ng-container>
+                <ng-container *ngSwitchDefault>undefined: {{ specialType }} - {{ form.value | json }}</ng-container>
             </ng-container>
-            <ng-template #no_special_type>
-                <!-- Simple input field -->
-                <md-form-field>
-                    <input mdInput [placeholder]="meta.title" formControlName="channelValue" [type]="type">
-                </md-form-field>
-            </ng-template>
         </ng-template>
     </ng-container>
 </div>
