@@ -174,15 +174,14 @@ public class InjectionUtils {
 
 		/*
 		 * Prepare filter for matching Things
-		 * - Empty filter: accept everything
+		 * - Empty filter: accept nothing
+		 * - Asterisk: accept everything
 		 * - Otherwise: accept only exact string matches on the thing id
 		 */
 		Set<String> filter = new HashSet<>();
 		if (j.isJsonPrimitive()) {
 			String id = j.getAsJsonPrimitive().getAsString();
-			if (!id.equals("*")) {
-				filter.add(id);
-			}
+			filter.add(id);
 		} else if (j.isJsonArray()) {
 			j.getAsJsonArray().forEach(id -> filter.add(id.getAsString()));
 		}
@@ -194,7 +193,7 @@ public class InjectionUtils {
 		Set<Thing> matchingThings = thingRepository.getThingsAssignableByClass(thingClass);
 		Set<ThingMap> thingMaps = new HashSet<>();
 		for (Thing thing : matchingThings) {
-			if (filter.isEmpty() || filter.contains(thing.id())) {
+			if (filter.contains(thing.id()) || filter.contains("*")) {
 				ThingMap thingMap = (ThingMap) InjectionUtils.getInstance(thingMapClass, thing);
 				thingMaps.add(thingMap);
 			}
@@ -203,7 +202,7 @@ public class InjectionUtils {
 		/*
 		 * Prepare return
 		 */
-		if (thingMaps.isEmpty()) {
+		if (thingMaps.isEmpty() && !filter.isEmpty()) {
 			throw new ReflectionException("No matching ThingMap found for ConfigChannel [" + channel.address() + "]");
 		}
 
