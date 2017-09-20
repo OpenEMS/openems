@@ -117,9 +117,7 @@ public class ConfigUtils {
 				j.addProperty("id", thing.id());
 			}
 			// for file-format class is not needed for DeviceNatures
-			if (format == ConfigFormat.OPENEMS_UI) {
-				j.addProperty("class", thing.getClass().getCanonicalName());
-			}
+			j.addProperty("class", thing.getClass().getCanonicalName());
 			ThingRepository thingRepository = ThingRepository.getInstance();
 			for (ConfigChannel<?> channel : thingRepository.getConfigChannels(thing)) {
 				JsonElement jChannel = null;

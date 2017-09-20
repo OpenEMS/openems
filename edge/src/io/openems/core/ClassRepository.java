@@ -49,7 +49,6 @@ import io.openems.api.exception.ReflectionException;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
 import io.openems.core.utilities.ConfigUtils;
-import io.openems.core.utilities.StringUtils;
 
 /**
  * Retreives and caches information about classes via reflection
