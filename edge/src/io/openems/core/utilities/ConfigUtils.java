@@ -48,7 +48,6 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
@@ -117,29 +116,14 @@ public class ConfigUtils {
 				// ignore generated id names starting with "_"
 				j.addProperty("id", thing.id());
 			}
-			if (format == ConfigFormat.OPENEMS_UI && value instanceof DeviceNature) {
-				j.add("class", InjectionUtils.getImplementsAsJson(thing.getClass()));
-			} else {
-				// class is not needed for DeviceNatures
+			// for file-format class is not needed for DeviceNatures
+			if (format == ConfigFormat.OPENEMS_UI) {
 				j.addProperty("class", thing.getClass().getCanonicalName());
 			}
 			ThingRepository thingRepository = ThingRepository.getInstance();
 			for (ConfigChannel<?> channel : thingRepository.getConfigChannels(thing)) {
 				JsonElement jChannel = null;
-				if (format == ConfigFormat.FILE) {
-					jChannel = ConfigUtils.getAsJsonElement(channel, format);
-
-				} else if (format == ConfigFormat.OPENEMS_UI) {
-					Optional<Class<?>> channelTypeOpt = channel.type();
-					if (channelTypeOpt.isPresent()) {
-						Class<?> channelType = channelTypeOpt.get();
-						if (DeviceNature.class.isAssignableFrom(channelType)) {
-							// ignore
-						} else {
-							jChannel = ConfigUtils.getAsJsonElement(channel, format);
-						}
-					}
-				}
+				jChannel = ConfigUtils.getAsJsonElement(channel, format);
 				if (jChannel != null) {
 					j.add(channel.id(), jChannel);
 				}

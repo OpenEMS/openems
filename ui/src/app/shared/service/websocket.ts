@@ -260,7 +260,10 @@ export class Websocket {
             // ask for authentication info
             this.status = "waiting for authentication";
             notify = false;
-            setTimeout(() => this.router.navigate["/overview"]);
+            setTimeout(() => {
+              this.clearCurrentDevice();
+              this.router.navigate(["/overview"]);
+            });
           }
         }
         if (notify) {

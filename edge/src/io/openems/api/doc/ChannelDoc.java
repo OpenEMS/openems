@@ -30,6 +30,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
+import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.security.User;
 import io.openems.core.utilities.BitUtils;
@@ -120,14 +121,18 @@ public class ChannelDoc {
 				// for ThingMap type: get the types from annotation and return JsonArray
 				IsThingMap isThingMapAnnotation = type.getAnnotation(IsThingMap.class);
 				j.add("type", InjectionUtils.getImplementsAsJson(isThingMapAnnotation.type()));
+			} else if (DeviceNature.class.isAssignableFrom(type)) {
+				// for DeviceNatures add complete class name
+				j.addProperty("type", type.getCanonicalName());
 			} else {
 				// for simple types, use only simple name (e.g. 'Long', 'Integer',...)
 				j.addProperty("type", type.getSimpleName());
 			}
 		}
-		j.addProperty("optional", optional);
-		j.addProperty("array", array);
-		j.addProperty("accessLevel", accessLevel.name().toLowerCase());
+		j.addProperty("optional", this.optional);
+		j.addProperty("array", this.array);
+		j.addProperty("accessLevel", this.accessLevel.name().toLowerCase());
+		j.addProperty("defaultValue", this.defaultValue);
 		return j;
 	}
 }

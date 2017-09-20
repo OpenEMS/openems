@@ -21,6 +21,7 @@ export class ConfigImpl implements DefaultTypes.Config {
                     optional: boolean,
                     array: boolean,
                     accessLevel: string
+                    defaultValue: string
                 }
             }
         }
