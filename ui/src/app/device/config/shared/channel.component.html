@@ -2,6 +2,9 @@
     <ng-container *ngIf="role.isHigherThan(meta.accessLevel)">
         <!-- array -->
         <div *ngIf="meta.array == true; else no_array" formArrayName="channelConfig" fxFlex="100%" fxLayout>
+            <md-form-field *ngIf="form.value.channelConfig.length == 0" fxFlex="30%">
+                <input mdInput [placeholder]="meta.title" disabled value=" ">
+            </md-form-field>
             <div *ngFor="let oneChannelConfig of form.value.channelConfig, let i=index" fxFlex="30%">
                 <div [ngSwitch]="specialType" fxFlex>
                     <ng-container *ngSwitchCase="'ignore'">
@@ -13,6 +16,7 @@
                     <ng-container *ngSwitchCase="'simple'">
                         <md-form-field fxFlex="100%">
                             <input mdInput [placeholder]="meta.title" [formControlName]="i" [type]="type">
+                            <md-hint *ngIf="i == 0" align="end">{{ meta.description }}</md-hint>
                         </md-form-field>
                     </ng-container>
                     <ng-container *ngSwitchDefault>undefined: {{ specialType }} - {{ form.value | json }}</ng-container>
@@ -39,6 +43,7 @@
                 <ng-container *ngSwitchCase="'simple'">
                     <md-form-field fxFlex="100%">
                         <input mdInput [placeholder]="meta.title" formControlName="channelConfig" [type]="type">
+                        <md-hint align="end">{{ meta.description }}</md-hint>
                     </md-form-field>
                 </ng-container>
                 <ng-container *ngSwitchDefault>undefined: {{ specialType }} - {{ form.value | json }}</ng-container>
