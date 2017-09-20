@@ -30,6 +30,7 @@ import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.AvgFiFoQueue;
 
 @ThingInfo(title = "Self-consumption optimization (Symmetric)", description = "Tries to keep the grid meter on zero. For symmetric Ess. Ess-Cluster is supported.")
 public class BalancingController extends Controller {
@@ -54,6 +55,8 @@ public class BalancingController extends Controller {
 	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
+	private AvgFiFoQueue meterPower = new AvgFiFoQueue(2, 1.5);
+
 	/*
 	 * Methods
 	 */
@@ -73,12 +76,14 @@ public class BalancingController extends Controller {
 			// Run only if all ess are on-grid
 			if (isOnGrid()) {
 				// Calculate required sum values
-				long calculatedPower = meter.value().activePower.value();
+				meterPower.add(meter.value().activePower.value());
+				long calculatedPower = meterPower.avg();
 				long maxChargePower = 0;
 				long maxDischargePower = 0;
 				long useableSoc = 0;
 				for (Ess ess : esss.value()) {
-					calculatedPower += ess.activePower.value();
+					ess.powerAvg.add(ess.activePower.value());
+					calculatedPower += ess.powerAvg.avg();
 					maxChargePower += ess.setActivePower.writeMin().orElse(ess.allowedCharge.value());
 					maxDischargePower += ess.setActivePower.writeMax().orElse(ess.allowedDischarge.value());
 					useableSoc += ess.useableSoc();
