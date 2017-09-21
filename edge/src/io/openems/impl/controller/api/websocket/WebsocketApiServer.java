@@ -77,8 +77,8 @@ public class WebsocketApiServer
 				// send connection successful to browser
 				JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
 						Optional.of(session.getData().getRole()), new ArrayList<>());
-				log.info("Websocket [" + websocket + "] connected by session. User [" + session.getData().getUser()
-						+ "] Session [" + session.getToken() + "]");
+				log.info("Websocket connected by session. User [" + session.getData().getUser() + "] Session ["
+						+ session.getToken() + "]");
 				WebSocketUtils.send(websocket, jReply);
 				return;
 			}

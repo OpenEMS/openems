@@ -3,7 +3,9 @@ package io.openems.impl.device.custom.riedmann;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ThingInfo;
 
+@ThingInfo(title = "Custom: Riedmann PLC")
 public interface RiedmannNature extends DeviceNature {
 
 	public ReadChannel<Long> getWaterlevel();

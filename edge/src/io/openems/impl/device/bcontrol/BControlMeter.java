@@ -6,6 +6,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
@@ -14,6 +15,7 @@ import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
 
+@ThingInfo(title = "B-Control Energy Meter")
 public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
 	public BControlMeter(String thingId, Device parent) throws ConfigException {
