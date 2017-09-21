@@ -46,8 +46,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.ThingMap;
+import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
@@ -125,6 +127,15 @@ public class ConfigUtils {
 				if (jChannel != null) {
 					j.add(channel.id(), jChannel);
 				}
+			}
+			// for Bridge: add 'devices' array of thingIds
+			if (value instanceof Bridge) {
+				Bridge bridge = (Bridge) value;
+				JsonArray jDevices = new JsonArray();
+				for (Device device : bridge.getDevices()) {
+					jDevices.add(device.id());
+				}
+				j.add("devices", jDevices);
 			}
 			return j;
 		} else if (value instanceof ConfigChannel<?>) {

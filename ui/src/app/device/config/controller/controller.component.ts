@@ -4,13 +4,11 @@ import { AbstractConfigComponent } from '../shared/abstractconfig.component';
 import { ConfigImpl } from '../../../shared/device/config';
 
 @Component({
-  selector: 'scheduler',
+  selector: 'controller',
   templateUrl: '../shared/abstractconfig.component.html'
 })
-export class SchedulerComponent extends AbstractConfigComponent {
-  public showSubThings = true
-
+export class ControllerComponent extends AbstractConfigComponent {
   protected filterThings(config: ConfigImpl): string[] {
-    return [config.scheduler];
+    return config.controllers;
   }
 }

@@ -26,6 +26,9 @@ export class ExistingThingComponent implements OnChanges {
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
+  // sets the flag if subthings should be shown, e.g. a Device of a Bridge
+  @Input() public showSubThings: boolean = false;
+
   @Input() set device(device: Device) {
     this.role = device.role;
     this._device = device;

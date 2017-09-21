@@ -164,7 +164,7 @@ public class ClassRepository {
 		}
 		// create result
 		Collection<ThingDoc> schedulerDocs = new ArrayList<>();
-		for (Class<? extends Device> clazz : this.devices) {
+		for (Class<? extends Scheduler> clazz : this.schedulers) {
 			schedulerDocs.add(this.getThingDoc(clazz));
 		}
 		return Collections.unmodifiableCollection(schedulerDocs);

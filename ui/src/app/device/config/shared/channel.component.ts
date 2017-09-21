@@ -19,7 +19,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   public form: FormGroup = null;
   public meta = null;
   public type: string | string[];
-  public specialType: "simple" | "ignore" | "boolean" | "selectNature" | "deviceNature" = "simple";
+  public specialType: "simple" | "ignore" | "boolean" | "selectNature" | "thing" = "simple";
   public deviceNature: string = null;
 
   private isJson = false;
@@ -30,6 +30,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   @Input() public config: ConfigImpl = null;
   @Input() public role: Role = ROLES.guest; // TODO in device
   @Input() public device: Device = null;
+  @Input() public showThings: boolean = false;
 
   @Output() public message: Subject<DefaultTypes.ConfigUpdate> = new Subject<DefaultTypes.ConfigUpdate>();
 
@@ -84,7 +85,11 @@ export class ChannelComponent implements OnChanges, OnDestroy {
         default:
           if (metaType in this.config.meta) {
             // this is a DeviceNature - will be handled as separate thing -> ignore
-            this.specialType = 'ignore';
+            if (this.showThings) {
+              this.specialType = 'thing';
+            } else {
+              this.specialType = 'ignore';
+            }
           } else if (this.meta.type instanceof Array && this.meta.type.includes("DeviceNature")) {
             // this channel takes references to a DeviceNature (like "ess0" for SymmetricEssNature)
             this.specialType = 'selectNature';
