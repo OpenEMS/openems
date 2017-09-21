@@ -28,7 +28,8 @@ export const ROLES = {
      * @param name of the role
      */
     getRole(name: string): Role {
-        if (name.toLowerCase() in ROLES) {
+        name = name.toLowerCase();
+        if (name in ROLES) {
             return ROLES[name];
         } else {
             console.warn("Role '" + name + "' not found.")
