@@ -72,6 +72,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
           break;
 
         case 'String':
+        case 'Inet4Address':
           this.type = 'string';
           break;
 

@@ -36,7 +36,8 @@ export class Websocket {
   public isWebsocketConnected: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   private username: string = "";
-  private messages: Observable<any>;
+  // private messages: Observable<string>;
+  private messageSubscription: Subscription = null;
   private inputStream: Subject<any>;
   private queryreply = new Subject<{ id: string[] }>();
   private stopOnInitialize: Subject<void> = new Subject<void>();
@@ -103,7 +104,7 @@ export class Websocket {
    * Opens a connection using a stored token or a cookie with a session_id for this websocket. Called once by constructor
    */
   private connect(): BehaviorSubject<boolean> {
-    if (this.messages) {
+    if (this.messageSubscription != null) {
       return;
     }
 
@@ -134,14 +135,13 @@ export class Websocket {
       }, () => {
         this.isWebsocketConnected.next(false);
       });
-    this.messages = messages.share();
-    this.messages.takeUntil(this.stopOnInitialize).retryWhen(errors => {
+    this.messageSubscription = messages.takeUntil(this.stopOnInitialize).retryWhen(errors => {
       return errors.delay(1000);
 
     }).map(message => JSON.parse(message)).subscribe(message => {
       // called on every receive of message from server
       if (env.debugMode) {
-        console.log("RECV", message);
+        console.debug("RECV", message);
       }
       /*
        * Authenticate
@@ -185,7 +185,7 @@ export class Websocket {
             if (env.production) {
               window.location.href = "/web/login?redirect=/m/overview";
             } else {
-              console.log("would redirect...");
+              console.info("would redirect...");
             }
           } else if (env.backend === "OpenEMS Edge") {
             this.router.navigate(['/overview']);
@@ -292,7 +292,8 @@ export class Websocket {
   private initialize() {
     this.stopOnInitialize.next();
     this.stopOnInitialize.complete();
-    this.messages = null;
+    this.messageSubscription.unsubscribe();
+    this.messageSubscription = null;
     this.devices.next({});
   }
 
@@ -310,7 +311,9 @@ export class Websocket {
         .filter(isConnected => isConnected)
         .first()
         .subscribe(isConnected => {
-          this.send(DefaultMessages.authenticateLogin(password));
+          setTimeout(() => {
+            this.send(DefaultMessages.authenticateLogin(password))
+          }, 500);
         });
     }
   }
@@ -319,6 +322,7 @@ export class Websocket {
    * Logs out and closes the websocket
    */
   public logOut() {
+    // TODO this is kind of working for now... better would be to not close the websocket but to handle session validity serverside
     this.send(DefaultMessages.authenticateLogout());
     this.status = "waiting for authentication";
     this.service.removeToken();
@@ -330,7 +334,7 @@ export class Websocket {
    */
   public send(message: any, device?: Device): void {
     if (env.debugMode) {
-      console.log("SEND: ", message);
+      console.debug("SEND: ", message);
     }
     if (device) {
       if ("id" in message) {

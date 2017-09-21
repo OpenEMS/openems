@@ -11,8 +11,11 @@ import { ConfigImpl } from '../../../shared/device/config';
 
 import * as moment from 'moment';
 
-@Component({})
-export abstract class AbstractConfigComponent implements OnInit {
+@Component({
+  selector: 'abstractconfig',
+  templateUrl: 'abstractconfig.component.html'
+})
+export class AbstractConfigComponent implements OnInit {
 
   public showSubThings: boolean = false;
   public device: Device = null;
