@@ -20,10 +20,6 @@
       </div>
       <ng-container *ngIf="(websocket.currentDevice | async) as currentDevice">
         <div fxFlex>
-          <button routerLink="/overview" md-button>FEMS</button>
-          <button md-icon-button style="cursor:default">
-            <md-icon>keyboard_arrow_right</md-icon>
-          </button>
           <!-- TODO show breadcrumbs like 'Energymonitor > History', 'Energymonitor > Settings' -->
           <button routerLink="/device/{{ currentDevice.name }}/overview" md-button>Energiemonitor <small>({{ currentDevice.name }})</small></button>
         </div>
