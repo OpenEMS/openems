@@ -236,13 +236,16 @@ public class InjectionUtils {
 	 */
 	public static Set<Class<? extends Thing>> getImplements(Class<? extends Thing> clazz) {
 		Set<Class<? extends Thing>> ifaces = new HashSet<>();
-		// stop at certain classes
-		if (clazz == null || clazz.equals(Thing.class) || clazz.equals(AbstractWorker.class)
-				|| clazz.equals(DeviceNature.class)) {
+		// stop at certain classes without adding them
+		if (clazz == null || clazz.equals(Thing.class) || clazz.equals(AbstractWorker.class)) {
 			return ifaces;
 		}
 		// myself
 		ifaces.add(clazz);
+		// stop at certain classes WITH adding them
+		if (clazz.equals(DeviceNature.class)) {
+			return ifaces;
+		}
 		// super interfaces
 		for (Class<?> iface : clazz.getInterfaces()) {
 			if (Thing.class.isAssignableFrom(iface)) {
