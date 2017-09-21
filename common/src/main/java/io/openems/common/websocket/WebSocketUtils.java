@@ -30,7 +30,17 @@ public class WebSocketUtils {
 			return WebSocketUtils.send(websocketOpt.get(), j);
 		}
 	}
-		
+
+	public static boolean sendNotification(Optional<WebSocket> websocketOpt, Notification code, Object... params) {
+		if (!websocketOpt.isPresent()) {
+			log.error("Websocket is not available. Unable to send Notification [" + String.format(code.getMessage(), params) + "]");
+			return false;
+		} else {
+			return WebSocketUtils.sendNotification(websocketOpt.get(), code, params);
+		}
+	}
+
+	
 	public static boolean sendNotification(WebSocket websocket, Notification code, Object... params) {
 		String message = String.format(code.getMessage(), params);
 		String logMessage = "Notification [" + code.getValue() + "]: " + message;

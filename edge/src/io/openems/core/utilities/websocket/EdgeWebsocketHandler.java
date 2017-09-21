@@ -206,8 +206,8 @@ public class EdgeWebsocketHandler {
 							ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
 							Object value = ConfigUtils.getConfigObject(configChannel, jValue);
 							configChannel.updateValue(value, true);
-							WebSocketUtils.send(websocket, DefaultMessages.notification(
-									Notification.EDGE_CHANNEL_UPDATE_SUCCESS, channel.address() + " => " + jValue));
+							WebSocketUtils.sendNotification(websocket, Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
+									channel.address() + " => " + jValue);
 
 						} else if (channel instanceof WriteChannel<?>) {
 							/*

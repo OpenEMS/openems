@@ -246,9 +246,8 @@ public class BrowserWebsocketSingleton
 		for (BrowserSession session : this.sessionManager.getSessions()) {
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
-					WebSocket ws = this.websockets.inverse().get(session);
-					JsonObject j = DefaultMessages.notification(Notification.EDGE_CONNECTION_ClOSED, name);
-					WebSocketUtils.send(ws, j);
+					WebSocket websocket = this.websockets.inverse().get(session);
+					WebSocketUtils.sendNotification(websocket, Notification.EDGE_CONNECTION_ClOSED, name);
 				}
 			}
 		}
@@ -263,11 +262,8 @@ public class BrowserWebsocketSingleton
 		for (BrowserSession session : this.sessionManager.getSessions()) {
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
-					WebSocket ws = this.websockets.inverse().get(session);
-					if (ws != null) {
-						JsonObject j = DefaultMessages.notification(Notification.EDGE_CONNECTION_OPENED, name);
-						WebSocketUtils.send(ws, j);
-					}
+					WebSocket websocket = this.websockets.inverse().get(session);
+					WebSocketUtils.sendNotification(Optional.of(websocket), Notification.EDGE_CONNECTION_OPENED, name);
 				}
 			}
 		}
