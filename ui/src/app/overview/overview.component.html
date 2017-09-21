@@ -59,7 +59,7 @@
             <span>{{ device.name }}: {{ device.producttype }}</span>
           </md-card-subtitle>
         </md-card-header>
-        <md-card-actions fxLayout fxLayoutAlign="end start">
+        <md-card-actions fxLayout fxLayoutAlign="end start" *ngIf="device.online">
           <button type="button" md-fab routerLink="/device/{{ device.name }}"><md-icon>navigate_next</md-icon></button>
         </md-card-actions>
       </md-card>
