@@ -24,5 +24,6 @@ import io.openems.api.exception.InvalidValueException;
 
 public interface FunctionalReadChannelFunction<T> {
 
+	@SuppressWarnings("unchecked")
 	public T handle(ReadChannel<T>... channels) throws InvalidValueException;
 }

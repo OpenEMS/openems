@@ -80,7 +80,6 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 	private ModbusReadLongChannel reactivePowerL1;
 	private ModbusReadLongChannel reactivePowerL2;
 	private ModbusReadLongChannel reactivePowerL3;
-	private ModbusReadLongChannel current;
 	private ModbusReadLongChannel frequency;
 	private ModbusReadLongChannel voltageL1;
 	private ModbusReadLongChannel voltageL2;
@@ -88,6 +87,11 @@ public class JanitzaUMG96RMEMeter extends ModbusDeviceNature implements Symmetri
 	private ModbusReadLongChannel currentL1;
 	private ModbusReadLongChannel currentL2;
 	private ModbusReadLongChannel currentL3;
+
+	/*
+	 * Channels
+	 */
+	public ModbusReadLongChannel current;
 
 	@Override
 	public ReadChannel<Long> activePower() {

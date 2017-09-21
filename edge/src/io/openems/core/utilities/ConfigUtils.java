@@ -46,17 +46,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.ThingMap;
-import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigChannelDoc;
-import io.openems.api.doc.ThingDoc;
-import io.openems.api.doc.ThingInfo;
+import io.openems.api.device.Device;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
-import io.openems.core.ClassRepository;
 import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
 
@@ -74,7 +71,7 @@ public class ConfigUtils {
 			throws ReflectionException {
 		for (ConfigChannel<?> channel : channels) {
 			if (!jConfig.has(channel.id()) && (channel.valueOptional().isPresent() || channel.isOptional())) {
-				// Element for this Channel is not existing existing in the configuration, but a default value was set
+				// Element for this Channel is not existing in the configuration, but a default value was set
 				continue;
 			}
 			JsonElement jChannel = JsonUtils.getSubElement(jConfig, channel.id());
@@ -121,32 +118,24 @@ public class ConfigUtils {
 				// ignore generated id names starting with "_"
 				j.addProperty("id", thing.id());
 			}
-			if (format == ConfigFormat.OPENEMS_UI && value instanceof DeviceNature) {
-				j.add("class", InjectionUtils.getImplementsAsJson(thing.getClass()));
-			} else {
-				// class is not needed for DeviceNatures
-				j.addProperty("class", thing.getClass().getCanonicalName());
-			}
+			// for file-format class is not needed for DeviceNatures
+			j.addProperty("class", thing.getClass().getCanonicalName());
 			ThingRepository thingRepository = ThingRepository.getInstance();
 			for (ConfigChannel<?> channel : thingRepository.getConfigChannels(thing)) {
 				JsonElement jChannel = null;
-				if (format == ConfigFormat.FILE) {
-					jChannel = ConfigUtils.getAsJsonElement(channel, format);
-
-				} else if (format == ConfigFormat.OPENEMS_UI) {
-					Optional<Class<?>> channelTypeOpt = channel.type();
-					if (channelTypeOpt.isPresent()) {
-						Class<?> channelType = channelTypeOpt.get();
-						if (DeviceNature.class.isAssignableFrom(channelType)) {
-							// ignore
-						} else {
-							jChannel = ConfigUtils.getAsJsonElement(channel, format);
-						}
-					}
-				}
+				jChannel = ConfigUtils.getAsJsonElement(channel, format);
 				if (jChannel != null) {
 					j.add(channel.id(), jChannel);
 				}
+			}
+			// for Bridge: add 'devices' array of thingIds
+			if (value instanceof Bridge) {
+				Bridge bridge = (Bridge) value;
+				JsonArray jDevices = new JsonArray();
+				for (Device device : bridge.getDevices()) {
+					jDevices.add(device.id());
+				}
+				j.add("devices", jDevices);
 			}
 			return j;
 		} else if (value instanceof ConfigChannel<?>) {
@@ -201,7 +190,7 @@ public class ConfigUtils {
 	 * @return
 	 * @throws ReflectionException
 	 */
-	private static Object getConfigObject(ConfigChannel<?> channel, JsonElement j, Object... args)
+	public static Object getConfigObject(ConfigChannel<?> channel, JsonElement j, Object... args)
 			throws ReflectionException {
 		Optional<Class<?>> typeOptional = channel.type();
 		if (!typeOptional.isPresent()) {
@@ -223,7 +212,8 @@ public class ConfigUtils {
 			/*
 			 * Asking for a Thing
 			 */
-			return getThingFromConfig((Class<Thing>) type, j, args);
+			@SuppressWarnings("unchecked") Class<Thing> thingType = (Class<Thing>) type;
+			return getThingFromConfig(thingType, j, args);
 
 		} else if (ThingMap.class.isAssignableFrom(type)) {
 			/*
@@ -339,23 +329,6 @@ public class ConfigUtils {
 		}
 	}
 
-	public static ThingDoc getThingDescription(Class<? extends Thing> clazz) {
-		ThingDoc doc = new ThingDoc(clazz);
-
-		ThingInfo thing = clazz.getAnnotation(ThingInfo.class);
-		if (thing == null) {
-			log.warn("Thing [" + clazz.getName() + "] has no @ThingInfo annotation");
-		} else {
-			doc.setThingDescription(thing);
-		}
-		ClassRepository classRepository = ClassRepository.getInstance();
-		classRepository.getThingConfigChannels(clazz).forEach((member, config) -> {
-			doc.addConfigChannel(new ConfigChannelDoc(member.getName(), config.title(), config.type(),
-					config.isOptional(), config.isArray(), config.accessLevel()));
-		});
-		return doc;
-	}
-
 	public static Set<Class<? extends Thing>> getAvailableClasses(String topLevelPackage, Class<? extends Thing> clazz,
 			String suffix) throws ReflectionException {
 		Set<Class<? extends Thing>> clazzes = new HashSet<>();
@@ -365,7 +338,8 @@ public class ConfigUtils {
 				if (classInfo.getName().endsWith(suffix)) {
 					Class<?> thisClazz = classInfo.load();
 					if (clazz.isAssignableFrom(thisClazz)) {
-						clazzes.add((Class<? extends Thing>) thisClazz);
+						@SuppressWarnings("unchecked") Class<? extends Thing> thisThingClazz = (Class<? extends Thing>) thisClazz;
+						clazzes.add(thisThingClazz);
 					}
 				}
 			}

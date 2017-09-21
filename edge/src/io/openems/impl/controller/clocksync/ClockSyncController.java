@@ -26,7 +26,7 @@ import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.WriteChannelException;
 
@@ -47,7 +47,7 @@ public class ClockSyncController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Real-time clock", description = "Sets the real-time clock device.", type = RealTimeClock.class, isOptional = true)
+	@ChannelInfo(title = "Real-time clock", description = "Sets the real-time clock device.", type = RealTimeClock.class, isOptional = true)
 	public final ConfigChannel<RealTimeClock> rtc = new ConfigChannel<RealTimeClock>("rtc", this);
 
 	/*

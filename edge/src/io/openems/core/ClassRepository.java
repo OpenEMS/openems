@@ -21,29 +21,30 @@
 package io.openems.core;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Table;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ChannelDoc;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingDoc;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
@@ -65,94 +66,132 @@ public class ClassRepository {
 		return ClassRepository.instance;
 	}
 
-	private HashMultimap<Class<? extends Thing>, Member> thingChannels = HashMultimap.create();
-	private Table<Class<? extends Thing>, Member, ConfigInfo> thingConfigChannels = HashBasedTable.create();
-	private HashMap<Class<? extends Bridge>, ThingDoc> bridges = new HashMap<>();
-	private HashMap<Class<? extends Scheduler>, ThingDoc> schedulers = new HashMap<>();
-	private HashMap<Class<? extends Device>, ThingDoc> devices = new HashMap<>();
-	private HashMap<Class<? extends Controller>, ThingDoc> controllers = new HashMap<>();
+	private Set<Class<? extends Bridge>> bridges = new HashSet<>();
+	private Set<Class<? extends Scheduler>> schedulers = new HashSet<>();
+	private Set<Class<? extends Device>> devices = new HashSet<>();
+	private Set<Class<? extends DeviceNature>> deviceNatures = new HashSet<>();
+	private Set<Class<? extends Controller>> controllers = new HashSet<>();
+	private HashMap<Class<? extends Thing>, ThingDoc> thingDocs = new HashMap<>();
 
 	public ClassRepository() {}
-
-	/**
-	 * Get all declared Channels of thing class.
-	 *
-	 * @param clazz
-	 * @return
-	 */
-	public Set<Member> getThingChannels(Class<? extends Thing> clazz) {
-		if (!thingChannels.containsKey(clazz)) {
-			parseClass(clazz);
-		}
-		return Collections.unmodifiableSet(thingChannels.get(clazz));
-	}
-
-	/**
-	 * Get all declared ConfigChannels of thing class.
-	 *
-	 * @param clazz
-	 * @return
-	 */
-	public Map<Member, ConfigInfo> getThingConfigChannels(Class<? extends Thing> clazz) {
-		if (!thingConfigChannels.containsRow(clazz)) {
-			parseClass(clazz);
-		}
-		return Collections.unmodifiableMap(thingConfigChannels.row(clazz));
-	}
 
 	public Iterable<ThingDoc> getAvailableThings() throws ReflectionException {
 		return Iterables.concat( //
 				getAvailableBridges(), //
 				getAvailableControllers(), //
 				getAvailableDevices(), //
+				getAvailableDeviceNatures(), //
 				getAvailableSchedulers());
 	}
 
+	@SuppressWarnings("unchecked")
 	public Collection<ThingDoc> getAvailableControllers() throws ReflectionException {
-		if (controllers.isEmpty()) {
+		// update cache of available controllers
+		if (this.controllers.isEmpty()) {
 			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.controller",
 					Controller.class, "Controller")) {
-				ThingDoc description = ConfigUtils.getThingDescription(clazz);
-				controllers.put((Class<? extends Controller>) clazz, description);
+				this.controllers.add((Class<? extends Controller>) clazz);
 			}
 		}
-		return Collections.unmodifiableCollection(controllers.values());
+		// create result
+		Collection<ThingDoc> controllerDocs = new ArrayList<>();
+		for (Class<? extends Controller> clazz : this.controllers) {
+			controllerDocs.add(this.getThingDoc(clazz));
+		}
+		return Collections.unmodifiableCollection(controllerDocs);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Collection<ThingDoc> getAvailableBridges() throws ReflectionException {
-		if (bridges.isEmpty()) {
+		// update cache of available bridges
+		if (this.bridges.isEmpty()) {
 			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.protocol",
 					Bridge.class, "")) {
-				ThingDoc description = ConfigUtils.getThingDescription(clazz);
-				bridges.put((Class<? extends Bridge>) clazz, description);
+				this.bridges.add((Class<? extends Bridge>) clazz);
 			}
 		}
-		return Collections.unmodifiableCollection(bridges.values());
+		// create result
+		Collection<ThingDoc> bridgeDocs = new ArrayList<>();
+		for (Class<? extends Bridge> clazz : this.bridges) {
+			bridgeDocs.add(this.getThingDoc(clazz));
+		}
+		return Collections.unmodifiableCollection(bridgeDocs);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Collection<ThingDoc> getAvailableDevices() throws ReflectionException {
+		// update cache of available devices
 		if (devices.isEmpty()) {
 			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.device", Device.class,
 					"")) {
-				ThingDoc description = ConfigUtils.getThingDescription(clazz);
-				devices.put((Class<? extends Device>) clazz, description);
+				this.devices.add((Class<? extends Device>) clazz);
 			}
 		}
-		return Collections.unmodifiableCollection(devices.values());
+		// create result
+		Collection<ThingDoc> deviceDocs = new ArrayList<>();
+		for (Class<? extends Device> clazz : this.devices) {
+			deviceDocs.add(this.getThingDoc(clazz));
+		}
+		return Collections.unmodifiableCollection(deviceDocs);
 	}
 
+	@SuppressWarnings("unchecked")
+	public Collection<ThingDoc> getAvailableDeviceNatures() throws ReflectionException {
+		// TODO merge with getAvailableNatures to avoid parsing twice
+		// update cache of available device natures
+		if (deviceNatures.isEmpty()) {
+			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.device",
+					DeviceNature.class, "")) {
+				this.deviceNatures.add((Class<? extends DeviceNature>) clazz);
+			}
+		}
+		// create result
+		Collection<ThingDoc> deviceNatureDocs = new ArrayList<>();
+		for (Class<? extends DeviceNature> clazz : this.deviceNatures) {
+			deviceNatureDocs.add(this.getThingDoc(clazz));
+		}
+		return Collections.unmodifiableCollection(deviceNatureDocs);
+	}
+
+	@SuppressWarnings("unchecked")
 	public Collection<ThingDoc> getAvailableSchedulers() throws ReflectionException {
-		if (schedulers.isEmpty()) {
+		// update cache of available schedulers
+		if (this.schedulers.isEmpty()) {
 			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.scheduler",
 					Scheduler.class, "Scheduler")) {
-				ThingDoc description = ConfigUtils.getThingDescription(clazz);
-				schedulers.put((Class<? extends Scheduler>) clazz, description);
+				this.schedulers.add((Class<? extends Scheduler>) clazz);
 			}
 		}
-		return Collections.unmodifiableCollection(schedulers.values());
+		// create result
+		Collection<ThingDoc> schedulerDocs = new ArrayList<>();
+		for (Class<? extends Scheduler> clazz : this.schedulers) {
+			schedulerDocs.add(this.getThingDoc(clazz));
+		}
+		return Collections.unmodifiableCollection(schedulerDocs);
 	}
 
-	private void parseClass(Class<? extends Thing> clazz) {
+	/**
+	 * Returns the cached ThingDoc or parses the class and adds it to the cache.
+	 * Field annotations have higher priority than method annotations!
+	 *
+	 * @param clazz
+	 */
+	public ThingDoc getThingDoc(Class<? extends Thing> clazz) {
+		if (this.thingDocs.containsKey(clazz)) {
+			// return from cache
+			return this.thingDocs.get(clazz);
+		}
+		ThingDoc thingDoc = new ThingDoc(clazz);
+
+		// get info about thing
+		ThingInfo thing = clazz.getAnnotation(ThingInfo.class);
+		if (thing == null) {
+			log.warn("Thing [" + clazz.getName() + "] has no @ThingInfo annotation");
+		} else {
+			thingDoc.setThingDescription(thing);
+		}
+
+		// parse all methods
 		for (Method method : clazz.getMethods()) {
 			Class<?> type = null;
 			if (method.getReturnType().isArray()) {
@@ -162,33 +201,32 @@ public class ClassRepository {
 				type = method.getReturnType();
 			}
 			if (Channel.class.isAssignableFrom(type)) {
-				thingChannels.put(clazz, method);
-			}
-			if (ConfigChannel.class.isAssignableFrom(type)) {
-				ConfigInfo configAnnotation = getAnnotation(clazz, method.getName());
-				if (configAnnotation != null) {
-					thingConfigChannels.put(clazz, method, configAnnotation);
-				} else {
-					log.error("Config-Annotation is missing for method [" + method.getName() + "] in class ["
-							+ clazz.getName() + "]");
+				Optional<ChannelInfo> channelInfoOpt = getAnnotationForMethod(clazz, method.getName());
+				String channelId = method.getName();
+				ChannelDoc channelDoc = new ChannelDoc(method, channelId, channelInfoOpt);
+				thingDoc.addChannelDoc(channelDoc);
+				if (ConfigChannel.class.isAssignableFrom(type)) {
+					thingDoc.addConfigChannelDoc(channelDoc);
 				}
 			}
 		}
+		// parse all fields
 		for (Field field : clazz.getFields()) {
 			Class<?> type = field.getType();
 			if (Channel.class.isAssignableFrom(type)) {
-				thingChannels.put(clazz, field);
-			}
-			if (ConfigChannel.class.isAssignableFrom(type)) {
-				ConfigInfo configAnnotation = field.getAnnotation(ConfigInfo.class);
-				if (configAnnotation == null) {
-					log.error("Config-Annotation is missing for field [" + field.getName() + "] in class ["
-							+ clazz.getName() + "]");
-				} else {
-					thingConfigChannels.put(clazz, field, configAnnotation);
+				String channelId = field.getName();
+				ChannelDoc channelDoc = new ChannelDoc(field, channelId,
+						Optional.ofNullable(field.getAnnotation(ChannelInfo.class)));
+				thingDoc.addChannelDoc(channelDoc);
+				if (ConfigChannel.class.isAssignableFrom(type)) {
+					thingDoc.addConfigChannelDoc(channelDoc);
 				}
 			}
 		}
+		// add to cache
+		this.thingDocs.put(clazz, thingDoc);
+
+		return thingDoc;
 	}
 
 	/**
@@ -197,31 +235,31 @@ public class ClassRepository {
 	 * @param clazz
 	 * @return
 	 */
-	private ConfigInfo getAnnotation(Class<?> clazz, String methodName) {
+	private Optional<ChannelInfo> getAnnotationForMethod(Class<?> clazz, String methodName) {
 		Method method;
 		try {
 			method = clazz.getMethod(methodName);
 		} catch (NoSuchMethodException | SecurityException e) {
-			return null;
+			return Optional.empty();
 		}
-		if (method.isAnnotationPresent(ConfigInfo.class)) {
+		if (method.isAnnotationPresent(ChannelInfo.class)) {
 			// found annotation
-			return method.getAnnotation(ConfigInfo.class);
+			return Optional.of(method.getAnnotation(ChannelInfo.class));
 		} else {
 			Class<?> superclazz = clazz.getSuperclass();
 			if (superclazz != null) {
-				ConfigInfo annotation = getAnnotation(superclazz, methodName);
-				if (annotation != null) {
-					return annotation;
+				Optional<ChannelInfo> channelInfo = getAnnotationForMethod(superclazz, methodName);
+				if (channelInfo.isPresent()) {
+					return channelInfo;
 				}
 			}
 			for (Class<?> iface : clazz.getInterfaces()) {
-				ConfigInfo annotation = getAnnotation(iface, methodName);
-				if (annotation != null) {
-					return annotation;
+				Optional<ChannelInfo> channelInfo = getAnnotationForMethod(iface, methodName);
+				if (channelInfo.isPresent()) {
+					return channelInfo;
 				}
 			}
 		}
-		return null;
+		return Optional.empty();
 	}
 }

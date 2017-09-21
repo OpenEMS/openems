@@ -53,12 +53,16 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ChannelDoc;
+import io.openems.api.doc.ThingDoc;
+import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.persistence.QueryablePersistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
+import io.openems.common.types.ChannelAddress;
 import io.openems.core.ThingsChangedListener.Action;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
@@ -146,9 +150,21 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		// Add Listener
 		thing.addListener(this);
 
+		ThingDoc thingDoc = classRepository.getThingDoc(thing.getClass());
+
+		// Apply channel annotation
+		for (ChannelDoc channelDoc : thingDoc.getChannelDocs()) {
+			try {
+				Channel channel = getChannel(thing, channelDoc.getMember());
+				channel.applyChannelDoc(channelDoc);
+			} catch (OpenemsException e) {
+				log.debug(e.getMessage());
+			}
+		}
+
 		// Add Channels thingConfigChannels
-		Set<Member> members = classRepository.getThingChannels(thing.getClass());
-		for (Member member : members) {
+		for (ChannelDoc channelDoc : thingDoc.getConfigChannelDocs()) {
+			Member member = channelDoc.getMember();
 			try {
 				List<Channel> channels = new ArrayList<>();
 				if (member instanceof Method) {
@@ -328,6 +344,22 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		return Collections.unmodifiableSet(persistences);
 	}
 
+	/**
+	 * Returns the ChannelDoc for a given Channel
+	 *
+	 * @param channelAddress
+	 * @return
+	 */
+	public synchronized Optional<ChannelDoc> getChannelDoc(ChannelAddress channelAddress) {
+		Thing thing = getThing(channelAddress.getThingId());
+		if (thing == null) {
+			return Optional.empty();
+		}
+		ThingDoc thingDoc = ClassRepository.getInstance().getThingDoc(thing.getClass());
+		Optional<ChannelDoc> channelDoc = thingDoc.getChannelDoc(channelAddress.getChannelId());
+		return channelDoc;
+	}
+
 	public synchronized Set<QueryablePersistence> getQueryablePersistences() {
 		return Collections.unmodifiableSet(queryablePersistences);
 	}
@@ -376,12 +408,16 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		return Optional.ofNullable(channel);
 	}
 
+	public Optional<Channel> getChannel(ChannelAddress channelAddress) {
+		return this.getChannel(channelAddress.getThingId(), channelAddress.getChannelId());
+	}
+
 	public Optional<Channel> getChannelByAddress(String address) {
-		String[] args = address.split("/");
-		if (args.length == 2) {
-			return getChannel(args[0], args[1]);
+		try {
+			return getChannel(ChannelAddress.fromString(address));
+		} catch (io.openems.common.exceptions.OpenemsException e) {
+			return Optional.empty();
 		}
-		return Optional.empty();
 	}
 
 	public Controller createController(JsonObject jController) throws ReflectionException {
@@ -403,9 +439,9 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 	public Device createDevice(JsonObject jDevice, Bridge parent) throws ReflectionException {
 		String deviceClass = JsonUtils.getAsString(jDevice, "class");
 		Device device = (Device) InjectionUtils.getThingInstance(deviceClass, parent);
-		log.debug("Add Device[" + device.id() + "], Implementation[" + device.getClass().getSimpleName() + "]");
+		log.info("Add Device[" + device.id() + "], Implementation[" + device.getClass().getSimpleName() + "]");
 		this.addThing(device);
-		// instanciate DeviceNatures with Device reference
+		// instantiate DeviceNatures with Device reference
 		ConfigUtils.injectConfigChannels(this.getConfigChannels(device), jDevice, device);
 		return device;
 	}
@@ -427,8 +463,9 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		thingWriteChannels.removeAll(thing);
 
 		// Add Channels to thingChannels, thingConfigChannels and thingWriteChannels
-		Set<Member> members = classRepository.getThingChannels(thing.getClass());
-		for (Member member : members) {
+		ThingDoc thingDoc = classRepository.getThingDoc(thing.getClass());
+		for (ChannelDoc channelDoc : thingDoc.getChannelDocs()) {
+			Member member = channelDoc.getMember();
 			try {
 				List<Channel> channels = new ArrayList<>();
 				if (member instanceof Method) {
@@ -453,10 +490,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 					continue;
 				}
 				for (Channel channel : channels) {
-					if (channel == null) {
-						log.error("Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName()
-								+ "]");
-					} else {
+					if (channel != null) {
 						// Add Channel to thingChannels
 						thingChannels.put(thing, channel.id(), channel);
 
@@ -476,5 +510,42 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 				log.warn("Unable to add Channel. Member [" + member.getName() + "]", e);
 			}
 		}
+	}
+
+	/**
+	 * Gets the channel behind Thing member
+	 *
+	 * @param thing
+	 * @param member
+	 * @return
+	 * @throws OpenemsException
+	 */
+	private Channel getChannel(Thing thing, Member member) throws OpenemsException {
+		Object channelObj;
+		if (member instanceof Field) {
+			Field f = (Field) member;
+			try {
+				channelObj = f.get(thing);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				throw new OpenemsException(
+						"Unable to get Channel. Thing [" + thing.id() + "] Field [" + f.getName() + "]");
+			}
+		} else {
+			Method m = (Method) member;
+			try {
+				channelObj = m.invoke(thing, new Object[0]);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new OpenemsException(
+						"Unable to get Channel. Thing [" + thing.id() + "] Method [" + m.getName() + "]");
+			}
+		}
+		if (channelObj == null) {
+			throw new OpenemsException("Channel is null. Thing [" + thing.id() + "] Member [" + member.getName() + "]");
+		}
+		if (!(channelObj instanceof Channel)) {
+			throw new OpenemsException("This is not a channel. Thing [" + thing.id() + "] Member [" + member.getName()
+					+ "] Channel [" + channelObj + "]");
+		}
+		return (Channel) channelObj;
 	}
 }

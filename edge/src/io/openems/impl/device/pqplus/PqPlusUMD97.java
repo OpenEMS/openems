@@ -26,7 +26,7 @@ import java.util.Set;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
@@ -44,7 +44,7 @@ public class PqPlusUMD97 extends ModbusDevice {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Meter", description = "Sets the meter nature.", type = PqPlusUMD97Meter.class)
+	@ChannelInfo(title = "Meter", description = "Sets the meter nature.", type = PqPlusUMD97Meter.class)
 	public final ConfigChannel<PqPlusUMD97Meter> meter = new ConfigChannel<>("meter", this);
 
 	/*

@@ -34,6 +34,9 @@ public class App {
 	public static void main(String[] args) {
 		log.info("OpenEMS started");
 
+		// kick the watchdog: READY
+		SDNotify.sendNotify();
+
 		// configure Restlet logging
 		Engine.getInstance().setLoggerFacade(new Slf4jLoggerFacade());
 
@@ -49,8 +52,5 @@ public class App {
 
 		log.info("OpenEMS Edge started");
 		log.info("================================================================================");
-
-		// kick the watchdog: READY
-		SDNotify.sendNotify();
 	}
 }

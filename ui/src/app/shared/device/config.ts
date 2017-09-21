@@ -12,7 +12,7 @@ export class ConfigImpl implements DefaultTypes.Config {
     };
     public readonly meta: {
         [clazz: string]: {
-            implements: [string],
+            implements: string[],
             channels: {
                 [channel: string]: {
                     name: string,
@@ -21,6 +21,7 @@ export class ConfigImpl implements DefaultTypes.Config {
                     optional: boolean,
                     array: boolean,
                     accessLevel: string
+                    defaultValue: string
                 }
             }
         }
@@ -48,54 +49,49 @@ export class ConfigImpl implements DefaultTypes.Config {
 
         for (let thingId in config.things) {
             let thing = config.things[thingId];
-            let i = config.things[thingId].class;
-            if (i instanceof Array) {
-                /*
-                 * Natures
-                 */
-                // Ess
-                if (i.includes("EssNature") && !i.includes("EssClusterNature") /* ignore cluster */) {
-                    storageThings.push(thingId);
-                }
-                // Meter
-                if (i.includes("MeterNature")) {
-                    if ("type" in thing) {
-                        if (thing.type == 'grid') {
-                            gridMeters.push(thingId);
-                        } else if (thing.type === "production") {
-                            productionMeters.push(thingId);
-                        } else {
-                            console.warn("Meter without type: " + thing);
-                        }
+            let i = this.getImplements(thing);
+
+            /*
+             * Natures
+             */
+            // Ess
+            if (i.includes("EssNature") && !i.includes("EssClusterNature") /* ignore cluster */) {
+                storageThings.push(thingId);
+            }
+            // Meter
+            if (i.includes("MeterNature")) {
+                if ("type" in thing) {
+                    if (thing.type == 'grid') {
+                        gridMeters.push(thingId);
+                    } else if (thing.type === "production") {
+                        productionMeters.push(thingId);
+                    } else {
+                        console.warn("Meter without type: " + thing);
                     }
                 }
-                // Charger
-                if (i.includes("ChargerNature")) {
-                    productionMeters.push(thingId);
-                }
-            } else {
-                /*
-                 * Other Things
-                 */
-                if (i in config.meta) {
-                    i = config.meta[i].implements
-                    // Bridge
-                    if (i.includes("io.openems.api.bridge.Bridge")) {
-                        bridges.push(thingId);
-                    }
-                    // Scheduler
-                    if (i.includes("io.openems.api.scheduler.Scheduler")) {
-                        scheduler = thingId;
-                    }
-                    // Controller
-                    if (i.includes("io.openems.api.controller.Controller")) {
-                        controllers.push(thingId);
-                    }
-                    // Simulator Devices
-                    if (i.includes("io.openems.impl.device.simulator.Simulator")) {
-                        simulatorDevices.push(thingId);
-                    }
-                }
+            }
+            // Charger
+            if (i.includes("ChargerNature")) {
+                productionMeters.push(thingId);
+            }
+            /*
+             * Other Things
+             */
+            // Bridge
+            if (i.includes("io.openems.api.bridge.Bridge")) {
+                bridges.push(thingId);
+            }
+            // Scheduler
+            if (i.includes("io.openems.api.scheduler.Scheduler")) {
+                scheduler = thingId;
+            }
+            // Controller
+            if (i.includes("io.openems.api.controller.Controller")) {
+                controllers.push(thingId);
+            }
+            // Simulator Devices
+            if (i.includes("io.openems.impl.device.simulator.Simulator")) {
+                simulatorDevices.push(thingId);
             }
         }
 
@@ -114,8 +110,19 @@ export class ConfigImpl implements DefaultTypes.Config {
     public getPowerChannels(): DefaultTypes.ChannelAddresses {
         let ignoreNatures = { EssClusterNature: true };
         let result: DefaultTypes.ChannelAddresses = {}
+
+        // Set "ignoreNatures"
+        for (let thingId of this.storageThings) {
+            let i = this.getImplements(this.config.things[thingId]);
+
+            if (i.includes("FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
+                ignoreNatures["AsymmetricMeterNature"] = true;
+            }
+        }
+        // Parse all things
         for (let thingId in this.config.things) {
-            let i = this.config.things[thingId].class;
+            let clazz = <string>this.config.things[thingId].class; // TODO casting
+            let i = this.getImplements(this.config.things[thingId]);
             let channels = [];
             // ESS
             if (i.includes("EssNature") && !i.includes("EssClusterNature") /* ignore cluster */) {
@@ -123,9 +130,6 @@ export class ConfigImpl implements DefaultTypes.Config {
                     channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
                 } else if (i.includes("SymmetricEssNature")) {
                     channels.push("ActivePower", "ReactivePower");
-                }
-                if (i.includes("FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
-                    ignoreNatures["AsymmetricMeterNature"] = true;
                 }
             }
             // Meter
@@ -182,4 +186,13 @@ export class ConfigImpl implements DefaultTypes.Config {
         return channels;
     }
 
+    private getImplements(thing: DefaultTypes.ThingConfig): string | string[] {
+        if (<string>thing.class in this.meta) { // TODO casting
+            // get implements from meta
+            return this.meta[<string>thing.class].implements;
+        } else {
+            // use class
+            return <string>thing.class;
+        }
+    }
 }

@@ -10,6 +10,6 @@ public class BrowserSession extends Session<BrowserSessionData> {
 
 	@Override
 	public String toString() {
-		return "User [" + getData().getUserId() + "] Session [" + getData().getOdooSessionId() + "]";
+		return "User [" + getData().getUserName() + "] Session [" + getData().getOdooSessionId().orElse("") + "]";
 	}
 }

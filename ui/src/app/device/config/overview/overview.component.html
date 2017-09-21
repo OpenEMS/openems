@@ -87,7 +87,7 @@
       </md-card>
     </div>
     <!--call more configuration-->
-    <div routerLink="/device/{{ device.name }}/config/more" fxFlex="50%" fxFlex.xs="100%">
+    <div *ngIf="device.role.isAtLeast('admin')" routerLink="/device/{{ device.name }}/config/more" fxFlex="50%" fxFlex.xs="100%">
       <md-card class="single">
         <md-card-header>
           <md-icon md-card-avatar>more_horiz</md-icon>

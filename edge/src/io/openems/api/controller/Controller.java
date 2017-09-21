@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.thing.Thing;
 
 public abstract class Controller implements Thing, Runnable {
@@ -40,7 +40,7 @@ public abstract class Controller implements Thing, Runnable {
 	 * Holds the priority of this controller. High value is high priority, low value is low priority.
 	 *
 	 */
-	@ConfigInfo(title = "Priority of this controller", type = Integer.class)
+	@ChannelInfo(title = "Priority of this controller", type = Integer.class)
 	public final ConfigChannel<Integer> priority = new ConfigChannel<Integer>("priority", this);
 
 	// TODO add "active" configchannel to be able to deactivate a controller without deleting it

@@ -10,17 +10,19 @@ export module DefaultTypes {
     [thing: string]: string[];
   }
 
+  export interface ThingConfig {
+    id: string,
+    class: string | string[],
+    [channel: string]: any
+  }
+
   export interface Config {
     things: {
-      [id: string]: {
-        id: string,
-        class: string | string[],
-        [channel: string]: any
-      }
+      [id: string]: ThingConfig
     },
     meta: {
       [clazz: string]: {
-        implements: [string],
+        implements: string[],
         channels: {
           [channel: string]: {
             name: string,
@@ -96,4 +98,17 @@ export module DefaultTypes {
   }
 
   export type LanguageTag = "de" | "en" | "cz" | "nl";
+
+  export interface OutgoingMessage {
+    id: string[]
+  }
+
+  export interface ConfigUpdate extends OutgoingMessage {
+    config: {
+      mode: "update",
+      thing: string,
+      channel: string,
+      value: any
+    }
+  }
 }

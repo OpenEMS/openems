@@ -9,6 +9,7 @@ import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { MdSnackBar } from '@angular/material';
 import { LoadingModule } from 'ngx-loading';
 import { TranslateModule } from '@ngx-translate/core';
+import { MyDateRangePickerModule } from 'mydaterangepicker';
 
 import 'hammerjs';
 
@@ -48,6 +49,7 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     RouterModule,
     ChartsModule,
     LoadingModule,
+    MyDateRangePickerModule,
     routing
   ],
   declarations: [
@@ -77,6 +79,7 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     RouterModule,
     ReactiveFormsModule,
     TranslateModule,
+    MyDateRangePickerModule,
     // components
     SocChartComponent,
     LoadingModule

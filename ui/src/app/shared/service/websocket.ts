@@ -33,13 +33,14 @@ export class Websocket {
   }
 
   public status: DefaultTypes.ConnectionStatus = "connecting";
-  public noOfConnectedWebsockets: number;
+  public isWebsocketConnected: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   private username: string = "";
-  private messages: Observable<any>;
+  // private messages: Observable<string>;
+  private messageSubscription: Subscription = null;
   private inputStream: Subject<any>;
-  private websocketSubscription: Subscription = new Subscription();
   private queryreply = new Subject<{ id: string[] }>();
+  private stopOnInitialize: Subject<void> = new Subject<void>();
 
   // holds stream per device (=key1) and message-id (=key2); triggered on message reply for the device
   private replyStreams: { [deviceName: string]: { [messageId: string]: Subject<any> } } = {};
@@ -102,33 +103,52 @@ export class Websocket {
   /**
    * Opens a connection using a stored token or a cookie with a session_id for this websocket. Called once by constructor
    */
-  private connect() {
-    if (this.messages) {
+  private connect(): BehaviorSubject<boolean> {
+    if (this.messageSubscription != null) {
       return;
     }
 
+    if (env.debugMode) {
+      console.info("Websocket connect to URL [" + env.url + "]");
+    }
     const { messages, connectionStatus } = websocketConnect(
       env.url,
       this.inputStream = new Subject<any>()
     );
-    connectionStatus.subscribe(noOfConnectedWebsockets => {
-      this.noOfConnectedWebsockets = noOfConnectedWebsockets;
-      if (noOfConnectedWebsockets == 0 && this.status == 'online') {
-        this.service.notify({
-          message: "Connection lost. Trying to reconnect.", // TODO translate
-          type: 'warning'
-        });
-        // TODO show spinners everywhere
-        this.status = 'connecting';
-      }
-    });
-    this.messages = messages.share();
-    this.websocketSubscription = this.messages.retryWhen(errors => {
+    connectionStatus
+      .takeUntil(this.stopOnInitialize)
+      .subscribe(count => {
+        let isConnected = count > 0;
+        if (env.debugMode) {
+          console.info("Websocket connected [" + isConnected + "]");
+        }
+        this.isWebsocketConnected.next(isConnected);
+
+        if (!isConnected && this.status == 'online') {
+          this.service.notify({
+            message: "Connection lost. Trying to reconnect.", // TODO translate
+            type: 'warning'
+          });
+          // TODO show spinners everywhere
+          this.status = 'connecting';
+        }
+
+        if (isConnected) {
+          this.status = 'waiting for authentication';
+        }
+      }, error => {
+        console.error(error);
+      }, () => {
+        this.isWebsocketConnected.next(false);
+      });
+    this.messageSubscription = messages.takeUntil(this.stopOnInitialize).retryWhen(errors => {
       return errors.delay(1000);
 
-    }).subscribe(message => {
+    }).map(message => JSON.parse(message)).subscribe(message => {
       // called on every receive of message from server
-      // console.log(message);
+      if (env.debugMode) {
+        console.info("RECV", message);
+      }
       /*
        * Authenticate
        */
@@ -168,8 +188,11 @@ export class Websocket {
           this.service.removeToken();
           this.initialize();
           if (env.backend === "OpenEMS Backend") {
-            console.log("would redirect...") // TODO fix redirect
-            //window.location.href = "/web/login?redirect=/m/overview";
+            if (env.production) {
+              window.location.href = "/web/login?redirect=/m/overview";
+            } else {
+              console.info("would redirect...");
+            }
           } else if (env.backend === "OpenEMS Edge") {
             this.router.navigate(['/overview']);
           }
@@ -255,7 +278,10 @@ export class Websocket {
             // ask for authentication info
             this.status = "waiting for authentication";
             notify = false;
-            setTimeout(() => this.router.navigate["/overview"]);
+            setTimeout(() => {
+              this.clearCurrentDevice();
+              this.router.navigate(["/overview"]);
+            });
           }
         }
         if (notify) {
@@ -263,44 +289,65 @@ export class Websocket {
         }
       }
     });
+    return this.isWebsocketConnected;
   }
 
   /**
    * Reset everything to default
    */
   private initialize() {
-    this.websocketSubscription.unsubscribe();
-    this.messages = null;
+    this.stopOnInitialize.next();
+    this.stopOnInitialize.complete();
+    this.messageSubscription.unsubscribe();
+    this.messageSubscription = null;
     this.devices.next({});
   }
 
   /**
-   * Closes the connection.
+   * Opens the websocket and logs in
    */
-  public close() {
-    console.info("Closing websocket");
-    if (this.status != "online") { // TODO why this if?
-      this.service.removeToken();
-      this.initialize();
-      // TODO
-      // var status: DefaultTypes.Notification = { type: "info", message: this.service.translate.instant('Notifications.Closed') };
-      // this.event.next(status);
+  public logIn(password: string) {
+    if (this.isWebsocketConnected.getValue()) {
+      // websocket was connected
+      this.send(DefaultMessages.authenticateLogin(password));
+    } else {
+      // websocket was NOT connected
+      this.connect()
+        .takeUntil(this.stopOnInitialize)
+        .filter(isConnected => isConnected)
+        .first()
+        .subscribe(isConnected => {
+          setTimeout(() => {
+            this.send(DefaultMessages.authenticateLogin(password))
+          }, 500);
+        });
     }
+  }
+
+  /**
+   * Logs out and closes the websocket
+   */
+  public logOut() {
+    // TODO this is kind of working for now... better would be to not close the websocket but to handle session validity serverside
+    this.send(DefaultMessages.authenticateLogout());
+    this.status = "waiting for authentication";
+    this.service.removeToken();
+    this.initialize();
   }
 
   /**
    * Sends a message to the websocket
    */
   public send(message: any, device?: Device): void {
-    // console.log("SEND: ", message);
+    if (env.debugMode) {
+      console.info("SEND: ", message);
+    }
     if (device) {
       if ("id" in message) {
         this.pendingQueryReplies[message.id[0]] = device.name;
       }
       message["device"] = device.name;
-      this.inputStream.next(message);
-    } else {
-      this.inputStream.next(message);
     }
+    this.inputStream.next(JSON.stringify(message));
   }
 }

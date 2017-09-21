@@ -33,7 +33,12 @@
           </md-card-content>
           <md-card-actions fxLayout fxLayoutAlign="end start">
             <button type="button" md-fab (click)="doLogin()" color="primary"><md-icon>check</md-icon></button>
-            <!-- TODO <button type="button" md-fab *ngIf="websocket.status === 'online'" (click)="doLogout(form)" color="accent"><md-icon>exit_to_app</md-icon></button> -->
+          </md-card-actions>
+        </ng-container>
+        <!-- Logout from OpenEMS Edge -->
+        <ng-container *ngIf="env.backend === 'OpenEMS Edge' && websocket.status == 'online'">
+          <md-card-actions fxLayout fxLayoutAlign="end start">
+            <button type="button" md-fab (click)="doLogout()" color="accent"><md-icon>exit_to_app</md-icon></button>
           </md-card-actions>
         </ng-container>
       </md-card>
@@ -50,11 +55,13 @@
             <span>{{ device.comment }} <span *ngIf="!device.online"><br/><span translate>Overview.IsOffline</span></span>
             </span>
           </md-card-title>
-          <md-card-subtitle *ngIf="env.backend === 'OpenEMS Backend'">
-            <span>{{ device.name }}: {{ device.producttype }}</span>
+          <md-card-subtitle>
+            <p *ngIf="env.backend === 'OpenEMS Backend'">{{ device.name }}: {{ device.producttype }}</p>
+            <p>Angemeldet als '{{ device.role.name }}'.</p>
+            <!-- TODO translate -->
           </md-card-subtitle>
         </md-card-header>
-        <md-card-actions fxLayout fxLayoutAlign="end start">
+        <md-card-actions fxLayout fxLayoutAlign="end start" *ngIf="device.online">
           <button type="button" md-fab routerLink="/device/{{ device.name }}"><md-icon>navigate_next</md-icon></button>
         </md-card-actions>
       </md-card>

@@ -34,7 +34,6 @@ import io.openems.core.utilities.JsonUtils;
 
 public class WriteChannel<T> extends ReadChannel<T> {
 
-	protected Optional<Class<?>> type = Optional.empty();
 	private final Interval<ReadChannel<T>> writeChannelInterval = new Interval<ReadChannel<T>>();
 	private final Interval<T> writeInterval = new Interval<T>();
 	private Optional<T> writeValue = Optional.empty();
@@ -45,24 +44,6 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	}
 
 	/**
-	 * Returns the type
-	 *
-	 * @return
-	 */
-	public void type(Class<?> type) {
-		this.type = Optional.ofNullable(type);
-	}
-
-	/**
-	 * Returns the type
-	 *
-	 * @return
-	 */
-	public Optional<Class<?>> type() {
-		return this.type;
-	}
-
-	/**
 	 * Returns the value as the correct type required by this Channel
 	 *
 	 * @param j
@@ -70,7 +51,8 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	 * @throws NotImplementedException
 	 */
 	public T getAsType(JsonElement j) throws NotImplementedException {
-		return (T) JsonUtils.getAsType(type.get(), j);
+		@SuppressWarnings("unchecked") T result = (T) JsonUtils.getAsType(type().get(), j);
+		return result;
 	}
 
 	/**
@@ -233,13 +215,18 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		writeValue = Optional.of(value);
 	}
 
+	public void pushWriteFromObject(Object valueObj) throws WriteChannelException {
+		@SuppressWarnings("unchecked") T value = (T) valueObj;
+		this.pushWrite(value);
+	}
+
 	public void pushWrite(JsonElement j) throws WriteChannelException, NotImplementedException {
-		T value = (T) JsonUtils.getAsType(this.type, j);
+		@SuppressWarnings("unchecked") T value = (T) JsonUtils.getAsType(this.type(), j);
 		this.pushWrite(value);
 	}
 
 	public void pushWrite(Class<?> type, JsonElement j) throws WriteChannelException, NotImplementedException {
-		T value = (T) JsonUtils.getAsType(type, j);
+		@SuppressWarnings("unchecked") T value = (T) JsonUtils.getAsType(type, j);
 		this.pushWrite(value);
 	}
 

@@ -23,8 +23,6 @@ package io.openems.core.utilities;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -34,26 +32,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
-import io.openems.core.ClassRepository;
 import io.openems.core.ThingRepository;
 
 public class InjectionUtils {
-	private final static Logger log = LoggerFactory.getLogger(InjectionUtils.class);
+	// private final static Logger log = LoggerFactory.getLogger(InjectionUtils.class);
 
 	/**
 	 * Creates an instance of the given {@link Class}. {@link Object} arguments are optional.
@@ -124,29 +116,8 @@ public class InjectionUtils {
 			e.printStackTrace();
 			throw new ReflectionException("Class [" + clazz.getName() + "] is not a Thing");
 		}
-		ClassRepository classRepository = ClassRepository.getInstance();
-		classRepository.getThingConfigChannels(clazz).forEach((member, config) -> {
-			try {
-				Channel channel = getChannel(thing, member);
-				((ConfigChannel<?>) channel).applyAnnotation(config);
-			} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException
-					| OpenemsException e) {
-				log.warn(e.getMessage());
-			}
-		});
 		return thing;
 
-	}
-
-	private static Channel getChannel(Thing thing, Member member)
-			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		if (member instanceof Field) {
-			Field f = (Field) member;
-			return (Channel) f.get(thing);
-		} else {
-			Method m = (Method) member;
-			return (Channel) m.invoke(thing, null);
-		}
 	}
 
 	/**
@@ -203,15 +174,14 @@ public class InjectionUtils {
 
 		/*
 		 * Prepare filter for matching Things
-		 * - Empty filter: accept everything
+		 * - Empty filter: accept nothing
+		 * - Asterisk: accept everything
 		 * - Otherwise: accept only exact string matches on the thing id
 		 */
 		Set<String> filter = new HashSet<>();
 		if (j.isJsonPrimitive()) {
 			String id = j.getAsJsonPrimitive().getAsString();
-			if (!id.equals("*")) {
-				filter.add(id);
-			}
+			filter.add(id);
 		} else if (j.isJsonArray()) {
 			j.getAsJsonArray().forEach(id -> filter.add(id.getAsString()));
 		}
@@ -223,7 +193,7 @@ public class InjectionUtils {
 		Set<Thing> matchingThings = thingRepository.getThingsAssignableByClass(thingClass);
 		Set<ThingMap> thingMaps = new HashSet<>();
 		for (Thing thing : matchingThings) {
-			if (filter.isEmpty() || filter.contains(thing.id())) {
+			if (filter.contains(thing.id()) || filter.contains("*")) {
 				ThingMap thingMap = (ThingMap) InjectionUtils.getInstance(thingMapClass, thing);
 				thingMaps.add(thingMap);
 			}
@@ -232,7 +202,7 @@ public class InjectionUtils {
 		/*
 		 * Prepare return
 		 */
-		if (thingMaps.isEmpty()) {
+		if (thingMaps.isEmpty() && !filter.isEmpty()) {
 			throw new ReflectionException("No matching ThingMap found for ConfigChannel [" + channel.address() + "]");
 		}
 
@@ -266,24 +236,27 @@ public class InjectionUtils {
 	 */
 	public static Set<Class<? extends Thing>> getImplements(Class<? extends Thing> clazz) {
 		Set<Class<? extends Thing>> ifaces = new HashSet<>();
-		// stop at certain classes
-		if (clazz == null || clazz.equals(Thing.class) || clazz.equals(AbstractWorker.class)
-				|| clazz.equals(DeviceNature.class)) {
+		// stop at certain classes without adding them
+		if (clazz == null || clazz.equals(Thing.class) || clazz.equals(AbstractWorker.class)) {
 			return ifaces;
 		}
 		// myself
 		ifaces.add(clazz);
+		// stop at certain classes WITH adding them
+		if (clazz.equals(DeviceNature.class)) {
+			return ifaces;
+		}
 		// super interfaces
 		for (Class<?> iface : clazz.getInterfaces()) {
 			if (Thing.class.isAssignableFrom(iface)) {
-				Class<? extends Thing> thingIface = (Class<? extends Thing>) iface;
+				@SuppressWarnings("unchecked") Class<? extends Thing> thingIface = (Class<? extends Thing>) iface;
 				ifaces.addAll(getImplements(thingIface));
 			}
 		}
 		// super classes
 		Class<?> superclazz = clazz.getSuperclass();
 		if (superclazz != null && Thing.class.isAssignableFrom(superclazz)) {
-			Class<? extends Thing> thingSuperclazz = (Class<? extends Thing>) superclazz;
+			@SuppressWarnings("unchecked") Class<? extends Thing> thingSuperclazz = (Class<? extends Thing>) superclazz;
 			ifaces.addAll(getImplements(thingSuperclazz));
 		}
 		return ifaces;

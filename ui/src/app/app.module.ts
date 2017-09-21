@@ -10,6 +10,7 @@ import { SharedModule } from './shared/shared.module';
 import { AboutModule } from './about/about.module';
 import { OverviewModule } from './overview/overview.module';
 import { DeviceModule } from './device/device.module';
+import { ConfigModule } from './config/config.module';
 
 // components
 import { AppComponent } from './app.component';
@@ -24,6 +25,7 @@ import { MyTranslateLoader } from './shared/translate/translate';
     SharedModule,
     AboutModule,
     DeviceModule,
+    ConfigModule,
     OverviewModule,
     TranslateModule.forRoot({
       loader: { provide: TranslateLoader, useClass: MyTranslateLoader }

@@ -2,18 +2,18 @@ package io.openems.impl.controller.asymmetric.phaserectification;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.AvgFiFoQueue;
 
-@ThingInfo(title = "PhaseRectification")
+@ThingInfo(title = "Phase-Rectification ActivePower")
 public class PhaseRectificationActivePowerController extends Controller {
 
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
 	private AvgFiFoQueue meterL1 = new AvgFiFoQueue(2, 1.5);

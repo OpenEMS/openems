@@ -13,13 +13,13 @@ Run `ng serve` to serve for OpenEMS Edge.
 
 Be sure to setup maven before - see description below.
 
-Build for femsserver:
+Build for OpenEMS Backend:
 
-`mvn package -P femsserver`
+`mvn package -P backend`
 
-Build for openems:
+Build for OpenEMS Edge:
 
-`mvn package -P openems`
+`mvn package -P edge`
 
 If you want to build despite "Cannot create the build number because you have local modifications", add `-Dmaven.buildNumber.doCheck=false` to the command line.
 
@@ -37,11 +37,11 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 Build for OpenEMS Backend:
 
-`ng build -prod --env=backend --base-href /m/`
+`ng build -prod --env=backend --base-href /m/ --output-path=target/backend`
 
 Build for OpenEMS Edge:
 
-`ng build -prod --env=edge --base-href /`
+`ng build -prod --env=edge --base-href / --output-path=target/edge`
 
 ## Further help
 

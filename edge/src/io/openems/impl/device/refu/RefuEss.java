@@ -81,7 +81,7 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 	private ModbusReadLongChannel soc;
 	private ModbusReadLongChannel allowedCharge;
 	private ModbusReadLongChannel allowedDischarge;
-	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel<>("allowedApparent", this, 96600L)
+	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel<>("allowedApparent", this, 100000L)
 			.unit("VA").unit("VA");
 	private ModbusReadLongChannel apparentPower;
 	private StaticValueChannel<Long> gridMode = new StaticValueChannel<Long>("GridMode", this, 1L).label(1L, ON_GRID);

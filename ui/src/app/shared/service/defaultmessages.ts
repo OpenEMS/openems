@@ -15,6 +15,14 @@ export class DefaultMessages {
         return m;
     };
 
+    public static authenticateLogout() {
+        return {
+            authenticate: {
+                mode: "logout"
+            }
+        };
+    };
+
     public static configQuery() {
         return {
             device: String,
@@ -25,6 +33,18 @@ export class DefaultMessages {
             }
         }
     };
+
+    public static configUpdate(thingId: string, channelId: string, value: any): DefaultTypes.ConfigUpdate {
+        return {
+            id: [UUID.UUID()],
+            config: {
+                mode: "update",
+                thing: thingId,
+                channel: channelId,
+                value: value
+            }
+        }
+    }
 
     public static currentDataSubscribe(channels: DefaultTypes.ChannelAddresses) {
         return {

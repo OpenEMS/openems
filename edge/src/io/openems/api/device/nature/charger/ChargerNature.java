@@ -26,11 +26,11 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 
 public interface ChargerNature extends DeviceNature {
 
-	@ConfigInfo(title = "maxActualPower", description = "Holds the maximum ever actual power.", type = Long.class, defaultValue = "0")
+	@ChannelInfo(title = "maxActualPower", description = "Holds the maximum ever actual power.", type = Long.class, defaultValue = "0")
 	public ConfigChannel<Long> maxActualPower();
 
 	public WriteChannel<Long> setMaxPower();

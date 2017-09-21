@@ -101,7 +101,8 @@ public class Config implements ChannelChangeListener {
 			log.info("Read configuration from file [" + configFile.toString() + "]");
 			return;
 		} catch (Exception e) {
-			log.warn("Failed to read configuration from file [" + configFile.toString() + "] ", e);
+			log.warn("Failed to read configuration from file [" + configFile.toString() + "] ");
+			e.printStackTrace();
 		}
 		// Read configuration from backup config file
 		try {
@@ -258,7 +259,7 @@ public class Config implements ChannelChangeListener {
 					} catch (IOException e2) {
 						ConfigException ex2 = new ConfigException(
 								"Unable to recover backup file [" + configBackupFile.toString() + "]");
-						log.error(ex.getMessage(), ex);
+						log.error(ex2.getMessage(), ex2);
 					}
 				}
 			}
@@ -296,7 +297,7 @@ public class Config implements ChannelChangeListener {
 			String bridgeClass = JsonUtils.getAsString(jBridge, "class");
 			Bridge bridge = (Bridge) InjectionUtils.getThingInstance(bridgeClass);
 			thingRepository.addThing(bridge);
-			log.debug("Add Bridge[" + bridge.id() + "], Implementation[" + bridge.getClass().getSimpleName() + "]");
+			log.info("Add Bridge[" + bridge.id() + "], Implementation[" + bridge.getClass().getSimpleName() + "]");
 			ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(bridge), jBridge);
 			/*
 			 * read each Device in "things" array
@@ -352,7 +353,7 @@ public class Config implements ChannelChangeListener {
 				String persistenceClass = JsonUtils.getAsString(jPersistence, "class");
 				Persistence persistence = (Persistence) InjectionUtils.getThingInstance(persistenceClass);
 				thingRepository.addThing(persistence);
-				log.debug("Add Persistence[" + persistence.id() + "], Implementation["
+				log.info("Add Persistence[" + persistence.id() + "], Implementation["
 						+ persistence.getClass().getSimpleName() + "]");
 				ConfigUtils.injectConfigChannels(thingRepository.getConfigChannels(persistence), jPersistence);
 				persistence.init();
@@ -363,6 +364,7 @@ public class Config implements ChannelChangeListener {
 		 * Configuration is finished -> start all worker threads
 		 */
 		thingRepository.getThings().forEach(thing -> {
+			// TODO use executor
 			if (thing instanceof Thread) {
 				((Thread) thing).start();
 			}

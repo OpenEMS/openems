@@ -22,7 +22,7 @@ package io.openems.impl.controller.symmetric.balancingbandgap;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
@@ -43,28 +43,28 @@ public class BalancingBandgapController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	@ConfigInfo(title = "Min-ActivePower", description = "Low boundary of active power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Min-ActivePower", description = "Low boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> minActivePower = new ConfigChannel<>("minActivePower", this);
 
-	@ConfigInfo(title = "Max-ActivePower", description = "High boundary of active power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Max-ActivePower", description = "High boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> maxActivePower = new ConfigChannel<>("maxActivePower", this);
 
-	@ConfigInfo(title = "Min-ReactivePower", description = "Low boundary of reactive power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Min-ReactivePower", description = "Low boundary of reactive power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> minReactivePower = new ConfigChannel<>("minReactivePower", this);
 
-	@ConfigInfo(title = "Max-ReactivePower", description = "High boundary of reactive power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Max-ReactivePower", description = "High boundary of reactive power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> maxReactivePower = new ConfigChannel<>("maxReactivePower", this);
 
-	@ConfigInfo(title = "Enable ActivePower", description = "Indicates if active power bandgap is enabled.", type = Boolean.class, defaultValue = "true")
+	@ChannelInfo(title = "Enable ActivePower", description = "Indicates if active power bandgap is enabled.", type = Boolean.class, defaultValue = "true")
 	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this);
 
-	@ConfigInfo(title = "Enable ReactivePower", description = "Indicates if reactive power bandgap is enabled.", type = Boolean.class, defaultValue = "true")
+	@ChannelInfo(title = "Enable ReactivePower", description = "Indicates if reactive power bandgap is enabled.", type = Boolean.class, defaultValue = "true")
 	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
 			this);
 

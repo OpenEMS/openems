@@ -48,18 +48,15 @@ public class WebsocketApiServer
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketApiServer.class);
 
-	private final WebsocketApiController controller;
-
-	public WebsocketApiServer(WebsocketApiController controller, int port) {
+	public WebsocketApiServer(int port) {
 		super(port, new WebsocketApiSessionManager());
-		this.controller = controller;
 	}
 
 	/**
 	 * Open event of websocket. Parses the Odoo "session_id" and stores it in a new Session.
 	 */
 	@Override
-	public void onOpen(WebSocket websocket, ClientHandshake handshake) {
+	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
 		JsonObject jHandshake = this.parseCookieFromHandshake(handshake);
 		Optional<String> tokenOpt = JsonUtils.getAsOptionalString(jHandshake, "token");
 		if (tokenOpt.isPresent()) {
@@ -67,10 +64,11 @@ public class WebsocketApiServer
 			Optional<WebsocketApiSession> sessionOpt = this.sessionManager.getSessionByToken(token);
 			if (sessionOpt.isPresent()) {
 				WebsocketApiSession session = sessionOpt.get();
-				WebSocket oldWebsocket = session.getData().getWebsocketHandler().getWebsocket();
-				if (oldWebsocket != null) {
+				Optional<WebSocket> oldWebsocketOpt = session.getData().getWebsocketHandler().getWebsocket();
+				if (oldWebsocketOpt.isPresent()) {
 					// TODO to avoid this, websockets needs to be able to handle more than one websocket per session
-					oldWebsocket.closeConnection(CloseFrame.REFUSE, "Another client connected with this token");
+					oldWebsocketOpt.get().closeConnection(CloseFrame.REFUSE,
+							"Another client connected with this token");
 				}
 				// refresh session
 				session.getData().getWebsocketHandler().setWebsocket(websocket);
@@ -79,19 +77,19 @@ public class WebsocketApiServer
 				// send connection successful to browser
 				JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
 						Optional.of(session.getData().getRole()), new ArrayList<>());
-				log.info("Websocket [" + websocket + "] connected by session. User [" + session.getData().getUser()
-						+ "] Session [" + session.getToken() + "]");
+				log.info("Websocket connected by session. User [" + session.getData().getUser() + "] Session ["
+						+ session.getToken() + "]");
 				WebSocketUtils.send(websocket, jReply);
 				return;
 			}
+			// if we are here, automatic authentication was not possible -> notify client
+			WebSocketUtils.sendNotification(websocket, Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED,
+					tokenOpt.orElse(""));
 		}
-		// if we are here, automatic authentication was not possible -> notify client
-		WebSocketUtils.send(websocket,
-				DefaultMessages.notification(Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, tokenOpt.orElse("")));
 	}
 
 	@Override
-	protected void onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
+	protected void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt) {
 		// log.info("RECV: websocket[" + websocket + "]" + jMessage.toString());
 
@@ -161,6 +159,12 @@ public class WebsocketApiServer
 							return this.sessionManager.authByPassword(password, websocket);
 						}
 					}
+
+				} else if (mode.equals("logout")) {
+					/*
+					 * Logout and close session
+					 */
+					this.websockets.remove(websocket);
 				}
 			}
 		} catch (OpenemsException e) { /* ignore */ }

@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
@@ -49,7 +49,7 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class, isOptional = true)
+	@ChannelInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class, isOptional = true)
 	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
 			.defaultValue(DEFAULT_CYCLETIME);
 
@@ -92,7 +92,12 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 		}
 		maxTime = (maxTime + 100) / 100 * 100;
 		if (maxTime > cycleTime.valueOptional().orElse(500)) {
-			actualCycleTime = (int) maxTime;
+			// prevent cycleTime to get too big otherwise stuck bridge stops whole framework
+			if (maxTime > cycleTime.valueOptional().orElse(500) * 3) {
+				actualCycleTime = cycleTime.valueOptional().orElse(500) * 3;
+			} else {
+				actualCycleTime = (int) maxTime;
+			}
 		} else {
 			actualCycleTime = cycleTime.valueOptional().orElse(500);
 		}

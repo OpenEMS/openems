@@ -20,16 +20,12 @@
  *******************************************************************************/
 package io.openems.impl.protocol.keba;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.bridge.Bridge;
-import io.openems.api.channel.ConfigChannel;
 import io.openems.api.doc.ThingInfo;
 
 @ThingInfo(title = "KEBA KeContact Bridge")
@@ -42,14 +38,14 @@ public class KebaBridge extends Bridge {
 	/*
 	 * Config
 	 */
-	private ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(9070);
+	// private ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(9070);
 
 	/*
 	 * Fields
 	 */
 	private Logger log = LoggerFactory.getLogger(KebaBridge.class);
-	private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
-	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	// private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
+	// private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private ScheduledFuture<?> receivingJob = null;
 
 	/*

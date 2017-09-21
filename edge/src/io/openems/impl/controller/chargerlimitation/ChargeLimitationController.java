@@ -4,7 +4,7 @@ import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 
 @ThingInfo(title = "Limit battery charge from DC", description = "Limits the maximum charge of the battery from DC connected charger.")
@@ -25,10 +25,10 @@ public class ChargeLimitationController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "Chargers", description = "Sets the chargers.", type = Charger.class, isArray = true)
+	@ChannelInfo(title = "Chargers", description = "Sets the chargers.", type = Charger.class, isArray = true)
 	public ConfigChannel<List<Charger>> chargers = new ConfigChannel<>("chargers", this);
 
 	/*

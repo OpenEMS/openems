@@ -25,7 +25,7 @@ import java.util.Optional;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsException;
 
@@ -41,7 +41,7 @@ public abstract class ModbusDevice extends Device {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Unit-ID", description = "Sets the Modbus unit-id.", type = Integer.class)
+	@ChannelInfo(title = "Unit-ID", description = "Sets the Modbus unit-id.", type = Integer.class)
 	public final ConfigChannel<Integer> modbusUnitId = new ConfigChannel<Integer>("modbusUnitId", this);
 
 	/*

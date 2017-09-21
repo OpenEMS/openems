@@ -37,15 +37,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.persistence.QueryablePersistence;
 import io.openems.common.api.TimedataSource;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
 import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
+import io.openems.core.utilities.ConfigUtils;
 
 /**
  * Handles a Websocket connection to a browser, OpenEMS backend,...
@@ -59,7 +64,7 @@ public class EdgeWebsocketHandler {
 	/**
 	 * Holds the websocket connection
 	 */
-	protected WebSocket websocket;
+	protected Optional<WebSocket> websocket = Optional.empty();
 
 	/**
 	 * Holds subscribers to current data
@@ -76,15 +81,17 @@ public class EdgeWebsocketHandler {
 	 */
 	private final ExecutorService logExecutor = Executors.newCachedThreadPool();
 
+	public EdgeWebsocketHandler() {}
+
 	public EdgeWebsocketHandler(WebSocket websocket) {
-		this.websocket = websocket;
+		this.websocket = Optional.ofNullable(websocket);
 	}
 
 	public void setWebsocket(WebSocket websocket) {
-		this.websocket = websocket;
+		this.websocket = Optional.ofNullable(websocket);
 	}
 
-	public WebSocket getWebsocket() {
+	public Optional<WebSocket> getWebsocket() {
 		return websocket;
 	}
 
@@ -159,7 +166,7 @@ public class EdgeWebsocketHandler {
 			if (jIdOpt.isPresent()) {
 				jReply.add("id", jIdOpt.get());
 			}
-			WebSocketUtils.send(websocket, jReply);
+			WebSocketUtils.send(this.websocket, jReply);
 		}
 	}
 
@@ -180,6 +187,45 @@ public class EdgeWebsocketHandler {
 				String language = JsonUtils.getAsString(jConfig, "language");
 				JsonObject jReplyConfig = Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, language);
 				return DefaultMessages.configQueryReply(jReplyConfig);
+
+			} else if (mode.equals("update")) {
+				try {
+					/*
+					 * Update thing/channel config
+					 */
+					String thingId = JsonUtils.getAsString(jConfig, "thing");
+					String channelId = JsonUtils.getAsString(jConfig, "channel");
+					JsonElement jValue = JsonUtils.getSubElement(jConfig, "value");
+					Optional<Channel> channelOpt = ThingRepository.getInstance().getChannel(thingId, channelId);
+					if (channelOpt.isPresent()) {
+						Channel channel = channelOpt.get();
+						if (channel instanceof ConfigChannel<?>) {
+							/*
+							 * ConfigChannel
+							 */
+							ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
+							Object value = ConfigUtils.getConfigObject(configChannel, jValue);
+							configChannel.updateValue(value, true);
+							WebSocketUtils.sendNotification(websocket, Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
+									channel.address() + " => " + jValue);
+
+						} else if (channel instanceof WriteChannel<?>) {
+							/*
+							 * WriteChannel
+							 */
+							// TODO use Worker...
+							// WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
+							// writeChannel.pushWrite(jValue);
+							// Notification.send(NotificationType.SUCCESS,
+							// "Successfully set [" + channel.address() + "] to [" + jValue + "]");
+						}
+					} else {
+						throw new OpenemsException("Unable to find Channel [" + thingId + "/" + channelId + "]");
+					}
+				} catch (OpenemsException e) {
+					WebSocketUtils.send(websocket,
+							DefaultMessages.notification(Notification.EDGE_CHANNEL_UPDATE_FAILED, e.getMessage()));
+				}
 			}
 		} catch (OpenemsException e) {
 			log.warn(e.getMessage());
@@ -489,6 +535,15 @@ public class EdgeWebsocketHandler {
 	// }
 
 	/**
+	 * Send a message to the websocket.
+	 *
+	 * @param message
+	 */
+	public boolean send(JsonObject j) {
+		return WebSocketUtils.send(this.websocket, j);
+	}
+
+	/**
 	 * Send a log message to the websocket. This method is called by logback
 	 *
 	 * @param message2
@@ -504,8 +559,9 @@ public class EdgeWebsocketHandler {
 			jId.add("log");
 			jId.add(id);
 			JsonObject j = DefaultMessages.log(jId, timestamp, level, source, message);
+			// TODO reevaluate if it is necessary to do this async; ie if websocket.send returns directly or not
 			logExecutor.execute(() -> {
-				WebSocketUtils.send(websocket, j);
+				this.send(j);
 			});
 		}
 	}

@@ -17,7 +17,8 @@ public abstract class ParameterObject<T> extends StuderObject<T> {
 
 	@Override
 	public StuderProperty<T>[] getProperties() {
-		return new StuderProperty[] { value, unsavedValue };
+		@SuppressWarnings("unchecked") StuderProperty<T>[] properties = new StuderProperty[] { value, unsavedValue };
+		return properties;
 	}
 
 	protected abstract WriteProperty<T> initValue();

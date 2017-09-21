@@ -28,7 +28,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
@@ -54,27 +54,27 @@ public class VoltageCharacteristicController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ConfigInfo(title = "Meter", description = "The meter to measure the Voltage.", type = Meter.class)
+	@ChannelInfo(title = "Meter", description = "The meter to measure the Voltage.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	@ConfigInfo(title = "Nominal voltage", description = "The nominal voltage of the grid.", type = Integer.class)
+	@ChannelInfo(title = "Nominal voltage", description = "The nominal voltage of the grid.", type = Integer.class)
 	public final ConfigChannel<Integer> uNenn = new ConfigChannel<>("UNenn", this);
 
-	@ConfigInfo(title = "ActivePower characteristics", description = "Characteristic points for active power.", type = Long[].class, isArray = true)
+	@ChannelInfo(title = "ActivePower characteristics", description = "Characteristic points for active power.", type = Long[].class, isArray = true)
 	public final ConfigChannel<List<Long[]>> pByUCharacteristicPoints = new ConfigChannel<>("pByUCharacteristicPoints",
 			this);
 
-	@ConfigInfo(title = "ReactivePower characteristics", description = "Characteristic points for reactive power.", type = Long[].class, isArray = true)
+	@ChannelInfo(title = "ReactivePower characteristics", description = "Characteristic points for reactive power.", type = Long[].class, isArray = true)
 	public final ConfigChannel<List<Long[]>> qByUCharacteristicPoints = new ConfigChannel<>("qByUCharacteristicPoints",
 			this);
 
-	@ConfigInfo(title = "Enable ActivePower", description = "Indicates if active power characteristic is enabled.", type = Boolean.class, defaultValue = "true")
+	@ChannelInfo(title = "Enable ActivePower", description = "Indicates if active power characteristic is enabled.", type = Boolean.class, defaultValue = "true")
 	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<>("activePowerActivated", this);
 
-	@ConfigInfo(title = "Enable ReactivePower", description = "Indicates if reactive power characteristic is enabled.", type = Boolean.class, defaultValue = "true")
+	@ChannelInfo(title = "Enable ReactivePower", description = "Indicates if reactive power characteristic is enabled.", type = Boolean.class, defaultValue = "true")
 	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<>("reactivePowerActivated", this);
 
 	/*

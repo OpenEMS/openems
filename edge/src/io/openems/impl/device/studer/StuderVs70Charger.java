@@ -71,7 +71,8 @@ public class StuderVs70Charger extends StuderDeviceNature {
 		setStop = stop.value().channel();
 		FloatUserinfoObject vBatt = new FloatUserinfoObject(15000, "BatteryVoltage", "V", this);
 		p.addObject(vBatt);
-		batteryVoltage = (ReadChannel<Float>) vBatt.value().channel();
+		@SuppressWarnings("unchecked") ReadChannel<Float> batteryVoltage = (ReadChannel<Float>) vBatt.value().channel();
+		this.batteryVoltage = batteryVoltage;
 		return p;
 	}
 

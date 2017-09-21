@@ -199,15 +199,9 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 	 * This Channels
 	 */
 	public ModbusReadLongChannel phaseAllowedApparent;
-	public ModbusReadLongChannel frequencyL3;
-	public ModbusReadLongChannel frequencyL2;
-	public ModbusReadLongChannel frequencyL1;
-	public ModbusReadLongChannel currentL1;
-	public ModbusReadLongChannel currentL2;
-	public ModbusReadLongChannel currentL3;
-	public ModbusReadLongChannel voltageL1;
-	public ModbusReadLongChannel voltageL2;
-	public ModbusReadLongChannel voltageL3;
+	public ModbusReadLongChannel frequency;
+	public ModbusReadLongChannel current;
+	public ModbusReadLongChannel voltage;
 	public ModbusReadLongChannel pcsOperationState;
 	public ModbusReadLongChannel batteryPower;
 	public ModbusReadLongChannel batteryGroupAlarm;
@@ -216,27 +210,16 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 	public ModbusReadLongChannel batteryGroupState;
 	public ModbusReadLongChannel totalBatteryDischargeEnergy;
 	public ModbusReadLongChannel totalBatteryChargeEnergy;
-	public ModbusReadLongChannel workMode;
 	public ModbusReadLongChannel controlMode;
 	public ModbusWriteLongChannel setPcsMode;
 	public ModbusWriteLongChannel setSetupMode;
 	public ModbusReadLongChannel setupMode;
 	public ModbusReadLongChannel pcsMode;
-	public StatusBitChannel pcsAlarm1L1;
-	public StatusBitChannel pcsAlarm2L1;
-	public StatusBitChannel pcsFault1L1;
-	public StatusBitChannel pcsFault2L1;
-	public StatusBitChannel pcsFault3L1;
-	public StatusBitChannel pcsAlarm1L2;
-	public StatusBitChannel pcsAlarm2L2;
-	public StatusBitChannel pcsFault1L2;
-	public StatusBitChannel pcsFault2L2;
-	public StatusBitChannel pcsFault3L2;
-	public StatusBitChannel pcsAlarm1L3;
-	public StatusBitChannel pcsAlarm2L3;
-	public StatusBitChannel pcsFault1L3;
-	public StatusBitChannel pcsFault2L3;
-	public StatusBitChannel pcsFault3L3;
+	public StatusBitChannel pcsAlarm1;
+	public StatusBitChannel pcsAlarm2;
+	public StatusBitChannel pcsFault1;
+	public StatusBitChannel pcsFault2;
+	public StatusBitChannel pcsFault3;
 
 	/*
 	 * Methods
@@ -301,15 +284,15 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 								.label(7, "bypass 2")),
 				new DummyElement(115, 117), //
 				new SignedWordElement(118, //
-						currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA").multiplier(2)),
+						current = new ModbusReadLongChannel("Current", this).unit("mA").multiplier(2)),
 				new DummyElement(119, 120), new UnsignedWordElement(121, //
-						voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV").multiplier(2)),
+						voltage = new ModbusReadLongChannel("Voltage", this).unit("mV").multiplier(2)),
 				new DummyElement(122, 123), new SignedWordElement(124, //
-						activePower = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")),
+						activePower = new ModbusReadLongChannel("ActivePower", this).unit("W")),
 				new DummyElement(125, 126), new SignedWordElement(127, //
-						reactivePower = new ModbusReadLongChannel("ReactivePowerL1", this).unit("var")),
+						reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("var")),
 				new DummyElement(128, 130), new UnsignedWordElement(131, //
-						frequencyL1 = new ModbusReadLongChannel("FrequencyL1", this).unit("mHz").multiplier(1)),
+						frequency = new ModbusReadLongChannel("Frequency", this).unit("mHz").multiplier(1)),
 				new DummyElement(132, 133), new UnsignedWordElement(134, //
 						phaseAllowedApparent = new ModbusReadLongChannel("PhaseAllowedApparentPower", this).unit("VA")),
 				new DummyElement(135, 140), new UnsignedWordElement(141, //
@@ -317,7 +300,7 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 				new UnsignedWordElement(142, //
 						allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this).unit("W")),
 				new DummyElement(143, 149),
-				new UnsignedWordElement(150, pcsAlarm1L1 = warning.channel(new StatusBitChannel("PcsAlarm1L1", this)//
+				new UnsignedWordElement(150, pcsAlarm1 = warning.channel(new StatusBitChannel("PcsAlarm1", this)//
 						.label(1, "Grid undervoltage") //
 						.label(2, "Grid overvoltage") //
 						.label(4, "Grid under frequency") //
@@ -329,8 +312,8 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 						.label(256, "Combination error")//
 						.label(512, "Comm with inverter error")//
 						.label(1024, "Tme error")//
-				)), new UnsignedWordElement(151, pcsAlarm2L1 = warning.channel(new StatusBitChannel("PcsAlarm2L1", this)//
-				)), new UnsignedWordElement(152, warning.channel(pcsFault1L1 = new StatusBitChannel("PcsFault1L1", this)//
+				)), new UnsignedWordElement(151, pcsAlarm2 = warning.channel(new StatusBitChannel("PcsAlarm2", this)//
+				)), new UnsignedWordElement(152, warning.channel(pcsFault1 = new StatusBitChannel("PcsFault1", this)//
 						.label(1, "Control current overload 100%")//
 						.label(2, "Control current overload 110%")//
 						.label(4, "Control current overload 150%")//
@@ -347,7 +330,7 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 						.label(8192, "Grid current zero drift error")//
 						.label(16384, "PDP protection")//
 						.label(32768, "Hardware control current protection")//
-				)), new UnsignedWordElement(153, warning.channel(pcsFault2L1 = new StatusBitChannel("PcsFault2L1", this)//
+				)), new UnsignedWordElement(153, warning.channel(pcsFault2 = new StatusBitChannel("PcsFault2", this)//
 						.label(1, "Hardware AC volt. protection")//
 						.label(2, "Hardware DC curr. protection")//
 						.label(4, "Hardware temperature protection")//
@@ -364,7 +347,7 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 						.label(8192, "Phase lack")//
 						.label(16384, "Inverter relay fault")//
 						.label(32768, "Grid relay fault")//
-				)), new UnsignedWordElement(154, warning.channel(pcsFault3L1 = new StatusBitChannel("PcsFault3L1", this)//
+				)), new UnsignedWordElement(154, warning.channel(pcsFault3 = new StatusBitChannel("PcsFault3", this)//
 						.label(1, "Control panel overtemp")//
 						.label(2, "Power panel overtemp")//
 						.label(4, "DC input overcurrent")//
@@ -461,8 +444,7 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 
 	@Override
 	public StaticValueChannel<Long> capacity() {
-		// TODO Auto-generated method stub
-		return null;
+		return capacity;
 	}
 
 }

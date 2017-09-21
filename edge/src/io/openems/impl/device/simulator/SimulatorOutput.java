@@ -3,10 +3,12 @@ package io.openems.impl.device.simulator;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.OutputNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorWriteChannel;
 
+@ThingInfo(title = "Simulator Output")
 public class SimulatorOutput extends SimulatorDeviceNature implements OutputNature {
 
 	private SimulatorWriteChannel<Boolean> do1 = new SimulatorWriteChannel<>("DO1", this, false);
@@ -23,7 +25,9 @@ public class SimulatorOutput extends SimulatorDeviceNature implements OutputNatu
 
 	public SimulatorOutput(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.array = new SimulatorWriteChannel[] { do1, do2, do3, do4, do5, do6, do7, do8, do9, do10 };
+		@SuppressWarnings("unchecked") SimulatorWriteChannel<Boolean>[] array = new SimulatorWriteChannel[] { do1, do2,
+				do3, do4, do5, do6, do7, do8, do9, do10 };
+		this.array = array;
 	}
 
 	@Override

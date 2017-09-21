@@ -36,4 +36,28 @@
       </md-card-content>
     </md-card>
   </div>
+
+  <div *ngIf="device" routerLink="/device/{{ device.name }}/config/all" fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>more_horiz</md-icon>
+        <md-card-title translate>All Config</md-card-title>
+        <!-- TODO translate -->
+      </md-card-header>
+      <md-card-content>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <div routerLink="/config/debugmode" fxFlex="50%" fxFlex.xs="100%">
+    <md-card class="single">
+      <md-card-header>
+        <md-icon md-card-avatar>more_horiz</md-icon>
+        <md-card-title translate>Debug Mode</md-card-title>
+        <!-- TODO translate -->
+      </md-card-header>
+      <md-card-content>
+      </md-card-content>
+    </md-card>
+  </div>
 </div>

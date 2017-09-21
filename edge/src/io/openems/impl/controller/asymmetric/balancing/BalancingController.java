@@ -27,7 +27,7 @@ import java.util.Optional;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -50,13 +50,13 @@ public class BalancingController extends Controller {
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "Cos-Phi", type = Double.class, defaultValue = "0.95")
+	@ChannelInfo(title = "Cos-Phi", type = Double.class, defaultValue = "0.95")
 	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
 
-	@ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
-	@ConfigInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
+	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
 	/*

@@ -1,0 +1,23 @@
+<md-card class="single" *ngIf="meta">
+    <md-card-header>
+        <md-icon md-card-avatar>apps</md-icon>
+        <md-card-title>{{ meta.title }}</md-card-title>
+        <md-card-subtitle><span *ngIf="meta.text">{{ meta.text }}<br/><br/></span>ID: {{ thing.id }}<br/>Implementation: {{ thing.class }}</md-card-subtitle>
+    </md-card-header>
+    <md-card-content fxLayout fxLayoutWrap="wrap">
+        <ng-container *ngFor="let channelId of utils.keys(meta.channels)">
+            <channel [thingId]="thingId" [channelId]="channelId" [config]="config" [role]="role" [device]="device" [showThings]="showSubThings"
+                fxFlex="100%"></channel>
+        </ng-container>
+        <!-- Special cases -->
+        <!-- <timelinecharge fxFlex="100%" *ngIf="utils.classname(controller.form.value.class) == 'TimelineChargeController'" [controller]="controller"></timelinecharge> -->
+        <!-- <p>{{ controller.form.value | json }}</p> -->
+        <!-- <p>{{ controller.meta | json }}</p> -->
+        <md-list dense>
+            <md-list-item *ngFor="let message of utils.values(messages)">Update "{{ message.config.thing }}/{{ message.config.channel }}" to "{{ message.config.value }}".</md-list-item>
+        </md-list>
+    </md-card-content>
+    <md-card-actions fxLayout fxLayoutAlign="end start">
+        <button [disabled]="formPristine" md-fab (click)="save()"><md-icon>save</md-icon></button>
+    </md-card-actions>
+</md-card>

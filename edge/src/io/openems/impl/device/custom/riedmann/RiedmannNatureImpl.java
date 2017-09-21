@@ -1,6 +1,7 @@
 package io.openems.impl.device.custom.riedmann;
 
 import io.openems.api.device.Device;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;
@@ -13,6 +14,7 @@ import io.openems.impl.protocol.modbus.internal.SignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
+@ThingInfo(title = "Custom: Riedmann PLC")
 public class RiedmannNatureImpl extends ModbusDeviceNature implements RiedmannNature {
 
 	private ModbusReadChannel<Long> waterlevel;

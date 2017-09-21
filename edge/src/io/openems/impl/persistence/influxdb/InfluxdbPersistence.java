@@ -39,7 +39,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.doc.ConfigInfo;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.persistence.QueryablePersistence;
@@ -52,22 +52,22 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	/*
 	 * Config
 	 */
-	@ConfigInfo(title = "FEMS", description = "Sets FEMS-number.", type = Integer.class)
+	@ChannelInfo(title = "FEMS", description = "Sets FEMS-number.", type = Integer.class)
 	public final ConfigChannel<Integer> fems = new ConfigChannel<>("fems", this);
 
-	@ConfigInfo(title = "IP address", description = "IP address of InfluxDB.", type = Inet4Address.class)
+	@ChannelInfo(title = "IP address", description = "IP address of InfluxDB.", type = Inet4Address.class)
 	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<>("ip", this);
 
-	@ConfigInfo(title = "Username", description = "Username for InfluxDB.", type = String.class, defaultValue = "root")
+	@ChannelInfo(title = "Username", description = "Username for InfluxDB.", type = String.class, defaultValue = "root")
 	public final ConfigChannel<String> username = new ConfigChannel<>("username", this);
 
-	@ConfigInfo(title = "Password", description = "Password for InfluxDB.", type = String.class, defaultValue = "root")
+	@ChannelInfo(title = "Password", description = "Password for InfluxDB.", type = String.class, defaultValue = "root")
 	public final ConfigChannel<String> password = new ConfigChannel<>("password", this);
 
-	@ConfigInfo(title = "Database", description = "Database name for InfluxDB.", type = String.class, defaultValue = "db")
+	@ChannelInfo(title = "Database", description = "Database name for InfluxDB.", type = String.class, defaultValue = "db")
 	public final ConfigChannel<String> database = new ConfigChannel<>("database", this);
 
-	@ConfigInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
+	@ChannelInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(10000);
 
 	/*
