@@ -95,19 +95,21 @@ public class Ess extends ThingMap {
 	}
 
 	public void setWorkState() throws WriteChannelException {
-		switch (currentState) {
-		case STANDBY:
-			setWorkState.pushWriteFromLabel(EssNature.STANDBY);
-			break;
-		case START:
-			setWorkState.pushWriteFromLabel(EssNature.START);
-			break;
-		case STOP:
-			setWorkState.pushWriteFromLabel(EssNature.STOP);
-			break;
-		default:
-			setWorkState.pushWriteFromLabel(EssNature.STANDBY);
-			break;
+		if (currentState != null) {
+			switch (currentState) {
+			case STANDBY:
+				setWorkState.pushWriteFromLabel(EssNature.STANDBY);
+				break;
+			case START:
+				setWorkState.pushWriteFromLabel(EssNature.START);
+				break;
+			case STOP:
+				setWorkState.pushWriteFromLabel(EssNature.STOP);
+				break;
+			default:
+				setWorkState.pushWriteFromLabel(EssNature.STANDBY);
+				break;
+			}
 		}
 	}
 
