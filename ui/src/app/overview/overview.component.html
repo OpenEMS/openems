@@ -55,8 +55,10 @@
             <span>{{ device.comment }} <span *ngIf="!device.online"><br/><span translate>Overview.IsOffline</span></span>
             </span>
           </md-card-title>
-          <md-card-subtitle *ngIf="env.backend === 'OpenEMS Backend'">
-            <span>{{ device.name }}: {{ device.producttype }}</span>
+          <md-card-subtitle>
+            <p *ngIf="env.backend === 'OpenEMS Backend'">{{ device.name }}: {{ device.producttype }}</p>
+            <p>Angemeldet als '{{ device.role.name }}'.</p>
+            <!-- TODO translate -->
           </md-card-subtitle>
         </md-card-header>
         <md-card-actions fxLayout fxLayoutAlign="end start" *ngIf="device.online">
