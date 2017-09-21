@@ -108,6 +108,9 @@ export class Websocket {
       return;
     }
 
+    if (env.debugMode) {
+      console.info("Websocket connect to URL [" + env.url + "]");
+    }
     const { messages, connectionStatus } = websocketConnect(
       env.url,
       this.inputStream = new Subject<any>()
@@ -116,6 +119,9 @@ export class Websocket {
       .takeUntil(this.stopOnInitialize)
       .subscribe(count => {
         let isConnected = count > 0;
+        if (env.debugMode) {
+          console.info("Websocket connected [" + isConnected + "]");
+        }
         this.isWebsocketConnected.next(isConnected);
 
         if (!isConnected && this.status == 'online') {
@@ -141,7 +147,7 @@ export class Websocket {
     }).map(message => JSON.parse(message)).subscribe(message => {
       // called on every receive of message from server
       if (env.debugMode) {
-        console.debug("RECV", message);
+        console.info("RECV", message);
       }
       /*
        * Authenticate
@@ -334,7 +340,7 @@ export class Websocket {
    */
   public send(message: any, device?: Device): void {
     if (env.debugMode) {
-      console.debug("SEND: ", message);
+      console.info("SEND: ", message);
     }
     if (device) {
       if ("id" in message) {
