@@ -15,7 +15,7 @@
 	<modules>
 		<module>common</module>
 		<module>edge</module>
-		<module>backend</module>
+		<!-- <module>backend</module> -->
 		<!-- <module>ui</module> -->
 	</modules>
 	<properties>
@@ -24,6 +24,7 @@
 		<guava.version>23.0</guava.version>
 		<influxdb.version>2.7</influxdb.version>
 		<j2mod.version>2.3.4</j2mod.version>
+		<junit.version>4.8.1</junit.version>
 		<logback.version>1.2.3</logback.version>
 		<maven-compiler-plugin.version>3.6.2</maven-compiler-plugin.version>
 		<restlet.version>2.3.10</restlet.version>
@@ -46,6 +47,12 @@
 			<groupId>org.influxdb</groupId>
 			<artifactId>influxdb-java</artifactId>
 			<version>${influxdb.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
