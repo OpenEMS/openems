@@ -1,5 +1,5 @@
 <div *ngIf="form" [formGroup]="form">
-    <ng-container *ngIf="role.isHigherThan(meta.accessLevel)">
+    <ng-container *ngIf="role.isAtLeast(meta.accessLevel)">
         <!-- array -->
         <div *ngIf="meta.array == true; else no_array" formArrayName="channelConfig" fxFlex="100%" fxLayout>
             <md-form-field *ngIf="form.value.channelConfig.length == 0" fxFlex="30%">
