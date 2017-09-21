@@ -43,7 +43,7 @@ export class OverviewComponent {
 
   doLogin() {
     let password: string = this.form.value['password'];
-    this.websocket.send(DefaultMessages.authenticateLogin(password));
+    this.websocket.logIn(password);
   }
 
   doLogout(form: FormGroup) {

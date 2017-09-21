@@ -15,6 +15,14 @@ export class DefaultMessages {
         return m;
     };
 
+    public static authenticateLogout() {
+        return {
+            authenticate: {
+                mode: "logout"
+            }
+        };
+    };
+
     public static configQuery() {
         return {
             device: String,

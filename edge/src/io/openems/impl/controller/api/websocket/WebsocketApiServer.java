@@ -82,10 +82,10 @@ public class WebsocketApiServer
 				WebSocketUtils.send(websocket, jReply);
 				return;
 			}
+			// if we are here, automatic authentication was not possible -> notify client
+			WebSocketUtils.sendNotification(websocket, Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED,
+					tokenOpt.orElse(""));
 		}
-		// if we are here, automatic authentication was not possible -> notify client
-		WebSocketUtils.sendNotification(websocket, Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED,
-				tokenOpt.orElse(""));
 	}
 
 	@Override
@@ -159,6 +159,12 @@ public class WebsocketApiServer
 							return this.sessionManager.authByPassword(password, websocket);
 						}
 					}
+
+				} else if (mode.equals("logout")) {
+					/*
+					 * Logout and close session
+					 */
+					this.websockets.remove(websocket);
 				}
 			}
 		} catch (OpenemsException e) { /* ignore */ }

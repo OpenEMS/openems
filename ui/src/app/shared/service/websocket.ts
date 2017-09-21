@@ -33,7 +33,7 @@ export class Websocket {
   }
 
   public status: DefaultTypes.ConnectionStatus = "connecting";
-  public noOfConnectedWebsockets: number;
+  public isWebsocketConnected: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   private username: string = "";
   private messages: Observable<any>;
@@ -102,7 +102,7 @@ export class Websocket {
   /**
    * Opens a connection using a stored token or a cookie with a session_id for this websocket. Called once by constructor
    */
-  private connect() {
+  private connect(): BehaviorSubject<boolean> {
     if (this.messages) {
       return;
     }
@@ -113,9 +113,11 @@ export class Websocket {
     );
     connectionStatus
       .takeUntil(this.stopOnInitialize)
-      .subscribe(noOfConnectedWebsockets => {
-        this.noOfConnectedWebsockets = noOfConnectedWebsockets;
-        if (noOfConnectedWebsockets == 0 && this.status == 'online') {
+      .subscribe(count => {
+        let isConnected = count > 0;
+        this.isWebsocketConnected.next(isConnected);
+
+        if (!isConnected && this.status == 'online') {
           this.service.notify({
             message: "Connection lost. Trying to reconnect.", // TODO translate
             type: 'warning'
@@ -123,6 +125,14 @@ export class Websocket {
           // TODO show spinners everywhere
           this.status = 'connecting';
         }
+
+        if (isConnected) {
+          this.status = 'waiting for authentication';
+        }
+      }, error => {
+        console.error(error);
+      }, () => {
+        this.isWebsocketConnected.next(false);
       });
     this.messages = messages.share();
     this.messages.takeUntil(this.stopOnInitialize).retryWhen(errors => {
@@ -273,6 +283,7 @@ export class Websocket {
         }
       }
     });
+    return this.isWebsocketConnected;
   }
 
   /**
@@ -282,18 +293,36 @@ export class Websocket {
     this.stopOnInitialize.next();
     this.stopOnInitialize.complete();
     this.messages = null;
-    this.noOfConnectedWebsockets = 0;
     this.devices.next({});
   }
 
   /**
-   * Logs out without closing the connection.
+   * Opens the websocket and logs in
+   */
+  public logIn(password: string) {
+    if (this.isWebsocketConnected.getValue()) {
+      // websocket was connected
+      this.send(DefaultMessages.authenticateLogin(password));
+    } else {
+      // websocket was NOT connected
+      this.connect()
+        .takeUntil(this.stopOnInitialize)
+        .filter(isConnected => isConnected)
+        .first()
+        .subscribe(isConnected => {
+          this.send(DefaultMessages.authenticateLogin(password));
+        });
+    }
+  }
+
+  /**
+   * Logs out and closes the websocket
    */
   public logOut() {
-    // TODO this is not a real logOut... should send a message, without stopping the websocket
+    this.send(DefaultMessages.authenticateLogout());
     this.status = "waiting for authentication";
     this.service.removeToken();
-    this.devices.next({});
+    this.initialize();
   }
 
   /**
