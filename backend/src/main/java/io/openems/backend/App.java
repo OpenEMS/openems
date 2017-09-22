@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.backend.browserwebsocket.BrowserWebsocket;
 import io.openems.backend.metadata.Metadata;
 import io.openems.backend.openemswebsocket.OpenemsWebsocket;
+import io.openems.backend.restapi.RestApi;
 import io.openems.backend.timedata.Timedata;
 import io.openems.common.utils.EnvUtils;
 
@@ -22,6 +23,7 @@ public class App {
 		initTimedataProvider();
 		initOpenemsWebsocket();
 		initBrowserWebsocket();
+		initRestApi();
 
 		log.info("OpenEMS Backend started.");
 		log.info("================================================================================");
@@ -74,5 +76,11 @@ public class App {
 		int port = EnvUtils.getAsInt("BROWSER_WEBSOCKET_PORT");
 		log.info("Start Browser Websocket server on port [" + port + "]");
 		BrowserWebsocket.initialize(port);
+	}
+
+	private static void initRestApi() throws Exception {
+		int port = EnvUtils.getAsInt("REST_API_PORT");
+		log.info("Start Rest-Api server on port [" + port + "]");
+		RestApi.initialize(port);
 	}
 }

@@ -1,5 +1,7 @@
 package io.openems.backend.openemswebsocket;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
@@ -255,5 +257,9 @@ public class OpenemsWebsocketSingleton
 		}
 		OpenemsSession session = sessionOpt.get();
 		return Optional.ofNullable(this.websockets.inverse().get(session));
+	}
+
+	public Collection<OpenemsSession> getSessions() {
+		return Collections.synchronizedCollection(this.sessionManager.getSessions());
 	}
 }

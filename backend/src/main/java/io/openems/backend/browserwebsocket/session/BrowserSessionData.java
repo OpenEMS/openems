@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.gson.JsonObject;
+
 import io.openems.common.session.SessionData;
 import io.openems.common.types.Device;
 
@@ -43,5 +45,12 @@ public class BrowserSessionData extends SessionData {
 
 	public List<Device> getDevices() {
 		return devices;
+	}
+
+	@Override
+	public JsonObject toJsonObject() {
+		JsonObject j = new JsonObject();
+		// TODO Auto-generated method stub
+		return j;
 	}
 }
