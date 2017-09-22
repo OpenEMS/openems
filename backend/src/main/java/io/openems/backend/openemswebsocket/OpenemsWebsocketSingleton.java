@@ -105,13 +105,14 @@ public class OpenemsWebsocketSingleton
 	}
 
 	/**
-	 * Close event of websocket. Removes the session and the websocket.
+	 * Close event of websocket. Removes the session.
 	 */
 	@Override
-	public void onClose(WebSocket websocket, int code, String reason, boolean remote) {
-		OpenemsSession session = this.websockets.get(websocket);
-		sessionManager.removeSession(session);
-		super.onClose(websocket, code, reason, remote);
+	public void _onClose(WebSocket websocket, Optional<OpenemsSession> sessionOpt) {
+		if (sessionOpt.isPresent()) {
+			log.info("Would remove the session... " + sessionOpt.get());
+			// TODO sessionManager.removeSession(sessionOpt.get());
+		}
 	}
 
 	/**
