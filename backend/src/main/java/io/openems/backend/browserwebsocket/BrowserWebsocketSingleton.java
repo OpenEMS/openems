@@ -166,6 +166,11 @@ public class BrowserWebsocketSingleton
 		}
 	}
 
+	@Override
+	protected void _onClose(WebSocket websocket, Optional<BrowserSession> sessionOpt) {
+		// nothing to do. Session is kept open.
+	}
+
 	/**
 	 * Forward message to OpenEMS websocket.
 	 *

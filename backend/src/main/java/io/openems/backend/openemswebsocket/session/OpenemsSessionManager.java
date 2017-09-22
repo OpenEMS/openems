@@ -21,7 +21,7 @@ public class OpenemsSessionManager extends SessionManager<OpenemsSession, Openem
 	@Override
 	protected void _putSession(String token, OpenemsSession session) {
 		super._putSession(token, session);
-		this.token2name.put(token, session.getData().getDevice().getName());
+		this.token2name.forcePut(token, session.getData().getDevice().getName());
 	}
 
 	@Override

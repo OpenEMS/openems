@@ -45,7 +45,7 @@ public class ConnectionManagerSingleton {
 	 * Helper methods for Browser websockets
 	 */
 	public void addBrowserWebsocket(WebSocket websocket, BrowserSession session) {
-		this.browserWebsockets.put(websocket, session);
+		this.browserWebsockets.forcePut(websocket, session);
 	}
 
 	public void removeBrowserWebsocket(WebSocket websocket) {
@@ -57,7 +57,7 @@ public class ConnectionManagerSingleton {
 	 * Helper methods for OpenEMS websockets
 	 */
 	public void addOpenemsWebsocket(WebSocket websocket, String deviceName) {
-		this.openemsWebsockets.put(websocket, deviceName);
+		this.openemsWebsockets.forcePut(websocket, deviceName);
 	}
 
 	public void removeOpenemsWebsocket(WebSocket websocket) {

@@ -120,7 +120,7 @@ public class WebsocketApiServer
 		 */
 		if (jMessage.has("authenticate")) {
 			// add to websockets
-			this.websockets.put(websocket, session);
+			this.websockets.forcePut(websocket, session);
 			// send connection successful to browser
 			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
 					Optional.of(session.getData().getRole()), new ArrayList<>());
@@ -133,6 +133,11 @@ public class WebsocketApiServer
 		 * Rest -> forward to websocket handler
 		 */
 		session.getData().getWebsocketHandler().onMessage(jMessage);
+	}
+
+	@Override
+	protected void _onClose(WebSocket websocket, Optional<WebsocketApiSession> sessionOpt) {
+		// nothing to do here
 	}
 
 	/**

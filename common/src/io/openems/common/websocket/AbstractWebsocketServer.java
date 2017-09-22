@@ -30,8 +30,9 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 
 	protected abstract void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt);
-	
+
 	protected abstract void _onOpen(WebSocket websocket, ClientHandshake handshake);
+	protected abstract void _onClose(WebSocket websocket, Optional<S> sessionOpt);
 
 	public AbstractWebsocketServer(int port, M sessionManager) {
 		super(new InetSocketAddress(port));
@@ -52,19 +53,24 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 	}
 
 	/**
-	 * Close event of websocket. Removes the websocket. Keeps the session
+	 * Close event of websocket. Removes the websocket. Keeps the session. Calls _onClose()
 	 */
 	@Override
-	public void onClose(WebSocket websocket, int code, String reason, boolean remote) {
-		S session = this.websockets.get(websocket);
-		String sessionString;
-		if (session == null) {
-			sessionString = "";
-		} else {
-			sessionString = session.toString();
+	public final void onClose(WebSocket websocket, int code, String reason, boolean remote) {
+		try {
+			Optional<S> sessionOpt = Optional.ofNullable(this.websockets.get(websocket));
+			String sessionString;
+			if (sessionOpt.isPresent()) {
+				sessionString = sessionOpt.get().toString() + " ";
+			} else {
+				sessionString = "";
+			}
+			log.info(sessionString + "Websocket closed. Code [" + code + "] Reason [" + reason + "]");
+			this.websockets.remove(websocket);
+			this._onClose(websocket, sessionOpt);
+		} catch (Throwable e) {
+			log.error("onClose-Error. Code [" + code + "] Reason [" + reason + "]: " + e.getMessage());
 		}
-		log.info(sessionString + " Websocket closed. Code [" + code + "] Reason [" + reason + "]. Total websockets [" + this.websockets.size() + "]");
-		this.websockets.remove(websocket);
 	}
 
 	/**
@@ -125,13 +131,13 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 	 */
 	protected JsonObject handshakeToJsonObject(ClientHandshake handshake) {
 		JsonObject j = new JsonObject();
-		for (Iterator<String> iter = handshake.iterateHttpFields(); iter.hasNext(); ) {
-		    String field = iter.next();
-		    j.addProperty(field, handshake.getFieldValue(field));
+		for (Iterator<String> iter = handshake.iterateHttpFields(); iter.hasNext();) {
+			String field = iter.next();
+			j.addProperty(field, handshake.getFieldValue(field));
 		}
 		return j;
 	}
-	
+
 	@Override
 	public final void onStart() {
 		// nothing to do
