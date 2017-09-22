@@ -1,5 +1,3 @@
-[![Dependency Status](https://www.versioneye.com/user/projects/59a3dd596725bd004562717b/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/59a3dd596725bd004562717b)
-
 # OpenEMS
 ## Open Source Energy Management System
 
