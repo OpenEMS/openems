@@ -41,7 +41,7 @@ public interface MetadataDevice {
 		j.addProperty("name", this.getName());
 		j.addProperty("comment", this.getComment());
 		j.addProperty("id", this.getId());
-		j.add("openemsConfig", this.getOpenemsConfig());
+		// j.add("openemsConfig", this.getOpenemsConfig());
 		j.addProperty("productType", this.getProductType());
 		j.addProperty("state", this.getState());
 		return j;
