@@ -166,6 +166,11 @@ public class BrowserWebsocketSingleton
 		}
 	}
 
+	@Override
+	protected void _onClose(WebSocket websocket, Optional<BrowserSession> sessionOpt) {
+		// nothing to do. Session is kept open.
+	}
+
 	/**
 	 * Forward message to OpenEMS websocket.
 	 *
@@ -263,7 +268,8 @@ public class BrowserWebsocketSingleton
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
 					WebSocket websocket = this.websockets.inverse().get(session);
-					WebSocketUtils.sendNotification(Optional.of(websocket), Notification.EDGE_CONNECTION_OPENED, name);
+					WebSocketUtils.sendNotification(Optional.ofNullable(websocket), Notification.EDGE_CONNECTION_OPENED,
+							name);
 				}
 			}
 		}

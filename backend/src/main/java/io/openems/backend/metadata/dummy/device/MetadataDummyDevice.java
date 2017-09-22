@@ -105,5 +105,4 @@ public class MetadataDummyDevice extends Device implements MetadataDevice {
 	public void writeObject() throws OpenemsException {
 		log.debug("Metadata Dummy. Would write object");
 	}
-
 }

@@ -1,5 +1,7 @@
 package io.openems.common.session;
 
-public class SessionData {
+import com.google.gson.JsonObject;
 
+public abstract class SessionData {
+	public abstract JsonObject toJsonObject();
 }
