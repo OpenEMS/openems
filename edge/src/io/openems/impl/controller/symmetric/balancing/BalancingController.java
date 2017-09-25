@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.controller.symmetric.balancing;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.AvgFiFoQueue;
 
 @ThingInfo(title = "Self-consumption optimization (Symmetric)", description = "Tries to keep the grid meter on zero. For symmetric Ess. Ess-Cluster is supported.")
 public class BalancingController extends Controller {
@@ -54,6 +56,8 @@ public class BalancingController extends Controller {
 	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
+	private AvgFiFoQueue meterPower = new AvgFiFoQueue(2, 1.5);
+
 	/*
 	 * Methods
 	 */
@@ -73,12 +77,15 @@ public class BalancingController extends Controller {
 			// Run only if all ess are on-grid
 			if (isOnGrid()) {
 				// Calculate required sum values
-				long calculatedPower = meter.value().activePower.value();
+				meterPower.add(meter.value().activePower.value());
+				List<Ess> useableEss = getUseableEss();
+				long calculatedPower = meterPower.avg();
 				long maxChargePower = 0;
 				long maxDischargePower = 0;
 				long useableSoc = 0;
-				for (Ess ess : esss.value()) {
-					calculatedPower += ess.activePower.value();
+				for (Ess ess : useableEss) {
+					ess.powerAvg.add(ess.activePower.value());
+					calculatedPower += ess.powerAvg.avg();
 					maxChargePower += ess.setActivePower.writeMin().orElse(ess.allowedCharge.value());
 					maxDischargePower += ess.setActivePower.writeMax().orElse(ess.allowedDischarge.value());
 					useableSoc += ess.useableSoc();
@@ -91,7 +98,7 @@ public class BalancingController extends Controller {
 						calculatedPower = maxDischargePower;
 					}
 					// sort ess by useableSoc asc
-					Collections.sort(esss.value(), (a, b) -> {
+					Collections.sort(useableEss, (a, b) -> {
 						try {
 							return (int) (a.useableSoc() - b.useableSoc());
 						} catch (InvalidValueException e) {
@@ -99,13 +106,13 @@ public class BalancingController extends Controller {
 							return 0;
 						}
 					});
-					for (int i = 0; i < esss.value().size(); i++) {
-						Ess ess = esss.value().get(i);
+					for (int i = 0; i < useableEss.size(); i++) {
+						Ess ess = useableEss.get(i);
 						// calculate minimal power needed to fulfill the calculatedPower
 						long minP = calculatedPower;
-						for (int j = i + 1; j < esss.value().size(); j++) {
-							if (esss.value().get(j).useableSoc() > 0) {
-								minP -= esss.value().get(j).allowedDischarge.value();
+						for (int j = i + 1; j < useableEss.size(); j++) {
+							if (useableEss.get(j).useableSoc() > 0) {
+								minP -= useableEss.get(j).allowedDischarge.value();
 							}
 						}
 						if (minP < 0) {
@@ -142,7 +149,7 @@ public class BalancingController extends Controller {
 					 * 100 - (- 5) = 105
 					 * => ess with negative useableSoc will be charged much more then one with positive useableSoc
 					 */
-					Collections.sort(esss.value(), (a, b) -> {
+					Collections.sort(useableEss, (a, b) -> {
 						try {
 							return (int) ((100 - a.useableSoc()) - (100 - b.useableSoc()));
 						} catch (InvalidValueException e) {
@@ -150,12 +157,12 @@ public class BalancingController extends Controller {
 							return 0;
 						}
 					});
-					for (int i = 0; i < esss.value().size(); i++) {
-						Ess ess = esss.value().get(i);
+					for (int i = 0; i < useableEss.size(); i++) {
+						Ess ess = useableEss.get(i);
 						// calculate minimal power needed to fulfill the calculatedPower
 						long minP = calculatedPower;
-						for (int j = i + 1; j < esss.value().size(); j++) {
-							minP -= esss.value().get(j).allowedCharge.value();
+						for (int j = i + 1; j < useableEss.size(); j++) {
+							minP -= useableEss.get(j).allowedCharge.value();
 						}
 						if (minP > 0) {
 							minP = 0;
@@ -168,8 +175,7 @@ public class BalancingController extends Controller {
 						double diff = maxP - minP;
 						// weight the range of possible power by the useableSoc
 						long p = (long) Math.floor(
-								(minP + diff / (esss.value().size() * 100 - useableSoc) * (100 - ess.useableSoc()))
-										/ 100)
+								(minP + diff / (useableEss.size() * 100 - useableSoc) * (100 - ess.useableSoc())) / 100)
 								* 100;
 						ess.power.setActivePower(p);
 						ess.power.writePower();
@@ -183,6 +189,16 @@ public class BalancingController extends Controller {
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
 		}
+	}
+
+	private List<Ess> getUseableEss() throws InvalidValueException {
+		List<Ess> useableEss = new ArrayList<>();
+		for (Ess ess : esss.value()) {
+			if (ess.activePower.valueOptional().isPresent()) {
+				useableEss.add(ess);
+			}
+		}
+		return useableEss;
 	}
 
 }
