@@ -33,6 +33,15 @@ currently forwarded to Odoo login page
 }
 ```
 
+[1.1.2.2] Manual logout
+```
+{
+	authenticate: {
+		mode: "logout"
+	}
+}
+```
+
 [1.1.3] Authentication reply
 
 [1.1.3.1] Authentication successful
@@ -119,7 +128,8 @@ Backend is transparently proxying requests to a connected Edge if necessary, add
 						type: string | string[],
 						optional: boolean,
 						array: boolean,
-						accessLevel: string
+						accessLevel: string,
+						defaultValue: string
 					}
 				}
 			}

@@ -1,5 +1,0 @@
-<div *ngIf="config" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
-  <div fxFlex="100%" *ngFor="let thingId of utils.keys(config.things)">
-    <existingthing [thingId]="thingId" [device]="device"></existingthing>
-  </div>
-</div>

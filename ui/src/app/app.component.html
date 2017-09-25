@@ -4,7 +4,7 @@
       <md-list-item>
         <button routerLinkActive="active" routerLink="/overview" md-button><span translate>Menu.Overview</span></button>
       </md-list-item>
-      <md-list-item *ngIf="env.backend === 'OpenEMS Edge'">
+      <md-list-item *ngIf="env.backend === 'OpenEMS Edge' && env.production">
         <!--TODO: is this link still necessary?-->
         <a href="/grafana/dashboard/file/fems-asymmetric.json" md-button><span translate>General.History</span></a>
       </md-list-item>
@@ -20,10 +20,6 @@
       </div>
       <ng-container *ngIf="(websocket.currentDevice | async) as currentDevice">
         <div fxFlex>
-          <button routerLink="/overview" md-button>FEMS</button>
-          <button md-icon-button style="cursor:default">
-            <md-icon>keyboard_arrow_right</md-icon>
-          </button>
           <!-- TODO show breadcrumbs like 'Energymonitor > History', 'Energymonitor > Settings' -->
           <button routerLink="/device/{{ currentDevice.name }}/overview" md-button>Energiemonitor <small>({{ currentDevice.name }})</small></button>
         </div>

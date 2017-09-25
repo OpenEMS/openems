@@ -158,12 +158,17 @@ public class BrowserWebsocketSingleton
 				try {
 					forwardMessageToOpenems(websocket, jMessage, deviceName);
 				} catch (OpenemsException e) {
-					WebSocketUtils.send(websocket, DefaultMessages.notification(Notification.EDGE_UNABLE_TO_FORWARD,
-							deviceName, e.getMessage()));
+					WebSocketUtils.sendNotification(websocket, Notification.EDGE_UNABLE_TO_FORWARD, deviceName,
+							e.getMessage());
 					log.error("Unable to forward to Device [" + deviceName + "] : " + e.getMessage());
 				}
 			}
 		}
+	}
+
+	@Override
+	protected void _onClose(WebSocket websocket, Optional<BrowserSession> sessionOpt) {
+		// nothing to do. Session is kept open.
 	}
 
 	/**
@@ -246,9 +251,8 @@ public class BrowserWebsocketSingleton
 		for (BrowserSession session : this.sessionManager.getSessions()) {
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
-					WebSocket ws = this.websockets.inverse().get(session);
-					JsonObject j = DefaultMessages.notification(Notification.EDGE_CONNECTION_ClOSED, name);
-					WebSocketUtils.send(ws, j);
+					WebSocket websocket = this.websockets.inverse().get(session);
+					WebSocketUtils.sendNotification(websocket, Notification.EDGE_CONNECTION_ClOSED, name);
 				}
 			}
 		}
@@ -263,11 +267,9 @@ public class BrowserWebsocketSingleton
 		for (BrowserSession session : this.sessionManager.getSessions()) {
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
-					WebSocket ws = this.websockets.inverse().get(session);
-					if (ws != null) {
-						JsonObject j = DefaultMessages.notification(Notification.EDGE_CONNECTION_OPENED, name);
-						WebSocketUtils.send(ws, j);
-					}
+					WebSocket websocket = this.websockets.inverse().get(session);
+					WebSocketUtils.sendNotification(Optional.ofNullable(websocket), Notification.EDGE_CONNECTION_OPENED,
+							name);
 				}
 			}
 		}

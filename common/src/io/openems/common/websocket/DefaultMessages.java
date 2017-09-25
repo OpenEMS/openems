@@ -239,11 +239,11 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject notification(Notification code, Object... params) {
+	public static JsonObject notification(Notification code, String message,  Object... params) {
 		JsonObject j = new JsonObject();
 		JsonObject jNotification = new JsonObject();
 		jNotification.addProperty("status", code.getStatus().toString().toLowerCase());
-		jNotification.addProperty("message", String.format(code.getMessage(), params));
+		jNotification.addProperty("message", message);
 		jNotification.addProperty("code", code.getValue());
 		JsonArray jParams = new JsonArray();
 		for(Object param : params) {

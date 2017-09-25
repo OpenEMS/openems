@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 import io.openems.api.bridge.BridgeReadTask;
+import io.openems.api.channel.DebugChannel;
 import io.openems.api.exception.OpenemsModbusException;
 import io.openems.impl.protocol.modbus.internal.CoilElement;
 import io.openems.impl.protocol.modbus.internal.DoublewordElement;
@@ -20,12 +21,14 @@ public class ModbusBridgeReadTask extends BridgeReadTask {
 	private ModbusBridge modbusBridge;
 	private ModbusRange range;
 	protected final Logger log;
+	private DebugChannel<Boolean> rangeRead;
 
 	public ModbusBridgeReadTask(int modbusUnitId, ModbusBridge bridge, ModbusRange range) {
 		log = LoggerFactory.getLogger(this.getClass());
 		this.modbusUnitId = modbusUnitId;
 		this.modbusBridge = bridge;
 		this.range = range;
+		this.rangeRead = new DebugChannel<>("Range" + range.getStartAddress() + "Read", bridge);
 	}
 
 	public ModbusRange getRange() {
@@ -34,6 +37,7 @@ public class ModbusBridgeReadTask extends BridgeReadTask {
 
 	@Override
 	protected void run() {
+		rangeRead.setValue(true);
 		if (range instanceof ModbusCoilRange) {
 			try {
 				// Query using this Range
@@ -94,6 +98,7 @@ public class ModbusBridgeReadTask extends BridgeReadTask {
 				}
 			}
 		}
+		rangeRead.setValue(false);
 	}
 
 }

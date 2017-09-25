@@ -144,7 +144,6 @@ export class SimulatorComponent extends AbstractConfig implements OnInit, OnDest
         }
       }
     }
-    console.log(this.forms);
   }
 
   protected getConfigureCreateRequests(form: FormGroup): ConfigureRequest[] {

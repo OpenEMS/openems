@@ -40,6 +40,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
+import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingDoc;
@@ -48,7 +49,6 @@ import io.openems.api.exception.ReflectionException;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
 import io.openems.core.utilities.ConfigUtils;
-import io.openems.core.utilities.StringUtils;
 
 /**
  * Retreives and caches information about classes via reflection
@@ -69,6 +69,7 @@ public class ClassRepository {
 	private Set<Class<? extends Bridge>> bridges = new HashSet<>();
 	private Set<Class<? extends Scheduler>> schedulers = new HashSet<>();
 	private Set<Class<? extends Device>> devices = new HashSet<>();
+	private Set<Class<? extends DeviceNature>> deviceNatures = new HashSet<>();
 	private Set<Class<? extends Controller>> controllers = new HashSet<>();
 	private HashMap<Class<? extends Thing>, ThingDoc> thingDocs = new HashMap<>();
 
@@ -79,6 +80,7 @@ public class ClassRepository {
 				getAvailableBridges(), //
 				getAvailableControllers(), //
 				getAvailableDevices(), //
+				getAvailableDeviceNatures(), //
 				getAvailableSchedulers());
 	}
 
@@ -118,7 +120,7 @@ public class ClassRepository {
 
 	@SuppressWarnings("unchecked")
 	public Collection<ThingDoc> getAvailableDevices() throws ReflectionException {
-		// update cache of available bridges
+		// update cache of available devices
 		if (devices.isEmpty()) {
 			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.device", Device.class,
 					"")) {
@@ -134,8 +136,26 @@ public class ClassRepository {
 	}
 
 	@SuppressWarnings("unchecked")
+	public Collection<ThingDoc> getAvailableDeviceNatures() throws ReflectionException {
+		// TODO merge with getAvailableNatures to avoid parsing twice
+		// update cache of available device natures
+		if (deviceNatures.isEmpty()) {
+			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.device",
+					DeviceNature.class, "")) {
+				this.deviceNatures.add((Class<? extends DeviceNature>) clazz);
+			}
+		}
+		// create result
+		Collection<ThingDoc> deviceNatureDocs = new ArrayList<>();
+		for (Class<? extends DeviceNature> clazz : this.deviceNatures) {
+			deviceNatureDocs.add(this.getThingDoc(clazz));
+		}
+		return Collections.unmodifiableCollection(deviceNatureDocs);
+	}
+
+	@SuppressWarnings("unchecked")
 	public Collection<ThingDoc> getAvailableSchedulers() throws ReflectionException {
-		// update cache of available bridges
+		// update cache of available schedulers
 		if (this.schedulers.isEmpty()) {
 			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.scheduler",
 					Scheduler.class, "Scheduler")) {
@@ -144,7 +164,7 @@ public class ClassRepository {
 		}
 		// create result
 		Collection<ThingDoc> schedulerDocs = new ArrayList<>();
-		for (Class<? extends Device> clazz : this.devices) {
+		for (Class<? extends Scheduler> clazz : this.schedulers) {
 			schedulerDocs.add(this.getThingDoc(clazz));
 		}
 		return Collections.unmodifiableCollection(schedulerDocs);
@@ -182,7 +202,7 @@ public class ClassRepository {
 			}
 			if (Channel.class.isAssignableFrom(type)) {
 				Optional<ChannelInfo> channelInfoOpt = getAnnotationForMethod(clazz, method.getName());
-				String channelId = StringUtils.capitalizeFirstLetter(method.getName());
+				String channelId = method.getName();
 				ChannelDoc channelDoc = new ChannelDoc(method, channelId, channelInfoOpt);
 				thingDoc.addChannelDoc(channelDoc);
 				if (ConfigChannel.class.isAssignableFrom(type)) {
@@ -194,7 +214,8 @@ public class ClassRepository {
 		for (Field field : clazz.getFields()) {
 			Class<?> type = field.getType();
 			if (Channel.class.isAssignableFrom(type)) {
-				ChannelDoc channelDoc = new ChannelDoc(field, field.getName(),
+				String channelId = field.getName();
+				ChannelDoc channelDoc = new ChannelDoc(field, channelId,
 						Optional.ofNullable(field.getAnnotation(ChannelInfo.class)));
 				thingDoc.addChannelDoc(channelDoc);
 				if (ConfigChannel.class.isAssignableFrom(type)) {
@@ -202,6 +223,9 @@ public class ClassRepository {
 				}
 			}
 		}
+		// add to cache
+		this.thingDocs.put(clazz, thingDoc);
+
 		return thingDoc;
 	}
 

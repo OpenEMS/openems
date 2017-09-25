@@ -14,31 +14,33 @@
 <configuration>
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line] %msg%ex{10}%n</pattern>
+			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]%msg%ex{10}%n</pattern>
 		</encoder>
 	</appender>
 	<appender name="WEBSOCKET"
 		class="io.openems.core.utilities.websocket.WebsocketLogAppender">
 	</appender>
-	<appender name="FILE"
+	<appender name="roll-by-size"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<!-- Daily rollover -->
-			<fileNamePattern>/var/log/openems/openems.%d{yyyy-MM-dd}.log</fileNamePattern>
-
-			<!-- Keep 7 days' worth of history -->
-			<maxHistory>7</maxHistory>
+		<file>/var/log/openems.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>/var/log/openems.%i.log.zip
+			</fileNamePattern> 
+			<minIndex>1</minIndex>
+			<maxIndex>3</maxIndex>
+			<totalSizeCap>10MB</totalSizeCap>
 		</rollingPolicy>
-
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>5KB</maxFileSize>
+		</triggeringPolicy>
 		<encoder>
-			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line] %msg%ex{10}%n</pattern>
+			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]%msg%ex{10}%n</pattern>
 		</encoder>
 	</appender>
-	<logger name="errors" level="ERROR" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="WEBSOCKET" />
+		<appender-ref ref="roll-by-size" />
 	</root>
 </configuration>

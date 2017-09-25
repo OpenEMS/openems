@@ -5,7 +5,8 @@ public enum Notification {
 	EDGE_CONNECTION_OPENED(101, NotificationStatus.INFO, "Connection [%s] was established"),
 	EDGE_UNABLE_TO_FORWARD(102, NotificationStatus.ERROR, "Unable to forward command to [%s]: %s"),
 	EDGE_AUTHENTICATION_BY_TOKEN_FAILED(103, NotificationStatus.INFO, "Authentication by token [%s] failed"),
-	EDGE_CHANNEL_UPDATE_SUCCESS(104, NotificationStatus.SUCCESS, "Configuration successfully updated [%s]");
+	EDGE_CHANNEL_UPDATE_SUCCESS(104, NotificationStatus.SUCCESS, "Configuration successfully updated [%s]"),
+	EDGE_CHANNEL_UPDATE_FAILED(105, NotificationStatus.ERROR, "Configuration update failed [%s]");
 	
 	private final int value;
 	private final NotificationStatus status;

@@ -94,7 +94,8 @@ public class ThingDoc {
 		j.addProperty("text", getText());
 		JsonObject jChannels = new JsonObject();
 		for (String configChannel : this.configChannels) {
-			jChannels.add(configChannel, this.channels.get(configChannel).getAsJsonObject());
+			ChannelDoc channelDoc = this.channels.get(configChannel);
+			jChannels.add(channelDoc.getName(), channelDoc.getAsJsonObject());
 		}
 		j.add("channels", jChannels);
 		j.add("implements", InjectionUtils.getImplementsAsJson(getClazz()));

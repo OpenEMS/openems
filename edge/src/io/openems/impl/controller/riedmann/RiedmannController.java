@@ -12,15 +12,13 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 
-@ThingInfo(title = "Test write")
+@ThingInfo(title = "Sps parameter Controller")
 public class RiedmannController extends Controller implements ChannelChangeListener {
 
 	/*
 	 * Config-Channel
 	 */
-	@ChannelInfo(title = "System Stop", description = "This configuration stops the system.", type = Boolean.class)
-	public ConfigChannel<Boolean> signalSystemStop = new ConfigChannel<Boolean>("signalSystemStop", this)
-			.defaultValue(true);
+
 	@ChannelInfo(title = "Waterlevel Borehole 1 On", description = "This configuration sets the waterlevel to start Borehole Pump 1", type = Long.class)
 	public ConfigChannel<Long> setWaterLevelBorehole1On = new ConfigChannel<Long>("wl1On", this).defaultValue(50L);
 	@ChannelInfo(title = "Waterlevel Borehole 1 Off", description = "This configuration sets the waterlevel to stop Borehole Pump 1", type = Long.class)
@@ -77,27 +75,6 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 		try {
 			Ess ess = this.ess.value();
 			Custom sps = this.sps.value();
-			// Grid-Mode
-			try {
-				if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
-					sps.signalGridOn.pushWrite(0L);
-				} else {
-					sps.signalGridOn.pushWrite(1L);
-				}
-			} catch (WriteChannelException e) {
-				log.error("Failed to set off-Grid indication to sps.", e);
-			}
-			// Stop
-			try {
-				if (signalSystemStop.value()) {
-					ess.setWorkState.pushWriteFromLabel(EssNature.STOP);
-					sps.signalSystemStop.pushWrite(1L);
-				} else {
-					sps.signalSystemStop.pushWrite(0L);
-				}
-			} catch (WriteChannelException e) {
-				log.error("Failed to set system stop!", e);
-			}
 			// Watchdog
 			try {
 				if (watchdogState) {
@@ -161,7 +138,8 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 			}
 			// Load switching
 			try {
-				if (ess.soc.value() >= socLoad1Off.value() + socHysteresis.value()) {
+				if (ess.soc.value() >= socLoad1Off.value() + socHysteresis.value()
+						|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 					load1On = true;
 				} else if (ess.soc.value() <= socLoad1Off.value()) {
 					load1On = false;
@@ -177,7 +155,8 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 				log.error("Failed to connect/disconnect Load 1", e);
 			}
 			try {
-				if (ess.soc.value() >= socLoad2Off.value() + socHysteresis.value()) {
+				if (ess.soc.value() >= socLoad2Off.value() + socHysteresis.value()
+						|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 					load2On = true;
 				} else if (ess.soc.value() <= socLoad2Off.value()) {
 					load2On = false;
@@ -191,7 +170,8 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 				log.error("Failed to connect/disconnect Load 2", e);
 			}
 			try {
-				if (ess.soc.value() >= socLoad3Off.value() + socHysteresis.value()) {
+				if (ess.soc.value() >= socLoad3Off.value() + socHysteresis.value()
+						|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 					load3On = true;
 				} else if (ess.soc.value() <= socLoad3Off.value()) {
 					load3On = false;
@@ -209,7 +189,8 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 				log.error("Failed to connect/disconnect Load 3", e);
 			}
 			try {
-				if (ess.soc.value() >= socLoad4Off.value() + socHysteresis.value()) {
+				if (ess.soc.value() >= socLoad4Off.value() + socHysteresis.value()
+						|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 					load4On = true;
 				} else if (ess.soc.value() <= socLoad4Off.value()) {
 					load4On = false;
@@ -245,5 +226,4 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 			updateWaterLevelBorehole3On = true;
 		}
 	}
-
 }

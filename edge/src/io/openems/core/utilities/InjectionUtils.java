@@ -174,15 +174,14 @@ public class InjectionUtils {
 
 		/*
 		 * Prepare filter for matching Things
-		 * - Empty filter: accept everything
+		 * - Empty filter: accept nothing
+		 * - Asterisk: accept everything
 		 * - Otherwise: accept only exact string matches on the thing id
 		 */
 		Set<String> filter = new HashSet<>();
 		if (j.isJsonPrimitive()) {
 			String id = j.getAsJsonPrimitive().getAsString();
-			if (!id.equals("*")) {
-				filter.add(id);
-			}
+			filter.add(id);
 		} else if (j.isJsonArray()) {
 			j.getAsJsonArray().forEach(id -> filter.add(id.getAsString()));
 		}
@@ -194,7 +193,7 @@ public class InjectionUtils {
 		Set<Thing> matchingThings = thingRepository.getThingsAssignableByClass(thingClass);
 		Set<ThingMap> thingMaps = new HashSet<>();
 		for (Thing thing : matchingThings) {
-			if (filter.isEmpty() || filter.contains(thing.id())) {
+			if (filter.contains(thing.id()) || filter.contains("*")) {
 				ThingMap thingMap = (ThingMap) InjectionUtils.getInstance(thingMapClass, thing);
 				thingMaps.add(thingMap);
 			}
@@ -203,7 +202,7 @@ public class InjectionUtils {
 		/*
 		 * Prepare return
 		 */
-		if (thingMaps.isEmpty()) {
+		if (thingMaps.isEmpty() && !filter.isEmpty()) {
 			throw new ReflectionException("No matching ThingMap found for ConfigChannel [" + channel.address() + "]");
 		}
 
@@ -237,13 +236,16 @@ public class InjectionUtils {
 	 */
 	public static Set<Class<? extends Thing>> getImplements(Class<? extends Thing> clazz) {
 		Set<Class<? extends Thing>> ifaces = new HashSet<>();
-		// stop at certain classes
-		if (clazz == null || clazz.equals(Thing.class) || clazz.equals(AbstractWorker.class)
-				|| clazz.equals(DeviceNature.class)) {
+		// stop at certain classes without adding them
+		if (clazz == null || clazz.equals(Thing.class) || clazz.equals(AbstractWorker.class)) {
 			return ifaces;
 		}
 		// myself
 		ifaces.add(clazz);
+		// stop at certain classes WITH adding them
+		if (clazz.equals(DeviceNature.class)) {
+			return ifaces;
+		}
 		// super interfaces
 		for (Class<?> iface : clazz.getInterfaces()) {
 			if (Thing.class.isAssignableFrom(iface)) {

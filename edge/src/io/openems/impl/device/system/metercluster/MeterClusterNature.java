@@ -18,6 +18,7 @@ import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.thing.Thing;
@@ -27,6 +28,7 @@ import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
+@ThingInfo(title = "Meter Cluster")
 public class MeterClusterNature extends SimulatorDeviceNature
 		implements SymmetricMeterNature, AsymmetricMeterNature, ChannelChangeListener {
 

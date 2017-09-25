@@ -1,0 +1,5 @@
+<div *ngIf="things" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div fxFlex="100%" *ngFor="let thingId of things">
+    <existingthing [thingId]="thingId" [device]="device" [showSubThings]="showSubThings"></existingthing>
+  </div>
+</div>

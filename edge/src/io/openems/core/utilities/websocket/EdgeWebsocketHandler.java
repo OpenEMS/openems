@@ -50,6 +50,7 @@ import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
 import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
+import io.openems.core.utilities.ConfigUtils;
 
 /**
  * Handles a Websocket connection to a browser, OpenEMS backend,...
@@ -63,7 +64,7 @@ public class EdgeWebsocketHandler {
 	/**
 	 * Holds the websocket connection
 	 */
-	protected Optional<WebSocket> websocket = Optional.empty();
+	protected Optional<WebSocket> websocketOpt = Optional.empty();
 
 	/**
 	 * Holds subscribers to current data
@@ -83,15 +84,15 @@ public class EdgeWebsocketHandler {
 	public EdgeWebsocketHandler() {}
 
 	public EdgeWebsocketHandler(WebSocket websocket) {
-		this.websocket = Optional.ofNullable(websocket);
+		this.websocketOpt = Optional.ofNullable(websocket);
 	}
 
 	public void setWebsocket(WebSocket websocket) {
-		this.websocket = Optional.ofNullable(websocket);
+		this.websocketOpt = Optional.ofNullable(websocket);
 	}
 
 	public Optional<WebSocket> getWebsocket() {
-		return websocket;
+		return websocketOpt;
 	}
 
 	/**
@@ -165,7 +166,7 @@ public class EdgeWebsocketHandler {
 			if (jIdOpt.isPresent()) {
 				jReply.add("id", jIdOpt.get());
 			}
-			WebSocketUtils.send(this.websocket, jReply);
+			WebSocketUtils.send(this.websocketOpt, jReply);
 		}
 	}
 
@@ -188,36 +189,42 @@ public class EdgeWebsocketHandler {
 				return DefaultMessages.configQueryReply(jReplyConfig);
 
 			} else if (mode.equals("update")) {
-				/*
-				 * Update thing/channel config
-				 */
-				String thingId = JsonUtils.getAsString(jConfig, "thing");
-				String channelId = JsonUtils.getAsString(jConfig, "channel");
-				JsonElement jValue = JsonUtils.getSubElement(jConfig, "value");
-				Optional<Channel> channelOpt = ThingRepository.getInstance().getChannel(thingId, channelId);
-				if (channelOpt.isPresent()) {
-					Channel channel = channelOpt.get();
-					if (channel instanceof ConfigChannel<?>) {
-						/*
-						 * ConfigChannel
-						 */
-						ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
-						configChannel.updateValue(jValue, true);
-						WebSocketUtils.send(websocket, DefaultMessages.notification(
-								Notification.EDGE_CHANNEL_UPDATE_SUCCESS, channel.address() + " => " + jValue));
+				try {
+					/*
+					 * Update thing/channel config
+					 */
+					String thingId = JsonUtils.getAsString(jConfig, "thing");
+					String channelId = JsonUtils.getAsString(jConfig, "channel");
+					JsonElement jValue = JsonUtils.getSubElement(jConfig, "value");
+					Optional<Channel> channelOpt = ThingRepository.getInstance().getChannel(thingId, channelId);
+					if (channelOpt.isPresent()) {
+						Channel channel = channelOpt.get();
+						if (channel instanceof ConfigChannel<?>) {
+							/*
+							 * ConfigChannel
+							 */
+							ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
+							Object value = ConfigUtils.getConfigObject(configChannel, jValue);
+							configChannel.updateValue(value, true);
+							WebSocketUtils.sendNotification(websocketOpt, Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
+									channel.address() + " => " + jValue);
 
-					} else if (channel instanceof WriteChannel<?>) {
-						/*
-						 * WriteChannel
-						 */
-						// TODO use Worker...
-						// WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
-						// writeChannel.pushWrite(jValue);
-						// Notification.send(NotificationType.SUCCESS,
-						// "Successfully set [" + channel.address() + "] to [" + jValue + "]");
+						} else if (channel instanceof WriteChannel<?>) {
+							/*
+							 * WriteChannel
+							 */
+							// TODO use Worker...
+							// WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
+							// writeChannel.pushWrite(jValue);
+							// Notification.send(NotificationType.SUCCESS,
+							// "Successfully set [" + channel.address() + "] to [" + jValue + "]");
+						}
+					} else {
+						throw new OpenemsException("Unable to find Channel [" + thingId + "/" + channelId + "]");
 					}
-				} else {
-					throw new OpenemsException("Unable to find " + jConfig.toString());
+				} catch (OpenemsException e) {
+					WebSocketUtils.send(websocketOpt,
+							DefaultMessages.notification(Notification.EDGE_CHANNEL_UPDATE_FAILED, e.getMessage()));
 				}
 			}
 		} catch (OpenemsException e) {
@@ -533,7 +540,7 @@ public class EdgeWebsocketHandler {
 	 * @param message
 	 */
 	public boolean send(JsonObject j) {
-		return WebSocketUtils.send(this.websocket, j);
+		return WebSocketUtils.send(this.websocketOpt, j);
 	}
 
 	/**

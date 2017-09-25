@@ -22,7 +22,7 @@ export module DefaultTypes {
     },
     meta: {
       [clazz: string]: {
-        implements: [string],
+        implements: string[],
         channels: {
           [channel: string]: {
             name: string,

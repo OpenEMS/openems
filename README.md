@@ -1,5 +1,3 @@
-[![Dependency Status](https://www.versioneye.com/user/projects/59a3dd596725bd004562717b/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/59a3dd596725bd004562717b)
-
 # OpenEMS
 ## Open Source Energy Management System
 
@@ -71,7 +69,7 @@ A number of devices, protocols and services are already implemented in OpenEMS:
 
  * [JSON/REST](doc/rest-api.md)
  * JSON/Websocket
- * [Modbus/TCP (in development)](/OpenEMS/openems/issues/2)
+ * [Modbus/TCP](/doc/modbustcp-api.md)
 
 ## Get started
 

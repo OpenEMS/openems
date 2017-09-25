@@ -28,15 +28,18 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ThingInfo;
+import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 
+@ThingInfo(title = "Use AC-PV in offgrid situation")
 public class AcIsland extends Controller {
 
 	private ThingRepository repo = ThingRepository.getInstance();
-	private WriteChannel<Boolean> onGridOutputChannel;
-	private WriteChannel<Boolean> offGridOutputChannel;
+	private Optional<WriteChannel<Boolean>> onGridOutputChannel;
+	private Optional<WriteChannel<Boolean>> offGridOutputChannel;
 	private State currentState = State.UNKNOWN;
 	private boolean isProducerDisconnected = false;
 	private long timeProducerDisconnected;
@@ -66,8 +69,9 @@ public class AcIsland extends Controller {
 				if (channelAddress.isPresent()) {
 					Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
 					if (ch.isPresent()) {
-						onGridOutputChannel = (WriteChannel<Boolean>) ch.get();
-						onGridOutputChannel.required();
+						this.onGridOutputChannel = Optional.of( //
+								((WriteChannel<Boolean>) ch.get()).required());
+						// TODO should not be necessary to set outputChannel as required
 					} else {
 						log.error("Channel " + channelAddress.get() + " not found");
 					}
@@ -84,8 +88,9 @@ public class AcIsland extends Controller {
 				if (channelAddress.isPresent()) {
 					Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
 					if (ch.isPresent()) {
-						offGridOutputChannel = (WriteChannel<Boolean>) ch.get();
-						offGridOutputChannel.required();
+						this.offGridOutputChannel = Optional.of( //
+								((WriteChannel<Boolean>) ch.get()).required());
+						// TODO should not be necessary to set outputChannel as required
 					} else {
 						log.error("Channel " + channelAddress.get() + " not found");
 					}
@@ -104,18 +109,42 @@ public class AcIsland extends Controller {
 
 	@Override
 	public void run() {
+		// Get all required values - or abort with error
+		Ess ess;
+		long maxSoc;
+		long minSoc;
+		long soc;
+		String gridMode;
+		boolean isProducerOff;
+		boolean isProducerOffGrid;
+		boolean isProducerOnGrid;
+		long switchDelay;
 		try {
-			Ess ess = this.ess.value();
+			ess = this.ess.value();
+			soc = ess.soc.value();
+			gridMode = ess.gridMode.labelOptional().get();
+			maxSoc = this.maxSoc.value();
+			minSoc = this.minSoc.value();
+			isProducerOff = this.isProducerOff();
+			isProducerOffGrid = this.isProducerOffGrid();
+			isProducerOnGrid = this.isProducerOnGrid();
+			switchDelay = this.switchDelay.value();
+		} catch (InvalidValueException | ConfigException e) {
+			log.error(e.getMessage());
+			return;
+		}
+
+		try {
 			switch (currentState) {
 			case OFFGRID:
-				if (isProducerOffGrid() || isProducerOff()) {
-					if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+				if (isProducerOffGrid || isProducerOff) {
+					if (gridMode.equals(EssNature.ON_GRID)) {
 						currentState = State.SWITCHTOONGRID;
 					} else {
-						if (ess.soc.value() >= maxSoc.value()) {
-							offGridOutputChannel.pushWrite(false);
-						} else if (ess.soc.value() <= minSoc.value()) {
-							offGridOutputChannel.pushWrite(true);
+						if (soc >= maxSoc) {
+							this.getOffGridOutputChannel().pushWrite(false);
+						} else if (soc <= minSoc) {
+							this.getOffGridOutputChannel().pushWrite(true);
 						}
 					}
 				} else {
@@ -123,8 +152,8 @@ public class AcIsland extends Controller {
 				}
 				break;
 			case ONGRID: {
-				if (isProducerOnGrid()) {
-					if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
+				if (isProducerOnGrid) {
+					if (gridMode.equals(EssNature.OFF_GRID)) {
 						currentState = State.SWITCHTOOFFGRID;
 					}
 				} else {
@@ -133,44 +162,44 @@ public class AcIsland extends Controller {
 			}
 				break;
 			case SWITCHTOOFFGRID:
-				if (isProducerOff()) {
+				if (isProducerOff) {
 					if (!isProducerDisconnected) {
 						isProducerDisconnected = true;
 						timeProducerDisconnected = System.currentTimeMillis();
 					}
-					if (timeProducerDisconnected + switchDelay.value() <= System.currentTimeMillis()
+					if (timeProducerDisconnected + switchDelay <= System.currentTimeMillis()
 							&& isProducerDisconnected) {
 						currentState = State.OFFGRID;
 					}
 				} else {
 					isProducerDisconnected = false;
-					onGridOutputChannel.pushWrite(false);
-					offGridOutputChannel.pushWrite(false);
+					getOnGridOutputChannel().pushWrite(false);
+					getOffGridOutputChannel().pushWrite(false);
 				}
 				break;
 			case SWITCHTOONGRID:
-				if (isProducerOnGrid()) {
+				if (isProducerOnGrid) {
 					currentState = State.ONGRID;
 					isProducerDisconnected = false;
 				} else {
-					if (isProducerOff()) {
+					if (isProducerOff) {
 						if (!isProducerDisconnected) {
 							isProducerDisconnected = true;
 							timeProducerDisconnected = System.currentTimeMillis();
 						}
-						if (timeProducerDisconnected + switchDelay.value() <= System.currentTimeMillis()
+						if (timeProducerDisconnected + switchDelay <= System.currentTimeMillis()
 								&& isProducerDisconnected) {
-							onGridOutputChannel.pushWrite(true);
+							getOnGridOutputChannel().pushWrite(true);
 						}
 					} else {
 						isProducerDisconnected = false;
-						onGridOutputChannel.pushWrite(false);
-						offGridOutputChannel.pushWrite(false);
+						getOnGridOutputChannel().pushWrite(false);
+						getOffGridOutputChannel().pushWrite(false);
 					}
 				}
 				break;
 			default: {
-				if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+				if (gridMode.equals(EssNature.ON_GRID)) {
 					currentState = State.SWITCHTOONGRID;
 				} else if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
 					currentState = State.SWITCHTOOFFGRID;
@@ -179,23 +208,42 @@ public class AcIsland extends Controller {
 				break;
 
 			}
-		} catch (InvalidValueException e) {
-			log.error("Failed to read value!", e);
-		} catch (WriteChannelException e) {
+		} catch (WriteChannelException | ConfigException e) {
 			log.error("Failed to switch Output!", e);
 		}
 	}
 
-	private boolean isProducerOff() throws InvalidValueException {
+	private boolean isProducerOff() throws InvalidValueException, ConfigException {
+		WriteChannel<Boolean> onGridOutputChannel = this.getOnGridOutputChannel();
+		WriteChannel<Boolean> offGridOutputChannel = this.getOffGridOutputChannel();
 		return onGridOutputChannel.value() == false && offGridOutputChannel.value() == false;
 	}
 
-	private boolean isProducerOffGrid() throws InvalidValueException {
+	private boolean isProducerOffGrid() throws InvalidValueException, ConfigException {
+		WriteChannel<Boolean> onGridOutputChannel = this.getOnGridOutputChannel();
+		WriteChannel<Boolean> offGridOutputChannel = this.getOffGridOutputChannel();
 		return onGridOutputChannel.value() == false && offGridOutputChannel.value() == true;
 	}
 
-	private boolean isProducerOnGrid() throws InvalidValueException {
+	private boolean isProducerOnGrid() throws InvalidValueException, ConfigException {
+		WriteChannel<Boolean> onGridOutputChannel = this.getOnGridOutputChannel();
+		WriteChannel<Boolean> offGridOutputChannel = this.getOffGridOutputChannel();
 		return onGridOutputChannel.value() == true && offGridOutputChannel.value() == false;
 	}
 
+	private WriteChannel<Boolean> getOnGridOutputChannel() throws ConfigException {
+		if (this.onGridOutputChannel.isPresent()) {
+			return this.onGridOutputChannel.get();
+		} else {
+			throw new ConfigException("onGridOutputChannel is not available.");
+		}
+	}
+
+	private WriteChannel<Boolean> getOffGridOutputChannel() throws ConfigException {
+		if (this.offGridOutputChannel.isPresent()) {
+			return this.offGridOutputChannel.get();
+		} else {
+			throw new ConfigException("offGridOutputChannel is not available.");
+		}
+	}
 }

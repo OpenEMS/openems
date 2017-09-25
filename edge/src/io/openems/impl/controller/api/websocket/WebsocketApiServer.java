@@ -77,15 +77,15 @@ public class WebsocketApiServer
 				// send connection successful to browser
 				JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
 						Optional.of(session.getData().getRole()), new ArrayList<>());
-				log.info("Websocket [" + websocket + "] connected by session. User [" + session.getData().getUser()
-						+ "] Session [" + session.getToken() + "]");
+				log.info("Websocket connected by session. User [" + session.getData().getUser() + "] Session ["
+						+ session.getToken() + "]");
 				WebSocketUtils.send(websocket, jReply);
 				return;
 			}
+			// if we are here, automatic authentication was not possible -> notify client
+			WebSocketUtils.sendNotification(websocket, Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED,
+					tokenOpt.orElse(""));
 		}
-		// if we are here, automatic authentication was not possible -> notify client
-		WebSocketUtils.send(websocket,
-				DefaultMessages.notification(Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, tokenOpt.orElse("")));
 	}
 
 	@Override
@@ -120,7 +120,7 @@ public class WebsocketApiServer
 		 */
 		if (jMessage.has("authenticate")) {
 			// add to websockets
-			this.websockets.put(websocket, session);
+			this.websockets.forcePut(websocket, session);
 			// send connection successful to browser
 			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
 					Optional.of(session.getData().getRole()), new ArrayList<>());
@@ -133,6 +133,11 @@ public class WebsocketApiServer
 		 * Rest -> forward to websocket handler
 		 */
 		session.getData().getWebsocketHandler().onMessage(jMessage);
+	}
+
+	@Override
+	protected void _onClose(WebSocket websocket, Optional<WebsocketApiSession> sessionOpt) {
+		// nothing to do here
 	}
 
 	/**
@@ -159,6 +164,12 @@ public class WebsocketApiServer
 							return this.sessionManager.authByPassword(password, websocket);
 						}
 					}
+
+				} else if (mode.equals("logout")) {
+					/*
+					 * Logout and close session
+					 */
+					this.websockets.remove(websocket);
 				}
 			}
 		} catch (OpenemsException e) { /* ignore */ }

@@ -15,7 +15,7 @@ public class MultiKeyMap<K1, K2, V> {
 
 	public void put(K1 key1, K2 key2, V value) {
 		k1Map.put(key1, value);
-		k2Map.put(key2, key1);
+		k2Map.forcePut(key2, key1);
 	}
 
 	public void put(K1 key1, V value) {

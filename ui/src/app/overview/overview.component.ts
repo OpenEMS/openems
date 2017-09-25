@@ -31,22 +31,23 @@ export class OverviewComponent {
     this.form = formBuilder.group({
       "password": formBuilder.control('user')
     });
-    websocket.devices.takeUntil(this.stopOnDestroy).subscribe(devices => {
-      if (Object.keys(devices).length == 1) {
-        // redirect if only one device
-        let device = devices[Object.keys(devices)[0]];
-        this.router.navigate(['/device', device.name]);
-      }
-    })
+    // TODO should only forward when automatic login was successful and user did not come to this page on purpose
+    // websocket.devices.takeUntil(this.stopOnDestroy).subscribe(devices => {
+    // if (Object.keys(devices).length == 1) {
+    // redirect if only one device
+    // let device = devices[Object.keys(devices)[0]];
+    // this.router.navigate(['/device', device.name]);
+    // }
+    // })
   }
 
   doLogin() {
     let password: string = this.form.value['password'];
-    this.websocket.send(DefaultMessages.authenticateLogin(password));
+    this.websocket.logIn(password);
   }
 
   doLogout(form: FormGroup) {
-    this.websocket.close();
+    this.websocket.logOut();
   }
 
   onDestroy() {

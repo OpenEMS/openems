@@ -3,10 +3,12 @@ package io.openems.impl.device.simulator;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.OutputNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorWriteChannel;
 
+@ThingInfo(title = "Simulator Output")
 public class SimulatorOutput extends SimulatorDeviceNature implements OutputNature {
 
 	private SimulatorWriteChannel<Boolean> do1 = new SimulatorWriteChannel<>("DO1", this, false);

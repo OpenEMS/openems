@@ -54,6 +54,7 @@ public abstract class Bridge extends Thread implements Thing {
 	protected final Logger log;
 	private DebugChannel<Long> requiredCycleTime = new DebugChannel<>("RequiredCycleTime", this);
 	private List<BridgeEventListener> eventListener = new ArrayList<>();
+	private DebugChannel<Integer> readOtherTaskReadCount = new DebugChannel<>("ReadOtherTaskReadCount", this);
 
 	/**
 	 * Initialize the Thread with a name
@@ -224,7 +225,7 @@ public abstract class Bridge extends Thread implements Thing {
 					// run tasks for not required channels
 					if (timeUntilWrite - System.currentTimeMillis() > 0) {
 						notifyListeners(Position.BEFOREREADOTHER1);
-						readOther(readTasks, timeUntilWrite);
+						readOther(readTasks, timeUntilWrite, false);
 					}
 				}
 				// execute write Tasks
@@ -254,7 +255,7 @@ public abstract class Bridge extends Thread implements Thing {
 				// execute additional readTasks if time left
 				if (readTasks.size() > 0) {
 					if (getNextReadTime() - 10 - System.currentTimeMillis() - requiredTimeListeners() > 0) {
-						readOther(readTasks, getNextReadTime() - 10);
+						readOther(readTasks, getNextReadTime(), true);
 					}
 				}
 				// Everything went ok: reset bridgeExceptionSleep
@@ -267,20 +268,22 @@ public abstract class Bridge extends Thread implements Thing {
 				bridgeExceptionSleep = bridgeExceptionSleep(bridgeExceptionSleep);
 			}
 			requiredCycleTime.setValue(System.currentTimeMillis() - cycleStart);
+			readOtherTaskReadCount.setValue(readOtherTaskCount);
 		}
 		dispose();
 		System.out.println("BridgeWorker was interrupted. Exiting gracefully...");
 	}
 
-	private void readOther(List<BridgeReadTask> tasks, long timeFinished) {
+	private void readOther(List<BridgeReadTask> tasks, long timeFinished, boolean forceRead) {
 		BridgeReadTask nextReadTask = null;
 		if (readOtherTaskCount + 1 < tasks.size()) {
 			nextReadTask = tasks.get(readOtherTaskIndex);
 		}
 		while (nextReadTask != null) {
-			if (System.currentTimeMillis() + nextReadTask.getRequiredTime() >= timeFinished) {
+			if (!forceRead && System.currentTimeMillis() + nextReadTask.getRequiredTime() >= timeFinished) {
 				break;
 			}
+			forceRead = false;
 			try {
 				nextReadTask.runTask();
 			} catch (Exception e) {

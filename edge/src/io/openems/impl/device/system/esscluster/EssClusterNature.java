@@ -26,6 +26,7 @@ import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -33,6 +34,7 @@ import io.openems.api.thing.ThingChannelsUpdatedListener;
 import io.openems.core.ThingRepository;
 import io.openems.impl.protocol.system.SystemDeviceNature;
 
+@ThingInfo(title = "Ess Cluster")
 public class EssClusterNature extends SystemDeviceNature implements SymmetricEssNature, ChannelChangeListener {
 
 	private final Logger log = LoggerFactory.getLogger(EssClusterNature.class);
