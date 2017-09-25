@@ -113,7 +113,6 @@ public class OdooSingleton implements MetadataSingleton {
 								JsonUtils.getAsString(jDevice, "role")));
 					}
 					data.setDevices(deviceInfos);
-					session.setValid();
 					return;
 				}
 			}

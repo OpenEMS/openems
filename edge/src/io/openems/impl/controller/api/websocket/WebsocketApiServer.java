@@ -73,7 +73,7 @@ public class WebsocketApiServer
 				// refresh session
 				session.getData().getWebsocketHandler().setWebsocket(websocket);
 				// add to websockets
-				this.websockets.forcePut(websocket, session);
+				this.addWebsocket(websocket, session);
 				// send connection successful to browser
 				JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
 						Optional.of(session.getData().getRole()), new ArrayList<>());
@@ -103,7 +103,7 @@ public class WebsocketApiServer
 		}
 		if (!sessionOpt.isPresent()) {
 			// check if there is an existing session
-			sessionOpt = Optional.ofNullable(this.websockets.get(websocket));
+			sessionOpt = this.getSessionFromWebsocket(websocket);
 		}
 		if (!sessionOpt.isPresent()) {
 			/*
@@ -120,7 +120,7 @@ public class WebsocketApiServer
 		 */
 		if (jMessage.has("authenticate")) {
 			// add to websockets
-			this.websockets.forcePut(websocket, session);
+			this.addWebsocket(websocket, session);
 			// send connection successful to browser
 			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
 					Optional.of(session.getData().getRole()), new ArrayList<>());
@@ -169,7 +169,7 @@ public class WebsocketApiServer
 					/*
 					 * Logout and close session
 					 */
-					this.websockets.remove(websocket);
+					this.removeWebsocket(websocket);
 				}
 			}
 		} catch (OpenemsException e) { /* ignore */ }

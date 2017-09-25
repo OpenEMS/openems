@@ -21,11 +21,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
+import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.backend.timedata.api.TimedataSingleton;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.InfluxdbUtils;
@@ -82,65 +84,79 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	 * "timestamp2" { "channel1": value, "channel2": value } }
 	 */
 	@Override
-	public void write(Optional<Integer> deviceIdOpt, JsonObject jData) {
-		int deviceId = deviceIdOpt.orElse(0);
+	public void write(MetadataDevice device, JsonObject jData) {
+		int deviceId = device.getNameNumber().orElse(0);
 		long lastTimestamp = this.lastTimestampMap.getOrDefault(deviceId, 0l);
 
-		BatchPoints batchPoints = BatchPoints.database(database) //
-				.tag("fems", String.valueOf(deviceId)) //
-				.build();
-
 		// Sort data by timestamp
-		TreeMap<Long, JsonObject> data = new TreeMap<Long, JsonObject>();
-		jData.entrySet().forEach(timestampEntry -> {
-			String timestampString = timestampEntry.getKey();
-			Long timestamp = Long.valueOf(timestampString);
-			JsonObject jChannels;
+		TreeMap<Long, JsonObject> sortedData = new TreeMap<Long, JsonObject>();
+		for (Entry<String, JsonElement> entry : jData.entrySet()) {
 			try {
-				jChannels = JsonUtils.getAsJsonObject(timestampEntry.getValue());
-				data.put(timestamp, jChannels);
+				Long timestamp = Long.valueOf(entry.getKey());
+				JsonObject jChannels;
+				jChannels = JsonUtils.getAsJsonObject(entry.getValue());
+				sortedData.put(timestamp, jChannels);
 			} catch (OpenemsException e) {
 				log.error("Data error: " + e.getMessage());
 			}
-		});
+		}
 
-		// Prepare data for writing to InfluxDB
-		for (Entry<Long, JsonObject> dataEntry : data.entrySet()) {
+		// Prepare data table
+		TreeBasedTable<Long, String, Object> data = TreeBasedTable.create();
+		for (Entry<Long, JsonObject> dataEntry : sortedData.entrySet()) {
 			Long timestamp = dataEntry.getKey();
 			// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
 			boolean useLastDataCache = timestamp > lastTimestamp && timestamp < lastTimestamp + 60000;
 			this.lastTimestampMap.put(deviceId, timestamp);
-			Builder builder = Point.measurement("data") // this builds an InfluxDB record ("point") for a given
-														// timestamp
-					.time(timestamp, TimeUnit.MILLISECONDS);
-
 			JsonObject jChannels = dataEntry.getValue();
-			if (jChannels.entrySet().size() > 0) {
-				jChannels.entrySet().forEach(channelEntry -> {
-					String channel = channelEntry.getKey();
-					Optional<Object> valueOpt = this.addChannelToBuilder(builder, channel, channelEntry.getValue());
-					if (valueOpt.isPresent() && useLastDataCache) {
-						this.lastDataCache.put(deviceId, channel, valueOpt.get());
-					}
 
-				});
+			if (jChannels.entrySet().size() > 0) {
+				for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
+					String channel = channelEntry.getKey();
+					Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
+					if (valueOpt.isPresent()) {
+						Object value = valueOpt.get();
+						data.put(timestamp, channel, value);
+						if (useLastDataCache) {
+							this.lastDataCache.put(deviceId, channel, value);
+						}
+					}
+				}
 
 				// only for latest data: add the cached data to the InfluxDB point.
 				if (useLastDataCache) {
 					this.lastDataCache.row(deviceId).entrySet().forEach(cacheEntry -> {
 						String channel = cacheEntry.getKey();
-						Object value = cacheEntry.getValue();
-						this.addChannelToBuilder(builder, channel, value);
+						Optional<Object> valueOpt = this.parseValue(channel, cacheEntry.getValue());
+						if (valueOpt.isPresent()) {
+							Object value = valueOpt.get();
+							data.put(timestamp, channel, value);
+						}
 					});
 				}
-
-				// add the point to the batch
-				batchPoints.point(builder.build());
 
 				// set last timestamp
 				lastTimestamp = timestamp;
 			}
 		}
+
+		writeData(device, data);
+	}
+
+	private void writeData(MetadataDevice device, TreeBasedTable<Long, String, Object> data) {
+		int deviceId = device.getNameNumber().orElse(0);
+		BatchPoints batchPoints = BatchPoints.database(database) //
+				.tag("fems", String.valueOf(deviceId)) //
+				.build();
+
+		for (Entry<Long, Map<String, Object>> entry : data.rowMap().entrySet()) {
+			Long timestamp = entry.getKey();
+			Builder builder = Point.measurement("data") // this builds an InfluxDB record ("point") for a given
+														// timestamp
+					.time(timestamp, TimeUnit.MILLISECONDS).fields(entry.getValue());
+			batchPoints.point(builder.build());
+		}
+
 		// write to DB
 		influxDB.write(batchPoints);
 	}
@@ -153,7 +169,7 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	 * @param value
 	 * @return
 	 */
-	private Optional<Object> addChannelToBuilder(Builder builder, String channel, Object value) {
+	private Optional<Object> parseValue(String channel, Object value) {
 		if (value == null) {
 			return Optional.empty();
 		}
@@ -180,21 +196,16 @@ public class InfluxdbSingleton implements TimedataSingleton {
 		if (value instanceof Number) {
 			Number numberValue = (Number) value;
 			if (numberValue instanceof Integer) {
-				builder.addField(channel, numberValue.intValue());
 				return Optional.of(numberValue.intValue());
 			} else if (numberValue instanceof Double) {
-				builder.addField(channel, numberValue.doubleValue());
 				return Optional.of(numberValue.doubleValue());
 			} else {
-				builder.addField(channel, numberValue);
 				return Optional.of(numberValue);
 			}
 		} else if (value instanceof Boolean) {
-			builder.addField(channel, (Boolean) value);
-			return Optional.of(value);
+			return Optional.of((Boolean) value);
 		} else if (value instanceof String) {
-			builder.addField(channel, (String) value);
-			return Optional.of(value);
+			return Optional.of((String) value);
 		}
 		log.warn("Unknown type of value [" + value + "] channel [" + channel + "]. This should never happen.");
 		return Optional.empty();
