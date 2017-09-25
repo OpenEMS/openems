@@ -27,7 +27,7 @@ import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
@@ -61,24 +61,15 @@ public class BalancingController extends Controller {
 	/*
 	 * Methods
 	 */
-	private boolean isOnGrid() throws InvalidValueException {
-		for (Ess ess : esss.value()) {
-			Optional<String> gridMode = ess.gridMode.labelOptional();
-			if (gridMode.isPresent() && !gridMode.get().equals(SymmetricEssNature.ON_GRID)) {
-				return false;
-			}
-		}
-		return true;
-	}
 
 	@Override
 	public void run() {
 		try {
-			// Run only if all ess are on-grid
-			if (isOnGrid()) {
+			// Run only if at least one ess is on-grid
+			List<Ess> useableEss = getUseableEss();
+			if (useableEss.size() > 0) {
 				// Calculate required sum values
 				meterPower.add(meter.value().activePower.value());
-				List<Ess> useableEss = getUseableEss();
 				long calculatedPower = meterPower.avg();
 				long maxChargePower = 0;
 				long maxDischargePower = 0;
@@ -194,7 +185,8 @@ public class BalancingController extends Controller {
 	private List<Ess> getUseableEss() throws InvalidValueException {
 		List<Ess> useableEss = new ArrayList<>();
 		for (Ess ess : esss.value()) {
-			if (ess.activePower.valueOptional().isPresent()) {
+			if (ess.gridMode.valueOptional().isPresent()
+					&& ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
 				useableEss.add(ess);
 			}
 		}
