@@ -148,7 +148,8 @@ public class TimelineChargeController extends Controller {
 						&& LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())) {
 					// Prevent discharge -> load with Pv
 					ess.setActivePower.pushWriteMax(0L);
-				} else if (!LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())
+				} else if (requiredTimeGrid > 0
+						&& !LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())
 						&& socPoint.getTime().isAfter(LocalDateTime.now())) {
 					// Load with grid + pv
 					long maxPower = allowedApparentCharge * -1;
