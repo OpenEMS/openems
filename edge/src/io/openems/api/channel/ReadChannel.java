@@ -52,6 +52,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private Optional<Class<?>> type = Optional.empty();
 
 	protected Optional<Long> delta = Optional.empty();
+	private Optional<T> ignore = Optional.empty();
 	protected TreeMap<T, String> labels = new TreeMap<T, String>();
 	protected Optional<Long> multiplier = Optional.empty();
 	protected boolean negate = false;
@@ -178,6 +179,17 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
+	/**
+	 * Sets the ignore value. If the value of this channel is being updated to this value, it is getting ignored.
+	 *
+	 * @param ignore
+	 * @return
+	 */
+	public ReadChannel<T> ignore(T ignore) {
+		this.ignore = Optional.ofNullable(ignore);
+		return this;
+	}
+
 	public Optional<Long> deltaOptional() {
 		return delta;
 	}
@@ -227,7 +239,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	 */
 	protected void updateValue(T newValue, boolean triggerEvent) {
 		Optional<T> oldValue = this.value;
-		if (newValue == null) {
+		if (newValue == null || (this.ignore.isPresent() && this.ignore.get().equals(newValue))) {
 			this.value = Optional.empty();
 		}
 		if (newValue instanceof Number && (multiplier.isPresent() || delta.isPresent() || negate)) {
@@ -250,7 +262,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		} else {
 			this.value = Optional.ofNullable(newValue);
 		}
-
+		log.info("Update channel [" + this.address() + "] to value [" + this.value + "]");
 		if (triggerEvent) {
 			updateListeners.forEach(listener -> listener.channelUpdated(this, this.value));
 			if (!oldValue.equals(this.value)) {
