@@ -58,6 +58,16 @@ public class OpenemsWebsocketSingleton
 			}
 			apikey = apikeyOpt.get();
 
+			// if existing: close existing websocket for this apikey
+			Optional<OpenemsSession> oldSessionOpt = this.sessionManager.getSessionByToken(apikey);
+			if (oldSessionOpt.isPresent()) {
+				OpenemsSession oldSession = oldSessionOpt.get();
+				WebSocket oldWebsocket = oldSession.getData().getWebsocket();
+				oldWebsocket.closeConnection(CloseFrame.REFUSE,
+						"Another device with this apikey [" + apikey + "] connected.");
+				this.sessionManager.removeSession(oldSession);
+			}
+
 			// get device for apikey
 			Optional<MetadataDevice> deviceOpt = Metadata.instance().getDeviceModel().getDeviceForApikey(apikey);
 			if (!deviceOpt.isPresent()) {
@@ -67,7 +77,7 @@ public class OpenemsWebsocketSingleton
 			deviceName = device.getName();
 
 			// create new session
-			OpenemsSessionData sessionData = new OpenemsSessionData(device);
+			OpenemsSessionData sessionData = new OpenemsSessionData(websocket, device);
 			OpenemsSession session = sessionManager.createNewSession(apikey, sessionData);
 
 			// send successful reply to openems
@@ -109,8 +119,8 @@ public class OpenemsWebsocketSingleton
 	@Override
 	public void _onClose(WebSocket websocket, Optional<OpenemsSession> sessionOpt) {
 		if (sessionOpt.isPresent()) {
-			log.info("Would remove the session... " + sessionOpt.get());
-			// TODO sessionManager.removeSession(sessionOpt.get());
+			// log.info("Would remove the session... " + sessionOpt.get());
+			sessionManager.removeSession(sessionOpt.get());
 		}
 	}
 

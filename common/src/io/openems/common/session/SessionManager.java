@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +93,7 @@ public abstract class SessionManager<S extends Session<D>, D extends SessionData
 	 * Replies a Session object of type T
 	 * 
 	 * @param token
+	 * @param websocket
 	 * @param data
 	 * @return
 	 */
@@ -106,7 +108,7 @@ public abstract class SessionManager<S extends Session<D>, D extends SessionData
 	protected void _putSession(String token, S session) {
 		synchronized (this.sessions) {
 			if (this.sessions.containsKey(token)) {
-				log.warn("Session with token [" + token + "] already existed. Adding session [" + session + "]");
+				log.warn("Session with token [" + token + "] already existed. Replacing with session [" + session + "]");
 			}
 			this.sessions.put(token, session);
 		}
