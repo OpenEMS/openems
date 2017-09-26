@@ -31,7 +31,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.modbus.ModbusDevice;
 
-@ThingInfo(title = "FENECON Pro")
+@ThingInfo(title = "FENECON Mini")
 public class FeneconMini extends ModbusDevice {
 
 	/*
@@ -52,7 +52,7 @@ public class FeneconMini extends ModbusDevice {
 	 */
 	@Override
 	public String toString() {
-		return "FeneconPro [ess=" + ess + ", getThingId()=" + id() + "]";
+		return "FeneconMini [ess=" + ess + ", getThingId()=" + id() + "]";
 	}
 
 	@Override
