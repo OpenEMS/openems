@@ -25,6 +25,7 @@ import io.openems.common.types.Device;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 
@@ -157,9 +158,8 @@ public class BrowserWebsocketSingleton
 				try {
 					forwardMessageToOpenems(websocket, jMessage, deviceName);
 				} catch (OpenemsException e) {
-					WebSocketUtils.sendNotification(websocket, Notification.EDGE_UNABLE_TO_FORWARD, deviceName,
-							e.getMessage());
-					log.error("Unable to forward to Device [" + deviceName + "] : " + e.getMessage());
+					WebSocketUtils.sendNotification(websocket, LogBehaviour.WRITE_TO_LOG,
+							Notification.EDGE_UNABLE_TO_FORWARD, deviceName, e.getMessage());
 				}
 			}
 		}
@@ -251,7 +251,8 @@ public class BrowserWebsocketSingleton
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
 					Optional<WebSocket> websocketOpt = this.getWebsocketFromSession(session);
-					WebSocketUtils.sendNotification(websocketOpt, Notification.EDGE_CONNECTION_ClOSED, name);
+					WebSocketUtils.sendNotification(websocketOpt, LogBehaviour.DO_NOT_WRITE_TO_LOG,
+							Notification.EDGE_CONNECTION_ClOSED, name);
 				}
 			}
 		}
@@ -267,7 +268,8 @@ public class BrowserWebsocketSingleton
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
 					Optional<WebSocket> websocketOpt = this.getWebsocketFromSession(session);
-					WebSocketUtils.sendNotification(websocketOpt, Notification.EDGE_CONNECTION_OPENED, name);
+					WebSocketUtils.sendNotification(websocketOpt, LogBehaviour.DO_NOT_WRITE_TO_LOG,
+							Notification.EDGE_CONNECTION_OPENED, name);
 				}
 			}
 		}

@@ -37,6 +37,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.impl.controller.api.websocket.session.WebsocketApiSession;
@@ -83,8 +84,8 @@ public class WebsocketApiServer
 				return;
 			}
 			// if we are here, automatic authentication was not possible -> notify client
-			WebSocketUtils.sendNotification(websocket, Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED,
-					tokenOpt.orElse(""));
+			WebSocketUtils.sendNotification(websocket, LogBehaviour.WRITE_TO_LOG,
+					Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, tokenOpt.orElse(""));
 		}
 	}
 
