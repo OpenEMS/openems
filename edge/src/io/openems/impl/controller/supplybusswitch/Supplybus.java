@@ -124,7 +124,14 @@ public class Supplybus {
 		case CONNECTING: {
 			// if not connected send connect command again
 			if (isConnected()) {
-				// TODO connect all loads after ess connected and started
+				if (supplybusOnIndication != null) {
+					try {
+						supplybusOnIndication.pushWrite(1L);
+					} catch (WriteChannelException e) {
+						log.error("can't set supplybusOnIndication", e);
+					}
+				}
+				// connect all loads after ess connected and started
 				try {
 					if (connectLoads()) {
 						state = State.CONNECTED;
@@ -148,31 +155,25 @@ public class Supplybus {
 			// only connect if soc is larger than minSoc + 5 or Ess is On-Grid
 			if (mostLoad != null) {
 				if (mostLoad.soc.value() > mostLoad.minSoc.value() + 5) {
-					try {
-						// connect(mostLoad);
-						activeEss = mostLoad;
-						activeEss.start();
-						activeEss.setActiveSupplybus(this);
-						lastTimeDisconnected = System.currentTimeMillis();
-						state = State.CONNECTING;
-					} catch (WriteChannelException e) {
-						log.error("Can't start ess[" + activeEss.id() + "]", e);
-					}
+					// connect(mostLoad);
+					activeEss = mostLoad;
+					activeEss.start();
+					activeEss.setActiveSupplybus(this);
+					lastTimeDisconnected = System.currentTimeMillis();
+					state = State.CONNECTING;
 				}
 			} else {
 				// all ess empty check if On-Grid
 				List<Ess> onGridEss = getOnGridEss();
 				if (onGridEss.size() > 0) {
-					try {
-						// connect(mostLoad);
-						activeEss = onGridEss.get(0);
-						activeEss.start();
-						activeEss.setActiveSupplybus(this);
-						lastTimeDisconnected = System.currentTimeMillis();
-						state = State.CONNECTING;
-					} catch (WriteChannelException e) {
-						log.error("Can't start ess[" + activeEss.id() + "]", e);
-					}
+					// connect(mostLoad);
+					activeEss = onGridEss.get(0);
+					activeEss.start();
+					activeEss.setActiveSupplybus(this);
+					lastTimeDisconnected = System.currentTimeMillis();
+					state = State.CONNECTING;
+				} else {
+					log.error("no ess to connect");
 				}
 			}
 			if (supplybusOnIndication != null) {
@@ -189,18 +190,14 @@ public class Supplybus {
 			if (isDisconnected()) {
 				state = State.DISCONNECTED;
 			} else {
-				// TODO disconnect all loads before disconnection
+				// disconnect all loads before disconnection
 				try {
 					if (disconnectLoads()) {
 						disconnect();
 						try {
 							Ess active = getActiveEss();
-							try {
-								if (active != null && !active.equals(primaryEss)) {
-									active.standby();
-								}
-							} catch (WriteChannelException e) {
-								log.error("Can't stop ess[" + active.id() + "]", e);
+							if (active != null && !active.equals(primaryEss)) {
+								active.standby();
 							}
 						} catch (SupplyBusException e) {
 							log.error("get Active Ess failed!", e);
@@ -322,9 +319,9 @@ public class Supplybus {
 				iter.remove();
 			}
 		}
-		if (esss.size() > 1) {
-			esss.remove(primaryEss);
-		}
+		// if (esss.size() > 1) {
+		// esss.remove(primaryEss);
+		// }
 		Ess largestSoc = null;
 		for (Ess ess : esss) {
 			try {
