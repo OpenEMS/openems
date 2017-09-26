@@ -131,15 +131,15 @@ public class FeneconMiniGridMeter extends ModbusDeviceNature implements Asymmetr
 				new ModbusRegisterRange(2018, //
 						new UnsignedWordElement(2018, //
 								this.activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")
-										.delta(10000l))),
+										.delta(10000l).ignore(0l))),
 				new ModbusRegisterRange(2118, //
 						new UnsignedWordElement(2118, //
 								this.activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")
-										.delta(10000l))),
+										.delta(10000l).ignore(0l))),
 				new ModbusRegisterRange(2218, //
 						new UnsignedWordElement(2218, //
 								this.activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")
-										.delta(10000l))),
+										.delta(10000l).ignore(0l))),
 				new ModbusRegisterRange(5003, //
 						new UnsignedDoublewordElement(5003, //
 								this.sellToGridEnergy = new ModbusReadLongChannel("SellToGridEnergy", this).unit("Wh")

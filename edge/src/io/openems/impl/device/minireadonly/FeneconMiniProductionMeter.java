@@ -136,21 +136,21 @@ public class FeneconMiniProductionMeter extends ModbusDeviceNature implements As
 						new DummyElement(2037, 2065), //
 						new UnsignedWordElement(2066, //
 								this.activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")
-										.delta(10000l))),
+										.delta(10000l).ignore(0l))),
 				new ModbusRegisterRange(2135, //
 						new UnsignedDoublewordElement(2135, //
 								this.energyL2 = new ModbusReadLongChannel("EnergyL2", this).unit("Wh").multiplier(2)),
 						new DummyElement(2137, 2165), //
 						new UnsignedWordElement(2166, //
 								this.activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")
-										.delta(10000l))),
+										.delta(10000l).ignore(0l))),
 				new ModbusRegisterRange(2235, //
 						new UnsignedDoublewordElement(2235, //
 								this.energyL3 = new ModbusReadLongChannel("EnergyL3", this).unit("Wh").multiplier(2)),
 						new DummyElement(2237, 2265), //
 						new UnsignedWordElement(2266, //
 								this.activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")
-										.delta(10000l))));
+										.delta(10000l).ignore(0l))));
 		return protocol;
 	}
 

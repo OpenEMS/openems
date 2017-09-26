@@ -130,15 +130,15 @@ public class FeneconMiniConsumptionMeter extends ModbusDeviceNature implements A
 				new ModbusRegisterRange(2063, //
 						new UnsignedWordElement(2063, //
 								this.activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")
-										.delta(10000l))),
+										.delta(10000l).ignore(0l))),
 				new ModbusRegisterRange(2163, //
 						new UnsignedWordElement(2163, //
 								this.activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")
-										.delta(10000l))),
+										.delta(10000l).ignore(0l))),
 				new ModbusRegisterRange(2263, //
 						new UnsignedWordElement(2263, //
 								this.activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")
-										.delta(10000l))),
+										.delta(10000l).ignore(0l))),
 				new ModbusRegisterRange(5011, //
 						new UnsignedDoublewordElement(5011, //
 								this.energy = new ModbusReadLongChannel("Energy", this).unit("Wh").multiplier(2))));
