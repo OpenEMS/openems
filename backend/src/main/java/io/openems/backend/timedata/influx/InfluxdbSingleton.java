@@ -3,6 +3,7 @@ package io.openems.backend.timedata.influx;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -36,6 +37,9 @@ import io.openems.common.utils.JsonUtils;
 public class InfluxdbSingleton implements TimedataSingleton {
 
 	private final Logger log = LoggerFactory.getLogger(InfluxdbSingleton.class);
+
+	private final String MEASUREMENT = "data";
+	private final String TMP_MINI_MEASUREMENT = "minies";
 
 	private String database;
 	private String url;
@@ -140,7 +144,14 @@ public class InfluxdbSingleton implements TimedataSingleton {
 			}
 		}
 
+		// Write data to default location
 		writeData(device, data);
+
+		// Hook to continue writing data to old Mini monitoring
+		// TODO remove after full migration
+		if (device.getProductType().equals("MiniES 3-3")) {
+			writeDataToOldMiniMonitoring(device, data);
+		}
 	}
 
 	private void writeData(MetadataDevice device, TreeBasedTable<Long, String, Object> data) {
@@ -151,10 +162,78 @@ public class InfluxdbSingleton implements TimedataSingleton {
 
 		for (Entry<Long, Map<String, Object>> entry : data.rowMap().entrySet()) {
 			Long timestamp = entry.getKey();
-			Builder builder = Point.measurement("data") // this builds an InfluxDB record ("point") for a given
-														// timestamp
+			Builder builder = Point.measurement(MEASUREMENT) // this builds an InfluxDB record ("point") for a given
+					// timestamp
 					.time(timestamp, TimeUnit.MILLISECONDS).fields(entry.getValue());
 			batchPoints.point(builder.build());
+		}
+
+		// write to DB
+		influxDB.write(batchPoints);
+	}
+
+	/**
+	 * Writes data to old database for old Mini monitoring
+	 * TODO remove after full migration
+	 *
+	 * @param device
+	 * @param data
+	 */
+	private void writeDataToOldMiniMonitoring(MetadataDevice device, TreeBasedTable<Long, String, Object> data) {
+		int deviceId = device.getNameNumber().orElse(0);
+		BatchPoints batchPoints = BatchPoints.database(database) //
+				.tag("fems", String.valueOf(deviceId)) //
+				.build();
+
+		for (Entry<Long, Map<String, Object>> entry : data.rowMap().entrySet()) {
+			Long timestamp = entry.getKey();
+			Builder builder = Point.measurement(TMP_MINI_MEASUREMENT).time(timestamp, TimeUnit.MILLISECONDS);
+
+			Map<String, Object> fields = new HashMap<>();
+
+			for (Entry<String, Object> valueEntry : entry.getValue().entrySet()) {
+				String channel = valueEntry.getKey();
+				Object value = valueEntry.getValue();
+				// convert channel ids to old identifiers
+				if (channel.equals("ess0/Soc")) {
+					fields.put("Stack_SOC", value);
+				} else if (channel.equals("meter1/ActivePowerL1")) {
+					fields.put("PCS_PV_Power_Total", value);
+				} else if (channel.equals("meter2/ActivePowerL1")) {
+					fields.put("PCS_Load_Power_Total", value);
+				} else if (channel.equals("meter0/ActivePowerL1")) {
+					fields.put("PCS_Grid_Power_Total", value);
+				}
+
+				// from here value needs to be divided by 10 for backwards compatibility
+				if (value instanceof Number) {
+					if (value instanceof Integer) {
+						value = ((Integer) value) / 10;
+					} else if (value instanceof Long) {
+						value = ((Long) value) / 10;
+					} else if (value instanceof Double) {
+						value = ((Double) value) / 10;
+					}
+				}
+				if (channel.equals("meter2/Energy")) {
+					fields.put("PCS_Summary_Consumption_Accumulative_cor", value);
+					fields.put("PCS_Summary_Consumption_Accumulative", value);
+				} else if (channel.equals("meter0/BuyFromGridEnergy")) {
+					fields.put("PCS_Summary_Grid_Buy_Accumulative_cor", value);
+					fields.put("PCS_Summary_Grid_Buy_Accumulative", value);
+				} else if (channel.equals("meter0/SellToGridEnergy")) {
+					fields.put("PCS_Summary_Grid_Sell_Accumulative_cor", value);
+					fields.put("PCS_Summary_Grid_Sell_Accumulative", value);
+				} else if (channel.equals("meter1/EnergyL1")) {
+					fields.put("PCS_Summary_PV_Accumulative_cor", value);
+					fields.put("PCS_Summary_PV_Accumulative", value);
+				}
+			}
+
+			if (fields.size() > 0) {
+				builder.fields(fields);
+				batchPoints.point(builder.build());
+			}
 		}
 
 		// write to DB
