@@ -6,10 +6,12 @@ package io.openems.impl.controller.asymmetric.avoidtotalcharge;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ConfigInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.security.User;
+import io.openems.impl.controller.symmetric.avoidtotalcharge.*;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -21,31 +23,31 @@ public class AvoidTotalChargeController extends Controller {
     /*
      * Config
      */
-    @ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Ess.class, isArray = true)
+    @ConfigInfo(title = "Ess", description = "Sets the Ess devices.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Ess.class, isArray = true)
     public final ConfigChannel<Set<io.openems.impl.controller.asymmetric.avoidtotalcharge.Ess>> esss = new ConfigChannel<Set<io.openems.impl.controller.asymmetric.avoidtotalcharge.Ess>>("esss", this);
 
-    @ChannelInfo(title = "Grid Meter", description = "Sets the grid meter.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = false)
+    @ConfigInfo(title = "Grid Meter", description = "Sets the grid meter.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = false)
     public final ConfigChannel<io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter> gridMeter = new ConfigChannel<>("gridMeter", this);
 
-    @ChannelInfo(title = "Production Meters", description = "Sets the production meter.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = true)
+    @ConfigInfo(title = "Production Meters", description = "Sets the production meter.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = true)
     public final ConfigChannel<Set<io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter>> productionMeters = new ConfigChannel<>("productionMeters", this);
 
-    @ChannelInfo(title = "Graph 1", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, accessLevel = User.OWNER, isOptional = true)
+    @ConfigInfo(title = "Graph 1", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, accessLevel = User.OWNER, isOptional = true)
     public final ConfigChannel<Long[]> graph1 = new ConfigChannel<>("graph1", this);
     //TODO: implement fixed length and min/max values (accessible by OWNER !)
 
-    @ChannelInfo(title = "Graph 2", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, accessLevel = User.OWNER, isOptional = true)
+    @ConfigInfo(title = "Graph 2", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, accessLevel = User.OWNER, isOptional = true)
     public final ConfigChannel<Long[]> graph2 = new ConfigChannel<>("graph2", this);
     //TODO: implement fixed length and min/max values (accessible by OWNER !)
 
-    @ChannelInfo(title = "Critical Percentage", description = "If the productionMeter's power raises above this percentage of its peak value, the graph-value may be neglected.", type = Long.class, accessLevel = User.OWNER, defaultValue = "100", isArray = false)
+    @ConfigInfo(title = "Critical Percentage", description = "If the productionMeter's power raises above this percentage of its peak value, the graph-value may be neglected.", type = Long.class, accessLevel = User.OWNER, defaultValue = "100", isArray = false)
     public final ConfigChannel<Long> criticalPercentage = new ConfigChannel<Long>("criticalPercentage", this);
     //TODO: implement min/max values (accessible by OWNER !)
 
-    @ChannelInfo(title = "Graph 1 active", description = "Activate Graph 1 (If no graph is activated, all values are set to 100)", defaultValue = "true" ,type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = true)
+    @ConfigInfo(title = "Graph 1 active", description = "Activate Graph 1 (If no graph is activated, all values are set to 100)", defaultValue = "true" ,type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = true)
     public final ConfigChannel<Boolean> graph1active = new ConfigChannel<>("graph1active", this);
 
-    @ChannelInfo(title = "Graph 2 active", description = "Activate Graph 2 (If no graph is activated, all values are set to 100)", defaultValue = "false" ,type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = true)
+    @ConfigInfo(title = "Graph 2 active", description = "Activate Graph 2 (If no graph is activated, all values are set to 100)", defaultValue = "false" ,type = Boolean.class, accessLevel = User.OWNER, isArray = false, isOptional = true)
     public final ConfigChannel<Boolean> graph2active = new ConfigChannel<>("graph2active", this);
 
 
