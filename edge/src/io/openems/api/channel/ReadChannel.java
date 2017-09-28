@@ -241,8 +241,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		Optional<T> oldValue = this.value;
 		if (newValue == null || (this.ignore.isPresent() && this.ignore.get().equals(newValue))) {
 			this.value = Optional.empty();
-		}
-		if (newValue instanceof Number && (multiplier.isPresent() || delta.isPresent() || negate)) {
+
+		} else if (newValue instanceof Number && (multiplier.isPresent() || delta.isPresent() || negate)) {
 			// special treatment for Numbers with given multiplier or delta
 			Number number = (Number) newValue;
 			double multiplier = 1;
@@ -259,10 +259,11 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 			number = (long) (number.longValue() * multiplier - delta);
 			@SuppressWarnings("unchecked") Optional<T> value = (Optional<T>) Optional.of(number);
 			this.value = value;
+
 		} else {
 			this.value = Optional.ofNullable(newValue);
 		}
-		log.info("Update channel [" + this.address() + "] to value [" + this.value + "]");
+
 		if (triggerEvent) {
 			updateListeners.forEach(listener -> listener.channelUpdated(this, this.value));
 			if (!oldValue.equals(this.value)) {
