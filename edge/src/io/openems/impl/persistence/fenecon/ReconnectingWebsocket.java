@@ -70,7 +70,9 @@ public class ReconnectingWebsocket {
 				JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 				WEBSOCKET_HANDLER.onMessage(jMessage);
 			} catch (Throwable t) {
-				log.error("Websocket [" + this.getURI().toString() + "] error on message [" + message + "]");
+				log.error("Websocket [" + this.getURI().toString() + "] error on message [" + message + "]: "
+						+ t.getMessage());
+				t.printStackTrace();
 			}
 		}
 
