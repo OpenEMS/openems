@@ -197,6 +197,9 @@ public class InfluxdbSingleton implements TimedataSingleton {
 				// convert channel ids to old identifiers
 				if (channel.equals("ess0/Soc")) {
 					fields.put("Stack_SOC", value);
+					if (value instanceof Number) {
+						device.setSoc(((Number) value).intValue());
+					}
 				} else if (channel.equals("meter1/ActivePowerL1")) {
 					fields.put("PCS_PV_Power_Total", value);
 				} else if (channel.equals("meter2/ActivePowerL1")) {
