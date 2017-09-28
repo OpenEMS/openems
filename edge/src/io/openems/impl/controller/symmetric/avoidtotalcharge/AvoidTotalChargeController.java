@@ -29,8 +29,8 @@ public class AvoidTotalChargeController extends Controller {
     @ChannelInfo(title = "Grid Meter", description = "Sets the grid meter.", type = io.openems.impl.controller.symmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = false)
     public final ConfigChannel<io.openems.impl.controller.symmetric.avoidtotalcharge.Meter> gridMeter = new ConfigChannel<>("gridMeter", this);
 
-    @ChannelInfo(title = "Production Meters", description = "Sets the production meter.", type = io.openems.impl.controller.symmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = true)
-    public final ConfigChannel<Set<io.openems.impl.controller.symmetric.avoidtotalcharge.Meter>> productionMeters = new ConfigChannel<>("productionMeters", this);
+    @ChannelInfo(title = "Maximum Production Power", description = "Theoretical peak value of all the photovoltaic panels", type = Long.class, isOptional = false, isArray = false)
+    public final ConfigChannel<Long> maximumProductionPower = new ConfigChannel<>("maximumProductionPower", this);
 
     @ChannelInfo(title = "Graph 1", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, accessLevel = User.OWNER, isOptional = true)
     public final ConfigChannel<Long[]> graph1 = new ConfigChannel<>("graph1", this);
@@ -110,12 +110,8 @@ public class AvoidTotalChargeController extends Controller {
             /**
              * get the power feeded to the grid relatively to the producer's peak value
              */
-            Long maxAbsoluteProducablePower = 0L;
+            Long maxAbsoluteProducablePower = maximumProductionPower.value();
             Long relativeFeededPower = 0L;
-
-            for (io.openems.impl.controller.symmetric.avoidtotalcharge.Meter meter : productionMeters.value()){
-                maxAbsoluteProducablePower += meter.maxActivePower.value();
-            }
 
             relativeFeededPower = -100 * gridMeter.value().activePower.value() / maxAbsoluteProducablePower;
 
@@ -157,7 +153,7 @@ public class AvoidTotalChargeController extends Controller {
                 }
             }
 
-        } catch (InvalidValueException | IndexOutOfBoundsException e){
+        } catch (InvalidValueException | IndexOutOfBoundsException | WriteChannelException e){
             log.error(e.getMessage(),e);
         }
     }
