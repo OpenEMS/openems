@@ -31,6 +31,9 @@ import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 public class ReconnectingWebsocket {
 
 	private final Logger log = LoggerFactory.getLogger(ReconnectingWebsocket.class);
+	private final int DEFAULT_WAIT_AFTER_CLOSE = 1000; // 1 second
+	private final int MAX_WAIT_AFTER_CLOSE = 1000 * 60 * 3; // 3 minutes
+	private int WAIT_AFTER_CLOSE = DEFAULT_WAIT_AFTER_CLOSE;
 	private final Draft WEBSOCKET_DRAFT = new Draft_6455();
 	private final EdgeWebsocketHandler WEBSOCKET_HANDLER;
 	private final Mutex WEBSOCKET_CLOSED = new Mutex(true);
@@ -62,6 +65,7 @@ public class ReconnectingWebsocket {
 		public void onOpen(ServerHandshake handshakedata) {
 			log.info("Websocket [" + this.getURI().toString() + "] opened");
 			ON_OPEN_LISTENER.announce();
+			WAIT_AFTER_CLOSE = DEFAULT_WAIT_AFTER_CLOSE;
 		}
 
 		@Override
@@ -78,8 +82,14 @@ public class ReconnectingWebsocket {
 
 		@Override
 		public void onClose(int code, String reason, boolean remote) {
-			log.info(
-					"Websocket [" + this.getURI().toString() + "] closed. Code [" + code + "] Reason [" + reason + "]");
+			log.info("Websocket [" + this.getURI().toString() + "] closed. Code [" + code + "] Reason [" + reason
+					+ "] Wait [" + WAIT_AFTER_CLOSE + "]");
+			try {
+				Thread.sleep(WAIT_AFTER_CLOSE += DEFAULT_WAIT_AFTER_CLOSE);
+				if (WAIT_AFTER_CLOSE > MAX_WAIT_AFTER_CLOSE) {
+					WAIT_AFTER_CLOSE = MAX_WAIT_AFTER_CLOSE;
+				}
+			} catch (InterruptedException e) { /* ignore */ }
 			WEBSOCKET_CLOSED.release(); // trigger reconnector
 			ON_CLOSE_LISTENER.announce();
 		}
@@ -114,8 +124,8 @@ public class ReconnectingWebsocket {
 		this.reconnectorTask = () -> {
 			while (true) {
 				try {
-					// wait for websocket close or check once in a minute
-					WEBSOCKET_CLOSED.awaitOrTimeout(1, TimeUnit.MINUTES);
+					// wait for websocket close or check once every 5 minutes
+					WEBSOCKET_CLOSED.awaitOrTimeout(5, TimeUnit.MINUTES);
 
 					if (WEBSOCKET_OPT.isPresent()) {
 						WebSocket ws = WEBSOCKET_OPT.get();
