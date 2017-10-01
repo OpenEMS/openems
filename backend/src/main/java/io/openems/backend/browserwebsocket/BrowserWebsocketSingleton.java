@@ -25,6 +25,7 @@ import io.openems.common.types.Device;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 
@@ -89,7 +90,7 @@ public class BrowserWebsocketSingleton
 
 		// check if the session is now valid and send reply to browser
 		BrowserSessionData data = session.getData();
-		if (error.isEmpty() && session.isValid()) {
+		if (error.isEmpty()) {
 			// add isOnline information
 			OpenemsWebsocketSingleton openemsWebsocket = OpenemsWebsocket.instance();
 			for (Device device : data.getDevices()) {
@@ -103,18 +104,17 @@ public class BrowserWebsocketSingleton
 			WebSocketUtils.send(websocket, jReply);
 
 			// add websocket to local cache
-			this.websockets.forcePut(websocket, session);
+			this.addWebsocket(websocket, session);
 
 			log.info("User [" + data.getUserName() + "] connected with Session [" + data.getOdooSessionId().orElse("")
-					+ "]. Total websockets [" + this.websockets.size() + "]");
+					+ "].");
 
 		} else {
 			// send connection failed to browser
 			JsonObject jReply = DefaultMessages.browserConnectionFailedReply();
 			WebSocketUtils.send(websocket, jReply);
 			log.warn("User [" + data.getUserName() + "] connection failed. Session ["
-					+ data.getOdooSessionId().orElse("") + "] Error [" + error + "]. Total websockets ["
-					+ this.websockets.size() + "]");
+					+ data.getOdooSessionId().orElse("") + "] Error [" + error + "].");
 
 			websocket.closeConnection(CloseFrame.REFUSE, error);
 		}
@@ -158,9 +158,8 @@ public class BrowserWebsocketSingleton
 				try {
 					forwardMessageToOpenems(websocket, jMessage, deviceName);
 				} catch (OpenemsException e) {
-					WebSocketUtils.sendNotification(websocket, Notification.EDGE_UNABLE_TO_FORWARD, deviceName,
-							e.getMessage());
-					log.error("Unable to forward to Device [" + deviceName + "] : " + e.getMessage());
+					WebSocketUtils.sendNotification(websocket, LogBehaviour.WRITE_TO_LOG,
+							Notification.EDGE_UNABLE_TO_FORWARD, deviceName, e.getMessage());
 				}
 			}
 		}
@@ -184,14 +183,14 @@ public class BrowserWebsocketSingleton
 		}
 
 		// add session token to message id for identification
-		BrowserSession session = this.websockets.get(websocket);
+		Optional<BrowserSession> session = this.getSessionFromWebsocket(websocket);
 		JsonArray jId;
 		if (jMessage.has("id")) {
 			jId = JsonUtils.getAsJsonArray(jMessage, "id");
 		} else {
 			jId = new JsonArray();
 		}
-		jId.add(session.getToken());
+		jId.add(session.get().getToken());
 		jMessage.add("id", jId);
 
 		// get OpenEMS websocket and forward message
@@ -251,8 +250,9 @@ public class BrowserWebsocketSingleton
 		for (BrowserSession session : this.sessionManager.getSessions()) {
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
-					WebSocket websocket = this.websockets.inverse().get(session);
-					WebSocketUtils.sendNotification(websocket, Notification.EDGE_CONNECTION_ClOSED, name);
+					Optional<WebSocket> websocketOpt = this.getWebsocketFromSession(session);
+					WebSocketUtils.sendNotification(websocketOpt, LogBehaviour.DO_NOT_WRITE_TO_LOG,
+							Notification.EDGE_CONNECTION_ClOSED, name);
 				}
 			}
 		}
@@ -267,9 +267,9 @@ public class BrowserWebsocketSingleton
 		for (BrowserSession session : this.sessionManager.getSessions()) {
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
-					WebSocket websocket = this.websockets.inverse().get(session);
-					WebSocketUtils.sendNotification(Optional.ofNullable(websocket), Notification.EDGE_CONNECTION_OPENED,
-							name);
+					Optional<WebSocket> websocketOpt = this.getWebsocketFromSession(session);
+					WebSocketUtils.sendNotification(websocketOpt, LogBehaviour.DO_NOT_WRITE_TO_LOG,
+							Notification.EDGE_CONNECTION_OPENED, name);
 				}
 			}
 		}

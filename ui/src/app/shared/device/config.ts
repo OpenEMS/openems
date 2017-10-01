@@ -31,6 +31,8 @@ export class ConfigImpl implements DefaultTypes.Config {
     public readonly storageThings: string[] = [];
     public readonly gridMeters: string[] = [];
     public readonly productionMeters: string[] = [];
+    public readonly consumptionMeters: string[] = [];
+    public readonly otherMeters: string[] = []; // TODO show otherMeters in Energymonitor
     public readonly bridges: string[] = [];
     public readonly scheduler: string = null;
     public readonly controllers: string[] = [];
@@ -42,6 +44,8 @@ export class ConfigImpl implements DefaultTypes.Config {
         let storageThings: string[] = []
         let gridMeters: string[] = [];
         let productionMeters: string[] = [];
+        let consumptionMeters: string[] = [];
+        let otherMeters: string[] = [];
         let bridges: string[] = [];
         let scheduler: string = null;
         let controllers: string[] = [];
@@ -65,8 +69,10 @@ export class ConfigImpl implements DefaultTypes.Config {
                         gridMeters.push(thingId);
                     } else if (thing.type === "production") {
                         productionMeters.push(thingId);
+                    } else if (thing.type === "consumption") {
+                        consumptionMeters.push(thingId);
                     } else {
-                        console.warn("Meter without type: " + thing);
+                        otherMeters.push(thingId);
                     }
                 }
             }

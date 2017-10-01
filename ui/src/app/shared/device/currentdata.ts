@@ -13,8 +13,10 @@ export class CurrentDataAndSummary {
         let result: DefaultTypes.Summary = {
             storage: {
                 soc: null,
-                activePower: null,
-                maxActivePower: null
+                chargeActivePower: null,
+                maxChargeActivePower: null,
+                dischargeActivePower: null,
+                maxDischargeActivePower: null
             }, production: {
                 powerRatio: null,
                 activePower: null, // sum of activePowerAC and activePowerDC
@@ -23,9 +25,10 @@ export class CurrentDataAndSummary {
                 maxActivePower: null
             }, grid: {
                 powerRatio: null,
-                activePower: null,
-                maxActivePower: null,
-                minActivePower: null
+                buyActivePower: null,
+                maxBuyActivePower: null,
+                sellActivePower: null,
+                maxSellActivePower: null
             }, consumption: {
                 powerRatio: null,
                 activePower: null
@@ -35,6 +38,8 @@ export class CurrentDataAndSummary {
         {
             /*
              * Storage
+             * > 0 => Discharge
+             * < 0 => Charge
              */
             let soc = null;
             let activePower = null;
@@ -50,40 +55,53 @@ export class CurrentDataAndSummary {
                 }
             }
             result.storage.soc = Utils.divideSafely(soc, countSoc);
-            result.storage.activePower = activePower;
+            if (activePower != null) {
+                if (activePower > 0) {
+                    result.storage.chargeActivePower = 0;
+                    result.storage.dischargeActivePower = activePower;
+                } else {
+                    result.storage.chargeActivePower = activePower * -1;
+                    result.storage.dischargeActivePower = 0;
+                }
+            }
         }
 
         {
             /*
              * Grid
+             * > 0 => Buy from grid
+             * < 0 => Sell to grid
              */
-            let powerRatio = 0;
             let activePower = null;
-            let maxActivePower = 0;
-            let minActivePower = 0;
+            let ratio = 0;
+            let maxSell = 0;
+            let maxBuy = 0;
             for (let thing of config.gridMeters) {
                 let meterData = currentData[thing];
                 let meterConfig = config.things[thing];
                 activePower = Utils.addSafely(activePower, this.getActivePower(meterData));
                 if ("maxActivePower" in meterConfig) {
-                    maxActivePower += meterConfig.maxActivePower;
+                    maxBuy += meterConfig.maxActivePower;
                 }
                 if ("minActivePower" in meterConfig) {
-                    minActivePower += meterConfig.minActivePower;
+                    maxSell += meterConfig.minActivePower;
                 }
             }
-            // calculate ratio
-            if (activePower == null) {
+            // set GridBuy and GridSell
+            result.grid.maxSellActivePower = maxSell * -1;
+            result.grid.maxBuyActivePower = maxBuy;
+            if (activePower != null) {
                 if (activePower > 0) {
-                    powerRatio = 50 * activePower / maxActivePower
+                    result.grid.sellActivePower = 0;
+                    result.grid.buyActivePower = activePower;
+                    ratio = result.grid.buyActivePower / maxSell;
                 } else {
-                    powerRatio = -50 * activePower / minActivePower
+                    result.grid.sellActivePower = activePower * -1;
+                    result.grid.buyActivePower = 0;
+                    ratio = result.grid.sellActivePower / maxSell * -1;
                 }
             }
-            result.grid.powerRatio = powerRatio;
-            result.grid.activePower = activePower;
-            result.grid.maxActivePower = maxActivePower;
-            result.grid.minActivePower = minActivePower;
+            result.grid.powerRatio = ratio;
         }
 
         {
@@ -134,8 +152,14 @@ export class CurrentDataAndSummary {
             /*
              * Consumption
              */
-            let activePower = Utils.addSafely(Utils.addSafely(result.grid.activePower, result.production.activePowerAC), result.storage.activePower);
-            let maxActivePower = result.grid.maxActivePower + result.production.maxActivePower + result.storage.maxActivePower;
+            // Consumption = GridBuy + Production + ESS-Discharge - GridSell - ESS-Charge
+            let minus = Utils.addSafely(result.grid.sellActivePower, result.storage.chargeActivePower);
+            let plus = Utils.addSafely(Utils.addSafely(result.grid.buyActivePower, result.production.activePowerAC), result.storage.dischargeActivePower);
+            let activePower = Utils.subtractSafely(plus, minus);
+
+            let maxActivePower = result.grid.maxBuyActivePower - result.grid.maxSellActivePower //
+                + result.production.maxActivePower //
+                + result.storage.maxChargeActivePower - result.storage.maxDischargeActivePower;
             result.consumption.powerRatio = Utils.divideSafely(activePower, (maxActivePower / 100));
             result.consumption.activePower = activePower;
         }

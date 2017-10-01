@@ -58,6 +58,16 @@ public class OpenemsWebsocketSingleton
 			}
 			apikey = apikeyOpt.get();
 
+			// if existing: close existing websocket for this apikey
+			Optional<OpenemsSession> oldSessionOpt = this.sessionManager.getSessionByToken(apikey);
+			if (oldSessionOpt.isPresent()) {
+				OpenemsSession oldSession = oldSessionOpt.get();
+				WebSocket oldWebsocket = oldSession.getData().getWebsocket();
+				oldWebsocket.closeConnection(CloseFrame.REFUSE,
+						"Another device with this apikey [" + apikey + "] connected.");
+				this.sessionManager.removeSession(oldSession);
+			}
+
 			// get device for apikey
 			Optional<MetadataDevice> deviceOpt = Metadata.instance().getDeviceModel().getDeviceForApikey(apikey);
 			if (!deviceOpt.isPresent()) {
@@ -67,17 +77,16 @@ public class OpenemsWebsocketSingleton
 			deviceName = device.getName();
 
 			// create new session
-			OpenemsSessionData sessionData = new OpenemsSessionData(device);
+			OpenemsSessionData sessionData = new OpenemsSessionData(websocket, device);
 			OpenemsSession session = sessionManager.createNewSession(apikey, sessionData);
-			session.setValid();
 
 			// send successful reply to openems
 			JsonObject jReply = DefaultMessages.openemsConnectionSuccessfulReply();
 			WebSocketUtils.send(websocket, jReply);
 			// add websocket to local cache
-			this.websockets.forcePut(websocket, session);
+			this.addWebsocket(websocket, session);
 
-			log.info("Device [" + deviceName + "] connected. Total websockets [" + this.websockets.size() + "]");
+			log.info("Device [" + deviceName + "] connected.");
 
 			try {
 				// set device active (in Odoo)
@@ -110,8 +119,8 @@ public class OpenemsWebsocketSingleton
 	@Override
 	public void _onClose(WebSocket websocket, Optional<OpenemsSession> sessionOpt) {
 		if (sessionOpt.isPresent()) {
-			log.info("Would remove the session... " + sessionOpt.get());
-			// TODO sessionManager.removeSession(sessionOpt.get());
+			// log.info("Would remove the session... " + sessionOpt.get());
+			sessionManager.removeSession(sessionOpt.get());
 		}
 	}
 
@@ -121,7 +130,7 @@ public class OpenemsWebsocketSingleton
 	@Override
 	protected void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt) {
-		MetadataDevice device = websockets.get(websocket).getData().getDevice();
+		MetadataDevice device = this.getSessionFromWebsocket(websocket).get().getData().getDevice();
 
 		// if (!jMessage.has("timedata") && !jMessage.has("currentData") && !jMessage.has("log")
 		// && !jMessage.has("config")) {
@@ -187,7 +196,7 @@ public class OpenemsWebsocketSingleton
 			JsonObject jTimedata = JsonUtils.getAsJsonObject(jTimedataElement);
 			// Write to InfluxDB
 			try {
-				Timedata.instance().write(device.getNameNumber(), jTimedata);
+				Timedata.instance().write(device, jTimedata);
 				log.debug(device.getName() + ": wrote " + jTimedata.entrySet().size() + " timestamps "
 						+ StringUtils.toShortString(jTimedata, 120));
 			} catch (Exception e) {
@@ -257,7 +266,7 @@ public class OpenemsWebsocketSingleton
 			return Optional.empty();
 		}
 		OpenemsSession session = sessionOpt.get();
-		return Optional.ofNullable(this.websockets.inverse().get(session));
+		return this.getWebsocketFromSession(session);
 	}
 
 	public Collection<OpenemsSession> getSessions() {
