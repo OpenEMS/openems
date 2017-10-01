@@ -35,10 +35,26 @@
 			{
 				"priority": 150,
 				"class": "io.openems.impl.controller.debuglog.DebugLogController",
-				"esss": [ "ess0" ],
-				"meters": [ "meter0", "meter1", "meter2" ]
+				"esss": [
+					"ess0"
+				],
+				"meters": [
+					"meter0",
+					"meter1",
+					"meter2"
+				]
 			}
 		]
 	},
-	"persistence": []	
+	"persistence": [
+		{
+			"class": "io.openems.impl.persistence.influxdb.InfluxdbPersistence",
+			"ip": "127.0.0.1",
+			"fems": "###FEMS###"
+		},
+		{
+			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
+			"apikey": "###APIKEY###"
+		}
+	]
 }
