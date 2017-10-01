@@ -53,8 +53,10 @@ export module DefaultTypes {
   export interface Summary {
     storage: {
       soc: number,
-      activePower: number,
-      maxActivePower: number
+      chargeActivePower: number,
+      maxChargeActivePower: number,
+      dischargeActivePower: number,
+      maxDischargeActivePower: number
     }, production: {
       powerRatio: number,
       activePower: number, // sum of activePowerAC and activePowerDC
@@ -63,9 +65,10 @@ export module DefaultTypes {
       maxActivePower: number
     }, grid: {
       powerRatio: number,
-      activePower: number,
-      maxActivePower: number,
-      minActivePower: number
+      buyActivePower: number,
+      maxBuyActivePower: number,
+      sellActivePower: number,
+      maxSellActivePower: number
     }, consumption: {
       powerRatio: number,
       activePower: number

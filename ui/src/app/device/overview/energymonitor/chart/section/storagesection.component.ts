@@ -61,6 +61,16 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             })
     }
 
+    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, ratio: number) {
+        if (chargeAbsolute != null && chargeAbsolute > 0) {
+            this.name = "Speicher-Beladung" //TODO translate
+            super.updateValue(chargeAbsolute, ratio);
+        } else {
+            this.name = "Speicher-Entladung" //TODO translate
+            super.updateValue(dischargeAbsolute, ratio);
+        }
+    }
+
     protected getCircleDirection(): CircleDirection {
         return new CircleDirection("down");
     }
@@ -80,6 +90,6 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             return this.translate.instant('NoValue');
         }
 
-        return this.lastValue.ratio + " %";
+        return this.lastValue.absolute + " W";
     }
 }

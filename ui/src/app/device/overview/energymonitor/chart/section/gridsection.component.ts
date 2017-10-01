@@ -65,19 +65,16 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
             })
     }
 
-    public updateValue(absolute: number, ratio: number) {
-        if (absolute < 0) {
-            this.name = this.translate.instant('General.GridSell');
-            this.sellToGrid = true;
-            absolute *= -1;
-        } else if (absolute > 0) {
+    public updateGridValue(buyAbsolute: number, sellAbsolute: number, ratio: number) {
+        if (buyAbsolute != null && buyAbsolute > 0) {
             this.name = this.translate.instant('General.GridBuy');
             this.sellToGrid = false;
+            super.updateValue(buyAbsolute, ratio);
         } else {
-            this.name = this.translate.instant('General.Grid');
-            this.sellToGrid = null;
+            this.name = this.translate.instant('General.GridSell');
+            this.sellToGrid = true;
+            super.updateValue(sellAbsolute, ratio);
         }
-        super.updateValue(absolute, ratio);
     }
 
     protected getCircleDirection(): CircleDirection {
