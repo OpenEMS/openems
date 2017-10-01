@@ -4,18 +4,18 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.device.Device;
-import io.openems.api.device.nature.meter.AsymmetricMeterNature;
+import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
+import io.openems.impl.protocol.modbus.internal.SignedWordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
-import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
 @ThingInfo(title = "FENECON Mini Grid-Meter")
-public class FeneconMiniGridMeter extends ModbusDeviceNature implements AsymmetricMeterNature {
+public class FeneconMiniGridMeter extends ModbusDeviceNature implements SymmetricMeterNature {
 
 	/*
 	 * Constructors
@@ -51,13 +51,9 @@ public class FeneconMiniGridMeter extends ModbusDeviceNature implements Asymmetr
 	/*
 	 * Inherited Channels
 	 */
-	private ModbusReadLongChannel activePowerL1;
-	private ModbusReadLongChannel activePowerL2;
-	private ModbusReadLongChannel activePowerL3;
+	private ModbusReadLongChannel activePower;
 	// Dummies
-	private StaticValueChannel<Long> reactivePowerL1 = new StaticValueChannel<Long>("ReactivePowerL1", this, 0l);
-	private StaticValueChannel<Long> reactivePowerL2 = new StaticValueChannel<Long>("ReactivePowerL2", this, 0l);
-	private StaticValueChannel<Long> reactivePowerL3 = new StaticValueChannel<Long>("ReactivePowerL3", this, 0l);
+	private StaticValueChannel<Long> reactivePower = new StaticValueChannel<Long>("ReactivePower", this, 0l);
 
 	/*
 	 * This Channels
@@ -66,80 +62,38 @@ public class FeneconMiniGridMeter extends ModbusDeviceNature implements Asymmetr
 	public ModbusReadLongChannel sellToGridEnergy;
 
 	@Override
-	public ReadChannel<Long> activePowerL1() {
-		return this.activePowerL1;
+	public ReadChannel<Long> activePower() {
+		return this.activePower;
 	}
 
 	@Override
-	public ReadChannel<Long> activePowerL2() {
-		return this.activePowerL2;
+	public ReadChannel<Long> apparentPower() {
+		return this.activePower;
 	}
 
 	@Override
-	public ReadChannel<Long> activePowerL3() {
-		return this.activePowerL3;
+	public ReadChannel<Long> reactivePower() {
+		return this.reactivePower;
 	}
 
 	@Override
-	public ReadChannel<Long> reactivePowerL1() {
-		return this.reactivePowerL1;
-	}
-
-	@Override
-	public ReadChannel<Long> reactivePowerL2() {
-		return this.reactivePowerL2;
-	}
-
-	@Override
-	public ReadChannel<Long> reactivePowerL3() {
-		return this.reactivePowerL3;
-	}
-
-	@Override
-	public ReadChannel<Long> currentL1() {
+	public ReadChannel<Long> frequency() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ReadChannel<Long> currentL2() {
-		return null;
-	}
-
-	@Override
-	public ReadChannel<Long> currentL3() {
-		return null;
-	}
-
-	@Override
-	public ReadChannel<Long> voltageL1() {
-		return null;
-	}
-
-	@Override
-	public ReadChannel<Long> voltageL2() {
-		return null;
-	}
-
-	@Override
-	public ReadChannel<Long> voltageL3() {
+	public ReadChannel<Long> voltage() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		ModbusProtocol protocol = new ModbusProtocol( //
-				new ModbusRegisterRange(2018, //
-						new UnsignedWordElement(2018, //
-								this.activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")
-										.delta(10000l).ignore(0l))),
-				new ModbusRegisterRange(2118, //
-						new UnsignedWordElement(2118, //
-								this.activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")
-										.delta(10000l).ignore(0l))),
-				new ModbusRegisterRange(2218, //
-						new UnsignedWordElement(2218, //
-								this.activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")
-										.delta(10000l).ignore(0l))),
+				new ModbusRegisterRange(4004, //
+						new SignedWordElement(4004, //
+								this.activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").negate())),
 				new ModbusRegisterRange(5003, //
 						new UnsignedDoublewordElement(5003, //
 								this.sellToGridEnergy = new ModbusReadLongChannel("SellToGridEnergy", this).unit("Wh")
