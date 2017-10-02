@@ -6,7 +6,7 @@ public abstract class BridgeEventListener {
 
 	public void executeNotify(BridgeEvent event) {
 		long beforeExecute = System.currentTimeMillis();
-		notify();
+		notify(event);
 		requiredTime = System.currentTimeMillis() - beforeExecute;
 	}
 
