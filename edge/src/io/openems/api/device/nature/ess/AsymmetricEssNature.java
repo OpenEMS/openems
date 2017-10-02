@@ -22,35 +22,48 @@ package io.openems.api.device.nature.ess;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.doc.ChannelInfo;
 
 public interface AsymmetricEssNature extends EssNature {
 	/*
 	 * ReadChannels
 	 */
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> activePowerL1();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> activePowerL2();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> activePowerL3();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> reactivePowerL1();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> reactivePowerL2();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> reactivePowerL3();
 
 	/*
 	 * WriteChannels
 	 */
+	@ChannelInfo(type = Long.class)
 	public WriteChannel<Long> setActivePowerL1();
 
+	@ChannelInfo(type = Long.class)
 	public WriteChannel<Long> setActivePowerL2();
 
+	@ChannelInfo(type = Long.class)
 	public WriteChannel<Long> setActivePowerL3();
 
+	@ChannelInfo(type = Long.class)
 	public WriteChannel<Long> setReactivePowerL1();
 
+	@ChannelInfo(type = Long.class)
 	public WriteChannel<Long> setReactivePowerL2();
 
+	@ChannelInfo(type = Long.class)
 	public WriteChannel<Long> setReactivePowerL3();
 }
