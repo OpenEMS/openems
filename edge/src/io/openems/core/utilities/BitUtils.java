@@ -12,7 +12,7 @@ public class BitUtils {
 	private final static int BYTES_LONG = 8;
 	private final static int BITS_BOOLEAN = 1;
 
-	public final static ByteOrder BYTE_ODER = ByteOrder.BIG_ENDIAN;
+	public final static ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 
 	public static int getBitLength(Class<?> type) throws NotImplementedException {
 		switch (OpenemsTypes.get(type)) {
@@ -43,10 +43,10 @@ public class BitUtils {
 		Class<?> type = value.getClass();
 		switch (OpenemsTypes.get(type)) {
 		case INTEGER:
-			return ByteBuffer.allocate(BYTES_INT).order(BYTE_ODER).putInt((Integer) value).array();
+			return ByteBuffer.allocate(BYTES_INT).order(BYTE_ORDER).putInt((Integer) value).array();
 
 		case LONG:
-			return ByteBuffer.allocate(BYTES_LONG).order(BYTE_ODER).putLong((Long) value).array();
+			return ByteBuffer.allocate(BYTES_LONG).order(BYTE_ORDER).putLong((Long) value).array();
 
 		case BOOLEAN: // TODO put boolean value in a byte
 		case DOUBLE: // TODO
