@@ -1,5 +1,7 @@
 # OpenEMS Modbus/TCP-Api
 
+This describes the OpenEMS Modbus/TCP client implementation. For a working example see [openems-modbus-master](https://github.com/OpenEMS/openems-modbus-master).
+
 ## Setup Modbus/TCP-Controller
 
 OpenEMS Modbus/TCP-Api is implemented as a Controller. To be active it needs to be activated in the Scheduler. Default port is 502.

@@ -46,14 +46,29 @@ export class EnergyChartComponent implements OnChanges {
   private gridSell: String = "";
 
   private colors = [{
+    // Production
     backgroundColor: 'rgba(45,143,171,0.2)',
     borderColor: 'rgba(45,143,171,1)',
   }, {
+    // Grid Buy
     backgroundColor: 'rgba(0,0,0,0.2)',
     borderColor: 'rgba(0,0,0,1)',
   }, {
+    // Grid Sell
+    backgroundColor: 'rgba(0,0,200,0.2)',
+    borderColor: 'rgba(0,0,200,1)',
+  }, {
+    // Consumption
     backgroundColor: 'rgba(221,223,1,0.2)',
     borderColor: 'rgba(221,223,1,1)',
+  }, {
+    // Storage Charge
+    backgroundColor: 'rgba(0,223,0,0.2)',
+    borderColor: 'rgba(0,223,0,1)',
+  }, {
+    // Storage Discharge
+    backgroundColor: 'rgba(200,0,0,0.2)',
+    borderColor: 'rgba(200,0,0,1)',
   }];
   private options: ChartOptions;
 
@@ -84,26 +99,47 @@ export class EnergyChartComponent implements OnChanges {
       // prepare datasets and labels
       let activePowers = {
         production: [],
-        grid: [],
-        consumption: []
+        gridBuy: [],
+        gridSell: [],
+        consumption: [],
+        storageCharge: [],
+        storageDischarge: []
       }
       let labels: moment.Moment[] = [];
       for (let record of historicData.data) {
         labels.push(moment(record.time));
         let data = new CurrentDataAndSummary(record.channels, this.config);
-        activePowers.grid.push(Utils.divideSafely(data.summary.grid.activePower, -1000)); // convert to kW and invert value
+        activePowers.gridBuy.push(Utils.divideSafely(data.summary.grid.buyActivePower, 1000)); // convert to kW
+        activePowers.gridSell.push(Utils.divideSafely(data.summary.grid.sellActivePower, 1000)); // convert to kW
         activePowers.production.push(Utils.divideSafely(data.summary.production.activePower, 1000)); // convert to kW
         activePowers.consumption.push(Utils.divideSafely(data.summary.consumption.activePower, 1000)); // convert to kW
+        activePowers.storageCharge.push(Utils.divideSafely(data.summary.storage.chargeActivePower, 1000)); // convert to kW
+        activePowers.storageDischarge.push(Utils.divideSafely(data.summary.storage.dischargeActivePower, 1000)); // convert to kW
       }
       this.datasets = [{
         label: this.translate.instant('General.Production'),
-        data: activePowers.production
+        data: activePowers.production,
+        hidden: false
       }, {
-        label: this.translate.instant('General.Grid'),
-        data: activePowers.grid
+        label: "Netzbezug", //TODO translate this.translate.instant('General.Grid')
+        data: activePowers.gridBuy,
+        hidden: false
+      }, {
+        label: "Netzeinspeisung", // TODO translate
+        data: activePowers.gridSell,
+        hidden: false
       }, {
         label: this.translate.instant('General.Consumption'),
-        data: activePowers.consumption
+        data: activePowers.consumption,
+        hidden: false
+      }, {
+        label: "Speicher-Beladung", // TODO translate
+        data: activePowers.storageCharge,
+        hidden: true
+      }, {
+        label: "Speicher-Entladung", // TODO translate
+        data: activePowers.storageDischarge,
+        hidden: true
       }];
       this.labels = labels;
       // stop loading spinner

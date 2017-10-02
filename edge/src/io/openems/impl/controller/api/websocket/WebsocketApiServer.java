@@ -37,6 +37,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.impl.controller.api.websocket.session.WebsocketApiSession;
@@ -73,7 +74,7 @@ public class WebsocketApiServer
 				// refresh session
 				session.getData().getWebsocketHandler().setWebsocket(websocket);
 				// add to websockets
-				this.websockets.forcePut(websocket, session);
+				this.addWebsocket(websocket, session);
 				// send connection successful to browser
 				JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
 						Optional.of(session.getData().getRole()), new ArrayList<>());
@@ -83,8 +84,8 @@ public class WebsocketApiServer
 				return;
 			}
 			// if we are here, automatic authentication was not possible -> notify client
-			WebSocketUtils.sendNotification(websocket, Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED,
-					tokenOpt.orElse(""));
+			WebSocketUtils.sendNotification(websocket, LogBehaviour.WRITE_TO_LOG,
+					Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, tokenOpt.orElse(""));
 		}
 	}
 
@@ -103,7 +104,7 @@ public class WebsocketApiServer
 		}
 		if (!sessionOpt.isPresent()) {
 			// check if there is an existing session
-			sessionOpt = Optional.ofNullable(this.websockets.get(websocket));
+			sessionOpt = this.getSessionFromWebsocket(websocket);
 		}
 		if (!sessionOpt.isPresent()) {
 			/*
@@ -120,7 +121,7 @@ public class WebsocketApiServer
 		 */
 		if (jMessage.has("authenticate")) {
 			// add to websockets
-			this.websockets.forcePut(websocket, session);
+			this.addWebsocket(websocket, session);
 			// send connection successful to browser
 			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
 					Optional.of(session.getData().getRole()), new ArrayList<>());
@@ -169,7 +170,7 @@ public class WebsocketApiServer
 					/*
 					 * Logout and close session
 					 */
-					this.websockets.remove(websocket);
+					this.removeWebsocket(websocket);
 				}
 			}
 		} catch (OpenemsException e) { /* ignore */ }

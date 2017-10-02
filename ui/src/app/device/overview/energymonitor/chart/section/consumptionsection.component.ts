@@ -60,7 +60,9 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
                 }
             })
     }
-
+    /**
+     * This method is called on every change of values.
+     */
     public updateValue(absolute: number, ratio: number) {
         // TODO
         if (absolute < 0) {

@@ -59,6 +59,13 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
             })
     }
 
+    /**
+     * This method is called on every change of values.
+     */
+    public updateValue(absolute: number, ratio: number) {
+        super.updateValue(absolute, ratio)
+    }
+
     protected getCircleDirection(): CircleDirection {
         return new CircleDirection("up");
     }

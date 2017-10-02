@@ -3,6 +3,7 @@ package io.openems.backend.timedata.influx;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -21,11 +22,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
+import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.backend.timedata.api.TimedataSingleton;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.InfluxdbUtils;
@@ -34,6 +37,9 @@ import io.openems.common.utils.JsonUtils;
 public class InfluxdbSingleton implements TimedataSingleton {
 
 	private final Logger log = LoggerFactory.getLogger(InfluxdbSingleton.class);
+
+	private final String MEASUREMENT = "data";
+	private final String TMP_MINI_MEASUREMENT = "minies";
 
 	private String database;
 	private String url;
@@ -82,65 +88,151 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	 * "timestamp2" { "channel1": value, "channel2": value } }
 	 */
 	@Override
-	public void write(Optional<Integer> deviceIdOpt, JsonObject jData) {
-		int deviceId = deviceIdOpt.orElse(0);
+	public void write(MetadataDevice device, JsonObject jData) {
+		int deviceId = device.getNameNumber().orElse(0);
 		long lastTimestamp = this.lastTimestampMap.getOrDefault(deviceId, 0l);
 
-		BatchPoints batchPoints = BatchPoints.database(database) //
-				.tag("fems", String.valueOf(deviceId)) //
-				.build();
-
 		// Sort data by timestamp
-		TreeMap<Long, JsonObject> data = new TreeMap<Long, JsonObject>();
-		jData.entrySet().forEach(timestampEntry -> {
-			String timestampString = timestampEntry.getKey();
-			Long timestamp = Long.valueOf(timestampString);
-			JsonObject jChannels;
+		TreeMap<Long, JsonObject> sortedData = new TreeMap<Long, JsonObject>();
+		for (Entry<String, JsonElement> entry : jData.entrySet()) {
 			try {
-				jChannels = JsonUtils.getAsJsonObject(timestampEntry.getValue());
-				data.put(timestamp, jChannels);
+				Long timestamp = Long.valueOf(entry.getKey());
+				JsonObject jChannels;
+				jChannels = JsonUtils.getAsJsonObject(entry.getValue());
+				sortedData.put(timestamp, jChannels);
 			} catch (OpenemsException e) {
 				log.error("Data error: " + e.getMessage());
 			}
-		});
+		}
 
-		// Prepare data for writing to InfluxDB
-		for (Entry<Long, JsonObject> dataEntry : data.entrySet()) {
+		// Prepare data table
+		TreeBasedTable<Long, String, Object> data = TreeBasedTable.create();
+		for (Entry<Long, JsonObject> dataEntry : sortedData.entrySet()) {
 			Long timestamp = dataEntry.getKey();
 			// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
 			boolean useLastDataCache = timestamp > lastTimestamp && timestamp < lastTimestamp + 60000;
 			this.lastTimestampMap.put(deviceId, timestamp);
-			Builder builder = Point.measurement("data") // this builds an InfluxDB record ("point") for a given
-														// timestamp
-					.time(timestamp, TimeUnit.MILLISECONDS);
-
 			JsonObject jChannels = dataEntry.getValue();
-			if (jChannels.entrySet().size() > 0) {
-				jChannels.entrySet().forEach(channelEntry -> {
-					String channel = channelEntry.getKey();
-					Optional<Object> valueOpt = this.addChannelToBuilder(builder, channel, channelEntry.getValue());
-					if (valueOpt.isPresent() && useLastDataCache) {
-						this.lastDataCache.put(deviceId, channel, valueOpt.get());
-					}
 
-				});
+			if (jChannels.entrySet().size() > 0) {
+				for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
+					String channel = channelEntry.getKey();
+					Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
+					if (valueOpt.isPresent()) {
+						Object value = valueOpt.get();
+						data.put(timestamp, channel, value);
+						if (useLastDataCache) {
+							this.lastDataCache.put(deviceId, channel, value);
+						}
+					}
+				}
 
 				// only for latest data: add the cached data to the InfluxDB point.
 				if (useLastDataCache) {
 					this.lastDataCache.row(deviceId).entrySet().forEach(cacheEntry -> {
 						String channel = cacheEntry.getKey();
-						Object value = cacheEntry.getValue();
-						this.addChannelToBuilder(builder, channel, value);
+						Optional<Object> valueOpt = this.parseValue(channel, cacheEntry.getValue());
+						if (valueOpt.isPresent()) {
+							Object value = valueOpt.get();
+							data.put(timestamp, channel, value);
+						}
 					});
 				}
-
-				// add the point to the batch
-				batchPoints.point(builder.build());
 
 				// set last timestamp
 				lastTimestamp = timestamp;
 			}
 		}
+
+		// Write data to default location
+		writeData(device, data);
+
+		// Hook to continue writing data to old Mini monitoring
+		// TODO remove after full migration
+		if (device.getProductType().equals("MiniES 3-3")) {
+			writeDataToOldMiniMonitoring(device, data);
+		}
+	}
+
+	private void writeData(MetadataDevice device, TreeBasedTable<Long, String, Object> data) {
+		int deviceId = device.getNameNumber().orElse(0);
+		BatchPoints batchPoints = BatchPoints.database(database) //
+				.tag("fems", String.valueOf(deviceId)) //
+				.build();
+
+		for (Entry<Long, Map<String, Object>> entry : data.rowMap().entrySet()) {
+			Long timestamp = entry.getKey();
+			Builder builder = Point.measurement(MEASUREMENT) // this builds an InfluxDB record ("point") for a given
+					// timestamp
+					.time(timestamp, TimeUnit.MILLISECONDS).fields(entry.getValue());
+			batchPoints.point(builder.build());
+		}
+
+		// write to DB
+		influxDB.write(batchPoints);
+	}
+
+	/**
+	 * Writes data to old database for old Mini monitoring
+	 * TODO remove after full migration
+	 *
+	 * @param device
+	 * @param data
+	 */
+	private void writeDataToOldMiniMonitoring(MetadataDevice device, TreeBasedTable<Long, String, Object> data) {
+		int deviceId = device.getNameNumber().orElse(0);
+		BatchPoints batchPoints = BatchPoints.database(database) //
+				.tag("fems", String.valueOf(deviceId)) //
+				.build();
+
+		for (Entry<Long, Map<String, Object>> entry : data.rowMap().entrySet()) {
+			Long timestamp = entry.getKey();
+			Builder builder = Point.measurement(TMP_MINI_MEASUREMENT).time(timestamp, TimeUnit.MILLISECONDS);
+
+			Map<String, Object> fields = new HashMap<>();
+
+			for (Entry<String, Object> valueEntry : entry.getValue().entrySet()) {
+				String channel = valueEntry.getKey();
+				Object valueObj = valueEntry.getValue();
+				if (valueObj instanceof Number) {
+					Long value = ((Number) valueObj).longValue();
+
+					// convert channel ids to old identifiers
+					if (channel.equals("ess0/Soc")) {
+						fields.put("Stack_SOC", value);
+						device.setSoc(value.intValue());
+					} else if (channel.equals("meter0/ActivePower")) {
+						fields.put("PCS_Grid_Power_Total", value * -1);
+					} else if (channel.equals("meter1/ActivePower")) {
+						fields.put("PCS_PV_Power_Total", value);
+					} else if (channel.equals("meter2/ActivePower")) {
+						fields.put("PCS_Load_Power_Total", value);
+					}
+
+					// from here value needs to be divided by 10 for backwards compatibility
+					value = value / 10;
+					if (channel.equals("meter2/Energy")) {
+						fields.put("PCS_Summary_Consumption_Accumulative_cor", value);
+						fields.put("PCS_Summary_Consumption_Accumulative", value);
+					} else if (channel.equals("meter0/BuyFromGridEnergy")) {
+						fields.put("PCS_Summary_Grid_Buy_Accumulative_cor", value);
+						fields.put("PCS_Summary_Grid_Buy_Accumulative", value);
+					} else if (channel.equals("meter0/SellToGridEnergy")) {
+						fields.put("PCS_Summary_Grid_Sell_Accumulative_cor", value);
+						fields.put("PCS_Summary_Grid_Sell_Accumulative", value);
+					} else if (channel.equals("meter1/EnergyL1")) {
+						fields.put("PCS_Summary_PV_Accumulative_cor", value);
+						fields.put("PCS_Summary_PV_Accumulative", value);
+					}
+				}
+			}
+
+			if (fields.size() > 0) {
+				builder.fields(fields);
+				batchPoints.point(builder.build());
+			}
+		}
+
 		// write to DB
 		influxDB.write(batchPoints);
 	}
@@ -153,7 +245,7 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	 * @param value
 	 * @return
 	 */
-	private Optional<Object> addChannelToBuilder(Builder builder, String channel, Object value) {
+	private Optional<Object> parseValue(String channel, Object value) {
 		if (value == null) {
 			return Optional.empty();
 		}
@@ -180,21 +272,16 @@ public class InfluxdbSingleton implements TimedataSingleton {
 		if (value instanceof Number) {
 			Number numberValue = (Number) value;
 			if (numberValue instanceof Integer) {
-				builder.addField(channel, numberValue.intValue());
 				return Optional.of(numberValue.intValue());
 			} else if (numberValue instanceof Double) {
-				builder.addField(channel, numberValue.doubleValue());
 				return Optional.of(numberValue.doubleValue());
 			} else {
-				builder.addField(channel, numberValue);
 				return Optional.of(numberValue);
 			}
 		} else if (value instanceof Boolean) {
-			builder.addField(channel, (Boolean) value);
-			return Optional.of(value);
+			return Optional.of((Boolean) value);
 		} else if (value instanceof String) {
-			builder.addField(channel, (String) value);
-			return Optional.of(value);
+			return Optional.of((String) value);
 		}
 		log.warn("Unknown type of value [" + value + "] channel [" + channel + "]. This should never happen.");
 		return Optional.empty();

@@ -58,6 +58,11 @@ public class ModbusReadLongChannel extends ModbusReadChannel<Long> {
 	}
 
 	@Override
+	public ModbusReadLongChannel ignore(Long value) {
+		return (ModbusReadLongChannel) super.ignore(value);
+	}
+
+	@Override
 	public ModbusReadLongChannel interval(Long min, Long max) {
 		return (ModbusReadLongChannel) super.interval(min, max);
 	}

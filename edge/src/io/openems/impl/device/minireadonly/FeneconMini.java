@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.device.mini;
+package io.openems.impl.device.minireadonly;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -47,6 +47,17 @@ public class FeneconMini extends ModbusDevice {
 	@ChannelInfo(title = "Ess", description = "Sets the Ess nature.", type = FeneconMiniEss.class)
 	public final ConfigChannel<FeneconMiniEss> ess = new ConfigChannel<>("ess", this);
 
+	@ChannelInfo(title = "GridMeter", description = "Sets the GridMeter nature.", type = FeneconMiniGridMeter.class)
+	public final ConfigChannel<FeneconMiniGridMeter> gridMeter = new ConfigChannel<>("gridMeter", this);
+
+	@ChannelInfo(title = "ProductionMeter", description = "Sets the ProductionMeter nature.", type = FeneconMiniProductionMeter.class)
+	public final ConfigChannel<FeneconMiniProductionMeter> productionMeter = new ConfigChannel<>("productionMeter",
+			this);
+
+	@ChannelInfo(title = "ConsumptionMeter", description = "Sets the ConsumptionMeter nature.", type = FeneconMiniConsumptionMeter.class)
+	public final ConfigChannel<FeneconMiniConsumptionMeter> consumptionMeter = new ConfigChannel<>("consumptionMeter",
+			this);
+
 	/*
 	 * Methods
 	 */
@@ -60,6 +71,15 @@ public class FeneconMini extends ModbusDevice {
 		Set<DeviceNature> natures = new HashSet<>();
 		if (ess.valueOptional().isPresent()) {
 			natures.add(ess.valueOptional().get());
+		}
+		if (gridMeter.valueOptional().isPresent()) {
+			natures.add(gridMeter.valueOptional().get());
+		}
+		if (productionMeter.valueOptional().isPresent()) {
+			natures.add(productionMeter.valueOptional().get());
+		}
+		if (consumptionMeter.valueOptional().isPresent()) {
+			natures.add(consumptionMeter.valueOptional().get());
 		}
 		return natures;
 	}
