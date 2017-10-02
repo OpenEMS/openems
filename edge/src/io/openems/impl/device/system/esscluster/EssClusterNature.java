@@ -188,7 +188,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void setValue(Long newValue, String newLabel,
+				public Long setValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					for (WriteChannel<Long> channel : channels) {
 						try {
@@ -197,6 +197,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							log.error("Can't set value for channel " + channel.address(), e);
 						}
 					}
+					return newValue;
 				}
 
 				@Override
@@ -210,7 +211,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMinValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+				public Long getMinValue(Optional<Long> minValue,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long min = Long.MIN_VALUE;
 					for (WriteChannel<Long> channelMin : channels) {
 						if (channelMin.writeMin().isPresent() && channelMin.writeMin().get() > min) {
@@ -225,7 +227,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMaxValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+				public Long getMaxValue(Optional<Long> maxValue,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long max = Long.MAX_VALUE;
 					for (WriteChannel<Long> channelMax : channels) {
 						if (channelMax.writeMax().isPresent() && channelMax.writeMax().get() < max) {
@@ -240,7 +243,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public void setMinValue(Long newValue, String newLabel,
+				public Long setMinValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					for (WriteChannel<Long> channel : channels) {
 						try {
@@ -249,10 +252,11 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							log.error("Can't set value for channel " + channel.address(), e);
 						}
 					}
+					return newValue;
 				}
 
 				@Override
-				public void setMaxValue(Long newValue, String newLabel,
+				public Long setMaxValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					for (WriteChannel<Long> channel : channels) {
 						try {
@@ -261,6 +265,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							log.error("Can't set value for channel " + channel.address(), e);
 						}
 					}
+					return newValue;
 				}
 
 			}).label(0L, EssNature.STOP).label(1L, EssNature.START);
@@ -269,7 +274,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void setValue(Long newValue, String newLabel,
+				public Long setValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
 					long minValue = 0L;
 					boolean minValueValid = false;
@@ -314,6 +319,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							log.error("Failed to write " + power + " to " + channel.address(), e);
 						}
 					}
+					return newValue;
 				}
 
 				@Override
@@ -330,7 +336,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMinValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+				public Long getMinValue(Optional<Long> minValue,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long min = 0L;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMin : channels) {
@@ -346,7 +353,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMaxValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+				public Long getMaxValue(Optional<Long> maxValue,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long max = 0L;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMax : channels) {
@@ -362,15 +370,17 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public void setMinValue(Long newValue, String newLabel,
+				public Long setMinValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					// don't forward the maxValue otherwise the pushWrite with power weight by soc will break
+					return newValue;
 				}
 
 				@Override
-				public void setMaxValue(Long newValue, String newLabel,
+				public Long setMaxValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					// don't forward the maxValue otherwise the pushWrite with power weight by soc will break
+					return newValue;
 				}
 
 			});
@@ -378,7 +388,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 			new FunctionalWriteChannelFunction<Long>() {
 
 				@Override
-				public void setValue(Long newValue, String newLabel,
+				public Long setValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long power = 0L;
 					if (channels.length > 0) {
@@ -391,6 +401,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							log.error("Failed to write " + power + " to " + channel.address(), e);
 						}
 					}
+					return newValue;
 				}
 
 				@Override
@@ -407,7 +418,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMinValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+				public Long getMinValue(Optional<Long> minValue,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long min = 0L;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMin : channels) {
@@ -423,7 +435,8 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public Long getMaxValue(@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+				public Long getMaxValue(Optional<Long> maxValue,
+						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long max = 0L;
 					boolean isPresent = false;
 					for (WriteChannel<Long> channelMax : channels) {
@@ -440,7 +453,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 
 				@Override
-				public void setMinValue(Long newValue, String newLabel,
+				public Long setMinValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long power = 0L;
 					if (channels.length > 0) {
@@ -453,10 +466,11 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							log.error("Failed to write " + power + " to " + channel.address(), e);
 						}
 					}
+					return newValue;
 				}
 
 				@Override
-				public void setMaxValue(Long newValue, String newLabel,
+				public Long setMaxValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
 					long power = 0L;
 					if (channels.length > 0) {
@@ -469,6 +483,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							log.error("Failed to write " + power + " to " + channel.address(), e);
 						}
 					}
+					return newValue;
 				}
 
 			});
