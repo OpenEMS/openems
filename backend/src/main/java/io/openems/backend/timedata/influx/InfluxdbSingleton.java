@@ -53,13 +53,18 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	// key: deviceId; value: timestamp
 	private Map<Integer, Long> lastTimestampMap = new ConcurrentHashMap<Integer, Long>();
 
-	public InfluxdbSingleton(String database, String url, int port, String username, String password) throws Exception {
+	public InfluxdbSingleton(String database, String url, int port, String username, String password)
+			throws OpenemsException {
 		this.database = database;
 		this.url = url;
 		this.port = port;
 		this.username = username;
 		this.password = password;
-		this.connect();
+		try {
+			this.connect();
+		} catch (Exception e) {
+			throw new OpenemsException("Connecting to InfluxDB failed: " + e.getMessage());
+		}
 	}
 
 	private void connect() throws Exception {

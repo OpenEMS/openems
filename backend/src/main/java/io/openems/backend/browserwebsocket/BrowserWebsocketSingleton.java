@@ -39,7 +39,7 @@ public class BrowserWebsocketSingleton
 		extends AbstractWebsocketServer<BrowserSession, BrowserSessionData, BrowserSessionManager> {
 	private final Logger log = LoggerFactory.getLogger(BrowserWebsocketSingleton.class);
 
-	protected BrowserWebsocketSingleton(int port) throws Exception {
+	protected BrowserWebsocketSingleton(int port) throws OpenemsException {
 		super(port, new BrowserSessionManager());
 	}
 

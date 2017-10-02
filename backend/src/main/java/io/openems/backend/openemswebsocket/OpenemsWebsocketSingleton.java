@@ -38,7 +38,7 @@ public class OpenemsWebsocketSingleton
 		extends AbstractWebsocketServer<OpenemsSession, OpenemsSessionData, OpenemsSessionManager> {
 	private final Logger log = LoggerFactory.getLogger(OpenemsWebsocketSingleton.class);
 
-	protected OpenemsWebsocketSingleton(int port) throws Exception {
+	protected OpenemsWebsocketSingleton(int port) {
 		super(port, new OpenemsSessionManager());
 	}
 
