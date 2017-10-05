@@ -1,0 +1,9 @@
+{
+	"persistence": [
+		{
+			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
+			"apikey": "",
+			"uri": "wss://fenecon.de:443/openems-backend-dev"
+		}
+	]
+}

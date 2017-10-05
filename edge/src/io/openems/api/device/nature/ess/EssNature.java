@@ -61,16 +61,22 @@ public interface EssNature extends DeviceNature {
 	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> soc();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> systemState();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> allowedCharge();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> allowedDischarge();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> allowedApparent();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> capacity();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> maxNominalPower();
 
 	public StatusBitChannels warning();

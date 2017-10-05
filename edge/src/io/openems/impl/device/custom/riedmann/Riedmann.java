@@ -14,8 +14,8 @@ import io.openems.impl.protocol.modbus.ModbusDevice;
 @ThingInfo(title = "Custom: Riedmann PLC")
 public class Riedmann extends ModbusDevice {
 
-	@ChannelInfo(title = "", type = RiedmannNature.class)
-	public final ConfigChannel<RiedmannNature> device = new ConfigChannel<RiedmannNature>("device", this);
+	@ChannelInfo(title = "", type = RiedmannNatureImpl.class)
+	public final ConfigChannel<RiedmannNatureImpl> device = new ConfigChannel<RiedmannNatureImpl>("device", this);
 
 	public Riedmann(Bridge parent) throws OpenemsException {
 		super(parent);

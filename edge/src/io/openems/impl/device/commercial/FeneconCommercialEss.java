@@ -77,7 +77,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	 * Inherited Channels
 	 */
 	private ModbusReadLongChannel soc;
-	private ModbusReadLongChannel inverterActivePower;
+	private ModbusReadLongChannel activePower;
 	private ModbusReadLongChannel allowedCharge;
 	private ModbusReadLongChannel allowedDischarge;
 	private ModbusReadLongChannel apparentPower;
@@ -99,7 +99,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 
 	@Override
 	public ModbusReadLongChannel activePower() {
-		return inverterActivePower;
+		return activePower;
 	}
 
 	@Override
@@ -195,7 +195,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	public ModbusReadLongChannel ipmTemperatureL3;
 	public ModbusReadLongChannel transformerTemperatureL2;
 	public ModbusReadLongChannel allowedApparent;
-	public ModbusReadLongChannel activePower;
+	public ModbusReadLongChannel gridActivePower;
 	public StatusBitChannel suggestiveInformation1;
 	public StatusBitChannel suggestiveInformation2;
 	public StatusBitChannel suggestiveInformation3;
@@ -443,7 +443,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 								acDischargeEnergy = new ModbusReadLongChannel("AcDischargeEnergy", this).unit("Wh")
 										.multiplier(2)).wordOrder(WordOrder.LSWMSW),
 						new DummyElement(0x020C, 0x020F), new SignedWordElement(0x0210, //
-								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").multiplier(2)),
+								gridActivePower = new ModbusReadLongChannel("GridActivePower", this).unit("W")
+										.multiplier(2)),
 						new SignedWordElement(0x0211, //
 								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("var")
 										.multiplier(2)),
@@ -485,8 +486,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 								inverterCurrentL3 = new ModbusReadLongChannel("InverterCurrentL3", this).unit("mA")
 										.multiplier(2)), //
 						new SignedWordElement(0x0228, //
-								inverterActivePower = new ModbusReadLongChannel("InverterActivePower", this).unit("W")
-										.multiplier(2)), //
+								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").multiplier(2)), //
 						new DummyElement(0x0229, 0x022F), new SignedWordElement(0x0230, //
 								allowedCharge = new ModbusReadLongChannel("AllowedCharge", this).unit("W")
 										.multiplier(2)), //

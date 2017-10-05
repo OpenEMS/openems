@@ -37,7 +37,7 @@ import io.openems.core.utilities.JsonUtils;
 public class ConfigChannel<T> extends WriteChannel<T> {
 
 	private Optional<T> defaultValue = Optional.empty();
-	private boolean isOptional;
+	private Optional<Boolean> isOptional = Optional.empty(); // Empty defaults to false
 
 	public ConfigChannel(String id, Thing parent) {
 		super(id, parent);
@@ -54,8 +54,10 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	@Override
 	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
 		super.applyChannelDoc(channelDoc);
-		this.isOptional = channelDoc.isOptional();
-		if (!channelDoc.getDefaultValue().isEmpty()) {
+		if (!this.isOptional.isPresent()) {
+			this.isOptional = Optional.of(channelDoc.isOptional());
+		}
+		if (!this.defaultValue.isPresent() && !channelDoc.getDefaultValue().isEmpty()) {
 			JsonElement jValue = null;
 			try {
 				jValue = (new JsonParser()).parse(channelDoc.getDefaultValue());
@@ -99,7 +101,7 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	}
 
 	public boolean isOptional() {
-		return isOptional;
+		return isOptional.orElse(false);
 	}
 
 	@Override

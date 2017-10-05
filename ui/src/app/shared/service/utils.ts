@@ -150,6 +150,16 @@ export class Utils {
     }
   }
 
+  public static subtractSafely(v1: number, v2: number): number {
+    if (v1 == null) {
+      return v2;
+    } else if (v2 == null) {
+      return v1;
+    } else {
+      return v1 - v2;
+    }
+  }
+
   public static divideSafely(v1: number, v2: number): number {
     if (v1 == null || v2 == null) {
       return null;

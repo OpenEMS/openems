@@ -86,28 +86,20 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 			for (Supplybus sb : supplybuses) {
 				sb.run();
 			}
-			if (isOnGrid()) {
-				// start all ess
-				for (Ess ess : esss.value()) {
-					try {
-						ess.start();
-					} catch (WriteChannelException e) {
-						log.error("Failed to start " + ess.id(), e);
-					}
+			for (Ess ess : esss.value()) {
+				if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+					// start all ess
+					ess.start();
+				}
+				try {
+					ess.setWorkState();
+				} catch (WriteChannelException e) {
+					log.error("Can't set Workstate for ess[" + ess.id() + "]", e);
 				}
 			}
 		} catch (InvalidValueException e1) {
 			log.error("failed to get collection of configured 'esss'", e1);
 		}
-	}
-
-	private boolean isOnGrid() throws InvalidValueException {
-		for (Ess ess : esss.value()) {
-			if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	@Override

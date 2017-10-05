@@ -4,8 +4,7 @@ import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle 
 import { Observable } from "rxjs/Rx";
 
 
-let pulsetime = 1000;
-let pulsetimedown = 2000;
+let PULSE = 1000;
 
 @Component({
     selector: '[storagesection]',
@@ -27,38 +26,61 @@ let pulsetimedown = 2000;
                 fill: 'none',
                 stroke: 'none'
             })),
-            transition('one => two', animate(pulsetime + 'ms')),
-            transition('two => one', animate(pulsetime + 'ms'))
+            transition('one => two', animate(PULSE + 'ms')),
+            transition('two => one', animate(PULSE + 'ms'))
         ])
     ]
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit {
+
+    private state: "charging" | "discharging" | "standby" = "standby";
 
     constructor(translate: TranslateService) {
         super('Device.Overview.Energymonitor.Storage', 136, 224, "#009846", translate);
     }
 
     ngOnInit() {
-        Observable.interval(pulsetimedown)
+        Observable.interval(this.pulsetime)
             .subscribe(x => {
-                if (this.lastValue.absolute > 0) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[this.circles.length - i - 1].switchState();
-                        }, pulsetime / 4 * i);
-                    }
-                } else if (this.lastValue.absolute == 0) {
+                if (this.state == "standby") {
                     for (let i = 0; i < this.circles.length; i++) {
                         this.circles[i].hide();
                     }
-                } else {
+                } else if (this.state == "charging") {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[i].switchState();
-                        })
+                        }, this.pulsetime / 4 * i);
+                    }
+                } else if (this.state == "discharging") {
+                    for (let i = 0; i < this.circles.length; i++) {
+                        setTimeout(() => {
+                            this.circles[this.circles.length - i - 1].switchState();
+                        }, this.pulsetime / 4 * i);
                     }
                 }
             })
+    }
+
+    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, percentage: number) {
+        if (chargeAbsolute != null && chargeAbsolute > 0) {
+            this.name = "Speicher-Beladung" //TODO translate
+            super.updateValue(chargeAbsolute, percentage);
+            this.state = "charging";
+        } else {
+            this.name = "Speicher-Entladung" //TODO translate
+            super.updateValue(dischargeAbsolute, percentage);
+            if (dischargeAbsolute > 0) {
+                this.state = "discharging";
+            } else {
+                this.state = "standby";
+            }
+        }
+        if (percentage != null) {
+            this.valueText2 = percentage + " %";
+        } else {
+            this.valueText2 = "";
+        }
     }
 
     protected getCircleDirection(): CircleDirection {
@@ -77,9 +99,9 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     protected getValueText(value: number): string {
         if (value == null || Number.isNaN(value)) {
-            return this.translate.instant('NoValue');
+            return "";
         }
 
-        return this.lastValue.ratio + " %";
+        return this.lastValue.absolute + " W";
     }
 }

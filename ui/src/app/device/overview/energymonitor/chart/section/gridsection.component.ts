@@ -4,8 +4,7 @@ import { Observable } from "rxjs/Rx";
 
 import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
 
-let pulsetime = 1000;
-let pulsetimeleft = 2000;
+let PULSE = 1000;
 
 @Component({
     selector: '[gridsection]',
@@ -29,8 +28,8 @@ let pulsetimeleft = 2000;
             })),
 
 
-            transition('one => two', animate(pulsetime + 'ms')),
-            transition('two => one', animate(pulsetime + 'ms'))
+            transition('one => two', animate(PULSE + 'ms')),
+            transition('two => one', animate(PULSE + 'ms'))
         ])
     ]
 })
@@ -43,19 +42,19 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     }
 
     ngOnInit() {
-        Observable.interval(pulsetimeleft)
+        Observable.interval(this.pulsetime)
             .subscribe(x => {
                 if (this.sellToGrid) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[i].switchState();
-                        }, pulsetimeleft / 4 * i);
+                        }, this.pulsetime / 4 * i);
                     }
                 } else if (!this.sellToGrid) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[this.circles.length - i - 1].switchState();
-                        }, pulsetimeleft / 4 * i);
+                        }, this.pulsetime / 4 * i);
                     }
                 } else if (this.sellToGrid == null) {
                     for (let i = 0; i < this.circles.length; i++) {
@@ -65,19 +64,16 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
             })
     }
 
-    public updateValue(absolute: number, ratio: number) {
-        if (absolute < 0) {
-            this.name = this.translate.instant('General.GridSell');
-            this.sellToGrid = true;
-            absolute *= -1;
-        } else if (absolute > 0) {
+    public updateGridValue(buyAbsolute: number, sellAbsolute: number, ratio: number) {
+        if (buyAbsolute != null && buyAbsolute > 0) {
             this.name = this.translate.instant('General.GridBuy');
             this.sellToGrid = false;
+            super.updateValue(buyAbsolute, ratio);
         } else {
-            this.name = this.translate.instant('General.Grid');
-            this.sellToGrid = null;
+            this.name = this.translate.instant('General.GridSell');
+            this.sellToGrid = true;
+            super.updateValue(sellAbsolute, ratio);
         }
-        super.updateValue(absolute, ratio);
     }
 
     protected getCircleDirection(): CircleDirection {
@@ -109,7 +105,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
 
     protected getValueText(value: number): string {
         if (value == null || Number.isNaN(value)) {
-            return this.translate.instant('NoValue');
+            return "";
         }
 
         return value + " W";

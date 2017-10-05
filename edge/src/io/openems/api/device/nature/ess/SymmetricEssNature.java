@@ -31,15 +31,19 @@ public interface SymmetricEssNature extends EssNature {
 	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> activePower();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> apparentPower();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> reactivePower();
 
 	/*
 	 * WriteChannels
 	 */
+	@ChannelInfo(type = Long.class)
 	public WriteChannel<Long> setActivePower();
 
+	@ChannelInfo(type = Long.class)
 	public WriteChannel<Long> setReactivePower();
 
 }

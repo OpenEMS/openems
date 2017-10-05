@@ -26,12 +26,13 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 		extends WebSocketServer {
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketServer.class);
 	protected final M sessionManager;
-	protected final BiMap<WebSocket, S> websockets = Maps.synchronizedBiMap(HashBiMap.create());
+	private final BiMap<WebSocket, S> websockets = Maps.synchronizedBiMap(HashBiMap.create());
 
 	protected abstract void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt);
 
 	protected abstract void _onOpen(WebSocket websocket, ClientHandshake handshake);
+
 	protected abstract void _onClose(WebSocket websocket, Optional<S> sessionOpt);
 
 	public AbstractWebsocketServer(int port, M sessionManager) {
@@ -53,7 +54,8 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 	}
 
 	/**
-	 * Close event of websocket. Removes the websocket. Keeps the session. Calls _onClose()
+	 * Close event of websocket. Removes the websocket. Keeps the session. Calls
+	 * _onClose()
 	 */
 	@Override
 	public final void onClose(WebSocket websocket, int code, String reason, boolean remote) {
@@ -158,4 +160,31 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 		return Optional.ofNullable(this.websockets.inverse().get(session));
 	}
 
+	protected void addWebsocket(WebSocket websocket, S session) {
+		synchronized (this.websockets) {
+			if (this.websockets.containsKey(websocket)) {
+				log.warn("Websocket [" + websocket + "] already existed. Replacing existing one with session ["
+						+ session + "]");
+			}
+			if (this.websockets.inverse().containsKey(session)) {
+				log.warn("Session [" + session + "] already existed. Replacing existing one with websocket ["
+						+ websocket + "]");
+			}
+			this.websockets.forcePut(websocket, session);
+		}
+	}
+	
+	protected void removeWebsocket(WebSocket websocket) {
+		synchronized (this.websockets) {
+			this.websockets.remove(websocket);
+		}
+	}
+	
+	protected Optional<S> getSessionFromWebsocket(WebSocket websocket) {
+		return Optional.ofNullable(this.websockets.get(websocket));
+	}
+	
+	protected Optional<WebSocket> getWebsocketFromSession(S session) {
+		return Optional.ofNullable(this.websockets.inverse().get(session));
+	}
 }

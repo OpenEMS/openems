@@ -11,6 +11,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.xmlrpc.XmlRpcException;
+
+import com.abercap.odoo.OdooApiException;
 import com.abercap.odoo.Session;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -32,15 +35,24 @@ public class OdooSingleton implements MetadataSingleton {
 	private MetadataDeviceModel deviceModel;
 	private final String url;
 
-	public OdooSingleton(String url, int port, String database, String username, String password) throws Exception {
+	public OdooSingleton(String url, int port, String database, String username, String password)
+			throws OpenemsException {
 		this.session = new Session(url, port, database, username, password);
 		this.connect();
-		this.deviceModel = new OdooDeviceModel(this.session);
+		try {
+			this.deviceModel = new OdooDeviceModel(this.session);
+		} catch (XmlRpcException | OdooApiException e) {
+			throw new OpenemsException("Initializing OdooDeviceModel failed: " + e.getMessage());
+		}
 		this.url = "http://" + url + ":" + port;
 	}
 
-	private void connect() throws Exception {
-		session.startSession();
+	private void connect() throws OpenemsException {
+		try {
+			session.startSession();
+		} catch (Exception e) {
+			throw new OpenemsException("Odoo connection failed: " + e.getMessage());
+		}
 	}
 
 	@Override
@@ -113,7 +125,6 @@ public class OdooSingleton implements MetadataSingleton {
 								JsonUtils.getAsString(jDevice, "role")));
 					}
 					data.setDevices(deviceInfos);
-					session.setValid();
 					return;
 				}
 			}

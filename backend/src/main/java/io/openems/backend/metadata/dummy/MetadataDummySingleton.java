@@ -38,7 +38,6 @@ public class MetadataDummySingleton implements MetadataSingleton {
 			deviceInfos.add(device);
 		}
 		data.setDevices(deviceInfos);
-		session.setValid();
 		return;
 	}
 
