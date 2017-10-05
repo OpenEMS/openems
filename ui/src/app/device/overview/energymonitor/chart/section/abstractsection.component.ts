@@ -73,8 +73,6 @@ export class CircleDirection {
     ) { }
 }
 
-let pulsetime = 1000;
-
 export abstract class AbstractSection {
 
     public valuePath: string = "";
@@ -82,24 +80,18 @@ export abstract class AbstractSection {
     public circles: Circle[] = [];
     public square: SvgSquare;
     public squarePosition: SvgSquarePosition;
-    public pulsetimeup: number;
-    public pulsetimedown: number;
-    public pulsetimeright: number;
-    public pulsetimeleft: number;
     public name: string = "";
 
     protected valueRatio: number = 0;
     protected valueText: string = "";
+    protected valueText2: string = "";
     protected innerRadius: number = 0;
     protected outerRadius: number = 0;
     protected height: number = 0;
     protected width: number = 0;
+    protected pulsetime = 2000;
 
     protected lastValue = { absolute: 0, ratio: 0 };
-
-    private setPulsetime(value: number) {
-        pulsetime = value;
-    }
 
     constructor(
         translateName: string,
