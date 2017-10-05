@@ -138,7 +138,23 @@ public class OpenemsWebsocketSingleton
 		// log.info("Received from " + device.getName() + ": " + jMessage.toString());
 		// }
 
-		// Is this a reply?
+		/*
+		 * Config? -> store in Metadata
+		 */
+		if (jMessage.has("config")) {
+			try {
+				JsonObject jConfig = JsonUtils.getAsJsonObject(jMessage, "config");
+				device.setOpenemsConfig(jConfig);
+				device.writeObject();
+				log.info("Device [" + device.getName() + "] sent config.");
+			} catch (OpenemsException e) {
+				log.error(e.getMessage());
+			}
+		}
+
+		/*
+		 * Is this a reply? -> forward to Browser
+		 */
 		if (jMessage.has("id")) {
 			forwardReplyToBrowser(websocket, device.getName(), jMessage);
 		}

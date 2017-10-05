@@ -64,7 +64,7 @@ public class ReconnectingWebsocket {
 		@Override
 		public void onOpen(ServerHandshake handshakedata) {
 			log.info("Websocket [" + this.getURI().toString() + "] opened");
-			ON_OPEN_LISTENER.announce();
+			ON_OPEN_LISTENER.announce(this);
 			WAIT_AFTER_CLOSE = DEFAULT_WAIT_AFTER_CLOSE;
 		}
 
@@ -102,7 +102,7 @@ public class ReconnectingWebsocket {
 
 	@FunctionalInterface
 	public interface OnOpenListener {
-		public void announce();
+		public void announce(WebSocket websocket);
 	}
 
 	@FunctionalInterface
