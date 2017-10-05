@@ -2,6 +2,7 @@ package io.openems.backend.openemswebsocket;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
@@ -202,13 +203,23 @@ public class OpenemsWebsocketSingleton
 			} catch (Exception e) {
 				log.error("Unable to write Timedata: ", e);
 			}
-			// Write some data to Odoo
-			// This is only to provide feedback for FENECON Service-Team that the device is online.
-			device.setLastUpdate();
+			// Set Odoo last message timestamp
 			device.setLastMessage();
-			jTimedata.entrySet().forEach(entry -> {
+
+			for (Entry<String, JsonElement> jTimedataEntry : jTimedata.entrySet()) {
 				try {
-					JsonObject jChannels = JsonUtils.getAsJsonObject(entry.getValue());
+					JsonObject jChannels = JsonUtils.getAsJsonObject(jTimedataEntry.getValue());
+
+					// set Odoo last update timestamp only for those channels
+					for (String channel : jChannels.keySet()) {
+						if (channel.endsWith("ActivePower")
+								|| channel.endsWith("ActivePowerL1") | channel.endsWith("ActivePowerL2")
+										| channel.endsWith("ActivePowerL3") | channel.endsWith("Soc")) {
+							device.setLastUpdate();
+						}
+					}
+
+					// set specific Odoo values
 					if (jChannels.has("ess0/Soc")) {
 						int soc = JsonUtils.getAsPrimitive(jChannels, "ess0/Soc").getAsInt();
 						device.setSoc(soc);
@@ -220,7 +231,8 @@ public class OpenemsWebsocketSingleton
 				} catch (OpenemsException e) {
 					log.error("Device [" + device.getName() + "] error: " + e.getMessage());
 				}
-			});
+			}
+
 		} catch (OpenemsException e) {
 			log.error("Device [" + device.getName() + "] error: " + e.getMessage());
 		}
