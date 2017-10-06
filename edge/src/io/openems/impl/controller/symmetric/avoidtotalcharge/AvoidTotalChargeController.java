@@ -153,7 +153,7 @@ public class AvoidTotalChargeController extends Controller {
                 }
             }
 
-        } catch (InvalidValueException | IndexOutOfBoundsException | WriteChannelException e){
+        } catch (InvalidValueException | IndexOutOfBoundsException e){
             log.error(e.getMessage(),e);
         }
     }
