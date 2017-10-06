@@ -18,6 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
+
 package io.openems.api.exception;
 
 public class InvalidValueException extends OpenemsException {

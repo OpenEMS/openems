@@ -30,7 +30,7 @@ public class AvoidTotalChargeController extends Controller {
     @ChannelInfo(title = "Grid Meter", description = "Sets the grid meter.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = false)
     public final ConfigChannel<io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter> gridMeter = new ConfigChannel<>("gridMeter", this);
 
-    @ChannelInfo(title = "Maximum Production Power", description = "Theoretical peak value of all the photovoltaic panels", type = Long.class, isOptional = false, isArray = false)
+    @ChannelInfo(title = "Maximum Production Power", description = "Theoretical peak value of all the photovoltaic panels", type = Long.class, isOptional = false, isArray = false, accessLevel = User.OWNER)
     public final ConfigChannel<Long> maximumProductionPower = new ConfigChannel<>("maximumProductionPower", this);
 
     @ChannelInfo(title = "Graph 1", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, accessLevel = User.OWNER, isOptional = true)
