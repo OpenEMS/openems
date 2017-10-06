@@ -31,6 +31,9 @@ import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 public class ReconnectingWebsocket {
 
 	private final Logger log = LoggerFactory.getLogger(ReconnectingWebsocket.class);
+	private final int DEFAULT_WAIT_AFTER_CLOSE = 1; // 1 second
+	private final int MAX_WAIT_AFTER_CLOSE = 60 * 3; // 3 minutes
+	private int WAIT_AFTER_CLOSE = DEFAULT_WAIT_AFTER_CLOSE;
 	private final Draft WEBSOCKET_DRAFT = new Draft_6455();
 	private final EdgeWebsocketHandler WEBSOCKET_HANDLER;
 	private final Mutex WEBSOCKET_CLOSED = new Mutex(true);
@@ -42,6 +45,8 @@ public class ReconnectingWebsocket {
 
 	private final ScheduledExecutorService reconnectorExecutor = Executors
 			.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("Re-Ws-%d").build());
+	private final ScheduledExecutorService waitAfterCloseExecutor = Executors
+			.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("Re-WC-%d").build());
 	private ScheduledFuture<?> reconnectorFuture = null;
 	private final Runnable reconnectorTask;
 
@@ -56,12 +61,15 @@ public class ReconnectingWebsocket {
 			if (uri.getScheme().toString().equals("wss")) {
 				this.setSocket(SSLSocketFactory.getDefault().createSocket());
 			}
+			log.info("I was built. ID [" + Thread.currentThread().getId() + "] name ["
+					+ Thread.currentThread().getName() + "]");
 		}
 
 		@Override
 		public void onOpen(ServerHandshake handshakedata) {
 			log.info("Websocket [" + this.getURI().toString() + "] opened");
-			ON_OPEN_LISTENER.announce();
+			ON_OPEN_LISTENER.announce(this);
+			WAIT_AFTER_CLOSE = DEFAULT_WAIT_AFTER_CLOSE;
 		}
 
 		@Override
@@ -70,15 +78,23 @@ public class ReconnectingWebsocket {
 				JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 				WEBSOCKET_HANDLER.onMessage(jMessage);
 			} catch (Throwable t) {
-				log.error("Websocket [" + this.getURI().toString() + "] error on message [" + message + "]");
+				log.error("Websocket [" + this.getURI().toString() + "] error on message [" + message + "]: "
+						+ t.getMessage());
+				t.printStackTrace();
 			}
 		}
 
 		@Override
 		public void onClose(int code, String reason, boolean remote) {
-			log.info(
-					"Websocket [" + this.getURI().toString() + "] closed. Code [" + code + "] Reason [" + reason + "]");
-			WEBSOCKET_CLOSED.release(); // trigger reconnector
+			log.info("Websocket [" + this.getURI().toString() + "] closed. Code [" + code + "] Reason [" + reason
+					+ "] Wait [" + WAIT_AFTER_CLOSE + "]");
+			WAIT_AFTER_CLOSE += DEFAULT_WAIT_AFTER_CLOSE;
+			if (WAIT_AFTER_CLOSE > MAX_WAIT_AFTER_CLOSE) {
+				WAIT_AFTER_CLOSE = MAX_WAIT_AFTER_CLOSE;
+			}
+			waitAfterCloseExecutor.schedule(() -> {
+				WEBSOCKET_CLOSED.release(); // trigger reconnector
+			}, WAIT_AFTER_CLOSE, TimeUnit.SECONDS);
 			ON_CLOSE_LISTENER.announce();
 		}
 
@@ -86,11 +102,18 @@ public class ReconnectingWebsocket {
 		public void onError(Exception ex) {
 			log.warn("Websocket [" + this.getURI().toString() + "] error: " + ex.getMessage());
 		}
+
+		@Override
+		protected void finalize() throws Throwable {
+			System.out.println("Finalize... [" + Thread.currentThread().getId() + "] name ["
+					+ Thread.currentThread().getName() + "]");
+			super.finalize();
+		}
 	}
 
 	@FunctionalInterface
 	public interface OnOpenListener {
-		public void announce();
+		public void announce(WebSocket websocket);
 	}
 
 	@FunctionalInterface
@@ -112,8 +135,8 @@ public class ReconnectingWebsocket {
 		this.reconnectorTask = () -> {
 			while (true) {
 				try {
-					// wait for websocket close or check once in a minute
-					WEBSOCKET_CLOSED.awaitOrTimeout(1, TimeUnit.MINUTES);
+					// wait for websocket close or check once every 5 minutes
+					WEBSOCKET_CLOSED.awaitOrTimeout(5, TimeUnit.MINUTES);
 
 					if (WEBSOCKET_OPT.isPresent()) {
 						WebSocket ws = WEBSOCKET_OPT.get();

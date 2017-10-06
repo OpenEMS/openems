@@ -1,5 +1,7 @@
 package io.openems.backend.restapi;
 
+import io.openems.common.exceptions.OpenemsException;
+
 /**
  * Provider for RestApiSingleton singleton
  *
@@ -16,7 +18,7 @@ public class RestApi {
 	 * @param port
 	 * @throws Exception
 	 */
-	public static synchronized void initialize(int port) throws Exception {
+	public static synchronized void initialize(int port) throws OpenemsException {
 		RestApi.instance = new RestApiSingleton(port);
 	}
 

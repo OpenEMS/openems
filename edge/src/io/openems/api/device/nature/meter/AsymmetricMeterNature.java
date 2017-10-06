@@ -31,28 +31,40 @@ public interface AsymmetricMeterNature extends MeterNature {
 	/*
 	 * ReadChannels
 	 */
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> activePowerL1();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> activePowerL2();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> activePowerL3();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> reactivePowerL1();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> reactivePowerL2();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> reactivePowerL3();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> currentL1();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> currentL2();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> currentL3();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> voltageL1();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> voltageL2();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> voltageL3();
 
 	@ChannelInfo(title = "maxActivePower", description = "Holds the maximum ever active power.", type = Long.class, defaultValue = "0")

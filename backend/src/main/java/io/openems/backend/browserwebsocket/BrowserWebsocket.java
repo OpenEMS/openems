@@ -1,5 +1,7 @@
 package io.openems.backend.browserwebsocket;
 
+import io.openems.common.exceptions.OpenemsException;
+
 /**
  * Provider for OpenemsWebsocketServer singleton
  *
@@ -16,7 +18,7 @@ public class BrowserWebsocket {
 	 * @param port
 	 * @throws Exception
 	 */
-	public static synchronized void initialize(int port) throws Exception {
+	public static synchronized void initialize(int port) throws OpenemsException {
 		BrowserWebsocket.instance = new BrowserWebsocketSingleton(port);
 		BrowserWebsocket.instance.start();
 	}

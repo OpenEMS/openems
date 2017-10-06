@@ -102,15 +102,6 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 		}
 	}
 
-	private boolean isOnGrid() throws InvalidValueException {
-		for (Ess ess : esss.value()) {
-			if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
 		if (channel.equals(supplyBusConfig) || channel.equals(esss)) {

@@ -68,13 +68,13 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
        * Set values for energy monitor
        */
       let summary = currentData.summary;
-      this.storageSection.updateValue(summary.storage.activePower, summary.storage.soc);
-      this.gridSection.updateValue(summary.grid.activePower, summary.grid.powerRatio);
+      this.storageSection.updateStorageValue(summary.storage.chargeActivePower, summary.storage.dischargeActivePower, summary.storage.soc);
+      this.gridSection.updateGridValue(summary.grid.buyActivePower, summary.grid.sellActivePower, summary.grid.powerRatio);
       this.consumptionSection.updateValue(Math.round(summary.consumption.activePower), Math.round(summary.consumption.powerRatio));
       this.productionSection.updateValue(summary.production.activePower, summary.production.powerRatio);
     } else {
-      this.storageSection.updateValue(null, null);
-      this.gridSection.updateValue(null, null);
+      this.storageSection.updateStorageValue(null, null, null);
+      this.gridSection.updateGridValue(null, null, null);
       this.consumptionSection.updateValue(null, null);
       this.productionSection.updateValue(null, null);
     }

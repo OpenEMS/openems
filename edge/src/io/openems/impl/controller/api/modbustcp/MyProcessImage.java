@@ -179,6 +179,7 @@ public class MyProcessImage implements ProcessImage {
 			int ref = i + offset;
 			// get channel value as InputRegister[]
 			if (!refs.containsKey(ref)) {
+
 				this.throwIllegalAddressException("No mapping defined for Modbus address [" + ref + "].");
 			}
 			ChannelAddress channelAddress = refs.get(ref);

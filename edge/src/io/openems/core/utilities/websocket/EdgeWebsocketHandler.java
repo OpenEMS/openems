@@ -45,6 +45,7 @@ import io.openems.common.api.TimedataSource;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
@@ -206,8 +207,8 @@ public class EdgeWebsocketHandler {
 							ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
 							Object value = ConfigUtils.getConfigObject(configChannel, jValue);
 							configChannel.updateValue(value, true);
-							WebSocketUtils.sendNotification(websocketOpt, Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
-									channel.address() + " => " + jValue);
+							WebSocketUtils.sendNotification(websocketOpt, LogBehaviour.WRITE_TO_LOG,
+									Notification.EDGE_CHANNEL_UPDATE_SUCCESS, channel.address() + " => " + jValue);
 
 						} else if (channel instanceof WriteChannel<?>) {
 							/*

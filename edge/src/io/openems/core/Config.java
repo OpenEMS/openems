@@ -222,6 +222,7 @@ public class Config implements ChannelChangeListener {
 	 * @throws NotImplementedException
 	 */
 	public void writeConfigFile() throws NotImplementedException {
+		// TODO send config to all attached websockets
 		// get config as json
 		JsonObject jConfig = getJson(ConfigFormat.FILE);
 

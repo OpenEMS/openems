@@ -33,12 +33,16 @@ public interface ChargerNature extends DeviceNature {
 	@ChannelInfo(title = "maxActualPower", description = "Holds the maximum ever actual power.", type = Long.class, defaultValue = "0")
 	public ConfigChannel<Long> maxActualPower();
 
+	@ChannelInfo(type = Long.class)
 	public WriteChannel<Long> setMaxPower();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> getActualPower();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> getNominalPower();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> getInputVoltage();
 
 	public default void updateMaxChargerActualPower() {

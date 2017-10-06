@@ -31,7 +31,7 @@ public interface SymmetricMeterNature extends MeterNature {
 	/*
 	 * ReadChannels
 	 */
-
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> activePower();
 
 	@ChannelInfo(title = "maxActivePower", description = "Holds the maximum ever active power.", type = Long.class, defaultValue = "0")
@@ -40,12 +40,16 @@ public interface SymmetricMeterNature extends MeterNature {
 	@ChannelInfo(title = "minActivePower", description = "Holds the minimum ever active power.", type = Long.class, defaultValue = "0")
 	public ConfigChannel<Long> minActivePower();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> apparentPower();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> reactivePower();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> frequency();
 
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> voltage();
 
 	public default void updateMinMaxSymmetricActivePower() {

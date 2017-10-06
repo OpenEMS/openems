@@ -19,7 +19,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 
 public class WebSocketUtils {
-
+		
 	private static Logger log = LoggerFactory.getLogger(WebSocketUtils.class);
 
 	public static boolean send(Optional<WebSocket> websocketOpt, JsonObject j) {
@@ -31,32 +31,35 @@ public class WebSocketUtils {
 		}
 	}
 
-	public static boolean sendNotification(Optional<WebSocket> websocketOpt, Notification code, Object... params) {
+	public static boolean sendNotification(Optional<WebSocket> websocketOpt, LogBehaviour logBehaviour, Notification code,
+			Object... params) {
 		if (!websocketOpt.isPresent()) {
-			log.error("Websocket is not available. Unable to send Notification [" + String.format(code.getMessage(), params) + "]");
+			log.error("Websocket is not available. Unable to send Notification ["
+					+ String.format(code.getMessage(), params) + "]");
 			return false;
 		} else {
-			return WebSocketUtils.sendNotification(websocketOpt.get(), code, params);
+			return WebSocketUtils.sendNotification(websocketOpt.get(), logBehaviour, code, params);
 		}
 	}
 
-	
-	public static boolean sendNotification(WebSocket websocket, Notification code, Object... params) {
+	public static boolean sendNotification(WebSocket websocket, LogBehaviour logBehaviour, Notification code, Object... params) {
 		String message = String.format(code.getMessage(), params);
 		String logMessage = "Notification [" + code.getValue() + "]: " + message;
 		// log message
-		switch (code.getStatus()) {
-		case INFO:
-		case LOG:
-		case SUCCESS:
-			log.info(logMessage);
-			break;
-		case ERROR:
-			log.error(logMessage);
-			break;
-		case WARNING:
-			log.warn(logMessage);
-			break;
+		if (logBehaviour.equals(LogBehaviour.WRITE_TO_LOG)) {
+			switch (code.getStatus()) {
+			case INFO:
+			case LOG:
+			case SUCCESS:
+				log.info(logMessage);
+				break;
+			case ERROR:
+				log.error(logMessage);
+				break;
+			case WARNING:
+				log.warn(logMessage);
+				break;
+			}
 		}
 
 		JsonObject j = DefaultMessages.notification(code, message, params);
