@@ -1,6 +1,7 @@
 package io.openems.backend.browserwebsocket;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -263,13 +264,15 @@ public class BrowserWebsocketSingleton
 	 *
 	 * @param name
 	 */
-	public void openemsConnectionOpened(String name) {
+	public void openemsConnectionOpened(Set<String> names) {
 		for (BrowserSession session : this.sessionManager.getSessions()) {
 			for (Device device : session.getData().getDevices()) {
-				if (name.equals(device.getName())) {
-					Optional<WebSocket> websocketOpt = this.getWebsocketFromSession(session);
-					WebSocketUtils.sendNotification(websocketOpt, LogBehaviour.DO_NOT_WRITE_TO_LOG,
-							Notification.EDGE_CONNECTION_OPENED, name);
+				for (String name : names) {
+					if (name.equals(device.getName())) {
+						Optional<WebSocket> websocketOpt = this.getWebsocketFromSession(session);
+						WebSocketUtils.sendNotification(websocketOpt, LogBehaviour.DO_NOT_WRITE_TO_LOG,
+								Notification.EDGE_CONNECTION_OPENED, name);
+					}
 				}
 			}
 		}

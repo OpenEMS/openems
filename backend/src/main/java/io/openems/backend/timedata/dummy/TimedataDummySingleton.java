@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.device.MetadataDevice;
+import io.openems.backend.metadata.api.device.MetadataDevices;
 import io.openems.backend.timedata.api.TimedataSingleton;
 import io.openems.backend.utilities.StringUtils;
 import io.openems.common.exceptions.OpenemsException;
@@ -18,7 +18,7 @@ public class TimedataDummySingleton implements TimedataSingleton {
 	private final Logger log = LoggerFactory.getLogger(TimedataDummySingleton.class);
 
 	@Override
-	public void write(MetadataDevice device, JsonObject jData) {
+	public void write(MetadataDevices devices, JsonObject jData) {
 		log.debug("Timedata Dummy. Would write data: " + StringUtils.toShortString(jData, 100));
 	}
 
