@@ -56,10 +56,12 @@ export class SocChartComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    this.loading = true;
     if (Object.keys(this.channels).length === 0) {
+      this.loading = false;
+      console.warn("Config is not available. Unable to load Soc-Chart.");
       return;
     }
+    this.loading = true;
     // TODO stop previous subscribe; show only results for latest query. Otherwise the chart misbehaves on fast switch of period
     this.device.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
       // prepare datas array and prefill with each device
