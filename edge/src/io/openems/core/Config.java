@@ -77,9 +77,18 @@ public class Config implements ChannelChangeListener {
 
 	public static synchronized Config getInstance() throws ConfigException {
 		if (Config.instance == null) {
-			Config.instance = new Config();
+			throw new ConfigException("Config is not initialized please call initialize() firs!");
 		}
 		return Config.instance;
+	}
+
+	public static synchronized Config initialize(String path) throws ConfigException {
+		if (Config.instance == null) {
+			Config.instance = new Config(path);
+			return Config.instance;
+		} else {
+			throw new ConfigException("Config is already initialized!");
+		}
 	}
 
 	private final ThingRepository thingRepository;
@@ -87,9 +96,13 @@ public class Config implements ChannelChangeListener {
 	private final Path configBackupFile;
 	private final ExecutorService writeConfigExecutor;
 
-	public Config() throws ConfigException {
+	public Config(String configPath) throws ConfigException {
 		thingRepository = ThingRepository.getInstance();
-		this.configFile = getConfigFile();
+		if (configPath != null) {
+			configFile = Paths.get(configPath);
+		} else {
+			this.configFile = getConfigFile();
+		}
 		this.configBackupFile = getConfigBackupFile();
 		this.writeConfigExecutor = Executors.newSingleThreadExecutor();
 	}
@@ -310,11 +323,13 @@ public class Config implements ChannelChangeListener {
 				devices.add(device);
 				bridge.addDevice(device);
 			}
-			/*
-			 * Init bridge
-			 */
-			bridge.init();
-			for (Device d : bridge.getDevices()) {
+		}
+		/*
+		 * Init bridge
+		 */
+		for (Bridge b : thingRepository.getBridges()) {
+			b.init();
+			for (Device d : b.getDevices()) {
 				d.init();
 			}
 		}
