@@ -38,7 +38,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 
 	@ChannelInfo(title = "Ess", description = "Sets the ess device for the combinationEss.", type = String.class)
-	public ConfigChannel<String> ess = new ConfigChannel<String>("ess", this).addChangeListener(this);
+	public ConfigChannel<String> ess = new ConfigChannel<String>("ess", this);
 	private AsymmetricEssNature essNature;
 	private ThingRepository repo;
 	private List<ThingChannelsUpdatedListener> listeners;
@@ -51,40 +51,140 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 	private ProxyReadChannel<Long> systemState = new ProxyReadChannel<Long>("SystemState", this);
 	private ProxyReadChannel<Long> capacity = new ProxyReadChannel<Long>("Capacity", this);
 	private ProxyReadChannel<Long> maxNominalPower = new ProxyReadChannel<Long>("MaxNominalPower", this);
-	private ProxyReadChannel<Long> activePowerL1 = new ProxyReadChannel<Long>("ActivePowerL1", this);
-	private ProxyReadChannel<Long> activePowerL2 = new ProxyReadChannel<Long>("ActivePowerL2", this);
-	private ProxyReadChannel<Long> activePowerL3 = new ProxyReadChannel<Long>("ActivePowerL3", this);
-	private ProxyReadChannel<Long> reactivePowerL1 = new ProxyReadChannel<Long>("ReactivePowerL1", this);
-	private ProxyReadChannel<Long> reactivePowerL2 = new ProxyReadChannel<Long>("ReactivePowerL2", this);
-	private ProxyReadChannel<Long> reactivePowerL3 = new ProxyReadChannel<Long>("ReactivePowerL3", this);
+	private FunctionalReadChannel<Long> activePowerL1 = new FunctionalReadChannel<Long>("ActivePowerL1", this,
+			new FunctionalReadChannelFunction<Long>() {
+
+				@Override
+				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+						throws InvalidValueException {
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[0].valueOptional().get() - sum / 3;
+					}
+					return value;
+				}
+
+			});
+	private FunctionalReadChannel<Long> activePowerL2 = new FunctionalReadChannel<Long>("ActivePowerL2", this,
+			new FunctionalReadChannelFunction<Long>() {
+
+				@Override
+				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+						throws InvalidValueException {
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[1].valueOptional().get() - sum / 3;
+					}
+					return value;
+				}
+
+			});
+	private FunctionalReadChannel<Long> activePowerL3 = new FunctionalReadChannel<Long>("ActivePowerL3", this,
+			new FunctionalReadChannelFunction<Long>() {
+
+				@Override
+				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+						throws InvalidValueException {
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[2].valueOptional().get() - sum / 3;
+					}
+					return value;
+				}
+
+			});
+	private FunctionalReadChannel<Long> reactivePowerL1 = new FunctionalReadChannel<Long>("ReactivePowerL1", this,
+			new FunctionalReadChannelFunction<Long>() {
+
+				@Override
+				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+						throws InvalidValueException {
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[0].valueOptional().get() - sum / 3;
+					}
+					return value;
+				}
+
+			});
+	private FunctionalReadChannel<Long> reactivePowerL2 = new FunctionalReadChannel<Long>("ReactivePowerL2", this,
+			new FunctionalReadChannelFunction<Long>() {
+
+				@Override
+				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+						throws InvalidValueException {
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[1].valueOptional().get() - sum / 3;
+					}
+					return value;
+				}
+
+			});
+	private FunctionalReadChannel<Long> reactivePowerL3 = new FunctionalReadChannel<Long>("ReactivePowerL3", this,
+			new FunctionalReadChannelFunction<Long>() {
+
+				@Override
+				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+						throws InvalidValueException {
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[2].valueOptional().get() - sum / 3;
+					}
+					return value;
+				}
+
+			});
 	private FunctionalReadChannel<Long> activePower = new FunctionalReadChannel<Long>("ActivePower", this,
 			new FunctionalReadChannelFunction<Long>() {
 
 				@Override
 				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
 						throws InvalidValueException {
-					long sum = 0;
-					for (ReadChannel<Long> channel : channels) {
-						sum += channel.value();
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						value = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
 					}
-					return sum;
+					return value;
 				}
 
-			}, activePowerL1, activePowerL2, activePowerL3);
+			});
 	private FunctionalReadChannel<Long> reactivePower = new FunctionalReadChannel<Long>("ReactivePower", this,
 			new FunctionalReadChannelFunction<Long>() {
 
 				@Override
 				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
 						throws InvalidValueException {
-					long sum = 0;
-					for (ReadChannel<Long> channel : channels) {
-						sum += channel.value();
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						value = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
 					}
-					return sum;
+					return value;
 				}
 
-			}, reactivePowerL1, reactivePowerL2, reactivePowerL3);
+			});
 	private FunctionalReadChannel<Long> apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this,
 			new FunctionalReadChannelFunction<Long>() {
 
@@ -106,7 +206,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -116,25 +216,34 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 
 				@Override
 				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					return channels[0].valueOptional().orElse(null);
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[0].valueOptional().get() - sum / 3;
+					}
+					return value;
 				}
 
 				@Override
 				public Long getMinValue(Optional<Long> minValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMinActivePowerPhase(1, minValue);
+					return getMinPowerPhase(1, minValue, getNativeSetPower(1), getThisSetPower(1),
+							getThisSetReactivePower(1), setActivePower, setReactivePower);
 				}
 
 				@Override
 				public Long getMaxValue(Optional<Long> maxValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMaxActivePowerPhase(1, maxValue);
+					return getMaxPowerPhase(1, maxValue, getNativeSetPower(1), getThisSetPower(1),
+							getThisSetReactivePower(1), setActivePower, setReactivePower);
 				}
 
 				@Override
 				public Long setMinValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -145,7 +254,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setMaxValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -160,7 +269,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -170,25 +279,34 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 
 				@Override
 				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					return channels[0].valueOptional().orElse(null);
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[1].valueOptional().get() - sum / 3;
+					}
+					return value;
 				}
 
 				@Override
 				public Long getMinValue(Optional<Long> minValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMinActivePowerPhase(2, minValue);
+					return getMinPowerPhase(2, minValue, getNativeSetPower(2), getThisSetPower(2),
+							getThisSetReactivePower(2), setActivePower, setReactivePower);
 				}
 
 				@Override
 				public Long getMaxValue(Optional<Long> maxValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMaxActivePowerPhase(2, maxValue);
+					return getMaxPowerPhase(2, maxValue, getNativeSetPower(2), getThisSetPower(2),
+							getThisSetReactivePower(2), setActivePower, setReactivePower);
 				}
 
 				@Override
 				public Long setMinValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -199,7 +317,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setMaxValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -214,7 +332,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -224,25 +342,34 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 
 				@Override
 				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					return channels[0].valueOptional().orElse(null);
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[2].valueOptional().get() - sum / 3;
+					}
+					return value;
 				}
 
 				@Override
 				public Long getMinValue(Optional<Long> minValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMinActivePowerPhase(3, minValue);
+					return getMinPowerPhase(3, minValue, getNativeSetPower(3), getThisSetPower(3),
+							getThisSetReactivePower(3), setActivePower, setReactivePower);
 				}
 
 				@Override
 				public Long getMaxValue(Optional<Long> maxValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMaxActivePowerPhase(3, maxValue);
+					return getMaxPowerPhase(3, maxValue, getNativeSetPower(3), getThisSetPower(3),
+							getThisSetReactivePower(3), setActivePower, setReactivePower);
 				}
 
 				@Override
 				public Long setMinValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -253,7 +380,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setMaxValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -291,20 +418,35 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 					return sum;
 				}
 
+				@SuppressWarnings("unchecked")
 				@Override
-				public Long getMinValue(Optional<Long> minValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					Long minActivePower = getMinActivePower();
-					if (minActivePower == null) {
-						return null;
+				public Long getMinValue(Optional<Long> minValue, WriteChannel<Long>... channels) {
+					WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
+					WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setActivePowerL1,
+							setActivePowerL2, setActivePowerL3 };
+					WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
+							setReactivePowerL2, setReactivePowerL3 };
+					if (channels.length == 3) {
+						nativeSetPrimaryPowerPhase = channels;
 					}
+					Long minActivePower = getMinPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
+							thisSetSecundaryPowerPhase, setActivePower, setReactivePower);
 					return minActivePower;
 				}
 
+				@SuppressWarnings("unchecked")
 				@Override
-				public Long getMaxValue(Optional<Long> maxValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					Long maxActivePower = getMaxActivePower();
+				public Long getMaxValue(Optional<Long> maxValue, WriteChannel<Long>... channels) {
+					WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
+					WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setActivePowerL1,
+							setActivePowerL2, setActivePowerL3 };
+					WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
+							setReactivePowerL2, setReactivePowerL3 };
+					if (channels.length == 3) {
+						nativeSetPrimaryPowerPhase = channels;
+					}
+					Long maxActivePower = getMaxPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
+							thisSetSecundaryPowerPhase, setActivePower, setReactivePower);
 					if (maxActivePower == null) {
 						return null;
 					}
@@ -344,10 +486,8 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 3) {
-						for (int i = 0; i < 3; i++) {
-							channels[i].checkIntervalBoundaries(newValue / 3);
-						}
+					if (channels.length >= 1) {
+						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
 						throw new WriteChannelException("no essNature to control available");
@@ -356,33 +496,34 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 
 				@Override
 				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					return channels[0].valueOptional().orElse(null);
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[0].valueOptional().get() - sum / 3;
+					}
+					return value;
 				}
 
 				@Override
 				public Long getMinValue(Optional<Long> minValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					Long minReactivePower = getMinReactivePowerPhase(1, minValue);
-					if (minReactivePower == null) {
-						return null;
-					}
-					return minReactivePower / 3;
+					return getMinPowerPhase(1, minValue, getNativeSetReactivePower(1), getThisSetReactivePower(1),
+							getThisSetPower(1), setReactivePower, setActivePower);
 				}
 
 				@Override
 				public Long getMaxValue(Optional<Long> maxValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					Long maxReactivePower = getMaxReactivePowerPhase(1, maxValue);
-					if (maxReactivePower == null) {
-						return null;
-					}
-					return maxReactivePower / 3;
+					return getMaxPowerPhase(1, maxValue, getNativeSetReactivePower(1), getThisSetReactivePower(1),
+							getThisSetPower(1), setReactivePower, setActivePower);
 				}
 
 				@Override
 				public Long setMinValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -393,7 +534,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setMaxValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -408,7 +549,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -418,33 +559,34 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 
 				@Override
 				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					return channels[0].valueOptional().orElse(null);
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[1].valueOptional().get() - sum / 3;
+					}
+					return value;
 				}
 
 				@Override
 				public Long getMinValue(Optional<Long> minValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					Long minReactivePower = getMinReactivePowerPhase(2, minValue);
-					if (minReactivePower == null) {
-						return null;
-					}
-					return minReactivePower / 3;
+					return getMinPowerPhase(2, minValue, getNativeSetReactivePower(2), getThisSetReactivePower(2),
+							getThisSetPower(2), setReactivePower, setActivePower);
 				}
 
 				@Override
 				public Long getMaxValue(Optional<Long> maxValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					Long maxReactivePower = getMaxReactivePowerPhase(2, maxValue);
-					if (maxReactivePower == null) {
-						return null;
-					}
-					return maxReactivePower / 3;
+					return getMaxPowerPhase(2, maxValue, getNativeSetReactivePower(2), getThisSetReactivePower(2),
+							getThisSetPower(2), setReactivePower, setActivePower);
 				}
 
 				@Override
 				public Long setMinValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -455,7 +597,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setMaxValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -470,7 +612,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -480,33 +622,34 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 
 				@Override
 				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					return channels[0].valueOptional().orElse(null);
+					Long value = null;
+					if (channels.length == 3 && channels[0].valueOptional().isPresent()
+							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+								+ channels[2].valueOptional().get();
+						value = channels[2].valueOptional().get() - sum / 3;
+					}
+					return value;
 				}
 
 				@Override
 				public Long getMinValue(Optional<Long> minValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					Long minReactivePower = getMinReactivePowerPhase(3, minValue);
-					if (minReactivePower == null) {
-						return null;
-					}
-					return minReactivePower / 3;
+					return getMinPowerPhase(3, minValue, getNativeSetReactivePower(3), getThisSetReactivePower(3),
+							getThisSetPower(3), setReactivePower, setActivePower);
 				}
 
 				@Override
 				public Long getMaxValue(Optional<Long> maxValue,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					Long maxReactivePower = getMaxReactivePowerPhase(3, maxValue);
-					if (maxReactivePower == null) {
-						return null;
-					}
-					return maxReactivePower / 3;
+					return getMaxPowerPhase(3, maxValue, getNativeSetReactivePower(3), getThisSetReactivePower(3),
+							getThisSetPower(3), setReactivePower, setActivePower);
 				}
 
 				@Override
 				public Long setMinValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -517,7 +660,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				@Override
 				public Long setMaxValue(Long newValue, String newLabel,
 						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 1) {
+					if (channels.length >= 1) {
 						channels[0].checkIntervalBoundaries(newValue);
 						return newValue;
 					} else {
@@ -526,6 +669,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				}
 
 			});
+
 	private FunctionalWriteChannel<Long> setReactivePower = new FunctionalWriteChannel<Long>("SetReactivePower", this,
 			new FunctionalWriteChannelFunction<Long>() {
 
@@ -554,24 +698,42 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 					return sum;
 				}
 
+				@SuppressWarnings("unchecked")
 				@Override
-				public Long getMinValue(Optional<Long> minValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					Long minActivePower = getMinReactivePower();
-					if (minActivePower == null) {
+				public Long getMinValue(Optional<Long> minValue, WriteChannel<Long>... channels) {
+					WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
+					WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setActivePowerL1,
+							setActivePowerL2, setActivePowerL3 };
+					WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
+							setReactivePowerL2, setReactivePowerL3 };
+					if (channels.length == 3) {
+						nativeSetPrimaryPowerPhase = channels;
+					}
+					Long minReactivePower = getMinPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
+							thisSetSecundaryPowerPhase, setReactivePower, setActivePower);
+					if (minReactivePower == null) {
 						return null;
 					}
-					return minActivePower;
+					return minReactivePower;
 				}
 
+				@SuppressWarnings("unchecked")
 				@Override
-				public Long getMaxValue(Optional<Long> maxValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					Long maxActivePower = getMaxReactivePower();
-					if (maxActivePower == null) {
+				public Long getMaxValue(Optional<Long> maxValue, WriteChannel<Long>... channels) {
+					WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
+					WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setActivePowerL1,
+							setActivePowerL2, setActivePowerL3 };
+					WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
+							setReactivePowerL2, setReactivePowerL3 };
+					if (channels.length == 3) {
+						nativeSetPrimaryPowerPhase = channels;
+					}
+					Long maxReactivePower = getMaxPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
+							thisSetSecundaryPowerPhase, setReactivePower, setActivePower);
+					if (maxReactivePower == null) {
 						return null;
 					}
-					return maxActivePower;
+					return maxReactivePower;
 				}
 
 				@Override
@@ -845,9 +1007,7 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 	}
 
 	@Override
-	protected void update() {
-		// TODO Auto-generated method stub
-	}
+	protected void update() {}
 
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
@@ -871,19 +1031,49 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 				capacity.removeChannel(essNature.capacity());
 				maxNominalPower.removeChannel(essNature.maxNominalPower());
 				activePowerL1.removeChannel(essNature.activePowerL1());
+				activePowerL1.removeChannel(essNature.activePowerL2());
+				activePowerL1.removeChannel(essNature.activePowerL3());
+				activePowerL2.removeChannel(essNature.activePowerL1());
 				activePowerL2.removeChannel(essNature.activePowerL2());
+				activePowerL2.removeChannel(essNature.activePowerL3());
+				activePowerL3.removeChannel(essNature.activePowerL1());
+				activePowerL3.removeChannel(essNature.activePowerL2());
 				activePowerL3.removeChannel(essNature.activePowerL3());
+				activePower.removeChannel(essNature.activePowerL1());
+				activePower.removeChannel(essNature.activePowerL2());
+				activePower.removeChannel(essNature.activePowerL3());
 				reactivePowerL1.removeChannel(essNature.reactivePowerL1());
+				reactivePowerL1.removeChannel(essNature.reactivePowerL2());
+				reactivePowerL1.removeChannel(essNature.reactivePowerL3());
+				reactivePowerL2.removeChannel(essNature.reactivePowerL1());
 				reactivePowerL2.removeChannel(essNature.reactivePowerL2());
+				reactivePowerL2.removeChannel(essNature.reactivePowerL3());
+				reactivePowerL3.removeChannel(essNature.reactivePowerL1());
+				reactivePowerL3.removeChannel(essNature.reactivePowerL2());
 				reactivePowerL3.removeChannel(essNature.reactivePowerL3());
+				reactivePower.removeChannel(essNature.reactivePowerL1());
+				reactivePower.removeChannel(essNature.reactivePowerL2());
+				reactivePower.removeChannel(essNature.reactivePowerL3());
 				setActivePowerL1.removeChannel(essNature.setActivePowerL1());
+				setActivePowerL1.removeChannel(essNature.setActivePowerL2());
+				setActivePowerL1.removeChannel(essNature.setActivePowerL3());
+				setActivePowerL2.removeChannel(essNature.setActivePowerL1());
 				setActivePowerL2.removeChannel(essNature.setActivePowerL2());
+				setActivePowerL2.removeChannel(essNature.setActivePowerL3());
+				setActivePowerL3.removeChannel(essNature.setActivePowerL1());
+				setActivePowerL3.removeChannel(essNature.setActivePowerL2());
 				setActivePowerL3.removeChannel(essNature.setActivePowerL3());
 				setActivePower.removeChannel(essNature.setActivePowerL1());
 				setActivePower.removeChannel(essNature.setActivePowerL2());
 				setActivePower.removeChannel(essNature.setActivePowerL3());
 				setReactivePowerL1.removeChannel(essNature.setReactivePowerL1());
+				setReactivePowerL1.removeChannel(essNature.setReactivePowerL2());
+				setReactivePowerL1.removeChannel(essNature.setReactivePowerL3());
+				setReactivePowerL2.removeChannel(essNature.setReactivePowerL1());
 				setReactivePowerL2.removeChannel(essNature.setReactivePowerL2());
+				setReactivePowerL2.removeChannel(essNature.setReactivePowerL3());
+				setReactivePowerL3.removeChannel(essNature.setReactivePowerL1());
+				setReactivePowerL3.removeChannel(essNature.setReactivePowerL2());
 				setReactivePowerL3.removeChannel(essNature.setReactivePowerL3());
 				setReactivePower.removeChannel(essNature.setReactivePowerL1());
 				setReactivePower.removeChannel(essNature.setReactivePowerL2());
@@ -907,20 +1097,50 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 							systemState.setChannel(essNature.systemState());
 							capacity.setChannel(essNature.capacity());
 							maxNominalPower.setChannel(essNature.maxNominalPower());
-							activePowerL1.setChannel(essNature.activePowerL1());
-							activePowerL2.setChannel(essNature.activePowerL2());
-							activePowerL3.setChannel(essNature.activePowerL3());
-							reactivePowerL1.setChannel(essNature.reactivePowerL1());
-							reactivePowerL2.setChannel(essNature.reactivePowerL2());
-							reactivePowerL3.setChannel(essNature.reactivePowerL3());
+							activePowerL1.addChannel(essNature.activePowerL1());
+							activePowerL1.addChannel(essNature.activePowerL2());
+							activePowerL1.addChannel(essNature.activePowerL3());
+							activePowerL2.addChannel(essNature.activePowerL1());
+							activePowerL2.addChannel(essNature.activePowerL2());
+							activePowerL2.addChannel(essNature.activePowerL3());
+							activePowerL3.addChannel(essNature.activePowerL1());
+							activePowerL3.addChannel(essNature.activePowerL2());
+							activePowerL3.addChannel(essNature.activePowerL3());
+							activePower.addChannel(essNature.activePowerL1());
+							activePower.addChannel(essNature.activePowerL2());
+							activePower.addChannel(essNature.activePowerL3());
+							reactivePowerL1.addChannel(essNature.reactivePowerL1());
+							reactivePowerL1.addChannel(essNature.reactivePowerL2());
+							reactivePowerL1.addChannel(essNature.reactivePowerL3());
+							reactivePowerL2.addChannel(essNature.reactivePowerL1());
+							reactivePowerL2.addChannel(essNature.reactivePowerL2());
+							reactivePowerL2.addChannel(essNature.reactivePowerL3());
+							reactivePowerL3.addChannel(essNature.reactivePowerL1());
+							reactivePowerL3.addChannel(essNature.reactivePowerL2());
+							reactivePowerL3.addChannel(essNature.reactivePowerL3());
+							reactivePower.addChannel(essNature.reactivePowerL1());
+							reactivePower.addChannel(essNature.reactivePowerL2());
+							reactivePower.addChannel(essNature.reactivePowerL3());
 							setActivePowerL1.addChannel(essNature.setActivePowerL1());
+							setActivePowerL1.addChannel(essNature.setActivePowerL2());
+							setActivePowerL1.addChannel(essNature.setActivePowerL3());
+							setActivePowerL2.addChannel(essNature.setActivePowerL1());
 							setActivePowerL2.addChannel(essNature.setActivePowerL2());
+							setActivePowerL2.addChannel(essNature.setActivePowerL3());
+							setActivePowerL3.addChannel(essNature.setActivePowerL1());
+							setActivePowerL3.addChannel(essNature.setActivePowerL2());
 							setActivePowerL3.addChannel(essNature.setActivePowerL3());
 							setActivePower.addChannel(essNature.setActivePowerL1());
 							setActivePower.addChannel(essNature.setActivePowerL2());
 							setActivePower.addChannel(essNature.setActivePowerL3());
 							setReactivePowerL1.addChannel(essNature.setReactivePowerL1());
+							setReactivePowerL1.addChannel(essNature.setReactivePowerL2());
+							setReactivePowerL1.addChannel(essNature.setReactivePowerL3());
+							setReactivePowerL2.addChannel(essNature.setReactivePowerL1());
 							setReactivePowerL2.addChannel(essNature.setReactivePowerL2());
+							setReactivePowerL2.addChannel(essNature.setReactivePowerL3());
+							setReactivePowerL3.addChannel(essNature.setReactivePowerL1());
+							setReactivePowerL3.addChannel(essNature.setReactivePowerL2());
 							setReactivePowerL3.addChannel(essNature.setReactivePowerL3());
 							setReactivePower.addChannel(essNature.setReactivePowerL1());
 							setReactivePower.addChannel(essNature.setReactivePowerL2());
@@ -940,51 +1160,93 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 	}
 
 	public void runCalculation() throws WriteChannelException {
-		long L1 = 0;
-		long L2 = 0;
-		long L3 = 0;
+		long activePowerL1 = 0;
+		long activePowerL2 = 0;
+		long activePowerL3 = 0;
 		if (setActivePower.getWriteValue().isPresent()) {
 			long activePowerWriteValue = setActivePower.getWriteValue().get();
-			L1 += activePowerWriteValue / 3;
-			L2 += activePowerWriteValue / 3;
-			L3 += activePowerWriteValue / 3;
+			activePowerL1 += activePowerWriteValue / 3;
+			activePowerL2 += activePowerWriteValue / 3;
+			activePowerL3 += activePowerWriteValue / 3;
 		}
-		if (setActivePowerL1.getWriteValue().isPresent()) {
-			L1 += setActivePowerL1.getWriteValue().get();
+		if (setActivePowerL1.getWriteValue().isPresent() && setActivePowerL2.getWriteValue().isPresent()
+				&& setActivePowerL3.getWriteValue().isPresent()) {
+			activePowerL1 += setActivePowerL1.getWriteValue().get();
+			activePowerL2 += setActivePowerL2.getWriteValue().get();
+			activePowerL3 += setActivePowerL3.getWriteValue().get();
 		}
-		if (setActivePowerL2.getWriteValue().isPresent()) {
-			L2 += setActivePowerL2.getWriteValue().get();
+		essNature.setActivePowerL1().pushWrite(activePowerL1);
+		essNature.setActivePowerL2().pushWrite(activePowerL2);
+		essNature.setActivePowerL3().pushWrite(activePowerL3);
+		long reactivePowerL1 = 0;
+		long reactivePowerL2 = 0;
+		long reactivePowerL3 = 0;
+		if (setReactivePower.getWriteValue().isPresent()) {
+			long reactivePowerWriteValue = setReactivePower.getWriteValue().get();
+			reactivePowerL1 += reactivePowerWriteValue / 3;
+			reactivePowerL2 += reactivePowerWriteValue / 3;
+			reactivePowerL3 += reactivePowerWriteValue / 3;
 		}
-		if (setActivePowerL3.getWriteValue().isPresent()) {
-			L3 += setActivePowerL3.getWriteValue().get();
+		if (setReactivePowerL1.getWriteValue().isPresent()) {
+			reactivePowerL1 += setReactivePowerL1.getWriteValue().get();
 		}
-		essNature.setActivePowerL1().pushWrite(L1);
-		essNature.setActivePowerL2().pushWrite(L2);
-		essNature.setActivePowerL3().pushWrite(L3);
+		if (setReactivePowerL2.getWriteValue().isPresent()) {
+			reactivePowerL2 += setReactivePowerL2.getWriteValue().get();
+		}
+		if (setReactivePowerL3.getWriteValue().isPresent()) {
+			reactivePowerL3 += setReactivePowerL3.getWriteValue().get();
+		}
+		essNature.setReactivePowerL1().pushWrite(reactivePowerL1);
+		essNature.setReactivePowerL2().pushWrite(reactivePowerL2);
+		essNature.setReactivePowerL3().pushWrite(reactivePowerL3);
 	}
 
-	private Long getMinActivePowerPhase(int phase, Optional<Long> thisMinPower) {
+	private Long getMinPowerPhase(int phase, Optional<Long> thisMinPower, WriteChannel<Long> nativeSetPrimaryPowerPhase,
+			WriteChannel<Long> thisSetPrimaryPowerPhase, WriteChannel<Long> thisSetSecundaryPowerPhase,
+			WriteChannel<Long> thisSetPrimaryPower, WriteChannel<Long> thisSetSecundaryPower) {
 		Long minValue = null;
-		WriteChannel<Long> nativeSetPower = getNativeSetPower(phase);
-		WriteChannel<Long> thisSetPower = getThisSetPower(phase);
-		if (nativeSetPower != null && nativeSetPower.getWriteValue().isPresent()) {
+		if (nativeSetPrimaryPowerPhase != null && nativeSetPrimaryPowerPhase.getWriteValue().isPresent()) {
 			minValue = 0L;
-		} else if (thisSetPower.getWriteValue().isPresent()) {
-			minValue = thisSetPower.getWriteValue().get();
+		} else if (thisSetPrimaryPowerPhase.getWriteValue().isPresent()) {
+			minValue = thisSetPrimaryPowerPhase.getWriteValue().get();
 		} else {
 			List<Long> minValues = new ArrayList<>();
 			if (thisMinPower.isPresent()) {
-				if (setActivePower.getWriteValue().isPresent()) {
-					minValues.add(thisMinPower.get() - setActivePower.getWriteValue().get() / 3);
+				if (thisSetPrimaryPower.getWriteValue().isPresent()) {
+					minValues.add(thisMinPower.get() - thisSetPrimaryPower.getWriteValue().get() / 3);
 				} else {
 					minValues.add(thisMinPower.get());
 				}
 			}
-			if (nativeSetPower != null && nativeSetPower.writeMin().isPresent()) {
-				if (setActivePower.getWriteValue().isPresent()) {
-					minValues.add(nativeSetPower.writeMin().get() - setActivePower.getWriteValue().get() / 3);
+			if (allowedApparent.valueOptional().isPresent()) {
+				long primaryPowerSum = 0L;
+				long scundaryPowerSum = 0L;
+				if (thisSetPrimaryPowerPhase.getWriteValue().isPresent()) {
+					primaryPowerSum += thisSetPrimaryPowerPhase.getWriteValue().get();
+				}
+				if (thisSetSecundaryPowerPhase.getWriteValue().isPresent()) {
+					scundaryPowerSum += thisSetSecundaryPowerPhase.getWriteValue().get();
+				}
+				if (thisSetSecundaryPower.getWriteValue().isPresent()) {
+					scundaryPowerSum += thisSetSecundaryPower.getWriteValue().get() / 3;
+				}
+				if (thisSetPrimaryPower.getWriteValue().isPresent()) {
+					primaryPowerSum += thisSetSecundaryPower.getWriteValue().get() / 3;
+				}
+				long allowedPrimaryPowerPhase = ControllerUtils.calculateActivePower(scundaryPowerSum,
+						allowedApparent.valueOptional().get() / 3);
+				if (primaryPowerSum > 0) {
+					minValues.add(allowedPrimaryPowerPhase * -1);
 				} else {
-					minValues.add(nativeSetPower.writeMin().get());
+					minValues.add(allowedPrimaryPowerPhase * -1 - primaryPowerSum);
+				}
+			}
+			if (nativeSetPrimaryPowerPhase != null && nativeSetPrimaryPowerPhase.writeMin().isPresent()) {
+				if (thisSetPrimaryPower.getWriteValue().isPresent()) {
+					minValues.add(nativeSetPrimaryPowerPhase.writeMin().get()
+							- thisSetPrimaryPower.getWriteValue().get() / 3);
+				} else {
+					minValues.add(nativeSetPrimaryPowerPhase.writeMin().get());
 				}
 			}
 			if (minValues.size() > 0) {
@@ -992,30 +1254,55 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 			}
 		}
 		return minValue;
+
 	}
 
-	private Long getMaxActivePowerPhase(int phase, Optional<Long> thisMaxPower) {
+	private Long getMaxPowerPhase(int phase, Optional<Long> thisMaxPower, WriteChannel<Long> nativeSetPrimaryPowerPhase,
+			WriteChannel<Long> thisSetPrimaryPowerPhase, WriteChannel<Long> thisSetSecundaryPowerPhase,
+			WriteChannel<Long> thisSetPrimaryPower, WriteChannel<Long> thisSetSecundaryPower) {
 		Long maxValue = null;
-		WriteChannel<Long> nativeSetPower = getNativeSetPower(phase);
-		WriteChannel<Long> thisSetPower = getThisSetPower(phase);
-		if (nativeSetPower != null && nativeSetPower.getWriteValue().isPresent()) {
+		if (nativeSetPrimaryPowerPhase != null && nativeSetPrimaryPowerPhase.getWriteValue().isPresent()) {
 			maxValue = 0L;
-		} else if (thisSetPower.getWriteValue().isPresent()) {
-			maxValue = thisSetPower.getWriteValue().get();
+		} else if (thisSetPrimaryPowerPhase.getWriteValue().isPresent()) {
+			maxValue = thisSetPrimaryPowerPhase.getWriteValue().get();
 		} else {
 			List<Long> maxValues = new ArrayList<>();
 			if (thisMaxPower.isPresent()) {
-				if (setActivePower.getWriteValue().isPresent()) {
-					maxValues.add(thisMaxPower.get() - setActivePower.getWriteValue().get() / 3);
+				if (thisSetPrimaryPower.getWriteValue().isPresent()) {
+					maxValues.add(thisMaxPower.get() - thisSetPrimaryPower.getWriteValue().get() / 3);
 				} else {
 					maxValues.add(thisMaxPower.get());
 				}
 			}
-			if (nativeSetPower != null && nativeSetPower.writeMax().isPresent()) {
-				if (setActivePower.getWriteValue().isPresent()) {
-					maxValues.add(nativeSetPower.writeMax().get() - setActivePower.getWriteValue().get() / 3);
+			if (allowedApparent.valueOptional().isPresent()) {
+				long primaryPowerSum = 0L;
+				long secundaryPowerSum = 0L;
+				if (thisSetPrimaryPowerPhase.getWriteValue().isPresent()) {
+					primaryPowerSum += thisSetPrimaryPowerPhase.getWriteValue().get();
+				}
+				if (thisSetSecundaryPowerPhase.getWriteValue().isPresent()) {
+					secundaryPowerSum += thisSetSecundaryPowerPhase.getWriteValue().get();
+				}
+				if (thisSetSecundaryPower.getWriteValue().isPresent()) {
+					secundaryPowerSum += thisSetSecundaryPower.getWriteValue().get() / 3;
+				}
+				if (thisSetPrimaryPower.getWriteValue().isPresent()) {
+					primaryPowerSum += thisSetPrimaryPower.getWriteValue().get() / 3;
+				}
+				long allowedPowerPhase = ControllerUtils.calculateActivePower(secundaryPowerSum,
+						allowedApparent.valueOptional().get() / 3);
+				if (primaryPowerSum > 0) {
+					maxValues.add(allowedPowerPhase - primaryPowerSum);
 				} else {
-					maxValues.add(nativeSetPower.writeMax().get());
+					maxValues.add(allowedPowerPhase);
+				}
+			}
+			if (nativeSetPrimaryPowerPhase != null && nativeSetPrimaryPowerPhase.writeMax().isPresent()) {
+				if (thisSetPrimaryPower.getWriteValue().isPresent()) {
+					maxValues.add(nativeSetPrimaryPowerPhase.writeMax().get()
+							- thisSetPrimaryPower.getWriteValue().get() / 3);
+				} else {
+					maxValues.add(nativeSetPrimaryPowerPhase.writeMax().get());
 				}
 			}
 			if (maxValues.size() > 0) {
@@ -1053,133 +1340,97 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 		return null;
 	}
 
-	private Long getMinActivePower() {
+	private Long getMinPower(WriteChannel<Long>[] nativeSetPrimaryPowerPhases,
+			WriteChannel<Long>[] thisSetPrimaryPowerPhases, WriteChannel<Long>[] thisSetSecundaryPowerPhases,
+			WriteChannel<Long> thisSetPrimaryPower, WriteChannel<Long> thisSetSecundaryPower) {
 		Long minValue = null;
-		if (essNature != null && (essNature.setActivePowerL1().getWriteValue().isPresent()
-				|| essNature.setActivePowerL2().getWriteValue().isPresent()
-				|| essNature.setActivePowerL3().getWriteValue().isPresent())) {
-			minValue = 0L;
-		} else if (setActivePower.getWriteValue().isPresent()) {
-			minValue = setActivePower.getWriteValue().get();
+		for (WriteChannel<Long> nativeSetPower : nativeSetPrimaryPowerPhases) {
+			if (nativeSetPower != null && nativeSetPower.getWriteValue().isPresent()) {
+				return 0L;
+			}
+		}
+		if (thisSetPrimaryPower.getWriteValue().isPresent()) {
+			minValue = thisSetPrimaryPower.getWriteValue().get();
 		} else {
-			long baseL1 = 0L;
-			long baseL2 = 0L;
-			long baseL3 = 0L;
 			List<Long> minValues = new ArrayList<>();
-			if (setActivePowerL1.getWriteValue().isPresent()) {
-				baseL1 = setActivePowerL1.getWriteValue().get();
-			}
-			if (setActivePowerL2.getWriteValue().isPresent()) {
-				baseL2 = setActivePowerL2.getWriteValue().get();
-			}
-			if (setActivePowerL3.getWriteValue().isPresent()) {
-				baseL3 = setActivePowerL3.getWriteValue().get();
-			}
 			if (essNature != null && essNature.allowedApparent().valueOptional().isPresent()) {
-				minValues.add(essNature.setActivePowerL1().writeMin()
-						.orElse(essNature.allowedApparent().valueOptional().get() / -3) - baseL1);
-				minValues.add(essNature.setActivePowerL2().writeMin()
-						.orElse(essNature.allowedApparent().valueOptional().get() / -3) - baseL2);
-				minValues.add(essNature.setActivePowerL3().writeMin()
-						.orElse(essNature.allowedApparent().valueOptional().get() / -3) - baseL3);
-				minValue = Collections.min(minValues) * 3;
+				for (int i = 0; i < 3; i++) {
+					WriteChannel<Long> thisSetPrimaryPowerPhase = thisSetPrimaryPowerPhases[i];
+					WriteChannel<Long> thisSetSecundarzPowerPhase = thisSetSecundaryPowerPhases[i];
+					long primaryPowerSum = 0L;
+					long secundaryPowerSum = 0L;
+					if (thisSetPrimaryPowerPhase.getWriteValue().isPresent()) {
+						primaryPowerSum += thisSetPrimaryPowerPhase.getWriteValue().get();
+					}
+					if (thisSetSecundarzPowerPhase.getWriteValue().isPresent()) {
+						secundaryPowerSum += thisSetSecundarzPowerPhase.getWriteValue().get();
+					}
+					if (thisSetSecundaryPower.getWriteValue().isPresent()) {
+						secundaryPowerSum += thisSetSecundaryPower.getWriteValue().get() / 3;
+					}
+					if (thisSetPrimaryPower.getWriteValue().isPresent()) {
+						primaryPowerSum += thisSetPrimaryPower.getWriteValue().get() / 3;
+					}
+					long allowedPrimaryPowerPhase = ControllerUtils.calculateActivePower(secundaryPowerSum,
+							allowedApparent.valueOptional().get() / 3);
+					if (primaryPowerSum > 0) {
+						minValues.add(allowedPrimaryPowerPhase * -1);
+					} else {
+						minValues.add(allowedPrimaryPowerPhase * -1 - primaryPowerSum);
+					}
+					if (nativeSetPrimaryPowerPhases[i].writeMin().isPresent()) {
+						minValues.add(nativeSetPrimaryPowerPhases[i].writeMin().get());
+					}
+				}
+				minValue = Collections.max(minValues) * 3;
 			}
 		}
 		return minValue;
 	}
 
-	private Long getMaxActivePower() {
+	private Long getMaxPower(WriteChannel<Long>[] nativeSetPrimaryPowerPhases,
+			WriteChannel<Long>[] thisSetPrimaryPowerPhases, WriteChannel<Long>[] thisSetSecundaryPowerPhases,
+			WriteChannel<Long> thisSetPrimaryPower, WriteChannel<Long> thisSetSecundaryPower) {
 		Long maxValue = null;
-		if (essNature != null && (essNature.setActivePowerL1().getWriteValue().isPresent()
-				|| essNature.setActivePowerL2().getWriteValue().isPresent()
-				|| essNature.setActivePowerL3().getWriteValue().isPresent())) {
-			maxValue = 0L;
-		} else if (setActivePower.getWriteValue().isPresent()) {
-			maxValue = setActivePower.getWriteValue().get();
+		for (WriteChannel<Long> nativeSetPower : nativeSetPrimaryPowerPhases) {
+			if (nativeSetPower != null && nativeSetPower.getWriteValue().isPresent()) {
+				return 0L;
+			}
+		}
+		if (thisSetPrimaryPower.getWriteValue().isPresent()) {
+			maxValue = thisSetPrimaryPower.getWriteValue().get();
 		} else {
-			long baseL1 = 0L;
-			long baseL2 = 0L;
-			long baseL3 = 0L;
 			List<Long> maxValues = new ArrayList<>();
-			if (setActivePowerL1.getWriteValue().isPresent()) {
-				baseL1 = setActivePowerL1.getWriteValue().get();
-			}
-			if (setActivePowerL2.getWriteValue().isPresent()) {
-				baseL2 = setActivePowerL2.getWriteValue().get();
-			}
-			if (setActivePowerL3.getWriteValue().isPresent()) {
-				baseL3 = setActivePowerL3.getWriteValue().get();
-			}
 			if (essNature != null && essNature.allowedApparent().valueOptional().isPresent()) {
-				maxValues.add(essNature.setActivePowerL1().writeMax()
-						.orElse(essNature.allowedApparent().valueOptional().get() / 3) - baseL1);
-				maxValues.add(essNature.setActivePowerL2().writeMax()
-						.orElse(essNature.allowedApparent().valueOptional().get() / 3) - baseL2);
-				maxValues.add(essNature.setActivePowerL3().writeMax()
-						.orElse(essNature.allowedApparent().valueOptional().get() / 3) - baseL3);
+				for (int i = 0; i < 3; i++) {
+					WriteChannel<Long> thisSetPrimaryPowerPhase = thisSetPrimaryPowerPhases[i];
+					WriteChannel<Long> thisSetSecundaryPowerPhase = thisSetSecundaryPowerPhases[i];
+					long primaryPowerSum = 0L;
+					long secundaryPowerSum = 0L;
+					if (thisSetPrimaryPowerPhase.getWriteValue().isPresent()) {
+						primaryPowerSum += thisSetPrimaryPowerPhase.getWriteValue().get();
+					}
+					if (thisSetSecundaryPowerPhase.getWriteValue().isPresent()) {
+						secundaryPowerSum += thisSetSecundaryPowerPhase.getWriteValue().get();
+					}
+					if (thisSetSecundaryPower.getWriteValue().isPresent()) {
+						secundaryPowerSum += thisSetSecundaryPower.getWriteValue().get() / 3;
+					}
+					if (thisSetPrimaryPower.getWriteValue().isPresent()) {
+						primaryPowerSum += thisSetPrimaryPower.getWriteValue().get() / 3;
+					}
+					long allowedPrimaryPowerPhase = ControllerUtils.calculateActivePower(secundaryPowerSum,
+							allowedApparent.valueOptional().get() / 3);
+					if (primaryPowerSum > 0) {
+						maxValues.add(allowedPrimaryPowerPhase - primaryPowerSum);
+					} else {
+						maxValues.add(allowedPrimaryPowerPhase);
+					}
+					if (nativeSetPrimaryPowerPhases[i].writeMax().isPresent()) {
+						maxValues.add(nativeSetPrimaryPowerPhases[i].writeMax().get());
+					}
+				}
 				maxValue = Collections.min(maxValues) * 3;
-			}
-		}
-		return maxValue;
-	}
-
-	private Long getMinReactivePowerPhase(int phase, Optional<Long> thisMinPower) {
-		Long minValue = null;
-		WriteChannel<Long> nativeSetPower = getNativeSetReactivePower(phase);
-		WriteChannel<Long> thisSetPower = getThisSetReactivePower(phase);
-		if (nativeSetPower != null && nativeSetPower.getWriteValue().isPresent()) {
-			minValue = 0L;
-		} else if (thisSetPower.getWriteValue().isPresent()) {
-			minValue = thisSetPower.getWriteValue().get();
-		} else {
-			List<Long> minValues = new ArrayList<>();
-			if (thisMinPower.isPresent()) {
-				if (setReactivePower.getWriteValue().isPresent()) {
-					minValues.add(thisMinPower.get() - setReactivePower.getWriteValue().get() / 3);
-				} else {
-					minValues.add(thisMinPower.get());
-				}
-			}
-			if (nativeSetPower != null && nativeSetPower.writeMin().isPresent()) {
-				if (setReactivePower.getWriteValue().isPresent()) {
-					minValues.add(nativeSetPower.writeMin().get() - setReactivePower.getWriteValue().get() / 3);
-				} else {
-					minValues.add(nativeSetPower.writeMin().get());
-				}
-			}
-			if (minValues.size() > 0) {
-				minValue = Collections.max(minValues);
-			}
-		}
-		return minValue;
-	}
-
-	private Long getMaxReactivePowerPhase(int phase, Optional<Long> thisMaxPower) {
-		Long maxValue = null;
-		WriteChannel<Long> nativeSetPower = getNativeSetPower(phase);
-		WriteChannel<Long> thisSetPower = getThisSetPower(phase);
-		if (nativeSetPower != null && nativeSetPower.getWriteValue().isPresent()) {
-			maxValue = 0L;
-		} else if (thisSetPower.getWriteValue().isPresent()) {
-			maxValue = thisSetPower.getWriteValue().get();
-		} else {
-			List<Long> maxValues = new ArrayList<>();
-			if (thisMaxPower.isPresent()) {
-				if (setReactivePower.getWriteValue().isPresent()) {
-					maxValues.add(thisMaxPower.get() - setReactivePower.getWriteValue().get() / 3);
-				} else {
-					maxValues.add(thisMaxPower.get());
-				}
-			}
-			if (nativeSetPower != null && nativeSetPower.writeMax().isPresent()) {
-				if (setReactivePower.getWriteValue().isPresent()) {
-					maxValues.add(nativeSetPower.writeMax().get() - setReactivePower.getWriteValue().get() / 3);
-				} else {
-					maxValues.add(nativeSetPower.writeMax().get());
-				}
-			}
-			if (maxValues.size() > 0) {
-				maxValue = Collections.min(maxValues);
 			}
 		}
 		return maxValue;
@@ -1213,78 +1464,10 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 		return null;
 	}
 
-	private Long getMinReactivePower() {
-		Long minValue = null;
-		if (essNature != null && (essNature.setReactivePowerL1().getWriteValue().isPresent()
-				|| essNature.setReactivePowerL2().getWriteValue().isPresent()
-				|| essNature.setReactivePowerL3().getWriteValue().isPresent())) {
-			minValue = 0L;
-		} else if (setReactivePower.getWriteValue().isPresent()) {
-			minValue = setReactivePower.getWriteValue().get();
-		} else {
-			long baseL1 = 0L;
-			long baseL2 = 0L;
-			long baseL3 = 0L;
-			List<Long> minValues = new ArrayList<>();
-			if (setReactivePowerL1.getWriteValue().isPresent()) {
-				baseL1 = setReactivePowerL1.getWriteValue().get();
-			}
-			if (setReactivePowerL2.getWriteValue().isPresent()) {
-				baseL2 = setReactivePowerL2.getWriteValue().get();
-			}
-			if (setReactivePowerL3.getWriteValue().isPresent()) {
-				baseL3 = setReactivePowerL3.getWriteValue().get();
-			}
-			if (essNature != null && essNature.allowedApparent().valueOptional().isPresent()) {
-				minValues.add(essNature.setReactivePowerL1().writeMin()
-						.orElse(essNature.allowedApparent().valueOptional().get() / -3) - baseL1);
-				minValues.add(essNature.setReactivePowerL2().writeMin()
-						.orElse(essNature.allowedApparent().valueOptional().get() / -3) - baseL2);
-				minValues.add(essNature.setReactivePowerL3().writeMin()
-						.orElse(essNature.allowedApparent().valueOptional().get() / -3) - baseL3);
-				minValue = Collections.min(minValues) * 3;
-			}
-		}
-		return minValue;
-	}
-
-	private Long getMaxReactivePower() {
-		Long maxValue = null;
-		if (essNature != null && (essNature.setReactivePowerL1().getWriteValue().isPresent()
-				|| essNature.setReactivePowerL2().getWriteValue().isPresent()
-				|| essNature.setReactivePowerL3().getWriteValue().isPresent())) {
-			maxValue = 0L;
-		} else if (setReactivePower.getWriteValue().isPresent()) {
-			maxValue = setReactivePower.getWriteValue().get();
-		} else {
-			long baseL1 = 0L;
-			long baseL2 = 0L;
-			long baseL3 = 0L;
-			List<Long> maxValues = new ArrayList<>();
-			if (setReactivePowerL1.getWriteValue().isPresent()) {
-				baseL1 = setReactivePowerL1.getWriteValue().get();
-			}
-			if (setReactivePowerL2.getWriteValue().isPresent()) {
-				baseL2 = setReactivePowerL2.getWriteValue().get();
-			}
-			if (setReactivePowerL3.getWriteValue().isPresent()) {
-				baseL3 = setReactivePowerL3.getWriteValue().get();
-			}
-			if (essNature != null && essNature.allowedApparent().valueOptional().isPresent()) {
-				maxValues.add(essNature.setReactivePowerL1().writeMax()
-						.orElse(essNature.allowedApparent().valueOptional().get() / 3) - baseL1);
-				maxValues.add(essNature.setReactivePowerL2().writeMax()
-						.orElse(essNature.allowedApparent().valueOptional().get() / 3) - baseL2);
-				maxValues.add(essNature.setReactivePowerL3().writeMax()
-						.orElse(essNature.allowedApparent().valueOptional().get() / 3) - baseL3);
-				maxValue = Collections.min(maxValues) * 3;
-			}
-		}
-		return maxValue;
-	}
-
 	@Override
 	public void init() {
+		loadEss();
+		this.ess.addChangeListener(this);
 		for (ThingChannelsUpdatedListener listener : this.listeners) {
 			listener.thingChannelsUpdated(this);
 		}
