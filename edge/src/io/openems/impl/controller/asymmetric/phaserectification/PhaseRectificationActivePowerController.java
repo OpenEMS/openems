@@ -5,6 +5,8 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.api.exception.WriteChannelException;
+import io.openems.core.utilities.AsymmetricPower.ReductionType;
 import io.openems.core.utilities.AvgFiFoQueue;
 
 @ThingInfo(title = "PhaseRectificationActivePowerController", description = "Sets the ess to the required activepower to get all three phases on the meter to the same level.")
@@ -58,9 +60,11 @@ public class PhaseRectificationActivePowerController extends Controller {
 			long activePowerL2 = essL2 + meterL2Delta;
 			long activePowerL3 = essL3 + meterL3Delta;
 			ess.power.setActivePower(activePowerL1, activePowerL2, activePowerL3);
-			ess.power.writePower();
+			ess.power.writePower(ReductionType.PERSUM);
 		} catch (InvalidValueException e) {
 			log.error("can't read value", e);
+		} catch (WriteChannelException e) {
+			log.warn("write failed.", e);
 		}
 	}
 

@@ -25,6 +25,8 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.api.exception.WriteChannelException;
+import io.openems.core.utilities.AsymmetricPower.ReductionType;
 
 @ThingInfo(title = "Balancing current (Asymmetric)", description = "Tries to keep the grid meter at a given current. For asymmetric Ess.")
 public class BalancingCurrentController extends Controller {
@@ -79,11 +81,13 @@ public class BalancingCurrentController extends Controller {
 			powerL2 += ess.activePowerL2.value();
 			powerL3 += ess.activePowerL3.value();
 			ess.power.setActivePower(powerL1, powerL2, powerL3);
-			ess.power.writePower();
+			ess.power.writePower(ReductionType.PERPHASE);
 			log.info(ess.id() + " Set ActivePower L1: " + ess.power.getActivePowerL1() + ", L2: "
 					+ ess.power.getActivePowerL2() + ", L3: " + ess.power.getActivePowerL3());
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
+		} catch (WriteChannelException e) {
+			log.warn("write failed.", e);
 		}
 	}
 

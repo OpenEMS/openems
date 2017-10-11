@@ -25,6 +25,8 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.api.exception.WriteChannelException;
+import io.openems.core.utilities.AsymmetricPower.ReductionType;
 import io.openems.core.utilities.AvgFiFoQueue;
 
 @ThingInfo(title = "Self-consumption optimization (Asymmetric)", description = "Tries to keep the grid meter on zero. For asymmetric Ess.")
@@ -123,10 +125,12 @@ public class BalancingBandgapActivePowerController extends Controller {
 			}
 			// Calculate required sum values
 			ess.power.setActivePower(calculatedPowers[0], calculatedPowers[1], calculatedPowers[2]);
-			ess.power.writePower();
+			ess.power.writePower(ReductionType.PERPHASE);
 
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
+		} catch (WriteChannelException e) {
+			log.warn("write failed.", e);
 		}
 	}
 
