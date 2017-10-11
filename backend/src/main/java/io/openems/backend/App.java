@@ -10,23 +10,28 @@ import io.openems.backend.metadata.Metadata;
 import io.openems.backend.openemswebsocket.OpenemsWebsocket;
 import io.openems.backend.restapi.RestApi;
 import io.openems.backend.timedata.Timedata;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.EnvUtils;
 
 public class App {
 	private static Logger log = LoggerFactory.getLogger(App.class);
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		log.info("OpenEMS-Backend starting...");
 
 		// Configure everything
-		initMetadataProvider();
-		initTimedataProvider();
-		initOpenemsWebsocket();
-		initBrowserWebsocket();
-		initRestApi();
+		try {
+			initMetadataProvider();
+			initTimedataProvider();
+			initOpenemsWebsocket();
+			initBrowserWebsocket();
+			initRestApi();
 
-		log.info("OpenEMS Backend started.");
-		log.info("================================================================================");
+			log.info("OpenEMS Backend started.");
+			log.info("================================================================================");
+		} catch (OpenemsException e) {
+			log.error("OpenEMS Backend failed to start: " + e.getMessage());
+		}
 	}
 
 	/**
@@ -34,7 +39,7 @@ public class App {
 	 *
 	 * @throws Exception
 	 */
-	private static void initMetadataProvider() throws Exception {
+	private static void initMetadataProvider() throws OpenemsException {
 		Optional<String> metadataOpt = EnvUtils.getAsOptionalString("METADATA");
 		if (metadataOpt.isPresent() && metadataOpt.get().equals("DUMMY")) {
 			log.info("Start Dummy Metadata provider");
@@ -50,7 +55,7 @@ public class App {
 		}
 	}
 
-	private static void initTimedataProvider() throws Exception {
+	private static void initTimedataProvider() throws OpenemsException {
 		Optional<String> timedataOpt = EnvUtils.getAsOptionalString("TIMEDATA");
 		if (timedataOpt.isPresent() && timedataOpt.get().equals("DUMMY")) {
 			log.info("Start Dummy Timedata provider");
@@ -66,19 +71,19 @@ public class App {
 		}
 	}
 
-	private static void initOpenemsWebsocket() throws Exception {
+	private static void initOpenemsWebsocket() throws OpenemsException {
 		int port = EnvUtils.getAsInt("OPENEMS_WEBSOCKET_PORT");
 		log.info("Start OpenEMS Websocket server on port [" + port + "]");
 		OpenemsWebsocket.initialize(port);
 	}
 
-	private static void initBrowserWebsocket() throws Exception {
+	private static void initBrowserWebsocket() throws OpenemsException {
 		int port = EnvUtils.getAsInt("BROWSER_WEBSOCKET_PORT");
 		log.info("Start Browser Websocket server on port [" + port + "]");
 		BrowserWebsocket.initialize(port);
 	}
 
-	private static void initRestApi() throws Exception {
+	private static void initRestApi() throws OpenemsException {
 		int port = EnvUtils.getAsInt("REST_API_PORT");
 		log.info("Start Rest-Api server on port [" + port + "]");
 		RestApi.initialize(port);

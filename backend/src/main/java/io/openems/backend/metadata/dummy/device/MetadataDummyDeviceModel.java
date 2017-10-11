@@ -2,10 +2,9 @@ package io.openems.backend.metadata.dummy.device;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.backend.metadata.api.device.MetadataDeviceModel;
+import io.openems.backend.metadata.api.device.MetadataDevices;
 import io.openems.common.exceptions.OpenemsException;
 
 public class MetadataDummyDeviceModel implements MetadataDeviceModel {
@@ -17,16 +16,23 @@ public class MetadataDummyDeviceModel implements MetadataDeviceModel {
 	public MetadataDummyDeviceModel() {}
 
 	@Override
-	public Optional<MetadataDevice> getDeviceForApikey(String apikey) throws OpenemsException {
+	public MetadataDevices getDevicesForApikey(String apikey) throws OpenemsException {
+		// filter and convert to new list
+		MetadataDevices result = new MetadataDevices();
 		for (MetadataDummyDevice device : this.devices) {
 			if (device.getApikey().equals(apikey)) {
-				return Optional.of(device);
+				result.add(device);
 			}
 		}
-		return Optional.of(addNewDevice(apikey));
+		// add device if it was not there yet
+		if (this.devices.isEmpty()) {
+			MetadataDummyDevice device = addNewDevice(apikey);
+			result.add(device);
+		}
+		return result;
 	}
 
-	private MetadataDevice addNewDevice(String apikey) {
+	private MetadataDummyDevice addNewDevice(String apikey) {
 		int id = MetadataDummyDeviceModel.lastId++;
 		MetadataDummyDevice device = new MetadataDummyDevice("openems" + id, "OpenEMS " + id, "Dummy Product", "admin",
 				id, apikey);

@@ -29,6 +29,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.metadata.api.device.MetadataDevice;
+import io.openems.backend.metadata.api.device.MetadataDevices;
 import io.openems.backend.timedata.api.TimedataSingleton;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.InfluxdbUtils;
@@ -53,13 +54,18 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	// key: deviceId; value: timestamp
 	private Map<Integer, Long> lastTimestampMap = new ConcurrentHashMap<Integer, Long>();
 
-	public InfluxdbSingleton(String database, String url, int port, String username, String password) throws Exception {
+	public InfluxdbSingleton(String database, String url, int port, String username, String password)
+			throws OpenemsException {
 		this.database = database;
 		this.url = url;
 		this.port = port;
 		this.username = username;
 		this.password = password;
-		this.connect();
+		try {
+			this.connect();
+		} catch (Exception e) {
+			throw new OpenemsException("Connecting to InfluxDB failed: " + e.getMessage());
+		}
 	}
 
 	private void connect() throws Exception {
@@ -88,74 +94,78 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	 * "timestamp2" { "channel1": value, "channel2": value } }
 	 */
 	@Override
-	public void write(MetadataDevice device, JsonObject jData) {
-		int deviceId = device.getNameNumber().orElse(0);
-		long lastTimestamp = this.lastTimestampMap.getOrDefault(deviceId, 0l);
-
-		// Sort data by timestamp
-		TreeMap<Long, JsonObject> sortedData = new TreeMap<Long, JsonObject>();
-		for (Entry<String, JsonElement> entry : jData.entrySet()) {
-			try {
-				Long timestamp = Long.valueOf(entry.getKey());
-				JsonObject jChannels;
-				jChannels = JsonUtils.getAsJsonObject(entry.getValue());
-				sortedData.put(timestamp, jChannels);
-			} catch (OpenemsException e) {
-				log.error("Data error: " + e.getMessage());
-			}
-		}
-
-		// Prepare data table
+	public void write(MetadataDevices devices, JsonObject jData) {
 		TreeBasedTable<Long, String, Object> data = TreeBasedTable.create();
-		for (Entry<Long, JsonObject> dataEntry : sortedData.entrySet()) {
-			Long timestamp = dataEntry.getKey();
-			// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
-			boolean useLastDataCache = timestamp > lastTimestamp && timestamp < lastTimestamp + 60000;
-			this.lastTimestampMap.put(deviceId, timestamp);
-			JsonObject jChannels = dataEntry.getValue();
+		for (String deviceName : devices.getNames()) {
+			int deviceId = MetadataDevice.parseNumberFromName(deviceName).orElse(0);
+			long lastTimestamp = this.lastTimestampMap.getOrDefault(deviceId, 0l);
 
-			if (jChannels.entrySet().size() > 0) {
-				for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
-					String channel = channelEntry.getKey();
-					Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
-					if (valueOpt.isPresent()) {
-						Object value = valueOpt.get();
-						data.put(timestamp, channel, value);
-						if (useLastDataCache) {
-							this.lastDataCache.put(deviceId, channel, value);
-						}
-					}
+			// Sort data by timestamp
+			TreeMap<Long, JsonObject> sortedData = new TreeMap<Long, JsonObject>();
+			for (Entry<String, JsonElement> entry : jData.entrySet()) {
+				try {
+					Long timestamp = Long.valueOf(entry.getKey());
+					JsonObject jChannels;
+					jChannels = JsonUtils.getAsJsonObject(entry.getValue());
+					sortedData.put(timestamp, jChannels);
+				} catch (OpenemsException e) {
+					log.error("Data error: " + e.getMessage());
 				}
+			}
 
-				// only for latest data: add the cached data to the InfluxDB point.
-				if (useLastDataCache) {
-					this.lastDataCache.row(deviceId).entrySet().forEach(cacheEntry -> {
-						String channel = cacheEntry.getKey();
-						Optional<Object> valueOpt = this.parseValue(channel, cacheEntry.getValue());
+			// Prepare data table
+			for (Entry<Long, JsonObject> dataEntry : sortedData.entrySet()) {
+				Long timestamp = dataEntry.getKey();
+				// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
+				boolean useLastDataCache = timestamp > lastTimestamp && timestamp < lastTimestamp + 60000;
+				this.lastTimestampMap.put(deviceId, timestamp);
+				JsonObject jChannels = dataEntry.getValue();
+
+				if (jChannels.entrySet().size() > 0) {
+					for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
+						String channel = channelEntry.getKey();
+						Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
 						if (valueOpt.isPresent()) {
 							Object value = valueOpt.get();
 							data.put(timestamp, channel, value);
+							if (useLastDataCache) {
+								this.lastDataCache.put(deviceId, channel, value);
+							}
 						}
-					});
+					}
+
+					// only for latest data: add the cached data to the InfluxDB point.
+					if (useLastDataCache) {
+						for (Entry<String, Object> cacheEntry : this.lastDataCache.row(deviceId).entrySet()) {
+							String channel = cacheEntry.getKey();
+							Optional<Object> valueOpt = this.parseValue(channel, cacheEntry.getValue());
+							if (valueOpt.isPresent()) {
+								Object value = valueOpt.get();
+								data.put(timestamp, channel, value);
+							}
+						}
+					}
+
+					// set last timestamp
+					lastTimestamp = timestamp;
 				}
-
-				// set last timestamp
-				lastTimestamp = timestamp;
 			}
-		}
 
-		// Write data to default location
-		writeData(device, data);
+			// Write data to default location
+			writeData(deviceId, data);
+		}
 
 		// Hook to continue writing data to old Mini monitoring
 		// TODO remove after full migration
-		if (device.getProductType().equals("MiniES 3-3")) {
-			writeDataToOldMiniMonitoring(device, data);
+		for (MetadataDevice device : devices) {
+			if (device.getProductType().equals("MiniES 3-3")) {
+				writeDataToOldMiniMonitoring(device, data);
+				break;
+			}
 		}
 	}
 
-	private void writeData(MetadataDevice device, TreeBasedTable<Long, String, Object> data) {
-		int deviceId = device.getNameNumber().orElse(0);
+	private void writeData(int deviceId, TreeBasedTable<Long, String, Object> data) {
 		BatchPoints batchPoints = BatchPoints.database(database) //
 				.tag("fems", String.valueOf(deviceId)) //
 				.build();

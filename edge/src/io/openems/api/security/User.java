@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.exception.OpenemsException;
+import io.openems.common.session.Role;
 import io.openems.common.utils.SecureRandomSingleton;
 import io.openems.core.Config;
 
@@ -47,6 +48,7 @@ public enum User {
 	 * default: guest/guest
 	 */
 	GUEST( //
+			Role.GUEST,
 			new byte[] { 33, -62, 51, 37, 35, -81, 52, -51, 79, -67, 15, 47, -25, 42, 69, -68, -6, 19, 103, 33, -16,
 					-36, -87, -24, 111, -20, -30, -19, -33, -106, -78, -107 }, //
 			"user".getBytes(StandardCharsets.ISO_8859_1) //
@@ -58,10 +60,10 @@ public enum User {
 	 * default: owner/owner
 	 */
 	OWNER( //
+			Role.OWNER,
 			new byte[] { 120, -104, 11, 5, -15, -45, -103, -24, 111, -31, 45, 112, -122, -57, -29, 120, 77, -22, -36, 2,
 					102, 36, 32, 90, 109, 94, 125, 99, -82, 94, -95, -126 }, //
-			"owner".getBytes(StandardCharsets.ISO_8859_1), //
-			GUEST //
+			"owner".getBytes(StandardCharsets.ISO_8859_1) //
 	), //
 	/*
 	 * "INSTALLER" is a qualified electrician with extended configuration access
@@ -69,10 +71,10 @@ public enum User {
 	 * default: installer/installer
 	 */
 	INSTALLER( //
+			Role.INSTALLER,
 			new byte[] { -40, -19, 93, 50, 91, 5, 119, 6, -97, -53, -97, 30, -122, -76, -2, 95, -19, 2, 17, 102, -128,
 					-104, 20, 90, 119, -110, 69, 109, 50, -15, -3, 106 }, //
-			"installer".getBytes(StandardCharsets.ISO_8859_1), //
-			GUEST, OWNER //
+			"installer".getBytes(StandardCharsets.ISO_8859_1) //
 	), //
 	/*
 	 * "ADMIN" is allowed to do anything
@@ -80,10 +82,10 @@ public enum User {
 	 * default: admin/admin
 	 */
 	ADMIN( //
+			Role.ADMIN,
 			new byte[] { -73, 16, 18, -107, 69, 80, -112, 66, 61, 7, 22, -65, 33, -109, -119, 123, -55, 119, -7, 30, 37,
 					51, 49, 83, 74, 28, -10, -18, -14, -72, -30, 10 }, //
-			"admin".getBytes(StandardCharsets.ISO_8859_1), //
-			GUEST, OWNER, INSTALLER //
+			"admin".getBytes(StandardCharsets.ISO_8859_1) //
 	);
 
 	/*
@@ -203,18 +205,14 @@ public enum User {
 	/*
 	 * This object
 	 */
-	private byte[] password = null;
-	private byte[] salt = null;
-	// all roles this user has
-	private User[] roles = null;
+	private byte[] password;
+	private byte[] salt;
+	private final Role role;
 
-	private User() {}
-
-	private User(final byte[] password, final byte[] salt, User... roles) {
+	private User(Role role, final byte[] password, final byte[] salt) {
+		this.role = role;
 		this.password = password;
 		this.salt = salt;
-		this.roles = Arrays.copyOf(roles, roles.length + 1);
-		this.roles[this.roles.length - 1] = this;
 	}
 
 	public void changePassword(String oldPassword, String newPassword) throws OpenemsException {
@@ -258,14 +256,7 @@ public enum User {
 		return name().toLowerCase();
 	}
 
-	public User[] getRoles() {
-		return this.roles;
-	}
-
-	public boolean hasRole(User role) {
-		if (Arrays.asList(getRoles()).contains(role)) {
-			return true;
-		}
-		return false;
+	public Role getRole() {
+		return this.role;
 	}
 }

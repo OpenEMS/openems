@@ -92,6 +92,11 @@ export class EnergyChartComponent implements OnChanges {
   }
 
   ngOnChanges() {
+    if (Object.keys(this.channels).length === 0) {
+      this.loading = false;
+      console.warn("Config is not available. Unable to load Energy-Chart.");
+      return;
+    }
     this.loading = true;
     this.device.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
       // prepare datas array and prefill with each device

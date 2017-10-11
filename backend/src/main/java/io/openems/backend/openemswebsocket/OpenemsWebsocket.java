@@ -16,7 +16,7 @@ public class OpenemsWebsocket {
 	 * @param port
 	 * @throws Exception
 	 */
-	public static synchronized void initialize(int port) throws Exception {
+	public static synchronized void initialize(int port) {
 		OpenemsWebsocket.instance = new OpenemsWebsocketSingleton(port);
 		OpenemsWebsocket.instance.start();
 	}

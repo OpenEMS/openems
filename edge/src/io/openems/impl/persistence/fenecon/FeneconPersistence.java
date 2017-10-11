@@ -42,6 +42,8 @@ import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
+import io.openems.api.exception.ConfigException;
+import io.openems.api.exception.NotImplementedException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.thing.Thing;
 import io.openems.common.types.FieldValue;
@@ -49,6 +51,9 @@ import io.openems.common.types.NullFieldValue;
 import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
 import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.WebSocketUtils;
+import io.openems.core.Config;
+import io.openems.core.ConfigFormat;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
@@ -56,6 +61,8 @@ import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 // TODO make sure this is registered as ChannelChangeListener also to ConfigChannels
 @ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
+
+	private final static String DEFAULT_CONFIG_LANGUAGE = "en";
 
 	/*
 	 * Config
@@ -75,13 +82,23 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 */
 	public FeneconPersistence() {
 		this.websocketHandler = new EdgeWebsocketHandler();
-		this.reconnectingWebsocket = new ReconnectingWebsocket(this.websocketHandler, () -> {
+		this.reconnectingWebsocket = new ReconnectingWebsocket(this.websocketHandler, (websocket) -> {
 			/*
 			 * onOpen
 			 */
 			log.info("FENECON persistence connected [" + uri.valueOptional().orElse("") + "]");
 			// Add current status of all channels to queue
 			this.addCurrentValueOfAllChannelsToQueue();
+			// Send current config
+			try {
+				WebSocketUtils.send( //
+						websocket, //
+						DefaultMessages.configQueryReply(
+								Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, DEFAULT_CONFIG_LANGUAGE)));
+				log.info("Sent config to FENECON persistence.");
+			} catch (NotImplementedException | ConfigException e) {
+				log.error("Unable to send config: " + e.getMessage());
+			}
 		}, () -> {
 			/*
 			 * onClose

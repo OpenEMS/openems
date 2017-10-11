@@ -84,6 +84,7 @@ public interface Channel {
 	 *
 	 * @return
 	 */
+	// TODO change User to Role
 	public Set<User> users();
 
 	/**

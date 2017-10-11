@@ -21,6 +21,14 @@ td.align_right {
   text-align: right;
 }
 
+table { 
+  border-collapse: collapse; 
+}
+
+tr.underline {
+  border-bottom:1pt solid lightgray;
+}
+
 .gray_color {
   color: gray;
 }

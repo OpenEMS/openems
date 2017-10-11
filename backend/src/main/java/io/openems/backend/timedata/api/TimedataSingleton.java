@@ -2,7 +2,7 @@ package io.openems.backend.timedata.api;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.device.MetadataDevice;
+import io.openems.backend.metadata.api.device.MetadataDevices;
 import io.openems.common.api.TimedataSource;
 
 public interface TimedataSingleton extends TimedataSource {
@@ -22,5 +22,5 @@ public interface TimedataSingleton extends TimedataSource {
 	 *	}
 	 * </pre>
 	 */
-	public void write(MetadataDevice device, JsonObject jData);
+	public void write(MetadataDevices devices, JsonObject jData);
 }

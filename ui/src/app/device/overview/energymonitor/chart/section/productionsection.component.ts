@@ -4,8 +4,7 @@ import { Observable } from "rxjs/Rx";
 
 import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
 
-let pulsetime = 500;
-let pulsetimeup = 2000;
+let PULSE = 1000;
 
 @Component({
     selector: '[productionsection]',
@@ -27,8 +26,8 @@ let pulsetimeup = 2000;
                 fill: 'none',
                 stroke: 'none'
             })),
-            transition('one => two', animate(pulsetime + 'ms')),
-            transition('two => one', animate(pulsetime + 'ms'))
+            transition('one => two', animate(PULSE + 'ms')),
+            transition('two => one', animate(PULSE + 'ms'))
         ])
     ]
 })
@@ -39,13 +38,13 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     }
 
     ngOnInit() {
-        Observable.interval(pulsetimeup)
+        Observable.interval(this.pulsetime)
             .subscribe(x => {
                 if (this.lastValue.absolute > 0) {
                     for (let i = 0; i < this.circles.length; i++) {
                         setTimeout(() => {
                             this.circles[this.circles.length - i - 1].switchState();
-                        }, pulsetime / 4 * i);
+                        }, this.pulsetime / 4 * i);
                     }
                 } else if (this.lastValue.absolute == 0) {
                     for (let i = 0; i < this.circles.length; i++) {
@@ -82,7 +81,7 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
 
     protected getValueText(value: number): string {
         if (value == null || Number.isNaN(value)) {
-            return this.translate.instant('NoValue');
+            return "";
         }
 
         return value + " W";

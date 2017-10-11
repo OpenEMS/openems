@@ -9,6 +9,7 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelDoc;
@@ -111,7 +112,13 @@ public class ModbusTcpApiController extends Controller {
 					if (channelDocOpt.isPresent()) {
 						processImage.addMapping(ref, channelAddress, channelDocOpt.get());
 					} else {
-						throw new OpenemsException("ChannelDoc for channel [" + channelAddress + "] is not available.");
+						Optional<Channel> channelOpt = thingRepository.getChannel(channelAddress);
+						if (channelOpt.isPresent()) {
+							throw new OpenemsException(
+									"ChannelDoc for channel [" + channelAddress + "] is not available.");
+						} else {
+							throw new OpenemsException("Channel [" + channelAddress + "] does not exist.");
+						}
 					}
 				} catch (Exception e) {
 					log.error("Unable to add channel mapping: " + e.getMessage());

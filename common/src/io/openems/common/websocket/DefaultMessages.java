@@ -1,5 +1,6 @@
 package io.openems.common.websocket;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +38,7 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject browserConnectionSuccessfulReply(String token, Optional<String> roleOpt, List<Device> devices) {
+	public static JsonObject browserConnectionSuccessfulReply(String token, Optional<String> roleOpt, Collection<Device> devices) {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "allow");
 		if(roleOpt.isPresent()) {

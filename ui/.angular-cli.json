@@ -29,7 +29,8 @@
       "environmentSource": "environments/environment.ts",
       "environments": {
         "backend": "environments/openems-backend.ts",
-        "backend-dev": "environments/openems-backend-dev.ts",
+        "backend-dev-local": "environments/openems-backend-dev-local.ts",
+        "backend-dev-live": "environments/openems-backend-dev-live.ts",
         "edge": "environments/openems-edge.ts",
         "dev": "environments/environment.ts"
       }

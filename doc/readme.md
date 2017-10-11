@@ -81,11 +81,12 @@ currently forwarded to Odoo login page
 
 Following commands are all the same, no matter if UI is connected to Edge or to Backend. 
 
-Backend is transparently proxying requests to a connected Edge if necessary, adding the UI token as identifier to the message id:
+Backend is transparently proxying requests to a connected Edge if necessary, adding the authentication role and the UI token as identifier to the message id.
 
 ```
 {
 	id: [..., token],
+	role: "admin" | "installer" | "owner" | "guest",
 	...
 }
 ```

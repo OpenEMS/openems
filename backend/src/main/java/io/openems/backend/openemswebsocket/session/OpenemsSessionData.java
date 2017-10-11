@@ -4,15 +4,15 @@ import org.java_websocket.WebSocket;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.device.MetadataDevice;
+import io.openems.backend.metadata.api.device.MetadataDevices;
 import io.openems.common.session.SessionData;
 
 public class OpenemsSessionData extends SessionData {
-	private final MetadataDevice device;
+	private final MetadataDevices devices;
 	private final WebSocket websocket;
 
-	public OpenemsSessionData(WebSocket websocket, MetadataDevice device) {
-		this.device = device;
+	public OpenemsSessionData(WebSocket websocket, MetadataDevices devices) {
+		this.devices = devices;
 		this.websocket = websocket;
 	}
 
@@ -20,12 +20,14 @@ public class OpenemsSessionData extends SessionData {
 		return websocket;
 	}
 
-	public MetadataDevice getDevice() {
-		return device;
+	public MetadataDevices getDevices() {
+		return devices;
 	}
 
 	@Override
 	public JsonObject toJsonObject() {
-		return this.device.toJsonObject();
+		JsonObject j = new JsonObject();
+		j.add("devices", this.devices.toJson());
+		return j;
 	}
 }
