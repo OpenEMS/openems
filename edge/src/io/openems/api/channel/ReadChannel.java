@@ -37,8 +37,8 @@ import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
-import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
+import io.openems.common.session.Role;
 import io.openems.core.Databus;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -59,7 +59,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private Interval<T> valueInterval = new Interval<T>();
 	private String unit = "";
 	private boolean isRequired = false;
-	protected final Set<User> users = new HashSet<>();
+	protected final Set<Role> readRoles = new HashSet<>();
+	protected final Set<Role> writeRoles = new HashSet<>();
 	protected boolean doNotPersist = false;
 
 	private final Set<ChannelUpdateListener> updateListeners = ConcurrentHashMap.newKeySet();
@@ -131,10 +132,20 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
-	public ReadChannel<T> user(User... users) {
-		for (User user : users) {
-			this.users.add(user);
+	public final ReadChannel<T> readRoles(Role... roles) {
+		for (Role role : roles) {
+			this.readRoles.add(role);
 		}
+		this.readRoles.add(Role.ADMIN); // ADMIN is always allowed to read
+		return this;
+	}
+
+	public ReadChannel<T> writeRoles(Role... roles) {
+		for (Role role : roles) {
+			this.writeRoles.add(role);
+		}
+		this.writeRoles.add(Role.ADMIN); // ADMIN is always allowed to write
+		this.readRoles(roles); // Everybody who is allowed to write can also read
 		return this;
 	}
 
@@ -195,8 +206,13 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	}
 
 	@Override
-	public Set<User> users() {
-		return Collections.unmodifiableSet(users);
+	public Set<Role> readRoles() {
+		return Collections.unmodifiableSet(this.readRoles);
+	}
+
+	@Override
+	public Set<Role> writeRoles() {
+		return Collections.unmodifiableSet(this.writeRoles);
 	}
 
 	/**

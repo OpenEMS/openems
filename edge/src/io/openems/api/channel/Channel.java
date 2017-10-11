@@ -27,8 +27,8 @@ import com.google.gson.JsonObject;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
-import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
+import io.openems.common.session.Role;
 import io.openems.core.utilities.InjectionUtils;
 
 //TODO change to generic to use Generic ChannelUpdate/ChangeListener
@@ -80,12 +80,18 @@ public interface Channel {
 	public JsonObject toJsonObject() throws NotImplementedException;
 
 	/**
-	 * Returns Users that have access to this Channel. Empty set allows global access.
+	 * Returns Roles that have read access to this Channel.
 	 *
 	 * @return
 	 */
-	// TODO change User to Role
-	public Set<User> users();
+	public Set<Role> readRoles();
+
+	/**
+	 * Returns Roles that have write access to this Channel.
+	 *
+	 * @return
+	 */
+	public Set<Role> writeRoles();
 
 	/**
 	 * Sets values for this Channel using its annotation

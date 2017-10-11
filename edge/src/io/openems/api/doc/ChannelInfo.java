@@ -26,8 +26,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.Set;
 
-import io.openems.api.security.User;
+import com.google.common.collect.Sets;
+
+import io.openems.common.session.Role;
 
 @Retention(RUNTIME)
 @Target({ FIELD, METHOD })
@@ -37,7 +40,9 @@ public @interface ChannelInfo {
 	public static final String DEFAULT_TITLE = "";
 	public static final boolean DEFAULT_IS_OPTIONAL = false;
 	public static final boolean DEFAULT_IS_ARRAY = false;
-	public static final User DEFAULT_ACCESS_LEVEL = User.ADMIN;
+	public static final Set<Role> DEFAULT_READ_ROLES = Sets.newHashSet(Role.GUEST, Role.OWNER, Role.INSTALLER,
+			Role.ADMIN);
+	public static final Set<Role> DEFAULT_WRITE_ROLES = Sets.newHashSet(Role.ADMIN);
 	public static final String DEFAULT_VALUE = "";
 
 	String title() default DEFAULT_TITLE;
@@ -50,7 +55,10 @@ public @interface ChannelInfo {
 
 	boolean isArray() default DEFAULT_IS_ARRAY;
 
-	User accessLevel() default User.ADMIN;
+	// by default the "ADMIN" role is required for write
+	Role[] readRoles() default { Role.GUEST, Role.OWNER, Role.INSTALLER, Role.ADMIN };
+	// by default all role is required for write
+	Role[] writeRoles() default { Role.ADMIN };
 
 	/**
 	 * String is interpreted as a JsonElement

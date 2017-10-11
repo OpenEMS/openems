@@ -23,7 +23,7 @@ package io.openems.impl.protocol.system;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.security.User;
+import io.openems.common.session.Role;
 
 public class SystemReadChannel<T> extends ReadChannel<T> {
 
@@ -34,19 +34,23 @@ public class SystemReadChannel<T> extends ReadChannel<T> {
 	/*
 	 * Builder
 	 */
-	@Override public SystemReadChannel<T> unit(String unit) {
+	@Override
+	public SystemReadChannel<T> unit(String unit) {
 		return (SystemReadChannel<T>) super.unit(unit);
 	}
 
-	@Override public void updateValue(T value) {
+	@Override
+	public void updateValue(T value) {
 		super.updateValue(value);
 	}
 
-	@Override public SystemReadChannel<T> user(User... roles) {
-		return (SystemReadChannel<T>) super.user(roles);
+	@Override
+	public SystemReadChannel<T> writeRoles(Role... roles) {
+		return (SystemReadChannel<T>) super.writeRoles(roles);
 	}
 
-	@Override public SystemReadChannel<T> addChangeListener(ChannelChangeListener... listeners) {
+	@Override
+	public SystemReadChannel<T> addChangeListener(ChannelChangeListener... listeners) {
 		return (SystemReadChannel<T>) super.addChangeListener(listeners);
 	}
 }
