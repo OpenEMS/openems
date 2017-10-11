@@ -21,6 +21,7 @@ import io.openems.backend.openemswebsocket.OpenemsWebsocket;
 import io.openems.backend.openemswebsocket.OpenemsWebsocketSingleton;
 import io.openems.backend.timedata.Timedata;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.session.Role;
 import io.openems.common.types.Device;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
@@ -180,16 +181,29 @@ public class BrowserWebsocketSingleton
 			jMessage.remove("device");
 		}
 
+		// get session
+		Optional<BrowserSession> sessionOpt = this.getSessionFromWebsocket(websocket);
+		if (!sessionOpt.isPresent()) {
+			throw new OpenemsException("No BrowserSession available.");
+		}
+		BrowserSession session = sessionOpt.get();
+
 		// add session token to message id for identification
-		Optional<BrowserSession> session = this.getSessionFromWebsocket(websocket);
 		JsonArray jId;
 		if (jMessage.has("id")) {
 			jId = JsonUtils.getAsJsonArray(jMessage, "id");
 		} else {
 			jId = new JsonArray();
 		}
-		jId.add(session.get().getToken());
+		jId.add(session.getToken());
 		jMessage.add("id", jId);
+
+		// add authentication role
+		Role role = Role.GUEST;
+		for (Device device : session.getData().getDevices(deviceName)) {
+			role = device.getRole();
+		}
+		jMessage.addProperty("role", role.name().toLowerCase());
 
 		// get OpenEMS websocket and forward message
 		Optional<WebSocket> openemsWebsocketOpt = OpenemsWebsocket.instance().getOpenemsWebsocket(deviceName);

@@ -1,9 +1,10 @@
 package io.openems.backend.browserwebsocket.session;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
+import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonObject;
 
 import io.openems.common.session.SessionData;
@@ -13,7 +14,7 @@ public class BrowserSessionData extends SessionData {
 	private String userName = "";
 	private Optional<Integer> userId = Optional.empty();
 	private Optional<String> odooSessionId = Optional.empty();
-	private List<Device> devices = new ArrayList<>();
+	private HashMultimap<String, Device> devices = HashMultimap.create(0, 0);
 
 	public Optional<String> getOdooSessionId() {
 		return odooSessionId;
@@ -23,8 +24,8 @@ public class BrowserSessionData extends SessionData {
 		this.odooSessionId = Optional.ofNullable(odooSessionId);
 	}
 
-	public void setDevices(List<Device> deviceInfos) {
-		this.devices = deviceInfos;
+	public void setDevices(HashMultimap<String, Device> deviceMap) {
+		this.devices = deviceMap;
 	}
 
 	public void setUserId(Integer userId) {
@@ -43,8 +44,12 @@ public class BrowserSessionData extends SessionData {
 		return userName;
 	}
 
-	public List<Device> getDevices() {
-		return devices;
+	public Set<Device> getDevices(String name) {
+		return this.devices.get(name);
+	}
+
+	public Collection<Device> getDevices() {
+		return this.devices.values();
 	}
 
 	@Override
