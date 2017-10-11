@@ -2,8 +2,6 @@ package io.openems.backend.browserwebsocket;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
@@ -18,6 +16,7 @@ import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.browserwebsocket.session.BrowserSessionData;
 import io.openems.backend.browserwebsocket.session.BrowserSessionManager;
 import io.openems.backend.metadata.Metadata;
+import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.backend.openemswebsocket.OpenemsWebsocket;
 import io.openems.backend.openemswebsocket.OpenemsWebsocketSingleton;
 import io.openems.backend.timedata.Timedata;
@@ -137,9 +136,7 @@ public class BrowserWebsocketSingleton
 			 */
 			if (jMessage.has("historicData")) {
 				// parse deviceId
-				Matcher matcher = Pattern.compile("\\d+").matcher(deviceName); // extracts '0' from 'openems0'
-				matcher.find();
-				Optional<Integer> deviceIdOpt = Optional.ofNullable(Integer.valueOf(matcher.group()));
+				Optional<Integer> deviceIdOpt = MetadataDevice.parseNumberFromName(deviceName);
 				JsonArray jMessageId = jMessageIdOpt.get();
 				try {
 					JsonObject jHistoricData = JsonUtils.getAsJsonObject(jMessage, "historicData");
