@@ -8,7 +8,7 @@ import { Utils } from '../../../shared/service/utils';
 import { ConfigImpl } from '../../../shared/device/config';
 import { Device } from '../../../shared/device/device';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { Role, ROLES } from '../../../shared/type/role';
+import { Role } from '../../../shared/type/role';
 
 @Component({
   selector: 'existingthing',
@@ -19,7 +19,7 @@ export class ExistingThingComponent implements OnChanges {
   public _device: Device = null;
   public thing = null;
   public meta = null;
-  public role: Role = ROLES.guest;
+  public role: Role = Role.GUEST;
   public config: ConfigImpl = null;
   public formPristine: boolean = true;
   public messages: { [channelId: string]: DefaultTypes.ConfigUpdate } = {};

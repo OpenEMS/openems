@@ -1,4 +1,5 @@
 import { DefaultTypes } from '../service/defaulttypes'
+import { Role, ROLES } from '../type/role'
 
 export class ConfigImpl implements DefaultTypes.Config {
 
@@ -20,7 +21,8 @@ export class ConfigImpl implements DefaultTypes.Config {
                     type: string | string[],
                     optional: boolean,
                     array: boolean,
-                    accessLevel: string
+                    readRoles: Role[],
+                    writeRoles: Role[],
                     defaultValue: string
                 }
             }
@@ -39,6 +41,18 @@ export class ConfigImpl implements DefaultTypes.Config {
     public readonly simulatorDevices: string[] = [];
 
     constructor(private readonly config: DefaultTypes.Config) {
+        // convert role-strings to Role-objects
+        for(let clazz in config.meta) {
+            for(let channel in config.meta[clazz].channels) {
+                let roles: Role[] = [];
+                for(let roleString of config.meta[clazz].channels[channel].readRoles) {
+                    roles.push(ROLES.getRole("" + roleString /* convert to string */));
+                }
+                config.meta[clazz].channels[channel].readRoles = roles;
+                console.log(config.meta[clazz].channels[channel].readRoles)
+            }
+        }
+
         Object.assign(this, config);
 
         let storageThings: string[] = []

@@ -8,7 +8,7 @@ import { Utils } from '../../../shared/service/utils';
 import { ConfigImpl } from '../../../shared/device/config';
 import { Device } from '../../../shared/device/device';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { Role, ROLES } from '../../../shared/type/role';
+import { Role } from '../../../shared/type/role';
 
 @Component({
   selector: 'channel',
@@ -28,7 +28,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   @Input() public thingId: string = null;
   @Input() public channelId: string = null;
   @Input() public config: ConfigImpl = null;
-  @Input() public role: Role = ROLES.guest; // TODO in device
+  @Input() public role: Role = Role.GUEST; // TODO in device
   @Input() public device: Device = null;
   @Input() public showThings: boolean = false;
 
