@@ -1,0 +1,17 @@
+{
+      "class": "io.openems.impl.protocol.modbus.ModbusTcp",
+      "ip": "10.0.1.81",
+      "devices": [
+        {
+          "class": "io.openems.impl.device.bcontrol.BControl",
+          "modbusUnitId": 1,
+          "meter": {
+            "id": "meter0",
+            "class": "io.openems.impl.device.bcontrol.BControlMeter",
+            "maxActivePower": 2196,
+            "minActivePower": -1995,
+            "type": "grid"
+          }
+        }
+      ]
+    },
