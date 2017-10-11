@@ -10,6 +10,7 @@ import org.junit.runners.MethodSorters;
 
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.utilities.AsymmetricPower;
+import io.openems.core.utilities.AsymmetricPower.ReductionType;
 import io.openems.test.utils.devicenatures.UnitTestAsymmetricEssNature;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -43,7 +44,12 @@ public class AsymmetricPowerTest {
 		ess.allowedApparent.setValue(10000L);
 		power.setActivePower(2000L, 3000L, 500L);
 		power.setReactivePower(500, -300, 700);
-		power.writePower();
+		try {
+			power.writePower(ReductionType.PERPHASE);
+		} catch (WriteChannelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
 		long activePowerL3 = ess.setActivePowerL3.peekWrite().get();
@@ -65,7 +71,12 @@ public class AsymmetricPowerTest {
 		ess.allowedApparent.setValue(3000L);
 		power.setActivePower(2000L, 3000L, 500L);
 		power.setReactivePower(500, -300, 700);
-		power.writePower();
+		try {
+			power.writePower(ReductionType.PERPHASE);
+		} catch (WriteChannelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
 		long activePowerL3 = ess.setActivePowerL3.peekWrite().get();
@@ -86,9 +97,19 @@ public class AsymmetricPowerTest {
 		ess.allowedCharge.setValue(-10000L);
 		ess.allowedApparent.setValue(3000L);
 		power.setActivePower(2000L, 800L, 500L);
-		power.writePower();
+		try {
+			power.writePower(ReductionType.PERPHASE);
+		} catch (WriteChannelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		power.setReactivePower(500, -900, 700);
-		power.writePower();
+		try {
+			power.writePower(ReductionType.PERPHASE);
+		} catch (WriteChannelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
 		long activePowerL3 = ess.setActivePowerL3.peekWrite().get();
@@ -110,7 +131,12 @@ public class AsymmetricPowerTest {
 		ess.allowedApparent.setValue(10000L);
 		power.setActivePower(-900L, -700L, 500L);
 		power.setReactivePower(500, -900, 700);
-		power.writePower();
+		try {
+			power.writePower(ReductionType.PERPHASE);
+		} catch (WriteChannelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
 		long activePowerL3 = ess.setActivePowerL3.peekWrite().get();
@@ -132,7 +158,12 @@ public class AsymmetricPowerTest {
 		ess.allowedApparent.setValue(10000L);
 		power.setActivePower(1300L, -700L, 900L);
 		power.setReactivePower(500, -900, 700);
-		power.writePower();
+		try {
+			power.writePower(ReductionType.PERPHASE);
+		} catch (WriteChannelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
 		long activePowerL3 = ess.setActivePowerL3.peekWrite().get();
@@ -155,7 +186,7 @@ public class AsymmetricPowerTest {
 		ess.setActivePowerL1.pushWriteMax(200L);
 		power.setActivePower(1300L, -700L, 900L);
 		power.setReactivePower(500, -900, 700);
-		power.writePower();
+		power.writePower(ReductionType.PERPHASE);
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
 		long activePowerL3 = ess.setActivePowerL3.peekWrite().get();
@@ -178,7 +209,7 @@ public class AsymmetricPowerTest {
 		ess.setActivePowerL1.pushWriteMax(-300L);
 		power.setActivePower(1300L, -700L, 900L);
 		power.setReactivePower(500, -900, 700);
-		power.writePower();
+		power.writePower(ReductionType.PERPHASE);
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
 		long activePowerL3 = ess.setActivePowerL3.peekWrite().get();
@@ -201,7 +232,7 @@ public class AsymmetricPowerTest {
 		ess.setActivePowerL1.pushWriteMin(200L);
 		power.setActivePower(-1300L, -700L, 900L);
 		power.setReactivePower(500, -900, 700);
-		power.writePower();
+		power.writePower(ReductionType.PERPHASE);
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
 		long activePowerL3 = ess.setActivePowerL3.peekWrite().get();
@@ -224,7 +255,7 @@ public class AsymmetricPowerTest {
 		ess.setActivePowerL1.pushWriteMin(-300L);
 		power.setActivePower(-1300L, -700L, 900L);
 		power.setReactivePower(500, -900, 700);
-		power.writePower();
+		power.writePower(ReductionType.PERPHASE);
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
 		long activePowerL3 = ess.setActivePowerL3.peekWrite().get();

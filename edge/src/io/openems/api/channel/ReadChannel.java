@@ -259,7 +259,6 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 			number = (long) (number.longValue() * multiplier - delta);
 			@SuppressWarnings("unchecked") Optional<T> value = (Optional<T>) Optional.of(number);
 			this.value = value;
-
 		} else {
 			this.value = Optional.ofNullable(newValue);
 		}
@@ -342,6 +341,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	 * @return
 	 */
 	public ReadChannel<T> required() {
+		this.isRequired = true;
 		return this;
 	};
 

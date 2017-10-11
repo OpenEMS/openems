@@ -191,6 +191,10 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 		}
 	}
 
+	private double factorL1 = 0.5;
+	private double factorL2 = 0.2;
+	private double factorL3 = 0.3;
+
 	@Override
 	protected void update() {
 		super.update();
@@ -199,11 +203,14 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 		long activePowerL2 = 0;
 		long activePowerL3 = 0;
 		if (activePowerLoad != null) {
+			factorL1 = SimulatorTools.addRandomDouble(factorL1, 0, 1, 0.01);
+			factorL2 = SimulatorTools.addRandomDouble(factorL2, 0, 1 - factorL1, 0.01);
+			factorL3 = 1 - factorL1 - factorL2;
 			long load = activePowerLoad.getLoad();
 			activePower = load;
-			activePowerL1 = load / 3;
-			activePowerL2 = load / 3;
-			activePowerL3 = load / 3;
+			activePowerL1 = (long) (load * factorL1);
+			activePowerL2 = (long) (load * factorL2);
+			activePowerL3 = (long) (load * factorL3);
 		}
 		long reactivePower = 0;
 		long reactivePowerL1 = 0;

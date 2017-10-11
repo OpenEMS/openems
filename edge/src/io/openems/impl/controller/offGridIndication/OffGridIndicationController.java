@@ -33,7 +33,7 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.core.ThingRepository;
 
-@ThingInfo(title = "Off-Grid Indication")
+@ThingInfo(title = "OffGridIndicationController", description = "indicates with an digitalOutput if the system is Off-Grid.")
 public class OffGridIndicationController extends Controller {
 
 	private ThingRepository repo = ThingRepository.getInstance();

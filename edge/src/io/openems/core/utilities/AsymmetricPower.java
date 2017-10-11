@@ -20,7 +20,10 @@
  *******************************************************************************/
 package io.openems.core.utilities;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +41,10 @@ import io.openems.api.exception.WriteChannelException;
  */
 public class AsymmetricPower {
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	public enum ReductionType {
+		PERPHASE, PERSUM
+	}
 
 	private final ReadChannel<Long> allowedDischarge;
 	private final ReadChannel<Long> allowedCharge;
@@ -107,86 +114,122 @@ public class AsymmetricPower {
 
 	/**
 	 * Reduces the active and reactive power to the power limitations
+	 *
+	 * @throws WriteChannelException
 	 */
-	public void reducePower() {
+	public void reducePower(ReductionType reductionType) throws WriteChannelException {
 
 		// variables for reducedPower
 		long[] reducedActivePower = Arrays.copyOf(activePower, 3);
 		long[] reducedReactivePower = Arrays.copyOf(reactivePower, 3);
-
+		List<Long>[] minActivePowerPhase = new List[] { new ArrayList<>(), new ArrayList<>(), new ArrayList<>() };
+		List<Long>[] maxActivePowerPhase = new List[] { new ArrayList<>(), new ArrayList<>(), new ArrayList<>() };
+		List<Long>[] minReactivePowerPhase = new List[] { new ArrayList<>(), new ArrayList<>(), new ArrayList<>() };
+		List<Long>[] maxReactivePowerPhase = new List[] { new ArrayList<>(), new ArrayList<>(), new ArrayList<>() };
+		long activePowerPosSum = 0;
+		long activePowerNegSum = 0;
+		long activePowerSum = 0;
+		long reactivePowerSum = 0;
+		for (int i = 0; i < 3; i++) {
+			if (activePower[i] > 0) {
+				activePowerPosSum += activePower[i];
+			} else {
+				activePowerNegSum += activePower[i];
+			}
+			activePowerSum += activePower[i];
+			reactivePowerSum += reactivePower[i];
+		}
 		try {
-			// Check if active power is already set
 			for (int i = 0; i < 3; i++) {
+				// Check if active power is already set
 				if (setActivePower[i].getWriteValue().isPresent()) {
 					this.activePower[i] = setActivePower[i].getWriteValue().get();
-					try {
-						this.setReactivePower[i].pushWriteMax(ControllerUtils
-								.calculateReactivePower(this.activePower[i], allowedApparent.value() / 3));
-					} catch (WriteChannelException e) {}
-					try {
-						this.setReactivePower[i].pushWriteMin(
-								ControllerUtils.calculateReactivePower(this.activePower[i], allowedApparent.value() / 3)
-										* -1);
-					} catch (WriteChannelException e) {}
 				}
 				// Check if reactive power is already set
 				if (setReactivePower[i].getWriteValue().isPresent()) {
 					this.reactivePower[i] = setReactivePower[i].getWriteValue().get();
-					try {
-						this.setActivePower[i].pushWriteMax(ControllerUtils.calculateActivePower(this.reactivePower[i],
-								allowedApparent.value() / 3));
-					} catch (WriteChannelException e) {}
-					try {
-						this.setActivePower[i].pushWriteMin(
-								ControllerUtils.calculateActivePower(this.reactivePower[i], allowedApparent.value() / 3)
-										* -1);
-					} catch (WriteChannelException e) {}
 				}
-				// Check if ReactivePower is in allowed Range
-				if (Math.abs(reactivePower[i]) > allowedApparent.value() / 3) {
-					if (reactivePower[i] > 0) {
-						reducedReactivePower[i] = allowedApparent.value() / 3;
-					} else {
-						reducedReactivePower[i] = allowedApparent.value() / -3;
+				// set limits by allowed apparent
+				double cosPhi = ControllerUtils.calculateCosPhi(this.activePower[i], this.reactivePower[i]);
+				long activePower = ControllerUtils.calculateActivePowerFromApparentPower(allowedApparent.value() / 3,
+						cosPhi);
+				long reactivePower = ControllerUtils.calculateReactivePower(activePower, allowedApparent.value() / 3);
+				maxReactivePowerPhase[i].add(reactivePower);
+				minReactivePowerPhase[i].add(reactivePower * -1);
+				maxActivePowerPhase[i].add(activePower);
+				minActivePowerPhase[i].add(activePower * -1);
+				if (setReactivePower[i].writeMax().isPresent()) {
+					maxReactivePowerPhase[i].add(setReactivePower[i].writeMax().get());
+				}
+				if (setReactivePower[i].writeMin().isPresent()) {
+					minReactivePowerPhase[i].add(setReactivePower[i].writeMin().get());
+				}
+				if (setActivePower[i].writeMax().isPresent()) {
+					maxActivePowerPhase[i].add(setActivePower[i].writeMax().get());
+				}
+				if (setActivePower[i].writeMin().isPresent()) {
+					minActivePowerPhase[i].add(setActivePower[i].writeMin().get());
+				}
+				if (this.activePower[i] < 0) {
+					minActivePowerPhase[i].add(allowedCharge.value() / activePowerNegSum * this.activePower[i]);
+				}
+				if (this.activePower[i] > 0) {
+					maxActivePowerPhase[i].add(allowedDischarge.value() / activePowerPosSum * this.activePower[i]);
+				}
+			}
+
+			switch (reductionType) {
+			case PERSUM: {
+				Long[] minActivePowers = new Long[] { Collections.max(minActivePowerPhase[0]),
+						Collections.max(minActivePowerPhase[1]), Collections.max(minActivePowerPhase[2]) };
+				Long[] maxActivePowers = new Long[] { Collections.min(maxActivePowerPhase[0]),
+						Collections.min(maxActivePowerPhase[1]), Collections.min(maxActivePowerPhase[2]) };
+				Long[] minReactivePowers = new Long[] { Collections.max(minReactivePowerPhase[0]),
+						Collections.max(minReactivePowerPhase[1]), Collections.max(minReactivePowerPhase[2]) };
+				Long[] maxReactivePowers = new Long[] { Collections.min(maxReactivePowerPhase[0]),
+						Collections.min(maxReactivePowerPhase[1]), Collections.min(maxReactivePowerPhase[2]) };
+				for (int i = 0; i < 3; i++) {
+					if (activePower[i] > maxActivePowers[i]) {
+						setMinMaxValues(maxActivePowers[i], activePower[i], maxActivePowerPhase, minActivePowerPhase,
+								activePowerSum, i);
+					} else if (activePower[i] < minActivePowers[i]) {
+						setMinMaxValues(minActivePowers[i], activePower[i], maxActivePowerPhase, minActivePowerPhase,
+								activePowerSum, i);
+					}
+					if (reactivePower[i] > maxReactivePowers[i]) {
+						setMinMaxValues(maxReactivePowers[i], reactivePower[i], maxReactivePowerPhase,
+								minReactivePowerPhase, reactivePowerSum, i);
+					} else if (reactivePower[i] < minReactivePowers[i]) {
+						setMinMaxValues(minReactivePowers[i], reactivePower[i], maxReactivePowerPhase,
+								minReactivePowerPhase, reactivePowerSum, i);
 					}
 				}
-				if (setReactivePower[i].writeMax().isPresent()
-						&& reactivePower[i] > setReactivePower[i].writeMax().get()) {
-					reducedReactivePower[i] = setReactivePower[i].writeMax().get();
-				}
-				if (setReactivePower[i].writeMin().isPresent()
-						&& reactivePower[i] < setReactivePower[i].writeMin().get()) {
-					reducedReactivePower[i] = setReactivePower[i].writeMin().get();
-				}
-				try {
-					this.setActivePower[i].pushWriteMax(
-							ControllerUtils.calculateActivePower(reducedReactivePower[i], allowedApparent.value() / 3));
-				} catch (WriteChannelException e) {}
-				try {
-					this.setActivePower[i].pushWriteMin(
-							ControllerUtils.calculateActivePower(reducedReactivePower[i], allowedApparent.value() / 3)
-									* -1);
-				} catch (WriteChannelException e) {}
-				// Reduce ActivePower to min/max value
-				if (setActivePower[i].writeMax().isPresent() && activePower[i] > setActivePower[i].writeMax().get()) {
-					reducedActivePower[i] = setActivePower[i].writeMax().get();
-				}
-				if (setActivePower[i].writeMin().isPresent() && activePower[i] < setActivePower[i].writeMin().get()) {
-					reducedActivePower[i] = setActivePower[i].writeMin().get();
-				}
 			}
-			// Reduce ActivePower to allowedCharge/Discharge
-			long activePowerSum = reducedActivePower[0] + reducedActivePower[1] + reducedActivePower[2];
-			long delta = 0L;
-			if (activePowerSum < allowedCharge.value()) {
-				delta = (activePowerSum - allowedCharge.value()) / 3;
-			} else if (activePowerSum > allowedDischarge.value()) {
-				delta = (activePowerSum - allowedDischarge.value()) / 3;
+			default:
+			case PERPHASE:
+
+				break;
 			}
+			// reduce to min/max values
 			for (int i = 0; i < 3; i++) {
-				reducedActivePower[i] -= delta;
+				long minReactivePower = Collections.max(minReactivePowerPhase[i]);
+				long maxReactivePower = Collections.min(maxReactivePowerPhase[i]);
+				long minActivePower = Collections.max(minActivePowerPhase[i]);
+				long maxActivePower = Collections.min(maxActivePowerPhase[i]);
+				if (activePower[i] > maxActivePower) {
+					reducedActivePower[i] = maxActivePower;
+				} else if (activePower[i] < minActivePower) {
+					reducedActivePower[i] = minActivePower;
+				}
+				if (reactivePower[i] > maxReactivePower) {
+					reducedReactivePower[i] = maxReactivePower;
+				} else if (reactivePower[i] < minReactivePower) {
+					reducedReactivePower[i] = minReactivePower;
+				}
 			}
-		} catch (InvalidValueException e) {
+		} catch (
+
+		InvalidValueException e) {
 			log.error("Failed to reduce power", e);
 		}
 		log.info(
@@ -203,9 +246,11 @@ public class AsymmetricPower {
 
 	/**
 	 * Writes active and reactive power to the setActive-/setReactivePower Channel if the value was set
+	 *
+	 * @throws WriteChannelException
 	 */
-	public void writePower() {
-		this.reducePower();
+	public void writePower(ReductionType reductionType) throws WriteChannelException {
+		this.reducePower(reductionType);
 		try {
 			for (int i = 0; i < 3; i++) {
 				if (activePowerValid) {
@@ -226,6 +271,22 @@ public class AsymmetricPower {
 		reactivePower[0] = 0;
 		reactivePower[1] = 0;
 		reactivePower[2] = 0;
+	}
+
+	private void setMinMaxValues(long limit, long power, List<Long>[] maxLimits, List<Long>[] minLimits, Long powerSum,
+			int phase) {
+		long diff = limit - power;
+		for (int i = 0; i < 3; i++) {
+			long delta = Math.abs(diff);
+			if (i != phase) {
+				delta /= 2;
+			}
+			if (this.activePower[i] > powerSum) {
+				maxLimits[i].add(this.activePower[i] - delta);
+			} else {
+				minLimits[i].add(this.activePower[i] + delta);
+			}
+		}
 	}
 
 }

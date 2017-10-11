@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OpenEMS - Open Source Energy Management System
- * Copyright (c) 2016, 2017 FENECON GmbH and contributors
+ * Copyright (c) 2016 FENECON GmbH and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,26 +18,24 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.api.channel;
+package io.openems.impl.controller.asymmetricsymmetriccombination;
 
-import java.util.Optional;
-
+import io.openems.api.controller.IsThingMap;
+import io.openems.api.controller.ThingMap;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.impl.device.system.asymmetricsymmetriccombinationess.AsymmetricSymmetricCombinationEssNature;
 
-public interface FunctionalWriteChannelFunction<T> {
+@IsThingMap(type = AsymmetricSymmetricCombinationEssNature.class)
+public class Ess extends ThingMap {
+	private AsymmetricSymmetricCombinationEssNature ess;
 
-	public T setValue(T newValue, String newLabel, @SuppressWarnings("unchecked") WriteChannel<T>... channels)
-			throws WriteChannelException;
+	public Ess(AsymmetricSymmetricCombinationEssNature ess) {
+		super(ess);
+		this.ess = ess;
+	}
 
-	public T getValue(@SuppressWarnings("unchecked") ReadChannel<T>... channels);
+	public void calculate() throws WriteChannelException {
+		ess.runCalculation();
+	}
 
-	public T getMinValue(Optional<T> thisMinValue, @SuppressWarnings("unchecked") WriteChannel<T>... channels);
-
-	public T getMaxValue(Optional<T> thisMaxValue, @SuppressWarnings("unchecked") WriteChannel<T>... channels);
-
-	public T setMinValue(T newValue, String newLabel, @SuppressWarnings("unchecked") WriteChannel<T>... channels)
-			throws WriteChannelException;
-
-	public T setMaxValue(T newValue, String newLabel, @SuppressWarnings("unchecked") WriteChannel<T>... channels)
-			throws WriteChannelException;
 }

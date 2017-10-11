@@ -263,7 +263,7 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void checkIntervalBoundaries(T value) throws WriteChannelException {
+	public void checkIntervalBoundaries(T value) throws WriteChannelException {
 		Optional<T> max = writeMax();
 		Optional<T> min = writeMin();
 		Optional<T> write = this.writeValue;
