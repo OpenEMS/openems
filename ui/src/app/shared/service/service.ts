@@ -2,7 +2,6 @@ import { Injectable, ErrorHandler } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs/Subject';
 import { Cookie } from 'ng2-cookies';
-import * as moment from 'moment';
 
 import { Websocket } from './websocket';
 import { Device } from '../device/device';
@@ -26,7 +25,7 @@ export class Service implements ErrorHandler {
      */
     public setLang(id: DefaultTypes.LanguageTag) {
         this.translate.use(id);
-        moment.locale(id);
+        // TODO set locale for date-fns: https://date-fns.org/docs/I18n
     }
 
     /**

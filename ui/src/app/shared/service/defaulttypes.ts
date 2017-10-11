@@ -1,4 +1,3 @@
-import * as moment from 'moment';
 import { Role } from '../type/role'
 
 export module DefaultTypes {
