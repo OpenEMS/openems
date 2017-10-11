@@ -43,7 +43,7 @@ import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.exception.WriteChannelException;
-import io.openems.api.security.User;
+import io.openems.common.session.Role;
 import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -77,25 +77,25 @@ public class TimelineChargeController extends Controller {
 	@ChannelInfo(title = "Charger", description = "Sets the Chargers connected to the ess.", type = Charger.class, isArray = true)
 	public final ConfigChannel<Set<Charger>> chargers = new ConfigChannel<Set<Charger>>("chargers", this);
 
-	@ChannelInfo(title = "Monday", description = "Sets the soc limits for monday.", type = JsonArray.class, accessLevel = User.OWNER)
+	@ChannelInfo(title = "Monday", description = "Sets the soc limits for monday.", type = JsonArray.class, writeRoles = { Role.OWNER })
 	public ConfigChannel<JsonArray> monday = new ConfigChannel<>("monday", this);
 
-	@ChannelInfo(title = "Tuesday", description = "Sets the soc limits for tuesday.", type = JsonArray.class, accessLevel = User.OWNER)
+	@ChannelInfo(title = "Tuesday", description = "Sets the soc limits for tuesday.", type = JsonArray.class, writeRoles = { Role.OWNER })
 	public ConfigChannel<JsonArray> tuesday = new ConfigChannel<>("tuesday", this);
 
-	@ChannelInfo(title = "Wednesday", description = "Sets the soc limits for wednesday.", type = JsonArray.class, accessLevel = User.OWNER)
+	@ChannelInfo(title = "Wednesday", description = "Sets the soc limits for wednesday.", type = JsonArray.class, writeRoles = { Role.OWNER })
 	public ConfigChannel<JsonArray> wednesday = new ConfigChannel<>("wednesday", this);
 
-	@ChannelInfo(title = "Thursday", description = "Sets the soc limits for thursday.", type = JsonArray.class, accessLevel = User.OWNER)
+	@ChannelInfo(title = "Thursday", description = "Sets the soc limits for thursday.", type = JsonArray.class, writeRoles = { Role.OWNER })
 	public ConfigChannel<JsonArray> thursday = new ConfigChannel<>("thursday", this);
 
-	@ChannelInfo(title = "Friday", description = "Sets the soc limits for friday.", type = JsonArray.class, accessLevel = User.OWNER)
+	@ChannelInfo(title = "Friday", description = "Sets the soc limits for friday.", type = JsonArray.class, writeRoles = { Role.OWNER })
 	public ConfigChannel<JsonArray> friday = new ConfigChannel<>("friday", this);
 
-	@ChannelInfo(title = "Saturday", description = "Sets the soc limits for saturday.", type = JsonArray.class, accessLevel = User.OWNER)
+	@ChannelInfo(title = "Saturday", description = "Sets the soc limits for saturday.", type = JsonArray.class, writeRoles = { Role.OWNER })
 	public ConfigChannel<JsonArray> saturday = new ConfigChannel<>("saturday", this);
 
-	@ChannelInfo(title = "Sunday", description = "Sets the soc limits for sunday.", type = JsonArray.class, accessLevel = User.OWNER)
+	@ChannelInfo(title = "Sunday", description = "Sets the soc limits for sunday.", type = JsonArray.class, writeRoles = { Role.OWNER })
 	public ConfigChannel<JsonArray> sunday = new ConfigChannel<>("sunday", this);
 
 	/*
