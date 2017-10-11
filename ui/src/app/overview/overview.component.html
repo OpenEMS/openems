@@ -27,7 +27,7 @@
             <!-- TODO translate -->
           </mat-card-header>
           <mat-card-content fxLayout fxLayoutWrap="wrap">
-            <mat-input-container fxFlex="100%"><input matInput formControlName="password" mdInput type="password" placeholder="Passwort"></mat-input-container>
+            <mat-input-container fxFlex="100%"><input matInput formControlName="password" matInput type="password" placeholder="Passwort"></mat-input-container>
             <!-- Messages -->
             <p fxFlex="100%">{{ (websocket.event | async)?.message }}</p>
           </mat-card-content>

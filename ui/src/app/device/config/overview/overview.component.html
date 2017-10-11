@@ -87,7 +87,7 @@
       </mat-card>
     </div>
     <!--call more configuration-->
-    <div *ngIf="device.role.isAtLeast('admin')" routerLink="/device/{{ device.name }}/config/more" fxFlex="50%" fxFlex.xs="100%">
+    <div *ngIf="device.role == 'admin'" routerLink="/device/{{ device.name }}/config/more" fxFlex="50%" fxFlex.xs="100%">
       <mat-card class="single">
         <mat-card-header>
           <mat-icon mat-card-avatar>more_horiz</mat-icon>

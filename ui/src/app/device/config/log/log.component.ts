@@ -2,12 +2,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
+import { format } from 'date-fns';
 
 import { Device } from '../../../shared/device/device';
 import { Websocket } from '../../../shared/shared';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
-
-import * as moment from 'moment';
 
 @Component({
   selector: 'log',
@@ -58,7 +57,7 @@ export class LogComponent implements OnInit, OnDestroy {
 
     if (this.device != null) {
       this.device.subscribeLog().takeUntil(this.stopOnDestroy).subscribe(log => {
-        log.time = moment(log.time).format("DD.MM.YYYY HH:mm:ss");
+        log.time = format(new Date(<number>log.time * 1000), "DD.MM.YYYY HH:mm:ss");
         switch (log.level) {
           case 'INFO':
             log.color = 'green';

@@ -1,7 +1,6 @@
 import { Component, Input, Output, OnChanges, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
-import * as moment from 'moment';
 
 import { DefaultMessages } from '../../../shared/service/defaultmessages';
 import { Utils } from '../../../shared/service/utils';
@@ -28,7 +27,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   @Input() public thingId: string = null;
   @Input() public channelId: string = null;
   @Input() public config: ConfigImpl = null;
-  @Input() public role: Role = Role.GUEST; // TODO in device
+  @Input() public role: Role = "guest"; // TODO in device
   @Input() public device: Device = null;
   @Input() public showThings: boolean = false;
 

@@ -8,8 +8,6 @@ import { AbstractConfig, ConfigureRequest } from '../abstractconfig';
 import 'rxjs/add/operator/retryWhen';
 import 'rxjs/add/operator/delay';
 
-import * as moment from 'moment';
-
 interface SimulatorForm {
   id: string,
   class: string

@@ -1,9 +1,11 @@
-export enum Role {
-    GUEST = "guest",
-    OWNER = "owner",
-    INSTALLER = "installer",
-    ADMIN = "admin"
-}
+export type Role = "guest" | "owner" | "installer" | "admin";
+// TODO Works with typescript 2.4:
+// export enum Role {
+//     GUEST = "guest",
+//     OWNER = "owner",
+//     INSTALLER = "installer",
+//     ADMIN = "admin"
+// }
 
 export namespace Role {
     /**
@@ -14,16 +16,21 @@ export namespace Role {
         name = name.toLowerCase();
         switch (name) {
             case "admin":
-                return Role.ADMIN;
+                return "admin";
+                // return Role.ADMIN;
             case "owner":
-                return Role.OWNER;
+                return "owner";
+                // return Role.OWNER;
             case "installer":
-                return Role.INSTALLER;
+                return "installer";
+                // return Role.INSTALLER;
             case "guest":
-                return Role.GUEST;
+                return "guest";
+                // return Role.GUEST;
             default:
                 console.warn("Role '" + name + "' not found.")
-                return Role.GUEST;
+                return "guest";
+                // return Role.GUEST;
         }
     }
 }

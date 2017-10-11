@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges, ViewChildren, QueryList } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
-import * as moment from 'moment';
 
 import { ChannelComponent } from './channel.component';
 import { Utils } from '../../../shared/service/utils';
@@ -19,7 +18,7 @@ export class ExistingThingComponent implements OnChanges {
   public _device: Device = null;
   public thing = null;
   public meta = null;
-  public role: Role = Role.GUEST;
+  public role: Role = "guest";
   public config: ConfigImpl = null;
   public formPristine: boolean = true;
   public messages: { [channelId: string]: DefaultTypes.ConfigUpdate } = {};

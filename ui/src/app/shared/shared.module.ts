@@ -6,7 +6,6 @@ import { HttpModule } from '@angular/http';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { RouterModule } from '@angular/router';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
-import { MdSnackBar } from '@angular/material';
 import { LoadingModule } from 'ngx-loading';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
@@ -88,8 +87,7 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     Utils,
     Service,
     Websocket,
-    appRoutingProviders,
-    MdSnackBar
+    appRoutingProviders
   ]
 })
 export class SharedModule { }

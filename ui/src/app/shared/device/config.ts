@@ -1,5 +1,5 @@
 import { DefaultTypes } from '../service/defaulttypes'
-import { Role, ROLES } from '../type/role'
+import { Role } from '../type/role'
 
 export class ConfigImpl implements DefaultTypes.Config {
 
@@ -46,10 +46,9 @@ export class ConfigImpl implements DefaultTypes.Config {
             for(let channel in config.meta[clazz].channels) {
                 let roles: Role[] = [];
                 for(let roleString of config.meta[clazz].channels[channel].readRoles) {
-                    roles.push(ROLES.getRole("" + roleString /* convert to string */));
+                    roles.push(Role.getRole("" + roleString /* convert to string */));
                 }
                 config.meta[clazz].channels[channel].readRoles = roles;
-                console.log(config.meta[clazz].channels[channel].readRoles)
             }
         }
 

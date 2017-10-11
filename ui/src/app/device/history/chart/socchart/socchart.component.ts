@@ -2,7 +2,6 @@ import { Component, Input, OnInit, OnChanges, OnDestroy, ViewChild, AfterViewIni
 import { Subject } from 'rxjs/Subject';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { TranslateService } from '@ngx-translate/core';
-import * as moment from 'moment';
 
 import { Device } from '../../../../shared/device/device';
 import { DefaultTypes } from '../../../../shared/service/defaulttypes';
@@ -18,8 +17,8 @@ export class SocChartComponent implements OnInit, OnChanges {
 
   @Input() private device: Device;
   @Input() private channels: DefaultTypes.ChannelAddresses;
-  @Input() private fromDate: moment.Moment;
-  @Input() private toDate: moment.Moment;
+  @Input() private fromDate: Date;
+  @Input() private toDate: Date;
 
   @ViewChild('socChart') private chart: BaseChartDirective;
 
@@ -28,7 +27,7 @@ export class SocChartComponent implements OnInit, OnChanges {
     private translate: TranslateService
   ) { }
 
-  public labels: moment.Moment[] = [];
+  public labels: Date[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
   public loading: boolean = true;
 
@@ -68,13 +67,14 @@ export class SocChartComponent implements OnInit, OnChanges {
       let tmpData: {
         [thing: string]: number[];
       } = {};
-      let labels: moment.Moment[] = [];
+      let labels: Date[] = [];
       for (let thing in this.channels) {
         tmpData[thing] = [];
       }
       for (let record of historicData.data) {
         // read timestamp and soc of each device
-        labels.push(moment(record.time));
+        console.log("SocChart: ", record.time);
+        labels.push(new Date(record.time));
         for (let thing in this.channels) {
           let soc = null;
           if (thing in record.channels && "Soc" in record.channels[thing] && record.channels[thing]["Soc"] != null) {
