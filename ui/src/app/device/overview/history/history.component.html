@@ -1,14 +1,14 @@
-<md-card class="single" *ngIf="device">
-  <md-card-header>
-    <md-icon md-card-avatar>history</md-icon>
-    <md-card-title translate>General.History</md-card-title>
-  </md-card-header>
-  <md-card-content>
+<mat-card class="single" *ngIf="device">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>history</mat-icon>
+    <mat-card-title translate>General.History</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
     <div style="height: 150px">
       <socchart [device]="device" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart>
     </div>
-  </md-card-content>
-  <md-card-actions fxLayout fxLayoutAlign="end start">
-    <button md-fab routerLink="/device/{{ device.name }}/history"><md-icon>navigate_next</md-icon></button>
-  </md-card-actions>
-</md-card>
+  </mat-card-content>
+  <mat-card-actions fxLayout fxLayoutAlign="end start">
+    <button mat-fab routerLink="/device/{{ device.name }}/history"><mat-icon>navigate_next</mat-icon></button>
+  </mat-card-actions>
+</mat-card>

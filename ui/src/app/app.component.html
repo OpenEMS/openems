@@ -1,38 +1,38 @@
-<md-sidenav-container fullscreen>
-  <md-sidenav #sidenav mode="push">
-    <md-list>
-      <md-list-item>
-        <button routerLinkActive="active" routerLink="/overview" md-button><span translate>Menu.Overview</span></button>
-      </md-list-item>
-      <md-list-item *ngIf="env.backend === 'OpenEMS Edge' && env.production">
+<mat-sidenav-container fullscreen>
+  <mat-sidenav #sidenav mode="push">
+    <mat-list>
+      <mat-list-item>
+        <button routerLinkActive="active" routerLink="/overview" mat-button><span translate>Menu.Overview</span></button>
+      </mat-list-item>
+      <mat-list-item *ngIf="env.backend === 'OpenEMS Edge' && env.production">
         <!--TODO: is this link still necessary?-->
-        <a href="/grafana/dashboard/file/fems-asymmetric.json" md-button><span translate>General.History</span></a>
-      </md-list-item>
-      <md-list-item>
-        <button routerLinkActive="active" routerLink="/about" md-button><span translate>Menu.AboutUI</span></button>
-      </md-list-item>
-    </md-list>
-  </md-sidenav>
+        <a href="/grafana/dashboard/file/fems-asymmetric.json" mat-button><span translate>General.History</span></a>
+      </mat-list-item>
+      <mat-list-item>
+        <button routerLinkActive="active" routerLink="/about" mat-button><span translate>Menu.AboutUI</span></button>
+      </mat-list-item>
+    </mat-list>
+  </mat-sidenav>
   <div fxLayout="row" fxLayoutAlign="space-between left">
-    <md-toolbar color="primary">
+    <mat-toolbar color="primary">
       <div fxFlex="40px">
-        <button routerLinkActive="active" (click)="sidenav.toggle()" md-icon-button><md-icon>menu</md-icon></button>
+        <button routerLinkActive="active" (click)="sidenav.toggle()" mat-icon-button><mat-icon>menu</mat-icon></button>
       </div>
       <ng-container *ngIf="(websocket.currentDevice | async) as currentDevice">
         <div fxFlex>
           <!-- TODO show breadcrumbs like 'Energymonitor > History', 'Energymonitor > Settings' -->
-          <button routerLink="/device/{{ currentDevice.name }}/overview" md-button>Energiemonitor <small>({{ currentDevice.name }})</small></button>
+          <button routerLink="/device/{{ currentDevice.name }}/overview" mat-button>Energiemonitor <small>({{ currentDevice.name }})</small></button>
         </div>
         <div fxFlex="50px" *ngIf="currentDevice.role != 'guest'">
-          <button routerLink="/device/{{ currentDevice.name }}/config" md-icon-button><md-icon>settings</md-icon></button>
+          <button routerLink="/device/{{ currentDevice.name }}/config" mat-icon-button><mat-icon>settings</mat-icon></button>
         </div>
       </ng-container>
       <!-- <ng-container *ngIf="!currentDevice">
         <div>
-          <button routerLink="/overview" md-button>FEMS</button>
+          <button routerLink="/overview" mat-button>FEMS</button>
         </div>
       </ng-container> -->
-    </md-toolbar>
+    </mat-toolbar>
   </div>
   <!--   -->
   <div *ngIf="websocket.status == 'connecting'" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap" style="font-family: sans-serif; background-color: yellow">
@@ -50,4 +50,4 @@
       <router-outlet></router-outlet>
     </div>
   </div>
-</md-sidenav-container>
+</mat-sidenav-container>

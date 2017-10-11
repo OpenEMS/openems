@@ -1,6 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ErrorHandler } from '@angular/core';
-import { MdSnackBar } from '@angular/material';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 
 import { environment } from '../environments';
@@ -38,7 +37,6 @@ import { MyTranslateLoader } from './shared/translate/translate';
     AppComponent
   ],
   providers: [
-    MdSnackBar,
     {
       provide: ErrorHandler,
       useExisting: Service

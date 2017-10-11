@@ -1,10 +1,10 @@
-<md-card class="single">
-  <md-card-header>
-    <md-icon md-card-avatar>announcement</md-icon>
-    <md-card-title>FEMS UI</md-card-title>
-    <md-card-subtitle translate>About.UI</md-card-subtitle>
-  </md-card-header>
-  <md-card-content>
+<mat-card class="single">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>announcement</mat-icon>
+    <mat-card-title>FEMS UI</mat-card-title>
+    <mat-card-subtitle translate>About.UI</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
     <p translate>About.Developed</p>
     <ul>
       <li><a target="_blank" href="https://fenecon.de" translate>About.Fenecon</a></li>
@@ -21,5 +21,5 @@
           <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>
         </select>
     </ul>
-  </md-card-content>
-</md-card>
+  </mat-card-content>
+</mat-card>

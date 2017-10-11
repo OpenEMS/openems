@@ -8,56 +8,56 @@
   </div>
 
   <div fxFlex="50%" fxFlex.xs="100%">
-    <md-card class="single">
-      <md-card-header>
-        <md-icon md-card-avatar>stop</md-icon>
-        <md-card-title translate>Device.Config.More.ManualCommand</md-card-title>
-      </md-card-header>
-      <md-card-content [formGroup]="manualMessageForm" fxLayout fxLayoutWrap="wrap">
+    <mat-card class="single">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>stop</mat-icon>
+        <mat-card-title translate>Device.Config.More.ManualCommand</mat-card-title>
+      </mat-card-header>
+      <mat-card-content [formGroup]="manualMessageForm" fxLayout fxLayoutWrap="wrap">
         <div fxFlex="100%" fxLayout>
-          <md-input-container fxFlex="100%"><input formControlName="message" placeholder="JSON" mdInput></md-input-container>
+          <mat-input-container fxFlex="100%"><input formControlName="message" placeholder="JSON" mdInput></mat-input-container>
           <div fxFlex></div>
         </div>
         <div fxFlex="100%">
-          <button md-raised-button (click)="sendManualMessage(manualMessageForm)" class="btn btn-default"><span translate>Device.Config.More.Send</span></button>
+          <button mat-raised-button (click)="sendManualMessage(manualMessageForm)" class="btn btn-default"><span translate>Device.Config.More.Send</span></button>
         </div>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <div *ngIf="device" routerLink="/device/{{ device.name }}/config/more/rawconfig" fxFlex="50%" fxFlex.xs="100%">
-    <md-card class="single">
-      <md-card-header>
-        <md-icon md-card-avatar>more_horiz</md-icon>
-        <md-card-title translate>Display technical data</md-card-title>
+    <mat-card class="single">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>more_horiz</mat-icon>
+        <mat-card-title translate>Display technical data</mat-card-title>
         <!-- TODO translate -->
-      </md-card-header>
-      <md-card-content>
-      </md-card-content>
-    </md-card>
+      </mat-card-header>
+      <mat-card-content>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <div *ngIf="device" routerLink="/device/{{ device.name }}/config/all" fxFlex="50%" fxFlex.xs="100%">
-    <md-card class="single">
-      <md-card-header>
-        <md-icon md-card-avatar>more_horiz</md-icon>
-        <md-card-title translate>All Config</md-card-title>
+    <mat-card class="single">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>more_horiz</mat-icon>
+        <mat-card-title translate>All Config</mat-card-title>
         <!-- TODO translate -->
-      </md-card-header>
-      <md-card-content>
-      </md-card-content>
-    </md-card>
+      </mat-card-header>
+      <mat-card-content>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <div routerLink="/config/debugmode" fxFlex="50%" fxFlex.xs="100%">
-    <md-card class="single">
-      <md-card-header>
-        <md-icon md-card-avatar>more_horiz</md-icon>
-        <md-card-title translate>Debug Mode</md-card-title>
+    <mat-card class="single">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>more_horiz</mat-icon>
+        <mat-card-title translate>Debug Mode</mat-card-title>
         <!-- TODO translate -->
-      </md-card-header>
-      <md-card-content>
-      </md-card-content>
-    </md-card>
+      </mat-card-header>
+      <mat-card-content>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

@@ -1,10 +1,10 @@
-<md-card class="single">
+<mat-card class="single">
   <!-- TODO show empty chart if currentData is null - instead of nothing -->
-  <md-card-header>
-    <md-icon md-card-avatar>visibility</md-icon>
-    <md-card-title translate>Device.Overview.Energymonitor.Title</md-card-title>
-  </md-card-header>
-  <md-card-content>
+  <mat-card-header>
+    <mat-icon mat-card-avatar>visibility</mat-icon>
+    <mat-card-title translate>Device.Overview.Energymonitor.Title</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
     <energymonitor-chart [currentData]="currentData" fxLayoutAlign="center start"></energymonitor-chart>
-  </md-card-content>
-</md-card>
+  </mat-card-content>
+</mat-card>

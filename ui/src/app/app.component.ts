@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { MdSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material';
 import { Subject } from 'rxjs/Subject';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -19,7 +19,7 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     public websocket: Websocket,
     private service: Service,
-    private snackBar: MdSnackBar
+    private snackBar: MatSnackBar
   ) {
     service.setLang('de');
   }
