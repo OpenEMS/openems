@@ -55,7 +55,7 @@ public class UserChangePasswordRestlet extends OpenemsRestlet {
 		}
 
 		// check permission
-		if (!isAuthenticatedAsUser(request, user)) {
+		if (!isAuthenticatedAsRole(request, user.getRole())) {
 			throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
 		}
 
