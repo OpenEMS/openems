@@ -122,10 +122,14 @@ public class AsymmetricPower {
 		// variables for reducedPower
 		long[] reducedActivePower = Arrays.copyOf(activePower, 3);
 		long[] reducedReactivePower = Arrays.copyOf(reactivePower, 3);
-		List<Long>[] minActivePowerPhase = new List[] { new ArrayList<>(), new ArrayList<>(), new ArrayList<>() };
-		List<Long>[] maxActivePowerPhase = new List[] { new ArrayList<>(), new ArrayList<>(), new ArrayList<>() };
-		List<Long>[] minReactivePowerPhase = new List[] { new ArrayList<>(), new ArrayList<>(), new ArrayList<>() };
-		List<Long>[] maxReactivePowerPhase = new List[] { new ArrayList<>(), new ArrayList<>(), new ArrayList<>() };
+		@SuppressWarnings("unchecked") List<Long>[] minActivePowerPhase = new List[] { new ArrayList<Long>(),
+				new ArrayList<Long>(), new ArrayList<Long>() };
+		@SuppressWarnings("unchecked") List<Long>[] maxActivePowerPhase = new List[] { new ArrayList<Long>(),
+				new ArrayList<Long>(), new ArrayList<Long>() };
+		@SuppressWarnings("unchecked") List<Long>[] minReactivePowerPhase = new List[] { new ArrayList<Long>(),
+				new ArrayList<Long>(), new ArrayList<Long>() };
+		@SuppressWarnings("unchecked") List<Long>[] maxReactivePowerPhase = new List[] { new ArrayList<Long>(),
+				new ArrayList<Long>(), new ArrayList<Long>() };
 		long activePowerPosSum = 0;
 		long activePowerNegSum = 0;
 		long activePowerSum = 0;
