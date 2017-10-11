@@ -48,10 +48,10 @@ public class FixValueController extends Controller {
 	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
-	@ChannelInfo(title = "ActivePower", description = "The active power to set for each Ess.", type = Integer.class)
+	@ChannelInfo(title = "ActivePower", description = "The active power to set for each Ess.", type = Integer.class, isOptional = true)
 	public ConfigChannel<Integer> p = new ConfigChannel<Integer>("p", this);
 
-	@ChannelInfo(title = "ReactivePower", description = "The reactive power to set for each Ess.", type = Integer.class)
+	@ChannelInfo(title = "ReactivePower", description = "The reactive power to set for each Ess.", type = Integer.class, isOptional = true)
 	public ConfigChannel<Integer> q = new ConfigChannel<Integer>("q", this);
 
 	/*
@@ -61,8 +61,12 @@ public class FixValueController extends Controller {
 	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
-				ess.power.setActivePower(p.value());
-				ess.power.setReactivePower(q.value());
+				if (p.valueOptional().isPresent()) {
+					ess.power.setActivePower(p.value());
+				}
+				if (q.valueOptional().isPresent()) {
+					ess.power.setReactivePower(q.value());
+				}
 				ess.power.writePower();
 			}
 		} catch (InvalidValueException e) {
