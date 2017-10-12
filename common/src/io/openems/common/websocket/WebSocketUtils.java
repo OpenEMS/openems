@@ -32,18 +32,18 @@ public class WebSocketUtils {
 		}
 	}
 
-	public static boolean sendNotification(Optional<WebSocket> websocketOpt, LogBehaviour logBehaviour, Notification code,
+	public static boolean sendNotification(Optional<WebSocket> websocketOpt, JsonArray jId, LogBehaviour logBehaviour, Notification code,
 			Object... params) {
 		if (!websocketOpt.isPresent()) {
 			log.error("Websocket is not available. Unable to send Notification ["
 					+ String.format(code.getMessage(), params) + "]");
 			return false;
 		} else {
-			return WebSocketUtils.sendNotification(websocketOpt.get(), logBehaviour, code, params);
+			return WebSocketUtils.sendNotification(websocketOpt.get(), jId, logBehaviour, code, params);
 		}
 	}
 
-	public static boolean sendNotification(WebSocket websocket, LogBehaviour logBehaviour, Notification code, Object... params) {
+	public static boolean sendNotification(WebSocket websocket, JsonArray jId, LogBehaviour logBehaviour, Notification code, Object... params) {
 		String message = String.format(code.getMessage(), params);
 		String logMessage = "Notification [" + code.getValue() + "]: " + message;
 		// log message
@@ -63,7 +63,7 @@ public class WebSocketUtils {
 			}
 		}
 
-		JsonObject j = DefaultMessages.notification(code, message, params);
+		JsonObject j = DefaultMessages.notification(jId, code, message, params);
 		return WebSocketUtils.send(websocket, j);
 	}
 

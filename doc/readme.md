@@ -233,6 +233,7 @@ For 'unsubscribe' the channels object is empty.
 ```
 {
  	notification: {
+		id: string[],
 		type: "success" | "error" | "warning" | "info",
 		message: "...",
 		code?: number,

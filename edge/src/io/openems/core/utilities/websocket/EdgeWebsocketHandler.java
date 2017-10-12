@@ -140,7 +140,7 @@ public class EdgeWebsocketHandler {
 		Optional<JsonObject> jConfigOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "config");
 		if (jConfigOpt.isPresent()) {
 			jReply = JsonUtils.merge(jReply, //
-					config(jConfigOpt.get(), role) //
+					config(jConfigOpt.get(), role, jIdOpt.orElse(new JsonArray())) //
 					);
 		}
 
@@ -205,7 +205,7 @@ public class EdgeWebsocketHandler {
 	 * @param jConfig
 	 * @return
 	 */
-	private synchronized JsonObject config(JsonObject jConfig, Role role) {
+	private synchronized JsonObject config(JsonObject jConfig, Role role, JsonArray jId) {
 		try {
 			String mode = JsonUtils.getAsString(jConfig, "mode");
 
@@ -237,7 +237,7 @@ public class EdgeWebsocketHandler {
 							ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
 							Object value = ConfigUtils.getConfigObject(configChannel, jValue);
 							configChannel.updateValue(value, true);
-							WebSocketUtils.sendNotification(websocketOpt, LogBehaviour.WRITE_TO_LOG,
+							WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
 									Notification.EDGE_CHANNEL_UPDATE_SUCCESS, channel.address() + " => " + jValue);
 
 						} else if (channel instanceof WriteChannel<?>) {
@@ -255,7 +255,7 @@ public class EdgeWebsocketHandler {
 					}
 				} catch (OpenemsException e) {
 					WebSocketUtils.send(websocketOpt,
-							DefaultMessages.notification(Notification.EDGE_CHANNEL_UPDATE_FAILED, e.getMessage()));
+							DefaultMessages.notification(jId, Notification.EDGE_CHANNEL_UPDATE_FAILED, e.getMessage()));
 				}
 			}
 		} catch (OpenemsException e) {

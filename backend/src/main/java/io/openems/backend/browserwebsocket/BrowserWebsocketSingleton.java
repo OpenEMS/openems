@@ -158,7 +158,7 @@ public class BrowserWebsocketSingleton
 				try {
 					forwardMessageToOpenems(websocket, jMessage, deviceName);
 				} catch (OpenemsException e) {
-					WebSocketUtils.sendNotification(websocket, LogBehaviour.WRITE_TO_LOG,
+					WebSocketUtils.sendNotification(websocket, new JsonArray(), LogBehaviour.WRITE_TO_LOG,
 							Notification.EDGE_UNABLE_TO_FORWARD, deviceName, e.getMessage());
 				}
 			}
@@ -264,7 +264,7 @@ public class BrowserWebsocketSingleton
 			for (Device device : session.getData().getDevices()) {
 				if (name.equals(device.getName())) {
 					Optional<WebSocket> websocketOpt = this.getWebsocketFromSession(session);
-					WebSocketUtils.sendNotification(websocketOpt, LogBehaviour.DO_NOT_WRITE_TO_LOG,
+					WebSocketUtils.sendNotification(websocketOpt, new JsonArray(), LogBehaviour.DO_NOT_WRITE_TO_LOG,
 							Notification.EDGE_CONNECTION_ClOSED, name);
 				}
 			}
@@ -282,7 +282,7 @@ public class BrowserWebsocketSingleton
 				for (String name : names) {
 					if (name.equals(device.getName())) {
 						Optional<WebSocket> websocketOpt = this.getWebsocketFromSession(session);
-						WebSocketUtils.sendNotification(websocketOpt, LogBehaviour.DO_NOT_WRITE_TO_LOG,
+						WebSocketUtils.sendNotification(websocketOpt, new JsonArray(), LogBehaviour.DO_NOT_WRITE_TO_LOG,
 								Notification.EDGE_CONNECTION_OPENED, name);
 					}
 				}
