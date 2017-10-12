@@ -20,6 +20,8 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   public type: string | string[];
   public specialType: "simple" | "ignore" | "boolean" | "selectNature" | "thing" = "simple";
   public deviceNature: string = null;
+  public allowWrite = false;
+  public allowRead = false;
 
   private isJson = false;
   private stopOnDestroy: Subject<void> = new Subject<void>();
@@ -38,79 +40,88 @@ export class ChannelComponent implements OnChanges, OnDestroy {
     private formBuilder: FormBuilder) { }
 
   ngOnChanges() {
-    if (this.config != null && this.thingId != null && this.thingId in this.config.things && this.channelId != null) {
-      let thingConfig = this.config.things[this.thingId];
-      let clazz = thingConfig.class;
-      if (clazz instanceof Array) {
-        return;
-      }
-      let thingMeta = this.config.meta[clazz];
-      let channelMeta = thingMeta.channels[this.channelId];
-      this.meta = channelMeta;
-
-      // get value or default value
-      let value = thingConfig[this.channelId];
-      if (value == null) {
-        value = channelMeta.defaultValue;
-      }
-      if (this.meta.array == true && value === "") {
-        // value is still not available and we have an array type: initialize array
-        value = [];
-      }
-
-      // set form input type and specialType-flag
-      let metaType = this.meta.type;
-      switch (metaType) {
-        case 'Boolean':
-          this.specialType = 'boolean';
-          break;
-
-        case 'Integer':
-        case 'Long':
-          this.type = 'number';
-          break;
-
-        case 'String':
-        case 'Inet4Address':
-          this.type = 'string';
-          break;
-
-        case 'JsonArray':
-        case 'JsonObject':
-          this.specialType = 'simple';
-          this.isJson = true;
-          value = JSON.stringify(value);
-          break;
-
-        default:
-          if (metaType in this.config.meta) {
-            // this is a DeviceNature - will be handled as separate thing -> ignore
-            if (this.showThings) {
-              this.specialType = 'thing';
-            } else {
-              this.specialType = 'ignore';
-            }
-          } else if (this.meta.type instanceof Array && this.meta.type.includes("DeviceNature")) {
-            // this channel takes references to a DeviceNature (like "ess0" for SymmetricEssNature)
-            this.specialType = 'selectNature';
-            this.type = "string";
-            // takes the first nature as requirement;
-            // e.g. takes "AsymmetricEssNature" from ["AsymmetricEssNature", "EssNature", "DeviceNature"]
-            this.deviceNature = this.meta.type[0];
-          } else {
-            console.warn("Unknown type: " + this.meta.type, this.meta);
-            this.type = 'string';
-          }
-      }
-
-      // build form
-      this.form = this.buildFormGroup({ channelConfig: value });
-
-      // subscribe to form changes and build websocket message
-      this.form.valueChanges
-        .takeUntil(this.stopOnDestroy)
-        .subscribe(() => this.updateMessage());
+    if (this.config == null || this.thingId == null || !(this.thingId in this.config.things) || this.channelId == null) {
+      return;
     }
+
+    let thingConfig = this.config.things[this.thingId];
+    let clazz = thingConfig.class;
+    if (clazz instanceof Array) {
+      return;
+    }
+    let thingMeta = this.config.meta[clazz];
+    let channelMeta = thingMeta.channels[this.channelId];
+    this.meta = channelMeta;
+
+    // handle access role
+    this.allowWrite = this.meta.writeRoles.includes(this.role);
+    this.allowRead = this.meta.readRoles.includes(this.role);
+    if (!this.allowRead) {
+      return;
+    }
+
+    // get value or default value
+    let value = thingConfig[this.channelId];
+    if (value == null) {
+      value = channelMeta.defaultValue;
+    }
+    if (this.meta.array == true && value === "") {
+      // value is still not available and we have an array type: initialize array
+      value = [];
+    }
+
+    // set form input type and specialType-flag
+    let metaType = this.meta.type;
+    switch (metaType) {
+      case 'Boolean':
+        this.specialType = 'boolean';
+        break;
+
+      case 'Integer':
+      case 'Long':
+        this.type = 'number';
+        break;
+
+      case 'String':
+      case 'Inet4Address':
+        this.type = 'string';
+        break;
+
+      case 'JsonArray':
+      case 'JsonObject':
+        this.specialType = 'simple';
+        this.isJson = true;
+        value = JSON.stringify(value);
+        break;
+
+      default:
+        if (metaType in this.config.meta) {
+          // this is a DeviceNature - will be handled as separate thing -> ignore
+          if (this.showThings) {
+            this.specialType = 'thing';
+          } else {
+            this.specialType = 'ignore';
+          }
+        } else if (this.meta.type instanceof Array && this.meta.type.includes("DeviceNature")) {
+          // this channel takes references to a DeviceNature (like "ess0" for SymmetricEssNature)
+          this.specialType = 'selectNature';
+          this.type = "string";
+          // takes the first nature as requirement;
+          // e.g. takes "AsymmetricEssNature" from ["AsymmetricEssNature", "EssNature", "DeviceNature"]
+          this.deviceNature = this.meta.type[0];
+        } else {
+          console.warn("Unknown type: " + this.meta.type, this.meta);
+          this.type = 'string';
+        }
+    }
+
+    // build form
+    this.form = this.buildFormGroup({ channelConfig: value });
+
+    // subscribe to form changes and build websocket message
+    this.form.valueChanges
+      .takeUntil(this.stopOnDestroy)
+      .subscribe(() => this.updateMessage());
   }
 
   ngOnDestroy() {
@@ -119,6 +130,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   }
 
   private updateMessage() {
+    if (!this.allowWrite) return;
     let value = this.form.value["channelConfig"];
     if (this.isJson) {
       value = JSON.parse(value);
@@ -127,6 +139,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   }
 
   public addToArray() {
+    if (!this.allowWrite) return;
     let array = <FormArray>this.form.controls["channelConfig"];
     array.push(this.formBuilder.control(""));
     this.form.markAsDirty();
@@ -134,6 +147,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   }
 
   public removeFromArray(index: number) {
+    if (!this.allowWrite) return;
     let array = <FormArray>this.form.controls["channelConfig"];
     array.removeAt(index);
     this.form.markAsDirty();
@@ -141,7 +155,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   }
 
   protected buildForm(item: any, ignoreKeys?: string | string[]): FormControl | FormGroup | FormArray {
-    // console.debug("buildForm()", item);
+    // console.log("buildForm()", item);
     if (typeof item === "function") {
       // ignore
     } else if (item instanceof Array) {
@@ -154,7 +168,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   }
 
   private buildFormGroup(object: any, ignoreKeys?: string | string[]): FormGroup {
-    // console.debug("buildFormGroup()", object);
+    // console.log("buildFormGroup()", object);
     let group: { [key: string]: any } = {};
     for (let key in object) {
       if ((typeof ignoreKeys === "string" && key == ignoreKeys) || (typeof ignoreKeys === "object") && ignoreKeys.some(ignoreKey => ignoreKey === key)) {
@@ -170,12 +184,12 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   }
 
   private buildFormControl(item: Object, ignoreKeys?: string | string[]): FormControl {
-    // console.debug("buildFormControl()", item);
-    return this.formBuilder.control(item);
+    // console.log("buildFormControl()", item);
+    return this.formBuilder.control({ value: item, disabled: !this.allowWrite });
   }
 
   private buildFormArray(array: any[], ignoreKeys?: string | string[]): FormArray {
-    // console.debug("buildFormArray()", array);
+    // console.log("buildFormArray()", array);
     var builder: any[] = [];
     for (let item of array) {
       var control = this.buildForm(item, ignoreKeys);

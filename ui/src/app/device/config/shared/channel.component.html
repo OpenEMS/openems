@@ -1,5 +1,5 @@
 <div *ngIf="form" [formGroup]="form">
-    <ng-container *ngIf="meta.writeRoles.includes(role)">
+    <ng-container>
         <!-- array -->
         <div *ngIf="meta.array == true; else no_array" formArrayName="channelConfig" fxFlex="100%" fxLayout>
             <mat-form-field *ngIf="form.value.channelConfig.length == 0" fxFlex="30%">
@@ -30,11 +30,16 @@
                     </ng-container>
                 </div>
                 <div fxFlex="50px">
-                    <button (click)="removeFromArray(i)" mat-mini-fab><mat-icon>delete</mat-icon></button>
+                    <button (click)="removeFromArray(i)" mat-mini-fab [disabled]="!allowWrite">
+                        <mat-icon>delete</mat-icon>
+                    </button>
                 </div>
             </div>
             <div fxFlex="50px">
-                <button [disabled]="form.value.channelConfig[form.value.channelConfig.length-1] == ''" (click)="addToArray()" mat-mini-fab><mat-icon>add</mat-icon></button>
+                <button [disabled]="form.value.channelConfig[form.value.channelConfig.length-1] == '' || !allowWrite" (click)="addToArray()"
+                    mat-mini-fab>
+                    <mat-icon>add</mat-icon>
+                </button>
             </div>
         </div>
         <!-- no array -->
