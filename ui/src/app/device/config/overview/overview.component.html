@@ -11,7 +11,9 @@
           <mat-list dense fxLayout fxLayoutWrap="wrap">
             <mat-list-item *ngFor="let bridgeId of config.bridges" fxFlex="50%">
               <p mat-line>{{ config.things[bridgeId].class | classname }}</p>
-              <p mat-line><small>{{ bridgeId }}</small></p>
+              <p mat-line>
+                <small>{{ bridgeId }}</small>
+              </p>
             </mat-list-item>
           </mat-list>
         </mat-card-content>
@@ -28,7 +30,9 @@
           <mat-list dense fxLayout fxLayoutWrap="wrap">
             <mat-list-item *ngIf="config.scheduler as schedulerId" fxFlex="50%">
               <p mat-line>{{ config.things[schedulerId].class | classname }}</p>
-              <p mat-line><small>{{ schedulerId }}</small></p>
+              <p mat-line>
+                <small>{{ schedulerId }}</small>
+              </p>
             </mat-list-item>
           </mat-list>
         </mat-card-content>
@@ -45,16 +49,38 @@
           <mat-list dense fxLayout fxLayoutWrap="wrap">
             <mat-list-item *ngFor="let controllerId of config.controllers" fxFlex="50%">
               <p mat-line>{{ config.things[controllerId].class | classname }}</p>
-              <p mat-line><small>{{ controllerId }}</small></p>
+              <p mat-line>
+                <small>{{ controllerId }}</small>
+              </p>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <!--call controller configuration-->
+    <div routerLink="/device/{{ device.name }}/config/persistence" fxFlex="50%" fxFlex.xs="100%">
+      <mat-card class="single">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>apps</mat-icon>
+          <mat-card-title>Datenspeicher</mat-card-title>
+          <!-- TODO translate -->
+        </mat-card-header>
+        <mat-card-content>
+          <mat-list dense fxLayout fxLayoutWrap="wrap">
+            <mat-list-item *ngFor="let persistenceId of config.persistences" fxFlex="50%">
+              <p mat-line>{{ config.things[persistenceId].class | classname }}</p>
+              <p mat-line>
+                <small>{{ persistence }}</small>
+              </p>
             </mat-list-item>
           </mat-list>
         </mat-card-content>
       </mat-card>
     </div>
     <!-- call simulator ui: -->
-    <ng-container *ngIf="config.simulatorDevices">
-      <!-- TODO there could be more than one -->
-      <div routerLink="/device/{{ device.name }}/config/simulator" fxFlex="50%" fxFlex.xs="100%">
+    <!-- <ng-container *ngIf="config.simulatorDevices"> -->
+    <!-- TODO there could be more than one -->
+    <!-- <div routerLink="/device/{{ device.name }}/config/simulator" fxFlex="50%" fxFlex.xs="100%">
         <mat-card class="single">
           <mat-card-header>
             <mat-icon mat-card-avatar>explore</mat-icon>
@@ -69,7 +95,7 @@
           </mat-card-content>
         </mat-card>
       </div>
-    </ng-container>
+    </ng-container> -->
     <!-- call log -->
     <div routerLink="/device/{{ device.name }}/log" fxFlex="50%" fxFlex.xs="100%">
       <mat-card class="single">
@@ -80,7 +106,9 @@
         <mat-card-content>
           <mat-list dense fxLayout fxLayoutWrap="wrap">
             <mat-list-item fxFlex="50%">
-              <p mat-line><span translate>Device.Config.Overview.LiveLog</span></p>
+              <p mat-line>
+                <span translate>Device.Config.Overview.LiveLog</span>
+              </p>
             </mat-list-item>
           </mat-list>
         </mat-card-content>
@@ -96,7 +124,9 @@
         <mat-card-content>
           <mat-list dense fxLayout fxLayoutWrap="wrap">
             <mat-list-item fxFlex="50%">
-              <p mat-line><span translate>Device.Config.Overview.ManualControl</span></p>
+              <p mat-line>
+                <span translate>Device.Config.Overview.ManualControl</span>
+              </p>
             </mat-list-item>
           </mat-list>
         </mat-card-content>
