@@ -142,7 +142,8 @@ public class BrowserWebsocketSingleton
 				try {
 					JsonObject jHistoricData = JsonUtils.getAsJsonObject(jMessage, "historicData");
 					JsonObject jReply = WebSocketUtils.historicData(jMessageId, jHistoricData, deviceIdOpt,
-							Timedata.instance());
+							Timedata.instance(), Role.ADMIN);
+					// TODO read role from device
 					WebSocketUtils.send(websocket, jReply);
 				} catch (OpenemsException e) {
 					// TODO Auto-generated catch block

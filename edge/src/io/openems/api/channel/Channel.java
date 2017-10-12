@@ -28,6 +28,7 @@ import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.session.Role;
 import io.openems.core.utilities.InjectionUtils;
 
@@ -87,11 +88,42 @@ public interface Channel {
 	public Set<Role> readRoles();
 
 	/**
+	 * Is the given Role allowed to read this Channel?
+	 *
+	 * @param role
+	 * @return
+	 */
+	public boolean isReadAllowed(Role role);
+
+	/**
+	 * Is the given Role allowed to read this Channel? Throws AccessDeniedException if not.
+	 *
+	 * @param role
+	 */
+	public void assertReadAllowed(Role role) throws AccessDeniedException;
+
+	/**
 	 * Returns Roles that have write access to this Channel.
 	 *
 	 * @return
 	 */
 	public Set<Role> writeRoles();
+
+	/**
+	 * Is the given Role allowed to write this Channel?
+	 *
+	 * @param role
+	 * @return
+	 */
+	public boolean isWriteAllowed(Role role);
+
+	/**
+	 * Is the given Role allowed to write this Channel? Throws AccessDeniedException if not.
+	 *
+	 * @param role
+	 */
+	public void assertWriteAllowed(Role role) throws AccessDeniedException;
+
 
 	/**
 	 * Sets values for this Channel using its annotation

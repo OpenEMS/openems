@@ -118,6 +118,14 @@ public class ChannelDoc {
 		return defaultValue;
 	}
 
+	public Set<Role> getReadRoles() {
+		return readRoles;
+	}
+
+	public Set<Role> getWriteRoles() {
+		return writeRoles;
+	}
+
 	public JsonObject getAsJsonObject() {
 		JsonObject j = new JsonObject();
 		j.addProperty("name", this.name);

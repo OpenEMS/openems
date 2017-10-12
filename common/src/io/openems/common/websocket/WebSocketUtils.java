@@ -15,6 +15,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.api.TimedataSource;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 
@@ -89,7 +90,7 @@ public class WebSocketUtils {
 	 * @param j
 	 */
 	public static JsonObject historicData(JsonArray jMessageId, JsonObject jHistoricData, Optional<Integer> deviceId,
-			TimedataSource timedataSource) {
+			TimedataSource timedataSource, Role role) {
 		try {
 			String mode = JsonUtils.getAsString(jHistoricData, "mode");
 			if (mode.equals("query")) {
@@ -101,6 +102,7 @@ public class WebSocketUtils {
 				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jHistoricData, "fromDate", timezone);
 				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jHistoricData, "toDate", timezone).plusDays(1);
 				JsonObject channels = JsonUtils.getAsJsonObject(jHistoricData, "channels");
+				// TODO check if role is allowed to read these channels
 				// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
 				// TODO: better calculation of sensible resolution

@@ -61,6 +61,7 @@ import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
+import io.openems.common.session.Role;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -237,7 +238,7 @@ public class Config implements ChannelChangeListener {
 	public void writeConfigFile() throws NotImplementedException {
 		// TODO send config to all attached websockets
 		// get config as json
-		JsonObject jConfig = getJson(ConfigFormat.FILE);
+		JsonObject jConfig =  this.getJson(ConfigFormat.FILE, Role.ADMIN, "en");
 
 		Runnable writeConfigRunnable = new Runnable() {
 			@Override
@@ -404,16 +405,16 @@ public class Config implements ChannelChangeListener {
 		}, 10, TimeUnit.SECONDS);
 	}
 
-	public JsonArray getBridgesJson(ConfigFormat format) throws NotImplementedException {
+	public JsonArray getBridgesJson(ConfigFormat format, Role role) throws NotImplementedException {
 		JsonArray jBridges = new JsonArray();
 		for (Bridge bridge : thingRepository.getBridges()) {
-			JsonObject jBridge = (JsonObject) ConfigUtils.getAsJsonElement(bridge, format);
+			JsonObject jBridge = (JsonObject) ConfigUtils.getAsJsonElement(bridge, format, role);
 			/*
 			 * Device
 			 */
 			JsonArray jDevices = new JsonArray();
 			for (Device device : bridge.getDevices()) {
-				JsonObject jDevice = (JsonObject) ConfigUtils.getAsJsonElement(device, format);
+				JsonObject jDevice = (JsonObject) ConfigUtils.getAsJsonElement(device, format, role);
 				jDevices.add(jDevice);
 			}
 			jBridge.add("devices", jDevices);
@@ -422,16 +423,16 @@ public class Config implements ChannelChangeListener {
 		return jBridges;
 	}
 
-	public JsonObject getSchedulerJson(ConfigFormat format) throws NotImplementedException {
+	public JsonObject getSchedulerJson(ConfigFormat format, Role role) throws NotImplementedException {
 		JsonObject jScheduler = null;
 		for (Scheduler scheduler : thingRepository.getSchedulers()) {
-			jScheduler = (JsonObject) ConfigUtils.getAsJsonElement(scheduler, format);
+			jScheduler = (JsonObject) ConfigUtils.getAsJsonElement(scheduler, format, role);
 			/*
 			 * Controller
 			 */
 			JsonArray jControllers = new JsonArray();
 			for (Controller controller : scheduler.getControllers()) {
-				jControllers.add(ConfigUtils.getAsJsonElement(controller, format));
+				jControllers.add(ConfigUtils.getAsJsonElement(controller, format, role));
 			}
 			jScheduler.add("controllers", jControllers);
 			break; // TODO only one Scheduler supported
@@ -439,10 +440,10 @@ public class Config implements ChannelChangeListener {
 		return jScheduler;
 	}
 
-	public JsonArray getPersistenceJson(ConfigFormat format) throws NotImplementedException {
+	public JsonArray getPersistenceJson(ConfigFormat format, Role role) throws NotImplementedException {
 		JsonArray jPersistences = new JsonArray();
 		for (Persistence persistence : thingRepository.getPersistences()) {
-			JsonObject jPersistence = (JsonObject) ConfigUtils.getAsJsonElement(persistence, format);
+			JsonObject jPersistence = (JsonObject) ConfigUtils.getAsJsonElement(persistence, format, role);
 			jPersistences.add(jPersistence);
 		}
 		return jPersistences;
@@ -460,36 +461,25 @@ public class Config implements ChannelChangeListener {
 	}
 
 	/**
-	 * Gets the Config as Json in the given format in english language
-	 *
-	 * @param format
-	 * @return
-	 * @throws NotImplementedException
-	 */
-	public synchronized JsonObject getJson(ConfigFormat format) throws NotImplementedException {
-		return this.getJson(format, "en"); // TODO use proper language tag
-	}
-
-	/**
 	 * Gets the Config as Json in the given format
 	 *
 	 * @param format
 	 * @return
 	 * @throws NotImplementedException
 	 */
-	// TODO make use of language tag
-	public synchronized JsonObject getJson(ConfigFormat format, String language) throws NotImplementedException {
+	// TODO make use of language tag Enum
+	public synchronized JsonObject getJson(ConfigFormat format, Role role, String language) throws NotImplementedException {
 		JsonObject jConfig = new JsonObject();
 		if (format == ConfigFormat.FILE) {
 			/*
 			 * Prepare Json in format for config.json file
 			 */
 			// Bridge
-			jConfig.add("things", getBridgesJson(format));
+			jConfig.add("things", getBridgesJson(format, role));
 			// Scheduler
-			jConfig.add("scheduler", getSchedulerJson(format));
+			jConfig.add("scheduler", getSchedulerJson(format, role));
 			// Persistence
-			jConfig.add("persistence", getPersistenceJson(format));
+			jConfig.add("persistence", getPersistenceJson(format, role));
 			// Users
 			jConfig.add("users", getUsersJson());
 
@@ -501,7 +491,7 @@ public class Config implements ChannelChangeListener {
 			JsonObject jThings = new JsonObject();
 			Set<Thing> things = ThingRepository.getInstance().getThings();
 			for (Thing thing : things) {
-				JsonObject jThing = (JsonObject) ConfigUtils.getAsJsonElement(thing, format);
+				JsonObject jThing = (JsonObject) ConfigUtils.getAsJsonElement(thing, format, role);
 				jThings.add(thing.id(), jThing);
 			}
 			jConfig.add("things", jThings);

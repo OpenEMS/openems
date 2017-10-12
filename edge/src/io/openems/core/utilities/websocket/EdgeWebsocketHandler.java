@@ -42,7 +42,9 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.persistence.QueryablePersistence;
 import io.openems.common.api.TimedataSource;
+import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
@@ -82,10 +84,18 @@ public class EdgeWebsocketHandler {
 	 */
 	private final ExecutorService logExecutor = Executors.newCachedThreadPool();
 
-	public EdgeWebsocketHandler() {}
+	/**
+	 * Predefined role for this connection. If empty, role is taken from message (in onMessage method).
+	 */
+	private final Optional<Role> roleOpt;
 
-	public EdgeWebsocketHandler(WebSocket websocket) {
+	public EdgeWebsocketHandler() {
+		this.roleOpt = Optional.empty();
+	}
+
+	public EdgeWebsocketHandler(WebSocket websocket, Role role) {
 		this.websocketOpt = Optional.ofNullable(websocket);
+		this.roleOpt = Optional.ofNullable(role);
 	}
 
 	public void setWebsocket(WebSocket websocket) {
@@ -105,6 +115,19 @@ public class EdgeWebsocketHandler {
 		// get message id -> used for reply
 		Optional<JsonArray> jIdOpt = JsonUtils.getAsOptionalJsonArray(jMessage, "id");
 
+		// get role
+		Role role;
+		if(this.roleOpt.isPresent()) {
+			role = this.roleOpt.get();
+		} else {
+			Optional<String> roleStringOpt = JsonUtils.getAsOptionalString(jMessage, "role");
+			if(roleStringOpt.isPresent()) {
+				role = Role.getRole(roleStringOpt.get());
+			} else {
+				role = Role.getDefaultRole();
+			}
+		}
+
 		// prepare reply (every reply is going to be merged into this object with this unique message id)
 		JsonObject jReply = new JsonObject();
 
@@ -117,8 +140,8 @@ public class EdgeWebsocketHandler {
 		Optional<JsonObject> jConfigOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "config");
 		if (jConfigOpt.isPresent()) {
 			jReply = JsonUtils.merge(jReply, //
-					config(jConfigOpt.get()) //
-			);
+					config(jConfigOpt.get(), role) //
+					);
 		}
 
 		/*
@@ -127,8 +150,8 @@ public class EdgeWebsocketHandler {
 		Optional<JsonObject> jCurrentDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "currentData");
 		if (jCurrentDataOpt.isPresent() && jIdOpt.isPresent()) {
 			jReply = JsonUtils.merge(jReply, //
-					currentData(jIdOpt.get(), jCurrentDataOpt.get()) //
-			);
+					currentData(jIdOpt.get(), jCurrentDataOpt.get(), role) //
+					);
 		}
 
 		/*
@@ -147,8 +170,8 @@ public class EdgeWebsocketHandler {
 				// TODO create notification that there is no datasource available
 			} else {
 				jReply = JsonUtils.merge(jReply, //
-						WebSocketUtils.historicData(jIdOpt.get(), jhistoricDataOpt.get(), deviceIdOpt, timedataSource) //
-				);
+						WebSocketUtils.historicData(jIdOpt.get(), jhistoricDataOpt.get(), deviceIdOpt, timedataSource, role) //
+						);
 			}
 		}
 
@@ -157,9 +180,14 @@ public class EdgeWebsocketHandler {
 		 */
 		Optional<JsonObject> jLogOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "log");
 		if (jLogOpt.isPresent() && jIdOpt.isPresent()) {
-			jReply = JsonUtils.merge(jReply, //
-					log(jIdOpt.get(), jLogOpt.get()) //
-			);
+			try {
+				jReply = JsonUtils.merge(jReply, //
+						log(jIdOpt.get(), jLogOpt.get(), role) //
+						);
+			} catch (AccessDeniedException e) {
+				// TODO create notification
+				log.error(e.getMessage());
+			}
 		}
 
 		// send reply
@@ -177,7 +205,7 @@ public class EdgeWebsocketHandler {
 	 * @param jConfig
 	 * @return
 	 */
-	private synchronized JsonObject config(JsonObject jConfig) {
+	private synchronized JsonObject config(JsonObject jConfig, Role role) {
 		try {
 			String mode = JsonUtils.getAsString(jConfig, "mode");
 
@@ -186,7 +214,7 @@ public class EdgeWebsocketHandler {
 				 * Query current config
 				 */
 				String language = JsonUtils.getAsString(jConfig, "language");
-				JsonObject jReplyConfig = Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, language);
+				JsonObject jReplyConfig = Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, role, language);
 				return DefaultMessages.configQueryReply(jReplyConfig);
 
 			} else if (mode.equals("update")) {
@@ -200,6 +228,8 @@ public class EdgeWebsocketHandler {
 					Optional<Channel> channelOpt = ThingRepository.getInstance().getChannel(thingId, channelId);
 					if (channelOpt.isPresent()) {
 						Channel channel = channelOpt.get();
+						// check write permissions
+						channel.assertWriteAllowed(role);
 						if (channel instanceof ConfigChannel<?>) {
 							/*
 							 * ConfigChannel
@@ -239,7 +269,7 @@ public class EdgeWebsocketHandler {
 	 *
 	 * @param j
 	 */
-	private synchronized JsonObject currentData(JsonArray jId, JsonObject jCurrentData) {
+	private synchronized JsonObject currentData(JsonArray jId, JsonObject jCurrentData, Role role) {
 		try {
 			String mode = JsonUtils.getAsString(jCurrentData, "mode");
 
@@ -267,7 +297,7 @@ public class EdgeWebsocketHandler {
 				}
 				if (!channels.isEmpty()) {
 					// create new worker
-					worker = new CurrentDataWorker(jId, channels, this);
+					worker = new CurrentDataWorker(jId, channels, role, this);
 					this.currentDataSubscribers.put(messageId, worker);
 				}
 			}
@@ -281,8 +311,12 @@ public class EdgeWebsocketHandler {
 	 * Handle system log subscriptions
 	 *
 	 * @param j
+	 * @throws AccessDeniedException
 	 */
-	private synchronized JsonObject log(JsonArray jId, JsonObject jLog) {
+	private synchronized JsonObject log(JsonArray jId, JsonObject jLog, Role role) throws AccessDeniedException {
+		if(!(role == Role.ADMIN || role == Role.INSTALLER || role == Role.OWNER)) {
+			throw new AccessDeniedException("User role ["+role+"] is not allowed to read system logs.");
+		}
 		try {
 			String mode = JsonUtils.getAsString(jLog, "mode");
 			String messageId = jId.get(jId.size() - 1).getAsString();

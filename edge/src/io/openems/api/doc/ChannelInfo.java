@@ -55,9 +55,17 @@ public @interface ChannelInfo {
 
 	boolean isArray() default DEFAULT_IS_ARRAY;
 
-	// by default the "ADMIN" role is required for write
+	/**
+	 * By default all roles are allowed to read. ADMIN is added automatically to this list.
+	 *
+	 * @return
+	 */
 	Role[] readRoles() default { Role.GUEST, Role.OWNER, Role.INSTALLER, Role.ADMIN };
-	// by default all role is required for write
+	/**
+	 * By default only the "ADMIN" role is allowed to write. ADMIN is added automatically to this list.
+	 *
+	 * @return
+	 */
 	Role[] writeRoles() default { Role.ADMIN };
 
 	/**

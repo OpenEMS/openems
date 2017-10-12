@@ -16,4 +16,8 @@ public enum Role {
 			return GUEST;
 		}
 	}
+	
+	public static Role getDefaultRole() {
+		return GUEST;
+	}
 }

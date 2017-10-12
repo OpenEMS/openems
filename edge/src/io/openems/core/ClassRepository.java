@@ -46,6 +46,7 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingDoc;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ReflectionException;
+import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
 import io.openems.core.utilities.ConfigUtils;
@@ -71,6 +72,7 @@ public class ClassRepository {
 	private Set<Class<? extends Device>> devices = new HashSet<>();
 	private Set<Class<? extends DeviceNature>> deviceNatures = new HashSet<>();
 	private Set<Class<? extends Controller>> controllers = new HashSet<>();
+	private Set<Class<? extends Persistence>> persistences = new HashSet<>();
 	private HashMap<Class<? extends Thing>, ThingDoc> thingDocs = new HashMap<>();
 
 	public ClassRepository() {}
@@ -81,7 +83,8 @@ public class ClassRepository {
 				getAvailableControllers(), //
 				getAvailableDevices(), //
 				getAvailableDeviceNatures(), //
-				getAvailableSchedulers());
+				getAvailableSchedulers(), //
+				getAvailablePersistences());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -168,6 +171,23 @@ public class ClassRepository {
 			schedulerDocs.add(this.getThingDoc(clazz));
 		}
 		return Collections.unmodifiableCollection(schedulerDocs);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Collection<ThingDoc> getAvailablePersistences() throws ReflectionException {
+		// update cache of available schedulers
+		if (this.persistences.isEmpty()) {
+			for (Class<? extends Thing> clazz : ConfigUtils.getAvailableClasses("io.openems.impl.persistence",
+					Persistence.class, "Persistence")) {
+				this.persistences.add((Class<? extends Persistence>) clazz);
+			}
+		}
+		// create result
+		Collection<ThingDoc> persistenceDocs = new ArrayList<>();
+		for (Class<? extends Persistence> clazz : this.persistences) {
+			persistenceDocs.add(this.getThingDoc(clazz));
+		}
+		return Collections.unmodifiableCollection(persistenceDocs);
 	}
 
 	/**

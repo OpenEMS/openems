@@ -38,6 +38,7 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.session.Role;
 import io.openems.core.Databus;
 import io.openems.core.utilities.InjectionUtils;
@@ -235,6 +236,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	@Override
 	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
 		this.type = channelDoc.getTypeOpt();
+		this.readRoles.addAll(channelDoc.getReadRoles());
+		this.writeRoles.addAll(channelDoc.getWriteRoles());
 	}
 
 	/**
@@ -381,5 +384,29 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	@Override
 	public String toString() {
 		return address() + ": " + value.toString();
+	}
+
+	@Override
+	public boolean isReadAllowed(Role role) {
+		return this.readRoles.contains(role);
+	}
+
+	@Override
+	public void assertReadAllowed(Role role) throws AccessDeniedException {
+		if(!isReadAllowed(role)) {
+			throw new AccessDeniedException("User role [" + role.toString().toLowerCase() + "] is not allowed to read channel [" + this.address() + "]");
+		}
+	}
+
+	@Override
+	public boolean isWriteAllowed(Role role) {
+		// this is a ReadChannel. Always return false.
+		return false;
+	}
+
+	@Override
+	public void assertWriteAllowed(Role role) throws AccessDeniedException {
+		// this is a ReadChannel. Always throw exception.
+		throw new AccessDeniedException("User role [" + role.toString().toLowerCase() + "] is not allowed to write READ-ONLY channel [" + this.address() + "]");
 	}
 }
