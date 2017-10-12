@@ -72,7 +72,6 @@ export class SocChartComponent implements OnInit, OnChanges {
       }
       for (let record of historicData.data) {
         // read timestamp and soc of each device
-        console.log("SocChart: ", record.time);
         labels.push(new Date(record.time));
         for (let thing in this.channels) {
           let soc = null;

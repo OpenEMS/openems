@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import * as deLocale from 'date-fns/locale/de/index.js'
 
 export type Data = {
     labels: Date,
@@ -118,7 +119,8 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         mode: 'label',
         callbacks: {
             title(tooltipItems: TooltipItem[], data: Data): string {
-                return format(tooltipItems[0].xLabel, "LLLL");
+                return format(tooltipItems[0].xLabel, "LLLL", { locale: deLocale });
+                // TODO translate locale
             }
         }
     }
