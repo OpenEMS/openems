@@ -15,7 +15,7 @@ Dependencies are managed by yarn: `ng set --global packageManager=yarn` and `yar
 
  - connect to local OpenEMS Edge
 
-	`ng serve`
+	`ng serve`  (Expects openems-edge on `ws://localhost:8075`)
 
 ## Build using maven
 
