@@ -22,6 +22,7 @@ import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
@@ -31,8 +32,9 @@ import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.system.SystemDeviceNature;
 
+@ThingInfo(title = "Ess Asymmetric-Symmetric-Combination")
 public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
-		implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener {
+implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener {
 
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
@@ -54,796 +56,796 @@ public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 	private FunctionalReadChannel<Long> activePowerL1 = new FunctionalReadChannel<Long>("ActivePowerL1", this,
 			new FunctionalReadChannelFunction<Long>() {
 
-				@Override
-				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
-						throws InvalidValueException {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[0].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+				throws InvalidValueException {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[0].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-			});
+	});
 	private FunctionalReadChannel<Long> activePowerL2 = new FunctionalReadChannel<Long>("ActivePowerL2", this,
 			new FunctionalReadChannelFunction<Long>() {
 
-				@Override
-				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
-						throws InvalidValueException {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[1].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+				throws InvalidValueException {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[1].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-			});
+	});
 	private FunctionalReadChannel<Long> activePowerL3 = new FunctionalReadChannel<Long>("ActivePowerL3", this,
 			new FunctionalReadChannelFunction<Long>() {
 
-				@Override
-				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
-						throws InvalidValueException {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[2].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+				throws InvalidValueException {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[2].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-			});
+	});
 	private FunctionalReadChannel<Long> reactivePowerL1 = new FunctionalReadChannel<Long>("ReactivePowerL1", this,
 			new FunctionalReadChannelFunction<Long>() {
 
-				@Override
-				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
-						throws InvalidValueException {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[0].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+				throws InvalidValueException {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[0].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-			});
+	});
 	private FunctionalReadChannel<Long> reactivePowerL2 = new FunctionalReadChannel<Long>("ReactivePowerL2", this,
 			new FunctionalReadChannelFunction<Long>() {
 
-				@Override
-				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
-						throws InvalidValueException {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[1].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+				throws InvalidValueException {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[1].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-			});
+	});
 	private FunctionalReadChannel<Long> reactivePowerL3 = new FunctionalReadChannel<Long>("ReactivePowerL3", this,
 			new FunctionalReadChannelFunction<Long>() {
 
-				@Override
-				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
-						throws InvalidValueException {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[2].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+				throws InvalidValueException {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[2].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-			});
+	});
 	private FunctionalReadChannel<Long> activePower = new FunctionalReadChannel<Long>("ActivePower", this,
 			new FunctionalReadChannelFunction<Long>() {
 
-				@Override
-				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
-						throws InvalidValueException {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						value = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-					}
-					return value;
-				}
+		@Override
+		public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+				throws InvalidValueException {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				value = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+			}
+			return value;
+		}
 
-			});
+	});
 	private FunctionalReadChannel<Long> reactivePower = new FunctionalReadChannel<Long>("ReactivePower", this,
 			new FunctionalReadChannelFunction<Long>() {
 
-				@Override
-				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
-						throws InvalidValueException {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						value = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-					}
-					return value;
-				}
+		@Override
+		public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels)
+				throws InvalidValueException {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				value = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+			}
+			return value;
+		}
 
-			});
+	});
 	private FunctionalReadChannel<Long> apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this,
 			new FunctionalReadChannelFunction<Long>() {
 
-				@Override
-				public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					long sum = 0L;
-					try {
-						sum = ControllerUtils.calculateApparentPower(channels[0].value(), channels[1].value());
-					} catch (InvalidValueException e) {
-						log.error("Can't read values of " + ess.id(), e);
-					}
-					return sum;
-				}
+		@Override
+		public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
+			long sum = 0L;
+			try {
+				sum = ControllerUtils.calculateApparentPower(channels[0].value(), channels[1].value());
+			} catch (InvalidValueException e) {
+				log.error("Can't read values of " + ess.id(), e);
+			}
+			return sum;
+		}
 
-			}, activePower, reactivePower).unit("VA");
+	}, activePower, reactivePower).unit("VA");
 	private FunctionalWriteChannel<Long> setActivePowerL1 = new FunctionalWriteChannel<Long>("SetActivePowerL1", this,
 			new FunctionalWriteChannelFunction<Long>() {
 
-				@Override
-				public Long setValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[0].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[0].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-				@Override
-				public Long getMinValue(Optional<Long> minValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMinPowerPhase(1, minValue, getNativeSetPower(1), getThisSetPower(1),
-							getThisSetReactivePower(1), setActivePower, setReactivePower);
-				}
+		@Override
+		public Long getMinValue(Optional<Long> minValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMinPowerPhase(1, minValue, getNativeSetPower(1), getThisSetPower(1),
+					getThisSetReactivePower(1), setActivePower, setReactivePower);
+		}
 
-				@Override
-				public Long getMaxValue(Optional<Long> maxValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMaxPowerPhase(1, maxValue, getNativeSetPower(1), getThisSetPower(1),
-							getThisSetReactivePower(1), setActivePower, setReactivePower);
-				}
+		@Override
+		public Long getMaxValue(Optional<Long> maxValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMaxPowerPhase(1, maxValue, getNativeSetPower(1), getThisSetPower(1),
+					getThisSetReactivePower(1), setActivePower, setReactivePower);
+		}
 
-				@Override
-				public Long setMinValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMinValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long setMaxValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMaxValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-			});
+	});
 	private FunctionalWriteChannel<Long> setActivePowerL2 = new FunctionalWriteChannel<Long>("SetActivePowerL2", this,
 			new FunctionalWriteChannelFunction<Long>() {
 
-				@Override
-				public Long setValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[1].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[1].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-				@Override
-				public Long getMinValue(Optional<Long> minValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMinPowerPhase(2, minValue, getNativeSetPower(2), getThisSetPower(2),
-							getThisSetReactivePower(2), setActivePower, setReactivePower);
-				}
+		@Override
+		public Long getMinValue(Optional<Long> minValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMinPowerPhase(2, minValue, getNativeSetPower(2), getThisSetPower(2),
+					getThisSetReactivePower(2), setActivePower, setReactivePower);
+		}
 
-				@Override
-				public Long getMaxValue(Optional<Long> maxValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMaxPowerPhase(2, maxValue, getNativeSetPower(2), getThisSetPower(2),
-							getThisSetReactivePower(2), setActivePower, setReactivePower);
-				}
+		@Override
+		public Long getMaxValue(Optional<Long> maxValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMaxPowerPhase(2, maxValue, getNativeSetPower(2), getThisSetPower(2),
+					getThisSetReactivePower(2), setActivePower, setReactivePower);
+		}
 
-				@Override
-				public Long setMinValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMinValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long setMaxValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMaxValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-			});
+	});
 	private FunctionalWriteChannel<Long> setActivePowerL3 = new FunctionalWriteChannel<Long>("SetActivePowerL3", this,
 			new FunctionalWriteChannelFunction<Long>() {
 
-				@Override
-				public Long setValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[2].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[2].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-				@Override
-				public Long getMinValue(Optional<Long> minValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMinPowerPhase(3, minValue, getNativeSetPower(3), getThisSetPower(3),
-							getThisSetReactivePower(3), setActivePower, setReactivePower);
-				}
+		@Override
+		public Long getMinValue(Optional<Long> minValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMinPowerPhase(3, minValue, getNativeSetPower(3), getThisSetPower(3),
+					getThisSetReactivePower(3), setActivePower, setReactivePower);
+		}
 
-				@Override
-				public Long getMaxValue(Optional<Long> maxValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMaxPowerPhase(3, maxValue, getNativeSetPower(3), getThisSetPower(3),
-							getThisSetReactivePower(3), setActivePower, setReactivePower);
-				}
+		@Override
+		public Long getMaxValue(Optional<Long> maxValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMaxPowerPhase(3, maxValue, getNativeSetPower(3), getThisSetPower(3),
+					getThisSetReactivePower(3), setActivePower, setReactivePower);
+		}
 
-				@Override
-				public Long setMinValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMinValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long setMaxValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMaxValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-			});
+	});
 
 	private FunctionalWriteChannel<Long> setActivePower = new FunctionalWriteChannel<Long>("SetActivePower", this,
 			new FunctionalWriteChannelFunction<Long>() {
 
-				@Override
-				public Long setValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 3) {
-						for (int i = 0; i < 3; i++) {
-							channels[i].checkIntervalBoundaries(newValue / 3);
-						}
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
+		@Override
+		public Long setValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length == 3) {
+				for (int i = 0; i < 3; i++) {
+					channels[i].checkIntervalBoundaries(newValue / 3);
 				}
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					Long sum = 0L;
-					for (ReadChannel<Long> channel : channels) {
-						if (channel == null || !channel.valueOptional().isPresent()) {
-							return null;
-						}
-						sum += channel.valueOptional().get();
-					}
-					return sum;
+		@Override
+		public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
+			Long sum = 0L;
+			for (ReadChannel<Long> channel : channels) {
+				if (channel == null || !channel.valueOptional().isPresent()) {
+					return null;
 				}
+				sum += channel.valueOptional().get();
+			}
+			return sum;
+		}
 
-				@SuppressWarnings("unchecked")
-				@Override
-				public Long getMinValue(Optional<Long> minValue, WriteChannel<Long>... channels) {
-					WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
-					WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setActivePowerL1,
-							setActivePowerL2, setActivePowerL3 };
-					WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
-							setReactivePowerL2, setReactivePowerL3 };
-					if (channels.length == 3) {
-						nativeSetPrimaryPowerPhase = channels;
-					}
-					Long minActivePower = getMinPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
-							thisSetSecundaryPowerPhase, setActivePower, setReactivePower);
-					return minActivePower;
+		@SuppressWarnings("unchecked")
+		@Override
+		public Long getMinValue(Optional<Long> minValue, WriteChannel<Long>... channels) {
+			WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
+			WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setActivePowerL1,
+					setActivePowerL2, setActivePowerL3 };
+			WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
+					setReactivePowerL2, setReactivePowerL3 };
+			if (channels.length == 3) {
+				nativeSetPrimaryPowerPhase = channels;
+			}
+			Long minActivePower = getMinPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
+					thisSetSecundaryPowerPhase, setActivePower, setReactivePower);
+			return minActivePower;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Long getMaxValue(Optional<Long> maxValue, WriteChannel<Long>... channels) {
+			WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
+			WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setActivePowerL1,
+					setActivePowerL2, setActivePowerL3 };
+			WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
+					setReactivePowerL2, setReactivePowerL3 };
+			if (channels.length == 3) {
+				nativeSetPrimaryPowerPhase = channels;
+			}
+			Long maxActivePower = getMaxPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
+					thisSetSecundaryPowerPhase, setActivePower, setReactivePower);
+			if (maxActivePower == null) {
+				return null;
+			}
+			return maxActivePower;
+		}
+
+		@Override
+		public Long setMinValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length == 3) {
+				for (int i = 0; i < 3; i++) {
+					channels[i].checkIntervalBoundaries(newValue / 3);
 				}
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@SuppressWarnings("unchecked")
-				@Override
-				public Long getMaxValue(Optional<Long> maxValue, WriteChannel<Long>... channels) {
-					WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
-					WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setActivePowerL1,
-							setActivePowerL2, setActivePowerL3 };
-					WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
-							setReactivePowerL2, setReactivePowerL3 };
-					if (channels.length == 3) {
-						nativeSetPrimaryPowerPhase = channels;
-					}
-					Long maxActivePower = getMaxPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
-							thisSetSecundaryPowerPhase, setActivePower, setReactivePower);
-					if (maxActivePower == null) {
-						return null;
-					}
-					return maxActivePower;
+		@Override
+		public Long setMaxValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length == 3) {
+				for (int i = 0; i < 3; i++) {
+					channels[i].checkIntervalBoundaries(newValue / 3);
 				}
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long setMinValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 3) {
-						for (int i = 0; i < 3; i++) {
-							channels[i].checkIntervalBoundaries(newValue / 3);
-						}
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
-
-				@Override
-				public Long setMaxValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 3) {
-						for (int i = 0; i < 3; i++) {
-							channels[i].checkIntervalBoundaries(newValue / 3);
-						}
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
-
-			});
+	});
 	private FunctionalWriteChannel<Long> setReactivePowerL1 = new FunctionalWriteChannel<Long>("SetReactivePowerL1",
 			this, new FunctionalWriteChannelFunction<Long>() {
 
-				@Override
-				public Long setValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[0].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[0].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-				@Override
-				public Long getMinValue(Optional<Long> minValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMinPowerPhase(1, minValue, getNativeSetReactivePower(1), getThisSetReactivePower(1),
-							getThisSetPower(1), setReactivePower, setActivePower);
-				}
+		@Override
+		public Long getMinValue(Optional<Long> minValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMinPowerPhase(1, minValue, getNativeSetReactivePower(1), getThisSetReactivePower(1),
+					getThisSetPower(1), setReactivePower, setActivePower);
+		}
 
-				@Override
-				public Long getMaxValue(Optional<Long> maxValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMaxPowerPhase(1, maxValue, getNativeSetReactivePower(1), getThisSetReactivePower(1),
-							getThisSetPower(1), setReactivePower, setActivePower);
-				}
+		@Override
+		public Long getMaxValue(Optional<Long> maxValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMaxPowerPhase(1, maxValue, getNativeSetReactivePower(1), getThisSetReactivePower(1),
+					getThisSetPower(1), setReactivePower, setActivePower);
+		}
 
-				@Override
-				public Long setMinValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMinValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long setMaxValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMaxValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-			});
+	});
 	private FunctionalWriteChannel<Long> setReactivePowerL2 = new FunctionalWriteChannel<Long>("SetReactivePowerL2",
 			this, new FunctionalWriteChannelFunction<Long>() {
 
-				@Override
-				public Long setValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[1].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[1].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-				@Override
-				public Long getMinValue(Optional<Long> minValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMinPowerPhase(2, minValue, getNativeSetReactivePower(2), getThisSetReactivePower(2),
-							getThisSetPower(2), setReactivePower, setActivePower);
-				}
+		@Override
+		public Long getMinValue(Optional<Long> minValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMinPowerPhase(2, minValue, getNativeSetReactivePower(2), getThisSetReactivePower(2),
+					getThisSetPower(2), setReactivePower, setActivePower);
+		}
 
-				@Override
-				public Long getMaxValue(Optional<Long> maxValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMaxPowerPhase(2, maxValue, getNativeSetReactivePower(2), getThisSetReactivePower(2),
-							getThisSetPower(2), setReactivePower, setActivePower);
-				}
+		@Override
+		public Long getMaxValue(Optional<Long> maxValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMaxPowerPhase(2, maxValue, getNativeSetReactivePower(2), getThisSetReactivePower(2),
+					getThisSetPower(2), setReactivePower, setActivePower);
+		}
 
-				@Override
-				public Long setMinValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMinValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long setMaxValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMaxValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-			});
+	});
 	private FunctionalWriteChannel<Long> setReactivePowerL3 = new FunctionalWriteChannel<Long>("SetReactivePowerL3",
 			this, new FunctionalWriteChannelFunction<Long>() {
 
-				@Override
-				public Long setValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					Long value = null;
-					if (channels.length == 3 && channels[0].valueOptional().isPresent()
-							&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
-						long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
-								+ channels[2].valueOptional().get();
-						value = channels[2].valueOptional().get() - sum / 3;
-					}
-					return value;
-				}
+		@Override
+		public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
+			Long value = null;
+			if (channels.length == 3 && channels[0].valueOptional().isPresent()
+					&& channels[1].valueOptional().isPresent() && channels[2].valueOptional().isPresent()) {
+				long sum = channels[0].valueOptional().get() + channels[1].valueOptional().get()
+						+ channels[2].valueOptional().get();
+				value = channels[2].valueOptional().get() - sum / 3;
+			}
+			return value;
+		}
 
-				@Override
-				public Long getMinValue(Optional<Long> minValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMinPowerPhase(3, minValue, getNativeSetReactivePower(3), getThisSetReactivePower(3),
-							getThisSetPower(3), setReactivePower, setActivePower);
-				}
+		@Override
+		public Long getMinValue(Optional<Long> minValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMinPowerPhase(3, minValue, getNativeSetReactivePower(3), getThisSetReactivePower(3),
+					getThisSetPower(3), setReactivePower, setActivePower);
+		}
 
-				@Override
-				public Long getMaxValue(Optional<Long> maxValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					return getMaxPowerPhase(3, maxValue, getNativeSetReactivePower(3), getThisSetReactivePower(3),
-							getThisSetPower(3), setReactivePower, setActivePower);
-				}
+		@Override
+		public Long getMaxValue(Optional<Long> maxValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			return getMaxPowerPhase(3, maxValue, getNativeSetReactivePower(3), getThisSetReactivePower(3),
+					getThisSetPower(3), setReactivePower, setActivePower);
+		}
 
-				@Override
-				public Long setMinValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMinValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long setMaxValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length >= 1) {
-						channels[0].checkIntervalBoundaries(newValue);
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
+		@Override
+		public Long setMaxValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length >= 1) {
+				channels[0].checkIntervalBoundaries(newValue);
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-			});
+	});
 
 	private FunctionalWriteChannel<Long> setReactivePower = new FunctionalWriteChannel<Long>("SetReactivePower", this,
 			new FunctionalWriteChannelFunction<Long>() {
 
-				@Override
-				public Long setValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 3) {
-						for (int i = 0; i < 3; i++) {
-							channels[i].checkIntervalBoundaries(newValue / 3);
-						}
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
+		@Override
+		public Long setValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length == 3) {
+				for (int i = 0; i < 3; i++) {
+					channels[i].checkIntervalBoundaries(newValue / 3);
 				}
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					Long sum = 0L;
-					for (ReadChannel<Long> channel : channels) {
-						if (channel == null || !channel.valueOptional().isPresent()) {
-							return null;
-						}
-						sum += channel.valueOptional().get();
-					}
-					return sum;
+		@Override
+		public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
+			Long sum = 0L;
+			for (ReadChannel<Long> channel : channels) {
+				if (channel == null || !channel.valueOptional().isPresent()) {
+					return null;
 				}
+				sum += channel.valueOptional().get();
+			}
+			return sum;
+		}
 
-				@SuppressWarnings("unchecked")
-				@Override
-				public Long getMinValue(Optional<Long> minValue, WriteChannel<Long>... channels) {
-					WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
-					WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setActivePowerL1,
-							setActivePowerL2, setActivePowerL3 };
-					WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
-							setReactivePowerL2, setReactivePowerL3 };
-					if (channels.length == 3) {
-						nativeSetPrimaryPowerPhase = channels;
-					}
-					Long minReactivePower = getMinPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
-							thisSetSecundaryPowerPhase, setReactivePower, setActivePower);
-					if (minReactivePower == null) {
-						return null;
-					}
-					return minReactivePower;
+		@SuppressWarnings("unchecked")
+		@Override
+		public Long getMinValue(Optional<Long> minValue, WriteChannel<Long>... channels) {
+			WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
+			WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setActivePowerL1,
+					setActivePowerL2, setActivePowerL3 };
+			WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
+					setReactivePowerL2, setReactivePowerL3 };
+			if (channels.length == 3) {
+				nativeSetPrimaryPowerPhase = channels;
+			}
+			Long minReactivePower = getMinPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
+					thisSetSecundaryPowerPhase, setReactivePower, setActivePower);
+			if (minReactivePower == null) {
+				return null;
+			}
+			return minReactivePower;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Long getMaxValue(Optional<Long> maxValue, WriteChannel<Long>... channels) {
+			WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
+			WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setActivePowerL1,
+					setActivePowerL2, setActivePowerL3 };
+			WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
+					setReactivePowerL2, setReactivePowerL3 };
+			if (channels.length == 3) {
+				nativeSetPrimaryPowerPhase = channels;
+			}
+			Long maxReactivePower = getMaxPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
+					thisSetSecundaryPowerPhase, setReactivePower, setActivePower);
+			if (maxReactivePower == null) {
+				return null;
+			}
+			return maxReactivePower;
+		}
+
+		@Override
+		public Long setMinValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length == 3) {
+				for (int i = 0; i < 3; i++) {
+					channels[i].checkIntervalBoundaries(newValue / 3);
 				}
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@SuppressWarnings("unchecked")
-				@Override
-				public Long getMaxValue(Optional<Long> maxValue, WriteChannel<Long>... channels) {
-					WriteChannel<Long>[] nativeSetPrimaryPowerPhase = new WriteChannel[3];
-					WriteChannel<Long>[] thisSetSecundaryPowerPhase = new WriteChannel[] { setActivePowerL1,
-							setActivePowerL2, setActivePowerL3 };
-					WriteChannel<Long>[] thisSetPrimaryPowerPhase = new WriteChannel[] { setReactivePowerL1,
-							setReactivePowerL2, setReactivePowerL3 };
-					if (channels.length == 3) {
-						nativeSetPrimaryPowerPhase = channels;
-					}
-					Long maxReactivePower = getMaxPower(nativeSetPrimaryPowerPhase, thisSetPrimaryPowerPhase,
-							thisSetSecundaryPowerPhase, setReactivePower, setActivePower);
-					if (maxReactivePower == null) {
-						return null;
-					}
-					return maxReactivePower;
+		@Override
+		public Long setMaxValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
+			if (channels.length == 3) {
+				for (int i = 0; i < 3; i++) {
+					channels[i].checkIntervalBoundaries(newValue / 3);
 				}
+				return newValue;
+			} else {
+				throw new WriteChannelException("no essNature to control available");
+			}
+		}
 
-				@Override
-				public Long setMinValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 3) {
-						for (int i = 0; i < 3; i++) {
-							channels[i].checkIntervalBoundaries(newValue / 3);
-						}
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
-
-				@Override
-				public Long setMaxValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-					if (channels.length == 3) {
-						for (int i = 0; i < 3; i++) {
-							channels[i].checkIntervalBoundaries(newValue / 3);
-						}
-						return newValue;
-					} else {
-						throw new WriteChannelException("no essNature to control available");
-					}
-				}
-
-			});
+	});
 	private FunctionalWriteChannel<Long> setWorkState = new FunctionalWriteChannel<Long>("SetWorkState", this,
 			new FunctionalWriteChannelFunction<Long>() {
 
-				@Override
-				public Long setValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					if (channels.length == 1) {
-						try {
-							channels[0].pushWriteFromLabel(newLabel);
-						} catch (WriteChannelException e) {
-							log.error("Can't set value for channel " + channels[0].address(), e);
-						}
-					}
-					return newValue;
+		@Override
+		public Long setValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			if (channels.length == 1) {
+				try {
+					channels[0].pushWriteFromLabel(newLabel);
+				} catch (WriteChannelException e) {
+					log.error("Can't set value for channel " + channels[0].address(), e);
 				}
+			}
+			return newValue;
+		}
 
-				@Override
-				public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-					if (channels.length == 1 && channels[0].labelOptional().equals(Optional.of(EssNature.START))) {
-						return 1L;
-					}
-					return 0L;
+		@Override
+		public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
+			if (channels.length == 1 && channels[0].labelOptional().equals(Optional.of(EssNature.START))) {
+				return 1L;
+			}
+			return 0L;
+		}
+
+		@Override
+		public Long getMinValue(Optional<Long> minValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			long min = Long.MIN_VALUE;
+			if (channels.length == 1 && channels[0].writeMin().isPresent()
+					&& channels[0].writeMin().get() > min) {
+				min = channels[0].writeMin().get();
+			}
+			if (min == Long.MIN_VALUE) {
+				return null;
+			} else {
+				return min;
+			}
+		}
+
+		@Override
+		public Long getMaxValue(Optional<Long> maxValue,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			long max = Long.MAX_VALUE;
+			if (channels.length == 1 && channels[0].writeMax().isPresent()
+					&& channels[0].writeMax().get() < max) {
+				max = channels[0].writeMax().get();
+			}
+			if (max == Long.MAX_VALUE) {
+				return null;
+			} else {
+				return max;
+			}
+		}
+
+		@Override
+		public Long setMinValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			if (channels.length == 1) {
+				try {
+					channels[0].pushWriteMin(newValue);
+				} catch (WriteChannelException e) {
+					log.error("Can't set value for channel " + channels[0].address(), e);
 				}
+			}
+			return newValue;
+		}
 
-				@Override
-				public Long getMinValue(Optional<Long> minValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					long min = Long.MIN_VALUE;
-					if (channels.length == 1 && channels[0].writeMin().isPresent()
-							&& channels[0].writeMin().get() > min) {
-						min = channels[0].writeMin().get();
-					}
-					if (min == Long.MIN_VALUE) {
-						return null;
-					} else {
-						return min;
-					}
+		@Override
+		public Long setMaxValue(Long newValue, String newLabel,
+				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
+			if (channels.length == 1) {
+				try {
+					channels[0].pushWriteMax(newValue);
+				} catch (WriteChannelException e) {
+					log.error("Can't set value for channel " + channels[0].address(), e);
 				}
+			}
+			return newValue;
+		}
 
-				@Override
-				public Long getMaxValue(Optional<Long> maxValue,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					long max = Long.MAX_VALUE;
-					if (channels.length == 1 && channels[0].writeMax().isPresent()
-							&& channels[0].writeMax().get() < max) {
-						max = channels[0].writeMax().get();
-					}
-					if (max == Long.MAX_VALUE) {
-						return null;
-					} else {
-						return max;
-					}
-				}
-
-				@Override
-				public Long setMinValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					if (channels.length == 1) {
-						try {
-							channels[0].pushWriteMin(newValue);
-						} catch (WriteChannelException e) {
-							log.error("Can't set value for channel " + channels[0].address(), e);
-						}
-					}
-					return newValue;
-				}
-
-				@Override
-				public Long setMaxValue(Long newValue, String newLabel,
-						@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-					if (channels.length == 1) {
-						try {
-							channels[0].pushWriteMax(newValue);
-						} catch (WriteChannelException e) {
-							log.error("Can't set value for channel " + channels[0].address(), e);
-						}
-					}
-					return newValue;
-				}
-
-			}).label(0L, EssNature.STOP).label(1L, EssNature.START);
+	}).label(0L, EssNature.STOP).label(1L, EssNature.START);
 
 	public AsymmetricSymmetricCombinationEssNature(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
