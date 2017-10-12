@@ -2,29 +2,41 @@
   <mat-sidenav #sidenav mode="push">
     <mat-list>
       <mat-list-item>
-        <button routerLinkActive="active" routerLink="/overview" mat-button><span translate>Menu.Overview</span></button>
+        <button routerLinkActive="active" routerLink="/overview" mat-button>
+          <span translate>Menu.Overview</span>
+        </button>
       </mat-list-item>
       <mat-list-item *ngIf="env.backend === 'OpenEMS Edge' && env.production">
         <!--TODO: is this link still necessary?-->
-        <a href="/grafana/dashboard/file/fems-asymmetric.json" mat-button><span translate>General.History</span></a>
+        <a href="/grafana/dashboard/file/fems-asymmetric.json" mat-button>
+          <span translate>General.History</span>
+        </a>
       </mat-list-item>
       <mat-list-item>
-        <button routerLinkActive="active" routerLink="/about" mat-button><span translate>Menu.AboutUI</span></button>
+        <button routerLinkActive="active" routerLink="/about" mat-button>
+          <span translate>Menu.AboutUI</span>
+        </button>
       </mat-list-item>
     </mat-list>
   </mat-sidenav>
   <div fxLayout="row" fxLayoutAlign="space-between left">
     <mat-toolbar color="primary">
       <div fxFlex="40px">
-        <button routerLinkActive="active" (click)="sidenav.toggle()" mat-icon-button><mat-icon>menu</mat-icon></button>
+        <button routerLinkActive="active" (click)="sidenav.toggle()" mat-icon-button>
+          <mat-icon>menu</mat-icon>
+        </button>
       </div>
       <ng-container *ngIf="(websocket.currentDevice | async) as currentDevice">
         <div fxFlex>
           <!-- TODO show breadcrumbs like 'Energymonitor > History', 'Energymonitor > Settings' -->
-          <button routerLink="/device/{{ currentDevice.name }}/overview" mat-button>Energiemonitor <small>({{ currentDevice.name }})</small></button>
+          <button routerLink="/device/{{ currentDevice.name }}/overview" mat-button>Energiemonitor
+            <small>({{ currentDevice.name }})</small>
+          </button>
         </div>
-        <div fxFlex="50px" *ngIf="currentDevice.role != 'guest'">
-          <button routerLink="/device/{{ currentDevice.name }}/config" mat-icon-button><mat-icon>settings</mat-icon></button>
+        <div fxFlex="50px">
+          <button routerLink="/device/{{ currentDevice.name }}/config" mat-icon-button>
+            <mat-icon>settings</mat-icon>
+          </button>
         </div>
       </ng-container>
       <!-- <ng-container *ngIf="!currentDevice">

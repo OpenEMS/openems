@@ -14,6 +14,7 @@ import { MoreComponent as DeviceConfigMoreComponent } from './device/config/more
 import { RawConfigComponent as DeviceConfigRawConfigComponent } from './device/config/more/rawconfig/rawconfig.component';
 import { ConfigAllComponent as DeviceConfigConfigAllComponent } from './device/config/configall/configall.component';
 import { ControllerComponent as DeviceControllerComponent } from './device/config/controller/controller.component';
+import { PersistenceComponent as DevicePersistenceComponent } from './device/config/persistence/persistence.component';
 import { SimulatorComponent as DeviceConfigSimulatorComponent } from './device/config/simulator/simulator.component';
 import { DebugModeComponent as ConfigDebugModeComponent } from './config/debugmode/debugmode.component';
 
@@ -38,6 +39,7 @@ const appRoutes: Routes = [
   { path: 'device/:device/config/more', component: DeviceConfigMoreComponent },
   { path: 'device/:device/config/more/rawconfig', component: DeviceConfigRawConfigComponent },
   { path: 'device/:device/config/controller', component: DeviceControllerComponent },
+  { path: 'device/:device/config/persistence', component: DevicePersistenceComponent },
   { path: 'device/:device/config/simulator', component: DeviceConfigSimulatorComponent },
 
   { path: 'config/debugmode', component: ConfigDebugModeComponent },

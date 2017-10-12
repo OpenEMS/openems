@@ -92,8 +92,7 @@ export class EnergyChartComponent implements OnChanges {
 
   ngOnChanges() {
     if (Object.keys(this.channels).length === 0) {
-      this.loading = false;
-      console.warn("Config is not available. Unable to load Energy-Chart.");
+      this.loading = true;
       return;
     }
     this.loading = true;
