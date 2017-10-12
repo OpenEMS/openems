@@ -22,7 +22,6 @@ package io.openems.impl.protocol.simulator;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.common.session.Role;
 
 public class SimulatorReadChannel<T> extends ReadChannel<T> {
 
@@ -70,10 +69,5 @@ public class SimulatorReadChannel<T> extends ReadChannel<T> {
 			parent.setAsRequired(this);
 		}
 		return this;
-	}
-
-	@Override
-	public SimulatorReadChannel<T> writeRoles(Role... roles) {
-		return (SimulatorReadChannel<T>) super.writeRoles(roles);
 	}
 }

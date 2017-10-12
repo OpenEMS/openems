@@ -23,7 +23,6 @@ package io.openems.impl.protocol.system;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.common.session.Role;
 
 public class SystemReadChannel<T> extends ReadChannel<T> {
 
@@ -42,11 +41,6 @@ public class SystemReadChannel<T> extends ReadChannel<T> {
 	@Override
 	public void updateValue(T value) {
 		super.updateValue(value);
-	}
-
-	@Override
-	public SystemReadChannel<T> writeRoles(Role... roles) {
-		return (SystemReadChannel<T>) super.writeRoles(roles);
 	}
 
 	@Override

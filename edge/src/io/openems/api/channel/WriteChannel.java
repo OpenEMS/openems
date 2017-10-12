@@ -303,7 +303,7 @@ public class WriteChannel<T> extends ReadChannel<T> {
 
 	@Override
 	public boolean isWriteAllowed(Role role) {
-		return this.writeRoles.contains(role);
+		return this.writeRoles().contains(role);
 	}
 
 	@Override

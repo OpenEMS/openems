@@ -50,7 +50,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private final String id;
 	private final Thing parent;
 	private Optional<T> value = Optional.empty();
-	private Optional<Class<?>> type = Optional.empty();
+	private Optional<Class<?>> type = Optional.empty(); // TODO remove type in favour of annotation/channelDoc
+	private Optional<ChannelDoc> channelDocOpt = Optional.empty();
 
 	protected Optional<Long> delta = Optional.empty();
 	private Optional<T> ignore = Optional.empty();
@@ -60,8 +61,6 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private Interval<T> valueInterval = new Interval<T>();
 	private String unit = "";
 	private boolean isRequired = false;
-	protected final Set<Role> readRoles = new HashSet<>();
-	protected final Set<Role> writeRoles = new HashSet<>();
 	protected boolean doNotPersist = false;
 
 	private final Set<ChannelUpdateListener> updateListeners = ConcurrentHashMap.newKeySet();
@@ -133,23 +132,6 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
-	public final ReadChannel<T> readRoles(Role... roles) {
-		for (Role role : roles) {
-			this.readRoles.add(role);
-		}
-		this.readRoles.add(Role.ADMIN); // ADMIN is always allowed to read
-		return this;
-	}
-
-	public ReadChannel<T> writeRoles(Role... roles) {
-		for (Role role : roles) {
-			this.writeRoles.add(role);
-		}
-		this.writeRoles.add(Role.ADMIN); // ADMIN is always allowed to write
-		this.readRoles(roles); // Everybody who is allowed to write can also read
-		return this;
-	}
-
 	public ReadChannel<T> doNotPersist() {
 		this.doNotPersist = true;
 		return this;
@@ -208,12 +190,24 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 
 	@Override
 	public Set<Role> readRoles() {
-		return Collections.unmodifiableSet(this.readRoles);
+		if(this.channelDocOpt.isPresent()) {
+			ChannelDoc channelDoc = this.channelDocOpt.get();
+			return Collections.unmodifiableSet(channelDoc.getReadRoles());
+		} else {
+			log.warn("Channel ["+this.address()+"] has no ChannelDoc.");
+			return new HashSet<Role>();
+		}
 	}
 
 	@Override
 	public Set<Role> writeRoles() {
-		return Collections.unmodifiableSet(this.writeRoles);
+		if(this.channelDocOpt.isPresent()) {
+			ChannelDoc channelDoc = this.channelDocOpt.get();
+			return Collections.unmodifiableSet(channelDoc.getWriteRoles());
+		} else {
+			log.warn("Channel ["+this.address()+"] has no ChannelDoc.");
+			return new HashSet<Role>();
+		}
 	}
 
 	/**
@@ -234,10 +228,9 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	 * @throws OpenemsException
 	 */
 	@Override
-	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
+	public void setChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
+		this.channelDocOpt = Optional.ofNullable(channelDoc);
 		this.type = channelDoc.getTypeOpt();
-		this.readRoles.addAll(channelDoc.getReadRoles());
-		this.writeRoles.addAll(channelDoc.getWriteRoles());
 	}
 
 	/**
@@ -388,7 +381,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 
 	@Override
 	public boolean isReadAllowed(Role role) {
-		return this.readRoles.contains(role);
+		return this.readRoles().contains(role);
 	}
 
 	@Override

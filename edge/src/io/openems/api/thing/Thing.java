@@ -36,4 +36,10 @@ public interface Thing {
 
 	}
 
+	/**
+	 * Sets the Thing annotation. This method is called after the thing was initialized via init()
+	 *
+	 * @throws OpenemsException
+	 */
+	// TODO public void setThingDoc(ThingDoc channelDoc) throws OpenemsException;
 }

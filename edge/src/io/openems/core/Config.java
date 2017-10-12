@@ -378,7 +378,14 @@ public class Config implements ChannelChangeListener {
 		}
 
 		/*
-		 * Configuration is finished -> start all worker threads
+		 * Configuration is finished -> apply again channel annotation to all of them because many channels are only defined during init()
+		 */
+		thingRepository.getThings().forEach(thing -> {
+			thingRepository.applyChannelAnnotation(thing);
+		});
+
+		/*
+		 * Start all worker threads
 		 */
 		thingRepository.getThings().forEach(thing -> {
 			// TODO use executor

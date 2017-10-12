@@ -73,7 +73,7 @@ public class ChannelDoc {
 			this.optional = channelInfo.isOptional();
 			this.array = channelInfo.isArray();
 			this.readRoles = Sets.newHashSet(channelInfo.readRoles());
-			this.readRoles.add(Role.ADMIN);
+			this.readRoles.add(Role.ADMIN); // ADMIN is always allowed to read
 			this.writeRoles = Sets.newHashSet(channelInfo.writeRoles());
 			this.writeRoles.add(Role.ADMIN);
 			this.defaultValue = channelInfo.defaultValue();
@@ -159,5 +159,13 @@ public class ChannelDoc {
 		j.add("writeRoles", jWriteRoles);
 		j.addProperty("defaultValue", this.defaultValue);
 		return j;
+	}
+
+	@Override
+	public String toString() {
+		return "ChannelDoc [field/method=" + member.getName() + ", name=" + name + ", title=" + title
+				+ ", description=" + description + ", type=" + typeOpt + ", bitLength=" + bitLengthOpt
+				+ ", optional=" + optional + ", array=" + array + ", readRoles=" + readRoles + ", writeRoles="
+				+ writeRoles + ", defaultValue=" + defaultValue + "]";
 	}
 }

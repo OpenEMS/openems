@@ -30,7 +30,6 @@ import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
 import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.session.Role;
-import io.openems.core.utilities.InjectionUtils;
 
 //TODO change to generic to use Generic ChannelUpdate/ChangeListener
 public interface Channel {
@@ -124,13 +123,11 @@ public interface Channel {
 	 */
 	public void assertWriteAllowed(Role role) throws AccessDeniedException;
 
-
 	/**
-	 * Sets values for this Channel using its annotation
-	 *
-	 * This method is called by reflection from {@link InjectionUtils.getThingInstance}
+	 * Sets the Channel annotation. This method is called twice. Once after creating the Thing and after the thing was
+	 * initialized via init()
 	 *
 	 * @throws OpenemsException
 	 */
-	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException;
+	public void setChannelDoc(ChannelDoc channelDoc) throws OpenemsException;
 }
