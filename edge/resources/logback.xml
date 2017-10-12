@@ -12,6 +12,7 @@
 	Contributors: FENECON GmbH - initial API and implementation and initial documentation -->
 
 <configuration>
+	<statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]%msg%ex{10}%n</pattern>
