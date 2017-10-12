@@ -1,6 +1,6 @@
 package io.openems.backend.metadata.dummy;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 
 import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.browserwebsocket.session.BrowserSessionData;
@@ -32,7 +32,7 @@ public class MetadataDummySingleton implements MetadataSingleton {
 		BrowserSessionData data = (BrowserSessionData) sessionData;
 		data.setUserId(0);
 		// Devices can have the same name, that's why we use a Multimap.
-		HashMultimap<String, Device> deviceMap = HashMultimap.create();
+		LinkedHashMultimap<String, Device> deviceMap = LinkedHashMultimap.create();
 		for (Device device : this.deviceModel.getAllDevices()) {
 			deviceMap.put(device.getName(), device);
 		}

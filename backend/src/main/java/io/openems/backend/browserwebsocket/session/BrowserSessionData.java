@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.gson.JsonObject;
 
 import io.openems.common.session.SessionData;
@@ -14,7 +14,7 @@ public class BrowserSessionData extends SessionData {
 	private String userName = "";
 	private Optional<Integer> userId = Optional.empty();
 	private Optional<String> odooSessionId = Optional.empty();
-	private HashMultimap<String, Device> devices = HashMultimap.create(0, 0);
+	private LinkedHashMultimap<String, Device> devices = LinkedHashMultimap.create();
 
 	public Optional<String> getOdooSessionId() {
 		return odooSessionId;
@@ -24,7 +24,7 @@ public class BrowserSessionData extends SessionData {
 		this.odooSessionId = Optional.ofNullable(odooSessionId);
 	}
 
-	public void setDevices(HashMultimap<String, Device> deviceMap) {
+	public void setDevices(LinkedHashMultimap<String, Device> deviceMap) {
 		this.devices = deviceMap;
 	}
 

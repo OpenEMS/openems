@@ -13,7 +13,7 @@ import org.apache.xmlrpc.XmlRpcException;
 
 import com.abercap.odoo.OdooApiException;
 import com.abercap.odoo.Session;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -115,7 +115,7 @@ public class OdooSingleton implements MetadataSingleton {
 					data.setUserId(JsonUtils.getAsInt(jUser, "id"));
 					data.setUserName(JsonUtils.getAsString(jUser, "name"));
 					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
-					HashMultimap<String, Device> deviceMap = HashMultimap.create();
+					LinkedHashMultimap<String, Device> deviceMap = LinkedHashMultimap.create();
 					for (JsonElement jDevice : jDevices) {
 						String name = JsonUtils.getAsString(jDevice, "name");
 						deviceMap.put(name, new Device( //
