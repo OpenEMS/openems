@@ -97,7 +97,8 @@
       </div>
     </ng-container> -->
     <!-- call log -->
-    <div routerLink="/device/{{ device.name }}/log" fxFlex="50%" fxFlex.xs="100%">
+    <div *ngIf="device.role == 'owner' || device.role == 'installer' || device.role == 'admin'" routerLink="/device/{{ device.name }}/log"
+      fxFlex="50%" fxFlex.xs="100%">
       <mat-card class="single">
         <mat-card-header>
           <mat-icon mat-card-avatar>code</mat-icon>
