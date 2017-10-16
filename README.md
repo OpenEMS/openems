@@ -70,6 +70,11 @@ A number of devices, protocols and services are already implemented in OpenEMS:
  * [JSON/REST](doc/rest-api.md)
  * JSON/Websocket
  * [Modbus/TCP](/doc/modbustcp-api.md)
+ 
+### Technical
+
+ * [OpenEMS Edge Software Architecture](doc/architecture.md)
+ * [Data abstraction: OpenEMS Channels](doc/channels.md)
 
 ## Get started
 
