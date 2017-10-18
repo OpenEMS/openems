@@ -85,6 +85,12 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
+	/**
+	 * Sets the multiplier value. The original value is getting multiplied by this: value = value * multiplier - delta
+	 *
+	 * @param delta
+	 * @return
+	 */
 	public ReadChannel<T> multiplier(Long multiplier) {
 		this.multiplier = Optional.ofNullable(multiplier);
 		return this;
@@ -168,13 +174,19 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return unit;
 	}
 
+	/**
+	 * Sets the delta value. This is subtracted from the original value: value = value * multiplier - delta
+	 *
+	 * @param delta
+	 * @return
+	 */
 	public ReadChannel<T> delta(Long delta) {
 		this.delta = Optional.ofNullable(delta);
 		return this;
 	}
 
 	/**
-	 * Sets the ignore value. If the value of this channel is being updated to this value, it is getting ignored.
+	 * Sets the ignore value. If the value of this channel is being updated to this value, it is getting ignored. Ignore value is evaluated before 'delta' and 'multiplier' are applied.
 	 *
 	 * @param ignore
 	 * @return
