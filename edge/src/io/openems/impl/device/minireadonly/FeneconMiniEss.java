@@ -295,15 +295,18 @@ public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssN
 				new ModbusRegisterRange(2007, //
 						new UnsignedWordElement(2007, //
 								this.activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")
-										.delta(10000l))),
+								.ignore(0l)
+								.delta(10000l))),
 				new ModbusRegisterRange(2107, //
 						new UnsignedWordElement(2107, //
 								this.activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")
-										.delta(10000l))),
+								.ignore(0l)
+								.delta(10000l))),
 				new ModbusRegisterRange(2207, //
 						new UnsignedWordElement(2207, //
 								this.activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")
-										.delta(10000l))),
+								.ignore(0l)
+								.delta(10000l))),
 				new ModbusRegisterRange(3000, //
 						new UnsignedWordElement(3000, //
 								this.becu1ChargeCurr = new ModbusReadLongChannel("Becu1ChargeCurr", this)),
