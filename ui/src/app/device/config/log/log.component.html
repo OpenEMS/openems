@@ -1,14 +1,14 @@
 <div *ngIf="device" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
   <div fxFlex="100%">
-    <md-card class="single">
-      <md-card-header>
-        <md-icon md-card-avatar>code</md-icon>
-        <md-card-title>System-Log</md-card-title>
-        <md-card-subtitle>{{ device.name }}</md-card-subtitle>
-      </md-card-header>
-      <md-card-content>
+    <mat-card class="single">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>code</mat-icon>
+        <mat-card-title>System-Log</mat-card-title>
+        <mat-card-subtitle>{{ device.name }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
         <div>
-          <md-slide-toggle (change)="toggleSubscribe($event)" [checked]="isSubscribed"><span translate>Device.Config.Log.AutomaticUpdating</span></md-slide-toggle>
+          <mat-slide-toggle (change)="toggleSubscribe($event)" [checked]="isSubscribed"><span translate>Device.Config.Log.AutomaticUpdating</span></mat-slide-toggle>
         </div>
         <table class="full_width">
           <tr>
@@ -24,7 +24,7 @@
             <td>{{ log.message }}</td>
           </tr>
         </table>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

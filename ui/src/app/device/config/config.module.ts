@@ -6,6 +6,7 @@ import { OverviewComponent } from './overview/overview.component';
 import { BridgeComponent } from './bridge/bridge.component';
 import { ControllerComponent } from './controller/controller.component';
 import { SchedulerComponent } from './scheduler/scheduler.component';
+import { PersistenceComponent } from './persistence/persistence.component';
 
 import { AbstractConfigComponent } from './shared/abstractconfig.component';
 import { ConfigAllComponent } from './configall/configall.component';
@@ -29,7 +30,8 @@ import { SimulatorComponent } from './simulator/simulator.component';
     ConfigAllComponent,
     ChannelComponent,
     ExistingThingComponent,
-    SchedulerComponent
+    SchedulerComponent,
+    PersistenceComponent
   ]
 })
 export class ConfigModule { }

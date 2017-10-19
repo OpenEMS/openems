@@ -1,6 +1,5 @@
 import { Component, Input, OnChanges } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
-import * as moment from 'moment';
 
 import { ConfigImpl } from '../../../shared/device/config';
 import { Device } from '../../../shared/device/device';
@@ -27,6 +26,6 @@ export class HistoryComponent implements OnChanges {
   public socChannels: DefaultTypes.ChannelAddresses = {};
 
   // show the chart for today
-  public fromDate = moment();
-  public toDate = moment();
+  public fromDate = new Date();
+  public toDate = new Date();
 }

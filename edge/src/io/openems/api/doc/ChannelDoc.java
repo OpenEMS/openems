@@ -22,17 +22,20 @@ package io.openems.api.doc;
 
 import java.lang.reflect.Member;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.NotImplementedException;
-import io.openems.api.security.User;
+import io.openems.common.session.Role;
 import io.openems.core.utilities.BitUtils;
 import io.openems.core.utilities.InjectionUtils;
 
@@ -48,7 +51,8 @@ public class ChannelDoc {
 	private final Optional<Integer> bitLengthOpt;
 	private final boolean optional;
 	private final boolean array;
-	private final User accessLevel;
+	private final Set<Role> readRoles;
+	private final Set<Role> writeRoles;
 	private final String defaultValue;
 
 	public ChannelDoc(Member member, String name, Optional<ChannelInfo> channelInfoOpt) {
@@ -68,7 +72,10 @@ public class ChannelDoc {
 			this.bitLengthOpt = Optional.ofNullable(bitLength);
 			this.optional = channelInfo.isOptional();
 			this.array = channelInfo.isArray();
-			this.accessLevel = channelInfo.accessLevel();
+			this.readRoles = Sets.newHashSet(channelInfo.readRoles());
+			this.readRoles.add(Role.ADMIN); // ADMIN is always allowed to read
+			this.writeRoles = Sets.newHashSet(channelInfo.writeRoles());
+			this.writeRoles.add(Role.ADMIN);
 			this.defaultValue = channelInfo.defaultValue();
 		} else {
 			this.title = ChannelInfo.DEFAULT_TITLE;
@@ -77,7 +84,8 @@ public class ChannelDoc {
 			this.bitLengthOpt = Optional.empty();
 			this.optional = ChannelInfo.DEFAULT_IS_OPTIONAL;
 			this.array = ChannelInfo.DEFAULT_IS_ARRAY;
-			this.accessLevel = ChannelInfo.DEFAULT_ACCESS_LEVEL;
+			this.readRoles = ChannelInfo.DEFAULT_READ_ROLES;
+			this.writeRoles = ChannelInfo.DEFAULT_WRITE_ROLES;
 			this.defaultValue = ChannelInfo.DEFAULT_VALUE;
 		}
 	}
@@ -110,6 +118,14 @@ public class ChannelDoc {
 		return defaultValue;
 	}
 
+	public Set<Role> getReadRoles() {
+		return readRoles;
+	}
+
+	public Set<Role> getWriteRoles() {
+		return writeRoles;
+	}
+
 	public JsonObject getAsJsonObject() {
 		JsonObject j = new JsonObject();
 		j.addProperty("name", this.name);
@@ -131,8 +147,25 @@ public class ChannelDoc {
 		}
 		j.addProperty("optional", this.optional);
 		j.addProperty("array", this.array);
-		j.addProperty("accessLevel", this.accessLevel.name().toLowerCase());
+		JsonArray jReadRoles = new JsonArray();
+		for (Role role : this.readRoles) {
+			jReadRoles.add(role.name().toLowerCase());
+		}
+		j.add("readRoles", jReadRoles);
+		JsonArray jWriteRoles = new JsonArray();
+		for (Role role : this.writeRoles) {
+			jWriteRoles.add(role.name().toLowerCase());
+		}
+		j.add("writeRoles", jWriteRoles);
 		j.addProperty("defaultValue", this.defaultValue);
 		return j;
+	}
+
+	@Override
+	public String toString() {
+		return "ChannelDoc [field/method=" + member.getName() + ", name=" + name + ", title=" + title
+				+ ", description=" + description + ", type=" + typeOpt + ", bitLength=" + bitLengthOpt
+				+ ", optional=" + optional + ", array=" + array + ", readRoles=" + readRoles + ", writeRoles="
+				+ writeRoles + ", defaultValue=" + defaultValue + "]";
 	}
 }

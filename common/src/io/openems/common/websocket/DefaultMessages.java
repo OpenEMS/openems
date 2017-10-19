@@ -1,6 +1,6 @@
 package io.openems.common.websocket;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 import com.google.common.collect.Multimap;
@@ -37,7 +37,7 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject browserConnectionSuccessfulReply(String token, Optional<String> roleOpt, List<Device> devices) {
+	public static JsonObject browserConnectionSuccessfulReply(String token, Optional<String> roleOpt, Collection<Device> devices) {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "allow");
 		if(roleOpt.isPresent()) {
@@ -229,6 +229,7 @@ public class DefaultMessages {
 	 * <pre>
 	 *	{
 	 *		notification: {
+	 *			id: string[],
 	 *			status: string,
 	 *			message: string,
 	 *			code: number,
@@ -239,8 +240,9 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject notification(Notification code, String message,  Object... params) {
+	public static JsonObject notification(JsonArray jId, Notification code, String message,  Object... params) {
 		JsonObject j = new JsonObject();
+		j.add("id", jId);
 		JsonObject jNotification = new JsonObject();
 		jNotification.addProperty("status", code.getStatus().toString().toLowerCase());
 		jNotification.addProperty("message", message);

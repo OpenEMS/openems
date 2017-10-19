@@ -42,7 +42,7 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> gridMode;
 	public final ReadChannel<Long> systemState;
 	public final SymmetricPower power;
-	public AvgFiFoQueue powerAvg = new AvgFiFoQueue(2, 1.5);
+	public AvgFiFoQueue powerAvg = new AvgFiFoQueue(1, 1);
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);

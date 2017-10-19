@@ -22,6 +22,7 @@ package io.openems.impl.controller.api.rest.route;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.restlet.Request;
 import org.restlet.Response;
@@ -40,7 +41,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.exception.NotImplementedException;
-import io.openems.api.security.User;
+import io.openems.common.session.Role;
 import io.openems.core.ThingRepository;
 import io.openems.impl.controller.api.rest.OpenemsRestlet;
 
@@ -53,11 +54,12 @@ public class ChannelRestlet extends OpenemsRestlet {
 		thingRepository = ThingRepository.getInstance();
 	}
 
-	@Override public void handle(Request request, Response response) {
+	@Override
+	public void handle(Request request, Response response) {
 		super.handle(request, response);
 
 		// check general permission
-		if (isAuthenticatedAsUser(request, User.GUEST) && request.getClientInfo().getRoles().size() == 1) {
+		if (isAuthenticatedAsRole(request, Role.GUEST)) {
 			// pfff... it's only a "GUEST"! Deny anything but GET requests
 			if (!request.getMethod().equals(Method.GET)) {
 				throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -80,30 +82,35 @@ public class ChannelRestlet extends OpenemsRestlet {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		}
 
-		// check permission
-		if (!channel.users().isEmpty()) {
-			boolean allowed = false;
-			for (User user : channel.users()) {
-				if (isAuthenticatedAsUser(request, user)) {
-					allowed = true;
-					break;
-				}
-			}
-			if (!allowed) {
-				throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
-			}
-		}
-
 		// call handler methods
 		if (request.getMethod().equals(Method.GET)) {
+			// check read permission
+			assertAllowed(request, channel.readRoles());
+
 			Representation entity = getValue(channel);
 			response.setEntity(entity);
 
 		} else if (request.getMethod().equals(Method.POST)) {
+			// check write permissions
+			assertAllowed(request, channel.writeRoles());
+
 			JsonParser parser = new JsonParser();
 			String httpPost = request.getEntityAsText();
 			JsonObject jHttpPost = parser.parse(httpPost).getAsJsonObject();
 			setValue(channel, jHttpPost);
+		}
+	}
+
+	private void assertAllowed(Request request, Set<Role> channelRoles) throws ResourceException {
+		boolean allowed = false;
+		for (Role role : channelRoles) {
+			if (isAuthenticatedAsRole(request, role)) {
+				allowed = true;
+				break;
+			}
+		}
+		if (!allowed) {
+			throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED);
 		}
 	}
 

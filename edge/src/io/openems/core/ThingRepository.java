@@ -150,19 +150,11 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		// Add Listener
 		thing.addListener(this);
 
-		ThingDoc thingDoc = classRepository.getThingDoc(thing.getClass());
-
-		// Apply channel annotation
-		for (ChannelDoc channelDoc : thingDoc.getChannelDocs()) {
-			try {
-				Channel channel = getChannel(thing, channelDoc.getMember());
-				channel.applyChannelDoc(channelDoc);
-			} catch (OpenemsException e) {
-				log.debug(e.getMessage());
-			}
-		}
+		// Apply channel annotation (this happens now and again after initializing the thing via init()
+		this.applyChannelAnnotation(thing);
 
 		// Add Channels thingConfigChannels
+		ThingDoc thingDoc = classRepository.getThingDoc(thing.getClass());
 		for (ChannelDoc channelDoc : thingDoc.getConfigChannelDocs()) {
 			Member member = channelDoc.getMember();
 			try {
@@ -203,6 +195,18 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		}
 		for (ThingsChangedListener listener : thingListeners) {
 			listener.thingChanged(thing, Action.ADD);
+		}
+	}
+
+	public void applyChannelAnnotation(Thing thing) {
+		ThingDoc thingDoc = classRepository.getThingDoc(thing.getClass());
+		for (ChannelDoc channelDoc : thingDoc.getChannelDocs()) {
+			try {
+				Channel channel = getChannel(thing, channelDoc.getMember());
+				channel.setChannelDoc(channelDoc);
+			} catch (OpenemsException e) {
+				log.debug(e.getMessage());
+			}
 		}
 	}
 
@@ -544,7 +548,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		}
 		if (!(channelObj instanceof Channel)) {
 			throw new OpenemsException("This is not a channel. Thing [" + thing.id() + "] Member [" + member.getName()
-					+ "] Channel [" + channelObj + "]");
+			+ "] Channel [" + channelObj + "]");
 		}
 		return (Channel) channelObj;
 	}

@@ -8,13 +8,12 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.xmlrpc.XmlRpcException;
 
 import com.abercap.odoo.OdooApiException;
 import com.abercap.odoo.Session;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -116,15 +115,16 @@ public class OdooSingleton implements MetadataSingleton {
 					data.setUserId(JsonUtils.getAsInt(jUser, "id"));
 					data.setUserName(JsonUtils.getAsString(jUser, "name"));
 					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
-					List<Device> deviceInfos = new ArrayList<>();
+					LinkedHashMultimap<String, Device> deviceMap = LinkedHashMultimap.create();
 					for (JsonElement jDevice : jDevices) {
-						deviceInfos.add(new Device( //
-								JsonUtils.getAsString(jDevice, "name"), //
+						String name = JsonUtils.getAsString(jDevice, "name");
+						deviceMap.put(name, new Device( //
+								name, //
 								JsonUtils.getAsString(jDevice, "comment"), //
 								JsonUtils.getAsString(jDevice, "producttype"), //
 								JsonUtils.getAsString(jDevice, "role")));
 					}
-					data.setDevices(deviceInfos);
+					data.setDevices(deviceMap);
 					return;
 				}
 			}

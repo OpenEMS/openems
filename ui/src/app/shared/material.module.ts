@@ -1,17 +1,43 @@
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
-import { MaterialModule } from '@angular/material';
+import {
+  MatCardModule,
+  MatSlideToggleModule,
+  MatSnackBarModule,
+  MatSidenavModule,
+  MatListModule,
+  MatIconModule,
+  MatButtonModule,
+  MatToolbarModule,
+  MatInputModule
+} from '@angular/material';
 
 //TODO list only components that are used (reference: https://github.com/angular/material2/releases/tag/2.0.0-beta.3)
 
 @NgModule({
   imports: [
-    MaterialModule
+    MatCardModule,
+    MatSlideToggleModule,
+    MatSnackBarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatInputModule
   ],
   declarations: [
   ],
   exports: [
-    MaterialModule
+    MatCardModule,
+    MatSlideToggleModule,
+    MatSnackBarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatInputModule
   ]
 })
 export class MyMaterialModule { }

@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.api.bridge.BridgeEvent.Position;
 import io.openems.api.channel.DebugChannel;
 import io.openems.api.device.Device;
 import io.openems.api.scheduler.Scheduler;
@@ -52,6 +53,7 @@ public abstract class Bridge extends Thread implements Thing {
 	protected final List<Device> devices = Collections.synchronizedList(new LinkedList<Device>());
 	protected final Logger log;
 	private DebugChannel<Long> requiredCycleTime = new DebugChannel<>("RequiredCycleTime", this);
+	private List<BridgeEventListener> eventListener = new ArrayList<>();
 	private DebugChannel<Integer> readOtherTaskReadCount = new DebugChannel<>("ReadOtherTaskReadCount", this);
 
 	/**
@@ -67,6 +69,14 @@ public abstract class Bridge extends Thread implements Thing {
 	@Override
 	public String id() {
 		return getName();
+	}
+
+	public void addListener(BridgeEventListener listener) {
+		this.eventListener.add(listener);
+	}
+
+	public void removeListener(BridgeEventListener listener) {
+		this.eventListener.remove(listener);
 	}
 
 	protected List<BridgeReadTask> getRequiredReadTasks() {
@@ -189,7 +199,7 @@ public abstract class Bridge extends Thread implements Thing {
 				List<BridgeReadTask> requiredReadTasks = this.getRequiredReadTasks();
 				List<BridgeWriteTask> writeTasks = this.getWriteTasks();
 				// calculate startTime to run the read
-				long sleep = getNextReadTime() - System.currentTimeMillis() - 10;
+				long sleep = getNextReadTime() - System.currentTimeMillis() - 10 - requiredTimeListeners();
 				if (sleep > 0) {
 					try {
 						Thread.sleep(sleep);
@@ -199,6 +209,7 @@ public abstract class Bridge extends Thread implements Thing {
 				} else {
 					log.warn("cycleTime smaller than required time: " + sleep);
 				}
+				notifyListeners(Position.BEFOREREADREQUIRED);
 				// run all tasks to read required Channels
 				for (BridgeReadTask task : requiredReadTasks) {
 					try {
@@ -207,11 +218,13 @@ public abstract class Bridge extends Thread implements Thing {
 						log.error("failed to execute ReadTask.", e);
 					}
 				}
-				long timeUntilWrite = scheduler.getCycleStartTime() + scheduler.getRequiredTime() + 10;
+				long timeUntilWrite = scheduler.getCycleStartTime() + scheduler.getRequiredTime() + 10
+						- requiredTimeListeners();
 				if (readTasks.size() > 0) {
 					// calculate time until write
 					// run tasks for not required channels
 					if (timeUntilWrite - System.currentTimeMillis() > 0) {
+						notifyListeners(Position.BEFOREREADOTHER1);
 						readOther(readTasks, timeUntilWrite, false);
 					}
 				}
@@ -219,6 +232,7 @@ public abstract class Bridge extends Thread implements Thing {
 				boolean written = false;
 				while (!written) {
 					if (isWriteTriggered.get()) {
+						notifyListeners(Position.BEFOREWRITE);
 						for (BridgeWriteTask task : writeTasks) {
 							try {
 								task.runTask();
@@ -237,9 +251,10 @@ public abstract class Bridge extends Thread implements Thing {
 						}
 					}
 				}
+				notifyListeners(Position.BEFOREREADOTHER2);
 				// execute additional readTasks if time left
 				if (readTasks.size() > 0) {
-					if (getNextReadTime() - 10 - System.currentTimeMillis() > 0) {
+					if (getNextReadTime() - 10 - System.currentTimeMillis() - requiredTimeListeners() > 0) {
 						readOther(readTasks, getNextReadTime(), true);
 					}
 				}
@@ -322,5 +337,20 @@ public abstract class Bridge extends Thread implements Thing {
 	public final void triggerInitialize() {
 		initialize.set(true);
 		initializedMutex.release();
+	}
+
+	private void notifyListeners(Position position) {
+		BridgeEvent event = new BridgeEvent(position);
+		for (BridgeEventListener listener : this.eventListener) {
+			listener.executeNotify(event);
+		}
+	}
+
+	private long requiredTimeListeners() {
+		long time = 0;
+		for (BridgeEventListener listener : this.eventListener) {
+			time = listener.getRequiredTime();
+		}
+		return time;
 	}
 }

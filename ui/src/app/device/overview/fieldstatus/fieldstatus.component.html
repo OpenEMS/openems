@@ -1,11 +1,11 @@
 <div fxLayout fxLayoutAlign="start start" fxLayoutWrap="wrap">
 
-  <md-card fxFlex="100%" class="single_leftright single_top">
-    <md-card-header>
-      <md-icon md-card-avatar>format_list_bulleted</md-icon>
-      <md-card-title>Status</md-card-title>
-    </md-card-header>
-    <md-card-content *ngIf="currentData && currentData['data'] as data">
+  <mat-card fxFlex="100%" class="single_leftright single_top">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>format_list_bulleted</mat-icon>
+      <mat-card-title>Status</mat-card-title>
+    </mat-card-header>
+    <mat-card-content *ngIf="currentData && currentData['data'] as data">
       <table class="full_width">
         <tr>
           <td style="width:50%"></td>
@@ -34,7 +34,7 @@
 
         </ng-container>
       </table>
-    </md-card-content>
-  </md-card>
+    </mat-card-content>
+  </mat-card>
 
 </div>

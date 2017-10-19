@@ -8,7 +8,7 @@ import java.util.Optional;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.api.thing.Thing;
 
-public class FunctionalWriteChannel<T> extends WriteChannel<T> implements ChannelUpdateListener {
+public class FunctionalWriteChannel<T extends Comparable<T>> extends WriteChannel<T> implements ChannelUpdateListener {
 
 	private List<WriteChannel<T>> channels = new ArrayList<>();
 	private FunctionalWriteChannelFunction<T> writeValueFunc;
@@ -63,33 +63,33 @@ public class FunctionalWriteChannel<T> extends WriteChannel<T> implements Channe
 	@Override
 	public void pushWrite(T value) throws WriteChannelException {
 		synchronized (this.channels) {
-			super.pushWrite(value);
+			checkIntervalBoundaries(value);
 			@SuppressWarnings("unchecked") WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
 			String label = labels.get(value);
-			writeValueFunc.setValue(value, label, channels);
+			super.pushWrite(writeValueFunc.setValue(value, label, channels));
 		}
 	}
 
 	@Override
 	public void pushWriteMax(T value) throws WriteChannelException {
 		synchronized (this.channels) {
-			super.pushWriteMax(value);
+			checkIntervalBoundaries(value);
 			@SuppressWarnings("unchecked") WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
 			String label = labels.get(value);
-			writeValueFunc.setMaxValue(value, label, channels);
+			super.pushWriteMax(writeValueFunc.setMaxValue(value, label, channels));
 		}
 	}
 
 	@Override
 	public void pushWriteMin(T value) throws WriteChannelException {
 		synchronized (this.channels) {
-			super.pushWriteMin(value);
+			checkIntervalBoundaries(value);
 			@SuppressWarnings("unchecked") WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
 			String label = labels.get(value);
-			writeValueFunc.setMinValue(value, label, channels);
+			super.pushWriteMin(writeValueFunc.setMinValue(value, label, channels));
 		}
 	}
 
@@ -110,7 +110,7 @@ public class FunctionalWriteChannel<T> extends WriteChannel<T> implements Channe
 		synchronized (this.channels) {
 			@SuppressWarnings("unchecked") WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
-			T erg = writeValueFunc.getMinValue(channels);
+			T erg = writeValueFunc.getMinValue(super.writeMin(), channels);
 			if (erg != null) {
 				return Optional.of(erg);
 			}
@@ -124,7 +124,7 @@ public class FunctionalWriteChannel<T> extends WriteChannel<T> implements Channe
 		synchronized (this.channels) {
 			@SuppressWarnings("unchecked") WriteChannel<T>[] channels = new WriteChannel[this.channels.size()];
 			this.channels.toArray(channels);
-			T erg = writeValueFunc.getMaxValue(channels);
+			T erg = writeValueFunc.getMaxValue(super.writeMax(), channels);
 			if (erg != null) {
 				return Optional.of(erg);
 			}

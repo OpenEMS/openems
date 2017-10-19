@@ -1,39 +1,36 @@
-export class Role {
+export type Role = "guest" | "owner" | "installer" | "admin";
+// TODO Works with typescript 2.4:
+// export enum Role {
+//     GUEST = "guest",
+//     OWNER = "owner",
+//     INSTALLER = "installer",
+//     ADMIN = "admin"
+// }
 
-    constructor(
-        public readonly name: string,
-        public readonly level: number
-    ) { };
-
-    public isAtLeast(role: Role | string): boolean {
-        if (typeof role === 'string') {
-            role = ROLES.getRole(role);
-        }
-        if (role) {
-            return this.level >= role.level;
-        } else {
-            return false;
-        }
-    }
-}
-
-export const ROLES = {
-    guest: new Role("guest", 0),
-    owner: new Role("owner", 1),
-    installer: new Role("installer", 2),
-    admin: new Role("admin", 3),
-
+export namespace Role {
     /**
      * Gets the role of a string
      * @param name of the role
      */
-    getRole(name: string): Role {
+    export function getRole(name: string): Role {
         name = name.toLowerCase();
-        if (name in ROLES) {
-            return ROLES[name];
-        } else {
-            console.warn("Role '" + name + "' not found.")
-            return ROLES.guest;
+        switch (name) {
+            case "admin":
+                return "admin";
+                // return Role.ADMIN;
+            case "owner":
+                return "owner";
+                // return Role.OWNER;
+            case "installer":
+                return "installer";
+                // return Role.INSTALLER;
+            case "guest":
+                return "guest";
+                // return Role.GUEST;
+            default:
+                console.warn("Role '" + name + "' not found.")
+                return "guest";
+                // return Role.GUEST;
         }
     }
-};
+}

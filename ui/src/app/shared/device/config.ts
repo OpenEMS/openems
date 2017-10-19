@@ -1,4 +1,5 @@
 import { DefaultTypes } from '../service/defaulttypes'
+import { Role } from '../type/role'
 
 export class ConfigImpl implements DefaultTypes.Config {
 
@@ -20,7 +21,8 @@ export class ConfigImpl implements DefaultTypes.Config {
                     type: string | string[],
                     optional: boolean,
                     array: boolean,
-                    accessLevel: string
+                    readRoles: Role[],
+                    writeRoles: Role[],
                     defaultValue: string
                 }
             }
@@ -36,9 +38,21 @@ export class ConfigImpl implements DefaultTypes.Config {
     public readonly bridges: string[] = [];
     public readonly scheduler: string = null;
     public readonly controllers: string[] = [];
+    public readonly persistences: string[] = [];
     public readonly simulatorDevices: string[] = [];
 
     constructor(private readonly config: DefaultTypes.Config) {
+        // convert role-strings to Role-objects
+        for (let clazz in config.meta) {
+            for (let channel in config.meta[clazz].channels) {
+                let roles: Role[] = [];
+                for (let roleString of config.meta[clazz].channels[channel].readRoles) {
+                    roles.push(Role.getRole("" + roleString /* convert to string */));
+                }
+                config.meta[clazz].channels[channel].readRoles = roles;
+            }
+        }
+
         Object.assign(this, config);
 
         let storageThings: string[] = []
@@ -49,6 +63,7 @@ export class ConfigImpl implements DefaultTypes.Config {
         let bridges: string[] = [];
         let scheduler: string = null;
         let controllers: string[] = [];
+        let persistences: string[] = [];
         let simulatorDevices: string[] = [];
 
         for (let thingId in config.things) {
@@ -95,6 +110,10 @@ export class ConfigImpl implements DefaultTypes.Config {
             if (i.includes("io.openems.api.controller.Controller")) {
                 controllers.push(thingId);
             }
+            // Persistence
+            if (i.includes("io.openems.api.persistence.Persistence")) {
+                persistences.push(thingId);
+            }
             // Simulator Devices
             if (i.includes("io.openems.impl.device.simulator.Simulator")) {
                 simulatorDevices.push(thingId);
@@ -107,6 +126,7 @@ export class ConfigImpl implements DefaultTypes.Config {
         this.bridges = bridges.sort();
         this.scheduler = scheduler;
         this.controllers = controllers;
+        this.persistences = persistences;
         this.simulatorDevices = simulatorDevices;
     }
 

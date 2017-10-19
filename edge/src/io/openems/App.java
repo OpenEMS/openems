@@ -20,6 +20,13 @@
  *******************************************************************************/
 package io.openems;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 import org.slf4j.Logger;
@@ -33,7 +40,33 @@ public class App {
 
 	public static void main(String[] args) {
 		log.info("OpenEMS started");
+		// parse cli
+		Option helpOption = Option.builder("h").longOpt("help").required(false).desc("shows this message").build();
 
+		Option configFileOption = Option.builder("c").longOpt("configFile").numberOfArgs(1).required(false)
+				.type(String.class).desc("path for the configFile").build();
+
+		Options options = new Options();
+		options.addOption(helpOption);
+		options.addOption(configFileOption);
+
+		CommandLineParser parser = new DefaultParser();
+		CommandLine cmdLine;
+		String configPath = null;
+		try {
+			cmdLine = parser.parse(options, args);
+
+			if (cmdLine.hasOption("help")) {
+				HelpFormatter formatter = new HelpFormatter();
+				formatter.printHelp("openEMS", options);
+				System.exit(0);
+			} else {
+				configPath = cmdLine.hasOption("configFile") ? (String) cmdLine.getParsedOptionValue("configFile")
+						: null;
+			}
+		} catch (ParseException e1) {
+			log.error("cli parsing failed!", e1);
+		}
 		// kick the watchdog: READY
 		SDNotify.sendNotify();
 
@@ -42,7 +75,7 @@ public class App {
 
 		// Get config
 		try {
-			Config config = Config.getInstance();
+			Config config = Config.initialize(configPath);
 			config.readConfigFile();
 		} catch (Exception e) {
 			log.error("OpenEMS Edge start failed: " + e.getMessage());

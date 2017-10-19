@@ -406,7 +406,7 @@ public class MeterClusterNature extends SimulatorDeviceNature
 				}
 			}
 		} catch (InvalidValueException e) {
-			log.error("esss value is invalid!", e);
+			log.error("meter value is invalid!", e);
 		}
 	}
 

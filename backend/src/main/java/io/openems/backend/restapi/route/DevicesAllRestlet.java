@@ -43,7 +43,7 @@ public class DevicesAllRestlet extends Restlet {
 		if (request.getMethod().equals(Method.GET)) {
 			JsonArray j = new JsonArray();
 			for (OpenemsSession session : OpenemsWebsocket.instance().getSessions()) {
-				j.add(session.getData().getDevice().toJsonObject());
+				j.add(session.getData().getDevices().toJson());
 			}
 			Representation entity = new StringRepresentation(j.toString(), MediaType.APPLICATION_JSON);
 			response.setEntity(entity);

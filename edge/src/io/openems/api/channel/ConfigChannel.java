@@ -52,8 +52,8 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	 * @throws OpenemsException
 	 */
 	@Override
-	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
-		super.applyChannelDoc(channelDoc);
+	public void setChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
+		super.setChannelDoc(channelDoc);
 		if (!this.isOptional.isPresent()) {
 			this.isOptional = Optional.of(channelDoc.isOptional());
 		}

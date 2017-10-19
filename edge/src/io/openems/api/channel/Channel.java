@@ -27,9 +27,9 @@ import com.google.gson.JsonObject;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
-import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
-import io.openems.core.utilities.InjectionUtils;
+import io.openems.common.exceptions.AccessDeniedException;
+import io.openems.common.session.Role;
 
 //TODO change to generic to use Generic ChannelUpdate/ChangeListener
 public interface Channel {
@@ -80,18 +80,54 @@ public interface Channel {
 	public JsonObject toJsonObject() throws NotImplementedException;
 
 	/**
-	 * Returns Users that have access to this Channel. Empty set allows global access.
+	 * Returns Roles that have read access to this Channel.
 	 *
 	 * @return
 	 */
-	public Set<User> users();
+	public Set<Role> readRoles();
 
 	/**
-	 * Sets values for this Channel using its annotation
+	 * Is the given Role allowed to read this Channel?
 	 *
-	 * This method is called by reflection from {@link InjectionUtils.getThingInstance}
+	 * @param role
+	 * @return
+	 */
+	public boolean isReadAllowed(Role role);
+
+	/**
+	 * Is the given Role allowed to read this Channel? Throws AccessDeniedException if not.
+	 *
+	 * @param role
+	 */
+	public void assertReadAllowed(Role role) throws AccessDeniedException;
+
+	/**
+	 * Returns Roles that have write access to this Channel.
+	 *
+	 * @return
+	 */
+	public Set<Role> writeRoles();
+
+	/**
+	 * Is the given Role allowed to write this Channel?
+	 *
+	 * @param role
+	 * @return
+	 */
+	public boolean isWriteAllowed(Role role);
+
+	/**
+	 * Is the given Role allowed to write this Channel? Throws AccessDeniedException if not.
+	 *
+	 * @param role
+	 */
+	public void assertWriteAllowed(Role role) throws AccessDeniedException;
+
+	/**
+	 * Sets the Channel annotation. This method is called twice. Once after creating the Thing and after the thing was
+	 * initialized via init()
 	 *
 	 * @throws OpenemsException
 	 */
-	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException;
+	public void setChannelDoc(ChannelDoc channelDoc) throws OpenemsException;
 }

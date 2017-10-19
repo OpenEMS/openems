@@ -54,6 +54,7 @@ import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
+import io.openems.common.session.Role;
 import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
 
@@ -87,7 +88,7 @@ public class ConfigUtils {
 	 * @return
 	 * @throws NotImplementedException
 	 */
-	public static JsonElement getAsJsonElement(Object value, ConfigFormat format) throws NotImplementedException {
+	public static JsonElement getAsJsonElement(Object value, ConfigFormat format, Role role) throws NotImplementedException {
 		// null
 		if (value == null) {
 			return null;
@@ -122,10 +123,12 @@ public class ConfigUtils {
 			j.addProperty("class", thing.getClass().getCanonicalName());
 			ThingRepository thingRepository = ThingRepository.getInstance();
 			for (ConfigChannel<?> channel : thingRepository.getConfigChannels(thing)) {
-				JsonElement jChannel = null;
-				jChannel = ConfigUtils.getAsJsonElement(channel, format);
-				if (jChannel != null) {
-					j.add(channel.id(), jChannel);
+				if(channel.isReadAllowed(role)) { // check read permissions
+					JsonElement jChannel = null;
+					jChannel = ConfigUtils.getAsJsonElement(channel, format, role);
+					if (jChannel != null) {
+						j.add(channel.id(), jChannel);
+					}
 				}
 			}
 			// for Bridge: add 'devices' array of thingIds
@@ -151,7 +154,7 @@ public class ConfigUtils {
 				return null;
 			} else {
 				// recursive call
-				return ConfigUtils.getAsJsonElement(channel.valueOptional().get(), format);
+				return ConfigUtils.getAsJsonElement(channel.valueOptional().get(), format, role);
 			}
 		} else if (value instanceof ThingMap) {
 			/*
@@ -164,7 +167,7 @@ public class ConfigUtils {
 			 */
 			JsonArray jArray = new JsonArray();
 			for (Object v : (List<?>) value) {
-				jArray.add(ConfigUtils.getAsJsonElement(v, format));
+				jArray.add(ConfigUtils.getAsJsonElement(v, format, role));
 			}
 			return jArray;
 		} else if (value instanceof Set<?>) {
@@ -173,7 +176,7 @@ public class ConfigUtils {
 			 */
 			JsonArray jArray = new JsonArray();
 			for (Object v : (Set<?>) value) {
-				jArray.add(ConfigUtils.getAsJsonElement(v, format));
+				jArray.add(ConfigUtils.getAsJsonElement(v, format, role));
 			}
 			return jArray;
 		}
@@ -299,7 +302,7 @@ public class ConfigUtils {
 						erg.add(larr);
 					} else {
 						throw new ReflectionException("The Json object for ConfigChannel [" + channel.address()
-								+ "] is no twodimensional array!");
+						+ "] is no twodimensional array!");
 					}
 				}
 				if (Set.class.isAssignableFrom(expectedObjectClass)) {

@@ -256,10 +256,6 @@ public class BalancingController extends Controller {
 						.ceil(minPower + diff / (esss.value().size() * 100 - useableSoc) * (100 - ess.useableSoc())));
 			}
 
-			if (power <= 100 && power >= -100) {
-				power = 0;
-			}
-
 			long reactivePower = ControllerUtils.calculateReactivePower(power, cosPhi.value());
 
 			calculatedPower -= power;

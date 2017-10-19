@@ -24,14 +24,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.DebugChannel;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.thing.Thing;
 
-public abstract class Controller implements Thing, Runnable {
+public abstract class Controller implements Thing {
 	public final static String THINGID_PREFIX = "_controller";
 	private static int instanceCounter = 0;
 	protected final Logger log;
 	private String name;
+	private DebugChannel<Long> requiredTime = new DebugChannel<>("RequiredTime", this);
 
 	/*
 	 * Config
@@ -55,6 +57,14 @@ public abstract class Controller implements Thing, Runnable {
 		}
 		log = LoggerFactory.getLogger(this.getClass());
 		name = thingId;
+	}
+
+	protected abstract void run();
+
+	public void executeRun() {
+		long beforeRun = System.currentTimeMillis();
+		run();
+		requiredTime.setValue(System.currentTimeMillis() - beforeRun);
 	}
 
 	@Override

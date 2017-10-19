@@ -1,7 +1,8 @@
-import * as moment from 'moment';
+import { format } from 'date-fns';
+import * as deLocale from 'date-fns/locale/de/index.js'
 
 export type Data = {
-    labels: moment.Moment[],
+    labels: Date,
     datasets: {
         backgroundColor: string,
         borderColor: string,
@@ -15,7 +16,7 @@ export type TooltipItem = {
     datasetIndex: number,
     index: number,
     x: number,
-    xLabel: moment.Moment,
+    xLabel: Date,
     y: number,
     yLabel: number
 }
@@ -118,7 +119,8 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         mode: 'label',
         callbacks: {
             title(tooltipItems: TooltipItem[], data: Data): string {
-                return tooltipItems[0].xLabel.format("LLLL");
+                return format(tooltipItems[0].xLabel, "LLLL", { locale: deLocale });
+                // TODO translate locale
             }
         }
     }

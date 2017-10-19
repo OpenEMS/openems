@@ -46,6 +46,7 @@ import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.thing.Thing;
+import io.openems.common.session.Role;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NullFieldValue;
 import io.openems.common.types.NumberFieldValue;
@@ -67,7 +68,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	/*
 	 * Config
 	 */
-	@ChannelInfo(title = "Apikey", description = "Sets the apikey for FENECON Cloud.", type = String.class)
+	@ChannelInfo(title = "Apikey", description = "Sets the apikey for FENECON Cloud.", type = String.class, readRoles = { Role.ADMIN })
 	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this).doNotPersist();
 
 	@ChannelInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/openems-backend\"")
@@ -75,7 +76,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 	@ChannelInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
-			.defaultValue(DEFAULT_CYCLETIME);
+	.defaultValue(DEFAULT_CYCLETIME);
 
 	/*
 	 * Constructor
@@ -94,7 +95,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 				WebSocketUtils.send( //
 						websocket, //
 						DefaultMessages.configQueryReply(
-								Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, DEFAULT_CONFIG_LANGUAGE)));
+								Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
 				log.info("Sent config to FENECON persistence.");
 			} catch (NotImplementedException | ConfigException e) {
 				log.error("Unable to send config: " + e.getMessage());

@@ -4,7 +4,6 @@ import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observer } from 'rxjs/Observer';
 import { Observable } from 'rxjs/Observable';
 import { UUID } from 'angular2-uuid';
-import * as moment from 'moment';
 
 import { Websocket } from '../shared';
 import { ConfigImpl } from './config';
@@ -12,7 +11,7 @@ import { CurrentDataAndSummary } from './currentdata';
 import { DefaultMessages } from '../service/defaultmessages';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Utils } from '../service/utils';
-import { Role, ROLES } from '../type/role';
+import { Role } from '../type/role';
 
 export class Log {
   timestamp: number;
@@ -120,7 +119,7 @@ export class Device {
    * Query data
    */
   // TODO: kWh: this.getkWhResult(this.getImportantChannels())
-  public historicDataQuery(fromDate: moment.Moment, toDate: moment.Moment, channels: DefaultTypes.ChannelAddresses): Promise<DefaultTypes.HistoricData> {
+  public historicDataQuery(fromDate: Date, toDate: Date, channels: DefaultTypes.ChannelAddresses): Promise<DefaultTypes.HistoricData> {
     // send query
     let timezone = new Date().getTimezoneOffset() * 60;
     let message = DefaultMessages.historicDataQuery(fromDate, toDate, timezone, channels);

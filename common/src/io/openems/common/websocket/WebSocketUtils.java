@@ -15,6 +15,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.api.TimedataSource;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 
@@ -31,18 +32,18 @@ public class WebSocketUtils {
 		}
 	}
 
-	public static boolean sendNotification(Optional<WebSocket> websocketOpt, LogBehaviour logBehaviour, Notification code,
+	public static boolean sendNotification(Optional<WebSocket> websocketOpt, JsonArray jId, LogBehaviour logBehaviour, Notification code,
 			Object... params) {
 		if (!websocketOpt.isPresent()) {
 			log.error("Websocket is not available. Unable to send Notification ["
 					+ String.format(code.getMessage(), params) + "]");
 			return false;
 		} else {
-			return WebSocketUtils.sendNotification(websocketOpt.get(), logBehaviour, code, params);
+			return WebSocketUtils.sendNotification(websocketOpt.get(), jId, logBehaviour, code, params);
 		}
 	}
 
-	public static boolean sendNotification(WebSocket websocket, LogBehaviour logBehaviour, Notification code, Object... params) {
+	public static boolean sendNotification(WebSocket websocket, JsonArray jId, LogBehaviour logBehaviour, Notification code, Object... params) {
 		String message = String.format(code.getMessage(), params);
 		String logMessage = "Notification [" + code.getValue() + "]: " + message;
 		// log message
@@ -62,7 +63,7 @@ public class WebSocketUtils {
 			}
 		}
 
-		JsonObject j = DefaultMessages.notification(code, message, params);
+		JsonObject j = DefaultMessages.notification(jId, code, message, params);
 		return WebSocketUtils.send(websocket, j);
 	}
 
@@ -89,7 +90,7 @@ public class WebSocketUtils {
 	 * @param j
 	 */
 	public static JsonObject historicData(JsonArray jMessageId, JsonObject jHistoricData, Optional<Integer> deviceId,
-			TimedataSource timedataSource) {
+			TimedataSource timedataSource, Role role) {
 		try {
 			String mode = JsonUtils.getAsString(jHistoricData, "mode");
 			if (mode.equals("query")) {
@@ -101,6 +102,7 @@ public class WebSocketUtils {
 				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jHistoricData, "fromDate", timezone);
 				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jHistoricData, "toDate", timezone).plusDays(1);
 				JsonObject channels = JsonUtils.getAsJsonObject(jHistoricData, "channels");
+				// TODO check if role is allowed to read these channels
 				// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
 				// TODO: better calculation of sensible resolution

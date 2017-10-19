@@ -9,8 +9,6 @@ import { Websocket } from '../../../shared/shared';
 import { DefaultTypes } from '../../../shared/service/defaulttypes';
 import { ConfigImpl } from '../../../shared/device/config';
 
-import * as moment from 'moment';
-
 @Component({
   selector: 'abstractconfig',
   templateUrl: 'abstractconfig.component.html'

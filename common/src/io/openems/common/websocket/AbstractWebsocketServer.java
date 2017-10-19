@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.drafts.*;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -35,8 +37,9 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 
 	protected abstract void _onClose(WebSocket websocket, Optional<S> sessionOpt);
 
+	@SuppressWarnings("deprecation")
 	public AbstractWebsocketServer(int port, M sessionManager) {
-		super(new InetSocketAddress(port));
+		super(new InetSocketAddress(port), Lists.newArrayList(new Draft_6455(), new Draft_76()));
 		this.sessionManager = sessionManager;
 	}
 
@@ -173,17 +176,17 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 			this.websockets.forcePut(websocket, session);
 		}
 	}
-	
+
 	protected void removeWebsocket(WebSocket websocket) {
 		synchronized (this.websockets) {
 			this.websockets.remove(websocket);
 		}
 	}
-	
+
 	protected Optional<S> getSessionFromWebsocket(WebSocket websocket) {
 		return Optional.ofNullable(this.websockets.get(websocket));
 	}
-	
+
 	protected Optional<WebSocket> getWebsocketFromSession(S session) {
 		return Optional.ofNullable(this.websockets.inverse().get(session));
 	}

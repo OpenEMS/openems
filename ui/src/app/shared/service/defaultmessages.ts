@@ -1,5 +1,5 @@
 import { UUID } from 'angular2-uuid';
-import * as moment from 'moment';
+import { format } from 'date-fns';
 
 import { DefaultTypes } from './defaulttypes';
 
@@ -57,14 +57,14 @@ export class DefaultMessages {
         }
     };
 
-    public static historicDataQuery(fromDate: moment.Moment, toDate: moment.Moment, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses) {
+    public static historicDataQuery(fromDate: Date, toDate: Date, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses) {
         return {
             device: String,
             id: [UUID.UUID()],
             historicData: {
                 mode: "query",
-                fromDate: fromDate.format('YYYY-MM-DD'),
-                toDate: toDate.format('YYYY-MM-DD'),
+                fromDate: format(fromDate, 'YYYY-MM-DD'),
+                toDate: format(toDate, 'YYYY-MM-DD'),
                 timezone: timezone,
                 channels: channels
                 // TODO

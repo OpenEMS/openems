@@ -2,7 +2,6 @@ import { Component, Input, OnInit, OnChanges, ViewChild, AfterViewInit, SimpleCh
 import { Subject } from 'rxjs/Subject';
 import { BaseChartDirective } from 'ng2-charts/ng2-charts';
 import { TranslateService } from '@ngx-translate/core';
-import * as moment from 'moment';
 
 import { Device } from '../../../../shared/device/device';
 import { ConfigImpl } from '../../../../shared/device/config';
@@ -22,8 +21,8 @@ export class EnergyChartComponent implements OnChanges {
   @Input() private device: Device;
   @Input() private config: ConfigImpl;
   @Input() private channels: DefaultTypes.ChannelAddresses;
-  @Input() private fromDate: moment.Moment;
-  @Input() private toDate: moment.Moment;
+  @Input() private fromDate: Date;
+  @Input() private toDate: Date;
 
   @ViewChild('energyChart') private chart: BaseChartDirective;
 
@@ -36,7 +35,7 @@ export class EnergyChartComponent implements OnChanges {
     this.gridSell = this.translate.instant('General.GridSell');
   }
 
-  public labels: moment.Moment[] = [];
+  public labels: Date[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
   public loading: boolean = true;
 
@@ -92,6 +91,10 @@ export class EnergyChartComponent implements OnChanges {
   }
 
   ngOnChanges() {
+    if (Object.keys(this.channels).length === 0) {
+      this.loading = true;
+      return;
+    }
     this.loading = true;
     this.device.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
       // prepare datas array and prefill with each device
@@ -105,9 +108,9 @@ export class EnergyChartComponent implements OnChanges {
         storageCharge: [],
         storageDischarge: []
       }
-      let labels: moment.Moment[] = [];
+      let labels: Date[] = [];
       for (let record of historicData.data) {
-        labels.push(moment(record.time));
+        labels.push(new Date(record.time));
         let data = new CurrentDataAndSummary(record.channels, this.config);
         activePowers.gridBuy.push(Utils.divideSafely(data.summary.grid.buyActivePower, 1000)); // convert to kW
         activePowers.gridSell.push(Utils.divideSafely(data.summary.grid.sellActivePower, 1000)); // convert to kW
@@ -121,11 +124,11 @@ export class EnergyChartComponent implements OnChanges {
         data: activePowers.production,
         hidden: false
       }, {
-        label: "Netzbezug", //TODO translate this.translate.instant('General.Grid')
+        label: this.translate.instant('General.GridBuy'),
         data: activePowers.gridBuy,
         hidden: false
       }, {
-        label: "Netzeinspeisung", // TODO translate
+        label: this.translate.instant('General.GridSell'),
         data: activePowers.gridSell,
         hidden: false
       }, {
@@ -133,11 +136,11 @@ export class EnergyChartComponent implements OnChanges {
         data: activePowers.consumption,
         hidden: false
       }, {
-        label: "Speicher-Beladung", // TODO translate
+        label: this.translate.instant('General.ChargePower'),
         data: activePowers.storageCharge,
         hidden: true
       }, {
-        label: "Speicher-Entladung", // TODO translate
+        label: this.translate.instant('General.DischargePower'),
         data: activePowers.storageDischarge,
         hidden: true
       }];

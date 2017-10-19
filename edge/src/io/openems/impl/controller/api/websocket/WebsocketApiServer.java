@@ -45,7 +45,7 @@ import io.openems.impl.controller.api.websocket.session.WebsocketApiSessionData;
 import io.openems.impl.controller.api.websocket.session.WebsocketApiSessionManager;
 
 public class WebsocketApiServer
-		extends AbstractWebsocketServer<WebsocketApiSession, WebsocketApiSessionData, WebsocketApiSessionManager> {
+extends AbstractWebsocketServer<WebsocketApiSession, WebsocketApiSessionData, WebsocketApiSessionManager> {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketApiServer.class);
 
@@ -84,7 +84,7 @@ public class WebsocketApiServer
 				return;
 			}
 			// if we are here, automatic authentication was not possible -> notify client
-			WebSocketUtils.sendNotification(websocket, LogBehaviour.WRITE_TO_LOG,
+			WebSocketUtils.sendNotification(websocket, new JsonArray(), LogBehaviour.WRITE_TO_LOG,
 					Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, tokenOpt.orElse(""));
 		}
 	}

@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import { Role } from '../type/role'
 
 export module DefaultTypes {
 
@@ -30,7 +30,8 @@ export module DefaultTypes {
             type: string | string[],
             optional: boolean,
             array: boolean,
-            accessLevel: string
+            readRoles: Role[],
+            writeRoles: Role[]
           }
         }
       }

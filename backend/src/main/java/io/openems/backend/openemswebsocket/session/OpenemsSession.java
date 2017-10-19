@@ -10,6 +10,6 @@ public class OpenemsSession extends Session<OpenemsSessionData> {
 
 	@Override
 	public String toString() {
-		return "Device [" + getData().getDevice().getName() + "]";
+		return "Device [" + getData().getDevices().getNamesString() + "]";
 	}
 }

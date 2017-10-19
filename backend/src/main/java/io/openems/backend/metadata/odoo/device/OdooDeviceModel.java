@@ -2,7 +2,6 @@ package io.openems.backend.metadata.odoo.device;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.xmlrpc.XmlRpcException;
 
@@ -10,8 +9,8 @@ import com.abercap.odoo.OdooApiException;
 import com.abercap.odoo.RowCollection;
 import com.abercap.odoo.Session;
 
-import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.backend.metadata.api.device.MetadataDeviceModel;
+import io.openems.backend.metadata.api.device.MetadataDevices;
 import io.openems.backend.metadata.odoo.OdooModel;
 import io.openems.common.exceptions.OpenemsException;
 
@@ -33,18 +32,16 @@ public class OdooDeviceModel extends OdooModel<OdooDevice> implements MetadataDe
 	}
 
 	@Override
-	public Optional<MetadataDevice> getDeviceForApikey(String apikey) throws OpenemsException {
-		List<OdooDevice> devices;
+	public MetadataDevices getDevicesForApikey(String apikey) throws OpenemsException {
+		MetadataDevices devices = new MetadataDevices();
 		try {
-			devices = this.readObjectsWhere("apikey", "=", apikey);
+			for (OdooDevice device : this.readObjectsWhere("apikey", "=", apikey)) {
+				devices.add(device);
+			}
 		} catch (XmlRpcException | OdooApiException e) {
 			throw new OpenemsException("Unable to find device for apikey: " + e.getMessage());
 		}
-		if (devices.size() > 0) {
-			return Optional.of(devices.get(0));
-		} else {
-			return Optional.empty();
-		}
+		return devices;
 	}
 
 	@Override

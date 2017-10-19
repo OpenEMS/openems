@@ -12,6 +12,8 @@ export const TRANSLATION = {
         Soc: "Stav nabití",
         Percentage: "Procentuální vyjádření",
         More: "Další",
+        ChargePower: "Nabíjecí výkon",
+        DischargePower: "Vybíjecí výkon",
         PeriodFromTo: "od {{value1}} do {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "DD.MM.YYYY", // e.g. German: DD.MM.YYYY, English: YYYY-MM-DD (DD = Day, MM = Month, YYYY = Year)
         Week: {
@@ -41,8 +43,6 @@ export const TRANSLATION = {
                 Title: "Monitoring energetických toků",
                 ConsumptionWarning: "Spotřeba & neznámá výroba",
                 Storage: "Úložiště",
-                ChargePower: "Nabíjecí výkon",
-                DischargePower: "Vybíjecí výkon",
                 ReactivePower: "Jalový výkon",
                 ActivePower: "Činný výkon",
                 GridMeter: "Elektroměr - Odběr",

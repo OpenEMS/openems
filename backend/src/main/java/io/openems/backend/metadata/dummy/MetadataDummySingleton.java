@@ -1,7 +1,6 @@
 package io.openems.backend.metadata.dummy;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.collect.LinkedHashMultimap;
 
 import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.browserwebsocket.session.BrowserSessionData;
@@ -32,12 +31,12 @@ public class MetadataDummySingleton implements MetadataSingleton {
 		SessionData sessionData = session.getData();
 		BrowserSessionData data = (BrowserSessionData) sessionData;
 		data.setUserId(0);
-		// Allow access to all available devices
-		List<Device> deviceInfos = new ArrayList<>();
+		// Devices can have the same name, that's why we use a Multimap.
+		LinkedHashMultimap<String, Device> deviceMap = LinkedHashMultimap.create();
 		for (Device device : this.deviceModel.getAllDevices()) {
-			deviceInfos.add(device);
+			deviceMap.put(device.getName(), device);
 		}
-		data.setDevices(deviceInfos);
+		data.setDevices(deviceMap);
 		return;
 	}
 

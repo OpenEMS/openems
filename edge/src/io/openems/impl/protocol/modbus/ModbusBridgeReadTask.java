@@ -87,7 +87,7 @@ public class ModbusBridgeReadTask extends BridgeReadTask {
 					}
 					position += element.getLength();
 				}
-			} catch (OpenemsModbusException e) {
+			} catch (Exception e) {
 				log.error("Modbus query failed. " //
 						+ "Bridge [" + modbusBridge.id() + "], Range [" + range.getStartAddress() + "]: {}",
 						e.getMessage());

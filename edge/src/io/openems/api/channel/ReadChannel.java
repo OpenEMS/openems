@@ -37,8 +37,9 @@ import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
-import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.AccessDeniedException;
+import io.openems.common.session.Role;
 import io.openems.core.Databus;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -49,7 +50,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private final String id;
 	private final Thing parent;
 	private Optional<T> value = Optional.empty();
-	private Optional<Class<?>> type = Optional.empty();
+	private Optional<Class<?>> type = Optional.empty(); // TODO remove type in favour of annotation/channelDoc
+	private Optional<ChannelDoc> channelDocOpt = Optional.empty();
 
 	protected Optional<Long> delta = Optional.empty();
 	private Optional<T> ignore = Optional.empty();
@@ -59,7 +61,6 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private Interval<T> valueInterval = new Interval<T>();
 	private String unit = "";
 	private boolean isRequired = false;
-	protected final Set<User> users = new HashSet<>();
 	protected boolean doNotPersist = false;
 
 	private final Set<ChannelUpdateListener> updateListeners = ConcurrentHashMap.newKeySet();
@@ -84,6 +85,12 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
+	/**
+	 * Sets the multiplier value. The original value is getting multiplied by this: value = value * multiplier - delta
+	 *
+	 * @param delta
+	 * @return
+	 */
 	public ReadChannel<T> multiplier(Long multiplier) {
 		this.multiplier = Optional.ofNullable(multiplier);
 		return this;
@@ -131,13 +138,6 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
-	public ReadChannel<T> user(User... users) {
-		for (User user : users) {
-			this.users.add(user);
-		}
-		return this;
-	}
-
 	public ReadChannel<T> doNotPersist() {
 		this.doNotPersist = true;
 		return this;
@@ -174,13 +174,19 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return unit;
 	}
 
+	/**
+	 * Sets the delta value. This is subtracted from the original value: value = value * multiplier - delta
+	 *
+	 * @param delta
+	 * @return
+	 */
 	public ReadChannel<T> delta(Long delta) {
 		this.delta = Optional.ofNullable(delta);
 		return this;
 	}
 
 	/**
-	 * Sets the ignore value. If the value of this channel is being updated to this value, it is getting ignored.
+	 * Sets the ignore value. If the value of this channel is being updated to this value, it is getting ignored. Ignore value is evaluated before 'delta' and 'multiplier' are applied.
 	 *
 	 * @param ignore
 	 * @return
@@ -195,8 +201,25 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	}
 
 	@Override
-	public Set<User> users() {
-		return Collections.unmodifiableSet(users);
+	public Set<Role> readRoles() {
+		if(this.channelDocOpt.isPresent()) {
+			ChannelDoc channelDoc = this.channelDocOpt.get();
+			return Collections.unmodifiableSet(channelDoc.getReadRoles());
+		} else {
+			log.warn("Channel ["+this.address()+"] has no ChannelDoc.");
+			return new HashSet<Role>();
+		}
+	}
+
+	@Override
+	public Set<Role> writeRoles() {
+		if(this.channelDocOpt.isPresent()) {
+			ChannelDoc channelDoc = this.channelDocOpt.get();
+			return Collections.unmodifiableSet(channelDoc.getWriteRoles());
+		} else {
+			log.warn("Channel ["+this.address()+"] has no ChannelDoc.");
+			return new HashSet<Role>();
+		}
 	}
 
 	/**
@@ -217,7 +240,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	 * @throws OpenemsException
 	 */
 	@Override
-	public void applyChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
+	public void setChannelDoc(ChannelDoc channelDoc) throws OpenemsException {
+		this.channelDocOpt = Optional.ofNullable(channelDoc);
 		this.type = channelDoc.getTypeOpt();
 	}
 
@@ -259,7 +283,6 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 			number = (long) (number.longValue() * multiplier - delta);
 			@SuppressWarnings("unchecked") Optional<T> value = (Optional<T>) Optional.of(number);
 			this.value = value;
-
 		} else {
 			this.value = Optional.ofNullable(newValue);
 		}
@@ -342,6 +365,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	 * @return
 	 */
 	public ReadChannel<T> required() {
+		this.isRequired = true;
 		return this;
 	};
 
@@ -365,5 +389,29 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	@Override
 	public String toString() {
 		return address() + ": " + value.toString();
+	}
+
+	@Override
+	public boolean isReadAllowed(Role role) {
+		return this.readRoles().contains(role);
+	}
+
+	@Override
+	public void assertReadAllowed(Role role) throws AccessDeniedException {
+		if(!isReadAllowed(role)) {
+			throw new AccessDeniedException("User role [" + role.toString().toLowerCase() + "] is not allowed to read channel [" + this.address() + "]");
+		}
+	}
+
+	@Override
+	public boolean isWriteAllowed(Role role) {
+		// this is a ReadChannel. Always return false.
+		return false;
+	}
+
+	@Override
+	public void assertWriteAllowed(Role role) throws AccessDeniedException {
+		// this is a ReadChannel. Always throw exception.
+		throw new AccessDeniedException("User role [" + role.toString().toLowerCase() + "] is not allowed to write READ-ONLY channel [" + this.address() + "]");
 	}
 }

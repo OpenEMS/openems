@@ -1,23 +1,23 @@
-<md-card class="single">
-  <md-card-header>TODO: adjust RefuComponent to new config layout</md-card-header>
-</md-card>
+<mat-card class="single">
+  <mat-card-header>TODO: adjust RefuComponent to new config layout</mat-card-header>
+</mat-card>
 <!-- <ng-container *ngIf="device">
   <ng-container *ngFor="let bridge of (device.config | async)?.things">
     <ng-container *ngFor="let device of bridge.devices">
       <ng-container *ngIf="device.class == 'io.openems.impl.device.refu.Refu'">
 
-        <md-card class="single">
-          <md-card-header>
-            <md-icon md-card-avatar>stop</md-icon>
-            <md-card-title translate>Device.Config.More.RefuInverter</md-card-title>
-            <md-card-subtitle>{{ device.ess.id }}</md-card-subtitle>
-          </md-card-header>
-          <md-card-content>
+        <mat-card class="single">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>stop</mat-icon>
+            <mat-card-title translate>Device.Config.More.RefuInverter</mat-card-title>
+            <mat-card-subtitle>{{ device.ess.id }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
             <p translate>Device.Config.More.RefuStartStop</p>
-            <button md-raised-button (click)="setInverterState(device.ess.id, true)" class="btn btn-default"><span translate>Device.Config.More.RefuStart</span></button>
-            <button md-raised-button (click)="setInverterState(device.ess.id, false)" class="btn btn-default"><span translate>Device.Config.More.RefuStop</span></button>
-          </md-card-content>
-        </md-card>
+            <button mat-raised-button (click)="setInverterState(device.ess.id, true)" class="btn btn-default"><span translate>Device.Config.More.RefuStart</span></button>
+            <button mat-raised-button (click)="setInverterState(device.ess.id, false)" class="btn btn-default"><span translate>Device.Config.More.RefuStop</span></button>
+          </mat-card-content>
+        </mat-card>
 
       </ng-container>
     </ng-container>

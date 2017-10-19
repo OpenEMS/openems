@@ -1,4 +1,4 @@
-package io.openems.impl.device.system.asymmetrictosymmetricess;
+package io.openems.impl.device.system.asymmetricsymmetriccombinationess;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,13 +11,13 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.impl.protocol.system.SystemDevice;
 
-@ThingInfo(title = "Asymmetric to Symmetric Ess")
-public class AsymmetricToSymmetricEss extends SystemDevice {
+@ThingInfo(title = "Ess Asymmetric-Symmetric-Combination")
+public class AsymmetricSymmetricCombinationEss extends SystemDevice {
 
-	@ChannelInfo(title = "AsymmetricToSymmetricEss", description = "Sets the wrapper nature to use asymmetric ess as symmetric ess.", type = AsymmetricToSymmetricEssNature.class)
-	public final ConfigChannel<AsymmetricToSymmetricEssNature> wrapper = new ConfigChannel<>("wrapper", this);
+	@ChannelInfo(title = "AsymmetricSymmetricCombinationEss", description = "Sets the wrapper nature to use asymmetric and symmetric controller together.", type = AsymmetricSymmetricCombinationEssNature.class)
+	public final ConfigChannel<AsymmetricSymmetricCombinationEssNature> wrapper = new ConfigChannel<>("wrapper", this);
 
-	public AsymmetricToSymmetricEss(Bridge parent) throws OpenemsException {
+	public AsymmetricSymmetricCombinationEss(Bridge parent) throws OpenemsException {
 		super(parent);
 		// TODO Auto-generated constructor stub
 	}

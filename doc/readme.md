@@ -81,11 +81,12 @@ currently forwarded to Odoo login page
 
 Following commands are all the same, no matter if UI is connected to Edge or to Backend. 
 
-Backend is transparently proxying requests to a connected Edge if necessary, adding the UI token as identifier to the message id:
+Backend is transparently proxying requests to a connected Edge if necessary, adding the authentication role and the UI token as identifier to the message id.
 
 ```
 {
 	id: [..., token],
+	role: "admin" | "installer" | "owner" | "guest",
 	...
 }
 ```
@@ -128,7 +129,8 @@ Backend is transparently proxying requests to a connected Edge if necessary, add
 						type: string | string[],
 						optional: boolean,
 						array: boolean,
-						accessLevel: string,
+						readRoles: string[],
+						writeRoles: string[],
 						defaultValue: string
 					}
 				}
@@ -231,6 +233,7 @@ For 'unsubscribe' the channels object is empty.
 ```
 {
  	notification: {
+		id: string[],
 		type: "success" | "error" | "warning" | "info",
 		message: "...",
 		code?: number,

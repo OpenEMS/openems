@@ -12,6 +12,8 @@ export const TRANSLATION = {
         Soc: "Ladezustand",
         Percentage: "Prozent",
         More: "Mehr...",
+        ChargePower: "Beladung",
+        DischargePower: "Entladung",
         PeriodFromTo: "von {{value1}} bis {{value2}}", // value1 = start date, value2 = end date
         DateFormat: "DD.MM.YYYY", // z.B. Englisch: YYYY-MM-DD (DD = Tag, MM = Monat, YYYY = Jahr)
         Week: {
@@ -41,12 +43,12 @@ export const TRANSLATION = {
                 Title: "Energiemonitor",
                 ConsumptionWarning: "Verbrauch & unbekannte Erzeuger",
                 Storage: "Speicher",
-                ChargePower: "Beladung",
-                DischargePower: "Entladung",
                 ReactivePower: "Blindleistung",
                 ActivePower: "Ausgabeleistung",
                 GridMeter: "Netzzähler",
-                ProductionMeter: "Erzeugungszähler"
+                ProductionMeter: "Erzeugungszähler",
+                StorageDischarge: "Speicher-Entladung",
+                StorageCharge: "Speicher-Beladung"
             },
             Energytable: {
                 Title: "Energietabelle"

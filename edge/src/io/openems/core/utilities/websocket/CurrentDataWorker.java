@@ -15,10 +15,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.exception.NotImplementedException;
+import io.openems.common.exceptions.AccessDeniedException;
+import io.openems.common.session.Role;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Databus;
+import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
 
 public class CurrentDataWorker {
@@ -38,13 +43,19 @@ public class CurrentDataWorker {
 	private final HashMultimap<String, String> channels;
 
 	/**
+	 * The access level Role of this worker
+	 */
+	private final Role role;
+
+	/**
 	 * Holds the scheduled task for currentData
 	 */
 	private final ScheduledFuture<?> future;
 
-	public CurrentDataWorker(JsonArray jId, HashMultimap<String, String> channels,
+	public CurrentDataWorker(JsonArray jId, HashMultimap<String, String> channels, Role role,
 			EdgeWebsocketHandler edgeWebsocketHandler) {
 		this.channels = channels;
+		this.role = role;
 		this.future = this.executor.scheduleWithFixedDelay(() -> {
 			/*
 			 * This task is executed regularly. Sends data to websocket.
@@ -71,17 +82,27 @@ public class CurrentDataWorker {
 	 * @return
 	 */
 	private JsonObject getSubscribedData() {
+		ThingRepository thingRepository = ThingRepository.getInstance();
 		Databus databus = Databus.getInstance();
 		JsonObject jData = new JsonObject();
 		for (String thingId : this.channels.keys()) {
 			JsonObject jThingData = new JsonObject();
 			for (String channelId : this.channels.get(thingId)) {
-				Optional<?> value = databus.getValue(thingId, channelId);
-				try {
-					JsonElement jValue = JsonUtils.getAsJsonElement(value.orElse(null));
-					jThingData.add(channelId, jValue);
-				} catch (NotImplementedException e) {
-					log.error(e.getMessage());
+				ChannelAddress channelAddress = new ChannelAddress(thingId, channelId);
+				// TODO rename getChannel() to getChannelOpt
+				// TODO create new getChannel() that throws an error if not existing
+				Optional<Channel> channelOpt = thingRepository.getChannel(channelAddress);
+				if(channelOpt.isPresent()) {
+					Channel channel = channelOpt.get();
+					try {
+						channel.assertReadAllowed(role);
+						JsonElement jValue = JsonUtils.getAsJsonElement(databus.getValue(channel).orElse(null));
+						jThingData.add(channelId, jValue);
+					} catch (AccessDeniedException | NotImplementedException e) {
+						log.error(e.getMessage());
+					}
+				} else {
+					log.error("Channel ["+channelAddress+"] is not existing.");
 				}
 			}
 			jData.add(thingId, jThingData);

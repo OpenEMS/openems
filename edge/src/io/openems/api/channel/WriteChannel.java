@@ -30,6 +30,8 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.AccessDeniedException;
+import io.openems.common.session.Role;
 import io.openems.core.utilities.JsonUtils;
 
 public class WriteChannel<T> extends ReadChannel<T> {
@@ -263,7 +265,7 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void checkIntervalBoundaries(T value) throws WriteChannelException {
+	public void checkIntervalBoundaries(T value) throws WriteChannelException {
 		Optional<T> max = writeMax();
 		Optional<T> min = writeMin();
 		Optional<T> write = this.writeValue;
@@ -272,15 +274,15 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		} else if (write.isPresent() && write.get() instanceof Comparable
 				&& ((Comparable<T>) write.get()).compareTo(value) != 0) {
 			throw new WriteChannelException("Value [" + value + "] for [" + address()
-					+ "] is out of boundaries. Different fixed value [" + write.get() + "] had already been set");
+			+ "] is out of boundaries. Different fixed value [" + write.get() + "] had already been set");
 		} else if (max.isPresent() && max.get() instanceof Comparable
 				&& ((Comparable<T>) max.get()).compareTo(value) < 0) {
 			throw new WriteChannelException("Value [" + value + "] for [" + address()
-					+ "] is out of boundaries. Max value [" + max.get() + "] had already been set");
+			+ "] is out of boundaries. Max value [" + max.get() + "] had already been set");
 		} else if (min.isPresent() && min.get() instanceof Comparable
 				&& ((Comparable<T>) min.get()).compareTo(value) > 0) {
 			throw new WriteChannelException("Value [" + value + "] for [" + address()
-					+ "] is out of boundaries. Min value [" + min.get() + "] had already been set");
+			+ "] is out of boundaries. Min value [" + min.get() + "] had already been set");
 		}
 	}
 
@@ -297,5 +299,17 @@ public class WriteChannel<T> extends ReadChannel<T> {
 	@Override
 	public String toString() {
 		return address() + ", readValue: " + valueOptional().toString() + ",writeValue: " + writeValue.toString();
+	}
+
+	@Override
+	public boolean isWriteAllowed(Role role) {
+		return this.writeRoles().contains(role);
+	}
+
+	@Override
+	public void assertWriteAllowed(Role role) throws AccessDeniedException {
+		if(!isWriteAllowed(role)) {
+			throw new AccessDeniedException("User role [" + role.toString().toLowerCase() + "] is not allwed to write channel [" + this.address() + "]");
+		}
 	}
 }

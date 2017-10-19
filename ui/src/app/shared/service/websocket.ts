@@ -11,7 +11,7 @@ import { environment as env } from '../../../environments';
 import { Service } from './service';
 import { Utils } from './utils';
 import { Device } from '../device/device';
-import { ROLES } from '../type/role';
+import { Role } from '../type/role';
 import { DefaultTypes } from '../service/defaulttypes';
 import { DefaultMessages } from '../service/defaultmessages';
 
@@ -166,7 +166,7 @@ export class Websocket {
 
           if ("role" in message.authenticate && env.backend === "OpenEMS Edge") {
             // for OpenEMS Edge we have only one device
-            let role = ROLES.getRole(message.authenticate.role);
+            let role = Role.getRole(message.authenticate.role);
             let replyStream: { [messageId: string]: Subject<any> } = {};
             this.replyStreams[Websocket.DEFAULT_DEVICENAME] = replyStream;
             this.devices.next({
@@ -236,7 +236,7 @@ export class Websocket {
               device.name,
               device.comment,
               device.producttype,
-              ROLES.getRole(device.role),
+              Role.getRole(device.role),
               device.online,
               replyStream,
               this

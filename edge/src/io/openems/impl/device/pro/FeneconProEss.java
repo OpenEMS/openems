@@ -20,8 +20,15 @@
  *******************************************************************************/
 package io.openems.impl.device.pro;
 
+import java.util.Optional;
+
+import io.openems.api.bridge.BridgeEvent;
+import io.openems.api.bridge.BridgeEvent.Position;
+import io.openems.api.bridge.BridgeEventListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
+import io.openems.api.channel.FunctionalWriteChannel;
+import io.openems.api.channel.FunctionalWriteChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
@@ -34,6 +41,7 @@ import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.api.exception.WriteChannelException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -48,6 +56,11 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRan
 @ThingInfo(title = "FENECON Pro ESS")
 public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNature, RealTimeClockNature {
 
+	private WriteChannel<Long>[] activePowerPhases;
+	private WriteChannel<Long>[] reactivePowerPhases;
+	private WriteChannel<Long>[] nativeActivePowerPhases;
+	private WriteChannel<Long>[] nativeReactivePowerPhases;
+
 	/*
 	 * Constructors
 	 */
@@ -57,6 +70,66 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
+			}
+		});
+		parent.getBridge().addListener(new BridgeEventListener() {
+
+			@Override
+			protected void notify(BridgeEvent event) {
+				if (event.getPosition().equals(Position.BEFOREWRITE)) {
+					Integer maxActivePower = null;
+					long[] setActivePower = new long[3];
+					long[] setReactivePower = new long[3];
+					@SuppressWarnings("unchecked") Optional<Long>[] writeValueActivePower = new Optional[3];
+					@SuppressWarnings("unchecked") Optional<Long>[] writeValueReactivePower = new Optional[3];
+					Integer maxReactivePower = null;
+					for (int i = 0; i < 3; i++) {
+						writeValueActivePower[i] = activePowerPhases[i].writeShadowCopy();
+						writeValueReactivePower[i] = reactivePowerPhases[i].writeShadowCopy();
+						if (writeValueActivePower[i].isPresent() && (maxActivePower == null || Math
+								.abs(writeValueActivePower[i].get()) > Math.abs(writeValueActivePower[i].get()))) {
+							maxActivePower = i;
+						}
+						if (writeValueReactivePower[i].isPresent() && (maxReactivePower == null || Math
+								.abs(writeValueReactivePower[i].get()) > Math.abs(writeValueReactivePower[i].get()))) {
+							maxReactivePower = i;
+						}
+					}
+					if (maxActivePower != null) {
+						for (int i = 0; i < 3; i++) {
+							if (writeValueActivePower[i].isPresent()) {
+								if (writeValueActivePower[i].get() < 200 && writeValueActivePower[i].get() > -200 && i != maxActivePower) {
+									setActivePower[maxActivePower] += writeValueActivePower[i].get();
+								} else {
+									setActivePower[i] += writeValueActivePower[i].get();
+								}
+							}
+						}
+						// write values
+						for (int i = 0; i < 3; i++) {
+							try {
+								nativeActivePowerPhases[i].pushWrite(setActivePower[i]);
+							} catch (WriteChannelException e) {}
+						}
+					}
+					if (maxReactivePower != null) {
+						for (int i = 0; i < 3; i++) {
+							if (writeValueReactivePower[i].isPresent()) {
+								if (writeValueReactivePower[i].get() < 200 && writeValueReactivePower[i].get() > -200 && i != maxReactivePower) {
+									setReactivePower[maxReactivePower] += writeValueReactivePower[i].get();
+								} else {
+									setReactivePower[i] += writeValueReactivePower[i].get();
+								}
+							}
+						}
+						// write values
+						for (int i = 0; i < 3; i++) {
+							try {
+								nativeReactivePowerPhases[i].pushWrite(setReactivePower[i]);
+							} catch (WriteChannelException e) {}
+						}
+					}
+				}
 			}
 		});
 	}
@@ -94,12 +167,12 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	private ModbusReadLongChannel reactivePowerL2;
 	private ModbusReadLongChannel reactivePowerL3;
 	private ModbusWriteLongChannel setWorkState;
-	private ModbusWriteLongChannel setActivePowerL1;
-	private ModbusWriteLongChannel setActivePowerL2;
-	private ModbusWriteLongChannel setActivePowerL3;
-	private ModbusWriteLongChannel setReactivePowerL1;
-	private ModbusWriteLongChannel setReactivePowerL2;
-	private ModbusWriteLongChannel setReactivePowerL3;
+	private WriteChannel<Long> setActivePowerL1;
+	private WriteChannel<Long> setActivePowerL2;
+	private WriteChannel<Long> setActivePowerL3;
+	private WriteChannel<Long> setReactivePowerL1;
+	private WriteChannel<Long> setReactivePowerL2;
+	private WriteChannel<Long> setReactivePowerL3;
 	private ReadChannel<Long> allowedApparent;
 	// RealTimeClock
 	private ModbusWriteLongChannel rtcYear;
@@ -316,10 +389,17 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	public StatusBitChannel pcsFault1L3;
 	public StatusBitChannel pcsFault2L3;
 	public StatusBitChannel pcsFault3L3;
+	public ModbusWriteLongChannel nativeSetActivePowerL1;
+	public ModbusWriteLongChannel nativeSetActivePowerL2;
+	public ModbusWriteLongChannel nativeSetActivePowerL3;
+	public ModbusWriteLongChannel nativeSetReactivePowerL1;
+	public ModbusWriteLongChannel nativeSetReactivePowerL2;
+	public ModbusWriteLongChannel nativeSetReactivePowerL3;
 
 	/*
 	 * Methods
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
@@ -327,35 +407,35 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 		ModbusProtocol protokol = new ModbusProtocol(new ModbusRegisterRange(100, //
 				new UnsignedWordElement(100, //
 						systemState = new ModbusReadLongChannel("SystemState", this) //
-								.label(0, STANDBY) //
-								.label(1, "Start Off-Grid") //
-								.label(2, START) //
-								.label(3, FAULT) //
-								.label(4, "Off-grid PV")),
+						.label(0, STANDBY) //
+						.label(1, "Start Off-Grid") //
+						.label(2, START) //
+						.label(3, FAULT) //
+						.label(4, "Off-grid PV")),
 				new UnsignedWordElement(101, //
 						controlMode = new ModbusReadLongChannel("ControlMode", this) //
-								.label(1, "Remote") //
-								.label(2, "Local")), //
+						.label(1, "Remote") //
+						.label(2, "Local")), //
 				new UnsignedWordElement(102, //
 						workMode = new ModbusReadLongChannel("WorkMode", this) //
-								.label(2, "Economy") //
-								.label(6, "Remote") //
-								.label(8, "Timing")), //
+						.label(2, "Economy") //
+						.label(6, "Remote") //
+						.label(8, "Timing")), //
 				new DummyElement(103), //
 				new UnsignedDoublewordElement(104, //
 						totalBatteryChargeEnergy = new ModbusReadLongChannel("TotalBatteryChargeEnergy", this)
-								.unit("Wh")), //
+						.unit("Wh")), //
 				new UnsignedDoublewordElement(106, //
 						totalBatteryDischargeEnergy = new ModbusReadLongChannel("TotalBatteryDischargeEnergy", this)
-								.unit("Wh")), //
+						.unit("Wh")), //
 				new UnsignedWordElement(108, //
 						batteryGroupState = new ModbusReadLongChannel("BatteryGroupState", this) //
-								.label(0, "Initial") //
-								.label(1, "Stop") //
-								.label(2, "Starting") //
-								.label(3, "Running") //
-								.label(4, "Stopping") //
-								.label(5, "Fail")),
+						.label(0, "Initial") //
+						.label(1, "Stop") //
+						.label(2, "Starting") //
+						.label(3, "Running") //
+						.label(4, "Stopping") //
+						.label(5, "Fail")),
 				new UnsignedWordElement(109, //
 						soc = new ModbusReadLongChannel("Soc", this).unit("%").interval(0, 100)),
 				new UnsignedWordElement(110, //
@@ -366,23 +446,23 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						batteryPower = new ModbusReadLongChannel("BatteryPower", this).unit("W")),
 				new UnsignedWordElement(113, //
 						batteryGroupAlarm = new ModbusReadLongChannel("BatteryGroupAlarm", this)
-								.label(1, "Fail, The system should be stopped") //
-								.label(2, "Common low voltage alarm") //
-								.label(4, "Common high voltage alarm") //
-								.label(8, "Charging over current alarm") //
-								.label(16, "Discharging over current alarm") //
-								.label(32, "Over temperature alarm")//
-								.label(64, "Interal communication abnormal")),
+						.label(1, "Fail, The system should be stopped") //
+						.label(2, "Common low voltage alarm") //
+						.label(4, "Common high voltage alarm") //
+						.label(8, "Charging over current alarm") //
+						.label(16, "Discharging over current alarm") //
+						.label(32, "Over temperature alarm")//
+						.label(64, "Interal communication abnormal")),
 				new UnsignedWordElement(114, //
 						pcsOperationState = new ModbusReadLongChannel("PcsOperationState", this)
-								.label(0, "Self-checking") //
-								.label(1, "Standby") //
-								.label(2, "Off grid PV") //
-								.label(3, "Off grid") //
-								.label(4, ON_GRID) //
-								.label(5, "Fail") //
-								.label(6, "bypass 1") //
-								.label(7, "bypass 2")),
+						.label(0, "Self-checking") //
+						.label(1, "Standby") //
+						.label(2, "Off grid PV") //
+						.label(3, "Off grid") //
+						.label(4, ON_GRID) //
+						.label(5, "Fail") //
+						.label(6, "bypass 1") //
+						.label(7, "bypass 2")),
 				new DummyElement(115, 117), //
 				new SignedWordElement(118, //
 						currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA").multiplier(2)),
@@ -434,273 +514,277 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 										.label(256, "Combination error")//
 										.label(512, "Comm with inverter error")//
 										.label(1024, "Tme error")//
-								)), new UnsignedWordElement(151,
-										pcsAlarm2L1 = warning.channel(new StatusBitChannel("PcsAlarm2L1", this)//
-										)),
+										)), new UnsignedWordElement(151,
+												pcsAlarm2L1 = warning.channel(new StatusBitChannel("PcsAlarm2L1", this)//
+														)),
 						new UnsignedWordElement(152,
 								warning.channel(pcsFault1L1 = new StatusBitChannel("PcsFault1L1", this)//
-										.label(1, "Control current overload 100%")//
-										.label(2, "Control current overload 110%")//
-										.label(4, "Control current overload 150%")//
-										.label(8, "Control current overload 200%")//
-										.label(16, "Control current overload 120%")//
-										.label(32, "Control current overload 300%")//
-										.label(64, "Control transient load 300%")//
-										.label(128, "Grid over current")//
-										.label(256, "Locking waveform too many times")//
-										.label(512, "Inverter voltage zero drift error")//
-										.label(1024, "Grid voltage zero drift error")//
-										.label(2048, "Control current zero drift error")//
-										.label(4096, "Inverter current zero drift error")//
-										.label(8192, "Grid current zero drift error")//
-										.label(16384, "PDP protection")//
-										.label(32768, "Hardware control current protection")//
-								)),
+								.label(1, "Control current overload 100%")//
+								.label(2, "Control current overload 110%")//
+								.label(4, "Control current overload 150%")//
+								.label(8, "Control current overload 200%")//
+								.label(16, "Control current overload 120%")//
+								.label(32, "Control current overload 300%")//
+								.label(64, "Control transient load 300%")//
+								.label(128, "Grid over current")//
+								.label(256, "Locking waveform too many times")//
+								.label(512, "Inverter voltage zero drift error")//
+								.label(1024, "Grid voltage zero drift error")//
+								.label(2048, "Control current zero drift error")//
+								.label(4096, "Inverter current zero drift error")//
+								.label(8192, "Grid current zero drift error")//
+								.label(16384, "PDP protection")//
+								.label(32768, "Hardware control current protection")//
+										)),
 						new UnsignedWordElement(153,
 								warning.channel(pcsFault2L1 = new StatusBitChannel("PcsFault2L1", this)//
-										.label(1, "Hardware AC volt. protection")//
-										.label(2, "Hardware DC curr. protection")//
-										.label(4, "Hardware temperature protection")//
-										.label(8, "No capturing signal")//
-										.label(16, "DC overvoltage")//
-										.label(32, "DC disconnected")//
-										.label(64, "Inverter undervoltage")//
-										.label(128, "Inverter overvoltage")//
-										.label(256, "Current sensor fail")//
-										.label(512, "Voltage sensor fail")//
-										.label(1024, "Power uncontrollable")//
-										.label(2048, "Current uncontrollable")//
-										.label(4096, "Fan error")//
-										.label(8192, "Phase lack")//
-										.label(16384, "Inverter relay fault")//
-										.label(32768, "Grid relay fault")//
-								)),
+								.label(1, "Hardware AC volt. protection")//
+								.label(2, "Hardware DC curr. protection")//
+								.label(4, "Hardware temperature protection")//
+								.label(8, "No capturing signal")//
+								.label(16, "DC overvoltage")//
+								.label(32, "DC disconnected")//
+								.label(64, "Inverter undervoltage")//
+								.label(128, "Inverter overvoltage")//
+								.label(256, "Current sensor fail")//
+								.label(512, "Voltage sensor fail")//
+								.label(1024, "Power uncontrollable")//
+								.label(2048, "Current uncontrollable")//
+								.label(4096, "Fan error")//
+								.label(8192, "Phase lack")//
+								.label(16384, "Inverter relay fault")//
+								.label(32768, "Grid relay fault")//
+										)),
 						new UnsignedWordElement(154,
 								warning.channel(pcsFault3L1 = new StatusBitChannel("PcsFault3L1", this)//
-										.label(1, "Control panel overtemp")//
-										.label(2, "Power panel overtemp")//
-										.label(4, "DC input overcurrent")//
-										.label(8, "Capacitor overtemp")//
-										.label(16, "Radiator overtemp")//
-										.label(32, "Transformer overtemp")//
-										.label(64, "Combination comm error")//
-										.label(128, "EEPROM error")//
-										.label(256, "Load current zero drift error")//
-										.label(512, "Current limit-R error")//
-										.label(1024, "Phase sync error")//
-										.label(2048, "External PV current zero drift error")//
-										.label(4096, "External grid current zero drift error")//
-								)),
+								.label(1, "Control panel overtemp")//
+								.label(2, "Power panel overtemp")//
+								.label(4, "DC input overcurrent")//
+								.label(8, "Capacitor overtemp")//
+								.label(16, "Radiator overtemp")//
+								.label(32, "Transformer overtemp")//
+								.label(64, "Combination comm error")//
+								.label(128, "EEPROM error")//
+								.label(256, "Load current zero drift error")//
+								.label(512, "Current limit-R error")//
+								.label(1024, "Phase sync error")//
+								.label(2048, "External PV current zero drift error")//
+								.label(4096, "External grid current zero drift error")//
+										)),
 						new UnsignedWordElement(155,
 								warning.channel(pcsAlarm1L2 = new StatusBitChannel("PcsAlarm1L2", this)//
-										.label(1, "Grid undervoltage") //
-										.label(2, "Grid overvoltage") //
-										.label(4, "Grid under frequency") //
-										.label(8, "Grid over frequency") //
-										.label(16, "Grid power supply off") //
-										.label(32, "Grid condition unmeet")//
-										.label(64, "DC under voltage")//
-										.label(128, "Input over resistance")//
-										.label(256, "Combination error")//
-										.label(512, "Comm with inverter error")//
-										.label(1024, "Tme error")//
-								)), new UnsignedWordElement(156,
-										warning.channel(pcsAlarm2L2 = new StatusBitChannel("PcsAlarm2L2", this)//
-										)),
+								.label(1, "Grid undervoltage") //
+								.label(2, "Grid overvoltage") //
+								.label(4, "Grid under frequency") //
+								.label(8, "Grid over frequency") //
+								.label(16, "Grid power supply off") //
+								.label(32, "Grid condition unmeet")//
+								.label(64, "DC under voltage")//
+								.label(128, "Input over resistance")//
+								.label(256, "Combination error")//
+								.label(512, "Comm with inverter error")//
+								.label(1024, "Tme error")//
+										)), new UnsignedWordElement(156,
+												warning.channel(pcsAlarm2L2 = new StatusBitChannel("PcsAlarm2L2", this)//
+														)),
 						new UnsignedWordElement(157,
 								warning.channel(pcsFault1L2 = new StatusBitChannel("PcsFault1L2", this)//
-										.label(1, "Control current overload 100%")//
-										.label(2, "Control current overload 110%")//
-										.label(4, "Control current overload 150%")//
-										.label(8, "Control current overload 200%")//
-										.label(16, "Control current overload 120%")//
-										.label(32, "Control current overload 300%")//
-										.label(64, "Control transient load 300%")//
-										.label(128, "Grid over current")//
-										.label(256, "Locking waveform too many times")//
-										.label(512, "Inverter voltage zero drift error")//
-										.label(1024, "Grid voltage zero drift error")//
-										.label(2048, "Control current zero drift error")//
-										.label(4096, "Inverter current zero drift error")//
-										.label(8192, "Grid current zero drift error")//
-										.label(16384, "PDP protection")//
-										.label(32768, "Hardware control current protection")//
-								)),
+								.label(1, "Control current overload 100%")//
+								.label(2, "Control current overload 110%")//
+								.label(4, "Control current overload 150%")//
+								.label(8, "Control current overload 200%")//
+								.label(16, "Control current overload 120%")//
+								.label(32, "Control current overload 300%")//
+								.label(64, "Control transient load 300%")//
+								.label(128, "Grid over current")//
+								.label(256, "Locking waveform too many times")//
+								.label(512, "Inverter voltage zero drift error")//
+								.label(1024, "Grid voltage zero drift error")//
+								.label(2048, "Control current zero drift error")//
+								.label(4096, "Inverter current zero drift error")//
+								.label(8192, "Grid current zero drift error")//
+								.label(16384, "PDP protection")//
+								.label(32768, "Hardware control current protection")//
+										)),
 						new UnsignedWordElement(158,
 								warning.channel(pcsFault2L2 = new StatusBitChannel("PcsFault2L2", this)//
-										.label(1, "Hardware AC volt. protection")//
-										.label(2, "Hardware DC curr. protection")//
-										.label(4, "Hardware temperature protection")//
-										.label(8, "No capturing signal")//
-										.label(16, "DC overvoltage")//
-										.label(32, "DC disconnected")//
-										.label(64, "Inverter undervoltage")//
-										.label(128, "Inverter overvoltage")//
-										.label(256, "Current sensor fail")//
-										.label(512, "Voltage sensor fail")//
-										.label(1024, "Power uncontrollable")//
-										.label(2048, "Current uncontrollable")//
-										.label(4096, "Fan error")//
-										.label(8192, "Phase lack")//
-										.label(16384, "Inverter relay fault")//
-										.label(32768, "Grid relay fault")//
-								)),
+								.label(1, "Hardware AC volt. protection")//
+								.label(2, "Hardware DC curr. protection")//
+								.label(4, "Hardware temperature protection")//
+								.label(8, "No capturing signal")//
+								.label(16, "DC overvoltage")//
+								.label(32, "DC disconnected")//
+								.label(64, "Inverter undervoltage")//
+								.label(128, "Inverter overvoltage")//
+								.label(256, "Current sensor fail")//
+								.label(512, "Voltage sensor fail")//
+								.label(1024, "Power uncontrollable")//
+								.label(2048, "Current uncontrollable")//
+								.label(4096, "Fan error")//
+								.label(8192, "Phase lack")//
+								.label(16384, "Inverter relay fault")//
+								.label(32768, "Grid relay fault")//
+										)),
 						new UnsignedWordElement(159,
 								warning.channel(pcsFault3L2 = new StatusBitChannel("PcsFault3L2", this)//
-										.label(1, "Control panel overtemp")//
-										.label(2, "Power panel overtemp")//
-										.label(4, "DC input overcurrent")//
-										.label(8, "Capacitor overtemp")//
-										.label(16, "Radiator overtemp")//
-										.label(32, "Transformer overtemp")//
-										.label(64, "Combination comm error")//
-										.label(128, "EEPROM error")//
-										.label(256, "Load current zero drift error")//
-										.label(512, "Current limit-R error")//
-										.label(1024, "Phase sync error")//
-										.label(2048, "External PV current zero drift error")//
-										.label(4096, "External grid current zero drift error")//
-								)),
+								.label(1, "Control panel overtemp")//
+								.label(2, "Power panel overtemp")//
+								.label(4, "DC input overcurrent")//
+								.label(8, "Capacitor overtemp")//
+								.label(16, "Radiator overtemp")//
+								.label(32, "Transformer overtemp")//
+								.label(64, "Combination comm error")//
+								.label(128, "EEPROM error")//
+								.label(256, "Load current zero drift error")//
+								.label(512, "Current limit-R error")//
+								.label(1024, "Phase sync error")//
+								.label(2048, "External PV current zero drift error")//
+								.label(4096, "External grid current zero drift error")//
+										)),
 						new UnsignedWordElement(160,
 								warning.channel(pcsAlarm1L3 = new StatusBitChannel("PcsAlarm1L3", this)//
-										.label(1, "Grid undervoltage") //
-										.label(2, "Grid overvoltage") //
-										.label(4, "Grid under frequency") //
-										.label(8, "Grid over frequency") //
-										.label(16, "Grid power supply off") //
-										.label(32, "Grid condition unmeet")//
-										.label(64, "DC under voltage")//
-										.label(128, "Input over resistance")//
-										.label(256, "Combination error")//
-										.label(512, "Comm with inverter error")//
-										.label(1024, "Tme error")//
-								)), new UnsignedWordElement(161,
-										warning.channel(pcsAlarm2L3 = new StatusBitChannel("PcsAlarm2L3", this)//
-										)),
+								.label(1, "Grid undervoltage") //
+								.label(2, "Grid overvoltage") //
+								.label(4, "Grid under frequency") //
+								.label(8, "Grid over frequency") //
+								.label(16, "Grid power supply off") //
+								.label(32, "Grid condition unmeet")//
+								.label(64, "DC under voltage")//
+								.label(128, "Input over resistance")//
+								.label(256, "Combination error")//
+								.label(512, "Comm with inverter error")//
+								.label(1024, "Tme error")//
+										)), new UnsignedWordElement(161,
+												warning.channel(pcsAlarm2L3 = new StatusBitChannel("PcsAlarm2L3", this)//
+														)),
 						new UnsignedWordElement(162,
 								warning.channel(pcsFault1L3 = new StatusBitChannel("PcsFault1L3", this)//
-										.label(1, "Control current overload 100%")//
-										.label(2, "Control current overload 110%")//
-										.label(4, "Control current overload 150%")//
-										.label(8, "Control current overload 200%")//
-										.label(16, "Control current overload 120%")//
-										.label(32, "Control current overload 300%")//
-										.label(64, "Control transient load 300%")//
-										.label(128, "Grid over current")//
-										.label(256, "Locking waveform too many times")//
-										.label(512, "Inverter voltage zero drift error")//
-										.label(1024, "Grid voltage zero drift error")//
-										.label(2048, "Control current zero drift error")//
-										.label(4096, "Inverter current zero drift error")//
-										.label(8192, "Grid current zero drift error")//
-										.label(16384, "PDP protection")//
-										.label(32768, "Hardware control current protection")//
-								)),
+								.label(1, "Control current overload 100%")//
+								.label(2, "Control current overload 110%")//
+								.label(4, "Control current overload 150%")//
+								.label(8, "Control current overload 200%")//
+								.label(16, "Control current overload 120%")//
+								.label(32, "Control current overload 300%")//
+								.label(64, "Control transient load 300%")//
+								.label(128, "Grid over current")//
+								.label(256, "Locking waveform too many times")//
+								.label(512, "Inverter voltage zero drift error")//
+								.label(1024, "Grid voltage zero drift error")//
+								.label(2048, "Control current zero drift error")//
+								.label(4096, "Inverter current zero drift error")//
+								.label(8192, "Grid current zero drift error")//
+								.label(16384, "PDP protection")//
+								.label(32768, "Hardware control current protection")//
+										)),
 						new UnsignedWordElement(163,
 								warning.channel(pcsFault2L3 = new StatusBitChannel("PcsFault2L3", this)//
-										.label(1, "Hardware AC volt. protection")//
-										.label(2, "Hardware DC curr. protection")//
-										.label(4, "Hardware temperature protection")//
-										.label(8, "No capturing signal")//
-										.label(16, "DC overvoltage")//
-										.label(32, "DC disconnected")//
-										.label(64, "Inverter undervoltage")//
-										.label(128, "Inverter overvoltage")//
-										.label(256, "Current sensor fail")//
-										.label(512, "Voltage sensor fail")//
-										.label(1024, "Power uncontrollable")//
-										.label(2048, "Current uncontrollable")//
-										.label(4096, "Fan error")//
-										.label(8192, "Phase lack")//
-										.label(16384, "Inverter relay fault")//
-										.label(32768, "Grid relay fault")//
-								)),
+								.label(1, "Hardware AC volt. protection")//
+								.label(2, "Hardware DC curr. protection")//
+								.label(4, "Hardware temperature protection")//
+								.label(8, "No capturing signal")//
+								.label(16, "DC overvoltage")//
+								.label(32, "DC disconnected")//
+								.label(64, "Inverter undervoltage")//
+								.label(128, "Inverter overvoltage")//
+								.label(256, "Current sensor fail")//
+								.label(512, "Voltage sensor fail")//
+								.label(1024, "Power uncontrollable")//
+								.label(2048, "Current uncontrollable")//
+								.label(4096, "Fan error")//
+								.label(8192, "Phase lack")//
+								.label(16384, "Inverter relay fault")//
+								.label(32768, "Grid relay fault")//
+										)),
 						new UnsignedWordElement(164,
 								warning.channel(pcsFault3L3 = new StatusBitChannel("PcsFault3L3", this)//
-										.label(1, "Control panel overtemp")//
-										.label(2, "Power panel overtemp")//
-										.label(4, "DC input overcurrent")//
-										.label(8, "Capacitor overtemp")//
-										.label(16, "Radiator overtemp")//
-										.label(32, "Transformer overtemp")//
-										.label(64, "Combination comm error")//
-										.label(128, "EEPROM error")//
-										.label(256, "Load current zero drift error")//
-										.label(512, "Current limit-R error")//
-										.label(1024, "Phase sync error")//
-										.label(2048, "External PV current zero drift error")//
-										.label(4096, "External grid current zero drift error")//
-								))), //
+								.label(1, "Control panel overtemp")//
+								.label(2, "Power panel overtemp")//
+								.label(4, "DC input overcurrent")//
+								.label(8, "Capacitor overtemp")//
+								.label(16, "Radiator overtemp")//
+								.label(32, "Transformer overtemp")//
+								.label(64, "Combination comm error")//
+								.label(128, "EEPROM error")//
+								.label(256, "Load current zero drift error")//
+								.label(512, "Current limit-R error")//
+								.label(1024, "Phase sync error")//
+								.label(2048, "External PV current zero drift error")//
+								.label(4096, "External grid current zero drift error")//
+										))), //
 				new WriteableModbusRegisterRange(200, //
 						new UnsignedWordElement(200, setWorkState = new ModbusWriteLongChannel("SetWorkState", this)//
-								.label(0, "Local control") //
-								.label(1, START) // "Remote control on grid starting"
-								.label(2, "Remote control off grid starting") //
-								.label(3, STOP)//
-								.label(4, "Emergency Stop"))),
+						.label(0, "Local control") //
+						.label(1, START) // "Remote control on grid starting"
+						.label(2, "Remote control off grid starting") //
+						.label(3, STOP)//
+						.label(4, "Emergency Stop"))),
 				new WriteableModbusRegisterRange(206, //
 						new SignedWordElement(206,
-								setActivePowerL1 = new ModbusWriteLongChannel("SetActivePowerL1", this).unit("W")), //
+								nativeSetActivePowerL1 = new ModbusWriteLongChannel("NativeSetActivePowerL1", this)
+								.unit("W")), //
 						new SignedWordElement(207,
-								setReactivePowerL1 = new ModbusWriteLongChannel("SetReactivePowerL1", this)
-										.unit("Var")), //
+								nativeSetReactivePowerL1 = new ModbusWriteLongChannel("NativeSetReactivePowerL1", this)
+								.unit("Var")), //
 						new SignedWordElement(208,
-								setActivePowerL2 = new ModbusWriteLongChannel("SetActivePowerL2", this).unit("W")), //
+								nativeSetActivePowerL2 = new ModbusWriteLongChannel("NativeSetActivePowerL2", this)
+								.unit("W")), //
 						new SignedWordElement(209,
-								setReactivePowerL2 = new ModbusWriteLongChannel("SetReactivePowerL2", this)
-										.unit("Var")), //
+								nativeSetReactivePowerL2 = new ModbusWriteLongChannel("NativeSetReactivePowerL2", this)
+								.unit("Var")), //
 						new SignedWordElement(210,
-								setActivePowerL3 = new ModbusWriteLongChannel("SetActivePowerL3", this).unit("W")), //
+								nativeSetActivePowerL3 = new ModbusWriteLongChannel("NativeSetActivePowerL3", this)
+								.unit("W")), //
 						new SignedWordElement(211,
-								setReactivePowerL3 = new ModbusWriteLongChannel("SetReactivePowerL3", this).unit("Var")//
-						)), //
+								nativeSetReactivePowerL3 = new ModbusWriteLongChannel("SetReactivePowerL3", this)
+								.unit("Var")//
+								)), //
 				new ModbusRegisterRange(3020, new UnsignedWordElement(3020,
 						batteryVoltageSection1 = new ModbusReadLongChannel("BatteryVoltageSection1", this).unit("mV")),
 						new UnsignedWordElement(3021,
 								batteryVoltageSection2 = new ModbusReadLongChannel("BatteryVoltageSection2", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3022,
 								batteryVoltageSection3 = new ModbusReadLongChannel("BatteryVoltageSection3", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3023,
 								batteryVoltageSection4 = new ModbusReadLongChannel("BatteryVoltageSection4", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3024,
 								batteryVoltageSection5 = new ModbusReadLongChannel("BatteryVoltageSection5", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3025,
 								batteryVoltageSection6 = new ModbusReadLongChannel("BatteryVoltageSection6", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3026,
 								batteryVoltageSection7 = new ModbusReadLongChannel("BatteryVoltageSection7", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3027,
 								batteryVoltageSection8 = new ModbusReadLongChannel("BatteryVoltageSection8", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3028,
 								batteryVoltageSection9 = new ModbusReadLongChannel("BatteryVoltageSection9", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3029,
 								batteryVoltageSection10 = new ModbusReadLongChannel("BatteryVoltageSection10", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3030,
 								batteryVoltageSection11 = new ModbusReadLongChannel("BatteryVoltageSection11", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3031,
 								batteryVoltageSection12 = new ModbusReadLongChannel("BatteryVoltageSection12", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3032,
 								batteryVoltageSection13 = new ModbusReadLongChannel("BatteryVoltageSection13", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3033,
 								batteryVoltageSection14 = new ModbusReadLongChannel("BatteryVoltageSection14", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3034,
 								batteryVoltageSection15 = new ModbusReadLongChannel("BatteryVoltageSection15", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3035,
 								batteryVoltageSection16 = new ModbusReadLongChannel("BatteryVoltageSection16", this)
-										.unit("mV")),
+								.unit("mV")),
 						new UnsignedWordElement(3036,
 								batteryTemperatureSection1 = new ModbusReadLongChannel("BatteryTemperatureSection1",
 										this).unit("°C").delta(-40L)),
@@ -759,28 +843,28 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 				new WriteableModbusRegisterRange(30558,
 						new UnsignedWordElement(30558,
 								setSetupMode = new ModbusWriteLongChannel("SetSetupMode", this).label(0, EssNature.OFF)
-										.label(1, EssNature.ON))),
+								.label(1, EssNature.ON))),
 				new WriteableModbusRegisterRange(30559,
 						new UnsignedWordElement(30559, setPcsMode = new ModbusWriteLongChannel("SetPcsMode", this)//
-								.label(0, "Emergency")//
-								.label(1, "ConsumersPeakPattern")//
-								.label(2, "Economic")//
-								.label(3, "Eco")//
-								.label(4, "Debug")//
-								.label(5, "SmoothPv")//
-								.label(6, "Remote"))),
+						.label(0, "Emergency")//
+						.label(1, "ConsumersPeakPattern")//
+						.label(2, "Economic")//
+						.label(3, "Eco")//
+						.label(4, "Debug")//
+						.label(5, "SmoothPv")//
+						.label(6, "Remote"))),
 				new ModbusRegisterRange(30157,
 						new UnsignedWordElement(30157, setupMode = new ModbusReadLongChannel("SetupMode", this)//
-								.label(0, EssNature.OFF)//
-								.label(1, EssNature.ON)),
+						.label(0, EssNature.OFF)//
+						.label(1, EssNature.ON)),
 						new UnsignedWordElement(30158, pcsMode = new ModbusReadLongChannel("PcsMode", this)//
-								.label(0, "Emergency")//
-								.label(1, "ConsumersPeakPattern")//
-								.label(2, "Economic")//
-								.label(3, "Eco")//
-								.label(4, "Debug")//
-								.label(5, "SmoothPv")//
-								.label(6, "Remote"))));
+						.label(0, "Emergency")//
+						.label(1, "ConsumersPeakPattern")//
+						.label(2, "Economic")//
+						.label(3, "Eco")//
+						.label(4, "Debug")//
+						.label(5, "SmoothPv")//
+						.label(6, "Remote"))));
 		gridMode = new FunctionalReadChannel<Long>("GridMode", this, (channels) -> {
 			ReadChannel<Long> state = channels[0];
 			try {
@@ -804,6 +888,57 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 			return 0l;
 		}, phaseAllowedApparent);
 
+		FunctionalWriteChannelFunction<Long> function = new FunctionalWriteChannelFunction<Long>() {
+
+			@Override
+			public Long setValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
+					throws WriteChannelException {
+				return newValue;
+			}
+
+			@Override
+			public Long getValue(ReadChannel<Long>... channels) {
+				return channels[0].valueOptional().orElse(null);
+			}
+
+			@Override
+			public Long getMinValue(Optional<Long> thisMinValue, WriteChannel<Long>... channels) {
+				return thisMinValue.orElse(null);
+			}
+
+			@Override
+			public Long getMaxValue(Optional<Long> thisMaxValue, WriteChannel<Long>... channels) {
+				return thisMaxValue.orElse(null);
+			}
+
+			@Override
+			public Long setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
+					throws WriteChannelException {
+				return newValue;
+			}
+
+			@Override
+			public Long setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
+					throws WriteChannelException {
+				return newValue;
+			}
+
+		};
+		setActivePowerL1 = new FunctionalWriteChannel<>("SetActivePowerL1", this, function, nativeSetActivePowerL1);
+		setActivePowerL2 = new FunctionalWriteChannel<>("SetActivePowerL2", this, function, nativeSetActivePowerL2);
+		setActivePowerL3 = new FunctionalWriteChannel<>("SetActivePowerL3", this, function, nativeSetActivePowerL3);
+		setReactivePowerL1 = new FunctionalWriteChannel<>("SetReactivePowerL1", this, function,
+				nativeSetReactivePowerL1);
+		setReactivePowerL2 = new FunctionalWriteChannel<>("SetReactivePowerL2", this, function,
+				nativeSetReactivePowerL2);
+		setReactivePowerL3 = new FunctionalWriteChannel<>("SetReactivePowerL3", this, function,
+				nativeSetReactivePowerL3);
+		activePowerPhases = new WriteChannel[] { setActivePowerL1, setActivePowerL2, setActivePowerL3 };
+		reactivePowerPhases = new WriteChannel[] { setReactivePowerL1, setReactivePowerL2, setReactivePowerL3 };
+		nativeActivePowerPhases = new WriteChannel[] { nativeSetActivePowerL1, nativeSetActivePowerL2,
+				nativeSetActivePowerL3 };
+		nativeReactivePowerPhases = new WriteChannel[] { nativeSetReactivePowerL1, nativeSetReactivePowerL2,
+				nativeSetReactivePowerL3 };
 		return protokol;
 	}
 

@@ -4,16 +4,16 @@ import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 import * as d3 from 'd3';
 import * as d3shape from 'd3-shape';
-import * as moment from 'moment';
 import { TranslateService } from '@ngx-translate/core';
 import { IMyDate, IMyDateRange, IMyDrpOptions, IMyDateRangeModel } from 'mydaterangepicker';
+import { format, subDays, addDays, isSameDay, getYear, getMonth, getDate } from 'date-fns';
 
 import { Device } from '../../shared/device/device';
 import { ConfigImpl } from '../../shared/device/config';
 import { DefaultTypes } from '../../shared/service/defaulttypes';
 import { Websocket } from '../../shared/service/websocket';
 
-type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherTimespan";
+type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear" | "otherPeriod";
 
 @Component({
   selector: 'history',
@@ -21,9 +21,9 @@ type PeriodString = "today" | "yesterday" | "lastWeek" | "lastMonth" | "lastYear
 })
 export class HistoryComponent implements OnInit, OnDestroy {
 
-  private readonly TODAY = moment();
-  private readonly YESTERDAY = moment().subtract(1, "days");
-  private readonly TOMORROW = moment().add(1, "days");
+  private readonly TODAY = new Date();
+  private readonly YESTERDAY = subDays(new Date(), 1);
+  private readonly TOMORROW = addDays(new Date(), 1);
 
   public device: Device = null;
   public config: ConfigImpl = null;
@@ -33,13 +33,13 @@ export class HistoryComponent implements OnInit, OnDestroy {
   public fromDate = this.TODAY;
   public toDate = this.TODAY;
   public activePeriodText: string = "";
-  public showOtherTimespan = false;
+  public showOtherPeriod = false;
   private dateRangePickerOptions: IMyDrpOptions = {
     showClearBtn: false,
     showApplyBtn: false,
     dateFormat: 'dd.mm.yyyy',
     disableUntil: { day: 1, month: 1, year: 2013 }, // TODO start with date since the device is available
-    disableSince: this.momentToIMyDate(this.TOMORROW),
+    disableSince: this.toIMyDate(this.TOMORROW),
     showWeekNumbers: true,
     showClearDateRangeBtn: false,
     editableDateRangeField: false,
@@ -81,19 +81,19 @@ export class HistoryComponent implements OnInit, OnDestroy {
   }
 
   onDateRangeChanged(event: IMyDateRangeModel) {
-    let fromDate: moment.Moment = moment(event.beginJsDate);
-    let toDate: moment.Moment = moment(event.endJsDate);
-    if (fromDate.isSame(toDate, "day")) {
+    let fromDate = event.beginJsDate;
+    let toDate = event.endJsDate;
+    if (isSameDay(fromDate, toDate)) {
       // only one day selected
-      if (this.TODAY.isSame(fromDate, "day")) {
+      if (isSameDay(this.TODAY, fromDate)) {
         this.setPeriod("today");
         return;
-      } else if (this.YESTERDAY.isSame(fromDate, "day")) {
+      } else if (isSameDay(this.YESTERDAY, fromDate)) {
         this.setPeriod("yesterday");
         return;
       }
     }
-    this.setPeriod("otherTimespan", fromDate, toDate);
+    this.setPeriod("otherPeriod", fromDate, toDate);
   }
 
   /**
@@ -102,68 +102,49 @@ export class HistoryComponent implements OnInit, OnDestroy {
    * @param from
    * @param to
    */
-  private setPeriod(period: PeriodString, from?: any, to?: any) {
+  private setPeriod(period: PeriodString, fromDate?: Date, toDate?: Date) {
     this.activePeriod = period;
-    if (period != "otherTimespan") {
-      this.showOtherTimespan = false;
+    if (period != "otherPeriod") {
+      this.showOtherPeriod = false;
     }
     switch (period) {
       case "yesterday": {
-        let yesterday = moment().subtract(1, "days");
+        let yesterday = subDays(new Date(), 1);
         this.setDateRange(yesterday, yesterday);
-        this.activePeriodText = this.translate.instant('Device.History.Yesterday') + ", " + yesterday.format(this.translate.instant('General.DateFormat'));
+        this.activePeriodText = this.translate.instant('Device.History.Yesterday') + ", " + format(yesterday, this.translate.instant('General.DateFormat'));
         break;
       }
-      case "lastWeek": {
-        let oneWeekAgo = moment().subtract(1, "weeks");
-        let today = moment();
-        this.setDateRange(oneWeekAgo, today);
-        this.activePeriodText = this.translate.instant('Device.History.LastWeek') + ", " + this.translate.instant('General.PeriodFromTo', { value1: oneWeekAgo.format(this.translate.instant('General.DateFormat')), value2: today.format(this.translate.instant('General.DateFormat')) });
-        break;
-      }
-      case "lastMonth": {
-        let oneMonthAgo = moment().subtract(1, "months");
-        let today = moment();
-        this.setDateRange(oneMonthAgo, today);
-        this.activePeriodText = this.translate.instant('Device.History.LastMonth') + ", " + this.translate.instant('General.PeriodFromTo', { value1: oneMonthAgo.format(this.translate.instant('General.DateFormat')), value2: today.format(this.translate.instant('General.DateFormat')) });
-        break;
-      }
-      case "lastYear": {
-        let oneYearAgo = moment().subtract(1, "years");
-        let today = moment();
-        this.setDateRange(oneYearAgo, today);
-        this.activePeriodText = this.translate.instant('Device.History.LastYear') + ", " + this.translate.instant('General.PeriodFromTo', { value1: oneYearAgo.format(this.translate.instant('General.DateFormat')), value2: today.format(this.translate.instant('General.DateFormat')) });
-        break;
-      }
-      case "otherTimespan":
-        let fromDate = moment(from);
-        let toDate = moment(to);
+      case "otherPeriod":
         if (fromDate > toDate) {
           toDate = fromDate;
         }
         this.setDateRange(fromDate, toDate);
-        this.activePeriodText = this.translate.instant('Device.History.Period') + ", " + this.translate.instant('General.PeriodFromTo', { value1: fromDate.format(this.translate.instant('General.DateFormat')), value2: toDate.format(this.translate.instant('General.DateFormat')) });
+        this.activePeriodText = this.translate.instant('Device.History.Period') + ", "
+          + this.translate.instant('General.PeriodFromTo', {
+            value1: format(fromDate, this.translate.instant('General.DateFormat')), 
+            value2: format(toDate, this.translate.instant('General.DateFormat'))
+          });
         break;
       case "today":
       default:
-        let today = moment();
+        let today = new Date();
         this.setDateRange(today, today);
-        this.activePeriodText = this.translate.instant('Device.History.Today') + ", " + today.format(this.translate.instant('General.DateFormat'));
+        this.activePeriodText = this.translate.instant('Device.History.Today') + ", " + format(today, this.translate.instant('General.DateFormat'));
         break;
     }
   }
 
-  private setDateRange(fromDate: moment.Moment, toDate: moment.Moment) {
+  private setDateRange(fromDate: Date, toDate: Date) {
     this.fromDate = fromDate;
     this.toDate = toDate;
     this.dateRange = {
-      beginDate: this.momentToIMyDate(fromDate),
-      endDate: this.momentToIMyDate(toDate)
+      beginDate: this.toIMyDate(fromDate),
+      endDate: this.toIMyDate(toDate)
     }
   }
 
-  private momentToIMyDate(date: moment.Moment): IMyDate {
-    return { year: date.year(), month: date.month() + 1, day: date.date() }
+  private toIMyDate(date: Date): IMyDate {
+    return { year: getYear(date), month: getMonth(date) + 1, day: getDate(date) }
   }
 
   // start with loading "today"

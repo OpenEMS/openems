@@ -27,6 +27,8 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.api.exception.WriteChannelException;
+import io.openems.core.utilities.AsymmetricPower.ReductionType;
 
 @ThingInfo(title = "Fixed active and reactive power (Asymmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For asymmetric Ess.")
 public class FixValueActivePowerController extends Controller {
@@ -65,10 +67,12 @@ public class FixValueActivePowerController extends Controller {
 		try {
 			for (Ess ess : esss.value()) {
 				ess.power.setActivePower(activePowerL1.value(), activePowerL2.value(), activePowerL3.value());
-				ess.power.writePower();
+				ess.power.writePower(ReductionType.PERPHASE);
 			}
 		} catch (InvalidValueException e) {
 			log.error("Failed to read Value", e);
+		} catch (WriteChannelException e) {
+			log.warn("set Power failed!");
 		}
 	}
 
