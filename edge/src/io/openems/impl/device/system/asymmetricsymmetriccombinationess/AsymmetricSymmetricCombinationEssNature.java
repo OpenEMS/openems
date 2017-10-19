@@ -1236,7 +1236,7 @@ implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener, Bridg
 					scundaryPowerSum += thisSetSecundaryPower.getWriteValue().get() / 3;
 				}
 				if (thisSetPrimaryPower.getWriteValue().isPresent()) {
-					primaryPowerSum += thisSetSecundaryPower.getWriteValue().get() / 3;
+					primaryPowerSum += thisSetPrimaryPower.getWriteValue().get() / 3;
 				}
 				long allowedPrimaryPowerPhase = ControllerUtils.calculateActivePower(scundaryPowerSum,
 						allowedApparent.valueOptional().get() / 3);
