@@ -64,11 +64,11 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
 
     public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, percentage: number) {
         if (chargeAbsolute != null && chargeAbsolute > 0) {
-            this.name = "Speicher-Beladung" //TODO translate
+            this.name = this.translate.instant('Device.Overview.Energymonitor.StorageCharge')
             super.updateValue(chargeAbsolute, percentage);
             this.state = "charging";
         } else {
-            this.name = "Speicher-Entladung" //TODO translate
+            this.name = this.translate.instant('Device.Overview.Energymonitor.StorageDischarge')
             super.updateValue(dischargeAbsolute, percentage);
             if (dischargeAbsolute > 0) {
                 this.state = "discharging";

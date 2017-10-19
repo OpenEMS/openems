@@ -12,6 +12,8 @@ export const TRANSLATION = {
         Soc: "Laadstatus",
         Percentage: "Procent",
         More: "Meer…",
+        ChargePower: "Laad vermogen",
+        DischargePower: "Ontlaad vermogen",
         PeriodFromTo: "van {{value1}} tot {{value2}}", // value1 = beginning date, value2 = end date
         DateFormat: "DD-MM-YYYY", // e.g. German: DD.MM.YYYY, English: YYYY-MM-DD (DD = Day, MM = Month, YYYY = Year)
         Week: {
@@ -41,8 +43,6 @@ export const TRANSLATION = {
                 Title: "Energiemonitor",
                 ConsumptionWarning: "Verbruik & onbekende producenten",
                 Storage: "Batterij",
-                ChargePower: "Laad vermogen",
-                DischargePower: "Ontlaad vermogen",
                 ReactivePower: "Blind vermogen",
                 ActivePower: "Actief vermogen",
                 GridMeter: "Energiemeter",

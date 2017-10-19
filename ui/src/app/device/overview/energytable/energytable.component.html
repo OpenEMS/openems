@@ -28,14 +28,14 @@
             <!-- Symmetric ESS -->
             <ng-container *ngIf="data.ActivePower != null && data.ReactivePower != null">
               <tr>
-                <td translate>Device.Overview.Energymonitor.ChargePower</td>
+                <td translate>General.ChargePower</td>
                 <td></td>
                 <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign }}</td>
                 <td class="align_right" *ngIf="data.ActivePower >= 0">0</td>
                 <td>W</td>
               </tr>
               <tr class="underline">
-                <td translate>Device.Overview.Energymonitor.DischargePower</td>
+                <td translate>General.DischargePower</td>
                 <td></td>
                 <td class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower }}</td>
                 <td class="align_right" *ngIf="data.ActivePower <= 0">0</td>
@@ -51,7 +51,7 @@
             <!-- Asymmetric ESS -->
             <ng-container *ngIf="data.ActivePowerL1 != null && data.ActivePowerL2 != null && data.ActivePowerL3 != null">
               <tr>
-                <td translate>Device.Overview.Energymonitor.ChargePower</td>
+                <td translate>General.ChargePower</td>
                 <td>L1</td>
                 <td class="align_right" *ngIf="data.ActivePowerL1 < 0">{{ data.ActivePowerL1 | sign }}</td>
                 <td class="align_right" *ngIf="data.ActivePowerL1 >= 0">0</td>
@@ -72,7 +72,7 @@
                 <td>W</td>
               </tr>
               <tr>
-                <td translate>Device.Overview.Energymonitor.DischargePower</td>
+                <td translate>General.DischargePower</td>
                 <td>L1</td>
                 <td class="align_right" *ngIf="data.ActivePowerL1 > 0">{{ data.ActivePowerL1 }}</td>
                 <td class="align_right" *ngIf="data.ActivePowerL1 <= 0">0</td>

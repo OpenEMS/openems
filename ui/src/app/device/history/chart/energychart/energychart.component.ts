@@ -124,11 +124,11 @@ export class EnergyChartComponent implements OnChanges {
         data: activePowers.production,
         hidden: false
       }, {
-        label: "Netzbezug", //TODO translate this.translate.instant('General.Grid')
+        label: this.translate.instant('General.GridBuy'),
         data: activePowers.gridBuy,
         hidden: false
       }, {
-        label: "Netzeinspeisung", // TODO translate
+        label: this.translate.instant('General.GridSell'),
         data: activePowers.gridSell,
         hidden: false
       }, {
@@ -136,11 +136,11 @@ export class EnergyChartComponent implements OnChanges {
         data: activePowers.consumption,
         hidden: false
       }, {
-        label: "Speicher-Beladung", // TODO translate
+        label: this.translate.instant('General.ChargePower'),
         data: activePowers.storageCharge,
         hidden: true
       }, {
-        label: "Speicher-Entladung", // TODO translate
+        label: this.translate.instant('General.DischargePower'),
         data: activePowers.storageDischarge,
         hidden: true
       }];
