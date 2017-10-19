@@ -28,13 +28,15 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.api.thing.Thing;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
+import io.openems.core.BridgeInitializedEventListener;
+import io.openems.core.Config;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.impl.protocol.system.SystemDeviceNature;
 
 @ThingInfo(title = "Ess Asymmetric-Symmetric-Combination")
 public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
-implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener {
+implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener, BridgeInitializedEventListener {
 
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
@@ -192,11 +194,11 @@ implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener {
 
 		@Override
 		public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-			long sum = 0L;
+			Long sum = 0L;
 			try {
 				sum = ControllerUtils.calculateApparentPower(channels[0].value(), channels[1].value());
 			} catch (InvalidValueException e) {
-				log.error("Can't read values of " + ess.id(), e);
+				sum = null;
 			}
 			return sum;
 		}
@@ -851,6 +853,7 @@ implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener {
 		super(thingId, parent);
 		this.repo = ThingRepository.getInstance();
 		this.listeners = new LinkedList<>();
+		Config.getInstance().addBridgeInitializedEventListener(this);
 	}
 
 	@Override
@@ -1468,11 +1471,15 @@ implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener {
 
 	@Override
 	public void init() {
-		loadEss();
 		this.ess.addChangeListener(this);
 		for (ThingChannelsUpdatedListener listener : this.listeners) {
 			listener.thingChannelsUpdated(this);
 		}
+	}
+
+	@Override
+	public void onBridgeInitialized() {
+		loadEss();
 	}
 
 }
