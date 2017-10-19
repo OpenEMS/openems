@@ -75,6 +75,8 @@ public class Config implements ChannelChangeListener {
 
 	private final static Logger log = LoggerFactory.getLogger(Config.class);
 	private static Config instance;
+	private List<BridgeInitializedEventListener> bridgeInitEventListeners = new ArrayList<>();
+	private List<SchedulerInitializedEventListener> schedulerInitEventListeners = new ArrayList<>();
 
 	public static synchronized Config getInstance() throws ConfigException {
 		if (Config.instance == null) {
@@ -106,6 +108,22 @@ public class Config implements ChannelChangeListener {
 		}
 		this.configBackupFile = getConfigBackupFile();
 		this.writeConfigExecutor = Executors.newSingleThreadExecutor();
+	}
+
+	public void addBridgeInitializedEventListener(BridgeInitializedEventListener listener) {
+		this.bridgeInitEventListeners.add(listener);
+	}
+
+	public void removeBridgeInitializedEventListener(BridgeInitializedEventListener listener) {
+		this.bridgeInitEventListeners.remove(listener);
+	}
+
+	public void addSchedulerInitializedEventListener(SchedulerInitializedEventListener listener) {
+		this.schedulerInitEventListeners.add(listener);
+	}
+
+	public void removeSchedulerInitializedEventListener(SchedulerInitializedEventListener listener) {
+		this.schedulerInitEventListeners.remove(listener);
 	}
 
 	public synchronized void readConfigFile() throws Exception {
@@ -238,7 +256,7 @@ public class Config implements ChannelChangeListener {
 	public void writeConfigFile() throws NotImplementedException {
 		// TODO send config to all attached websockets
 		// get config as json
-		JsonObject jConfig =  this.getJson(ConfigFormat.FILE, Role.ADMIN, "en");
+		JsonObject jConfig = this.getJson(ConfigFormat.FILE, Role.ADMIN, "en");
 
 		Runnable writeConfigRunnable = new Runnable() {
 			@Override
@@ -335,6 +353,9 @@ public class Config implements ChannelChangeListener {
 				d.init();
 			}
 		}
+		for(BridgeInitializedEventListener listener : bridgeInitEventListeners) {
+			listener.onBridgeInitialized();
+		}
 
 		/*
 		 * read Scheduler
@@ -359,6 +380,9 @@ public class Config implements ChannelChangeListener {
 			}
 			scheduler.init();
 		}
+		for(SchedulerInitializedEventListener listener: schedulerInitEventListeners) {
+			listener.onSchedulerInitialized();
+		}
 
 		/*
 		 * read Persistence
@@ -378,7 +402,8 @@ public class Config implements ChannelChangeListener {
 		}
 
 		/*
-		 * Configuration is finished -> apply again channel annotation to all of them because many channels are only defined during init()
+		 * Configuration is finished -> apply again channel annotation to all of them because many channels are only
+		 * defined during init()
 		 */
 		thingRepository.getThings().forEach(thing -> {
 			thingRepository.applyChannelAnnotation(thing);
@@ -475,7 +500,8 @@ public class Config implements ChannelChangeListener {
 	 * @throws NotImplementedException
 	 */
 	// TODO make use of language tag Enum
-	public synchronized JsonObject getJson(ConfigFormat format, Role role, String language) throws NotImplementedException {
+	public synchronized JsonObject getJson(ConfigFormat format, Role role, String language)
+			throws NotImplementedException {
 		JsonObject jConfig = new JsonObject();
 		if (format == ConfigFormat.FILE) {
 			/*
