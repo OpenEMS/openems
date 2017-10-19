@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.DebugChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
@@ -45,13 +46,14 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 	private long cycleStartTime = 0;
 	protected final ThingRepository thingRepository;
 	private Integer actualCycleTime = null;
+	private DebugChannel<Long> requiredCycleTime = new DebugChannel<>("RequiredCycleTime", this);
 
 	/*
 	 * Config
 	 */
 	@ChannelInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class, isOptional = true)
 	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
-			.defaultValue(DEFAULT_CYCLETIME);
+	.defaultValue(DEFAULT_CYCLETIME);
 
 	@Override
 	protected int getCycleTime() {
@@ -101,6 +103,7 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 		} else {
 			actualCycleTime = cycleTime.valueOptional().orElse(500);
 		}
+		requiredCycleTime.setValue(System.currentTimeMillis() - cycleStartTime);
 	}
 
 	protected abstract void execute();

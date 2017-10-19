@@ -87,32 +87,32 @@ public class ChannelThresholdScheduler extends Scheduler {
 
 	@ChannelInfo(title = "Configures the Controllers ", type = JsonArray.class)
 	public ConfigChannel<JsonArray> thresholds = new ConfigChannel<JsonArray>("thresholds", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				try {
-					if (isInitialized()) {
-						loadThresholds();
-					}
-				} catch (InvalidValueException e) {
-					log.error("Failed to load thresholds", e);
-				}
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		try {
+			if (isInitialized()) {
+				loadThresholds();
+			}
+		} catch (InvalidValueException e) {
+			log.error("Failed to load thresholds", e);
+		}
+	});
 
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "the address of the channel to switch the controllers by thresholds.", type = String.class)
 	public ConfigChannel<String> thresholdChannelAddress = new ConfigChannel<String>("thresholdChannelAddress", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				Optional<String> channelAddress = (Optional<String>) newValue;
-				if (channelAddress.isPresent()) {
-					Optional<Channel> ch = thingRepository.getChannelByAddress(channelAddress.get());
-					if (ch.isPresent()) {
-						thresholdChannel = (ReadChannel<Long>) ch.get();
-					} else {
-						log.error("Channel " + channelAddress.get() + " not found");
-					}
-				} else {
-					log.error("'thresholdChannelAddress' is not configured!");
-				}
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		Optional<String> channelAddress = (Optional<String>) newValue;
+		if (channelAddress.isPresent()) {
+			Optional<Channel> ch = thingRepository.getChannelByAddress(channelAddress.get());
+			if (ch.isPresent()) {
+				thresholdChannel = (ReadChannel<Long>) ch.get();
+			} else {
+				log.error("Channel " + channelAddress.get() + " not found");
+			}
+		} else {
+			log.error("'thresholdChannelAddress' is not configured!");
+		}
+	});
 
 	/*
 	 * Methods
@@ -131,7 +131,7 @@ public class ChannelThresholdScheduler extends Scheduler {
 		Collections.sort(controllers, (c1, c2) -> c2.priority.valueOptional().orElse(Integer.MIN_VALUE)
 				- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
 		for (Controller controller : controllers) {
-			controller.run();
+			controller.executeRun();
 		}
 		for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
 			channel.shadowCopyAndReset();

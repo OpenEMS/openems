@@ -56,7 +56,7 @@ public class SimpleScheduler extends Scheduler {
 				- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
 		for (Controller controller : controllers) {
 			// TODO: check if WritableChannels can still be changed, before executing
-			controller.run();
+			controller.executeRun();
 		}
 		for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
 			channel.shadowCopyAndReset();

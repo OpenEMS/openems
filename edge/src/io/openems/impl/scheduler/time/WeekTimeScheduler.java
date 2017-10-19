@@ -120,7 +120,7 @@ public class WeekTimeScheduler extends Scheduler {
 			for (Controller controller : controllers) {
 				// TODO: check if WritableChannels can still be changed, before executing
 				if (controller != null) {
-					controller.run();
+					controller.executeRun();
 				}
 			}
 			for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
