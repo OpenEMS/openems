@@ -80,8 +80,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 					Integer maxActivePower = null;
 					long[] setActivePower = new long[3];
 					long[] setReactivePower = new long[3];
-					Optional<Long>[] writeValueActivePower = new Optional[3];
-					Optional<Long>[] writeValueReactivePower = new Optional[3];
+					@SuppressWarnings("unchecked") Optional<Long>[] writeValueActivePower = new Optional[3];
+					@SuppressWarnings("unchecked") Optional<Long>[] writeValueReactivePower = new Optional[3];
 					Integer maxReactivePower = null;
 					for (int i = 0; i < 3; i++) {
 						writeValueActivePower[i] = activePowerPhases[i].writeShadowCopy();
@@ -399,6 +399,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	/*
 	 * Methods
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
