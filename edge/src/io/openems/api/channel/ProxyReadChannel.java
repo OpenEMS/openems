@@ -18,32 +18,26 @@ public class ProxyReadChannel<T> extends ReadChannel<T> implements ChannelChange
 		super(id, parent);
 	}
 
-	public void setChannel(ReadChannel<T> channel) {
-		synchronized (channel) {
-			this.channel = channel;
-			channel.addChangeListener(this);
-			if (isRequired()) {
-				channel.required();
-			}
-			update();
+	public synchronized void setChannel(ReadChannel<T> channel) {
+		this.channel = channel;
+		channel.addChangeListener(this);
+		if (isRequired()) {
+			channel.required();
 		}
+		update();
 	}
 
-	public void removeChannel(ReadChannel<T> channel) {
-		synchronized (this.channel) {
-			channel.removeChangeListener(this);
-			this.channel = null;
-			update();
-		}
+	public synchronized void removeChannel(ReadChannel<T> channel) {
+		channel.removeChangeListener(this);
+		this.channel = null;
+		update();
 	}
 
-	private void update() {
-		synchronized (this.channel) {
-			if (channel != null) {
-				updateValue(channel.valueOptional().orElse(null));
-			} else {
-				updateValue(null);
-			}
+	private synchronized void update() {
+		if (channel != null) {
+			updateValue(channel.valueOptional().orElse(null));
+		} else {
+			updateValue(null);
 		}
 	}
 
