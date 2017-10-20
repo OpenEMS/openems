@@ -13,6 +13,20 @@ public class AsymmetricSymmetricCombinationController extends Controller {
 	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
+
+
+	public AsymmetricSymmetricCombinationController() {
+		super();
+	}
+
+
+
+	public AsymmetricSymmetricCombinationController(String thingId) {
+		super(thingId);
+	}
+
+
+
 	@Override
 	public void run() {
 		try {
