@@ -11,8 +11,8 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.abercap.odoo.OdooApiException;
-import com.abercap.odoo.Row;
+import com.odoojava.api.OdooApiException;
+import com.odoojava.api.Row;
 
 import io.openems.common.exceptions.OpenemsException;
 

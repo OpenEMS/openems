@@ -2,11 +2,11 @@ package io.openems.backend.metadata.odoo.device;
 
 import java.util.Optional;
 
-import com.abercap.odoo.Row;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.odoojava.api.Row;
 
 import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.backend.metadata.odoo.OdooModel;

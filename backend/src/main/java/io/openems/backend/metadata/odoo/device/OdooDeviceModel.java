@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.apache.xmlrpc.XmlRpcException;
 
-import com.abercap.odoo.OdooApiException;
-import com.abercap.odoo.RowCollection;
-import com.abercap.odoo.Session;
+import com.odoojava.api.OdooApiException;
+import com.odoojava.api.RowCollection;
+import com.odoojava.api.Session;
 
 import io.openems.backend.metadata.api.device.MetadataDeviceModel;
 import io.openems.backend.metadata.api.device.MetadataDevices;

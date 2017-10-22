@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.apache.xmlrpc.XmlRpcException;
 
-import com.abercap.odoo.FilterCollection;
-import com.abercap.odoo.ObjectAdapter;
-import com.abercap.odoo.OdooApiException;
-import com.abercap.odoo.Row;
-import com.abercap.odoo.RowCollection;
-import com.abercap.odoo.Session;
+import com.odoojava.api.FilterCollection;
+import com.odoojava.api.ObjectAdapter;
+import com.odoojava.api.OdooApiException;
+import com.odoojava.api.Row;
+import com.odoojava.api.RowCollection;
+import com.odoojava.api.Session;
 
 /**
  * Represents an abstract model in Odoo object relational mapper
