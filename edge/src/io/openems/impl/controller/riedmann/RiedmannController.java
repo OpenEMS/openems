@@ -11,6 +11,7 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.impl.controller.symmetric.timelinecharge.Ess;
 
 @ThingInfo(title = "Sps parameter Controller")
 public class RiedmannController extends Controller implements ChannelChangeListener {
@@ -72,141 +73,165 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 
 	@Override
 	public void run() {
+		// Check if all parameters are available
+		Ess ess;
+		Custom sps;
 		try {
-			Ess ess = this.ess.value();
-			Custom sps = this.sps.value();
-			// Watchdog
+			ess = this.ess.value();
+			sps = this.sps.value();
+		} catch (InvalidValueException | NullPointerException e) {
+			log.error("TimelineChargeController error: " + e.getMessage());
+			return;
+		}
+		// Watchdog
+		try {
+			if (watchdogState) {
+				sps.watchdog.pushWrite(0L);
+				watchdogState = false;
+			} else {
+				sps.watchdog.pushWrite(1L);
+				watchdogState = true;
+			}
+		} catch (WriteChannelException e) {
+			log.error("Failed to set Watchdog: " + e.getMessage());
+		}
+		// Water level
+		if (updateWaterLevelBorehole1Off) {
 			try {
-				if (watchdogState) {
-					sps.watchdog.pushWrite(0L);
-					watchdogState = false;
-				} else {
-					sps.watchdog.pushWrite(1L);
-					watchdogState = true;
-				}
-			} catch (WriteChannelException e) {
-				log.error("Failed to set Watchdog!", e);
+				sps.setWaterLevelBorehole1Off.pushWrite(setWaterLevelBorehole1Off.value());
+				updateWaterLevelBorehole1Off = false;
+			} catch (InvalidValueException | WriteChannelException e) {
+				log.error("Failed to set WaterLevelBorehole1Off!", e);
 			}
-			// Water level
-			if (updateWaterLevelBorehole1Off) {
-				try {
-					sps.setWaterLevelBorehole1Off.pushWrite(setWaterLevelBorehole1Off.value());
-					updateWaterLevelBorehole1Off = false;
-				} catch (InvalidValueException | WriteChannelException e) {
-					log.error("Failed to set WaterLevelBorehole1Off!", e);
-				}
-			}
-			if (updateWaterLevelBorehole1On) {
-				try {
-					sps.setWaterLevelBorehole1On.pushWrite(setWaterLevelBorehole1On.value());
-					updateWaterLevelBorehole1On = false;
-				} catch (InvalidValueException | WriteChannelException e) {
-					log.error("Failed to set WaterLevelBorehole1On!", e);
-				}
-			}
-			if (updateWaterLevelBorehole2Off) {
-				try {
-					sps.setWaterLevelBorehole2Off.pushWrite(setWaterLevelBorehole2Off.value());
-					updateWaterLevelBorehole2Off = false;
-				} catch (InvalidValueException | WriteChannelException e) {
-					log.error("Failed to set WaterLevelBorehole2Off!", e);
-				}
-			}
-			if (updateWaterLevelBorehole2On) {
-				try {
-					sps.setWaterLevelBorehole2On.pushWrite(setWaterLevelBorehole2On.value());
-					updateWaterLevelBorehole2On = false;
-				} catch (InvalidValueException | WriteChannelException e) {
-					log.error("Failed to set WaterLevelBorehole2On!", e);
-				}
-			}
-			if (updateWaterLevelBorehole3Off) {
-				try {
-					sps.setWaterLevelBorehole3Off.pushWrite(setWaterLevelBorehole3Off.value());
-					updateWaterLevelBorehole3Off = false;
-				} catch (InvalidValueException | WriteChannelException e) {
-					log.error("Failed to set WaterLevelBorehole3Off!", e);
-				}
-			}
-			if (updateWaterLevelBorehole3On) {
-				try {
-					sps.setWaterLevelBorehole3On.pushWrite(setWaterLevelBorehole3On.value());
-					updateWaterLevelBorehole3On = false;
-				} catch (InvalidValueException | WriteChannelException e) {
-					log.error("Failed to set WaterLevelBorehole3On!", e);
-				}
-			}
-			// Load switching
+		}
+		if (updateWaterLevelBorehole1On) {
 			try {
-				if (ess.soc.value() >= socLoad1Off.value() + socHysteresis.value()
-						|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
-					load1On = true;
-				} else if (ess.soc.value() <= socLoad1Off.value()) {
-					load1On = false;
-				}
-				if (load1On) {
-					sps.setClima1On.pushWrite(1L);
-					sps.setClima2On.pushWrite(1L);
-				} else {
-					sps.setClima1On.pushWrite(0L);
-					sps.setClima2On.pushWrite(0L);
-				}
-			} catch (WriteChannelException e) {
-				log.error("Failed to connect/disconnect Load 1", e);
+				sps.setWaterLevelBorehole1On.pushWrite(setWaterLevelBorehole1On.value());
+				updateWaterLevelBorehole1On = false;
+			} catch (InvalidValueException | WriteChannelException e) {
+				log.error("Failed to set WaterLevelBorehole1On!", e);
 			}
+		}
+		if (updateWaterLevelBorehole2Off) {
 			try {
-				if (ess.soc.value() >= socLoad2Off.value() + socHysteresis.value()
-						|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
-					load2On = true;
-				} else if (ess.soc.value() <= socLoad2Off.value()) {
-					load2On = false;
-				}
-				if (load2On) {
-					sps.setPivotOn.pushWrite(1L);
-				} else {
-					sps.setPivotOn.pushWrite(0L);
-				}
-			} catch (WriteChannelException e) {
-				log.error("Failed to connect/disconnect Load 2", e);
+				sps.setWaterLevelBorehole2Off.pushWrite(setWaterLevelBorehole2Off.value());
+				updateWaterLevelBorehole2Off = false;
+			} catch (InvalidValueException | WriteChannelException e) {
+				log.error("Failed to set WaterLevelBorehole2Off!", e);
 			}
+		}
+		if (updateWaterLevelBorehole2On) {
 			try {
-				if (ess.soc.value() >= socLoad3Off.value() + socHysteresis.value()
-						|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
-					load3On = true;
-				} else if (ess.soc.value() <= socLoad3Off.value()) {
-					load3On = false;
-				}
-				if (load3On) {
-					sps.setBorehole1On.pushWrite(1L);
-					sps.setBorehole2On.pushWrite(1L);
-					sps.setBorehole3On.pushWrite(1L);
-				} else {
-					sps.setBorehole1On.pushWrite(0L);
-					sps.setBorehole2On.pushWrite(0L);
-					sps.setBorehole3On.pushWrite(0L);
-				}
-			} catch (WriteChannelException e) {
-				log.error("Failed to connect/disconnect Load 3", e);
+				sps.setWaterLevelBorehole2On.pushWrite(setWaterLevelBorehole2On.value());
+				updateWaterLevelBorehole2On = false;
+			} catch (InvalidValueException | WriteChannelException e) {
+				log.error("Failed to set WaterLevelBorehole2On!", e);
 			}
+		}
+		if (updateWaterLevelBorehole3Off) {
 			try {
-				if (ess.soc.value() >= socLoad4Off.value() + socHysteresis.value()
-						|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
-					load4On = true;
-				} else if (ess.soc.value() <= socLoad4Off.value()) {
-					load4On = false;
-				}
-				if (load4On) {
-					sps.setOfficeOn.pushWrite(1L);
-					sps.setTraineeCenterOn.pushWrite(1L);
-				} else {
-					sps.setOfficeOn.pushWrite(0L);
-					sps.setTraineeCenterOn.pushWrite(0L);
-				}
-			} catch (WriteChannelException e) {
-				log.error("Failed to connect/disconnect Load 4", e);
+				sps.setWaterLevelBorehole3Off.pushWrite(setWaterLevelBorehole3Off.value());
+				updateWaterLevelBorehole3Off = false;
+			} catch (InvalidValueException | WriteChannelException e) {
+				log.error("Failed to set WaterLevelBorehole3Off!", e);
 			}
-		} catch (InvalidValueException e) {
-			log.error("Can't read value!", e);
+		}
+		if (updateWaterLevelBorehole3On) {
+			try {
+				sps.setWaterLevelBorehole3On.pushWrite(setWaterLevelBorehole3On.value());
+				updateWaterLevelBorehole3On = false;
+			} catch (InvalidValueException | WriteChannelException e) {
+				log.error("Failed to set WaterLevelBorehole3On!", e);
+			}
+		}
+		/*
+		 * Load switching
+		 */
+		// Check if all parameters are available
+		long essSoc;
+		long socHysteresis;
+		long socLoad1Off;
+		long socLoad2Off;
+		long socLoad3Off;
+		long socLoad4Off;
+		try {
+			essSoc = ess.soc.value();
+			socHysteresis = this.socHysteresis.value();
+			socLoad1Off = this.socLoad1Off.value();
+			socLoad2Off = this.socLoad2Off.value();
+			socLoad3Off = this.socLoad3Off.value();
+			socLoad4Off = this.socLoad4Off.value();
+		} catch (InvalidValueException | NullPointerException e) {
+			log.error("TimelineChargeController error: " + e.getMessage());
+			return;
+		}
+		try {
+			if (essSoc >= socLoad1Off + socHysteresis
+					|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+				load1On = true;
+			} else if (essSoc <= socLoad1Off) {
+				load1On = false;
+			}
+			if (load1On) {
+				sps.setClima1On.pushWrite(1L);
+				sps.setClima2On.pushWrite(1L);
+			} else {
+				sps.setClima1On.pushWrite(0L);
+				sps.setClima2On.pushWrite(0L);
+			}
+		} catch (WriteChannelException e) {
+			log.error("Failed to connect/disconnect Load 1: " + e.getMessage());
+		}
+		try {
+			if (essSoc >= socLoad2Off + socHysteresis
+					|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+				load2On = true;
+			} else if (essSoc <= socLoad2Off) {
+				load2On = false;
+			}
+			if (load2On) {
+				sps.setPivotOn.pushWrite(1L);
+			} else {
+				sps.setPivotOn.pushWrite(0L);
+			}
+		} catch (WriteChannelException e) {
+			log.error("Failed to connect/disconnect Load 2: " + e.getMessage());
+		}
+		try {
+			if (essSoc >= socLoad3Off + socHysteresis
+					|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+				load3On = true;
+			} else if (essSoc <= socLoad3Off) {
+				load3On = false;
+			}
+			if (load3On) {
+				sps.setBorehole1On.pushWrite(1L);
+				sps.setBorehole2On.pushWrite(1L);
+				sps.setBorehole3On.pushWrite(1L);
+			} else {
+				sps.setBorehole1On.pushWrite(0L);
+				sps.setBorehole2On.pushWrite(0L);
+				sps.setBorehole3On.pushWrite(0L);
+			}
+		} catch (WriteChannelException e) {
+			log.error("Failed to connect/disconnect Load 3: " + e.getMessage());
+		}
+		try {
+			if (essSoc >= socLoad4Off + socHysteresis
+					|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+				load4On = true;
+			} else if (essSoc <= socLoad4Off) {
+				load4On = false;
+			}
+			if (load4On) {
+				sps.setOfficeOn.pushWrite(1L);
+				sps.setTraineeCenterOn.pushWrite(1L);
+			} else {
+				sps.setOfficeOn.pushWrite(0L);
+				sps.setTraineeCenterOn.pushWrite(0L);
+			}
+		} catch (WriteChannelException e) {
+			log.error("Failed to connect/disconnect Load 4: " + e.getMessage());
 		}
 	}
 
