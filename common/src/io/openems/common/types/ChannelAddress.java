@@ -2,7 +2,7 @@ package io.openems.common.types;
 
 import io.openems.common.exceptions.OpenemsException;
 
-public class ChannelAddress {
+public class ChannelAddress implements Comparable<ChannelAddress> {
 	private final String thingId;
 	private final String channelId;
 
@@ -34,5 +34,10 @@ public class ChannelAddress {
 		} catch (Exception e) {
 			throw new OpenemsException("This [" + address + "] is not a valid channel address.");
 		}
+	}
+
+	@Override
+	public int compareTo(ChannelAddress other) {
+		return this.toString().compareTo(other.toString());
 	}
 }

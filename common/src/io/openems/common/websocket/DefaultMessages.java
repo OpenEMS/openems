@@ -1,16 +1,21 @@
 package io.openems.common.websocket;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
-import com.google.common.collect.Multimap;
+import com.google.common.collect.HashBasedTable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.Device;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
+import io.openems.common.types.TimestampedFieldValue;
 
 public class DefaultMessages {
 
@@ -141,19 +146,27 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject timestampedData(Multimap<Long, FieldValue<?>> data) {
+	public static JsonObject timestampedData(HashMap<ChannelAddress, TimestampedFieldValue> queue) {
+		// convert format
+		HashBasedTable<Long, ChannelAddress, FieldValue<?>> table = HashBasedTable.create();
+		for(Entry<ChannelAddress, TimestampedFieldValue> entry : queue.entrySet()) {
+			table.put(entry.getValue().getTimestamp(), entry.getKey(), entry.getValue().getValue());
+		}
+		// create JSON
 		JsonObject jTimedata = new JsonObject();
-		data.asMap().forEach((timestamp, fieldValues) -> {
+		for(Entry<Long, Map<ChannelAddress, FieldValue<?>>> row : table.rowMap().entrySet()) {
 			JsonObject jTimestamp = new JsonObject();
-			fieldValues.forEach(fieldValue -> {
+			for(Entry<ChannelAddress, FieldValue<?>> column : row.getValue().entrySet()) {
+				String address = column.getKey().toString();
+				FieldValue<?> fieldValue = column.getValue();
 				if (fieldValue instanceof NumberFieldValue) {
-					jTimestamp.addProperty(fieldValue.field, ((NumberFieldValue) fieldValue).value);
+					jTimestamp.addProperty(address, ((NumberFieldValue) fieldValue).value);
 				} else if (fieldValue instanceof StringFieldValue) {
-					jTimestamp.addProperty(fieldValue.field, ((StringFieldValue) fieldValue).value);
+					jTimestamp.addProperty(address, ((StringFieldValue) fieldValue).value);
 				}
-			});
-			jTimedata.add(String.valueOf(timestamp), jTimestamp);
-		});
+			}
+			jTimedata.add(String.valueOf(row.getKey()), jTimestamp);
+		}
 		JsonObject j = new JsonObject();
 		j.add("timedata", jTimedata);
 		return j;

@@ -22,8 +22,8 @@ package io.openems.common.types;
 
 public class NumberFieldValue extends FieldValue<Number> {
 
-	public NumberFieldValue(String field, Number value) {
-		super(field, value);
+	public NumberFieldValue(Number value) {
+		super(value);
 	}
 
 }

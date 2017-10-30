@@ -22,8 +22,8 @@ package io.openems.common.types;
 
 public class NullFieldValue extends FieldValue<Object> {
 
-	public NullFieldValue(String field) {
-		super(field, null);
+	public NullFieldValue() {
+		super(null);
 	}
 
 }

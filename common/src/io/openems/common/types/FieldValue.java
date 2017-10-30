@@ -21,11 +21,9 @@
 package io.openems.common.types;
 
 public abstract class FieldValue<T> {
-	public final String field;
 	public final T value;
 
-	public FieldValue(String field, T value) {
-		this.field = field;
+	public FieldValue(T value) {
 		this.value = value;
 	}
 }

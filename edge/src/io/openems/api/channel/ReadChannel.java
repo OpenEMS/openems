@@ -40,6 +40,7 @@ import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
 import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.session.Role;
+import io.openems.common.types.ChannelAddress;
 import io.openems.core.Databus;
 import io.openems.core.utilities.InjectionUtils;
 import io.openems.core.utilities.JsonUtils;
@@ -151,9 +152,16 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return id;
 	}
 
+	/**
+	 * TODO Use channelAddress() instead
+	 */
 	@Override
 	public String address() {
 		return parent.id() + "/" + id;
+	}
+
+	public ChannelAddress channelAddress() {
+		return new ChannelAddress(parent.id(), id);
 	}
 
 	@Override

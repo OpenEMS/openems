@@ -23,6 +23,7 @@ package io.openems.impl.persistence.fenecon;
 import java.net.Inet4Address;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.EvictingQueue;
-import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -47,10 +47,12 @@ import io.openems.api.exception.NotImplementedException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.thing.Thing;
 import io.openems.common.session.Role;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NullFieldValue;
 import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
+import io.openems.common.types.TimestampedFieldValue;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
@@ -121,10 +123,10 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	private final ReconnectingWebsocket reconnectingWebsocket;
 
 	// Queue of data for the next cycle
-	private HashMultimap<Long, FieldValue<?>> queue = HashMultimap.create();
+	private HashMap<ChannelAddress, TimestampedFieldValue> queue = new HashMap<>();
 	// Unsent queue (FIFO)
 	private EvictingQueue<JsonObject> unsentCache = EvictingQueue.create(1000);
-	private volatile Integer configuredCycleTime = DEFAULT_CYCLETIME;
+	private volatile Optional<Integer> increasedCycleTime = Optional.empty();
 
 	/*
 	 * Methods
@@ -158,10 +160,6 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 */
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-		// Update cycleTime of FENECON Persistence
-		if (channel == cycleTime) {
-			this.configuredCycleTime = cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
-		}
 		this.addChannelValueToQueue(channel, newValue);
 	}
 
@@ -233,7 +231,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			newCycleTime = currentCycleTime;
 		}
 		if (currentCycleTime != newCycleTime) {
-			this.cycleTime.updateValue(newCycleTime, false);
+			this.increasedCycleTime = Optional.of(newCycleTime);
 		}
 	}
 
@@ -241,12 +239,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 * Cycletime is adjusted if connection to Backend fails. This method resets it to configured or default value.
 	 */
 	private void resetCycleTime() {
-		int currentCycleTime = this.getCycleTime();
-		int newCycleTime = this.configuredCycleTime;
-		this.cycleTime.updateValue(newCycleTime, false);
-		if (currentCycleTime != newCycleTime) {
-			this.cycleTime.updateValue(newCycleTime, false);
-		}
+		this.increasedCycleTime = Optional.empty();
 	}
 
 	/**
@@ -281,24 +274,24 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			return;
 		}
 
-		// Get timestamp and round to seconds
-		Long timestamp = System.currentTimeMillis() / 1000 * 1000;
+		// Get timestamp and round to Cycle-Time
+		int cycleTime = this.getCycleTime();
+		Long timestamp = System.currentTimeMillis() / cycleTime * cycleTime;
 
 		// Read and format value from channel
-		String field = readChannel.address();
 		FieldValue<?> fieldValue;
 		if (!valueOpt.isPresent()) {
-			fieldValue = new NullFieldValue(field);
+			fieldValue = new NullFieldValue();
 		} else {
 			Object value = valueOpt.get();
 			if (value instanceof Number) {
-				fieldValue = new NumberFieldValue(field, (Number) value);
+				fieldValue = new NumberFieldValue((Number) value);
 			} else if (value instanceof String) {
-				fieldValue = new StringFieldValue(field, (String) value);
+				fieldValue = new StringFieldValue((String) value);
 			} else if (value instanceof Inet4Address) {
-				fieldValue = new StringFieldValue(field, ((Inet4Address) value).getHostAddress());
+				fieldValue = new StringFieldValue(((Inet4Address) value).getHostAddress());
 			} else if (value instanceof Boolean) {
-				fieldValue = new NumberFieldValue(field, ((Boolean) value) ? 1 : 0);
+				fieldValue = new NumberFieldValue(((Boolean) value) ? 1 : 0);
 			} else if (value instanceof DeviceNature || value instanceof JsonElement || value instanceof Map
 					|| value instanceof Set || value instanceof List || value instanceof ThingMap) {
 				// ignore
@@ -312,7 +305,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 		// Add timestamp + value to queue
 		synchronized (queue) {
-			queue.put(timestamp, fieldValue);
+			queue.put(readChannel.channelAddress(), new TimestampedFieldValue(timestamp, fieldValue));
 		}
 	}
 
@@ -331,7 +324,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 	@Override
 	protected int getCycleTime() {
-		return cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
+		return this.increasedCycleTime.orElse(this.cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME));
 	}
 
 	@Override
