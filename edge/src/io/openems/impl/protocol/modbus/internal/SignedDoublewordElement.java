@@ -67,4 +67,9 @@ public class SignedDoublewordElement extends ModbusElement<Long> implements Doub
 		this.wordOrder = order;
 		return this;
 	}
+
+	public SignedDoublewordElement byteorder(ByteOrder order) {
+		this.byteOrder = order;
+		return this;
+	}
 }
