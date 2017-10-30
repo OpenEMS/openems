@@ -276,7 +276,7 @@ public abstract class Bridge extends Thread implements Thing {
 
 	private void readOther(List<BridgeReadTask> tasks, long timeFinished, boolean forceRead) {
 		BridgeReadTask nextReadTask = null;
-		if (readOtherTaskCount + 1 < tasks.size()) {
+		if (readOtherTaskCount + 1 <= tasks.size()) {
 			nextReadTask = tasks.get(readOtherTaskIndex);
 		}
 		while (nextReadTask != null) {
