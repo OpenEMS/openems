@@ -129,4 +129,10 @@ public class ConfigChannel<T> extends WriteChannel<T> {
 	public ConfigChannel<T> doNotPersist() {
 		return (ConfigChannel<T>) super.doNotPersist();
 	}
+
+	@Override
+	public ConfigChannel<T> unit(String unit) {
+		super.unit(unit);
+		return this;
+	}
 }
