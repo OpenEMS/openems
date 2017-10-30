@@ -133,8 +133,7 @@ public class Config implements ChannelChangeListener {
 			log.info("Read configuration from file [" + configFile.toString() + "]");
 			return;
 		} catch (Exception e) {
-			log.warn("Failed to read configuration from file [" + configFile.toString() + "] ");
-			e.printStackTrace();
+			log.warn("Failed to read configuration from file [" + configFile.toString() + "] ",e);
 		}
 		// Read configuration from backup config file
 		try {
@@ -348,10 +347,10 @@ public class Config implements ChannelChangeListener {
 		 * Init bridge
 		 */
 		for (Bridge b : thingRepository.getBridges()) {
-			b.init();
 			for (Device d : b.getDevices()) {
 				d.init();
 			}
+			b.init();
 		}
 		for(BridgeInitializedEventListener listener : bridgeInitEventListeners) {
 			listener.onBridgeInitialized();
