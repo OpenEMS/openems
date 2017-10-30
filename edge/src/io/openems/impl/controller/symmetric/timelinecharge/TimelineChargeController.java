@@ -113,107 +113,127 @@ public class TimelineChargeController extends Controller {
 	 */
 	@Override
 	public void run() {
+		// Check if all parameters are available
+		Ess ess;
+		long thisAllowedApparent;
+		long meterApparentPower;
+		Set<Charger> chargers;
+		long essCapacity;
+		long essSoc;
 		try {
-			Ess ess = this.ess.value();
-			if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
-				long allowedApparentCharge = allowedApparent.value() - meter.value().apparentPower.value();
-				allowedApparentCharge += ControllerUtils.calculateApparentPower(
-						ess.activePower.valueOptional().orElse(0L), ess.reactivePower.valueOptional().orElse(0L));
-				// remove 10% for tollerance
-				allowedApparentCharge *= 0.9;
-				// limit activePower to apparent
+			ess = this.ess.value();
+			thisAllowedApparent = this.allowedApparent.value();
+			meterApparentPower = meter.value().apparentPower.value();
+			chargers = this.chargers.value();
+			essCapacity = ess.capacity.value();
+			essSoc = ess.soc.value();
+		} catch (InvalidValueException | NullPointerException e) {
+			log.error("TimelineChargeController error: " + e.getMessage());
+			return;
+		}
+		// start controller logic
+		if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+			long allowedApparentCharge = thisAllowedApparent - meterApparentPower;
+			allowedApparentCharge += ControllerUtils.calculateApparentPower(
+					ess.activePower.valueOptional().orElse(0L), ess.reactivePower.valueOptional().orElse(0L));
+			// remove 10% for tolerance
+			allowedApparentCharge *= 0.9;
+			// limit activePower to apparent
+			try {
+				ess.setActivePower.pushWriteMin(allowedApparentCharge * -1);
+			} catch (WriteChannelException e) {
+				log.warn("Failed to set writeMin to " + (allowedApparentCharge * -1));
+			}
+			long chargerPower = 0L;
+			for (Charger c : chargers) {
 				try {
-					ess.setActivePower.pushWriteMin(allowedApparentCharge * -1);
-				} catch (WriteChannelException e) {
-					log.warn("Failed to set writeMin to " + (allowedApparentCharge * -1));
-				}
-				long chargerPower = 0L;
-				for (Charger c : chargers.value()) {
-					try {
-						chargerPower += c.power.value();
-					} catch (InvalidValueException e) {
-						log.error("cant read power from " + c.id(), e);
-					}
-				}
-				floatingChargerPower.add(chargerPower);
-				SocPoint socPoint = getSoc();
-				double requiredEnergy = ((double) ess.capacity.value() / 100.0 * socPoint.getSoc())
-						- ((double) ess.capacity.value() / 100.0 * ess.soc.value());
-				long requiredTimeCharger = (long) (requiredEnergy / floatingChargerPower.avg() * 3600.0);
-				long requiredTimeGrid = (long) (requiredEnergy / (floatingChargerPower.avg() + allowedApparentCharge)
-						* 3600.0);
-				log.info("RequiredTimeCharger: " + requiredTimeCharger + ", RequiredTimeGrid: " + requiredTimeGrid);
-				if (floatingChargerPower.avg() >= 1000
-						&& !LocalDateTime.now().plusSeconds(requiredTimeCharger).isBefore(socPoint.getTime())
-						&& LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())) {
-					// Prevent discharge -> load with Pv
-					ess.setActivePower.pushWriteMax(0L);
-				} else if (requiredTimeGrid > 0
-						&& !LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())
-						&& socPoint.getTime().isAfter(LocalDateTime.now())) {
-					// Load with grid + pv
-					long maxPower = allowedApparentCharge * -1;
-					if (ess.setActivePower.writeMin().isPresent() && ess.setActivePower.writeMin().get() > maxPower) {
-						maxPower = ess.setActivePower.writeMin().get();
-					}
-					ess.setActivePower.pushWriteMax(maxPower);
-				} else {
-					// soc point in the past -> Hold load
-					int minSoc = getCurrentSoc().getSoc();
-					int chargeSoc = minSoc - 5;
-					if (chargeSoc <= 1) {
-						chargeSoc = 1;
-					}
-					switch (currentState) {
-					case CHARGESOC:
-						if (ess.soc.value() > minSoc) {
-							currentState = State.MINSOC;
-						} else {
-							try {
-								Optional<Long> currentMinValue = ess.setActivePower.writeMin();
-								if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
-									// Force Charge with minimum of MaxChargePower/5
-									log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
-									ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
-								} else {
-									log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
-									ess.setActivePower.pushWriteMax(-1000L);
-								}
-							} catch (WriteChannelException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}
-						break;
-					case MINSOC:
-						if (ess.soc.value() < chargeSoc) {
-							currentState = State.CHARGESOC;
-						} else if (ess.soc.value() >= minSoc + 5) {
-							currentState = State.NORMAL;
-						} else {
-							try {
-								long maxPower = 0;
-								if (!ess.setActivePower.writeMax().isPresent()
-										|| maxPower < ess.setActivePower.writeMax().get()) {
-									ess.setActivePower.pushWriteMax(maxPower);
-								}
-							} catch (WriteChannelException e) {
-								log.error(ess.id() + "Failed to set Max allowed power.", e);
-							}
-						}
-						break;
-					case NORMAL:
-						if (ess.soc.value() <= minSoc) {
-							currentState = State.MINSOC;
-						}
-						break;
-					}
+					chargerPower += c.power.value();
+				} catch (InvalidValueException e) {
+					log.error("TimelineChargeController error: Unable to read power from Charger [" + c.id() + "]: " + e.getMessage());
 				}
 			}
-		} catch (InvalidValueException e) {
-			log.error("Can't read value", e);
-		} catch (WriteChannelException e) {
-			log.error("Can't write value", e);
+			floatingChargerPower.add(chargerPower);
+			SocPoint socPoint = getSoc();
+			double requiredEnergy = (essCapacity / 100.0 * socPoint.getSoc())
+					- (essCapacity / 100.0 * essSoc);
+			long requiredTimeCharger = (long) (requiredEnergy / floatingChargerPower.avg() * 3600.0);
+			long requiredTimeGrid = (long) (requiredEnergy / (floatingChargerPower.avg() + allowedApparentCharge)
+					* 3600.0);
+			log.info("RequiredTimeCharger: " + requiredTimeCharger + ", RequiredTimeGrid: " + requiredTimeGrid);
+			if (floatingChargerPower.avg() >= 1000
+					&& !LocalDateTime.now().plusSeconds(requiredTimeCharger).isBefore(socPoint.getTime())
+					&& LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())) {
+				// Prevent discharge -> load with Pv
+				try {
+					ess.setActivePower.pushWriteMax(0L);
+				} catch (WriteChannelException e) {
+					log.error("Failed to write Channel [" + ess.setActivePower.address() + "]: " + e.getMessage());
+				}
+			} else if (requiredTimeGrid > 0
+					&& !LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())
+					&& socPoint.getTime().isAfter(LocalDateTime.now())) {
+				// Load with grid + pv
+				long maxPower = allowedApparentCharge * -1;
+				if (ess.setActivePower.writeMin().isPresent() && ess.setActivePower.writeMin().get() > maxPower) {
+					maxPower = ess.setActivePower.writeMin().get();
+				}
+				try {
+					ess.setActivePower.pushWriteMax(maxPower);
+				} catch (WriteChannelException e) {
+					log.error("Failed to write Channel [" + ess.setActivePower.address() + "]: " + e.getMessage());
+				}
+			} else {
+				// soc point in the past -> Hold load
+				int minSoc = getCurrentSoc().getSoc();
+				int chargeSoc = minSoc - 5;
+				if (chargeSoc <= 1) {
+					chargeSoc = 1;
+				}
+				switch (currentState) {
+				case CHARGESOC:
+					if (essSoc > minSoc) {
+						currentState = State.MINSOC;
+					} else {
+						try {
+							Optional<Long> currentMinValue = ess.setActivePower.writeMin();
+							if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
+								// Force Charge with minimum of MaxChargePower/5
+								log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
+								ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
+							} else {
+								log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
+								ess.setActivePower.pushWriteMax(-1000L);
+							}
+						} catch (WriteChannelException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					break;
+				case MINSOC:
+					if (essSoc < chargeSoc) {
+						currentState = State.CHARGESOC;
+					} else if (essSoc >= minSoc + 5) {
+						currentState = State.NORMAL;
+					} else {
+						try {
+							long maxPower = 0;
+							if (!ess.setActivePower.writeMax().isPresent()
+									|| maxPower < ess.setActivePower.writeMax().get()) {
+								ess.setActivePower.pushWriteMax(maxPower);
+							}
+						} catch (WriteChannelException e) {
+							log.error("Failed to set Max allowed power for Ess [" + ess.id() + "]: " + e.getMessage());
+						}
+					}
+					break;
+				case NORMAL:
+					if (essSoc <= minSoc) {
+						currentState = State.MINSOC;
+					}
+					break;
+				}
+			}
 		}
 	}
 
