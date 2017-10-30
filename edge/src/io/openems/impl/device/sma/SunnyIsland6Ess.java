@@ -49,7 +49,6 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 	private ReadChannel<Long> systemState = new StaticValueChannel<Long>("SystemState", this, 1L).label(1L, START);
 	private ModbusReadLongChannel activePower;
 	private ModbusReadLongChannel reactivePower;
-	private ModbusWriteLongChannel setWorkState;
 	private ModbusWriteLongChannel setActivePower;
 	private ModbusWriteLongChannel setReactivePower;
 	private ModbusWriteLongChannel setControlMode;
