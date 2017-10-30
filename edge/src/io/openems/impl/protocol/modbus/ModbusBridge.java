@@ -316,7 +316,6 @@ public abstract class ModbusBridge extends Bridge {
 		try {
 			trans.execute();
 		} catch (ModbusException e) {
-			log.warn("read failed! try again with new connection!",e);
 			// try again with new connection
 			closeModbusConnection();
 			trans = getTransaction();
