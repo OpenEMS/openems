@@ -2,7 +2,7 @@ import { Component, OnInit, trigger, state, style, transition, animate } from '@
 import { TranslateService } from '@ngx-translate/core';
 import { Observable } from "rxjs/Rx";
 
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
+import { AbstractSection, SvgSquarePosition, SvgSquare } from './abstractsection.component';
 
 let PULSE = 1000;
 
@@ -34,39 +34,35 @@ let PULSE = 1000;
 export class ProductionSectionComponent extends AbstractSection implements OnInit {
 
     constructor(translate: TranslateService) {
-        super('General.Production', 316, 404, "#008DD2", translate);
+        super('General.Production', "up", 316, 404, "#008DD2", translate);
     }
 
     ngOnInit() {
         Observable.interval(this.pulsetime)
             .subscribe(x => {
-                if (this.lastValue.absolute > 0) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[this.circles.length - i - 1].switchState();
-                        }, this.pulsetime / 4 * i);
-                    }
-                } else if (this.lastValue.absolute == 0) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        this.circles[this.circles.length - i - 1].hide();
-                    }
-                } else {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        this.circles[this.circles.length - i - 1].switchState();
-                    }
-                }
+                // if (this.lastValue.absolute > 0) {
+                // for (let i = 0; i < this.circles.length; i++) {
+                //     setTimeout(() => {
+                //         this.circles[this.circles.length - i - 1].switchState();
+                //     }, this.pulsetime / 4 * i);
+                // }
+                // } else if (this.lastValue.absolute == 0) {
+                // for (let i = 0; i < this.circles.length; i++) {
+                //     this.circles[this.circles.length - i - 1].hide();
+                // }
+                // } else {
+                // for (let i = 0; i < this.circles.length; i++) {
+                //     this.circles[this.circles.length - i - 1].switchState();
+                // }
+                // }
             })
     }
 
     /**
      * This method is called on every change of values.
      */
-    public updateValue(absolute: number, ratio: number) {
-        super.updateValue(absolute, ratio)
-    }
-
-    protected getCircleDirection(): CircleDirection {
-        return new CircleDirection("up");
+    public updateValue(valueAbsolute: number, valueRatio: number, sumRatio: number) {
+        super.updateValue(valueAbsolute, valueRatio, sumRatio * -1)
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {

@@ -2,7 +2,7 @@ import { Component, OnInit, trigger, state, style, transition, animate } from '@
 import { Observable } from "rxjs/Rx";
 import { TranslateService } from '@ngx-translate/core';
 
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
+import { AbstractSection, SvgSquarePosition, SvgSquare } from './abstractsection.component';
 
 let PULSE = 1000;
 
@@ -34,46 +34,42 @@ let PULSE = 1000;
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit {
 
     constructor(translate: TranslateService) {
-        super('General.Consumption', 46, 134, "#FDC507", translate);
+        super('General.Consumption', "right", 46, 134, "#FDC507", translate);
     }
 
     ngOnInit() {
         Observable.interval(this.pulsetime)
             .subscribe(x => {
-                if (this.lastValue.absolute > 0) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[i].switchState();
-                        }, this.pulsetime / 4 * i);
-                    }
-                } else if (this.lastValue.absolute < 0) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[this.circles.length - i - 1].switchState();
-                        }, this.pulsetime / 4 * i);
-                    }
-                } else {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        this.circles[this.circles.length - i - 1].hide();
-                    }
-                }
+                // if (this.lastValue.absolute > 0) {
+                // for (let i = 0; i < this.circles.length; i++) {
+                //     setTimeout(() => {
+                //         this.circles[i].switchState();
+                //     }, this.pulsetime / 4 * i);
+                // }
+                // } else if (this.lastValue.absolute < 0) {
+                // for (let i = 0; i < this.circles.length; i++) {
+                //     setTimeout(() => {
+                //         this.circles[this.circles.length - i - 1].switchState();
+                //     }, this.pulsetime / 4 * i);
+                // }
+                // } else {
+                // for (let i = 0; i < this.circles.length; i++) {
+                //     this.circles[this.circles.length - i - 1].hide();
+                // }
+                // }
             })
     }
     /**
      * This method is called on every change of values.
      */
-    public updateValue(absolute: number, ratio: number) {
+    public updateValue(valueAbsolute: number, valueRatio: number, sumRatio: number) {
         // TODO
-        if (absolute < 0) {
+        if (valueAbsolute < 0) {
             this.name = this.translate.instant('Device.Overview.Energymonitor.ConsumptionWarning');
         } else {
             this.name = this.translate.instant('General.Consumption');
         }
-        super.updateValue(absolute, ratio);
-    }
-
-    protected getCircleDirection(): CircleDirection {
-        return new CircleDirection("right");
+        super.updateValue(valueAbsolute, valueRatio, sumRatio);
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {

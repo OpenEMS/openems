@@ -1,6 +1,6 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
+import { AbstractSection, SvgSquarePosition, SvgSquare } from './abstractsection.component';
 import { Observable } from "rxjs/Rx";
 
 
@@ -36,55 +36,51 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
     private state: "charging" | "discharging" | "standby" = "standby";
 
     constructor(translate: TranslateService) {
-        super('Device.Overview.Energymonitor.Storage', 136, 224, "#009846", translate);
+        super('Device.Overview.Energymonitor.Storage', "down", 136, 224, "#009846", translate);
     }
 
     ngOnInit() {
         Observable.interval(this.pulsetime)
             .subscribe(x => {
                 if (this.state == "standby") {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        this.circles[i].hide();
-                    }
+                    // for (let i = 0; i < this.circles.length; i++) {
+                    //     this.circles[i].hide();
+                    // }
                 } else if (this.state == "charging") {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[i].switchState();
-                        }, this.pulsetime / 4 * i);
-                    }
+                    // for (let i = 0; i < this.circles.length; i++) {
+                    //     setTimeout(() => {
+                    //         this.circles[i].switchState();
+                    //     }, this.pulsetime / 4 * i);
+                    // }
                 } else if (this.state == "discharging") {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[this.circles.length - i - 1].switchState();
-                        }, this.pulsetime / 4 * i);
-                    }
+                    // for (let i = 0; i < this.circles.length; i++) {
+                    //     setTimeout(() => {
+                    //         this.circles[this.circles.length - i - 1].switchState();
+                    //     }, this.pulsetime / 4 * i);
+                    // }
                 }
             })
     }
 
-    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, percentage: number) {
+    public updateStorageValue(chargeAbsolute: number, dischargeAbsolute: number, valueRatio: number, sumChargeRatio: number, sumDischargeRatio: number) {
         if (chargeAbsolute != null && chargeAbsolute > 0) {
             this.name = this.translate.instant('Device.Overview.Energymonitor.StorageCharge')
-            super.updateValue(chargeAbsolute, percentage);
+            super.updateValue(chargeAbsolute, valueRatio, sumChargeRatio);
             this.state = "charging";
         } else {
             this.name = this.translate.instant('Device.Overview.Energymonitor.StorageDischarge')
-            super.updateValue(dischargeAbsolute, percentage);
+            super.updateValue(dischargeAbsolute, valueRatio, sumDischargeRatio * -1);
             if (dischargeAbsolute > 0) {
                 this.state = "discharging";
             } else {
                 this.state = "standby";
             }
         }
-        if (percentage != null) {
-            this.valueText2 = percentage + " %";
+        if (valueRatio != null) {
+            this.valueText2 = valueRatio + " %";
         } else {
             this.valueText2 = "";
         }
-    }
-
-    protected getCircleDirection(): CircleDirection {
-        return new CircleDirection("down");
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -102,6 +98,6 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             return "";
         }
 
-        return this.lastValue.absolute + " W";
+        return this.lastValue.valueAbsolute + " W";
     }
 }

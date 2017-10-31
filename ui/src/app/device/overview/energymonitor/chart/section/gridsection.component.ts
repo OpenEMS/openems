@@ -2,7 +2,7 @@ import { Component, OnInit, trigger, state, style, transition, animate } from '@
 import { TranslateService } from '@ngx-translate/core';
 import { Observable } from "rxjs/Rx";
 
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
+import { AbstractSection, SvgSquarePosition, SvgSquare } from './abstractsection.component';
 
 let PULSE = 1000;
 
@@ -38,46 +38,42 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
     private sellToGrid: boolean;
 
     constructor(translate: TranslateService) {
-        super('General.Grid', 226, 314, "#1d1d1d", translate);
+        super('General.Grid', "left", 226, 314, "#1d1d1d", translate);
     }
 
     ngOnInit() {
         Observable.interval(this.pulsetime)
             .subscribe(x => {
                 if (this.sellToGrid) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[i].switchState();
-                        }, this.pulsetime / 4 * i);
-                    }
+                    // for (let i = 0; i < this.circles.length; i++) {
+                    //     setTimeout(() => {
+                    //         this.circles[i].switchState();
+                    //     }, this.pulsetime / 4 * i);
+                    // }
                 } else if (!this.sellToGrid) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[this.circles.length - i - 1].switchState();
-                        }, this.pulsetime / 4 * i);
-                    }
+                    // for (let i = 0; i < this.circles.length; i++) {
+                    //     setTimeout(() => {
+                    //         this.circles[this.circles.length - i - 1].switchState();
+                    //     }, this.pulsetime / 4 * i);
+                    // }
                 } else if (this.sellToGrid == null) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        this.circles[i].hide();
-                    }
+                    // for (let i = 0; i < this.circles.length; i++) {
+                    //     this.circles[i].hide();
+                    // }
                 }
             })
     }
 
-    public updateGridValue(buyAbsolute: number, sellAbsolute: number, ratio: number) {
+    public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number) {
         if (buyAbsolute != null && buyAbsolute > 0) {
             this.name = this.translate.instant('General.GridBuy');
             this.sellToGrid = false;
-            super.updateValue(buyAbsolute, ratio);
+            super.updateValue(buyAbsolute, valueRatio, sumBuyRatio * -1);
         } else {
             this.name = this.translate.instant('General.GridSell');
             this.sellToGrid = true;
-            super.updateValue(sellAbsolute, ratio);
+            super.updateValue(sellAbsolute, valueRatio, sumSellRatio);
         }
-    }
-
-    protected getCircleDirection(): CircleDirection {
-        return new CircleDirection("left");
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
