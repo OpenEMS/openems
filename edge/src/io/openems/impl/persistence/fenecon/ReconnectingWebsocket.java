@@ -25,6 +25,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.openems.App;
 import io.openems.core.utilities.Mutex;
 import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 
@@ -77,6 +78,11 @@ public class ReconnectingWebsocket {
 			try {
 				JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
 				WEBSOCKET_HANDLER.onMessage(jMessage);
+			} catch (OutOfMemoryError e) {
+				// Java-Websocket library can cause an "unable to create new native thread" OutOfMemoryError on
+				// subscribe. We are not able to recover that.
+				// TODO fix this bug
+				App.shutdownWithError("ReconnectingWebsocket. Error on message [" + message + "]", e);
 			} catch (Throwable t) {
 				log.error("Websocket [" + this.getURI().toString() + "] error on message [" + message + "]: "
 						+ t.getMessage());
