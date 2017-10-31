@@ -52,7 +52,6 @@ import io.openems.common.types.FieldValue;
 import io.openems.common.types.NullFieldValue;
 import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
-import io.openems.common.types.TimestampedFieldValue;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
@@ -123,7 +122,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	private final ReconnectingWebsocket reconnectingWebsocket;
 
 	// Queue of data for the next cycle
-	private HashMap<ChannelAddress, TimestampedFieldValue> queue = new HashMap<>();
+	private HashMap<ChannelAddress, FieldValue<?>> queue = new HashMap<>();
 	// Unsent queue (FIFO)
 	private EvictingQueue<JsonObject> unsentCache = EvictingQueue.create(1000);
 	private volatile Optional<Integer> increasedCycleTime = Optional.empty();
@@ -165,10 +164,14 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 	@Override
 	protected void forever() {
+		// Get timestamp and round to Cycle-Time
+		int cycleTime = this.getCycleTime();
+		Long timestamp = System.currentTimeMillis() / cycleTime * cycleTime;
+
 		// Convert FieldVales in queue to JsonObject
 		JsonObject j;
 		synchronized (queue) {
-			j = DefaultMessages.timestampedData(queue);
+			j = DefaultMessages.timestampedData(timestamp, queue);
 			queue.clear();
 		}
 
@@ -274,10 +277,6 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			return;
 		}
 
-		// Get timestamp and round to Cycle-Time
-		int cycleTime = this.getCycleTime();
-		Long timestamp = System.currentTimeMillis() / cycleTime * cycleTime;
-
 		// Read and format value from channel
 		FieldValue<?> fieldValue;
 		if (!valueOpt.isPresent()) {
@@ -305,7 +304,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 		// Add timestamp + value to queue
 		synchronized (queue) {
-			queue.put(readChannel.channelAddress(), new TimestampedFieldValue(timestamp, fieldValue));
+			queue.put(readChannel.channelAddress(), fieldValue);
 		}
 	}
 

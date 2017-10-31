@@ -2,11 +2,9 @@ package io.openems.common.websocket;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import com.google.common.collect.HashBasedTable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -15,7 +13,6 @@ import io.openems.common.types.Device;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
-import io.openems.common.types.TimestampedFieldValue;
 
 public class DefaultMessages {
 
@@ -42,19 +39,20 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject browserConnectionSuccessfulReply(String token, Optional<String> roleOpt, Collection<Device> devices) {
+	public static JsonObject browserConnectionSuccessfulReply(String token, Optional<String> roleOpt,
+			Collection<Device> devices) {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "allow");
-		if(roleOpt.isPresent()) {
+		if (roleOpt.isPresent()) {
 			jAuthenticate.addProperty("role", roleOpt.get());
 		}
 		jAuthenticate.addProperty("token", token);
 		JsonObject j = new JsonObject();
 		j.add("authenticate", jAuthenticate);
 		JsonObject jMetadata = new JsonObject();
-		if(!devices.isEmpty()) {
+		if (!devices.isEmpty()) {
 			JsonArray jDevices = new JsonArray();
-			for(Device device : devices) {
+			for (Device device : devices) {
 				JsonObject jDevice = new JsonObject();
 				jDevice.addProperty("name", device.getName());
 				jDevice.addProperty("comment", device.getComment());
@@ -68,7 +66,7 @@ public class DefaultMessages {
 		j.add("metadata", jMetadata);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
@@ -88,7 +86,7 @@ public class DefaultMessages {
 		j.add("authenticate", jAuthenticate);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
@@ -108,7 +106,7 @@ public class DefaultMessages {
 		j.add("authenticate", jAuthenticate);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
@@ -130,7 +128,7 @@ public class DefaultMessages {
 		j.add("authenticate", jAuthenticate);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
@@ -146,32 +144,24 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject timestampedData(HashMap<ChannelAddress, TimestampedFieldValue> queue) {
-		// convert format
-		HashBasedTable<Long, ChannelAddress, FieldValue<?>> table = HashBasedTable.create();
-		for(Entry<ChannelAddress, TimestampedFieldValue> entry : queue.entrySet()) {
-			table.put(entry.getValue().getTimestamp(), entry.getKey(), entry.getValue().getValue());
-		}
-		// create JSON
-		JsonObject jTimedata = new JsonObject();
-		for(Entry<Long, Map<ChannelAddress, FieldValue<?>>> row : table.rowMap().entrySet()) {
-			JsonObject jTimestamp = new JsonObject();
-			for(Entry<ChannelAddress, FieldValue<?>> column : row.getValue().entrySet()) {
-				String address = column.getKey().toString();
-				FieldValue<?> fieldValue = column.getValue();
-				if (fieldValue instanceof NumberFieldValue) {
-					jTimestamp.addProperty(address, ((NumberFieldValue) fieldValue).value);
-				} else if (fieldValue instanceof StringFieldValue) {
-					jTimestamp.addProperty(address, ((StringFieldValue) fieldValue).value);
-				}
+	public static JsonObject timestampedData(long timestamp, HashMap<ChannelAddress, FieldValue<?>> queue) {
+		JsonObject jTimestamp = new JsonObject();
+		for (Entry<ChannelAddress, FieldValue<?>> entry : queue.entrySet()) {
+			String address = entry.getKey().toString();
+			FieldValue<?> fieldValue = entry.getValue();
+			if (fieldValue instanceof NumberFieldValue) {
+				jTimestamp.addProperty(address, ((NumberFieldValue) fieldValue).value);
+			} else if (fieldValue instanceof StringFieldValue) {
+				jTimestamp.addProperty(address, ((StringFieldValue) fieldValue).value);
 			}
-			jTimedata.add(String.valueOf(row.getKey()), jTimestamp);
 		}
+		JsonObject jTimedata = new JsonObject();
+		jTimedata.add(String.valueOf(timestamp), jTimestamp);
 		JsonObject j = new JsonObject();
 		j.add("timedata", jTimedata);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
@@ -189,7 +179,7 @@ public class DefaultMessages {
 		j.add("config", config);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
@@ -197,7 +187,7 @@ public class DefaultMessages {
 	 *		currentData: {[{ 
 	 *			channel: string,
 	 *			value: any
-     *		}]}
+	 *		}]}
 	 *	}
 	 * </pre>
 	 * 
@@ -209,7 +199,7 @@ public class DefaultMessages {
 		j.add("currentData", jCurrentData);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
@@ -237,7 +227,7 @@ public class DefaultMessages {
 		j.add("historicData", jHistoricData);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
@@ -253,7 +243,7 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject notification(JsonArray jId, Notification code, String message,  Object... params) {
+	public static JsonObject notification(JsonArray jId, Notification code, String message, Object... params) {
 		JsonObject j = new JsonObject();
 		j.add("id", jId);
 		JsonObject jNotification = new JsonObject();
@@ -261,14 +251,14 @@ public class DefaultMessages {
 		jNotification.addProperty("message", message);
 		jNotification.addProperty("code", code.getValue());
 		JsonArray jParams = new JsonArray();
-		for(Object param : params) {
+		for (Object param : params) {
 			jParams.add(param.toString());
 		}
 		jNotification.add("params", jParams);
 		j.add("notification", jNotification);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
@@ -290,7 +280,7 @@ public class DefaultMessages {
 		j.add("currentData", jCurrentData);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
