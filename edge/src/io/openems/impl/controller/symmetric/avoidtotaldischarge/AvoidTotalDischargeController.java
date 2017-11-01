@@ -73,10 +73,11 @@ public class AvoidTotalDischargeController extends Controller {
 							Optional<Long> currentMinValue = ess.setActivePower.writeMin();
 							if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
 								// Force Charge with minimum of MaxChargePower/5
-								log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
+								log.info("Ess [" + ess.id() + "] force charge. Set ActivePower=Max["
+										+ currentMinValue.get() / 5 + "]");
 								ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
 							} else {
-								log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
+								log.info("Ess [" + ess.id() + "] Avoid discharge. Set ActivePower=Max[-1000 W]");
 								ess.setActivePower.pushWriteMax(-1000L);
 							}
 						} catch (Exception e) {
@@ -98,7 +99,7 @@ public class AvoidTotalDischargeController extends Controller {
 								ess.setActivePower.pushWriteMax(maxPower);
 							}
 						} catch (WriteChannelException e) {
-							log.error(ess.id() + "Failed to set Max allowed power.", e);
+							log.error("Ess [" + ess.id() + "] Failed to set Max allowed power.", e);
 						}
 					}
 					break;
