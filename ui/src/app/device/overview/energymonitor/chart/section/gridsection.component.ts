@@ -8,21 +8,22 @@ import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlo
     templateUrl: './section.component.html'
 })
 export class GridSectionComponent extends AbstractSection {
-    private sellToGrid: boolean;
 
     constructor(translate: TranslateService) {
         super('General.Grid', "left", 226, 314, "#1d1d1d", translate);
     }
 
     public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number) {
+        valueRatio = valueRatio / 2; // interval from -50 to 50
         if (buyAbsolute != null && buyAbsolute > 0) {
             this.name = this.translate.instant('General.GridBuy');
-            this.sellToGrid = false;
             super.updateValue(buyAbsolute, valueRatio, sumBuyRatio * -1);
-        } else {
+        } else if (sellAbsolute != null && sellAbsolute > 0) {
             this.name = this.translate.instant('General.GridSell');
-            this.sellToGrid = true;
             super.updateValue(sellAbsolute, valueRatio, sumSellRatio);
+        } else {
+            this.name = this.translate.instant('General.Grid')
+            super.updateValue(0, 0, 0);
         }
     }
 
