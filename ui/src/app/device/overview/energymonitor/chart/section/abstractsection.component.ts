@@ -112,7 +112,6 @@ export abstract class AbstractSection {
     protected outerRadius: number = 0;
     protected height: number = 0;
     protected width: number = 0;
-    protected pulsetime = 2000;
     protected lastValue = { valueAbsolute: 0, valueRatio: 0, sumRatio: 0 };
 
     constructor(

@@ -3,62 +3,19 @@ import { TranslateService } from '@ngx-translate/core';
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
 import { Observable } from "rxjs/Rx";
 
-
-let PULSE = 1000;
-
 @Component({
     selector: '[storagesection]',
-    templateUrl: './section.component.html',
-    animations: [
-        trigger('circle', [
-            state('one', style({
-                r: 7,
-                fill: 'none',
-                stroke: 'white'
-            })),
-            state('two', style({
-                r: 7,
-                fill: 'none',
-                stroke: '#009846'
-            })),
-            state('three', style({
-                r: 7,
-                fill: 'none',
-                stroke: 'none'
-            })),
-            transition('one => two', animate(PULSE + 'ms')),
-            transition('two => one', animate(PULSE + 'ms'))
-        ])
-    ]
+    templateUrl: './section.component.html'
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit {
-
-    private state: "charging" | "discharging" | "standby" = "standby";
 
     constructor(translate: TranslateService) {
         super('Device.Overview.Energymonitor.Storage', "down", 136, 224, "#009846", translate);
     }
 
     ngOnInit() {
-        Observable.interval(this.pulsetime)
+        Observable.interval(1000)
             .subscribe(x => {
-                if (this.state == "standby") {
-                    // for (let i = 0; i < this.circles.length; i++) {
-                    //     this.circles[i].hide();
-                    // }
-                } else if (this.state == "charging") {
-                    // for (let i = 0; i < this.circles.length; i++) {
-                    //     setTimeout(() => {
-                    //         this.circles[i].switchState();
-                    //     }, this.pulsetime / 4 * i);
-                    // }
-                } else if (this.state == "discharging") {
-                    // for (let i = 0; i < this.circles.length; i++) {
-                    //     setTimeout(() => {
-                    //         this.circles[this.circles.length - i - 1].switchState();
-                    //     }, this.pulsetime / 4 * i);
-                    // }
-                }
             })
     }
 
@@ -66,15 +23,9 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         if (chargeAbsolute != null && chargeAbsolute > 0) {
             this.name = this.translate.instant('Device.Overview.Energymonitor.StorageCharge')
             super.updateValue(chargeAbsolute, valueRatio, sumChargeRatio);
-            this.state = "charging";
         } else {
             this.name = this.translate.instant('Device.Overview.Energymonitor.StorageDischarge')
             super.updateValue(dischargeAbsolute, valueRatio, sumDischargeRatio * -1);
-            if (dischargeAbsolute > 0) {
-                this.state = "discharging";
-            } else {
-                this.state = "standby";
-            }
         }
         if (valueRatio != null) {
             this.valueText2 = valueRatio + " %";

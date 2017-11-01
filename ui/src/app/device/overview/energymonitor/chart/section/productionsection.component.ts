@@ -1,61 +1,16 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from "rxjs/Rx";
 
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
 
-let PULSE = 1000;
-
 @Component({
     selector: '[productionsection]',
-    templateUrl: './section.component.html',
-    animations: [
-        trigger('circle', [
-            state('one', style({
-                r: 7,
-                fill: 'none',
-                stroke: 'white'
-            })),
-            state('two', style({
-                r: 7,
-                fill: 'none',
-                stroke: '#008DD2'
-            })),
-            state('three', style({
-                r: 7,
-                fill: 'none',
-                stroke: 'none'
-            })),
-            transition('one => two', animate(PULSE + 'ms')),
-            transition('two => one', animate(PULSE + 'ms'))
-        ])
-    ]
+    templateUrl: './section.component.html'
 })
-export class ProductionSectionComponent extends AbstractSection implements OnInit {
+export class ProductionSectionComponent extends AbstractSection {
 
     constructor(translate: TranslateService) {
         super('General.Production', "up", 316, 404, "#008DD2", translate);
-    }
-
-    ngOnInit() {
-        Observable.interval(this.pulsetime)
-            .subscribe(x => {
-                // if (this.lastValue.absolute > 0) {
-                // for (let i = 0; i < this.circles.length; i++) {
-                //     setTimeout(() => {
-                //         this.circles[this.circles.length - i - 1].switchState();
-                //     }, this.pulsetime / 4 * i);
-                // }
-                // } else if (this.lastValue.absolute == 0) {
-                // for (let i = 0; i < this.circles.length; i++) {
-                //     this.circles[this.circles.length - i - 1].hide();
-                // }
-                // } else {
-                // for (let i = 0; i < this.circles.length; i++) {
-                //     this.circles[this.circles.length - i - 1].switchState();
-                // }
-                // }
-            })
     }
 
     /**

@@ -1,67 +1,17 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from "rxjs/Rx";
 
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
 
-let PULSE = 1000;
-
 @Component({
     selector: '[gridsection]',
-    templateUrl: './section.component.html',
-    animations: [
-        trigger('circle', [
-            state('one', style({
-                r: 7,
-                fill: 'none',
-                stroke: 'white'
-            })),
-            state('two', style({
-                r: 7,
-                fill: 'none',
-                stroke: '#1d1d1d'
-            })),
-            state('three', style({
-                r: 7,
-                fill: 'none',
-                stroke: 'none'
-            })),
-
-
-            transition('one => two', animate(PULSE + 'ms')),
-            transition('two => one', animate(PULSE + 'ms'))
-        ])
-    ]
+    templateUrl: './section.component.html'
 })
-
-export class GridSectionComponent extends AbstractSection implements OnInit {
+export class GridSectionComponent extends AbstractSection {
     private sellToGrid: boolean;
 
     constructor(translate: TranslateService) {
         super('General.Grid', "left", 226, 314, "#1d1d1d", translate);
-    }
-
-    ngOnInit() {
-        Observable.interval(this.pulsetime)
-            .subscribe(x => {
-                if (this.sellToGrid) {
-                    // for (let i = 0; i < this.circles.length; i++) {
-                    //     setTimeout(() => {
-                    //         this.circles[i].switchState();
-                    //     }, this.pulsetime / 4 * i);
-                    // }
-                } else if (!this.sellToGrid) {
-                    // for (let i = 0; i < this.circles.length; i++) {
-                    //     setTimeout(() => {
-                    //         this.circles[this.circles.length - i - 1].switchState();
-                    //     }, this.pulsetime / 4 * i);
-                    // }
-                } else if (this.sellToGrid == null) {
-                    // for (let i = 0; i < this.circles.length; i++) {
-                    //     this.circles[i].hide();
-                    // }
-                }
-            })
     }
 
     public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number) {
