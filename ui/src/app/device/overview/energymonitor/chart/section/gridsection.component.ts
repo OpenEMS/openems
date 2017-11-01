@@ -2,7 +2,7 @@ import { Component, OnInit, trigger, state, style, transition, animate } from '@
 import { TranslateService } from '@ngx-translate/core';
 import { Observable } from "rxjs/Rx";
 
-import { AbstractSection, SvgSquarePosition, SvgSquare } from './abstractsection.component';
+import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
 
 let PULSE = 1000;
 
@@ -105,5 +105,27 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
         }
 
         return value + " W";
+    }
+
+    protected initEnergyFlow(radius: number): EnergyFlow {
+        return new EnergyFlow(radius, { x1: "100%", y1: "50%", x2: "0%", y2: "50%" });
+    }
+
+    protected getSvgEnergyFlow(ratio: number, r: number, v: number): SvgEnergyFlow {
+        let p = {
+            topLeft: { x: r * -1, y: v * -1 },
+            middleLeft: { x: r * -1 + v, y: 0 },
+            bottomLeft: { x: r * -1, y: v },
+            topRight: { x: v * -1, y: v * -1 },
+            bottomRight: { x: v * -1, y: v },
+            middleRight: { x: 0, y: 0 }
+        }
+        if (ratio > 0) {
+            // towards left
+            p.topLeft.x = p.topLeft.x + v;
+            p.middleLeft.x = p.middleLeft.x - v;
+            p.bottomLeft.x = p.bottomLeft.x + v;
+        }
+        return p;
     }
 }

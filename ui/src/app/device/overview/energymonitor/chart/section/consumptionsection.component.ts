@@ -2,7 +2,7 @@ import { Component, OnInit, trigger, state, style, transition, animate } from '@
 import { Observable } from "rxjs/Rx";
 import { TranslateService } from '@ngx-translate/core';
 
-import { AbstractSection, SvgSquarePosition, SvgSquare } from './abstractsection.component';
+import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
 
 let PULSE = 1000;
 
@@ -88,5 +88,27 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         }
 
         return value + " W";
+    }
+
+    protected initEnergyFlow(radius: number): EnergyFlow {
+        return new EnergyFlow(radius, { x1: "0%", y1: "50%", x2: "100%", y2: "50%" });
+    }
+
+    protected getSvgEnergyFlow(ratio: number, r: number, v: number): SvgEnergyFlow {
+        let p = {
+            topLeft: { x: v, y: v * -1 },
+            middleLeft: { x: 0, y: 0 },
+            bottomLeft: { x: v, y: v },
+            topRight: { x: r, y: v * -1 },
+            bottomRight: { x: r, y: v },
+            middleRight: { x: r - v, y: 0 }
+        }
+        if (ratio > 0) {
+            // towards right
+            p.topRight.x = p.topRight.x - v;
+            p.middleRight.x = p.middleRight.x + v;
+            p.bottomRight.x = p.bottomRight.x - v;
+        }
+        return p;
     }
 }

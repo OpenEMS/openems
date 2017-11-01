@@ -44,102 +44,39 @@ export class SvgImagePosition {
     ) { }
 }
 
+export interface SvgEnergyFlow {
+    topLeft: { x: number, y: number },
+    middleLeft?: { x: number, y: number },
+    bottomLeft: { x: number, y: number },
+    middleBottom?: { x: number, y: number },
+    bottomRight: { x: number, y: number },
+    middleRight?: { x: number, y: number },
+    topRight: { x: number, y: number },
+    middleTop?: { x: number, y: number }
+}
+
 export class EnergyFlow {
     public points: string = "";
 
     constructor(
-        private direction: "left" | "right" | "down" | "up",
-        private radius: number,
-    ) {
-
-    }
-
-    public update(ratio: number) {
-        if (ratio == 0) {
-            this.points = "";
-        } else {
-            let r = this.radius;
-            let v = Math.abs(Math.round(ratio * 10));
-            let p: {
-                topLeft: { x: number, y: number },
-                middleLeft?: { x: number, y: number },
-                bottomLeft: { x: number, y: number },
-                middleBottom?: { x: number, y: number },
-                bottomRight: { x: number, y: number },
-                middleRight?: { x: number, y: number },
-                topRight: { x: number, y: number },
-                middleTop?: { x: number, y: number }
-            };
-            if (this.direction == "left") {
-                p = {
-                    topLeft: { x: r * -1, y: v * -1 },
-                    middleLeft: { x: r * -1 + v, y: 0 },
-                    bottomLeft: { x: r * -1, y: v },
-                    topRight: { x: 0, y: v * -1 },
-                    bottomRight: { x: 0, y: v },
-                    middleRight: { x: 0, y: 0 }
-                }
-                if (ratio > 0) {
-                    // towards left
-                    p.topLeft.x = p.topLeft.x + v;
-                    p.middleLeft.x = p.middleLeft.x - v;
-                    p.bottomLeft.x = p.bottomLeft.x + v;
-                }
-            } else if (this.direction == "right") {
-                p = {
-                    topLeft: { x: v, y: v * -1 },
-                    middleLeft: { x: 0, y: 0 },
-                    bottomLeft: { x: v, y: v },
-                    topRight: { x: r, y: v * -1 },
-                    bottomRight: { x: r, y: v },
-                    middleRight: { x: r - v, y: 0 }
-                }
-                if (ratio > 0) {
-                    // towards right
-                    p.topRight.x = p.topRight.x - v;
-                    p.middleRight.x = p.middleRight.x + v;
-                    p.bottomRight.x = p.bottomRight.x - v;
-                }
-            } else if (this.direction == "up") {
-                p = {
-                    topLeft: { x: v * -1, y: r * -1 },
-                    bottomLeft: { x: v * -1, y: v * -1 },
-                    topRight: { x: v, y: r * -1 },
-                    bottomRight: { x: v, y: v * -1 },
-                    middleBottom: { x: 0, y: 0 },
-                    middleTop: { x: 0, y: r * -1 + v }
-                }
-                if (ratio > 0) {
-                    // towards top
-                    p.topLeft.y = p.topLeft.y + v;
-                    p.middleTop.y = p.middleTop.y - v;
-                    p.topRight.y = p.topRight.y + v;
-                }
-            } else if (this.direction == "down") {
-                p = {
-                    topLeft: { x: v * -1, y: v },
-                    bottomLeft: { x: v * -1, y: r },
-                    topRight: { x: v, y: v },
-                    bottomRight: { x: v, y: r },
-                    middleBottom: { x: 0, y: r - v },
-                    middleTop: { x: 0, y: 0 }
-                }
-                if (ratio > 0) {
-                    // towards bottom
-                    p.bottomLeft.y = p.bottomLeft.y - v;
-                    p.middleBottom.y = p.middleBottom.y + v;
-                    p.bottomRight.y = p.bottomRight.y - v;
-                }
-            }
-            this.points = p.topLeft.x + "," + p.topLeft.y
-                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
-                + " " + p.topRight.x + "," + p.topRight.y
-                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
-                + " " + p.bottomRight.x + "," + p.bottomRight.y
-                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
-                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
-                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+        public radius: number,
+        public gradient: {
+            x1: string,
+            y1: string,
+            x2: string,
+            y2: string
         }
+    ) { }
+
+    public update(p: SvgEnergyFlow) {
+        this.points = p.topLeft.x + "," + p.topLeft.y
+            + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
+            + " " + p.topRight.x + "," + p.topRight.y
+            + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
+            + " " + p.bottomRight.x + "," + p.bottomRight.y
+            + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
+            + " " + p.bottomLeft.x + "," + p.bottomLeft.y
+            + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
     }
 
     public state: "one" | "two" | "three" = "one";
@@ -187,7 +124,7 @@ export abstract class AbstractSection {
         protected translate: TranslateService
     ) {
         this.name = translate.instant(translateName);
-        this.energyFlow = new EnergyFlow(direction, 0);
+        this.energyFlow = this.initEnergyFlow(0);
     }
 
     /**
@@ -203,7 +140,7 @@ export abstract class AbstractSection {
             .startAngle(this.deg2rad(this.getValueStartAngle()))
             .endAngle(this.deg2rad(valueEndAngle));
         this.valuePath = valueArc();
-        this.energyFlow.update(sumRatio);
+        this.energyFlow.update(this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, Math.abs(Math.round(sumRatio * 10))));
     }
 
     /**
@@ -229,7 +166,7 @@ export abstract class AbstractSection {
          * energy flow rectangle
          */
         let availableInnerRadius = innerRadius - this.square.image.y - this.square.image.length - 10;
-        this.energyFlow = new EnergyFlow(this.direction, availableInnerRadius);
+        this.energyFlow = this.initEnergyFlow(availableInnerRadius);
 
         // now update also the value specific elements
         this.updateValue(this.lastValue.valueAbsolute, this.lastValue.valueRatio, this.lastValue.sumRatio);
@@ -269,6 +206,8 @@ export abstract class AbstractSection {
     protected abstract getImagePath(): string;
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
+    protected abstract initEnergyFlow(radius: number): EnergyFlow;
+    protected abstract getSvgEnergyFlow(ratio: number, r: number, v: number): SvgEnergyFlow;
 
     protected getValueRatio(valueRatio: number): number {
         if (valueRatio > 100) {
