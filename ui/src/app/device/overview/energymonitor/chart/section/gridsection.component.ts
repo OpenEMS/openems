@@ -1,83 +1,30 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from "rxjs/Rx";
 
-import { AbstractSection, SvgSquarePosition, SvgSquare, CircleDirection, Circle } from './abstractsection.component';
-
-let PULSE = 1000;
+import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
 
 @Component({
     selector: '[gridsection]',
-    templateUrl: './section.component.html',
-    animations: [
-        trigger('circle', [
-            state('one', style({
-                r: 7,
-                fill: 'none',
-                stroke: 'white'
-            })),
-            state('two', style({
-                r: 7,
-                fill: 'none',
-                stroke: '#1d1d1d'
-            })),
-            state('three', style({
-                r: 7,
-                fill: 'none',
-                stroke: 'none'
-            })),
-
-
-            transition('one => two', animate(PULSE + 'ms')),
-            transition('two => one', animate(PULSE + 'ms'))
-        ])
-    ]
+    templateUrl: './section.component.html'
 })
-
-export class GridSectionComponent extends AbstractSection implements OnInit {
-    private sellToGrid: boolean;
+export class GridSectionComponent extends AbstractSection {
 
     constructor(translate: TranslateService) {
-        super('General.Grid', 226, 314, "#1d1d1d", translate);
+        super('General.Grid', "left", 226, 314, "#1d1d1d", translate);
     }
 
-    ngOnInit() {
-        Observable.interval(this.pulsetime)
-            .subscribe(x => {
-                if (this.sellToGrid) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[i].switchState();
-                        }, this.pulsetime / 4 * i);
-                    }
-                } else if (!this.sellToGrid) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        setTimeout(() => {
-                            this.circles[this.circles.length - i - 1].switchState();
-                        }, this.pulsetime / 4 * i);
-                    }
-                } else if (this.sellToGrid == null) {
-                    for (let i = 0; i < this.circles.length; i++) {
-                        this.circles[i].hide();
-                    }
-                }
-            })
-    }
-
-    public updateGridValue(buyAbsolute: number, sellAbsolute: number, ratio: number) {
+    public updateGridValue(buyAbsolute: number, sellAbsolute: number, valueRatio: number, sumBuyRatio: number, sumSellRatio: number) {
+        valueRatio = valueRatio / 2; // interval from -50 to 50
         if (buyAbsolute != null && buyAbsolute > 0) {
             this.name = this.translate.instant('General.GridBuy');
-            this.sellToGrid = false;
-            super.updateValue(buyAbsolute, ratio);
-        } else {
+            super.updateValue(buyAbsolute, valueRatio, sumBuyRatio * -1);
+        } else if (sellAbsolute != null && sellAbsolute > 0) {
             this.name = this.translate.instant('General.GridSell');
-            this.sellToGrid = true;
-            super.updateValue(sellAbsolute, ratio);
+            super.updateValue(sellAbsolute, valueRatio, sumSellRatio);
+        } else {
+            this.name = this.translate.instant('General.Grid')
+            super.updateValue(0, 0, 0);
         }
-    }
-
-    protected getCircleDirection(): CircleDirection {
-        return new CircleDirection("left");
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
@@ -109,5 +56,27 @@ export class GridSectionComponent extends AbstractSection implements OnInit {
         }
 
         return value + " W";
+    }
+
+    protected initEnergyFlow(radius: number): EnergyFlow {
+        return new EnergyFlow(radius, { x1: "100%", y1: "50%", x2: "0%", y2: "50%" });
+    }
+
+    protected getSvgEnergyFlow(ratio: number, r: number, v: number): SvgEnergyFlow {
+        let p = {
+            topLeft: { x: r * -1, y: v * -1 },
+            middleLeft: { x: r * -1 + v, y: 0 },
+            bottomLeft: { x: r * -1, y: v },
+            topRight: { x: v * -1, y: v * -1 },
+            bottomRight: { x: v * -1, y: v },
+            middleRight: { x: 0, y: 0 }
+        }
+        if (ratio > 0) {
+            // towards left
+            p.topLeft.x = p.topLeft.x + v;
+            p.middleLeft.x = p.middleLeft.x - v;
+            p.bottomLeft.x = p.bottomLeft.x + v;
+        }
+        return p;
     }
 }

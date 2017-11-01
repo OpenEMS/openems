@@ -68,15 +68,19 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
        * Set values for energy monitor
        */
       let summary = currentData.summary;
-      this.storageSection.updateStorageValue(summary.storage.chargeActivePower, summary.storage.dischargeActivePower, summary.storage.soc);
-      this.gridSection.updateGridValue(summary.grid.buyActivePower, summary.grid.sellActivePower, summary.grid.powerRatio);
-      this.consumptionSection.updateValue(Math.round(summary.consumption.activePower), Math.round(summary.consumption.powerRatio));
-      this.productionSection.updateValue(summary.production.activePower, summary.production.powerRatio);
+      // calculate sum for sumRatio
+      let producersAbsolute = Math.abs(summary.storage.dischargeActivePower + summary.grid.buyActivePower + summary.production.activePower);
+      let consumersAbsolute = Math.abs(summary.storage.chargeActivePower + summary.grid.sellActivePower + summary.consumption.activePower);
+
+      this.storageSection.updateStorageValue(summary.storage.chargeActivePower, summary.storage.dischargeActivePower, summary.storage.soc, summary.storage.chargeActivePower / consumersAbsolute, summary.storage.dischargeActivePower / producersAbsolute);
+      this.gridSection.updateGridValue(summary.grid.buyActivePower, summary.grid.sellActivePower, summary.grid.powerRatio, summary.grid.buyActivePower / producersAbsolute, summary.grid.sellActivePower / consumersAbsolute);
+      this.consumptionSection.updateValue(Math.round(summary.consumption.activePower), Math.round(summary.consumption.powerRatio), summary.consumption.activePower / consumersAbsolute);
+      this.productionSection.updateValue(summary.production.activePower, summary.production.powerRatio, summary.production.activePower / producersAbsolute);
     } else {
-      this.storageSection.updateStorageValue(null, null, null);
-      this.gridSection.updateGridValue(null, null, null);
-      this.consumptionSection.updateValue(null, null);
-      this.productionSection.updateValue(null, null);
+      this.storageSection.updateStorageValue(null, null, null, null, null);
+      this.gridSection.updateGridValue(null, null, null, null, null);
+      this.consumptionSection.updateValue(null, null, null);
+      this.productionSection.updateValue(null, null, null);
     }
   }
 
@@ -84,7 +88,11 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
    * This method is called on every change of resolution of the browser window.
    */
   private updateOnWindowResize(): void {
-    this.height = this.width = this.chartDiv.nativeElement.offsetParent.offsetWidth;
+    let size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 10;
+    if (size > window.innerHeight) {
+      size = window.innerHeight;
+    }
+    this.height = this.width = size;
     this.translation = `translate(${this.width / 2}, ${this.height / 2})`;
     var outerRadius = Math.min(this.width, this.height) / 2;
     var innerRadius = outerRadius - (outerRadius * 0.1378);

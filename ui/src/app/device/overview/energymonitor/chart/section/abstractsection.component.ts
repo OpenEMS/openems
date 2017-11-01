@@ -44,13 +44,42 @@ export class SvgImagePosition {
     ) { }
 }
 
-export class Circle {
-    public state: "one" | "two" | "three" = "one";
+export interface SvgEnergyFlow {
+    topLeft: { x: number, y: number },
+    middleLeft?: { x: number, y: number },
+    bottomLeft: { x: number, y: number },
+    middleBottom?: { x: number, y: number },
+    bottomRight: { x: number, y: number },
+    middleRight?: { x: number, y: number },
+    topRight: { x: number, y: number },
+    middleTop?: { x: number, y: number }
+}
+
+export class EnergyFlow {
+    public points: string = "";
+
     constructor(
-        public x: number,
-        public y: number,
-        public radius: number
+        public radius: number,
+        public gradient: {
+            x1: string,
+            y1: string,
+            x2: string,
+            y2: string
+        }
     ) { }
+
+    public update(p: SvgEnergyFlow) {
+        this.points = p.topLeft.x + "," + p.topLeft.y
+            + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
+            + " " + p.topRight.x + "," + p.topRight.y
+            + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
+            + " " + p.bottomRight.x + "," + p.bottomRight.y
+            + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
+            + " " + p.bottomLeft.x + "," + p.bottomLeft.y
+            + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+    }
+
+    public state: "one" | "two" | "three" = "one";
 
     public switchState() {
         if (this.state == 'one') {
@@ -67,17 +96,11 @@ export class Circle {
     }
 }
 
-export class CircleDirection {
-    constructor(
-        public direction: "left" | "right" | "down" | "up"
-    ) { }
-}
-
 export abstract class AbstractSection {
 
     public valuePath: string = "";
     public outlinePath: string = "";
-    public circles: Circle[] = [];
+    public energyFlow: EnergyFlow;
     public square: SvgSquare;
     public squarePosition: SvgSquarePosition;
     public name: string = "";
@@ -89,33 +112,34 @@ export abstract class AbstractSection {
     protected outerRadius: number = 0;
     protected height: number = 0;
     protected width: number = 0;
-    protected pulsetime = 2000;
-
-    protected lastValue = { absolute: 0, ratio: 0 };
+    protected lastValue = { valueAbsolute: 0, valueRatio: 0, sumRatio: 0 };
 
     constructor(
         translateName: string,
+        protected direction: "left" | "right" | "down" | "up" = "left",
         protected startAngle: number,
         protected endAngle: number,
         public color: string,
         protected translate: TranslateService
     ) {
         this.name = translate.instant(translateName);
+        this.energyFlow = this.initEnergyFlow(0);
     }
 
     /**
      * This method is called on every change of values.
      */
-    protected updateValue(absolute: number, ratio: number) {
+    protected updateValue(valueAbsolute: number, valueRatio: number, sumRatio: number) {
         // TODO smoothly resize the arc
-        this.lastValue = { absolute: absolute, ratio: ratio };
-        this.valueRatio = this.getValueRatio(ratio);
-        this.valueText = this.getValueText(absolute);
+        this.lastValue = { valueAbsolute: valueAbsolute, valueRatio: valueRatio, sumRatio: sumRatio };
+        this.valueRatio = this.getValueRatio(valueRatio);
+        this.valueText = this.getValueText(valueAbsolute);
         let valueEndAngle = ((this.endAngle - this.startAngle) * this.valueRatio) / 100 + this.getValueStartAngle();
         let valueArc = this.getArc()
             .startAngle(this.deg2rad(this.getValueStartAngle()))
             .endAngle(this.deg2rad(valueEndAngle));
         this.valuePath = valueArc();
+        this.energyFlow.update(this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, Math.abs(Math.round(sumRatio * 10))));
     }
 
     /**
@@ -132,39 +156,19 @@ export abstract class AbstractSection {
         this.outlinePath = outlineArc();
 
         /**
-         * calculate square
+         * imaginary positioning "square"
          */
         this.square = this.getSquare(innerRadius);
         this.squarePosition = this.getSquarePosition(this.square, innerRadius);
 
         /**
-         * Calculate Circles
+         * energy flow rectangle
          */
-        let circleDirection = this.getCircleDirection();
-        let availableInnerRadius = innerRadius - this.square.image.y - this.square.image.length;
-        let radius = Math.round(availableInnerRadius * 0.1);
-        let space = {
-            min: radius * 2,
-            max: innerRadius - this.square.image.y - this.square.image.length - 2 * radius
-        }
-        let fact = { x: 0, y: 0 };
-        if (circleDirection.direction == "left") {
-            fact = { x: -1, y: 0 };
-        } else if (circleDirection.direction == "right") {
-            fact = { x: 1, y: 0 };
-        } else if (circleDirection.direction == "up") {
-            fact = { x: 0, y: -1 };
-        } else if (circleDirection.direction == "down") {
-            fact = { x: 0, y: 1 };
-        }
-        let noOfCircles = 3;
-        this.circles = [];
-        for (let i = 0; i <= 1; i = i + 1 / (noOfCircles - 1)) {
-            this.circles.push(new Circle(((space.max - space.min) * i + space.min) * fact.x, ((space.max - space.min) * i + space.min) * fact.y, radius));
-        }
+        let availableInnerRadius = innerRadius - this.square.image.y - this.square.image.length - 10;
+        this.energyFlow = this.initEnergyFlow(availableInnerRadius);
 
         // now update also the value specific elements
-        this.updateValue(this.lastValue.absolute, this.lastValue.ratio);
+        this.updateValue(this.lastValue.valueAbsolute, this.lastValue.valueRatio, this.lastValue.sumRatio);
     }
 
     /**
@@ -200,8 +204,9 @@ export abstract class AbstractSection {
 
     protected abstract getImagePath(): string;
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
-    protected abstract getCircleDirection(): CircleDirection;
     protected abstract getValueText(value: number): string;
+    protected abstract initEnergyFlow(radius: number): EnergyFlow;
+    protected abstract getSvgEnergyFlow(ratio: number, r: number, v: number): SvgEnergyFlow;
 
     protected getValueRatio(valueRatio: number): number {
         if (valueRatio > 100) {
