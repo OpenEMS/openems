@@ -94,11 +94,11 @@ export class CurrentDataAndSummary {
                 if (activePower > 0) {
                     result.grid.sellActivePower = 0;
                     result.grid.buyActivePower = activePower;
-                    ratio = result.grid.buyActivePower / maxSell;
+                    ratio = result.grid.buyActivePower / maxSell * 100;
                 } else {
                     result.grid.sellActivePower = activePower * -1;
                     result.grid.buyActivePower = 0;
-                    ratio = result.grid.sellActivePower / maxSell * -1;
+                    ratio = result.grid.sellActivePower / maxSell * -100;
                 }
             }
             result.grid.powerRatio = ratio;
