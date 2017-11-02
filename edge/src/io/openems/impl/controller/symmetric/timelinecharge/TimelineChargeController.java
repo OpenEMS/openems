@@ -157,8 +157,16 @@ public class TimelineChargeController extends Controller {
 			double requiredEnergy = (essCapacity / 100.0 * socPoint.getSoc())
 					- (essCapacity / 100.0 * essSoc);
 			long requiredTimeCharger = (long) (requiredEnergy / floatingChargerPower.avg() * 3600.0);
+			// limit time to one day
+			if(requiredTimeCharger > 60*60*24) {
+				requiredTimeCharger = 60*60*24;
+			}
 			long requiredTimeGrid = (long) (requiredEnergy / (floatingChargerPower.avg() + allowedApparentCharge)
 					* 3600.0);
+			// limit time to one day
+			if(requiredTimeGrid > 60*60*24) {
+				requiredTimeGrid = 60*60*24;
+			}
 			log.info("RequiredTimeCharger: " + requiredTimeCharger + ", RequiredTimeGrid: " + requiredTimeGrid);
 			if (floatingChargerPower.avg() >= 1000
 					&& !LocalDateTime.now().plusSeconds(requiredTimeCharger).isBefore(socPoint.getTime())
