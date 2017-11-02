@@ -1,7 +1,8 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
-import { Observable } from "rxjs/Rx";
+import { Observable } from "rxjs/Observable";
+import 'rxjs/add/observable/interval';
 
 @Component({
     selector: '[storagesection]',

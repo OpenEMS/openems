@@ -25,7 +25,7 @@
     "@angular/material": "2.0.0-beta.12",
     "@angular/platform-browser": "^5.0.0",
     "@angular/platform-browser-dynamic": "^5.0.0",
-    "@angular/platform-server": "^4.2.4",
+    "@angular/platform-server": "^5.0.0",
     "@angular/router": "^5.0.0",
     "@ngx-translate/core": "^8.0.0",
     "@types/d3": "4.11.0",

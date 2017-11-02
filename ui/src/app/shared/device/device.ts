@@ -4,6 +4,7 @@ import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observer } from 'rxjs/Observer';
 import { Observable } from 'rxjs/Observable';
 import { UUID } from 'angular2-uuid';
+import 'rxjs/add/operator/combineLatest';
 
 import { Websocket } from '../shared';
 import { ConfigImpl } from './config';
