@@ -177,28 +177,6 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 								setControlMode = new ModbusWriteLongChannel("SetControlMode", this).label(802, START).label(803, STOP)), //
 						new SignedDoublewordElement(40153,
 								setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this).unit("Var"))));
-		//		allowedCharge = new FunctionalReadChannel<Long>("AllowedCharge", this, new FunctionalReadChannelFunction<Long>() {
-		//
-		//			@Override
-		//			public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-		//				if(channels.length == 2 && channels[0].valueOptional().isPresent() && channels[1].valueOptional().isPresent()) {
-		//					return (channels[0].valueOptional().get()/1000)*(channels[1].valueOptional().get()/1000)*-1;
-		//				}
-		//				return null;
-		//			}
-		//
-		//		},batteryVoltage,allowedChargeCurrent);
-		//		allowedDischarge = new FunctionalReadChannel<Long>("AllowedCharge", this, new FunctionalReadChannelFunction<Long>() {
-		//
-		//			@Override
-		//			public Long handle(ReadChannel<Long>... channels) throws InvalidValueException {
-		//				if(channels.length == 2 && channels[0].valueOptional().isPresent() && channels[1].valueOptional().isPresent()) {
-		//					return (channels[0].valueOptional().get()/1000)*(channels[1].valueOptional().get()/1000);
-		//				}
-		//				return null;
-		//			}
-		//
-		//		},batteryVoltage,allowedDischargeCurrent);
 		return protokol;
 	}
 
