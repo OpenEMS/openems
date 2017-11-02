@@ -23,7 +23,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         if (chargeAbsolute != null && chargeAbsolute > 0) {
             this.name = this.translate.instant('Device.Overview.Energymonitor.StorageCharge')
             super.updateValue(chargeAbsolute, valueRatio, sumChargeRatio);
-        } if (dischargeAbsolute != null && dischargeAbsolute > 0) {
+        } else if (dischargeAbsolute != null && dischargeAbsolute > 0) {
             this.name = this.translate.instant('Device.Overview.Energymonitor.StorageDischarge')
             super.updateValue(dischargeAbsolute, valueRatio, sumDischargeRatio * -1);
         } else {
