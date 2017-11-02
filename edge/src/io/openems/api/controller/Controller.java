@@ -63,7 +63,11 @@ public abstract class Controller implements Thing {
 
 	public void executeRun() {
 		long beforeRun = System.currentTimeMillis();
-		run();
+		try {
+			run();
+		} catch (Throwable e) {
+			log.error("execution of Controller ["+id()+"] failed. "+e.getMessage());
+		}
 		requiredTime.setValue(System.currentTimeMillis() - beforeRun);
 	}
 
