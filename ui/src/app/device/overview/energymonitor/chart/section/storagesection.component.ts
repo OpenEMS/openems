@@ -31,7 +31,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             super.updateValue(0, 0, 0);
         }
         if (valueRatio != null) {
-            this.valueText2 = valueRatio + " %";
+            this.valueText2 = Math.round(valueRatio) + " %";
         } else {
             this.valueText2 = "";
         }
