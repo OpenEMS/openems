@@ -116,8 +116,6 @@ public class InfluxdbSingleton implements TimedataSingleton {
 			// Prepare data table
 			for (Entry<Long, JsonObject> dataEntry : sortedData.entrySet()) {
 				Long timestamp = dataEntry.getKey();
-				// use lastDataCache only if we receive the latest data and cache is not elder than 1 minute
-				boolean useLastDataCache = timestamp > lastTimestamp && timestamp < lastTimestamp + 60000;
 				this.lastTimestampMap.put(deviceId, timestamp);
 				JsonObject jChannels = dataEntry.getValue();
 
@@ -128,14 +126,16 @@ public class InfluxdbSingleton implements TimedataSingleton {
 						if (valueOpt.isPresent()) {
 							Object value = valueOpt.get();
 							data.put(timestamp, channel, value);
-							if (useLastDataCache) {
+							// add to cache
+							if (timestamp > lastTimestamp) {
 								this.lastDataCache.put(deviceId, channel, value);
 							}
 						}
 					}
 
 					// only for latest data: add the cached data to the InfluxDB point.
-					if (useLastDataCache) {
+					// if we receive the latest data and cache is not elder than 10 minutes
+					if (timestamp > lastTimestamp && timestamp < lastTimestamp + 10 * 60 * 1000) {
 						for (Entry<String, Object> cacheEntry : this.lastDataCache.row(deviceId).entrySet()) {
 							String channel = cacheEntry.getKey();
 							Optional<Object> valueOpt = this.parseValue(channel, cacheEntry.getValue());

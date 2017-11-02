@@ -11,13 +11,13 @@ import java.net.URLEncoder;
 
 import org.apache.xmlrpc.XmlRpcException;
 
-import com.abercap.odoo.OdooApiException;
-import com.abercap.odoo.Session;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.odoojava.api.OdooApiException;
+import com.odoojava.api.Session;
 
 import io.openems.backend.browserwebsocket.session.BrowserSession;
 import io.openems.backend.browserwebsocket.session.BrowserSessionData;

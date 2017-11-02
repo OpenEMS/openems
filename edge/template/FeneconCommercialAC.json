@@ -2,7 +2,7 @@
 	"things": [
 		{
 			"class": "io.openems.impl.protocol.modbus.ModbusTcp",
-			"ip": "10.4.0.10",
+			"ip": "10.4.0.15",
 			"devices": [
 				{
 					"class": "io.openems.impl.device.commercial.FeneconCommercialAC",
@@ -54,9 +54,11 @@
 				"meter": "meter0"
 			},
 			{
+				"class": "io.openems.impl.controller.symmetric.commercialworkstate.AlwaysOnController",
 				"priority": 0,
-				"class": "io.openems.impl.controller.symmetric.commercialenergysaver.EnergysavingController",
-				"esss": "ess0"
+				"esss": [
+					"ess0"
+				]
 			}
 		]
 	},

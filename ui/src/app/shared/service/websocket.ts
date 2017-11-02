@@ -6,6 +6,7 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import websocketConnect from 'rxjs-websockets';
 import 'rxjs/add/operator/timeout';
+import 'rxjs/add/operator/takeUntil';
 
 import { environment as env } from '../../../environments';
 import { Service } from './service';

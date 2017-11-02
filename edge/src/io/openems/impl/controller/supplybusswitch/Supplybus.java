@@ -92,7 +92,12 @@ public class Supplybus {
 				}
 			}
 		}
-		log.info(state.toString());
+		StringBuilder sb = new StringBuilder(state.toString());
+		if(activeEss != null) {
+			sb.append(" ");
+			sb.append(activeEss.id());
+		}
+		log.info(sb.toString());
 		switch (state) {
 		case CONNECTED: {
 			Ess active;
@@ -104,7 +109,7 @@ public class Supplybus {
 					// check if ess is empty
 					if ((active.gridMode.labelOptional().equals(Optional.of(EssNature.OFF_GRID))
 							&& active.soc.value() < active.minSoc.value())
-							|| active.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))) {
+							|| active.systemState.labelOptional().equals(Optional.of(EssNature.FAULT))|| active.systemState.labelOptional().equals(Optional.of(EssNature.STOP))) {
 						state = State.DISCONNECTING;
 					} else {
 						if (supplybusOnIndication != null) {
@@ -120,7 +125,7 @@ public class Supplybus {
 				state = State.DISCONNECTING;
 			}
 		}
-			break;
+		break;
 		case CONNECTING: {
 			// if not connected send connect command again
 			if (isConnected()) {
@@ -149,7 +154,7 @@ public class Supplybus {
 				}
 			}
 		}
-			break;
+		break;
 		case DISCONNECTED: {
 			Ess mostLoad = getLargestSoc();
 			// only connect if soc is larger than minSoc + 5 or Ess is On-Grid
@@ -184,7 +189,7 @@ public class Supplybus {
 				}
 			}
 		}
-			break;
+		break;
 		case DISCONNECTING: {
 			// if not disconnected send disconnect command again
 			if (isDisconnected()) {
@@ -215,13 +220,14 @@ public class Supplybus {
 				}
 			}
 		}
-			break;
+		break;
 		case UNKNOWN: {
 			try {
 				activeEss = getActiveEss();
 				if (activeEss != null && activeEss.getActiveSupplybus() == null) {
 					state = State.CONNECTED;
 					activeEss.setActiveSupplybus(this);
+					activeEss.start();
 				} else {
 					state = State.DISCONNECTING;
 				}
@@ -229,7 +235,7 @@ public class Supplybus {
 				disconnect();
 			}
 		}
-			break;
+		break;
 		default:
 			break;
 

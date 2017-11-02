@@ -78,12 +78,19 @@ public class App {
 			Config config = Config.initialize(configPath);
 			config.readConfigFile();
 		} catch (Exception e) {
-			log.error("OpenEMS Edge start failed: " + e.getMessage());
-			e.printStackTrace();
-			System.exit(1);
+			App.shutdownWithError("OpenEMS Edge start failed", e);
 		}
 
 		log.info("OpenEMS Edge started");
 		log.info("================================================================================");
+	}
+
+	public static void shutdownWithError(String message, Throwable t) {
+		log.info("================================================================================");
+		log.error(message + ": " + t.getMessage());
+		t.printStackTrace();
+		log.info("Exiting OpenEMS Edge");
+		log.info("================================================================================");
+		System.exit(1);
 	}
 }

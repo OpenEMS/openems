@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material';
 import { Subject } from 'rxjs/Subject';
+import 'rxjs/add/operator/takeUntil';
 import { TranslateService } from '@ngx-translate/core';
 
 import { environment } from '../environments';

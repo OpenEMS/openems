@@ -33,10 +33,10 @@
 		</rollingPolicy>
 		<triggeringPolicy
 			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<maxFileSize>5KB</maxFileSize>
+			<maxFileSize>1MB</maxFileSize>
 		</triggeringPolicy>
 		<encoder>
-			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]%msg%ex{10}%n</pattern>
+			<pattern>%d{"yyyy/MM/dd HH:mm:ss"} : [%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]%msg%ex{10}%n</pattern>
 		</encoder>
 	</appender>
 	<root level="INFO">

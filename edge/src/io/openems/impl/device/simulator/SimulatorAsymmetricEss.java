@@ -53,7 +53,7 @@ import io.openems.test.utils.channel.UnitTestWriteChannel;
 
 @ThingInfo(title = "Simulator ESS")
 public class SimulatorAsymmetricEss extends SimulatorDeviceNature
-		implements AsymmetricEssNature, ChannelChangeListener {
+implements AsymmetricEssNature, ChannelChangeListener {
 
 	private List<ChargerNature> chargerList;
 	private ThingRepository repo = ThingRepository.getInstance();
@@ -74,34 +74,23 @@ public class SimulatorAsymmetricEss extends SimulatorDeviceNature
 		long initialSoc = SimulatorTools.addRandomLong(90, 90, 100, 5);
 		this.energy = capacity.valueOptional().get() / 100 * initialSoc;
 		this.soc = new FunctionalReadChannel<Long>("Soc", this, (channels) -> {
-			try {
-				energy -= (channels[0].value() + channels[1].value() + channels[2].value()) / 3600.0;
-			} catch (InvalidValueException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			energy -= (channels[0].valueOptional().orElse(0l) + channels[1].valueOptional().orElse(0l) + channels[2].valueOptional().orElse(0l)) / 3600.0;
 			if (chargerList != null) {
 				for (ChargerNature charger : chargerList) {
-					try {
-						energy += charger.getActualPower().value() / 3600.0;
-					} catch (InvalidValueException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					energy += charger.getActualPower().valueOptional().orElse(0l) / 3600.0;
 				}
 			}
 			try {
-				if (energy > capacity.value()) {
-					energy = capacity.value();
+				long capacity = this.capacity.valueOptional().orElse(0l);
+				if (energy > capacity) {
+					energy = capacity;
 				} else if (energy < 0) {
 					energy = 0;
 				}
-				return (long) (energy / capacity.value() * 100.0);
-			} catch (InvalidValueException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				return (long) (energy / capacity * 100.0);
+			} catch (Exception e) {
+				return 0L;
 			}
-			return 0L;
 		}, this.activePowerL1, this.activePowerL2, this.activePowerL3);
 	}
 
