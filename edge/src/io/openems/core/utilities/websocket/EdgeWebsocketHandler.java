@@ -54,6 +54,7 @@ import io.openems.core.Config;
 import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ConfigUtils;
+import io.openems.core.utilities.LinuxCommand;
 
 /**
  * Handles a Websocket connection to a browser, OpenEMS backend,...
@@ -117,11 +118,11 @@ public class EdgeWebsocketHandler {
 
 		// get role
 		Role role;
-		if(this.roleOpt.isPresent()) {
+		if (this.roleOpt.isPresent()) {
 			role = this.roleOpt.get();
 		} else {
 			Optional<String> roleStringOpt = JsonUtils.getAsOptionalString(jMessage, "role");
-			if(roleStringOpt.isPresent()) {
+			if (roleStringOpt.isPresent()) {
 				role = Role.getRole(roleStringOpt.get());
 			} else {
 				role = Role.getDefaultRole();
@@ -170,7 +171,8 @@ public class EdgeWebsocketHandler {
 				// TODO create notification that there is no datasource available
 			} else {
 				jReply = JsonUtils.merge(jReply, //
-						WebSocketUtils.historicData(jIdOpt.get(), jhistoricDataOpt.get(), deviceIdOpt, timedataSource, role) //
+						WebSocketUtils.historicData(jIdOpt.get(), jhistoricDataOpt.get(), deviceIdOpt, timedataSource,
+								role) //
 						);
 			}
 		}
@@ -187,6 +189,23 @@ public class EdgeWebsocketHandler {
 			} catch (AccessDeniedException e) {
 				// TODO create notification
 				log.error(e.getMessage());
+			}
+		}
+
+		/*
+		 * Remote system control
+		 */
+		{
+			Optional<JsonObject> jSystemOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "system");
+			if (jSystemOpt.isPresent() && jSystemOpt.isPresent()) {
+				try {
+					jReply = JsonUtils.merge(jReply, //
+							system(jIdOpt.get(), jSystemOpt.get(), role) //
+							);
+				} catch (AccessDeniedException e) {
+					// TODO create notification
+					log.error(e.getMessage());
+				}
 			}
 		}
 
@@ -314,8 +333,8 @@ public class EdgeWebsocketHandler {
 	 * @throws AccessDeniedException
 	 */
 	private synchronized JsonObject log(JsonArray jId, JsonObject jLog, Role role) throws AccessDeniedException {
-		if(!(role == Role.ADMIN || role == Role.INSTALLER || role == Role.OWNER)) {
-			throw new AccessDeniedException("User role ["+role+"] is not allowed to read system logs.");
+		if (!(role == Role.ADMIN || role == Role.INSTALLER || role == Role.OWNER)) {
+			throw new AccessDeniedException("User role [" + role + "] is not allowed to read system logs.");
 		}
 		try {
 			String mode = JsonUtils.getAsString(jLog, "mode");
@@ -336,6 +355,31 @@ public class EdgeWebsocketHandler {
 			log.warn(e.getMessage());
 		}
 		return new JsonObject();
+	}
+
+	/**
+	 * Handle remote system control
+	 *
+	 * @param j
+	 * @throws AccessDeniedException
+	 */
+	private synchronized JsonObject system(JsonArray jId, JsonObject jSystem, Role role) throws AccessDeniedException {
+		if (!(role == Role.ADMIN)) {
+			throw new AccessDeniedException("User role [" + role + "] is not allowed to execute system commands.");
+		}
+		String output = "";
+		try {
+			String mode = JsonUtils.getAsString(jSystem, "mode");
+			String password = JsonUtils.getAsString(jSystem, "password");
+			String command = JsonUtils.getAsString(jSystem, "command");
+
+			if (mode.equals("execute")) {
+				output = LinuxCommand.execute(password, command);
+			}
+		} catch (OpenemsException e) {
+			output += e.getMessage();
+		}
+		return DefaultMessages.systemExecuteReply(jId, output);
 	}
 
 	// TODO handle config command

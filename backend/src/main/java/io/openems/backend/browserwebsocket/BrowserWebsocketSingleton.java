@@ -154,7 +154,8 @@ public class BrowserWebsocketSingleton
 			/*
 			 * Forward to OpenEMS Edge
 			 */
-			if (jMessage.has("config") || jMessage.has("currentData") || jMessage.has("log")) {
+			if (jMessage.has("config") || jMessage.has("currentData") || jMessage.has("log")
+					|| jMessage.has("system")) {
 				try {
 					forwardMessageToOpenems(websocket, jMessage, deviceName);
 				} catch (OpenemsException e) {

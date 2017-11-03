@@ -325,6 +325,30 @@ public class DefaultMessages {
 		j.add("id", jId);
 		JsonObject jLog = new JsonObject();
 		jLog.addProperty("mode", "unsubscribe");
+		j.add("log", jLog);
+		return j;
+	}
+	
+	/**
+	 * <pre>
+	 *	{
+	 *		id: [string],
+	 *		system: {
+	 *			mode: "executeReply",
+	 *			output: string
+	 *		}
+	 *	}
+	 * </pre>
+	 * 
+	 * @return
+	 */
+	public static JsonObject systemExecuteReply(JsonArray jId, String output) {
+		JsonObject j = new JsonObject();
+		j.add("id", jId);
+		JsonObject jSystem = new JsonObject();
+		jSystem.addProperty("mode", "executeReply");
+		jSystem.addProperty("output", output);
+		j.add("system", jSystem);
 		return j;
 	}
 }
