@@ -95,14 +95,16 @@ export class DefaultMessages {
         }
     };
 
-    public static systemExecute(password: string, command: string) {
+    public static systemExecute(password: string, command: string, background: boolean, timeout: number) {
         return {
             device: String,
             id: [UUID.UUID()],
             system: {
                 mode: "execute",
                 password: password,
-                command: command
+                command: command,
+                background: background,
+                timeout: timeout
             }
         }
     };

@@ -111,6 +111,14 @@ public class JsonUtils {
 		return jPrimitive.getAsString();
 	}
 
+	public static Optional<Integer> getAsOptionalInt(JsonElement jElement, String memberName) {
+		try {
+			return Optional.of(getAsInt(jElement, memberName));
+		} catch (OpenemsException e) {
+			return Optional.empty();
+		}
+	}
+	
 	public static int getAsInt(JsonElement jElement, String memberName) throws OpenemsException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (jPrimitive.isNumber()) {

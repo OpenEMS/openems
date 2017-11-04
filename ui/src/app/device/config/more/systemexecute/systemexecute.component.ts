@@ -30,11 +30,12 @@ export class SystemExecuteComponent implements OnInit {
 
   public device: Device;
   public output: string = "";
+  public commandLogs: { command: string, background: boolean, timeout: number }[] = [];
 
-  public send(password: string, command: string) {
-    this.device.systemExecute(password, command).then(output => {
+  public send(password: string, command: string, background: boolean, timeout: number) {
+    this.device.systemExecute(password, command, background, timeout).then(output => {
       this.output = output;
-      console.log(this.output);
     });
+    this.commandLogs.unshift({ command, background, timeout });
   }
 }

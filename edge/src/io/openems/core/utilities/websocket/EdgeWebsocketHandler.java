@@ -372,9 +372,11 @@ public class EdgeWebsocketHandler {
 			String mode = JsonUtils.getAsString(jSystem, "mode");
 			String password = JsonUtils.getAsString(jSystem, "password");
 			String command = JsonUtils.getAsString(jSystem, "command");
+			boolean background = JsonUtils.getAsBoolean(jSystem, "background");
+			int timeout = JsonUtils.getAsInt(jSystem, "timeout");
 
 			if (mode.equals("execute")) {
-				output = LinuxCommand.execute(password, command);
+				output = LinuxCommand.execute(password, command, background, timeout);
 			}
 		} catch (OpenemsException e) {
 			output += e.getMessage();

@@ -166,8 +166,8 @@ export class Device {
   /**
    * System Execute
    */
-  public systemExecute(password: string, command: string): Promise<string> {
-    let message = DefaultMessages.systemExecute(password, command);
+  public systemExecute(password: string, command: string, background: boolean, timeout: number): Promise<string> {
+    let message = DefaultMessages.systemExecute(password, command, background, timeout);
     let messageId = message.id[0];
     this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
     this.send(message);

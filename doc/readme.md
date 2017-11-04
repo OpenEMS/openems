@@ -306,7 +306,9 @@ For 'unsubscribe' the channels object is empty.
 	system: {
 		mode: "execute",
 		password: "...",
-		command: "..."
+		command: "...",
+		background: boolean,
+		timeout: number
 	}
 }
 
