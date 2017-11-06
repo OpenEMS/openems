@@ -1,7 +1,8 @@
 import { Component, OnInit, trigger, state, style, transition, animate } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AbstractSection, SvgSquarePosition, SvgSquare, EnergyFlow, SvgEnergyFlow } from './abstractsection.component';
-import { Observable } from "rxjs/Rx";
+import { Observable } from "rxjs/Observable";
+import 'rxjs/add/observable/interval';
 
 @Component({
     selector: '[storagesection]',
@@ -23,7 +24,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
         if (chargeAbsolute != null && chargeAbsolute > 0) {
             this.name = this.translate.instant('Device.Overview.Energymonitor.StorageCharge')
             super.updateValue(chargeAbsolute, valueRatio, sumChargeRatio);
-        } if (dischargeAbsolute != null && dischargeAbsolute > 0) {
+        } else if (dischargeAbsolute != null && dischargeAbsolute > 0) {
             this.name = this.translate.instant('Device.Overview.Energymonitor.StorageDischarge')
             super.updateValue(dischargeAbsolute, valueRatio, sumDischargeRatio * -1);
         } else {
@@ -31,7 +32,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit {
             super.updateValue(0, 0, 0);
         }
         if (valueRatio != null) {
-            this.valueText2 = valueRatio + " %";
+            this.valueText2 = Math.round(valueRatio) + " %";
         } else {
             this.valueText2 = "";
         }

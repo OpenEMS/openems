@@ -282,6 +282,7 @@ For 'unsubscribe' the channels object is empty.
 ### [2.6] Set configuration
 
 ### [2.6.1] Update existing things/channels
+
 ```
 {
 	device: string,
@@ -295,6 +296,34 @@ For 'unsubscribe' the channels object is empty.
 }
 ```
 
+### [2.7] Remote system control
+
+[2.7.1] UI -> Edge/Backend
+
+{
+	device: string,
+	id: [UUID],
+	system: {
+		mode: "execute",
+		password: "...",
+		command: "...",
+		background: boolean,
+		timeout: number
+	}
+}
+
+[2.7.2] Edge/Backend -> UI
+
+```
+{
+	device: string,
+	id: [UUID],
+	system: {
+		mode: "executeReply",
+		output: "..."
+	}
+}
+```
 ## [3] OpenEMS Edge <-> OpenEMS Backend
 
 ### [3.1] Timestamped data

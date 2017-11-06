@@ -4,6 +4,7 @@ import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { Observer } from 'rxjs/Observer';
 import { Observable } from 'rxjs/Observable';
 import { UUID } from 'angular2-uuid';
+import 'rxjs/add/operator/combineLatest';
 
 import { Websocket } from '../shared';
 import { ConfigImpl } from './config';
@@ -162,6 +163,24 @@ export class Device {
     this.send(message);
   }
 
+  /**
+   * System Execute
+   */
+  public systemExecute(password: string, command: string, background: boolean, timeout: number): Promise<string> {
+    let message = DefaultMessages.systemExecute(password, command, background, timeout);
+    let messageId = message.id[0];
+    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
+    this.send(message);
+    // wait for reply
+    return new Promise((resolve, reject) => {
+      this.replyStreams[messageId].first().subscribe(reply => {
+        let output = (<DefaultMessages.SystemExecuteReply>reply).system.output;
+        this.replyStreams[messageId].unsubscribe();
+        delete this.replyStreams[messageId];
+        resolve(output);
+      });
+    })
+  }
 
   /*
    * log

@@ -10,7 +10,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments';
 
 import { Service, Websocket, Utils } from '../shared/shared';
-import { DefaultMessages } from '../shared/service/defaultmessages';
 
 @Component({
   selector: 'overview',

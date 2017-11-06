@@ -94,6 +94,20 @@ export class DefaultMessages {
             }
         }
     };
+
+    public static systemExecute(password: string, command: string, background: boolean, timeout: number) {
+        return {
+            device: String,
+            id: [UUID.UUID()],
+            system: {
+                mode: "execute",
+                password: password,
+                command: command,
+                background: background,
+                timeout: timeout
+            }
+        }
+    };
 }
 
 export module DefaultMessages {
@@ -115,5 +129,11 @@ export module DefaultMessages {
 
     export interface LogReply extends Reply {
         log: DefaultTypes.Log
+    }
+
+    export interface SystemExecuteReply extends Reply {
+        system: {
+            output: string
+        }
     }
 }

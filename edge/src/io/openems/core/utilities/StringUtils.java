@@ -6,6 +6,10 @@ public class StringUtils {
 
 	public static String toShortString(JsonObject j, int length) {
 		String s = j.toString();
+		return toShortString(s, length);
+	}
+
+	public static String toShortString(String s, int length) {
 		if (s.length() > length - 3) {
 			return s.substring(0, length - 3) + "...";
 		} else {
