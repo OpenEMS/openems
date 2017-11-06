@@ -60,7 +60,7 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 	public final ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
 	@ChannelInfo(title = "Last Discharge", description = "Last Time, the ess was discharged completely.", type = Long.class,defaultValue = "0")
 	public final ConfigChannel<Long> lastDischarge = new ConfigChannel<Long>("lastDischarge", this).addChangeListener(this);
-	@ChannelInfo(title = "Enable Montly Discharge", description="This option allowes the system once per month to discharge the ess completely. This improves the soc calculation.", type=Boolean.class,defaultValue="true")
+	@ChannelInfo(title = "Enable Monthly Discharge", description="This option allowes the system once per month to discharge the ess completely. This improves the soc calculation.", type=Boolean.class,defaultValue="true")
 	public final ConfigChannel<Boolean> enableMonthlyDischarge = new ConfigChannel<Boolean>("EnableMonthlyDischarge",this);
 
 	private LocalDate lastDischargeDate;
