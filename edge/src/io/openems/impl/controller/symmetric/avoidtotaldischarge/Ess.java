@@ -46,7 +46,7 @@ public class Ess extends ThingMap {
 	public State currentState = State.NORMAL;
 
 	public enum State {
-		NORMAL, MINSOC, CHARGESOC, FULL;
+		NORMAL, MINSOC, CHARGESOC, FULL, EMPTY;
 	}
 
 	public Ess(SymmetricEssNature ess) {
