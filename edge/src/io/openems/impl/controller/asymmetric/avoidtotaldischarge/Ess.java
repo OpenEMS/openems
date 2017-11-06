@@ -40,10 +40,11 @@ public class Ess extends ThingMap {
 	public WriteChannel<Long> setReactivePowerL3;
 	public ReadChannel<Long> systemState;
 	public ReadChannel<Long> allowedCharge;
+	public ReadChannel<Long> allowedDischarge;
 	public State currentState = State.NORMAL;
 
 	public enum State {
-		NORMAL, MINSOC, CHARGESOC, FULL;
+		NORMAL, MINSOC, CHARGESOC, FULL,EMPTY;
 	}
 
 	public Ess(AsymmetricEssNature ess) {
@@ -59,6 +60,7 @@ public class Ess extends ThingMap {
 		soc = ess.soc().required();
 		systemState = ess.systemState().required();
 		allowedCharge = ess.allowedCharge().required();
+		allowedDischarge = ess.allowedDischarge().required();
 	}
 
 	public long useableSoc() throws InvalidValueException {

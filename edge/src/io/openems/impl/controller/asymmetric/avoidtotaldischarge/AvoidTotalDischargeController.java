@@ -20,9 +20,14 @@
  *******************************************************************************/
 package io.openems.impl.controller.asymmetric.avoidtotaldischarge;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.Set;
 
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
@@ -33,7 +38,7 @@ import io.openems.api.exception.WriteChannelException;
 import io.openems.impl.controller.asymmetric.avoidtotaldischarge.Ess.State;
 
 @ThingInfo(title = "Avoid total discharge of battery (Asymmetric)", description = "Makes sure the battery is not going into critically low state of charge. For asymmetric Ess.")
-public class AvoidTotalDischargeController extends Controller {
+public class AvoidTotalDischargeController extends Controller implements ChannelChangeListener {
 
 	/*
 	 * Constructors
@@ -53,6 +58,12 @@ public class AvoidTotalDischargeController extends Controller {
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
 	@ChannelInfo(title = "Max Soc", description = "If the System is full the charge is blocked untill the soc decrease below the maxSoc.", type = Long.class, defaultValue = "95")
 	public final ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
+	@ChannelInfo(title = "Last Discharge", description = "Last Time, the ess was discharged completely.", type = Long.class,defaultValue = "0")
+	public final ConfigChannel<Long> lastDischarge = new ConfigChannel<Long>("lastDischarge", this).addChangeListener(this);
+	@ChannelInfo(title = "Enable Montly Discharge", description="This option allowes the system once per month to discharge the ess completely. This improves the soc calculation.", type=Boolean.class,defaultValue="true")
+	public final ConfigChannel<Boolean> enableMonthlyDischarge = new ConfigChannel<Boolean>("EnableMonthlyDischarge",this);
+
+	private LocalDate lastDischargeDate;
 
 	/*
 	 * Methods
@@ -115,6 +126,8 @@ public class AvoidTotalDischargeController extends Controller {
 						ess.currentState = State.CHARGESOC;
 					} else if (ess.soc.value() >= ess.minSoc.value() + 5) {
 						ess.currentState = State.NORMAL;
+					}else if(lastDischargeDate != null && lastDischargeDate.plusMonths(1).isBefore(LocalDate.now()) && enableMonthlyDischarge.valueOptional().isPresent() && enableMonthlyDischarge.valueOptional().get()) {
+						ess.currentState = State.EMPTY;
 					} else {
 						try {
 							long maxPower = 0;
@@ -163,10 +176,28 @@ public class AvoidTotalDischargeController extends Controller {
 						ess.currentState = State.NORMAL;
 					}
 					break;
+				case EMPTY:
+					if(ess.allowedDischarge.value() == 0) {
+						//Ess is Empty set Date and charge to minSoc
+						lastDischarge.updateValue(System.currentTimeMillis(), true);
+						ess.currentState = State.CHARGESOC;
+					}
+					break;
 				}
 			}
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
+		}
+	}
+
+	@Override
+	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+		if(this.lastDischarge.equals(channel)) {
+			if(newValue.isPresent()) {
+				lastDischargeDate = Instant.ofEpochMilli((long) newValue.get()).atZone(ZoneId.systemDefault()).toLocalDate();
+			}else {
+				lastDischargeDate = null;
+			}
 		}
 	}
 
