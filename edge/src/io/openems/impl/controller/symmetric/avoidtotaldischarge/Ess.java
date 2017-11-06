@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
+import io.openems.api.channel.DebugChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
@@ -44,9 +45,20 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Integer> chargeSoc;
 	public Hysteresis socMinHysteresis;
 	public State currentState = State.NORMAL;
+	public DebugChannel<Integer> stateMachineState;
 
 	public enum State {
-		NORMAL, MINSOC, CHARGESOC, FULL, EMPTY;
+		NORMAL(0), MINSOC(1), CHARGESOC(2), FULL(3),EMPTY(4);
+
+		private final int value;
+
+		State(int value){
+			this.value = value;
+		}
+
+		public int value() {
+			return this.value;
+		}
 	}
 
 	public Ess(SymmetricEssNature ess) {
@@ -58,6 +70,7 @@ public class Ess extends ThingMap {
 		allowedDischarge = ess.allowedDischarge().required();
 		allowedCharge = ess.allowedCharge().required();
 		chargeSoc = ess.chargeSoc().required();
+		stateMachineState  = new DebugChannel<>("AvoidTotalDischargeState", ess);
 		ChannelChangeListener hysteresisCreator = new ChannelChangeListener() {
 
 			@Override

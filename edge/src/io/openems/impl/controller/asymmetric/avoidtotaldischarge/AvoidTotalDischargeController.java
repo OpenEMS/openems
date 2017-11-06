@@ -75,6 +75,7 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 				/*
 				 * Calculate SetActivePower according to MinSoc
 				 */
+				ess.stateMachineState.setValue(ess.currentState.value());
 				switch (ess.currentState) {
 				case CHARGESOC:
 					if (ess.soc.value() > ess.minSoc.value()) {
