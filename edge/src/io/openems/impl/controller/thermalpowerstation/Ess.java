@@ -29,10 +29,14 @@ import io.openems.api.device.nature.ess.EssNature;
 public class Ess extends ThingMap {
 
 	public ReadChannel<Long> soc;
+	public ReadChannel<Long> allowedCharge;
+	public ReadChannel<Long> allowedDischarge;
 
 	public Ess(EssNature thing) {
 		super(thing);
 		this.soc = thing.soc().required();
+		this.allowedCharge = thing.allowedCharge().required();
+		this.allowedDischarge = thing.allowedDischarge().required();
 	}
 
 }
