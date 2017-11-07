@@ -92,7 +92,7 @@ public class BalancingController extends Controller {
 				calculatedPowers[2] += ess.activePowerL3.value();
 				calculatedPowerSum += ess.activePowerL3.value();
 			}
-			if (calculatedPowerSum > 100) {
+			if (Math.abs(calculatedPowerSum) > 100) {
 				for (int i = 0; i < 3; i++) {
 					lastWriteValues[i][index] = calculatedPowers[i];
 					calculatedPowers[i] = getAvgPower(i + 1);
