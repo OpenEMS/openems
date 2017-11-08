@@ -1,7 +1,8 @@
-# 
+# SMA SunnyIsland 6.0H
 
 
 Following Values are implemented:
+
 |ChannelName|Unit|
 |---|---|
 |ActivePower|W|

@@ -7,6 +7,7 @@ import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
@@ -17,7 +18,7 @@ import io.openems.impl.protocol.modbus.internal.SignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
-
+@ThingInfo(title="SMA SunnyIsland 6.0H")
 public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssNature{
 
 	public SunnyIsland6Ess(String thingId, Device parent) throws ConfigException {

@@ -2,6 +2,7 @@
 
 
 Following Values are implemented:
+
 |ChannelName|Unit|
 |---|---|
 |ActiveNegativeEnergy|kWh|
