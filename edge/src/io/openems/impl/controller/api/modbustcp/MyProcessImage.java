@@ -36,11 +36,11 @@ public class MyProcessImage implements ProcessImage {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());;
 	private final int unitId;
-	// private final ApiWorker apiWorker;
+	private final ApiWorker apiWorker;
 
 	protected MyProcessImage(int unitId, ApiWorker apiWorker) {
 		this.unitId = unitId;
-		// this.apiWorker = apiWorker;
+		this.apiWorker = apiWorker;
 	}
 
 	protected synchronized void clearMapping() {
@@ -53,7 +53,7 @@ public class MyProcessImage implements ProcessImage {
 			throw new OpenemsException(
 					"Modbus address [" + ref + "] for Channel [" + channelAddress + "] must be a positive number.");
 		}
-		ChannelRegisterMap channelRegistermap = new ChannelRegisterMap(channelAddress, channelDoc);
+		ChannelRegisterMap channelRegistermap = new ChannelRegisterMap(channelAddress, channelDoc, this.apiWorker);
 		if (!this.registerMaps.subMap(ref, ref + channelRegistermap.getRegisters().length - 1).isEmpty()) {
 			throw new OpenemsException(
 					"Modbus address [" + ref + "] for [" + channelAddress + "] is already occupied.");
@@ -152,7 +152,7 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized Register[] getRegisterRange(int offset, int count) throws IllegalAddressException {
-		SortedMap<Integer, ChannelRegisterMap> registerMaps = this.registerMaps.subMap(offset, offset + count + 1);
+		SortedMap<Integer, ChannelRegisterMap> registerMaps = this.registerMaps.subMap(offset, offset + count);
 		if (registerMaps.firstKey() != offset) {
 			this.throwIllegalAddressException("No valid mapping for Modbus address [" + offset + "].");
 		}

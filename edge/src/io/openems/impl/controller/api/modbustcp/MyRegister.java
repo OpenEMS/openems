@@ -11,7 +11,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.core.Databus;
-import io.openems.core.utilities.BitUtils;;
+import io.openems.core.utilities.BitUtils;
 
 public class MyRegister implements Register {
 
@@ -93,15 +93,7 @@ public class MyRegister implements Register {
 
 	@Override
 	public void setValue(int v) {
-		if (v < Short.MAX_VALUE && v > Short.MIN_VALUE) {
-			this.setValue((short) v);
-		} else {
-			try {
-				throw new OpenemsException("Int value [" + v + "] is not fitting in a Short type.");
-			} catch (OpenemsException e) {
-				log.warn(e.getMessage());
-			}
-		}
+		this.setValue((short) v);
 	}
 
 	@Override

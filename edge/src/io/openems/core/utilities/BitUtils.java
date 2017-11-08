@@ -46,9 +46,9 @@ public class BitUtils {
 	public static byte[] toBytes(Object value) throws NotImplementedException {
 		Class<?> type = value.getClass();
 		switch (OpenemsTypes.get(type)) {
-		case SHORT:
+		case SHORT: {
 			return ByteBuffer.allocate(BYTES_SHORT).order(BYTE_ORDER).putShort((Short) value).array();
-
+		}
 		case INTEGER:
 			return ByteBuffer.allocate(BYTES_INT).order(BYTE_ORDER).putInt((Integer) value).array();
 
@@ -71,7 +71,7 @@ public class BitUtils {
 				"Converter to Byte for value [" + value + "] of type [" + type + "] is not implemented.");
 	}
 
-	public static Object toObject(Class<?> type, byte[] value) throws NotImplementedException {
+	public static Object toObject(Class<?> type, byte... value) throws NotImplementedException {
 		switch (OpenemsTypes.get(type)) {
 		case SHORT: {
 			ByteBuffer b = ByteBuffer.allocate(BYTES_SHORT).order(BYTE_ORDER).put(value);
@@ -102,5 +102,17 @@ public class BitUtils {
 		}
 		throw new NotImplementedException(
 				"Converter to Byte for value [" + value + "] of type [" + type + "] is not implemented.");
+	}
+
+	private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+	public static String bytesToHex(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
 	}
 }
