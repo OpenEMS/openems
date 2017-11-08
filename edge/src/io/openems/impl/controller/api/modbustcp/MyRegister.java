@@ -5,18 +5,17 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.core.Databus;
-import io.openems.core.ThingRepository;
-import io.openems.core.utilities.BitUtils;
+import io.openems.core.utilities.BitUtils;;
 
-public class ReadRegister extends Register implements InputRegister {
+public class MyRegister implements Register {
 
-	private final Logger log = LoggerFactory.getLogger(ReadRegister.class);
+	private final Logger log = LoggerFactory.getLogger(MyRegister.class);
 	private final static byte[] VALUE_ON_ERROR = new byte[] { 0, 0 };
 
 	private final ChannelRegisterMap parent;
@@ -25,13 +24,18 @@ public class ReadRegister extends Register implements InputRegister {
 	 */
 	private final int registerNo;
 
-	public ReadRegister(ChannelRegisterMap parent, int registerNo) {
+	public MyRegister(ChannelRegisterMap parent, int registerNo) {
 		this.parent = parent;
 		this.registerNo = registerNo;
 	}
 
+	public int getRegisterNo() {
+		return registerNo;
+	}
+
 	@Override
 	public int getValue() {
+		log.warn("getValue is not implemented");
 		return 0;
 	}
 
@@ -49,24 +53,22 @@ public class ReadRegister extends Register implements InputRegister {
 
 	@Override
 	public byte[] toBytes() {
-		Optional<Channel> channelOpt = ThingRepository.getInstance().getChannel(this.parent.getChannelAddress());
-		if (!channelOpt.isPresent()) {
-			try {
-				throw new OpenemsException("Channel does not exist [" + this.parent.getChannelAddress() + "]");
-			} catch (OpenemsException e) {
-				log.warn(e.getMessage());
-			}
+		Channel channel;
+		try {
+			channel = parent.getChannel();
+		} catch (OpenemsException e) {
+			log.warn(e.getMessage());
+			return VALUE_ON_ERROR;
 		}
-		Channel channel = channelOpt.get();
 		Optional<?> valueOpt = Databus.getInstance().getValue(channel);
-		byte[] value = VALUE_ON_ERROR;
 		if (valueOpt.isPresent()) {
 			// we got a value
 			Object object = valueOpt.get();
 			try {
 				byte[] b = BitUtils.toBytes(object);
-				value[0] = b[this.registerNo * 2];
-				value[1] = b[this.registerNo * 2 + 1];
+				return new byte[] {
+						b[this.registerNo * 2],
+						b[this.registerNo * 2 + 1] };
 			} catch (NotImplementedException e) {
 				// unable to convert value to byte
 				try {
@@ -85,6 +87,26 @@ public class ReadRegister extends Register implements InputRegister {
 				log.warn(e.getMessage());
 			}
 		}
-		return value;
+		return VALUE_ON_ERROR;
+	}
+
+	@Override
+	public void setValue(int v) {
+		log.warn("setValue(int " + v + ") is not implemented");
+	}
+
+	@Override
+	public void setValue(short s) {
+		log.warn("setValue(short " + s + ") is not implemented");
+
+	}
+
+	@Override
+	public void setValue(byte[] bytes) {
+		try {
+			this.parent.setValue(this, bytes[0], bytes[1]);
+		} catch (OpenemsException e) {
+			log.warn(e.getMessage());
+		}
 	}
 }

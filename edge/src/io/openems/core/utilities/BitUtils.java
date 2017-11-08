@@ -63,4 +63,32 @@ public class BitUtils {
 		throw new NotImplementedException(
 				"Converter to Byte for value [" + value + "] of type [" + type + "] is not implemented.");
 	}
+
+	public static Object toObject(Class<?> type, byte[] value) throws NotImplementedException {
+		switch (OpenemsTypes.get(type)) {
+		case INTEGER: {
+			ByteBuffer b = ByteBuffer.allocate(BYTES_INT).order(BYTE_ORDER).put(value);
+			b.rewind();
+			return b.getInt();
+		}
+		case LONG: {
+			ByteBuffer b = ByteBuffer.allocate(BYTES_LONG).order(BYTE_ORDER).put(value);
+			b.rewind();
+			return b.getLong();
+		}
+		case BOOLEAN: // TODO put boolean value in a byte
+		case DOUBLE: // TODO
+		case INET_4_ADDRESS: // TODO
+		case STRING:
+		case LONG_ARRAY:
+		case JSON_ARRAY:
+		case JSON_OBJECT:
+		case DEVICE_NATURE:
+		case THING_MAP:
+			throw new NotImplementedException(
+					"Converter to Byte for value [" + value + "] of type [" + type + "] is not implemented.");
+		}
+		throw new NotImplementedException(
+				"Converter to Byte for value [" + value + "] of type [" + type + "] is not implemented.");
+	}
 }

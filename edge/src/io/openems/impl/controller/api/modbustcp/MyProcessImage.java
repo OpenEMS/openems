@@ -54,7 +54,7 @@ public class MyProcessImage implements ProcessImage {
 					"Modbus address [" + ref + "] for Channel [" + channelAddress + "] must be a positive number.");
 		}
 		ChannelRegisterMap channelRegistermap = new ChannelRegisterMap(channelAddress, channelDoc);
-		if (!this.registerMaps.subMap(ref, ref + channelRegistermap.registerCount() - 1).isEmpty()) {
+		if (!this.registerMaps.subMap(ref, ref + channelRegistermap.getRegisters().length - 1).isEmpty()) {
 			throw new OpenemsException(
 					"Modbus address [" + ref + "] for [" + channelAddress + "] is already occupied.");
 		}
@@ -118,20 +118,16 @@ public class MyProcessImage implements ProcessImage {
 			if (!registerMaps.containsKey(ref)) {
 				this.throwIllegalAddressException("No mapping defined for Modbus address [" + ref + "].");
 			}
-			try {
-				InputRegister[] registers = registerMaps.get(ref).getReadRegisters();
-				for (int j = 0; j < registers.length; j++) {
-					if (i + j > result.length - 1) {
-						this.throwIllegalAddressException("Mobus result is not fitting in RegisterRange. Offset ["
-								+ offset + "] Count [" + count + "]");
-					}
-					result[i + j] = registers[j];
+			InputRegister[] registers = registerMaps.get(ref).getRegisters();
+			for (int j = 0; j < registers.length; j++) {
+				if (i + j > result.length - 1) {
+					this.throwIllegalAddressException("Mobus result is not fitting in RegisterRange. Offset ["
+							+ offset + "] Count [" + count + "]");
 				}
-				// increase i by register count
-				i += registers.length;
-			} catch (OpenemsException e) {
-				this.throwIllegalAddressException(e.getMessage());
+				result[i + j] = registers[j];
 			}
+			// increase i by register count
+			i += registers.length;
 		}
 		return result;
 	}
@@ -156,8 +152,19 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized Register getRegister(int ref) throws IllegalAddressException {
-		log.warn("getRegister is not implemented");
-		return null;
+		SortedMap<Integer, ChannelRegisterMap> registerMaps = this.registerMaps.subMap(0, ref + 1);
+		int lastKey = registerMaps.lastKey();
+		ChannelRegisterMap registerMap = registerMaps.get(lastKey);
+		if(registerMap.getRegisters().length > 1) {
+			this.throwIllegalAddressException("Channel ["+registerMap.getChannelAddress()+"] consists of more than one register. Modbus address ["+ref+"] is invalid.");
+		}
+		int offset = ref - lastKey;
+		if (lastKey + registerMap.getRegisters().length < ref) {
+			this.throwIllegalAddressException("No mapping defined for Modbus address [" + ref + "].");
+		}
+		Register[] registers = registerMap.getRegisters();
+		Register register = registers[offset];
+		return register;
 	}
 
 	@Override
