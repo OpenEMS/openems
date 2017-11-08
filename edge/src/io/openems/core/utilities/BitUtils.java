@@ -8,6 +8,7 @@ import io.openems.api.exception.NotImplementedException;
 public class BitUtils {
 
 	private final static int BITS = 8;
+	private final static int BYTES_SHORT = 2;
 	private final static int BYTES_INT = 4;
 	private final static int BYTES_LONG = 8;
 	private final static int BITS_BOOLEAN = 1;
@@ -16,6 +17,9 @@ public class BitUtils {
 
 	public static int getBitLength(Class<?> type) throws NotImplementedException {
 		switch (OpenemsTypes.get(type)) {
+		case SHORT:
+			return BYTES_SHORT * BITS;
+
 		case INTEGER:
 			return BYTES_INT * BITS;
 
@@ -42,6 +46,9 @@ public class BitUtils {
 	public static byte[] toBytes(Object value) throws NotImplementedException {
 		Class<?> type = value.getClass();
 		switch (OpenemsTypes.get(type)) {
+		case SHORT:
+			return ByteBuffer.allocate(BYTES_SHORT).order(BYTE_ORDER).putShort((Short) value).array();
+
 		case INTEGER:
 			return ByteBuffer.allocate(BYTES_INT).order(BYTE_ORDER).putInt((Integer) value).array();
 
@@ -66,6 +73,11 @@ public class BitUtils {
 
 	public static Object toObject(Class<?> type, byte[] value) throws NotImplementedException {
 		switch (OpenemsTypes.get(type)) {
+		case SHORT: {
+			ByteBuffer b = ByteBuffer.allocate(BYTES_SHORT).order(BYTE_ORDER).put(value);
+			b.rewind();
+			return b.getShort();
+		}
 		case INTEGER: {
 			ByteBuffer b = ByteBuffer.allocate(BYTES_INT).order(BYTE_ORDER).put(value);
 			b.rewind();
