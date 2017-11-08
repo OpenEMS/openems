@@ -61,7 +61,6 @@ public class MyProcessImage implements ProcessImage {
 		this.registerMaps.put(ref, channelRegistermap);
 	}
 
-
 	/*
 	 * Implementations of ProcessImage
 	 */
@@ -121,8 +120,8 @@ public class MyProcessImage implements ProcessImage {
 			InputRegister[] registers = registerMaps.get(ref).getRegisters();
 			for (int j = 0; j < registers.length; j++) {
 				if (i + j > result.length - 1) {
-					this.throwIllegalAddressException("Mobus result is not fitting in RegisterRange. Offset ["
-							+ offset + "] Count [" + count + "]");
+					this.throwIllegalAddressException("Mobus result is not fitting in RegisterRange. Offset [" + offset
+							+ "] Count [" + count + "]");
 				}
 				result[i + j] = registers[j];
 			}
@@ -146,8 +145,21 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized Register[] getRegisterRange(int offset, int count) throws IllegalAddressException {
-		log.warn("getRegisterRange is not implemented");
-		return new Register[] {};
+		SortedMap<Integer, ChannelRegisterMap> registerMaps = this.registerMaps.subMap(offset, offset + count + 1);
+		if (registerMaps.firstKey() != offset) {
+			this.throwIllegalAddressException("No valid mapping for Modbus address [" + offset + "].");
+		}
+		if (registerMaps.lastKey() + registerMaps.get(registerMaps.lastKey()).getRegisters().length != offset + count) {
+			this.throwIllegalAddressException("Modbus register range has no valid length.");
+		}
+		Register[] registers = new Register[count];
+		int i = 0;
+		for (ChannelRegisterMap map : registerMaps.values()) {
+			for (Register register : map.getRegisters()) {
+				registers[i++] = register;
+			}
+		}
+		return registers;
 	}
 
 	@Override
@@ -155,8 +167,9 @@ public class MyProcessImage implements ProcessImage {
 		SortedMap<Integer, ChannelRegisterMap> registerMaps = this.registerMaps.subMap(0, ref + 1);
 		int lastKey = registerMaps.lastKey();
 		ChannelRegisterMap registerMap = registerMaps.get(lastKey);
-		if(registerMap.getRegisters().length > 1) {
-			this.throwIllegalAddressException("Channel ["+registerMap.getChannelAddress()+"] consists of more than one register. Modbus address ["+ref+"] is invalid.");
+		if (registerMap.getRegisters().length > 1) {
+			this.throwIllegalAddressException("Channel [" + registerMap.getChannelAddress()
+			+ "] consists of more than one register. Modbus address [" + ref + "] is invalid.");
 		}
 		int offset = ref - lastKey;
 		if (lastKey + registerMap.getRegisters().length < ref) {

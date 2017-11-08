@@ -2,6 +2,9 @@ package io.openems.impl.controller.api.modbustcp;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.doc.ChannelDoc;
@@ -12,6 +15,7 @@ import io.openems.core.utilities.BitUtils;
 
 public class ChannelRegisterMap {
 
+	private final Logger log = LoggerFactory.getLogger(ChannelRegisterMap.class);
 	private final ChannelAddress channelAddress;
 	private final ChannelDoc channelDoc;
 	private final MyRegister[] registers;
@@ -54,26 +58,26 @@ public class ChannelRegisterMap {
 	}
 
 	protected void setValue(MyRegister register, byte b1, byte b2) throws OpenemsException {
-		System.out.println("setValue " + b1 + " " + b2);
 		int registerNo = register.getRegisterNo();
 		this.setBuffer[registerNo * 2] = b1;
 		this.setBuffer[registerNo * 2 + 1] = b2;
 		// is the buffer full?
 		for (int i = 0; i < this.setBuffer.length; i++) {
-			if(this.setBuffer[i] == null || this.setBuffer[i+1] == null) {
+			if (this.setBuffer[i] == null) {
 				return; // no, it is not full
 			}
 		}
 		// yes, it is full
 		Channel channel = this.getChannel();
-		if(channel instanceof ConfigChannel<?>) {
+		if (channel instanceof ConfigChannel<?>) {
 			ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
 			byte[] value = new byte[this.setBuffer.length];
-			for(int i=0; i<this.setBuffer.length; i++) {
+			for (int i = 0; i < this.setBuffer.length; i++) {
 				value[i] = this.setBuffer[i];
 			}
 			Object valueObj = BitUtils.toObject(this.channelDoc.getTypeOpt().get(), value);
 			configChannel.updateValue(valueObj, true);
+			log.info("Updated [" + this.channelAddress + "] to [" + valueObj + "] via Modbus/TCP.");
 		}
 	}
 

@@ -66,9 +66,7 @@ public class MyRegister implements Register {
 			Object object = valueOpt.get();
 			try {
 				byte[] b = BitUtils.toBytes(object);
-				return new byte[] {
-						b[this.registerNo * 2],
-						b[this.registerNo * 2 + 1] };
+				return new byte[] { b[this.registerNo * 2], b[this.registerNo * 2 + 1] };
 			} catch (NotImplementedException e) {
 				// unable to convert value to byte
 				try {
@@ -92,13 +90,23 @@ public class MyRegister implements Register {
 
 	@Override
 	public void setValue(int v) {
-		log.warn("setValue(int " + v + ") is not implemented");
+		if (v < Short.MAX_VALUE && v > Short.MIN_VALUE) {
+			this.setValue((short) v);
+		} else {
+			try {
+				throw new OpenemsException("Int value [" + v + "] is not fitting in a Short type.");
+			} catch (OpenemsException e) {
+				log.warn(e.getMessage());
+			}
+		}
 	}
 
 	@Override
 	public void setValue(short s) {
-		log.warn("setValue(short " + s + ") is not implemented");
-
+		try {
+			byte[] bytes = BitUtils.toBytes(s);
+			this.setValue(bytes);
+		} catch (NotImplementedException e) { /* will not happen */}
 	}
 
 	@Override
