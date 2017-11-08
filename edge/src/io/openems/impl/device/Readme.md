@@ -1,9 +1,9 @@
 # List of implemented Devices.
 
-* [Simulator Charger](.\simulator\Readme.md)
-* [FENECON Mini ESS](.\mini\Readme.md)
-* [WAGO I/O Input](.\wago\Readme.md)
-* [PQ Plus UMD 97 Meter](.\pqplus\Readme.md)
+* [Simulator Charger](simulator\Readme.md)
+* [FENECON Mini ESS](mini\Readme.md)
+* [WAGO I/O Input](wago\Readme.md)
+* [PQ Plus UMD 97 Meter](pqplus\Readme.md)
 * [Simulator ESS](.\simulator\Readme.md)
 * [Simulator ESS](.\simulator\Readme.md)
 * [FENECON Mini ESS](.\minireadonly\Readme.md)
