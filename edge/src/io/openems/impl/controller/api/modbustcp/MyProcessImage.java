@@ -72,7 +72,8 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized DigitalOut[] getDigitalOutRange(int offset, int count) throws IllegalAddressException {
-		log.warn("getDigitalOutRange is not implemented");
+		// TODO
+		this.throwIllegalAddressException("getDigitalOutRange is not implemented");
 		return new DigitalOut[] {};
 	}
 
@@ -84,24 +85,28 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized int getDigitalOutCount() {
+		// TODO
 		log.warn("getDigitalOutCount is not implemented");
 		return 0;
 	}
 
 	@Override
 	public synchronized DigitalIn[] getDigitalInRange(int offset, int count) throws IllegalAddressException {
-		log.warn("getDigitalInRange is not implemented");
+		// TODO
+		this.throwIllegalAddressException("getDigitalInRange is not implemented");
 		return new DigitalIn[] {};
 	}
 
 	@Override
 	public synchronized DigitalIn getDigitalIn(int ref) throws IllegalAddressException {
-		log.warn("getDigitalIn is not implemented");
+		// TODO
+		this.throwIllegalAddressException("getDigitalIn is not implemented");
 		return null;
 	}
 
 	@Override
 	public synchronized int getDigitalInCount() {
+		// TODO
 		log.warn("getDigitalInCount is not implemented");
 		return 0;
 	}
@@ -133,12 +138,14 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized InputRegister getInputRegister(int ref) throws IllegalAddressException {
-		log.warn("getInputRegister is not implemented");
+		// TODO
+		this.throwIllegalAddressException("getInputRegister is not implemented");
 		return null;
 	}
 
 	@Override
 	public synchronized int getInputRegisterCount() {
+		// TODO
 		log.warn("getInputRegisterCount is not implemented");
 		return 0;
 	}

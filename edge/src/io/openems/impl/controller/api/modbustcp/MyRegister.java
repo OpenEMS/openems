@@ -35,18 +35,21 @@ public class MyRegister implements Register {
 
 	@Override
 	public int getValue() {
+		// TODO
 		log.warn("getValue is not implemented");
 		return 0;
 	}
 
 	@Override
 	public int toUnsignedShort() {
+		// TODO
 		log.warn("toUnsignedShort is not implemented");
 		return 0;
 	}
 
 	@Override
 	public short toShort() {
+		// TODO
 		log.warn("toShort is not implemented");
 		return 0;
 	}
