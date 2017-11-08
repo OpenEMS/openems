@@ -1,9 +1,11 @@
-# B-Control Energy Meter
+# Socomec Meter
 
 
 Following Values are implemented:
 |ChannelName|Unit|
 |---|---|
+|ActiveNegativeEnergy|kWh|
+|ActivePositiveEnergy|kWh|
 |ActivePower|W|
 |ActivePowerL1|W|
 |ActivePowerL2|W|
@@ -15,10 +17,12 @@ Following Values are implemented:
 |Frequency|mHZ|
 |maxActivePower||
 |minActivePower||
-|ReactivePower|Var|
-|ReactivePowerL1|Var|
-|ReactivePowerL2|Var|
-|ReactivePowerL3|Var|
+|ReactiveNegativeEnergy|kvarh|
+|ReactivePositiveEnergy|kvarh|
+|ReactivePower|var|
+|ReactivePowerL1|var|
+|ReactivePowerL2|var|
+|ReactivePowerL3|var|
 |type||
 |VoltageL1|mV|
 |VoltageL1|mV|

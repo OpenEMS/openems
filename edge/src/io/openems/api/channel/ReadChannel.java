@@ -86,6 +86,10 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
+	public TreeMap<T,String> getLabels(){
+		return this.labels;
+	}
+
 	/**
 	 * Sets the multiplier value. The original value is getting multiplied by this: value = value * multiplier - delta
 	 *

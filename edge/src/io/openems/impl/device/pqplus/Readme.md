@@ -1,4 +1,4 @@
-# B-Control Energy Meter
+# PQ Plus UMD 97 Meter
 
 
 Following Values are implemented:
@@ -9,10 +9,11 @@ Following Values are implemented:
 |ActivePowerL2|W|
 |ActivePowerL3|W|
 |ApparentPower|VA|
+|Current|mA|
 |CurrentL1|mA|
 |CurrentL2|mA|
 |CurrentL3|mA|
-|Frequency|mHZ|
+|Frequency|mHz|
 |maxActivePower||
 |minActivePower||
 |ReactivePower|Var|

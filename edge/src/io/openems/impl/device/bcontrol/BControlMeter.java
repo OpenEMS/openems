@@ -241,31 +241,31 @@ public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterN
 								voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV"))));
 		activePower = new FunctionalReadChannel<Long>("ActivePower", this, (channels) -> {
 			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-		}, activePowerPos, activePowerNeg);
+		}, activePowerPos, activePowerNeg).unit("W");
 		activePowerL1 = new FunctionalReadChannel<Long>("ActivePowerL1", this, (channels) -> {
 			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-		}, activePowerL1Pos, activePowerL1Neg);
+		}, activePowerL1Pos, activePowerL1Neg).unit("W");
 		activePowerL2 = new FunctionalReadChannel<Long>("ActivePowerL2", this, (channels) -> {
 			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-		}, activePowerL2Pos, activePowerL2Neg);
+		}, activePowerL2Pos, activePowerL2Neg).unit("W");
 		activePowerL3 = new FunctionalReadChannel<Long>("ActivePowerL3", this, (channels) -> {
 			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-		}, activePowerL3Pos, activePowerL3Neg);
+		}, activePowerL3Pos, activePowerL3Neg).unit("W");
 		reactivePower = new FunctionalReadChannel<Long>("ReactivePower", this, (channels) -> {
 			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-		}, reactivePowerPos, reactivePowerNeg);
+		}, reactivePowerPos, reactivePowerNeg).unit("Var");
 		reactivePowerL1 = new FunctionalReadChannel<Long>("ReactivePowerL1", this, (channels) -> {
 			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-		}, reactivePowerL1Pos, reactivePowerL1Neg);
+		}, reactivePowerL1Pos, reactivePowerL1Neg).unit("Var");
 		reactivePowerL2 = new FunctionalReadChannel<Long>("ReactivePowerL2", this, (channels) -> {
 			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-		}, reactivePowerL2Pos, reactivePowerL2Neg);
+		}, reactivePowerL2Pos, reactivePowerL2Neg).unit("Var");
 		reactivePowerL3 = new FunctionalReadChannel<Long>("ReactivePowerL3", this, (channels) -> {
 			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-		}, reactivePowerL3Pos, reactivePowerL3Neg);
+		}, reactivePowerL3Pos, reactivePowerL3Neg).unit("Var");
 		apparentPower = new FunctionalReadChannel<Long>("ApparentPower", this, (channels) -> {
 			return channels[0].valueOptional().orElse(0L) + (channels[1].valueOptional().orElse(0L) * -1);
-		}, apparentPowerPos, apparentPowerNeg);
+		}, apparentPowerPos, apparentPowerNeg).unit("VA");
 		return mp;
 	}
 }
