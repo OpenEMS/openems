@@ -1,12 +1,8 @@
 package io.openems.impl.controller.api.modbustcp;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NavigableMap;
-import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,17 +15,11 @@ import com.ghgande.j2mod.modbus.procimg.IllegalAddressException;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.ProcessImage;
 import com.ghgande.j2mod.modbus.procimg.Register;
-import com.ghgande.j2mod.modbus.procimg.SimpleInputRegister;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.doc.ChannelDoc;
-import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.core.ApiWorker;
-import io.openems.core.Databus;
-import io.openems.core.ThingRepository;
-import io.openems.core.utilities.BitUtils;
 
 /**
  * Holds the mapping between Modbus addresses ("ref") and OpenEMS Channel addresses and answers Modbus-TCP Slave
@@ -40,36 +30,21 @@ import io.openems.core.utilities.BitUtils;
  */
 public class MyProcessImage implements ProcessImage {
 	/**
-	 * Holds the link between Modbus address ("ref") and ChannelAddress
+	 * Holds the link between Modbus address ("ref") and ChannelRegisterMap
 	 */
-	private final NavigableMap<Integer, ChannelAddress> ref2Channel = new TreeMap<>();
-	/**
-	 * Holds the already used Refs to avoid double declaration
-	 */
-	private final TreeSet<Integer> usedRefs = new TreeSet<>();
-	/**
-	 * Holds the link between ChannelAddress and ChannelDoc
-	 * Each ChannelDoc is guaranteed to have a bitLength
-	 */
-	private final Map<ChannelAddress, ChannelDoc> channel2Doc = new HashMap<>();
+	private final NavigableMap<Integer, ChannelRegisterMap> registerMaps = new TreeMap<>();
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());;
 	private final int unitId;
-	private final Databus databus;
-	private final ThingRepository thingRepository;
-	// private final ApiWorker apiWorker;
+	private final ApiWorker apiWorker;
 
 	protected MyProcessImage(int unitId, ApiWorker apiWorker) {
 		this.unitId = unitId;
-		this.databus = Databus.getInstance();
-		this.thingRepository = ThingRepository.getInstance();
-		// this.apiWorker = apiWorker;
+		this.apiWorker = apiWorker;
 	}
 
 	protected synchronized void clearMapping() {
-		this.ref2Channel.clear();
-		this.usedRefs.clear();
-		this.channel2Doc.clear();
+		this.registerMaps.clear();
 	}
 
 	protected synchronized void addMapping(int ref, ChannelAddress channelAddress, ChannelDoc channelDoc)
@@ -78,52 +53,12 @@ public class MyProcessImage implements ProcessImage {
 			throw new OpenemsException(
 					"Modbus address [" + ref + "] for Channel [" + channelAddress + "] must be a positive number.");
 		}
-		Optional<Class<?>> typeOpt = channelDoc.getTypeOpt();
-		if (!typeOpt.isPresent()) {
+		ChannelRegisterMap channelRegistermap = new ChannelRegisterMap(channelAddress, channelDoc, this.apiWorker);
+		if (!this.registerMaps.subMap(ref, ref + channelRegistermap.getRegisters().length - 1).isEmpty()) {
 			throw new OpenemsException(
-					"Type for Channel [" + channelAddress + "] is not defined. Annotation is missing.");
+					"Modbus address [" + ref + "] for [" + channelAddress + "] is already occupied.");
 		}
-		Optional<Integer> bitLengthOpt = channelDoc.getBitLengthOpt();
-		if (!bitLengthOpt.isPresent()) {
-			throw new OpenemsException("BitLength for Channel [" + channelAddress + "] is not defined.");
-		}
-		int registerLength = bitLengthOpt.get() / 16;
-		for (int i = ref; i < ref + registerLength; i++) {
-			if (this.usedRefs.contains(i)) {
-				throw new OpenemsException(
-						"Modbus address [" + ref + "] for [" + channelAddress + "] is already occupied.");
-			}
-			this.usedRefs.add(i);
-		}
-		this.ref2Channel.put(ref, channelAddress);
-		this.channel2Doc.put(channelAddress, channelDoc);
-	}
-
-	/**
-	 * Data type converter.
-	 *
-	 * @param object
-	 * @return
-	 * @throws NotImplementedException
-	 */
-	private InputRegister[] toInputRegister(Optional<?> objectOpt, int bitLength) throws NotImplementedException {
-		if (objectOpt.isPresent()) {
-			Object object = objectOpt.get();
-			byte[] b = BitUtils.toBytes(object);
-			InputRegister[] result = new InputRegister[b.length / 2];
-			for (int i = 0; i < b.length / 2; i++) {
-				result[i] = new SimpleInputRegister(b[i * 2], b[i * 2 + 1]);
-			}
-			return result;
-		} else {
-			// object is null. Build an empty Array with the needed length
-			int registers = bitLength / 16;
-			InputRegister[] result = new InputRegister[bitLength / 16];
-			for (int i = 0; i < registers; i++) {
-				result[i] = new SimpleInputRegister();
-			}
-			return result;
-		}
+		this.registerMaps.put(ref, channelRegistermap);
 	}
 
 	/*
@@ -137,7 +72,8 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized DigitalOut[] getDigitalOutRange(int offset, int count) throws IllegalAddressException {
-		log.warn("getDigitalOutRange is not implemented");
+		// TODO
+		this.throwIllegalAddressException("getDigitalOutRange is not implemented");
 		return new DigitalOut[] {};
 	}
 
@@ -149,90 +85,106 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized int getDigitalOutCount() {
+		// TODO
 		log.warn("getDigitalOutCount is not implemented");
 		return 0;
 	}
 
 	@Override
 	public synchronized DigitalIn[] getDigitalInRange(int offset, int count) throws IllegalAddressException {
-		log.warn("getDigitalInRange is not implemented");
+		// TODO
+		this.throwIllegalAddressException("getDigitalInRange is not implemented");
 		return new DigitalIn[] {};
 	}
 
 	@Override
 	public synchronized DigitalIn getDigitalIn(int ref) throws IllegalAddressException {
-		log.warn("getDigitalIn is not implemented");
+		// TODO
+		this.throwIllegalAddressException("getDigitalIn is not implemented");
 		return null;
 	}
 
 	@Override
 	public synchronized int getDigitalInCount() {
+		// TODO
 		log.warn("getDigitalInCount is not implemented");
 		return 0;
 	}
 
 	@Override
 	public synchronized InputRegister[] getInputRegisterRange(int offset, int count) throws IllegalAddressException {
-		SortedMap<Integer, ChannelAddress> refs = this.ref2Channel.subMap(offset, offset + count);
+		SortedMap<Integer, ChannelRegisterMap> registerMaps = this.registerMaps.subMap(offset, offset + count);
+
 		InputRegister[] result = new InputRegister[count];
 		for (int i = 0; i < count;) {
 			int ref = i + offset;
 			// get channel value as InputRegister[]
-			if (!refs.containsKey(ref)) {
-
+			if (!registerMaps.containsKey(ref)) {
 				this.throwIllegalAddressException("No mapping defined for Modbus address [" + ref + "].");
 			}
-			ChannelAddress channelAddress = refs.get(ref);
-			Optional<Channel> channelOpt = thingRepository.getChannel(channelAddress);
-			if (!channelOpt.isPresent()) {
-				this.throwIllegalAddressException("Channel does not exist [" + channelAddress + "]");
-			}
-			Channel channel = channelOpt.get();
-			Optional<?> valueOpt = databus.getValue(channel);
-			int bitLength = this.channel2Doc.get(channelAddress).getBitLengthOpt().get(); // we checked before
-			InputRegister[] value;
-			try {
-				value = toInputRegister(valueOpt, bitLength);
-				// add value to result
-				for (int j = 0; j < value.length; j++) {
-					if (i + j > result.length - 1) {
-						this.throwIllegalAddressException("Mobus result is not fitting in RegisterRange. Offset ["
-								+ offset + "] Count [" + count + "]");
-					}
-					result[i + j] = value[j];
+			InputRegister[] registers = registerMaps.get(ref).getRegisters();
+			for (int j = 0; j < registers.length; j++) {
+				if (i + j > result.length - 1) {
+					this.throwIllegalAddressException("Mobus result is not fitting in RegisterRange. Offset [" + offset
+							+ "] Count [" + count + "]");
 				}
-				// increase i by bitlength
-				i += value.length;
-			} catch (NotImplementedException e) {
-				this.throwIllegalAddressException(
-						"Mobus result is not fitting in RegisterRange. Offset [" + offset + "] Count [" + count + "]");
+				result[i + j] = registers[j];
 			}
+			// increase i by register count
+			i += registers.length;
 		}
 		return result;
 	}
 
 	@Override
 	public synchronized InputRegister getInputRegister(int ref) throws IllegalAddressException {
-		log.warn("getInputRegister is not implemented");
+		// TODO
+		this.throwIllegalAddressException("getInputRegister is not implemented");
 		return null;
 	}
 
 	@Override
 	public synchronized int getInputRegisterCount() {
+		// TODO
 		log.warn("getInputRegisterCount is not implemented");
 		return 0;
 	}
 
 	@Override
 	public synchronized Register[] getRegisterRange(int offset, int count) throws IllegalAddressException {
-		log.warn("getRegisterRange is not implemented");
-		return new Register[] {};
+		SortedMap<Integer, ChannelRegisterMap> registerMaps = this.registerMaps.subMap(offset, offset + count);
+		if (registerMaps.firstKey() != offset) {
+			this.throwIllegalAddressException("No valid mapping for Modbus address [" + offset + "].");
+		}
+		if (registerMaps.lastKey() + registerMaps.get(registerMaps.lastKey()).getRegisters().length != offset + count) {
+			this.throwIllegalAddressException("Modbus register range has no valid length.");
+		}
+		Register[] registers = new Register[count];
+		int i = 0;
+		for (ChannelRegisterMap map : registerMaps.values()) {
+			for (Register register : map.getRegisters()) {
+				registers[i++] = register;
+			}
+		}
+		return registers;
 	}
 
 	@Override
 	public synchronized Register getRegister(int ref) throws IllegalAddressException {
-		log.warn("getRegister is not implemented");
-		return null;
+		SortedMap<Integer, ChannelRegisterMap> registerMaps = this.registerMaps.subMap(0, ref + 1);
+		int lastKey = registerMaps.lastKey();
+		ChannelRegisterMap registerMap = registerMaps.get(lastKey);
+		if (registerMap.getRegisters().length > 1) {
+			this.throwIllegalAddressException("Channel [" + registerMap.getChannelAddress()
+			+ "] consists of more than one register. Modbus address [" + ref + "] is invalid.");
+		}
+		int offset = ref - lastKey;
+		if (lastKey + registerMap.getRegisters().length < ref) {
+			this.throwIllegalAddressException("No mapping defined for Modbus address [" + ref + "].");
+		}
+		Register[] registers = registerMap.getRegisters();
+		Register register = registers[offset];
+		return register;
 	}
 
 	@Override

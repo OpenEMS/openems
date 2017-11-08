@@ -20,7 +20,7 @@ public enum OpenemsTypes {
 	/*
 	 * Primitives
 	 */
-	INTEGER, LONG, DOUBLE, BOOLEAN, STRING, //
+	SHORT, INTEGER, LONG, DOUBLE, BOOLEAN, STRING, //
 	/*
 	 * Arrays of primitives
 	 */
@@ -39,7 +39,10 @@ public enum OpenemsTypes {
 	DEVICE_NATURE, THING_MAP;
 
 	public static OpenemsTypes get(Class<?> type) throws NotImplementedException {
-		if (Integer.class.isAssignableFrom(type)) {
+		if (Short.class.isAssignableFrom(type)) {
+			return SHORT;
+
+		} else if (Integer.class.isAssignableFrom(type)) {
 			return INTEGER;
 
 		} else if (Long.class.isAssignableFrom(type)) {

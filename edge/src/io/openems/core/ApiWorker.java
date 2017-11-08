@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.api.channel.Channel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.exception.WriteChannelException;
 
@@ -22,7 +23,7 @@ import io.openems.api.exception.WriteChannelException;
 public class ApiWorker {
 
 	private final static Logger log = LoggerFactory.getLogger(ApiWorker.class);
-	private final static int DEFAULT_TIMEOUT_SECONDS = 60;
+	private final static int DEFAULT_TIMEOUT_SECONDS = 10;
 
 	private final Map<WriteChannel<?>, Object> values = new HashMap<>();
 	private final ScheduledExecutorService executor;
@@ -35,6 +36,7 @@ public class ApiWorker {
 	}
 
 	public void addValue(WriteChannel<?> channel, Object value) {
+		log.info("Set [" + channel.address() + "] to [" + value + "] via API. Timeout is [" + this.timeoutSeconds + "s]");
 		this.resetTimeout();
 
 		synchronized (this.values) {
@@ -52,6 +54,9 @@ public class ApiWorker {
 				 * This worker takes care to clear the values list if there is no change within the timeout
 				 */
 				synchronized (this.values) {
+					for(Channel channel : this.values.keySet()) {
+						log.info("API timeout for channel [" + channel.address() + "] after [" + this.timeoutSeconds + "s]");
+					}
 					this.values.clear();
 				}
 			}, this.timeoutSeconds, TimeUnit.SECONDS);
