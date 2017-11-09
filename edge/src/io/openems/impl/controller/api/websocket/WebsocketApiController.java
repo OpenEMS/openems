@@ -29,9 +29,12 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
+import io.openems.core.utilities.api.ApiWorker;
 
 @ThingInfo(title = "Websocket-API", description = "Required by OpenEMS-UI.")
 public class WebsocketApiController extends Controller implements ChannelChangeListener {
+
+	private final ApiWorker apiWorker = new ApiWorker();
 
 	/*
 	 * Constructors
@@ -50,6 +53,17 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	@ChannelInfo(title = "Port", description = "Sets the port of the Websocket-Api Server.", type = Integer.class, defaultValue = "8085")
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).addChangeListener(this);
 
+	@ChannelInfo(title = "ChannelTimeout", description = "Sets the timeout for updates to channels.", type = Integer.class, defaultValue = ""
+			+ ApiWorker.DEFAULT_TIMEOUT_SECONDS)
+	public final ConfigChannel<Integer> channelTimeout = new ConfigChannel<Integer>("channelTimeout", this)
+	.addChangeListener((Channel channel, Optional<?> newValue, Optional<?> oldValue) -> {
+		if(newValue.isPresent() && Integer.parseInt(newValue.get().toString()) >= 0) {
+			apiWorker.setTimeoutSeconds(Integer.parseInt(newValue.get().toString()));
+		} else {
+			apiWorker.setTimeoutSeconds(ApiWorker.DEFAULT_TIMEOUT_SECONDS);
+		}
+	});
+
 	/*
 	 * Fields
 	 */
@@ -63,14 +77,15 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 		// Start Websocket-Api server
 		if (websocketApiServer == null && port.valueOptional().isPresent()) {
 			try {
-				websocketApiServer = new WebsocketApiServer(port.valueOptional().get());
+				websocketApiServer = new WebsocketApiServer(apiWorker, port.valueOptional().get());
 				websocketApiServer.start();
 				log.info("Websocket-Api started on port [" + port.valueOptional().orElse(0) + "].");
 			} catch (Exception e) {
 				log.error(e.getMessage() + ": " + e.getCause());
 			}
 		}
-
+		// call AapiWorker
+		this.apiWorker.run();
 	}
 
 	@Override

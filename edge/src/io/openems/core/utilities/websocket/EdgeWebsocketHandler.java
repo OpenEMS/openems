@@ -55,6 +55,9 @@ import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.LinuxCommand;
+import io.openems.core.utilities.api.ApiWorker;
+import io.openems.core.utilities.api.WriteJsonObject;
+import io.openems.core.utilities.api.WriteObject;
 
 /**
  * Handles a Websocket connection to a browser, OpenEMS backend,...
@@ -90,11 +93,18 @@ public class EdgeWebsocketHandler {
 	 */
 	private final Optional<Role> roleOpt;
 
+	/**
+	 * ApiWorker handles updates to WriteChannels
+	 */
+	private final Optional<ApiWorker> apiWorkerOpt;
+
 	public EdgeWebsocketHandler() {
+		this.apiWorkerOpt = Optional.empty();
 		this.roleOpt = Optional.empty();
 	}
 
-	public EdgeWebsocketHandler(WebSocket websocket, Role role) {
+	public EdgeWebsocketHandler(ApiWorker apiWorker, WebSocket websocket, Role role) {
+		this.apiWorkerOpt = Optional.ofNullable(apiWorker);
 		this.websocketOpt = Optional.ofNullable(websocket);
 		this.roleOpt = Optional.ofNullable(role);
 	}
@@ -141,7 +151,7 @@ public class EdgeWebsocketHandler {
 		Optional<JsonObject> jConfigOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "config");
 		if (jConfigOpt.isPresent()) {
 			jReply = JsonUtils.merge(jReply, //
-					config(jConfigOpt.get(), role, jIdOpt.orElse(new JsonArray())) //
+					config(jConfigOpt.get(), role, jIdOpt.orElse(new JsonArray()), apiWorkerOpt) //
 					);
 		}
 
@@ -224,7 +234,7 @@ public class EdgeWebsocketHandler {
 	 * @param jConfig
 	 * @return
 	 */
-	private synchronized JsonObject config(JsonObject jConfig, Role role, JsonArray jId) {
+	private synchronized JsonObject config(JsonObject jConfig, Role role, JsonArray jId, Optional<ApiWorker> apiWorkerOpt) {
 		try {
 			String mode = JsonUtils.getAsString(jConfig, "mode");
 
@@ -263,11 +273,24 @@ public class EdgeWebsocketHandler {
 							/*
 							 * WriteChannel
 							 */
-							// TODO use Worker...
-							// WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
-							// writeChannel.pushWrite(jValue);
-							// Notification.send(NotificationType.SUCCESS,
-							// "Successfully set [" + channel.address() + "] to [" + jValue + "]");
+							WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
+							if(!apiWorkerOpt.isPresent()) {
+								WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
+										Notification.BACKEND_NOT_ALLOWED, "set " + channel.address() + " => " + jValue);
+							} else {
+								ApiWorker apiWorker = apiWorkerOpt.get();
+								WriteObject writeObject = new WriteJsonObject(jValue).onFirstSuccess(() -> {
+									WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
+											Notification.EDGE_CHANNEL_UPDATE_SUCCESS, "set " + channel.address() + " => " + jValue);
+								}).onFirstError((e) -> {
+									WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
+											Notification.EDGE_CHANNEL_UPDATE_FAILED, "set " + channel.address() + " => " + jValue, e.getMessage());
+								}).onTimeout(() -> {
+									WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
+											Notification.EDGE_CHANNEL_UPDATE_TIMEOUT, "set " + channel.address() + " => " + jValue);
+								});
+								apiWorker.addValue(writeChannel, writeObject);
+							}
 						}
 					} else {
 						throw new OpenemsException("Unable to find Channel [" + thingId + "/" + channelId + "]");

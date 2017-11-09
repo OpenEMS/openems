@@ -11,9 +11,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.api.channel.Channel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.exception.WriteChannelException;
+import io.openems.common.exceptions.OpenemsException;
 
 /**
  * Takes care of continuously writing channels till a timeout. This class is used in all Api-Controllers.
@@ -23,7 +22,7 @@ import io.openems.api.exception.WriteChannelException;
 public class ApiWorker {
 
 	private final static Logger log = LoggerFactory.getLogger(ApiWorker.class);
-	private final static int DEFAULT_TIMEOUT_SECONDS = 10;
+	public final static int DEFAULT_TIMEOUT_SECONDS = 10;
 
 	/**
 	 * Holds the mapping between WriteChannel and the value that it should be set to.
@@ -39,11 +38,11 @@ public class ApiWorker {
 		this.executor = Executors.newSingleThreadScheduledExecutor();
 	}
 
-	public void addValue(WriteChannel<?> channel, Object value) {
-		log.info("Set [" + channel.address() + "] to [" + value + "] via API. Timeout is [" + this.timeoutSeconds + "s]");
+	public void addValue(WriteChannel<?> channel, WriteObject writeObject) {
+		log.info("Set [" + channel.address() + "] to [" + writeObject.valueToString() + "] via API. Timeout is [" + this.timeoutSeconds + "s]");
 		this.resetTimeout();
 		synchronized (this.values) {
-			this.values.put(channel, new WriteObject(value));
+			this.values.put(channel, writeObject);
 		}
 	}
 
@@ -57,9 +56,10 @@ public class ApiWorker {
 				 * This worker takes care to clear the values list if there is no change within the timeout
 				 */
 				synchronized (this.values) {
-					for (Channel channel : this.values.keySet()) {
-						log.info("API timeout for channel [" + channel.address() + "] after [" + this.timeoutSeconds
+					for (Entry<WriteChannel<?>, WriteObject> entry : this.values.entrySet()) {
+						log.info("API timeout for channel [" + entry.getKey().address() + "] after [" + this.timeoutSeconds
 								+ "s]");
+						entry.getValue().notifyTimeout();
 					}
 					this.values.clear();
 				}
@@ -86,13 +86,13 @@ public class ApiWorker {
 				WriteChannel<?> channel = entry.getKey();
 				WriteObject writeObject = entry.getValue();
 				try {
-					log.info("Set Channel [" + channel.address() + "] to Value [" + writeObject.value + "]");
-					channel.pushWriteFromObject(writeObject.value);
-					writeObject.onSuccess();
-				} catch (WriteChannelException e) {
-					log.error("Unable to set Channel [" + channel.address() + "] to Value [" + writeObject.value + "]: "
+					log.info("Set Channel [" + channel.address() + "] to Value [" + writeObject.valueToString() + "]");
+					writeObject.pushWrite(channel);
+					writeObject.notifySuccess();
+				} catch (OpenemsException e) {
+					log.error("Unable to set Channel [" + channel.address() + "] to Value [" + writeObject.valueToString() + "]: "
 							+ e.getMessage());
-					writeObject.onError(e);
+					writeObject.notifyError(e);
 				}
 			}
 		}

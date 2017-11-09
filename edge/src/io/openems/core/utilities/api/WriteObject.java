@@ -2,43 +2,86 @@ package io.openems.core.utilities.api;
 
 import java.util.Optional;
 
-import io.openems.api.exception.WriteChannelException;
+import io.openems.api.channel.WriteChannel;
+import io.openems.common.exceptions.OpenemsException;
 
-public class WriteObject {
+public abstract class WriteObject {
 	public interface OnSuccess {
 		public void run();
 	}
 
 	public interface OnError {
-		public void run(WriteChannelException e);
+		public void run(OpenemsException e);
 	}
 
-	public final Object value;
-
-	private final Optional<OnSuccess> onSuccessOpt;
-	private final Optional<OnError> onErrorOpt;
-
-	public WriteObject(Object value) {
-		this.value = value;
-		this.onSuccessOpt = Optional.empty();
-		this.onErrorOpt = Optional.empty();
+	public interface OnTimeout {
+		public void run();
 	}
 
-	public WriteObject(Object value, OnSuccess onSuccess, OnError onError) {
-		this.value = value;
-		this.onSuccessOpt = Optional.ofNullable(onSuccess);
-		this.onErrorOpt = Optional.ofNullable(onError);
+	private Optional<OnSuccess> onSuccessOpt = Optional.empty();
+	private boolean notifiedSuccess = false;
+	private Optional<OnSuccess> onFirstSuccessOpt = Optional.empty();
+	private Optional<OnError> onErrorOpt = Optional.empty();
+	private boolean notifiedError = false;
+	private Optional<OnError> onFirstErrorOpt = Optional.empty();
+	private Optional<OnTimeout> onTimeoutOpt = Optional.empty();
+
+	public WriteObject onSuccess(OnSuccess handler) {
+		this.onSuccessOpt = Optional.ofNullable(handler);
+		return this;
 	}
 
-	public void onSuccess() {
-		if(this.onSuccessOpt.isPresent()) {
+	public WriteObject onFirstSuccess(OnSuccess handler) {
+		this.onFirstSuccessOpt = Optional.ofNullable(handler);
+		return this;
+	}
+
+	public WriteObject onError(OnError handler) {
+		this.onErrorOpt = Optional.ofNullable(handler);
+		return this;
+	}
+
+	public WriteObject onFirstError(OnError handler) {
+		this.onFirstErrorOpt = Optional.ofNullable(handler);
+		return this;
+	}
+
+	public WriteObject onTimeout(OnTimeout handler) {
+		this.onTimeoutOpt = Optional.ofNullable(handler);
+		return this;
+	}
+
+	public void notifySuccess() {
+		if (!this.notifiedSuccess) {
+			if (this.onFirstSuccessOpt.isPresent()) {
+				this.onFirstSuccessOpt.get().run();
+			}
+			this.notifiedSuccess = true;
+		}
+		if (this.onSuccessOpt.isPresent()) {
 			this.onSuccessOpt.get().run();
 		}
 	}
 
-	public void onError(WriteChannelException e) {
-		if(this.onErrorOpt.isPresent()) {
+	public void notifyError(OpenemsException e) {
+		if (!this.notifiedError) {
+			if (this.onFirstErrorOpt.isPresent()) {
+				this.onFirstErrorOpt.get().run(e);
+			}
+			this.notifiedError = true;
+		}
+		if (this.onErrorOpt.isPresent()) {
 			this.onErrorOpt.get().run(e);
 		}
 	}
+
+	public void notifyTimeout() {
+		if (this.onTimeoutOpt.isPresent()) {
+			this.onTimeoutOpt.get().run();
+		}
+	}
+
+	public abstract void pushWrite(WriteChannel<?> writeChannel) throws OpenemsException;
+
+	public abstract String valueToString();
 }

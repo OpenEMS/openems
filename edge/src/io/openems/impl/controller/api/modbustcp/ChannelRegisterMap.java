@@ -14,6 +14,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.BitUtils;
 import io.openems.core.utilities.api.ApiWorker;
+import io.openems.core.utilities.api.WritePOJO;
 
 public class ChannelRegisterMap {
 
@@ -106,7 +107,8 @@ public class ChannelRegisterMap {
 		} else if (channel instanceof WriteChannel<?>) {
 			// it is a WriteChannel -> handle by ApiWorker
 			WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
-			apiWorker.addValue(writeChannel, valueObj);
+			WritePOJO writeObject = new WritePOJO(valueObj);
+			apiWorker.addValue(writeChannel, writeObject);
 		}
 	}
 
