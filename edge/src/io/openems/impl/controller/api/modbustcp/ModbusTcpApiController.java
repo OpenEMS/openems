@@ -17,9 +17,9 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.core.ApiWorker;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
+import io.openems.core.utilities.api.ApiWorker;
 
 @ThingInfo(title = "Modbus/TCP API", description = "Modbus/TCP slave implementation.")
 public class ModbusTcpApiController extends Controller {
@@ -71,7 +71,7 @@ public class ModbusTcpApiController extends Controller {
 	 */
 	@Override
 	public void run() {
-		this.apiWorker.writeChannels();
+		this.apiWorker.run();
 	}
 
 	protected void restartSlave(Optional<Integer> portOpt) {

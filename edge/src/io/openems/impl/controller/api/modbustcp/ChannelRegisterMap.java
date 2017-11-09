@@ -11,9 +11,9 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.core.ApiWorker;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.BitUtils;
+import io.openems.core.utilities.api.ApiWorker;
 
 public class ChannelRegisterMap {
 

@@ -1,4 +1,4 @@
-package io.openems.core;
+package io.openems.core.utilities.api;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +25,11 @@ public class ApiWorker {
 	private final static Logger log = LoggerFactory.getLogger(ApiWorker.class);
 	private final static int DEFAULT_TIMEOUT_SECONDS = 10;
 
-	private final Map<WriteChannel<?>, Object> values = new HashMap<>();
+	/**
+	 * Holds the mapping between WriteChannel and the value that it should be set to.
+	 */
+	private final Map<WriteChannel<?>, WriteObject> values = new HashMap<>();
+
 	private final ScheduledExecutorService executor;
 	private ScheduledFuture<?> future = null;
 
@@ -38,9 +42,8 @@ public class ApiWorker {
 	public void addValue(WriteChannel<?> channel, Object value) {
 		log.info("Set [" + channel.address() + "] to [" + value + "] via API. Timeout is [" + this.timeoutSeconds + "s]");
 		this.resetTimeout();
-
 		synchronized (this.values) {
-			this.values.put(channel, value);
+			this.values.put(channel, new WriteObject(value));
 		}
 	}
 
@@ -54,8 +57,9 @@ public class ApiWorker {
 				 * This worker takes care to clear the values list if there is no change within the timeout
 				 */
 				synchronized (this.values) {
-					for(Channel channel : this.values.keySet()) {
-						log.info("API timeout for channel [" + channel.address() + "] after [" + this.timeoutSeconds + "s]");
+					for (Channel channel : this.values.keySet()) {
+						log.info("API timeout for channel [" + channel.address() + "] after [" + this.timeoutSeconds
+								+ "s]");
 					}
 					this.values.clear();
 				}
@@ -74,19 +78,21 @@ public class ApiWorker {
 	}
 
 	/**
-	 * Sets the channels
+	 * Sets the channels. This method is called by the run() method of the Controller
 	 */
-	public void writeChannels() {
+	public void run() {
 		synchronized (this.values) {
-			for (Entry<WriteChannel<?>, Object> entry : this.values.entrySet()) {
+			for (Entry<WriteChannel<?>, WriteObject> entry : this.values.entrySet()) {
 				WriteChannel<?> channel = entry.getKey();
-				Object value = entry.getValue();
+				WriteObject writeObject = entry.getValue();
 				try {
-					log.info("Set Channel [" + channel.address() + "] to Value [" + value + "]");
-					channel.pushWriteFromObject(value);
+					log.info("Set Channel [" + channel.address() + "] to Value [" + writeObject.value + "]");
+					channel.pushWriteFromObject(writeObject.value);
+					writeObject.onSuccess();
 				} catch (WriteChannelException e) {
-					log.error("Unable to set Channel [" + channel.address() + "] to Value [" + value + "]: "
+					log.error("Unable to set Channel [" + channel.address() + "] to Value [" + writeObject.value + "]: "
 							+ e.getMessage());
+					writeObject.onError(e);
 				}
 			}
 		}

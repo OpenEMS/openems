@@ -19,7 +19,7 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.exception.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.core.ApiWorker;
+import io.openems.core.utilities.api.ApiWorker;
 
 /**
  * Holds the mapping between Modbus addresses ("ref") and OpenEMS Channel addresses and answers Modbus-TCP Slave
