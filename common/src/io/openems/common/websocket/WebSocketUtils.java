@@ -48,7 +48,7 @@ public class WebSocketUtils {
 		String logMessage = "Notification [" + code.getValue() + "]: " + message;
 		// log message
 		if (logBehaviour.equals(LogBehaviour.WRITE_TO_LOG)) {
-			switch (code.getStatus()) {
+			switch (code.getType()) {
 			case INFO:
 			case LOG:
 			case SUCCESS:

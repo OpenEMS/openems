@@ -233,7 +233,7 @@ public class DefaultMessages {
 	 *	{
 	 *		notification: {
 	 *			id: string[],
-	 *			status: string,
+	 *			type: string,
 	 *			message: string,
 	 *			code: number,
 	 *			params: string[]
@@ -247,7 +247,7 @@ public class DefaultMessages {
 		JsonObject j = new JsonObject();
 		j.add("id", jId);
 		JsonObject jNotification = new JsonObject();
-		jNotification.addProperty("status", code.getStatus().toString().toLowerCase());
+		jNotification.addProperty("type", code.getType().toString().toLowerCase());
 		jNotification.addProperty("message", message);
 		jNotification.addProperty("code", code.getValue());
 		JsonArray jParams = new JsonArray();

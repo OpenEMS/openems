@@ -20,6 +20,6 @@
  *******************************************************************************/
 package io.openems.common.websocket;
 
-public enum NotificationStatus {
+public enum NotificationType {
 	SUCCESS, ERROR, WARNING, INFO, LOG;
 }
