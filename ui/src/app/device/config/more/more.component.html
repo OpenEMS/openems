@@ -11,24 +11,6 @@
     </mat-card>
   </div>
 
-  <div fxFlex="50%" fxFlex.xs="100%">
-    <mat-card class="single">
-      <mat-card-header>
-        <mat-icon mat-card-avatar>stop</mat-icon>
-        <mat-card-title translate>Device.Config.More.ManualCommand</mat-card-title>
-      </mat-card-header>
-      <mat-card-content [formGroup]="manualMessageForm" fxLayout fxLayoutWrap="wrap">
-        <div fxFlex="100%" fxLayout>
-          <mat-input-container fxFlex="100%"><input formControlName="message" placeholder="JSON" matInput></mat-input-container>
-          <div fxFlex></div>
-        </div>
-        <div fxFlex="100%">
-          <button mat-raised-button (click)="sendManualMessage(manualMessageForm)" class="btn btn-default"><span translate>Device.Config.More.Send</span></button>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
   <div *ngIf="device" routerLink="/device/{{ device.name }}/config/more/rawconfig" fxFlex="50%" fxFlex.xs="100%">
     <mat-card class="single">
       <mat-card-header>
