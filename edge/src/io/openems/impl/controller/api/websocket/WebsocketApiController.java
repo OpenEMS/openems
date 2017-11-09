@@ -22,32 +22,13 @@ package io.openems.impl.controller.api.websocket;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.device.nature.ess.AsymmetricEssNature;
-import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.OpenemsException;
-import io.openems.api.thing.Thing;
-import io.openems.common.websocket.NotificationStatus;
-import io.openems.core.ThingRepository;
-import io.openems.core.utilities.websocket.Notification;
-
-class PQ {
-	public final long p;
-	public final long q;
-	public boolean firstRun = true;
-
-	public PQ(long p, long q) {
-		this.p = p;
-		this.q = q;
-	}
-}
 
 @ThingInfo(title = "Websocket-API", description = "Required by OpenEMS-UI.")
 public class WebsocketApiController extends Controller implements ChannelChangeListener {
@@ -57,12 +38,10 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	 */
 	public WebsocketApiController() {
 		super();
-		this.thingRepository = ThingRepository.getInstance();
 	}
 
 	public WebsocketApiController(String thingId) {
 		super(thingId);
-		this.thingRepository = ThingRepository.getInstance();
 	}
 
 	/*
@@ -74,8 +53,6 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	/*
 	 * Fields
 	 */
-	private final ConcurrentHashMap<String, PQ> manualpq = new ConcurrentHashMap<>();
-	private final ThingRepository thingRepository;
 	private volatile WebsocketApiServer websocketApiServer = null;
 
 	/*
@@ -94,42 +71,6 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 			}
 		}
 
-		manualpq.forEach((thingId, pq) -> {
-			try {
-				Thing thing = thingRepository.getThing(thingId);
-				if (thing == null) {
-					throw new OpenemsException("Ess[" + thingId + "] is not registered.");
-				} else if (thing instanceof AsymmetricEssNature) {
-					AsymmetricEssNature e = (AsymmetricEssNature) thing;
-					long p = pq.p / 3;
-					long q = pq.q / 3;
-					e.setActivePowerL1().pushWrite(p);
-					e.setActivePowerL2().pushWrite(p);
-					e.setActivePowerL3().pushWrite(p);
-					e.setReactivePowerL1().pushWrite(q);
-					e.setReactivePowerL2().pushWrite(q);
-					e.setReactivePowerL3().pushWrite(q);
-					if (pq.firstRun) {
-						Notification.send(NotificationStatus.INFO, "Started manual PQ for Ess[" + thingId
-								+ "]. Asymmetric output on each phase: p[+" + p + "], q[" + q + "]");
-					}
-				} else if (thing instanceof SymmetricEssNature) {
-					SymmetricEssNature e = (SymmetricEssNature) thing;
-					e.setActivePower().pushWrite(pq.p);
-					e.setReactivePower().pushWrite(pq.q);
-					if (pq.firstRun) {
-						Notification.send(NotificationStatus.INFO, "Started manual PQ for Ess[" + thingId
-								+ "]. Symmetric output: p[+" + pq.p + "], q[" + pq.q + "]");
-					}
-				} else {
-					throw new OpenemsException("Ess[" + thingId + "] is not an Ess.");
-				}
-			} catch (OpenemsException e) {
-				Notification.send(NotificationStatus.ERROR, e.getMessage());
-			} finally {
-				pq.firstRun = false;
-			}
-		});
 	}
 
 	@Override
@@ -144,14 +85,6 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 			}
 			this.websocketApiServer = null;
 		}
-	}
-
-	public void setManualPQ(String ess, long p, long q) {
-		this.manualpq.put(ess, new PQ(p, q));
-	}
-
-	public void resetManualPQ(String ess) {
-		this.manualpq.remove(ess);
 	}
 
 	/**
