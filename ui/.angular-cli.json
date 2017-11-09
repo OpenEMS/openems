@@ -21,6 +21,7 @@
       "styles": [
         "styles.css",
         "../node_modules/material-design-icons-iconfont/dist/material-design-icons.css",
+        "../node_modules/angular2-toaster/toaster.css",
         "theme.scss"
       ],
       "scripts": [

@@ -27,6 +27,7 @@
     "@angular/platform-browser-dynamic": "^5.0.0",
     "@angular/platform-server": "^5.0.0",
     "@angular/router": "^5.0.0",
+    "angular2-toaster": "4.0.1",
     "@ngx-translate/core": "^8.0.0",
     "@types/d3": "4.11.0",
     "angular2-uuid": "^1.1.1",
