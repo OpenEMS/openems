@@ -1,3 +1,135 @@
+# Simulator Charger
+
+
+Following Values are implemented:
+
+|ChannelName|Unit|
+|---|---|
+|ActualPower|W|
+|InputVoltage|mV|
+|NominalPower||
+|maxActualPower||
+|powerConfig||
+|SetMaxPower||
+# Simulator ESS
+
+
+Following Values are implemented:
+
+|ChannelName|Unit|
+|---|---|
+|ActivePoweL1||
+|ActivePoweL2||
+|ActivePoweL3||
+|AllowedApparent||
+|AllowedCharge||
+|AllowedDischarge||
+|capacity|Wh|
+|chargeSoc||
+|charger||
+|GridMode|0: On-Grid<br/>1: Off-Grid<br/>|
+|maxNominalPower|VA|
+|minSoc||
+|Power||
+|ReactivePowerL1||
+|ReactivePowerL2||
+|ReactivePowerL3||
+|SetActivePowerL1||
+|SetActivePowerL2||
+|SetActivePowerL3||
+|SetReactivePowerL1||
+|SetReactivePowerL2||
+|SetReactivePowerL3||
+|SetWorkState|1: Start<br/>2: Stop<br/>|
+|Soc||
+|SystemState|1: Start<br/>2: Stop<br/>|
+|Warning||
+# Simulator ESS
+
+
+Following Values are implemented:
+
+|ChannelName|Unit|
+|---|---|
+|ActivePower||
+|activePowerGeneratorConfig||
+|AllowedApparent||
+|AllowedCharge||
+|AllowedDischarge||
+|ApparentPower||
+|capacity|Wh|
+|chargeSoc||
+|charger||
+|gridMode|0: On-Grid<br/>1: Off-Grid<br/>|
+|maxNominalPower|VA|
+|minSoc||
+|ReactivePower||
+|reactivePowerGeneratorConfig||
+|SetActivePower||
+|SetReactivePower||
+|SetWorkState|1: Start<br/>2: Stop<br/>|
+|Soc||
+|systemState|1: Start<br/>2: Stop<br/>5: Fault<br/>|
+|Warning||
+# Simulated Grid Meter
+
+
+Following Values are implemented:
+
+|ChannelName|Unit|
+|---|---|
+|ActivePower||
+|activePowerGeneratorConfig||
+|ActivePowerL1||
+|ActivePowerL2||
+|ActivePowerL3||
+|ApparentPower||
+|esss||
+|frequency||
+|maxActivePower||
+|minActivePower||
+|producer||
+|ReactivePower||
+|reactivePowerGeneratorConfig||
+|ReactivePowerL1||
+|ReactivePowerL2||
+|ReactivePowerL3||
+|type||
+|voltage||
+# Simulator Output
+
+
+Following Values are implemented:
+
+|ChannelName|Unit|
+|---|---|
+|DO1||
+|DO2||
+|DO3||
+|DO4||
+|DO5||
+|DO6||
+|DO7||
+|DO8||
+|DO9||
+|DO10||
+# Simulated Production Meter
+
+
+Following Values are implemented:
+
+|ChannelName|Unit|
+|---|---|
+|ActivePower||
+|activePowerGeneratorConfig||
+|ApparentPower||
+|frequency||
+|maxActivePower||
+|minActivePower||
+|ReactivePower||
+|reactivePowerGeneratorConfig||
+|type||
+|voltage||
 # Simulator ESS
 
 
