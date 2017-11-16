@@ -352,6 +352,9 @@ public class Supplybus {
 				iter.remove();
 			}
 		}
+		if(esss.size()==0) {
+			log.error("No OnGrid Ess!");
+		}
 		return esss;
 	}
 
