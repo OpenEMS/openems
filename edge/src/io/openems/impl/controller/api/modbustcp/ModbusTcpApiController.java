@@ -55,16 +55,27 @@ public class ModbusTcpApiController extends Controller {
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "Port", description = "Sets the port of the Modbus/TCP slave.", type = Integer.class, defaultValue = "502")
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				this.restartSlave((Optional<Integer>) newValue);
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		this.restartSlave((Optional<Integer>) newValue);
+	});
 
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "Mapping", description = "Defines the Modbus-to-Channel-mapping.", type = JsonObject.class, defaultValue = "{ '0': 'system0/OpenemsVersionMajor' }")
 	public final ConfigChannel<JsonObject> mapping = new ConfigChannel<JsonObject>("mapping", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				this.updateChannelMapping((Optional<JsonObject>) newValue);
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		this.updateChannelMapping((Optional<JsonObject>) newValue);
+	});
+
+	@ChannelInfo(title = "ChannelTimeout", description = "Sets the timeout for updates to channels.", type = Integer.class, defaultValue = ""
+			+ ApiWorker.DEFAULT_TIMEOUT_SECONDS)
+	public final ConfigChannel<Integer> channelTimeout = new ConfigChannel<Integer>("channelTimeout", this)
+	.addChangeListener((Channel channel, Optional<?> newValue, Optional<?> oldValue) -> {
+		if(newValue.isPresent() && Integer.parseInt(newValue.get().toString()) >= 0) {
+			apiWorker.setTimeoutSeconds(Integer.parseInt(newValue.get().toString()));
+		} else {
+			apiWorker.setTimeoutSeconds(ApiWorker.DEFAULT_TIMEOUT_SECONDS);
+		}
+	});
 
 	/*
 	 * Methods
