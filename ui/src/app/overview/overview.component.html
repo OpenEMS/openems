@@ -57,32 +57,47 @@
     </form>
 
     <!-- List of devices -->
-    <ng-container *ngFor="let device of utils.values(websocket.devices | async)">
+    <ng-container *ngIf="env.backend === 'OpenEMS Backend' && websocket.status == 'online'">
       <mat-card class="single">
         <mat-card-header>
-          <mat-icon *ngIf="device.online" mat-card-avatar color="primary">folder</mat-icon>
-          <mat-icon *ngIf="!device.online" mat-card-avatar>error</mat-icon>
-          <mat-card-title *ngIf="env.backend === 'OpenEMS Edge'" translate>Overview.ToEnergymonitor</mat-card-title>
-          <mat-card-title *ngIf="env.backend === 'OpenEMS Backend'">
-            <span>{{ device.comment }}
-              <span *ngIf="!device.online">
-                <br/>
-                <span translate>Overview.IsOffline</span>
-              </span>
-            </span>
-          </mat-card-title>
-          <mat-card-subtitle>
-            <p *ngIf="env.backend === 'OpenEMS Backend'">{{ device.name }}: {{ device.producttype }}</p>
-            <p>Angemeldet als '{{ device.role }}'.</p>
-            <!-- TODO translate -->
-          </mat-card-subtitle>
+          <mat-card-title translate>General.Search</mat-card-title>
         </mat-card-header>
-        <mat-card-actions fxLayout fxLayoutAlign="end start" *ngIf="device.online">
-          <button type="button" mat-fab routerLink="/device/{{ device.name }}">
-            <mat-icon>navigate_next</mat-icon>
-          </button>
-        </mat-card-actions>
+        <mat-card-content fxLayout fxLayoutWrap="wrap">
+          <mat-input-container fxFlex="100%">
+            <input type="text" #filter placeholder="Filter" value="" matInput autofocus>
+          </mat-input-container>
+        </mat-card-content>
       </mat-card>
+    </ng-container>
+
+    <ng-container *ngFor="let device of utils.values(websocket.devices | async)">
+      <ng-container *ngIf="env.backend === 'OpenEMS Edge' || device.name.includes(filter.value)">
+        <mat-card class="single">
+          <mat-card-header>
+            <mat-icon *ngIf="device.online" mat-card-avatar color="primary">folder</mat-icon>
+            <mat-icon *ngIf="!device.online" mat-card-avatar>error</mat-icon>
+            <mat-card-title *ngIf="env.backend === 'OpenEMS Edge'" translate>Overview.ToEnergymonitor</mat-card-title>
+            <mat-card-title *ngIf="env.backend === 'OpenEMS Backend'">
+              <span>{{ device.comment }}
+                <span *ngIf="!device.online">
+                  <br/>
+                  <span translate>Overview.IsOffline</span>
+                </span>
+              </span>
+            </mat-card-title>
+            <mat-card-subtitle>
+              <p *ngIf="env.backend === 'OpenEMS Backend'">{{ device.name }}: {{ device.producttype }}</p>
+              <p>Angemeldet als '{{ device.role }}'.</p>
+              <!-- TODO translate -->
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-actions fxLayout fxLayoutAlign="end start" *ngIf="device.online">
+            <button type="button" mat-fab routerLink="/device/{{ device.name }}">
+              <mat-icon>navigate_next</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </ng-container>
     </ng-container>
   </div>
 </div>
