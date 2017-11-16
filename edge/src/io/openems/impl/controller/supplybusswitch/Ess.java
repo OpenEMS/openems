@@ -107,7 +107,7 @@ public class Ess extends ThingMap {
 				setWorkState.pushWriteFromLabel(EssNature.STOP);
 				break;
 			default:
-				setWorkState.pushWriteFromLabel(EssNature.STANDBY);
+				setWorkState.pushWriteFromLabel(EssNature.START);
 				break;
 			}
 		}

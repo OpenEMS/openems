@@ -240,6 +240,7 @@ public class Supplybus {
 			break;
 
 		}
+		primaryEss.start();
 	}
 
 	public Ess getActiveEss() throws SupplyBusException, InvalidValueException {
