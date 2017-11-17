@@ -52,12 +52,12 @@ public class BrowserWebsocketSingleton
 		// Prepare session information
 		String error = "";
 		BrowserSession session = null;
-		String sessionId = null;
+		Optional<String> sessionIdOpt = Optional.empty();
 
 		try {
 			// get cookie information
 			JsonObject jCookie = parseCookieFromHandshake(handshake);
-			sessionId = JsonUtils.getAsString(jCookie, "session_id");
+			sessionIdOpt = JsonUtils.getAsOptionalString(jCookie, "session_id");
 
 			// try to get token of an existing, valid session from cookie
 			if (jCookie.has("token")) {
@@ -66,7 +66,7 @@ public class BrowserWebsocketSingleton
 				if (existingSessionOpt.isPresent()) {
 					BrowserSession existingSession = existingSessionOpt.get();
 					// test if it is the same Odoo session_id
-					if (Optional.ofNullable(sessionId).equals(existingSession.getData().getOdooSessionId())) {
+					if (sessionIdOpt.equals(existingSession.getData().getOdooSessionId())) {
 						session = existingSession;
 					}
 				}
@@ -78,7 +78,7 @@ public class BrowserWebsocketSingleton
 		if (session == null) {
 			// create new session if no existing one was found
 			BrowserSessionData sessionData = new BrowserSessionData();
-			sessionData.setOdooSessionId(sessionId);
+			sessionData.setOdooSessionId(sessionIdOpt);
 			session = sessionManager.createNewSession(sessionData);
 		}
 

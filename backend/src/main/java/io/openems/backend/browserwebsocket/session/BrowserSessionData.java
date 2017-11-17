@@ -13,15 +13,15 @@ import io.openems.common.types.Device;
 public class BrowserSessionData extends SessionData {
 	private String userName = "";
 	private Optional<Integer> userId = Optional.empty();
-	private Optional<String> odooSessionId = Optional.empty();
+	private Optional<String> odooSessionIdOpt = Optional.empty();
 	private LinkedHashMultimap<String, Device> devices = LinkedHashMultimap.create();
 
 	public Optional<String> getOdooSessionId() {
-		return odooSessionId;
+		return odooSessionIdOpt;
 	}
 
-	public void setOdooSessionId(String odooSessionId) {
-		this.odooSessionId = Optional.ofNullable(odooSessionId);
+	public void setOdooSessionId(Optional<String> odooSessionIdOpt) {
+		this.odooSessionIdOpt = odooSessionIdOpt;
 	}
 
 	public void setDevices(LinkedHashMultimap<String, Device> deviceMap) {
