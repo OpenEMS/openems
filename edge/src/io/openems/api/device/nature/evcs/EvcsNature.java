@@ -20,7 +20,6 @@
  *******************************************************************************/
 package io.openems.api.device.nature.evcs;
 
-import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.DeviceNature;
 
 /**
@@ -29,5 +28,5 @@ import io.openems.api.device.nature.DeviceNature;
  * @author stefan.feilmeier
  */
 public interface EvcsNature extends DeviceNature {
-	public ReadChannel<Long> current();
+	// public ReadChannel<Long> current();
 }

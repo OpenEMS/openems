@@ -36,6 +36,6 @@ public class Evcs extends ThingMap {
 
 	@Override
 	public String toString() {
-		return id() + " [" + evcs.current().format() + "]";
+		return id() + " [" + evcs + "]";
 	}
 }
