@@ -25,6 +25,8 @@ import org.restlet.Response;
 import org.restlet.data.Method;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -36,6 +38,8 @@ import io.openems.core.utilities.JsonUtils;
 import io.openems.impl.controller.api.rest.OpenemsRestlet;
 
 public class UserChangePasswordRestlet extends OpenemsRestlet {
+
+	private final Logger log = LoggerFactory.getLogger(UserChangePasswordRestlet.class);
 
 	public UserChangePasswordRestlet() {
 		super();

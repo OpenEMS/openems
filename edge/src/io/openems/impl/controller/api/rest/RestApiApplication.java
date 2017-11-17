@@ -26,6 +26,7 @@ import org.restlet.data.ChallengeScheme;
 import org.restlet.routing.Router;
 import org.restlet.security.ChallengeAuthenticator;
 
+import io.openems.core.utilities.api.ApiWorker;
 import io.openems.impl.controller.api.rest.internal.OpenemsEnroler;
 import io.openems.impl.controller.api.rest.internal.OpenemsVerifier;
 import io.openems.impl.controller.api.rest.route.ChannelRestlet;
@@ -33,6 +34,12 @@ import io.openems.impl.controller.api.rest.route.DeviceNatureRestlet;
 import io.openems.impl.controller.api.rest.route.UserChangePasswordRestlet;
 
 public class RestApiApplication extends Application {
+
+	private final ApiWorker apiWorker;
+
+	public RestApiApplication(ApiWorker apiWorker) {
+		this.apiWorker = apiWorker;
+	}
 
 	/**
 	 * Creates a root Restlet that will receive all incoming calls.
@@ -56,7 +63,7 @@ public class RestApiApplication extends Application {
 		Router router = new Router(getContext());
 		// router.attach("/channel/{thing}/{channel}/current", ChannelCurrentResource.class);
 		router.attach("/user/changePassword", new UserChangePasswordRestlet());
-		router.attach("/channel/{thing}/{channel}", new ChannelRestlet());
+		router.attach("/channel/{thing}/{channel}", new ChannelRestlet(apiWorker));
 		router.attach("/config/deviceNatures", new DeviceNatureRestlet());
 		return router;
 	}
