@@ -15,6 +15,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -119,6 +121,14 @@ public class JsonUtils {
 		}
 	}
 	
+	public static Optional<Long> getAsOptionalLong(JsonElement jElement, String memberName) {
+		try {
+			return Optional.of(getAsLong(jElement, memberName));
+		} catch (OpenemsException e) {
+			return Optional.empty();
+		}
+	}
+
 	public static int getAsInt(JsonElement jElement, String memberName) throws OpenemsException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement, memberName);
 		if (jPrimitive.isNumber()) {
@@ -249,5 +259,20 @@ public class JsonUtils {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String json = gson.toJson(j);
 		System.out.println(json);
+	}
+
+	/**
+	 * Parses a string to a JsonElement
+	 * 
+	 * @param string
+	 * @return
+	 */
+	public static JsonElement parse(String string) throws OpenemsException {
+		try {
+			JsonParser parser = new JsonParser();
+			return parser.parse(string);
+		} catch (JsonParseException e) {
+			throw new OpenemsException("Unable to parse [" + string + "] + to JSON: " + e.getMessage(), e);
+		}
 	}
 }
