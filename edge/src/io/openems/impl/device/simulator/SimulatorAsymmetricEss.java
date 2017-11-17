@@ -125,9 +125,9 @@ implements AsymmetricEssNature, ChannelChangeListener {
 	 */
 	private StatusBitChannels warning = new StatusBitChannels("Warning", this);;
 	private FunctionalReadChannel<Long> soc;
-	private SimulatorReadChannel<Long> activePowerL1 = new SimulatorReadChannel<>("ActivePoweL1", this);
-	private SimulatorReadChannel<Long> activePowerL2 = new SimulatorReadChannel<>("ActivePoweL2", this);
-	private SimulatorReadChannel<Long> activePowerL3 = new SimulatorReadChannel<>("ActivePoweL3", this);
+	private SimulatorReadChannel<Long> activePowerL1 = new SimulatorReadChannel<>("ActivePowerL1", this);
+	private SimulatorReadChannel<Long> activePowerL2 = new SimulatorReadChannel<>("ActivePowerL2", this);
+	private SimulatorReadChannel<Long> activePowerL3 = new SimulatorReadChannel<>("ActivePowerL3", this);
 	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel<Long>("AllowedApparent", this,
 			(40000L / 3));
 	private SimulatorReadChannel<Long> allowedCharge = new SimulatorReadChannel<>("AllowedCharge", this);

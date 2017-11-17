@@ -240,6 +240,7 @@ public class Supplybus {
 			break;
 
 		}
+		primaryEss.start();
 	}
 
 	public Ess getActiveEss() throws SupplyBusException, InvalidValueException {
@@ -350,6 +351,9 @@ public class Supplybus {
 					|| ess.getActiveSupplybus() != null) {
 				iter.remove();
 			}
+		}
+		if(esss.size()==0) {
+			log.error("No OnGrid Ess!");
 		}
 		return esss;
 	}
