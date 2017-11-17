@@ -58,14 +58,19 @@ export class ExistingThingComponent implements OnChanges {
       channelComponent.message
         .takeUntil(this.stopOnDestroy)
         .subscribe((message) => {
-          // set pristine flag
-          let pristine = true;
-          this.channelComponentChildren.forEach(channelComponent => {
-            pristine = pristine && channelComponent.form.pristine;
-          });
-          this.formPristine = pristine;
-          // store message
-          this.messages[message.config.channel] = message;
+          if (message == null) {
+            delete this.messages[channelComponent.channelId];
+            this.formPristine = true;
+          } else {
+            // set pristine flag
+            let pristine = true;
+            this.channelComponentChildren.forEach(channelComponent => {
+              pristine = pristine && channelComponent.form.pristine;
+            });
+            this.formPristine = pristine;
+            // store message
+            this.messages[channelComponent.channelId] = message;
+          }
         });
     });
   }

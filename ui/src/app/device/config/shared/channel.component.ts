@@ -133,9 +133,16 @@ export class ChannelComponent implements OnChanges, OnDestroy {
     if (!this.allowWrite) return;
     let value = this.form.value["channelConfig"];
     if (this.isJson) {
-      value = JSON.parse(value);
+      try {
+        value = JSON.parse(value);
+        this.message.next(DefaultMessages.configUpdate(this.thingId, this.channelId, value));
+      } catch (e) {
+        this.message.next(null);
+      }
+    } else {
+      this.message.next(DefaultMessages.configUpdate(this.thingId, this.channelId, value));
     }
-    this.message.next(DefaultMessages.configUpdate(this.thingId, this.channelId, value));
+
   }
 
   public addToArray() {
