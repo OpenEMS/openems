@@ -86,7 +86,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return this;
 	}
 
-	public TreeMap<T,String> getLabels(){
+	public TreeMap<T, String> getLabels() {
 		return this.labels;
 	}
 
@@ -198,7 +198,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	}
 
 	/**
-	 * Sets the ignore value. If the value of this channel is being updated to this value, it is getting ignored. Ignore value is evaluated before 'delta' and 'multiplier' are applied.
+	 * Sets the ignore value. If the value of this channel is being updated to this value, it is getting ignored. Ignore
+	 * value is evaluated before 'delta' and 'multiplier' are applied.
 	 *
 	 * @param ignore
 	 * @return
@@ -214,22 +215,22 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 
 	@Override
 	public Set<Role> readRoles() {
-		if(this.channelDocOpt.isPresent()) {
+		if (this.channelDocOpt.isPresent()) {
 			ChannelDoc channelDoc = this.channelDocOpt.get();
 			return Collections.unmodifiableSet(channelDoc.getReadRoles());
 		} else {
-			log.warn("Channel ["+this.address()+"] has no ChannelDoc.");
+			log.warn("Channel [" + this.address() + "] has no ChannelDoc.");
 			return new HashSet<Role>();
 		}
 	}
 
 	@Override
 	public Set<Role> writeRoles() {
-		if(this.channelDocOpt.isPresent()) {
+		if (this.channelDocOpt.isPresent()) {
 			ChannelDoc channelDoc = this.channelDocOpt.get();
 			return Collections.unmodifiableSet(channelDoc.getWriteRoles());
 		} else {
-			log.warn("Channel ["+this.address()+"] has no ChannelDoc.");
+			log.warn("Channel [" + this.address() + "] has no ChannelDoc.");
 			return new HashSet<Role>();
 		}
 	}
@@ -391,10 +392,14 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 
 	@Override
 	public JsonObject toJsonObject() throws NotImplementedException {
+		Optional<T> valueOpt = this.valueOptional();
 		JsonObject j = new JsonObject();
-		j.add("value", JsonUtils.getAsJsonElement(valueOptional()));
+		j.add("value", JsonUtils.getAsJsonElement(valueOpt));
 		j.addProperty("type", this.getClass().getSimpleName());
 		j.addProperty("writeable", false);
+		if (valueOpt.isPresent() && this.getLabels().containsKey(valueOpt.get())) {
+			j.addProperty("label", this.getLabels().get(valueOpt.get()));
+		}
 		return j;
 	}
 
@@ -410,8 +415,9 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 
 	@Override
 	public void assertReadAllowed(Role role) throws AccessDeniedException {
-		if(!isReadAllowed(role)) {
-			throw new AccessDeniedException("User role [" + role.toString().toLowerCase() + "] is not allowed to read channel [" + this.address() + "]");
+		if (!isReadAllowed(role)) {
+			throw new AccessDeniedException("User role [" + role.toString().toLowerCase()
+					+ "] is not allowed to read channel [" + this.address() + "]");
 		}
 	}
 
@@ -424,6 +430,7 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	@Override
 	public void assertWriteAllowed(Role role) throws AccessDeniedException {
 		// this is a ReadChannel. Always throw exception.
-		throw new AccessDeniedException("User role [" + role.toString().toLowerCase() + "] is not allowed to write READ-ONLY channel [" + this.address() + "]");
+		throw new AccessDeniedException("User role [" + role.toString().toLowerCase()
+				+ "] is not allowed to write READ-ONLY channel [" + this.address() + "]");
 	}
 }
