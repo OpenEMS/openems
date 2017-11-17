@@ -2,7 +2,12 @@
     <mat-card-header>
         <mat-icon mat-card-avatar>apps</mat-icon>
         <mat-card-title>{{ meta.title }}</mat-card-title>
-        <mat-card-subtitle><span *ngIf="meta.text">{{ meta.text }}<br/><br/></span>ID: {{ thing.id }}<br/>Implementation: {{ thing.class }}</mat-card-subtitle>
+        <mat-card-subtitle>
+            <span *ngIf="meta.text">{{ meta.text }}
+                <br/>
+                <br/>
+            </span>ID: {{ thing.id }}
+            <br/>Implementation: {{ thing.class }}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content fxLayout fxLayoutWrap="wrap">
         <ng-container *ngFor="let channelId of utils.keys(meta.channels)">
@@ -14,10 +19,12 @@
         <!-- <p>{{ controller.form.value | json }}</p> -->
         <!-- <p>{{ controller.meta | json }}</p> -->
         <mat-list dense>
-            <mat-list-item *ngFor="let message of utils.values(messages)">Update "{{ message.config.thing }}/{{ message.config.channel }}" to "{{ message.config.value }}".</mat-list-item>
+            <mat-list-item *ngFor="let message of utils.values(messages)">Update "{{ message.config.thing }}/{{ message.config.channel }}" to "{{ message.config.value | json }}".</mat-list-item>
         </mat-list>
     </mat-card-content>
     <mat-card-actions fxLayout fxLayoutAlign="end start">
-        <button [disabled]="formPristine" mat-fab (click)="save()"><mat-icon>save</mat-icon></button>
+        <button [disabled]="formPristine" mat-fab (click)="save()">
+            <mat-icon>save</mat-icon>
+        </button>
     </mat-card-actions>
 </mat-card>

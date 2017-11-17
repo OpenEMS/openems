@@ -31,6 +31,7 @@
       "environments": {
         "backend": "environments/openems-backend.ts",
         "backend-dev-local": "environments/openems-backend-dev-local.ts",
+        "backend-local-server": "environments/openems-backend-LocalServer.ts",
         "backend-dev-live": "environments/openems-backend-dev-live.ts",
         "edge": "environments/openems-edge.ts",
         "dev": "environments/environment.ts"
