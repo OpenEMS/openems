@@ -91,34 +91,18 @@ public abstract class KebaDevice extends Device {
 						"Unable to send [" + s + "] UDP message to [" + ip.getHostAddress() + "]: " + e.getMessage());
 
 			} finally {
-				if(dSocket != null) {
+				if (dSocket != null) {
 					dSocket.close();
 				}
 			}
 		}
 	}
 
-	// protected void write() throws InterruptedException {
-	// for (DeviceNature nature : getDeviceNatures()) {
-	// if (nature instanceof KebaDeviceNature) {
-	// List<String> messages = ((KebaDeviceNature) nature).getWriteMessages();
-	// try {
-	// for (String message : messages) {
-	// this.send(message);
-	// }
-	// } catch (ConfigException | IOException e) {
-	// log.error("Error while writing [{}] to KebaDevice [{}]: {}", String.join(",", messages), this.id(),
-	// e.getMessage());
-	// }
-	// }
-	// }
-	// }
-
 	@Override
 	public List<BridgeReadTask> getReadTasks() {
 		List<BridgeReadTask> readTasks = new ArrayList<>();
 		for (DeviceNature nature : getDeviceNatures()) {
-			for(BridgeReadTask task : nature.getReadTasks()) {
+			for (BridgeReadTask task : nature.getReadTasks()) {
 				readTasks.add(task);
 			}
 		}
@@ -129,32 +113,20 @@ public abstract class KebaDevice extends Device {
 	public List<BridgeWriteTask> getWriteTasks() {
 		List<BridgeWriteTask> writeTasks = new ArrayList<>();
 		for (DeviceNature nature : getDeviceNatures()) {
-			if (nature instanceof KebaDeviceNature) {
-				writeTasks.add(new BridgeWriteTask() {
-
-					@Override
-					protected void run() throws InterruptedException {
-						log.info("KEBA write task...");
-						//						List<String> messages = ((KebaDeviceNature) nature).getWriteMessages();
-						//						try {
-						//							for (String message : messages) {
-						//								KebaDevice.this.send(message);
-						//							}
-						//						} catch (ConfigException | IOException e) {
-						//							log.error("Error while writing [{}] to KebaDevice [{}]: {}", String.join(",", messages),
-						//									KebaDevice.this.id(), e.getMessage());
-						//						}
-						//					}
-					}
-				});
+			for (BridgeWriteTask task : nature.getWriteTasks()) {
+				writeTasks.add(task);
 			}
 		}
-		return super.getWriteTasks();
+		return writeTasks;
 	}
 
 	public void receive(String message) {
 		if (message.startsWith("TCH-OK")) {
-			log.info("KEBA confirmed reception of command.");
+			log.info("KEBA confirmed reception of command: TCH-OK");
+			// TODO trigger read of all reports
+		} else if (message.startsWith("TCH-ERR")) {
+			log.info("KEBA reported command error: TCH-ERR");
+			// TODO trigger read of all reports
 		} else {
 			JsonElement jMessageElement;
 			try {
@@ -167,8 +139,8 @@ public abstract class KebaDevice extends Device {
 			/*
 			 * Forward message to deviceNature
 			 */
-			for(DeviceNature nature : this.getDeviceNatures()) {
-				if(nature instanceof KebaDeviceNature) {
+			for (DeviceNature nature : this.getDeviceNatures()) {
+				if (nature instanceof KebaDeviceNature) {
 					KebaDeviceNature kebaNature = (KebaDeviceNature) nature;
 					kebaNature.receive(jMessage);
 				}
