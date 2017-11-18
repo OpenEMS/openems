@@ -283,8 +283,10 @@ public class BrowserWebsocketSingleton
 				for (String name : names) {
 					if (name.equals(device.getName())) {
 						Optional<WebSocket> websocketOpt = this.getWebsocketFromSession(session);
-						WebSocketUtils.sendNotification(websocketOpt, new JsonArray(), LogBehaviour.DO_NOT_WRITE_TO_LOG,
-								Notification.EDGE_CONNECTION_OPENED, name);
+						// TODO re-enable this once it is stable
+						// WebSocketUtils.sendNotification(websocketOpt, new JsonArray(),
+						// LogBehaviour.DO_NOT_WRITE_TO_LOG,
+						// Notification.EDGE_CONNECTION_OPENED, name);
 					}
 				}
 			}
