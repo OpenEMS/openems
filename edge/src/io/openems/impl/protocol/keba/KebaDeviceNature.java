@@ -33,15 +33,16 @@ import com.google.gson.JsonObject;
 import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.Device;
-import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.device.nature.evcs.EvcsNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
-public abstract class KebaDeviceNature implements DeviceNature {
+public abstract class KebaDeviceNature implements EvcsNature {
 
 	private KebaDevice parent;
 	protected final Logger log;
@@ -154,8 +155,7 @@ public abstract class KebaDeviceNature implements DeviceNature {
 			 * ATTENTION: Some electric vehicles (EVs) do not yet meet the standard requirements and an "ena 0"
 			 * can lead to an error in the charging station.
 			 */
-	@ChannelInfo(type = Integer.class)
-	public KebaWriteChannel<Integer> setCurrent = new KebaWriteChannel<Integer>("SetCurrent",
+	private KebaWriteChannel<Integer> setCurrent = new KebaWriteChannel<Integer>("SetCurrent",
 			this); /*
 			 * maximum allowed loading current in milliampere. Allowed are values between 6000mA and 63000mA.
 			 * Invalid values are discarded
@@ -428,5 +428,11 @@ public abstract class KebaDeviceNature implements DeviceNature {
 	@Override
 	public List<BridgeWriteTask> getWriteTasks() {
 		return this.writeTasks;
+	}
+
+	@Override
+	@ChannelInfo(type = Integer.class)
+	public WriteChannel<Integer> setCurrent() {
+		return this.setCurrent;
 	}
 }
