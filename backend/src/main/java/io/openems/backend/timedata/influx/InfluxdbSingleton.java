@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.influxdb.InfluxDB;
@@ -19,9 +18,6 @@ import org.influxdb.dto.Point.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -47,12 +43,9 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	private int port;
 	private String username;
 	private String password;
-
 	private InfluxDB influxDB;
-	// 1st: deviceId; 2nd: channel; 3rd: value
-	private Table<Integer, String, Object> lastDataCache = Tables.synchronizedTable(HashBasedTable.create());
-	// key: deviceId; value: timestamp
-	private Map<Integer, Long> lastTimestampMap = new ConcurrentHashMap<Integer, Long>();
+
+	private final Map<Integer, DeviceCache> deviceCacheMap = new HashMap<>();
 
 	public InfluxdbSingleton(String database, String url, int port, String username, String password)
 			throws OpenemsException {
@@ -98,9 +91,15 @@ public class InfluxdbSingleton implements TimedataSingleton {
 		TreeBasedTable<Long, String, Object> data = TreeBasedTable.create();
 		for (String deviceName : devices.getNames()) {
 			int deviceId = MetadataDevice.parseNumberFromName(deviceName).orElse(0);
-			long lastTimestamp = this.lastTimestampMap.getOrDefault(deviceId, 0l);
 
-			// Sort data by timestamp
+			// get existing or create new DeviceCache
+			DeviceCache deviceCache = this.deviceCacheMap.get(deviceId);
+			if (deviceCache == null) {
+				deviceCache = new DeviceCache();
+				this.deviceCacheMap.put(deviceId, deviceCache);
+			}
+
+			// Sort incoming data by timestamp
 			TreeMap<Long, JsonObject> sortedData = new TreeMap<Long, JsonObject>();
 			for (Entry<String, JsonElement> entry : jData.entrySet()) {
 				try {
@@ -113,41 +112,39 @@ public class InfluxdbSingleton implements TimedataSingleton {
 				}
 			}
 
-			// Prepare data table
+			// Prepare data table. Takes entries starting with eldest timestamp (ascending order)
 			for (Entry<Long, JsonObject> dataEntry : sortedData.entrySet()) {
 				Long timestamp = dataEntry.getKey();
-				this.lastTimestampMap.put(deviceId, timestamp);
 				JsonObject jChannels = dataEntry.getValue();
 
-				if (jChannels.entrySet().size() > 0) {
-					for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
-						String channel = channelEntry.getKey();
-						Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
-						if (valueOpt.isPresent()) {
-							Object value = valueOpt.get();
-							data.put(timestamp, channel, value);
-							// add to cache
-							if (timestamp > lastTimestamp) {
-								this.lastDataCache.put(deviceId, channel, value);
-							}
-						}
-					}
+				if (jChannels.entrySet().size() == 0) {
+					// no channel values available. abort.
+					continue;
+				}
 
-					// only for latest data: add the cached data to the InfluxDB point.
-					// if we receive the latest data and cache is not elder than 10 minutes
-					if (timestamp > lastTimestamp && timestamp < lastTimestamp + 10 * 60 * 1000) {
-						for (Entry<String, Object> cacheEntry : this.lastDataCache.row(deviceId).entrySet()) {
-							String channel = cacheEntry.getKey();
-							Optional<Object> valueOpt = this.parseValue(channel, cacheEntry.getValue());
-							if (valueOpt.isPresent()) {
-								Object value = valueOpt.get();
-								data.put(timestamp, channel, value);
-							}
-						}
+				// get data from cache (that is not elder than 5 minutes compared to this timestamp)
+				for (Entry<String, ChannelCache> cacheEntry : deviceCache.getChannelCacheEntries()) {
+					long cacheTimestamp = cacheEntry.getValue().getTimestamp();
+					if (timestamp > cacheTimestamp && timestamp < cacheTimestamp + 5 * 60 * 1000) {
+						// add data from cache to current data
+						String channel = cacheEntry.getKey();
+						Object value = cacheEntry.getValue().getValue();
+						data.put(timestamp, channel, value);
 					}
+				}
 
-					// set last timestamp
-					lastTimestamp = timestamp;
+				// handle incoming data
+				for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
+					String channel = channelEntry.getKey();
+					Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
+					if (valueOpt.isPresent()) {
+						// add data from incoming data to current data. this might replace values received from cache
+						// above
+						Object value = valueOpt.get();
+						data.put(timestamp, channel, value);
+						// add to cache
+						deviceCache.putToChannelCache(channel, timestamp, value);
+					}
 				}
 			}
 
