@@ -31,6 +31,7 @@ public class App {
 			log.info("================================================================================");
 		} catch (OpenemsException e) {
 			log.error("OpenEMS Backend failed to start: " + e.getMessage());
+			System.exit(1);
 		}
 	}
 
