@@ -20,15 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.device.pro;
 
-import java.util.Optional;
-
-import io.openems.api.bridge.BridgeEvent;
-import io.openems.api.bridge.BridgeEvent.Position;
-import io.openems.api.bridge.BridgeEventListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
-import io.openems.api.channel.FunctionalWriteChannel;
-import io.openems.api.channel.FunctionalWriteChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
@@ -41,7 +34,6 @@ import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -328,7 +320,6 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	/*
 	 * Methods
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
@@ -652,17 +643,17 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 								setActivePowerL1 = new ModbusWriteLongChannel("SetActivePowerL1", this).unit("W")), //
 						new SignedWordElement(207,
 								setReactivePowerL1 = new ModbusWriteLongChannel("SetReactivePowerL1", this)
-										.unit("Var")), //
+								.unit("Var")), //
 						new SignedWordElement(208,
 								setActivePowerL2 = new ModbusWriteLongChannel("SetActivePowerL2", this).unit("W")), //
 						new SignedWordElement(209,
 								setReactivePowerL2 = new ModbusWriteLongChannel("SetReactivePowerL2", this)
-										.unit("Var")), //
+								.unit("Var")), //
 						new SignedWordElement(210,
 								setActivePowerL3 = new ModbusWriteLongChannel("SetActivePowerL3", this).unit("W")), //
 						new SignedWordElement(211,
 								setReactivePowerL3 = new ModbusWriteLongChannel("SetReactivePowerL3", this).unit("Var")//
-						)), //
+								)), //
 				new ModbusRegisterRange(3020, new UnsignedWordElement(3020,
 						batteryVoltageSection1 = new ModbusReadLongChannel("BatteryVoltageSection1", this).unit("mV")),
 						new UnsignedWordElement(3021,
