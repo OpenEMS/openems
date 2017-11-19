@@ -105,7 +105,7 @@ public class OdooSingleton implements MetadataSingleton {
 				if (j.has("error")) {
 					JsonObject jError = JsonUtils.getAsJsonObject(j, "error");
 					String errorMessage = JsonUtils.getAsString(jError, "message");
-					throw new OpenemsException(errorMessage);
+					throw new OpenemsException("Odoo replied with error: " + errorMessage);
 				}
 
 				if (j.has("result")) {
@@ -129,7 +129,7 @@ public class OdooSingleton implements MetadataSingleton {
 				}
 			}
 		} catch (IOException e) {
-			throw new OpenemsException(e.getMessage());
+			throw new OpenemsException("IOException while reading from Odoo: " + e.getMessage());
 		} finally {
 			if (connection != null) {
 				connection.disconnect();
