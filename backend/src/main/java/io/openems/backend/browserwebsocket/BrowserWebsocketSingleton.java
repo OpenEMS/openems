@@ -22,12 +22,14 @@ import io.openems.backend.browserwebsocket.session.BrowserSessionManager;
 import io.openems.backend.metadata.Metadata;
 import io.openems.backend.openemswebsocket.OpenemsWebsocket;
 import io.openems.backend.openemswebsocket.OpenemsWebsocketSingleton;
+import io.openems.backend.openemswebsocket.session.OpenemsSession;
 import io.openems.backend.timedata.Timedata;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.Device;
 import io.openems.common.types.DeviceImpl;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
@@ -166,10 +168,11 @@ public class BrowserWebsocketSingleton
 			 * Subscribe to currentData
 			 */
 			if (jMessage.has("currentData")) {
-				log.info("Device [" + deviceName + "] is subscribing to currentData");
 				JsonObject jCurrentData;
 				try {
 					jCurrentData = JsonUtils.getAsJsonObject(jMessage, "currentData");
+					log.info("User [" + session.getData().getUserName() + "] subscribed to current data for device ["
+							+ deviceName + "]: " + StringUtils.toShortString(jCurrentData, 50));
 					JsonArray jMessageId = jMessageIdOpt.get();
 					int deviceId = deviceIdOpt.get();
 					this.currentData(session, websocket, jCurrentData, jMessageId, deviceName, deviceId);
@@ -179,9 +182,47 @@ public class BrowserWebsocketSingleton
 			}
 
 			/*
+			 * Serve "Config -> Query" from cache
+			 */
+			Optional<String> configModeOpt = Optional.empty();
+			if (jMessage.has("config")) {
+				Optional<JsonObject> jConfigOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "config");
+				if (jConfigOpt.isPresent()) {
+					configModeOpt = JsonUtils.getAsOptionalString(jConfigOpt.get(), "mode");
+					if (configModeOpt.isPresent() && configModeOpt.get().equals("query")) {
+						/*
+						 * Query current config
+						 */
+						Optional<OpenemsSession> openemsSessionOpt = OpenemsWebsocket.instance()
+								.getOpenemsSession(deviceName);
+						Optional<JsonObject> openemsConfig = Optional.empty();
+						if (openemsSessionOpt.isPresent()) {
+							openemsConfig = openemsSessionOpt.get().getData().getOpenemsConfigOpt();
+						}
+						if (!openemsConfig.isPresent()) {
+							// set configMode to empty, so that the request is forwarded to Edge
+							configModeOpt = Optional.empty();
+						} else {
+							log.info("User [" + session.getData().getUserName()
+									+ "]: Sent OpenEMS-Config from cache for device [" + deviceName + "].");
+							JsonObject jReply = DefaultMessages.configQueryReply(openemsConfig.get());
+							if (deviceNameOpt.isPresent()) {
+								jReply.addProperty("device", deviceNameOpt.get());
+							}
+							if (jMessageIdOpt.isPresent()) {
+								jReply.add("id", jMessageIdOpt.get());
+							}
+							WebSocketUtils.send(websocket, jReply);
+						}
+					}
+				}
+			}
+
+			/*
 			 * Forward to OpenEMS Edge
 			 */
-			if (jMessage.has("config") || jMessage.has("log") || jMessage.has("system")) {
+			if ((jMessage.has("config") && !configModeOpt.orElse("").equals("query")) || jMessage.has("log")
+					|| jMessage.has("system")) {
 				try {
 					forwardMessageToOpenems(session, websocket, jMessage, deviceName);
 				} catch (OpenemsException e) {
