@@ -26,7 +26,7 @@ import io.openems.backend.metadata.api.device.MetadataDeviceModel;
 import io.openems.backend.metadata.odoo.device.OdooDeviceModel;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.SessionData;
-import io.openems.common.types.Device;
+import io.openems.common.types.DeviceImpl;
 import io.openems.common.utils.JsonUtils;
 
 public class OdooSingleton implements MetadataSingleton {
@@ -115,10 +115,10 @@ public class OdooSingleton implements MetadataSingleton {
 					data.setUserId(JsonUtils.getAsInt(jUser, "id"));
 					data.setUserName(JsonUtils.getAsString(jUser, "name"));
 					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
-					LinkedHashMultimap<String, Device> deviceMap = LinkedHashMultimap.create();
+					LinkedHashMultimap<String, DeviceImpl> deviceMap = LinkedHashMultimap.create();
 					for (JsonElement jDevice : jDevices) {
 						String name = JsonUtils.getAsString(jDevice, "name");
-						deviceMap.put(name, new Device( //
+						deviceMap.put(name, new DeviceImpl( //
 								name, //
 								JsonUtils.getAsString(jDevice, "comment"), //
 								JsonUtils.getAsString(jDevice, "producttype"), //

@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.Optional;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.slf4j.Logger;
@@ -45,24 +46,8 @@ public abstract class OdooObject {
 	 * @param fieldName
 	 * @return
 	 */
-	public Object get(String fieldName) {
-		return this.row.get(fieldName);
-	}
-
-	/**
-	 * Gets the value of the given field or a defaultValue (to avoid null)
-	 *
-	 * @param fieldName
-	 * @param defaultValue
-	 * @return
-	 */
-	public Object getOr(String fieldName, Object defaultValue) {
-		Object value = this.row.get(fieldName);
-		if (value == null) {
-			return defaultValue;
-		} else {
-			return value;
-		}
+	public Optional<Object> getOpt(String fieldName) {
+		return Optional.ofNullable(this.row.get(fieldName));
 	}
 
 	protected void put(String fieldName, Object value) {

@@ -9,7 +9,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.Device;
+import io.openems.common.types.DeviceImpl;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
@@ -40,7 +40,7 @@ public class DefaultMessages {
 	 * @return
 	 */
 	public static JsonObject browserConnectionSuccessfulReply(String token, Optional<String> roleOpt,
-			Collection<Device> devices) {
+			Collection<DeviceImpl> devices) {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "allow");
 		if (roleOpt.isPresent()) {
@@ -52,7 +52,7 @@ public class DefaultMessages {
 		JsonObject jMetadata = new JsonObject();
 		if (!devices.isEmpty()) {
 			JsonArray jDevices = new JsonArray();
-			for (Device device : devices) {
+			for (DeviceImpl device : devices) {
 				JsonObject jDevice = new JsonObject();
 				jDevice.addProperty("name", device.getName());
 				jDevice.addProperty("comment", device.getComment());

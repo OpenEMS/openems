@@ -1,5 +1,6 @@
 package io.openems.common.utils;
 
+import java.net.Inet4Address;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsException;
 
 // TODO use getAsOptional***() as basis for getAs***() to avoid unnecessary exceptions
@@ -274,5 +276,62 @@ public class JsonUtils {
 		} catch (JsonParseException e) {
 			throw new OpenemsException("Unable to parse [" + string + "] + to JSON: " + e.getMessage(), e);
 		}
+	}
+	
+	/*
+	 * Copied from edge
+	 * TODO!
+	 */
+	public static JsonElement getAsJsonElement(Object value) throws NotImplementedException {
+		// null
+		if (value == null) {
+			return null;
+		}
+		// optional
+		if (value instanceof Optional<?>) {
+			if (!((Optional<?>) value).isPresent()) {
+				return null;
+			} else {
+				value = ((Optional<?>) value).get();
+			}
+		}
+		if (value instanceof Number) {
+			/*
+			 * Number
+			 */
+			return new JsonPrimitive((Number) value);
+		} else if (value instanceof String) {
+			/*
+			 * String
+			 */
+			return new JsonPrimitive((String) value);
+		} else if (value instanceof Boolean) {
+			/*
+			 * Boolean
+			 */
+			return new JsonPrimitive((Boolean) value);
+		} else if (value instanceof Inet4Address) {
+			/*
+			 * Inet4Address
+			 */
+			return new JsonPrimitive(((Inet4Address) value).getHostAddress());
+		} else if (value instanceof JsonElement) {
+			/*
+			 * JsonElement
+			 */
+			return (JsonElement) value;
+		} else if (value instanceof Long[]){
+			/*
+			 * Long-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (Long l : (Long[]) value){
+				js.add(new JsonPrimitive((Long) l));
+			}
+			return js;
+		}
+		throw new NotImplementedException("Converter for [" + value + "]" + " of type [" //
+				+ value.getClass().getSimpleName() + "]" //
+				+ " to JSON is not implemented.");
 	}
 }

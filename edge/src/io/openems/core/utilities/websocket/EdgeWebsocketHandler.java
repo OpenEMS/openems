@@ -46,6 +46,7 @@ import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.websocket.CurrentDataWorker;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
@@ -308,6 +309,7 @@ public class EdgeWebsocketHandler {
 
 	/**
 	 * Handle current data subscriptions
+	 * (try to keep synced with Backend.BrowserWebsocket)
 	 *
 	 * @param j
 	 */
@@ -339,7 +341,7 @@ public class EdgeWebsocketHandler {
 				}
 				if (!channels.isEmpty()) {
 					// create new worker
-					worker = new CurrentDataWorker(jId, channels, role, this);
+					worker = new EdgeCurrentDataWorker(jId, channels, role, this);
 					this.currentDataSubscribers.put(messageId, worker);
 				}
 			}

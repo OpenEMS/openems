@@ -8,13 +8,14 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.gson.JsonObject;
 
 import io.openems.common.session.SessionData;
-import io.openems.common.types.Device;
+import io.openems.common.types.DeviceImpl;
 
 public class BrowserSessionData extends SessionData {
 	private String userName = "";
 	private Optional<Integer> userId = Optional.empty();
 	private Optional<String> odooSessionIdOpt = Optional.empty();
-	private LinkedHashMultimap<String, Device> devices = LinkedHashMultimap.create();
+	private LinkedHashMultimap<String, DeviceImpl> devices = LinkedHashMultimap.create();
+	private Optional<BackendCurrentDataWorker> currentDataWorkerOpt = Optional.empty();
 
 	public Optional<String> getOdooSessionId() {
 		return odooSessionIdOpt;
@@ -24,7 +25,7 @@ public class BrowserSessionData extends SessionData {
 		this.odooSessionIdOpt = odooSessionIdOpt;
 	}
 
-	public void setDevices(LinkedHashMultimap<String, Device> deviceMap) {
+	public void setDevices(LinkedHashMultimap<String, DeviceImpl> deviceMap) {
 		this.devices = deviceMap;
 	}
 
@@ -44,12 +45,20 @@ public class BrowserSessionData extends SessionData {
 		return userName;
 	}
 
-	public Set<Device> getDevices(String name) {
+	public Set<DeviceImpl> getDevices(String name) {
 		return this.devices.get(name);
 	}
 
-	public Collection<Device> getDevices() {
+	public Collection<DeviceImpl> getDevices() {
 		return this.devices.values();
+	}
+
+	public void setCurrentDataWorkerOpt(BackendCurrentDataWorker currentDataWorker) {
+		this.currentDataWorkerOpt = Optional.ofNullable(currentDataWorker);
+	}
+
+	public Optional<BackendCurrentDataWorker> getCurrentDataWorkerOpt() {
+		return currentDataWorkerOpt;
 	}
 
 	@Override

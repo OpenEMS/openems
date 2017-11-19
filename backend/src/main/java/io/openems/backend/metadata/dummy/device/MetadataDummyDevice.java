@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.dummy.device;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,9 +9,9 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.Device;
+import io.openems.common.types.DeviceImpl;
 
-public class MetadataDummyDevice extends Device implements MetadataDevice {
+public class MetadataDummyDevice extends DeviceImpl implements MetadataDevice {
 
 	private final Logger log = LoggerFactory.getLogger(MetadataDummyDevice.class);
 
@@ -23,8 +25,8 @@ public class MetadataDummyDevice extends Device implements MetadataDevice {
 	}
 
 	@Override
-	public Integer getId() {
-		return this.id;
+	public Optional<Integer> getIdOpt() {
+		return Optional.of(this.id);
 	}
 
 	public String getApikey() {

@@ -28,6 +28,7 @@ import io.openems.backend.metadata.api.device.MetadataDevice;
 import io.openems.backend.metadata.api.device.MetadataDevices;
 import io.openems.backend.timedata.api.TimedataSingleton;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.InfluxdbUtils;
 import io.openems.common.utils.JsonUtils;
 
@@ -89,8 +90,8 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	@Override
 	public void write(MetadataDevices devices, JsonObject jData) {
 		TreeBasedTable<Long, String, Object> data = TreeBasedTable.create();
-		for (String deviceName : devices.getNames()) {
-			int deviceId = MetadataDevice.parseNumberFromName(deviceName).orElse(0);
+		for (MetadataDevice device : devices) {
+			int deviceId = device.getIdOpt().orElse(0);
 
 			// get existing or create new DeviceCache
 			DeviceCache deviceCache = this.deviceCacheMap.get(deviceId);
@@ -187,7 +188,7 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	 * @param data
 	 */
 	private void writeDataToOldMiniMonitoring(MetadataDevice device, TreeBasedTable<Long, String, Object> data) {
-		int deviceId = device.getNameNumber().orElse(0);
+		int deviceId = device.getIdOpt().orElse(0);
 		BatchPoints batchPoints = BatchPoints.database(database) //
 				.tag("fems", String.valueOf(deviceId)) //
 				.build();
@@ -299,5 +300,16 @@ public class InfluxdbSingleton implements TimedataSingleton {
 			JsonObject channels, int resolution) throws OpenemsException {
 		return InfluxdbUtils.queryHistoricData(influxDB, this.database, deviceIdOpt, fromDate, toDate, channels,
 				resolution);
+	}
+
+	@Override
+	public Optional<ChannelCache> getChannelCache(int deviceId, ChannelAddress channelAddress) {
+		DeviceCache deviceCache = this.deviceCacheMap.get(deviceId);
+		if (deviceCache != null) {
+			return deviceCache.getChannelCacheOpt(channelAddress.toString());
+		} else {
+			return Optional.empty();
+		}
+
 	}
 }

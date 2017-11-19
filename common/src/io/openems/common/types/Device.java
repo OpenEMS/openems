@@ -1,54 +1,21 @@
 package io.openems.common.types;
 
-import io.openems.common.session.Role;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-/**
- * Helper class to store tuple of device name and role
- *
- * @author stefan.feilmeier
- *
- */
-public class Device implements Comparable<Device> {
-	private final String name;
-	private final String comment;
-	private final String producttype;
-	private final Role role;
-	private boolean online = false;
+public interface Device {
 
-	public Device(String name, String comment, String producttype, String role) {
-		this.name = name;
-		this.comment = comment;
-		this.producttype = producttype;
-		this.role = Role.getRole(role);
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public Role getRole() {
-		return role;
-	}
-
-	public void setOnline(boolean online) {
-		this.online = online;
-	}
-
-	public boolean isOnline() {
-		return online;
-	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public String getProducttype() {
-		return producttype;
-	}
-
-	@Override
-	public int compareTo(Device other) {
-		return (this.name + this.comment + this.producttype + this.role.toString() + this.online)
-				.compareTo(other.name + other.comment + other.producttype + other.role.toString() + other.online);
+	final static Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
+	
+	public Optional<Integer> getIdOpt();
+	
+	public static Optional<Integer> parseNumberFromName(String name) {
+		Matcher matcher = NAME_NUMBER_PATTERN.matcher(name);
+		if (matcher.find()) {
+			String nameNumberString = matcher.group(1);
+			return Optional.ofNullable(Integer.parseInt(nameNumberString));
+		}
+		return Optional.empty();
 	}
 }
