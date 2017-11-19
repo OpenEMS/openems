@@ -7,34 +7,37 @@ import java.util.Optional;
 import java.util.Set;
 
 public class DeviceCache {
-	private final Map<String, ChannelCache> channelCacheMap = new HashMap<>();
+	private long timestamp = 0l;
+	private final Map<String, Object> channelValueCache = new HashMap<>();
 
-	public synchronized final Optional<ChannelCache> getChannelCacheOpt(String address) {
-		return Optional.ofNullable(this.channelCacheMap.get(address));
+	public synchronized final Optional<Object> getChannelValueOpt(String address) {
+		return Optional.ofNullable(this.channelValueCache.get(address));
 	}
 
-	public synchronized final Set<Entry<String, ChannelCache>> getChannelCacheEntries() {
-		return this.channelCacheMap.entrySet();
+	public synchronized final Set<Entry<String, Object>> getChannelCacheEntries() {
+		return this.channelValueCache.entrySet();
 	}
 
 	/**
-	 * Adds the channel value to the cache, if there is no younger entry alread existing
+	 * Adds the channel value to the cache
 	 *
 	 * @param channel
 	 * @param timestamp
 	 * @param value
 	 */
-	public synchronized void putToChannelCache(String channel, long timestamp, Object value) {
-		ChannelCache channelCache = this.channelCacheMap.get(channel);
-		if (channelCache == null) {
-			// create new
-			this.channelCacheMap.put(channel, new ChannelCache(timestamp, value));
-		} else {
-			// was existing. check timestamp
-			if (channelCache.getTimestamp() < timestamp) {
-				// replace
-				this.channelCacheMap.put(channel, new ChannelCache(timestamp, value));
-			}
-		}
+	public synchronized void putToChannelCache(String address, Object value) {
+		this.channelValueCache.put(address, value);
+	}
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public void clear() {
+		this.channelValueCache.clear();
 	}
 }

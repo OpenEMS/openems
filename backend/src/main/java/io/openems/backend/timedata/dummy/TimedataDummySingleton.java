@@ -11,7 +11,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.device.MetadataDevices;
 import io.openems.backend.timedata.api.TimedataSingleton;
-import io.openems.backend.timedata.influx.ChannelCache;
 import io.openems.backend.utilities.StringUtils;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -33,7 +32,7 @@ public class TimedataDummySingleton implements TimedataSingleton {
 	}
 
 	@Override
-	public Optional<ChannelCache> getChannelCache(int deviceId, ChannelAddress channelAddress) {
+	public Optional<Object> getChannelValue(int deviceId, ChannelAddress channelAddress) {
 		log.info("Timedata Dummy has no cache...");
 		return Optional.empty();
 	}

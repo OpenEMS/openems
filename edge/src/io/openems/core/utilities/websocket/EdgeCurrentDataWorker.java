@@ -31,7 +31,7 @@ public class EdgeCurrentDataWorker extends CurrentDataWorker {
 
 	public EdgeCurrentDataWorker(JsonArray jId, HashMultimap<String, String> channels, Role role,
 			EdgeWebsocketHandler edgeWebsocketHandler) {
-		super(jId, channels);
+		super(jId, Optional.empty(), channels);
 		this.role = role;
 		this.edgeWebsocketHandler = edgeWebsocketHandler;
 		this.thingRepository = ThingRepository.getInstance();

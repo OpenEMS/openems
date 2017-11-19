@@ -136,12 +136,12 @@ public class BrowserWebsocketSingleton
 		 */
 		if (deviceNameOpt.isPresent()) {
 			String deviceName = deviceNameOpt.get();
+			Optional<Integer> deviceIdOpt = Device.parseNumberFromName(deviceName);
 			/*
 			 * Query historic data
 			 */
 			if (jMessage.has("historicData")) {
 				// parse deviceId
-				Optional<Integer> deviceIdOpt = Device.parseNumberFromName(deviceName);
 				JsonArray jMessageId = jMessageIdOpt.get();
 				try {
 					JsonObject jHistoricData = JsonUtils.getAsJsonObject(jMessage, "historicData");
@@ -166,11 +166,13 @@ public class BrowserWebsocketSingleton
 			 * Subscribe to currentData
 			 */
 			if (jMessage.has("currentData")) {
+				log.info("Device [" + deviceName + "] is subscribing to currentData");
 				JsonObject jCurrentData;
 				try {
 					jCurrentData = JsonUtils.getAsJsonObject(jMessage, "currentData");
 					JsonArray jMessageId = jMessageIdOpt.get();
-					this.currentData(session, websocket, jCurrentData, jMessageId);
+					int deviceId = deviceIdOpt.get();
+					this.currentData(session, websocket, jCurrentData, jMessageId, deviceName, deviceId);
 				} catch (OpenemsException e) {
 					log.error(e.getMessage());
 				}
@@ -245,7 +247,7 @@ public class BrowserWebsocketSingleton
 	 * @param j
 	 */
 	private synchronized void currentData(BrowserSession session, WebSocket websocket, JsonObject jCurrentData,
-			JsonArray jId) {
+			JsonArray jId, String deviceName, int deviceId) {
 		try {
 			String mode = JsonUtils.getAsString(jCurrentData, "mode");
 
@@ -253,7 +255,6 @@ public class BrowserWebsocketSingleton
 				/*
 				 * Subscribe to channels
 				 */
-				String messageId = jId.get(jId.size() - 1).getAsString();
 
 				// remove old worker if existed
 				Optional<BackendCurrentDataWorker> workerOpt = session.getData().getCurrentDataWorkerOpt();
@@ -273,14 +274,11 @@ public class BrowserWebsocketSingleton
 						channels.put(thing, channel);
 					}
 				}
-				for (DeviceImpl device : session.getData().getDevices()) {
-					if (!channels.isEmpty() && device.getIdOpt().isPresent()) {
-						// create new worker
-						BackendCurrentDataWorker worker = new BackendCurrentDataWorker(device.getIdOpt().get(),
-								websocket, jId, channels);
-						session.getData().setCurrentDataWorkerOpt(worker);
-						break;
-					}
+				if (!channels.isEmpty()) {
+					// create new worker
+					BackendCurrentDataWorker worker = new BackendCurrentDataWorker(deviceId, deviceName, websocket, jId,
+							channels);
+					session.getData().setCurrentDataWorkerOpt(worker);
 				}
 			}
 		} catch (OpenemsException e) {
@@ -349,7 +347,7 @@ public class BrowserWebsocketSingleton
 			for (DeviceImpl device : session.getData().getDevices()) {
 				for (String name : names) {
 					if (name.equals(device.getName())) {
-						Optional<WebSocket> websocketOpt = this.getWebsocketFromSession(session);
+						// Optional<WebSocket> websocketOpt = this.getWebsocketFromSession(session);
 						// TODO re-enable this once it is stable
 						// WebSocketUtils.sendNotification(websocketOpt, new JsonArray(),
 						// LogBehaviour.DO_NOT_WRITE_TO_LOG,

@@ -123,28 +123,51 @@ public class InfluxdbSingleton implements TimedataSingleton {
 					continue;
 				}
 
-				// get data from cache (that is not elder than 5 minutes compared to this timestamp)
-				for (Entry<String, ChannelCache> cacheEntry : deviceCache.getChannelCacheEntries()) {
-					long cacheTimestamp = cacheEntry.getValue().getTimestamp();
-					if (timestamp > cacheTimestamp && timestamp < cacheTimestamp + 5 * 60 * 1000) {
-						// add data from cache to current data
-						String channel = cacheEntry.getKey();
-						Object value = cacheEntry.getValue().getValue();
-						data.put(timestamp, channel, value);
+				// Check if cache is valid (it is not elder than 5 minutes compared to this timestamp)
+				long cacheTimestamp = deviceCache.getTimestamp();
+				if (timestamp < cacheTimestamp) {
+					// incoming data is older than cache -> do not apply cache
+				} else {
+					// incoming data is more recent than cache
+					// update cache timestamp
+					deviceCache.setTimestamp(timestamp);
+
+					if (timestamp < cacheTimestamp + 5 * 60 * 1000) {
+						// cache is valid (not elder than 5 minutes)
+						// add cache data to write data
+						for (Entry<String, Object> cacheEntry : deviceCache.getChannelCacheEntries()) {
+							String channel = cacheEntry.getKey();
+							Object value = cacheEntry.getValue();
+							data.put(timestamp, channel, value);
+						}
+					} else {
+						// cache is not anymore valid (elder than 5 minutes)
+						// clear cache
+						if (cacheTimestamp != 0l) {
+							log.info("Invalidate cache for device [" + deviceId + "]. This timestamp [" + timestamp
+									+ "]. Cache timestamp [" + cacheTimestamp + "]");
+						}
+						deviceCache.clear();
+					}
+
+					// add incoming data to cache (this replaces already existing cache values)
+					for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
+						String channel = channelEntry.getKey();
+						Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
+						if (valueOpt.isPresent()) {
+							Object value = valueOpt.get();
+							deviceCache.putToChannelCache(channel, value);
+						}
 					}
 				}
 
-				// handle incoming data
+				// add incoming data to write data
 				for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
 					String channel = channelEntry.getKey();
 					Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
 					if (valueOpt.isPresent()) {
-						// add data from incoming data to current data. this might replace values received from cache
-						// above
 						Object value = valueOpt.get();
 						data.put(timestamp, channel, value);
-						// add to cache
-						deviceCache.putToChannelCache(channel, timestamp, value);
 					}
 				}
 			}
@@ -155,7 +178,9 @@ public class InfluxdbSingleton implements TimedataSingleton {
 
 		// Hook to continue writing data to old Mini monitoring
 		// TODO remove after full migration
-		for (MetadataDevice device : devices) {
+		for (
+
+		MetadataDevice device : devices) {
 			if (device.getProductType().equals("MiniES 3-3")) {
 				writeDataToOldMiniMonitoring(device, data);
 				break;
@@ -303,10 +328,10 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	}
 
 	@Override
-	public Optional<ChannelCache> getChannelCache(int deviceId, ChannelAddress channelAddress) {
+	public Optional<Object> getChannelValue(int deviceId, ChannelAddress channelAddress) {
 		DeviceCache deviceCache = this.deviceCacheMap.get(deviceId);
 		if (deviceCache != null) {
-			return deviceCache.getChannelCacheOpt(channelAddress.toString());
+			return deviceCache.getChannelValueOpt(channelAddress.toString());
 		} else {
 			return Optional.empty();
 		}

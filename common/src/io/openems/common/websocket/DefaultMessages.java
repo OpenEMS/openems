@@ -193,9 +193,12 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject currentData(JsonArray jId, JsonObject jCurrentData) {
+	public static JsonObject currentData(JsonArray jId, Optional<String> deviceNameOpt, JsonObject jCurrentData) {
 		JsonObject j = new JsonObject();
 		j.add("id", jId);
+		if(deviceNameOpt.isPresent()) {
+			j.addProperty("device", deviceNameOpt.get());
+		}
 		j.add("currentData", jCurrentData);
 		return j;
 	}

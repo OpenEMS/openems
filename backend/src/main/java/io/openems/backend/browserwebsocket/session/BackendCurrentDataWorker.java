@@ -9,7 +9,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import io.openems.backend.timedata.Timedata;
-import io.openems.backend.timedata.influx.ChannelCache;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
@@ -20,19 +19,19 @@ public class BackendCurrentDataWorker extends CurrentDataWorker {
 	private final WebSocket websocket;
 	private final int deviceId;
 
-	public BackendCurrentDataWorker(int deviceId, WebSocket websocket, JsonArray jId,
+	public BackendCurrentDataWorker(int deviceId, String deviceName, WebSocket websocket, JsonArray jId,
 			HashMultimap<String, String> channels) {
-		super(jId, channels);
+		super(jId, Optional.of(deviceName), channels);
 		this.deviceId = deviceId;
 		this.websocket = websocket;
 	}
 
 	@Override
 	protected Optional<JsonElement> getChannelValue(ChannelAddress channelAddress) {
-		Optional<ChannelCache> channelCacheOpt = Timedata.instance().getChannelCache(this.deviceId, channelAddress);
+		Optional<Object> channelCacheOpt = Timedata.instance().getChannelValue(this.deviceId, channelAddress);
 		if (channelCacheOpt.isPresent()) {
 			try {
-				return Optional.ofNullable(JsonUtils.getAsJsonElement(channelCacheOpt.get().getValue()));
+				return Optional.ofNullable(JsonUtils.getAsJsonElement(channelCacheOpt.get()));
 			} catch (NotImplementedException e) {
 				return Optional.empty();
 			}
