@@ -29,9 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import io.openems.api.bridge.Bridge;
 import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
@@ -41,7 +38,6 @@ import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
 
 public abstract class KebaDevice extends Device {
 
@@ -82,6 +78,7 @@ public abstract class KebaDevice extends Device {
 			DatagramSocket dSocket = null;
 			try {
 				dSocket = new DatagramSocket();
+				log.debug("Sending message to KEBA [" + s + "]");
 				dSocket.send(packet);
 			} catch (SocketException e) {
 				throw new OpenemsException("Unable to open UDP socket for sending [" + s + "] to ["
@@ -120,30 +117,14 @@ public abstract class KebaDevice extends Device {
 		return writeTasks;
 	}
 
+	/**
+	 * Forward message to deviceNature
+	 */
 	public void receive(String message) {
-		if (message.startsWith("TCH-OK")) {
-			log.info("KEBA confirmed reception of command: TCH-OK");
-			// TODO trigger read of all reports
-		} else if (message.startsWith("TCH-ERR")) {
-			log.info("KEBA reported command error: TCH-ERR");
-			// TODO trigger read of all reports
-		} else {
-			JsonElement jMessageElement;
-			try {
-				jMessageElement = JsonUtils.parse(message);
-			} catch (OpenemsException e) {
-				log.error("Error while parsing KEBA message: " + e.getMessage());
-				return;
-			}
-			JsonObject jMessage = jMessageElement.getAsJsonObject();
-			/*
-			 * Forward message to deviceNature
-			 */
-			for (DeviceNature nature : this.getDeviceNatures()) {
-				if (nature instanceof KebaDeviceNature) {
-					KebaDeviceNature kebaNature = (KebaDeviceNature) nature;
-					kebaNature.receive(jMessage);
-				}
+		for (DeviceNature nature : this.getDeviceNatures()) {
+			if (nature instanceof KebaDeviceNature) {
+				KebaDeviceNature kebaNature = (KebaDeviceNature) nature;
+				kebaNature.receive(message);
 			}
 		}
 	}

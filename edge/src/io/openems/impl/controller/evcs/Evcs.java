@@ -30,9 +30,12 @@ public class Evcs extends ThingMap {
 
 	public final WriteChannel<Integer> setCurrent;
 
+	public final WriteChannel<Boolean> setEnabled;
+
 	public Evcs(EvcsNature evcs) {
 		super(evcs);
 		this.setCurrent = evcs.setCurrent();
+		this.setEnabled = evcs.setEnabled();
 	}
 
 }

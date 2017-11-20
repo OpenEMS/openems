@@ -35,7 +35,7 @@ public class KebaEvcs extends KebaDeviceNature implements EvcsNature {
 
 	@Override
 	public String toString() {
-		return "KebaEvcs [state=" + state.format() + ", plug=" + plug.format() + ", actualPower=" + actualPower.format()
-		+ ", energySession=" + energySession.format() + ", energyTotal=" + energyTotal.format() + "]";
+		return state.format() + ";" + plug.format() + ";current:" + currUser.format() + "|" + currHardware.format()
+		+ ";energy:" + energySession.format() + "|" + energyTotal.format();
 	}
 }

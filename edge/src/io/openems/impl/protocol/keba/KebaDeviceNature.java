@@ -28,6 +28,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.api.bridge.BridgeReadTask;
@@ -49,6 +50,7 @@ public abstract class KebaDeviceNature implements EvcsNature {
 
 	private final String thingId;
 	private List<ThingChannelsUpdatedListener> listeners;
+	private final KebaReadTask readTask;
 	private final List<BridgeReadTask> readTasks = new ArrayList<>();
 	private final List<BridgeReadTask> requiredReadTasks = new ArrayList<>();
 	private final List<BridgeWriteTask> writeTasks = new ArrayList<>();
@@ -174,23 +176,27 @@ public abstract class KebaDeviceNature implements EvcsNature {
 			 * certification).
 			 */
 
+	private abstract class KebaReadTask extends BridgeReadTask {
+		protected abstract void triggerRun();
+	}
+
 	public KebaDeviceNature(String thingId, KebaDevice parent) throws ConfigException {
 		this.thingId = thingId;
 		this.parent = parent;
 		log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
-		this.readTasks.add(new BridgeReadTask() {
+		this.readTask = new KebaReadTask() {
 
-			private final static int REPORT_1_SECONDS = 60 * 60; // 1 hour
-			private final static int REPORT_2_SECONDS = 10 * 60; // 10 minutes
-			private final static int REPORT_3_SECONDS = 60; // 1 minute
+			private final static int REPORT_1_SECONDS = 6 * 60 * 60; // 6 hours
+			private final static int REPORT_2_SECONDS = 60 * 60; // 1 hour
+			private final static int REPORT_3_SECONDS = 10 * 60; // 10 minutes
 
 			private LocalDateTime nextReport1 = LocalDateTime.MIN;
 			private LocalDateTime nextReport2 = LocalDateTime.MIN;
 			private LocalDateTime nextReport3 = LocalDateTime.MIN;
 
 			@Override
-			protected void run() throws InterruptedException {
+			protected synchronized void run() throws InterruptedException {
 				try {
 					// REPORT 1
 					if (this.nextReport1.isBefore(LocalDateTime.now())) {
@@ -211,7 +217,15 @@ public abstract class KebaDeviceNature implements EvcsNature {
 					log.error(e.getMessage());
 				}
 			}
-		});
+
+			@Override
+			protected synchronized void triggerRun() {
+				this.nextReport1 = LocalDateTime.MIN;
+				this.nextReport2 = LocalDateTime.MIN;
+				this.nextReport3 = LocalDateTime.MIN;
+			}
+		};
+		this.readTasks.add(readTask);
 
 		this.writeTasks.add(new BridgeWriteTask() {
 
@@ -278,107 +292,124 @@ public abstract class KebaDeviceNature implements EvcsNature {
 		});
 	}
 
-	protected void receive(JsonObject jMessage) {
-		Optional<String> idOpt = JsonUtils.getAsOptionalString(jMessage, "ID");
-		if (idOpt.isPresent()) {
-			// message with ID
-			String id = idOpt.get();
-			if (id.equals("1")) {
-				/*
-				 * Reply to report 1
-				 */
-				this.product.updateValue(JsonUtils.getAsOptionalString(jMessage, "Product").orElse(null));
-				this.serial.updateValue(JsonUtils.getAsOptionalString(jMessage, "Serial").orElse(null));
-				this.firmware.updateValue(JsonUtils.getAsOptionalString(jMessage, "Firmware").orElse(null));
-				this.comModule.updateValue(JsonUtils.getAsOptionalString(jMessage, "COM-module").orElse(null));
-
-			} else if (id.equals("2")) {
-				/*
-				 * Reply to report 2
-				 */
-				this.state.updateValue(JsonUtils.getAsOptionalInt(jMessage, "State").orElse(null));
-				this.error1.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Error1").orElse(null));
-				this.error2.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Error2").orElse(null));
-				this.plug.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Plug").orElse(null));
-				Optional<Integer> enableSysOpt = JsonUtils.getAsOptionalInt(jMessage, "Enable sys");
-				if (enableSysOpt.isPresent()) {
-					this.enableSys.updateValue(enableSysOpt.get() == 1);
-				} else {
-					this.enableSys.updateValue(null);
-				}
-				Optional<Integer> enableUserOpt = JsonUtils.getAsOptionalInt(jMessage, "Enable user");
-				if (enableUserOpt.isPresent()) {
-					this.enableUser.updateValue(enableUserOpt.get() == 1);
-				} else {
-					this.enableUser.updateValue(null);
-				}
-				this.maxCurr.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Max curr").orElse(null));
-				this.maxCurrPercent.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Max curr %").orElse(null));
-				this.currHardware.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Curr HW").orElse(null));
-				this.currUser.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Curr user").orElse(null));
-				this.currFailsafe.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Curr FS").orElse(null));
-				this.timeoutFailsafe.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Tmo FS").orElse(null));
-				this.currTimer.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Curr timer").orElse(null));
-				this.timeoutCT.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Tmo CT").orElse(null));
-				this.energyLimit.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Setenergy").orElse(null));
-				Optional<Integer> outputOpt = JsonUtils.getAsOptionalInt(jMessage, "Output");
-				if (outputOpt.isPresent()) {
-					this.output.updateValue(outputOpt.get() == 1);
-				} else {
-					this.output.updateValue(null);
-				}
-				Optional<Integer> inputOpt = JsonUtils.getAsOptionalInt(jMessage, "Input");
-				if (inputOpt.isPresent()) {
-					this.input.updateValue(inputOpt.get() == 1);
-				} else {
-					this.input.updateValue(null);
-				}
-
-			} else if (id.equals("3")) {
-				/*
-				 * Reply to report 3
-				 */
-				this.voltageL1.updateValue(JsonUtils.getAsOptionalInt(jMessage, "U1").orElse(null));
-				this.voltageL2.updateValue(JsonUtils.getAsOptionalInt(jMessage, "U2").orElse(null));
-				this.voltageL3.updateValue(JsonUtils.getAsOptionalInt(jMessage, "U3").orElse(null));
-				this.currentL1.updateValue(JsonUtils.getAsOptionalInt(jMessage, "I1").orElse(null));
-				this.currentL2.updateValue(JsonUtils.getAsOptionalInt(jMessage, "I2").orElse(null));
-				this.currentL3.updateValue(JsonUtils.getAsOptionalInt(jMessage, "I3").orElse(null));
-				this.actualPower.updateValue(JsonUtils.getAsOptionalInt(jMessage, "P").orElse(null));
-				this.cosPhi.updateValue(JsonUtils.getAsOptionalInt(jMessage, "PF").orElse(null));
-				this.energySession.updateValue(JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(null));
-				this.energyTotal.updateValue(JsonUtils.getAsOptionalLong(jMessage, "E total").orElse(null));
-
-			}
+	protected void receive(String message) {
+		if (message.startsWith("TCH-OK")) {
+			log.debug("KEBA confirmed reception of command: TCH-OK");
+			this.readTask.triggerRun();
+		} else if (message.startsWith("TCH-ERR")) {
+			log.debug("KEBA reported command error: TCH-ERR");
+			this.readTask.triggerRun();
 		} else {
-			// message without ID -> UDP broadcast
-			if (jMessage.has("State")) {
-				this.state.updateValue(JsonUtils.getAsOptionalInt(jMessage, "State").orElse(null));
+			JsonElement jMessageElement;
+			try {
+				jMessageElement = JsonUtils.parse(message);
+			} catch (OpenemsException e) {
+				log.error("Error while parsing KEBA message: " + e.getMessage());
+				return;
 			}
-			if (jMessage.has("Plug")) {
-				this.plug.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Plug").orElse(null));
-			}
-			if (jMessage.has("Input")) {
-				Optional<Integer> inputOpt = JsonUtils.getAsOptionalInt(jMessage, "Input");
-				if (inputOpt.isPresent()) {
-					this.input.updateValue(inputOpt.get() == 1);
-				} else {
-					this.input.updateValue(null);
+			JsonObject jMessage = jMessageElement.getAsJsonObject();
+			// JsonUtils.prettyPrint(jMessage);
+			Optional<String> idOpt = JsonUtils.getAsOptionalString(jMessage, "ID");
+			if (idOpt.isPresent()) {
+				// message with ID
+				String id = idOpt.get();
+				if (id.equals("1")) {
+					/*
+					 * Reply to report 1
+					 */
+					this.product.updateValue(JsonUtils.getAsOptionalString(jMessage, "Product").orElse(null));
+					this.serial.updateValue(JsonUtils.getAsOptionalString(jMessage, "Serial").orElse(null));
+					this.firmware.updateValue(JsonUtils.getAsOptionalString(jMessage, "Firmware").orElse(null));
+					this.comModule.updateValue(JsonUtils.getAsOptionalString(jMessage, "COM-module").orElse(null));
+
+				} else if (id.equals("2")) {
+					/*
+					 * Reply to report 2
+					 */
+					this.state.updateValue(JsonUtils.getAsOptionalInt(jMessage, "State").orElse(null));
+					this.error1.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Error1").orElse(null));
+					this.error2.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Error2").orElse(null));
+					this.plug.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Plug").orElse(null));
+					Optional<Integer> enableSysOpt = JsonUtils.getAsOptionalInt(jMessage, "Enable sys");
+					if (enableSysOpt.isPresent()) {
+						this.enableSys.updateValue(enableSysOpt.get() == 1);
+					} else {
+						this.enableSys.updateValue(null);
+					}
+					Optional<Integer> enableUserOpt = JsonUtils.getAsOptionalInt(jMessage, "Enable user");
+					if (enableUserOpt.isPresent()) {
+						this.enableUser.updateValue(enableUserOpt.get() == 1);
+					} else {
+						this.enableUser.updateValue(null);
+					}
+					this.maxCurr.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Max curr").orElse(null));
+					this.maxCurrPercent.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Max curr %").orElse(null));
+					this.currHardware.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Curr HW").orElse(null));
+					this.currUser.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Curr user").orElse(null));
+					this.currFailsafe.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Curr FS").orElse(null));
+					this.timeoutFailsafe.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Tmo FS").orElse(null));
+					this.currTimer.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Curr timer").orElse(null));
+					this.timeoutCT.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Tmo CT").orElse(null));
+					this.energyLimit.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Setenergy").orElse(null));
+					Optional<Integer> outputOpt = JsonUtils.getAsOptionalInt(jMessage, "Output");
+					if (outputOpt.isPresent()) {
+						this.output.updateValue(outputOpt.get() == 1);
+					} else {
+						this.output.updateValue(null);
+					}
+					Optional<Integer> inputOpt = JsonUtils.getAsOptionalInt(jMessage, "Input");
+					if (inputOpt.isPresent()) {
+						this.input.updateValue(inputOpt.get() == 1);
+					} else {
+						this.input.updateValue(null);
+					}
+
+				} else if (id.equals("3")) {
+					/*
+					 * Reply to report 3
+					 */
+					this.voltageL1.updateValue(JsonUtils.getAsOptionalInt(jMessage, "U1").orElse(null));
+					this.voltageL2.updateValue(JsonUtils.getAsOptionalInt(jMessage, "U2").orElse(null));
+					this.voltageL3.updateValue(JsonUtils.getAsOptionalInt(jMessage, "U3").orElse(null));
+					this.currentL1.updateValue(JsonUtils.getAsOptionalInt(jMessage, "I1").orElse(null));
+					this.currentL2.updateValue(JsonUtils.getAsOptionalInt(jMessage, "I2").orElse(null));
+					this.currentL3.updateValue(JsonUtils.getAsOptionalInt(jMessage, "I3").orElse(null));
+					this.actualPower.updateValue(JsonUtils.getAsOptionalInt(jMessage, "P").orElse(null));
+					this.cosPhi.updateValue(JsonUtils.getAsOptionalInt(jMessage, "PF").orElse(null));
+					this.energySession.updateValue(JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(null));
+					this.energyTotal.updateValue(JsonUtils.getAsOptionalLong(jMessage, "E total").orElse(null));
+
 				}
-			}
-			if (jMessage.has("Enable sys")) {
-				Optional<Integer> enableSysOpt = JsonUtils.getAsOptionalInt(jMessage, "Enable sys");
-				if (enableSysOpt.isPresent()) {
-					this.enableSys.updateValue(enableSysOpt.get() == 1);
-				} else {
-					this.enableSys.updateValue(null);
+			} else {
+				// message without ID -> UDP broadcast
+				if (jMessage.has("State")) {
+					this.state.updateValue(JsonUtils.getAsOptionalInt(jMessage, "State").orElse(null));
 				}
-			}
-			if (jMessage.has("Max curr")) {
-				this.maxCurr.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Max curr").orElse(null));
-			}
-			if (jMessage.has("E pres")) {
-				this.energySession.updateValue(JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(null));
+				if (jMessage.has("Plug")) {
+					this.plug.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Plug").orElse(null));
+				}
+				if (jMessage.has("Input")) {
+					Optional<Integer> inputOpt = JsonUtils.getAsOptionalInt(jMessage, "Input");
+					if (inputOpt.isPresent()) {
+						this.input.updateValue(inputOpt.get() == 1);
+					} else {
+						this.input.updateValue(null);
+					}
+				}
+				if (jMessage.has("Enable sys")) {
+					Optional<Integer> enableSysOpt = JsonUtils.getAsOptionalInt(jMessage, "Enable sys");
+					if (enableSysOpt.isPresent()) {
+						this.enableSys.updateValue(enableSysOpt.get() == 1);
+					} else {
+						this.enableSys.updateValue(null);
+					}
+				}
+				if (jMessage.has("Max curr")) {
+					this.maxCurr.updateValue(JsonUtils.getAsOptionalInt(jMessage, "Max curr").orElse(null));
+				}
+				if (jMessage.has("E pres")) {
+					this.energySession.updateValue(JsonUtils.getAsOptionalInt(jMessage, "E pres").orElse(null));
+				}
 			}
 		}
 	}
@@ -434,5 +465,11 @@ public abstract class KebaDeviceNature implements EvcsNature {
 	@ChannelInfo(type = Integer.class)
 	public WriteChannel<Integer> setCurrent() {
 		return this.setCurrent;
+	}
+
+	@Override
+	@ChannelInfo(type = Boolean.class)
+	public WriteChannel<Boolean> setEnabled() {
+		return this.setEnabled;
 	}
 }

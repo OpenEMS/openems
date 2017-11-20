@@ -32,4 +32,7 @@ import io.openems.api.doc.ChannelInfo;
 public interface EvcsNature extends DeviceNature {
 	@ChannelInfo(type = Integer.class)
 	public WriteChannel<Integer> setCurrent();
+
+	@ChannelInfo(type = Boolean.class)
+	public WriteChannel<Boolean> setEnabled();
 }

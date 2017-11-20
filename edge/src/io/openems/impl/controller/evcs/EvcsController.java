@@ -10,8 +10,16 @@ import io.openems.core.utilities.AvgFiFoQueue;
 
 @ThingInfo(title = "Electric Vehicle Charging Station control", description = "Controls an EVCS for optimized energy self-consumption.")
 public class EvcsController extends Controller {
-	private final AvgFiFoQueue sellToGridPowerQueue = new AvgFiFoQueue(30, 1.5);
-	private final AvgFiFoQueue essActivePowerQueue = new AvgFiFoQueue(30, 1.5);
+
+	// delay the control for 300 cycles to avoid too fast control
+	private final int CONTROL_LAG = 100;
+
+	private final int DEFAULT_MIN_CURRENT = 6000;
+	private final boolean DEFAULT_FORCE_CHARGE = false;
+
+	private final AvgFiFoQueue sellToGridPowerQueue = new AvgFiFoQueue(CONTROL_LAG, 1.5);
+	private final AvgFiFoQueue essActivePowerQueue = new AvgFiFoQueue(CONTROL_LAG, 1.5);
+	private int lagCountdown = CONTROL_LAG;
 
 	/*
 	 * Constructors
@@ -36,6 +44,18 @@ public class EvcsController extends Controller {
 	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
+	@ChannelInfo(title = "MinCurrent", description = "Sets the minimum current.", type = Integer.class)
+	public ConfigChannel<Integer> minCurrent = new ConfigChannel<Integer>("minCurrent", this)
+	.defaultValue(DEFAULT_MIN_CURRENT).addChangeListener((channel, newValue, oldValue) -> {
+		this.lagCountdown = 0; // force immediate action
+	});
+
+	@ChannelInfo(title = "ForceCharge", description = "Activates the force-charge mode.", type = Boolean.class)
+	public ConfigChannel<Boolean> forceCharge = new ConfigChannel<Boolean>("forceCharge", this)
+	.defaultValue(DEFAULT_FORCE_CHARGE).addChangeListener((channel, newValue, oldValue) -> {
+		this.lagCountdown = 0; // force immediate action
+	});
+
 	@Override
 	protected void run() {
 		// get sell-to-grid power
@@ -46,21 +66,47 @@ public class EvcsController extends Controller {
 			log.error(e.getMessage());
 		}
 
-		// calculate excess power
-		long sellToGridPower = this.sellToGridPowerQueue.avg();
-		long essActivePower = this.essActivePowerQueue.avg();
-		if (sellToGridPower > 0 /* Buying from grid */ || essActivePower > 0 /* Discharging */) {
-			return;
-		}
-		long excessPower = Math.abs(sellToGridPower) + Math.abs(essActivePower);
+		// did we wait long enough?
+		if (this.lagCountdown-- <= 0) {
+			// reset lag countdown
+			this.lagCountdown = CONTROL_LAG;
 
-		// set evcs charging current
-		int currentMilliAmp = (int) Math.round((excessPower / 692.820323) * 1000);
-		try {
-			log.info("Set EVCS to [" + currentMilliAmp + "mA]");
-			this.evcs.value().setCurrent.pushWrite(currentMilliAmp);
-		} catch (WriteChannelException | InvalidValueException e) {
-			log.error("Unable to set EVCS current: " + e.getMessage());
+			int currentMilliAmp;
+			if (forceCharge.valueOptional().orElse(DEFAULT_FORCE_CHARGE)) {
+				// set to max for KEBA
+				currentMilliAmp = 63000;
+			} else {
+				// calculate excess power
+				long sellToGridPower = this.sellToGridPowerQueue.avg();
+				long essActivePower = this.essActivePowerQueue.avg();
+				log.info("EssActivePower: " + essActivePower + "; sellToGrid: " + sellToGridPower);
+				long excessPower;
+				if (sellToGridPower > 0 /* Buying from grid */ || essActivePower > 0 /* Discharging */) {
+					excessPower = 0;
+				} else {
+					excessPower = Math.abs(sellToGridPower) + Math.abs(essActivePower);
+				}
+				log.info("Excess: " + excessPower);
+
+				// set evcs charging current
+				currentMilliAmp = (int) Math.round((excessPower / 692.820323) * 1000);
+				if (currentMilliAmp < minCurrent.valueOptional().orElse(DEFAULT_MIN_CURRENT)) {
+					currentMilliAmp = minCurrent.valueOptional().orElse(DEFAULT_MIN_CURRENT);
+				}
+			}
+
+			log.info("currentMilliAmp: " + currentMilliAmp);
+			try {
+				log.info("Set EVCS to [" + currentMilliAmp + "mA]");
+				this.evcs.value().setCurrent.pushWrite(currentMilliAmp);
+				if (currentMilliAmp == 0) {
+					this.evcs.value().setEnabled.pushWrite(false);
+				} else {
+					this.evcs.value().setEnabled.pushWrite(true);
+				}
+			} catch (WriteChannelException | InvalidValueException e) {
+				log.error("Unable to set EVCS current: " + e.getMessage());
+			}
 		}
 	}
 }
