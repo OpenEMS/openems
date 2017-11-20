@@ -7,6 +7,7 @@ export class ConfigImpl implements DefaultTypes.Config {
     public readonly things: {
         [id: string]: {
             id: string,
+            alias: string,
             class: string | string[],
             [channel: string]: any
         }
