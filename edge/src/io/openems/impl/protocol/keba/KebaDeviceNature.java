@@ -34,6 +34,7 @@ import com.google.gson.JsonObject;
 import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.evcs.EvcsNature;
@@ -54,6 +55,8 @@ public abstract class KebaDeviceNature implements EvcsNature {
 	private final List<BridgeReadTask> readTasks = new ArrayList<>();
 	private final List<BridgeReadTask> requiredReadTasks = new ArrayList<>();
 	private final List<BridgeWriteTask> writeTasks = new ArrayList<>();
+	@ChannelInfo(isOptional=true,title="Alias",description="The Alias to display for the device.", type=String.class)
+	public ConfigChannel<String> alias = new ConfigChannel<>("alias", this);
 
 	/*
 	 * This Channels
@@ -427,6 +430,11 @@ public abstract class KebaDeviceNature implements EvcsNature {
 	@Override
 	public String id() {
 		return thingId;
+	}
+
+	@Override
+	public String getAlias() {
+		return alias.valueOptional().orElse(id());
 	}
 
 	@Override

@@ -15,7 +15,19 @@ import { Utils } from './../../../../shared/service/utils';
 })
 export class SocChartComponent implements OnInit, OnChanges {
 
-  @Input() private device: Device;
+  @Input()
+  set device(device: Device) {
+    this.stopOnDestroy.next();
+    this._device = device;
+    if (this._device)
+      this._device.config.takeUntil(this.stopOnDestroy).subscribe(config => {
+        this.config = config;
+        this.createChart();
+      });
+  }
+  get device(): Device {
+    return this._device;
+  }
   @Input() private channels: DefaultTypes.ChannelAddresses;
   @Input() private fromDate: Date;
   @Input() private toDate: Date;
@@ -25,11 +37,16 @@ export class SocChartComponent implements OnInit, OnChanges {
   constructor(
     private utils: Utils,
     private translate: TranslateService
-  ) { }
+  ) {
+  }
 
   public labels: Date[] = [];
   public datasets: Dataset[] = EMPTY_DATASET;
   public loading: boolean = true;
+  private config: DefaultTypes.Config;
+  private stopOnDestroy: Subject<void> = new Subject<void>();
+  public _device: Device;
+
 
   private colors = [{
     backgroundColor: 'rgba(0,152,70,0.2)',
@@ -55,56 +72,62 @@ export class SocChartComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    if (Object.keys(this.channels).length === 0) {
-      this.loading = true;
-      return;
-    }
-    this.loading = true;
-    // TODO stop previous subscribe; show only results for latest query. Otherwise the chart misbehaves on fast switch of period
-    this.device.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
-      // prepare datas array and prefill with each device
-      let tmpData: {
-        [thing: string]: number[];
-      } = {};
-      let labels: Date[] = [];
-      for (let thing in this.channels) {
-        tmpData[thing] = [];
-      }
-      for (let record of historicData.data) {
-        // read timestamp and soc of each device
-        labels.push(new Date(record.time));
-        for (let thing in this.channels) {
-          let soc = null;
-          if (thing in record.channels && "Soc" in record.channels[thing] && record.channels[thing]["Soc"] != null) {
-            soc = Math.round(record.channels[thing].Soc);
-          }
-          tmpData[thing].push(soc);
-        }
-      }
-      // refresh global datasets and labels
-      let datasets = [];
-      for (let device in tmpData) {
-        datasets.push({
-          label: this.translate.instant('General.Soc') + " (" + device + ")",
-          data: tmpData[device]
-        });
-      }
-      this.datasets = datasets;
-      this.labels = labels;
-      // stop loading spinner
-      this.loading = false;
-      setTimeout(() => {
-        // Workaround, because otherwise chart data and labels are not refreshed...
-        if (this.chart) {
-          this.chart.ngOnChanges({} as SimpleChanges);
-        }
-      });
-    }).catch(error => {
-      this.datasets = EMPTY_DATASET;
-      this.labels = [];
-      // stop loading spinner
-      this.loading = false;
-      // TODO error message
-    });
+    this.createChart();
   };
+
+  createChart() {
+    if (this.channels && this.fromDate && this.toDate && this._device) {
+      if (Object.keys(this.channels).length === 0) {
+        this.loading = true;
+        return;
+      }
+      this.loading = true;
+      // TODO stop previous subscribe; show only results for latest query. Otherwise the chart misbehaves on fast switch of period
+      this._device.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
+        // prepare datas array and prefill with each device
+        let tmpData: {
+          [thing: string]: number[];
+        } = {};
+        let labels: Date[] = [];
+        for (let thing in this.channels) {
+          tmpData[thing] = [];
+        }
+        for (let record of historicData.data) {
+          // read timestamp and soc of each device
+          labels.push(new Date(record.time));
+          for (let thing in this.channels) {
+            let soc = null;
+            if (thing in record.channels && "Soc" in record.channels[thing] && record.channels[thing]["Soc"] != null) {
+              soc = Math.round(record.channels[thing].Soc);
+            }
+            tmpData[thing].push(soc);
+          }
+        }
+        // refresh global datasets and labels
+        let datasets = [];
+        for (let device in tmpData) {
+          datasets.push({
+            label: this.translate.instant('General.Soc') + " (" + (this.config === null ? device : this.config.things[device].alias) + ")",
+            data: tmpData[device]
+          });
+        }
+        this.datasets = datasets;
+        this.labels = labels;
+        // stop loading spinner
+        this.loading = false;
+        setTimeout(() => {
+          // Workaround, because otherwise chart data and labels are not refreshed...
+          if (this.chart) {
+            this.chart.ngOnChanges({} as SimpleChanges);
+          }
+        });
+      }).catch(error => {
+        this.datasets = EMPTY_DATASET;
+        this.labels = [];
+        // stop loading spinner
+        this.loading = false;
+        // TODO error message
+      });
+    }
+  }
 }

@@ -24,6 +24,10 @@ public interface Thing {
 
 	public String id();
 
+	public default String getAlias() {
+		return id();
+	}
+
 	public default void addListener(ThingChannelsUpdatedListener listener) {
 
 	}
