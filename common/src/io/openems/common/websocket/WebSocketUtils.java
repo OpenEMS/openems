@@ -43,27 +43,13 @@ public class WebSocketUtils {
 		}
 	}
 
-	public static boolean sendNotification(WebSocket websocket, JsonArray jId, LogBehaviour logBehaviour, Notification code, Object... params) {
-		String message = String.format(code.getMessage(), params);
-		String logMessage = "Notification [" + code.getValue() + "]: " + message;
-		// log message
+	public static boolean sendNotification(WebSocket websocket, JsonArray jId, LogBehaviour logBehaviour, Notification notification, Object... params) {
 		if (logBehaviour.equals(LogBehaviour.WRITE_TO_LOG)) {
-			switch (code.getType()) {
-			case INFO:
-			case LOG:
-			case SUCCESS:
-				log.info(logMessage);
-				break;
-			case ERROR:
-				log.error(logMessage);
-				break;
-			case WARNING:
-				log.warn(logMessage);
-				break;
-			}
+			// log message
+			notification.writeToLog(log, params);
 		}
-
-		JsonObject j = DefaultMessages.notification(jId, code, message, params);
+		String message = String.format(notification.getMessage(), params);
+		JsonObject j = DefaultMessages.notification(jId, notification, message, params);
 		return WebSocketUtils.send(websocket, j);
 	}
 

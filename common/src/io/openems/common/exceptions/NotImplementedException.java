@@ -1,6 +1,6 @@
 /*******************************************************************************
  * OpenEMS - Open Source Energy Management System
- * Copyright (c) 2016, 2017 FENECON GmbH and contributors
+ * Copyright (c) 2016 FENECON GmbH and contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,24 +18,13 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.device.keba;
+package io.openems.common.exceptions;
 
-import io.openems.api.device.nature.evcs.EvcsNature;
-import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.ConfigException;
-import io.openems.impl.protocol.keba.KebaDevice;
-import io.openems.impl.protocol.keba.KebaDeviceNature;
+public class NotImplementedException extends OpenemsException {
 
-@ThingInfo(title = "KEBA KeContact EVCS")
-public class KebaEvcs extends KebaDeviceNature implements EvcsNature {
+	private static final long serialVersionUID = 1L;
 
-	public KebaEvcs(String thingId, KebaDevice parent) throws ConfigException {
-		super(thingId, parent);
-	}
-
-	@Override
-	public String toString() {
-		return "KebaEvcs [state=" + state.format() + ", plug=" + plug.format() + ", actualPower=" + actualPower.format()
-		+ ", energySession=" + energySession.format() + ", energyTotal=" + energyTotal.format() + "]";
+	public NotImplementedException(String message) {
+		super(message);
 	}
 }

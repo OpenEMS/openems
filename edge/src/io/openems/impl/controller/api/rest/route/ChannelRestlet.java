@@ -32,6 +32,8 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -42,15 +44,22 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.exception.NotImplementedException;
 import io.openems.common.session.Role;
+import io.openems.common.websocket.Notification;
 import io.openems.core.ThingRepository;
+import io.openems.core.utilities.api.ApiWorker;
+import io.openems.core.utilities.api.WriteJsonObject;
+import io.openems.core.utilities.api.WriteObject;
 import io.openems.impl.controller.api.rest.OpenemsRestlet;
 
 public class ChannelRestlet extends OpenemsRestlet {
 
+	private final Logger log = LoggerFactory.getLogger(ChannelRestlet.class);
 	private final ThingRepository thingRepository;
+	private final ApiWorker apiWorker;
 
-	public ChannelRestlet() {
+	public ChannelRestlet(ApiWorker apiWorker) {
 		super();
+		this.apiWorker = apiWorker;
 		thingRepository = ThingRepository.getInstance();
 	}
 
@@ -162,8 +171,19 @@ public class ChannelRestlet extends OpenemsRestlet {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Conversion not implemented");
 			}
 
-		} else {
-			// is a WriteChannel
+		} else if (channel instanceof WriteChannel<?>) {
+			/*
+			 * WriteChannel
+			 */
+			WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
+			WriteObject writeObject = new WriteJsonObject(jValue).onFirstSuccess(() -> {
+				Notification.EDGE_CHANNEL_UPDATE_SUCCESS.writeToLog(log, "set " + channel.address() + " => " + jValue);
+			}).onFirstError((e) -> {
+				Notification.EDGE_CHANNEL_UPDATE_FAILED.writeToLog(log, "set " + channel.address() + " => " + jValue);
+			}).onTimeout(() -> {
+				Notification.EDGE_CHANNEL_UPDATE_TIMEOUT.writeToLog(log, "set " + channel.address() + " => " + jValue);
+			});
+			this.apiWorker.addValue(writeChannel, writeObject);
 		}
 	}
 }

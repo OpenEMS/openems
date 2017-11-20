@@ -1,5 +1,7 @@
 package io.openems.common.websocket;
 
+import org.slf4j.Logger;
+
 public enum Notification {
 	EDGE_CONNECTION_ClOSED(100, NotificationType.WARNING, "Connection [%s] was interrupted"),
 	EDGE_CONNECTION_OPENED(101, NotificationType.INFO, "Connection [%s] was established"),
@@ -30,5 +32,23 @@ public enum Notification {
 	
 	public String getMessage() {
 		return message;
+	}
+	
+	public void writeToLog(Logger log, Object... params) {
+		String message = String.format(this.message, params);
+		String logMessage = "Notification [" + this.value + "]: " + message;
+		switch (this.status) {
+		case INFO:
+		case LOG:
+		case SUCCESS:
+			log.info(logMessage);
+			break;
+		case ERROR:
+			log.error(logMessage);
+			break;
+		case WARNING:
+			log.warn(logMessage);
+			break;
+		}
 	}
 }

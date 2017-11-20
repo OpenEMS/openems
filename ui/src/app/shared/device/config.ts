@@ -1,5 +1,6 @@
 import { DefaultTypes } from '../service/defaulttypes'
 import { Role } from '../type/role'
+import { Widget } from '../type/widget'
 
 export class ConfigImpl implements DefaultTypes.Config {
 
@@ -41,6 +42,7 @@ export class ConfigImpl implements DefaultTypes.Config {
     public readonly controllers: string[] = [];
     public readonly persistences: string[] = [];
     public readonly simulatorDevices: string[] = [];
+    public readonly evcsDevices: string[] = [];
 
     constructor(private readonly config: DefaultTypes.Config) {
         // convert role-strings to Role-objects
@@ -66,6 +68,7 @@ export class ConfigImpl implements DefaultTypes.Config {
         let controllers: string[] = [];
         let persistences: string[] = [];
         let simulatorDevices: string[] = [];
+        let evcsDevices: string[] = [];
 
         for (let thingId in config.things) {
             let thing = config.things[thingId];
@@ -119,6 +122,10 @@ export class ConfigImpl implements DefaultTypes.Config {
             if (i.includes("io.openems.impl.device.simulator.Simulator")) {
                 simulatorDevices.push(thingId);
             }
+            // Simulator Devices
+            if (i.includes("KebaDeviceNature")) {
+                evcsDevices.push(thingId);
+            }
         }
 
         this.storageThings = storageThings.sort();
@@ -129,6 +136,7 @@ export class ConfigImpl implements DefaultTypes.Config {
         this.controllers = controllers;
         this.persistences = persistences;
         this.simulatorDevices = simulatorDevices;
+        this.evcsDevices = evcsDevices;
     }
 
     /**
@@ -197,20 +205,44 @@ export class ConfigImpl implements DefaultTypes.Config {
     }
 
     /**
+     * Returns ChannelAddresses required by EVCS widget 
+     */
+    private getEvcsWidgetChannels(): DefaultTypes.ChannelAddresses {
+        let result: DefaultTypes.ChannelAddresses = {}
+        for (let thingId of this.evcsDevices) {
+            result[thingId] = ["State", "Plug", "CurrUser", "ActualPower", "EnergySession", "EnergyTotal"];
+        }
+        return result;
+    }
+
+    /**
      * Return ChannelAddresses of power and soc channels
      */
     public getImportantChannels(): DefaultTypes.ChannelAddresses {
-        let channels: DefaultTypes.ChannelAddresses = this.getPowerChannels();
-        let essChannels = this.getEssSocChannels();
-        // join/merge both results
-        for (let thing in essChannels) {
-            if (thing in channels) {
-                channels[thing] = channels[thing].concat(essChannels[thing]);
-            } else {
-                channels[thing] = essChannels[thing];
+        let channels: DefaultTypes.ChannelAddresses = {};
+        function merge(obj: DefaultTypes.ChannelAddresses) {
+            for (let thing in obj) {
+                if (thing in channels) {
+                    channels[thing] = channels[thing].concat(obj[thing]);
+                } else {
+                    channels[thing] = obj[thing];
+                }
             }
         }
+        // basic channels
+        merge(this.getPowerChannels());
+        merge(this.getEssSocChannels());
+        // widget channels
+        merge(this.getEvcsWidgetChannels());
         return channels;
+    }
+
+    public getWidgets(): Widget[] {
+        let widgets: Widget[] = [];
+        if (this.evcsDevices.length > 0) {
+            widgets.push("EVCS");
+        }
+        return widgets;
     }
 
     private getImplements(thing: DefaultTypes.ThingConfig): string | string[] {

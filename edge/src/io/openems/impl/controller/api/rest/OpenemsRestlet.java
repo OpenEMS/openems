@@ -24,18 +24,10 @@ import org.restlet.Application;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.session.Role;
 
 public abstract class OpenemsRestlet extends Restlet {
-	protected final Logger log;
-
-	public OpenemsRestlet() {
-		this.log = LoggerFactory.getLogger(this.getClass());
-	}
-
 	protected boolean isAuthenticatedAsRole(Request request, Role role) {
 		return request.getClientInfo().getRoles()
 				.contains(org.restlet.security.Role.get(Application.getCurrent(), role.name().toLowerCase()));

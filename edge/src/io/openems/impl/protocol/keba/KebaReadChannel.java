@@ -36,4 +36,10 @@ public class KebaReadChannel<T> extends ReadChannel<T> {
 	public void updateValue(T value) {
 		super.updateValue(value);
 	}
+
+	@Override
+	public KebaReadChannel<T> label(T value, String label) {
+		this.labels.put(value, label);
+		return this;
+	}
 }

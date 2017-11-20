@@ -18,24 +18,14 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.device.keba;
+package io.openems.impl.protocol.keba;
 
-import io.openems.api.device.nature.evcs.EvcsNature;
-import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.ConfigException;
-import io.openems.impl.protocol.keba.KebaDevice;
-import io.openems.impl.protocol.keba.KebaDeviceNature;
+import io.openems.api.channel.WriteChannel;
+import io.openems.api.device.nature.DeviceNature;
 
-@ThingInfo(title = "KEBA KeContact EVCS")
-public class KebaEvcs extends KebaDeviceNature implements EvcsNature {
+public class KebaWriteChannel<T> extends WriteChannel<T> {
 
-	public KebaEvcs(String thingId, KebaDevice parent) throws ConfigException {
-		super(thingId, parent);
-	}
-
-	@Override
-	public String toString() {
-		return "KebaEvcs [state=" + state.format() + ", plug=" + plug.format() + ", actualPower=" + actualPower.format()
-		+ ", energySession=" + energySession.format() + ", energyTotal=" + energyTotal.format() + "]";
+	public KebaWriteChannel(String id, DeviceNature nature) {
+		super(id, nature);
 	}
 }

@@ -9,7 +9,7 @@ import io.openems.backend.metadata.api.device.MetadataDeviceModel;
 import io.openems.backend.metadata.dummy.device.MetadataDummyDeviceModel;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.SessionData;
-import io.openems.common.types.Device;
+import io.openems.common.types.DeviceImpl;
 
 public class MetadataDummySingleton implements MetadataSingleton {
 	// private final Logger log = LoggerFactory.getLogger(MetadataDummySingleton.class);
@@ -32,8 +32,8 @@ public class MetadataDummySingleton implements MetadataSingleton {
 		BrowserSessionData data = (BrowserSessionData) sessionData;
 		data.setUserId(0);
 		// Devices can have the same name, that's why we use a Multimap.
-		LinkedHashMultimap<String, Device> deviceMap = LinkedHashMultimap.create();
-		for (Device device : this.deviceModel.getAllDevices()) {
+		LinkedHashMultimap<String, DeviceImpl> deviceMap = LinkedHashMultimap.create();
+		for (DeviceImpl device : this.deviceModel.getAllDevices()) {
 			deviceMap.put(device.getName(), device);
 		}
 		data.setDevices(deviceMap);
