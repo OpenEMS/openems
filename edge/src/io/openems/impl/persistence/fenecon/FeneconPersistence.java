@@ -118,7 +118,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	/*
 	 * Fields
 	 */
-	private static final int DEFAULT_CYCLETIME = 2000;
+	private static final int DEFAULT_CYCLETIME = 10000;
 	private final EdgeWebsocketHandler websocketHandler;
 	private final ReconnectingWebsocket reconnectingWebsocket;
 
