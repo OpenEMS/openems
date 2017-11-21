@@ -78,7 +78,7 @@ public abstract class KebaDevice extends Device {
 			DatagramSocket dSocket = null;
 			try {
 				dSocket = new DatagramSocket();
-				log.debug("Sending message to KEBA [" + s + "]");
+				log.info("Sending message to KEBA [" + s + "]");
 				dSocket.send(packet);
 			} catch (SocketException e) {
 				throw new OpenemsException("Unable to open UDP socket for sending [" + s + "] to ["

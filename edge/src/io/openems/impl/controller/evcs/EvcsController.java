@@ -8,6 +8,7 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.common.session.Role;
 import io.openems.core.utilities.AvgFiFoQueue;
 
 @ThingInfo(title = "Electric Vehicle Charging Station control", description = "Controls an EVCS for optimized energy self-consumption.")
@@ -49,13 +50,15 @@ public class EvcsController extends Controller {
 	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	@ChannelInfo(title = "MinCurrent", description = "Sets the minimum current.", type = Integer.class)
+	@ChannelInfo(title = "MinCurrent", description = "Sets the minimum current.", type = Integer.class, writeRoles = {
+			Role.OWNER })
 	public ConfigChannel<Integer> minCurrent = new ConfigChannel<Integer>("minCurrent", this)
 	.defaultValue(DEFAULT_MIN_CURRENT).addChangeListener((channel, newValue, oldValue) -> {
 		this.lagCountdown = 0; // force immediate action
 	});
 
-	@ChannelInfo(title = "ForceCharge", description = "Activates the force-charge mode.", type = Boolean.class)
+	@ChannelInfo(title = "ForceCharge", description = "Activates the force-charge mode.", type = Boolean.class, writeRoles = {
+			Role.OWNER })
 	public ConfigChannel<Boolean> forceCharge = new ConfigChannel<Boolean>("forceCharge", this)
 	.defaultValue(DEFAULT_FORCE_CHARGE).addChangeListener((channel, newValue, oldValue) -> {
 		this.lagCountdown = 0; // force immediate action
@@ -102,16 +105,17 @@ public class EvcsController extends Controller {
 				currentMilliAmp = 63000;
 			} else {
 				// calculate excess power
-				long sellToGridPower = this.sellToGridPowerQueue.avg();
-				long essActivePower = this.essActivePowerQueue.avg();
-				log.info("EssActivePower: " + essActivePower + "; sellToGrid: " + sellToGridPower);
+				long gridBuyGridPower = this.sellToGridPowerQueue.avg();
+				long essDischargePower = this.essActivePowerQueue.avg();
+				log.info("EssActivePower: " + essDischargePower + "; sellToGrid: " + gridBuyGridPower);
 				long excessPower;
-				if (sellToGridPower > 0 /* Buying from grid */ || essActivePower > 0 /* Discharging */) {
+				if (gridBuyGridPower + essDischargePower > 0) {
 					excessPower = 0;
 				} else {
-					excessPower = Math.abs(sellToGridPower) + Math.abs(essActivePower);
+					excessPower = Math.abs(gridBuyGridPower + essDischargePower);
 				}
-				log.info("Excess: " + excessPower);
+				log.info("Calculation: abs(gridBuyGridPower [" + gridBuyGridPower + "] + essDischargePower ["
+						+ essDischargePower + "]) = excessPower [" + excessPower + "]");
 
 				// set evcs charging current
 				currentMilliAmp = (int) Math.round((excessPower / 692.820323) * 1000);

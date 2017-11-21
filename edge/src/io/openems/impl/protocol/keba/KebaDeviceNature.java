@@ -301,7 +301,7 @@ public abstract class KebaDeviceNature implements EvcsNature {
 			log.debug("KEBA confirmed reception of command: TCH-OK");
 			this.readTask.triggerRun();
 		} else if (message.startsWith("TCH-ERR")) {
-			log.debug("KEBA reported command error: TCH-ERR");
+			log.warn("KEBA reported command error: TCH-ERR");
 			this.readTask.triggerRun();
 		} else {
 			JsonElement jMessageElement;
