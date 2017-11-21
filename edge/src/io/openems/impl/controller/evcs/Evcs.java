@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.controller.evcs;
 
+import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
@@ -28,14 +29,15 @@ import io.openems.api.device.nature.evcs.EvcsNature;
 @IsThingMap(type = EvcsNature.class)
 public class Evcs extends ThingMap {
 
+	public final ReadChannel<Integer> userCurrent;
 	public final WriteChannel<Integer> setCurrent;
-
 	public final WriteChannel<Boolean> setEnabled;
 
 	public Evcs(EvcsNature evcs) {
 		super(evcs);
 		this.setCurrent = evcs.setCurrent();
 		this.setEnabled = evcs.setEnabled();
+		this.userCurrent = evcs.currUser();
 	}
 
 }

@@ -35,6 +35,7 @@ import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.evcs.EvcsNature;
@@ -55,7 +56,7 @@ public abstract class KebaDeviceNature implements EvcsNature {
 	private final List<BridgeReadTask> readTasks = new ArrayList<>();
 	private final List<BridgeReadTask> requiredReadTasks = new ArrayList<>();
 	private final List<BridgeWriteTask> writeTasks = new ArrayList<>();
-	@ChannelInfo(isOptional=true,title="Alias",description="The Alias to display for the device.", type=String.class)
+	@ChannelInfo(isOptional = true, title = "Alias", description = "The Alias to display for the device.", type = String.class)
 	public ConfigChannel<String> alias = new ConfigChannel<>("alias", this);
 
 	/*
@@ -467,6 +468,12 @@ public abstract class KebaDeviceNature implements EvcsNature {
 	@Override
 	public List<BridgeWriteTask> getWriteTasks() {
 		return this.writeTasks;
+	}
+
+	@Override
+	@ChannelInfo(type = Integer.class)
+	public ReadChannel<Integer> currUser() {
+		return this.currUser;
 	}
 
 	@Override
