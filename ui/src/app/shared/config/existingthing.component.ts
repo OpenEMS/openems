@@ -3,11 +3,11 @@ import { Subject } from 'rxjs/Subject';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 
 import { ChannelComponent } from './channel.component';
-import { Utils } from '../../../shared/service/utils';
-import { ConfigImpl } from '../../../shared/device/config';
-import { Device } from '../../../shared/device/device';
-import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { Role } from '../../../shared/type/role';
+import { Utils } from '../service/utils';
+import { ConfigImpl } from '../device/config';
+import { Device } from '../device/device';
+import { DefaultTypes } from '../service/defaulttypes';
+import { Role } from '../type/role';
 
 @Component({
   selector: 'existingthing',

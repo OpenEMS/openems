@@ -3,11 +3,11 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 
-import { Utils } from '../../../shared/service/utils';
-import { Device } from '../../../shared/device/device';
-import { Websocket } from '../../../shared/shared';
-import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { ConfigImpl } from '../../../shared/device/config';
+import { Utils } from '../service/utils';
+import { Device } from '../device/device';
+import { Websocket } from '../shared';
+import { DefaultTypes } from '../service/defaulttypes';
+import { ConfigImpl } from '../device/config';
 
 @Component({
   selector: 'abstractconfig',

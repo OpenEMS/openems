@@ -2,12 +2,12 @@ import { Component, Input, Output, OnChanges, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 
-import { DefaultMessages } from '../../../shared/service/defaultmessages';
-import { Utils } from '../../../shared/service/utils';
-import { ConfigImpl } from '../../../shared/device/config';
-import { Device } from '../../../shared/device/device';
-import { DefaultTypes } from '../../../shared/service/defaulttypes';
-import { Role } from '../../../shared/type/role';
+import { DefaultMessages } from '../service/defaultmessages';
+import { Utils } from '../service/utils';
+import { ConfigImpl } from '../device/config';
+import { Device } from '../device/device';
+import { DefaultTypes } from '../service/defaulttypes';
+import { Role } from '../type/role';
 
 @Component({
   selector: 'channel',
@@ -32,6 +32,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   @Input() public role: Role = "guest"; // TODO in device
   @Input() public device: Device = null;
   @Input() public showThings: boolean = false;
+  @Input() public title: string = null;
 
   @Output() public message: Subject<DefaultTypes.ConfigUpdate> = new Subject<DefaultTypes.ConfigUpdate>();
 
@@ -52,6 +53,9 @@ export class ChannelComponent implements OnChanges, OnDestroy {
     let thingMeta = this.config.meta[clazz];
     let channelMeta = thingMeta.channels[this.channelId];
     this.meta = channelMeta;
+    if (this.title == null) {
+      this.title = channelMeta.title;
+    }
 
     // handle access role
     this.allowWrite = this.meta.writeRoles.includes(this.role);

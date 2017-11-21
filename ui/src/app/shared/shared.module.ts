@@ -37,6 +37,9 @@ import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
  * Components
  */
 import { SocChartComponent } from './../device/history/chart/socchart/socchart.component';
+import { AbstractConfigComponent } from './config/abstractconfig.component';
+import { ExistingThingComponent } from './config/existingthing.component';
+import { ChannelComponent } from './config/channel.component';
 
 @NgModule({
   imports: [
@@ -61,7 +64,10 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     IsclassPipe,
     HasclassPipe,
     // components
-    SocChartComponent
+    SocChartComponent,
+    AbstractConfigComponent,
+    ChannelComponent,
+    ExistingThingComponent
   ],
   exports: [
     // pipes
@@ -84,7 +90,10 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     ToasterModule,
     // components
     SocChartComponent,
-    LoadingModule
+    LoadingModule,
+    AbstractConfigComponent,
+    ChannelComponent,
+    ExistingThingComponent
   ],
   providers: [
     Utils,
