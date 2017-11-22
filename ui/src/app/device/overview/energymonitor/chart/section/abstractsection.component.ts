@@ -139,7 +139,14 @@ export abstract class AbstractSection {
             .startAngle(this.deg2rad(this.getValueStartAngle()))
             .endAngle(this.deg2rad(valueEndAngle));
         this.valuePath = valueArc();
-        this.energyFlow.update(this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, Math.abs(Math.round(sumRatio * 10))));
+
+        let energyFlowValue = Math.abs(Math.round(sumRatio * 10));
+        if (energyFlowValue < -10) {
+            energyFlowValue = -10;
+        } else if (energyFlowValue > 10) {
+            energyFlowValue = 10;
+        }
+        this.energyFlow.update(this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, energyFlowValue));
     }
 
     /**
@@ -206,6 +213,7 @@ export abstract class AbstractSection {
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;
+    // v is between -10 and 10
     protected abstract getSvgEnergyFlow(ratio: number, r: number, v: number): SvgEnergyFlow;
 
     protected getValueRatio(valueRatio: number): number {
