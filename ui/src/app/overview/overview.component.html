@@ -59,9 +59,6 @@
     <!-- List of devices -->
     <ng-container *ngIf="env.backend === 'OpenEMS Backend' && websocket.status == 'online'">
       <mat-card class="single">
-        <mat-card-header>
-          <mat-card-title translate>General.Search</mat-card-title>
-        </mat-card-header>
         <mat-card-content fxLayout fxLayoutWrap="wrap">
           <mat-input-container fxFlex="100%" [formGroup]="filter">
             <input type="text" formControlName="filter" placeholder="Filter" matInput autofocus>
@@ -70,7 +67,7 @@
       </mat-card>
     </ng-container>
     <ng-container *ngFor="let device of utils.values(websocket.devices | async)">
-      <ng-container *ngIf="env.backend === 'OpenEMS Edge' || device.name.includes(filter.value.filter) || device.comment.includes(filter.value.filter)">
+      <ng-container *ngIf="env.backend === 'OpenEMS Edge' || device.name.toLowerCase().includes(filter.value.filter.toLowerCase()) || device.comment.toLowerCase().includes(filter.value.filter.toLowerCase())">
         <mat-card class="single">
           <mat-card-header>
             <mat-icon *ngIf="device.online" mat-card-avatar color="primary">folder</mat-icon>
