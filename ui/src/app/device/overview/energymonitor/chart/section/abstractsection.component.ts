@@ -56,7 +56,7 @@ export interface SvgEnergyFlow {
 }
 
 export class EnergyFlow {
-    public points: string = "";
+    public points: string = "0,0 0,0";
 
     constructor(
         public radius: number,
@@ -69,14 +69,18 @@ export class EnergyFlow {
     ) { }
 
     public update(p: SvgEnergyFlow) {
-        this.points = p.topLeft.x + "," + p.topLeft.y
-            + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
-            + " " + p.topRight.x + "," + p.topRight.y
-            + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
-            + " " + p.bottomRight.x + "," + p.bottomRight.y
-            + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
-            + " " + p.bottomLeft.x + "," + p.bottomLeft.y
-            + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+        if (p == null) {
+            this.points = "0,0 0,0";
+        } else {
+            this.points = p.topLeft.x + "," + p.topLeft.y
+                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
+                + " " + p.topRight.x + "," + p.topRight.y
+                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
+                + " " + p.bottomRight.x + "," + p.bottomRight.y
+                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
+                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
+                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+        }
     }
 
     public state: "one" | "two" | "three" = "one";
@@ -146,7 +150,13 @@ export abstract class AbstractSection {
         } else if (energyFlowValue > 10) {
             energyFlowValue = 10;
         }
-        this.energyFlow.update(this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, energyFlowValue));
+        let svgEnergyFlow;
+        if (isNaN(sumRatio) || isNaN(energyFlowValue)) {
+            svgEnergyFlow = null;
+        } else {
+            svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, energyFlowValue);
+        }
+        this.energyFlow.update(svgEnergyFlow);
     }
 
     /**
