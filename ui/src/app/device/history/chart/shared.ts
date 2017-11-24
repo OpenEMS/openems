@@ -33,8 +33,13 @@ export type ChartOptions = {
             hoverRadius: number
         },
         line: {
-            borderWidth: number
+            borderWidth: number,
+            tension: number
         }
+    },
+    hover: {
+        mode: string,
+        intersect: boolean
     },
     scales: {
         yAxes: [{
@@ -65,7 +70,9 @@ export type ChartOptions = {
         }]
     },
     tooltips: {
-        mode: "label",
+        mode: string,
+        intersect: boolean,
+        axis: string,
         callbacks: {
             label?(tooltipItem: TooltipItem, data: Data): string,
             title?(tooltipItems: TooltipItem[], data: Data): string
@@ -81,12 +88,17 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
     elements: {
         point: {
             radius: 0,
-            hitRadius: 10,
-            hoverRadius: 10
+            hitRadius: 0,
+            hoverRadius: 0
         },
         line: {
-            borderWidth: 1
+            borderWidth: 2,
+            tension: 0.1
         }
+    },
+    hover: {
+        mode: 'point',
+        intersect: true
     },
     scales: {
         yAxes: [{
@@ -116,7 +128,9 @@ export const DEFAULT_TIME_CHART_OPTIONS: ChartOptions = {
         }]
     },
     tooltips: {
-        mode: 'label',
+        mode: 'index',
+        intersect: false,
+        axis: 'x',
         callbacks: {
             title(tooltipItems: TooltipItem[], data: Data): string {
                 return format(tooltipItems[0].xLabel, "LLLL", { locale: deLocale });

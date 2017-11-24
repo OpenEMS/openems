@@ -33,6 +33,7 @@ export class ConfigImpl implements DefaultTypes.Config {
 
     // A list of thing ids which are matching Natures. (e.g. ["ess0", "ess1"])
     public readonly storageThings: string[] = [];
+    public readonly chargers: string[] = [];
     public readonly gridMeters: string[] = [];
     public readonly productionMeters: string[] = [];
     public readonly consumptionMeters: string[] = [];
@@ -59,6 +60,7 @@ export class ConfigImpl implements DefaultTypes.Config {
         Object.assign(this, config);
 
         let storageThings: string[] = []
+        let chargers: string[] = [];
         let gridMeters: string[] = [];
         let productionMeters: string[] = [];
         let consumptionMeters: string[] = [];
@@ -98,6 +100,7 @@ export class ConfigImpl implements DefaultTypes.Config {
             // Charger
             if (i.includes("ChargerNature")) {
                 productionMeters.push(thingId);
+                chargers.push(thingId);
             }
             /*
              * Other Things
@@ -129,6 +132,7 @@ export class ConfigImpl implements DefaultTypes.Config {
         }
 
         this.storageThings = storageThings.sort();
+        this.chargers = chargers.sort();
         this.gridMeters = gridMeters.sort();
         this.productionMeters = productionMeters.sort();
         this.bridges = bridges.sort();

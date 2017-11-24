@@ -49,17 +49,17 @@ export class SocChartComponent implements OnInit, OnChanges {
 
 
   private colors = [{
-    backgroundColor: 'rgba(0,152,70,0.2)',
+    backgroundColor: 'rgba(0,152,70,0.05)',
     borderColor: 'rgba(0,152,70,1)',
   }, {
-    backgroundColor: 'rgba(23,93,20,0.2)',
-    borderColor: 'rgba(23,93,20,1)'
+    backgroundColor: 'rgba(0,152,204,0.05)',
+    borderColor: 'rgba(0,152,204,1)'
   }, {
-    backgroundColor: 'rgba(139,222,135,0.2)',
-    borderColor: 'rgba(139,222,135,1)'
+    backgroundColor: 'rgba(107,207,0,0.05)',
+    borderColor: 'rgba(107,207,0,1)'
   }, {
-    backgroundColor: 'rgba(53,192,78,0.2)',
-    borderColor: 'rgba(53,192,78,1)'
+    backgroundColor: 'rgba(224,232,17,0.05)',
+    borderColor: 'rgba(224,232,17,1)'
   }
   ];
   private options: ChartOptions;

@@ -92,7 +92,7 @@ public class WebSocketUtils {
 				// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
 				// TODO: better calculation of sensible resolution
-				int resolution = 5 * 60; // 5 Minutes
+				int resolution = 10 * 60; // 10 Minutes
 				if (days > 25) {
 					resolution = 24 * 60 * 60; // 1 Day
 				} else if (days > 6) {

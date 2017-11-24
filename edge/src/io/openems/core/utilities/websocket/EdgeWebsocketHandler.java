@@ -197,10 +197,7 @@ public class EdgeWebsocketHandler {
 				jReply = JsonUtils.merge(jReply, //
 						log(jIdOpt.get(), jLogOpt.get(), role) //
 						);
-			} catch (AccessDeniedException e) {
-				// TODO create notification
-				log.error(e.getMessage());
-			}
+			} catch (AccessDeniedException e) { /* ignore */ }
 		}
 
 		/*
