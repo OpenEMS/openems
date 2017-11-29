@@ -13,10 +13,12 @@ Following Values are implemented:
 |AcChargeEnergy|Wh|
 |AcDischargeEnergy|Wh|
 |ActivePower|W|
+|alias||
 |AllowedApparent|VA|
 |AllowedCharge|W|
 |AllowedDischarge|W|
 |ApparentPower|VA|
+|BatteryCellAverageTemperature|°C|
 |BatteryCurrent|mA|
 |BatteryMaintenanceState|0: Off<br/>1: On<br/>|
 |BatteryPower|W|
@@ -48,6 +50,7 @@ Following Values are implemented:
 |SetReactivePower|var|
 |SetWorkState|4: Stop<br/>32: Standby<br/>64: Start<br/>|
 |Soc|%|
+|Soh|%|
 |SuggestiveInformation1|4: EmergencyStop<br/>64: KeyManualStop<br/>|
 |SuggestiveInformation2|4: EmergencyStop<br/>64: KeyManualStop<br/>|
 |SuggestiveInformation3|1: Inverter communication abnormity<br/>2: Battery stack communication abnormity<br/>4: Multifunctional ammeter communication abnormity<br/>16: Remote communication abnormity<br/>256: PV DC1 communication abnormity<br/>512: PV DC2 communication abnormity<br/>|
@@ -72,6 +75,7 @@ Following Values are implemented:
 |ChannelName|Unit|
 |---|---|
 |ActualPower||
+|alias||
 |BmsDCDC1Abnormity1|1: High voltage side of DC Converter undervoltage<br/>2: High voltage side of DC Converter overvoltage<br/>4: Low voltage side  of DC Converter undervoltage<br/>8: Low voltage side  of DC Converter overvoltage<br/>16: High voltage side of DC Converter overcurrent fault<br/>32: Low voltage side of DC Converter overcurrent fault<br/>64: DC Converter IGBT fault<br/>128: DC Converter Precharge unmet<br/>|
 |BmsDCDC1Abnormity2|1: BECU communication disconnected<br/>2: DC Converter communication disconnected<br/>4: Current configuration over range<br/>8: The battery request stop<br/>32: Overcurrent relay fault<br/>64: Lightning protection device fault<br/>128: DC Converter priamary contactor disconnected abnormally<br/>512: DC disconnected abnormally on low voltage side of DC convetor<br/>4096: DC convetor EEPROM abnormity 1<br/>8192: DC convetor EEPROM abnormity 1<br/>16384: EDC convetor EEPROM abnormity 1<br/>|
 |BmsDCDC1Abnormity3|1: DC Convertor general overload<br/>2: DC short circuit<br/>4: Peak pulse current protection<br/>8: DC disconnect abnormally on high voltage side of DC convetor<br/>16: Effective pulse value overhigh<br/>32: DC Converte severe overload<br/>64: DC breaker disconnect abnormally on high voltage side of DC convetor<br/>128: DC breaker disconnect abnormally on low voltage side of DC convetor<br/>256: DC convetor precharge contactor close failed <br/>512: DC convetor main contactor close failed<br/>1024: AC contactor state abnormity of DC convetor<br/>2048: DC convetor emergency stop<br/>4096: DC converter charging gun disconnected<br/>8192: DC current abnormity before DC convetor work<br/>16384: Fuse disconnected<br/>32768: DC converter hardware current or voltage fault<br/>|

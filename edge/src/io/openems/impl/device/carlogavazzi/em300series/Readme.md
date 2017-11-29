@@ -11,6 +11,7 @@ Following Values are implemented:
 |ActivePowerL1|W|
 |ActivePowerL2|W|
 |ActivePowerL3|W|
+|alias||
 |ApparentPower|VA|
 |CurrentL1|mA|
 |CurrentL2|mA|

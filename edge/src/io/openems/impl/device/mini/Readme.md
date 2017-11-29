@@ -6,6 +6,7 @@ Following Values are implemented:
 |ChannelName|Unit|
 |---|---|
 |ActivePower|W|
+|alias||
 |PhaseAllowedApparentPower|VA|
 |AllowedCharge|W|
 |AllowedDischarge|W|

@@ -9,6 +9,7 @@ Following Values are implemented:
 |ActivePowerL1|W|
 |ActivePowerL2|W|
 |ActivePowerL3|W|
+|alias||
 |ApparentPower|VA|
 |Current|mA|
 |CurrentL1|mA|

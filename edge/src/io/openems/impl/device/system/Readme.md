@@ -5,5 +5,6 @@ Following Values are implemented:
 
 |ChannelName|Unit|
 |---|---|
+|alias||
 |OpenemsVersionMajor||
 |PrimaryIpAddress||

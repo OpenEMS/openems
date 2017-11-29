@@ -5,6 +5,7 @@ Following Values are implemented:
 
 |ChannelName|Unit|
 |---|---|
+|alias||
 |ActualPower|W|
 |InputVoltage|mV|
 |NominalPower||
@@ -18,9 +19,10 @@ Following Values are implemented:
 
 |ChannelName|Unit|
 |---|---|
-|ActivePoweL1||
-|ActivePoweL2||
-|ActivePoweL3||
+|ActivePowerL1||
+|ActivePowerL2||
+|ActivePowerL3||
+|alias||
 |AllowedApparent||
 |AllowedCharge||
 |AllowedDischarge||
@@ -53,6 +55,7 @@ Following Values are implemented:
 |---|---|
 |ActivePower||
 |activePowerGeneratorConfig||
+|alias||
 |AllowedApparent||
 |AllowedCharge||
 |AllowedDischarge||
@@ -83,6 +86,7 @@ Following Values are implemented:
 |ActivePowerL1||
 |ActivePowerL2||
 |ActivePowerL3||
+|alias||
 |ApparentPower||
 |esss||
 |frequency||
@@ -103,6 +107,7 @@ Following Values are implemented:
 
 |ChannelName|Unit|
 |---|---|
+|alias||
 |DO1||
 |DO2||
 |DO3||
@@ -122,6 +127,7 @@ Following Values are implemented:
 |---|---|
 |ActivePower||
 |activePowerGeneratorConfig||
+|alias||
 |ApparentPower||
 |frequency||
 |maxActivePower||
@@ -137,6 +143,7 @@ Following Values are implemented:
 
 |ChannelName|Unit|
 |---|---|
+|alias||
 |AutomaticMode||
 |SetBorehole1On||
 |SetBorehole2On||

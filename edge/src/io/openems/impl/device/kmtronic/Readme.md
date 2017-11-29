@@ -5,6 +5,7 @@ Following Values are implemented:
 
 |ChannelName|Unit|
 |---|---|
+|alias||
 |1||
 |2||
 |3||
@@ -20,6 +21,7 @@ Following Values are implemented:
 
 |ChannelName|Unit|
 |---|---|
+|alias||
 |2||
 |3||
 |4||

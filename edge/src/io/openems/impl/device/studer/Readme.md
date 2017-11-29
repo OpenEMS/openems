@@ -5,4 +5,5 @@ Following Values are implemented:
 
 |ChannelName|Unit|
 |---|---|
+|alias||
 |nominalCurrent|A|

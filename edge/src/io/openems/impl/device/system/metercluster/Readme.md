@@ -9,6 +9,7 @@ Following Values are implemented:
 |ActivePowerL1||
 |ActivePowerL2||
 |ActivePowerL3||
+|alias||
 |ApparentPower||
 |CurrentL1||
 |CurrentL2||

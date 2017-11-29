@@ -8,6 +8,7 @@ Following Values are implemented:
 |ActivePowerL1|W|
 |ActivePowerL2|W|
 |ActivePowerL3|W|
+|alias||
 |AllowedApparent||
 |AllowedCharge||
 |BatteryAllowedCharging||
@@ -84,6 +85,7 @@ Following Values are implemented:
 |ChannelName|Unit|
 |---|---|
 |ActivePower|W|
+|alias||
 |ActivePower|W|
 |BuyFromGridEnergy|Wh|
 |maxActivePower||
@@ -99,6 +101,7 @@ Following Values are implemented:
 |ChannelName|Unit|
 |---|---|
 |ActivePower|W|
+|alias||
 |ActivePower|W|
 |Energy|Wh|
 |maxActivePower||
@@ -113,6 +116,7 @@ Following Values are implemented:
 |ChannelName|Unit|
 |---|---|
 |ActivePower|W|
+|alias||
 |ActivePower|W|
 |Energy|Wh|
 |maxActivePower||

@@ -9,7 +9,11 @@ Following Values are implemented:
 |ActivePowerL1|W|
 |ActivePowerL2|W|
 |ActivePowerL3|W|
+|alias||
 |ApparentPower|VA|
+|CosPhiL1||
+|CosPhiL2||
+|CosPhiL3||
 |Current|mA|
 |CurrentL1|mA|
 |CurrentL2|mA|

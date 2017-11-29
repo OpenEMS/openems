@@ -11,6 +11,7 @@ Following Values are implemented:
 |ActivePowerL1|W|
 |ActivePowerL2|W|
 |ActivePowerL3|W|
+|alias||
 |ApparentEnergy|kVAh|
 |ApparentPower|VA|
 |CurrentL1|mA|
@@ -43,6 +44,7 @@ Following Values are implemented:
 |ActivePowerL1|W|
 |ActivePowerL2|W|
 |ActivePowerL3|W|
+|alias||
 |ApparentEnergy|kVAh|
 |ApparentPower|VA|
 |Current|mA|

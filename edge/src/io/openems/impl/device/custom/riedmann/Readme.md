@@ -5,6 +5,7 @@ Following Values are implemented:
 
 |ChannelName|Unit|
 |---|---|
+|alias||
 |AutomaticMode||
 |GetBorehole1On||
 |GetBorehole2On||
