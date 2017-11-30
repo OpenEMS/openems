@@ -7,19 +7,30 @@
   <mat-card-content>
     <p translate>About.Developed</p>
     <ul>
-      <li><a target="_blank" href="https://fenecon.de" translate>About.Fenecon</a></li>
-      <li><a target="_blank" href="https://fenecon.de/page/stromspeicher-fems" translate>About.Fems</a></li>
-      <li><a target="_blank" href="https://github.com/OpenEMS/openems" translate>About.Sourcecode</a></li>
+      <li>
+        <a target="_blank" href="https://fenecon.de" translate>About.Fenecon</a>
+      </li>
+      <li>
+        <a target="_blank" href="https://fenecon.de/page/stromspeicher-fems" translate>About.Fems</a>
+      </li>
+      <li>
+        <a target="_blank" href="https://github.com/OpenEMS/openems" translate>About.Sourcecode</a>
+      </li>
       <!-- <li><a target="_blank" href="https://github.com/OpenEMS/openems/releases/tag/v1.6"><span translate>About.Build</span>: v1.6.0 (2017-11-02)</a></li> -->
-      <li><a target="_blank" href="https://github.com/OpenEMS/openems/tree/develop"><span translate>About.Build</span>: v1.7.0-SNAPSHOT</a></li>
+      <li>
+        <a target="_blank" href="https://github.com/OpenEMS/openems/tree/develop">
+          <span translate>About.Build</span>: v1.7.0-SNAPSHOT (2017-11-13/5)</a>
+      </li>
     </ul>
-    <p><span [innerHTML]="'About.Contact' | translate:{value: 'fems@fenecon.de'}"></span></p>
+    <p>
+      <span [innerHTML]="'About.Contact' | translate:{value: 'fems@fenecon.de'}"></span>
+    </p>
     <hr/>
     <p translate>About.Language</p>
     <ul>
       <select #langSelect (change)="translate.use(langSelect.value)">
-          <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>
-        </select>
+        <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>
+      </select>
     </ul>
   </mat-card-content>
 </mat-card>

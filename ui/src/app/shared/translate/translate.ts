@@ -1,5 +1,6 @@
 import { TranslateLoader } from '@ngx-translate/core';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/of';
 
 import { TRANSLATION as DE } from './de';
 import { TRANSLATION as EN } from './en';
