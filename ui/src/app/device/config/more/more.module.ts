@@ -3,8 +3,9 @@ import { SharedModule } from './../../../shared/shared.module';
 
 import { MoreComponent } from './more.component';
 import { RefuComponent } from './refu/refu.component';
-import { ManualpqComponent } from './manualpq/manualpq.component';
+import { DirectControlComponent } from './directcontrol/directcontrol.component';
 import { RawConfigComponent } from './rawconfig/rawconfig.component';
+import { SystemExecuteComponent } from './systemexecute/systemexecute.component';
 
 @NgModule({
   imports: [
@@ -13,8 +14,9 @@ import { RawConfigComponent } from './rawconfig/rawconfig.component';
   declarations: [
     MoreComponent,
     RefuComponent,
-    ManualpqComponent,
-    RawConfigComponent
+    DirectControlComponent,
+    RawConfigComponent,
+    SystemExecuteComponent
   ]
 })
 export class MoreModule { }

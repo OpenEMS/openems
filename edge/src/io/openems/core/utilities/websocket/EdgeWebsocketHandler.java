@@ -46,6 +46,7 @@ import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.websocket.CurrentDataWorker;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
@@ -54,6 +55,10 @@ import io.openems.core.Config;
 import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ConfigUtils;
+import io.openems.core.utilities.LinuxCommand;
+import io.openems.core.utilities.api.ApiWorker;
+import io.openems.core.utilities.api.WriteJsonObject;
+import io.openems.core.utilities.api.WriteObject;
 
 /**
  * Handles a Websocket connection to a browser, OpenEMS backend,...
@@ -89,11 +94,18 @@ public class EdgeWebsocketHandler {
 	 */
 	private final Optional<Role> roleOpt;
 
+	/**
+	 * ApiWorker handles updates to WriteChannels
+	 */
+	private final Optional<ApiWorker> apiWorkerOpt;
+
 	public EdgeWebsocketHandler() {
+		this.apiWorkerOpt = Optional.empty();
 		this.roleOpt = Optional.empty();
 	}
 
-	public EdgeWebsocketHandler(WebSocket websocket, Role role) {
+	public EdgeWebsocketHandler(ApiWorker apiWorker, WebSocket websocket, Role role) {
+		this.apiWorkerOpt = Optional.ofNullable(apiWorker);
 		this.websocketOpt = Optional.ofNullable(websocket);
 		this.roleOpt = Optional.ofNullable(role);
 	}
@@ -117,11 +129,11 @@ public class EdgeWebsocketHandler {
 
 		// get role
 		Role role;
-		if(this.roleOpt.isPresent()) {
+		if (this.roleOpt.isPresent()) {
 			role = this.roleOpt.get();
 		} else {
 			Optional<String> roleStringOpt = JsonUtils.getAsOptionalString(jMessage, "role");
-			if(roleStringOpt.isPresent()) {
+			if (roleStringOpt.isPresent()) {
 				role = Role.getRole(roleStringOpt.get());
 			} else {
 				role = Role.getDefaultRole();
@@ -140,7 +152,7 @@ public class EdgeWebsocketHandler {
 		Optional<JsonObject> jConfigOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "config");
 		if (jConfigOpt.isPresent()) {
 			jReply = JsonUtils.merge(jReply, //
-					config(jConfigOpt.get(), role, jIdOpt.orElse(new JsonArray())) //
+					config(jConfigOpt.get(), role, jIdOpt.orElse(new JsonArray()), apiWorkerOpt) //
 					);
 		}
 
@@ -170,7 +182,8 @@ public class EdgeWebsocketHandler {
 				// TODO create notification that there is no datasource available
 			} else {
 				jReply = JsonUtils.merge(jReply, //
-						WebSocketUtils.historicData(jIdOpt.get(), jhistoricDataOpt.get(), deviceIdOpt, timedataSource, role) //
+						WebSocketUtils.historicData(jIdOpt.get(), jhistoricDataOpt.get(), deviceIdOpt, timedataSource,
+								role) //
 						);
 			}
 		}
@@ -184,9 +197,23 @@ public class EdgeWebsocketHandler {
 				jReply = JsonUtils.merge(jReply, //
 						log(jIdOpt.get(), jLogOpt.get(), role) //
 						);
-			} catch (AccessDeniedException e) {
-				// TODO create notification
-				log.error(e.getMessage());
+			} catch (AccessDeniedException e) { /* ignore */ }
+		}
+
+		/*
+		 * Remote system control
+		 */
+		{
+			Optional<JsonObject> jSystemOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "system");
+			if (jSystemOpt.isPresent() && jSystemOpt.isPresent()) {
+				try {
+					jReply = JsonUtils.merge(jReply, //
+							system(jIdOpt.get(), jSystemOpt.get(), role) //
+							);
+				} catch (AccessDeniedException e) {
+					// TODO create notification
+					log.error(e.getMessage());
+				}
 			}
 		}
 
@@ -205,7 +232,7 @@ public class EdgeWebsocketHandler {
 	 * @param jConfig
 	 * @return
 	 */
-	private synchronized JsonObject config(JsonObject jConfig, Role role, JsonArray jId) {
+	private synchronized JsonObject config(JsonObject jConfig, Role role, JsonArray jId, Optional<ApiWorker> apiWorkerOpt) {
 		try {
 			String mode = JsonUtils.getAsString(jConfig, "mode");
 
@@ -244,11 +271,24 @@ public class EdgeWebsocketHandler {
 							/*
 							 * WriteChannel
 							 */
-							// TODO use Worker...
-							// WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
-							// writeChannel.pushWrite(jValue);
-							// Notification.send(NotificationType.SUCCESS,
-							// "Successfully set [" + channel.address() + "] to [" + jValue + "]");
+							WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
+							if(!apiWorkerOpt.isPresent()) {
+								WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
+										Notification.BACKEND_NOT_ALLOWED, "set " + channel.address() + " => " + jValue);
+							} else {
+								ApiWorker apiWorker = apiWorkerOpt.get();
+								WriteObject writeObject = new WriteJsonObject(jValue).onFirstSuccess(() -> {
+									WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
+											Notification.EDGE_CHANNEL_UPDATE_SUCCESS, "set " + channel.address() + " => " + jValue);
+								}).onFirstError((e) -> {
+									WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
+											Notification.EDGE_CHANNEL_UPDATE_FAILED, "set " + channel.address() + " => " + jValue, e.getMessage());
+								}).onTimeout(() -> {
+									WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
+											Notification.EDGE_CHANNEL_UPDATE_TIMEOUT, "set " + channel.address() + " => " + jValue);
+								});
+								apiWorker.addValue(writeChannel, writeObject);
+							}
 						}
 					} else {
 						throw new OpenemsException("Unable to find Channel [" + thingId + "/" + channelId + "]");
@@ -266,6 +306,7 @@ public class EdgeWebsocketHandler {
 
 	/**
 	 * Handle current data subscriptions
+	 * (try to keep synced with Backend.BrowserWebsocket)
 	 *
 	 * @param j
 	 */
@@ -297,7 +338,7 @@ public class EdgeWebsocketHandler {
 				}
 				if (!channels.isEmpty()) {
 					// create new worker
-					worker = new CurrentDataWorker(jId, channels, role, this);
+					worker = new EdgeCurrentDataWorker(jId, channels, role, this);
 					this.currentDataSubscribers.put(messageId, worker);
 				}
 			}
@@ -314,8 +355,8 @@ public class EdgeWebsocketHandler {
 	 * @throws AccessDeniedException
 	 */
 	private synchronized JsonObject log(JsonArray jId, JsonObject jLog, Role role) throws AccessDeniedException {
-		if(!(role == Role.ADMIN || role == Role.INSTALLER || role == Role.OWNER)) {
-			throw new AccessDeniedException("User role ["+role+"] is not allowed to read system logs.");
+		if (!(role == Role.ADMIN || role == Role.INSTALLER || role == Role.OWNER)) {
+			throw new AccessDeniedException("User role [" + role + "] is not allowed to read system logs.");
 		}
 		try {
 			String mode = JsonUtils.getAsString(jLog, "mode");
@@ -336,6 +377,33 @@ public class EdgeWebsocketHandler {
 			log.warn(e.getMessage());
 		}
 		return new JsonObject();
+	}
+
+	/**
+	 * Handle remote system control
+	 *
+	 * @param j
+	 * @throws AccessDeniedException
+	 */
+	private synchronized JsonObject system(JsonArray jId, JsonObject jSystem, Role role) throws AccessDeniedException {
+		if (!(role == Role.ADMIN)) {
+			throw new AccessDeniedException("User role [" + role + "] is not allowed to execute system commands.");
+		}
+		String output = "";
+		try {
+			String mode = JsonUtils.getAsString(jSystem, "mode");
+			String password = JsonUtils.getAsString(jSystem, "password");
+			String command = JsonUtils.getAsString(jSystem, "command");
+			boolean background = JsonUtils.getAsBoolean(jSystem, "background");
+			int timeout = JsonUtils.getAsInt(jSystem, "timeout");
+
+			if (mode.equals("execute")) {
+				output = LinuxCommand.execute(password, command, background, timeout);
+			}
+		} catch (OpenemsException e) {
+			output += e.getMessage();
+		}
+		return DefaultMessages.systemExecuteReply(jId, output);
 	}
 
 	// TODO handle config command

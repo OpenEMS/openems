@@ -69,7 +69,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	/*
 	 * Config
 	 */
-	@ChannelInfo(title = "Apikey", description = "Sets the apikey for FENECON Cloud.", type = String.class, readRoles = { Role.ADMIN })
+	@ChannelInfo(title = "Apikey", description = "Sets the apikey for FENECON Cloud.", type = String.class, readRoles = {
+			Role.ADMIN })
 	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this).doNotPersist();
 
 	@ChannelInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/openems-backend\"")
@@ -95,8 +96,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			try {
 				WebSocketUtils.send( //
 						websocket, //
-						DefaultMessages.configQueryReply(
-								Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
+						DefaultMessages.configQueryReply(Config.getInstance()
+								.getJson(ConfigFormat.OPENEMS_UI, Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
 				log.info("Sent config to FENECON persistence.");
 			} catch (NotImplementedException | ConfigException e) {
 				log.error("Unable to send config: " + e.getMessage());
@@ -117,7 +118,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	/*
 	 * Fields
 	 */
-	private static final int DEFAULT_CYCLETIME = 2000;
+	private static final int DEFAULT_CYCLETIME = 10000;
 	private final EdgeWebsocketHandler websocketHandler;
 	private final ReconnectingWebsocket reconnectingWebsocket;
 

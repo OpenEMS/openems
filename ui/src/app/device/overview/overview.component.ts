@@ -2,13 +2,14 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import { Device } from '../../shared/device/device';
 import { DefaultTypes } from '../../shared/service/defaulttypes';
-import { Utils } from '../../shared/shared';
+import { Utils, Websocket } from '../../shared/shared';
 import { ConfigImpl } from '../../shared/device/config';
 import { CurrentDataAndSummary } from '../../shared/device/currentdata';
-import { Websocket } from '../../shared/shared';
+import { Widget } from '../../shared/type/widget';
 import { CustomFieldDefinition } from '../../shared/type/customfielddefinition';
 import { environment } from '../../../environments';
 
@@ -21,6 +22,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
   public device: Device = null
   public config: ConfigImpl = null;
   public currentData: CurrentDataAndSummary = null;
+  public widgets: Widget[] = [];
   //public customFields: CustomFieldDefinition = {};
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
@@ -46,7 +48,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
             .subscribe(config => {
               this.config = config;
               if (config != null) {
+                // get widgets
+                this.widgets = config.getWidgets();
 
+                // subscribe channels
                 let channels = config.getImportantChannels();
                 device.subscribeCurrentData(channels)
                   .takeUntil(this.stopOnDestroy)

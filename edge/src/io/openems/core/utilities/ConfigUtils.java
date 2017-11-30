@@ -118,6 +118,7 @@ public class ConfigUtils {
 			if (format == ConfigFormat.OPENEMS_UI || !thing.id().startsWith("_")) {
 				// ignore generated id names starting with "_"
 				j.addProperty("id", thing.id());
+				j.addProperty("alias", thing.getAlias());
 			}
 			// for file-format class is not needed for DeviceNatures
 			j.addProperty("class", thing.getClass().getCanonicalName());

@@ -207,7 +207,7 @@ public abstract class Bridge extends Thread implements Thing {
 						log.error("sleep failed.", e);
 					}
 				} else {
-					log.warn("cycleTime smaller than required time: " + sleep);
+					log.debug("cycleTime smaller than required time: " + sleep);
 				}
 				notifyListeners(Position.BEFOREREADREQUIRED);
 				// run all tasks to read required Channels

@@ -89,21 +89,21 @@ public class ThermalPowerStationController extends Controller {
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "the address of the Digital Output where the generator is connected to.", type = String.class)
 	public ConfigChannel<String> outputChannelAddress = new ConfigChannel<String>("outputChannelAddress", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				Optional<String> channelAddress = (Optional<String>) newValue;
-				if (channelAddress.isPresent()) {
-					Optional<Channel> channelOpt = repo.getChannelByAddress(channelAddress.get());
-					if (channelOpt.isPresent()) {
-						this.outputChannelOpt = Optional.of( //
-								((WriteChannel<Boolean>) channelOpt.get()).required());
-						// TODO should not be necessary to set outputChannel as required
-					} else {
-						log.error("Channel " + channelAddress.get() + " not found");
-					}
-				} else {
-					log.error("'outputChannelAddress' is not configured!");
-				}
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		Optional<String> channelAddress = (Optional<String>) newValue;
+		if (channelAddress.isPresent()) {
+			Optional<Channel> channelOpt = repo.getChannelByAddress(channelAddress.get());
+			if (channelOpt.isPresent()) {
+				this.outputChannelOpt = Optional.of( //
+						((WriteChannel<Boolean>) channelOpt.get()).required());
+				// TODO should not be necessary to set outputChannel as required
+			} else {
+				log.error("Channel " + channelAddress.get() + " not found");
+			}
+		} else {
+			log.error("'outputChannelAddress' is not configured!");
+		}
+	});
 	/*
 	 * Methods
 	 */
@@ -119,6 +119,8 @@ public class ThermalPowerStationController extends Controller {
 		long maxSoc;
 		long limitTimeRange;
 		boolean invertOutput;
+		long allowedCharge;
+		long allowedDischarge;
 		try {
 			isOff = this.isOff();
 			productionPower = this.getProductionPower();
@@ -126,6 +128,8 @@ public class ThermalPowerStationController extends Controller {
 			soc = this.ess.value().soc.value();
 			minSoc = this.minSoc.value();
 			maxSoc = this.maxSoc.value();
+			allowedCharge = this.ess.value().allowedCharge.value();
+			allowedDischarge = this.ess.value().allowedDischarge.value();
 			limitTimeRange = this.limitTimeRange.value();
 			invertOutput = this.invertOutput.value();
 		} catch (InvalidValueException | ConfigException e) {
@@ -140,7 +144,7 @@ public class ThermalPowerStationController extends Controller {
 			switch (currentState) {
 			case OFF:
 				if (isOff) {
-					if (soc <= minSoc && lastTimeAboveProductionlimit + limitTimeRange <= System.currentTimeMillis()) {
+					if ((soc <= minSoc || allowedDischarge == 0) && lastTimeAboveProductionlimit + limitTimeRange <= System.currentTimeMillis()) {
 						currentState = State.SWITCHON;
 					}
 				} else {
@@ -151,7 +155,7 @@ public class ThermalPowerStationController extends Controller {
 				if (isOff) {
 					currentState = State.SWITCHON;
 				} else {
-					if (soc >= maxSoc || lastTimeAboveProductionlimit + limitTimeRange > System.currentTimeMillis()) {
+					if (soc >= maxSoc || allowedCharge == 0 || lastTimeAboveProductionlimit + limitTimeRange > System.currentTimeMillis()) {
 						currentState = State.SWITCHOFF;
 					}
 				}

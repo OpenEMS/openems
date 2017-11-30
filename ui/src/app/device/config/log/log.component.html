@@ -6,23 +6,40 @@
         <mat-card-title>System-Log</mat-card-title>
         <mat-card-subtitle>{{ device.name }}</mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content>
-        <div>
-          <mat-slide-toggle (change)="toggleSubscribe($event)" [checked]="isSubscribed"><span translate>Device.Config.Log.AutomaticUpdating</span></mat-slide-toggle>
+      <mat-card-content fxLayout fxLayoutWrap="wrap">
+        <div fxFlex="100%">
+          <mat-input-container fxFlex>
+            <input type="text" #filter placeholder="Filter" value="" matInput>
+          </mat-input-container>
+          <mat-slide-toggle fxFlex="300px" (change)="toggleSubscribe($event)" [checked]="isSubscribed">
+            <span translate>Device.Config.Log.AutomaticUpdating</span>
+          </mat-slide-toggle>
         </div>
-        <table class="full_width">
+        <table fxFlex="100%" class="full_width">
           <tr>
-            <th><span translate>Device.Config.Log.Timestamp</span></th>
-            <th><span translate>Device.Config.Log.Level</span></th>
-            <th><span translate>Device.Config.Log.Source</span></th>
-            <th><span translate>Device.Config.Log.Message</span></th>
+            <th>
+              <span translate>Device.Config.Log.Timestamp</span>
+            </th>
+            <th>
+              <span translate>Device.Config.Log.Level</span>
+            </th>
+            <th>
+              <span translate>Device.Config.Log.Source</span>
+            </th>
+            <th>
+              <span translate>Device.Config.Log.Message</span>
+            </th>
           </tr>
-          <tr *ngFor="let log of logs" style="font-family: monospace" [style.color]="log.color">
-            <td>{{ log.time }}</td>
-            <td>{{ log.level }}</td>
-            <td style="word-break: break-all">{{ log.source }}</td>
-            <td>{{ log.message }}</td>
-          </tr>
+          <ng-container *ngFor="let log of logs">
+            <ng-container *ngIf="log.level.includes(filter.value) || log.source.includes(filter.value) || log.message.includes(filter.value)">
+              <tr style="font-family: monospace" [style.color]="log.color">
+                <td>{{ log.time }}</td>
+                <td>{{ log.level }}</td>
+                <td style="word-break: break-all">{{ log.source }}</td>
+                <td>{{ log.message }}</td>
+              </tr>
+            </ng-container>
+          </ng-container>
         </table>
       </mat-card-content>
     </mat-card>

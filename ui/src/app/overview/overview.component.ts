@@ -10,7 +10,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../environments';
 
 import { Service, Websocket, Utils } from '../shared/shared';
-import { DefaultMessages } from '../shared/service/defaultmessages';
 
 @Component({
   selector: 'overview',
@@ -19,6 +18,7 @@ import { DefaultMessages } from '../shared/service/defaultmessages';
 export class OverviewComponent {
   public env = environment;
   public form: FormGroup;
+  public filter: FormGroup;
 
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -30,6 +30,9 @@ export class OverviewComponent {
     private router: Router) {
     this.form = formBuilder.group({
       "password": formBuilder.control('user')
+    });
+    this.filter = formBuilder.group({
+      "filter": formBuilder.control('')
     });
     // TODO should only forward when automatic login was successful and user did not come to this page on purpose
     // websocket.devices.takeUntil(this.stopOnDestroy).subscribe(devices => {

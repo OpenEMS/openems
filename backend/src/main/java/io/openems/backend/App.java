@@ -1,5 +1,6 @@
 package io.openems.backend;
 
+import java.io.File;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ public class App {
 			log.info("================================================================================");
 		} catch (OpenemsException e) {
 			log.error("OpenEMS Backend failed to start: " + e.getMessage());
+			System.exit(1);
 		}
 	}
 
@@ -44,6 +46,10 @@ public class App {
 		if (metadataOpt.isPresent() && metadataOpt.get().equals("DUMMY")) {
 			log.info("Start Dummy Metadata provider");
 			Metadata.initializeDummy();
+		} else if (metadataOpt.isPresent() && metadataOpt.get().equals("FILE")) {
+			log.info("Start FILE Metadata provider");
+			File file = new File(EnvUtils.getAsString("METADATA_FILE"));
+			Metadata.initializeFile(file);
 		} else {
 			int port = EnvUtils.getAsInt("ODOO_PORT");
 			String url = EnvUtils.getAsString("ODOO_URL");

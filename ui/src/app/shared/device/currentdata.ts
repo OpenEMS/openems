@@ -13,9 +13,13 @@ export class CurrentDataAndSummary {
         let result: DefaultTypes.Summary = {
             storage: {
                 soc: null,
-                chargeActivePower: null,
+                chargeActivePower: null, // sum of chargeActivePowerAC and chargeActivePowerDC
+                chargeActivePowerAC: null,
+                chargeActivePowerDC: null,
                 maxChargeActivePower: null,
-                dischargeActivePower: null,
+                dischargeActivePower: null, // sum of dischargeActivePowerAC and dischargeActivePowerDC
+                dischargeActivePowerAC: null,
+                dischargeActivePowerDC: null,
                 maxDischargeActivePower: null
             }, production: {
                 powerRatio: null,
@@ -42,7 +46,8 @@ export class CurrentDataAndSummary {
              * < 0 => Charge
              */
             let soc = null;
-            let activePower = null;
+            let activePowerAC = null;
+            let activePowerDC = null;
             let countSoc = 0;
             for (let thing of config.storageThings) {
                 if (thing in currentData) {
@@ -51,19 +56,36 @@ export class CurrentDataAndSummary {
                         soc = Utils.addSafely(soc, essData.Soc);
                         countSoc += 1;
                     }
-                    activePower = Utils.addSafely(activePower, this.getActivePower(essData));
+                    activePowerAC = Utils.addSafely(activePowerAC, this.getActivePower(essData));
+                }
+            }
+            for (let thing of config.chargers) {
+                if (thing in currentData) {
+                    let essData = currentData[thing];
+                    activePowerDC = Utils.subtractSafely(activePowerDC, essData.ActualPower);
                 }
             }
             result.storage.soc = Utils.divideSafely(soc, countSoc);
-            if (activePower != null) {
-                if (activePower > 0) {
-                    result.storage.chargeActivePower = 0;
-                    result.storage.dischargeActivePower = activePower;
+            if (activePowerAC != null) {
+                if (activePowerAC > 0) {
+                    result.storage.chargeActivePowerAC = 0;
+                    result.storage.dischargeActivePowerAC = activePowerAC;
                 } else {
-                    result.storage.chargeActivePower = activePower * -1;
-                    result.storage.dischargeActivePower = 0;
+                    result.storage.chargeActivePowerAC = activePowerAC * -1;
+                    result.storage.dischargeActivePowerAC = 0;
                 }
             }
+            if (activePowerDC != null) {
+                if (activePowerDC > 0) {
+                    result.storage.chargeActivePowerDC = 0;
+                    result.storage.dischargeActivePowerDC = activePowerDC;
+                } else {
+                    result.storage.chargeActivePowerDC = activePowerDC * -1;
+                    result.storage.dischargeActivePowerDC = 0;
+                }
+            }
+            result.storage.chargeActivePower = Utils.addSafely(result.storage.chargeActivePowerAC, result.storage.chargeActivePowerDC);
+            result.storage.dischargeActivePower = Utils.addSafely(result.storage.dischargeActivePowerAC, result.storage.dischargeActivePowerDC);
         }
 
         {
@@ -153,8 +175,8 @@ export class CurrentDataAndSummary {
              * Consumption
              */
             // Consumption = GridBuy + Production + ESS-Discharge - GridSell - ESS-Charge
-            let minus = Utils.addSafely(result.grid.sellActivePower, result.storage.chargeActivePower);
-            let plus = Utils.addSafely(Utils.addSafely(result.grid.buyActivePower, result.production.activePowerAC), result.storage.dischargeActivePower);
+            let minus = Utils.addSafely(result.grid.sellActivePower, result.storage.chargeActivePowerAC);
+            let plus = Utils.addSafely(Utils.addSafely(result.grid.buyActivePower, result.production.activePowerAC), result.storage.dischargeActivePowerAC);
             let activePower = Utils.subtractSafely(plus, minus);
 
             let maxActivePower = result.grid.maxBuyActivePower - result.grid.maxSellActivePower //

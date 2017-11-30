@@ -1,7 +1,11 @@
 package io.openems.backend.metadata;
 
+import java.io.File;
+import java.io.IOException;
+
 import io.openems.backend.metadata.api.MetadataSingleton;
 import io.openems.backend.metadata.dummy.MetadataDummySingleton;
+import io.openems.backend.metadata.file.MetadataFileSingleton;
 import io.openems.backend.metadata.odoo.OdooSingleton;
 import io.openems.common.exceptions.OpenemsException;
 
@@ -47,5 +51,13 @@ public class Metadata {
 	 */
 	public static synchronized MetadataSingleton instance() {
 		return Metadata.instance;
+	}
+
+	public static void initializeFile(File file) throws OpenemsException {
+		try {
+			Metadata.instance = new MetadataFileSingleton(file);
+		} catch (IOException e) {
+			throw new OpenemsException("Can not open metadata file.");
+		}
 	}
 }
