@@ -87,6 +87,9 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 	public ModbusReadLongChannel currentL1;
 	public ModbusReadLongChannel currentL2;
 	public ModbusReadLongChannel currentL3;
+	public ModbusReadLongChannel cosPhiL1;
+	public ModbusReadLongChannel cosPhiL2;
+	public ModbusReadLongChannel cosPhiL3;
 
 	@Override
 	public ReadChannel<Long> activePower() {
@@ -121,11 +124,11 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 		return new ModbusProtocol( //
 				new ModbusRegisterRange(19000, //
 						new FloatElement(19000, voltageL1 = new ModbusReadLongChannel("VoltageL1", this).unit("mV"))
-								.multiplier(3),
+						.multiplier(3),
 						new FloatElement(19002, voltageL2 = new ModbusReadLongChannel("VoltageL2", this).unit("mV"))
-								.multiplier(3),
+						.multiplier(3),
 						new FloatElement(19004, voltageL3 = new ModbusReadLongChannel("VoltageL3", this).unit("mV"))
-								.multiplier(3),
+						.multiplier(3),
 						new DummyElement(19006, 19011), new FloatElement(19012, //
 								currentL1 = new ModbusReadLongChannel("CurrentL1", this).unit("mA")).multiplier(3),
 						new FloatElement(19014, //
@@ -136,34 +139,40 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 								current = new ModbusReadLongChannel("Current", this).unit("mA")).multiplier(3),
 						new FloatElement(19020, //
 								activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this) //
-										.unit("W")), //
+								.unit("W")), //
 						new FloatElement(19022, //
 								activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this) //
-										.unit("W")), //
+								.unit("W")), //
 						new FloatElement(19024, //
 								activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this) //
-										.unit("W")), //
+								.unit("W")), //
 						new FloatElement(19026, //
 								activePower = new ModbusReadLongChannel("ActivePower", this) //
-										.unit("W")), //
+								.unit("W")), //
 						new DummyElement(19028, 19033), new FloatElement(19034, //
 								apparentPower = new ModbusReadLongChannel("ApparentPower", this) //
-										.unit("VA")), //
+								.unit("VA")), //
 						new FloatElement(19036, //
 								reactivePowerL1 = new ModbusReadLongChannel("ReactivePowerL1", this) //
-										.unit("Var")), //
+								.unit("Var")), //
 						new FloatElement(19038, //
 								reactivePowerL2 = new ModbusReadLongChannel("ReactivePowerL2", this) //
-										.unit("Var")), //
+								.unit("Var")), //
 						new FloatElement(19040, //
 								reactivePowerL3 = new ModbusReadLongChannel("ReactivePowerL3", this) //
-										.unit("Var")), //
+								.unit("Var")), //
 						new FloatElement(19042, //
 								reactivePower = new ModbusReadLongChannel("ReactivePower", this) //
-										.unit("Var")), //
-						new DummyElement(19044, 19049), new FloatElement(19050, //
+								.unit("Var")), //
+						new FloatElement(19044, //
+								cosPhiL1 = new ModbusReadLongChannel("CosPhiL1", this)), //
+						new FloatElement(19046, //
+								cosPhiL2 = new ModbusReadLongChannel("CosPhiL2", this)), //
+						new FloatElement(19048, //
+								cosPhiL3 = new ModbusReadLongChannel("CosPhiL3", this)), //
+						new FloatElement(19050, //
 								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHz")) //
-										.multiplier(3)));
+						.multiplier(3)));
 	}
 
 }

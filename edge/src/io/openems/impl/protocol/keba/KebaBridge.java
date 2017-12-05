@@ -20,32 +20,34 @@
  *******************************************************************************/
 package io.openems.impl.protocol.keba;
 
+import java.net.Inet4Address;
+import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.api.bridge.Bridge;
+import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
+import io.openems.common.exceptions.OpenemsException;
 
 @ThingInfo(title = "KEBA KeContact Bridge")
 public class KebaBridge extends Bridge {
 
-	public KebaBridge() {
-		log.info("Constructor KebaBridge");
-	}
-
 	/*
 	 * Config
 	 */
-	// private ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this).defaultValue(9070);
+	private final static int PORT = 7090;
 
 	/*
 	 * Fields
 	 */
 	private Logger log = LoggerFactory.getLogger(KebaBridge.class);
-	// private AtomicBoolean isWriteTriggered = new AtomicBoolean(false);
-	// private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private ScheduledFuture<?> receivingJob = null;
 
 	/*
@@ -69,15 +71,28 @@ public class KebaBridge extends Bridge {
 		/*
 		 * Restart ReceivingRunnable
 		 */
-		// dispose();
-		// Runnable receivingRunnable;
-		// try {
-		// receivingRunnable = new ReceivingRunnable(this.port.value());
-		// } catch (InvalidValueException e) {
-		// log.error("Error initializing KebaBridge: {}", e.getMessage());
-		// return false;
-		// }
-		// this.receivingJob = scheduler.schedule(receivingRunnable, 0, TimeUnit.MILLISECONDS);
+		dispose();
+		Runnable receivingRunnable;
+		try {
+			receivingRunnable = new ReceiveWorker(PORT).onReceive((ip, message) -> {
+				/*
+				 * Forward message to corresponding device
+				 */
+				for(Device device : this.getDevices()) {
+					if(device instanceof KebaDevice) {
+						KebaDevice kebaDevice = (KebaDevice) device;
+						Optional<Inet4Address> deviceIpOpt = kebaDevice.ip.valueOptional();
+						if(deviceIpOpt.isPresent() && deviceIpOpt.get().equals(ip)) {
+							kebaDevice.receive(message);
+						}
+					}
+				}
+			});
+		} catch (OpenemsException e) {
+			log.error(e.getMessage());
+			return false;
+		}
+		this.receivingJob = scheduler.schedule(receivingRunnable, 0, TimeUnit.MILLISECONDS);
 		return true;
 	}
 }

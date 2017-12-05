@@ -29,8 +29,10 @@ import org.slf4j.LoggerFactory;
 import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 
@@ -55,9 +57,17 @@ public abstract class SystemDeviceNature implements DeviceNature {
 		});
 	}
 
+	@ChannelInfo(isOptional=true,title="Alias",description="The Alias to display for the device.", type=String.class)
+	public ConfigChannel<String> alias = new ConfigChannel<>("alias", this);
+
 	@Override
 	public String id() {
 		return thingId;
+	}
+
+	@Override
+	public String getAlias() {
+		return alias.valueOptional().orElse(id());
 	}
 
 	@Override

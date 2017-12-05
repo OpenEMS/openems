@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,7 @@ import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 
 public abstract class KebaDevice extends Device {
 
@@ -45,26 +46,18 @@ public abstract class KebaDevice extends Device {
 	 */
 	public KebaDevice(Bridge parent) throws OpenemsException {
 		super(parent);
-		log.info("Constructor KebaDevice");
 	}
 
 	/*
 	 * Fields
 	 */
-	private final int REPORT_DELAY = 2000;
+	private final static int PORT = 7090;
 
 	/*
 	 * Config
 	 */
 	@ChannelInfo(title = "IP address", description = "Sets the IP address (e.g. 192.168.25.11).", type = Inet4Address.class)
 	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
-
-	@ChannelInfo(title = "Port", description = "Sets the port (e.g. 7090).", type = Integer.class, defaultValue = "7090")
-	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this);
-
-	// protected void update() throws InterruptedException {
-	//
-	// }
 
 	/**
 	 * Send UDP message to Keba EVCS
@@ -74,61 +67,40 @@ public abstract class KebaDevice extends Device {
 	 * @throws ConfigException
 	 * @throws InterruptedException
 	 */
-	protected void send(String s) throws IOException, ConfigException, InterruptedException {
-		Optional<Inet4Address> ip = this.ip.valueOptional();
-		Optional<Integer> port = this.port.valueOptional();
-		if (!ip.isPresent() || !port.isPresent()) {
-			throw new ConfigException(
-					"No ip [" + ip + "] or port [" + port + "] configured for Device[" + this.id() + "]");
+	protected void send(String s) throws OpenemsException {
+		Optional<Inet4Address> ipOpt = this.ip.valueOptional();
+		if (!ipOpt.isPresent()) {
+			throw new ConfigException("No IP address configured for Device[" + this.id() + "]");
 		} else {
+			Inet4Address ip = ipOpt.get();
 			byte[] raw = s.getBytes();
+			DatagramPacket packet = new DatagramPacket(raw, raw.length, ip, PORT);
+			DatagramSocket dSocket = null;
+			try {
+				dSocket = new DatagramSocket();
+				log.info("Sending message to KEBA [" + s + "]");
+				dSocket.send(packet);
+			} catch (SocketException e) {
+				throw new OpenemsException("Unable to open UDP socket for sending [" + s + "] to ["
+						+ ip.getHostAddress() + "]: " + e.getMessage(), e);
+			} catch (IOException e) {
+				throw new OpenemsException(
+						"Unable to send [" + s + "] UDP message to [" + ip.getHostAddress() + "]: " + e.getMessage());
 
-			DatagramPacket packet = new DatagramPacket(raw, raw.length, ip.get(), port.get());
-			DatagramSocket dSocket = new DatagramSocket();
-			dSocket.send(packet);
-			// dSocket.close();
-			log.info("Sent...");
-			dSocket.close();
-			Thread.sleep(REPORT_DELAY);
+			} finally {
+				if (dSocket != null) {
+					dSocket.close();
+				}
+			}
 		}
 	}
-
-	// protected void write() throws InterruptedException {
-	// for (DeviceNature nature : getDeviceNatures()) {
-	// if (nature instanceof KebaDeviceNature) {
-	// List<String> messages = ((KebaDeviceNature) nature).getWriteMessages();
-	// try {
-	// for (String message : messages) {
-	// this.send(message);
-	// }
-	// } catch (ConfigException | IOException e) {
-	// log.error("Error while writing [{}] to KebaDevice [{}]: {}", String.join(",", messages), this.id(),
-	// e.getMessage());
-	// }
-	// }
-	// }
-	// }
 
 	@Override
 	public List<BridgeReadTask> getReadTasks() {
 		List<BridgeReadTask> readTasks = new ArrayList<>();
 		for (DeviceNature nature : getDeviceNatures()) {
-			if (nature instanceof KebaDeviceNature) {
-				readTasks.add(new BridgeReadTask() {
-
-					@Override
-					protected void run() throws InterruptedException {
-						log.info("Update");
-						try {
-							KebaDevice.this.send("report 1");
-							KebaDevice.this.send("report 2");
-							KebaDevice.this.send("report 3");
-						} catch (ConfigException | IOException e) {
-							log.error("Error while updating KebaDevice [" + KebaDevice.this.id() + "]: "
-									+ e.getMessage());
-						}
-					}
-				});
+			for (BridgeReadTask task : nature.getReadTasks()) {
+				readTasks.add(task);
 			}
 		}
 		return readTasks;
@@ -138,24 +110,22 @@ public abstract class KebaDevice extends Device {
 	public List<BridgeWriteTask> getWriteTasks() {
 		List<BridgeWriteTask> writeTasks = new ArrayList<>();
 		for (DeviceNature nature : getDeviceNatures()) {
-			if (nature instanceof KebaDeviceNature) {
-				writeTasks.add(new BridgeWriteTask() {
-
-					@Override
-					protected void run() throws InterruptedException {
-						List<String> messages = ((KebaDeviceNature) nature).getWriteMessages();
-						try {
-							for (String message : messages) {
-								KebaDevice.this.send(message);
-							}
-						} catch (ConfigException | IOException e) {
-							log.error("Error while writing [{}] to KebaDevice [{}]: {}", String.join(",", messages),
-									KebaDevice.this.id(), e.getMessage());
-						}
-					}
-				});
+			for (BridgeWriteTask task : nature.getWriteTasks()) {
+				writeTasks.add(task);
 			}
 		}
-		return super.getWriteTasks();
+		return writeTasks;
+	}
+
+	/**
+	 * Forward message to deviceNature
+	 */
+	public void receive(String message) {
+		for (DeviceNature nature : this.getDeviceNatures()) {
+			if (nature instanceof KebaDeviceNature) {
+				KebaDeviceNature kebaNature = (KebaDeviceNature) nature;
+				kebaNature.receive(message);
+			}
+		}
 	}
 }

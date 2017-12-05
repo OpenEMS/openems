@@ -17,6 +17,7 @@ import { ControllerComponent as DeviceControllerComponent } from './device/confi
 import { PersistenceComponent as DevicePersistenceComponent } from './device/config/persistence/persistence.component';
 import { SimulatorComponent as DeviceConfigSimulatorComponent } from './device/config/simulator/simulator.component';
 import { DebugModeComponent as ConfigDebugModeComponent } from './config/debugmode/debugmode.component';
+import { DirectControlComponent as DeviceConfigDirectControlComponent } from './device/config/more/directcontrol/directcontrol.component';
 import { SystemExecuteComponent as DeviceConfigSystemExecuteComponent } from './device/config/more/systemexecute/systemexecute.component';
 
 
@@ -39,6 +40,7 @@ const appRoutes: Routes = [
   { path: 'device/:device/config/all', component: DeviceConfigConfigAllComponent },
   { path: 'device/:device/config/more', component: DeviceConfigMoreComponent },
   { path: 'device/:device/config/more/rawconfig', component: DeviceConfigRawConfigComponent },
+  { path: 'device/:device/config/more/directcontrol', component: DeviceConfigDirectControlComponent },
   { path: 'device/:device/config/more/systemexecute', component: DeviceConfigSystemExecuteComponent },
   { path: 'device/:device/config/controller', component: DeviceControllerComponent },
   { path: 'device/:device/config/persistence', component: DevicePersistenceComponent },

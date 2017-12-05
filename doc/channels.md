@@ -27,59 +27,59 @@ For example a FENECON Pro energy storage system implements all generic channels 
 
 #### DeviceNature implementation
 
-- [EssNature](edge/src/io/openems/api/device/nature/ess/EssNature.java)
+- [EssNature](../edge/src/io/openems/api/device/nature/ess/EssNature.java)
 	- Soc
 	- SystemState
 	- AllowedCharge
 	- AllowedDischarge
 	- Capacity
 	- ...
-- [AsymmetricEssNature](edge/src/io/openems/api/device/nature/ess/AsymmetricEssNature.java) extends EssNature
+- [AsymmetricEssNature](../edge/src/io/openems/api/device/nature/ess/AsymmetricEssNature.java) extends EssNature
   - ActivePowerL1, ActivePowerL2, ActivePowerL3
   - ReactivePowerL1, ReactivePowerL2, ReactivePowerL3
   - ...
-- [SymmetricEssNature](edge/src/io/openems/api/device/nature/ess/SymmetricEssNature.java) extends EssNature
+- [SymmetricEssNature](../edge/src/io/openems/api/device/nature/ess/SymmetricEssNature.java) extends EssNature
   - ActivePower
   - ReactivePower
   - ...
 
 #### Device implementation
 
-- [FENECON Mini (readonly)](edge/src/io/openems/impl/device/minireadonly/FeneconMiniEss.java)
-- [FENECON Pro](edge/src/io/openems/impl/device/pro/FeneconProEss.java)
-- [FENECON Commercial](edge/src/io/openems/impl/device/commercial/FeneconCommercialEss.java)
+- [FENECON Mini (readonly)](../edge/src/io/openems/impl/device/minireadonly/FeneconMiniEss.java)
+- [FENECON Pro](../edge/src/io/openems/impl/device/pro/FeneconProEss.java)
+- [FENECON Commercial](../edge/src/io/openems/impl/device/commercial/FeneconCommercialEss.java)
 
 ### Meter
 
 #### DeviceNature implementation
 
-- [MeterNature](edge/src/io/openems/api/device/nature/meter/MeterNature.java)
+- [MeterNature](../edge/src/io/openems/api/device/nature/meter/MeterNature.java)
 	- Type
-- [AsymmetricMeterNature](edge/src/io/openems/api/device/nature/meter/AsymmetricMeterNature.java) extends MeterNature
+- [AsymmetricMeterNature](../edge/src/io/openems/api/device/nature/meter/AsymmetricMeterNature.java) extends MeterNature
   - ActivePowerL1, ActivePowerL2, ActivePowerL3
   - ReactivePowerL1, ReactivePowerL2, ReactivePowerL3
   - ...
-- [AsymmetricMeterNature](edge/src/io/openems/api/device/nature/meter/SymmetricMeterNature.java) extends MeterNature
+- [AsymmetricMeterNature](../edge/src/io/openems/api/device/nature/meter/SymmetricMeterNature.java) extends MeterNature
   - ActivePower
   - ...
   - ReactivePower
 
 #### Device implementation
 
-- [Socomec](edge/src/io/openems/impl/device/socomec/SocomecMeter.java)
-- [FENECON Pro production meter](edge/src/io/openems/impl/device/pro/FeneconProPvMeter.java)
+- [Socomec](../edge/src/io/openems/impl/device/socomec/SocomecMeter.java)
+- [FENECON Pro production meter](../edge/src/io/openems/impl/device/pro/FeneconProPvMeter.java)
 
-For more natures see [Implementation in Source Code](edge/src/io/openems/api/device/nature).
+For more natures see [Implementation in Source Code](../edge/src/io/openems/api/device/nature).
 
 ## Default configurations for FENECON ESS
 
 If you receive your OpenEMS together with a FENECON energy storage system, you will have the following Thing-IDs:
 
 - FENECON Pro
-  - `ess0`: [FENECON Pro](edge/src/io/openems/impl/device/pro/FeneconProEss.java)
-  - `meter0`: [Socomec grid meter](edge/src/io/openems/impl/device/socomec/SocomecMeter.java)
-  - `meter1`: [FENECON Pro production meter](edge/src/io/openems/impl/device/pro/FeneconProPvMeter.java)
+  - `ess0`: [FENECON Pro](../edge/src/io/openems/impl/device/pro/FeneconProEss.java)
+  - `meter0`: [Socomec grid meter](../edge/src/io/openems/impl/device/socomec/SocomecMeter.java)
+  - `meter1`: [FENECON Pro production meter](../edge/src/io/openems/impl/device/pro/FeneconProPvMeter.java)
 - FENECON Mini
-  - `ess0`: [FENECON Mini](edge/src/io/openems/impl/device/minireadonly/FeneconMiniEss.java)
-  - `meter0`: [FENECON Mini grid meter](edge/src/io/openems/impl/device/minireadonly/FeneconMiniGridMeter.java)
-  - `meter1`: [FENECON Mini production meter](edge/src/io/openems/impl/device/minireadonly/FeneconMiniProductionMeter.java)
+  - `ess0`: [FENECON Mini](../edge/src/io/openems/impl/device/minireadonly/FeneconMiniEss.java)
+  - `meter0`: [FENECON Mini grid meter](../edge/src/io/openems/impl/device/minireadonly/FeneconMiniGridMeter.java)
+  - `meter1`: [FENECON Mini production meter](../edge/src/io/openems/impl/device/minireadonly/FeneconMiniProductionMeter.java)

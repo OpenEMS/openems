@@ -3,15 +3,15 @@ package io.openems.core.utilities.websocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.websocket.NotificationStatus;
+import io.openems.common.websocket.NotificationType;
 
 public class Notification {
 	private Logger log = LoggerFactory.getLogger(Notification.class);
 
 	private String message = "";
-	private NotificationStatus type = NotificationStatus.INFO;
+	private NotificationType type = NotificationType.INFO;
 
-	public Notification(NotificationStatus type, String message) {
+	public Notification(NotificationType type, String message) {
 		set(type, message);
 	}
 
@@ -19,7 +19,7 @@ public class Notification {
 		this.message = message;
 	}
 
-	public void set(NotificationStatus type, String message) {
+	public void set(NotificationType type, String message) {
 		this.type = type;
 		this.message = message;
 	}
@@ -43,12 +43,12 @@ public class Notification {
 		// TODO WebsocketServer.broadcastNotification(this);
 	}
 
-	public static void send(NotificationStatus type, String message) {
+	public static void send(NotificationType type, String message) {
 		Notification notification = new Notification(type, message);
 		notification.send();
 	}
 
-	public NotificationStatus getType() {
+	public NotificationType getType() {
 		return type;
 	}
 

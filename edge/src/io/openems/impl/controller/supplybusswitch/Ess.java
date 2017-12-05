@@ -56,6 +56,7 @@ public class Ess extends ThingMap {
 
 	public void setActiveSupplybus(Supplybus supplybus) {
 		this.activeSupplybus = supplybus;
+		log.info(this.id()+": set ActiveSupplyBus: "+(this.activeSupplybus != null ? this.activeSupplybus.getName():"null"));
 	}
 
 	public Ess(SymmetricEssNature ess) {
@@ -107,7 +108,7 @@ public class Ess extends ThingMap {
 				setWorkState.pushWriteFromLabel(EssNature.STOP);
 				break;
 			default:
-				setWorkState.pushWriteFromLabel(EssNature.STANDBY);
+				setWorkState.pushWriteFromLabel(EssNature.START);
 				break;
 			}
 		}

@@ -55,8 +55,12 @@ export module DefaultTypes {
     storage: {
       soc: number,
       chargeActivePower: number,
+      chargeActivePowerAC: number,
+      chargeActivePowerDC: number,
       maxChargeActivePower: number,
       dischargeActivePower: number,
+      dischargeActivePowerAC: number,
+      dischargeActivePowerDC: number,
       maxDischargeActivePower: number
     }, production: {
       powerRatio: number,

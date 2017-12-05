@@ -105,6 +105,7 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 			this._onMessage(websocket, jMessage, jMessageId, deviceNameOpt);
 		} catch (Throwable e) {
 			log.error("onMessage-Error [" + message + "]: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 

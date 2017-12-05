@@ -1,0 +1,92 @@
+<div fxLayout fxLayoutAlign="start start" fxLayoutWrap="wrap">
+
+  <!--<mat-card fxFlex="100%" class="single_leftright single_top">
+  </mat-card>-->
+
+  <ng-container *ngIf="currentData && config">
+    <ng-container *ngFor="let thing of config.evcsDevices">
+      <mat-card class="single" fxFlex="100%">
+        <mat-card-header>
+          <img src="assets/img/evcs.png" mat-card-avatar/>
+          <mat-card-title>Ladestation</mat-card-title>
+          <!-- TODO translate -->
+          <mat-card-subtitle>{{ thing }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content *ngIf="currentData.data[thing] as data">
+          <table class="full_width">
+            <ng-container *ngIf="data.State != null">
+              <tr>
+                <td style="width:50%">Status</td>
+                <td colspan="3" class="align_right" style="width:50%" [ngSwitch]="data.State">
+                  <ng-container *ngSwitchCase="'0'">startet</ng-container>
+                  <ng-container *ngSwitchCase="'1'">nicht bereit zur Beladung</ng-container>
+                  <ng-container *ngSwitchCase="'2'">bereit zur Beladung</ng-container>
+                  <ng-container *ngSwitchCase="'3'">Beladung läuft</ng-container>
+                  <ng-container *ngSwitchCase="'4'">Fehler</ng-container>
+                  <ng-container *ngSwitchCase="'5'">nicht authorisiert</ng-container>
+                </td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="data.Plug != null">
+              <tr class="underline">
+                <td style="width:50%">Kabel</td>
+                <td colspan="3" class="align_right" style="width:50%" [ngSwitch]="data.Plug">
+                  <ng-container *ngSwitchCase="'0'">ausgesteckt</ng-container>
+                  <ng-container *ngSwitchCase="'1'">Ladestation eingesteckt</ng-container>
+                  <ng-container *ngSwitchCase="'3'">Ladestation eingesteckt + gesperrt</ng-container>
+                  <ng-container *ngSwitchCase="'5'">Ladestation + E-Auto eingesteckt</ng-container>
+                  <ng-container *ngSwitchCase="'7'">Ladestation + E-Auto eingesteckt + gesperrt</ng-container>
+                </td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="data.CurrUser != null">
+              <tr>
+                <td style="width:50%">Lade-Begrenzung</td>
+                <td style="width:15%"></td>
+                <td style="width:35%" class="align_right">{{ data.CurrUser }}</td>
+                <td style="width:10%">mA</td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="data.ActualPower != null">
+              <tr>
+                <td style="width:50%">Lade-Leistung</td>
+                <td style="width:15%"></td>
+                <td style="width:35%" class="align_right">{{ data.ActualPower }}</td>
+                <td style="width:10%">W</td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="data.EnergySession != null">
+              <tr class="underline">
+                <td style="width:50%">Aktuelle Beladung</td>
+                <td style="width:15%"></td>
+                <td style="width:35%" class="align_right">{{ data.EnergySession / 1000 | number:'1.0-0' }}</td>
+                <td style="width:10%">kWh</td>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="data.EnergyTotal != null">
+              <tr class="underline">
+                <td style="width:50%">Gesamte Beladung</td>
+                <td style="width:15%"></td>
+                <td style="width:35%" class="align_right">{{ data.EnergyTotal / 1000 | number:'1.0-0' }}</td>
+                <td style="width:10%">kWh</td>
+              </tr>
+            </ng-container>
+            <ng-container *ngFor="let controllerId of config.controllers">
+              <ng-container *ngIf="config.things[controllerId].class == 'io.openems.impl.controller.evcs.EvcsController'">
+                <ng-container *ngIf="config.things[controllerId] as controller">
+                  <tr *ngIf="config.things[controllerId] as controller">
+                    <td style="width:50%">Erzwinge Beladung</td>
+                    <td colspan="3" class="align_right" style="width:50%">
+                      <channel [thingId]="controllerId" channelId="forceCharge" [config]="config" [role]="device.role" [device]="device" title=""
+                        style="width:100%"></channel>
+                    </td>
+                  </tr>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    </ng-container>
+  </ng-container>
+</div>

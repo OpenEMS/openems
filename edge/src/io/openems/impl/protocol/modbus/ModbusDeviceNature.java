@@ -33,8 +33,10 @@ import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
@@ -51,6 +53,9 @@ public abstract class ModbusDeviceNature implements DeviceNature, ChannelChangeL
 	private List<BridgeWriteTask> writeTasks;
 	private Device parent;
 
+	@ChannelInfo(isOptional=true,title="Alias",description="The Alias to display for the device.", type=String.class)
+	public ConfigChannel<String> alias = new ConfigChannel<>("alias", this);
+
 	public ModbusDeviceNature(String thingId, Device parent) throws ConfigException {
 		this.parent = parent;
 		this.thingId = thingId;
@@ -64,6 +69,11 @@ public abstract class ModbusDeviceNature implements DeviceNature, ChannelChangeL
 			createModbusProtocol();
 		}
 		return this.protocol;
+	}
+
+	@Override
+	public String getAlias() {
+		return alias.valueOptional().orElse(id());
 	}
 
 	@Override

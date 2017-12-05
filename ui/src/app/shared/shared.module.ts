@@ -9,6 +9,7 @@ import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { LoadingModule } from 'ngx-loading';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
+import { ToasterModule } from 'angular2-toaster';
 
 import 'hammerjs';
 
@@ -36,6 +37,9 @@ import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
  * Components
  */
 import { SocChartComponent } from './../device/history/chart/socchart/socchart.component';
+import { AbstractConfigComponent } from './config/abstractconfig.component';
+import { ExistingThingComponent } from './config/existingthing.component';
+import { ChannelComponent } from './config/channel.component';
 
 @NgModule({
   imports: [
@@ -49,6 +53,7 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     ChartsModule,
     LoadingModule,
     MyDateRangePickerModule,
+    ToasterModule,
     routing
   ],
   declarations: [
@@ -59,7 +64,10 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     IsclassPipe,
     HasclassPipe,
     // components
-    SocChartComponent
+    SocChartComponent,
+    AbstractConfigComponent,
+    ChannelComponent,
+    ExistingThingComponent
   ],
   exports: [
     // pipes
@@ -79,9 +87,13 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
     ReactiveFormsModule,
     TranslateModule,
     MyDateRangePickerModule,
+    ToasterModule,
     // components
     SocChartComponent,
-    LoadingModule
+    LoadingModule,
+    AbstractConfigComponent,
+    ChannelComponent,
+    ExistingThingComponent
   ],
   providers: [
     Utils,

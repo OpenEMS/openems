@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.security.User;
 import io.openems.common.session.SessionManager;
+import io.openems.core.utilities.api.ApiWorker;
 import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 
 public class WebsocketApiSessionManager extends SessionManager<WebsocketApiSession, WebsocketApiSessionData> {
@@ -19,10 +20,12 @@ public class WebsocketApiSessionManager extends SessionManager<WebsocketApiSessi
 		return new WebsocketApiSession(token, data);
 	}
 
-	private Optional<WebsocketApiSession> createSessionForUser(Optional<User> userOpt, WebSocket websocket) {
+	private Optional<WebsocketApiSession> createSessionForUser(Optional<User> userOpt, WebSocket websocket,
+			ApiWorker apiWorker) {
 		if (userOpt.isPresent()) {
 			User user = userOpt.get();
-			WebsocketApiSessionData data = new WebsocketApiSessionData(user, new EdgeWebsocketHandler(websocket, user.getRole()));
+			WebsocketApiSessionData data = new WebsocketApiSessionData(user,
+					new EdgeWebsocketHandler(apiWorker, websocket, user.getRole()));
 			String token = generateToken();
 			WebsocketApiSession session = createNewSession(token, data);
 			return Optional.of(session);
@@ -30,14 +33,15 @@ public class WebsocketApiSessionManager extends SessionManager<WebsocketApiSessi
 		return Optional.empty();
 	}
 
-	public Optional<WebsocketApiSession> authByUserPassword(String username, String password, WebSocket websocket) {
+	public Optional<WebsocketApiSession> authByUserPassword(String username, String password, WebSocket websocket,
+			ApiWorker apiWorker) {
 		Optional<User> user = User.authenticate(username, password);
-		return createSessionForUser(user, websocket);
+		return createSessionForUser(user, websocket, apiWorker);
 	}
 
-	public Optional<WebsocketApiSession> authByPassword(String password, WebSocket websocket) {
+	public Optional<WebsocketApiSession> authByPassword(String password, WebSocket websocket, ApiWorker apiWorker) {
 		Optional<User> user = User.authenticate(password);
-		return createSessionForUser(user, websocket);
+		return createSessionForUser(user, websocket, apiWorker);
 	}
 
 	public Optional<WebsocketApiSession> authBySession(String token) {

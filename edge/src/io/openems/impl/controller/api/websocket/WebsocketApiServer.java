@@ -40,6 +40,7 @@ import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
+import io.openems.core.utilities.api.ApiWorker;
 import io.openems.impl.controller.api.websocket.session.WebsocketApiSession;
 import io.openems.impl.controller.api.websocket.session.WebsocketApiSessionData;
 import io.openems.impl.controller.api.websocket.session.WebsocketApiSessionManager;
@@ -48,9 +49,11 @@ public class WebsocketApiServer
 extends AbstractWebsocketServer<WebsocketApiSession, WebsocketApiSessionData, WebsocketApiSessionManager> {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketApiServer.class);
+	private final ApiWorker apiWorker;
 
-	public WebsocketApiServer(int port) {
+	public WebsocketApiServer(ApiWorker apiWorker, int port) {
 		super(port, new WebsocketApiSessionManager());
+		this.apiWorker = apiWorker;
 	}
 
 	/**
@@ -160,9 +163,9 @@ extends AbstractWebsocketServer<WebsocketApiSession, WebsocketApiSessionData, We
 						String password = JsonUtils.getAsString(jAuthenticate, "password");
 						if (jAuthenticate.has("username")) {
 							String username = JsonUtils.getAsString(jAuthenticate, "username");
-							return this.sessionManager.authByUserPassword(username, password, websocket);
+							return this.sessionManager.authByUserPassword(username, password, websocket, apiWorker);
 						} else {
-							return this.sessionManager.authByPassword(password, websocket);
+							return this.sessionManager.authByPassword(password, websocket, apiWorker);
 						}
 					}
 

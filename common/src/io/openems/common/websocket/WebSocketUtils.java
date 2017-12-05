@@ -43,27 +43,13 @@ public class WebSocketUtils {
 		}
 	}
 
-	public static boolean sendNotification(WebSocket websocket, JsonArray jId, LogBehaviour logBehaviour, Notification code, Object... params) {
-		String message = String.format(code.getMessage(), params);
-		String logMessage = "Notification [" + code.getValue() + "]: " + message;
-		// log message
+	public static boolean sendNotification(WebSocket websocket, JsonArray jId, LogBehaviour logBehaviour, Notification notification, Object... params) {
 		if (logBehaviour.equals(LogBehaviour.WRITE_TO_LOG)) {
-			switch (code.getStatus()) {
-			case INFO:
-			case LOG:
-			case SUCCESS:
-				log.info(logMessage);
-				break;
-			case ERROR:
-				log.error(logMessage);
-				break;
-			case WARNING:
-				log.warn(logMessage);
-				break;
-			}
+			// log message
+			notification.writeToLog(log, params);
 		}
-
-		JsonObject j = DefaultMessages.notification(jId, code, message, params);
+		String message = String.format(notification.getMessage(), params);
+		JsonObject j = DefaultMessages.notification(jId, notification, message, params);
 		return WebSocketUtils.send(websocket, j);
 	}
 
@@ -106,7 +92,7 @@ public class WebSocketUtils {
 				// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
 				// TODO: better calculation of sensible resolution
-				int resolution = 5 * 60; // 5 Minutes
+				int resolution = 10 * 60; // 10 Minutes
 				if (days > 25) {
 					resolution = 24 * 60 * 60; // 1 Day
 				} else if (days > 6) {

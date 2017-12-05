@@ -15,7 +15,7 @@
         <mat-card-header>
           <img src="assets/img/storage.png" mat-card-avatar/>
           <mat-card-title translate>General.StorageSystem</mat-card-title>
-          <mat-card-subtitle>{{ thing }}</mat-card-subtitle>
+          <mat-card-subtitle>{{ config.things[thing].alias }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content *ngIf="currentData.data[thing] as data">
           <table class="full_width">

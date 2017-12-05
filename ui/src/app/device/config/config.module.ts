@@ -8,10 +8,7 @@ import { ControllerComponent } from './controller/controller.component';
 import { SchedulerComponent } from './scheduler/scheduler.component';
 import { PersistenceComponent } from './persistence/persistence.component';
 
-import { AbstractConfigComponent } from './shared/abstractconfig.component';
 import { ConfigAllComponent } from './configall/configall.component';
-import { ExistingThingComponent } from './shared/existingthing.component';
-import { ChannelComponent } from './shared/channel.component';
 import { LogComponent } from './log/log.component';
 import { SimulatorComponent } from './simulator/simulator.component';
 
@@ -21,15 +18,12 @@ import { SimulatorComponent } from './simulator/simulator.component';
     MoreModule
   ],
   declarations: [
-    AbstractConfigComponent,
     OverviewComponent,
     ControllerComponent,
     BridgeComponent,
     LogComponent,
     SimulatorComponent,
     ConfigAllComponent,
-    ChannelComponent,
-    ExistingThingComponent,
     SchedulerComponent,
     PersistenceComponent
   ]

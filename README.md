@@ -91,10 +91,10 @@ The target of this short guide is to quickly setup a development environment on 
 ### Setup OpenEMS simulator
 
 1. Download [Eclipse for Java](https://www.eclipse.org/), install and start it
-2. Import the Edge project in Eclipse:
+2. Import both the "Edge" and the "Common" project in Eclipse:
 
 	Menu: `File` →  `Import...` → `General` → `Existing Projects into Workspace` → 
-    Select root directory: `Browse...` → Select the "openems" directory → `OK` → `Finish`
+    Select root directory: `Browse...` → Select the "edge" and "common" directories → `OK` → `Finish`
     
 3. Apply the simulator template configuration.
 	Hint: OpenEMS is using a global JSON configuration file.

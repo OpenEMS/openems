@@ -20,15 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.device.pro;
 
-import java.util.Optional;
-
-import io.openems.api.bridge.BridgeEvent;
-import io.openems.api.bridge.BridgeEvent.Position;
-import io.openems.api.bridge.BridgeEventListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
-import io.openems.api.channel.FunctionalWriteChannel;
-import io.openems.api.channel.FunctionalWriteChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
@@ -41,7 +34,6 @@ import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -56,11 +48,6 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRan
 @ThingInfo(title = "FENECON Pro ESS")
 public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNature, RealTimeClockNature {
 
-	private WriteChannel<Long>[] activePowerPhases;
-	private WriteChannel<Long>[] reactivePowerPhases;
-	private WriteChannel<Long>[] nativeActivePowerPhases;
-	private WriteChannel<Long>[] nativeReactivePowerPhases;
-
 	/*
 	 * Constructors
 	 */
@@ -70,66 +57,6 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
-			}
-		});
-		parent.getBridge().addListener(new BridgeEventListener() {
-
-			@Override
-			protected void notify(BridgeEvent event) {
-				if (event.getPosition().equals(Position.BEFOREWRITE)) {
-					Integer maxActivePower = null;
-					long[] setActivePower = new long[3];
-					long[] setReactivePower = new long[3];
-					@SuppressWarnings("unchecked") Optional<Long>[] writeValueActivePower = new Optional[3];
-					@SuppressWarnings("unchecked") Optional<Long>[] writeValueReactivePower = new Optional[3];
-					Integer maxReactivePower = null;
-					for (int i = 0; i < 3; i++) {
-						writeValueActivePower[i] = activePowerPhases[i].writeShadowCopy();
-						writeValueReactivePower[i] = reactivePowerPhases[i].writeShadowCopy();
-						if (writeValueActivePower[i].isPresent() && (maxActivePower == null || Math
-								.abs(writeValueActivePower[i].get()) > Math.abs(writeValueActivePower[i].get()))) {
-							maxActivePower = i;
-						}
-						if (writeValueReactivePower[i].isPresent() && (maxReactivePower == null || Math
-								.abs(writeValueReactivePower[i].get()) > Math.abs(writeValueReactivePower[i].get()))) {
-							maxReactivePower = i;
-						}
-					}
-					if (maxActivePower != null) {
-						for (int i = 0; i < 3; i++) {
-							if (writeValueActivePower[i].isPresent()) {
-								if (writeValueActivePower[i].get() < 200 && writeValueActivePower[i].get() > -200 && i != maxActivePower) {
-									setActivePower[maxActivePower] += writeValueActivePower[i].get();
-								} else {
-									setActivePower[i] += writeValueActivePower[i].get();
-								}
-							}
-						}
-						// write values
-						for (int i = 0; i < 3; i++) {
-							try {
-								nativeActivePowerPhases[i].pushWrite(setActivePower[i]);
-							} catch (WriteChannelException e) {}
-						}
-					}
-					if (maxReactivePower != null) {
-						for (int i = 0; i < 3; i++) {
-							if (writeValueReactivePower[i].isPresent()) {
-								if (writeValueReactivePower[i].get() < 200 && writeValueReactivePower[i].get() > -200 && i != maxReactivePower) {
-									setReactivePower[maxReactivePower] += writeValueReactivePower[i].get();
-								} else {
-									setReactivePower[i] += writeValueReactivePower[i].get();
-								}
-							}
-						}
-						// write values
-						for (int i = 0; i < 3; i++) {
-							try {
-								nativeReactivePowerPhases[i].pushWrite(setReactivePower[i]);
-							} catch (WriteChannelException e) {}
-						}
-					}
-				}
 			}
 		});
 	}
@@ -167,12 +94,12 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	private ModbusReadLongChannel reactivePowerL2;
 	private ModbusReadLongChannel reactivePowerL3;
 	private ModbusWriteLongChannel setWorkState;
-	private WriteChannel<Long> setActivePowerL1;
-	private WriteChannel<Long> setActivePowerL2;
-	private WriteChannel<Long> setActivePowerL3;
-	private WriteChannel<Long> setReactivePowerL1;
-	private WriteChannel<Long> setReactivePowerL2;
-	private WriteChannel<Long> setReactivePowerL3;
+	private ModbusWriteLongChannel setActivePowerL1;
+	private ModbusWriteLongChannel setActivePowerL2;
+	private ModbusWriteLongChannel setActivePowerL3;
+	private ModbusWriteLongChannel setReactivePowerL1;
+	private ModbusWriteLongChannel setReactivePowerL2;
+	private ModbusWriteLongChannel setReactivePowerL3;
 	private ReadChannel<Long> allowedApparent;
 	// RealTimeClock
 	private ModbusWriteLongChannel rtcYear;
@@ -389,17 +316,10 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	public StatusBitChannel pcsFault1L3;
 	public StatusBitChannel pcsFault2L3;
 	public StatusBitChannel pcsFault3L3;
-	public ModbusWriteLongChannel nativeSetActivePowerL1;
-	public ModbusWriteLongChannel nativeSetActivePowerL2;
-	public ModbusWriteLongChannel nativeSetActivePowerL3;
-	public ModbusWriteLongChannel nativeSetReactivePowerL1;
-	public ModbusWriteLongChannel nativeSetReactivePowerL2;
-	public ModbusWriteLongChannel nativeSetReactivePowerL3;
 
 	/*
 	 * Methods
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		warning = new StatusBitChannels("Warning", this);
@@ -720,23 +640,19 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(4, "Emergency Stop"))),
 				new WriteableModbusRegisterRange(206, //
 						new SignedWordElement(206,
-								nativeSetActivePowerL1 = new ModbusWriteLongChannel("NativeSetActivePowerL1", this)
-								.unit("W")), //
+								setActivePowerL1 = new ModbusWriteLongChannel("SetActivePowerL1", this).unit("W")), //
 						new SignedWordElement(207,
-								nativeSetReactivePowerL1 = new ModbusWriteLongChannel("NativeSetReactivePowerL1", this)
+								setReactivePowerL1 = new ModbusWriteLongChannel("SetReactivePowerL1", this)
 								.unit("Var")), //
 						new SignedWordElement(208,
-								nativeSetActivePowerL2 = new ModbusWriteLongChannel("NativeSetActivePowerL2", this)
-								.unit("W")), //
+								setActivePowerL2 = new ModbusWriteLongChannel("SetActivePowerL2", this).unit("W")), //
 						new SignedWordElement(209,
-								nativeSetReactivePowerL2 = new ModbusWriteLongChannel("NativeSetReactivePowerL2", this)
+								setReactivePowerL2 = new ModbusWriteLongChannel("SetReactivePowerL2", this)
 								.unit("Var")), //
 						new SignedWordElement(210,
-								nativeSetActivePowerL3 = new ModbusWriteLongChannel("NativeSetActivePowerL3", this)
-								.unit("W")), //
+								setActivePowerL3 = new ModbusWriteLongChannel("SetActivePowerL3", this).unit("W")), //
 						new SignedWordElement(211,
-								nativeSetReactivePowerL3 = new ModbusWriteLongChannel("SetReactivePowerL3", this)
-								.unit("Var")//
+								setReactivePowerL3 = new ModbusWriteLongChannel("SetReactivePowerL3", this).unit("Var")//
 								)), //
 				new ModbusRegisterRange(3020, new UnsignedWordElement(3020,
 						batteryVoltageSection1 = new ModbusReadLongChannel("BatteryVoltageSection1", this).unit("mV")),
@@ -888,57 +804,6 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 			return 0l;
 		}, phaseAllowedApparent);
 
-		FunctionalWriteChannelFunction<Long> function = new FunctionalWriteChannelFunction<Long>() {
-
-			@Override
-			public Long setValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
-					throws WriteChannelException {
-				return newValue;
-			}
-
-			@Override
-			public Long getValue(ReadChannel<Long>... channels) {
-				return channels[0].valueOptional().orElse(null);
-			}
-
-			@Override
-			public Long getMinValue(Optional<Long> thisMinValue, WriteChannel<Long>... channels) {
-				return thisMinValue.orElse(null);
-			}
-
-			@Override
-			public Long getMaxValue(Optional<Long> thisMaxValue, WriteChannel<Long>... channels) {
-				return thisMaxValue.orElse(null);
-			}
-
-			@Override
-			public Long setMinValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
-					throws WriteChannelException {
-				return newValue;
-			}
-
-			@Override
-			public Long setMaxValue(Long newValue, String newLabel, WriteChannel<Long>... channels)
-					throws WriteChannelException {
-				return newValue;
-			}
-
-		};
-		setActivePowerL1 = new FunctionalWriteChannel<>("SetActivePowerL1", this, function, nativeSetActivePowerL1);
-		setActivePowerL2 = new FunctionalWriteChannel<>("SetActivePowerL2", this, function, nativeSetActivePowerL2);
-		setActivePowerL3 = new FunctionalWriteChannel<>("SetActivePowerL3", this, function, nativeSetActivePowerL3);
-		setReactivePowerL1 = new FunctionalWriteChannel<>("SetReactivePowerL1", this, function,
-				nativeSetReactivePowerL1);
-		setReactivePowerL2 = new FunctionalWriteChannel<>("SetReactivePowerL2", this, function,
-				nativeSetReactivePowerL2);
-		setReactivePowerL3 = new FunctionalWriteChannel<>("SetReactivePowerL3", this, function,
-				nativeSetReactivePowerL3);
-		activePowerPhases = new WriteChannel[] { setActivePowerL1, setActivePowerL2, setActivePowerL3 };
-		reactivePowerPhases = new WriteChannel[] { setReactivePowerL1, setReactivePowerL2, setReactivePowerL3 };
-		nativeActivePowerPhases = new WriteChannel[] { nativeSetActivePowerL1, nativeSetActivePowerL2,
-				nativeSetActivePowerL3 };
-		nativeReactivePowerPhases = new WriteChannel[] { nativeSetReactivePowerL1, nativeSetReactivePowerL2,
-				nativeSetReactivePowerL3 };
 		return protokol;
 	}
 

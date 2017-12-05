@@ -75,61 +75,69 @@ public class BalancingController extends Controller {
 				ess.setWorkState.pushWriteFromLabel(EssNature.START);
 			}
 			long[] calculatedPowers = new long[3];
+			long calculatedPowerSum = 0;
 			// calculateRequiredPower
 			Meter meter = this.meter.value();
 			calculatedPowers[0] = meter.activePowerL1.value();
+			calculatedPowerSum += meter.activePowerL1.value();
 			calculatedPowers[1] = meter.activePowerL2.value();
+			calculatedPowerSum += meter.activePowerL2.value();
 			calculatedPowers[2] = meter.activePowerL3.value();
+			calculatedPowerSum += meter.activePowerL3.value();
 			for (Ess ess : esss.value()) {
 				calculatedPowers[0] += ess.activePowerL1.value();
+				calculatedPowerSum += ess.activePowerL1.value();
 				calculatedPowers[1] += ess.activePowerL2.value();
+				calculatedPowerSum += ess.activePowerL2.value();
 				calculatedPowers[2] += ess.activePowerL3.value();
+				calculatedPowerSum += ess.activePowerL3.value();
 			}
-			for (int i = 0; i < 3; i++) {
-				lastWriteValues[i][index] = calculatedPowers[i];
-				calculatedPowers[i] = getAvgPower(i + 1);
-			}
-			index++;
-			index %= lastWriteValues[0].length;
-			// Calculate required sum values
-			long useableSoc = 0;
-			for (Ess ess : esss.value()) {
-				useableSoc += ess.useableSoc();
-			}
-			// Loop each Phase
-			for (int i = 1; i <= 3; i++) {
-				long absolutePower = Math.abs(calculatedPowers[0]) + Math.abs(calculatedPowers[1])
-						+ Math.abs(calculatedPowers[2]);
-				double percentage = (double) calculatedPowers[i - 1] / absolutePower;
-				long maxChargePowerPhase = 0L;
-				long maxDischargePowerPhase = 0L;
+			if (Math.abs(calculatedPowerSum) > 100) {
+				for (int i = 0; i < 3; i++) {
+					lastWriteValues[i][index] = calculatedPowers[i];
+					calculatedPowers[i] = getAvgPower(i + 1);
+				}
+				index++;
+				index %= lastWriteValues[0].length;
+				// Calculate required sum values
+				long useableSoc = 0;
 				for (Ess ess : esss.value()) {
-					Tupel<Long> minMax = calculateMinMaxValues(ess, percentage, cosPhi.value(), i);
-					maxDischargePowerPhase += minMax.b;
-					maxChargePowerPhase += minMax.a;
-					try {
-						ess.getSetActivePower(i).pushWriteMax(minMax.b);
-					} catch (WriteChannelException e) {
-						log.debug(e.getMessage());
-					}
-					try {
-						ess.getSetActivePower(i).pushWriteMin(minMax.a);
-					} catch (WriteChannelException e) {
-						log.debug(e.getMessage());
-					}
+					useableSoc += ess.useableSoc();
 				}
-				// reduce Power to possible power
-				if (calculatedPowers[i - 1] > maxDischargePowerPhase) {
-					calculatedPowers[i - 1] = maxDischargePowerPhase;
-				} else if (calculatedPowers[i - 1] < maxChargePowerPhase) {
-					calculatedPowers[i - 1] = maxChargePowerPhase;
+				// Loop each Phase
+				for (int i = 1; i <= 3; i++) {
+					long absolutePower = Math.abs(calculatedPowers[0]) + Math.abs(calculatedPowers[1])
+					+ Math.abs(calculatedPowers[2]);
+					double percentage = (double) calculatedPowers[i - 1] / absolutePower;
+					long maxChargePowerPhase = 0L;
+					long maxDischargePowerPhase = 0L;
+					for (Ess ess : esss.value()) {
+						Tupel<Long> minMax = calculateMinMaxValues(ess, percentage, cosPhi.value(), i);
+						maxDischargePowerPhase += minMax.b;
+						maxChargePowerPhase += minMax.a;
+						try {
+							ess.getSetActivePower(i).pushWriteMax(minMax.b);
+						} catch (WriteChannelException e) {
+							log.debug(e.getMessage());
+						}
+						try {
+							ess.getSetActivePower(i).pushWriteMin(minMax.a);
+						} catch (WriteChannelException e) {
+							log.debug(e.getMessage());
+						}
+					}
+					// reduce Power to possible power
+					if (calculatedPowers[i - 1] > maxDischargePowerPhase) {
+						calculatedPowers[i - 1] = maxDischargePowerPhase;
+					} else if (calculatedPowers[i - 1] < maxChargePowerPhase) {
+						calculatedPowers[i - 1] = maxChargePowerPhase;
+					}
+					calculatePower(calculatedPowers[i - 1], maxDischargePowerPhase, maxChargePowerPhase, i, useableSoc);
 				}
-				calculatePower(calculatedPowers[i - 1], maxDischargePowerPhase, maxChargePowerPhase, i, useableSoc);
 			}
 			for (Ess ess : esss.value()) {
 				log.debug(ess.getSetValueLog());
 			}
-
 		} catch (InvalidValueException | WriteChannelException e) {
 			log.error(e.getMessage());
 		}
