@@ -39,7 +39,7 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 
 	@SuppressWarnings("deprecation")
 	public AbstractWebsocketServer(int port, M sessionManager) {
-		super(new InetSocketAddress(port), Lists.newArrayList(new Draft_6455(), new Draft_76()));
+		super(new InetSocketAddress(port), Lists.newArrayList(new Draft_6455()));
 		this.sessionManager = sessionManager;
 	}
 

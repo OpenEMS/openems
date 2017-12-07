@@ -21,6 +21,8 @@
 package io.openems.impl.persistence.fenecon;
 
 import java.net.Inet4Address;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -80,6 +82,15 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
 	.defaultValue(DEFAULT_CYCLETIME);
 
+	@ChannelInfo(title = "ProxyAddress", description = "Sets the proxy address IP or hostname.", type = String.class, isOptional = true)
+	public final ConfigChannel<String> proxyAddress = new ConfigChannel<String>("proxyAddress", this);
+
+	@ChannelInfo(title = "ProxyPort", description = "Sets the proxy port.", type = Integer.class, isOptional = true)
+	public final ConfigChannel<Integer> proxyPort = new ConfigChannel<Integer>("proxyPort", this);
+
+	@ChannelInfo(title = "ProxyType", description = "Sets the proxy type (e.g. 'http').", type = String.class, isOptional = true)
+	public final ConfigChannel<String> proxyType = new ConfigChannel<String>("proxyType", this);
+
 	/*
 	 * Constructor
 	 */
@@ -89,15 +100,17 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			/*
 			 * onOpen
 			 */
-			log.info("FENECON persistence connected [" + uri.valueOptional().orElse("") + "]");
+			Optional<String> proxyInfoOpt = this.proxyInfo();
+			log.info("FENECON persistence connected [" + uri.valueOptional().orElse("") + "]"
+					+ (proxyInfoOpt.isPresent() ? ", " + proxyInfoOpt.get() : ""));
 			// Add current status of all channels to queue
 			this.addCurrentValueOfAllChannelsToQueue();
 			// Send current config
 			try {
 				WebSocketUtils.send( //
 						websocket, //
-						DefaultMessages.configQueryReply(Config.getInstance()
-								.getJson(ConfigFormat.OPENEMS_UI, Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
+						DefaultMessages.configQueryReply(Config.getInstance().getJson(ConfigFormat.OPENEMS_UI,
+								Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
 				log.info("Sent config to FENECON persistence.");
 			} catch (NotImplementedException | ConfigException e) {
 				log.error("Unable to send config: " + e.getMessage());
@@ -106,7 +119,9 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			/*
 			 * onClose
 			 */
-			log.error("FENECON persistence closed connection to uri [" + uri.valueOptional().orElse("") + "]");
+			Optional<String> proxyInfoOpt = this.proxyInfo();
+			log.error("FENECON persistence closed connection to uri [" + uri.valueOptional().orElse("") + "]"
+					+ (proxyInfoOpt.isPresent() ? ", " + proxyInfoOpt.get() : ""));
 		});
 	}
 
@@ -138,19 +153,37 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			// set apikey header
 			this.reconnectingWebsocket.addHttpHeader("apikey", apikeyOpt.get());
 
-			Optional<String> uriOpt = this.uri.valueOptional();
-			if (uriOpt.isPresent()) {
+			// get proxy
+			Optional<Proxy> proxyOpt = Optional.empty();
+			Optional<String> proxyAddressOpt = this.proxyAddress.valueOptional();
+			Optional<Integer> proxyPortOpt = this.proxyPort.valueOptional();
+			Optional<String> proxyTypeStringOpt = this.proxyType.valueOptional();
+			if (proxyAddressOpt.isPresent() && proxyPortOpt.isPresent() && proxyTypeStringOpt.isPresent()) {
+				Optional<Proxy.Type> proxyTypeOpt = Optional.empty();
+				switch (proxyTypeStringOpt.get().toLowerCase()) {
+				case "http":
+					proxyTypeOpt = Optional.of(Proxy.Type.HTTP);
+				}
+				if (proxyTypeOpt.isPresent()) {
+					proxyOpt = Optional.of(new Proxy(proxyTypeOpt.get(),
+							new InetSocketAddress(proxyAddressOpt.get(), proxyPortOpt.get())));
+				}
+			}
+
+			// connect
+			Optional<String> uriStringOpt = this.uri.valueOptional();
+			if (uriStringOpt.isPresent()) {
 				try {
-					URI uri = new URI(uriOpt.get());
-					this.reconnectingWebsocket.setUri(Optional.of(uri));
+					URI uri = new URI(uriStringOpt.get());
+					this.reconnectingWebsocket.setUri(Optional.of(uri), proxyOpt);
 				} catch (URISyntaxException e) {
-					log.error("URI [" + uriOpt.get() + "] is invalid: " + e.getMessage());
-					this.reconnectingWebsocket.setUri(Optional.empty());
+					log.error("URI [" + uriStringOpt.get() + "] is invalid: " + e.getMessage());
+					this.reconnectingWebsocket.setUri(Optional.empty(), proxyOpt);
 					return;
 				}
 			} else {
 				// URI is not present
-				this.reconnectingWebsocket.setUri(Optional.empty());
+				this.reconnectingWebsocket.setUri(Optional.empty(), proxyOpt);
 			}
 		}
 	}
@@ -330,5 +363,15 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	@Override
 	protected boolean initialize() {
 		return this.reconnectingWebsocket.websocketIsOpen();
+	}
+
+	private Optional<String> proxyInfo() {
+		if (this.proxyAddress.valueOptional().isPresent() && this.proxyPort.valueOptional().isPresent()
+				&& this.proxyType.valueOptional().isPresent()) {
+			return Optional.of("proxy [" + this.proxyAddress.valueOptional().get() + ":"
+					+ this.proxyPort.valueOptional().get() + ":" + this.proxyType.valueOptional().get() + "]");
+		} else {
+			return Optional.empty();
+		}
 	}
 }
