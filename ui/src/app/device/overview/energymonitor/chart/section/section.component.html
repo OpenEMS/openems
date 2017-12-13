@@ -23,5 +23,5 @@
             <svg:stop offset="100%" [attr.stop-color]="color" />
         </svg:linearGradient>
     </svg:defs>
-    <svg:polygon [attr.points]="energyFlow.points" attr.fill="url(#{{name}})" />
+    <svg:polygon [attr.points]="energyFlow.points" attr.fill="url({{ url }}#{{ name }})" />
 </svg:g>

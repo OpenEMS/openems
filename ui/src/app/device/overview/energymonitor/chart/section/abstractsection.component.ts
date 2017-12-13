@@ -102,6 +102,7 @@ export class EnergyFlow {
 
 export abstract class AbstractSection {
 
+    public url: string = window.location.href;
     public valuePath: string = "";
     public outlinePath: string = "";
     public energyFlow: EnergyFlow;
