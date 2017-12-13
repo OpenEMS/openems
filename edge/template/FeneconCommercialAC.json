@@ -27,7 +27,16 @@
 					"class": "io.openems.impl.device.socomec.Socomec",
 					"modbusUnitId": 5,
 					"meter": {
-						"id": "meter0"
+						"id": "meter0",
+						"type": "grid"
+					}
+				},
+				{
+					"class": "io.openems.impl.device.socomec.Socomec",
+					"modbusUnitId": 6,
+					"meter": {
+						"id": "meter1",
+						"type": "production"
 					}
 				}
 			]
@@ -40,7 +49,7 @@
 				"priority": 150,
 				"class": "io.openems.impl.controller.debuglog.DebugLogController",
 				"esss": "ess0",
-				"meters": "meter0"
+				"meters": [ "meter0", "meter1" ]
 			},
 			{
 				"priority": 100,
