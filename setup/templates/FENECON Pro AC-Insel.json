@@ -1,0 +1,96 @@
+{
+	"things": [
+		{
+			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
+			"serialinterface": "/dev/ttyUSB0",
+			"baudrate": 9600,
+			"databits": 8,
+			"parity": "none",
+			"stopbits": 1,
+			"devices": [
+				{
+					"class": "io.openems.impl.device.pro.FeneconPro",
+					"modbusUnitId": 4,
+					"ess": {
+						"id": "ess0",
+						"minSoc": 15
+					},
+					"meter": {
+						"id": "meter1"
+					}
+				},
+				{
+					"class": "io.openems.impl.device.socomec.Socomec",
+					"modbusUnitId": 5,
+					"meter": {
+						"id": "meter0",
+						"type": "grid"
+					}
+				},
+				{
+					"class": "io.openems.impl.device.kmtronic.KMTronicRelay",
+					"output": {
+						"id": "output0"
+					},
+					"modbusUnitId": 1
+				}
+			]
+		}
+	],
+	"scheduler": {
+		"class": "io.openems.impl.scheduler.SimpleScheduler",
+		"controllers": [
+			{
+				"priority": 150,
+				"class": "io.openems.impl.controller.debuglog.DebugLogController",
+				"esss": [ "ess0" ],
+				"meters": [ "meter0", "meter1" ],
+				"rtc": "ess0"
+			},
+			{
+				"priority": 100,
+				"class": "io.openems.impl.controller.asymmetric.avoidtotaldischarge.AvoidTotalDischargeController",
+				"esss": "ess0"
+			},
+			{
+				"priority": 50,
+				"class": "io.openems.impl.controller.asymmetric.balancing.BalancingController",
+				"esss": "ess0",
+				"meter": "meter0"
+			},
+			{
+				"priority": 1,
+				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
+				"rtc": "ess0"
+			},
+			{
+				"priority": 0,
+				"class": "io.openems.impl.controller.feneconprosetup.FeneconProSetupController",
+				"esss": "ess0"
+			},
+			{
+				"class": "io.openems.impl.controller.acisland.AcIsland",
+				"minSoc": 90,
+				"onGridOutputChannelAddress": "output0/2",
+				"offGridOutputChannelAddress": "output0/3",
+				"maxSoc": 95,
+				"switchDelay": 10000,
+				"ess": "ess0",
+				"priority": 0
+			}
+
+		]
+	},
+	"persistence": [
+		{
+			"class": "io.openems.impl.persistence.influxdb.InfluxdbPersistence",
+			"ip": "127.0.0.1",
+			"fems": "###FEMS_ID###"
+		},
+		{
+			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
+			"apikey": "###APIKEY###"
+		}
+	]	
+}
+
