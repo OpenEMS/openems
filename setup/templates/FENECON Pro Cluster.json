@@ -28,6 +28,27 @@
 					}
 				}
 			]
+		},
+		{
+			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
+			"serialinterface": "/dev/ttyUSB1",
+			"baudrate": 9600,
+			"databits": 8,
+			"parity": "none",
+			"stopbits": 1,
+			"devices": [
+				{
+					"class": "io.openems.impl.device.pro.FeneconPro",
+					"modbusUnitId": 4,
+					"ess": {
+						"id": "ess1",
+						"minSoc": 15
+					},
+					"meter": {
+						"id": "meter2"
+					}
+				}
+			]
 		}
 	],
 	"scheduler": {
@@ -36,19 +57,19 @@
 			{
 				"priority": 150,
 				"class": "io.openems.impl.controller.debuglog.DebugLogController",
-				"esss": [ "ess0" ],
-				"meters": [ "meter0", "meter1" ],
+				"esss": [ "ess0", "ess1" ],
+				"meters": [ "meter0", "meter1", "meter2" ],
 				"rtc": "ess0"
 			},
 			{
 				"priority": 100,
 				"class": "io.openems.impl.controller.asymmetric.avoidtotaldischarge.AvoidTotalDischargeController",
-				"esss": "ess0"
+				"esss": [ "ess0", "ess1" ]
 			},
 			{
 				"priority": 50,
 				"class": "io.openems.impl.controller.asymmetric.balancing.BalancingController",
-				"esss": "ess0",
+				"esss": [ "ess0", "ess1" ],
 				"meter": "meter0"
 			},
 			{
@@ -68,6 +89,6 @@
 			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
 			"apikey": "###APIKEY###"
 		}
-	]	
+	]
 }
 

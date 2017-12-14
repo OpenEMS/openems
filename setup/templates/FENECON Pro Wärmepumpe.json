@@ -26,6 +26,13 @@
 						"id": "meter0",
 						"type": "grid"
 					}
+				},
+				{
+					"class": "io.openems.impl.device.kmtronic.KMTronicRelayRev1",
+					"output": {
+						"id": "output0"
+					},
+					"modbusUnitId": 1
 				}
 			]
 		}
@@ -36,8 +43,13 @@
 			{
 				"priority": 150,
 				"class": "io.openems.impl.controller.debuglog.DebugLogController",
-				"esss": [ "ess0" ],
-				"meters": [ "meter0", "meter1" ],
+				"esss": [
+					"ess0"
+				],
+				"meters": [
+					"meter0",
+					"meter1"
+				],
 				"rtc": "ess0"
 			},
 			{
@@ -55,6 +67,24 @@
 				"priority": 1,
 				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
 				"rtc": "ess0"
+			},
+			{
+				"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+				"priority": 60,
+				"thresholdChannelAddress": "ess0/Soc",
+				"outputChannelAddress": "output0/2",
+				"lowerThreshold": 0,
+				"upperThreshold": 40,
+				"hysteresis": 5
+			},
+			{
+				"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+				"priority": 65,
+				"thresholdChannelAddress": "ess0/Soc",
+				"outputChannelAddress": "output0/3",
+				"lowerThreshold": 75,
+				"upperThreshold": 100,
+				"hysteresis": 5
 			}
 		]
 	},
@@ -68,6 +98,6 @@
 			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
 			"apikey": "###APIKEY###"
 		}
-	]	
+	]
 }
 

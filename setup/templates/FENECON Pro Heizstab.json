@@ -26,6 +26,13 @@
 						"id": "meter0",
 						"type": "grid"
 					}
+				},
+				{
+					"class": "io.openems.impl.device.kmtronic.KMTronicRelayRev1",
+					"output": {
+					"id": "output0"
+					},
+					"modbusUnitId": 1
 				}
 			]
 		}
@@ -55,6 +62,33 @@
 				"priority": 1,
 				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
 				"rtc": "ess0"
+			},
+			{
+				"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+				"priority": 60,
+				"thresholdChannelAddress": "ess0/Soc",
+				"outputChannelAddress": "output0/2",
+				"lowerThreshold": 92,
+				"upperThreshold": 100,
+				"hysteresis": 5
+			},
+			{
+				"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+				"priority": 59,
+				"thresholdChannelAddress": "ess0/Soc",
+				"outputChannelAddress": "output0/3",
+				"lowerThreshold": 94,
+				"upperThreshold": 100,
+				"hysteresis": 5
+			},
+			{
+				"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+				"priority": 58,
+				"thresholdChannelAddress": "ess0/Soc",
+				"outputChannelAddress": "output0/4",
+				"lowerThreshold": 96,
+				"upperThreshold": 100,
+				"hysteresis": 5
 			}
 		]
 	},

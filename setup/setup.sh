@@ -23,7 +23,44 @@ if [ ! -e $FINISHED_1 ]; then
 		echo "# Aborting"
 		exit 1
 	fi
-	
+
+#selection process	
+CHOICE=$(whiptail --menu "Wähle aus:" 18 40 9 \
+			"FENECON Mini" "" \
+			"FENECON DESS" "" \
+			"FENECON Pro" "" \
+			"FENECON Pro AC-Insel" "" \
+			"FENECON Pro Heizstab" "" \
+			"FENECON Pro Wärmepumpe" "" \
+			"FENECON Commercial AC" "" \
+			"FENECON Commercial DC" "" \
+			"FENECON Commercial Hybrid" "" 3>&1 1>&2 2>&3)
+
+	if [ $? = 0 ]; then
+
+			case $CHOICE in
+					"FENECON Mini")             	echo "Es wurde Mini gewählt";;
+					"FENECON DESS")                 echo "Es wurde Pro Hybrid gewählt";;
+					"FENECON Pro")             		echo "Es wurde Pro 9-12 gewählt";;
+					"FENECON Pro AC-Insel")         echo "Es wurde AC-Insel gewählt";;
+					"FENECON Pro Heizstab")			echo "Es wurde Heizstab gewählt";;
+					"FENECON Pro Waermepumpe")       echo "Es wurde Wärmepumpe gewählt";;
+					"FENECON Commercial AC")        echo "Es wurde Commercial AC gewählt";;
+					"FENECON Commercial DC")        echo "Es wurde Commercial DC gewählt";;
+					"FENECON Commercial Hybrid")    echo "Es wurde Comemrcial Hybrid gewählt";;
+
+			esac
+
+	else
+			echo "Nichts ausgewählt"
+			exit
+	fi
+	echo "#save variable to file"
+	touch /opt/choice && echo $CHOICE > /opt/choice
+
+	echo "# Copy templates to target"
+	cp -r /boot/uboot/fems-setup/templates /opt/fems-setup/
+
 	echo "# Copy filesystem to internal eMMC"
 	cd /opt/scripts/tools/eMMC
 	./bbb-eMMC-flasher-eewiki-ext4.sh || true
@@ -40,10 +77,7 @@ if [ ! -e $FINISHED_1 ]; then
 	
 	echo "# Remove fems from devices list"
 	/bin/sed --expression='2d' /boot/uboot/fems-setup/devices --in-place
-	
-	echo "# Write Apikey into /etc/fems"
-	/usr/bin/head -n 2 devices | tail -n 1 | cut -d ";" -f 3 > /mnt/etc/fems
-	
+
 	echo "# Mark first stage as finished"
 	touch /mnt$FINISHED_1
 	/bin/umount /mnt
@@ -54,16 +88,18 @@ if [ ! -e $FINISHED_1 ]; then
 	read -p "Press [Enter] key to shutdown"
 
 	echo "# Shutdown system"
-	/sbin/shutdown -h now
+	shutdown -h now
 
 elif [ ! -e $FINISHED_2 ]; then
 	echo "#"
 	echo "# Starting second stage of FEMS setup"
 	echo "#"
 
-	FEMS=$(head -n 2 $DEVICES | tail -n 1 | cut -d ";" -f 1)
-	PASSWORD=$(head -n 2 $DEVICES | tail -n 1 | cut -d ";" -f 2)
+	cd /opt/fems-setup
+	FEMS=$(head -n 2 devices | tail -n 1 | cut -d ";" -f 1)
+	PASSWORD=$(head -n 2 devices | tail -n 1 | cut -d ";" -f 2)
 	
+
 	echo "# Set password for user fems"
 	echo "fems:${PASSWORD}" | /usr/sbin/chpasswd	
 
@@ -90,7 +126,8 @@ else
 	echo "# Starting third stage of FEMS setup"
 	echo "#"
 	
-	PACKAGES=$(head -n 2 $DEVICES | tail -n 1 | cut -d ";" -f 4)
+	cd /opt/fems-setup
+	PACKAGES=$(head -n 2 devices | tail -n 1 | cut -d ";" -f 4)
 	
 	echo "# Add FENECON debian repository"
 	wget -O - http://fenecon.de/debian/fems.gpg.key | apt-key add -
@@ -100,8 +137,39 @@ else
 	echo "# Refresh apt cache"
 	/usr/bin/aptitude update
 	echo "# Install openjdk 8"
-	/usr/bin/apt install -t jessie-backports openjdk-8-jre-headless
+	/usr/bin/apt install -t jessie-backports openjdk-8-jre-headless -y
+
+	CHOICE=$(cat /opt/choice)
+
+	if [ "$CHOICE" == "FENECON DESS" ]; then
+
+		aptitude install fems-dess fems-fenecononlinemonitoring --assume-yes
+
+	else
+		aptitude install openems openems-fems openems-ui influxdb grafana 
+		
+		# copy config and set name + apikey
+		CHOICE=$(cat /opt/choice)	
+		mkdir -p /opt/config.d
+
+		echo "# Write Apikey into /etc/fems"
+		APIKEY=$(head -n 2 /opt/fems-setup/devices | tail -n 1 | cut -d ";" -f 3)
+		echo "apikey=${APIKEY}" > /etc/fems
+
+		cp "/opt/fems-setup/templates/$CHOICE.json" "/opt/config.d/$CHOICE.json"
+		NAME=$(head -n 2 /opt/fems-setup/devices | tail -n 1 | cut -d ";" -f 1)
+
+		sed "s/\"###FEMS_ID###\"/${NAME:4}/" --in-place "/opt/config.d/$CHOICE.json" 
+		
+		APIKEY=$(head -n 2 /opt/fems-setup/devices | tail -n 1 | cut -d ";" -f 3) 	
+		sed "s/###APIKEY###/$APIKEY/" --in-place "/opt/config.d/$CHOICE.json"
 	
+		CHOICE=$(cat /opt/choice)	
+		mv "/opt/config.d/$CHOICE.json" "/etc/openems.d/config.json"
+		unlink /opt/choice
+
+	fi
+
 	# this is not working...
 	#echo "# preset apikey for dpkg-configure"
 	#. /usr/share/debconf/confmodule
@@ -111,22 +179,23 @@ else
 
 	if [ "${PACKAGES}" != "" ]; then
 		echo "# Install packages: ${PACKAGES}"
-		/usr/bin/aptitude install --assume-yes $PACKAGES
+		/usr/bin/aptitude install --assume-yes $PACKAGES -y
+		
 	else
 		echo "# Install NO packages!"
 	fi
 	
-	echo "# Finialize setup with fems-autoupdate fems"
-	/usr/bin/fems-autoupdate fems
-	
-	echo "# Blink all LEDs"
-	echo timer | tee /sys/class/leds/beaglebone:green:usr?/trigger >/dev/null
+	#echo "# Finialize setup with fems-autoupdate fems"
+	#/usr/bin/fems-autoupdate fems
 	
 	echo "#"
 	echo "# Finished setup"
 	echo "#"
 	
-	read -p "Press [Enter] key to reboot"
+	
+	fems-autoupdate fems -y || true
+	echo "# Blink all LEDs"
+	echo timer | tee /sys/class/leds/beaglebone:green:usr?/trigger >/dev/null
 	echo "# Rebooting system"
 	reboot
 fi

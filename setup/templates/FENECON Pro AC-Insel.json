@@ -26,6 +26,13 @@
 						"id": "meter0",
 						"type": "grid"
 					}
+				},
+				{
+					"class": "io.openems.impl.device.kmtronic.KMTronicRelay",
+					"output": {
+						"id": "output0"
+					},
+					"modbusUnitId": 1
 				}
 			]
 		}
@@ -55,7 +62,23 @@
 				"priority": 1,
 				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
 				"rtc": "ess0"
+			},
+			{
+				"priority": 0,
+				"class": "io.openems.impl.controller.feneconprosetup.FeneconProSetupController",
+				"esss": "ess0"
+			},
+			{
+				"class": "io.openems.impl.controller.acisland.AcIsland",
+				"minSoc": 90,
+				"onGridOutputChannelAddress": "output0/2",
+				"offGridOutputChannelAddress": "output0/3",
+				"maxSoc": 95,
+				"switchDelay": 10000,
+				"ess": "ess0",
+				"priority": 0
 			}
+
 		]
 	},
 	"persistence": [
