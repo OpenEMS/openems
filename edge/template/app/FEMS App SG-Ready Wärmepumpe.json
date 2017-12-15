@@ -3,8 +3,8 @@
 	"priority": 60,
 	"thresholdChannelAddress": "ess0/Soc",
 	"outputChannelAddress": "output0/0",
-	"lowerThreshold": 40,
-	"upperThreshold": 45,
+	"lowerThreshold": 0,
+	"upperThreshold": 40,
 	"hysteresis": 5
 },
 {
@@ -12,8 +12,8 @@
 	"priority": 65,
 	"thresholdChannelAddress": "ess0/Soc",
 	"outputChannelAddress": "output0/1",
-	"lowerThreshold": 75,
-	"upperThreshold": 80,
+	"lowerThreshold": 80,
+	"upperThreshold": 100,
 	"invertOutput": true,
 	"hysteresis": 5
 }
