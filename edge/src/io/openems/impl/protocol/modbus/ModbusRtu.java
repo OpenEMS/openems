@@ -51,23 +51,23 @@ public class ModbusRtu extends ModbusBridge {
 	 */
 	@ChannelInfo(title = "Baudrate", description = "Sets the baudrate (e.g. 9600).", type = Integer.class)
 	public final ConfigChannel<Integer> baudrate = new ConfigChannel<Integer>("baudrate", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	@ChannelInfo(title = "Databits", description = "Sets the databits (e.g. 8).", type = Integer.class)
 	public final ConfigChannel<Integer> databits = new ConfigChannel<Integer>("databits", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	@ChannelInfo(title = "Parity", description = "Sets the parity (e.g. 'even').", type = String.class)
 	public final ConfigChannel<String> parity = new ConfigChannel<String>("parity", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	@ChannelInfo(title = "Serial interface", description = "Sets the serial interface (e.g. /dev/ttyUSB0).", type = String.class)
 	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	@ChannelInfo(title = "Stopbits", description = "Sets the stopbits (e.g. 1).", type = Integer.class)
 	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	/*
 	 * Fields
@@ -130,7 +130,7 @@ public class ModbusRtu extends ModbusBridge {
 			if (!baudrate.valueOptional().isPresent() || !databits.valueOptional().isPresent()
 					|| !parity.valueOptional().isPresent() || !serialinterface.valueOptional().isPresent()
 					|| !stopbits.valueOptional().isPresent()) {
-				throw new OpenemsModbusException("Modbus-RTU is not configured completely");
+				throw new OpenemsModbusException(this.id() + ": Modbus-RTU is not configured completely");
 			}
 			SerialParameters params = new SerialParameters();
 			params.setPortName(serialinterface.valueOptional().get());
@@ -148,7 +148,8 @@ public class ModbusRtu extends ModbusBridge {
 				serialCon.open();
 				serialCon.getModbusTransport().setTimeout(1000);
 			} catch (Exception e) {
-				throw new OpenemsModbusException("Unable to open Modbus-RTU connection: " + connection);
+				throw new OpenemsModbusException(this.id() + ": Unable to open Modbus-RTU connection to ["
+						+ serialinterface.valueOptional().orElse("UNDEFINED") + "]: " + e.getMessage());
 			}
 		}
 		return connection.get();
