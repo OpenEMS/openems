@@ -31,9 +31,11 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
+import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsModbusException;
 
 @ThingInfo(title = "Modbus/RTU")
@@ -51,28 +53,38 @@ public class ModbusRtu extends ModbusBridge {
 	 */
 	@ChannelInfo(title = "Baudrate", description = "Sets the baudrate (e.g. 9600).", type = Integer.class)
 	public final ConfigChannel<Integer> baudrate = new ConfigChannel<Integer>("baudrate", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	@ChannelInfo(title = "Databits", description = "Sets the databits (e.g. 8).", type = Integer.class)
 	public final ConfigChannel<Integer> databits = new ConfigChannel<Integer>("databits", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	@ChannelInfo(title = "Parity", description = "Sets the parity (e.g. 'even').", type = String.class)
 	public final ConfigChannel<String> parity = new ConfigChannel<String>("parity", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	@ChannelInfo(title = "Serial interface", description = "Sets the serial interface (e.g. /dev/ttyUSB0).", type = String.class)
 	public final ConfigChannel<String> serialinterface = new ConfigChannel<String>("serialinterface", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	@ChannelInfo(title = "Stopbits", description = "Sets the stopbits (e.g. 1).", type = Integer.class)
 	public final ConfigChannel<Integer> stopbits = new ConfigChannel<Integer>("stopbits", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	/*
 	 * Fields
 	 */
 	private Optional<SerialConnection> connection = Optional.empty();
+	private StaticValueChannel<Boolean> configurationFault;
+	private StaticValueChannel<Boolean> connectionFault;
+
+	public ModbusRtu() throws ConfigException {
+		super();
+		this.configurationFault = new StaticValueChannel<Boolean>("Fault\0", this, false);
+		super.thingState.addFaultChannel(this.configurationFault);
+		this.connectionFault = new StaticValueChannel<Boolean>("Fault\1", this, false);
+		super.thingState.addFaultChannel(this.connectionFault);
+	}
 
 	/*
 	 * Methods
@@ -130,6 +142,7 @@ public class ModbusRtu extends ModbusBridge {
 			if (!baudrate.valueOptional().isPresent() || !databits.valueOptional().isPresent()
 					|| !parity.valueOptional().isPresent() || !serialinterface.valueOptional().isPresent()
 					|| !stopbits.valueOptional().isPresent()) {
+				this.configurationFault.setValue(true);
 				throw new OpenemsModbusException("Modbus-RTU is not configured completely");
 			}
 			SerialParameters params = new SerialParameters();
@@ -141,13 +154,16 @@ public class ModbusRtu extends ModbusBridge {
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
 			connection = Optional.of(new SerialConnection(params));
+			this.configurationFault.setValue(false);
 		}
 		if (!connection.get().isOpen()) {
 			try {
 				SerialConnection serialCon = connection.get();
 				serialCon.open();
 				serialCon.getModbusTransport().setTimeout(1000);
+				this.connectionFault.setValue(false);
 			} catch (Exception e) {
+				this.connectionFault.setValue(true);
 				throw new OpenemsModbusException("Unable to open Modbus-RTU connection: " + connection);
 			}
 		}
