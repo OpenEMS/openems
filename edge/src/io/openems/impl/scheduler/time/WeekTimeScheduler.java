@@ -37,6 +37,7 @@ import info.faljse.SDNotify.SDNotify;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -50,11 +51,14 @@ import io.openems.core.utilities.JsonUtils;
 @ThingInfo(title = "Weekly App-Planner", description = "Define recurring weekly plans.")
 public class WeekTimeScheduler extends Scheduler {
 
+	private ThingStateChannel thingState;
+
 	/*
 	 * Constructors
 	 */
 	public WeekTimeScheduler() {
 		thingRepository = ThingRepository.getInstance();
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -218,5 +222,10 @@ public class WeekTimeScheduler extends Scheduler {
 	public synchronized void removeController(Controller controller) {
 		// remove controller from all times
 		super.removeController(controller);
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }
