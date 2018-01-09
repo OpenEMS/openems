@@ -5,6 +5,7 @@ import java.util.Set;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -15,7 +16,7 @@ import io.openems.impl.protocol.system.SystemDevice;
 public class AsymmetricSymmetricCombinationEss extends SystemDevice {
 
 	@ChannelInfo(title = "AsymmetricSymmetricCombinationEss", description = "Sets the wrapper nature to use asymmetric and symmetric controller together.", type = AsymmetricSymmetricCombinationEssNature.class)
-	public final ConfigChannel<AsymmetricSymmetricCombinationEssNature> wrapper = new ConfigChannel<>("wrapper", this);
+	public final ConfigChannel<AsymmetricSymmetricCombinationEssNature> wrapper = new ConfigChannel<AsymmetricSymmetricCombinationEssNature>("wrapper", this).addChangeListener(this);
 
 	public AsymmetricSymmetricCombinationEss(Bridge parent) throws OpenemsException {
 		super(parent);
@@ -29,6 +30,12 @@ public class AsymmetricSymmetricCombinationEss extends SystemDevice {
 			natures.add(wrapper.valueOptional().get());
 		}
 		return natures;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
