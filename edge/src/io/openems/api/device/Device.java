@@ -22,6 +22,7 @@ package io.openems.api.device;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -30,21 +31,27 @@ import org.slf4j.LoggerFactory;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelChangeListener;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
 
-public abstract class Device implements Thing {
+public abstract class Device implements Thing, ChannelChangeListener {
 	public final static String THINGID_PREFIX = "_device";
 	private static int instanceCounter = 0;
 	protected final Logger log;
 	private Bridge bridge = null;
 	private final String thingId;
+	private ThingStateChannel thingState;
 
 	public Device(Bridge parent) throws OpenemsException {
 		this.thingId = THINGID_PREFIX + instanceCounter++;
 		log = LoggerFactory.getLogger(this.getClass());
 		this.bridge = parent;
+		this.thingState = new ThingStateChannel(this);
+		this.thingState.addChildChannel(this.bridge.getStateChannel());
 	}
 
 	public Bridge getBridge() {
@@ -97,5 +104,24 @@ public abstract class Device implements Thing {
 			}
 		}
 		return writeTasks;
+	}
+
+	@Override
+	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+		if (oldValue.isPresent()) {
+			if (oldValue.get() instanceof DeviceNature) {
+				this.thingState.removeChildChannel(((DeviceNature) oldValue.get()).getStateChannel());
+			}
+		}
+		if (newValue.isPresent()) {
+			if (newValue.get() instanceof DeviceNature) {
+				this.thingState.addChildChannel(((DeviceNature) newValue.get()).getStateChannel());
+			}
+		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

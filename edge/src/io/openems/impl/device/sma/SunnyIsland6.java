@@ -22,7 +22,7 @@ public class SunnyIsland6 extends ModbusDevice{
 	 * Config
 	 */
 	@ChannelInfo(title = "Ess", description = "Sets the Ess nature.", type = SunnyIsland6Ess.class)
-	public final ConfigChannel<SunnyIsland6Ess> ess = new ConfigChannel<>("ess", this);
+	public final ConfigChannel<SunnyIsland6Ess> ess = new ConfigChannel<SunnyIsland6Ess>("ess", this).addChangeListener(this);
 
 	/*
 	 * Methods

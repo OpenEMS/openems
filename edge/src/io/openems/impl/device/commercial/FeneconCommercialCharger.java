@@ -27,6 +27,7 @@ import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.doc.ThingInfo;
@@ -54,6 +55,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 	 */
 	public FeneconCommercialCharger(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -69,6 +71,8 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 	public ReadChannel<Long> inputVoltage;
 
 	private final ConfigChannel<Long> maxActualPower = new ConfigChannel<Long>("maxActualPower", this);
+
+	private ThingStateChannel thingState;
 
 	@Override
 	public ConfigChannel<Long> maxActualPower() {
@@ -219,80 +223,80 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 		ModbusProtocol protocol = new ModbusProtocol(//
 				new WriteableModbusRegisterRange(0x0503, new UnsignedWordElement(0x0503,
 						pvPowerLimitCommand = new ModbusWriteLongChannel("PvPowerLimitCommand", this).multiplier(2)
-								.unit("W"))),
+						.unit("W"))),
 				new ModbusRegisterRange(0xA000, //
 						new UnsignedWordElement(0xA000,
 								bmsDCDCWorkState = new ModbusReadLongChannel("BmsDCDCWorkState", this)//
-										.label(2, "Initial")//
-										.label(4, "Stop")//
-										.label(8, "Ready")//
-										.label(16, "Running")//
-										.label(32, "Fault")//
-										.label(64, "Debug")//
-										.label(128, "Locked")),
+								.label(2, "Initial")//
+								.label(4, "Stop")//
+								.label(8, "Ready")//
+								.label(16, "Running")//
+								.label(32, "Fault")//
+								.label(64, "Debug")//
+								.label(128, "Locked")),
 						new UnsignedWordElement(0xA001,
 								bmsDCDCWorkMode = new ModbusReadLongChannel("BmsDCDCWorkMode", this)//
-										.label(128, "Constant Current")//
-										.label(256, "Constant Voltage")//
-										.label(512, "Boost MPPT"))),
+								.label(128, "Constant Current")//
+								.label(256, "Constant Voltage")//
+								.label(512, "Boost MPPT"))),
 				new ModbusRegisterRange(0xA100, //
 						new UnsignedWordElement(0xA100,
 								bmsDCDCSuggestiveInformation1 = warning
-										.channel(new StatusBitChannel("BmsDCDCSuggestiveInformation1", this)//
-												.label(1, "Current sampling channel abnormity on high voltage side")//
-												.label(2, "Current sampling channel abnormity on low voltage side")//
-												.label(64, "EEPROM parameters over range")//
-												.label(128, "Update EEPROM failed")//
-												.label(256, "Read EEPROM failed")//
-												.label(512, "Current sampling channel abnormity before inductance"))),
+								.channel(new StatusBitChannel("BmsDCDCSuggestiveInformation1", this)//
+										.label(1, "Current sampling channel abnormity on high voltage side")//
+										.label(2, "Current sampling channel abnormity on low voltage side")//
+										.label(64, "EEPROM parameters over range")//
+										.label(128, "Update EEPROM failed")//
+										.label(256, "Read EEPROM failed")//
+										.label(512, "Current sampling channel abnormity before inductance"))),
 						new UnsignedWordElement(0xA101, bmsDCDCSuggestiveInformation2 = warning
-								.channel(new StatusBitChannel("BmsDCDCSuggestiveInformation2", this)//
-										.label(1, "Reactor  power decrease caused by overtemperature")//
-										.label(2, "IGBT  power decrease caused by overtemperature")//
-										.label(4, "Temperature chanel3  power decrease caused by overtemperature")//
-										.label(8, "Temperature chanel4  power decrease caused by overtemperature")//
-										.label(16, "Temperature chanel5  power decrease caused by overtemperature")//
-										.label(32, "Temperature chanel6  power decrease caused by overtemperature")//
-										.label(64, "Temperature chanel7  power decrease caused by overtemperature")//
-										.label(128, "Temperature chanel8 power decrease caused by overtemperature")//
-										.label(256, "Fan 1 stop failed")//
-										.label(512, "Fan 2 stop failed")//
-										.label(1024, "Fan 3 stop failed")//
-										.label(2048, "Fan 4 stop failed")//
-										.label(4096, "Fan 1 sartup failed")//
-										.label(8192, "Fan 2 sartup failed")//
-										.label(16384, "Fan 3 sartup failed")//
-										.label(32768, "Fan 4 sartup failed"))),
+						.channel(new StatusBitChannel("BmsDCDCSuggestiveInformation2", this)//
+								.label(1, "Reactor  power decrease caused by overtemperature")//
+								.label(2, "IGBT  power decrease caused by overtemperature")//
+								.label(4, "Temperature chanel3  power decrease caused by overtemperature")//
+								.label(8, "Temperature chanel4  power decrease caused by overtemperature")//
+								.label(16, "Temperature chanel5  power decrease caused by overtemperature")//
+								.label(32, "Temperature chanel6  power decrease caused by overtemperature")//
+								.label(64, "Temperature chanel7  power decrease caused by overtemperature")//
+								.label(128, "Temperature chanel8 power decrease caused by overtemperature")//
+								.label(256, "Fan 1 stop failed")//
+								.label(512, "Fan 2 stop failed")//
+								.label(1024, "Fan 3 stop failed")//
+								.label(2048, "Fan 4 stop failed")//
+								.label(4096, "Fan 1 sartup failed")//
+								.label(8192, "Fan 2 sartup failed")//
+								.label(16384, "Fan 3 sartup failed")//
+								.label(32768, "Fan 4 sartup failed"))),
 						new UnsignedWordElement(0xA102,
 								bmsDCDCSuggestiveInformation3 = warning
-										.channel(new StatusBitChannel("BmsDCDCSuggestiveInformation3", this)//
-												.label(1, "High voltage side overvoltage")//
-												.label(2, "High voltage side undervoltage")//
-												.label(4, "EEPROM parameters over range")//
-												.label(8, "High voltage side voltage change unconventionally"))),
+								.channel(new StatusBitChannel("BmsDCDCSuggestiveInformation3", this)//
+										.label(1, "High voltage side overvoltage")//
+										.label(2, "High voltage side undervoltage")//
+										.label(4, "EEPROM parameters over range")//
+										.label(8, "High voltage side voltage change unconventionally"))),
 						new UnsignedWordElement(0xA103, bmsDCDCSuggestiveInformation4 = warning
-								.channel(new StatusBitChannel("BmsDCDCSuggestiveInformation4", this)//
-										.label(1, "Current abnormity before DC Converter work on high voltage side")//
-										.label(2, "Current abnormity before DC Converter work on low voltage side")//
-										.label(4, "Initial Duty Ratio abnormity before DC Converter work")//
-										.label(8, "Voltage abnormity before DC Converter work on high voltage side")//
-										.label(16, "Voltage abnormity before  DC Converter work on low voltage side"))),
+						.channel(new StatusBitChannel("BmsDCDCSuggestiveInformation4", this)//
+								.label(1, "Current abnormity before DC Converter work on high voltage side")//
+								.label(2, "Current abnormity before DC Converter work on low voltage side")//
+								.label(4, "Initial Duty Ratio abnormity before DC Converter work")//
+								.label(8, "Voltage abnormity before DC Converter work on high voltage side")//
+								.label(16, "Voltage abnormity before  DC Converter work on low voltage side"))),
 						new UnsignedWordElement(0xA104,
 								bmsDCDCSuggestiveInformation5 = warning
-										.channel(new StatusBitChannel("BmsDCDCSuggestiveInformation5", this)//
-												.label(1, "High voltage breaker inspection abnormity")//
-												.label(2, "Low voltage breaker inspection abnormity")//
-												.label(4, "DC precharge contactor inspection abnormity")//
-												.label(8, "DC precharge contactor open unsuccessfully")//
-												.label(16, "DC main contactor inspection abnormity")//
-												.label(32, "DC main contactor open unsuccessfully")//
-												.label(64, "Output contactor close unsuccessfully")//
-												.label(128, "Output contactor open unsuccessfully")//
-												.label(256, "AC main contactor close unsuccessfully")//
-												.label(512, "AC main contactor open unsuccessfully")//
-												.label(1024, "NegContactor open unsuccessfully")//
-												.label(2048, "NegContactor close unsuccessfully")//
-												.label(4096, "NegContactor state abnormal"))),
+								.channel(new StatusBitChannel("BmsDCDCSuggestiveInformation5", this)//
+										.label(1, "High voltage breaker inspection abnormity")//
+										.label(2, "Low voltage breaker inspection abnormity")//
+										.label(4, "DC precharge contactor inspection abnormity")//
+										.label(8, "DC precharge contactor open unsuccessfully")//
+										.label(16, "DC main contactor inspection abnormity")//
+										.label(32, "DC main contactor open unsuccessfully")//
+										.label(64, "Output contactor close unsuccessfully")//
+										.label(128, "Output contactor open unsuccessfully")//
+										.label(256, "AC main contactor close unsuccessfully")//
+										.label(512, "AC main contactor open unsuccessfully")//
+										.label(1024, "NegContactor open unsuccessfully")//
+										.label(2048, "NegContactor close unsuccessfully")//
+										.label(4096, "NegContactor state abnormal"))),
 						new DummyElement(0xA105, 0xA10F),
 						new UnsignedWordElement(0xA110,
 								bmsDCDCAbnormity1 = warning.channel(new StatusBitChannel("BmsDCDCAbnormity1", this)//
@@ -402,136 +406,136 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 						new DummyElement(0xA117, 0xA11F),
 						new UnsignedWordElement(0xA120,
 								bmsDCDCSwitchState = new StatusBitChannel("BmsDCDCSwitchState", this)//
-										.label(1, "DC precharge contactor")//
-										.label(2, "DC main contactor")//
-										.label(4, "Output contactor")//
-										.label(8, "Output breaker")//
-										.label(16, "Input breaker")//
-										.label(32, "AC contactor")//
-										.label(64, "Emergency stop button")//
-										.label(128, "NegContactor"))),
+								.label(1, "DC precharge contactor")//
+								.label(2, "DC main contactor")//
+								.label(4, "Output contactor")//
+								.label(8, "Output breaker")//
+								.label(16, "Input breaker")//
+								.label(32, "AC contactor")//
+								.label(64, "Emergency stop button")//
+								.label(128, "NegContactor"))),
 				new ModbusRegisterRange(0xA130, //
 						new SignedWordElement(0xA130,
 								bmsDCDCOutputVoltage = new ModbusReadLongChannel("BmsDCDCOutputVoltage", this)
-										.unit("mV").multiplier(2)),
+								.unit("mV").multiplier(2)),
 						new SignedWordElement(0xA131,
 								bmsDCDCOutputCurrent = new ModbusReadLongChannel("BmsDCDCOutputCurrent", this)
-										.unit("mA").multiplier(2)),
+								.unit("mA").multiplier(2)),
 						new SignedWordElement(0xA132,
 								bmsDCDCOutputPower = new ModbusReadLongChannel("BmsDCDCOutputPower", this).unit("W")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA133,
 								bmsDCDCInputVoltage = new ModbusReadLongChannel("BmsDCDCInputVoltage", this).unit("mV")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA134,
 								bmsDCDCInputCurrent = new ModbusReadLongChannel("BmsDCDCInputCurrent", this).unit("mA")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA135,
 								bmsDCDCInputPower = new ModbusReadLongChannel("BmsDCDCInputPower", this).unit("W")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA136,
 								bmsDCDCInputEnergy = new ModbusReadLongChannel("BmsDCDCInputEnergy", this).unit("Wh")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA137,
 								bmsDCDCOutputEnergy = new ModbusReadLongChannel("BmsDCDCOutputEnergy", this).unit("Wh")
-										.multiplier(2)),
+								.multiplier(2)),
 						new DummyElement(0xA138, 0xA13F),
 						new SignedWordElement(0xA140,
 								bmsDCDCReactorTemperature = new ModbusReadLongChannel("BmsDCDCReactorTemperature", this)
-										.unit("°C")),
+								.unit("°C")),
 						new SignedWordElement(0xA141,
 								bmsDCDCIgbtTemperature = new ModbusReadLongChannel("BmsDCDCIgbtTemperature", this)
-										.unit("°C")),
+								.unit("°C")),
 						new DummyElement(0xA142, 0xA14F),
 						new UnsignedDoublewordElement(0xA150,
 								bmsDCDCInputTotalChargeEnergy = new ModbusReadLongChannel(
 										"BmsDCDCInputTotalChargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW),
+						.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA152,
 								bmsDCDCInputTotalDischargeEnergy = new ModbusReadLongChannel(
 										"BmsDCDCInputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW),
+						.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA154,
 								bmsDCDCOutputTotalChargeEnergy = new ModbusReadLongChannel(
 										"BmsDCDCOutputTotalChargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW),
+						.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA156,
 								bmsDCDCOutputTotalDischargeEnergy = new ModbusReadLongChannel(
 										"BmsDCDCOutputTotalDischargeEnergy", this).unit("Wh")
-												.multiplier(2)).wordOrder(WordOrder.LSWMSW)),
+								.multiplier(2)).wordOrder(WordOrder.LSWMSW)),
 				new ModbusRegisterRange(0xA300, //
 						new UnsignedWordElement(0xA300,
 								bmsDCDC1WorkState = new ModbusReadLongChannel("BmsDCDC1WorkState", this)//
-										.label(2, "Initial")//
-										.label(4, "Stop")//
-										.label(8, "Ready")//
-										.label(16, "Running")//
-										.label(32, "Fault")//
-										.label(64, "Debug")//
-										.label(128, "Locked")),
+								.label(2, "Initial")//
+								.label(4, "Stop")//
+								.label(8, "Ready")//
+								.label(16, "Running")//
+								.label(32, "Fault")//
+								.label(64, "Debug")//
+								.label(128, "Locked")),
 						new UnsignedWordElement(0xA301,
 								bmsDCDC1WorkMode = new ModbusReadLongChannel("BmsDCDC1WorkMode", this)//
-										.label(128, "Constant Current")//
-										.label(256, "Constant Voltage")//
-										.label(512, "Boost MPPT"))),
+								.label(128, "Constant Current")//
+								.label(256, "Constant Voltage")//
+								.label(512, "Boost MPPT"))),
 				new ModbusRegisterRange(0xA400, //
 						new UnsignedWordElement(0xA400,
 								bmsDCDC1SuggestiveInformation1 = warning
-										.channel(new StatusBitChannel("BmsDCDC1SuggestiveInformation1", this)//
-												.label(1, "Current sampling channel abnormity on high voltage side")//
-												.label(2, "Current sampling channel abnormity on low voltage side")//
-												.label(64, "EEPROM parameters over range")//
-												.label(128, "Update EEPROM failed")//
-												.label(256, "Read EEPROM failed")//
-												.label(512, "Current sampling channel abnormity before inductance"))),
+								.channel(new StatusBitChannel("BmsDCDC1SuggestiveInformation1", this)//
+										.label(1, "Current sampling channel abnormity on high voltage side")//
+										.label(2, "Current sampling channel abnormity on low voltage side")//
+										.label(64, "EEPROM parameters over range")//
+										.label(128, "Update EEPROM failed")//
+										.label(256, "Read EEPROM failed")//
+										.label(512, "Current sampling channel abnormity before inductance"))),
 						new UnsignedWordElement(0xA401, bmsDCDC1SuggestiveInformation2 = warning
-								.channel(new StatusBitChannel("BmsDCDC1SuggestiveInformation2", this)//
-										.label(1, "Reactor  power decrease caused by overtemperature")//
-										.label(2, "IGBT  power decrease caused by overtemperature")//
-										.label(4, "Temperature chanel3  power decrease caused by overtemperature")//
-										.label(8, "Temperature chanel4  power decrease caused by overtemperature")//
-										.label(16, "Temperature chanel5  power decrease caused by overtemperature")//
-										.label(32, "Temperature chanel6  power decrease caused by overtemperature")//
-										.label(64, "Temperature chanel7  power decrease caused by overtemperature")//
-										.label(128, "Temperature chanel8 power decrease caused by overtemperature")//
-										.label(256, "Fan 1 stop failed")//
-										.label(512, "Fan 2 stop failed")//
-										.label(1024, "Fan 3 stop failed")//
-										.label(2048, "Fan 4 stop failed")//
-										.label(4096, "Fan 1 sartup failed")//
-										.label(8192, "Fan 2 sartup failed")//
-										.label(16384, "Fan 3 sartup failed")//
-										.label(32768, "Fan 4 sartup failed"))),
+						.channel(new StatusBitChannel("BmsDCDC1SuggestiveInformation2", this)//
+								.label(1, "Reactor  power decrease caused by overtemperature")//
+								.label(2, "IGBT  power decrease caused by overtemperature")//
+								.label(4, "Temperature chanel3  power decrease caused by overtemperature")//
+								.label(8, "Temperature chanel4  power decrease caused by overtemperature")//
+								.label(16, "Temperature chanel5  power decrease caused by overtemperature")//
+								.label(32, "Temperature chanel6  power decrease caused by overtemperature")//
+								.label(64, "Temperature chanel7  power decrease caused by overtemperature")//
+								.label(128, "Temperature chanel8 power decrease caused by overtemperature")//
+								.label(256, "Fan 1 stop failed")//
+								.label(512, "Fan 2 stop failed")//
+								.label(1024, "Fan 3 stop failed")//
+								.label(2048, "Fan 4 stop failed")//
+								.label(4096, "Fan 1 sartup failed")//
+								.label(8192, "Fan 2 sartup failed")//
+								.label(16384, "Fan 3 sartup failed")//
+								.label(32768, "Fan 4 sartup failed"))),
 						new UnsignedWordElement(0xA402,
 								bmsDCDC1SuggestiveInformation3 = warning
-										.channel(new StatusBitChannel("BmsDCDC1SuggestiveInformation3", this)//
-												.label(1, "High voltage side overvoltage")//
-												.label(2, "High voltage side undervoltage")//
-												.label(4, "EEPROM parameters over range")//
-												.label(8, "High voltage side voltage change unconventionally"))),
+								.channel(new StatusBitChannel("BmsDCDC1SuggestiveInformation3", this)//
+										.label(1, "High voltage side overvoltage")//
+										.label(2, "High voltage side undervoltage")//
+										.label(4, "EEPROM parameters over range")//
+										.label(8, "High voltage side voltage change unconventionally"))),
 						new UnsignedWordElement(0xA403, bmsDCDC1SuggestiveInformation4 = warning
-								.channel(new StatusBitChannel("BmsDCDC1SuggestiveInformation4", this)//
-										.label(1, "Current abnormity before DC Converter work on high voltage side")//
-										.label(2, "Current abnormity before DC Converter work on low voltage side")//
-										.label(4, "Initial Duty Ratio abnormity before DC Converter work")//
-										.label(8, "Voltage abnormity before DC Converter work on high voltage side")//
-										.label(16, "Voltage abnormity before  DC Converter work on low voltage side"))),
+						.channel(new StatusBitChannel("BmsDCDC1SuggestiveInformation4", this)//
+								.label(1, "Current abnormity before DC Converter work on high voltage side")//
+								.label(2, "Current abnormity before DC Converter work on low voltage side")//
+								.label(4, "Initial Duty Ratio abnormity before DC Converter work")//
+								.label(8, "Voltage abnormity before DC Converter work on high voltage side")//
+								.label(16, "Voltage abnormity before  DC Converter work on low voltage side"))),
 						new UnsignedWordElement(0xA404,
 								bmsDCDC1SuggestiveInformation5 = warning
-										.channel(new StatusBitChannel("BmsDCDC1SuggestiveInformation5", this)//
-												.label(1, "High voltage breaker inspection abnormity")//
-												.label(2, "Low voltage breaker inspection abnormity")//
-												.label(4, "DC precharge contactor inspection abnormity")//
-												.label(8, "DC precharge contactor open unsuccessfully")//
-												.label(16, "DC main contactor inspection abnormity")//
-												.label(32, "DC main contactor open unsuccessfully")//
-												.label(64, "Output contactor close unsuccessfully")//
-												.label(128, "Output contactor open unsuccessfully")//
-												.label(256, "AC main contactor close unsuccessfully")//
-												.label(512, "AC main contactor open unsuccessfully")//
-												.label(1024, "NegContactor open unsuccessfully")//
-												.label(2048, "NegContactor close unsuccessfully")//
-												.label(4096, "NegContactor state abnormal"))),
+								.channel(new StatusBitChannel("BmsDCDC1SuggestiveInformation5", this)//
+										.label(1, "High voltage breaker inspection abnormity")//
+										.label(2, "Low voltage breaker inspection abnormity")//
+										.label(4, "DC precharge contactor inspection abnormity")//
+										.label(8, "DC precharge contactor open unsuccessfully")//
+										.label(16, "DC main contactor inspection abnormity")//
+										.label(32, "DC main contactor open unsuccessfully")//
+										.label(64, "Output contactor close unsuccessfully")//
+										.label(128, "Output contactor open unsuccessfully")//
+										.label(256, "AC main contactor close unsuccessfully")//
+										.label(512, "AC main contactor open unsuccessfully")//
+										.label(1024, "NegContactor open unsuccessfully")//
+										.label(2048, "NegContactor close unsuccessfully")//
+										.label(4096, "NegContactor state abnormal"))),
 						new DummyElement(0xA405, 0xA40F),
 						new UnsignedWordElement(0xA410,
 								bmsDCDC1Abnormity1 = warning.channel(new StatusBitChannel("BmsDCDC1Abnormity1", this)//
@@ -641,136 +645,136 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 						new DummyElement(0xA417, 0xA41F),
 						new UnsignedWordElement(0xA420,
 								bmsDCDC1SwitchState = new StatusBitChannel("BmsDCDC1SwitchState", this)//
-										.label(1, "DC precharge contactor")//
-										.label(2, "DC main contactor")//
-										.label(4, "Output contactor")//
-										.label(8, "Output breaker")//
-										.label(16, "Input breaker")//
-										.label(32, "AC contactor")//
-										.label(64, "Emergency stop button")//
-										.label(128, "NegContactor"))),
+								.label(1, "DC precharge contactor")//
+								.label(2, "DC main contactor")//
+								.label(4, "Output contactor")//
+								.label(8, "Output breaker")//
+								.label(16, "Input breaker")//
+								.label(32, "AC contactor")//
+								.label(64, "Emergency stop button")//
+								.label(128, "NegContactor"))),
 				new ModbusRegisterRange(0xA430, //
 						new SignedWordElement(0xA430,
 								bmsDCDC1OutputVoltage = new ModbusReadLongChannel("BmsDCDC1OutputVoltage", this)
-										.unit("mV").multiplier(2)),
+								.unit("mV").multiplier(2)),
 						new SignedWordElement(0xA431,
 								bmsDCDC1OutputCurrent = new ModbusReadLongChannel("BmsDCDC1OutputCurrent", this)
-										.unit("mA").multiplier(2)),
+								.unit("mA").multiplier(2)),
 						new SignedWordElement(0xA432,
 								bmsDCDC1OutputPower = new ModbusReadLongChannel("BmsDCDC1OutputPower", this).unit("W")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA433,
 								bmsDCDC1InputVoltage = new ModbusReadLongChannel("BmsDCDC1InputVoltage", this)
-										.unit("mV").multiplier(2)),
+								.unit("mV").multiplier(2)),
 						new SignedWordElement(0xA434,
 								bmsDCDC1InputCurrent = new ModbusReadLongChannel("BmsDCDC1InputCurrent", this)
-										.unit("mA").multiplier(2)),
+								.unit("mA").multiplier(2)),
 						new SignedWordElement(0xA435,
 								bmsDCDC1InputPower = new ModbusReadLongChannel("BmsDCDC1InputPower", this).unit("W")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA436,
 								bmsDCDC1InputEnergy = new ModbusReadLongChannel("BmsDCDC1InputEnergy", this).unit("Wh")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA437,
 								bmsDCDC1OutputEnergy = new ModbusReadLongChannel("BmsDCDC1OutputEnergy", this)
-										.unit("Wh").multiplier(2)),
+								.unit("Wh").multiplier(2)),
 						new DummyElement(0xA438, 0xA43F),
 						new SignedWordElement(0xA440,
 								bmsDCDC1ReactorTemperature = new ModbusReadLongChannel("BmsDCDC1ReactorTemperature",
 										this).unit("°C")),
 						new SignedWordElement(0xA441,
 								bmsDCDC1IgbtTemperature = new ModbusReadLongChannel("BmsDCDC1IgbtTemperature", this)
-										.unit("°C")),
+								.unit("°C")),
 						new DummyElement(0xA442, 0xA44F),
 						new UnsignedDoublewordElement(0xA450,
 								bmsDCDC1InputTotalChargeEnergy = new ModbusReadLongChannel(
 										"BmsDCDC1InputTotalChargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW),
+						.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA452,
 								bmsDCDC1InputTotalDischargeEnergy = new ModbusReadLongChannel(
 										"BmsDCDC1InputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW),
+						.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA454,
 								bmsDCDC1OutputTotalChargeEnergy = new ModbusReadLongChannel(
 										"BmsDCDC1OutputTotalChargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW),
+						.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA456,
 								bmsDCDC1OutputTotalDischargeEnergy = new ModbusReadLongChannel(
 										"BmsDCDC1OutputTotalDischargeEnergy", this).unit("Wh")
-												.multiplier(2)).wordOrder(WordOrder.LSWMSW)),
+								.multiplier(2)).wordOrder(WordOrder.LSWMSW)),
 				new ModbusRegisterRange(0xA600, //
 						new UnsignedWordElement(0xA600,
 								pvDCDCWorkState = new ModbusReadLongChannel("PvDCDCWorkState", this)//
-										.label(2, "Initial")//
-										.label(4, "Stop")//
-										.label(8, "Ready")//
-										.label(16, "Running")//
-										.label(32, "Fault")//
-										.label(64, "Debug")//
-										.label(128, "Locked")),
+								.label(2, "Initial")//
+								.label(4, "Stop")//
+								.label(8, "Ready")//
+								.label(16, "Running")//
+								.label(32, "Fault")//
+								.label(64, "Debug")//
+								.label(128, "Locked")),
 						new UnsignedWordElement(0xA601,
 								pvDCDCWorkMode = new ModbusReadLongChannel("PvDCDCWorkMode", this)//
-										.label(128, "Constant Current")//
-										.label(256, "Constant Voltage")//
-										.label(512, "Boost MPPT"))),
+								.label(128, "Constant Current")//
+								.label(256, "Constant Voltage")//
+								.label(512, "Boost MPPT"))),
 				new ModbusRegisterRange(0xA700, //
 						new UnsignedWordElement(0xA700,
 								pvDCDCSuggestiveInformation1 = warning
-										.channel(new StatusBitChannel("PvDCDCSuggestiveInformation1", this)//
-												.label(1, "Current sampling channel abnormity on high voltage side")//
-												.label(2, "Current sampling channel abnormity on low voltage side")//
-												.label(64, "EEPROM parameters over range")//
-												.label(128, "Update EEPROM failed")//
-												.label(256, "Read EEPROM failed")//
-												.label(512, "Current sampling channel abnormity before inductance"))),
+								.channel(new StatusBitChannel("PvDCDCSuggestiveInformation1", this)//
+										.label(1, "Current sampling channel abnormity on high voltage side")//
+										.label(2, "Current sampling channel abnormity on low voltage side")//
+										.label(64, "EEPROM parameters over range")//
+										.label(128, "Update EEPROM failed")//
+										.label(256, "Read EEPROM failed")//
+										.label(512, "Current sampling channel abnormity before inductance"))),
 						new UnsignedWordElement(0xA701, pvDCDCSuggestiveInformation2 = warning
-								.channel(new StatusBitChannel("PvDCDCSuggestiveInformation2", this)//
-										.label(1, "Reactor  power decrease caused by overtemperature")//
-										.label(2, "IGBT  power decrease caused by overtemperature")//
-										.label(4, "Temperature chanel3  power decrease caused by overtemperature")//
-										.label(8, "Temperature chanel4  power decrease caused by overtemperature")//
-										.label(16, "Temperature chanel5  power decrease caused by overtemperature")//
-										.label(32, "Temperature chanel6  power decrease caused by overtemperature")//
-										.label(64, "Temperature chanel7  power decrease caused by overtemperature")//
-										.label(128, "Temperature chanel8 power decrease caused by overtemperature")//
-										.label(256, "Fan 1 stop failed")//
-										.label(512, "Fan 2 stop failed")//
-										.label(1024, "Fan 3 stop failed")//
-										.label(2048, "Fan 4 stop failed")//
-										.label(4096, "Fan 1 sartup failed")//
-										.label(8192, "Fan 2 sartup failed")//
-										.label(16384, "Fan 3 sartup failed")//
-										.label(32768, "Fan 4 sartup failed"))),
+						.channel(new StatusBitChannel("PvDCDCSuggestiveInformation2", this)//
+								.label(1, "Reactor  power decrease caused by overtemperature")//
+								.label(2, "IGBT  power decrease caused by overtemperature")//
+								.label(4, "Temperature chanel3  power decrease caused by overtemperature")//
+								.label(8, "Temperature chanel4  power decrease caused by overtemperature")//
+								.label(16, "Temperature chanel5  power decrease caused by overtemperature")//
+								.label(32, "Temperature chanel6  power decrease caused by overtemperature")//
+								.label(64, "Temperature chanel7  power decrease caused by overtemperature")//
+								.label(128, "Temperature chanel8 power decrease caused by overtemperature")//
+								.label(256, "Fan 1 stop failed")//
+								.label(512, "Fan 2 stop failed")//
+								.label(1024, "Fan 3 stop failed")//
+								.label(2048, "Fan 4 stop failed")//
+								.label(4096, "Fan 1 sartup failed")//
+								.label(8192, "Fan 2 sartup failed")//
+								.label(16384, "Fan 3 sartup failed")//
+								.label(32768, "Fan 4 sartup failed"))),
 						new UnsignedWordElement(0xA702,
 								pvDCDCSuggestiveInformation3 = warning
-										.channel(new StatusBitChannel("PvDCDCSuggestiveInformation3", this)//
-												.label(1, "High voltage side overvoltage")//
-												.label(2, "High voltage side undervoltage")//
-												.label(4, "EEPROM parameters over range")//
-												.label(8, "High voltage side voltage change unconventionally"))),
+								.channel(new StatusBitChannel("PvDCDCSuggestiveInformation3", this)//
+										.label(1, "High voltage side overvoltage")//
+										.label(2, "High voltage side undervoltage")//
+										.label(4, "EEPROM parameters over range")//
+										.label(8, "High voltage side voltage change unconventionally"))),
 						new UnsignedWordElement(0xA703, pvDCDCSuggestiveInformation4 = warning
-								.channel(new StatusBitChannel("PvDCDCSuggestiveInformation4", this)//
-										.label(1, "Current abnormity before DC Converter work on high voltage side")//
-										.label(2, "Current abnormity before DC Converter work on low voltage side")//
-										.label(4, "Initial Duty Ratio abnormity before DC Converter work")//
-										.label(8, "Voltage abnormity before DC Converter work on high voltage side")//
-										.label(16, "Voltage abnormity before  DC Converter work on low voltage side"))),
+						.channel(new StatusBitChannel("PvDCDCSuggestiveInformation4", this)//
+								.label(1, "Current abnormity before DC Converter work on high voltage side")//
+								.label(2, "Current abnormity before DC Converter work on low voltage side")//
+								.label(4, "Initial Duty Ratio abnormity before DC Converter work")//
+								.label(8, "Voltage abnormity before DC Converter work on high voltage side")//
+								.label(16, "Voltage abnormity before  DC Converter work on low voltage side"))),
 						new UnsignedWordElement(0xA704,
 								pvDCDCSuggestiveInformation5 = warning
-										.channel(new StatusBitChannel("PvDCDCSuggestiveInformation5", this)//
-												.label(1, "High voltage breaker inspection abnormity")//
-												.label(2, "Low voltage breaker inspection abnormity")//
-												.label(4, "DC precharge contactor inspection abnormity")//
-												.label(8, "DC precharge contactor open unsuccessfully")//
-												.label(16, "DC main contactor inspection abnormity")//
-												.label(32, "DC main contactor open unsuccessfully")//
-												.label(64, "Output contactor close unsuccessfully")//
-												.label(128, "Output contactor open unsuccessfully")//
-												.label(256, "AC main contactor close unsuccessfully")//
-												.label(512, "AC main contactor open unsuccessfully")//
-												.label(1024, "NegContactor open unsuccessfully")//
-												.label(2048, "NegContactor close unsuccessfully")//
-												.label(4096, "NegContactor state abnormal"))),
+								.channel(new StatusBitChannel("PvDCDCSuggestiveInformation5", this)//
+										.label(1, "High voltage breaker inspection abnormity")//
+										.label(2, "Low voltage breaker inspection abnormity")//
+										.label(4, "DC precharge contactor inspection abnormity")//
+										.label(8, "DC precharge contactor open unsuccessfully")//
+										.label(16, "DC main contactor inspection abnormity")//
+										.label(32, "DC main contactor open unsuccessfully")//
+										.label(64, "Output contactor close unsuccessfully")//
+										.label(128, "Output contactor open unsuccessfully")//
+										.label(256, "AC main contactor close unsuccessfully")//
+										.label(512, "AC main contactor open unsuccessfully")//
+										.label(1024, "NegContactor open unsuccessfully")//
+										.label(2048, "NegContactor close unsuccessfully")//
+										.label(4096, "NegContactor state abnormal"))),
 						new DummyElement(0xA705, 0xA70F),
 						new UnsignedWordElement(0xA710,
 								pvDCDCAbnormity1 = warning.channel(new StatusBitChannel("PvDCDCAbnormity1", this)//
@@ -880,46 +884,46 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 						new DummyElement(0xA717, 0xA71F),
 						new UnsignedWordElement(0xA720,
 								pvDCDCSwitchState = new StatusBitChannel("PvDCDCSwitchState", this)//
-										.label(1, "DC precharge contactor")//
-										.label(2, "DC main contactor")//
-										.label(4, "Output contactor")//
-										.label(8, "Output breaker")//
-										.label(16, "Input breaker")//
-										.label(32, "AC contactor")//
-										.label(64, "Emergency stop button")//
-										.label(128, "NegContactor"))),
+								.label(1, "DC precharge contactor")//
+								.label(2, "DC main contactor")//
+								.label(4, "Output contactor")//
+								.label(8, "Output breaker")//
+								.label(16, "Input breaker")//
+								.label(32, "AC contactor")//
+								.label(64, "Emergency stop button")//
+								.label(128, "NegContactor"))),
 				new ModbusRegisterRange(0xA730, //
 						new SignedWordElement(0xA730,
 								pvDCDCOutputVoltage = new ModbusReadLongChannel("PvDCDCOutputVoltage", this).unit("mV")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA731,
 								pvDCDCOutputCurrent = new ModbusReadLongChannel("PvDCDCOutputCurrent", this).unit("mA")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA732,
 								pvDCDCOutputPower = new ModbusReadLongChannel("PvDCDCOutputPower", this).unit("W")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA733,
 								pvDCDCInputVoltage = new ModbusReadLongChannel("PvDCDCInputVoltage", this).unit("mV")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA734,
 								pvDCDCInputCurrent = new ModbusReadLongChannel("PvDCDCInputCurrent", this).unit("mA")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA735,
 								pvDCDCInputPower = new ModbusReadLongChannel("PvDCDCInputPower", this).unit("W")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA736,
 								pvDCDCInputEnergy = new ModbusReadLongChannel("PvDCDCInputEnergy", this).unit("Wh")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xA737,
 								pvDCDCOutputEnergy = new ModbusReadLongChannel("PvDCDCOutputEnergy", this).unit("Wh")
-										.multiplier(2)),
+								.multiplier(2)),
 						new DummyElement(0xA738, 0xA73F),
 						new SignedWordElement(0xA740,
 								pvDCDCReactorTemperature = new ModbusReadLongChannel("PvDCDCReactorTemperature", this)
-										.unit("°C")),
+								.unit("°C")),
 						new SignedWordElement(0xA741,
 								pvDCDCIgbtTemperature = new ModbusReadLongChannel("PvDCDCIgbtTemperature", this)
-										.unit("°C")),
+								.unit("°C")),
 						new DummyElement(0xA742, 0xA74F),
 						new UnsignedDoublewordElement(0xA750,
 								pvDCDCInputTotalChargeEnergy = new ModbusReadLongChannel("PvDCDCInputTotalChargeEnergy",
@@ -927,88 +931,88 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 						new UnsignedDoublewordElement(0xA752,
 								pvDCDCInputTotalDischargeEnergy = new ModbusReadLongChannel(
 										"PvDCDCInputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW),
+						.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA754,
 								pvDCDCOutputTotalChargeEnergy = new ModbusReadLongChannel(
 										"PvDCDCOutputTotalChargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW),
+						.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xA756,
 								pvDCDCOutputTotalDischargeEnergy = new ModbusReadLongChannel(
 										"PvDCDCOutputTotalDischargeEnergy", this).unit("Wh")
-												.multiplier(2)).wordOrder(WordOrder.LSWMSW)),
+								.multiplier(2)).wordOrder(WordOrder.LSWMSW)),
 				new ModbusRegisterRange(0xA900, //
 						new UnsignedWordElement(0xA900,
 								pvDCDC1WorkState = new ModbusReadLongChannel("PvDCDC1WorkState", this)//
-										.label(2, "Initial")//
-										.label(4, "Stop")//
-										.label(8, "Ready")//
-										.label(16, "Running")//
-										.label(32, "Fault")//
-										.label(64, "Debug")//
-										.label(128, "Locked")),
+								.label(2, "Initial")//
+								.label(4, "Stop")//
+								.label(8, "Ready")//
+								.label(16, "Running")//
+								.label(32, "Fault")//
+								.label(64, "Debug")//
+								.label(128, "Locked")),
 						new UnsignedWordElement(0xA901,
 								pvDCDC1WorkMode = new ModbusReadLongChannel("PvDCDC1WorkMode", this)//
-										.label(128, "Constant Current")//
-										.label(256, "Constant Voltage")//
-										.label(512, "Boost MPPT"))),
+								.label(128, "Constant Current")//
+								.label(256, "Constant Voltage")//
+								.label(512, "Boost MPPT"))),
 				new ModbusRegisterRange(0xAA00, //
 						new UnsignedWordElement(0xAA00,
 								pvDCDC1SuggestiveInformation1 = warning
-										.channel(new StatusBitChannel("PvDCDC1SuggestiveInformation1", this)//
-												.label(1, "Current sampling channel abnormity on high voltage side")//
-												.label(2, "Current sampling channel abnormity on low voltage side")//
-												.label(64, "EEPROM parameters over range")//
-												.label(128, "Update EEPROM failed")//
-												.label(256, "Read EEPROM failed")//
-												.label(512, "Current sampling channel abnormity before inductance"))),
+								.channel(new StatusBitChannel("PvDCDC1SuggestiveInformation1", this)//
+										.label(1, "Current sampling channel abnormity on high voltage side")//
+										.label(2, "Current sampling channel abnormity on low voltage side")//
+										.label(64, "EEPROM parameters over range")//
+										.label(128, "Update EEPROM failed")//
+										.label(256, "Read EEPROM failed")//
+										.label(512, "Current sampling channel abnormity before inductance"))),
 						new UnsignedWordElement(0xAA01, pvDCDC1SuggestiveInformation2 = warning
-								.channel(new StatusBitChannel("PvDCDC1SuggestiveInformation2", this)//
-										.label(1, "Reactor  power decrease caused by overtemperature")//
-										.label(2, "IGBT  power decrease caused by overtemperature")//
-										.label(4, "Temperature chanel3  power decrease caused by overtemperature")//
-										.label(8, "Temperature chanel4  power decrease caused by overtemperature")//
-										.label(16, "Temperature chanel5  power decrease caused by overtemperature")//
-										.label(32, "Temperature chanel6  power decrease caused by overtemperature")//
-										.label(64, "Temperature chanel7  power decrease caused by overtemperature")//
-										.label(128, "Temperature chanel8 power decrease caused by overtemperature")//
-										.label(256, "Fan 1 stop failed")//
-										.label(512, "Fan 2 stop failed")//
-										.label(1024, "Fan 3 stop failed")//
-										.label(2048, "Fan 4 stop failed")//
-										.label(4096, "Fan 1 sartup failed")//
-										.label(8192, "Fan 2 sartup failed")//
-										.label(16384, "Fan 3 sartup failed")//
-										.label(32768, "Fan 4 sartup failed"))),
+						.channel(new StatusBitChannel("PvDCDC1SuggestiveInformation2", this)//
+								.label(1, "Reactor  power decrease caused by overtemperature")//
+								.label(2, "IGBT  power decrease caused by overtemperature")//
+								.label(4, "Temperature chanel3  power decrease caused by overtemperature")//
+								.label(8, "Temperature chanel4  power decrease caused by overtemperature")//
+								.label(16, "Temperature chanel5  power decrease caused by overtemperature")//
+								.label(32, "Temperature chanel6  power decrease caused by overtemperature")//
+								.label(64, "Temperature chanel7  power decrease caused by overtemperature")//
+								.label(128, "Temperature chanel8 power decrease caused by overtemperature")//
+								.label(256, "Fan 1 stop failed")//
+								.label(512, "Fan 2 stop failed")//
+								.label(1024, "Fan 3 stop failed")//
+								.label(2048, "Fan 4 stop failed")//
+								.label(4096, "Fan 1 sartup failed")//
+								.label(8192, "Fan 2 sartup failed")//
+								.label(16384, "Fan 3 sartup failed")//
+								.label(32768, "Fan 4 sartup failed"))),
 						new UnsignedWordElement(0xAA02,
 								pvDCDC1SuggestiveInformation3 = warning
-										.channel(new StatusBitChannel("PvDCDC1SuggestiveInformation3", this)//
-												.label(1, "High voltage side overvoltage")//
-												.label(2, "High voltage side undervoltage")//
-												.label(4, "EEPROM parameters over range")//
-												.label(8, "High voltage side voltage change unconventionally"))),
+								.channel(new StatusBitChannel("PvDCDC1SuggestiveInformation3", this)//
+										.label(1, "High voltage side overvoltage")//
+										.label(2, "High voltage side undervoltage")//
+										.label(4, "EEPROM parameters over range")//
+										.label(8, "High voltage side voltage change unconventionally"))),
 						new UnsignedWordElement(0xAA03, pvDCDC1SuggestiveInformation4 = warning
-								.channel(new StatusBitChannel("PvDCDC1SuggestiveInformation4", this)//
-										.label(1, "Current abnormity before DC Converter work on high voltage side")//
-										.label(2, "Current abnormity before DC Converter work on low voltage side")//
-										.label(4, "Initial Duty Ratio abnormity before DC Converter work")//
-										.label(8, "Voltage abnormity before DC Converter work on high voltage side")//
-										.label(16, "Voltage abnormity before  DC Converter work on low voltage side"))),
+						.channel(new StatusBitChannel("PvDCDC1SuggestiveInformation4", this)//
+								.label(1, "Current abnormity before DC Converter work on high voltage side")//
+								.label(2, "Current abnormity before DC Converter work on low voltage side")//
+								.label(4, "Initial Duty Ratio abnormity before DC Converter work")//
+								.label(8, "Voltage abnormity before DC Converter work on high voltage side")//
+								.label(16, "Voltage abnormity before  DC Converter work on low voltage side"))),
 						new UnsignedWordElement(0xAA04,
 								pvDCDC1SuggestiveInformation5 = warning
-										.channel(new StatusBitChannel("PvDCDC1SuggestiveInformation5", this)//
-												.label(1, "High voltage breaker inspection abnormity")//
-												.label(2, "Low voltage breaker inspection abnormity")//
-												.label(4, "DC precharge contactor inspection abnormity")//
-												.label(8, "DC precharge contactor open unsuccessfully")//
-												.label(16, "DC main contactor inspection abnormity")//
-												.label(32, "DC main contactor open unsuccessfully")//
-												.label(64, "Output contactor close unsuccessfully")//
-												.label(128, "Output contactor open unsuccessfully")//
-												.label(256, "AC main contactor close unsuccessfully")//
-												.label(512, "AC main contactor open unsuccessfully")//
-												.label(1024, "NegContactor open unsuccessfully")//
-												.label(2048, "NegContactor close unsuccessfully")//
-												.label(4096, "NegContactor state abnormal"))),
+								.channel(new StatusBitChannel("PvDCDC1SuggestiveInformation5", this)//
+										.label(1, "High voltage breaker inspection abnormity")//
+										.label(2, "Low voltage breaker inspection abnormity")//
+										.label(4, "DC precharge contactor inspection abnormity")//
+										.label(8, "DC precharge contactor open unsuccessfully")//
+										.label(16, "DC main contactor inspection abnormity")//
+										.label(32, "DC main contactor open unsuccessfully")//
+										.label(64, "Output contactor close unsuccessfully")//
+										.label(128, "Output contactor open unsuccessfully")//
+										.label(256, "AC main contactor close unsuccessfully")//
+										.label(512, "AC main contactor open unsuccessfully")//
+										.label(1024, "NegContactor open unsuccessfully")//
+										.label(2048, "NegContactor close unsuccessfully")//
+										.label(4096, "NegContactor state abnormal"))),
 						new DummyElement(0xAA05, 0xAA0F),
 						new UnsignedWordElement(0xAA10,
 								pvDCDC1Abnormity1 = warning.channel(new StatusBitChannel("PvDCDC1Abnormity1", this)//
@@ -1118,63 +1122,63 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 						new DummyElement(0xAA17, 0xAA1F),
 						new UnsignedWordElement(0xAA20,
 								pvDCDC1SwitchState = new StatusBitChannel("PvDCDC1SwitchState", this)//
-										.label(1, "DC precharge contactor")//
-										.label(2, "DC main contactor")//
-										.label(4, "Output contactor")//
-										.label(8, "Output breaker")//
-										.label(16, "Input breaker")//
-										.label(32, "AC contactor")//
-										.label(64, "Emergency stop button")//
-										.label(128, "NegContactor"))),
+								.label(1, "DC precharge contactor")//
+								.label(2, "DC main contactor")//
+								.label(4, "Output contactor")//
+								.label(8, "Output breaker")//
+								.label(16, "Input breaker")//
+								.label(32, "AC contactor")//
+								.label(64, "Emergency stop button")//
+								.label(128, "NegContactor"))),
 				new ModbusRegisterRange(0xAA30, //
 						new SignedWordElement(0xAA30,
 								pvDCDC1OutputVoltage = new ModbusReadLongChannel("PvDCDC1OutputVoltage", this)
-										.unit("mV").multiplier(2)),
+								.unit("mV").multiplier(2)),
 						new SignedWordElement(0xAA31,
 								pvDCDC1OutputCurrent = new ModbusReadLongChannel("PvDCDC1OutputCurrent", this)
-										.unit("mA").multiplier(2)),
+								.unit("mA").multiplier(2)),
 						new SignedWordElement(0xAA32,
 								pvDCDC1OutputPower = new ModbusReadLongChannel("PvDCDC1OutputPower", this).unit("W")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xAA33,
 								pvDCDC1InputVoltage = new ModbusReadLongChannel("PvDCDC1InputVoltage", this).unit("mV")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xAA34,
 								pvDCDC1InputCurrent = new ModbusReadLongChannel("PvDCDC1InputCurrent", this).unit("mA")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xAA35,
 								pvDCDC1InputPower = new ModbusReadLongChannel("PvDCDC1InputPower", this).unit("W")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xAA36,
 								pvDCDC1InputEnergy = new ModbusReadLongChannel("PvDCDC1InputEnergy", this).unit("Wh")
-										.multiplier(2)),
+								.multiplier(2)),
 						new SignedWordElement(0xAA37,
 								pvDCDC1OutputEnergy = new ModbusReadLongChannel("PvDCDC1OutputEnergy", this).unit("Wh")
-										.multiplier(2)),
+								.multiplier(2)),
 						new DummyElement(0xAA38, 0xAA3F),
 						new SignedWordElement(0xAA40,
 								pvDCDC1ReactorTemperature = new ModbusReadLongChannel("PvDCDC1ReactorTemperature", this)
-										.unit("°C")),
+								.unit("°C")),
 						new SignedWordElement(0xAA41,
 								pvDCDC1IgbtTemperature = new ModbusReadLongChannel("PvDCDC1IgbtTemperature", this)
-										.unit("°C")),
+								.unit("°C")),
 						new DummyElement(0xAA42, 0xAA4F),
 						new UnsignedDoublewordElement(0xAA50,
 								pvDCDC1InputTotalChargeEnergy = new ModbusReadLongChannel(
 										"PvDCDC1InputTotalChargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW),
+						.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xAA52,
 								pvDCDC1InputTotalDischargeEnergy = new ModbusReadLongChannel(
 										"PvDCDC1InputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW),
+						.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xAA54,
 								pvDCDC1OutputTotalChargeEnergy = new ModbusReadLongChannel(
 										"PvDCDC1OutputTotalChargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW),
+						.wordOrder(WordOrder.LSWMSW),
 						new UnsignedDoublewordElement(0xAA56,
 								pvDCDC1OutputTotalDischargeEnergy = new ModbusReadLongChannel(
 										"PvDCDC1OutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
-												.wordOrder(WordOrder.LSWMSW)));
+						.wordOrder(WordOrder.LSWMSW)));
 		actualPower = new FunctionalReadChannel<Long>("ActualPower", this, (channels) -> {
 			long erg = 0;
 			try {
@@ -1220,6 +1224,11 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 	@Override
 	public ReadChannel<Long> getInputVoltage() {
 		return inputVoltage;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return thingState;
 	}
 
 }

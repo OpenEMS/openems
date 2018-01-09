@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.bridge.BridgeEvent.Position;
 import io.openems.api.channel.DebugChannel;
-import io.openems.api.channel.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;

@@ -45,7 +45,7 @@ public class Refu extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Ess", description = "Sets the Ess nature.", type = RefuEss.class)
-	public final ConfigChannel<RefuEss> ess = new ConfigChannel<>("ess", this);
+	public final ConfigChannel<RefuEss> ess = new ConfigChannel<RefuEss>("ess", this).addChangeListener(this);
 
 	/*
 	 * Methods

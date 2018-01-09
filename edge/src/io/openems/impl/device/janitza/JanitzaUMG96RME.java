@@ -45,7 +45,7 @@ public class JanitzaUMG96RME extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Meter", description = "Sets the meter nature.", type = JanitzaUMG96RMEMeter.class)
-	public final ConfigChannel<JanitzaUMG96RMEMeter> meter = new ConfigChannel<>("meter", this);
+	public final ConfigChannel<JanitzaUMG96RMEMeter> meter = new ConfigChannel<JanitzaUMG96RMEMeter>("meter", this).addChangeListener(this);
 
 	/*
 	 * Methods

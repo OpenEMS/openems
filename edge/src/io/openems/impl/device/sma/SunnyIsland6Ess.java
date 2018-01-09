@@ -3,8 +3,8 @@ package io.openems.impl.device.sma;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -23,8 +23,11 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRan
 @ThingInfo(title = "SMA SunnyIsland 6.0H")
 public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssNature {
 
+	private ThingStateChannel thingState;
+
 	public SunnyIsland6Ess(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -44,7 +47,6 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 		return chargeSoc;
 	}
 
-	private StatusBitChannels warning;
 	private ModbusReadLongChannel allowedCharge;
 	private ModbusReadLongChannel allowedDischarge;
 	private ReadChannel<Long> gridMode = new StaticValueChannel<Long>("GridMode", this, 1L).label(1L, ON_GRID);
@@ -114,11 +116,6 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 	}
 
 	@Override
-	public StatusBitChannels warning() {
-		return warning;
-	}
-
-	@Override
 	public WriteChannel<Long> setWorkState() {
 		return setControlMode;
 	}
@@ -150,7 +147,6 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		warning = new StatusBitChannels("Warning", this);
 
 		ModbusProtocol protokol = new ModbusProtocol(
 				new ModbusRegisterRange(30201,
@@ -200,6 +196,11 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 								meterSetting = new ModbusWriteLongChannel("MeterSetting", this)
 								.label(3053, "SMA Energy Meter").label(3547, "Wechselrichter"))));
 		return protokol;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

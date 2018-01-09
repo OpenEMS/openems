@@ -14,6 +14,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
@@ -30,13 +31,14 @@ import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
 @ThingInfo(title = "Meter Cluster")
 public class MeterClusterNature extends SimulatorDeviceNature
-		implements SymmetricMeterNature, AsymmetricMeterNature, ChannelChangeListener {
+implements SymmetricMeterNature, AsymmetricMeterNature, ChannelChangeListener {
 
 	private final Logger log;
 	private List<ThingChannelsUpdatedListener> listeners;
 	private ThingRepository repo;
 	private List<SymmetricMeterNature> symmetricMeterList = new ArrayList<>();
 	private List<AsymmetricMeterNature> asymmetricMeterList = new ArrayList<>();
+	private ThingStateChannel thingState;
 
 	/*
 	 * Channels
@@ -62,9 +64,10 @@ public class MeterClusterNature extends SimulatorDeviceNature
 
 	public MeterClusterNature(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		log = LoggerFactory.getLogger(this.getClass());
+		this.log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 		this.repo = ThingRepository.getInstance();
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -383,7 +386,13 @@ public class MeterClusterNature extends SimulatorDeviceNature
 			// remove old ess
 			synchronized (symmetricMeterList) {
 				synchronized (asymmetricMeterList) {
+					for(SymmetricMeterNature meter: symmetricMeterList) {
+						this.thingState.removeChildChannel(meter.getStateChannel());
+					}
 					symmetricMeterList.clear();
+					for(AsymmetricMeterNature meter: asymmetricMeterList) {
+						this.thingState.removeChangeListener(meter.getStateChannel());
+					}
 					asymmetricMeterList.clear();
 					if (meterIds != null) {
 						for (JsonElement id : meterIds) {
@@ -392,9 +401,11 @@ public class MeterClusterNature extends SimulatorDeviceNature
 								if (nature.get() instanceof AsymmetricMeterNature) {
 									AsymmetricMeterNature meter = (AsymmetricMeterNature) nature.get();
 									asymmetricMeterList.add(meter);
+									this.thingState.addChildChannel(meter.getStateChannel());
 								} else if (nature.get() instanceof SymmetricMeterNature) {
 									SymmetricMeterNature meter = (SymmetricMeterNature) nature.get();
 									symmetricMeterList.add(meter);
+									this.thingState.addChildChannel(meter.getStateChannel());
 								} else {
 									log.error("ThingID: " + id.getAsString() + " is no Meter!");
 								}
@@ -426,6 +437,11 @@ public class MeterClusterNature extends SimulatorDeviceNature
 	@Override
 	public void removeListener(ThingChannelsUpdatedListener listener) {
 		this.listeners.remove(listener);
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

@@ -22,6 +22,7 @@ package io.openems.impl.device.socomec;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
@@ -38,11 +39,14 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "Socomec B30 Meter")
 public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
+	private ThingStateChannel thingState;
+
 	/*
 	 * Constructors
 	 */
 	public SocomecB30Meter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -235,10 +239,15 @@ public class SocomecB30Meter extends ModbusDeviceNature implements SymmetricMete
 										this).unit("kvarh")),
 						new DummyElement(0x4D8B), new UnsignedDoublewordElement(0x4D8C, //
 								reactiveNegativeEnergy = new ModbusReadLongChannel("ReactiveNegativeEnergy", this)
-										.unit("kvarh")),
+								.unit("kvarh")),
 						new DummyElement(0x4D8E), new UnsignedDoublewordElement(0x4D8F, //
 								apparentEnergy = new ModbusReadLongChannel("ApparentEnergy", this).unit("kVAh")))
 
-		);
+				);
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

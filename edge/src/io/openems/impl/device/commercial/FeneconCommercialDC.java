@@ -45,10 +45,10 @@ public class FeneconCommercialDC extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Ess", description = "Sets the Ess nature.", type = FeneconCommercialEss.class)
-	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<FeneconCommercialEss>("ess", this);
+	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<FeneconCommercialEss>("ess", this).addChangeListener(this);
 
 	@ChannelInfo(title = "Charger", description = "Sets the inverter nature.", type = FeneconCommercialCharger.class)
-	public final ConfigChannel<FeneconCommercialCharger> charger = new ConfigChannel<>("charger", this);
+	public final ConfigChannel<FeneconCommercialCharger> charger = new ConfigChannel<FeneconCommercialCharger>("charger", this).addChangeListener(this);
 
 	/*
 	 * Methods

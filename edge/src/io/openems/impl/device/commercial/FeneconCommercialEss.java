@@ -24,11 +24,12 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
-import io.openems.api.channel.StatusBitChannels;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.impl.protocol.modbus.ModbusBitWrappingChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -44,6 +45,8 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRan
 @ThingInfo(title = "FENECON Commercial ESS")
 public class FeneconCommercialEss extends ModbusDeviceNature implements SymmetricEssNature {
 
+	private ThingStateChannel thingState;
+
 	/*
 	 * Constructors
 	 */
@@ -55,6 +58,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
 			}
 		});
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -90,7 +94,6 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 40000L)
 			.unit("VA");
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 40000L).unit("Wh");
-	public StatusBitChannels warning;
 
 	@Override
 	public ModbusReadLongChannel soc() {
@@ -153,11 +156,6 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	}
 
 	@Override
-	public StatusBitChannels warning() {
-		return warning;
-	}
-
-	@Override
 	public ReadChannel<Long> maxNominalPower() {
 		return maxNominalPower;
 	}
@@ -216,7 +214,6 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	 */
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		warning = new StatusBitChannels("Warning", this);
 		return new ModbusProtocol( //
 				new ModbusRegisterRange(0x0101, //
 						new UnsignedWordElement(0x0101, //
@@ -261,30 +258,26 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 								.label(1, "CESS")), //
 						new DummyElement(0x010B, 0x010F), //
 						new UnsignedWordElement(0x0110, //
-								suggestiveInformation1 = warning
-								.channel(new StatusBitChannel("SuggestiveInformation1", this) //
-										.label(4, "EmergencyStop") //
-										.label(64, "KeyManualStop"))), //
+								new ModbusBitWrappingChannel("SuggestiveInformation1", this,this.thingState) //
+								.warningBit(2, Warning.EmergencyStop) //EmergencyStop
+								.warningBit(6, Warning.KeyManualStop)), //KeyManualStop
 						new UnsignedWordElement(0x0111, //
-								suggestiveInformation2 = warning
-								.channel(new StatusBitChannel("SuggestiveInformation2", this) //
-										.label(4, "EmergencyStop") //
-										.label(64, "KeyManualStop"))), //
+								new ModbusBitWrappingChannel("SuggestiveInformation2", this,this.thingState) //
+								.warningBit(3, Warning.TransformerPhaseBTemperatureSensorInvalidation) //Transformer phase B temperature sensor invalidation
+								.warningBit(12, Warning.SDMemoryCardInvalidation)), //SD memory card invalidation
 						new DummyElement(0x0112, 0x0124), //
 						new UnsignedWordElement(0x0125, //
-								suggestiveInformation3 = warning
-								.channel(new StatusBitChannel("SuggestiveInformation3", this) //
-										.label(1, "Inverter communication abnormity") //
-										.label(2, "Battery stack communication abnormity") //
-										.label(4, "Multifunctional ammeter communication abnormity") //
-										.label(16, "Remote communication abnormity")//
-										.label(256, "PV DC1 communication abnormity")//
-										.label(512, "PV DC2 communication abnormity")//
-										)), //
+								suggestiveInformation3 = new StatusBitChannel("SuggestiveInformation3", this) //
+								.label(1, "Inverter communication abnormity") //
+								.label(2, "Battery stack communication abnormity") //
+								.label(4, "Multifunctional ammeter communication abnormity") //
+								.label(16, "Remote communication abnormity")//
+								.label(256, "PV DC1 communication abnormity")//
+								.label(512, "PV DC2 communication abnormity")//
+								), //
 						new UnsignedWordElement(0x0126, //
-								suggestiveInformation4 = warning
-								.channel(new StatusBitChannel("SuggestiveInformation4", this) //
-										.label(8, "Transformer severe overtemperature"))), //
+								suggestiveInformation4 = new StatusBitChannel("SuggestiveInformation4", this) //
+								.label(8, "Transformer severe overtemperature")), //
 						new DummyElement(0x0127, 0x014F), //
 						new UnsignedWordElement(0x0150, //
 								switchState = new StatusBitChannel("BatteryStringSwitchState", this) //
@@ -296,138 +289,135 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 						), //
 				new ModbusRegisterRange(0x0180, //
 						new UnsignedWordElement(0x0180,
-								abnormity1 = warning.channel(new StatusBitChannel("Abnormity1", this)//
-										.label(1, "DC precharge contactor close unsuccessfully") //
-										.label(2, "AC precharge contactor close unsuccessfully") //
-										.label(4, "AC main contactor close unsuccessfully") //
-										.label(8, "DC electrical breaker 1 close unsuccessfully") //
-										.label(16, "DC main contactor close unsuccessfully") //
-										.label(32, "AC breaker trip") //
-										.label(64, "AC main contactor open when running") //
-										.label(128, "DC main contactor open when running") //
-										.label(256, "AC main contactor open unsuccessfully") //
-										.label(512, "DC electrical breaker 1 open unsuccessfully") //
-										.label(1024, "DC main contactor open unsuccessfully") //
-										.label(2048, "Hardware PDP fault") //
-										.label(4096, "Master stop suddenly"))),
+								abnormity1 = new StatusBitChannel("Abnormity1", this)//
+								.label(1, "DC precharge contactor close unsuccessfully") //
+								.label(2, "AC precharge contactor close unsuccessfully") //
+								.label(4, "AC main contactor close unsuccessfully") //
+								.label(8, "DC electrical breaker 1 close unsuccessfully") //
+								.label(16, "DC main contactor close unsuccessfully") //
+								.label(32, "AC breaker trip") //
+								.label(64, "AC main contactor open when running") //
+								.label(128, "DC main contactor open when running") //
+								.label(256, "AC main contactor open unsuccessfully") //
+								.label(512, "DC electrical breaker 1 open unsuccessfully") //
+								.label(1024, "DC main contactor open unsuccessfully") //
+								.label(2048, "Hardware PDP fault") //
+								.label(4096, "Master stop suddenly")),
 						new DummyElement(0x0181),
 						new UnsignedWordElement(0x0182,
-								abnormity2 = warning.channel(new StatusBitChannel("Abnormity2", this) //
-										.label(1, "DC short circuit protection") //
-										.label(2, "DC overvoltage protection") //
-										.label(4, "DC undervoltage protection") //
-										.label(8, "DC inverse/no connection protection") //
-										.label(16, "DC disconnection protection") //
-										.label(32, "Commuting voltage abnormity protection") //
-										.label(64, "DC overcurrent protection") //
-										.label(128, "Phase 1 peak current over limit protection") //
-										.label(256, "Phase 2 peak current over limit protection") //
-										.label(512, "Phase 3 peak current over limit protection") //
-										.label(1024, "Phase 1 grid voltage sampling invalidation") //
-										.label(2048, "Phase 2 virtual current over limit protection") //
-										.label(4096, "Phase 3 virtual current over limit protection") //
-										.label(8192, "Phase 1 grid voltage sampling invalidation2") // TODO same as
-										// above
-										.label(16384, "Phase 2 grid voltage sampling invalidation") //
-										.label(32768, "Phase 3 grid voltage sampling invalidation"))),
+								abnormity2 = new StatusBitChannel("Abnormity2", this) //
+								.label(1, "DC short circuit protection") //
+								.label(2, "DC overvoltage protection") //
+								.label(4, "DC undervoltage protection") //
+								.label(8, "DC inverse/no connection protection") //
+								.label(16, "DC disconnection protection") //
+								.label(32, "Commuting voltage abnormity protection") //
+								.label(64, "DC overcurrent protection") //
+								.label(128, "Phase 1 peak current over limit protection") //
+								.label(256, "Phase 2 peak current over limit protection") //
+								.label(512, "Phase 3 peak current over limit protection") //
+								.label(1024, "Phase 1 grid voltage sampling invalidation") //
+								.label(2048, "Phase 2 virtual current over limit protection") //
+								.label(4096, "Phase 3 virtual current over limit protection") //
+								.label(8192, "Phase 1 grid voltage sampling invalidation2") // TODO same as
+								// above
+								.label(16384, "Phase 2 grid voltage sampling invalidation") //
+								.label(32768, "Phase 3 grid voltage sampling invalidation")),
 						new UnsignedWordElement(0x0183,
-								abnormity3 = warning.channel(new StatusBitChannel("Abnormity3", this) //
-										.label(1, "Phase 1 invert voltage sampling invalidation") //
-										.label(2, "Phase 2 invert voltage sampling invalidation") //
-										.label(4, "Phase 3 invert voltage sampling invalidation") //
-										.label(8, "AC current sampling invalidation") //
-										.label(16, "DC current sampling invalidation") //
-										.label(32, "Phase 1 overtemperature protection") //
-										.label(64, "Phase 2 overtemperature protection") //
-										.label(128, "Phase 3 overtemperature protection") //
-										.label(256, "Phase 1 temperature sampling invalidation") //
-										.label(512, "Phase 2 temperature sampling invalidation") //
-										.label(1024, "Phase 3 temperature sampling invalidation") //
-										.label(2048, "Phase 1 precharge unmet protection") //
-										.label(4096, "Phase 2 precharge unmet protection") //
-										.label(8192, "Phase 3 precharge unmet protection") //
-										.label(16384, "Unadaptable phase sequence error protection")//
-										.label(132768, "DSP protection"))),
+								abnormity3 = new StatusBitChannel("Abnormity3", this) //
+								.label(1, "Phase 1 invert voltage sampling invalidation") //
+								.label(2, "Phase 2 invert voltage sampling invalidation") //
+								.label(4, "Phase 3 invert voltage sampling invalidation") //
+								.label(8, "AC current sampling invalidation") //
+								.label(16, "DC current sampling invalidation") //
+								.label(32, "Phase 1 overtemperature protection") //
+								.label(64, "Phase 2 overtemperature protection") //
+								.label(128, "Phase 3 overtemperature protection") //
+								.label(256, "Phase 1 temperature sampling invalidation") //
+								.label(512, "Phase 2 temperature sampling invalidation") //
+								.label(1024, "Phase 3 temperature sampling invalidation") //
+								.label(2048, "Phase 1 precharge unmet protection") //
+								.label(4096, "Phase 2 precharge unmet protection") //
+								.label(8192, "Phase 3 precharge unmet protection") //
+								.label(16384, "Unadaptable phase sequence error protection")//
+								.label(132768, "DSP protection")),
 						new UnsignedWordElement(0x0184,
-								abnormity4 = warning.channel(new StatusBitChannel("Abnormity4", this) //
-										.label(1, "Phase 1 grid voltage severe overvoltage protection") //
-										.label(2, "Phase 1 grid voltage general overvoltage protection") //
-										.label(4, "Phase 2 grid voltage severe overvoltage protection") //
-										.label(8, "Phase 2 grid voltage general overvoltage protection") //
-										.label(16, "Phase 3 grid voltage severe overvoltage protection") //
-										.label(32, "Phase 3 grid voltage general overvoltage protection") //
-										.label(64, "Phase 1 grid voltage severe undervoltage protection") //
-										.label(128, "Phase 1 grid voltage general undervoltage protection") //
-										.label(256, "Phase 2 grid voltage severe undervoltage protection") //
-										.label(512, "Phase 2 grid voltage general undervoltage protection") //
-										.label(1024, "Phase 2 Inverter voltage general overvoltage protection") //
-										.label(2048, "Phase 3 Inverter voltage severe overvoltage protection") //
-										.label(4096, "Phase 3 Inverter voltage general overvoltage protection") //
-										.label(8192, "Inverter peak voltage high protection cause by AC disconnect"))),
+								abnormity4 = new StatusBitChannel("Abnormity4", this) //
+								.label(1, "Phase 1 grid voltage severe overvoltage protection") //
+								.label(2, "Phase 1 grid voltage general overvoltage protection") //
+								.label(4, "Phase 2 grid voltage severe overvoltage protection") //
+								.label(8, "Phase 2 grid voltage general overvoltage protection") //
+								.label(16, "Phase 3 grid voltage severe overvoltage protection") //
+								.label(32, "Phase 3 grid voltage general overvoltage protection") //
+								.label(64, "Phase 1 grid voltage severe undervoltage protection") //
+								.label(128, "Phase 1 grid voltage general undervoltage protection") //
+								.label(256, "Phase 2 grid voltage severe undervoltage protection") //
+								.label(512, "Phase 2 grid voltage general undervoltage protection") //
+								.label(1024, "Phase 2 Inverter voltage general overvoltage protection") //
+								.label(2048, "Phase 3 Inverter voltage severe overvoltage protection") //
+								.label(4096, "Phase 3 Inverter voltage general overvoltage protection") //
+								.label(8192, "Inverter peak voltage high protection cause by AC disconnect")),
 						new UnsignedWordElement(0x0185,
-								abnormity5 = warning.channel(new StatusBitChannel("Abnormity5", this) //
-										.label(1, "Phase 1 grid loss") //
-										.label(2, "Phase 2 grid loss") //
-										.label(4, "Phase 3 grid loss") //
-										.label(8, "Islanding protection") //
-										.label(16, "Phase 1 under voltage ride through") //
-										.label(32, "Phase 2 under voltage ride through") //
-										.label(64, "Phase 3 under voltage ride through ") //
-										.label(128, "Phase 1 Inverter voltage severe overvoltage protection") //
-										.label(256, "Phase 1 Inverter voltage general overvoltage protection") //
-										.label(512, "Phase 2 Inverter voltage severe overvoltage protection") //
-										.label(1024, "Phase 2 Inverter voltage general overvoltage protection") //
-										.label(2048, "Phase 3 Inverter voltage severe overvoltage protection") //
-										.label(4096, "Phase 3 Inverter voltage general overvoltage protection") //
-										.label(8192, "Inverter peak voltage high protection cause by AC disconnect"))),
+								abnormity5 = new StatusBitChannel("Abnormity5", this) //
+								.label(1, "Phase 1 grid loss") //
+								.label(2, "Phase 2 grid loss") //
+								.label(4, "Phase 3 grid loss") //
+								.label(8, "Islanding protection") //
+								.label(16, "Phase 1 under voltage ride through") //
+								.label(32, "Phase 2 under voltage ride through") //
+								.label(64, "Phase 3 under voltage ride through ") //
+								.label(128, "Phase 1 Inverter voltage severe overvoltage protection") //
+								.label(256, "Phase 1 Inverter voltage general overvoltage protection") //
+								.label(512, "Phase 2 Inverter voltage severe overvoltage protection") //
+								.label(1024, "Phase 2 Inverter voltage general overvoltage protection") //
+								.label(2048, "Phase 3 Inverter voltage severe overvoltage protection") //
+								.label(4096, "Phase 3 Inverter voltage general overvoltage protection") //
+								.label(8192, "Inverter peak voltage high protection cause by AC disconnect")),
 						new UnsignedWordElement(0x0186,
-								suggestiveInformation5 = warning
-								.channel(new StatusBitChannel("SuggestiveInformation5", this) //
-										.label(1, "DC precharge contactor inspection abnormity") //
-										.label(2, "DC breaker 1 inspection abnormity ") //
-										.label(4, "DC breaker 2 inspection abnormity ") //
-										.label(8, "AC precharge contactor inspection abnormity ") //
-										.label(16, "AC main contactor inspection abnormity ") //
-										.label(32, "AC breaker inspection abnormity ") //
-										.label(64, "DC breaker 1 close unsuccessfully") //
-										.label(128, "DC breaker 2 close unsuccessfully") //
-										.label(256, "Control signal close abnormally inspected by system") //
-										.label(512, "Control signal open abnormally inspected by system") //
-										.label(1024, "Neutral wire contactor close unsuccessfully") //
-										.label(2048, "Neutral wire contactor open unsuccessfully") //
-										.label(4096, "Work door open") //
-										.label(8192, "Emergency stop") //
-										.label(16384, "AC breaker close unsuccessfully")//
-										.label(132768, "Control switch stop"))),
+								suggestiveInformation5 = new StatusBitChannel("SuggestiveInformation5", this) //
+								.label(1, "DC precharge contactor inspection abnormity") //
+								.label(2, "DC breaker 1 inspection abnormity ") //
+								.label(4, "DC breaker 2 inspection abnormity ") //
+								.label(8, "AC precharge contactor inspection abnormity ") //
+								.label(16, "AC main contactor inspection abnormity ") //
+								.label(32, "AC breaker inspection abnormity ") //
+								.label(64, "DC breaker 1 close unsuccessfully") //
+								.label(128, "DC breaker 2 close unsuccessfully") //
+								.label(256, "Control signal close abnormally inspected by system") //
+								.label(512, "Control signal open abnormally inspected by system") //
+								.label(1024, "Neutral wire contactor close unsuccessfully") //
+								.label(2048, "Neutral wire contactor open unsuccessfully") //
+								.label(4096, "Work door open") //
+								.label(8192, "Emergency stop") //
+								.label(16384, "AC breaker close unsuccessfully")//
+								.label(132768, "Control switch stop")),
 						new UnsignedWordElement(0x0187,
-								suggestiveInformation6 = warning
-								.channel(new StatusBitChannel("SuggestiveInformation6", this) //
-										.label(1, "General overload") //
-										.label(2, "Severe overload") //
-										.label(4, "Battery current over limit") //
-										.label(8, "Power decrease caused by overtemperature") //
-										.label(16, "Inverter general overtemperature") //
-										.label(32, "AC three-phase current unbalance") //
-										.label(64, "Rstore factory setting unsuccessfully") //
-										.label(128, "Pole-board invalidation") //
-										.label(256, "Self-inspection failed") //
-										.label(512, "Receive BMS fault and stop") //
-										.label(1024, "Refrigeration equipment invalidation") //
-										.label(2048, "Large temperature difference among IGBT three phases") //
-										.label(4096, "EEPROM parameters over range") //
-										.label(8192, "EEPROM parameters backup failed") //
-										.label(16384, "DC breaker close unsuccessfully"))),
+								suggestiveInformation6 = new StatusBitChannel("SuggestiveInformation6", this) //
+								.label(1, "General overload") //
+								.label(2, "Severe overload") //
+								.label(4, "Battery current over limit") //
+								.label(8, "Power decrease caused by overtemperature") //
+								.label(16, "Inverter general overtemperature") //
+								.label(32, "AC three-phase current unbalance") //
+								.label(64, "Rstore factory setting unsuccessfully") //
+								.label(128, "Pole-board invalidation") //
+								.label(256, "Self-inspection failed") //
+								.label(512, "Receive BMS fault and stop") //
+								.label(1024, "Refrigeration equipment invalidation") //
+								.label(2048, "Large temperature difference among IGBT three phases") //
+								.label(4096, "EEPROM parameters over range") //
+								.label(8192, "EEPROM parameters backup failed") //
+								.label(16384, "DC breaker close unsuccessfully")),
 						new UnsignedWordElement(0x0188,
-								suggestiveInformation7 = warning
-								.channel(new StatusBitChannel("SuggestiveInformation7", this) //
-										.label(1, "Communication between inverter and BSMU disconnected") //
-										.label(2, "Communication between inverter and Master disconnected") //
-										.label(4, "Communication between inverter and UC disconnected") //
-										.label(8, "BMS start overtime controlled by PCS") //
-										.label(16, "BMS stop overtime controlled by PCS") //
-										.label(32, "Sync signal invalidation") //
-										.label(64, "Sync signal continuous caputure fault") //
-										.label(128, "Sync signal several times caputure fault")))),
+								suggestiveInformation7 = new StatusBitChannel("SuggestiveInformation7", this) //
+								.label(1, "Communication between inverter and BSMU disconnected") //
+								.label(2, "Communication between inverter and Master disconnected") //
+								.label(4, "Communication between inverter and UC disconnected") //
+								.label(8, "BMS start overtime controlled by PCS") //
+								.label(16, "BMS stop overtime controlled by PCS") //
+								.label(32, "Sync signal invalidation") //
+								.label(64, "Sync signal continuous caputure fault") //
+								.label(128, "Sync signal several times caputure fault"))),
 				new ModbusRegisterRange(0x0200, //
 						new SignedWordElement(0x0200, //
 								batteryVoltage = new ModbusReadLongChannel("BatteryVoltage", this).unit("mV")
@@ -536,6 +526,11 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	@Override
 	public StaticValueChannel<Long> capacity() {
 		return capacity;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return thingState;
 	}
 
 	// @IsChannel(id = "BatteryAccumulatedCharge")
