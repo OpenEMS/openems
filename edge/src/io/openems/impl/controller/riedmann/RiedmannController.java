@@ -17,6 +17,7 @@ import io.openems.impl.controller.symmetric.timelinecharge.Ess;
 @ThingInfo(title = "Sps parameter Controller")
 public class RiedmannController extends Controller implements ChannelChangeListener {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Config-Channel
 	 */
@@ -255,7 +256,6 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 
 	@Override
 	public ThingStateChannel getStateChannel() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.thingState;
 	}
 }

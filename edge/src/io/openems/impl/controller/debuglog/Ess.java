@@ -20,6 +20,10 @@
  *******************************************************************************/
 package io.openems.impl.controller.debuglog;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import io.openems.api.channel.ReadChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
@@ -78,9 +82,19 @@ public class Ess extends ThingMap {
 				"Allowed:" + ess.allowedCharge().format() + ";" + ess.allowedDischarge().format());
 		b.append("|" + //
 				"GridMode:" + ess.gridMode().labelOptional().orElse("unknown"));
-		String warn = ess.warning().toString();
-		if (!warn.equals("")) {
-			b.append("|Warn:" + ess.warning());
+		List<ReadChannel<Boolean>> warningChannels = ess.getStateChannel().getWarningChannels().stream().filter(c -> c.isValuePresent() && c.getValue()).collect(Collectors.toList());
+		List<ReadChannel<Boolean>> faultChannels = ess.getStateChannel().getFaultChannels().stream().filter(c -> c.isValuePresent() && c.getValue()).collect(Collectors.toList());
+		if(warningChannels.size() > 0) {
+			b.append("|Warn: ");
+			for(ReadChannel<Boolean> warning : warningChannels) {
+				b.append(", "+warning.address());
+			}
+		}
+		if(faultChannels.size() > 0) {
+			b.append("|Fault: ");
+			for(ReadChannel<Boolean> fault : faultChannels) {
+				b.append(", "+fault.address());
+			}
 		}
 		b.append("]");
 		return b.toString();

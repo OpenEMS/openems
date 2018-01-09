@@ -25,6 +25,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -36,6 +37,7 @@ import io.openems.core.ThingRepository;
 @ThingInfo(title = "External power station control", description = "Starts an thermal power station in case of off-Grid and empty ess.")
 public class OffGridPowerStationController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -67,7 +69,7 @@ public class OffGridPowerStationController extends Controller {
 
 	@ChannelInfo(title = "On-Grid output on", description = "This value indicates if the system is On-Grid to start(true) or stop(false) the generator.", type = Boolean.class, isOptional = true)
 	public ConfigChannel<Boolean> onGridOutputOn = new ConfigChannel<Boolean>("onGridOutputOn", this)
-			.defaultValue(false);
+	.defaultValue(false);
 
 	@ChannelInfo(title = "time to wait before switch output on.", type = Long.class)
 	public ConfigChannel<Long> switchDelay = new ConfigChannel<Long>("switchDelay", this).defaultValue(10000L);
@@ -97,19 +99,19 @@ public class OffGridPowerStationController extends Controller {
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "the address of the Digital Output where the generator is connected to.", type = String.class)
 	public ConfigChannel<String> outputChannelAddress = new ConfigChannel<String>("outputChannelAddress", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				Optional<String> channelAddress = (Optional<String>) newValue;
-				if (channelAddress.isPresent()) {
-					Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
-					if (ch.isPresent()) {
-						outputChannel = (WriteChannel<Boolean>) ch.get();
-					} else {
-						log.error("Channel " + channelAddress.get() + " not found");
-					}
-				} else {
-					log.error("'outputChannelAddress' is not configured!");
-				}
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		Optional<String> channelAddress = (Optional<String>) newValue;
+		if (channelAddress.isPresent()) {
+			Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
+			if (ch.isPresent()) {
+				outputChannel = (WriteChannel<Boolean>) ch.get();
+			} else {
+				log.error("Channel " + channelAddress.get() + " not found");
+			}
+		} else {
+			log.error("'outputChannelAddress' is not configured!");
+		}
+	});
 
 	@Override
 	public void run() {
@@ -269,6 +271,11 @@ public class OffGridPowerStationController extends Controller {
 
 	private boolean isOn() throws InvalidValueException {
 		return outputChannel.value() == true ^ invertOutput.value();
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

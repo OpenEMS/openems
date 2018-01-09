@@ -23,6 +23,7 @@ package io.openems.impl.controller.symmetric.powerramp;
 import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -34,6 +35,7 @@ import io.openems.core.utilities.SymmetricPower;
 @ThingInfo(title = "Power ramp (Symmetric)", description = "Follows a power ramp. For symmetric Ess.")
 public class PowerRampController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -105,6 +107,11 @@ public class PowerRampController extends Controller {
 		} catch (InvalidValueException e) {
 			log.error("No ess found.", e);
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

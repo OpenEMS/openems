@@ -21,6 +21,7 @@
 package io.openems.impl.controller.asymmetric.balancingBandgap;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -32,6 +33,7 @@ import io.openems.core.utilities.AvgFiFoQueue;
 @ThingInfo(title = "Self-consumption optimization (Asymmetric)", description = "Tries to keep the grid meter on zero. For asymmetric Ess.")
 public class BalancingBandgapReactivePowerController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -132,6 +134,11 @@ public class BalancingBandgapReactivePowerController extends Controller {
 		} catch (WriteChannelException e) {
 			log.warn("write failed.", e);
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

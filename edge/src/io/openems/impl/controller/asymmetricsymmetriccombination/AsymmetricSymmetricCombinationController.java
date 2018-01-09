@@ -11,7 +11,7 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "starts power calculation of AsymmetricSymmetricCombination Ess device")
 public class AsymmetricSymmetricCombinationController extends Controller {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 
 	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
@@ -20,7 +20,6 @@ public class AsymmetricSymmetricCombinationController extends Controller {
 
 	public AsymmetricSymmetricCombinationController() {
 		super();
-		this.thingState = new ThingStateChannel(this);
 	}
 
 

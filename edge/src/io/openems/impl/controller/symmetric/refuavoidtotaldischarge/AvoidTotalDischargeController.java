@@ -25,6 +25,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -35,6 +36,7 @@ import io.openems.core.utilities.hysteresis.Hysteresis;
 @ThingInfo(title = "REFU: Avoid Total Discharge")
 public class AvoidTotalDischargeController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	@ChannelInfo(title = "Storage, where total discharge should be avoided. For excample to reserve load for the Off-Grid power supply.", type = Ess.class)
 	public final ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 	@ChannelInfo(title = "Delay, to allow Power after start", type = Long.class)
@@ -43,30 +45,30 @@ public class AvoidTotalDischargeController extends Controller {
 	public final ConfigChannel<Long> powerStep = new ConfigChannel<>("powerStep", this);
 	@ChannelInfo(title = "Soc limit to stop chargePower.", type = Long.class)
 	public final ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this)
-			.addChangeListener(new ChannelChangeListener() {
+	.addChangeListener(new ChannelChangeListener() {
 
-				@Override
-				public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-					if (maxSoc.valueOptional().isPresent() && socHysteresis.valueOptional().isPresent()) {
-						try {
-							socMaxHysteresis = new Hysteresis(maxSoc.value() - socHysteresis.value(), maxSoc.value());
-						} catch (InvalidValueException e) {}
-					}
-				}
-			});
+		@Override
+		public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+			if (maxSoc.valueOptional().isPresent() && socHysteresis.valueOptional().isPresent()) {
+				try {
+					socMaxHysteresis = new Hysteresis(maxSoc.value() - socHysteresis.value(), maxSoc.value());
+				} catch (InvalidValueException e) {}
+			}
+		}
+	});
 	@ChannelInfo(title = "Soc hysteresis for max Soc limit.", type = Long.class)
 	public final ConfigChannel<Long> socHysteresis = new ConfigChannel<Long>("socHysteresis", this)
-			.addChangeListener(new ChannelChangeListener() {
+	.addChangeListener(new ChannelChangeListener() {
 
-				@Override
-				public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-					if (maxSoc.valueOptional().isPresent() && socHysteresis.valueOptional().isPresent()) {
-						try {
-							socMaxHysteresis = new Hysteresis(maxSoc.value() - socHysteresis.value(), maxSoc.value());
-						} catch (InvalidValueException e) {}
-					}
-				}
-			});
+		@Override
+		public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+			if (maxSoc.valueOptional().isPresent() && socHysteresis.valueOptional().isPresent()) {
+				try {
+					socMaxHysteresis = new Hysteresis(maxSoc.value() - socHysteresis.value(), maxSoc.value());
+				} catch (InvalidValueException e) {}
+			}
+		}
+	});
 	private boolean isStart = false;
 	private long timeStartOccured = System.currentTimeMillis();
 	private long lastPower = 0L;
@@ -215,5 +217,10 @@ public class AvoidTotalDischargeController extends Controller {
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

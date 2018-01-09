@@ -3,6 +3,7 @@ package io.openems.impl.controller.evcs;
 import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -26,6 +27,7 @@ public class EvcsController extends Controller {
 	private Optional<Integer> lastCurrentMilliAmp = Optional.empty();
 	private int lagCountdown = CONTROL_LAG;
 	private int waitForValueSet = WAIT_FOR_VALUE_SET;
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 
 	/*
 	 * Constructors
@@ -141,5 +143,10 @@ public class EvcsController extends Controller {
 		} catch (WriteChannelException | InvalidValueException e) {
 			log.error("Unable to set EVCS current: " + e.getMessage());
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

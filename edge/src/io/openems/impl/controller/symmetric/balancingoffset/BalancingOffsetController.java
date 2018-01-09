@@ -25,6 +25,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -37,6 +38,7 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "Balancing offset (Symmetric)", description = "Tries to keep the grid meter within an offset. For symmetric Ess.")
 public class BalancingOffsetController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -111,9 +113,9 @@ public class BalancingOffsetController extends Controller {
 			Ess ess = this.ess.value();
 			// Calculate required sum values
 			long calculatedPower = meter.value().activePower.value() + ess.activePower.value()
-					- activePowerOffset.value();
+			- activePowerOffset.value();
 			long calculatedReactivePower = meter.value().reactivePower.value() + ess.reactivePower.value()
-					- reactivePowerOffset.value();
+			- reactivePowerOffset.value();
 			if (reactivePowerActivated.value()) {
 				ess.power.setReactivePower(calculatedReactivePower);
 			}
@@ -133,6 +135,11 @@ public class BalancingOffsetController extends Controller {
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

@@ -34,6 +34,8 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "Initial setup for FENECON Pro", description = "Sets the correct factory settings for FENECON Pro energy storage systems.")
 public class FeneconProSetupController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
+
 	/*
 	 * Constructors
 	 */
@@ -82,8 +84,7 @@ public class FeneconProSetupController extends Controller {
 
 	@Override
 	public ThingStateChannel getStateChannel() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.thingState;
 	}
 
 }

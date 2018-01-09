@@ -26,6 +26,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -51,6 +52,7 @@ import io.openems.core.ThingRepository;
 @ThingInfo(title = "Switch channel on threshold")
 public class ChannelThresholdController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -76,36 +78,36 @@ public class ChannelThresholdController extends Controller {
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "Channel", description = "Address of the channel that indicates the switching by the min and max threshold.", type = String.class)
 	public ConfigChannel<String> thresholdChannelName = new ConfigChannel<String>("thresholdChannelAddress", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				Optional<String> channelAddress = (Optional<String>) newValue;
-				if (channelAddress.isPresent()) {
-					Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
-					if (ch.isPresent()) {
-						thresholdChannel = (ReadChannel<Long>) ch.get();
-					} else {
-						log.error("Channel " + channelAddress.get() + " not found");
-					}
-				} else {
-					log.error("'outputChannelAddress' is not configured!");
-				}
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		Optional<String> channelAddress = (Optional<String>) newValue;
+		if (channelAddress.isPresent()) {
+			Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
+			if (ch.isPresent()) {
+				thresholdChannel = (ReadChannel<Long>) ch.get();
+			} else {
+				log.error("Channel " + channelAddress.get() + " not found");
+			}
+		} else {
+			log.error("'outputChannelAddress' is not configured!");
+		}
+	});
 
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "Output", description = "Address of the digital output channel that should be switched.", type = String.class)
 	public ConfigChannel<String> outputChannelName = new ConfigChannel<String>("outputChannelAddress", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				Optional<String> channelAddress = (Optional<String>) newValue;
-				if (channelAddress.isPresent()) {
-					Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
-					if (ch.isPresent()) {
-						outputChannel = (WriteChannel<Boolean>) ch.get();
-					} else {
-						log.error("Channel " + channelAddress.get() + " not found");
-					}
-				} else {
-					log.error("'outputChannelAddress' is not configured!");
-				}
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		Optional<String> channelAddress = (Optional<String>) newValue;
+		if (channelAddress.isPresent()) {
+			Optional<Channel> ch = repo.getChannelByAddress(channelAddress.get());
+			if (ch.isPresent()) {
+				outputChannel = (WriteChannel<Boolean>) ch.get();
+			} else {
+				log.error("Channel " + channelAddress.get() + " not found");
+			}
+		} else {
+			log.error("'outputChannelAddress' is not configured!");
+		}
+	});
 
 	@ChannelInfo(title = "Low threshold", description = "Low threshold where the output should be switched on.", type = Long.class)
 	public ConfigChannel<Long> lowerThreshold = new ConfigChannel<Long>("lowerThreshold", this);
@@ -171,6 +173,11 @@ public class ChannelThresholdController extends Controller {
 		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (false ^ invertOutput)) {
 			outputChannel.pushWrite(false ^ invertOutput);
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

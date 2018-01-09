@@ -26,6 +26,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -50,6 +51,7 @@ public class ThermalPowerStationController extends Controller {
 	private int switchOnCount = 0;
 	private int switchOffCount = 0;
 	private State currentState = State.UNDEFINED;
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 
 	/*
 	 * Constructors
@@ -237,6 +239,11 @@ public class ThermalPowerStationController extends Controller {
 			power += m.power.value();
 		}
 		return power;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

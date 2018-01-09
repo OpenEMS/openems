@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -34,6 +35,7 @@ import io.openems.core.utilities.Point;
 @ThingInfo(title = "Cos-Phi Characteristics (Symmetric)")
 public class CosPhiCharacteristicController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -53,18 +55,18 @@ public class CosPhiCharacteristicController extends Controller {
 
 	@ChannelInfo(title = "Cos-Phi characteristic", description = "The points of the characteristic (x = PowerRatio, y = cosPhi).", type = Long[].class, isArray = true)
 	public ConfigChannel<List<Long[]>> cosPhiPoints = new ConfigChannel<List<Long[]>>("cosPhiPoints", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				List<Point> points = new ArrayList<>();
-				if (newValue.isPresent()) {
-					@SuppressWarnings("unchecked") List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();
-					for (Long[] arr : cosPhiPoints) {
-						points.add(new Point(arr[0], arr[1]));
-					}
-				} else {
-					log.error("found no cosPhiPoints!");
-				}
-				cosPhiCharacteristic = points;
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		List<Point> points = new ArrayList<>();
+		if (newValue.isPresent()) {
+			@SuppressWarnings("unchecked") List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();
+			for (Long[] arr : cosPhiPoints) {
+				points.add(new Point(arr[0], arr[1]));
+			}
+		} else {
+			log.error("found no cosPhiPoints!");
+		}
+		cosPhiCharacteristic = points;
+	});
 
 	/*
 	 * Fields
@@ -92,6 +94,11 @@ public class CosPhiCharacteristicController extends Controller {
 		} catch (InvalidValueException e) {
 			log.error("No ess found.", e);
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }
