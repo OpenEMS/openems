@@ -21,8 +21,8 @@
 package io.openems.api.thing;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.ThingState;
-import io.openems.api.channel.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingState;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.doc.ChannelInfo;
 
 public interface Thing {

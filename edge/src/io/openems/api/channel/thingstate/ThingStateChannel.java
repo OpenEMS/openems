@@ -1,4 +1,4 @@
-package io.openems.api.channel;
+package io.openems.api.channel.thingstate;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelChangeListener;
+import io.openems.api.channel.ReadChannel;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.Thing;
 
