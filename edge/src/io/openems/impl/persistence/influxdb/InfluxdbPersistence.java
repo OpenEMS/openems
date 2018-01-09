@@ -36,9 +36,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelEnum;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
@@ -48,6 +50,8 @@ import io.openems.core.Databus;
 
 @ThingInfo(title = "InfluxDB Persistence", description = "Persists data in an InfluxDB time-series database.")
 public class InfluxdbPersistence extends QueryablePersistence implements ChannelUpdateListener {
+
+	private ThingStateChannel thingState;
 
 	/*
 	 * Config
@@ -69,6 +73,10 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 
 	@ChannelInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
 	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this).defaultValue(10000);
+
+	public InfluxdbPersistence() {
+		this.thingState = new ThingStateChannel(this);
+	}
 
 	/*
 	 * Fields
@@ -100,6 +108,8 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 			fieldValue = new NumberFieldValue(field, (Number) value);
 		} else if (value instanceof String) {
 			fieldValue = new StringFieldValue(field, (String) value);
+		}else if (value instanceof ChannelEnum) {
+			fieldValue = new NumberFieldValue(field, ((ChannelEnum)value).getValue());
 		} else {
 			return;
 		}
@@ -211,5 +221,10 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	@Override
 	protected int getCycleTime() {
 		return cycleTime.valueOptional().orElse(DEFAULT_CYCLETIME);
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }
