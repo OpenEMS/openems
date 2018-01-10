@@ -30,7 +30,6 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.DebugChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.device.nature.system.SystemNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
