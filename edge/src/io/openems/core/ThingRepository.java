@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -155,7 +156,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 
 		// Add Channels thingConfigChannels
 		ThingDoc thingDoc = classRepository.getThingDoc(thing.getClass());
-		for (ChannelDoc channelDoc : thingDoc.getConfigChannelDocs()) {
+		for (ChannelDoc channelDoc : thingDoc.getChannelDocs()) {
 			Member member = channelDoc.getMember();
 			try {
 				List<Channel> channels = new ArrayList<>();
@@ -181,9 +182,9 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 					continue;
 				}
 				for (Channel channel : channels) {
+					// Add Channel to thingChannels
+					thingChannels.put(thing, channel.id(), channel);
 					if (channel instanceof ConfigChannel) {
-						// Add Channel to thingChannels
-						thingChannels.put(thing, channel.id(), channel);
 
 						// Add Channel to configChannels
 						thingConfigChannels.put(thing, (ConfigChannel<?>) channel);
@@ -408,7 +409,8 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		if (thing == null) {
 			return Optional.empty();
 		}
-		Channel channel = thingChannels.row(thing).get(channelId);
+		Map<String,Channel> channels = thingChannels.row(thing);
+		Channel channel = channels.get(channelId);
 		return Optional.ofNullable(channel);
 	}
 

@@ -20,6 +20,7 @@ public class BitUtils {
 		case SHORT:
 			return BYTES_SHORT * BITS;
 
+		case ENUM:
 		case INTEGER:
 			return BYTES_INT * BITS;
 

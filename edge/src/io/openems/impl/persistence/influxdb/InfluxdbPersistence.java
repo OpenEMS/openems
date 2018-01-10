@@ -36,7 +36,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.channel.ChannelEnum;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
@@ -45,6 +44,7 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.persistence.QueryablePersistence;
+import io.openems.common.types.ChannelEnum;
 import io.openems.common.utils.InfluxdbUtils;
 import io.openems.core.Databus;
 

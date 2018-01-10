@@ -1,4 +1,4 @@
-package io.openems.api.channel;
+package io.openems.common.types;
 
 import java.util.Locale;
 

@@ -38,7 +38,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
-import io.openems.api.channel.ChannelEnum;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.thingstate.ThingStateChannel;
@@ -52,6 +51,7 @@ import io.openems.api.persistence.Persistence;
 import io.openems.api.thing.Thing;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.ChannelEnum;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NullFieldValue;
 import io.openems.common.types.NumberFieldValue;

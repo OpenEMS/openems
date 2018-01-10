@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import io.openems.api.channel.ChannelEnum;
+import io.openems.common.types.ChannelEnum;
 
 public enum ThingState implements ChannelEnum {
 	RUN(0), WARNING(1), FAULT(2);

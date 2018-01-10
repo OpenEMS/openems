@@ -25,6 +25,7 @@ public class ThingStateChannel extends ReadChannel<ThingState> implements Channe
 		this.faultChannels = new ArrayList<>();
 		this.channelNames = new HashSet<>();
 		this.childChannels = new ArrayList<>();
+		updateState();
 	}
 
 	public void addWarningChannel(ReadChannel<Boolean> channel) throws ConfigException {
@@ -32,6 +33,7 @@ public class ThingStateChannel extends ReadChannel<ThingState> implements Channe
 			this.warningChannels.add(channel);
 			this.channelNames.add(channel.address());
 			channel.addChangeListener(this);
+			updateState();
 		} else {
 			throw new ConfigException("A channel with the name [" + channel.address() + "] is already registered!");
 		}
@@ -41,6 +43,7 @@ public class ThingStateChannel extends ReadChannel<ThingState> implements Channe
 		channel.removeChangeListener(this);
 		this.channelNames.remove(channel.address());
 		this.warningChannels.remove(channel);
+		updateState();
 	}
 
 	public void addFaultChannel(ReadChannel<Boolean> channel) throws ConfigException {
@@ -48,6 +51,7 @@ public class ThingStateChannel extends ReadChannel<ThingState> implements Channe
 			this.faultChannels.add(channel);
 			this.channelNames.add(channel.address());
 			channel.addChangeListener(this);
+			updateState();
 		} else {
 			throw new ConfigException("A channel with the name [" + channel.address() + "] is already registered!");
 		}
@@ -57,6 +61,7 @@ public class ThingStateChannel extends ReadChannel<ThingState> implements Channe
 		channel.removeChangeListener(this);
 		this.channelNames.remove(channel.address());
 		this.faultChannels.remove(channel);
+		updateState();
 	}
 
 	public List<ReadChannel<Boolean>> getWarningChannels() {
@@ -80,15 +85,21 @@ public class ThingStateChannel extends ReadChannel<ThingState> implements Channe
 	public void addChildChannel(ThingStateChannel child) {
 		this.childChannels.add(child);
 		child.addChangeListener(this);
+		updateState();
 	}
 
 	public void removeChildChannel(ThingStateChannel child) {
 		child.removeChangeListener(this);
 		this.childChannels.add(child);
+		updateState();
 	}
 
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+		updateState();
+	}
+
+	private void updateState() {
 		for(ThingStateChannel child : this.childChannels) {
 			if(child.isValuePresent()) {
 				switch(child.getValue()) {
