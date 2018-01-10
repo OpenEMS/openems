@@ -26,7 +26,6 @@ import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
-import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
@@ -71,9 +70,6 @@ public class BalancingController extends Controller {
 	@Override
 	public void run() {
 		try {
-			for (Ess ess : esss.value()) {
-				ess.setWorkState.pushWriteFromLabel(EssNature.START);
-			}
 			long[] calculatedPowers = new long[3];
 			long calculatedPowerSum = 0;
 			// calculateRequiredPower

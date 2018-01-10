@@ -636,8 +636,8 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 						.label(0, "Local control") //
 						.label(1, START) // "Remote control on grid starting"
 						.label(2, "Remote control off grid starting") //
-						.label(3, STOP)//
-						.label(4, "Emergency Stop"))),
+						.label(3, STANDBY)//
+						.label(4, STOP))),
 				new WriteableModbusRegisterRange(206, //
 						new SignedWordElement(206,
 								setActivePowerL1 = new ModbusWriteLongChannel("SetActivePowerL1", this).unit("W")), //
