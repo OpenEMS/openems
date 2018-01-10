@@ -165,11 +165,11 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 								reactivePower = new ModbusReadLongChannel("ReactivePower", this) //
 								.unit("Var")), //
 						new FloatElement(19044, //
-								cosPhiL1 = new ModbusReadLongChannel("CosPhiL1", this)), //
+								cosPhiL1 = new ModbusReadLongChannel("CosPhiL1", this)).multiplier(2), //
 						new FloatElement(19046, //
-								cosPhiL2 = new ModbusReadLongChannel("CosPhiL2", this)), //
+								cosPhiL2 = new ModbusReadLongChannel("CosPhiL2", this)).multiplier(2), //
 						new FloatElement(19048, //
-								cosPhiL3 = new ModbusReadLongChannel("CosPhiL3", this)), //
+								cosPhiL3 = new ModbusReadLongChannel("CosPhiL3", this)).multiplier(2), //
 						new FloatElement(19050, //
 								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHz")) //
 						.multiplier(3)));

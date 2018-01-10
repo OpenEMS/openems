@@ -182,6 +182,14 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return value;
 	};
 
+	public boolean isValuePresent() {
+		return value.isPresent();
+	}
+
+	public T getValue() {
+		return value.get();
+	}
+
 	public String unitOptional() {
 		return unit;
 	}

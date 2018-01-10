@@ -1,6 +1,7 @@
 package io.openems.impl.persistence.fenecon;
 
 import java.io.IOException;
+import java.net.Proxy;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,8 +10,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.SSLSocketFactory;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.WebSocket.READYSTATE;
@@ -39,6 +38,7 @@ public class ReconnectingWebsocket {
 	private final EdgeWebsocketHandler WEBSOCKET_HANDLER;
 	private final Mutex WEBSOCKET_CLOSED = new Mutex(true);
 	private Optional<URI> uriOpt = Optional.empty();
+	private Optional<Proxy> proxyOpt = Optional.empty();
 	private final Map<String, String> httpHeaders = new HashMap<>();
 	private final OnOpenListener ON_OPEN_LISTENER;
 	private final OnCloseListener ON_CLOSE_LISTENER;
@@ -57,11 +57,13 @@ public class ReconnectingWebsocket {
 	 * @author stefan.feilmeier
 	 */
 	private class MyWebSocketClient extends WebSocketClient {
+		public MyWebSocketClient(URI uri, Map<String, String> httpHeaders, Proxy proxy) throws IOException {
+			this(uri, httpHeaders);
+			this.setProxy(proxy);
+		}
+
 		public MyWebSocketClient(URI uri, Map<String, String> httpHeaders) throws IOException {
 			super(uri, WEBSOCKET_DRAFT, httpHeaders, 0);
-			if (uri.getScheme().toString().equals("wss")) {
-				this.setSocket(SSLSocketFactory.getDefault().createSocket());
-			}
 			log.info("I was built. ID [" + Thread.currentThread().getId() + "] name ["
 					+ Thread.currentThread().getName() + "]");
 		}
@@ -162,7 +164,12 @@ public class ReconnectingWebsocket {
 					}
 
 					// Create new websocket and open connection
-					WebSocketClient ws = new MyWebSocketClient(uriOpt.get(), httpHeaders);
+					WebSocketClient ws;
+					if(this.proxyOpt.isPresent()) {
+						ws = new MyWebSocketClient(uriOpt.get(), httpHeaders, this.proxyOpt.get());
+					} else {
+						ws = new MyWebSocketClient(uriOpt.get(), httpHeaders);
+					}
 					ws.connect();
 					WEBSOCKET_OPT = Optional.of(ws);
 					WEBSOCKET_HANDLER.setWebsocket(ws);
@@ -176,12 +183,13 @@ public class ReconnectingWebsocket {
 	}
 
 	/**
-	 * Sets the Websocket URI and starts the websocket
+	 * Sets the Websocket URI and optional proxy settings and starts the websocket
 	 *
 	 * @param uriOpt
 	 */
-	public void setUri(Optional<URI> uriOpt) {
+	public void setUri(Optional<URI> uriOpt, Optional<Proxy> proxyOpt) {
 		this.uriOpt = uriOpt;
+		this.proxyOpt = proxyOpt;
 		if (this.reconnectorFuture != null) {
 			this.reconnectorFuture.cancel(true);
 		}

@@ -93,14 +93,15 @@ public class FeneconMiniGridMeter extends ModbusDeviceNature implements Symmetri
 		ModbusProtocol protocol = new ModbusProtocol( //
 				new ModbusRegisterRange(4004, //
 						new SignedWordElement(4004, //
-								this.activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").negate())),
+								this.activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").negate()
+								.ignore(-10000l))),
 				new ModbusRegisterRange(5003, //
 						new UnsignedDoublewordElement(5003, //
 								this.sellToGridEnergy = new ModbusReadLongChannel("SellToGridEnergy", this).unit("Wh")
-										.multiplier(2)),
+								.multiplier(2)),
 						new UnsignedDoublewordElement(5005, //
 								this.buyFromGridEnergy = new ModbusReadLongChannel("BuyFromGridEnergy", this).unit("Wh")
-										.multiplier(2))));
+								.multiplier(2))));
 
 		return protocol;
 	}

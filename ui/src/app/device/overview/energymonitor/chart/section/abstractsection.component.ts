@@ -102,12 +102,14 @@ export class EnergyFlow {
 
 export abstract class AbstractSection {
 
+    public url: string = window.location.href;
     public valuePath: string = "";
     public outlinePath: string = "";
     public energyFlow: EnergyFlow;
     public square: SvgSquare;
     public squarePosition: SvgSquarePosition;
     public name: string = "";
+    public sectionId: string = "";
 
     protected valueRatio: number = 0;
     protected valueText: string = "";
@@ -126,6 +128,7 @@ export abstract class AbstractSection {
         public color: string,
         protected translate: TranslateService
     ) {
+        this.sectionId = translateName;
         this.name = translate.instant(translateName);
         this.energyFlow = this.initEnergyFlow(0);
     }

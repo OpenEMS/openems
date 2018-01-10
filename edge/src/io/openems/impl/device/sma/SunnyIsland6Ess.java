@@ -7,6 +7,7 @@ import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -65,6 +66,12 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 	public ModbusReadLongChannel batteryCurrent;
 	public ModbusReadLongChannel batteryVoltage;
 	public ModbusReadLongChannel maxPower;
+	@ChannelInfo(type=Long.class)
+	public ModbusWriteLongChannel meterSetting;
+	@ChannelInfo(type=Long.class)
+	public ModbusWriteLongChannel minSocPowerOff;
+	@ChannelInfo(type=Long.class)
+	public ModbusWriteLongChannel minSocPowerOn;
 
 	@Override
 	public ReadChannel<Long> gridMode() {
@@ -181,7 +188,17 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 								setControlMode = new ModbusWriteLongChannel("SetControlMode", this).label(802, START)
 								.label(803, STOP)), //
 						new SignedDoublewordElement(40153,
-								setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this).unit("Var"))));
+								setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this).unit("Var"))),
+				new WriteableModbusRegisterRange(40705,
+						new UnsignedDoublewordElement(40705,
+								minSocPowerOn = new ModbusWriteLongChannel("MinSocPowerOn", this)), //
+						new UnsignedDoublewordElement(40707,
+								minSocPowerOff = new ModbusWriteLongChannel("MinSocPowerOff", this))//
+						),
+				new WriteableModbusRegisterRange(41187,
+						new UnsignedDoublewordElement(41187,
+								meterSetting = new ModbusWriteLongChannel("MeterSetting", this)
+								.label(3053, "SMA Energy Meter").label(3547, "Wechselrichter"))));
 		return protokol;
 	}
 
