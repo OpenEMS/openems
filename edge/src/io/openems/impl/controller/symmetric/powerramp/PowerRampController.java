@@ -28,7 +28,6 @@ import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.SymmetricPower;
 
 @ThingInfo(title = "Power ramp (Symmetric)", description = "Follows a power ramp. For symmetric Ess.")
@@ -53,9 +52,6 @@ public class PowerRampController extends Controller {
 
 	@ChannelInfo(title = "Max-ActivePower", description = "The limit where the powerRamp stops. (pos/neg)", type = Integer.class)
 	public ConfigChannel<Integer> pMax = new ConfigChannel<Integer>("pMax", this);
-
-	@ChannelInfo(title = "Cos-Phi", description = "The cos-phi to hold.", type = Double.class)
-	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
 
 	@ChannelInfo(title = "Step", description = "Step to increase power.", type = Integer.class)
 	public ConfigChannel<Integer> pStep = new ConfigChannel<Integer>("pStep", this);
@@ -92,8 +88,6 @@ public class PowerRampController extends Controller {
 					} else {
 						power.setActivePower(lastPower);
 					}
-					power.setReactivePower(
-							ControllerUtils.calculateReactivePower(power.getActivePower(), cosPhi.value()));
 					power.writePower();
 					lastPower = power.getActivePower();
 					log.info("Set ActivePower [" + power.getActivePower() + "] Set ReactivePower ["
