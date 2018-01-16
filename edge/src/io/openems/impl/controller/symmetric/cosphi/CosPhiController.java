@@ -26,6 +26,7 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
+import io.openems.impl.controller.symmetric.balancingcosphi.Ess;
 
 @ThingInfo(title = "Ess Cos-Phi (Symmetric)", description = "Keeps the Ess at a given cos-phi. For symmetric Ess.")
 public class CosPhiController extends Controller {
@@ -50,17 +51,22 @@ public class CosPhiController extends Controller {
 	@ChannelInfo(title = "Cos-Phi", description = "The cos-phi to hold on the storage.", type = Double.class)
 	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
 
+	@ChannelInfo(title = "Capacitive CosPhi", description="if this value is true the cosPhi is capacitive otherwise inductive.",type=Boolean.class)
+	public ConfigChannel<Boolean> capacitive = new ConfigChannel<Boolean>("capacitive",this);
+
 	/*
 	 * Methods
 	 */
 	@Override
 	public void run() {
 		try {
-			if (ess.value().setActivePower.peekWrite().isPresent()) {
-				ess.value().power.setReactivePower(ControllerUtils
-						.calculateReactivePower(ess.value().setActivePower.peekWrite().get(), cosPhi.value()));
-				ess.value().power.writePower();
-				log.info("Set ReactivePower [" + ess.value().power.getReactivePower() + "]");
+			Ess ess = this.ess.value();
+			if (ess.setActivePower.peekWrite().isPresent()) {
+				long expectedActivePower = ess.setActivePower.peekWrite().get();//40
+				long q = ControllerUtils.calculateReactivePower(expectedActivePower, cosPhi.value(), capacitive.value());
+				ess.power.setReactivePower(q);
+				ess.power.writePower();
+				log.info("Set ReactivePower [" + ess.power.getReactivePower() + "]");
 			} else {
 				log.error(ess.id() + " no ActivePower is Set.");
 			}

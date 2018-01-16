@@ -214,7 +214,7 @@ public class BHKWMeter extends ModbusDeviceNature implements AsymmetricMeterNatu
 			@Override
 			public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) throws InvalidValueException {
 				if(channels.length == 2 && channels[0].valueOptional().isPresent()&& channels[1].valueOptional().isPresent()) {
-					return ControllerUtils.calculateReactivePower(channels[0].valueOptional().get(), ((double)channels[1].valueOptional().get())/100.0);
+					return ControllerUtils.calculateReactivePower(channels[0].valueOptional().get(), ((double)channels[1].valueOptional().get())/100.0,false);
 				}
 				return null;
 			}
@@ -224,7 +224,7 @@ public class BHKWMeter extends ModbusDeviceNature implements AsymmetricMeterNatu
 			@Override
 			public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) throws InvalidValueException {
 				if(channels.length == 2 && channels[0].valueOptional().isPresent()&& channels[1].valueOptional().isPresent()) {
-					return ControllerUtils.calculateReactivePower(channels[0].valueOptional().get(), ((double)channels[1].valueOptional().get())/100.0);
+					return ControllerUtils.calculateReactivePower(channels[0].valueOptional().get(), ((double)channels[1].valueOptional().get())/100.0,false);
 				}
 				return null;
 			}
@@ -234,7 +234,7 @@ public class BHKWMeter extends ModbusDeviceNature implements AsymmetricMeterNatu
 			@Override
 			public Long handle(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) throws InvalidValueException {
 				if(channels.length == 2 && channels[0].valueOptional().isPresent()&& channels[1].valueOptional().isPresent()) {
-					return ControllerUtils.calculateReactivePower(channels[0].valueOptional().get(), ((double)channels[1].valueOptional().get())/100.0);
+					return ControllerUtils.calculateReactivePower(channels[0].valueOptional().get(), ((double)channels[1].valueOptional().get())/100.0,false);
 				}
 				return null;
 			}

@@ -51,20 +51,20 @@ public class CosPhiCharacteristicController extends Controller {
 	@ChannelInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
 
-	@ChannelInfo(title = "Cos-Phi characteristic", description = "The points of the characteristic (x = PowerRatio, y = cosPhi).", type = Long[].class, isArray = true)
+	@ChannelInfo(title = "Cos-Phi characteristic", description = "The points of the characteristic (x = signed activePower, y = cosPhi IEEE Power Factor Sign Convention ).", type = Long[].class, isArray = true)
 	public ConfigChannel<List<Long[]>> cosPhiPoints = new ConfigChannel<List<Long[]>>("cosPhiPoints", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				List<Point> points = new ArrayList<>();
-				if (newValue.isPresent()) {
-					@SuppressWarnings("unchecked") List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();
-					for (Long[] arr : cosPhiPoints) {
-						points.add(new Point(arr[0], arr[1]));
-					}
-				} else {
-					log.error("found no cosPhiPoints!");
-				}
-				cosPhiCharacteristic = points;
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		List<Point> points = new ArrayList<>();
+		if (newValue.isPresent()) {
+			@SuppressWarnings("unchecked") List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();
+			for (Long[] arr : cosPhiPoints) {
+				points.add(new Point(arr[0], arr[1]));
+			}
+		} else {
+			log.error("found no cosPhiPoints!");
+		}
+		cosPhiCharacteristic = points;
+	});
 
 	/*
 	 * Fields
@@ -81,8 +81,12 @@ public class CosPhiCharacteristicController extends Controller {
 				double pRatio = (double) ess.value().setActivePower.peekWrite().get()
 						/ (double) ess.value().nominalPower.value() * 100;
 				double cosPhi = ControllerUtils.getValueOfLine(cosPhiCharacteristic, pRatio) / 100;
+				boolean capacitive = false;
+				if((pRatio<0 && cosPhi<0)||(pRatio>0 && cosPhi>0)) {
+					capacitive = true;
+				}
 				ess.value().power.setReactivePower(
-						ControllerUtils.calculateReactivePower(ess.value().setActivePower.peekWrite().get(), cosPhi));
+						ControllerUtils.calculateReactivePower(ess.value().setActivePower.peekWrite().get(), cosPhi,capacitive));
 				ess.value().power.writePower();
 				log.info("Set reactive power [{}] to get cosPhi [{}]",
 						new Object[] { ess.value().power.getReactivePower(), cosPhi });

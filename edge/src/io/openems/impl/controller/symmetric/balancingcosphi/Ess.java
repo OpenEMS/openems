@@ -33,6 +33,7 @@ public class Ess extends ThingMap {
 	public final WriteChannel<Long> setActivePower;
 	public final WriteChannel<Long> setReactivePower;
 	public final ReadChannel<Long> reactivePower;
+	public final ReadChannel<Long> activePower;
 	public final String id;
 	public final ReadChannel<Long> allowedCharge;
 	public final ReadChannel<Long> allowedDischarge;
@@ -46,6 +47,7 @@ public class Ess extends ThingMap {
 		allowedCharge = ess.allowedCharge();
 		allowedDischarge = ess.allowedDischarge();
 		reactivePower = ess.reactivePower();
+		activePower = ess.activePower();
 		this.power = new SymmetricPower(ess.allowedDischarge().required(), ess.allowedCharge().required(),
 				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required());
 	}

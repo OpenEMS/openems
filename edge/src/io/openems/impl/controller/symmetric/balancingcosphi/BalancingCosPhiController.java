@@ -25,6 +25,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.ControllerUtils;
 
 @ThingInfo(title = "Balancing Cos-Phi (Symmetric)", description = "Tries to keep the grid meter at a given cos-phi. For symmetric Ess.")
 public class BalancingCosPhiController extends Controller {
@@ -52,20 +53,27 @@ public class BalancingCosPhiController extends Controller {
 	@ChannelInfo(title = "Cos-Phi", description = "Cos-phi which the grid-meter is trying to hold.", type = Double.class)
 	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
 
+	@ChannelInfo(title = "Capacitive CosPhi", description="if this value is true the cosPhi is capacitive otherwise inductive.",type=Boolean.class)
+	public ConfigChannel<Boolean> capacitive = new ConfigChannel<Boolean>("capacitive",this);
+
 	/*
 	 * Methods
 	 */
 	@Override
 	public void run() {
 		try {
-			double cosPhi = this.cosPhi.value();
-			double phi = Math.acos(cosPhi);
-			long q = (long) ((meter.value().activePower.value() * Math.tan(phi)) - meter.value().reactivePower.value())
-					* -1;
-			q += ess.value().reactivePower.value();
-			ess.value().power.setReactivePower(q);
-			ess.value().power.writePower();
-			log.info(ess.id() + " Set ReactivePower [" + ess.value().power.getReactivePower() + "]");
+			Ess ess = this.ess.value();
+			Meter meter = this.meter.value();
+			long currentActivePowerEss = ess.activePower.value();//50
+			long currentReactivePowerEss = ess.activePower.value();//10
+			long currentActivePowerGrid = meter.activePower.value();//-10
+			long currentReactivePowerGrid = meter.reactivePower.value();//5
+			long expectedActivePowerGrid = currentActivePowerGrid-(ess.setActivePower.getWriteValue().orElse(currentActivePowerEss)-currentActivePowerEss);//-10-(-2-50)=-62
+			long expectedReactivePowerGrid = ControllerUtils.calculateReactivePower(expectedActivePowerGrid, cosPhi.value(),capacitive.value());//30,027
+			long q = currentReactivePowerEss - (expectedReactivePowerGrid - currentReactivePowerGrid);//10-(30,027-5)=-15,02
+			ess.power.setReactivePower(q);
+			ess.power.writePower();
+			log.info(ess.id() + " Set ReactivePower [" + ess.power.getReactivePower() + "]");
 		} catch (InvalidValueException e) {
 			log.error("Failed to read value.", e);
 		}

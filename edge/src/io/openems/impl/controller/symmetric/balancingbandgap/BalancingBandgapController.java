@@ -25,6 +25,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.AvgFiFoQueue;
 
 @ThingInfo(title = "Balancing bandgap (Symmetric)", description = "Tries to keep the grid meter within a bandgap. For symmetric Ess.")
 public class BalancingBandgapController extends Controller {
@@ -68,6 +69,11 @@ public class BalancingBandgapController extends Controller {
 	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
 			this);
 
+	private AvgFiFoQueue meterActivePower = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue meterReactivePower = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue essActivePower = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue essReactivePower = new AvgFiFoQueue(2, 1.5);
+
 	/*
 	 * Methods
 	 */
@@ -76,9 +82,13 @@ public class BalancingBandgapController extends Controller {
 		try {
 			Ess ess = this.ess.value();
 			Meter meter = this.meter.value();
+			meterActivePower.add(meter.activePower.value());
+			meterReactivePower.add(meter.reactivePower.value());
+			essActivePower.add(ess.activePower.value());
+			essReactivePower.add(ess.reactivePower.value());
 			// Calculate required sum values
-			long calculatedPower = meter.activePower.value() + ess.activePower.value();
-			long calculatedReactivePower = meter.reactivePower.value() + ess.reactivePower.value();
+			long calculatedPower = meterActivePower.avg() + essActivePower.avg();
+			long calculatedReactivePower = meterReactivePower.avg() + essReactivePower.avg();
 			if (calculatedPower >= maxActivePower.value()) {
 				calculatedPower -= maxActivePower.value();
 			} else if (calculatedPower <= minActivePower.value()) {
