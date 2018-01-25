@@ -1,12 +1,12 @@
 #
-# io.openems.backend.application PROVIDER BUNDLE
+# io.openems.backend.metadata.odoo PROVIDER BUNDLE
 #
 
 Bundle-Version:					1.0.0.${tstamp}
 
 
 Private-Package:  \
-	io.openems.backend.application
+	io.openems.backend.metadata.odoo
 
 -includeresource: {readme.md}
 
@@ -19,4 +19,5 @@ Private-Package:  \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
 
-Bundle-Name: OpenEMS Backend
+-runrequires: osgi.identity;filter:='(osgi.identity=io.openems.backend.metadata.api)'
+Export-Package: io.openems.backend.metadata.api

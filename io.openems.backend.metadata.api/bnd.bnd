@@ -1,22 +1,23 @@
 #
-# io.openems.backend.application PROVIDER BUNDLE
+# io.openems.backend.metadata.api DEFAULTS
 #
 
 Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: Read and store Metadata
 
+Export-Package:  \
+	io.openems.backend.metadata.api
 
-Private-Package:  \
-	io.openems.backend.application
+Require-Capability: \
+	compile-only
 
 -includeresource: {readme.md}
 
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
-	io.openems.backend.metadata.api;version=latest,\
 	io.openems.common;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
 
-Bundle-Name: OpenEMS Backend

@@ -1,0 +1,22 @@
+#
+# io.openems.common DEFAULTS
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: 				\
+	This project contains a complete example with API, provider, and JUnit test code. \
+	\
+	${warning;Please update this Bundle-Description in bnd.bnd}
+
+Export-Package:  \
+	io.openems.common
+
+-includeresource: {readme.md}
+
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
