@@ -1,4 +1,4 @@
-package io.openems.backend.timedata;
+package io.openems.backend.timedata.api;
 
 import java.util.Optional;
 

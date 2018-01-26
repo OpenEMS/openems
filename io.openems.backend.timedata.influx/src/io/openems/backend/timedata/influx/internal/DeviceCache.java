@@ -1,4 +1,4 @@
-package io.openems.backend.timedata.influx;
+package io.openems.backend.timedata.influx.internal;
 
 import java.util.HashMap;
 import java.util.Map;

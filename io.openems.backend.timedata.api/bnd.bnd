@@ -3,16 +3,8 @@
 #
 
 Bundle-Version:					1.0.0.${tstamp}
-Bundle-Description: 				\
-	This project contains a complete example with API, provider, and JUnit test code. \
-	\
-	${warning;Please update this Bundle-Description in bnd.bnd}
 
-Export-Package:  \
-	io.openems.backend.timedata
-
-Require-Capability: \
-	compile-only
+Export-Package: io.openems.backend.timedata.api
 
 -includeresource: {readme.md}
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>io.openems.backend.timedata</name>
+	<name>io.openems.backend.timedata.influx</name>
 	<comment></comment>
 	<projects>
 	</projects>

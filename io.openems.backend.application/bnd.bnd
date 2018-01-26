@@ -13,7 +13,8 @@ Private-Package:  \
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.backend.metadata.api;version=latest,\
-	io.openems.common;version=latest
+	io.openems.common;version=latest,\
+	io.openems.backend.timedata.api;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

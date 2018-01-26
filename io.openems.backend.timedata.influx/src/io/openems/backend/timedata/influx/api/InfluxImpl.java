@@ -1,8 +1,5 @@
-package io.openems.backend.timedata.influx;
+package io.openems.backend.timedata.influx.api;
 
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,77 +12,94 @@ import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import com.google.common.collect.TreeBasedTable;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
-import io.openems.backend.metadata.api.device.MetadataDevice;
-import io.openems.backend.metadata.api.device.MetadataDevices;
-import io.openems.backend.timedata.api.TimedataSingleton;
+import io.openems.backend.metadata.api.MetadataDevice;
+import io.openems.backend.metadata.api.MetadataDevices;
+import io.openems.backend.timedata.api.TimedataService;
+import io.openems.backend.timedata.influx.internal.DeviceCache;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.InfluxdbUtils;
 import io.openems.common.utils.JsonUtils;
 
-public class InfluxdbSingleton implements TimedataSingleton {
+import org.osgi.service.metatype.annotations.Designate;
 
-	private final Logger log = LoggerFactory.getLogger(InfluxdbSingleton.class);
+@Designate(ocd = InfluxImpl.Config.class, factory = false)
+@Component(name = "io.openems.backend.timedata.influx")
+public class InfluxImpl implements TimedataService {
 
-	private final String MEASUREMENT = "data";
 	private final String TMP_MINI_MEASUREMENT = "minies";
+
+	@ObjectClassDefinition
+	@interface Config {
+		String database();
+
+		String url();
+
+		int port();
+
+		String username();
+
+		String password();
+
+		String measurement() default "data";
+	}
 
 	private String database;
 	private String url;
 	private int port;
 	private String username;
 	private String password;
+	private String measurement;
+
 	private InfluxDB influxDB;
 
 	private final Map<Integer, DeviceCache> deviceCacheMap = new HashMap<>();
 
-	public InfluxdbSingleton(String database, String url, int port, String username, String password)
-			throws OpenemsException {
-		this.database = database;
-		this.url = url;
-		this.port = port;
-		this.username = username;
-		this.password = password;
-		try {
-			this.connect();
-		} catch (Exception e) {
-			throw new OpenemsException("Connecting to InfluxDB failed: " + e.getMessage());
-		}
+	@Activate
+	void activate(Config config) throws OpenemsException {
+		System.out.println("Activate InfluxDB");
+		this.database = config.database();
+		this.url = config.url();
+		this.port = config.port();
+		this.username = config.username();
+		this.password = config.password();
+		this.measurement = config.measurement();
+		// TODO: connect asynchronously to not block the activator
+//		try {
+//			this.connect();
+//		} catch (Exception e) {
+//			throw new OpenemsException("Connecting to InfluxDB failed: " + e.getMessage());
+//		}
+	}
+
+	@Deactivate
+	void deactivate() {
 	}
 
 	private void connect() throws Exception {
-		InfluxDB influxDB = InfluxDBFactory.connect("http://" + url + ":" + port, username, password);
-		this.influxDB = influxDB;
+		this.influxDB = InfluxDBFactory.connect("http://" + url + ":" + port, username, password);
 		try {
 			influxDB.ping();
 		} catch (RuntimeException e) {
-			log.error("Unable to connect to InfluxDB: " + e.getMessage());
+			System.out.println("Unable to connect to InfluxDB: " + e.getMessage());
+			// TODO log.error("Unable to connect to InfluxDB: " + e.getMessage());
 			throw new Exception(e.getMessage());
 		}
-		/*
-		 * try {
-		 * influxDB.createDatabase(DB_NAME);
-		 * } catch (RuntimeException e) {
-		 * log.error("Unable to create InfluxDB database: " + DB_NAME);
-		 * throw new Exception(e.getMessage());
-		 * }
-		 */
 	}
 
 	/**
 	 * Takes a JsonObject and writes the points to influxDB.
 	 *
-	 * Format: { "timestamp1" { "channel1": value, "channel2": value },
-	 * "timestamp2" { "channel1": value, "channel2": value } }
+	 * Format: { "timestamp1" { "channel1": value, "channel2": value }, "timestamp2"
+	 * { "channel1": value, "channel2": value } }
 	 */
 	@Override
 	public void write(MetadataDevices devices, JsonObject jData) {
@@ -109,11 +123,13 @@ public class InfluxdbSingleton implements TimedataSingleton {
 					jChannels = JsonUtils.getAsJsonObject(entry.getValue());
 					sortedData.put(timestamp, jChannels);
 				} catch (OpenemsException e) {
-					log.error("Data error: " + e.getMessage());
+					// TODO log.error("Data error: " + e.getMessage());
+					System.out.println("Data error: " + e.getMessage());
 				}
 			}
 
-			// Prepare data table. Takes entries starting with eldest timestamp (ascending order)
+			// Prepare data table. Takes entries starting with eldest timestamp (ascending
+			// order)
 			for (Entry<Long, JsonObject> dataEntry : sortedData.entrySet()) {
 				Long timestamp = dataEntry.getKey();
 				JsonObject jChannels = dataEntry.getValue();
@@ -123,7 +139,8 @@ public class InfluxdbSingleton implements TimedataSingleton {
 					continue;
 				}
 
-				// Check if cache is valid (it is not elder than 5 minutes compared to this timestamp)
+				// Check if cache is valid (it is not elder than 5 minutes compared to this
+				// timestamp)
 				long cacheTimestamp = deviceCache.getTimestamp();
 				if (timestamp < cacheTimestamp) {
 					// incoming data is older than cache -> do not apply cache
@@ -144,8 +161,11 @@ public class InfluxdbSingleton implements TimedataSingleton {
 						// cache is not anymore valid (elder than 5 minutes)
 						// clear cache
 						if (cacheTimestamp != 0l) {
-							log.info("Invalidate cache for device [" + deviceId + "]. This timestamp [" + timestamp
-									+ "]. Cache timestamp [" + cacheTimestamp + "]");
+							System.out.println("Invalidate cache for device [" + deviceId + "]. This timestamp ["
+									+ timestamp + "]. Cache timestamp [" + cacheTimestamp + "]");
+							// TODO log.info("Invalidate cache for device [" + deviceId + "]. This timestamp [" +
+							// timestamp
+							// + "]. Cache timestamp [" + cacheTimestamp + "]");
 						}
 						deviceCache.clear();
 					}
@@ -188,6 +208,7 @@ public class InfluxdbSingleton implements TimedataSingleton {
 		}
 	}
 
+	//
 	private void writeData(int deviceId, TreeBasedTable<Long, String, Object> data) {
 		BatchPoints batchPoints = BatchPoints.database(database) //
 				.tag("fems", String.valueOf(deviceId)) //
@@ -195,8 +216,8 @@ public class InfluxdbSingleton implements TimedataSingleton {
 
 		for (Entry<Long, Map<String, Object>> entry : data.rowMap().entrySet()) {
 			Long timestamp = entry.getKey();
-			Builder builder = Point.measurement(MEASUREMENT) // this builds an InfluxDB record ("point") for a given
-					// timestamp
+			Builder builder = Point.measurement(this.measurement) // this builds an InfluxDB record ("point") for a
+																	// given timestamp
 					.time(timestamp, TimeUnit.MILLISECONDS).fields(entry.getValue());
 			batchPoints.point(builder.build());
 		}
@@ -206,8 +227,8 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	}
 
 	/**
-	 * Writes data to old database for old Mini monitoring
-	 * TODO remove after full migration
+	 * Writes data to old database for old Mini monitoring TODO remove after full
+	 * migration
 	 *
 	 * @param device
 	 * @param data
@@ -279,53 +300,56 @@ public class InfluxdbSingleton implements TimedataSingleton {
 	 * @return
 	 */
 	private Optional<Object> parseValue(String channel, Object value) {
-		if (value == null) {
-			return Optional.empty();
-		}
-		// convert JsonElement
-		if (value instanceof JsonElement) {
-			JsonElement jValueElement = (JsonElement) value;
-			if (jValueElement.isJsonPrimitive()) {
-				JsonPrimitive jValue = jValueElement.getAsJsonPrimitive();
-				if (jValue.isNumber()) {
-					try {
-						// Avoid GSONs LazilyParsedNumber
-						value = NumberFormat.getInstance().parse(jValue.toString());
-					} catch (ParseException e) {
-						log.error("Unable to parse Number: " + e.getMessage());
-						value = jValue.getAsNumber();
-					}
-				} else if (jValue.isBoolean()) {
-					value = jValue.getAsBoolean();
-				} else if (jValue.isString()) {
-					value = jValue.getAsString();
-				}
-			}
-		}
-		if (value instanceof Number) {
-			Number numberValue = (Number) value;
-			if (numberValue instanceof Integer) {
-				return Optional.of(numberValue.intValue());
-			} else if (numberValue instanceof Double) {
-				return Optional.of(numberValue.doubleValue());
-			} else {
-				return Optional.of(numberValue);
-			}
-		} else if (value instanceof Boolean) {
-			return Optional.of((Boolean) value);
-		} else if (value instanceof String) {
-			return Optional.of((String) value);
-		}
-		log.warn("Unknown type of value [" + value + "] channel [" + channel + "]. This should never happen.");
+		// if (value == null) {
+		// return Optional.empty();
+		// }
+		// // convert JsonElement
+		// if (value instanceof JsonElement) {
+		// JsonElement jValueElement = (JsonElement) value;
+		// if (jValueElement.isJsonPrimitive()) {
+		// JsonPrimitive jValue = jValueElement.getAsJsonPrimitive();
+		// if (jValue.isNumber()) {
+		// try {
+		// // Avoid GSONs LazilyParsedNumber
+		// value = NumberFormat.getInstance().parse(jValue.toString());
+		// } catch (ParseException e) {
+		// log.error("Unable to parse Number: " + e.getMessage());
+		// value = jValue.getAsNumber();
+		// }
+		// } else if (jValue.isBoolean()) {
+		// value = jValue.getAsBoolean();
+		// } else if (jValue.isString()) {
+		// value = jValue.getAsString();
+		// }
+		// }
+		// }
+		// if (value instanceof Number) {
+		// Number numberValue = (Number) value;
+		// if (numberValue instanceof Integer) {
+		// return Optional.of(numberValue.intValue());
+		// } else if (numberValue instanceof Double) {
+		// return Optional.of(numberValue.doubleValue());
+		// } else {
+		// return Optional.of(numberValue);
+		// }
+		// } else if (value instanceof Boolean) {
+		// return Optional.of((Boolean) value);
+		// } else if (value instanceof String) {
+		// return Optional.of((String) value);
+		// }
+		// log.warn("Unknown type of value [" + value + "] channel [" + channel + "].
+		// This should never happen.");
 		return Optional.empty();
 	}
 
-	@Override
-	public JsonArray queryHistoricData(Optional<Integer> deviceIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate,
-			JsonObject channels, int resolution) throws OpenemsException {
-		return InfluxdbUtils.queryHistoricData(influxDB, this.database, deviceIdOpt, fromDate, toDate, channels,
-				resolution);
-	}
+	// @Override
+	// public JsonArray queryHistoricData(Optional<Integer> deviceIdOpt,
+	// ZonedDateTime fromDate, ZonedDateTime toDate,
+	// JsonObject channels, int resolution) throws OpenemsException {
+	// return InfluxdbUtils.queryHistoricData(influxDB, this.database, deviceIdOpt,
+	// fromDate, toDate, channels,
+	// resolution);
+	// }
 
 	@Override
 	public Optional<Object> getChannelValue(int deviceId, ChannelAddress channelAddress) {
@@ -335,6 +359,5 @@ public class InfluxdbSingleton implements TimedataSingleton {
 		} else {
 			return Optional.empty();
 		}
-
 	}
 }
