@@ -6,8 +6,10 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.backend.common.types.DeviceImpl;
 import io.openems.backend.metadata.api.MetadataService;
-import io.openems.common.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,10 +20,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-@Designate(ocd = OdooImpl.Config.class, factory = true)
+@Designate(ocd = OdooImpl.Config.class, factory = false)
 @Component(name = "io.openems.backend.metadata.odoo")
 public class OdooImpl implements MetadataService {
 	
@@ -37,7 +42,7 @@ public class OdooImpl implements MetadataService {
 	private String database;
 	private int uid;
 	private String password;
-
+	
 	@Activate
 	void activate(Config config) {
 		this.url = config.url();
@@ -79,7 +84,7 @@ public class OdooImpl implements MetadataService {
 			// 	throw new OpenemsException("Session-ID is missing.");
 			// }
 			// String sessionId = data.getOdooSessionId().get();
-			String sessionId = "";
+			String sessionId = "8635d53109cafc9d51de443c7d2bc4e980ba1b5d";
 
 			// send request to Odoo
 			String charset = "US-ASCII";
@@ -101,33 +106,33 @@ public class OdooImpl implements MetadataService {
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));
 			String line = null;
 			while ((line = br.readLine()) != null) {
-				System.out.println(line);
 				JsonObject j = (new JsonParser()).parse(line).getAsJsonObject();
-//				if (j.has("error")) {
-//					JsonObject jError = JsonUtils.getAsJsonObject(j, "error");
-//					String errorMessage = JsonUtils.getAsString(jError, "message");
-//					throw new OpenemsException("Odoo replied with error: " + errorMessage);
-//				}
+				if (j.has("error")) {
+					JsonObject jError = JsonUtils.getAsJsonObject(j, "error");
+					String errorMessage = JsonUtils.getAsString(jError, "message");
+					throw new OpenemsException("Odoo replied with error: " + errorMessage);
+				}
 
-//				if (j.has("result")) {
-//					// parse the result
-//					JsonObject jResult = JsonUtils.getAsJsonObject(j, "result");
-//					JsonObject jUser = JsonUtils.getAsJsonObject(jResult, "user");
+				if (j.has("result")) {
+					// parse the result
+					JsonObject jResult = JsonUtils.getAsJsonObject(j, "result");
+					JsonObject jUser = JsonUtils.getAsJsonObject(jResult, "user");
 //					data.setUserId(JsonUtils.getAsInt(jUser, "id"));
 //					data.setUserName(JsonUtils.getAsString(jUser, "name"));
-//					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
-//					LinkedHashMultimap<String, DeviceImpl> deviceMap = LinkedHashMultimap.create();
-//					for (JsonElement jDevice : jDevices) {
-//						String name = JsonUtils.getAsString(jDevice, "name");
-//						deviceMap.put(name, new DeviceImpl( //
-//								name, //
-//								JsonUtils.getAsString(jDevice, "comment"), //
-//								JsonUtils.getAsString(jDevice, "producttype"), //
-//								JsonUtils.getAsString(jDevice, "role")));
-//					}
+					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
+					LinkedHashMultimap<String, DeviceImpl> deviceMap = LinkedHashMultimap.create();
+					for (JsonElement jDevice : jDevices) {
+						String name = JsonUtils.getAsString(jDevice, "name");
+						deviceMap.put(name, new DeviceImpl( //
+								name, //
+								JsonUtils.getAsString(jDevice, "comment"), //
+								JsonUtils.getAsString(jDevice, "producttype"), //
+								JsonUtils.getAsString(jDevice, "role")));
+					}
+					System.out.println(deviceMap);
 //					data.setDevices(deviceMap);
-//					return;
-//				}
+					return;
+				}
 			}
 		} catch (IOException e) {
 			throw new OpenemsException("IOException while reading from Odoo: " + e.getMessage());

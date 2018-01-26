@@ -1,4 +1,4 @@
-package io.openems.common;
+package io.openems.common.exceptions;
 
 public class OpenemsException extends Exception {
 

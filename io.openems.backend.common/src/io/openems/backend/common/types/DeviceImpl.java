@@ -1,4 +1,4 @@
-package io.openems.common.types;
+package io.openems.backend.common.types;
 
 import java.util.Optional;
 

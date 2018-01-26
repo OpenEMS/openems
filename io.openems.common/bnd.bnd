@@ -8,13 +8,16 @@ Bundle-Description: 				\
 	\
 	${warning;Please update this Bundle-Description in bnd.bnd}
 
-Export-Package:  \
-	io.openems.common
+Export-Package: \
+	io.openems.common.session,\
+	io.openems.common.utils,\
+	io.openems.common.exceptions
 
 -includeresource: {readme.md}
 
--buildpath:  \
-	osgi.enroute.base.api;version=2.1
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	com.google.gson
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

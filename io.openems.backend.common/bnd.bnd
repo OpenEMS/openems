@@ -1,12 +1,10 @@
 #
-# io.openems.backend.metadata.api DEFAULTS
+# io.openems.backend.common DEFAULTS
 #
 
 Bundle-Version:					1.0.0.${tstamp}
-Bundle-Description: Read and store Metadata
 
-Export-Package:  \
-	io.openems.backend.metadata.api
+Export-Package: io.openems.backend.common.types
 
 -includeresource: {readme.md}
 

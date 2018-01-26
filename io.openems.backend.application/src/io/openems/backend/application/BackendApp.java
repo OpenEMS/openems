@@ -6,7 +6,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import io.openems.backend.metadata.api.MetadataService;
-import io.openems.common.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 
 @Component()
 public class BackendApp {
