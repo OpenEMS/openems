@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.api.device;
+package io.openems.backend.metadata.api;
 
 import java.util.ArrayList;
 import java.util.HashSet;

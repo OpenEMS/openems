@@ -1,14 +1,16 @@
-package io.openems.backend.timedata.api;
+package io.openems.backend.timedata;
 
 import java.util.Optional;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.device.MetadataDevices;
-import io.openems.common.api.TimedataSource;
+import io.openems.backend.metadata.api.MetadataDevices;
 import io.openems.common.types.ChannelAddress;
 
-public interface TimedataSingleton extends TimedataSource {
+@ProviderType
+public interface TimedataService {
 	/**
 	 * Takes a JsonObject and writes the points to database.
 	 *
