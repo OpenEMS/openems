@@ -30,7 +30,7 @@
 	<repositories>
 		<repository>
 			<id>maven-restlet</id>
-			<name>Public online Restlet repository</name>
+			<name>Public online Restlet repository</name>musi
 			<url>http://maven.restlet.com</url>
 		</repository>
 	</repositories>

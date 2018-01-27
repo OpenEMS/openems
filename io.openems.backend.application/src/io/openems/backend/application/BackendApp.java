@@ -12,6 +12,7 @@ import io.openems.common.exceptions.OpenemsException;
 @Component()
 public class BackendApp {
 
+	// TODO: use setter to not kill BackendApp all the time...
 	@Reference
 	MetadataService metadataService;
 	
@@ -22,7 +23,7 @@ public class BackendApp {
 	void activate() {
 		System.out.println("Activate BackendApp");
 		try {
-			this.metadataService.getInfoWithSession();
+			this.metadataService.getInfoWithSession("8635d53109cafc9d51de443c7d2bc4e980ba1b5d");
 		} catch (OpenemsException e) {
 			e.printStackTrace();
 		}

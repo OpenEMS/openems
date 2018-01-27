@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.types.Device;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.Device;
 
 public interface MetadataDevice extends Device {
 

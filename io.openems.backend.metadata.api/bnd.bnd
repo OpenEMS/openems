@@ -14,7 +14,8 @@ Export-Package:  \
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.common;version=latest,\
 	io.openems.backend.common;version=latest,\
-	com.google.gson
+	com.google.gson,\
+	com.google.guava
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

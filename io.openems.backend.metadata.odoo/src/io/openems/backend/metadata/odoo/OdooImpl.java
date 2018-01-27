@@ -6,9 +6,10 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.backend.common.types.DeviceImpl;
 import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.metadata.api.UserDevicesInfo;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.DeviceImpl;
 import io.openems.common.utils.JsonUtils;
 
 import java.io.BufferedReader;
@@ -70,22 +71,9 @@ public class OdooImpl implements MetadataService {
 	 * @throws OpenemsException
 	 */
 	@Override
-	// public void getInfoWithSession(BrowserSession session) throws OpenemsException {
-	public void getInfoWithSession() throws OpenemsException {
+	public UserDevicesInfo getInfoWithSession(String sessionId) throws OpenemsException {
 		HttpURLConnection connection = null;
 		try {
-			// get session_id from Session
-			// SessionData sessionData = session.getData();
-			// if (!(sessionData instanceof BrowserSessionData)) {
-			// 	throw new OpenemsException("Session is of wrong type.");
-			// }
-			// BrowserSessionData data = (BrowserSessionData) sessionData;
-			// if (!(data.getOdooSessionId().isPresent())) {
-			// 	throw new OpenemsException("Session-ID is missing.");
-			// }
-			// String sessionId = data.getOdooSessionId().get();
-			String sessionId = "8635d53109cafc9d51de443c7d2bc4e980ba1b5d";
-
 			// send request to Odoo
 			String charset = "US-ASCII";
 			String query = String.format("session_id=%s", URLEncoder.encode(sessionId, charset));
@@ -114,11 +102,13 @@ public class OdooImpl implements MetadataService {
 				}
 
 				if (j.has("result")) {
+					UserDevicesInfo info = new UserDevicesInfo();
+					
 					// parse the result
 					JsonObject jResult = JsonUtils.getAsJsonObject(j, "result");
 					JsonObject jUser = JsonUtils.getAsJsonObject(jResult, "user");
-//					data.setUserId(JsonUtils.getAsInt(jUser, "id"));
-//					data.setUserName(JsonUtils.getAsString(jUser, "name"));
+					info.setUserId(JsonUtils.getAsInt(jUser, "id"));
+					info.setUserName(JsonUtils.getAsString(jUser, "name"));
 					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
 					LinkedHashMultimap<String, DeviceImpl> deviceMap = LinkedHashMultimap.create();
 					for (JsonElement jDevice : jDevices) {
@@ -129,9 +119,8 @@ public class OdooImpl implements MetadataService {
 								JsonUtils.getAsString(jDevice, "producttype"), //
 								JsonUtils.getAsString(jDevice, "role")));
 					}
-					System.out.println(deviceMap);
-//					data.setDevices(deviceMap);
-					return;
+					info.setDevices(deviceMap);
+					return info;
 				}
 			}
 		} catch (IOException e) {
