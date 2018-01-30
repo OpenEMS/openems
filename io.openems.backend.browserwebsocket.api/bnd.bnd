@@ -7,13 +7,11 @@ Bundle-Version:					1.0.0.${tstamp}
 Export-Package:  \
 	io.openems.backend.browserwebsocket.api
 
-Require-Capability: \
-	compile-only
-
 -includeresource: {readme.md}
 
--buildpath:  \
-	osgi.enroute.base.api;version=2.1
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.wrapper.websocket;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

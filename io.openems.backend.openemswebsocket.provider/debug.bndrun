@@ -1,0 +1,13 @@
+#
+# io.openems.backend.openemswebsocket.impl DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.backend.openemswebsocket.impl.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

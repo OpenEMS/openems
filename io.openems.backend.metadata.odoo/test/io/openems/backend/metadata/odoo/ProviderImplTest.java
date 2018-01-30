@@ -4,7 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import io.openems.backend.metadata.odoo.OdooImpl;
+import io.openems.backend.metadata.odoo.OdooProvider;
 
 /*
  * Example JUNit test case
@@ -19,7 +19,7 @@ public class ProviderImplTest {
 
 	@Test
 	public void simple() {
-		OdooImpl impl = new OdooImpl();
+		OdooProvider impl = new OdooProvider();
 		assertNotNull(impl);
 	}
 

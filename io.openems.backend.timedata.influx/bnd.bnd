@@ -4,8 +4,7 @@
 
 Bundle-Version:					1.0.0.${tstamp}
 
-Export-Package:  \
-	io.openems.backend.timedata.influx.api;-provide=true
+Export-Package: io.openems.backend.timedata.influx;-provide=true
 
 Private-Package: io.openems.backend.timedata.influx.internal
 
