@@ -160,25 +160,33 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 			Member member = channelDoc.getMember();
 			try {
 				List<Channel> channels = new ArrayList<>();
+				java.util.function.Consumer<Channel> addToChannels = (c) -> {
+					if(c == null) {
+						log.error(
+								"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
+					} else {
+						channels.add(c);
+					}
+				};
 				if (member instanceof Method) {
 					if (((Method) member).getReturnType().isArray()) {
 						Channel[] ch = (Channel[]) ((Method) member).invoke(thing);
 						for (Channel c : ch) {
-							channels.add(c);
+							addToChannels.accept(c);
 						}
 					} else {
 						// It's a Method with ReturnType Channel
-						channels.add((Channel) ((Method) member).invoke(thing));
+						Channel c = (Channel) ((Method) member).invoke(thing);
+						addToChannels.accept(c);
 					}
 				} else if (member instanceof Field) {
 					// It's a Field with Type Channel
-					channels.add((Channel) ((Field) member).get(thing));
+					Channel c = (Channel) ((Field) member).get(thing);
+					addToChannels.accept(c);
 				} else {
 					continue;
 				}
 				if (channels.isEmpty()) {
-					log.error(
-							"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
 					continue;
 				}
 				for (Channel channel : channels) {
