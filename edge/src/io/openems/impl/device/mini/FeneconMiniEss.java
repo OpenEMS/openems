@@ -25,7 +25,6 @@ import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
@@ -36,6 +35,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
+import io.openems.impl.protocol.modbus.ModbusBitWrappingChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -86,7 +86,6 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 	 * Inherited Channels
 	 */
 	// ESS
-	private StatusBitChannels warning;
 	private ModbusReadLongChannel allowedCharge;
 	private ModbusReadLongChannel allowedDischarge;
 	private ReadChannel<Long> gridMode;
@@ -225,7 +224,6 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 	 */
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		warning = new StatusBitChannels("Warning", this);
 
 		ModbusProtocol protokol = new ModbusProtocol(new ModbusRegisterRange(100, //
 				new UnsignedWordElement(100, //
@@ -263,14 +261,16 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 				new SignedWordElement(112, //
 						batteryPower = new ModbusReadLongChannel("BatteryPower", this).unit("W")),
 				new UnsignedWordElement(113, //
-						batteryGroupAlarm = new ModbusReadLongChannel("BatteryGroupAlarm", this)
-						.label(1, "Fail, The system should be stopped") //
-						.label(2, "Common low voltage alarm") //
-						.label(4, "Common high voltage alarm") //
-						.label(8, "Charging over current alarm") //
-						.label(16, "Discharging over current alarm") //
-						.label(32, "Over temperature alarm")//
-						.label(64, "Interal communication abnormal")),
+						new ModbusBitWrappingChannel("BatteryGroupAlarm" , this, this.thingState)//
+						.warningBit(0, WarningEss.FailTheSystemShouldBeStopped )//
+						.warningBit(1, WarningEss.CommonLowVoltageAlarm)//
+						.warningBit(2, WarningEss.CommonHighVoltageAlarm)//
+						.warningBit(3, WarningEss.ChargingOverCurrentAlarm)//
+						.warningBit(4, WarningEss.DischargingOverCurrentAlarm)//
+						.warningBit(5, WarningEss.OverTemperatureAlarm)//
+						.warningBit(6, WarningEss.InteralCommunicationAbnormal)//
+						),//
+
 				new UnsignedWordElement(114, //
 						pcsOperationState = new ModbusReadLongChannel("PcsOperationState", this)
 						.label(0, "Self-checking") //
@@ -299,68 +299,82 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 				new UnsignedWordElement(142, //
 						allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this).unit("W")),
 				new DummyElement(143, 149),
-				new UnsignedWordElement(150, pcsAlarm1 = warning.channel(new StatusBitChannel("PcsAlarm1", this)//
-						.label(1, "Grid undervoltage") //
-						.label(2, "Grid overvoltage") //
-						.label(4, "Grid under frequency") //
-						.label(8, "Grid over frequency") //
-						.label(16, "Grid power supply off") //
-						.label(32, "Grid condition unmeet")//
-						.label(64, "DC under voltage")//
-						.label(128, "Input over resistance")//
-						.label(256, "Combination error")//
-						.label(512, "Comm with inverter error")//
-						.label(1024, "Tme error")//
-						)), new UnsignedWordElement(151, pcsAlarm2 = warning.channel(new StatusBitChannel("PcsAlarm2", this)//
-								)), new UnsignedWordElement(152, warning.channel(pcsFault1 = new StatusBitChannel("PcsFault1", this)//
-								.label(1, "Control current overload 100%")//
-								.label(2, "Control current overload 110%")//
-								.label(4, "Control current overload 150%")//
-								.label(8, "Control current overload 200%")//
-								.label(16, "Control current overload 120%")//
-								.label(32, "Control current overload 300%")//
-								.label(64, "Control transient load 300%")//
-								.label(128, "Grid over current")//
-								.label(256, "Locking waveform too many times")//
-								.label(512, "Inverter voltage zero drift error")//
-								.label(1024, "Grid voltage zero drift error")//
-								.label(2048, "Control current zero drift error")//
-								.label(4096, "Inverter current zero drift error")//
-								.label(8192, "Grid current zero drift error")//
-								.label(16384, "PDP protection")//
-								.label(32768, "Hardware control current protection")//
-										)), new UnsignedWordElement(153, warning.channel(pcsFault2 = new StatusBitChannel("PcsFault2", this)//
-										.label(1, "Hardware AC volt. protection")//
-										.label(2, "Hardware DC curr. protection")//
-										.label(4, "Hardware temperature protection")//
-										.label(8, "No capturing signal")//
-										.label(16, "DC overvoltage")//
-										.label(32, "DC disconnected")//
-										.label(64, "Inverter undervoltage")//
-										.label(128, "Inverter overvoltage")//
-										.label(256, "Current sensor fail")//
-										.label(512, "Voltage sensor fail")//
-										.label(1024, "Power uncontrollable")//
-										.label(2048, "Current uncontrollable")//
-										.label(4096, "Fan error")//
-										.label(8192, "Phase lack")//
-										.label(16384, "Inverter relay fault")//
-										.label(32768, "Grid relay fault")//
-												)), new UnsignedWordElement(154, warning.channel(pcsFault3 = new StatusBitChannel("PcsFault3", this)//
-												.label(1, "Control panel overtemp")//
-												.label(2, "Power panel overtemp")//
-												.label(4, "DC input overcurrent")//
-												.label(8, "Capacitor overtemp")//
-												.label(16, "Radiator overtemp")//
-												.label(32, "Transformer overtemp")//
-												.label(64, "Combination comm error")//
-												.label(128, "EEPROM error")//
-												.label(256, "Load current zero drift error")//
-												.label(512, "Current limit-R error")//
-												.label(1024, "Phase sync error")//
-												.label(2048, "External PV current zero drift error")//
-												.label(4096, "External grid current zero drift error")//
-														))), //
+				new UnsignedWordElement(150,//
+						new ModbusBitWrappingChannel("PcsAlarm1" , this, this.thingState)//
+						.warningBit(0, WarningEss.GridUndervoltage)//
+						.warningBit(1, WarningEss.GridOvervoltage)//
+						.warningBit(2, WarningEss.GridUnderFrequency)//
+						.warningBit(3, WarningEss.GridOverFrequency)//
+						.warningBit(4, WarningEss.GridPowerSupplyOff)//
+						.warningBit(5, WarningEss.GridConditionUnmeet)//
+						.warningBit(6, WarningEss.DCUnderVoltage)//
+						.warningBit(7, WarningEss.InputOverResistance)//
+						.warningBit(8, WarningEss.CombinationError)//
+						.warningBit(9, WarningEss.CommWithInverterError)//
+						.warningBit(10,WarningEss.TmeError)//
+						),//
+
+				new UnsignedWordElement(151,
+						new ModbusBitWrappingChannel("PcsAlarm2", this, this.thingState)//
+						), //
+
+				new UnsignedWordElement(152,
+						new ModbusBitWrappingChannel("PcsFault1", this, this.thingState)//
+						.faultBit(0, FaultEss.ControlCurrentOverload100Percent)//
+						.faultBit(1, FaultEss.ControlCurrentOverload110Percent)//
+						.faultBit(2, FaultEss.ControlCurrentOverload150Percent)//
+						.faultBit(3, FaultEss.ControlCurrentOverload200Percent)//
+						.faultBit(4, FaultEss.ControlCurrentOverload120Percent)//
+						.faultBit(5, FaultEss.ControlCurrentOverload300Percent)//
+						.faultBit(6, FaultEss.ControlTransientLoad300Percent)//
+						.faultBit(7, FaultEss.GridOverCurrent)//
+						.faultBit(8, FaultEss.LockingWaveformTooManyTimes)//
+						.faultBit(9, FaultEss.InverterVoltageZeroDriftError)//
+						.faultBit(10,FaultEss.GridVoltageZeroDriftError)//
+						.faultBit(11,FaultEss.ControlCurrentZeroDriftError)//
+						.faultBit(12,FaultEss.InverterCurrentZeroDriftError)//
+						.faultBit(13,FaultEss.GridCurrentZeroDriftError)//
+						.faultBit(14, FaultEss.PDPProtection)//
+						.faultBit(15, FaultEss.HardwareControlCurrentProtection)//
+						),//
+
+				new UnsignedWordElement(153, //
+						new ModbusBitWrappingChannel("PcsFault2" , this, this.thingState)//
+						.faultBit(0, FaultEss.HardwareACVoltProtection)//
+						.faultBit(1, FaultEss.HardwareDCCurrentProtection)//
+						.faultBit(2, FaultEss.HardwareTemperatureProtection)//
+						.faultBit(3, FaultEss.NoCapturingSignal)//
+						.faultBit(4, FaultEss.DCOvervoltage)//
+						.faultBit(5, FaultEss.DCDisconnected)//
+						.faultBit(6, FaultEss.InverterUndervoltage)//
+						.faultBit(7, FaultEss.InverterOvervoltage)//
+						.faultBit(8, FaultEss.CurrentSensorFail)//
+						.faultBit(9, FaultEss.VoltageSensorFail)//
+						.faultBit(10,FaultEss.PowerUncontrollable)//
+						.faultBit(11,FaultEss.CurrentUncontrollable)//
+						.faultBit(12,FaultEss.FanError)//
+						.faultBit(13,FaultEss.PhaseLack)//
+						.faultBit(14,FaultEss.InverterRelayFault)//
+						.faultBit(15,FaultEss.GridRelayFault)//
+						),//
+
+				new UnsignedWordElement(154, //
+						new ModbusBitWrappingChannel("PcsFault3", this, this.thingState)//
+						.faultBit(0, FaultEss.ControlPanelOvertemp)//
+						.faultBit(1, FaultEss.PowerPanelOvertemp)//
+						.faultBit(2, FaultEss.DCInputOvercurrent)//
+						.faultBit(3, FaultEss.CapacitorOvertemp)//
+						.faultBit(4, FaultEss.RadiatorOvertemp)//
+						.faultBit(5, FaultEss.TransformerOvertemp)//
+						.faultBit(6, FaultEss.CombinationCommError)//
+						.faultBit(7, FaultEss.EEPROMError)//
+						.faultBit(8, FaultEss.LoadCurrentZeroDriftError)//
+						.faultBit(9, FaultEss.CurrentLimitRError)//
+						.faultBit(10,FaultEss.PhaseSyncError)//
+						.faultBit(11,FaultEss.ExternalPVCurrentZeroDriftError)//
+						.faultBit(12,FaultEss.ExternalGridCurrentZeroDriftError)//
+						)),//
+
 				new WriteableModbusRegisterRange(200, //
 						new UnsignedWordElement(200, setWorkState = new ModbusWriteLongChannel("SetWorkState", this)//
 						.label(0, "Local control") //

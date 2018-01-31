@@ -175,12 +175,19 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 		return new ModbusProtocol( //
 				new ModbusRegisterRange(0x0100, //
 						new UnsignedWordElement(0x100, //
-								sysAlarmInfo = new ModbusReadLongChannel("SysAlarmInfo", this)//
-								.label(1, "Warning State")//
-								.label(2, "Protection State")//
-								.label(4, "Derating State")//
-								.label(8, "Charge Forbidden")//
-								.label(16, "Discharge Forbidden")),
+								new ModbusBitWrappingChannel("SysAlarmInfo", this, this.thingState)//
+								.warningBit(0, WarningEss.WarningState)//
+								.warningBit(1, WarningEss.ProtectionState)//
+								.warningBit(2, WarningEss.DeratingState)//
+								.warningBit(3, WarningEss.ChargeForbidden)//
+								.warningBit(4, WarningEss.DischargeForbidden)//
+								),//
+						//								sysAlarmInfo = new ModbusReadLongChannel("SysAlarmInfo", this)//
+						//								.label(1, "Warning State")//
+						//								.label(2, "Protection State")//
+						//								.label(4, "Derating State")//
+						//								.label(8, "Charge Forbidden")//
+						//								.label(16, "Discharge Forbidden")),
 						new UnsignedWordElement(0x101, //
 								sysWorkStatus = new ModbusReadLongChannel("SysWorkStatus", this)//
 								.label(1, "Initial") //
@@ -199,18 +206,28 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 				new ModbusRegisterRange(0x0110, //
 						new UnsignedWordElement(0x110, //
 								new ModbusBitWrappingChannel("SysAlarmInfo", this, thingState)//
-								.warningBit(1, Warning.Status_abnormal_of_AC_surge_protector) // Status abnormal of AC surge protector
-								.warningBit(2, Warning.Close_of_control_switch) // Close of control switch
-								.warningBit(3, Warning.Emergency_stop) // Emergency stop
-								.warningBit(5, Warning.Status_abnormal_of_frog_detector) // Status_abnormal_of_frog_detector
-								.warningBit(6, Warning.Serious_leakage) // Serious_leakage
-								.warningBit(7, Warning.Normal_leakage)), // Normal_leakage
+								.warningBit(1, WarningEss.StatusAbnormalOfACSurgeProtector) // Status abnormal of AC surge protector
+								.warningBit(2, WarningEss.CloseOfControlSwitch) // Close of control switch
+								.warningBit(3, WarningEss.EmergencyStop) // Emergency stop
+								.warningBit(5, WarningEss.StatusAbnormalOfFrogDetector) // Status_abnormal_of_frog_detector
+								.warningBit(6, WarningEss.SeriousLeakage) // Serious_leakage
+								.warningBit(7, WarningEss.NormalLeakage)), // Normal_leakage
+						//								.warningBit(1, Warning.Status_abnormal_of_AC_surge_protector) // Status abnormal of AC surge protector
+						//								.warningBit(2, Warning.Close_of_control_switch) // Close of control switch
+						//								.warningBit(3, Warning.Emergency_stop) // Emergency stop
+						//								.warningBit(5, Warning.Status_abnormal_of_frog_detector) // Status_abnormal_of_frog_detector
+						//								.warningBit(6, Warning.Serious_leakage) // Serious_leakage
+						//								.warningBit(7, Warning.Normal_leakage)), // Normal_leakage
 						new UnsignedWordElement(0x111, //
 								new ModbusBitWrappingChannel("SysAlarmInfo2", this, thingState)//
-								.warningBit(0, Warning.Failure_of_temperature_sensor_in_control_cabinet) // Failure of temperature sensor in control cabinet
-								.warningBit(9, Warning.Failure_of_humidity_sensor_in_control_cabinet) // Failure_of_humidity_sensor_in_control_cabinet
-								.warningBit(12, Warning.Failure_of_storage_device) // Failure_of_storage_device
-								.warningBit(13, Warning.Exceeding_of_humidity_in_control_cabinet)) // Exceeding_of_humidity_in_control_cabinet
+								.warningBit(0, WarningEss.FailureOfTemperatureSensorInControlCabinet) // Failure of temperature sensor in control cabinet
+								.warningBit(9, WarningEss.FailureOfHumiditySensorInControlCabinet) // Failure_of_humidity_sensor_in_control_cabinet
+								.warningBit(12,WarningEss.FailureOfStorageDevice) // Failure_of_storage_device
+								.warningBit(13,WarningEss.ExceedingOfHumidityInControlCabinet)) // Exceeding_of_humidity_in_control_cabinet
+						//								.warningBit(0, Warning.Failure_of_temperature_sensor_in_control_cabinet) // Failure of temperature sensor in control cabinet
+						//								.warningBit(9, Warning.Failure_of_humidity_sensor_in_control_cabinet) // Failure_of_humidity_sensor_in_control_cabinet
+						//								.warningBit(12, Warning.Failure_of_storage_device) // Failure_of_storage_device
+						//								.warningBit(13, Warning.Exceeding_of_humidity_in_control_cabinet)) // Exceeding_of_humidity_in_control_cabinet
 						), new ModbusRegisterRange(0x1300, new UnsignedWordElement(0x1300, //
 								batteryStackVoltage = new ModbusReadLongChannel("BatteryStackVoltage", this).multiplier(2)
 								.unit("mV")),
