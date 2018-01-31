@@ -65,8 +65,11 @@ public class BitUtils {
 		case JSON_OBJECT:
 		case DEVICE_NATURE:
 		case THING_MAP:
+		case ENUM:
 			// igore - no error
 			return new byte[0];
+		default:
+			break;
 		}
 		throw new NotImplementedException(
 				"Converter to Byte for value [" + value + "] of type [" + type + "] is not implemented.");
@@ -98,8 +101,11 @@ public class BitUtils {
 		case JSON_OBJECT:
 		case DEVICE_NATURE:
 		case THING_MAP:
+		case ENUM:
 			throw new NotImplementedException(
 					"Converter to Byte for value [" + value + "] of type [" + type + "] is not implemented.");
+		default:
+			break;
 		}
 		throw new NotImplementedException(
 				"Converter to Byte for value [" + value + "] of type [" + type + "] is not implemented.");
