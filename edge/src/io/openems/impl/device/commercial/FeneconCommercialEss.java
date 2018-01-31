@@ -1008,7 +1008,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 								),//
 						new UnsignedWordElement(0x154F,
 								batteryCell80Voltage = new ModbusReadLongChannel("Cell80Voltage", this).unit("mV")
-								),//
+								)),
+				new ModbusRegisterRange(0x1550, //
 						new UnsignedWordElement(0x1550,
 								batteryCell81Voltage = new ModbusReadLongChannel("Cell81Voltage", this).unit("mV")
 								),//
@@ -1248,7 +1249,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 								),//
 						new UnsignedWordElement(0x159F,
 								batteryCell160Voltage = new ModbusReadLongChannel("Cell160Voltage", this).unit("mV")
-								),//
+								)),//
+				new ModbusRegisterRange(0x15A0, //
 						new UnsignedWordElement(0x15A0,
 								batteryCell161Voltage = new ModbusReadLongChannel("Cell161Voltage", this).unit("mV")
 								),//
