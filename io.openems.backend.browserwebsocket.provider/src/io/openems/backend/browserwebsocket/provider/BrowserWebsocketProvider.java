@@ -12,6 +12,7 @@ import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.openemswebsocket.api.OpenemsWebsocketService;
 import io.openems.backend.timedata.api.TimedataService;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.Log;
 
 import org.osgi.service.metatype.annotations.Designate;
 
