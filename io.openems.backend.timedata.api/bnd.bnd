@@ -6,6 +6,9 @@ Bundle-Version:					1.0.0.${tstamp}
 
 Export-Package: io.openems.backend.timedata.api
 
+Require-Capability: \
+	compile-only
+
 -includeresource: {readme.md}
 
 -buildpath: \

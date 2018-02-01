@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.timedata.api.TimedataService;
 
 @Component()
 public class BackendApp {
@@ -24,6 +25,9 @@ public class BackendApp {
 
 	@Reference
 	MetadataService metadataService;
+	
+	@Reference
+	TimedataService timedataService;
 	
 	@Activate
 	void activate() {

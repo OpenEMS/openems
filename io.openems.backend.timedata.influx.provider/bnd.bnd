@@ -4,9 +4,9 @@
 
 Bundle-Version:					1.0.0.${tstamp}
 
-Export-Package: io.openems.backend.timedata.influx;-provide=true
 
-Private-Package: io.openems.backend.timedata.influx.internal
+Private-Package: \
+	io.openems.backend.timedata.influx
 
 -includeresource: {readme.md}
 
@@ -24,3 +24,4 @@ Private-Package: io.openems.backend.timedata.influx.internal
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
 
+Export-Package: io.openems.backend.timedata.api

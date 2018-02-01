@@ -18,6 +18,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonArray;
@@ -27,18 +29,18 @@ import com.google.gson.JsonObject;
 import io.openems.backend.metadata.api.MetadataDevice;
 import io.openems.backend.metadata.api.MetadataDevices;
 import io.openems.backend.timedata.api.TimedataService;
-import io.openems.backend.timedata.influx.internal.DeviceCache;
-import io.openems.backend.timedata.influx.internal.InfluxdbUtils;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
 
 import org.osgi.service.metatype.annotations.Designate;
 
-@Designate(ocd = InfluxProvider.Config.class, factory = false)
+@Designate(ocd = Influx.Config.class, factory = false)
 @Component(name = "InfluxDB", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class InfluxProvider implements TimedataService {
+public class Influx implements TimedataService {
 
+	private final Logger log = LoggerFactory.getLogger(Influx.class);
+	
 	private final String TMP_MINI_MEASUREMENT = "minies";
 
 	@ObjectClassDefinition
@@ -69,7 +71,7 @@ public class InfluxProvider implements TimedataService {
 
 	@Activate
 	void activate(Config config) throws OpenemsException {
-		System.out.println("Activate InfluxDB");
+		log.debug("Activate InfluxDB");
 		this.database = config.database();
 		this.url = config.url();
 		this.port = config.port();
@@ -87,7 +89,7 @@ public class InfluxProvider implements TimedataService {
 
 	@Deactivate
 	void deactivate() {
-		System.out.println("Deactivate InfluxDB");
+		log.debug("Deactivate InfluxDB");
 	}
 
 	private void connect() throws Exception {
