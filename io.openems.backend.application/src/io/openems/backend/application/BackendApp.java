@@ -9,43 +9,43 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.LogService;
 import org.slf4j.Logger;
-
-import io.openems.backend.metadata.api.MetadataService;
-import io.openems.backend.timedata.api.TimedataService;
-import io.openems.common.exceptions.OpenemsException;
+import org.slf4j.LoggerFactory;
 
 @Component()
 public class BackendApp {
 
-	@Reference
-	MetadataService metadataService;
+	private final Logger log = LoggerFactory.getLogger(BackendApp.class);
 
 	@Reference
-	TimedataService timedataService;
-
-	@Reference
-	LogService log;
-
-	@Reference
-	ConfigurationAdmin admin;
+	ConfigurationAdmin configAdmin;
 
 	@Activate
 	void activate() {
-		// log.info(arg0);
-		log.log(LogService.LOG_INFO, "Activate BackendAppX");
-		System.out.println("Activate BackendApp");
+		configureLogging();
+
+		log.debug("Activate BackendApp");
+	}
+
+	private void configureLogging() {
+		Configuration configuration;
 		try {
-			this.metadataService.getInfoWithSession("8635d53109cafc9d51de443c7d2bc4e980ba1b5d");
-		} catch (OpenemsException e) {
-			e.printStackTrace();
+			configuration = configAdmin.getConfiguration("org.ops4j.pax.logging", null);
+			final Hashtable<String, Object> log4jProps = new Hashtable<String, Object>();
+			log4jProps.put("log4j.rootLogger", "DEBUG, CONSOLE");
+			log4jProps.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
+			log4jProps.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
+			log4jProps.put("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] - %m%n");
+			log4jProps.put("log4j.logger.org.eclipse.osgi", "WARN");
+			configuration.update(log4jProps);
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
 	}
 
 	@Deactivate
 	void deactivate() {
-		System.out.println("Deactivate");
+		log.debug("Deactivate BackendApp");
 	}
 
 }

@@ -5,7 +5,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.log.LogService;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+import org.slf4j.Logger;
 
 import io.openems.backend.browserwebsocket.provider.internal.BrowserWebsocket;
 import io.openems.backend.metadata.api.MetadataService;
@@ -20,6 +22,9 @@ import org.osgi.service.metatype.annotations.Designate;
 @Component(name = "BrowserWebsocket", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class BrowserWebsocketProvider {
 
+	@Reference
+	Logger log;
+	
 	@ObjectClassDefinition
 	@interface Config {
 		int port();
