@@ -12,6 +12,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.backend.metadata.api.MetadataService;
+
 @Component()
 public class BackendApp {
 
@@ -20,6 +22,9 @@ public class BackendApp {
 	@Reference
 	ConfigurationAdmin configAdmin;
 
+	@Reference
+	MetadataService metadataService;
+	
 	@Activate
 	void activate() {
 		configureLogging();
@@ -36,7 +41,9 @@ public class BackendApp {
 			log4jProps.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
 			log4jProps.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
 			log4jProps.put("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] - %m%n");
+			// set minimum log levels for some verbose packages
 			log4jProps.put("log4j.logger.org.eclipse.osgi", "WARN");
+			log4jProps.put("log4j.logger.org.apache.felix.configadmin", "INFO");
 			configuration.update(log4jProps);
 		} catch (IOException e1) {
 			e1.printStackTrace();

@@ -6,6 +6,8 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.backend.metadata.api.MetadataDeviceModel;
 import io.openems.backend.metadata.api.MetadataService;
@@ -29,10 +31,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-@Designate(ocd = OdooProvider.Config.class, factory = false)
+@Designate(ocd = Odoo.Config.class, factory = false)
 @Component(name = "Odoo", configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class OdooProvider implements MetadataService {
+public class Odoo implements MetadataService {
 
+	private final Logger log = LoggerFactory.getLogger(Odoo.class);
+	
 	@ObjectClassDefinition
 	@interface Config {
 		String database();
@@ -51,7 +55,7 @@ public class OdooProvider implements MetadataService {
 
 	@Activate
 	void activate(Config config) {
-		System.out.println("Activate Odoo");
+		log.debug("Activate Odoo");
 		this.url = config.url();
 		this.database = config.database();
 		this.uid = config.uid();
@@ -60,7 +64,7 @@ public class OdooProvider implements MetadataService {
 
 	@Deactivate
 	void deactivate() {
-		System.out.println("Deactivate Odoo");
+		log.debug("Deactivate Odoo");
 	}
 
 	private MetadataDeviceModel deviceModel;

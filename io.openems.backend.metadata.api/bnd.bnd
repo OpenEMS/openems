@@ -8,6 +8,9 @@ Bundle-Description: Read and store Metadata
 Export-Package:  \
 	io.openems.backend.metadata.api
 
+Require-Capability: \
+	compile-only
+
 -includeresource: {readme.md}
 
 -buildpath: \
