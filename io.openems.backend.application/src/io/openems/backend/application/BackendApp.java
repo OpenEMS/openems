@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.backend.browserwebsocket.api.BrowserWebsocketService;
 import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.openemswebsocket.api.OpenemsWebsocketService;
 import io.openems.backend.timedata.api.TimedataService;
@@ -32,6 +33,9 @@ public class BackendApp {
 	
 	@Reference
 	OpenemsWebsocketService openemsWebsocketService;
+	
+	@Reference
+	BrowserWebsocketService browserWebsocketService;
 	
 	@Activate
 	void activate() {

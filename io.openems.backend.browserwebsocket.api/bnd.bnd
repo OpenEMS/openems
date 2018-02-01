@@ -1,11 +1,11 @@
 #
-# io.openems.backend.openemswebsocket.api DEFAULTS
+# io.openems.backend.browserwebsocket.api DEFAULTS
 #
 
 Bundle-Version:					1.0.0.${tstamp}
 
 Export-Package:  \
-	io.openems.backend.openemswebsocket.api
+	io.openems.backend.browserwebsocket.api
 
 Require-Capability: \
 	compile-only
