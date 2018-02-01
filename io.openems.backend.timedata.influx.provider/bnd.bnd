@@ -24,4 +24,4 @@ Private-Package: \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
 
-Export-Package: io.openems.backend.timedata.api
+Export-Package: io.openems.backend.timedata.api;-provide=true

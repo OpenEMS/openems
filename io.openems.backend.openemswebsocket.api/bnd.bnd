@@ -3,16 +3,21 @@
 #
 
 Bundle-Version:					1.0.0.${tstamp}
+Bundle-Description: 				\
+	This project contains a complete example with API, provider, and JUnit test code. \
+	\
+	${warning;Please update this Bundle-Description in bnd.bnd}
 
 Export-Package:  \
 	io.openems.backend.openemswebsocket.api
 
+Require-Capability: \
+	compile-only
+
 -includeresource: {readme.md}
 
--buildpath: \
-	osgi.enroute.base.api;version=2.1,\
-	com.google.gson,\
-	io.openems.common;version=latest
+-buildpath:  \
+	osgi.enroute.base.api;version=2.1
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
