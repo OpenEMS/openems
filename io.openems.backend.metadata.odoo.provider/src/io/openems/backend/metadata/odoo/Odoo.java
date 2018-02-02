@@ -36,12 +36,12 @@ import com.google.gson.JsonParser;
 public class Odoo implements MetadataService {
 
 	private final Logger log = LoggerFactory.getLogger(Odoo.class);
-	
+
 	@ObjectClassDefinition
 	@interface Config {
 		String database();
 
-		int uid();
+		String uid();
 
 		String password();
 
@@ -50,12 +50,13 @@ public class Odoo implements MetadataService {
 
 	private String url;
 	private String database;
-	private int uid;
+	private String uid;
 	private String password;
 
 	@Activate
 	void activate(Config config) {
-		log.debug("Activate Odoo");
+		log.debug("Activate Odoo [url=" + config.url() + ";database=" + config.database() + ";uid=" + config.uid()
+				+ ";password=" + (config.password() != null ? "ok" : "NOT_SET") + "]");
 		this.url = config.url();
 		this.database = config.database();
 		this.uid = config.uid();

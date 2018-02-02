@@ -24,7 +24,7 @@ public class BrowserWebsocket implements BrowserWebsocketService {
 	}
 	@Activate
 	void activate(Config config) {
-		log.debug("Activate BrowserWebsocket");
+		log.debug("Activate BrowserWebsocket [port=" + config.port() + "]");
 	}
 
 	@Deactivate

@@ -16,15 +16,15 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 public class OpenemsWebsocket implements OpenemsWebsocketService {
 
 	private final Logger log = LoggerFactory.getLogger(OpenemsWebsocket.class);
-	
+
 	@ObjectClassDefinition
 	@interface Config {
 		int port();
 	}
-	
+
 	@Activate
 	void activate(Config config) {
-		log.debug("Activate OpenemsWebsocket");
+		log.debug("Activate OpenemsWebsocket [port=" + config.port() + "]");
 	}
 
 	@Deactivate

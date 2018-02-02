@@ -40,7 +40,7 @@ import org.osgi.service.metatype.annotations.Designate;
 public class Influx implements TimedataService {
 
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
-	
+
 	private final String TMP_MINI_MEASUREMENT = "minies";
 
 	@ObjectClassDefinition
@@ -71,7 +71,9 @@ public class Influx implements TimedataService {
 
 	@Activate
 	void activate(Config config) throws OpenemsException {
-		log.debug("Activate InfluxDB");
+		log.debug("Activate InfluxDB [url=" + config.url() + ";port=" + config.port() + ";database=" + config.database()
+				+ ";username=" + config.username() + ";password=" + (config.password() != null ? "ok" : "NOT_SET")
+				+ ";measurement=" + config.measurement() + "]");
 		this.database = config.database();
 		this.url = config.url();
 		this.port = config.port();
