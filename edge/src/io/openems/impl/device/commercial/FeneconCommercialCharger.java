@@ -25,7 +25,6 @@ import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
@@ -64,8 +63,6 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 	 * Inherited Channels
 	 */
 	private ThingStateChannel thingState;
-
-	public StatusBitChannels warning;
 
 	public ModbusWriteChannel<Long> pvPowerLimitCommand;
 
@@ -363,7 +360,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 								.faultBit(7, FaultCharger.DCConverterSoftwareANDHardwareProtectionCircuitInvalidation)//
 								.faultBit(8, FaultCharger.DCConverterPowerCircuitInvalidation)//
 								.faultBit(9, FaultCharger.DCConverterCPUInvalidation)//
-								.faultBit(10,FaultCharger.DCConverterT1PINTInterruptInvalidation)//
+								.faultBit(10,FaultCharger.DCConverterTINT0InterruptInvalidation)//
 								.faultBit(11,FaultCharger.DCConverterADCInterruptInvalidation)//
 								.faultBit(12,FaultCharger.DCConverterCAPITN4InterruptInvalidation)//
 								.faultBit(13,FaultCharger.DCConverterCAPINT6InterruptInvalidation)//
@@ -626,7 +623,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 								.faultBit(7, FaultCharger.BmsDCDC1DCConverterSoftwareANDHardwareProtectionCircuitInvalidation)//
 								.faultBit(8, FaultCharger.BmsDCDC1DCConverterPowerCircuitInvalidation)//
 								.faultBit(9, FaultCharger.BmsDCDC1DCConverterCPUInvalidation)//
-								.faultBit(10,FaultCharger.BmsDCDC1DCConverterT1PINTInterruptInvalidation)//
+								.faultBit(10,FaultCharger.BmsDCDC1DCConverterTINT0InterruptInvalidation)//
 								.faultBit(11,FaultCharger.BmsDCDC1DCConverterADCInterruptInvalidation)//
 								.faultBit(12,FaultCharger.BmsDCDC1DCConverterCAPITN4InterruptInvalidation)//
 								.faultBit(13,FaultCharger.BmsDCDC1DCConverterCAPINT6InterruptInvalidation)//
@@ -879,41 +876,41 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 						new UnsignedWordElement(0xA713,//
 								// prefix = "PvDCDC"
 								new ModbusBitWrappingChannel("PvDCDCAbnormity4", this, this.thingState)//
-								.faultBit(0, FaultCharger.PvDCConverterCrystalOscillatorCircuitInvalidation)//
-								.faultBit(1, FaultCharger.PvDCConverterResetCircuitInvalidation)//
-								.faultBit(2, FaultCharger.PvDCConverterSamplingCircuitInvalidation)//
-								.faultBit(3, FaultCharger.PvDCConverterDigitalIOCircuitInvalidation)//
-								.faultBit(4, FaultCharger.PvDCConverterPWMCircuitInvalidation)//
-								.faultBit(5, FaultCharger.PvDCConverterX5045CircuitInvalidation)//
-								.faultBit(6, FaultCharger.PvDCConverterCANCircuitInvalidation)//
-								.faultBit(7, FaultCharger.PvDCConverterSoftwareANDHardwareProtectionCircuitInvalidation)//
-								.faultBit(8, FaultCharger.PvDCConverterPowerCircuitInvalidation)//
-								.faultBit(9, FaultCharger.PvDCConverterCPUInvalidation)//
-								.faultBit(10,FaultCharger.PvDCConverterT1PINTInterruptInvalidation)//
-								.faultBit(11,FaultCharger.PvDCConverterADCInterruptInvalidation)//
-								.faultBit(12,FaultCharger.PvDCConverterCAPITN4InterruptInvalidation)//
-								.faultBit(13,FaultCharger.PvDCConverterCAPINT6InterruptInvalidation)//
-								.faultBit(14,FaultCharger.PvDCConverterT3PINTinterruptInvalidation)//
-								.faultBit(15,FaultCharger.PvDCConverterT4PINTinterruptInvalidation)//
+								.faultBit(0, FaultCharger.PvDCDCDCConverterCrystalOscillatorCircuitInvalidation)//
+								.faultBit(1, FaultCharger.PvDCDCDCConverterResetCircuitInvalidation)//
+								.faultBit(2, FaultCharger.PvDCDCDCConverterSamplingCircuitInvalidation)//
+								.faultBit(3, FaultCharger.PvDCDCDCConverterDigitalIOCircuitInvalidation)//
+								.faultBit(4, FaultCharger.PvDCDCDCConverterPWMCircuitInvalidation)//
+								.faultBit(5, FaultCharger.PvDCDCDCConverterX5045CircuitInvalidation)//
+								.faultBit(6, FaultCharger.PvDCDCDCConverterCANCircuitInvalidation)//
+								.faultBit(7, FaultCharger.PvDCDCDCConverterSoftwareANDHardwareProtectionCircuitInvalidation)//
+								.faultBit(8, FaultCharger.PvDCDCDCConverterPowerCircuitInvalidation)//
+								.faultBit(9, FaultCharger.PvDCDCDCConverterCPUInvalidation)//
+								.faultBit(10,FaultCharger.PvDCDCDCConverterTINT0InterruptInvalidation)//
+								.faultBit(11,FaultCharger.PvDCDCDCConverterADCInterruptInvalidation)//
+								.faultBit(12,FaultCharger.PvDCDCDCConverterCAPITN4InterruptInvalidation)//
+								.faultBit(13,FaultCharger.PvDCDCDCConverterCAPINT6InterruptInvalidation)//
+								.faultBit(14,FaultCharger.PvDCDCDCConverterT3PINTinterruptInvalidation)//
+								.faultBit(15,FaultCharger.PvDCDCDCConverterT4PINTinterruptInvalidation)//
 								),//
 
 						new UnsignedWordElement(0xA714,
 								// prefix = "PvDCDC"
 								new ModbusBitWrappingChannel("PvDCDCAbnormity5", this, this.thingState)//
-								.faultBit(0, FaultCharger.PvDCConverterPDPINTAInterruptInvalidation)//
-								.faultBit(1, FaultCharger.BvDCConverterT1PINTInterruptInvalidationSecond)//
-								.faultBit(2, FaultCharger.PvDCConverterRESVInterruptInvalidation)//
-								.faultBit(3, FaultCharger.PvDCConverter100usTaskInvalidation)//
-								.faultBit(4, FaultCharger.PvDCConverterClockInvalidation)//
-								.faultBit(5, FaultCharger.PvDCConverterEMSMemoryInvalidation)//
-								.faultBit(6, FaultCharger.PvDCConverterExteriorCommunicationInvalidation)//
-								.faultBit(7, FaultCharger.PvDCConverterIOInterfaceInvalidation)//
-								.faultBit(8, FaultCharger.PvDCConverterInputVoltageBoundFault)//
-								.faultBit(9, FaultCharger.PvDCConverterOutterVoltageBoundFault)//
-								.faultBit(10,FaultCharger.PvDCConverterOutputVoltageBoundFault)//
-								.faultBit(11,FaultCharger.PvDCConverterInductCurrentBoundFault)//
-								.faultBit(12,FaultCharger.PvDCConverterInputCurrentBoundFault)//
-								.faultBit(13,FaultCharger.PvDCConverterOutputCurrentBoundFault)//
+								.faultBit(0, FaultCharger.PvDCDCConverterPDPINTAInterruptInvalidation)//
+								.faultBit(1, FaultCharger.PvDCDCConverterT1PINTInterruptInvalidationSecond)//
+								.faultBit(2, FaultCharger.PvDCDCConverterRESVInterruptInvalidation)//
+								.faultBit(3, FaultCharger.PvDCDCConverter100usTaskInvalidation)//
+								.faultBit(4, FaultCharger.PvDCDCConverterClockInvalidation)//
+								.faultBit(5, FaultCharger.PvDCDCConverterEMSMemoryInvalidation)//
+								.faultBit(6, FaultCharger.PvDCDCConverterExteriorCommunicationInvalidation)//
+								.faultBit(7, FaultCharger.PvDCDCConverterIOInterfaceInvalidation)//
+								.faultBit(8, FaultCharger.PvDCDCConverterInputVoltageBoundFault)//
+								.faultBit(9, FaultCharger.PvDCDCConverterOutterVoltageBoundFault)//
+								.faultBit(10,FaultCharger.PvDCDCConverterOutputVoltageBoundFault)//
+								.faultBit(11,FaultCharger.PvDCDCConverterInductCurrentBoundFault)//
+								.faultBit(12,FaultCharger.PvDCDCConverterInputCurrentBoundFault)//
+								.faultBit(13,FaultCharger.PvDCDCConverterOutputCurrentBoundFault)//
 								),//
 
 						new UnsignedWordElement(0xA715,//
@@ -1154,7 +1151,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 								.faultBit(7, FaultCharger.PvDCDC1DCConverterSoftwareANDHardwareProtectionCircuitInvalidation)//
 								.faultBit(8, FaultCharger.PvDCDC1DCConverterPowerCircuitInvalidation)//
 								.faultBit(9, FaultCharger.PvDCDC1DCConverterCPUInvalidation)//
-								.faultBit(10,FaultCharger.PvDCDC1DCConverterT1PINTInterruptInvalidation)//
+								.faultBit(10,FaultCharger.PvDCDC1DCConverterTINT0InterruptInvalidation)//
 								.faultBit(11,FaultCharger.PvDCDC1DCConverterADCInterruptInvalidation)//
 								.faultBit(12,FaultCharger.PvDCDC1DCConverterCAPITN4InterruptInvalidation)//
 								.faultBit(13,FaultCharger.PvDCDC1DCConverterCAPINT6InterruptInvalidation)//
