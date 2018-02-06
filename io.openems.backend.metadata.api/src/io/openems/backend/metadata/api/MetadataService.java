@@ -9,6 +9,6 @@ public interface MetadataService {
 
 	public UserDevicesInfo getInfoWithSession(String sessionId) throws OpenemsException;
 
-	public MetadataDeviceModel getDeviceModel();
+	public OLD_MetadataDeviceModel getDeviceModel();
 
 }

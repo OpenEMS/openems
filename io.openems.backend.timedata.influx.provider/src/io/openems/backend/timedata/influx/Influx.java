@@ -26,8 +26,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.MetadataDevice;
-import io.openems.backend.metadata.api.MetadataDevices;
+import io.openems.backend.metadata.api.OLD_MetadataDevice;
+import io.openems.backend.metadata.api.OLD_MetadataDevices;
 import io.openems.backend.timedata.api.TimedataService;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
@@ -112,9 +112,9 @@ public class Influx implements TimedataService {
 	 * { "channel1": value, "channel2": value } }
 	 */
 	@Override
-	public void write(MetadataDevices devices, JsonObject jData) {
+	public void write(OLD_MetadataDevices devices, JsonObject jData) {
 		TreeBasedTable<Long, String, Object> data = TreeBasedTable.create();
-		for (MetadataDevice device : devices) {
+		for (OLD_MetadataDevice device : devices) {
 			int deviceId = device.getIdOpt().orElse(0);
 
 			// get existing or create new DeviceCache
@@ -211,7 +211,7 @@ public class Influx implements TimedataService {
 		// TODO remove after full migration
 		for (
 
-		MetadataDevice device : devices) {
+		OLD_MetadataDevice device : devices) {
 			if (device.getProductType().equals("MiniES 3-3")) {
 				writeDataToOldMiniMonitoring(device, data);
 				break;
@@ -244,7 +244,7 @@ public class Influx implements TimedataService {
 	 * @param device
 	 * @param data
 	 */
-	private void writeDataToOldMiniMonitoring(MetadataDevice device, TreeBasedTable<Long, String, Object> data) {
+	private void writeDataToOldMiniMonitoring(OLD_MetadataDevice device, TreeBasedTable<Long, String, Object> data) {
 		int deviceId = device.getIdOpt().orElse(0);
 		BatchPoints batchPoints = BatchPoints.database(database) //
 				.tag("fems", String.valueOf(deviceId)) //

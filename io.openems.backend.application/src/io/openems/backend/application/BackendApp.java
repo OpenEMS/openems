@@ -12,10 +12,10 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.browserwebsocket.api.BrowserWebsocketService;
+import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.MetadataService;
-import io.openems.backend.openemswebsocket.api.OpenemsWebsocketService;
 import io.openems.backend.timedata.api.TimedataService;
+import io.openems.backend.uiwebsocket.api.UiWebsocketService;
 
 @Component()
 public class BackendApp {
@@ -32,10 +32,10 @@ public class BackendApp {
 	TimedataService timedataService;
 	
 	@Reference
-	OpenemsWebsocketService openemsWebsocketService;
+	EdgeWebsocketService edgeWebsocketService;
 	
 	@Reference
-	BrowserWebsocketService browserWebsocketService;
+	UiWebsocketService uiWebsocketService;
 	
 	@Activate
 	void activate() {

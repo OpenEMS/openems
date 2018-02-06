@@ -1,8 +1,0 @@
-eclipse.preferences.version=1
-encoding//src/io/openems/backend/openemswebsocket/impl/provider/OpenemsWebsocket.java=UTF-8
-encoding//src/io/openems/backend/openemswebsocket/impl/provider/package-info.java=UTF-8
-encoding//test/io/openems/backend/openemswebsocket/provider/ProviderImplTest.java=UTF-8
-encoding/bnd.bnd=UTF-8
-encoding/debug.bndrun=UTF-8
-encoding/io.openems.backend.openemswebsocket.provider.bndrun=UTF-8
-encoding/readme.md=UTF-8

@@ -8,7 +8,7 @@ import org.osgi.annotation.versioning.ProviderType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import io.openems.backend.metadata.api.MetadataDevices;
+import io.openems.backend.metadata.api.OLD_MetadataDevices;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 
@@ -30,7 +30,7 @@ public interface TimedataService {
 	 *	}
 	 * </pre>
 	 */
-	public void write(MetadataDevices devices, JsonObject jData);
+	public void write(OLD_MetadataDevices devices, JsonObject jData);
 
 	public Optional<Object> getChannelValue(int deviceId, ChannelAddress channelAddress);
 	

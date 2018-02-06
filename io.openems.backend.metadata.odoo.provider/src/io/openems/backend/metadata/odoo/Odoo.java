@@ -9,7 +9,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.metadata.api.MetadataDeviceModel;
+import io.openems.backend.metadata.api.OLD_MetadataDeviceModel;
 import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.metadata.api.UserDevicesInfo;
 import io.openems.common.exceptions.OpenemsException;
@@ -68,10 +68,10 @@ public class Odoo implements MetadataService {
 		log.debug("Deactivate Odoo");
 	}
 
-	private MetadataDeviceModel deviceModel;
+	private OLD_MetadataDeviceModel deviceModel;
 
 	@Override
-	public MetadataDeviceModel getDeviceModel() {
+	public OLD_MetadataDeviceModel getDeviceModel() {
 		return deviceModel;
 	}
 
