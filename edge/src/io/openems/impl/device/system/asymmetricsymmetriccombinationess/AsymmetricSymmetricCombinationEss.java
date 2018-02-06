@@ -5,7 +5,6 @@ import java.util.Set;
 
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -31,11 +30,4 @@ public class AsymmetricSymmetricCombinationEss extends SystemDevice {
 		}
 		return natures;
 	}
-
-	@Override
-	public ThingStateChannel getStateChannel() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
