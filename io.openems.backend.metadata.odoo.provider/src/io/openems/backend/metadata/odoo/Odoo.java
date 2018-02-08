@@ -1,5 +1,15 @@
 package io.openems.backend.metadata.odoo;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Optional;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -9,27 +19,17 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.metadata.api.OLD_MetadataDeviceModel;
-import io.openems.backend.metadata.api.MetadataService;
-import io.openems.backend.metadata.api.UserDevicesInfo;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.DeviceImpl;
-import io.openems.common.utils.JsonUtils;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-
-import com.google.common.collect.LinkedHashMultimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import io.openems.backend.metadata.api.Device;
+import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.metadata.api.Role;
+import io.openems.backend.metadata.api.User;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
 
 @Designate(ocd = Odoo.Config.class, factory = false)
 @Component(name = "Odoo", configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -68,13 +68,6 @@ public class Odoo implements MetadataService {
 		log.debug("Deactivate Odoo");
 	}
 
-	private OLD_MetadataDeviceModel deviceModel;
-
-	@Override
-	public OLD_MetadataDeviceModel getDeviceModel() {
-		return deviceModel;
-	}
-
 	/**
 	 * Tries to authenticate at the Odoo server using a sessionId from a cookie.
 	 * Updates the Session object accordingly.
@@ -84,7 +77,7 @@ public class Odoo implements MetadataService {
 	 * @throws OpenemsException
 	 */
 	@Override
-	public UserDevicesInfo getInfoWithSession(String sessionId) throws OpenemsException {
+	public User getUserWithSession(String sessionId) throws OpenemsException {
 		HttpURLConnection connection = null;
 		try {
 			// send request to Odoo
@@ -115,25 +108,24 @@ public class Odoo implements MetadataService {
 				}
 
 				if (j.has("result")) {
-					UserDevicesInfo info = new UserDevicesInfo();
-
 					// parse the result
 					JsonObject jResult = JsonUtils.getAsJsonObject(j, "result");
 					JsonObject jUser = JsonUtils.getAsJsonObject(jResult, "user");
-					info.setUserId(JsonUtils.getAsInt(jUser, "id"));
-					info.setUserName(JsonUtils.getAsString(jUser, "name"));
+					User user = new User(//
+							JsonUtils.getAsInt(jUser, "id"), //
+							JsonUtils.getAsString(jUser, "name"));
 					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
-					LinkedHashMultimap<String, DeviceImpl> deviceMap = LinkedHashMultimap.create();
 					for (JsonElement jDevice : jDevices) {
-						String name = JsonUtils.getAsString(jDevice, "name");
-						deviceMap.put(name, new DeviceImpl( //
-								name, //
+						Device device = new Device(//
+								JsonUtils.getAsInt(jDevice, "id"), //
+								JsonUtils.getAsString(jDevice, "name"), //
 								JsonUtils.getAsString(jDevice, "comment"), //
-								JsonUtils.getAsString(jDevice, "producttype"), //
-								JsonUtils.getAsString(jDevice, "role")));
+								JsonUtils.getAsString(jDevice, "producttype"));
+						// this.devices.putIfAbsent(device.getId(), device);
+						user.addDeviceRole(device.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
 					}
-					info.setDevices(deviceMap);
-					return info;
+					// this.users.put(user.getId(), user);
+					return user;
 				}
 			}
 		} catch (IOException e) {
@@ -145,4 +137,31 @@ public class Odoo implements MetadataService {
 		}
 		throw new OpenemsException("No result from Odoo");
 	}
+
+	@Override
+	public int[] getEdgeIdsForApikey(String apikey) {
+		// TODO Auto-generated method stub
+		return new int[] { -1 };
+	}
+
+	@Override
+	public Optional<Device> getDevice(int edgeId) {
+		// TODO Auto-generated method stub
+		return Optional.empty();
+	}
+
+	// public Optional<User> getUser(int id) {
+	// return Optional.ofNullable(this.users.get(id));
+	// }
+	//
+	// public Optional<Device> getDevice(int id) {
+	// return Optional.ofNullable(this.devices.get(id));
+	// }
+	//
+	// // private
+	// protected final ConcurrentMap<Integer, Device> devices = new
+	// ConcurrentHashMap<>();
+	// protected final ConcurrentMap<Integer, User> users = new
+	// ConcurrentHashMap<>();
+
 }

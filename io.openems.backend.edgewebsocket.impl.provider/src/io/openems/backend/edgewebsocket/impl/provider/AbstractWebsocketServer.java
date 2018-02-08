@@ -1,4 +1,4 @@
-package io.openems.backend.uiwebsocket.impl.provider;
+package io.openems.backend.edgewebsocket.impl.provider;
 
 import java.net.InetSocketAddress;
 import java.util.Iterator;

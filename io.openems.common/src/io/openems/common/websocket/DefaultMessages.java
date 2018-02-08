@@ -57,7 +57,7 @@ public class DefaultMessages {
 				jDevice.addProperty("name", device.getName());
 				jDevice.addProperty("comment", device.getComment());
 				jDevice.addProperty("producttype", device.getProducttype());
-				jDevice.addProperty("role", device.getRole().toString());
+//				TODO jDevice.addProperty("role", device.getRole().toString());
 				jDevice.addProperty("online", device.isOnline());
 				jDevices.add(jDevice);
 			}

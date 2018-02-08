@@ -13,7 +13,7 @@ Bundle-Version: 1.3.7
 Include-Resource: @jar/Java-WebSocket-1.3.7.jar, OSGI-OPT/src=@jar/Java-WebSocket-1.3.7-sources.jar
 
 
--exportcontents: org.java_websocket, org.java_websocket.drafts, org.java_websocket.exceptions, org.java_websocket.handshake, org.java_websocket.server
+-exportcontents: org.java_websocket, org.java_websocket.drafts, org.java_websocket.exceptions, org.java_websocket.handshake, org.java_websocket.server, org.java_websocket.framing
 -sources: false
 
 Bundle-Version: 1.3.7

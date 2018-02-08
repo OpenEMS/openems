@@ -1,36 +1,32 @@
 package io.openems.backend.metadata.api;
 
-import com.google.common.collect.Multimap;
-
-import io.openems.common.types.DeviceImpl;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserDevicesInfo {
 
-	private int userId;
-	private String userName;
-	private Multimap<String, DeviceImpl> deviceMap;
-	
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
+	private final User user;
+	private final Map<Integer, Device> devices = new HashMap<>();
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-
-	public void setDevices(Multimap<String, DeviceImpl> deviceMap) {
-		this.deviceMap = deviceMap;
-	}
-
-	public int getUserId() {
-		return userId;
+	public UserDevicesInfo(User user) {
+		super();
+		this.user = user;
 	}
 	
-	public String getUserName() {
-		return userName;
+	public void addDevice(Device device) {
+		this.devices.put(device.getId(), device);
 	}
 	
-	public Multimap<String, DeviceImpl> getDeviceMap() {
-		return deviceMap;
-	}	
+	public User getUser() {
+		return user;
+	}
+	
+	public Map<Integer, Device> getDevices() {
+		return devices;
+	}
+
+	@Override
+	public String toString() {
+		return "UserDevicesInfo [user=" + user + ", devices=" + devices + "]";
+	}
 }

@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.MetadataService;
-import io.openems.backend.timedata.api.TimedataService;
-import io.openems.backend.uiwebsocket.api.UiWebsocketService;
 
 @Component()
 public class BackendApp {
@@ -27,21 +25,42 @@ public class BackendApp {
 
 	@Reference
 	MetadataService metadataService;
-	
-	@Reference
-	TimedataService timedataService;
-	
+
+	// @Reference
+	// TimedataService timedataService;
+
 	@Reference
 	EdgeWebsocketService edgeWebsocketService;
-	
-	@Reference
-	UiWebsocketService uiWebsocketService;
-	
+
+	// @Reference
+	// UiWebsocketService uiWebsocketService;
+
+	// @Reference(target = "(component.factory=EdgeWebsocketFactory)")
+	// private ComponentFactory factory;
+
+	// @Reference(cardinality = ReferenceCardinality.MULTIPLE, bind = "bind", unbind
+	// = "unbind", policy = ReferencePolicy.DYNAMIC)
+	// List<OneShot> list;
+	//
+	// protected void bind(OneShot filter) {
+	// if (list == null) {
+	// list = new ArrayList<OneShot>();
+	// }
+	// list.add(filter);
+	// System.out.println("add " + filter);
+	// }
+	//
+	// protected void unbind(OneShot filter) {
+	// list.remove(filter);
+	// System.out.println("remove " + filter);
+	// }
+
 	@Activate
 	void activate() {
 		configureLogging();
 
 		log.debug("Activate BackendApp");
+
 	}
 
 	private void configureLogging() {
@@ -52,7 +71,8 @@ public class BackendApp {
 			log4jProps.put("log4j.rootLogger", "DEBUG, CONSOLE");
 			log4jProps.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
 			log4jProps.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
-			log4jProps.put("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] - %m%n");
+			log4jProps.put("log4j.appender.CONSOLE.layout.ConversionPattern",
+					"%d{ISO8601} [%-8.8t] %-5p [%-30.30c] - %m%n");
 			// set minimum log levels for some verbose packages
 			log4jProps.put("log4j.logger.org.eclipse.osgi", "WARN");
 			log4jProps.put("log4j.logger.org.apache.felix.configadmin", "INFO");

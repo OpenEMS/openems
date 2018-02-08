@@ -11,7 +11,13 @@ Export-Package: io.openems.backend.edgewebsocket.api
 
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
-	io.openems.backend.edgewebsocket.api;version=latest
+	io.openems.backend.edgewebsocket.api;version=latest,\
+	io.openems.wrapper.websocket;version=latest,\
+	com.google.gson,\
+	com.google.guava,\
+	io.openems.common;version=latest,\
+	io.openems.backend.metadata.api;version=latest,\
+	io.openems.backend.common;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
