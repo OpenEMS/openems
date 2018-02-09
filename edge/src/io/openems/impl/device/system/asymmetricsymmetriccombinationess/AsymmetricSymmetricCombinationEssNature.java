@@ -47,6 +47,8 @@ implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener, Bridg
 	private ThingRepository repo;
 	private List<ThingChannelsUpdatedListener> listeners;
 
+	private ThingStateChannel state = new ThingStateChannel(this);
+
 	private ProxyReadChannel<Long> gridMode = new ProxyReadChannel<>("GridMode", this);
 	private ProxyReadChannel<Long> soc = new ProxyReadChannel<>("Soc", this);
 	private ProxyReadChannel<Long> allowedCharge = new ProxyReadChannel<Long>("AllowedCharge", this);
@@ -1479,8 +1481,7 @@ implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener, Bridg
 
 	@Override
 	public ThingStateChannel getStateChannel() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.state;
 	}
 
 }
