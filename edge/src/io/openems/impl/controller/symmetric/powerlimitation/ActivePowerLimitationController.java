@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.symmetric.balancingcosphi;
+package io.openems.impl.controller.symmetric.powerlimitation;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
@@ -27,17 +27,17 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.power.PowerException;
 
-@ThingInfo(title = "Balancing Cos-Phi (Symmetric)", description = "Tries to keep the grid meter at a given cos-phi. For symmetric Ess.")
-public class BalancingCosPhiController extends Controller {
+@ThingInfo(title = "Power limitation (Symmetric)", description = "Limits the active and reactive power of the Ess. For symmetric Ess.")
+public class ActivePowerLimitationController extends Controller {
 
 	/*
 	 * Constructors
 	 */
-	public BalancingCosPhiController() {
+	public ActivePowerLimitationController() {
 		super();
 	}
 
-	public BalancingCosPhiController(String thingId) {
+	public ActivePowerLimitationController(String thingId) {
 		super(thingId);
 	}
 
@@ -47,14 +47,11 @@ public class BalancingCosPhiController extends Controller {
 	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
-	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
+	@ChannelInfo(title = "Min-Charge ActivePower", description = "The minimum allowed active power for discharge. Value is negative.", type = Long.class, isOptional = true)
+	public ConfigChannel<Long> pMin = new ConfigChannel<Long>("pMin", this);
 
-	@ChannelInfo(title = "Cos-Phi", description = "Cos-phi which the grid-meter is trying to hold.", type = Double.class)
-	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
-
-	@ChannelInfo(title = "Capacitive CosPhi", description="if this value is true the cosPhi is capacitive otherwise inductive.",type=Boolean.class)
-	public ConfigChannel<Boolean> capacitive = new ConfigChannel<Boolean>("capacitive",this);
+	@ChannelInfo(title = "Max-Charge ActivePower", description = "The maximum allowed active power for discharge. Value is positive.", type = Long.class, isOptional = true)
+	public ConfigChannel<Long> pMax = new ConfigChannel<Long>("pMax", this);
 
 	/*
 	 * Methods
@@ -63,16 +60,25 @@ public class BalancingCosPhiController extends Controller {
 	public void run() {
 		try {
 			Ess ess = this.ess.value();
-			Meter meter = this.meter.value();
-			//Calculate the startpoint of the cosPhi line in relation to the ess zero power
-			long pNull = (meter.activePower.value()-ess.activePower.value())*-1;
-			long qNull = (meter.reactivePower.value()-ess.reactivePower.value())*-1;
-			ess.limit.setCosPhi(cosPhi.value(), capacitive.value(), pNull, qNull);
-			ess.power.applyLimitation(ess.limit);
+			if (pMin.isValuePresent()) {
+				ess.minActivePowerLimit.setP(pMin.valueOptional().orElse(null));
+				try {
+					ess.power.applyLimitation(ess.minActivePowerLimit);
+				} catch (PowerException e) {
+					log.error("Failed to write Min P",e);
+				}
+			}
+			if(pMax.isValuePresent()) {
+				ess.maxActivePowerLimit.setP(pMax.valueOptional().orElse(null));
+				try {
+					ess.power.applyLimitation(ess.maxActivePowerLimit);
+				} catch (PowerException e) {
+					log.error("Failed to write Max P",e);
+				}
+			}
 		} catch (InvalidValueException e) {
-			log.error("Failed to read value.", e);
-		} catch (PowerException e) {
-			log.error("Failed to set Power!",e);
+			log.error("No ess found.", e);
 		}
 	}
+
 }

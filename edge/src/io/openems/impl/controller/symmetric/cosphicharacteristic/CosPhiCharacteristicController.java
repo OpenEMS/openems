@@ -20,19 +20,21 @@
  *******************************************************************************/
 package io.openems.impl.controller.symmetric.cosphicharacteristic;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.TreeMap;
 
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.ControllerUtils;
-import io.openems.core.utilities.Point;
+import io.openems.core.utilities.power.PowerException;
 
 @ThingInfo(title = "Cos-Phi Characteristics (Symmetric)")
-public class CosPhiCharacteristicController extends Controller {
+public class CosPhiCharacteristicController extends Controller implements ChannelChangeListener{
 
 	/*
 	 * Constructors
@@ -49,27 +51,11 @@ public class CosPhiCharacteristicController extends Controller {
 	 * Config
 	 */
 	@ChannelInfo(title = "Ess", description = "Sets the Ess device.", type = Ess.class)
-	public ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
+	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this).addChangeListener(this);
 
-	@ChannelInfo(title = "Cos-Phi characteristic", description = "The points of the characteristic (x = signed activePower, y = cosPhi IEEE Power Factor Sign Convention ).", type = Long[].class, isArray = true)
-	public ConfigChannel<List<Long[]>> cosPhiPoints = new ConfigChannel<List<Long[]>>("cosPhiPoints", this)
-	.addChangeListener((channel, newValue, oldValue) -> {
-		List<Point> points = new ArrayList<>();
-		if (newValue.isPresent()) {
-			@SuppressWarnings("unchecked") List<Long[]> cosPhiPoints = (List<Long[]>) newValue.get();
-			for (Long[] arr : cosPhiPoints) {
-				points.add(new Point(arr[0], arr[1]));
-			}
-		} else {
-			log.error("found no cosPhiPoints!");
-		}
-		cosPhiCharacteristic = points;
-	});
-
-	/*
-	 * Fields
-	 */
-	public List<Point> cosPhiCharacteristic;
+	@ChannelInfo(title = "Cos-Phi characteristic", description = "The points of the characteristic (x = signed activePower, y = cosPhi IEEE Power Factor Sign Convention ).", type = Double[].class, isArray = true)
+	public ConfigChannel<List<Double[]>> cosPhiPoints = new ConfigChannel<List<Double[]>>("cosPhiPoints", this)
+	.addChangeListener(this);
 
 	/*
 	 * Methods
@@ -77,24 +63,22 @@ public class CosPhiCharacteristicController extends Controller {
 	@Override
 	public void run() {
 		try {
-			if (ess.value().setActivePower.peekWrite().isPresent()) {
-				double pRatio = (double) ess.value().setActivePower.peekWrite().get()
-						/ (double) ess.value().nominalPower.value() * 100;
-				double cosPhi = ControllerUtils.getValueOfLine(cosPhiCharacteristic, pRatio) / 100;
-				boolean capacitive = false;
-				if((pRatio<0 && cosPhi<0)||(pRatio>0 && cosPhi>0)) {
-					capacitive = true;
+			ess.value().power.applyLimitation(ess.value().limit);
+		} catch (InvalidValueException | PowerException e) {
+			log.error("Failed to set power limitation!",e);
+		}
+	}
+
+	@Override
+	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+		if(ess.isValuePresent()) {
+			TreeMap<Long,Double> points = new TreeMap<>();
+			if(cosPhiPoints.isValuePresent()) {
+				for(Double[] point : cosPhiPoints.getValue()) {
+					points.put(point[0].longValue(), point[1]);
 				}
-				ess.value().power.setReactivePower(
-						ControllerUtils.calculateReactivePower(ess.value().setActivePower.peekWrite().get(), cosPhi,capacitive));
-				ess.value().power.writePower();
-				log.info("Set reactive power [{}] to get cosPhi [{}]",
-						new Object[] { ess.value().power.getReactivePower(), cosPhi });
-			} else {
-				log.error(ess.id() + " no ActivePower is Set.");
 			}
-		} catch (InvalidValueException e) {
-			log.error("No ess found.", e);
+			ess.getValue().limit.setCosPhi(0L, 0L, points);
 		}
 	}
 

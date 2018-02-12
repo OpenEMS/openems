@@ -129,21 +129,23 @@ public class AvoidTotalChargeController extends Controller {
 						if (spareProducedPower < 0L){
 							try {
 								Long totalActivePower = (long) (((double) ess.allowedCharge.value() / (double) avgAllowedCharge) * ((double) spareProducedPower / (double) esss.value().size()));
-
-								ess.setActivePower.pushWrite(totalActivePower);
+								ess.activePowerLimit.setP(totalActivePower);
+								ess.power.applyLimitation(ess.activePowerLimit);
 							} catch (Exception e) {
 								log.error(e.getMessage(),e);
 							}
 						} else {
 							try {
-								ess.setActivePower.pushWriteMin(0L);
+								ess.minActivePowerLimit.setP(0L);
+								ess.power.applyLimitation(ess.minActivePowerLimit);
 							} catch (Exception e) {
 								log.error(e.getMessage(),e);
 							}
 						}
 					} else {
 						try {
-							ess.setActivePower.pushWriteMin(0L);
+							ess.minActivePowerLimit.setP(0L);
+							ess.power.applyLimitation(ess.minActivePowerLimit);
 						} catch (Exception e) {
 							log.error(e.getMessage(),e);
 						}

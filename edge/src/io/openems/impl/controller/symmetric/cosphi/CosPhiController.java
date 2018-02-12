@@ -25,7 +25,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.ControllerUtils;
+import io.openems.core.utilities.power.PowerException;
 import io.openems.impl.controller.symmetric.balancingcosphi.Ess;
 
 @ThingInfo(title = "Ess Cos-Phi (Symmetric)", description = "Keeps the Ess at a given cos-phi. For symmetric Ess.")
@@ -61,17 +61,12 @@ public class CosPhiController extends Controller {
 	public void run() {
 		try {
 			Ess ess = this.ess.value();
-			if (ess.setActivePower.peekWrite().isPresent()) {
-				long expectedActivePower = ess.setActivePower.peekWrite().get();//40
-				long q = ControllerUtils.calculateReactivePower(expectedActivePower, cosPhi.value(), capacitive.value());
-				ess.power.setReactivePower(q);
-				ess.power.writePower();
-				log.info("Set ReactivePower [" + ess.power.getReactivePower() + "]");
-			} else {
-				log.error(ess.id() + " no ActivePower is Set.");
-			}
+			ess.limit.setCosPhi(cosPhi.valueOptional().orElse(null), capacitive.valueOptional().orElse(null), 0L, 0L);
+			ess.power.applyLimitation(ess.limit);
 		} catch (InvalidValueException e) {
 			log.error("No ess found.", e);
+		} catch (PowerException e) {
+			log.error("Failed to set Power!",e);
 		}
 	}
 

@@ -18,26 +18,29 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.symmetric.balancingcurrent;
+package io.openems.impl.controller.symmetric.balancingbandgap;
+
+import java.util.NoSuchElementException;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.power.PowerException;
 
-@ThingInfo(title = "Balancing current (Symmetric)", description = "Tries to keep the grid meter at a given current. For symmetric Ess.")
-public class BalancingCurrentController extends Controller {
+@ThingInfo(title = "Balancing bandgap (Symmetric)", description = "Tries to keep the grid meter within a bandgap. For symmetric Ess.")
+public class BalancingBandgapReactivePowerController extends Controller {
 
 	/*
 	 * Constructors
 	 */
-	public BalancingCurrentController() {
+	public BalancingBandgapReactivePowerController() {
 		super();
 	}
 
-	public BalancingCurrentController(String thingId) {
+	public BalancingBandgapReactivePowerController(String thingId) {
 		super(thingId);
 	}
 
@@ -50,8 +53,14 @@ public class BalancingCurrentController extends Controller {
 	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	@ChannelInfo(title = "Current offset", description = "The current to hold on the grid-meter.", type = Meter.class)
-	public final ConfigChannel<Integer> currentOffset = new ConfigChannel<>("CurrentOffset", this);
+	@ChannelInfo(title = "Min-ReactivePower", description = "Low boundary of reactive power bandgap.", type = Integer.class)
+	public final ConfigChannel<Integer> minReactivePower = new ConfigChannel<>("minReactivePower", this);
+
+	@ChannelInfo(title = "Max-ReactivePower", description = "High boundary of reactive power bandgap.", type = Integer.class)
+	public final ConfigChannel<Integer> maxReactivePower = new ConfigChannel<>("maxReactivePower", this);
+
+	private AvgFiFoQueue meterReactivePower = new AvgFiFoQueue(2, 1.5);
+	private AvgFiFoQueue essReactivePower = new AvgFiFoQueue(2, 1.5);
 
 	/*
 	 * Methods
@@ -60,34 +69,26 @@ public class BalancingCurrentController extends Controller {
 	public void run() {
 		try {
 			Ess ess = this.ess.value();
+			Meter meter = this.meter.value();
+			meterReactivePower.add(meter.reactivePower.value());
+			essReactivePower.add(ess.reactivePower.value());
 			// Calculate required sum values
-			long power = calculatePower() + ess.activePower.value();
-			ess.limit.setP(power);
-			ess.power.applyLimitation(ess.limit);
-		} catch (InvalidValueException e) {
+			long calculatedReactivePower = meterReactivePower.avg() + essReactivePower.avg();
+			if (calculatedReactivePower >= maxReactivePower.value()) {
+				calculatedReactivePower -= maxReactivePower.value();
+			} else if (calculatedReactivePower <= minReactivePower.value()) {
+				calculatedReactivePower -= minReactivePower.value();
+			} else {
+				calculatedReactivePower = 0;
+			}
+			ess.reactivePowerLimit.setQ(calculatedReactivePower);
+			ess.power.applyLimitation(ess.reactivePowerLimit);
+			;
+		} catch (InvalidValueException | NoSuchElementException e) {
 			log.error(e.getMessage());
 		} catch (PowerException e) {
-			log.error("Failed to set Power",e);
+			log.error("failed to set ReactivePower!", e);
 		}
-	}
-
-	private long calculatePower() throws InvalidValueException {
-		long currentL1 = meter.value().currentL1.value();
-		if (meter.value().activePowerL1.value() < 0) {
-			currentL1 *= -1;
-		}
-		long powerL1 = ((currentL1 - currentOffset.value() / 3) / 1000) * (meter.value().voltageL1.value() / 1000);
-		long currentL2 = meter.value().currentL2.value();
-		if (meter.value().activePowerL2.value() < 0) {
-			currentL2 *= -1;
-		}
-		long powerL2 = ((currentL2 - currentOffset.value() / 3) / 1000) * (meter.value().voltageL2.value() / 1000);
-		long currentL3 = meter.value().currentL3.value();
-		if (meter.value().activePowerL3.value() < 0) {
-			currentL3 *= -1;
-		}
-		long powerL3 = ((currentL3 - currentOffset.value() / 3) / 1000) * (meter.value().voltageL3.value() / 1000);
-		return powerL1 + powerL2 + powerL3;
 	}
 
 }

@@ -27,18 +27,19 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.power.PowerException;
 
 @ThingInfo(title = "Fixed active and reactive power (Symmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For symmetric Ess.")
-public class FixValueController extends Controller {
+public class FixValueActivePowerController extends Controller {
 
 	/*
 	 * Constructors
 	 */
-	public FixValueController() {
+	public FixValueActivePowerController() {
 		super();
 	}
 
-	public FixValueController(String thingId) {
+	public FixValueActivePowerController(String thingId) {
 		super(thingId);
 	}
 
@@ -48,11 +49,8 @@ public class FixValueController extends Controller {
 	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
-	@ChannelInfo(title = "ActivePower", description = "The active power to set for each Ess.", type = Integer.class, isOptional = true)
-	public ConfigChannel<Integer> p = new ConfigChannel<Integer>("p", this);
-
-	@ChannelInfo(title = "ReactivePower", description = "The reactive power to set for each Ess.", type = Integer.class, isOptional = true)
-	public ConfigChannel<Integer> q = new ConfigChannel<Integer>("q", this);
+	@ChannelInfo(title = "ActivePower", description = "The active power to set for each Ess.", type = Long.class)
+	public ConfigChannel<Long> p = new ConfigChannel<Long>("p", this);
 
 	/*
 	 * Methods
@@ -61,16 +59,13 @@ public class FixValueController extends Controller {
 	public void run() {
 		try {
 			for (Ess ess : esss.value()) {
-				if (p.valueOptional().isPresent()) {
-					ess.power.setActivePower(p.value());
-				}
-				if (q.valueOptional().isPresent()) {
-					ess.power.setReactivePower(q.value());
-				}
-				ess.power.writePower();
+				ess.activePowerLimit.setP(p.valueOptional().orElse(null));
+				ess.power.applyLimitation(ess.activePowerLimit);
 			}
 		} catch (InvalidValueException e) {
 			log.error("No ess found.", e);
+		} catch (PowerException e) {
+			log.error("Failed to set Power!",e);
 		}
 	}
 

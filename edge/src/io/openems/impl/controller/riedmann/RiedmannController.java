@@ -34,13 +34,13 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 	public ConfigChannel<Long> setWaterLevelBorehole3Off = new ConfigChannel<Long>("wl3Off", this).defaultValue(500L);
 	@ChannelInfo(title = "Soc Hysteresis", description = "hysteresis for the switching of the loads.", type = Long.class)
 	public ConfigChannel<Long> socHysteresis = new ConfigChannel<Long>("socHysteresis", this).defaultValue(10L);
-	@ChannelInfo(title = "Soc Load 1 Off", description = "Below this Soc the Load 1 will be disconnected.", type = Long.class)
+	@ChannelInfo(title = "Soc Load 1 Off", description = "Below this Soc the Load 1(Clima1&Clima2) will be disconnected.", type = Long.class)
 	public ConfigChannel<Long> socLoad1Off = new ConfigChannel<>("socLoad1Off", this);
-	@ChannelInfo(title = "Soc Load 2 Off", description = "Below this Soc the Load 2 will be disconnected.", type = Long.class)
+	@ChannelInfo(title = "Soc Load 2 Off", description = "Below this Soc the Load 2(Pivot) will be disconnected.", type = Long.class)
 	public ConfigChannel<Long> socLoad2Off = new ConfigChannel<>("socLoad2Off", this);
-	@ChannelInfo(title = "Soc Load 3 Off", description = "Below this Soc the Load 3 will be disconnected.", type = Long.class)
+	@ChannelInfo(title = "Soc Load 3 Off", description = "Below this Soc the Load 3(Borehole1,2&3) will be disconnected.", type = Long.class)
 	public ConfigChannel<Long> socLoad3Off = new ConfigChannel<>("socLoad3Off", this);
-	@ChannelInfo(title = "Soc Load 4 Off", description = "Below this Soc the Load 4 will be disconnected.", type = Long.class)
+	@ChannelInfo(title = "Soc Load 4 Off", description = "Below this Soc the Load 4(office&traineeCenter) will be disconnected.", type = Long.class)
 	public ConfigChannel<Long> socLoad4Off = new ConfigChannel<>("socLoad4Off", this);
 
 	@ChannelInfo(title = "SPS", description = "The sps which should be controlled.", type = Custom.class)
@@ -165,6 +165,7 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 			log.error("TimelineChargeController error: " + e.getMessage());
 			return;
 		}
+		//Load1
 		try {
 			if (essSoc >= socLoad1Off + socHysteresis
 					|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
@@ -182,6 +183,7 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 		} catch (WriteChannelException e) {
 			log.error("Failed to connect/disconnect Load 1: " + e.getMessage());
 		}
+		//Load2
 		try {
 			if (essSoc >= socLoad2Off + socHysteresis
 					|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
@@ -197,6 +199,7 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 		} catch (WriteChannelException e) {
 			log.error("Failed to connect/disconnect Load 2: " + e.getMessage());
 		}
+		//Load3
 		try {
 			if (essSoc >= socLoad3Off + socHysteresis
 					|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
@@ -216,6 +219,7 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 		} catch (WriteChannelException e) {
 			log.error("Failed to connect/disconnect Load 3: " + e.getMessage());
 		}
+		//Load4
 		try {
 			if (essSoc >= socLoad4Off + socHysteresis
 					|| ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {

@@ -25,17 +25,18 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.power.PGreaterEqualLimitation;
+import io.openems.core.utilities.power.PSmallerEqualLimitation;
+import io.openems.core.utilities.power.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
 	public final ReadChannel<Integer> minSoc;
-	public final WriteChannel<Long> setActivePower;
 	public final ReadChannel<Long> soc;
 	public final ReadChannel<Long> systemState;
 	public int maxPowerPercent = 100;
@@ -43,6 +44,10 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Integer> chargeSoc;
 	private TreeMap<LocalTime, Soc> timeline = new TreeMap<>();
 	public State currentState = State.NORMAL;
+	public final SymmetricPower power;
+	public final ReadChannel<Long> maxNominalPower;
+	public final PSmallerEqualLimitation maxActivePowerLimit;
+	public final PGreaterEqualLimitation minActivePowerLimit;
 
 	public enum State {
 		NORMAL, MINSOC, CHARGESOC
@@ -50,12 +55,15 @@ public class Ess extends ThingMap {
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
-		setActivePower = ess.setActivePower().required();
 		systemState = ess.systemState().required();
 		soc = ess.soc().required();
 		minSoc = ess.minSoc().required();
 		allowedDischarge = ess.allowedDischarge().required();
 		chargeSoc = ess.chargeSoc().required();
+		power = ess.getPower();
+		maxActivePowerLimit = new PSmallerEqualLimitation(power);
+		minActivePowerLimit = new PGreaterEqualLimitation(power);
+		maxNominalPower = ess.maxNominalPower();
 	}
 
 	public void addTime(LocalTime time, int minSoc, int chargeSoc) {

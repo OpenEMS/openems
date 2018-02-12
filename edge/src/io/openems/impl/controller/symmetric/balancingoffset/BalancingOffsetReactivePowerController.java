@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.symmetric.balancingcosphi;
+package io.openems.impl.controller.symmetric.balancingoffset;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.Controller;
@@ -27,17 +27,20 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.power.PowerException;
 
-@ThingInfo(title = "Balancing Cos-Phi (Symmetric)", description = "Tries to keep the grid meter at a given cos-phi. For symmetric Ess.")
-public class BalancingCosPhiController extends Controller {
+/*
+ * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid
+ */
+@ThingInfo(title = "Balancing offset (Symmetric)", description = "Tries to keep the grid meter within an offset. For symmetric Ess.")
+public class BalancingOffsetReactivePowerController extends Controller {
 
 	/*
 	 * Constructors
 	 */
-	public BalancingCosPhiController() {
+	public BalancingOffsetReactivePowerController() {
 		super();
 	}
 
-	public BalancingCosPhiController(String thingId) {
+	public BalancingOffsetReactivePowerController(String thingId) {
 		super(thingId);
 	}
 
@@ -45,16 +48,13 @@ public class BalancingCosPhiController extends Controller {
 	 * Config
 	 */
 	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
-	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
+	public final ConfigChannel<Ess> ess = new ConfigChannel<>("ess", this);
 
 	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
-	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
+	public final ConfigChannel<Meter> meter = new ConfigChannel<>("meter", this);
 
-	@ChannelInfo(title = "Cos-Phi", description = "Cos-phi which the grid-meter is trying to hold.", type = Double.class)
-	public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
-
-	@ChannelInfo(title = "Capacitive CosPhi", description="if this value is true the cosPhi is capacitive otherwise inductive.",type=Boolean.class)
-	public ConfigChannel<Boolean> capacitive = new ConfigChannel<Boolean>("capacitive",this);
+	@ChannelInfo(title = "Offset ReactivePower", description = "The offset of the reactive power from zero to hold on the grid meter.", type = Integer.class)
+	public final ConfigChannel<Integer> reactivePowerOffset = new ConfigChannel<>("reactivePowerOffset", this);
 
 	/*
 	 * Methods
@@ -63,16 +63,16 @@ public class BalancingCosPhiController extends Controller {
 	public void run() {
 		try {
 			Ess ess = this.ess.value();
-			Meter meter = this.meter.value();
-			//Calculate the startpoint of the cosPhi line in relation to the ess zero power
-			long pNull = (meter.activePower.value()-ess.activePower.value())*-1;
-			long qNull = (meter.reactivePower.value()-ess.reactivePower.value())*-1;
-			ess.limit.setCosPhi(cosPhi.value(), capacitive.value(), pNull, qNull);
-			ess.power.applyLimitation(ess.limit);
+			// Calculate required sum values
+			long calculatedReactivePower = meter.value().reactivePower.value() + ess.reactivePower.value()
+			- reactivePowerOffset.value();
+			ess.reactivePowerLimit.setQ(calculatedReactivePower);
+			ess.power.applyLimitation(ess.reactivePowerLimit);
 		} catch (InvalidValueException e) {
-			log.error("Failed to read value.", e);
+			log.error(e.getMessage());
 		} catch (PowerException e) {
 			log.error("Failed to set Power!",e);
 		}
 	}
+
 }

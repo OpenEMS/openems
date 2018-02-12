@@ -20,23 +20,33 @@
  *******************************************************************************/
 package io.openems.impl.controller.symmetric.powerlimitation;
 
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.core.utilities.power.PGreaterEqualLimitation;
+import io.openems.core.utilities.power.PSmallerEqualLimitation;
+import io.openems.core.utilities.power.QGreaterEqualLimitation;
+import io.openems.core.utilities.power.QSmallerEqualLimitation;
+import io.openems.core.utilities.power.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	public final WriteChannel<Long> setActivePower;
-	public final WriteChannel<Long> setReactivePower;
 	public final String id;
+	public final SymmetricPower power;
+	public final PGreaterEqualLimitation minActivePowerLimit;
+	public final PSmallerEqualLimitation maxActivePowerLimit;
+	public final QGreaterEqualLimitation minReactivePowerLimit;
+	public final QSmallerEqualLimitation maxReactivePowerLimit;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
-		setActivePower = ess.setActivePower();
-		setReactivePower = ess.setReactivePower();
 		id = ess.id();
+		this.power = ess.getPower();
+		this.minActivePowerLimit = new PGreaterEqualLimitation(power);
+		this.maxActivePowerLimit = new PSmallerEqualLimitation(power);
+		this.minReactivePowerLimit = new QGreaterEqualLimitation(power);
+		this.maxReactivePowerLimit = new QSmallerEqualLimitation(power);
 	}
 
 }

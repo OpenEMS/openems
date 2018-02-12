@@ -21,17 +21,15 @@
 package io.openems.impl.controller.symmetric.balancingcurrent;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.core.utilities.SymmetricPower;
+import io.openems.core.utilities.power.PEqualLimitation;
+import io.openems.core.utilities.power.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	public final WriteChannel<Long> setActivePower;
-	public final WriteChannel<Long> setReactivePower;
 	public final ReadChannel<Long> allowedCharge;
 	public final ReadChannel<Long> allowedDischarge;
 	public final ReadChannel<Long> systemState;
@@ -39,12 +37,10 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> activePower;
 	public final ReadChannel<Long> reactivePower;
 	public final SymmetricPower power;
+	public final PEqualLimitation limit;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
-
-		setActivePower = ess.setActivePower().required();
-		setReactivePower = ess.setReactivePower().required();
 
 		allowedCharge = ess.allowedCharge().required();
 		allowedDischarge = ess.allowedDischarge().required();
@@ -52,8 +48,8 @@ public class Ess extends ThingMap {
 		apparentPower = ess.apparentPower().required();
 		activePower = ess.activePower().required();
 		reactivePower = ess.reactivePower().required();
-		this.power = new SymmetricPower(ess.allowedDischarge().required(), ess.allowedCharge().required(),
-				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required());
+		power = ess.getPower();
+		this.limit = new PEqualLimitation(power);
 	}
 
 }
