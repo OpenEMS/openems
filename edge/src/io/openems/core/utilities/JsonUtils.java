@@ -197,7 +197,16 @@ public class JsonUtils {
 			 */
 			JsonArray js = new JsonArray();
 			for (Long l : (Long[]) value){
-				js.add(new JsonPrimitive((Long) l));
+				js.add(new JsonPrimitive(l));
+			}
+			return js;
+		} else if (value instanceof Double[]){
+			/*
+			 * Double-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (Double d : (Double[]) value){
+				js.add(new JsonPrimitive(d));
 			}
 			return js;
 		}
@@ -269,6 +278,14 @@ public class JsonUtils {
 						return la;
 					}
 
+				}else if(Double.class.isAssignableFrom(type.getComponentType())) {
+					if(j.isJsonArray()) {
+						JsonArray js = j.getAsJsonArray();
+						Double[] da = new Double[js.size()];
+						for(int i = 0; i < js.size(); i++) {
+							da[i] = js.get(i).getAsDouble();
+						}
+					}
 				}
 			}
 		} catch (IllegalStateException e) {
