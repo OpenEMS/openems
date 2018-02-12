@@ -50,6 +50,9 @@ import io.openems.api.thing.Thing;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.ControllerUtils;
+import io.openems.core.utilities.power.PGreaterEqualLimitation;
+import io.openems.core.utilities.power.PSmallerEqualLimitation;
+import io.openems.core.utilities.power.SymmetricPowerImpl;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
@@ -71,6 +74,9 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 			"reactivePowerGeneratorConfig", this).addChangeListener(this).addChangeListener(this);
 	private LoadGenerator offGridActivePowerGenerator;
 	private LoadGenerator offGridReactivePowerGenerator;
+	private SymmetricPowerImpl power;
+	private PGreaterEqualLimitation allowedChargeLimit;
+	private PSmallerEqualLimitation allowedDischargeLimit;
 
 	/*
 	 * Constructors
@@ -111,6 +117,26 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 			}
 			return 0L;
 		}, this.activePower);
+		power = new SymmetricPowerImpl(40000, setActivePower, setReactivePower);
+		this.allowedChargeLimit = new PGreaterEqualLimitation(power);
+		this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
+		this.allowedCharge.addChangeListener(new ChannelChangeListener() {
+
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+				allowedChargeLimit.setP(allowedCharge.valueOptional().orElse(0L));
+			}
+		});
+		this.power.addStaticLimitation(this.allowedChargeLimit);
+		this.allowedDischargeLimit = new PSmallerEqualLimitation(power);
+		this.allowedDischargeLimit.setP(this.allowedDischarge.valueOptional().orElse(0L));
+		this.allowedDischarge.addChangeListener(new ChannelChangeListener() {
+
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+				allowedDischargeLimit.setP(allowedDischarge.valueOptional().orElse(0L));
+			}
+		});
 	}
 
 	/*
@@ -120,10 +146,10 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 	@ChannelInfo(title = "GridMode", type = Long.class)
 	public ConfigChannel<Long> gridMode = new ConfigChannel<Long>("gridMode", this).label(0L, ON_GRID)
-			.label(1L, OFF_GRID).defaultValue(0L);
+	.label(1L, OFF_GRID).defaultValue(0L);
 	@ChannelInfo(title = "SystemState", type = Long.class)
 	public ConfigChannel<Long> systemState = new ConfigChannel<Long>("systemState", this) //
-			.label(1L, START).label(2L, STOP).label(5L, FAULT).defaultValue(1L);
+	.label(1L, START).label(2L, STOP).label(5L, FAULT).defaultValue(1L);
 
 	@Override
 	public ConfigChannel<Integer> minSoc() {
@@ -200,16 +226,6 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	@Override
 	public ReadChannel<Long> reactivePower() {
 		return reactivePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setActivePower() {
-		return setActivePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setReactivePower() {
-		return setReactivePower;
 	}
 
 	@Override
@@ -344,6 +360,11 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 				}
 			}
 		}
+	}
+
+	@Override
+	public SymmetricPowerImpl getPower() {
+		return power;
 	}
 
 }

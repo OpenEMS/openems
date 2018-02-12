@@ -21,8 +21,8 @@
 package io.openems.api.device.nature.ess;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.doc.ChannelInfo;
+import io.openems.core.utilities.power.SymmetricPower;
 
 public interface SymmetricEssNature extends EssNature {
 	/*
@@ -36,14 +36,15 @@ public interface SymmetricEssNature extends EssNature {
 
 	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> reactivePower();
+	// /*
+	// * WriteChannels
+	// */
+	// @ChannelInfo(type = Long.class)
+	// public WriteChannel<Long> setActivePower();
+	//
+	// @ChannelInfo(type = Long.class)
+	// public WriteChannel<Long> setReactivePower();
 
-	/*
-	 * WriteChannels
-	 */
-	@ChannelInfo(type = Long.class)
-	public WriteChannel<Long> setActivePower();
-
-	@ChannelInfo(type = Long.class)
-	public WriteChannel<Long> setReactivePower();
+	public SymmetricPower getPower();
 
 }
