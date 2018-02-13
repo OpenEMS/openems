@@ -34,9 +34,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import info.faljse.SDNotify.SDNotify;
-import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -122,12 +120,6 @@ public class WeekTimeScheduler extends Scheduler {
 				if (controller != null) {
 					controller.executeRun();
 				}
-			}
-			for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
-				channel.shadowCopyAndReset();
-			}
-			for (Bridge bridge : thingRepository.getBridges()) {
-				bridge.triggerWrite();
 			}
 		} catch (InvalidValueException | DateTimeParseException | ConfigException | ReflectionException e) {
 			log.error(e.getMessage());

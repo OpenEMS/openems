@@ -30,11 +30,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import info.faljse.SDNotify.SDNotify;
-import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -132,12 +130,6 @@ public class ChannelThresholdScheduler extends Scheduler {
 				- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
 		for (Controller controller : controllers) {
 			controller.executeRun();
-		}
-		for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
-			channel.shadowCopyAndReset();
-		}
-		for (Bridge bridge : thingRepository.getBridges()) {
-			bridge.triggerWrite();
 		}
 	}
 
