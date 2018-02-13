@@ -12,6 +12,8 @@ public final class BackendEventConstants {
     
     public static final String TOPIC_EDGE_ONLINE = TOPIC_EDGE + "ONLINE";
     
+    public static final String TOPIC_EDGE_OFFLINE = TOPIC_EDGE + "OFFLINE";
+    
     public static final String PROPERTY_KEY_EDGE_ID = "edgeId";
  
 }

@@ -58,6 +58,9 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 				}
 			}
 
+			// store edgeIds together with WebSocket
+			websocket.setAttachment(edgeIds);
+
 			// send successful reply to openems
 			JsonObject jReply = DefaultMessages.openemsConnectionSuccessfulReply();
 			WebSocketUtils.send(websocket, jReply);
@@ -119,5 +122,33 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 	@Override
 	protected void _onClose(WebSocket websocket) {
 		System.out.println("_onClose");
+
+		// get edgeIds from websocket
+		int[] edgeIds = websocket.getAttachment();
+
+		// remove websocket from local map
+		for (int edgeId : edgeIds) {
+			synchronized (this.websocketsMap) {
+				this.websocketsMap.remove(edgeId, websocket);
+			}
+		}
+
+		// announce device as offline
+		for (int edgeId : edgeIds) {
+			Map<String, Object> properties = new HashMap<>();
+			properties.put(BackendEventConstants.PROPERTY_KEY_EDGE_ID, edgeId);
+			Event event = new Event(BackendEventConstants.TOPIC_EDGE_OFFLINE, properties);
+			this.parent.eventAdmin.postEvent(event);
+		}
+		
+		// log
+		for (int edgeId : edgeIds) {
+			Optional<Device> deviceOpt = this.parent.metadataService.getDevice(edgeId);
+			if (deviceOpt.isPresent()) {
+				log.info("Device [" + deviceOpt.get() + "] disconnected.");
+			} else {
+				log.info("Device [ID:" + edgeId + "] disconnected.");
+			}
+		}
 	}
 }

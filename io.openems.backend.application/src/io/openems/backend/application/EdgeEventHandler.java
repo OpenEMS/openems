@@ -7,12 +7,14 @@ import org.osgi.service.event.EventHandler;
 
 import io.openems.backend.common.events.BackendEventConstants;
 
-@Component(property = EventConstants.EVENT_TOPIC + "=" + BackendEventConstants.TOPIC_EDGE_ONLINE)
+@Component(property = { //
+		EventConstants.EVENT_TOPIC + "=" + BackendEventConstants.TOPIC_EDGE_ONLINE,
+		EventConstants.EVENT_TOPIC + "=" + BackendEventConstants.TOPIC_EDGE_OFFLINE })
 public class EdgeEventHandler implements EventHandler {
 
 	@Override
 	public void handleEvent(Event event) {
 		System.out.println(event);
 	}
-	
+
 }
