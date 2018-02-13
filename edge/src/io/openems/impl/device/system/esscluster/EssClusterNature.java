@@ -1,9 +1,7 @@
 package io.openems.impl.device.system.esscluster;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -34,6 +32,8 @@ import io.openems.api.thing.ThingChannelsUpdatedListener;
 import io.openems.core.BridgeInitializedEventListener;
 import io.openems.core.Config;
 import io.openems.core.ThingRepository;
+import io.openems.core.utilities.power.SymmetricPower;
+import io.openems.core.utilities.power.SymmetricPowerClusterImpl;
 import io.openems.impl.protocol.system.SystemDeviceNature;
 
 @ThingInfo(title = "Ess Cluster")
@@ -50,6 +50,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 	private List<SymmetricEssNature> essList = new ArrayList<>();
 	private boolean isInitialized = false;
+	private SymmetricPowerClusterImpl power;
 	private FunctionalReadChannel<Long> soc = new FunctionalReadChannel<Long>("Soc", this, (channels) -> {
 		double nominalKWhSum = 0;
 		double actualCapacity = 0;
@@ -273,228 +274,11 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 
 	}).label(0L, EssNature.STOP).label(1L, EssNature.START);
 
-	private FunctionalWriteChannel<Long> setActivePower = new FunctionalWriteChannel<Long>("SetActivePower", this,
-			new FunctionalWriteChannelFunction<Long>() {
-
-		@Override
-		public Long setValue(Long newValue, String newLabel,
-				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) throws WriteChannelException {
-			long minValue = 0L;
-			boolean minValueValid = false;
-			long maxValue = 0L;
-			boolean maxValueValid = false;
-			Map<String, Long> soc = new HashMap<>();
-			for (SymmetricEssNature ess : essList) {
-				if (ess.soc().valueOptional().isPresent()) {
-					soc.put(ess.id(), ess.soc().valueOptional().get());
-				} else {
-					soc.put(ess.id(), 0L);
-				}
-				if (ess.setActivePower().writeMin().isPresent()) {
-					minValue += ess.setActivePower().writeMin().get();
-					minValueValid = true;
-				}
-				if (ess.setActivePower().writeMax().isPresent()) {
-					maxValue += ess.setActivePower().writeMax().get();
-					maxValueValid = true;
-				}
-			}
-			if (maxValueValid && maxValue < newValue) {
-				throw new WriteChannelException("Value [" + newValue + "] for [" + setActivePower.address()
-				+ "] is out of boundaries. Max value [" + maxValue + "] had already been set");
-			}
-			if (minValueValid && minValue > newValue) {
-				throw new WriteChannelException("Value [" + newValue + "] for [" + setActivePower.address()
-				+ "] is out of boundaries. Min value [" + minValue + "] had already been set");
-			}
-			for (WriteChannel<Long> channel : channels) {
-				long power = 0L;
-				if (channels.length > 0) {
-					if (newValue >= 0) {
-						power = newValue / (channels.length * 100) * soc.get(channel.parent().id());
-					} else {
-						power = newValue / (channels.length * 100) * (100 - soc.get(channel.parent().id()));
-					}
-				}
-				try {
-					channel.pushWrite(power);
-				} catch (WriteChannelException e) {
-					log.error("Failed to write " + power + " to " + channel.address(), e);
-				}
-			}
-			return newValue;
-		}
-
-		@Override
-		public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-			long sum = 0L;
-			for (ReadChannel<Long> channel : channels) {
-				try {
-					sum += channel.value();
-				} catch (InvalidValueException e) {
-					log.error("Can't read ActivePower from " + channel.address());
-				}
-			}
-			return sum;
-		}
-
-		@Override
-		public Long getMinValue(Optional<Long> minValue,
-				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-			long min = 0L;
-			boolean isPresent = false;
-			for (WriteChannel<Long> channelMin : channels) {
-				if (channelMin.writeMin().isPresent()) {
-					min += channelMin.writeMin().get();
-					isPresent = true;
-				}
-			}
-			if (isPresent) {
-				return min;
-			}
-			return null;
-		}
-
-		@Override
-		public Long getMaxValue(Optional<Long> maxValue,
-				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-			long max = 0L;
-			boolean isPresent = false;
-			for (WriteChannel<Long> channelMax : channels) {
-				if (channelMax.writeMax().isPresent()) {
-					max += channelMax.writeMax().get();
-					isPresent = true;
-				}
-			}
-			if (isPresent) {
-				return max;
-			}
-			return null;
-		}
-
-		@Override
-		public Long setMinValue(Long newValue, String newLabel,
-				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-			// don't forward the maxValue otherwise the pushWrite with power weight by soc will break
-			return newValue;
-		}
-
-		@Override
-		public Long setMaxValue(Long newValue, String newLabel,
-				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-			// don't forward the maxValue otherwise the pushWrite with power weight by soc will break
-			return newValue;
-		}
-
-	});
-	private FunctionalWriteChannel<Long> setReactivePower = new FunctionalWriteChannel<Long>("SetReactivePower", this,
-			new FunctionalWriteChannelFunction<Long>() {
-
-		@Override
-		public Long setValue(Long newValue, String newLabel,
-				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-			long power = 0L;
-			if (channels.length > 0) {
-				power = newValue / channels.length;
-			}
-			for (WriteChannel<Long> channel : channels) {
-				try {
-					channel.pushWrite(power);
-				} catch (WriteChannelException e) {
-					log.error("Failed to write " + power + " to " + channel.address(), e);
-				}
-			}
-			return newValue;
-		}
-
-		@Override
-		public Long getValue(@SuppressWarnings("unchecked") ReadChannel<Long>... channels) {
-			long sum = 0L;
-			for (ReadChannel<Long> channel : channels) {
-				try {
-					sum += channel.value();
-				} catch (InvalidValueException e) {
-					log.error("Can't read ReactivePower from " + channel.address());
-				}
-			}
-			return sum;
-		}
-
-		@Override
-		public Long getMinValue(Optional<Long> minValue,
-				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-			long min = 0L;
-			boolean isPresent = false;
-			for (WriteChannel<Long> channelMin : channels) {
-				if (channelMin.writeMin().isPresent()) {
-					min += channelMin.writeMin().get();
-					isPresent = true;
-				}
-			}
-			if (isPresent) {
-				return min;
-			}
-			return null;
-		}
-
-		@Override
-		public Long getMaxValue(Optional<Long> maxValue,
-				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-			long max = 0L;
-			boolean isPresent = false;
-			for (WriteChannel<Long> channelMax : channels) {
-				if (channelMax.writeMax().isPresent()) {
-					max += channelMax.writeMax().get();
-					isPresent = true;
-				}
-			}
-			if (isPresent) {
-				return max;
-			}
-			return null;
-
-		}
-
-		@Override
-		public Long setMinValue(Long newValue, String newLabel,
-				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-			long power = 0L;
-			if (channels.length > 0) {
-				power = newValue / channels.length;
-			}
-			for (WriteChannel<Long> channel : channels) {
-				try {
-					channel.pushWriteMin(power);
-				} catch (WriteChannelException e) {
-					log.error("Failed to write " + power + " to " + channel.address(), e);
-				}
-			}
-			return newValue;
-		}
-
-		@Override
-		public Long setMaxValue(Long newValue, String newLabel,
-				@SuppressWarnings("unchecked") WriteChannel<Long>... channels) {
-			long power = 0L;
-			if (channels.length > 0) {
-				power = newValue / channels.length;
-			}
-			for (WriteChannel<Long> channel : channels) {
-				try {
-					channel.pushWriteMax(power);
-				} catch (WriteChannelException e) {
-					log.error("Failed to write " + power + " to " + channel.address(), e);
-				}
-			}
-			return newValue;
-		}
-
-	});
-
 	public EssClusterNature(String id, Device parent) throws ConfigException {
 		super(id, parent);
 		this.listeners = new ArrayList<>();
 		Config.getInstance().addBridgeInitializedEventListener(this);
+		power = new SymmetricPowerClusterImpl();
 	}
 
 	@Override
@@ -573,16 +357,6 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 	}
 
 	@Override
-	public WriteChannel<Long> setActivePower() {
-		return setActivePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setReactivePower() {
-		return setReactivePower;
-	}
-
-	@Override
 	public ReadChannel<Long> capacity() {
 		return capacity;
 	}
@@ -623,8 +397,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				maxNominalPower.removeChannel(ess.maxNominalPower());
 				capacity.removeChannel(ess.capacity());
 				setWorkState.removeChannel(ess.setWorkState());
-				setActivePower.removeChannel(ess.setActivePower());
-				setReactivePower.removeChannel(ess.setReactivePower());
+				power.removeEss(ess);
 			}
 			essList.clear();
 			if (essIds != null && isInitialized) {
@@ -645,8 +418,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							maxNominalPower.addChannel(ess.maxNominalPower());
 							capacity.addChannel(ess.capacity());
 							setWorkState.addChannel(ess.setWorkState());
-							setActivePower.addChannel(ess.setActivePower());
-							setReactivePower.addChannel(ess.setReactivePower());
+							power.addEss(ess);
 						}
 					}
 				}
@@ -680,6 +452,11 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 	public void onBridgeInitialized() {
 		this.isInitialized = true;
 		loadEss();
+	}
+
+	@Override
+	public SymmetricPower getPower() {
+		return power;
 	}
 
 }
