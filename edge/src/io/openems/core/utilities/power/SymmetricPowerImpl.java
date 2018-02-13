@@ -10,7 +10,8 @@ import com.vividsolutions.jts.geom.Point;
 import io.openems.api.bridge.BridgeEvent;
 import io.openems.api.bridge.BridgeEventListener;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.exception.WriteChannelException;;
+import io.openems.api.exception.WriteChannelException;
+import io.openems.core.utilities.AvgFiFoQueue;;
 
 public class SymmetricPowerImpl extends SymmetricPower implements LimitationChangedListener, BridgeEventListener {
 	/*
@@ -23,6 +24,8 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 
 	private List<Limitation> staticLimitations;
 	private List<Limitation> dynamicLimitations;
+	private AvgFiFoQueue activePowerAvg;
+	private AvgFiFoQueue reactivePowerAvg;
 
 	public SymmetricPowerImpl(long maxApparentPower, WriteChannel<Long> setActivePower,
 			WriteChannel<Long> setReactivePower) {
@@ -31,6 +34,8 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 		this.dynamicLimitations = new ArrayList<>();
 		this.setActivePower = setActivePower;
 		this.setReactivePower = setReactivePower;
+		activePowerAvg = new AvgFiFoQueue(3, 1.5);
+		reactivePowerAvg = new AvgFiFoQueue(3, 1.5);
 		createBaseGeometry();
 		reset();
 	}
@@ -69,9 +74,11 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 		Point p = reduceToZero();
 		Coordinate c = p.getCoordinate();
 		setGeometry(p);
+		activePowerAvg.add((long) c.x);
+		reactivePowerAvg.add((long) c.y);
 		try {
-			this.setActivePower.pushWrite((long) c.x);
-			this.setReactivePower.pushWrite((long) c.y);
+			this.setActivePower.pushWrite(activePowerAvg.avg());
+			this.setReactivePower.pushWrite(reactivePowerAvg.avg());
 			setActivePower.shadowCopyAndReset();
 			setReactivePower.shadowCopyAndReset();
 		} catch (WriteChannelException e) {
