@@ -6,14 +6,14 @@ import java.util.Map;
 public class UserDevicesInfo {
 
 	private final User user;
-	private final Map<Integer, Device> devices = new HashMap<>();
+	private final Map<Integer, Edge> devices = new HashMap<>();
 
 	public UserDevicesInfo(User user) {
 		super();
 		this.user = user;
 	}
 	
-	public void addDevice(Device device) {
+	public void addDevice(Edge device) {
 		this.devices.put(device.getId(), device);
 	}
 	
@@ -21,7 +21,7 @@ public class UserDevicesInfo {
 		return user;
 	}
 	
-	public Map<Integer, Device> getDevices() {
+	public Map<Integer, Edge> getDevices() {
 		return devices;
 	}
 

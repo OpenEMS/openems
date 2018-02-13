@@ -1,12 +1,12 @@
 package io.openems.backend.metadata.api;
 
-public class Device {
+public class Edge {
 	private final int id;
 	private String name;
 	private String comment;
 	private String producttype;
 
-	public Device(int id, String name, String comment, String producttype) {
+	public Edge(int id, String name, String comment, String producttype) {
 		this.id = id;
 		this.name = name;
 		this.comment = comment;
@@ -19,6 +19,6 @@ public class Device {
 
 	@Override
 	public String toString() {
-		return "Device [id=" + id + ", name=" + name + ", comment=" + comment + ", producttype=" + producttype + "]";
+		return "Edge [id=" + id + ", name=" + name + ", comment=" + comment + ", producttype=" + producttype + "]";
 	}
 }
