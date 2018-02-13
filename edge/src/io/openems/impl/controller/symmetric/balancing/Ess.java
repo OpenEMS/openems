@@ -25,7 +25,6 @@ import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.power.PEqualLimitation;
 import io.openems.core.utilities.power.SymmetricPower;
 
@@ -40,7 +39,6 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> gridMode;
 	public final ReadChannel<Long> systemState;
 	public final SymmetricPower power;
-	public AvgFiFoQueue powerAvg = new AvgFiFoQueue(1, 1);
 	public final PEqualLimitation limit;
 
 	public Ess(SymmetricEssNature ess) {
