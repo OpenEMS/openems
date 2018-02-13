@@ -182,8 +182,8 @@ public abstract class SymmetricPower {
 		Point result = pZero;
 		for (GeometryLocation location : locations) {
 			Geometry g = location.getGeometryComponent();
-			if (!g.equals(pZero) && g instanceof Point) {
-				result = (Point) location.getGeometryComponent();
+			if (!g.equals(pZero)) {
+				result = FACTORY.createPoint(location.getCoordinate());
 				break;
 			}
 		}

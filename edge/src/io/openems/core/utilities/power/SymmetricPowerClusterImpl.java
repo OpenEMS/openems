@@ -12,8 +12,15 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.util.AffineTransformation;
 
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.exception.ConfigException;
+import io.openems.api.scheduler.AfterControllerExecutedListener;
+import io.openems.api.scheduler.Scheduler;
+import io.openems.core.Config;
+import io.openems.core.SchedulerInitializedEventListener;
+import io.openems.core.ThingRepository;
 
-public class SymmetricPowerClusterImpl extends SymmetricPower implements PowerChangeListener {
+public class SymmetricPowerClusterImpl extends SymmetricPower
+implements PowerChangeListener, AfterControllerExecutedListener {
 
 	private List<Limitation> dynamicLimitations;
 	private List<SymmetricEssNature> ess;
@@ -21,6 +28,19 @@ public class SymmetricPowerClusterImpl extends SymmetricPower implements PowerCh
 	public SymmetricPowerClusterImpl() {
 		this.dynamicLimitations = new ArrayList<>();
 		this.ess = new ArrayList<>();
+		try {
+			Config.getInstance().addSchedulerInitializedEventListener(new SchedulerInitializedEventListener() {
+
+				@Override
+				public void onSchedulerInitialized() {
+					Scheduler scheduler = ThingRepository.getInstance().getSchedulers().iterator().next();
+					scheduler.addListener(SymmetricPowerClusterImpl.this);
+				}
+			});
+		} catch (ConfigException e) {
+			log.error("Can't load config");
+		}
+		reset();
 	}
 
 	public void addEss(SymmetricEssNature ess) {
@@ -33,7 +53,7 @@ public class SymmetricPowerClusterImpl extends SymmetricPower implements PowerCh
 	public void removeEss(SymmetricEssNature ess) {
 		this.ess.remove(ess);
 		mergePower();
-		ess.getPower().addListener(this);
+		ess.getPower().removeListener(this);
 		setMaxApparentPower(getMaxApparentPower() - ess.maxNominalPower().valueOptional().orElse(0L));
 	}
 
@@ -43,26 +63,24 @@ public class SymmetricPowerClusterImpl extends SymmetricPower implements PowerCh
 	}
 
 	private void mergePower() {
-		Geometry base = null;
+		Geometry base = FACTORY.createPoint(new Coordinate(0, 0));
 		for (SymmetricEssNature ess : this.ess) {
-			if (base != null) {
-				base = getUnionAround(base, ess.getPower().getGeometry());
-			} else {
-				base = ess.getPower().getGeometry();
-			}
+			base = getUnionAround(base, ess.getPower().getGeometry());
 		}
-		for (Limitation limit : this.dynamicLimitations) {
-			Geometry limitedPower;
-			try {
-				limitedPower = limit.applyLimit(base);
-				if (!limitedPower.isEmpty()) {
-					base = limitedPower;
+		synchronized (this.dynamicLimitations) {
+			for (Limitation limit : this.dynamicLimitations) {
+				Geometry limitedPower;
+				try {
+					limitedPower = limit.applyLimit(base);
+					if (!limitedPower.isEmpty()) {
+						base = limitedPower;
+					}
+				} catch (PowerException e) {
+					log.error("Failed to apply Limit after base Power changed!", e);
 				}
-			} catch (PowerException e) {
-				log.error("Failed to apply Limit after base Power changed!", e);
 			}
+			setGeometry(base);
 		}
-		setGeometry(base);
 	}
 
 	private Geometry getUnionAround(Geometry g1, Geometry g2) {
@@ -84,17 +102,20 @@ public class SymmetricPowerClusterImpl extends SymmetricPower implements PowerCh
 
 	@Override
 	public void applyLimitation(Limitation limit) throws PowerException {
-		Geometry limitedPower = limit.applyLimit(getGeometry());
-		if (!limitedPower.isEmpty()) {
-			setGeometry(limitedPower);
-			this.dynamicLimitations.add(limit);
-		} else {
-			throw new PowerException("No possible Power after applying Limit. Limit is not applied!");
+		synchronized (this.dynamicLimitations) {
+			Geometry limitedPower = limit.applyLimit(getGeometry());
+			if (!limitedPower.isEmpty()) {
+				setGeometry(limitedPower);
+				this.dynamicLimitations.add(limit);
+			} else {
+				throw new PowerException("No possible Power after applying Limit. Limit is not applied!");
+			}
 		}
 	}
 
 	private void setPower() {
 		Point p = reduceToZero();
+		setGeometry(p);
 		long activePower = (long) p.getCoordinate().x;
 		long reactivePower = (long) p.getCoordinate().y;
 		long socSum = 0;
@@ -217,8 +238,8 @@ public class SymmetricPowerClusterImpl extends SymmetricPower implements PowerCh
 				 * weight the range of possible power by the useableSoc
 				 * if the useableSoc is negative the ess will be charged
 				 */
-				long power = (long) (Math.ceil(minQ + diff / getMaxApparentPower()
-				* ess.maxNominalPower().valueOptional().orElse(0L)));
+				long power = (long) (Math
+						.ceil(minQ + diff / getMaxApparentPower() * ess.maxNominalPower().valueOptional().orElse(0L)));
 				QEqualLimitation limit = new QEqualLimitation(ess.getPower());
 				limit.setQ(power);
 				try {
@@ -246,8 +267,8 @@ public class SymmetricPowerClusterImpl extends SymmetricPower implements PowerCh
 				}
 				double diff = maxQ - minQ;
 				// weight the range of possible power by the useableSoc
-				long power = (long) Math.floor(minQ + diff / getMaxApparentPower()
-				* ess.maxNominalPower().valueOptional().orElse(0L));
+				long power = (long) Math
+						.floor(minQ + diff / getMaxApparentPower() * ess.maxNominalPower().valueOptional().orElse(0L));
 				QEqualLimitation limit = new QEqualLimitation(ess.getPower());
 				limit.setQ(power);
 				try {
@@ -258,6 +279,18 @@ public class SymmetricPowerClusterImpl extends SymmetricPower implements PowerCh
 				}
 			}
 		}
+	}
+
+	@Override
+	protected void reset() {
+		this.dynamicLimitations.clear();
+		super.reset();
+	}
+
+	@Override
+	public void afterControllerExecuted() {
+		setPower();
+		reset();
 	}
 
 }
