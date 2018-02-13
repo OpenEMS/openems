@@ -189,4 +189,8 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			}
 		}
 	}
+
+	public boolean isOnline(int edgeId) {
+		return this.websocketsMap.containsKey(edgeId);
+	}
 }

@@ -40,7 +40,7 @@ public class DefaultMessages {
 	 * @return
 	 */
 	public static JsonObject browserConnectionSuccessfulReply(String token, Optional<String> roleOpt,
-			Collection<DeviceImpl> devices) {
+			JsonArray jEdges) {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "allow");
 		if (roleOpt.isPresent()) {
@@ -50,19 +50,7 @@ public class DefaultMessages {
 		JsonObject j = new JsonObject();
 		j.add("authenticate", jAuthenticate);
 		JsonObject jMetadata = new JsonObject();
-		if (!devices.isEmpty()) {
-			JsonArray jDevices = new JsonArray();
-			for (DeviceImpl device : devices) {
-				JsonObject jDevice = new JsonObject();
-				jDevice.addProperty("name", device.getName());
-				jDevice.addProperty("comment", device.getComment());
-				jDevice.addProperty("producttype", device.getProducttype());
-//				TODO jDevice.addProperty("role", device.getRole().toString());
-				jDevice.addProperty("online", device.isOnline());
-				jDevices.add(jDevice);
-			}
-			jMetadata.add("devices", jDevices);
-		}
+		jMetadata.add("devices", jEdges);
 		j.add("metadata", jMetadata);
 		return j;
 	}

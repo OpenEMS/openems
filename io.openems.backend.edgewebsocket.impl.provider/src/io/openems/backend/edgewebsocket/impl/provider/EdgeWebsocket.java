@@ -7,6 +7,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class EdgeWebsocket implements EdgeWebsocketService {
 	@Reference
 	protected MetadataService metadataService;
 
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL) // avoid recursive dependency
+	@Reference
 	protected UiWebsocketService uiWebsocketService;
 
 	@Reference
@@ -75,6 +76,11 @@ public class EdgeWebsocket implements EdgeWebsocketService {
 	private synchronized void startServer(int port) {
 		this.server = new EdgeWebsocketServer(this, port);
 		this.server.start();
+	}
+
+	@Override
+	public boolean isOnline(int edgeId) {
+		return this.server.isOnline(edgeId);
 	}
 
 }

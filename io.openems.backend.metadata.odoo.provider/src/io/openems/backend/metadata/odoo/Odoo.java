@@ -8,14 +8,21 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import javax.swing.plaf.synth.SynthSpinnerUI;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
@@ -26,6 +33,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.metadata.api.Role;
@@ -42,11 +50,8 @@ public class Odoo implements MetadataService {
 	@ObjectClassDefinition
 	@interface Config {
 		String database();
-
 		String uid();
-
 		String password();
-
 		String url() default "https://www1.fenecon.de";
 	}
 
@@ -55,9 +60,12 @@ public class Odoo implements MetadataService {
 	private String uid;
 	private String password;
 
-	private ConcurrentMap<Integer, User> users = new ConcurrentHashMap<>();
-	private ConcurrentMap<Integer, Edge> edges = new ConcurrentHashMap<>();
+	private Map<Integer, User> users = new HashMap<>();
+	private Map<Integer, Edge> edges = new HashMap<>();
 
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC) // avoid recursive dependency
+	private volatile EdgeWebsocketService edgeWebsocketService;
+	
 	@Activate
 	void activate(Config config) {
 		log.debug("Activate Odoo [url=" + config.url() + ";database=" + config.database() + ";uid=" + config.uid()
@@ -126,10 +134,15 @@ public class Odoo implements MetadataService {
 								JsonUtils.getAsString(jDevice, "name"), //
 								JsonUtils.getAsString(jDevice, "comment"), //
 								JsonUtils.getAsString(jDevice, "producttype"));
-						this.edges.putIfAbsent(edge.getId(), edge);
-						user.addDeviceRole(edge.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
+						edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
+						synchronized (this.edges) {
+							this.edges.putIfAbsent(edge.getId(), edge);	
+						}
+						user.addEdgeRole(edge.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
 					}
-					this.users.put(user.getId(), user);
+					synchronized (this.users) {
+						this.users.put(user.getId(), user);	
+					}
 					return user;
 				}
 			}
@@ -151,9 +164,7 @@ public class Odoo implements MetadataService {
 
 	@Override
 	public Optional<Edge> getEdge(int edgeId) {
-		// TODO Auto-generated method stub
-		log.info("TODO: getEdge");
-		return Optional.empty();
+		return Optional.ofNullable(this.edges.get(edgeId));
 	}
 
 	@Override

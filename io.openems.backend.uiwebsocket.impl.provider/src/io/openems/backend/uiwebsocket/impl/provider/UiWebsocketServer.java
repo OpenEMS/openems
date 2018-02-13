@@ -12,10 +12,12 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.Role;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.WebSocketUtils;
 
 public class UiWebsocketServer extends AbstractWebsocketServer {
 
@@ -29,7 +31,6 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 
 	@Override
 	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
-		log.info("OnOpen");
 		String error = "";
 		User user = null;
 
@@ -39,7 +40,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			error = "Session-ID is missing in handshake";
 		} else {
 			try {
-				user = this.parent.getMetadataService().getUserWithSession(sessionIdOpt.get());
+				user = this.parent.metadataService.getUserWithSession(sessionIdOpt.get());
 			} catch (OpenemsException e) {
 				error = e.getMessage();
 			}
@@ -50,39 +51,27 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			this.send(websocket, DefaultMessages.browserConnectionFailedReply());
 			log.warn("User connection failed. Session [" + sessionIdOpt.orElse("") + "] Error [" + error + "].");
 			websocket.closeConnection(CloseFrame.REFUSE, error);
+			
 		} else if (user != null) {
 			// send connection successful to browser
-			for (Entry<Integer, Role> deviceRole : user.getDeviceRoles().entrySet()) {
-				// boolean isOnline =
-				// this.parent.getEdgeWebsocketService().isOnline(deviceRole.getKey());
-				// JsonArray jDevices
+			JsonArray jEdges = new JsonArray();
+			for (Entry<Integer, Role> edgeRole : user.getEdgeRoles().entrySet()) {
+				int edgeId = edgeRole.getKey();
+				Role role = edgeRole.getValue();
+				Optional<Edge> edgeOpt = this.parent.metadataService.getEdge(edgeId);
+				if (!edgeOpt.isPresent()) {
+					log.warn("Unable to find Edge [ID:" + edgeId + "]");
+				} else {
+					JsonObject jEdge = edgeOpt.get().toJsonObject();
+					jEdge.addProperty("role", role.toString());
+					jEdges.add(jEdge);
+				}
 			}
-
-			//
-			//
-			// JsonObject jReply =
-			// DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
-			// Optional.empty(),
-			// data.getDevices());
-			// // TODO write user name to log output
-			// WebSocketUtils.send(websocket, jReply);
-			//
-			// // add websocket to local cache
-			// this.addWebsocket(websocket, session);
-			// log.info("User [" + data.getUserName() + "] connected with Session [" +
-			// data.getOdooSessionId().orElse("")
-			// + "].");
-
+			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply("" /* TODO empty token? */,
+					Optional.empty(), jEdges);
+			WebSocketUtils.send(websocket, jReply);
+			log.info("User [" + user.getName() + "] connected with Session [" + sessionIdOpt.orElse("") + "].");
 		}
-
-		// // check if the session is now valid and send reply to browser
-		// BrowserSessionData data = session.getData();
-		// if (error.isEmpty()) {
-		// // add isOnline information
-		//
-
-		//
-
 	}
 
 	@Override

@@ -9,6 +9,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,19 +24,19 @@ public class BackendApp {
 	private final Logger log = LoggerFactory.getLogger(BackendApp.class);
 
 	@Reference
-	ConfigurationAdmin configAdmin;
+	private ConfigurationAdmin configAdmin;
 
 	@Reference
-	MetadataService metadataService;
+	private MetadataService metadataService;
 
 	// @Reference
 	// TimedataService timedataService;
 
-	@Reference
-	EdgeWebsocketService edgeWebsocketService;
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	private volatile EdgeWebsocketService edgeWebsocketService;
 
 	@Reference
-	UiWebsocketService uiWebsocketService;
+	private UiWebsocketService uiWebsocketService;
 
 	// @Reference(target = "(component.factory=EdgeWebsocketFactory)")
 	// private ComponentFactory factory;

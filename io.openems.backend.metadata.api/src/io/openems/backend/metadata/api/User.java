@@ -1,13 +1,13 @@
 package io.openems.backend.metadata.api;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 public class User {
 	private final int id;
 	private String name;
-	private final Map<Integer, Role> deviceRoles = new HashMap<>();	
+	private final NavigableMap<Integer, Role> edgeRoles = new TreeMap<>();	
 	
 	public User(int id, String name) {
 		this.id = id;
@@ -22,16 +22,16 @@ public class User {
 		return id;
 	}
 	
-	public void addDeviceRole(int deviceId, Role role) {
-		this.deviceRoles.put(deviceId, role);
+	public void addEdgeRole(int deviceId, Role role) {
+		this.edgeRoles.put(deviceId, role);
 	}
 	
-	public Map<Integer, Role> getDeviceRoles() {
-		return Collections.unmodifiableMap(this.deviceRoles);
+	public NavigableMap<Integer, Role> getEdgeRoles() {
+		return Collections.unmodifiableNavigableMap(this.edgeRoles);
 	}
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", deviceRole=" + deviceRoles + "]";
+		return "User [id=" + id + ", name=" + name + ", edgeRole=" + edgeRoles + "]";
 	}
 }

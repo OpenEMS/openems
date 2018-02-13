@@ -7,6 +7,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,18 +29,10 @@ public class UiWebsocket implements UiWebsocketService {
 	private UiWebsocketServer server = null;
 
 	@Reference
-	private MetadataService metadataService;
+	protected MetadataService metadataService;
 
-	protected MetadataService getMetadataService() {
-		return metadataService;
-	}
-
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL) // avoid recursive dependency
-	private EdgeWebsocketService edgeWebsocketService;
-
-	protected EdgeWebsocketService getEdgeWebsocketService() {
-		return edgeWebsocketService;
-	}
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC) // avoid recursive dependency
+	protected volatile EdgeWebsocketService edgeWebsocketService;
 
 	@ObjectClassDefinition
 	@interface Config {
