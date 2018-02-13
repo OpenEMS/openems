@@ -29,6 +29,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 
 	@Override
 	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
+		log.info("OnOpen");
 		String error = "";
 		User user = null;
 
@@ -51,24 +52,26 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			websocket.closeConnection(CloseFrame.REFUSE, error);
 		} else if (user != null) {
 			// send connection successful to browser
-			for(Entry<Integer, Role> deviceRole : user.getDeviceRoles().entrySet()) {
-//				boolean isOnline = this.parent.getEdgeWebsocketService().isOnline(deviceRole.getKey());
-//				JsonArray jDevices	
+			for (Entry<Integer, Role> deviceRole : user.getDeviceRoles().entrySet()) {
+				// boolean isOnline =
+				// this.parent.getEdgeWebsocketService().isOnline(deviceRole.getKey());
+				// JsonArray jDevices
 			}
-			
-//			
-//			
-//			 JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
-//			 Optional.empty(),
-//			 data.getDevices());
-//			 // TODO write user name to log output
-//			 WebSocketUtils.send(websocket, jReply);
-//			
-//			 // add websocket to local cache
-//			 this.addWebsocket(websocket, session);
-//				 log.info("User [" + data.getUserName() + "] connected with Session [" +
-//				 data.getOdooSessionId().orElse("")
-//				 + "].");
+
+			//
+			//
+			// JsonObject jReply =
+			// DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
+			// Optional.empty(),
+			// data.getDevices());
+			// // TODO write user name to log output
+			// WebSocketUtils.send(websocket, jReply);
+			//
+			// // add websocket to local cache
+			// this.addWebsocket(websocket, session);
+			// log.info("User [" + data.getUserName() + "] connected with Session [" +
+			// data.getOdooSessionId().orElse("")
+			// + "].");
 
 		}
 

@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -23,8 +22,7 @@ import io.openems.common.utils.StringUtils;
 public abstract class AbstractWebsocketServer extends WebSocketServer {
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketServer.class);
 
-	protected abstract void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
-			Optional<String> deviceNameOpt);
+	protected abstract void _onMessage(WebSocket websocket, JsonObject jMessage);
 
 	protected abstract void _onOpen(WebSocket websocket, ClientHandshake handshake);
 
@@ -61,9 +59,7 @@ public abstract class AbstractWebsocketServer extends WebSocketServer {
 	public final void onMessage(WebSocket websocket, String message) {
 		try {
 			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-			Optional<JsonArray> jMessageIdOpt = JsonUtils.getAsOptionalJsonArray(jMessage, "id");
-			Optional<String> deviceNameOpt = JsonUtils.getAsOptionalString(jMessage, "device");
-			this._onMessage(websocket, jMessage, jMessageIdOpt, deviceNameOpt);
+			this._onMessage(websocket, jMessage);
 		} catch (Throwable e) {
 			log.error("onMessage-Error [" + message + "]: " + e.getMessage());
 			e.printStackTrace();

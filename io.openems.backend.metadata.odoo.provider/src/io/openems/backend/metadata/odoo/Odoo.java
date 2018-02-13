@@ -9,6 +9,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -24,7 +26,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.backend.metadata.api.Device;
+import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.metadata.api.Role;
 import io.openems.backend.metadata.api.User;
@@ -52,6 +54,9 @@ public class Odoo implements MetadataService {
 	private String database;
 	private String uid;
 	private String password;
+
+	private ConcurrentMap<Integer, User> users = new ConcurrentHashMap<>();
+	private ConcurrentMap<Integer, Edge> edges = new ConcurrentHashMap<>();
 
 	@Activate
 	void activate(Config config) {
@@ -116,15 +121,15 @@ public class Odoo implements MetadataService {
 							JsonUtils.getAsString(jUser, "name"));
 					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
 					for (JsonElement jDevice : jDevices) {
-						Device device = new Device(//
+						Edge edge = new Edge(//
 								JsonUtils.getAsInt(jDevice, "id"), //
 								JsonUtils.getAsString(jDevice, "name"), //
 								JsonUtils.getAsString(jDevice, "comment"), //
 								JsonUtils.getAsString(jDevice, "producttype"));
-						// this.devices.putIfAbsent(device.getId(), device);
-						user.addDeviceRole(device.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
+						this.edges.putIfAbsent(edge.getId(), edge);
+						user.addDeviceRole(edge.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
 					}
-					// this.users.put(user.getId(), user);
+					this.users.put(user.getId(), user);
 					return user;
 				}
 			}
@@ -145,9 +150,16 @@ public class Odoo implements MetadataService {
 	}
 
 	@Override
-	public Optional<Device> getDevice(int edgeId) {
+	public Optional<Edge> getEdge(int edgeId) {
 		// TODO Auto-generated method stub
+		log.info("TODO: getEdge");
 		return Optional.empty();
+	}
+
+	@Override
+	public void updateEdgeConfig(int edgeId, JsonObject jConfig) {
+		// TODO Auto-generated method stub
+		log.info("TODO: updateEdgeConfig");
 	}
 
 	// public Optional<User> getUser(int id) {

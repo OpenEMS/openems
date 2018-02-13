@@ -6,6 +6,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public class EdgeWebsocket implements EdgeWebsocketService {
 	@Reference
 	protected MetadataService metadataService;
 
-	@Reference
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL) // avoid recursive dependency
 	protected UiWebsocketService uiWebsocketService;
 
 	@Reference

@@ -77,6 +77,7 @@ public class BackendApp {
 			// set minimum log levels for some verbose packages
 			log4jProps.put("log4j.logger.org.eclipse.osgi", "WARN");
 			log4jProps.put("log4j.logger.org.apache.felix.configadmin", "INFO");
+			log4jProps.put("log4j.logger.sun.net.www.protocol.http.HttpURLConnection", "INFO");
 			configuration.update(log4jProps);
 		} catch (IOException e1) {
 			e1.printStackTrace();

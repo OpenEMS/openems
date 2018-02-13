@@ -11,12 +11,13 @@ import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.events.BackendEventConstants;
-import io.openems.backend.metadata.api.Device;
+import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 
@@ -31,6 +32,9 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 		this.parent = parent;
 	}
 
+	/**
+	 * Open event of websocket. Parses the "apikey" and to authenticate Edge.
+	 */
 	@Override
 	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
 		String apikey = "";
@@ -75,7 +79,7 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 
 			// log
 			for (int edgeId : edgeIds) {
-				Optional<Device> deviceOpt = this.parent.metadataService.getDevice(edgeId);
+				Optional<Edge> deviceOpt = this.parent.metadataService.getEdge(edgeId);
 				if (deviceOpt.isPresent()) {
 					log.info("Device [" + deviceOpt.get() + "] connected.");
 				} else {
@@ -108,10 +112,46 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 		}
 	}
 
+	/**
+	 * Message event of websocket. Handles a new message. At this point the device
+	 * is already authenticated.
+	 */
 	@Override
-	protected void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
-			Optional<String> deviceNameOpt) {
-		System.out.println("_onMessage");
+	protected void _onMessage(WebSocket websocket, JsonObject jMessage) {
+		log.info("message: " + StringUtils.toShortString(jMessage, 100));
+		// get edgeIds from websocket
+		int[] edgeIds = websocket.getAttachment();
+
+		/*
+		 * Config? -> store in Metadata
+		 */
+		if (jMessage.has("config")) {
+			try {
+				JsonObject jConfig = JsonUtils.getAsJsonObject(jMessage, "config");
+				for (int edgeId : edgeIds) {
+					this.parent.metadataService.updateEdgeConfig(edgeId, jConfig);
+				}
+			} catch (OpenemsException e) {
+				log.error("Device [IDs:" + edgeIds + "] sent config. Unable to parse: " + e.getMessage());
+			}
+		}
+
+		/*
+		 * Is this a reply? -> forward to Browser
+		 */
+		if (jMessage.has("id")) {
+			for (int edgeId : edgeIds) {
+				this.parent.uiWebsocketService.handleEdgeReply(edgeId, jMessage);
+			}
+		}
+
+		/*
+		 * New timestamped data
+		 */
+		if (jMessage.has("timedata")) {
+			log.info("TODO: timedata");
+			// TODO timedata(devices, jMessage.get("timedata"));
+		}
 	}
 
 	@Override
@@ -121,8 +161,6 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 
 	@Override
 	protected void _onClose(WebSocket websocket) {
-		System.out.println("_onClose");
-
 		// get edgeIds from websocket
 		int[] edgeIds = websocket.getAttachment();
 
@@ -140,10 +178,10 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			Event event = new Event(BackendEventConstants.TOPIC_EDGE_OFFLINE, properties);
 			this.parent.eventAdmin.postEvent(event);
 		}
-		
+
 		// log
 		for (int edgeId : edgeIds) {
-			Optional<Device> deviceOpt = this.parent.metadataService.getDevice(edgeId);
+			Optional<Edge> deviceOpt = this.parent.metadataService.getEdge(edgeId);
 			if (deviceOpt.isPresent()) {
 				log.info("Device [" + deviceOpt.get() + "] disconnected.");
 			} else {
