@@ -32,6 +32,7 @@ import io.openems.core.BridgeInitializedEventListener;
 import io.openems.core.Config;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ControllerUtils;
+import io.openems.core.utilities.power.SymmetricPower;
 import io.openems.impl.protocol.system.SystemDeviceNature;
 
 @ThingInfo(title = "Ess Asymmetric-Symmetric-Combination")
@@ -992,16 +993,6 @@ implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener, Bridg
 	}
 
 	@Override
-	public WriteChannel<Long> setActivePower() {
-		return setActivePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setReactivePower() {
-		return setReactivePower;
-	}
-
-	@Override
 	public void addListener(ThingChannelsUpdatedListener listener) {
 		this.listeners.add(listener);
 	}
@@ -1480,6 +1471,12 @@ implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener, Bridg
 	@Override
 	public void onBridgeInitialized() {
 		loadEss();
+	}
+
+	@Override
+	public SymmetricPower getPower() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
