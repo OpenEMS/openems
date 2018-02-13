@@ -23,6 +23,7 @@ package io.openems.impl.controller.symmetric.fixvalue;
 import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -32,6 +33,7 @@ import io.openems.core.utilities.power.PowerException;
 @ThingInfo(title = "Fixed active and reactive power (Symmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For symmetric Ess.")
 public class FixValueActivePowerController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -67,6 +69,11 @@ public class FixValueActivePowerController extends Controller {
 		} catch (PowerException e) {
 			log.error("Failed to set Power!",e);
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return thingState;
 	}
 
 }

@@ -8,8 +8,8 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
@@ -41,9 +41,11 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 			SimulatorTools.getRandomLong(3000, 50000));
 	public SymmetricPowerImpl power = new SymmetricPowerImpl(9000, setActivePower, setReactivePower);
 	private final String id;
+	private ThingStateChannel thingState;
 
 	public UnitTestSymmetricEssNature(String id) {
 		this.id = id;
+		thingState = new ThingStateChannel(this);
 	}
 
 	@Override
@@ -157,8 +159,7 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 
 	@Override
 	public ThingStateChannel getStateChannel() {
-		// TODO Auto-generated method stub
-		return null;
+		return thingState;
 	}
 
 }

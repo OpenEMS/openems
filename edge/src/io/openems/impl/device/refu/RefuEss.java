@@ -28,8 +28,8 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
@@ -39,6 +39,7 @@ import io.openems.core.utilities.power.NoPBetweenLimitation;
 import io.openems.core.utilities.power.PGreaterEqualLimitation;
 import io.openems.core.utilities.power.PSmallerEqualLimitation;
 import io.openems.core.utilities.power.SymmetricPowerImpl;
+import io.openems.impl.protocol.modbus.ModbusBitWrappingChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -579,62 +580,61 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 								), //
 
 						new UnsignedWordElement(0x143,
-								batteryFault13 = warning.channel(new StatusBitChannel("BatteryFault13", this)//
-										)), new UnsignedWordElement(0x144,
-												batteryFault14 = warning.channel(new StatusBitChannel("BatteryFault14", this)//
-														)), new UnsignedWordElement(0x145, batteryGroupControlStatus = warning
-														.channel(new StatusBitChannel("BatteryGroupControlStatus", this)//
-																)), new UnsignedWordElement(0x146,
-																		errorLog1 = warning.channel(new StatusBitChannel("ErrorLog1", this)//
-																				)), new UnsignedWordElement(0x147,
-																						errorLog2 = warning.channel(new StatusBitChannel("ErrorLog2", this)//
-																								)), new UnsignedWordElement(0x148,
-																										errorLog3 = warning.channel(new StatusBitChannel("ErrorLog3", this)//
-																												)),
+								batteryFault13 = new StatusBitChannel("BatteryFault13", this)//
+								), new UnsignedWordElement(0x144,
+										batteryFault14 = new StatusBitChannel("BatteryFault14", this)//
+										), new UnsignedWordElement(0x145, batteryGroupControlStatus = new StatusBitChannel("BatteryGroupControlStatus", this)//
+												), new UnsignedWordElement(0x146,
+														errorLog1 = new StatusBitChannel("ErrorLog1", this)//
+														), new UnsignedWordElement(0x147,
+																errorLog2 = new StatusBitChannel("ErrorLog2", this)//
+																), new UnsignedWordElement(0x148,
+																		errorLog3 = new StatusBitChannel("ErrorLog3", this)//
+																		),
 						new UnsignedWordElement(0x149,
-								errorLog4 = warning.channel(new StatusBitChannel("ErrorLog4", this)//
-										)), new UnsignedWordElement(0x14a,
-												errorLog5 = warning.channel(new StatusBitChannel("ErrorLog5", this)//
-														)), new UnsignedWordElement(0x14b,
-																errorLog6 = warning.channel(new StatusBitChannel("ErrorLog6", this)//
-																		)),
+								errorLog4 = new StatusBitChannel("ErrorLog4", this)//
+								), new UnsignedWordElement(0x14a,
+										errorLog5 = new StatusBitChannel("ErrorLog5", this)//
+										), new UnsignedWordElement(0x14b,
+												errorLog6 = new StatusBitChannel("ErrorLog6", this)//
+												),
 						new UnsignedWordElement(0x14c,
-								errorLog7 = warning.channel(new StatusBitChannel("ErrorLog7", this)//
-										)), new UnsignedWordElement(0x14d,
-												errorLog8 = warning.channel(new StatusBitChannel("ErrorLog8", this)//
-														)), new UnsignedWordElement(0x14e,
-																errorLog9 = warning.channel(new StatusBitChannel("ErrorLog9", this)//
-																		)),
+								errorLog7 = new StatusBitChannel("ErrorLog7", this)//
+								), new UnsignedWordElement(0x14d,
+										errorLog8 = new StatusBitChannel("ErrorLog8", this)//
+										), new UnsignedWordElement(0x14e,
+												errorLog9 = new StatusBitChannel("ErrorLog9", this)//
+												),
 						new UnsignedWordElement(0x14f,
-								errorLog10 = warning.channel(new StatusBitChannel("ErrorLog10", this)//
-										)), new UnsignedWordElement(0x150,
-												errorLog11 = warning.channel(new StatusBitChannel("ErrorLog11", this)//
-														)), new UnsignedWordElement(0x151,
-																errorLog12 = warning.channel(new StatusBitChannel("ErrorLog12", this)//
-																		)),
+								errorLog10 = new StatusBitChannel("ErrorLog10", this)//
+								), new UnsignedWordElement(0x150,
+										errorLog11 = new StatusBitChannel("ErrorLog11", this)//
+										), new UnsignedWordElement(0x151,
+												errorLog12 = new StatusBitChannel("ErrorLog12", this)//
+												),
 						new UnsignedWordElement(0x152,
-								errorLog13 = warning.channel(new StatusBitChannel("ErrorLog13", this)//
-										)), new UnsignedWordElement(0x153,
-												errorLog14 = warning.channel(new StatusBitChannel("ErrorLog14", this)//
-														)), new UnsignedWordElement(0x154,
-																errorLog15 = warning.channel(new StatusBitChannel("ErrorLog15", this)//
-																		)),
+								errorLog13 = new StatusBitChannel("ErrorLog13", this)//
+								), new UnsignedWordElement(0x153,
+										errorLog14 = new StatusBitChannel("ErrorLog14", this)//
+										), new UnsignedWordElement(0x154,
+												errorLog15 = new StatusBitChannel("ErrorLog15", this)//
+												),
 						new UnsignedWordElement(0x155,
-								errorLog16 = warning.channel(new StatusBitChannel("ErrorLog16", this)//
-										))), new WriteableModbusRegisterRange(0x200, //
-												new UnsignedWordElement(0x200, //
-														setWorkState = new ModbusWriteLongChannel("SetWorkState", this) //
-														.label(0, STOP) //
-														.label(1, START)),
-												new UnsignedWordElement(0x201, //
-														setSystemErrorReset = new ModbusWriteLongChannel("SetSystemErrorReset",
-																this)//
-														.label(0, OFF)//
-														.label(1, ON)),
-												new UnsignedWordElement(0x202, //
-														setOperationMode = new ModbusWriteLongChannel("SetOperationMode", this)//
-														.label(0, "P/Q Set point")//
-														.label(1, "IAC / cosphi set point"))),
+								errorLog16 = new StatusBitChannel("ErrorLog16", this)//
+								)), new WriteableModbusRegisterRange(0x200, //
+										new UnsignedWordElement(0x200, //
+												setWorkState = new ModbusWriteLongChannel("SetWorkState", this) //
+												.label(0, STOP) //
+												.label(1, START)),
+										new UnsignedWordElement(0x201, //
+												setSystemErrorReset = new ModbusWriteLongChannel("SetSystemErrorReset",
+														this)//
+												.label(0, OFF)//
+												.label(1, ON)),
+										new UnsignedWordElement(0x202, //
+												setOperationMode = new ModbusWriteLongChannel("SetOperationMode", this)//
+												.label(0, "P/Q Set point")//
+												.label(1, "IAC / cosphi set point"))),
 				new WriteableModbusRegisterRange(0x203, new SignedWordElement(0x203, //
 						setActivePower = new ModbusWriteLongChannel("SetActivePower", this)//
 						.unit("W").multiplier(2))),

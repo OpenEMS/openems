@@ -21,6 +21,7 @@
 package io.openems.impl.controller.symmetric.powerlimitation;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -87,7 +88,7 @@ public class ReactivePowerLimitationController extends Controller {
 			log.error("No ess found.", e);
 		}
 	}
-	
+
 	@Override
 	public ThingStateChannel getStateChannel() {
 		return this.thingState;

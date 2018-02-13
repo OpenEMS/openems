@@ -27,6 +27,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -111,7 +112,7 @@ public class ActivePowerVoltageCharacteristicController extends Controller {
 		}
 	}
 
-@Override
+	@Override
 	public ThingStateChannel getStateChannel() {
 		return this.thingState;
 	}

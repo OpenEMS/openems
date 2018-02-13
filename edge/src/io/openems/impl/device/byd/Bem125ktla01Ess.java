@@ -23,14 +23,14 @@ package io.openems.impl.device.byd;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.StatusBitChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.core.utilities.power.SymmetricPowerImpl;
+import io.openems.impl.protocol.modbus.ModbusBitWrappingChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
@@ -205,41 +205,41 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 								.warningBit(9, WarningEss.FailureOfHumiditySensorInControlCabinet) // Failure_of_humidity_sensor_in_control_cabinet
 								.warningBit(12,WarningEss.FailureOfStorageDevice) // Failure_of_storage_device
 								.warningBit(13,WarningEss.ExceedingOfHumidityInControlCabinet)) // Exceeding_of_humidity_in_control_cabinet
-					    ), new ModbusRegisterRange(0x1300, new UnsignedWordElement(0x1300, //
-										batteryStackVoltage = new ModbusReadLongChannel("BatteryStackVoltage", this)
-										.multiplier(2).unit("mV")),
-										new UnsignedWordElement(0x1301, //
-												batteryStackCurrent = new ModbusReadLongChannel("BatteryStackCurrent", this)
-												.multiplier(2).unit("mA")),
-										new UnsignedWordElement(0x1302, //
-												batteryStackPower = new ModbusReadLongChannel("BatteryStackPower", this)
-												.multiplier(2).unit("W")),
-										new UnsignedWordElement(0x1303, //
-												batteryStackSoc = soc = new ModbusReadLongChannel("BatteryStackSoc", this)
-												.unit("%")),
-										new UnsignedWordElement(0x1304, //
-												batteryStackSoh = new ModbusReadLongChannel("BatteryStackSoh", this).unit("%")),
-										new UnsignedWordElement(0x1305, //
-												batteryStackMaxChargeCurrent = new ModbusReadLongChannel(
-														"BatteryStackMaxChargeCurrent", this).multiplier(2).unit("mA")),
-										new UnsignedWordElement(0x1306, //
-												batteryStackMaxDischargeCurrent = new ModbusReadLongChannel(
-														"BatteryStackMaxDischargeCurrent", this).multiplier(2).unit("mA")),
-										new UnsignedWordElement(0x1307, //
-												batteryStackMaxChargePower = new ModbusReadLongChannel(
-														"BatteryStackMaxChargePower", this).multiplier(2).unit("W")),
-										new UnsignedWordElement(0x1308, //
-												batteryStackMaxDischargePower = new ModbusReadLongChannel(
-														"BatteryStackMaxDischargePower", this).multiplier(2).unit("W")),
-										new UnsignedWordElement(0x1309, //
-												batteryStackTotalCapacity = new ModbusReadLongChannel(
-														"BatteryStackTotalCapacity", this).unit("Wh")),
-										new UnsignedDoublewordElement(0x130A, //
-												batteryStackTotalCharge = new ModbusReadLongChannel("BatteryStackTotalCharge",
-														this).unit("kWh")),
-										new UnsignedDoublewordElement(0x130C, //
-												batteryStackTotalDischarge = new ModbusReadLongChannel(
-														"BatteryStackTotalDischarge", this).unit("kWh"))));
+						), new ModbusRegisterRange(0x1300, new UnsignedWordElement(0x1300, //
+								batteryStackVoltage = new ModbusReadLongChannel("BatteryStackVoltage", this)
+								.multiplier(2).unit("mV")),
+								new UnsignedWordElement(0x1301, //
+										batteryStackCurrent = new ModbusReadLongChannel("BatteryStackCurrent", this)
+										.multiplier(2).unit("mA")),
+								new UnsignedWordElement(0x1302, //
+										batteryStackPower = new ModbusReadLongChannel("BatteryStackPower", this)
+										.multiplier(2).unit("W")),
+								new UnsignedWordElement(0x1303, //
+										batteryStackSoc = soc = new ModbusReadLongChannel("BatteryStackSoc", this)
+										.unit("%")),
+								new UnsignedWordElement(0x1304, //
+										batteryStackSoh = new ModbusReadLongChannel("BatteryStackSoh", this).unit("%")),
+								new UnsignedWordElement(0x1305, //
+										batteryStackMaxChargeCurrent = new ModbusReadLongChannel(
+												"BatteryStackMaxChargeCurrent", this).multiplier(2).unit("mA")),
+								new UnsignedWordElement(0x1306, //
+										batteryStackMaxDischargeCurrent = new ModbusReadLongChannel(
+												"BatteryStackMaxDischargeCurrent", this).multiplier(2).unit("mA")),
+								new UnsignedWordElement(0x1307, //
+										batteryStackMaxChargePower = new ModbusReadLongChannel(
+												"BatteryStackMaxChargePower", this).multiplier(2).unit("W")),
+								new UnsignedWordElement(0x1308, //
+										batteryStackMaxDischargePower = new ModbusReadLongChannel(
+												"BatteryStackMaxDischargePower", this).multiplier(2).unit("W")),
+								new UnsignedWordElement(0x1309, //
+										batteryStackTotalCapacity = new ModbusReadLongChannel(
+												"BatteryStackTotalCapacity", this).unit("Wh")),
+								new UnsignedDoublewordElement(0x130A, //
+										batteryStackTotalCharge = new ModbusReadLongChannel("BatteryStackTotalCharge",
+												this).unit("kWh")),
+								new UnsignedDoublewordElement(0x130C, //
+										batteryStackTotalDischarge = new ModbusReadLongChannel(
+												"BatteryStackTotalDischarge", this).unit("kWh"))));
 		this.power = new SymmetricPowerImpl(125000, setActivePower, setReactivePower);
 		return protocol;
 	}
@@ -252,5 +252,10 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	@Override
 	public SymmetricPowerImpl getPower() {
 		return power;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return thingState;
 	}
 }

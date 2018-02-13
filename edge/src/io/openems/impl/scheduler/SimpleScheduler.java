@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import info.faljse.SDNotify.SDNotify;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.scheduler.Scheduler;

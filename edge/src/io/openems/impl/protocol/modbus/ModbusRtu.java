@@ -31,9 +31,11 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
+import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsModbusException;
 
 @ThingInfo(title = "Modbus/RTU")
