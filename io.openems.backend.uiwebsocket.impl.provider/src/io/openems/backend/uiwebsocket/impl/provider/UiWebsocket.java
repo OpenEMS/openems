@@ -6,9 +6,12 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
 
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.MetadataService;
@@ -31,7 +34,7 @@ public class UiWebsocket implements UiWebsocketService {
 		return metadataService;
 	}
 
-	@Reference
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL) // avoid recursive dependency
 	private EdgeWebsocketService edgeWebsocketService;
 
 	protected EdgeWebsocketService getEdgeWebsocketService() {
@@ -49,7 +52,6 @@ public class UiWebsocket implements UiWebsocketService {
 
 		this.stopServer();
 		this.startServer(config.port());
-
 	}
 
 	@Deactivate
@@ -79,5 +81,11 @@ public class UiWebsocket implements UiWebsocketService {
 	private void startServer(int port) {
 		this.server = new UiWebsocketServer(this, port);
 		this.server.start();
+	}
+
+	@Override
+	public void handleEdgeReply(int edgeId, JsonObject jMessage) {
+		// TODO Auto-generated method stub
+		log.info("TODO handleEdgeReply");
 	}
 }

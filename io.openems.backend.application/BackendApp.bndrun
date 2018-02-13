@@ -35,4 +35,5 @@ JPM-Command:				openems-backend
 	io.openems.backend.metadata.odoo.provider;version=snapshot,\
 	io.openems.backend.edgewebsocket.impl.provider;version=snapshot,\
 	org.eclipse.equinox.event;version='[1.3.100,1.3.101)',\
-	org.osgi.service.event;version='[1.3.1,1.3.2)'
+	org.osgi.service.event;version='[1.3.1,1.3.2)',\
+	io.openems.backend.uiwebsocket.impl.provider;version=snapshot

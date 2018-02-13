@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.uiwebsocket.api.UiWebsocketService;
 
 @Component()
 public class BackendApp {
@@ -32,8 +33,8 @@ public class BackendApp {
 	@Reference
 	EdgeWebsocketService edgeWebsocketService;
 
-	// @Reference
-	// UiWebsocketService uiWebsocketService;
+	@Reference
+	UiWebsocketService uiWebsocketService;
 
 	// @Reference(target = "(component.factory=EdgeWebsocketFactory)")
 	// private ComponentFactory factory;

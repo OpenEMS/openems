@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.uiwebsocket.api.UiWebsocketService;
 
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -26,6 +27,9 @@ public class EdgeWebsocket implements EdgeWebsocketService {
 
 	@Reference
 	protected MetadataService metadataService;
+
+	@Reference
+	protected UiWebsocketService uiWebsocketService;
 
 	@Reference
 	protected EventAdmin eventAdmin;

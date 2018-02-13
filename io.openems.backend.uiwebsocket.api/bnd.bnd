@@ -11,10 +11,12 @@ Require-Capability: \
 
 -includeresource: {readme.md}
 
--buildpath:  \
-	osgi.enroute.base.api;version=2.1
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	com.google.gson
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
 
+-runbundles: org.apache.felix.log;version='[1.0.1,1.0.2)'
