@@ -222,11 +222,11 @@ public abstract class Bridge extends Thread implements Thing {
 				}
 				long timeUntilWrite = scheduler.getCycleStartTime() + scheduler.getRequiredTime() + 10
 						- requiredTimeListeners();
+				notifyListeners(Position.BEFOREREADOTHER1);
 				if (readTasks.size() > 0) {
 					// calculate time until write
 					// run tasks for not required channels
 					if (timeUntilWrite - System.currentTimeMillis() > 0) {
-						notifyListeners(Position.BEFOREREADOTHER1);
 						readOther(readTasks, timeUntilWrite, false);
 					}
 				}
