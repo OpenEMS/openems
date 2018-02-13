@@ -3,14 +3,11 @@ package io.openems.backend.edgewebsocket.impl.provider;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +36,7 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 		String apikey = "";
 		try {
 			// get apikey from handshake
-			Optional<String> apikeyOpt = parseApikeyFromHandshake(handshake);
+			Optional<String> apikeyOpt = Utils.parseApikeyFromHandshake(handshake);
 			if (!apikeyOpt.isPresent()) {
 				throw new OpenemsException("Apikey is missing in handshake");
 			}
@@ -122,19 +119,5 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 	@Override
 	protected void _onClose(WebSocket websocket) {
 		System.out.println("_onClose");
-	}
-
-	/**
-	 * Parses the apikey from websocket onOpen handshake
-	 *
-	 * @param handshake
-	 * @return
-	 */
-	private Optional<String> parseApikeyFromHandshake(ClientHandshake handshake) {
-		if (handshake.hasFieldValue("apikey")) {
-			String apikey = handshake.getFieldValue("apikey");
-			return Optional.ofNullable(apikey);
-		}
-		return Optional.empty();
 	}
 }
