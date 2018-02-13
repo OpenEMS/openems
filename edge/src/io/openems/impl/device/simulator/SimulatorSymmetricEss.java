@@ -137,6 +137,8 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 				allowedDischargeLimit.setP(allowedDischarge.valueOptional().orElse(0L));
 			}
 		});
+		this.power.addStaticLimitation(this.allowedDischargeLimit);
+		getParent().getBridge().addListener(this.power);
 	}
 
 	/*
