@@ -33,8 +33,8 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
@@ -59,6 +59,7 @@ implements AsymmetricEssNature, ChannelChangeListener {
 	private ThingRepository repo = ThingRepository.getInstance();
 	private LoadGenerator offGridActivePowerGenerator = new RandomLoadGenerator();
 	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator();
+	private ThingStateChannel thingState;
 
 	/*
 	 * Constructors
@@ -71,6 +72,7 @@ implements AsymmetricEssNature, ChannelChangeListener {
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
 			}
 		});
+		this.thingState = new ThingStateChannel(this);
 		long initialSoc = SimulatorTools.addRandomLong(90, 90, 100, 5);
 		this.energy = capacity.valueOptional().get() / 100 * initialSoc;
 		this.soc = new FunctionalReadChannel<Long>("Soc", this, (channels) -> {
@@ -123,7 +125,6 @@ implements AsymmetricEssNature, ChannelChangeListener {
 	/*
 	 * Inherited Channels
 	 */
-	private StatusBitChannels warning = new StatusBitChannels("Warning", this);;
 	private FunctionalReadChannel<Long> soc;
 	private SimulatorReadChannel<Long> activePowerL1 = new SimulatorReadChannel<>("ActivePowerL1", this);
 	private SimulatorReadChannel<Long> activePowerL2 = new SimulatorReadChannel<>("ActivePowerL2", this);
@@ -181,11 +182,6 @@ implements AsymmetricEssNature, ChannelChangeListener {
 	@Override
 	public WriteChannel<Long> setWorkState() {
 		return setWorkState;
-	}
-
-	@Override
-	public StatusBitChannels warning() {
-		return warning;
 	}
 
 	@Override
@@ -387,6 +383,11 @@ implements AsymmetricEssNature, ChannelChangeListener {
 				}
 			}
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

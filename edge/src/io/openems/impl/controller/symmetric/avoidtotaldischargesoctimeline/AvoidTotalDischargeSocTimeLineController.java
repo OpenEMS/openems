@@ -32,6 +32,7 @@ import com.google.gson.JsonObject;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -42,6 +43,7 @@ import io.openems.impl.controller.symmetric.avoidtotaldischargesoctimeline.Ess.S
 @ThingInfo(title = "Avoid total discharge of battery (Symmetric)", description = "Makes sure the battery is not going into critically low state of charge. For symmetric Ess.")
 public class AvoidTotalDischargeSocTimeLineController extends Controller implements ChannelChangeListener {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -147,6 +149,11 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 				}
 			}
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

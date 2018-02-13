@@ -32,6 +32,7 @@ import io.openems.core.utilities.power.PowerException;
 @ThingInfo(title = "Balancing bandgap (Symmetric)", description = "Tries to keep the grid meter within a bandgap. For symmetric Ess.")
 public class BalancingBandgapReactivePowerController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -83,6 +84,11 @@ public class BalancingBandgapReactivePowerController extends Controller {
 		} catch (PowerException e) {
 			log.error("failed to set ReactivePower!", e);
 		}
+	}
+	
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

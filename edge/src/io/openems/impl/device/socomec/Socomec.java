@@ -45,7 +45,7 @@ public class Socomec extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Meter", description = "Sets the meter nature.", type = SocomecMeter.class)
-	public final ConfigChannel<SocomecMeter> meter = new ConfigChannel<>("meter", this);
+	public final ConfigChannel<SocomecMeter> meter = new ConfigChannel<SocomecMeter>("meter", this).addChangeListener(this);
 
 	/*
 	 * Methods

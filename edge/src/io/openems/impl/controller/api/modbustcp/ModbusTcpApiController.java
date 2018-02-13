@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.doc.ChannelInfo;
@@ -30,6 +31,7 @@ public class ModbusTcpApiController extends Controller {
 	private Optional<ModbusSlave> slaveOpt = Optional.empty();
 	private final ApiWorker apiWorker = new ApiWorker();
 	private final MyProcessImage processImage = new MyProcessImage(UNIT_ID, apiWorker);
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 
 	/*
 	 * Constructors
@@ -136,5 +138,10 @@ public class ModbusTcpApiController extends Controller {
 				}
 			}
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

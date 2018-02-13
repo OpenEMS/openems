@@ -32,11 +32,13 @@ import io.openems.api.scheduler.Scheduler;
 @ThingInfo(title = "App-Planner")
 public class SimpleScheduler extends Scheduler {
 
+	private ThingStateChannel thingState;
+
 	/*
 	 * Constructors
 	 */
 	public SimpleScheduler() {
-
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -61,6 +63,11 @@ public class SimpleScheduler extends Scheduler {
 	@Override
 	protected boolean initialize() {
 		return true;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

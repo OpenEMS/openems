@@ -73,6 +73,16 @@ public class ModbusRtu extends ModbusBridge {
 	 * Fields
 	 */
 	private Optional<SerialConnection> connection = Optional.empty();
+	private StaticValueChannel<Boolean> configurationFault;
+	private StaticValueChannel<Boolean> connectionFault;
+
+	public ModbusRtu() throws ConfigException {
+		super();
+		this.configurationFault = new StaticValueChannel<Boolean>("Fault\0", this, false);
+		super.thingState.addFaultChannel(this.configurationFault);
+		this.connectionFault = new StaticValueChannel<Boolean>("Fault\1", this, false);
+		super.thingState.addFaultChannel(this.connectionFault);
+	}
 
 	/*
 	 * Methods
@@ -130,6 +140,7 @@ public class ModbusRtu extends ModbusBridge {
 			if (!baudrate.valueOptional().isPresent() || !databits.valueOptional().isPresent()
 					|| !parity.valueOptional().isPresent() || !serialinterface.valueOptional().isPresent()
 					|| !stopbits.valueOptional().isPresent()) {
+				this.configurationFault.setValue(true);
 				throw new OpenemsModbusException(this.id() + ": Modbus-RTU is not configured completely");
 			}
 			SerialParameters params = new SerialParameters();
@@ -141,13 +152,16 @@ public class ModbusRtu extends ModbusBridge {
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
 			connection = Optional.of(new SerialConnection(params));
+			this.configurationFault.setValue(false);
 		}
 		if (!connection.get().isOpen()) {
 			try {
 				SerialConnection serialCon = connection.get();
 				serialCon.open();
 				serialCon.getModbusTransport().setTimeout(1000);
+				this.connectionFault.setValue(false);
 			} catch (Exception e) {
+				this.connectionFault.setValue(true);
 				throw new OpenemsModbusException(this.id() + ": Unable to open Modbus-RTU connection to ["
 						+ serialinterface.valueOptional().orElse("UNDEFINED") + "]: " + e.getMessage());
 			}

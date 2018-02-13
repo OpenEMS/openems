@@ -70,6 +70,7 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	/*
 	 * Inherited Channels
 	 */
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	private ModbusReadChannel<Long> soc;
 	private StaticValueChannel<Long> allowedCharge = new StaticValueChannel<Long>("AllowedCharge", this, 0L);
 	private StaticValueChannel<Long> allowedDischarge = new StaticValueChannel<Long>("AllowedDischarge", this, 0L);
@@ -86,12 +87,10 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 0L);
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 170000L).unit("Wh");
 	private SymmetricPowerImpl power;
-	public StatusBitChannels warning;
 
 	public ModbusReadChannel<Long> sysAlarmInfo;
-	public StatusBitChannel sysWorkStatus;
-	public StatusBitChannel sysControlMode;
-	public StatusBitChannel sysAlarmInfo2;
+	public ModbusReadChannel<Long> sysWorkStatus;
+	public ModbusReadChannel<Long> sysControlMode;
 	public ModbusReadChannel<Long> batteryStackVoltage;
 	public ModbusReadChannel<Long> batteryStackCurrent;
 	public ModbusReadChannel<Long> batteryStackPower;
@@ -136,11 +135,6 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	}
 
 	@Override
-	public StatusBitChannels warning() {
-		return warning;
-	}
-
-	@Override
 	public WriteChannel<Long> setWorkState() {
 		return setWorkState;
 	}
@@ -170,49 +164,48 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	 */
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		warning = new StatusBitChannels("Warning", this);
 		ModbusProtocol protocol = new ModbusProtocol( //
 				new ModbusRegisterRange(0x0100, //
 						new UnsignedWordElement(0x100, //
-								sysAlarmInfo = new ModbusReadLongChannel("SysAlarmInfo", this)//
-								.label(0, "Warning State")//
-								.label(1, "Protection State")//
-								.label(2, "Derating State")//
-								.label(4, "Charge Forbidden").label(16, "Discharge Forbidden")),
+								new ModbusBitWrappingChannel("SysAlarmInfo", this, this.thingState)//
+								.warningBit(0, WarningEss.WarningState)//
+								.warningBit(1, WarningEss.ProtectionState)//
+								.warningBit(2, WarningEss.DeratingState)//
+								.warningBit(3, WarningEss.ChargeForbidden)//
+								.warningBit(4, WarningEss.DischargeForbidden)//
+								),//
+
 						new UnsignedWordElement(0x101, //
-								sysWorkStatus = new StatusBitChannel("SysWorkStatus", this)//
-								.label(0, "Initial") //
-								.label(1, "Fault") //
-								.label(2, "Stop") //
-								.label(4, "Hot Standby") //
-								.label(8, "Monitoring") //
-								.label(16, "Standby") //
-								.label(32, "Operation") //
-								.label(64, "Debug")), //
+								sysWorkStatus = new ModbusReadLongChannel("SysWorkStatus", this)//
+								.label(1, "Initial") //
+								.label(2, "Fault") //
+								.label(4, "Stop") //
+								.label(8, "Hot Standby") //
+								.label(16, "Monitoring") //
+								.label(32, "Standby") //
+								.label(64, "Operation") //
+								.label(128, "Debug")), //
 						new UnsignedWordElement(0x102, //
-								sysControlMode = new StatusBitChannel("SysControlMode", this)//
-								.label(0, "Remote") //
-								.label(1, "Local")), //
+								sysControlMode = new ModbusReadLongChannel("SysControlMode", this)//
+								.label(1, "Remote") //
+								.label(2, "Local")), //
 						new DummyElement(0x103)),
 				new ModbusRegisterRange(0x0110, //
 						new UnsignedWordElement(0x110, //
-								sysAlarmInfo = new StatusBitChannel("SysAlarmInfo", this)//
-								.label(0, "Status abnormal of AC surge protector") //
-								.label(1, "Close of control switch") //
-								.label(2, "Emergency stop") //
-								.label(4, "Status abnormal of frog detector") //
-								.label(8, "Serious leakage") //
-								.label(16, "Normal_leakage")), //
+								new ModbusBitWrappingChannel("SysAlarmInfo", this, thingState)//
+								.warningBit(1, WarningEss.StatusAbnormalOfACSurgeProtector) // Status abnormal of AC surge protector
+								.warningBit(2, WarningEss.CloseOfControlSwitch) // Close of control switch
+								.warningBit(3, WarningEss.EmergencyStop) // Emergency stop
+								.warningBit(5, WarningEss.StatusAbnormalOfFrogDetector) // Status_abnormal_of_frog_detector
+								.warningBit(6, WarningEss.SeriousLeakage) // Serious_leakage
+								.warningBit(7, WarningEss.NormalLeakage)), // Normal_leakage
 						new UnsignedWordElement(0x111, //
-								sysAlarmInfo2 = new StatusBitChannel("SysAlarmInfo2", this)//
-								.label(0, "Failure of temperature sensor in control cabinet") //
-								.label(1, "Close of control switch") //
-								/*
-								 * TODO new OnOffBitItem(9, "Failure_of_humidity_sensor_in_control_cabinet"), //
-								 * new OnOffBitItem(12, "Failure_of_storage_device"), //
-								 * new OnOffBitItem(13, "Exceeding_of_humidity_in_control_cabinet"))));
-								 */
-								)), new ModbusRegisterRange(0x1300, new UnsignedWordElement(0x1300, //
+								new ModbusBitWrappingChannel("SysAlarmInfo2", this, thingState)//
+								.warningBit(0, WarningEss.FailureOfTemperatureSensorInControlCabinet) // Failure of temperature sensor in control cabinet
+								.warningBit(9, WarningEss.FailureOfHumiditySensorInControlCabinet) // Failure_of_humidity_sensor_in_control_cabinet
+								.warningBit(12,WarningEss.FailureOfStorageDevice) // Failure_of_storage_device
+								.warningBit(13,WarningEss.ExceedingOfHumidityInControlCabinet)) // Exceeding_of_humidity_in_control_cabinet
+					    ), new ModbusRegisterRange(0x1300, new UnsignedWordElement(0x1300, //
 										batteryStackVoltage = new ModbusReadLongChannel("BatteryStackVoltage", this)
 										.multiplier(2).unit("mV")),
 										new UnsignedWordElement(0x1301, //

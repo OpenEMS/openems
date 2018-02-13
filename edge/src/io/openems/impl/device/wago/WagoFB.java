@@ -169,7 +169,7 @@ public class WagoFB extends ModbusDevice {
 									break;
 								default:
 									LoggerFactory.getLogger(WagoFB.class)
-											.debug("ChannelType: " + channelName + " nicht erkannt");
+									.debug("ChannelType: " + channelName + " nicht erkannt");
 									break;
 								}
 								channels.get(channelType).add(channelName);

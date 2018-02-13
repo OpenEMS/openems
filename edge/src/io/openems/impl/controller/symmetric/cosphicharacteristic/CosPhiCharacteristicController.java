@@ -27,6 +27,7 @@ import java.util.TreeMap;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -36,6 +37,7 @@ import io.openems.core.utilities.power.PowerException;
 @ThingInfo(title = "Cos-Phi Characteristics (Symmetric)")
 public class CosPhiCharacteristicController extends Controller implements ChannelChangeListener{
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -80,6 +82,11 @@ public class CosPhiCharacteristicController extends Controller implements Channe
 			}
 			ess.getValue().limit.setCosPhi(0L, 0L, points);
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

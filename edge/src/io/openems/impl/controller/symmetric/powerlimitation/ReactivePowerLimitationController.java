@@ -30,6 +30,7 @@ import io.openems.core.utilities.power.PowerException;
 @ThingInfo(title = "Power limitation (Symmetric)", description = "Limits the active and reactive power of the Ess. For symmetric Ess.")
 public class ReactivePowerLimitationController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -85,6 +86,11 @@ public class ReactivePowerLimitationController extends Controller {
 		} catch (InvalidValueException e) {
 			log.error("No ess found.", e);
 		}
+	}
+	
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

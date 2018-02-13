@@ -25,6 +25,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -42,6 +43,7 @@ public class OnGridIndicationController extends Controller {
 	private boolean isProducerDisconnected = false;
 	private long timeProducerDisconnected;
 	private long startTime = System.currentTimeMillis();
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 
 	private enum State {
 		OFFGRID, ONGRID, SWITCHTOOFFGRID, SWITCHTOONGRID, UNKNOWN
@@ -113,7 +115,7 @@ public class OnGridIndicationController extends Controller {
 						currentState = State.SWITCHTOONGRID;
 					}
 				}
-					break;
+				break;
 				case SWITCHTOOFFGRID:
 					if (isOff()) {
 						currentState = State.OFFGRID;
@@ -157,7 +159,7 @@ public class OnGridIndicationController extends Controller {
 						}
 					}
 				}
-					break;
+				break;
 
 				}
 			} catch (InvalidValueException e) {
@@ -174,6 +176,11 @@ public class OnGridIndicationController extends Controller {
 
 	private boolean isOnGrid() throws InvalidValueException {
 		return onGridOutputChannel.value() == true;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

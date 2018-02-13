@@ -23,12 +23,13 @@ package io.openems.impl.device.minireadonly;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.impl.protocol.modbus.ModbusBitWrappingChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.internal.DummyElement;
@@ -39,6 +40,8 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
 @ThingInfo(title = "FENECON Mini ESS")
 public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssNature {
+
+	private ThingStateChannel thingState;
 
 	/*
 	 * Constructors
@@ -51,6 +54,7 @@ public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssN
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
 			}
 		});
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -85,8 +89,6 @@ public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssN
 	private StaticValueChannel<Long> reactivePowerL1 = new StaticValueChannel<Long>("ReactivePowerL1", this, 0l);
 	private StaticValueChannel<Long> reactivePowerL2 = new StaticValueChannel<Long>("ReactivePowerL2", this, 0l);
 	private StaticValueChannel<Long> reactivePowerL3 = new StaticValueChannel<Long>("ReactivePowerL3", this, 0l);
-	private StatusBitChannels warning = new StatusBitChannels("Warning", this);
-
 	/*
 	 * This channels
 	 */
@@ -206,11 +208,6 @@ public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssN
 	}
 
 	@Override
-	public StatusBitChannels warning() {
-		return this.warning;
-	}
-
-	@Override
 	public ReadChannel<Long> reactivePowerL1() {
 		return this.reactivePowerL1;
 	}
@@ -319,13 +316,71 @@ public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssN
 						new UnsignedWordElement(3004, //
 								this.becu1Soc = new ModbusReadLongChannel("Becu1Soc", this)),
 						new UnsignedWordElement(3005, //
-								this.becu1Alarm1 = new ModbusReadLongChannel("Becu1Alarm1", this)),
+								new ModbusBitWrappingChannel("BecuAlarm1" , this, this.thingState)//
+								.warningBit(0, WarningEss.BECU1GeneralChargeOverCurrentAlarm )//
+								.warningBit(1, WarningEss.BECU1GeneralDischargeOverCurrentAlarm )//
+								.warningBit(2, WarningEss.BECU1ChargeCurrentLimitAlarm)//
+								.warningBit(3, WarningEss.BECU1DischargeCurrentLimitAlarm)//
+								.warningBit(4, WarningEss.BECU1GeneralHighVoltageAlarm)//
+								.warningBit(5, WarningEss.BECU1GeneralLowVoltageAlarm)//
+								.warningBit(6, WarningEss.BECU1AbnormalVoltageChangeAlarm)//
+								.warningBit(7, WarningEss.BECU1GeneralHighTemperatureAlarm )//
+								.warningBit(8, WarningEss.BECU1GeneralLowTemperatureAlarm )//
+								.warningBit(9, WarningEss.BECU1AbnormalTemperatureChangeAlarm)//
+								.warningBit(10,WarningEss.BECU1SevereHighVoltageAlarm)//
+								.warningBit(11,WarningEss.BECU1SevereLowVoltageAlarm)//
+								.warningBit(12,WarningEss.BECU1SevereLowTemperatureAlarm)//
+								.warningBit(13,WarningEss.BECU1SeverveChargeOverCurrentAlarm )//
+								.warningBit(14,WarningEss.BECU1SeverveDischargeOverCurrentAlarm )//
+								.warningBit(15,WarningEss.BECU1AbnormalCellCapacityAlarm)//
+								),//
+
 						new UnsignedWordElement(3006, //
-								this.becu1Alarm2 = new ModbusReadLongChannel("Becu1Alarm2", this)),
+								new ModbusBitWrappingChannel("BecuAlarm2" , this, this.thingState)//
+								.warningBit(0, WarningEss.BECU1BalancedSamplingAlarm)//
+								.warningBit(1, WarningEss.BECU1BalancedControlAlarm)//
+								.warningBit(2, WarningEss.BECU1HallSensorDoesNotWorkAccurately)//
+								.warningBit(4, WarningEss.BECU1Generalleakage)//
+								.warningBit(5, WarningEss.BECU1Severeleakage)//
+								.warningBit(6, WarningEss.BECU1Contactor1TurnOnAbnormity)//
+								.warningBit(7, WarningEss.BECU1Contactor1TurnOffAbnormity)//
+								.warningBit(8, WarningEss.BECU1Contactor2TurnOnAbnormity)//
+								.warningBit(9, WarningEss.BECU1Contactor2TurnOffAbnormity )//
+								.warningBit(10,WarningEss.BECU1Contactor4CheckAbnormity )//
+								.warningBit(11,WarningEss.BECU1ContactorCurrentUnsafe)//
+								.warningBit(12,WarningEss.BECU1Contactor5CheckAbnormity)//
+								.warningBit(13,WarningEss.BECU1HighVoltageOffset )//
+								.warningBit(14,WarningEss.BECU1LowVoltageOffset )//
+								.warningBit(15,WarningEss.BECU1HighTemperatureOffset )//
+								),//
+
 						new UnsignedWordElement(3007, //
-								this.becu1Fault1 = new ModbusReadLongChannel("Becu1Fault1", this)),
+								new ModbusBitWrappingChannel("BecuFault1" , this, this.thingState)//
+								.faultBit(0, FaultEss.BECU1DischargeSevereOvercurrent)//
+								.faultBit(1, FaultEss.BECU1ChargeSevereOvercurrent)//
+								.faultBit(2, FaultEss.BECU1GeneralUndervoltage)//
+								.faultBit(3, FaultEss.BECU1SevereOvervoltage)//
+								.faultBit(4, FaultEss.BECU1GeneralOvervoltage)//
+								.faultBit(5, FaultEss.BECU1SevereUndervoltage)//
+								.faultBit(6, FaultEss.BECU1InsideCANBroken)//
+								.faultBit(7, FaultEss.BECU1GeneralUndervoltageHighCurrentDischarge)//
+								.faultBit(8, FaultEss.BECU1BMUError)//
+								.faultBit(9, FaultEss.BECU1CurrentSamplingInvalidation)//
+								.faultBit(10,FaultEss.BECU1BatteryFail)//
+								.faultBit(13,FaultEss.BECU1TemperatureSamplingBroken)//
+								.faultBit(14,FaultEss.BECU1Contactor1TestBackIsAbnormalTurnOnAbnormity)//
+								.faultBit(15,FaultEss.BECU1Contactor1TestBackIsAbnormalTurnOffAbnormity)//
+								),//
 						new UnsignedWordElement(3008, //
-								this.becu1Fault2 = new ModbusReadLongChannel("Becu1Fault2", this)),
+								new ModbusBitWrappingChannel("BecuFault2" , this, this.thingState)//
+								.faultBit(0, FaultEss.BECU1Contactor2TestBackIsAbnormalTurnOnAbnormity)//
+								.faultBit(1, FaultEss.BECU1Contactor2TestBackIsAbnormalTurnOffAbnormity)//
+								.faultBit(2, FaultEss.BECU1SevereHighTemperatureFault)//
+								.faultBit(9, FaultEss.BECU1HallInvalidation)//
+								.faultBit(10,FaultEss.BECU1ContactorInvalidation)//
+								.faultBit(12,FaultEss.BECU1OutsideCANBroken)//
+								.faultBit(13,FaultEss.BECU1CathodeContactorBroken)//
+								),//
 						new UnsignedWordElement(3009, //
 								this.becu1Version = new ModbusReadLongChannel("Becu1Version", this)),
 						new DummyElement(3010, 3011), //
@@ -357,13 +412,69 @@ public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssN
 						new UnsignedWordElement(3204, //
 								this.becu2Soc = new ModbusReadLongChannel("Becu2Soc", this)),
 						new UnsignedWordElement(3205, //
-								this.becu2Alarm1 = new ModbusReadLongChannel("Becu2Alarm1", this)),
+								new ModbusBitWrappingChannel("Becu2Alarm1" , this, this.thingState)//
+								.warningBit(0, WarningEss.BECU2GeneralChargeOverCurrentAlarm )//
+								.warningBit(1, WarningEss.BECU2GeneralDischargeOverCurrentAlarm )//
+								.warningBit(2, WarningEss.BECU2ChargeCurrentLimitAlarm)//
+								.warningBit(3, WarningEss.BECU2DischargeCurrentLimitAlarm)//
+								.warningBit(4, WarningEss.BECU2GeneralHighVoltageAlarm)//
+								.warningBit(5, WarningEss.BECU2GeneralLowVoltageAlarm)//
+								.warningBit(6, WarningEss.BECU2AbnormalVoltageChangeAlarm)//
+								.warningBit(7, WarningEss.BECU2GeneralHighTemperatureAlarm )//
+								.warningBit(8, WarningEss.BECU2GeneralLowTemperatureAlarm )//
+								.warningBit(9, WarningEss.BECU2AbnormalTemperatureChangeAlarm)//
+								.warningBit(10,WarningEss.BECU2SevereHighVoltageAlarm)//
+								.warningBit(11,WarningEss.BECU2SevereLowVoltageAlarm)//
+								.warningBit(12,WarningEss.BECU2SevereLowTemperatureAlarm)//
+								.warningBit(13,WarningEss.BECU2SeverveChargeOverCurrentAlarm )//
+								.warningBit(14,WarningEss.BECU2SeverveDischargeOverCurrentAlarm )//
+								.warningBit(15,WarningEss.BECU2AbnormalCellCapacityAlarm)//
+								),//
 						new UnsignedWordElement(3206, //
-								this.becu2Alarm2 = new ModbusReadLongChannel("Becu2Alarm2", this)),
+								new ModbusBitWrappingChannel("Becu2Alarm2" , this, this.thingState)//
+								.warningBit(0, WarningEss.BECU2BalancedSamplingAlarm)//
+								.warningBit(1, WarningEss.BECU2BalancedControlAlarm)//
+								.warningBit(2, WarningEss.BECU2HallSensorDoesNotWorkAccurately)//
+								.warningBit(4, WarningEss.BECU2Generalleakage)//
+								.warningBit(5, WarningEss.BECU2Severeleakage)//
+								.warningBit(6, WarningEss.BECU2Contactor1TurnOnAbnormity)//
+								.warningBit(7, WarningEss.BECU2Contactor1TurnOffAbnormity)//
+								.warningBit(8, WarningEss.BECU2Contactor2TurnOnAbnormity)//
+								.warningBit(9, WarningEss.BECU2Contactor2TurnOffAbnormity )//
+								.warningBit(10,WarningEss.BECU2Contactor4CheckAbnormity )//
+								.warningBit(11,WarningEss.BECU2ContactorCurrentUnsafe)//
+								.warningBit(12,WarningEss.BECU2Contactor5CheckAbnormity)//
+								.warningBit(13,WarningEss.BECU2HighVoltageOffset )//
+								.warningBit(14,WarningEss.BECU2LowVoltageOffset )//
+								.warningBit(15,WarningEss.BECU2HighTemperatureOffset )//
+								),//
 						new UnsignedWordElement(3207, //
-								this.becu2Fault1 = new ModbusReadLongChannel("Becu2Fault1", this)),
+								new ModbusBitWrappingChannel("Becu2Fault1" , this, this.thingState)//
+								.faultBit(0, FaultEss.BECU2DischargeSevereOvercurrent)//
+								.faultBit(1, FaultEss.BECU2ChargeSevereOvercurrent)//
+								.faultBit(2, FaultEss.BECU2GeneralUndervoltage)//
+								.faultBit(3, FaultEss.BECU2SevereOvervoltage)//
+								.faultBit(4, FaultEss.BECU2GeneralOvervoltage)//
+								.faultBit(5, FaultEss.BECU2SevereUndervoltage)//
+								.faultBit(6, FaultEss.BECU2InsideCANBroken)//
+								.faultBit(7, FaultEss.BECU2GeneralUndervoltageHighCurrentDischarge)//
+								.faultBit(8, FaultEss.BECU2BMUError)//
+								.faultBit(9, FaultEss.BECU2CurrentSamplingInvalidation)//
+								.faultBit(10,FaultEss.BECU2BatteryFail)//
+								.faultBit(13,FaultEss.BECU2TemperatureSamplingBroken)//
+								.faultBit(14,FaultEss.BECU2Contactor1TestBackIsAbnormalTurnOnAbnormity)//
+								.faultBit(15,FaultEss.BECU2Contactor1TestBackIsAbnormalTurnOffAbnormity)//
+								),//
 						new UnsignedWordElement(3208, //
-								this.becu2Fault2 = new ModbusReadLongChannel("Becu2Fault2", this)),
+								new ModbusBitWrappingChannel("Becu2Fault2" , this, this.thingState)//
+								.faultBit(0, FaultEss.BECU2Contactor2TestBackIsAbnormalTurnOnAbnormity)//
+								.faultBit(1, FaultEss.BECU2Contactor2TestBackIsAbnormalTurnOffAbnormity)//
+								.faultBit(2, FaultEss.BECU2SevereHighTemperatureFault)//
+								.faultBit(9, FaultEss.BECU2HallInvalidation)//
+								.faultBit(10,FaultEss.BECU2ContactorInvalidation)//
+								.faultBit(12,FaultEss.BECU2OutsideCANBroken)//
+								.faultBit(13,FaultEss.BECU2CathodeContactorBroken)//
+								),//
 						new UnsignedWordElement(3209, //
 								this.becu2Version = new ModbusReadLongChannel("Becu2Version", this)),
 						new DummyElement(3210, 3211), //
@@ -404,15 +515,63 @@ public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssN
 						new UnsignedWordElement(4807, //
 								this.becuWorkState = new ModbusReadLongChannel("BecuWorkState", this)),
 						new UnsignedWordElement(4808, //
-								this.becuFault1 = new ModbusReadLongChannel("BecuFault1", this)),
+								new ModbusBitWrappingChannel("BecuFault1", this, this.thingState)//
+								.faultBit(0, FaultEss.NoAvailableBatteryGroup)//
+								.faultBit(1, FaultEss.StackGeneralLeakage)//
+								.faultBit(2, FaultEss.StackSevereLeakage)//
+								.faultBit(3, FaultEss.StackStartingFail)//
+								.faultBit(4, FaultEss.StackStoppingFail)//
+								.faultBit(9, FaultEss.BatteryProtection)//
+								),//
 						new UnsignedWordElement(4809, //
-								this.becuFault2 = new ModbusReadLongChannel("BecuFault2", this)),
+								new ModbusBitWrappingChannel("BecuFault2" , this, this.thingState)//
+								.faultBit(0, FaultEss.StackAndGroup1CANCommunicationInterrupt)//
+								.faultBit(1, FaultEss.StackAndGroup2CANCommunicationInterrupt)//
+								),//
 						new UnsignedWordElement(4810, //
-								this.becuAlarm1 = new ModbusReadLongChannel("BecuAlarm1", this)),
+								new ModbusBitWrappingChannel("BecuAlarm2" , this, this.thingState)//
+								.warningBit(0, WarningEss.GeneralOvercurrentAlarmAtCellStackCharge)//
+								.warningBit(1, WarningEss.GeneralOvercurrentAlarmAtCellStackDischarge)//
+								.warningBit(2, WarningEss.CurrentLimitAlarmAtCellStackCharge)//
+								.warningBit(3, WarningEss.CurrentLimitAlarmAtCellStackDischarge)//
+								.warningBit(4, WarningEss.GeneralCellStackHighVoltageAlarm)//
+								.warningBit(5, WarningEss.GeneralCellStackLowVoltageAlarm)//
+								.warningBit(6, WarningEss.AbnormalCellStackVoltageChangeAlarm)//
+								.warningBit(7, WarningEss.GeneralCellStackHighTemperatureAlarm)//
+								.warningBit(8, WarningEss.GeneralCellStackLowTemperatureAlarm)//
+								.warningBit(9, WarningEss.AbnormalCellStackTemperatureChangeAlarm)//
+								.warningBit(10,WarningEss.SevereCellStackHighVoltageAlarm)//
+								.warningBit(11,WarningEss.SevereCellStackLowVoltageAlarm)//
+								.warningBit(12,WarningEss.SevereCellStackLowTemperatureAlarm)//
+								.warningBit(13,WarningEss.SeverveOverCurrentAlarmAtCellStackDharge)//
+								.warningBit(14,WarningEss.SeverveOverCurrentAlarmAtCellStackDischarge)//
+								.warningBit(15,WarningEss.AbnormalCellStackCapacityAlarm)//
+								),//
 						new UnsignedWordElement(4811, //
-								this.becuAlarm2 = new ModbusReadLongChannel("BecuAlarm2", this)),
+								new ModbusBitWrappingChannel("BecuAlarm2" , this, this.thingState)//
+								.warningBit(0, WarningEss.TheParameterOfEEPROMInCellStackLoseEffectiveness)//
+								.warningBit(1, WarningEss.IsolatingSwitchInConfluenceArkBreak)//
+								.warningBit(2, WarningEss.TheCommunicationBetweenCellStackAndTemperatureOfCollectorBreak)//
+								.warningBit(3, WarningEss.TheTemperatureOfCollectorFail)//
+								.warningBit(4, WarningEss.HallSensorDoNotWorkAccurately)//
+								.warningBit(5, WarningEss.TheCommunicationOfPCSBreak)//
+								.warningBit(6, WarningEss.AdvancedChargingOrMainContactorCloseAbnormally)//
+								.warningBit(7, WarningEss.AbnormalSampledVoltage)//
+								.warningBit(8, WarningEss.AbnormalAdvancedContactorOrAbnormalRS485GalleryOfPCS)//
+								.warningBit(9, WarningEss.AbnormalMainContactor)//
+								.warningBit(10,WarningEss.GeneralCellStackLeakage)//
+								.warningBit(11,WarningEss.SevereCellStackLeakage)//
+								.warningBit(12,WarningEss.SmokeAlarm)//
+								.warningBit(13,WarningEss.TheCommunicationWireToAmmeterBreak)//
+								.warningBit(14,WarningEss.TheCommunicationWireToDredBreak)//
+								),//
 						new UnsignedWordElement(4812, //
 								this.soc = new ModbusReadLongChannel("Soc", this).unit("%"))));
 		return protocol;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

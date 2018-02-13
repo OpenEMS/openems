@@ -3,6 +3,7 @@ package io.openems.impl.device.minireadonly;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
@@ -17,11 +18,14 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "FENECON Mini Grid-Meter")
 public class FeneconMiniGridMeter extends ModbusDeviceNature implements SymmetricMeterNature {
 
+	private ThingStateChannel thingState;
+
 	/*
 	 * Constructors
 	 */
 	public FeneconMiniGridMeter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -104,6 +108,11 @@ public class FeneconMiniGridMeter extends ModbusDeviceNature implements Symmetri
 								.multiplier(2))));
 
 		return protocol;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

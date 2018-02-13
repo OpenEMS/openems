@@ -32,6 +32,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -46,6 +47,7 @@ import io.openems.core.utilities.JsonUtils;
 @ThingInfo(title = "Supply Bus Switch")
 public class SupplyBusSwitchController extends Controller implements ChannelChangeListener {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -209,6 +211,11 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

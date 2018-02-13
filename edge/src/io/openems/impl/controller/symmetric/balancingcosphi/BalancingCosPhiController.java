@@ -21,6 +21,7 @@
 package io.openems.impl.controller.symmetric.balancingcosphi;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -30,6 +31,7 @@ import io.openems.core.utilities.power.PowerException;
 @ThingInfo(title = "Balancing Cos-Phi (Symmetric)", description = "Tries to keep the grid meter at a given cos-phi. For symmetric Ess.")
 public class BalancingCosPhiController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -74,5 +76,10 @@ public class BalancingCosPhiController extends Controller {
 		} catch (PowerException e) {
 			log.error("Failed to set Power!",e);
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

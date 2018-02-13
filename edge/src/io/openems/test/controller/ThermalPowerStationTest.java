@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.thing.Thing;
 import io.openems.impl.controller.thermalpowerstation.Ess;
 import io.openems.impl.controller.thermalpowerstation.Meter;
@@ -37,6 +38,12 @@ public class ThermalPowerStationTest {
 			@Override
 			public String id() {
 				return "output0";
+			}
+
+			@Override
+			public ThingStateChannel getStateChannel() {
+				// TODO Auto-generated method stub
+				return null;
 			}
 		});
 		essThingMap = new Ess(ess);

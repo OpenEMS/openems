@@ -1,5 +1,6 @@
 package io.openems.impl.device.custom.riedmann;
 
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -57,6 +58,7 @@ public class RiedmannNatureImpl extends ModbusDeviceNature implements RiedmannNa
 	private ModbusWriteChannel<Long> setWaterLevelBorehole2Off;
 	private ModbusWriteChannel<Long> setWaterLevelBorehole3On;
 	private ModbusWriteChannel<Long> setWaterLevelBorehole3Off;
+	private ThingStateChannel thingState;
 
 	@Override
 	public ModbusReadChannel<Long> getWaterlevel() {
@@ -260,6 +262,7 @@ public class RiedmannNatureImpl extends ModbusDeviceNature implements RiedmannNa
 
 	public RiedmannNatureImpl(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	@Override
@@ -343,7 +346,12 @@ public class RiedmannNatureImpl extends ModbusDeviceNature implements RiedmannNa
 						new SignedWordElement(75, //
 								getWaterLevelBorehole3Off = new ModbusReadLongChannel("GetWaterLevelBorehole3Off",
 										this)) //
-				));
+						));
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

@@ -48,11 +48,14 @@ import io.openems.core.utilities.JsonUtils;
 @ThingInfo(title = "Weekly App-Planner", description = "Define recurring weekly plans.")
 public class WeekTimeScheduler extends Scheduler {
 
+	private ThingStateChannel thingState;
+
 	/*
 	 * Constructors
 	 */
 	public WeekTimeScheduler() {
 		thingRepository = ThingRepository.getInstance();
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -210,5 +213,10 @@ public class WeekTimeScheduler extends Scheduler {
 	public synchronized void removeController(Controller controller) {
 		// remove controller from all times
 		super.removeController(controller);
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

@@ -38,6 +38,7 @@ import io.openems.core.utilities.power.PowerException;
 @ThingInfo(title = "Voltage characteristics (Symmetric)")
 public class ActivePowerVoltageCharacteristicController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -110,4 +111,8 @@ public class ActivePowerVoltageCharacteristicController extends Controller {
 		}
 	}
 
+@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
+	}
 }

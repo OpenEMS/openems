@@ -40,6 +40,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
@@ -50,6 +51,7 @@ import io.openems.api.persistence.Persistence;
 import io.openems.api.thing.Thing;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.ChannelEnum;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NullFieldValue;
 import io.openems.common.types.NumberFieldValue;
@@ -65,6 +67,8 @@ import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 // TODO make sure this is registered as ChannelChangeListener also to ConfigChannels
 @ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
+
+	private ThingStateChannel thingState;
 
 	private final static String DEFAULT_CONFIG_LANGUAGE = "en";
 
@@ -96,6 +100,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 */
 	public FeneconPersistence() {
 		this.websocketHandler = new EdgeWebsocketHandler();
+		this.thingState = new ThingStateChannel(this);
 		this.reconnectingWebsocket = new ReconnectingWebsocket(this.websocketHandler, (websocket) -> {
 			/*
 			 * onOpen
@@ -325,6 +330,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 				fieldValue = new StringFieldValue(((Inet4Address) value).getHostAddress());
 			} else if (value instanceof Boolean) {
 				fieldValue = new NumberFieldValue(((Boolean) value) ? 1 : 0);
+			} else if (value instanceof ChannelEnum) {
+				fieldValue = new NumberFieldValue(((ChannelEnum)value).getValue());
 			} else if (value instanceof DeviceNature || value instanceof JsonElement || value instanceof Map
 					|| value instanceof Set || value instanceof List || value instanceof ThingMap) {
 				// ignore
@@ -373,5 +380,10 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		} else {
 			return Optional.empty();
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

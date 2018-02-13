@@ -22,6 +22,7 @@ package io.openems.impl.device.carlogavazzi.em300series;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
@@ -40,11 +41,14 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "Socomec Meter")
 public class EM300Meter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
+	private ThingStateChannel thingState;
+
 	/*
 	 * Constructors
 	 */
 	public EM300Meter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -206,44 +210,49 @@ public class EM300Meter extends ModbusDeviceNature implements SymmetricMeterNatu
 								currentL3 = new ModbusReadLongChannel("CurrentL3", this).unit("mA")),
 						new SignedDoublewordElement(19, //
 								activePowerL1 = new ModbusReadLongChannel("ActivePowerL1", this).unit("W")
-										.multiplier(-1)),
+								.multiplier(-1)),
 						new SignedDoublewordElement(21, //
 								activePowerL2 = new ModbusReadLongChannel("ActivePowerL2", this).unit("W")
-										.multiplier(-1)),
+								.multiplier(-1)),
 						new SignedDoublewordElement(23, //
 								activePowerL3 = new ModbusReadLongChannel("ActivePowerL3", this).unit("W")
-										.multiplier(-1)),
+								.multiplier(-1)),
 						new SignedDoublewordElement(25, //
 								reactivePowerL1 = new ModbusReadLongChannel("ReactivePowerL1", this).unit("var")
-										.multiplier(-1)),
+								.multiplier(-1)),
 						new SignedDoublewordElement(27, //
 								reactivePowerL2 = new ModbusReadLongChannel("ReactivePowerL2", this).unit("var")
-										.multiplier(-1)),
+								.multiplier(-1)),
 						new SignedDoublewordElement(29, //
 								reactivePowerL3 = new ModbusReadLongChannel("ReactivePowerL3", this)
-										.unit("var").multiplier(-1)),
+								.unit("var").multiplier(-1)),
 						new DummyElement(31, 40), new SignedDoublewordElement(41, //
 								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").multiplier(-1)),
 						new SignedDoublewordElement(43, //
 								apparentPower = new ModbusReadLongChannel("ApparentPower", this).unit("VA")
-										.multiplier(-1)),
+								.multiplier(-1)),
 						new SignedDoublewordElement(45, //
 								reactivePower = new ModbusReadLongChannel("ReactivePower", this)
-										.unit("var").multiplier(-1))),
+								.unit("var").multiplier(-1))),
 				new ModbusInputRegisterRange(52, new SignedWordElement(52, //
 						frequency = new ModbusReadLongChannel("Frequency", this).unit("mHZ").multiplier(2)),
 						new UnsignedDoublewordElement(53, //
 								activePositiveEnergy = new ModbusReadLongChannel("ActivePositiveEnergy", this)
-										.unit("kWh").multiplier(1)),
+								.unit("kWh").multiplier(1)),
 						new UnsignedDoublewordElement(55, //
 								reactivePositiveEnergy = new ModbusReadLongChannel("ReactivePositiveEnergy", this)
-										.unit("kvarh").multiplier(-1))),
+								.unit("kvarh").multiplier(-1))),
 				new ModbusRegisterRange(79, //
 						new UnsignedDoublewordElement(79, //
 								activeNegativeEnergy = new ModbusReadLongChannel(
 										"ActiveNegativeEnergy", this).unit("kWh").multiplier(-1)),
 						new UnsignedDoublewordElement(81, //
 								reactiveNegativeEnergy = new ModbusReadLongChannel("ReactiveNegativeEnergy", this)
-										.unit("kvarh").multiplier(-1))));
+								.unit("kvarh").multiplier(-1))));
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -16,6 +17,7 @@ import io.openems.impl.controller.symmetric.timelinecharge.Ess;
 @ThingInfo(title = "Sps parameter Controller")
 public class RiedmannController extends Controller implements ChannelChangeListener {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Config-Channel
 	 */
@@ -254,5 +256,10 @@ public class RiedmannController extends Controller implements ChannelChangeListe
 		} else if (channel.equals(setWaterLevelBorehole3On)) {
 			updateWaterLevelBorehole3On = true;
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

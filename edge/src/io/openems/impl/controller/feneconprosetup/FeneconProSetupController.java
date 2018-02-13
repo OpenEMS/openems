@@ -23,6 +23,7 @@ package io.openems.impl.controller.feneconprosetup;
 import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -32,6 +33,8 @@ import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo(title = "Initial setup for FENECON Pro", description = "Sets the correct factory settings for FENECON Pro energy storage systems.")
 public class FeneconProSetupController extends Controller {
+
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 
 	/*
 	 * Constructors
@@ -77,6 +80,11 @@ public class FeneconProSetupController extends Controller {
 		} catch (InvalidValueException | WriteChannelException e) {
 			log.error("Failed to Finish Setup", e);
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

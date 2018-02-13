@@ -21,6 +21,7 @@
 package io.openems.impl.controller.symmetric.cosphi;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -31,6 +32,7 @@ import io.openems.impl.controller.symmetric.balancingcosphi.Ess;
 @ThingInfo(title = "Ess Cos-Phi (Symmetric)", description = "Keeps the Ess at a given cos-phi. For symmetric Ess.")
 public class CosPhiController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -68,6 +70,11 @@ public class CosPhiController extends Controller {
 		} catch (PowerException e) {
 			log.error("Failed to set Power!",e);
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

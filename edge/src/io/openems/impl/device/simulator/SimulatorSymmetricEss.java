@@ -77,12 +77,14 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private SymmetricPowerImpl power;
 	private PGreaterEqualLimitation allowedChargeLimit;
 	private PSmallerEqualLimitation allowedDischargeLimit;
+	private ThingStateChannel thingState;
 
 	/*
 	 * Constructors
 	 */
 	public SimulatorSymmetricEss(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannel(this);
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
@@ -166,7 +168,6 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	/*
 	 * Inherited Channels
 	 */
-	private StatusBitChannels warning = new StatusBitChannels("Warning", this);;
 	private FunctionalReadChannel<Long> soc;
 	private SimulatorReadChannel<Long> activePower = new SimulatorReadChannel<Long>("ActivePower", this);
 	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel<Long>("AllowedApparent", this, 40000L);
@@ -228,11 +229,6 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	@Override
 	public ReadChannel<Long> reactivePower() {
 		return reactivePower;
-	}
-
-	@Override
-	public StatusBitChannels warning() {
-		return warning;
 	}
 
 	@Override
@@ -367,6 +363,11 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	@Override
 	public SymmetricPowerImpl getPower() {
 		return power;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

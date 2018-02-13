@@ -3,6 +3,7 @@ package io.openems.impl.controller.riedmann;
 import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -13,6 +14,7 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "SystemStopController")
 public class SystemStopController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Config-Channel
 	 */
@@ -65,6 +67,11 @@ public class SystemStopController extends Controller {
 		} catch (InvalidValueException e) {
 			log.error("Can't read value!", e);
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

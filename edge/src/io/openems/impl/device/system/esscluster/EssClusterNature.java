@@ -41,6 +41,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 
 	private final Logger log = LoggerFactory.getLogger(EssClusterNature.class);
 	private List<ThingChannelsUpdatedListener> listeners;
+	private ThingStateChannel thingState;
 
 	private static ThingRepository repo = ThingRepository.getInstance();
 
@@ -186,7 +187,6 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 				return 1L;
 			}).label(0L, EssNature.STOP).label(1L, EssNature.START).label(2L, EssNature.FAULT).label(3L, "UNDEFINED");
-	private StatusBitChannels warning = new StatusBitChannels("Warning", this);
 
 	private FunctionalWriteChannel<Long> setWorkState = new FunctionalWriteChannel<Long>("SetWorkState", this,
 			new FunctionalWriteChannelFunction<Long>() {
@@ -279,6 +279,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 		this.listeners = new ArrayList<>();
 		Config.getInstance().addBridgeInitializedEventListener(this);
 		power = new SymmetricPowerClusterImpl();
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	@Override
@@ -324,11 +325,6 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 	@Override
 	public ReadChannel<Long> allowedApparent() {
 		return allowedApparent;
-	}
-
-	@Override
-	public StatusBitChannels warning() {
-		return warning;
 	}
 
 	@Override
@@ -398,6 +394,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				capacity.removeChannel(ess.capacity());
 				setWorkState.removeChannel(ess.setWorkState());
 				power.removeEss(ess);
+				thingState.removeChildChannel(ess.getStateChannel());
 			}
 			essList.clear();
 			if (essIds != null && isInitialized) {
@@ -419,6 +416,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							capacity.addChannel(ess.capacity());
 							setWorkState.addChannel(ess.setWorkState());
 							power.addEss(ess);
+							this.thingState.addChildChannel(ess.getStateChannel());
 						}
 					}
 				}
@@ -457,6 +455,11 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 	@Override
 	public SymmetricPower getPower() {
 		return power;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

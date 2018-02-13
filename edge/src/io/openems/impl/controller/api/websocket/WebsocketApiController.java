@@ -26,6 +26,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -35,6 +36,7 @@ import io.openems.core.utilities.api.ApiWorker;
 public class WebsocketApiController extends Controller implements ChannelChangeListener {
 
 	private final ApiWorker apiWorker = new ApiWorker();
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 
 	/*
 	 * Constructors
@@ -112,5 +114,10 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	 */
 	public void broadcastLog(long timestamp, String level, String source, String message) {
 		this.websocketApiServer.broadcastLog(timestamp, level, source, message);
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

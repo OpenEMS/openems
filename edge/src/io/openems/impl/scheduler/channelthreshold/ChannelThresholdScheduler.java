@@ -45,8 +45,11 @@ import io.openems.core.ThingRepository;
 @ThingInfo(title = "Channel threshold app-planer", description = "app-planer with thresholds on configured channel to run different controllers by threshold on channel.")
 public class ChannelThresholdScheduler extends Scheduler {
 
+	private ThingStateChannel thingState;
+
 	public ChannelThresholdScheduler() {
 		thingRepository = ThingRepository.getInstance();
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -287,5 +290,10 @@ public class ChannelThresholdScheduler extends Scheduler {
 		public boolean isBetween(long value) {
 			return min <= value && value <= max;
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 }

@@ -87,11 +87,6 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 	}
 
 	@Override
-	public StatusBitChannels warning() {
-		return null;
-	}
-
-	@Override
 	public WriteChannel<Long> setWorkState() {
 		return setWorkState;
 	}
@@ -158,6 +153,12 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 	@Override
 	public SymmetricPowerImpl getPower() {
 		return power;
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

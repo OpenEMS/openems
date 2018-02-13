@@ -23,6 +23,7 @@ package io.openems.impl.controller.debuglog;
 import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -33,6 +34,7 @@ import io.openems.api.exception.InvalidValueException;
 @ThingInfo(title = "Output debugging information on systemlog")
 public class DebugLogController extends Controller {
 
+	private ThingStateChannel thingState = new ThingStateChannel(this);
 	/*
 	 * Constructors
 	 */
@@ -92,6 +94,11 @@ public class DebugLogController extends Controller {
 		} catch (InvalidValueException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }

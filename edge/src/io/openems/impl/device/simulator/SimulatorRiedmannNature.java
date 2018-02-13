@@ -27,6 +27,7 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -40,11 +41,14 @@ import io.openems.test.utils.channel.UnitTestWriteChannel;
 @ThingInfo(title = "Simulator ESS")
 public class SimulatorRiedmannNature extends SimulatorDeviceNature implements RiedmannNature, ChannelChangeListener {
 
+	private ThingStateChannel thingState;
+
 	/*
 	 * Constructors
 	 */
 	public SimulatorRiedmannNature(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannel(this);
 	}
 
 	/*
@@ -69,10 +73,10 @@ public class SimulatorRiedmannNature extends SimulatorDeviceNature implements Ri
 	private ConfigChannel<Long> emergencyStop = new ConfigChannel<Long>("EmergencyStop", this).defaultValue(0L);
 	@ChannelInfo(title = "SwitchStatePivotPump", type = Long.class)
 	private ConfigChannel<Long> switchStatePivotPump = new ConfigChannel<Long>("SwitchStatePivotPump", this)
-			.defaultValue(1L);
+	.defaultValue(1L);
 	@ChannelInfo(title = "SwitchStatePivotDrive", type = Long.class)
 	private ConfigChannel<Long> switchStatePivotDrive = new ConfigChannel<Long>("SwitchStatePivotDrive", this)
-			.defaultValue(1L);
+	.defaultValue(1L);
 	@ChannelInfo(title = "Error", type = Long.class)
 	private ConfigChannel<Long> error = new ConfigChannel<Long>("Error", this).defaultValue(0L);
 	private SimulatorReadChannel<Long> waterLevelBorehole1On = new SimulatorReadChannel<Long>("WaterLevelBorehole1On",
@@ -335,6 +339,11 @@ public class SimulatorRiedmannNature extends SimulatorDeviceNature implements Ri
 		if (writeValueWatchdog.isPresent()) {
 			signalWatchdog.setValue(writeValueWatchdog.get());
 		}
+	}
+
+	@Override
+	public ThingStateChannel getStateChannel() {
+		return this.thingState;
 	}
 
 }
