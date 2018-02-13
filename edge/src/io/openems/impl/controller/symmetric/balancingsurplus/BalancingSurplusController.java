@@ -27,7 +27,6 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.power.PowerException;
 
 @ThingInfo(title = "Self-consumption optimization with surplus feed-in (Symmetric)", description = "Tries to keep the grid meter on zero. For symmetric Ess. If ess is over the surplusMinSoc, the ess discharges with the power of the chargers. ")
@@ -59,9 +58,6 @@ public class BalancingSurplusController extends Controller {
 	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	private AvgFiFoQueue meterActivePower = new AvgFiFoQueue(3, 1.5);
-	private AvgFiFoQueue essActivePower = new AvgFiFoQueue(3, 1.5);
-
 	private long surplus = 0L;
 	private boolean surplusOn = false;
 
@@ -73,10 +69,8 @@ public class BalancingSurplusController extends Controller {
 	public void run() {
 		try {
 			Ess ess = this.ess.value();
-			meterActivePower.add(meter.value().activePower.value());
-			essActivePower.add((ess.activePower.value() - surplus));
 			// Calculate required sum values
-			long calculatedPower = meterActivePower.avg() + essActivePower.avg();
+			long calculatedPower = meter.value().activePower.value() + (ess.activePower.value() - surplus);
 			surplus = getSurplusPower();
 			// in case the storage has surplus it isn't allowed to charge the storage ac
 			if (calculatedPower < 0 && surplus > 0) {
