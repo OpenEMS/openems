@@ -9,7 +9,7 @@ import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { LoadingModule } from 'ngx-loading';
 import { TranslateModule } from '@ngx-translate/core';
 import { MyDateRangePickerModule } from 'mydaterangepicker';
-import { ToasterModule } from 'angular2-toaster';
+import { ToasterModule, ToasterService } from 'angular2-toaster';
 
 import 'hammerjs';
 
@@ -99,6 +99,7 @@ import { ChannelComponent } from './config/channel.component';
     Utils,
     Service,
     Websocket,
+    ToasterService,
     appRoutingProviders
   ]
 })
