@@ -168,9 +168,14 @@ public class Odoo implements MetadataService {
 
 	@Override
 	public Optional<Edge> getEdge(int edgeId) {
+		// try to read from cache
+		synchronized (this.edges) {
+			if (this.edges.containsKey(edgeId)) {
+				return Optional.of(this.edges.get(edgeId));
+			}
+		}
+		// if it was not in cache:
 		try {
-			// TODO: read from cache
-			// return Optional.ofNullable(this.edges.get(edgeId));
 			Map<String, Object> edgeMap = OdooUtils.readOne(this.url, this.database, this.uid, this.password,
 					"fems.device", edgeId, Fields.FemsDevice.NAME, Fields.FemsDevice.COMMENT,
 					Fields.FemsDevice.PRODUCT_TYPE);
@@ -179,6 +184,7 @@ public class Odoo implements MetadataService {
 					(String) edgeMap.get(Fields.FemsDevice.NAME.n()), //
 					(String) edgeMap.get(Fields.FemsDevice.COMMENT.n()), //
 					(String) edgeMap.get(Fields.FemsDevice.PRODUCT_TYPE.n()));
+			edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
 			synchronized (this.edges) {
 				this.edges.put(edge.getId(), edge);
 			}

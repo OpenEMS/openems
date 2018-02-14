@@ -24,7 +24,6 @@ public class EdgeOnlineHandler implements EventHandler {
 
 	@Override
 	public void handleEvent(Event event) {
-		log.info(event.toString());
 		int edgeId = (int) event.getProperty("edgeId");
 		Optional<Edge> edgeOpt = this.metadataService.getEdge(edgeId);
 		if (edgeOpt.isPresent()) {

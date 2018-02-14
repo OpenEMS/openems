@@ -2,9 +2,7 @@ package io.openems.backend.metadata.odoo;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -23,6 +21,7 @@ public class OdooUtils {
 		XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
 		config.setEnabledForExtensions(true);
 		config.setServerURL(new URL(String.format("%s/xmlrpc/2/object", url)));
+		config.setReplyTimeout(5000);
 		client.setConfig(config);
 		return (Object[]) client.execute("execute_kw", params);
 	}

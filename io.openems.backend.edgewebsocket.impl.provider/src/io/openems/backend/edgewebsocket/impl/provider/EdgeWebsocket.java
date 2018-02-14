@@ -27,11 +27,11 @@ public class EdgeWebsocket implements EdgeWebsocketService {
 
 	private EdgeWebsocketServer server = null;
 
-	@Reference
-	protected MetadataService metadataService;
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	protected volatile MetadataService metadataService;
 
-	@Reference
-	protected UiWebsocketService uiWebsocketService;
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	protected volatile UiWebsocketService uiWebsocketService;
 
 	@Reference
 	protected EventAdmin eventAdmin;
