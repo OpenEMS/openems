@@ -31,8 +31,8 @@ public class UiWebsocket implements UiWebsocketService {
 	@Reference
 	protected MetadataService metadataService;
 
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC) // avoid recursive dependency
-	protected volatile EdgeWebsocketService edgeWebsocketService;
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	private volatile EdgeWebsocketService edgeWebsocketService;
 
 	@ObjectClassDefinition
 	@interface Config {

@@ -11,10 +11,6 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.swing.plaf.synth.SynthSpinnerUI;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -50,22 +46,25 @@ public class Odoo implements MetadataService {
 	@ObjectClassDefinition
 	@interface Config {
 		String database();
-		String uid();
+
+		int uid();
+
 		String password();
+
 		String url() default "https://www1.fenecon.de";
 	}
 
 	private String url;
 	private String database;
-	private String uid;
+	private int uid;
 	private String password;
 
 	private Map<Integer, User> users = new HashMap<>();
 	private Map<Integer, Edge> edges = new HashMap<>();
 
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC) // avoid recursive dependency
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
 	private volatile EdgeWebsocketService edgeWebsocketService;
-	
+
 	@Activate
 	void activate(Config config) {
 		log.debug("Activate Odoo [url=" + config.url() + ";database=" + config.database() + ";uid=" + config.uid()
@@ -136,12 +135,12 @@ public class Odoo implements MetadataService {
 								JsonUtils.getAsString(jDevice, "producttype"));
 						edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
 						synchronized (this.edges) {
-							this.edges.putIfAbsent(edge.getId(), edge);	
+							this.edges.putIfAbsent(edge.getId(), edge);
 						}
 						user.addEdgeRole(edge.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
 					}
 					synchronized (this.users) {
-						this.users.put(user.getId(), user);	
+						this.users.put(user.getId(), user);
 					}
 					return user;
 				}
@@ -158,8 +157,12 @@ public class Odoo implements MetadataService {
 
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
-		// TODO Auto-generated method stub
-		return new int[] { -1 };
+		try {
+			return OdooUtils.search(this.url, this.database, this.uid, this.password, "fems.device", new Domain("apikey", "=", apikey));
+		} catch (OpenemsException e) {
+			log.error("Unable to get EdgeIds for Apikey: " + e.getMessage());
+			return new int[] {};
+		}
 	}
 
 	@Override
