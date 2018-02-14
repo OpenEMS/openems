@@ -4,8 +4,6 @@ import java.util.Optional;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -30,13 +28,14 @@ public class EdgeOnlineHandler implements EventHandler {
 		int edgeId = (int) event.getProperty("edgeId");
 		Optional<Edge> edgeOpt = this.metadataService.getEdge(edgeId);
 		if (edgeOpt.isPresent()) {
+			Edge edge = edgeOpt.get();
 			String topic = (String) event.getProperty("event.topics");
 			if (topic.equals(BackendEventConstants.TOPIC_EDGE_ONLINE)) {
 				edgeOpt.get().setOnline(true);
-				log.debug("Marked Edge [ID:" + edgeId + "] as Online");
+				log.debug("Marked Edge [" + edge.getName() + "] as Online");
 			} else if (topic.equals(BackendEventConstants.TOPIC_EDGE_OFFLINE)) {
 				edgeOpt.get().setOnline(false);
-				log.debug("Marked Edge [ID:" + edgeId + "] as Offline");
+				log.debug("Marked Edge [" + edge.getName() + "] as Offline");
 			} else {
 				log.warn("Unknown Topic: " + topic);
 			}

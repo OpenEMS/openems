@@ -20,6 +20,10 @@ public class Edge {
 		return id;
 	}
 
+	public String getName() {
+		return name;
+	}
+	
 	/*
 	 * Marks this Edge as being online. This is called by an event listener.
 	 */

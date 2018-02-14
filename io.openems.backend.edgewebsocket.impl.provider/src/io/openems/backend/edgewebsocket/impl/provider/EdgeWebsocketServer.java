@@ -79,9 +79,9 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 
 			// log
 			for (int edgeId : edgeIds) {
-				Optional<Edge> deviceOpt = this.parent.metadataService.getEdge(edgeId);
-				if (deviceOpt.isPresent()) {
-					log.info("Device [" + deviceOpt.get() + "] connected.");
+				Optional<Edge> edgeOpt = this.parent.metadataService.getEdge(edgeId);
+				if (edgeOpt.isPresent()) {
+					log.info("Device [" + edgeOpt.get().getName() + "] connected.");
 				} else {
 					log.info("Device [ID:" + edgeId + "] connected.");
 				}

@@ -158,7 +158,8 @@ public class Odoo implements MetadataService {
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
 		try {
-			return OdooUtils.search(this.url, this.database, this.uid, this.password, "fems.device", new Domain("apikey", "=", apikey));
+			return OdooUtils.search(this.url, this.database, this.uid, this.password, "fems.device",
+					new Domain("apikey", "=", apikey));
 		} catch (OpenemsException e) {
 			log.error("Unable to get EdgeIds for Apikey: " + e.getMessage());
 			return new int[] {};
@@ -167,7 +168,25 @@ public class Odoo implements MetadataService {
 
 	@Override
 	public Optional<Edge> getEdge(int edgeId) {
-		return Optional.ofNullable(this.edges.get(edgeId));
+		try {
+			// TODO: read from cache
+			// return Optional.ofNullable(this.edges.get(edgeId));
+			Map<String, Object> edgeMap = OdooUtils.readOne(this.url, this.database, this.uid, this.password,
+					"fems.device", edgeId, Fields.FemsDevice.NAME, Fields.FemsDevice.COMMENT,
+					Fields.FemsDevice.PRODUCT_TYPE);
+			Edge edge = new Edge( //
+					(Integer) edgeMap.get(Fields.FemsDevice.ID.n()), //
+					(String) edgeMap.get(Fields.FemsDevice.NAME.n()), //
+					(String) edgeMap.get(Fields.FemsDevice.COMMENT.n()), //
+					(String) edgeMap.get(Fields.FemsDevice.PRODUCT_TYPE.n()));
+			synchronized (this.edges) {
+				this.edges.put(edge.getId(), edge);
+			}
+			return Optional.ofNullable(edge);
+		} catch (OpenemsException e) {
+			log.error("Unable to read Edge for id [" + edgeId + "]: " + e.getMessage());
+			return Optional.empty();
+		}
 	}
 
 	@Override
