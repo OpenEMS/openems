@@ -20,9 +20,6 @@
  *******************************************************************************/
 package io.openems.impl.device.pro;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
-
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
@@ -63,7 +60,6 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
 			}
 		});
-		ResourceBundle.getBundle("Messages", Locale.GERMAN);
 	}
 
 	/*
