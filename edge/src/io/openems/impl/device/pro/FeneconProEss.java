@@ -27,7 +27,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.ValueToBooleanChannel;
+import io.openems.api.channel.ValueToBooleanThingStateChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
@@ -760,11 +760,11 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 		}, phaseAllowedApparent);
 
 		// FaultChannels
-		state.addFaultChannel(new ValueToBooleanChannel(FaultEss.SystemFault.getChannelId(), this, systemState, 3L));
-		state.addFaultChannel(new ValueToBooleanChannel(FaultEss.BatteryFault.getChannelId(), this, batteryGroupState, 5L));
-		state.addFaultChannel(new ValueToBooleanChannel(FaultEss.PCSFault.getChannelId(), this, pcsOperationState, 5L));
+		state.addFaultChannel(new ValueToBooleanThingStateChannel(FaultEss.SystemFault.getChannelId(), this, systemState, 3L));
+		state.addFaultChannel(new ValueToBooleanThingStateChannel(FaultEss.BatteryFault.getChannelId(), this, batteryGroupState, 5L));
+		state.addFaultChannel(new ValueToBooleanThingStateChannel(FaultEss.PCSFault.getChannelId(), this, pcsOperationState, 5L));
 		// WarningChannels
-		state.addWarningChannel(new ValueToBooleanChannel(WarningEss.OFFGrid.getChannelId(), this, systemState, 1L));
+		state.addWarningChannel(new ValueToBooleanThingStateChannel(WarningEss.OFFGrid.getChannelId(), this, systemState, 1L));
 
 		return protokol;
 	}
