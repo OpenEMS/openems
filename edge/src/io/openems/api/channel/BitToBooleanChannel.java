@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import io.openems.api.thing.Thing;
 
-public class BitToBooleanChannel extends ReadChannel<Boolean> implements ChannelChangeListener{
+public class BitToBooleanChannel extends ThingStateChannel implements ChannelChangeListener{
 
 	private ReadChannel<? extends Number> valueChannel;
 	private int bitIndex;

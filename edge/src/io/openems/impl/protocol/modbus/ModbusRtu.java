@@ -31,7 +31,7 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.StaticValueChannel;
+import io.openems.api.channel.StaticThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -75,14 +75,14 @@ public class ModbusRtu extends ModbusBridge {
 	 * Fields
 	 */
 	private Optional<SerialConnection> connection = Optional.empty();
-	private StaticValueChannel<Boolean> configurationFault;
-	private StaticValueChannel<Boolean> connectionFault;
+	private StaticThingStateChannel configurationFault;
+	private StaticThingStateChannel connectionFault;
 
 	public ModbusRtu() throws ConfigException {
 		super();
-		this.configurationFault = new StaticValueChannel<Boolean>("Fault\0", this, false);
+		this.configurationFault = new StaticThingStateChannel("Fault\0", this, false);
 		super.thingState.addFaultChannel(this.configurationFault);
-		this.connectionFault = new StaticValueChannel<Boolean>("Fault\1", this, false);
+		this.connectionFault = new StaticThingStateChannel("Fault\1", this, false);
 		super.thingState.addFaultChannel(this.connectionFault);
 	}
 
