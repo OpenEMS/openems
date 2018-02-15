@@ -760,11 +760,11 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 		}, phaseAllowedApparent);
 
 		// FaultChannels
-		state.addFaultChannel(new ValueToBooleanThingStateChannel(FaultEss.SystemFault.getChannelId(), this, systemState, 3L));
-		state.addFaultChannel(new ValueToBooleanThingStateChannel(FaultEss.BatteryFault.getChannelId(), this, batteryGroupState, 5L));
-		state.addFaultChannel(new ValueToBooleanThingStateChannel(FaultEss.PCSFault.getChannelId(), this, pcsOperationState, 5L));
+		state.addFaultChannel(new ValueToBooleanThingStateChannel(FaultEss.SystemFault, this, systemState, 3L));
+		state.addFaultChannel(new ValueToBooleanThingStateChannel(FaultEss.BatteryFault, this, batteryGroupState, 5L));
+		state.addFaultChannel(new ValueToBooleanThingStateChannel(FaultEss.PCSFault, this, pcsOperationState, 5L));
 		// WarningChannels
-		state.addWarningChannel(new ValueToBooleanThingStateChannel(WarningEss.OFFGrid.getChannelId(), this, systemState, 1L));
+		state.addWarningChannel(new ValueToBooleanThingStateChannel(WarningEss.OFFGrid, this, systemState, 1L));
 
 		return protokol;
 	}
