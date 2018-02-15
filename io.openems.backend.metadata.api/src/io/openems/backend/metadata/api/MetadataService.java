@@ -16,7 +16,7 @@ public interface MetadataService {
 	public abstract int[] getEdgeIdsForApikey(String apikey);
 	
 	public abstract Optional<Edge> getEdge(int edgeId);
-	
+			
 	public abstract void updateEdgeConfig(int edgeId, JsonObject jConfig);
 
 }

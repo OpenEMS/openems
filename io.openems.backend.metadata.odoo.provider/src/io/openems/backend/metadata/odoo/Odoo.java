@@ -128,16 +128,15 @@ public class Odoo implements MetadataService {
 							JsonUtils.getAsString(jUser, "name"));
 					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
 					for (JsonElement jDevice : jDevices) {
-						Edge edge = new Edge(//
-								JsonUtils.getAsInt(jDevice, "id"), //
-								JsonUtils.getAsString(jDevice, "name"), //
-								JsonUtils.getAsString(jDevice, "comment"), //
-								JsonUtils.getAsString(jDevice, "producttype"));
-						edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
-						synchronized (this.edges) {
-							this.edges.putIfAbsent(edge.getId(), edge);
+						int edgeId = JsonUtils.getAsInt(jDevice, "id");
+						Optional<Edge> edgeOpt = this.getEdge(edgeId);
+						if (edgeOpt.isPresent()) {
+							Edge edge = edgeOpt.get();
+							synchronized (this.edges) {
+								this.edges.putIfAbsent(edge.getId(), edge);
+							}
 						}
-						user.addEdgeRole(edge.getId(), Role.getRole(JsonUtils.getAsString(jDevice, "role")));
+						user.addEdgeRole(edgeId, Role.getRole(JsonUtils.getAsString(jDevice, "role")));
 					}
 					synchronized (this.users) {
 						this.users.put(user.getId(), user);
@@ -158,8 +157,13 @@ public class Odoo implements MetadataService {
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
 		try {
-			return OdooUtils.search(this.url, this.database, this.uid, this.password, "fems.device",
+			int[] edgeIds = OdooUtils.search(this.url, this.database, this.uid, this.password, "fems.device",
 					new Domain("apikey", "=", apikey));
+			// refresh Edge cache
+			for(int edgeId : edgeIds) {
+				this.getEdgeForceRefresh(edgeId);
+			}
+			return edgeIds;
 		} catch (OpenemsException e) {
 			log.error("Unable to get EdgeIds for Apikey: " + e.getMessage());
 			return new int[] {};
@@ -175,6 +179,16 @@ public class Odoo implements MetadataService {
 			}
 		}
 		// if it was not in cache:
+		return this.getEdgeForceRefresh(edgeId);
+	}
+
+	/**
+	 * Reads the Edge object from Odoo and stores it in the cache
+	 * 
+	 * @param edgeId
+	 * @return
+	 */
+	private Optional<Edge> getEdgeForceRefresh(int edgeId) {
 		try {
 			Map<String, Object> edgeMap = OdooUtils.readOne(this.url, this.database, this.uid, this.password,
 					"fems.device", edgeId, Fields.FemsDevice.NAME, Fields.FemsDevice.COMMENT,
@@ -185,6 +199,7 @@ public class Odoo implements MetadataService {
 					(String) edgeMap.get(Fields.FemsDevice.COMMENT.n()), //
 					(String) edgeMap.get(Fields.FemsDevice.PRODUCT_TYPE.n()));
 			edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
+			// store in cache
 			synchronized (this.edges) {
 				this.edges.put(edge.getId(), edge);
 			}
