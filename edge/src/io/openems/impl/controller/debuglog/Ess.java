@@ -23,7 +23,7 @@ package io.openems.impl.controller.debuglog;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.ThingStateChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
@@ -82,19 +82,15 @@ public class Ess extends ThingMap {
 				"Allowed:" + ess.allowedCharge().format() + ";" + ess.allowedDischarge().format());
 		b.append("|" + //
 				"GridMode:" + ess.gridMode().labelOptional().orElse("unknown"));
-		List<ReadChannel<Boolean>> warningChannels = ess.getStateChannel().getWarningChannels().stream().filter(c -> c.isValuePresent() && c.getValue()).collect(Collectors.toList());
-		List<ReadChannel<Boolean>> faultChannels = ess.getStateChannel().getFaultChannels().stream().filter(c -> c.isValuePresent() && c.getValue()).collect(Collectors.toList());
+		List<ThingStateChannel> warningChannels = ess.getStateChannel().getWarningChannels().stream().filter(c -> c.isValuePresent() && c.getValue()).collect(Collectors.toList());
+		List<ThingStateChannel> faultChannels = ess.getStateChannel().getFaultChannels().stream().filter(c -> c.isValuePresent() && c.getValue()).collect(Collectors.toList());
 		if(warningChannels.size() > 0) {
-			b.append("|Warn: ");
-			for(ReadChannel<Boolean> warning : warningChannels) {
-				b.append(", "+warning.address());
-			}
+			b.append("|Warn:");
+			b.append(warningChannels.stream().map(c -> c.name()).collect(Collectors.joining()));
 		}
 		if(faultChannels.size() > 0) {
-			b.append("|Fault: ");
-			for(ReadChannel<Boolean> fault : faultChannels) {
-				b.append(", "+fault.address());
-			}
+			b.append("|Fault:");
+			b.append(faultChannels.stream().map(c -> c.name()).collect(Collectors.joining()));
 		}
 		b.append("]");
 		return b.toString();
