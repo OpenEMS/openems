@@ -3,7 +3,7 @@ package io.openems.impl.controller.riedmann;
 import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -14,7 +14,7 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "SystemStopController")
 public class SystemStopController extends Controller {
 
-	private ThingStateChannel thingState = new ThingStateChannel(this);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Config-Channel
 	 */
@@ -70,7 +70,7 @@ public class SystemStopController extends Controller {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

@@ -22,16 +22,16 @@ package io.openems.impl.protocol.modbus;
 
 import io.openems.api.channel.BitToBooleanChannel;
 import io.openems.api.channel.thingstate.FaultEnum;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.channel.thingstate.WarningEnum;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.ConfigException;
 
 public class ModbusBitWrappingChannel extends ModbusReadChannel<Long> {
 
-	private final ThingStateChannel thingState;
+	private final ThingStateChannels thingState;
 
-	public ModbusBitWrappingChannel(String id, DeviceNature nature, ThingStateChannel thingStateChannel) {
+	public ModbusBitWrappingChannel(String id, DeviceNature nature, ThingStateChannels thingStateChannel) {
 		super(id, nature);
 		this.thingState = thingStateChannel;
 	}

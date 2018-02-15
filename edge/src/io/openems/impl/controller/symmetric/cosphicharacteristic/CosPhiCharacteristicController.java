@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -35,7 +35,7 @@ import io.openems.core.utilities.Point;
 @ThingInfo(title = "Cos-Phi Characteristics (Symmetric)")
 public class CosPhiCharacteristicController extends Controller {
 
-	private ThingStateChannel thingState = new ThingStateChannel(this);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
@@ -97,7 +97,7 @@ public class CosPhiCharacteristicController extends Controller {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

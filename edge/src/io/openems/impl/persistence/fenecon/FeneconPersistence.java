@@ -40,7 +40,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
@@ -68,7 +68,7 @@ import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 @ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	private final static String DEFAULT_CONFIG_LANGUAGE = "en";
 
@@ -100,7 +100,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 */
 	public FeneconPersistence() {
 		this.websocketHandler = new EdgeWebsocketHandler();
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 		this.reconnectingWebsocket = new ReconnectingWebsocket(this.websocketHandler, (websocket) -> {
 			/*
 			 * onOpen
@@ -383,7 +383,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }

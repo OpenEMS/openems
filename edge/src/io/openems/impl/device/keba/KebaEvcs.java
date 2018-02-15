@@ -20,7 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.device.keba;
 
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.nature.evcs.EvcsNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -30,11 +30,11 @@ import io.openems.impl.protocol.keba.KebaDeviceNature;
 @ThingInfo(title = "KEBA KeContact EVCS")
 public class KebaEvcs extends KebaDeviceNature implements EvcsNature {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	public KebaEvcs(String thingId, KebaDevice parent) throws ConfigException {
 		super(thingId, parent);
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class KebaEvcs extends KebaDeviceNature implements EvcsNature {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }

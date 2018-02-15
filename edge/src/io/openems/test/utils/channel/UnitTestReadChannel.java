@@ -1,6 +1,6 @@
 package io.openems.test.utils.channel;
 
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.thing.Thing;
 
 public class UnitTestReadChannel<T> extends io.openems.api.channel.ReadChannel<T> {
@@ -14,7 +14,7 @@ public class UnitTestReadChannel<T> extends io.openems.api.channel.ReadChannel<T
 			}
 
 			@Override
-			public ThingStateChannel getStateChannel() {
+			public ThingStateChannels getStateChannel() {
 				// TODO Auto-generated method stub
 				return null;
 			}

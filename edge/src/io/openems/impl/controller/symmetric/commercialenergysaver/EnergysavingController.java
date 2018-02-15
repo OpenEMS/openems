@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -38,7 +38,7 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "Energy saving (Symmetric)", description = "Sends the Ess to Standby if no power is required for two minutes. Do not use if Off-Grid functionality is required. For symmetric Ess.")
 public class EnergysavingController extends Controller {
 
-	private ThingStateChannel thingState = new ThingStateChannel(this);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
@@ -116,7 +116,7 @@ public class EnergysavingController extends Controller {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

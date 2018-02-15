@@ -29,7 +29,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.ValueToBooleanChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
@@ -72,7 +72,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<Integer>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 
-	private ThingStateChannel state = new ThingStateChannel(this);
+	private ThingStateChannels state = new ThingStateChannels(this);
 
 	@Override
 	public ConfigChannel<Integer> minSoc() {
@@ -780,7 +780,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return state;
 	}
 

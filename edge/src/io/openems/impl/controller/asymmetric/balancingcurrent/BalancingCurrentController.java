@@ -21,7 +21,7 @@
 package io.openems.impl.controller.asymmetric.balancingcurrent;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -32,7 +32,7 @@ import io.openems.core.utilities.AsymmetricPower.ReductionType;
 @ThingInfo(title = "Balancing current (Asymmetric)", description = "Tries to keep the grid meter at a given current. For asymmetric Ess.")
 public class BalancingCurrentController extends Controller {
 
-	private ThingStateChannel thingState = new ThingStateChannel(this);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
@@ -94,7 +94,7 @@ public class BalancingCurrentController extends Controller {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

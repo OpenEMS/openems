@@ -14,7 +14,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
@@ -38,7 +38,7 @@ implements SymmetricMeterNature, AsymmetricMeterNature, ChannelChangeListener {
 	private ThingRepository repo;
 	private List<SymmetricMeterNature> symmetricMeterList = new ArrayList<>();
 	private List<AsymmetricMeterNature> asymmetricMeterList = new ArrayList<>();
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Channels
@@ -67,7 +67,7 @@ implements SymmetricMeterNature, AsymmetricMeterNature, ChannelChangeListener {
 		this.log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 		this.repo = ThingRepository.getInstance();
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -440,7 +440,7 @@ implements SymmetricMeterNature, AsymmetricMeterNature, ChannelChangeListener {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

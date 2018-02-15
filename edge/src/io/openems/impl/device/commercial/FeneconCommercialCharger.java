@@ -26,7 +26,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.doc.ThingInfo;
@@ -55,14 +55,14 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 	 */
 	public FeneconCommercialCharger(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 
 	}
 
 	/*
 	 * Inherited Channels
 	 */
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	public ModbusWriteChannel<Long> pvPowerLimitCommand;
 
@@ -1314,7 +1314,7 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		// TODO Auto-generated method stub
 		return thingState;
 	}

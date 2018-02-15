@@ -24,7 +24,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
@@ -41,7 +41,7 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "FENECON Mini ESS")
 public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssNature {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Constructors
@@ -54,7 +54,7 @@ public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssN
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
 			}
 		});
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -571,7 +571,7 @@ public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssN
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }

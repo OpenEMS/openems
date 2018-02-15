@@ -3,7 +3,7 @@ package io.openems.impl.device.bcontrol;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
@@ -19,11 +19,11 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
 @ThingInfo(title = "B-Control Energy Meter")
 public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	public BControlMeter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -274,7 +274,7 @@ public class BControlMeter extends ModbusDeviceNature implements SymmetricMeterN
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }

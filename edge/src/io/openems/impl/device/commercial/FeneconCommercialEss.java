@@ -24,7 +24,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
@@ -45,7 +45,7 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRan
 @ThingInfo(title = "FENECON Commercial ESS")
 public class FeneconCommercialEss extends ModbusDeviceNature implements SymmetricEssNature {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Constructors
@@ -58,7 +58,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
 			}
 		});
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -1452,7 +1452,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return thingState;
 	}
 

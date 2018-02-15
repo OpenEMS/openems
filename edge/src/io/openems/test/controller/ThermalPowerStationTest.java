@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.thing.Thing;
 import io.openems.impl.controller.thermalpowerstation.Ess;
 import io.openems.impl.controller.thermalpowerstation.Meter;
@@ -41,7 +41,7 @@ public class ThermalPowerStationTest {
 			}
 
 			@Override
-			public ThingStateChannel getStateChannel() {
+			public ThingStateChannels getStateChannel() {
 				// TODO Auto-generated method stub
 				return null;
 			}

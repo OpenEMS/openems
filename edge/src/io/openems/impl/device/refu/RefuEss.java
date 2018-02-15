@@ -25,7 +25,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.StatusBitChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
@@ -58,7 +58,7 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
 			}
 		});
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -102,7 +102,7 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 100000L)
 			.unit("VA").unit("VA");
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 130000L).unit("Wh");
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 	/*
 	 * This Channels
 	 */
@@ -753,7 +753,7 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return thingState;
 	}
 

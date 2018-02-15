@@ -1,7 +1,7 @@
 package io.openems.impl.controller.asymmetric.phaserectification;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -12,7 +12,7 @@ import io.openems.core.utilities.AsymmetricPower.ReductionType;
 @ThingInfo(title = "PhaseRectificationReactivePowerController", description = "Sets the ess to the required reactivepower to get all three phases on the meter to the same level.")
 public class PhaseRectificationReactivePowerController extends Controller {
 
-	private ThingStateChannel thingState = new ThingStateChannel(this);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
@@ -60,7 +60,7 @@ public class PhaseRectificationReactivePowerController extends Controller {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 
