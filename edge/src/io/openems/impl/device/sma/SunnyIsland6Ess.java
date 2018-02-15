@@ -195,7 +195,7 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 						new UnsignedDoublewordElement(41187,
 								meterSetting = new ModbusWriteLongChannel("MeterSetting", this)
 								.label(3053, "SMA Energy Meter").label(3547, "Wechselrichter"))));
-		this.power = new SymmetricPowerImpl(40000, setActivePower, setReactivePower);
+		this.power = new SymmetricPowerImpl(40000, setActivePower, setReactivePower, getParent().getBridge());
 		this.allowedChargeLimit = new PGreaterEqualLimitation(power);
 		this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
 		this.allowedCharge.addChangeListener(new ChannelChangeListener() {

@@ -659,7 +659,7 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 						new SignedWordElement(0x20A, //
 								setReactivePowerL3 = new ModbusWriteLongChannel("SetReactivePowerL3", this)//
 								.unit("W").multiplier(2))));
-		this.power = new SymmetricPowerImpl(100000, setActivePower, setReactivePower);
+		this.power = new SymmetricPowerImpl(100000, setActivePower, setReactivePower, getParent().getBridge());
 		this.allowedChargeLimit = new PGreaterEqualLimitation(power);
 		this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
 		this.batFullLimit = new NoPBetweenLimitation(power);

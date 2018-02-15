@@ -240,7 +240,7 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 								new UnsignedDoublewordElement(0x130C, //
 										batteryStackTotalDischarge = new ModbusReadLongChannel(
 												"BatteryStackTotalDischarge", this).unit("kWh"))));
-		this.power = new SymmetricPowerImpl(125000, setActivePower, setReactivePower);
+		this.power = new SymmetricPowerImpl(125000, setActivePower, setReactivePower, getParent().getBridge());
 		return protocol;
 	}
 

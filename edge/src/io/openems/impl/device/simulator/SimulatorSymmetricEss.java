@@ -119,7 +119,7 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 			}
 			return 0L;
 		}, this.activePower);
-		power = new SymmetricPowerImpl(40000, setActivePower, setReactivePower);
+		power = new SymmetricPowerImpl(40000, setActivePower, setReactivePower, getParent().getBridge());
 		this.allowedChargeLimit = new PGreaterEqualLimitation(power);
 		this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
 		this.allowedCharge.addChangeListener(new ChannelChangeListener() {
@@ -140,7 +140,6 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 			}
 		});
 		this.power.addStaticLimitation(this.allowedDischargeLimit);
-		getParent().getBridge().addListener(this.power);
 	}
 
 	/*
@@ -274,9 +273,11 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 				reactivePower = reactivePowerQueue.avg();
 			}
 		}
+		long apparentPower = ControllerUtils.calculateApparentPower(activePower, reactivePower);
+		System.out.println(id()+" [CosPhi: "+(double)activePower / (double)apparentPower+"]");
 		this.activePower.updateValue(activePower);
 		this.reactivePower.updateValue(reactivePower);
-		this.apparentPower.updateValue(ControllerUtils.calculateApparentPower(activePower, reactivePower));
+		this.apparentPower.updateValue(apparentPower);
 		this.allowedCharge.updateValue(-9000L);
 		this.allowedDischarge.updateValue(3000L);
 	}

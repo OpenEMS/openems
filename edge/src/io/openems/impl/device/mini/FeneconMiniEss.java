@@ -443,7 +443,7 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 			}
 			return 0l;
 		}, activePower, reactivePower);
-		this.power = new SymmetricPowerImpl(3000, setActivePower, setReactivePower);
+		this.power = new SymmetricPowerImpl(3000, setActivePower, setReactivePower,getParent().getBridge());
 		this.allowedApparentLimit = new SMaxLimitation(power);
 		this.allowedApparentLimit.setSMax(phaseAllowedApparent.valueOptional().orElse(0L)*3, 0L, 0L);
 		this.phaseAllowedApparent.addChangeListener(new ChannelChangeListener() {

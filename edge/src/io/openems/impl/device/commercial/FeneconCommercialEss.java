@@ -33,9 +33,10 @@ import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
-import io.openems.core.utilities.power.MaxCosPhiLimitation;
 import io.openems.core.utilities.power.PGreaterEqualLimitation;
 import io.openems.core.utilities.power.PSmallerEqualLimitation;
+import io.openems.core.utilities.power.QGreaterEqualLimitation;
+import io.openems.core.utilities.power.QSmallerEqualLimitation;
 import io.openems.core.utilities.power.SMaxLimitation;
 import io.openems.core.utilities.power.SymmetricPowerImpl;
 import io.openems.impl.protocol.modbus.ModbusBitWrappingChannel;
@@ -104,7 +105,8 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 			.unit("VA");
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 40000L).unit("Wh");
 	private SymmetricPowerImpl power;
-	private MaxCosPhiLimitation cosPhiLimit;
+	private QGreaterEqualLimitation qMinLimit;
+	private QSmallerEqualLimitation qMaxLimit;
 	private PGreaterEqualLimitation allowedChargeLimit;
 	private PSmallerEqualLimitation allowedDischargeLimit;
 	private SMaxLimitation allowedApparentLimit;
@@ -1447,10 +1449,13 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 						new UnsignedWordElement(0x15DF,
 								batteryCell224Voltage = new ModbusReadLongChannel("Cell224Voltage", this).unit("mV")
 								)));
-		this.power = new SymmetricPowerImpl(40000, setActivePower, setReactivePower);
-		this.cosPhiLimit  = new MaxCosPhiLimitation(power);
-		this.cosPhiLimit.setMaxCosPhi(0.8);
-		this.power.addStaticLimitation(cosPhiLimit);
+		this.power = new SymmetricPowerImpl(40000, setActivePower, setReactivePower, getParent().getBridge());
+		this.qMinLimit  = new QGreaterEqualLimitation(power);
+		this.qMinLimit.setQ(-10000L);
+		this.power.addStaticLimitation(qMinLimit);
+		this.qMaxLimit  = new QSmallerEqualLimitation(power);
+		this.qMaxLimit.setQ(10000L);
+		this.power.addStaticLimitation(qMaxLimit);
 		this.allowedApparentLimit = new SMaxLimitation(power);
 		this.allowedApparentLimit.setSMax(allowedApparent.valueOptional().orElse(0L), 0L, 0L);
 		this.allowedApparent.addChangeListener(new ChannelChangeListener() {

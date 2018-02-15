@@ -7,11 +7,12 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
+import io.openems.api.bridge.Bridge;
 import io.openems.api.bridge.BridgeEvent;
 import io.openems.api.bridge.BridgeEventListener;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.exception.WriteChannelException;
-import io.openems.core.utilities.AvgFiFoQueue;;
+import io.openems.core.utilities.AvgFiFoQueue;
 
 public class SymmetricPowerImpl extends SymmetricPower implements LimitationChangedListener, BridgeEventListener {
 	/*
@@ -28,14 +29,19 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 	private AvgFiFoQueue reactivePowerAvg;
 
 	public SymmetricPowerImpl(long maxApparentPower, WriteChannel<Long> setActivePower,
-			WriteChannel<Long> setReactivePower) {
+			WriteChannel<Long> setReactivePower, Bridge bridge) {
 		setMaxApparentPower(maxApparentPower);
 		this.staticLimitations = new ArrayList<>();
 		this.dynamicLimitations = new ArrayList<>();
 		this.setActivePower = setActivePower;
 		this.setReactivePower = setReactivePower;
 		activePowerAvg = new AvgFiFoQueue(3, 1.5);
-		reactivePowerAvg = new AvgFiFoQueue(3, 1.5);
+		reactivePowerAvg = new AvgFiFoQueue(1, 1.5);
+		if(bridge != null) {
+			bridge.addListener(this);
+		}else {
+			log.error("the Bridge is null! the Power Values won't be writte!");
+		}
 		createBaseGeometry();
 		reset();
 	}

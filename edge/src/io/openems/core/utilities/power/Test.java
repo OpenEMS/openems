@@ -15,8 +15,8 @@ public class Test {
 
 	public static void main(String[] args) throws PowerException {
 		Stopwatch sw = Stopwatch.createStarted();
-		SymmetricPowerImpl power = new SymmetricPowerImpl(100000, null, null);
-		SymmetricPowerImpl power2 = new SymmetricPowerImpl(100000, null, null);
+		SymmetricPowerImpl power = new SymmetricPowerImpl(100000, null, null, null);
+		SymmetricPowerImpl power2 = new SymmetricPowerImpl(100000, null, null, null);
 		System.out.println(sw.elapsed().toMillis());
 		sw.reset();
 		sw.start();

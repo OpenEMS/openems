@@ -39,7 +39,7 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 	public UnitTestWriteChannel<Long> setReactivePower = new UnitTestWriteChannel<>("SetReactivePower", this);
 	public StaticValueChannel<Long> capacity = new StaticValueChannel<Long>("Capacity", this,
 			SimulatorTools.getRandomLong(3000, 50000));
-	public SymmetricPowerImpl power = new SymmetricPowerImpl(9000, setActivePower, setReactivePower);
+	public SymmetricPowerImpl power = new SymmetricPowerImpl(9000, setActivePower, setReactivePower, getParent().getBridge());
 	private final String id;
 	private ThingStateChannel thingState;
 
