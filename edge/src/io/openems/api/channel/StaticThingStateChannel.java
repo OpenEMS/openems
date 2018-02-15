@@ -20,12 +20,13 @@
  *******************************************************************************/
 package io.openems.api.channel;
 
+import io.openems.api.channel.thingstate.ThingStateEnum;
 import io.openems.api.thing.Thing;
 
 public class StaticThingStateChannel extends ThingStateChannel {
 
-	public StaticThingStateChannel(String id, Thing parent, boolean value) {
-		super(id, parent);
+	public StaticThingStateChannel(ThingStateEnum state, Thing parent, boolean value) {
+		super(state, parent);
 		this.updateValue(value);
 	}
 

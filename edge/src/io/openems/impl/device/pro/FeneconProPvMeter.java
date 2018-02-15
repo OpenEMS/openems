@@ -49,11 +49,11 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 	public FeneconProPvMeter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
 		this.thingState  = new ThingStateChannels(this);
-		this.negativePowerL1 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL1.getChannelId(), this, false);
+		this.negativePowerL1 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL1, this, false);
 		this.thingState.addWarningChannel(this.negativePowerL1);
-		this.negativePowerL2 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL2.getChannelId(), this, false);
+		this.negativePowerL2 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL2, this, false);
 		this.thingState.addWarningChannel(this.negativePowerL2);
-		this.negativePowerL3 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL3.getChannelId(), this, false);
+		this.negativePowerL3 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL3, this, false);
 		this.thingState.addWarningChannel(this.negativePowerL3);
 	}
 

@@ -11,7 +11,7 @@ public class BitToBooleanThingStateChannel extends ThingStateChannel implements 
 	private int bitIndex;
 
 	public BitToBooleanThingStateChannel(ThingStateEnum state, Thing parent, ReadChannel<? extends Number> channel, int bitIndex){
-		super(state.getChannelId(), parent);
+		super(state, parent);
 		this.valueChannel = channel;
 		this.valueChannel.addChangeListener(this);
 		this.bitIndex = bitIndex;

@@ -11,7 +11,7 @@ public class ValueToBooleanThingStateChannel extends ThingStateChannel implement
 	private long value;
 
 	public ValueToBooleanThingStateChannel(ThingStateEnum state, Thing parent, ReadChannel<? extends Number> channel, long value) {
-		super(state.getChannelId(), parent);
+		super(state, parent);
 		this.valueChannel = channel;
 		this.valueChannel.addChangeListener(this);
 		this.value = value;

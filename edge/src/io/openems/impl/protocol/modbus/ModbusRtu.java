@@ -80,9 +80,9 @@ public class ModbusRtu extends ModbusBridge {
 
 	public ModbusRtu() throws ConfigException {
 		super();
-		this.configurationFault = new StaticThingStateChannel("Fault\0", this, false);
+		this.configurationFault = new StaticThingStateChannel(FaultModbus.ConfigurationFault, this, false);
 		super.thingState.addFaultChannel(this.configurationFault);
-		this.connectionFault = new StaticThingStateChannel("Fault\1", this, false);
+		this.connectionFault = new StaticThingStateChannel(FaultModbus.ConnectionFault, this, false);
 		super.thingState.addFaultChannel(this.connectionFault);
 	}
 

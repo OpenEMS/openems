@@ -35,6 +35,7 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StaticThingStateChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
@@ -50,6 +51,7 @@ import io.openems.api.thing.Thing;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.ControllerUtils;
+import io.openems.impl.protocol.modbus.FaultModbus;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
@@ -79,6 +81,11 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	public SimulatorSymmetricEss(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
 		this.thingState = new ThingStateChannels(this);
+
+		StaticThingStateChannel tmp = new StaticThingStateChannel(FaultModbus.ConfigurationFault, this, false);
+		tmp.setValue(true);
+		thingState.addFaultChannel(tmp);
+
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
