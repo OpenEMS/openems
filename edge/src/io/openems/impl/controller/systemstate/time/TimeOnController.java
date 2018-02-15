@@ -27,6 +27,7 @@ import java.util.Set;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -40,6 +41,8 @@ import io.openems.common.session.Role;
  */
 @ThingInfo(title = "Keep always running", description = "Tries to keep the Ess always running. Use if Off-Grid functionality is required.")
 public class TimeOnController extends Controller implements ChannelChangeListener {
+
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	/*
 	 * Constructors
@@ -143,5 +146,10 @@ public class TimeOnController extends Controller implements ChannelChangeListene
 				timeStop = null;
 			}
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

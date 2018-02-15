@@ -23,6 +23,7 @@ package io.openems.impl.controller.systemstate.alwayson;
 import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -35,6 +36,8 @@ import io.openems.api.exception.WriteChannelException;
  */
 @ThingInfo(title = "Keep always running", description = "Tries to keep the Ess always running. Use if Off-Grid functionality is required.")
 public class AlwaysOnController extends Controller {
+
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	/*
 	 * Constructors
@@ -69,5 +72,10 @@ public class AlwaysOnController extends Controller {
 		} catch (InvalidValueException e) {
 			log.error("No Storage Found!", e);
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }
