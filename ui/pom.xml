@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>io.openems</groupId>
 		<artifactId>pom</artifactId>
-		<version>2018.1-SNAPSHOT</version>
+		<version>2018.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>edge</artifactId>
 	<packaging>pom</packaging>

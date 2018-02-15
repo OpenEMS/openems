@@ -1,6 +1,6 @@
 {
   "name": "openems-ui",
-  "version": "2018.1-SNAPSHOT",
+  "version": "2018.2-SNAPSHOT",
   "license": "AGPL",
   "scripts": {
     "ng": "ng",
