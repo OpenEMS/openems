@@ -67,9 +67,9 @@ public class BalancingCosPhiController extends Controller {
 			Ess ess = this.ess.value();
 			Meter meter = this.meter.value();
 			//Calculate the startpoint of the cosPhi line in relation to the ess zero power
-			long pNull = (meter.activePower.value()-ess.activePower.value())*-1;
-			long qNull = (meter.reactivePower.value()-ess.reactivePower.value())*-1;
-			ess.limit.setCosPhi(cosPhi.value(), capacitive.value(), pNull, qNull);
+			long pNull = meter.activePower.value()+ess.activePower.value();
+			long qNull = meter.reactivePower.value()+ess.reactivePower.value();
+			ess.limit.setCosPhi(cosPhi.value(), !capacitive.value(), pNull, qNull);
 			ess.power.applyLimitation(ess.limit);
 		} catch (InvalidValueException e) {
 			log.error("Failed to read value.", e);
