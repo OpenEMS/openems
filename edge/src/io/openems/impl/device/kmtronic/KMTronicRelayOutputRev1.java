@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.device.kmtronic;
 
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.OutputNature;
 import io.openems.api.doc.ThingInfo;
@@ -33,12 +34,15 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusCoilRange;
 @ThingInfo(title = "KMTronic Relay board Output")
 public class KMTronicRelayOutputRev1 extends ModbusDeviceNature implements OutputNature {
 
+	private ThingStateChannels thingState;
+
 	/*
 	 * Constructors
 	 */
 	public KMTronicRelayOutputRev1(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
 		outputs = new ModbusCoilWriteChannel[7];
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -65,6 +69,11 @@ public class KMTronicRelayOutputRev1 extends ModbusDeviceNature implements Outpu
 	@Override
 	public ModbusCoilWriteChannel[] setOutput() {
 		return outputs;
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

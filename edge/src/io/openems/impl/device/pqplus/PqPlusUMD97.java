@@ -45,7 +45,7 @@ public class PqPlusUMD97 extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Meter", description = "Sets the meter nature.", type = PqPlusUMD97Meter.class)
-	public final ConfigChannel<PqPlusUMD97Meter> meter = new ConfigChannel<>("meter", this);
+	public final ConfigChannel<PqPlusUMD97Meter> meter = new ConfigChannel<PqPlusUMD97Meter>("meter", this).addChangeListener(this);
 
 	/*
 	 * Methods

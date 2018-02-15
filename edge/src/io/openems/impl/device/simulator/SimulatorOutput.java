@@ -1,6 +1,7 @@
 package io.openems.impl.device.simulator;
 
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.OutputNature;
 import io.openems.api.doc.ThingInfo;
@@ -22,12 +23,14 @@ public class SimulatorOutput extends SimulatorDeviceNature implements OutputNatu
 	private SimulatorWriteChannel<Boolean> do9 = new SimulatorWriteChannel<>("DO9", this, false);
 	private SimulatorWriteChannel<Boolean> do10 = new SimulatorWriteChannel<>("DO10", this, false);
 	private SimulatorWriteChannel<Boolean>[] array;
+	private ThingStateChannels thingState;
 
 	public SimulatorOutput(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
 		@SuppressWarnings("unchecked") SimulatorWriteChannel<Boolean>[] array = new SimulatorWriteChannel[] { do1, do2,
 				do3, do4, do5, do6, do7, do8, do9, do10 };
 		this.array = array;
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	@Override
@@ -38,6 +41,11 @@ public class SimulatorOutput extends SimulatorDeviceNature implements OutputNatu
 	@Override
 	protected void update() {
 
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

@@ -22,6 +22,7 @@ package io.openems.impl.device.pqplus;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
@@ -36,11 +37,14 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "PQ Plus UMD 97 Meter")
 public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMeterNature {
 
+	private ThingStateChannels thingState;
+
 	/*
 	 * Constructors
 	 */
 	public PqPlusUMD97Meter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -173,6 +177,11 @@ public class PqPlusUMD97Meter extends ModbusDeviceNature implements SymmetricMet
 						new FloatElement(19050, //
 								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHz")) //
 						.multiplier(3)));
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

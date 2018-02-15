@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -34,6 +35,7 @@ import io.openems.core.utilities.api.ApiWorker;
 public class RestApiController extends Controller {
 
 	private final ApiWorker apiWorker = new ApiWorker();
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	/*
 	 * Constructors
@@ -76,5 +78,10 @@ public class RestApiController extends Controller {
 		}
 		// API Worker
 		this.apiWorker.run();
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

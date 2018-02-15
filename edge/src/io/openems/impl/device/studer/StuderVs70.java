@@ -25,7 +25,7 @@ public class StuderVs70 extends StuderDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Charger", description = "Sets the charger nature.", type = StuderVs70Charger.class)
-	public final ConfigChannel<StuderVs70Charger> charger = new ConfigChannel<>("charger", this);
+	public final ConfigChannel<StuderVs70Charger> charger = new ConfigChannel<StuderVs70Charger>("charger", this).addChangeListener(this);
 
 	/*
 	 * Methods

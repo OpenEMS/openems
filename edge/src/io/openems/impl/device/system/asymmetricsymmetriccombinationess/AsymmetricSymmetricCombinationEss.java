@@ -15,7 +15,7 @@ import io.openems.impl.protocol.system.SystemDevice;
 public class AsymmetricSymmetricCombinationEss extends SystemDevice {
 
 	@ChannelInfo(title = "AsymmetricSymmetricCombinationEss", description = "Sets the wrapper nature to use asymmetric and symmetric controller together.", type = AsymmetricSymmetricCombinationEssNature.class)
-	public final ConfigChannel<AsymmetricSymmetricCombinationEssNature> wrapper = new ConfigChannel<>("wrapper", this);
+	public final ConfigChannel<AsymmetricSymmetricCombinationEssNature> wrapper = new ConfigChannel<AsymmetricSymmetricCombinationEssNature>("wrapper", this).addChangeListener(this);
 
 	public AsymmetricSymmetricCombinationEss(Bridge parent) throws OpenemsException {
 		super(parent);
@@ -30,5 +30,4 @@ public class AsymmetricSymmetricCombinationEss extends SystemDevice {
 		}
 		return natures;
 	}
-
 }

@@ -19,8 +19,8 @@ import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.FunctionalWriteChannel;
 import io.openems.api.channel.FunctionalWriteChannelFunction;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.device.nature.ess.EssNature;
@@ -41,6 +41,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 
 	private final Logger log = LoggerFactory.getLogger(EssClusterNature.class);
 	private List<ThingChannelsUpdatedListener> listeners;
+	private ThingStateChannels thingState;
 
 	private static ThingRepository repo = ThingRepository.getInstance();
 
@@ -185,7 +186,6 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				}
 				return 1L;
 			}).label(0L, EssNature.STOP).label(1L, EssNature.START).label(2L, EssNature.FAULT).label(3L, "UNDEFINED");
-	private StatusBitChannels warning = new StatusBitChannels("Warning", this);
 
 	private FunctionalWriteChannel<Long> setWorkState = new FunctionalWriteChannel<Long>("SetWorkState", this,
 			new FunctionalWriteChannelFunction<Long>() {
@@ -495,6 +495,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 		super(id, parent);
 		this.listeners = new ArrayList<>();
 		Config.getInstance().addBridgeInitializedEventListener(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	@Override
@@ -540,11 +541,6 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 	@Override
 	public ReadChannel<Long> allowedApparent() {
 		return allowedApparent;
-	}
-
-	@Override
-	public StatusBitChannels warning() {
-		return warning;
 	}
 
 	@Override
@@ -625,6 +621,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				setWorkState.removeChannel(ess.setWorkState());
 				setActivePower.removeChannel(ess.setActivePower());
 				setReactivePower.removeChannel(ess.setReactivePower());
+				thingState.removeChildChannel(ess.getStateChannel());
 			}
 			essList.clear();
 			if (essIds != null && isInitialized) {
@@ -647,6 +644,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							setWorkState.addChannel(ess.setWorkState());
 							setActivePower.addChannel(ess.setActivePower());
 							setReactivePower.addChannel(ess.setReactivePower());
+							this.thingState.addChildChannel(ess.getStateChannel());
 						}
 					}
 				}
@@ -680,6 +678,11 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 	public void onBridgeInitialized() {
 		this.isInitialized = true;
 		loadEss();
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

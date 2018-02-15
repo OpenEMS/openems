@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.thing.Thing;
 
 public class UnitTestWriteChannel<T> extends WriteChannel<T> {
@@ -14,6 +15,12 @@ public class UnitTestWriteChannel<T> extends WriteChannel<T> {
 			@Override
 			public String id() {
 				return id;
+			}
+
+			@Override
+			public ThingStateChannels getStateChannel() {
+				// TODO Auto-generated method stub
+				return null;
 			}
 		});
 	}

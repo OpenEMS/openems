@@ -31,9 +31,11 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.StaticThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
+import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsModbusException;
 
 @ThingInfo(title = "Modbus/RTU")
@@ -73,6 +75,16 @@ public class ModbusRtu extends ModbusBridge {
 	 * Fields
 	 */
 	private Optional<SerialConnection> connection = Optional.empty();
+	private StaticThingStateChannel configurationFault;
+	private StaticThingStateChannel connectionFault;
+
+	public ModbusRtu() throws ConfigException {
+		super();
+		this.configurationFault = new StaticThingStateChannel(FaultModbus.ConfigurationFault, this, false);
+		super.thingState.addFaultChannel(this.configurationFault);
+		this.connectionFault = new StaticThingStateChannel(FaultModbus.ConnectionFault, this, false);
+		super.thingState.addFaultChannel(this.connectionFault);
+	}
 
 	/*
 	 * Methods
@@ -130,7 +142,7 @@ public class ModbusRtu extends ModbusBridge {
 			if (!baudrate.valueOptional().isPresent() || !databits.valueOptional().isPresent()
 					|| !parity.valueOptional().isPresent() || !serialinterface.valueOptional().isPresent()
 					|| !stopbits.valueOptional().isPresent()) {
-				throw new OpenemsModbusException(this.id() + ": Modbus-RTU is not configured completely");
+				throw new OpenemsModbusException("Modbus-RTU is not configured completely");
 			}
 			SerialParameters params = new SerialParameters();
 			params.setPortName(serialinterface.valueOptional().get());
@@ -141,15 +153,16 @@ public class ModbusRtu extends ModbusBridge {
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
 			connection = Optional.of(new SerialConnection(params));
+			this.configurationFault.setValue(false);
 		}
 		if (!connection.get().isOpen()) {
 			try {
 				SerialConnection serialCon = connection.get();
 				serialCon.open();
 				serialCon.getModbusTransport().setTimeout(1000);
+				this.connectionFault.setValue(false);
 			} catch (Exception e) {
-				throw new OpenemsModbusException(this.id() + ": Unable to open Modbus-RTU connection to ["
-						+ serialinterface.valueOptional().orElse("UNDEFINED") + "]: " + e.getMessage());
+				throw new OpenemsModbusException("Unable to open Modbus-RTU connection: " + connection);
 			}
 		}
 		return connection.get();

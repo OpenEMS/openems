@@ -21,6 +21,7 @@
 package io.openems.impl.controller.testwrite;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -30,6 +31,7 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "Test write")
 public class TestWriteController extends Controller {
 
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Config
 	 */
@@ -62,6 +64,11 @@ public class TestWriteController extends Controller {
 		// log.error("", e);
 		// }
 		// }
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

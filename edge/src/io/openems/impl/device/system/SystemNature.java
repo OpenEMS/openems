@@ -32,6 +32,7 @@ import java.util.List;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -42,6 +43,8 @@ import io.openems.impl.protocol.system.SystemReadChannel;
 @ThingInfo(title = "Operating system")
 public class SystemNature extends SystemDeviceNature implements io.openems.api.device.nature.system.SystemNature {
 
+	private ThingStateChannels thingState;
+
 	/*
 	 * Constructors
 	 */
@@ -51,12 +54,13 @@ public class SystemNature extends SystemDeviceNature implements io.openems.api.d
 			OPENEMS_STATIC_IPS = new Inet4Address[] { //
 					// 192.168.100.100
 					(Inet4Address) InetAddress
-							.getByAddress(new byte[] { (byte) 192, (byte) 168, (byte) 100, (byte) 100 }),
+					.getByAddress(new byte[] { (byte) 192, (byte) 168, (byte) 100, (byte) 100 }),
 					// 10.4.0.1
 					(Inet4Address) InetAddress.getByAddress(new byte[] { (byte) 10, (byte) 4, (byte) 0, (byte) 1 }) };
 		} catch (UnknownHostException e) {
 			throw new ConfigException("Error initializing OpenEMS Static IP: " + e.getMessage());
 		}
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -150,5 +154,10 @@ public class SystemNature extends SystemDeviceNature implements io.openems.api.d
 		for (ThingChannelsUpdatedListener listener : this.listeners) {
 			listener.thingChannelsUpdated(this);
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

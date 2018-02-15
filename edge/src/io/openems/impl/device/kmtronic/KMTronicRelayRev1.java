@@ -45,7 +45,7 @@ public class KMTronicRelayRev1 extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Output", description = "Sets the output nature.", type = KMTronicRelayOutputRev1.class)
-	public final ConfigChannel<KMTronicRelayOutputRev1> output = new ConfigChannel<>("output", this);
+	public final ConfigChannel<KMTronicRelayOutputRev1> output = new ConfigChannel<KMTronicRelayOutputRev1>("output", this).addChangeListener(this);
 
 	/*
 	 * Methods

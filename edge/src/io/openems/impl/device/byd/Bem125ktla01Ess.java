@@ -23,13 +23,13 @@ package io.openems.impl.device.byd;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.StatusBitChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.impl.protocol.modbus.ModbusBitWrappingChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
@@ -69,6 +69,7 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	/*
 	 * Inherited Channels
 	 */
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	private ModbusReadChannel<Long> soc;
 	private StaticValueChannel<Long> allowedCharge = new StaticValueChannel<Long>("AllowedCharge", this, 0L);
 	private StaticValueChannel<Long> allowedDischarge = new StaticValueChannel<Long>("AllowedDischarge", this, 0L);
@@ -84,12 +85,10 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	private ModbusWriteChannel<Long> setWorkState;
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 0L);
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 170000L).unit("Wh");
-	public StatusBitChannels warning;
 
 	public ModbusReadChannel<Long> sysAlarmInfo;
-	public StatusBitChannel sysWorkStatus;
-	public StatusBitChannel sysControlMode;
-	public StatusBitChannel sysAlarmInfo2;
+	public ModbusReadChannel<Long> sysWorkStatus;
+	public ModbusReadChannel<Long> sysControlMode;
 	public ModbusReadChannel<Long> batteryStackVoltage;
 	public ModbusReadChannel<Long> batteryStackCurrent;
 	public ModbusReadChannel<Long> batteryStackPower;
@@ -134,11 +133,6 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	}
 
 	@Override
-	public StatusBitChannels warning() {
-		return warning;
-	}
-
-	@Override
 	public WriteChannel<Long> setWorkState() {
 		return setWorkState;
 	}
@@ -178,60 +172,59 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	 */
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		warning = new StatusBitChannels("Warning", this);
 		return new ModbusProtocol( //
 				new ModbusRegisterRange(0x0100, //
 						new UnsignedWordElement(0x100, //
-								sysAlarmInfo = new ModbusReadLongChannel("SysAlarmInfo", this)//
-										.label(0, "Warning State")//
-										.label(1, "Protection State")//
-										.label(2, "Derating State")//
-										.label(4, "Charge Forbidden").label(16, "Discharge Forbidden")),
+								new ModbusBitWrappingChannel("SysAlarmInfo", this, this.thingState)//
+								.warningBit(0, WarningEss.WarningState)//
+								.warningBit(1, WarningEss.ProtectionState)//
+								.warningBit(2, WarningEss.DeratingState)//
+								.warningBit(3, WarningEss.ChargeForbidden)//
+								.warningBit(4, WarningEss.DischargeForbidden)//
+								),//
+
 						new UnsignedWordElement(0x101, //
-								sysWorkStatus = new StatusBitChannel("SysWorkStatus", this)//
-										.label(0, "Initial") //
-										.label(1, "Fault") //
-										.label(2, "Stop") //
-										.label(4, "Hot Standby") //
-										.label(8, "Monitoring") //
-										.label(16, "Standby") //
-										.label(32, "Operation") //
-										.label(64, "Debug")), //
+								sysWorkStatus = new ModbusReadLongChannel("SysWorkStatus", this)//
+								.label(1, "Initial") //
+								.label(2, "Fault") //
+								.label(4, "Stop") //
+								.label(8, "Hot Standby") //
+								.label(16, "Monitoring") //
+								.label(32, "Standby") //
+								.label(64, "Operation") //
+								.label(128, "Debug")), //
 						new UnsignedWordElement(0x102, //
-								sysControlMode = new StatusBitChannel("SysControlMode", this)//
-										.label(0, "Remote") //
-										.label(1, "Local")), //
+								sysControlMode = new ModbusReadLongChannel("SysControlMode", this)//
+								.label(1, "Remote") //
+								.label(2, "Local")), //
 						new DummyElement(0x103)),
 				new ModbusRegisterRange(0x0110, //
 						new UnsignedWordElement(0x110, //
-								sysAlarmInfo = new StatusBitChannel("SysAlarmInfo", this)//
-										.label(0, "Status abnormal of AC surge protector") //
-										.label(1, "Close of control switch") //
-										.label(2, "Emergency stop") //
-										.label(4, "Status abnormal of frog detector") //
-										.label(8, "Serious leakage") //
-										.label(16, "Normal_leakage")), //
+								new ModbusBitWrappingChannel("SysAlarmInfo", this, thingState)//
+								.warningBit(1, WarningEss.StatusAbnormalOfACSurgeProtector) // Status abnormal of AC surge protector
+								.warningBit(2, WarningEss.CloseOfControlSwitch) // Close of control switch
+								.warningBit(3, WarningEss.EmergencyStop) // Emergency stop
+								.warningBit(5, WarningEss.StatusAbnormalOfFrogDetector) // Status_abnormal_of_frog_detector
+								.warningBit(6, WarningEss.SeriousLeakage) // Serious_leakage
+								.warningBit(7, WarningEss.NormalLeakage)), // Normal_leakage
 						new UnsignedWordElement(0x111, //
-								sysAlarmInfo2 = new StatusBitChannel("SysAlarmInfo2", this)//
-										.label(0, "Failure of temperature sensor in control cabinet") //
-										.label(1, "Close of control switch") //
-						/*
-						 * TODO new OnOffBitItem(9, "Failure_of_humidity_sensor_in_control_cabinet"), //
-						 * new OnOffBitItem(12, "Failure_of_storage_device"), //
-						 * new OnOffBitItem(13, "Exceeding_of_humidity_in_control_cabinet"))));
-						 */
-						)), new ModbusRegisterRange(0x1300, new UnsignedWordElement(0x1300, //
-								batteryStackVoltage = new ModbusReadLongChannel("BatteryStackVoltage", this)
-										.multiplier(2).unit("mV")),
+								new ModbusBitWrappingChannel("SysAlarmInfo2", this, thingState)//
+								.warningBit(0, WarningEss.FailureOfTemperatureSensorInControlCabinet) // Failure of temperature sensor in control cabinet
+								.warningBit(9, WarningEss.FailureOfHumiditySensorInControlCabinet) // Failure_of_humidity_sensor_in_control_cabinet
+								.warningBit(12,WarningEss.FailureOfStorageDevice) // Failure_of_storage_device
+								.warningBit(13,WarningEss.ExceedingOfHumidityInControlCabinet)) // Exceeding_of_humidity_in_control_cabinet
+
+						), new ModbusRegisterRange(0x1300, new UnsignedWordElement(0x1300, //
+								batteryStackVoltage = new ModbusReadLongChannel("BatteryStackVoltage", this).multiplier(2)
+								.unit("mV")),
 								new UnsignedWordElement(0x1301, //
 										batteryStackCurrent = new ModbusReadLongChannel("BatteryStackCurrent", this)
-												.multiplier(2).unit("mA")),
+										.multiplier(2).unit("mA")),
 								new UnsignedWordElement(0x1302, //
-										batteryStackPower = new ModbusReadLongChannel("BatteryStackPower", this)
-												.multiplier(2).unit("W")),
+										batteryStackPower = new ModbusReadLongChannel(
+												"BatteryStackPower", this).multiplier(2).unit("W")),
 								new UnsignedWordElement(0x1303, //
-										batteryStackSoc = soc = new ModbusReadLongChannel("BatteryStackSoc", this)
-												.unit("%")),
+										batteryStackSoc = soc = new ModbusReadLongChannel("BatteryStackSoc", this).unit("%")),
 								new UnsignedWordElement(0x1304, //
 										batteryStackSoh = new ModbusReadLongChannel("BatteryStackSoh", this).unit("%")),
 								new UnsignedWordElement(0x1305, //
@@ -250,15 +243,20 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 										batteryStackTotalCapacity = new ModbusReadLongChannel(
 												"BatteryStackTotalCapacity", this).unit("Wh")),
 								new UnsignedDoublewordElement(0x130A, //
-										batteryStackTotalCharge = new ModbusReadLongChannel("BatteryStackTotalCharge",
-												this).unit("kWh")),
+										batteryStackTotalCharge = new ModbusReadLongChannel("BatteryStackTotalCharge", this)
+										.unit("kWh")),
 								new UnsignedDoublewordElement(0x130C, //
-										batteryStackTotalDischarge = new ModbusReadLongChannel(
-												"BatteryStackTotalDischarge", this).unit("kWh"))));
+										batteryStackTotalDischarge = new ModbusReadLongChannel("BatteryStackTotalDischarge",
+												this).unit("kWh"))));
 	}
 
 	@Override
 	public StaticValueChannel<Long> capacity() {
 		return capacity;
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return thingState;
 	}
 }
