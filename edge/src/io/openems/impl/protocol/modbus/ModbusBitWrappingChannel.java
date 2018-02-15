@@ -20,7 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus;
 
-import io.openems.api.channel.BitToBooleanChannel;
+import io.openems.api.channel.BitToBooleanThingStateChannel;
 import io.openems.api.channel.thingstate.FaultEnum;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.channel.thingstate.WarningEnum;
@@ -36,15 +36,13 @@ public class ModbusBitWrappingChannel extends ModbusReadChannel<Long> {
 		this.thingState = thingStateChannel;
 	}
 
-	public ModbusBitWrappingChannel warningBit(int bitIndex,WarningEnum warningCode) throws ConfigException {
-		thingState.addWarningChannel(
-				new BitToBooleanChannel(warningCode.getChannelId(), this.parent(), this, bitIndex));
+	public ModbusBitWrappingChannel warningBit(int bitIndex, WarningEnum warningCode) throws ConfigException {
+		thingState.addWarningChannel(new BitToBooleanThingStateChannel(warningCode, this.parent(), this, bitIndex));
 		return this;
 	}
 
-	public ModbusBitWrappingChannel faultBit( int bitIndex,FaultEnum faultCode) throws ConfigException {
-		thingState.addFaultChannel(
-				new BitToBooleanChannel(faultCode.getChannelId(), this.parent(), this, bitIndex));
+	public ModbusBitWrappingChannel faultBit(int bitIndex, FaultEnum faultCode) throws ConfigException {
+		thingState.addFaultChannel(new BitToBooleanThingStateChannel(faultCode, this.parent(), this, bitIndex));
 		return this;
 	}
 

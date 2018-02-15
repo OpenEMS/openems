@@ -2,15 +2,16 @@ package io.openems.api.channel;
 
 import java.util.Optional;
 
+import io.openems.api.channel.thingstate.ThingStateEnum;
 import io.openems.api.thing.Thing;
 
-public class BitToBooleanChannel extends ThingStateChannel implements ChannelChangeListener{
+public class BitToBooleanThingStateChannel extends ThingStateChannel implements ChannelChangeListener{
 
 	private ReadChannel<? extends Number> valueChannel;
 	private int bitIndex;
 
-	public BitToBooleanChannel(String id, Thing parent, ReadChannel<? extends Number> channel, int bitIndex){
-		super(id, parent);
+	public BitToBooleanThingStateChannel(ThingStateEnum state, Thing parent, ReadChannel<? extends Number> channel, int bitIndex){
+		super(state.getChannelId(), parent);
 		this.valueChannel = channel;
 		this.valueChannel.addChangeListener(this);
 		this.bitIndex = bitIndex;
