@@ -48,7 +48,7 @@ public class Bem125ktla01 extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Ess", description = "Sets the Ess nature.", type = Bem125ktla01Ess.class)
-	public final ConfigChannel<Bem125ktla01Ess> ess = new ConfigChannel<Bem125ktla01Ess>("ess", this);
+	public final ConfigChannel<Bem125ktla01Ess> ess = new ConfigChannel<Bem125ktla01Ess>("ess", this).addChangeListener(this);
 
 	/*
 	 * Methods

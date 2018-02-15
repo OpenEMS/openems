@@ -27,6 +27,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -38,6 +39,7 @@ import io.openems.core.utilities.SymmetricPower;
 @ThingInfo(title = "Voltage characteristics (Symmetric)")
 public class VoltageCharacteristicController extends Controller {
 
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
@@ -138,6 +140,11 @@ public class VoltageCharacteristicController extends Controller {
 		} catch (InvalidValueException e) {
 			log.error("Failed to read Value.", e);
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

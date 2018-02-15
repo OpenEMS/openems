@@ -20,6 +20,11 @@
  *******************************************************************************/
 package io.openems.api.thing;
 
+import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.thingstate.ThingState;
+import io.openems.api.channel.thingstate.ThingStateChannels;
+import io.openems.api.doc.ChannelInfo;
+
 public interface Thing {
 
 	public String id();
@@ -38,6 +43,21 @@ public interface Thing {
 
 	public default void init() {
 
+	}
+
+	@ChannelInfo(type = ThingState.class)
+	public ThingStateChannels getStateChannel();
+
+	@SuppressWarnings("unchecked")
+	public default ReadChannel<Boolean>[] getFaultChannels(){
+		ThingStateChannels stateChannel = getStateChannel();
+		return stateChannel.getFaultChannels().toArray(new ReadChannel[stateChannel.getFaultChannels().size()]);
+	}
+
+	@SuppressWarnings("unchecked")
+	public default ReadChannel<Boolean>[] getWarningChannels(){
+		ThingStateChannels stateChannel = getStateChannel();
+		return stateChannel.getWarningChannels().toArray(new ReadChannel[stateChannel.getWarningChannels().size()]);
 	}
 
 	/**

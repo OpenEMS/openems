@@ -8,8 +8,8 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
@@ -85,11 +85,6 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 	}
 
 	@Override
-	public StatusBitChannels warning() {
-		return null;
-	}
-
-	@Override
 	public WriteChannel<Long> setWorkState() {
 		return setWorkState;
 	}
@@ -159,6 +154,12 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 
 	@Override
 	public List<BridgeWriteTask> getWriteTasks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
 		// TODO Auto-generated method stub
 		return null;
 	}

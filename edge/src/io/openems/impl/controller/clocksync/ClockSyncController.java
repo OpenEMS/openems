@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -33,6 +34,7 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "Sychronizes system clocks", description = "Synchronizes the sytem clocks of OpenEMS and a connected real-time clock device.")
 public class ClockSyncController extends Controller {
 
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
@@ -81,10 +83,10 @@ public class ClockSyncController extends Controller {
 				if (year < 2016) {
 					// System date is wrong -> set system date from RTC
 					log.info("Setting system time from RTC: " + rtc.id() + ": " + rtcYear.get() + "-" + rtcMonth.get()
-							+ "-" + rtcDay.get() + " " + rtcHour.get() + ":" + rtcMinute.get() + ":" + rtcSecond.get());
+					+ "-" + rtcDay.get() + " " + rtcHour.get() + ":" + rtcMinute.get() + ":" + rtcSecond.get());
 					try {
 						Runtime.getRuntime()
-								.exec(new String[] { "/usr/bin/timedatectl", "set-time", "2016-10-11 13:13:16" });
+						.exec(new String[] { "/usr/bin/timedatectl", "set-time", "2016-10-11 13:13:16" });
 						// process is running in a separate process from now...
 					} catch (IOException e) {
 						log.error("Error while setting system time: ", e);
@@ -110,5 +112,10 @@ public class ClockSyncController extends Controller {
 				isDateSet = true;
 			}
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

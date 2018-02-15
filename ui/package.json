@@ -1,6 +1,6 @@
 {
   "name": "openems-ui",
-  "version": "1.8.0-SNAPSHOT",
+  "version": "2018.1",
   "license": "AGPL",
   "scripts": {
     "ng": "ng",
@@ -15,14 +15,14 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^5.0.0",
-    "@angular/cdk": "5.0.0-rc.2",
+    "@angular/cdk": "^5.0.0",
     "@angular/common": "^5.0.0",
     "@angular/compiler": "^5.0.0",
     "@angular/core": "^5.0.0",
     "@angular/flex-layout": "2.0.0-beta.10-4905443",
     "@angular/forms": "^5.0.0",
     "@angular/http": "^5.0.0",
-    "@angular/material": "5.0.0-rc.2",
+    "@angular/material": "^5.0.0",
     "@angular/platform-browser": "^5.0.0",
     "@angular/platform-browser-dynamic": "^5.0.0",
     "@angular/platform-server": "^5.0.0",
@@ -53,7 +53,6 @@
     "ng2-charts": "^1.6.0",
     "ng2-cookies": "^1.0.12",
     "ngx-loading": "^1.0.9",
-    "queueing-subject": "^0.1.1",
     "roboto-fontface": "0.8.0",
     "rxjs": "^5.5.2",
     "rxjs-websockets": "4.0.0",
@@ -61,7 +60,7 @@
     "zone.js": "^0.8.14"
   },
   "devDependencies": {
-    "@angular/cli": "1.5.5",
+    "@angular/cli": "1.6.0",
     "@angular/compiler-cli": "^5.0.0",
     "@angular/language-service": "^5.0.0",
     "@types/jasmine": "~2.5.53",

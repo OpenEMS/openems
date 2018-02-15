@@ -49,20 +49,20 @@ public class System extends SystemDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "System", description = "Sets the system nature.", type = SystemNature.class)
-	public final ConfigChannel<SystemNature> system = new ConfigChannel<>("system", this);
+	public final ConfigChannel<SystemNature> system = new ConfigChannel<SystemNature>("system", this).addChangeListener(this);
 	@ChannelInfo(title = "Debug", description = "Enables DebugChannels to write into database", type = Boolean.class, isOptional = true, defaultValue = "false")
 	public final ConfigChannel<Boolean> debug = new ConfigChannel<Boolean>("debug", this)
-			.addChangeListener(new ChannelChangeListener() {
+	.addChangeListener(new ChannelChangeListener() {
 
-				@Override
-				public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-					if (newValue.isPresent() && (boolean) newValue.get()) {
-						DebugChannel.enableDebug();
-					} else {
-						DebugChannel.disableDebug();
-					}
-				}
-			});
+		@Override
+		public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+			if (newValue.isPresent() && (boolean) newValue.get()) {
+				DebugChannel.enableDebug();
+			} else {
+				DebugChannel.disableDebug();
+			}
+		}
+	});
 
 	/*
 	 * Methods

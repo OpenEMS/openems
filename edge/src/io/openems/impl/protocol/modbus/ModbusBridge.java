@@ -51,6 +51,10 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 @ThingInfo(title = "Modbus")
 public abstract class ModbusBridge extends Bridge {
 
+	public ModbusBridge() {
+		super();
+	}
+
 	/*
 	 * Abstract Methods
 	 */

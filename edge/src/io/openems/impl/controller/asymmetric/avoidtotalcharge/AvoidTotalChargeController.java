@@ -10,6 +10,7 @@ import java.util.Set;
  */
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -19,6 +20,7 @@ import io.openems.common.session.Role;
 @ThingInfo(title = "Avoid total charge of battery. (Asymmetric)", description = "Provides control over the battery's maximum state of charge at a specific time of day. For symmetric Ess.")
 public class AvoidTotalChargeController extends Controller {
 
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Config
 	 */
@@ -167,5 +169,10 @@ public class AvoidTotalChargeController extends Controller {
 		 * Calculate the value for a phase so that they are balanced.
 		 */
 		return (long) (((double)(gridMeterTotalActivePower + symmetricTotalActivePower) / (double) 3) - gridMeterActivePower);
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

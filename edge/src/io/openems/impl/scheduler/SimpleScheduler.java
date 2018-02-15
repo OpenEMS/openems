@@ -27,6 +27,7 @@ import java.util.List;
 import info.faljse.SDNotify.SDNotify;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.scheduler.Scheduler;
@@ -34,11 +35,13 @@ import io.openems.api.scheduler.Scheduler;
 @ThingInfo(title = "App-Planner")
 public class SimpleScheduler extends Scheduler {
 
+	private ThingStateChannels thingState;
+
 	/*
 	 * Constructors
 	 */
 	public SimpleScheduler() {
-
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -69,6 +72,11 @@ public class SimpleScheduler extends Scheduler {
 	@Override
 	protected boolean initialize() {
 		return true;
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

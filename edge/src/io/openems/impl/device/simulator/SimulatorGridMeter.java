@@ -15,6 +15,7 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
@@ -59,9 +60,11 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 	private List<MeterNature> meterNatures = new ArrayList<>();
 	private LoadGenerator activePowerLoad;
 	private LoadGenerator reactivePowerLoad;
+	private ThingStateChannels thingState;
 
 	public SimulatorGridMeter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannels(this);
 		repo.addThingChangedListener(new ThingsChangedListener() {
 
 			@Override
@@ -370,6 +373,11 @@ public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeL
 	public ReadChannel<Long> voltageL3() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

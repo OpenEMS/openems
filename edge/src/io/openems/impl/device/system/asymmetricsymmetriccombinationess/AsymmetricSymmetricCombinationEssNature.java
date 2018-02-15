@@ -15,8 +15,8 @@ import io.openems.api.channel.FunctionalWriteChannel;
 import io.openems.api.channel.FunctionalWriteChannelFunction;
 import io.openems.api.channel.ProxyReadChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
@@ -46,6 +46,8 @@ implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener, Bridg
 	private AsymmetricEssNature essNature;
 	private ThingRepository repo;
 	private List<ThingChannelsUpdatedListener> listeners;
+
+	private ThingStateChannels state = new ThingStateChannels(this);
 
 	private ProxyReadChannel<Long> gridMode = new ProxyReadChannel<>("GridMode", this);
 	private ProxyReadChannel<Long> soc = new ProxyReadChannel<>("Soc", this);
@@ -907,11 +909,6 @@ implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener, Bridg
 	}
 
 	@Override
-	public StatusBitChannels warning() {
-		return null;
-	}
-
-	@Override
 	public WriteChannel<Long> setWorkState() {
 		return setWorkState;
 	}
@@ -1480,6 +1477,11 @@ implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener, Bridg
 	@Override
 	public void onBridgeInitialized() {
 		loadEss();
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.state;
 	}
 
 }

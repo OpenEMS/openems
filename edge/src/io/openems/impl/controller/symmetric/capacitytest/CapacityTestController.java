@@ -30,6 +30,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -40,6 +41,7 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "Battery capacity test (Symmetric)", description = "Executes a capacity test. For symmetric Ess.")
 public class CapacityTestController extends Controller {
 
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
@@ -144,6 +146,11 @@ public class CapacityTestController extends Controller {
 				log.error(e.getMessage());
 			}
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

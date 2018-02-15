@@ -57,7 +57,7 @@ public class Keba extends KebaDevice {
 	public ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this);
 
 	@ChannelInfo(title = "evcs", description = "Sets the EVCS nature.", type = KebaEvcs.class)
-	public final ConfigChannel<KebaEvcs> evcs = new ConfigChannel<KebaEvcs>("evcs", this);
+	public final ConfigChannel<KebaEvcs> evcs = new ConfigChannel<KebaEvcs>("evcs", this).addChangeListener(this);
 
 	/*
 	 * Methods

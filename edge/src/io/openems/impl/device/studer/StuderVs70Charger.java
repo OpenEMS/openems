@@ -3,6 +3,7 @@ package io.openems.impl.device.studer;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -15,11 +16,14 @@ import io.openems.impl.protocol.studer.internal.object.IntParameterObject;
 @ThingInfo(title = "Studer VS-70 Charger")
 public class StuderVs70Charger extends StuderDeviceNature {
 
+	private ThingStateChannels thingState;
+
 	/*
 	 * Constructors
 	 */
 	public StuderVs70Charger(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -74,6 +78,11 @@ public class StuderVs70Charger extends StuderDeviceNature {
 		@SuppressWarnings("unchecked") ReadChannel<Float> batteryVoltage = (ReadChannel<Float>) vBatt.value().channel();
 		this.batteryVoltage = batteryVoltage;
 		return p;
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

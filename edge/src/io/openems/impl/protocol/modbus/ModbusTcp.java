@@ -33,9 +33,11 @@ import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.StaticThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
+import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.OpenemsModbusException;
 
@@ -54,11 +56,11 @@ public class ModbusTcp extends ModbusBridge {
 	 */
 	@ChannelInfo(title = "IP address", description = "Sets the IP address (e.g. 10.0.0.15).", type = Inet4Address.class)
 	public final ConfigChannel<Inet4Address> ip = new ConfigChannel<Inet4Address>("ip", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	@ChannelInfo(title = "Port", description = "Sets the port (e.g. 502).", type = Integer.class, defaultValue = "502")
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this)
-			.addUpdateListener(channelUpdateListener);
+	.addUpdateListener(channelUpdateListener);
 
 	/*
 	 * Fields
@@ -66,6 +68,16 @@ public class ModbusTcp extends ModbusBridge {
 
 	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
 	private Optional<TCPMasterConnection> connection = Optional.empty();
+	private StaticThingStateChannel configurationFault;
+	private StaticThingStateChannel connectionFault;
+
+	public ModbusTcp() throws ConfigException {
+		super();
+		this.configurationFault = new StaticThingStateChannel(FaultModbus.ConfigurationFault, this, false);
+		super.thingState.addFaultChannel(this.configurationFault);
+		this.connectionFault = new StaticThingStateChannel(FaultModbus.ConnectionFault, this, false);
+		super.thingState.addFaultChannel(this.connectionFault);
+	}
 
 	/*
 	 * Methods
@@ -124,7 +136,9 @@ public class ModbusTcp extends ModbusBridge {
 				TCPMasterConnection tcpCon = new TCPMasterConnection(ip.value());
 				tcpCon.setPort(port.valueOptional().orElse(502));
 				connection = Optional.of(tcpCon);
+				this.configurationFault.setValue(false);
 			} catch (InvalidValueException e) {
+				this.configurationFault.setValue(true);
 				throw new OpenemsModbusException("Modbus-TCP is not configured completely");
 			}
 		}
@@ -133,7 +147,9 @@ public class ModbusTcp extends ModbusBridge {
 				TCPMasterConnection tcpCon = connection.get();
 				tcpCon.connect();
 				tcpCon.getModbusTransport().setTimeout(1000);
+				this.connectionFault.setValue(false);
 			} catch (Exception e) {
+				this.connectionFault.setValue(true);
 				throw new OpenemsModbusException("Unable to open Modbus-TCP connection: " + ip.valueOptional().get());
 			}
 		}

@@ -1,28 +1,6 @@
 {
 	"things": [
 		{
-			"class": "io.openems.impl.protocol.system.SystemBridge",
-			"devices": [
-				{
-					"class": "io.openems.impl.device.system.System",
-					"system": {
-						"id": "system0",
-						"class": "io.openems.impl.device.system.SystemNature"
-					}
-				},
-				{
-					"class": "io.openems.impl.device.system.asymmetricsymmetriccombinationess.AsymmetricSymmetricCombinationEss",
-					"wrapper": {
-						"id": "ess1",
-						"class": "io.openems.impl.device.system.asymmetricsymmetriccombinationess.AsymmetricSymmetricCombinationEssNature",
-						"ess": "ess0",
-						"chargeSoc": 0,
-						"minSoc": 0
-					}
-				}
-			]
-		},
-		{
 			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
 			"serialinterface": "/dev/ttyUSB0",
 			"baudrate": 9600,
@@ -48,6 +26,13 @@
 						"id": "meter0",
 						"type": "grid"
 					}
+				},
+				{
+					"class": "io.openems.impl.device.kmtronic.KMTronicRelayRev1",
+					"output": {
+					"id": "output0"
+					},
+					"modbusUnitId": 1
 				}
 			]
 		}
@@ -58,13 +43,8 @@
 			{
 				"priority": 150,
 				"class": "io.openems.impl.controller.debuglog.DebugLogController",
-				"esss": [
-					"ess0"
-				],
-				"meters": [
-					"meter0",
-					"meter1"
-				],
+				"esss": [ "ess0" ],
+				"meters": [ "meter0", "meter1" ],
 				"rtc": "ess0"
 			},
 			{
@@ -74,21 +54,41 @@
 			},
 			{
 				"priority": 50,
-				"class": "io.openems.impl.controller.symmetric.balancing.BalancingController",
-				"esss": "ess1",
+				"class": "io.openems.impl.controller.asymmetric.balancing.BalancingController",
+				"esss": "ess0",
 				"meter": "meter0"
-			},
-			{
-				"class": "io.openems.impl.controller.systemstate.alwayson.AlwaysOnController",
-				"priority": 0,
-				"esss": [
-					"ess0"
-				]
 			},
 			{
 				"priority": 1,
 				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
 				"rtc": "ess0"
+			},
+			{
+				"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+				"priority": 60,
+				"thresholdChannelAddress": "ess0/Soc",
+				"outputChannelAddress": "output0/2",
+				"lowerThreshold": 92,
+				"upperThreshold": 100,
+				"hysteresis": 5
+			},
+			{
+				"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+				"priority": 59,
+				"thresholdChannelAddress": "ess0/Soc",
+				"outputChannelAddress": "output0/3",
+				"lowerThreshold": 94,
+				"upperThreshold": 100,
+				"hysteresis": 5
+			},
+			{
+				"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+				"priority": 58,
+				"thresholdChannelAddress": "ess0/Soc",
+				"outputChannelAddress": "output0/4",
+				"lowerThreshold": 96,
+				"upperThreshold": 100,
+				"hysteresis": 5
 			}
 		]
 	},
@@ -96,11 +96,12 @@
 		{
 			"class": "io.openems.impl.persistence.influxdb.InfluxdbPersistence",
 			"ip": "127.0.0.1",
-			"fems": 0
+			"fems": "###FEMS_ID###"
 		},
 		{
 			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
-			"apikey": ""
+			"apikey": "###APIKEY###"
 		}
-	]
+	]	
 }
+

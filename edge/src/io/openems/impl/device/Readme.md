@@ -13,6 +13,7 @@
 * [KMTronic Relay board Output](kmtronic/Readme.md)
 * [KEBA KeContact EVCS](keba/Readme.md)
 * [Custom: Riedmann PLC](custom/riedmann/Readme.md)
+* [FENECON Pro ESS](pro/Readme.md)
 * [Simulated Grid Meter](simulator/Readme.md)
 * [Simulator Output](simulator/Readme.md)
 * [FENECON Commercial ESS](commercial/Readme.md)
