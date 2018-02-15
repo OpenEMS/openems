@@ -16,14 +16,14 @@ public class OdooUtils {
 	private OdooUtils() {
 	}
 
-	private static Object[] executeKw(String url, Object[] params) throws XmlRpcException, MalformedURLException {
+	private static Object executeKw(String url, Object[] params) throws XmlRpcException, MalformedURLException {
 		final XmlRpcClient client = new XmlRpcClient();
 		XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
 		config.setEnabledForExtensions(true);
 		config.setServerURL(new URL(String.format("%s/xmlrpc/2/object", url)));
 		config.setReplyTimeout(5000);
 		client.setConfig(config);
-		return (Object[]) client.execute("execute_kw", params);
+		return client.execute("execute_kw", params);
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class OdooUtils {
 		Object[] params = new Object[] { database, uid, password, model, action, paramsDomain, paramsRules };
 		try {
 			// Execute XML request
-			Object[] resultObjs = executeKw(url, params);
+			Object[] resultObjs = (Object[]) executeKw(url, params);
 			// Parse results
 			int[] results = new int[resultObjs.length];
 			for (int i = 0; i < resultObjs.length; i++) {
@@ -92,7 +92,7 @@ public class OdooUtils {
 	 * @throws OpenemsException
 	 */
 	protected static Map<String, Object> readOne(String url, String database, int uid, String password, String model,
-			int id, Fields... fields) throws OpenemsException {
+			int id, Field... fields) throws OpenemsException {
 		// Create request params
 		String action = "read";
 		// Add ids
@@ -109,7 +109,7 @@ public class OdooUtils {
 		Object[] params = new Object[] { database, uid, password, model, action, paramsIds, paramsFields };
 		try {
 			// Execute XML request
-			Object[] resultObjs = executeKw(url, params);
+			Object[] resultObjs = (Object[]) executeKw(url, params);
 			// Parse results
 			for (int i = 0; i < resultObjs.length;) {
 				@SuppressWarnings("unchecked")
@@ -118,7 +118,7 @@ public class OdooUtils {
 			}
 			throw new OpenemsException("No matching entry found for id [" + id + "]");
 		} catch (Throwable e) {
-			throw new OpenemsException("Unable to search from Odoo: " + e.getMessage());
+			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
 		}
 	}
 
@@ -143,7 +143,7 @@ public class OdooUtils {
 	 * @throws OpenemsException
 	 */
 	protected static Map<String, Object>[] readMany(String url, String database, int uid, String password, String model,
-			int[] ids, Fields... fields) throws OpenemsException {
+			int[] ids, Field... fields) throws OpenemsException {
 		// Create request params
 		String action = "read";
 		// Add ids
@@ -162,7 +162,7 @@ public class OdooUtils {
 		Object[] params = new Object[] { database, uid, password, model, action, paramsIds, paramsFields };
 		try {
 			// Execute XML request
-			Object[] resultObjs = executeKw(url, params);
+			Object[] resultObjs = (Object[]) executeKw(url, params);
 			// Parse results
 			@SuppressWarnings("unchecked")
 			Map<String, Object>[] results = (Map<String, Object>[]) new Map[resultObjs.length];
@@ -173,7 +173,53 @@ public class OdooUtils {
 			}
 			return results;
 		} catch (Throwable e) {
-			throw new OpenemsException("Unable to search from Odoo: " + e.getMessage());
+			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Update a record in Odoo
+	 * 
+	 * @param url
+	 *            URL of Odoo instance
+	 * @param database
+	 *            Database name
+	 * @param uid
+	 *            UID of user (e.g. '1' for admin)
+	 * @param password
+	 *            Password of user
+	 * @param model
+	 *            Odoo model to query (e.g. 'res.partner')
+	 * @param id
+	 *            id of model to update
+	 * @param fieldValues
+	 *            fields and values that should be written
+	 * @return
+	 * @throws OpenemsException
+	 */
+	protected static void write(String url, String database, int uid, String password, String model, int id,
+			FieldValue... fieldValues) throws OpenemsException {
+		// Create request params
+		String action = "write";
+		// Add ids
+		Object[] paramsIds = new Object[1];
+		paramsIds[0] = id;
+		// Add fieldValues
+		Map<String, String> paramsFieldValues = new HashMap<>();
+		for (FieldValue fieldValue : fieldValues) {
+			paramsFieldValues.put(fieldValue.getField().n(), fieldValue.getValue());
+		}
+		// Create request params
+		Object[] params = new Object[] { database, uid, password, model, action,
+				new Object[] { paramsIds, paramsFieldValues } };
+		try {
+			// Execute XML request
+			Boolean resultObj = (Boolean) executeKw(url, params);
+			if(!resultObj) {
+				throw new OpenemsException("Returned False.");
+			}
+		} catch (Throwable e) {
+			throw new OpenemsException("Unable to write to Odoo: " + e.getMessage());
 		}
 	}
 }

@@ -24,6 +24,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -157,10 +158,11 @@ public class Odoo implements MetadataService {
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
 		try {
+			// TODO use Odoo "search_read" method
 			int[] edgeIds = OdooUtils.search(this.url, this.database, this.uid, this.password, "fems.device",
 					new Domain("apikey", "=", apikey));
 			// refresh Edge cache
-			for(int edgeId : edgeIds) {
+			for (int edgeId : edgeIds) {
 				this.getEdgeForceRefresh(edgeId);
 			}
 			return edgeIds;
@@ -191,13 +193,13 @@ public class Odoo implements MetadataService {
 	private Optional<Edge> getEdgeForceRefresh(int edgeId) {
 		try {
 			Map<String, Object> edgeMap = OdooUtils.readOne(this.url, this.database, this.uid, this.password,
-					"fems.device", edgeId, Fields.FemsDevice.NAME, Fields.FemsDevice.COMMENT,
-					Fields.FemsDevice.PRODUCT_TYPE);
+					"fems.device", edgeId, Field.FemsDevice.NAME, Field.FemsDevice.COMMENT,
+					Field.FemsDevice.PRODUCT_TYPE);
 			Edge edge = new Edge( //
-					(Integer) edgeMap.get(Fields.FemsDevice.ID.n()), //
-					(String) edgeMap.get(Fields.FemsDevice.NAME.n()), //
-					(String) edgeMap.get(Fields.FemsDevice.COMMENT.n()), //
-					(String) edgeMap.get(Fields.FemsDevice.PRODUCT_TYPE.n()));
+					(Integer) edgeMap.get(Field.FemsDevice.ID.n()), //
+					(String) edgeMap.get(Field.FemsDevice.NAME.n()), //
+					(String) edgeMap.get(Field.FemsDevice.COMMENT.n()), //
+					(String) edgeMap.get(Field.FemsDevice.PRODUCT_TYPE.n()));
 			edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
 			// store in cache
 			synchronized (this.edges) {
@@ -205,15 +207,21 @@ public class Odoo implements MetadataService {
 			}
 			return Optional.ofNullable(edge);
 		} catch (OpenemsException e) {
-			log.error("Unable to read Edge for id [" + edgeId + "]: " + e.getMessage());
+			log.error("Unable to read Edge [ID:" + edgeId + "]: " + e.getMessage());
 			return Optional.empty();
 		}
 	}
 
 	@Override
 	public void updateEdgeConfig(int edgeId, JsonObject jConfig) {
-		// TODO Auto-generated method stub
-		log.info("TODO: updateEdgeConfig");
+		try {
+			String config = new GsonBuilder().setPrettyPrinting().create().toJson(jConfig);	
+			OdooUtils.write(this.url, this.database, this.uid, this.password, "fems.device", edgeId,
+					new FieldValue(Field.FemsDevice.OPENEMS_CONFIG, config));
+			log.info("Updated Edge config [ID:" + edgeId + "]");
+		} catch (OpenemsException e) {
+			log.error("Unable to update Edge config [ID:" + edgeId + "]: " + e.getMessage());
+		}
 	}
 
 	// public Optional<User> getUser(int id) {
