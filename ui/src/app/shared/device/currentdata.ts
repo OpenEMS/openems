@@ -77,15 +77,25 @@ export class CurrentDataAndSummary {
             }
             if (activePowerDC != null) {
                 if (activePowerDC > 0) {
-                    result.storage.chargeActivePowerDC = 0;
-                    result.storage.dischargeActivePowerDC = activePowerDC;
-                } else {
-                    result.storage.chargeActivePowerDC = activePowerDC * -1;
+                    result.storage.chargeActivePowerDC = activePowerDC;
                     result.storage.dischargeActivePowerDC = 0;
+                } else {
+                    result.storage.chargeActivePowerDC = 0;
+                    result.storage.dischargeActivePowerDC = activePowerDC * -1;
                 }
             }
-            result.storage.chargeActivePower = Utils.addSafely(result.storage.chargeActivePowerAC, result.storage.chargeActivePowerDC);
-            result.storage.dischargeActivePower = Utils.addSafely(result.storage.dischargeActivePowerAC, result.storage.dischargeActivePowerDC);
+            let activePower = Utils.subtractSafely(
+                Utils.addSafely(result.storage.chargeActivePowerAC, result.storage.chargeActivePowerDC),
+                Utils.addSafely(result.storage.dischargeActivePowerAC, result.storage.dischargeActivePowerDC));
+            if (activePower != null) {
+                if (activePower > 0) {
+                    result.storage.chargeActivePower = activePower;
+                    result.storage.dischargeActivePower = 0;
+                } else {
+                    result.storage.chargeActivePower = 0;
+                    result.storage.dischargeActivePower = activePower * -1;
+                }
+            }
         }
 
         {
