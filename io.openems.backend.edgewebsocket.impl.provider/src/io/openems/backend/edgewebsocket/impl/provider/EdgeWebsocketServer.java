@@ -138,7 +138,7 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 					}
 				}
 			} catch (OpenemsException e) {
-				log.error("Device [IDs:" + edgeIds + "] sent config. Unable to parse: " + e.getMessage());
+				log.error("Edge [IDs:" + edgeIds + "] sent config. Unable to parse: " + e.getMessage());
 			}
 		}
 

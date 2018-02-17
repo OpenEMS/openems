@@ -68,7 +68,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				this.websocketsMap.put(uuid, websocket);
 			}
 			// store userId together with the websocket
-			websocket.setAttachment(user.getId());
+			websocket.setAttachment(new WebsocketData(user.getId(), uuid));
 
 			// send connection successful to browser
 			JsonArray jEdges = new JsonArray();
@@ -98,14 +98,26 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 
 	@Override
 	protected void _onClose(WebSocket websocket) {
-		log.info("UiWebsocketServer: On Close");
+		// get current User
+		WebsocketData data = websocket.getAttachment();
+		Optional<User> userOpt = this.parent.metadataService.getUser(data.getUserId());
+		if (userOpt.isPresent()) {
+			log.info("User [" + userOpt.get().getName() + "] disconnected.");
+		} else {
+			log.info("User [ID:" + data.getUserId() + "] disconnected.");
+		}
+		// remove websocket from local cache
+		synchronized (this.websocketsMap) {
+			this.websocketsMap.remove(data.getUuid());
+		}
 	}
 
 	@Override
 	protected void _onMessage(WebSocket websocket, JsonObject jMessage) {
 		// get current User
-		int userId = websocket.getAttachment();
-
+		WebsocketData data = websocket.getAttachment();
+		int userId = data.getUserId();
+		
 		// get MessageId from message
 		Optional<String> messageIdOpt = JsonUtils.getAsOptionalString(jMessage, "messageId");
 
