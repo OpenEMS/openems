@@ -2,6 +2,7 @@ package io.openems.backend.metadata.api;
 
 import java.util.Collections;
 import java.util.NavigableMap;
+import java.util.Optional;
 import java.util.TreeMap;
 
 public class User {
@@ -28,6 +29,10 @@ public class User {
 	
 	public NavigableMap<Integer, Role> getEdgeRoles() {
 		return Collections.unmodifiableNavigableMap(this.edgeRoles);
+	}
+	
+	public Optional<Role> getEdgeRole(int edgeId) {
+		return Optional.ofNullable(this.edgeRoles.get(edgeId));
 	}
 
 	@Override
