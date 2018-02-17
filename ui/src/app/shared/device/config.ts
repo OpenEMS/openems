@@ -143,9 +143,20 @@ export class ConfigImpl implements DefaultTypes.Config {
         this.evcsDevices = evcsDevices;
     }
 
+    public getStateChannels(): DefaultTypes.ChannelAddresses {
+        let result: DefaultTypes.ChannelAddresses = {}
+
+        // Set "ignoreNatures"
+        for (let thingId in this.config.things) {
+            result[thingId] = ["State"];
+        }
+        return result;
+    }
+
+
     /**
-  * Return ChannelAddresses of power channels
-  */
+    * Return ChannelAddresses of power channels
+    */
     public getPowerChannels(): DefaultTypes.ChannelAddresses {
         let ignoreNatures = { EssClusterNature: true };
         let result: DefaultTypes.ChannelAddresses = {}
@@ -234,6 +245,7 @@ export class ConfigImpl implements DefaultTypes.Config {
             }
         }
         // basic channels
+        merge(this.getStateChannels());
         merge(this.getPowerChannels());
         merge(this.getEssSocChannels());
         // widget channels
