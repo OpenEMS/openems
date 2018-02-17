@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -9,7 +8,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.DeviceImpl;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
@@ -24,6 +22,7 @@ public class DefaultMessages {
 	 *			token: String
 	 *		}, metadata: {
 	 *			devices: [{
+	 *				id: number
 	 *				name: String,
 	 *				comment: String,
 	 *				producttype: String,
@@ -50,7 +49,7 @@ public class DefaultMessages {
 		JsonObject j = new JsonObject();
 		j.add("authenticate", jAuthenticate);
 		JsonObject jMetadata = new JsonObject();
-		jMetadata.add("devices", jEdges);
+		jMetadata.add("edges", jEdges);
 		j.add("metadata", jMetadata);
 		return j;
 	}
@@ -162,8 +161,9 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject configQueryReply(JsonObject config) {
+	public static JsonObject configQueryReply(String messageId, JsonObject config) {
 		JsonObject j = new JsonObject();
+		j.addProperty("messageId", messageId);
 		j.add("config", config);
 		return j;
 	}

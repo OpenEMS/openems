@@ -81,6 +81,7 @@ export module DefaultTypes {
   }
 
   export interface MessageMetadataDevice {
+    id: number,
     name: string,
     comment: string,
     producttype: string,

@@ -26,12 +26,13 @@ export class Log {
 export class Device {
 
   constructor(
+    public readonly id: number,
     public readonly name: string,
     public readonly comment: string,
     public readonly producttype: string,
     public readonly role: Role,
     public online: boolean,
-    private replyStreams: { [id: string]: Subject<DefaultMessages.Reply> },
+    private replyStreams: { [messageId: string]: Subject<DefaultMessages.Reply> },
     private websocket: Websocket
   ) {
     // prepare stream/obersable for currentData
@@ -74,8 +75,8 @@ export class Device {
    * Refresh the config
    */
   public refreshConfig(): BehaviorSubject<ConfigImpl> {
-    let message = DefaultMessages.configQuery();
-    let messageId = message.id[0];
+    let message = DefaultMessages.configQuery(this.id);
+    let messageId = message.messageId;
     this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
     this.send(message);
     // wait for reply
@@ -94,7 +95,7 @@ export class Device {
    * Sends a message to websocket
    */
   public send(value: any): void {
-    this.websocket.send(value, this);
+    this.websocket.send(value);
   }
 
   /**

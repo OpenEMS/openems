@@ -23,10 +23,10 @@ export class DefaultMessages {
         };
     };
 
-    public static configQuery() {
+    public static configQuery(edgeId: number) {
         return {
-            device: String,
-            id: [UUID.UUID()],
+            messageId: UUID.UUID(),
+            edgeId: edgeId,
             config: {
                 mode: "query",
                 language: 'de'
