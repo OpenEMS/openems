@@ -4,7 +4,11 @@ public interface Field {
 	public String n();
 
 	public enum FemsDevice implements Field {
-		ID("id"), NAME("name"), COMMENT("comment"), PRODUCT_TYPE("producttype"), OPENEMS_CONFIG("openems_config");
+		ID("id"), //
+		NAME("name"), //
+		COMMENT("comment"), //
+		PRODUCT_TYPE("producttype"), //
+		OPENEMS_CONFIG("openems_config");
 
 		private final String n;
 

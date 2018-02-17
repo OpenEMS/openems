@@ -130,7 +130,12 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			try {
 				JsonObject jConfig = JsonUtils.getAsJsonObject(jMessage, "config");
 				for (int edgeId : edgeIds) {
-					this.parent.metadataService.updateEdgeConfig(edgeId, jConfig);
+					Optional<Edge> edgeOpt = this.parent.metadataService.getEdge(edgeId);
+					if(!edgeOpt.isPresent()) {
+						// TODO error unable to find Edge from ID
+					} else {
+						edgeOpt.get().setConfig(jConfig);
+					}
 				}
 			} catch (OpenemsException e) {
 				log.error("Device [IDs:" + edgeIds + "] sent config. Unable to parse: " + e.getMessage());

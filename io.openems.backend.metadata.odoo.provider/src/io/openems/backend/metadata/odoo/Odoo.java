@@ -90,7 +90,7 @@ public class Odoo implements MetadataService {
 	 * @throws OpenemsException
 	 */
 	@Override
-	public User getUserWithSession(String sessionId) throws OpenemsException {
+	public Optional<User> getUserWithSession(String sessionId) {
 		HttpURLConnection connection = null;
 		try {
 			// send request to Odoo
@@ -142,17 +142,19 @@ public class Odoo implements MetadataService {
 					synchronized (this.users) {
 						this.users.put(user.getId(), user);
 					}
-					return user;
+					return Optional.of(user);
 				}
 			}
 		} catch (IOException e) {
-			throw new OpenemsException("IOException while reading from Odoo: " + e.getMessage());
+			log.error("IOException while reading from Odoo: " + e.getMessage());
+		} catch (OpenemsException e) {
+			log.error("OpenemsException while reading from Odoo: " + e.getMessage());
 		} finally {
 			if (connection != null) {
 				connection.disconnect();
 			}
 		}
-		throw new OpenemsException("No result from Odoo");
+		return Optional.empty();
 	}
 
 	@Override
@@ -184,6 +186,14 @@ public class Odoo implements MetadataService {
 		return this.getEdgeForceRefresh(edgeId);
 	}
 
+	@Override
+	public Optional<User> getUser(int userId) {
+		// try to read from cache
+		synchronized (this.users) {
+			return Optional.ofNullable(this.users.get(userId));
+		}
+	}
+
 	/**
 	 * Reads the Edge object from Odoo and stores it in the cache
 	 * 
@@ -194,12 +204,27 @@ public class Odoo implements MetadataService {
 		try {
 			Map<String, Object> edgeMap = OdooUtils.readOne(this.url, this.database, this.uid, this.password,
 					"fems.device", edgeId, Field.FemsDevice.NAME, Field.FemsDevice.COMMENT,
-					Field.FemsDevice.PRODUCT_TYPE);
+					Field.FemsDevice.PRODUCT_TYPE, Field.FemsDevice.OPENEMS_CONFIG);
 			Edge edge = new Edge( //
 					(Integer) edgeMap.get(Field.FemsDevice.ID.n()), //
 					(String) edgeMap.get(Field.FemsDevice.NAME.n()), //
 					(String) edgeMap.get(Field.FemsDevice.COMMENT.n()), //
-					(String) edgeMap.get(Field.FemsDevice.PRODUCT_TYPE.n()));
+					(String) edgeMap.get(Field.FemsDevice.PRODUCT_TYPE.n()), //
+					JsonUtils.getAsJsonObject(
+							JsonUtils.parse((String) edgeMap.get(Field.FemsDevice.OPENEMS_CONFIG.n()))));
+			edge.onSetConfig(jConfig -> {
+				/*
+				 * Update Edge config in Odoo
+				 */
+				try {
+					String config = new GsonBuilder().setPrettyPrinting().create().toJson(jConfig);
+					OdooUtils.write(this.url, this.database, this.uid, this.password, "fems.device", edgeId,
+							new FieldValue(Field.FemsDevice.OPENEMS_CONFIG, config));
+					log.info("Updated Edge config [" + edge.getName() + "]");
+				} catch (OpenemsException e) {
+					log.error("Unable to update Edge config [ID:" + edge.getName() + "]: " + e.getMessage());
+				}
+			});
 			edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
 			// store in cache
 			synchronized (this.edges) {
@@ -209,18 +234,6 @@ public class Odoo implements MetadataService {
 		} catch (OpenemsException e) {
 			log.error("Unable to read Edge [ID:" + edgeId + "]: " + e.getMessage());
 			return Optional.empty();
-		}
-	}
-
-	@Override
-	public void updateEdgeConfig(int edgeId, JsonObject jConfig) {
-		try {
-			String config = new GsonBuilder().setPrettyPrinting().create().toJson(jConfig);	
-			OdooUtils.write(this.url, this.database, this.uid, this.password, "fems.device", edgeId,
-					new FieldValue(Field.FemsDevice.OPENEMS_CONFIG, config));
-			log.info("Updated Edge config [ID:" + edgeId + "]");
-		} catch (OpenemsException e) {
-			log.error("Unable to update Edge config [ID:" + edgeId + "]: " + e.getMessage());
 		}
 	}
 
