@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.api;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import com.google.gson.JsonObject;
@@ -10,6 +12,7 @@ public class Edge {
 	private String comment;
 	private String producttype;
 	private JsonObject jConfig;
+	private ZonedDateTime lastMessage = null;
 	private boolean isOnline;
 
 	public Edge(int id, String name, String comment, String producttype, JsonObject jConfig) {
@@ -70,5 +73,18 @@ public class Edge {
 	public String toString() {
 		return "Edge [id=" + id + ", name=" + name + ", comment=" + comment + ", producttype=" + producttype
 				+ ", isOnline=" + isOnline + "]";
+	}
+
+	private Optional<OnSetLastMessage> onSetLastMessage = Optional.empty();
+
+	public void onSetLastMessage(OnSetLastMessage listener) {
+		this.onSetLastMessage = Optional.of(listener);
+	}
+	
+	public void setLastMessage() {
+		this.lastMessage = ZonedDateTime.now(ZoneOffset.UTC);
+		if (this.onSetLastMessage.isPresent()) {
+			this.onSetLastMessage.get().call(this.lastMessage);
+		}
 	}
 }

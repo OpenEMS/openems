@@ -222,7 +222,19 @@ public class Odoo implements MetadataService {
 							new FieldValue(Field.FemsDevice.OPENEMS_CONFIG, config));
 					log.info("Updated Edge config [" + edge.getName() + "]");
 				} catch (OpenemsException e) {
-					log.error("Unable to update Edge config [ID:" + edge.getName() + "]: " + e.getMessage());
+					log.error("Unable to update Edge [ID:" + edge.getName() + "] config: " + e.getMessage());
+				}
+			});
+			edge.onSetLastMessage(time -> {
+				/*
+				 * Set LastMessage timestamp in Odoo
+				 */
+				// TODO only fire once per minute
+				try {
+					OdooUtils.write(this.url, this.database, this.uid, this.password, "fems.device", edge.getId(),
+							new FieldValue(Field.FemsDevice.LAST_MESSAGE, OdooUtils.DATETIME_FORMATTER.format(time)));
+				} catch (OpenemsException e) {
+					log.error("Unable to update Edge [ID:" + edge.getName() + "] lastMessage: " + e.getMessage());
 				}
 			});
 			edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));

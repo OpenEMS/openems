@@ -8,7 +8,8 @@ public interface Field {
 		NAME("name"), //
 		COMMENT("comment"), //
 		PRODUCT_TYPE("producttype"), //
-		OPENEMS_CONFIG("openems_config");
+		OPENEMS_CONFIG("openems_config"), //
+		LAST_MESSAGE("lastmessage");
 
 		private final String n;
 

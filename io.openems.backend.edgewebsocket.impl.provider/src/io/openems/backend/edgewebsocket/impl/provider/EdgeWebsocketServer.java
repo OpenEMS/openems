@@ -126,19 +126,16 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 		/*
 		 * Config? -> store in Metadata
 		 */
-		if (jMessage.has("config")) {
-			try {
-				JsonObject jConfig = JsonUtils.getAsJsonObject(jMessage, "config");
-				for (int edgeId : edgeIds) {
-					Optional<Edge> edgeOpt = this.parent.metadataService.getEdge(edgeId);
-					if(!edgeOpt.isPresent()) {
-						// TODO error unable to find Edge from ID
-					} else {
-						edgeOpt.get().setConfig(jConfig);
-					}
+		Optional<JsonObject> jConfigOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "config");
+		if (jConfigOpt.isPresent()) {
+			JsonObject jConfig = jConfigOpt.get();
+			for (int edgeId : edgeIds) {
+				Optional<Edge> edgeOpt = this.parent.metadataService.getEdge(edgeId);
+				if (!edgeOpt.isPresent()) {
+					// TODO error unable to find Edge from ID
+				} else {
+					edgeOpt.get().setConfig(jConfig);
 				}
-			} catch (OpenemsException e) {
-				log.error("Edge [IDs:" + edgeIds + "] sent config. Unable to parse: " + e.getMessage());
 			}
 		}
 
@@ -154,9 +151,9 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 		/*
 		 * New timestamped data
 		 */
-		if (jMessage.has("timedata")) {
-			log.info("TODO: timedata");
-			// TODO timedata(devices, jMessage.get("timedata"));
+		Optional<JsonObject> jTimedataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "timedata");
+		if (jTimedataOpt.isPresent()) {
+			timedata(edgeIds, jTimedataOpt.get());
 		}
 	}
 
@@ -198,5 +195,70 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 
 	public boolean isOnline(int edgeId) {
 		return this.websocketsMap.containsKey(edgeId);
+	}
+
+	private void timedata(int[] edgeIds, JsonObject jTimedata) {
+		for (int edgeId : edgeIds) {
+			Optional<Edge> edgeOpt = this.parent.metadataService.getEdge(edgeId);
+			if (edgeOpt.isPresent()) {
+				/*
+				 * write data to timedataService
+				 */
+				Edge edge = edgeOpt.get();
+				try {
+					this.parent.timedataService.write(edgeId, jTimedata);
+					log.debug("Edge [" + edge.getName() + "] wrote " + jTimedata.entrySet().size() + " timestamps "
+							+ StringUtils.toShortString(jTimedata, 120));
+				} catch (Exception e) {
+					log.error("Unable to write Timedata: ", e);
+				}
+				/*
+				 * set last update timestamps in MetadataService
+				 */
+				edge.setLastMessage();
+			}
+		}
+
+		// TODO
+		// try {
+		// for (Entry<String, JsonElement> jTimedataEntry : jTimedata.entrySet()) {
+		// try {
+		// JsonObject jChannels = JsonUtils.getAsJsonObject(jTimedataEntry.getValue());
+		//
+		// // set Odoo last update timestamp only for those channels
+		// for (String channel : jChannels.keySet()) {
+		// if (channel.endsWith("ActivePower")
+		// || channel.endsWith("ActivePowerL1") | channel.endsWith("ActivePowerL2")
+		// | channel.endsWith("ActivePowerL3") | channel.endsWith("Soc")) {
+		// for (MetadataDevice device : devices) {
+		// device.setLastUpdate();
+		// }
+		// }
+		// }
+		//
+		// // set specific Odoo values
+		// if (jChannels.has("ess0/Soc")) {
+		// int soc = JsonUtils.getAsPrimitive(jChannels, "ess0/Soc").getAsInt();
+		// for (MetadataDevice device : devices) {
+		// device.setSoc(soc);
+		// }
+		// }
+		// if (jChannels.has("system0/PrimaryIpAddress")) {
+		// String ipv4 = JsonUtils.getAsPrimitive(jChannels,
+		// "system0/PrimaryIpAddress").getAsString();
+		// for (MetadataDevice device : devices) {
+		// device.setIpV4(ipv4);
+		// }
+		// }
+		// } catch (OpenemsException e) {
+		// log.error("Device [" + String.join(",", devices.getNames()) + "] error: " +
+		// e.getMessage());
+		// }
+		// }
+		//
+		// } catch (OpenemsException e) {
+		// log.error("Device [" + devices.getNamesString() + "] error: " +
+		// e.getMessage());
+		// }
 	}
 }

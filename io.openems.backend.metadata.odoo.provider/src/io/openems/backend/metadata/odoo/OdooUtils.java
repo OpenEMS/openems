@@ -2,6 +2,7 @@ package io.openems.backend.metadata.odoo;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +16,14 @@ public class OdooUtils {
 
 	private OdooUtils() {
 	}
+
+	public final static String DEFAULT_SERVER_DATE_FORMAT = "yyyy-MM-dd";
+	public final static String DEFAULT_SERVER_TIME_FORMAT = "HH:mm:ss";
+	public final static String DEFAULT_SERVER_DATETIME_FORMAT = DEFAULT_SERVER_DATE_FORMAT + " "
+			+ DEFAULT_SERVER_TIME_FORMAT;
+
+	public final static DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter
+			.ofPattern(DEFAULT_SERVER_DATETIME_FORMAT);
 
 	private static Object executeKw(String url, Object[] params) throws XmlRpcException, MalformedURLException {
 		final XmlRpcClient client = new XmlRpcClient();
@@ -205,7 +214,7 @@ public class OdooUtils {
 		Object[] paramsIds = new Object[1];
 		paramsIds[0] = id;
 		// Add fieldValues
-		Map<String, String> paramsFieldValues = new HashMap<>();
+		Map<String, Object> paramsFieldValues = new HashMap<>();
 		for (FieldValue fieldValue : fieldValues) {
 			paramsFieldValues.put(fieldValue.getField().n(), fieldValue.getValue());
 		}
@@ -215,7 +224,7 @@ public class OdooUtils {
 		try {
 			// Execute XML request
 			Boolean resultObj = (Boolean) executeKw(url, params);
-			if(!resultObj) {
+			if (!resultObj) {
 				throw new OpenemsException("Returned False.");
 			}
 		} catch (Throwable e) {
