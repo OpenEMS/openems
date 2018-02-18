@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.timedata.api.TimedataService;
 import io.openems.backend.uiwebsocket.api.UiWebsocketService;
 
 import org.osgi.service.metatype.annotations.Designate;
@@ -32,6 +33,9 @@ public class EdgeWebsocket implements EdgeWebsocketService {
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
 	protected volatile UiWebsocketService uiWebsocketService;
+	
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	protected volatile TimedataService timedataService;
 
 	@Reference
 	protected EventAdmin eventAdmin;
