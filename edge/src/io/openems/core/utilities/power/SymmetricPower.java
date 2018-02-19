@@ -27,7 +27,7 @@ public abstract class SymmetricPower {
 	private static final SVGWriter writer = new SVGWriter();
 	private static final Color[] COLORS = new Color[] { Color.GREEN, Color.BLUE, Color.MAGENTA, Color.YELLOW,
 			Color.ORANGE, Color.RED };
-	protected static final Coordinate ZERO = new Coordinate(0,0);
+	protected static final Coordinate ZERO = new Coordinate(0, 0);
 
 	public static GeometryFactory getFactory() {
 		return FACTORY;
@@ -77,20 +77,18 @@ public abstract class SymmetricPower {
 	}
 
 	public Geometry getGeometry() {
-		//		synchronized (this.geometry) {
 		return this.geometry;
-		//		}
 	}
 
 	protected void setGeometry(Geometry g) {
-		//		synchronized (this.geometry) {
 		this.geometry = g;
 		this.geometries.add(g);
 		this.calculateMinMax();
-		for (PowerChangeListener listener : this.changeListeners) {
-			listener.powerChanged(g);
+		synchronized (this.changeListeners) {
+			for (PowerChangeListener listener : this.changeListeners) {
+				listener.powerChanged(g);
+			}
 		}
-		//		}
 	}
 
 	private void calculateMinMax() {
@@ -137,11 +135,15 @@ public abstract class SymmetricPower {
 	}
 
 	public void addListener(PowerChangeListener listener) {
-		this.changeListeners.add(listener);
+		synchronized (this.changeListeners) {
+			this.changeListeners.add(listener);
+		}
 	}
 
 	public void removeListener(PowerChangeListener listener) {
-		this.changeListeners.add(listener);
+		synchronized (this.changeListeners) {
+			this.changeListeners.add(listener);
+		}
 	}
 
 	public abstract void applyLimitation(Limitation limit) throws PowerException;
