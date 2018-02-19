@@ -2,6 +2,7 @@ package io.openems.backend.edgewebsocket.impl.provider;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
@@ -11,6 +12,7 @@ import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.events.BackendEventConstants;
@@ -216,49 +218,33 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 				 * set last update timestamps in MetadataService
 				 */
 				edge.setLastMessage();
+
+				for (Entry<String, JsonElement> jTimedataEntry : jTimedata.entrySet()) {
+					try {
+						JsonObject jChannels = JsonUtils.getAsJsonObject(jTimedataEntry.getValue());
+						// set Odoo last update timestamp only for those channels
+						for (String channel : jChannels.keySet()) {
+							if (channel.endsWith("ActivePower")
+									|| channel.endsWith("ActivePowerL1") | channel.endsWith("ActivePowerL2")
+											| channel.endsWith("ActivePowerL3") | channel.endsWith("Soc")) {
+								edge.setLastUpdate();
+							}
+						}
+
+						// set specific Odoo values
+						if (jChannels.has("ess0/Soc")) {
+							int soc = JsonUtils.getAsPrimitive(jChannels, "ess0/Soc").getAsInt();
+							edge.setSoc(soc);
+						}
+						if (jChannels.has("system0/PrimaryIpAddress")) {
+							String ipv4 = JsonUtils.getAsPrimitive(jChannels, "system0/PrimaryIpAddress").getAsString();
+							edge.setIpv4(ipv4);
+						}
+					} catch (OpenemsException e) {
+						log.error("Edgde [" + edge.getName() + "] error: " + e.getMessage());
+					}
+				}
 			}
 		}
-
-		// TODO
-		// try {
-		// for (Entry<String, JsonElement> jTimedataEntry : jTimedata.entrySet()) {
-		// try {
-		// JsonObject jChannels = JsonUtils.getAsJsonObject(jTimedataEntry.getValue());
-		//
-		// // set Odoo last update timestamp only for those channels
-		// for (String channel : jChannels.keySet()) {
-		// if (channel.endsWith("ActivePower")
-		// || channel.endsWith("ActivePowerL1") | channel.endsWith("ActivePowerL2")
-		// | channel.endsWith("ActivePowerL3") | channel.endsWith("Soc")) {
-		// for (MetadataDevice device : devices) {
-		// device.setLastUpdate();
-		// }
-		// }
-		// }
-		//
-		// // set specific Odoo values
-		// if (jChannels.has("ess0/Soc")) {
-		// int soc = JsonUtils.getAsPrimitive(jChannels, "ess0/Soc").getAsInt();
-		// for (MetadataDevice device : devices) {
-		// device.setSoc(soc);
-		// }
-		// }
-		// if (jChannels.has("system0/PrimaryIpAddress")) {
-		// String ipv4 = JsonUtils.getAsPrimitive(jChannels,
-		// "system0/PrimaryIpAddress").getAsString();
-		// for (MetadataDevice device : devices) {
-		// device.setIpV4(ipv4);
-		// }
-		// }
-		// } catch (OpenemsException e) {
-		// log.error("Device [" + String.join(",", devices.getNames()) + "] error: " +
-		// e.getMessage());
-		// }
-		// }
-		//
-		// } catch (OpenemsException e) {
-		// log.error("Device [" + devices.getNamesString() + "] error: " +
-		// e.getMessage());
-		// }
 	}
 }

@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -213,29 +214,27 @@ public class Odoo implements MetadataService {
 					JsonUtils.getAsJsonObject(
 							JsonUtils.parse((String) edgeMap.get(Field.FemsDevice.OPENEMS_CONFIG.n()))));
 			edge.onSetConfig(jConfig -> {
-				/*
-				 * Update Edge config in Odoo
-				 */
-				try {
-					String config = new GsonBuilder().setPrettyPrinting().create().toJson(jConfig);
-					OdooUtils.write(this.url, this.database, this.uid, this.password, "fems.device", edgeId,
-							new FieldValue(Field.FemsDevice.OPENEMS_CONFIG, config));
-					log.info("Updated Edge config [" + edge.getName() + "]");
-				} catch (OpenemsException e) {
-					log.error("Unable to update Edge [ID:" + edge.getName() + "] config: " + e.getMessage());
-				}
+				// Update Edge config in Odoo
+				String config = new GsonBuilder().setPrettyPrinting().create().toJson(jConfig);
+				this.write(edge, new FieldValue(Field.FemsDevice.OPENEMS_CONFIG, config), false);
 			});
 			edge.onSetLastMessage(time -> {
-				/*
-				 * Set LastMessage timestamp in Odoo
-				 */
-				// TODO only fire once per minute
-				try {
-					OdooUtils.write(this.url, this.database, this.uid, this.password, "fems.device", edge.getId(),
-							new FieldValue(Field.FemsDevice.LAST_MESSAGE, OdooUtils.DATETIME_FORMATTER.format(time)));
-				} catch (OpenemsException e) {
-					log.error("Unable to update Edge [ID:" + edge.getName() + "] lastMessage: " + e.getMessage());
-				}
+				// Set LastMessage timestamp in Odoo
+				this.write(edge,
+						new FieldValue(Field.FemsDevice.LAST_MESSAGE, OdooUtils.DATETIME_FORMATTER.format(time)), true);
+			});
+			edge.onSetLastUpdate(time -> {
+				// Set LastUpdate timestamp in Odoo
+				this.write(edge,
+						new FieldValue(Field.FemsDevice.LAST_UPDATE, OdooUtils.DATETIME_FORMATTER.format(time)), true);
+			});
+			edge.onSetSoc(soc -> {
+				// Set SoC in Odoo
+				this.write(edge, new FieldValue(Field.FemsDevice.SOC, String.valueOf(soc)), true);
+			});
+			edge.onSetIpv4(ipv4 -> {
+				// Set IPv4 in Odoo
+				this.write(edge, new FieldValue(Field.FemsDevice.IPV4, String.valueOf(ipv4)), true);
 			});
 			edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
 			// store in cache
@@ -246,6 +245,35 @@ public class Odoo implements MetadataService {
 		} catch (OpenemsException e) {
 			log.error("Unable to read Edge [ID:" + edgeId + "]: " + e.getMessage());
 			return Optional.empty();
+		}
+	}
+
+	private final int DEBOUNCE_SECONDS = 60;
+
+	private HashMap<String, Instant> lastWriteMap = new HashMap<>();
+
+	private void write(Edge edge, FieldValue fieldValue, boolean debounce) {
+		Instant now = Instant.now();
+		boolean executeWrite = true;
+		if (debounce) {
+			// debounce = avoid writing too often
+			synchronized (this.lastWriteMap) {
+				Instant lastWrite = lastWriteMap.get(fieldValue.getField().n());
+				if (lastWrite != null && now.minusSeconds(DEBOUNCE_SECONDS).isBefore(lastWrite)) {
+					executeWrite = false;
+				} else {
+					this.lastWriteMap.put(fieldValue.getField().n(), now);
+				}
+			}
+		}
+		if (executeWrite) {
+			try {
+				OdooUtils.write(this.url, this.database, this.uid, this.password, "fems.device", edge.getId(),
+						fieldValue);
+			} catch (OpenemsException e) {
+				log.error("Unable to update Edge [ID:" + edge.getName() + "] field [" + fieldValue.getField().n()
+						+ "] : " + e.getMessage());
+			}
 		}
 	}
 

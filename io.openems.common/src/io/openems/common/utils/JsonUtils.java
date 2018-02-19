@@ -47,7 +47,7 @@ public class JsonUtils {
 			return Optional.empty();
 		}
 	}
-
+	
 	public static JsonObject getAsJsonObject(JsonElement jElement) throws OpenemsException {
 		if (!jElement.isJsonObject()) {
 			throw new OpenemsException("This is not a JsonObject: " + jElement);
@@ -55,6 +55,14 @@ public class JsonUtils {
 		return jElement.getAsJsonObject();
 	};
 
+	public static Optional<JsonObject> getAsOptionalJsonObject(JsonElement jElement) {
+		try {
+			return Optional.of(getAsJsonObject(jElement));
+		} catch (OpenemsException e) {
+			return Optional.empty();
+		}
+	};
+	
 	public static JsonObject getAsJsonObject(JsonElement jElement, String memberName) throws OpenemsException {
 		JsonElement jsubElement = getSubElement(jElement, memberName);
 		if (!jsubElement.isJsonObject()) {

@@ -9,7 +9,10 @@ public interface Field {
 		COMMENT("comment"), //
 		PRODUCT_TYPE("producttype"), //
 		OPENEMS_CONFIG("openems_config"), //
-		LAST_MESSAGE("lastmessage");
+		LAST_MESSAGE("lastmessage"), //
+		LAST_UPDATE("lastupdate"), //
+		SOC("soc"), //
+		IPV4("ipv4");
 
 		private final String n;
 
