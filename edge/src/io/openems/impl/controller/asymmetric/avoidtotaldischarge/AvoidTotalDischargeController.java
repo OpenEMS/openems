@@ -60,14 +60,13 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 	@ChannelInfo(title = "Max Soc", description = "If the System is full the charge is blocked untill the soc decrease below the maxSoc.", type = Long.class, defaultValue = "95")
 	public final ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
 	@ChannelInfo(title = "Next Discharge", description = "Next Time, the ess will discharge completely.", type = String.class,defaultValue = "2018-03-09")
-	public final ConfigChannel<Long> nextDischarge = new ConfigChannel<Long>("nextDischarge", this).addChangeListener(this);
+	public final ConfigChannel<String> nextDischarge = new ConfigChannel<String>("nextDischarge", this).addChangeListener(this);
 	@ChannelInfo(title = "Discharge Period", description = "The Period of time between two Discharges.https://docs.oracle.com/javase/8/docs/api/java/time/Period.html#parse-java.lang.CharSequence-", type = String.class,defaultValue = "P4W")
-	public final ConfigChannel<Long> dischargePeriod = new ConfigChannel<Long>("dischargePeriod", this).addChangeListener(this);
+	public final ConfigChannel<String> dischargePeriod = new ConfigChannel<String>("dischargePeriod", this).addChangeListener(this);
 	@ChannelInfo(title = "Enable Discharge", description="This option allowes the system to discharge the ess according to the nextDischarge completely. This improves the soc calculation.", type=Boolean.class,defaultValue="true")
 	public final ConfigChannel<Boolean> enableDischarge = new ConfigChannel<Boolean>("EnableDischarge",this);
 
 	private LocalDate nextDischargeDate;
-	private Period period;
 
 	/*
 	 * Methods
@@ -203,12 +202,6 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 			}else {
 				nextDischargeDate = null;
 			}
-		}else if(this.dischargePeriod.equals(channel)) {
-			if(newValue.isPresent()) {
-				this.period = Period.parse((String)newValue.get());
-			}else {
-				this.period = null;
-			}
 		}
 		if(nextDischargeDate != null && nextDischargeDate.isBefore(LocalDate.now())) {
 			addPeriod();
@@ -216,9 +209,9 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 	}
 
 	private void addPeriod() {
-		if(this.nextDischargeDate != null && this.period != null) {
-			this.nextDischargeDate.plus(period);
-			nextDischarge.updateValue(this.nextDischargeDate.toString(),true);
+		if (this.nextDischargeDate != null && dischargePeriod.isValuePresent()) {
+			this.nextDischargeDate = this.nextDischargeDate.plus(Period.parse(dischargePeriod.getValue()));
+			nextDischarge.updateValue(this.nextDischargeDate.toString(), true);
 		}
 	}
 
