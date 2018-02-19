@@ -72,13 +72,9 @@ public class BalancingSurplusController extends Controller {
 		try {
 			Ess ess = this.ess.value();
 			// Calculate required sum values
-			long calculatedPower = meter.value().activePower.value() + (ess.activePower.value() - surplus);
-			surplus = getSurplusPower();
-			// in case the storage has surplus it isn't allowed to charge the storage ac
-			if (calculatedPower < 0 && surplus > 0) {
-				calculatedPower = 0;
-			}
-			if (getPvVoltage() < 200000 || surplus < 0) {
+			long calculatedPower = meter.value().activePower.value() + ess.activePower.value();
+			surplus = getSurplusPower()- calculatedPower;
+			if (surplus < 0) {
 				surplus = 0l;
 			}
 			calculatedPower += surplus;
@@ -93,9 +89,9 @@ public class BalancingSurplusController extends Controller {
 
 	private long getSurplusPower() throws InvalidValueException {
 		long power = 0l;
-		if (ess.value().soc.value() >= surplusMinSoc.value() + 2) {
+		if (ess.value().allowedCharge.value() >= -100 && getPvVoltage() >= 250000) {
 			surplusOn = true;
-		} else if (ess.value().soc.value() < surplusMinSoc.value()) {
+		} else if (ess.value().soc.value() < surplusMinSoc.value() || getPvVoltage() < 200000) {
 			surplusOn = false;
 		}
 		if (surplusOn) {
