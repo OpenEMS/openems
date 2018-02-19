@@ -142,7 +142,7 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 						}
 						break;
 					case EMPTY:
-						if(ess.allowedDischarge.value() == 0) {
+						if(ess.allowedDischarge.value() == 0 || ess.soc.value() < 1) {
 							//Ess is Empty set Date and charge to minSoc
 							addPeriod();
 							ess.currentState = State.CHARGESOC;
