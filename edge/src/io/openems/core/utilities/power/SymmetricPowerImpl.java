@@ -12,7 +12,6 @@ import io.openems.api.bridge.BridgeEvent;
 import io.openems.api.bridge.BridgeEventListener;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.exception.WriteChannelException;
-import io.openems.core.utilities.AvgFiFoQueue;
 
 public class SymmetricPowerImpl extends SymmetricPower implements LimitationChangedListener, BridgeEventListener {
 	/*
@@ -25,8 +24,8 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 
 	private List<Limitation> staticLimitations;
 	private List<Limitation> dynamicLimitations;
-	private AvgFiFoQueue activePowerAvg;
-	private AvgFiFoQueue reactivePowerAvg;
+	private long lastActivePower = 0;
+	private long lastReactivePower = 0;
 
 	public SymmetricPowerImpl(long maxApparentPower, WriteChannel<Long> setActivePower,
 			WriteChannel<Long> setReactivePower, Bridge bridge) {
@@ -35,8 +34,6 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 		this.dynamicLimitations = new ArrayList<>();
 		this.setActivePower = setActivePower;
 		this.setReactivePower = setReactivePower;
-		activePowerAvg = new AvgFiFoQueue(3, 1.5);
-		reactivePowerAvg = new AvgFiFoQueue(1, 1.5);
 		if(bridge != null) {
 			bridge.addListener(this);
 		}else {
@@ -80,11 +77,13 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 		Point p = reduceToZero();
 		Coordinate c = p.getCoordinate();
 		setGeometry(p);
-		activePowerAvg.add((long) c.x);
-		reactivePowerAvg.add((long) c.y);
+		long activePowerDelta = (long) (c.x - lastActivePower);
+		long reactivePowerDelta = (long) (c.y - lastReactivePower);
+		lastActivePower += activePowerDelta/2;
+		lastReactivePower += reactivePowerDelta/2;
 		try {
-			this.setActivePower.pushWrite(activePowerAvg.avg());
-			this.setReactivePower.pushWrite(reactivePowerAvg.avg());
+			this.setActivePower.pushWrite(lastActivePower);
+			this.setReactivePower.pushWrite(lastReactivePower);
 			setActivePower.shadowCopyAndReset();
 			setReactivePower.shadowCopyAndReset();
 		} catch (WriteChannelException e) {
