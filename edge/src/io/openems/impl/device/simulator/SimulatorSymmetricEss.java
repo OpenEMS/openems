@@ -278,8 +278,26 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 		this.activePower.updateValue(activePower);
 		this.reactivePower.updateValue(reactivePower);
 		this.apparentPower.updateValue(apparentPower);
-		this.allowedCharge.updateValue(-9000L);
-		this.allowedDischarge.updateValue(3000L);
+		this.allowedCharge.updateValue(-50000L);
+		this.allowedDischarge.updateValue(50000L);
+		try {
+			long multiplier = 100 - this.soc.value();
+			if (multiplier > 10) {
+				multiplier = 10;
+			}
+			this.allowedCharge.updateValue((maxNominalPower.value() / 10 * multiplier) * -1);
+		} catch (InvalidValueException e) {
+			e.printStackTrace();
+		}
+		try {
+			long multiplier = this.soc.value();
+			if (multiplier > 10) {
+				multiplier = 10;
+			}
+			this.allowedDischarge.updateValue(maxNominalPower.value() / 10 * multiplier);
+		} catch (InvalidValueException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
