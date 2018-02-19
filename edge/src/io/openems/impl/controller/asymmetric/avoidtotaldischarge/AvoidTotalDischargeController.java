@@ -20,9 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.controller.asymmetric.avoidtotaldischarge;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.Period;
 import java.util.Optional;
 import java.util.Set;
 
@@ -60,12 +59,15 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 	public final ConfigChannel<Set<Ess>> esss = new ConfigChannel<Set<Ess>>("esss", this);
 	@ChannelInfo(title = "Max Soc", description = "If the System is full the charge is blocked untill the soc decrease below the maxSoc.", type = Long.class, defaultValue = "95")
 	public final ConfigChannel<Long> maxSoc = new ConfigChannel<Long>("maxSoc", this);
-	@ChannelInfo(title = "Last Discharge", description = "Last Time, the ess was discharged completely.", type = Long.class,defaultValue = "0")
-	public final ConfigChannel<Long> lastDischarge = new ConfigChannel<Long>("lastDischarge", this).addChangeListener(this);
-	@ChannelInfo(title = "Enable Monthly Discharge", description="This option allowes the system once per month to discharge the ess completely. This improves the soc calculation.", type=Boolean.class,defaultValue="true")
-	public final ConfigChannel<Boolean> enableMonthlyDischarge = new ConfigChannel<Boolean>("EnableMonthlyDischarge",this);
+	@ChannelInfo(title = "Next Discharge", description = "Next Time, the ess will discharge completely.", type = String.class,defaultValue = "2018-03-09")
+	public final ConfigChannel<Long> nextDischarge = new ConfigChannel<Long>("nextDischarge", this).addChangeListener(this);
+	@ChannelInfo(title = "Discharge Period", description = "The Period of time between two Discharges.https://docs.oracle.com/javase/8/docs/api/java/time/Period.html#parse-java.lang.CharSequence-", type = String.class,defaultValue = "P4W")
+	public final ConfigChannel<Long> dischargePeriod = new ConfigChannel<Long>("dischargePeriod", this).addChangeListener(this);
+	@ChannelInfo(title = "Enable Discharge", description="This option allowes the system to discharge the ess according to the nextDischarge completely. This improves the soc calculation.", type=Boolean.class,defaultValue="true")
+	public final ConfigChannel<Boolean> enableDischarge = new ConfigChannel<Boolean>("EnableDischarge",this);
 
-	private LocalDate lastDischargeDate;
+	private LocalDate nextDischargeDate;
+	private Period period;
 
 	/*
 	 * Methods
@@ -129,7 +131,7 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 						ess.currentState = State.CHARGESOC;
 					} else if (ess.soc.value() >= ess.minSoc.value() + 5) {
 						ess.currentState = State.NORMAL;
-					}else if(lastDischargeDate != null && lastDischargeDate.plusMonths(1).isBefore(LocalDate.now()) && enableMonthlyDischarge.valueOptional().isPresent() && enableMonthlyDischarge.valueOptional().get()) {
+					}else if(nextDischargeDate != null && nextDischargeDate.equals(LocalDate.now()) && enableDischarge.valueOptional().isPresent() && enableDischarge.valueOptional().get()) {
 						ess.currentState = State.EMPTY;
 					} else {
 						try {
@@ -182,7 +184,7 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 				case EMPTY:
 					if(ess.allowedDischarge.value() == 0) {
 						//Ess is Empty set Date and charge to minSoc
-						lastDischarge.updateValue(System.currentTimeMillis(), true);
+						addPeriod();
 						ess.currentState = State.CHARGESOC;
 					}
 					break;
@@ -195,12 +197,28 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-		if(this.lastDischarge.equals(channel)) {
+		if(this.nextDischarge.equals(channel)) {
 			if(newValue.isPresent()) {
-				lastDischargeDate = Instant.ofEpochMilli((long) newValue.get()).atZone(ZoneId.systemDefault()).toLocalDate();
+				nextDischargeDate = LocalDate.parse((String)newValue.get());
 			}else {
-				lastDischargeDate = null;
+				nextDischargeDate = null;
 			}
+		}else if(this.dischargePeriod.equals(channel)) {
+			if(newValue.isPresent()) {
+				this.period = Period.parse((String)newValue.get());
+			}else {
+				this.period = null;
+			}
+		}
+		if(nextDischargeDate != null && nextDischargeDate.isBefore(LocalDate.now())) {
+			addPeriod();
+		}
+	}
+
+	private void addPeriod() {
+		if(this.nextDischargeDate != null && this.period != null) {
+			this.nextDischargeDate.plus(period);
+			nextDischarge.updateValue(this.nextDischargeDate.toString(),true);
 		}
 	}
 
