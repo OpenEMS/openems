@@ -43,9 +43,10 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Integer> chargeSoc;
 	private TreeMap<LocalTime, Soc> timeline = new TreeMap<>();
 	public State currentState = State.NORMAL;
+	public final ReadChannel<Long> maxNominalPower;
 
 	public enum State {
-		NORMAL, MINSOC, CHARGESOC
+		NORMAL, MINSOC, CHARGESOC, EMPTY
 	}
 
 	public Ess(SymmetricEssNature ess) {
@@ -56,6 +57,7 @@ public class Ess extends ThingMap {
 		minSoc = ess.minSoc().required();
 		allowedDischarge = ess.allowedDischarge().required();
 		chargeSoc = ess.chargeSoc().required();
+		maxNominalPower = ess.maxNominalPower();
 	}
 
 	public void addTime(LocalTime time, int minSoc, int chargeSoc) {
