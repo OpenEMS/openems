@@ -25,7 +25,7 @@ public class MetadataDummyDeviceModel implements MetadataDeviceModel {
 			}
 		}
 		// add device if it was not there yet
-		if (this.devices.isEmpty()) {
+		if (result.isEmpty()) {
 			MetadataDummyDevice device = addNewDevice(apikey);
 			result.add(device);
 		}

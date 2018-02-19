@@ -3,6 +3,7 @@ package io.openems.impl.device.minireadonly;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
@@ -17,11 +18,14 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "FENECON Mini Consumption-Meter")
 public class FeneconMiniConsumptionMeter extends ModbusDeviceNature implements SymmetricMeterNature {
 
+	private ThingStateChannels thingState;
+
 	/*
 	 * Constructors
 	 */
 	public FeneconMiniConsumptionMeter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -96,8 +100,13 @@ public class FeneconMiniConsumptionMeter extends ModbusDeviceNature implements S
 				new ModbusRegisterRange(4005, //
 						new UnsignedWordElement(4005, //
 								this.activePower = new ModbusReadLongChannel("ActivePower", this).unit("W")
-										.ignore(55536l))));
+								.ignore(55536l))));
 		return protocol;
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

@@ -23,6 +23,8 @@ package io.openems.impl.device.pro;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StaticThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
@@ -46,6 +48,13 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 	 */
 	public FeneconProPvMeter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState  = new ThingStateChannels(this);
+		this.negativePowerL1 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL1, this, false);
+		this.thingState.addWarningChannel(this.negativePowerL1);
+		this.negativePowerL2 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL2, this, false);
+		this.thingState.addWarningChannel(this.negativePowerL2);
+		this.negativePowerL3 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL3, this, false);
+		this.thingState.addWarningChannel(this.negativePowerL3);
 	}
 
 	/*
@@ -94,6 +103,10 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 	private ModbusReadChannel<Long> orginalActivePowerL1;
 	private ModbusReadChannel<Long> orginalActivePowerL2;
 	private ModbusReadChannel<Long> orginalActivePowerL3;
+	private ThingStateChannels thingState;
+	private StaticThingStateChannel negativePowerL1;
+	private StaticThingStateChannel negativePowerL2;
+	private StaticThingStateChannel negativePowerL3;
 
 	@Override
 	public ReadChannel<Long> activePowerL1() {
@@ -199,30 +212,32 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 				new ModbusRegisterRange(2035, //
 						new UnsignedDoublewordElement(2035, //
 								activeEnergyL1 = new ModbusReadLongChannel("ActiveEnergyL1", this)
-										.unit("Wh").multiplier(2)),
+								.unit("Wh").multiplier(2)),
 						new DummyElement(2037, 2065), new UnsignedWordElement(2066, //
 								orginalActivePowerL1 = new ModbusReadLongChannel("OriginalActivePowerL1", this)
-										.unit("W").delta(10000L))),
+								.unit("W").delta(10000L))),
 				new ModbusRegisterRange(2135, //
 						new UnsignedDoublewordElement(2135, //
 								activeEnergyL2 = new ModbusReadLongChannel("ActiveEnergyL2", this)
-										.unit("Wh").multiplier(2)),
+								.unit("Wh").multiplier(2)),
 						new DummyElement(2137, 2165), new UnsignedWordElement(2166, //
 								orginalActivePowerL2 = new ModbusReadLongChannel("OriginalActivePowerL2", this)
-										.unit("W").delta(10000L))),
+								.unit("W").delta(10000L))),
 				new ModbusRegisterRange(2235, //
 						new UnsignedDoublewordElement(2235, //
 								activeEnergyL3 = new ModbusReadLongChannel("ActiveEnergyL3", this)
-										.unit("Wh").multiplier(2)),
+								.unit("Wh").multiplier(2)),
 						new DummyElement(2237, 2265), new UnsignedWordElement(2266, //
 								orginalActivePowerL3 = new ModbusReadLongChannel("OriginalActivePowerL3", this)
-										.unit("W").delta(10000L))));
+								.unit("W").delta(10000L))));
 		activePowerL1 = new FunctionalReadChannel<Long>("ActivePowerL1", this, (channels) -> {
 			ReadChannel<Long> power = channels[0];
 			try {
 				if (power.value() >= 0) {
+					this.negativePowerL1.setValue(false);
 					return power.value();
 				} else {
+					this.negativePowerL1.setValue(true);
 					return 0L;
 				}
 			} catch (InvalidValueException e) {
@@ -233,8 +248,10 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 			ReadChannel<Long> power = channels[0];
 			try {
 				if (power.value() >= 0) {
+					this.negativePowerL2.setValue(false);
 					return power.value();
 				} else {
+					this.negativePowerL2.setValue(true);
 					return 0L;
 				}
 			} catch (InvalidValueException e) {
@@ -245,8 +262,10 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 			ReadChannel<Long> power = channels[0];
 			try {
 				if (power.value() >= 0) {
+					this.negativePowerL3.setValue(false);
 					return power.value();
 				} else {
+					this.negativePowerL3.setValue(true);
 					return 0L;
 				}
 			} catch (InvalidValueException e) {
@@ -274,5 +293,10 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 			}
 		}, reactivePowerL1, reactivePowerL2, reactivePowerL3);
 		return protocol;
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return thingState;
 	}
 }

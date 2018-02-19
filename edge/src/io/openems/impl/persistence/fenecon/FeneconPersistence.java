@@ -21,6 +21,8 @@
 package io.openems.impl.persistence.fenecon;
 
 import java.net.Inet4Address;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -38,6 +40,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
@@ -48,6 +51,7 @@ import io.openems.api.persistence.Persistence;
 import io.openems.api.thing.Thing;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.ChannelEnum;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NullFieldValue;
 import io.openems.common.types.NumberFieldValue;
@@ -64,12 +68,15 @@ import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 @ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
 
+	private ThingStateChannels thingState;
+
 	private final static String DEFAULT_CONFIG_LANGUAGE = "en";
 
 	/*
 	 * Config
 	 */
-	@ChannelInfo(title = "Apikey", description = "Sets the apikey for FENECON Cloud.", type = String.class, readRoles = { Role.ADMIN })
+	@ChannelInfo(title = "Apikey", description = "Sets the apikey for FENECON Cloud.", type = String.class, readRoles = {
+			Role.ADMIN })
 	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this).doNotPersist();
 
 	@ChannelInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/openems-backend\"")
@@ -79,24 +86,36 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	public ConfigChannel<Integer> cycleTime = new ConfigChannel<Integer>("cycleTime", this)
 	.defaultValue(DEFAULT_CYCLETIME);
 
+	@ChannelInfo(title = "ProxyAddress", description = "Sets the proxy address IP or hostname.", type = String.class, isOptional = true)
+	public final ConfigChannel<String> proxyAddress = new ConfigChannel<String>("proxyAddress", this);
+
+	@ChannelInfo(title = "ProxyPort", description = "Sets the proxy port.", type = Integer.class, isOptional = true)
+	public final ConfigChannel<Integer> proxyPort = new ConfigChannel<Integer>("proxyPort", this);
+
+	@ChannelInfo(title = "ProxyType", description = "Sets the proxy type (e.g. 'http').", type = String.class, isOptional = true)
+	public final ConfigChannel<String> proxyType = new ConfigChannel<String>("proxyType", this);
+
 	/*
 	 * Constructor
 	 */
 	public FeneconPersistence() {
 		this.websocketHandler = new EdgeWebsocketHandler();
+		this.thingState = new ThingStateChannels(this);
 		this.reconnectingWebsocket = new ReconnectingWebsocket(this.websocketHandler, (websocket) -> {
 			/*
 			 * onOpen
 			 */
-			log.info("FENECON persistence connected [" + uri.valueOptional().orElse("") + "]");
+			Optional<String> proxyInfoOpt = this.proxyInfo();
+			log.info("FENECON persistence connected [" + uri.valueOptional().orElse("") + "]"
+					+ (proxyInfoOpt.isPresent() ? ", " + proxyInfoOpt.get() : ""));
 			// Add current status of all channels to queue
 			this.addCurrentValueOfAllChannelsToQueue();
 			// Send current config
 			try {
 				WebSocketUtils.send( //
 						websocket, //
-						DefaultMessages.configQueryReply(
-								Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
+						DefaultMessages.configQueryReply(Config.getInstance().getJson(ConfigFormat.OPENEMS_UI,
+								Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
 				log.info("Sent config to FENECON persistence.");
 			} catch (NotImplementedException | ConfigException e) {
 				log.error("Unable to send config: " + e.getMessage());
@@ -105,7 +124,9 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			/*
 			 * onClose
 			 */
-			log.error("FENECON persistence closed connection to uri [" + uri.valueOptional().orElse("") + "]");
+			Optional<String> proxyInfoOpt = this.proxyInfo();
+			log.error("FENECON persistence closed connection to uri [" + uri.valueOptional().orElse("") + "]"
+					+ (proxyInfoOpt.isPresent() ? ", " + proxyInfoOpt.get() : ""));
 		});
 	}
 
@@ -117,7 +138,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	/*
 	 * Fields
 	 */
-	private static final int DEFAULT_CYCLETIME = 2000;
+	private static final int DEFAULT_CYCLETIME = 10000;
 	private final EdgeWebsocketHandler websocketHandler;
 	private final ReconnectingWebsocket reconnectingWebsocket;
 
@@ -137,19 +158,37 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			// set apikey header
 			this.reconnectingWebsocket.addHttpHeader("apikey", apikeyOpt.get());
 
-			Optional<String> uriOpt = this.uri.valueOptional();
-			if (uriOpt.isPresent()) {
+			// get proxy
+			Optional<Proxy> proxyOpt = Optional.empty();
+			Optional<String> proxyAddressOpt = this.proxyAddress.valueOptional();
+			Optional<Integer> proxyPortOpt = this.proxyPort.valueOptional();
+			Optional<String> proxyTypeStringOpt = this.proxyType.valueOptional();
+			if (proxyAddressOpt.isPresent() && proxyPortOpt.isPresent() && proxyTypeStringOpt.isPresent()) {
+				Optional<Proxy.Type> proxyTypeOpt = Optional.empty();
+				switch (proxyTypeStringOpt.get().toLowerCase()) {
+				case "http":
+					proxyTypeOpt = Optional.of(Proxy.Type.HTTP);
+				}
+				if (proxyTypeOpt.isPresent()) {
+					proxyOpt = Optional.of(new Proxy(proxyTypeOpt.get(),
+							new InetSocketAddress(proxyAddressOpt.get(), proxyPortOpt.get())));
+				}
+			}
+
+			// connect
+			Optional<String> uriStringOpt = this.uri.valueOptional();
+			if (uriStringOpt.isPresent()) {
 				try {
-					URI uri = new URI(uriOpt.get());
-					this.reconnectingWebsocket.setUri(Optional.of(uri));
+					URI uri = new URI(uriStringOpt.get());
+					this.reconnectingWebsocket.setUri(Optional.of(uri), proxyOpt);
 				} catch (URISyntaxException e) {
-					log.error("URI [" + uriOpt.get() + "] is invalid: " + e.getMessage());
-					this.reconnectingWebsocket.setUri(Optional.empty());
+					log.error("URI [" + uriStringOpt.get() + "] is invalid: " + e.getMessage());
+					this.reconnectingWebsocket.setUri(Optional.empty(), proxyOpt);
 					return;
 				}
 			} else {
 				// URI is not present
-				this.reconnectingWebsocket.setUri(Optional.empty());
+				this.reconnectingWebsocket.setUri(Optional.empty(), proxyOpt);
 			}
 		}
 	}
@@ -291,6 +330,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 				fieldValue = new StringFieldValue(((Inet4Address) value).getHostAddress());
 			} else if (value instanceof Boolean) {
 				fieldValue = new NumberFieldValue(((Boolean) value) ? 1 : 0);
+			} else if (value instanceof ChannelEnum) {
+				fieldValue = new NumberFieldValue(((ChannelEnum)value).getValue());
 			} else if (value instanceof DeviceNature || value instanceof JsonElement || value instanceof Map
 					|| value instanceof Set || value instanceof List || value instanceof ThingMap) {
 				// ignore
@@ -329,5 +370,20 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	@Override
 	protected boolean initialize() {
 		return this.reconnectingWebsocket.websocketIsOpen();
+	}
+
+	private Optional<String> proxyInfo() {
+		if (this.proxyAddress.valueOptional().isPresent() && this.proxyPort.valueOptional().isPresent()
+				&& this.proxyType.valueOptional().isPresent()) {
+			return Optional.of("proxy [" + this.proxyAddress.valueOptional().get() + ":"
+					+ this.proxyPort.valueOptional().get() + ":" + this.proxyType.valueOptional().get() + "]");
+		} else {
+			return Optional.empty();
+		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

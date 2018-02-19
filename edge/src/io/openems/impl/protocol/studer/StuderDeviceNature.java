@@ -33,8 +33,10 @@ import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
+import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.OpenemsException;
@@ -69,6 +71,8 @@ public abstract class StuderDeviceNature implements DeviceNature, ChannelChangeL
 	private List<BridgeReadTask> readTasks;
 	private List<BridgeReadTask> requiredReadTasks;
 	private List<BridgeWriteTask> writeTasks;
+	@ChannelInfo(isOptional=true,title="Alias",description="The Alias to display for the device.", type=String.class)
+	public ConfigChannel<String> alias = new ConfigChannel<>("alias", this);
 
 	/*
 	 * Abstract Methods
@@ -83,6 +87,11 @@ public abstract class StuderDeviceNature implements DeviceNature, ChannelChangeL
 			createStuderProtocol();
 		}
 		return this.protocol;
+	}
+
+	@Override
+	public String getAlias() {
+		return alias.valueOptional().orElse(id());
 	}
 
 	@Override

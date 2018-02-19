@@ -45,7 +45,7 @@ public class EM300 extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Meter", description = "Sets the meter nature.", type = EM300Meter.class)
-	public final ConfigChannel<EM300Meter> meter = new ConfigChannel<>("meter", this);
+	public final ConfigChannel<EM300Meter> meter = new ConfigChannel<EM300Meter>("meter", this).addChangeListener(this);
 
 	/*
 	 * Methods

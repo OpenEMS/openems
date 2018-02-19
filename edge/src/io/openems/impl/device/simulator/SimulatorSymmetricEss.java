@@ -35,9 +35,10 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StaticThingStateChannel;
 import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.device.nature.ess.EssNature;
@@ -50,6 +51,7 @@ import io.openems.api.thing.Thing;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.ControllerUtils;
+import io.openems.impl.protocol.modbus.FaultModbus;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
@@ -71,12 +73,19 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 			"reactivePowerGeneratorConfig", this).addChangeListener(this).addChangeListener(this);
 	private LoadGenerator offGridActivePowerGenerator;
 	private LoadGenerator offGridReactivePowerGenerator;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Constructors
 	 */
 	public SimulatorSymmetricEss(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannels(this);
+
+		StaticThingStateChannel tmp = new StaticThingStateChannel(FaultModbus.ConfigurationFault, this, false);
+		tmp.setValue(true);
+		thingState.addFaultChannel(tmp);
+
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
@@ -120,10 +129,10 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);
 	@ChannelInfo(title = "GridMode", type = Long.class)
 	public ConfigChannel<Long> gridMode = new ConfigChannel<Long>("gridMode", this).label(0L, ON_GRID)
-			.label(1L, OFF_GRID).defaultValue(0L);
+	.label(1L, OFF_GRID).defaultValue(0L);
 	@ChannelInfo(title = "SystemState", type = Long.class)
 	public ConfigChannel<Long> systemState = new ConfigChannel<Long>("systemState", this) //
-			.label(1L, START).label(2L, STOP).label(5L, FAULT).defaultValue(1L);
+	.label(1L, START).label(2L, STOP).label(5L, FAULT).defaultValue(1L);
 
 	@Override
 	public ConfigChannel<Integer> minSoc() {
@@ -138,7 +147,6 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	/*
 	 * Inherited Channels
 	 */
-	private StatusBitChannels warning = new StatusBitChannels("Warning", this);;
 	private FunctionalReadChannel<Long> soc;
 	private SimulatorReadChannel<Long> activePower = new SimulatorReadChannel<Long>("ActivePower", this);
 	private StaticValueChannel<Long> allowedApparent = new StaticValueChannel<Long>("AllowedApparent", this, 40000L);
@@ -210,11 +218,6 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	@Override
 	public WriteChannel<Long> setReactivePower() {
 		return setReactivePower;
-	}
-
-	@Override
-	public StatusBitChannels warning() {
-		return warning;
 	}
 
 	@Override
@@ -344,6 +347,11 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 				}
 			}
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

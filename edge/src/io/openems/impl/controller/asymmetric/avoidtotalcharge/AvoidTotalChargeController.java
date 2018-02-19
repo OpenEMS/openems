@@ -10,6 +10,7 @@ import java.util.Set;
  */
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -19,6 +20,7 @@ import io.openems.common.session.Role;
 @ThingInfo(title = "Avoid total charge of battery. (Asymmetric)", description = "Provides control over the battery's maximum state of charge at a specific time of day. For symmetric Ess.")
 public class AvoidTotalChargeController extends Controller {
 
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Config
 	 */
@@ -28,25 +30,25 @@ public class AvoidTotalChargeController extends Controller {
 	@ChannelInfo(title = "Grid Meter", description = "Sets the grid meter.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = false)
 	public final ConfigChannel<io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter> gridMeter = new ConfigChannel<>("gridMeter", this);
 
-	@ChannelInfo(title = "Production Meters", description = "Sets the production meter.", type = io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter.class, isOptional = false, isArray = true)
-	public final ConfigChannel<Set<io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter>> productionMeters = new ConfigChannel<>("productionMeters", this);
+	@ChannelInfo(title = "Maximum Production Power", description = "Theoretical peak value of all the photovoltaic panels", type = Long.class, isOptional = false, isArray = false, writeRoles = { Role.OWNER, Role.INSTALLER })
+	public final ConfigChannel<Long> maximumProductionPower = new ConfigChannel<>("maximumProductionPower", this);
 
-	@ChannelInfo(title = "Graph 1", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, writeRoles = { Role.OWNER }, isOptional = true)
+	@ChannelInfo(title = "Graph 1", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, writeRoles = { Role.OWNER, Role.INSTALLER }, isOptional = true)
 	public final ConfigChannel<Long[]> graph1 = new ConfigChannel<>("graph1", this);
 	//TODO: implement fixed length and min/max values (accessible by OWNER !)
 
-	@ChannelInfo(title = "Graph 2", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, writeRoles = { Role.OWNER }, isOptional = true)
+	@ChannelInfo(title = "Graph 2", description = "Sets the socMaxVals.", defaultValue = "[100,100,100,100,100,60,60,60,60,60,60,60,60,60,70,80,90,100,100,100,100,100,100,100]", type = Long[].class, isArray = true, writeRoles = { Role.OWNER, Role.INSTALLER }, isOptional = true)
 	public final ConfigChannel<Long[]> graph2 = new ConfigChannel<>("graph2", this);
 	//TODO: implement fixed length and min/max values (accessible by OWNER !)
 
-	@ChannelInfo(title = "Critical Percentage", description = "If the productionMeter's power raises above this percentage of its peak value, the graph-value may be neglected.", type = Long.class, writeRoles = { Role.OWNER }, defaultValue = "100", isArray = false)
+	@ChannelInfo(title = "Critical Percentage", description = "If the productionMeter's power raises above this percentage of its peak value, the graph-value may be neglected.", type = Long.class, writeRoles = { Role.OWNER, Role.INSTALLER }, defaultValue = "100", isArray = false)
 	public final ConfigChannel<Long> criticalPercentage = new ConfigChannel<Long>("criticalPercentage", this);
 	//TODO: implement min/max values (accessible by OWNER !)
 
-	@ChannelInfo(title = "Graph 1 active", description = "Activate Graph 1 (If no graph is activated, all values are set to 100)", defaultValue = "true" ,type = Boolean.class, writeRoles = { Role.OWNER }, isArray = false, isOptional = true)
+	@ChannelInfo(title = "Graph 1 active", description = "Activate Graph 1 (If no graph is activated, all values are set to 100)", defaultValue = "true" ,type = Boolean.class, writeRoles = { Role.OWNER, Role.INSTALLER }, isArray = false, isOptional = true)
 	public final ConfigChannel<Boolean> graph1active = new ConfigChannel<>("graph1active", this);
 
-	@ChannelInfo(title = "Graph 2 active", description = "Activate Graph 2 (If no graph is activated, all values are set to 100)", defaultValue = "false" ,type = Boolean.class, writeRoles = { Role.OWNER }, isArray = false, isOptional = true)
+	@ChannelInfo(title = "Graph 2 active", description = "Activate Graph 2 (If no graph is activated, all values are set to 100)", defaultValue = "false" ,type = Boolean.class, writeRoles = { Role.OWNER, Role.INSTALLER }, isArray = false, isOptional = true)
 	public final ConfigChannel<Boolean> graph2active = new ConfigChannel<>("graph2active", this);
 
 
@@ -108,12 +110,8 @@ public class AvoidTotalChargeController extends Controller {
 			/**
 			 * get the power feeded to the grid relatively to the producer's peak value
 			 */
-			Long maxAbsoluteProducablePower = 0L;
+			Long maxAbsoluteProducablePower = maximumProductionPower.value();
 			Long relativeFeededPower = 0L;
-
-			for (io.openems.impl.controller.asymmetric.avoidtotalcharge.Meter meter : productionMeters.value()){
-				maxAbsoluteProducablePower += meter.maxActivePower.value();
-			}
 
 			relativeFeededPower = -100 * gridMeter.value().totalActivePower() / maxAbsoluteProducablePower;
 
@@ -171,5 +169,10 @@ public class AvoidTotalChargeController extends Controller {
 		 * Calculate the value for a phase so that they are balanced.
 		 */
 		return (long) (((double)(gridMeterTotalActivePower + symmetricTotalActivePower) / (double) 3) - gridMeterActivePower);
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

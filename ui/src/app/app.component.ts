@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { MatSnackBar } from '@angular/material';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/takeUntil';
 import { TranslateService } from '@ngx-translate/core';
+import { ToasterService, BodyOutputType } from 'angular2-toaster';
 
 import { environment } from '../environments';
 import { Service, Websocket } from './shared/shared';
@@ -20,14 +20,14 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     public websocket: Websocket,
     private service: Service,
-    private snackBar: MatSnackBar
+    private toaster: ToasterService
   ) {
     service.setLang('de');
   }
 
   ngOnInit() {
     this.service.notificationEvent.takeUntil(this.ngUnsubscribe).subscribe(notification => {
-      this.snackBar.open(notification.message, null, { duration: 3000 });
+      this.toaster.pop({ type: notification.type, body: notification.message });
     });
   }
 

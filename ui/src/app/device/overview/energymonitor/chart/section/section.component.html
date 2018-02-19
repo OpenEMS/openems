@@ -10,18 +10,13 @@
     <svg:image [attr.x]="square.image.x" [attr.y]="square.image.y" [attr.width]="square.image.length" [attr.height]="square.image.length"
         [attr.xlink:href]="square.image.image"></svg:image>
 </svg:g>
-<!-- <svg:g *ngFor="let circle of circles">
-    <circle [@circle]='circle.state' [attr.fill]="circle.fill" [attr.r]="circle.r" [attr.cx]="circle.x" [attr.cy]="circle.y"
-        stroke-width='5'>
-    </circle>
-</svg:g> -->
 <svg:g *ngIf="energyFlow">
     <svg:defs>
-        <svg:linearGradient [attr.id]="name" [attr.x1]="energyFlow.gradient.x1" [attr.y1]="energyFlow.gradient.y1" [attr.x2]="energyFlow.gradient.x2"
+        <svg:linearGradient [attr.id]="sectionId" [attr.x1]="energyFlow.gradient.x1" [attr.y1]="energyFlow.gradient.y1" [attr.x2]="energyFlow.gradient.x2"
             [attr.y2]="energyFlow.gradient.y2">
             <svg:stop offset="0%" stop-color="white" />
             <svg:stop offset="100%" [attr.stop-color]="color" />
         </svg:linearGradient>
     </svg:defs>
-    <svg:polygon [attr.points]="energyFlow.points" attr.fill="url(#{{name}})" />
+    <svg:polygon [attr.points]="energyFlow.points" attr.fill="url({{ url }}#{{ sectionId }})" />
 </svg:g>

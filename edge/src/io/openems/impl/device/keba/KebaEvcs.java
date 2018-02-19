@@ -20,47 +20,31 @@
  *******************************************************************************/
 package io.openems.impl.device.keba;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import io.openems.api.channel.ReadChannel;
-import io.openems.api.device.Device;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.nature.evcs.EvcsNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.impl.protocol.keba.KebaDevice;
 import io.openems.impl.protocol.keba.KebaDeviceNature;
-import io.openems.impl.protocol.keba.KebaReadChannel;
 
 @ThingInfo(title = "KEBA KeContact EVCS")
 public class KebaEvcs extends KebaDeviceNature implements EvcsNature {
 
-	/*
-	 * Constructors
-	 */
-	public KebaEvcs(String thingId, Device parent) throws ConfigException {
+	private ThingStateChannels thingState;
+
+	public KebaEvcs(String thingId, KebaDevice parent) throws ConfigException {
 		super(thingId, parent);
-		log.info("Constructor KebaEvcs");
+		this.thingState = new ThingStateChannels(this);
 	}
 
-	/*
-	 * Inherited Channels
-	 */
-	private KebaReadChannel<Long> current = new KebaReadChannel<Long>("Current", this);
-
 	@Override
-	public ReadChannel<Long> current() {
-		return current;
+	public String toString() {
+		return state.format() + ";" + plug.format() + ";current:" + currUser.format() + "|" + currHardware.format()
+		+ ";energy:" + energySession.format() + "|" + energyTotal.format();
 	}
 
-	/*
-	 * This Channels
-	 */
-	// private KebaReadChannel<String> product = new KebaReadChannel<String>("Product", this);
-	// private KebaReadChannel<String> serial = new KebaReadChannel<String>("Serial", this);
-
 	@Override
-	protected List<String> getWriteMessages() {
-		// TODO Auto-generated method stub
-		return new ArrayList<String>();
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

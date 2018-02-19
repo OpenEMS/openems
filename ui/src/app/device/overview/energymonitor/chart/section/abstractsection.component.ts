@@ -56,7 +56,7 @@ export interface SvgEnergyFlow {
 }
 
 export class EnergyFlow {
-    public points: string = "";
+    public points: string = "0,0 0,0";
 
     constructor(
         public radius: number,
@@ -69,14 +69,18 @@ export class EnergyFlow {
     ) { }
 
     public update(p: SvgEnergyFlow) {
-        this.points = p.topLeft.x + "," + p.topLeft.y
-            + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
-            + " " + p.topRight.x + "," + p.topRight.y
-            + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
-            + " " + p.bottomRight.x + "," + p.bottomRight.y
-            + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
-            + " " + p.bottomLeft.x + "," + p.bottomLeft.y
-            + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+        if (p == null) {
+            this.points = "0,0 0,0";
+        } else {
+            this.points = p.topLeft.x + "," + p.topLeft.y
+                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
+                + " " + p.topRight.x + "," + p.topRight.y
+                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
+                + " " + p.bottomRight.x + "," + p.bottomRight.y
+                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
+                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
+                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+        }
     }
 
     public state: "one" | "two" | "three" = "one";
@@ -98,12 +102,14 @@ export class EnergyFlow {
 
 export abstract class AbstractSection {
 
+    public url: string = window.location.href;
     public valuePath: string = "";
     public outlinePath: string = "";
     public energyFlow: EnergyFlow;
     public square: SvgSquare;
     public squarePosition: SvgSquarePosition;
     public name: string = "";
+    public sectionId: string = "";
 
     protected valueRatio: number = 0;
     protected valueText: string = "";
@@ -122,6 +128,7 @@ export abstract class AbstractSection {
         public color: string,
         protected translate: TranslateService
     ) {
+        this.sectionId = translateName;
         this.name = translate.instant(translateName);
         this.energyFlow = this.initEnergyFlow(0);
     }
@@ -139,7 +146,20 @@ export abstract class AbstractSection {
             .startAngle(this.deg2rad(this.getValueStartAngle()))
             .endAngle(this.deg2rad(valueEndAngle));
         this.valuePath = valueArc();
-        this.energyFlow.update(this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, Math.abs(Math.round(sumRatio * 10))));
+
+        let energyFlowValue = Math.abs(Math.round(sumRatio * 10));
+        if (energyFlowValue < -10) {
+            energyFlowValue = -10;
+        } else if (energyFlowValue > 10) {
+            energyFlowValue = 10;
+        }
+        let svgEnergyFlow;
+        if (isNaN(sumRatio) || isNaN(energyFlowValue)) {
+            svgEnergyFlow = null;
+        } else {
+            svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius, energyFlowValue);
+        }
+        this.energyFlow.update(svgEnergyFlow);
     }
 
     /**
@@ -206,6 +226,7 @@ export abstract class AbstractSection {
     protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;
+    // v is between -10 and 10
     protected abstract getSvgEnergyFlow(ratio: number, r: number, v: number): SvgEnergyFlow;
 
     protected getValueRatio(valueRatio: number): number {

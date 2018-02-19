@@ -37,3 +37,7 @@ button.activated {
   color: black;
   background-color: lightgreen;
 }
+
+#toast-container {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

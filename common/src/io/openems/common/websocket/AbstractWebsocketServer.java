@@ -37,9 +37,8 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 
 	protected abstract void _onClose(WebSocket websocket, Optional<S> sessionOpt);
 
-	@SuppressWarnings("deprecation")
 	public AbstractWebsocketServer(int port, M sessionManager) {
-		super(new InetSocketAddress(port), Lists.newArrayList(new Draft_6455(), new Draft_76()));
+		super(new InetSocketAddress(port), Lists.newArrayList(new Draft_6455()));
 		this.sessionManager = sessionManager;
 	}
 
@@ -105,6 +104,7 @@ public abstract class AbstractWebsocketServer<S extends Session<D>, D extends Se
 			this._onMessage(websocket, jMessage, jMessageId, deviceNameOpt);
 		} catch (Throwable e) {
 			log.error("onMessage-Error [" + message + "]: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 

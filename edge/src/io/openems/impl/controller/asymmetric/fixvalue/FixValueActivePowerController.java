@@ -23,6 +23,7 @@ package io.openems.impl.controller.asymmetric.fixvalue;
 import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -33,6 +34,7 @@ import io.openems.core.utilities.AsymmetricPower.ReductionType;
 @ThingInfo(title = "Fixed active and reactive power (Asymmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For asymmetric Ess.")
 public class FixValueActivePowerController extends Controller {
 
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
@@ -74,6 +76,11 @@ public class FixValueActivePowerController extends Controller {
 		} catch (WriteChannelException e) {
 			log.warn("set Power failed!");
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

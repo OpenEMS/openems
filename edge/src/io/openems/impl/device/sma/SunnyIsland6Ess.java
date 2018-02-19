@@ -3,10 +3,12 @@ package io.openems.impl.device.sma;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.api.doc.ChannelInfo;
+import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
@@ -18,10 +20,14 @@ import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
-public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssNature{
+@ThingInfo(title = "SMA SunnyIsland 6.0H")
+public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssNature {
+
+	private ThingStateChannels thingState;
 
 	public SunnyIsland6Ess(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -41,12 +47,11 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 		return chargeSoc;
 	}
 
-	private StatusBitChannels warning;
 	private ModbusReadLongChannel allowedCharge;
 	private ModbusReadLongChannel allowedDischarge;
-	private ReadChannel<Long> gridMode= new StaticValueChannel<Long>("GridMode", this, 1L).label(1L, ON_GRID);
+	private ReadChannel<Long> gridMode = new StaticValueChannel<Long>("GridMode", this, 1L).label(1L, ON_GRID);
 	private ModbusReadLongChannel soc;
-	private ReadChannel<Long> systemState = new StaticValueChannel<Long>("SystemState", this, 1L).label(1L, START);
+	private ModbusReadLongChannel systemState;
 	private ModbusReadLongChannel activePower;
 	private ModbusReadLongChannel reactivePower;
 	private ModbusWriteLongChannel setActivePower;
@@ -62,8 +67,13 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 	public ModbusReadLongChannel batteryTemperature;
 	public ModbusReadLongChannel batteryCurrent;
 	public ModbusReadLongChannel batteryVoltage;
-	public ModbusReadLongChannel allowedChargeCurrent;
-	public ModbusReadLongChannel allowedDischargeCurrent;
+	public ModbusReadLongChannel maxPower;
+	@ChannelInfo(type=Long.class)
+	public ModbusWriteLongChannel meterSetting;
+	@ChannelInfo(type=Long.class)
+	public ModbusWriteLongChannel minSocPowerOff;
+	@ChannelInfo(type=Long.class)
+	public ModbusWriteLongChannel minSocPowerOn;
 
 	@Override
 	public ReadChannel<Long> gridMode() {
@@ -106,11 +116,6 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 	}
 
 	@Override
-	public StatusBitChannels warning() {
-		return warning;
-	}
-
-	@Override
 	public WriteChannel<Long> setWorkState() {
 		return setControlMode;
 	}
@@ -142,42 +147,60 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		warning = new StatusBitChannels("Warning", this);
 
 		ModbusProtocol protokol = new ModbusProtocol(
+				new ModbusRegisterRange(30201,
+						new UnsignedDoublewordElement(30201,
+								systemState = new ModbusReadLongChannel("SystemState", this).label(35, "Fehler")
+								.label(303, "Aus").label(307, "OK").label(455, "Warnung")),
+						new UnsignedDoublewordElement(30203,
+								maxPower = new ModbusReadLongChannel("MaxPower", this).unit("W"))),
 				new ModbusRegisterRange(30775, //
 						new SignedDoublewordElement(30775, //
 								activePower = new ModbusReadLongChannel("ActivePower", this).unit("W")),
-						new DummyElement(30777,30802),
-						new UnsignedDoublewordElement(30803, //
+						new DummyElement(30777, 30802), new UnsignedDoublewordElement(30803, //
 								frequency = new ModbusReadLongChannel("Frequency", this).unit("mHz").multiplier(1)),
 						new SignedDoublewordElement(30805, //
-								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("var").negate())
-						),
+								reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("var").negate())),
 				new ModbusRegisterRange(30843, //
 						new SignedDoublewordElement(30843, //
 								batteryCurrent = new ModbusReadLongChannel("BatteryCurrent", this).unit("mA")),
 						new UnsignedDoublewordElement(30845, //
 								soc = new ModbusReadLongChannel("Soc", this).unit("%").interval(0, 100)),
-						new DummyElement(30847,30848),
-						new SignedDoublewordElement(30849, //
-								batteryTemperature = new ModbusReadLongChannel("BatteryTemperature", this).unit("°C").multiplier(-1)),
+						new DummyElement(30847, 30848), new SignedDoublewordElement(30849, //
+								batteryTemperature = new ModbusReadLongChannel("BatteryTemperature", this).unit("°C")
+								.multiplier(-1)),
 						new UnsignedDoublewordElement(30851, //
-								batteryVoltage = new ModbusReadLongChannel("BatteryVoltage", this).unit("mV").multiplier(1))),
-				new ModbusRegisterRange(40189,
-						new UnsignedDoublewordElement(40189, //
-								allowedCharge = new ModbusReadLongChannel("AllowedCharge", this).unit("W").negate()),
+								batteryVoltage = new ModbusReadLongChannel("BatteryVoltage", this).unit("mV")
+								.multiplier(1))),
+				new ModbusRegisterRange(40189, new UnsignedDoublewordElement(40189, //
+						allowedCharge = new ModbusReadLongChannel("AllowedCharge", this).unit("W").negate()),
 						new UnsignedDoublewordElement(40191, //
-								allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this).unit("W"))
-						),
+								allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this).unit("W"))),
 				new WriteableModbusRegisterRange(40149, //
 						new SignedDoublewordElement(40149,
 								setActivePower = new ModbusWriteLongChannel("SetActivePower", this).unit("W")), //
 						new UnsignedDoublewordElement(40151,
-								setControlMode = new ModbusWriteLongChannel("SetControlMode", this).label(802, START).label(803, STOP)), //
+								setControlMode = new ModbusWriteLongChannel("SetControlMode", this).label(802, START)
+								.label(803, STOP)), //
 						new SignedDoublewordElement(40153,
-								setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this).unit("Var"))));
+								setReactivePower = new ModbusWriteLongChannel("SetReactivePower", this).unit("Var"))),
+				new WriteableModbusRegisterRange(40705,
+						new UnsignedDoublewordElement(40705,
+								minSocPowerOn = new ModbusWriteLongChannel("MinSocPowerOn", this)), //
+						new UnsignedDoublewordElement(40707,
+								minSocPowerOff = new ModbusWriteLongChannel("MinSocPowerOff", this))//
+						),
+				new WriteableModbusRegisterRange(41187,
+						new UnsignedDoublewordElement(41187,
+								meterSetting = new ModbusWriteLongChannel("MeterSetting", this)
+								.label(3053, "SMA Energy Meter").label(3547, "Wechselrichter"))));
 		return protokol;
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

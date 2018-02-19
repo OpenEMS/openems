@@ -25,6 +25,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -43,6 +44,7 @@ public class AcIsland extends Controller {
 	private State currentState = State.UNKNOWN;
 	private boolean isProducerDisconnected = false;
 	private long timeProducerDisconnected;
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	private enum State {
 		OFFGRID, ONGRID, SWITCHTOOFFGRID, SWITCHTOONGRID, UNKNOWN
@@ -60,6 +62,12 @@ public class AcIsland extends Controller {
 
 	@ChannelInfo(title = "time to wait before switch output on.", type = Long.class)
 	public ConfigChannel<Long> switchDelay = new ConfigChannel<Long>("switchDelay", this).defaultValue(10000L);
+
+	@ChannelInfo(title = "Invert-On-Grid-Output", description = "True if the digital output for the On-Grid connector should be inverted.", type = Boolean.class)
+	public ConfigChannel<Boolean> invertOnGridOutput = new ConfigChannel<Boolean>("invertOnGridOutput", this).defaultValue(false);
+
+	@ChannelInfo(title = "Invert-Off-Grid-Output", description = "True if the digital output for the Off-Grid connector should be inverted.", type = Boolean.class)
+	public ConfigChannel<Boolean> invertOffGridOutput = new ConfigChannel<Boolean>("invertOffGridOutput", this).defaultValue(false);
 
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "the address of the Digital Output where the on grid connection of producer is connected to.", type = String.class)
@@ -142,9 +150,9 @@ public class AcIsland extends Controller {
 						currentState = State.SWITCHTOONGRID;
 					} else {
 						if (soc >= maxSoc) {
-							this.getOffGridOutputChannel().pushWrite(false);
+							disconnectOffGrid();
 						} else if (soc <= minSoc) {
-							this.getOffGridOutputChannel().pushWrite(true);
+							connectOffGrid();
 						}
 					}
 				} else {
@@ -160,7 +168,7 @@ public class AcIsland extends Controller {
 					currentState = State.SWITCHTOONGRID;
 				}
 			}
-				break;
+			break;
 			case SWITCHTOOFFGRID:
 				if (isProducerOff) {
 					if (!isProducerDisconnected) {
@@ -173,8 +181,8 @@ public class AcIsland extends Controller {
 					}
 				} else {
 					isProducerDisconnected = false;
-					getOnGridOutputChannel().pushWrite(false);
-					getOffGridOutputChannel().pushWrite(false);
+					disconnectOnGrid();
+					disconnectOffGrid();
 				}
 				break;
 			case SWITCHTOONGRID:
@@ -189,12 +197,12 @@ public class AcIsland extends Controller {
 						}
 						if (timeProducerDisconnected + switchDelay <= System.currentTimeMillis()
 								&& isProducerDisconnected) {
-							getOnGridOutputChannel().pushWrite(true);
+							connectOnGrid();
 						}
 					} else {
 						isProducerDisconnected = false;
-						getOnGridOutputChannel().pushWrite(false);
-						getOffGridOutputChannel().pushWrite(false);
+						disconnectOnGrid();
+						disconnectOffGrid();
 					}
 				}
 				break;
@@ -205,7 +213,7 @@ public class AcIsland extends Controller {
 					currentState = State.SWITCHTOOFFGRID;
 				}
 			}
-				break;
+			break;
 
 			}
 		} catch (WriteChannelException | ConfigException e) {
@@ -214,21 +222,15 @@ public class AcIsland extends Controller {
 	}
 
 	private boolean isProducerOff() throws InvalidValueException, ConfigException {
-		WriteChannel<Boolean> onGridOutputChannel = this.getOnGridOutputChannel();
-		WriteChannel<Boolean> offGridOutputChannel = this.getOffGridOutputChannel();
-		return onGridOutputChannel.value() == false && offGridOutputChannel.value() == false;
+		return isOnGridOn() == false && isOffGridOn() == false;
 	}
 
 	private boolean isProducerOffGrid() throws InvalidValueException, ConfigException {
-		WriteChannel<Boolean> onGridOutputChannel = this.getOnGridOutputChannel();
-		WriteChannel<Boolean> offGridOutputChannel = this.getOffGridOutputChannel();
-		return onGridOutputChannel.value() == false && offGridOutputChannel.value() == true;
+		return isOnGridOn() == false && isOffGridOn() == true;
 	}
 
 	private boolean isProducerOnGrid() throws InvalidValueException, ConfigException {
-		WriteChannel<Boolean> onGridOutputChannel = this.getOnGridOutputChannel();
-		WriteChannel<Boolean> offGridOutputChannel = this.getOffGridOutputChannel();
-		return onGridOutputChannel.value() == true && offGridOutputChannel.value() == false;
+		return isOnGridOn() == true && isOffGridOn() == false;
 	}
 
 	private WriteChannel<Boolean> getOnGridOutputChannel() throws ConfigException {
@@ -245,5 +247,53 @@ public class AcIsland extends Controller {
 		} else {
 			throw new ConfigException("offGridOutputChannel is not available.");
 		}
+	}
+
+	private void connectOnGrid() throws ConfigException, WriteChannelException {
+		WriteChannel<Boolean> outputChannel = getOnGridOutputChannel();
+		boolean invertOutput = invertOnGridOutput.valueOptional().orElse(false);
+		switchOutput(outputChannel,true, invertOutput);
+	}
+
+	private void disconnectOnGrid() throws ConfigException, WriteChannelException {
+		WriteChannel<Boolean> outputChannel = getOnGridOutputChannel();
+		boolean invertOutput = invertOnGridOutput.valueOptional().orElse(false);
+		switchOutput(outputChannel,false, invertOutput);
+	}
+
+	private boolean isOnGridOn() throws ConfigException, InvalidValueException {
+		WriteChannel<Boolean> outputChannel = getOnGridOutputChannel();
+		boolean invertOutput = invertOnGridOutput.valueOptional().orElse(false);
+		return outputChannel.value() ^ invertOutput;
+	}
+
+	private void connectOffGrid() throws ConfigException, WriteChannelException {
+		WriteChannel<Boolean> outputChannel = getOffGridOutputChannel();
+		boolean invertOutput = invertOffGridOutput.valueOptional().orElse(false);
+		switchOutput(outputChannel,true, invertOutput);
+	}
+
+	private void disconnectOffGrid() throws ConfigException, WriteChannelException {
+		WriteChannel<Boolean> outputChannel = getOffGridOutputChannel();
+		boolean invertOutput = invertOffGridOutput.valueOptional().orElse(false);
+		switchOutput(outputChannel,false, invertOutput);
+	}
+
+	private boolean isOffGridOn() throws ConfigException, InvalidValueException {
+		WriteChannel<Boolean> outputChannel = getOffGridOutputChannel();
+		boolean invertOutput = invertOffGridOutput.valueOptional().orElse(false);
+		return outputChannel.value() ^ invertOutput;
+	}
+
+	private void switchOutput(WriteChannel<Boolean> outputChannel, boolean on,boolean invertOutput) throws WriteChannelException {
+		Optional<Boolean> currentValueOpt = outputChannel.valueOptional();
+		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (on ^ invertOutput)) {
+			outputChannel.pushWrite(on ^ invertOutput);
+		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

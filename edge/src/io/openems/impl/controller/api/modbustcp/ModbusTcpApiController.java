@@ -11,15 +11,16 @@ import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.core.ApiWorker;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.JsonUtils;
+import io.openems.core.utilities.api.ApiWorker;
 
 @ThingInfo(title = "Modbus/TCP API", description = "Modbus/TCP slave implementation.")
 public class ModbusTcpApiController extends Controller {
@@ -30,6 +31,7 @@ public class ModbusTcpApiController extends Controller {
 	private Optional<ModbusSlave> slaveOpt = Optional.empty();
 	private final ApiWorker apiWorker = new ApiWorker();
 	private final MyProcessImage processImage = new MyProcessImage(UNIT_ID, apiWorker);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	/*
 	 * Constructors
@@ -55,23 +57,34 @@ public class ModbusTcpApiController extends Controller {
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "Port", description = "Sets the port of the Modbus/TCP slave.", type = Integer.class, defaultValue = "502")
 	public final ConfigChannel<Integer> port = new ConfigChannel<Integer>("port", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				this.restartSlave((Optional<Integer>) newValue);
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		this.restartSlave((Optional<Integer>) newValue);
+	});
 
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "Mapping", description = "Defines the Modbus-to-Channel-mapping.", type = JsonObject.class, defaultValue = "{ '0': 'system0/OpenemsVersionMajor' }")
 	public final ConfigChannel<JsonObject> mapping = new ConfigChannel<JsonObject>("mapping", this)
-			.addChangeListener((channel, newValue, oldValue) -> {
-				this.updateChannelMapping((Optional<JsonObject>) newValue);
-			});
+	.addChangeListener((channel, newValue, oldValue) -> {
+		this.updateChannelMapping((Optional<JsonObject>) newValue);
+	});
+
+	@ChannelInfo(title = "ChannelTimeout", description = "Sets the timeout for updates to channels.", type = Integer.class, defaultValue = ""
+			+ ApiWorker.DEFAULT_TIMEOUT_SECONDS)
+	public final ConfigChannel<Integer> channelTimeout = new ConfigChannel<Integer>("channelTimeout", this)
+	.addChangeListener((Channel channel, Optional<?> newValue, Optional<?> oldValue) -> {
+		if(newValue.isPresent() && Integer.parseInt(newValue.get().toString()) >= 0) {
+			apiWorker.setTimeoutSeconds(Integer.parseInt(newValue.get().toString()));
+		} else {
+			apiWorker.setTimeoutSeconds(ApiWorker.DEFAULT_TIMEOUT_SECONDS);
+		}
+	});
 
 	/*
 	 * Methods
 	 */
 	@Override
 	public void run() {
-		this.apiWorker.writeChannels();
+		this.apiWorker.run();
 	}
 
 	protected void restartSlave(Optional<Integer> portOpt) {
@@ -125,5 +138,10 @@ public class ModbusTcpApiController extends Controller {
 				}
 			}
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

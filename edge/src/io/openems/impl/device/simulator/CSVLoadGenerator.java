@@ -2,6 +2,7 @@ package io.openems.impl.device.simulator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,13 +36,10 @@ public class CSVLoadGenerator implements LoadGenerator {
 		/**
 		 * Try to read the specified file and extract important information according the file's structure.
 		 */
+		BufferedReader br = null;
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(this.filepath));
-			try {
-				values = br.lines().collect(Collectors.toList());
-			} finally {
-				br.close();
-			}
+			br = new BufferedReader(new FileReader(this.filepath));
+			values = br.lines().collect(Collectors.toList());
 			String[] str = values.get(0).split("=");
 			separator = str[str.length - 1];
 			str = values.get(1).split(separator);
@@ -55,6 +53,14 @@ public class CSVLoadGenerator implements LoadGenerator {
 			count = -1;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					/* ignore */
+				}
+			}
 		}
 	}
 

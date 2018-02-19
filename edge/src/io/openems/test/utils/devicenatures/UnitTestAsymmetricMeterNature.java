@@ -7,6 +7,7 @@ import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.test.utils.channel.UnitTestReadChannel;
@@ -141,6 +142,12 @@ public class UnitTestAsymmetricMeterNature implements AsymmetricMeterNature {
 
 	@Override
 	public List<BridgeWriteTask> getWriteTasks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
 		// TODO Auto-generated method stub
 		return null;
 	}

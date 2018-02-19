@@ -13,6 +13,7 @@ import io.openems.backend.metadata.api.device.MetadataDevices;
 import io.openems.backend.timedata.api.TimedataSingleton;
 import io.openems.backend.utilities.StringUtils;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 
 public class TimedataDummySingleton implements TimedataSingleton {
 	private final Logger log = LoggerFactory.getLogger(TimedataDummySingleton.class);
@@ -28,5 +29,11 @@ public class TimedataDummySingleton implements TimedataSingleton {
 		log.info("Timedata Dummy. Would query data: From [" + fromDate + "], To [" + toDate + "] Channels [" + channels
 				+ "] Resolution [" + resolution + "]");
 		return new JsonArray();
+	}
+
+	@Override
+	public Optional<Object> getChannelValue(int deviceId, ChannelAddress channelAddress) {
+		log.info("Timedata Dummy has no cache...");
+		return Optional.empty();
 	}
 }

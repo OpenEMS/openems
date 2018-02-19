@@ -35,16 +35,4 @@ export class MoreComponent implements OnInit {
       "message": this.formBuilder.control('')
     });
   }
-
-  public sendManualMessage(form: FormGroup) {
-    try {
-      let obj = JSON.parse(form["value"]["message"]);
-      this.device.send(obj);
-    } catch (e) {
-      this.service.notify({
-        type: "error",
-        message: (<Error>e).message
-      });
-    }
-  }
 }

@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.InputNature;
 import io.openems.api.doc.ChannelInfo;
@@ -47,6 +48,7 @@ public class WagoFBInput extends ModbusDeviceNature implements InputNature {
 	 */
 	public WagoFBInput(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -59,6 +61,8 @@ public class WagoFBInput extends ModbusDeviceNature implements InputNature {
 	 * This Channels
 	 */
 	private List<ModbusCoilReadChannel> channel = new ArrayList<>();
+
+	private ThingStateChannels thingState;
 
 	/*
 	 * Methods
@@ -95,7 +99,7 @@ public class WagoFBInput extends ModbusDeviceNature implements InputNature {
 								elements.toArray(new CoilElement[elements.size()])));
 					}
 				}
-					break;
+				break;
 				}
 			}
 		} catch (InvalidValueException e) {
@@ -105,4 +109,8 @@ public class WagoFBInput extends ModbusDeviceNature implements InputNature {
 		return protocol;
 	}
 
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
+	}
 }

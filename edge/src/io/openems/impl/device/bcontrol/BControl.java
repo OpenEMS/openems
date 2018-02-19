@@ -22,7 +22,8 @@ public class BControl extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Meter", description = "Sets the meter nature.", type = BControlMeter.class)
-	public final ConfigChannel<BControlMeter> meter = new ConfigChannel<>("meter", this);
+	public final ConfigChannel<BControlMeter> meter = new ConfigChannel<BControlMeter>("meter", this)
+	.addChangeListener(this);
 
 	/*
 	 * Methods
@@ -35,4 +36,5 @@ public class BControl extends ModbusDevice {
 		}
 		return natures;
 	}
+
 }

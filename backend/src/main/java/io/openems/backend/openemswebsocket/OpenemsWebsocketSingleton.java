@@ -135,7 +135,8 @@ public class OpenemsWebsocketSingleton
 	@Override
 	protected void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
 			Optional<String> deviceNameOpt) {
-		MetadataDevices devices = this.getSessionFromWebsocket(websocket).get().getData().getDevices();
+		OpenemsSessionData sessionData = this.getSessionFromWebsocket(websocket).get().getData();
+		MetadataDevices devices = sessionData.getDevices();
 
 		// if (!jMessage.has("timedata") && !jMessage.has("currentData") && !jMessage.has("log")
 		// && !jMessage.has("config")) {
@@ -150,8 +151,8 @@ public class OpenemsWebsocketSingleton
 				JsonObject jConfig = JsonUtils.getAsJsonObject(jMessage, "config");
 				for (MetadataDevice device : devices) {
 					device.setOpenemsConfig(jConfig);
-					device.writeObject();
 				}
+				sessionData.setOpenemsConfig(jConfig);
 				log.info("Device [" + devices.getNamesString() + "] sent config.");
 			} catch (OpenemsException e) {
 				log.error(e.getMessage());
@@ -292,12 +293,23 @@ public class OpenemsWebsocketSingleton
 	 * @param name
 	 * @return
 	 */
+	public Optional<OpenemsSession> getOpenemsSession(String deviceName) {
+		return this.sessionManager.getSessionByDeviceName(deviceName);
+	}
+
+	/**
+	 * Returns true if this device is currently connected
+	 *
+	 * @param name
+	 * @return
+	 */
 	public boolean isOpenemsWebsocketConnected(String deviceName) {
-		Optional<OpenemsSession> sessionOpt = this.sessionManager.getSessionByDeviceName(deviceName);
-		if (!sessionOpt.isPresent()) {
+		Optional<OpenemsSession> sessionOpt = getOpenemsSession(deviceName);
+		if (sessionOpt.isPresent()) {
+			return true;
+		} else {
 			return false;
 		}
-		return true;
 	}
 
 	/**

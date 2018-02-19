@@ -20,24 +20,16 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see io.openems.backend.metadata.odoo.device.Device#getId()
-	 */
-	@Override
-	public Integer getId() {
-		return (Integer) get(Field.ID);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
 	 * @see io.openems.backend.metadata.odoo.device.Device#getNameNumber()
 	 */
 	@Override
-	public Optional<Integer> getNameNumber() {
-		try {
-			return Optional.ofNullable(Integer.valueOf(get(Field.NAME_NUMBER).toString()));
-		} catch (Exception e) { /* ignore */ }
-		return Optional.empty();
+	public Optional<Integer> getIdOpt() {
+		Optional<Object> objOpt = this.getOpt(Field.NAME_NUMBER);
+		if (objOpt.isPresent()) {
+			return Optional.of((Integer) objOpt.get());
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	/*
@@ -47,7 +39,7 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 	 */
 	@Override
 	public String getName() {
-		return getOr(Field.NAME, "UNKNOWN").toString();
+		return this.getOpt(Field.NAME).orElse("UNKOWN").toString();
 	}
 
 	/*
@@ -57,7 +49,7 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 	 */
 	@Override
 	public String getComment() {
-		return getOr(Field.COMMENT, "").toString();
+		return this.getOpt(Field.COMMENT).orElse("UNKOWN").toString();
 	}
 
 	/*
@@ -67,7 +59,7 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 	 */
 	@Override
 	public String getState() {
-		return getOr(Field.STATE, "").toString();
+		return this.getOpt(Field.STATE).orElse("UNKOWN").toString();
 	}
 
 	/*
@@ -77,7 +69,7 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 	 */
 	@Override
 	public String getProductType() {
-		return getOr(Field.PRODUCT_TYPE, "").toString();
+		return this.getOpt(Field.PRODUCT_TYPE).orElse("UNKOWN").toString();
 	}
 
 	/*
@@ -87,9 +79,9 @@ public class OdooDevice extends OdooObject implements MetadataDevice {
 	 */
 	@Override
 	public JsonObject getOpenemsConfig() {
-		Object config = get(Field.OPENEMS_CONFIG);
-		if (config != null) {
-			return (new JsonParser()).parse(get(Field.OPENEMS_CONFIG).toString()).getAsJsonObject();
+		Optional<Object> objOpt = this.getOpt(Field.OPENEMS_CONFIG);
+		if (objOpt.isPresent()) {
+			return new JsonParser().parse(objOpt.get().toString()).getAsJsonObject();
 		} else {
 			return new JsonObject();
 		}

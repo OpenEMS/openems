@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.exception.OpenemsException;
+import io.openems.core.utilities.api.ApiWorker;
 
 public class ComponentSingleton {
 
@@ -35,35 +36,35 @@ public class ComponentSingleton {
 
 	private final static Logger log = LoggerFactory.getLogger(ComponentSingleton.class);
 
-	protected static synchronized Component getComponent(ConfigChannel<Integer> port) throws OpenemsException {
+	protected static synchronized Component getComponent(ConfigChannel<Integer> port, ApiWorker apiWorker) throws OpenemsException {
 		if (port.valueOptional().isPresent()) {
-			return getComponent(port.valueOptional().get());
+			return getComponent(port.valueOptional().get(), apiWorker);
 		}
 		throw new OpenemsException("Unable to start REST-Api: port is not set");
 	}
 
-	protected static synchronized Component getComponent(int port) throws OpenemsException {
+	protected static synchronized Component getComponent(int port, ApiWorker apiWorker) throws OpenemsException {
 		if (ComponentSingleton.instance != null
 				&& (ComponentSingleton.port == null || ComponentSingleton.port != port)) {
 			// port changed -> restart
-			ComponentSingleton.restartComponent(port);
+			ComponentSingleton.restartComponent(port, apiWorker);
 		}
 		if (ComponentSingleton.instance == null) {
 			// instance not available -> start
-			startComponent(port);
+			startComponent(port, apiWorker);
 		}
 		return ComponentSingleton.instance;
 	}
 
-	protected static synchronized void restartComponent(int port) throws OpenemsException {
+	protected static synchronized void restartComponent(int port, ApiWorker apiWorker) throws OpenemsException {
 		stopComponent();
-		startComponent(port);
+		startComponent(port, apiWorker);
 	}
 
-	private static synchronized void startComponent(int port) throws OpenemsException {
+	private static synchronized void startComponent(int port, ApiWorker apiWorker) throws OpenemsException {
 		ComponentSingleton.instance = new Component();
 		ComponentSingleton.instance.getServers().add(Protocol.HTTP, port);
-		ComponentSingleton.instance.getDefaultHost().attach("/rest", new RestApiApplication());
+		ComponentSingleton.instance.getDefaultHost().attach("/rest", new RestApiApplication(apiWorker));
 		try {
 			ComponentSingleton.instance.start();
 			ComponentSingleton.port = port;

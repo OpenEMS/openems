@@ -9,7 +9,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.Device;
+import io.openems.common.types.DeviceImpl;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
@@ -40,7 +40,7 @@ public class DefaultMessages {
 	 * @return
 	 */
 	public static JsonObject browserConnectionSuccessfulReply(String token, Optional<String> roleOpt,
-			Collection<Device> devices) {
+			Collection<DeviceImpl> devices) {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "allow");
 		if (roleOpt.isPresent()) {
@@ -52,7 +52,7 @@ public class DefaultMessages {
 		JsonObject jMetadata = new JsonObject();
 		if (!devices.isEmpty()) {
 			JsonArray jDevices = new JsonArray();
-			for (Device device : devices) {
+			for (DeviceImpl device : devices) {
 				JsonObject jDevice = new JsonObject();
 				jDevice.addProperty("name", device.getName());
 				jDevice.addProperty("comment", device.getComment());
@@ -193,9 +193,12 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject currentData(JsonArray jId, JsonObject jCurrentData) {
+	public static JsonObject currentData(JsonArray jId, Optional<String> deviceNameOpt, JsonObject jCurrentData) {
 		JsonObject j = new JsonObject();
 		j.add("id", jId);
+		if(deviceNameOpt.isPresent()) {
+			j.addProperty("device", deviceNameOpt.get());
+		}
 		j.add("currentData", jCurrentData);
 		return j;
 	}
@@ -233,7 +236,7 @@ public class DefaultMessages {
 	 *	{
 	 *		notification: {
 	 *			id: string[],
-	 *			status: string,
+	 *			type: string,
 	 *			message: string,
 	 *			code: number,
 	 *			params: string[]
@@ -247,7 +250,7 @@ public class DefaultMessages {
 		JsonObject j = new JsonObject();
 		j.add("id", jId);
 		JsonObject jNotification = new JsonObject();
-		jNotification.addProperty("status", code.getStatus().toString().toLowerCase());
+		jNotification.addProperty("type", code.getType().toString().toLowerCase());
 		jNotification.addProperty("message", message);
 		jNotification.addProperty("code", code.getValue());
 		JsonArray jParams = new JsonArray();

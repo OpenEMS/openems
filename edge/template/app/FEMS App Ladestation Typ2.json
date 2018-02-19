@@ -1,0 +1,30 @@
+{
+	"ACHTUNG": "IP-Adresse 192.168.25.11 muss erreichbar sein!"
+},
+{
+	"class": "io.openems.impl.protocol.keba.KebaBridge",
+	"devices": [
+		{
+			"class": "io.openems.impl.device.keba.Keba",
+			"ip": "192.168.25.11",
+			"evcs": {
+				"id": "evcs0"
+			}
+		}
+	]
+},
+{
+	"class": "io.openems.impl.controller.evcs.EvcsController",
+	"meter": "meter0",
+	"ess": "ess0",
+	"priority": 10,
+	"forceCharge": false,
+	"evcs": "evcs0"
+},
+{
+	"class": "io.openems.impl.controller.debuglog.DebugLogController",
+	"evcss": [
+		"evcs0"
+	],
+	"priority": 150
+}

@@ -3,6 +3,7 @@ package io.openems.impl.device.minireadonly;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.api.doc.ThingInfo;
@@ -17,11 +18,14 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "FENECON Mini Grid-Meter")
 public class FeneconMiniGridMeter extends ModbusDeviceNature implements SymmetricMeterNature {
 
+	private ThingStateChannels thingState;
+
 	/*
 	 * Constructors
 	 */
 	public FeneconMiniGridMeter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -93,16 +97,22 @@ public class FeneconMiniGridMeter extends ModbusDeviceNature implements Symmetri
 		ModbusProtocol protocol = new ModbusProtocol( //
 				new ModbusRegisterRange(4004, //
 						new SignedWordElement(4004, //
-								this.activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").negate())),
+								this.activePower = new ModbusReadLongChannel("ActivePower", this).unit("W").negate()
+								.ignore(-10000l))),
 				new ModbusRegisterRange(5003, //
 						new UnsignedDoublewordElement(5003, //
 								this.sellToGridEnergy = new ModbusReadLongChannel("SellToGridEnergy", this).unit("Wh")
-										.multiplier(2)),
+								.multiplier(2)),
 						new UnsignedDoublewordElement(5005, //
 								this.buyFromGridEnergy = new ModbusReadLongChannel("BuyFromGridEnergy", this).unit("Wh")
-										.multiplier(2))));
+								.multiplier(2))));
 
 		return protocol;
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

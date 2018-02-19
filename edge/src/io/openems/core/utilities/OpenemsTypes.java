@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.NotImplementedException;
+import io.openems.common.types.ChannelEnum;
 
 /**
  * All types that are used somewhere in the system. This helps with type casting and reflection in certain classes, as
@@ -20,7 +21,7 @@ public enum OpenemsTypes {
 	/*
 	 * Primitives
 	 */
-	INTEGER, LONG, DOUBLE, BOOLEAN, STRING, //
+	SHORT, INTEGER, LONG, DOUBLE, BOOLEAN, STRING, //
 	/*
 	 * Arrays of primitives
 	 */
@@ -36,10 +37,18 @@ public enum OpenemsTypes {
 	/*
 	 * Things
 	 */
-	DEVICE_NATURE, THING_MAP;
+	DEVICE_NATURE, THING_MAP,
+	/*
+	 * Enum
+	 */
+	ENUM
+	;
 
 	public static OpenemsTypes get(Class<?> type) throws NotImplementedException {
-		if (Integer.class.isAssignableFrom(type)) {
+		if (Short.class.isAssignableFrom(type)) {
+			return SHORT;
+
+		} else if (Integer.class.isAssignableFrom(type)) {
 			return INTEGER;
 
 		} else if (Long.class.isAssignableFrom(type)) {
@@ -71,6 +80,8 @@ public enum OpenemsTypes {
 
 		} else if (ThingMap.class.isAssignableFrom(type)) {
 			return THING_MAP;
+		}else if (ChannelEnum.class.isAssignableFrom(type)) {
+			return ENUM;
 		}
 		throw new NotImplementedException("Type [" + type + "] is not defined as OpenemsType.");
 	}
