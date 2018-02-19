@@ -33,7 +33,7 @@ import info.faljse.SDNotify.SDNotify;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -46,11 +46,11 @@ import io.openems.core.ThingRepository;
 @ThingInfo(title = "Channel threshold app-planer", description = "app-planer with thresholds on configured channel to run different controllers by threshold on channel.")
 public class ChannelThresholdScheduler extends Scheduler {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	public ChannelThresholdScheduler() {
 		thingRepository = ThingRepository.getInstance();
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -294,7 +294,7 @@ public class ChannelThresholdScheduler extends Scheduler {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }

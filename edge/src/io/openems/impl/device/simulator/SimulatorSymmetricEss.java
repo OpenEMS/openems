@@ -35,9 +35,10 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StaticThingStateChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.device.nature.ess.EssNature;
@@ -53,6 +54,7 @@ import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.power.PGreaterEqualLimitation;
 import io.openems.core.utilities.power.PSmallerEqualLimitation;
 import io.openems.core.utilities.power.SymmetricPowerImpl;
+import io.openems.impl.protocol.modbus.FaultModbus;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
@@ -77,14 +79,19 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	private SymmetricPowerImpl power;
 	private PGreaterEqualLimitation allowedChargeLimit;
 	private PSmallerEqualLimitation allowedDischargeLimit;
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Constructors
 	 */
 	public SimulatorSymmetricEss(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
+
+		StaticThingStateChannel tmp = new StaticThingStateChannel(FaultModbus.ConfigurationFault, this, false);
+		tmp.setValue(true);
+		thingState.addFaultChannel(tmp);
+
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2
 			if (channel == minSoc && !chargeSoc.valueOptional().isPresent()) {
@@ -385,7 +392,7 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

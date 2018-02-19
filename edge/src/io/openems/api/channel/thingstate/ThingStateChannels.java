@@ -9,17 +9,18 @@ import java.util.Set;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.ThingStateChannel;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.Thing;
 
-public class ThingStateChannel extends ReadChannel<ThingState> implements ChannelChangeListener {
+public class ThingStateChannels extends ReadChannel<ThingState> implements ChannelChangeListener {
 
-	private List<ReadChannel<Boolean>> warningChannels;
-	private List<ReadChannel<Boolean>> faultChannels;
-	private List<ThingStateChannel> childChannels;
+	private List<ThingStateChannel> warningChannels;
+	private List<ThingStateChannel> faultChannels;
+	private List<ThingStateChannels> childChannels;
 	private Set<String> channelNames;
 
-	public ThingStateChannel(Thing parent){
+	public ThingStateChannels(Thing parent){
 		super("State", parent);
 		this.warningChannels = new ArrayList<>();
 		this.faultChannels = new ArrayList<>();
@@ -28,7 +29,7 @@ public class ThingStateChannel extends ReadChannel<ThingState> implements Channe
 		updateState();
 	}
 
-	public void addWarningChannel(ReadChannel<Boolean> channel) throws ConfigException {
+	public void addWarningChannel(ThingStateChannel channel) throws ConfigException {
 		if (!this.channelNames.contains(channel.address())) {
 			this.warningChannels.add(channel);
 			this.channelNames.add(channel.address());
@@ -39,14 +40,14 @@ public class ThingStateChannel extends ReadChannel<ThingState> implements Channe
 		}
 	}
 
-	public void removeWarningChannel(ReadChannel<Boolean> channel) {
+	public void removeWarningChannel(ThingStateChannel channel) {
 		channel.removeChangeListener(this);
 		this.channelNames.remove(channel.address());
 		this.warningChannels.remove(channel);
 		updateState();
 	}
 
-	public void addFaultChannel(ReadChannel<Boolean> channel) throws ConfigException {
+	public void addFaultChannel(ThingStateChannel channel) throws ConfigException {
 		if (!this.channelNames.contains(channel.address())) {
 			this.faultChannels.add(channel);
 			this.channelNames.add(channel.address());
@@ -57,38 +58,38 @@ public class ThingStateChannel extends ReadChannel<ThingState> implements Channe
 		}
 	}
 
-	public void removeFaultChannel(ReadChannel<Boolean> channel) {
+	public void removeFaultChannel(ThingStateChannel channel) {
 		channel.removeChangeListener(this);
 		this.channelNames.remove(channel.address());
 		this.faultChannels.remove(channel);
 		updateState();
 	}
 
-	public List<ReadChannel<Boolean>> getWarningChannels() {
-		List<ReadChannel<Boolean>> warningChannels = new ArrayList<>();
+	public List<ThingStateChannel> getWarningChannels() {
+		List<ThingStateChannel> warningChannels = new ArrayList<>();
 		warningChannels.addAll(this.warningChannels);
-		for(ThingStateChannel child : this.childChannels) {
+		for(ThingStateChannels child : this.childChannels) {
 			warningChannels.addAll(child.getWarningChannels());
 		}
 		return warningChannels;
 	}
 
-	public List<ReadChannel<Boolean>> getFaultChannels() {
-		List<ReadChannel<Boolean>> faultChannels = new ArrayList<>();
+	public List<ThingStateChannel> getFaultChannels() {
+		List<ThingStateChannel> faultChannels = new ArrayList<>();
 		faultChannels.addAll(this.faultChannels);
-		for(ThingStateChannel child : this.childChannels) {
+		for(ThingStateChannels child : this.childChannels) {
 			faultChannels.addAll(child.getFaultChannels());
 		}
 		return this.faultChannels;
 	}
 
-	public void addChildChannel(ThingStateChannel child) {
+	public void addChildChannel(ThingStateChannels child) {
 		this.childChannels.add(child);
 		child.addChangeListener(this);
 		updateState();
 	}
 
-	public void removeChildChannel(ThingStateChannel child) {
+	public void removeChildChannel(ThingStateChannels child) {
 		child.removeChangeListener(this);
 		this.childChannels.add(child);
 		updateState();
@@ -100,7 +101,7 @@ public class ThingStateChannel extends ReadChannel<ThingState> implements Channe
 	}
 
 	private void updateState() {
-		for(ThingStateChannel child : this.childChannels) {
+		for(ThingStateChannels child : this.childChannels) {
 			if(child.isValuePresent()) {
 				switch(child.getValue()) {
 				case FAULT:
@@ -114,13 +115,13 @@ public class ThingStateChannel extends ReadChannel<ThingState> implements Channe
 				}
 			}
 		}
-		for (ReadChannel<Boolean> faultChannel : faultChannels) {
+		for (ThingStateChannel faultChannel : faultChannels) {
 			if (faultChannel.isValuePresent() && faultChannel.getValue()) {
 				updateValue(ThingState.FAULT);
 				return;
 			}
 		}
-		for (ReadChannel<Boolean> warningChannel : warningChannels) {
+		for (ThingStateChannel warningChannel : warningChannels) {
 			if (warningChannel.isValuePresent() && warningChannel.getValue()) {
 				updateValue(ThingState.WARNING);
 				return;

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.api.bridge.BridgeEvent.Position;
 import io.openems.api.channel.DebugChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
@@ -58,7 +58,7 @@ public abstract class Bridge extends Thread implements Thing {
 	private DebugChannel<Long> requiredCycleTime = new DebugChannel<>("RequiredCycleTime", this);
 	private Map<BridgeEventListener, Long> eventListener = new HashMap<>();
 	private DebugChannel<Integer> readOtherTaskReadCount = new DebugChannel<>("ReadOtherTaskReadCount", this);
-	protected ThingStateChannel thingState;
+	protected ThingStateChannels thingState;
 
 	/**
 	 * Initialize the Thread with a name
@@ -68,7 +68,7 @@ public abstract class Bridge extends Thread implements Thing {
 	public Bridge() {
 		log = LoggerFactory.getLogger(this.getClass());
 		setName(THINGID_PREFIX + instanceCounter++);
-		thingState = new ThingStateChannel(this);
+		thingState = new ThingStateChannels(this);
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public abstract class Bridge extends Thread implements Thing {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

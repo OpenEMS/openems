@@ -24,7 +24,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.doc.ChannelInfo;
@@ -37,14 +37,14 @@ import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 @ThingInfo(title = "Simulator Charger")
 public class SimulatorCharger extends SimulatorDeviceNature implements ChargerNature {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Constructors
 	 */
 	public SimulatorCharger(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -106,7 +106,7 @@ public class SimulatorCharger extends SimulatorDeviceNature implements ChargerNa
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

@@ -3,7 +3,7 @@ package io.openems.impl.controller.evcs;
 import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -27,7 +27,7 @@ public class EvcsController extends Controller {
 	private Optional<Integer> lastCurrentMilliAmp = Optional.empty();
 	private int lagCountdown = CONTROL_LAG;
 	private int waitForValueSet = WAIT_FOR_VALUE_SET;
-	private ThingStateChannel thingState = new ThingStateChannel(this);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	/*
 	 * Constructors
@@ -146,7 +146,7 @@ public class EvcsController extends Controller {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }

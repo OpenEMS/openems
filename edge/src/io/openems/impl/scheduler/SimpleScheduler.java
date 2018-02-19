@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import info.faljse.SDNotify.SDNotify;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.scheduler.Scheduler;
@@ -33,13 +33,13 @@ import io.openems.api.scheduler.Scheduler;
 @ThingInfo(title = "App-Planner")
 public class SimpleScheduler extends Scheduler {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Constructors
 	 */
 	public SimpleScheduler() {
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -67,7 +67,7 @@ public class SimpleScheduler extends Scheduler {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

@@ -22,7 +22,7 @@ package io.openems.impl.device.carlogavazzi.em300series;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
@@ -41,14 +41,14 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "Socomec Meter")
 public class EM300Meter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Constructors
 	 */
 	public EM300Meter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -252,7 +252,7 @@ public class EM300Meter extends ModbusDeviceNature implements SymmetricMeterNatu
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }

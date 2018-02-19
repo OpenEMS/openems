@@ -18,7 +18,7 @@ import io.openems.api.channel.FunctionalWriteChannel;
 import io.openems.api.channel.FunctionalWriteChannelFunction;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.device.nature.ess.EssNature;
@@ -41,7 +41,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 
 	private final Logger log = LoggerFactory.getLogger(EssClusterNature.class);
 	private List<ThingChannelsUpdatedListener> listeners;
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	private static ThingRepository repo = ThingRepository.getInstance();
 
@@ -279,7 +279,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 		this.listeners = new ArrayList<>();
 		Config.getInstance().addBridgeInitializedEventListener(this);
 		power = new SymmetricPowerClusterImpl();
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	@Override
@@ -458,7 +458,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

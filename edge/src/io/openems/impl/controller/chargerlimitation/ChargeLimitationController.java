@@ -3,7 +3,7 @@ package io.openems.impl.controller.chargerlimitation;
 import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -11,7 +11,7 @@ import io.openems.api.doc.ThingInfo;
 @ThingInfo(title = "Limit battery charge from DC", description = "Limits the maximum charge of the battery from DC connected charger.")
 public class ChargeLimitationController extends Controller {
 
-	private ThingStateChannel thingState = new ThingStateChannel(this);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
@@ -67,7 +67,7 @@ public class ChargeLimitationController extends Controller {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

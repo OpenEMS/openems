@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.io.OutputNature;
 import io.openems.api.doc.ChannelInfo;
@@ -49,7 +49,7 @@ public class WagoFBOutput extends ModbusDeviceNature implements OutputNature {
 	 */
 	public WagoFBOutput(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -63,7 +63,7 @@ public class WagoFBOutput extends ModbusDeviceNature implements OutputNature {
 	 */
 	private List<ModbusCoilWriteChannel> channel = new ArrayList<>();
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Methods
@@ -111,7 +111,7 @@ public class WagoFBOutput extends ModbusDeviceNature implements OutputNature {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }

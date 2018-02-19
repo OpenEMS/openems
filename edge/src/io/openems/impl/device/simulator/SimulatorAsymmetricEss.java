@@ -34,7 +34,7 @@ import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
@@ -59,7 +59,7 @@ implements AsymmetricEssNature, ChannelChangeListener {
 	private ThingRepository repo = ThingRepository.getInstance();
 	private LoadGenerator offGridActivePowerGenerator = new RandomLoadGenerator();
 	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator();
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Constructors
@@ -72,7 +72,7 @@ implements AsymmetricEssNature, ChannelChangeListener {
 				chargeSoc.updateValue((Integer) newValue.get() - 2, false);
 			}
 		});
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 		long initialSoc = SimulatorTools.addRandomLong(90, 90, 100, 5);
 		this.energy = capacity.valueOptional().get() / 100 * initialSoc;
 		this.soc = new FunctionalReadChannel<Long>("Soc", this, (channels) -> {
@@ -386,7 +386,7 @@ implements AsymmetricEssNature, ChannelChangeListener {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

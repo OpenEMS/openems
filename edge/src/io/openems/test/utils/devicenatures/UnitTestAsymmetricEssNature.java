@@ -9,7 +9,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.impl.device.simulator.SimulatorTools;
@@ -202,7 +202,7 @@ public class UnitTestAsymmetricEssNature implements AsymmetricEssNature {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		// TODO Auto-generated method stub
 		return null;
 	}

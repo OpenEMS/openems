@@ -32,7 +32,7 @@ import java.util.List;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
@@ -43,7 +43,7 @@ import io.openems.impl.protocol.system.SystemReadChannel;
 @ThingInfo(title = "Operating system")
 public class SystemNature extends SystemDeviceNature implements io.openems.api.device.nature.system.SystemNature {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Constructors
@@ -60,7 +60,7 @@ public class SystemNature extends SystemDeviceNature implements io.openems.api.d
 		} catch (UnknownHostException e) {
 			throw new ConfigException("Error initializing OpenEMS Static IP: " + e.getMessage());
 		}
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -157,7 +157,7 @@ public class SystemNature extends SystemDeviceNature implements io.openems.api.d
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }

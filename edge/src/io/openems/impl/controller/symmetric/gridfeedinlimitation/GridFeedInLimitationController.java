@@ -21,7 +21,7 @@
 package io.openems.impl.controller.symmetric.gridfeedinlimitation;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -31,7 +31,7 @@ import io.openems.core.utilities.power.PowerException;
 @ThingInfo(title = "", description = "Calulates maximal Ess power to avoid grid feed in.")
 public class GridFeedInLimitationController extends Controller {
 
-	private ThingStateChannel thingState = new ThingStateChannel(this);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	/*
 	 * Constructors
@@ -74,7 +74,7 @@ public class GridFeedInLimitationController extends Controller {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

@@ -22,7 +22,7 @@ package io.openems.impl.device.socomec;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
@@ -39,14 +39,14 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 @ThingInfo(title = "Socomec Meter")
 public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNature, AsymmetricMeterNature {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	/*
 	 * Constructors
 	 */
 	public SocomecMeter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -256,7 +256,7 @@ public class SocomecMeter extends ModbusDeviceNature implements SymmetricMeterNa
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }

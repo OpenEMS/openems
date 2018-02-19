@@ -18,33 +18,30 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.device.keba;
+package io.openems.api.channel;
 
-import io.openems.api.channel.thingstate.ThingStateChannels;
-import io.openems.api.device.nature.evcs.EvcsNature;
-import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.ConfigException;
-import io.openems.impl.protocol.keba.KebaDevice;
-import io.openems.impl.protocol.keba.KebaDeviceNature;
+import io.openems.api.channel.thingstate.ThingStateEnum;
+import io.openems.api.thing.Thing;
 
-@ThingInfo(title = "KEBA KeContact EVCS")
-public class KebaEvcs extends KebaDeviceNature implements EvcsNature {
+public class StaticThingStateChannel extends ThingStateChannel {
 
-	private ThingStateChannels thingState;
-
-	public KebaEvcs(String thingId, KebaDevice parent) throws ConfigException {
-		super(thingId, parent);
-		this.thingState = new ThingStateChannels(this);
+	public StaticThingStateChannel(ThingStateEnum state, Thing parent, boolean value) {
+		super(state, parent);
+		this.updateValue(value);
 	}
 
-	@Override
-	public String toString() {
-		return state.format() + ";" + plug.format() + ";current:" + currUser.format() + "|" + currHardware.format()
-		+ ";energy:" + energySession.format() + "|" + energyTotal.format();
+	@Override public StaticThingStateChannel addUpdateListener(ChannelUpdateListener... listeners) {
+		super.addUpdateListener(listeners);
+		return this;
 	}
 
-	@Override
-	public ThingStateChannels getStateChannel() {
-		return this.thingState;
+	@Override public StaticThingStateChannel addChangeListener(ChannelChangeListener... listeners) {
+		super.addChangeListener(listeners);
+		return this;
 	}
+
+	public void setValue(boolean b) {
+		this.updateValue(b);
+	}
+
 }

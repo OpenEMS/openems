@@ -33,7 +33,7 @@ import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.StaticValueChannel;
+import io.openems.api.channel.StaticThingStateChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -68,14 +68,14 @@ public class ModbusTcp extends ModbusBridge {
 
 	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
 	private Optional<TCPMasterConnection> connection = Optional.empty();
-	private StaticValueChannel<Boolean> configurationFault;
-	private StaticValueChannel<Boolean> connectionFault;
+	private StaticThingStateChannel configurationFault;
+	private StaticThingStateChannel connectionFault;
 
 	public ModbusTcp() throws ConfigException {
 		super();
-		this.configurationFault = new StaticValueChannel<Boolean>("Fault\0", this, false);
+		this.configurationFault = new StaticThingStateChannel(FaultModbus.ConfigurationFault, this, false);
 		super.thingState.addFaultChannel(this.configurationFault);
-		this.connectionFault = new StaticValueChannel<Boolean>("Fault\1", this, false);
+		this.connectionFault = new StaticThingStateChannel(FaultModbus.ConnectionFault, this, false);
 		super.thingState.addFaultChannel(this.connectionFault);
 	}
 

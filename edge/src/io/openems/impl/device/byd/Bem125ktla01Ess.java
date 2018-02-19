@@ -24,7 +24,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
@@ -70,7 +70,7 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	/*
 	 * Inherited Channels
 	 */
-	private ThingStateChannel thingState = new ThingStateChannel(this);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	private ModbusReadChannel<Long> soc;
 	private StaticValueChannel<Long> allowedCharge = new StaticValueChannel<Long>("AllowedCharge", this, 0L);
 	private StaticValueChannel<Long> allowedDischarge = new StaticValueChannel<Long>("AllowedDischarge", this, 0L);
@@ -255,7 +255,7 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return thingState;
 	}
 }

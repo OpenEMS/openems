@@ -80,7 +80,9 @@ export class ConfigImpl implements DefaultTypes.Config {
              * Natures
              */
             // Ess
-            if (i.includes("EssNature") && !i.includes("EssClusterNature") /* ignore cluster */) {
+            if (i.includes("EssNature")
+                && !i.includes("EssClusterNature") /* ignore cluster */
+                && !i.includes("AsymmetricSymmetricCombinationEssNature") /* ignore symmetric Ess of Pro 9-12 */) {
                 storageThings.push(thingId);
             }
             // Meter
@@ -175,7 +177,9 @@ export class ConfigImpl implements DefaultTypes.Config {
             let i = this.getImplements(this.config.things[thingId]);
             let channels = [];
             // ESS
-            if (i.includes("EssNature") && !i.includes("EssClusterNature") /* ignore cluster */) {
+            if (i.includes("EssNature")
+                && !i.includes("EssClusterNature") /* ignore cluster */
+                && !i.includes("AsymmetricSymmetricCombinationEssNature") /* ignore symmetric Ess of Pro 9-12 */) {
                 if (i.includes("AsymmetricEssNature")) {
                     channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
                 } else if (i.includes("SymmetricEssNature")) {

@@ -20,7 +20,10 @@
  *******************************************************************************/
 package io.openems.impl.controller.symmetric.avoidtotaldischargesoctimeline;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Set;
@@ -32,7 +35,7 @@ import com.google.gson.JsonObject;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -43,7 +46,7 @@ import io.openems.impl.controller.symmetric.avoidtotaldischargesoctimeline.Ess.S
 @ThingInfo(title = "Avoid total discharge of battery (Symmetric)", description = "Makes sure the battery is not going into critically low state of charge. For symmetric Ess.")
 public class AvoidTotalDischargeSocTimeLineController extends Controller implements ChannelChangeListener {
 
-	private ThingStateChannel thingState = new ThingStateChannel(this);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
@@ -64,6 +67,21 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 	@ChannelInfo(title = "Soc timeline", description = "This option configures an minsoc at a time for an ess. If no minsoc for an ess is configured the controller uses the minsoc of the ess.", type = JsonArray.class)
 	public final ConfigChannel<JsonArray> socTimeline = new ConfigChannel<JsonArray>("socTimeline", this)
 	.addChangeListener(this);
+	@ChannelInfo(title = "Next Discharge", description = "Next Time, the ess will discharge completely.", type = String.class, defaultValue = "2018-03-09")
+	public final ConfigChannel<String> nextDischarge = new ConfigChannel<String>("nextDischarge", this)
+	.addChangeListener(this);
+	@ChannelInfo(title = "Discharge Period", description = "The Period of time between two Discharges.https://docs.oracle.com/javase/8/docs/api/java/time/Period.html#parse-java.lang.CharSequence-", type = String.class, defaultValue = "P4W")
+	public final ConfigChannel<String> dischargePeriod = new ConfigChannel<String>("dischargePeriod", this)
+	.addChangeListener(this);
+	@ChannelInfo(title = "Discharge Start Time", description = "The time of the Day to start Discharging.", type = String.class, defaultValue = "12:00:00")
+	public final ConfigChannel<String> dischargeTime = new ConfigChannel<String>("dischargeTime", this)
+	.addChangeListener(this);
+	@ChannelInfo(title = "Enable Discharge", description = "This option allowes the system to discharge the ess according to the nextDischarge completely. This improves the soc calculation.", type = Boolean.class, defaultValue = "true")
+	public final ConfigChannel<Boolean> enableDischarge = new ConfigChannel<Boolean>("EnableDischarge", this);
+
+	private LocalDate nextDischargeDate;
+	private LocalTime dischargeStartTime;
+	private LocalDateTime dischargeStart;
 
 	/*
 	 * Methods
@@ -73,13 +91,16 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 		try {
 			LocalTime time = LocalTime.now();
 			for (Ess ess : esss.value()) {
+				if(dischargeStart != null && dischargeStart.isBefore(LocalDateTime.now()) && ess.currentState != Ess.State.EMPTY ) {
+					ess.currentState = Ess.State.EMPTY;
+				}
 				switch (ess.currentState) {
 				case CHARGESOC:
 					if (ess.soc.value() > ess.getMinSoc(time)) {
 						ess.currentState = State.MINSOC;
 					} else {
 						try {
-							ess.maxActivePowerLimit.setP(ess.maxNominalPower.valueOptional().orElse(-1000L));
+							ess.maxActivePowerLimit.setP(Math.abs(ess.maxNominalPower.valueOptional().orElse(1000L))*-1);
 							ess.power.applyLimitation(ess.maxActivePowerLimit);
 						} catch (PowerException e) {
 							log.error("Failed to set Power!",e);
@@ -103,6 +124,21 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 				case NORMAL:
 					if (ess.soc.value() <= ess.getMinSoc(time)) {
 						ess.currentState = State.MINSOC;
+					}
+					break;
+				case EMPTY:
+					if (ess.allowedDischarge.value() == 0 || ess.soc.value() < 1) {
+						// Ess is Empty set Date and charge to minSoc
+						addPeriod();
+						ess.currentState = State.CHARGESOC;
+					}else {
+						//Force discharge with max power
+						try {
+							ess.minActivePowerLimit.setP(Math.abs(ess.maxNominalPower.value()));
+							ess.power.applyLimitation(ess.minActivePowerLimit);
+						} catch (PowerException e) {
+							log.error("Failed to force Discharge!", e);
+						}
 					}
 					break;
 				}
@@ -148,11 +184,38 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 					}
 				}
 			}
+		} else if (this.nextDischarge.equals(channel)) {
+			if (newValue.isPresent()) {
+				nextDischargeDate = LocalDate.parse((String) newValue.get());
+			} else {
+				nextDischargeDate = null;
+			}
+		}  else if(this.dischargeTime.equals(channel)) {
+			if (newValue.isPresent()) {
+				this.dischargeStartTime = LocalTime.parse((String) newValue.get());
+			} else {
+				this.dischargeStartTime = null;
+			}
+		}
+		if (nextDischargeDate != null && nextDischargeDate.isBefore(LocalDate.now())) {
+			addPeriod();
+		}
+		if(nextDischargeDate != null && dischargeStartTime != null) {
+			dischargeStart = nextDischargeDate.atTime(dischargeStartTime);
+		}else {
+			dischargeStart = null;
+		}
+	}
+
+	private void addPeriod() {
+		if (this.nextDischargeDate != null && dischargePeriod.isValuePresent()) {
+			this.nextDischargeDate = this.nextDischargeDate.plus(Period.parse(dischargePeriod.getValue()));
+			nextDischarge.updateValue(this.nextDischargeDate.toString(), true);
 		}
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

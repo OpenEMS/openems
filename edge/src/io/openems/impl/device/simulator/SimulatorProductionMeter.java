@@ -11,7 +11,7 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -37,7 +37,7 @@ public class SimulatorProductionMeter extends SimulatorMeter implements ChannelC
 	private FunctionalReadChannel<Long> apparentPower;
 	private LoadGenerator activePowerGenerator;
 	private LoadGenerator reactivePowerGenerator;
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	public SimulatorProductionMeter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
@@ -45,7 +45,7 @@ public class SimulatorProductionMeter extends SimulatorMeter implements ChannelC
 			return ControllerUtils.calculateApparentPower(channels[0].valueOptional().orElse(0L),
 					channels[1].valueOptional().orElse(0L));
 		}, activePower, reactivePower);
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class SimulatorProductionMeter extends SimulatorMeter implements ChannelC
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

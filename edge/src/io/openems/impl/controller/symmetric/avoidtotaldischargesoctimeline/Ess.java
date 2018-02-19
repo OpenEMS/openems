@@ -50,7 +50,7 @@ public class Ess extends ThingMap {
 	public final PGreaterEqualLimitation minActivePowerLimit;
 
 	public enum State {
-		NORMAL, MINSOC, CHARGESOC
+		NORMAL, MINSOC, CHARGESOC, EMPTY
 	}
 
 	public Ess(SymmetricEssNature ess) {

@@ -23,8 +23,8 @@ package io.openems.impl.device.pro;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.StaticValueChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.StaticThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
@@ -48,12 +48,12 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 	 */
 	public FeneconProPvMeter(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.thingState  = new ThingStateChannel(this);
-		this.negativePowerL1 = new StaticValueChannel<Boolean>(WarningPvMeter.NegativePowerL1.getChannelId(), this, false);
+		this.thingState  = new ThingStateChannels(this);
+		this.negativePowerL1 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL1, this, false);
 		this.thingState.addWarningChannel(this.negativePowerL1);
-		this.negativePowerL2 = new StaticValueChannel<Boolean>(WarningPvMeter.NegativePowerL2.getChannelId(), this, false);
+		this.negativePowerL2 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL2, this, false);
 		this.thingState.addWarningChannel(this.negativePowerL2);
-		this.negativePowerL3 = new StaticValueChannel<Boolean>(WarningPvMeter.NegativePowerL3.getChannelId(), this, false);
+		this.negativePowerL3 = new StaticThingStateChannel(WarningPvMeter.NegativePowerL3, this, false);
 		this.thingState.addWarningChannel(this.negativePowerL3);
 	}
 
@@ -103,10 +103,10 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 	private ModbusReadChannel<Long> orginalActivePowerL1;
 	private ModbusReadChannel<Long> orginalActivePowerL2;
 	private ModbusReadChannel<Long> orginalActivePowerL3;
-	private ThingStateChannel thingState;
-	private StaticValueChannel<Boolean> negativePowerL1;
-	private StaticValueChannel<Boolean> negativePowerL2;
-	private StaticValueChannel<Boolean> negativePowerL3;
+	private ThingStateChannels thingState;
+	private StaticThingStateChannel negativePowerL1;
+	private StaticThingStateChannel negativePowerL2;
+	private StaticThingStateChannel negativePowerL3;
 
 	@Override
 	public ReadChannel<Long> activePowerL1() {
@@ -296,7 +296,7 @@ public class FeneconProPvMeter extends ModbusDeviceNature implements AsymmetricM
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return thingState;
 	}
 }

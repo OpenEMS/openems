@@ -8,7 +8,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -30,11 +30,11 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRan
 @ThingInfo(title = "SMA SunnyIsland 6.0H")
 public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssNature {
 
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	public SunnyIsland6Ess(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 	}
 
 	/*
@@ -224,7 +224,7 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 

@@ -7,7 +7,7 @@ import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
 import io.openems.test.utils.channel.UnitTestReadChannel;
@@ -103,7 +103,7 @@ public class UnitTestSymmetricMeterNature implements SymmetricMeterNature {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		// TODO Auto-generated method stub
 		return null;
 	}

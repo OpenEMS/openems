@@ -25,7 +25,7 @@ import java.util.Calendar;
 import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -34,7 +34,7 @@ import io.openems.api.exception.WriteChannelException;
 @ThingInfo(title = "Sychronizes system clocks", description = "Synchronizes the sytem clocks of OpenEMS and a connected real-time clock device.")
 public class ClockSyncController extends Controller {
 
-	private ThingStateChannel thingState = new ThingStateChannel(this);
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
@@ -115,7 +115,7 @@ public class ClockSyncController extends Controller {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }

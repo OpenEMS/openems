@@ -33,7 +33,7 @@ import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
-import io.openems.api.channel.thingstate.ThingStateChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
@@ -44,13 +44,13 @@ public abstract class Device implements Thing, ChannelChangeListener {
 	protected final Logger log;
 	private Bridge bridge = null;
 	private final String thingId;
-	private ThingStateChannel thingState;
+	private ThingStateChannels thingState;
 
 	public Device(Bridge parent) throws OpenemsException {
 		this.thingId = THINGID_PREFIX + instanceCounter++;
 		log = LoggerFactory.getLogger(this.getClass());
 		this.bridge = parent;
-		this.thingState = new ThingStateChannel(this);
+		this.thingState = new ThingStateChannels(this);
 		this.thingState.addChildChannel(this.bridge.getStateChannel());
 	}
 
@@ -121,7 +121,7 @@ public abstract class Device implements Thing, ChannelChangeListener {
 	}
 
 	@Override
-	public ThingStateChannel getStateChannel() {
+	public ThingStateChannels getStateChannel() {
 		return this.thingState;
 	}
 }
