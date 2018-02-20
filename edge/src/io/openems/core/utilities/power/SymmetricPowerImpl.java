@@ -24,8 +24,8 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 
 	private List<Limitation> staticLimitations;
 	private List<Limitation> dynamicLimitations;
-	private long lastActivePower = 0;
-	private long lastReactivePower = 0;
+	private double lastActivePower = 0;
+	private double lastReactivePower = 0;
 
 	public SymmetricPowerImpl(long maxApparentPower, WriteChannel<Long> setActivePower,
 			WriteChannel<Long> setReactivePower, Bridge bridge) {
@@ -77,13 +77,13 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 		Point p = reduceToZero();
 		Coordinate c = p.getCoordinate();
 		setGeometry(p);
-		long activePowerDelta = (long) (c.x - lastActivePower);
-		long reactivePowerDelta = (long) (c.y - lastReactivePower);
+		double activePowerDelta = c.x - lastActivePower;
+		double reactivePowerDelta = c.y - lastReactivePower;
 		lastActivePower += activePowerDelta/2;
 		lastReactivePower += reactivePowerDelta/2;
 		try {
-			this.setActivePower.pushWrite(lastActivePower);
-			this.setReactivePower.pushWrite(lastReactivePower);
+			this.setActivePower.pushWrite((long) lastActivePower);
+			this.setReactivePower.pushWrite((long) lastReactivePower);
 			setActivePower.shadowCopyAndReset();
 			setReactivePower.shadowCopyAndReset();
 		} catch (WriteChannelException e) {
