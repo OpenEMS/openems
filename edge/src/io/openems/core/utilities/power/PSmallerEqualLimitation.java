@@ -15,10 +15,10 @@ public class PSmallerEqualLimitation extends Limitation {
 	public void setP(Long p) {
 		if (p != this.p) {
 			if (p != null) {
-				long pMin = power.getMaxApparentPower() * -1;
+				long pMin = power.getMaxApparentPower() * -1-1;
 				long pMax = p;
-				long qMin = power.getMaxApparentPower() * -1;
-				long qMax = power.getMaxApparentPower();
+				long qMin = power.getMaxApparentPower() * -1-1;
+				long qMax = power.getMaxApparentPower()+1;
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax), new Coordinate(pMin, qMin),
 						new Coordinate(pMax, qMin), new Coordinate(pMax, qMax), new Coordinate(pMin, qMax) };
 				rect = SymmetricPowerImpl.getFactory().createPolygon(coordinates);

@@ -15,10 +15,10 @@ public class QGreaterEqualLimitation extends Limitation {
 	public void setQ(Long q) {
 		if (q != this.q) {
 			if (q != null) {
-				long pMin = power.getMaxApparentPower() * -1;
-				long pMax = power.getMaxApparentPower();
+				long pMin = power.getMaxApparentPower() * -1-1;
+				long pMax = power.getMaxApparentPower()+1;
 				long qMin = q;
-				long qMax = power.getMaxApparentPower();
+				long qMax = power.getMaxApparentPower()+1;
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax), new Coordinate(pMin, qMin),
 						new Coordinate(pMax, qMin), new Coordinate(pMax, qMax), new Coordinate(pMin, qMax) };
 				rect = SymmetricPowerImpl.getFactory().createPolygon(coordinates);
