@@ -31,6 +31,7 @@ import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.realtimeclock.RealTimeClockNature;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
@@ -242,60 +243,115 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 	/*
 	 * This Channels
 	 */
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel phaseAllowedApparent;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel frequencyL3;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel frequencyL2;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel frequencyL1;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel currentL1;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel currentL2;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel currentL3;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel voltageL1;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel voltageL2;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel voltageL3;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel pcsOperationState;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryPower;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryCurrent;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltage;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection1;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection2;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection3;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection4;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection5;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection6;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection7;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection8;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection9;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection10;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection11;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection12;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection13;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection14;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection15;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryVoltageSection16;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection1;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection2;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection3;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection4;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection5;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection6;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection7;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection8;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection9;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection10;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection11;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection12;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection13;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection14;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection15;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryTemperatureSection16;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel batteryGroupState;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel totalBatteryDischargeEnergy;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel totalBatteryChargeEnergy;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel workMode;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel controlMode;
+	@ChannelInfo(type = Long.class)
 	public ModbusWriteLongChannel setPcsMode;
+	@ChannelInfo(type = Long.class)
 	public ModbusWriteLongChannel setSetupMode;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel setupMode;
+	@ChannelInfo(type = Long.class)
 	public ModbusReadLongChannel pcsMode;
 
 	/*
