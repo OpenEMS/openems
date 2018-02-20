@@ -34,6 +34,7 @@ public class BitUtils {
 		case INET_4_ADDRESS: // TODO
 		case STRING:
 		case LONG_ARRAY:
+		case DOUBLE_ARRAY:
 		case JSON_ARRAY:
 		case JSON_OBJECT:
 		case DEVICE_NATURE:
