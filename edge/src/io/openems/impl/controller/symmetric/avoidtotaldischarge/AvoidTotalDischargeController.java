@@ -63,8 +63,8 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 	public final ConfigChannel<String> nextDischarge = new ConfigChannel<String>("nextDischarge", this).addChangeListener(this);
 	@ChannelInfo(title = "Discharge Period", description = "The Period of time between two Discharges.https://docs.oracle.com/javase/8/docs/api/java/time/Period.html#parse-java.lang.CharSequence-", type = String.class,defaultValue = "P4W")
 	public final ConfigChannel<String> dischargePeriod = new ConfigChannel<String>("dischargePeriod", this).addChangeListener(this);
-	@ChannelInfo(title = "Enable Discharge", description="This option allowes the system to discharge the ess according to the nextDischarge completely. This improves the soc calculation.", type=Boolean.class,defaultValue="true")
-	public final ConfigChannel<Boolean> enableDischarge = new ConfigChannel<Boolean>("EnableDischarge",this);
+	@ChannelInfo(title = "Enable Discharge", description="This option allowes the system to discharge the ess according to the nextDischarge completely. This improves the soc calculation.", type=Boolean.class,defaultValue="false")
+	public final ConfigChannel<Boolean> enableDischarge = new ConfigChannel<Boolean>("enableDischarge",this);
 
 	private LocalDate nextDischargeDate;
 
@@ -86,7 +86,8 @@ public class AvoidTotalDischargeController extends Controller implements Channel
 							ess.currentState = State.MINSOC;
 						} else {
 							try {
-								ess.maxActivePowerLimit.setP(ess.maxNominalPower.valueOptional().orElse(-1000L));
+								long maxChargePower = Math.max(ess.power.getMinP().orElse(0L),Math.abs(ess.maxNominalPower.valueOptional().orElse(10000L)/5)*-1);
+								ess.maxActivePowerLimit.setP(maxChargePower);
 								ess.power.applyLimitation(ess.maxActivePowerLimit);
 							} catch (PowerException e) {
 								log.error("Failed to set Power!",e);

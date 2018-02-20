@@ -76,8 +76,8 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 	@ChannelInfo(title = "Discharge Start Time", description = "The time of the Day to start Discharging.", type = String.class, defaultValue = "12:00:00")
 	public final ConfigChannel<String> dischargeTime = new ConfigChannel<String>("dischargeTime", this)
 	.addChangeListener(this);
-	@ChannelInfo(title = "Enable Discharge", description = "This option allowes the system to discharge the ess according to the nextDischarge completely. This improves the soc calculation.", type = Boolean.class, defaultValue = "true")
-	public final ConfigChannel<Boolean> enableDischarge = new ConfigChannel<Boolean>("EnableDischarge", this);
+	@ChannelInfo(title = "Enable Discharge", description = "This option allowes the system to discharge the ess according to the nextDischarge completely. This improves the soc calculation.", type = Boolean.class, defaultValue = "false")
+	public final ConfigChannel<Boolean> enableDischarge = new ConfigChannel<Boolean>("enableDischarge", this);
 
 	private LocalDate nextDischargeDate;
 	private LocalTime dischargeStartTime;
@@ -100,7 +100,8 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 						ess.currentState = State.MINSOC;
 					} else {
 						try {
-							ess.maxActivePowerLimit.setP(Math.abs(ess.maxNominalPower.valueOptional().orElse(1000L))*-1);
+							long maxChargePower = Math.max(ess.power.getMinP().orElse(0L),Math.abs(ess.maxNominalPower.valueOptional().orElse(1000L))*-1);
+							ess.maxActivePowerLimit.setP(maxChargePower);
 							ess.power.applyLimitation(ess.maxActivePowerLimit);
 						} catch (PowerException e) {
 							log.error("Failed to set Power!",e);
@@ -134,7 +135,8 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 					}else {
 						//Force discharge with max power
 						try {
-							ess.minActivePowerLimit.setP(Math.abs(ess.maxNominalPower.value()));
+							long maxDischargePower = Math.min(Math.abs(ess.maxNominalPower.value()),ess.power.getMaxP().orElse(0L));
+							ess.minActivePowerLimit.setP(maxDischargePower);
 							ess.power.applyLimitation(ess.minActivePowerLimit);
 						} catch (PowerException e) {
 							log.error("Failed to force Discharge!", e);
