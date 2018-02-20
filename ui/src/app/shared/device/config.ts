@@ -181,17 +181,17 @@ export class ConfigImpl implements DefaultTypes.Config {
                 && !i.includes("EssClusterNature") /* ignore cluster */
                 && !i.includes("AsymmetricSymmetricCombinationEssNature") /* ignore symmetric Ess of Pro 9-12 */) {
                 if (i.includes("AsymmetricEssNature")) {
-                    channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
+                    channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
                 } else if (i.includes("SymmetricEssNature")) {
-                    channels.push("ActivePower", "ReactivePower");
+                    channels.push("ActivePower");
                 }
             }
             // Meter
             if (i.includes("MeterNature")) {
                 if (i.includes("AsymmetricMeterNature") && !ignoreNatures["AsymmetricMeterNature"]) {
-                    channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3");
+                    channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
                 } else if (i.includes("SymmetricMeterNature")) {
-                    channels.push("ActivePower", "ReactivePower");
+                    channels.push("ActivePower");
                 }
             }
             // Charger
