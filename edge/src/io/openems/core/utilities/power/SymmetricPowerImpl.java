@@ -121,7 +121,6 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 	public void onBridgeChange(BridgeEvent event) {
 		switch (event.getPosition()) {
 		case BEFOREREADOTHER1:
-			this.reset();
 			break;
 		case BEFOREREADOTHER2:
 			break;
@@ -129,7 +128,7 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 			break;
 		case BEFOREWRITE:
 			this.writePower();
-
+			this.reset();
 			break;
 		default:
 			break;
