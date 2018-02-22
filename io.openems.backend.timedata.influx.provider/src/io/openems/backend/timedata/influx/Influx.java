@@ -1,10 +1,13 @@
 package io.openems.backend.timedata.influx;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import org.influxdb.InfluxDB;
@@ -16,6 +19,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
@@ -23,12 +29,16 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
-import io.openems.backend.metadata.api.OLD_MetadataDevice;
+import io.openems.backend.metadata.api.Edge;
+import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.timedata.api.TimedataService;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 
 @Designate(ocd = Influx.Config.class, factory = false)
 @Component(name = "InfluxDB", configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -37,6 +47,9 @@ public class Influx implements TimedataService {
 	private final Logger log = LoggerFactory.getLogger(Influx.class);
 
 	private final String TMP_MINI_MEASUREMENT = "minies";
+
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	protected volatile MetadataService metadataService;
 
 	@ObjectClassDefinition
 	@interface Config {
@@ -60,7 +73,7 @@ public class Influx implements TimedataService {
 	private String password;
 	private String measurement;
 
-	private InfluxDB influxDB;
+	private Optional<InfluxDB> influxDbOpt = Optional.empty();
 
 	private final Map<Integer, DeviceCache> deviceCacheMap = new HashMap<>();
 
@@ -75,33 +88,34 @@ public class Influx implements TimedataService {
 		this.username = config.username();
 		this.password = config.password();
 		this.measurement = config.measurement();
-		// TODO: connect asynchronously to not block the activator
-		// try {
-		// this.connect();
-		// } catch (Exception e) {
-		// throw new OpenemsException("Connecting to InfluxDB failed: " +
-		// e.getMessage());
-		// }
+		this.getInfluxDbConnection();
 	}
 
 	@Deactivate
 	void deactivate() {
 		log.debug("Deactivate InfluxDB");
-	}
-
-	private void connect() throws Exception {
-		this.influxDB = InfluxDBFactory.connect("http://" + url + ":" + port, username, password);
-		try {
-			influxDB.ping();
-		} catch (RuntimeException e) {
-			System.out.println("Unable to connect to InfluxDB: " + e.getMessage());
-			// TODO log.error("Unable to connect to InfluxDB: " + e.getMessage());
-			throw new Exception(e.getMessage());
+		if (this.influxDbOpt.isPresent()) {
+//			this.influxDbOpt.get().close();
+			//TODO
 		}
 	}
 
-	//
-	private void writeData(int deviceId, TreeBasedTable<Long, String, Object> data) {
+	private synchronized InfluxDB getInfluxDbConnection() throws OpenemsException {
+		if (!this.influxDbOpt.isPresent()) {
+			InfluxDB influxDB = InfluxDBFactory.connect("http://" + url + ":" + port, username, password);
+			try {
+				influxDB.ping();
+				this.influxDbOpt = Optional.of(influxDB);
+			} catch (RuntimeException e) {
+				throw new OpenemsException("Unable to connect to InfluxDB: " + e.getMessage());
+			}
+		}
+		return this.influxDbOpt.get();
+	}
+
+	private void writeData(int deviceId, TreeBasedTable<Long, String, Object> data) throws OpenemsException {
+		InfluxDB influxDB = this.getInfluxDbConnection();
+
 		BatchPoints batchPoints = BatchPoints.database(database) //
 				.tag("fems", String.valueOf(deviceId)) //
 				.build();
@@ -124,11 +138,14 @@ public class Influx implements TimedataService {
 	 *
 	 * @param device
 	 * @param data
+	 * @throws OpenemsException
 	 */
-	private void writeDataToOldMiniMonitoring(OLD_MetadataDevice device, TreeBasedTable<Long, String, Object> data) {
-		int deviceId = device.getIdOpt().orElse(0);
+	private void writeDataToOldMiniMonitoring(Edge edge, int influxId, TreeBasedTable<Long, String, Object> data)
+			throws OpenemsException {
+		InfluxDB influxDB = getInfluxDbConnection();
+
 		BatchPoints batchPoints = BatchPoints.database(database) //
-				.tag("fems", String.valueOf(deviceId)) //
+				.tag("fems", String.valueOf(influxId)) //
 				.build();
 
 		for (Entry<Long, Map<String, Object>> entry : data.rowMap().entrySet()) {
@@ -146,7 +163,7 @@ public class Influx implements TimedataService {
 					// convert channel ids to old identifiers
 					if (channel.equals("ess0/Soc")) {
 						fields.put("Stack_SOC", value);
-						device.setSoc(value.intValue());
+						edge.setSoc(value.intValue());
 					} else if (channel.equals("meter0/ActivePower")) {
 						fields.put("PCS_Grid_Power_Total", value * -1);
 					} else if (channel.equals("meter1/ActivePower")) {
@@ -192,51 +209,51 @@ public class Influx implements TimedataService {
 	 * @return
 	 */
 	private Optional<Object> parseValue(String channel, Object value) {
-		// if (value == null) {
-		// return Optional.empty();
-		// }
-		// // convert JsonElement
-		// if (value instanceof JsonElement) {
-		// JsonElement jValueElement = (JsonElement) value;
-		// if (jValueElement.isJsonPrimitive()) {
-		// JsonPrimitive jValue = jValueElement.getAsJsonPrimitive();
-		// if (jValue.isNumber()) {
-		// try {
-		// // Avoid GSONs LazilyParsedNumber
-		// value = NumberFormat.getInstance().parse(jValue.toString());
-		// } catch (ParseException e) {
-		// log.error("Unable to parse Number: " + e.getMessage());
-		// value = jValue.getAsNumber();
-		// }
-		// } else if (jValue.isBoolean()) {
-		// value = jValue.getAsBoolean();
-		// } else if (jValue.isString()) {
-		// value = jValue.getAsString();
-		// }
-		// }
-		// }
-		// if (value instanceof Number) {
-		// Number numberValue = (Number) value;
-		// if (numberValue instanceof Integer) {
-		// return Optional.of(numberValue.intValue());
-		// } else if (numberValue instanceof Double) {
-		// return Optional.of(numberValue.doubleValue());
-		// } else {
-		// return Optional.of(numberValue);
-		// }
-		// } else if (value instanceof Boolean) {
-		// return Optional.of((Boolean) value);
-		// } else if (value instanceof String) {
-		// return Optional.of((String) value);
-		// }
-		// log.warn("Unknown type of value [" + value + "] channel [" + channel + "].
-		// This should never happen.");
+		if (value == null) {
+			return Optional.empty();
+		}
+		// convert JsonElement
+		if (value instanceof JsonElement) {
+			JsonElement jValueElement = (JsonElement) value;
+			if (jValueElement.isJsonPrimitive()) {
+				JsonPrimitive jValue = jValueElement.getAsJsonPrimitive();
+				if (jValue.isNumber()) {
+					try {
+						// Avoid GSONs LazilyParsedNumber
+						value = NumberFormat.getInstance().parse(jValue.toString());
+					} catch (ParseException e) {
+						log.error("Unable to parse Number: " + e.getMessage());
+						value = jValue.getAsNumber();
+					}
+				} else if (jValue.isBoolean()) {
+					value = jValue.getAsBoolean();
+				} else if (jValue.isString()) {
+					value = jValue.getAsString();
+				}
+			}
+		}
+		if (value instanceof Number) {
+			Number numberValue = (Number) value;
+			if (numberValue instanceof Integer) {
+				return Optional.of(numberValue.intValue());
+			} else if (numberValue instanceof Double) {
+				return Optional.of(numberValue.doubleValue());
+			} else {
+				return Optional.of(numberValue);
+			}
+		} else if (value instanceof Boolean) {
+			return Optional.of((Boolean) value);
+		} else if (value instanceof String) {
+			return Optional.of((String) value);
+		}
+		log.warn("Unknown type of value [" + value + "] channel [" + channel + "]. This should never happen.");
 		return Optional.empty();
 	}
 
 	@Override
 	public JsonArray queryHistoricData(Optional<Integer> deviceIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate,
 			JsonObject channels, int resolution) throws OpenemsException {
+		InfluxDB influxDB = getInfluxDbConnection();
 		return InfluxdbUtils.queryHistoricData(influxDB, this.database, deviceIdOpt, fromDate, toDate, channels,
 				resolution);
 	}
@@ -259,117 +276,106 @@ public class Influx implements TimedataService {
 	 */
 	@Override
 	public void write(int edgeId, JsonObject jData) throws OpenemsException {
-		// TODO
-		log.info("Would write...");
-		// TreeBasedTable<Long, String, Object> data = TreeBasedTable.create();
-		// for (OLD_MetadataDevice device : devices) {
-		// int deviceId = device.getIdOpt().orElse(0);
-		//
-		// // get existing or create new DeviceCache
-		// DeviceCache deviceCache = this.deviceCacheMap.get(deviceId);
-		// if (deviceCache == null) {
-		// deviceCache = new DeviceCache();
-		// this.deviceCacheMap.put(deviceId, deviceCache);
-		// }
-		//
-		// // Sort incoming data by timestamp
-		// TreeMap<Long, JsonObject> sortedData = new TreeMap<Long, JsonObject>();
-		// for (Entry<String, JsonElement> entry : jData.entrySet()) {
-		// try {
-		// Long timestamp = Long.valueOf(entry.getKey());
-		// JsonObject jChannels;
-		// jChannels = JsonUtils.getAsJsonObject(entry.getValue());
-		// sortedData.put(timestamp, jChannels);
-		// } catch (OpenemsException e) {
-		// // TODO log.error("Data error: " + e.getMessage());
-		// System.out.println("Data error: " + e.getMessage());
-		// }
-		// }
-		//
-		// // Prepare data table. Takes entries starting with eldest timestamp
-		// (ascending
-		// // order)
-		// for (Entry<Long, JsonObject> dataEntry : sortedData.entrySet()) {
-		// Long timestamp = dataEntry.getKey();
-		// JsonObject jChannels = dataEntry.getValue();
-		//
-		// if (jChannels.entrySet().size() == 0) {
-		// // no channel values available. abort.
-		// continue;
-		// }
-		//
-		// // Check if cache is valid (it is not elder than 5 minutes compared to this
-		// // timestamp)
-		// long cacheTimestamp = deviceCache.getTimestamp();
-		// if (timestamp < cacheTimestamp) {
-		// // incoming data is older than cache -> do not apply cache
-		// } else {
-		// // incoming data is more recent than cache
-		// // update cache timestamp
-		// deviceCache.setTimestamp(timestamp);
-		//
-		// if (timestamp < cacheTimestamp + 5 * 60 * 1000) {
-		// // cache is valid (not elder than 5 minutes)
-		// // add cache data to write data
-		// for (Entry<String, Object> cacheEntry : deviceCache.getChannelCacheEntries())
-		// {
-		// String channel = cacheEntry.getKey();
-		// Object value = cacheEntry.getValue();
-		// data.put(timestamp, channel, value);
-		// }
-		// } else {
-		// // cache is not anymore valid (elder than 5 minutes)
-		// // clear cache
-		// if (cacheTimestamp != 0l) {
-		// System.out.println("Invalidate cache for device [" + deviceId + "]. This
-		// timestamp ["
-		// + timestamp + "]. Cache timestamp [" + cacheTimestamp + "]");
-		// // TODO log.info("Invalidate cache for device [" + deviceId + "]. This
-		// timestamp
-		// // [" +
-		// // timestamp
-		// // + "]. Cache timestamp [" + cacheTimestamp + "]");
-		// }
-		// deviceCache.clear();
-		// }
-		//
-		// // add incoming data to cache (this replaces already existing cache values)
-		// for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
-		// String channel = channelEntry.getKey();
-		// Optional<Object> valueOpt = this.parseValue(channel,
-		// channelEntry.getValue());
-		// if (valueOpt.isPresent()) {
-		// Object value = valueOpt.get();
-		// deviceCache.putToChannelCache(channel, value);
-		// }
-		// }
-		// }
-		//
-		// // add incoming data to write data
-		// for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
-		// String channel = channelEntry.getKey();
-		// Optional<Object> valueOpt = this.parseValue(channel,
-		// channelEntry.getValue());
-		// if (valueOpt.isPresent()) {
-		// Object value = valueOpt.get();
-		// data.put(timestamp, channel, value);
-		// }
-		// }
-		// }
-		//
-		// // Write data to default location
-		// writeData(deviceId, data);
-		// }
-		//
-		// // Hook to continue writing data to old Mini monitoring
-		// // TODO remove after full migration
-		// for (
-		//
-		// OLD_MetadataDevice device : devices) {
-		// if (device.getProductType().equals("MiniES 3-3")) {
-		// writeDataToOldMiniMonitoring(device, data);
-		// break;
-		// }
-		// }
+		Optional<Edge> edgeOpt = this.metadataService.getEdge(edgeId);
+		if (edgeOpt.isPresent()) {
+			Edge edge = edgeOpt.get();
+			Optional<Integer> influxIdOpt = InfluxdbUtils.parseNumberFromName(edge.getName());
+			if (influxIdOpt.isPresent()) {
+				int influxId = influxIdOpt.get();
+
+				TreeBasedTable<Long, String, Object> data = TreeBasedTable.create();
+
+				// get existing or create new DeviceCache
+				DeviceCache deviceCache = this.deviceCacheMap.get(influxId);
+				if (deviceCache == null) {
+					deviceCache = new DeviceCache();
+					this.deviceCacheMap.put(influxId, deviceCache);
+				}
+
+				// Sort incoming data by timestamp
+				TreeMap<Long, JsonObject> sortedData = new TreeMap<Long, JsonObject>();
+				for (Entry<String, JsonElement> entry : jData.entrySet()) {
+					try {
+						Long timestamp = Long.valueOf(entry.getKey());
+						JsonObject jChannels;
+						jChannels = JsonUtils.getAsJsonObject(entry.getValue());
+						sortedData.put(timestamp, jChannels);
+					} catch (OpenemsException e) {
+						log.error("Data error: " + e.getMessage());
+					}
+				}
+
+				// Prepare data table. Takes entries starting with eldest timestamp (ascending
+				// order)
+				for (Entry<Long, JsonObject> dataEntry : sortedData.entrySet()) {
+					Long timestamp = dataEntry.getKey();
+					JsonObject jChannels = dataEntry.getValue();
+
+					if (jChannels.entrySet().size() == 0) {
+						// no channel values available. abort.
+						continue;
+					}
+
+					// Check if cache is valid (it is not elder than 5 minutes compared to this
+					// timestamp)
+					long cacheTimestamp = deviceCache.getTimestamp();
+					if (timestamp < cacheTimestamp) {
+						// incoming data is older than cache -> do not apply cache
+					} else {
+						// incoming data is more recent than cache
+						// update cache timestamp
+						deviceCache.setTimestamp(timestamp);
+
+						if (timestamp < cacheTimestamp + 5 * 60 * 1000) {
+							// cache is valid (not elder than 5 minutes)
+							// add cache data to write data
+							for (Entry<String, Object> cacheEntry : deviceCache.getChannelCacheEntries()) {
+								String channel = cacheEntry.getKey();
+								Object value = cacheEntry.getValue();
+								data.put(timestamp, channel, value);
+							}
+						} else {
+							// cache is not anymore valid (elder than 5 minutes)
+							// clear cache
+							if (cacheTimestamp != 0l) {
+								log.info("Edge [" + edge.getName() + "]: invalidate cache for influxId [" + influxId
+										+ "]. This timestamp [" + timestamp + "]. Cache timestamp [" + cacheTimestamp
+										+ "]");
+							}
+							deviceCache.clear();
+						}
+
+						// add incoming data to cache (this replaces already existing cache values)
+						for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
+							String channel = channelEntry.getKey();
+							Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
+							if (valueOpt.isPresent()) {
+								Object value = valueOpt.get();
+								deviceCache.putToChannelCache(channel, value);
+							}
+						}
+					}
+
+					// add incoming data to write data
+					for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
+						String channel = channelEntry.getKey();
+						Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
+						if (valueOpt.isPresent()) {
+							Object value = valueOpt.get();
+							data.put(timestamp, channel, value);
+						}
+					}
+				}
+
+				// Write data to default location
+				writeData(influxId, data);
+
+				// Hook to continue writing data to old Mini monitoring
+				// TODO remove after full migration
+				if (edge.getProducttype().equals("MiniES 3-3")) {
+					writeDataToOldMiniMonitoring(edge, influxId, data);
+				}
+			}
+		}
 	}
 }
