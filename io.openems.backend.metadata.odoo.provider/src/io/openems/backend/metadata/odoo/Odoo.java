@@ -276,19 +276,4 @@ public class Odoo implements MetadataService {
 			}
 		}
 	}
-
-	// public Optional<User> getUser(int id) {
-	// return Optional.ofNullable(this.users.get(id));
-	// }
-	//
-	// public Optional<Device> getDevice(int id) {
-	// return Optional.ofNullable(this.devices.get(id));
-	// }
-	//
-	// // private
-	// protected final ConcurrentMap<Integer, Device> devices = new
-	// ConcurrentHashMap<>();
-	// protected final ConcurrentMap<Integer, User> users = new
-	// ConcurrentHashMap<>();
-
 }

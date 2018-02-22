@@ -58,6 +58,10 @@ public class Edge {
 		return this.jConfig;
 	}
 
+	public String getProducttype() {
+		return producttype;
+	}
+	
 	public boolean isOnline() {
 		return this.isOnline;
 	}
