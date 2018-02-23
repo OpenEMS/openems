@@ -26,7 +26,7 @@ export class Log {
 export class Device {
 
   constructor(
-    public readonly id: number,
+    public readonly edgeId: number,
     public readonly name: string,
     public readonly comment: string,
     public readonly producttype: string,
@@ -70,7 +70,7 @@ export class Device {
    * Refresh the config
    */
   public refreshConfig(): BehaviorSubject<ConfigImpl> {
-    let message = DefaultMessages.configQuery(this.id);
+    let message = DefaultMessages.configQuery(this.edgeId);
     let messageId = message.messageId;
     this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
     this.send(message);
@@ -93,11 +93,17 @@ export class Device {
     this.websocket.send(value);
   }
 
-  private sendMessageWithReply(message: DefaultTypes.OutgoingMessage): Subject<DefaultMessages.Reply> {
+  private sendMessageWithReply(message: DefaultTypes.IdentifiedMessage): Subject<DefaultMessages.Reply> {
     let messageId: string = message.messageId;
     this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
     this.send(message);
     return this.replyStreams[messageId];
+  }
+
+  private removeReplyStream(reply: DefaultMessages.Reply) {
+    let messageId: string = reply.messageId;
+    this.replyStreams[messageId].unsubscribe();
+    delete this.replyStreams[messageId];
   }
 
   /**
@@ -105,7 +111,7 @@ export class Device {
    */
   public subscribeCurrentData(channels: DefaultTypes.ChannelAddresses): Observable<CurrentDataAndSummary> {
     this.subscribeCurrentDataChannels = channels;
-    let replyStream = this.sendMessageWithReply(DefaultMessages.currentDataSubscribe(this.id, channels));
+    let replyStream = this.sendMessageWithReply(DefaultMessages.currentDataSubscribe(this.edgeId, channels));
     let obs = replyStream
       .map(message => (message as DefaultMessages.CurrentDataReply).currentData)
       .combineLatest(this.config, (currentData, config) => new CurrentDataAndSummary(currentData, config));
@@ -125,18 +131,13 @@ export class Device {
    */
   // TODO: kWh: this.getkWhResult(this.getImportantChannels())
   public historicDataQuery(fromDate: Date, toDate: Date, channels: DefaultTypes.ChannelAddresses): Promise<DefaultTypes.HistoricData> {
-    // send query
     let timezone = new Date().getTimezoneOffset() * 60;
-    let message = DefaultMessages.historicDataQuery(fromDate, toDate, timezone, channels);
-    let messageId = message.id[0];
-    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
-    this.send(message);
+    let replyStream = this.sendMessageWithReply(DefaultMessages.historicDataQuery(this.edgeId, fromDate, toDate, timezone, channels));
     // wait for reply
     return new Promise((resolve, reject) => {
-      this.replyStreams[messageId].first().subscribe(reply => {
+      replyStream.first().subscribe(reply => {
         let historicData = (<DefaultMessages.HistoricDataReply>reply).historicData;
-        this.replyStreams[messageId].unsubscribe();
-        delete this.replyStreams[messageId];
+        this.removeReplyStream(reply);
         resolve(historicData);
       });
     })

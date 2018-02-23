@@ -54,7 +54,7 @@ public interface TimedataService {
 	 * 	}]
 	 * </pre>
 	 *
-	 * @param deviceId
+	 * @param edgeId
 	 * @param fromDate
 	 * @param toDate
 	 * @param channels
@@ -62,6 +62,6 @@ public interface TimedataService {
 	 * @return
 	 * @throws OpenemsException
 	 */
-	public JsonArray queryHistoricData(Optional<Integer> deviceIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
+	public JsonArray queryHistoricData(int edgeId, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
 			int resolution/* , JsonObject kWh */) throws OpenemsException;
 }

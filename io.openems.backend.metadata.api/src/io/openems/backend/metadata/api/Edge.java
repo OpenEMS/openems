@@ -23,6 +23,7 @@ public class Edge {
 		this.name = name;
 		this.comment = comment;
 		this.producttype = producttype;
+		this.jConfig = jConfig;
 	}
 
 	public int getId() {

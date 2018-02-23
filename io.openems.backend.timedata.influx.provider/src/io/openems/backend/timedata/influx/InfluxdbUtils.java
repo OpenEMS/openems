@@ -34,18 +34,14 @@ import io.openems.common.utils.JsonUtils;
 public class InfluxdbUtils {
 
 	private final static Logger log = LoggerFactory.getLogger(InfluxdbUtils.class);
-	
-	public static JsonArray queryHistoricData(InfluxDB influxdb, String database, Optional<Integer> deviceId,
-			ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution) throws OpenemsException {
+
+	public static JsonArray queryHistoricData(InfluxDB influxdb, String database, int influxId, ZonedDateTime fromDate,
+			ZonedDateTime toDate, JsonObject channels, int resolution) throws OpenemsException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
 		query.append(toChannelAddressList(channels));
 		query.append(" FROM data WHERE ");
-		if (deviceId.isPresent()) {
-			query.append("fems = '");
-			query.append(deviceId.get());
-			query.append("' AND ");
-		}
+		query.append("fems = '" + influxId + "' AND ");
 		query.append("time > ");
 		query.append(String.valueOf(fromDate.toEpochSecond()));
 		query.append("s");
@@ -381,12 +377,12 @@ public class InfluxdbUtils {
 
 	private final static Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
-	public static Optional<Integer> parseNumberFromName(String name) {
+	public static Integer parseNumberFromName(String name) throws OpenemsException {
 		Matcher matcher = NAME_NUMBER_PATTERN.matcher(name);
 		if (matcher.find()) {
 			String nameNumberString = matcher.group(1);
-			return Optional.ofNullable(Integer.parseInt(nameNumberString));
+			return Integer.parseInt(nameNumberString);
 		}
-		return Optional.empty();
+		throw new OpenemsException("Unable to parse number from name [" + name + "]");
 	}
 }

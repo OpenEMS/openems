@@ -1,7 +1,5 @@
 package io.openems.backend.metadata.api;
 
-import java.util.Optional;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
@@ -11,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.common.events.BackendEventConstants;
+import io.openems.common.exceptions.OpenemsException;
 
 @Component(property = { //
 		EventConstants.EVENT_TOPIC + "=" + BackendEventConstants.TOPIC_EDGE_ONLINE,
@@ -25,21 +24,22 @@ public class EdgeOnlineHandler implements EventHandler {
 	@Override
 	public void handleEvent(Event event) {
 		int edgeId = (int) event.getProperty("edgeId");
-		Optional<Edge> edgeOpt = this.metadataService.getEdge(edgeId);
-		if (edgeOpt.isPresent()) {
-			Edge edge = edgeOpt.get();
-			String topic = (String) event.getProperty("event.topics");
-			if (topic.equals(BackendEventConstants.TOPIC_EDGE_ONLINE)) {
-				edgeOpt.get().setOnline(true);
-				log.debug("Marked Edge [" + edge.getName() + "] as Online");
-			} else if (topic.equals(BackendEventConstants.TOPIC_EDGE_OFFLINE)) {
-				edgeOpt.get().setOnline(false);
-				log.debug("Marked Edge [" + edge.getName() + "] as Offline");
-			} else {
-				log.warn("Unknown Topic: " + topic);
-			}
+		Edge edge;
+		try {
+			edge = this.metadataService.getEdge(edgeId);
+		} catch (OpenemsException e) {
+			log.warn(e.getMessage());
+			return;
+		}
+		String topic = (String) event.getProperty("event.topics");
+		if (topic.equals(BackendEventConstants.TOPIC_EDGE_ONLINE)) {
+			edge.setOnline(true);
+			log.debug("Marked Edge [" + edge.getName() + "] as Online");
+		} else if (topic.equals(BackendEventConstants.TOPIC_EDGE_OFFLINE)) {
+			edge.setOnline(false);
+			log.debug("Marked Edge [" + edge.getName() + "] as Offline");
 		} else {
-			log.warn("Unable to get Edge [ID:" + edgeId + "]");
+			log.warn("Unknown Topic: " + topic);
 		}
 	}
 }

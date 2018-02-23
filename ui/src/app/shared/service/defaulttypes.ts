@@ -109,11 +109,11 @@ export module DefaultTypes {
 
   export type LanguageTag = "de" | "en" | "cz" | "nl";
 
-  export interface OutgoingMessage {
+  export interface IdentifiedMessage {
     messageId: string
   }
 
-  export interface ConfigUpdate extends OutgoingMessage {
+  export interface ConfigUpdate extends IdentifiedMessage {
     config: {
       mode: "update",
       thing: string,

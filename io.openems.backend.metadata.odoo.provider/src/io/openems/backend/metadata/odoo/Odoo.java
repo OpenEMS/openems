@@ -137,7 +137,7 @@ public class Odoo implements MetadataService {
 					JsonArray jDevices = JsonUtils.getAsJsonArray(jResult, "devices");
 					for (JsonElement jDevice : jDevices) {
 						int edgeId = JsonUtils.getAsInt(jDevice, "id");
-						Optional<Edge> edgeOpt = this.getEdge(edgeId);
+						Optional<Edge> edgeOpt = this.getEdgeOpt(edgeId);
 						if (edgeOpt.isPresent()) {
 							Edge edge = edgeOpt.get();
 							synchronized (this.edges) {
@@ -182,7 +182,7 @@ public class Odoo implements MetadataService {
 	}
 
 	@Override
-	public Optional<Edge> getEdge(int edgeId) {
+	public Optional<Edge> getEdgeOpt(int edgeId) {
 		// try to read from cache
 		synchronized (this.edges) {
 			if (this.edges.containsKey(edgeId)) {

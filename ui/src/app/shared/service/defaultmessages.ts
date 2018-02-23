@@ -58,10 +58,10 @@ export class DefaultMessages {
         }
     };
 
-    public static historicDataQuery(fromDate: Date, toDate: Date, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses) {
+    public static historicDataQuery(edgeId: number, fromDate: Date, toDate: Date, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses) {
         return {
-            device: String,
-            id: [UUID.UUID()],
+            messageId: UUID.UUID(),
+            edgeId: edgeId,
             historicData: {
                 mode: "query",
                 fromDate: format(fromDate, 'YYYY-MM-DD'),
@@ -112,8 +112,8 @@ export class DefaultMessages {
 }
 
 export module DefaultMessages {
-    export interface Reply {
-        id: string[]
+
+    export interface Reply extends DefaultTypes.IdentifiedMessage {
     }
 
     export interface ConfigQueryReply extends Reply {

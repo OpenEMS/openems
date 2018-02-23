@@ -1,6 +1,10 @@
 package io.openems.backend.uiwebsocket.impl.provider;
 
 import java.util.Map.Entry;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -58,7 +62,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			websocket.closeConnection(CloseFrame.REFUSE, error);
 			return;
 		}
-		
+
 		UUID uuid = UUID.randomUUID();
 		synchronized (this.websocketsMap) {
 			// add websocket to local cache
@@ -72,13 +76,15 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 		for (Entry<Integer, Role> edgeRole : user.getEdgeRoles().entrySet()) {
 			int edgeId = edgeRole.getKey();
 			Role role = edgeRole.getValue();
-			Optional<Edge> edgeOpt = this.parent.metadataService.getEdge(edgeId);
-			if (!edgeOpt.isPresent()) {
-				log.warn("Unable to find Edge [ID:" + edgeId + "]");
-			} else {
-				JsonObject jEdge = edgeOpt.get().toJsonObject();
+			Edge edge;
+			try {
+				edge = this.parent.metadataService.getEdge(edgeId);
+				JsonObject jEdge = edge.toJsonObject();
 				jEdge.addProperty("role", role.toString());
 				jEdges.add(jEdge);
+			} catch (OpenemsException e) {
+				// TODO handle error
+				log.warn(e.getMessage());
 			}
 		}
 		JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply("" /* TODO empty token? */,
@@ -144,34 +150,27 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			}
 
 			// get Edge
-			Optional<Edge> edgeOpt = this.parent.metadataService.getEdge(edgeId);
-			if (!edgeOpt.isPresent()) {
-				// TODO Error unable to find Edge
+			Edge edge;
+			try {
+				edge = this.parent.metadataService.getEdge(edgeId);
+			} catch (OpenemsException e) {
+				// TODO handle error
+				log.error(e.getMessage());
 				return;
 			}
-			Edge edge = edgeOpt.get();
 
 			/*
-			 * TODO Query historic data
+			 * Query historic data
 			 */
-			// if (jMessage.has("historicData")) {
-			// // parse deviceId
-			// JsonArray jMessageId = jMessageIdOpt.get();
-			// try {
-			// JsonObject jHistoricData = JsonUtils.getAsJsonObject(jMessage,
-			// "historicData");
-			// JsonObject jReply = WebSocketUtils.historicData(jMessageId, jHistoricData,
-			// deviceIdOpt,
-			// Timedata.instance(), Role.ADMIN);
-			// // TODO read role from device
-			// WebSocketUtils.send(websocket, jReply);
-			// } catch (OpenemsException e) {
-			// log.error(e.getMessage());
-			// }
-			// }
+			Optional<JsonObject> jHistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
+			if (jHistoricDataOpt.isPresent()) {
+				JsonObject jHistoricData = jHistoricDataOpt.get();
+				JsonObject jReply = this.historicData(messageId, edgeId, jHistoricData);
+				WebSocketUtils.send(websocket, jReply);
+			}
 
 			/*
-			 * TODO Subscribe to currentData
+			 * Subscribe to currentData
 			 */
 			Optional<JsonObject> jCurrentDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "currentData");
 			if (jCurrentDataOpt.isPresent()) {
@@ -258,6 +257,48 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			// TODO handle exception
 			log.warn(e.getMessage());
 		}
+	}
+
+	/**
+	 * Query history command
+	 *
+	 * @param j
+	 */
+	private JsonObject historicData(String jMessageId, int edgeId, JsonObject jHistoricData) {
+		try {
+			String mode = JsonUtils.getAsString(jHistoricData, "mode");
+
+			if (mode.equals("query")) {
+				/*
+				 * Query historic data
+				 */
+				int timezoneDiff = JsonUtils.getAsInt(jHistoricData, "timezone");
+				ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
+				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jHistoricData, "fromDate", timezone);
+				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jHistoricData, "toDate", timezone).plusDays(1);
+				JsonObject channels = JsonUtils.getAsJsonObject(jHistoricData, "channels");
+				// TODO check if role is allowed to read these channels
+				// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
+				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
+				// TODO: better calculation of sensible resolution
+				int resolution = 10 * 60; // 10 Minutes
+				if (days > 25) {
+					resolution = 24 * 60 * 60; // 1 Day
+				} else if (days > 6) {
+					resolution = 3 * 60 * 60; // 3 Hours
+				} else if (days > 2) {
+					resolution = 60 * 60; // 60 Minutes
+				}
+				JsonArray jData = this.parent.timeDataService.queryHistoricData(edgeId, fromDate, toDate, channels,
+						resolution);
+				// send reply
+				return DefaultMessages.historicDataQueryReply(jMessageId, jData);
+			}
+		} catch (Exception e) {
+			// TODO handle exception
+			log.warn(e.getMessage());
+		}
+		return new JsonObject();
 	}
 
 }

@@ -195,7 +195,7 @@ public class DefaultMessages {
 	/**
 	 * <pre>
 	 *	{
-	 *		id: [string]
+	 *		messageId: UUID,
 	 *		historicData: {
 	 *			data: [{
 	 *				time: ...,
@@ -211,9 +211,8 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject historicDataQueryReply(JsonArray jId, JsonArray jData) {
-		JsonObject j = new JsonObject();
-		j.add("id", jId);
+	public static JsonObject historicDataQueryReply(String messageId, JsonArray jData) {
+		JsonObject j = newMessage(messageId);
 		JsonObject jHistoricData = new JsonObject();
 		jHistoricData.add("data", jData);
 		j.add("historicData", jHistoricData);
