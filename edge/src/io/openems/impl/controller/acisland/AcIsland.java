@@ -25,6 +25,7 @@ import java.util.Optional;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -43,6 +44,7 @@ public class AcIsland extends Controller {
 	private State currentState = State.UNKNOWN;
 	private boolean isProducerDisconnected = false;
 	private long timeProducerDisconnected;
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	private enum State {
 		OFFGRID, ONGRID, SWITCHTOOFFGRID, SWITCHTOONGRID, UNKNOWN
@@ -288,5 +290,10 @@ public class AcIsland extends Controller {
 		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (on ^ invertOutput)) {
 			outputChannel.pushWrite(on ^ invertOutput);
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

@@ -21,6 +21,7 @@
 package io.openems.impl.controller.symmetric.powerbyfrequency;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -29,6 +30,7 @@ import io.openems.api.exception.InvalidValueException;
 @ThingInfo(title = "Power by frequency (Symmetric)", description = "Tries to keep the grid meter at a given frequency. For symmetric Ess.")
 public class PowerByFrequencyController extends Controller {
 
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
@@ -86,6 +88,11 @@ public class PowerByFrequencyController extends Controller {
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 
 }

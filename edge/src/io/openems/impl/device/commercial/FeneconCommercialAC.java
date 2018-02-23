@@ -45,7 +45,7 @@ public class FeneconCommercialAC extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Ess", description = "Sets the Ess nature.", type = FeneconCommercialEss.class)
-	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<>("ess", this);
+	public final ConfigChannel<FeneconCommercialEss> ess = new ConfigChannel<FeneconCommercialEss>("ess", this).addChangeListener(this);
 
 	/*
 	 * Methods

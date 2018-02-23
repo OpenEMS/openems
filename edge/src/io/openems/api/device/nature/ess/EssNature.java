@@ -22,7 +22,6 @@ package io.openems.api.device.nature.ess;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.StatusBitChannels;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
@@ -56,6 +55,7 @@ public interface EssNature extends DeviceNature {
 	/*
 	 * Read Channels
 	 */
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> gridMode();
 
 	@ChannelInfo(type = Long.class)
@@ -78,8 +78,6 @@ public interface EssNature extends DeviceNature {
 
 	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> maxNominalPower();
-
-	public StatusBitChannels warning();
 
 	/*
 	 * Write Channels

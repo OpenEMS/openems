@@ -45,10 +45,12 @@ public class FeneconPro extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Ess", description = "Sets the Ess nature.", type = FeneconProEss.class)
-	public final ConfigChannel<FeneconProEss> ess = new ConfigChannel<>("ess", this);
+	public final ConfigChannel<FeneconProEss> ess = new ConfigChannel<FeneconProEss>("ess", this)
+	.addChangeListener(this);
 
 	@ChannelInfo(title = "Meter", description = "Sets the meter nature.", type = FeneconProPvMeter.class)
-	public final ConfigChannel<FeneconProPvMeter> meter = new ConfigChannel<>("meter", this);
+	public final ConfigChannel<FeneconProPvMeter> meter = new ConfigChannel<FeneconProPvMeter>("meter", this)
+	.addChangeListener(this);
 
 	/*
 	 * Methods
@@ -69,4 +71,5 @@ public class FeneconPro extends ModbusDevice {
 		}
 		return natures;
 	}
+
 }

@@ -45,7 +45,7 @@ public class BHKW extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Meter", description = "Sets the meter nature.", type = BHKWMeter.class)
-	public final ConfigChannel<BHKWMeter> meter = new ConfigChannel<>("meter", this);
+	public final ConfigChannel<BHKWMeter> meter = new ConfigChannel<BHKWMeter>("meter", this).addChangeListener(this);
 
 	/*
 	 * Methods

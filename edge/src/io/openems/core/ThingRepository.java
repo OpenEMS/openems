@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -155,35 +156,43 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 
 		// Add Channels thingConfigChannels
 		ThingDoc thingDoc = classRepository.getThingDoc(thing.getClass());
-		for (ChannelDoc channelDoc : thingDoc.getConfigChannelDocs()) {
+		for (ChannelDoc channelDoc : thingDoc.getChannelDocs()) {
 			Member member = channelDoc.getMember();
 			try {
 				List<Channel> channels = new ArrayList<>();
+				java.util.function.Consumer<Channel> addToChannels = (c) -> {
+					if(c == null) {
+						log.error(
+								"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
+					} else {
+						channels.add(c);
+					}
+				};
 				if (member instanceof Method) {
 					if (((Method) member).getReturnType().isArray()) {
 						Channel[] ch = (Channel[]) ((Method) member).invoke(thing);
 						for (Channel c : ch) {
-							channels.add(c);
+							addToChannels.accept(c);
 						}
 					} else {
 						// It's a Method with ReturnType Channel
-						channels.add((Channel) ((Method) member).invoke(thing));
+						Channel c = (Channel) ((Method) member).invoke(thing);
+						addToChannels.accept(c);
 					}
 				} else if (member instanceof Field) {
 					// It's a Field with Type Channel
-					channels.add((Channel) ((Field) member).get(thing));
+					Channel c = (Channel) ((Field) member).get(thing);
+					addToChannels.accept(c);
 				} else {
 					continue;
 				}
 				if (channels.isEmpty()) {
-					log.error(
-							"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
 					continue;
 				}
 				for (Channel channel : channels) {
+					// Add Channel to thingChannels
+					thingChannels.put(thing, channel.id(), channel);
 					if (channel instanceof ConfigChannel) {
-						// Add Channel to thingChannels
-						thingChannels.put(thing, channel.id(), channel);
 
 						// Add Channel to configChannels
 						thingConfigChannels.put(thing, (ConfigChannel<?>) channel);
@@ -408,7 +417,8 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		if (thing == null) {
 			return Optional.empty();
 		}
-		Channel channel = thingChannels.row(thing).get(channelId);
+		Map<String,Channel> channels = thingChannels.row(thing);
+		Channel channel = channels.get(channelId);
 		return Optional.ofNullable(channel);
 	}
 
@@ -472,8 +482,10 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 			Member member = channelDoc.getMember();
 			try {
 				List<Channel> channels = new ArrayList<>();
+				boolean ignoreEmpty = false;
 				if (member instanceof Method) {
 					if (((Method) member).getReturnType().isArray()) {
+						ignoreEmpty = true; // ignore e.g. if getFaultChannels is returning an empty array
 						Channel[] ch = (Channel[]) ((Method) member).invoke(thing);
 						for (Channel c : ch) {
 							channels.add(c);
@@ -488,8 +500,8 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 				} else {
 					continue;
 				}
-				if (channels.isEmpty()) {
-					log.error(
+				if (!ignoreEmpty && channels.isEmpty()) {
+					log.warn(
 							"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
 					continue;
 				}

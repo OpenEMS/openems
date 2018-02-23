@@ -15,7 +15,7 @@ import io.openems.impl.protocol.system.SystemDevice;
 public class MeterCluster extends SystemDevice {
 
 	@ChannelInfo(title = "EssCluster", description = "Sets the cluster nature.", type = MeterClusterNature.class)
-	public final ConfigChannel<MeterClusterNature> cluster = new ConfigChannel<>("cluster", this);
+	public final ConfigChannel<MeterClusterNature> cluster = new ConfigChannel<MeterClusterNature>("cluster", this).addChangeListener(this);
 
 	public MeterCluster(Bridge parent) throws OpenemsException {
 		super(parent);

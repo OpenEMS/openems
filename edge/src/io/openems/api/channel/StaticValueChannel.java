@@ -68,4 +68,8 @@ public class StaticValueChannel<T> extends ReadChannel<T> {
 		return this;
 	}
 
+	public void setValue(T b) {
+		this.updateValue(b);
+	}
+
 }

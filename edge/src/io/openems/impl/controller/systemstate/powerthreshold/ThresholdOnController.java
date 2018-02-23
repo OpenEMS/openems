@@ -25,6 +25,7 @@ import java.util.Set;
 import com.google.common.base.Optional;
 
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
@@ -38,6 +39,8 @@ import io.openems.impl.controller.systemstate.powerthreshold.Ess.State;
  */
 @ThingInfo(title = "Stop if not useable", description = "Starts the ess if the GridFeed power is lager than a defined threshold. The ess will be stoped if the ess are empty and the GridFeed power is below a defined threshold.")
 public class ThresholdOnController extends Controller {
+
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	/*
 	 * Constructors
@@ -77,6 +80,7 @@ public class ThresholdOnController extends Controller {
 	/*
 	 * Methods
 	 */
+	@SuppressWarnings("unlikely-arg-type")
 	@Override
 	public void run() {
 		try {
@@ -129,5 +133,10 @@ public class ThresholdOnController extends Controller {
 		} catch (InvalidValueException e) {
 			log.error("No Storage Found!", e);
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }

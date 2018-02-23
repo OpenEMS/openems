@@ -116,8 +116,8 @@ export class EnergyChartComponent implements OnChanges {
         activePowers.gridSell.push(Utils.divideSafely(data.summary.grid.sellActivePower, 1000)); // convert to kW
         activePowers.production.push(Utils.divideSafely(data.summary.production.activePower, 1000)); // convert to kW
         activePowers.consumption.push(Utils.divideSafely(data.summary.consumption.activePower, 1000)); // convert to kW
-        activePowers.storageCharge.push(Utils.divideSafely(Utils.addSafely(data.summary.storage.chargeActivePower, data.summary.production.activePowerDC), 1000)); // convert to kW
-        activePowers.storageDischarge.push(Utils.divideSafely(data.summary.storage.dischargeActivePowerAC, 1000)); // convert to kW
+        activePowers.storageCharge.push(Utils.divideSafely(data.summary.storage.chargeActivePower, 1000)); // convert to kW
+        activePowers.storageDischarge.push(Utils.divideSafely(data.summary.storage.dischargeActivePower, 1000)); // convert to kW
       }
       this.datasets = [{
         label: this.translate.instant('General.Production'),

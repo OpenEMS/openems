@@ -45,18 +45,18 @@ public class FeneconMini extends ModbusDevice {
 	 * Config
 	 */
 	@ChannelInfo(title = "Ess", description = "Sets the Ess nature.", type = FeneconMiniEss.class)
-	public final ConfigChannel<FeneconMiniEss> ess = new ConfigChannel<>("ess", this);
+	public final ConfigChannel<FeneconMiniEss> ess = new ConfigChannel<FeneconMiniEss>("ess", this).addChangeListener(this);
 
 	@ChannelInfo(title = "GridMeter", description = "Sets the GridMeter nature.", type = FeneconMiniGridMeter.class)
-	public final ConfigChannel<FeneconMiniGridMeter> gridMeter = new ConfigChannel<>("gridMeter", this);
+	public final ConfigChannel<FeneconMiniGridMeter> gridMeter = new ConfigChannel<FeneconMiniGridMeter>("gridMeter", this).addChangeListener(this);
 
 	@ChannelInfo(title = "ProductionMeter", description = "Sets the ProductionMeter nature.", type = FeneconMiniProductionMeter.class)
-	public final ConfigChannel<FeneconMiniProductionMeter> productionMeter = new ConfigChannel<>("productionMeter",
-			this);
+	public final ConfigChannel<FeneconMiniProductionMeter> productionMeter = new ConfigChannel<FeneconMiniProductionMeter>("productionMeter",
+			this).addChangeListener(this);
 
 	@ChannelInfo(title = "ConsumptionMeter", description = "Sets the ConsumptionMeter nature.", type = FeneconMiniConsumptionMeter.class)
-	public final ConfigChannel<FeneconMiniConsumptionMeter> consumptionMeter = new ConfigChannel<>("consumptionMeter",
-			this);
+	public final ConfigChannel<FeneconMiniConsumptionMeter> consumptionMeter = new ConfigChannel<FeneconMiniConsumptionMeter>("consumptionMeter",
+			this).addChangeListener(this);
 
 	/*
 	 * Methods
