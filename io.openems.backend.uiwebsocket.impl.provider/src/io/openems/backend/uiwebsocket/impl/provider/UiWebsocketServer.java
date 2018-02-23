@@ -12,7 +12,9 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
@@ -20,14 +22,15 @@ import io.openems.backend.metadata.api.Role;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StringUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
 
 public class UiWebsocketServer extends AbstractWebsocketServer {
 
+	protected final UiWebsocket parent;
 	private final Logger log = LoggerFactory.getLogger(UiWebsocketServer.class);
-	private final UiWebsocket parent;
 	private final Map<UUID, WebSocket> websocketsMap = new HashMap<>();
 
 	public UiWebsocketServer(UiWebsocket parent, int port) {
@@ -38,57 +41,50 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 	@Override
 	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
 		String error = "";
-		Optional<User> userOpt = Optional.empty();
+		User user;
 
 		// login using session_id from the cookie
 		Optional<String> sessionIdOpt = getSessionIdFromHandshake(handshake);
-		if (!sessionIdOpt.isPresent()) {
-			error = "Session-ID is missing in handshake";
-		} else {
-			try {
-				userOpt = this.parent.metadataService.getUserWithSession(sessionIdOpt.get());
-				// TODO fix bug in Odoo that is not reliably returning all configured devices
-			} catch (OpenemsException e) {
-				error = e.getMessage();
+		try {
+			if (!sessionIdOpt.isPresent()) {
+				throw new OpenemsException("Session-ID is missing in handshake");
 			}
-		}
-
-		if (!error.isEmpty()) {
+			user = this.parent.metadataService.getUserWithSession(sessionIdOpt.get());
+			// TODO fix bug in Odoo that is not reliably returning all configured devices
+		} catch (OpenemsException e) {
 			// send connection failed to browser
-			this.send(websocket, DefaultMessages.browserConnectionFailedReply());
+			this.send(websocket, DefaultMessages.uiConnectionFailedReply());
 			log.warn("User connection failed. Session [" + sessionIdOpt.orElse("") + "] Error [" + error + "].");
 			websocket.closeConnection(CloseFrame.REFUSE, error);
-
-		} else if (userOpt.isPresent()) {
-			User user = userOpt.get();
-
-			UUID uuid = UUID.randomUUID();
-			synchronized (this.websocketsMap) {
-				// add websocket to local cache
-				this.websocketsMap.put(uuid, websocket);
-			}
-			// store userId together with the websocket
-			websocket.setAttachment(new WebsocketData(user.getId(), uuid));
-
-			// send connection successful to browser
-			JsonArray jEdges = new JsonArray();
-			for (Entry<Integer, Role> edgeRole : user.getEdgeRoles().entrySet()) {
-				int edgeId = edgeRole.getKey();
-				Role role = edgeRole.getValue();
-				Optional<Edge> edgeOpt = this.parent.metadataService.getEdge(edgeId);
-				if (!edgeOpt.isPresent()) {
-					log.warn("Unable to find Edge [ID:" + edgeId + "]");
-				} else {
-					JsonObject jEdge = edgeOpt.get().toJsonObject();
-					jEdge.addProperty("role", role.toString());
-					jEdges.add(jEdge);
-				}
-			}
-			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply("" /* TODO empty token? */,
-					Optional.empty(), jEdges);
-			WebSocketUtils.send(websocket, jReply);
-			log.info("User [" + user.getName() + "] connected with Session [" + sessionIdOpt.orElse("") + "].");
+			return;
 		}
+		
+		UUID uuid = UUID.randomUUID();
+		synchronized (this.websocketsMap) {
+			// add websocket to local cache
+			this.websocketsMap.put(uuid, websocket);
+		}
+		// store userId together with the websocket
+		websocket.setAttachment(new WebsocketData(user.getId(), uuid));
+
+		// send connection successful to browser
+		JsonArray jEdges = new JsonArray();
+		for (Entry<Integer, Role> edgeRole : user.getEdgeRoles().entrySet()) {
+			int edgeId = edgeRole.getKey();
+			Role role = edgeRole.getValue();
+			Optional<Edge> edgeOpt = this.parent.metadataService.getEdge(edgeId);
+			if (!edgeOpt.isPresent()) {
+				log.warn("Unable to find Edge [ID:" + edgeId + "]");
+			} else {
+				JsonObject jEdge = edgeOpt.get().toJsonObject();
+				jEdge.addProperty("role", role.toString());
+				jEdges.add(jEdge);
+			}
+		}
+		JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply("" /* TODO empty token? */,
+				Optional.empty(), jEdges);
+		WebSocketUtils.send(websocket, jReply);
+		log.info("User [" + user.getName() + "] connected with Session [" + sessionIdOpt.orElse("") + "].");
 	}
 
 	@Override
@@ -106,6 +102,11 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 		} else {
 			log.info("User [ID:" + data.getUserId() + "] disconnected.");
 		}
+		// stop CurrentDataWorker
+		Optional<BackendCurrentDataWorker> currentDataWorkerOpt = data.getCurrentDataWorker();
+		if (currentDataWorkerOpt.isPresent()) {
+			currentDataWorkerOpt.get().dispose();
+		}
 		// remove websocket from local cache
 		synchronized (this.websocketsMap) {
 			this.websocketsMap.remove(data.getUuid());
@@ -117,7 +118,13 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 		// get current User
 		WebsocketData data = websocket.getAttachment();
 		int userId = data.getUserId();
-		
+		Optional<User> userOpt = this.parent.metadataService.getUser(userId);
+		if (!userOpt.isPresent()) {
+			// TODO Error user not found
+			return;
+		}
+		User user = userOpt.get();
+
 		// get MessageId from message
 		Optional<String> messageIdOpt = JsonUtils.getAsOptionalString(jMessage, "messageId");
 
@@ -131,11 +138,18 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			/*
 			 * verify that User is allowed to access Edge
 			 */
-			Optional<User> userOpt = this.parent.metadataService.getUser(userId);
-			if (!userOpt.isPresent() || !(userOpt.get().getEdgeRole(edgeId).isPresent())) {
+			if (!user.getEdgeRole(edgeId).isPresent()) {
 				// TODO Error Access denied
 				return;
 			}
+
+			// get Edge
+			Optional<Edge> edgeOpt = this.parent.metadataService.getEdge(edgeId);
+			if (!edgeOpt.isPresent()) {
+				// TODO Error unable to find Edge
+				return;
+			}
+			Edge edge = edgeOpt.get();
 
 			/*
 			 * TODO Query historic data
@@ -159,21 +173,13 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			/*
 			 * TODO Subscribe to currentData
 			 */
-			// if (jMessage.has("currentData")) {
-			// JsonObject jCurrentData;
-			// try {
-			// jCurrentData = JsonUtils.getAsJsonObject(jMessage, "currentData");
-			// log.info("User [" + session.getData().getUserName() + "] subscribed to
-			// current data for device ["
-			// + deviceName + "]: " + StringUtils.toShortString(jCurrentData, 50));
-			// JsonArray jMessageId = jMessageIdOpt.get();
-			// int deviceId = deviceIdOpt.get();
-			// this.currentData(session, websocket, jCurrentData, jMessageId, deviceName,
-			// deviceId);
-			// } catch (OpenemsException e) {
-			// log.error(e.getMessage());
-			// }
-			// }
+			Optional<JsonObject> jCurrentDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "currentData");
+			if (jCurrentDataOpt.isPresent()) {
+				JsonObject jCurrentData = jCurrentDataOpt.get();
+				log.info("User [" + user.getName() + "] subscribed to current data for device [" + edge.getName()
+						+ "]: " + StringUtils.toShortString(jCurrentData, 50));
+				this.currentData(websocket, data, messageId, edgeId, jCurrentData);
+			}
 
 			/*
 			 * Serve "Config -> Query" from cache
@@ -186,7 +192,6 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 					/*
 					 * Query current config
 					 */
-					Edge edge = this.parent.metadataService.getEdge(edgeId).get();
 					JsonObject jReply = DefaultMessages.configQueryReply(messageId, edge.getConfig());
 					WebSocketUtils.send(websocket, jReply);
 					break;
@@ -208,4 +213,51 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			}
 		}
 	}
+
+	/**
+	 * Handle current data subscriptions
+	 *
+	 * @param j
+	 */
+	private synchronized void currentData(WebSocket websocket, WebsocketData data, String messageId, int edgeId,
+			JsonObject jCurrentData) {
+		try {
+			String mode = JsonUtils.getAsString(jCurrentData, "mode");
+
+			if (mode.equals("subscribe")) {
+				/*
+				 * Subscribe to channels
+				 */
+
+				// remove old worker if it existed
+				Optional<BackendCurrentDataWorker> workerOpt = data.getCurrentDataWorker();
+				if (workerOpt.isPresent()) {
+					data.setCurrentDataWorker(null);
+					workerOpt.get().dispose();
+				}
+
+				// parse subscribed channels
+				HashMultimap<String, String> channels = HashMultimap.create();
+				JsonObject jSubscribeChannels = JsonUtils.getAsJsonObject(jCurrentData, "channels");
+				for (Entry<String, JsonElement> entry : jSubscribeChannels.entrySet()) {
+					String thing = entry.getKey();
+					JsonArray jChannels = JsonUtils.getAsJsonArray(entry.getValue());
+					for (JsonElement jChannel : jChannels) {
+						String channel = JsonUtils.getAsString(jChannel);
+						channels.put(thing, channel);
+					}
+				}
+				if (!channels.isEmpty()) {
+					// create new worker
+					BackendCurrentDataWorker worker = new BackendCurrentDataWorker(this, websocket, messageId, edgeId,
+							channels);
+					data.setCurrentDataWorker(worker);
+				}
+			}
+		} catch (OpenemsException e) {
+			// TODO handle exception
+			log.warn(e.getMessage());
+		}
+	}
+
 }

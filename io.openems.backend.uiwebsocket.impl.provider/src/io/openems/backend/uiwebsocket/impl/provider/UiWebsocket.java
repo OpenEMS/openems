@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.MetadataService;
+import io.openems.backend.timedata.api.TimedataService;
 import io.openems.backend.uiwebsocket.api.UiWebsocketService;
 
 import org.osgi.service.metatype.annotations.Designate;
@@ -28,11 +29,14 @@ public class UiWebsocket implements UiWebsocketService {
 
 	private UiWebsocketServer server = null;
 
-	@Reference
-	protected MetadataService metadataService;
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	protected volatile MetadataService metadataService;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
 	private volatile EdgeWebsocketService edgeWebsocketService;
+	
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	protected volatile TimedataService timeDataService;
 
 	@ObjectClassDefinition
 	@interface Config {

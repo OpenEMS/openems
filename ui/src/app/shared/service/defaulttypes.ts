@@ -1,4 +1,5 @@
 import { Role } from '../type/role'
+import { UUID } from 'angular2-uuid';
 
 export module DefaultTypes {
 
@@ -109,7 +110,7 @@ export module DefaultTypes {
   export type LanguageTag = "de" | "en" | "cz" | "nl";
 
   export interface OutgoingMessage {
-    id: string[]
+    messageId: string
   }
 
   export interface ConfigUpdate extends OutgoingMessage {

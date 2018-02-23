@@ -9,7 +9,7 @@ import io.openems.common.exceptions.OpenemsException;
 @ProviderType
 public interface MetadataService {
 
-	public abstract Optional<User> getUserWithSession(String sessionId) throws OpenemsException;
+	public abstract User getUserWithSession(String sessionId) throws OpenemsException;
 	
 	public abstract int[] getEdgeIdsForApikey(String apikey);
 	

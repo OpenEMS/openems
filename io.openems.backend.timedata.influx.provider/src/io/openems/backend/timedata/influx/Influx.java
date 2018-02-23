@@ -1,7 +1,5 @@
 package io.openems.backend.timedata.influx;
 
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +29,6 @@ import com.google.common.collect.TreeBasedTable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.MetadataService;
@@ -88,15 +85,13 @@ public class Influx implements TimedataService {
 		this.username = config.username();
 		this.password = config.password();
 		this.measurement = config.measurement();
-		this.getInfluxDbConnection();
 	}
 
 	@Deactivate
 	void deactivate() {
 		log.debug("Deactivate InfluxDB");
 		if (this.influxDbOpt.isPresent()) {
-//			this.influxDbOpt.get().close();
-			//TODO
+			// TODO this works only with a more recent version of Influxdb-Java this.influxDbOpt.get().close();
 		}
 	}
 
@@ -200,55 +195,7 @@ public class Influx implements TimedataService {
 		influxDB.write(batchPoints);
 	}
 
-	/**
-	 * Add value to Influx Builder in the correct data format
-	 *
-	 * @param builder
-	 * @param channel
-	 * @param value
-	 * @return
-	 */
-	private Optional<Object> parseValue(String channel, Object value) {
-		if (value == null) {
-			return Optional.empty();
-		}
-		// convert JsonElement
-		if (value instanceof JsonElement) {
-			JsonElement jValueElement = (JsonElement) value;
-			if (jValueElement.isJsonPrimitive()) {
-				JsonPrimitive jValue = jValueElement.getAsJsonPrimitive();
-				if (jValue.isNumber()) {
-					try {
-						// Avoid GSONs LazilyParsedNumber
-						value = NumberFormat.getInstance().parse(jValue.toString());
-					} catch (ParseException e) {
-						log.error("Unable to parse Number: " + e.getMessage());
-						value = jValue.getAsNumber();
-					}
-				} else if (jValue.isBoolean()) {
-					value = jValue.getAsBoolean();
-				} else if (jValue.isString()) {
-					value = jValue.getAsString();
-				}
-			}
-		}
-		if (value instanceof Number) {
-			Number numberValue = (Number) value;
-			if (numberValue instanceof Integer) {
-				return Optional.of(numberValue.intValue());
-			} else if (numberValue instanceof Double) {
-				return Optional.of(numberValue.doubleValue());
-			} else {
-				return Optional.of(numberValue);
-			}
-		} else if (value instanceof Boolean) {
-			return Optional.of((Boolean) value);
-		} else if (value instanceof String) {
-			return Optional.of((String) value);
-		}
-		log.warn("Unknown type of value [" + value + "] channel [" + channel + "]. This should never happen.");
-		return Optional.empty();
-	}
+
 
 	@Override
 	public JsonArray queryHistoricData(Optional<Integer> deviceIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate,
@@ -259,8 +206,8 @@ public class Influx implements TimedataService {
 	}
 
 	@Override
-	public Optional<Object> getChannelValue(int deviceId, ChannelAddress channelAddress) {
-		DeviceCache deviceCache = this.deviceCacheMap.get(deviceId);
+	public Optional<Object> getChannelValue(int edgeId, ChannelAddress channelAddress) {
+		DeviceCache deviceCache = this.deviceCacheMap.get(edgeId);
 		if (deviceCache != null) {
 			return deviceCache.getChannelValueOpt(channelAddress.toString());
 		} else {
@@ -286,10 +233,10 @@ public class Influx implements TimedataService {
 				TreeBasedTable<Long, String, Object> data = TreeBasedTable.create();
 
 				// get existing or create new DeviceCache
-				DeviceCache deviceCache = this.deviceCacheMap.get(influxId);
+				DeviceCache deviceCache = this.deviceCacheMap.get(edgeId);
 				if (deviceCache == null) {
 					deviceCache = new DeviceCache();
-					this.deviceCacheMap.put(influxId, deviceCache);
+					this.deviceCacheMap.put(edgeId, deviceCache);
 				}
 
 				// Sort incoming data by timestamp
@@ -348,7 +295,7 @@ public class Influx implements TimedataService {
 						// add incoming data to cache (this replaces already existing cache values)
 						for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
 							String channel = channelEntry.getKey();
-							Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
+							Optional<Object> valueOpt = InfluxdbUtils.parseValue(channel, channelEntry.getValue());
 							if (valueOpt.isPresent()) {
 								Object value = valueOpt.get();
 								deviceCache.putToChannelCache(channel, value);
@@ -359,7 +306,7 @@ public class Influx implements TimedataService {
 					// add incoming data to write data
 					for (Entry<String, JsonElement> channelEntry : jChannels.entrySet()) {
 						String channel = channelEntry.getKey();
-						Optional<Object> valueOpt = this.parseValue(channel, channelEntry.getValue());
+						Optional<Object> valueOpt = InfluxdbUtils.parseValue(channel, channelEntry.getValue());
 						if (valueOpt.isPresent()) {
 							Object value = valueOpt.get();
 							data.put(timestamp, channel, value);

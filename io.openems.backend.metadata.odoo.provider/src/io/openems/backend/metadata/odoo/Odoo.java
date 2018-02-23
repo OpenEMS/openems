@@ -91,7 +91,7 @@ public class Odoo implements MetadataService {
 	 * @throws OpenemsException
 	 */
 	@Override
-	public Optional<User> getUserWithSession(String sessionId) {
+	public User getUserWithSession(String sessionId) throws OpenemsException {
 		HttpURLConnection connection = null;
 		try {
 			// send request to Odoo
@@ -118,7 +118,13 @@ public class Odoo implements MetadataService {
 				if (j.has("error")) {
 					JsonObject jError = JsonUtils.getAsJsonObject(j, "error");
 					String errorMessage = JsonUtils.getAsString(jError, "message");
-					throw new OpenemsException("Odoo replied with error: " + errorMessage);
+					switch (errorMessage) {
+					case "Odoo Session Expired":
+						// TODO handle exception
+						throw new OpenemsException("Odoo Session Expired");
+					default:
+						throw new OpenemsException("Odoo replied with error: " + errorMessage);
+					}
 				}
 
 				if (j.has("result")) {
@@ -143,19 +149,19 @@ public class Odoo implements MetadataService {
 					synchronized (this.users) {
 						this.users.put(user.getId(), user);
 					}
-					return Optional.of(user);
+					return user;
 				}
 			}
+			// TODO handle exception
+			throw new OpenemsException("No matching user found");
 		} catch (IOException e) {
-			log.error("IOException while reading from Odoo: " + e.getMessage());
-		} catch (OpenemsException e) {
-			log.error("OpenemsException while reading from Odoo: " + e.getMessage());
+			// TODO handle exception
+			throw new OpenemsException("IOException while reading from Odoo: " + e.getMessage());
 		} finally {
 			if (connection != null) {
 				connection.disconnect();
 			}
 		}
-		return Optional.empty();
 	}
 
 	@Override

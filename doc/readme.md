@@ -149,8 +149,8 @@ For 'unsubscribe' the channels object is empty.
 
 ```
 {
-	id: [string],
-	device: string,
+	messageId: UUID,
+	edgeId: number,
 	currentData: {
 		mode: "subscribe",
 		channels: {
@@ -164,7 +164,7 @@ For 'unsubscribe' the channels object is empty.
 
 ```
 {
-	device?: string,
+	messageId: UUID,
 	currentData: {[{ 
 		channel: string,
 		value: any

@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
 import com.google.common.collect.HashMultimap;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -33,19 +32,21 @@ public abstract class CurrentDataWorker {
 	 */
 	private final ScheduledFuture<?> future;
 
-	public CurrentDataWorker(JsonArray jId, Optional<String> deviceNameOpt, HashMultimap<String, String> channels) {
+	private final WebSocket websocket;
+	
+	public CurrentDataWorker(WebSocket websocket, String messageId, HashMultimap<String, String> channels) {
+		this.websocket = websocket;
 		this.channels = channels;
 		this.future = this.executor.scheduleWithFixedDelay(() -> {
 			/*
 			 * This task is executed regularly. Sends data to websocket.
 			 */
-			Optional<WebSocket> wsOpt = this.getWebsocket();
-			if (!(wsOpt.isPresent() && wsOpt.get().isOpen())) {
+			if (!this.websocket.isOpen()) {
 				// disconnected; stop worker
 				this.dispose();
 				return;
 			}
-			WebSocketUtils.send(wsOpt.get(), DefaultMessages.currentData(jId, deviceNameOpt, getSubscribedData()));
+			WebSocketUtils.send(this.websocket, DefaultMessages.currentData(messageId, getSubscribedData()));
 		}, 0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
 	}
 
@@ -76,6 +77,4 @@ public abstract class CurrentDataWorker {
 	}
 
 	protected abstract Optional<JsonElement> getChannelValue(ChannelAddress channelAddress);
-
-	protected abstract Optional<WebSocket> getWebsocket();
 }

@@ -31,7 +31,14 @@ public interface TimedataService {
 	 */
 	public void write(int edgeId, JsonObject jData) throws OpenemsException;
 
-	public Optional<Object> getChannelValue(int deviceId, ChannelAddress channelAddress);
+	/**
+	 * Gets the latest value for the given ChannelAddress
+	 * 
+	 * @param edgeId
+	 * @param channelAddress
+	 * @return
+	 */
+	public Optional<Object> getChannelValue(int edgeId, ChannelAddress channelAddress);
 	
 	/**
 	 * Queries the database and returns a JsonArray of the form

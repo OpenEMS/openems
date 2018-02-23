@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { DefaultTypes } from './defaulttypes';
 
 export class DefaultMessages {
+
     public static authenticateLogin(password: string, username?: string) {
         let m = {
             authenticate: {
@@ -36,7 +37,7 @@ export class DefaultMessages {
 
     public static configUpdate(thingId: string, channelId: string, value: any): DefaultTypes.ConfigUpdate {
         return {
-            id: [UUID.UUID()],
+            messageId: UUID.UUID(),
             config: {
                 mode: "update",
                 thing: thingId,
@@ -46,10 +47,10 @@ export class DefaultMessages {
         }
     }
 
-    public static currentDataSubscribe(channels: DefaultTypes.ChannelAddresses) {
+    public static currentDataSubscribe(edgeId: number, channels: DefaultTypes.ChannelAddresses) {
         return {
-            device: String,
-            id: ["currentData"],
+            messageId: UUID.UUID(),
+            edgeId: edgeId,
             currentData: {
                 mode: "subscribe",
                 channels: channels

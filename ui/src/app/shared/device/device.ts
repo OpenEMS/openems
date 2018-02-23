@@ -35,11 +35,6 @@ export class Device {
     private replyStreams: { [messageId: string]: Subject<DefaultMessages.Reply> },
     private websocket: Websocket
   ) {
-    // prepare stream/obersable for currentData
-    let currentDataStream = replyStreams["currentData"] = new Subject<DefaultMessages.CurrentDataReply>();
-    this.currentData = currentDataStream
-      .map(message => message.currentData)
-      .combineLatest(this.config, (currentData, config) => new CurrentDataAndSummary(currentData, config));
     // prepare stream/obersable for log
     let logStream = replyStreams["log"] = new Subject<DefaultMessages.LogReply>();
     this.log = logStream
@@ -98,16 +93,24 @@ export class Device {
     this.websocket.send(value);
   }
 
+  private sendMessageWithReply(message: DefaultTypes.OutgoingMessage): Subject<DefaultMessages.Reply> {
+    let messageId: string = message.messageId;
+    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
+    this.send(message);
+    return this.replyStreams[messageId];
+  }
+
   /**
    * Subscribe to current data of specified channels
    */
   public subscribeCurrentData(channels: DefaultTypes.ChannelAddresses): Observable<CurrentDataAndSummary> {
-    // send subscribe
-    let message = DefaultMessages.currentDataSubscribe(channels);
-    this.send(message);
     this.subscribeCurrentDataChannels = channels;
-    // TODO timeout
-    return this.currentData;
+    let replyStream = this.sendMessageWithReply(DefaultMessages.currentDataSubscribe(this.id, channels));
+    let obs = replyStream
+      .map(message => (message as DefaultMessages.CurrentDataReply).currentData)
+      .combineLatest(this.config, (currentData, config) => new CurrentDataAndSummary(currentData, config));
+    // TODO send "unsubscribe" to websocket when nobody is subscribed on this observable anymore
+    return obs;
   }
 
   /**

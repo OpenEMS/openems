@@ -14,6 +14,12 @@ import io.openems.common.types.StringFieldValue;
 
 public class DefaultMessages {
 
+	private static JsonObject newMessage(String messageId) {
+		JsonObject j = new JsonObject();
+		j.addProperty("messageId", messageId);
+		return j;
+	}
+	
 	/**
 	 * <pre>
 	 *	{
@@ -66,7 +72,7 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject browserConnectionFailedReply() {
+	public static JsonObject uiConnectionFailedReply() {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "deny");
 		JsonObject j = new JsonObject();
@@ -162,8 +168,7 @@ public class DefaultMessages {
 	 * @return
 	 */
 	public static JsonObject configQueryReply(String messageId, JsonObject config) {
-		JsonObject j = new JsonObject();
-		j.addProperty("messageId", messageId);
+		JsonObject j = newMessage(messageId);
 		j.add("config", config);
 		return j;
 	}
@@ -171,7 +176,7 @@ public class DefaultMessages {
 	/**
 	 * <pre>
 	 *	{
-	 *		id: [string],
+	 *		messageId: UUID,
 	 *		currentData: {[{ 
 	 *			channel: string,
 	 *			value: any
@@ -181,12 +186,8 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject currentData(JsonArray jId, Optional<String> deviceNameOpt, JsonObject jCurrentData) {
-		JsonObject j = new JsonObject();
-		j.add("id", jId);
-		if(deviceNameOpt.isPresent()) {
-			j.addProperty("device", deviceNameOpt.get());
-		}
+	public static JsonObject currentData(String messageId, JsonObject jCurrentData) {
+		JsonObject j = newMessage(messageId);
 		j.add("currentData", jCurrentData);
 		return j;
 	}

@@ -1,10 +1,12 @@
 package io.openems.backend.uiwebsocket.impl.provider;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class WebsocketData {
 	private final int userId;
 	private final UUID uuid;
+	private Optional<BackendCurrentDataWorker> currentDataWorker = Optional.empty();
 
 	public WebsocketData(int userId, UUID uuid) {
 		super();
@@ -18,5 +20,13 @@ public class WebsocketData {
 
 	public UUID getUuid() {
 		return uuid;
+	}
+
+	public void setCurrentDataWorker(BackendCurrentDataWorker currentDataWorker) {
+		this.currentDataWorker = Optional.ofNullable(currentDataWorker);
+	}
+
+	public Optional<BackendCurrentDataWorker> getCurrentDataWorker() {
+		return currentDataWorker;
 	}
 }
