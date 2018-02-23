@@ -482,8 +482,10 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 			Member member = channelDoc.getMember();
 			try {
 				List<Channel> channels = new ArrayList<>();
+				boolean ignoreEmpty = false;
 				if (member instanceof Method) {
 					if (((Method) member).getReturnType().isArray()) {
+						ignoreEmpty = true; // ignore e.g. if getFaultChannels is returning an empty array
 						Channel[] ch = (Channel[]) ((Method) member).invoke(thing);
 						for (Channel c : ch) {
 							channels.add(c);
@@ -498,8 +500,8 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 				} else {
 					continue;
 				}
-				if (channels.isEmpty()) {
-					log.error(
+				if (!ignoreEmpty && channels.isEmpty()) {
+					log.warn(
 							"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
 					continue;
 				}
