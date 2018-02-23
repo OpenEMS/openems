@@ -22,6 +22,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelEnum;
 
 // TODO use getAsOptional***() as basis for getAs***() to avoid unnecessary exceptions
 public class JsonUtils {
@@ -47,7 +48,7 @@ public class JsonUtils {
 			return Optional.empty();
 		}
 	}
-	
+
 	public static JsonObject getAsJsonObject(JsonElement jElement) throws OpenemsException {
 		if (!jElement.isJsonObject()) {
 			throw new OpenemsException("This is not a JsonObject: " + jElement);
@@ -55,14 +56,6 @@ public class JsonUtils {
 		return jElement.getAsJsonObject();
 	};
 
-	public static Optional<JsonObject> getAsOptionalJsonObject(JsonElement jElement) {
-		try {
-			return Optional.of(getAsJsonObject(jElement));
-		} catch (OpenemsException e) {
-			return Optional.empty();
-		}
-	};
-	
 	public static JsonObject getAsJsonObject(JsonElement jElement, String memberName) throws OpenemsException {
 		JsonElement jsubElement = getSubElement(jElement, memberName);
 		if (!jsubElement.isJsonObject()) {
@@ -307,6 +300,11 @@ public class JsonUtils {
 			 * Number
 			 */
 			return new JsonPrimitive((Number) value);
+		}	else if(value instanceof ChannelEnum) {
+			/*
+			 * ChannelEnum
+			 */
+			return new JsonPrimitive(((ChannelEnum)value).getValue());
 		} else if (value instanceof String) {
 			/*
 			 * String
