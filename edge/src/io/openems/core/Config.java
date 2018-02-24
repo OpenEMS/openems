@@ -53,18 +53,17 @@ import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.NotImplementedException;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
-import io.openems.api.exception.WriteChannelException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
-import io.openems.core.utilities.JsonUtils;
 
 public class Config implements ChannelChangeListener {
 
@@ -241,7 +240,7 @@ public class Config implements ChannelChangeListener {
 				jScheduler.add("controllers", jControllers);
 			}
 			jConfig.add("scheduler", jScheduler);
-		} catch (ReflectionException e) {
+		} catch (OpenemsException e) {
 			log.warn("Error applying default config: " + e.getMessage());
 		}
 		return jConfig;
@@ -300,7 +299,7 @@ public class Config implements ChannelChangeListener {
 	}
 
 	public synchronized void parseJsonConfig(JsonObject jConfig)
-			throws ReflectionException, ConfigException, WriteChannelException {
+			throws OpenemsException {
 		/*
 		 * read Users
 		 */

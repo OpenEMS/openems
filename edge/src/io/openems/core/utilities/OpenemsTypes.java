@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.exception.NotImplementedException;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.types.ChannelEnum;
 
 /**

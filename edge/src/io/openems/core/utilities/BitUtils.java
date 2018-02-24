@@ -3,7 +3,7 @@ package io.openems.core.utilities;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import io.openems.api.exception.NotImplementedException;
+import io.openems.common.exceptions.NotImplementedException;
 
 public class BitUtils {
 

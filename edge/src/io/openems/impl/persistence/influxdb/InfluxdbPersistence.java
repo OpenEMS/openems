@@ -42,7 +42,7 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.api.persistence.QueryablePersistence;
 import io.openems.backend.timedata.influx.InfluxdbUtils;
 import io.openems.common.types.ChannelEnum;

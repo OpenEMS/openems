@@ -50,11 +50,12 @@ import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.Device;
-import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.NotImplementedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 import io.openems.core.ConfigFormat;
 import io.openems.core.ThingRepository;
 
@@ -66,10 +67,10 @@ public class ConfigUtils {
 	 *
 	 * @param channels
 	 * @param jConfig
-	 * @throws ConfigException
+	 * @throws OpenemsException
 	 */
 	public static void injectConfigChannels(Set<ConfigChannel<?>> channels, JsonObject jConfig, Object... args)
-			throws ReflectionException {
+			throws OpenemsException {
 		for (ConfigChannel<?> channel : channels) {
 			if (!jConfig.has(channel.id()) && (channel.valueOptional().isPresent() || channel.isOptional())) {
 				// Element for this Channel is not existing in the configuration, but a default value was set
@@ -192,10 +193,10 @@ public class ConfigUtils {
 	 * @param channel
 	 * @param j
 	 * @return
-	 * @throws ReflectionException
+	 * @throws OpenemsException
 	 */
 	public static Object getConfigObject(ConfigChannel<?> channel, JsonElement j, Object... args)
-			throws ReflectionException {
+			throws OpenemsException {
 		Optional<Class<?>> typeOptional = channel.type();
 		if (!typeOptional.isPresent()) {
 			String clazz = channel.parent() != null ? " in implementation [" + channel.parent().getClass() + "]" : "";
@@ -244,7 +245,7 @@ public class ConfigUtils {
 	}
 
 	private static Thing getThingFromConfig(Class<? extends Thing> type, JsonElement j, Object... objects)
-			throws ReflectionException {
+			throws OpenemsException {
 		String thingId = JsonUtils.getAsString(j, "id");
 		ThingRepository thingRepository = ThingRepository.getInstance();
 		Optional<Thing> existingThing = thingRepository.getThingById(thingId);

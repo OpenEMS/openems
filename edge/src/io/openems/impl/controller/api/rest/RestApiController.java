@@ -28,7 +28,7 @@ import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.core.utilities.api.ApiWorker;
 
 @ThingInfo(title = "REST-Api", description = "Use for external access to OpenEMS.")

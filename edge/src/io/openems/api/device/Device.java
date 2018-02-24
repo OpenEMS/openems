@@ -35,8 +35,8 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.exception.OpenemsException;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.OpenemsException;
 
 public abstract class Device implements Thing, ChannelChangeListener {
 	public final static String THINGID_PREFIX = "_device";

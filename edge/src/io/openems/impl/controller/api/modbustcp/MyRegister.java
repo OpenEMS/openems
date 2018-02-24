@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.exception.NotImplementedException;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.NotImplementedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.core.Databus;
 import io.openems.core.utilities.BitUtils;
 

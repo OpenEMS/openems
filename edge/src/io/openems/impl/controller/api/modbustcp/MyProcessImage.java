@@ -17,7 +17,7 @@ import com.ghgande.j2mod.modbus.procimg.ProcessImage;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.api.doc.ChannelDoc;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.core.utilities.api.ApiWorker;
 

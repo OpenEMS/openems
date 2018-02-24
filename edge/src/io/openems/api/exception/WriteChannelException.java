@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.api.exception;
 
+import io.openems.common.exceptions.OpenemsException;
+
 public class WriteChannelException extends OpenemsException {
 
 	private static final long serialVersionUID = 8592882509644913998L;

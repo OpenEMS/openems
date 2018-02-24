@@ -23,7 +23,7 @@ package io.openems.impl.protocol.system;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 
 @ThingInfo(title = "Operating system")
 public abstract class SystemDevice extends Device {

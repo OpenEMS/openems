@@ -27,12 +27,13 @@ import com.google.gson.JsonElement;
 
 import io.openems.api.controller.Controller;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.NotImplementedException;
 import io.openems.api.exception.WriteChannelException;
 import io.openems.api.thing.Thing;
 import io.openems.common.exceptions.AccessDeniedException;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.session.Role;
-import io.openems.core.utilities.JsonUtils;
+import io.openems.common.utils.JsonUtils;
+
 
 public class WriteChannel<T> extends ReadChannel<T> {
 

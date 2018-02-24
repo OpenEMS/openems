@@ -28,11 +28,11 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import io.openems.api.doc.ChannelDoc;
-import io.openems.api.exception.NotImplementedException;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.core.utilities.InjectionUtils;
-import io.openems.core.utilities.JsonUtils;
 
 public class ConfigChannel<T> extends WriteChannel<T> {
 

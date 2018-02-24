@@ -21,9 +21,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.core.Address;
-import io.openems.core.utilities.JsonUtils;
 
 public class InfluxdbQueryWrapper {
 
@@ -127,8 +127,8 @@ public class InfluxdbQueryWrapper {
 							Double value = (Double) series.getValues().get(timeIndex).get(columnIndex);
 							Address address = addressIndex.get(columnIndex - 1);
 							j.get(timeIndex).getAsJsonObject().get("channels").getAsJsonObject()
-									.get(address.getThingId()).getAsJsonObject()
-									.addProperty(address.getChannelId(), value);
+							.get(address.getThingId()).getAsJsonObject()
+							.addProperty(address.getChannelId(), value);
 						}
 					}
 				}
@@ -327,7 +327,7 @@ public class InfluxdbQueryWrapper {
 			for (JsonElement channelElement : channelIds) {
 				String channelId = JsonUtils.getAsString(channelElement);
 				channelAddresses
-						.add("MEAN(\"" + thingId + "/" + channelId + "\") AS \"" + thingId + "/" + channelId + "\"");
+				.add("MEAN(\"" + thingId + "/" + channelId + "\") AS \"" + thingId + "/" + channelId + "\"");
 			}
 		}
 		return String.join(", ", channelAddresses);
