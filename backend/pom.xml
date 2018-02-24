@@ -36,11 +36,6 @@
 	</repositories>
 	<dependencies>
 		<dependency>
-			<groupId>io.openems</groupId>
-			<artifactId>common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>${gson.version}</version>
@@ -69,11 +64,6 @@
 			<groupId>org.restlet.jse</groupId>
 			<artifactId>org.restlet.ext.slf4j</artifactId>
 			<version>${restlet.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.odoojava</groupId>
-			<artifactId>odoo-java-api</artifactId>
-			<version>${odoo-java-api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

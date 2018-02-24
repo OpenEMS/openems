@@ -7,11 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.openems.backend.metadata.api.device.MetadataDeviceModel;
-import io.openems.backend.metadata.api.device.MetadataDevices;
-import io.openems.common.exceptions.OpenemsException;
-
-public class MetadataFileDeviceModel implements MetadataDeviceModel {
+public class MetadataFileDeviceModel {
 
 	private final List<MetadataFileDevice> devices = new ArrayList<>();
 
@@ -28,17 +24,17 @@ public class MetadataFileDeviceModel implements MetadataDeviceModel {
 		fr.close();
 	}
 
-	@Override
-	public MetadataDevices getDevicesForApikey(String apikey) throws OpenemsException {
-		// filter and convert to new list
-		MetadataDevices result = new MetadataDevices();
-		for (MetadataFileDevice device : this.devices) {
-			if (device.getApikey().equals(apikey)) {
-				result.add(device);
-			}
-		}
-		return result;
-	}
+	// @Override
+	// public MetadataDevices getDevicesForApikey(String apikey) throws OpenemsException {
+	// // filter and convert to new list
+	// MetadataDevices result = new MetadataDevices();
+	// for (MetadataFileDevice device : this.devices) {
+	// if (device.getApikey().equals(apikey)) {
+	// result.add(device);
+	// }
+	// }
+	// return result;
+	// }
 
 	public List<MetadataFileDevice> getAllDevices() {
 		return this.devices;

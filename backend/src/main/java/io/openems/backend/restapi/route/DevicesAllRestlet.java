@@ -23,15 +23,6 @@ package io.openems.backend.restapi.route;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
-import org.restlet.data.MediaType;
-import org.restlet.data.Method;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-
-import com.google.gson.JsonArray;
-
-import io.openems.backend.openemswebsocket.OpenemsWebsocket;
-import io.openems.backend.openemswebsocket.session.OpenemsSession;
 
 public class DevicesAllRestlet extends Restlet {
 
@@ -40,13 +31,13 @@ public class DevicesAllRestlet extends Restlet {
 		super.handle(request, response);
 
 		// call handler methods
-		if (request.getMethod().equals(Method.GET)) {
-			JsonArray j = new JsonArray();
-			for (OpenemsSession session : OpenemsWebsocket.instance().getSessions()) {
-				j.add(session.getData().getDevices().toJson());
-			}
-			Representation entity = new StringRepresentation(j.toString(), MediaType.APPLICATION_JSON);
-			response.setEntity(entity);
-		}
+		// if (request.getMethod().equals(Method.GET)) {
+		// JsonArray j = new JsonArray();
+		// for (OpenemsSession session : OpenemsWebsocket.instance().getSessions()) {
+		// j.add(session.getData().getDevices().toJson());
+		// }
+		// Representation entity = new StringRepresentation(j.toString(), MediaType.APPLICATION_JSON);
+		// response.setEntity(entity);
+		// }
 	}
 }
