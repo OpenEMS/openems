@@ -5,6 +5,8 @@ import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import io.openems.common.session.Role;
+
 public class User {
 	private final int id;
 	private String name;

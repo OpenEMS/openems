@@ -20,39 +20,27 @@
  *******************************************************************************/
 package io.openems.impl.controller.api.websocket;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
-import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
-import io.openems.common.websocket.DefaultMessages;
-import io.openems.common.websocket.LogBehaviour;
-import io.openems.common.websocket.Notification;
-import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.utilities.api.ApiWorker;
 import io.openems.impl.controller.api.websocket.session.WebsocketApiSession;
-import io.openems.impl.controller.api.websocket.session.WebsocketApiSessionData;
-import io.openems.impl.controller.api.websocket.session.WebsocketApiSessionManager;
 
-public class WebsocketApiServer
-extends AbstractWebsocketServer<WebsocketApiSession, WebsocketApiSessionData, WebsocketApiSessionManager> {
+public class WebsocketApiServer extends AbstractWebsocketServer {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketApiServer.class);
 	private final ApiWorker apiWorker;
 
 	public WebsocketApiServer(ApiWorker apiWorker, int port) {
-		super(port, new WebsocketApiSessionManager());
+		super(port);
 		this.apiWorker = apiWorker;
 	}
 
@@ -61,86 +49,85 @@ extends AbstractWebsocketServer<WebsocketApiSession, WebsocketApiSessionData, We
 	 */
 	@Override
 	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
-		JsonObject jHandshake = this.parseCookieFromHandshake(handshake);
-		Optional<String> tokenOpt = JsonUtils.getAsOptionalString(jHandshake, "token");
-		if (tokenOpt.isPresent()) {
-			String token = tokenOpt.get();
-			Optional<WebsocketApiSession> sessionOpt = this.sessionManager.getSessionByToken(token);
-			if (sessionOpt.isPresent()) {
-				WebsocketApiSession session = sessionOpt.get();
-				Optional<WebSocket> oldWebsocketOpt = session.getData().getWebsocketHandler().getWebsocket();
-				if (oldWebsocketOpt.isPresent()) {
-					// TODO to avoid this, websockets needs to be able to handle more than one websocket per session
-					oldWebsocketOpt.get().closeConnection(CloseFrame.REFUSE,
-							"Another client connected with this token");
-				}
-				// refresh session
-				session.getData().getWebsocketHandler().setWebsocket(websocket);
-				// add to websockets
-				this.addWebsocket(websocket, session);
-				// send connection successful to browser
-				JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
-						Optional.of(session.getData().getRole()), new ArrayList<>());
-				log.info("Websocket connected by session. User [" + session.getData().getUser() + "] Session ["
-						+ session.getToken() + "]");
-				WebSocketUtils.send(websocket, jReply);
-				return;
-			}
-			// if we are here, automatic authentication was not possible -> notify client
-			WebSocketUtils.sendNotification(websocket, new JsonArray(), LogBehaviour.WRITE_TO_LOG,
-					Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, tokenOpt.orElse(""));
-		}
+		//		JsonObject jHandshake = this.parseCookieFromHandshake(handshake);
+		//		Optional<String> tokenOpt = JsonUtils.getAsOptionalString(jHandshake, "token");
+		//		if (tokenOpt.isPresent()) {
+		//			String token = tokenOpt.get();
+		//			Optional<WebsocketApiSession> sessionOpt = this.sessionManager.getSessionByToken(token);
+		//			if (sessionOpt.isPresent()) {
+		//				WebsocketApiSession session = sessionOpt.get();
+		//				Optional<WebSocket> oldWebsocketOpt = session.getData().getWebsocketHandler().getWebsocket();
+		//				if (oldWebsocketOpt.isPresent()) {
+		//					// TODO to avoid this, websockets needs to be able to handle more than one websocket per session
+		//					oldWebsocketOpt.get().closeConnection(CloseFrame.REFUSE,
+		//							"Another client connected with this token");
+		//				}
+		//				// refresh session
+		//				session.getData().getWebsocketHandler().setWebsocket(websocket);
+		//				// add to websockets
+		//				this.addWebsocket(websocket, session);
+		//				// send connection successful to browser
+		//				JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
+		//						Optional.of(session.getData().getRole()), new JsonArray());
+		//				log.info("Websocket connected by session. User [" + session.getData().getUser() + "] Session ["
+		//						+ session.getToken() + "]");
+		//				WebSocketUtils.send(websocket, jReply);
+		//				return;
+		//			}
+		//			// if we are here, automatic authentication was not possible -> notify client
+		//			WebSocketUtils.sendNotification(websocket, new JsonArray(), LogBehaviour.WRITE_TO_LOG,
+		//					Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, tokenOpt.orElse(""));
+		//		}
 	}
 
 	@Override
-	protected void _onMessage(WebSocket websocket, JsonObject jMessage, Optional<JsonArray> jMessageIdOpt,
-			Optional<String> deviceNameOpt) {
-		// log.info("RECV: websocket[" + websocket + "]" + jMessage.toString());
-
-		/*
-		 * Authenticate
-		 */
-		Optional<WebsocketApiSession> sessionOpt = Optional.empty();
-		if (jMessage.has("authenticate")) {
-			// authenticate by username/password
-			sessionOpt = authenticate(jMessage.get("authenticate"), websocket);
-		}
-		if (!sessionOpt.isPresent()) {
-			// check if there is an existing session
-			sessionOpt = this.getSessionFromWebsocket(websocket);
-		}
-		if (!sessionOpt.isPresent()) {
-			/*
-			 * send authentication failed reply
-			 */
-			JsonObject jReply = DefaultMessages.browserConnectionFailedReply();
-			WebSocketUtils.send(websocket, jReply);
-			websocket.closeConnection(CloseFrame.REFUSE, "Authentication failed");
-			return;
-		}
-		WebsocketApiSession session = sessionOpt.get();
-		/*
-		 * On initial authentication...
-		 */
-		if (jMessage.has("authenticate")) {
-			// add to websockets
-			this.addWebsocket(websocket, session);
-			// send connection successful to browser
-			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
-					Optional.of(session.getData().getRole()), new ArrayList<>());
-			log.info("Browser connected by authentication. User [" + session.getData().getUser() + "] Session ["
-					+ session.getToken() + "]");
-			WebSocketUtils.send(websocket, jReply);
-		}
-
-		/*
-		 * Rest -> forward to websocket handler
-		 */
-		session.getData().getWebsocketHandler().onMessage(jMessage);
+	protected void _onMessage(WebSocket websocket, JsonObject jMessage) {
+		//		// log.info("RECV: websocket[" + websocket + "]" + jMessage.toString());
+		//
+		//		/*
+		//		 * Authenticate
+		//		 */
+		//		Optional<WebsocketApiSession> sessionOpt = Optional.empty();
+		//		if (jMessage.has("authenticate")) {
+		//			// authenticate by username/password
+		//			sessionOpt = authenticate(jMessage.get("authenticate"), websocket);
+		//		}
+		//		if (!sessionOpt.isPresent()) {
+		//			// check if there is an existing session
+		//			sessionOpt = this.getSessionFromWebsocket(websocket);
+		//		}
+		//		if (!sessionOpt.isPresent()) {
+		//			/*
+		//			 * send authentication failed reply
+		//			 */
+		//			JsonObject jReply = DefaultMessages.browserConnectionFailedReply();
+		//			WebSocketUtils.send(websocket, jReply);
+		//			websocket.closeConnection(CloseFrame.REFUSE, "Authentication failed");
+		//			return;
+		//		}
+		//		WebsocketApiSession session = sessionOpt.get();
+		//		/*
+		//		 * On initial authentication...
+		//		 */
+		//		if (jMessage.has("authenticate")) {
+		//			// add to websockets
+		//			this.addWebsocket(websocket, session);
+		//			// send connection successful to browser
+		//			JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply(session.getToken(),
+		//					Optional.of(session.getData().getRole()), new ArrayList<>());
+		//			log.info("Browser connected by authentication. User [" + session.getData().getUser() + "] Session ["
+		//					+ session.getToken() + "]");
+		//			WebSocketUtils.send(websocket, jReply);
+		//		}
+		//
+		//		/*
+		//		 * Rest -> forward to websocket handler
+		//		 */
+		//		session.getData().getWebsocketHandler().onMessage(jMessage);
 	}
 
 	@Override
-	protected void _onClose(WebSocket websocket, Optional<WebsocketApiSession> sessionOpt) {
+	protected void _onClose(WebSocket websocket) {
 		// nothing to do here
 	}
 
@@ -151,32 +138,32 @@ extends AbstractWebsocketServer<WebsocketApiSession, WebsocketApiSessionData, We
 	 * @param handler
 	 */
 	private Optional<WebsocketApiSession> authenticate(JsonElement jAuthenticateElement, WebSocket websocket) {
-		try {
-			JsonObject jAuthenticate = JsonUtils.getAsJsonObject(jAuthenticateElement);
-			if (jAuthenticate.has("mode")) {
-				String mode = JsonUtils.getAsString(jAuthenticate, "mode");
-				if (mode.equals("login")) {
-					if (jAuthenticate.has("password")) {
-						/*
-						 * Authenticate using username and password
-						 */
-						String password = JsonUtils.getAsString(jAuthenticate, "password");
-						if (jAuthenticate.has("username")) {
-							String username = JsonUtils.getAsString(jAuthenticate, "username");
-							return this.sessionManager.authByUserPassword(username, password, websocket, apiWorker);
-						} else {
-							return this.sessionManager.authByPassword(password, websocket, apiWorker);
-						}
-					}
-
-				} else if (mode.equals("logout")) {
-					/*
-					 * Logout and close session
-					 */
-					this.removeWebsocket(websocket);
-				}
-			}
-		} catch (OpenemsException e) { /* ignore */ }
+		//		try {
+		//			JsonObject jAuthenticate = JsonUtils.getAsJsonObject(jAuthenticateElement);
+		//			if (jAuthenticate.has("mode")) {
+		//				String mode = JsonUtils.getAsString(jAuthenticate, "mode");
+		//				if (mode.equals("login")) {
+		//					if (jAuthenticate.has("password")) {
+		//						/*
+		//						 * Authenticate using username and password
+		//						 */
+		//						String password = JsonUtils.getAsString(jAuthenticate, "password");
+		//						if (jAuthenticate.has("username")) {
+		//							String username = JsonUtils.getAsString(jAuthenticate, "username");
+		//							return this.sessionManager.authByUserPassword(username, password, websocket, apiWorker);
+		//						} else {
+		//							return this.sessionManager.authByPassword(password, websocket, apiWorker);
+		//						}
+		//					}
+		//
+		//				} else if (mode.equals("logout")) {
+		//					/*
+		//					 * Logout and close session
+		//					 */
+		//					this.removeWebsocket(websocket);
+		//				}
+		//			}
+		//		} catch (OpenemsException e) { /* ignore */ }
 		return Optional.empty();
 	}
 
@@ -189,8 +176,13 @@ extends AbstractWebsocketServer<WebsocketApiSession, WebsocketApiSessionData, We
 	 * @param jMessage
 	 */
 	public void broadcastLog(long timestamp, String level, String source, String message) {
-		for (WebsocketApiSession session : this.sessionManager.getSessions()) {
-			session.getData().getWebsocketHandler().sendLog(timestamp, level, source, message);
-		}
+		//		for (WebsocketApiSession session : this.sessionManager.getSessions()) {
+		//			session.getData().getWebsocketHandler().sendLog(timestamp, level, source, message);
+		//		}
+	}
+
+	@Override
+	protected void _onError(WebSocket websocket, Exception ex) {
+		// TODO Auto-generated method stub
 	}
 }

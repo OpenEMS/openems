@@ -41,7 +41,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.persistence.QueryablePersistence;
-import io.openems.common.api.TimedataSource;
+import io.openems.backend.timedata.api.TimedataService;
 import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
@@ -173,7 +173,7 @@ public class EdgeWebsocketHandler {
 		Optional<JsonObject> jhistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
 		if (jhistoricDataOpt.isPresent() && jIdOpt.isPresent()) {
 			// select first QueryablePersistence (by default the running InfluxdbPersistence)
-			TimedataSource timedataSource = null;
+			TimedataService timedataSource = null;
 			for (QueryablePersistence queryablePersistence : ThingRepository.getInstance().getQueryablePersistences()) {
 				timedataSource = queryablePersistence;
 				break;
@@ -181,10 +181,11 @@ public class EdgeWebsocketHandler {
 			if (timedataSource == null) {
 				// TODO create notification that there is no datasource available
 			} else {
-				jReply = JsonUtils.merge(jReply, //
-						WebSocketUtils.historicData(jIdOpt.get(), jhistoricDataOpt.get(), deviceIdOpt, timedataSource,
-								role) //
-						);
+				// TODO
+				//				jReply = JsonUtils.merge(jReply, //
+				//						WebSocketUtils.historicData(jIdOpt.get(), jhistoricDataOpt.get(), deviceIdOpt, timedataSource,
+				//								role) //
+				//						);
 			}
 		}
 
@@ -232,7 +233,8 @@ public class EdgeWebsocketHandler {
 	 * @param jConfig
 	 * @return
 	 */
-	private synchronized JsonObject config(JsonObject jConfig, Role role, JsonArray jId, Optional<ApiWorker> apiWorkerOpt) {
+	private synchronized JsonObject config(JsonObject jConfig, Role role, JsonArray jId,
+			Optional<ApiWorker> apiWorkerOpt) {
 		try {
 			String mode = JsonUtils.getAsString(jConfig, "mode");
 
@@ -242,7 +244,7 @@ public class EdgeWebsocketHandler {
 				 */
 				String language = JsonUtils.getAsString(jConfig, "language");
 				JsonObject jReplyConfig = Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, role, language);
-				return DefaultMessages.configQueryReply(jReplyConfig);
+				return DefaultMessages.configQueryReply(new JsonObject() /* TODO */, jReplyConfig);
 
 			} else if (mode.equals("update")) {
 				try {
@@ -272,20 +274,23 @@ public class EdgeWebsocketHandler {
 							 * WriteChannel
 							 */
 							WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
-							if(!apiWorkerOpt.isPresent()) {
+							if (!apiWorkerOpt.isPresent()) {
 								WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
 										Notification.BACKEND_NOT_ALLOWED, "set " + channel.address() + " => " + jValue);
 							} else {
 								ApiWorker apiWorker = apiWorkerOpt.get();
 								WriteObject writeObject = new WriteJsonObject(jValue).onFirstSuccess(() -> {
 									WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
-											Notification.EDGE_CHANNEL_UPDATE_SUCCESS, "set " + channel.address() + " => " + jValue);
+											Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
+											"set " + channel.address() + " => " + jValue);
 								}).onFirstError((e) -> {
 									WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
-											Notification.EDGE_CHANNEL_UPDATE_FAILED, "set " + channel.address() + " => " + jValue, e.getMessage());
+											Notification.EDGE_CHANNEL_UPDATE_FAILED,
+											"set " + channel.address() + " => " + jValue, e.getMessage());
 								}).onTimeout(() -> {
 									WebSocketUtils.sendNotification(websocketOpt, jId, LogBehaviour.WRITE_TO_LOG,
-											Notification.EDGE_CHANNEL_UPDATE_TIMEOUT, "set " + channel.address() + " => " + jValue);
+											Notification.EDGE_CHANNEL_UPDATE_TIMEOUT,
+											"set " + channel.address() + " => " + jValue);
 								});
 								apiWorker.addValue(writeChannel, writeObject);
 							}
@@ -295,7 +300,7 @@ public class EdgeWebsocketHandler {
 					}
 				} catch (OpenemsException e) {
 					WebSocketUtils.send(websocketOpt,
-							DefaultMessages.notification(jId, Notification.EDGE_CHANNEL_UPDATE_FAILED, e.getMessage()));
+							DefaultMessages.notification(new JsonObject() /* TODO */, Notification.EDGE_CHANNEL_UPDATE_FAILED, e.getMessage()));
 				}
 			}
 		} catch (OpenemsException e) {
@@ -338,7 +343,7 @@ public class EdgeWebsocketHandler {
 				}
 				if (!channels.isEmpty()) {
 					// create new worker
-					worker = new EdgeCurrentDataWorker(jId, channels, role, this);
+					worker = new EdgeCurrentDataWorker(new JsonObject() /* TODO */, channels, role, this);
 					this.currentDataSubscribers.put(messageId, worker);
 				}
 			}
@@ -403,7 +408,7 @@ public class EdgeWebsocketHandler {
 		} catch (OpenemsException e) {
 			output += e.getMessage();
 		}
-		return DefaultMessages.systemExecuteReply(jId, output);
+		return DefaultMessages.systemExecuteReply(new JsonObject() /* TODO */, output);
 	}
 
 	// TODO handle config command
@@ -661,7 +666,7 @@ public class EdgeWebsocketHandler {
 			JsonArray jId = new JsonArray();
 			jId.add("log");
 			jId.add(id);
-			JsonObject j = DefaultMessages.log(jId, timestamp, level, source, message);
+			JsonObject j = DefaultMessages.log(new JsonObject() /* TODO */, timestamp, level, source, message);
 			// TODO reevaluate if it is necessary to do this async; ie if websocket.send returns directly or not
 			logExecutor.execute(() -> {
 				this.send(j);

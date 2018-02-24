@@ -43,7 +43,7 @@ public class WebSocketUtils {
 			notification.writeToLog(log, params);
 		}
 		String message = String.format(notification.getMessage(), params);
-		JsonObject j = DefaultMessages.notification(jId, notification, message, params);
+		JsonObject j = DefaultMessages.notification(new JsonObject() /* TODO */, notification, message, params);
 		return WebSocketUtils.send(websocket, j);
 	}
 

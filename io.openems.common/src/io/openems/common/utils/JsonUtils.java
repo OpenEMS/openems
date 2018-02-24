@@ -22,6 +22,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelEnum;
 
 // TODO use getAsOptional***() as basis for getAs***() to avoid unnecessary exceptions
 public class JsonUtils {
@@ -307,6 +308,11 @@ public class JsonUtils {
 			 * Number
 			 */
 			return new JsonPrimitive((Number) value);
+		}	else if(value instanceof ChannelEnum) {
+			/*
+			 * ChannelEnum
+			 */
+			return new JsonPrimitive(((ChannelEnum)value).getValue());
 		} else if (value instanceof String) {
 			/*
 			 * String

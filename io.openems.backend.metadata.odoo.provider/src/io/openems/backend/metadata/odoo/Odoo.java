@@ -34,9 +34,9 @@ import com.google.gson.JsonParser;
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.MetadataService;
-import io.openems.backend.metadata.api.Role;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
 @Designate(ocd = Odoo.Config.class, factory = false)

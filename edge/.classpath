@@ -13,6 +13,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.backend.timedata.api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/io.openems.backend.timedata.influx.provider"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -14,9 +14,9 @@ import io.openems.common.types.StringFieldValue;
 
 public class DefaultMessages {
 
-	private static JsonObject newMessage(String messageId) {
+	private static JsonObject newMessage(JsonObject jMessageId) {
 		JsonObject j = new JsonObject();
-		j.addProperty("messageId", messageId);
+		j.add("messageId", jMessageId);
 		return j;
 	}
 	
@@ -158,6 +158,7 @@ public class DefaultMessages {
 	/**
 	 * <pre>
 	 *	{
+	 *		messageId: {},
 	 *		config: {
 	 *			...
 	 *		}
@@ -167,8 +168,8 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject configQueryReply(String messageId, JsonObject config) {
-		JsonObject j = newMessage(messageId);
+	public static JsonObject configQueryReply(JsonObject jMessageId, JsonObject config) {
+		JsonObject j = newMessage(jMessageId);
 		j.add("config", config);
 		return j;
 	}
@@ -176,7 +177,7 @@ public class DefaultMessages {
 	/**
 	 * <pre>
 	 *	{
-	 *		messageId: UUID,
+	 *		messageId: {},
 	 *		currentData: {[{ 
 	 *			channel: string,
 	 *			value: any
@@ -186,8 +187,8 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject currentData(String messageId, JsonObject jCurrentData) {
-		JsonObject j = newMessage(messageId);
+	public static JsonObject currentData(JsonObject jMessageId, JsonObject jCurrentData) {
+		JsonObject j = newMessage(jMessageId);
 		j.add("currentData", jCurrentData);
 		return j;
 	}
@@ -195,7 +196,7 @@ public class DefaultMessages {
 	/**
 	 * <pre>
 	 *	{
-	 *		messageId: UUID,
+	 *		messageId: {},
 	 *		historicData: {
 	 *			data: [{
 	 *				time: ...,
@@ -211,8 +212,8 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject historicDataQueryReply(String messageId, JsonArray jData) {
-		JsonObject j = newMessage(messageId);
+	public static JsonObject historicDataQueryReply(JsonObject jMessageId, JsonArray jData) {
+		JsonObject j = newMessage(jMessageId);
 		JsonObject jHistoricData = new JsonObject();
 		jHistoricData.add("data", jData);
 		j.add("historicData", jHistoricData);
@@ -222,8 +223,8 @@ public class DefaultMessages {
 	/**
 	 * <pre>
 	 *	{
+	 *		messageId: {},
 	 *		notification: {
-	 *			id: string[],
 	 *			type: string,
 	 *			message: string,
 	 *			code: number,
@@ -234,9 +235,8 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject notification(JsonArray jId, Notification code, String message, Object... params) {
-		JsonObject j = new JsonObject();
-		j.add("id", jId);
+	public static JsonObject notification(JsonObject jMessageId, Notification code, String message, Object... params) {
+		JsonObject j = newMessage(jMessageId);
 		JsonObject jNotification = new JsonObject();
 		jNotification.addProperty("type", code.getType().toString().toLowerCase());
 		jNotification.addProperty("message", message);
@@ -253,6 +253,7 @@ public class DefaultMessages {
 	/**
 	 * <pre>
 	 *	{
+	 *		messageId: {}
 	 *		currentData: {
 	 *			mode: 'subscribe',
 	 *			channels: {}
@@ -262,9 +263,8 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject currentDataSubscribe(JsonArray jId, JsonObject jChannels) {
-		JsonObject j = new JsonObject();
-		j.add("id", jId);
+	public static JsonObject currentDataSubscribe(JsonObject jMessageId, JsonObject jChannels) {
+		JsonObject j = newMessage(jMessageId);
 		JsonObject jCurrentData = new JsonObject();
 		jCurrentData.addProperty("mode", "subscribe");
 		jCurrentData.add("channels", jChannels);
@@ -275,7 +275,7 @@ public class DefaultMessages {
 	/**
 	 * <pre>
 	 *	{
-	 *		id: [string],
+	 *		messageId: {},
 	 *		log: {
 	 *			times: number,
 	 *			level: string,
@@ -287,9 +287,8 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject log(JsonArray jId, long timestamp, String level, String source, String message) {
-		JsonObject j = new JsonObject();
-		j.add("id", jId);
+	public static JsonObject log(JsonObject jMessageId, long timestamp, String level, String source, String message) {
+		JsonObject j = newMessage(jMessageId);
 		JsonObject jLog = new JsonObject();
 		jLog.addProperty("time", timestamp);
 		jLog.addProperty("level", level);
@@ -302,7 +301,7 @@ public class DefaultMessages {
 	/**
 	 * <pre>
 	 *	{
-	 *		id: [string],
+	 *		messageId: {},
 	 *		log: {
 	 *			mode: "unsubscribe"
 	 *		}
@@ -311,9 +310,8 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject logUnsubscribe(JsonArray jId) {
-		JsonObject j = new JsonObject();
-		j.add("id", jId);
+	public static JsonObject logUnsubscribe(JsonObject jMessageId) {
+		JsonObject j = newMessage(jMessageId);
 		JsonObject jLog = new JsonObject();
 		jLog.addProperty("mode", "unsubscribe");
 		j.add("log", jLog);
@@ -323,7 +321,7 @@ public class DefaultMessages {
 	/**
 	 * <pre>
 	 *	{
-	 *		id: [string],
+	 *		messageId: {},
 	 *		system: {
 	 *			mode: "executeReply",
 	 *			output: string
@@ -333,9 +331,8 @@ public class DefaultMessages {
 	 * 
 	 * @return
 	 */
-	public static JsonObject systemExecuteReply(JsonArray jId, String output) {
-		JsonObject j = new JsonObject();
-		j.add("id", jId);
+	public static JsonObject systemExecuteReply(JsonObject jMessageId, String output) {
+		JsonObject j = newMessage(jMessageId);
 		JsonObject jSystem = new JsonObject();
 		jSystem.addProperty("mode", "executeReply");
 		jSystem.addProperty("output", output);

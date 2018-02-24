@@ -114,7 +114,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			try {
 				WebSocketUtils.send( //
 						websocket, //
-						DefaultMessages.configQueryReply(Config.getInstance().getJson(ConfigFormat.OPENEMS_UI,
+						DefaultMessages.configQueryReply(new JsonObject() /* TODO */, Config.getInstance().getJson(ConfigFormat.OPENEMS_UI,
 								Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
 				log.info("Sent config to FENECON persistence.");
 			} catch (NotImplementedException | ConfigException e) {

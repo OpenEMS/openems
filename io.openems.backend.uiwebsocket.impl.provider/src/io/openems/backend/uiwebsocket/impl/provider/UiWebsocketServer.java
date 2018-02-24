@@ -22,9 +22,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
-import io.openems.backend.metadata.api.Role;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
@@ -191,7 +191,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 					/*
 					 * Query current config
 					 */
-					JsonObject jReply = DefaultMessages.configQueryReply(messageId, edge.getConfig());
+					JsonObject jReply = DefaultMessages.configQueryReply(new JsonObject() /* TODO */, edge.getConfig());
 					WebSocketUtils.send(websocket, jReply);
 					break;
 				}
@@ -248,7 +248,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				}
 				if (!channels.isEmpty()) {
 					// create new worker
-					BackendCurrentDataWorker worker = new BackendCurrentDataWorker(this, websocket, messageId, edgeId,
+					BackendCurrentDataWorker worker = new BackendCurrentDataWorker(this, websocket, new JsonObject() /* TODO */, edgeId,
 							channels);
 					data.setCurrentDataWorker(worker);
 				}
@@ -292,7 +292,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				JsonArray jData = this.parent.timeDataService.queryHistoricData(edgeId, fromDate, toDate, channels,
 						resolution);
 				// send reply
-				return DefaultMessages.historicDataQueryReply(jMessageId, jData);
+				return DefaultMessages.historicDataQueryReply(new JsonObject() /* TODO */, jData);
 			}
 		} catch (Exception e) {
 			// TODO handle exception

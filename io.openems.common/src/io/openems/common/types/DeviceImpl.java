@@ -27,7 +27,7 @@ public class DeviceImpl implements Comparable<DeviceImpl>, Device {
 	}
 
 //	public Role getRole() {
-////		return role;
+//		return role;
 //	}
 
 	public void setOnline(boolean online) {
