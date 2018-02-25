@@ -71,7 +71,7 @@ export class Device {
    */
   public refreshConfig(): BehaviorSubject<ConfigImpl> {
     let message = DefaultMessages.configQuery(this.edgeId);
-    let messageId = message.messageId;
+    let messageId = message.messageId.ui;
     this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
     this.send(message);
     // wait for reply
@@ -94,14 +94,14 @@ export class Device {
   }
 
   private sendMessageWithReply(message: DefaultTypes.IdentifiedMessage): Subject<DefaultMessages.Reply> {
-    let messageId: string = message.messageId;
+    let messageId: string = message.messageId.ui;
     this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
     this.send(message);
     return this.replyStreams[messageId];
   }
 
   private removeReplyStream(reply: DefaultMessages.Reply) {
-    let messageId: string = reply.messageId;
+    let messageId: string = reply.messageId.ui;
     this.replyStreams[messageId].unsubscribe();
     delete this.replyStreams[messageId];
   }

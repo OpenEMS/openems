@@ -95,19 +95,16 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 
 	@Override
 	protected void _onError(WebSocket websocket, Exception ex) {
-		log.info("UiWebsocketServer: On Error");
+		WebsocketData data = websocket.getAttachment();
+		log.info("User [" + getUserName(data) + "] websocket error: " + ex.getMessage());
 	}
 
 	@Override
 	protected void _onClose(WebSocket websocket) {
 		// get current User
 		WebsocketData data = websocket.getAttachment();
-		Optional<User> userOpt = this.parent.metadataService.getUser(data.getUserId());
-		if (userOpt.isPresent()) {
-			log.info("User [" + userOpt.get().getName() + "] disconnected.");
-		} else {
-			log.info("User [ID:" + data.getUserId() + "] disconnected.");
-		}
+		log.info("User [" + getUserName(data) + "] disconnected.");
+
 		// stop CurrentDataWorker
 		Optional<BackendCurrentDataWorker> currentDataWorkerOpt = data.getCurrentDataWorker();
 		if (currentDataWorkerOpt.isPresent()) {
@@ -132,13 +129,13 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 		User user = userOpt.get();
 
 		// get MessageId from message
-		Optional<String> messageIdOpt = JsonUtils.getAsOptionalString(jMessage, "messageId");
+		Optional<JsonObject> jMessageIdOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "messageId");
 
 		// get EdgeId from message
 		Optional<Integer> edgeIdOpt = JsonUtils.getAsOptionalInt(jMessage, "edgeId");
 
-		if (messageIdOpt.isPresent() && edgeIdOpt.isPresent()) {
-			String messageId = messageIdOpt.get();
+		if (jMessageIdOpt.isPresent() && edgeIdOpt.isPresent()) {
+			JsonObject jMessageId = jMessageIdOpt.get();
 			int edgeId = edgeIdOpt.get();
 
 			/*
@@ -165,7 +162,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			Optional<JsonObject> jHistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
 			if (jHistoricDataOpt.isPresent()) {
 				JsonObject jHistoricData = jHistoricDataOpt.get();
-				JsonObject jReply = this.historicData(messageId, edgeId, jHistoricData);
+				JsonObject jReply = this.historicData(jMessageId, edgeId, jHistoricData);
 				WebSocketUtils.send(websocket, jReply);
 			}
 
@@ -177,7 +174,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				JsonObject jCurrentData = jCurrentDataOpt.get();
 				log.info("User [" + user.getName() + "] subscribed to current data for device [" + edge.getName()
 						+ "]: " + StringUtils.toShortString(jCurrentData, 50));
-				this.currentData(websocket, data, messageId, edgeId, jCurrentData);
+				this.currentData(websocket, data, jMessageId, edgeId, jCurrentData);
 			}
 
 			/*
@@ -191,7 +188,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 					/*
 					 * Query current config
 					 */
-					JsonObject jReply = DefaultMessages.configQueryReply(new JsonObject() /* TODO */, edge.getConfig());
+					JsonObject jReply = DefaultMessages.configQueryReply(jMessageId, edge.getConfig());
 					WebSocketUtils.send(websocket, jReply);
 					break;
 				}
@@ -218,7 +215,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 	 *
 	 * @param j
 	 */
-	private synchronized void currentData(WebSocket websocket, WebsocketData data, String messageId, int edgeId,
+	private synchronized void currentData(WebSocket websocket, WebsocketData data, JsonObject jMessageId, int edgeId,
 			JsonObject jCurrentData) {
 		try {
 			String mode = JsonUtils.getAsString(jCurrentData, "mode");
@@ -248,7 +245,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				}
 				if (!channels.isEmpty()) {
 					// create new worker
-					BackendCurrentDataWorker worker = new BackendCurrentDataWorker(this, websocket, new JsonObject() /* TODO */, edgeId,
+					BackendCurrentDataWorker worker = new BackendCurrentDataWorker(this, websocket, jMessageId, edgeId,
 							channels);
 					data.setCurrentDataWorker(worker);
 				}
@@ -264,7 +261,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 	 *
 	 * @param j
 	 */
-	private JsonObject historicData(String jMessageId, int edgeId, JsonObject jHistoricData) {
+	private JsonObject historicData(JsonObject jMessageId, int edgeId, JsonObject jHistoricData) {
 		try {
 			String mode = JsonUtils.getAsString(jHistoricData, "mode");
 
@@ -292,7 +289,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				JsonArray jData = this.parent.timeDataService.queryHistoricData(edgeId, fromDate, toDate, channels,
 						resolution);
 				// send reply
-				return DefaultMessages.historicDataQueryReply(new JsonObject() /* TODO */, jData);
+				return DefaultMessages.historicDataQueryReply(jMessageId, jData);
 			}
 		} catch (Exception e) {
 			// TODO handle exception
@@ -301,4 +298,12 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 		return new JsonObject();
 	}
 
+	private String getUserName(WebsocketData data) {
+		Optional<User> userOpt = this.parent.metadataService.getUser(data.getUserId());
+		if (userOpt.isPresent()) {
+			return userOpt.get().getName();
+		} else {
+			return "ID:" + data.getUserId();
+		}
+	}
 }

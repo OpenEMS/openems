@@ -20,7 +20,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.utils.JsonUtils;
 
-@Component()
+@Component(property = "ranking=100")
 public class JsonPersistenceManager implements PersistenceManager {
 
 	private final Logger log = LoggerFactory.getLogger(JsonPersistenceManager.class);
@@ -51,14 +51,20 @@ public class JsonPersistenceManager implements PersistenceManager {
 	}
 
 	@Override
-	public void delete(String arg0) throws IOException {
-		log.info("Delete " + arg0);
+	public void delete(String pid) throws IOException {
+		log.debug("Delete configuration for PID [" + pid + "]");
+		synchronized (this.configs) {
+			if (this.configs.remove(pid) != null) {
+				this.saveConfigMapToFile();
+			}
+		}
 	}
 
 	@Override
-	public boolean exists(String arg0) {
-		log.info("Exists " + arg0);
-		return false;
+	public boolean exists(String pid) {
+		synchronized (this.configs) {
+			return this.configs.containsKey(pid);
+		}
 	}
 
 	@Override
@@ -68,9 +74,10 @@ public class JsonPersistenceManager implements PersistenceManager {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public Dictionary load(String arg0) throws IOException {
-		log.info("load " + arg0);
-		return null;
+	public Dictionary load(String pid) throws IOException {
+		synchronized (this.configs) {
+			return this.configs.get(pid);
+		}
 	}
 
 	@Override

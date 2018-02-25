@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -21,7 +22,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @Designate(ocd = EdgeWebsocket.Config.class, factory = false)
-@Component(name = "EdgeWebsocket", immediate = true)
+@Component(name = "EdgeWebsocket", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class EdgeWebsocket implements EdgeWebsocketService {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocket.class);

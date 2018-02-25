@@ -14,6 +14,18 @@ import io.openems.common.types.StringFieldValue;
 
 public class DefaultMessages {
 
+	/**
+	 * <pre>
+	 * 	{
+	 * 		messageId: {
+	 * 			ui: UUID,
+	 * 			backend?: UUID
+	 *		}
+	 * 	}
+	 * </pre>
+	 * @param jMessageId
+	 * @return
+	 */
 	private static JsonObject newMessage(JsonObject jMessageId) {
 		JsonObject j = new JsonObject();
 		j.add("messageId", jMessageId);

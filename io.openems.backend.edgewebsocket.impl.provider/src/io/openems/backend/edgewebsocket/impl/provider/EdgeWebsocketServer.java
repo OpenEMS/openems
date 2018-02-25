@@ -121,7 +121,6 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 	 */
 	@Override
 	protected void _onMessage(WebSocket websocket, JsonObject jMessage) {
-		log.info("message: " + StringUtils.toShortString(jMessage, 100));
 		// get edgeIds from websocket
 		int[] edgeIds = websocket.getAttachment();
 
@@ -140,15 +139,17 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 					log.warn(e.getMessage());
 				}
 			}
+			return;
 		}
 
 		/*
 		 * Is this a reply? -> forward to Browser
 		 */
-		if (jMessage.has("id")) {
+		if (jMessage.has("messageId")) {
 			for (int edgeId : edgeIds) {
 				this.parent.uiWebsocketService.handleEdgeReply(edgeId, jMessage);
 			}
+			return;
 		}
 
 		/*
@@ -157,12 +158,27 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 		Optional<JsonObject> jTimedataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "timedata");
 		if (jTimedataOpt.isPresent()) {
 			timedata(edgeIds, jTimedataOpt.get());
+			return;
+		}
+
+		/*
+		 * Unknown message
+		 */
+		for (String edgeName : getEdgeNames(edgeIds)) {
+			log.warn("Edge [" + edgeName + "] unknown message: " + StringUtils.toShortString(jMessage, 100));
 		}
 	}
 
 	@Override
 	protected void _onError(WebSocket websocket, Exception ex) {
-		System.out.println("_onError");
+		if (websocket == null) {
+			log.warn("Edge [UNKNOWN] websocket error: " + ex.getMessage());
+		} else {
+			int[] edgeIds = websocket.getAttachment();
+			for (String edgeName : getEdgeNames(edgeIds)) {
+				log.warn("Edge [" + edgeName + "] websocket error: " + ex.getMessage());
+			}
+		}
 	}
 
 	@Override
@@ -186,13 +202,8 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 		}
 
 		// log
-		for (int edgeId : edgeIds) {
-			Optional<Edge> edgeOpt = this.parent.metadataService.getEdgeOpt(edgeId);
-			if (edgeOpt.isPresent()) {
-				log.info("Device [" + edgeOpt.get().getName() + "] disconnected.");
-			} else {
-				log.info("Device [ID:" + edgeId + "] disconnected.");
-			}
+		for (String edgeName : getEdgeNames(edgeIds)) {
+			log.info("Edge [" + edgeName + "] disconnected.");
 		}
 	}
 
@@ -250,5 +261,18 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 				}
 			}
 		}
+	}
+
+	private String[] getEdgeNames(int[] edgeIds) {
+		String[] edgeNames = new String[edgeIds.length];
+		for (int i = 0; i < edgeIds.length; i++) {
+			Optional<Edge> edgeOpt = this.parent.metadataService.getEdgeOpt(edgeIds[i]);
+			if (edgeOpt.isPresent()) {
+				edgeNames[i] = edgeOpt.get().getName();
+			} else {
+				edgeNames[i] = "ID:" + edgeIds[i];
+			}
+		}
+		return edgeNames;
 	}
 }

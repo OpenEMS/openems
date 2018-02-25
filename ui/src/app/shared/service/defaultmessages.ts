@@ -24,9 +24,11 @@ export class DefaultMessages {
         };
     };
 
-    public static configQuery(edgeId: number) {
+    public static configQuery(edgeId: number): DefaultTypes.IdentifiedMessage {
         return {
-            messageId: UUID.UUID(),
+            messageId: {
+                ui: UUID.UUID()
+            },
             edgeId: edgeId,
             config: {
                 mode: "query",
@@ -37,7 +39,9 @@ export class DefaultMessages {
 
     public static configUpdate(thingId: string, channelId: string, value: any): DefaultTypes.ConfigUpdate {
         return {
-            messageId: UUID.UUID(),
+            messageId: {
+                ui: UUID.UUID()
+            },
             config: {
                 mode: "update",
                 thing: thingId,
@@ -47,9 +51,11 @@ export class DefaultMessages {
         }
     }
 
-    public static currentDataSubscribe(edgeId: number, channels: DefaultTypes.ChannelAddresses) {
+    public static currentDataSubscribe(edgeId: number, channels: DefaultTypes.ChannelAddresses): DefaultTypes.IdentifiedMessage {
         return {
-            messageId: UUID.UUID(),
+            messageId: {
+                ui: UUID.UUID()
+            },
             edgeId: edgeId,
             currentData: {
                 mode: "subscribe",
@@ -58,9 +64,11 @@ export class DefaultMessages {
         }
     };
 
-    public static historicDataQuery(edgeId: number, fromDate: Date, toDate: Date, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses) {
+    public static historicDataQuery(edgeId: number, fromDate: Date, toDate: Date, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses): DefaultTypes.IdentifiedMessage {
         return {
-            messageId: UUID.UUID(),
+            messageId: {
+                ui: UUID.UUID()
+            },
             edgeId: edgeId,
             historicData: {
                 mode: "query",

@@ -110,7 +110,12 @@ export module DefaultTypes {
   export type LanguageTag = "de" | "en" | "cz" | "nl";
 
   export interface IdentifiedMessage {
-    messageId: string
+    messageId: {
+      ui: string,
+      backend?: string
+    },
+    edgeId?: number,
+    [thing: string]: {}
   }
 
   export interface ConfigUpdate extends IdentifiedMessage {
