@@ -3,14 +3,18 @@ package io.openems.common.websocket;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.FieldValue;
 import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
+import io.openems.common.utils.JsonUtils;
 
 public class DefaultMessages {
 
@@ -23,6 +27,7 @@ public class DefaultMessages {
 	 *		}
 	 * 	}
 	 * </pre>
+	 * 
 	 * @param jMessageId
 	 * @return
 	 */
@@ -31,7 +36,7 @@ public class DefaultMessages {
 		j.add("messageId", jMessageId);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
@@ -329,7 +334,7 @@ public class DefaultMessages {
 		j.add("log", jLog);
 		return j;
 	}
-	
+
 	/**
 	 * <pre>
 	 *	{
@@ -350,5 +355,33 @@ public class DefaultMessages {
 		jSystem.addProperty("output", output);
 		j.add("system", jSystem);
 		return j;
+	}
+
+	/**
+	 * Adds the backend identifier to messageId. Used for forwarding UI-messages to
+	 * Edge
+	 * 
+	 * @param jMessage
+	 * @param uuid
+	 * @return
+	 * @throws OpenemsException
+	 */
+	public static JsonObject prepareMessageForForwardToEdge(JsonObject jMessage, UUID uuid, Optional<Role> roleOpt)
+			throws OpenemsException {
+		JsonObject jMessageId = JsonUtils.getAsJsonObject(jMessage, "messageId");
+		jMessageId.addProperty("backend", uuid.toString());
+		jMessage.add("messageId", jMessageId);
+		jMessage.remove("edgeId");
+		if (roleOpt.isPresent()) {
+			jMessage.addProperty("role", roleOpt.get().toString().toLowerCase());
+		}
+		return jMessage;
+	}
+	
+	public static JsonObject prepareMessageForForwardToUi(JsonObject jMessage) throws OpenemsException {
+		JsonObject jMessageId = JsonUtils.getAsJsonObject(jMessage, "messageId");
+		jMessageId.remove("backend");
+		jMessage.add("messageId", jMessageId);
+		return jMessage;
 	}
 }

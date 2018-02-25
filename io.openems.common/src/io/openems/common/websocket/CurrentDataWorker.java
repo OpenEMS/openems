@@ -33,7 +33,7 @@ public abstract class CurrentDataWorker {
 	private final ScheduledFuture<?> future;
 
 	private final WebSocket websocket;
-	
+
 	public CurrentDataWorker(WebSocket websocket, JsonObject jMessageId, HashMultimap<String, String> channels) {
 		this.websocket = websocket;
 		this.channels = channels;
@@ -46,7 +46,7 @@ public abstract class CurrentDataWorker {
 				this.dispose();
 				return;
 			}
-			WebSocketUtils.send(this.websocket, DefaultMessages.currentData(jMessageId, getSubscribedData()));
+			WebSocketUtils.sendOrLogError(this.websocket, DefaultMessages.currentData(jMessageId, getSubscribedData()));
 		}, 0, UPDATE_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
 	}
 

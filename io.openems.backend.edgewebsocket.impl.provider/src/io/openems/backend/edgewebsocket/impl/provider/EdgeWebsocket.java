@@ -13,10 +13,13 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.timedata.api.TimedataService;
 import io.openems.backend.uiwebsocket.api.UiWebsocketService;
+import io.openems.common.exceptions.OpenemsException;
 
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -86,6 +89,11 @@ public class EdgeWebsocket implements EdgeWebsocketService {
 	@Override
 	public boolean isOnline(int edgeId) {
 		return this.server.isOnline(edgeId);
+	}
+
+	@Override
+	public void forwardMessageFromUi(int edgeId, JsonObject jMessage) throws OpenemsException {
+		this.server.forwardMessageFromUi(edgeId, jMessage);
 	}
 
 }

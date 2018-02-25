@@ -37,11 +37,12 @@ export class DefaultMessages {
         }
     };
 
-    public static configUpdate(thingId: string, channelId: string, value: any): DefaultTypes.ConfigUpdate {
+    public static configUpdate(edgeId: number, thingId: string, channelId: string, value: any): DefaultTypes.ConfigUpdate {
         return {
             messageId: {
                 ui: UUID.UUID()
             },
+            edgeId: edgeId,
             config: {
                 mode: "update",
                 thing: thingId,

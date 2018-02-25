@@ -109,7 +109,7 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 		} catch (OpenemsException e) {
 			// send connection failed to OpenEMS
 			JsonObject jReply = DefaultMessages.openemsConnectionFailedReply(e.getMessage());
-			WebSocketUtils.send(websocket, jReply);
+			WebSocketUtils.sendOrLogError(websocket, jReply);
 			// close websocket
 			websocket.closeConnection(CloseFrame.REFUSE, "OpenEMS connection failed. Apikey [" + apikey + "]");
 		}
@@ -274,5 +274,12 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			}
 		}
 		return edgeNames;
+	}
+
+	public void forwardMessageFromUi(int edgeId, JsonObject jMessage) throws OpenemsException {
+		WebSocket websocket = this.websocketsMap.get(edgeId);
+		if (websocket != null) {
+			WebSocketUtils.send(websocket, jMessage);
+		}
 	}
 }

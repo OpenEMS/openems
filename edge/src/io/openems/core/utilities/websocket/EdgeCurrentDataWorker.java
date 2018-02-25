@@ -18,7 +18,6 @@ import io.openems.core.ThingRepository;
 
 public class EdgeCurrentDataWorker extends CurrentDataWorker {
 
-	private final EdgeWebsocketHandler edgeWebsocketHandler;
 	private final ThingRepository thingRepository;
 	private final Databus databus;
 
@@ -27,12 +26,10 @@ public class EdgeCurrentDataWorker extends CurrentDataWorker {
 	 */
 	private final Role role;
 
-	public EdgeCurrentDataWorker(JsonObject jMessageId, HashMultimap<String, String> channels, Role role,
-			EdgeWebsocketHandler edgeWebsocketHandler) {
+	public EdgeCurrentDataWorker(EdgeWebsocketHandler edgeWebsocketHandler, JsonObject jMessageId, HashMultimap<String, String> channels, Role role) {
 		// TODO make sure websocket is present
 		super(edgeWebsocketHandler.getWebsocket().get(), jMessageId, channels);
 		this.role = role;
-		this.edgeWebsocketHandler = edgeWebsocketHandler;
 		this.thingRepository = ThingRepository.getInstance();
 		this.databus = Databus.getInstance();
 	}

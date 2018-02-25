@@ -29,6 +29,8 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.LogBehaviour;
+import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 
 public class UiWebsocketServer extends AbstractWebsocketServer {
@@ -87,10 +89,10 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				log.warn(e.getMessage());
 			}
 		}
+		log.info("User [" + user.getName() + "] connected with Session [" + sessionIdOpt.orElse("") + "].");
 		JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply("" /* TODO empty token? */,
 				Optional.empty(), jEdges);
-		WebSocketUtils.send(websocket, jReply);
-		log.info("User [" + user.getName() + "] connected with Session [" + sessionIdOpt.orElse("") + "].");
+		WebSocketUtils.sendOrLogError(websocket, jReply);
 	}
 
 	@Override
@@ -163,7 +165,8 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			if (jHistoricDataOpt.isPresent()) {
 				JsonObject jHistoricData = jHistoricDataOpt.get();
 				JsonObject jReply = this.historicData(jMessageId, edgeId, jHistoricData);
-				WebSocketUtils.send(websocket, jReply);
+				WebSocketUtils.sendOrLogError(websocket, jReply);
+				return;
 			}
 
 			/*
@@ -175,6 +178,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				log.info("User [" + user.getName() + "] subscribed to current data for device [" + edge.getName()
 						+ "]: " + StringUtils.toShortString(jCurrentData, 50));
 				this.currentData(websocket, data, jMessageId, edgeId, jCurrentData);
+				return;
 			}
 
 			/*
@@ -189,23 +193,23 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 					 * Query current config
 					 */
 					JsonObject jReply = DefaultMessages.configQueryReply(jMessageId, edge.getConfig());
-					WebSocketUtils.send(websocket, jReply);
-					break;
+					WebSocketUtils.sendOrLogError(websocket, jReply);
+					return;
 				}
+			}
 
-				/*
-				 * TODO Forward to OpenEMS Edge
-				 */
-				// if ((jMessage.has("config") && !configModeOpt.orElse("").equals("query")) ||
-				// jMessage.has("log")
-				// || jMessage.has("system")) {
-				// try {
-				// forwardMessageToOpenems(session, websocket, jMessage, deviceName);
-				// } catch (OpenemsException e) {
-				// WebSocketUtils.sendNotification(websocket, new JsonArray(),
-				// LogBehaviour.WRITE_TO_LOG,
-				// Notification.EDGE_UNABLE_TO_FORWARD, deviceName, e.getMessage());
-				// }
+			/*
+			 * TODO Forward to OpenEMS Edge
+			 */
+			if (jMessage.has("config") || jMessage.has("log") || jMessage.has("system")) {
+				try {
+					Optional<Role> roleOpt = user.getEdgeRole(edgeId);
+					JsonObject j = DefaultMessages.prepareMessageForForwardToEdge(jMessage, data.getUuid(), roleOpt);
+					this.parent.edgeWebsocketService.forwardMessageFromUi(edgeId, j);
+				} catch (OpenemsException e) {
+					WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+							Notification.EDGE_UNABLE_TO_FORWARD, edge.getName(), e.getMessage());
+				}
 			}
 		}
 	}
@@ -304,6 +308,22 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			return userOpt.get().getName();
 		} else {
 			return "ID:" + data.getUserId();
+		}
+	}
+
+	public void handleEdgeReply(int edgeId, JsonObject jMessage) {
+		try {
+			JsonObject jMessageId = JsonUtils.getAsJsonObject(jMessage, "messageId");
+			String backendId = JsonUtils.getAsString(jMessageId, "backend");
+			WebSocket websocket = this.websocketsMap.get(UUID.fromString(backendId));
+			if (websocket != null) {
+				JsonObject j = DefaultMessages.prepareMessageForForwardToUi(jMessage);
+				WebSocketUtils.send(websocket, j);
+				return;
+			}
+			throw new OpenemsException("No websocket found for UUID [" + backendId + "]");
+		} catch (OpenemsException e) {
+			log.error("Unable to handle reply from Edge [ID:" + edgeId + "]: " + e.getMessage());
 		}
 	}
 }

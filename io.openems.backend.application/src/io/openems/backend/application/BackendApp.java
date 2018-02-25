@@ -32,7 +32,7 @@ public class BackendApp {
 	// @Reference
 	// TimedataService timedataService;
 
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	@Reference
 	private volatile EdgeWebsocketService edgeWebsocketService;
 
 	@Reference

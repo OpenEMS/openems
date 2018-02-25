@@ -45,10 +45,9 @@ import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.ConfigException;
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.ChannelEnum;
@@ -114,10 +113,10 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			try {
 				WebSocketUtils.send( //
 						websocket, //
-						DefaultMessages.configQueryReply(new JsonObject() /* TODO */, Config.getInstance().getJson(ConfigFormat.OPENEMS_UI,
-								Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
+						DefaultMessages.configQueryReply(new JsonObject() /* TODO */, Config.getInstance()
+								.getJson(ConfigFormat.OPENEMS_UI, Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
 				log.info("Sent config to FENECON persistence.");
-			} catch (NotImplementedException | ConfigException e) {
+			} catch (OpenemsException e) {
 				log.error("Unable to send config: " + e.getMessage());
 			}
 		}, () -> {
@@ -252,7 +251,13 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 * @return
 	 */
 	private boolean send(JsonObject j) {
-		return this.websocketHandler.send(j);
+		try {
+			this.websocketHandler.send(j);
+			return true;
+		} catch (OpenemsException e) {
+			log.error(e.getMessage());
+			return false;
+		}
 	}
 
 	/**
@@ -331,7 +336,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			} else if (value instanceof Boolean) {
 				fieldValue = new NumberFieldValue(((Boolean) value) ? 1 : 0);
 			} else if (value instanceof ChannelEnum) {
-				fieldValue = new NumberFieldValue(((ChannelEnum)value).getValue());
+				fieldValue = new NumberFieldValue(((ChannelEnum) value).getValue());
 			} else if (value instanceof DeviceNature || value instanceof JsonElement || value instanceof Map
 					|| value instanceof Set || value instanceof List || value instanceof ThingMap) {
 				// ignore

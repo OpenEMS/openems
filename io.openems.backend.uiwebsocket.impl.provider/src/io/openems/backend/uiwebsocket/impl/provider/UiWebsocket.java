@@ -33,7 +33,7 @@ public class UiWebsocket implements UiWebsocketService {
 	protected volatile MetadataService metadataService;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-	private volatile EdgeWebsocketService edgeWebsocketService;
+	protected volatile EdgeWebsocketService edgeWebsocketService;
 	
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
 	protected volatile TimedataService timeDataService;
@@ -82,7 +82,6 @@ public class UiWebsocket implements UiWebsocketService {
 
 	@Override
 	public void handleEdgeReply(int edgeId, JsonObject jMessage) {
-		// TODO Auto-generated method stub
-		log.info("TODO handleEdgeReply");
+		this.server.handleEdgeReply(edgeId, jMessage);
 	}
 }

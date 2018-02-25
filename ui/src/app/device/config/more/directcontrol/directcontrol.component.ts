@@ -39,7 +39,7 @@ export class DirectControlComponent {
       let thing = form.value["thing"];
       let channel = form.value["channel"];
       let value = form.value["value"];
-      this.device.send(DefaultMessages.configUpdate(thing, channel, value));
+      this.device.send(DefaultMessages.configUpdate(this.device.edgeId, thing, channel, value));
     }
   }
 
