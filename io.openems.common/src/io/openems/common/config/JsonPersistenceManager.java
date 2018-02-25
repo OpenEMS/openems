@@ -1,7 +1,6 @@
 package io.openems.common.config;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Dictionary;
@@ -78,19 +77,31 @@ public class JsonPersistenceManager implements PersistenceManager {
 	public void store(String pid, @SuppressWarnings("rawtypes") Dictionary values) throws IOException {
 		log.debug("Store to Config. PID [" + pid + "]: " + values);
 
+		boolean configNeedsToBeAdded = false;
+		boolean configChanged = false;
 		synchronized (this.configs) {
 			Config config = this.configs.get(pid);
 			if (config == null) {
 				config = new Config(pid);
+				configNeedsToBeAdded = true;
+				configChanged = true;
 			}
 			Enumeration<?> keys = values.keys();
 			while (keys.hasMoreElements()) {
 				String key = (String) keys.nextElement();
-				config.put(key, values.get(key));
+				Object newValue = values.get(key);
+				Object existingValue = config.get(key);
+				if (existingValue == null || (existingValue != null && !existingValue.equals(newValue))) {
+					config.put(key, newValue);
+					configChanged = true;
+				}
 			}
-			this.configs.put(pid, config);
-			
-			this.saveConfigMapToFile();
+			if (configNeedsToBeAdded) {
+				this.configs.put(pid, config);
+			}
+			if (configChanged) {
+				this.saveConfigMapToFile();
+			}
 		}
 	}
 
@@ -108,7 +119,7 @@ public class JsonPersistenceManager implements PersistenceManager {
 			}
 		}
 	}
-	
+
 	private void saveConfigMapToFile() {
 		synchronized (this.configs) {
 			try {

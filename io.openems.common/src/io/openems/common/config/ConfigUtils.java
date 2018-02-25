@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Map.Entry;
-import java.util.TreeMap;import com.google.common.eventbus.SubscriberExceptionContext;
+import java.util.TreeMap;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -31,15 +31,15 @@ public class ConfigUtils {
 		// create JsonObject
 		JsonObject j = new JsonObject();
 		for (Entry<String, Config> entry : configs.entrySet()) {
-			JsonObject jSub = new JsonObject();		
+			JsonObject jSub = new JsonObject();
 			// sort map by key to be able to write the json sorted
 			TreeMap<String, Object> sortedSub = new TreeMap<>();
 			for (Entry<String, Object> subEntry : entry.getValue().entrySet()) {
 				sortedSub.put(subEntry.getKey(), subEntry.getValue());
 			}
-			
+
 			for (Entry<String, Object> subEntry : sortedSub.entrySet()) {
-				if(subEntry.getKey().equals("service.pid")) {
+				if (subEntry.getKey().equals("service.pid")) {
 					// ignore. It's already the key of the JsonObject
 					continue;
 				}
