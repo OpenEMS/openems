@@ -66,7 +66,7 @@ public class EdgeWebsocket implements EdgeWebsocketService {
 		if (this.server != null) {
 			try {
 				this.server.stop();
-			} catch (IOException | InterruptedException e) {
+			} catch (NullPointerException | IOException | InterruptedException e) {
 				log.error("Unable to stop existing EdgeWebsocketServer: " + e.getMessage());
 			}
 		}

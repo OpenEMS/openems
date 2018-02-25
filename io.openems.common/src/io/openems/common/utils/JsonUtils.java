@@ -52,7 +52,7 @@ public class JsonUtils {
 		}
 		throw new OpenemsException("Element [" + memberName + "] is not an Integer: " + jPrimitive);
 	}
-	
+
 	public static JsonArray getAsJsonArray(JsonElement jElement) throws OpenemsException {
 		if (!jElement.isJsonArray()) {
 			throw new OpenemsException("This is not a JsonArray: " + jElement);
@@ -67,7 +67,7 @@ public class JsonUtils {
 		}
 		return jSubElement.getAsJsonArray();
 	};
-	
+
 	public static JsonElement getAsJsonElement(Object value) throws NotImplementedException {
 		// null
 		if (value == null) {
@@ -86,11 +86,11 @@ public class JsonUtils {
 			 * Number
 			 */
 			return new JsonPrimitive((Number) value);
-		}	else if(value instanceof ChannelEnum) {
+		} else if (value instanceof ChannelEnum) {
 			/*
 			 * ChannelEnum
 			 */
-			return new JsonPrimitive(((ChannelEnum)value).getValue());
+			return new JsonPrimitive(((ChannelEnum) value).getValue());
 		} else if (value instanceof String) {
 			/*
 			 * String
@@ -111,12 +111,12 @@ public class JsonUtils {
 			 * JsonElement
 			 */
 			return (JsonElement) value;
-		} else if (value instanceof Long[]){
+		} else if (value instanceof Long[]) {
 			/*
 			 * Long-Array
 			 */
 			JsonArray js = new JsonArray();
-			for (Long l : (Long[]) value){
+			for (Long l : (Long[]) value) {
 				js.add(new JsonPrimitive((Long) l));
 			}
 			return js;
@@ -200,6 +200,25 @@ public class JsonUtils {
 		}
 	}
 
+	public static Object getAsBestType(JsonElement j) {
+		try {
+			if (!j.isJsonPrimitive()) {
+				return j.toString();
+			}
+			JsonPrimitive jP = j.getAsJsonPrimitive();
+			if (jP.isBoolean()) {
+				return jP.getAsBoolean();
+			}
+			if (jP.isNumber()) {
+				Number n = jP.getAsNumber();
+				return n.intValue();
+			}
+			return j.getAsString();
+		} catch (IllegalStateException e) {
+			throw new IllegalStateException("Failed to parse JsonElement [" + j + "]", e);
+		}
+	}
+
 	public static Object getAsType(Class<?> type, JsonElement j) throws NotImplementedException {
 		try {
 			if (Integer.class.isAssignableFrom(type)) {
@@ -238,18 +257,18 @@ public class JsonUtils {
 				 * Asking for a JsonArray
 				 */
 				return j.getAsJsonArray();
-			} else if (type.isArray()){
+			} else if (type.isArray()) {
 				/**
 				 * Asking for Array
 				 */
-				if(Long.class.isAssignableFrom(type.getComponentType())){
+				if (Long.class.isAssignableFrom(type.getComponentType())) {
 					/**
 					 * Asking for ArrayOfLong
 					 */
-					if(j.isJsonArray()){
+					if (j.isJsonArray()) {
 						JsonArray js = j.getAsJsonArray();
 						Long[] la = new Long[js.size()];
-						for(int i = 0; i < js.size(); i++){
+						for (int i = 0; i < js.size(); i++) {
 							la[i] = js.get(i).getAsLong();
 						}
 						return la;
