@@ -29,14 +29,29 @@ public abstract class SymmetricPower {
 			Color.ORANGE, Color.RED };
 	protected static final Coordinate ZERO = new Coordinate(0, 0);
 
+	/**
+	 * Returns the GeometryFactory used for the Polygon creation
+	 * @return
+	 */
 	public static GeometryFactory getFactory() {
 		return FACTORY;
 	}
-
+	/**
+	 * Returns the GeometricShapeFactory used for the creation of Circles
+	 * @return
+	 */
 	public static GeometricShapeFactory getShapefactory() {
 		return SHAPEFACTORY;
 	}
-
+	/**
+	 * Creates a Rect with the coordinates pMin, pMax, qMin, qMax and intersects the rect with the base geometry.
+	 * @param base
+	 * @param pMin
+	 * @param pMax
+	 * @param qMin
+	 * @param qMax
+	 * @return resulting polygon after the intersection
+	 */
 	public static Geometry intersectRect(Geometry base, double pMin, double pMax, double qMin, double qMax) {
 		Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax), new Coordinate(pMin, qMin),
 				new Coordinate(pMax, qMin), new Coordinate(pMax, qMax), new Coordinate(pMin, qMax) };
@@ -67,11 +82,17 @@ public abstract class SymmetricPower {
 	/*
 	 * Methods
 	 */
-
+	/**
+	 * Returns the maximal possible ApparentPower
+	 * @return
+	 */
 	public long getMaxApparentPower() {
 		return maxApparentPower;
 	}
-
+	/**
+	 * set the maximal possible ApparentPower
+	 * @param power
+	 */
 	protected void setMaxApparentPower(long power) {
 		this.maxApparentPower = Math.abs(power);
 	}
@@ -79,7 +100,10 @@ public abstract class SymmetricPower {
 	public Geometry getGeometry() {
 		return this.geometry;
 	}
-
+	/**
+	 * updates the geometrie, calculates the min and max power and notifies all powerChangedListener
+	 * @param g
+	 */
 	protected void setGeometry(Geometry g) {
 		this.geometry = g;
 		this.geometries.add(g);
@@ -90,7 +114,9 @@ public abstract class SymmetricPower {
 			}
 		}
 	}
-
+	/**
+	 * Calculates the min and max active and reactivePower possible in the geometry.
+	 */
 	private void calculateMinMax() {
 		this.maxP = Optional.ofNullable(getClosestP(maxApparentPower));
 		this.minP = Optional.ofNullable(getClosestP(maxApparentPower * -1));
@@ -98,6 +124,11 @@ public abstract class SymmetricPower {
 		this.minQ = Optional.ofNullable(getClosestQ(maxApparentPower * -1));
 	}
 
+	/**
+	 * Calculates the colses activepower point according to the parameter p
+	 * @param p
+	 * @return
+	 */
 	private Long getClosestP(long p) {
 		Coordinate[] coordinates = new Coordinate[] { new Coordinate(p, maxApparentPower),
 				new Coordinate(p, maxApparentPower * -1) };
@@ -111,7 +142,11 @@ public abstract class SymmetricPower {
 		}
 		return null;
 	}
-
+	/**
+	 * Calculates the colses reactivepower point according to the parameter q
+	 * @param p
+	 * @return
+	 */
 	private Long getClosestQ(long q) {
 		Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, q),
 				new Coordinate(maxApparentPower * -1, q) };
@@ -125,47 +160,84 @@ public abstract class SymmetricPower {
 		}
 		return null;
 	}
-
+	/**
+	 * Add PowerResetListener
+	 * @param listener
+	 */
 	public void addListener(PowerResetListener listener) {
 		this.resetListeners.add(listener);
 	}
 
+	/**
+	 * Remove PowerResetListener
+	 * @param listener
+	 */
 	public void removeListener(PowerResetListener listener) {
 		this.resetListeners.add(listener);
 	}
 
+	/**
+	 * Add PowerChangeListener
+	 * @param listener
+	 */
 	public void addListener(PowerChangeListener listener) {
 		synchronized (this.changeListeners) {
 			this.changeListeners.add(listener);
 		}
 	}
 
+	/**
+	 * Remove PowerChangeListener
+	 * @param listener
+	 */
 	public void removeListener(PowerChangeListener listener) {
 		synchronized (this.changeListeners) {
 			this.changeListeners.add(listener);
 		}
 	}
 
+	/**
+	 * Allyies a limit to the current power representing polygon.
+	 * @param limit the Limitation implementation to apply
+	 * @throws PowerException this Exception is thrown if the result is empty
+	 */
 	public abstract void applyLimitation(Limitation limit) throws PowerException;
 
+	/**
+	 * Returns the max activepower, after all limitations applied.
+	 * @return
+	 */
 	public Optional<Long> getMaxP() {
 		return this.maxP;
 	}
 
+	/**
+	 * Returns the min activepower, after all limitations applied.
+	 * @return
+	 */
 	public Optional<Long> getMinP() {
 		return this.minP;
 	}
 
+	/**
+	 * Returns the max reactivepower, after all limitations applied.
+	 * @return
+	 */
 	public Optional<Long> getMaxQ() {
 		return this.maxQ;
 	}
 
+	/**
+	 * Returns the min reactivepower, after all limitations applied.
+	 * @return
+	 */
 	public Optional<Long> getMinQ() {
 		return this.minQ;
 	}
 
 	protected void reset() {
 		this.geometries.clear();
+		this.geometries.add(getGeometry());
 		for (PowerResetListener listener : this.resetListeners) {
 			Geometry g = listener.afterPowerReset(getGeometry());
 			if (!g.isEmpty()) {
@@ -201,7 +273,7 @@ public abstract class SymmetricPower {
 		text.append("<?xml version='1.0' standalone='no'?>\n");
 		text.append(
 				"<!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>\n");
-		text.append("<svg width='400' height='400' viewBox='" + viewBox
+		text.append("<svg width='400' height='400' transform='scale(1,-1)' viewBox='" + viewBox
 				+ "'  version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>\n");
 		int i = 0;
 		for (Geometry geo : geometries) {
