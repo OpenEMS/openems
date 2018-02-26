@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.impl.controller.symmetric.balancingsurplus;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.Set;
 
 import io.openems.api.channel.ConfigChannel;
@@ -31,7 +33,7 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.power.PowerException;
 
 @ThingInfo(title = "Self-consumption optimization with surplus feed-in (Symmetric)", description = "Tries to keep the grid meter on zero. For symmetric Ess. If ess is over the surplusMinSoc, the ess discharges with the power of the chargers. ")
-public class BalancingSurplusController extends Controller {
+public class BalancingSurplusController extends Controller{
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
@@ -60,6 +62,9 @@ public class BalancingSurplusController extends Controller {
 	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
+	@ChannelInfo(title = "Surplus Off Time", description = "The time to stop grid feed in.", type = String.class, defaultValue = "17:00:00", isOptional = true)
+	public final ConfigChannel<String> surplusOffTime = new ConfigChannel<String>("surplusOffTime", this);
+
 	private long surplus = 0L;
 	private boolean surplusOn = false;
 
@@ -73,8 +78,10 @@ public class BalancingSurplusController extends Controller {
 			Ess ess = this.ess.value();
 			// Calculate required sum values
 			long calculatedPower = meter.value().activePower.value() + ess.activePower.value();
-			surplus = getSurplusPower()- calculatedPower;
-			if (surplus < 0) {
+			surplus = getSurplusPower();
+			if (surplus > 0) {
+				surplus -= calculatedPower;
+			}else {
 				surplus = 0l;
 			}
 			calculatedPower += surplus;
@@ -89,9 +96,9 @@ public class BalancingSurplusController extends Controller {
 
 	private long getSurplusPower() throws InvalidValueException {
 		long power = 0l;
-		if (ess.value().allowedCharge.value() >= -100 && getPvVoltage() >= 250000) {
+		if (ess.value().allowedCharge.value() >= -100 && LocalTime.now().isBefore(getSurplusStopTime()) && getPvVoltage() >= 250000) {
 			surplusOn = true;
-		} else if (ess.value().soc.value() < surplusMinSoc.value() || getPvVoltage() < 200000) {
+		} else if (ess.value().soc.value() < surplusMinSoc.value() || LocalTime.now().isAfter(getSurplusStopTime())) {
 			surplusOn = false;
 		}
 		if (surplusOn) {
@@ -119,6 +126,14 @@ public class BalancingSurplusController extends Controller {
 	@Override
 	public ThingStateChannels getStateChannel() {
 		return this.thingState;
+	}
+
+	private LocalTime getSurplusStopTime() {
+		try {
+			return LocalTime.parse(surplusOffTime.valueOptional().orElse("17:00"));
+		}catch (DateTimeParseException e) {
+			return LocalTime.of(17, 0);
+		}
 	}
 
 }
