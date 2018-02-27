@@ -79,7 +79,7 @@ public class BalancingSurplusController extends Controller{
 			// Calculate required sum values
 			long calculatedPower = meter.value().activePower.value() + ess.activePower.value();
 			surplus = getSurplusPower();
-			if (surplus > 0) {
+			if (surplus > 0 && surplus > calculatedPower) {
 				surplus -= calculatedPower;
 			}else {
 				surplus = 0l;
