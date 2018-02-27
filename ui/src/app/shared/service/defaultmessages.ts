@@ -109,10 +109,12 @@ export class DefaultMessages {
         }
     };
 
-    public static systemExecute(password: string, command: string, background: boolean, timeout: number) {
+    public static systemExecute(edgeId: number, password: string, command: string, background: boolean, timeout: number): DefaultTypes.IdentifiedMessage {
         return {
-            device: String,
-            id: [UUID.UUID()],
+            messageId: {
+                ui: UUID.UUID()
+            },
+            edgeId: edgeId,
             system: {
                 mode: "execute",
                 password: password,

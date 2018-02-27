@@ -18,8 +18,6 @@ export class LogComponent implements OnInit, OnDestroy {
   public logs: DefaultTypes.Log[] = [];
   public isSubscribed: boolean = false;
 
-  private subscription: Subscription;
-
   private MAX_LOG_ENTRIES = 200;
   private stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -58,7 +56,7 @@ export class LogComponent implements OnInit, OnDestroy {
     }
 
     if (this.device != null) {
-      this.subscription = this.device.subscribeLog().takeUntil(this.stopOnDestroy).subscribe(log => {
+      this.device.subscribeLog().takeUntil(this.stopOnDestroy).subscribe(log => {
         log.time = format(new Date(<number>log.time * 1000), "DD.MM.YYYY HH:mm:ss");
         switch (log.level) {
           case 'INFO':
@@ -84,7 +82,6 @@ export class LogComponent implements OnInit, OnDestroy {
   }
 
   public unsubscribeLog() {
-    this.subscription.unsubscribe();
     if (this.device != null) {
       this.device.unsubscribeLog();
     }

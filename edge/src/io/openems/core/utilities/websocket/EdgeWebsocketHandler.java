@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -85,11 +83,6 @@ public class EdgeWebsocketHandler {
 	private final Map<String, JsonObject> logSubscribers = new HashMap<>();
 
 	/**
-	 * Executor for system log task
-	 */
-	private final ExecutorService logExecutor = Executors.newCachedThreadPool();
-
-	/**
 	 * Predefined role for this connection. If empty, role is taken from message (in onMessage method).
 	 */
 	private final Optional<Role> roleOpt;
@@ -140,9 +133,6 @@ public class EdgeWebsocketHandler {
 				role = Role.getDefaultRole();
 			}
 		}
-
-		// init edgeId as empty. It's only needed in backend
-		Optional<Integer> edgeIdOpt = Optional.empty();
 
 		if (jMessageIdOpt.isPresent()) {
 			JsonObject jMessageId = jMessageIdOpt.get();
@@ -203,20 +193,15 @@ public class EdgeWebsocketHandler {
 			/*
 			 * Remote system control
 			 */
-			// TODO
-			// {
-			// Optional<JsonObject> jSystemOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "system");
-			// if (jSystemOpt.isPresent() && jSystemOpt.isPresent()) {
-			// try {
-			// jReply = JsonUtils.merge(jReply, //
-			// system(jIdOpt.get(), jSystemOpt.get(), role) //
-			// );
-			// } catch (AccessDeniedException e) {
-			// // TODO create notification
-			// log.error(e.getMessage());
-			// }
-			// }
-			// }
+			Optional<JsonObject> jSystemOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "system");
+			if (jSystemOpt.isPresent()) {
+				try {
+					system(jMessageId, jSystemOpt.get(), role);
+				} catch (OpenemsException e) {
+					// TODO create notification
+					log.error(e.getMessage());
+				}
+			}
 		}
 	}
 
@@ -237,7 +222,7 @@ public class EdgeWebsocketHandler {
 			try {
 				String language = JsonUtils.getAsString(jConfig, "language");
 				JsonObject jReplyConfig = Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, role, language);
-				WebSocketUtils.send(websocketOpt, DefaultMessages.configQueryReply(jMessageId, jReplyConfig));
+				WebSocketUtils.send(this.websocketOpt, DefaultMessages.configQueryReply(jMessageId, jReplyConfig));
 				return;
 			} catch (OpenemsException e) {
 				// TODO notification
@@ -266,8 +251,9 @@ public class EdgeWebsocketHandler {
 						ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
 						Object value = ConfigUtils.getConfigObject(configChannel, jValue);
 						configChannel.updateValue(value, true);
-						WebSocketUtils.sendNotificationOrLogError(websocketOpt, jMessageId, LogBehaviour.WRITE_TO_LOG,
-								Notification.EDGE_CHANNEL_UPDATE_SUCCESS, channel.address() + " => " + jValue);
+						WebSocketUtils.sendNotificationOrLogError(this.websocketOpt, jMessageId,
+								LogBehaviour.WRITE_TO_LOG, Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
+								channel.address() + " => " + jValue);
 
 					} else if (channel instanceof WriteChannel<?>) {
 						/*
@@ -275,22 +261,25 @@ public class EdgeWebsocketHandler {
 						 */
 						WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
 						if (!apiWorkerOpt.isPresent()) {
-							WebSocketUtils.sendNotificationOrLogError(websocketOpt, new JsonObject() /* TODO */,
+							WebSocketUtils.sendNotificationOrLogError(this.websocketOpt, new JsonObject() /* TODO */,
 									LogBehaviour.WRITE_TO_LOG, Notification.BACKEND_NOT_ALLOWED,
 									"set " + channel.address() + " => " + jValue);
 						} else {
 							ApiWorker apiWorker = apiWorkerOpt.get();
 							WriteObject writeObject = new WriteJsonObject(jValue).onFirstSuccess(() -> {
-								WebSocketUtils.sendNotificationOrLogError(websocketOpt, new JsonObject() /* TODO */,
-										LogBehaviour.WRITE_TO_LOG, Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
+								WebSocketUtils.sendNotificationOrLogError(this.websocketOpt,
+										new JsonObject() /* TODO */, LogBehaviour.WRITE_TO_LOG,
+										Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
 										"set " + channel.address() + " => " + jValue);
 							}).onFirstError((e) -> {
-								WebSocketUtils.sendNotificationOrLogError(websocketOpt, new JsonObject() /* TODO */,
-										LogBehaviour.WRITE_TO_LOG, Notification.EDGE_CHANNEL_UPDATE_FAILED,
+								WebSocketUtils.sendNotificationOrLogError(this.websocketOpt,
+										new JsonObject() /* TODO */, LogBehaviour.WRITE_TO_LOG,
+										Notification.EDGE_CHANNEL_UPDATE_FAILED,
 										"set " + channel.address() + " => " + jValue, e.getMessage());
 							}).onTimeout(() -> {
-								WebSocketUtils.sendNotificationOrLogError(websocketOpt, new JsonObject() /* TODO */,
-										LogBehaviour.WRITE_TO_LOG, Notification.EDGE_CHANNEL_UPDATE_TIMEOUT,
+								WebSocketUtils.sendNotificationOrLogError(this.websocketOpt,
+										new JsonObject() /* TODO */, LogBehaviour.WRITE_TO_LOG,
+										Notification.EDGE_CHANNEL_UPDATE_TIMEOUT,
 										"set " + channel.address() + " => " + jValue);
 							});
 							apiWorker.addValue(writeChannel, writeObject);
@@ -300,7 +289,7 @@ public class EdgeWebsocketHandler {
 					throw new OpenemsException("Unable to find Channel [" + thingId + "/" + channelId + "]");
 				}
 			} catch (NoSuchElementException | OpenemsException e) {
-				WebSocketUtils.sendNotificationOrLogError(websocketOpt, jMessageId, LogBehaviour.WRITE_TO_LOG,
+				WebSocketUtils.sendNotificationOrLogError(this.websocketOpt, jMessageId, LogBehaviour.WRITE_TO_LOG,
 						Notification.EDGE_CHANNEL_UPDATE_FAILED,
 						thingIdOpt.orElse("UNDEFINED") + "/" + channelIdOpt.orElse("UNDEFINED"), e.getMessage());
 			}
@@ -383,27 +372,25 @@ public class EdgeWebsocketHandler {
 	 * Handle remote system control
 	 *
 	 * @param j
-	 * @throws AccessDeniedException
+	 * @throws OpenemsException
 	 */
-	private synchronized JsonObject system(JsonArray jId, JsonObject jSystem, Role role) throws AccessDeniedException {
+	private synchronized void system(JsonObject jMessageId, JsonObject jSystem, Role role) throws OpenemsException {
 		if (!(role == Role.ADMIN)) {
 			throw new AccessDeniedException("User role [" + role + "] is not allowed to execute system commands.");
 		}
 		String output = "";
-		try {
-			String mode = JsonUtils.getAsString(jSystem, "mode");
-			String password = JsonUtils.getAsString(jSystem, "password");
-			String command = JsonUtils.getAsString(jSystem, "command");
-			boolean background = JsonUtils.getAsBoolean(jSystem, "background");
-			int timeout = JsonUtils.getAsInt(jSystem, "timeout");
+		String mode = JsonUtils.getAsString(jSystem, "mode");
+		String password = JsonUtils.getAsString(jSystem, "password");
+		String command = JsonUtils.getAsString(jSystem, "command");
+		boolean background = JsonUtils.getAsBoolean(jSystem, "background");
+		int timeout = JsonUtils.getAsInt(jSystem, "timeout");
 
-			if (mode.equals("execute")) {
-				output = LinuxCommand.execute(password, command, background, timeout);
-			}
-		} catch (OpenemsException e) {
-			output += e.getMessage();
+		if (mode.equals("execute")) {
+			log.info("UI [" + jMessageId + "] executes system command [" + command + "] background [" + background
+					+ "] timeout [" + timeout + "]");
+			output = LinuxCommand.execute(password, command, background, timeout);
 		}
-		return DefaultMessages.systemExecuteReply(new JsonObject() /* TODO */, output);
+		WebSocketUtils.send(this.websocketOpt, DefaultMessages.systemExecuteReply(jMessageId, output));
 	}
 
 	// TODO handle config command

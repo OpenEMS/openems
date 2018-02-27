@@ -70,6 +70,7 @@ export class Device {
    * Refresh the config
    */
   public refreshConfig(): BehaviorSubject<ConfigImpl> {
+    // TODO use sendMessageWithReply()
     let message = DefaultMessages.configQuery(this.edgeId);
     let messageId = message.messageId.ui;
     this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
@@ -136,7 +137,7 @@ export class Device {
     // wait for reply
     return new Promise((resolve, reject) => {
       replyStream.first().subscribe(reply => {
-        let historicData = (<DefaultMessages.HistoricDataReply>reply).historicData;
+        let historicData = (reply as DefaultMessages.HistoricDataReply).historicData;
         this.removeReplyStream(reply);
         resolve(historicData);
       });
@@ -171,45 +172,14 @@ export class Device {
    * System Execute
    */
   public systemExecute(password: string, command: string, background: boolean, timeout: number): Promise<string> {
-    let message = DefaultMessages.systemExecute(password, command, background, timeout);
-    let messageId = message.id[0];
-    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
-    this.send(message);
+    let replyStream = this.sendMessageWithReply(DefaultMessages.systemExecute(this.edgeId, password, command, background, timeout));
     // wait for reply
     return new Promise((resolve, reject) => {
-      this.replyStreams[messageId].first().subscribe(reply => {
-        let output = (<DefaultMessages.SystemExecuteReply>reply).system.output;
-        this.replyStreams[messageId].unsubscribe();
-        delete this.replyStreams[messageId];
+      replyStream.first().subscribe(reply => {
+        let output = (reply as DefaultMessages.SystemExecuteReply).system.output;
+        this.removeReplyStream(reply);
         resolve(output);
       });
     })
   }
-
-  /*
-   * log
-   */
-  // if ("log" in message) {
-  //   let log = message.log;
-  //   this.log.next(log);
-  // }
-
-
-  //let kWh = null;
-  // history data
-  // if (message.queryreply != null) {
-  //   if ("data" in message.queryreply && message.queryreply.data != null) {
-  //     data = message.queryreply.data;
-  //     for (let datum of data) {
-  //       let sum = this.calculateSummary(datum.channels);
-  //       datum["summary"] = sum;
-  //     }
-  //   }
-  //   // kWh data
-  //   if ("kWh" in message.queryreply) {
-  //     kWh = message.queryreply.kWh;
-  //   }
-  // }
-  //this.historykWh.next(kWh);
-  // }
 }
