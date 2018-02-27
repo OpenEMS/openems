@@ -155,16 +155,15 @@ export class Device {
    * Subscribe to log
    */
   public subscribeLog(): Observable<DefaultTypes.Log> {
-    let message = DefaultMessages.logSubscribe();
-    this.send(message);
-    return this.log;
+    let replyStream = this.sendMessageWithReply(DefaultMessages.logSubscribe(this.edgeId));
+    return replyStream.map(message => message.log as DefaultTypes.Log);
   }
 
   /**
    * Unsubscribe from log
    */
   public unsubscribeLog() {
-    let message = DefaultMessages.logUnsubscribe();
+    let message = DefaultMessages.logUnsubscribe(this.edgeId);
     this.send(message);
   }
 

@@ -25,7 +25,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @Designate(ocd = EdgeWebsocket.Config.class, factory = false)
-@Component(name = "EdgeWebsocket", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "EdgeWebsocket", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class EdgeWebsocket implements EdgeWebsocketService {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocket.class);

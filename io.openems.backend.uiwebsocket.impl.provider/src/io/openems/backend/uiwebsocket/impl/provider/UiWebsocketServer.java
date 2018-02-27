@@ -203,6 +203,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			 */
 			if (jMessage.has("config") || jMessage.has("log") || jMessage.has("system")) {
 				try {
+					log.info("User [" + user.getName() + "] Forward message to Edge [" + edge.getName() +"]: " + StringUtils.toShortString(jMessage, 100));
 					Optional<Role> roleOpt = user.getEdgeRole(edgeId);
 					JsonObject j = DefaultMessages.prepareMessageForForwardToEdge(jMessage, data.getUuid(), roleOpt);
 					this.parent.edgeWebsocketService.forwardMessageFromUi(edgeId, j);

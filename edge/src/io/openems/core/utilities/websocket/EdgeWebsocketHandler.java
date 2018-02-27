@@ -21,11 +21,10 @@
 package io.openems.core.utilities.websocket;
 
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -81,9 +80,9 @@ public class EdgeWebsocketHandler {
 	private final HashMap<String, CurrentDataWorker> currentDataSubscribers = new HashMap<>();
 
 	/**
-	 * Holds subscribers to system log
+	 * Holds subscribers to system log (identified by messageId.backend, holds complete jMessageId)
 	 */
-	private final Set<String> logSubscribers = new HashSet<>();
+	private final Map<String, JsonObject> logSubscribers = new HashMap<>();
 
 	/**
 	 * Executor for system log task
@@ -168,8 +167,6 @@ public class EdgeWebsocketHandler {
 			/*
 			 * Query historic data
 			 */
-			// Optional<JsonArray> jMessageIdOpt, String deviceName, WebSocket websocket, JsonElement
-			// jHistoricDataElement
 			Optional<JsonObject> jhistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
 			if (jhistoricDataOpt.isPresent()) {
 				// select first QueryablePersistence (by default the running InfluxdbPersistence)
@@ -194,15 +191,14 @@ public class EdgeWebsocketHandler {
 			/*
 			 * Subscribe to log
 			 */
-			// TODO
-			// Optional<JsonObject> jLogOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "log");
-			// if (jLogOpt.isPresent() && jIdOpt.isPresent()) {
-			// try {
-			// jReply = JsonUtils.merge(jReply, //
-			// log(jIdOpt.get(), jLogOpt.get(), role) //
-			// );
-			// } catch (AccessDeniedException e) { /* ignore */ }
-			// }
+			Optional<JsonObject> jLogOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "log");
+			if (jLogOpt.isPresent()) {
+				try {
+					log(jMessageId, jLogOpt.get(), role);
+				} catch (OpenemsException e) {
+					log.error(e.getMessage());
+				}
+			}
 
 			/*
 			 * Remote system control
@@ -361,29 +357,26 @@ public class EdgeWebsocketHandler {
 	 * @param j
 	 * @throws AccessDeniedException
 	 */
-	private synchronized JsonObject log(JsonArray jId, JsonObject jLog, Role role) throws AccessDeniedException {
+	private synchronized void log(JsonObject jMessageId, JsonObject jLog, Role role) throws OpenemsException {
 		if (!(role == Role.ADMIN || role == Role.INSTALLER || role == Role.OWNER)) {
 			throw new AccessDeniedException("User role [" + role + "] is not allowed to read system logs.");
 		}
-		try {
-			String mode = JsonUtils.getAsString(jLog, "mode");
-			String messageId = jId.get(jId.size() - 1).getAsString();
+		String mode = JsonUtils.getAsString(jLog, "mode");
+		String messageIdBackend = JsonUtils.getAsString(jMessageId, "backend");
 
-			if (mode.equals("subscribe")) {
-				/*
-				 * Subscribe to system log
-				 */
-				this.logSubscribers.add(messageId);
-			} else if (mode.equals("unsubscribe")) {
-				/*
-				 * Unsubscribe from system log
-				 */
-				this.logSubscribers.remove(messageId);
-			}
-		} catch (OpenemsException e) {
-			log.warn(e.getMessage());
+		if (mode.equals("subscribe")) {
+			/*
+			 * Subscribe to system log
+			 */
+			log.info("UI [" + messageIdBackend + "] subscribed to log...");
+			this.logSubscribers.put(messageIdBackend, jMessageId);
+		} else if (mode.equals("unsubscribe")) {
+			/*
+			 * Unsubscribe from system log
+			 */
+			log.info("UI [" + messageIdBackend + "] unsubscribed from log...");
+			this.logSubscribers.remove(messageIdBackend);
 		}
-		return new JsonObject();
 	}
 
 	/**
@@ -674,15 +667,15 @@ public class EdgeWebsocketHandler {
 			// nobody subscribed
 			return;
 		}
-		for (String id : this.logSubscribers) {
-			JsonArray jId = new JsonArray();
-			jId.add("log");
-			jId.add(id);
-			JsonObject j = DefaultMessages.log(new JsonObject() /* TODO */, timestamp, level, source, message);
-			// TODO reevaluate if it is necessary to do this async; ie if websocket.send returns directly or not
-			logExecutor.execute(() -> {
-				this.sendOrLogError(j);
-			});
+		for (Entry<String, JsonObject> entry : this.logSubscribers.entrySet()) {
+			JsonObject j = DefaultMessages.log(entry.getValue(), timestamp, level, source, message);
+			try {
+				this.send(j);
+			} catch (OpenemsException e) {
+				// Error while sending: remove subscriber
+				log.error("Error while sending log. Removing subscriber [" + entry.getKey() + "]");
+				this.logSubscribers.remove(entry.getKey());
+			}
 		}
 	}
 

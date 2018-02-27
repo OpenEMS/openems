@@ -85,20 +85,24 @@ export class DefaultMessages {
         }
     };
 
-    public static logSubscribe() {
+    public static logSubscribe(edgeId: number): DefaultTypes.IdentifiedMessage {
         return {
-            device: String,
-            id: ["log"],
+            messageId: {
+                ui: UUID.UUID()
+            },
+            edgeId: edgeId,
             log: {
                 mode: "subscribe",
             }
         }
     };
 
-    public static logUnsubscribe() {
+    public static logUnsubscribe(edgeId: number): DefaultTypes.IdentifiedMessage {
         return {
-            device: String,
-            id: ["log"],
+            messageId: {
+                ui: UUID.UUID()
+            },
+            edgeId: edgeId,
             log: {
                 mode: "unsubscribe",
             }
