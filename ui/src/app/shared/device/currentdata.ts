@@ -66,6 +66,10 @@ export class CurrentDataAndSummary {
                 }
             }
             result.storage.soc = Utils.divideSafely(soc, countSoc);
+            if(result.storage.soc > 100 || result.storage.soc < 0) {
+                console.log("SOC", result.storage.soc);
+                result.storage.soc = null;
+            }
             if (activePowerAC != null) {
                 if (activePowerAC > 0) {
                     result.storage.chargeActivePowerAC = 0;

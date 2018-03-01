@@ -101,4 +101,9 @@ public class ModbusBridgeReadTask extends BridgeReadTask {
 		rangeRead.setValue(false);
 	}
 
+	@Override
+	public String toString() {
+		return "ModbusReadTask UnitId: "+this.modbusUnitId+", StartAddress: "+ this.range.getStartAddress()+", Length: "+this.range.getLength();
+	}
+
 }

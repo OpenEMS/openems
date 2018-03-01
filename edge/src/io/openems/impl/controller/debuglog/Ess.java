@@ -86,11 +86,11 @@ public class Ess extends ThingMap {
 		List<ThingStateChannel> faultChannels = ess.getStateChannel().getFaultChannels().stream().filter(c -> c.isValuePresent() && c.getValue()).collect(Collectors.toList());
 		if(warningChannels.size() > 0) {
 			b.append("|Warn:");
-			b.append(warningChannels.stream().map(c -> c.name()).collect(Collectors.joining()));
+			b.append(warningChannels.stream().map(c -> c.name()).collect(Collectors.joining(",")));
 		}
 		if(faultChannels.size() > 0) {
 			b.append("|Fault:");
-			b.append(faultChannels.stream().map(c -> c.name()).collect(Collectors.joining()));
+			b.append(faultChannels.stream().map(c -> c.name()).collect(Collectors.joining(",")));
 		}
 		b.append("]");
 		return b.toString();

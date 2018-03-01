@@ -100,6 +100,9 @@ export class SocChartComponent implements OnInit, OnChanges {
             if (thing in record.channels && "Soc" in record.channels[thing] && record.channels[thing]["Soc"] != null) {
               soc = Math.round(record.channels[thing].Soc);
             }
+            if(soc > 100 || soc < 0) {
+              soc = null;
+            }
             tmpData[thing].push(soc);
           }
         }

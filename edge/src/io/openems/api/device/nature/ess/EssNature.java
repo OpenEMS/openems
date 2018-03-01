@@ -55,6 +55,7 @@ public interface EssNature extends DeviceNature {
 	/*
 	 * Read Channels
 	 */
+	@ChannelInfo(type = Long.class)
 	public ReadChannel<Long> gridMode();
 
 	@ChannelInfo(type = Long.class)
