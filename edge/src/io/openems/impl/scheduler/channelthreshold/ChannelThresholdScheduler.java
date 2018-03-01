@@ -237,24 +237,19 @@ public class ChannelThresholdScheduler extends Scheduler {
 			}
 		}
 		Collections.sort(thresholdCollection, (c1, c2) -> c1.threshold.compareTo(c2.threshold));
-		ControllerHysteresis lastHysteresis = null;
+		ControllerHysteresis lastHysteresis = new ControllerHysteresis();
+		lastHysteresis.min = Long.MIN_VALUE;
 		for (Threshold t : thresholdCollection) {
 			ControllerHysteresis ch = new ControllerHysteresis();
 			ch.min = t.threshold;
-			if (lastHysteresis != null) {
-				lastHysteresis.max = t.threshold + t.hysteresis;
-			}
 			ch.below = lastHysteresis;
 			ch.controllers.addAll(t.controllers);
-			if (lastHysteresis != null) {
-				lastHysteresis.above = ch;
-			}
+			lastHysteresis.max = t.threshold + t.hysteresis;
+			lastHysteresis.above = ch;
 			lastHysteresis = ch;
 		}
-		if (lastHysteresis != null) {
-			lastHysteresis.max = Long.MAX_VALUE;
-		}
-		if (thresholdChannel.valueOptional().isPresent() && lastHysteresis != null) {
+		lastHysteresis.max = Long.MAX_VALUE;
+		if (thresholdChannel.valueOptional().isPresent() && lastHysteresis != null && lastHysteresis.max > thresholdChannel.value()) {
 			while (lastHysteresis.below != null) {
 				if (lastHysteresis.isBetween(thresholdChannel.value())) {
 					break;
