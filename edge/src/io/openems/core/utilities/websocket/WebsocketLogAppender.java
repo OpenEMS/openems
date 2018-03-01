@@ -22,7 +22,7 @@ public class WebsocketLogAppender extends AppenderBase<ILoggingEvent> {
 			for (Controller controller : scheduler.getControllers()) {
 				if (controller instanceof WebsocketApiController) {
 					WebsocketApiController websocketApiController = (WebsocketApiController) controller;
-					websocketApiController.broadcastLog(timestamp, level, source, message);
+					websocketApiController.sendLog(timestamp, level, source, message);
 				}
 			}
 		}

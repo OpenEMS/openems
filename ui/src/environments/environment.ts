@@ -3,8 +3,12 @@ import { DefaultTypes } from "../app/shared/service/defaulttypes";
 
 class DefaultEnvironment extends Environment {
   public readonly production = false;
-  public readonly url = "ws://" + location.hostname + ":8088";
+  // For OpenEMS Edge
+  public readonly url = "ws://" + location.hostname + ":8085";
   public readonly backend: DefaultTypes.Backend = "OpenEMS Edge";
+  // For OpenEMS Backend
+  // public readonly url = "ws://" + location.hostname + ":8088";
+  // public readonly backend: DefaultTypes.Backend = "OpenEMS Backend";
   public debugMode = true;
 }
 

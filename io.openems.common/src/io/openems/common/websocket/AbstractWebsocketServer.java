@@ -72,22 +72,11 @@ public abstract class AbstractWebsocketServer extends WebSocketServer {
 	 */
 	@Override
 	public final void onClose(WebSocket websocket, int code, String reason, boolean remote) {
-		// try {
-		// Optional<S> sessionOpt = Optional.ofNullable(this.websockets.get(websocket));
-		// String sessionString;
-		// if (sessionOpt.isPresent()) {
-		// sessionString = sessionOpt.get().toString() + " ";
-		// } else {
-		// sessionString = "";
-		// }
-		// log.info(sessionString + "Websocket closed. Code [" + code + "] Reason [" +
-		// reason + "]");
-		// this.websockets.remove(websocket);
-		this._onClose(websocket);
-		// } catch (Throwable e) {
-		// log.error("onClose-Error. Code [" + code + "] Reason [" + reason + "]: " +
-		// e.getMessage());
-		// }
+		try {
+			this._onClose(websocket);
+		} catch (Throwable e) {
+			log.error("onClose-Error. Code [" + code + "] Reason [" + reason + "]: " + e.getMessage());
+		}
 	}
 
 	/**
@@ -95,35 +84,11 @@ public abstract class AbstractWebsocketServer extends WebSocketServer {
 	 */
 	@Override
 	public final void onError(WebSocket websocket, Exception ex) {
-		// S session = this.websockets.get(websocket);
-		// String sessionString;
-		// if (session == null) {
-		// sessionString = "";
-		// } else {
-		// sessionString = session.toString();
-		// }
-		// log.warn(sessionString + " Websocket error: " + ex.getMessage());
-		this._onError(websocket, ex);
-	}
-
-	/**
-	 * Get cookie from handshake
-	 *
-	 * @param handshake
-	 * @return cookie as JsonObject
-	 */
-	protected Optional<String> getSessionIdFromHandshake(ClientHandshake handshake) {
-		JsonObject jCookie = new JsonObject();
-		if (handshake.hasFieldValue("cookie")) {
-			String cookieString = handshake.getFieldValue("cookie");
-			for (String cookieVariable : cookieString.split("; ")) {
-				String[] keyValue = cookieVariable.split("=");
-				if (keyValue.length == 2) {
-					jCookie.addProperty(keyValue[0], keyValue[1]);
-				}
-			}
+		try {
+			this._onError(websocket, ex);
+		} catch (Throwable e) {
+			log.error("onError handling of Exception [" + ex.getMessage() + "] failed: " + e.getMessage());
 		}
-		return JsonUtils.getAsOptionalString(jCookie, "session_id");
 	}
 
 	/**
@@ -142,58 +107,13 @@ public abstract class AbstractWebsocketServer extends WebSocketServer {
 	}
 
 	/**
-	 * Returns the Websocket for the given token
-	 *
-	 * @param name
-	 * @return
-	 */
-	// public Optional<WebSocket> getWebsocketByToken(String token) {
-	// Optional<S> sessionOpt = (Optional<S>)
-	// this.sessionManager.getSessionByToken(token);
-	// if (!sessionOpt.isPresent()) {
-	// return Optional.empty();
-	// }
-	// S session = sessionOpt.get();
-	// return Optional.ofNullable(this.websockets.inverse().get(session));
-	// }
-	//
-	// protected void addWebsocket(WebSocket websocket, S session) {
-	// synchronized (this.websockets) {
-	// if (this.websockets.containsKey(websocket)) {
-	// log.warn("Websocket [" + websocket + "] already existed. Replacing existing
-	// one with session ["
-	// + session + "]");
-	// }
-	// if (this.websockets.inverse().containsKey(session)) {
-	// log.warn("Session [" + session + "] already existed. Replacing existing one
-	// with websocket ["
-	// + websocket + "]");
-	// }
-	// this.websockets.forcePut(websocket, session);
-	// }
-	// }
-	//
-	// protected void removeWebsocket(WebSocket websocket) {
-	// synchronized (this.websockets) {
-	// this.websockets.remove(websocket);
-	// }
-	// }
-	//
-	// protected Optional<S> getSessionFromWebsocket(WebSocket websocket) {
-	// return Optional.ofNullable(this.websockets.get(websocket));
-	// }
-	//
-	// protected Optional<WebSocket> getWebsocketFromSession(S session) {
-	// return Optional.ofNullable(this.websockets.inverse().get(session));
-	// }
-	/**
 	 * Send a message to a websocket
 	 *
 	 * @param j
 	 * @return true if successful, otherwise false
 	 */
+	@Deprecated
 	public boolean send(WebSocket websocket, JsonObject j) {
-		// System.out.println("SEND: websocket["+websocket+"]: " + j.toString());
 		try {
 			websocket.send(j.toString());
 			return true;
@@ -201,5 +121,25 @@ public abstract class AbstractWebsocketServer extends WebSocketServer {
 			log.error("Websocket is not connected. Unable to send [" + StringUtils.toShortString(j, 100) + "]");
 			return false;
 		}
+	}
+	
+	/**
+	 * Get field from cookie in the handshake
+	 *
+	 * @param handshake
+	 * @return value as optional
+	 */
+	protected Optional<String> getFieldFromHandshakeCookie(ClientHandshake handshake, String fieldname) {
+		JsonObject jCookie = new JsonObject();
+		if (handshake.hasFieldValue("cookie")) {
+			String cookieString = handshake.getFieldValue("cookie");
+			for (String cookieVariable : cookieString.split("; ")) {
+				String[] keyValue = cookieVariable.split("=");
+				if (keyValue.length == 2) {
+					jCookie.addProperty(keyValue[0], keyValue[1]);
+				}
+			}
+		}
+		return JsonUtils.getAsOptionalString(jCookie, fieldname);
 	}
 }

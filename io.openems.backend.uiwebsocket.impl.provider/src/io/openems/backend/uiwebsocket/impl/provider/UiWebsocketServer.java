@@ -50,7 +50,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 		User user;
 
 		// login using session_id from the cookie
-		Optional<String> sessionIdOpt = getSessionIdFromHandshake(handshake);
+		Optional<String> sessionIdOpt = getFieldFromHandshakeCookie(handshake, "session_id");
 		try {
 			if (!sessionIdOpt.isPresent()) {
 				throw new OpenemsException("Session-ID is missing in handshake");
@@ -90,8 +90,8 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			}
 		}
 		log.info("User [" + user.getName() + "] connected with Session [" + sessionIdOpt.orElse("") + "].");
-		JsonObject jReply = DefaultMessages.browserConnectionSuccessfulReply("" /* TODO empty token? */,
-				Optional.empty(), jEdges);
+		JsonObject jReply = DefaultMessages.uiConnectionSuccessfulReply("" /* empty token? */,
+				jEdges);
 		WebSocketUtils.sendOrLogError(websocket, jReply);
 	}
 

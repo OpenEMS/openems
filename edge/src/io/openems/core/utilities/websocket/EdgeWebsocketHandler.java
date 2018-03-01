@@ -103,6 +103,14 @@ public class EdgeWebsocketHandler {
 		this.roleOpt = Optional.ofNullable(role);
 	}
 
+	public void dispose() {
+		// TODO dispose everything
+		if(this.websocketOpt.isPresent()) {
+			log.info("Dispose: Closing websocket");
+			this.websocketOpt.get().close();
+		}
+	}
+
 	public void setWebsocket(WebSocket websocket) {
 		this.websocketOpt = Optional.ofNullable(websocket);
 	}

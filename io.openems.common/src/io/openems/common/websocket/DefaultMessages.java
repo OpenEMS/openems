@@ -44,7 +44,7 @@ public class DefaultMessages {
 	 *			mode: "allow",
 	 *			token: String
 	 *		}, metadata: {
-	 *			devices: [{
+	 *			edges: [{
 	 *				id: number
 	 *				name: String,
 	 *				comment: String,
@@ -54,20 +54,14 @@ public class DefaultMessages {
 	 *			}]
 	 *		}
 	 *	}
-	 * - authenticate.role is only sent for OpenEMS Edge
-	 * - metadata.devices is only sent for OpenEMS Backend
 	 * </pre>
 	 * 
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject browserConnectionSuccessfulReply(String token, Optional<String> roleOpt,
-			JsonArray jEdges) {
+	public static JsonObject uiConnectionSuccessfulReply(String token, JsonArray jEdges) {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "allow");
-		if (roleOpt.isPresent()) {
-			jAuthenticate.addProperty("role", roleOpt.get());
-		}
 		jAuthenticate.addProperty("token", token);
 		JsonObject j = new JsonObject();
 		j.add("authenticate", jAuthenticate);

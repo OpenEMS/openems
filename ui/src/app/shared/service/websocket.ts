@@ -167,24 +167,6 @@ export class Websocket {
             this.service.setToken(message.authenticate.token);
           }
 
-          if ("role" in message.authenticate && env.backend === "OpenEMS Edge") {
-            // for OpenEMS Edge we have only one device
-            let role = Role.getRole(message.authenticate.role);
-            let replyStream: { [messageId: string]: Subject<any> } = {};
-            this.replyStreams[Websocket.DEFAULT_DEVICENAME] = replyStream;
-            this.devices.next({
-              fems: new Device(Websocket.DEFAULT_EDGEID, Websocket.DEFAULT_DEVICENAME, "FEMS", "", role, true, replyStream, this)
-            });
-          }
-
-          // TODO username is deprecated
-          // if ("username" in message.authenticate) {
-          //   this.username = message.authenticate.username;
-          //   this.event.next({ type: "success", message: this.service.translate.instant('Notifications.LoggedInAs', { value: this.username }) });
-          // } else {
-          //   this.event.next({ type: "success", message: this.service.translate.instant('Notifications.LoggedIn') });
-          // }
-
         } else {
           // authentication denied -> close websocket
           this.status = "failed";

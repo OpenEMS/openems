@@ -60,7 +60,7 @@ currently forwarded to Odoo login page
 			id: number,
 			name: string,
 			comment: string,
-			producttype: "Pro 9-12" | "MiniES 3-3" | "PRO Hybrid 9-10" | "PRO Compact 3-10" | "COMMERCIAL 40-45" | "INDUSTRIAL",
+			producttype: "Pro 9-12" | "MiniES 3-3" | "PRO Hybrid 9-10" | "PRO Compact 3-10" | "COMMERCIAL 40-45" | "INDUSTRIAL" | "",
 			role: "admin" | "installer" | "owner" | "guest",
 			online: boolean
 		}]
