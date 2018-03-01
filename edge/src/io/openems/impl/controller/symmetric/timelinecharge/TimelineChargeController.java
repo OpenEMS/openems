@@ -46,7 +46,7 @@ import io.openems.api.exception.ReflectionException;
 import io.openems.common.session.Role;
 import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.JsonUtils;
-import io.openems.core.utilities.power.PowerException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Timeline charge (Symmetric)")
 public class TimelineChargeController extends Controller {

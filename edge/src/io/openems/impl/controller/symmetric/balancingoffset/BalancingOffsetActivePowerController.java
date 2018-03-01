@@ -26,7 +26,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.power.PowerException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 /*
  * this Controller calculates the power consumption of the house and charges or discharges the storages to reach zero power consumption from the grid

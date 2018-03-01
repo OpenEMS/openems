@@ -1,4 +1,4 @@
-package io.openems.core.utilities.power;
+package io.openems.core.utilities.power.symmetric;
 
 public interface LimitationChangedListener {
 

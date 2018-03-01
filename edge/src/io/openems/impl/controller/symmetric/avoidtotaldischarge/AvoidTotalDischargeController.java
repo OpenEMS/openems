@@ -34,7 +34,7 @@ import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.power.PowerException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 import io.openems.impl.controller.symmetric.avoidtotaldischarge.Ess.State;
 
 @ThingInfo(title = "Avoid total discharge of battery (Symmetric)", description = "Makes sure the battery is not going into critically low state of charge. For symmetric Ess.")

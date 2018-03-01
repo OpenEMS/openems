@@ -13,9 +13,9 @@ import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.core.utilities.hysteresis.Hysteresis;
-import io.openems.core.utilities.power.PEqualLimitation;
-import io.openems.core.utilities.power.PGreaterEqualLimitation;
-import io.openems.core.utilities.power.SymmetricPower;
+import io.openems.core.utilities.power.symmetric.PEqualLimitation;
+import io.openems.core.utilities.power.symmetric.PGreaterEqualLimitation;
+import io.openems.core.utilities.power.symmetric.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {

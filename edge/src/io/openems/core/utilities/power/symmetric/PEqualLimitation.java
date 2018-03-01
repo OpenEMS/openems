@@ -1,29 +1,29 @@
-package io.openems.core.utilities.power;
+package io.openems.core.utilities.power.symmetric;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.operation.distance.DistanceOp;
 import com.vividsolutions.jts.operation.distance.GeometryLocation;
 
-public class QEqualLimitation extends Limitation {
+public class PEqualLimitation extends Limitation {
 
 	private Geometry line;
-	private Long q;
+	private Long p;
 
-	public QEqualLimitation(SymmetricPower power) {
+	public PEqualLimitation(SymmetricPower power) {
 		super(power);
 	}
 
-	public void setQ(Long q) {
-		if (q != this.q) {
-			if (q != null) {
-				Coordinate[] coordinates = new Coordinate[] { new Coordinate(power.getMaxApparentPower(), q),
-						new Coordinate(power.getMaxApparentPower() * -1, q) };
+	public void setP(Long p) {
+		if (p != this.p) {
+			if (p != null) {
+				Coordinate[] coordinates = new Coordinate[] { new Coordinate(p, power.getMaxApparentPower()),
+						new Coordinate(p, power.getMaxApparentPower() * -1) };
 				line = SymmetricPowerImpl.getFactory().createLineString(coordinates);
 			} else {
 				line = null;
 			}
-			this.q = q;
+			this.p = p;
 			notifyListeners();
 		}
 	}
@@ -34,19 +34,20 @@ public class QEqualLimitation extends Limitation {
 			Geometry newGeometry = geometry.intersection(line);
 			long maxApparentPower = power.getMaxApparentPower();
 			if (newGeometry.isEmpty()) {
-				Geometry smallerQ = SymmetricPowerImpl.intersectRect(geometry, maxApparentPower * -1, maxApparentPower, 0, q);
-				if (!smallerQ.isEmpty()) {
-					DistanceOp distance = new DistanceOp(smallerQ, line);
+				Geometry smallerP = SymmetricPower.intersectRect(geometry, 0, p, maxApparentPower * -1,
+						maxApparentPower);
+				if (!smallerP.isEmpty()) {
+					DistanceOp distance = new DistanceOp(smallerP, line);
 					GeometryLocation[] locations = distance.nearestLocations();
-					long maxQ = 0;
+					long maxP = 0;
 					for (GeometryLocation location : locations) {
 						if (!location.getGeometryComponent().equals(line)) {
-							maxQ = (long) location.getCoordinate().y;
+							maxP = (long) location.getCoordinate().x;
 							break;
 						}
 					}
-					Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, maxQ),
-							new Coordinate(maxApparentPower * -1, maxQ) };
+					Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxP, maxApparentPower),
+							new Coordinate(maxP, maxApparentPower * -1) };
 					line = SymmetricPowerImpl.getFactory().createLineString(coordinates);
 					return geometry.intersection(line);
 				} else {
@@ -54,8 +55,9 @@ public class QEqualLimitation extends Limitation {
 					GeometryLocation[] locations = distance.nearestLocations();
 					for (GeometryLocation location : locations) {
 						if (!location.getGeometryComponent().equals(line)) {
-							Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, location.getCoordinate().y),
-									new Coordinate(maxApparentPower * -1, location.getCoordinate().y) };
+							Coordinate[] coordinates = new Coordinate[] {
+									new Coordinate(location.getCoordinate().x, maxApparentPower),
+									new Coordinate(location.getCoordinate().x, maxApparentPower * -1) };
 							line = SymmetricPowerImpl.getFactory().createLineString(coordinates);
 							return geometry.intersection(line);
 						}
@@ -70,7 +72,7 @@ public class QEqualLimitation extends Limitation {
 
 	@Override
 	public String toString() {
-		return "ReactivePower has to be "+q+" Var";
+		return "ActivePower has to be "+p+" W";
 	}
 
 }

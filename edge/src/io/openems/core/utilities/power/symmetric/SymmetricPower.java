@@ -1,4 +1,4 @@
-package io.openems.core.utilities.power;
+package io.openems.core.utilities.power.symmetric;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -197,7 +197,7 @@ public abstract class SymmetricPower {
 	}
 
 	/**
-	 * Allyies a limit to the current power representing polygon.
+	 * Applies a limit to the current power representing polygon.
 	 * @param limit the Limitation implementation to apply
 	 * @throws PowerException this Exception is thrown if the result is empty
 	 */

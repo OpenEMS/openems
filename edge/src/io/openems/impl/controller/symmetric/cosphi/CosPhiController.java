@@ -26,7 +26,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.power.PowerException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 import io.openems.impl.controller.symmetric.balancingcosphi.Ess;
 
 @ThingInfo(title = "Ess Cos-Phi (Symmetric)", description = "Keeps the Ess at a given cos-phi. For symmetric Ess.")

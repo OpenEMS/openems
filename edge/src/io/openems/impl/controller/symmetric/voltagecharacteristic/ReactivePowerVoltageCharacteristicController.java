@@ -34,7 +34,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Point;
-import io.openems.core.utilities.power.PowerException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Voltage characteristics (Symmetric)")
 public class ReactivePowerVoltageCharacteristicController extends Controller {

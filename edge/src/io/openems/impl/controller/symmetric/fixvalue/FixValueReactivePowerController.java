@@ -28,7 +28,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.power.PowerException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Fixed active and reactive power (Symmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For symmetric Ess.")
 public class FixValueReactivePowerController extends Controller {

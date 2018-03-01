@@ -9,7 +9,7 @@
  *
  * http://www.eclipse.org/org/documents/edl-v10.php.
  */
-package io.openems.core.utilities.power;
+package io.openems.core.utilities.power.symmetric;
 
 import java.io.IOException;
 import java.io.StringWriter;

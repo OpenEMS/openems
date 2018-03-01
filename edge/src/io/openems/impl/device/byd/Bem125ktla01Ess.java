@@ -29,7 +29,7 @@ import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
-import io.openems.core.utilities.power.SymmetricPowerImpl;
+import io.openems.core.utilities.power.symmetric.SymmetricPowerImpl;
 import io.openems.impl.protocol.modbus.ModbusBitWrappingChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;

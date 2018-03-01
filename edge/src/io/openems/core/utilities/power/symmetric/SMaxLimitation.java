@@ -1,4 +1,4 @@
-package io.openems.core.utilities.power;
+package io.openems.core.utilities.power.symmetric;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;

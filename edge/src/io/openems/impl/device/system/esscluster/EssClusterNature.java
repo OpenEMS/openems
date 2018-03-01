@@ -32,8 +32,8 @@ import io.openems.api.thing.ThingChannelsUpdatedListener;
 import io.openems.core.BridgeInitializedEventListener;
 import io.openems.core.Config;
 import io.openems.core.ThingRepository;
-import io.openems.core.utilities.power.SymmetricPower;
-import io.openems.core.utilities.power.SymmetricPowerClusterImpl;
+import io.openems.core.utilities.power.symmetric.SymmetricPower;
+import io.openems.core.utilities.power.symmetric.SymmetricPowerClusterImpl;
 import io.openems.impl.protocol.system.SystemDeviceNature;
 
 @ThingInfo(title = "Ess Cluster")

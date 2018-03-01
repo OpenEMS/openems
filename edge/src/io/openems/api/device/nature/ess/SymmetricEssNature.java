@@ -22,7 +22,7 @@ package io.openems.api.device.nature.ess;
 
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.doc.ChannelInfo;
-import io.openems.core.utilities.power.SymmetricPower;
+import io.openems.core.utilities.power.symmetric.SymmetricPower;
 
 public interface SymmetricEssNature extends EssNature {
 	/*

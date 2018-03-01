@@ -37,7 +37,7 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
-import io.openems.core.utilities.power.PowerException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Battery capacity test (Symmetric)", description = "Executes a capacity test. For symmetric Ess.")
 public class CapacityTestController extends Controller {

@@ -13,7 +13,7 @@ import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.core.utilities.power.SymmetricPowerImpl;
+import io.openems.core.utilities.power.symmetric.SymmetricPowerImpl;
 import io.openems.impl.device.simulator.SimulatorTools;
 import io.openems.test.utils.channel.UnitTestConfigChannel;
 import io.openems.test.utils.channel.UnitTestReadChannel;

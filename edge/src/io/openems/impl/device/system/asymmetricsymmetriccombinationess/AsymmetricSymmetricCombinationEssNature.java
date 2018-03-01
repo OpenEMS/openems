@@ -32,7 +32,7 @@ import io.openems.core.BridgeInitializedEventListener;
 import io.openems.core.Config;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.ControllerUtils;
-import io.openems.core.utilities.power.SymmetricPower;
+import io.openems.core.utilities.power.symmetric.SymmetricPower;
 import io.openems.impl.protocol.system.SystemDeviceNature;
 
 @ThingInfo(title = "Ess Asymmetric-Symmetric-Combination")

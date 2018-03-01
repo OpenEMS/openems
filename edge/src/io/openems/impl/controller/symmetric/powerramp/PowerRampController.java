@@ -29,7 +29,7 @@ import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.power.PowerException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Power ramp (Symmetric)", description = "Follows a power ramp. For symmetric Ess.")
 public class PowerRampController extends Controller {

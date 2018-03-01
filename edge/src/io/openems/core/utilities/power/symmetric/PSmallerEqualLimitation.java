@@ -1,23 +1,23 @@
-package io.openems.core.utilities.power;
+package io.openems.core.utilities.power.symmetric;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
-public class QGreaterEqualLimitation extends Limitation {
+public class PSmallerEqualLimitation extends Limitation {
 
 	private Geometry rect;
-	private Long q;
+	private Long p;
 
-	public QGreaterEqualLimitation(SymmetricPower power) {
+	public PSmallerEqualLimitation(SymmetricPower power) {
 		super(power);
 	}
 
-	public void setQ(Long q) {
-		if (q != this.q) {
-			if (q != null) {
+	public void setP(Long p) {
+		if (p != this.p) {
+			if (p != null) {
 				long pMin = power.getMaxApparentPower() * -1-1;
-				long pMax = power.getMaxApparentPower()+1;
-				long qMin = q;
+				long pMax = p;
+				long qMin = power.getMaxApparentPower() * -1-1;
 				long qMax = power.getMaxApparentPower()+1;
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax), new Coordinate(pMin, qMin),
 						new Coordinate(pMax, qMin), new Coordinate(pMax, qMax), new Coordinate(pMin, qMax) };
@@ -25,7 +25,7 @@ public class QGreaterEqualLimitation extends Limitation {
 			} else {
 				rect = null;
 			}
-			this.q = q;
+			this.p = p;
 			notifyListeners();
 		}
 	}
@@ -36,7 +36,7 @@ public class QGreaterEqualLimitation extends Limitation {
 			Geometry newGeometry = geometry.intersection(this.rect);
 			if (newGeometry.isEmpty()) {
 				throw new PowerException(
-						"The ReactivePower limitation is too big! There needs to be at least one point after the limitation.");
+						"The ActivePower limitation is too small! There needs to be at least one point after the limitation.");
 			}
 			return newGeometry;
 		}
@@ -45,7 +45,7 @@ public class QGreaterEqualLimitation extends Limitation {
 
 	@Override
 	public String toString() {
-		return "No reactivepower below "+q+".";
+		return "No activepower above "+p+".";
 	}
 
 }
