@@ -61,7 +61,7 @@ public class BackendApp {
 	@Activate
 	void activate() {
 		configureLogging();
-
+		// TODO implement MessageManager to decouple components
 		log.debug("Activate BackendApp");
 
 	}

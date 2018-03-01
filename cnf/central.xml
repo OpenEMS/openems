@@ -9,31 +9,6 @@
 	<packaging>pom</packaging>
 
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.apache.servicemix.bundles/org.apache.servicemix.bundles.influxdb-java -->
-		<dependency>
-			<groupId>org.apache.servicemix.bundles</groupId>
-			<artifactId>org.apache.servicemix.bundles.influxdb-java</artifactId>
-			<version>2.3_1</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.servicemix.bundles/org.apache.servicemix.bundles.okhttp -->
-		<dependency>
-			<groupId>org.apache.servicemix.bundles</groupId>
-			<artifactId>org.apache.servicemix.bundles.okhttp</artifactId>
-			<version>2.7.5_1</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.servicemix.bundles/org.apache.servicemix.bundles.okio -->
-		<dependency>
-			<groupId>org.apache.servicemix.bundles</groupId>
-			<artifactId>org.apache.servicemix.bundles.okio</artifactId>
-			<version>1.13.0_1</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.servicemix.bundles/org.apache.servicemix.bundles.retrofit -->
-		<dependency>
-			<groupId>org.apache.servicemix.bundles</groupId>
-			<artifactId>org.apache.servicemix.bundles.retrofit</artifactId>
-			<version>1.9.0_1</version>
-		</dependency>
-
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -63,13 +38,33 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.servicemix.bundles</groupId>
-			<artifactId>org.apache.servicemix.bundles.xmlrpc-client</artifactId>
-			<version>3.1.3_1</version>
+			<artifactId>org.apache.servicemix.bundles.influxdb-java</artifactId>
+			<version>2.3_1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.servicemix.bundles</groupId>
+			<artifactId>org.apache.servicemix.bundles.okhttp</artifactId>
+			<version>2.7.5_1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.servicemix.bundles</groupId>
+			<artifactId>org.apache.servicemix.bundles.okio</artifactId>
+			<version>1.13.0_1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.servicemix.bundles</groupId>
+			<artifactId>org.apache.servicemix.bundles.retrofit</artifactId>
+			<version>1.9.0_1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.ws-commons-util</artifactId>
 			<version>1.0.2_2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.servicemix.bundles</groupId>
+			<artifactId>org.apache.servicemix.bundles.xmlrpc-client</artifactId>
+			<version>3.1.3_1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>
