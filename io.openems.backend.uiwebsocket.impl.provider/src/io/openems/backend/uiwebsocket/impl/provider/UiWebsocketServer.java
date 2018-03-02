@@ -1,12 +1,12 @@
 package io.openems.backend.uiwebsocket.impl.provider;
 
-import java.util.Map.Entry;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,9 +16,7 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.backend.metadata.api.Edge;
@@ -90,8 +88,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			}
 		}
 		log.info("User [" + user.getName() + "] connected with Session [" + sessionIdOpt.orElse("") + "].");
-		JsonObject jReply = DefaultMessages.uiConnectionSuccessfulReply("" /* empty token? */,
-				jEdges);
+		JsonObject jReply = DefaultMessages.uiConnectionSuccessfulReply("" /* empty token? */, jEdges);
 		WebSocketUtils.sendOrLogError(websocket, jReply);
 	}
 
@@ -203,7 +200,8 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			 */
 			if (jMessage.has("config") || jMessage.has("log") || jMessage.has("system")) {
 				try {
-					log.info("User [" + user.getName() + "] Forward message to Edge [" + edge.getName() +"]: " + StringUtils.toShortString(jMessage, 100));
+					log.info("User [" + user.getName() + "] Forward message to Edge [" + edge.getName() + "]: "
+							+ StringUtils.toShortString(jMessage, 100));
 					Optional<Role> roleOpt = user.getEdgeRole(edgeId);
 					JsonObject j = DefaultMessages.prepareMessageForForwardToEdge(jMessage, data.getUuid(), roleOpt);
 					this.parent.edgeWebsocketService.forwardMessageFromUi(edgeId, j);
@@ -237,23 +235,11 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 					workerOpt.get().dispose();
 				}
 
-				// parse subscribed channels
-				HashMultimap<String, String> channels = HashMultimap.create();
+				// set new worker
 				JsonObject jSubscribeChannels = JsonUtils.getAsJsonObject(jCurrentData, "channels");
-				for (Entry<String, JsonElement> entry : jSubscribeChannels.entrySet()) {
-					String thing = entry.getKey();
-					JsonArray jChannels = JsonUtils.getAsJsonArray(entry.getValue());
-					for (JsonElement jChannel : jChannels) {
-						String channel = JsonUtils.getAsString(jChannel);
-						channels.put(thing, channel);
-					}
-				}
-				if (!channels.isEmpty()) {
-					// create new worker
-					BackendCurrentDataWorker worker = new BackendCurrentDataWorker(this, websocket, jMessageId, edgeId,
-							channels);
-					data.setCurrentDataWorker(worker);
-				}
+				BackendCurrentDataWorker worker = new BackendCurrentDataWorker(this, websocket, edgeId);
+				worker.setChannels(jSubscribeChannels, jMessageId);
+				data.setCurrentDataWorker(worker);
 			}
 		} catch (OpenemsException e) {
 			// TODO handle exception
@@ -274,26 +260,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				/*
 				 * Query historic data
 				 */
-				int timezoneDiff = JsonUtils.getAsInt(jHistoricData, "timezone");
-				ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
-				ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jHistoricData, "fromDate", timezone);
-				ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jHistoricData, "toDate", timezone).plusDays(1);
-				JsonObject channels = JsonUtils.getAsJsonObject(jHistoricData, "channels");
-				// TODO check if role is allowed to read these channels
-				// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
-				int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
-				// TODO: better calculation of sensible resolution
-				int resolution = 10 * 60; // 10 Minutes
-				if (days > 25) {
-					resolution = 24 * 60 * 60; // 1 Day
-				} else if (days > 6) {
-					resolution = 3 * 60 * 60; // 3 Hours
-				} else if (days > 2) {
-					resolution = 60 * 60; // 60 Minutes
-				}
-				JsonArray jData = this.parent.timeDataService.queryHistoricData(edgeId, fromDate, toDate, channels,
-						resolution);
-				// send reply
+				JsonArray jData = this.parent.timeDataService.queryHistoricData(edgeId, jHistoricData);
 				return DefaultMessages.historicDataQueryReply(jMessageId, jData);
 			}
 		} catch (Exception e) {

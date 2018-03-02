@@ -2,9 +2,9 @@ package io.openems.core.utilities.websocket;
 
 import java.util.Optional;
 
-import com.google.common.collect.HashMultimap;
+import org.java_websocket.WebSocket;
+
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
 import io.openems.common.exceptions.AccessDeniedException;
@@ -26,9 +26,8 @@ public class EdgeCurrentDataWorker extends CurrentDataWorker {
 	 */
 	private final Role role;
 
-	public EdgeCurrentDataWorker(EdgeWebsocketHandler edgeWebsocketHandler, JsonObject jMessageId, HashMultimap<String, String> channels, Role role) {
-		// TODO make sure websocket is present
-		super(edgeWebsocketHandler.getWebsocket(), jMessageId, channels);
+	public EdgeCurrentDataWorker(EdgeWebsocketHandler edgeWebsocketHandler, WebSocket websocket, Role role) {
+		super(websocket);
 		this.role = role;
 		this.thingRepository = ThingRepository.getInstance();
 		this.databus = Databus.getInstance();

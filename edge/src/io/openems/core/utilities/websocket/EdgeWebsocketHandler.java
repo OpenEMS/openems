@@ -30,7 +30,6 @@ import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -45,7 +44,6 @@ import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.websocket.CurrentDataWorker;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
@@ -74,9 +72,9 @@ public class EdgeWebsocketHandler {
 	protected final WebSocket websocket;
 
 	/**
-	 * Holds subscribers to current data
+	 * Holds subscriber to current data
 	 */
-	private final HashMap<String, CurrentDataWorker> currentDataSubscribers = new HashMap<>();
+	private Optional<EdgeCurrentDataWorker> currentDataWorkerOpt = Optional.empty();
 
 	/**
 	 * Holds subscribers to system log (identified by messageId.backend, holds complete jMessageId)
@@ -103,17 +101,36 @@ public class EdgeWebsocketHandler {
 		this.apiWorkerOpt = Optional.ofNullable(apiWorker);
 	}
 
-	public void dispose() {
-		// TODO dispose everything
-		log.info("Dispose: Closing websocket");
+	public synchronized void dispose() {
+		if (this.currentDataWorkerOpt.isPresent()) {
+			this.currentDataWorkerOpt.get().dispose();
+			this.currentDataWorkerOpt = Optional.empty();
+		}
+		this.logSubscribers.clear();
 		this.websocket.close();
 	}
 
-	public void setUser(User user) {
-		this.userOpt = Optional.ofNullable(user);
+	public synchronized void setUser(User user) {
+		this.setUser(Optional.ofNullable(user));
 	}
 
-	public Optional<User> getUser() {
+	public synchronized void unsetUser() {
+		this.setUser(Optional.empty());
+	}
+
+	public synchronized void setUser(Optional<User> userOpt) {
+		this.userOpt = userOpt;
+		if (this.currentDataWorkerOpt.isPresent()) {
+			this.currentDataWorkerOpt.get().dispose();
+			this.currentDataWorkerOpt = Optional.empty();
+		}
+		if (userOpt.isPresent()) {
+			Role role = userOpt.get().getRole();
+			this.currentDataWorkerOpt = Optional.of(new EdgeCurrentDataWorker(this, websocket, role));
+		}
+	}
+
+	public Optional<User> getUserOpt() {
 		return userOpt;
 	}
 
@@ -123,21 +140,28 @@ public class EdgeWebsocketHandler {
 	 * @param jMessage
 	 */
 	public final void onMessage(JsonObject jMessage) {
+		if (!this.userOpt.isPresent()) {
+			log.error("No User! Aborting...");
+			return;
+		}
+		Role role = this.userOpt.get().getRole();
+
 		// get MessageId from message -> used for reply
 		Optional<JsonObject> jMessageIdOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "messageId");
 
-		//		 get role
-		Role role;
-		if (this.userOpt.isPresent()) {
-			role = this.userOpt.get().getRole();
-		} else {
-			Optional<String> roleStringOpt = JsonUtils.getAsOptionalString(jMessage, "role");
-			if (roleStringOpt.isPresent()) {
-				role = Role.getRole(roleStringOpt.get());
-			} else {
-				role = Role.getDefaultRole();
-			}
-		}
+		// get role
+		// TODO
+		// Role role;
+		// if (this.userOpt.isPresent()) {
+		// role = this.userOpt.get().getRole();
+		// } else {
+		// Optional<String> roleStringOpt = JsonUtils.getAsOptionalString(jMessage, "role");
+		// if (roleStringOpt.isPresent()) {
+		// role = Role.getRole(roleStringOpt.get());
+		// } else {
+		// role = Role.getDefaultRole();
+		// }
+		// }
 
 		if (jMessageIdOpt.isPresent()) {
 			JsonObject jMessageId = jMessageIdOpt.get();
@@ -155,7 +179,7 @@ public class EdgeWebsocketHandler {
 			 */
 			Optional<JsonObject> jCurrentDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "currentData");
 			if (jCurrentDataOpt.isPresent()) {
-				currentData(role, jMessageId, jCurrentDataOpt.get());
+				currentData(jMessageId, jCurrentDataOpt.get());
 				return;
 			}
 
@@ -164,22 +188,7 @@ public class EdgeWebsocketHandler {
 			 */
 			Optional<JsonObject> jhistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
 			if (jhistoricDataOpt.isPresent()) {
-				// select first QueryablePersistence (by default the running InfluxdbPersistence)
-				TimedataService timedataSource = null;
-				for (QueryablePersistence queryablePersistence : ThingRepository.getInstance()
-						.getQueryablePersistences()) {
-					timedataSource = queryablePersistence;
-					break;
-				}
-				if (timedataSource == null) {
-					// TODO create notification that there is no datasource available
-				} else {
-					// TODO
-					// jReply = JsonUtils.merge(jReply, //
-					// WebSocketUtils.historicData(jIdOpt.get(), jhistoricDataOpt.get(), deviceIdOpt, timedataSource,
-					// role) //
-					// );
-				}
+				historicData(jMessageId, jhistoricDataOpt.get());
 				return;
 			}
 
@@ -189,7 +198,7 @@ public class EdgeWebsocketHandler {
 			Optional<JsonObject> jLogOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "log");
 			if (jLogOpt.isPresent()) {
 				try {
-					log(jMessageId, jLogOpt.get(), role);
+					log(role, jMessageId, jLogOpt.get());
 				} catch (OpenemsException e) {
 					log.error(e.getMessage());
 				}
@@ -208,6 +217,28 @@ public class EdgeWebsocketHandler {
 				}
 			}
 		}
+	}
+
+	private void historicData(JsonObject jMessageId, JsonObject jHistoricData) {
+		// select first QueryablePersistence (by default the running InfluxdbPersistence)
+		TimedataService timedataSource = null;
+		for (QueryablePersistence queryablePersistence : ThingRepository.getInstance().getQueryablePersistences()) {
+			timedataSource = queryablePersistence;
+			break;
+		}
+		if (timedataSource == null) {
+			// TODO create notification that there is no datasource available
+			return;
+		}
+		JsonArray jData;
+		try {
+			jData = timedataSource.queryHistoricData(jHistoricData);
+			WebSocketUtils.send(this.websocket, DefaultMessages.historicDataQueryReply(jMessageId, jData));
+		} catch (OpenemsException e) {
+			// TODO notification
+			log.error(e.getMessage());
+		}
+		return;
 	}
 
 	/**
@@ -256,9 +287,8 @@ public class EdgeWebsocketHandler {
 						ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
 						Object value = ConfigUtils.getConfigObject(configChannel, jValue);
 						configChannel.updateValue(value, true);
-						WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId,
-								LogBehaviour.WRITE_TO_LOG, Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
-								channel.address() + " => " + jValue);
+						WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+								Notification.EDGE_CHANNEL_UPDATE_SUCCESS, channel.address() + " => " + jValue);
 
 					} else if (channel instanceof WriteChannel<?>) {
 						/*
@@ -266,25 +296,22 @@ public class EdgeWebsocketHandler {
 						 */
 						WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
 						if (!apiWorkerOpt.isPresent()) {
-							WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject() /* TODO */,
+							WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId,
 									LogBehaviour.WRITE_TO_LOG, Notification.BACKEND_NOT_ALLOWED,
 									"set " + channel.address() + " => " + jValue);
 						} else {
 							ApiWorker apiWorker = apiWorkerOpt.get();
 							WriteObject writeObject = new WriteJsonObject(jValue).onFirstSuccess(() -> {
-								WebSocketUtils.sendNotificationOrLogError(this.websocket,
-										new JsonObject() /* TODO */, LogBehaviour.WRITE_TO_LOG,
-										Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
+								WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId,
+										LogBehaviour.WRITE_TO_LOG, Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
 										"set " + channel.address() + " => " + jValue);
 							}).onFirstError((e) -> {
-								WebSocketUtils.sendNotificationOrLogError(this.websocket,
-										new JsonObject() /* TODO */, LogBehaviour.WRITE_TO_LOG,
-										Notification.EDGE_CHANNEL_UPDATE_FAILED,
+								WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId,
+										LogBehaviour.WRITE_TO_LOG, Notification.EDGE_CHANNEL_UPDATE_FAILED,
 										"set " + channel.address() + " => " + jValue, e.getMessage());
 							}).onTimeout(() -> {
-								WebSocketUtils.sendNotificationOrLogError(this.websocket,
-										new JsonObject() /* TODO */, LogBehaviour.WRITE_TO_LOG,
-										Notification.EDGE_CHANNEL_UPDATE_TIMEOUT,
+								WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId,
+										LogBehaviour.WRITE_TO_LOG, Notification.EDGE_CHANNEL_UPDATE_TIMEOUT,
 										"set " + channel.address() + " => " + jValue);
 							});
 							apiWorker.addValue(writeChannel, writeObject);
@@ -307,37 +334,19 @@ public class EdgeWebsocketHandler {
 	 *
 	 * @param j
 	 */
-	private synchronized JsonObject currentData(Role role, JsonObject jMessageId, JsonObject jCurrentData) {
+	private synchronized JsonObject currentData(JsonObject jMessageId, JsonObject jCurrentData) {
 		try {
 			String mode = JsonUtils.getAsString(jCurrentData, "mode");
-			String messageIdUi = JsonUtils.getAsString(jMessageId, "ui");
 
 			if (mode.equals("subscribe")) {
 				/*
 				 * Subscribe to channels
 				 */
-
-				// remove old worker if existed
-				CurrentDataWorker worker = this.currentDataSubscribers.remove(messageIdUi);
-				if (worker != null) {
-					worker.dispose();
+				if (!this.currentDataWorkerOpt.isPresent()) {
+					throw new OpenemsException("No CurrentDataWorker available");
 				}
-				// parse subscribed channels
-				HashMultimap<String, String> channels = HashMultimap.create();
 				JsonObject jSubscribeChannels = JsonUtils.getAsJsonObject(jCurrentData, "channels");
-				for (Entry<String, JsonElement> entry : jSubscribeChannels.entrySet()) {
-					String thing = entry.getKey();
-					JsonArray jChannels = JsonUtils.getAsJsonArray(entry.getValue());
-					for (JsonElement jChannel : jChannels) {
-						String channel = JsonUtils.getAsString(jChannel);
-						channels.put(thing, channel);
-					}
-				}
-				if (!channels.isEmpty()) {
-					// create new worker
-					worker = new EdgeCurrentDataWorker(this, jMessageId, channels, role);
-					this.currentDataSubscribers.put(messageIdUi, worker);
-				}
+				this.currentDataWorkerOpt.get().setChannels(jSubscribeChannels, jMessageId);
 			}
 		} catch (OpenemsException e) {
 			log.warn(e.getMessage());
@@ -351,25 +360,35 @@ public class EdgeWebsocketHandler {
 	 * @param j
 	 * @throws AccessDeniedException
 	 */
-	private synchronized void log(JsonObject jMessageId, JsonObject jLog, Role role) throws OpenemsException {
-		if (!(role == Role.ADMIN || role == Role.INSTALLER || role == Role.OWNER)) {
+	private synchronized void log(Role role, JsonObject jMessageId, JsonObject jLog) throws OpenemsException {
+		// check permissions
+		switch (role) {
+		case ADMIN:
+		case INSTALLER:
+		case OWNER:
+			/* allowed */
+			break;
+		case GUEST:
+		default:
 			throw new AccessDeniedException("User role [" + role + "] is not allowed to read system logs.");
 		}
+
 		String mode = JsonUtils.getAsString(jLog, "mode");
-		String messageIdBackend = JsonUtils.getAsString(jMessageId, "backend");
+		String messageId = JsonUtils.getAsOptionalString(jMessageId, "backend")
+				.orElse(JsonUtils.getAsString(jMessageId, "ui"));
 
 		if (mode.equals("subscribe")) {
 			/*
 			 * Subscribe to system log
 			 */
-			log.info("UI [" + messageIdBackend + "] subscribed to log...");
-			this.logSubscribers.put(messageIdBackend, jMessageId);
+			log.info("UI [" + messageId + "] subscribed to log.");
+			this.logSubscribers.put(messageId, jMessageId);
 		} else if (mode.equals("unsubscribe")) {
 			/*
 			 * Unsubscribe from system log
 			 */
-			log.info("UI [" + messageIdBackend + "] unsubscribed from log...");
-			this.logSubscribers.remove(messageIdBackend);
+			log.info("UI [" + messageId + "] unsubscribed from log.");
+			this.logSubscribers.remove(messageId);
 		}
 	}
 
@@ -610,24 +629,6 @@ public class EdgeWebsocketHandler {
 	// } catch (ReflectionException e) {
 	// handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabewerte falsch: " + e.getMessage());
 	// }
-	// }
-
-	/**
-	 * Send a notification message/error to the websocket
-	 *
-	 * @param mesage
-	 * @return true if successful, otherwise false
-	 */
-	// TODO send notification
-	// public synchronized void sendNotification(NotificationType type, String message) {
-	// JsonObject jNotification = new JsonObject();
-	// jNotification.addProperty("type", type.name().toLowerCase());
-	// jNotification.addProperty("message", message);
-	// JsonObject j = new JsonObject();
-	// j.add("notification", jNotification);
-	// new Thread(() -> {
-	// WebSocketUtils.send(websocket, j);
-	// }).start();
 	// }
 
 	/**

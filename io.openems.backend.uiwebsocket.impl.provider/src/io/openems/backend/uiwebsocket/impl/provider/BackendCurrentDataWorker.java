@@ -4,9 +4,7 @@ import java.util.Optional;
 
 import org.java_websocket.WebSocket;
 
-import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.types.ChannelAddress;
@@ -18,9 +16,8 @@ public class BackendCurrentDataWorker extends CurrentDataWorker {
 	private final UiWebsocketServer parent;
 	private final int edgeId;
 
-	public BackendCurrentDataWorker(UiWebsocketServer parent, WebSocket websocket, JsonObject jMessageId, int edgeId,
-			HashMultimap<String, String> channels) {
-		super(websocket, jMessageId, channels);
+	public BackendCurrentDataWorker(UiWebsocketServer parent, WebSocket websocket, int edgeId) {
+		super(websocket);
 		this.parent = parent;
 		this.edgeId = edgeId;
 	}

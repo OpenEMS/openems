@@ -197,12 +197,15 @@ public class Influx implements TimedataService {
 	}
 
 	@Override
-	public JsonArray queryHistoricData(int edgeId, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
+	public JsonArray queryHistoricData(Optional<Integer> edgeIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
 			int resolution) throws OpenemsException {
-		Edge edge = this.metadataService.getEdge(edgeId);
-		int influxId = InfluxdbUtils.parseNumberFromName(edge.getName());
+		Optional<Integer> influxIdOpt = Optional.empty(); // if given, query only this id. If not given, do not apply filter
+		if(edgeIdOpt.isPresent()) {
+			Edge edge = this.metadataService.getEdge(edgeIdOpt.get());
+			influxIdOpt = Optional.of(InfluxdbUtils.parseNumberFromName(edge.getName()));
+		}
 		InfluxDB influxDB = getInfluxDbConnection();
-		return InfluxdbUtils.queryHistoricData(influxDB, this.database, influxId, fromDate, toDate, channels,
+		return InfluxdbUtils.queryHistoricData(influxDB, this.database, influxIdOpt, fromDate, toDate, channels,
 				resolution);
 	}
 

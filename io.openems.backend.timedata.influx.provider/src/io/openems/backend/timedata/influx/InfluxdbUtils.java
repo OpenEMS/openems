@@ -35,13 +35,15 @@ public class InfluxdbUtils {
 
 	private final static Logger log = LoggerFactory.getLogger(InfluxdbUtils.class);
 
-	public static JsonArray queryHistoricData(InfluxDB influxdb, String database, int influxId, ZonedDateTime fromDate,
-			ZonedDateTime toDate, JsonObject channels, int resolution) throws OpenemsException {
+	public static JsonArray queryHistoricData(InfluxDB influxdb, String database, Optional<Integer> influxIdOpt,
+			ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels, int resolution) throws OpenemsException {
 		// Prepare query string
 		StringBuilder query = new StringBuilder("SELECT ");
 		query.append(toChannelAddressList(channels));
 		query.append(" FROM data WHERE ");
-		query.append("fems = '" + influxId + "' AND ");
+		if (influxIdOpt.isPresent()) {
+			query.append("fems = '" + influxIdOpt.get() + "' AND ");
+		}
 		query.append("time > ");
 		query.append(String.valueOf(fromDate.toEpochSecond()));
 		query.append("s");

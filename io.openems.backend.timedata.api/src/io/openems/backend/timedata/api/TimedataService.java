@@ -1,5 +1,8 @@
 package io.openems.backend.timedata.api;
 
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
@@ -10,6 +13,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 
 @ProviderType
 public interface TimedataService {
@@ -39,7 +43,7 @@ public interface TimedataService {
 	 * @return
 	 */
 	public Optional<Object> getChannelValue(int edgeId, ChannelAddress channelAddress);
-	
+
 	/**
 	 * Queries the database and returns a JsonArray of the form
 	 *
@@ -62,6 +66,46 @@ public interface TimedataService {
 	 * @return
 	 * @throws OpenemsException
 	 */
-	public JsonArray queryHistoricData(int edgeId, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
-			int resolution/* , JsonObject kWh */) throws OpenemsException;
+	public JsonArray queryHistoricData(Optional<Integer> edgeIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate,
+			JsonObject channels, int resolution/* , JsonObject kWh */) throws OpenemsException;
+
+	public default JsonArray queryHistoricData(int edgeId, ZonedDateTime fromDate, ZonedDateTime toDate,
+			JsonObject channels, int resolution/* , JsonObject kWh */) throws OpenemsException {
+		return this.queryHistoricData(Optional.of(edgeId), fromDate, toDate, channels, resolution);
+	}
+
+	public default JsonArray queryHistoricData(ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
+			int resolution/* , JsonObject kWh */) throws OpenemsException {
+		return this.queryHistoricData(Optional.empty(), fromDate, toDate, channels, resolution);
+	}
+
+	public default JsonArray queryHistoricData(int edgeId, JsonObject jHistoricData) throws OpenemsException {
+		return this.queryHistoricData(Optional.of(edgeId), jHistoricData);
+	}
+	
+	public default JsonArray queryHistoricData(JsonObject jHistoricData) throws OpenemsException {
+		return this.queryHistoricData(Optional.empty(), jHistoricData);
+	}
+
+	public default JsonArray queryHistoricData(Optional<Integer> edgeIdOpt, JsonObject jHistoricData)
+			throws OpenemsException {
+		int timezoneDiff = JsonUtils.getAsInt(jHistoricData, "timezone");
+		ZoneId timezone = ZoneId.ofOffset("", ZoneOffset.ofTotalSeconds(timezoneDiff * -1));
+		ZonedDateTime fromDate = JsonUtils.getAsZonedDateTime(jHistoricData, "fromDate", timezone);
+		ZonedDateTime toDate = JsonUtils.getAsZonedDateTime(jHistoricData, "toDate", timezone).plusDays(1);
+		JsonObject channels = JsonUtils.getAsJsonObject(jHistoricData, "channels");
+		// TODO check if role is allowed to read these channels
+		// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
+		int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
+		// TODO: better calculation of sensible resolution
+		int resolution = 10 * 60; // 10 Minutes
+		if (days > 25) {
+			resolution = 24 * 60 * 60; // 1 Day
+		} else if (days > 6) {
+			resolution = 3 * 60 * 60; // 3 Hours
+		} else if (days > 2) {
+			resolution = 60 * 60; // 60 Minutes
+		}
+		return this.queryHistoricData(edgeIdOpt, fromDate, toDate, channels, resolution);
+	}
 }

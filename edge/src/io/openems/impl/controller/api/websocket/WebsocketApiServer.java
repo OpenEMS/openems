@@ -170,22 +170,24 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 				String username = "UNKNOWN";
 				try {
 					UiEdgeWebsocketHandler handler = this.getHandlerOrCloseWebsocket(websocket);
-					if(handler.getUser().isPresent()) {
-						username = handler.getUser().get().getName();
+					Optional<User> thisUserOpt = handler.getUserOpt();
+					if (thisUserOpt.isPresent()) {
+						username = thisUserOpt.get().getName();
+						handler.unsetUser();
 					}
 					sessionToken = handler.getSessionToken();
 					this.sessionTokens.remove(sessionToken);
 					log.info("User [" + username + "] logged out. Invalidated token [" + sessionToken + "]");
 
 					// find and close all websockets for this user
-					if(handler.getUser().isPresent()) {
-						User thisUser = handler.getUser().get();
-						for(UiEdgeWebsocketHandler h : this.handlers.values()) {
-							if(h.getUser().isPresent()) {
-								User otherUser = h.getUser().get();
-								if(otherUser.equals(thisUser)) {
+					if (thisUserOpt.isPresent()) {
+						User thisUser = thisUserOpt.get();
+						for (UiEdgeWebsocketHandler h : this.handlers.values()) {
+							if (h.getUserOpt().isPresent()) {
+								User otherUser = h.getUserOpt().get();
+								if (otherUser.equals(thisUser)) {
 									// TODO send notification "user was logged out"
-									h.getWebsocket().close();
+									h.dispose();
 								}
 							}
 						}
@@ -284,8 +286,8 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 		Optional<UiEdgeWebsocketHandler> handlerOpt = getHandlerOpt(websocket);
 		if (handlerOpt.isPresent()) {
 			UiEdgeWebsocketHandler handler = handlerOpt.get();
-			if(handler.getUser().isPresent()) {
-				User user = handler.getUser().get();
+			if (handler.getUserOpt().isPresent()) {
+				User user = handler.getUserOpt().get();
 				return user.getName();
 			}
 		}
