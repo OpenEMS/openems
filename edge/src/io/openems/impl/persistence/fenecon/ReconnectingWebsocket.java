@@ -172,7 +172,8 @@ public class ReconnectingWebsocket {
 					}
 					ws.connect();
 					WEBSOCKET_OPT = Optional.of(ws);
-					WEBSOCKET_HANDLER.setWebsocket(ws);
+					// TODO: websocket cannot be changed
+					// WEBSOCKET_HANDLER.setWebsocket(ws);
 
 				} catch (Throwable t) {
 					String wsString = uriOpt.isPresent() ? uriOpt.get().toString() : "NO_URI";

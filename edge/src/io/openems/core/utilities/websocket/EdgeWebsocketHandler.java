@@ -39,6 +39,7 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.persistence.QueryablePersistence;
+import io.openems.api.security.User;
 import io.openems.backend.timedata.api.TimedataService;
 import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -70,7 +71,7 @@ public class EdgeWebsocketHandler {
 	/**
 	 * Holds the websocket connection
 	 */
-	protected Optional<WebSocket> websocketOpt = Optional.empty();
+	protected final WebSocket websocket;
 
 	/**
 	 * Holds subscribers to current data
@@ -83,40 +84,37 @@ public class EdgeWebsocketHandler {
 	private final Map<String, JsonObject> logSubscribers = new HashMap<>();
 
 	/**
-	 * Predefined role for this connection. If empty, role is taken from message (in onMessage method).
+	 * User for this connection.
 	 */
-	private final Optional<Role> roleOpt;
+	private Optional<User> userOpt = Optional.empty();
 
 	/**
 	 * ApiWorker handles updates to WriteChannels
 	 */
-	private final Optional<ApiWorker> apiWorkerOpt;
+	private Optional<ApiWorker> apiWorkerOpt = Optional.empty();
 
+	@Deprecated
 	public EdgeWebsocketHandler() {
-		this.apiWorkerOpt = Optional.empty();
-		this.roleOpt = Optional.empty();
+		this.websocket = null;
 	}
 
-	public EdgeWebsocketHandler(ApiWorker apiWorker, WebSocket websocket, Role role) {
+	public EdgeWebsocketHandler(WebSocket websocket, ApiWorker apiWorker) {
+		this.websocket = websocket;
 		this.apiWorkerOpt = Optional.ofNullable(apiWorker);
-		this.websocketOpt = Optional.ofNullable(websocket);
-		this.roleOpt = Optional.ofNullable(role);
 	}
 
 	public void dispose() {
 		// TODO dispose everything
-		if(this.websocketOpt.isPresent()) {
-			log.info("Dispose: Closing websocket");
-			this.websocketOpt.get().close();
-		}
+		log.info("Dispose: Closing websocket");
+		this.websocket.close();
 	}
 
-	public void setWebsocket(WebSocket websocket) {
-		this.websocketOpt = Optional.ofNullable(websocket);
+	public void setUser(User user) {
+		this.userOpt = Optional.ofNullable(user);
 	}
 
-	public Optional<WebSocket> getWebsocket() {
-		return websocketOpt;
+	public Optional<User> getUser() {
+		return userOpt;
 	}
 
 	/**
@@ -128,11 +126,10 @@ public class EdgeWebsocketHandler {
 		// get MessageId from message -> used for reply
 		Optional<JsonObject> jMessageIdOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "messageId");
 
-		// get role
-		// TODO
+		//		 get role
 		Role role;
-		if (this.roleOpt.isPresent()) {
-			role = this.roleOpt.get();
+		if (this.userOpt.isPresent()) {
+			role = this.userOpt.get().getRole();
 		} else {
 			Optional<String> roleStringOpt = JsonUtils.getAsOptionalString(jMessage, "role");
 			if (roleStringOpt.isPresent()) {
@@ -230,7 +227,7 @@ public class EdgeWebsocketHandler {
 			try {
 				String language = JsonUtils.getAsString(jConfig, "language");
 				JsonObject jReplyConfig = Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, role, language);
-				WebSocketUtils.send(this.websocketOpt, DefaultMessages.configQueryReply(jMessageId, jReplyConfig));
+				WebSocketUtils.send(this.websocket, DefaultMessages.configQueryReply(jMessageId, jReplyConfig));
 				return;
 			} catch (OpenemsException e) {
 				// TODO notification
@@ -259,7 +256,7 @@ public class EdgeWebsocketHandler {
 						ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
 						Object value = ConfigUtils.getConfigObject(configChannel, jValue);
 						configChannel.updateValue(value, true);
-						WebSocketUtils.sendNotificationOrLogError(this.websocketOpt, jMessageId,
+						WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId,
 								LogBehaviour.WRITE_TO_LOG, Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
 								channel.address() + " => " + jValue);
 
@@ -269,23 +266,23 @@ public class EdgeWebsocketHandler {
 						 */
 						WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
 						if (!apiWorkerOpt.isPresent()) {
-							WebSocketUtils.sendNotificationOrLogError(this.websocketOpt, new JsonObject() /* TODO */,
+							WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject() /* TODO */,
 									LogBehaviour.WRITE_TO_LOG, Notification.BACKEND_NOT_ALLOWED,
 									"set " + channel.address() + " => " + jValue);
 						} else {
 							ApiWorker apiWorker = apiWorkerOpt.get();
 							WriteObject writeObject = new WriteJsonObject(jValue).onFirstSuccess(() -> {
-								WebSocketUtils.sendNotificationOrLogError(this.websocketOpt,
+								WebSocketUtils.sendNotificationOrLogError(this.websocket,
 										new JsonObject() /* TODO */, LogBehaviour.WRITE_TO_LOG,
 										Notification.EDGE_CHANNEL_UPDATE_SUCCESS,
 										"set " + channel.address() + " => " + jValue);
 							}).onFirstError((e) -> {
-								WebSocketUtils.sendNotificationOrLogError(this.websocketOpt,
+								WebSocketUtils.sendNotificationOrLogError(this.websocket,
 										new JsonObject() /* TODO */, LogBehaviour.WRITE_TO_LOG,
 										Notification.EDGE_CHANNEL_UPDATE_FAILED,
 										"set " + channel.address() + " => " + jValue, e.getMessage());
 							}).onTimeout(() -> {
-								WebSocketUtils.sendNotificationOrLogError(this.websocketOpt,
+								WebSocketUtils.sendNotificationOrLogError(this.websocket,
 										new JsonObject() /* TODO */, LogBehaviour.WRITE_TO_LOG,
 										Notification.EDGE_CHANNEL_UPDATE_TIMEOUT,
 										"set " + channel.address() + " => " + jValue);
@@ -297,7 +294,7 @@ public class EdgeWebsocketHandler {
 					throw new OpenemsException("Unable to find Channel [" + thingId + "/" + channelId + "]");
 				}
 			} catch (NoSuchElementException | OpenemsException e) {
-				WebSocketUtils.sendNotificationOrLogError(this.websocketOpt, jMessageId, LogBehaviour.WRITE_TO_LOG,
+				WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
 						Notification.EDGE_CHANNEL_UPDATE_FAILED,
 						thingIdOpt.orElse("UNDEFINED") + "/" + channelIdOpt.orElse("UNDEFINED"), e.getMessage());
 			}
@@ -398,7 +395,8 @@ public class EdgeWebsocketHandler {
 					+ "] timeout [" + timeout + "]");
 			output = LinuxCommand.execute(password, command, background, timeout);
 		}
-		WebSocketUtils.send(this.websocketOpt, DefaultMessages.systemExecuteReply(jMessageId, output));
+		// TODO use my own send() method everywhere in this class
+		WebSocketUtils.send(this.websocket, DefaultMessages.systemExecuteReply(jMessageId, output));
 	}
 
 	// TODO handle config command
@@ -639,7 +637,7 @@ public class EdgeWebsocketHandler {
 	 * @throws OpenemsException
 	 */
 	public void send(JsonObject j) throws OpenemsException {
-		WebSocketUtils.send(this.websocketOpt, j);
+		WebSocketUtils.send(this.websocket, j);
 	}
 
 	/**
@@ -648,7 +646,7 @@ public class EdgeWebsocketHandler {
 	 * @param message
 	 */
 	public void sendOrLogError(JsonObject j) {
-		WebSocketUtils.sendOrLogError(this.websocketOpt, j);
+		WebSocketUtils.sendOrLogError(this.websocket, j);
 	}
 
 	/**
@@ -672,6 +670,11 @@ public class EdgeWebsocketHandler {
 				this.logSubscribers.remove(entry.getKey());
 			}
 		}
+	}
+
+	@Deprecated
+	public WebSocket getWebsocket() {
+		return this.websocket;
 	}
 
 }

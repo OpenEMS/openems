@@ -28,7 +28,7 @@ public class EdgeCurrentDataWorker extends CurrentDataWorker {
 
 	public EdgeCurrentDataWorker(EdgeWebsocketHandler edgeWebsocketHandler, JsonObject jMessageId, HashMultimap<String, String> channels, Role role) {
 		// TODO make sure websocket is present
-		super(edgeWebsocketHandler.getWebsocket().get(), jMessageId, channels);
+		super(edgeWebsocketHandler.getWebsocket(), jMessageId, channels);
 		this.role = role;
 		this.thingRepository = ThingRepository.getInstance();
 		this.databus = Databus.getInstance();

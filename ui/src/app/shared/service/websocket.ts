@@ -273,6 +273,7 @@ export class Websocket {
    * Reset everything to default
    */
   private initialize() {
+    // TODO do not stop the websocket connection on logout
     this.stopOnInitialize.next();
     this.stopOnInitialize.complete();
     this.messageSubscription.unsubscribe();

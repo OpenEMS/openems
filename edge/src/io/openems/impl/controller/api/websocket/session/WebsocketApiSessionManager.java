@@ -25,7 +25,7 @@ public class WebsocketApiSessionManager extends SessionManager<WebsocketApiSessi
 		if (userOpt.isPresent()) {
 			User user = userOpt.get();
 			WebsocketApiSessionData data = new WebsocketApiSessionData(user,
-					new EdgeWebsocketHandler(apiWorker, websocket, user.getRole()));
+					new EdgeWebsocketHandler(websocket, apiWorker));
 			String token = generateToken();
 			WebsocketApiSession session = createNewSession(token, data);
 			return Optional.of(session);

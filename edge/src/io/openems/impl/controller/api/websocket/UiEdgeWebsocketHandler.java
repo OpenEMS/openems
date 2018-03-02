@@ -1,23 +1,30 @@
 package io.openems.impl.controller.api.websocket;
 
-import io.openems.api.security.User;
+import java.util.UUID;
+
+import org.java_websocket.WebSocket;
+
+import io.openems.core.utilities.api.ApiWorker;
 import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 
 public class UiEdgeWebsocketHandler extends EdgeWebsocketHandler {
 
-	private final String token;
-	private final User user;
+	private final String sessionToken;
+	private final UUID uuid;
 
-	public UiEdgeWebsocketHandler(String token, User user) {
-		this.token = token;
-		this.user = user;
+	public UiEdgeWebsocketHandler(WebSocket websocket, ApiWorker apiWorker, String sessionToken, UUID uuid) {
+		super(websocket, apiWorker);
+		this.sessionToken = sessionToken;
+		this.uuid = uuid;
 	}
 
-	public String getToken() {
-		return token;
+	public String getSessionToken() {
+		return sessionToken;
 	}
 
-	public User getUser() {
-		return user;
+	public UUID getUuid() {
+		return uuid;
 	}
+
+
 }

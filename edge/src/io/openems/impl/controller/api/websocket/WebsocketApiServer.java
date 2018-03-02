@@ -25,6 +25,7 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
@@ -49,7 +50,17 @@ import io.openems.core.utilities.api.ApiWorker;
 public class WebsocketApiServer extends AbstractWebsocketServer {
 
 	private static Logger log = LoggerFactory.getLogger(WebsocketApiServer.class);
-	private final Map<String, UiEdgeWebsocketHandler> handlers = new HashMap<>();
+
+	/**
+	 * Stores valid session tokens for authentication via Cookie (this maps to a browser window)
+	 */
+	private final Map<String, User> sessionTokens = new HashMap<>();
+
+	/**
+	 * Stores handlers per websocket (this maps to a browser tab).
+	 * The handler lives while the websocket is connected. Independently of the login/logout state.
+	 */
+	private final Map<UUID, UiEdgeWebsocketHandler> handlers = new HashMap<>();
 	private final ApiWorker apiWorker;
 	private final static int TOKEN_LENGTH = 130;
 
@@ -63,16 +74,36 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 	 */
 	@Override
 	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
+		// generate UUID for this websocket (browser tab)
+		UUID uuid = UUID.randomUUID();
+
+		// get token from cookie or generate new token
+		String token;
+		Optional<String> cookieTokenOpt = getFieldFromHandshakeCookie(handshake, "token");
+		if (cookieTokenOpt.isPresent()) {
+			token = cookieTokenOpt.get();
+		} else {
+			// Generate token (source: http://stackoverflow.com/a/41156)
+			SecureRandom sr = SecureRandomSingleton.getInstance();
+			token = new BigInteger(TOKEN_LENGTH, sr).toString(32);
+		}
+
+		// create new Handler and store it
+		UiEdgeWebsocketHandler handler = new UiEdgeWebsocketHandler(websocket, apiWorker, token, uuid);
+		this.handlers.put(uuid, handler);
+		websocket.setAttachment(uuid);
+
 		// login using token from the cookie
-		Optional<String> tokenOpt =  getFieldFromHandshakeCookie(handshake, "token");
-		if (tokenOpt.isPresent()) {
-			String token = tokenOpt.get();
-			UiEdgeWebsocketHandler handler = this.handlers.get(token);
-			if (handler != null) {
+		if (cookieTokenOpt.isPresent()) {
+			User user = this.sessionTokens.get(token);
+			if (user != null) {
+				/*
+				 * token from cookie is valid -> authentication successful
+				 */
+				// send reply and log
 				try {
-					// Authentication successful
-					this.handleAuthenticationSuccessful(handler.getUser(), websocket);
-					log.info("User [" + getUserName(websocket) + "] logged in by token");
+					this.handleAuthenticationSuccessful(handler, user);
+					log.info("User [" + user.getName() + "] logged in by token");
 					return;
 				} catch (OpenemsException e) {
 					// TODO handle error
@@ -83,51 +114,11 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 
 		// if we are here, automatic authentication was not possible -> notify client
 		WebSocketUtils.sendNotificationOrLogError(websocket, new JsonObject() /* empty message id */,
-				LogBehaviour.WRITE_TO_LOG, Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, tokenOpt.orElse(""));
-	}
-
-	@Override
-	protected void _onMessage(WebSocket websocket, JsonObject jMessage) {
-		/*
-		 * Authenticate
-		 */
-		Optional<JsonObject> jAuthenticateOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "authenticate");
-		if (jAuthenticateOpt.isPresent()) {
-			// authenticate by username/password
-			try {
-				authenticate(jAuthenticateOpt.get(), websocket);
-			} catch (OpenemsException e) {
-				// TODO error
-				log.error(e.getMessage());
-			}
-			return;
-		}
-
-		// get current Token
-		String token = websocket.getAttachment();
-		if (token == null) {
-			// TODO error: no token
-			return;
-		}
-		UiEdgeWebsocketHandler handler = this.handlers.get(token);
-		if (handler == null) {
-			// TODO error: no handler
-			return;
-		}
-
-		/*
-		 * Rest -> forward to websocket handler
-		 */
-		handler.onMessage(jMessage);
-	}
-
-	@Override
-	protected void _onClose(WebSocket websocket) {
-		log.info("User [" + getUserName(websocket) + "] closed websocket connection");
+				LogBehaviour.WRITE_TO_LOG, Notification.EDGE_AUTHENTICATION_BY_TOKEN_FAILED, cookieTokenOpt.orElse(""));
 	}
 
 	/**
-	 * Authenticates a user according to the "authenticate" message. Stores and returnes the Role if valid.
+	 * Authenticates a user according to the "authenticate" message. Stores the User if valid.
 	 *
 	 * @param jAuthenticateElement
 	 * @param handler
@@ -156,8 +147,9 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 					}
 					// authentication successful
 					User user = userOpt.get();
-					log.info("User [" + user.getName() + "] logged in by username/password");
-					this.handleAuthenticationSuccessful(user, websocket);
+					UiEdgeWebsocketHandler handler = getHandlerOrCloseWebsocket(websocket);
+					this.sessionTokens.put(handler.getSessionToken(), user);
+					this.handleAuthenticationSuccessful(handler, user);
 
 				} catch (OpenemsException e) {
 					/*
@@ -166,6 +158,7 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 					JsonObject jReply = DefaultMessages.uiConnectionFailedReply();
 					WebSocketUtils.send(websocket, jReply);
 					websocket.closeConnection(CloseFrame.REFUSE, "Error while authenticating: " + e.getMessage());
+					log.error(e.getMessage());
 					return;
 				}
 				break;
@@ -173,25 +166,98 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 				/*
 				 * Logout and close session
 				 */
-				String token = websocket.getAttachment();
-				if (token != null) {
-					UiEdgeWebsocketHandler handler = this.handlers.get(token);
-					if (handler != null) {
-						handler.dispose();
+				String sessionToken = "none";
+				String username = "UNKNOWN";
+				try {
+					UiEdgeWebsocketHandler handler = this.getHandlerOrCloseWebsocket(websocket);
+					if(handler.getUser().isPresent()) {
+						username = handler.getUser().get().getName();
 					}
-					this.handlers.remove(token);
-					log.info("User [" + getUserName(websocket) + "] logged out. Invalidated token [" + token + "]");
+					sessionToken = handler.getSessionToken();
+					this.sessionTokens.remove(sessionToken);
+					log.info("User [" + username + "] logged out. Invalidated token [" + sessionToken + "]");
+
+					// find and close all websockets for this user
+					if(handler.getUser().isPresent()) {
+						User thisUser = handler.getUser().get();
+						for(UiEdgeWebsocketHandler h : this.handlers.values()) {
+							if(h.getUser().isPresent()) {
+								User otherUser = h.getUser().get();
+								if(otherUser.equals(thisUser)) {
+									// TODO send notification "user was logged out"
+									h.getWebsocket().close();
+								}
+							}
+						}
+					}
 					// TODO send notification
-				} else {
-					log.warn("User tries to log out, but was not logged in.");
+				} catch (OpenemsException e) {
+					log.error("Unable to close session [" + sessionToken + "]: " + e.getMessage());
+					// TODO send notification
 				}
-				websocket.setAttachment(null);
 			}
 		}
 
 	}
 
-	private void handleAuthenticationSuccessful(User user, WebSocket websocket) throws OpenemsException {
+	@Override
+	protected void _onMessage(WebSocket websocket, JsonObject jMessage) {
+		/*
+		 * Authenticate
+		 */
+		Optional<JsonObject> jAuthenticateOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "authenticate");
+		if (jAuthenticateOpt.isPresent()) {
+			// authenticate by username/password
+			try {
+				authenticate(jAuthenticateOpt.get(), websocket);
+			} catch (OpenemsException e) {
+				// TODO error
+				log.error(e.getMessage());
+			}
+			return;
+		}
+
+		// get handler
+		UiEdgeWebsocketHandler handler;
+		try {
+			handler = getHandlerOrCloseWebsocket(websocket);
+		} catch (OpenemsException e) {
+			log.error("onMessage Error: " + e.getMessage());
+			return;
+		}
+
+		// get session Token from handler
+		String token = handler.getSessionToken();
+		if (!this.sessionTokens.containsKey(token)) {
+			// TODO error: token is not anymore valid.
+			log.error("Token [" + token + "] is not anymore valid.");
+			websocket.close();
+			return;
+		}
+
+		// From here authentication was successful
+
+		/*
+		 * Rest -> forward to websocket handler
+		 */
+		handler.onMessage(jMessage);
+	}
+
+	@Override
+	protected void _onError(WebSocket websocket, Exception ex) {
+		log.warn("User [" + getUserName(websocket) + "] error: " + ex.getMessage());
+	}
+
+	@Override
+	protected void _onClose(WebSocket websocket) {
+		log.info("User [" + getUserName(websocket) + "] closed websocket connection");
+		this.disposeHandler(websocket);
+	}
+
+	private void handleAuthenticationSuccessful(UiEdgeWebsocketHandler handler, User user) throws OpenemsException {
+		// add user to handler
+		handler.setUser(user);
+
 		// Create Edges entry
 		JsonObject jEdge = new JsonObject();
 		jEdge.addProperty("id", 0);
@@ -203,63 +269,55 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 		JsonArray jEdges = new JsonArray();
 		jEdges.add(jEdge);
 
-		// invalidate old handler if exists
-		String token = websocket.getAttachment();
-		if (token != null) {
-			UiEdgeWebsocketHandler oldHandler = this.handlers.get(token);
-			oldHandler.dispose();
-			this.handlers.remove(token);
-		} else {
-			// Generate token (source: http://stackoverflow.com/a/41156)
-			SecureRandom sr = SecureRandomSingleton.getInstance();
-			token = new BigInteger(TOKEN_LENGTH, sr).toString(32);
-		}
-
-		// create new Handler
-		UiEdgeWebsocketHandler handler = new UiEdgeWebsocketHandler(token, user);
-
-		// save
-		this.handlers.put(token, handler);
-		websocket.setAttachment(token);
-
 		// send reply
-		JsonObject jReply = DefaultMessages.uiConnectionSuccessfulReply(token, jEdges);
-		WebSocketUtils.send(websocket, jReply);
+		JsonObject jReply = DefaultMessages.uiConnectionSuccessfulReply(handler.getSessionToken(), jEdges);
+		handler.send(jReply);
 	}
 
-	@Override
-	protected void _onError(WebSocket websocket, Exception ex) {
-		log.warn("User [" + getUserName(websocket) + "] error: " + ex.getMessage());
-	}
-
-	/**
-	 * Get token from handshake
-	 *
-	 * @param handshake
-	 * @return cookie as JsonObject
-	 */
-	private Optional<String> getTokenFromHandshake(ClientHandshake handshake) {
-		if (handshake.hasFieldValue("token")) {
-			return Optional.ofNullable(handshake.getFieldValue("token"));
+	public void sendLog(long timestamp, String level, String source, String message) {
+		for (UiEdgeWebsocketHandler handler : this.handlers.values()) {
+			handler.sendLog(timestamp, level, source, message);
 		}
-		return Optional.empty();
 	}
 
 	private String getUserName(WebSocket websocket) {
-		String token = websocket.getAttachment();
-		if (token != null) {
-			UiEdgeWebsocketHandler handler = this.handlers.get(token);
-			if(handler != null) {
-				User user = handler.getUser();
+		Optional<UiEdgeWebsocketHandler> handlerOpt = getHandlerOpt(websocket);
+		if (handlerOpt.isPresent()) {
+			UiEdgeWebsocketHandler handler = handlerOpt.get();
+			if(handler.getUser().isPresent()) {
+				User user = handler.getUser().get();
 				return user.getName();
 			}
 		}
 		return "UNKNOWN";
 	}
 
-	public void sendLog(long timestamp, String level, String source, String message) {
-		for(UiEdgeWebsocketHandler handler : this.handlers.values()) {
-			handler.sendLog(timestamp, level, source, message);
+	private Optional<UiEdgeWebsocketHandler> getHandlerOpt(WebSocket websocket) {
+		UUID uuid = websocket.getAttachment();
+		return Optional.ofNullable(this.handlers.get(uuid));
+	}
+
+	private UiEdgeWebsocketHandler getHandlerOrCloseWebsocket(WebSocket websocket) throws OpenemsException {
+		Optional<UiEdgeWebsocketHandler> handlerOpt = getHandlerOpt(websocket);
+		UUID uuid = websocket.getAttachment();
+		UiEdgeWebsocketHandler handler = this.handlers.get(uuid);
+		if (!handlerOpt.isPresent()) {
+			// no handler! close websocket
+			websocket.close(); // TODO error message + notification
+			throw new OpenemsException("Websocket had no Handler. Closing websocket.");
+		}
+		return handler;
+	}
+
+	private void disposeHandler(WebSocket websocket) {
+		UiEdgeWebsocketHandler handler;
+		try {
+			handler = getHandlerOrCloseWebsocket(websocket);
+			UUID uuid = handler.getUuid();
+			this.handlers.remove(uuid);
+			handler.dispose();
+		} catch (OpenemsException e) {
+			log.warn("Unable to dispose Handler: " + e.getMessage());
 		}
 	}
 }
