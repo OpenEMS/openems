@@ -178,6 +178,7 @@ public class StreetscooterEss2 extends ModbusDeviceNature implements SymmetricEs
 	/*
 	 * Methods
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		ModbusProtocol protokol = new ModbusProtocol(new ModbusRegisterRange(31001, //

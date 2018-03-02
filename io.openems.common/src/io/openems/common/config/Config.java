@@ -22,8 +22,6 @@ public class Config extends Hashtable<String, Object> {
 	@Override
 	public synchronized Object get(Object key) {
 		Object o = super.get(key);
-		// log.debug("Reading from Config PID [" + this.getPid() + "]: [" + key + "=" +
-		// o + "]");
 		return o;
 	}
 }

@@ -3,6 +3,7 @@ package io.openems.backend.metadata.dummy.device;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO migrate to OSGi
 public class MetadataDummyDeviceModel {
 
 	private static int lastId = 0;
@@ -27,6 +28,7 @@ public class MetadataDummyDeviceModel {
 	// return result;
 	// }
 
+	@SuppressWarnings("unused")
 	private MetadataDummyDevice addNewDevice(String apikey) {
 		int id = MetadataDummyDeviceModel.lastId++;
 		MetadataDummyDevice device = new MetadataDummyDevice("openems" + id, "OpenEMS " + id, "Dummy Product", "admin",

@@ -380,10 +380,14 @@ public class InfluxdbUtils {
 	private final static Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
 
 	public static Integer parseNumberFromName(String name) throws OpenemsException {
-		Matcher matcher = NAME_NUMBER_PATTERN.matcher(name);
-		if (matcher.find()) {
-			String nameNumberString = matcher.group(1);
-			return Integer.parseInt(nameNumberString);
+		try {
+			Matcher matcher = NAME_NUMBER_PATTERN.matcher(name);
+			if (matcher.find()) {
+				String nameNumberString = matcher.group(1);
+				return Integer.parseInt(nameNumberString);
+			}
+		} catch (NullPointerException e) {
+			/* ignore */
 		}
 		throw new OpenemsException("Unable to parse number from name [" + name + "]");
 	}

@@ -9,14 +9,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
-import io.openems.backend.metadata.api.MetadataService;
-import io.openems.backend.uiwebsocket.api.UiWebsocketService;
 
 @Component()
 public class BackendApp {
@@ -26,44 +20,10 @@ public class BackendApp {
 	@Reference
 	private ConfigurationAdmin configAdmin;
 
-	@Reference
-	private MetadataService metadataService;
-
-	// @Reference
-	// TimedataService timedataService;
-
-	@Reference
-	private volatile EdgeWebsocketService edgeWebsocketService;
-
-	@Reference
-	private UiWebsocketService uiWebsocketService;
-
-	// @Reference(target = "(component.factory=EdgeWebsocketFactory)")
-	// private ComponentFactory factory;
-
-	// @Reference(cardinality = ReferenceCardinality.MULTIPLE, bind = "bind", unbind
-	// = "unbind", policy = ReferencePolicy.DYNAMIC)
-	// List<OneShot> list;
-	//
-	// protected void bind(OneShot filter) {
-	// if (list == null) {
-	// list = new ArrayList<OneShot>();
-	// }
-	// list.add(filter);
-	// System.out.println("add " + filter);
-	// }
-	//
-	// protected void unbind(OneShot filter) {
-	// list.remove(filter);
-	// System.out.println("remove " + filter);
-	// }
-
 	@Activate
 	void activate() {
-		configureLogging();
-		// TODO implement MessageManager to decouple components
 		log.debug("Activate BackendApp");
-
+		configureLogging();
 	}
 
 	private void configureLogging() {

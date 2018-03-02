@@ -89,23 +89,6 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 					log.info("Device [ID:" + edgeId + "] connected.");
 				}
 			}
-
-			// TODO do this in Metadata
-			// try {
-			// // set device active (in Odoo)
-			// for (MetadataDevice device : devices) {
-			// if (device.getState().equals("inactive")) {
-			// device.setState("active");
-			// }
-			// device.setLastMessage();
-			// device.writeObject();
-			// }
-			// } catch (OpenemsException e) {
-			// // this error does not stop the connection
-			// log.error("Device [" + String.join(",", deviceNames) + "] error: " +
-			// e.getMessage());
-			// }
-
 		} catch (OpenemsException e) {
 			// send connection failed to OpenEMS
 			JsonObject jReply = DefaultMessages.openemsConnectionFailedReply(e.getMessage());
@@ -228,7 +211,7 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 				log.debug("Edge [" + edge.getName() + "] wrote " + jTimedata.entrySet().size() + " timestamps "
 						+ StringUtils.toShortString(jTimedata, 120));
 			} catch (Exception e) {
-				log.error("Unable to write Timedata: ", e);
+				log.error("Unable to write Timedata: " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
 			/*
 			 * set last update timestamps in MetadataService

@@ -23,6 +23,7 @@ export class Log {
   message: string;
 }
 
+// TODO rename to Edge
 export class Device {
 
   constructor(

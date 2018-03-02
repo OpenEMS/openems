@@ -97,7 +97,7 @@ public interface TimedataService {
 		// TODO check if role is allowed to read these channels
 		// JsonObject kWh = JsonUtils.getAsJsonObject(jQuery, "kWh");
 		int days = Period.between(fromDate.toLocalDate(), toDate.toLocalDate()).getDays();
-		// TODO: better calculation of sensible resolution
+		// TODO better calculation of sensible resolution
 		int resolution = 10 * 60; // 10 Minutes
 		if (days > 25) {
 			resolution = 24 * 60 * 60; // 1 Day

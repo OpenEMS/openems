@@ -129,8 +129,9 @@ public class Influx implements TimedataService {
 	}
 
 	/**
-	 * Writes data to old database for old Mini monitoring TODO remove after full
-	 * migration
+	 * Writes data to old database for old Mini monitoring 
+	 * 
+	 * TODO remove after full migration
 	 *
 	 * @param device
 	 * @param data
@@ -197,10 +198,11 @@ public class Influx implements TimedataService {
 	}
 
 	@Override
-	public JsonArray queryHistoricData(Optional<Integer> edgeIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
-			int resolution) throws OpenemsException {
-		Optional<Integer> influxIdOpt = Optional.empty(); // if given, query only this id. If not given, do not apply filter
-		if(edgeIdOpt.isPresent()) {
+	public JsonArray queryHistoricData(Optional<Integer> edgeIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate,
+			JsonObject channels, int resolution) throws OpenemsException {
+		Optional<Integer> influxIdOpt = Optional.empty(); // if given, query only this id. If not given, do not apply
+															// filter
+		if (edgeIdOpt.isPresent()) {
 			Edge edge = this.metadataService.getEdge(edgeIdOpt.get());
 			influxIdOpt = Optional.of(InfluxdbUtils.parseNumberFromName(edge.getName()));
 		}

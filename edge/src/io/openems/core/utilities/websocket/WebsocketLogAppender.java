@@ -31,7 +31,7 @@ public class WebsocketLogAppender extends AppenderBase<ILoggingEvent> {
 		ThingRepository.getInstance().getPersistences().forEach((persistence) -> {
 			if (persistence instanceof FeneconPersistence) {
 				FeneconPersistence p = (FeneconPersistence) persistence;
-				p.getWebsocketHandler().sendLog(timestamp, level, source, message);
+				p.sendLog(timestamp, level, source, message);
 			}
 		});
 	}

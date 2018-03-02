@@ -1,7 +1,5 @@
 package io.openems.backend.edgewebsocket.impl.provider;
 
-import java.io.IOException;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -10,6 +8,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,24 +21,21 @@ import io.openems.backend.timedata.api.TimedataService;
 import io.openems.backend.uiwebsocket.api.UiWebsocketService;
 import io.openems.common.exceptions.OpenemsException;
 
-import org.osgi.service.metatype.annotations.Designate;
-import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-
 @Designate(ocd = EdgeWebsocket.Config.class, factory = false)
-@Component(name = "EdgeWebsocket", configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "EdgeWebsocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
 public class EdgeWebsocket implements EdgeWebsocketService {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeWebsocket.class);
 
 	private EdgeWebsocketServer server = null;
 
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	@Reference
 	protected volatile MetadataService metadataService;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
 	protected volatile UiWebsocketService uiWebsocketService;
 	
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	@Reference
 	protected volatile TimedataService timedataService;
 
 	@Reference
@@ -68,11 +65,22 @@ public class EdgeWebsocket implements EdgeWebsocketService {
 	 */
 	private synchronized void stopServer() {
 		if (this.server != null) {
-			try {
-				this.server.stop();
-			} catch (NullPointerException | IOException | InterruptedException e) {
-				log.error("Unable to stop existing EdgeWebsocketServer: " + e.getMessage());
+			int tries = 3;
+			while (tries-- > 0) {
+				try {
+					this.server.stop(1000);
+					return;
+				} catch (NullPointerException | InterruptedException e) {
+					log.warn("Unable to stop existing EdgeWebsocketServer. " + e.getClass().getSimpleName() + ": "
+							+ e.getMessage());
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e1) {
+						/* ignore */
+					}
+				}
 			}
+			log.error("Stopping EdgeWebsocketServer failed too often.");
 		}
 	}
 

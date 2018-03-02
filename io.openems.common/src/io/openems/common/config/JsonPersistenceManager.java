@@ -46,13 +46,11 @@ public class JsonPersistenceManager implements PersistenceManager {
 
 	@Deactivate
 	void deactivate() {
-		log.info("deactivate config");
 		this.configs.clear();
 	}
 
 	@Override
 	public void delete(String pid) throws IOException {
-		log.debug("Delete configuration for PID [" + pid + "]");
 		synchronized (this.configs) {
 			if (this.configs.remove(pid) != null) {
 				this.saveConfigMapToFile();
@@ -82,8 +80,6 @@ public class JsonPersistenceManager implements PersistenceManager {
 
 	@Override
 	public void store(String pid, @SuppressWarnings("rawtypes") Dictionary values) throws IOException {
-		log.debug("Store to Config. PID [" + pid + "]: " + values);
-
 		boolean configNeedsToBeAdded = false;
 		boolean configChanged = false;
 		synchronized (this.configs) {

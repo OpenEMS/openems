@@ -85,7 +85,7 @@ public abstract class CurrentDataWorker {
 
 	public void dispose() {
 		// unsubscribe regular task
-		if (this.futureOpt != null) {
+		if (this.futureOpt.isPresent()) {
 			futureOpt.get().cancel(true);
 		}
 	}

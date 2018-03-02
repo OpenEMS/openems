@@ -91,13 +91,12 @@ public class EdgeWebsocketHandler {
 	 */
 	private Optional<ApiWorker> apiWorkerOpt = Optional.empty();
 
-	@Deprecated
-	public EdgeWebsocketHandler() {
-		this.websocket = null;
+	public EdgeWebsocketHandler(WebSocket websocket) {
+		this.websocket = websocket;
 	}
 
 	public EdgeWebsocketHandler(WebSocket websocket, ApiWorker apiWorker) {
-		this.websocket = websocket;
+		this(websocket);
 		this.apiWorkerOpt = Optional.ofNullable(apiWorker);
 	}
 
@@ -149,20 +148,6 @@ public class EdgeWebsocketHandler {
 		// get MessageId from message -> used for reply
 		Optional<JsonObject> jMessageIdOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "messageId");
 
-		// get role
-		// TODO
-		// Role role;
-		// if (this.userOpt.isPresent()) {
-		// role = this.userOpt.get().getRole();
-		// } else {
-		// Optional<String> roleStringOpt = JsonUtils.getAsOptionalString(jMessage, "role");
-		// if (roleStringOpt.isPresent()) {
-		// role = Role.getRole(roleStringOpt.get());
-		// } else {
-		// role = Role.getDefaultRole();
-		// }
-		// }
-
 		if (jMessageIdOpt.isPresent()) {
 			JsonObject jMessageId = jMessageIdOpt.get();
 			/*
@@ -179,7 +164,7 @@ public class EdgeWebsocketHandler {
 			 */
 			Optional<JsonObject> jCurrentDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "currentData");
 			if (jCurrentDataOpt.isPresent()) {
-				currentData(jMessageId, jCurrentDataOpt.get());
+				this.currentData(jMessageId, jCurrentDataOpt.get());
 				return;
 			}
 
@@ -188,7 +173,7 @@ public class EdgeWebsocketHandler {
 			 */
 			Optional<JsonObject> jhistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
 			if (jhistoricDataOpt.isPresent()) {
-				historicData(jMessageId, jhistoricDataOpt.get());
+				this.historicData(jMessageId, jhistoricDataOpt.get());
 				return;
 			}
 
@@ -198,7 +183,7 @@ public class EdgeWebsocketHandler {
 			Optional<JsonObject> jLogOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "log");
 			if (jLogOpt.isPresent()) {
 				try {
-					log(role, jMessageId, jLogOpt.get());
+					this.log(role, jMessageId, jLogOpt.get());
 				} catch (OpenemsException e) {
 					log.error(e.getMessage());
 				}
@@ -210,7 +195,7 @@ public class EdgeWebsocketHandler {
 			Optional<JsonObject> jSystemOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "system");
 			if (jSystemOpt.isPresent()) {
 				try {
-					system(jMessageId, jSystemOpt.get(), role);
+					this.system(jMessageId, jSystemOpt.get(), role);
 				} catch (OpenemsException e) {
 					// TODO create notification
 					log.error(e.getMessage());
@@ -418,51 +403,6 @@ public class EdgeWebsocketHandler {
 		WebSocketUtils.send(this.websocket, DefaultMessages.systemExecuteReply(jMessageId, output));
 	}
 
-	// TODO handle config command
-	// /**
-	// * Set configuration
-	// *
-	// * @param j
-	// */
-	// private synchronized void configure(JsonElement jConfigsElement) {
-	// try {
-	// JsonArray jConfigs = JsonUtils.getAsJsonArray(jConfigsElement);
-	// ThingRepository thingRepository = ThingRepository.getInstance();
-	// for (JsonElement jConfigElement : jConfigs) {
-	// JsonObject jConfig = JsonUtils.getAsJsonObject(jConfigElement);
-	// String mode = JsonUtils.getAsString(jConfig, "mode");
-	// if (mode.equals("update")) {
-	// /*
-	// * Channel Set mode
-	// */
-	// String thingId = JsonUtils.getAsString(jConfig, "thing");
-	// String channelId = JsonUtils.getAsString(jConfig, "channel");
-	// JsonElement jValue = JsonUtils.getSubElement(jConfig, "value");
-	// Optional<Channel> channelOptional = thingRepository.getChannel(thingId, channelId);
-	// if (channelOptional.isPresent()) {
-	// Channel channel = channelOptional.get();
-	// if (channel instanceof ConfigChannel<?>) {
-	// /*
-	// * ConfigChannel
-	// */
-	// ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
-	// configChannel.updateValue(jValue, true);
-	// Notification.send(NotificationType.SUCCESS,
-	// "Successfully updated [" + channel.address() + "] to [" + jValue + "]");
-	//
-	// } else if (channel instanceof WriteChannel<?>) {
-	// /*
-	// * WriteChannel
-	// */
-	// WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
-	// writeChannel.pushWrite(jValue);
-	// Notification.send(NotificationType.SUCCESS,
-	// "Successfully set [" + channel.address() + "] to [" + jValue + "]");
-	// }
-	// } else {
-	// throw new ConfigException("Unable to find " + jConfig.toString());
-	// }
-	// } else if (mode.equals("create")) {
 	// /*
 	// * Create new Thing
 	// */
@@ -509,125 +449,6 @@ public class EdgeWebsocketHandler {
 	// WebSocketUtils.send(this.websocket, j);
 	// } catch (OpenemsException | ClassNotFoundException e) {
 	// Notification.send(NotificationType.ERROR, e.getMessage());
-	// }
-	// }
-
-	// TODO handle system command
-	// /**
-	// * System command
-	// *
-	// * @param j
-	// */
-	// private synchronized void system(JsonElement jSystemElement) {
-	// JsonObject jNotification = new JsonObject();
-	// try {
-	// JsonObject jSystem = JsonUtils.getAsJsonObject(jSystemElement);
-	// String mode = JsonUtils.getAsString(jSystem, "mode");
-	// if (mode.equals("systemd-restart")) {
-	// /*
-	// * Restart systemd service
-	// */
-	// String service = JsonUtils.getAsString(jSystem, "service");
-	// if (service.equals("fems-pagekite")) {
-	// ProcessBuilder builder = new ProcessBuilder("/bin/systemctl", "restart", "fems-pagekite");
-	// Process p = builder.start();
-	// if (p.waitFor() == 0) {
-	// log.info("Successfully restarted fems-pagekite");
-	// } else {
-	// throw new OpenemsException("restart fems-pagekite failed");
-	// }
-	// } else {
-	// throw new OpenemsException("Unknown systemd-restart service: " + jSystemElement.toString());
-	// }
-	//
-	// } else if (mode.equals("manualpq")) {
-	// /*
-	// * Manual PQ settings
-	// */
-	// String ess = JsonUtils.getAsString(jSystem, "ess");
-	// Boolean active = JsonUtils.getAsBoolean(jSystem, "active");
-	// if (active) {
-	// Long p = JsonUtils.getAsLong(jSystem, "p");
-	// Long q = JsonUtils.getAsLong(jSystem, "q");
-	// if (this.controller == null) {
-	// throw new OpenemsException("Local access only. Controller is null.");
-	// }
-	// this.controller.setManualPQ(ess, p, q);
-	// Notification.send(NotificationType.SUCCESS,
-	// "Leistungsvorgabe gesetzt: ess[" + ess + "], p[" + p + "], q[" + q + "]");
-	// } else {
-	// this.controller.resetManualPQ(ess);
-	// Notification.send(NotificationType.SUCCESS, "Leistungsvorgabe gestoppt: ess[" + ess + "]");
-	// }
-	// } else {
-	// throw new OpenemsException("Unknown system message: " + jSystemElement.toString());
-	// }
-	// } catch (OpenemsException | IOException | InterruptedException e) {
-	// Notification.send(NotificationType.ERROR, e.getMessage());
-	// }
-	// }
-
-	// TODO handle manual PQ
-	// private void manualPQ(JsonElement j, AuthenticatedWebsocketHandler handler) {
-	// try {
-	// JsonObject jPQ = JsonUtils.getAsJsonObject(j);
-	// if (jPQ.has("p") && jPQ.has("q")) {
-	// long p = JsonUtils.getAsLong(jPQ, "p");
-	// long q = JsonUtils.getAsLong(jPQ, "q");
-	// this.controller.setManualPQ(p, q);
-	// handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabe gesetzt: P=" + p + ",Q=" + q);
-	// } else {
-	// // stop manual PQ
-	// this.controller.resetManualPQ();
-	// handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabe zurückgesetzt");
-	// }
-	// } catch (ReflectionException e) {
-	// handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabewerte falsch: " + e.getMessage());
-	// }
-	// }
-
-	// TODO handle channel commands
-	// private void channel(JsonElement jChannelElement, AuthenticatedWebsocketHandler handler) {
-	// try {
-	// JsonObject jChannel = JsonUtils.getAsJsonObject(jChannelElement);
-	// String thingId = JsonUtils.getAsString(jChannel, "thing");
-	// String channelId = JsonUtils.getAsString(jChannel, "channel");
-	// JsonElement jValue = JsonUtils.getSubElement(jChannel, "value");
-	//
-	// // get channel
-	// Channel channel;
-	// Optional<Channel> channelOptional = thingRepository.getChannel(thingId, channelId);
-	// if (channelOptional.isPresent()) {
-	// // get channel value
-	// channel = channelOptional.get();
-	// } else {
-	// // Channel not found
-	// throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
-	// }
-	//
-	// // check for writable channel
-	// if (!(channel instanceof WriteChannel<?>)) {
-	// throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
-	// }
-	//
-	// // set channel value
-	// if (channel instanceof ConfigChannel<?>) {
-	// // is a ConfigChannel
-	// ConfigChannel<?> configChannel = (ConfigChannel<?>) channel;
-	// try {
-	// configChannel.updateValue(jValue, true);
-	// log.info("Updated Channel [" + channel.address() + "] to value [" + jValue.toString() + "].");
-	// handler.sendNotification(NotificationType.SUCCESS,
-	// "Channel [" + channel.address() + "] aktualisiert zu [" + jValue.toString() + "].");
-	// } catch (NotImplementedException e) {
-	// throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Conversion not implemented");
-	// }
-	// } else {
-	// // is a WriteChannel
-	// handler.sendNotification(NotificationType.WARNING, "WriteChannel nicht implementiert");
-	// }
-	// } catch (ReflectionException e) {
-	// handler.sendNotification(NotificationType.SUCCESS, "Leistungsvorgabewerte falsch: " + e.getMessage());
 	// }
 	// }
 

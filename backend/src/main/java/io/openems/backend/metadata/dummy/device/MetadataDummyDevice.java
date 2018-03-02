@@ -3,10 +3,13 @@ package io.openems.backend.metadata.dummy.device;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO migrate to OSGi
 public class MetadataDummyDevice {
 
+	@SuppressWarnings("unused")
 	private final Logger log = LoggerFactory.getLogger(MetadataDummyDevice.class);
 
+	@SuppressWarnings("unused")
 	private final int id;
 	private final String apikey;
 

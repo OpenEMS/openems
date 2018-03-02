@@ -25,6 +25,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.openems.App;
+import io.openems.api.security.User;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.utilities.Mutex;
 import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 
@@ -35,14 +38,13 @@ public class ReconnectingWebsocket {
 	private final int MAX_WAIT_AFTER_CLOSE = 60 * 3; // 3 minutes
 	private int WAIT_AFTER_CLOSE = DEFAULT_WAIT_AFTER_CLOSE;
 	private final Draft WEBSOCKET_DRAFT = new Draft_6455();
-	private final EdgeWebsocketHandler WEBSOCKET_HANDLER;
 	private final Mutex WEBSOCKET_CLOSED = new Mutex(true);
 	private Optional<URI> uriOpt = Optional.empty();
 	private Optional<Proxy> proxyOpt = Optional.empty();
 	private final Map<String, String> httpHeaders = new HashMap<>();
 	private final OnOpenListener ON_OPEN_LISTENER;
 	private final OnCloseListener ON_CLOSE_LISTENER;
-	private Optional<WebSocketClient> WEBSOCKET_OPT = Optional.empty();
+	private Optional<MyWebSocketClient> WEBSOCKET_OPT = Optional.empty();
 
 	private final ScheduledExecutorService reconnectorExecutor = Executors
 			.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("Re-Ws-%d").build());
@@ -57,6 +59,8 @@ public class ReconnectingWebsocket {
 	 * @author stefan.feilmeier
 	 */
 	private class MyWebSocketClient extends WebSocketClient {
+		private final EdgeWebsocketHandler handler ;
+
 		public MyWebSocketClient(URI uri, Map<String, String> httpHeaders, Proxy proxy) throws IOException {
 			this(uri, httpHeaders);
 			this.setProxy(proxy);
@@ -64,8 +68,9 @@ public class ReconnectingWebsocket {
 
 		public MyWebSocketClient(URI uri, Map<String, String> httpHeaders) throws IOException {
 			super(uri, WEBSOCKET_DRAFT, httpHeaders, 0);
-			log.info("I was built. ID [" + Thread.currentThread().getId() + "] name ["
-					+ Thread.currentThread().getName() + "]");
+			EdgeWebsocketHandler handler = new EdgeWebsocketHandler(this);
+			handler.setUser(User.ADMIN);
+			this.handler = handler;
 		}
 
 		@Override
@@ -79,7 +84,7 @@ public class ReconnectingWebsocket {
 		public void onMessage(String message) {
 			try {
 				JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-				WEBSOCKET_HANDLER.onMessage(jMessage);
+				this.handler.onMessage(jMessage);
 			} catch (OutOfMemoryError e) {
 				// Java-Websocket library can cause an "unable to create new native thread" OutOfMemoryError on
 				// subscribe. We are not able to recover that.
@@ -96,7 +101,7 @@ public class ReconnectingWebsocket {
 		public void onClose(int code, String reason, boolean remote) {
 			log.info("Websocket [" + this.getURI().toString() + "] closed. Code [" + code + "] Reason [" + reason
 					+ "] Wait [" + WAIT_AFTER_CLOSE + "]");
-			WAIT_AFTER_CLOSE += DEFAULT_WAIT_AFTER_CLOSE;
+			WAIT_AFTER_CLOSE += DEFAULT_WAIT_AFTER_CLOSE * 2;
 			if (WAIT_AFTER_CLOSE > MAX_WAIT_AFTER_CLOSE) {
 				WAIT_AFTER_CLOSE = MAX_WAIT_AFTER_CLOSE;
 			}
@@ -113,9 +118,12 @@ public class ReconnectingWebsocket {
 
 		@Override
 		protected void finalize() throws Throwable {
-			System.out.println("Finalize... [" + Thread.currentThread().getId() + "] name ["
-					+ Thread.currentThread().getName() + "]");
+			this.handler.dispose();
 			super.finalize();
+		}
+
+		protected void sendLog(long timestamp, String level, String source, String message) {
+			this.handler.sendLog(timestamp, level, source, message);
 		}
 	}
 
@@ -135,9 +143,7 @@ public class ReconnectingWebsocket {
 	 * @param uri
 	 * @param httpHeaders
 	 */
-	public ReconnectingWebsocket(EdgeWebsocketHandler handler, OnOpenListener onOpenListener,
-			OnCloseListener onCloseListener) {
-		this.WEBSOCKET_HANDLER = handler;
+	public ReconnectingWebsocket(OnOpenListener onOpenListener, OnCloseListener onCloseListener) {
 		this.ON_OPEN_LISTENER = onOpenListener;
 		this.ON_CLOSE_LISTENER = onCloseListener;
 		this.reconnectorTask = () -> {
@@ -164,20 +170,18 @@ public class ReconnectingWebsocket {
 					}
 
 					// Create new websocket and open connection
-					WebSocketClient ws;
-					if(this.proxyOpt.isPresent()) {
+					MyWebSocketClient ws;
+					if (this.proxyOpt.isPresent()) {
 						ws = new MyWebSocketClient(uriOpt.get(), httpHeaders, this.proxyOpt.get());
 					} else {
 						ws = new MyWebSocketClient(uriOpt.get(), httpHeaders);
 					}
 					ws.connect();
 					WEBSOCKET_OPT = Optional.of(ws);
-					// TODO: websocket cannot be changed
-					// WEBSOCKET_HANDLER.setWebsocket(ws);
 
 				} catch (Throwable t) {
 					String wsString = uriOpt.isPresent() ? uriOpt.get().toString() : "NO_URI";
-					log.error("Websocket [" + wsString + " reconnect error: " + t.getMessage());
+					log.error("Websocket [" + wsString + "] reconnect error. " + t.getClass().getSimpleName() + ": " + t.getMessage());
 				}
 			}
 		};
@@ -221,5 +225,26 @@ public class ReconnectingWebsocket {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Send message to websocket
+	 *
+	 * @param j
+	 * @return
+	 * @throws OpenemsException
+	 */
+	protected void send(JsonObject j) throws OpenemsException {
+		if (WEBSOCKET_OPT.isPresent()) {
+			WebSocketUtils.send(WEBSOCKET_OPT.get(), j);
+		} else {
+			throw new OpenemsException("No Websocket!");
+		}
+	}
+
+	public void sendLog(long timestamp, String level, String source, String message) {
+		if(this.WEBSOCKET_OPT.isPresent()) {
+			this.WEBSOCKET_OPT.get().sendLog(timestamp, level, source, message);
+		}
 	}
 }

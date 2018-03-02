@@ -55,7 +55,7 @@ public class Odoo implements MetadataService {
 
 		String url() default "https://www1.fenecon.de";
 	}
-
+	
 	private String url;
 	private String database;
 	private int uid;
@@ -118,13 +118,7 @@ public class Odoo implements MetadataService {
 				if (j.has("error")) {
 					JsonObject jError = JsonUtils.getAsJsonObject(j, "error");
 					String errorMessage = JsonUtils.getAsString(jError, "message");
-					switch (errorMessage) {
-					case "Odoo Session Expired":
-						// TODO handle exception
-						throw new OpenemsException("Odoo Session Expired");
-					default:
-						throw new OpenemsException("Odoo replied with error: " + errorMessage);
-					}
+					throw new OpenemsException("Odoo replied with error: " + errorMessage);
 				}
 
 				if (j.has("result")) {
@@ -152,10 +146,8 @@ public class Odoo implements MetadataService {
 					return user;
 				}
 			}
-			// TODO handle exception
 			throw new OpenemsException("No matching user found");
 		} catch (IOException e) {
-			// TODO handle exception
 			throw new OpenemsException("IOException while reading from Odoo: " + e.getMessage());
 		} finally {
 			if (connection != null) {
@@ -167,7 +159,6 @@ public class Odoo implements MetadataService {
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
 		try {
-			// TODO use Odoo "search_read" method
 			int[] edgeIds = OdooUtils.search(this.url, this.database, this.uid, this.password, "fems.device",
 					new Domain("apikey", "=", apikey));
 			// refresh Edge cache

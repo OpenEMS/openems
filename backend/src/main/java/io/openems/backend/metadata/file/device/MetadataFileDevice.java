@@ -3,11 +3,15 @@ package io.openems.backend.metadata.file.device;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+//TODO migrate to OSGi
 public class MetadataFileDevice {
 
+	@SuppressWarnings("unused")
 	private final Logger log = LoggerFactory.getLogger(MetadataFileDevice.class);
 
+	@SuppressWarnings("unused")
 	private final int id;
+	@SuppressWarnings("unused")
 	private final String apikey;
 
 	public MetadataFileDevice(String name, String comment, String producttype, String role, int id, String apikey) {

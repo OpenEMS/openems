@@ -1,9 +1,5 @@
 package io.openems.backend.uiwebsocket.impl.provider;
 
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,7 +40,6 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 
 	@Override
 	protected void _onOpen(WebSocket websocket, ClientHandshake handshake) {
-		String error = "";
 		User user;
 
 		// login using session_id from the cookie
@@ -57,9 +52,10 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			// TODO fix bug in Odoo that is not reliably returning all configured devices
 		} catch (OpenemsException e) {
 			// send connection failed to browser
-			this.send(websocket, DefaultMessages.uiConnectionFailedReply());
-			log.warn("User connection failed. Session [" + sessionIdOpt.orElse("") + "] Error [" + error + "].");
-			websocket.closeConnection(CloseFrame.REFUSE, error);
+			WebSocketUtils.sendOrLogError(websocket, DefaultMessages.uiConnectionFailedReply());
+			log.warn("User connection failed. Session [" + sessionIdOpt.orElse("") + "] Error [" + e.getMessage()
+					+ "].");
+			websocket.closeConnection(CloseFrame.REFUSE, e.getMessage());
 			return;
 		}
 
@@ -122,7 +118,8 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 		int userId = data.getUserId();
 		Optional<User> userOpt = this.parent.metadataService.getUser(userId);
 		if (!userOpt.isPresent()) {
-			// TODO Error user not found
+			WebSocketUtils.sendNotificationOrLogError(websocket, new JsonObject(), LogBehaviour.WRITE_TO_LOG,
+					Notification.BACKEND_UNABLE_TO_READ_USER_DETAILS, userId);
 			return;
 		}
 		User user = userOpt.get();
@@ -137,21 +134,22 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			JsonObject jMessageId = jMessageIdOpt.get();
 			int edgeId = edgeIdOpt.get();
 
-			/*
-			 * verify that User is allowed to access Edge
-			 */
-			if (!user.getEdgeRole(edgeId).isPresent()) {
-				// TODO Error Access denied
-				return;
-			}
-
 			// get Edge
 			Edge edge;
 			try {
 				edge = this.parent.metadataService.getEdge(edgeId);
 			} catch (OpenemsException e) {
-				// TODO handle error
-				log.error(e.getMessage());
+				WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+						Notification.BACKEND_UNABLE_TO_READ_EDGE_DETAILS, edgeId, e.getMessage());
+				return;
+			}
+
+			/*
+			 * verify that User is allowed to access Edge
+			 */
+			if (!user.getEdgeRole(edgeId).isPresent()) {
+				WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+						Notification.BACKEND_FORWARD_TO_EDGE_NOT_ALLOWED, edge.getName(), user.getName());
 				return;
 			}
 
@@ -161,8 +159,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			Optional<JsonObject> jHistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
 			if (jHistoricDataOpt.isPresent()) {
 				JsonObject jHistoricData = jHistoricDataOpt.get();
-				JsonObject jReply = this.historicData(jMessageId, edgeId, jHistoricData);
-				WebSocketUtils.sendOrLogError(websocket, jReply);
+				this.historicData(websocket, jMessageId, edgeId, jHistoricData);
 				return;
 			}
 
@@ -196,7 +193,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			}
 
 			/*
-			 * TODO Forward to OpenEMS Edge
+			 * Forward to OpenEMS Edge
 			 */
 			if (jMessage.has("config") || jMessage.has("log") || jMessage.has("system")) {
 				try {
@@ -252,7 +249,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 	 *
 	 * @param j
 	 */
-	private JsonObject historicData(JsonObject jMessageId, int edgeId, JsonObject jHistoricData) {
+	private void historicData(WebSocket websocket, JsonObject jMessageId, int edgeId, JsonObject jHistoricData) {
 		try {
 			String mode = JsonUtils.getAsString(jHistoricData, "mode");
 
@@ -261,13 +258,13 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				 * Query historic data
 				 */
 				JsonArray jData = this.parent.timeDataService.queryHistoricData(edgeId, jHistoricData);
-				return DefaultMessages.historicDataQueryReply(jMessageId, jData);
+				WebSocketUtils.sendOrLogError(websocket, DefaultMessages.historicDataQueryReply(jMessageId, jData));
+				return;
 			}
 		} catch (Exception e) {
-			// TODO handle exception
-			log.warn(e.getMessage());
+			WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, edgeId, e.getMessage());
 		}
-		return new JsonObject();
 	}
 
 	private String getUserName(WebsocketData data) {
