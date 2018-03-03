@@ -12,13 +12,14 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.ThingStateChannel;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.Thing;
+import io.openems.common.types.ChannelAddress;
 
 public class ThingStateChannels extends ReadChannel<ThingState> implements ChannelChangeListener {
 
 	private List<ThingStateChannel> warningChannels;
 	private List<ThingStateChannel> faultChannels;
 	private List<ThingStateChannels> childChannels;
-	private Set<String> channelNames;
+	private Set<ChannelAddress> channelNames;
 
 	public ThingStateChannels(Thing parent){
 		super("State", parent);

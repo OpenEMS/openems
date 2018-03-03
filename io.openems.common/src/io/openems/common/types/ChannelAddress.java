@@ -40,4 +40,21 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 	public int compareTo(ChannelAddress other) {
 		return this.toString().compareTo(other.toString());
 	}
+
+	@Override
+	public int hashCode() {
+		return this.toString().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ChannelAddress other = (ChannelAddress) obj;
+		return this.toString().equals(other.toString());
+	}
 }

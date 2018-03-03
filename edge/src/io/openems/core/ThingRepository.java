@@ -283,7 +283,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 
 		// Remove Listener
 		thing.removeListener(this);
-		// TODO further cleaning if required
+
 		for (ThingsChangedListener listener : thingListeners) {
 			listener.thingChanged(thing, Action.REMOVE);
 		}

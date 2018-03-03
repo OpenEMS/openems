@@ -12,6 +12,7 @@ import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.Log;
 import io.openems.common.websocket.CurrentDataWorker;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
@@ -35,21 +36,25 @@ public class EdgeCurrentDataWorker extends CurrentDataWorker {
 
 	@Override
 	protected Optional<JsonElement> getChannelValue(ChannelAddress channelAddress) {
-		// TODO rename getChannel() to getChannelOpt
-		// TODO create new getChannel() that throws an error if not existing
 		Optional<Channel> channelOpt = thingRepository.getChannel(channelAddress);
 		if (channelOpt.isPresent()) {
 			Channel channel = channelOpt.get();
 			try {
 				channel.assertReadAllowed(this.role);
-				return Optional.ofNullable(JsonUtils.getAsJsonElement(databus.getValue(channel).orElse(null)));
-			} catch (AccessDeniedException | NotImplementedException e) {
+			} catch (AccessDeniedException e) {
+				Log.warn("Channel [" + channelAddress + "] access is not allowed by Role [" + this.role + "]: "
+						+ e.getMessage());
 				return Optional.empty();
-				// TODO log error message: not allowed - or conversion not implemented
+			}
+			try {
+				return Optional.ofNullable(JsonUtils.getAsJsonElement(databus.getValue(channel).orElse(null)));
+			} catch (NotImplementedException e) {
+				Log.warn("Channel [" + channelAddress + "] value conversion failed: " + e.getMessage());
+				return Optional.empty();
 			}
 		} else {
+			Log.warn("Channel [" + channelAddress + "] not found");
 			return Optional.empty();
-			// TODO log error message: channel not found
 		}
 	}
 }

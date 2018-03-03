@@ -45,14 +45,13 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.core.Databus;
 import io.openems.core.utilities.InjectionUtils;
 
-
 public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	protected final Logger log;
 
 	private final String id;
 	private final Thing parent;
 	private Optional<T> value = Optional.empty();
-	private Optional<Class<?>> type = Optional.empty(); // TODO remove type in favour of annotation/channelDoc
+	private Optional<Class<?>> type = Optional.empty();
 	private Optional<ChannelDoc> channelDocOpt = Optional.empty();
 
 	protected Optional<Long> delta = Optional.empty();
@@ -157,15 +156,8 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		return id;
 	}
 
-	/**
-	 * TODO Use channelAddress() instead
-	 */
 	@Override
-	public String address() {
-		return parent.id() + "/" + id;
-	}
-
-	public ChannelAddress channelAddress() {
+	public ChannelAddress address() {
 		return new ChannelAddress(parent.id(), id);
 	}
 

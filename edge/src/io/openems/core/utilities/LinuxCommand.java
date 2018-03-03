@@ -32,7 +32,7 @@ public class LinuxCommand {
 		try {
 			Process proc = Runtime.getRuntime().exec(new String[] { "/bin/bash", "-c",
 					"echo " + password + " | /usr/bin/sudo -Sk -p '' -- /bin/bash -c -- '" + command + "' 2>&1" });
-			// TODO enfoce password when already running as root
+			// TODO improve enforcement of password when already running as root
 			// this complex argument tries to enforce the sudo password and to avoid security vulnerabilites.
 
 			// get stdout and stderr

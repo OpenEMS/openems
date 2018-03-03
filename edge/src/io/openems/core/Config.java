@@ -53,12 +53,12 @@ import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ConfigException;
-import io.openems.common.exceptions.NotImplementedException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
@@ -465,7 +465,7 @@ public class Config implements ChannelChangeListener {
 				jControllers.add(ConfigUtils.getAsJsonElement(controller, format, role));
 			}
 			jScheduler.add("controllers", jControllers);
-			break; // TODO only one Scheduler supported
+			break;
 		}
 		return jScheduler;
 	}
@@ -497,7 +497,6 @@ public class Config implements ChannelChangeListener {
 	 * @return
 	 * @throws NotImplementedException
 	 */
-	// TODO make use of language tag Enum
 	public synchronized JsonObject getJson(ConfigFormat format, Role role, String language)
 			throws NotImplementedException {
 		JsonObject jConfig = new JsonObject();

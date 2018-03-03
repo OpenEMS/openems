@@ -101,7 +101,7 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 			return;
 		}
 		Object value = newValue.get();
-		String field = readChannel.address();
+		String field = readChannel.address().toString();
 		FieldValue<?> fieldValue;
 		// TODO merge this with io.openems.backend.timedata.influx.addChannelToBuilder()
 		if (value instanceof Number) {

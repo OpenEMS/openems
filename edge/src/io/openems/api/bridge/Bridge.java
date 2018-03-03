@@ -254,8 +254,7 @@ public abstract class Bridge extends Thread implements Thing {
 						try {
 							Thread.sleep(20l);
 						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							log.warn("Bridge sleep got interrupted: " + e.getMessage());
 						}
 					}
 				}

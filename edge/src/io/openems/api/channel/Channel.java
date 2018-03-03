@@ -30,14 +30,19 @@ import io.openems.common.exceptions.AccessDeniedException;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.types.ChannelAddress;
 
-//TODO change to generic to use Generic ChannelUpdate/ChangeListener
 public interface Channel {
 	public String id();
 
 	public Thing parent();
 
-	public String address();
+	/**
+	 * Gets the channel address for this Channel (e.g. "ess0/Soc")
+	 *
+	 * @return
+	 */
+	public ChannelAddress address();
 
 	/**
 	 * Register a listener for update events on this Channel

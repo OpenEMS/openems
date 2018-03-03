@@ -80,7 +80,7 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		if (min == null || (channelMin != null && channelMin instanceof Comparable
 				&& ((Comparable<T>) channelMin).compareTo(min) > 0)) {
 			if (channelMin instanceof Long && (Long) channelMin == 0) {
-				// TODO. This is a hack. If the storage system is stopped, channel is limited to 0 and making us unable
+				// This is a hack. If the storage system is stopped, channel is limited to 0 and making us unable
 				// to start the system again
 			} else {
 				min = channelMin;
@@ -112,7 +112,7 @@ public class WriteChannel<T> extends ReadChannel<T> {
 		if (max == null || (channelMax != null && channelMax instanceof Comparable
 				&& ((Comparable<T>) channelMax).compareTo(max) < 0)) {
 			if (channelMax instanceof Long && (Long) channelMax == 0) {
-				// TODO. This is a hack. If the storage system is stopped, channel is limited to 0 and making us unable
+				// This is a hack. If the storage system is stopped, channel is limited to 0 and making us unable
 				// to start the system again
 			} else {
 				max = channelMax;

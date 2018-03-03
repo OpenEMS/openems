@@ -59,11 +59,4 @@ public interface Thing {
 		ThingStateChannels stateChannel = getStateChannel();
 		return stateChannel.getWarningChannels().toArray(new ReadChannel[stateChannel.getWarningChannels().size()]);
 	}
-
-	/**
-	 * Sets the Thing annotation. This method is called after the thing was initialized via init()
-	 *
-	 * @throws OpenemsException
-	 */
-	// TODO public void setThingDoc(ThingDoc channelDoc) throws OpenemsException;
 }

@@ -49,7 +49,6 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				throw new OpenemsException("Session-ID is missing in handshake");
 			}
 			user = this.parent.metadataService.getUserWithSession(sessionIdOpt.get());
-			// TODO fix bug in Odoo that is not reliably returning all configured devices
 		} catch (OpenemsException e) {
 			// send connection failed to browser
 			WebSocketUtils.sendOrLogError(websocket, DefaultMessages.uiConnectionFailedReply());
@@ -79,8 +78,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				jEdge.addProperty("role", role.toString());
 				jEdges.add(jEdge);
 			} catch (OpenemsException e) {
-				// TODO handle error
-				log.warn(e.getMessage());
+				log.warn("Unable to get Edge from MetadataService [ID:" + edgeId + "]: " + e.getMessage());
 			}
 		}
 		log.info("User [" + user.getName() + "] connected with Session [" + sessionIdOpt.orElse("") + "].");
@@ -91,7 +89,8 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 	@Override
 	protected void _onError(WebSocket websocket, Exception ex) {
 		WebsocketData data = websocket.getAttachment();
-		log.info("User [" + getUserName(data) + "] websocket error: " + ex.getMessage());
+		log.warn("User [" + getUserName(data) + "] websocket error. " + ex.getClass().getSimpleName() + ": "
+				+ ex.getMessage());
 	}
 
 	@Override
@@ -159,6 +158,8 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			Optional<JsonObject> jHistoricDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "historicData");
 			if (jHistoricDataOpt.isPresent()) {
 				JsonObject jHistoricData = jHistoricDataOpt.get();
+				log.info("User [" + user.getName() + "] queried historic data for Edge [" + edge.getName() + "]: "
+						+ StringUtils.toShortString(jHistoricData, 50));
 				this.historicData(websocket, jMessageId, edgeId, jHistoricData);
 				return;
 			}
@@ -169,8 +170,8 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			Optional<JsonObject> jCurrentDataOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "currentData");
 			if (jCurrentDataOpt.isPresent()) {
 				JsonObject jCurrentData = jCurrentDataOpt.get();
-				log.info("User [" + user.getName() + "] subscribed to current data for device [" + edge.getName()
-						+ "]: " + StringUtils.toShortString(jCurrentData, 50));
+				log.info("User [" + user.getName() + "] subscribed to current data for Edge [" + edge.getName() + "]: "
+						+ StringUtils.toShortString(jCurrentData, 50));
 				this.currentData(websocket, data, jMessageId, edgeId, jCurrentData);
 				return;
 			}
@@ -186,6 +187,8 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 					/*
 					 * Query current config
 					 */
+					log.info("User [" + user.getName() + "] queried config for Edge [" + edge.getName() + "]: "
+							+ StringUtils.toShortString(jConfig, 50));
 					JsonObject jReply = DefaultMessages.configQueryReply(jMessageId, edge.getConfig());
 					WebSocketUtils.sendOrLogError(websocket, jReply);
 					return;
@@ -197,7 +200,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			 */
 			if (jMessage.has("config") || jMessage.has("log") || jMessage.has("system")) {
 				try {
-					log.info("User [" + user.getName() + "] Forward message to Edge [" + edge.getName() + "]: "
+					log.info("User [" + user.getName() + "] forward message to Edge [" + edge.getName() + "]: "
 							+ StringUtils.toShortString(jMessage, 100));
 					Optional<Role> roleOpt = user.getEdgeRole(edgeId);
 					JsonObject j = DefaultMessages.prepareMessageForForwardToEdge(jMessage, data.getUuid(), roleOpt);
@@ -239,8 +242,8 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 				data.setCurrentDataWorker(worker);
 			}
 		} catch (OpenemsException e) {
-			// TODO handle exception
-			log.warn(e.getMessage());
+			WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+					Notification.SUBSCRIBE_CURRENT_DATA_FAILED, "Edge [ID:" + edgeId + "] " + e.getMessage());
 		}
 	}
 
@@ -263,7 +266,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			}
 		} catch (Exception e) {
 			WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
-					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, edgeId, e.getMessage());
+					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, "Edge [ID:" + edgeId + "] " + e.getMessage());
 		}
 	}
 
@@ -276,19 +279,15 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 		}
 	}
 
-	public void handleEdgeReply(int edgeId, JsonObject jMessage) {
-		try {
-			JsonObject jMessageId = JsonUtils.getAsJsonObject(jMessage, "messageId");
-			String backendId = JsonUtils.getAsString(jMessageId, "backend");
-			WebSocket websocket = this.websocketsMap.get(UUID.fromString(backendId));
-			if (websocket != null) {
-				JsonObject j = DefaultMessages.prepareMessageForForwardToUi(jMessage);
-				WebSocketUtils.send(websocket, j);
-				return;
-			}
-			throw new OpenemsException("No websocket found for UUID [" + backendId + "]");
-		} catch (OpenemsException e) {
-			log.error("Unable to handle reply from Edge [ID:" + edgeId + "]: " + e.getMessage());
+	public void handleEdgeReply(int edgeId, JsonObject jMessage) throws OpenemsException {
+		JsonObject jMessageId = JsonUtils.getAsJsonObject(jMessage, "messageId");
+		String backendId = JsonUtils.getAsString(jMessageId, "backend");
+		WebSocket websocket = this.websocketsMap.get(UUID.fromString(backendId));
+		if (websocket != null) {
+			JsonObject j = DefaultMessages.prepareMessageForForwardToUi(jMessage);
+			WebSocketUtils.send(websocket, j);
+			return;
 		}
+		throw new OpenemsException("No websocket found for UUID [" + backendId + "]");
 	}
 }

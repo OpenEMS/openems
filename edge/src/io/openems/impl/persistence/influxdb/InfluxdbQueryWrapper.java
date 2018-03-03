@@ -22,8 +22,8 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
-import io.openems.core.Address;
 
 public class InfluxdbQueryWrapper {
 
@@ -91,12 +91,12 @@ public class InfluxdbQueryWrapper {
 			if (seriess != null) {
 				for (Series series : seriess) {
 					// create thing/channel index
-					ArrayList<Address> addressIndex = new ArrayList<>();
+					ArrayList<ChannelAddress> addressIndex = new ArrayList<>();
 					for (String column : series.getColumns()) {
 						if (column.equals("time")) {
 							continue;
 						}
-						addressIndex.add(Address.fromString(column));
+						addressIndex.add(ChannelAddress.fromString(column));
 					}
 					// first: create empty timestamp objects
 					for (List<Object> values : series.getValues()) {
@@ -125,7 +125,7 @@ public class InfluxdbQueryWrapper {
 					for (int columnIndex = 1; columnIndex < series.getColumns().size(); columnIndex++) {
 						for (int timeIndex = 0; timeIndex < series.getValues().size(); timeIndex++) {
 							Double value = (Double) series.getValues().get(timeIndex).get(columnIndex);
-							Address address = addressIndex.get(columnIndex - 1);
+							ChannelAddress address = addressIndex.get(columnIndex - 1);
 							j.get(timeIndex).getAsJsonObject().get("channels").getAsJsonObject()
 							.get(address.getThingId()).getAsJsonObject()
 							.addProperty(address.getChannelId(), value);

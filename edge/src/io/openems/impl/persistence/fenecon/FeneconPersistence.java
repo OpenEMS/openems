@@ -349,7 +349,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 		// Add timestamp + value to queue
 		synchronized (queue) {
-			queue.put(readChannel.channelAddress(), fieldValue);
+			queue.put(readChannel.address(), fieldValue);
 		}
 	}
 

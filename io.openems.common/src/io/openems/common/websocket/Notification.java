@@ -14,9 +14,11 @@ public enum Notification {
 	BACKEND_FORWARD_TO_EDGE_NOT_ALLOWED(108, NotificationType.ERROR,
 			"Message forward to Edge [%s] is not allowed for user [%s]."), //
 	BACKEND_UNABLE_TO_READ_EDGE_DETAILS(109, NotificationType.ERROR, "Unable to read details for Edge [ID:%s]: %s"), //
-	UNABLE_TO_QUERY_HISTORIC_DATA(110, NotificationType.ERROR, "Unable to query historic data for Edge [ID:%s]: %s"), //
-	BACKEND_UNABLE_TO_READ_USER_DETAILS(111, NotificationType.ERROR, "Unable to read details for User [ID:%s]"); //
-
+	UNABLE_TO_QUERY_HISTORIC_DATA(110, NotificationType.ERROR, "Unable to query historic data: %s"), //
+	BACKEND_UNABLE_TO_READ_USER_DETAILS(111, NotificationType.ERROR, "Unable to read details for User [ID:%s]"), //
+	METADATA_ERROR(112, NotificationType.ERROR, "Metadata operation failed: %s"), //
+	UNKNOWN_MESSAGE(113, NotificationType.WARNING, "Unknown message. Source [%s]. Message: %s"), //
+	SUBSCRIBE_CURRENT_DATA_FAILED(114, NotificationType.ERROR, "Subscription to current data failed: %s");
 
 	private final int value;
 	private final NotificationType status;

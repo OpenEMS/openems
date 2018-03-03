@@ -131,7 +131,7 @@ public class Influx implements TimedataService {
 	/**
 	 * Writes data to old database for old Mini monitoring 
 	 * 
-	 * TODO remove after full migration
+	 * XXX remove after full migration
 	 *
 	 * @param device
 	 * @param data
@@ -318,7 +318,6 @@ public class Influx implements TimedataService {
 		writeData(influxId, data);
 
 		// Hook to continue writing data to old Mini monitoring
-		// TODO remove after full migration
 		if (edge.getProducttype().equals("MiniES 3-3")) {
 			writeDataToOldMiniMonitoring(edge, influxId, data);
 		}

@@ -22,6 +22,8 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.websocket.AbstractWebsocketServer;
 import io.openems.common.websocket.DefaultMessages;
+import io.openems.common.websocket.LogBehaviour;
+import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 
 public class EdgeWebsocketServer extends AbstractWebsocketServer {
@@ -94,7 +96,8 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			JsonObject jReply = DefaultMessages.openemsConnectionFailedReply(e.getMessage());
 			WebSocketUtils.sendOrLogError(websocket, jReply);
 			// close websocket
-			websocket.closeConnection(CloseFrame.REFUSE, "OpenEMS connection failed. Apikey [" + apikey + "]");
+			websocket.closeConnection(CloseFrame.REFUSE,
+					"OpenEMS connection failed. Apikey [" + apikey + "]. Error: " + e.getMessage());
 		}
 	}
 
@@ -106,6 +109,9 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 	protected void _onMessage(WebSocket websocket, JsonObject jMessage) {
 		// get edgeIds from websocket
 		int[] edgeIds = websocket.getAttachment();
+
+		// get MessageId from message
+		JsonObject jMessageId = JsonUtils.getAsOptionalJsonObject(jMessage, "messageId").orElse(new JsonObject());
 
 		/*
 		 * Config? -> store in Metadata
@@ -119,18 +125,24 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 					edge = this.parent.metadataService.getEdge(edgeId);
 					edge.setConfig(jConfig);
 				} catch (OpenemsException e) {
-					log.warn(e.getMessage());
+					WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+							Notification.METADATA_ERROR, e.getMessage());
 				}
 			}
 			return;
 		}
 
 		/*
-		 * Is this a reply? -> forward to Browser
+		 * Is this a reply? -> forward to UI
 		 */
 		if (jMessage.has("messageId")) {
 			for (int edgeId : edgeIds) {
-				this.parent.uiWebsocketService.handleEdgeReply(edgeId, jMessage);
+				try {
+					this.parent.uiWebsocketService.handleEdgeReply(edgeId, jMessage);
+				} catch (OpenemsException e) {
+					WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+							Notification.EDGE_UNABLE_TO_FORWARD, "ID:" + edgeId, e.getMessage());
+				}
 			}
 			return;
 		}
@@ -148,7 +160,8 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 		 * Unknown message
 		 */
 		for (String edgeName : getEdgeNames(edgeIds)) {
-			log.warn("Edge [" + edgeName + "] unknown message: " + StringUtils.toShortString(jMessage, 100));
+			WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+					Notification.UNKNOWN_MESSAGE, edgeName, StringUtils.toShortString(jMessage, 100));
 		}
 	}
 

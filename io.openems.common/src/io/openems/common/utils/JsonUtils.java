@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
@@ -24,7 +23,6 @@ import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelEnum;
 
-// TODO use getAsOptional***() as basis for getAs***() to avoid unnecessary exceptions
 public class JsonUtils {
 	public static boolean getAsBoolean(JsonElement jElement) throws OpenemsException {
 		JsonPrimitive jPrimitive = getAsPrimitive(jElement);
@@ -383,31 +381,6 @@ public class JsonUtils {
 
 	public static boolean hasElement(JsonElement j, String... paths) {
 		return getMatchingElements(j, paths).size() > 0;
-	}
-
-	/**
-	 * Merges the second Object into the first object
-	 * 
-	 * @param j1
-	 * @param j2
-	 * @return
-	 */
-	public static JsonObject merge(JsonObject j1, JsonObject j2) {
-		// TODO be smarter: merge down the tree
-		for (Entry<String, JsonElement> entry : j2.entrySet()) {
-			j1.add(entry.getKey(), entry.getValue());
-		}
-		return j1;
-	}
-
-	public static Optional<JsonObject> merge(Optional<JsonObject> j1Opt, Optional<JsonObject> j2Opt) {
-		if (j1Opt.isPresent() && j2Opt.isPresent()) {
-			return Optional.of(JsonUtils.merge(j1Opt.get(), j2Opt.get()));
-		}
-		if (j1Opt.isPresent()) {
-			return j1Opt;
-		}
-		return j2Opt;
 	}
 
 	/**

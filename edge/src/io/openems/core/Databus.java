@@ -33,7 +33,6 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.device.nature.charger.ChargerNature;
 import io.openems.api.device.nature.meter.AsymmetricMeterNature;
 import io.openems.api.device.nature.meter.SymmetricMeterNature;
-import io.openems.common.types.ChannelAddress;
 
 public class Databus implements ChannelUpdateListener, ChannelChangeListener {
 	private final static Logger log = LoggerFactory.getLogger(Databus.class);
@@ -90,23 +89,6 @@ public class Databus implements ChannelUpdateListener, ChannelChangeListener {
 		}
 	}
 
-	@Deprecated
-	// TODO check permissions
-	public Optional<?> getValue(String thingId, String channelId) {
-		Optional<Channel> channelOpt = thingRepository.getChannel(thingId, channelId);
-		if (channelOpt.isPresent()) {
-			return this.getValue(channelOpt.get());
-		} else {
-			return Optional.empty();
-		}
-	}
-
-	@Deprecated
-	public Optional<?> getValue(ChannelAddress channelAddress) {
-		return this.getValue(channelAddress.getThingId(), channelAddress.getChannelId());
-	}
-
-	// TODO this should be in a Utils class or "default" method of Channel
 	public Optional<?> getValue(Channel channel) {
 		if (channel instanceof ReadChannel<?>) {
 			return ((ReadChannel<?>) channel).valueOptional();

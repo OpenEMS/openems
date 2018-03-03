@@ -18,6 +18,7 @@ import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.timedata.api.TimedataService;
 import io.openems.backend.uiwebsocket.api.UiWebsocketService;
+import io.openems.common.exceptions.OpenemsException;
 
 @Designate(ocd = UiWebsocket.Config.class, factory = false)
 @Component(name = "UiWebsocket", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
@@ -90,7 +91,7 @@ public class UiWebsocket implements UiWebsocketService {
 	}
 
 	@Override
-	public void handleEdgeReply(int edgeId, JsonObject jMessage) {
+	public void handleEdgeReply(int edgeId, JsonObject jMessage) throws OpenemsException {
 		this.server.handleEdgeReply(edgeId, jMessage);
 	}
 }
