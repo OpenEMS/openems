@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.java_websocket.WebSocket;
-import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,8 +105,8 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 					log.info("User [" + user.getName() + "] logged in by token");
 					return;
 				} catch (OpenemsException e) {
-					// TODO handle error
-					log.error(e.getMessage());
+					WebSocketUtils.sendNotificationOrLogError(websocket, new JsonObject() /* empty message id */,
+							LogBehaviour.WRITE_TO_LOG, Notification.ERROR, e.getMessage());
 				}
 			}
 		}
@@ -155,10 +154,9 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 					/*
 					 * send authentication failed reply
 					 */
-					JsonObject jReply = DefaultMessages.uiConnectionFailedReply();
+					JsonObject jReply = DefaultMessages.uiLogoutReply();
 					WebSocketUtils.send(websocket, jReply);
-					websocket.closeConnection(CloseFrame.REFUSE, "Error while authenticating: " + e.getMessage());
-					log.error(e.getMessage());
+					log.info(e.getMessage());
 					return;
 				}
 				break;
@@ -186,16 +184,19 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 							if (h.getUserOpt().isPresent()) {
 								User otherUser = h.getUserOpt().get();
 								if (otherUser.equals(thisUser)) {
-									// TODO send notification "user was logged out"
+									JsonObject jReply = DefaultMessages.uiLogoutReply();
+									h.send(jReply);
 									h.dispose();
 								}
 							}
 						}
 					}
-					// TODO send notification
+					JsonObject jReply = DefaultMessages.uiLogoutReply();
+					WebSocketUtils.send(websocket, jReply);
 				} catch (OpenemsException e) {
-					log.error("Unable to close session [" + sessionToken + "]: " + e.getMessage());
-					// TODO send notification
+					WebSocketUtils.sendNotificationOrLogError(websocket, new JsonObject() /* empty message id */,
+							LogBehaviour.WRITE_TO_LOG, Notification.ERROR,
+							"Unable to close session [" + sessionToken + "]: " + e.getMessage());
 				}
 			}
 		}
@@ -213,8 +214,8 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 			try {
 				authenticate(jAuthenticateOpt.get(), websocket);
 			} catch (OpenemsException e) {
-				// TODO error
-				log.error(e.getMessage());
+				WebSocketUtils.sendNotificationOrLogError(websocket, new JsonObject() /* empty message id */,
+						LogBehaviour.WRITE_TO_LOG, Notification.ERROR, e.getMessage());
 			}
 			return;
 		}
@@ -224,15 +225,16 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 		try {
 			handler = getHandlerOrCloseWebsocket(websocket);
 		} catch (OpenemsException e) {
-			log.error("onMessage Error: " + e.getMessage());
+			WebSocketUtils.sendNotificationOrLogError(websocket, new JsonObject() /* empty message id */,
+					LogBehaviour.WRITE_TO_LOG, Notification.ERROR, "onMessage Error: " + e.getMessage());
 			return;
 		}
 
 		// get session Token from handler
 		String token = handler.getSessionToken();
 		if (!this.sessionTokens.containsKey(token)) {
-			// TODO error: token is not anymore valid.
-			log.error("Token [" + token + "] is not anymore valid.");
+			WebSocketUtils.sendNotificationOrLogError(websocket, new JsonObject() /* empty message id */,
+					LogBehaviour.WRITE_TO_LOG, Notification.ERROR, "Token [" + token + "] is not anymore valid.");
 			websocket.close();
 			return;
 		}
@@ -272,7 +274,7 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 		jEdges.add(jEdge);
 
 		// send reply
-		JsonObject jReply = DefaultMessages.uiConnectionSuccessfulReply(handler.getSessionToken(), jEdges);
+		JsonObject jReply = DefaultMessages.uiLoginSuccessfulReply(handler.getSessionToken(), jEdges);
 		handler.send(jReply);
 	}
 
@@ -305,7 +307,7 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 		UiEdgeWebsocketHandler handler = this.handlers.get(uuid);
 		if (!handlerOpt.isPresent()) {
 			// no handler! close websocket
-			websocket.close(); // TODO error message + notification
+			websocket.close();
 			throw new OpenemsException("Websocket had no Handler. Closing websocket.");
 		}
 		return handler;

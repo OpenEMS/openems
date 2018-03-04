@@ -89,8 +89,7 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 								ess.setActivePower.pushWriteMax(-1000L);
 							}
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							log.error(e.getMessage());
 						}
 					}
 					break;
@@ -153,8 +152,7 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 								ess.addTime(time, minSoc, chargeSoc);
 							}
 						} catch (InvalidValueException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+							log.error(e1.getMessage());
 						}
 					}
 				}

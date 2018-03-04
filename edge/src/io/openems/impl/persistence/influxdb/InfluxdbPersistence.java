@@ -45,6 +45,7 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.persistence.QueryablePersistence;
 import io.openems.backend.timedata.influx.InfluxdbUtils;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.ChannelEnum;
 import io.openems.core.Databus;
 
@@ -226,5 +227,16 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	@Override
 	public ThingStateChannels getStateChannel() {
 		return this.thingState;
+	}
+
+	@Override
+	public Optional<Object> getChannelValue(int edgeId, ChannelAddress channelAddress) {
+		log.error("getChannelValue is not implemented");
+		return Optional.empty();
+	}
+
+	@Override
+	public void write(int edgeId, JsonObject jData) throws OpenemsException {
+		throw new OpenemsException("write is not implemented");
 	}
 }

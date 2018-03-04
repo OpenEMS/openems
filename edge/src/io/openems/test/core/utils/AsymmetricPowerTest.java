@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import io.openems.api.exception.WriteChannelException;
+import io.openems.common.utils.Log;
 import io.openems.core.utilities.AsymmetricPower;
 import io.openems.core.utilities.AsymmetricPower.ReductionType;
 import io.openems.test.utils.devicenatures.UnitTestAsymmetricEssNature;
@@ -47,8 +48,7 @@ public class AsymmetricPowerTest {
 		try {
 			power.writePower(ReductionType.PERPHASE);
 		} catch (WriteChannelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
@@ -74,8 +74,7 @@ public class AsymmetricPowerTest {
 		try {
 			power.writePower(ReductionType.PERPHASE);
 		} catch (WriteChannelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
@@ -100,15 +99,13 @@ public class AsymmetricPowerTest {
 		try {
 			power.writePower(ReductionType.PERPHASE);
 		} catch (WriteChannelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		power.setReactivePower(500, -900, 700);
 		try {
 			power.writePower(ReductionType.PERPHASE);
 		} catch (WriteChannelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
@@ -134,8 +131,7 @@ public class AsymmetricPowerTest {
 		try {
 			power.writePower(ReductionType.PERPHASE);
 		} catch (WriteChannelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();
@@ -161,8 +157,7 @@ public class AsymmetricPowerTest {
 		try {
 			power.writePower(ReductionType.PERPHASE);
 		} catch (WriteChannelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		long activePowerL1 = ess.setActivePowerL1.peekWrite().get();
 		long activePowerL2 = ess.setActivePowerL2.peekWrite().get();

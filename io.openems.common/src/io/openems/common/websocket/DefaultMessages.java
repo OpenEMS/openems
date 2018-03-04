@@ -59,7 +59,7 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject uiConnectionSuccessfulReply(String token, JsonArray jEdges) {
+	public static JsonObject uiLoginSuccessfulReply(String token, JsonArray jEdges) {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "allow");
 		jAuthenticate.addProperty("token", token);
@@ -83,7 +83,7 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject uiConnectionFailedReply() {
+	public static JsonObject uiLogoutReply() {
 		JsonObject jAuthenticate = new JsonObject();
 		jAuthenticate.addProperty("mode", "deny");
 		JsonObject j = new JsonObject();

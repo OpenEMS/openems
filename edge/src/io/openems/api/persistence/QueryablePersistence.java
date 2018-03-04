@@ -30,13 +30,8 @@ import io.openems.common.types.ChannelAddress;
 
 public abstract class QueryablePersistence extends Persistence implements TimedataService {
 	@Override
-	public Optional<Object> getChannelValue(int edgeId, ChannelAddress channelAddress) {
-		// FIXME implement after migration to OSGi
-		return null;
-	}
+	public abstract Optional<Object> getChannelValue(int edgeId, ChannelAddress channelAddress);
 
 	@Override
-	public void write(int edgeId, JsonObject jData) throws OpenemsException {
-		// FIXME implement after migration to OSGi
-	}
+	public abstract void write(int edgeId, JsonObject jData) throws OpenemsException;
 }

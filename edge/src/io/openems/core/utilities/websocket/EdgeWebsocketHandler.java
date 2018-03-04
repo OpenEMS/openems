@@ -185,7 +185,8 @@ public class EdgeWebsocketHandler {
 				try {
 					this.log(role, jMessageId, jLogOpt.get());
 				} catch (OpenemsException e) {
-					log.error(e.getMessage());
+					WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+							Notification.UNABLE_TO_SUBSCRIBE_TO_LOG, e.getMessage());
 				}
 			}
 
@@ -197,8 +198,8 @@ public class EdgeWebsocketHandler {
 				try {
 					this.system(jMessageId, jSystemOpt.get(), role);
 				} catch (OpenemsException e) {
-					// TODO create notification
-					log.error(e.getMessage());
+					WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+							Notification.UNABLE_TO_EXECUTE_SYSTEM_COMMAND, e.getMessage());
 				}
 			}
 		}
@@ -212,7 +213,8 @@ public class EdgeWebsocketHandler {
 			break;
 		}
 		if (timedataSource == null) {
-			// TODO create notification that there is no datasource available
+			WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject(), LogBehaviour.WRITE_TO_LOG,
+					Notification.NO_TIMEDATA_SOURCE_AVAILABLE);
 			return;
 		}
 		JsonArray jData;
@@ -220,8 +222,8 @@ public class EdgeWebsocketHandler {
 			jData = timedataSource.queryHistoricData(jHistoricData);
 			WebSocketUtils.send(this.websocket, DefaultMessages.historicDataQueryReply(jMessageId, jData));
 		} catch (OpenemsException e) {
-			// TODO notification
-			log.error(e.getMessage());
+			WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, e.getMessage());
 		}
 		return;
 	}
@@ -246,8 +248,8 @@ public class EdgeWebsocketHandler {
 				WebSocketUtils.send(this.websocket, DefaultMessages.configQueryReply(jMessageId, jReplyConfig));
 				return;
 			} catch (OpenemsException e) {
-				// TODO notification
-				log.error(e.getMessage());
+				WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+						Notification.UNABLE_TO_READ_CURRENT_CONFIG, e.getMessage());
 			}
 
 		case "update":
@@ -303,7 +305,8 @@ public class EdgeWebsocketHandler {
 						}
 					}
 				} else {
-					throw new OpenemsException("Unable to find Channel [" + thingId + "/" + channelId + "]");
+					WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+							Notification.CHANNEL_NOT_FOUND, thingId + "/" + channelId);
 				}
 			} catch (NoSuchElementException | OpenemsException e) {
 				WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
@@ -312,6 +315,58 @@ public class EdgeWebsocketHandler {
 			}
 		}
 	}
+
+	// TODO implement creation of new things
+	// /*
+	// * Create new Thing
+	// */
+	// JsonObject jObject = JsonUtils.getAsJsonObject(jConfig, "object");
+	// String parentId = JsonUtils.getAsString(jConfig, "parent");
+	// String thingId = JsonUtils.getAsString(jObject, "id");
+	// if (thingId.startsWith("_")) {
+	// throw new ConfigException("IDs starting with underscore are reserved for internal use.");
+	// }
+	// if (thingRepository.getThingById(thingId).isPresent()) {
+	// throw new ConfigException("Thing Id is already existing.");
+	// }
+	// String clazzName = JsonUtils.getAsString(jObject, "class");
+	// Class<?> clazz = Class.forName(clazzName);
+	// if (Device.class.isAssignableFrom(clazz)) {
+	// // Device
+	// Thing parentThing = thingRepository.getThing(parentId);
+	// if (parentThing instanceof Bridge) {
+	// Bridge parentBridge = (Bridge) parentThing;
+	// Device device = thingRepository.createDevice(jObject);
+	// parentBridge.addDevice(device);
+	// Config.getInstance().writeConfigFile();
+	// Notification.send(NotificationType.SUCCESS, "Device [" + device.id() + "] wurde erstellt.");
+	// break;
+	// }
+	// }
+	// } else if (mode.equals("delete")) {
+	// TODO implement deletion of things
+	// /*
+	// * Delete a Thing
+	// */
+	// String thingId = JsonUtils.getAsString(jConfig, "thing");
+	// thingRepository.removeThing(thingId);
+	// Config.getInstance().writeConfigFile();
+	// Notification.send(NotificationType.SUCCESS, "Controller [" + thingId + "] wurde " + " gel�scht.");
+	// } else {
+	// throw new OpenemsException("Modus [" + mode + "] ist nicht implementiert.");
+	// }
+	// }
+	// TODO send new config after config update
+	// // Send new config
+	// JsonObject jMetadata = new JsonObject();
+	// jMetadata.add("config", Config.getInstance().getMetaConfigJson());
+	// JsonObject j = new JsonObject();
+	// j.add("metadata", jMetadata);
+	// WebSocketUtils.send(this.websocket, j);
+	// } catch (OpenemsException | ClassNotFoundException e) {
+	// Notification.send(NotificationType.ERROR, e.getMessage());
+	// }
+	// }
 
 	/**
 	 * Handle current data subscriptions
@@ -399,58 +454,8 @@ public class EdgeWebsocketHandler {
 					+ "] timeout [" + timeout + "]");
 			output = LinuxCommand.execute(password, command, background, timeout);
 		}
-		// TODO use my own send() method everywhere in this class
 		WebSocketUtils.send(this.websocket, DefaultMessages.systemExecuteReply(jMessageId, output));
 	}
-
-	// /*
-	// * Create new Thing
-	// */
-	// JsonObject jObject = JsonUtils.getAsJsonObject(jConfig, "object");
-	// String parentId = JsonUtils.getAsString(jConfig, "parent");
-	// String thingId = JsonUtils.getAsString(jObject, "id");
-	// if (thingId.startsWith("_")) {
-	// throw new ConfigException("IDs starting with underscore are reserved for internal use.");
-	// }
-	// if (thingRepository.getThingById(thingId).isPresent()) {
-	// throw new ConfigException("Thing Id is already existing.");
-	// }
-	// String clazzName = JsonUtils.getAsString(jObject, "class");
-	// Class<?> clazz = Class.forName(clazzName);
-	// if (Device.class.isAssignableFrom(clazz)) {
-	// // Device
-	// Thing parentThing = thingRepository.getThing(parentId);
-	// if (parentThing instanceof Bridge) {
-	// Bridge parentBridge = (Bridge) parentThing;
-	// Device device = thingRepository.createDevice(jObject);
-	// parentBridge.addDevice(device);
-	// Config.getInstance().writeConfigFile();
-	// Notification.send(NotificationType.SUCCESS, "Device [" + device.id() + "] wurde erstellt.");
-	// break;
-	// }
-	// }
-	// } else if (mode.equals("delete")) {
-	// /*
-	// * Delete a Thing
-	// */
-	// String thingId = JsonUtils.getAsString(jConfig, "thing");
-	// thingRepository.removeThing(thingId);
-	// Config.getInstance().writeConfigFile();
-	// Notification.send(NotificationType.SUCCESS, "Controller [" + thingId + "] wurde " + " gel�scht.");
-	// } else {
-	// throw new OpenemsException("Modus [" + mode + "] ist nicht implementiert.");
-	// }
-	// }
-	// // Send new config
-	// JsonObject jMetadata = new JsonObject();
-	// // TODO jMetadata.add("config", Config.getInstance().getMetaConfigJson());
-	// JsonObject j = new JsonObject();
-	// j.add("metadata", jMetadata);
-	// WebSocketUtils.send(this.websocket, j);
-	// } catch (OpenemsException | ClassNotFoundException e) {
-	// Notification.send(NotificationType.ERROR, e.getMessage());
-	// }
-	// }
 
 	/**
 	 * Send a message to the websocket.

@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.java_websocket.WebSocket;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
 import io.openems.common.exceptions.AccessDeniedException;
@@ -12,8 +13,10 @@ import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.Log;
 import io.openems.common.websocket.CurrentDataWorker;
+import io.openems.common.websocket.LogBehaviour;
+import io.openems.common.websocket.Notification;
+import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
 
@@ -42,18 +45,20 @@ public class EdgeCurrentDataWorker extends CurrentDataWorker {
 			try {
 				channel.assertReadAllowed(this.role);
 			} catch (AccessDeniedException e) {
-				Log.warn("Channel [" + channelAddress + "] access is not allowed by Role [" + this.role + "]: "
-						+ e.getMessage());
+				WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject(), LogBehaviour.WRITE_TO_LOG,
+						Notification.CHANNEL_ACCESS_DENIED, channelAddress, this.role);
 				return Optional.empty();
 			}
 			try {
 				return Optional.ofNullable(JsonUtils.getAsJsonElement(databus.getValue(channel).orElse(null)));
 			} catch (NotImplementedException e) {
-				Log.warn("Channel [" + channelAddress + "] value conversion failed: " + e.getMessage());
+				WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject(), LogBehaviour.WRITE_TO_LOG,
+						Notification.VALUE_CONVERSION_FAILED, channelAddress, e.getMessage());
 				return Optional.empty();
 			}
 		} else {
-			Log.warn("Channel [" + channelAddress + "] not found");
+			WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject(), LogBehaviour.WRITE_TO_LOG,
+					Notification.CHANNEL_NOT_FOUND, channelAddress);
 			return Optional.empty();
 		}
 	}

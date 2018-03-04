@@ -3,6 +3,7 @@ package io.openems.common.websocket;
 import org.slf4j.Logger;
 
 public enum Notification {
+	ERROR(1, NotificationType.ERROR, "Error: %s"), //
 	EDGE_CONNECTION_ClOSED(100, NotificationType.WARNING, "Connection [%s] was interrupted"), //
 	EDGE_CONNECTION_OPENED(101, NotificationType.INFO, "Connection [%s] was established"), //
 	EDGE_UNABLE_TO_FORWARD(102, NotificationType.ERROR, "Unable to forward command to [%s]: %s"), //
@@ -18,7 +19,14 @@ public enum Notification {
 	BACKEND_UNABLE_TO_READ_USER_DETAILS(111, NotificationType.ERROR, "Unable to read details for User [ID:%s]"), //
 	METADATA_ERROR(112, NotificationType.ERROR, "Metadata operation failed: %s"), //
 	UNKNOWN_MESSAGE(113, NotificationType.WARNING, "Unknown message. Source [%s]. Message: %s"), //
-	SUBSCRIBE_CURRENT_DATA_FAILED(114, NotificationType.ERROR, "Subscription to current data failed: %s");
+	SUBSCRIBE_CURRENT_DATA_FAILED(114, NotificationType.ERROR, "Subscription to current data failed: %s"), //
+	CHANNEL_ACCESS_DENIED(115, NotificationType.WARNING, "Access to channel [%s] was denied for User [%s]"), //
+	VALUE_CONVERSION_FAILED(116, NotificationType.ERROR, "Channel [%s] conversion failed: %s"), //
+	CHANNEL_NOT_FOUND(117, NotificationType.ERROR, "Channel [%s] not found."), //
+	UNABLE_TO_SUBSCRIBE_TO_LOG(118, NotificationType.ERROR, "Unable to subscribe to log: %s"), //
+	UNABLE_TO_EXECUTE_SYSTEM_COMMAND(119, NotificationType.ERROR, "Unable to execute system command: %s"), //
+	NO_TIMEDATA_SOURCE_AVAILABLE(120, NotificationType.ERROR, "No timedata source available"),
+	UNABLE_TO_READ_CURRENT_CONFIG(121, NotificationType.ERROR, "Unable to read current config: %s");
 
 	private final int value;
 	private final NotificationType status;

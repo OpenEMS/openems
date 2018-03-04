@@ -19,7 +19,6 @@ public class MeterCluster extends SystemDevice {
 
 	public MeterCluster(Bridge parent) throws OpenemsException {
 		super(parent);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

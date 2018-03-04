@@ -662,8 +662,7 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				loadEss();
 			}
 		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 

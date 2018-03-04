@@ -13,6 +13,7 @@ import org.junit.runners.MethodSorters;
 
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.common.utils.Log;
 import io.openems.impl.controller.supplybusswitch.Ess;
 import io.openems.impl.controller.supplybusswitch.Supplybus;
 import io.openems.test.utils.channel.UnitTestWriteChannel;
@@ -120,8 +121,7 @@ public class SupplyBusTest {
 		try {
 			sb.run();
 		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		output1.shadowCopyAndReset();
 		output2.shadowCopyAndReset();
@@ -132,8 +132,7 @@ public class SupplyBusTest {
 		try {
 			sb.run();
 		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		output1.shadowCopyAndReset();
 		output2.shadowCopyAndReset();
@@ -144,8 +143,7 @@ public class SupplyBusTest {
 		try {
 			sb.run();
 		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		assertEquals(sbOnIndication.getWriteValue().isPresent(), true);
 		assertEquals((long) sbOnIndication.getWriteValue().get(), 0);
@@ -158,8 +156,7 @@ public class SupplyBusTest {
 		try {
 			sb.run();
 		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		// output not set switchdelay not expired
 		assertEquals(output3.getWriteValue().isPresent(), false);
@@ -171,9 +168,8 @@ public class SupplyBusTest {
 		// Sleep until switchdelay expired
 		try {
 			Thread.sleep(1000L);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (InterruptedException e) {
+			Log.error(e.getMessage());
 		}
 		output1.shadowCopyAndReset();
 		output2.shadowCopyAndReset();
@@ -184,8 +180,7 @@ public class SupplyBusTest {
 		try {
 			sb.run();
 		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		assertEquals(output3.getWriteValue().isPresent(), true);
 		assertEquals(output3.getWriteValue().get(), true);
@@ -199,8 +194,7 @@ public class SupplyBusTest {
 		try {
 			sb.run();
 		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		output1.shadowCopyAndReset();
 		output2.shadowCopyAndReset();
@@ -211,8 +205,7 @@ public class SupplyBusTest {
 		try {
 			sb.run();
 		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		assertEquals(sbOnIndication.getWriteValue().isPresent(), true);
 		assertEquals((long) sbOnIndication.getWriteValue().get(), 1L);

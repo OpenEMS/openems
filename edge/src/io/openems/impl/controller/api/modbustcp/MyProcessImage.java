@@ -72,41 +72,42 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized DigitalOut[] getDigitalOutRange(int offset, int count) throws IllegalAddressException {
-		// TODO
+		// TODO implement getDigitalOutRange
 		this.throwIllegalAddressException("getDigitalOutRange is not implemented");
 		return new DigitalOut[] {};
 	}
 
 	@Override
 	public synchronized DigitalOut getDigitalOut(int ref) throws IllegalAddressException {
+		// TODO implement getDigitalOut
 		log.warn("getDigitalOut is not implemented");
 		return null;
 	}
 
 	@Override
 	public synchronized int getDigitalOutCount() {
-		// TODO
+		// TODO implement getDigitalOutCount
 		log.warn("getDigitalOutCount is not implemented");
 		return 0;
 	}
 
 	@Override
 	public synchronized DigitalIn[] getDigitalInRange(int offset, int count) throws IllegalAddressException {
-		// TODO
+		// TODO implement getDigitalInRange
 		this.throwIllegalAddressException("getDigitalInRange is not implemented");
 		return new DigitalIn[] {};
 	}
 
 	@Override
 	public synchronized DigitalIn getDigitalIn(int ref) throws IllegalAddressException {
-		// TODO
+		// TODO implement getDigitalIn
 		this.throwIllegalAddressException("getDigitalIn is not implemented");
 		return null;
 	}
 
 	@Override
 	public synchronized int getDigitalInCount() {
-		// TODO
+		// TODO implement getDigitalInCount
 		log.warn("getDigitalInCount is not implemented");
 		return 0;
 	}
@@ -138,14 +139,14 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized InputRegister getInputRegister(int ref) throws IllegalAddressException {
-		// TODO
+		// TODO implement getInputRegister
 		this.throwIllegalAddressException("getInputRegister is not implemented");
 		return null;
 	}
 
 	@Override
 	public synchronized int getInputRegisterCount() {
-		// TODO
+		// TODO implement getInputRegisterCount
 		log.warn("getInputRegisterCount is not implemented");
 		return 0;
 	}
@@ -189,42 +190,49 @@ public class MyProcessImage implements ProcessImage {
 
 	@Override
 	public synchronized int getRegisterCount() {
+		// TODO implement getRegisterCount
 		log.warn("getRegisterCount is not implemented");
 		return 0;
 	}
 
 	@Override
 	public synchronized File getFile(int ref) throws IllegalAddressException {
+		// TODO implement getFile
 		log.warn("getFile is not implemented");
 		return null;
 	}
 
 	@Override
 	public synchronized File getFileByNumber(int ref) throws IllegalAddressException {
+		// TODO implement getFileByNumber
 		log.warn("getFileByNumber is not implemented");
 		return null;
 	}
 
 	@Override
 	public synchronized int getFileCount() {
+		// TODO implement getFileCount
 		log.warn("getFileCount is not implemented");
 		return 0;
 	}
 
 	@Override
 	public synchronized FIFO getFIFO(int ref) throws IllegalAddressException {
+		// TODO implement getFIFO
 		log.warn("getFIFO is not implemented");
 		return null;
 	}
 
 	@Override
 	public synchronized FIFO getFIFOByAddress(int ref) throws IllegalAddressException {
+		// TODO implement getFIFOByAddress
 		log.warn("getFIFOByAddress is not implemented");
 		return null;
 	}
 
 	@Override
 	public synchronized int getFIFOCount() {
+		// TODO implement getDigitalOutRange
 		log.warn("getDigitalOutRange is not implemented");
 		return 0;
 	}

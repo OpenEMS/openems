@@ -51,7 +51,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			user = this.parent.metadataService.getUserWithSession(sessionIdOpt.get());
 		} catch (OpenemsException e) {
 			// send connection failed to browser
-			WebSocketUtils.sendOrLogError(websocket, DefaultMessages.uiConnectionFailedReply());
+			WebSocketUtils.sendOrLogError(websocket, DefaultMessages.uiLogoutReply());
 			log.warn("User connection failed. Session [" + sessionIdOpt.orElse("") + "] Error [" + e.getMessage()
 					+ "].");
 			websocket.closeConnection(CloseFrame.REFUSE, e.getMessage());
@@ -82,7 +82,7 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 			}
 		}
 		log.info("User [" + user.getName() + "] connected with Session [" + sessionIdOpt.orElse("") + "].");
-		JsonObject jReply = DefaultMessages.uiConnectionSuccessfulReply("" /* empty token? */, jEdges);
+		JsonObject jReply = DefaultMessages.uiLoginSuccessfulReply("" /* empty token? */, jEdges);
 		WebSocketUtils.sendOrLogError(websocket, jReply);
 	}
 

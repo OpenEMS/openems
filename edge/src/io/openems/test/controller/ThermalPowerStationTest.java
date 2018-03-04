@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.thing.Thing;
+import io.openems.common.utils.Log;
 import io.openems.impl.controller.thermalpowerstation.Ess;
 import io.openems.impl.controller.thermalpowerstation.Meter;
 import io.openems.impl.controller.thermalpowerstation.ThermalPowerStationController;
@@ -42,7 +43,6 @@ public class ThermalPowerStationTest {
 
 			@Override
 			public ThingStateChannels getStateChannel() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		});
@@ -98,7 +98,6 @@ public class ThermalPowerStationTest {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		// OFF
@@ -124,8 +123,7 @@ public class ThermalPowerStationTest {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.error(e.getMessage());
 		}
 		controller.run();
 		outputChannel.shadowCopyAndReset();

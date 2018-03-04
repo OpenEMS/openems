@@ -216,8 +216,7 @@ public class TimelineChargeController extends Controller {
 								ess.setActivePower.pushWriteMax(-1000L);
 							}
 						} catch (WriteChannelException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							log.error(e.getMessage());
 						}
 					}
 					break;

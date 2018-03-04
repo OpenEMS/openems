@@ -115,8 +115,7 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 				}
 				return (long) (energy / capacity.value() * 100.0);
 			} catch (InvalidValueException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 			return 0L;
 		}, this.activePower);
@@ -299,30 +298,14 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 				try {
 					Constructor<?> constructor = clazz.getConstructor(JsonObject.class);
 					return (LoadGenerator) constructor.newInstance(config.get("config").getAsJsonObject());
-				} catch (NoSuchMethodException e) {
+				} catch (NoSuchMethodException | IllegalArgumentException | InvocationTargetException e) {
 
 				}
 			}
 			return (LoadGenerator) clazz.newInstance();
 
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SecurityException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			log.error(e.getMessage());
 		}
 		return null;
 	}

@@ -19,7 +19,6 @@ public class EssCluster extends SystemDevice {
 
 	public EssCluster(Bridge parent) throws OpenemsException {
 		super(parent);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

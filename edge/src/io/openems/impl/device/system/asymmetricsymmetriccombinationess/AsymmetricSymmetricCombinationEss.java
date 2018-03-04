@@ -19,7 +19,6 @@ public class AsymmetricSymmetricCombinationEss extends SystemDevice {
 
 	public AsymmetricSymmetricCombinationEss(Bridge parent) throws OpenemsException {
 		super(parent);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

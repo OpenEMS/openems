@@ -51,8 +51,6 @@ public class InfluxdbQueryWrapper {
 		if (_influxdb.isPresent()) {
 			InfluxDB influxdb = _influxdb.get();
 			jData = InfluxdbQueryWrapper.queryData(influxdb, fems, fromDate, toDate, channels, resolution, dbName);
-			// TODO jkWh = InfluxdbQueryWrapper.querykWh(influxdb, fems, fromDate, toDate, channels, resolution, kWh,
-			// dbName);
 		} else {
 			jData = new JsonArray();
 			jkWh = new JsonObject();
@@ -137,7 +135,7 @@ public class InfluxdbQueryWrapper {
 		return j;
 	}
 
-	// TODO
+	// TODO implement query for kWh values
 	// private static JsonObject querykWh(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
 	// ZonedDateTime toDate, JsonObject channels, int resolution, JsonObject kWh, String dbName)
 	// throws OpenemsException {

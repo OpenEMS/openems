@@ -37,7 +37,7 @@ public abstract class CurrentDataWorker {
 	 */
 	private Optional<ScheduledFuture<?>> futureOpt = Optional.empty();
 
-	private final WebSocket websocket;
+	protected final WebSocket websocket;
 
 	public CurrentDataWorker(WebSocket websocket) {
 		this.websocket = websocket;
