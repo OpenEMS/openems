@@ -98,7 +98,7 @@
         <mat-card-header>
           <img src="assets/img/grid.png" mat-card-avatar/>
           <mat-card-title translate>Device.Overview.Energymonitor.GridMeter</mat-card-title>
-          <mat-card-subtitle>{{ thing }}</mat-card-subtitle>
+          <mat-card-subtitle>{{ config.things[thing].alias }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content *ngIf="currentData.data[thing] as data">
           <table class="full_width">
@@ -175,7 +175,7 @@
         <mat-card-header>
           <img src="assets/img/production.png" mat-card-avatar/>
           <mat-card-title translate>Device.Overview.Energymonitor.ProductionMeter</mat-card-title>
-          <mat-card-subtitle>{{ thing }}</mat-card-subtitle>
+          <mat-card-subtitle>{{ config.things[thing].alias }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content *ngIf="currentData.data[thing] as data">
           <table class="full_width">
