@@ -112,8 +112,8 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	 *
 	 * @param jMessage
 	 */
-	public void broadcastLog(long timestamp, String level, String source, String message) {
-		this.websocketApiServer.broadcastLog(timestamp, level, source, message);
+	public void sendLog(long timestamp, String level, String source, String message) {
+		this.websocketApiServer.sendLog(timestamp, level, source, message);
 	}
 
 	@Override

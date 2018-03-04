@@ -31,10 +31,9 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import io.openems.api.exception.OpenemsException;
-import io.openems.api.exception.ReflectionException;
 import io.openems.api.security.User;
-import io.openems.core.utilities.JsonUtils;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.impl.controller.api.rest.OpenemsRestlet;
 
 public class UserChangePasswordRestlet extends OpenemsRestlet {
@@ -86,7 +85,7 @@ public class UserChangePasswordRestlet extends OpenemsRestlet {
 		try {
 			oldPassword = JsonUtils.getAsString(jHttpPost, "oldPassword");
 			newPassword = JsonUtils.getAsString(jHttpPost, "newPassword");
-		} catch (ReflectionException e1) {
+		} catch (OpenemsException e1) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Value is missing");
 		}
 

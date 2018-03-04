@@ -2,7 +2,7 @@ package io.openems.impl.protocol.studer.internal.property;
 
 import java.io.IOException;
 
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.impl.protocol.studer.StuderBridge;
 import io.openems.impl.protocol.studer.StuderChannel;
 import io.openems.impl.protocol.studer.internal.request.ReadRequest;

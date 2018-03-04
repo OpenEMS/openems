@@ -100,8 +100,7 @@ public class VoltageCharacteristicController extends Controller {
 					}
 					pCharacteristic = points;
 				} catch (InvalidValueException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error(e.getMessage());
 				}
 			}
 		});
@@ -116,8 +115,7 @@ public class VoltageCharacteristicController extends Controller {
 					}
 					qCharacteristic = points;
 				} catch (InvalidValueException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error(e.getMessage());
 				}
 			}
 		});

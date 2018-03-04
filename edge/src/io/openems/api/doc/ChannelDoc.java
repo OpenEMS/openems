@@ -34,7 +34,7 @@ import com.google.gson.JsonObject;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.exception.NotImplementedException;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.session.Role;
 import io.openems.core.utilities.BitUtils;
 import io.openems.core.utilities.InjectionUtils;

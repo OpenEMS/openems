@@ -33,6 +33,7 @@ import io.openems.api.exception.InvalidValueException;
 public class FixValueReactivePowerController extends Controller {
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
+
 	/*
 	 * Constructors
 	 */
@@ -69,8 +70,7 @@ public class FixValueReactivePowerController extends Controller {
 				ess.power.setReactivePower(reactivePowerL1.value(), reactivePowerL2.value(), reactivePowerL3.value());
 			}
 		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 

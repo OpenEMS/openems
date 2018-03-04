@@ -42,12 +42,13 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.ReflectionException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.ControllerUtils;
-import io.openems.core.utilities.JsonUtils;
+
 
 @ThingInfo(title = "Timeline charge (Symmetric)")
 public class TimelineChargeController extends Controller {
@@ -215,8 +216,7 @@ public class TimelineChargeController extends Controller {
 								ess.setActivePower.pushWriteMax(-1000L);
 							}
 						} catch (WriteChannelException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							log.error(e.getMessage());
 						}
 					}
 					break;
@@ -375,7 +375,7 @@ public class TimelineChargeController extends Controller {
 			} else {
 				throw new IndexOutOfBoundsException("No smaller time found");
 			}
-		} catch (ReflectionException e) {
+		} catch (OpenemsException e) {
 			throw new ConfigException("cant read config", e);
 		}
 	}
@@ -396,7 +396,7 @@ public class TimelineChargeController extends Controller {
 			} else {
 				throw new IndexOutOfBoundsException("No smaller time found");
 			}
-		} catch (ReflectionException e) {
+		} catch (OpenemsException e) {
 			throw new ConfigException("cant read config", e);
 		}
 	}

@@ -42,7 +42,7 @@ import com.google.gson.JsonParser;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.exception.NotImplementedException;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.session.Role;
 import io.openems.common.websocket.Notification;
 import io.openems.core.ThingRepository;

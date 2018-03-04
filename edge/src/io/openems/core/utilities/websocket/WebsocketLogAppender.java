@@ -22,7 +22,7 @@ public class WebsocketLogAppender extends AppenderBase<ILoggingEvent> {
 			for (Controller controller : scheduler.getControllers()) {
 				if (controller instanceof WebsocketApiController) {
 					WebsocketApiController websocketApiController = (WebsocketApiController) controller;
-					websocketApiController.broadcastLog(timestamp, level, source, message);
+					websocketApiController.sendLog(timestamp, level, source, message);
 				}
 			}
 		}
@@ -31,7 +31,7 @@ public class WebsocketLogAppender extends AppenderBase<ILoggingEvent> {
 		ThingRepository.getInstance().getPersistences().forEach((persistence) -> {
 			if (persistence instanceof FeneconPersistence) {
 				FeneconPersistence p = (FeneconPersistence) persistence;
-				p.getWebsocketHandler().sendLog(timestamp, level, source, message);
+				p.sendLog(timestamp, level, source, message);
 			}
 		});
 	}

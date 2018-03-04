@@ -469,26 +469,37 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 								.warningBit(10, WarningEss.TmeErrorL1)), // Tme error
 						new UnsignedWordElement(151, new ModbusBitWrappingChannel("PcsAlarm2L1", this, state)),
 						new UnsignedWordElement(152, new ModbusBitWrappingChannel("PcsFault1L1", this, state)//
-								.faultBit(0, FaultEss.ControlCurrentOverload100PercentL1) // Control current overload 100%
-								.faultBit(1, FaultEss.ControlCurrentOverload110PercentL1) // Control current overload 110%
-								.faultBit(2, FaultEss.ControlCurrentOverload150PercentL1) // Control current overload 150%
-								.faultBit(3, FaultEss.ControlCurrentOverload200PercentL1) // Control current overload 200%
-								.faultBit(4, FaultEss.ControlCurrentOverload120PercentL1) // Control current overload 120%
-								.faultBit(5, FaultEss.ControlCurrentOverload300PercentL1) // Control current overload 300%
+								.faultBit(0, FaultEss.ControlCurrentOverload100PercentL1) // Control current overload
+								// 100%
+								.faultBit(1, FaultEss.ControlCurrentOverload110PercentL1) // Control current overload
+								// 110%
+								.faultBit(2, FaultEss.ControlCurrentOverload150PercentL1) // Control current overload
+								// 150%
+								.faultBit(3, FaultEss.ControlCurrentOverload200PercentL1) // Control current overload
+								// 200%
+								.faultBit(4, FaultEss.ControlCurrentOverload120PercentL1) // Control current overload
+								// 120%
+								.faultBit(5, FaultEss.ControlCurrentOverload300PercentL1) // Control current overload
+								// 300%
 								.faultBit(6, FaultEss.ControlTransientLoad300PercentL1) // Control transient load 300%
 								.faultBit(7, FaultEss.GridOverCurrentL1) // Grid over current
 								.faultBit(8, FaultEss.LockingWaveformTooManyTimesL1) // Locking waveform too many times
-								.faultBit(9, FaultEss.InverterVoltageZeroDriftErrorL1) // Inverter voltage zero drift error
+								.faultBit(9, FaultEss.InverterVoltageZeroDriftErrorL1) // Inverter voltage zero drift
+								// error
 								.faultBit(10, FaultEss.GridVoltageZeroDriftErrorL1) // Grid voltage zero drift error
-								.faultBit(11, FaultEss.ControlCurrentZeroDriftErrorL1) // Control current zero drift error
-								.faultBit(12, FaultEss.InverterCurrentZeroDriftErrorL1) // Inverter current zero drift error
+								.faultBit(11, FaultEss.ControlCurrentZeroDriftErrorL1) // Control current zero drift
+								// error
+								.faultBit(12, FaultEss.InverterCurrentZeroDriftErrorL1) // Inverter current zero drift
+								// error
 								.faultBit(13, FaultEss.GridCurrentZeroDriftErrorL1) // Grid current zero drift error
 								.faultBit(14, FaultEss.PDPProtectionL1) // PDP protection
-								.faultBit(15, FaultEss.HardwareControlCurrentProtectionL1)), // Hardware control current protection
+								.faultBit(15, FaultEss.HardwareControlCurrentProtectionL1)), // Hardware control current
+						// protection
 						new UnsignedWordElement(153, new ModbusBitWrappingChannel("PcsFault2L1", this, state)//
 								.faultBit(0, FaultEss.HardwareACVoltageProtectionL1) // Hardware AC volt. protection
 								.faultBit(1, FaultEss.HardwareDCCurrentProtectionL1) // Hardware DC curr. protection
-								.faultBit(2, FaultEss.HardwareTemperatureProtectionL1) // Hardware temperature protection
+								.faultBit(2, FaultEss.HardwareTemperatureProtectionL1) // Hardware temperature
+								// protection
 								.faultBit(3, FaultEss.NoCapturingSignalL1) // No capturing signal
 								.faultBit(4, FaultEss.DCOvervoltageL1) // DC overvoltage
 								.faultBit(5, FaultEss.DCDisconnectedL1) // DC disconnected
@@ -514,8 +525,10 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 								.faultBit(8, FaultEss.LoadCurrentZeroDriftErrorL1) // Load current zero drift error
 								.faultBit(9, FaultEss.CurrentLimitRErrorL1) // Current limit-R error
 								.faultBit(10, FaultEss.PhaseSyncErrorL1) // Phase sync error
-								.faultBit(11, FaultEss.ExternalPVCurrentZeroDriftErrorL1) // External PV current zero drift error
-								.faultBit(12, FaultEss.ExternalGridCurrentZeroDriftErrorL1)), // External grid current zero drift error
+								.faultBit(11, FaultEss.ExternalPVCurrentZeroDriftErrorL1) // External PV current zero
+								// drift error
+								.faultBit(12, FaultEss.ExternalGridCurrentZeroDriftErrorL1)), // External grid current
+						// zero drift error
 						new UnsignedWordElement(155, new ModbusBitWrappingChannel("PcsAlarm1L2", this, state)//
 								.warningBit(0, WarningEss.GridUndervoltageL2) // Grid undervoltage
 								.warningBit(1, WarningEss.GridOvervoltageL2) // Grid overvoltage
@@ -530,26 +543,37 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 								.warningBit(10, WarningEss.TmeErrorL2)), // Tme error
 						new UnsignedWordElement(156, new ModbusBitWrappingChannel("PcsAlarm2L2", this, state)),
 						new UnsignedWordElement(157, new ModbusBitWrappingChannel("PcsFault1L2", this, state)//
-								.faultBit(0, FaultEss.ControlCurrentOverload100PercentL2) // Control current overload 100%
-								.faultBit(1, FaultEss.ControlCurrentOverload110PercentL2) // Control current overload 110%
-								.faultBit(2, FaultEss.ControlCurrentOverload150PercentL2) // Control current overload 150%
-								.faultBit(3, FaultEss.ControlCurrentOverload200PercentL2) // Control current overload 200%
-								.faultBit(4, FaultEss.ControlCurrentOverload120PercentL2) // Control current overload 120%
-								.faultBit(5, FaultEss.ControlCurrentOverload300PercentL2) // Control current overload 300%
+								.faultBit(0, FaultEss.ControlCurrentOverload100PercentL2) // Control current overload
+								// 100%
+								.faultBit(1, FaultEss.ControlCurrentOverload110PercentL2) // Control current overload
+								// 110%
+								.faultBit(2, FaultEss.ControlCurrentOverload150PercentL2) // Control current overload
+								// 150%
+								.faultBit(3, FaultEss.ControlCurrentOverload200PercentL2) // Control current overload
+								// 200%
+								.faultBit(4, FaultEss.ControlCurrentOverload120PercentL2) // Control current overload
+								// 120%
+								.faultBit(5, FaultEss.ControlCurrentOverload300PercentL2) // Control current overload
+								// 300%
 								.faultBit(6, FaultEss.ControlTransientLoad300PercentL2) // Control transient load 300%
 								.faultBit(7, FaultEss.GridOverCurrentL2) // Grid over current
 								.faultBit(8, FaultEss.LockingWaveformTooManyTimesL2) // Locking waveform too many times
-								.faultBit(9, FaultEss.InverterVoltageZeroDriftErrorL2) // Inverter voltage zero drift error
+								.faultBit(9, FaultEss.InverterVoltageZeroDriftErrorL2) // Inverter voltage zero drift
+								// error
 								.faultBit(10, FaultEss.GridVoltageZeroDriftErrorL2) // Grid voltage zero drift error
-								.faultBit(11, FaultEss.ControlCurrentZeroDriftErrorL2) // Control current zero drift error
-								.faultBit(12, FaultEss.InverterCurrentZeroDriftErrorL2) // Inverter current zero drift error
+								.faultBit(11, FaultEss.ControlCurrentZeroDriftErrorL2) // Control current zero drift
+								// error
+								.faultBit(12, FaultEss.InverterCurrentZeroDriftErrorL2) // Inverter current zero drift
+								// error
 								.faultBit(13, FaultEss.GridCurrentZeroDriftErrorL2) // Grid current zero drift error
 								.faultBit(14, FaultEss.PDPProtectionL2) // PDP protection
-								.faultBit(15, FaultEss.HardwareControlCurrentProtectionL2)), // Hardware control current protection
+								.faultBit(15, FaultEss.HardwareControlCurrentProtectionL2)), // Hardware control current
+						// protection
 						new UnsignedWordElement(158, new ModbusBitWrappingChannel("PcsFault2L2", this, state)//
 								.faultBit(0, FaultEss.HardwareACVoltageProtectionL2) // Hardware AC volt. protection
 								.faultBit(1, FaultEss.HardwareDCCurrentProtectionL2) // Hardware DC curr. protection
-								.faultBit(2, FaultEss.HardwareTemperatureProtectionL2) // Hardware temperature protection
+								.faultBit(2, FaultEss.HardwareTemperatureProtectionL2) // Hardware temperature
+								// protection
 								.faultBit(3, FaultEss.NoCapturingSignalL2) // No capturing signal
 								.faultBit(4, FaultEss.DCOvervoltageL2) // DC overvoltage
 								.faultBit(5, FaultEss.DCDisconnectedL2) // DC disconnected
@@ -575,8 +599,10 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 								.faultBit(8, FaultEss.LoadCurrentZeroDriftErrorL2) // Load current zero drift error
 								.faultBit(9, FaultEss.CurrentLimitRErrorL2) // Current limit-R error
 								.faultBit(10, FaultEss.PhaseSyncErrorL2) // Phase sync error
-								.faultBit(11, FaultEss.ExternalPVCurrentZeroDriftErrorL2) // External PV current zero drift error
-								.faultBit(12, FaultEss.ExternalGridCurrentZeroDriftErrorL2)), // External grid current zero drift error
+								.faultBit(11, FaultEss.ExternalPVCurrentZeroDriftErrorL2) // External PV current zero
+								// drift error
+								.faultBit(12, FaultEss.ExternalGridCurrentZeroDriftErrorL2)), // External grid current
+						// zero drift error
 						new UnsignedWordElement(160, new ModbusBitWrappingChannel("PcsAlarm1L3", this, state)//
 								.warningBit(0, WarningEss.GridUndervoltageL3) // Grid undervoltage
 								.warningBit(1, WarningEss.GridOvervoltageL3) // Grid overvoltage
@@ -591,26 +617,37 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 								.warningBit(10, WarningEss.TmeErrorL3)), // Tme error
 						new UnsignedWordElement(161, new ModbusBitWrappingChannel("PcsAlarm2L3", this, state)),
 						new UnsignedWordElement(162, new ModbusBitWrappingChannel("PcsFault1L3", this, state)//
-								.faultBit(0, FaultEss.ControlCurrentOverload100PercentL3) // Control current overload 100%
-								.faultBit(1, FaultEss.ControlCurrentOverload110PercentL3) // Control current overload 110%
-								.faultBit(2, FaultEss.ControlCurrentOverload150PercentL3) // Control current overload 150%
-								.faultBit(3, FaultEss.ControlCurrentOverload200PercentL3) // Control current overload 200%
-								.faultBit(4, FaultEss.ControlCurrentOverload120PercentL3) // Control current overload 120%
-								.faultBit(5, FaultEss.ControlCurrentOverload300PercentL3) // Control current overload 300%
+								.faultBit(0, FaultEss.ControlCurrentOverload100PercentL3) // Control current overload
+								// 100%
+								.faultBit(1, FaultEss.ControlCurrentOverload110PercentL3) // Control current overload
+								// 110%
+								.faultBit(2, FaultEss.ControlCurrentOverload150PercentL3) // Control current overload
+								// 150%
+								.faultBit(3, FaultEss.ControlCurrentOverload200PercentL3) // Control current overload
+								// 200%
+								.faultBit(4, FaultEss.ControlCurrentOverload120PercentL3) // Control current overload
+								// 120%
+								.faultBit(5, FaultEss.ControlCurrentOverload300PercentL3) // Control current overload
+								// 300%
 								.faultBit(6, FaultEss.ControlTransientLoad300PercentL3) // Control transient load 300%
 								.faultBit(7, FaultEss.GridOverCurrentL3) // Grid over current
 								.faultBit(8, FaultEss.LockingWaveformTooManyTimesL3) // Locking waveform too many times
-								.faultBit(9, FaultEss.InverterVoltageZeroDriftErrorL3) // Inverter voltage zero drift error
+								.faultBit(9, FaultEss.InverterVoltageZeroDriftErrorL3) // Inverter voltage zero drift
+								// error
 								.faultBit(10, FaultEss.GridVoltageZeroDriftErrorL3) // Grid voltage zero drift error
-								.faultBit(11, FaultEss.ControlCurrentZeroDriftErrorL3) // Control current zero drift error
-								.faultBit(12, FaultEss.InverterCurrentZeroDriftErrorL3) // Inverter current zero drift error
+								.faultBit(11, FaultEss.ControlCurrentZeroDriftErrorL3) // Control current zero drift
+								// error
+								.faultBit(12, FaultEss.InverterCurrentZeroDriftErrorL3) // Inverter current zero drift
+								// error
 								.faultBit(13, FaultEss.GridCurrentZeroDriftErrorL3) // Grid current zero drift error
 								.faultBit(14, FaultEss.PDPProtectionL3) // PDP protection
-								.faultBit(15, FaultEss.HardwareControlCurrentProtectionL3)), // Hardware control current protection
+								.faultBit(15, FaultEss.HardwareControlCurrentProtectionL3)), // Hardware control current
+						// protection
 						new UnsignedWordElement(163, new ModbusBitWrappingChannel("PcsFault2L3", this, state)//
 								.faultBit(0, FaultEss.HardwareACVoltageProtectionL3) // Hardware AC volt. protection
 								.faultBit(1, FaultEss.HardwareDCCurrentProtectionL3) // Hardware DC curr. protection
-								.faultBit(2, FaultEss.HardwareTemperatureProtectionL3) // Hardware temperature protection
+								.faultBit(2, FaultEss.HardwareTemperatureProtectionL3) // Hardware temperature
+								// protection
 								.faultBit(3, FaultEss.NoCapturingSignalL3) // No capturing signal
 								.faultBit(4, FaultEss.DCOvervoltageL3) // DC overvoltage
 								.faultBit(5, FaultEss.DCDisconnectedL3) // DC disconnected
@@ -636,8 +673,10 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 								.faultBit(8, FaultEss.LoadCurrentZeroDriftErrorL3) // Load current zero drift error
 								.faultBit(9, FaultEss.CurrentLimitRErrorL3) // Current limit-R error
 								.faultBit(10, FaultEss.PhaseSyncErrorL3) // Phase sync error
-								.faultBit(11, FaultEss.ExternalPVCurrentZeroDriftErrorL3) // External PV current zero drift error
-								.faultBit(12, FaultEss.ExternalGridCurrentZeroDriftErrorL3))), // External grid current zero drift error
+								.faultBit(11, FaultEss.ExternalPVCurrentZeroDriftErrorL3) // External PV current zero
+								// drift error
+								.faultBit(12, FaultEss.ExternalGridCurrentZeroDriftErrorL3))), // External grid current
+				// zero drift error
 				new WriteableModbusRegisterRange(200, //
 						new UnsignedWordElement(200, setWorkState = new ModbusWriteLongChannel("SetWorkState", this)//
 						.label(0, "Local control") //
@@ -805,8 +844,7 @@ public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNa
 			try {
 				return apparent.value() * 3;
 			} catch (InvalidValueException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 			return 0l;
 		}, phaseAllowedApparent);

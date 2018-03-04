@@ -19,7 +19,6 @@ public class UnitTestWriteChannel<T> extends WriteChannel<T> {
 
 			@Override
 			public ThingStateChannels getStateChannel() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		});

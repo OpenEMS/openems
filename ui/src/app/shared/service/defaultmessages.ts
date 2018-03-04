@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { DefaultTypes } from './defaulttypes';
 
 export class DefaultMessages {
+
     public static authenticateLogin(password: string, username?: string) {
         let m = {
             authenticate: {
@@ -23,10 +24,12 @@ export class DefaultMessages {
         };
     };
 
-    public static configQuery() {
+    public static configQuery(edgeId: number): DefaultTypes.IdentifiedMessage {
         return {
-            device: String,
-            id: [UUID.UUID()],
+            messageId: {
+                ui: UUID.UUID()
+            },
+            edgeId: edgeId,
             config: {
                 mode: "query",
                 language: 'de'
@@ -34,9 +37,12 @@ export class DefaultMessages {
         }
     };
 
-    public static configUpdate(thingId: string, channelId: string, value: any): DefaultTypes.ConfigUpdate {
+    public static configUpdate(edgeId: number, thingId: string, channelId: string, value: any): DefaultTypes.ConfigUpdate {
         return {
-            id: [UUID.UUID()],
+            messageId: {
+                ui: UUID.UUID()
+            },
+            edgeId: edgeId,
             config: {
                 mode: "update",
                 thing: thingId,
@@ -46,10 +52,12 @@ export class DefaultMessages {
         }
     }
 
-    public static currentDataSubscribe(channels: DefaultTypes.ChannelAddresses) {
+    public static currentDataSubscribe(edgeId: number, channels: DefaultTypes.ChannelAddresses): DefaultTypes.IdentifiedMessage {
         return {
-            device: String,
-            id: ["currentData"],
+            messageId: {
+                ui: UUID.UUID()
+            },
+            edgeId: edgeId,
             currentData: {
                 mode: "subscribe",
                 channels: channels
@@ -57,10 +65,12 @@ export class DefaultMessages {
         }
     };
 
-    public static historicDataQuery(fromDate: Date, toDate: Date, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses) {
+    public static historicDataQuery(edgeId: number, fromDate: Date, toDate: Date, timezone: number /*offset in seconds*/, channels: DefaultTypes.ChannelAddresses): DefaultTypes.IdentifiedMessage {
         return {
-            device: String,
-            id: [UUID.UUID()],
+            messageId: {
+                ui: UUID.UUID()
+            },
+            edgeId: edgeId,
             historicData: {
                 mode: "query",
                 fromDate: format(fromDate, 'YYYY-MM-DD'),
@@ -75,30 +85,36 @@ export class DefaultMessages {
         }
     };
 
-    public static logSubscribe() {
+    public static logSubscribe(edgeId: number): DefaultTypes.IdentifiedMessage {
         return {
-            device: String,
-            id: ["log"],
+            messageId: {
+                ui: UUID.UUID()
+            },
+            edgeId: edgeId,
             log: {
                 mode: "subscribe",
             }
         }
     };
 
-    public static logUnsubscribe() {
+    public static logUnsubscribe(edgeId: number): DefaultTypes.IdentifiedMessage {
         return {
-            device: String,
-            id: ["log"],
+            messageId: {
+                ui: UUID.UUID()
+            },
+            edgeId: edgeId,
             log: {
                 mode: "unsubscribe",
             }
         }
     };
 
-    public static systemExecute(password: string, command: string, background: boolean, timeout: number) {
+    public static systemExecute(edgeId: number, password: string, command: string, background: boolean, timeout: number): DefaultTypes.IdentifiedMessage {
         return {
-            device: String,
-            id: [UUID.UUID()],
+            messageId: {
+                ui: UUID.UUID()
+            },
+            edgeId: edgeId,
             system: {
                 mode: "execute",
                 password: password,
@@ -111,8 +127,8 @@ export class DefaultMessages {
 }
 
 export module DefaultMessages {
-    export interface Reply {
-        id: string[]
+
+    export interface Reply extends DefaultTypes.IdentifiedMessage {
     }
 
     export interface ConfigQueryReply extends Reply {

@@ -20,8 +20,18 @@
  *******************************************************************************/
 package io.openems.api.persistence;
 
-import io.openems.common.api.TimedataSource;
+import java.util.Optional;
 
-public abstract class QueryablePersistence extends Persistence implements TimedataSource {
+import com.google.gson.JsonObject;
 
+import io.openems.backend.timedata.api.TimedataService;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
+
+public abstract class QueryablePersistence extends Persistence implements TimedataService {
+	@Override
+	public abstract Optional<Object> getChannelValue(int edgeId, ChannelAddress channelAddress);
+
+	@Override
+	public abstract void write(int edgeId, JsonObject jData) throws OpenemsException;
 }

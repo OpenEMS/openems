@@ -56,10 +56,11 @@ currently forwarded to Odoo login page
 		user: {
 			id: Integer
 		},
-		devices?: [{
+		edges?: [{
+			id: number,
 			name: string,
 			comment: string,
-			producttype: "Pro 9-12" | "MiniES 3-3" | "PRO Hybrid 9-10" | "PRO Compact 3-10" | "COMMERCIAL 40-45" | "INDUSTRIAL",
+			producttype: "Pro 9-12" | "MiniES 3-3" | "PRO Hybrid 9-10" | "PRO Compact 3-10" | "COMMERCIAL 40-45" | "INDUSTRIAL" | "",
 			role: "admin" | "installer" | "owner" | "guest",
 			online: boolean
 		}]
@@ -85,7 +86,7 @@ Backend is transparently proxying requests to a connected Edge if necessary, add
 
 ```
 {
-	id: [..., token],
+	messageId: [string] | string,
 	role: "admin" | "installer" | "owner" | "guest",
 	...
 }
@@ -97,8 +98,8 @@ Backend is transparently proxying requests to a connected Edge if necessary, add
 
 ```
 {
-	device: string,
-	id: [UUID],
+	messageId: UUID,
+	edgeId: number,
 	config: {
 		mode: "query",
 		language: 'de' | 'en' | ...
@@ -110,7 +111,7 @@ Backend is transparently proxying requests to a connected Edge if necessary, add
 
 ```
 {
-	id: [UUID],
+	messageId: UUID,
 	config: {
 		things: {
 			[id: string]: {
@@ -148,8 +149,8 @@ For 'unsubscribe' the channels object is empty.
 
 ```
 {
-	id: [string],
-	device: string,
+	messageId: UUID,
+	edgeId: number,
 	currentData: {
 		mode: "subscribe",
 		channels: {
@@ -163,7 +164,7 @@ For 'unsubscribe' the channels object is empty.
 
 ```
 {
-	device?: string,
+	messageId: UUID,
 	currentData: {[{ 
 		channel: string,
 		value: any

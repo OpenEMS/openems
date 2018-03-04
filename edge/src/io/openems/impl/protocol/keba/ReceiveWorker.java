@@ -9,7 +9,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 
 public class ReceiveWorker implements Runnable {
 

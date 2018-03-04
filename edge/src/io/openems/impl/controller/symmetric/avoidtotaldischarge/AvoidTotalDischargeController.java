@@ -37,6 +37,7 @@ import io.openems.impl.controller.symmetric.avoidtotaldischarge.Ess.State;
 public class AvoidTotalDischargeController extends Controller {
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
+
 	/*
 	 * Constructors
 	 */
@@ -84,8 +85,7 @@ public class AvoidTotalDischargeController extends Controller {
 									ess.setActivePower.pushWriteMax(-1000L);
 								}
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								log.error(e.getMessage());
 							}
 						}
 						break;
@@ -118,8 +118,7 @@ public class AvoidTotalDischargeController extends Controller {
 						try {
 							ess.setActivePower.pushWriteMin(0L);
 						} catch (WriteChannelException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							log.error(e.getMessage());
 						}
 						if (ess.soc.value() < maxSoc.value()) {
 							ess.currentState = State.NORMAL;
@@ -131,7 +130,7 @@ public class AvoidTotalDischargeController extends Controller {
 				}
 			}
 		} catch (InvalidValueException e) {
-			log.error("no ess configured"+e.getMessage());
+			log.error("no ess configured" + e.getMessage());
 		}
 	}
 

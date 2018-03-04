@@ -1315,7 +1315,6 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 
 	@Override
 	public ThingStateChannels getStateChannel() {
-		// TODO Auto-generated method stub
 		return thingState;
 	}
 

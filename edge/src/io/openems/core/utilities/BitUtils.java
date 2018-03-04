@@ -3,7 +3,7 @@ package io.openems.core.utilities;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import io.openems.api.exception.NotImplementedException;
+import io.openems.common.exceptions.NotImplementedException;
 
 public class BitUtils {
 
@@ -30,8 +30,8 @@ public class BitUtils {
 		case BOOLEAN:
 			return BITS_BOOLEAN;
 
-		case DOUBLE: // TODO
-		case INET_4_ADDRESS: // TODO
+		case DOUBLE: // TODO implement DOUBLE bitlength
+		case INET_4_ADDRESS: // TODO implement INET_4_ADDRESS bitlength
 		case STRING:
 		case LONG_ARRAY:
 		case JSON_ARRAY:
@@ -56,9 +56,9 @@ public class BitUtils {
 		case LONG:
 			return ByteBuffer.allocate(BYTES_LONG).order(BYTE_ORDER).putLong((Long) value).array();
 
-		case BOOLEAN: // TODO put boolean value in a byte
-		case DOUBLE: // TODO
-		case INET_4_ADDRESS: // TODO
+		case BOOLEAN: // TODO implmement BOOLEAN toBytes (put boolean value in a byte)
+		case DOUBLE: // TODO implement DOUBLE toBytes
+		case INET_4_ADDRESS: // TODO implement INET_4_ADDRESS toBytes
 		case STRING:
 		case LONG_ARRAY:
 		case JSON_ARRAY:
@@ -92,9 +92,9 @@ public class BitUtils {
 			b.rewind();
 			return b.getLong();
 		}
-		case BOOLEAN: // TODO put boolean value in a byte
-		case DOUBLE: // TODO
-		case INET_4_ADDRESS: // TODO
+		case BOOLEAN: // TODO implement BOOLEAN toObject (put boolean value in a byte)
+		case DOUBLE: // TODO implement DOUBLE toObject
+		case INET_4_ADDRESS: // TODO implement INET_4_ADDRESS toObject
 		case STRING:
 		case LONG_ARRAY:
 		case JSON_ARRAY:

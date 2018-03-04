@@ -56,18 +56,18 @@ import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.doc.ThingDoc;
-import io.openems.api.exception.OpenemsException;
-import io.openems.api.exception.ReflectionException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.persistence.QueryablePersistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 import io.openems.core.ThingsChangedListener.Action;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
-import io.openems.core.utilities.JsonUtils;
+
 
 public class ThingRepository implements ThingChannelsUpdatedListener {
 	private final static Logger log = LoggerFactory.getLogger(ThingRepository.class);
@@ -283,7 +283,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 
 		// Remove Listener
 		thing.removeListener(this);
-		// TODO further cleaning if required
+
 		for (ThingsChangedListener listener : thingListeners) {
 			listener.thingChanged(thing, Action.REMOVE);
 		}
@@ -434,7 +434,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		}
 	}
 
-	public Controller createController(JsonObject jController) throws ReflectionException {
+	public Controller createController(JsonObject jController) throws OpenemsException {
 		String controllerClass = JsonUtils.getAsString(jController, "class");
 		Controller controller;
 		if (jController.has("id")) {
@@ -450,7 +450,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		return controller;
 	}
 
-	public Device createDevice(JsonObject jDevice, Bridge parent) throws ReflectionException {
+	public Device createDevice(JsonObject jDevice, Bridge parent) throws OpenemsException {
 		String deviceClass = JsonUtils.getAsString(jDevice, "class");
 		Device device = (Device) InjectionUtils.getThingInstance(deviceClass, parent);
 		log.info("Add Device[" + device.id() + "], Implementation[" + device.getClass().getSimpleName() + "]");

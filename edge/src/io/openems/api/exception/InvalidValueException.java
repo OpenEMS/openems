@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.api.exception;
 
+import io.openems.common.exceptions.OpenemsException;
+
 public class InvalidValueException extends OpenemsException {
 	/**
 	 *

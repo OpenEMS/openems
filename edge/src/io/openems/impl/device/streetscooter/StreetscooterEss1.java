@@ -178,6 +178,7 @@ public class StreetscooterEss1 extends ModbusDeviceNature implements SymmetricEs
 	/*
 	 * Methods
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		ModbusProtocol protokol = new ModbusProtocol(new ModbusRegisterRange(30001, //
@@ -271,13 +272,11 @@ public class StreetscooterEss1 extends ModbusDeviceNature implements SymmetricEs
 
 	@Override
 	public ReadChannel<Long> apparentPower() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ReadChannel<Long> reactivePower() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -288,7 +287,6 @@ public class StreetscooterEss1 extends ModbusDeviceNature implements SymmetricEs
 
 	@Override
 	public WriteChannel<Long> setReactivePower() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

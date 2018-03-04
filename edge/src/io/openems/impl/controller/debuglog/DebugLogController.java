@@ -29,12 +29,11 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 
-// TODO Access all relevant channels directly via ThingRepository
-
 @ThingInfo(title = "Output debugging information on systemlog")
 public class DebugLogController extends Controller {
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
+
 	/*
 	 * Constructors
 	 */

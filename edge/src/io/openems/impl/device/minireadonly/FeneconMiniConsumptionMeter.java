@@ -81,13 +81,11 @@ public class FeneconMiniConsumptionMeter extends ModbusDeviceNature implements S
 
 	@Override
 	public ReadChannel<Long> frequency() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ReadChannel<Long> voltage() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

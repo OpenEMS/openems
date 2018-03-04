@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.api.exception;
 
+import io.openems.common.exceptions.OpenemsException;
+
 public class ReflectionException extends OpenemsException {
 
 	private static final long serialVersionUID = 4327222554707114879L;

@@ -27,7 +27,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 
 public abstract class ModbusDevice extends Device {
 

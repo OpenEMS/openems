@@ -171,8 +171,7 @@ public class AvoidTotalDischargeController extends Controller {
 							ess.setActivePower.pushWriteMax(-1000L);
 						}
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						log.error(e.getMessage());
 					}
 				}
 			});
@@ -184,19 +183,16 @@ public class AvoidTotalDischargeController extends Controller {
 						try {
 							ess.setActivePower.pushWriteMin(0L);
 						} catch (WriteChannelException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							log.error(e.getMessage());
 						}
 						break;
 					case ASC:
 						try {
 							ess.setActivePower.pushWriteMin((long) (ess.allowedCharge.value() * multiplier));
 						} catch (WriteChannelException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							log.error(e.getMessage());
 						} catch (InvalidValueException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							log.error(e.getMessage());
 						}
 						break;
 					case BELOW:
@@ -205,8 +201,7 @@ public class AvoidTotalDischargeController extends Controller {
 						try {
 							ess.setActivePower.pushWriteMin(0L);
 						} catch (WriteChannelException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							log.error(e.getMessage());
 						}
 						break;
 					default:

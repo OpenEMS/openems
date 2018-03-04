@@ -16,10 +16,10 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 import io.openems.core.ThingRepository;
-import io.openems.core.utilities.JsonUtils;
 import io.openems.core.utilities.api.ApiWorker;
 
 @ThingInfo(title = "Modbus/TCP API", description = "Modbus/TCP slave implementation.")

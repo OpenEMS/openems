@@ -197,13 +197,11 @@ public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssN
 
 	@Override
 	public ReadChannel<Long> capacity() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ReadChannel<Long> maxNominalPower() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -224,43 +222,36 @@ public class FeneconMiniEss extends ModbusDeviceNature implements AsymmetricEssN
 
 	@Override
 	public WriteChannel<Long> setActivePowerL1() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public WriteChannel<Long> setActivePowerL2() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public WriteChannel<Long> setActivePowerL3() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public WriteChannel<Long> setReactivePowerL1() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public WriteChannel<Long> setReactivePowerL2() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public WriteChannel<Long> setReactivePowerL3() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public WriteChannel<Long> setWorkState() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

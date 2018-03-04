@@ -104,7 +104,6 @@ public abstract class AbstractWorker extends Thread implements Thing {
 
 	@Override
 	public void interrupt() {
-		// TODO Auto-generated method stub
 		super.interrupt();
 	}
 
