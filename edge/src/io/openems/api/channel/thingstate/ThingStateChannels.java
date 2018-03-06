@@ -102,15 +102,16 @@ public class ThingStateChannels extends ReadChannel<ThingState> implements Chann
 	}
 
 	private void updateState() {
+		ThingState currentState = ThingState.RUN;
 		for(ThingStateChannels child : this.childChannels) {
 			if(child.isValuePresent()) {
 				switch(child.getValue()) {
 				case FAULT:
-					updateValue(ThingState.FAULT);
-					return;
+					currentState = ThingState.FAULT;
 				case WARNING:
-					updateValue(ThingState.WARNING);
-					return;
+					if(currentState != ThingState.FAULT) {
+						currentState = ThingState.WARNING;
+					}
 				default:
 					break;
 				}
@@ -118,17 +119,15 @@ public class ThingStateChannels extends ReadChannel<ThingState> implements Chann
 		}
 		for (ThingStateChannel faultChannel : faultChannels) {
 			if (faultChannel.isValuePresent() && faultChannel.getValue()) {
-				updateValue(ThingState.FAULT);
-				return;
+				currentState = ThingState.FAULT;
 			}
 		}
 		for (ThingStateChannel warningChannel : warningChannels) {
-			if (warningChannel.isValuePresent() && warningChannel.getValue()) {
-				updateValue(ThingState.WARNING);
-				return;
+			if (warningChannel.isValuePresent() && warningChannel.getValue()&&currentState != ThingState.FAULT) {
+				currentState = ThingState.WARNING;
 			}
 		}
-		updateValue(ThingState.RUN);
+		updateValue(currentState);
 	}
 
 }
