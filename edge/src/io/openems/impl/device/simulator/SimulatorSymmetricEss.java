@@ -51,7 +51,6 @@ import io.openems.api.thing.Thing;
 import io.openems.core.ThingRepository;
 import io.openems.core.utilities.AvgFiFoQueue;
 import io.openems.core.utilities.ControllerUtils;
-import io.openems.impl.protocol.modbus.FaultModbus;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.simulator.SimulatorDeviceNature;
 import io.openems.impl.protocol.simulator.SimulatorReadChannel;
@@ -82,7 +81,7 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 		super(thingId, parent);
 		this.thingState = new ThingStateChannels(this);
 
-		StaticThingStateChannel tmp = new StaticThingStateChannel(FaultModbus.ConfigurationFault, this, false);
+		StaticThingStateChannel tmp = new StaticThingStateChannel(FaultEss.SimulatedError, this, false);
 		tmp.setValue(true);
 		thingState.addFaultChannel(tmp);
 
