@@ -145,6 +145,18 @@ export class Device {
     })
   }
 
+  public warningOrFaultQuery(thingIds: string[]): Promise<DefaultTypes.WarningsOrFaults> {
+    let replyStream = this.sendMessageWithReply(DefaultMessages.warningOrFaultQuery(this.edgeId, thingIds));
+    // wait for reply
+    return new Promise((resolve, reject) => {
+      replyStream.first().subscribe(reply => {
+        let warningsOrFaults = (reply as DefaultMessages.HistoricDataReply).warningsOrFaults;
+        this.removeReplyStream(reply);
+        resolve(warningsOrFaults);
+      });
+    })
+  }
+
   /**
    * Mark this device as online or offline
    * @param online 

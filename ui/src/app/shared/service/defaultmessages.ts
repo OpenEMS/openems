@@ -85,6 +85,19 @@ export class DefaultMessages {
         }
     };
 
+    public static warningOrFaultQuery(edgeId: number, thingIds: string[]): DefaultTypes.IdentifiedMessage {
+        return {
+            messageId: {
+                ui: UUID.UUID()
+            },
+            edgeId: edgeId,
+            warningsOrFaults: {
+                mode: "query",
+                thingIds: thingIds
+            }
+        }
+    }
+
     public static logSubscribe(edgeId: number): DefaultTypes.IdentifiedMessage {
         return {
             messageId: {

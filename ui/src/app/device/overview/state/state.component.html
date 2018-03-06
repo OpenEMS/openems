@@ -1,5 +1,5 @@
-<ng-container *ngIf="device && currentData">
-  <ng-container *ngIf="currentData | haswarningorfault as things">
+<ng-container *ngIf="device && _currentData">
+  <ng-container *ngIf="_currentData | haswarningorfault as things">
     <div *ngIf="utils.keys(things).length > 0" fxLayout fxLayoutAlign="start start" fxLayoutWrap="wrap">
       <mat-card fxFlex="100%" class="single_leftright single_top">
         <mat-card-header>
@@ -24,7 +24,7 @@
           </table>
         </mat-card-content>
 
-        <mat-card-actions *ngIf="device && currentData" fxLayout fxLayoutAlign="end start">
+        <mat-card-actions *ngIf="device" fxLayout fxLayoutAlign="end start">
           <button mat-fab routerLink="/device/{{ device.name }}/state">
             <mat-icon>navigate_next</mat-icon>
           </button>
