@@ -40,7 +40,6 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
 import { AbstractConfigComponent } from './config/abstractconfig.component';
 import { ExistingThingComponent } from './config/existingthing.component';
 import { ChannelComponent } from './config/channel.component';
-import { HasWarningOrFaultPipe } from './pipe/haswarningorfault/haswarningorfault.pipe';
 
 @NgModule({
   imports: [
@@ -64,7 +63,6 @@ import { HasWarningOrFaultPipe } from './pipe/haswarningorfault/haswarningorfaul
     SignPipe,
     IsclassPipe,
     HasclassPipe,
-    HasWarningOrFaultPipe,
     // components
     SocChartComponent,
     AbstractConfigComponent,
@@ -78,7 +76,6 @@ import { HasWarningOrFaultPipe } from './pipe/haswarningorfault/haswarningorfaul
     ClassnamePipe,
     IsclassPipe,
     HasclassPipe,
-    HasWarningOrFaultPipe,
     // modules
     BrowserAnimationsModule,
     ChartsModule,

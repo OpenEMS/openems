@@ -52,13 +52,6 @@ export module DefaultTypes {
     }]
   }
 
-  export interface WarningsOrFaults {
-    [thingId: string]: [{
-      level: 'warning' | 'fault',
-      name: string
-    }]
-  }
-
   export interface Summary {
     storage: {
       soc: number,
