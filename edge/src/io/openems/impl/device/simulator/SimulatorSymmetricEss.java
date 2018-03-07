@@ -35,7 +35,6 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.StaticThingStateChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
@@ -80,10 +79,6 @@ public class SimulatorSymmetricEss extends SimulatorDeviceNature implements Symm
 	public SimulatorSymmetricEss(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
 		this.thingState = new ThingStateChannels(this);
-
-		StaticThingStateChannel tmp = new StaticThingStateChannel(FaultEss.SimulatedError, this, false);
-		tmp.setValue(true);
-		thingState.addFaultChannel(tmp);
 
 		minSoc.addUpdateListener((channel, newValue) -> {
 			// If chargeSoc was not set -> set it to minSoc minus 2

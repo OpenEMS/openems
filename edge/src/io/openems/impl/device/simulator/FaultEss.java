@@ -1,9 +1,11 @@
 package io.openems.impl.device.simulator;
 
 import io.openems.api.channel.thingstate.FaultEnum;
+import io.openems.common.types.ThingStateInfo;
 
+@ThingStateInfo(reference = SimulatorAsymmetricEss.class)
 public enum FaultEss implements FaultEnum {
-	SimulatedError(0);
+	SimulatedFault(0);
 
 	private final int value;
 

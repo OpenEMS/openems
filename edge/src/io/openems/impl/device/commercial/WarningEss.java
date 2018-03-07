@@ -1,8 +1,11 @@
 package io.openems.impl.device.commercial;
 
 import io.openems.api.channel.thingstate.WarningEnum;
+import io.openems.common.types.ThingStateInfo;
 
+@ThingStateInfo(reference = FeneconCommercialEss.class)
 public enum WarningEss implements WarningEnum {
+
 	EmergencyStop(0), //
 	KeyManualStop(1), //
 	TransformerPhaseBTemperatureSensorInvalidation(2), //

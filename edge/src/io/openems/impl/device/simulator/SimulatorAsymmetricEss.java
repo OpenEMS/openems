@@ -62,6 +62,9 @@ implements AsymmetricEssNature, ChannelChangeListener {
 	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator();
 	private ThingStateChannels thingState;
 
+	private final StaticThingStateChannel simulatedFault;
+	private final StaticThingStateChannel simulatedWarning;
+
 	/*
 	 * Constructors
 	 */
@@ -74,10 +77,8 @@ implements AsymmetricEssNature, ChannelChangeListener {
 			}
 		});
 		this.thingState = new ThingStateChannels(this);
-
-		StaticThingStateChannel tmp = new StaticThingStateChannel(FaultEss.SimulatedError, this, false);
-		tmp.setValue(true);
-		thingState.addFaultChannel(tmp);
+		thingState.addFaultChannel(this.simulatedFault = new StaticThingStateChannel(FaultEss.SimulatedFault, this, false));
+		thingState.addWarningChannel(this.simulatedWarning = new StaticThingStateChannel(WarningEss.SimulatedWarning, this, false));
 
 		long initialSoc = SimulatorTools.addRandomLong(90, 90, 100, 5);
 		this.energy = capacity.valueOptional().get() / 100 * initialSoc;
@@ -293,6 +294,9 @@ implements AsymmetricEssNature, ChannelChangeListener {
 		} catch (InvalidValueException e) {
 			e.printStackTrace();
 		}
+		// simulate faults and warnings
+		this.simulatedFault.setValue(SimulatorTools.getRandomBoolean());
+		this.simulatedWarning.setValue(SimulatorTools.getRandomBoolean());
 	}
 
 	@Override
