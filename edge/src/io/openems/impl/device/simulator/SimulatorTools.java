@@ -34,4 +34,7 @@ public class SimulatorTools {
 		return ThreadLocalRandom.current().nextDouble(min, max);
 	}
 
+	public static boolean getRandomBoolean() {
+		return ThreadLocalRandom.current().nextBoolean();
+	}
 }

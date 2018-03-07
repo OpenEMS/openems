@@ -1,7 +1,9 @@
 package io.openems.impl.device.pro;
 
 import io.openems.api.channel.thingstate.WarningEnum;
+import io.openems.common.types.ThingStateInfo;
 
+@ThingStateInfo(reference = FeneconProPvMeter.class)
 public enum WarningPvMeter implements WarningEnum {
 	NegativePowerL1(0), //
 	NegativePowerL2(1), //
