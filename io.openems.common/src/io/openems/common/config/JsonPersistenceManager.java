@@ -31,6 +31,9 @@ public class JsonPersistenceManager implements PersistenceManager {
 
 	@Activate
 	void activate() {
+		// Load default configuration
+		loadDefaultConfig();
+		
 		// read Json from file
 		JsonObject jConfig;
 		try {
@@ -131,5 +134,23 @@ public class JsonPersistenceManager implements PersistenceManager {
 				log.error("Unable to write config to file: " + e.getMessage());
 			}
 		}
+	}
+	
+	private void loadDefaultConfig() {
+		log.info("Load default config");
+		synchronized (this.configs) {
+			Config log4j = new Config("org.ops4j.pax.logging", true);
+			log4j.put("log4j.rootLogger", "DEBUG, CONSOLE");
+			log4j.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
+			log4j.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
+			log4j.put("log4j.appender.CONSOLE.layout.ConversionPattern",
+                    "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] - %m%n");
+            // set minimum log levels for some verbose packages
+			log4j.put("log4j.logger.org.eclipse.osgi", "WARN");
+            log4j.put("log4j.logger.org.apache.felix.configadmin", "INFO");
+            log4j.put("log4j.logger.sun.net.www.protocol.http.HttpURLConnection", "INFO");
+            this.configs.put(log4j.getPid(), log4j);
+		}
+		log.info("Finished Load default config");
 	}
 }

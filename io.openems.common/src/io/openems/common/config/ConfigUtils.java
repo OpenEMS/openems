@@ -5,11 +5,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map.Entry;
-
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-
-import java.util.Hashtable;
 import java.util.TreeMap;
 
 import com.google.gson.Gson;
@@ -24,33 +19,12 @@ public class ConfigUtils {
 
 	private final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
-	public static synchronized void configureLogging(ConfigurationAdmin configAdmin) {
-		Configuration configuration;
-		try {
-			configuration = configAdmin.getConfiguration("org.ops4j.pax.logging", null);
-			final Hashtable<String, Object> log4jProps = new Hashtable<String, Object>();
-			log4jProps.put("log4j.rootLogger", "DEBUG, CONSOLE");
-			log4jProps.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
-			log4jProps.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
-			log4jProps.put("log4j.appender.CONSOLE.layout.ConversionPattern",
-					"%d{ISO8601} [%-8.8t] %-5p [%-30.30c] - %m%n");
-			// set minimum log levels for some verbose packages
-			log4jProps.put("log4j.logger.org.eclipse.osgi", "WARN");
-			log4jProps.put("log4j.logger.org.apache.felix.configadmin", "INFO");
-			log4jProps.put("log4j.logger.sun.net.www.protocol.http.HttpURLConnection", "INFO");
-			configuration.update(log4jProps);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	}
-
 	protected static synchronized JsonObject readConfigFromFile(Path path) throws Exception {
-		try {
-			String config = new String(Files.readAllBytes(path), DEFAULT_CHARSET);
-			return JsonUtils.parse(config).getAsJsonObject();
-		} catch (Exception e) {
-			return new JsonObject();
+		if (!Files.exists(path)) {
+			throw new IOException("Configuration file [" + path.toAbsolutePath() + "] not found!");
 		}
+		String config = new String(Files.readAllBytes(path), DEFAULT_CHARSET);
+		return JsonUtils.parse(config).getAsJsonObject();
 	}
 
 	protected static synchronized void writeConfigToFile(Path path, TreeMap<String, Config> configs)
@@ -58,6 +32,11 @@ public class ConfigUtils {
 		// create JsonObject
 		JsonObject j = new JsonObject();
 		for (Entry<String, Config> entry : configs.entrySet()) {
+			// ignore configs that should not be stored
+			if (entry.getValue().isDoNotStore()) {
+				continue;
+			}
+
 			JsonObject jSub = new JsonObject();
 			// sort map by key to be able to write the json sorted
 			TreeMap<String, Object> sortedSub = new TreeMap<>();

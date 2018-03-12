@@ -16,7 +16,7 @@ JPM-Command:				openems-backend
 	osgi.identity;filter:='(osgi.identity=io.openems.backend.timedata.influx.provider)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.backend.uiwebsocket.impl.provider)'
 -runproperties: \
-	configFile=C:/openems-config/backend.json,\
+	configFile=./resources/config.json,\
 	org.ops4j.pax.logging.service.frameworkEventsLogLevel="DISABLED"
 
 -runfw: org.eclipse.osgi;version='[3.10.100.v20150529-1857,3.10.100.v20150529-1857]'
