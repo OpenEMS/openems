@@ -120,169 +120,172 @@ implements PowerChangeListener, AfterControllerExecutedListener {
 	}
 
 	private void setPower() {
-		synchronized (this.ess) {
-			Point p = reduceToZero();
-			setGeometry(p);
-			long activePower = (long) p.getCoordinate().x;
-			long reactivePower = (long) p.getCoordinate().y;
-			long socSum = 0;
-			for (SymmetricEssNature ess : this.ess) {
-				socSum += ess.soc().valueOptional().orElse(0L) - ess.minSoc().valueOptional().orElse(0);
-			}
-			if (activePower > 0) {
-				/*
-				 * Discharge
-				 */
-				// sort ess by useableSoc asc
-				Collections.sort(ess, (a, b) -> {
-					return (int) ((a.soc().valueOptional().orElse(0L) - a.minSoc().valueOptional().orElse(0))
-							- (b.soc().valueOptional().orElse(0L) - b.minSoc().valueOptional().orElse(0)));
-				});
-				for (int i = 0; i < ess.size(); i++) {
-					SymmetricEssNature ess = this.ess.get(i);
-					// calculate minimal power needed to fulfill the calculatedPower
-					long minP = activePower;
-					for (int j = i + 1; j < this.ess.size(); j++) {
-						if (this.ess.get(j).soc().valueOptional().orElse(0L)
-								- this.ess.get(j).minSoc().valueOptional().orElse(0) > 0) {
-							minP -= this.ess.get(j).getPower().getMaxP().orElse(0L);
+		if (dynamicLimitations.size() > 0) {
+			synchronized (this.ess) {
+				Point p = reduceToZero();
+				setGeometry(p);
+				long activePower = (long) p.getCoordinate().x;
+				long reactivePower = (long) p.getCoordinate().y;
+				long socSum = 0;
+				for (SymmetricEssNature ess : this.ess) {
+					socSum += ess.soc().valueOptional().orElse(0L) - ess.minSoc().valueOptional().orElse(0);
+				}
+				if (activePower > 0) {
+					/*
+					 * Discharge
+					 */
+					// sort ess by useableSoc asc
+					Collections.sort(ess, (a, b) -> {
+						return (int) ((a.soc().valueOptional().orElse(0L) - a.minSoc().valueOptional().orElse(0))
+								- (b.soc().valueOptional().orElse(0L) - b.minSoc().valueOptional().orElse(0)));
+					});
+					for (int i = 0; i < ess.size(); i++) {
+						SymmetricEssNature ess = this.ess.get(i);
+						// calculate minimal power needed to fulfill the calculatedPower
+						long minP = activePower;
+						for (int j = i + 1; j < this.ess.size(); j++) {
+							if (this.ess.get(j).soc().valueOptional().orElse(0L)
+									- this.ess.get(j).minSoc().valueOptional().orElse(0) > 0) {
+								minP -= this.ess.get(j).getPower().getMaxP().orElse(0L);
+							}
+						}
+						if (minP < 0) {
+							minP = 0;
+						}
+						// check maximal power to avoid larger charges then calculatedPower
+						long maxP = ess.getPower().getMaxP().orElse(0L);
+						if (activePower < maxP) {
+							maxP = activePower;
+						}
+						double diff = maxP - minP;
+						/*
+						 * weight the range of possible power by the useableSoc
+						 * if the useableSoc is negative the ess will be charged
+						 */
+						long power = (long) (Math.ceil(minP + diff / socSum
+								* (ess.soc().valueOptional().orElse(0L) - ess.minSoc().valueOptional().orElse(0))));
+						PEqualLimitation limit = new PEqualLimitation(ess.getPower());
+						limit.setP(power);
+						try {
+							ess.getPower().applyLimitation(limit);
+							activePower -= power;
+						} catch (PowerException e) {
+							log.error("Failed to set activePower on " + ess.id());
 						}
 					}
-					if (minP < 0) {
-						minP = 0;
-					}
-					// check maximal power to avoid larger charges then calculatedPower
-					long maxP = ess.getPower().getMaxP().orElse(0L);
-					if (activePower < maxP) {
-						maxP = activePower;
-					}
-					double diff = maxP - minP;
+				} else {
 					/*
-					 * weight the range of possible power by the useableSoc
-					 * if the useableSoc is negative the ess will be charged
+					 * Charge
 					 */
-					long power = (long) (Math.ceil(minP + diff / socSum
-							* (ess.soc().valueOptional().orElse(0L) - ess.minSoc().valueOptional().orElse(0))));
-					PEqualLimitation limit = new PEqualLimitation(ess.getPower());
-					limit.setP(power);
-					try {
-						ess.getPower().applyLimitation(limit);
-						activePower -= power;
-					} catch (PowerException e) {
-						log.error("Failed to set activePower on " + ess.id());
+					/*
+					 * sort ess by 100 - useabelSoc
+					 * 100 - 90 = 10
+					 * 100 - 45 = 55
+					 * 100 - (- 5) = 105
+					 * => ess with negative useableSoc will be charged much more then one with positive useableSoc
+					 */
+					Collections.sort(this.ess, (a, b) -> {
+						return (int) ((100
+								- (a.soc().valueOptional().orElse(0L) - a.minSoc().valueOptional().orElse(0)))
+								- (100 - (b.soc().valueOptional().orElse(0L) - b.minSoc().valueOptional().orElse(0))));
+					});
+					for (int i = 0; i < this.ess.size(); i++) {
+						SymmetricEssNature ess = this.ess.get(i);
+						// calculate minimal power needed to fulfill the calculatedPower
+						long minP = activePower;
+						for (int j = i + 1; j < this.ess.size(); j++) {
+							minP -= this.ess.get(j).getPower().getMinP().orElse(0L);
+						}
+						if (minP > 0) {
+							minP = 0;
+						}
+						// check maximal power to avoid larger charges then calculatedPower
+						long maxP = ess.getPower().getMinP().orElse(0L);
+						if (activePower > maxP) {
+							maxP = activePower;
+						}
+						double diff = maxP - minP;
+						// weight the range of possible power by the useableSoc
+						long power = (long) Math.floor(minP + diff / (this.ess.size() * 100 - socSum) * (100
+								- (ess.soc().valueOptional().orElse(0L) - ess.minSoc().valueOptional().orElse(0))));
+						PEqualLimitation limit = new PEqualLimitation(ess.getPower());
+						limit.setP(power);
+						try {
+							ess.getPower().applyLimitation(limit);
+							activePower -= power;
+						} catch (PowerException e) {
+							log.error("Failed to set activePower on " + ess.id());
+						}
 					}
 				}
-			} else {
-				/*
-				 * Charge
-				 */
-				/*
-				 * sort ess by 100 - useabelSoc
-				 * 100 - 90 = 10
-				 * 100 - 45 = 55
-				 * 100 - (- 5) = 105
-				 * => ess with negative useableSoc will be charged much more then one with positive useableSoc
-				 */
-				Collections.sort(this.ess, (a, b) -> {
-					return (int) ((100 - (a.soc().valueOptional().orElse(0L) - a.minSoc().valueOptional().orElse(0)))
-							- (100 - (b.soc().valueOptional().orElse(0L) - b.minSoc().valueOptional().orElse(0))));
-				});
-				for (int i = 0; i < this.ess.size(); i++) {
-					SymmetricEssNature ess = this.ess.get(i);
-					// calculate minimal power needed to fulfill the calculatedPower
-					long minP = activePower;
-					for (int j = i + 1; j < this.ess.size(); j++) {
-						minP -= this.ess.get(j).getPower().getMinP().orElse(0L);
-					}
-					if (minP > 0) {
-						minP = 0;
-					}
-					// check maximal power to avoid larger charges then calculatedPower
-					long maxP = ess.getPower().getMinP().orElse(0L);
-					if (activePower > maxP) {
-						maxP = activePower;
-					}
-					double diff = maxP - minP;
-					// weight the range of possible power by the useableSoc
-					long power = (long) Math.floor(minP + diff / (this.ess.size() * 100 - socSum)
-							* (100 - (ess.soc().valueOptional().orElse(0L) - ess.minSoc().valueOptional().orElse(0))));
-					PEqualLimitation limit = new PEqualLimitation(ess.getPower());
-					limit.setP(power);
-					try {
-						ess.getPower().applyLimitation(limit);
-						activePower -= power;
-					} catch (PowerException e) {
-						log.error("Failed to set activePower on " + ess.id());
-					}
-				}
-			}
 
-			// sort ess by maxNominalPower asc
-			Collections.sort(ess, (a, b) -> {
-				return (int) (a.maxNominalPower().valueOptional().orElse(0L)
-						- b.maxNominalPower().valueOptional().orElse(0L));
-			});
-			if (reactivePower > 0) {
-				for (int i = 0; i < ess.size(); i++) {
-					SymmetricEssNature ess = this.ess.get(i);
-					// calculate minimal power needed to fulfill the calculatedPower
-					long minQ = reactivePower;
-					for (int j = i + 1; j < this.ess.size(); j++) {
-						if (this.ess.get(j).maxNominalPower().valueOptional().orElse(0L) > 0) {
-							minQ -= this.ess.get(j).getPower().getMaxQ().orElse(0L);
+				// sort ess by maxNominalPower asc
+				Collections.sort(ess, (a, b) -> {
+					return (int) (a.maxNominalPower().valueOptional().orElse(0L)
+							- b.maxNominalPower().valueOptional().orElse(0L));
+				});
+				if (reactivePower > 0) {
+					for (int i = 0; i < ess.size(); i++) {
+						SymmetricEssNature ess = this.ess.get(i);
+						// calculate minimal power needed to fulfill the calculatedPower
+						long minQ = reactivePower;
+						for (int j = i + 1; j < this.ess.size(); j++) {
+							if (this.ess.get(j).maxNominalPower().valueOptional().orElse(0L) > 0) {
+								minQ -= this.ess.get(j).getPower().getMaxQ().orElse(0L);
+							}
+						}
+						if (minQ < 0) {
+							minQ = 0;
+						}
+						// check maximal power to avoid larger charges then calculatedPower
+						long maxQ = ess.getPower().getMaxQ().orElse(0L);
+						if (reactivePower < maxQ) {
+							maxQ = reactivePower;
+						}
+						double diff = maxQ - minQ;
+						/*
+						 * weight the range of possible power by the useableSoc
+						 * if the useableSoc is negative the ess will be charged
+						 */
+						long power = (long) (Math.ceil(minQ
+								+ diff / getMaxApparentPower() * ess.maxNominalPower().valueOptional().orElse(0L)));
+						QEqualLimitation limit = new QEqualLimitation(ess.getPower());
+						limit.setQ(power);
+						try {
+							ess.getPower().applyLimitation(limit);
+							reactivePower -= power;
+						} catch (PowerException e) {
+							log.error("Failed to set reactivePower on " + ess.id());
 						}
 					}
-					if (minQ < 0) {
-						minQ = 0;
-					}
-					// check maximal power to avoid larger charges then calculatedPower
-					long maxQ = ess.getPower().getMaxQ().orElse(0L);
-					if (reactivePower < maxQ) {
-						maxQ = reactivePower;
-					}
-					double diff = maxQ - minQ;
-					/*
-					 * weight the range of possible power by the useableSoc
-					 * if the useableSoc is negative the ess will be charged
-					 */
-					long power = (long) (Math.ceil(
-							minQ + diff / getMaxApparentPower() * ess.maxNominalPower().valueOptional().orElse(0L)));
-					QEqualLimitation limit = new QEqualLimitation(ess.getPower());
-					limit.setQ(power);
-					try {
-						ess.getPower().applyLimitation(limit);
-						reactivePower -= power;
-					} catch (PowerException e) {
-						log.error("Failed to set reactivePower on " + ess.id());
-					}
-				}
-			} else {
-				for (int i = 0; i < this.ess.size(); i++) {
-					SymmetricEssNature ess = this.ess.get(i);
-					// calculate minimal power needed to fulfill the calculatedPower
-					long minQ = reactivePower;
-					for (int j = i + 1; j < this.ess.size(); j++) {
-						minQ -= this.ess.get(j).getPower().getMinQ().orElse(0L);
-					}
-					if (minQ > 0) {
-						minQ = 0;
-					}
-					// check maximal power to avoid larger charges then calculatedPower
-					long maxQ = ess.getPower().getMinQ().orElse(0L);
-					if (reactivePower > maxQ) {
-						maxQ = reactivePower;
-					}
-					double diff = maxQ - minQ;
-					// weight the range of possible power by the useableSoc
-					long power = (long) Math.floor(
-							minQ + diff / getMaxApparentPower() * ess.maxNominalPower().valueOptional().orElse(0L));
-					QEqualLimitation limit = new QEqualLimitation(ess.getPower());
-					limit.setQ(power);
-					try {
-						ess.getPower().applyLimitation(limit);
-						reactivePower -= power;
-					} catch (PowerException e) {
-						log.error("Failed to set reactivePower on " + ess.id());
+				} else {
+					for (int i = 0; i < this.ess.size(); i++) {
+						SymmetricEssNature ess = this.ess.get(i);
+						// calculate minimal power needed to fulfill the calculatedPower
+						long minQ = reactivePower;
+						for (int j = i + 1; j < this.ess.size(); j++) {
+							minQ -= this.ess.get(j).getPower().getMinQ().orElse(0L);
+						}
+						if (minQ > 0) {
+							minQ = 0;
+						}
+						// check maximal power to avoid larger charges then calculatedPower
+						long maxQ = ess.getPower().getMinQ().orElse(0L);
+						if (reactivePower > maxQ) {
+							maxQ = reactivePower;
+						}
+						double diff = maxQ - minQ;
+						// weight the range of possible power by the useableSoc
+						long power = (long) Math.floor(
+								minQ + diff / getMaxApparentPower() * ess.maxNominalPower().valueOptional().orElse(0L));
+						QEqualLimitation limit = new QEqualLimitation(ess.getPower());
+						limit.setQ(power);
+						try {
+							ess.getPower().applyLimitation(limit);
+							reactivePower -= power;
+						} catch (PowerException e) {
+							log.error("Failed to set reactivePower on " + ess.id());
+						}
 					}
 				}
 			}

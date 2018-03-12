@@ -34,9 +34,9 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 		this.dynamicLimitations = new ArrayList<>();
 		this.setActivePower = setActivePower;
 		this.setReactivePower = setReactivePower;
-		if(bridge != null) {
+		if (bridge != null) {
 			bridge.addListener(this);
-		}else {
+		} else {
 			log.error("the Bridge is null! the Power Values won't be writte!");
 		}
 		createBaseGeometry();
@@ -74,20 +74,22 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 	}
 
 	private void writePower() {
-		Point p = reduceToZero();
-		Coordinate c = p.getCoordinate();
-		setGeometry(p);
-		double activePowerDelta = c.x - lastActivePower;
-		double reactivePowerDelta = c.y - lastReactivePower;
-		lastActivePower += activePowerDelta/2;
-		lastReactivePower += reactivePowerDelta/2;
-		try {
-			this.setActivePower.pushWrite((long) lastActivePower);
-			this.setReactivePower.pushWrite((long) lastReactivePower);
-			setActivePower.shadowCopyAndReset();
-			setReactivePower.shadowCopyAndReset();
-		} catch (WriteChannelException e) {
-			log.error("failed to write Power.", e);
+		if (dynamicLimitations.size() > 0) {
+			Point p = reduceToZero();
+			Coordinate c = p.getCoordinate();
+			setGeometry(p);
+			double activePowerDelta = c.x - lastActivePower;
+			double reactivePowerDelta = c.y - lastReactivePower;
+			lastActivePower += activePowerDelta / 2;
+			lastReactivePower += reactivePowerDelta / 2;
+			try {
+				this.setActivePower.pushWrite((long) lastActivePower);
+				this.setReactivePower.pushWrite((long) lastReactivePower);
+				setActivePower.shadowCopyAndReset();
+				setReactivePower.shadowCopyAndReset();
+			} catch (WriteChannelException e) {
+				log.error("failed to write Power.", e);
+			}
 		}
 	}
 
