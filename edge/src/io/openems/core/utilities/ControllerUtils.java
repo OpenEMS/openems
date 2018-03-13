@@ -23,23 +23,24 @@ package io.openems.core.utilities;
 import java.util.Collections;
 import java.util.List;
 
-import io.openems.api.channel.WriteChannel;
-
 public class ControllerUtils {
 
 	public static double calculateCosPhi(long activePower, long reactivePower) {
-		if (reactivePower == 0) {
-			return 1;
-		}
-		return Math.cos(Math.atan((double) activePower / (double) reactivePower));
-	}
-
-	public static long calculateReactivePower(long activePower, double cosPhi) {
-		return (long) (Math.tan(Math.acos(cosPhi)) * activePower);
+		return activePower / Math.sqrt(Math.pow(activePower, 2) + Math.pow(reactivePower, 2));
 	}
 
 	public static long calculateReactivePower(long activePower, long apparentPower) {
 		return (long) Math.sqrt(Math.pow(apparentPower, 2) - Math.pow(activePower, 2));
+	}
+
+	public static long calculateReactivePower(long activePower, double cosPhi, boolean capacitive) {
+		long apparentPower = calculateApparentPower(activePower, cosPhi);
+		long reactivePower = calculateReactivePower(activePower, apparentPower);
+		// differe between capacitive and inductive CosPhi
+		if (capacitive) {
+			reactivePower *= -1;
+		}
+		return reactivePower;
 	}
 
 	public static long calculateActivePower(long reactivePower, long apparentPower) {
@@ -50,92 +51,97 @@ public class ControllerUtils {
 		return (long) Math.sqrt(Math.pow(activePower, 2) + Math.pow(reactivePower, 2));
 	}
 
+	/**
+	 * Calculates the absolute activePower according to the cosPhi
+	 *
+	 * @param apparentPower
+	 * @param cosPhi
+	 * @return returns the absolute activePower
+	 */
 	public static long calculateActivePowerFromApparentPower(long apparentPower, double cosPhi) {
 		return (long) (apparentPower * cosPhi);
 	}
 
-	public static long calculateActivePowerFromReactivePower(long reactivePower, double cosPhi) {
-		return (long) (reactivePower / Math.tan(Math.acos(cosPhi)));
-	}
-
+	//
+	// public static long calculateActivePowerFromReactivePower(long reactivePower, double cosPhi) {
+	// return (long) (reactivePower / Math.tan(Math.acos(cosPhi)));
+	// }
+	//
 	public static long calculateApparentPower(long activePower, double cosPhi) {
 		return (long) (activePower / cosPhi);
 	}
 
-	public static long reduceActivePower(long activePower, long reactivePower, long maxChargeApparentPower,
-			long maxDischargeApparentPower) {
-		boolean activePowerPos = true;
-
-		if (activePower < 0) {
-			activePowerPos = false;
-		}
-
-		if (isCharge(activePower, reactivePower)) {
-			/*
-			 * Charge
-			 */
-			if (calculateApparentPower(activePower, reactivePower) * -1 < maxChargeApparentPower) {
-				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
-				activePower = ControllerUtils.calculateActivePowerFromApparentPower(maxChargeApparentPower, cosPhi);
-			}
-		} else {
-
-			/*
-			 * Discharge
-			 */
-			if (ControllerUtils.calculateApparentPower(activePower, reactivePower) > maxDischargeApparentPower) {
-				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
-				activePower = ControllerUtils.calculateActivePowerFromApparentPower(maxDischargeApparentPower, cosPhi);
-			}
-		}
-		if (!activePowerPos && activePower >= 0) {
-			activePower *= -1;
-		}
-
-		return activePower;
-	}
-
-	public static long reduceReactivePower(long activePower, long reactivePower, long maxChargeApparentPower,
-			long maxDischargeApparentPower, long maxApparent, WriteChannel<Long> setReactivePower) {
-		boolean reactivePowerPos = true;
-		if (reactivePower < 0) {
-			reactivePowerPos = false;
-		}
-		if (isCharge(activePower, reactivePower)) {
-			/*
-			 * Charge
-			 */
-			if (calculateApparentPower(activePower, reactivePower) * -1 < maxChargeApparentPower) {
-				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
-				reactivePower = ControllerUtils.calculateReactivePower(reduceActivePower(activePower, reactivePower,
-						maxChargeApparentPower, maxDischargeApparentPower), cosPhi);
-			}
-		} else {
-
-			/*
-			 * Discharge
-			 */
-			if (ControllerUtils.calculateApparentPower(activePower, reactivePower) > maxDischargeApparentPower) {
-				double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
-				reactivePower = ControllerUtils.calculateReactivePower(reduceActivePower(activePower, reactivePower,
-						maxChargeApparentPower, maxDischargeApparentPower), cosPhi);
-			}
-		}
-		if (!reactivePowerPos && reactivePower >= 0) {
-			reactivePower *= -1;
-		}
-		return reactivePower;
-	}
-
+	//
+	// public static long reduceActivePower(long activePower, long reactivePower, long maxChargeApparentPower,
+	// long maxDischargeApparentPower) {
+	// boolean activePowerPos = true;
+	//
+	// if (activePower < 0) {
+	// activePowerPos = false;
+	// }
+	//
+	// if (isCharge(activePower, reactivePower)) {
+	// /*
+	// * Charge
+	// */
+	// if (calculateApparentPower(activePower, reactivePower) * -1 < maxChargeApparentPower) {
+	// double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
+	// activePower = ControllerUtils.calculateActivePowerFromApparentPower(maxChargeApparentPower, cosPhi);
+	// }
+	// } else {
+	//
+	// /*
+	// * Discharge
+	// */
+	// if (ControllerUtils.calculateApparentPower(activePower, reactivePower) > maxDischargeApparentPower) {
+	// double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
+	// activePower = ControllerUtils.calculateActivePowerFromApparentPower(maxDischargeApparentPower, cosPhi);
+	// }
+	// }
+	// if (!activePowerPos && activePower >= 0) {
+	// activePower *= -1;
+	// }
+	//
+	// return activePower;
+	// }
+	//
+	// public static long reduceReactivePower(long activePower, long reactivePower, long maxChargeApparentPower,
+	// long maxDischargeApparentPower, long maxApparent, WriteChannel<Long> setReactivePower) {
+	// boolean reactivePowerPos = true;
+	// if (reactivePower < 0) {
+	// reactivePowerPos = false;
+	// }
+	// if (isCharge(activePower, reactivePower)) {
+	// /*
+	// * Charge
+	// */
+	// if (calculateApparentPower(activePower, reactivePower) * -1 < maxChargeApparentPower) {
+	// double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
+	// reactivePower = ControllerUtils.calculateReactivePower(reduceActivePower(activePower, reactivePower,
+	// maxChargeApparentPower, maxDischargeApparentPower), cosPhi);
+	// }
+	// } else {
+	//
+	// /*
+	// * Discharge
+	// */
+	// if (ControllerUtils.calculateApparentPower(activePower, reactivePower) > maxDischargeApparentPower) {
+	// double cosPhi = ControllerUtils.calculateCosPhi(activePower, reactivePower);
+	// reactivePower = ControllerUtils.calculateReactivePower(reduceActivePower(activePower, reactivePower,
+	// maxChargeApparentPower, maxDischargeApparentPower), cosPhi);
+	// }
+	// }
+	// if (!reactivePowerPos && reactivePower >= 0) {
+	// reactivePower *= -1;
+	// }
+	// return reactivePower;
+	// }
+	//
 	public static boolean isCharge(long activePower, long reactivePower) {
-		if (activePower >= 0 && reactivePower >= 0) {
+		if (activePower >= 0) {
 			return false;
-		} else if (activePower < 0 && reactivePower >= 0) {
-			return true;
-		} else if (activePower < 0 && reactivePower < 0) {
-			return true;
 		} else {
-			return false;
+			return true;
 		}
 	}
 

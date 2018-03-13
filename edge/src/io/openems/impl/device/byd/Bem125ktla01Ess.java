@@ -29,6 +29,7 @@ import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.core.utilities.power.symmetric.SymmetricPowerImpl;
 import io.openems.impl.protocol.modbus.ModbusBitWrappingChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;
@@ -85,6 +86,7 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 	private ModbusWriteChannel<Long> setWorkState;
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 0L);
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 170000L).unit("Wh");
+	private SymmetricPowerImpl power;
 
 	public ModbusReadChannel<Long> sysAlarmInfo;
 	public ModbusReadChannel<Long> sysWorkStatus;
@@ -157,22 +159,12 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 		return maxNominalPower;
 	}
 
-	@Override
-	public WriteChannel<Long> setActivePower() {
-		return setActivePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setReactivePower() {
-		return setReactivePower;
-	}
-
 	/*
 	 * Methods
 	 */
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		return new ModbusProtocol( //
+		ModbusProtocol protocol = new ModbusProtocol( //
 				new ModbusRegisterRange(0x0100, //
 						new UnsignedWordElement(0x100, //
 								new ModbusBitWrappingChannel("SysAlarmInfo", this, this.thingState)//
@@ -213,18 +205,18 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 								.warningBit(9, WarningEss.FailureOfHumiditySensorInControlCabinet) // Failure_of_humidity_sensor_in_control_cabinet
 								.warningBit(12,WarningEss.FailureOfStorageDevice) // Failure_of_storage_device
 								.warningBit(13,WarningEss.ExceedingOfHumidityInControlCabinet)) // Exceeding_of_humidity_in_control_cabinet
-
 						), new ModbusRegisterRange(0x1300, new UnsignedWordElement(0x1300, //
-								batteryStackVoltage = new ModbusReadLongChannel("BatteryStackVoltage", this).multiplier(2)
-								.unit("mV")),
+								batteryStackVoltage = new ModbusReadLongChannel("BatteryStackVoltage", this)
+								.multiplier(2).unit("mV")),
 								new UnsignedWordElement(0x1301, //
 										batteryStackCurrent = new ModbusReadLongChannel("BatteryStackCurrent", this)
 										.multiplier(2).unit("mA")),
 								new UnsignedWordElement(0x1302, //
-										batteryStackPower = new ModbusReadLongChannel(
-												"BatteryStackPower", this).multiplier(2).unit("W")),
+										batteryStackPower = new ModbusReadLongChannel("BatteryStackPower", this)
+										.multiplier(2).unit("W")),
 								new UnsignedWordElement(0x1303, //
-										batteryStackSoc = soc = new ModbusReadLongChannel("BatteryStackSoc", this).unit("%")),
+										batteryStackSoc = soc = new ModbusReadLongChannel("BatteryStackSoc", this)
+										.unit("%")),
 								new UnsignedWordElement(0x1304, //
 										batteryStackSoh = new ModbusReadLongChannel("BatteryStackSoh", this).unit("%")),
 								new UnsignedWordElement(0x1305, //
@@ -243,16 +235,23 @@ public class Bem125ktla01Ess extends ModbusDeviceNature implements SymmetricEssN
 										batteryStackTotalCapacity = new ModbusReadLongChannel(
 												"BatteryStackTotalCapacity", this).unit("Wh")),
 								new UnsignedDoublewordElement(0x130A, //
-										batteryStackTotalCharge = new ModbusReadLongChannel("BatteryStackTotalCharge", this)
-										.unit("kWh")),
+										batteryStackTotalCharge = new ModbusReadLongChannel("BatteryStackTotalCharge",
+												this).unit("kWh")),
 								new UnsignedDoublewordElement(0x130C, //
-										batteryStackTotalDischarge = new ModbusReadLongChannel("BatteryStackTotalDischarge",
-												this).unit("kWh"))));
+										batteryStackTotalDischarge = new ModbusReadLongChannel(
+												"BatteryStackTotalDischarge", this).unit("kWh"))));
+		this.power = new SymmetricPowerImpl(125000, setActivePower, setReactivePower, getParent().getBridge());
+		return protocol;
 	}
 
 	@Override
 	public StaticValueChannel<Long> capacity() {
 		return capacity;
+	}
+
+	@Override
+	public SymmetricPowerImpl getPower() {
+		return power;
 	}
 
 	@Override

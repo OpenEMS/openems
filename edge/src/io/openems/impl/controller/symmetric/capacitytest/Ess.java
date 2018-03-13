@@ -25,6 +25,8 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.core.utilities.power.symmetric.PEqualLimitation;
+import io.openems.core.utilities.power.symmetric.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
@@ -34,12 +36,13 @@ public class Ess extends ThingMap {
 	public ReadChannel<Long> allowedDischarge;
 	public ReadChannel<Integer> minSoc;
 	public WriteChannel<Long> setWorkState;
-	public WriteChannel<Long> setActivePower;
 	public ReadChannel<Long> allowedApparent;
 	public ReadChannel<Long> systemState;
 	public boolean empty = false;
 	public boolean full = false;
 	public long timeEmpty = 0;
+	public SymmetricPower power;
+	public PEqualLimitation limit;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
@@ -47,10 +50,11 @@ public class Ess extends ThingMap {
 		allowedCharge = ess.allowedCharge().required();
 		allowedDischarge = ess.allowedDischarge().required();
 		minSoc = ess.minSoc().required();
-		setActivePower = ess.setActivePower().required();
 		soc = ess.soc().required();
 		setWorkState = ess.setWorkState().required();
 		allowedApparent = ess.allowedApparent().required();
 		systemState = ess.systemState().required();
+		power = ess.getPower();
+		limit = new PEqualLimitation(power);
 	}
 }

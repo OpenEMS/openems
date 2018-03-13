@@ -21,19 +21,18 @@
 package io.openems.impl.controller.symmetric.voltagecharacteristic;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.SymmetricPower;
+import io.openems.core.utilities.power.symmetric.PEqualLimitation;
+import io.openems.core.utilities.power.symmetric.QEqualLimitation;
+import io.openems.core.utilities.power.symmetric.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
 	public final ReadChannel<Integer> minSoc;
-	public final WriteChannel<Long> setActivePower;
-	public final WriteChannel<Long> setReactivePower;
 	public final ReadChannel<Long> soc;
 	public final ReadChannel<Long> activePower;
 	public final ReadChannel<Long> reactivePower;
@@ -42,13 +41,12 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> systemState;
 	public final ReadChannel<Long> maxNominalPower;
 	public final SymmetricPower power;
+	public final PEqualLimitation activePowerLimit;
+	public final QEqualLimitation reactivePowerLimit;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
 		minSoc = ess.minSoc().required();
-
-		setActivePower = ess.setActivePower().required();
-		setReactivePower = ess.setReactivePower().required();
 
 		soc = ess.soc().required();
 		activePower = ess.activePower().required();
@@ -57,8 +55,9 @@ public class Ess extends ThingMap {
 		systemState = ess.systemState().required();
 		reactivePower = ess.reactivePower().required();
 		maxNominalPower = ess.maxNominalPower().required();
-		this.power = new SymmetricPower(ess.allowedDischarge().required(), ess.allowedCharge().required(),
-				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required());
+		power = ess.getPower();
+		activePowerLimit = new PEqualLimitation(power);
+		reactivePowerLimit = new QEqualLimitation(power);
 	}
 
 	public long useableSoc() throws InvalidValueException {

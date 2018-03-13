@@ -18,9 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.impl.controller.symmetric.fixvalue;
-
-import java.util.List;
+package io.openems.impl.controller.symmetric.powerlimitation;
 
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
@@ -28,33 +26,34 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
-@ThingInfo(title = "Fixed active and reactive power (Symmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For symmetric Ess.")
-public class FixValueController extends Controller {
+@ThingInfo(title = "Power limitation (Symmetric)", description = "Limits the active and reactive power of the Ess. For symmetric Ess.")
+public class ActivePowerLimitationController extends Controller {
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
-	public FixValueController() {
+	public ActivePowerLimitationController() {
 		super();
 	}
 
-	public FixValueController(String thingId) {
+	public ActivePowerLimitationController(String thingId) {
 		super(thingId);
 	}
 
 	/*
 	 * Config
 	 */
-	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
-	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
+	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
+	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
 
-	@ChannelInfo(title = "ActivePower", description = "The active power to set for each Ess.", type = Integer.class, isOptional = true)
-	public ConfigChannel<Integer> p = new ConfigChannel<Integer>("p", this);
+	@ChannelInfo(title = "Min-Charge ActivePower", description = "The minimum allowed active power for discharge. Value is negative.", type = Long.class, isOptional = true)
+	public ConfigChannel<Long> pMin = new ConfigChannel<Long>("pMin", this);
 
-	@ChannelInfo(title = "ReactivePower", description = "The reactive power to set for each Ess.", type = Integer.class, isOptional = true)
-	public ConfigChannel<Integer> q = new ConfigChannel<Integer>("q", this);
+	@ChannelInfo(title = "Max-Charge ActivePower", description = "The maximum allowed active power for discharge. Value is positive.", type = Long.class, isOptional = true)
+	public ConfigChannel<Long> pMax = new ConfigChannel<Long>("pMax", this);
 
 	/*
 	 * Methods
@@ -62,14 +61,22 @@ public class FixValueController extends Controller {
 	@Override
 	public void run() {
 		try {
-			for (Ess ess : esss.value()) {
-				if (p.valueOptional().isPresent()) {
-					ess.power.setActivePower(p.value());
+			Ess ess = this.ess.value();
+			if (pMin.isValuePresent()) {
+				ess.minActivePowerLimit.setP(pMin.valueOptional().orElse(null));
+				try {
+					ess.power.applyLimitation(ess.minActivePowerLimit);
+				} catch (PowerException e) {
+					log.error("Failed to write Min P",e);
 				}
-				if (q.valueOptional().isPresent()) {
-					ess.power.setReactivePower(q.value());
+			}
+			if(pMax.isValuePresent()) {
+				ess.maxActivePowerLimit.setP(pMax.valueOptional().orElse(null));
+				try {
+					ess.power.applyLimitation(ess.maxActivePowerLimit);
+				} catch (PowerException e) {
+					log.error("Failed to write Max P",e);
 				}
-				ess.power.writePower();
 			}
 		} catch (InvalidValueException e) {
 			log.error("No ess found.", e);
@@ -78,7 +85,7 @@ public class FixValueController extends Controller {
 
 	@Override
 	public ThingStateChannels getStateChannel() {
-		return this.thingState;
+		return thingState;
 	}
 
 }

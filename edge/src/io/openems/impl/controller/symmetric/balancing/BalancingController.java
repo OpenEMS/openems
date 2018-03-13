@@ -32,7 +32,7 @@ import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.AvgFiFoQueue;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Self-consumption optimization (Symmetric)", description = "Tries to keep the grid meter on zero. For symmetric Ess. Ess-Cluster is supported.")
 public class BalancingController extends Controller {
@@ -58,7 +58,6 @@ public class BalancingController extends Controller {
 	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public final ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
-	private AvgFiFoQueue meterPower = new AvgFiFoQueue(2, 1.5);
 
 	/*
 	 * Methods
@@ -71,16 +70,14 @@ public class BalancingController extends Controller {
 			List<Ess> useableEss = getUseableEss();
 			if (useableEss.size() > 0) {
 				// Calculate required sum values
-				meterPower.add(meter.value().activePower.value());
-				long calculatedPower = meterPower.avg();
+				long calculatedPower = meter.value().activePower.value();
 				long maxChargePower = 0;
 				long maxDischargePower = 0;
 				long useableSoc = 0;
 				for (Ess ess : useableEss) {
-					ess.powerAvg.add(ess.activePower.value());
-					calculatedPower += ess.powerAvg.avg();
-					maxChargePower += ess.setActivePower.writeMin().orElse(ess.allowedCharge.value());
-					maxDischargePower += ess.setActivePower.writeMax().orElse(ess.allowedDischarge.value());
+					calculatedPower += ess.activePower.value();
+					maxChargePower += ess.power.getMinP().orElse(0L);
+					maxDischargePower += ess.power.getMaxP().orElse(0L);
 					useableSoc += ess.useableSoc();
 				}
 				if (calculatedPower > 0) {
@@ -105,14 +102,14 @@ public class BalancingController extends Controller {
 						long minP = calculatedPower;
 						for (int j = i + 1; j < useableEss.size(); j++) {
 							if (useableEss.get(j).useableSoc() > 0) {
-								minP -= useableEss.get(j).allowedDischarge.value();
+								minP -= useableEss.get(j).power.getMaxP().orElse(0L);
 							}
 						}
 						if (minP < 0) {
 							minP = 0;
 						}
 						// check maximal power to avoid larger charges then calculatedPower
-						long maxP = ess.allowedDischarge.value();
+						long maxP = ess.power.getMaxP().orElse(0L);
 						if (calculatedPower < maxP) {
 							maxP = calculatedPower;
 						}
@@ -122,10 +119,8 @@ public class BalancingController extends Controller {
 						 * if the useableSoc is negative the ess will be charged
 						 */
 						long p = (long) (Math.ceil((minP + diff / useableSoc * ess.useableSoc()) / 100) * 100);
-						ess.power.setActivePower(p);
-						ess.power.writePower();
-						log.debug(ess.id() + " Set ActivePower [" + ess.power.getActivePower() + "], ReactivePower ["
-								+ ess.power.getReactivePower() + "]");
+						ess.limit.setP(p);
+						ess.power.applyLimitation(ess.limit);
 						calculatedPower -= p;
 					}
 				} else {
@@ -155,13 +150,13 @@ public class BalancingController extends Controller {
 						// calculate minimal power needed to fulfill the calculatedPower
 						long minP = calculatedPower;
 						for (int j = i + 1; j < useableEss.size(); j++) {
-							minP -= useableEss.get(j).allowedCharge.value();
+							minP -= useableEss.get(j).power.getMinP().orElse(0L);
 						}
 						if (minP > 0) {
 							minP = 0;
 						}
 						// check maximal power to avoid larger charges then calculatedPower
-						long maxP = ess.allowedCharge.value();
+						long maxP = ess.power.getMinP().orElse(0L);
 						if (calculatedPower > maxP) {
 							maxP = calculatedPower;
 						}
@@ -170,10 +165,8 @@ public class BalancingController extends Controller {
 						long p = (long) Math.floor(
 								(minP + diff / (useableEss.size() * 100 - useableSoc) * (100 - ess.useableSoc())) / 100)
 								* 100;
-						ess.power.setActivePower(p);
-						ess.power.writePower();
-						log.debug(ess.id() + " Set ActivePower [" + ess.power.getActivePower() + "], ReactivePower ["
-								+ ess.power.getReactivePower() + "]");
+						ess.limit.setP(p);
+						ess.power.applyLimitation(ess.limit);
 						calculatedPower -= p;
 					}
 				}
@@ -181,6 +174,8 @@ public class BalancingController extends Controller {
 			}
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
+		} catch (PowerException e) {
+			log.error("Failed to set Power!",e);
 		}
 	}
 

@@ -34,9 +34,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import info.faljse.SDNotify.SDNotify;
-import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
@@ -46,7 +44,6 @@ import io.openems.api.exception.InvalidValueException;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.core.ThingRepository;
 
 @ThingInfo(title = "Weekly App-Planner", description = "Define recurring weekly plans.")
 public class WeekTimeScheduler extends Scheduler {
@@ -57,7 +54,6 @@ public class WeekTimeScheduler extends Scheduler {
 	 * Constructors
 	 */
 	public WeekTimeScheduler() {
-		thingRepository = ThingRepository.getInstance();
 		this.thingState = new ThingStateChannels(this);
 	}
 
@@ -96,11 +92,6 @@ public class WeekTimeScheduler extends Scheduler {
 	public ConfigChannel<JsonArray> always = new ConfigChannel<>("always", this);
 
 	/*
-	 * Fields
-	 */
-	private ThingRepository thingRepository;
-
-	/*
 	 * Methods
 	 */
 	@Override
@@ -126,12 +117,6 @@ public class WeekTimeScheduler extends Scheduler {
 				if (controller != null) {
 					controller.executeRun();
 				}
-			}
-			for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
-				channel.shadowCopyAndReset();
-			}
-			for (Bridge bridge : thingRepository.getBridges()) {
-				bridge.triggerWrite();
 			}
 		} catch (DateTimeParseException | OpenemsException e) {
 			log.error(e.getMessage());

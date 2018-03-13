@@ -29,6 +29,7 @@ import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.core.utilities.power.symmetric.SymmetricPower;
 import io.openems.impl.protocol.modbus.ModbusCoilReadChannel;
 import io.openems.impl.protocol.modbus.ModbusCoilWriteChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
@@ -92,7 +93,6 @@ public class StreetscooterEss1 extends ModbusDeviceNature implements SymmetricEs
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 12000L).unit("Wh");
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 9000L)
 			.unit("VA");
-	private ModbusWriteLongChannel setActivePower;
 
 	@Override
 	public ReadChannel<Long> allowedCharge() {
@@ -239,7 +239,8 @@ public class StreetscooterEss1 extends ModbusDeviceNature implements SymmetricEs
 						new CoilElement(12001,
 								inverterConnected = new ModbusCoilReadChannel("Inverteronnected", this))),
 				new WriteableModbusRegisterRange(44001, //
-						new FloatElement(44001, setActivePower = new ModbusWriteLongChannel("ICUSetPower", this))),
+						// TODO use ICUSetPower for setActivePower
+						new FloatElement(44001, new ModbusWriteLongChannel("ICUSetPower", this))),
 
 				new WriteableModbusCoilRange(4001,
 						new CoilElement(4001, icuEnabled = new ModbusCoilWriteChannel("ICUEnabled", this)),
@@ -281,13 +282,8 @@ public class StreetscooterEss1 extends ModbusDeviceNature implements SymmetricEs
 	}
 
 	@Override
-	public WriteChannel<Long> setActivePower() {
-		return setActivePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setReactivePower() {
+	public SymmetricPower getPower() {
+		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

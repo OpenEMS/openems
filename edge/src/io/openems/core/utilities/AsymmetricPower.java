@@ -23,7 +23,9 @@ package io.openems.core.utilities;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,11 +132,25 @@ public class AsymmetricPower {
 				new ArrayList<Long>(), new ArrayList<Long>() };
 		@SuppressWarnings("unchecked") List<Long>[] maxReactivePowerPhase = new List[] { new ArrayList<Long>(),
 				new ArrayList<Long>(), new ArrayList<Long>() };
+		Map<Integer, WriteChannel<Long>> activePowerPosChannels = new HashMap<>();
+		Map<Integer, WriteChannel<Long>> activePowerNegChannels = new HashMap<>();
+		Map<Integer, WriteChannel<Long>> reactivePowerPosChannels = new HashMap<>();
+		Map<Integer, WriteChannel<Long>> reactivePowerNegChannels = new HashMap<>();
+		long activePowerSum = 0;
+		long activePowerAsymmetriePosSum = 0;
 		long activePowerPosSum = 0;
 		long activePowerNegSum = 0;
-		long activePowerSum = 0;
 		long reactivePowerSum = 0;
+		long reactivePowerAsymmetriePosSum = 0;
 		for (int i = 0; i < 3; i++) {
+			// Check if active power is already set
+			if (setActivePower[i].getWriteValue().isPresent()) {
+				this.activePower[i] = setActivePower[i].getWriteValue().get();
+			}
+			// Check if reactive power is already set
+			if (setReactivePower[i].getWriteValue().isPresent()) {
+				this.reactivePower[i] = setReactivePower[i].getWriteValue().get();
+			}
 			if (activePower[i] > 0) {
 				activePowerPosSum += activePower[i];
 			} else {
@@ -143,20 +159,26 @@ public class AsymmetricPower {
 			activePowerSum += activePower[i];
 			reactivePowerSum += reactivePower[i];
 		}
+		for (int i = 0; i < 3; i++) {
+			if (activePower[i] - activePowerSum / 3 > 0) {
+				activePowerPosChannels.put(i, setActivePower[i]);
+				activePowerAsymmetriePosSum += activePower[i] - activePowerSum / 3;
+			} else {
+				activePowerNegChannels.put(i, setActivePower[i]);
+			}
+			if (reactivePower[i] - reactivePowerSum / 3 > 0) {
+				reactivePowerPosChannels.put(i, setReactivePower[i]);
+				reactivePowerAsymmetriePosSum += reactivePower[i] - reactivePowerSum / 3;
+			} else {
+				reactivePowerNegChannels.put(i, setReactivePower[i]);
+			}
+		}
 		try {
 			for (int i = 0; i < 3; i++) {
-				// Check if active power is already set
-				if (setActivePower[i].getWriteValue().isPresent()) {
-					this.activePower[i] = setActivePower[i].getWriteValue().get();
-				}
-				// Check if reactive power is already set
-				if (setReactivePower[i].getWriteValue().isPresent()) {
-					this.reactivePower[i] = setReactivePower[i].getWriteValue().get();
-				}
 				// set limits by allowed apparent
 				double cosPhi = ControllerUtils.calculateCosPhi(this.activePower[i], this.reactivePower[i]);
-				long activePower = ControllerUtils.calculateActivePowerFromApparentPower(allowedApparent.value() / 3,
-						cosPhi);
+				long activePower = Math.abs(
+						ControllerUtils.calculateActivePowerFromApparentPower(allowedApparent.value() / 3, cosPhi));
 				long reactivePower = ControllerUtils.calculateReactivePower(activePower, allowedApparent.value() / 3);
 				maxReactivePowerPhase[i].add(reactivePower);
 				minReactivePowerPhase[i].add(reactivePower * -1);
@@ -174,16 +196,19 @@ public class AsymmetricPower {
 				if (setActivePower[i].writeMin().isPresent()) {
 					minActivePowerPhase[i].add(setActivePower[i].writeMin().get());
 				}
-				if (this.activePower[i] < 0) {
-					minActivePowerPhase[i].add(allowedCharge.value() / activePowerNegSum * this.activePower[i]);
-				}
-				if (this.activePower[i] > 0) {
-					maxActivePowerPhase[i].add(allowedDischarge.value() / activePowerPosSum * this.activePower[i]);
-				}
 			}
-
 			switch (reductionType) {
 			case PERSUM: {
+				// Reduce activePower by allowedCharge/allowedDischarge
+				long batteryPowerShift = 0;
+				if (allowedCharge.value() > activePowerSum) {
+					batteryPowerShift = allowedCharge.value() - activePowerSum;
+				} else if (allowedDischarge.value() < activePowerSum) {
+					batteryPowerShift = allowedDischarge.value() - activePowerSum;
+				}
+				for (int i = 0; i < 3; i++) {
+					reducedActivePower[i] -= batteryPowerShift / 3;
+				}
 				Long[] minActivePowers = new Long[] { Collections.max(minActivePowerPhase[0]),
 						Collections.max(minActivePowerPhase[1]), Collections.max(minActivePowerPhase[2]) };
 				Long[] maxActivePowers = new Long[] { Collections.min(maxActivePowerPhase[0]),
@@ -192,56 +217,113 @@ public class AsymmetricPower {
 						Collections.max(minReactivePowerPhase[1]), Collections.max(minReactivePowerPhase[2]) };
 				Long[] maxReactivePowers = new Long[] { Collections.min(maxReactivePowerPhase[0]),
 						Collections.min(maxReactivePowerPhase[1]), Collections.min(maxReactivePowerPhase[2]) };
+				long activePowerReduction = 0;
+				long reactivePowerReduction = 0;
 				for (int i = 0; i < 3; i++) {
-					if (activePower[i] > maxActivePowers[i]) {
-						setMinMaxValues(maxActivePowers[i], activePower[i], maxActivePowerPhase, minActivePowerPhase,
-								activePowerSum, i);
-					} else if (activePower[i] < minActivePowers[i]) {
-						setMinMaxValues(minActivePowers[i], activePower[i], maxActivePowerPhase, minActivePowerPhase,
-								activePowerSum, i);
+					long activepowerDelta = 0;
+					if (reducedActivePower[i] > maxActivePowers[i]) {
+						activepowerDelta = maxActivePowers[i] - reducedActivePower[i];
+					} else if (reducedActivePower[i] < minActivePowers[i]) {
+						activepowerDelta = minActivePowers[i] - reducedActivePower[i];
 					}
-					if (reactivePower[i] > maxReactivePowers[i]) {
-						setMinMaxValues(maxReactivePowers[i], reactivePower[i], maxReactivePowerPhase,
-								minReactivePowerPhase, reactivePowerSum, i);
-					} else if (reactivePower[i] < minReactivePowers[i]) {
-						setMinMaxValues(minReactivePowers[i], reactivePower[i], maxReactivePowerPhase,
-								minReactivePowerPhase, reactivePowerSum, i);
+					activepowerDelta = Math.abs(activepowerDelta);
+					if (activePowerNegChannels.containsKey(i) && activePowerNegChannels.size() > 1) {
+						Map<Integer, WriteChannel<Long>> remainingChannel = new HashMap<>(activePowerNegChannels);
+						remainingChannel.remove(i);
+						double reductionPercentage = activepowerDelta / (reducedActivePower[i] - activePowerSum / 3.0);
+						for (int j : remainingChannel.keySet()) {
+							activepowerDelta += (reducedActivePower[j] - activePowerSum / 3) * reductionPercentage;
+						}
+					} else if (activePowerPosChannels.containsKey(i) && activePowerPosChannels.size() > 1) {
+						Map<Integer, WriteChannel<Long>> remainingChannel = new HashMap<>(activePowerPosChannels);
+						remainingChannel.remove(i);
+						double reductionPercentage = activepowerDelta / (reducedActivePower[i] - activePowerSum / 3.0);
+						for (int j : remainingChannel.keySet()) {
+							activepowerDelta += (reducedActivePower[j] - activePowerSum / 3.0) * reductionPercentage;
+						}
 					}
+					activePowerReduction = Math.max(activepowerDelta, activePowerReduction);
+					long reactivepowerDelta = 0;
+					if (reducedReactivePower[i] > maxReactivePowers[i]) {
+						reactivepowerDelta = maxReactivePowers[i] - reducedReactivePower[i];
+					} else if (reducedReactivePower[i] < minReactivePowers[i]) {
+						reactivepowerDelta = minReactivePowers[i] - reducedReactivePower[i];
+					}
+					reactivepowerDelta = Math.abs(reactivepowerDelta);
+					if (reactivePowerNegChannels.containsKey(i) && reactivePowerNegChannels.size() > 1) {
+						Map<Integer, WriteChannel<Long>> remainingChannel = new HashMap<>(reactivePowerNegChannels);
+						remainingChannel.remove(i);
+						double reductionPercentage = reactivepowerDelta
+								/ (reducedReactivePower[i] - reactivePowerSum / 3.0);
+						for (int j : remainingChannel.keySet()) {
+							reactivepowerDelta += (reducedReactivePower[j] - reactivePowerSum / 3)
+									* reductionPercentage;
+						}
+					} else if (reactivePowerPosChannels.containsKey(i) && reactivePowerPosChannels.size() > 1) {
+						Map<Integer, WriteChannel<Long>> remainingChannel = new HashMap<>(reactivePowerPosChannels);
+						remainingChannel.remove(i);
+						double reductionPercentage = reactivepowerDelta
+								/ (reducedReactivePower[i] - reactivePowerSum / 3.0);
+						for (int j : remainingChannel.keySet()) {
+							reactivepowerDelta += (reducedReactivePower[j] - reactivePowerSum / 3.0)
+									* reductionPercentage;
+						}
+					}
+					reactivePowerReduction = Math.max(reactivepowerDelta, reactivePowerReduction);
+				}
+				if (activePowerReduction > activePowerAsymmetriePosSum) {
+					activePowerReduction = activePowerAsymmetriePosSum;
+				}
+				if (reactivePowerReduction > reactivePowerAsymmetriePosSum) {
+					reactivePowerReduction = reactivePowerAsymmetriePosSum;
+				}
+				for (int i = 0; i < 3; i++) {
+					long delta = (long) ((double) activePowerReduction / (double) activePowerAsymmetriePosSum
+							* (reducedActivePower[i] - activePowerSum / 3.0));
+					reducedActivePower[i] -= delta;
+				}
+				for (int i = 0; i < 3; i++) {
+					long delta = (long) ((double) reactivePowerReduction / (double) reactivePowerAsymmetriePosSum
+							* (reducedReactivePower[i] - reactivePowerSum / 3.0));
+					reducedReactivePower[i] -= delta;
 				}
 			}
+			break;
 			default:
 			case PERPHASE:
-
+				// reduce to min/max values
+				for (int i = 0; i < 3; i++) {
+					if (reducedActivePower[i] < 0) {
+						minActivePowerPhase[i].add(allowedCharge.value() / activePowerNegSum * reducedActivePower[i]);
+					} else {
+						maxActivePowerPhase[i].add(allowedDischarge.value() / activePowerPosSum * reducedActivePower[i]);
+					}
+					long minReactivePower = Collections.max(minReactivePowerPhase[i]);
+					long maxReactivePower = Collections.min(maxReactivePowerPhase[i]);
+					long minActivePower = Collections.max(minActivePowerPhase[i]);
+					long maxActivePower = Collections.min(maxActivePowerPhase[i]);
+					if (activePower[i] > maxActivePower) {
+						reducedActivePower[i] = maxActivePower;
+					} else if (activePower[i] < minActivePower) {
+						reducedActivePower[i] = minActivePower;
+					}
+					if (reactivePower[i] > maxReactivePower) {
+						reducedReactivePower[i] = maxReactivePower;
+					} else if (reactivePower[i] < minReactivePower) {
+						reducedReactivePower[i] = minReactivePower;
+					}
+				}
 				break;
 			}
-			// reduce to min/max values
-			for (int i = 0; i < 3; i++) {
-				long minReactivePower = Collections.max(minReactivePowerPhase[i]);
-				long maxReactivePower = Collections.min(maxReactivePowerPhase[i]);
-				long minActivePower = Collections.max(minActivePowerPhase[i]);
-				long maxActivePower = Collections.min(maxActivePowerPhase[i]);
-				if (activePower[i] > maxActivePower) {
-					reducedActivePower[i] = maxActivePower;
-				} else if (activePower[i] < minActivePower) {
-					reducedActivePower[i] = minActivePower;
-				}
-				if (reactivePower[i] > maxReactivePower) {
-					reducedReactivePower[i] = maxReactivePower;
-				} else if (reactivePower[i] < minReactivePower) {
-					reducedReactivePower[i] = minReactivePower;
-				}
-			}
-		} catch (
-
-		InvalidValueException e) {
+		} catch (InvalidValueException e) {
 			log.error("Failed to reduce power", e);
 		}
 		log.info(
 				"Reduce activePower L1:[{}]->[{}], L2:[{}]->[{}],L3:[{}]->[{}] "
 						+ "and reactivePower L1:[{}]->[{}], L2:[{}]->[{}], L3:[{}]->[{}]",
-				new Object[] { activePower[0], reducedActivePower[0], activePower[1], reducedActivePower[1],
-						activePower[2], reducedActivePower[2], reactivePower[0], reducedReactivePower[0],
-						reactivePower[1], reducedReactivePower[1], reactivePower[2], reducedReactivePower[2] });
+						new Object[] { activePower[0], reducedActivePower[0], activePower[1], reducedActivePower[1],
+								activePower[2], reducedActivePower[2], reactivePower[0], reducedReactivePower[0],
+								reactivePower[1], reducedReactivePower[1], reactivePower[2], reducedReactivePower[2] });
 		for (int i = 0; i < 3; i++) {
 			this.activePower[i] = reducedActivePower[i];
 			this.reactivePower[i] = reducedReactivePower[i];
@@ -275,22 +357,6 @@ public class AsymmetricPower {
 		reactivePower[0] = 0;
 		reactivePower[1] = 0;
 		reactivePower[2] = 0;
-	}
-
-	private void setMinMaxValues(long limit, long power, List<Long>[] maxLimits, List<Long>[] minLimits, Long powerSum,
-			int phase) {
-		long diff = limit - power;
-		for (int i = 0; i < 3; i++) {
-			long delta = Math.abs(diff);
-			if (i != phase) {
-				delta /= 2;
-			}
-			if (this.activePower[i] > powerSum) {
-				maxLimits[i].add(this.activePower[i] - delta);
-			} else {
-				minLimits[i].add(this.activePower[i] + delta);
-			}
-		}
 	}
 
 }

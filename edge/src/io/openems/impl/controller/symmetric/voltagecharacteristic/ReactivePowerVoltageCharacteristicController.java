@@ -34,21 +34,21 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
 import io.openems.core.utilities.Point;
-import io.openems.core.utilities.SymmetricPower;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Voltage characteristics (Symmetric)")
-public class VoltageCharacteristicController extends Controller {
+public class ReactivePowerVoltageCharacteristicController extends Controller {
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
-	public VoltageCharacteristicController() {
+	public ReactivePowerVoltageCharacteristicController() {
 		super();
 		initialize();
 	}
 
-	public VoltageCharacteristicController(String thingId) {
+	public ReactivePowerVoltageCharacteristicController(String thingId) {
 		super(thingId);
 		initialize();
 	}
@@ -65,45 +65,19 @@ public class VoltageCharacteristicController extends Controller {
 	@ChannelInfo(title = "Nominal voltage", description = "The nominal voltage of the grid.", type = Integer.class)
 	public final ConfigChannel<Integer> uNenn = new ConfigChannel<>("UNenn", this);
 
-	@ChannelInfo(title = "ActivePower characteristics", description = "Characteristic points for active power.", type = Long[].class, isArray = true)
-	public final ConfigChannel<List<Long[]>> pByUCharacteristicPoints = new ConfigChannel<>("pByUCharacteristicPoints",
-			this);
-
 	@ChannelInfo(title = "ReactivePower characteristics", description = "Characteristic points for reactive power.", type = Long[].class, isArray = true)
 	public final ConfigChannel<List<Long[]>> qByUCharacteristicPoints = new ConfigChannel<>("qByUCharacteristicPoints",
 			this);
 
-	@ChannelInfo(title = "Enable ActivePower", description = "Indicates if active power characteristic is enabled.", type = Boolean.class, defaultValue = "true")
-	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<>("activePowerActivated", this);
-
-	@ChannelInfo(title = "Enable ReactivePower", description = "Indicates if reactive power characteristic is enabled.", type = Boolean.class, defaultValue = "true")
-	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<>("reactivePowerActivated", this);
-
 	/*
 	 * Fields
 	 */
-	private List<Point> pCharacteristic;
 	private List<Point> qCharacteristic;
 
 	/*
 	 * Methods
 	 */
 	private void initialize() {
-		pByUCharacteristicPoints.addChangeListener(new ChannelChangeListener() {
-
-			@Override
-			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-				try {
-					List<Point> points = new ArrayList<>();
-					for (Long[] arr : pByUCharacteristicPoints.value()) {
-						points.add(new Point(arr[0], arr[1]));
-					}
-					pCharacteristic = points;
-				} catch (InvalidValueException e) {
-					log.error(e.getMessage());
-				}
-			}
-		});
 		qByUCharacteristicPoints.addChangeListener(new ChannelChangeListener() {
 
 			@Override
@@ -115,7 +89,8 @@ public class VoltageCharacteristicController extends Controller {
 					}
 					qCharacteristic = points;
 				} catch (InvalidValueException e) {
-					log.error(e.getMessage());
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 		});
@@ -124,25 +99,21 @@ public class VoltageCharacteristicController extends Controller {
 	@Override
 	public void run() {
 		try {
-			SymmetricPower power = ess.value().power;
+			Ess ess = this.ess.value();
 			double uRatio = (double) meter.value().voltage.value() / (double) uNenn.value() * 100.0;
-			long nominalActivePower = ess.value().maxNominalPower.value();
-			long nominalReactivePower = ess.value().maxNominalPower.value();
-			power.setActivePower(
-					(long) (nominalActivePower / 100.0 * ControllerUtils.getValueOfLine(pCharacteristic, uRatio)));
-			power.setReactivePower(
-					(long) (nominalReactivePower / 100.0 * ControllerUtils.getValueOfLine(qCharacteristic, uRatio)));
-			power.writePower();
-			log.info(ess.id() + " Set ActivePower [" + power.getActivePower() + "], ReactivePower ["
-					+ power.getReactivePower() + "]");
+			long nominalReactivePower = ess.maxNominalPower.value();
+			ess.reactivePowerLimit.setQ((long) (nominalReactivePower / 100.0 * ControllerUtils.getValueOfLine(qCharacteristic, uRatio)));
+			ess.power.applyLimitation(ess.reactivePowerLimit);
 		} catch (InvalidValueException e) {
 			log.error("Failed to read Value.", e);
+		} catch (PowerException e) {
+			log.error("Failed to set Power!",e);
 		}
 	}
 
 	@Override
 	public ThingStateChannels getStateChannel() {
-		return this.thingState;
+		return thingState;
 	}
 
 }

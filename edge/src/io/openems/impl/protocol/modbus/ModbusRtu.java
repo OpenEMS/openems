@@ -142,7 +142,8 @@ public class ModbusRtu extends ModbusBridge {
 			if (!baudrate.valueOptional().isPresent() || !databits.valueOptional().isPresent()
 					|| !parity.valueOptional().isPresent() || !serialinterface.valueOptional().isPresent()
 					|| !stopbits.valueOptional().isPresent()) {
-				throw new OpenemsModbusException("Modbus-RTU is not configured completely");
+				this.configurationFault.setValue(true);
+				throw new OpenemsModbusException(this.id() + ": Modbus-RTU is not configured completely");
 			}
 			SerialParameters params = new SerialParameters();
 			params.setPortName(serialinterface.valueOptional().get());
@@ -162,7 +163,9 @@ public class ModbusRtu extends ModbusBridge {
 				serialCon.getModbusTransport().setTimeout(1000);
 				this.connectionFault.setValue(false);
 			} catch (Exception e) {
-				throw new OpenemsModbusException("Unable to open Modbus-RTU connection: " + connection);
+				this.connectionFault.setValue(true);
+				throw new OpenemsModbusException(this.id() + ": Unable to open Modbus-RTU connection to ["
+						+ serialinterface.valueOptional().orElse("UNDEFINED") + "]: " + e.getMessage());
 			}
 		}
 		return connection.get();

@@ -26,6 +26,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Balancing current (Symmetric)", description = "Tries to keep the grid meter at a given current. For symmetric Ess.")
 public class BalancingCurrentController extends Controller {
@@ -63,11 +64,12 @@ public class BalancingCurrentController extends Controller {
 			Ess ess = this.ess.value();
 			// Calculate required sum values
 			long power = calculatePower() + ess.activePower.value();
-			ess.power.setActivePower(power);
-			ess.power.writePower();
-			log.info(ess.id() + " Set ActivePower [" + ess.power.getActivePower() + "]");
+			ess.limit.setP(power);
+			ess.power.applyLimitation(ess.limit);
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
+		} catch (PowerException e) {
+			log.error("Failed to set Power",e);
 		}
 	}
 

@@ -20,6 +20,10 @@
  *******************************************************************************/
 package io.openems.impl.device.mini;
 
+import java.util.Optional;
+
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
@@ -35,6 +39,10 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.core.utilities.ControllerUtils;
+import io.openems.core.utilities.power.symmetric.PGreaterEqualLimitation;
+import io.openems.core.utilities.power.symmetric.PSmallerEqualLimitation;
+import io.openems.core.utilities.power.symmetric.SMaxLimitation;
+import io.openems.core.utilities.power.symmetric.SymmetricPowerImpl;
 import io.openems.impl.protocol.modbus.ModbusBitWrappingChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
@@ -107,6 +115,10 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 	private StaticValueChannel<Long> nominalPower = new StaticValueChannel<Long>("maxNominalPower", this, 3000l)
 			.unit("VA");
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 3000L).unit("Wh");
+	private SymmetricPowerImpl power;
+	private PGreaterEqualLimitation allowedChargeLimit;
+	private PSmallerEqualLimitation allowedDischargeLimit;
+	private SMaxLimitation allowedApparentLimit;
 
 	@Override
 	public ReadChannel<Long> allowedCharge() {
@@ -141,16 +153,6 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 	@Override
 	public ReadChannel<Long> activePower() {
 		return activePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setActivePower() {
-		return setActivePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setReactivePower() {
-		return setReactivePower;
 	}
 
 	@Override
@@ -441,7 +443,36 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 			}
 			return 0l;
 		}, activePower, reactivePower);
+		this.power = new SymmetricPowerImpl(3000, setActivePower, setReactivePower,getParent().getBridge());
+		this.allowedApparentLimit = new SMaxLimitation(power);
+		this.allowedApparentLimit.setSMax(phaseAllowedApparent.valueOptional().orElse(0L)*3, 0L, 0L);
+		this.phaseAllowedApparent.addChangeListener(new ChannelChangeListener() {
 
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+				allowedApparentLimit.setSMax(phaseAllowedApparent.valueOptional().orElse(0L)*3, 0L, 0L);
+			}
+		});
+		this.power.addStaticLimitation(this.allowedApparentLimit);
+		this.allowedChargeLimit = new PGreaterEqualLimitation(power);
+		this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
+		this.allowedCharge.addChangeListener(new ChannelChangeListener() {
+
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+				allowedChargeLimit.setP(allowedCharge.valueOptional().orElse(0L));
+			}
+		});
+		this.power.addStaticLimitation(this.allowedChargeLimit);
+		this.allowedDischargeLimit = new PSmallerEqualLimitation(power);
+		this.allowedDischargeLimit.setP(this.allowedDischarge.valueOptional().orElse(0L));
+		this.allowedDischarge.addChangeListener(new ChannelChangeListener() {
+
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+				allowedDischargeLimit.setP(allowedDischarge.valueOptional().orElse(0L));
+			}
+		});
 		return protokol;
 	}
 
@@ -458,6 +489,11 @@ public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNa
 	@Override
 	public StaticValueChannel<Long> capacity() {
 		return capacity;
+	}
+
+	@Override
+	public SymmetricPowerImpl getPower() {
+		return power;
 	}
 
 	@Override

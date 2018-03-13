@@ -21,10 +21,12 @@
 package io.openems.impl.controller.symmetric.timelinecharge;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.core.utilities.power.symmetric.PSmallerEqualLimitation;
+import io.openems.core.utilities.power.symmetric.SMaxLimitation;
+import io.openems.core.utilities.power.symmetric.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
@@ -34,7 +36,10 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Long> reactivePower;
 	public final ReadChannel<Long> gridMode;
 	public final ReadChannel<Long> capacity;
-	public final WriteChannel<Long> setActivePower;
+	public final SymmetricPower power;
+	public final PSmallerEqualLimitation maxActivePowerlimit;
+	public final SMaxLimitation maxApparentPower;
+	public final ReadChannel<Long> maxNominalPower;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
@@ -43,7 +48,10 @@ public class Ess extends ThingMap {
 		activePower = ess.activePower().required();
 		gridMode = ess.gridMode().required();
 		this.capacity = ess.capacity().required();
-		this.setActivePower = ess.setActivePower().required();
+		power = ess.getPower();
+		maxActivePowerlimit = new PSmallerEqualLimitation(power);
+		maxApparentPower = new SMaxLimitation(power);
+		maxNominalPower = ess.maxNominalPower();
 	}
 
 }

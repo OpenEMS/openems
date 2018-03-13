@@ -30,11 +30,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import info.faljse.SDNotify.SDNotify;
-import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
@@ -136,12 +134,6 @@ public class ChannelThresholdScheduler extends Scheduler {
 				- c1.priority.valueOptional().orElse(Integer.MIN_VALUE));
 		for (Controller controller : controllers) {
 			controller.executeRun();
-		}
-		for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
-			channel.shadowCopyAndReset();
-		}
-		for (Bridge bridge : thingRepository.getBridges()) {
-			bridge.triggerWrite();
 		}
 	}
 
@@ -245,24 +237,19 @@ public class ChannelThresholdScheduler extends Scheduler {
 			}
 		}
 		Collections.sort(thresholdCollection, (c1, c2) -> c1.threshold.compareTo(c2.threshold));
-		ControllerHysteresis lastHysteresis = null;
+		ControllerHysteresis lastHysteresis = new ControllerHysteresis();
+		lastHysteresis.min = Long.MIN_VALUE;
 		for (Threshold t : thresholdCollection) {
 			ControllerHysteresis ch = new ControllerHysteresis();
 			ch.min = t.threshold;
-			if (lastHysteresis != null) {
-				lastHysteresis.max = t.threshold + t.hysteresis;
-			}
 			ch.below = lastHysteresis;
 			ch.controllers.addAll(t.controllers);
-			if (lastHysteresis != null) {
-				lastHysteresis.above = ch;
-			}
+			lastHysteresis.max = t.threshold + t.hysteresis;
+			lastHysteresis.above = ch;
 			lastHysteresis = ch;
 		}
-		if (lastHysteresis != null) {
-			lastHysteresis.max = Long.MAX_VALUE;
-		}
-		if (thresholdChannel.valueOptional().isPresent() && lastHysteresis != null) {
+		lastHysteresis.max = Long.MAX_VALUE;
+		if (thresholdChannel.valueOptional().isPresent() && lastHysteresis.max > thresholdChannel.value()) {
 			while (lastHysteresis.below != null) {
 				if (lastHysteresis.isBetween(thresholdChannel.value())) {
 					break;

@@ -26,20 +26,20 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Power limitation (Symmetric)", description = "Limits the active and reactive power of the Ess. For symmetric Ess.")
-public class PowerLimitationController extends Controller {
+public class ReactivePowerLimitationController extends Controller {
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
-	public PowerLimitationController() {
+	public ReactivePowerLimitationController() {
 		super();
 	}
 
-	public PowerLimitationController(String thingId) {
+	public ReactivePowerLimitationController(String thingId) {
 		super(thingId);
 	}
 
@@ -67,33 +67,22 @@ public class PowerLimitationController extends Controller {
 	@Override
 	public void run() {
 		try {
-			try {
-				if (pMax.value() < ess.value().setActivePower.writeMax().orElse(Long.MAX_VALUE)) {
-					ess.value().setActivePower.pushWriteMax(pMax.value());
+			Ess ess = this.ess.value();
+			if (qMin.isValuePresent()) {
+				ess.minReactivePowerLimit.setQ(qMin.valueOptional().orElse(null));
+				try {
+					ess.power.applyLimitation(ess.minReactivePowerLimit);
+				} catch (PowerException e) {
+					log.error("Failed to write Min Q",e);
 				}
-			} catch (WriteChannelException | InvalidValueException e) {
-				log.error("Failed to write Max P value for [" + ess.value().id + "]: " + e.getMessage());
 			}
-			try {
-				if (pMin.value() > ess.value().setActivePower.writeMin().orElse(Long.MIN_VALUE)) {
-					ess.value().setActivePower.pushWriteMin(pMin.value());
+			if(qMax.isValuePresent()) {
+				ess.maxReactivePowerLimit.setQ(qMax.valueOptional().orElse(null));
+				try {
+					ess.power.applyLimitation(ess.maxReactivePowerLimit);
+				} catch (PowerException e) {
+					log.error("Failed to write Max Q",e);
 				}
-			} catch (WriteChannelException | InvalidValueException e) {
-				log.error("Failed to write Min P value for [" + ess.value().id + "]: " + e.getMessage());
-			}
-			try {
-				if (qMin.value() > ess.value().setReactivePower.writeMin().orElse(Long.MIN_VALUE)) {
-					ess.value().setReactivePower.pushWriteMin(qMin.value());
-				}
-			} catch (WriteChannelException | InvalidValueException e) {
-				log.error("Failed to write Min Q value for [" + ess.value().id + "]: " + e.getMessage());
-			}
-			try {
-				if (qMax.value() < ess.value().setReactivePower.writeMax().orElse(Long.MAX_VALUE)) {
-					ess.value().setReactivePower.pushWriteMax(qMax.value());
-				}
-			} catch (WriteChannelException | InvalidValueException e) {
-				log.error("Failed to write Max Q value for [" + ess.value().id + "]: " + e.getMessage());
 			}
 		} catch (InvalidValueException e) {
 			log.error("No ess found.", e);
