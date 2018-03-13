@@ -60,8 +60,7 @@ export class StateComponent {
             newRequiredSubscribes[thingId] = this.lastRequiredSubscribes[thingId];
           } else {
             // this is new -> generate required subscribes
-            // TODO
-            newRequiredSubscribes[thingId] = ["Fault/0", "Fault/1", "Warning/0"];
+            newRequiredSubscribes[thingId] = this.getStateChannelAddresses(thingId);
             subscribesChanged = true;
           }
         } else {
@@ -144,6 +143,24 @@ export class StateComponent {
       channelId: channelId,
       name: name
     };
+  }
+
+  private getStateChannelAddresses(thingId: string): string[] {
+    let result = [];
+    let clazz = this.config.things[thingId].class;
+    if (clazz instanceof Array) {
+      clazz = clazz[0];
+    }
+    if (clazz in THING_STATES) {
+      let meta = THING_STATES[clazz];
+      for (let id in meta.faults) {
+        result.push("Fault/" + id);
+      }
+      for (let id in meta.warnings) {
+        result.push("Warning/" + id);
+      }
+    }
+    return result;
   }
 
   constructor(public utils: Utils) { }

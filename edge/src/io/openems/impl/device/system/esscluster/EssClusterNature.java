@@ -621,7 +621,6 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 				setWorkState.removeChannel(ess.setWorkState());
 				setActivePower.removeChannel(ess.setActivePower());
 				setReactivePower.removeChannel(ess.setReactivePower());
-				thingState.removeChildChannel(ess.getStateChannel());
 			}
 			essList.clear();
 			if (essIds != null && isInitialized) {
@@ -644,7 +643,6 @@ public class EssClusterNature extends SystemDeviceNature implements SymmetricEss
 							setWorkState.addChannel(ess.setWorkState());
 							setActivePower.addChannel(ess.setActivePower());
 							setReactivePower.addChannel(ess.setReactivePower());
-							this.thingState.addChildChannel(ess.getStateChannel());
 						}
 					}
 				}
