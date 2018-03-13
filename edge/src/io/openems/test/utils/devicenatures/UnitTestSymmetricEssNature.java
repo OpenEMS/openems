@@ -38,10 +38,13 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 	public UnitTestWriteChannel<Long> setReactivePower = new UnitTestWriteChannel<>("SetReactivePower", this);
 	public StaticValueChannel<Long> capacity = new StaticValueChannel<Long>("Capacity", this,
 			SimulatorTools.getRandomLong(3000, 50000));
+	public SymmetricPowerImpl power = new SymmetricPowerImpl(9000, setActivePower, setReactivePower, getParent().getBridge());
 	private final String id;
+	private ThingStateChannels thingState;
 
 	public UnitTestSymmetricEssNature(String id) {
 		this.id = id;
+		thingState = new ThingStateChannels(this);
 	}
 
 	@Override
@@ -116,17 +119,7 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 
 	@Override
 	public ReadChannel<Long> maxNominalPower() {
-		return maxNominalPower();
-	}
-
-	@Override
-	public WriteChannel<Long> setActivePower() {
-		return setActivePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setReactivePower() {
-		return setReactivePower;
+		return maxNominalPower;
 	}
 
 	@Override
@@ -155,8 +148,13 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 	}
 
 	@Override
+	public SymmetricPowerImpl getPower() {
+		return power;
+	}
+
+	@Override
 	public ThingStateChannels getStateChannel() {
-		return null;
+		return thingState;
 	}
 
 }

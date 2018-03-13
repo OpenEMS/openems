@@ -26,19 +26,20 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Balancing bandgap (Symmetric)", description = "Tries to keep the grid meter within a bandgap. For symmetric Ess.")
-public class BalancingBandgapController extends Controller {
+public class BalancingBandgapActivePowerController extends Controller {
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
 	 * Constructors
 	 */
-	public BalancingBandgapController() {
+	public BalancingBandgapActivePowerController() {
 		super();
 	}
 
-	public BalancingBandgapController(String thingId) {
+	public BalancingBandgapActivePowerController(String thingId) {
 		super(thingId);
 	}
 
@@ -57,19 +58,6 @@ public class BalancingBandgapController extends Controller {
 	@ChannelInfo(title = "Max-ActivePower", description = "High boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> maxActivePower = new ConfigChannel<>("maxActivePower", this);
 
-	@ChannelInfo(title = "Min-ReactivePower", description = "Low boundary of reactive power bandgap.", type = Integer.class)
-	public final ConfigChannel<Integer> minReactivePower = new ConfigChannel<>("minReactivePower", this);
-
-	@ChannelInfo(title = "Max-ReactivePower", description = "High boundary of reactive power bandgap.", type = Integer.class)
-	public final ConfigChannel<Integer> maxReactivePower = new ConfigChannel<>("maxReactivePower", this);
-
-	@ChannelInfo(title = "Enable ActivePower", description = "Indicates if active power bandgap is enabled.", type = Boolean.class, defaultValue = "true")
-	public final ConfigChannel<Boolean> activePowerActivated = new ConfigChannel<Boolean>("activePowerActivated", this);
-
-	@ChannelInfo(title = "Enable ReactivePower", description = "Indicates if reactive power bandgap is enabled.", type = Boolean.class, defaultValue = "true")
-	public final ConfigChannel<Boolean> reactivePowerActivated = new ConfigChannel<Boolean>("reactivePowerActivated",
-			this);
-
 	/*
 	 * Methods
 	 */
@@ -80,7 +68,6 @@ public class BalancingBandgapController extends Controller {
 			Meter meter = this.meter.value();
 			// Calculate required sum values
 			long calculatedPower = meter.activePower.value() + ess.activePower.value();
-			long calculatedReactivePower = meter.reactivePower.value() + ess.reactivePower.value();
 			if (calculatedPower >= maxActivePower.value()) {
 				calculatedPower -= maxActivePower.value();
 			} else if (calculatedPower <= minActivePower.value()) {
@@ -88,37 +75,18 @@ public class BalancingBandgapController extends Controller {
 			} else {
 				calculatedPower = 0;
 			}
-			if (calculatedReactivePower >= maxReactivePower.value()) {
-				calculatedReactivePower -= maxReactivePower.value();
-			} else if (calculatedReactivePower <= minReactivePower.value()) {
-				calculatedReactivePower -= minReactivePower.value();
-			} else {
-				calculatedReactivePower = 0;
-			}
-			if (reactivePowerActivated.value()) {
-				ess.power.setReactivePower(calculatedReactivePower);
-			}
-			if (activePowerActivated.value()) {
-				ess.power.setActivePower(calculatedPower);
-			}
-			ess.power.writePower();
-			// write info message to log
-			String message = ess.id();
-			if (activePowerActivated.value()) {
-				message = message + " Set ActivePower [" + ess.power.getActivePower() + "]";
-			}
-			if (reactivePowerActivated.value()) {
-				message = message + " Set ReactivePower [" + ess.power.getReactivePower() + "]";
-			}
-			log.info(message);
+			ess.activePowerLimit.setP(calculatedPower);
+			ess.power.applyLimitation(ess.activePowerLimit);
 		} catch (InvalidValueException e) {
 			log.error(e.getMessage());
+		} catch (PowerException e) {
+			log.error("limit power failed!", e);
 		}
 	}
 
 	@Override
 	public ThingStateChannels getStateChannel() {
-		return this.thingState;
+		return thingState;
 	}
 
 }

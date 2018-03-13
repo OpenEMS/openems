@@ -23,7 +23,7 @@ public class CSVLoadGenerator implements LoadGenerator {
 	private List<String> values = new ArrayList<>(0);
 	private int count = 0;
 	private int columnPart = 0;
-	private String separator = "";
+	private String separator = ";";
 
 	public CSVLoadGenerator(JsonObject config) {
 		super();
@@ -40,11 +40,19 @@ public class CSVLoadGenerator implements LoadGenerator {
 		try {
 			br = new BufferedReader(new FileReader(this.filepath));
 			values = br.lines().collect(Collectors.toList());
-			String[] str = values.get(0).split("=");
-			separator = str[str.length - 1];
-			str = values.get(1).split(separator);
-			for (int i = 0; i < str.length; i++) {
-				if (str[i].equals(columnKey)) {
+			String[] columnNames;
+			if (values.get(0).contains("sep=")) {
+				String[] str = values.get(0).split("=");
+				separator = str[str.length - 1];
+				columnNames = values.get(1).split(separator);
+				values.remove(1);
+				values.remove(0);
+			}else {
+				columnNames = values.get(0).split(separator);
+				values.remove(0);
+			}
+			for (int i = 0; i < columnNames.length; i++) {
+				if (columnNames[i].equals(columnKey)) {
 					columnPart = i;
 				}
 			}

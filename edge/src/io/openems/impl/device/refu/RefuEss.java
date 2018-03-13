@@ -20,6 +20,10 @@
  *******************************************************************************/
 package io.openems.impl.device.refu;
 
+import java.util.Optional;
+
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
@@ -31,6 +35,10 @@ import io.openems.api.device.nature.ess.AsymmetricEssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.core.utilities.power.symmetric.NoPBetweenLimitation;
+import io.openems.core.utilities.power.symmetric.PGreaterEqualLimitation;
+import io.openems.core.utilities.power.symmetric.PSmallerEqualLimitation;
+import io.openems.core.utilities.power.symmetric.SymmetricPowerImpl;
 import io.openems.impl.protocol.modbus.ModbusBitWrappingChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
@@ -102,6 +110,11 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 100000L)
 			.unit("VA").unit("VA");
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 130000L).unit("Wh");
+	private SymmetricPowerImpl power;
+	private PGreaterEqualLimitation allowedChargeLimit;
+	private PSmallerEqualLimitation allowedDischargeLimit;
+	private NoPBetweenLimitation batFullLimit;
+	private NoPBetweenLimitation batEmptyLimit;
 	private ThingStateChannels thingState;
 	/*
 	 * This Channels
@@ -242,18 +255,8 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 	}
 
 	@Override
-	public WriteChannel<Long> setActivePower() {
-		return setActivePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setReactivePower() {
-		return setReactivePower;
-	}
-
-	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		return new ModbusProtocol( //
+		ModbusProtocol protocol = new ModbusProtocol( //
 				new ModbusInputRegisterRange(0x100, //
 						new UnsignedWordElement(0x100, //
 								systemState = new ModbusReadLongChannel("SystemState", this) //
@@ -395,8 +398,7 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 										this).unit("kWh")).wordorder(WordOrder.LSWMSW),
 						new SignedDoublewordElement(0x128, //
 								batteryDischargeEnergy = new ModbusReadLongChannel(
-										"BatteryDischargeEnergy", this)
-								.unit("kWh")).wordorder(WordOrder.LSWMSW),
+										"BatteryDischargeEnergy", this).unit("kWh")).wordorder(WordOrder.LSWMSW),
 						new UnsignedWordElement(0x12A, //
 								batteryOperationStatus = new StatusBitChannel("BatteryOperationStatus", this)
 								.label(1, "Battery group 1 operating")//
@@ -578,44 +580,61 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 								), //
 
 						new UnsignedWordElement(0x143,
-								new ModbusBitWrappingChannel("BatteryFault13", this, this.thingState)//
-								// .faultBit(, FaultEss)//
-								), //
-						new UnsignedWordElement(0x144,
-								new ModbusBitWrappingChannel("BatteryFault14", this, this.thingState)//
-								// .faultBit(, FaultEss)//
-								), //
-						new UnsignedWordElement(0x145,
-								batteryGroupControlStatus = new StatusBitChannel("BatteryGroupControlStatus", this)//
-								), new UnsignedWordElement(0x146, errorLog1 = new StatusBitChannel("ErrorLog1", this)//
-										), new UnsignedWordElement(0x147, errorLog2 = new StatusBitChannel("ErrorLog2", this)//
-												), new UnsignedWordElement(0x148, errorLog3 = new StatusBitChannel("ErrorLog3", this)//
-														), new UnsignedWordElement(0x149, errorLog4 = new StatusBitChannel("ErrorLog4", this)//
-																), new UnsignedWordElement(0x14a, errorLog5 = new StatusBitChannel("ErrorLog5", this)//
-																		), new UnsignedWordElement(0x14b, errorLog6 = new StatusBitChannel("ErrorLog6", this)//
-																				), new UnsignedWordElement(0x14c, errorLog7 = new StatusBitChannel("ErrorLog7", this)//
-																						), new UnsignedWordElement(0x14d, errorLog8 = new StatusBitChannel("ErrorLog8", this)//
-																								), new UnsignedWordElement(0x14e, errorLog9 = new StatusBitChannel("ErrorLog9", this)//
-																										), new UnsignedWordElement(0x14f, errorLog10 = new StatusBitChannel("ErrorLog10", this)//
-																												), new UnsignedWordElement(0x150, errorLog11 = new StatusBitChannel("ErrorLog11", this)//
-																														), new UnsignedWordElement(0x151, errorLog12 = new StatusBitChannel("ErrorLog12", this)//
-																																), new UnsignedWordElement(0x152, errorLog13 = new StatusBitChannel("ErrorLog13", this)//
-																																		), new UnsignedWordElement(0x153, errorLog14 = new StatusBitChannel("ErrorLog14", this)//
-																																				), new UnsignedWordElement(0x154, errorLog15 = new StatusBitChannel("ErrorLog15", this)//
-																																						), new UnsignedWordElement(0x155, errorLog16 = new StatusBitChannel("ErrorLog16", this)//
-																																								)), new WriteableModbusRegisterRange(0x200, //
-																																										new UnsignedWordElement(0x200, //
-																																												setWorkState = new ModbusWriteLongChannel("SetWorkState", this) //
-																																												.label(0, STOP) //
-																																												.label(1, START)),
-																																										new UnsignedWordElement(0x201, //
-																																												setSystemErrorReset = new ModbusWriteLongChannel("SetSystemErrorReset", this)//
-																																												.label(0, OFF)//
-																																												.label(1, ON)),
-																																										new UnsignedWordElement(0x202, //
-																																												setOperationMode = new ModbusWriteLongChannel("SetOperationMode", this)//
-																																												.label(0, "P/Q Set point")//
-																																												.label(1, "IAC / cosphi set point"))),
+								batteryFault13 = new StatusBitChannel("BatteryFault13", this)//
+								), new UnsignedWordElement(0x144,
+										batteryFault14 = new StatusBitChannel("BatteryFault14", this)//
+										), new UnsignedWordElement(0x145, batteryGroupControlStatus = new StatusBitChannel("BatteryGroupControlStatus", this)//
+												), new UnsignedWordElement(0x146,
+														errorLog1 = new StatusBitChannel("ErrorLog1", this)//
+														), new UnsignedWordElement(0x147,
+																errorLog2 = new StatusBitChannel("ErrorLog2", this)//
+																), new UnsignedWordElement(0x148,
+																		errorLog3 = new StatusBitChannel("ErrorLog3", this)//
+																		),
+						new UnsignedWordElement(0x149,
+								errorLog4 = new StatusBitChannel("ErrorLog4", this)//
+								), new UnsignedWordElement(0x14a,
+										errorLog5 = new StatusBitChannel("ErrorLog5", this)//
+										), new UnsignedWordElement(0x14b,
+												errorLog6 = new StatusBitChannel("ErrorLog6", this)//
+												),
+						new UnsignedWordElement(0x14c,
+								errorLog7 = new StatusBitChannel("ErrorLog7", this)//
+								), new UnsignedWordElement(0x14d,
+										errorLog8 = new StatusBitChannel("ErrorLog8", this)//
+										), new UnsignedWordElement(0x14e,
+												errorLog9 = new StatusBitChannel("ErrorLog9", this)//
+												),
+						new UnsignedWordElement(0x14f,
+								errorLog10 = new StatusBitChannel("ErrorLog10", this)//
+								), new UnsignedWordElement(0x150,
+										errorLog11 = new StatusBitChannel("ErrorLog11", this)//
+										), new UnsignedWordElement(0x151,
+												errorLog12 = new StatusBitChannel("ErrorLog12", this)//
+												),
+						new UnsignedWordElement(0x152,
+								errorLog13 = new StatusBitChannel("ErrorLog13", this)//
+								), new UnsignedWordElement(0x153,
+										errorLog14 = new StatusBitChannel("ErrorLog14", this)//
+										), new UnsignedWordElement(0x154,
+												errorLog15 = new StatusBitChannel("ErrorLog15", this)//
+												),
+						new UnsignedWordElement(0x155,
+								errorLog16 = new StatusBitChannel("ErrorLog16", this)//
+								)), new WriteableModbusRegisterRange(0x200, //
+										new UnsignedWordElement(0x200, //
+												setWorkState = new ModbusWriteLongChannel("SetWorkState", this) //
+												.label(0, STOP) //
+												.label(1, START)),
+										new UnsignedWordElement(0x201, //
+												setSystemErrorReset = new ModbusWriteLongChannel("SetSystemErrorReset",
+														this)//
+												.label(0, OFF)//
+												.label(1, ON)),
+										new UnsignedWordElement(0x202, //
+												setOperationMode = new ModbusWriteLongChannel("SetOperationMode", this)//
+												.label(0, "P/Q Set point")//
+												.label(1, "IAC / cosphi set point"))),
 				new WriteableModbusRegisterRange(0x203, new SignedWordElement(0x203, //
 						setActivePower = new ModbusWriteLongChannel("SetActivePower", this)//
 						.unit("W").multiplier(2))),
@@ -640,51 +659,45 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 						new SignedWordElement(0x20A, //
 								setReactivePowerL3 = new ModbusWriteLongChannel("SetReactivePowerL3", this)//
 								.unit("W").multiplier(2))));
-		// new ModbusInputRegisterRange(0x6040,
-		// new UnsignedWordElement(0x6040, //
-		// batteryInformation1 = new ModbusReadLongChannel("BatteryInformation1", this)),
-		// new UnsignedWordElement(0x6041, //
-		// batteryInformation2 = new ModbusReadLongChannel("BatteryInformation2", this)),
-		// new UnsignedWordElement(0x6042, //
-		// batteryInformation3 = new ModbusReadLongChannel("BatteryInformation3", this)),
-		// new UnsignedWordElement(0x6043, //
-		// batteryInformation4 = new ModbusReadLongChannel("BatteryInformation4", this))),
-		// new ModbusInputRegisterRange(0x6840,
-		// new UnsignedWordElement(0x6840, //
-		// batteryInformation5 = new ModbusReadLongChannel("BatteryInformation5", this)),
-		// new UnsignedWordElement(0x6841, //
-		// batteryInformation6 = new ModbusReadLongChannel("BatteryInformation6", this)),
-		// new UnsignedWordElement(0x6842, //
-		// batteryInformation7 = new ModbusReadLongChannel("BatteryInformation7", this)),
-		// new UnsignedWordElement(0x6843, //
-		// batteryInformation8 = new ModbusReadLongChannel("BatteryInformation8", this))),
-		// new ModbusInputRegisterRange(0x7640,
-		// new UnsignedWordElement(0x7640, //
-		// batteryInformation9 = new ModbusReadLongChannel("BatteryInformation9", this)),
-		// new UnsignedWordElement(0x7641, //
-		// batteryInformation10 = new ModbusReadLongChannel("BatteryInformation10", this)),
-		// new UnsignedWordElement(0x7642, //
-		// batteryInformation11 = new ModbusReadLongChannel("BatteryInformation11", this)),
-		// new UnsignedWordElement(0x7643, //
-		// batteryInformation12 = new ModbusReadLongChannel("BatteryInformation12", this))),
-		// new ModbusInputRegisterRange(0x8440,
-		// new UnsignedWordElement(0x8440, //
-		// batteryInformation13 = new ModbusReadLongChannel("BatteryInformation13", this)),
-		// new UnsignedWordElement(0x8441, //
-		// batteryInformation14 = new ModbusReadLongChannel("BatteryInformation14", this)),
-		// new UnsignedWordElement(0x8442, //
-		// batteryInformation15 = new ModbusReadLongChannel("BatteryInformation15", this)),
-		// new UnsignedWordElement(0x8443, //
-		// batteryInformation16 = new ModbusReadLongChannel("BatteryInformation16", this))),
-		// new ModbusInputRegisterRange(0x9240,
-		// new UnsignedWordElement(0x9240, //
-		// batteryInformation17 = new ModbusReadLongChannel("BatteryInformation17", this)),
-		// new UnsignedWordElement(0x9241, //
-		// batteryInformation18 = new ModbusReadLongChannel("BatteryInformation18", this)),
-		// new UnsignedWordElement(0x9242, //
-		// batteryInformation19 = new ModbusReadLongChannel("BatteryInformation19", this)),
-		// new UnsignedWordElement(0x9243, //
-		// batteryInformation20 = new ModbusReadLongChannel("BatteryInformation20", this))));
+		this.power = new SymmetricPowerImpl(100000, setActivePower, setReactivePower, getParent().getBridge());
+		this.allowedChargeLimit = new PGreaterEqualLimitation(power);
+		this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
+		this.batFullLimit = new NoPBetweenLimitation(power);
+		this.power.addStaticLimitation(batFullLimit);
+		this.allowedCharge.addChangeListener(new ChannelChangeListener() {
+
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+				allowedChargeLimit.setP(allowedCharge.valueOptional().orElse(0L));
+				if (allowedCharge.isValuePresent()) {
+					if (allowedCharge.getValue() > -100) {
+						batFullLimit.setP(0L, 5000L);
+					} else {
+						batFullLimit.setP(null, null);
+					}
+				}
+			}
+		});
+		this.power.addStaticLimitation(this.allowedChargeLimit);
+		this.allowedDischargeLimit = new PSmallerEqualLimitation(power);
+		this.allowedDischargeLimit.setP(this.allowedDischarge.valueOptional().orElse(0L));
+		this.batEmptyLimit = new NoPBetweenLimitation(power);
+		this.power.addStaticLimitation(batEmptyLimit);
+		this.allowedDischarge.addChangeListener(new ChannelChangeListener() {
+
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+				allowedDischargeLimit.setP(allowedDischarge.valueOptional().orElse(0L));
+				if (allowedDischarge.isValuePresent()) {
+					if(allowedDischarge.getValue() < 100) {
+						batEmptyLimit.setP(-5000L, 0L);
+					}else {
+						batEmptyLimit.setP(null, null);
+					}
+				}
+			}
+		});
+		return protocol;
 	}
 
 	@Override
@@ -750,6 +763,11 @@ public class RefuEss extends ModbusDeviceNature implements SymmetricEssNature, A
 	@Override
 	public WriteChannel<Long> setReactivePowerL3() {
 		return setReactivePowerL3;
+	}
+
+	@Override
+	public SymmetricPowerImpl getPower() {
+		return power;
 	}
 
 	@Override

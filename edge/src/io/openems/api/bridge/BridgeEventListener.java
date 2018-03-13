@@ -1,19 +1,7 @@
 package io.openems.api.bridge;
 
-public abstract class BridgeEventListener {
+public interface BridgeEventListener {
 
-	private long requiredTime = 0;
-
-	public void executeNotify(BridgeEvent event) {
-		long beforeExecute = System.currentTimeMillis();
-		notify(event);
-		requiredTime = System.currentTimeMillis() - beforeExecute;
-	}
-
-	public long getRequiredTime() {
-		return requiredTime;
-	}
-
-	protected abstract void notify(BridgeEvent event);
+	void onBridgeChange(BridgeEvent event);
 
 }

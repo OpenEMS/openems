@@ -127,12 +127,6 @@ public class WeekTimeScheduler extends Scheduler {
 					controller.executeRun();
 				}
 			}
-			for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
-				channel.shadowCopyAndReset();
-			}
-			for (Bridge bridge : thingRepository.getBridges()) {
-				bridge.triggerWrite();
-			}
 		} catch (DateTimeParseException | OpenemsException e) {
 			log.error(e.getMessage());
 		}

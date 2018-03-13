@@ -42,12 +42,11 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.api.exception.ReflectionException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.core.utilities.AvgFiFoQueue;
-import io.openems.core.utilities.ControllerUtils;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 
 @ThingInfo(title = "Timeline charge (Symmetric)")
@@ -80,10 +79,12 @@ public class TimelineChargeController extends Controller {
 	@ChannelInfo(title = "Charger", description = "Sets the Chargers connected to the ess.", type = Charger.class, isArray = true)
 	public final ConfigChannel<Set<Charger>> chargers = new ConfigChannel<Set<Charger>>("chargers", this);
 
-	@ChannelInfo(title = "Monday", description = "Sets the soc limits for monday.", type = JsonArray.class, writeRoles = { Role.OWNER })
+	@ChannelInfo(title = "Monday", description = "Sets the soc limits for monday.", type = JsonArray.class, writeRoles = {
+			Role.OWNER })
 	public ConfigChannel<JsonArray> monday = new ConfigChannel<>("monday", this);
 
-	@ChannelInfo(title = "Tuesday", description = "Sets the soc limits for tuesday.", type = JsonArray.class, writeRoles = { Role.OWNER })
+	@ChannelInfo(title = "Tuesday", description = "Sets the soc limits for tuesday.", type = JsonArray.class, writeRoles = {
+			Role.OWNER })
 	public ConfigChannel<JsonArray> tuesday = new ConfigChannel<>("tuesday", this);
 
 	@ChannelInfo(title = "Wednesday", description = "Sets the soc limits for wednesday.", type = JsonArray.class, writeRoles = { Role.OWNER })
@@ -116,150 +117,114 @@ public class TimelineChargeController extends Controller {
 	 */
 	@Override
 	public void run() {
-		// Check if all parameters are available
-		Ess ess;
-		long thisAllowedApparent;
-		long meterApparentPower;
-		Set<Charger> chargers;
-		long essCapacity;
-		long essSoc;
 		try {
-			ess = this.ess.value();
-			thisAllowedApparent = this.allowedApparent.value();
-			meterApparentPower = meter.value().apparentPower.value();
-			chargers = this.chargers.value();
-			essCapacity = ess.capacity.value();
-			essSoc = ess.soc.value();
+			// Check if all parameters are available
+			Ess ess  = this.ess.value();
+			Meter meter = this.meter.value();
+			Set<Charger> chargers = this.chargers.value();
+			long essCapacity = ess.capacity.value();
+			long essSoc = ess.soc.value();
+
+			// start controller logic
+			if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
+				long pNull = (meter.activePower.value() - ess.activePower.value())*-1;
+				long qNull = (meter.reactivePower.value() - ess.reactivePower.value())*-1;
+				ess.maxApparentPower.setSMax(allowedApparent.value(), pNull, qNull);
+				try {
+					ess.power.applyLimitation(ess.maxApparentPower);
+				} catch (PowerException e1) {
+					log.error("Failed to set Power!",e1);
+				}
+				long chargerPower = 0L;
+				for (Charger c : chargers) {
+					try {
+						chargerPower += c.power.value();
+					} catch (InvalidValueException e) {
+						log.error("TimelineChargeController error: Unable to read power from Charger [" + c.id() + "]: " + e.getMessage());
+					}
+				}
+				floatingChargerPower.add(chargerPower);
+				SocPoint socPoint = getSoc();
+				double requiredEnergy = (essCapacity / 100.0 * socPoint.getSoc())
+						- (essCapacity / 100.0 * essSoc);
+				long requiredTimeCharger = (long) (requiredEnergy / (floatingChargerPower.avg() * 3600.0));
+				// limit time to one day
+				if(requiredTimeCharger > 60*60*24) {
+					requiredTimeCharger = 60*60*24;
+				}
+				long requiredTimeGrid = (long) (requiredEnergy / ((floatingChargerPower.avg() + (ess.power.getMinP().orElse(0L)+ess.activePower.value())*-1)
+						* 3600.0));
+				// limit time to one day
+				if(requiredTimeGrid > 60*60*24) {
+					requiredTimeGrid = 60*60*24;
+				}
+				log.info("RequiredTimeCharger: " + requiredTimeCharger + ", RequiredTimeGrid: " + requiredTimeGrid);
+				if (floatingChargerPower.avg() >= 1000
+						&& !LocalDateTime.now().plusSeconds(requiredTimeCharger).isBefore(socPoint.getTime())
+						&& LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())) {
+					// Prevent discharge -> load with Pv
+					ess.maxActivePowerlimit.setP(0L);
+					try {
+						ess.power.applyLimitation(ess.maxActivePowerlimit);
+					} catch (PowerException e) {
+						log.error("Failed to set Power [" + ess.id() + "]: ",e);
+					}
+				} else if (requiredTimeGrid > 0
+						&& !LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())
+						&& socPoint.getTime().isAfter(LocalDateTime.now())) {
+					// Load with grid + pv
+					ess.maxActivePowerlimit.setP(ess.power.getMinP().get());
+					try {
+						ess.power.applyLimitation(ess.maxActivePowerlimit);
+					} catch (PowerException e) {
+						log.error("Failed to set Power!",e);
+					}
+				} else {
+					// soc point in the past -> Hold load
+					int minSoc = getCurrentSoc().getSoc();
+					int chargeSoc = minSoc - 5;
+					if (chargeSoc <= 1) {
+						chargeSoc = 1;
+					}
+					switch (currentState) {
+					case CHARGESOC:
+						if (essSoc > minSoc) {
+							currentState = State.MINSOC;
+						} else {
+							try {
+								ess.maxActivePowerlimit.setP(ess.maxNominalPower.valueOptional().orElse(-1000L));
+								ess.power.applyLimitation(ess.maxActivePowerlimit);
+							} catch (PowerException e) {
+								log.error("Failed to set Power!",e);
+						}
+						break;
+					case MINSOC:
+						if (essSoc < chargeSoc) {
+							currentState = State.CHARGESOC;
+						} else if (essSoc >= minSoc + 5) {
+							currentState = State.NORMAL;
+						} else {
+							ess.maxActivePowerlimit.setP(0L);
+							try {
+								ess.power.applyLimitation(ess.maxActivePowerlimit);
+							} catch (PowerException e) {
+								log.error("Failed to set Power!",e);
+							}
+						}
+						break;
+					case NORMAL:
+						if (essSoc <= minSoc) {
+							currentState = State.MINSOC;
+						}
+						break;
+					}
+				}
+			}
 		} catch (InvalidValueException | NullPointerException e) {
 			log.error("TimelineChargeController error: " + e.getMessage());
 			return;
 		}
-		// start controller logic
-		if (ess.gridMode.labelOptional().equals(Optional.of(EssNature.ON_GRID))) {
-			long allowedApparentCharge = thisAllowedApparent - meterApparentPower;
-			allowedApparentCharge += ControllerUtils.calculateApparentPower(
-					ess.activePower.valueOptional().orElse(0L), ess.reactivePower.valueOptional().orElse(0L));
-			// remove 10% for tolerance
-			allowedApparentCharge *= 0.9;
-			// limit activePower to apparent
-			try {
-				ess.setActivePower.pushWriteMin(allowedApparentCharge * -1);
-			} catch (WriteChannelException e) {
-				log.warn("Failed to set writeMin to " + (allowedApparentCharge * -1));
-			}
-			long chargerPower = 0L;
-			for (Charger c : chargers) {
-				try {
-					chargerPower += c.power.value();
-				} catch (InvalidValueException e) {
-					log.error("TimelineChargeController error: Unable to read power from Charger [" + c.id() + "]: " + e.getMessage());
-				}
-			}
-			floatingChargerPower.add(chargerPower);
-			SocPoint socPoint = getSoc();
-			double requiredEnergy = (essCapacity / 100.0 * socPoint.getSoc())
-					- (essCapacity / 100.0 * essSoc);
-			long requiredTimeCharger = (long) (requiredEnergy / floatingChargerPower.avg() * 3600.0);
-			// limit time to one day
-			if(requiredTimeCharger > 60*60*24) {
-				requiredTimeCharger = 60*60*24;
-			}
-			long requiredTimeGrid = (long) (requiredEnergy / (floatingChargerPower.avg() + allowedApparentCharge)
-					* 3600.0);
-			// limit time to one day
-			if(requiredTimeGrid > 60*60*24) {
-				requiredTimeGrid = 60*60*24;
-			}
-			log.info("RequiredTimeCharger: " + requiredTimeCharger + ", RequiredTimeGrid: " + requiredTimeGrid);
-			if (floatingChargerPower.avg() >= 1000
-					&& !LocalDateTime.now().plusSeconds(requiredTimeCharger).isBefore(socPoint.getTime())
-					&& LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())) {
-				// Prevent discharge -> load with Pv
-				try {
-					ess.setActivePower.pushWriteMax(0L);
-				} catch (WriteChannelException e) {
-					log.error("Failed to write Channel [" + ess.setActivePower.address() + "]: " + e.getMessage());
-				}
-			} else if (requiredTimeGrid > 0
-					&& !LocalDateTime.now().plusSeconds(requiredTimeGrid).isBefore(socPoint.getTime())
-					&& socPoint.getTime().isAfter(LocalDateTime.now())) {
-				// Load with grid + pv
-				long maxPower = allowedApparentCharge * -1;
-				if (ess.setActivePower.writeMin().isPresent() && ess.setActivePower.writeMin().get() > maxPower) {
-					maxPower = ess.setActivePower.writeMin().get();
-				}
-				try {
-					ess.setActivePower.pushWriteMax(maxPower);
-				} catch (WriteChannelException e) {
-					log.error("Failed to write Channel [" + ess.setActivePower.address() + "]: " + e.getMessage());
-				}
-			} else {
-				// soc point in the past -> Hold load
-				int minSoc = getCurrentSoc().getSoc();
-				int chargeSoc = minSoc - 5;
-				if (chargeSoc <= 1) {
-					chargeSoc = 1;
-				}
-				switch (currentState) {
-				case CHARGESOC:
-					if (essSoc > minSoc) {
-						currentState = State.MINSOC;
-					} else {
-						try {
-							Optional<Long> currentMinValue = ess.setActivePower.writeMin();
-							if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
-								// Force Charge with minimum of MaxChargePower/5
-								log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
-								ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
-							} else {
-								log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
-								ess.setActivePower.pushWriteMax(-1000L);
-							}
-						} catch (WriteChannelException e) {
-							log.error(e.getMessage());
-						}
-					}
-					break;
-				case MINSOC:
-					if (essSoc < chargeSoc) {
-						currentState = State.CHARGESOC;
-					} else if (essSoc >= minSoc + 5) {
-						currentState = State.NORMAL;
-					} else {
-						try {
-							long maxPower = 0;
-							if (!ess.setActivePower.writeMax().isPresent()
-									|| maxPower < ess.setActivePower.writeMax().get()) {
-								ess.setActivePower.pushWriteMax(maxPower);
-							}
-						} catch (WriteChannelException e) {
-							log.error("Failed to set Max allowed power for Ess [" + ess.id() + "]: " + e.getMessage());
-						}
-					}
-					break;
-				case NORMAL:
-					if (essSoc <= minSoc) {
-						currentState = State.MINSOC;
-					}
-					break;
-				}
-			}
-		}
 	}
-
-	// private Entry<LocalDateTime, Integer> getSoc() {
-	// Entry<LocalDateTime, Integer> lastSocPoint = socPoints.floorEntry(LocalDateTime.now());
-	// Entry<LocalDateTime, Integer> nextSocPoint = socPoints.higherEntry(LocalDateTime.now());
-	// if (nextSocPoint != null) {
-	// return nextSocPoint;
-	// }
-	// return lastSocPoint;
-	// }
-
-	// private int getCurrentSoc() {
-	// Entry<LocalDateTime, Integer> socPoint = socPoints.floorEntry(LocalDateTime.now());
-	// return socPoint.getValue();
-	// }
 
 	private JsonArray getJsonOfDay(DayOfWeek day) throws InvalidValueException {
 		switch (day) {
@@ -280,30 +245,6 @@ public class TimelineChargeController extends Controller {
 			return monday.value();
 		}
 	}
-
-	// private Integer getCurrentSoc() throws InvalidValueException {
-	// Integer soc = null;
-	// try {
-	// JsonArray jHours = getJsonOfDay(LocalDate.now().getDayOfWeek());
-	// LocalTime time = LocalTime.now();
-	// int count = 1;
-	// while (soc == null && count < 8) {
-	// try {
-	// Entry<LocalTime, Integer> entry = floorSoc(jHours, time);
-	// if (entry != null) {
-	// soc = entry.getValue();
-	// }
-	// } catch (IndexOutOfBoundsException e) {
-	// time = LocalTime.MAX;
-	// jHours = getJsonOfDay(LocalDate.now().getDayOfWeek().minus(count));
-	// }
-	// count++;
-	// }
-	// } catch (ConfigException e) {
-	// log.error("failed to find soc", e);
-	// }
-	// return soc;
-	// }
 
 	private SocPoint getCurrentSoc() {
 		SocPoint soc = null;
