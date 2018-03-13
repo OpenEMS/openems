@@ -45,6 +45,7 @@ import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
+import io.openems.api.exception.ConfigException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.thing.Thing;
 import io.openems.common.exceptions.OpenemsException;
@@ -57,11 +58,11 @@ import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
 import io.openems.common.utils.StringUtils;
 import io.openems.common.websocket.DefaultMessages;
-import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
 import io.openems.core.ConfigFormat;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
+import io.openems.core.utilities.OnConfigUpdate;
 
 // TODO make sure this is registered as ChannelChangeListener also to ConfigChannels
 @ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
@@ -99,6 +100,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 */
 	public FeneconPersistence() {
 		this.thingState = new ThingStateChannels(this);
+
 		this.reconnectingWebsocket = new ReconnectingWebsocket((websocket) -> {
 			/*
 			 * onOpen
@@ -109,15 +111,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			// Add current status of all channels to queue
 			this.addCurrentValueOfAllChannelsToQueue();
 			// Send current config
-			try {
-				WebSocketUtils.send( //
-						websocket, //
-						DefaultMessages.configQueryReply(new JsonObject(), Config.getInstance()
-								.getJson(ConfigFormat.OPENEMS_UI, Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
-				log.info("Sent config to FENECON persistence.");
-			} catch (OpenemsException e) {
-				log.error("Unable to send config: " + e.getMessage());
-			}
+			this.onConfigUpdate.call();
 		}, () -> {
 			/*
 			 * onClose
@@ -126,6 +120,27 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			log.error("FENECON persistence closed connection to uri [" + uri.valueOptional().orElse("") + "]"
 					+ (proxyInfoOpt.isPresent() ? ", " + proxyInfoOpt.get() : ""));
 		});
+
+		/*
+		 * Listen to config updates
+		 */
+		onConfigUpdate = () -> {
+			try {
+				if (reconnectingWebsocket != null) {
+					reconnectingWebsocket.send(DefaultMessages.configQueryReply(new JsonObject(),
+							Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
+				}
+				log.info("Sent config to FENECON persistence.");
+			} catch (OpenemsException e) {
+				log.error("Unable to send config: " + e.getMessage());
+			}
+		};
+		try {
+			Config config = Config.getInstance();
+			config.addOnConfigUpdateListener(this.onConfigUpdate);
+		} catch (ConfigException e) {
+			log.error(e.getMessage());
+		}
 	}
 
 	@Override
@@ -138,6 +153,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 */
 	private static final int DEFAULT_CYCLETIME = 10000;
 	private final ReconnectingWebsocket reconnectingWebsocket;
+	private volatile OnConfigUpdate onConfigUpdate = null;
 
 	// Queue of data for the next cycle
 	private HashMap<ChannelAddress, FieldValue<?>> queue = new HashMap<>();
@@ -240,6 +256,12 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	@Override
 	protected void dispose() {
 		this.reconnectingWebsocket.dispose();
+		try {
+			Config config = Config.getInstance();
+			config.removeOnConfigUpdateListener(this.onConfigUpdate);
+		} catch (ConfigException e) {
+			log.error(e.getMessage());
+		}
 	}
 
 	/**
@@ -264,9 +286,9 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 *
 	 * @return
 	 */
-	//	public EdgeWebsocketHandler getWebsocketHandler() {
-	//		return this.websocketHandler;
-	//	}
+	// public EdgeWebsocketHandler getWebsocketHandler() {
+	// return this.websocketHandler;
+	// }
 
 	private void increaseCycleTime() {
 		int currentCycleTime = this.getCycleTime();
