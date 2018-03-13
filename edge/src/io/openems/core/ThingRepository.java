@@ -182,7 +182,6 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 						addToChannels.accept(c);
 
 						if(c instanceof ThingStateChannels) {
-							System.out.println("c is ThingStateChannels");
 							ThingStateChannels tsc = (ThingStateChannels)c;
 							for(ThingStateChannel fc : tsc.getFaultChannels()) {
 								addToChannels.accept(fc);
