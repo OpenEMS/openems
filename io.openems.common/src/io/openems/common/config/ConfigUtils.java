@@ -9,7 +9,6 @@ import java.util.TreeMap;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.NotImplementedException;
@@ -21,9 +20,11 @@ public class ConfigUtils {
 	private final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
 	protected static synchronized JsonObject readConfigFromFile(Path path) throws Exception {
+		if (!Files.exists(path)) {
+			throw new IOException("Configuration file [" + path.toAbsolutePath() + "] not found!");
+		}
 		String config = new String(Files.readAllBytes(path), DEFAULT_CHARSET);
-		JsonElement jsonElement = JsonUtils.parse(config);
-		return jsonElement.getAsJsonObject();
+		return JsonUtils.parse(config).getAsJsonObject();
 	}
 
 	protected static synchronized void writeConfigToFile(Path path, TreeMap<String, Config> configs)
@@ -31,6 +32,11 @@ public class ConfigUtils {
 		// create JsonObject
 		JsonObject j = new JsonObject();
 		for (Entry<String, Config> entry : configs.entrySet()) {
+			// ignore configs that should not be stored
+			if (entry.getValue().isDoNotStore()) {
+				continue;
+			}
+
 			JsonObject jSub = new JsonObject();
 			// sort map by key to be able to write the json sorted
 			TreeMap<String, Object> sortedSub = new TreeMap<>();

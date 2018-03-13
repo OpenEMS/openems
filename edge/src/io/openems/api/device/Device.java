@@ -51,7 +51,6 @@ public abstract class Device implements Thing, ChannelChangeListener {
 		log = LoggerFactory.getLogger(this.getClass());
 		this.bridge = parent;
 		this.thingState = new ThingStateChannels(this);
-		this.thingState.addChildChannel(this.bridge.getStateChannel());
 	}
 
 	public Bridge getBridge() {
@@ -108,16 +107,7 @@ public abstract class Device implements Thing, ChannelChangeListener {
 
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-		if (oldValue.isPresent()) {
-			if (oldValue.get() instanceof DeviceNature) {
-				this.thingState.removeChildChannel(((DeviceNature) oldValue.get()).getStateChannel());
-			}
-		}
-		if (newValue.isPresent()) {
-			if (newValue.get() instanceof DeviceNature) {
-				this.thingState.addChildChannel(((DeviceNature) newValue.get()).getStateChannel());
-			}
-		}
+		// nothing to do
 	}
 
 	@Override

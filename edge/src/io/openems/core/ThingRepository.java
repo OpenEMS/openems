@@ -50,7 +50,9 @@ import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.ThingStateChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
@@ -178,6 +180,16 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 						// It's a Method with ReturnType Channel
 						Channel c = (Channel) ((Method) member).invoke(thing);
 						addToChannels.accept(c);
+
+						if(c instanceof ThingStateChannels) {
+							ThingStateChannels tsc = (ThingStateChannels)c;
+							for(ThingStateChannel fc : tsc.getFaultChannels()) {
+								addToChannels.accept(fc);
+							}
+							for(ThingStateChannel wc : tsc.getWarningChannels()) {
+								addToChannels.accept(wc);
+							}
+						}
 					}
 				} else if (member instanceof Field) {
 					// It's a Field with Type Channel
@@ -193,7 +205,6 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 					// Add Channel to thingChannels
 					thingChannels.put(thing, channel.id(), channel);
 					if (channel instanceof ConfigChannel) {
-
 						// Add Channel to configChannels
 						thingConfigChannels.put(thing, (ConfigChannel<?>) channel);
 					}

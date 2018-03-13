@@ -22,8 +22,10 @@ package io.openems.api.bridge;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -54,7 +56,7 @@ public abstract class Bridge extends Thread implements Thing {
 	protected final List<Device> devices = Collections.synchronizedList(new LinkedList<Device>());
 	protected final Logger log;
 	private DebugChannel<Long> requiredCycleTime = new DebugChannel<>("RequiredCycleTime", this);
-	private List<BridgeEventListener> eventListener = new ArrayList<>();
+	private Map<BridgeEventListener, Long> eventListener = new HashMap<>();
 	private DebugChannel<Integer> readOtherTaskReadCount = new DebugChannel<>("ReadOtherTaskReadCount", this);
 	protected ThingStateChannels thingState;
 
@@ -75,7 +77,7 @@ public abstract class Bridge extends Thread implements Thing {
 	}
 
 	public void addListener(BridgeEventListener listener) {
-		this.eventListener.add(listener);
+		this.eventListener.put(listener, 0L);
 	}
 
 	public void removeListener(BridgeEventListener listener) {
@@ -228,11 +230,11 @@ public abstract class Bridge extends Thread implements Thing {
 				}
 				long timeUntilWrite = scheduler.getCycleStartTime() + scheduler.getRequiredTime() + 10
 						- requiredTimeListeners();
+				notifyListeners(Position.BEFOREREADOTHER1);
 				if (readTasks.size() > 0) {
 					// calculate time until write
 					// run tasks for not required channels
 					if (timeUntilWrite - System.currentTimeMillis() > 0) {
-						notifyListeners(Position.BEFOREREADOTHER1);
 						readOther(readTasks, timeUntilWrite, false);
 					}
 				}
@@ -348,15 +350,19 @@ public abstract class Bridge extends Thread implements Thing {
 
 	private void notifyListeners(Position position) {
 		BridgeEvent event = new BridgeEvent(position);
-		for (BridgeEventListener listener : this.eventListener) {
-			listener.executeNotify(event);
+		for (BridgeEventListener listener : this.eventListener.keySet()) {
+			long timeBeforeExecute = System.currentTimeMillis();
+			listener.onBridgeChange(event);
+			this.eventListener.put(listener, System.currentTimeMillis() - timeBeforeExecute);
 		}
 	}
 
 	private long requiredTimeListeners() {
 		long time = 0;
-		for (BridgeEventListener listener : this.eventListener) {
-			time = listener.getRequiredTime();
+		for (Long timeListener : this.eventListener.values()) {
+			if (timeListener != null) {
+				time += timeListener;
+			}
 		}
 		return time;
 	}

@@ -28,12 +28,10 @@ import io.openems.api.device.nature.ess.SymmetricEssNature;
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	public final WriteChannel<Long> setActivePower;
 	public final WriteChannel<Long> setWorkState;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
-		setActivePower = ess.setActivePower().required();
 		setWorkState = ess.setWorkState().required();
 	}
 }

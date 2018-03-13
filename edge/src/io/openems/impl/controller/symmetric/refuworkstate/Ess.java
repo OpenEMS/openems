@@ -29,16 +29,12 @@ import io.openems.impl.device.refu.RefuEss;
 @IsThingMap(type = RefuEss.class)
 public class Ess extends ThingMap {
 
-	public final WriteChannel<Long> setActivePower;
-	public final WriteChannel<Long> setReactivePower;
 	public final WriteChannel<Long> setWorkState;
 	public final WriteChannel<Long> setSystemErrorReset;
 	public final ReadChannel<Long> systemState;
 
 	public Ess(RefuEss ess) {
 		super(ess);
-		setActivePower = ess.setActivePower().required();
-		setReactivePower = ess.setReactivePower().required();
 		setWorkState = ess.setWorkState().required();
 		systemState = ess.systemState().required();
 		setSystemErrorReset = ess.setSystemErrorReset.required();

@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.DebugChannel;
+import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
@@ -47,6 +48,7 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 	protected final ThingRepository thingRepository;
 	private Integer actualCycleTime = null;
 	private DebugChannel<Long> requiredCycleTime = new DebugChannel<>("RequiredCycleTime", this);
+	private List<AfterControllerExecutedListener> listener = new ArrayList<>();
 
 	/*
 	 * Config
@@ -81,10 +83,27 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 		return Collections.unmodifiableList(new ArrayList<>(this.controllers.values()));
 	}
 
+	public void addListener(AfterControllerExecutedListener listener) {
+		this.listener.add(listener);
+	}
+
+	public void removeListener(AfterControllerExecutedListener listener) {
+		this.listener.remove(listener);
+	}
+
 	@Override
 	protected void forever() {
 		cycleStartTime = System.currentTimeMillis();
 		execute();
+		for(AfterControllerExecutedListener listener: this.listener) {
+			listener.afterControllerExecuted();
+		}
+		for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
+			channel.shadowCopyAndReset();
+		}
+		for (Bridge bridge : thingRepository.getBridges()) {
+			bridge.triggerWrite();
+		}
 		requiredTime = System.currentTimeMillis() - cycleStartTime;
 		long maxTime = 0;
 		for (Bridge bridge : thingRepository.getBridges()) {

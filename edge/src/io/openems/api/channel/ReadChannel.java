@@ -259,6 +259,10 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 		this.type = channelDoc.getTypeOpt();
 	}
 
+	protected Optional<ChannelDoc> getChannelDocOpt() {
+		return channelDocOpt;
+	}
+
 	/**
 	 * Update value from the underlying {@link DeviceNature} and send an update event to {@link Databus}.
 	 *

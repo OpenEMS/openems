@@ -24,6 +24,7 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,6 +38,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.api.security.User;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.SecureRandomSingleton;
 import io.openems.common.websocket.AbstractWebsocketServer;
@@ -44,6 +46,8 @@ import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
+import io.openems.core.Config;
+import io.openems.core.ConfigFormat;
 import io.openems.core.utilities.api.ApiWorker;
 
 public class WebsocketApiServer extends AbstractWebsocketServer {
@@ -322,6 +326,21 @@ public class WebsocketApiServer extends AbstractWebsocketServer {
 			handler.dispose();
 		} catch (OpenemsException e) {
 			log.warn("Unable to dispose Handler: " + e.getMessage());
+		}
+	}
+
+	private final static String DEFAULT_CONFIG_LANGUAGE = "en";
+
+	public void onConfigUpdate() {
+		for(UiEdgeWebsocketHandler handler : this.handlers.values()) {
+			try {
+				Role role = handler.getUserOpt().get().getRole();
+				JsonObject j = DefaultMessages.configQueryReply(new JsonObject(),
+						Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, role, DEFAULT_CONFIG_LANGUAGE));
+				handler.send(j);
+			} catch (OpenemsException | NoSuchElementException e) {
+				log.warn(e.getMessage());
+			}
 		}
 	}
 }

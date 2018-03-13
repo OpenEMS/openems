@@ -1,7 +1,9 @@
 package io.openems.impl.device.pro;
 
 import io.openems.api.channel.thingstate.FaultEnum;
+import io.openems.common.types.ThingStateInfo;
 
+@ThingStateInfo(reference = FeneconProEss.class)
 public enum FaultEss implements FaultEnum {
 	ControlCurrentOverload100PercentL1(0), //
 	ControlCurrentOverload110PercentL1(1), //

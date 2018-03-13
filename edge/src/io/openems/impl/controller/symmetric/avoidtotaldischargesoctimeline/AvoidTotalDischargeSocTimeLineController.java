@@ -20,7 +20,10 @@
  *******************************************************************************/
 package io.openems.impl.controller.symmetric.avoidtotaldischargesoctimeline;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Set;
@@ -37,7 +40,7 @@ import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.api.exception.WriteChannelException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 import io.openems.impl.controller.symmetric.avoidtotaldischargesoctimeline.Ess.State;
 
 @ThingInfo(title = "Avoid total discharge of battery (Symmetric)", description = "Makes sure the battery is not going into critically low state of charge. For symmetric Ess.")
@@ -64,6 +67,21 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 	@ChannelInfo(title = "Soc timeline", description = "This option configures an minsoc at a time for an ess. If no minsoc for an ess is configured the controller uses the minsoc of the ess.", type = JsonArray.class)
 	public final ConfigChannel<JsonArray> socTimeline = new ConfigChannel<JsonArray>("socTimeline", this)
 	.addChangeListener(this);
+	@ChannelInfo(title = "Next Discharge", description = "Next Time, the ess will discharge completely.", type = String.class, defaultValue = "2018-03-09")
+	public final ConfigChannel<String> nextDischarge = new ConfigChannel<String>("nextDischarge", this)
+	.addChangeListener(this);
+	@ChannelInfo(title = "Discharge Period", description = "The Period of time between two Discharges.https://docs.oracle.com/javase/8/docs/api/java/time/Period.html#parse-java.lang.CharSequence-", type = String.class, defaultValue = "P4W")
+	public final ConfigChannel<String> dischargePeriod = new ConfigChannel<String>("dischargePeriod", this)
+	.addChangeListener(this);
+	@ChannelInfo(title = "Discharge Start Time", description = "The time of the Day to start Discharging.", type = String.class, defaultValue = "12:00:00")
+	public final ConfigChannel<String> dischargeTime = new ConfigChannel<String>("dischargeTime", this)
+	.addChangeListener(this);
+	@ChannelInfo(title = "Enable Discharge", description = "This option allowes the system to discharge the ess according to the nextDischarge completely. This improves the soc calculation.", type = Boolean.class, defaultValue = "false")
+	public final ConfigChannel<Boolean> enableDischarge = new ConfigChannel<Boolean>("enableDischarge", this);
+
+	private LocalDate nextDischargeDate;
+	private LocalTime dischargeStartTime;
+	private LocalDateTime dischargeStart;
 
 	/*
 	 * Methods
@@ -73,23 +91,20 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 		try {
 			LocalTime time = LocalTime.now();
 			for (Ess ess : esss.value()) {
+				if(dischargeStart != null && dischargeStart.isBefore(LocalDateTime.now()) && ess.currentState != Ess.State.EMPTY ) {
+					ess.currentState = Ess.State.EMPTY;
+				}
 				switch (ess.currentState) {
 				case CHARGESOC:
 					if (ess.soc.value() > ess.getMinSoc(time)) {
 						ess.currentState = State.MINSOC;
 					} else {
 						try {
-							Optional<Long> currentMinValue = ess.setActivePower.writeMin();
-							if (currentMinValue.isPresent() && currentMinValue.get() < 0) {
-								// Force Charge with minimum of MaxChargePower/5
-								log.info("Force charge. Set ActivePower=Max[" + currentMinValue.get() / 5 + "]");
-								ess.setActivePower.pushWriteMax(currentMinValue.get() / 5);
-							} else {
-								log.info("Avoid discharge. Set ActivePower=Max[-1000 W]");
-								ess.setActivePower.pushWriteMax(-1000L);
-							}
-						} catch (Exception e) {
-							log.error(e.getMessage());
+							long maxChargePower = Math.max(ess.power.getMinP().orElse(0L),Math.abs(ess.maxNominalPower.valueOptional().orElse(1000L))*-1);
+							ess.maxActivePowerLimit.setP(maxChargePower);
+							ess.power.applyLimitation(ess.maxActivePowerLimit);
+						} catch (PowerException e) {
+							log.error("Failed to set Power!",e);
 						}
 					}
 					break;
@@ -99,20 +114,33 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 					} else if (ess.soc.value() >= ess.getMinSoc(time) + 5) {
 						ess.currentState = State.NORMAL;
 					} else {
+						ess.maxActivePowerLimit.setP(0L);
 						try {
-							long maxPower = 0;
-							if (!ess.setActivePower.writeMax().isPresent()
-									|| maxPower < ess.setActivePower.writeMax().get()) {
-								ess.setActivePower.pushWriteMax(maxPower);
-							}
-						} catch (WriteChannelException e) {
-							log.error(ess.id() + "Failed to set Max allowed power.", e);
+							ess.power.applyLimitation(ess.maxActivePowerLimit);
+						} catch (PowerException e) {
+							log.error("Failed to set Power!",e);
 						}
 					}
 					break;
 				case NORMAL:
 					if (ess.soc.value() <= ess.getMinSoc(time)) {
 						ess.currentState = State.MINSOC;
+					}
+					break;
+				case EMPTY:
+					if (ess.allowedDischarge.value() == 0 || ess.soc.value() < 1) {
+						// Ess is Empty set Date and charge to minSoc
+						addPeriod();
+						ess.currentState = State.CHARGESOC;
+					}else {
+						//Force discharge with max power
+						try {
+							long maxDischargePower = Math.min(Math.abs(ess.maxNominalPower.value()),ess.power.getMaxP().orElse(0L));
+							ess.minActivePowerLimit.setP(maxDischargePower);
+							ess.power.applyLimitation(ess.minActivePowerLimit);
+						} catch (PowerException e) {
+							log.error("Failed to force Discharge!", e);
+						}
 					}
 					break;
 				}
@@ -157,6 +185,33 @@ public class AvoidTotalDischargeSocTimeLineController extends Controller impleme
 					}
 				}
 			}
+		} else if (this.nextDischarge.equals(channel)) {
+			if (newValue.isPresent()) {
+				nextDischargeDate = LocalDate.parse((String) newValue.get());
+			} else {
+				nextDischargeDate = null;
+			}
+		}  else if(this.dischargeTime.equals(channel)) {
+			if (newValue.isPresent()) {
+				this.dischargeStartTime = LocalTime.parse((String) newValue.get());
+			} else {
+				this.dischargeStartTime = null;
+			}
+		}
+		if (nextDischargeDate != null && nextDischargeDate.isBefore(LocalDate.now())) {
+			addPeriod();
+		}
+		if(nextDischargeDate != null && dischargeStartTime != null) {
+			dischargeStart = nextDischargeDate.atTime(dischargeStartTime);
+		}else {
+			dischargeStart = null;
+		}
+	}
+
+	private void addPeriod() {
+		if (this.nextDischargeDate != null && dischargePeriod.isValuePresent()) {
+			this.nextDischargeDate = this.nextDischargeDate.plus(Period.parse(dischargePeriod.getValue()));
+			nextDischarge.updateValue(this.nextDischargeDate.toString(), true);
 		}
 	}
 

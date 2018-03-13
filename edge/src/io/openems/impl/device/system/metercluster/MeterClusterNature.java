@@ -386,9 +386,6 @@ implements SymmetricMeterNature, AsymmetricMeterNature, ChannelChangeListener {
 			// remove old ess
 			synchronized (symmetricMeterList) {
 				synchronized (asymmetricMeterList) {
-					for(SymmetricMeterNature meter: symmetricMeterList) {
-						this.thingState.removeChildChannel(meter.getStateChannel());
-					}
 					symmetricMeterList.clear();
 					for(AsymmetricMeterNature meter: asymmetricMeterList) {
 						this.thingState.removeChangeListener(meter.getStateChannel());
@@ -401,11 +398,9 @@ implements SymmetricMeterNature, AsymmetricMeterNature, ChannelChangeListener {
 								if (nature.get() instanceof AsymmetricMeterNature) {
 									AsymmetricMeterNature meter = (AsymmetricMeterNature) nature.get();
 									asymmetricMeterList.add(meter);
-									this.thingState.addChildChannel(meter.getStateChannel());
 								} else if (nature.get() instanceof SymmetricMeterNature) {
 									SymmetricMeterNature meter = (SymmetricMeterNature) nature.get();
 									symmetricMeterList.add(meter);
-									this.thingState.addChildChannel(meter.getStateChannel());
 								} else {
 									log.error("ThingID: " + id.getAsString() + " is no Meter!");
 								}

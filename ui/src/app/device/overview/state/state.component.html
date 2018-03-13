@@ -1,0 +1,54 @@
+<ng-container *ngIf="warningsAndFaultss.length > 0">
+  <div fxLayout fxLayoutAlign="start start" fxLayoutWrap="wrap">
+    <mat-card fxFlex="100%" class="single_leftright single_top">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>error</mat-icon>
+        <mat-card-title>Aktuelle Warnungen und Fehler</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <table class="full_width">
+          <ng-container *ngFor="let warningsAndFaults of warningsAndFaultss">
+            <tr>
+              <td style="vertical-align: top" *ngIf="warningsAndFaults.thing as thing">
+                <span *ngIf="thing.name">{{ warningsAndFaults.thing.name }}
+                  <br/>
+                  <small>({{ warningsAndFaults.thing.id }})</small>
+                </span>
+                <span *ngIf="!thing.name">{{ warningsAndFaults.thing.id }}</span>
+              </td>
+              <td style="vertical-align: top">
+                <table *ngIf="warningsAndFaults.faults.length > 0">
+                  <ng-container *ngFor="let line of warningsAndFaults.faults">
+                    <tr>
+                      <td>
+                        <span style="color:red">Fehler: </span>
+                        <span>{{ line.name }}</span>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </table>
+                <table *ngIf="warningsAndFaults.warnings.length > 0">
+                  <ng-container *ngFor="let line of warningsAndFaults.warnings">
+                    <tr>
+                      <td>
+                        <span style="color:orange">Warnung: </span>
+                        <span>{{ line.name }}</span>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </table>
+              </td>
+            </tr>
+          </ng-container>
+        </table>
+      </mat-card-content>
+
+      <mat-card-actions *ngIf="device" fxLayout fxLayoutAlign="end start">
+        <button mat-fab routerLink="/device/{{ device.name }}/state">
+          <mat-icon>navigate_next</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</ng-container>

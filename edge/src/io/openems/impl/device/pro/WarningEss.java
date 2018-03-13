@@ -1,7 +1,9 @@
 package io.openems.impl.device.pro;
 
 import io.openems.api.channel.thingstate.WarningEnum;
+import io.openems.common.types.ThingStateInfo;
 
+@ThingStateInfo(reference = FeneconProEss.class)
 public enum WarningEss implements WarningEnum {
 	FailTheSystemShouldBeStopped(0), //
 	CommonLowVoltageAlarm(1), //
