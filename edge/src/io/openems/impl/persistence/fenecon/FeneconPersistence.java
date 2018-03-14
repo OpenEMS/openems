@@ -79,7 +79,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			Role.ADMIN })
 	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this).doNotPersist();
 
-	@ChannelInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/openems-backend\"")
+	@ChannelInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/openems-backend2\"")
 	public final ConfigChannel<String> uri = new ConfigChannel<String>("uri", this).doNotPersist();
 
 	@ChannelInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
