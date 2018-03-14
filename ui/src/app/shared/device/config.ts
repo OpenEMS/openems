@@ -180,7 +180,9 @@ export class ConfigImpl implements DefaultTypes.Config {
             if (i.includes("EssNature")
                 && !i.includes("EssClusterNature") /* ignore cluster */
                 && !i.includes("AsymmetricSymmetricCombinationEssNature") /* ignore symmetric Ess of Pro 9-12 */) {
-                if (i.includes("AsymmetricEssNature")) {
+                if (i.includes("FeneconMiniEss")) {
+                    channels.push("ActivePowerL1");
+                } else if (i.includes("AsymmetricEssNature")) {
                     channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
                 } else if (i.includes("SymmetricEssNature")) {
                     channels.push("ActivePower");

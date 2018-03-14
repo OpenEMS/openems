@@ -39,20 +39,20 @@
             </tr>
           </ng-container>
           <!-- Asymmetric ESS -->
-          <ng-container *ngIf="sum.asymmetric == true && sum.chargeActivePowerACL1 != null && sum.chargeActivePowerACL2 != null && sum.chargeActivePowerACL3 != null && sum.dischargeActivePowerACL1 != null && sum.dischargeActivePowerACL2 != null && sum.dischargeActivePowerACL3 != null">
+          <ng-container *ngIf="sum.asymmetric == true && sum.chargeActivePowerACL1 != null && sum.dischargeActivePowerACL1 != null">
             <tr>
               <td translate>General.ChargePower</td>
               <td>L1</td>
               <td class="align_right">{{ sum.chargeActivePowerACL1 }}</td>
               <td>W</td>
             </tr>
-            <tr>
+            <tr *ngIf="sum.chargeActivePowerACL2 != null">
               <td></td>
               <td>L2</td>
               <td class="align_right">{{ sum.chargeActivePowerACL2 }}</td>
               <td>W</td>
             </tr>
-            <tr class="underline">
+            <tr *ngIf="sum.chargeActivePowerACL3 != null" class="underline">
               <td></td>
               <td>L3</td>
               <td class="align_right">{{ sum.chargeActivePowerACL3 }}</td>
@@ -64,13 +64,13 @@
               <td class="align_right">{{ sum.dischargeActivePowerACL1 }}</td>
               <td>W</td>
             </tr>
-            <tr>
+            <tr *ngIf="sum.dischargeActivePowerACL2 != null">
               <td></td>
               <td>L2</td>
               <td class="align_right">{{ sum.dischargeActivePowerACL2 }}</td>
               <td>W</td>
             </tr>
-            <tr>
+            <tr *ngIf="sum.dischargeActivePowerACL3 != null">
               <td></td>
               <td>L3</td>
               <td class="align_right">{{ sum.dischargeActivePowerACL3 }}</td>
