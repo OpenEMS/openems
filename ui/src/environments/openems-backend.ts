@@ -4,7 +4,7 @@ import { DefaultTypes } from '../app/shared/service/defaulttypes';
 class OpenemsBackendEnvironment extends Environment {
   public readonly production = true;
   public readonly url = (location.protocol == "https:" ? "wss" : "ws") +
-    "://" + location.hostname + ":" + location.port + "/openems-backend-ui";
+    "://" + location.hostname + ":" + location.port + "/openems-backend-ui2";
   public readonly backend: DefaultTypes.Backend = "OpenEMS Backend";
 }
 
