@@ -13,18 +13,29 @@ export class CurrentDataAndSummary {
         let result: DefaultTypes.Summary = {
             storage: {
                 soc: null,
+                asymmetric: false,
                 chargeActivePower: null, // sum of chargeActivePowerAC and chargeActivePowerDC
                 chargeActivePowerAC: null,
+                chargeActivePowerACL1: null,
+                chargeActivePowerACL2: null,
+                chargeActivePowerACL3: null,
                 chargeActivePowerDC: null,
                 maxChargeActivePower: null,
                 dischargeActivePower: null, // sum of dischargeActivePowerAC and dischargeActivePowerDC
                 dischargeActivePowerAC: null,
+                dischargeActivePowerACL1: null,
+                dischargeActivePowerACL2: null,
+                dischargeActivePowerACL3: null,
                 dischargeActivePowerDC: null,
                 maxDischargeActivePower: null
             }, production: {
+                asymmetric: false,
                 powerRatio: null,
                 activePower: null, // sum of activePowerAC and activePowerDC
                 activePowerAC: null,
+                activePowerACL1: null,
+                activePowerACL2: null,
+                activePowerACL3: null,
                 activePowerDC: null,
                 maxActivePower: null
             }, grid: {
@@ -46,7 +57,11 @@ export class CurrentDataAndSummary {
              * < 0 => Charge
              */
             let soc = null;
+            let asymmetric = false;
             let activePowerAC = null;
+            let activePowerACL1 = null;
+            let activePowerACL2 = null;
+            let activePowerACL3 = null;
             let activePowerDC = null;
             let countSoc = 0;
             for (let thing of config.storageThings) {
@@ -56,7 +71,27 @@ export class CurrentDataAndSummary {
                         soc = Utils.addSafely(soc, essData.Soc);
                         countSoc += 1;
                     }
-                    activePowerAC = Utils.addSafely(activePowerAC, this.getActivePower(essData));
+                    let thisActivePowerAC = this.getActivePower(essData);
+                    let thisActivePowerACL = Utils.divideSafely(thisActivePowerAC, 3);
+                    activePowerAC = Utils.addSafely(activePowerAC, thisActivePowerAC);
+                    if ("ActivePowerL1" in essData) {
+                        asymmetric = true;
+                        activePowerACL1 = Utils.addSafely(activePowerACL1, essData.ActivePowerL1);
+                    } else {
+                        activePowerACL1 = Utils.addSafely(activePowerACL1, thisActivePowerACL);
+                    }
+                    if ("ActivePowerL2" in essData) {
+                        asymmetric = true;
+                        activePowerACL2 = Utils.addSafely(activePowerACL2, essData.ActivePowerL2);
+                    } else {
+                        activePowerACL2 = Utils.addSafely(activePowerACL2, thisActivePowerACL);
+                    }
+                    if ("ActivePowerL3" in essData) {
+                        asymmetric = true;
+                        activePowerACL3 = Utils.addSafely(activePowerACL3, essData.ActivePowerL3);
+                    } else {
+                        activePowerACL3 = Utils.addSafely(activePowerACL3, thisActivePowerACL);
+                    }
                 }
             }
             for (let thing of config.chargers) {
@@ -66,8 +101,8 @@ export class CurrentDataAndSummary {
                 }
             }
             result.storage.soc = Utils.divideSafely(soc, countSoc);
-            if(result.storage.soc > 100 || result.storage.soc < 0) {
-                console.log("SOC", result.storage.soc);
+            result.storage.asymmetric = asymmetric;
+            if (result.storage.soc > 100 || result.storage.soc < 0) {
                 result.storage.soc = null;
             }
             if (activePowerAC != null) {
@@ -77,6 +112,33 @@ export class CurrentDataAndSummary {
                 } else {
                     result.storage.chargeActivePowerAC = activePowerAC * -1;
                     result.storage.dischargeActivePowerAC = 0;
+                }
+            }
+            if (activePowerACL1 != null) {
+                if (activePowerACL1 > 0) {
+                    result.storage.chargeActivePowerACL1 = 0;
+                    result.storage.dischargeActivePowerACL1 = activePowerACL1;
+                } else {
+                    result.storage.chargeActivePowerACL1 = activePowerACL1 * -1;
+                    result.storage.dischargeActivePowerACL1 = 0;
+                }
+            }
+            if (activePowerACL2 != null) {
+                if (activePowerACL2 > 0) {
+                    result.storage.chargeActivePowerACL2 = 0;
+                    result.storage.dischargeActivePowerACL2 = activePowerACL2;
+                } else {
+                    result.storage.chargeActivePowerACL2 = activePowerACL2 * -1;
+                    result.storage.dischargeActivePowerACL2 = 0;
+                }
+            }
+            if (activePowerACL3 != null) {
+                if (activePowerACL3 > 0) {
+                    result.storage.chargeActivePowerACL3 = 0;
+                    result.storage.dischargeActivePowerACL3 = activePowerACL3;
+                } else {
+                    result.storage.chargeActivePowerACL3 = activePowerACL3 * -1;
+                    result.storage.dischargeActivePowerACL3 = 0;
                 }
             }
             if (activePowerDC != null) {
@@ -145,13 +207,37 @@ export class CurrentDataAndSummary {
              * Production
              */
             let powerRatio = 0;
+            let asymmetric = false;
             let activePowerAC = null;
+            let activePowerACL1 = null;
+            let activePowerACL2 = null;
+            let activePowerACL3 = null;
             let activePowerDC = null;
             let maxActivePower = 0;
             for (let thing of config.productionMeters) {
                 let meterData = currentData[thing];
                 let meterConfig = config.things[thing];
-                activePowerAC = Utils.addSafely(activePowerAC, this.getActivePower(meterData));
+                let thisActivePowerAC = this.getActivePower(meterData);
+                let thisActivePowerACL = Utils.divideSafely(thisActivePowerAC, 3);
+                activePowerAC = Utils.addSafely(activePowerAC, thisActivePowerAC);
+                if ("ActivePowerL1" in meterData) {
+                    asymmetric = true;
+                    activePowerACL1 = Utils.addSafely(activePowerACL1, meterData.ActivePowerL1);
+                } else {
+                    activePowerACL1 = Utils.addSafely(activePowerACL1, thisActivePowerACL);
+                }
+                if ("ActivePowerL2" in meterData) {
+                    asymmetric = true;
+                    activePowerACL2 = Utils.addSafely(activePowerACL2, meterData.ActivePowerL2);
+                } else {
+                    activePowerACL2 = Utils.addSafely(activePowerACL2, thisActivePowerACL);
+                }
+                if ("ActivePowerL3" in meterData) {
+                    asymmetric = true;
+                    activePowerACL3 = Utils.addSafely(activePowerACL3, meterData.ActivePowerL3);
+                } else {
+                    activePowerACL3 = Utils.addSafely(activePowerACL3, thisActivePowerACL);
+                }
                 if ("ActualPower" in meterData && meterData.ActualPower != null) {
                     activePowerDC = Utils.addSafely(activePowerDC, meterData.ActualPower);
                 }
@@ -178,7 +264,11 @@ export class CurrentDataAndSummary {
             }
 
             result.production.powerRatio = powerRatio;
+            result.production.asymmetric = asymmetric;
             result.production.activePowerAC = activePowerAC;
+            result.production.activePowerACL1 = activePowerACL1;
+            result.production.activePowerACL2 = activePowerACL2;
+            result.production.activePowerACL3 = activePowerACL3;
             result.production.activePowerDC = activePowerDC;
             result.production.activePower = Utils.addSafely(activePowerAC, activePowerDC);
             result.production.maxActivePower = maxActivePower;
