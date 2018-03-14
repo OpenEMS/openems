@@ -29,7 +29,7 @@ import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.impl.protocol.studer.internal.Request;
 import io.openems.impl.protocol.studer.internal.StuderConnection;
 import io.openems.impl.protocol.studer.internal.request.ReadRequest;

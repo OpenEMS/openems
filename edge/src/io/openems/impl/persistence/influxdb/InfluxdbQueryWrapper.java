@@ -21,9 +21,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
-import io.openems.api.exception.OpenemsException;
-import io.openems.core.Address;
-import io.openems.core.utilities.JsonUtils;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 
 public class InfluxdbQueryWrapper {
 
@@ -51,8 +51,6 @@ public class InfluxdbQueryWrapper {
 		if (_influxdb.isPresent()) {
 			InfluxDB influxdb = _influxdb.get();
 			jData = InfluxdbQueryWrapper.queryData(influxdb, fems, fromDate, toDate, channels, resolution, dbName);
-			// TODO jkWh = InfluxdbQueryWrapper.querykWh(influxdb, fems, fromDate, toDate, channels, resolution, kWh,
-			// dbName);
 		} else {
 			jData = new JsonArray();
 			jkWh = new JsonObject();
@@ -91,12 +89,12 @@ public class InfluxdbQueryWrapper {
 			if (seriess != null) {
 				for (Series series : seriess) {
 					// create thing/channel index
-					ArrayList<Address> addressIndex = new ArrayList<>();
+					ArrayList<ChannelAddress> addressIndex = new ArrayList<>();
 					for (String column : series.getColumns()) {
 						if (column.equals("time")) {
 							continue;
 						}
-						addressIndex.add(Address.fromString(column));
+						addressIndex.add(ChannelAddress.fromString(column));
 					}
 					// first: create empty timestamp objects
 					for (List<Object> values : series.getValues()) {
@@ -125,10 +123,10 @@ public class InfluxdbQueryWrapper {
 					for (int columnIndex = 1; columnIndex < series.getColumns().size(); columnIndex++) {
 						for (int timeIndex = 0; timeIndex < series.getValues().size(); timeIndex++) {
 							Double value = (Double) series.getValues().get(timeIndex).get(columnIndex);
-							Address address = addressIndex.get(columnIndex - 1);
+							ChannelAddress address = addressIndex.get(columnIndex - 1);
 							j.get(timeIndex).getAsJsonObject().get("channels").getAsJsonObject()
-									.get(address.getThingId()).getAsJsonObject()
-									.addProperty(address.getChannelId(), value);
+							.get(address.getThingId()).getAsJsonObject()
+							.addProperty(address.getChannelId(), value);
 						}
 					}
 				}
@@ -137,7 +135,7 @@ public class InfluxdbQueryWrapper {
 		return j;
 	}
 
-	// TODO
+	// TODO implement query for kWh values
 	// private static JsonObject querykWh(InfluxDB influxdb, Optional<Integer> fems, ZonedDateTime fromDate,
 	// ZonedDateTime toDate, JsonObject channels, int resolution, JsonObject kWh, String dbName)
 	// throws OpenemsException {
@@ -327,7 +325,7 @@ public class InfluxdbQueryWrapper {
 			for (JsonElement channelElement : channelIds) {
 				String channelId = JsonUtils.getAsString(channelElement);
 				channelAddresses
-						.add("MEAN(\"" + thingId + "/" + channelId + "\") AS \"" + thingId + "/" + channelId + "\"");
+				.add("MEAN(\"" + thingId + "/" + channelId + "\") AS \"" + thingId + "/" + channelId + "\"");
 			}
 		}
 		return String.join(", ", channelAddresses);

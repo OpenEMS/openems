@@ -40,8 +40,10 @@ import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.ReflectionException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.core.ThingRepository;
-import io.openems.core.utilities.JsonUtils;
+
 
 // TODO better explanation
 @ThingInfo(title = "Supply Bus Switch")
@@ -196,6 +198,8 @@ public class SupplyBusSwitchController extends Controller implements ChannelChan
 					log.error("can't find JsonElement 'bus' or 'switches' in config parameter 'supplyBuses'!", e);
 				} catch (InvalidValueException e3) {
 					log.error("primaryEss not found", e3);
+				} catch (OpenemsException e4) {
+					log.error(e4.getMessage());
 				}
 			}
 			return buses;

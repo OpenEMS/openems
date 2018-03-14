@@ -25,8 +25,6 @@ import java.util.Collections;
 import java.util.List;
 
 import info.faljse.SDNotify.SDNotify;
-import io.openems.api.bridge.Bridge;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ThingInfo;
@@ -60,12 +58,6 @@ public class SimpleScheduler extends Scheduler {
 		for (Controller controller : controllers) {
 			// TODO: check if WritableChannels can still be changed, before executing
 			controller.executeRun();
-		}
-		for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
-			channel.shadowCopyAndReset();
-		}
-		for (Bridge bridge : thingRepository.getBridges()) {
-			bridge.triggerWrite();
 		}
 	}
 

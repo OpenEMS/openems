@@ -1,4 +1,5 @@
 import { Role } from '../type/role'
+import { UUID } from 'angular2-uuid';
 
 export module DefaultTypes {
 
@@ -54,18 +55,29 @@ export module DefaultTypes {
   export interface Summary {
     storage: {
       soc: number,
+      asymmetric: boolean
       chargeActivePower: number,
       chargeActivePowerAC: number,
+      chargeActivePowerACL1: number,
+      chargeActivePowerACL2: number,
+      chargeActivePowerACL3: number,
       chargeActivePowerDC: number,
       maxChargeActivePower: number,
       dischargeActivePower: number,
       dischargeActivePowerAC: number,
+      dischargeActivePowerACL1: number,
+      dischargeActivePowerACL2: number,
+      dischargeActivePowerACL3: number,
       dischargeActivePowerDC: number,
       maxDischargeActivePower: number
     }, production: {
       powerRatio: number,
+      asymmetric: boolean,
       activePower: number, // sum of activePowerAC and activePowerDC
       activePowerAC: number,
+      activePowerACL1: number,
+      activePowerACL2: number,
+      activePowerACL3: number,
       activePowerDC: number,
       maxActivePower: number
     }, grid: {
@@ -81,6 +93,7 @@ export module DefaultTypes {
   }
 
   export interface MessageMetadataDevice {
+    id: number,
     name: string,
     comment: string,
     producttype: string,
@@ -107,11 +120,16 @@ export module DefaultTypes {
 
   export type LanguageTag = "de" | "en" | "cz" | "nl";
 
-  export interface OutgoingMessage {
-    id: string[]
+  export interface IdentifiedMessage {
+    messageId: {
+      ui: string,
+      backend?: string
+    },
+    edgeId?: number,
+    [thing: string]: {}
   }
 
-  export interface ConfigUpdate extends OutgoingMessage {
+  export interface ConfigUpdate extends IdentifiedMessage {
     config: {
       mode: "update",
       thing: string,

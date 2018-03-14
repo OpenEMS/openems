@@ -1,0 +1,49 @@
+#
+# OSGi enRoute Default Distro
+#
+# This file defines the properties to be used in an enRoute workspace.
+#
+
+-runfw: org.eclipse.osgi
+
+-plugin.9x.enroute.distro = \
+	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
+		snapshotUrls=https://oss.sonatype.org/content/groups/osgi; \
+		releaseUrls=https://repo1.maven.org/maven2/; \
+		revision=org.osgi:osgi.enroute.pom.distro:2.1.0-SNAPSHOT; \
+		name=Distro; \
+		location=${build}/cache/enroute-distro.xml
+
+-runblacklist.enroute:	\
+	osgi.identity;filter:='(osgi.identity=osgi.enroute.base.api)', \
+	osgi.identity;filter:='(osgi.identity=osgi.cmpn)', \
+	osgi.identity;filter:='(osgi.identity=osgi.core)', \
+	osgi.identity;filter:='(osgi.identity=biz.aQute.junit)', \
+	osgi.identity;filter:='(osgi.identity=biz.aQute.launcher)', \
+	osgi.identity;filter:='(osgi.identity=biz.aQute.remote.launcher)'
+
+
+# TODO check if still needed
+
+-runproperties.eqnx: 				\
+	org.apache.felix.http.jettyEnabled=true, \
+	org.apache.felix.http.whiteboardEnabled=true,\
+	osgi.console=, \
+	osgi.console.enable.builtin=false
+
+-runpath.eqnx: 					osgi.enroute.equinox.log.adapter
+-runrequires.eqnx: \
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.log)'
+
+
+-runsystempackages.eqnx:		javax.script
+-runsystemcapabilities.dflt: 	${native_capability}
+
+debug-bundles: \
+	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)',\
+	osgi.implementation;filter:='(osgi.implementation=osgi.metatype)',\
+	osgi.implementation;filter:='(osgi.implementation=osgi.log)',\
+	osgi.implementation;filter:='(osgi.implementation=osgi.event)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)', \
+	osgi.identity;filter:='(osgi.identity=osgi.enroute.base.debug.provider)'

@@ -24,6 +24,7 @@ import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class ModbusCoilRange extends ModbusRange {
 
+	@SuppressWarnings("unchecked")
 	public ModbusCoilRange(int startAddress, ModbusElement<Boolean>... elements) {
 		super(startAddress, elements);
 	}

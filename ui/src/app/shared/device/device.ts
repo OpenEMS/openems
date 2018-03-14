@@ -23,22 +23,19 @@ export class Log {
   message: string;
 }
 
+// TODO rename to Edge
 export class Device {
 
   constructor(
+    public readonly edgeId: number,
     public readonly name: string,
     public readonly comment: string,
     public readonly producttype: string,
     public readonly role: Role,
     public online: boolean,
-    private replyStreams: { [id: string]: Subject<DefaultMessages.Reply> },
+    private replyStreams: { [messageId: string]: Subject<DefaultMessages.Reply> },
     private websocket: Websocket
   ) {
-    // prepare stream/obersable for currentData
-    let currentDataStream = replyStreams["currentData"] = new Subject<DefaultMessages.CurrentDataReply>();
-    this.currentData = currentDataStream
-      .map(message => message.currentData)
-      .combineLatest(this.config, (currentData, config) => new CurrentDataAndSummary(currentData, config));
     // prepare stream/obersable for log
     let logStream = replyStreams["log"] = new Subject<DefaultMessages.LogReply>();
     this.log = logStream
@@ -74,8 +71,9 @@ export class Device {
    * Refresh the config
    */
   public refreshConfig(): BehaviorSubject<ConfigImpl> {
-    let message = DefaultMessages.configQuery();
-    let messageId = message.id[0];
+    // TODO use sendMessageWithReply()
+    let message = DefaultMessages.configQuery(this.edgeId);
+    let messageId = message.messageId.ui;
     this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
     this.send(message);
     // wait for reply
@@ -94,19 +92,33 @@ export class Device {
    * Sends a message to websocket
    */
   public send(value: any): void {
-    this.websocket.send(value, this);
+    this.websocket.send(value);
+  }
+
+  private sendMessageWithReply(message: DefaultTypes.IdentifiedMessage): Subject<DefaultMessages.Reply> {
+    let messageId: string = message.messageId.ui;
+    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
+    this.send(message);
+    return this.replyStreams[messageId];
+  }
+
+  private removeReplyStream(reply: DefaultMessages.Reply) {
+    let messageId: string = reply.messageId.ui;
+    this.replyStreams[messageId].unsubscribe();
+    delete this.replyStreams[messageId];
   }
 
   /**
    * Subscribe to current data of specified channels
    */
   public subscribeCurrentData(channels: DefaultTypes.ChannelAddresses): Observable<CurrentDataAndSummary> {
-    // send subscribe
-    let message = DefaultMessages.currentDataSubscribe(channels);
-    this.send(message);
     this.subscribeCurrentDataChannels = channels;
-    // TODO timeout
-    return this.currentData;
+    let replyStream = this.sendMessageWithReply(DefaultMessages.currentDataSubscribe(this.edgeId, channels));
+    let obs = replyStream
+      .map(message => (message as DefaultMessages.CurrentDataReply).currentData)
+      .combineLatest(this.config, (currentData, config) => new CurrentDataAndSummary(currentData, config));
+    // TODO send "unsubscribe" to websocket when nobody is subscribed on this observable anymore
+    return obs;
   }
 
   /**
@@ -121,18 +133,13 @@ export class Device {
    */
   // TODO: kWh: this.getkWhResult(this.getImportantChannels())
   public historicDataQuery(fromDate: Date, toDate: Date, channels: DefaultTypes.ChannelAddresses): Promise<DefaultTypes.HistoricData> {
-    // send query
     let timezone = new Date().getTimezoneOffset() * 60;
-    let message = DefaultMessages.historicDataQuery(fromDate, toDate, timezone, channels);
-    let messageId = message.id[0];
-    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
-    this.send(message);
+    let replyStream = this.sendMessageWithReply(DefaultMessages.historicDataQuery(this.edgeId, fromDate, toDate, timezone, channels));
     // wait for reply
     return new Promise((resolve, reject) => {
-      this.replyStreams[messageId].first().subscribe(reply => {
-        let historicData = (<DefaultMessages.HistoricDataReply>reply).historicData;
-        this.replyStreams[messageId].unsubscribe();
-        delete this.replyStreams[messageId];
+      replyStream.first().subscribe(reply => {
+        let historicData = (reply as DefaultMessages.HistoricDataReply).historicData;
+        this.removeReplyStream(reply);
         resolve(historicData);
       });
     })
@@ -150,16 +157,15 @@ export class Device {
    * Subscribe to log
    */
   public subscribeLog(): Observable<DefaultTypes.Log> {
-    let message = DefaultMessages.logSubscribe();
-    this.send(message);
-    return this.log;
+    let replyStream = this.sendMessageWithReply(DefaultMessages.logSubscribe(this.edgeId));
+    return replyStream.map(message => message.log as DefaultTypes.Log);
   }
 
   /**
    * Unsubscribe from log
    */
   public unsubscribeLog() {
-    let message = DefaultMessages.logUnsubscribe();
+    let message = DefaultMessages.logUnsubscribe(this.edgeId);
     this.send(message);
   }
 
@@ -167,45 +173,14 @@ export class Device {
    * System Execute
    */
   public systemExecute(password: string, command: string, background: boolean, timeout: number): Promise<string> {
-    let message = DefaultMessages.systemExecute(password, command, background, timeout);
-    let messageId = message.id[0];
-    this.replyStreams[messageId] = new Subject<DefaultMessages.Reply>();
-    this.send(message);
+    let replyStream = this.sendMessageWithReply(DefaultMessages.systemExecute(this.edgeId, password, command, background, timeout));
     // wait for reply
     return new Promise((resolve, reject) => {
-      this.replyStreams[messageId].first().subscribe(reply => {
-        let output = (<DefaultMessages.SystemExecuteReply>reply).system.output;
-        this.replyStreams[messageId].unsubscribe();
-        delete this.replyStreams[messageId];
+      replyStream.first().subscribe(reply => {
+        let output = (reply as DefaultMessages.SystemExecuteReply).system.output;
+        this.removeReplyStream(reply);
         resolve(output);
       });
     })
   }
-
-  /*
-   * log
-   */
-  // if ("log" in message) {
-  //   let log = message.log;
-  //   this.log.next(log);
-  // }
-
-
-  //let kWh = null;
-  // history data
-  // if (message.queryreply != null) {
-  //   if ("data" in message.queryreply && message.queryreply.data != null) {
-  //     data = message.queryreply.data;
-  //     for (let datum of data) {
-  //       let sum = this.calculateSummary(datum.channels);
-  //       datum["summary"] = sum;
-  //     }
-  //   }
-  //   // kWh data
-  //   if ("kWh" in message.queryreply) {
-  //     kWh = message.queryreply.kWh;
-  //   }
-  // }
-  //this.historykWh.next(kWh);
-  // }
 }

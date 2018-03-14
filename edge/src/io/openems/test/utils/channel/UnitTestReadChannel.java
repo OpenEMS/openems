@@ -15,7 +15,6 @@ public class UnitTestReadChannel<T> extends io.openems.api.channel.ReadChannel<T
 
 			@Override
 			public ThingStateChannels getStateChannel() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		});

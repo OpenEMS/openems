@@ -1,0 +1,58 @@
+"scheduler": {
+	"class": "io.openems.impl.scheduler.channelthreshold.ChannelThresholdScheduler",
+	"controllers": [
+		{
+			"id": "rest",
+			"class": "io.openems.impl.controller.api.rest.RestApiController",
+			"priority": 150
+		},
+		{
+			"id": "websocketApi0",
+			"class": "io.openems.impl.controller.api.websocket.WebsocketApiController",
+			"priority": 100
+		},
+		{
+			"id": "charge",
+			"class": "io.openems.impl.controller.asymmetric.fixvalue.FixValueActivePowerController",
+			"esss": [
+				"ess0"
+			],
+			"priority": 150,
+			"activePowerL1": -2000,
+			"activePowerL2": -2000,
+			"activePowerL3": -2000
+		},
+		{
+			"id": "discharge",
+			"class": "io.openems.impl.controller.asymmetric.fixvalue.FixValueActivePowerController",
+			"esss": [
+				"ess0"
+			],
+			"priority": 150,
+			"activePowerL1": 2000,
+			"activePowerL2": 2000,
+			"activePowerL3": 2000
+		}
+	],
+	"always": [
+		"websocketApi0",
+		"rest"
+	],
+	"thresholds": [
+		{
+			"threshold": 20,
+			"hysteresis": 60,
+			"controller": [
+				"charge"
+			]
+		},
+		{
+			"threshold": 22,
+			"hysteresis": 60,
+			"controller": [
+				"discharge"
+			]
+		}
+	],
+	"thresholdChannelAddress": "ess0/Soc"
+}

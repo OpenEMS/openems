@@ -100,30 +100,14 @@ public class SimulatorProductionMeter extends SimulatorMeter implements ChannelC
 				try {
 					Constructor<?> constructor = clazz.getConstructor(JsonObject.class);
 					return (LoadGenerator) constructor.newInstance(config.get("config").getAsJsonObject());
-				} catch (NoSuchMethodException e) {
-
+				} catch (NoSuchMethodException | IllegalArgumentException | InvocationTargetException e) {
+					log.error(e.getMessage());
 				}
 			}
 			return (LoadGenerator) clazz.newInstance();
 
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SecurityException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			log.error(e.getMessage());
 		}
 		return null;
 	}

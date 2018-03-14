@@ -36,7 +36,14 @@ import io.openems.impl.protocol.keba.KebaDevice;
  * Example config:
  *
  * <pre>
- * // TODO
+ *	{
+ *		"class": "io.openems.impl.controller.evcs.EvcsController",
+ *		"meter": "meter0",
+ *		"ess": "ess0",
+ *		"priority": 10,
+ *		"forceCharge": false,
+ *		"evcs": "evcs0"
+ *	}
  * </pre>
  */
 

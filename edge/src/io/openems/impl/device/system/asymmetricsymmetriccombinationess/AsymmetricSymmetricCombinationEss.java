@@ -8,7 +8,7 @@ import io.openems.api.channel.ConfigChannel;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.impl.protocol.system.SystemDevice;
 
 @ThingInfo(title = "Ess Asymmetric-Symmetric-Combination")
@@ -19,7 +19,6 @@ public class AsymmetricSymmetricCombinationEss extends SystemDevice {
 
 	public AsymmetricSymmetricCombinationEss(Bridge parent) throws OpenemsException {
 		super(parent);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

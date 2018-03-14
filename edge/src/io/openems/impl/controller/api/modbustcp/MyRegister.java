@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.api.channel.Channel;
-import io.openems.api.exception.NotImplementedException;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.NotImplementedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.core.Databus;
 import io.openems.core.utilities.BitUtils;
 
@@ -35,21 +35,21 @@ public class MyRegister implements Register {
 
 	@Override
 	public int getValue() {
-		// TODO
+		// TODO implement getValue
 		log.warn("getValue is not implemented");
 		return 0;
 	}
 
 	@Override
 	public int toUnsignedShort() {
-		// TODO
+		// TODO implement toUnsignedShort
 		log.warn("toUnsignedShort is not implemented");
 		return 0;
 	}
 
 	@Override
 	public short toShort() {
-		// TODO
+		// TODO implement toShort
 		log.warn("toShort is not implemented");
 		return 0;
 	}

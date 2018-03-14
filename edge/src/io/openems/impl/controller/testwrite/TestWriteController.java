@@ -50,11 +50,9 @@ public class TestWriteController extends Controller {
 			out.value().output1.pushWrite(true);
 			log.info(in.value().input1.value().toString());
 		} catch (WriteChannelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage());
 		} catch (InvalidValueException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		// for (Ess ess : esss) {
 		// try {

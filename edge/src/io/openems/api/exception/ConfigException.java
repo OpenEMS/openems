@@ -20,6 +20,8 @@
  *******************************************************************************/
 package io.openems.api.exception;
 
+import io.openems.common.exceptions.OpenemsException;
+
 public class ConfigException extends OpenemsException {
 
 	private static final long serialVersionUID = 4964780198803809683L;
@@ -27,7 +29,7 @@ public class ConfigException extends OpenemsException {
 	public ConfigException(String message) {
 		super(message);
 	}
-	
+
 	public ConfigException(String message, Throwable cause) {
 		super(message, cause);
 	}

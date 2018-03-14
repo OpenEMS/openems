@@ -20,7 +20,6 @@
  *******************************************************************************/
 package io.openems.impl.persistence.influxdb;
 
-//TODO move to common package
 public abstract class FieldValue<T> {
 	public final String field;
 	public final T value;

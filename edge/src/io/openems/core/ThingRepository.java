@@ -50,24 +50,26 @@ import io.openems.api.bridge.Bridge;
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.ThingStateChannel;
 import io.openems.api.channel.WriteChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelDoc;
 import io.openems.api.doc.ThingDoc;
-import io.openems.api.exception.OpenemsException;
-import io.openems.api.exception.ReflectionException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.persistence.QueryablePersistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.thing.Thing;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.utils.JsonUtils;
 import io.openems.core.ThingsChangedListener.Action;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
-import io.openems.core.utilities.JsonUtils;
+
 
 public class ThingRepository implements ThingChannelsUpdatedListener {
 	private final static Logger log = LoggerFactory.getLogger(ThingRepository.class);
@@ -178,6 +180,16 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 						// It's a Method with ReturnType Channel
 						Channel c = (Channel) ((Method) member).invoke(thing);
 						addToChannels.accept(c);
+
+						if(c instanceof ThingStateChannels) {
+							ThingStateChannels tsc = (ThingStateChannels)c;
+							for(ThingStateChannel fc : tsc.getFaultChannels()) {
+								addToChannels.accept(fc);
+							}
+							for(ThingStateChannel wc : tsc.getWarningChannels()) {
+								addToChannels.accept(wc);
+							}
+						}
 					}
 				} else if (member instanceof Field) {
 					// It's a Field with Type Channel
@@ -193,7 +205,6 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 					// Add Channel to thingChannels
 					thingChannels.put(thing, channel.id(), channel);
 					if (channel instanceof ConfigChannel) {
-
 						// Add Channel to configChannels
 						thingConfigChannels.put(thing, (ConfigChannel<?>) channel);
 					}
@@ -283,7 +294,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 
 		// Remove Listener
 		thing.removeListener(this);
-		// TODO further cleaning if required
+
 		for (ThingsChangedListener listener : thingListeners) {
 			listener.thingChanged(thing, Action.REMOVE);
 		}
@@ -434,7 +445,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		}
 	}
 
-	public Controller createController(JsonObject jController) throws ReflectionException {
+	public Controller createController(JsonObject jController) throws OpenemsException {
 		String controllerClass = JsonUtils.getAsString(jController, "class");
 		Controller controller;
 		if (jController.has("id")) {
@@ -450,7 +461,7 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 		return controller;
 	}
 
-	public Device createDevice(JsonObject jDevice, Bridge parent) throws ReflectionException {
+	public Device createDevice(JsonObject jDevice, Bridge parent) throws OpenemsException {
 		String deviceClass = JsonUtils.getAsString(jDevice, "class");
 		Device device = (Device) InjectionUtils.getThingInstance(deviceClass, parent);
 		log.info("Add Device[" + device.id() + "], Implementation[" + device.getClass().getSimpleName() + "]");
@@ -482,8 +493,10 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 			Member member = channelDoc.getMember();
 			try {
 				List<Channel> channels = new ArrayList<>();
+				boolean ignoreEmpty = false;
 				if (member instanceof Method) {
 					if (((Method) member).getReturnType().isArray()) {
+						ignoreEmpty = true; // ignore e.g. if getFaultChannels is returning an empty array
 						Channel[] ch = (Channel[]) ((Method) member).invoke(thing);
 						for (Channel c : ch) {
 							channels.add(c);
@@ -498,8 +511,8 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 				} else {
 					continue;
 				}
-				if (channels.isEmpty()) {
-					log.error(
+				if (!ignoreEmpty && channels.isEmpty()) {
+					log.warn(
 							"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
 					continue;
 				}

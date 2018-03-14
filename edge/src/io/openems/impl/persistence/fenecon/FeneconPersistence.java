@@ -46,9 +46,9 @@ import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.NotImplementedException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.ChannelEnum;
@@ -56,13 +56,13 @@ import io.openems.common.types.FieldValue;
 import io.openems.common.types.NullFieldValue;
 import io.openems.common.types.NumberFieldValue;
 import io.openems.common.types.StringFieldValue;
+import io.openems.common.utils.StringUtils;
 import io.openems.common.websocket.DefaultMessages;
-import io.openems.common.websocket.WebSocketUtils;
 import io.openems.core.Config;
 import io.openems.core.ConfigFormat;
 import io.openems.core.Databus;
 import io.openems.core.ThingRepository;
-import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
+import io.openems.core.utilities.OnConfigUpdate;
 
 // TODO make sure this is registered as ChannelChangeListener also to ConfigChannels
 @ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
@@ -79,7 +79,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			Role.ADMIN })
 	public final ConfigChannel<String> apikey = new ConfigChannel<String>("apikey", this).doNotPersist();
 
-	@ChannelInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/openems-backend\"")
+	@ChannelInfo(title = "Uri", description = "Sets the connection Uri to FENECON Cloud.", type = String.class, defaultValue = "\"wss://fenecon.de:443/openems-backend2\"")
 	public final ConfigChannel<String> uri = new ConfigChannel<String>("uri", this).doNotPersist();
 
 	@ChannelInfo(title = "Sets the duration of each cycle in milliseconds", type = Integer.class)
@@ -99,9 +99,9 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 * Constructor
 	 */
 	public FeneconPersistence() {
-		this.websocketHandler = new EdgeWebsocketHandler();
 		this.thingState = new ThingStateChannels(this);
-		this.reconnectingWebsocket = new ReconnectingWebsocket(this.websocketHandler, (websocket) -> {
+
+		this.reconnectingWebsocket = new ReconnectingWebsocket((websocket) -> {
 			/*
 			 * onOpen
 			 */
@@ -111,15 +111,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			// Add current status of all channels to queue
 			this.addCurrentValueOfAllChannelsToQueue();
 			// Send current config
-			try {
-				WebSocketUtils.send( //
-						websocket, //
-						DefaultMessages.configQueryReply(Config.getInstance().getJson(ConfigFormat.OPENEMS_UI,
-								Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
-				log.info("Sent config to FENECON persistence.");
-			} catch (NotImplementedException | ConfigException e) {
-				log.error("Unable to send config: " + e.getMessage());
-			}
+			this.onConfigUpdate.call();
 		}, () -> {
 			/*
 			 * onClose
@@ -128,6 +120,27 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			log.error("FENECON persistence closed connection to uri [" + uri.valueOptional().orElse("") + "]"
 					+ (proxyInfoOpt.isPresent() ? ", " + proxyInfoOpt.get() : ""));
 		});
+
+		/*
+		 * Listen to config updates
+		 */
+		onConfigUpdate = () -> {
+			try {
+				if (reconnectingWebsocket != null) {
+					reconnectingWebsocket.send(DefaultMessages.configQueryReply(new JsonObject(),
+							Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
+				}
+				log.info("Sent config to FENECON persistence.");
+			} catch (OpenemsException e) {
+				log.error("Unable to send config: " + e.getMessage());
+			}
+		};
+		try {
+			Config config = Config.getInstance();
+			config.addOnConfigUpdateListener(this.onConfigUpdate);
+		} catch (ConfigException e) {
+			log.error(e.getMessage());
+		}
 	}
 
 	@Override
@@ -139,8 +152,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 * Fields
 	 */
 	private static final int DEFAULT_CYCLETIME = 10000;
-	private final EdgeWebsocketHandler websocketHandler;
 	private final ReconnectingWebsocket reconnectingWebsocket;
+	private volatile OnConfigUpdate onConfigUpdate = null;
 
 	// Queue of data for the next cycle
 	private HashMap<ChannelAddress, FieldValue<?>> queue = new HashMap<>();
@@ -215,7 +228,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		}
 
 		// Send data to Server
-		if (this.send(j)) {
+		if (this.sendOrLogError(j)) {
 			// Successful
 
 			// reset cycleTime
@@ -224,7 +237,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			// resend from cache
 			for (Iterator<JsonObject> iterator = unsentCache.iterator(); iterator.hasNext();) {
 				JsonObject jCached = iterator.next();
-				boolean cacheWasSent = this.send(jCached);
+				boolean cacheWasSent = this.sendOrLogError(jCached);
 				if (cacheWasSent) {
 					iterator.remove();
 				}
@@ -243,6 +256,12 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	@Override
 	protected void dispose() {
 		this.reconnectingWebsocket.dispose();
+		try {
+			Config config = Config.getInstance();
+			config.removeOnConfigUpdateListener(this.onConfigUpdate);
+		} catch (ConfigException e) {
+			log.error(e.getMessage());
+		}
 	}
 
 	/**
@@ -250,9 +269,16 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 *
 	 * @param j
 	 * @return
+	 * @throws OpenemsException
 	 */
-	private boolean send(JsonObject j) {
-		return this.websocketHandler.send(j);
+	private boolean sendOrLogError(JsonObject j) {
+		try {
+			this.reconnectingWebsocket.send(j);
+			return true;
+		} catch (OpenemsException e) {
+			log.warn("Unable to send: " + StringUtils.toShortString(j, 100));
+			return false;
+		}
 	}
 
 	/**
@@ -260,9 +286,9 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 *
 	 * @return
 	 */
-	public EdgeWebsocketHandler getWebsocketHandler() {
-		return this.websocketHandler;
-	}
+	// public EdgeWebsocketHandler getWebsocketHandler() {
+	// return this.websocketHandler;
+	// }
 
 	private void increaseCycleTime() {
 		int currentCycleTime = this.getCycleTime();
@@ -331,7 +357,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 			} else if (value instanceof Boolean) {
 				fieldValue = new NumberFieldValue(((Boolean) value) ? 1 : 0);
 			} else if (value instanceof ChannelEnum) {
-				fieldValue = new NumberFieldValue(((ChannelEnum)value).getValue());
+				fieldValue = new NumberFieldValue(((ChannelEnum) value).getValue());
 			} else if (value instanceof DeviceNature || value instanceof JsonElement || value instanceof Map
 					|| value instanceof Set || value instanceof List || value instanceof ThingMap) {
 				// ignore
@@ -345,7 +371,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 
 		// Add timestamp + value to queue
 		synchronized (queue) {
-			queue.put(readChannel.channelAddress(), fieldValue);
+			queue.put(readChannel.address(), fieldValue);
 		}
 	}
 
@@ -385,5 +411,9 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	@Override
 	public ThingStateChannels getStateChannel() {
 		return this.thingState;
+	}
+
+	public void sendLog(long timestamp, String level, String source, String message) {
+		this.reconnectingWebsocket.sendLog(timestamp, level, source, message);
 	}
 }

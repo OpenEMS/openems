@@ -87,7 +87,6 @@ public abstract class SystemDeviceNature implements DeviceNature {
 
 	@Override
 	public List<BridgeReadTask> getReadTasks() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -98,7 +97,6 @@ public abstract class SystemDeviceNature implements DeviceNature {
 
 	@Override
 	public List<BridgeWriteTask> getWriteTasks() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

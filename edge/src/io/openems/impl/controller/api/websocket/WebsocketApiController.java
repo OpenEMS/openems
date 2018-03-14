@@ -30,6 +30,9 @@ import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
+import io.openems.api.exception.ConfigException;
+import io.openems.core.Config;
+import io.openems.core.utilities.OnConfigUpdate;
 import io.openems.core.utilities.api.ApiWorker;
 
 @ThingInfo(title = "Websocket-API", description = "Required by OpenEMS-UI.")
@@ -43,10 +46,12 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	 */
 	public WebsocketApiController() {
 		super();
+		this.registerOnConfigUpdateListener();
 	}
 
 	public WebsocketApiController(String thingId) {
 		super(thingId);
+		this.registerOnConfigUpdateListener();
 	}
 
 	/*
@@ -70,6 +75,21 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	 * Fields
 	 */
 	private volatile WebsocketApiServer websocketApiServer = null;
+	/*
+	 * Listen to config updates
+	 */
+	OnConfigUpdate onConfigUpdate = () -> {
+		if(this.websocketApiServer != null) {
+			this.websocketApiServer.onConfigUpdate();
+		}
+	};
+	private void registerOnConfigUpdateListener() {
+		try {
+			Config.getInstance().addOnConfigUpdateListener(this.onConfigUpdate);
+		} catch (ConfigException e) {
+			log.error(e.getMessage());
+		}
+	}
 
 	/*
 	 * Methods
@@ -112,8 +132,8 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	 *
 	 * @param jMessage
 	 */
-	public void broadcastLog(long timestamp, String level, String source, String message) {
-		this.websocketApiServer.broadcastLog(timestamp, level, source, message);
+	public void sendLog(long timestamp, String level, String source, String message) {
+		this.websocketApiServer.sendLog(timestamp, level, source, message);
 	}
 
 	@Override

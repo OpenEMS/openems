@@ -3,7 +3,7 @@ package io.openems.core.utilities.api;
 import com.google.gson.JsonElement;
 
 import io.openems.api.channel.WriteChannel;
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 
 public class WriteJsonObject extends WriteObject {
 

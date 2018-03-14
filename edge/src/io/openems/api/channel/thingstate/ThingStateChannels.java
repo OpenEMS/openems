@@ -1,5 +1,6 @@
 package io.openems.api.channel.thingstate;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,22 +11,25 @@ import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.ThingStateChannel;
+import io.openems.api.doc.ChannelDoc;
+import io.openems.api.doc.ChannelInfo;
 import io.openems.api.exception.ConfigException;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.session.Role;
+import io.openems.common.types.ChannelAddress;
 
 public class ThingStateChannels extends ReadChannel<ThingState> implements ChannelChangeListener {
 
 	private List<ThingStateChannel> warningChannels;
 	private List<ThingStateChannel> faultChannels;
-	private List<ThingStateChannels> childChannels;
-	private Set<String> channelNames;
+	private Set<ChannelAddress> channelNames;
 
 	public ThingStateChannels(Thing parent){
 		super("State", parent);
 		this.warningChannels = new ArrayList<>();
 		this.faultChannels = new ArrayList<>();
 		this.channelNames = new HashSet<>();
-		this.childChannels = new ArrayList<>();
 		updateState();
 	}
 
@@ -34,6 +38,7 @@ public class ThingStateChannels extends ReadChannel<ThingState> implements Chann
 			this.warningChannels.add(channel);
 			this.channelNames.add(channel.address());
 			channel.addChangeListener(this);
+			addDefaultChannelDoc(channel);
 			updateState();
 		} else {
 			throw new ConfigException("A channel with the name [" + channel.address() + "] is already registered!");
@@ -52,6 +57,7 @@ public class ThingStateChannels extends ReadChannel<ThingState> implements Chann
 			this.faultChannels.add(channel);
 			this.channelNames.add(channel.address());
 			channel.addChangeListener(this);
+			addDefaultChannelDoc(channel);
 			updateState();
 		} else {
 			throw new ConfigException("A channel with the name [" + channel.address() + "] is already registered!");
@@ -65,34 +71,71 @@ public class ThingStateChannels extends ReadChannel<ThingState> implements Chann
 		updateState();
 	}
 
+	private void addDefaultChannelDoc(Channel channel) {
+		ChannelDoc channelDoc = new ChannelDoc(null, channel.id(), Optional.of(new ChannelInfo() {
+
+			@Override
+			public Class<? extends Annotation> annotationType() {
+				return ChannelInfo.class;
+			}
+
+			@Override
+			public Role[] writeRoles() {
+				return ChannelInfo.DEFAULT_WRITE_ROLES.toArray(new Role[ChannelInfo.DEFAULT_WRITE_ROLES.size()]);
+			}
+
+			@Override
+			public Class<?> type() {
+				return Boolean.class;
+			}
+
+			@Override
+			public String title() {
+				return "";
+			}
+
+			@Override
+			public Role[] readRoles() {
+				return ChannelInfo.DEFAULT_READ_ROLES.toArray(new Role[ChannelInfo.DEFAULT_READ_ROLES.size()]);
+			}
+
+			@Override
+			public String description() {
+				return "";
+			}
+
+			@Override
+			public boolean isOptional() {
+				return false;
+			}
+
+			@Override
+			public boolean isArray() {
+				return false;
+			}
+
+			@Override
+			public String defaultValue() {
+				return "";
+			}
+		}));
+		try {
+			channel.setChannelDoc(channelDoc);
+		} catch (OpenemsException e) {
+			log.error(e.getMessage());
+		}
+	}
+
 	public List<ThingStateChannel> getWarningChannels() {
 		List<ThingStateChannel> warningChannels = new ArrayList<>();
 		warningChannels.addAll(this.warningChannels);
-		for(ThingStateChannels child : this.childChannels) {
-			warningChannels.addAll(child.getWarningChannels());
-		}
 		return warningChannels;
 	}
 
 	public List<ThingStateChannel> getFaultChannels() {
 		List<ThingStateChannel> faultChannels = new ArrayList<>();
 		faultChannels.addAll(this.faultChannels);
-		for(ThingStateChannels child : this.childChannels) {
-			faultChannels.addAll(child.getFaultChannels());
-		}
 		return this.faultChannels;
-	}
-
-	public void addChildChannel(ThingStateChannels child) {
-		this.childChannels.add(child);
-		child.addChangeListener(this);
-		updateState();
-	}
-
-	public void removeChildChannel(ThingStateChannels child) {
-		child.removeChangeListener(this);
-		this.childChannels.add(child);
-		updateState();
 	}
 
 	@Override
@@ -101,33 +144,18 @@ public class ThingStateChannels extends ReadChannel<ThingState> implements Chann
 	}
 
 	private void updateState() {
-		for(ThingStateChannels child : this.childChannels) {
-			if(child.isValuePresent()) {
-				switch(child.getValue()) {
-				case FAULT:
-					updateValue(ThingState.FAULT);
-					return;
-				case WARNING:
-					updateValue(ThingState.WARNING);
-					return;
-				default:
-					break;
-				}
-			}
-		}
+		ThingState currentState = ThingState.RUN;
 		for (ThingStateChannel faultChannel : faultChannels) {
 			if (faultChannel.isValuePresent() && faultChannel.getValue()) {
-				updateValue(ThingState.FAULT);
-				return;
+				currentState = ThingState.FAULT;
 			}
 		}
 		for (ThingStateChannel warningChannel : warningChannels) {
-			if (warningChannel.isValuePresent() && warningChannel.getValue()) {
-				updateValue(ThingState.WARNING);
-				return;
+			if (warningChannel.isValuePresent() && warningChannel.getValue()&&currentState != ThingState.FAULT) {
+				currentState = ThingState.WARNING;
 			}
 		}
-		updateValue(ThingState.RUN);
+		updateValue(currentState);
 	}
 
 }

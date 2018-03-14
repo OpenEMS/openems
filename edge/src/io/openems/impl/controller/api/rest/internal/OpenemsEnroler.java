@@ -25,7 +25,7 @@ import org.restlet.data.ClientInfo;
 import org.restlet.security.Enroler;
 import org.restlet.security.Role;
 
-import io.openems.api.exception.OpenemsException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.api.security.User;
 
 public class OpenemsEnroler implements Enroler {

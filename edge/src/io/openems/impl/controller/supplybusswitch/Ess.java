@@ -32,8 +32,6 @@ import io.openems.api.exception.WriteChannelException;
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	public final WriteChannel<Long> setActivePower;
-	public final WriteChannel<Long> setReactivePower;
 	public final ReadChannel<Long> soc;
 	public final ReadChannel<Long> activePower;
 	public final ReadChannel<Long> reactivePower;
@@ -61,8 +59,6 @@ public class Ess extends ThingMap {
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
-		setActivePower = ess.setActivePower().required();
-		setReactivePower = ess.setReactivePower().required();
 		reactivePower = ess.reactivePower();
 		soc = ess.soc().required();
 		minSoc = ess.minSoc().required();

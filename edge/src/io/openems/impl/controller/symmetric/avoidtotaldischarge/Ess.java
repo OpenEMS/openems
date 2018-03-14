@@ -24,18 +24,20 @@ import java.util.Optional;
 
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
+import io.openems.api.channel.DebugChannel;
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.core.utilities.hysteresis.Hysteresis;
+import io.openems.core.utilities.power.symmetric.PGreaterEqualLimitation;
+import io.openems.core.utilities.power.symmetric.PSmallerEqualLimitation;
+import io.openems.core.utilities.power.symmetric.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
 	public final ReadChannel<Integer> minSoc;
-	public final WriteChannel<Long> setActivePower;
 	public final ReadChannel<Long> soc;
 	public final ReadChannel<Long> systemState;
 	public int maxPowerPercent = 100;
@@ -44,20 +46,39 @@ public class Ess extends ThingMap {
 	public final ReadChannel<Integer> chargeSoc;
 	public Hysteresis socMinHysteresis;
 	public State currentState = State.NORMAL;
+	public final SymmetricPower power;
+	public final ReadChannel<Long> maxNominalPower;
+	public final PSmallerEqualLimitation maxActivePowerLimit;
+	public final PGreaterEqualLimitation minActivePowerLimit;
+	public DebugChannel<Integer> stateMachineState;
 
 	public enum State {
-		NORMAL, MINSOC, CHARGESOC, FULL;
+		NORMAL(0), MINSOC(1), CHARGESOC(2), FULL(3),EMPTY(4);
+
+		private final int value;
+
+		State(int value){
+			this.value = value;
+		}
+
+		public int value() {
+			return this.value;
+		}
 	}
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
-		setActivePower = ess.setActivePower().required();
 		systemState = ess.systemState().required();
 		soc = ess.soc().required();
 		minSoc = ess.minSoc().required();
 		allowedDischarge = ess.allowedDischarge().required();
 		allowedCharge = ess.allowedCharge().required();
 		chargeSoc = ess.chargeSoc().required();
+		power = ess.getPower();
+		maxActivePowerLimit = new PSmallerEqualLimitation(power);
+		minActivePowerLimit = new PGreaterEqualLimitation(power);
+		maxNominalPower = ess.maxNominalPower();
+		stateMachineState  = new DebugChannel<>("AvoidTotalDischargeState", ess);
 		ChannelChangeListener hysteresisCreator = new ChannelChangeListener() {
 
 			@Override

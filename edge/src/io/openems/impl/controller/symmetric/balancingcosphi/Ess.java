@@ -21,33 +21,32 @@
 package io.openems.impl.controller.symmetric.balancingcosphi;
 
 import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
-import io.openems.core.utilities.SymmetricPower;
+import io.openems.core.utilities.power.symmetric.CosPhiLineLimitation;
+import io.openems.core.utilities.power.symmetric.SymmetricPower;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
 
-	public final WriteChannel<Long> setActivePower;
-	public final WriteChannel<Long> setReactivePower;
 	public final ReadChannel<Long> reactivePower;
+	public final ReadChannel<Long> activePower;
 	public final String id;
 	public final ReadChannel<Long> allowedCharge;
 	public final ReadChannel<Long> allowedDischarge;
 	public final SymmetricPower power;
+	public final CosPhiLineLimitation limit;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
-		setActivePower = ess.setActivePower();
-		setReactivePower = ess.setReactivePower();
 		id = ess.id();
 		allowedCharge = ess.allowedCharge();
 		allowedDischarge = ess.allowedDischarge();
 		reactivePower = ess.reactivePower();
-		this.power = new SymmetricPower(ess.allowedDischarge().required(), ess.allowedCharge().required(),
-				ess.allowedApparent().required(), ess.setActivePower().required(), ess.setReactivePower().required());
+		activePower = ess.activePower();
+		this.power = ess.getPower();
+		this.limit = new CosPhiLineLimitation(power);
 	}
 
 }

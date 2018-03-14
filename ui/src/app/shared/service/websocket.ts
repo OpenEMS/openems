@@ -19,7 +19,8 @@ import { DefaultMessages } from '../service/defaultmessages';
 
 @Injectable()
 export class Websocket {
-  public static readonly TIMEOUT = 5000;
+  public static readonly TIMEOUT = 15000;
+  private static readonly DEFAULT_EDGEID = 0;
   private static readonly DEFAULT_DEVICENAME = "fems";
 
   // holds references of device names (=key) to Device objects (=value)
@@ -166,24 +167,6 @@ export class Websocket {
             this.service.setToken(message.authenticate.token);
           }
 
-          if ("role" in message.authenticate && env.backend === "OpenEMS Edge") {
-            // for OpenEMS Edge we have only one device
-            let role = Role.getRole(message.authenticate.role);
-            let replyStream: { [messageId: string]: Subject<any> } = {};
-            this.replyStreams[Websocket.DEFAULT_DEVICENAME] = replyStream;
-            this.devices.next({
-              fems: new Device(Websocket.DEFAULT_DEVICENAME, "FEMS", "", role, true, replyStream, this)
-            });
-          }
-
-          // TODO username is deprecated
-          // if ("username" in message.authenticate) {
-          //   this.username = message.authenticate.username;
-          //   this.event.next({ type: "success", message: this.service.translate.instant('Notifications.LoggedInAs', { value: this.username }) });
-          // } else {
-          //   this.event.next({ type: "success", message: this.service.translate.instant('Notifications.LoggedIn') });
-          // }
-
         } else {
           // authentication denied -> close websocket
           this.status = "failed";
@@ -204,22 +187,13 @@ export class Websocket {
       /*
        * Query reply
        */
-      if ("id" in message && message.id instanceof Array) {
-        let id = message.id[0];
-        let deviceName = Websocket.DEFAULT_DEVICENAME;
-        if ("device" in message) {
-          // Receive a reply with a message id and a device -> forward to devices' replyStream
-          deviceName = message.device;
-          if (deviceName in this.replyStreams && id in this.replyStreams[deviceName]) {
-            this.replyStreams[deviceName][id].next(message);
-          }
-        } else {
-          // Receive a reply with a message id -> find device and forward to devices' replyStream
-          for (let deviceName in this.replyStreams) {
-            if (id in this.replyStreams[deviceName]) {
-              this.replyStreams[deviceName][id].next(message);
-              break;
-            }
+      if ("messageId" in message && "ui" in message.messageId) {
+        // Receive a reply with a message id -> find device and forward to devices' replyStream
+        let messageId = message.messageId.ui;
+        for (let deviceName in this.replyStreams) {
+          if (messageId in this.replyStreams[deviceName]) {
+            this.replyStreams[deviceName][messageId].next(message);
+            break;
           }
         }
       }
@@ -228,13 +202,14 @@ export class Websocket {
        * Metadata
        */
       if ("metadata" in message) {
-        if ("devices" in message.metadata) {
-          let devices = <DefaultTypes.MessageMetadataDevice[]>message.metadata.devices;
+        if ("edges" in message.metadata) {
+          let devices = <DefaultTypes.MessageMetadataDevice[]>message.metadata.edges;
           let newDevices = {};
           for (let device of devices) {
             let replyStream: { [messageId: string]: Subject<any> } = {};
             this.replyStreams[device.name] = replyStream;
             let newDevice = new Device(
+              device.id,
               device.name,
               device.comment,
               device.producttype,
@@ -298,6 +273,7 @@ export class Websocket {
    * Reset everything to default
    */
   private initialize() {
+    // TODO do not stop the websocket connection on logout
     this.stopOnInitialize.next();
     this.stopOnInitialize.complete();
     this.messageSubscription.unsubscribe();
@@ -340,15 +316,9 @@ export class Websocket {
   /**
    * Sends a message to the websocket
    */
-  public send(message: any, device?: Device): void {
+  public send(message: any): void {
     if (env.debugMode) {
       console.info("SEND: ", message);
-    }
-    if (device) {
-      if ("id" in message) {
-        this.pendingQueryReplies[message.id[0]] = device.name;
-      }
-      message["device"] = device.name;
     }
     this.inputStream.next(JSON.stringify(message));
   }

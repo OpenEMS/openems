@@ -179,31 +179,26 @@ public class UnitTestAsymmetricEssNature implements AsymmetricEssNature {
 
 	@Override
 	public Device getParent() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<BridgeReadTask> getRequiredReadTasks() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<BridgeReadTask> getReadTasks() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<BridgeWriteTask> getWriteTasks() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ThingStateChannels getStateChannel() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

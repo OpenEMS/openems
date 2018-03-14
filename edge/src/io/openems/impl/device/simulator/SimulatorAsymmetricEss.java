@@ -32,6 +32,7 @@ import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
+import io.openems.api.channel.StaticThingStateChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
@@ -61,6 +62,9 @@ implements AsymmetricEssNature, ChannelChangeListener {
 	private LoadGenerator offGridReactivePowerGenerator = new RandomLoadGenerator();
 	private ThingStateChannels thingState;
 
+	private final StaticThingStateChannel simulatedFault;
+	private final StaticThingStateChannel simulatedWarning;
+
 	/*
 	 * Constructors
 	 */
@@ -73,6 +77,9 @@ implements AsymmetricEssNature, ChannelChangeListener {
 			}
 		});
 		this.thingState = new ThingStateChannels(this);
+		thingState.addFaultChannel(this.simulatedFault = new StaticThingStateChannel(FaultEss.SimulatedFault, this, false));
+		thingState.addWarningChannel(this.simulatedWarning = new StaticThingStateChannel(WarningEss.SimulatedWarning, this, false));
+
 		long initialSoc = SimulatorTools.addRandomLong(90, 90, 100, 5);
 		this.energy = capacity.valueOptional().get() / 100 * initialSoc;
 		this.soc = new FunctionalReadChannel<Long>("Soc", this, (channels) -> {
@@ -287,6 +294,9 @@ implements AsymmetricEssNature, ChannelChangeListener {
 		} catch (InvalidValueException e) {
 			e.printStackTrace();
 		}
+		// simulate faults and warnings
+		this.simulatedFault.setValue(SimulatorTools.getRandomBoolean());
+		this.simulatedWarning.setValue(SimulatorTools.getRandomBoolean());
 	}
 
 	@Override

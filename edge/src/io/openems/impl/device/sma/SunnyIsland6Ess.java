@@ -1,5 +1,9 @@
 package io.openems.impl.device.sma;
 
+import java.util.Optional;
+
+import io.openems.api.channel.Channel;
+import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
@@ -10,6 +14,9 @@ import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
+import io.openems.core.utilities.power.symmetric.PGreaterEqualLimitation;
+import io.openems.core.utilities.power.symmetric.PSmallerEqualLimitation;
+import io.openems.core.utilities.power.symmetric.SymmetricPowerImpl;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
@@ -61,6 +68,9 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 	private ReadChannel<Long> allowedApparent = new StaticValueChannel<Long>("AllowedApparent", this, 6000L);
 	private StaticValueChannel<Long> nominalPower = new StaticValueChannel<Long>("maxNominalPower", this, 6000l)
 			.unit("VA");
+	private SymmetricPowerImpl power;
+	private PGreaterEqualLimitation allowedChargeLimit;
+	private PSmallerEqualLimitation allowedDischargeLimit;
 	public ModbusReadLongChannel frequency;
 	public ModbusReadLongChannel current;
 	public ModbusReadLongChannel voltage;
@@ -136,16 +146,6 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 	}
 
 	@Override
-	public WriteChannel<Long> setActivePower() {
-		return setActivePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setReactivePower() {
-		return setReactivePower;
-	}
-
-	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 
 		ModbusProtocol protokol = new ModbusProtocol(
@@ -195,7 +195,32 @@ public class SunnyIsland6Ess extends ModbusDeviceNature implements SymmetricEssN
 						new UnsignedDoublewordElement(41187,
 								meterSetting = new ModbusWriteLongChannel("MeterSetting", this)
 								.label(3053, "SMA Energy Meter").label(3547, "Wechselrichter"))));
+		this.power = new SymmetricPowerImpl(40000, setActivePower, setReactivePower, getParent().getBridge());
+		this.allowedChargeLimit = new PGreaterEqualLimitation(power);
+		this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
+		this.allowedCharge.addChangeListener(new ChannelChangeListener() {
+
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+				allowedChargeLimit.setP(allowedCharge.valueOptional().orElse(0L));
+			}
+		});
+		this.power.addStaticLimitation(this.allowedChargeLimit);
+		this.allowedDischargeLimit = new PSmallerEqualLimitation(power);
+		this.allowedDischargeLimit.setP(this.allowedDischarge.valueOptional().orElse(0L));
+		this.allowedDischarge.addChangeListener(new ChannelChangeListener() {
+
+			@Override
+			public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+				allowedDischargeLimit.setP(allowedDischarge.valueOptional().orElse(0L));
+			}
+		});
 		return protokol;
+	}
+
+	@Override
+	public SymmetricPowerImpl getPower() {
+		return power;
 	}
 
 	@Override

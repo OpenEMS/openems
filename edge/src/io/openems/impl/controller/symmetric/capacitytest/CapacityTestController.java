@@ -37,6 +37,7 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
 import io.openems.api.exception.WriteChannelException;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Battery capacity test (Symmetric)", description = "Executes a capacity test. For symmetric Ess.")
 public class CapacityTestController extends Controller {
@@ -115,10 +116,12 @@ public class CapacityTestController extends Controller {
 							// Capacitytest
 							if (ess.full) {
 								// fully discharge ess
-								ess.setActivePower.pushWrite((long) power.value());
+								ess.limit.setP((long)power.value());
+								ess.power.applyLimitation(ess.limit);
 							} else {
 								// fully charge ess
-								ess.setActivePower.pushWrite((long) power.value() * -1);
+								ess.limit.setP((long) power.value() * -1);
+								ess.power.applyLimitation(ess.limit);
 								if (ess.allowedCharge.value() >= -100l
 										&& ess.systemState.labelOptional().equals(Optional.of(EssNature.START))) {
 									ess.full = true;
@@ -131,7 +134,8 @@ public class CapacityTestController extends Controller {
 					} else {
 						// prepare for capacityTest
 						// Empty ess
-						ess.setActivePower.pushWrite(ess.allowedDischarge.value());
+						ess.limit.setP(ess.allowedDischarge.value());
+						ess.power.applyLimitation(ess.limit);
 						if (ess.soc.value() <= ess.minSoc.value()) {
 							ess.empty = true;
 							ess.timeEmpty = System.currentTimeMillis();
@@ -140,9 +144,11 @@ public class CapacityTestController extends Controller {
 				}
 			} catch (InvalidValueException e) {
 				log.error(e.getMessage());
-			} catch (WriteChannelException e) {
-				log.error(e.getMessage());
 			} catch (IOException e) {
+				log.error(e.getMessage());
+			} catch (PowerException e) {
+				log.error("Failed to set Power!",e);
+			} catch (WriteChannelException e) {
 				log.error(e.getMessage());
 			}
 		}

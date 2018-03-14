@@ -42,10 +42,11 @@ import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
-import io.openems.api.exception.OpenemsException;
 import io.openems.api.persistence.QueryablePersistence;
+import io.openems.backend.timedata.influx.InfluxdbUtils;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.ChannelEnum;
-import io.openems.common.utils.InfluxdbUtils;
 import io.openems.core.Databus;
 
 @ThingInfo(title = "InfluxDB Persistence", description = "Persists data in an InfluxDB time-series database.")
@@ -101,15 +102,15 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 			return;
 		}
 		Object value = newValue.get();
-		String field = readChannel.address();
+		String field = readChannel.address().toString();
 		FieldValue<?> fieldValue;
 		// TODO merge this with io.openems.backend.timedata.influx.addChannelToBuilder()
 		if (value instanceof Number) {
 			fieldValue = new NumberFieldValue(field, (Number) value);
 		} else if (value instanceof String) {
 			fieldValue = new StringFieldValue(field, (String) value);
-		}else if (value instanceof ChannelEnum) {
-			fieldValue = new NumberFieldValue(field, ((ChannelEnum)value).getValue());
+		} else if (value instanceof ChannelEnum) {
+			fieldValue = new NumberFieldValue(field, ((ChannelEnum) value).getValue());
 		} else {
 			return;
 		}
@@ -204,8 +205,8 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	}
 
 	@Override
-	public JsonArray queryHistoricData(Optional<Integer> deviceIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate,
-			JsonObject channels, int resolution) throws io.openems.common.exceptions.OpenemsException {
+	public JsonArray queryHistoricData(Optional<Integer> edgeIdOpt, ZonedDateTime fromDate, ZonedDateTime toDate, JsonObject channels,
+			int resolution) throws io.openems.common.exceptions.OpenemsException {
 		Optional<InfluxDB> influxdbOpt = getInfluxDB();
 		if (!influxdbOpt.isPresent()) {
 			throw new OpenemsException("InfluxDB is not available");
@@ -214,8 +215,8 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 		if (!databaseOpt.isPresent()) {
 			throw new OpenemsException("InfluxDB database is not available");
 		}
-		return InfluxdbUtils.queryHistoricData(influxdbOpt.get(), databaseOpt.get(), deviceIdOpt, fromDate, toDate,
-				channels, resolution);
+		return InfluxdbUtils.queryHistoricData(influxdbOpt.get(), databaseOpt.get(), edgeIdOpt, fromDate,
+				toDate, channels, resolution);
 	}
 
 	@Override
@@ -226,5 +227,16 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	@Override
 	public ThingStateChannels getStateChannel() {
 		return this.thingState;
+	}
+
+	@Override
+	public Optional<Object> getChannelValue(int edgeId, ChannelAddress channelAddress) {
+		log.error("getChannelValue is not implemented");
+		return Optional.empty();
+	}
+
+	@Override
+	public void write(int edgeId, JsonObject jData) throws OpenemsException {
+		throw new OpenemsException("write is not implemented");
 	}
 }

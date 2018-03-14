@@ -1,0 +1,75 @@
+# Text files with LF eol
+*.auth crlf=input
+*.awk crlf=input
+*.bnd crlf=input
+*.bndrun crlf=input
+*.c crlf=input ident
+*.conf crlf=input
+*.cpp crlf=input ident
+*.css crlf=input
+*.ddf crlf=input
+*.ee crlf=input
+*.gradle crlf=input
+*.groovy crlf=input
+*.h crlf=input ident
+*.html crlf=input ident
+*.java crlf=input ident
+*.js crlf=input
+*.lib crlf=input
+*.md crlf=input
+*.MF crlf=input
+*.mf crlf=input
+*.perm crlf=input
+*.php crlf=input
+*.pl crlf=input
+*.pom crlf=input
+*.prefs crlf=input
+*.properties crlf=input
+*.py crlf=input
+*.schema crlf=input
+*.SF crlf=input
+*.sh crlf=input
+*.tcl crlf=input
+*.txt crlf=input
+*.xml crlf=input
+*.xsd crlf=input ident
+*.xsl crlf=input
+*.xslt crlf=input
+*.yml crlf=input
+.classpath crlf=input
+.project crlf=input
+gradlew crlf=input
+packageinfo crlf=input
+Makefile crlf=input
+README crlf=input
+LICENSE crlf=input
+
+# No EOL translation
+*.bat -crlf
+
+# Binary. No EOL translation, no diff
+*.ico binary
+*.jpeg binary
+*.jpg binary
+*.png binary
+*.crt binary
+*.pdf binary
+*.dll binary
+*.jar binary
+*.jnilib binary
+*.so binary
+*.zip binary
+*.doc binary
+*.ppt binary
+*.xls binary
+*.odg binary
+*.odp binary
+*.ods binary
+*.odt binary
+*.otg binary
+*.otp binary
+*.ots binary
+*.ott binary
+*.key binary
+*.numbers binary
+*.pages binary

@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.exception.NotImplementedException;
+import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.types.ChannelEnum;
 
 /**
@@ -25,7 +25,7 @@ public enum OpenemsTypes {
 	/*
 	 * Arrays of primitives
 	 */
-	LONG_ARRAY,
+	LONG_ARRAY,DOUBLE_ARRAY,
 	/*
 	 * Complex types
 	 */
@@ -65,6 +65,8 @@ public enum OpenemsTypes {
 
 		} else if (Long[].class.isAssignableFrom(type)) {
 			return LONG_ARRAY;
+		} else if (Double[].class.isAssignableFrom(type)) {
+			return DOUBLE_ARRAY;
 
 		} else if (Inet4Address.class.isAssignableFrom(type)) {
 			return INET_4_ADDRESS;

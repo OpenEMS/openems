@@ -13,6 +13,7 @@ import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
 import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.device.nature.ess.SymmetricEssNature;
+import io.openems.core.utilities.power.symmetric.SymmetricPowerImpl;
 import io.openems.impl.device.simulator.SimulatorTools;
 import io.openems.test.utils.channel.UnitTestConfigChannel;
 import io.openems.test.utils.channel.UnitTestReadChannel;
@@ -38,10 +39,13 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 	public UnitTestWriteChannel<Long> setReactivePower = new UnitTestWriteChannel<>("SetReactivePower", this);
 	public StaticValueChannel<Long> capacity = new StaticValueChannel<Long>("Capacity", this,
 			SimulatorTools.getRandomLong(3000, 50000));
+	public SymmetricPowerImpl power = new SymmetricPowerImpl(9000, setActivePower, setReactivePower, getParent().getBridge());
 	private final String id;
+	private ThingStateChannels thingState;
 
 	public UnitTestSymmetricEssNature(String id) {
 		this.id = id;
+		thingState = new ThingStateChannels(this);
 	}
 
 	@Override
@@ -116,17 +120,7 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 
 	@Override
 	public ReadChannel<Long> maxNominalPower() {
-		return maxNominalPower();
-	}
-
-	@Override
-	public WriteChannel<Long> setActivePower() {
-		return setActivePower;
-	}
-
-	@Override
-	public WriteChannel<Long> setReactivePower() {
-		return setReactivePower;
+		return maxNominalPower;
 	}
 
 	@Override
@@ -136,32 +130,32 @@ public class UnitTestSymmetricEssNature implements SymmetricEssNature {
 
 	@Override
 	public Device getParent() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<BridgeReadTask> getRequiredReadTasks() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<BridgeReadTask> getReadTasks() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<BridgeWriteTask> getWriteTasks() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
+	public SymmetricPowerImpl getPower() {
+		return power;
+	}
+
+	@Override
 	public ThingStateChannels getStateChannel() {
-		// TODO Auto-generated method stub
-		return null;
+		return thingState;
 	}
 
 }

@@ -82,13 +82,11 @@ public class FeneconMiniGridMeter extends ModbusDeviceNature implements Symmetri
 
 	@Override
 	public ReadChannel<Long> frequency() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ReadChannel<Long> voltage() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

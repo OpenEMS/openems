@@ -60,6 +60,9 @@ public class BalancingController extends Controller {
 	@ChannelInfo(title = "Grid-Meter", description = "Sets the grid meter.", type = Meter.class)
 	public ConfigChannel<Meter> meter = new ConfigChannel<Meter>("meter", this);
 
+	@ChannelInfo(title = "Capacitive CosPhi", description="if this value is true the cosPhi is capacitive otherwise inductive.",type=Boolean.class, defaultValue="false")
+	public ConfigChannel<Boolean> capacitive = new ConfigChannel<Boolean>("capacitive",this);
+
 	/*
 	 * Fields
 	 */
@@ -262,7 +265,7 @@ public class BalancingController extends Controller {
 						.ceil(minPower + diff / (esss.value().size() * 100 - useableSoc) * (100 - ess.useableSoc())));
 			}
 
-			long reactivePower = ControllerUtils.calculateReactivePower(power, cosPhi.value());
+			long reactivePower = ControllerUtils.calculateReactivePower(power, cosPhi.value(),capacitive.value());
 
 			calculatedPower -= power;
 

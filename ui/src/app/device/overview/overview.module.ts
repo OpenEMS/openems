@@ -7,6 +7,7 @@ import { EvcsComponent } from './evcs/evcs.component';
 import { HistoryComponent } from './history/history.component';
 import { FieldstatusComponent } from './fieldstatus/fieldstatus.component';
 import { OverviewComponent } from './overview.component';
+import { StateComponent } from './state/state.component';
 
 @NgModule({
   imports: [
@@ -18,7 +19,8 @@ import { OverviewComponent } from './overview.component';
     EvcsComponent,
     EnergytableComponent,
     HistoryComponent,
-    FieldstatusComponent
+    FieldstatusComponent,
+    StateComponent
   ]
 })
 export class OverviewModule { }

@@ -20,7 +20,6 @@ public class SimulatorWriteChannel<T> extends WriteChannel<T> {
 
 	@Override
 	public SimulatorWriteChannel<T> label(T value, String label) {
-		// TODO Auto-generated method stub
 		super.label(value, label);
 		return this;
 	}

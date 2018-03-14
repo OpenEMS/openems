@@ -29,7 +29,7 @@ import io.openems.api.device.nature.ess.EssNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.InvalidValueException;
-import io.openems.core.utilities.SymmetricPower;
+import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Power ramp (Symmetric)", description = "Follows a power ramp. For symmetric Ess.")
 public class PowerRampController extends Controller {
@@ -52,8 +52,8 @@ public class PowerRampController extends Controller {
 	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class, isArray = true)
 	public ConfigChannel<List<Ess>> esss = new ConfigChannel<List<Ess>>("esss", this);
 
-	@ChannelInfo(title = "Max-ActivePower", description = "The limit where the powerRamp stops. (pos/neg)", type = Integer.class)
-	public ConfigChannel<Integer> pMax = new ConfigChannel<Integer>("pMax", this);
+	@ChannelInfo(title = "Max-ActivePower", description = "The limit where the powerRamp stops. (pos/neg)", type = Long.class)
+	public ConfigChannel<Long> pMax = new ConfigChannel<Long>("pMax", this);
 
 	@ChannelInfo(title = "Step", description = "Step to increase power.", type = Integer.class)
 	public ConfigChannel<Integer> pStep = new ConfigChannel<Integer>("pStep", this);
@@ -79,23 +79,22 @@ public class PowerRampController extends Controller {
 							&& ess.gridMode.labelOptional().get().equals(EssNature.OFF_GRID)) {
 						lastPower = 0;
 					}
-					SymmetricPower power = ess.power;
+					//					SymmetricPower power = ess.power;
 					if (lastSet + sleep.value() < System.currentTimeMillis()) {
 						if (Math.abs(lastPower + pStep.value()) <= Math.abs(pMax.value())) {
-							power.setActivePower(lastPower + pStep.value());
+							ess.limit.setP(lastPower + pStep.value());
 						} else {
-							power.setActivePower(pMax.value());
+							ess.limit.setP(pMax.value());
 						}
 						lastSet = System.currentTimeMillis();
 					} else {
-						power.setActivePower(lastPower);
+						ess.limit.setP(lastPower);
 					}
-					power.writePower();
-					lastPower = power.getActivePower();
-					log.info("Set ActivePower [" + power.getActivePower() + "] Set ReactivePower ["
-							+ power.getReactivePower() + "]");
+					ess.power.applyLimitation(ess.limit);
 				} catch (InvalidValueException e) {
 					log.error("Failed to write fixed P/Q value for Ess " + ess.id, e);
+				} catch (PowerException e) {
+					log.error("Failed to set Power!",e);
 				}
 			}
 		} catch (InvalidValueException e) {

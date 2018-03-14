@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -53,18 +54,18 @@ import io.openems.api.controller.Controller;
 import io.openems.api.device.Device;
 import io.openems.api.doc.ThingDoc;
 import io.openems.api.exception.ConfigException;
-import io.openems.api.exception.NotImplementedException;
-import io.openems.api.exception.OpenemsException;
 import io.openems.api.exception.ReflectionException;
-import io.openems.api.exception.WriteChannelException;
 import io.openems.api.persistence.Persistence;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.api.security.User;
 import io.openems.api.thing.Thing;
+import io.openems.common.exceptions.NotImplementedException;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 import io.openems.core.utilities.ConfigUtils;
 import io.openems.core.utilities.InjectionUtils;
-import io.openems.core.utilities.JsonUtils;
+import io.openems.core.utilities.OnConfigUpdate;
 
 public class Config implements ChannelChangeListener {
 
@@ -241,7 +242,7 @@ public class Config implements ChannelChangeListener {
 				jScheduler.add("controllers", jControllers);
 			}
 			jConfig.add("scheduler", jScheduler);
-		} catch (ReflectionException e) {
+		} catch (OpenemsException e) {
 			log.warn("Error applying default config: " + e.getMessage());
 		}
 		return jConfig;
@@ -253,7 +254,6 @@ public class Config implements ChannelChangeListener {
 	 * @throws NotImplementedException
 	 */
 	public void writeConfigFile() throws NotImplementedException {
-		// TODO send config to all attached websockets
 		// get config as json
 		JsonObject jConfig = this.getJson(ConfigFormat.FILE, Role.ADMIN, "en");
 
@@ -300,7 +300,7 @@ public class Config implements ChannelChangeListener {
 	}
 
 	public synchronized void parseJsonConfig(JsonObject jConfig)
-			throws ReflectionException, ConfigException, WriteChannelException {
+			throws OpenemsException {
 		/*
 		 * read Users
 		 */
@@ -466,7 +466,7 @@ public class Config implements ChannelChangeListener {
 				jControllers.add(ConfigUtils.getAsJsonElement(controller, format, role));
 			}
 			jScheduler.add("controllers", jControllers);
-			break; // TODO only one Scheduler supported
+			break;
 		}
 		return jScheduler;
 	}
@@ -498,7 +498,6 @@ public class Config implements ChannelChangeListener {
 	 * @return
 	 * @throws NotImplementedException
 	 */
-	// TODO make use of language tag Enum
 	public synchronized JsonObject getJson(ConfigFormat format, Role role, String language)
 			throws NotImplementedException {
 		JsonObject jConfig = new JsonObject();
@@ -548,11 +547,14 @@ public class Config implements ChannelChangeListener {
 	 */
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-		// TODO: trigger ConfigUpdated event
 		try {
 			writeConfigFile();
 		} catch (OpenemsException e) {
 			log.error("Config-Error.", e);
+		}
+		// announce listeners
+		for(OnConfigUpdate listener : this.onConfigUpdateListeners) {
+			listener.call();
 		}
 	}
 
@@ -577,5 +579,18 @@ public class Config implements ChannelChangeListener {
 		Path configFile = getConfigFile();
 		Path backupFile = configFile.getParent().resolve(CONFIG_BACKUP_FILE_NAME);
 		return backupFile;
+	}
+
+	/**
+	 * Listener for Config updates
+	 */
+	private final Set<OnConfigUpdate> onConfigUpdateListeners = new HashSet<>();
+
+	public void addOnConfigUpdateListener(OnConfigUpdate listener) {
+		this.onConfigUpdateListeners.add(listener);
+	}
+
+	public void removeOnConfigUpdateListener(OnConfigUpdate listener) {
+		this.onConfigUpdateListeners.remove(listener);
 	}
 }

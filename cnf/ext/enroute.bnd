@@ -1,0 +1,43 @@
+#
+# -ENROUTE-
+# 
+# This file contains the setup for OSGi enRoute
+#
+
+
+javac.source: 			1.8
+javac.target: 			1.8
+-runee:					JavaSE-1.8
+
+Service-Component: 		*
+-dsannotations: 		*
+-metatypeannotations:	*
+-contract:				*
+
+
+test-cases: 			${classes;NAMED;*Test}
+-resolve.effective:		resolve, active
+-releaserepo:           Release
+
+-plugin.4.Central:  \
+	aQute.bnd.repository.maven.pom.provider.BndPomRepository; \
+		snapshotUrls=https://oss.sonatype.org/content/groups/osgi; \
+		releaseUrls=https://repo1.maven.org/maven2/; \
+		pom=${build}/central.xml; \
+		name=Central; \
+		location=${build}/cache/enroute-central.xml
+	        
+-plugin.6.Local: \
+        aQute.bnd.deployer.repository.LocalIndexedRepo; \
+            name                =       Local ; \
+            pretty              =       true ; \
+            local               =       ${build}/local
+
+	        
+
+-plugin.9.Release: \
+\
+        aQute.bnd.deployer.repository.LocalIndexedRepo; \
+            name                =       Release ; \
+            pretty              =       true ; \
+            local               =       ${build}/release

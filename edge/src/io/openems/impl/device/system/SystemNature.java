@@ -74,9 +74,9 @@ public class SystemNature extends SystemDeviceNature implements io.openems.api.d
 		return primaryIpAddress;
 	}
 
+	// TODO get real version
 	private StaticValueChannel<Integer> openemsVersionMajor = new StaticValueChannel<Integer>("OpenemsVersionMajor",
 			this, 1);
-	// TODO https://stackoverflow.com/questions/2712970/get-maven-artifact-version-at-runtime
 
 	@Override
 	public ReadChannel<Integer> openemsVersionMajor() {
