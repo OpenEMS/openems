@@ -1,0 +1,12 @@
+#
+# io.openems.edge.core LAUNCH SPECIFICATION
+#
+
+
+Bundle-Version:				1.0.0.${tstamp}
+Bundle-SymbolicName:		io.openems.edge.core.launch
+JPM-Command:				provider
+
+
+
+-runbundles: org.apache.felix.log;version='[1.0.1,1.0.2)'
