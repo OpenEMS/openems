@@ -1,6 +1,6 @@
-package io.openems.edge.api.device;
+package io.openems.edge.api.message;
 
-public enum DeviceMessageType {
+public enum MessageType {
 	/**
 	 * General runtime information of the Device
 	 */
@@ -10,17 +10,17 @@ public enum DeviceMessageType {
 	 */
 	USERWARNING,
 	/**
-	 * Warning with information for a technician 
-	 */
-	HARDWAREWARNING,
-	/**
 	 * Error with information for the end-user
 	 */
 	USERERROR,
 	/**
+	 * Warning with information for a technician 
+	 */
+	TECHNICIANWARNING,
+	/**
 	 * Error with information for a technician
 	 */
-	HARDWAREERROR,
+	TECHNICIANERROR,
 	/**
 	 * Debug information for the developer
 	 */
