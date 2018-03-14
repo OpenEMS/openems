@@ -9,37 +9,27 @@
       <mat-card-content>
         <table class="full_width">
           <ng-container *ngFor="let warningsAndFaults of warningsAndFaultss">
-            <tr>
-              <td style="vertical-align: top" *ngIf="warningsAndFaults.thing as thing">
-                <span *ngIf="thing.name">{{ warningsAndFaults.thing.name }}
-                  <br/>
-                  <small>({{ warningsAndFaults.thing.id }})</small>
-                </span>
-                <span *ngIf="!thing.name">{{ warningsAndFaults.thing.id }}</span>
-              </td>
-              <td style="vertical-align: top">
-                <table *ngIf="warningsAndFaults.faults.length > 0">
-                  <ng-container *ngFor="let line of warningsAndFaults.faults">
-                    <tr>
-                      <td>
-                        <span style="color:red">Fehler: </span>
-                        <span>{{ line.name }}</span>
-                      </td>
-                    </tr>
-                  </ng-container>
-                </table>
-                <table *ngIf="warningsAndFaults.warnings.length > 0">
-                  <ng-container *ngFor="let line of warningsAndFaults.warnings">
-                    <tr>
-                      <td>
-                        <span style="color:orange">Warnung: </span>
-                        <span>{{ line.name }}</span>
-                      </td>
-                    </tr>
-                  </ng-container>
-                </table>
-              </td>
-            </tr>
+            <ng-container *ngIf="warningsAndFaults.thing as thing">
+              <tr colspan="2" style="font-weight: bold">
+                <ng-container *ngIf="thing.name">
+                  <span>{{ warningsAndFaults.thing.name }} ({{ warningsAndFaults.thing.id }})
+                  </span>
+                </ng-container>
+                <ng-container *ngIf="!thing.name">{{ warningsAndFaults.thing.id }} </ng-container>
+              </tr>
+              <ng-container *ngIf="warningsAndFaults.faults.length > 0">
+                <tr *ngFor="let line of warningsAndFaults.faults">
+                  <td style="color:red">Fehler</td>
+                  <td>{{ line.name }}</td>
+                </tr>
+              </ng-container>
+              <ng-container *ngIf="warningsAndFaults.warnings.length > 0">
+                <tr *ngFor="let line of warningsAndFaults.warnings">
+                  <td style="color:orange">Warnung</td>
+                  <td>{{ line.name }}</td>
+                </tr>
+              </ng-container>
+            </ng-container>
           </ng-container>
         </table>
       </mat-card-content>

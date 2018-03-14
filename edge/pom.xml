@@ -5,7 +5,7 @@
 	<url>http://openems.io</url>
 	<groupId>io.openems</groupId>
 	<artifactId>edge</artifactId>
-	<version>2018.2.0</version>
+	<version>2018.3.0</version>
 	<packaging>jar</packaging>
 	<scm>
 		<url>https://github.com/OpenEMS/openems</url>

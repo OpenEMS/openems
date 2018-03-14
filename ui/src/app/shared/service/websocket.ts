@@ -19,7 +19,7 @@ import { DefaultMessages } from '../service/defaultmessages';
 
 @Injectable()
 export class Websocket {
-  public static readonly TIMEOUT = 5000;
+  public static readonly TIMEOUT = 15000;
   private static readonly DEFAULT_EDGEID = 0;
   private static readonly DEFAULT_DEVICENAME = "fems";
 

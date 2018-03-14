@@ -149,6 +149,7 @@ public class JsonPersistenceManager implements PersistenceManager {
 			log4j.put("log4j.logger.org.eclipse.osgi", "WARN");
             log4j.put("log4j.logger.org.apache.felix.configadmin", "INFO");
             log4j.put("log4j.logger.sun.net.www.protocol.http.HttpURLConnection", "INFO");
+            log4j.put("log4j.logger.io.openems", "INFO");
             this.configs.put(log4j.getPid(), log4j);
 		}
 		log.info("Finished Load default config");

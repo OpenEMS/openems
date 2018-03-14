@@ -60,7 +60,7 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 					if (this.websocketsMap.containsKey(edgeId)) {
 						WebSocket oldWebsocket = this.websocketsMap.get(edgeId);
 						oldWebsocket.closeConnection(CloseFrame.REFUSE,
-								"Another device with this apikey [" + apikey + "] connected.");
+								"Another Edge with this apikey [" + apikey + "] connected.");
 					}
 					// add websocket to local cache
 					this.websocketsMap.put(edgeId, websocket);
@@ -74,7 +74,7 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			JsonObject jReply = DefaultMessages.openemsConnectionSuccessfulReply();
 			WebSocketUtils.send(websocket, jReply);
 
-			// announce device as online
+			// announce Edge as online
 			for (int edgeId : edgeIds) {
 				Map<String, Object> properties = new HashMap<>();
 				properties.put(BackendEventConstants.PROPERTY_KEY_EDGE_ID, edgeId);
@@ -86,9 +86,9 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			for (int edgeId : edgeIds) {
 				Optional<Edge> edgeOpt = this.parent.metadataService.getEdgeOpt(edgeId);
 				if (edgeOpt.isPresent()) {
-					log.info("Device [" + edgeOpt.get().getName() + "] connected.");
+					log.info("Edge [" + edgeOpt.get().getName() + "] connected.");
 				} else {
-					log.info("Device [ID:" + edgeId + "] connected.");
+					log.info("Edge [ID:" + edgeId + "] connected.");
 				}
 			}
 		} catch (OpenemsException e) {
@@ -97,12 +97,12 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			WebSocketUtils.sendOrLogError(websocket, jReply);
 			// close websocket
 			websocket.closeConnection(CloseFrame.REFUSE,
-					"OpenEMS connection failed. Apikey [" + apikey + "]. Error: " + e.getMessage());
+					"Connection to backend failed. Apikey [" + apikey + "]. Error: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Message event of websocket. Handles a new message. At this point the device
+	 * Message event of websocket. Handles a new message. At this point the Edge
 	 * is already authenticated.
 	 */
 	@Override
@@ -189,7 +189,7 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			}
 		}
 
-		// announce device as offline
+		// announce Edge as offline
 		for (int edgeId : edgeIds) {
 			Map<String, Object> properties = new HashMap<>();
 			properties.put(BackendEventConstants.PROPERTY_KEY_EDGE_ID, edgeId);
