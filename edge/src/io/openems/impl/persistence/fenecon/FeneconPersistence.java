@@ -100,7 +100,7 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 */
 	public FeneconPersistence() {
 		this.thingState = new ThingStateChannels(this);
-
+		// TODO with version 1.3.8 comes a new client reconnect feature. Use it to replace ReconnectingWebsocket (https://github.com/TooTallNate/Java-WebSocket/releases/tag/v1.3.8)
 		this.reconnectingWebsocket = new ReconnectingWebsocket((websocket) -> {
 			/*
 			 * onOpen

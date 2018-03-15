@@ -1,7 +1,0 @@
-io.openems.backend.edgewebsocket.impl.provider;version=snapshot;resolution=file:/C:/Users/stefan.feilmeier/fems/openems/io.openems.backend.edgewebsocket.impl.provider/generated/io.openems.backend.edgewebsocket.impl.provider.jar
-org.osgi.service.metatype;version='[1.3.0,1.3.1)';resolution=file:/C:/Users/stefan.feilmeier/.m2/repository/org/osgi/org.osgi.service.metatype/1.3.0/org.osgi.service.metatype-1.3.0.jar
-slf4j.api;version='[1.8.0,1.8.1)';resolution=file:/C:/Users/stefan.feilmeier/.m2/repository/org/slf4j/slf4j-api/1.8.0-beta1/slf4j-api-1.8.0-beta1.jar
-org.apache.felix.log;version='[1.0.1,1.0.2)';resolution=file:/C:/Users/stefan.feilmeier/.m2/repository/org/apache/felix/org.apache.felix.log/1.0.1/org.apache.felix.log-1.0.1.jar
-org.apache.felix.scr;version='[2.0.2,2.0.3)';resolution=file:/C:/Users/stefan.feilmeier/.m2/repository/org/apache/felix/org.apache.felix.scr/2.0.2/org.apache.felix.scr-2.0.2.jar
-org.eclipse.equinox.metatype;version='[1.4.100,1.4.101)';resolution=file:/C:/Users/stefan.feilmeier/.m2/repository/org/osgi/org.eclipse.equinox.metatype/1.4.100.v20150408-1437/org.eclipse.equinox.metatype-1.4.100.v20150408-1437.jar
-org.apache.felix.configadmin;version='[1.8.8,1.8.9)';resolution=file:/C:/Users/stefan.feilmeier/.m2/repository/org/apache/felix/org.apache.felix.configadmin/1.8.8/org.apache.felix.configadmin-1.8.8.jar
