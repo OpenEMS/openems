@@ -87,11 +87,14 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 				Optional<Edge> edgeOpt = this.parent.metadataService.getEdgeOpt(edgeId);
 				if (edgeOpt.isPresent()) {
 					Edge edge = edgeOpt.get();
-					log.info("Edge [" + edge.getName() + "] connected.");
+					log.info("Edge [" + edge.getName() + "] " //
+							+ (edgeIds.length > 1 ? ", ID [" + edgeId + "]" : "") //
+							+ "connected. Apikey [" + apikey + "]. Websocket [" + websocket + "]");
 					// set last update timestamps in MetadataService
 					edge.setLastMessage();
 				} else {
-					log.info("Edge [ID:" + edgeId + "] connected.");
+					log.info("Edge [ID:" + edgeId + "] connected. Apikey [" + apikey + "]. Websocket [" + websocket
+							+ "]");
 				}
 			}
 		} catch (OpenemsException e) {
@@ -105,8 +108,8 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 	}
 
 	/**
-	 * Message event of websocket. Handles a new message. At this point the Edge
-	 * is already authenticated.
+	 * Message event of websocket. Handles a new message. At this point the Edge is
+	 * already authenticated.
 	 */
 	@Override
 	protected void _onMessage(WebSocket websocket, JsonObject jMessage) {
@@ -121,7 +124,7 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 				edge.setLastMessage();
 			}
 		}
-		
+
 		// get MessageId from message
 		JsonObject jMessageId = JsonUtils.getAsOptionalJsonObject(jMessage, "messageId").orElse(new JsonObject());
 
