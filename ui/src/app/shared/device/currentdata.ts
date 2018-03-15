@@ -13,7 +13,8 @@ export class CurrentDataAndSummary {
         let result: DefaultTypes.Summary = {
             storage: {
                 soc: null,
-                asymmetric: false,
+                isAsymmetric: false,
+                hasDC: false,
                 chargeActivePower: null, // sum of chargeActivePowerAC and chargeActivePowerDC
                 chargeActivePowerAC: null,
                 chargeActivePowerACL1: null,
@@ -29,7 +30,8 @@ export class CurrentDataAndSummary {
                 dischargeActivePowerDC: null,
                 maxDischargeActivePower: null
             }, production: {
-                asymmetric: false,
+                isAsymmetric: false,
+                hasDC: false,
                 powerRatio: null,
                 activePower: null, // sum of activePowerAC and activePowerDC
                 activePowerAC: null,
@@ -57,7 +59,7 @@ export class CurrentDataAndSummary {
              * < 0 => Charge
              */
             let soc = null;
-            let asymmetric = false;
+            let isAsymmetric = false;
             let activePowerAC = null;
             let activePowerACL1 = null;
             let activePowerACL2 = null;
@@ -75,19 +77,19 @@ export class CurrentDataAndSummary {
                     let thisActivePowerACL = Utils.divideSafely(thisActivePowerAC, 3);
                     activePowerAC = Utils.addSafely(activePowerAC, thisActivePowerAC);
                     if ("ActivePowerL1" in essData) {
-                        asymmetric = true;
+                        isAsymmetric = true;
                         activePowerACL1 = Utils.addSafely(activePowerACL1, essData.ActivePowerL1);
                     } else {
                         activePowerACL1 = Utils.addSafely(activePowerACL1, thisActivePowerACL);
                     }
                     if ("ActivePowerL2" in essData) {
-                        asymmetric = true;
+                        isAsymmetric = true;
                         activePowerACL2 = Utils.addSafely(activePowerACL2, essData.ActivePowerL2);
                     } else {
                         activePowerACL2 = Utils.addSafely(activePowerACL2, thisActivePowerACL);
                     }
                     if ("ActivePowerL3" in essData) {
-                        asymmetric = true;
+                        isAsymmetric = true;
                         activePowerACL3 = Utils.addSafely(activePowerACL3, essData.ActivePowerL3);
                     } else {
                         activePowerACL3 = Utils.addSafely(activePowerACL3, thisActivePowerACL);
@@ -101,9 +103,13 @@ export class CurrentDataAndSummary {
                 }
             }
             result.storage.soc = Utils.divideSafely(soc, countSoc);
-            result.storage.asymmetric = asymmetric;
+            result.storage.isAsymmetric = isAsymmetric;
+            result.storage.hasDC = config.chargers.length > 0;
             if (result.storage.soc > 100 || result.storage.soc < 0) {
                 result.storage.soc = null;
+            }
+            if (isAsymmetric) {
+                activePowerAC = Utils.addSafely(Utils.addSafely(activePowerACL1, activePowerACL2), activePowerACL3)
             }
             if (activePowerAC != null) {
                 if (activePowerAC > 0) {
@@ -207,7 +213,7 @@ export class CurrentDataAndSummary {
              * Production
              */
             let powerRatio = 0;
-            let asymmetric = false;
+            let isAsymmetric = false;
             let activePowerAC = null;
             let activePowerACL1 = null;
             let activePowerACL2 = null;
@@ -221,19 +227,19 @@ export class CurrentDataAndSummary {
                 let thisActivePowerACL = Utils.divideSafely(thisActivePowerAC, 3);
                 activePowerAC = Utils.addSafely(activePowerAC, thisActivePowerAC);
                 if ("ActivePowerL1" in meterData) {
-                    asymmetric = true;
+                    isAsymmetric = true;
                     activePowerACL1 = Utils.addSafely(activePowerACL1, meterData.ActivePowerL1);
                 } else {
                     activePowerACL1 = Utils.addSafely(activePowerACL1, thisActivePowerACL);
                 }
                 if ("ActivePowerL2" in meterData) {
-                    asymmetric = true;
+                    isAsymmetric = true;
                     activePowerACL2 = Utils.addSafely(activePowerACL2, meterData.ActivePowerL2);
                 } else {
                     activePowerACL2 = Utils.addSafely(activePowerACL2, thisActivePowerACL);
                 }
                 if ("ActivePowerL3" in meterData) {
-                    asymmetric = true;
+                    isAsymmetric = true;
                     activePowerACL3 = Utils.addSafely(activePowerACL3, meterData.ActivePowerL3);
                 } else {
                     activePowerACL3 = Utils.addSafely(activePowerACL3, thisActivePowerACL);
@@ -248,14 +254,15 @@ export class CurrentDataAndSummary {
                     maxActivePower += meterConfig.maxActualPower;
                 }
             }
-
+            if (isAsymmetric) {
+                activePowerAC = Utils.addSafely(Utils.addSafely(activePowerACL1, activePowerACL2), activePowerACL3)
+            }
             // correct negative production
             if (activePowerAC < 0) {
                 console.warn("negative production? ", config.productionMeters, activePowerAC)
                 // TODO activePowerAC = 0;
             }
             if (maxActivePower < 0) { maxActivePower = 0; }
-
             if (maxActivePower == 0) {
                 powerRatio = 100;
             } else {
@@ -264,7 +271,8 @@ export class CurrentDataAndSummary {
             }
 
             result.production.powerRatio = powerRatio;
-            result.production.asymmetric = asymmetric;
+            result.production.isAsymmetric = isAsymmetric;
+            result.production.hasDC = config.chargers.length > 0;
             result.production.activePowerAC = activePowerAC;
             result.production.activePowerACL1 = activePowerACL1;
             result.production.activePowerACL2 = activePowerACL2;

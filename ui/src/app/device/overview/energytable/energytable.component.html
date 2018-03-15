@@ -24,24 +24,30 @@
             <td style="width:10%">%</td>
           </tr>
           <!-- Symmetric ESS -->
-          <ng-container *ngIf="sum.asymmetric == false && sum.chargeActivePowerAC != null && sum.dischargeActivePowerAC != null">
+          <ng-container *ngIf="sum.isAsymmetric == false && sum.chargeActivePowerAC != null && sum.dischargeActivePowerAC != null">
             <tr>
-              <td translate>General.ChargePower</td>
+              <td translate>General.ChargePower
+                <span *ngIf="sum.hasDC"> AC</span>
+              </td>
               <td></td>
               <td class="align_right">{{ sum.chargeActivePowerAC }}</td>
               <td>W</td>
             </tr>
             <tr>
-              <td translate>General.DischargePower</td>
+              <td translate>General.DischargePower
+                <span *ngIf="sum.hasDC"> AC</span>
+              </td>
               <td></td>
               <td class="align_right">{{ sum.dischargeActivePowerAC }}</td>
               <td>W</td>
             </tr>
           </ng-container>
           <!-- Asymmetric ESS -->
-          <ng-container *ngIf="sum.asymmetric == true && sum.chargeActivePowerACL1 != null && sum.dischargeActivePowerACL1 != null">
+          <ng-container *ngIf="sum.isAsymmetric == true && sum.chargeActivePowerACL1 != null && sum.dischargeActivePowerACL1 != null">
             <tr>
-              <td translate>General.ChargePower</td>
+              <td translate>General.ChargePower
+                <span *ngIf="sum.hasDC"> AC</span>
+              </td>
               <td>L1</td>
               <td class="align_right">{{ sum.chargeActivePowerACL1 }}</td>
               <td>W</td>
@@ -59,7 +65,9 @@
               <td>W</td>
             </tr>
             <tr>
-              <td translate>General.DischargePower</td>
+              <td translate>General.DischargePower
+                <span *ngIf="sum.hasDC"> AC</span>
+              </td>
               <td>L1</td>
               <td class="align_right">{{ sum.dischargeActivePowerACL1 }}</td>
               <td>W</td>
@@ -258,37 +266,45 @@
       <mat-card-content *ngIf="currentData.summary.production as sum">
         <table class="full_width">
           <!-- Symmetric Meter -->
-          <ng-container *ngIf="sum.asymmetric == false && sum.activePowerAC != null">
+          <ng-container *ngIf="sum.isAsymmetric == false && sum.activePowerAC != null">
             <tr>
-              <td translate>General.Production</td>
-              <td></td>
-              <td class="align_right">{{ sum.activePowerAC }}</td>
-              <td>W</td>
+              <td style="width:50%" translate>General.Production
+                <span *ngIf="sum.hasDC"> AC</span>
+              </td>
+              <td style="width:15%"></td>
+              <td style="width:25%" class="align_right">{{ sum.activePowerAC }}</td>
+              <td style="width:10%">W</td>
             </tr>
           </ng-container>
           <!-- Asymmetric Meter -->
-          <ng-container *ngIf="sum.asymmetric == true && sum.activePowerACL1 != null && sum.activePowerACL2 != null && sum.activePowerACL3 != null">
+          <ng-container *ngIf="sum.isAsymmetric == true && sum.activePowerACL1 != null && sum.activePowerACL2 != null && sum.activePowerACL3 != null">
             <tr>
-              <td translate>General.Production</td>
-              <td>L1</td>
-              <td class="align_right">{{ sum.activePowerACL1 }}</td>
-              <td>W</td>
+              <td style="width:50%" translate>General.Production
+                <span *ngIf="sum.hasDC"> AC</span>
+              </td>
+              <td style="width:15%">L1</td>
+              <td style="width:25%" class="align_right">{{ sum.activePowerACL1 }}</td>
+              <td style="width:10%">W</td>
             </tr>
             <tr>
-              <td translate>General.Production</td>
+              <td translate>General.Production
+                <span *ngIf="sum.hasDC"> AC</span>
+              </td>
               <td>L2</td>
               <td class="align_right">{{ sum.activePowerACL2 }}</td>
               <td>W</td>
             </tr>
             <tr>
-              <td translate>General.Production</td>
+              <td translate>General.Production
+                <span *ngIf="sum.hasDC"> AC</span>
+              </td>
               <td>L3</td>
               <td class="align_right">{{ sum.activePowerACL3 }}</td>
               <td>W</td>
             </tr>
           </ng-container>
           <!-- DC -->
-          <tr>
+          <tr *ngIf="sum.activePowerDC != null">
             <!-- TODO translate -->
             <td>Erzeugung DC</td>
             <td></td>
@@ -304,7 +320,7 @@
       <ng-container *ngFor="let thing of config.productionMeters">
         <mat-card class="single_leftright" fxFlex="100%">
           <mat-card-header>
-            <mat-card-subtitle>{{ config.things[thing].alias }}</mat-card-subtitle>
+            <mat-card-title>{{ config.things[thing].alias }}</mat-card-title>
           </mat-card-header>
           <mat-card-content *ngIf="currentData.data[thing] as data">
             <table class="full_width">
