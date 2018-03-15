@@ -206,8 +206,8 @@ public class OdooUtils {
 	 * @return
 	 * @throws OpenemsException
 	 */
-	protected static Map<String, Object>[] searchRead(String url, String database, int uid, String password, String model,
-			Field[] fields, Domain... domains) throws OpenemsException {
+	protected static Map<String, Object>[] searchRead(String url, String database, int uid, String password,
+			String model, Field[] fields, Domain... domains) throws OpenemsException {
 		// Create request params
 		String action = "search_read";
 		// Add domain filter
@@ -263,13 +263,10 @@ public class OdooUtils {
 	 * @return
 	 * @throws OpenemsException
 	 */
-	protected static void write(String url, String database, int uid, String password, String model, int id,
+	protected static void write(String url, String database, int uid, String password, String model, Integer[] ids,
 			FieldValue... fieldValues) throws OpenemsException {
 		// Create request params
 		String action = "write";
-		// Add ids
-		Object[] paramsIds = new Object[1];
-		paramsIds[0] = id;
 		// Add fieldValues
 		Map<String, Object> paramsFieldValues = new HashMap<>();
 		for (FieldValue fieldValue : fieldValues) {
@@ -277,7 +274,7 @@ public class OdooUtils {
 		}
 		// Create request params
 		Object[] params = new Object[] { database, uid, password, model, action,
-				new Object[] { paramsIds, paramsFieldValues } };
+				new Object[] { ids, paramsFieldValues } };
 		try {
 			// Execute XML request
 			Boolean resultObj = (Boolean) executeKw(url, params);

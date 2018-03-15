@@ -1,7 +1,5 @@
 package io.openems.backend.metadata.api;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import com.google.gson.JsonObject;
@@ -12,8 +10,6 @@ public class Edge {
 	private String comment;
 	private String producttype;
 	private JsonObject jConfig;
-	private ZonedDateTime lastMessage = null;
-	private ZonedDateTime lastUpdate = null;
 	private Integer soc = null;
 	private String ipv4 = null;
 	private boolean isOnline;
@@ -82,29 +78,27 @@ public class Edge {
 				+ ", isOnline=" + isOnline + "]";
 	}
 
-	private Optional<OnSetZonedDateTime> onSetLastMessage = Optional.empty();
+	private Optional<OnSet> onSetLastMessage = Optional.empty();
 
-	public void onSetLastMessage(OnSetZonedDateTime listener) {
+	public void onSetLastMessage(OnSet listener) {
 		this.onSetLastMessage = Optional.of(listener);
 	}
 
 	public void setLastMessage() {
-		this.lastMessage = ZonedDateTime.now(ZoneOffset.UTC);
 		if (this.onSetLastMessage.isPresent()) {
-			this.onSetLastMessage.get().call(this.lastMessage);
+			this.onSetLastMessage.get().call();
 		}
 	}
 
-	private Optional<OnSetZonedDateTime> onSetLastUpdate = Optional.empty();
+	private Optional<OnSet> onSetLastUpdate = Optional.empty();
 
-	public void onSetLastUpdate(OnSetZonedDateTime listener) {
+	public void onSetLastUpdate(OnSet listener) {
 		this.onSetLastUpdate = Optional.of(listener);
 	}
 
 	public void setLastUpdate() {
-		this.lastUpdate = ZonedDateTime.now(ZoneOffset.UTC);
 		if (this.onSetLastUpdate.isPresent()) {
-			this.onSetLastUpdate.get().call(this.lastUpdate);
+			this.onSetLastUpdate.get().call();
 		}
 		this.setLastMessage();
 	}

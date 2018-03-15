@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -56,13 +55,14 @@ public class Odoo implements MetadataService {
 		String url() default "https://www1.fenecon.de";
 	}
 
-	private String url;
-	private String database;
-	private int uid;
-	private String password;
+	protected String url;
+	protected String database;
+	protected int uid;
+	protected String password;
 
 	private Map<Integer, User> users = new HashMap<>();
 	private Map<Integer, Edge> edges = new HashMap<>();
+	private OdooWriteWorker writeWorker;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
 	private volatile EdgeWebsocketService edgeWebsocketService;
@@ -75,11 +75,13 @@ public class Odoo implements MetadataService {
 		this.database = config.database();
 		this.uid = config.uid();
 		this.password = config.password();
+		this.writeWorker = new OdooWriteWorker(this);
 	}
 
 	@Deactivate
 	void deactivate() {
 		log.debug("Deactivate Odoo");
+		this.writeWorker.dispose();
 	}
 
 	/**
@@ -205,8 +207,8 @@ public class Odoo implements MetadataService {
 					Field.FemsDevice.PRODUCT_TYPE, Field.FemsDevice.OPENEMS_CONFIG);
 			Object configObj = edgeMap.get(Field.FemsDevice.OPENEMS_CONFIG.n());
 			JsonObject jConf;
-			if(configObj != null && configObj instanceof String) {
-				jConf = JsonUtils.getAsJsonObject(JsonUtils.parse((String)configObj));
+			if (configObj != null && configObj instanceof String) {
+				jConf = JsonUtils.getAsJsonObject(JsonUtils.parse((String) configObj));
 			} else {
 				jConf = new JsonObject();
 			}
@@ -219,25 +221,23 @@ public class Odoo implements MetadataService {
 			edge.onSetConfig(jConfig -> {
 				// Update Edge config in Odoo
 				String config = new GsonBuilder().setPrettyPrinting().create().toJson(jConfig);
-				this.write(edge, new FieldValue(Field.FemsDevice.OPENEMS_CONFIG, config), false);
+				this.write(edge, new FieldValue(Field.FemsDevice.OPENEMS_CONFIG, config));
 			});
-			edge.onSetLastMessage(time -> {
+			edge.onSetLastMessage(() -> {
 				// Set LastMessage timestamp in Odoo
-				this.write(edge,
-						new FieldValue(Field.FemsDevice.LAST_MESSAGE, OdooUtils.DATETIME_FORMATTER.format(time)), true);
+				this.writeWorker.onLastMessage(edgeId);
 			});
-			edge.onSetLastUpdate(time -> {
+			edge.onSetLastUpdate(() -> {
 				// Set LastUpdate timestamp in Odoo
-				this.write(edge,
-						new FieldValue(Field.FemsDevice.LAST_UPDATE, OdooUtils.DATETIME_FORMATTER.format(time)), true);
+				this.writeWorker.onLastUpdate(edgeId);
 			});
 			edge.onSetSoc(soc -> {
 				// Set SoC in Odoo
-				this.write(edge, new FieldValue(Field.FemsDevice.SOC, String.valueOf(soc)), true);
+				this.write(edge, new FieldValue(Field.FemsDevice.SOC, String.valueOf(soc)));
 			});
 			edge.onSetIpv4(ipv4 -> {
 				// Set IPv4 in Odoo
-				this.write(edge, new FieldValue(Field.FemsDevice.IPV4, String.valueOf(ipv4)), true);
+				this.write(edge, new FieldValue(Field.FemsDevice.IPV4, String.valueOf(ipv4)));
 			});
 			edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
 			// store in cache
@@ -251,32 +251,13 @@ public class Odoo implements MetadataService {
 		}
 	}
 
-	private final int DEBOUNCE_SECONDS = 60;
-
-	private HashMap<String, Instant> lastWriteMap = new HashMap<>();
-
-	private void write(Edge edge, FieldValue fieldValue, boolean debounce) {
-		Instant now = Instant.now();
-		boolean executeWrite = true;
-		if (debounce) {
-			// debounce = avoid writing too often
-			synchronized (this.lastWriteMap) {
-				Instant lastWrite = lastWriteMap.get(fieldValue.getField().n());
-				if (lastWrite != null && now.minusSeconds(DEBOUNCE_SECONDS).isAfter(lastWrite)) {
-					executeWrite = false;
-				} else {
-					this.lastWriteMap.put(fieldValue.getField().n(), now);
-				}
-			}
-		}
-		if (executeWrite) {
-			try {
-				OdooUtils.write(this.url, this.database, this.uid, this.password, "fems.device", edge.getId(),
-						fieldValue);
-			} catch (OpenemsException e) {
-				log.error("Unable to update Edge [ID:" + edge.getName() + "] field [" + fieldValue.getField().n()
-						+ "] : " + e.getMessage());
-			}
+	private void write(Edge edge, FieldValue fieldValue) {
+		try {
+			OdooUtils.write(this.url, this.database, this.uid, this.password, "fems.device",
+					new Integer[] { edge.getId() }, fieldValue);
+		} catch (OpenemsException e) {
+			log.error("Unable to update Edge [ID:" + edge.getName() + "] field [" + fieldValue.getField().n() + "] : "
+					+ e.getMessage());
 		}
 	}
 }

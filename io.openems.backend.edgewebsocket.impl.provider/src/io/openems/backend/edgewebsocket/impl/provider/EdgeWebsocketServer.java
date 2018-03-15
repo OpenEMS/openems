@@ -87,14 +87,14 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 				Optional<Edge> edgeOpt = this.parent.metadataService.getEdgeOpt(edgeId);
 				if (edgeOpt.isPresent()) {
 					Edge edge = edgeOpt.get();
-					log.info("Edge [" + edge.getName() + "] " //
+					log.info("Edge [" + edge.getName() + "]" //
 							+ (edgeIds.length > 1 ? ", ID [" + edgeId + "]" : "") //
-							+ "connected. Apikey [" + apikey + "]. Websocket [" + websocket + "]");
+							+ " connected.");
 					// set last update timestamps in MetadataService
 					edge.setLastMessage();
 				} else {
 					log.info("Edge [ID:" + edgeId + "] connected. Apikey [" + apikey + "]. Websocket [" + websocket
-							+ "]");
+							+ "].");
 				}
 			}
 		} catch (OpenemsException e) {
