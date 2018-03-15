@@ -262,7 +262,7 @@ public class Odoo implements MetadataService {
 			// debounce = avoid writing too often
 			synchronized (this.lastWriteMap) {
 				Instant lastWrite = lastWriteMap.get(fieldValue.getField().n());
-				if (lastWrite != null && now.minusSeconds(DEBOUNCE_SECONDS).isBefore(lastWrite)) {
+				if (lastWrite != null && now.minusSeconds(DEBOUNCE_SECONDS).isAfter(lastWrite)) {
 					executeWrite = false;
 				} else {
 					this.lastWriteMap.put(fieldValue.getField().n(), now);

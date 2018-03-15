@@ -86,7 +86,10 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			for (int edgeId : edgeIds) {
 				Optional<Edge> edgeOpt = this.parent.metadataService.getEdgeOpt(edgeId);
 				if (edgeOpt.isPresent()) {
-					log.info("Edge [" + edgeOpt.get().getName() + "] connected.");
+					Edge edge = edgeOpt.get();
+					log.info("Edge [" + edge.getName() + "] connected.");
+					// set last update timestamps in MetadataService
+					edge.setLastMessage();
 				} else {
 					log.info("Edge [ID:" + edgeId + "] connected.");
 				}
@@ -110,6 +113,15 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 		// get edgeIds from websocket
 		int[] edgeIds = websocket.getAttachment();
 
+		// set last update timestamps in MetadataService
+		for (int edgeId : edgeIds) {
+			Optional<Edge> edgeOpt = this.parent.metadataService.getEdgeOpt(edgeId);
+			if (edgeOpt.isPresent()) {
+				Edge edge = edgeOpt.get();
+				edge.setLastMessage();
+			}
+		}
+		
 		// get MessageId from message
 		JsonObject jMessageId = JsonUtils.getAsOptionalJsonObject(jMessage, "messageId").orElse(new JsonObject());
 
@@ -226,10 +238,6 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			} catch (Exception e) {
 				log.error("Unable to write Timedata: " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
-			/*
-			 * set last update timestamps in MetadataService
-			 */
-			edge.setLastMessage();
 
 			for (Entry<String, JsonElement> jTimedataEntry : jTimedata.entrySet()) {
 				try {

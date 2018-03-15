@@ -106,6 +106,7 @@ public class Edge {
 		if (this.onSetLastUpdate.isPresent()) {
 			this.onSetLastUpdate.get().call(this.lastUpdate);
 		}
+		this.setLastMessage();
 	}
 
 	private Optional<OnSetInteger> onSetSoc = Optional.empty();
