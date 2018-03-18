@@ -48,9 +48,6 @@ public class BalancingBandgapActivePowerController extends Controller {
 	/*
 	 * Config
 	 */
-	// @ConfigInfo(title = "Cos-Phi", type = Double.class, defaultValue = "0.95")
-	// public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
-
 	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> esss = new ConfigChannel<Ess>("esss", this);
 
@@ -60,19 +57,19 @@ public class BalancingBandgapActivePowerController extends Controller {
 	@ChannelInfo(title = "Max-ActivePowerL1", description = "High boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> maxActivePowerL1 = new ConfigChannel<>("maxActivePowerL1", this);
 
-	@ChannelInfo(title = "Min-ReactivePowerL1", description = "Low boundary of reactive power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Min-AactivePowerL1", description = "Low boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> minActivePowerL1 = new ConfigChannel<>("minActivePowerL1", this);
 
 	@ChannelInfo(title = "Max-ActivePowerL2", description = "High boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> maxActivePowerL2 = new ConfigChannel<>("maxActivePowerL2", this);
 
-	@ChannelInfo(title = "Min-ReactivePowerL2", description = "Low boundary of reactive power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Min-ActivePowerL2", description = "Low boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> minActivePowerL2 = new ConfigChannel<>("minActivePowerL2", this);
 
 	@ChannelInfo(title = "Max-ActivePowerL3", description = "High boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> maxActivePowerL3 = new ConfigChannel<>("maxActivePowerL3", this);
 
-	@ChannelInfo(title = "Min-ReactivePowerL3", description = "Low boundary of reactive power bandgap.", type = Integer.class)
+	@ChannelInfo(title = "Min-ActivePowerL3", description = "Low boundary of active power bandgap.", type = Integer.class)
 	public final ConfigChannel<Integer> minActivePowerL3 = new ConfigChannel<>("minActivePowerL3", this);
 
 	private AvgFiFoQueue meterL1 = new AvgFiFoQueue(2, 1.5);

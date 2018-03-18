@@ -146,9 +146,11 @@ public class AcIsland extends Controller {
 			switch (currentState) {
 			case OFFGRID:
 				if (isProducerOffGrid || isProducerOff) {
+					//Check if offGrid otherwise go to switchOnGrid
 					if (gridMode.equals(EssNature.ON_GRID)) {
 						currentState = State.SWITCHTOONGRID;
 					} else {
+						//Check if PV is allowed to run
 						if (soc >= maxSoc) {
 							disconnectOffGrid();
 						} else if (soc <= minSoc) {
@@ -160,6 +162,7 @@ public class AcIsland extends Controller {
 				}
 				break;
 			case ONGRID: {
+				//Check if onGrid. If es goes offGrid go to switchOffGrid
 				if (isProducerOnGrid) {
 					if (gridMode.equals(EssNature.OFF_GRID)) {
 						currentState = State.SWITCHTOOFFGRID;
@@ -170,6 +173,7 @@ public class AcIsland extends Controller {
 			}
 			break;
 			case SWITCHTOOFFGRID:
+				//Disconnect PV, wait switchDelay and go to OffGrid
 				if (isProducerOff) {
 					if (!isProducerDisconnected) {
 						isProducerDisconnected = true;
@@ -186,6 +190,7 @@ public class AcIsland extends Controller {
 				}
 				break;
 			case SWITCHTOONGRID:
+				//Disconnect PV, wait switchDelay and connect PV onGrid
 				if (isProducerOnGrid) {
 					currentState = State.ONGRID;
 					isProducerDisconnected = false;

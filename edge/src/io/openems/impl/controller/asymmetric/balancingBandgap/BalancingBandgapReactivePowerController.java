@@ -48,9 +48,6 @@ public class BalancingBandgapReactivePowerController extends Controller {
 	/*
 	 * Config
 	 */
-	// @ConfigInfo(title = "Cos-Phi", type = Double.class, defaultValue = "0.95")
-	// public ConfigChannel<Double> cosPhi = new ConfigChannel<Double>("cosPhi", this);
-
 	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> esss = new ConfigChannel<Ess>("esss", this);
 
