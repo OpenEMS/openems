@@ -31,12 +31,14 @@ import io.openems.core.utilities.power.symmetric.SymmetricPower;
 public class Ess extends ThingMap {
 
 	public final ReadChannel<Long> soc;
+	public final ReadChannel<Long> capacity;
 	public final SymmetricPower power;
 	public final PGreaterEqualLimitation limit;
 
 	public Ess(SymmetricEssNature ess) {
 		super(ess);
-		soc = ess.soc().required();
+		this.soc = ess.soc().required();
+		this.capacity = ess.capacity().required();
 		this.power = ess.getPower();
 		this.limit = new PGreaterEqualLimitation(power);
 	}

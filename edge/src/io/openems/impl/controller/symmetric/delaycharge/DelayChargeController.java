@@ -20,6 +20,7 @@
  *******************************************************************************/
 package io.openems.impl.controller.symmetric.delaycharge;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import io.openems.api.channel.ConfigChannel;
@@ -34,8 +35,6 @@ import io.openems.core.utilities.power.symmetric.PowerException;
 public class DelayChargeController extends Controller {
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
-
-	private SocQueue socQueue = new SocQueue(10);
 
 	/*
 	 * Constructors
@@ -66,33 +65,24 @@ public class DelayChargeController extends Controller {
 		// Get required variables
 		Ess ess = this.ess.getValue();
 		long soc = ess.soc.getValue();
+		long capacity = ess.capacity.getValue();
 		long targetSecondOfDay = this.targetHour.getValue() * 3600;
 
-		// Verbleibende Kapazität / verbleibende Zeit = limit
-
-		// Add SoC to queue if it changed
-		this.socQueue.addIfChanged(soc);
+		// calculate remaining capacity in Ws
+		long remainingCapacity = capacity * (100 - soc) * 36;
 
 		// We already passed the "target hour of day" -> no restrictions
-		if (Util.currentSecondOfDay() > targetSecondOfDay) {
+		if (!(remainingCapacity > 0)) {
+			log.error("RemainingCapacity is [" + remainingCapacity + "Ws] must be > 0");
+			return;
+		}
+
+		// calculate remaining time
+		long remainingTime = targetSecondOfDay - currentSecondOfDay();
+
+		// We already passed the "target hour of day" -> no restrictions
+		if (remainingTime < 0) {
 			log.info("We already passed the \"target hour of day\" -> no restrictions");
-			return;
-		}
-
-		double socGradient = this.socQueue.getGradient();
-
-		// SoC is not increasing -> no restrictions
-		if (!(socGradient > 0)) {
-			log.info("SoC is not increasing -> no restrictions. SoC-Gradient [" + socGradient + "]");
-			return;
-		}
-
-		double targetGradient = (double) (100 - soc) / (targetSecondOfDay - Util.currentSecondOfDay());
-
-		// SoC is not increasing fast enough -> no restrictions
-		if (socGradient < targetGradient) {
-			log.info("SoC is not increasing fast enough -> no restrictions. SoC-Gradient [" + socGradient
-					+ "] Target-Gradient [" + targetGradient + "]");
 			return;
 		}
 
@@ -104,7 +94,7 @@ public class DelayChargeController extends Controller {
 		long currentLimit = currentLimitOpt.get();
 
 		// Set limitation for ChargePower
-		long newLimit = Math.round((targetGradient / socGradient) * currentLimit);
+		long newLimit = remainingCapacity / remainingTime * -1;
 		ess.limit.setP(newLimit);
 		try {
 			ess.power.applyLimitation(ess.limit);
@@ -120,4 +110,8 @@ public class DelayChargeController extends Controller {
 		return this.thingState;
 	}
 
+	private static long currentSecondOfDay() {
+		LocalDateTime now = LocalDateTime.now();
+		return now.getHour() * 3600 + now.getMinute() * 60 + now.getSecond();
+	}
 }
