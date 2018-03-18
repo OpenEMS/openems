@@ -89,6 +89,11 @@
 				"priority": 1,
 				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
 				"rtc": "ess0"
+			},
+			{
+				"class": "io.openems.impl.controller.asymmetricsymmetriccombination.AsymmetricSymmetricCombinationController",
+				"ess": "ess1",
+				"priority": 0
 			}
 		]
 	},
