@@ -18,9 +18,10 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
-@Component(property = "ranking=100")
+@Component(property = "ranking=100", immediate = true)
 public class JsonPersistenceManager implements PersistenceManager {
 
 	private final Logger log = LoggerFactory.getLogger(JsonPersistenceManager.class);
@@ -33,7 +34,7 @@ public class JsonPersistenceManager implements PersistenceManager {
 	void activate() {
 		// Load default configuration
 		loadDefaultConfig();
-		
+
 		// read Json from file
 		JsonObject jConfig;
 		try {
@@ -118,7 +119,42 @@ public class JsonPersistenceManager implements PersistenceManager {
 				if (configEntry.getValue().isJsonObject()) {
 					JsonObject jThisConfig = configEntry.getValue().getAsJsonObject();
 					for (Entry<String, JsonElement> thisConfigEntry : jThisConfig.entrySet()) {
-						thisConfig.put(thisConfigEntry.getKey(), JsonUtils.getAsBestType(thisConfigEntry.getValue()));
+						String key = thisConfigEntry.getKey();
+						JsonElement jValue = thisConfigEntry.getValue();
+						try {
+							thisConfig.put(key, JsonUtils.getAsBestType(jValue));
+						} catch (OpenemsException e) {
+							log.error("Config failed [" + key + ":" + jValue + "]: " + e.getMessage());
+						}
+						/*
+						 * Find configuration keys in the form "{name}.id" or "{name}.ids". If found, a
+						 * new configuration property for "{name}.target" is created. This automates the
+						 * mapping of "@Reference"s to OpenemsComponents. Example: - items.pids =
+						 * ['id0', 'id1'] creates target filter '(|(service.pid=id0)(service.pid=id1))'
+						 * - item.pid = 'id0' creates target filter '(service.pid=id0)'
+						 */
+						if (key.endsWith(".ids") || key.endsWith(".id")) {
+							// create target filter
+							String target;
+							if (jValue.isJsonArray()) {
+								StringBuilder targetBuilder = new StringBuilder("(|");
+								for (JsonElement j : jValue.getAsJsonArray()) {
+									targetBuilder.append("(service.pid=" + j.getAsString() + ")");
+								}
+								targetBuilder.append(")");
+								target = targetBuilder.toString();
+							} else {
+								target = "(service.pid=" + jValue.getAsString() + ")";
+							}
+							// remove suffix
+							if (key.endsWith(".ids")) {
+								key = key.substring(0, key.length() - 4);
+							} else {
+								key = key.substring(0, key.length() - 3);
+							}
+							// add config
+							thisConfig.put(key + ".target", target);
+						}
 					}
 				}
 				this.configs.put(thisConfig.getPid(), thisConfig);
@@ -135,7 +171,7 @@ public class JsonPersistenceManager implements PersistenceManager {
 			}
 		}
 	}
-	
+
 	private void loadDefaultConfig() {
 		log.info("Load default config");
 		synchronized (this.configs) {
@@ -143,13 +179,12 @@ public class JsonPersistenceManager implements PersistenceManager {
 			log4j.put("log4j.rootLogger", "DEBUG, CONSOLE");
 			log4j.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
 			log4j.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
-			log4j.put("log4j.appender.CONSOLE.layout.ConversionPattern",
-                    "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] - %m%n");
-            // set minimum log levels for some verbose packages
+			log4j.put("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] - %m%n");
+			// set minimum log levels for some verbose packages
 			log4j.put("log4j.logger.org.eclipse.osgi", "WARN");
-            log4j.put("log4j.logger.org.apache.felix.configadmin", "INFO");
-            log4j.put("log4j.logger.sun.net.www.protocol.http.HttpURLConnection", "INFO");
-            this.configs.put(log4j.getPid(), log4j);
+			log4j.put("log4j.logger.org.apache.felix.configadmin", "INFO");
+			log4j.put("log4j.logger.sun.net.www.protocol.http.HttpURLConnection", "INFO");
+			this.configs.put(log4j.getPid(), log4j);
 		}
 		log.info("Finished Load default config");
 	}
