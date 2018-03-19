@@ -1,0 +1,29 @@
+{
+	"controller0": {
+		"service.factoryPid": "Controller.DebugLog",
+		"name": "Ich bin Controller0"
+	},
+	"controller1": {
+		"service.factoryPid": "Controller.DebugLog",
+		"name": "Ich bin Controller1"
+	},
+	"controller2": {
+		"service.factoryPid": "Controller.DebugLog",
+		"name": "Ich bin Controller2"
+	},
+	"scheduler0": {
+		"service.factoryPid": "Scheduler.FixedOrder",
+		"cycleTime": 3000,
+		"controllers.ids": [
+			"controller0",
+			"controller1"
+		]
+	},
+	"scheduler1": {
+		"service.factoryPid": "Scheduler.FixedOrder",
+		"cycleTime": 6000,
+		"controllers.ids": [
+			"controller2"
+		]
+	}
+}

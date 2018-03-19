@@ -198,8 +198,56 @@ public class JsonUtils {
 		}
 	}
 
-	public static Object getAsBestType(JsonElement j) {
+	public static Object getAsBestType(JsonElement j) throws OpenemsException {
 		try {
+			if (j.isJsonArray()) {
+				JsonArray jA = (JsonArray) j;
+				// identify the array type (boolean, int or String)
+				boolean isBoolean = true;
+				boolean isInt = true;
+				for (JsonElement jE : jA) {
+					if (jE.isJsonPrimitive()) {
+						JsonPrimitive jP = jE.getAsJsonPrimitive();
+						if (isBoolean && !jP.isBoolean()) {
+							isBoolean = false;
+						}
+						if (isInt && !jP.isNumber()) {
+							isInt = false;
+						}
+					} else {
+						isBoolean = false;
+						isInt = false;
+						break;
+					}
+				}
+				if (isBoolean) {
+					// convert to boolean array
+					boolean[] result = new boolean[jA.size()];
+					for (int i = 0; i < jA.size(); i++) {
+						result[i] = jA.get(i).getAsBoolean();
+					}
+					return result;
+				} else if (isInt) {
+					// convert to int array
+					int[] result = new int[jA.size()];
+					for (int i = 0; i < jA.size(); i++) {
+						result[i] = jA.get(i).getAsInt();
+					}
+					return result;
+				} else {
+					// convert to string array
+					String[] result = new String[jA.size()];
+					for (int i = 0; i < jA.size(); i++) {
+						JsonElement jE = jA.get(i);
+						if (!jE.isJsonPrimitive()) {
+							result[i] = jE.toString();
+						} else {
+							result[i] = jE.getAsString();
+						}
+					}
+					return result;
+				}
+			}
 			if (!j.isJsonPrimitive()) {
 				return j.toString();
 			}
@@ -212,8 +260,9 @@ public class JsonUtils {
 				return n.intValue();
 			}
 			return j.getAsString();
-		} catch (IllegalStateException e) {
-			throw new IllegalStateException("Failed to parse JsonElement [" + j + "]", e);
+		} catch (Exception e) {
+			throw new OpenemsException(
+					"Failed to parse JsonElement [" + j + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 	}
 
