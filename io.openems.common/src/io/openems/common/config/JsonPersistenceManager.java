@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import org.apache.felix.cm.NotCachablePersistenceManager;
 import org.apache.felix.cm.PersistenceManager;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,11 +23,11 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
 @Component(property = "ranking=100", immediate = true)
-public class JsonPersistenceManager implements PersistenceManager {
+public class JsonPersistenceManager implements PersistenceManager, NotCachablePersistenceManager {
 
 	private final Logger log = LoggerFactory.getLogger(JsonPersistenceManager.class);
 
-	private static final Path configFile = Paths.get(System.getProperty("configFile"));
+	private final static Path CONFIG_FILE = Paths.get(System.getProperty("configFile"));
 
 	private final TreeMap<String, Config> configs = new TreeMap<>();
 
@@ -38,7 +39,7 @@ public class JsonPersistenceManager implements PersistenceManager {
 		// read Json from file
 		JsonObject jConfig;
 		try {
-			jConfig = ConfigUtils.readConfigFromFile(configFile);
+			jConfig = ConfigUtils.readConfigFromFile(CONFIG_FILE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			return;
@@ -129,9 +130,9 @@ public class JsonPersistenceManager implements PersistenceManager {
 						/*
 						 * Find configuration keys in the form "{name}.id" or "{name}.ids". If found, a
 						 * new configuration property for "{name}.target" is created. This automates the
-						 * mapping of "@Reference"s to OpenemsComponents. Example: - items.pids =
-						 * ['id0', 'id1'] creates target filter '(|(service.pid=id0)(service.pid=id1))'
-						 * - item.pid = 'id0' creates target filter '(service.pid=id0)'
+						 * mapping of "@Reference"s to OpenemsComponents. Example: - items.ids =
+						 * ['id0', 'id1'] creates target filter '(|(id=id0)(id=id1))'
+						 * - item.id = 'id0' creates target filter '(id=id0)'
 						 */
 						if (key.endsWith(".ids") || key.endsWith(".id")) {
 							// create target filter
@@ -139,12 +140,12 @@ public class JsonPersistenceManager implements PersistenceManager {
 							if (jValue.isJsonArray()) {
 								StringBuilder targetBuilder = new StringBuilder("(|");
 								for (JsonElement j : jValue.getAsJsonArray()) {
-									targetBuilder.append("(service.pid=" + j.getAsString() + ")");
+									targetBuilder.append("(id=" + j.getAsString() + ")");
 								}
 								targetBuilder.append(")");
 								target = targetBuilder.toString();
 							} else {
-								target = "(service.pid=" + jValue.getAsString() + ")";
+								target = "(id=" + jValue.getAsString() + ")";
 							}
 							// remove suffix
 							if (key.endsWith(".ids")) {
@@ -165,7 +166,7 @@ public class JsonPersistenceManager implements PersistenceManager {
 	private void saveConfigMapToFile() {
 		synchronized (this.configs) {
 			try {
-				ConfigUtils.writeConfigToFile(configFile, configs);
+				ConfigUtils.writeConfigToFile(JsonPersistenceManager.CONFIG_FILE, configs);
 			} catch (IOException e) {
 				log.error("Unable to write config to file: " + e.getMessage());
 			}
@@ -173,7 +174,6 @@ public class JsonPersistenceManager implements PersistenceManager {
 	}
 
 	private void loadDefaultConfig() {
-		log.info("Load default config");
 		synchronized (this.configs) {
 			Config log4j = new Config("org.ops4j.pax.logging", true);
 			log4j.put("log4j.rootLogger", "DEBUG, CONSOLE");
@@ -186,6 +186,5 @@ public class JsonPersistenceManager implements PersistenceManager {
 			log4j.put("log4j.logger.sun.net.www.protocol.http.HttpURLConnection", "INFO");
 			this.configs.put(log4j.getPid(), log4j);
 		}
-		log.info("Finished Load default config");
 	}
 }

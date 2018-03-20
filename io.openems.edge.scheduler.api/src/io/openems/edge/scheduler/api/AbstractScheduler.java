@@ -7,7 +7,11 @@ public abstract class AbstractScheduler extends AbstractOpenemsComponent impleme
 	private int cycleTime = Scheduler.DEFAULT_CYCLE_TIME;
 
 	protected void activate(String id, boolean isEnabled, int cycleTime) {
-		this.cycleTime = cycleTime;
+		if (cycleTime < 1) {
+			this.cycleTime = Scheduler.DEFAULT_CYCLE_TIME;
+		} else {
+			this.cycleTime = cycleTime;
+		}
 		super.activate(id, isEnabled);
 	}
 

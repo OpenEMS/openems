@@ -6,11 +6,11 @@ import io.openems.edge.scheduler.api.Scheduler;
 
 @ObjectClassDefinition
 @interface Config {
-	String service_pid();
+	String id();
 
 	boolean enabled() default true;
 
 	int cycleTime() default Scheduler.DEFAULT_CYCLE_TIME;
 
-	String[] controllers_ids();
+	String[] controllers_ids() default {};
 }

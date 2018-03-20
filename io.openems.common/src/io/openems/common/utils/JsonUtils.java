@@ -118,6 +118,15 @@ public class JsonUtils {
 				js.add(new JsonPrimitive((Long) l));
 			}
 			return js;
+		} else if (value instanceof String[]) {
+			/*
+			 * String-Array
+			 */
+			JsonArray js = new JsonArray();
+			for (String s : (String[]) value) {
+				js.add(new JsonPrimitive((String) s));
+			}
+			return js;
 		}
 		throw new NotImplementedException("Converter for [" + value + "]" + " of type [" //
 				+ value.getClass().getSimpleName() + "]" //

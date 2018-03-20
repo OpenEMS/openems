@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition()
 @interface Config {
-	String service_pid();
+	String id();
 
 	boolean enabled() default true;
 }
