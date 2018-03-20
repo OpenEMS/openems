@@ -36,35 +36,38 @@ public class ControllerExecutor extends AbstractWorker {
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addScheduler(Scheduler newScheduler) {
 		synchronized (this.schedulers) {
-			// find greatest common divisor -> commonCycleTime
-			int[] cycleTimes = new int[this.schedulers.size() + 1];
-			{
-				int i = 0;
-				for (Scheduler existingScheduler : this.schedulers.keySet()) {
-					cycleTimes[i++] = existingScheduler.getCycleTime();
-				}
-				cycleTimes[i] = newScheduler.getCycleTime();
-			}
-			this.commonCycleTime = getGreatestCommonDivisor(cycleTimes);
-			// add newScheduler to list (relativeCycleTime is going to be overwritten soon)
-			this.schedulers.put(newScheduler, 1);
-			// fix relative cycleTime for all existing schedulers
-			int[] relativeCycleTimes = new int[this.schedulers.size()];
-			{
-				int i = 0;
-				for (Scheduler scheduler : this.schedulers.keySet()) {
-					int relativeCycleTime = scheduler.getCycleTime() / this.commonCycleTime;
-					this.schedulers.put(scheduler, relativeCycleTime);
-					relativeCycleTimes[i++] = relativeCycleTime;
-				}
-			}
-			// find least common multiple of relativeCycleTimes
-			this.maxCycles = getLeastCommonMultiple(relativeCycleTimes);
+			this.schedulers.put(newScheduler, 1); // relativeCycleTime is going to be overwritten
+			this.recalculateCommonCycleTime();
 		}
 	}
 
 	protected void removeScheduler(Scheduler scheduler) {
 		this.schedulers.remove(scheduler);
+		this.recalculateCommonCycleTime();
+	}
+
+	private void recalculateCommonCycleTime() {
+		// find greatest common divisor -> commonCycleTime
+		int[] cycleTimes = new int[this.schedulers.size()];
+		{
+			int i = 0;
+			for (Scheduler scheduler : this.schedulers.keySet()) {
+				cycleTimes[i++] = scheduler.getCycleTime();
+			}
+		}
+		this.commonCycleTime = getGreatestCommonDivisor(cycleTimes);
+		// fix relative cycleTime for all existing schedulers
+		int[] relativeCycleTimes = new int[this.schedulers.size()];
+		{
+			int i = 0;
+			for (Scheduler scheduler : this.schedulers.keySet()) {
+				int relativeCycleTime = scheduler.getCycleTime() / this.commonCycleTime;
+				this.schedulers.put(scheduler, relativeCycleTime);
+				relativeCycleTimes[i++] = relativeCycleTime;
+			}
+		}
+		// find least common multiple of relativeCycleTimes
+		this.maxCycles = getLeastCommonMultiple(relativeCycleTimes);
 	}
 
 	@Activate
