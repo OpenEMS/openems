@@ -1,29 +1,35 @@
-{
-	"controller0": {
-		"service.factoryPid": "Controller.DebugLog",
-		"name": "Ich bin Controller0"
+[
+	{
+		"id": "controller0",
+		"service.factoryPid": "Controller.DebugLog"
 	},
-	"controller1": {
-		"service.factoryPid": "Controller.DebugLog",
-		"name": "Ich bin Controller1"
+	{
+		"id": "controller1",
+		"service.factoryPid": "Controller.DebugLog"
 	},
-	"controller2": {
-		"service.factoryPid": "Controller.DebugLog",
-		"name": "Ich bin Controller2"
+	{
+		"id": "controller2",
+		"service.factoryPid": "Controller.DebugLog"
 	},
-	"scheduler0": {
-		"service.factoryPid": "Scheduler.FixedOrder",
-		"cycleTime": 3000,
+	{
 		"controllers.ids": [
 			"controller0",
 			"controller1"
-		]
+		],
+		"cycleTime": 3000,
+		"id": "scheduler0",
+		"service.factoryPid": "Scheduler.FixedOrder"
 	},
-	"scheduler1": {
-		"service.factoryPid": "Scheduler.FixedOrder",
-		"cycleTime": 6000,
+	{
 		"controllers.ids": [
 			"controller2"
-		]
+		],
+		"cycleTime": 6000,
+		"id": "scheduler1",
+		"service.factoryPid": "Scheduler.FixedOrder"
+	},
+	{
+		"id": "scheduler23",
+		"service.factoryPid": "Scheduler.FixedOrder"
 	}
-}
+]

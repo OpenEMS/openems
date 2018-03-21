@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -37,7 +38,7 @@ public class JsonPersistenceManager implements PersistenceManager, NotCachablePe
 		loadDefaultConfig();
 
 		// read Json from file
-		JsonObject jConfig;
+		JsonArray jConfig;
 		try {
 			jConfig = ConfigUtils.readConfigFromFile(CONFIG_FILE);
 		} catch (Exception e) {
@@ -88,9 +89,21 @@ public class JsonPersistenceManager implements PersistenceManager, NotCachablePe
 		boolean configNeedsToBeAdded = false;
 		boolean configChanged = false;
 		synchronized (this.configs) {
+			// Throw error if this "id" is already existing
+			String newId = (String) values.get("id");
+			if (newId != null) {
+				for (Config existingConfig : this.configs.values()) {
+					String existingId = existingConfig.getIdOpt().orElse(null);
+					if (existingId != null && newId.equals(existingId)) {
+						throw new IOException("Unable to store ID [" + newId
+								+ "]. A configuration with the same ID is already existing.");
+					}
+				}
+			}
+
 			Config config = this.configs.get(pid);
 			if (config == null) {
-				config = new Config(pid);
+				config = new Config(pid, newId);
 				configNeedsToBeAdded = true;
 				configChanged = true;
 			}
@@ -113,13 +126,16 @@ public class JsonPersistenceManager implements PersistenceManager, NotCachablePe
 		}
 	}
 
-	private void parseJsonToConfigMap(JsonObject jConfig) {
+	private void parseJsonToConfigMap(JsonArray jConfigArray) {
+		int nextPid = 0;
 		synchronized (this.configs) {
-			for (Entry<String, JsonElement> configEntry : jConfig.entrySet()) {
-				Config thisConfig = new Config(configEntry.getKey());
-				if (configEntry.getValue().isJsonObject()) {
-					JsonObject jThisConfig = configEntry.getValue().getAsJsonObject();
-					for (Entry<String, JsonElement> thisConfigEntry : jThisConfig.entrySet()) {
+			for (JsonElement jConfigElement : jConfigArray) {
+				try {
+					JsonObject jConfig = JsonUtils.getAsJsonObject(jConfigElement);
+					String pid = JsonUtils.getAsOptionalString(jConfig, "service.pid").orElse("pid" + nextPid++);
+					String id = JsonUtils.getAsOptionalString(jConfig, "id").orElse("");
+					Config thisConfig = new Config(pid, id);
+					for (Entry<String, JsonElement> thisConfigEntry : jConfig.entrySet()) {
 						String key = thisConfigEntry.getKey();
 						JsonElement jValue = thisConfigEntry.getValue();
 						try {
@@ -130,9 +146,9 @@ public class JsonPersistenceManager implements PersistenceManager, NotCachablePe
 						/*
 						 * Find configuration keys in the form "{name}.id" or "{name}.ids". If found, a
 						 * new configuration property for "{name}.target" is created. This automates the
-						 * mapping of "@Reference"s to OpenemsComponents. Example: - items.ids =
-						 * ['id0', 'id1'] creates target filter '(|(id=id0)(id=id1))'
-						 * - item.id = 'id0' creates target filter '(id=id0)'
+						 * mapping of "@Reference"s to OpenemsComponents. Example: - items.ids = ['id0',
+						 * 'id1'] creates target filter '(|(id=id0)(id=id1))' - item.id = 'id0' creates
+						 * target filter '(id=id0)'
 						 */
 						if (key.endsWith(".ids") || key.endsWith(".id")) {
 							// create target filter
@@ -157,8 +173,10 @@ public class JsonPersistenceManager implements PersistenceManager, NotCachablePe
 							thisConfig.put(key + ".target", target);
 						}
 					}
+					this.configs.put(pid, thisConfig);
+				} catch (OpenemsException e) {
+					log.warn("Unable to parse config [" + jConfigElement + "]: " + e.getMessage());
 				}
-				this.configs.put(thisConfig.getPid(), thisConfig);
 			}
 		}
 	}
@@ -166,7 +184,7 @@ public class JsonPersistenceManager implements PersistenceManager, NotCachablePe
 	private void saveConfigMapToFile() {
 		synchronized (this.configs) {
 			try {
-				ConfigUtils.writeConfigToFile(JsonPersistenceManager.CONFIG_FILE, configs);
+				ConfigUtils.writeConfigToFile(JsonPersistenceManager.CONFIG_FILE, this.configs.values());
 			} catch (IOException e) {
 				log.error("Unable to write config to file: " + e.getMessage());
 			}
