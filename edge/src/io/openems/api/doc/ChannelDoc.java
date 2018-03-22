@@ -54,6 +54,7 @@ public class ChannelDoc {
 	private final Set<Role> readRoles;
 	private final Set<Role> writeRoles;
 	private final String defaultValue;
+	private final String jsonSchema;
 
 	public ChannelDoc(Member member, String name, Optional<ChannelInfo> channelInfoOpt) {
 		this.member = member;
@@ -77,6 +78,7 @@ public class ChannelDoc {
 			this.writeRoles = Sets.newHashSet(channelInfo.writeRoles());
 			this.writeRoles.add(Role.ADMIN);
 			this.defaultValue = channelInfo.defaultValue();
+			this.jsonSchema = channelInfo.jsonSchema();
 		} else {
 			this.title = ChannelInfo.DEFAULT_TITLE;
 			this.description = ChannelInfo.DEFAULT_DESCRIPTION;
@@ -87,6 +89,7 @@ public class ChannelDoc {
 			this.readRoles = ChannelInfo.DEFAULT_READ_ROLES;
 			this.writeRoles = ChannelInfo.DEFAULT_WRITE_ROLES;
 			this.defaultValue = ChannelInfo.DEFAULT_VALUE;
+			this.jsonSchema = ChannelInfo.DEFAULT_JSON_SCHEMA;
 		}
 	}
 
@@ -158,14 +161,15 @@ public class ChannelDoc {
 		}
 		j.add("writeRoles", jWriteRoles);
 		j.addProperty("defaultValue", this.defaultValue);
+		j.addProperty("jsonSchema", this.jsonSchema);
 		return j;
 	}
 
 	@Override
 	public String toString() {
-		return "ChannelDoc [field/method=" + member.getName() + ", name=" + name + ", title=" + title
-				+ ", description=" + description + ", type=" + typeOpt + ", bitLength=" + bitLengthOpt
-				+ ", optional=" + optional + ", array=" + array + ", readRoles=" + readRoles + ", writeRoles="
-				+ writeRoles + ", defaultValue=" + defaultValue + "]";
+		return "ChannelDoc [field/method=" + member.getName() + ", name=" + name + ", title=" + title + ", description="
+				+ description + ", type=" + typeOpt + ", bitLength=" + bitLengthOpt + ", optional=" + optional
+				+ ", array=" + array + ", readRoles=" + readRoles + ", writeRoles=" + writeRoles + ", defaultValue="
+				+ defaultValue + ", jsonSchema=" + jsonSchema + "]";
 	}
 }

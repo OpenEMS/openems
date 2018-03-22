@@ -118,6 +118,11 @@ public class ThingStateChannels extends ReadChannel<ThingState> implements Chann
 			public String defaultValue() {
 				return "";
 			}
+
+			@Override
+			public String jsonSchema() {
+				return "";
+			}
 		}));
 		try {
 			channel.setChannelDoc(channelDoc);

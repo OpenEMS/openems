@@ -44,6 +44,7 @@ public @interface ChannelInfo {
 			Role.ADMIN);
 	public static final Set<Role> DEFAULT_WRITE_ROLES = Sets.newHashSet(Role.ADMIN);
 	public static final String DEFAULT_VALUE = "";
+	public static final String DEFAULT_JSON_SCHEMA = "";
 
 	String title() default DEFAULT_TITLE;
 
@@ -61,6 +62,7 @@ public @interface ChannelInfo {
 	 * @return
 	 */
 	Role[] readRoles() default { Role.GUEST, Role.OWNER, Role.INSTALLER, Role.ADMIN };
+
 	/**
 	 * By default only the "ADMIN" role is allowed to write. ADMIN is added automatically to this list.
 	 *
@@ -74,4 +76,12 @@ public @interface ChannelInfo {
 	 * @return
 	 */
 	String defaultValue() default DEFAULT_VALUE;
+
+	/**
+	 * Defines the JSON-Schema for this channel. Applies to JsonObject and JsonArray. Schema is based on
+	 * http://json-schema.org
+	 *
+	 * @return
+	 */
+	String jsonSchema() default DEFAULT_JSON_SCHEMA;
 }
