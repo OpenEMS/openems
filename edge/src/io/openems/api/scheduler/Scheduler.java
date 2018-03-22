@@ -48,7 +48,8 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 	protected final ThingRepository thingRepository;
 	private Integer actualCycleTime = null;
 	private DebugChannel<Long> requiredCycleTime = new DebugChannel<>("RequiredCycleTime", this);
-	private List<AfterControllerExecutedListener> listener = new ArrayList<>();
+	private List<BeforeControllerExecutedListener> beforeControllerExecutedListener = new ArrayList<>();
+	private List<AfterControllerExecutedListener> afterControllerExecutedListener = new ArrayList<>();
 
 	/*
 	 * Config
@@ -83,19 +84,29 @@ public abstract class Scheduler extends AbstractWorker implements Thing {
 		return Collections.unmodifiableList(new ArrayList<>(this.controllers.values()));
 	}
 
-	public void addListener(AfterControllerExecutedListener listener) {
-		this.listener.add(listener);
+	public void addAfterControllerExecutedListener(AfterControllerExecutedListener listener) {
+		this.afterControllerExecutedListener.add(listener);
 	}
 
-	public void removeListener(AfterControllerExecutedListener listener) {
-		this.listener.remove(listener);
+	public void removeAfterControllerExecutedListener(AfterControllerExecutedListener listener) {
+		this.afterControllerExecutedListener.remove(listener);
+	}
+	public void addBeforeControllerExecutedListener(BeforeControllerExecutedListener listener) {
+		this.beforeControllerExecutedListener.add(listener);
+	}
+
+	public void removeBeforeControllerExecutedListener(BeforeControllerExecutedListener listener) {
+		this.beforeControllerExecutedListener.remove(listener);
 	}
 
 	@Override
 	protected void forever() {
 		cycleStartTime = System.currentTimeMillis();
+		for(BeforeControllerExecutedListener listener: this.beforeControllerExecutedListener) {
+			listener.beforeControllerExecuted();
+		}
 		execute();
-		for(AfterControllerExecutedListener listener: this.listener) {
+		for(AfterControllerExecutedListener listener: this.afterControllerExecutedListener) {
 			listener.afterControllerExecuted();
 		}
 		for (WriteChannel<?> channel : thingRepository.getWriteChannels()) {
