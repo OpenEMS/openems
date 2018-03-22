@@ -78,7 +78,7 @@
                     <td style="width:50%">Erzwinge Beladung</td>
                     <td colspan="3" class="align_right" style="width:50%">
                       <channel [thingId]="controllerId" channelId="forceCharge" [config]="config" [role]="device.role" [device]="device" title=""
-                        style="width:100%"></channel>
+                        style="width:100%" (onChange)="onChannelChange($event)"></channel>
                     </td>
                   </tr>
                 </ng-container>

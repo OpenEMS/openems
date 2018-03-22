@@ -24,34 +24,15 @@ export class EvcsComponent {
 
   constructor(public utils: Utils) { }
 
-  ngOnDestroy() {
-    this.stopOnDestroy.next();
-    this.stopOnDestroy.complete();
-  }
-
   /**
-   * Handle config update
+   * Receive messages from Channel
+   * 
+   * @param message 
+   * @param channelId 
    */
-
-  @ViewChildren(ChannelComponent)
-  private channelComponentChildren: QueryList<ChannelComponent>;
-  private stopOnDestroy: Subject<void> = new Subject<void>();
-  private formInitialized: boolean = false;
-
-  ngAfterViewChecked() {
-    // unfortunately components are not available yet in ngAfterViewInit, so we need to call it again and again, till they are there.
-    if (this.formInitialized || this.channelComponentChildren.length == 0) {
-      return;
+  private onChannelChange(message) {
+    if (message == null) {
+      this.device.send(message);
     }
-    this.channelComponentChildren.forEach(channelComponent => {
-      channelComponent.message
-        .takeUntil(this.stopOnDestroy)
-        .subscribe((message) => {
-          if (message != null) {
-            this.device.send(message);
-          }
-        });
-    });
-    this.formInitialized = true;
   }
 }
