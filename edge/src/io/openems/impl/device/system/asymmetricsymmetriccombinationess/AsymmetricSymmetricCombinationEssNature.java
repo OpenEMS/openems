@@ -36,6 +36,8 @@ import io.openems.core.utilities.power.symmetric.SymmetricPower;
 import io.openems.core.utilities.power.symmetric.SymmetricPowerProxy;
 import io.openems.impl.protocol.system.SystemDeviceNature;
 
+// TODO there seems to be an error when using this class as AsymmetricEssNature
+
 @ThingInfo(title = "Ess Asymmetric-Symmetric-Combination")
 public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener, BridgeInitializedEventListener {
