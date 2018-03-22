@@ -1,0 +1,29 @@
+{
+  "EdgeWebsocket": {
+    "port": 9081
+  },
+  "InfluxDB": {
+    "database": "db",
+    "measurement": "data",
+    "password": "admin",
+    "port": "8086",
+    "url": "localhost",
+    "username": "admin"
+  },
+  "MetadataFile": {
+    "path": "C:/Users/stefan.feilmeier/Desktop/FEMS-Wien.csv"
+  },
+  "UiWebsocket": {
+    "port": 9080
+  },
+  "org.ops4j.pax.logging": {
+    "_felix_.cm.newConfiguration": true,
+    "log4j.appender.CONSOLE": "org.apache.log4j.ConsoleAppender",
+    "log4j.appender.CONSOLE.layout": "org.apache.log4j.PatternLayout",
+    "log4j.appender.CONSOLE.layout.ConversionPattern": "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] - %m%n",
+    "log4j.logger.org.apache.felix.configadmin": "INFO",
+    "log4j.logger.org.eclipse.osgi": "WARN",
+    "log4j.logger.sun.net.www.protocol.http.HttpURLConnection": "INFO",
+    "log4j.rootLogger": "DEBUG, CONSOLE"
+  }
+}
