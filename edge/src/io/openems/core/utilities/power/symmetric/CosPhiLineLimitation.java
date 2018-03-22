@@ -2,10 +2,13 @@ package io.openems.core.utilities.power.symmetric;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.operation.distance.DistanceOp;
 import com.vividsolutions.jts.operation.distance.GeometryLocation;
 
 public class CosPhiLineLimitation extends Limitation {
+
+	protected final GeometryFactory factory = new GeometryFactory();
 
 	private Double cosPhi;
 	private Boolean capacitive;
@@ -32,7 +35,7 @@ public class CosPhiLineLimitation extends Limitation {
 				double y2 = m2 * maxApparentPower*-1 + t2;
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, y1),
 						new Coordinate(xNull, yNull), new Coordinate(maxApparentPower*-1, y2) };
-				line = SymmetricPowerImpl.getFactory().createLineString(coordinates);
+				line = factory.createLineString(coordinates);
 			}else {
 				line = null;
 			}
@@ -53,7 +56,7 @@ public class CosPhiLineLimitation extends Limitation {
 				GeometryLocation[] locations = distance.nearestLocations();
 				for (GeometryLocation location : locations) {
 					if (!location.getGeometryComponent().equals(line)) {
-						return SymmetricPowerImpl.getFactory().createPoint(location.getCoordinate());
+						return factory.createPoint(location.getCoordinate());
 					}
 				}
 			} else {

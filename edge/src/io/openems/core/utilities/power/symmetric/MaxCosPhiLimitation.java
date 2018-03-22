@@ -6,6 +6,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class MaxCosPhiLimitation extends Limitation {
 
+	protected final GeometryFactory factory = new GeometryFactory();
 	private Geometry polygon;
 	private Double cosPhi;
 
@@ -17,7 +18,6 @@ public class MaxCosPhiLimitation extends Limitation {
 		if (cosPhi != this.cosPhi) {
 			if (cosPhi != null) {
 				Long maxApparentPower = this.power.getMaxApparentPower();
-				GeometryFactory factory = SymmetricPowerImpl.getFactory();
 				double m = Math.tan(Math.acos(cosPhi));
 				double y = m * maxApparentPower;
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(ZERO), new Coordinate(maxApparentPower, y),

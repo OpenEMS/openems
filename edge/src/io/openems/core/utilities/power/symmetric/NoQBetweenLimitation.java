@@ -2,9 +2,11 @@ package io.openems.core.utilities.power.symmetric;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class NoQBetweenLimitation extends Limitation {
 
+	protected final GeometryFactory factory = new GeometryFactory();
 	private Geometry rect;
 	private Long qMin;
 	private Long qMax;
@@ -20,7 +22,7 @@ public class NoQBetweenLimitation extends Limitation {
 				long pMax = power.getMaxApparentPower();
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax-0.1), new Coordinate(pMin, qMin+0.1),
 						new Coordinate(pMax, qMin+0.1), new Coordinate(pMax, qMax-0.1), new Coordinate(pMin, qMax-0.1) };
-				rect = SymmetricPowerImpl.getFactory().createPolygon(coordinates);
+				rect = factory.createPolygon(coordinates);
 			} else {
 				rect = null;
 			}
