@@ -54,7 +54,11 @@ public class SymmetricPowerProxy extends SymmetricPower implements LimitationCha
 	@Override
 	protected void reset() {
 		this.dynamicLimitations.clear();
-		this.setGeometry(baseGeometry);
+		try {
+			this.setGeometry(baseGeometry);
+		} catch (PowerException e) {
+			log.error("BaseGeometry is Empty!");
+		}
 		activePower = Optional.empty();
 		reactivePower = Optional.empty();
 		super.reset();
@@ -71,11 +75,16 @@ public class SymmetricPowerProxy extends SymmetricPower implements LimitationCha
 		}
 	}
 
-	private void writePower() {
+	@Override
+	protected void writePower() {
+		super.writePower();
 		if (dynamicLimitations.size() > 0) {
 			Point p = reduceToZero();
 			Coordinate c = p.getCoordinate();
-			setGeometry(p);
+			try {
+				setGeometry(p);
+			} catch (PowerException e) {
+			}
 			double activePowerDelta = c.x - lastActivePower;
 			double reactivePowerDelta = c.y - lastReactivePower;
 			lastActivePower += activePowerDelta / 2;
