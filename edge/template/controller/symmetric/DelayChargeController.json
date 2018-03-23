@@ -1,0 +1,5 @@
+{
+	"class": "io.openems.impl.controller.symmetric.delaycharge.DelayChargeController",
+	"ess": "ess0",
+	"priority": 90
+}

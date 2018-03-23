@@ -12,7 +12,7 @@
     <mat-card-content fxLayout fxLayoutWrap="wrap">
         <ng-container *ngFor="let channelId of utils.keys(meta.channels)">
             <channel [thingId]="thingId" [channelId]="channelId" [config]="config" [role]="role" [device]="device" [showThings]="showSubThings"
-                fxFlex="100%"></channel>
+                fxFlex="100%" (onChange)="onChannelChange($event, channelId)"></channel>
         </ng-container>
         <!-- Special cases -->
         <!-- <timelinecharge fxFlex="100%" *ngIf="utils.classname(controller.form.value.class) == 'TimelineChargeController'" [controller]="controller"></timelinecharge> -->

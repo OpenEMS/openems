@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, ViewChildren, QueryList } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 
@@ -43,36 +43,25 @@ export class ExistingThingComponent implements OnChanges {
 
   @Input() public thingId: string = null;
 
-  @ViewChildren(ChannelComponent)
-  private channelComponentChildren: QueryList<ChannelComponent>;
-
   constructor(
-    public utils: Utils,
-    private formBuilder: FormBuilder) { }
+    public utils: Utils) { }
 
   /**
-   * Receive form.pristine state
+   * Receive messages from Channels
+   * 
+   * @param message 
+   * @param channelId 
    */
-  ngAfterViewInit() {
-    this.channelComponentChildren.forEach(channelComponent => {
-      channelComponent.message
-        .takeUntil(this.stopOnDestroy)
-        .subscribe((message) => {
-          if (message == null) {
-            delete this.messages[channelComponent.channelId];
-            this.formPristine = true;
-          } else {
-            // set pristine flag
-            let pristine = true;
-            this.channelComponentChildren.forEach(channelComponent => {
-              pristine = pristine && channelComponent.form.pristine;
-            });
-            this.formPristine = pristine;
-            // store message
-            this.messages[channelComponent.channelId] = message;
-          }
-        });
-    });
+  private onChannelChange(message, channelId) {
+    if (message == null) {
+      delete this.messages[channelId];
+      this.formPristine = true;
+    } else {
+      // set pristine flag
+      this.formPristine = false;
+      // store message
+      this.messages[channelId] = message;
+    }
   }
 
   ngOnChanges() {
