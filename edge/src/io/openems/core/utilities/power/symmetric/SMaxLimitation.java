@@ -6,6 +6,7 @@ import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 public class SMaxLimitation extends Limitation {
 
+	protected final GeometricShapeFactory shapeFactory = new GeometricShapeFactory();
 	private Geometry circle;
 	private Long sMax;
 
@@ -16,7 +17,6 @@ public class SMaxLimitation extends Limitation {
 	public void setSMax(Long sMax, Long xNull, Long yNull) {
 		if (sMax != this.sMax) {
 			if (sMax != null) {
-				GeometricShapeFactory shapeFactory = SymmetricPowerImpl.getShapefactory();
 				shapeFactory.setCentre(new Coordinate(xNull,yNull));
 				shapeFactory.setSize(sMax*2);
 				shapeFactory.setNumPoints(32);

@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnChanges, OnDestroy } from '@angular/core';
+import { Component, Input, Output, OnChanges, OnDestroy, EventEmitter } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from '@angular/forms';
 
@@ -34,7 +34,7 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   @Input() public showThings: boolean = false;
   @Input() public title: string = null;
 
-  @Output() public message: Subject<DefaultTypes.ConfigUpdate> = new Subject<DefaultTypes.ConfigUpdate>();
+  @Output() public onChange = new EventEmitter<DefaultTypes.ConfigUpdate>();
 
   constructor(
     public utils: Utils,
@@ -139,14 +139,13 @@ export class ChannelComponent implements OnChanges, OnDestroy {
     if (this.isJson) {
       try {
         value = JSON.parse(value);
-        this.message.next(DefaultMessages.configUpdate(this.device.edgeId, this.thingId, this.channelId, value));
+        this.onChange.emit(DefaultMessages.configUpdate(this.device.edgeId, this.thingId, this.channelId, value));
       } catch (e) {
-        this.message.next(null);
+        this.onChange.emit(null);
       }
     } else {
-      this.message.next(DefaultMessages.configUpdate(this.device.edgeId, this.thingId, this.channelId, value));
+      this.onChange.emit(DefaultMessages.configUpdate(this.device.edgeId, this.thingId, this.channelId, value));
     }
-
   }
 
   public addToArray() {
@@ -211,4 +210,12 @@ export class ChannelComponent implements OnChanges, OnDestroy {
     return this.formBuilder.array(builder);
   }
 
+  /**
+   * Gets called when 'jsonschema' component announces a change
+   * @param event
+   */
+  private onJsonChannelChange(event: any) {
+    let control = <FormControl>this.form.controls["channelConfig"];
+    control.setValue(JSON.stringify(event));
+  }
 }

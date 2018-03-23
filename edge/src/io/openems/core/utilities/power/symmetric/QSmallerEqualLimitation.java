@@ -2,9 +2,11 @@ package io.openems.core.utilities.power.symmetric;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 public class QSmallerEqualLimitation extends Limitation {
 
+	protected final GeometryFactory factory = new GeometryFactory();
 	private Geometry rect;
 	private Long q;
 
@@ -21,7 +23,7 @@ public class QSmallerEqualLimitation extends Limitation {
 				long qMax = q;
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax), new Coordinate(pMin, qMin),
 						new Coordinate(pMax, qMin), new Coordinate(pMax, qMax), new Coordinate(pMin, qMax) };
-				rect = SymmetricPowerImpl.getFactory().createPolygon(coordinates);
+				rect = factory.createPolygon(coordinates);
 			} else {
 				rect = null;
 			}
