@@ -25,9 +25,10 @@ export class JsonSchemaComponent implements OnChanges {
 
   constructor(private formBuilder: FormBuilder) { }
 
+  public form: FormGroup = null;
+
   private _schema: JsonSchema = null;
   private _value: any = null;
-  private form: FormGroup = null;
   private stopOnChange: Subject<void> = new Subject<void>();
 
   @Output() onChange = new EventEmitter<Object>();
