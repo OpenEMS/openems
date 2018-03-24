@@ -1,0 +1,14 @@
+#
+# io.openems.edge.ess.fenecon.commercial40 LAUNCH SPECIFICATION
+#
+
+
+Bundle-Version:				1.0.0.${tstamp}
+Bundle-SymbolicName:		io.openems.edge.ess.fenecon.commercial40.launch
+JPM-Command:				provider
+
+
+-runrequires:  \
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.commercial40.provider)'
+
+-runbundles: ${error;You must first resolve this bndrun file before you can run it}
