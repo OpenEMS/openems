@@ -1,7 +1,9 @@
 package io.openems.edge.application;
 
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.utils.AbstractWorker;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.scheduler.api.Scheduler;
 
@@ -29,6 +32,9 @@ public class ControllerExecutor extends AbstractWorker {
 	private final TreeMap<Scheduler, Integer> schedulers = new TreeMap<Scheduler, Integer>(
 			(a, b) -> a.getCycleTime() - b.getCycleTime());
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
+
 	private int commonCycleTime = Scheduler.DEFAULT_CYCLE_TIME;
 	private int maxCycles = 1;
 	private int cycle = 0;
@@ -36,7 +42,8 @@ public class ControllerExecutor extends AbstractWorker {
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addScheduler(Scheduler newScheduler) {
 		synchronized (this.schedulers) {
-			this.schedulers.put(newScheduler, 1); // relativeCycleTime is going to be overwritten
+			this.schedulers.put(newScheduler, 1); // relativeCycleTime is going to be overwritten by
+													// recalculateCommonCycleTime
 			this.recalculateCommonCycleTime();
 		}
 	}
@@ -46,6 +53,10 @@ public class ControllerExecutor extends AbstractWorker {
 		this.recalculateCommonCycleTime();
 	}
 
+	/**
+	 * Called on change of Scheduler list: recalculates the commonCycleTime and all
+	 * relativeCycleTimes
+	 */
 	private void recalculateCommonCycleTime() {
 		// find greatest common divisor -> commonCycleTime
 		int[] cycleTimes = new int[this.schedulers.size()];
@@ -55,7 +66,7 @@ public class ControllerExecutor extends AbstractWorker {
 				cycleTimes[i++] = scheduler.getCycleTime();
 			}
 		}
-		this.commonCycleTime = getGreatestCommonDivisor(cycleTimes);
+		this.commonCycleTime = Utils.getGreatestCommonDivisor(cycleTimes).orElse(Scheduler.DEFAULT_CYCLE_TIME);
 		// fix relative cycleTime for all existing schedulers
 		int[] relativeCycleTimes = new int[this.schedulers.size()];
 		{
@@ -67,7 +78,7 @@ public class ControllerExecutor extends AbstractWorker {
 			}
 		}
 		// find least common multiple of relativeCycleTimes
-		this.maxCycles = getLeastCommonMultiple(relativeCycleTimes);
+		this.maxCycles = Utils.getLeastCommonMultiple(relativeCycleTimes).orElse(1);
 	}
 
 	@Activate
@@ -94,8 +105,22 @@ public class ControllerExecutor extends AbstractWorker {
 		try {
 			if (schedulers.isEmpty()) {
 				log.warn("There are no Schedulers configured!");
+				return;
 			}
 			log.info("===========");
+
+			/*
+			 * Before Controllers start: switch to next process image for each channel
+			 */
+			this.components.forEach(component -> {
+				component.getChannels().forEach(channel -> {
+					channel.nextProcessImage();
+				});
+			});
+
+			/*
+			 * Execute Schedulers and their Controllers
+			 */
 			for (Entry<Scheduler, Integer> entry : schedulers.entrySet()) {
 				Scheduler scheduler = entry.getKey();
 				if (cycle % entry.getValue() != 0) {
@@ -112,33 +137,4 @@ public class ControllerExecutor extends AbstractWorker {
 		}
 	}
 
-	// Source: https://stackoverflow.com/a/4202114/4137113
-	private static int getGreatestCommonDivisor(int a, int b) {
-		while (b > 0) {
-			int temp = b;
-			b = a % b; // % is remainder
-			a = temp;
-		}
-		return a;
-	}
-
-	private static int getGreatestCommonDivisor(int[] input) {
-		int result = input[0];
-		for (int i = 1; i < input.length; i++) {
-			result = getGreatestCommonDivisor(result, input[i]);
-		}
-		return result;
-	}
-
-	private static int getLeastCommonMultiple(int a, int b) {
-		return a * (b / getGreatestCommonDivisor(a, b));
-	}
-
-	private static int getLeastCommonMultiple(int[] input) {
-		int result = input[0];
-		for (int i = 1; i < input.length; i++) {
-			result = getLeastCommonMultiple(result, input[i]);
-		}
-		return result;
-	}
 }
