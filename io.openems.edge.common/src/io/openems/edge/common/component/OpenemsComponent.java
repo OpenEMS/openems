@@ -1,4 +1,9 @@
-package io.openems.common.types;
+package io.openems.edge.common.component;
+
+import java.util.Collection;
+
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.ChannelDoc;
 
 public interface OpenemsComponent {
 
@@ -28,4 +33,19 @@ public interface OpenemsComponent {
 	 * Enables or disables this component
 	 */
 	void setEnabled(boolean isEnabled);
+
+	/**
+	 * Returns a Channel defined by its ChannelId Enum
+	 * 
+	 * @param channelId
+	 * @return
+	 */
+	Channel getChannel(ChannelDoc channelId);
+
+	/**
+	 * Returns all Channels
+	 * 
+	 * @return
+	 */
+	Collection<Channel> getChannels();
 }
