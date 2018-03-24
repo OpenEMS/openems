@@ -8,7 +8,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.types.AbstractOpenemsComponent;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
 @Designate(ocd = Config.class, factory = true)

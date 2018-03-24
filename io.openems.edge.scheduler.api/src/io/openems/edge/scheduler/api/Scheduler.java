@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.common.types.OpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
 @ProviderType

@@ -1,6 +1,6 @@
 package io.openems.edge.scheduler.api;
 
-import io.openems.common.types.AbstractOpenemsComponent;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 
 public abstract class AbstractScheduler extends AbstractOpenemsComponent implements Scheduler {
 

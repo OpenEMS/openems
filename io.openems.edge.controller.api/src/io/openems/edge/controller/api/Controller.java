@@ -2,7 +2,7 @@ package io.openems.edge.controller.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.common.types.OpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
 public interface Controller extends OpenemsComponent {
