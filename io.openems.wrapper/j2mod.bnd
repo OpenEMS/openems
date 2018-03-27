@@ -1,0 +1,19 @@
+-dsannotations: *
+-metatypeannotations: *
+Service-Component: *
+
+Bundle-Version: 2.4.1
+
+Include-Resource: @j2mod-2.4.1.jar, @jSerialComm-1.3.11.jar
+
+-exportcontents: \
+	com.ghgande.j2mod.modbus, \
+	com.ghgande.j2mod.modbus.facade, \
+	com.ghgande.j2mod.modbus.procimg, \
+	com.ghgande.j2mod.modbus.io, \
+	com.ghgande.j2mod.modbus.net, \
+	com.ghgande.j2mod.modbus.util, \
+	com.ghgande.j2mod.modbus.msg
+-sources: false
+
+# TODO latest version of j2mod should soon support OSGi. https://github.com/steveohara/j2mod/pull/67

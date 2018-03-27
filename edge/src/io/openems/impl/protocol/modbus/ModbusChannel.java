@@ -23,5 +23,5 @@ package io.openems.impl.protocol.modbus;
 import io.openems.api.channel.Channel;
 
 public interface ModbusChannel<T> extends Channel {
-
+	// MOVED TO OSGI
 }

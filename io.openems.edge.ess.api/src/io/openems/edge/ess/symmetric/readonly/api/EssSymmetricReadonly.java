@@ -26,10 +26,10 @@ public interface EssSymmetricReadonly extends Ess {
 	}
 
 	default Channel getActivePower() {
-		return this.getChannel(ChannelId.ACTIVE_POWER);
+		return this.channel(ChannelId.ACTIVE_POWER);
 	}
 
 	default Channel getReactivePower() {
-		return this.getChannel(ChannelId.REACTIVE_POWER);
+		return this.channel(ChannelId.REACTIVE_POWER);
 	}
 }

@@ -1,2 +1,5 @@
 -sub: *.bnd
--buildpath: org.java-websocket:Java-WebSocket
+-buildpath: \
+	org.java-websocket:Java-WebSocket,\
+	com.ghgande:j2mod,\
+	com.fazecast:jSerialComm

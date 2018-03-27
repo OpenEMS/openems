@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelDoc;
+import io.openems.edge.common.channel.Unit;
 
 public interface OpenemsComponent {
 
@@ -40,12 +41,38 @@ public interface OpenemsComponent {
 	 * @param channelId
 	 * @return
 	 */
-	Channel getChannel(ChannelDoc channelId);
+	Channel channel(ChannelDoc channelId);
 
 	/**
 	 * Returns all Channels
 	 * 
 	 * @return
 	 */
-	Collection<Channel> getChannels();
+	Collection<Channel> channels();
+
+	public enum ChannelId implements io.openems.edge.common.channel.ChannelDoc {
+		// Running State of the component
+		STATE(Unit.NONE, State.class);
+		enum State {
+			OK, WARNING, FAULT
+		}
+
+		private final Unit unit;
+		private final Class<? extends Enum<?>> values;
+
+		private ChannelId(Unit unit, Class<? extends Enum<?>> values) {
+			this.unit = unit;
+			this.values = values;
+			// TODO use values
+		}
+
+		@Override
+		public Unit getUnit() {
+			return this.unit;
+		}
+	}
+
+	default Channel getState() {
+		return this.channel(ChannelId.STATE);
+	}
 }

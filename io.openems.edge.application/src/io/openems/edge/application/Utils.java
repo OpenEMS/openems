@@ -1,8 +1,56 @@
 package io.openems.edge.application;
 
 import java.util.Optional;
+import java.util.TreeMap;
+
+import io.openems.edge.scheduler.api.Scheduler;
 
 public class Utils {
+
+	/**
+	 * Called on change of Scheduler list: recalculates the commonCycleTime
+	 * 
+	 * @param schedulers
+	 * @return commonCycleTime
+	 */
+	protected static int recalculateCommonCycleTime(TreeMap<Scheduler, Integer> schedulers) {
+		// find greatest common divisor -> commonCycleTime
+		int[] cycleTimes = new int[schedulers.size()];
+		{
+			int i = 0;
+			for (Scheduler scheduler : schedulers.keySet()) {
+				cycleTimes[i++] = scheduler.getCycleTime();
+			}
+		}
+		return Utils.getGreatestCommonDivisor(cycleTimes).orElse(Scheduler.DEFAULT_CYCLE_TIME);
+	}
+
+	/**
+	 * Called on change of Scheduler list: recalculates the commonCycleTime
+	 * 
+	 * @param schedulers.
+	 *            "relativeCycleTime" is being updated for every scheduler
+	 * @param commonCycleTime
+	 * @return least common multiple of relativeCycleTimes (maxCycles)
+	 */
+	protected static int recalculateRelativeCycleTimes(TreeMap<Scheduler, Integer> schedulers, int commonCycleTime) {
+		// fix relative cycleTime for all existing schedulers
+		int[] relativeCycleTimes = new int[schedulers.size()];
+		{
+			int i = 0;
+			for (Scheduler scheduler : schedulers.keySet()) {
+				int relativeCycleTime = scheduler.getCycleTime() / commonCycleTime;
+				schedulers.put(scheduler, relativeCycleTime);
+				relativeCycleTimes[i++] = relativeCycleTime;
+			}
+		}
+		// find least common multiple of relativeCycleTimes
+		return Utils.getLeastCommonMultiple(relativeCycleTimes).orElse(1);
+	}
+
+	/**
+	 * 
+	 */
 
 	// Source: https://stackoverflow.com/a/4202114/4137113
 	protected static int getGreatestCommonDivisor(int a, int b) {

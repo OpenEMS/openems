@@ -70,7 +70,7 @@ public class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	@Override
-	public Channel getChannel(ChannelDoc channelId) {
+	public Channel channel(ChannelDoc channelId) {
 		Channel channel = this.channels.get(channelId);
 		if (channel == null) {
 			log.error("ID [" + this.id() + "] has no Channel [" + channelId + "]");
@@ -80,12 +80,12 @@ public class AbstractOpenemsComponent implements OpenemsComponent {
 
 	protected void addChannels(Channel... channels) {
 		for (Channel channel : channels) {
-			this.channels.put(channel.getChannelDoc(), channel);
+			this.channels.put(channel.channelDoc(), channel);
 		}
 	}
 
 	@Override
-	public Collection<Channel> getChannels() {
+	public Collection<Channel> channels() {
 		return this.channels.values();
 	}
 }

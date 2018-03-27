@@ -20,41 +20,34 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus.internal;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
-import com.ghgande.j2mod.modbus.procimg.Register;
-import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
-
-import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class UnsignedWordElement extends ModbusElement<Long> implements WordElement {
-	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-
-	public UnsignedWordElement(int address, ModbusChannel<Long> channel) {
-		super(address, channel);
-	}
-
-	public UnsignedWordElement byteOrder(ByteOrder byteOrder) {
-		this.byteOrder = byteOrder;
-		return this;
-	}
-
-	@Override public int getLength() {
-		return 1;
-	}
-
-	@Override public void setValue(InputRegister register) {
-		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);
-		buff.put(register.toBytes());
-		int shortValue = Short.toUnsignedInt(buff.getShort(0));
-		setValue(Long.valueOf(shortValue));
-	}
-
-	@Override public Register toRegister(Long value) {
-		byte[] b = ByteBuffer.allocate(2).order(byteOrder).putShort(value.shortValue()).array();
-		return new SimpleRegister(b[0], b[1]);
-	}
+	// MOVED TO OSGI
+	//	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+	//
+	//	public UnsignedWordElement(int address, ModbusChannel<Long> channel) {
+	//		super(address, channel);
+	//	}
+	//
+	//	public UnsignedWordElement byteOrder(ByteOrder byteOrder) {
+	//		this.byteOrder = byteOrder;
+	//		return this;
+	//	}
+	//
+	//	@Override public int getLength() {
+	//		return 1;
+	//	}
+	//
+	//	@Override public void setValue(InputRegister register) {
+	//		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);
+	//		buff.put(register.toBytes());
+	//		int shortValue = Short.toUnsignedInt(buff.getShort(0));
+	//		setValue(Long.valueOf(shortValue));
+	//	}
+	//
+	//	@Override public Register toRegister(Long value) {
+	//		byte[] b = ByteBuffer.allocate(2).order(byteOrder).putShort(value.shortValue()).array();
+	//		return new SimpleRegister(b[0], b[1]);
+	//	}
 }

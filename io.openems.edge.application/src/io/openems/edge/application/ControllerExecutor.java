@@ -1,7 +1,6 @@
 package io.openems.edge.application;
 
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -15,9 +14,8 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.utils.AbstractWorker;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.api.Controller;
+import io.openems.edge.common.worker.AbstractWorker;
 import io.openems.edge.scheduler.api.Scheduler;
 
 @Component(immediate = true)
@@ -44,41 +42,15 @@ public class ControllerExecutor extends AbstractWorker {
 		synchronized (this.schedulers) {
 			this.schedulers.put(newScheduler, 1); // relativeCycleTime is going to be overwritten by
 													// recalculateCommonCycleTime
-			this.recalculateCommonCycleTime();
+			this.commonCycleTime = Utils.recalculateCommonCycleTime(this.schedulers);
+			this.maxCycles = Utils.recalculateRelativeCycleTimes(schedulers, this.commonCycleTime);
 		}
 	}
 
 	protected void removeScheduler(Scheduler scheduler) {
 		this.schedulers.remove(scheduler);
-		this.recalculateCommonCycleTime();
-	}
-
-	/**
-	 * Called on change of Scheduler list: recalculates the commonCycleTime and all
-	 * relativeCycleTimes
-	 */
-	private void recalculateCommonCycleTime() {
-		// find greatest common divisor -> commonCycleTime
-		int[] cycleTimes = new int[this.schedulers.size()];
-		{
-			int i = 0;
-			for (Scheduler scheduler : this.schedulers.keySet()) {
-				cycleTimes[i++] = scheduler.getCycleTime();
-			}
-		}
-		this.commonCycleTime = Utils.getGreatestCommonDivisor(cycleTimes).orElse(Scheduler.DEFAULT_CYCLE_TIME);
-		// fix relative cycleTime for all existing schedulers
-		int[] relativeCycleTimes = new int[this.schedulers.size()];
-		{
-			int i = 0;
-			for (Scheduler scheduler : this.schedulers.keySet()) {
-				int relativeCycleTime = scheduler.getCycleTime() / this.commonCycleTime;
-				this.schedulers.put(scheduler, relativeCycleTime);
-				relativeCycleTimes[i++] = relativeCycleTime;
-			}
-		}
-		// find least common multiple of relativeCycleTimes
-		this.maxCycles = Utils.getLeastCommonMultiple(relativeCycleTimes).orElse(1);
+		this.commonCycleTime = Utils.recalculateCommonCycleTime(this.schedulers);
+		this.maxCycles = Utils.recalculateRelativeCycleTimes(schedulers, this.commonCycleTime);
 	}
 
 	@Activate
@@ -113,7 +85,7 @@ public class ControllerExecutor extends AbstractWorker {
 			 * Before Controllers start: switch to next process image for each channel
 			 */
 			this.components.forEach(component -> {
-				component.getChannels().forEach(channel -> {
+				component.channels().forEach(channel -> {
 					channel.nextProcessImage();
 				});
 			});
@@ -121,17 +93,17 @@ public class ControllerExecutor extends AbstractWorker {
 			/*
 			 * Execute Schedulers and their Controllers
 			 */
-			for (Entry<Scheduler, Integer> entry : schedulers.entrySet()) {
+			schedulers.entrySet().forEach(entry -> {
 				Scheduler scheduler = entry.getKey();
 				if (cycle % entry.getValue() != 0) {
 					// abort if relativeCycleTime is not matching this cycle
-					continue;
+					return;
 				}
 				log.info("Scheduler [" + scheduler.id() + "]");
-				for (Controller controller : scheduler.getControllers()) {
+				scheduler.getControllers().forEach(controller -> {
 					controller.run();
-				}
-			}
+				});
+			});
 		} catch (Throwable t) {
 			log.warn("Error in Scheduler. " + t.getClass().getSimpleName() + ": " + t.getMessage());
 		}

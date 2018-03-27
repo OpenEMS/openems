@@ -6,12 +6,16 @@ Bundle-Version:					1.0.0.${tstamp}
 
 Export-Package: \
 	io.openems.edge.common.channel,\
-	io.openems.edge.common.component
+	io.openems.edge.common.component,\
+	io.openems.edge.common.worker
 
 -includeresource: {readme.md}
 
--buildpath:  \
-	osgi.enroute.base.api;version=2.1
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	com.google.guava,\
+	com.google.gson,\
+	io.openems.common;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

@@ -40,4 +40,5 @@ JPM-Command:				openems-edge
 	io.openems.edge.scheduler.fixedorder;version=snapshot,\
 	io.openems.edge.bridge.modbus.impl;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
-	io.openems.edge.ess.fenecon.commercial40;version=snapshot
+	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
+	io.openems.wrapper.j2mod;version=snapshot

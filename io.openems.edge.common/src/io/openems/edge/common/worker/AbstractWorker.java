@@ -18,7 +18,7 @@
  * Contributors:
  *   FENECON GmbH - initial API and implementation and initial documentation
  *******************************************************************************/
-package io.openems.common.utils;
+package io.openems.edge.common.worker;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

@@ -3,17 +3,17 @@ package io.openems.common.types;
 import io.openems.common.exceptions.OpenemsException;
 
 public class ChannelAddress implements Comparable<ChannelAddress> {
-	private final String thingId;
+	private final String componentId;
 	private final String channelId;
 
-	public ChannelAddress(String thingId, String channelId) {
+	public ChannelAddress(String componentId, String channelId) {
 		super();
-		this.thingId = thingId;
+		this.componentId = componentId;
 		this.channelId = channelId;
 	}
 
 	public String getThingId() {
-		return thingId;
+		return componentId;
 	}
 
 	public String getChannelId() {
@@ -22,7 +22,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 
 	@Override
 	public String toString() {
-		return thingId + "/" + channelId;
+		return componentId + "/" + channelId;
 	}
 
 	public static ChannelAddress fromString(String address) throws OpenemsException {
