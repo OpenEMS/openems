@@ -11,8 +11,8 @@ public class UnsignedWordElement extends RegisterElement<Integer> {
 
 	private ByteOrder byteOrder = DEFAULT_BYTE_ORDER;
 
-	public UnsignedWordElement(int address, OnUpdate<Integer> onUpdateCallback) {
-		super(address, onUpdateCallback);
+	public UnsignedWordElement(int address) {
+		super(address);
 	}
 
 	public UnsignedWordElement byteOrder(ByteOrder byteOrder) {

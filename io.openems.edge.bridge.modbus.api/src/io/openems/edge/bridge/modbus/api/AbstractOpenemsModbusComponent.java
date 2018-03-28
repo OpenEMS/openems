@@ -1,6 +1,9 @@
 package io.openems.edge.bridge.modbus.api;
 
+import io.openems.edge.bridge.modbus.channel.ModbusChannel;
 import io.openems.edge.bridge.modbus.protocol.ModbusProtocol;
+import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.ChannelDoc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 
 public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent {
@@ -71,6 +74,19 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 		this.protocol = defineModbusProtocol();
 		return this.protocol;
+	}
+
+	@Override
+	protected void addChannel(Channel channel) {
+		if (!(channel instanceof ModbusChannel<?>)) {
+			throw new IllegalArgumentException("Channel [" + channel.address() + "] must be a ModbusChannel");
+		}
+		super.addChannel(channel);
+	}
+
+	@Override
+	public ModbusChannel<?> channel(ChannelDoc channelId) {
+		return (ModbusChannel<?>) super.channel(channelId);
 	}
 
 	/**

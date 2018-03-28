@@ -22,7 +22,6 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelEnum;
-import io.openems.common.types.OpenemsType;
 
 public class JsonUtils {
 	public static boolean getAsBoolean(JsonElement jElement) throws OpenemsException {
@@ -274,15 +273,6 @@ public class JsonUtils {
 			throw new OpenemsException(
 					"Failed to parse JsonElement [" + j + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> T getAsType(OpenemsType type, JsonElement j) throws NotImplementedException {
-		switch (type) {
-		case INTEGER:
-			return (T) (Integer.valueOf(j.getAsInt()));
-		}
-		throw new NotImplementedException("Converter for value [" + j + "] to type [" + type + "] is not implemented.");
 	}
 
 	@Deprecated

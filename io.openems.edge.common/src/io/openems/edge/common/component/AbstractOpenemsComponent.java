@@ -78,9 +78,13 @@ public class AbstractOpenemsComponent implements OpenemsComponent {
 		return this.channels.get(channelId);
 	}
 
-	protected void addChannels(Channel... channels) {
+	protected void addChannel(Channel channel) {
+		this.channels.put(channel.channelDoc(), channel);
+	}
+
+	protected final void addChannels(Channel... channels) {
 		for (Channel channel : channels) {
-			this.channels.put(channel.channelDoc(), channel);
+			this.addChannel(channel);
 		}
 	}
 

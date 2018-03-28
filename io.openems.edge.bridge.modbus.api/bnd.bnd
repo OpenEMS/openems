@@ -6,7 +6,8 @@ Bundle-Version:					1.0.0.${tstamp}
 
 Export-Package: \
 	io.openems.edge.bridge.modbus.api,\
-	io.openems.edge.bridge.modbus.protocol
+	io.openems.edge.bridge.modbus.protocol,\
+	io.openems.edge.bridge.modbus.channel
 
 Require-Capability: \
 	compile-only

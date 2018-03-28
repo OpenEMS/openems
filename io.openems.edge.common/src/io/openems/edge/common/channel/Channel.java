@@ -1,7 +1,5 @@
 package io.openems.edge.common.channel;
 
-import com.google.gson.JsonElement;
-
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 
@@ -30,8 +28,8 @@ public interface Channel {
 	/**
 	 * Updates the 'next' value of Channel.
 	 * 
-	 * @param j
-	 *            JsonElement needs to be converted internally to the correct format
+	 * @param value
+	 *            Object needs to be converted internally to the correct format
 	 */
-	void setNextValue(JsonElement j) throws OpenemsException;
+	void setNextValue(Object value) throws OpenemsException;
 }

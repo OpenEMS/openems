@@ -1,5 +1,8 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -10,16 +13,15 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
+import io.openems.edge.bridge.modbus.channel.ModbusIntegerReadChannel;
 import io.openems.edge.bridge.modbus.protocol.ModbusProtocol;
 import io.openems.edge.bridge.modbus.protocol.RegisterRange;
 import io.openems.edge.bridge.modbus.protocol.UnsignedWordElement;
-import io.openems.edge.bridge.modbus.protocol.UpdateChannel;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Ess.Fenecon.Commercial40", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
@@ -29,10 +31,26 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	private final static int UNIT_ID = 100;
 
 	public EssFeneconCommercial40() {
-		this.addChannels( //
-				new IntegerReadChannel(this, Ess.ChannelId.SOC), //
-				new IntegerReadChannel(this, EssSymmetricReadonly.ChannelId.ACTIVE_POWER), //
-				new IntegerReadChannel(this, EssSymmetricReadonly.ChannelId.REACTIVE_POWER));
+		// Define the channels. Using streams + switch enables Eclipse IDE to tell us if
+		// we are missing an Enum value.
+		Stream.of( //
+				Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
+					// Ess channels
+					switch (channelId) {
+					case SOC:
+						return new ModbusIntegerReadChannel(this, channelId);
+					}
+					return null;
+				}), Arrays.stream(EssSymmetricReadonly.ChannelId.values()).map(channelId -> {
+					// EssSymmetricReadonly channels
+					switch (channelId) {
+					case ACTIVE_POWER:
+					case REACTIVE_POWER:
+						return new ModbusIntegerReadChannel(this, channelId);
+					}
+					return null;
+				}) //
+		).flatMap(channel -> channel).forEach(channel -> this.addChannels(channel));
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -57,10 +75,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(new RegisterRange(0x1402, //
-				new UnsignedWordElement(0x1402, new UpdateChannel<Integer>(this.channel(Ess.ChannelId.SOC)))));
-
-		// new
-		// UnsignedWordElement(0x1402).mapToChannel(this.getChannel(Ess.ChannelId.SOC));
+				this.channel(Ess.ChannelId.SOC).mapToElement(new UnsignedWordElement(0x1402))));
 
 		// return new ModbusProtocol( //
 		// new ModbusRegisterRange(0x0101, //

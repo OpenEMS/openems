@@ -11,22 +11,26 @@ import io.openems.common.exceptions.OpenemsException;
  */
 public abstract class RegisterElement<T> {
 
-	private final OnUpdate<T> onUpdateCallback;
 	private final int startAddress;
 	private final boolean isIgnored;
 
+	private OnUpdate<T> onUpdateCallback;
+
 	protected Range range = null;
 
-	public RegisterElement(int startAddress, OnUpdate<T> onUpdateCallback) {
-		this.startAddress = startAddress;
-		this.onUpdateCallback = onUpdateCallback;
-		this.isIgnored = false;
+	public RegisterElement(int startAddress) {
+		this(startAddress, false);
 	}
 
 	public RegisterElement(int startAddress, boolean isIgnored) {
 		this.startAddress = startAddress;
 		this.onUpdateCallback = null;
 		this.isIgnored = isIgnored;
+	}
+
+	public RegisterElement<T> onUpdateCallback(OnUpdate<T> onUpdateCallback) {
+		this.onUpdateCallback = onUpdateCallback;
+		return this;
 	}
 
 	public int getStartAddress() {

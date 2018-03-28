@@ -1,11 +1,9 @@
 package io.openems.edge.common.channel;
 
-import com.google.gson.JsonElement;
-
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.TypeUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class AbstractReadChannel<T> implements Channel {
@@ -39,9 +37,14 @@ public abstract class AbstractReadChannel<T> implements Channel {
 		return new ChannelAddress(this.component.id(), this.channelDoc.id());
 	}
 
-	@Override
-	public void setNextValue(JsonElement j) throws OpenemsException {
-		this.nextValue = JsonUtils.<T>getAsType(type, j);
+	/**
+	 * Should be called by actual implementations to set the next value
+	 * 
+	 * @param value
+	 * @throws OpenemsException
+	 */
+	public final void setNextValue(Object value) throws OpenemsException {
+		this.nextValue = TypeUtils.<T>getAsType(type, value);
 		System.out.println("Next value " + this.nextValue);
 	}
 }
