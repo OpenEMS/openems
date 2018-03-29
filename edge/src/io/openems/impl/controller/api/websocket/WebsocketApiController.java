@@ -23,6 +23,9 @@ package io.openems.impl.controller.api.websocket;
 import java.io.IOException;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
@@ -38,6 +41,7 @@ import io.openems.core.utilities.api.ApiWorker;
 @ThingInfo(title = "Websocket-API", description = "Required by OpenEMS-UI.")
 public class WebsocketApiController extends Controller implements ChannelChangeListener {
 
+	private final Logger log = LoggerFactory.getLogger(WebsocketApiController.class);
 	private final ApiWorker apiWorker = new ApiWorker();
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 

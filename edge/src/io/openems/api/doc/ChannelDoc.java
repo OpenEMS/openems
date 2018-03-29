@@ -40,6 +40,7 @@ import io.openems.core.utilities.BitUtils;
 import io.openems.core.utilities.InjectionUtils;
 
 public class ChannelDoc {
+
 	private final Logger log = LoggerFactory.getLogger(ChannelDoc.class);
 
 	private final Member member;

@@ -22,6 +22,9 @@ package io.openems.impl.controller.feneconprosetup;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
@@ -33,6 +36,8 @@ import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo(title = "Initial setup for FENECON Pro", description = "Sets the correct factory settings for FENECON Pro energy storage systems.")
 public class FeneconProSetupController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(FeneconProSetupController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 

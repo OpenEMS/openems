@@ -20,6 +20,9 @@
  *******************************************************************************/
 package io.openems.impl.controller.supplybusswitch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.WriteChannel;
 import io.openems.api.controller.IsThingMap;
@@ -31,6 +34,8 @@ import io.openems.api.exception.WriteChannelException;
 
 @IsThingMap(type = SymmetricEssNature.class)
 public class Ess extends ThingMap {
+
+	private final Logger log = LoggerFactory.getLogger(Ess.class);
 
 	public final ReadChannel<Long> soc;
 	public final ReadChannel<Long> activePower;

@@ -66,7 +66,7 @@ public class ModbusTcp extends ModbusBridge {
 	 * Fields
 	 */
 
-	private static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
+	private final static Logger log = LoggerFactory.getLogger(ModbusTcp.class);
 	private Optional<TCPMasterConnection> connection = Optional.empty();
 	private StaticThingStateChannel configurationFault;
 	private StaticThingStateChannel connectionFault;

@@ -68,7 +68,7 @@ public abstract class SymmetricPower {
 	/*
 	 * Fields
 	 */
-	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private Geometry geometry;
 	private final List<Geometry> geometries;
 	private Optional<Long> minP;

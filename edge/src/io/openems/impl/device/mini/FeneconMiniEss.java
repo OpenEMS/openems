@@ -22,6 +22,9 @@ package io.openems.impl.device.mini;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
@@ -57,6 +60,8 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRan
 
 @ThingInfo(title = "FENECON Mini ESS")
 public class FeneconMiniEss extends ModbusDeviceNature implements SymmetricEssNature, RealTimeClockNature {
+
+	private final Logger log = LoggerFactory.getLogger(FeneconMiniEss.class);
 
 	private ThingStateChannels thingState;
 

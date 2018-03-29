@@ -22,6 +22,9 @@ package io.openems.impl.protocol.modbus;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
@@ -40,6 +43,8 @@ import io.openems.api.exception.OpenemsModbusException;
 
 @ThingInfo(title = "Modbus/RTU")
 public class ModbusRtu extends ModbusBridge {
+
+	private final Logger log = LoggerFactory.getLogger(ModbusRtu.class);
 
 	private final ChannelUpdateListener channelUpdateListener = new ChannelUpdateListener() {
 		@Override

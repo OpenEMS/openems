@@ -25,9 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.api.bridge.Bridge;
 import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
@@ -39,16 +36,16 @@ import io.openems.api.thing.Thing;
 import io.openems.common.exceptions.OpenemsException;
 
 public abstract class Device implements Thing, ChannelChangeListener {
+
 	public final static String THINGID_PREFIX = "_device";
+
 	private static int instanceCounter = 0;
-	protected final Logger log;
 	private Bridge bridge = null;
 	private final String thingId;
 	private ThingStateChannels thingState;
 
 	public Device(Bridge parent) throws OpenemsException {
 		this.thingId = THINGID_PREFIX + instanceCounter++;
-		log = LoggerFactory.getLogger(this.getClass());
 		this.bridge = parent;
 		this.thingState = new ThingStateChannels(this);
 	}

@@ -3,6 +3,9 @@ package io.openems.core.utilities.power.symmetric;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -14,9 +17,8 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.exception.WriteChannelException;
 
 public class SymmetricPowerImpl extends SymmetricPower implements LimitationChangedListener, BridgeEventListener {
-	/*
-	 * Object
-	 */
+
+	private final Logger log = LoggerFactory.getLogger(SymmetricPowerImpl.class);
 
 	private WriteChannel<Long> setActivePower;
 	private WriteChannel<Long> setReactivePower;

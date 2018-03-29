@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.bridge.Bridge;
 import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
@@ -40,6 +43,8 @@ import io.openems.api.exception.ConfigException;
 import io.openems.common.exceptions.OpenemsException;
 
 public abstract class KebaDevice extends Device {
+
+	private final Logger log = LoggerFactory.getLogger(KebaDevice.class);
 
 	/*
 	 * Constructors

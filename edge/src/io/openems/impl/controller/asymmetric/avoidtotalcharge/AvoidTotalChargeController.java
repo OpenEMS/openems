@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Created by maxo2 on 29.08.2017.
  */
@@ -19,6 +22,8 @@ import io.openems.common.session.Role;
 
 @ThingInfo(title = "Avoid total charge of battery. (Asymmetric)", description = "Provides control over the battery's maximum state of charge at a specific time of day. For symmetric Ess.")
 public class AvoidTotalChargeController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(AvoidTotalChargeController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

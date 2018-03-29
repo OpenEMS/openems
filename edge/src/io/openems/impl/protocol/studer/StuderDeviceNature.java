@@ -39,8 +39,8 @@ import io.openems.api.device.nature.DeviceNature;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
 import io.openems.api.exception.ConfigException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.api.thing.ThingChannelsUpdatedListener;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.impl.protocol.studer.internal.StuderProtocol;
 import io.openems.impl.protocol.studer.internal.property.ReadProperty;
 import io.openems.impl.protocol.studer.internal.property.StuderProperty;
@@ -49,6 +49,7 @@ import io.openems.impl.protocol.studer.internal.property.WriteProperty;
 @ThingInfo(title = "Studer")
 public abstract class StuderDeviceNature implements DeviceNature, ChannelChangeListener {
 
+	private final Logger log = LoggerFactory.getLogger(StuderDeviceNature.class);
 	private final Device parent;
 
 	/*
@@ -57,14 +58,12 @@ public abstract class StuderDeviceNature implements DeviceNature, ChannelChangeL
 	public StuderDeviceNature(String thingId, Device parent) throws ConfigException {
 		this.parent = parent;
 		this.thingId = thingId;
-		log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 	}
 
 	/*
 	 * Fields
 	 */
-	protected final Logger log;
 	private StuderProtocol protocol = null;
 	private final String thingId;
 	private List<ThingChannelsUpdatedListener> listeners;

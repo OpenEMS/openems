@@ -17,9 +17,10 @@ import com.google.gson.JsonObject;
 
 public class CSVLoadGenerator implements LoadGenerator {
 
+	private final Logger log = LoggerFactory.getLogger(CSVLoadGenerator.class);
+
 	private String filepath = "";
 	private String columnKey = "";
-	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 	private List<String> values = new ArrayList<>(0);
 	private int count = 0;
 	private int columnPart = 0;

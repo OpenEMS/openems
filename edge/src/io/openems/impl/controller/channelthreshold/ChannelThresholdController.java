@@ -22,6 +22,9 @@ package io.openems.impl.controller.channelthreshold;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
@@ -44,13 +47,16 @@ import io.openems.core.ThingRepository;
  *   "outputChannelAddress": "output0/1",
  *   "lowerThreshold": 75,
  *   "upperThreshold": 80,
- *   "invertOutput": true
+ *   "invertOutput": true,
+ *   "hysteresis": 2
  * }
  * </pre>
  */
 
 @ThingInfo(title = "Switch channel on threshold")
 public class ChannelThresholdController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(ChannelThresholdController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

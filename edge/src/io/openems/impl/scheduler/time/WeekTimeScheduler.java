@@ -29,6 +29,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -47,6 +50,8 @@ import io.openems.common.utils.JsonUtils;
 
 @ThingInfo(title = "Weekly App-Planner", description = "Define recurring weekly plans.")
 public class WeekTimeScheduler extends Scheduler {
+
+	private final Logger log = LoggerFactory.getLogger(WeekTimeScheduler.class);
 
 	private ThingStateChannels thingState;
 

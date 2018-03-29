@@ -42,7 +42,8 @@ import io.openems.api.exception.WriteChannelException;
  *
  */
 public class AsymmetricPower {
-	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	private final Logger log = LoggerFactory.getLogger(AsymmetricPower.class);
 
 	public enum ReductionType {
 		PERPHASE, PERSUM

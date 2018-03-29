@@ -3,6 +3,9 @@ package io.openems.impl.controller.api.modbustcp;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.slave.ModbusSlave;
 import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
@@ -27,6 +30,7 @@ public class ModbusTcpApiController extends Controller {
 
 	public static final int UNIT_ID = 1;
 	public static final int MAX_CONCURRENT_CONNECTIONS = 2;
+	private final Logger log = LoggerFactory.getLogger(ModbusTcpApiController.class);
 
 	private Optional<ModbusSlave> slaveOpt = Optional.empty();
 	private final ApiWorker apiWorker = new ApiWorker();

@@ -25,6 +25,9 @@ import java.time.Period;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
@@ -39,6 +42,8 @@ import io.openems.impl.controller.symmetric.avoidtotaldischarge.Ess.State;
 
 @ThingInfo(title = "Avoid total discharge of battery (Symmetric)", description = "Makes sure the battery is not going into critically low state of charge. For symmetric Ess.")
 public class AvoidTotalDischargeController extends Controller implements ChannelChangeListener {
+
+	private final Logger log = LoggerFactory.getLogger(AvoidTotalDischargeController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 

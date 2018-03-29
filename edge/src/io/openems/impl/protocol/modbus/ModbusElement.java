@@ -29,11 +29,11 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 public abstract class ModbusElement<T> {
 	protected final int address;
 	protected final ModbusChannel<T> channel;
-	protected final Logger log;
+	private final Logger log = LoggerFactory.getLogger(ModbusElement.class);
+
 	protected ModbusRange range = null;
 
 	public ModbusElement(int address, ModbusChannel<T> channel) {
-		log = LoggerFactory.getLogger(this.getClass());
 		this.address = address;
 		this.channel = channel;
 	}
@@ -70,7 +70,7 @@ public abstract class ModbusElement<T> {
 			((ModbusWriteChannel<T>) channel).updateValue(value);
 		} else {
 			log.error("Unable to set value [" + value + "]. Channel [" + channel.address()
-					+ "] is no ModbusChannel or WritableModbusChannel.");
+			+ "] is no ModbusChannel or WritableModbusChannel.");
 			new Throwable().printStackTrace();
 		}
 	}

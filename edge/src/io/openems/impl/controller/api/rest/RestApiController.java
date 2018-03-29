@@ -22,6 +22,9 @@ package io.openems.impl.controller.api.rest;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
@@ -34,6 +37,7 @@ import io.openems.core.utilities.api.ApiWorker;
 @ThingInfo(title = "REST-Api", description = "Use for external access to OpenEMS.")
 public class RestApiController extends Controller {
 
+	private final Logger log = LoggerFactory.getLogger(RestApiController.class);
 	private final ApiWorker apiWorker = new ApiWorker();
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 

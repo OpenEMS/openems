@@ -24,6 +24,9 @@ import java.time.LocalTime;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
@@ -41,6 +44,8 @@ import io.openems.common.session.Role;
  */
 @ThingInfo(title = "Keep always running", description = "Tries to keep the Ess always running. Use if Off-Grid functionality is required.")
 public class TimeOnController extends Controller implements ChannelChangeListener {
+
+	private final Logger log = LoggerFactory.getLogger(TimeOnController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 

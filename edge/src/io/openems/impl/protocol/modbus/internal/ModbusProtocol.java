@@ -35,11 +35,12 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRange;
 
 public class ModbusProtocol {
-	private static Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
+
+	private final static Logger log = LoggerFactory.getLogger(ModbusProtocol.class);
 	private final Map<Channel, ModbusElement<?>> channelElementMap = new ConcurrentHashMap<>();
 	private final Map<Integer, ModbusRange> readRanges = new ConcurrentHashMap<>(); // key = startAddress
 	private final Map<Integer, WriteableModbusRange> writableRanges = new ConcurrentHashMap<>(); // key =
-																									// startAddress
+	// startAddress
 
 	public ModbusProtocol(ModbusRange... ranges) {
 		for (ModbusRange range : ranges) {

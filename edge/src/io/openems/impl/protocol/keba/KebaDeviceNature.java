@@ -47,8 +47,9 @@ import io.openems.common.utils.JsonUtils;
 
 public abstract class KebaDeviceNature implements EvcsNature {
 
+	private final Logger log = LoggerFactory.getLogger(KebaDeviceNature.class);
+
 	private KebaDevice parent;
-	protected final Logger log;
 
 	private final String thingId;
 	private List<ThingChannelsUpdatedListener> listeners;
@@ -187,7 +188,6 @@ public abstract class KebaDeviceNature implements EvcsNature {
 	public KebaDeviceNature(String thingId, KebaDevice parent) throws ConfigException {
 		this.thingId = thingId;
 		this.parent = parent;
-		log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 		this.readTask = new KebaReadTask() {
 

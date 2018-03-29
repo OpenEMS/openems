@@ -23,6 +23,9 @@ package io.openems.impl.controller.thermalpowerstation;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
@@ -37,6 +40,8 @@ import io.openems.core.ThingRepository;
 
 @ThingInfo(title = "Thermal power station")
 public class ThermalPowerStationController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(ThermalPowerStationController.class);
 
 	private enum State {
 		ON, OFF, SWITCHON, SWITCHOFF, UNDEFINED
