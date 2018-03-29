@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -34,6 +37,8 @@ import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
 @ThingInfo(title = "Simulated Grid Meter")
 public class SimulatorGridMeter extends SimulatorMeter implements ChannelChangeListener, AsymmetricMeterNature {
+
+	private final Logger log = LoggerFactory.getLogger(SimulatorGridMeter.class);
 
 	private SimulatorReadChannel<Long> activePower = new SimulatorReadChannel<>("ActivePower", this);
 	private SimulatorReadChannel<Long> activePowerL1 = new SimulatorReadChannel<>("ActivePowerL1", this);

@@ -22,6 +22,9 @@ package io.openems.impl.controller.symmetric.offGridPowerStation;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
@@ -36,6 +39,8 @@ import io.openems.core.ThingRepository;
 
 @ThingInfo(title = "External power station control", description = "Starts an thermal power station in case of off-Grid and empty ess.")
 public class OffGridPowerStationController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(OffGridPowerStationController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

@@ -22,6 +22,9 @@ package io.openems.impl.controller.symmetric.powerramp;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
@@ -33,6 +36,8 @@ import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Power ramp (Symmetric)", description = "Follows a power ramp. For symmetric Ess.")
 public class PowerRampController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(PowerRampController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

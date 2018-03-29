@@ -23,6 +23,9 @@ package io.openems.api.channel;
 import java.util.Map.Entry;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonElement;
 
 import io.openems.api.controller.Controller;
@@ -34,9 +37,9 @@ import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 
-
 public class WriteChannel<T> extends ReadChannel<T> {
 
+	private final Logger log = LoggerFactory.getLogger(WriteChannel.class);
 	private final Interval<ReadChannel<T>> writeChannelInterval = new Interval<ReadChannel<T>>();
 	private final Interval<T> writeInterval = new Interval<T>();
 	private Optional<T> writeValue = Optional.empty();

@@ -22,6 +22,9 @@ package io.openems.impl.controller.systemstate.powerthreshold;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Optional;
 
 import io.openems.api.channel.ConfigChannel;
@@ -39,6 +42,8 @@ import io.openems.impl.controller.systemstate.powerthreshold.Ess.State;
  */
 @ThingInfo(title = "Stop if not useable", description = "Starts the ess if the GridFeed power is lager than a defined threshold. The ess will be stoped if the ess are empty and the GridFeed power is below a defined threshold.")
 public class ThresholdOnController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(ThresholdOnController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 

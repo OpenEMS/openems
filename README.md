@@ -91,20 +91,28 @@ The target of this short guide is to quickly setup a development environment on 
 ### Setup OpenEMS simulator
 
 1. Download [Eclipse for Java](https://www.eclipse.org/), install and start it
-2. Import both the "Edge" and the "Common" project in Eclipse:
+2. Install [BndTools](http://bndtools.org/) in Eclipse:
 
-	Menu: `File` →  `Import...` → `General` → `Existing Projects into Workspace` → 
-    Select root directory: `Browse...` → Select the "edge" and "common" directories → `OK` → `Finish`
-    
-3. Apply the simulator template configuration.
+	Menu: `Help` →  `Eclipse Marketplace...` → `Find:` → enter `BndTools` → press `Install`
+
+3. Import OSGi projects:
+
+	Menu: `File` →  `Import...` → `Bndtools` → `Existing Bnd Workspace` → Root directory: `Browse...` → select the directory with the source code → `OK` → `Finish` → "Switch to Bndtools perspective?" `yes`
+
+	If Eclipse shows errors: Because of a bug in Bndtools it is necessary to manually trigger a build. Doubleclick the `cnf` project → doubleclick `build.bnd` → click on `Reload` in bottom right of the window. The errors should all disappear.
+
+4. Import Java projects:
+
+    Menu: `File` →  `Import...` → `General` → `Existing Projects into Workspace` → "Select root directory:" `Browse...` → select the directory with the source code → `Finish`
+
+5. Apply the simulator template configuration.
 	Hint: OpenEMS is using a global JSON configuration file.
     
-    Copy `template/Simulator.json` to `etc/openems.d/config.json`
+    Open the `openems` project and copy `template/Simulator.json` to `etc/openems.d/config.json`
 
+6. Right click on `src/io.openems/App.java` and select `Run As...` → `Java Application`.
 
-4. Right click on `src/io.openems/App.java` and select `Run As...` → `Java Application`.
-
-5. You should see it running in the console.
+7. You should see it running in the console.
 
 ### Setup OpenEMS UI
 
@@ -141,7 +149,7 @@ The file is split into three sections:
 	In the things section you need to set all devices to communicate with.
     Therefore you have to use a so called "Bridge". A Bridge connects several devices(Hardware) with the same protocol to openems. For example you want to read the data of a Socomec Meter and FeneconPro which are connected to the same RS485 Bus, you have to use a ModbusRtu bridge and set the Socomec Meter and FeneconPro as devices for this bridge. Each bridge/device has ConfigChannels to provide the paremters to establish the connection. The required parameters can be found in the according class. A device has DeviceNatures, where each nature requires a unique id. This id is used as reference by the controllers.
 2. `scheduler`: The Scheduler executes the controllers according to the programmed behaviour. For example the SimpleScheduler orders and executes the Controller by the configured priority. Controllers are the smallest divisible logical control unit. Each Controller needs at least one device reference to do the work.
-3. `persistance`:
+3. `persistence`:
 
 Example configuration:
 ```

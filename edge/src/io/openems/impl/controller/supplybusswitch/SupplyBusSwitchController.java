@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
@@ -48,6 +51,8 @@ import io.openems.core.ThingRepository;
 // TODO better explanation
 @ThingInfo(title = "Supply Bus Switch")
 public class SupplyBusSwitchController extends Controller implements ChannelChangeListener {
+
+	private final Logger log = LoggerFactory.getLogger(SupplyBusSwitchController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

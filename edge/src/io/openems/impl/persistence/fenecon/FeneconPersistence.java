@@ -32,6 +32,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.EvictingQueue;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -68,9 +71,10 @@ import io.openems.core.utilities.OnConfigUpdate;
 @ThingInfo(title = "FENECON Persistence", description = "Establishes the connection to FENECON Cloud.")
 public class FeneconPersistence extends Persistence implements ChannelChangeListener {
 
-	private ThingStateChannels thingState;
-
+	private final Logger log = LoggerFactory.getLogger(FeneconPersistence.class);
 	private final static String DEFAULT_CONFIG_LANGUAGE = "en";
+
+	private ThingStateChannels thingState;
 
 	/*
 	 * Config

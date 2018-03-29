@@ -44,7 +44,9 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRange;
 
 public abstract class ModbusDeviceNature implements DeviceNature, ChannelChangeListener {
-	protected final Logger log;
+
+	private final Logger log = LoggerFactory.getLogger(ModbusDeviceNature.class);
+
 	private ModbusProtocol protocol = null;
 	private final String thingId;
 	private List<ThingChannelsUpdatedListener> listeners;
@@ -59,7 +61,6 @@ public abstract class ModbusDeviceNature implements DeviceNature, ChannelChangeL
 	public ModbusDeviceNature(String thingId, Device parent) throws ConfigException {
 		this.parent = parent;
 		this.thingId = thingId;
-		log = LoggerFactory.getLogger(this.getClass());
 		// this.protocol = defineModbusProtocol();
 		this.listeners = new ArrayList<>();
 	}

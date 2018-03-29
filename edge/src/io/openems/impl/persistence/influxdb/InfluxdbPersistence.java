@@ -30,6 +30,8 @@ import org.influxdb.InfluxDBFactory;
 import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Point.Builder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonArray;
@@ -51,6 +53,8 @@ import io.openems.core.Databus;
 
 @ThingInfo(title = "InfluxDB Persistence", description = "Persists data in an InfluxDB time-series database.")
 public class InfluxdbPersistence extends QueryablePersistence implements ChannelUpdateListener {
+
+	private final Logger log = LoggerFactory.getLogger(InfluxdbPersistence.class);
 
 	private ThingStateChannels thingState;
 

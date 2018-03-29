@@ -34,6 +34,7 @@ import io.openems.core.utilities.websocket.EdgeWebsocketHandler;
 public class ReconnectingWebsocket {
 
 	private final Logger log = LoggerFactory.getLogger(ReconnectingWebsocket.class);
+
 	private final int DEFAULT_WAIT_AFTER_CLOSE = 1; // 1 second
 	private final int MAX_WAIT_AFTER_CLOSE = 60 * 3; // 3 minutes
 	private int WAIT_AFTER_CLOSE = DEFAULT_WAIT_AFTER_CLOSE;

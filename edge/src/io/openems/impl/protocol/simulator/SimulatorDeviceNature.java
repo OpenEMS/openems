@@ -23,9 +23,6 @@ package io.openems.impl.protocol.simulator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.api.bridge.BridgeReadTask;
 import io.openems.api.bridge.BridgeWriteTask;
 import io.openems.api.channel.Channel;
@@ -49,7 +46,6 @@ public abstract class SimulatorDeviceNature implements DeviceNature {
 	public SimulatorDeviceNature(String thingId, Device parent) throws ConfigException {
 		this.thingId = thingId;
 		this.parent = parent;
-		log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 		readTasks.add(new BridgeReadTask() {
 
@@ -63,7 +59,6 @@ public abstract class SimulatorDeviceNature implements DeviceNature {
 	/*
 	 * Fields
 	 */
-	protected final Logger log;
 	private final String thingId;
 	private List<ThingChannelsUpdatedListener> listeners;
 

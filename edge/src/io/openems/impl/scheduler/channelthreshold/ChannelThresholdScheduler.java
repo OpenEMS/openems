@@ -25,6 +25,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -45,6 +48,8 @@ import io.openems.core.ThingRepository;
 
 @ThingInfo(title = "Channel threshold app-planer", description = "app-planer with thresholds on configured channel to run different controllers by threshold on channel.")
 public class ChannelThresholdScheduler extends Scheduler {
+
+	private final Logger log = LoggerFactory.getLogger(ChannelThresholdScheduler.class);
 
 	private ThingStateChannels thingState;
 

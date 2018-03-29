@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
@@ -38,6 +41,8 @@ import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Voltage characteristics (Symmetric)")
 public class ReactivePowerVoltageCharacteristicController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(ReactivePowerVoltageCharacteristicController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

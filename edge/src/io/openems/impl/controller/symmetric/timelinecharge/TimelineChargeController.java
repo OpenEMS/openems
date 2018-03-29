@@ -30,6 +30,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -51,6 +54,8 @@ import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Timeline charge (Symmetric)")
 public class TimelineChargeController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(TimelineChargeController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

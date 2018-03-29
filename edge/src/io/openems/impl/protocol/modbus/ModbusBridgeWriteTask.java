@@ -24,13 +24,13 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRange;
 
 public class ModbusBridgeWriteTask extends BridgeWriteTask {
 
+	private final Logger log = LoggerFactory.getLogger(ModbusBridgeWriteTask.class);
+
 	private int modbusUnitId;
 	private ModbusBridge modbusBridge;
 	private WriteableModbusRange range;
-	protected final Logger log;
 
 	public ModbusBridgeWriteTask(int modbusUnitId, ModbusBridge bridge, WriteableModbusRange range) {
-		log = LoggerFactory.getLogger(this.getClass());
 		this.modbusUnitId = modbusUnitId;
 		this.modbusBridge = bridge;
 		this.range = range;

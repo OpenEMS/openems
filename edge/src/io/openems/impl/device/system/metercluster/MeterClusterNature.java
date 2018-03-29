@@ -33,7 +33,8 @@ import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 public class MeterClusterNature extends SimulatorDeviceNature
 implements SymmetricMeterNature, AsymmetricMeterNature, ChannelChangeListener {
 
-	private final Logger log;
+	private final Logger log = LoggerFactory.getLogger(SymmetricMeterNature.class);
+
 	private List<ThingChannelsUpdatedListener> listeners;
 	private ThingRepository repo;
 	private List<SymmetricMeterNature> symmetricMeterList = new ArrayList<>();
@@ -64,7 +65,6 @@ implements SymmetricMeterNature, AsymmetricMeterNature, ChannelChangeListener {
 
 	public MeterClusterNature(String thingId, Device parent) throws ConfigException {
 		super(thingId, parent);
-		this.log = LoggerFactory.getLogger(this.getClass());
 		this.listeners = new ArrayList<>();
 		this.repo = ThingRepository.getInstance();
 		this.thingState = new ThingStateChannels(this);

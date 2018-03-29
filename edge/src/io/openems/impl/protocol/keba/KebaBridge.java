@@ -46,7 +46,7 @@ public class KebaBridge extends Bridge {
 	/*
 	 * Fields
 	 */
-	private Logger log = LoggerFactory.getLogger(KebaBridge.class);
+	private final Logger log = LoggerFactory.getLogger(KebaBridge.class);
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private ScheduledFuture<?> receivingJob = null;
 

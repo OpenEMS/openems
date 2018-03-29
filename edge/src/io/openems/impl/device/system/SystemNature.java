@@ -30,6 +30,9 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ReadChannel;
 import io.openems.api.channel.StaticValueChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
@@ -42,6 +45,8 @@ import io.openems.impl.protocol.system.SystemReadChannel;
 
 @ThingInfo(title = "Operating system")
 public class SystemNature extends SystemDeviceNature implements io.openems.api.device.nature.system.SystemNature {
+
+	private final Logger log = LoggerFactory.getLogger(SystemNature.class);
 
 	private ThingStateChannels thingState;
 

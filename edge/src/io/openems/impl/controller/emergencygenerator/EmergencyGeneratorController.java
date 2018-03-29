@@ -22,6 +22,9 @@ package io.openems.impl.controller.emergencygenerator;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
@@ -36,6 +39,8 @@ import io.openems.core.ThingRepository;
 
 @ThingInfo(title = "External generator control", description = "Starts an external generator in case of emergency.")
 public class EmergencyGeneratorController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(EmergencyGeneratorController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

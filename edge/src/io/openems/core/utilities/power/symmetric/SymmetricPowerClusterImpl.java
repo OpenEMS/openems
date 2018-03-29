@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vividsolutions.jts.densify.Densifier;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -24,6 +27,8 @@ import io.openems.core.SchedulerInitializedEventListener;
 import io.openems.core.ThingRepository;
 
 public class SymmetricPowerClusterImpl extends SymmetricPower implements PowerChangeListener, BeforeControllerExecutedListener {
+
+	private final Logger log = LoggerFactory.getLogger(SymmetricPowerClusterImpl.class);
 
 	private List<Limitation> dynamicLimitations;
 	private List<SymmetricEssNature> ess;

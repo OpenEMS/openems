@@ -164,8 +164,9 @@ public class ThingRepository implements ThingChannelsUpdatedListener {
 				List<Channel> channels = new ArrayList<>();
 				java.util.function.Consumer<Channel> addToChannels = (c) -> {
 					if(c == null) {
-						log.error(
-								"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
+						// TODO this error is not handled properly
+						//						log.error(
+						//								"Channel is returning null! Thing [" + thing.id() + "], Member [" + member.getName() + "]");
 					} else {
 						channels.add(c);
 					}

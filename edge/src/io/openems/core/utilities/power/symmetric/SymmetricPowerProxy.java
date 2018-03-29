@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -13,9 +16,8 @@ import io.openems.api.bridge.BridgeEvent;
 import io.openems.api.bridge.BridgeEventListener;
 
 public class SymmetricPowerProxy extends SymmetricPower implements LimitationChangedListener, BridgeEventListener {
-	/*
-	 * Object
-	 */
+
+	private final Logger log = LoggerFactory.getLogger(SymmetricPowerProxy.class);
 
 	private Geometry baseGeometry;
 

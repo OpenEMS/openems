@@ -17,14 +17,14 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 
 public class ModbusBridgeReadTask extends BridgeReadTask {
 
+	private final Logger log = LoggerFactory.getLogger(ModbusBridgeReadTask.class);
+
 	private int modbusUnitId;
 	private ModbusBridge modbusBridge;
 	private ModbusRange range;
-	protected final Logger log;
 	private DebugChannel<Boolean> rangeRead;
 
 	public ModbusBridgeReadTask(int modbusUnitId, ModbusBridge bridge, ModbusRange range) {
-		log = LoggerFactory.getLogger(this.getClass());
 		this.modbusUnitId = modbusUnitId;
 		this.modbusBridge = bridge;
 		this.range = range;
