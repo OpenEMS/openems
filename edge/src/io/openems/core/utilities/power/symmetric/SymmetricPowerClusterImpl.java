@@ -2,31 +2,46 @@ package io.openems.core.utilities.power.symmetric;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.densify.Densifier;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import com.vividsolutions.jts.geom.util.AffineTransformation;
+import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 import io.openems.api.device.nature.ess.SymmetricEssNature;
 import io.openems.api.exception.ConfigException;
-import io.openems.api.scheduler.AfterControllerExecutedListener;
+import io.openems.api.scheduler.BeforeControllerExecutedListener;
 import io.openems.api.scheduler.Scheduler;
 import io.openems.core.Config;
 import io.openems.core.SchedulerInitializedEventListener;
 import io.openems.core.ThingRepository;
 
-public class SymmetricPowerClusterImpl extends SymmetricPower
-implements PowerChangeListener, AfterControllerExecutedListener {
+public class SymmetricPowerClusterImpl extends SymmetricPower implements PowerChangeListener, BeforeControllerExecutedListener {
+
+	private final Logger log = LoggerFactory.getLogger(SymmetricPowerClusterImpl.class);
 
 	private List<Limitation> dynamicLimitations;
 	private List<SymmetricEssNature> ess;
+	private Map<SymmetricEssNature, EssPowerStateListener> essListeners;
+	private PowerState essState = PowerState.WRITE;
+
+	enum PowerState {
+		NORMAL, WRITE
+	}
 
 	public SymmetricPowerClusterImpl() {
-		this.dynamicLimitations = new ArrayList<>();
+		this.dynamicLimitations = Collections.synchronizedList(new ArrayList<>());
+		this.essListeners = Collections.synchronizedMap(new HashMap<>());
 		this.ess = new ArrayList<>();
 		try {
 			Config.getInstance().addSchedulerInitializedEventListener(new SchedulerInitializedEventListener() {
@@ -34,7 +49,7 @@ implements PowerChangeListener, AfterControllerExecutedListener {
 				@Override
 				public void onSchedulerInitialized() {
 					Scheduler scheduler = ThingRepository.getInstance().getSchedulers().iterator().next();
-					scheduler.addListener(SymmetricPowerClusterImpl.this);
+					scheduler.addBeforeControllerExecutedListener(SymmetricPowerClusterImpl.this);
 				}
 			});
 		} catch (ConfigException e) {
@@ -48,7 +63,10 @@ implements PowerChangeListener, AfterControllerExecutedListener {
 			this.ess.add(ess);
 		}
 		mergePower();
-		ess.getPower().addListener(this);
+		EssPowerStateListener listener = new EssPowerStateListener();
+		ess.getPower().addBeforePowerWriteListener(listener);
+		essListeners.put(ess, listener);
+		ess.getPower().addPowerChangeListener(this);
 		setMaxApparentPower(getMaxApparentPower() + ess.maxNominalPower().valueOptional().orElse(0L));
 	}
 
@@ -57,23 +75,36 @@ implements PowerChangeListener, AfterControllerExecutedListener {
 			this.ess.remove(ess);
 		}
 		mergePower();
-		ess.getPower().removeListener(this);
+		EssPowerStateListener listener = essListeners.remove(ess);
+		ess.getPower().removeBeforePowerWriteListener(listener);
+		ess.getPower().removePowerChangeListener(this);
 		setMaxApparentPower(getMaxApparentPower() - ess.maxNominalPower().valueOptional().orElse(0L));
 	}
 
 	@Override
 	public void powerChanged(Geometry allowedPower) {
-		mergePower();
+		if (essState == PowerState.NORMAL) {
+			mergePower();
+		}
 	}
 
 	private void mergePower() {
-		Geometry base = FACTORY.createPoint(new Coordinate(0, 0));
+		Geometry base = FACTORY.createPoint(new CoordinateArraySequence(0));
 		synchronized (this.ess) {
 			for (SymmetricEssNature ess : this.ess) {
-				base = getUnionAround(base, ess.getPower().getGeometry());
+				try {
+					if (base.isEmpty()) {
+						base = ess.getPower().getGeometry();
+					} else {
+						base = TopologyPreservingSimplifier.simplify(getUnionAround(base, ess.getPower().getGeometry()),
+								getMaxApparentPower() / 100.0);
+					}
+				} catch (Exception e) {
+					System.out.println(e);
+				}
 			}
 		}
-		synchronized (this.dynamicLimitations) {
+		synchronized (dynamicLimitations) {
 			for (Limitation limit : this.dynamicLimitations) {
 				Geometry limitedPower;
 				try {
@@ -85,18 +116,15 @@ implements PowerChangeListener, AfterControllerExecutedListener {
 					log.error("Failed to apply Limit after base Power changed!", e);
 				}
 			}
-			setGeometry(base);
 		}
+		try {
+			setGeometry(base);
+		} catch (PowerException e) {}
 	}
 
 	private Geometry getUnionAround(Geometry g1, Geometry g2) {
-		Geometry g1dens = Densifier.densify(g1, 10000);
-		Geometry g2dens = Densifier.densify(g2, 10000);
+		Geometry g2dens = Densifier.densify(g2, getMaxApparentPower() / 10.0);
 		List<Geometry> geometries = new ArrayList<>();
-		geometries.add(g1);
-		for (Coordinate c : g1dens.getCoordinates()) {
-			geometries.add(AffineTransformation.translationInstance(c.x, c.y).transform(g2));
-		}
 		geometries.add(g2);
 		for (Coordinate c : g2dens.getCoordinates()) {
 			geometries.add(AffineTransformation.translationInstance(c.x, c.y).transform(g1));
@@ -108,22 +136,26 @@ implements PowerChangeListener, AfterControllerExecutedListener {
 
 	@Override
 	public void applyLimitation(Limitation limit) throws PowerException {
-		synchronized (this.dynamicLimitations) {
-			Geometry limitedPower = limit.applyLimit(getGeometry());
-			if (!limitedPower.isEmpty()) {
-				setGeometry(limitedPower);
+		Geometry limitedPower = limit.applyLimit(getGeometry());
+		if (!limitedPower.isEmpty()) {
+			setGeometry(limitedPower);
+			synchronized (dynamicLimitations) {
 				this.dynamicLimitations.add(limit);
-			} else {
-				throw new PowerException("No possible Power after applying Limit. Limit is not applied!");
 			}
+		} else {
+			throw new PowerException("No possible Power after applying Limit. Limit is not applied!");
 		}
 	}
 
-	private void setPower() {
+	@Override
+	protected void writePower() {
+		super.writePower();
 		if (dynamicLimitations.size() > 0) {
 			synchronized (this.ess) {
 				Point p = reduceToZero();
-				setGeometry(p);
+				try {
+					setGeometry(p);
+				} catch (PowerException e1) {}
 				long activePower = (long) p.getCoordinate().x;
 				long reactivePower = (long) p.getCoordinate().y;
 				long socSum = 0;
@@ -294,14 +326,66 @@ implements PowerChangeListener, AfterControllerExecutedListener {
 
 	@Override
 	protected void reset() {
-		this.dynamicLimitations.clear();
+		synchronized (dynamicLimitations) {
+			this.dynamicLimitations.clear();
+		}
 		super.reset();
 	}
 
+	public class EssPowerStateListener implements BeforePowerWriteListener {
+		private boolean write = true;
+
+		public boolean isWrite() {
+			return write;
+		}
+
+		public void reset() {
+			write = false;
+		}
+
+		@Override
+		public void beforeWritePower() {
+			synchronized (essListeners) {
+				write = true;
+				updateEssState();
+			}
+		}
+
+	}
+
+	private void updateEssState() {
+		synchronized (essState) {
+			switch (essState) {
+			case NORMAL:
+				for (EssPowerStateListener listener : essListeners.values()) {
+					if (listener.isWrite()) {
+						essState = PowerState.WRITE;
+						writePower();
+						return;
+					}
+				}
+				break;
+			case WRITE:
+				for (EssPowerStateListener listener : essListeners.values()) {
+					if (listener.isWrite()) {
+						return;
+					}
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
 	@Override
-	public void afterControllerExecuted() {
-		setPower();
+	public void beforeControllerExecuted() {
 		reset();
+		mergePower();
+		for (EssPowerStateListener listener : essListeners.values()) {
+			listener.reset();
+		}
+		essState = PowerState.NORMAL;
 	}
 
 }

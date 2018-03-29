@@ -2,6 +2,7 @@ package io.openems.core.utilities.power.symmetric;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,8 +23,8 @@ public abstract class SymmetricPower {
 	/*
 	 * static
 	 */
-	protected static final GeometryFactory FACTORY = new GeometryFactory();
-	protected static final GeometricShapeFactory SHAPEFACTORY = new GeometricShapeFactory(FACTORY);
+	protected final GeometryFactory FACTORY = new GeometryFactory();
+	protected final GeometricShapeFactory SHAPEFACTORY = new GeometricShapeFactory(FACTORY);
 	private static final SVGWriter writer = new SVGWriter();
 	private static final Color[] COLORS = new Color[] { Color.GREEN, Color.BLUE, Color.MAGENTA, Color.YELLOW,
 			Color.ORANGE, Color.RED };
@@ -31,20 +32,25 @@ public abstract class SymmetricPower {
 
 	/**
 	 * Returns the GeometryFactory used for the Polygon creation
+	 *
 	 * @return
 	 */
-	public static GeometryFactory getFactory() {
+	public GeometryFactory getFactory() {
 		return FACTORY;
 	}
+
 	/**
 	 * Returns the GeometricShapeFactory used for the creation of Circles
+	 *
 	 * @return
 	 */
-	public static GeometricShapeFactory getShapefactory() {
+	public GeometricShapeFactory getShapefactory() {
 		return SHAPEFACTORY;
 	}
+
 	/**
 	 * Creates a Rect with the coordinates pMin, pMax, qMin, qMax and intersects the rect with the base geometry.
+	 *
 	 * @param base
 	 * @param pMin
 	 * @param pMax
@@ -55,14 +61,14 @@ public abstract class SymmetricPower {
 	public static Geometry intersectRect(Geometry base, double pMin, double pMax, double qMin, double qMax) {
 		Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax), new Coordinate(pMin, qMin),
 				new Coordinate(pMax, qMin), new Coordinate(pMax, qMax), new Coordinate(pMin, qMax) };
-		Geometry rect = FACTORY.createPolygon(coordinates);
+		Geometry rect = new GeometryFactory().createPolygon(coordinates);
 		return base.intersection(rect);
 	}
 
 	/*
 	 * Fields
 	 */
-	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private Geometry geometry;
 	private final List<Geometry> geometries;
 	private Optional<Long> minP;
@@ -72,11 +78,13 @@ public abstract class SymmetricPower {
 	private long maxApparentPower = 0;
 	private final List<PowerResetListener> resetListeners;
 	private final List<PowerChangeListener> changeListeners;
+	private final List<BeforePowerWriteListener> beforeWriteListeners;
 
 	public SymmetricPower() {
 		this.geometries = new ArrayList<>();
-		this.resetListeners = new ArrayList<>();
-		this.changeListeners = new ArrayList<>();
+		this.resetListeners = Collections.synchronizedList(new ArrayList<>());
+		this.changeListeners = Collections.synchronizedList(new ArrayList<>());
+		this.beforeWriteListeners = Collections.synchronizedList(new ArrayList<>());
 	}
 
 	/*
@@ -84,13 +92,16 @@ public abstract class SymmetricPower {
 	 */
 	/**
 	 * Returns the maximal possible ApparentPower
+	 *
 	 * @return
 	 */
 	public long getMaxApparentPower() {
 		return maxApparentPower;
 	}
+
 	/**
 	 * set the maximal possible ApparentPower
+	 *
 	 * @param power
 	 */
 	protected void setMaxApparentPower(long power) {
@@ -100,20 +111,25 @@ public abstract class SymmetricPower {
 	public Geometry getGeometry() {
 		return this.geometry;
 	}
+
 	/**
 	 * updates the geometrie, calculates the min and max power and notifies all powerChangedListener
+	 *
 	 * @param g
+	 * @throws PowerException
 	 */
-	protected void setGeometry(Geometry g) {
+	protected void setGeometry(Geometry g) throws PowerException {
+		if(g.isEmpty()) {
+			throw new PowerException("Geometry is Empty!");
+		}
 		this.geometry = g;
 		this.geometries.add(g);
 		this.calculateMinMax();
-		synchronized (this.changeListeners) {
-			for (PowerChangeListener listener : this.changeListeners) {
-				listener.powerChanged(g);
-			}
+		for (PowerChangeListener listener : this.changeListeners) {
+			listener.powerChanged(g);
 		}
 	}
+
 	/**
 	 * Calculates the min and max active and reactivePower possible in the geometry.
 	 */
@@ -126,6 +142,7 @@ public abstract class SymmetricPower {
 
 	/**
 	 * Calculates the colses activepower point according to the parameter p
+	 *
 	 * @param p
 	 * @return
 	 */
@@ -142,8 +159,10 @@ public abstract class SymmetricPower {
 		}
 		return null;
 	}
+
 	/**
 	 * Calculates the colses reactivepower point according to the parameter q
+	 *
 	 * @param p
 	 * @return
 	 */
@@ -160,51 +179,74 @@ public abstract class SymmetricPower {
 		}
 		return null;
 	}
+
 	/**
 	 * Add PowerResetListener
+	 *
 	 * @param listener
 	 */
-	public void addListener(PowerResetListener listener) {
+	public void addPowerResetListener(PowerResetListener listener) {
 		this.resetListeners.add(listener);
 	}
 
 	/**
 	 * Remove PowerResetListener
+	 *
 	 * @param listener
 	 */
-	public void removeListener(PowerResetListener listener) {
+	public void removePowerResetListener(PowerResetListener listener) {
 		this.resetListeners.add(listener);
 	}
 
 	/**
 	 * Add PowerChangeListener
+	 *
 	 * @param listener
 	 */
-	public void addListener(PowerChangeListener listener) {
-		synchronized (this.changeListeners) {
-			this.changeListeners.add(listener);
-		}
+	public void addPowerChangeListener(PowerChangeListener listener) {
+		this.changeListeners.add(listener);
 	}
 
 	/**
 	 * Remove PowerChangeListener
+	 *
 	 * @param listener
 	 */
-	public void removeListener(PowerChangeListener listener) {
-		synchronized (this.changeListeners) {
-			this.changeListeners.add(listener);
-		}
+	public void removePowerChangeListener(PowerChangeListener listener) {
+		this.changeListeners.add(listener);
+	}
+
+	/**
+	 * Add BeforePowerWriteListener
+	 *
+	 * @param listener
+	 */
+	public void addBeforePowerWriteListener(BeforePowerWriteListener listener) {
+		this.beforeWriteListeners.add(listener);
+	}
+
+	/**
+	 * Remove BeforePowerWriteListener
+	 *
+	 * @param listener
+	 */
+	public void removeBeforePowerWriteListener(BeforePowerWriteListener listener) {
+		this.beforeWriteListeners.add(listener);
 	}
 
 	/**
 	 * Applies a limit to the current power representing polygon.
-	 * @param limit the Limitation implementation to apply
-	 * @throws PowerException this Exception is thrown if the result is empty
+	 *
+	 * @param limit
+	 *            the Limitation implementation to apply
+	 * @throws PowerException
+	 *             this Exception is thrown if the result is empty
 	 */
 	public abstract void applyLimitation(Limitation limit) throws PowerException;
 
 	/**
 	 * Returns the max activepower, after all limitations applied.
+	 *
 	 * @return
 	 */
 	public Optional<Long> getMaxP() {
@@ -213,6 +255,7 @@ public abstract class SymmetricPower {
 
 	/**
 	 * Returns the min activepower, after all limitations applied.
+	 *
 	 * @return
 	 */
 	public Optional<Long> getMinP() {
@@ -221,6 +264,7 @@ public abstract class SymmetricPower {
 
 	/**
 	 * Returns the max reactivepower, after all limitations applied.
+	 *
 	 * @return
 	 */
 	public Optional<Long> getMaxQ() {
@@ -229,6 +273,7 @@ public abstract class SymmetricPower {
 
 	/**
 	 * Returns the min reactivepower, after all limitations applied.
+	 *
 	 * @return
 	 */
 	public Optional<Long> getMinQ() {
@@ -240,9 +285,17 @@ public abstract class SymmetricPower {
 		this.geometries.add(getGeometry());
 		for (PowerResetListener listener : this.resetListeners) {
 			Geometry g = listener.afterPowerReset(getGeometry());
-			if (!g.isEmpty()) {
+			try {
 				setGeometry(g);
+			} catch (PowerException e) {
+				log.debug("Geometry of AfterPowerResetListener is Empty!"+listener.toString());
 			}
+		}
+	}
+
+	protected void writePower() {
+		for(BeforePowerWriteListener listener: this.beforeWriteListeners) {
+			listener.beforeWritePower();
 		}
 	}
 

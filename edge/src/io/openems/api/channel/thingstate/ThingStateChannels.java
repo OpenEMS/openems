@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ReadChannel;
@@ -21,6 +24,7 @@ import io.openems.common.types.ChannelAddress;
 
 public class ThingStateChannels extends ReadChannel<ThingState> implements ChannelChangeListener {
 
+	private final Logger log = LoggerFactory.getLogger(ThingStateChannels.class);
 	private List<ThingStateChannel> warningChannels;
 	private List<ThingStateChannel> faultChannels;
 	private Set<ChannelAddress> channelNames;
@@ -116,6 +120,11 @@ public class ThingStateChannels extends ReadChannel<ThingState> implements Chann
 
 			@Override
 			public String defaultValue() {
+				return "";
+			}
+
+			@Override
+			public String jsonSchema() {
 				return "";
 			}
 		}));

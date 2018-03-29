@@ -36,7 +36,7 @@ import info.faljse.SDNotify.SDNotify;
 import io.openems.core.Config;
 
 public class App {
-	private static Logger log = LoggerFactory.getLogger(App.class);
+	private final static Logger log = LoggerFactory.getLogger(App.class);
 
 	public static void main(String[] args) {
 		log.info("OpenEMS started");

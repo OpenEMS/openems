@@ -27,6 +27,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelUpdateListener;
 import io.openems.api.channel.ConfigChannel;
@@ -41,6 +44,8 @@ import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Battery capacity test (Symmetric)", description = "Executes a capacity test. For symmetric Ess.")
 public class CapacityTestController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(CapacityTestController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

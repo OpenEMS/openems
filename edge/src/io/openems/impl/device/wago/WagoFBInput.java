@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.device.Device;
@@ -42,6 +45,8 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 
 @ThingInfo(title = "WAGO I/O Input")
 public class WagoFBInput extends ModbusDeviceNature implements InputNature {
+
+	private final Logger log = LoggerFactory.getLogger(WagoFBInput.class);
 
 	/*
 	 * Constructors

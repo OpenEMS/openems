@@ -1,5 +1,8 @@
 package io.openems.impl.controller.asymmetric.phaserectification;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
@@ -12,6 +15,8 @@ import io.openems.core.utilities.AvgFiFoQueue;
 
 @ThingInfo(title = "PhaseRectificationActivePowerController", description = "Sets the ess to the required activepower to get all three phases on the meter to the same level.")
 public class PhaseRectificationActivePowerController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(PhaseRectificationActivePowerController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 

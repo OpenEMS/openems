@@ -4,6 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ChannelChangeListener;
 import io.openems.api.channel.ConfigChannel;
@@ -36,9 +39,13 @@ import io.openems.core.utilities.power.symmetric.SymmetricPower;
 import io.openems.core.utilities.power.symmetric.SymmetricPowerProxy;
 import io.openems.impl.protocol.system.SystemDeviceNature;
 
+// TODO there seems to be an error when using this class as AsymmetricEssNature
+
 @ThingInfo(title = "Ess Asymmetric-Symmetric-Combination")
 public class AsymmetricSymmetricCombinationEssNature extends SystemDeviceNature
 implements SymmetricEssNature, AsymmetricEssNature, ChannelChangeListener, BridgeInitializedEventListener {
+
+	private final Logger log = LoggerFactory.getLogger(AsymmetricSymmetricCombinationEssNature.class);
 
 	private ConfigChannel<Integer> minSoc = new ConfigChannel<>("minSoc", this);
 	private ConfigChannel<Integer> chargeSoc = new ConfigChannel<Integer>("chargeSoc", this);

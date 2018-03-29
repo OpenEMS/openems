@@ -20,15 +20,10 @@
  *******************************************************************************/
 package io.openems.impl.protocol.studer.internal.object;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.openems.api.thing.Thing;
 import io.openems.impl.protocol.studer.internal.property.StuderProperty;
 
 public abstract class StuderObject<T> {
-
-	protected final Logger log;
 
 	protected final int objectId;
 	protected final ObjectType objectType;
@@ -37,7 +32,6 @@ public abstract class StuderObject<T> {
 	protected final Thing parent;
 
 	public StuderObject(int objectId, String name, String unit, Thing parent, ObjectType objectType) {
-		log = LoggerFactory.getLogger(this.getClass());
 		this.objectId = objectId;
 		this.objectType = objectType;
 		this.name = name;

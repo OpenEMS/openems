@@ -29,13 +29,15 @@ import org.slf4j.LoggerFactory;
 import io.openems.api.thing.Thing;
 
 public abstract class AbstractWorker extends Thread implements Thing {
+
+	private final Logger log = LoggerFactory.getLogger(AbstractWorker.class);
+
 	private final AtomicBoolean initialize = new AtomicBoolean(true);
 	private Mutex initializedMutex = new Mutex(false);
 	private final AtomicBoolean isForceRun = new AtomicBoolean(false);
 	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 	private final AtomicBoolean isStopped = new AtomicBoolean(false);
 	private long cycleStart = 0;
-	protected final Logger log;
 
 	/**
 	 * Initialize the Thread with a name
@@ -43,7 +45,6 @@ public abstract class AbstractWorker extends Thread implements Thing {
 	 * @param name
 	 */
 	public AbstractWorker(String name) {
-		log = LoggerFactory.getLogger(this.getClass());
 		this.setName(name);
 	}
 

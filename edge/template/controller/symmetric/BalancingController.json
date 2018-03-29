@@ -1,0 +1,8 @@
+{
+	"priority": 50,
+	"class": "io.openems.impl.controller.symmetric.balancing.BalancingController",
+	"esss": [
+		"ess0"
+	],
+	"meter": "meter0"
+}

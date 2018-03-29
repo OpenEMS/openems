@@ -46,7 +46,8 @@ import io.openems.core.Databus;
 import io.openems.core.utilities.InjectionUtils;
 
 public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
-	protected final Logger log;
+
+	private final Logger log = LoggerFactory.getLogger(ReadChannel.class);
 
 	private final String id;
 	private final Thing parent;
@@ -68,7 +69,6 @@ public class ReadChannel<T> implements Channel, Comparable<ReadChannel<T>> {
 	private final Set<ChannelChangeListener> changeListeners = ConcurrentHashMap.newKeySet();
 
 	public ReadChannel(String id, Thing parent) {
-		log = LoggerFactory.getLogger(this.getClass());
 		this.id = id;
 		this.parent = parent;
 	}

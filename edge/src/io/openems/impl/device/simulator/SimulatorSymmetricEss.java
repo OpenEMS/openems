@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -59,6 +62,8 @@ import io.openems.test.utils.channel.UnitTestWriteChannel;
 
 @ThingInfo(title = "Simulator ESS")
 public class SimulatorSymmetricEss extends SimulatorDeviceNature implements SymmetricEssNature, ChannelChangeListener {
+
+	private final Logger log = LoggerFactory.getLogger(SimulatorSymmetricEss.class);
 
 	private List<ChargerNature> chargerList;
 	private ThingRepository repo = ThingRepository.getInstance();

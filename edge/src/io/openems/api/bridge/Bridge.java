@@ -42,7 +42,10 @@ import io.openems.core.ThingRepository;
 import io.openems.core.utilities.Mutex;
 
 public abstract class Bridge extends Thread implements Thing {
+
 	public final static String THINGID_PREFIX = "_bridge";
+	private final Logger log = LoggerFactory.getLogger(Bridge.class);
+
 	private static int instanceCounter = 0;
 	private Scheduler scheduler;
 	private int readOtherTaskIndex = 0;
@@ -54,7 +57,6 @@ public abstract class Bridge extends Thread implements Thing {
 	private Mutex initializedMutex = new Mutex(false);
 	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 	protected final List<Device> devices = Collections.synchronizedList(new LinkedList<Device>());
-	protected final Logger log;
 	private DebugChannel<Long> requiredCycleTime = new DebugChannel<>("RequiredCycleTime", this);
 	private Map<BridgeEventListener, Long> eventListener = new HashMap<>();
 	private DebugChannel<Integer> readOtherTaskReadCount = new DebugChannel<>("ReadOtherTaskReadCount", this);
@@ -66,7 +68,6 @@ public abstract class Bridge extends Thread implements Thing {
 	 * @param name
 	 */
 	public Bridge() {
-		log = LoggerFactory.getLogger(this.getClass());
 		setName(THINGID_PREFIX + instanceCounter++);
 		thingState = new ThingStateChannels(this);
 	}

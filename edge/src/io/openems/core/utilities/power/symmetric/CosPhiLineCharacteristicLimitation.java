@@ -7,10 +7,12 @@ import java.util.TreeMap;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.operation.distance.DistanceOp;
 import com.vividsolutions.jts.operation.distance.GeometryLocation;
 
 public class CosPhiLineCharacteristicLimitation extends Limitation {
+	protected final GeometryFactory factory = new GeometryFactory();
 
 	private final TreeMap<Long, Double> characteristic = new TreeMap<>();
 	private Long xNull;
@@ -46,7 +48,7 @@ public class CosPhiLineCharacteristicLimitation extends Limitation {
 				if (y != null) {
 					coordinates.add(new Coordinate(maxApparentPower, y));
 				}
-				line = SymmetricPowerImpl.getFactory()
+				line = factory
 						.createLineString(coordinates.toArray(new Coordinate[coordinates.size()]));
 			} else {
 				line = null;
@@ -68,7 +70,7 @@ public class CosPhiLineCharacteristicLimitation extends Limitation {
 				GeometryLocation[] locations = distance.nearestLocations();
 				for (GeometryLocation location : locations) {
 					if (!location.getGeometryComponent().equals(line)) {
-						return SymmetricPowerImpl.getFactory().createPoint(location.getCoordinate());
+						return factory.createPoint(location.getCoordinate());
 					}
 				}
 			} else {

@@ -20,6 +20,9 @@
  *******************************************************************************/
 package io.openems.impl.controller.symmetric.powerlimitation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
@@ -30,6 +33,8 @@ import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Power limitation (Symmetric)", description = "Limits the active and reactive power of the Ess. For symmetric Ess.")
 public class ReactivePowerLimitationController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(ReactivePowerLimitationController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*
@@ -48,12 +53,6 @@ public class ReactivePowerLimitationController extends Controller {
 	 */
 	@ChannelInfo(title = "Ess", description = "Sets the Ess devices.", type = Ess.class)
 	public ConfigChannel<Ess> ess = new ConfigChannel<Ess>("ess", this);
-
-	@ChannelInfo(title = "Min-Charge ActivePower", description = "The minimum allowed active power for discharge. Value is negative.", type = Long.class)
-	public ConfigChannel<Long> pMin = new ConfigChannel<Long>("pMin", this);
-
-	@ChannelInfo(title = "Max-Charge ActivePower", description = "The maximum allowed active power for discharge. Value is positive.", type = Long.class)
-	public ConfigChannel<Long> pMax = new ConfigChannel<Long>("pMax", this);
 
 	@ChannelInfo(title = "Min-Charge ReactivePower", description = "The minimum allowed reactive power for discharge. Value is negative.", type = Long.class)
 	public ConfigChannel<Long> qMin = new ConfigChannel<Long>("qMin", this);

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -13,9 +16,8 @@ import io.openems.api.bridge.BridgeEvent;
 import io.openems.api.bridge.BridgeEventListener;
 
 public class SymmetricPowerProxy extends SymmetricPower implements LimitationChangedListener, BridgeEventListener {
-	/*
-	 * Object
-	 */
+
+	private final Logger log = LoggerFactory.getLogger(SymmetricPowerProxy.class);
 
 	private Geometry baseGeometry;
 
@@ -54,7 +56,11 @@ public class SymmetricPowerProxy extends SymmetricPower implements LimitationCha
 	@Override
 	protected void reset() {
 		this.dynamicLimitations.clear();
-		this.setGeometry(baseGeometry);
+		try {
+			this.setGeometry(baseGeometry);
+		} catch (PowerException e) {
+			log.error("BaseGeometry is Empty!");
+		}
 		activePower = Optional.empty();
 		reactivePower = Optional.empty();
 		super.reset();
@@ -71,11 +77,16 @@ public class SymmetricPowerProxy extends SymmetricPower implements LimitationCha
 		}
 	}
 
-	private void writePower() {
+	@Override
+	protected void writePower() {
+		super.writePower();
 		if (dynamicLimitations.size() > 0) {
 			Point p = reduceToZero();
 			Coordinate c = p.getCoordinate();
-			setGeometry(p);
+			try {
+				setGeometry(p);
+			} catch (PowerException e) {
+			}
 			double activePowerDelta = c.x - lastActivePower;
 			double reactivePowerDelta = c.y - lastReactivePower;
 			lastActivePower += activePowerDelta / 2;

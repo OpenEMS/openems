@@ -24,6 +24,9 @@ import java.util.BitSet;
 import java.util.List;
 import java.util.StringJoiner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.msg.ExceptionResponse;
@@ -50,6 +53,8 @@ import io.openems.impl.protocol.modbus.internal.range.ModbusRange;
 
 @ThingInfo(title = "Modbus")
 public abstract class ModbusBridge extends Bridge {
+
+	private final Logger log = LoggerFactory.getLogger(ModbusBridge.class);
 
 	public ModbusBridge() {
 		super();

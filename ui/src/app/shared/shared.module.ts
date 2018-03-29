@@ -40,6 +40,7 @@ import { SocChartComponent } from './../device/history/chart/socchart/socchart.c
 import { AbstractConfigComponent } from './config/abstractconfig.component';
 import { ExistingThingComponent } from './config/existingthing.component';
 import { ChannelComponent } from './config/channel.component';
+import { JsonSchemaComponent } from './config/jsonschema.component';
 
 @NgModule({
   imports: [
@@ -67,6 +68,7 @@ import { ChannelComponent } from './config/channel.component';
     SocChartComponent,
     AbstractConfigComponent,
     ChannelComponent,
+    JsonSchemaComponent,
     ExistingThingComponent
   ],
   exports: [
@@ -93,6 +95,7 @@ import { ChannelComponent } from './config/channel.component';
     LoadingModule,
     AbstractConfigComponent,
     ChannelComponent,
+    JsonSchemaComponent,
     ExistingThingComponent
   ],
   providers: [

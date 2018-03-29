@@ -1,5 +1,8 @@
 package io.openems.impl.controller.asymmetricsymmetriccombination;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
@@ -10,6 +13,8 @@ import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo(title = "starts power calculation of AsymmetricSymmetricCombination Ess device")
 public class AsymmetricSymmetricCombinationController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(AsymmetricSymmetricCombinationController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 

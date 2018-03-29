@@ -29,6 +29,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -48,7 +51,32 @@ import io.openems.common.utils.JsonUtils;
 @ThingInfo(title = "Weekly App-Planner", description = "Define recurring weekly plans.")
 public class WeekTimeScheduler extends Scheduler {
 
+	private final Logger log = LoggerFactory.getLogger(WeekTimeScheduler.class);
+
 	private ThingStateChannels thingState;
+
+	private final static String WEEKDAY_SCHEMA = "{\n" + //
+			"  \"type\": \"array\",\n" + //
+			"  \"definitions\": {},\n" + //
+			"  \"items\": {\n" + //
+			"    \"type\": \"object\",\n" + //
+			"    \"properties\": {\n" + //
+			"      \"time\": {\n" + //
+			"        \"type\": \"string\",\n" + //
+			"        \"title\": \"Starting time\",\n" + //
+			"        \"default\": \"\"\n" + //
+			"      },\n" + //
+			"      \"controllers\": {\n" + //
+			"        \"type\": \"array\",\n" + //
+			"        \"items\": {\n" + //
+			"          \"type\": \"string\",\n" + //
+			"          \"title\": \"Controllers to start at the given time\",\n" + //
+			"          \"default\": \"\"\n" + //
+			"        }\n" + //
+			"      }\n" + //
+			"    }\n" + //
+			"  }\n" + //
+			"}";
 
 	/*
 	 * Constructors
@@ -67,25 +95,25 @@ public class WeekTimeScheduler extends Scheduler {
 	 * controllers: [ "controller0", "controller1"]
 	 * }]
 	 */
-	@ChannelInfo(title = "Monday", description = "Sets the controllers for monday.", type = JsonArray.class)
+	@ChannelInfo(title = "Monday", description = "Sets the controllers for monday.", type = JsonArray.class, jsonSchema = WEEKDAY_SCHEMA)
 	public ConfigChannel<JsonArray> monday = new ConfigChannel<>("monday", this);
 
-	@ChannelInfo(title = "Tuesday", description = "Sets the controllers for tuesday.", type = JsonArray.class)
+	@ChannelInfo(title = "Tuesday", description = "Sets the controllers for tuesday.", type = JsonArray.class, jsonSchema = WEEKDAY_SCHEMA)
 	public ConfigChannel<JsonArray> tuesday = new ConfigChannel<>("tuesday", this);
 
-	@ChannelInfo(title = "Wednesday", description = "Sets the controllers for wednesday.", type = JsonArray.class)
+	@ChannelInfo(title = "Wednesday", description = "Sets the controllers for wednesday.", type = JsonArray.class, jsonSchema = WEEKDAY_SCHEMA)
 	public ConfigChannel<JsonArray> wednesday = new ConfigChannel<>("wednesday", this);
 
-	@ChannelInfo(title = "Thursday", description = "Sets the controllers for thursday.", type = JsonArray.class)
+	@ChannelInfo(title = "Thursday", description = "Sets the controllers for thursday.", type = JsonArray.class, jsonSchema = WEEKDAY_SCHEMA)
 	public ConfigChannel<JsonArray> thursday = new ConfigChannel<>("thursday", this);
 
-	@ChannelInfo(title = "Friday", description = "Sets the controllers for friday.", type = JsonArray.class)
+	@ChannelInfo(title = "Friday", description = "Sets the controllers for friday.", type = JsonArray.class, jsonSchema = WEEKDAY_SCHEMA)
 	public ConfigChannel<JsonArray> friday = new ConfigChannel<>("friday", this);
 
-	@ChannelInfo(title = "Saturday", description = "Sets the controllers for saturday.", type = JsonArray.class)
+	@ChannelInfo(title = "Saturday", description = "Sets the controllers for saturday.", type = JsonArray.class, jsonSchema = WEEKDAY_SCHEMA)
 	public ConfigChannel<JsonArray> saturday = new ConfigChannel<>("saturday", this);
 
-	@ChannelInfo(title = "Sunday", description = "Sets the controllers for sunday.", type = JsonArray.class)
+	@ChannelInfo(title = "Sunday", description = "Sets the controllers for sunday.", type = JsonArray.class, jsonSchema = WEEKDAY_SCHEMA)
 	public ConfigChannel<JsonArray> sunday = new ConfigChannel<>("sunday", this);
 
 	@ChannelInfo(title = "Always", description = "Sets the controllers that are always activated.", type = JsonArray.class)

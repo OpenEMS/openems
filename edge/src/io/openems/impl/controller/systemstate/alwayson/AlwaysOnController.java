@@ -22,6 +22,9 @@ package io.openems.impl.controller.systemstate.alwayson;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
@@ -36,6 +39,8 @@ import io.openems.api.exception.WriteChannelException;
  */
 @ThingInfo(title = "Keep always running", description = "Tries to keep the Ess always running. Use if Off-Grid functionality is required.")
 public class AlwaysOnController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(AlwaysOnController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 

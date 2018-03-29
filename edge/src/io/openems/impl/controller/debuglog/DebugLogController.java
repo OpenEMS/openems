@@ -22,6 +22,9 @@ package io.openems.impl.controller.debuglog;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
@@ -31,6 +34,8 @@ import io.openems.api.exception.InvalidValueException;
 
 @ThingInfo(title = "Output debugging information on systemlog")
 public class DebugLogController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(DebugLogController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public class InputStreamToString implements Callable<String> {
 
-	private Logger log = LoggerFactory.getLogger(InputStreamToString.class);
+	private final Logger log = LoggerFactory.getLogger(InputStreamToString.class);
 	private final InputStream stream;
 	private final String logId;
 

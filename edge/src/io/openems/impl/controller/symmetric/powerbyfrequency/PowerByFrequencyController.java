@@ -20,6 +20,9 @@
  *******************************************************************************/
 package io.openems.impl.controller.symmetric.powerbyfrequency;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
@@ -30,6 +33,8 @@ import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Power by frequency (Symmetric)", description = "Tries to keep the grid meter at a given frequency. For symmetric Ess.")
 public class PowerByFrequencyController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(PowerByFrequencyController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

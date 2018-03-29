@@ -42,7 +42,8 @@ import io.openems.api.exception.WriteChannelException;
  *
  */
 public class AsymmetricPower {
-	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	private final Logger log = LoggerFactory.getLogger(AsymmetricPower.class);
 
 	public enum ReductionType {
 		PERPHASE, PERSUM
@@ -296,7 +297,8 @@ public class AsymmetricPower {
 					if (reducedActivePower[i] < 0) {
 						minActivePowerPhase[i].add(allowedCharge.value() / activePowerNegSum * reducedActivePower[i]);
 					} else {
-						maxActivePowerPhase[i].add(allowedDischarge.value() / activePowerPosSum * reducedActivePower[i]);
+						maxActivePowerPhase[i]
+								.add(allowedDischarge.value() / activePowerPosSum * reducedActivePower[i]);
 					}
 					long minReactivePower = Collections.max(minReactivePowerPhase[i]);
 					long maxReactivePower = Collections.min(maxReactivePowerPhase[i]);
@@ -318,12 +320,12 @@ public class AsymmetricPower {
 		} catch (InvalidValueException e) {
 			log.error("Failed to reduce power", e);
 		}
-		log.info(
-				"Reduce activePower L1:[{}]->[{}], L2:[{}]->[{}],L3:[{}]->[{}] "
-						+ "and reactivePower L1:[{}]->[{}], L2:[{}]->[{}], L3:[{}]->[{}]",
-						new Object[] { activePower[0], reducedActivePower[0], activePower[1], reducedActivePower[1],
-								activePower[2], reducedActivePower[2], reactivePower[0], reducedReactivePower[0],
-								reactivePower[1], reducedReactivePower[1], reactivePower[2], reducedReactivePower[2] });
+		// log.info(
+		// "Reduce activePower L1:[{}]->[{}], L2:[{}]->[{}],L3:[{}]->[{}] "
+		// + "and reactivePower L1:[{}]->[{}], L2:[{}]->[{}], L3:[{}]->[{}]",
+		// new Object[] { activePower[0], reducedActivePower[0], activePower[1], reducedActivePower[1],
+		// activePower[2], reducedActivePower[2], reactivePower[0], reducedReactivePower[0],
+		// reactivePower[1], reducedReactivePower[1], reactivePower[2], reducedReactivePower[2] });
 		for (int i = 0; i < 3; i++) {
 			this.activePower[i] = reducedActivePower[i];
 			this.reactivePower[i] = reducedReactivePower[i];

@@ -22,6 +22,9 @@ package io.openems.impl.controller.onGridIndication;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.WriteChannel;
@@ -36,6 +39,8 @@ import io.openems.core.ThingRepository;
 
 @ThingInfo(title = "OnGridIndicationController", description = "indicates with an digitalOutput if the system is On-Grid.")
 public class OnGridIndicationController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(OnGridIndicationController.class);
 
 	private ThingRepository repo = ThingRepository.getInstance();
 	private WriteChannel<Boolean> onGridOutputChannel;

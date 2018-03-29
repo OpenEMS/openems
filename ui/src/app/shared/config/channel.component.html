@@ -61,10 +61,19 @@
                     </mat-form-field>
                 </ng-container>
                 <ng-container *ngSwitchCase="'simple'">
-                    <mat-form-field fxFlex="100%">
-                        <input matInput [placeholder]="title" formControlName="channelConfig" [type]="type">
-                        <mat-hint align="end">{{ meta.description }}</mat-hint>
-                    </mat-form-field>
+                    <ng-container *ngIf="isJson && meta.jsonSchema as schema; else no_json_schema">
+                        <!-- it is JSON and we have JSON-Schema (http://json-schema.org) -->
+                        <div fxFlex="100%" fxLayout fxLayoutWrap="wrap">
+                            <div fxFlex="100px">{{ title }}</div>
+                            <jsonschema fxFlex [value]="form.value.channelConfig" [schema]="schema" (onChange)="onJsonChannelChange($event)"></jsonschema>
+                        </div>
+                    </ng-container>
+                    <ng-template #no_json_schema>
+                        <mat-form-field fxFlex="100%">
+                            <input matInput [placeholder]="title" formControlName="channelConfig" [type]="type">
+                            <mat-hint align="end">{{ meta.description }}</mat-hint>
+                        </mat-form-field>
+                    </ng-template>
                 </ng-container>
                 <ng-container *ngSwitchDefault>Undefined. This should not happen. CH: {{ channelId }}; TY: {{ specialType }}; VAL: {{ form.value | json
                     }}

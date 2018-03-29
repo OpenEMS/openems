@@ -3,6 +3,9 @@ package io.openems.core.utilities.power.symmetric;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -14,9 +17,8 @@ import io.openems.api.channel.WriteChannel;
 import io.openems.api.exception.WriteChannelException;
 
 public class SymmetricPowerImpl extends SymmetricPower implements LimitationChangedListener, BridgeEventListener {
-	/*
-	 * Object
-	 */
+
+	private final Logger log = LoggerFactory.getLogger(SymmetricPowerImpl.class);
 
 	private WriteChannel<Long> setActivePower;
 	private WriteChannel<Long> setReactivePower;
@@ -58,7 +60,11 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 	@Override
 	protected void reset() {
 		this.dynamicLimitations.clear();
-		this.setGeometry(baseGeometry);
+		try {
+			this.setGeometry(baseGeometry);
+		} catch (PowerException e) {
+			log.error("BaseGeometry is Empty!");
+		}
 		super.reset();
 	}
 
@@ -73,11 +79,16 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 		}
 	}
 
-	private void writePower() {
+	@Override
+	protected void writePower() {
+		super.writePower();
 		if (dynamicLimitations.size() > 0) {
 			Point p = reduceToZero();
 			Coordinate c = p.getCoordinate();
-			setGeometry(p);
+			try {
+				setGeometry(p);
+			} catch (PowerException e1) {
+			}
 			double activePowerDelta = c.x - lastActivePower;
 			double reactivePowerDelta = c.y - lastReactivePower;
 			lastActivePower += activePowerDelta / 2;
@@ -96,7 +107,7 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 	private void createBaseGeometry() {
 		SHAPEFACTORY.setCentre(ZERO);
 		SHAPEFACTORY.setSize(getMaxApparentPower() * 2);
-		SHAPEFACTORY.setNumPoints(32);
+		SHAPEFACTORY.setNumPoints(20);
 		this.baseGeometry = SHAPEFACTORY.createCircle();
 		for (Limitation limit : this.staticLimitations) {
 			try {
@@ -127,10 +138,10 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 		case BEFOREREADOTHER2:
 			break;
 		case BEFOREREADREQUIRED:
+			this.reset();
 			break;
 		case BEFOREWRITE:
 			this.writePower();
-			this.reset();
 			break;
 		default:
 			break;

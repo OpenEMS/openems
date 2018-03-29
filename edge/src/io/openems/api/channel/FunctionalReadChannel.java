@@ -96,4 +96,12 @@ public class FunctionalReadChannel<T> extends ReadChannel<T> implements ChannelU
 		super.unit(unit);
 		return this;
 	}
+
+	@Override
+	public ReadChannel<T> required() {
+		this.channels.forEach(channel -> {
+			channel.required();
+		});
+		return super.required();
+	}
 }

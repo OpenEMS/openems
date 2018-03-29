@@ -4,6 +4,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonObject;
 
 import io.openems.api.channel.Channel;
@@ -21,6 +24,8 @@ import io.openems.impl.protocol.simulator.SimulatorReadChannel;
 
 @ThingInfo(title = "Simulated Production Meter")
 public class SimulatorProductionMeter extends SimulatorMeter implements ChannelChangeListener {
+
+	private final Logger log = LoggerFactory.getLogger(SimulatorProductionMeter.class);
 
 	// @ConfigInfo(title = "ActivePower", type = Long.class)
 	// public ConfigChannel<Long> activePower = new ConfigChannel("ActivePower", this);

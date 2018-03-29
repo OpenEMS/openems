@@ -22,6 +22,9 @@ package io.openems.impl.controller.symmetric.fixvalue;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
@@ -32,6 +35,8 @@ import io.openems.core.utilities.power.symmetric.PowerException;
 
 @ThingInfo(title = "Fixed active and reactive power (Symmetric)", description = "Charges or discharges the battery with a predefined, fixed power. For symmetric Ess.")
 public class FixValueActivePowerController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(FixValueActivePowerController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

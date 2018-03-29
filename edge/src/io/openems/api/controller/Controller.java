@@ -29,9 +29,11 @@ import io.openems.api.doc.ChannelInfo;
 import io.openems.api.thing.Thing;
 
 public abstract class Controller implements Thing {
+
 	public final static String THINGID_PREFIX = "_controller";
+	private final Logger log = LoggerFactory.getLogger(Controller.class);
+
 	private static int instanceCounter = 0;
-	protected final Logger log;
 	private String name;
 	private DebugChannel<Long> requiredTime = new DebugChannel<>("RequiredTime", this);
 
@@ -55,7 +57,6 @@ public abstract class Controller implements Thing {
 		if (thingId == null) {
 			thingId = THINGID_PREFIX + instanceCounter++;
 		}
-		log = LoggerFactory.getLogger(this.getClass());
 		name = thingId;
 	}
 
@@ -66,7 +67,7 @@ public abstract class Controller implements Thing {
 		try {
 			run();
 		} catch (Throwable e) {
-			log.error("execution of Controller ["+id()+"] failed. "+e.getMessage());
+			log.error("execution of Controller ["+id()+"] with Implementation ["+this.getClass().getSimpleName()+"] failed. " + e.getClass().getSimpleName() + ": " +e.getMessage());
 		}
 		requiredTime.setValue(System.currentTimeMillis() - beforeRun);
 	}

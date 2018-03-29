@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
@@ -33,6 +36,8 @@ import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo(title = "Sychronizes system clocks", description = "Synchronizes the sytem clocks of OpenEMS and a connected real-time clock device.")
 public class ClockSyncController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(ClockSyncController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 	/*

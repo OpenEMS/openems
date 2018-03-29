@@ -52,7 +52,7 @@ import io.openems.core.utilities.api.ApiWorker;
 
 public class WebsocketApiServer extends AbstractWebsocketServer {
 
-	private static Logger log = LoggerFactory.getLogger(WebsocketApiServer.class);
+	private final static Logger log = LoggerFactory.getLogger(WebsocketApiServer.class);
 
 	/**
 	 * Stores valid session tokens for authentication via Cookie (this maps to a browser window)

@@ -20,6 +20,9 @@
  *******************************************************************************/
 package io.openems.impl.device.pro;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.FunctionalReadChannel;
 import io.openems.api.channel.ReadChannel;
@@ -49,6 +52,8 @@ import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRan
 
 @ThingInfo(title = "FENECON Pro ESS")
 public class FeneconProEss extends ModbusDeviceNature implements AsymmetricEssNature, RealTimeClockNature {
+
+	private final Logger log = LoggerFactory.getLogger(FeneconProEss.class);
 
 	/*
 	 * Constructors

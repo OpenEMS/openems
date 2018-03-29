@@ -2,11 +2,13 @@ package io.openems.core.utilities.power.symmetric;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.operation.distance.DistanceOp;
 import com.vividsolutions.jts.operation.distance.GeometryLocation;
 
 public class QEqualLimitation extends Limitation {
 
+	protected final GeometryFactory factory = new GeometryFactory();
 	private Geometry line;
 	private Long q;
 
@@ -19,7 +21,7 @@ public class QEqualLimitation extends Limitation {
 			if (q != null) {
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(power.getMaxApparentPower(), q),
 						new Coordinate(power.getMaxApparentPower() * -1, q) };
-				line = SymmetricPowerImpl.getFactory().createLineString(coordinates);
+				line = factory.createLineString(coordinates);
 			} else {
 				line = null;
 			}
@@ -47,7 +49,7 @@ public class QEqualLimitation extends Limitation {
 					}
 					Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, maxQ),
 							new Coordinate(maxApparentPower * -1, maxQ) };
-					line = SymmetricPowerImpl.getFactory().createLineString(coordinates);
+					line = factory.createLineString(coordinates);
 					return geometry.intersection(line);
 				} else {
 					DistanceOp distance = new DistanceOp(geometry, line);
@@ -56,7 +58,7 @@ public class QEqualLimitation extends Limitation {
 						if (!location.getGeometryComponent().equals(line)) {
 							Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, location.getCoordinate().y),
 									new Coordinate(maxApparentPower * -1, location.getCoordinate().y) };
-							line = SymmetricPowerImpl.getFactory().createLineString(coordinates);
+							line = factory.createLineString(coordinates);
 							return geometry.intersection(line);
 						}
 					}
