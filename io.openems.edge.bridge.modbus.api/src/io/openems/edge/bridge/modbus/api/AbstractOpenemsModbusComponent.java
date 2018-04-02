@@ -2,8 +2,9 @@ package io.openems.edge.bridge.modbus.api;
 
 import io.openems.edge.bridge.modbus.channel.ModbusChannel;
 import io.openems.edge.bridge.modbus.protocol.ModbusProtocol;
+import io.openems.edge.bridge.modbus.protocol.RegisterElement;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.ChannelDoc;
+import io.openems.edge.common.channel.doc.ChannelDoc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 
 public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent {
@@ -76,23 +77,29 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		return this.protocol;
 	}
 
-	@Override
-	protected void addChannel(Channel channel) {
-		if (!(channel instanceof ModbusChannel<?>)) {
-			throw new IllegalArgumentException("Channel [" + channel.address() + "] must be a ModbusChannel");
-		}
-		super.addChannel(channel);
-	}
-
-	@Override
-	public ModbusChannel<?> channel(ChannelDoc channelId) {
-		return (ModbusChannel<?>) super.channel(channelId);
-	}
-
 	/**
 	 * Defines the Modbus protocol
 	 * 
 	 * @return
 	 */
 	protected abstract ModbusProtocol defineModbusProtocol();
+	
+
+	/**
+	 * Maps the given element to the Channel identified by channelDoc. Throws an
+	 * IllegalArgumentException if Channel is not a ModbusChannel.
+	 * 
+	 * @param channelDoc
+	 * @param element
+	 * @return the element parameter
+	 */
+	protected final RegisterElement<?> m(ChannelDoc channelDoc, RegisterElement<?> element) {
+		Channel channel = this.channel(channelDoc);
+		if (!(channel instanceof ModbusChannel<?>)) {
+			throw new IllegalArgumentException("Channel [" + channelDoc + "] is not a ModbusChannel.");
+		}
+		ModbusChannel<?> modbusChannel = (ModbusChannel<?>) channel;
+		modbusChannel.mapToElement(element);
+		return element;
+	}
 }

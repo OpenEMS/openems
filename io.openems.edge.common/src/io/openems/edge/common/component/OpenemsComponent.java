@@ -3,8 +3,9 @@ package io.openems.edge.common.component;
 import java.util.Collection;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.ChannelDoc;
-import io.openems.edge.common.channel.Unit;
+import io.openems.edge.common.channel.doc.ChannelDoc;
+import io.openems.edge.common.channel.doc.Option;
+import io.openems.edge.common.channel.doc.Unit;
 
 public interface OpenemsComponent {
 
@@ -50,25 +51,29 @@ public interface OpenemsComponent {
 	 */
 	Collection<Channel> channels();
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelDoc {
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelDoc {
 		// Running State of the component
-		STATE(Unit.NONE, State.class);
-		enum State {
+		STATE(Unit.NONE, State.OK);
+		enum State implements Option {
 			OK, WARNING, FAULT
 		}
 
 		private final Unit unit;
-		private final Class<? extends Enum<?>> values;
+		private final Option options;
 
-		private ChannelId(Unit unit, Class<? extends Enum<?>> values) {
+		private ChannelId(Unit unit, Option options) {
 			this.unit = unit;
-			this.values = values;
-			// TODO use values
+			this.options = options;
 		}
 
 		@Override
 		public Unit getUnit() {
 			return this.unit;
+		}
+
+		@Override
+		public Option getOptions() {
+			return this.options;
 		}
 	}
 

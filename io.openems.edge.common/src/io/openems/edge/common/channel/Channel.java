@@ -2,6 +2,7 @@ package io.openems.edge.common.channel;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.channel.doc.ChannelDoc;
 
 public interface Channel {
 

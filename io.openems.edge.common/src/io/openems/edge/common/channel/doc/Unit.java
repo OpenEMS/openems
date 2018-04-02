@@ -1,4 +1,4 @@
-package io.openems.edge.common.channel;
+package io.openems.edge.common.channel.doc;
 
 public enum Unit {
 	/* No Unit */

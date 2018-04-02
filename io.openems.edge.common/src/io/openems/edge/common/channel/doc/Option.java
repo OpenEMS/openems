@@ -1,10 +1,8 @@
-package io.openems.edge.common.channel;
+package io.openems.edge.common.channel.doc;
 
 import com.google.common.base.CaseFormat;
 
-public interface ChannelDoc {
-
-	Unit getUnit();
+public interface Option {
 
 	String name();
 

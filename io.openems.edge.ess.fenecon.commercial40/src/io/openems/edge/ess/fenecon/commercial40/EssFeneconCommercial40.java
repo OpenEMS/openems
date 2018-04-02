@@ -13,15 +13,18 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.channel.ModbusIntegerReadChannel;
 import io.openems.edge.bridge.modbus.protocol.ModbusProtocol;
 import io.openems.edge.bridge.modbus.protocol.RegisterRange;
 import io.openems.edge.bridge.modbus.protocol.UnsignedWordElement;
+import io.openems.edge.common.channel.doc.IntegerOption;
+import io.openems.edge.common.channel.doc.Option;
+import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Ess.Fenecon.Commercial40", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
@@ -49,6 +52,13 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						return new ModbusIntegerReadChannel(this, channelId);
 					}
 					return null;
+				}), Arrays.stream(EssFeneconCommercial40.ChannelId.values()).map(channelId -> {
+					// EssSymmetricReadonly channels
+					switch (channelId) {
+					case SYSTEM_STATE:
+						return new ModbusIntegerReadChannel(this, channelId);
+					}
+					return null;
 				}) //
 		).flatMap(channel -> channel).forEach(channel -> this.addChannels(channel));
 	}
@@ -72,21 +82,52 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelDoc {
+		SYSTEM_STATE(Unit.NONE, SystemState.STOP);
+		enum SystemState implements IntegerOption {
+			STOP(2), PV_CHARGE(4), STANDBY(8), START(16), FAULT(32), DEBUG(64);
+			private final int value;
+
+			private SystemState(int value) {
+				this.value = value;
+			}
+
+			@Override
+			public int value() {
+				return this.value;
+			}
+		}
+
+		private final Unit unit;
+		private final Option options;
+
+		private ChannelId(Unit unit, Option options) {
+			this.unit = unit;
+			this.options = options;
+		}
+
+		@Override
+		public Unit getUnit() {
+			return this.unit;
+		}
+
+		@Override
+		public Option getOptions() {
+			return this.options;
+		}
+
+	}
+
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		return new ModbusProtocol(new RegisterRange(0x1402, //
-				this.channel(Ess.ChannelId.SOC).mapToElement(new UnsignedWordElement(0x1402))));
+		return new ModbusProtocol( //
+				new RegisterRange(0x0101, //
+						m(EssFeneconCommercial40.ChannelId.SYSTEM_STATE, new UnsignedWordElement(0x0101))),
+				new RegisterRange(0x1402, //
+						m(Ess.ChannelId.SOC, new UnsignedWordElement(0x1402))));
 
 		// return new ModbusProtocol( //
-		// new ModbusRegisterRange(0x0101, //
-		// new UnsignedWordElement(0x0101, //
-		// systemState = new ModbusReadLongChannel("SystemState", this) //
-		// .label(2, STOP) //
-		// .label(4, "PV-Charge") //
-		// .label(8, "Standby") //
-		// .label(16, START) //
-		// .label(32, FAULT) //
-		// .label(64, "Debug")), //
+
 		// new UnsignedWordElement(0x0102, //
 		// controlMode = new ModbusReadLongChannel("ControlMode", this) //
 		// .label(1, "Remote") //

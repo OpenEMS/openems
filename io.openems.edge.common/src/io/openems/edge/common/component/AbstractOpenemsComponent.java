@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.ChannelDoc;
+import io.openems.edge.common.channel.doc.ChannelDoc;
 
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
@@ -73,9 +73,9 @@ public class AbstractOpenemsComponent implements OpenemsComponent {
 	public Channel channel(ChannelDoc channelId) {
 		Channel channel = this.channels.get(channelId);
 		if (channel == null) {
-			log.error("ID [" + this.id() + "] has no Channel [" + channelId + "]");
+			throw new IllegalArgumentException("ID [" + this.id() + "] has no Channel [" + channelId + "]");
 		}
-		return this.channels.get(channelId);
+		return channel;
 	}
 
 	protected void addChannel(Channel channel) {

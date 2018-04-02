@@ -4,6 +4,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.TypeUtils;
+import io.openems.edge.common.channel.doc.ChannelDoc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class AbstractReadChannel<T> implements Channel {
