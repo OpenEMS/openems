@@ -132,6 +132,8 @@ public class Config implements ChannelChangeListener {
 		try {
 			readConfigFromFile(configFile);
 			log.info("Read configuration from file [" + configFile.toString() + "]");
+			// config was read successfully: create backup of this working configuration
+			this.createBackupOfConfigFile();
 			return;
 		} catch (Exception e) {
 			log.warn("Failed to read configuration from file [" + configFile.toString() + "] ",e);
@@ -262,16 +264,11 @@ public class Config implements ChannelChangeListener {
 			public void run() {
 				Gson gson = new GsonBuilder().setPrettyPrinting().create();
 				String config = gson.toJson(jConfig);
-				try {
-					/*
-					 * create backup of config file
-					 */
-					Files.copy(configFile, configBackupFile, StandardCopyOption.REPLACE_EXISTING);
-				} catch (IOException e) {
-					ConfigException ex = new ConfigException(
-							"Unable to create backup file [" + configBackupFile.toString() + "]");
-					log.error(ex.getMessage(), ex);
-				}
+
+				/*
+				 * create backup of config file
+				 */
+				createBackupOfConfigFile();
 
 				try {
 					/*
@@ -297,6 +294,17 @@ public class Config implements ChannelChangeListener {
 			}
 		};
 		this.writeConfigExecutor.execute(writeConfigRunnable);
+	}
+
+	private synchronized void createBackupOfConfigFile() {
+		try {
+			log.info("Create backup file [" + configBackupFile.toString() + "]");
+			Files.copy(configFile, configBackupFile, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			ConfigException ex = new ConfigException(
+					"Unable to create backup file [" + configBackupFile.toString() + "]");
+			log.error(ex.getMessage(), ex);
+		}
 	}
 
 	public synchronized void parseJsonConfig(JsonObject jConfig)
