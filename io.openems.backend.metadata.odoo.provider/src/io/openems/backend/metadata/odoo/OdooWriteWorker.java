@@ -32,7 +32,6 @@ public class OdooWriteWorker {
 			/*
 			 * This task is executed regularly. Sends data to websocket.
 			 */
-			log.info("OdooWriteWorker...");
 			String time = OdooUtils.DATETIME_FORMATTER.format(ZonedDateTime.now(ZoneOffset.UTC));
 			{
 				Integer[] ids;
