@@ -104,7 +104,10 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 	 */
 	public FeneconPersistence() {
 		this.thingState = new ThingStateChannels(this);
-		// TODO with version 1.3.8 comes a new client reconnect feature. Use it to replace ReconnectingWebsocket (https://github.com/TooTallNate/Java-WebSocket/releases/tag/v1.3.8)
+		// TODO with version 1.3.8 comes a new client reconnect feature. Use it to replace ReconnectingWebsocket
+		// (https://github.com/TooTallNate/Java-WebSocket/releases/tag/v1.3.8)
+		// TODO evaluate if onMessage tasks need to be done in separate Executor
+		// (https://github.com/TooTallNate/Java-WebSocket/issues/688)
 		this.reconnectingWebsocket = new ReconnectingWebsocket((websocket) -> {
 			/*
 			 * onOpen
@@ -131,8 +134,8 @@ public class FeneconPersistence extends Persistence implements ChannelChangeList
 		onConfigUpdate = () -> {
 			try {
 				if (reconnectingWebsocket != null) {
-					reconnectingWebsocket.send(DefaultMessages.configQueryReply(new JsonObject(),
-							Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
+					reconnectingWebsocket.send(DefaultMessages.configQueryReply(new JsonObject(), Config.getInstance()
+							.getJson(ConfigFormat.OPENEMS_UI, Role.ADMIN, DEFAULT_CONFIG_LANGUAGE)));
 				}
 				log.info("Sent config to FENECON persistence.");
 			} catch (OpenemsException e) {

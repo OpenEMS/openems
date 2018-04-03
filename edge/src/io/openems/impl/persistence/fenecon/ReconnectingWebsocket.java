@@ -176,6 +176,8 @@ public class ReconnectingWebsocket {
 					} else {
 						ws = new MyWebSocketClient(uriOpt.get(), httpHeaders);
 					}
+					// TODO: re-enable connection lost detection
+					ws.setConnectionLostTimeout(0);
 					ws.connect();
 					WEBSOCKET_OPT = Optional.of(ws);
 
