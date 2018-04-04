@@ -10,7 +10,7 @@ public interface ModbusChannel<T> extends Channel {
 	public default RegisterElement<?> mapToElement(RegisterElement<?> element) {
 		element.onUpdateCallback((value) -> {
 			try {
-				setNextValue(value);
+				this.setNextValue(value);
 			} catch (OpenemsException e) {
 				Log.warn("Channel [" + this.address() + "] unable to set next value: " + e.getMessage());
 			}

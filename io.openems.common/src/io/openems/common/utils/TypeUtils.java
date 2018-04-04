@@ -10,6 +10,8 @@ public class TypeUtils {
 		switch (type) {
 		case INTEGER:
 			return (T) ((Integer) value);
+		case BOOLEAN:
+			return (T) ((Boolean) value);
 		}
 		throw new NotImplementedException(
 				"Converter for value [" + value + "] to type [" + type + "] is not implemented.");

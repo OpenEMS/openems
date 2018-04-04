@@ -1,10 +1,16 @@
 package io.openems.edge.bridge.modbus.api;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.Log;
 import io.openems.edge.bridge.modbus.channel.ModbusChannel;
 import io.openems.edge.bridge.modbus.protocol.ModbusProtocol;
 import io.openems.edge.bridge.modbus.protocol.RegisterElement;
+import io.openems.edge.bridge.modbus.protocol.UnsignedWordElement;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.ChannelDoc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 
 public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent {
@@ -32,6 +38,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected void deactivate() {
 		super.deactivate();
 		this.clearModbusBridge();
+		this.channels().clear();
 	}
 
 	/**
@@ -83,23 +90,67 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @return
 	 */
 	protected abstract ModbusProtocol defineModbusProtocol();
-	
 
 	/**
-	 * Maps the given element to the Channel identified by channelDoc. Throws an
+	 * Maps the given element to the Channel identified by channelId. Throws an
 	 * IllegalArgumentException if Channel is not a ModbusChannel.
 	 * 
 	 * @param channelDoc
 	 * @param element
 	 * @return the element parameter
 	 */
-	protected final RegisterElement<?> m(ChannelDoc channelDoc, RegisterElement<?> element) {
-		Channel channel = this.channel(channelDoc);
+	protected final RegisterElement<?> m(io.openems.edge.common.channel.doc.ChannelId channelId,
+			RegisterElement<?> element) {
+		Channel channel = this.channel(channelId);
 		if (!(channel instanceof ModbusChannel<?>)) {
-			throw new IllegalArgumentException("Channel [" + channelDoc + "] is not a ModbusChannel.");
+			throw new IllegalArgumentException("Channel [" + channelId + "] is not a ModbusChannel.");
 		}
 		ModbusChannel<?> modbusChannel = (ModbusChannel<?>) channel;
 		modbusChannel.mapToElement(element);
 		return element;
+	}
+
+	/**
+	 * Private subclass to handle Channels that are mapping to one bit of a Modbus
+	 * Unsigned Word element
+	 */
+	public class BitChannelMapper {
+		private final UnsignedWordElement element;
+		private final Map<Integer, Channel> channels = new HashMap<>();
+
+		public BitChannelMapper(UnsignedWordElement element) {
+			this.element = element;
+			this.element.onUpdateCallback((value) -> {
+				this.channels.forEach((bitIndex, channel) -> {
+					try {
+						if (value << ~bitIndex < 0) {
+							channel.setNextValue(true);
+						} else {
+							channel.setNextValue(false);
+						}
+					} catch (OpenemsException e) {
+						Log.warn("Channel [" + channel.address() + "] unable to set next value: " + e.getMessage());
+					}
+				});
+			});
+		}
+
+		public BitChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId, int bitIndex) {
+			Channel channel = channel(channelId);
+			if (channel.getType() != OpenemsType.BOOLEAN) {
+				throw new IllegalArgumentException(
+						"Channel [" + channelId + "] must be of type [BOOLEAN] for bit-mapping.");
+			}
+			this.channels.put(bitIndex, channel);
+			return this;
+		}
+
+		public UnsignedWordElement build() {
+			return this.element;
+		}
+	}
+
+	protected final BitChannelMapper bm(UnsignedWordElement element) {
+		return new BitChannelMapper(element);
 	}
 }

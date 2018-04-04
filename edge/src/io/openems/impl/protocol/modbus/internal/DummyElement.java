@@ -23,26 +23,26 @@ package io.openems.impl.protocol.modbus.internal;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class DummyElement extends ModbusElement<Long> {
-
-	private final int length;
-
-	public DummyElement(int address) {
-		this(address, address);
-	}
-
-	public DummyElement(int fromAddress, int toAddress) {
-		super(fromAddress, null);
-		this.length = toAddress - fromAddress + 1;
-	}
-
-	@Override public int getLength() {
-		return length;
-	}
-
-	/**
-	 * We are not setting a value for a DummyElement.
-	 */
-	@Override protected void setValue(Long value) {
-		return;
-	}
+	//MOVED TO OSGi
+	//	private final int length;
+	//
+	//	public DummyElement(int address) {
+	//		this(address, address);
+	//	}
+	//
+	//	public DummyElement(int fromAddress, int toAddress) {
+	//		super(fromAddress, null);
+	//		this.length = toAddress - fromAddress + 1;
+	//	}
+	//
+	//	@Override public int getLength() {
+	//		return length;
+	//	}
+	//
+	//	/**
+	//	 * We are not setting a value for a DummyElement.
+	//	 */
+	//	@Override protected void setValue(Long value) {
+	//		return;
+	//	}
 }

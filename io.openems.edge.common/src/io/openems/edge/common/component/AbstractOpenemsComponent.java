@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.ChannelDoc;
 
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
@@ -22,7 +21,8 @@ import io.openems.edge.common.channel.doc.ChannelDoc;
 public class AbstractOpenemsComponent implements OpenemsComponent {
 	private final static String DEFAULT_ID = "UNDEFINED";
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsComponent.class);
-	private final Map<ChannelDoc, Channel> channels = Collections.synchronizedMap(new HashMap<>());
+	private final Map<io.openems.edge.common.channel.doc.ChannelId, Channel> channels = Collections
+			.synchronizedMap(new HashMap<>());
 
 	private String id = DEFAULT_ID;
 	private boolean isActive = false;
@@ -70,7 +70,7 @@ public class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	@Override
-	public Channel channel(ChannelDoc channelId) {
+	public Channel channel(io.openems.edge.common.channel.doc.ChannelId channelId) {
 		Channel channel = this.channels.get(channelId);
 		if (channel == null) {
 			throw new IllegalArgumentException("ID [" + this.id() + "] has no Channel [" + channelId + "]");
@@ -79,13 +79,11 @@ public class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	protected void addChannel(Channel channel) {
-		this.channels.put(channel.channelDoc(), channel);
-	}
-
-	protected final void addChannels(Channel... channels) {
-		for (Channel channel : channels) {
-			this.addChannel(channel);
+		if (channel == null) {
+			throw new NullPointerException(
+					"Trying to add 'null' Channel. Hint: Check for missing handling of Enum value.");
 		}
+		this.channels.put(channel.channelId(), channel);
 	}
 
 	@Override

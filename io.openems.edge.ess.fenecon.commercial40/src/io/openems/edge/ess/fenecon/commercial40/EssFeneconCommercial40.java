@@ -16,12 +16,13 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.channel.ModbusIntegerReadChannel;
+import io.openems.edge.bridge.modbus.protocol.DummyElement;
 import io.openems.edge.bridge.modbus.protocol.ModbusProtocol;
 import io.openems.edge.bridge.modbus.protocol.RegisterRange;
 import io.openems.edge.bridge.modbus.protocol.UnsignedWordElement;
-import io.openems.edge.common.channel.doc.IntegerOption;
-import io.openems.edge.common.channel.doc.Option;
-import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
@@ -37,15 +38,19 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		// Define the channels. Using streams + switch enables Eclipse IDE to tell us if
 		// we are missing an Enum value.
 		Stream.of( //
-				Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
-					// Ess channels
+				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case STATE:
+						return new StateChannel(this, channelId);
+					}
+					return null;
+				}), Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
 						return new ModbusIntegerReadChannel(this, channelId);
 					}
 					return null;
 				}), Arrays.stream(EssSymmetricReadonly.ChannelId.values()).map(channelId -> {
-					// EssSymmetricReadonly channels
 					switch (channelId) {
 					case ACTIVE_POWER:
 					case REACTIVE_POWER:
@@ -53,14 +58,23 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 					}
 					return null;
 				}), Arrays.stream(EssFeneconCommercial40.ChannelId.values()).map(channelId -> {
-					// EssSymmetricReadonly channels
 					switch (channelId) {
 					case SYSTEM_STATE:
+					case CONTROL_MODE:
+					case BATTERY_MAINTENANCE_STATE:
+					case INVERTER_STATE:
+					case GRID_MODE:
+					case PROTOCOL_VERSION:
+					case SYSTEM_MANUFACTURER:
+					case SYSTEM_TYPE:
 						return new ModbusIntegerReadChannel(this, channelId);
+					case STATE_0:
+					case STATE_1:
+						return new BooleanReadChannel(this, channelId);
 					}
 					return null;
 				}) //
-		).flatMap(channel -> channel).forEach(channel -> this.addChannels(channel));
+		).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -82,91 +96,75 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		super.deactivate();
 	}
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelDoc {
-		SYSTEM_STATE(Unit.NONE, SystemState.STOP);
-		enum SystemState implements IntegerOption {
-			STOP(2), PV_CHARGE(4), STANDBY(8), START(16), FAULT(32), DEBUG(64);
-			private final int value;
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		SYSTEM_STATE(new Doc() //
+				.option(2, "Stop") //
+				.option(4, "PV-Charge") //
+				.option(8, "Standby") //
+				.option(16, "Start") //
+				.option(32, "Fault") //
+				.option(64, "Debug")), //
+		CONTROL_MODE(new Doc() //
+				.option(1, "Remote") //
+				.option(2, "Local")), //
+		BATTERY_MAINTENANCE_STATE(new Doc() //
+				.option(0, "Off") //
+				.option(1, "On")), //
+		INVERTER_STATE(new Doc() //
+				.option(0, "Init") //
+				.option(2, "Fault") //
+				.option(4, "Stop") //
+				.option(8, "Standby") //
+				.option(16, "Grid-Monitor") // ,
+				.option(32, "Ready") //
+				.option(64, "Start") //
+				.option(128, "Debug")), //
+		GRID_MODE(new Doc() //
+				.option(1, "Off-Grid") //
+				.option(2, "On-Grid")), //
+		PROTOCOL_VERSION(new Doc()), //
+		SYSTEM_MANUFACTURER(new Doc() //
+				.option(1, "BYD")), //
+		SYSTEM_TYPE(new Doc() //
+				.option(1, "CESS")), //
+		STATE_0(new Doc().text("Emergency Stop")), //
+		STATE_1(new Doc().text("Key Manual Stop")),;
 
-			private SystemState(int value) {
-				this.value = value;
-			}
+		private final Doc doc;
 
-			@Override
-			public int value() {
-				return this.value;
-			}
-		}
-
-		private final Unit unit;
-		private final Option options;
-
-		private ChannelId(Unit unit, Option options) {
-			this.unit = unit;
-			this.options = options;
+		private ChannelId(Doc doc) {
+			this.doc = doc;
 		}
 
 		@Override
-		public Unit getUnit() {
-			return this.unit;
+		public Doc doc() {
+			return this.doc;
 		}
-
-		@Override
-		public Option getOptions() {
-			return this.options;
-		}
-
 	}
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol( //
 				new RegisterRange(0x0101, //
-						m(EssFeneconCommercial40.ChannelId.SYSTEM_STATE, new UnsignedWordElement(0x0101))),
+						m(EssFeneconCommercial40.ChannelId.SYSTEM_STATE, new UnsignedWordElement(0x0101)),
+						m(EssFeneconCommercial40.ChannelId.CONTROL_MODE, new UnsignedWordElement(0x0102)),
+						new DummyElement(0x0103), // WorkMode: RemoteDispatch
+						m(EssFeneconCommercial40.ChannelId.BATTERY_MAINTENANCE_STATE, new UnsignedWordElement(0x0104)),
+						m(EssFeneconCommercial40.ChannelId.INVERTER_STATE, new UnsignedWordElement(0x0105)),
+						m(EssFeneconCommercial40.ChannelId.GRID_MODE, new UnsignedWordElement(0x0106)),
+						new DummyElement(0x0107), //
+						m(EssFeneconCommercial40.ChannelId.PROTOCOL_VERSION, new UnsignedWordElement(0x0108)),
+						m(EssFeneconCommercial40.ChannelId.SYSTEM_MANUFACTURER, new UnsignedWordElement(0x0109)),
+						m(EssFeneconCommercial40.ChannelId.SYSTEM_TYPE, new UnsignedWordElement(0x010A)),
+						new DummyElement(0x010B, 0x010F), //
+						bm(new UnsignedWordElement(0x0110)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_0, 2)
+								.m(EssFeneconCommercial40.ChannelId.STATE_1, 6).build()//
+				), //
 				new RegisterRange(0x1402, //
 						m(Ess.ChannelId.SOC, new UnsignedWordElement(0x1402))));
 
-		// return new ModbusProtocol( //
-
-		// new UnsignedWordElement(0x0102, //
-		// controlMode = new ModbusReadLongChannel("ControlMode", this) //
-		// .label(1, "Remote") //
-		// .label(2, "Local")), //
-		// new DummyElement(0x0103), // WorkMode: RemoteDispatch
-		// new UnsignedWordElement(0x0104, //
-		// batteryMaintenanceState = new
-		// ModbusReadLongChannel("BatteryMaintenanceState", this) //
-		// .label(0, OFF) //
-		// .label(1, ON)), //
-		// new UnsignedWordElement(0x0105, //
-		// inverterState = new ModbusReadLongChannel("InverterState", this) //
-		// .label(0, "Init") //
-		// .label(2, "Fault") //
-		// .label(4, STOP) //
-		// .label(8, STANDBY) //
-		// .label(16, "Grid-Monitor") // ,
-		// .label(32, "Ready") //
-		// .label(64, START) //
-		// .label(128, "Debug")), //
-		// new UnsignedWordElement(0x0106, //
-		// gridMode = new ModbusReadLongChannel("GridMode", this) //
-		// .label(1, OFF_GRID) //
-		// .label(2, ON_GRID)), //
-		// new DummyElement(0x0107), //
-		// new UnsignedWordElement(0x0108, //
-		// protocolVersion = new ModbusReadLongChannel("ProtocolVersion", this)), //
-		// new UnsignedWordElement(0x0109, //
-		// systemManufacturer = new ModbusReadLongChannel("SystemManufacturer", this) //
-		// .label(1, "BYD")), //
-		// new UnsignedWordElement(0x010A, //
-		// systemType = new ModbusReadLongChannel("SystemType", this) //
-		// .label(1, "CESS")), //
-		// new DummyElement(0x010B, 0x010F), //
-		// new UnsignedWordElement(0x0110, //
-		// new ModbusBitWrappingChannel("SuggestiveInformation1", this, this.thingState)
-		// //
-		// .warningBit(2, WarningEss.EmergencyStop) // EmergencyStop
-		// .warningBit(6, WarningEss.KeyManualStop)), // KeyManualStop
+		//
 		// new UnsignedWordElement(0x0111, //
 		// new ModbusBitWrappingChannel("SuggestiveInformation2", this, this.thingState)
 		// //
@@ -1382,4 +1380,5 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		// this).unit("mV")
 		// )));
 	}
+
 }

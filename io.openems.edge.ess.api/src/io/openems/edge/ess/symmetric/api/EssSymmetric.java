@@ -3,30 +3,25 @@ package io.openems.edge.ess.symmetric.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.Option;
+import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
 
 @ProviderType
 public interface EssSymmetric extends EssSymmetricReadonly {
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelDoc {
-		SYMMETRIC_POWER(Unit.NONE);
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		SYMMETRIC_POWER(new Doc().unit(Unit.NONE));
 
-		private final Unit unit;
+		private final Doc doc;
 
-		private ChannelId(Unit unit) {
-			this.unit = unit;
+		private ChannelId(Doc doc) {
+			this.doc = doc;
 		}
 
 		@Override
-		public Unit getUnit() {
-			return this.unit;
-		}
-
-		@Override
-		public Option getOptions() {
-			return null;
+		public Doc doc() {
+			return this.doc;
 		}
 	}
 

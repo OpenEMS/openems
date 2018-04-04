@@ -3,8 +3,8 @@ package io.openems.edge.common.component;
 import java.util.Collection;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.doc.ChannelDoc;
-import io.openems.edge.common.channel.doc.Option;
+import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 
 public interface OpenemsComponent {
@@ -37,12 +37,12 @@ public interface OpenemsComponent {
 	void setEnabled(boolean isEnabled);
 
 	/**
-	 * Returns a Channel defined by its ChannelId Enum
+	 * Returns a Channel defined by its ChannelId.
 	 * 
 	 * @param channelId
 	 * @return
 	 */
-	Channel channel(ChannelDoc channelId);
+	Channel channel(io.openems.edge.common.channel.doc.ChannelId channelId);
 
 	/**
 	 * Returns all Channels
@@ -51,33 +51,30 @@ public interface OpenemsComponent {
 	 */
 	Collection<Channel> channels();
 
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelDoc {
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		// Running State of the component
-		STATE(Unit.NONE, State.OK);
-		enum State implements Option {
-			OK, WARNING, FAULT
-		}
+		STATE(new Doc().unit(Unit.NONE) //
+				.option(0, "Ok") //
+				.option(1, "Warning") //
+				.option(2, "Fault"));
 
-		private final Unit unit;
-		private final Option options;
+		private final Doc doc;
 
-		private ChannelId(Unit unit, Option options) {
-			this.unit = unit;
-			this.options = options;
-		}
-
-		@Override
-		public Unit getUnit() {
-			return this.unit;
+		private ChannelId(Doc doc) {
+			this.doc = doc;
 		}
 
 		@Override
-		public Option getOptions() {
-			return this.options;
+		public Doc doc() {
+			return this.doc;
 		}
 	}
 
-	default Channel getState() {
-		return this.channel(ChannelId.STATE);
+	default StateChannel getState() {
+		Channel channel = this.channel(ChannelId.STATE);
+		if (!(channel instanceof StateChannel)) {
+			throw new IllegalArgumentException("Channel [State] must be of type 'StateChannel'.");
+		}
+		return (StateChannel) channel;
 	}
 }

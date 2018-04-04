@@ -1,12 +1,14 @@
 package io.openems.edge.bridge.modbus.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -36,8 +38,14 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent implements Bri
 	private final ModbusWorker worker = new ModbusWorker();
 
 	public BridgeModbusTcpImpl() {
-		this.addChannels( //
-				new IntegerReadChannel(this, OpenemsComponent.ChannelId.STATE));
+		Stream.of( //
+				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case STATE:
+						return new IntegerReadChannel(this, channelId);
+					}
+					return null;
+				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
 	}
 
 	/**
