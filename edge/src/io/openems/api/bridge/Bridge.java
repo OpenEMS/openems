@@ -235,9 +235,7 @@ public abstract class Bridge extends Thread implements Thing {
 				if (readTasks.size() > 0) {
 					// calculate time until write
 					// run tasks for not required channels
-					if (timeUntilWrite - System.currentTimeMillis() > 0) {
-						readOther(readTasks, timeUntilWrite, false);
-					}
+					readOther(readTasks, timeUntilWrite, false, true);
 				}
 				// execute write Tasks
 				boolean written = false;
@@ -265,7 +263,7 @@ public abstract class Bridge extends Thread implements Thing {
 				// execute additional readTasks if time left
 				if (readTasks.size() > 0) {
 					if (getNextReadTime() - 10 - System.currentTimeMillis() - requiredTimeListeners() > 0) {
-						readOther(readTasks, getNextReadTime(), true);
+						readOther(readTasks, getNextReadTime(), true, false);
 					}
 				}
 				// Everything went ok: reset bridgeExceptionSleep
@@ -284,24 +282,41 @@ public abstract class Bridge extends Thread implements Thing {
 		System.out.println("BridgeWorker was interrupted. Exiting gracefully...");
 	}
 
-	private void readOther(List<BridgeReadTask> tasks, long timeFinished, boolean forceRead) {
+	private void readOther(List<BridgeReadTask> tasks, long timeFinished, boolean forceRead, boolean readExactlyOne) {
 		BridgeReadTask nextReadTask = null;
 		if (readOtherTaskCount + 1 <= tasks.size()) {
 			nextReadTask = tasks.get(readOtherTaskIndex);
 		}
 		while (nextReadTask != null) {
-			if (!forceRead && System.currentTimeMillis() + nextReadTask.getRequiredTime() >= timeFinished) {
-				break;
+			// Read exactly one task.
+			if(readExactlyOne) {
+				// ok... continue and ignore ForceRead.
+			} else {
+				// Is ForceRead set?
+				if (!forceRead && System.currentTimeMillis() + nextReadTask.getRequiredTime() >= timeFinished) {
+					break;
+				}
+				forceRead = false;
 			}
-			forceRead = false;
+
+			// Execute the task
 			try {
 				nextReadTask.runTask();
 			} catch (Exception e) {
 				log.error("failed to execute ReadTask.", e);
 			}
+
+			// Prepare the next task (1)
 			readOtherTaskCount++;
 			readOtherTaskIndex++;
 			readOtherTaskIndex %= tasks.size();
+
+			if(readExactlyOne) {
+				// Stop after one task if 'readExactlyOne' is set
+				break;
+			}
+
+			// Prepare the next task (2)
 			if (readOtherTaskCount + 1 < tasks.size()) {
 				nextReadTask = tasks.get(readOtherTaskIndex);
 			} else {
