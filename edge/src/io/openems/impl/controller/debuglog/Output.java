@@ -47,8 +47,10 @@ public class Output extends ThingMap {
 			} else {
 				value = "?";
 			}
-			b.append(i++ + value);
-			if (i < output.setOutput().length) {
+			b.append(channel.id() + value);
+
+			// add space for all but the last
+			if (++i < output.setOutput().length) {
 				b.append(" ");
 			}
 		}
