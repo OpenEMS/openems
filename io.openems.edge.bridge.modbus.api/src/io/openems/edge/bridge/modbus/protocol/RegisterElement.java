@@ -14,9 +14,12 @@ public abstract class RegisterElement<T> {
 	private final int startAddress;
 	private final boolean isIgnored;
 
-	private OnUpdate<T> onUpdateCallback;
-
 	protected Range range = null;
+
+	/*
+	 * The onUpdateCallback is called on reception of a new value
+	 */
+	private OnUpdate<T> onUpdateCallback;
 
 	public RegisterElement(int startAddress) {
 		this(startAddress, false);
@@ -82,6 +85,12 @@ public abstract class RegisterElement<T> {
 	}
 
 	protected abstract void _setInputRegisters(InputRegister... registers);
+
+	/**
+	 * BuilderPattern. The received value is adjusted to the power of the
+	 * scaleFactor (y = x * 10^scaleFactor).
+	 */
+	public abstract RegisterElement<T> scaleFactor(int scaleFactor);
 
 	// protected void setValue(T value) {
 	// if (channel == null) {

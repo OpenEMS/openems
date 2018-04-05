@@ -27,4 +27,10 @@ public class DummyElement extends RegisterElement<Void> {
 	protected void _setInputRegisters(InputRegister... registers) {
 		return;
 	}
+
+	@Override
+	public DummyElement scaleFactor(int scaleFactor) {
+		// ignore scaleFactor
+		return this;
+	}
 }

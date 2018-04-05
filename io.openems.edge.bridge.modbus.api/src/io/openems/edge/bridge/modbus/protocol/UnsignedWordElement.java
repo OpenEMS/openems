@@ -27,10 +27,22 @@ public class UnsignedWordElement extends RegisterElement<Integer> {
 
 	@Override
 	protected void _setInputRegisters(InputRegister... registers) {
+		// convert registers to Short
 		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);
 		buff.put(registers[0].toBytes());
 		int shortValue = Short.toUnsignedInt(buff.getShort(0));
+		// apply scaleFactor
+		shortValue = (int) (shortValue * Math.pow(10, this.scaleFactor));
+		// set value
 		super.setValue(shortValue);
+	}
+
+	private int scaleFactor = 0;
+
+	@Override
+	public UnsignedWordElement scaleFactor(int scaleFactor) {
+		this.scaleFactor = scaleFactor;
+		return this;
 	}
 
 	// @Override

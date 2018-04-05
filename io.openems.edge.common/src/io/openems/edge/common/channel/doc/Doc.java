@@ -35,11 +35,21 @@ public class Doc {
 	/*
 	 * Options
 	 */
-	protected TreeMap<Integer, String> options = new TreeMap<Integer, String>();
+	private TreeMap<Integer, String> options = new TreeMap<Integer, String>();
 
 	public Doc option(int value, String option) {
 		this.options.put(value, option);
 		return this;
 	}
 
+	private Level level = Level.INFO;
+
+	public Doc level(Level level) {
+		this.level = level;
+		return this;
+	}
+
+	public Level getLevel() {
+		return level;
+	}
 }

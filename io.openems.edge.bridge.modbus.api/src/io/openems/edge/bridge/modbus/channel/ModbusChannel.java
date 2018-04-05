@@ -7,6 +7,13 @@ import io.openems.edge.common.channel.Channel;
 
 public interface ModbusChannel<T> extends Channel {
 
+	/**
+	 * Maps this Channel to an Element.
+	 * 
+	 * @param element
+	 * @param scaleFactor
+	 * @return
+	 */
 	public default RegisterElement<?> mapToElement(RegisterElement<?> element) {
 		element.onUpdateCallback((value) -> {
 			try {

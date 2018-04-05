@@ -10,5 +10,28 @@ public enum Unit {
 	/* Reactive Power */
 	VAR,
 	/* Apparent Power */
-	VA;
+	VA,
+	/* Voltage */
+	VOLT, MILLIVOLT(VOLT, -3);
+
+	private final Unit baseUnit;
+	private final int scaleFactor;
+
+	private Unit() {
+		this.baseUnit = null;
+		this.scaleFactor = 0;
+	}
+
+	private Unit(Unit baseUnit, int scaleFactor) {
+		this.baseUnit = baseUnit;
+		this.scaleFactor = scaleFactor;
+	}
+
+	public Unit getBaseUnit() {
+		return baseUnit;
+	}
+
+	public int getScaleFactor() {
+		return scaleFactor;
+	}
 }

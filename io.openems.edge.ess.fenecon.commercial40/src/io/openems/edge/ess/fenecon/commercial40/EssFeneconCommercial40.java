@@ -23,6 +23,8 @@ import io.openems.edge.bridge.modbus.protocol.UnsignedWordElement;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Level;
+import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
@@ -67,9 +69,134 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 					case PROTOCOL_VERSION:
 					case SYSTEM_MANUFACTURER:
 					case SYSTEM_TYPE:
+					case BATTERY_STRING_SWITCH_STATE:
+					case BATTERY_VOLTAGE:
 						return new ModbusIntegerReadChannel(this, channelId);
 					case STATE_0:
 					case STATE_1:
+					case STATE_2:
+					case STATE_3:
+					case STATE_4:
+					case STATE_5:
+					case STATE_6:
+					case STATE_7:
+					case STATE_8:
+					case STATE_9:
+					case STATE_10:
+					case STATE_11:
+					case STATE_12:
+					case STATE_13:
+					case STATE_14:
+					case STATE_15:
+					case STATE_16:
+					case STATE_17:
+					case STATE_18:
+					case STATE_19:
+					case STATE_20:
+					case STATE_21:
+					case STATE_22:
+					case STATE_23:
+					case STATE_24:
+					case STATE_25:
+					case STATE_26:
+					case STATE_27:
+					case STATE_28:
+					case STATE_29:
+					case STATE_30:
+					case STATE_31:
+					case STATE_32:
+					case STATE_33:
+					case STATE_34:
+					case STATE_35:
+					case STATE_36:
+					case STATE_37:
+					case STATE_38:
+					case STATE_39:
+					case STATE_40:
+					case STATE_41:
+					case STATE_42:
+					case STATE_43:
+					case STATE_44:
+					case STATE_45:
+					case STATE_46:
+					case STATE_47:
+					case STATE_48:
+					case STATE_49:
+					case STATE_50:
+					case STATE_51:
+					case STATE_52:
+					case STATE_53:
+					case STATE_54:
+					case STATE_55:
+					case STATE_56:
+					case STATE_57:
+					case STATE_58:
+					case STATE_59:
+					case STATE_60:
+					case STATE_61:
+					case STATE_62:
+					case STATE_63:
+					case STATE_64:
+					case STATE_65:
+					case STATE_66:
+					case STATE_67:
+					case STATE_68:
+					case STATE_69:
+					case STATE_70:
+					case STATE_71:
+					case STATE_72:
+					case STATE_73:
+					case STATE_74:
+					case STATE_75:
+					case STATE_76:
+					case STATE_77:
+					case STATE_78:
+					case STATE_79:
+					case STATE_80:
+					case STATE_81:
+					case STATE_82:
+					case STATE_83:
+					case STATE_84:
+					case STATE_85:
+					case STATE_86:
+					case STATE_87:
+					case STATE_88:
+					case STATE_89:
+					case STATE_90:
+					case STATE_91:
+					case STATE_92:
+					case STATE_93:
+					case STATE_94:
+					case STATE_95:
+					case STATE_96:
+					case STATE_97:
+					case STATE_98:
+					case STATE_99:
+					case STATE_100:
+					case STATE_101:
+					case STATE_102:
+					case STATE_103:
+					case STATE_104:
+					case STATE_105:
+					case STATE_106:
+					case STATE_107:
+					case STATE_108:
+					case STATE_109:
+					case STATE_110:
+					case STATE_111:
+					case STATE_112:
+					case STATE_113:
+					case STATE_114:
+					case STATE_115:
+					case STATE_116:
+					case STATE_117:
+					case STATE_118:
+					case STATE_119:
+					case STATE_120:
+					case STATE_121:
+					case STATE_122:
+					case STATE_123:
+					case STATE_124:
 						return new BooleanReadChannel(this, channelId);
 					}
 					return null;
@@ -127,8 +254,137 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 				.option(1, "BYD")), //
 		SYSTEM_TYPE(new Doc() //
 				.option(1, "CESS")), //
-		STATE_0(new Doc().text("Emergency Stop")), //
-		STATE_1(new Doc().text("Key Manual Stop")),;
+		BATTERY_STRING_SWITCH_STATE(new Doc() //
+				.option(1, "Main contactor") //
+				.option(2, "Precharge contactor") //
+				.option(4, "FAN contactor") //
+				.option(8, "BMU power supply relay") //
+				.option(16, "Middle relay")), //
+		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), STATE_0(new Doc().level(Level.WARNING).text("Emergency Stop")), //
+		STATE_1(new Doc().level(Level.WARNING).text("Key Manual Stop")), //
+		STATE_2(new Doc().level(Level.WARNING).text("Transformer Phase B Temperature Sensor Invalidation")), //
+		STATE_3(new Doc().level(Level.WARNING).text("SD Memory Card Invalidation")), //
+		STATE_4(new Doc().level(Level.WARNING).text("Inverter Communication Abnormity")), //
+		STATE_5(new Doc().level(Level.WARNING).text("Battery Stack Communication Abnormity")), //
+		STATE_6(new Doc().level(Level.WARNING).text("Multifunctional Ammeter Communication Abnormity")), //
+		STATE_7(new Doc().level(Level.WARNING).text("Remote Communication Abnormity")), //
+		STATE_8(new Doc().level(Level.WARNING).text("PVDC1 Communication Abnormity")), //
+		STATE_9(new Doc().level(Level.WARNING).text("PVDC2 Communication Abnormity")), //
+		STATE_10(new Doc().level(Level.WARNING).text("Transformer Severe Overtemperature")), //
+		STATE_11(new Doc().level(Level.FAULT).text("DC Precharge Contactor Close Unsuccessfully")), //
+		STATE_12(new Doc().level(Level.FAULT).text("AC Precharge Contactor Close Unsuccessfully")), //
+		STATE_13(new Doc().level(Level.FAULT).text("AC Main Contactor Close Unsuccessfully")), //
+		STATE_14(new Doc().level(Level.FAULT).text("DC Electrical Breaker1 Close Unsuccessfully")), //
+		STATE_15(new Doc().level(Level.FAULT).text("DC Main Contactor Close Unsuccessfully")), //
+		STATE_16(new Doc().level(Level.FAULT).text("AC Breaker Trip")), //
+		STATE_17(new Doc().level(Level.FAULT).text("AC Main Contactor Open When Running")), //
+		STATE_18(new Doc().level(Level.FAULT).text("DC Main Contactor Open When Running")), //
+		STATE_19(new Doc().level(Level.FAULT).text("AC Main Contactor Open Unsuccessfully")), //
+		STATE_20(new Doc().level(Level.FAULT).text("DC Electrical Breaker1 Open Unsuccessfully")), //
+		STATE_21(new Doc().level(Level.FAULT).text("DC Main Contactor Open Unsuccessfully")), //
+		STATE_22(new Doc().level(Level.FAULT).text("Hardware PDP Fault")), //
+		STATE_23(new Doc().level(Level.FAULT).text("Master Stop Suddenly")), //
+		STATE_24(new Doc().level(Level.FAULT).text("DCShortCircuitProtection")), //
+		STATE_25(new Doc().level(Level.FAULT).text("DCOvervoltageProtection")), //
+		STATE_26(new Doc().level(Level.FAULT).text("DCUndervoltageProtection")), //
+		STATE_27(new Doc().level(Level.FAULT).text("DCInverseNoConnectionProtection")), //
+		STATE_28(new Doc().level(Level.FAULT).text("DCDisconnectionProtection")), //
+		STATE_29(new Doc().level(Level.FAULT).text("CommutingVoltageAbnormityProtection")), //
+		STATE_30(new Doc().level(Level.FAULT).text("DCOvercurrentProtection")), //
+		STATE_31(new Doc().level(Level.FAULT).text("Phase1PeakCurrentOverLimitProtection")), //
+		STATE_32(new Doc().level(Level.FAULT).text("Phase2PeakCurrentOverLimitProtection")), //
+		STATE_33(new Doc().level(Level.FAULT).text("Phase3PeakCurrentOverLimitProtection")), //
+		STATE_34(new Doc().level(Level.FAULT).text("Phase1GridVoltageSamplingInvalidation")), //
+		STATE_35(new Doc().level(Level.FAULT).text("Phase2VirtualCurrentOverLimitProtection")), //
+		STATE_36(new Doc().level(Level.FAULT).text("Phase3VirtualCurrentOverLimitProtection")), //
+		STATE_37(new Doc().level(Level.FAULT).text("Phase1GridVoltageSamplingInvalidation2")), //
+		STATE_38(new Doc().level(Level.FAULT).text("Phase2ridVoltageSamplingInvalidation")), //
+		STATE_39(new Doc().level(Level.FAULT).text("Phase3GridVoltageSamplingInvalidation")), //
+		STATE_40(new Doc().level(Level.FAULT).text("Phase1InvertVoltageSamplingInvalidation")), //
+		STATE_41(new Doc().level(Level.FAULT).text("Phase2InvertVoltageSamplingInvalidation")), //
+		STATE_42(new Doc().level(Level.FAULT).text("Phase3InvertVoltageSamplingInvalidation")), //
+		STATE_43(new Doc().level(Level.FAULT).text("ACCurrentSamplingInvalidation")), //
+		STATE_44(new Doc().level(Level.FAULT).text("DCCurrentSamplingInvalidation")), //
+		STATE_45(new Doc().level(Level.FAULT).text("Phase1OvertemperatureProtection")), //
+		STATE_46(new Doc().level(Level.FAULT).text("Phase2OvertemperatureProtection")), //
+		STATE_47(new Doc().level(Level.FAULT).text("Phase3OvertemperatureProtection")), //
+		STATE_48(new Doc().level(Level.FAULT).text("Phase1TemperatureSamplingInvalidation")), //
+		STATE_49(new Doc().level(Level.FAULT).text("Phase2TemperatureSamplingInvalidation")), //
+		STATE_50(new Doc().level(Level.FAULT).text("Phase3TemperatureSamplingInvalidation")), //
+		STATE_51(new Doc().level(Level.FAULT).text("Phase1PrechargeUnmetProtection")), //
+		STATE_52(new Doc().level(Level.FAULT).text("Phase2PrechargeUnmetProtection")), //
+		STATE_53(new Doc().level(Level.FAULT).text("Phase3PrechargeUnmetProtection")), //
+		STATE_54(new Doc().level(Level.FAULT).text("UnadaptablePhaseSequenceErrorProtection")), //
+		STATE_55(new Doc().level(Level.FAULT).text("DSPProtection")), //
+		STATE_56(new Doc().level(Level.FAULT).text("Phase1GridVoltageSevereOvervoltageProtection")), //
+		STATE_57(new Doc().level(Level.FAULT).text("Phase1GridVoltageGeneralOvervoltageProtection")), //
+		STATE_58(new Doc().level(Level.FAULT).text("Phase2GridVoltageSevereOvervoltageProtection")), //
+		STATE_59(new Doc().level(Level.FAULT).text("Phase2GridVoltageGeneralOvervoltageProtection")), //
+		STATE_60(new Doc().level(Level.FAULT).text("Phase3GridVoltageSevereOvervoltageProtection")), //
+		STATE_61(new Doc().level(Level.FAULT).text("Phase3GridVoltageGeneralOvervoltageProtection")), //
+		STATE_62(new Doc().level(Level.FAULT).text("Phase1GridVoltageSevereUndervoltageProtection")), //
+		STATE_63(new Doc().level(Level.FAULT).text("Phase1GridVoltageGeneralUndervoltageProtection")), //
+		STATE_64(new Doc().level(Level.FAULT).text("Phase2GridVoltageSevereUndervoltageProtection")), //
+		STATE_65(new Doc().level(Level.FAULT).text("Phase2GridVoltageGeneralUndervoltageProtection")), //
+		STATE_66(new Doc().level(Level.FAULT).text("Phase3GridVoltageSevereUndervoltageProtection")), //
+		STATE_67(new Doc().level(Level.FAULT).text("Phase3GridVoltageGeneralUndervoltageProtection")), //
+		STATE_68(new Doc().level(Level.FAULT).text("SevereOverfrequncyProtection")), //
+		STATE_69(new Doc().level(Level.FAULT).text("GeneralOverfrequncyProtection")), //
+		STATE_70(new Doc().level(Level.FAULT).text("SevereUnderfrequncyProtection")), //
+		STATE_71(new Doc().level(Level.FAULT).text("GeneralsUnderfrequncyProtection")), //
+		STATE_72(new Doc().level(Level.FAULT).text("Phase1Gridloss")), //
+		STATE_73(new Doc().level(Level.FAULT).text("Phase2Gridloss")), //
+		STATE_74(new Doc().level(Level.FAULT).text("Phase3Gridloss")), //
+		STATE_75(new Doc().level(Level.FAULT).text("IslandingProtection")), //
+		STATE_76(new Doc().level(Level.FAULT).text("Phase1UnderVoltageRideThrough")), //
+		STATE_77(new Doc().level(Level.FAULT).text("Phase2UnderVoltageRideThrough")), //
+		STATE_78(new Doc().level(Level.FAULT).text("Phase3UnderVoltageRideThrough")), //
+		STATE_79(new Doc().level(Level.FAULT).text("Phase1InverterVoltageSevereOvervoltageProtection")), //
+		STATE_80(new Doc().level(Level.FAULT).text("Phase1InverterVoltageGeneralOvervoltageProtection")), //
+		STATE_81(new Doc().level(Level.FAULT).text("Phase2InverterVoltageSevereOvervoltageProtection")), //
+		STATE_82(new Doc().level(Level.FAULT).text("Phase2InverterVoltageGeneralOvervoltageProtection")), //
+		STATE_83(new Doc().level(Level.FAULT).text("Phase3InverterVoltageSevereOvervoltageProtection")), //
+		STATE_84(new Doc().level(Level.FAULT).text("Phase3InverterVoltageGeneralOvervoltageProtection")), //
+		STATE_85(new Doc().level(Level.FAULT).text("InverterPeakVoltageHighProtectionCauseByACDisconnect")), //
+		STATE_86(new Doc().level(Level.WARNING).text("DCPrechargeContactorInspectionAbnormity")), //
+		STATE_87(new Doc().level(Level.WARNING).text("DCBreaker1InspectionAbnormity")), //
+		STATE_88(new Doc().level(Level.WARNING).text("DCBreaker2InspectionAbnormity")), //
+		STATE_89(new Doc().level(Level.WARNING).text("ACPrechargeContactorInspectionAbnormity")), //
+		STATE_90(new Doc().level(Level.WARNING).text("ACMainontactorInspectionAbnormity")), //
+		STATE_91(new Doc().level(Level.WARNING).text("ACBreakerInspectionAbnormity")), //
+		STATE_92(new Doc().level(Level.WARNING).text("DCBreaker1CloseUnsuccessfully")), //
+		STATE_93(new Doc().level(Level.WARNING).text("DCBreaker2CloseUnsuccessfully")), //
+		STATE_94(new Doc().level(Level.WARNING).text("ControlSignalCloseAbnormallyInspectedBySystem")), //
+		STATE_95(new Doc().level(Level.WARNING).text("ControlSignalOpenAbnormallyInspectedBySystem")), //
+		STATE_96(new Doc().level(Level.WARNING).text("NeutralWireContactorCloseUnsuccessfully")), //
+		STATE_97(new Doc().level(Level.WARNING).text("NeutralWireContactorOpenUnsuccessfully")), //
+		STATE_98(new Doc().level(Level.WARNING).text("WorkDoorOpen")), //
+		STATE_99(new Doc().level(Level.WARNING).text("Emergency1Stop")), //
+		STATE_100(new Doc().level(Level.WARNING).text("ACBreakerCloseUnsuccessfully")), //
+		STATE_101(new Doc().level(Level.WARNING).text("ControlSwitchStop")), //
+		STATE_102(new Doc().level(Level.WARNING).text("GeneralOverload")), //
+		STATE_103(new Doc().level(Level.WARNING).text("SevereOverload")), //
+		STATE_104(new Doc().level(Level.WARNING).text("BatteryCurrentOverLimit")), //
+		STATE_105(new Doc().level(Level.WARNING).text("PowerDecreaseCausedByOvertemperature")), //
+		STATE_106(new Doc().level(Level.WARNING).text("InverterGeneralOvertemperature")), //
+		STATE_107(new Doc().level(Level.WARNING).text("ACThreePhaseCurrentUnbalance")), //
+		STATE_108(new Doc().level(Level.WARNING).text("RestoreFactorySettingUnsuccessfully")), //
+		STATE_109(new Doc().level(Level.WARNING).text("PoleBoardInvalidation")), //
+		STATE_110(new Doc().level(Level.WARNING).text("SelfInspectionFailed")), //
+		STATE_111(new Doc().level(Level.WARNING).text("ReceiveBMSFaultAndStop")), //
+		STATE_112(new Doc().level(Level.WARNING).text("RefrigerationEquipmentinvalidation")), //
+		STATE_113(new Doc().level(Level.WARNING).text("LargeTemperatureDifferenceAmongIGBTThreePhases")), //
+		STATE_114(new Doc().level(Level.WARNING).text("EEPROMParametersOverRange")), //
+		STATE_115(new Doc().level(Level.WARNING).text("EEPROMParametersBackupFailed")), //
+		STATE_116(new Doc().level(Level.WARNING).text("DCBreakerCloseunsuccessfully")), //
+		STATE_117(new Doc().level(Level.WARNING).text("CommunicationBetweenInverterAndBSMUDisconnected")), //
+		STATE_118(new Doc().level(Level.WARNING).text("CommunicationBetweenInverterAndMasterDisconnected")), //
+		STATE_119(new Doc().level(Level.WARNING).text("CommunicationBetweenInverterAndUCDisconnected")), //
+		STATE_120(new Doc().level(Level.WARNING).text("BMSStartOvertimeControlledByPCS")), //
+		STATE_121(new Doc().level(Level.WARNING).text("BMSStopOvertimeControlledByPCS")), //
+		STATE_122(new Doc().level(Level.WARNING).text("SyncSignalInvalidation")), //
+		STATE_123(new Doc().level(Level.WARNING).text("SyncSignalContinuousCaputureFault")), //
+		STATE_124(new Doc().level(Level.WARNING).text("SyncSignalSeveralTimesCaputureFault")); //
 
 		private final Doc doc;
 
@@ -158,206 +414,154 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						m(EssFeneconCommercial40.ChannelId.SYSTEM_TYPE, new UnsignedWordElement(0x010A)),
 						new DummyElement(0x010B, 0x010F), //
 						bm(new UnsignedWordElement(0x0110)) //
-								.m(EssFeneconCommercial40.ChannelId.STATE_0, 2)
-								.m(EssFeneconCommercial40.ChannelId.STATE_1, 6).build()//
-				), //
+								.m(EssFeneconCommercial40.ChannelId.STATE_0, 2) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_1, 6).build(), //
+						bm(new UnsignedWordElement(0x0111)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_2, 3) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_3, 12).build(), //
+						new DummyElement(0x0112, 0x0124), //
+						bm(new UnsignedWordElement(0x0125)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_4, 0) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_5, 1) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_6, 2) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_7, 4) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_8, 8) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_9, 9).build(), //
+						bm(new UnsignedWordElement(0x0126)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_10, 3).build(), //
+						new DummyElement(0x0127, 0x014F), //
+						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_SWITCH_STATE,
+								new UnsignedWordElement(0x0150))), //
+				new RegisterRange(0x0180, //
+						bm(new UnsignedWordElement(0x0180)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_11, 0) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_12, 1) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_13, 2) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_14, 3) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_15, 4) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_16, 5) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_17, 6) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_18, 7) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_19, 8) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_20, 9) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_21, 10) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_22, 11) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_23, 12).build(), //
+						new DummyElement(0x0181), //
+						bm(new UnsignedWordElement(0x0182)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_24, 0) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_25, 1) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_26, 2) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_27, 3) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_28, 4) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_29, 5) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_30, 6) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_31, 7) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_32, 8) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_33, 9) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_34, 10) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_35, 11) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_36, 12) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_37, 13) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_38, 14) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_39, 15).build(), //
+						bm(new UnsignedWordElement(0x0183)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_40, 0) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_41, 1) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_42, 2) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_43, 3) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_44, 4) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_45, 5) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_46, 6) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_47, 7) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_48, 8) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_49, 9) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_50, 10) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_51, 11) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_52, 12) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_53, 13) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_54, 14) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_55, 15).build(), //
+						bm(new UnsignedWordElement(0x0184)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_56, 0) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_57, 1) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_58, 2) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_59, 3) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_60, 4) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_61, 5) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_62, 6) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_63, 7) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_64, 8) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_65, 9) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_66, 10) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_67, 11) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_68, 12) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_69, 13) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_70, 14) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_71, 15).build(), //
+						bm(new UnsignedWordElement(0x0185)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_72, 0) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_73, 1) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_74, 2) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_75, 3) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_76, 4) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_77, 5) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_78, 6) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_79, 7) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_80, 8) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_81, 9) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_82, 10) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_83, 11) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_84, 12) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_85, 13).build(), //
+						bm(new UnsignedWordElement(0x0186)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_86, 0) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_87, 1) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_88, 2) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_89, 3) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_90, 4) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_91, 5) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_92, 6) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_93, 7) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_94, 8) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_95, 9) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_96, 10) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_97, 11) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_98, 12) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_99, 13) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_100, 14) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_101, 15).build(), //
+						bm(new UnsignedWordElement(0x0187)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_102, 0) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_103, 1) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_104, 2) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_105, 3) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_106, 4) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_107, 5) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_108, 6) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_109, 7) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_110, 8) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_111, 9) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_112, 10) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_113, 11) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_114, 12) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_115, 13) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_116, 14).build(), //
+						bm(new UnsignedWordElement(0x0188)) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_117, 0) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_118, 1) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_119, 2) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_120, 3) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_121, 4) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_122, 5) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_123, 6) //
+								.m(EssFeneconCommercial40.ChannelId.STATE_124, 14).build() //
+				), new RegisterRange(0x0200, //
+						m(EssFeneconCommercial40.ChannelId.BATTERY_VOLTAGE,
+								new UnsignedWordElement(0x0200).scaleFactor(2))),
 				new RegisterRange(0x1402, //
 						m(Ess.ChannelId.SOC, new UnsignedWordElement(0x1402))));
 
-		//
-		// new UnsignedWordElement(0x0111, //
-		// new ModbusBitWrappingChannel("SuggestiveInformation2", this, this.thingState)
-		// //
-		// .warningBit(3, WarningEss.TransformerPhaseBTemperatureSensorInvalidation) //
-		// Transformer
-		// // phase
-		// // B
-		// // temperature
-		// // sensor
-		// // invalidation
-		// .warningBit(12, WarningEss.SDMemoryCardInvalidation)), // SD memory card
-		// // invalidation
-		// new DummyElement(0x0112, 0x0124), //
-		// new UnsignedWordElement(0x0125, //
-		// new ModbusBitWrappingChannel("SuggestiveInformation3", this,
-		// this.thingState)//
-		// .warningBit(0, WarningEss.InverterCommunicationAbnormity)//
-		// .warningBit(1, WarningEss.BatteryStackCommunicationAbnormity)//
-		// .warningBit(2, WarningEss.MultifunctionalAmmeterCommunicationAbnormity)//
-		// .warningBit(4, WarningEss.RemoteCommunicationAbnormity)//
-		// .warningBit(8, WarningEss.PVDC1CommunicationAbnormity)//
-		// .warningBit(9, WarningEss.PVDC2CommunicationAbnormity)//
-		// ), //
-		//
-		// new UnsignedWordElement(0x0126, //
-		// new ModbusBitWrappingChannel("SuggestiveInformation4", this,
-		// this.thingState)//
-		// .warningBit(3, WarningEss.TransformerSevereOvertemperature)//
-		// ), //
-		//
-		// new DummyElement(0x0127, 0x014F), //
-		// new UnsignedWordElement(0x0150, //
-		// switchState = new StatusBitChannel("BatteryStringSwitchState", this) //
-		// .label(1, "Main contactor") //
-		// .label(2, "Precharge contactor") //
-		// .label(4, "FAN contactor") //
-		// .label(8, "BMU power supply relay") //
-		// .label(16, "Middle relay"))//
-		// ), //
-		// new ModbusRegisterRange(0x0180, //
-		// new UnsignedWordElement(0x0180, //
-		// new ModbusBitWrappingChannel("Abnormity1", this, this.thingState)//
-		// .faultBit(0, FaultEss.DCPrechargeContactorCloseUnsuccessfully)//
-		// .faultBit(1, FaultEss.ACPrechargeContactorCloseUnsuccessfully)//
-		// .faultBit(2, FaultEss.ACMainContactorCloseUnsuccessfully)//
-		// .faultBit(3, FaultEss.DCElectricalBreaker1CloseUnsuccessfully)//
-		// .faultBit(4, FaultEss.DCMainContactorCloseUnsuccessfully)//
-		// .faultBit(5, FaultEss.ACBreakerTrip)//
-		// .faultBit(6, FaultEss.ACMainContactorOpenWhenRunning)//
-		// .faultBit(7, FaultEss.DCMainContactorOpenWhenRunning)//
-		// .faultBit(8, FaultEss.ACMainContactorOpenUnsuccessfully)//
-		// .faultBit(9, FaultEss.DCElectricalBreaker1OpenUnsuccessfully)//
-		// .faultBit(10, FaultEss.DCMainContactorOpenUnsuccessfully)//
-		// .faultBit(11, FaultEss.HardwarePDPFault)//
-		// .faultBit(12, FaultEss.MasterStopSuddenly)//
-		// ),
-		//
-		// new DummyElement(0x0181), new UnsignedWordElement(0x0182, //
-		// new ModbusBitWrappingChannel("Abnormity2", this, this.thingState)//
-		// .faultBit(0, FaultEss.DCShortCircuitProtection)//
-		// .faultBit(1, FaultEss.DCOvervoltageProtection)//
-		// .faultBit(2, FaultEss.DCUndervoltageProtection)//
-		// .faultBit(3, FaultEss.DCInverseNoConnectionProtection)//
-		// .faultBit(4, FaultEss.DCDisconnectionProtection)//
-		// .faultBit(5, FaultEss.CommutingVoltageAbnormityProtection)//
-		// .faultBit(6, FaultEss.DCOvercurrentProtection)//
-		// .faultBit(7, FaultEss.Phase1PeakCurrentOverLimitProtection)//
-		// .faultBit(8, FaultEss.Phase2PeakCurrentOverLimitProtection)//
-		// .faultBit(9, FaultEss.Phase3PeakCurrentOverLimitProtection)//
-		// .faultBit(10,FaultEss.Phase1GridVoltageSamplingInvalidation)//
-		// .faultBit(11, FaultEss.Phase2VirtualCurrentOverLimitProtection)//
-		// .faultBit(12, FaultEss.Phase3VirtualCurrentOverLimitProtection)//
-		// .faultBit(13, FaultEss.Phase1GridVoltageSamplingInvalidation2)//
-		// .faultBit(14, FaultEss.Phase2ridVoltageSamplingInvalidation)//
-		// .faultBit(15, FaultEss.Phase3GridVoltageSamplingInvalidation)//
-		// ), //
-		//
-		// new UnsignedWordElement(0x0183, //
-		// new ModbusBitWrappingChannel("Abnormity3", this, this.thingState)//
-		// .faultBit(0, FaultEss.Phase1InvertVoltageSamplingInvalidation)//
-		// .faultBit(1, FaultEss.Phase2InvertVoltageSamplingInvalidation)//
-		// .faultBit(2, FaultEss.Phase3InvertVoltageSamplingInvalidation)//
-		// .faultBit(3, FaultEss.ACCurrentSamplingInvalidation)//
-		// .faultBit(4, FaultEss.DCCurrentSamplingInvalidation)//
-		// .faultBit(5, FaultEss.Phase1OvertemperatureProtection)//
-		// .faultBit(6, FaultEss.Phase2OvertemperatureProtection)//
-		// .faultBit(7, FaultEss.Phase3OvertemperatureProtection)//
-		// .faultBit(8, FaultEss.Phase1TemperatureSamplingInvalidation)//
-		// .faultBit(9, FaultEss.Phase2TemperatureSamplingInvalidation)//
-		// .faultBit(10, FaultEss.Phase3TemperatureSamplingInvalidation)//
-		// .faultBit(11, FaultEss.Phase1PrechargeUnmetProtection)//
-		// .faultBit(12, FaultEss.Phase2PrechargeUnmetProtection)//
-		// .faultBit(13, FaultEss.Phase3PrechargeUnmetProtection)//
-		// .faultBit(14, FaultEss.UnadaptablePhaseSequenceErrorProtection)//
-		// .faultBit(15, FaultEss.DSPProtection)//
-		// ), //
-		//
-		// new UnsignedWordElement(0x0184, //
-		// new ModbusBitWrappingChannel("Abnormity4", this, this.thingState)//
-		// .faultBit(0, FaultEss.Phase1GridVoltageSevereOvervoltageProtection)//
-		// .faultBit(1, FaultEss.Phase1GridVoltageGeneralOvervoltageProtection)//
-		// .faultBit(2, FaultEss.Phase2GridVoltageSevereOvervoltageProtection)//
-		// .faultBit(3, FaultEss.Phase2GridVoltageGeneralOvervoltageProtection)//
-		// .faultBit(4, FaultEss.Phase3GridVoltageSevereOvervoltageProtection)//
-		// .faultBit(5, FaultEss.Phase3GridVoltageGeneralOvervoltageProtection)//
-		// .faultBit(6, FaultEss.Phase1GridVoltageSevereUndervoltageProtection)//
-		// .faultBit(7, FaultEss.Phase1GridVoltageGeneralUndervoltageProtection)//
-		// .faultBit(8, FaultEss.Phase2GridVoltageSevereUndervoltageProtection)//
-		// .faultBit(9, FaultEss.Phase2GridVoltageGeneralUndervoltageProtection)//
-		// .faultBit(10, FaultEss.Phase3GridVoltageSevereUndervoltageProtection)//
-		// .faultBit(11, FaultEss.Phase3GridVoltageGeneralUndervoltageProtection)//
-		// .faultBit(12, FaultEss.SevereOverfrequncyProtection)//
-		// .faultBit(13, FaultEss.GeneralOverfrequncyProtection)//
-		// .faultBit(14, FaultEss.SevereUnderfrequncyProtection)//
-		// .faultBit(15, FaultEss.GeneralsUnderfrequncyProtection)//
-		// ), //
-		//
-		// new UnsignedWordElement(0x0185, //
-		// new ModbusBitWrappingChannel("Abnormity5", this, this.thingState)//
-		// .faultBit(0, FaultEss.Phase1Gridloss)//
-		// .faultBit(1, FaultEss.Phase2Gridloss)//
-		// .faultBit(2, FaultEss.Phase3Gridloss)//
-		// .faultBit(3, FaultEss.IslandingProtection)//
-		// .faultBit(4, FaultEss.Phase1UnderVoltageRideThrough)//
-		// .faultBit(5, FaultEss.Phase2UnderVoltageRideThrough)//
-		// .faultBit(6, FaultEss.Phase3UnderVoltageRideThrough)//
-		// .faultBit(7, FaultEss.Phase1InverterVoltageSevereOvervoltageProtection)//
-		// .faultBit(8, FaultEss.Phase1InverterVoltageGeneralOvervoltageProtection)//
-		// .faultBit(9, FaultEss.Phase2InverterVoltageSevereOvervoltageProtection)//
-		// .faultBit(10, FaultEss.Phase2InverterVoltageGeneralOvervoltageProtection)//
-		// .faultBit(11, FaultEss.Phase3InverterVoltageSevereOvervoltageProtection)//
-		// .faultBit(12, FaultEss.Phase3InverterVoltageGeneralOvervoltageProtection)//
-		// .faultBit(13,
-		// FaultEss.InverterPeakVoltageHighProtectionCauseByACDisconnect)//
-		// ), //
-		//
-		// new UnsignedWordElement(0x0186, //
-		// new ModbusBitWrappingChannel("SuggestiveInformation5", this,
-		// this.thingState)//
-		// .warningBit(0, WarningEss.DCPrechargeContactorInspectionAbnormity)//
-		// .warningBit(1, WarningEss.DCBreaker1InspectionAbnormity)//
-		// .warningBit(2, WarningEss.DCBreaker2InspectionAbnormity)//
-		// .warningBit(3, WarningEss.ACPrechargeContactorInspectionAbnormity)//
-		// .warningBit(4, WarningEss.ACMainontactorInspectionAbnormity)//
-		// .warningBit(5, WarningEss.ACBreakerInspectionAbnormity)//
-		// .warningBit(6, WarningEss.DCBreaker1CloseUnsuccessfully)//
-		// .warningBit(7, WarningEss.DCBreaker2CloseUnsuccessfully)//
-		// .warningBit(8, WarningEss.ControlSignalCloseAbnormallyInspectedBySystem)//
-		// .warningBit(9, WarningEss.ControlSignalOpenAbnormallyInspectedBySystem)//
-		// .warningBit(10, WarningEss.NeutralWireContactorCloseUnsuccessfully)//
-		// .warningBit(11, WarningEss.NeutralWireContactorOpenUnsuccessfully)//
-		// .warningBit(12, WarningEss.WorkDoorOpen)//
-		// .warningBit(13, WarningEss.Emergency1Stop)//
-		// .warningBit(14, WarningEss.ACBreakerCloseUnsuccessfully)//
-		// .warningBit(15, WarningEss.ControlSwitchStop)//
-		// ), //
-		//
-		// new UnsignedWordElement(0x0187, //
-		// new ModbusBitWrappingChannel("SuggestiveInformation6", this,
-		// this.thingState)//
-		// .warningBit(0, WarningEss.GeneralOverload)//
-		// .warningBit(1, WarningEss.SevereOverload)//
-		// .warningBit(2, WarningEss.BatteryCurrentOverLimit)//
-		// .warningBit(3, WarningEss.PowerDecreaseCausedByOvertemperature)//
-		// .warningBit(4, WarningEss.InverterGeneralOvertemperature)//
-		// .warningBit(5, WarningEss.ACThreePhaseCurrentUnbalance)//
-		// .warningBit(6, WarningEss.RestoreFactorySettingUnsuccessfully)//
-		// .warningBit(7, WarningEss.PoleBoardInvalidation)//
-		// .warningBit(8, WarningEss.SelfInspectionFailed)//
-		// .warningBit(9, WarningEss.ReceiveBMSFaultAndStop)//
-		// .warningBit(10, WarningEss.RefrigerationEquipmentinvalidation)//
-		// .warningBit(11, WarningEss.LargeTemperatureDifferenceAmongIGBTThreePhases)//
-		// .warningBit(12, WarningEss.EEPROMParametersOverRange)//
-		// .warningBit(13, WarningEss.EEPROMParametersBackupFailed)//
-		// .warningBit(14, WarningEss.DCBreakerCloseunsuccessfully)//
-		// ), //
-		// new UnsignedWordElement(0x0188, //
-		// new ModbusBitWrappingChannel("SuggestiveInformation7", this,
-		// this.thingState)//
-		// .warningBit(0, WarningEss.CommunicationBetweenInverterAndBSMUDisconnected)//
-		// .warningBit(1,
-		// WarningEss.CommunicationBetweenInverterAndMasterDisconnected)//
-		// .warningBit(2, WarningEss.CommunicationBetweenInverterAndUCDisconnected)//
-		// .warningBit(3, WarningEss.BMSStartOvertimeControlledByPCS)//
-		// .warningBit(4, WarningEss.BMSStopOvertimeControlledByPCS)//
-		// .warningBit(5, WarningEss.SyncSignalInvalidation)//
-		// .warningBit(6, WarningEss.SyncSignalContinuousCaputureFault)//
-		// .warningBit(7, WarningEss.SyncSignalSeveralTimesCaputureFault))),
-		//
-		// new ModbusRegisterRange(0x0200, //
-		// new SignedWordElement(0x0200, //
-		// batteryVoltage = new ModbusReadLongChannel("BatteryVoltage", this).unit("mV")
-		// .multiplier(2)),
 		// new SignedWordElement(0x0201, //
 		// batteryCurrent = new ModbusReadLongChannel("BatteryCurrent", this).unit("mA")
 		// .multiplier(2)),
