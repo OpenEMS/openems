@@ -45,10 +45,13 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 		// login using session_id from the cookie
 		Optional<String> sessionIdOpt = getFieldFromHandshakeCookie(handshake, "session_id");
 		try {
-			if (!sessionIdOpt.isPresent()) {
-				throw new OpenemsException("Session-ID is missing in handshake");
+			if (sessionIdOpt.isPresent()) {
+				// authenticate with Session-ID
+				user = this.parent.metadataService.authenticate(sessionIdOpt.get());
+			} else {
+				// authenticate without Session-ID
+				user = this.parent.metadataService.authenticate();
 			}
-			user = this.parent.metadataService.getUserWithSession(sessionIdOpt.get());
 		} catch (OpenemsException e) {
 			// send connection failed to browser
 			WebSocketUtils.sendOrLogError(websocket, DefaultMessages.uiLogoutReply());
