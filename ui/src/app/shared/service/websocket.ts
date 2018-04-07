@@ -42,7 +42,6 @@ export class Websocket {
   private username: string = "";
   // private messages: Observable<string>;
   private queryreply = new Subject<{ id: string[] }>();
-  private stopOnInitialize: Subject<void> = new Subject<void>();
 
   // holds stream per device (=key1) and message-id (=key2); triggered on message reply for the device
   private replyStreams: { [deviceName: string]: { [messageId: string]: Subject<any> } } = {};
@@ -278,8 +277,6 @@ export class Websocket {
    * Reset everything to default
    */
   private initialize() {
-    this.stopOnInitialize.next();
-    this.stopOnInitialize.complete();
     this.devices.next({});
   }
 
@@ -293,7 +290,6 @@ export class Websocket {
     } else {
       // websocket was NOT connected
       this.connect()
-        .takeUntil(this.stopOnInitialize)
         .filter(isConnected => isConnected)
         .first()
         .subscribe(isConnected => {

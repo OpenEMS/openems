@@ -65,6 +65,9 @@ public class DebugLogController extends Controller {
 	@ChannelInfo(title = "EVCSs", description = "Sets the evcs.", type = Evcs.class, isOptional = true, isArray = true)
 	public final ConfigChannel<Set<Evcs>> evcss = new ConfigChannel<Set<Evcs>>("evcss", this);
 
+	@ChannelInfo(title = "Outputs", description = "Sets the outputs.", type = Output.class, isOptional = true, isArray = true)
+	public final ConfigChannel<Set<Output>> outputs = new ConfigChannel<Set<Output>>("outputs", this);
+
 	/*
 	 * Methods
 	 */
@@ -91,6 +94,12 @@ public class DebugLogController extends Controller {
 			if (evcss.valueOptional().isPresent()) {
 				for (Evcs evcs : evcss.value()) {
 					b.append(evcs.toString());
+					b.append(" ");
+				}
+			}
+			if (outputs.valueOptional().isPresent()) {
+				for (Output output : outputs.value()) {
+					b.append(output.toString());
 					b.append(" ");
 				}
 			}

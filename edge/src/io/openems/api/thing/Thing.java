@@ -46,6 +46,10 @@ public interface Thing {
 	}
 
 	@ChannelInfo(type = ThingState.class)
+	public default ThingStateChannels State() {
+		return this.getStateChannel();
+	}
+
 	public ThingStateChannels getStateChannel();
 
 	@SuppressWarnings("unchecked")

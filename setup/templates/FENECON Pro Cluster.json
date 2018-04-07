@@ -58,8 +58,7 @@
 				"priority": 150,
 				"class": "io.openems.impl.controller.debuglog.DebugLogController",
 				"esss": [ "ess0", "ess1" ],
-				"meters": [ "meter0", "meter1", "meter2" ],
-				"rtc": "ess0"
+				"meters": [ "meter0", "meter1", "meter2" ]
 			},
 			{
 				"priority": 100,

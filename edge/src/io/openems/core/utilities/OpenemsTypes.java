@@ -5,6 +5,7 @@ import java.net.Inet4Address;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.openems.api.channel.thingstate.ThingState;
 import io.openems.api.controller.ThingMap;
 import io.openems.api.device.nature.DeviceNature;
 import io.openems.common.exceptions.NotImplementedException;
@@ -25,7 +26,7 @@ public enum OpenemsTypes {
 	/*
 	 * Arrays of primitives
 	 */
-	LONG_ARRAY,DOUBLE_ARRAY,
+	LONG_ARRAY, DOUBLE_ARRAY,
 	/*
 	 * Complex types
 	 */
@@ -41,8 +42,7 @@ public enum OpenemsTypes {
 	/*
 	 * Enum
 	 */
-	ENUM
-	;
+	ENUM, THING_STATE;
 
 	public static OpenemsTypes get(Class<?> type) throws NotImplementedException {
 		if (Short.class.isAssignableFrom(type)) {
@@ -82,8 +82,10 @@ public enum OpenemsTypes {
 
 		} else if (ThingMap.class.isAssignableFrom(type)) {
 			return THING_MAP;
-		}else if (ChannelEnum.class.isAssignableFrom(type)) {
+		} else if (ChannelEnum.class.isAssignableFrom(type)) {
 			return ENUM;
+		} else if (ThingState.class.isAssignableFrom(type)) {
+			return THING_STATE;
 		}
 		throw new NotImplementedException("Type [" + type + "] is not defined as OpenemsType.");
 	}

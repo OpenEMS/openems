@@ -64,8 +64,7 @@
 				"meters": [
 					"meter0",
 					"meter1"
-				],
-				"rtc": "ess0"
+				]
 			},
 			{
 				"priority": 100,

@@ -118,7 +118,7 @@ public class SymmetricPowerImpl extends SymmetricPower implements LimitationChan
 					log.error("Power is empty after applying Limit. " + limit.toString());
 				}
 			} catch (PowerException e) {
-				log.error("Failed to limit Power!", e);
+				log.error("Failed to limit Power: " + e.getMessage());
 			}
 		}
 	}

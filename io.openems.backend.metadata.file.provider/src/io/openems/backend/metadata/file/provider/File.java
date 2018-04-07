@@ -121,9 +121,14 @@ public class File implements MetadataService {
 	}
 
 	@Override
-	public User getUserWithSession(String sessionId) throws OpenemsException {
+	public User authenticate() throws OpenemsException {
 		this.refreshData();
-		return this.user;
+		return this.user;		
+	}
+
+	@Override
+	public User authenticate(String sessionId) throws OpenemsException {
+		return this.authenticate(); // ignore sessionId
 	}
 
 	@Override

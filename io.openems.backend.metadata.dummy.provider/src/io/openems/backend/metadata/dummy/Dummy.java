@@ -52,7 +52,12 @@ public class Dummy implements MetadataService {
 	}
 
 	@Override
-	public User getUserWithSession(String sessionId) throws OpenemsException {
+	public User authenticate() throws OpenemsException {
+		return this.authenticate("NO_SESSION_ID");
+	}
+
+	@Override
+	public User authenticate(String sessionId) throws OpenemsException {
 		int id = this.nextUserId++;
 		User user = new User(id, "USER:" + sessionId);
 		for (int edgeId : this.edges.keySet()) {

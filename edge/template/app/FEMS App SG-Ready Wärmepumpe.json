@@ -1,4 +1,8 @@
 {
+	"class": "io.openems.impl.controller.debuglog.DebugLogController",
+	"outputs": "output0"
+}
+{
 	"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
 	"priority": 60,
 	"thresholdChannelAddress": "ess0/Soc",

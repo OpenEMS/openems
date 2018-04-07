@@ -24,14 +24,15 @@ if [ ! -e $FINISHED_1 ]; then
 		exit 1
 	fi
 
-#selection process	
-CHOICE=$(whiptail --menu "Wähle aus:" 18 40 9 \
+	#selection process	
+	CHOICE=$(whiptail --menu "Wähle aus:" 20 45 12 \
 			"FENECON Mini" "" \
 			"FENECON DESS" "" \
 			"FENECON Pro" "" \
+			"FENECON Pro Cluster" ""\
 			"FENECON Pro AC-Insel" "" \
 			"FENECON Pro Heizstab" "" \
-			"FENECON Pro Wärmepumpe" "" \
+			"FENECON Pro Waermepumpe" "" \
 			"FENECON Commercial AC" "" \
 			"FENECON Commercial DC" "" \
 			"FENECON Commercial Hybrid" "" 3>&1 1>&2 2>&3)
@@ -42,9 +43,10 @@ CHOICE=$(whiptail --menu "Wähle aus:" 18 40 9 \
 					"FENECON Mini")             	echo "Es wurde Mini gewählt";;
 					"FENECON DESS")                 echo "Es wurde Pro Hybrid gewählt";;
 					"FENECON Pro")             		echo "Es wurde Pro 9-12 gewählt";;
+					"FENECON Pro Cluster")			echo "Es wurde Pro 18-24 gewählt";;
 					"FENECON Pro AC-Insel")         echo "Es wurde AC-Insel gewählt";;
 					"FENECON Pro Heizstab")			echo "Es wurde Heizstab gewählt";;
-					"FENECON Pro Waermepumpe")       echo "Es wurde Wärmepumpe gewählt";;
+					"FENECON Pro Waermepumpe")      echo "Es wurde Wärmepumpe gewählt";;
 					"FENECON Commercial AC")        echo "Es wurde Commercial AC gewählt";;
 					"FENECON Commercial DC")        echo "Es wurde Commercial DC gewählt";;
 					"FENECON Commercial Hybrid")    echo "Es wurde Comemrcial Hybrid gewählt";;
@@ -55,6 +57,7 @@ CHOICE=$(whiptail --menu "Wähle aus:" 18 40 9 \
 			echo "Nichts ausgewählt"
 			exit
 	fi
+	
 	echo "#save variable to file"
 	touch /opt/choice && echo $CHOICE > /opt/choice
 
@@ -90,7 +93,7 @@ CHOICE=$(whiptail --menu "Wähle aus:" 18 40 9 \
 	echo "# Shutdown system"
 	shutdown -h now
 
-elif [ ! -e $FINISHED_2 ]; then
+else
 	echo "#"
 	echo "# Starting second stage of FEMS setup"
 	echo "#"
@@ -109,19 +112,11 @@ elif [ ! -e $FINISHED_2 ]; then
 	echo $FEMS > /etc/mailname
 	rm -fv /etc/ssh/ssh_host_*
 	dpkg-reconfigure openssh-server
-	rm /etc/udev/rules.d/70-persistent-net.rules
+	rm -f /etc/udev/rules.d/70-persistent-net.rules
 
-	echo "# Blink all LEDs"
-	echo timer | tee /sys/class/leds/beaglebone:green:usr?/trigger >/dev/null
-	
 	echo "# Mark second stage as finished"
 	touch $FINISHED_2
 
-	read -p "Press [Enter] key to reboot"
-	echo "# Rebooting system"
-	reboot
-
-else
 	echo "#"
 	echo "# Starting third stage of FEMS setup"
 	echo "#"
@@ -137,7 +132,7 @@ else
 	echo "# Refresh apt cache"
 	/usr/bin/aptitude update
 	echo "# Install openjdk 8"
-	/usr/bin/apt install -t jessie-backports openjdk-8-jre-headless -y
+	/usr/bin/apt install -t jessie-backports openjdk-8-jre-headless --assume-yes
 
 	CHOICE=$(cat /opt/choice)
 
@@ -146,7 +141,7 @@ else
 		aptitude install fems-dess fems-fenecononlinemonitoring --assume-yes
 
 	else
-		aptitude install openems openems-fems openems-ui influxdb grafana 
+		aptitude install openems openems-fems openems-ui influxdb grafana --assume-yes
 		
 		# copy config and set name + apikey
 		CHOICE=$(cat /opt/choice)	
@@ -179,7 +174,7 @@ else
 
 	if [ "${PACKAGES}" != "" ]; then
 		echo "# Install packages: ${PACKAGES}"
-		/usr/bin/aptitude install --assume-yes $PACKAGES -y
+		/usr/bin/aptitude install --assume-yes $PACKAGES
 		
 	else
 		echo "# Install NO packages!"
@@ -191,11 +186,15 @@ else
 	echo "#"
 	echo "# Finished setup"
 	echo "#"
-	
-	
+	cd /opt/scripts/tools/
+	git pull
+	./update_kernel.sh --lts-4_14
+	cd /home/fems
 	fems-autoupdate fems -y || true
+
 	echo "# Blink all LEDs"
 	echo timer | tee /sys/class/leds/beaglebone:green:usr?/trigger >/dev/null
+	
 	echo "# Rebooting system"
 	reboot
 fi

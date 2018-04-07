@@ -22,6 +22,7 @@ public class BitUtils {
 
 		case ENUM:
 		case INTEGER:
+		case THING_STATE:
 			return BYTES_INT * BITS;
 
 		case LONG:
@@ -57,6 +58,10 @@ public class BitUtils {
 		case LONG:
 			return ByteBuffer.allocate(BYTES_LONG).order(BYTE_ORDER).putLong((Long) value).array();
 
+		case ENUM:
+		case THING_STATE:
+			return ByteBuffer.allocate(BYTES_INT).order(BYTE_ORDER).putInt(((Enum<?>)value).ordinal()).array();
+
 		case BOOLEAN: // TODO implmement BOOLEAN toBytes (put boolean value in a byte)
 		case DOUBLE: // TODO implement DOUBLE toBytes
 		case INET_4_ADDRESS: // TODO implement INET_4_ADDRESS toBytes
@@ -66,7 +71,6 @@ public class BitUtils {
 		case JSON_OBJECT:
 		case DEVICE_NATURE:
 		case THING_MAP:
-		case ENUM:
 			// igore - no error
 			return new byte[0];
 		default:

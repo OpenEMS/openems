@@ -50,7 +50,7 @@
 					"meter0",
 					"meter1"
 				],
-				"rtc": "ess0"
+				"outputs": "output0"
 			},
 			{
 				"priority": 100,

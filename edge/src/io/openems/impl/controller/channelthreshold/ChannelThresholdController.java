@@ -59,6 +59,7 @@ public class ChannelThresholdController extends Controller {
 	private final Logger log = LoggerFactory.getLogger(ChannelThresholdController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
+
 	/*
 	 * Constructors
 	 */
@@ -83,7 +84,7 @@ public class ChannelThresholdController extends Controller {
 	 */
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "Channel", description = "Address of the channel that indicates the switching by the min and max threshold.", type = String.class)
-	public ConfigChannel<String> thresholdChannelName = new ConfigChannel<String>("thresholdChannelAddress", this)
+	public ConfigChannel<String> thresholdChannelAddress = new ConfigChannel<String>("thresholdChannelAddress", this)
 	.addChangeListener((channel, newValue, oldValue) -> {
 		Optional<String> channelAddress = (Optional<String>) newValue;
 		if (channelAddress.isPresent()) {
@@ -100,7 +101,7 @@ public class ChannelThresholdController extends Controller {
 
 	@SuppressWarnings("unchecked")
 	@ChannelInfo(title = "Output", description = "Address of the digital output channel that should be switched.", type = String.class)
-	public ConfigChannel<String> outputChannelName = new ConfigChannel<String>("outputChannelAddress", this)
+	public ConfigChannel<String> outputChannelAddress = new ConfigChannel<String>("outputChannelAddress", this)
 	.addChangeListener((channel, newValue, oldValue) -> {
 		Optional<String> channelAddress = (Optional<String>) newValue;
 		if (channelAddress.isPresent()) {
@@ -170,6 +171,7 @@ public class ChannelThresholdController extends Controller {
 	private void on(boolean invertOutput) throws WriteChannelException {
 		Optional<Boolean> currentValueOpt = this.outputChannel.valueOptional();
 		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (true ^ invertOutput)) {
+			log.info("Set output [" + this.outputChannel.address() + "] ON.");
 			outputChannel.pushWrite(true ^ invertOutput);
 		}
 	}
@@ -177,6 +179,7 @@ public class ChannelThresholdController extends Controller {
 	private void off(boolean invertOutput) throws WriteChannelException {
 		Optional<Boolean> currentValueOpt = this.outputChannel.valueOptional();
 		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (false ^ invertOutput)) {
+			log.info("Set output [" + this.outputChannel.address() + "] OFF.");
 			outputChannel.pushWrite(false ^ invertOutput);
 		}
 	}

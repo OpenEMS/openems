@@ -72,7 +72,10 @@ public class Config implements ChannelChangeListener {
 	private final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 	private final static String CONFIG_PATH = "etc/openems.d";
 	private final static String CONFIG_FILE_NAME = "config.json";
-	private final static String CONFIG_BACKUP_FILE_NAME = "config.backup.json";
+	// config created after successful startup:
+	private final static String CONFIG_WORKING_BACKUP_FILE_NAME = "config.working_backup.json";
+	// config created before each save to default config
+	private final static String CONFIG_LATEST_BACKUP_FILE_NAME = "config.latest_backup.json";
 
 	private final static Logger log = LoggerFactory.getLogger(Config.class);
 	private static Config instance;
@@ -97,7 +100,8 @@ public class Config implements ChannelChangeListener {
 
 	private final ThingRepository thingRepository;
 	private final Path configFile;
-	private final Path configBackupFile;
+	private final Path configWorkingBackupFile;
+	private final Path configLatestBackupFile;
 	private final ExecutorService writeConfigExecutor;
 
 	public Config(String configPath) throws ConfigException {
@@ -107,7 +111,8 @@ public class Config implements ChannelChangeListener {
 		} else {
 			this.configFile = getConfigFile();
 		}
-		this.configBackupFile = getConfigBackupFile();
+		this.configWorkingBackupFile = getConfigWorkingBackupFile();
+		this.configLatestBackupFile = getConfigLatestBackupFile();
 		this.writeConfigExecutor = Executors.newSingleThreadExecutor();
 	}
 
@@ -132,18 +137,27 @@ public class Config implements ChannelChangeListener {
 		try {
 			readConfigFromFile(configFile);
 			log.info("Read configuration from file [" + configFile.toString() + "]");
-			// config was read successfully: create backup of this working configuration
-			this.createBackupOfConfigFile();
+			// config was read successfully: create 'Working Backup' of this configuration
+			this.createConfigWorkingBackup();
 			return;
 		} catch (Exception e) {
 			log.warn("Failed to read configuration from file [" + configFile.toString() + "] ",e);
 		}
-		// Read configuration from backup config file
+		// Read configuration from 'Latest Backup'
 		try {
-			readConfigFromFile(configBackupFile);
-			log.info("Read configuration from backup file [" + configBackupFile.toString() + "]");
+			readConfigFromFile(configLatestBackupFile);
+			log.info("Read configuration from 'Latest Backup' [" + configLatestBackupFile.toString() + "]");
+			return;
 		} catch (Exception e) {
-			log.warn("Failed to read configuration backup file [" + configFile.toString() + "]", e);
+			log.warn("Failed to read configuration from 'Latest Backup' [" + configLatestBackupFile.toString() + "]", e);
+		}
+		// Read configuration from 'Working Backup'
+		try {
+			readConfigFromFile(configWorkingBackupFile);
+			log.info("Read configuration from 'Working Backup' [" + configWorkingBackupFile.toString() + "]");
+			return;
+		} catch (Exception e) {
+			log.warn("Failed to read configuration from 'Working Backup' [" + configWorkingBackupFile.toString() + "]", e);
 			throw e;
 		}
 	}
@@ -266,9 +280,9 @@ public class Config implements ChannelChangeListener {
 				String config = gson.toJson(jConfig);
 
 				/*
-				 * create backup of config file
+				 * create 'Latest Backup' of config file
 				 */
-				createBackupOfConfigFile();
+				createConfigLatestBackup();
 
 				try {
 					/*
@@ -282,13 +296,23 @@ public class Config implements ChannelChangeListener {
 
 					try {
 						/*
-						 * On error: recover backup file
+						 * On error: recover 'Latest Backup' file
 						 */
-						Files.copy(configBackupFile, configFile, StandardCopyOption.REPLACE_EXISTING);
+						Files.copy(configLatestBackupFile, configFile, StandardCopyOption.REPLACE_EXISTING);
 					} catch (IOException e2) {
 						ConfigException ex2 = new ConfigException(
-								"Unable to recover backup file [" + configBackupFile.toString() + "]");
+								"Unable to recover 'Latest Backup' [" + configLatestBackupFile.toString() + "]");
 						log.error(ex2.getMessage(), ex2);
+						try {
+							/*
+							 * recover 'Working Backup' file
+							 */
+							Files.copy(configWorkingBackupFile, configFile, StandardCopyOption.REPLACE_EXISTING);
+						} catch (IOException e3) {
+							ConfigException ex3 = new ConfigException(
+									"Unable to recover 'Working Backup' [" + configWorkingBackupFile.toString() + "]");
+							log.error(ex3.getMessage(), ex3);
+						}
 					}
 				}
 			}
@@ -296,13 +320,24 @@ public class Config implements ChannelChangeListener {
 		this.writeConfigExecutor.execute(writeConfigRunnable);
 	}
 
-	private synchronized void createBackupOfConfigFile() {
+	private synchronized void createConfigWorkingBackup() {
 		try {
-			log.info("Create backup file [" + configBackupFile.toString() + "]");
-			Files.copy(configFile, configBackupFile, StandardCopyOption.REPLACE_EXISTING);
+			log.info("Create 'Working Backup' [" + configWorkingBackupFile.toString() + "]");
+			Files.copy(configFile, configWorkingBackupFile, StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException e) {
 			ConfigException ex = new ConfigException(
-					"Unable to create backup file [" + configBackupFile.toString() + "]");
+					"Unable to create 'Working Backup' [" + configWorkingBackupFile.toString() + "]");
+			log.error(ex.getMessage(), ex);
+		}
+	}
+
+	private synchronized void createConfigLatestBackup() {
+		try {
+			log.info("Create 'Latest Backup' [" + configLatestBackupFile.toString() + "]");
+			Files.copy(configFile, configLatestBackupFile, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			ConfigException ex = new ConfigException(
+					"Unable to create 'Latest Backup' [" + configLatestBackupFile.toString() + "]");
 			log.error(ex.getMessage(), ex);
 		}
 	}
@@ -580,12 +615,22 @@ public class Config implements ChannelChangeListener {
 	}
 
 	/**
-	 * Provides the File path of the config backup file ("/etc/openems.d/config.backup.json") or a local file on a
+	 * Provides the File path of the config working backup file ("/etc/openems.d/config.working_backup.json") or a local file on a
 	 * development machine
 	 */
-	private Path getConfigBackupFile() {
+	private Path getConfigWorkingBackupFile() {
 		Path configFile = getConfigFile();
-		Path backupFile = configFile.getParent().resolve(CONFIG_BACKUP_FILE_NAME);
+		Path backupFile = configFile.getParent().resolve(CONFIG_WORKING_BACKUP_FILE_NAME);
+		return backupFile;
+	}
+
+	/**
+	 * Provides the File path of the config latest backup file ("/etc/openems.d/config.working_backup.json") or a local file on a
+	 * development machine
+	 */
+	private Path getConfigLatestBackupFile() {
+		Path configFile = getConfigFile();
+		Path backupFile = configFile.getParent().resolve(CONFIG_LATEST_BACKUP_FILE_NAME);
 		return backupFile;
 	}
 

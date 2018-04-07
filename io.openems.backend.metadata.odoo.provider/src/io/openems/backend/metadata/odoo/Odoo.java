@@ -85,15 +85,26 @@ public class Odoo implements MetadataService {
 	}
 
 	/**
+	 * Tries to authenticate at the Odoo server WITHOUT a sessionId. This is always
+	 * denied.
+	 *
+	 * @param sessionId
+	 * @return
+	 * @throws OpenemsException
+	 */
+	public User authenticate() throws OpenemsException {
+		throw new OpenemsException("Session-ID is missing. Authentication to Odoo denied.");
+	}
+
+	/**
 	 * Tries to authenticate at the Odoo server using a sessionId from a cookie.
-	 * Updates the Session object accordingly.
 	 *
 	 * @param sessionId
 	 * @return
 	 * @throws OpenemsException
 	 */
 	@Override
-	public User getUserWithSession(String sessionId) throws OpenemsException {
+	public User authenticate(String sessionId) throws OpenemsException {
 		HttpURLConnection connection = null;
 		try {
 			// send request to Odoo
