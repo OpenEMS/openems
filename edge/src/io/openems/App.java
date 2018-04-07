@@ -38,8 +38,8 @@ import io.openems.core.Config;
 public class App {
 	private final static Logger log = LoggerFactory.getLogger(App.class);
 
-	public final static String OPENEMS_VERSION = "2018.4.2";
-	// public final static String OPENEMS_VERSION = "2018.5.0-SNAPSHOT";
+	// public final static String OPENEMS_VERSION = "2018.4.2";
+	public final static String OPENEMS_VERSION = "2018.5.0-SNAPSHOT";
 
 	public static void main(String[] args) {
 		log.info("OpenEMS version [" + OPENEMS_VERSION + "] started");
