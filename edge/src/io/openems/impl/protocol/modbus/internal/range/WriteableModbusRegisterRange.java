@@ -20,12 +20,10 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus.internal.range;
 
-import io.openems.impl.protocol.modbus.ModbusElement;
-
 public class WriteableModbusRegisterRange extends ModbusRegisterRange implements WriteableModbusRange {
-
-	public WriteableModbusRegisterRange(int startAddress, ModbusElement<?>... elements) {
-		super(startAddress, elements);
-	}
+	//MOVED TO OSGi
+	//	public WriteableModbusRegisterRange(int startAddress, ModbusElement<?>... elements) {
+	//		super(startAddress, elements);
+	//	}
 
 }

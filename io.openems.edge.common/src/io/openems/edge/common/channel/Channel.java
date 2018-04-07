@@ -5,7 +5,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
 
-public interface Channel {
+public interface Channel<T> {
 
 	/**
 	 * Gets the ChannelId of this Channel
@@ -50,4 +50,10 @@ public interface Channel {
 	 *            Object needs to be converted internally to the correct format
 	 */
 	void setNextValue(Object value) throws OpenemsException;
+
+	T getActiveValue();
+
+	default String format() {
+		return this.channelDoc().getUnit().format(this.getActiveValue(), this.getType());
+	}
 }

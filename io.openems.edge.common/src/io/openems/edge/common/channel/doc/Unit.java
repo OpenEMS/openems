@@ -1,28 +1,39 @@
 package io.openems.edge.common.channel.doc;
 
+import io.openems.common.types.OpenemsType;
+
 public enum Unit {
 	/* No Unit */
-	NONE,
+	NONE(""),
 	/* Generic */
-	PERCENT,
+	PERCENT("%"),
 	/* Active Power */
-	W,
+	WATT("W"),
 	/* Reactive Power */
-	VAR,
+	VOLT_AMPERE_REACTIVE("var"),
 	/* Apparent Power */
-	VA,
+	VOLT_AMPERE("VA"),
 	/* Voltage */
-	VOLT, MILLIVOLT(VOLT, -3);
+	VOLT("V"), MILLIVOLT("mV", VOLT, -3),
+	/* Ampere */
+	AMPERE("A"), MILLIAMPERE("mA", AMPERE, -3),
+	/* Energy */
+	WATT_HOURS("Wh"),
+	/* Frequency */
+	HERTZ("Hz"), MILLIHERTZ("mHz", HERTZ, -3),
+	/* Temperature */
+	DEGREE_CELCIUS("°C");
 
 	private final Unit baseUnit;
 	private final int scaleFactor;
+	private final String symbol;
 
-	private Unit() {
-		this.baseUnit = null;
-		this.scaleFactor = 0;
+	private Unit(String symbol) {
+		this(symbol, null, 0);
 	}
 
-	private Unit(Unit baseUnit, int scaleFactor) {
+	private Unit(String symbol, Unit baseUnit, int scaleFactor) {
+		this.symbol = symbol;
 		this.baseUnit = baseUnit;
 		this.scaleFactor = scaleFactor;
 	}
@@ -31,7 +42,26 @@ public enum Unit {
 		return baseUnit;
 	}
 
-	public int getScaleFactor() {
-		return scaleFactor;
+	public int getAsBaseUnit(int value) {
+		return (int) (value * Math.pow(10, this.scaleFactor));
+	}
+
+	public String format(Object value, OpenemsType type) {
+		return value + " " + this.symbol;
+	}
+
+	public String formatAsBaseUnit(Object value, OpenemsType type) {
+		if (this.baseUnit != null) {
+			switch (type) {
+			case LONG:
+			case INTEGER:
+				return this.baseUnit.formatAsBaseUnit(this.getAsBaseUnit((int) value), type);
+			case BOOLEAN:
+				return this.baseUnit.formatAsBaseUnit(value, type);
+			}
+		} else {
+			return value + " " + this.symbol;
+		}
+		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
 	}
 }

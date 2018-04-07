@@ -28,7 +28,7 @@ public class Doc {
 		return this;
 	}
 
-	Unit getUnit() {
+	public Unit getUnit() {
 		return this.unit;
 	}
 
@@ -51,5 +51,20 @@ public class Doc {
 
 	public Level getLevel() {
 		return level;
+	}
+
+	/*
+	 * Verbose Debug mode
+	 */
+
+	private boolean debug = false;
+
+	public Doc debug() {
+		this.debug = true;
+		return this;
+	}
+
+	public boolean isDebug() {
+		return this.debug;
 	}
 }

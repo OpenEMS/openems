@@ -1,5 +1,8 @@
 package io.openems.edge.common.channel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -7,7 +10,9 @@ import io.openems.common.utils.TypeUtils;
 import io.openems.edge.common.channel.doc.ChannelId;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public abstract class AbstractReadChannel<T> implements Channel {
+public abstract class AbstractReadChannel<T> implements Channel<T> {
+
+	private final Logger log = LoggerFactory.getLogger(AbstractReadChannel.class);
 
 	private final ChannelId channelId;
 	private final OpenemsComponent component;
@@ -30,7 +35,6 @@ public abstract class AbstractReadChannel<T> implements Channel {
 	@Override
 	public void nextProcessImage() {
 		this.activeValue = this.nextValue;
-		System.out.println("nextProcessImage " + this.address() + ": " + this.activeValue);
 	}
 
 	@Override
@@ -43,6 +47,11 @@ public abstract class AbstractReadChannel<T> implements Channel {
 		return this.type;
 	}
 
+	@Override
+	public T getActiveValue() {
+		return activeValue;
+	}
+
 	/**
 	 * Should be called by actual implementations to set the next value
 	 * 
@@ -51,6 +60,9 @@ public abstract class AbstractReadChannel<T> implements Channel {
 	 */
 	public final void setNextValue(Object value) throws OpenemsException {
 		this.nextValue = TypeUtils.<T>getAsType(type, value);
-		System.out.println("Next value for [" + this.address() + "]: " + this.nextValue);
+		if (this.channelDoc().isDebug()) {
+			log.info("Next value for [" + this.address() + "]: "
+					+ this.channelDoc().getUnit().format(value, this.getType()));
+		}
 	}
 }

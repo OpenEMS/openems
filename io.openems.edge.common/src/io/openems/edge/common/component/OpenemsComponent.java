@@ -42,14 +42,14 @@ public interface OpenemsComponent {
 	 * @param channelId
 	 * @return
 	 */
-	Channel channel(io.openems.edge.common.channel.doc.ChannelId channelId);
+	Channel<?> channel(io.openems.edge.common.channel.doc.ChannelId channelId);
 
 	/**
 	 * Returns all Channels
 	 * 
 	 * @return
 	 */
-	Collection<Channel> channels();
+	Collection<Channel<?>> channels();
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		// Running State of the component
@@ -71,7 +71,7 @@ public interface OpenemsComponent {
 	}
 
 	default StateChannel getState() {
-		Channel channel = this.channel(ChannelId.STATE);
+		Channel<?> channel = this.channel(ChannelId.STATE);
 		if (!(channel instanceof StateChannel)) {
 			throw new IllegalArgumentException("Channel [State] must be of type 'StateChannel'.");
 		}

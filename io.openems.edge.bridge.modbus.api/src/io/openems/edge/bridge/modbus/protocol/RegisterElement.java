@@ -1,5 +1,8 @@
 package io.openems.edge.bridge.modbus.protocol;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -10,6 +13,8 @@ import io.openems.common.exceptions.OpenemsException;
  * @author stefan.feilmeier
  */
 public abstract class RegisterElement<T> {
+
+	private final Logger log = LoggerFactory.getLogger(RegisterElement.class);
 
 	private final int startAddress;
 	private final boolean isIgnored;
@@ -71,12 +76,28 @@ public abstract class RegisterElement<T> {
 	}
 
 	protected void setValue(T value) {
+		if (this.isDebug) {
+			log.info("Element at [" + this.startAddress + "/0x" + Integer.toHexString(this.startAddress)
+					+ "] set value to [" + value + "].");
+		}
 		if (this.onUpdateCallback != null) {
 			this.onUpdateCallback.call(value);
 		}
 	}
 
 	public void setInputRegisters(InputRegister... registers) throws OpenemsException {
+		if (this.isDebug) {
+			StringBuilder b = new StringBuilder("Element at [" + this.startAddress + "/0x"
+					+ Integer.toHexString(this.startAddress) + "] set input registers to [");
+			for (int i = 0; i < registers.length; i++) {
+				b.append(registers[i].getValue());
+				if (i < registers.length - 1) {
+					b.append(",");
+				}
+			}
+			b.append("].");
+			log.info(b.toString());
+		}
 		if (registers.length != this.getLength()) {
 			throw new OpenemsException("Modbus address [" + startAddress + "]: registers length [" + registers.length
 					+ "] does not match required size of [" + this.getLength() + "]");
@@ -89,8 +110,21 @@ public abstract class RegisterElement<T> {
 	/**
 	 * BuilderPattern. The received value is adjusted to the power of the
 	 * scaleFactor (y = x * 10^scaleFactor).
+	 * 
+	 * Example: if the Register is in unit [0.1 V] use scaleFactor '2' to make the
+	 * unit [1 mV]
 	 */
 	public abstract RegisterElement<T> scaleFactor(int scaleFactor);
+
+	/*
+	 * Enable Debug mode for this Element. Activates verbose logging.
+	 */
+	private boolean isDebug = false;
+
+	public RegisterElement<T> debug() {
+		this.isDebug = true;
+		return this;
+	}
 
 	// protected void setValue(T value) {
 	// if (channel == null) {

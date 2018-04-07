@@ -10,9 +10,9 @@ import io.openems.edge.common.channel.Channel;
 public class UpdateChannel<T> implements OnUpdate<T> {
 
 	private final Logger log = LoggerFactory.getLogger(UpdateChannel.class);
-	private final Channel channel;
+	private final Channel<?> channel;
 
-	public UpdateChannel(Channel channel) {
+	public UpdateChannel(Channel<?> channel) {
 		this.channel = channel;
 	}
 

@@ -2,6 +2,8 @@ package io.openems.edge.bridge.modbus.api;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
@@ -92,6 +94,65 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected abstract ModbusProtocol defineModbusProtocol();
 
 	/**
+	 * Maps an Element to one or more ModbusChannels using converters, that convert
+	 * the value forwards and backwards.
+	 */
+	public class ChannelMapper {
+
+		private final RegisterElement<?> element;
+		private Map<io.openems.edge.common.channel.doc.ChannelId, ElementToChannelConverter> channelMaps = new HashMap<>();
+
+		public ChannelMapper(RegisterElement<?> element) {
+			this.element = element;
+			this.element.onUpdateCallback((value) -> {
+				/*
+				 * Applies the updated value on every Channel in ChannelMaps using the given
+				 * Converter. If the converter returns an Optional.empty, the value is ignored.
+				 */
+				this.channelMaps.forEach((channelId, converter) -> {
+					ModbusChannel<?> modbusChannel = getAsModbusChannel(channelId);
+					Optional<Object> convertedValueOpt = converter.elementToChannel(value);
+					if (convertedValueOpt.isPresent()) {
+						try {
+							modbusChannel.setNextValue(convertedValueOpt.get());
+						} catch (OpenemsException e) {
+							Log.warn("Channel [" + modbusChannel.address() + "] unable to set next value: "
+									+ e.getMessage());
+						}
+					}
+				});
+			});
+		}
+
+		public ChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId,
+				ElementToChannelConverter converter) {
+			this.channelMaps.put(channelId, converter);
+			return this;
+		}
+
+		public ChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId,
+				Function<Object, Optional<Object>> elementToChannel, Function<Object, Object> channelToElement) {
+			ElementToChannelConverter converter = new ElementToChannelConverter(elementToChannel, channelToElement);
+			return this.m(channelId, converter);
+		}
+
+		public RegisterElement<?> build() {
+			return this.element;
+		}
+	}
+
+	/**
+	 * Creates a ChannelMapper that can be used with builder pattern inside the
+	 * protocol definition.
+	 * 
+	 * @param element
+	 * @return
+	 */
+	protected final ChannelMapper cm(RegisterElement<?> element) {
+		return new ChannelMapper(element);
+	}
+
+	/**
 	 * Maps the given element to the Channel identified by channelId. Throws an
 	 * IllegalArgumentException if Channel is not a ModbusChannel.
 	 * 
@@ -101,13 +162,26 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	protected final RegisterElement<?> m(io.openems.edge.common.channel.doc.ChannelId channelId,
 			RegisterElement<?> element) {
-		Channel channel = this.channel(channelId);
+		return new ChannelMapper(element) //
+				.m(channelId, ElementToChannelConverter.CONVERT_1_TO_1) //
+				.build();
+	}
+
+	/**
+	 * Gets the Channel for this ChannelId, making sure that it is of type
+	 * ModbusChannel. Otherwise throws an Exception:
+	 * 
+	 * @param channelId
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	private final ModbusChannel<?> getAsModbusChannel(io.openems.edge.common.channel.doc.ChannelId channelId)
+			throws IllegalArgumentException {
+		Channel<?> channel = this.channel(channelId);
 		if (!(channel instanceof ModbusChannel<?>)) {
 			throw new IllegalArgumentException("Channel [" + channelId + "] is not a ModbusChannel.");
 		}
-		ModbusChannel<?> modbusChannel = (ModbusChannel<?>) channel;
-		modbusChannel.mapToElement(element);
-		return element;
+		return (ModbusChannel<?>) channel;
 	}
 
 	/**
@@ -116,7 +190,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	public class BitChannelMapper {
 		private final UnsignedWordElement element;
-		private final Map<Integer, Channel> channels = new HashMap<>();
+		private final Map<Integer, Channel<?>> channels = new HashMap<>();
 
 		public BitChannelMapper(UnsignedWordElement element) {
 			this.element = element;
@@ -136,7 +210,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 
 		public BitChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId, int bitIndex) {
-			Channel channel = channel(channelId);
+			Channel<?> channel = channel(channelId);
 			if (channel.getType() != OpenemsType.BOOLEAN) {
 				throw new IllegalArgumentException(
 						"Channel [" + channelId + "] must be of type [BOOLEAN] for bit-mapping.");
@@ -150,6 +224,13 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 	}
 
+	/**
+	 * Creates a BitChannelMapper that can be used with builder pattern inside the
+	 * protocol definition.
+	 * 
+	 * @param element
+	 * @return
+	 */
 	protected final BitChannelMapper bm(UnsignedWordElement element) {
 		return new BitChannelMapper(element);
 	}

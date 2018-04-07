@@ -25,7 +25,7 @@ public interface EssSymmetric extends EssSymmetricReadonly {
 		}
 	}
 
-	default Channel getPower() {
+	default Channel<?> getPower() {
 		return this.channel(ChannelId.SYMMETRIC_POWER);
 	}
 }

@@ -21,5 +21,6 @@
 package io.openems.impl.protocol.modbus.internal;
 
 public enum WordOrder {
-	LSWMSW, MSWLSW
+	//	MOVED TO OSGi
+	//	LSWMSW, MSWLSW
 }

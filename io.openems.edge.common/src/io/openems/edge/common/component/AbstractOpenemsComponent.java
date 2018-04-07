@@ -19,9 +19,11 @@ import io.openems.edge.common.channel.Channel;
  * @author stefan.feilmeier
  */
 public class AbstractOpenemsComponent implements OpenemsComponent {
+
 	private final static String DEFAULT_ID = "UNDEFINED";
+
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsComponent.class);
-	private final Map<io.openems.edge.common.channel.doc.ChannelId, Channel> channels = Collections
+	private final Map<io.openems.edge.common.channel.doc.ChannelId, Channel<?>> channels = Collections
 			.synchronizedMap(new HashMap<>());
 
 	private String id = DEFAULT_ID;
@@ -70,15 +72,15 @@ public class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	@Override
-	public Channel channel(io.openems.edge.common.channel.doc.ChannelId channelId) {
-		Channel channel = this.channels.get(channelId);
+	public Channel<?> channel(io.openems.edge.common.channel.doc.ChannelId channelId) {
+		Channel<?> channel = this.channels.get(channelId);
 		if (channel == null) {
 			throw new IllegalArgumentException("ID [" + this.id() + "] has no Channel [" + channelId + "]");
 		}
 		return channel;
 	}
 
-	protected void addChannel(Channel channel) {
+	protected void addChannel(Channel<?> channel) {
 		if (channel == null) {
 			throw new NullPointerException(
 					"Trying to add 'null' Channel. Hint: Check for missing handling of Enum value.");
@@ -87,7 +89,7 @@ public class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	@Override
-	public Collection<Channel> channels() {
+	public Collection<Channel<?>> channels() {
 		return this.channels.values();
 	}
 }

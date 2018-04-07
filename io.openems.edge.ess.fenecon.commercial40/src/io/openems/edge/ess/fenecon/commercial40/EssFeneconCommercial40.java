@@ -15,11 +15,17 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.channel.ModbusIntegerReadChannel;
+import io.openems.edge.bridge.modbus.channel.ModbusLongReadChannel;
 import io.openems.edge.bridge.modbus.protocol.DummyElement;
 import io.openems.edge.bridge.modbus.protocol.ModbusProtocol;
 import io.openems.edge.bridge.modbus.protocol.RegisterRange;
+import io.openems.edge.bridge.modbus.protocol.SignedWordElement;
+import io.openems.edge.bridge.modbus.protocol.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.protocol.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.protocol.WordOrder;
+import io.openems.edge.bridge.modbus.protocol.WriteRegisterRange;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -54,8 +60,10 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 					return null;
 				}), Arrays.stream(EssSymmetricReadonly.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case ACTIVE_POWER:
-					case REACTIVE_POWER:
+					case CHARGE_ACTIVE_POWER:
+					case DISCHARGE_ACTIVE_POWER:
+					case CHARGE_REACTIVE_POWER:
+					case DISCHARGE_REACTIVE_POWER:
 						return new ModbusIntegerReadChannel(this, channelId);
 					}
 					return null;
@@ -71,7 +79,36 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 					case SYSTEM_TYPE:
 					case BATTERY_STRING_SWITCH_STATE:
 					case BATTERY_VOLTAGE:
+					case BATTERY_CURRENT:
+					case BATTERY_POWER:
+					case GRID_ACTIVE_POWER:
+					case APPARENT_POWER:
+					case CURRENT_L1:
+					case CURRENT_L2:
+					case CURRENT_L3:
+					case FREQUENCY:
+					case VOLTAGE_L1:
+					case VOLTAGE_L2:
+					case VOLTAGE_L3:
+					case ALLOWED_APPARENT:
+					case ALLOWED_CHARGE:
+					case ALLOWED_DISCHARGE:
+					case INVERTER_CURRENT_L1:
+					case INVERTER_CURRENT_L2:
+					case INVERTER_CURRENT_L3:
+					case INVERTER_VOLTAGE_L1:
+					case INVERTER_VOLTAGE_L2:
+					case INVERTER_VOLTAGE_L3:
+					case IPM_TEMPERATURE_L1:
+					case IPM_TEMPERATURE_L2:
+					case IPM_TEMPERATURE_L3:
+					case SET_ACTIVE_POWER:
+					case SET_WORK_STATE:
+					case TRANSFORMER_TEMPERATURE_L2:
 						return new ModbusIntegerReadChannel(this, channelId);
+					case AC_CHARGE_ENERGY:
+					case AC_DISCHARGE_ENERGY:
+						return new ModbusLongReadChannel(this, channelId);
 					case STATE_0:
 					case STATE_1:
 					case STATE_2:
@@ -260,7 +297,39 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 				.option(4, "FAN contactor") //
 				.option(8, "BMU power supply relay") //
 				.option(16, "Middle relay")), //
-		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), STATE_0(new Doc().level(Level.WARNING).text("Emergency Stop")), //
+		BATTERY_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
+		BATTERY_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
+		BATTERY_POWER(new Doc().unit(Unit.WATT)), //
+		AC_CHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
+		AC_DISCHARGE_ENERGY(new Doc().unit(Unit.WATT_HOURS)), //
+		GRID_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
+		APPARENT_POWER(new Doc().unit(Unit.VOLT_AMPERE)), //
+		CURRENT_L1(new Doc().unit(Unit.MILLIAMPERE)), //
+		CURRENT_L2(new Doc().unit(Unit.MILLIAMPERE)), //
+		CURRENT_L3(new Doc().unit(Unit.MILLIAMPERE)), //
+		VOLTAGE_L1(new Doc().unit(Unit.MILLIVOLT)), //
+		VOLTAGE_L2(new Doc().unit(Unit.MILLIVOLT)), //
+		VOLTAGE_L3(new Doc().unit(Unit.MILLIVOLT)), //
+		FREQUENCY(new Doc().unit(Unit.MILLIHERTZ)), //
+		INVERTER_VOLTAGE_L1(new Doc().unit(Unit.MILLIVOLT)), //
+		INVERTER_VOLTAGE_L2(new Doc().unit(Unit.MILLIVOLT)), //
+		INVERTER_VOLTAGE_L3(new Doc().unit(Unit.MILLIVOLT)), //
+		INVERTER_CURRENT_L1(new Doc().unit(Unit.MILLIAMPERE)), //
+		INVERTER_CURRENT_L2(new Doc().unit(Unit.MILLIAMPERE)), //
+		INVERTER_CURRENT_L3(new Doc().unit(Unit.MILLIAMPERE)), //
+		ALLOWED_CHARGE(new Doc().unit(Unit.WATT)), //
+		ALLOWED_DISCHARGE(new Doc().unit(Unit.WATT)), //
+		ALLOWED_APPARENT(new Doc().unit(Unit.VOLT_AMPERE)), //
+		IPM_TEMPERATURE_L1(new Doc().unit(Unit.DEGREE_CELCIUS)), //
+		IPM_TEMPERATURE_L2(new Doc().unit(Unit.DEGREE_CELCIUS)), //
+		IPM_TEMPERATURE_L3(new Doc().unit(Unit.DEGREE_CELCIUS)), //
+		TRANSFORMER_TEMPERATURE_L2(new Doc().unit(Unit.DEGREE_CELCIUS)), //
+		SET_WORK_STATE(new Doc() //
+				.option(4, "Stop") //
+				.option(32, "Standby") //
+				.option(64, "Start")), //
+		SET_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
+		STATE_0(new Doc().level(Level.WARNING).text("Emergency Stop")), //
 		STATE_1(new Doc().level(Level.WARNING).text("Key Manual Stop")), //
 		STATE_2(new Doc().level(Level.WARNING).text("Transformer Phase B Temperature Sensor Invalidation")), //
 		STATE_3(new Doc().level(Level.WARNING).text("SD Memory Card Invalidation")), //
@@ -558,114 +627,74 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 								.m(EssFeneconCommercial40.ChannelId.STATE_124, 14).build() //
 				), new RegisterRange(0x0200, //
 						m(EssFeneconCommercial40.ChannelId.BATTERY_VOLTAGE,
-								new UnsignedWordElement(0x0200).scaleFactor(2))),
-				new RegisterRange(0x1402, //
+								new SignedWordElement(0x0200).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.BATTERY_CURRENT,
+								new SignedWordElement(0x0201).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.BATTERY_POWER, new SignedWordElement(0x0202).scaleFactor(2)), //
+						new DummyElement(0x0203, 0x0207),
+						m(EssFeneconCommercial40.ChannelId.AC_CHARGE_ENERGY,
+								new UnsignedDoublewordElement(0x0208).scaleFactor(2).wordOrder(WordOrder.LSWMSW)), //
+						m(EssFeneconCommercial40.ChannelId.AC_DISCHARGE_ENERGY,
+								new UnsignedDoublewordElement(0x020A).scaleFactor(2).wordOrder(WordOrder.LSWMSW)), //
+						new DummyElement(0x020C, 0x020F), //
+						m(EssFeneconCommercial40.ChannelId.GRID_ACTIVE_POWER,
+								new SignedWordElement(0x0210).scaleFactor(2)), //
+						cm(new SignedWordElement(0x0211).scaleFactor(2)) //
+								.m(EssSymmetricReadonly.ChannelId.CHARGE_REACTIVE_POWER,
+										ElementToChannelConverter.CONVERT_NEGATIVE_AND_INVERT) //
+								.m(EssSymmetricReadonly.ChannelId.DISCHARGE_REACTIVE_POWER,
+										ElementToChannelConverter.CONVERT_POSITIVE) //
+								.build(), //
+						m(EssFeneconCommercial40.ChannelId.APPARENT_POWER,
+								new UnsignedWordElement(0x0212).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.CURRENT_L1, new SignedWordElement(0x0213).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.CURRENT_L2, new SignedWordElement(0x0214).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.CURRENT_L3, new SignedWordElement(0x0215).scaleFactor(2)), //
+						new DummyElement(0x0216, 0x218), //
+						m(EssFeneconCommercial40.ChannelId.VOLTAGE_L1, new UnsignedWordElement(0x0219).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.VOLTAGE_L2, new UnsignedWordElement(0x021A).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.VOLTAGE_L3, new UnsignedWordElement(0x021B).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.FREQUENCY, new UnsignedWordElement(0x021C).scaleFactor(1))), //
+				new RegisterRange(0x0222, //
+						m(EssFeneconCommercial40.ChannelId.INVERTER_VOLTAGE_L1,
+								new UnsignedWordElement(0x0222).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.INVERTER_VOLTAGE_L2,
+								new UnsignedWordElement(0x0223).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.INVERTER_VOLTAGE_L3,
+								new UnsignedWordElement(0x0224).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.INVERTER_CURRENT_L1,
+								new SignedWordElement(0x0225).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.INVERTER_CURRENT_L2,
+								new SignedWordElement(0x0226).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.INVERTER_CURRENT_L3,
+								new SignedWordElement(0x0227).scaleFactor(2)), //
+						cm(new SignedWordElement(0x0228).scaleFactor(2)) //
+								.m(EssSymmetricReadonly.ChannelId.CHARGE_ACTIVE_POWER,
+										ElementToChannelConverter.CONVERT_NEGATIVE_AND_INVERT) //
+								.m(EssSymmetricReadonly.ChannelId.DISCHARGE_ACTIVE_POWER,
+										ElementToChannelConverter.CONVERT_POSITIVE) //
+								.build(), //
+						new DummyElement(0x0229, 0x022F), //
+						m(EssFeneconCommercial40.ChannelId.ALLOWED_CHARGE,
+								new SignedWordElement(0x0230).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.ALLOWED_DISCHARGE,
+								new UnsignedWordElement(0x0231).scaleFactor(2)), //
+						m(EssFeneconCommercial40.ChannelId.ALLOWED_APPARENT,
+								new UnsignedWordElement(0x0232).scaleFactor(2)), //
+						new DummyElement(0x0233, 0x23F),
+						m(EssFeneconCommercial40.ChannelId.IPM_TEMPERATURE_L1, new SignedWordElement(0x0240)), //
+						m(EssFeneconCommercial40.ChannelId.IPM_TEMPERATURE_L2, new SignedWordElement(0x0241)), //
+						m(EssFeneconCommercial40.ChannelId.IPM_TEMPERATURE_L3, new SignedWordElement(0x0242)), //
+						new DummyElement(0x0243, 0x0248), //
+						m(EssFeneconCommercial40.ChannelId.TRANSFORMER_TEMPERATURE_L2, new SignedWordElement(0x0249))), //
+				new WriteRegisterRange(0x0500, //
+						m(EssFeneconCommercial40.ChannelId.SET_WORK_STATE, new UnsignedWordElement(0x0500)), //
+						m(EssFeneconCommercial40.ChannelId.SET_ACTIVE_POWER,
+								new SignedWordElement(0x0501).scaleFactor(2)) //
+				//
+				), new RegisterRange(0x1402, //
 						m(Ess.ChannelId.SOC, new UnsignedWordElement(0x1402))));
 
-		// new SignedWordElement(0x0201, //
-		// batteryCurrent = new ModbusReadLongChannel("BatteryCurrent", this).unit("mA")
-		// .multiplier(2)),
-		// new SignedWordElement(0x0202, //
-		// batteryPower = new ModbusReadLongChannel("BatteryPower",
-		// this).unit("W").multiplier(2)),
-		// new DummyElement(0x0203, 0x0207), //
-		// new UnsignedDoublewordElement(0x0208, //
-		// acChargeEnergy = new ModbusReadLongChannel("AcChargeEnergy", this).unit("Wh")
-		// .multiplier(2)).wordOrder(WordOrder.LSWMSW),
-		// new UnsignedDoublewordElement(0x020A, //
-		// acDischargeEnergy = new ModbusReadLongChannel("AcDischargeEnergy",
-		// this).unit("Wh")
-		// .multiplier(2)).wordOrder(WordOrder.LSWMSW),
-		// new DummyElement(0x020C, 0x020F), new SignedWordElement(0x0210, //
-		// gridActivePower = new ModbusReadLongChannel("GridActivePower",
-		// this).unit("W")
-		// .multiplier(2)),
-		// new SignedWordElement(0x0211, //
-		// reactivePower = new ModbusReadLongChannel("ReactivePower", this).unit("var")
-		// .multiplier(2)),
-		// new UnsignedWordElement(0x0212, //
-		// apparentPower = new ModbusReadLongChannel("ApparentPower", this).unit("VA")
-		// .multiplier(2)),
-		// new SignedWordElement(0x0213, //
-		// currentL1 = new ModbusReadLongChannel("CurrentL1",
-		// this).unit("mA").multiplier(2)),
-		// new SignedWordElement(0x0214, //
-		// currentL2 = new ModbusReadLongChannel("CurrentL2",
-		// this).unit("mA").multiplier(2)),
-		// new SignedWordElement(0x0215, //
-		// currentL3 = new ModbusReadLongChannel("CurrentL3",
-		// this).unit("mA").multiplier(2)),
-		// new DummyElement(0x0216, 0x218), //
-		// new UnsignedWordElement(0x0219, //
-		// voltageL1 = new ModbusReadLongChannel("VoltageL1",
-		// this).unit("mV").multiplier(2)),
-		// new UnsignedWordElement(0x021A, //
-		// voltageL2 = new ModbusReadLongChannel("VoltageL2",
-		// this).unit("mV").multiplier(2)),
-		// new UnsignedWordElement(0x021B, //
-		// voltageL3 = new ModbusReadLongChannel("VoltageL3",
-		// this).unit("mV").multiplier(2)),
-		// new UnsignedWordElement(0x021C, //
-		// frequency = new ModbusReadLongChannel("Frequency",
-		// this).unit("mHZ").multiplier(1))),
-		// new ModbusRegisterRange(0x0222, //
-		// new UnsignedWordElement(0x0222, //
-		// inverterVoltageL1 = new ModbusReadLongChannel("InverterVoltageL1",
-		// this).unit("mV")
-		// .multiplier(2)), //
-		// new UnsignedWordElement(0x0223, //
-		// inverterVoltageL2 = new ModbusReadLongChannel("InverterVoltageL2",
-		// this).unit("mV")
-		// .multiplier(2)), //
-		// new UnsignedWordElement(0x0224, //
-		// inverterVoltageL3 = new ModbusReadLongChannel("InverterVoltageL3",
-		// this).unit("mV")
-		// .multiplier(2)), //
-		// new UnsignedWordElement(0x0225, //
-		// inverterCurrentL1 = new ModbusReadLongChannel("InverterCurrentL1",
-		// this).unit("mA")
-		// .multiplier(2)), //
-		// new UnsignedWordElement(0x0226, //
-		// inverterCurrentL2 = new ModbusReadLongChannel("InverterCurrentL2",
-		// this).unit("mA")
-		// .multiplier(2)), //
-		// new UnsignedWordElement(0x0227, //
-		// inverterCurrentL3 = new ModbusReadLongChannel("InverterCurrentL3",
-		// this).unit("mA")
-		// .multiplier(2)), //
-		// new SignedWordElement(0x0228, //
-		// activePower = new ModbusReadLongChannel("ActivePower",
-		// this).unit("W").multiplier(2)), //
-		// new DummyElement(0x0229, 0x022F), new SignedWordElement(0x0230, //
-		// allowedCharge = new ModbusReadLongChannel("AllowedCharge", this).unit("W")
-		// .multiplier(2)), //
-		// new UnsignedWordElement(0x0231, //
-		// allowedDischarge = new ModbusReadLongChannel("AllowedDischarge",
-		// this).unit("W")
-		// .multiplier(2)), //
-		// new UnsignedWordElement(0x0232, //
-		// allowedApparent = new ModbusReadLongChannel("AllowedApparent",
-		// this).unit("VA")
-		// .multiplier(2)), //
-		// new DummyElement(0x0233, 0x23F), new SignedWordElement(0x0240, //
-		// ipmTemperatureL1 = new ModbusReadLongChannel("IpmTemperatureL1",
-		// this).unit("�C")), //
-		// new SignedWordElement(0x0241, //
-		// ipmTemperatureL2 = new ModbusReadLongChannel("IpmTemperatureL2",
-		// this).unit("�C")), //
-		// new SignedWordElement(0x0242, //
-		// ipmTemperatureL3 = new ModbusReadLongChannel("IpmTemperatureL3",
-		// this).unit("�C")), //
-		// new DummyElement(0x0243, 0x0248), new SignedWordElement(0x0249, //
-		// transformerTemperatureL2 = new
-		// ModbusReadLongChannel("TransformerTemperatureL2", this)
-		// .unit("�C"))),
-		// new WriteableModbusRegisterRange(0x0500, //
-		// new UnsignedWordElement(0x0500, //
-		// setWorkState = new ModbusWriteLongChannel("SetWorkState", this) //
-		// .label(4, STOP) //
-		// .label(32, STANDBY) //
-		// .label(64, START))),
 		// new WriteableModbusRegisterRange(0x0501, //
 		// new SignedWordElement(0x0501, //
 		// setActivePower = new ModbusWriteLongChannel("SetActivePower", this).unit("W")

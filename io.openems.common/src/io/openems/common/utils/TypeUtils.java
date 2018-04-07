@@ -8,6 +8,8 @@ public class TypeUtils {
 	@SuppressWarnings("unchecked")
 	public static <T> T getAsType(OpenemsType type, Object value) throws NotImplementedException {
 		switch (type) {
+		case LONG:
+			return (T) ((Long) value);
 		case INTEGER:
 			return (T) ((Integer) value);
 		case BOOLEAN:
