@@ -8,7 +8,6 @@ import java.util.function.Function;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.Log;
-import io.openems.edge.bridge.modbus.channel.ModbusChannel;
 import io.openems.edge.bridge.modbus.protocol.ModbusProtocol;
 import io.openems.edge.bridge.modbus.protocol.RegisterElement;
 import io.openems.edge.bridge.modbus.protocol.UnsignedWordElement;
@@ -110,14 +109,13 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 				 * Converter. If the converter returns an Optional.empty, the value is ignored.
 				 */
 				this.channelMaps.forEach((channelId, converter) -> {
-					ModbusChannel<?> modbusChannel = getAsModbusChannel(channelId);
+					Channel<?> channel = channel(channelId);
 					Optional<Object> convertedValueOpt = converter.elementToChannel(value);
 					if (convertedValueOpt.isPresent()) {
 						try {
-							modbusChannel.setNextValue(convertedValueOpt.get());
+							channel.setNextValue(convertedValueOpt.get());
 						} catch (OpenemsException e) {
-							Log.warn("Channel [" + modbusChannel.address() + "] unable to set next value: "
-									+ e.getMessage());
+							Log.warn("Channel [" + channel.address() + "] unable to set next value: " + e.getMessage());
 						}
 					}
 				});
@@ -165,23 +163,6 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		return new ChannelMapper(element) //
 				.m(channelId, ElementToChannelConverter.CONVERT_1_TO_1) //
 				.build();
-	}
-
-	/**
-	 * Gets the Channel for this ChannelId, making sure that it is of type
-	 * ModbusChannel. Otherwise throws an Exception:
-	 * 
-	 * @param channelId
-	 * @return
-	 * @throws IllegalArgumentException
-	 */
-	private final ModbusChannel<?> getAsModbusChannel(io.openems.edge.common.channel.doc.ChannelId channelId)
-			throws IllegalArgumentException {
-		Channel<?> channel = this.channel(channelId);
-		if (!(channel instanceof ModbusChannel<?>)) {
-			throw new IllegalArgumentException("Channel [" + channelId + "] is not a ModbusChannel.");
-		}
-		return (ModbusChannel<?>) channel;
 	}
 
 	/**

@@ -3,6 +3,7 @@ package io.openems.edge.common.channel;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.TypeUtils;
 import io.openems.edge.common.channel.doc.Doc;
 
 public interface Channel<T> {
@@ -47,12 +48,25 @@ public interface Channel<T> {
 	 * Updates the 'next' value of Channel.
 	 * 
 	 * @param value
-	 *            Object needs to be converted internally to the correct format
 	 */
-	void setNextValue(Object value) throws OpenemsException;
+	public default void setNextValue(Object value) throws OpenemsException {
+		this._setNextValue(TypeUtils.<T>getAsType(this.getType(), value));
+	}
 
+	public void _setNextValue(T value);
+
+	/**
+	 * Gets the currently active value
+	 * 
+	 * @return
+	 */
 	T getActiveValue();
 
+	/**
+	 * Formats the Channel. Can be used like toString()
+	 * 
+	 * @return
+	 */
 	default String format() {
 		return this.channelDoc().getUnit().format(this.getActiveValue(), this.getType());
 	}

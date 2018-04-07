@@ -1,6 +1,10 @@
 package io.openems.edge.ess.symmetric.readonly.api;
 
+import java.util.Set;
+
 import org.osgi.annotation.versioning.ProviderType;
+
+import com.google.common.collect.ImmutableSet;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -43,4 +47,7 @@ public interface EssSymmetricReadonly extends Ess {
 		return this.channel(ChannelId.DISCHARGE_REACTIVE_POWER);
 	}
 
+	default Set<io.openems.edge.common.channel.doc.ChannelId> debugLog() {
+		return ImmutableSet.of(Ess.ChannelId.SOC, ChannelId.CHARGE_ACTIVE_POWER, ChannelId.DISCHARGE_ACTIVE_POWER);
+	}
 }

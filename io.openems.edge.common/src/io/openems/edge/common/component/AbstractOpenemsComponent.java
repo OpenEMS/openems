@@ -18,7 +18,7 @@ import io.openems.edge.common.channel.Channel;
  * 
  * @author stefan.feilmeier
  */
-public class AbstractOpenemsComponent implements OpenemsComponent {
+public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	private final static String DEFAULT_ID = "UNDEFINED";
 

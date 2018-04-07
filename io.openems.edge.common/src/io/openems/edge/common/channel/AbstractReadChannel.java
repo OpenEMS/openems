@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.TypeUtils;
 import io.openems.edge.common.channel.doc.ChannelId;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -53,13 +52,13 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	}
 
 	/**
-	 * Should be called by actual implementations to set the next value
+	 * Sets the next value
 	 * 
 	 * @param value
 	 * @throws OpenemsException
 	 */
-	public final void setNextValue(Object value) throws OpenemsException {
-		this.nextValue = TypeUtils.<T>getAsType(type, value);
+	public final void _setNextValue(T value) {
+		this.nextValue = value;
 		if (this.channelDoc().isDebug()) {
 			log.info("Next value for [" + this.address() + "]: "
 					+ this.channelDoc().getUnit().format(value, this.getType()));

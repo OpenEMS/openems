@@ -37,7 +37,6 @@ import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadChannel;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.ModbusWriteChannel;
-import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
 import io.openems.impl.protocol.modbus.internal.DummyElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
 import io.openems.impl.protocol.modbus.internal.SignedWordElement;
@@ -45,7 +44,6 @@ import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedWordElement;
 import io.openems.impl.protocol.modbus.internal.WordOrder;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
-import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
 
 @ThingInfo(title = "FENECON Commercial DC-Charger")
 public class FeneconCommercialCharger extends ModbusDeviceNature implements ChargerNature {
@@ -218,215 +216,215 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
 		ModbusProtocol protocol = new ModbusProtocol(//
-				new WriteableModbusRegisterRange(0x0503, new UnsignedWordElement(0x0503,
-						pvPowerLimitCommand = new ModbusWriteLongChannel("PvPowerLimitCommand", this).multiplier(2)
-						.unit("W"))),
-				new ModbusRegisterRange(0xA000, //
-						new UnsignedWordElement(0xA000,
-								bmsDCDCWorkState = new ModbusReadLongChannel("BmsDCDCWorkState", this)//
-								.label(2, "Initial")//
-								.label(4, "Stop")//
-								.label(8, "Ready")//
-								.label(16, "Running")//
-								.label(32, "Fault")//
-								.label(64, "Debug")//
-								.label(128, "Locked")),
-						new UnsignedWordElement(0xA001,
-								bmsDCDCWorkMode = new ModbusReadLongChannel("BmsDCDCWorkMode", this)//
-								.label(128, "Constant Current")//
-								.label(256, "Constant Voltage")//
-								.label(512, "Boost MPPT"))),
-				new ModbusRegisterRange(0xA100, //
-						new UnsignedWordElement(0xA100,//
-								new ModbusBitWrappingChannel("BmsDCDCSuggestiveInformation1" , this, this.thingState)//
-								.warningBit(0, WarningCharger.CurrentSamplingChannelAbnormityOnHighVoltageSide)//
-								.warningBit(1, WarningCharger.CurrentSamplingChannelAbnormityOnLowVoltageSide)//
-								.warningBit(6, WarningCharger.EEPROMParametersOverRange)//
-								.warningBit(7, WarningCharger.UpdateEEPROMFailed)//
-								.warningBit(8, WarningCharger.ReadEEPROMFailed)//
-								.warningBit(9, WarningCharger.CurrentSamplingChannelAbnormityBeforeInductance)//
-								),//
+				//				new WriteableModbusRegisterRange(0x0503, new UnsignedWordElement(0x0503,
+				//						pvPowerLimitCommand = new ModbusWriteLongChannel("PvPowerLimitCommand", this).multiplier(2)
+				//						.unit("W"))),
+				//				new ModbusRegisterRange(0xA000, //
+				//						new UnsignedWordElement(0xA000,
+				//								bmsDCDCWorkState = new ModbusReadLongChannel("BmsDCDCWorkState", this)//
+				//								.label(2, "Initial")//
+				//								.label(4, "Stop")//
+				//								.label(8, "Ready")//
+				//								.label(16, "Running")//
+				//								.label(32, "Fault")//
+				//								.label(64, "Debug")//
+				//								.label(128, "Locked")),
+				//						new UnsignedWordElement(0xA001,
+				//								bmsDCDCWorkMode = new ModbusReadLongChannel("BmsDCDCWorkMode", this)//
+				//								.label(128, "Constant Current")//
+				//								.label(256, "Constant Voltage")//
+				//								.label(512, "Boost MPPT"))),
+				//				new ModbusRegisterRange(0xA100, //
+				//						new UnsignedWordElement(0xA100,//
+				//								new ModbusBitWrappingChannel("BmsDCDCSuggestiveInformation1" , this, this.thingState)//
+				//								.warningBit(0, WarningCharger.CurrentSamplingChannelAbnormityOnHighVoltageSide)//
+				//								.warningBit(1, WarningCharger.CurrentSamplingChannelAbnormityOnLowVoltageSide)//
+				//								.warningBit(6, WarningCharger.EEPROMParametersOverRange)//
+				//								.warningBit(7, WarningCharger.UpdateEEPROMFailed)//
+				//								.warningBit(8, WarningCharger.ReadEEPROMFailed)//
+				//								.warningBit(9, WarningCharger.CurrentSamplingChannelAbnormityBeforeInductance)//
+				//								),//
 
-						new UnsignedWordElement(0xA101, //
-								new ModbusBitWrappingChannel("BmsDCDCSuggestiveInformation2", this, this.thingState)//
-								.warningBit(0, WarningCharger.ReactorPowerDecreaseCausedByOvertemperature)//
-								.warningBit(1, WarningCharger.IGBTPowerDecreaseCausedByOvertemperature)//
-								.warningBit(2, WarningCharger.TemperatureChanel3PowerDecreaseCausedByOvertemperature)//
-								.warningBit(3, WarningCharger.TemperatureChanel4PowerDecreaseCausedByOvertemperature)//
-								.warningBit(4, WarningCharger.TemperatureChanel5PowerDecreaseCausedByOvertemperature)//
-								.warningBit(5, WarningCharger.TemperatureChanel6PowerDecreaseCausedByOvertemperature)//
-								.warningBit(6, WarningCharger.TemperatureChanel7PowerDecreaseCausedByOvertemperature)//
-								.warningBit(7, WarningCharger.TemperatureChanel8PowerDecreaseCausedByOvertemperature)//
-								.warningBit(8, WarningCharger.Fan1StopFailed)//
-								.warningBit(9, WarningCharger.Fan2StopFailed)//
-								.warningBit(10,WarningCharger.Fan3StopFailed)//
-								.warningBit(11,WarningCharger.Fan4StopFailed)//
-								.warningBit(12,WarningCharger.Fan1StartupFailed)//
-								.warningBit(13,WarningCharger.Fan2StartupFailed)//
-								.warningBit(14,WarningCharger.Fan3StartupFailed)//
-								.warningBit(15,WarningCharger.Fan4StartupFailed)//
-								),//
+				//						new UnsignedWordElement(0xA101, //
+				//								new ModbusBitWrappingChannel("BmsDCDCSuggestiveInformation2", this, this.thingState)//
+				//								.warningBit(0, WarningCharger.ReactorPowerDecreaseCausedByOvertemperature)//
+				//								.warningBit(1, WarningCharger.IGBTPowerDecreaseCausedByOvertemperature)//
+				//								.warningBit(2, WarningCharger.TemperatureChanel3PowerDecreaseCausedByOvertemperature)//
+				//								.warningBit(3, WarningCharger.TemperatureChanel4PowerDecreaseCausedByOvertemperature)//
+				//								.warningBit(4, WarningCharger.TemperatureChanel5PowerDecreaseCausedByOvertemperature)//
+				//								.warningBit(5, WarningCharger.TemperatureChanel6PowerDecreaseCausedByOvertemperature)//
+				//								.warningBit(6, WarningCharger.TemperatureChanel7PowerDecreaseCausedByOvertemperature)//
+				//								.warningBit(7, WarningCharger.TemperatureChanel8PowerDecreaseCausedByOvertemperature)//
+				//								.warningBit(8, WarningCharger.Fan1StopFailed)//
+				//								.warningBit(9, WarningCharger.Fan2StopFailed)//
+				//								.warningBit(10,WarningCharger.Fan3StopFailed)//
+				//								.warningBit(11,WarningCharger.Fan4StopFailed)//
+				//								.warningBit(12,WarningCharger.Fan1StartupFailed)//
+				//								.warningBit(13,WarningCharger.Fan2StartupFailed)//
+				//								.warningBit(14,WarningCharger.Fan3StartupFailed)//
+				//								.warningBit(15,WarningCharger.Fan4StartupFailed)//
+				//								),//
 
-						new UnsignedWordElement(0xA102,//
-								new ModbusBitWrappingChannel("BmsDCDCSuggestiveInformation3", this, this.thingState)//
-								.warningBit(0, WarningCharger.HighVoltageSideOvervoltage)//
-								.warningBit(1, WarningCharger.HighVoltageSideUndervoltage)//
-								.warningBit(2, WarningCharger.HighVoltageSideVoltageChangeUnconventionally)//
-								),//
+				//						new UnsignedWordElement(0xA102,//
+				//								new ModbusBitWrappingChannel("BmsDCDCSuggestiveInformation3", this, this.thingState)//
+				//								.warningBit(0, WarningCharger.HighVoltageSideOvervoltage)//
+				//								.warningBit(1, WarningCharger.HighVoltageSideUndervoltage)//
+				//								.warningBit(2, WarningCharger.HighVoltageSideVoltageChangeUnconventionally)//
+				//								),//
 
-						new UnsignedWordElement(0xA103, //
-								new ModbusBitWrappingChannel("BmsDCDCSuggestiveInformation4", this, this.thingState)//
-								.warningBit(0, WarningCharger.CurrentAbnormityBeforeDCConverterWorkOnHighVoltageSide)
-								.warningBit(1, WarningCharger.CurrentAbnormityBeforeDCConverterWorkOnLowVoltageSXide)
-								.warningBit(2, WarningCharger.InitialDutyRatioAbnormityBeforeDCConverterWork)
-								.warningBit(3, WarningCharger.VoltageAbnormityBeforeDCConverterWorkOnHighVoltageSide)
-								.warningBit(4, WarningCharger.VoltageAbnormityBeforeDCConverterWorkOnLowVoltageSide)
-								),//
+				new UnsignedWordElement(0xA103, //
+						new ModbusBitWrappingChannel("BmsDCDCSuggestiveInformation4", this, this.thingState)//
+						.warningBit(0, WarningCharger.CurrentAbnormityBeforeDCConverterWorkOnHighVoltageSide)
+						.warningBit(1, WarningCharger.CurrentAbnormityBeforeDCConverterWorkOnLowVoltageSXide)
+						.warningBit(2, WarningCharger.InitialDutyRatioAbnormityBeforeDCConverterWork)
+						.warningBit(3, WarningCharger.VoltageAbnormityBeforeDCConverterWorkOnHighVoltageSide)
+						.warningBit(4, WarningCharger.VoltageAbnormityBeforeDCConverterWorkOnLowVoltageSide)
+						),//
 
-						new UnsignedWordElement(0xA104,
-								new ModbusBitWrappingChannel("BmsDCDCSuggestiveInformation5", this, this.thingState)//
-								.warningBit(0, WarningCharger.HighVoltageBreakerInspectionAbnormity)//
-								.warningBit(1, WarningCharger.LowVoltageBreakerInspectionAbnormity)//
-								.warningBit(2, WarningCharger.BsmDCDC5DCPrechargeContactorInspectionAbnormity)//
-								.warningBit(3, WarningCharger.DCPrechargeContactorOpenUnsuccessfully)//
-								.warningBit(4, WarningCharger.DCMainContactorInspectionAbnormity)//
-								.warningBit(5, WarningCharger.DCMainContactorOpenUnsuccessfully)//
-								.warningBit(6, WarningCharger.OutputContactorCloseUnsuccessfully)//
-								.warningBit(7, WarningCharger.OutputContactorOpenUnsuccessfully)//
-								.warningBit(8, WarningCharger.ACMainContactorCloseUnsuccessfully)//
-								.warningBit(9, WarningCharger.ACMainContactorOpenUnsuccessfully)//
-								.warningBit(10,WarningCharger.NegContactorOpenUnsuccessfully)//
-								.warningBit(11,WarningCharger.NegContactorCloseUnsuccessfully)//
-								.warningBit(12,WarningCharger.NegContactorStateAbnormal)//
-								),//
+				new UnsignedWordElement(0xA104,
+						new ModbusBitWrappingChannel("BmsDCDCSuggestiveInformation5", this, this.thingState)//
+						.warningBit(0, WarningCharger.HighVoltageBreakerInspectionAbnormity)//
+						.warningBit(1, WarningCharger.LowVoltageBreakerInspectionAbnormity)//
+						.warningBit(2, WarningCharger.BsmDCDC5DCPrechargeContactorInspectionAbnormity)//
+						.warningBit(3, WarningCharger.DCPrechargeContactorOpenUnsuccessfully)//
+						.warningBit(4, WarningCharger.DCMainContactorInspectionAbnormity)//
+						.warningBit(5, WarningCharger.DCMainContactorOpenUnsuccessfully)//
+						.warningBit(6, WarningCharger.OutputContactorCloseUnsuccessfully)//
+						.warningBit(7, WarningCharger.OutputContactorOpenUnsuccessfully)//
+						.warningBit(8, WarningCharger.ACMainContactorCloseUnsuccessfully)//
+						.warningBit(9, WarningCharger.ACMainContactorOpenUnsuccessfully)//
+						.warningBit(10,WarningCharger.NegContactorOpenUnsuccessfully)//
+						.warningBit(11,WarningCharger.NegContactorCloseUnsuccessfully)//
+						.warningBit(12,WarningCharger.NegContactorStateAbnormal)//
+						),//
 
-						new DummyElement(0xA105, 0xA10F),
-						new UnsignedWordElement(0xA110,//
-								new ModbusBitWrappingChannel("BmsDCDCAbnormity1", this, this.thingState)//
-								.faultBit(0, FaultCharger.HighVoltageSideOfDCConverterUndervoltage)//
-								.faultBit(1, FaultCharger.HighVoltageSideOfDCConverterOvervoltage)//
-								.faultBit(2, FaultCharger.LowVoltageSideOfDCConverterUndervoltage)//
-								.faultBit(3, FaultCharger.LowVoltageSideOfDCConverterOvervoltage)//
-								.faultBit(4, FaultCharger.HighVoltageSideOfDCConverterOvercurrentFault)//
-								.faultBit(5, FaultCharger.LowVoltageSideOfDCConverterOvercurrentFault)//
-								.faultBit(6, FaultCharger.DCConverterIGBTFault)//
-								.faultBit(7, FaultCharger.DCConverterPrechargeUnmet)//
-								),//
+				new DummyElement(0xA105, 0xA10F),
+				new UnsignedWordElement(0xA110,//
+						new ModbusBitWrappingChannel("BmsDCDCAbnormity1", this, this.thingState)//
+						.faultBit(0, FaultCharger.HighVoltageSideOfDCConverterUndervoltage)//
+						.faultBit(1, FaultCharger.HighVoltageSideOfDCConverterOvervoltage)//
+						.faultBit(2, FaultCharger.LowVoltageSideOfDCConverterUndervoltage)//
+						.faultBit(3, FaultCharger.LowVoltageSideOfDCConverterOvervoltage)//
+						.faultBit(4, FaultCharger.HighVoltageSideOfDCConverterOvercurrentFault)//
+						.faultBit(5, FaultCharger.LowVoltageSideOfDCConverterOvercurrentFault)//
+						.faultBit(6, FaultCharger.DCConverterIGBTFault)//
+						.faultBit(7, FaultCharger.DCConverterPrechargeUnmet)//
+						),//
 
-						new UnsignedWordElement(0xA111,
-								new ModbusBitWrappingChannel("BmsDCDCAbnormity2", this, this.thingState)//
-								.faultBit(0, FaultCharger.BECUCommunicationDisconnected)//
-								.faultBit(1, FaultCharger.DCConverterCommunicationDisconnected)//
-								.faultBit(2, FaultCharger.CurrentConfigurationOverRange)//
-								.faultBit(3, FaultCharger.TheBatteryRequestStop)//
-								.faultBit(5, FaultCharger.OvercurrentRelayFault)//
-								.faultBit(6, FaultCharger.LightningProtectionDeviceFault)//
-								.faultBit(7, FaultCharger.DCConverterPriamaryContactorDisconnectedAbnormally)//
-								.faultBit(9, FaultCharger.DCDisconnectedAbnormallyOnLowVoltageSideOfDCConvetor)//
-								.faultBit(12,FaultCharger.DCConvetorEEPROMAbnormity1)//
-								.faultBit(13,FaultCharger.DCConvetorEEPROMAbnormity1Second)//
-								.faultBit(14,FaultCharger.EDCConvetorEEPROMAbnormity1)//
-								),//
+				new UnsignedWordElement(0xA111,
+						new ModbusBitWrappingChannel("BmsDCDCAbnormity2", this, this.thingState)//
+						.faultBit(0, FaultCharger.BECUCommunicationDisconnected)//
+						.faultBit(1, FaultCharger.DCConverterCommunicationDisconnected)//
+						.faultBit(2, FaultCharger.CurrentConfigurationOverRange)//
+						.faultBit(3, FaultCharger.TheBatteryRequestStop)//
+						.faultBit(5, FaultCharger.OvercurrentRelayFault)//
+						.faultBit(6, FaultCharger.LightningProtectionDeviceFault)//
+						.faultBit(7, FaultCharger.DCConverterPriamaryContactorDisconnectedAbnormally)//
+						.faultBit(9, FaultCharger.DCDisconnectedAbnormallyOnLowVoltageSideOfDCConvetor)//
+						.faultBit(12,FaultCharger.DCConvetorEEPROMAbnormity1)//
+						.faultBit(13,FaultCharger.DCConvetorEEPROMAbnormity1Second)//
+						.faultBit(14,FaultCharger.EDCConvetorEEPROMAbnormity1)//
+						),//
 
-						new UnsignedWordElement(0xA112,//
-								new ModbusBitWrappingChannel("BmsDCDCAbnormity3", this, this.thingState)//
-								.faultBit(0, FaultCharger.DCConvertorGeneralOverload)//
-								.faultBit(1, FaultCharger.DCShortCircuit)//
-								.faultBit(2, FaultCharger.PeakPulseCurrentProtection)//
-								.faultBit(3, FaultCharger.DCDisconnectAbnormallyOnHighVoltageSideOfDCConvetor)//
-								.faultBit(4, FaultCharger.EffectivePulseValueOverhigh)//
-								.faultBit(5, FaultCharger.DCConverteSevereOverload)//
-								.faultBit(6, FaultCharger.DCBreakerDisconnectAbnormallyOnHighVoltageSideOfDCConvetor)//
-								.faultBit(7, FaultCharger.DCBreakerDisconnectAbnormallyOnLowVoltageSideOfDCConvetor)//
-								.faultBit(8, FaultCharger.DCConvetorPrechargeContactorCloseFailed)//
-								.faultBit(9, FaultCharger.DCConvetorMainContactorCloseFailed)//
-								.faultBit(10,FaultCharger.ACContactorStateAbnormityOfDCConvetor)//
-								.faultBit(11,FaultCharger.DCConvetorEmergencyStop)//
-								.faultBit(12,FaultCharger.DCConverterChargingGunDisconnected)//
-								.faultBit(13,FaultCharger.DCCurrentAbnormityBeforeDCConvetorWork)//
-								.faultBit(14,FaultCharger.FuSeDisconnected)//
-								.faultBit(15,FaultCharger.DCConverterHardwareCurrentOrVoltageFault)//
-								),//
+				new UnsignedWordElement(0xA112,//
+						new ModbusBitWrappingChannel("BmsDCDCAbnormity3", this, this.thingState)//
+						.faultBit(0, FaultCharger.DCConvertorGeneralOverload)//
+						.faultBit(1, FaultCharger.DCShortCircuit)//
+						.faultBit(2, FaultCharger.PeakPulseCurrentProtection)//
+						.faultBit(3, FaultCharger.DCDisconnectAbnormallyOnHighVoltageSideOfDCConvetor)//
+						.faultBit(4, FaultCharger.EffectivePulseValueOverhigh)//
+						.faultBit(5, FaultCharger.DCConverteSevereOverload)//
+						.faultBit(6, FaultCharger.DCBreakerDisconnectAbnormallyOnHighVoltageSideOfDCConvetor)//
+						.faultBit(7, FaultCharger.DCBreakerDisconnectAbnormallyOnLowVoltageSideOfDCConvetor)//
+						.faultBit(8, FaultCharger.DCConvetorPrechargeContactorCloseFailed)//
+						.faultBit(9, FaultCharger.DCConvetorMainContactorCloseFailed)//
+						.faultBit(10,FaultCharger.ACContactorStateAbnormityOfDCConvetor)//
+						.faultBit(11,FaultCharger.DCConvetorEmergencyStop)//
+						.faultBit(12,FaultCharger.DCConverterChargingGunDisconnected)//
+						.faultBit(13,FaultCharger.DCCurrentAbnormityBeforeDCConvetorWork)//
+						.faultBit(14,FaultCharger.FuSeDisconnected)//
+						.faultBit(15,FaultCharger.DCConverterHardwareCurrentOrVoltageFault)//
+						),//
 
-						new UnsignedWordElement(0xA113,//
-								new ModbusBitWrappingChannel("BmsDCDCAbnormity4", this, this.thingState)//
-								.faultBit(0, FaultCharger.DCConverterCrystalOscillatorCircuitInvalidation)//
-								.faultBit(1, FaultCharger.DCConverterResetCircuitInvalidation)//
-								.faultBit(2, FaultCharger.DCConverterSamplingCircuitInvalidation)//
-								.faultBit(3, FaultCharger.DCConverterDigitalIOCircuitInvalidation)//
-								.faultBit(4, FaultCharger.DCConverterPWMCircuitInvalidation)//
-								.faultBit(5, FaultCharger.DCConverterX5045CircuitInvalidation)//
-								.faultBit(6, FaultCharger.DCConverterCANCircuitInvalidation)//
-								.faultBit(7, FaultCharger.DCConverterSoftwareANDHardwareProtectionCircuitInvalidation)//
-								.faultBit(8, FaultCharger.DCConverterPowerCircuitInvalidation)//
-								.faultBit(9, FaultCharger.DCConverterCPUInvalidation)//
-								.faultBit(10,FaultCharger.DCConverterTINT0InterruptInvalidation)//
-								.faultBit(11,FaultCharger.DCConverterADCInterruptInvalidation)//
-								.faultBit(12,FaultCharger.DCConverterCAPITN4InterruptInvalidation)//
-								.faultBit(13,FaultCharger.DCConverterCAPINT6InterruptInvalidation)//
-								.faultBit(14,FaultCharger.DCConverterT3PINTinterruptInvalidation)//
-								.faultBit(15,FaultCharger.DCConverterT4PINTinterruptInvalidation)//
-								),//
+				new UnsignedWordElement(0xA113,//
+						new ModbusBitWrappingChannel("BmsDCDCAbnormity4", this, this.thingState)//
+						.faultBit(0, FaultCharger.DCConverterCrystalOscillatorCircuitInvalidation)//
+						.faultBit(1, FaultCharger.DCConverterResetCircuitInvalidation)//
+						.faultBit(2, FaultCharger.DCConverterSamplingCircuitInvalidation)//
+						.faultBit(3, FaultCharger.DCConverterDigitalIOCircuitInvalidation)//
+						.faultBit(4, FaultCharger.DCConverterPWMCircuitInvalidation)//
+						.faultBit(5, FaultCharger.DCConverterX5045CircuitInvalidation)//
+						.faultBit(6, FaultCharger.DCConverterCANCircuitInvalidation)//
+						.faultBit(7, FaultCharger.DCConverterSoftwareANDHardwareProtectionCircuitInvalidation)//
+						.faultBit(8, FaultCharger.DCConverterPowerCircuitInvalidation)//
+						.faultBit(9, FaultCharger.DCConverterCPUInvalidation)//
+						.faultBit(10,FaultCharger.DCConverterTINT0InterruptInvalidation)//
+						.faultBit(11,FaultCharger.DCConverterADCInterruptInvalidation)//
+						.faultBit(12,FaultCharger.DCConverterCAPITN4InterruptInvalidation)//
+						.faultBit(13,FaultCharger.DCConverterCAPINT6InterruptInvalidation)//
+						.faultBit(14,FaultCharger.DCConverterT3PINTinterruptInvalidation)//
+						.faultBit(15,FaultCharger.DCConverterT4PINTinterruptInvalidation)//
+						),//
 
-						new UnsignedWordElement(0xA114,//
-								new ModbusBitWrappingChannel("BmsDCDCAbnormity5", this, this.thingState)//
-								.faultBit(0, FaultCharger.DCConverterPDPINTAInterruptInvalidation)//
-								.faultBit(1, FaultCharger.DCConverterT1PINTInterruptInvalidation)//
-								.faultBit(2, FaultCharger.DCConverterRESVInterruptInvalidation)//
-								.faultBit(3, FaultCharger.DCConverter100usTaskInvalidation)//
-								.faultBit(4, FaultCharger.DCConverterClockInvalidation)//
-								.faultBit(5, FaultCharger.DCConverterEMSMemoryInvalidation)//
-								.faultBit(6, FaultCharger.DCConverterExteriorCommunicationInvalidation)//
-								.faultBit(7, FaultCharger.DCConverterIOInterfaceInvalidation)//
-								.faultBit(8, FaultCharger.DCConverterInputVoltageBoundFault)//
-								.faultBit(9, FaultCharger.DCConverterOutterVoltageBoundFault)//
-								.faultBit(10,FaultCharger.DCConverterOutputVoltageBoundFault)//
-								.faultBit(11,FaultCharger.DCConverterInductCurrentBoundFault)//
-								.faultBit(12,FaultCharger.DCConverterInputCurrentBoundFault)//
-								.faultBit(13,FaultCharger.DCConverterOutputCurrentBoundFault)//
-								),//
+				new UnsignedWordElement(0xA114,//
+						new ModbusBitWrappingChannel("BmsDCDCAbnormity5", this, this.thingState)//
+						.faultBit(0, FaultCharger.DCConverterPDPINTAInterruptInvalidation)//
+						.faultBit(1, FaultCharger.DCConverterT1PINTInterruptInvalidation)//
+						.faultBit(2, FaultCharger.DCConverterRESVInterruptInvalidation)//
+						.faultBit(3, FaultCharger.DCConverter100usTaskInvalidation)//
+						.faultBit(4, FaultCharger.DCConverterClockInvalidation)//
+						.faultBit(5, FaultCharger.DCConverterEMSMemoryInvalidation)//
+						.faultBit(6, FaultCharger.DCConverterExteriorCommunicationInvalidation)//
+						.faultBit(7, FaultCharger.DCConverterIOInterfaceInvalidation)//
+						.faultBit(8, FaultCharger.DCConverterInputVoltageBoundFault)//
+						.faultBit(9, FaultCharger.DCConverterOutterVoltageBoundFault)//
+						.faultBit(10,FaultCharger.DCConverterOutputVoltageBoundFault)//
+						.faultBit(11,FaultCharger.DCConverterInductCurrentBoundFault)//
+						.faultBit(12,FaultCharger.DCConverterInputCurrentBoundFault)//
+						.faultBit(13,FaultCharger.DCConverterOutputCurrentBoundFault)//
+						),//
 
-						new UnsignedWordElement(0xA115,//
-								new ModbusBitWrappingChannel("BmsDCDCAbnormity6", this, this.thingState)//
-								.faultBit(0, FaultCharger.DCReactorOverTemperature)//
-								.faultBit(1, FaultCharger.DCIGBTOverTemperature)//
-								.faultBit(2, FaultCharger.DCConverterChanel3OverTemperature)//
-								.faultBit(3, FaultCharger.DCConverterChanel4OverTemperature)//
-								.faultBit(4, FaultCharger.DCConverterChanel5OverTemperature)//
-								.faultBit(5, FaultCharger.DCConverterChanel6OverTemperature)//
-								.faultBit(6, FaultCharger.DCConverterChanel7OverTemperature)//
-								.faultBit(7, FaultCharger.DCConverterChanel8OverTemperature)//
-								.faultBit(8, FaultCharger.DCReactorTemperatureSamplingInvalidation)//
-								.faultBit(9, FaultCharger.DCIGBTTemperatureSamplingInvalidation)//
-								.faultBit(10,FaultCharger.DCConverterChanel3TemperatureSamplingInvalidation)//
-								.faultBit(11,FaultCharger.DCConverterChanel4TemperatureSamplingInvalidation)//
-								.faultBit(12,FaultCharger.DCConverterChanel5TemperatureSamplingInvalidation)//
-								.faultBit(13,FaultCharger.DCConverterChanel6TemperatureSamplingInvalidation)//
-								.faultBit(14,FaultCharger.DCConverterChanel7TemperatureSamplingInvalidation)//
-								.faultBit(15,FaultCharger.DCConverterChanel8TemperatureSamplingInvalidation)//
-								),//
+				new UnsignedWordElement(0xA115,//
+						new ModbusBitWrappingChannel("BmsDCDCAbnormity6", this, this.thingState)//
+						.faultBit(0, FaultCharger.DCReactorOverTemperature)//
+						.faultBit(1, FaultCharger.DCIGBTOverTemperature)//
+						.faultBit(2, FaultCharger.DCConverterChanel3OverTemperature)//
+						.faultBit(3, FaultCharger.DCConverterChanel4OverTemperature)//
+						.faultBit(4, FaultCharger.DCConverterChanel5OverTemperature)//
+						.faultBit(5, FaultCharger.DCConverterChanel6OverTemperature)//
+						.faultBit(6, FaultCharger.DCConverterChanel7OverTemperature)//
+						.faultBit(7, FaultCharger.DCConverterChanel8OverTemperature)//
+						.faultBit(8, FaultCharger.DCReactorTemperatureSamplingInvalidation)//
+						.faultBit(9, FaultCharger.DCIGBTTemperatureSamplingInvalidation)//
+						.faultBit(10,FaultCharger.DCConverterChanel3TemperatureSamplingInvalidation)//
+						.faultBit(11,FaultCharger.DCConverterChanel4TemperatureSamplingInvalidation)//
+						.faultBit(12,FaultCharger.DCConverterChanel5TemperatureSamplingInvalidation)//
+						.faultBit(13,FaultCharger.DCConverterChanel6TemperatureSamplingInvalidation)//
+						.faultBit(14,FaultCharger.DCConverterChanel7TemperatureSamplingInvalidation)//
+						.faultBit(15,FaultCharger.DCConverterChanel8TemperatureSamplingInvalidation)//
+						),//
 
-						new UnsignedWordElement(0xA116,
-								new ModbusBitWrappingChannel("BmsDCDCAbnormity7", this, this.thingState)//
-								.faultBit(4, FaultCharger.DCConverterInductanceCurrentSamplingInvalidation)//
-								.faultBit(5, FaultCharger.CurrentSamplingInvalidationOnTheLowVoltageSideOfDCConverter)//
-								.faultBit(6, FaultCharger.VoltageSamplingInvalidationOnTheLowVoltageSideOfDCConverter)//
-								.faultBit(7, FaultCharger.InsulationInspectionFault)//
-								.faultBit(8, FaultCharger.NegContactorCloseUnsuccessly)//
-								.faultBit(9, FaultCharger.NegContactorCutWhenRunning)//
-								),//
+				new UnsignedWordElement(0xA116,
+						new ModbusBitWrappingChannel("BmsDCDCAbnormity7", this, this.thingState)//
+						.faultBit(4, FaultCharger.DCConverterInductanceCurrentSamplingInvalidation)//
+						.faultBit(5, FaultCharger.CurrentSamplingInvalidationOnTheLowVoltageSideOfDCConverter)//
+						.faultBit(6, FaultCharger.VoltageSamplingInvalidationOnTheLowVoltageSideOfDCConverter)//
+						.faultBit(7, FaultCharger.InsulationInspectionFault)//
+						.faultBit(8, FaultCharger.NegContactorCloseUnsuccessly)//
+						.faultBit(9, FaultCharger.NegContactorCutWhenRunning)//
+						),//
 
-						new DummyElement(0xA117, 0xA11F),
-						new UnsignedWordElement(0xA120,
-								bmsDCDCSwitchState = new StatusBitChannel("BmsDCDCSwitchState", this)//
-								.label(1, "DC precharge contactor")//
-								.label(2, "DC main contactor")//
-								.label(4, "Output contactor")//
-								.label(8, "Output breaker")//
-								.label(16, "Input breaker")//
-								.label(32, "AC contactor")//
-								.label(64, "Emergency stop button")//
-								.label(128, "NegContactor"))),
+				new DummyElement(0xA117, 0xA11F),
+				new UnsignedWordElement(0xA120,
+						bmsDCDCSwitchState = new StatusBitChannel("BmsDCDCSwitchState", this)//
+						.label(1, "DC precharge contactor")//
+						.label(2, "DC main contactor")//
+						.label(4, "Output contactor")//
+						.label(8, "Output breaker")//
+						.label(16, "Input breaker")//
+						.label(32, "AC contactor")//
+						.label(64, "Emergency stop button")//
+						.label(128, "NegContactor"))),
 				new ModbusRegisterRange(0xA130, //
 						new SignedWordElement(0xA130,
 								bmsDCDCOutputVoltage = new ModbusReadLongChannel("BmsDCDCOutputVoltage", this)
@@ -1266,31 +1264,31 @@ public class FeneconCommercialCharger extends ModbusDeviceNature implements Char
 								pvDCDC1OutputTotalDischargeEnergy = new ModbusReadLongChannel(
 										"PvDCDC1OutputTotalDischargeEnergy", this).unit("Wh").multiplier(2))
 						.wordOrder(WordOrder.LSWMSW)));
-		actualPower = new FunctionalReadChannel<Long>("ActualPower", this, (channels) -> {
-			long erg = 0;
-			try {
-				for (ReadChannel<Long> ch : channels) {
-					erg += ch.value();
-				}
-				return erg;
-			} catch (InvalidValueException e) {
-				return null;
-			}
-		}, pvDCDCInputPower, pvDCDC1InputPower);
-		inputVoltage = new FunctionalReadChannel<Long>("InputVoltage", this, (channels) -> {
-			long erg = 0;
-			try {
-				for (ReadChannel<Long> ch : channels) {
-					if (erg < ch.value()) {
-						erg = ch.value();
-					}
-				}
-				return erg;
-			} catch (InvalidValueException e) {
-				return null;
-			}
-		}, pvDCDCInputVoltage, pvDCDC1InputVoltage);
-		return protocol;
+						actualPower = new FunctionalReadChannel<Long>("ActualPower", this, (channels) -> {
+							long erg = 0;
+							try {
+								for (ReadChannel<Long> ch : channels) {
+									erg += ch.value();
+								}
+								return erg;
+							} catch (InvalidValueException e) {
+								return null;
+							}
+						}, pvDCDCInputPower, pvDCDC1InputPower);
+						inputVoltage = new FunctionalReadChannel<Long>("InputVoltage", this, (channels) -> {
+							long erg = 0;
+							try {
+								for (ReadChannel<Long> ch : channels) {
+									if (erg < ch.value()) {
+										erg = ch.value();
+									}
+								}
+								return erg;
+							} catch (InvalidValueException e) {
+								return null;
+							}
+						}, pvDCDCInputVoltage, pvDCDC1InputVoltage);
+						return protocol;
 	}
 
 	@Override

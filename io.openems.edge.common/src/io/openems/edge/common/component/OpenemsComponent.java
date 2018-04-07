@@ -1,6 +1,9 @@
 package io.openems.edge.common.component;
 
 import java.util.Collection;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StateChannel;
@@ -76,5 +79,15 @@ public interface OpenemsComponent {
 			throw new IllegalArgumentException("Channel [State] must be of type 'StateChannel'.");
 		}
 		return (StateChannel) channel;
+	}
+
+	/**
+	 * Gets some key channels of the component that are suitable for a continuous
+	 * Debug log.
+	 * 
+	 * @return
+	 */
+	public default Set<io.openems.edge.common.channel.doc.ChannelId> debugLog() {
+		return ImmutableSet.of(ChannelId.STATE);
 	}
 }
