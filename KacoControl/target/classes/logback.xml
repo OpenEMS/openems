@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- OpenEMS - Open Source Energy Management System Copyright (c) 2016 FENECON 
+	GmbH and contributors This program is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU General Public License as 
+	published by the Free Software Foundation, either version 3 of the License, 
+	or (at your option) any later version. This program is distributed in the 
+	hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+	GNU General Public License for more details. You should have received a copy 
+	of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>. 
+	Contributors: FENECON GmbH - initial API and implementation and initial documentation -->
+
+<configuration>
+	<statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>[%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]%msg%ex{10}%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="WEBSOCKET"
+		class="io.openems.core.utilities.websocket.WebsocketLogAppender">
+	</appender>
+	<appender name="roll-by-size"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/var/log/openems.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>/var/log/openems.%i.log.zip
+			</fileNamePattern> 
+			<minIndex>1</minIndex>
+			<maxIndex>3</maxIndex>
+			<totalSizeCap>10MB</totalSizeCap>
+		</rollingPolicy>
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>1MB</maxFileSize>
+		</triggeringPolicy>
+		<encoder>
+			<pattern>%d{"yyyy/MM/dd HH:mm:ss"} : [%-8.8thread] [%-5level] [%-20.20logger{36}:%-3line]%msg%ex{10}%n</pattern>
+		</encoder>
+	</appender>
+	<root level="INFO">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="WEBSOCKET" />
+		<appender-ref ref="roll-by-size" />
+	</root>
+</configuration>
