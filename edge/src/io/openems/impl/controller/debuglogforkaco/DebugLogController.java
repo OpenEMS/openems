@@ -20,6 +20,9 @@
  *******************************************************************************/
 package io.openems.impl.controller.debuglogforkaco;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.Channel;
 import io.openems.api.channel.ConfigChannel;
 import io.openems.api.channel.ReadChannel;
@@ -33,6 +36,8 @@ import io.openems.impl.device.blueplanet50tl3.FeneconBlueplanet50TL3Ess;
 
 @ThingInfo(title = "Output debugging information on systemlog")
 public class DebugLogController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(DebugLogController.class);
 
 	private ThingStateChannels thingState = new ThingStateChannels(this);
 

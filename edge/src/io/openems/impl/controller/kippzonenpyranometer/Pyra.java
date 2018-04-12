@@ -32,7 +32,4 @@ public class Pyra extends ThingMap {
 		super(pyra);
 		this.pyra = pyra;
 	}
-
-
-
 }

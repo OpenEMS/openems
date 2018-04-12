@@ -95,5 +95,4 @@ public class Ess extends ThingMap {
 		b.append("]");
 		return b.toString();
 	}
-
 }
