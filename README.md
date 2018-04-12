@@ -3,6 +3,8 @@
 
 OpenEMS is a modular platform for energy management applications. It was developed around the requirements of controlling, monitoring and integrating energy storage systems together with renewable energy sources and further devices and services.
 
+_Note: Improvement of this documentation is currently in progress. Please find the latest draft version here:_ https://github.com/OpenEMS/openems/blob/feature/improve_doc/doc/openems.adoc
+
 #### OpenEMS IoT stack
 The OpenEMS stack contains three parts:
  * **OpenEMS Edge**: this runs on the IoT edge device and actually controls the devices
