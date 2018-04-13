@@ -1,6 +1,10 @@
 package io.openems.impl.controller.asymmetric.socband;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.api.channel.ConfigChannel;
+import io.openems.api.channel.thingstate.ThingStateChannels;
 import io.openems.api.controller.Controller;
 import io.openems.api.doc.ChannelInfo;
 import io.openems.api.doc.ThingInfo;
@@ -9,6 +13,10 @@ import io.openems.api.exception.WriteChannelException;
 
 @ThingInfo(title = "State-of-charge band", description = "controlling storage system to keep it within a certain state-of-charge band.")
 public class SocBandController extends Controller {
+
+	private final Logger log = LoggerFactory.getLogger(SocBandController.class);
+
+	private ThingStateChannels thingState = new ThingStateChannels(this);
 
 	public SocBandController() {
 		super();
@@ -73,5 +81,10 @@ public class SocBandController extends Controller {
 		} catch (InvalidValueException | WriteChannelException e) {
 			log.error(e.getMessage());
 		}
+	}
+
+	@Override
+	public ThingStateChannels getStateChannel() {
+		return this.thingState;
 	}
 }
