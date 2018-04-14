@@ -1,2 +1,2 @@
 @org.osgi.annotation.versioning.Version("1.0.0")
-package io.openems.edge.bridge.modbus.protocol;
+package io.openems.edge.bridge.modbus.api.task;

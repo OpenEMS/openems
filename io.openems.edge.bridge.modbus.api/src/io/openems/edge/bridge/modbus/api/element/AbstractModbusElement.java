@@ -1,78 +1,56 @@
-package io.openems.edge.bridge.modbus.protocol;
+package io.openems.edge.bridge.modbus.api.element;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
+import io.openems.edge.bridge.modbus.api.task.Task;
 
-import io.openems.common.exceptions.OpenemsException;
+public abstract class AbstractModbusElement<T> implements ModbusElement, ModbusRegisterElement {
 
-/**
- * A RegisterElement represents one or more registers in a {@link Range}.
- * 
- * @author stefan.feilmeier
- */
-public abstract class RegisterElement<T> {
-
-	private final Logger log = LoggerFactory.getLogger(RegisterElement.class);
+	private final Logger log = LoggerFactory.getLogger(AbstractModbusElement.class);
 
 	private final int startAddress;
 	private final boolean isIgnored;
 
-	protected Range range = null;
+	protected Task task = null;
 
 	/*
 	 * The onUpdateCallback is called on reception of a new value
 	 */
 	private OnUpdate<T> onUpdateCallback;
 
-	public RegisterElement(int startAddress) {
+	public AbstractModbusElement(int startAddress) {
 		this(startAddress, false);
 	}
 
-	public RegisterElement(int startAddress, boolean isIgnored) {
+	public AbstractModbusElement(int startAddress, boolean isIgnored) {
 		this.startAddress = startAddress;
 		this.onUpdateCallback = null;
 		this.isIgnored = isIgnored;
 	}
 
-	public RegisterElement<T> onUpdateCallback(OnUpdate<T> onUpdateCallback) {
+	public AbstractModbusElement<T> onUpdateCallback(OnUpdate<T> onUpdateCallback) {
 		this.onUpdateCallback = onUpdateCallback;
 		return this;
 	}
 
+	@Override
 	public int getStartAddress() {
 		return startAddress;
 	}
 
-	/**
-	 * Number of registers
-	 * 
-	 * @return
-	 */
-	public abstract int getLength();
-
-	/**
-	 * Whether this Element should be ignored (= DummyElement)
-	 * 
-	 * @return
-	 */
+	@Override
 	public boolean isIgnored() {
 		return isIgnored;
 	}
 
-	/**
-	 * Set the {@link Range}, where this Element belongs to. This is called during
-	 * {@link Range}.add()
-	 *
-	 * @param range
-	 */
-	protected void setModbusRange(Range range) {
-		this.range = range;
+	@Override
+	public void setModbusTask(Task task) {
+		this.task = task;
 	}
 
-	public Range getModbusRange() {
-		return range;
+	public Task getModbusTask() {
+		return task;
 	}
 
 	protected void setValue(T value) {
@@ -85,28 +63,6 @@ public abstract class RegisterElement<T> {
 		}
 	}
 
-	public void setInputRegisters(InputRegister... registers) throws OpenemsException {
-		if (this.isDebug) {
-			StringBuilder b = new StringBuilder("Element at [" + this.startAddress + "/0x"
-					+ Integer.toHexString(this.startAddress) + "] set input registers to [");
-			for (int i = 0; i < registers.length; i++) {
-				b.append(registers[i].getValue());
-				if (i < registers.length - 1) {
-					b.append(",");
-				}
-			}
-			b.append("].");
-			log.info(b.toString());
-		}
-		if (registers.length != this.getLength()) {
-			throw new OpenemsException("Modbus address [" + startAddress + "]: registers length [" + registers.length
-					+ "] does not match required size of [" + this.getLength() + "]");
-		}
-		this._setInputRegisters(registers);
-	}
-
-	protected abstract void _setInputRegisters(InputRegister... registers);
-
 	/**
 	 * BuilderPattern. The received value is adjusted to the power of the
 	 * scaleFactor (y = x * 10^scaleFactor).
@@ -114,16 +70,44 @@ public abstract class RegisterElement<T> {
 	 * Example: if the Register is in unit [0.1 V] use scaleFactor '2' to make the
 	 * unit [1 mV]
 	 */
-	public abstract RegisterElement<T> scaleFactor(int scaleFactor);
+	private int scaleFactor = 0;
+
+	public AbstractModbusElement<T> scaleFactor(int scaleFactor) {
+		this.scaleFactor = scaleFactor;
+		return this;
+	}
+
+	public int getScaleFactor() {
+		return scaleFactor;
+	}
 
 	/*
 	 * Enable Debug mode for this Element. Activates verbose logging.
 	 */
 	private boolean isDebug = false;
 
-	public RegisterElement<T> debug() {
+	public AbstractModbusElement<T> debug() {
 		this.isDebug = true;
 		return this;
+	}
+
+	protected boolean isDebug() {
+		return isDebug;
+	}
+
+	/*
+	 * Handle high priority elements. Those are queried in every cycle.
+	 */
+	private Priority priority = Priority.LOW;
+
+	public AbstractModbusElement<T> priority(Priority priority) {
+		this.priority = priority;
+		return this;
+	}
+
+	@Override
+	public Priority getPriority() {
+		return priority;
 	}
 
 	// protected void setValue(T value) {

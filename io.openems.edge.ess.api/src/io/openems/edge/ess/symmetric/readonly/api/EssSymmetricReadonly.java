@@ -1,10 +1,6 @@
 package io.openems.edge.ess.symmetric.readonly.api;
 
-import java.util.Set;
-
 import org.osgi.annotation.versioning.ProviderType;
-
-import com.google.common.collect.ImmutableSet;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -15,8 +11,8 @@ import io.openems.edge.ess.api.Ess;
 public interface EssSymmetricReadonly extends Ess {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		CHARGE_ACTIVE_POWER(new Doc().unit(Unit.WATT).debug()), //
-		DISCHARGE_ACTIVE_POWER(new Doc().unit(Unit.WATT).debug()), //
+		CHARGE_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
+		DISCHARGE_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
 		CHARGE_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		DISCHARGE_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE));
 
@@ -45,9 +41,5 @@ public interface EssSymmetricReadonly extends Ess {
 
 	default Channel<?> getDischargeReactivePower() {
 		return this.channel(ChannelId.DISCHARGE_REACTIVE_POWER);
-	}
-
-	default Set<io.openems.edge.common.channel.doc.ChannelId> debugLog() {
-		return ImmutableSet.of(Ess.ChannelId.SOC, ChannelId.CHARGE_ACTIVE_POWER, ChannelId.DISCHARGE_ACTIVE_POWER);
 	}
 }

@@ -45,8 +45,8 @@ public class FixedOrder extends AbstractScheduler implements Scheduler {
 
 	@Deactivate
 	protected void deactivate() {
-		super.deactivate();
 		this.sortedControllers.clear();
+		super.deactivate();
 	}
 
 	@Override

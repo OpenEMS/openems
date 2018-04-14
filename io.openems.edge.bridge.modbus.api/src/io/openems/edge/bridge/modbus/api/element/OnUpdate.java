@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.modbus.protocol;
+package io.openems.edge.bridge.modbus.api.element;
 
 public interface OnUpdate<T> {
 

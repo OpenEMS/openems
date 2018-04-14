@@ -8,9 +8,8 @@ import java.util.function.Function;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.Log;
-import io.openems.edge.bridge.modbus.protocol.ModbusProtocol;
-import io.openems.edge.bridge.modbus.protocol.RegisterElement;
-import io.openems.edge.bridge.modbus.protocol.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 
@@ -37,9 +36,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	@Override
 	protected void deactivate() {
-		super.deactivate();
 		this.clearModbusBridge();
 		this.channels().clear();
+		super.deactivate();
 	}
 
 	/**
@@ -66,7 +65,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	private void initializeModbusBridge() {
 		if (this.modbus != null && this.unitId != null) {
-			this.modbus.addProtocol(this.id(), this.unitId, this.getModbusProtocol());
+			this.modbus.addProtocol(this.id(), this.getModbusProtocol(this.unitId));
 		}
 	}
 
@@ -76,21 +75,23 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 	}
 
-	private ModbusProtocol getModbusProtocol() {
+	private ModbusProtocol getModbusProtocol(int unitId) {
 		ModbusProtocol protocol = this.protocol;
 		if (protocol != null) {
 			return protocol;
 		}
-		this.protocol = defineModbusProtocol();
+		this.protocol = defineModbusProtocol(unitId);
 		return this.protocol;
 	}
 
 	/**
 	 * Defines the Modbus protocol
 	 * 
+	 * @param unitId
+	 * 
 	 * @return
 	 */
-	protected abstract ModbusProtocol defineModbusProtocol();
+	protected abstract ModbusProtocol defineModbusProtocol(int unitId);
 
 	/**
 	 * Maps an Element to one or more ModbusChannels using converters, that convert
@@ -98,10 +99,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	public class ChannelMapper {
 
-		private final RegisterElement<?> element;
+		private final AbstractModbusElement<?> element;
 		private Map<io.openems.edge.common.channel.doc.ChannelId, ElementToChannelConverter> channelMaps = new HashMap<>();
 
-		public ChannelMapper(RegisterElement<?> element) {
+		public ChannelMapper(AbstractModbusElement<?> element) {
 			this.element = element;
 			this.element.onUpdateCallback((value) -> {
 				/*
@@ -134,7 +135,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			return this.m(channelId, converter);
 		}
 
-		public RegisterElement<?> build() {
+		public AbstractModbusElement<?> build() {
 			return this.element;
 		}
 	}
@@ -146,7 +147,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param element
 	 * @return
 	 */
-	protected final ChannelMapper cm(RegisterElement<?> element) {
+	protected final ChannelMapper cm(AbstractModbusElement<?> element) {
 		return new ChannelMapper(element);
 	}
 
@@ -158,8 +159,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param element
 	 * @return the element parameter
 	 */
-	protected final RegisterElement<?> m(io.openems.edge.common.channel.doc.ChannelId channelId,
-			RegisterElement<?> element) {
+	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.doc.ChannelId channelId,
+			AbstractModbusElement<?> element) {
 		return new ChannelMapper(element) //
 				.m(channelId, ElementToChannelConverter.CONVERT_1_TO_1) //
 				.build();

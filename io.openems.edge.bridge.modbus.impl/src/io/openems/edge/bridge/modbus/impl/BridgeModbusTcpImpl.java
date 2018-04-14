@@ -2,10 +2,7 @@ package io.openems.edge.bridge.modbus.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Stream;
@@ -20,11 +17,12 @@ import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.facade.ModbusTCPMaster;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
-import io.openems.edge.bridge.modbus.impl.internal.ReadTask;
-import io.openems.edge.bridge.modbus.impl.internal.WriteTask;
-import io.openems.edge.bridge.modbus.protocol.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -59,19 +57,11 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent implements Bri
 	private final Set<Integer> defectiveUnitIds = new ConcurrentSkipListSet<Integer>();
 
 	/**
-	 * ReadTasks that are required to run once per Scheduler cycle
+	 * Holds the added protocols per source Component-ID
+	 * 
+	 * @param config
 	 */
-	private final List<ReadTask> requiredReadTasks = new ArrayList<>();
-
-	/**
-	 * ReadTasks that are required to run once in a while
-	 */
-	private final List<ReadTask> readTasks = new ArrayList<>();
-
-	/**
-	 * WriteTasks
-	 */
-	private final List<WriteTask> writeTasks = new ArrayList<>();
+	private final Multimap<String, ModbusProtocol> protocols = ArrayListMultimap.create();
 
 	@Activate
 	void activate(Config config) {
@@ -86,42 +76,29 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent implements Bri
 		this.worker.deactivate();
 	}
 
-	public void addProtocol(String sourceId, Integer unitId, ModbusProtocol protocol) {
-		if (unitId == null || protocol == null) {
-			return;
-		}
-		synchronized (this.writeTasks) {
-			// TODO
-			// for (WriteRange range : protocol.getWriteRanges()) {
-			// this.writeTasks.add(new WriteTask(sourceId, unitId, range));
-			// }
-		}
-		synchronized (this.readTasks) {
-			protocol.getRanges().forEach(range -> {
-				this.readTasks.add(new ReadTask(sourceId, unitId, range));
-			});
+	/**
+	 * Adds the protocol
+	 * 
+	 * @param sourceId
+	 * @param protocol
+	 */
+	public void addProtocol(String sourceId, ModbusProtocol protocol) {
+		synchronized (this.protocols) {
+			this.protocols.put(sourceId, protocol);
 		}
 	}
 
+	/**
+	 * Removes the protocol
+	 */
 	public void removeProtocol(String sourceId) {
-		synchronized (this.writeTasks) {
-			// TODO
-			// for (WriteRange range : protocol.getWriteRanges()) {
-			// this.writeTasks.add(new WriteTask(sourceId, unitId, range));
-			// }
-		}
-		synchronized (this.readTasks) {
-			this.readTasks.removeIf(task -> task.getSourceId().equals(sourceId));
+		synchronized (this.protocols) {
+			this.protocols.removeAll(sourceId);
 		}
 	}
 
 	private class ModbusWorker extends AbstractWorker {
 		private ModbusTCPMaster master = null;
-
-		/**
-		 * Next planned readTasks
-		 */
-		private final Queue<ReadTask> nextReadTasks = new LinkedList<>();
 
 		@Override
 		public void activate(String name) {
@@ -140,31 +117,23 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent implements Bri
 
 		@Override
 		protected void forever() {
-			log.info("Forever...");
 			// get ModbusMaster or abort
 			ModbusTCPMaster master = getModbusMaster();
 			if (master == null) {
 				return;
 			}
 
-			// refill NextReadTasks if it is empty
-			if (nextReadTasks.isEmpty()) {
-				refillNextReadTasksQueue();
-			}
+			// get the tasks for this run
+			List<Task> nextTasks = this.getNextTasks();
 
-			// execute next read task
-			ReadTask task = nextReadTasks.poll();
-			if (task == null) {
-				// no task. Abort here.
-				return;
-			}
-			try {
-				task.execute(master);
-			} catch (ModbusException e) {
-				System.out.println(e.getMessage());
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			// execute next tasks
+			nextTasks.forEach(task -> {
+				try {
+					task.executeQuery(master);
+				} catch (ModbusException e) {
+					log.error(id() + ". Unable to execute modbus query: " + e.getMessage());
+				}
+			});
 		}
 
 		private ModbusTCPMaster getModbusMaster() {
@@ -181,28 +150,31 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent implements Bri
 		}
 
 		/**
-		 * Refills 'nextReadTasks' queue.
+		 * Returns the 'nextTasks' list.
 		 * 
 		 * This checks if a device is listed as defective and - if it is - adds only one
 		 * task with this unitId to the queue
 		 */
-		private void refillNextReadTasksQueue() {
-			Set<Integer> addedUnitIds = new HashSet<>();
-			synchronized (readTasks) {
-				readTasks.forEach(task -> {
-					int unitId = task.getModbusUnitId();
-					if (defectiveUnitIds.contains(unitId)) {
-						if (!addedUnitIds.contains(unitId)) {
-							// if device is listed as defective -> add only one task with this unitId
-							nextReadTasks.add(task);
-							addedUnitIds.add(unitId);
-						}
+		private List<Task> getNextTasks() {
+			List<Task> result = new ArrayList<>();
+			synchronized (protocols) {
+				protocols.values().forEach(protocol -> {
+					// get the next tasks from the protocol
+					List<Task> nextTasks = protocol.getNextReadTasks();
+					// check if the unitId is defective
+					int unitId = protocol.getUnitId();
+					if (nextTasks.size() > 0 && defectiveUnitIds.contains(unitId)) {
+						// it is defective. Add only one task.
+						// This avoids filling the queue with requests that cannot be fulfilled anyway
+						// because the unitId is not reachable
+						result.add(nextTasks.get(0));
 					} else {
-						// if device with unitId is ok -> add always
-						nextReadTasks.add(task);
+						// add all tasks to the next tasks
+						result.addAll(nextTasks);
 					}
 				});
 			}
+			return result;
 		}
 
 		@Override

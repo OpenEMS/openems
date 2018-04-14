@@ -1,11 +1,11 @@
-package io.openems.edge.bridge.modbus.protocol;
+package io.openems.edge.bridge.modbus.api.element;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
-public class UnsignedWordElement extends RegisterElement<Integer> {
+public class UnsignedWordElement extends AbstractWordElement {
 
 	private final static ByteOrder DEFAULT_BYTE_ORDER = ByteOrder.BIG_ENDIAN;
 
@@ -21,28 +21,26 @@ public class UnsignedWordElement extends RegisterElement<Integer> {
 	}
 
 	@Override
-	public int getLength() {
-		return 1;
-	}
-
-	@Override
 	protected void _setInputRegisters(InputRegister... registers) {
 		// convert registers to Short
 		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);
 		buff.put(registers[0].toBytes());
 		int shortValue = Short.toUnsignedInt(buff.getShort(0));
 		// apply scaleFactor
-		shortValue = (int) (shortValue * Math.pow(10, this.scaleFactor));
+		shortValue = (int) (shortValue * Math.pow(10, this.getScaleFactor()));
 		// set value
 		super.setValue(shortValue);
 	}
 
-	private int scaleFactor = 0;
-
 	@Override
 	public UnsignedWordElement scaleFactor(int scaleFactor) {
-		this.scaleFactor = scaleFactor;
+		super.scaleFactor(scaleFactor);
 		return this;
+	}
+
+	@Override
+	public UnsignedWordElement priority(Priority priority) {
+		return (UnsignedWordElement) super.priority(priority);
 	}
 
 	// @Override

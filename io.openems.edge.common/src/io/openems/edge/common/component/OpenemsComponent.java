@@ -1,9 +1,6 @@
 package io.openems.edge.common.component;
 
 import java.util.Collection;
-import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StateChannel;
@@ -82,12 +79,12 @@ public interface OpenemsComponent {
 	}
 
 	/**
-	 * Gets some key channels of the component that are suitable for a continuous
-	 * Debug log.
+	 * Gets some output that is suitable for a continuous Debug log. Returns 'null'
+	 * by default which causes no output.
 	 * 
 	 * @return
 	 */
-	public default Set<io.openems.edge.common.channel.doc.ChannelId> debugLog() {
-		return ImmutableSet.of(ChannelId.STATE);
+	public default String debugLog() {
+		return null;
 	}
 }

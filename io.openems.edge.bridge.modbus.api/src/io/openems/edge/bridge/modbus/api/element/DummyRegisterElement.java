@@ -1,16 +1,16 @@
-package io.openems.edge.bridge.modbus.protocol;
+package io.openems.edge.bridge.modbus.api.element;
 
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
 
-public class DummyElement extends RegisterElement<Void> {
+public class DummyRegisterElement extends AbstractModbusElement<Void> implements ModbusRegisterElement {
 
 	private final int length;
 
-	public DummyElement(int address) {
+	public DummyRegisterElement(int address) {
 		this(address, address);
 	}
 
-	public DummyElement(int fromAddress, int toAddress) {
+	public DummyRegisterElement(int fromAddress, int toAddress) {
 		super(fromAddress);
 		this.length = toAddress - fromAddress + 1;
 	}
@@ -24,12 +24,12 @@ public class DummyElement extends RegisterElement<Void> {
 	 * We are not setting a value for a DummyElement.
 	 */
 	@Override
-	protected void _setInputRegisters(InputRegister... registers) {
+	public void setInputRegisters(InputRegister... registers) {
 		return;
 	}
 
 	@Override
-	public DummyElement scaleFactor(int scaleFactor) {
+	public DummyRegisterElement scaleFactor(int scaleFactor) {
 		// ignore scaleFactor
 		return this;
 	}

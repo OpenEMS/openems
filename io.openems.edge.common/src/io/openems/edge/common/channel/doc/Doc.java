@@ -56,7 +56,6 @@ public class Doc {
 	/*
 	 * Verbose Debug mode
 	 */
-
 	private boolean debug = false;
 
 	public Doc debug() {
