@@ -11,7 +11,7 @@ import com.google.common.collect.ArrayListMultimap;
 
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.Priority;
-import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
 
 public class ModbusProtocol {
@@ -26,22 +26,22 @@ public class ModbusProtocol {
 	/**
 	 * All ReadTasks by their Priority
 	 */
-	private final ArrayListMultimap<Priority, Task> readTasks = ArrayListMultimap.create();
+	private final ArrayListMultimap<Priority, ReadTask> readTasks = ArrayListMultimap.create();
 
 	/**
 	 * Next queue of ReadTasks
 	 */
-	private final ArrayListMultimap<Priority, Task> nextReadTasks = ArrayListMultimap.create();
+	private final ArrayListMultimap<Priority, ReadTask> nextReadTasks = ArrayListMultimap.create();
 
 	/**
 	 * All WriteTasks
 	 */
 	private final List<WriteTask> writeTasks = new ArrayList<>();
 
-	public ModbusProtocol(int unitId, Task... tasks) {
+	public ModbusProtocol(int unitId, ReadTask... readTasks) {
 		this.unitId = unitId;
-		for (Task task : tasks) {
-			addTask(task);
+		for (ReadTask readTask : readTasks) {
+			addReadTask(readTask);
 		}
 	}
 
@@ -49,16 +49,16 @@ public class ModbusProtocol {
 		return unitId;
 	}
 
-	public void addTask(Task task) {
+	public void addReadTask(ReadTask readTask) {
 		// add the unitId to the task
-		task.setUnitId(this.unitId);
+		readTask.setUnitId(this.unitId);
 		// check task for plausibility
-		this.checkTask(task);
+		this.checkTask(readTask);
 		/*
 		 * fill writeTasks
 		 */
-		if (task instanceof WriteTask) {
-			WriteTask writetask = (WriteTask) task;
+		if (readTask instanceof WriteTask) {
+			WriteTask writetask = (WriteTask) readTask;
 			this.writeTasks.add(writetask);
 		}
 		/*
@@ -66,12 +66,12 @@ public class ModbusProtocol {
 		 */
 		// find highest priority of an element in the Task
 		Priority highestPriorityInTask = Priority.LOW;
-		for (ModbusElement element : task.getElements()) {
+		for (ModbusElement<?> element : readTask.getElements()) {
 			if (element.getPriority().compareTo(highestPriorityInTask) > 0) {
 				highestPriorityInTask = element.getPriority();
 			}
 		}
-		this.readTasks.put(highestPriorityInTask, task);
+		this.readTasks.put(highestPriorityInTask, readTask);
 	}
 
 	/**
@@ -79,8 +79,8 @@ public class ModbusProtocol {
 	 * 
 	 * @return
 	 */
-	public List<Task> getNextReadTasks() {
-		List<Task> result = new ArrayList<>(this.readTasks.get(Priority.HIGH).size() + 1);
+	public List<ReadTask> getNextReadTasks() {
+		List<ReadTask> result = new ArrayList<>(this.readTasks.get(Priority.HIGH).size() + 1);
 		this.readTasks.keySet().forEach(priority -> {
 			/*
 			 * Evaluates, how many tasks should be taken per priority for the result
@@ -100,7 +100,7 @@ public class ModbusProtocol {
 			if (take == 0) {
 				// add none
 			} else if (take < 0) {
-				// take all tasks
+				// take all read tasks
 				result.addAll(this.readTasks.get(priority));
 			} else {
 				synchronized (this.nextReadTasks) {
@@ -109,7 +109,7 @@ public class ModbusProtocol {
 						this.nextReadTasks.putAll(priority, this.readTasks.get(priority));
 					}
 					// take the given number of tasks; using nextReadTasks as a buffer queue.
-					Iterator<Task> iter = this.nextReadTasks.get(priority).iterator();
+					Iterator<ReadTask> iter = this.nextReadTasks.get(priority).iterator();
 					for (int i = 0; i < take && iter.hasNext(); i++) {
 						result.add(iter.next());
 						iter.remove();
@@ -130,13 +130,13 @@ public class ModbusProtocol {
 	}
 
 	/**
-	 * Checks a {@link Task} for plausibility
+	 * Checks a {@link ReadTask} for plausibility
 	 *
-	 * @param task
+	 * @param readTask
 	 */
-	private void checkTask(Task task) {
-		int address = task.getStartAddress();
-		for (ModbusElement element : task.getElements()) {
+	private void checkTask(ReadTask readTask) {
+		int address = readTask.getStartAddress();
+		for (ModbusElement<?> element : readTask.getElements()) {
 			if (element.getStartAddress() != address) {
 				log.error("Start address is wrong. It is [" + element.getStartAddress() + "/0x"
 						+ Integer.toHexString(element.getStartAddress()) + "] but should be [" + address + "/0x"

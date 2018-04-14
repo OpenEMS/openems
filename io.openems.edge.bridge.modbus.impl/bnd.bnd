@@ -10,8 +10,7 @@ Export-Package: \
 	io.openems.edge.bridge.modbus.api.task
 
 Private-Package: \
-	io.openems.edge.bridge.modbus.impl,\
-	io.openems.edge.bridge.modbus.impl.internal
+	io.openems.edge.bridge.modbus.impl
 
 -includeresource: {readme.md}
 

@@ -87,4 +87,14 @@ public interface OpenemsComponent {
 	public default String debugLog() {
 		return null;
 	}
+
+	/**
+	 * This event is triggered by the {@link ControllerExecutor} after all the
+	 * Controllers were executed.
+	 * 
+	 * It can be used execute the write all WriteChannels.
+	 */
+	public default void onAfterControllersRunByScheduler() {
+		// do nothing by default
+	}
 }

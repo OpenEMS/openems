@@ -1,13 +1,18 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import io.openems.edge.bridge.modbus.api.task.Task;
+import java.util.Optional;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.bridge.modbus.api.task.ReadTask;
 
 /**
- * A ModbusElement represents one or more registers or coils in a {@link Task}.
+ * A ModbusElement represents one or more registers or coils in a
+ * {@link ReadTask}.
  * 
  * @author stefan.feilmeier
  */
-public interface ModbusElement {
+public interface ModbusElement<T> {
 	/**
 	 * Gets the start address of this modbus element
 	 * 
@@ -23,12 +28,12 @@ public interface ModbusElement {
 	public abstract int getLength();
 
 	/**
-	 * Set the {@link Task}, where this Element belongs to. This is called during
-	 * {@link Task}.add()
+	 * Set the {@link ReadTask}, where this Element belongs to. This is called
+	 * during {@link ReadTask}.add()
 	 *
-	 * @param task
+	 * @param readTask
 	 */
-	public void setModbusTask(Task task);
+	public void setModbusTask(ReadTask readTask);
 
 	/**
 	 * Whether this Element should be ignored (= DummyElement)
@@ -44,4 +49,19 @@ public interface ModbusElement {
 	 * @return
 	 */
 	public Priority getPriority();
+
+	/**
+	 * Gets the type of this Register, e.g. INTEGER, BOOLEAN,..
+	 * 
+	 * @return
+	 */
+	public OpenemsType getType();
+
+	/**
+	 * Sets a value that should be written to the Modbus device
+	 * 
+	 * @param valueOpt
+	 * @throws OpenemsException
+	 */
+	public void _setNextWriteValue(Optional<T> valueOpt) throws OpenemsException;
 }

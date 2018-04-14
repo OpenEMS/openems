@@ -1,35 +1,49 @@
 package io.openems.edge.bridge.modbus.api.element;
 
+import java.util.function.Consumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.bridge.modbus.api.task.ReadTask;
 
-public abstract class AbstractModbusElement<T> implements ModbusElement, ModbusRegisterElement {
+public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractModbusElement.class);
 
+	private final OpenemsType type;
 	private final int startAddress;
 	private final boolean isIgnored;
 
-	protected Task task = null;
+	protected ReadTask readTask = null;
 
-	/*
-	 * The onUpdateCallback is called on reception of a new value
-	 */
-	private OnUpdate<T> onUpdateCallback;
-
-	public AbstractModbusElement(int startAddress) {
-		this(startAddress, false);
+	public AbstractModbusElement(OpenemsType type, int startAddress) {
+		this(type, startAddress, false);
 	}
 
-	public AbstractModbusElement(int startAddress, boolean isIgnored) {
+	public AbstractModbusElement(OpenemsType type, int startAddress, boolean isIgnored) {
+		this.type = type;
 		this.startAddress = startAddress;
 		this.onUpdateCallback = null;
 		this.isIgnored = isIgnored;
 	}
 
-	public AbstractModbusElement<T> onUpdateCallback(OnUpdate<T> onUpdateCallback) {
+	@Override
+	public OpenemsType getType() {
+		return this.type;
+	}
+
+	/*
+	 * The onUpdateCallback is called on reception of a new value
+	 */
+	private Consumer<T> onUpdateCallback;
+
+	public AbstractModbusElement<T> onUpdateCallback(Consumer<T> onUpdateCallback) {
+		if (this.onUpdateCallback != null) {
+			log.warn("Setting new onUpdateCallback for ModbusElement [" + this.startAddress
+					+ "] overrides existing one!");
+		}
 		this.onUpdateCallback = onUpdateCallback;
 		return this;
 	}
@@ -45,25 +59,24 @@ public abstract class AbstractModbusElement<T> implements ModbusElement, ModbusR
 	}
 
 	@Override
-	public void setModbusTask(Task task) {
-		this.task = task;
+	public void setModbusTask(ReadTask readTask) {
+		this.readTask = readTask;
 	}
 
-	public Task getModbusTask() {
-		return task;
+	public ReadTask getModbusTask() {
+		return readTask;
 	}
 
 	protected void setValue(T value) {
 		if (this.isDebug) {
-			log.info("Element at [" + this.startAddress + "/0x" + Integer.toHexString(this.startAddress)
-					+ "] set value to [" + value + "].");
+			log.info("Element [" + this + "] set value to [" + value + "].");
 		}
 		if (this.onUpdateCallback != null) {
-			this.onUpdateCallback.call(value);
+			this.onUpdateCallback.accept(value);
 		}
 	}
 
-	/**
+	/*
 	 * BuilderPattern. The received value is adjusted to the power of the
 	 * scaleFactor (y = x * 10^scaleFactor).
 	 * 
@@ -108,6 +121,11 @@ public abstract class AbstractModbusElement<T> implements ModbusElement, ModbusR
 	@Override
 	public Priority getPriority() {
 		return priority;
+	}
+
+	@Override
+	public String toString() {
+		return this.startAddress + "/0x" + Integer.toHexString(this.startAddress);
 	}
 
 	// protected void setValue(T value) {

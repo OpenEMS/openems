@@ -5,15 +5,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.Log;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 
 public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent {
+
+	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
 
 	private volatile BridgeModbusTcp modbus = null;
 
@@ -100,7 +107,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	public class ChannelMapper {
 
 		private final AbstractModbusElement<?> element;
-		private Map<io.openems.edge.common.channel.doc.ChannelId, ElementToChannelConverter> channelMaps = new HashMap<>();
+		private Map<Channel<?>, ElementToChannelConverter> channelMaps = new HashMap<>();
 
 		public ChannelMapper(AbstractModbusElement<?> element) {
 			this.element = element;
@@ -109,8 +116,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 				 * Applies the updated value on every Channel in ChannelMaps using the given
 				 * Converter. If the converter returns an Optional.empty, the value is ignored.
 				 */
-				this.channelMaps.forEach((channelId, converter) -> {
-					Channel<?> channel = channel(channelId);
+				this.channelMaps.forEach((channel, converter) -> {
 					Optional<Object> convertedValueOpt = converter.elementToChannel(value);
 					if (convertedValueOpt.isPresent()) {
 						try {
@@ -125,7 +131,27 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 		public ChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId,
 				ElementToChannelConverter converter) {
-			this.channelMaps.put(channelId, converter);
+			Channel<?> channel = channel(channelId);
+			this.channelMaps.put(channel, converter);
+			/*
+			 * handle Channel Write to Element
+			 */
+			if (channel instanceof WriteChannel<?>) {
+				((WriteChannel<?>) channel).onSetNextWriteCallback(value -> {
+					Object convertedValue = converter.channelToElement(value);
+					if (this.element instanceof ModbusRegisterElement) {
+						try {
+							((ModbusRegisterElement<?>) element).setNextWriteValue(Optional.ofNullable(convertedValue));
+						} catch (OpenemsException e) {
+							log.warn("Unable to write to Element [" + this.element.getStartAddress() + "]: "
+									+ e.getMessage());
+						}
+					} else {
+						log.warn("Unable to write to Element [" + this.element.getStartAddress()
+								+ "]: it is not a ModbusElement");
+					}
+				});
+			}
 			return this;
 		}
 
@@ -152,8 +178,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	}
 
 	/**
-	 * Maps the given element to the Channel identified by channelId. Throws an
-	 * IllegalArgumentException if Channel is not a ModbusChannel.
+	 * Maps the given element to the Channel identified by channelId.
 	 * 
 	 * @param channelDoc
 	 * @param element

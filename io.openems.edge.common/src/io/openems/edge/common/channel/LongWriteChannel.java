@@ -6,37 +6,36 @@ import java.util.function.Consumer;
 import io.openems.edge.common.channel.doc.ChannelId;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public class IntegerWriteChannel extends IntegerReadChannel implements WriteChannel<Integer> {
+public class LongWriteChannel extends LongReadChannel implements WriteChannel<Long> {
 
-	public IntegerWriteChannel(OpenemsComponent component, ChannelId channelId) {
+	public LongWriteChannel(OpenemsComponent component, ChannelId channelId) {
 		super(component, channelId);
 	}
 
-	private Optional<Integer> nextWriteValueOpt = Optional.empty();
+	private Optional<Long> nextWriteValueOpt = Optional.empty();
 
 	@Override
-	public void _setNextWriteValue(Integer value) {
+	public void _setNextWriteValue(Long value) {
 		this.nextWriteValueOpt = Optional.ofNullable(value);
 	}
 
 	@Override
-	public Optional<Integer> _getNextWriteValue() {
+	public Optional<Long> _getNextWriteValue() {
 		return this.nextWriteValueOpt;
 	}
 
 	/*
 	 * onSetNextWriteCallback
 	 */
-	private Consumer<Integer> onSetNextWriteCallback = null;
+	private Consumer<Long> onSetNextWriteCallback = null;
 
 	@Override
-	public Consumer<Integer> getOnSetNextWriteCallback() {
+	public Consumer<Long> getOnSetNextWriteCallback() {
 		return this.onSetNextWriteCallback;
 	}
 
 	@Override
-	public void _onSetNextWriteCallback(Consumer<Integer> onSetNextWriteCallback) {
+	public void _onSetNextWriteCallback(Consumer<Long> onSetNextWriteCallback) {
 		this.onSetNextWriteCallback = onSetNextWriteCallback;
 	}
-
 }

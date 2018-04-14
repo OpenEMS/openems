@@ -21,11 +21,11 @@ import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
  * @author stefan.feilmeier
  *
  */
-public class FC3ReadHoldingRegisterTask extends Task {
+public class FC3ReadRegistersTask extends ReadTask {
 
-	private final Logger log = LoggerFactory.getLogger(FC3ReadHoldingRegisterTask.class);
+	private final Logger log = LoggerFactory.getLogger(FC3ReadRegistersTask.class);
 
-	public FC3ReadHoldingRegisterTask(int startAddress, AbstractModbusElement<?>... elements) {
+	public FC3ReadRegistersTask(int startAddress, AbstractModbusElement<?>... elements) {
 		super(startAddress, elements);
 	}
 
@@ -45,13 +45,13 @@ public class FC3ReadHoldingRegisterTask extends Task {
 		}
 		// Fill elements
 		int position = 0;
-		for (ModbusElement modbusElement : this.getElements()) {
+		for (ModbusElement<?> modbusElement : this.getElements()) {
 			if (!(modbusElement instanceof ModbusRegisterElement)) {
 				log.error("A ModbusRegisterElement is required for a FC3ReadHoldingRegisterTask! Element ["
 						+ modbusElement + "]");
 			} else {
 				// continue with correctly casted ModbusRegisterElement
-				ModbusRegisterElement element = (ModbusRegisterElement) modbusElement;
+				ModbusRegisterElement<?> element = (ModbusRegisterElement<?>) modbusElement;
 				try {
 					if (element.isIgnored()) {
 						// ignore dummy

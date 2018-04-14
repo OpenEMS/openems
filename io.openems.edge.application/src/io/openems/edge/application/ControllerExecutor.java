@@ -104,8 +104,18 @@ public class ControllerExecutor extends AbstractWorker {
 					controller.run();
 				});
 			});
+
+			/*
+			 * After Controllers were executed: trigger write on each Component
+			 */
+			this.components.forEach(component -> {
+				component.onAfterControllersRunByScheduler();
+			});
 		} catch (Throwable t) {
 			log.warn("Error in Scheduler. " + t.getClass().getSimpleName() + ": " + t.getMessage());
+			if (t instanceof ClassCastException) {
+				t.printStackTrace();
+			}
 		}
 	}
 

@@ -7,21 +7,22 @@ import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
 /**
- * A Modbus 'Task' is holding references to one or more Modbus
+ * A Modbus 'ReadTask' is holding references to one or more Modbus
  * {@link AbstractModbusElement} which have register addresses in the same
- * range. The Task handles the execution (query, write,...) on this range.
+ * range. The ReadTask handles the execution (query) on this range. @{link
+ * WriteTask} inherits from ReadTask.
  * 
  * @author stefan.feilmeier
  */
-public abstract class Task {
+public abstract class ReadTask {
 
 	private final int length;
 	private final int startAddress;
 
-	private ModbusElement[] elements;
+	private ModbusElement<?>[] elements;
 	private int unitId; // this is always set by ModbusProtocol.addTask()
 
-	public Task(int startAddress, AbstractModbusElement<?>... elements) {
+	public ReadTask(int startAddress, AbstractModbusElement<?>... elements) {
 		this.startAddress = startAddress;
 		this.elements = elements;
 		for (AbstractModbusElement<?> element : elements) {
@@ -34,7 +35,7 @@ public abstract class Task {
 		this.length = length;
 	}
 
-	public ModbusElement[] getElements() {
+	public ModbusElement<?>[] getElements() {
 		return elements;
 	}
 
@@ -65,6 +66,10 @@ public abstract class Task {
 
 	@Override
 	public String toString() {
-		return "Task [startAddress=" + startAddress + ", length=" + length + "]";
+		if (this instanceof WriteTask) {
+			return "WriteTask [startAddress=" + startAddress + ", length=" + length + "]";
+		} else {
+			return "ReadTask [startAddress=" + startAddress + ", length=" + length + "]";
+		}
 	}
 }

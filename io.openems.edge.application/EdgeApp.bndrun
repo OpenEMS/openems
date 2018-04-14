@@ -21,7 +21,8 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debuglog)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.fixedorder)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.commercial40)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus.impl)'
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus.impl)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.openemsv1)'
 
 -runbundles: \
 	io.openems.common;version=snapshot,\
@@ -41,4 +42,6 @@ JPM-Command:				openems-edge
 	io.openems.edge.bridge.modbus.impl;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
-	io.openems.wrapper.j2mod;version=snapshot
+	io.openems.wrapper.j2mod;version=snapshot,\
+	io.openems.edge.ess.fenecon.openemsv1;version=snapshot
+-resolve: auto
