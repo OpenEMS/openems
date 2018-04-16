@@ -1,6 +1,8 @@
 eclipse.preferences.version=1
 encoding//src/io/openems/edge/ess/api/Ess.java=UTF-8
 encoding//src/io/openems/edge/ess/api/package-info.java=UTF-8
+encoding//src/io/openems/edge/ess/power/package-info.java=UTF-8
+encoding//src/io/openems/edge/ess/power/symmetric/package-info.java=UTF-8
 encoding//src/io/openems/edge/ess/symmetric/api/EssSymmetric.java=UTF-8
 encoding//src/io/openems/edge/ess/symmetric/api/package-info.java=UTF-8
 encoding//test/.gitignore=UTF-8

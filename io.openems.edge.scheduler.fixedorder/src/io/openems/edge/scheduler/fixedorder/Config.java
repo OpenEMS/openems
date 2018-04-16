@@ -8,7 +8,7 @@ import io.openems.edge.scheduler.api.Scheduler;
 @interface Config {
 	String id();
 
-	boolean enabled() default true;
+	boolean enabled();
 
 	int cycleTime() default Scheduler.DEFAULT_CYCLE_TIME;
 

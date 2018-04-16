@@ -27,17 +27,21 @@ import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.power.symmetric.SymmetricPower;
+import io.openems.edge.ess.symmetric.api.EssSymmetric;
 import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Ess.Fenecon.Commercial40", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
-public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
-		implements EssSymmetricReadonly, OpenemsComponent {
+public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent implements EssSymmetric, OpenemsComponent {
 
 	private final static int UNIT_ID = 100;
 
+	private final SymmetricPower power;
+
 	public EssFeneconCommercial40() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		this.power = new SymmetricPower(this);
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -597,5 +601,10 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().format();
+	}
+
+	@Override
+	public SymmetricPower getPower() {
+		return this.power;
 	}
 }

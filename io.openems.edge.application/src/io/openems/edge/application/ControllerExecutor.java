@@ -1,5 +1,6 @@
 package io.openems.edge.application;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -11,10 +12,13 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
 import io.openems.edge.common.worker.AbstractWorker;
 import io.openems.edge.scheduler.api.Scheduler;
 
@@ -22,6 +26,9 @@ import io.openems.edge.scheduler.api.Scheduler;
 public class ControllerExecutor extends AbstractWorker {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerExecutor.class);
+
+	@Reference(policy = ReferencePolicy.STATIC)
+	private EventAdmin eventAdmin;
 
 	/**
 	 * Holds the Schedulers and their relative cycleTime. They are sorted ascending
@@ -106,14 +113,23 @@ public class ControllerExecutor extends AbstractWorker {
 			});
 
 			/*
-			 * After Controllers were executed: trigger write on each Component
+			 * Trigger BEFORE_WRITE event
 			 */
-			this.components.forEach(component -> {
-				component.onAfterControllersRunByScheduler();
-			});
+			this.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE, new HashMap<>()));
+
+			/*
+			 * Trigger EXECUTE_WRITE event
+			 */
+			this.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, new HashMap<>()));
+
+			/*
+			 * Trigger AFTER_WRITE event
+			 */
+			this.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE, new HashMap<>()));
+
 		} catch (Throwable t) {
 			log.warn("Error in Scheduler. " + t.getClass().getSimpleName() + ": " + t.getMessage());
-			if (t instanceof ClassCastException) {
+			if (t instanceof ClassCastException || t instanceof NullPointerException) {
 				t.printStackTrace();
 			}
 		}

@@ -34,7 +34,7 @@ public class EdgeWebsocket implements EdgeWebsocketService {
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
 	protected volatile UiWebsocketService uiWebsocketService;
-	
+
 	@Reference
 	protected volatile TimedataService timedataService;
 

@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @interface Config {
 	String id();
 
-	boolean enabled() default true;
+	boolean enabled();
 
 	String ip();
 }

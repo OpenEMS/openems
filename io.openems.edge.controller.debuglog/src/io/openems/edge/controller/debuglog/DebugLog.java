@@ -15,13 +15,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.ess.fenecon.openemsv1.OpenemsV1;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.DebugLog", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
@@ -42,8 +38,6 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller {
 		super.deactivate();
 	}
 
-	private int lastSetValue = 0;
-
 	@Override
 	public void run() {
 		StringBuilder b = new StringBuilder();
@@ -52,8 +46,7 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller {
 		 * of those channelIds and their current values.
 		 */
 		this.components.forEach(component -> {
-			if (!component.isActive()) {
-				System.out.println(component.id() + " is inactive");
+			if (!component.isEnabled()) {
 				return;
 			}
 			b.append(component.id());
@@ -63,18 +56,16 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller {
 			}
 			b.append(" ");
 
-			if (component.id().equals("test0")) {
-				Channel<?> channel = component.channel(OpenemsV1.ChannelId.SET_MIN_SOC);
-				WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
-				try {
-					writeChannel.setNextWriteValue(Long.valueOf(++this.lastSetValue));
-				} catch (OpenemsException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				System.out.println(channel);
-			}
+			// if (component.id().equals("test0")) {
+			// Channel<?> channel = component.channel(OpenemsV1.ChannelId.SET_MIN_SOC);
+			// WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
+			// try {
+			// writeChannel.setNextWriteValue(Long.valueOf(++this.lastSetValue));
+			// } catch (OpenemsException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			// }
 		});
 		log.info(b.toString());
 	}

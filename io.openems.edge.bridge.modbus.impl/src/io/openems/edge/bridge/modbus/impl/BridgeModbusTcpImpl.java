@@ -12,6 +12,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +31,14 @@ import io.openems.edge.bridge.modbus.api.task.WriteTask;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
 import io.openems.edge.common.worker.AbstractWorker;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Bridge.Modbus.Tcp", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class BridgeModbusTcpImpl extends AbstractOpenemsComponent implements BridgeModbusTcp, OpenemsComponent {
+@Component(name = "Bridge.Modbus.Tcp", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
+		+ "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
+		implements BridgeModbusTcp, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
 	private final ModbusWorker worker = new ModbusWorker();
@@ -213,8 +219,11 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent implements Bri
 	}
 
 	@Override
-	public void onAfterControllersRunByScheduler() {
-		// trigger a FORCE WRITE when all Controllers finished
-		this.forceWrite.set(true);
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+			this.forceWrite.set(true);
+			break;
+		}
 	}
 }

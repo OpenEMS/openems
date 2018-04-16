@@ -1,0 +1,20 @@
+-dsannotations: *
+-metatypeannotations: *
+Service-Component: *
+
+Bundle-Version: 1.14
+
+Include-Resource: @lib/jts-1.14.jar
+
+-exportcontents: \
+	com.vividsolutions.jts.geom, \
+	com.vividsolutions.jts.operation.distance, \
+	com.vividsolutions.jts.util, \
+	com.vividsolutions.jts.io, \
+	com.vividsolutions.jts.algorithm, \
+	com.vividsolutions.jts.index, \
+	com.vividsolutions.jts.index.strtree, \
+	com.vividsolutions.jts.math
+-sources: false
+
+# TODO Update to latest version 1.15 which is available on maven central

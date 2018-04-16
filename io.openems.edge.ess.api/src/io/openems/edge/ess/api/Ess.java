@@ -25,7 +25,7 @@ public interface Ess extends OpenemsComponent {
 		}
 	}
 
-	default Channel<?> getSoc() {
-		return this.channel(ChannelId.SOC);
+	default Channel<Integer> getSoc() {
+		return (Channel<Integer>) this.channel(ChannelId.SOC);
 	}
 }

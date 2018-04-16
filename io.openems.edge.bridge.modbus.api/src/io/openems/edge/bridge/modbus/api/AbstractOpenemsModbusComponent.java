@@ -38,7 +38,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected void activate(String id, boolean isEnabled, int unitId) {
 		super.activate(id, isEnabled);
 		this.unitId = unitId;
-		this.initializeModbusBridge();
+		if (isEnabled) {
+			this.initializeModbusBridge();
+		}
 	}
 
 	@Override

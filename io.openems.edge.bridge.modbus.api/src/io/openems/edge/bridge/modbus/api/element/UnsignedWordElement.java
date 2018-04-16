@@ -55,7 +55,7 @@ public class UnsignedWordElement extends AbstractWordElement {
 			this.setNextWriteValueRegisters(Optional.of(new Register[] { //
 					new SimpleRegister(b[0], b[1]) }));
 		} else {
-			this.setNextWriteValue(Optional.empty());
+			this.setNextWriteValueRegisters(Optional.empty());
 		}
 	}
 }
