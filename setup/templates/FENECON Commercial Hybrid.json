@@ -61,7 +61,7 @@
                 "meter": "meter0",
                 "ess": "ess0",
                 "priority": 50,
-                "surplusMinSoc": 85,
+                "surplusMinSoc": 95,
                 "chargers": [
                     "charger0"
                 ]
