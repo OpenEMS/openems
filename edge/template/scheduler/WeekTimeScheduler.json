@@ -1,24 +1,39 @@
 {
-  "scheduler": {
-    "class": "io.openems.impl.scheduler.time.WeekTimeScheduler",
-    "controllers": [
-      {
-        "class": "io.openems.impl.controller.api.rest.RestApiController",
-        "priority": 150
-      },
-      {
-      	"id": "websocketApi0",
-        "class": "io.openems.impl.controller.api.websocket.WebsocketApiController",
-        "priority": 100
-      }
-    ],
-    "always": ["websocketApi0"],
-    "monday": [],
-    "tuesday": [],
-    "wednesday": [],
-    "thursday": [],
-    "friday": [],
-    "saturday": [],
-    "sunday": []
-  }
+	"scheduler": {
+		"class": "io.openems.impl.scheduler.time.WeekTimeScheduler",
+		"controllers": [
+			{
+				"class": "io.openems.impl.controller.api.rest.RestApiController",
+				"priority": 150
+			},
+			{
+				"id": "websocketApi0",
+				"class": "io.openems.impl.controller.api.websocket.WebsocketApiController",
+				"priority": 100
+			}
+		],
+		"always": [
+			"websocketApi0"
+		],
+		"monday": [
+			{
+				"time": "08:00",
+				"controllers": [
+					"balancing0"
+				]
+			}
+		],
+		"tuesday": [
+		],
+		"wednesday": [
+		],
+		"thursday": [
+		],
+		"friday": [
+		],
+		"saturday": [
+		],
+		"sunday": [
+		]
+	}
 }
