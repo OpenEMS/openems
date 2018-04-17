@@ -24,9 +24,9 @@ public class MaxCosPhiLimitation extends Limitation {
 						new Coordinate(maxApparentPower, y * -1), new Coordinate(ZERO),
 						new Coordinate(maxApparentPower * -1, y * -1), new Coordinate(maxApparentPower * -1, y),
 						new Coordinate(ZERO) };
-				polygon = factory.createPolygon(coordinates);
+				this.polygon = factory.createPolygon(coordinates);
 			} else {
-				polygon = null;
+				this.polygon = null;
 			}
 			this.cosPhi = cosPhi;
 			notifyListeners();
@@ -36,7 +36,7 @@ public class MaxCosPhiLimitation extends Limitation {
 	@Override
 	public Geometry applyLimit(Geometry geometry) throws PowerException {
 		if (this.polygon != null) {
-			Geometry newGeometry = geometry.intersection(polygon);
+			Geometry newGeometry = geometry.intersection(this.polygon);
 			if (newGeometry.isEmpty()) {
 				throw new PowerException(
 						"The CosPhi limitation is too small! There needs to be at least one point after the limitation.");

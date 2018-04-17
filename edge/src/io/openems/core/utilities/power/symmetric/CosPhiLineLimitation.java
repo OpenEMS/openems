@@ -35,9 +35,9 @@ public class CosPhiLineLimitation extends Limitation {
 				double y2 = m2 * maxApparentPower*-1 + t2;
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, y1),
 						new Coordinate(xNull, yNull), new Coordinate(maxApparentPower*-1, y2) };
-				line = factory.createLineString(coordinates);
+				this.line = factory.createLineString(coordinates);
 			}else {
-				line = null;
+				this.line = null;
 			}
 			this.cosPhi = cosPhi;
 			this.capacitive = capacitive;
@@ -49,13 +49,13 @@ public class CosPhiLineLimitation extends Limitation {
 
 	@Override
 	protected Geometry applyLimit(Geometry geometry) throws PowerException {
-		if(line != null) {
-			Geometry newGeometry = geometry.intersection(line);
+		if(this.line != null) {
+			Geometry newGeometry = geometry.intersection(this.line);
 			if (newGeometry.isEmpty()) {
-				DistanceOp distance = new DistanceOp(geometry, line);
+				DistanceOp distance = new DistanceOp(geometry, this.line);
 				GeometryLocation[] locations = distance.nearestLocations();
 				for (GeometryLocation location : locations) {
-					if (!location.getGeometryComponent().equals(line)) {
+					if (!location.getGeometryComponent().equals(this.line)) {
 						return factory.createPoint(location.getCoordinate());
 					}
 				}

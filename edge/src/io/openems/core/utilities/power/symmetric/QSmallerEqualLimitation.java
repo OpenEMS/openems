@@ -23,9 +23,9 @@ public class QSmallerEqualLimitation extends Limitation {
 				long qMax = q;
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax), new Coordinate(pMin, qMin),
 						new Coordinate(pMax, qMin), new Coordinate(pMax, qMax), new Coordinate(pMin, qMax) };
-				rect = factory.createPolygon(coordinates);
+				this.rect = factory.createPolygon(coordinates);
 			} else {
-				rect = null;
+				this.rect = null;
 			}
 			this.q = q;
 			notifyListeners();
@@ -34,7 +34,7 @@ public class QSmallerEqualLimitation extends Limitation {
 
 	@Override
 	public Geometry applyLimit(Geometry geometry) throws PowerException {
-		if (rect != null) {
+		if (this.rect != null) {
 			Geometry newGeometry = geometry.intersection(this.rect);
 			if (newGeometry.isEmpty()) {
 				throw new PowerException(

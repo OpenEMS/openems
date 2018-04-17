@@ -22,9 +22,9 @@ public class NoPBetweenLimitation extends Limitation {
 				long qMax = power.getMaxApparentPower();
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin+0.1, qMax), new Coordinate(pMin+0.1, qMin),
 						new Coordinate(pMax-0.1, qMin), new Coordinate(pMax-0.1, qMax), new Coordinate(pMin+0.1, qMax) };
-				rect = factory.createPolygon(coordinates);
+				this.rect = factory.createPolygon(coordinates);
 			} else {
-				rect = null;
+				this.rect = null;
 			}
 			this.pMin = pMin;
 			this.pMax = pMax;
@@ -34,8 +34,8 @@ public class NoPBetweenLimitation extends Limitation {
 
 	@Override
 	protected Geometry applyLimit(Geometry geometry) throws PowerException {
-		if (rect != null) {
-			Geometry newGeometry = geometry.difference(rect);
+		if (this.rect != null) {
+			Geometry newGeometry = geometry.difference(this.rect);
 			if (newGeometry.isEmpty()) {
 				throw new PowerException(
 						"The ActivePower limitation is too large! There needs to be at least one point after the limitation.");

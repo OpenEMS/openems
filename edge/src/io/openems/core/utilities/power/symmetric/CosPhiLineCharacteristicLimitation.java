@@ -48,10 +48,10 @@ public class CosPhiLineCharacteristicLimitation extends Limitation {
 				if (y != null) {
 					coordinates.add(new Coordinate(maxApparentPower, y));
 				}
-				line = factory
+				this.line = factory
 						.createLineString(coordinates.toArray(new Coordinate[coordinates.size()]));
 			} else {
-				line = null;
+				this.line = null;
 			}
 			this.characteristic.clear();
 			this.characteristic.putAll(characteristic);
@@ -63,13 +63,13 @@ public class CosPhiLineCharacteristicLimitation extends Limitation {
 
 	@Override
 	protected Geometry applyLimit(Geometry geometry) throws PowerException {
-		if (line != null) {
-			Geometry newGeometry = geometry.intersection(line);
+		if (this.line != null) {
+			Geometry newGeometry = geometry.intersection(this.line);
 			if (newGeometry.isEmpty()) {
-				DistanceOp distance = new DistanceOp(geometry, line);
+				DistanceOp distance = new DistanceOp(geometry, this.line);
 				GeometryLocation[] locations = distance.nearestLocations();
 				for (GeometryLocation location : locations) {
-					if (!location.getGeometryComponent().equals(line)) {
+					if (!location.getGeometryComponent().equals(this.line)) {
 						return factory.createPoint(location.getCoordinate());
 					}
 				}

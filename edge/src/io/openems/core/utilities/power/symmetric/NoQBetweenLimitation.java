@@ -22,9 +22,9 @@ public class NoQBetweenLimitation extends Limitation {
 				long pMax = power.getMaxApparentPower();
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax-0.1), new Coordinate(pMin, qMin+0.1),
 						new Coordinate(pMax, qMin+0.1), new Coordinate(pMax, qMax-0.1), new Coordinate(pMin, qMax-0.1) };
-				rect = factory.createPolygon(coordinates);
+				this.rect = factory.createPolygon(coordinates);
 			} else {
-				rect = null;
+				this.rect = null;
 			}
 			this.qMin = qMin;
 			this.qMax = qMax;
@@ -34,8 +34,8 @@ public class NoQBetweenLimitation extends Limitation {
 
 	@Override
 	protected Geometry applyLimit(Geometry geometry) throws PowerException {
-		if (rect != null) {
-			Geometry newGeometry = geometry.difference(rect);
+		if (this.rect != null) {
+			Geometry newGeometry = geometry.difference(this.rect);
 			if (newGeometry.isEmpty()) {
 				throw new PowerException(
 						"The ReactivePower limitation is too large! There needs to be at least one point after the limitation.");
