@@ -21,9 +21,9 @@ public class QEqualLimitation extends Limitation {
 			if (q != null) {
 				Coordinate[] coordinates = new Coordinate[] { new Coordinate(power.getMaxApparentPower(), q),
 						new Coordinate(power.getMaxApparentPower() * -1, q) };
-				line = factory.createLineString(coordinates);
+				this.line = factory.createLineString(coordinates);
 			} else {
-				line = null;
+				this.line = null;
 			}
 			this.q = q;
 			notifyListeners();
@@ -32,34 +32,34 @@ public class QEqualLimitation extends Limitation {
 
 	@Override
 	protected Geometry applyLimit(Geometry geometry) throws PowerException {
-		if (line != null) {
-			Geometry newGeometry = geometry.intersection(line);
+		if (this.line != null) {
+			Geometry newGeometry = geometry.intersection(this.line);
 			long maxApparentPower = power.getMaxApparentPower();
 			if (newGeometry.isEmpty()) {
 				Geometry smallerQ = SymmetricPowerImpl.intersectRect(geometry, maxApparentPower * -1, maxApparentPower, 0, q);
 				if (!smallerQ.isEmpty()) {
-					DistanceOp distance = new DistanceOp(smallerQ, line);
+					DistanceOp distance = new DistanceOp(smallerQ, this.line);
 					GeometryLocation[] locations = distance.nearestLocations();
 					long maxQ = 0;
 					for (GeometryLocation location : locations) {
-						if (!location.getGeometryComponent().equals(line)) {
+						if (!location.getGeometryComponent().equals(this.line)) {
 							maxQ = (long) location.getCoordinate().y;
 							break;
 						}
 					}
 					Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, maxQ),
 							new Coordinate(maxApparentPower * -1, maxQ) };
-					line = factory.createLineString(coordinates);
-					return geometry.intersection(line);
+					// apply new temporary line
+					return geometry.intersection(factory.createLineString(coordinates));
 				} else {
-					DistanceOp distance = new DistanceOp(geometry, line);
+					DistanceOp distance = new DistanceOp(geometry, this.line);
 					GeometryLocation[] locations = distance.nearestLocations();
 					for (GeometryLocation location : locations) {
-						if (!location.getGeometryComponent().equals(line)) {
+						if (!location.getGeometryComponent().equals(this.line)) {
 							Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, location.getCoordinate().y),
 									new Coordinate(maxApparentPower * -1, location.getCoordinate().y) };
-							line = factory.createLineString(coordinates);
-							return geometry.intersection(line);
+							// apply new temporary line
+							return geometry.intersection(factory.createLineString(coordinates));
 						}
 					}
 				}
