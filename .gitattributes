@@ -1,75 +1,53 @@
-# Text files with LF eol
-*.auth crlf=input
-*.awk crlf=input
-*.bnd crlf=input
-*.bndrun crlf=input
-*.c crlf=input ident
-*.conf crlf=input
-*.cpp crlf=input ident
-*.css crlf=input
-*.ddf crlf=input
-*.ee crlf=input
-*.gradle crlf=input
-*.groovy crlf=input
-*.h crlf=input ident
-*.html crlf=input ident
-*.java crlf=input ident
-*.js crlf=input
-*.lib crlf=input
-*.md crlf=input
-*.MF crlf=input
-*.mf crlf=input
-*.perm crlf=input
-*.php crlf=input
-*.pl crlf=input
-*.pom crlf=input
-*.prefs crlf=input
-*.properties crlf=input
-*.py crlf=input
-*.schema crlf=input
-*.SF crlf=input
-*.sh crlf=input
-*.tcl crlf=input
-*.txt crlf=input
-*.xml crlf=input
-*.xsd crlf=input ident
-*.xsl crlf=input
-*.xslt crlf=input
-*.yml crlf=input
-.classpath crlf=input
-.project crlf=input
-gradlew crlf=input
-packageinfo crlf=input
-Makefile crlf=input
-README crlf=input
-LICENSE crlf=input
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched.
+* text=auto
 
-# No EOL translation
-*.bat -crlf
+#
+# The above will handle all files NOT found below
+#
+# These files are text and should be normalized (Convert crlf => lf)
+*.adoc			text
+*.auth 			text
+*.bnd			text
+*.bndrun 		text
+*.css           text
+*.csv 			text
+*.conf 			text
+*.gradle 		text
+*.groovy 		text
+*.htm           text
+*.html          text
+*.java          text
+*.js            text
+*.json          text
+*.md 			text
+*.pom 			text
+*.properties    text
+*.sh            text
+*.tld           text
+*.txt           text
+*.tag           text
+*.ts			text
+*.xml           text
+*.yml           text
+.classpath 		text
+.project 		text
+packageinfo 	text
+LICENSE			text
+README 			text
 
-# Binary. No EOL translation, no diff
-*.ico binary
-*.jpeg binary
-*.jpg binary
-*.png binary
-*.crt binary
-*.pdf binary
-*.dll binary
-*.jar binary
-*.jnilib binary
-*.so binary
-*.zip binary
-*.doc binary
-*.ppt binary
-*.xls binary
-*.odg binary
-*.odp binary
-*.ods binary
-*.odt binary
-*.otg binary
-*.otp binary
-*.ots binary
-*.ott binary
-*.key binary
-*.numbers binary
-*.pages binary
+# These files are binary and should be left untouched
+# (binary is a macro for -text -diff)
+*.class         binary
+*.dll           binary
+*.ear           binary
+*.eps 			binary
+*.gif           binary
+*.ico           binary
+*.jar           binary
+*.jpg           binary
+*.jpeg          binary
+*.png           binary
+*.so            binary
+*.svg			binary
+*.war 			binary
