@@ -31,7 +31,7 @@ export class EvcsComponent {
    * @param channelId 
    */
   private onChannelChange(message) {
-    if (message == null) {
+    if (message != null) {
       this.device.send(message);
     }
   }
