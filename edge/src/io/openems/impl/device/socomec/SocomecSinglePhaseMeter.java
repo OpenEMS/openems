@@ -35,6 +35,8 @@ import io.openems.impl.protocol.modbus.internal.SignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
 import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
 
+// TODO Single Phase Meter should implement a SinglePhaseMeterNature which should have a configChannel on which phase (L1/L2/L3) it is connected. This setting should be reflected in the UI.
+
 @ThingInfo(title = "Socomec Single Phase Meter")
 public class SocomecSinglePhaseMeter extends ModbusDeviceNature implements SymmetricMeterNature {
 
