@@ -23,25 +23,36 @@ import com.ghgande.j2mod.modbus.ModbusException;
 import com.ghgande.j2mod.modbus.facade.ModbusTCPMaster;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
-import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
 import io.openems.edge.common.worker.AbstractWorker;
 
+/**
+ * Provides a service for connecting to, querying and writing to a Modbus/TCP
+ * device
+ * 
+ * @author stefan.feilmeier
+ *
+ */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Bridge.Modbus.Tcp", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
-		+ "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
+@Component(name = "Bridge.Modbus.Tcp", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE)
 public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 		implements BridgeModbusTcp, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(BridgeModbusTcpImpl.class);
 	private final ModbusWorker worker = new ModbusWorker();
+
 	/**
 	 * Set ForceWrite to interrupt the ReadTasks and execute the WriteTasks
 	 * immediately.
@@ -53,7 +64,7 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
-						return new IntegerReadChannel(this, channelId);
+						return new StateChannel(this, channelId);
 					}
 					return null;
 				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
@@ -65,7 +76,7 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 	private String ipAddress = "";
 
 	/**
-	 * Is the device with this UnitId ok?
+	 * Remember defective devices (Unit IDs)?
 	 */
 	private final Set<Integer> defectiveUnitIds = new ConcurrentSkipListSet<Integer>();
 
@@ -74,13 +85,16 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 	 * 
 	 * @param config
 	 */
-	private final Multimap<String, ModbusProtocol> protocols = ArrayListMultimap.create();
+	private final Multimap<String, ModbusProtocol> protocols = Multimaps
+			.synchronizedListMultimap(ArrayListMultimap.create());
 
 	@Activate
 	void activate(Config config) {
 		super.activate(config.id(), config.enabled());
 		this.ipAddress = config.ip();
-		this.worker.activate(config.id());
+		if (this.isEnabled()) {
+			this.worker.activate(config.id());
+		}
 	}
 
 	@Deactivate
@@ -96,18 +110,14 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 	 * @param protocol
 	 */
 	public void addProtocol(String sourceId, ModbusProtocol protocol) {
-		synchronized (this.protocols) {
-			this.protocols.put(sourceId, protocol);
-		}
+		this.protocols.put(sourceId, protocol);
 	}
 
 	/**
 	 * Removes the protocol
 	 */
 	public void removeProtocol(String sourceId) {
-		synchronized (this.protocols) {
-			this.protocols.removeAll(sourceId);
-		}
+		this.protocols.removeAll(sourceId);
 	}
 
 	private class ModbusWorker extends AbstractWorker {
@@ -168,6 +178,7 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 					this.master = master;
 				} catch (Exception e) {
 					log.error("Unable to connect to [" + ipAddress + "]: " + e.getMessage());
+					// TODO set State to Fault
 				}
 			}
 			return this.master;
@@ -181,33 +192,29 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 		 */
 		private List<ReadTask> getNextReadTasks() {
 			List<ReadTask> result = new ArrayList<>();
-			synchronized (protocols) {
-				protocols.values().forEach(protocol -> {
-					// get the next tasks from the protocol
-					List<ReadTask> nextTasks = protocol.getNextReadTasks();
-					// check if the unitId is defective
-					int unitId = protocol.getUnitId();
-					if (nextTasks.size() > 0 && defectiveUnitIds.contains(unitId)) {
-						// it is defective. Add only one task.
-						// This avoids filling the queue with requests that cannot be fulfilled anyway
-						// because the unitId is not reachable
-						result.add(nextTasks.get(0));
-					} else {
-						// add all tasks to the next tasks
-						result.addAll(nextTasks);
-					}
-				});
-			}
+			protocols.values().forEach(protocol -> {
+				// get the next tasks from the protocol
+				List<ReadTask> nextTasks = protocol.getNextReadTasks();
+				// check if the unitId is defective
+				int unitId = protocol.getUnitId();
+				if (nextTasks.size() > 0 && defectiveUnitIds.contains(unitId)) {
+					// it is defective. Add only one task.
+					// This avoids filling the queue with requests that cannot be fulfilled anyway
+					// because the unitId is not reachable
+					result.add(nextTasks.get(0));
+				} else {
+					// add all tasks to the next tasks
+					result.addAll(nextTasks);
+				}
+			});
 			return result;
 		}
 
 		private List<WriteTask> getNextWriteTasks() {
 			List<WriteTask> result = new ArrayList<>();
-			synchronized (protocols) {
-				protocols.values().forEach(protocol -> {
-					result.addAll(protocol.getNextWriteTasks());
-				});
-			}
+			protocols.values().forEach(protocol -> {
+				result.addAll(protocol.getNextWriteTasks());
+			});
 			return result;
 		}
 
@@ -220,6 +227,9 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			this.forceWrite.set(true);
