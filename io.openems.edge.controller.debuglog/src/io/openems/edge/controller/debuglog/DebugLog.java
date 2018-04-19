@@ -19,14 +19,21 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 
+/**
+ * This controller prints information about all available components on the
+ * console.
+ * 
+ * @author stefan.feilmeier
+ *
+ */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.DebugLog", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
+@Component(name = "Controller.DebugLog", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class DebugLog extends AbstractOpenemsComponent implements Controller {
 
 	private final Logger log = LoggerFactory.getLogger(DebugLog.class);
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	private List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
 
 	@Activate
 	void activate(Config config) {
@@ -45,27 +52,13 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller {
 		 * Asks each component for its debugLog()-ChannelIds. Prints an aggregated log
 		 * of those channelIds and their current values.
 		 */
-		this.components.forEach(component -> {
-			if (!component.isEnabled()) {
-				return;
-			}
+		this.components.stream().filter(c -> c.isEnabled()).forEach(component -> {
 			b.append(component.id());
 			String debugLog = component.debugLog();
 			if (debugLog != null) {
 				b.append("[" + debugLog + "]");
 			}
 			b.append(" ");
-
-			// if (component.id().equals("test0")) {
-			// Channel<?> channel = component.channel(OpenemsV1.ChannelId.SET_MIN_SOC);
-			// WriteChannel<?> writeChannel = (WriteChannel<?>) channel;
-			// try {
-			// writeChannel.setNextWriteValue(Long.valueOf(++this.lastSetValue));
-			// } catch (OpenemsException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			// }
 		});
 		log.info(b.toString());
 	}
