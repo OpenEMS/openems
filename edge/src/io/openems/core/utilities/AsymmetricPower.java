@@ -318,7 +318,7 @@ public class AsymmetricPower {
 				break;
 			}
 		} catch (InvalidValueException e) {
-			log.error("Failed to reduce power", e);
+			log.error("Failed to reduce power: " + e.getMessage());
 		}
 		// log.info(
 		// "Reduce activePower L1:[{}]->[{}], L2:[{}]->[{}],L3:[{}]->[{}] "
