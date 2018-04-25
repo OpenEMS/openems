@@ -40,16 +40,16 @@ import io.openems.core.ThingRepository;
 /*
  * Example config:
  * <pre>
- * {
- *   "class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
- *   "priority": 65,
- *   "thresholdChannelAddress": "ess0/Soc",
- *   "outputChannelAddress": "output0/1",
- *   "lowerThreshold": 75,
- *   "upperThreshold": 80,
- *   "invertOutput": true,
- *   "hysteresis": 2
- * }
+{
+	"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+	"priority": 65,
+	"thresholdChannelAddress": "ess0/Soc",
+	"outputChannelAddress": "output0/1",
+	"lowerThreshold": 75,
+	"upperThreshold": 80,
+	"invertOutput": true,
+	"hysteresis": 2
+}
  * </pre>
  */
 
@@ -77,7 +77,6 @@ public class ChannelThresholdController extends Controller {
 	private ThingRepository repo = ThingRepository.getInstance();
 	private ReadChannel<Long> thresholdChannel;
 	private WriteChannel<Boolean> outputChannel;
-	private boolean isActive = false;
 
 	/*
 	 * Config
@@ -128,59 +127,206 @@ public class ChannelThresholdController extends Controller {
 	@ChannelInfo(title = "Invert-Output", description = "True if the digital output should be inverted.", type = Boolean.class)
 	public ConfigChannel<Boolean> invertOutput = new ConfigChannel<Boolean>("invertOutput", this).defaultValue(false);
 
+	private enum State {
+		UNDEFINED, /* Unknown state on first start */
+		BELOW_LOW, /* Value is smaller than the low threshold */
+		PASS_LOW_COMING_FROM_BELOW, /* Value just passed the low threshold. Last value was even lower. */
+		PASS_LOW_COMING_FROM_ABOVE, /* Value just passed the low threshold. Last value was higher. */
+		BETWEEN_LOW_AND_HIGH, /* Value is between low and high threshold */
+		PASS_HIGH_COMING_FROM_BELOW, /* Value just passed the high threshold. Last value was lower. */
+		PASS_HIGH_COMING_FROM_ABOVE, /* Value just passed the high threshold. Last value was higher. */
+		ABOVE_HIGH /* Value is bigger than the high threshold */
+	}
+
+	/**
+	 * The current state in the State Machine
+	 */
+	private State state = State.UNDEFINED;
+
+	/**
+	 * Should the hysteresis be applied on passing high threshold?
+	 */
+	private boolean applyHighHysteresis = true;
+	/**
+	 * Should the hysteresis be applied on passing low threshold?
+	 */
+	private boolean applyLowHysteresis = true;
+
 	/*
 	 * Methods
 	 */
 	@Override
 	public void run() {
-		// Check if all parameters are available
-		long threshold;
+		/*
+		 * Check if all parameters are available
+		 */
+		long value;
 		long lowerThreshold;
 		long upperThreshold;
 		long hysteresis;
-		boolean invertOutput;
 		try {
-			threshold = this.thresholdChannel.value();
+			value = this.thresholdChannel.value();
 			lowerThreshold = this.lowerThreshold.value();
 			upperThreshold = this.upperThreshold.value();
 			hysteresis = this.hysteresis.value();
-			invertOutput = this.invertOutput.value();
 		} catch (InvalidValueException e) {
 			log.error("ChannelThresholdController error: " + e.getMessage());
 			return;
 		}
-		try {
-			if (isActive) {
-				if (threshold < lowerThreshold || threshold > upperThreshold + hysteresis) {
-					isActive = false;
-				} else {
-					on(invertOutput);
+
+		/*
+		 * State Machine
+		 */
+		switch (this.state) {
+		case UNDEFINED:
+			if (value < lowerThreshold) {
+				this.state = State.BELOW_LOW;
+			} else if (value > upperThreshold) {
+				this.state = State.ABOVE_HIGH;
+			} else {
+				this.state = State.BETWEEN_LOW_AND_HIGH;
+			}
+			break;
+
+		case BELOW_LOW:
+			/*
+			 * Value is smaller than the low threshold -> always OFF
+			 */
+			if (value >= lowerThreshold) {
+				this.state = State.PASS_LOW_COMING_FROM_BELOW;
+				break;
+			}
+
+			this.off();
+			break;
+
+		case PASS_LOW_COMING_FROM_BELOW:
+			/*
+			 * Value just passed the low threshold coming from below -> turn ON
+			 */
+			this.on();
+			this.applyLowHysteresis = true;
+			this.state = State.BETWEEN_LOW_AND_HIGH;
+			break;
+
+		case BETWEEN_LOW_AND_HIGH:
+			/*
+			 * Value is between low and high threshold -> always ON
+			 */
+			// evaluate if hysteresis is necessary
+			if (value >= lowerThreshold + hysteresis) {
+				this.applyLowHysteresis = false; // do not apply low hysteresis anymore
+			}
+			if (value <= upperThreshold - hysteresis) {
+				this.applyHighHysteresis = false; // do not apply high hysteresis anymore
+			}
+
+			/*
+			 * Check LOW threshold
+			 */
+			if (applyLowHysteresis) {
+				if (value <= lowerThreshold - hysteresis) {
+					// pass low with hysteresis
+					this.state = State.PASS_LOW_COMING_FROM_ABOVE;
+					break;
 				}
 			} else {
-				if (threshold >= lowerThreshold + hysteresis && threshold <= upperThreshold) {
-					isActive = true;
-				} else {
-					off(invertOutput);
+				if (value <= lowerThreshold) {
+					// pass low, not applying hysteresis
+					this.state = State.PASS_LOW_COMING_FROM_ABOVE;
+					break;
 				}
 			}
-		} catch (WriteChannelException e) {
-			log.error("Failed to write Channel[" + outputChannel.address() + "]: " + e.getMessage());
+
+			/*
+			 * Check HIGH threshold
+			 */
+			if (applyHighHysteresis) {
+				if (value >= upperThreshold + hysteresis) {
+					// pass high with hysteresis
+					this.state = State.PASS_HIGH_COMING_FROM_BELOW;
+					break;
+				}
+			} else {
+				if (value >= upperThreshold) {
+					// pass high, not applying hysteresis
+					this.state = State.PASS_HIGH_COMING_FROM_BELOW;
+					break;
+				}
+			}
+
+			// Default: not switching the State -> always ON
+			this.on();
+			break;
+
+		case PASS_HIGH_COMING_FROM_BELOW:
+			/*
+			 * Value just passed the high threshold coming from below -> turn OFF
+			 */
+			this.off();
+			this.state = State.ABOVE_HIGH;
+			break;
+
+		case PASS_LOW_COMING_FROM_ABOVE:
+			/*
+			 * Value just passed the low threshold from above -> turn OFF
+			 */
+			this.off();
+			this.state = State.BELOW_LOW;
+			break;
+
+		case PASS_HIGH_COMING_FROM_ABOVE:
+			/*
+			 * Value just passed the high threshold coming from above -> turn ON
+			 */
+			this.on();
+			this.applyHighHysteresis = true;
+			this.state = State.BETWEEN_LOW_AND_HIGH;
+			break;
+
+		case ABOVE_HIGH:
+			/*
+			 * Value is bigger than the high threshold -> always OFF
+			 */
+			if (value <= upperThreshold) {
+				this.state = State.PASS_HIGH_COMING_FROM_ABOVE;
+			}
+
+			this.off();
+			break;
 		}
 	}
 
-	private void on(boolean invertOutput) throws WriteChannelException {
-		Optional<Boolean> currentValueOpt = this.outputChannel.valueOptional();
-		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (true ^ invertOutput)) {
-			log.info("Set output [" + this.outputChannel.address() + "] ON.");
-			outputChannel.pushWrite(true ^ invertOutput);
-		}
+	/**
+	 * Switch the output ON
+	 */
+	private void on() {
+		this.setOutput(true);
 	}
 
-	private void off(boolean invertOutput) throws WriteChannelException {
+	/**
+	 * Switch the output OFF
+	 */
+	private void off() {
+		this.setOutput(false);
+	}
+
+	/**
+	 * Helper function to switch an output if it was not switched before.
+	 *
+	 * @param value
+	 *            true to switch ON, false to switch ON; is inverted if 'invertOutput' config is set
+	 */
+	private void setOutput(boolean value) {
 		Optional<Boolean> currentValueOpt = this.outputChannel.valueOptional();
-		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (false ^ invertOutput)) {
-			log.info("Set output [" + this.outputChannel.address() + "] OFF.");
-			outputChannel.pushWrite(false ^ invertOutput);
+		boolean invertOutput = this.invertOutput.valueOptional().orElse(false);
+		if (!currentValueOpt.isPresent() || currentValueOpt.get() != (value ^ invertOutput)) {
+			log.info("Set output [" + this.outputChannel.address() + "] " + (value ? "ON" : "OFF") + ".");
+			try {
+				outputChannel.pushWrite(value ^ invertOutput);
+			} catch (WriteChannelException e) {
+				log.error("ChannelThresholdController error: " + e.getMessage());
+			}
 		}
 	}
 
