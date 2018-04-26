@@ -11,7 +11,6 @@ import java.util.TreeMap;
 import org.apache.felix.cm.NotCachablePersistenceManager;
 import org.apache.felix.cm.PersistenceManager;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 
-@Component(property = "ranking=100", immediate = true)
+//@Component(property = "ranking=100", immediate = true)
 public class JsonPersistenceManager implements PersistenceManager, NotCachablePersistenceManager {
 
 	private final Logger log = LoggerFactory.getLogger(JsonPersistenceManager.class);
