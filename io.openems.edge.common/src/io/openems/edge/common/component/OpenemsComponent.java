@@ -29,12 +29,22 @@ public interface OpenemsComponent {
 	boolean isEnabled();
 
 	/**
+	 * Returns a Channel defined by its ChannelId string representation.
+	 * 
+	 * @param channelName
+	 * @return
+	 */
+	public Channel<?> channel(String channelName);
+
+	/**
 	 * Returns a Channel defined by its ChannelId.
 	 * 
 	 * @param channelId
 	 * @return
 	 */
-	Channel<?> channel(io.openems.edge.common.channel.doc.ChannelId channelId);
+	default Channel<?> channel(io.openems.edge.common.channel.doc.ChannelId channelId) {
+		return this.channel(channelId.id());
+	}
 
 	/**
 	 * Returns all Channels
