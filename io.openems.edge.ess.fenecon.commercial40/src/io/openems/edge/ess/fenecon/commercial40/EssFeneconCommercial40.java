@@ -1,5 +1,7 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -31,31 +33,37 @@ import io.openems.edge.ess.power.symmetric.SymmetricPower;
 import io.openems.edge.ess.symmetric.api.EssSymmetric;
 import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
 
+/**
+ * Implements the FENECON Commercial 40 energy storage system.
+ * 
+ * @author stefan.feilmeier
+ *
+ */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Ess.Fenecon.Commercial40", configurationPolicy = ConfigurationPolicy.REQUIRE, immediate = true)
+@Component(name = "Ess.Fenecon.Commercial40", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent implements EssSymmetric, OpenemsComponent {
 
 	private final static int UNIT_ID = 100;
 
 	private final SymmetricPower power;
 
+	@Reference
+	protected ConfigurationAdmin cm;
+
 	public EssFeneconCommercial40() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 		this.power = new SymmetricPower(this);
 	}
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbusTcp modbus) {
 		super.setModbus(modbus);
 	}
 
-	protected void unsetModbus(BridgeModbusTcp modbus) {
-		super.unsetModbus(modbus);
-	}
-
 	@Activate
-	void activate(Config config) {
-		super.activate(config.id(), config.enabled(), UNIT_ID);
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate

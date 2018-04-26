@@ -12,6 +12,7 @@ JPM-Command:				openems-edge
 -runproperties: \
 	configFile=./resources/config.json,\
 	felix.cm.dir=c:/openems-config,\
+	org.ops4j.pax.logging.DefaultServiceLog.level=INFO,\
 	org.ops4j.pax.logging.service.frameworkEventsLogLevel="DISABLED"
 
 -runrequires: \
@@ -23,10 +24,14 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.fixedorder)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.commercial40)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus.impl)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.openemsv1)'
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.openemsv1)',\
+	osgi.identity;filter:='(osgi.identity=org.apache.felix.webconsole)',\
+	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)'
 
 -resolve: auto
 -runbundles: \
+	org.ops4j.pax.logging.pax-logging-api;version='[1.8.3,1.8.4)',\
+	org.ops4j.pax.logging.pax-logging-service;version='[1.8.3,1.8.4)',\
 	com.google.gson;version='[2.8.2,2.8.3)',\
 	com.google.guava;version='[19.0.0,19.0.1)',\
 	io.openems.common;version=snapshot,\
@@ -40,12 +45,20 @@ JPM-Command:				openems-edge
 	io.openems.wrapper.j2mod;version=snapshot,\
 	io.openems.wrapper.jts;version=snapshot,\
 	io.openems.wrapper.websocket;version=snapshot,\
+	json;version='[20160212.0.0,20160212.0.1)',\
+	org.apache.commons.fileupload;version='[1.3.2,1.3.3)',\
+	org.apache.commons.io;version='[2.5.0,2.5.1)',\
 	org.apache.felix.configadmin;version='[1.8.8,1.8.9)',\
+	org.apache.felix.http.jetty;version='[3.2.0,3.2.1)',\
+	org.apache.felix.http.servlet-api;version='[1.1.2,1.1.3)',\
 	org.apache.felix.log;version='[1.0.1,1.0.2)',\
 	org.apache.felix.scr;version='[2.0.2,2.0.3)',\
+	org.apache.felix.webconsole;version='[4.2.16,4.2.17)',\
 	org.eclipse.equinox.event;version='[1.3.100,1.3.101)',\
 	org.eclipse.equinox.metatype;version='[1.4.100,1.4.101)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[1.8.3,1.8.4)',\
-	org.ops4j.pax.logging.pax-logging-service;version='[1.8.3,1.8.4)',\
 	org.osgi.service.event;version='[1.3.1,1.3.2)',\
-	org.osgi.service.metatype;version='[1.3.0,1.3.1)'
+	org.osgi.service.metatype;version='[1.3.0,1.3.1)',\
+	osgi.enroute.bostock.d3.webresource;version='[3.5.6,3.5.7)',\
+	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
+	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
+	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)'

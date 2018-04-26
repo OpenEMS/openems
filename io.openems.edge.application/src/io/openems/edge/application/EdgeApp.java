@@ -1,5 +1,9 @@
 package io.openems.edge.application;
 
+import java.io.IOException;
+import java.util.Hashtable;
+
+import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -20,35 +24,54 @@ public class EdgeApp {
 	void activate() {
 		log.debug("Activate EdgeApp");
 
+		Configuration config;
+		try {
+			config = cm.getConfiguration("org.ops4j.pax.logging", null);
+			Hashtable<String, Object> log4j = new Hashtable<>();
+			log4j.put("log4j.rootLogger", "INFO, CONSOLE");
+			log4j.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
+			log4j.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
+			log4j.put("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n");
+			// set minimum log levels for some verbose packages
+			log4j.put("log4j.logger.org.eclipse.osgi", "WARN");
+			log4j.put("log4j.logger.org.apache.felix.configadmin", "INFO");
+			log4j.put("log4j.logger.sun.net.www.protocol.http.HttpURLConnection", "INFO");
+			log4j.put("log4j.logger.com.ghgande.j2mod", "INFO");
+			config.update(log4j);
+		} catch (IOException | SecurityException e) {
+			e.printStackTrace();
+		}
+
 		// Example: Create new Scheduler
-		//		new Thread(() -> {
-		//			try {
-		//				Thread.sleep(10000);
-		//				System.out.println("Create config");
-		//				Configuration config = cm.createFactoryConfiguration("Scheduler.FixedOrder", "?");
-		//				Hashtable<String, Object> map = new Hashtable<>();
-		//				map.put("id", "scheduler23");
-		//				map.put("name", "HALLO WELT");
-		//				config.update(map);
-		//				System.out.println(config);
-		//			} catch (Exception e) {
-		//				e.printStackTrace();
-		//			}
-		//		}).start();
+		// new Thread(() -> {
+		// try {
+		// Thread.sleep(10000);
+		// System.out.println("Create config");
+		// Configuration config = cm.createFactoryConfiguration("Scheduler.FixedOrder",
+		// "?");
+		// Hashtable<String, Object> map = new Hashtable<>();
+		// map.put("id", "scheduler23");
+		// map.put("name", "HALLO WELT");
+		// config.update(map);
+		// System.out.println(config);
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// }).start();
 
 		// Example: Delete Scheduler
-		//		new Thread(() -> {
-		//			try {
-		//				Thread.sleep(20000);
-		//				System.out.println("Delete Config");
-		//				Configuration[] cs = cm.listConfigurations("(id=scheduler23)");
-		//				for (Configuration c : cs) {
-		//					c.delete();
-		//				}
-		//			} catch (Exception e) {
-		//				e.printStackTrace();
-		//			}
-		//		}).start();
+		// new Thread(() -> {
+		// try {
+		// Thread.sleep(20000);
+		// System.out.println("Delete Config");
+		// Configuration[] cs = cm.listConfigurations("(id=scheduler23)");
+		// for (Configuration c : cs) {
+		// c.delete();
+		// }
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// }).start();
 	}
 
 	@Deactivate

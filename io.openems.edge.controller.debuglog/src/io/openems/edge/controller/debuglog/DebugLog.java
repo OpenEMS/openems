@@ -3,6 +3,7 @@ package io.openems.edge.controller.debuglog;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -32,12 +33,22 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller {
 
 	private final Logger log = LoggerFactory.getLogger(DebugLog.class);
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
+	private List<OpenemsComponent> _components = new CopyOnWriteArrayList<>();
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	void addComponent(OpenemsComponent component) {
+		if (component.isEnabled()) {
+			this._components.add(component);
+		}
+	}
+
+	void removeComponent(OpenemsComponent component) {
+		this._components.remove(component);
+	}
 
 	@Activate
-	void activate(Config config) {
-		super.activate(config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.service_pid(), config.id(), config.enabled());
 	}
 
 	@Deactivate
@@ -52,7 +63,7 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller {
 		 * Asks each component for its debugLog()-ChannelIds. Prints an aggregated log
 		 * of those channelIds and their current values.
 		 */
-		this.components.stream().filter(c -> c.isEnabled()).forEach(component -> {
+		this._components.stream().forEach(component -> {
 			b.append(component.id());
 			String debugLog = component.debugLog();
 			if (debugLog != null) {
@@ -60,6 +71,6 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller {
 			}
 			b.append(" ");
 		});
-		log.info(b.toString());
+		logInfo(this.log, b.toString());
 	}
 }

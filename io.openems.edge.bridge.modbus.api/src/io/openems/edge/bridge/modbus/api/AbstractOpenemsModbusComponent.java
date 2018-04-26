@@ -3,8 +3,11 @@ package io.openems.edge.bridge.modbus.api;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,12 +20,11 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
-
-	private volatile BridgeModbusTcp modbus = null;
 
 	private Integer unitId;
 
@@ -31,24 +33,54 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 */
 	private ModbusProtocol protocol = null;
 
-	protected void activate(String id, boolean isEnabled) {
-		throw new IllegalArgumentException("Use activate(String id, boolean isEnabled, int unitId)");
+	protected void activate(String id) {
+		throw new IllegalArgumentException("Use the other activate() method.");
 	}
 
-	protected void activate(String id, boolean isEnabled, int unitId) {
-		super.activate(id, isEnabled);
+	/**
+	 * Call this method from Component implementations activate().
+	 * 
+	 * @param context
+	 *            ComponentContext of this component. Receive it from parameter
+	 *            for @Activate
+	 * @param servicePid
+	 *            The service_pid of this Component. Typically
+	 *            'config.service_pid()'
+	 * @param id
+	 *            ID of this component. Typically 'config.id()'
+	 * @param enabled
+	 *            Whether the component should be enabled. Typically
+	 *            'config.enabled()'
+	 * @param unitId
+	 *            Unit-ID of the Modbus target
+	 * @param cm
+	 *            An instance of ConfigurationAdmin. Receive it using @Reference
+	 * @param modbusReference
+	 *            The name of the @Reference setter method for the Modbus bridge -
+	 *            e.g. 'Modbus' if you have a setModbus()-method
+	 * @param modbusId
+	 *            The ID of the Modbus brige. Typically 'config.modbus_id()'
+	 */
+	protected void activate(ComponentContext context, String servicePid, String id, boolean enabled, int unitId,
+			ConfigurationAdmin cm, String modbusReference, String modbusId) {
+		super.activate(context, servicePid, id, enabled);
+		// update filter for 'Modbus'
+		if (OpenemsComponent.updateReferenceFilter(cm, servicePid, "Modbus", modbusId)) {
+			return;
+		}
 		this.unitId = unitId;
-		if (isEnabled) {
-			this.initializeModbusBridge();
+		BridgeModbusTcp modbus = this.modbus.get();
+		if (this.isEnabled() && modbus != null) {
+			modbus.addProtocol(this.id(), this.getModbusProtocol(this.unitId));
 		}
 	}
 
 	@Override
 	protected void deactivate() {
-		this.clearModbusBridge();
-		this.channels().clear();
 		super.deactivate();
 	}
+
+	private AtomicReference<BridgeModbusTcp> modbus = new AtomicReference<BridgeModbusTcp>(null);
 
 	/**
 	 * Set the Modbus bridge. Should be called by @Reference
@@ -56,8 +88,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param modbus
 	 */
 	protected void setModbus(BridgeModbusTcp modbus) {
-		this.modbus = modbus;
-		this.initializeModbusBridge();
+		this.modbus.set(modbus);
 	}
 
 	/**
@@ -66,20 +97,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param modbus
 	 */
 	protected void unsetModbus(BridgeModbusTcp modbus) {
+		this.modbus.compareAndSet(modbus, null);
 		if (modbus != null) {
-			this.modbus = modbus;
-			this.clearModbusBridge();
-		}
-	}
-
-	private void initializeModbusBridge() {
-		if (this.modbus != null && this.unitId != null) {
-			this.modbus.addProtocol(this.id(), this.getModbusProtocol(this.unitId));
-		}
-	}
-
-	private void clearModbusBridge() {
-		if (this.modbus != null) {
 			modbus.removeProtocol(this.id());
 		}
 	}

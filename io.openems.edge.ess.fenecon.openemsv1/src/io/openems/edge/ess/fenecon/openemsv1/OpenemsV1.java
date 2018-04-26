@@ -3,8 +3,11 @@ package io.openems.edge.ess.fenecon.openemsv1;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -25,10 +28,13 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Ess.Fenecon.OpenemsV1")
+@Component(name = "Ess.Fenecon.OpenemsV1", configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class OpenemsV1 extends AbstractOpenemsModbusComponent implements OpenemsComponent {
 
 	private final static int UNIT_ID = 1;
+
+	@Reference
+	protected ConfigurationAdmin cm;
 
 	public OpenemsV1() {
 		Stream.of( //
@@ -60,8 +66,9 @@ public class OpenemsV1 extends AbstractOpenemsModbusComponent implements Openems
 	}
 
 	@Activate
-	void activate(Config config) {
-		super.activate(config.id(), config.enabled(), UNIT_ID);
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
+				config.modbus_id());
 	}
 
 	@Deactivate

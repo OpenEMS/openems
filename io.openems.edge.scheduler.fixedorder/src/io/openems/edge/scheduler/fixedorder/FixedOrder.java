@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -36,30 +37,46 @@ public class FixedOrder extends AbstractScheduler implements Scheduler {
 
 	private final Logger log = LoggerFactory.getLogger(FixedOrder.class);
 
+	private final List<Controller> sortedControllers = new ArrayList<>();
+
+	private String[] controllersIds = new String[0];
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	private final List<Controller> sortedControllers = new ArrayList<>();
-
 	private Map<String, Controller> _controllers = new ConcurrentHashMap<>();
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private void addControllers(Controller controller) {
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	void addController(Controller controller) {
 		this._controllers.put(controller.id(), controller);
+		this.updateSortedControllers();
+	}
+
+	void removeController(Controller controller) {
+		this._controllers.remove(controller.id(), controller);
+		this.updateSortedControllers();
 	}
 
 	@Activate
-	void activate(Config config) {
+	void activate(ComponentContext context, Config config) {
 		// update filter for 'Controllers'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Controllers",
+		if (OpenemsComponent.updateReferenceFilter(this.cm, config.service_pid(), "Controller",
 				config.controllers_ids())) {
 			return;
 		}
 
-		/*
-		 * Fill sortedControllers using the order of controller_ids config property
-		 */
-		for (String id : config.controllers_ids()) {
+		this.controllersIds = config.controllers_ids();
+		this.updateSortedControllers();
+
+		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.cycleTime());
+	}
+
+	/**
+	 * Fills sortedControllers using the order of controller_ids config property
+	 */
+	private void updateSortedControllers() {
+		this.sortedControllers.clear();
+		for (String id : this.controllersIds) {
 			Controller controller = this._controllers.get(id);
 			if (controller == null) {
 				log.warn("Required Controller [" + id + "] is not available.");
@@ -67,8 +84,6 @@ public class FixedOrder extends AbstractScheduler implements Scheduler {
 				this.sortedControllers.add(controller);
 			}
 		}
-
-		super.activate(config.id(), config.enabled(), config.cycleTime());
 	}
 
 	@Deactivate

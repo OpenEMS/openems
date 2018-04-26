@@ -46,11 +46,13 @@ public class ControllerExecutor extends AbstractWorker {
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	protected void addScheduler(Scheduler newScheduler) {
-		synchronized (this.schedulers) {
-			this.schedulers.put(newScheduler, 1); // relativeCycleTime is going to be overwritten by
-													// recalculateCommonCycleTime
-			this.commonCycleTime = Utils.recalculateCommonCycleTime(this.schedulers);
-			this.maxCycles = Utils.recalculateRelativeCycleTimes(schedulers, this.commonCycleTime);
+		if (newScheduler.isEnabled()) {
+			synchronized (this.schedulers) {
+				this.schedulers.put(newScheduler, 1); // relativeCycleTime is going to be overwritten by
+														// recalculateCommonCycleTime
+				this.commonCycleTime = Utils.recalculateCommonCycleTime(this.schedulers);
+				this.maxCycles = Utils.recalculateRelativeCycleTimes(schedulers, this.commonCycleTime);
+			}
 		}
 	}
 
@@ -86,12 +88,11 @@ public class ControllerExecutor extends AbstractWorker {
 				log.warn("There are no Schedulers configured!");
 				return;
 			}
-			log.info("===========");
 
 			/*
 			 * Before Controllers start: switch to next process image for each channel
 			 */
-			this.components.forEach(component -> {
+			this.components.stream().filter(c -> c.isEnabled()).forEach(component -> {
 				component.channels().forEach(channel -> {
 					channel.nextProcessImage();
 				});
@@ -106,8 +107,7 @@ public class ControllerExecutor extends AbstractWorker {
 					// abort if relativeCycleTime is not matching this cycle
 					return;
 				}
-				log.info("Scheduler [" + scheduler.id() + "]");
-				scheduler.getControllers().forEach(controller -> {
+				scheduler.getControllers().stream().filter(c -> c.isEnabled()).forEach(controller -> {
 					controller.run();
 				});
 			});

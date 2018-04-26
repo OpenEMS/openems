@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
@@ -89,8 +90,8 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 			.synchronizedListMultimap(ArrayListMultimap.create());
 
 	@Activate
-	void activate(Config config) {
-		super.activate(config.id(), config.enabled());
+	void activate(ComponentContext context, Config config) {
+		super.activate(context, config.service_pid(), config.id(), config.enabled());
 		this.ipAddress = config.ip();
 		if (this.isEnabled()) {
 			this.worker.activate(config.id());
@@ -147,12 +148,16 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 			}
 
 			// get the read tasks for this run
-			List<ReadTask> nextTasks = this.getNextReadTasks();
+			List<ReadTask> nextReadTasks = this.getNextReadTasks();
 
-			// execute next tasks
-			nextTasks.forEach(task -> {
+			/*
+			 * execute next read tasks
+			 */
+			nextReadTasks.forEach(readTask -> {
+				/*
+				 * was FORCE WRITE set? -> exeute WriteTasks now
+				 */
 				if (forceWrite.getAndSet(false)) {
-					// FORCE WRITE was set -> exeute WriteTasks now
 					List<WriteTask> writeTasks = this.getNextWriteTasks();
 					writeTasks.forEach(writeTask -> {
 						try {
@@ -162,8 +167,11 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 						}
 					});
 				}
+				/*
+				 * Execute next read task
+				 */
 				try {
-					task.executeQuery(master);
+					readTask.executeQuery(master);
 				} catch (ModbusException e) {
 					log.error(id() + ". Unable to execute modbus query: " + e.getMessage());
 				}
@@ -193,18 +201,18 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 		private List<ReadTask> getNextReadTasks() {
 			List<ReadTask> result = new ArrayList<>();
 			protocols.values().forEach(protocol -> {
-				// get the next tasks from the protocol
-				List<ReadTask> nextTasks = protocol.getNextReadTasks();
+				// get the next read tasks from the protocol
+				List<ReadTask> nextReadTasks = protocol.getNextReadTasks();
 				// check if the unitId is defective
 				int unitId = protocol.getUnitId();
-				if (nextTasks.size() > 0 && defectiveUnitIds.contains(unitId)) {
-					// it is defective. Add only one task.
+				if (nextReadTasks.size() > 0 && defectiveUnitIds.contains(unitId)) {
+					// it is defective. Add only one read task.
 					// This avoids filling the queue with requests that cannot be fulfilled anyway
 					// because the unitId is not reachable
-					result.add(nextTasks.get(0));
+					result.add(nextReadTasks.get(0));
 				} else {
 					// add all tasks to the next tasks
-					result.addAll(nextTasks);
+					result.addAll(nextReadTasks);
 				}
 			});
 			return result;
@@ -227,9 +235,6 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			this.forceWrite.set(true);

@@ -33,8 +33,10 @@ public abstract class AbstractWorker {
 	private final AtomicBoolean isStopped = new AtomicBoolean(false);
 
 	protected void activate(String name) {
-		this.worker.setName(name);
-		this.worker.start();
+		if (name != null) {
+			this.worker.setName(name);
+			this.worker.start();
+		}
 	}
 
 	protected void deactivate() {

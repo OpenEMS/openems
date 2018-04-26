@@ -6,6 +6,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 		name = "Debug Log Controller", //
 		description = "This controller prints information about all available components on the console")
 @interface Config {
+	String service_pid();
+
 	String id();
 
 	boolean enabled();
