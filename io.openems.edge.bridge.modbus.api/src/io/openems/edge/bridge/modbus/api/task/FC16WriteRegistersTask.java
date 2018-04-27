@@ -22,7 +22,7 @@ import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
  * @author stefan.feilmeier
  *
  */
-public class FC16WriteRegistersTask extends FC3ReadRegistersTask implements WriteTask {
+public class FC16WriteRegistersTask extends Task implements WriteTask {
 
 	private final Logger log = LoggerFactory.getLogger(FC16WriteRegistersTask.class);
 
@@ -69,9 +69,19 @@ public class FC16WriteRegistersTask extends FC3ReadRegistersTask implements Writ
 
 	@Override
 	public void executeWrite(ModbusTCPMaster master) throws ModbusException {
-		/*
-		 * Combine WriteRegisters without holes inbetween
-		 */
+		List<CombinedWriteRegisters> writes = mergeWriteRegisters();
+		// Execute combined writes
+		for (CombinedWriteRegisters write : writes) {
+			master.writeMultipleRegisters(this.getUnitId(), write.startAddress, write.getRegisters());
+		}
+	}
+
+	/**
+	 * Combine WriteRegisters without holes inbetween
+	 * 
+	 * @return
+	 */
+	private List<CombinedWriteRegisters> mergeWriteRegisters() {
 		List<CombinedWriteRegisters> writes = new ArrayList<>();
 		ModbusElement<?>[] elements = this.getElements();
 		for (int i = 0; i < elements.length; i++) {
@@ -95,18 +105,11 @@ public class FC16WriteRegistersTask extends FC3ReadRegistersTask implements Writ
 				log.warn("Unable to execute Write for ModbusElement [" + element + "]: No ModbusRegisterElement!");
 			}
 		}
+		return writes;
+	}
 
-		/*
-		 * Execute combined writes
-		 */
-		for (CombinedWriteRegisters write : writes) {
-			// DEBUG
-			// StringBuilder values = new StringBuilder();
-			// for (Register register : write.getRegisters()) {
-			// values.append(register + ",");
-			// }
-			// log.info("FC16: Write Multiple Registers. " + write.toString());
-			master.writeMultipleRegisters(this.getUnitId(), write.startAddress, write.getRegisters());
-		}
+	@Override
+	public String toString() {
+		return "FC16WriteRegistersTask [start=" + this.getStartAddress() + ", length=" + this.getLength() + "]";
 	}
 }

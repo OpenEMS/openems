@@ -5,6 +5,7 @@ import java.util.Optional;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
+import io.openems.edge.bridge.modbus.api.task.Task;
 
 /**
  * A ModbusElement represents one or more registers or coils in a
@@ -28,12 +29,12 @@ public interface ModbusElement<T> {
 	public abstract int getLength();
 
 	/**
-	 * Set the {@link ReadTask}, where this Element belongs to. This is called
-	 * during {@link ReadTask}.add()
+	 * Set the {@link Task}, where this Element belongs to. This is called during
+	 * {@link Task}.add()
 	 *
 	 * @param readTask
 	 */
-	public void setModbusTask(ReadTask readTask);
+	public void setModbusTask(Task task);
 
 	/**
 	 * Whether this Element should be ignored (= DummyElement)

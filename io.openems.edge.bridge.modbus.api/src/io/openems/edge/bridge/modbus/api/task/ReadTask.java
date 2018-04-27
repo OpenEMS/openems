@@ -14,46 +14,28 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
  * 
  * @author stefan.feilmeier
  */
-public abstract class ReadTask {
+public interface ReadTask {
 
-	private final int length;
-	private final int startAddress;
+	/**
+	 * Sets the modbus unit id
+	 * 
+	 * @param unitId
+	 */
+	public void setUnitId(int unitId);
 
-	private ModbusElement<?>[] elements;
-	private int unitId; // this is always set by ModbusProtocol.addTask()
+	/**
+	 * Gets the ModbusElements
+	 * 
+	 * @return
+	 */
+	public ModbusElement<?>[] getElements();
 
-	public ReadTask(int startAddress, AbstractModbusElement<?>... elements) {
-		this.startAddress = startAddress;
-		this.elements = elements;
-		for (AbstractModbusElement<?> element : elements) {
-			element.setModbusTask(this);
-		}
-		int length = 0;
-		for (AbstractModbusElement<?> element : elements) {
-			length += element.getLength();
-		}
-		this.length = length;
-	}
-
-	public ModbusElement<?>[] getElements() {
-		return elements;
-	}
-
-	public int getLength() {
-		return length;
-	}
-
-	public int getStartAddress() {
-		return startAddress;
-	}
-
-	public void setUnitId(int unitId) {
-		this.unitId = unitId;
-	}
-
-	public int getUnitId() {
-		return unitId;
-	}
+	/**
+	 * Gets the start modbus register address
+	 * 
+	 * @return
+	 */
+	public int getStartAddress();
 
 	/**
 	 * Sends a query for this Task to the Modbus device
@@ -63,13 +45,4 @@ public abstract class ReadTask {
 	 * @throws ModbusException
 	 */
 	public abstract void executeQuery(ModbusTCPMaster master) throws ModbusException;
-
-	@Override
-	public String toString() {
-		if (this instanceof WriteTask) {
-			return "WriteTask [startAddress=" + startAddress + ", length=" + length + "]";
-		} else {
-			return "ReadTask [startAddress=" + startAddress + ", length=" + length + "]";
-		}
-	}
 }

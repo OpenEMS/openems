@@ -21,7 +21,7 @@ import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
  * @author stefan.feilmeier
  *
  */
-public class FC3ReadRegistersTask extends ReadTask {
+public class FC3ReadRegistersTask extends Task implements ReadTask {
 
 	private final Logger log = LoggerFactory.getLogger(FC3ReadRegistersTask.class);
 
@@ -66,5 +66,10 @@ public class FC3ReadRegistersTask extends ReadTask {
 			}
 			position += modbusElement.getLength();
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "FC3ReadRegistersTask [startAddress=" + this.getStartAddress() + ", length=" + this.getLength() + "]";
 	}
 }

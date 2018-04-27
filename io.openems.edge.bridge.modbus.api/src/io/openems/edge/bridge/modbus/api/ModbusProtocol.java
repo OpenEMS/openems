@@ -12,6 +12,7 @@ import com.google.common.collect.ArrayListMultimap;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.Priority;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
+import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
 
 public class ModbusProtocol {
@@ -38,10 +39,10 @@ public class ModbusProtocol {
 	 */
 	private final List<WriteTask> writeTasks = new ArrayList<>();
 
-	public ModbusProtocol(int unitId, ReadTask... readTasks) {
+	public ModbusProtocol(int unitId, Task... tasks) {
 		this.unitId = unitId;
-		for (ReadTask readTask : readTasks) {
-			addReadTask(readTask);
+		for (Task task : tasks) {
+			addTask(task);
 		}
 	}
 
@@ -49,29 +50,32 @@ public class ModbusProtocol {
 		return unitId;
 	}
 
-	public void addReadTask(ReadTask readTask) {
+	public void addTask(Task task) {
 		// add the unitId to the task
-		readTask.setUnitId(this.unitId);
+		task.setUnitId(this.unitId);
 		// check task for plausibility
-		this.checkTask(readTask);
+		this.checkTask(task);
 		/*
 		 * fill writeTasks
 		 */
-		if (readTask instanceof WriteTask) {
-			WriteTask writetask = (WriteTask) readTask;
-			this.writeTasks.add(writetask);
+		if (task instanceof WriteTask) {
+			WriteTask writeTask = (WriteTask) task;
+			this.writeTasks.add(writeTask);
 		}
 		/*
 		 * fill readTasks
 		 */
-		// find highest priority of an element in the Task
-		Priority highestPriorityInTask = Priority.LOW;
-		for (ModbusElement<?> element : readTask.getElements()) {
-			if (element.getPriority().compareTo(highestPriorityInTask) > 0) {
-				highestPriorityInTask = element.getPriority();
+		if (task instanceof ReadTask) {
+			ReadTask readTask = (ReadTask) task;
+			// find highest priority of an element in the Task
+			Priority highestPriorityInTask = Priority.LOW;
+			for (ModbusElement<?> element : readTask.getElements()) {
+				if (element.getPriority().compareTo(highestPriorityInTask) > 0) {
+					highestPriorityInTask = element.getPriority();
+				}
 			}
+			this.readTasks.put(highestPriorityInTask, readTask);
 		}
-		this.readTasks.put(highestPriorityInTask, readTask);
 	}
 
 	/**
@@ -130,13 +134,13 @@ public class ModbusProtocol {
 	}
 
 	/**
-	 * Checks a {@link ReadTask} for plausibility
+	 * Checks a {@link Task} for plausibility
 	 *
-	 * @param readTask
+	 * @param task
 	 */
-	private void checkTask(ReadTask readTask) {
-		int address = readTask.getStartAddress();
-		for (ModbusElement<?> element : readTask.getElements()) {
+	private void checkTask(Task task) {
+		int address = task.getStartAddress();
+		for (ModbusElement<?> element : task.getElements()) {
 			if (element.getStartAddress() != address) {
 				log.error("Start address is wrong. It is [" + element.getStartAddress() + "/0x"
 						+ Integer.toHexString(element.getStartAddress()) + "] but should be [" + address + "/0x"
