@@ -35,7 +35,7 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 
 	private List<OpenemsComponent> _components = new CopyOnWriteArrayList<>();
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE, target = "(!(service.factoryPid=Controller.DebugLog))")
 	void addComponent(OpenemsComponent component) {
 		if (component.isEnabled()) {
 			this._components.add(component);
