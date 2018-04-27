@@ -81,7 +81,7 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	private final List<Consumer<T>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
 
 	@Override
-	public void onUpdateCallback(Consumer<T> onUpdateCallback) {
-		this.onUpdateCallbacks.add(onUpdateCallback);
+	public void onUpdate(Consumer<T> callback) {
+		this.onUpdateCallbacks.add(callback);
 	}
 }

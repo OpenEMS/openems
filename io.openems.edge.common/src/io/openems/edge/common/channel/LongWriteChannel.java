@@ -37,17 +37,17 @@ public class LongWriteChannel extends LongReadChannel implements WriteChannel<Lo
 	}
 
 	/*
-	 * onSetNextWriteCallback
+	 * onSetNextWrite
 	 */
 	private Consumer<Long> onSetNextWriteCallback = null;
 
 	@Override
-	public Consumer<Long> getOnSetNextWriteCallback() {
+	public Consumer<Long> getOnSetNextWrite() {
 		return this.onSetNextWriteCallback;
 	}
 
 	@Override
-	public void _onSetNextWriteCallback(Consumer<Long> onSetNextWriteCallback) {
-		this.onSetNextWriteCallback = onSetNextWriteCallback;
+	public void _onSetNextWrite(Consumer<Long> callback) {
+		this.onSetNextWriteCallback = callback;
 	}
 }

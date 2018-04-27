@@ -80,8 +80,8 @@ public interface Channel<T> {
 	}
 
 	/**
-	 * Add an onUpdateCallback. It is called, after a new ActiveValue was set via
+	 * Add an onUpdate callback. It is called, after a new ActiveValue was set via
 	 * nextProcessImage().
 	 */
-	public void onUpdateCallback(Consumer<T> onUpdateCallback);
+	public void onUpdate(Consumer<T> callback);
 }

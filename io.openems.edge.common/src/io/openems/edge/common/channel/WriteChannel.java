@@ -30,7 +30,7 @@ public interface WriteChannel<T> extends Channel<T> {
 		this._setNextWriteValue(typedValue);
 		// set the read value to the same value to enable debugging
 		this.setNextValue(value);
-		this.getOnSetNextWriteCallback().accept(typedValue);
+		this.getOnSetNextWrite().accept(typedValue);
 	}
 
 	/**
@@ -55,18 +55,18 @@ public interface WriteChannel<T> extends Channel<T> {
 	public Optional<T> _getNextWriteValue();
 
 	/**
-	 * The onSetNextWriteCallback is called when a 'next write value' was set.
+	 * The onSetNextWrite callback is called when a 'next write value' was set.
 	 */
-	public default void onSetNextWriteCallback(Consumer<T> onSetNextWriteCallback) {
-		Consumer<T> existingCallback = this.getOnSetNextWriteCallback();
+	public default void onSetNextWrite(Consumer<T> callback) {
+		Consumer<T> existingCallback = this.getOnSetNextWrite();
 		if (existingCallback != null) {
 			System.out.println("Setting new onSetNextWriteCallback for WriteChannel [" + this.channelId()
 					+ "] overrides existing one!");
 		}
-		this._onSetNextWriteCallback(onSetNextWriteCallback);
+		this._onSetNextWrite(callback);
 	}
 
-	public Consumer<T> getOnSetNextWriteCallback();
+	public Consumer<T> getOnSetNextWrite();
 
 	/**
 	 * Internal method. Do not call directly.
@@ -74,5 +74,5 @@ public interface WriteChannel<T> extends Channel<T> {
 	 * @param value
 	 */
 	@Deprecated
-	public void _onSetNextWriteCallback(Consumer<T> onSetNextWriteCallback);
+	public void _onSetNextWrite(Consumer<T> onSetNextWriteCallback);
 }

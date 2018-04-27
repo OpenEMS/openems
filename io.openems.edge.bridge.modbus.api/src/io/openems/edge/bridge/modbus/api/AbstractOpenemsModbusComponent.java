@@ -163,7 +163,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			 * handle Channel Write to Element
 			 */
 			if (channel instanceof WriteChannel<?>) {
-				((WriteChannel<?>) channel).onSetNextWriteCallback(value -> {
+				((WriteChannel<?>) channel).onSetNextWrite(value -> {
 					Object convertedValue = converter.channelToElement(value);
 					if (this.element instanceof ModbusRegisterElement) {
 						try {

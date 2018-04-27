@@ -1,5 +1,7 @@
 package io.openems.edge.ess.fenecon.commercial40;
 
+import java.time.LocalDateTime;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -109,21 +111,21 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		this.power.addStaticLimitation( //
 				this.allowedApparentLimit = new SMaxLimitation(this.power).setSMax(0, 0, 0) //
 		);
-		this.channel(ChannelId.ALLOWED_APPARENT).onUpdateCallback(value -> {
+		this.channel(ChannelId.ALLOWED_APPARENT).onUpdate(value -> {
 			this.allowedApparentLimit.setSMax(TypeUtils.getAsType(OpenemsType.INTEGER, value), 0, 0);
 		});
 		// Allowed Charge
 		this.power.addStaticLimitation( //
 				this.allowedChargeLimit = new PGreaterEqualLimitation(this.power).setP(0) //
 		);
-		this.channel(ChannelId.ALLOWED_CHARGE).onUpdateCallback(value -> {
+		this.channel(ChannelId.ALLOWED_CHARGE).onUpdate(value -> {
 			this.allowedChargeLimit.setP(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 		// Allowed Discharge
 		this.power.addStaticLimitation( //
 				this.allowedDischargeLimit = new PSmallerEqualLimitation(this.power).setP(0) //
 		);
-		this.channel(ChannelId.ALLOWED_DISCHARGE).onUpdateCallback(value -> {
+		this.channel(ChannelId.ALLOWED_DISCHARGE).onUpdate(value -> {
 			this.allowedDischargeLimit.setP(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
 	}
@@ -709,19 +711,24 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		}
 	}
 
+	private LocalDateTime lastDefineWorkState = null;
+
 	private void defineWorkState() {
 		/*
 		 * Set ESS in running mode
 		 */
 		// TODO this should be smarter: set in energy saving mode if there was no output
 		// power for a while and we don't need emergency power.
-		IntegerWriteChannel setWorkStateChannel = this.channel(ChannelId.SET_WORK_STATE);
-		try {
-			int startOption = setWorkStateChannel.channelDoc().getOption(SetWorkState.START);
-			setWorkStateChannel.setNextWriteValue(startOption);
-		} catch (OpenemsException e) {
-			logError(this.log, "Unable to start: " + e.getMessage());
+		LocalDateTime now = LocalDateTime.now();
+		if (lastDefineWorkState == null || now.minusMinutes(1).isAfter(this.lastDefineWorkState)) {
+			this.lastDefineWorkState = now;
+			IntegerWriteChannel setWorkStateChannel = this.channel(ChannelId.SET_WORK_STATE);
+			try {
+				int startOption = setWorkStateChannel.channelDoc().getOption(SetWorkState.START);
+				setWorkStateChannel.setNextWriteValue(startOption);
+			} catch (OpenemsException e) {
+				logError(this.log, "Unable to start: " + e.getMessage());
+			}
 		}
 	}
-
 }

@@ -37,12 +37,12 @@ public class IntegerWriteChannel extends IntegerReadChannel implements WriteChan
 	}
 
 	/*
-	 * onSetNextWriteCallback
+	 * onSetNextWrite
 	 */
 	private Consumer<Integer> onSetNextWriteCallback = null;
 
 	@Override
-	public Consumer<Integer> getOnSetNextWriteCallback() {
+	public Consumer<Integer> getOnSetNextWrite() {
 		return this.onSetNextWriteCallback;
 	}
 
@@ -53,8 +53,8 @@ public class IntegerWriteChannel extends IntegerReadChannel implements WriteChan
 	 */
 	@Deprecated
 	@Override
-	public void _onSetNextWriteCallback(Consumer<Integer> onSetNextWriteCallback) {
-		this.onSetNextWriteCallback = onSetNextWriteCallback;
+	public void _onSetNextWrite(Consumer<Integer> callback) {
+		this.onSetNextWriteCallback = callback;
 	}
 
 }

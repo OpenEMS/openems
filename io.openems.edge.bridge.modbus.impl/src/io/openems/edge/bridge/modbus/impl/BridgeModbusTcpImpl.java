@@ -163,7 +163,8 @@ public class BridgeModbusTcpImpl extends AbstractOpenemsComponent
 						try {
 							writeTask.executeWrite(master);
 						} catch (ModbusException e) {
-							log.error(id() + ". Unable to execute modbus write: " + e.getMessage());
+							logError(log,
+									"Unable to execute modbus write [" + writeTask.toString() + "]: " + e.getMessage());
 						}
 					});
 				}

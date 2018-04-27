@@ -1441,42 +1441,43 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 						new UnsignedWordElement(0x15DF,
 								batteryCell224Voltage = new ModbusReadLongChannel("Cell224Voltage", this).unit("mV")
 								)));
-								this.power = new SymmetricPowerImpl(40000, setActivePower, setReactivePower, getParent().getBridge());
-								this.qMinLimit  = new QGreaterEqualLimitation(power);
-								this.qMinLimit.setQ(-10000L);
-								this.power.addStaticLimitation(qMinLimit);
-								this.qMaxLimit  = new QSmallerEqualLimitation(power);
-								this.qMaxLimit.setQ(10000L);
-								this.power.addStaticLimitation(qMaxLimit);
-								this.allowedApparentLimit = new SMaxLimitation(power);
-								this.allowedApparentLimit.setSMax(allowedApparent.valueOptional().orElse(0L), 0L, 0L);
-								this.allowedApparent.addChangeListener(new ChannelChangeListener() {
-
-									@Override
-									public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-										allowedApparentLimit.setSMax(allowedApparent.valueOptional().orElse(0L), 0L, 0L);
-									}
-								});
-								this.power.addStaticLimitation(this.allowedApparentLimit);
-								this.allowedChargeLimit = new PGreaterEqualLimitation(power);
-								this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
-								this.allowedCharge.addChangeListener(new ChannelChangeListener() {
-
-									@Override
-									public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-										allowedChargeLimit.setP(allowedCharge.valueOptional().orElse(0L));
-									}
-								});
-								this.power.addStaticLimitation(this.allowedChargeLimit);
-								this.allowedDischargeLimit = new PSmallerEqualLimitation(power);
-								this.allowedDischargeLimit.setP(this.allowedDischarge.valueOptional().orElse(0L));
-								this.allowedDischarge.addChangeListener(new ChannelChangeListener() {
-
-									@Override
-									public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
-										allowedDischargeLimit.setP(allowedDischarge.valueOptional().orElse(0L));
-									}
-								});
+								// MOVED TO OSGi
+								//								this.power = new SymmetricPowerImpl(40000, setActivePower, setReactivePower, getParent().getBridge());
+								//								this.qMinLimit  = new QGreaterEqualLimitation(power);
+								//								this.qMinLimit.setQ(-10000L);
+								//								this.power.addStaticLimitation(qMinLimit);
+								//								this.qMaxLimit  = new QSmallerEqualLimitation(power);
+								//								this.qMaxLimit.setQ(10000L);
+								//								this.power.addStaticLimitation(qMaxLimit);
+								//								this.allowedApparentLimit = new SMaxLimitation(power);
+								//								this.allowedApparentLimit.setSMax(allowedApparent.valueOptional().orElse(0L), 0L, 0L);
+								//								this.allowedApparent.addChangeListener(new ChannelChangeListener() {
+								//
+								//									@Override
+								//									public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+								//										allowedApparentLimit.setSMax(allowedApparent.valueOptional().orElse(0L), 0L, 0L);
+								//									}
+								//								});
+								//								this.power.addStaticLimitation(this.allowedApparentLimit);
+								//								this.allowedChargeLimit = new PGreaterEqualLimitation(power);
+								//								this.allowedChargeLimit.setP(this.allowedCharge.valueOptional().orElse(0L));
+								//								this.allowedCharge.addChangeListener(new ChannelChangeListener() {
+								//
+								//									@Override
+								//									public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+								//										allowedChargeLimit.setP(allowedCharge.valueOptional().orElse(0L));
+								//									}
+								//								});
+								//								this.power.addStaticLimitation(this.allowedChargeLimit);
+								//								this.allowedDischargeLimit = new PSmallerEqualLimitation(power);
+								//								this.allowedDischargeLimit.setP(this.allowedDischarge.valueOptional().orElse(0L));
+								//								this.allowedDischarge.addChangeListener(new ChannelChangeListener() {
+								//
+								//									@Override
+								//									public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {
+								//										allowedDischargeLimit.setP(allowedDischarge.valueOptional().orElse(0L));
+								//									}
+								//								});
 								return protocol;
 	}
 
