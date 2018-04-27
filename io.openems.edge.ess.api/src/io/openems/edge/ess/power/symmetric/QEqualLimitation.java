@@ -5,45 +5,30 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.operation.distance.DistanceOp;
 import com.vividsolutions.jts.operation.distance.GeometryLocation;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.ess.power.PowerException;
 
-public class PEqualLimitation extends Limitation {
+public class QEqualLimitation extends Limitation {
 
 	private Geometry line = null;
-	private Integer p = null;
+	private Integer q = null;
 
-	public PEqualLimitation(SymmetricPower power) {
+	public QEqualLimitation(SymmetricPower power) {
 		super(power);
 	}
 
-	/**
-	 * Sets the ActivePower
-	 * 
-	 * @param value
-	 * 
-	 *            <pre>
-	 *            < 0 (negative) = Charge
-	 *            > 0 (positive) = Discharge
-	 *            </pre>
-	 * 
-	 * @throws OpenemsException
-	 */
-	public PEqualLimitation setP(Integer p) {
-		if (p != this.p) {
-			if (p != null) {
-				Coordinate[] coordinates = new Coordinate[] { new Coordinate(p, power.getMaxApparentPower()),
-						new Coordinate(p, power.getMaxApparentPower() * -1) };
+	public QEqualLimitation setQ(Integer q) {
+		if (q != this.q) {
+			if (q != null) {
+				Coordinate[] coordinates = new Coordinate[] { new Coordinate(power.getMaxApparentPower(), q),
+						new Coordinate(power.getMaxApparentPower() * -1, q) };
 				this.line = Utils.FACTORY.createLineString(coordinates);
 			} else {
 				this.line = null;
 			}
-			// store P so the line does not need to be recalculated if P is not changed
-			this.p = p;
+			this.q = q;
 			notifyListeners();
 		}
 		return this;
-
 	}
 
 	@Override
@@ -52,20 +37,20 @@ public class PEqualLimitation extends Limitation {
 			Geometry newGeometry = geometry.intersection(this.line);
 			long maxApparentPower = power.getMaxApparentPower();
 			if (newGeometry.isEmpty()) {
-				Geometry smallerP = Utils.intersectRect(geometry, 0, p, maxApparentPower * -1, maxApparentPower);
-				if (!smallerP.isEmpty()) {
-					DistanceOp distance = new DistanceOp(smallerP, this.line);
+				Geometry smallerQ = Utils.intersectRect(geometry, maxApparentPower * -1, maxApparentPower, 0, q);
+				if (!smallerQ.isEmpty()) {
+					DistanceOp distance = new DistanceOp(smallerQ, this.line);
 					GeometryLocation[] locations = distance.nearestLocations();
-					long maxP = 0;
+					long maxQ = 0;
 					for (GeometryLocation location : locations) {
 						if (!location.getGeometryComponent().equals(this.line)) {
-							maxP = (long) location.getCoordinate().x;
+							maxQ = (long) location.getCoordinate().y;
 							break;
 						}
 					}
+					Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, maxQ),
+							new Coordinate(maxApparentPower * -1, maxQ) };
 					// apply new temporary line
-					Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxP, maxApparentPower),
-							new Coordinate(maxP, maxApparentPower * -1) };
 					return geometry.intersection(Utils.FACTORY.createLineString(coordinates));
 				} else {
 					DistanceOp distance = new DistanceOp(geometry, this.line);
@@ -73,8 +58,8 @@ public class PEqualLimitation extends Limitation {
 					for (GeometryLocation location : locations) {
 						if (!location.getGeometryComponent().equals(this.line)) {
 							Coordinate[] coordinates = new Coordinate[] {
-									new Coordinate(location.getCoordinate().x, maxApparentPower),
-									new Coordinate(location.getCoordinate().x, maxApparentPower * -1) };
+									new Coordinate(maxApparentPower, location.getCoordinate().y),
+									new Coordinate(maxApparentPower * -1, location.getCoordinate().y) };
 							// apply new temporary line
 							return geometry.intersection(Utils.FACTORY.createLineString(coordinates));
 						}
@@ -89,6 +74,7 @@ public class PEqualLimitation extends Limitation {
 
 	@Override
 	public String toString() {
-		return "PEqualLimitation [p=" + p + "]";
+		return "QEqualLimitation [q=" + q + "]";
 	}
+
 }

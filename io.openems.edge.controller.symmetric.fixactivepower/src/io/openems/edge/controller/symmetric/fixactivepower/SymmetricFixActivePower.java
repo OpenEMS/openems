@@ -18,6 +18,8 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.ess.power.symmetric.PEqualLimitation;
+import io.openems.edge.ess.power.symmetric.SymmetricPower;
 import io.openems.edge.ess.symmetric.api.EssSymmetric;
 
 @Designate(ocd = Config.class, factory = true)
@@ -58,7 +60,8 @@ public class SymmetricFixActivePower extends AbstractOpenemsComponent implements
 	@Override
 	public void run() {
 		try {
-			ess.setActivePowerEqual(this.power);
+			SymmetricPower power = ess.getPower();
+			power.applyLimitation(new PEqualLimitation(power).setP(this.power));
 		} catch (OpenemsException e) {
 			logError(log, e.getMessage());
 		}

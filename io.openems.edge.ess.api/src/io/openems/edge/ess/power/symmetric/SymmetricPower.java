@@ -1,6 +1,5 @@
 package io.openems.edge.ess.power.symmetric;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -10,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.operation.distance.DistanceOp;
@@ -20,73 +17,20 @@ import com.vividsolutions.jts.operation.distance.GeometryLocation;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import io.openems.edge.ess.power.PowerException;
-import io.openems.edge.ess.power.SVGWriter;
 
 public class SymmetricPower {
-	/*
-	 * Statics
-	 */
-	private static final SVGWriter writer = new SVGWriter();
-	private static final Color[] COLORS = new Color[] { Color.GREEN, Color.BLUE, Color.MAGENTA, Color.YELLOW,
-			Color.ORANGE, Color.RED };
-	protected static final Coordinate ZERO = new Coordinate(0, 0);
 
-	/**
-	 * Creates a Rect with the coordinates pMin, pMax, qMin, qMax and intersects the
-	 * rect with the base geometry.
-	 *
-	 * @param base
-	 * @param pMin
-	 * @param pMax
-	 * @param qMin
-	 * @param qMax
-	 * @return resulting polygon after the intersection
-	 */
-	public static Geometry intersectRect(Geometry base, double pMin, double pMax, double qMin, double qMax) {
-		Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax), new Coordinate(pMin, qMin),
-				new Coordinate(pMax, qMin), new Coordinate(pMax, qMax), new Coordinate(pMin, qMax) };
-		Geometry rect = new GeometryFactory().createPolygon(coordinates);
-		return base.intersection(rect);
-	}
-
-	/*
-	 * This Object
-	 */
 	private final Logger log = LoggerFactory.getLogger(SymmetricPower.class);
 	private final List<Geometry> geometries;
-	private final GeometryFactory FACTORY = new GeometryFactory();
-	private final GeometricShapeFactory SHAPEFACTORY = new GeometricShapeFactory(FACTORY);
-
 	private final BiConsumer<Integer, Integer> onWriteListener;
 
 	private Geometry geometry;
-	private Optional<Long> minP;
-	private Optional<Long> maxP;
-	private Optional<Long> minQ;
-	private Optional<Long> maxQ;
+	private Optional<Integer> minP;
+	private Optional<Integer> maxP;
+	private Optional<Integer> minQ;
+	private Optional<Integer> maxQ;
 	private int maxApparentPower = 0;
 
-	/**
-	 * Returns the GeometryFactory used for the Polygon creation
-	 *
-	 * @return
-	 */
-	public GeometryFactory getFactory() {
-		return FACTORY;
-	}
-
-	/**
-	 * Returns the GeometricShapeFactory used for the creation of Circles
-	 *
-	 * @return
-	 */
-	public GeometricShapeFactory getShapefactory() {
-		return SHAPEFACTORY;
-	}
-
-	/*
-	 * Fields
-	 */
 	// private final List<Consumer<Geometry>> onResetListeners;
 	// private final List<Consumer<Geometry>> onChangeListeners;
 	// TODO private final List<BeforePowerWriteListener> beforeWriteListeners;
@@ -142,50 +86,50 @@ public class SymmetricPower {
 	 * Calculates the min and max active and reactivePower possible in the geometry.
 	 */
 	private void calculateMinMax() {
-		this.maxP = Optional.ofNullable(getClosestP(maxApparentPower));
-		this.minP = Optional.ofNullable(getClosestP(maxApparentPower * -1));
-		this.maxQ = Optional.ofNullable(getClosestQ(maxApparentPower));
-		this.minQ = Optional.ofNullable(getClosestQ(maxApparentPower * -1));
+		this.maxP = getClosestP(maxApparentPower);
+		this.minP = getClosestP(maxApparentPower * -1);
+		this.maxQ = getClosestQ(maxApparentPower);
+		this.minQ = getClosestQ(maxApparentPower * -1);
 	}
 
 	/**
-	 * Calculates the colses activepower point according to the parameter p
+	 * Calculates the closest ActivePower point to the parameter p
 	 *
 	 * @param p
 	 * @return
 	 */
-	private Long getClosestP(long p) {
+	private Optional<Integer> getClosestP(int p) {
 		Coordinate[] coordinates = new Coordinate[] { new Coordinate(p, maxApparentPower),
 				new Coordinate(p, maxApparentPower * -1) };
-		LineString line = FACTORY.createLineString(coordinates);
+		LineString line = Utils.FACTORY.createLineString(coordinates);
 		DistanceOp distance = new DistanceOp(geometry, line);
 		GeometryLocation[] locations = distance.nearestLocations();
 		for (GeometryLocation location : locations) {
 			if (!location.getGeometryComponent().equals(line)) {
-				return (long) location.getCoordinate().x;
+				return Optional.of((int) Math.round(location.getCoordinate().x));
 			}
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	/**
-	 * Calculates the colses reactivepower point according to the parameter q
+	 * Calculates the closest ReactivePower point to the parameter q
 	 *
 	 * @param p
 	 * @return
 	 */
-	private Long getClosestQ(long q) {
+	private Optional<Integer> getClosestQ(int q) {
 		Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, q),
 				new Coordinate(maxApparentPower * -1, q) };
-		LineString line = FACTORY.createLineString(coordinates);
+		LineString line = Utils.FACTORY.createLineString(coordinates);
 		DistanceOp distance = new DistanceOp(geometry, line);
 		GeometryLocation[] locations = distance.nearestLocations();
 		for (GeometryLocation location : locations) {
 			if (!location.getGeometryComponent().equals(line)) {
-				return (long) location.getCoordinate().y;
+				return Optional.of((int) Math.round(location.getCoordinate().y));
 			}
 		}
-		return null;
+		return Optional.empty();
 	}
 
 	// /**
@@ -244,38 +188,38 @@ public class SymmetricPower {
 	// }
 
 	/**
-	 * Returns the max activepower, after all limitations applied.
+	 * Returns the max ActivePower, after all limitations applied.
 	 *
 	 * @return
 	 */
-	public Optional<Long> getMaxP() {
+	public Optional<Integer> getMaxP() {
 		return this.maxP;
 	}
 
 	/**
-	 * Returns the min activepower, after all limitations applied.
+	 * Returns the min ActivePower, after all limitations applied.
 	 *
 	 * @return
 	 */
-	public Optional<Long> getMinP() {
+	public Optional<Integer> getMinP() {
 		return this.minP;
 	}
 
 	/**
-	 * Returns the max reactivepower, after all limitations applied.
+	 * Returns the max ReactivePower, after all limitations applied.
 	 *
 	 * @return
 	 */
-	public Optional<Long> getMaxQ() {
+	public Optional<Integer> getMaxQ() {
 		return this.maxQ;
 	}
 
 	/**
-	 * Returns the min reactivepower, after all limitations applied.
+	 * Returns the min RectivePower, after all limitations applied.
 	 *
 	 * @return
 	 */
-	public Optional<Long> getMinQ() {
+	public Optional<Integer> getMinQ() {
 		return this.minQ;
 	}
 
@@ -303,75 +247,18 @@ public class SymmetricPower {
 		if (getGeometry() instanceof Point) {
 			return (Point) getGeometry();
 		}
-		Point pZero = FACTORY.createPoint(ZERO);
+		Point pZero = Utils.FACTORY.createPoint(Utils.ZERO);
 		DistanceOp distance = new DistanceOp(getGeometry(), pZero);
 		GeometryLocation[] locations = distance.nearestLocations();
 		Point result = pZero;
 		for (GeometryLocation location : locations) {
 			Geometry g = location.getGeometryComponent();
 			if (!g.equals(pZero)) {
-				result = FACTORY.createPoint(location.getCoordinate());
+				result = Utils.FACTORY.createPoint(location.getCoordinate());
 				break;
 			}
 		}
 		return result;
-	}
-
-	public String getAsSVG() {
-		StringBuffer text = new StringBuffer();
-
-		String viewBox = getMaxApparentPower() * -1 + " " + getMaxApparentPower() * -1 + " " + getMaxApparentPower() * 2
-				+ " " + getMaxApparentPower() * 2;
-
-		text.append("<?xml version='1.0' standalone='no'?>\n");
-		text.append(
-				"<!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>\n");
-		text.append("<svg width='400' height='400' transform='scale(1,-1)' viewBox='" + viewBox
-				+ "'  version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>\n");
-		int i = 0;
-		for (Geometry geo : geometries) {
-			String color = "#" + Integer.toHexString(COLORS[i].getRGB()).substring(2);
-			String a = writeGeometryStyled(geo, color, color);
-			text.append(a + "\n");
-			text.append("\n");
-			i++;
-			i %= COLORS.length;
-		}
-		text.append("</svg>\n");
-		return text.toString();
-	}
-
-	public static String getAsSVG(Geometry geometrie) {
-		StringBuffer text = new StringBuffer();
-
-		Envelope env = geometrie.getEnvelopeInternal();
-		String viewBox = env.getMinX() + " " + env.getMinY() + " " + env.getMaxX() * 2 + " " + env.getMaxY() * 2;
-
-		text.append("<?xml version='1.0' standalone='no'?>\n");
-		text.append(
-				"<!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>\n");
-		text.append("<svg width='400' height='400' viewBox='" + viewBox
-				+ "'  version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>\n");
-		String color = "#" + Integer.toHexString(COLORS[0].getRGB()).substring(2);
-		String a = writeGeometryStyled(geometrie, color, color);
-		text.append(a + "\n");
-		text.append("\n");
-		text.append("</svg>\n");
-		return text.toString();
-	}
-
-	protected static String writeGeometryStyled(Geometry g, String fillClr, String strokeClr) {
-		String s = "<g fill='" + fillClr + "' stroke='" + strokeClr + "' >\n";
-		s += write(g);
-		s += "</g>";
-		return s;
-	}
-
-	private static String write(Geometry geometry) {
-		if (geometry == null) {
-			return "";
-		}
-		return writer.write(geometry);
 	}
 
 	private Geometry baseGeometry;
@@ -417,11 +304,11 @@ public class SymmetricPower {
 		// TODO for (BeforePowerWriteListener listener : this.beforeWriteListeners) {
 		// listener.beforeWritePower();
 		// }
-		if (dynamicLimitations.size() > 0) {
-			Point p = reduceToZero();
+		if (this.dynamicLimitations.size() > 0) {
+			Point p = this.reduceToZero();
 			Coordinate c = p.getCoordinate();
 			try {
-				setGeometry(p);
+				this.setGeometry(p);
 			} catch (PowerException e1) {
 			}
 			/*
@@ -435,15 +322,16 @@ public class SymmetricPower {
 			this.lastActivePower += activePowerDelta / 2;
 			this.lastReactivePower += reactivePowerDelta / 2;
 			// call listener
-			this.onWriteListener.accept(this.lastActivePower, lastReactivePower);
+			this.onWriteListener.accept(this.lastActivePower, this.lastReactivePower);
 		}
 	}
 
 	private void createBaseGeometry() {
-		SHAPEFACTORY.setCentre(ZERO);
-		SHAPEFACTORY.setSize(getMaxApparentPower() * 2);
-		SHAPEFACTORY.setNumPoints(20);
-		this.baseGeometry = SHAPEFACTORY.createCircle();
+		GeometricShapeFactory shapeFactory = new GeometricShapeFactory(Utils.FACTORY);
+		shapeFactory.setCentre(Utils.ZERO);
+		shapeFactory.setSize(getMaxApparentPower() * 2);
+		shapeFactory.setNumPoints(20);
+		this.baseGeometry = shapeFactory.createCircle();
 		for (Limitation limit : this.staticLimitations) {
 			try {
 				Geometry limitedPower = limit.applyLimit(this.baseGeometry);
@@ -472,6 +360,16 @@ public class SymmetricPower {
 	 */
 	protected void onTopicCycleAfterWrite() {
 		this.reset();
+	}
+
+	/**
+	 * Output the geometries as SVG
+	 * 
+	 * @return
+	 */
+	public String getAsSVG() {
+		return Utils.getAsSVG(getMaxApparentPower() * -1, getMaxApparentPower() * -1, getMaxApparentPower(),
+				getMaxApparentPower(), this.geometries.toArray(new Geometry[this.geometries.size()]));
 	}
 
 	// TODO @Override
