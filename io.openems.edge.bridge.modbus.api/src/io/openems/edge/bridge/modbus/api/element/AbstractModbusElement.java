@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api.element;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -25,7 +27,6 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	public AbstractModbusElement(OpenemsType type, int startAddress, boolean isIgnored) {
 		this.type = type;
 		this.startAddress = startAddress;
-		this.onUpdateCallback = null;
 		this.isIgnored = isIgnored;
 	}
 
@@ -34,17 +35,16 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 		return this.type;
 	}
 
-	/*
-	 * The onUpdateCallback is called on reception of a new value
-	 */
-	private Consumer<T> onUpdateCallback;
+	private final List<Consumer<T>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
 
+	/**
+	 * The onUpdateCallback is called on reception of a new value.
+	 * 
+	 * Be aware, that this is the original, untouched value.
+	 * ChannelToElementConverters are not applied here!
+	 */
 	public AbstractModbusElement<T> onUpdateCallback(Consumer<T> onUpdateCallback) {
-		if (this.onUpdateCallback != null) {
-			log.warn("Setting new onUpdateCallback for ModbusElement [" + this.startAddress
-					+ "] overrides existing one!");
-		}
-		this.onUpdateCallback = onUpdateCallback;
+		this.onUpdateCallbacks.add(onUpdateCallback);
 		return this;
 	}
 
@@ -71,8 +71,8 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 		if (this.isDebug) {
 			log.info("Element [" + this + "] set value to [" + value + "].");
 		}
-		if (this.onUpdateCallback != null) {
-			this.onUpdateCallback.accept(value);
+		for (Consumer<T> callback : this.onUpdateCallbacks) {
+			callback.accept(value);
 		}
 	}
 
