@@ -59,7 +59,7 @@ public class CosPhiLineLimitation extends Limitation {
 			this.capacitive = capacitive;
 			this.xNull = xNull;
 			this.yNull = yNull;
-			notifyListeners();
+			this.emitOnChangeEvent();
 		}
 		return this;
 	}

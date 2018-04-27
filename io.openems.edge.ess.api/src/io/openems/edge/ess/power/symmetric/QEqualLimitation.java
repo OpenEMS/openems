@@ -26,7 +26,7 @@ public class QEqualLimitation extends Limitation {
 				this.line = null;
 			}
 			this.q = q;
-			notifyListeners();
+			this.emitOnChangeEvent();
 		}
 		return this;
 	}

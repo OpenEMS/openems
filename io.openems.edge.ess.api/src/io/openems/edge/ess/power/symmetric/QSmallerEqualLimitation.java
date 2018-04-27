@@ -28,7 +28,7 @@ public class QSmallerEqualLimitation extends Limitation {
 				this.rect = null;
 			}
 			this.q = q;
-			notifyListeners();
+			this.emitOnChangeEvent();
 		}
 		return this;
 	}

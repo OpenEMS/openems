@@ -40,7 +40,7 @@ public class PEqualLimitation extends Limitation {
 			}
 			// store P so the line does not need to be recalculated if P is not changed
 			this.p = p;
-			notifyListeners();
+			this.emitOnChangeEvent();
 		}
 		return this;
 

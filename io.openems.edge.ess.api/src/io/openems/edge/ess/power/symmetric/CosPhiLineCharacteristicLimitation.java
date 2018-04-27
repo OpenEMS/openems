@@ -27,7 +27,7 @@ public class CosPhiLineCharacteristicLimitation extends Limitation {
 	public CosPhiLineCharacteristicLimitation setCosPhi(Long xNull, Long yNull, TreeMap<Long, Double> characteristic) {
 		if (this.characteristic.equals(characteristic) || this.xNull != xNull || this.yNull != yNull) {
 			if (characteristic != null && !characteristic.isEmpty() && xNull != null && yNull != null) {
-				long maxApparentPower = power.getMaxApparentPower();
+				long maxApparentPower = this.power.getMaxApparentPower();
 				boolean isFirs = true;
 				List<Coordinate> coordinates = new ArrayList<>();
 				Double y = null;
@@ -57,7 +57,7 @@ public class CosPhiLineCharacteristicLimitation extends Limitation {
 			this.characteristic.putAll(characteristic);
 			this.xNull = xNull;
 			this.yNull = yNull;
-			notifyListeners();
+			this.emitOnChangeEvent();
 		}
 		return this;
 	}

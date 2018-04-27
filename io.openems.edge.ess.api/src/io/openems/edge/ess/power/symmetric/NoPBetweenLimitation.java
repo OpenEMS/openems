@@ -32,7 +32,7 @@ public class NoPBetweenLimitation extends Limitation {
 			}
 			this.pMin = pMin;
 			this.pMax = pMax;
-			notifyListeners();
+			this.emitOnChangeEvent();
 		}
 		return this;
 	}

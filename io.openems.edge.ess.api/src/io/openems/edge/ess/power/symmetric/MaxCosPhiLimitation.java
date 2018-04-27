@@ -33,7 +33,7 @@ public class MaxCosPhiLimitation extends Limitation {
 				this.polygon = null;
 			}
 			this.cosPhi = cosPhi;
-			notifyListeners();
+			this.emitOnChangeEvent();
 		}
 		return this;
 	}

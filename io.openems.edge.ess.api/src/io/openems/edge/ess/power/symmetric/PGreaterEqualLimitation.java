@@ -28,7 +28,7 @@ public class PGreaterEqualLimitation extends Limitation {
 				this.rect = null;
 			}
 			this.p = p;
-			notifyListeners();
+			this.emitOnChangeEvent();
 		}
 		return this;
 	}

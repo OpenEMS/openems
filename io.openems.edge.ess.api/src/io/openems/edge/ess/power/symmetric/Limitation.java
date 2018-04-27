@@ -1,5 +1,8 @@
 package io.openems.edge.ess.power.symmetric;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -9,27 +12,24 @@ public abstract class Limitation {
 
 	protected static final Coordinate ZERO = new Coordinate(0, 0);
 
-	protected SymmetricPower power;
-	// TODO private List<LimitationChangedListener> listeners;
+	protected final SymmetricPower power;
+
+	private final List<Runnable> onChangeCallbacks = new CopyOnWriteArrayList<>();
 
 	public Limitation(SymmetricPower power) {
 		this.power = power;
-		// this.listeners = new ArrayList<>();
 	}
 
-	protected void notifyListeners() {
-		// for (LimitationChangedListener listener : listeners) {
-		// listener.onLimitationChange(this);
-		// }
+	protected void emitOnChangeEvent() {
+		for (Runnable callback : this.onChangeCallbacks) {
+			callback.run();
+		}
 	}
 
-	// public void addListener(LimitationChangedListener listener) {
-	// this.listeners.add(listener);
-	// }
-	//
-	// public void removeListener(LimitationChangedListener listener) {
-	// this.listeners.remove(listener);
-	// }
+	public Limitation onChange(Runnable callback) {
+		this.onChangeCallbacks.add(callback);
+		return this;
+	}
 
 	protected abstract Geometry applyLimit(Geometry geometry) throws PowerException;
 

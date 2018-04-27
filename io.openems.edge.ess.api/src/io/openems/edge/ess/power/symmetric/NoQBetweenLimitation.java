@@ -33,7 +33,7 @@ public class NoQBetweenLimitation extends Limitation {
 			}
 			this.qMin = qMin;
 			this.qMax = qMax;
-			notifyListeners();
+			this.emitOnChangeEvent();
 		}
 		return this;
 	}

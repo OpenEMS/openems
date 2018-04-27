@@ -31,7 +31,7 @@ public class SMaxLimitation extends Limitation {
 				this.circle = shapeFactory.createCircle();
 			}
 			this.sMax = sMax;
-			notifyListeners();
+			this.emitOnChangeEvent();
 		}
 		return this;
 	}

@@ -28,7 +28,7 @@ public class PSmallerEqualLimitation extends Limitation {
 				this.rect = null;
 			}
 			this.p = p;
-			notifyListeners();
+			this.emitOnChangeEvent();
 		}
 		return this;
 	}

@@ -99,10 +99,10 @@ public class SymmetricPower {
 	 * @return
 	 */
 	private Optional<Integer> getClosestP(int p) {
-		Coordinate[] coordinates = new Coordinate[] { new Coordinate(p, maxApparentPower),
-				new Coordinate(p, maxApparentPower * -1) };
+		Coordinate[] coordinates = new Coordinate[] { new Coordinate(p, this.maxApparentPower),
+				new Coordinate(p, this.maxApparentPower * -1) };
 		LineString line = Utils.FACTORY.createLineString(coordinates);
-		DistanceOp distance = new DistanceOp(geometry, line);
+		DistanceOp distance = new DistanceOp(this.geometry, line);
 		GeometryLocation[] locations = distance.nearestLocations();
 		for (GeometryLocation location : locations) {
 			if (!location.getGeometryComponent().equals(line)) {
@@ -119,10 +119,10 @@ public class SymmetricPower {
 	 * @return
 	 */
 	private Optional<Integer> getClosestQ(int q) {
-		Coordinate[] coordinates = new Coordinate[] { new Coordinate(maxApparentPower, q),
-				new Coordinate(maxApparentPower * -1, q) };
+		Coordinate[] coordinates = new Coordinate[] { new Coordinate(this.maxApparentPower, q),
+				new Coordinate(this.maxApparentPower * -1, q) };
 		LineString line = Utils.FACTORY.createLineString(coordinates);
-		DistanceOp distance = new DistanceOp(geometry, line);
+		DistanceOp distance = new DistanceOp(this.geometry, line);
 		GeometryLocation[] locations = distance.nearestLocations();
 		for (GeometryLocation location : locations) {
 			if (!location.getGeometryComponent().equals(line)) {
@@ -267,18 +267,12 @@ public class SymmetricPower {
 	private int lastActivePower = 0;
 	private int lastReactivePower = 0;
 
-	// public class SymmetricPowerImpl extends SymmetricPower implements
-	// LimitationChangedListener, BridgeEventListener {
-
 	public void addStaticLimitation(Limitation limit) {
 		this.staticLimitations.add(limit);
-		// TODO limit.addListener(this);
-		createBaseGeometry();
-	}
-
-	public void removeStaticLimitation(Limitation limit) {
-		// TODO limit.removeListener(this);
-		this.staticLimitations.remove(limit);
+		limit.onChange(() -> {
+			// recalculate base geometry on change of static limitation
+			this.createBaseGeometry();
+		});
 		createBaseGeometry();
 	}
 
@@ -329,7 +323,7 @@ public class SymmetricPower {
 	private void createBaseGeometry() {
 		GeometricShapeFactory shapeFactory = new GeometricShapeFactory(Utils.FACTORY);
 		shapeFactory.setCentre(Utils.ZERO);
-		shapeFactory.setSize(getMaxApparentPower() * 2);
+		shapeFactory.setSize(this.maxApparentPower * 2);
 		shapeFactory.setNumPoints(20);
 		this.baseGeometry = shapeFactory.createCircle();
 		for (Limitation limit : this.staticLimitations) {
@@ -368,15 +362,7 @@ public class SymmetricPower {
 	 * @return
 	 */
 	public String getAsSVG() {
-		return Utils.getAsSVG(getMaxApparentPower() * -1, getMaxApparentPower() * -1, getMaxApparentPower(),
-				getMaxApparentPower(), this.geometries.toArray(new Geometry[this.geometries.size()]));
+		return Utils.getAsSVG(this.maxApparentPower * -1, this.maxApparentPower * -1, this.maxApparentPower,
+				this.maxApparentPower, this.geometries.toArray(new Geometry[this.geometries.size()]));
 	}
-
-	// TODO @Override
-	// public void onLimitationChange(Limitation sender) {
-	// if (staticLimitations.contains(sender)) {
-	// createBaseGeometry();
-	// }
-	// }
-
 }
