@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.TypeUtils;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -37,6 +39,11 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
 import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.power.symmetric.PGreaterEqualLimitation;
+import io.openems.edge.ess.power.symmetric.PSmallerEqualLimitation;
+import io.openems.edge.ess.power.symmetric.QGreaterEqualLimitation;
+import io.openems.edge.ess.power.symmetric.QSmallerEqualLimitation;
+import io.openems.edge.ess.power.symmetric.SMaxLimitation;
 import io.openems.edge.ess.power.symmetric.SymmetricPower;
 import io.openems.edge.ess.symmetric.api.EssSymmetric;
 import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
@@ -61,14 +68,22 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 
 	private final static int UNIT_ID = 100;
 	private final static int MAX_APPARENT_POWER = 40000;
+	private final static int MIN_REACTIVE_POWER = -10000;
+	private final static int MAX_REACTIVE_POWER = 10000;
 
 	private final SymmetricPower power;
+	private final SMaxLimitation allowedApparentLimit;
+	private final PGreaterEqualLimitation allowedChargeLimit;
+	private final PSmallerEqualLimitation allowedDischargeLimit;
 
 	@Reference
 	protected ConfigurationAdmin cm;
 
 	public EssFeneconCommercial40() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		/*
+		 * Initialize Power
+		 */
 		this.power = new SymmetricPower(EssFeneconCommercial40.MAX_APPARENT_POWER, //
 				(activePower, reactivePower) -> {
 					/*
@@ -87,6 +102,30 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						log.error("Unable to set ReactivePower: " + e.getMessage());
 					}
 				});
+		// ReactivePower limitations
+		this.power.addStaticLimitation(new QGreaterEqualLimitation(this.power).setQ(MIN_REACTIVE_POWER));
+		this.power.addStaticLimitation(new QSmallerEqualLimitation(this.power).setQ(MAX_REACTIVE_POWER));
+		// Allowed Apparent
+		this.power.addStaticLimitation( //
+				this.allowedApparentLimit = new SMaxLimitation(this.power).setSMax(0, 0, 0) //
+		);
+		this.channel(ChannelId.ALLOWED_APPARENT).onUpdateCallback(value -> {
+			this.allowedApparentLimit.setSMax(TypeUtils.getAsType(OpenemsType.INTEGER, value), 0, 0);
+		});
+		// Allowed Charge
+		this.power.addStaticLimitation( //
+				this.allowedChargeLimit = new PGreaterEqualLimitation(this.power).setP(0) //
+		);
+		this.channel(ChannelId.ALLOWED_CHARGE).onUpdateCallback(value -> {
+			this.allowedChargeLimit.setP(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+		});
+		// Allowed Discharge
+		this.power.addStaticLimitation( //
+				this.allowedDischargeLimit = new PSmallerEqualLimitation(this.power).setP(0) //
+		);
+		this.channel(ChannelId.ALLOWED_DISCHARGE).onUpdateCallback(value -> {
+			this.allowedDischargeLimit.setP(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+		});
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -651,7 +690,9 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	@Override
 	public String debugLog() {
 		return "SoC:" + this.getSoc().format() //
-				+ ";P:" + this.getActivePower().format();
+				+ "|L:" + this.getActivePower().format() //
+				+ "|Allowed:" + this.channel(ChannelId.ALLOWED_CHARGE).getActiveValue() + ";"
+				+ this.channel(ChannelId.ALLOWED_DISCHARGE).format();
 	}
 
 	@Override
@@ -682,4 +723,5 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 			logError(this.log, "Unable to start: " + e.getMessage());
 		}
 	}
+
 }

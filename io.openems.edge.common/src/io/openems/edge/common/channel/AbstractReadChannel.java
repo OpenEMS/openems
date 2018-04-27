@@ -1,5 +1,9 @@
 package io.openems.edge.common.channel;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +38,9 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	@Override
 	public void nextProcessImage() {
 		this.activeValue = this.nextValue;
+		for (Consumer<T> callback : this.onUpdateCallbacks) {
+			callback.accept(this.activeValue);
+		}
 	}
 
 	@Override
@@ -71,4 +78,10 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		return "Channel [ID=" + channelId + ", type=" + type + ", activeValue=" + this.format() + "]";
 	}
 
+	private final List<Consumer<T>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
+
+	@Override
+	public void onUpdateCallback(Consumer<T> onUpdateCallback) {
+		this.onUpdateCallbacks.add(onUpdateCallback);
+	}
 }

@@ -1,5 +1,7 @@
 package io.openems.edge.common.channel;
 
+import java.util.function.Consumer;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -76,4 +78,10 @@ public interface Channel<T> {
 	default String format() {
 		return this.channelDoc().getUnit().format(this.getActiveValue(), this.getType());
 	}
+
+	/**
+	 * Add an onUpdateCallback. It is called, after a new ActiveValue was set via
+	 * nextProcessImage().
+	 */
+	public void onUpdateCallback(Consumer<T> onUpdateCallback);
 }
