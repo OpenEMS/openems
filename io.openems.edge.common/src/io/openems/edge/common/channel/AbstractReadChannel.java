@@ -52,11 +52,12 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	}
 
 	/**
-	 * Sets the next value
+	 * Sets the next value. Internal method. Do not call directly.
 	 * 
 	 * @param value
 	 * @throws OpenemsException
 	 */
+	@Deprecated
 	public final void _setNextValue(T value) {
 		this.nextValue = value;
 		if (this.channelDoc().isDebug()) {
@@ -64,4 +65,10 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 					+ this.channelDoc().getUnit().format(value, this.getType()));
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "Channel [ID=" + channelId + ", type=" + type + ", activeValue=" + this.format() + "]";
+	}
+
 }

@@ -1,6 +1,7 @@
 package io.openems.edge.common.channel.doc;
 
-import java.util.TreeMap;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 public class Doc {
 
@@ -35,13 +36,48 @@ public class Doc {
 	/*
 	 * Options
 	 */
-	private TreeMap<Integer, String> options = new TreeMap<Integer, String>();
+	private BiMap<Integer, String> options = HashBiMap.create();
+
+	public Doc option(int value, Enum<?> option) {
+		this.options.put(value, option.name());
+		return this;
+	}
 
 	public Doc option(int value, String option) {
 		this.options.put(value, option);
 		return this;
 	}
 
+	/**
+	 * Get the Option value. Throws IllegalArgumentException if there is no option
+	 * with that name
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public int getOption(String name) {
+		Integer option = this.options.inverse().get(name);
+		if (option == null) {
+			throw new IllegalArgumentException(
+					"Channel has no option [" + name + "]! Existing options: " + this.options.values());
+		}
+		return option;
+	}
+
+	/**
+	 * Get the Option value. Throws IllegalArgumentException if there is no option
+	 * with that name
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public int getOption(Enum<?> nameEnum) {
+		return this.getOption(nameEnum.name());
+	}
+
+	/*
+	 * Levels
+	 */
 	private Level level = Level.INFO;
 
 	public Doc level(Level level) {

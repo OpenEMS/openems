@@ -40,7 +40,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	protected void activate(ComponentContext context, String service_pid, String id, boolean enabled) {
 		this.id = id;
 		this.enabled = enabled;
-		this.logMessage("Activate");
+		if (isEnabled()) {
+			this.logMessage("Activate");
+		} else {
+			this.logMessage("Activate DISABLED");
+		}
 	}
 
 	/**
@@ -62,7 +66,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		if (packageName.startsWith("io.openems.")) {
 			packageName = packageName.substring(11);
 		}
-		log.info(reason + " [" + this.id + "]: " + this.getClass().getSimpleName() + " [" + packageName + "]");
+		this.logInfo(this.log, reason + " " + this.getClass().getSimpleName() + " [" + packageName + "]");
 	}
 
 	@Override
@@ -71,12 +75,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	@Override
-	public Channel<?> channel(String channelName) {
+	public Channel<?> _channel(String channelName) {
 		Channel<?> channel = this.channels.get(channelName);
-		if (channel == null) {
-			throw new IllegalArgumentException(
-					"Channel [" + channelName + "] is not defined for ID [" + this.id() + "].");
-		}
 		return channel;
 	}
 
@@ -101,5 +101,15 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 */
 	protected final void logInfo(Logger log, String message) {
 		log.info("[" + this.id() + "] " + message);
+	}
+
+	/**
+	 * Log an error message including the Component ID.
+	 * 
+	 * @param log
+	 * @param message
+	 */
+	protected final void logError(Logger log, String message) {
+		log.error("[" + this.id() + "] " + message);
 	}
 }

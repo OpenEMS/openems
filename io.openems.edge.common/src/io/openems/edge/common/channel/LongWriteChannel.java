@@ -14,11 +14,23 @@ public class LongWriteChannel extends LongReadChannel implements WriteChannel<Lo
 
 	private Optional<Long> nextWriteValueOpt = Optional.empty();
 
+	/**
+	 * Internal method. Do not call directly.
+	 * 
+	 * @param value
+	 */
+	@Deprecated
 	@Override
 	public void _setNextWriteValue(Long value) {
 		this.nextWriteValueOpt = Optional.ofNullable(value);
 	}
 
+	/**
+	 * Internal method. Do not call directly.
+	 * 
+	 * @param value
+	 */
+	@Deprecated
 	@Override
 	public Optional<Long> _getNextWriteValue() {
 		return this.nextWriteValueOpt;

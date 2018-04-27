@@ -29,21 +29,51 @@ public interface OpenemsComponent {
 	boolean isEnabled();
 
 	/**
-	 * Returns a Channel defined by its ChannelId string representation.
+	 * Returns an undefined Channel defined by its ChannelId string representation.
+	 * 
+	 * Note: It is preferred to use the typed channel()-method, that's why it is
+	 * marked as @Deprecated.
 	 * 
 	 * @param channelName
-	 * @return
+	 * @return channel or null
 	 */
-	public Channel<?> channel(String channelName);
+	@Deprecated
+	public Channel<?> _channel(String channelName);
 
 	/**
-	 * Returns a Channel defined by its ChannelId.
+	 * Returns a Channel defined by its ChannelId string representation.
 	 * 
 	 * @param channelId
 	 * @return
 	 */
-	default Channel<?> channel(io.openems.edge.common.channel.doc.ChannelId channelId) {
-		return this.channel(channelId.id());
+	@SuppressWarnings("unchecked")
+	default <T extends Channel<?>> T channel(String channelName) {
+		Channel<?> channel = this._channel(channelName);
+		// check for null
+		if (channel == null) {
+			throw new IllegalArgumentException(
+					"Channel [" + channelName + "] is not defined for ID [" + this.id() + "].");
+		}
+		// check correct type
+		T typedChannel;
+		try {
+			typedChannel = (T) channel;
+		} catch (ClassCastException e) {
+			throw new IllegalArgumentException(
+					"Channel [" + this.id() + "/" + channelName + "] is not of expected type.");
+		}
+		return typedChannel;
+	}
+
+	/**
+	 * Returns a Channel defined by its ChannelId
+	 * 
+	 * @param channelId
+	 * @return
+	 */
+	default <T extends Channel<?>> T channel(io.openems.edge.common.channel.doc.ChannelId channelId) {
+		T channel = this.<T>channel(channelId.id());
+		return channel;
 	}
 
 	/**

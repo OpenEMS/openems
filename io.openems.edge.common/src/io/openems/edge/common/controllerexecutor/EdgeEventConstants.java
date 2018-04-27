@@ -15,6 +15,22 @@ public final class EdgeEventConstants {
 	public static final String TOPIC_CYCLE = "io/openems/edge/cycle/";
 
 	/**
+	 * BEFORE_CONTROLLERS event
+	 * 
+	 * allows to execute anything that is required to be executed before the
+	 * controllers are executed. The event is executed synchronously.
+	 */
+	public static final String TOPIC_CYCLE_BEFORE_CONTROLLERS = TOPIC_CYCLE + "BEFORE_CONTROLLERS";
+
+	/**
+	 * AFTER_CONTROLLERS event
+	 * 
+	 * allows to execute anything that is required to be executed after the
+	 * controllers were executed. The event is executed synchronously.
+	 */
+	public static final String TOPIC_CYCLE_AFTER_CONTROLLERS = TOPIC_CYCLE + "AFTER_CONTROLLERS";
+
+	/**
 	 * BEFORE_WRITE event
 	 * 
 	 * allows to execute anything that is required to be executed before the data is

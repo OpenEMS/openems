@@ -53,6 +53,12 @@ public interface Channel<T> {
 		this._setNextValue(TypeUtils.<T>getAsType(this.getType(), value));
 	}
 
+	/**
+	 * Internal method. Do not call directly.
+	 * 
+	 * @param value
+	 */
+	@Deprecated
 	public void _setNextValue(T value);
 
 	/**

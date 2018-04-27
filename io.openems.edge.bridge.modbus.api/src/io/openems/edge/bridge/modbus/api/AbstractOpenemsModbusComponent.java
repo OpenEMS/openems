@@ -123,7 +123,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 
 	/**
 	 * Maps an Element to one or more ModbusChannels using converters, that convert
-	 * the value forwards and backwards.
+	 * the value forward and backwards.
 	 */
 	public class ChannelMapper {
 
@@ -138,10 +138,15 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 				 * Converter. If the converter returns an Optional.empty, the value is ignored.
 				 */
 				this.channelMaps.forEach((channel, converter) -> {
-					Optional<Object> convertedValueOpt = converter.elementToChannel(value);
-					if (convertedValueOpt.isPresent()) {
+					Object convertedValue;
+					try {
+						convertedValue = converter.elementToChannel(value);
+					} catch (IllegalArgumentException e) {
+						throw new IllegalArgumentException("Conversion for [" + channel.channelId() + "] failed", e);
+					}
+					if (convertedValue != null) {
 						try {
-							channel.setNextValue(convertedValueOpt.get());
+							channel.setNextValue(convertedValue);
 						} catch (OpenemsException e) {
 							Log.warn("Channel [" + channel.address() + "] unable to set next value: " + e.getMessage());
 						}
@@ -177,7 +182,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 
 		public ChannelMapper m(io.openems.edge.common.channel.doc.ChannelId channelId,
-				Function<Object, Optional<Object>> elementToChannel, Function<Object, Object> channelToElement) {
+				Function<Object, Object> elementToChannel, Function<Object, Object> channelToElement) {
 			ElementToChannelConverter converter = new ElementToChannelConverter(elementToChannel, channelToElement);
 			return this.m(channelId, converter);
 		}
@@ -199,7 +204,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	}
 
 	/**
-	 * Maps the given element to the Channel identified by channelId.
+	 * Maps the given element 1-to-1 to the Channel identified by channelId.
 	 * 
 	 * @param channelDoc
 	 * @param element
@@ -208,7 +213,22 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.doc.ChannelId channelId,
 			AbstractModbusElement<?> element) {
 		return new ChannelMapper(element) //
-				.m(channelId, ElementToChannelConverter.CONVERT_1_TO_1) //
+				.m(channelId, ElementToChannelConverter.DIRECT_1_TO_1) //
+				.build();
+	}
+
+	/**
+	 * Maps the given element to the Channel identified by channelId, applying the
+	 * given @link{ElementToChannelConverter}
+	 * 
+	 * @param channelDoc
+	 * @param element
+	 * @return the element parameter
+	 */
+	protected final AbstractModbusElement<?> m(io.openems.edge.common.channel.doc.ChannelId channelId,
+			AbstractModbusElement<?> element, ElementToChannelConverter converter) {
+		return new ChannelMapper(element) //
+				.m(channelId, converter) //
 				.build();
 	}
 

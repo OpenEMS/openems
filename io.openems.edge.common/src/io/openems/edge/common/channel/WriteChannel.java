@@ -13,12 +13,32 @@ public interface WriteChannel<T> extends Channel<T> {
 	 * 
 	 * @param value
 	 */
-	public default void setNextWriteValue(Object value) throws OpenemsException {
+	public default void setNextWriteValue(T value) throws OpenemsException {
+		this.setNextWriteValueFromObject(value);
+	}
+
+	/**
+	 * Updates the 'next' write value of Channel from an Object value. Use this
+	 * method if the value is not yet in the correct Type. Otherwise use
+	 * setNextWriteValue() directly.
+	 * 
+	 * @param value
+	 */
+	public default void setNextWriteValueFromObject(Object value) throws OpenemsException {
 		T typedValue = TypeUtils.<T>getAsType(this.getType(), value);
+		// set the write value
 		this._setNextWriteValue(typedValue);
+		// set the read value to the same value to enable debugging
+		this.setNextValue(value);
 		this.getOnSetNextWriteCallback().accept(typedValue);
 	}
 
+	/**
+	 * Internal method. Do not call directly.
+	 * 
+	 * @param value
+	 */
+	@Deprecated
 	public void _setNextWriteValue(T value);
 
 	/**
@@ -48,5 +68,11 @@ public interface WriteChannel<T> extends Channel<T> {
 
 	public Consumer<T> getOnSetNextWriteCallback();
 
+	/**
+	 * Internal method. Do not call directly.
+	 * 
+	 * @param value
+	 */
+	@Deprecated
 	public void _onSetNextWriteCallback(Consumer<T> onSetNextWriteCallback);
 }

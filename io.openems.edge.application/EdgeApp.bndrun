@@ -26,7 +26,8 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus.impl)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.openemsv1)',\
 	osgi.identity;filter:='(osgi.identity=org.apache.felix.webconsole)',\
-	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)'
+	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)'
 
 -resolve: auto
 -runbundles: \
@@ -61,4 +62,5 @@ JPM-Command:				openems-edge
 	osgi.enroute.bostock.d3.webresource;version='[3.5.6,3.5.7)',\
 	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
-	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)'
+	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
+	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +19,8 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
 import com.vividsolutions.jts.operation.distance.GeometryLocation;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.ess.power.PowerException;
 import io.openems.edge.ess.power.SVGWriter;
-import io.openems.edge.ess.symmetric.api.EssSymmetric;
 
 public class SymmetricPower {
 	/*
@@ -58,13 +57,14 @@ public class SymmetricPower {
 	private final GeometryFactory FACTORY = new GeometryFactory();
 	private final GeometricShapeFactory SHAPEFACTORY = new GeometricShapeFactory(FACTORY);
 
+	private final BiConsumer<Integer, Integer> onWriteListener;
+
 	private Geometry geometry;
 	private Optional<Long> minP;
 	private Optional<Long> maxP;
 	private Optional<Long> minQ;
 	private Optional<Long> maxQ;
-	private long maxApparentPower = 0;
-	private final EssSymmetric ess;
+	private int maxApparentPower = 0;
 
 	/**
 	 * Returns the GeometryFactory used for the Polygon creation
@@ -91,9 +91,13 @@ public class SymmetricPower {
 	// private final List<Consumer<Geometry>> onChangeListeners;
 	// TODO private final List<BeforePowerWriteListener> beforeWriteListeners;
 
-	public SymmetricPower(EssSymmetric ess) {
+	public SymmetricPower(int maxApparentPower, BiConsumer<Integer, Integer> onWriteListener) {
+		if (maxApparentPower < 0) {
+			throw new IllegalArgumentException("MaxApprentPower [" + maxApparentPower + "] must be positive!");
+		}
+		this.maxApparentPower = maxApparentPower;
 		this.geometries = new ArrayList<>();
-		this.ess = ess;
+		this.onWriteListener = onWriteListener;
 		// this.onResetListeners = Collections.synchronizedList(new ArrayList<>());
 		// this.onChangeListeners = Collections.synchronizedList(new ArrayList<>());
 		// this.beforeWriteListeners = Collections.synchronizedList(new ArrayList<>());
@@ -102,25 +106,13 @@ public class SymmetricPower {
 		reset();
 	}
 
-	/*
-	 * Methods
-	 */
 	/**
-	 * Returns the maximal possible ApparentPower
+	 * Returns the maximum possible ApparentPower
 	 *
 	 * @return
 	 */
-	public long getMaxApparentPower() {
-		return maxApparentPower;
-	}
-
-	/**
-	 * set the maximal possible ApparentPower
-	 *
-	 * @param power
-	 */
-	protected void setMaxApparentPower(long power) {
-		this.maxApparentPower = Math.abs(power);
+	public int getMaxApparentPower() {
+		return this.maxApparentPower;
 	}
 
 	public Geometry getGeometry() {
@@ -385,8 +377,8 @@ public class SymmetricPower {
 	private Geometry baseGeometry;
 	private final List<Limitation> staticLimitations = new ArrayList<>();
 	private final List<Limitation> dynamicLimitations = new ArrayList<>();
-	private double lastActivePower = 0;
-	private double lastReactivePower = 0;
+	private int lastActivePower = 0;
+	private int lastReactivePower = 0;
 
 	// public class SymmetricPowerImpl extends SymmetricPower implements
 	// LimitationChangedListener, BridgeEventListener {
@@ -432,24 +424,18 @@ public class SymmetricPower {
 				setGeometry(p);
 			} catch (PowerException e1) {
 			}
-			double activePowerDelta = c.x - lastActivePower;
-			double reactivePowerDelta = c.y - lastReactivePower;
-			lastActivePower += activePowerDelta / 2;
-			lastReactivePower += reactivePowerDelta / 2;
-			try {
-				if (lastActivePower > 0) {
-					this.ess.getDischargeActivePower().setNextValue(lastActivePower);
-				} else {
-					this.ess.getChargeActivePower().setNextValue(lastActivePower * -1);
-				}
-				if (lastReactivePower > 0) {
-					this.ess.getDischargeReactivePower().setNextValue(lastReactivePower);
-				} else {
-					this.ess.getChargeReactivePower().setNextValue(lastReactivePower * -1);
-				}
-			} catch (OpenemsException e) {
-				log.error("Failed to set Active/Reactive Power: " + e.getMessage());
-			}
+			/*
+			 * Avoid extreme changes in active/reactive power
+			 *
+			 * calculate the delta between last set power and current calculation and apply
+			 * it only partly
+			 */
+			int activePowerDelta = (int) c.x - this.lastActivePower + 1 /* add 1 to avoid rounding issues */;
+			int reactivePowerDelta = (int) c.y - this.lastReactivePower + 1 /* add 1 to avoid rounding issues */;
+			this.lastActivePower += activePowerDelta / 2;
+			this.lastReactivePower += reactivePowerDelta / 2;
+			// call listener
+			this.onWriteListener.accept(this.lastActivePower, lastReactivePower);
 		}
 	}
 

@@ -49,7 +49,21 @@ public class FC16WriteRegistersTask extends FC3ReadRegistersTask implements Writ
 		}
 
 		public int getLastAddress() {
-			return this.startAddress + registers.size();
+			return this.startAddress + registers.size() - 1;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder b = new StringBuilder(
+					"address [" + this.startAddress + "/0x" + Integer.toHexString(this.startAddress) + "] values [");
+			for (int i = 0; i < this.registers.size(); i++) {
+				b.append(this.registers.get(i).getValue());
+				if (i < this.registers.size() - 1) {
+					b.append(",");
+				}
+			}
+			b.append("]");
+			return b.toString();
 		}
 	}
 
@@ -86,6 +100,12 @@ public class FC16WriteRegistersTask extends FC3ReadRegistersTask implements Writ
 		 * Execute combined writes
 		 */
 		for (CombinedWriteRegisters write : writes) {
+			// DEBUG
+			// StringBuilder values = new StringBuilder();
+			// for (Register register : write.getRegisters()) {
+			// values.append(register + ",");
+			// }
+			// log.info("FC16: Write Multiple Registers. " + write.toString());
 			master.writeMultipleRegisters(this.getUnitId(), write.startAddress, write.getRegisters());
 		}
 	}

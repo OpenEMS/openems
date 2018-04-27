@@ -29,7 +29,7 @@ import io.openems.edge.controller.api.Controller;
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.DebugLog", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class DebugLog extends AbstractOpenemsComponent implements Controller {
+public class DebugLog extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(DebugLog.class);
 

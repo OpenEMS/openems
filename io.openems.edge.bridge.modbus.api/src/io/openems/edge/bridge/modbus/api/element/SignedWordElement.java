@@ -21,15 +21,8 @@ public class SignedWordElement extends AbstractWordElement {
 		ByteBuffer buff = ByteBuffer.allocate(2).order(getByteOrder());
 		buff.put(registers[0].toBytes());
 		int shortValue = buff.order(getByteOrder()).getShort(0);
-		// apply scaleFactor
-		shortValue = (int) (shortValue * Math.pow(10, this.getScaleFactor()));
 		// set value
 		super.setValue(shortValue);
-	}
-
-	@Override
-	public SignedWordElement scaleFactor(int scaleFactor) {
-		return (SignedWordElement) super.scaleFactor(scaleFactor);
 	}
 
 	@Override

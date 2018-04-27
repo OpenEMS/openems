@@ -99,6 +99,11 @@ public class ControllerExecutor extends AbstractWorker {
 			});
 
 			/*
+			 * Trigger BEFORE_CONTROLLERS event
+			 */
+			this.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, new HashMap<>()));
+
+			/*
 			 * Execute Schedulers and their Controllers
 			 */
 			schedulers.entrySet().forEach(entry -> {
@@ -111,6 +116,11 @@ public class ControllerExecutor extends AbstractWorker {
 					controller.run();
 				});
 			});
+
+			/*
+			 * Trigger AFTER_CONTROLLERS event
+			 */
+			this.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, new HashMap<>()));
 
 			/*
 			 * Trigger BEFORE_WRITE event

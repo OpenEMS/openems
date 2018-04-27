@@ -101,7 +101,8 @@ public abstract class AbstractWorker {
 					/*
 					 * Handle Bridge-Exceptions
 					 */
-					log.error("Worker error. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+					log.error("Worker error. " + e.getClass().getSimpleName() + ": " + e.getMessage() //
+							+ (e.getCause() != null ? " - Caused by: " + e.getCause().getMessage() : ""));
 					e.printStackTrace();
 					onWorkerExceptionSleep = onWorkerExceptionSleep(onWorkerExceptionSleep);
 				}

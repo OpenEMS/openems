@@ -77,24 +77,6 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	}
 
 	/*
-	 * BuilderPattern. The received value is adjusted to the power of the
-	 * scaleFactor (y = x * 10^scaleFactor).
-	 * 
-	 * Example: if the Register is in unit [0.1 V] use scaleFactor '2' to make the
-	 * unit [1 mV]
-	 */
-	private int scaleFactor = 0;
-
-	public AbstractModbusElement<T> scaleFactor(int scaleFactor) {
-		this.scaleFactor = scaleFactor;
-		return this;
-	}
-
-	public int getScaleFactor() {
-		return scaleFactor;
-	}
-
-	/*
 	 * Enable Debug mode for this Element. Activates verbose logging.
 	 */
 	private boolean isDebug = false;
@@ -127,26 +109,4 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	public String toString() {
 		return this.startAddress + "/0x" + Integer.toHexString(this.startAddress);
 	}
-
-	// protected void setValue(T value) {
-	// if (channel == null) {
-	// return;
-	// } else if (channel instanceof ModbusReadChannel) {
-	// ((ModbusReadChannel<T>) channel).updateValue(value);
-	// } else if (channel instanceof ModbusWriteChannel) {
-	// ((ModbusWriteChannel<T>) channel).updateValue(value);
-	// } else {
-	// log.error("Unable to set value [" + value + "]. Channel [" +
-	// channel.address()
-	// + "] is no ModbusChannel or WritableModbusChannel.");
-	// new Throwable().printStackTrace();
-	// }
-	// }
-	//
-	// @Override
-	// public String toString() {
-	// return "ModbusElement: Implementation[" + this.getClass().getSimpleName() +
-	// "], ModbusAddress[" + address + "]"
-	// + (channel != null ? ", ChannelAddress[" + channel.address() + "]" : "");
-	// }
 }

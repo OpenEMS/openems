@@ -14,11 +14,23 @@ public class IntegerWriteChannel extends IntegerReadChannel implements WriteChan
 
 	private Optional<Integer> nextWriteValueOpt = Optional.empty();
 
+	/**
+	 * Internal method. Do not call directly.
+	 * 
+	 * @param value
+	 */
+	@Deprecated
 	@Override
 	public void _setNextWriteValue(Integer value) {
 		this.nextWriteValueOpt = Optional.ofNullable(value);
 	}
 
+	/**
+	 * Internal method. Do not call directly.
+	 * 
+	 * @param value
+	 */
+	@Deprecated
 	@Override
 	public Optional<Integer> _getNextWriteValue() {
 		return this.nextWriteValueOpt;
@@ -34,6 +46,12 @@ public class IntegerWriteChannel extends IntegerReadChannel implements WriteChan
 		return this.onSetNextWriteCallback;
 	}
 
+	/**
+	 * Internal method. Do not call directly.
+	 * 
+	 * @param value
+	 */
+	@Deprecated
 	@Override
 	public void _onSetNextWriteCallback(Consumer<Integer> onSetNextWriteCallback) {
 		this.onSetNextWriteCallback = onSetNextWriteCallback;

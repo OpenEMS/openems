@@ -32,8 +32,10 @@ public class Utils {
 					return null;
 				}), Arrays.stream(EssSymmetricReadonly.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
+					case ACTIVE_POWER:
 					case CHARGE_ACTIVE_POWER:
 					case DISCHARGE_ACTIVE_POWER:
+					case REACTIVE_POWER:
 					case CHARGE_REACTIVE_POWER:
 					case DISCHARGE_REACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);
@@ -74,7 +76,6 @@ public class Utils {
 					case IPM_TEMPERATURE_L1:
 					case IPM_TEMPERATURE_L2:
 					case IPM_TEMPERATURE_L3:
-					case SET_WORK_STATE:
 					case TRANSFORMER_TEMPERATURE_L2:
 					case BMS_DCDC_WORK_MODE:
 					case BMS_DCDC_WORK_STATE:
@@ -82,10 +83,9 @@ public class Utils {
 					case AC_CHARGE_ENERGY:
 					case AC_DISCHARGE_ENERGY:
 						return new LongReadChannel(c, channelId);
-					case SET_CHARGE_ACTIVE_POWER:
-					case SET_DISCHARGE_ACTIVE_POWER:
-					case SET_CHARGE_REACTIVE_POWER:
-					case SET_DISCHARGE_REACTIVE_POWER:
+					case SET_WORK_STATE:
+					case SET_ACTIVE_POWER:
+					case SET_REACTIVE_POWER:
 					case SET_PV_POWER_LIMIT:
 						return new IntegerWriteChannel(c, channelId);
 					case STATE_0:

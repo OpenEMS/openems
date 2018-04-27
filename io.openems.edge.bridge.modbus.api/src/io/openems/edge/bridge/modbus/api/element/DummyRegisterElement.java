@@ -34,12 +34,7 @@ public class DummyRegisterElement extends AbstractModbusElement<Void> implements
 	}
 
 	@Override
-	public DummyRegisterElement scaleFactor(int scaleFactor) {
-		// ignore scaleFactor
-		return this;
-	}
-
-	@Override
+	@Deprecated
 	public void _setNextWriteValue(Optional<Void> valueOpt) {
 		// ignore write
 		return;

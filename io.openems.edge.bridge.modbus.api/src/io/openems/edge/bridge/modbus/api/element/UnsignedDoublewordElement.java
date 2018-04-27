@@ -34,16 +34,8 @@ public class UnsignedDoublewordElement extends AbstractDoubleWordElement {
 		}
 		// convert registers to Long
 		long value = Integer.toUnsignedLong(buff.getInt(0));
-		// apply scaleFactor
-		value = (int) (value * Math.pow(10, this.getScaleFactor()));
 		// set value
 		super.setValue(value);
-	}
-
-	@Override
-	public UnsignedDoublewordElement scaleFactor(int scaleFactor) {
-		super.scaleFactor(scaleFactor);
-		return this;
 	}
 
 	@Override

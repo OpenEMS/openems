@@ -31,16 +31,8 @@ public class UnsignedWordElement extends AbstractWordElement {
 		ByteBuffer buff = ByteBuffer.allocate(2).order(byteOrder);
 		buff.put(registers[0].toBytes());
 		int shortValue = Short.toUnsignedInt(buff.getShort(0));
-		// apply scaleFactor
-		shortValue = (int) (shortValue * Math.pow(10, this.getScaleFactor()));
 		// set value
 		super.setValue(shortValue);
-	}
-
-	@Override
-	public UnsignedWordElement scaleFactor(int scaleFactor) {
-		super.scaleFactor(scaleFactor);
-		return this;
 	}
 
 	@Override
