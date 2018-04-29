@@ -6,13 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.facade.ModbusTCPMaster;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
+import io.openems.edge.bridge.modbus.facade.MyModbusMaster;
 
 /**
  * Implements a Read Holding Register task, implementing Modbus function code 3
@@ -29,7 +29,7 @@ public class FC3ReadRegistersTask extends Task implements ReadTask {
 		super(startAddress, priority, elements);
 	}
 
-	public void executeQuery(ModbusTCPMaster master) throws ModbusException {
+	public void executeQuery(MyModbusMaster master) throws ModbusException {
 		// Query this Task
 		int startAddress = this.getStartAddress();
 		int length = this.getLength();

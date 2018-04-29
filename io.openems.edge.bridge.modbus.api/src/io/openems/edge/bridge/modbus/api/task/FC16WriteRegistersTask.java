@@ -8,12 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.facade.ModbusTCPMaster;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
+import io.openems.edge.bridge.modbus.facade.MyModbusMaster;
 
 /**
  * Implements a Write Holding Registers task, using Modbus function code 16
@@ -68,7 +68,7 @@ public class FC16WriteRegistersTask extends Task implements WriteTask {
 	}
 
 	@Override
-	public void executeWrite(ModbusTCPMaster master) throws ModbusException {
+	public void executeWrite(MyModbusMaster master) throws ModbusException {
 		List<CombinedWriteRegisters> writes = mergeWriteRegisters();
 		// Execute combined writes
 		for (CombinedWriteRegisters write : writes) {

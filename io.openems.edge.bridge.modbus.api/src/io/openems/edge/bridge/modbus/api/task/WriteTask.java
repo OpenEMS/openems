@@ -1,9 +1,9 @@
 package io.openems.edge.bridge.modbus.api.task;
 
 import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.facade.ModbusTCPMaster;
 
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.bridge.modbus.facade.MyModbusMaster;
 
 public interface WriteTask {
 
@@ -35,5 +35,5 @@ public interface WriteTask {
 	 * @param unitId
 	 * @throws ModbusException
 	 */
-	public abstract void executeWrite(ModbusTCPMaster master) throws ModbusException;
+	public abstract void executeWrite(MyModbusMaster master) throws ModbusException;
 }
