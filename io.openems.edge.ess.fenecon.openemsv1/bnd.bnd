@@ -13,7 +13,7 @@ Export-Package: io.openems.edge.ess.fenecon.openemsv1
 	osgi.enroute.base.api;version=2.1,\
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.edge.bridge.modbus.api;version=latest
+	io.openems.edge.bridge.modbus;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

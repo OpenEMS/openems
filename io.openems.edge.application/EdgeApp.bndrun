@@ -20,15 +20,16 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=org.ops4j.pax.logging.pax-logging-api)',\
 	osgi.identity;filter:='(osgi.identity=org.ops4j.pax.logging.pax-logging-service)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.common)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debuglog)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.fixedorder)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.commercial40)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus.impl)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.openemsv1)',\
 	osgi.identity;filter:='(osgi.identity=org.apache.felix.webconsole)',\
 	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.janitza.umg96rme)'
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.janitza.umg96rme)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.log)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.detailedlog)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus)'
 
 -resolve: auto
 -runbundles: \
@@ -36,9 +37,7 @@ JPM-Command:				openems-edge
 	com.google.guava;version='[19.0.0,19.0.1)',\
 	io.openems.common;version=snapshot,\
 	io.openems.edge.application;version=snapshot,\
-	io.openems.edge.bridge.modbus.impl;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
-	io.openems.edge.controller.debuglog;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.ess.fenecon.openemsv1;version=snapshot,\
@@ -65,4 +64,7 @@ JPM-Command:				openems-edge
 	osgi.enroute.bostock.d3.webresource;version='[3.5.6,3.5.7)',\
 	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
-	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)'
+	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
+	io.openems.edge.controller.debug.log;version=snapshot,\
+	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
+	io.openems.edge.bridge.modbus;version=snapshot
