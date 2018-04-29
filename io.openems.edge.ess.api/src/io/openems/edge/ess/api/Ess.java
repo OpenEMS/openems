@@ -25,7 +25,12 @@ public interface Ess extends OpenemsComponent {
 		}
 	}
 
+	/**
+	 * Gets the State of Charge in [%], range 0..100 %
+	 * 
+	 * @return
+	 */
 	default Channel<Integer> getSoc() {
-		return (Channel<Integer>) this.channel(ChannelId.SOC);
+		return this.channel(ChannelId.SOC);
 	}
 }

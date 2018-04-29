@@ -25,5 +25,11 @@ public interface EssSymmetric extends EssSymmetricReadonly {
 		}
 	}
 
+	/**
+	 * Gets the 'Power' class, which allows to set limitations to Active and
+	 * Reactive Power.
+	 * 
+	 * @return
+	 */
 	public SymmetricPower getPower();
 }

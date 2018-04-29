@@ -70,6 +70,10 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 				b.append("[" + debugLog + "]");
 			}
 			b.append(" ");
+
+			// if (component.servicePid().equals("Meter.Janitza.UMG96RME")) {
+			// component.listAllChannels();
+			// }
 		});
 		logInfo(this.log, b.toString());
 	}

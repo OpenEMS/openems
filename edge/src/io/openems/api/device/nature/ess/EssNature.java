@@ -20,67 +20,64 @@
  *******************************************************************************/
 package io.openems.api.device.nature.ess;
 
-import io.openems.api.channel.ConfigChannel;
-import io.openems.api.channel.ReadChannel;
-import io.openems.api.channel.WriteChannel;
 import io.openems.api.device.nature.DeviceNature;
-import io.openems.api.doc.ChannelInfo;
 
 public interface EssNature extends DeviceNature {
-	/*
-	 * Constants
-	 */
-	public final int DEFAULT_MINSOC = 10;
-
-	public final String OFF = "Off";
-	public final String ON = "On";
-
-	public final String OFF_GRID = "Off-Grid";
-	public final String ON_GRID = "On-Grid";
-
-	public final String STANDBY = "Standby";
-	public final String START = "Start";
-	public final String STOP = "Stop";
-	public final String FAULT = "Fault";
-
-	/*
-	 * Config
-	 */
-	@ChannelInfo(title = "Min-SOC", description = "Sets the minimal SOC.", type = Integer.class)
-	public ConfigChannel<Integer> minSoc();
-
-	@ChannelInfo(title = "Charge-SOC", description = "Sets the force charge SOC.", type = Integer.class, isOptional = true)
-	public ConfigChannel<Integer> chargeSoc();
-
-	/*
-	 * Read Channels
-	 */
-	@ChannelInfo(type = Long.class)
-	public ReadChannel<Long> gridMode();
-
-	@ChannelInfo(type = Long.class)
-	public ReadChannel<Long> soc();
-
-	@ChannelInfo(type = Long.class)
-	public ReadChannel<Long> systemState();
-
-	@ChannelInfo(type = Long.class)
-	public ReadChannel<Long> allowedCharge();
-
-	@ChannelInfo(type = Long.class)
-	public ReadChannel<Long> allowedDischarge();
-
-	@ChannelInfo(type = Long.class)
-	public ReadChannel<Long> allowedApparent();
-
-	@ChannelInfo(type = Long.class)
-	public ReadChannel<Long> capacity();
-
-	@ChannelInfo(type = Long.class)
-	public ReadChannel<Long> maxNominalPower();
-
-	/*
-	 * Write Channels
-	 */
-	public WriteChannel<Long> setWorkState();
+	// MOVED TO OSGi
+	//	/*
+	//	 * Constants
+	//	 */
+	//	public final int DEFAULT_MINSOC = 10;
+	//
+	//	public final String OFF = "Off";
+	//	public final String ON = "On";
+	//
+	//	public final String OFF_GRID = "Off-Grid";
+	//	public final String ON_GRID = "On-Grid";
+	//
+	//	public final String STANDBY = "Standby";
+	//	public final String START = "Start";
+	//	public final String STOP = "Stop";
+	//	public final String FAULT = "Fault";
+	//
+	//	/*
+	//	 * Config
+	//	 */
+	//	@ChannelInfo(title = "Min-SOC", description = "Sets the minimal SOC.", type = Integer.class)
+	//	public ConfigChannel<Integer> minSoc();
+	//
+	//	@ChannelInfo(title = "Charge-SOC", description = "Sets the force charge SOC.", type = Integer.class, isOptional = true)
+	//	public ConfigChannel<Integer> chargeSoc();
+	//
+	//	/*
+	//	 * Read Channels
+	//	 */
+	//	@ChannelInfo(type = Long.class)
+	//	public ReadChannel<Long> gridMode();
+	//
+	//	@ChannelInfo(type = Long.class)
+	//	public ReadChannel<Long> soc();
+	//
+	//	@ChannelInfo(type = Long.class)
+	//	public ReadChannel<Long> systemState();
+	//
+	//	@ChannelInfo(type = Long.class)
+	//	public ReadChannel<Long> allowedCharge();
+	//
+	//	@ChannelInfo(type = Long.class)
+	//	public ReadChannel<Long> allowedDischarge();
+	//
+	//	@ChannelInfo(type = Long.class)
+	//	public ReadChannel<Long> allowedApparent();
+	//
+	//	@ChannelInfo(type = Long.class)
+	//	public ReadChannel<Long> capacity();
+	//
+	//	@ChannelInfo(type = Long.class)
+	//	public ReadChannel<Long> maxNominalPower();
+	//
+	//	/*
+	//	 * Write Channels
+	//	 */
+	//	public WriteChannel<Long> setWorkState();
 }

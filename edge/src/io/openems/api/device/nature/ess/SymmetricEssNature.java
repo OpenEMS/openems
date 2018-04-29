@@ -20,31 +20,28 @@
  *******************************************************************************/
 package io.openems.api.device.nature.ess;
 
-import io.openems.api.channel.ReadChannel;
-import io.openems.api.doc.ChannelInfo;
-import io.openems.core.utilities.power.symmetric.SymmetricPower;
-
 public interface SymmetricEssNature extends EssNature {
-	/*
-	 * ReadChannels
-	 */
-	@ChannelInfo(type = Long.class)
-	public ReadChannel<Long> activePower();
-
-	@ChannelInfo(type = Long.class)
-	public ReadChannel<Long> apparentPower();
-
-	@ChannelInfo(type = Long.class)
-	public ReadChannel<Long> reactivePower();
-	// /*
-	// * WriteChannels
-	// */
-	// @ChannelInfo(type = Long.class)
-	// public WriteChannel<Long> setActivePower();
+	//	MOVED TO OSGi
+	//	/*
+	//	 * ReadChannels
+	//	 */
+	//	@ChannelInfo(type = Long.class)
+	//	public ReadChannel<Long> activePower();
 	//
-	// @ChannelInfo(type = Long.class)
-	// public WriteChannel<Long> setReactivePower();
-
-	public SymmetricPower getPower();
+	//	@ChannelInfo(type = Long.class)
+	//	public ReadChannel<Long> apparentPower();
+	//
+	//	@ChannelInfo(type = Long.class)
+	//	public ReadChannel<Long> reactivePower();
+	//	// /*
+	//	// * WriteChannels
+	//	// */
+	//	// @ChannelInfo(type = Long.class)
+	//	// public WriteChannel<Long> setActivePower();
+	//	//
+	//	// @ChannelInfo(type = Long.class)
+	//	// public WriteChannel<Long> setReactivePower();
+	//
+	//	public SymmetricPower getPower();
 
 }

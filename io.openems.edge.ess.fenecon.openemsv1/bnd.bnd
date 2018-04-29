@@ -3,10 +3,6 @@
 #
 
 Bundle-Version:					1.0.0.${tstamp}
-Bundle-Description: \
-	The provider bundle for io.openems.edge.ess.fenecon.openemsv1. \
-	\
-	${warning;Please update this Bundle-Description in io.openems.edge.ess.fenecon.openemsv1/api.bnd}
 
 Export-Package: io.openems.edge.ess.fenecon.openemsv1
 

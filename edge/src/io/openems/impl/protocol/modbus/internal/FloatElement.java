@@ -20,53 +20,46 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus.internal;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
-import com.ghgande.j2mod.modbus.procimg.Register;
-import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
-
-import io.openems.impl.protocol.modbus.ModbusChannel;
 import io.openems.impl.protocol.modbus.ModbusElement;
 
 public class FloatElement extends ModbusElement<Long> implements DoublewordElement {
-	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-	private WordOrder wordOrder = WordOrder.MSWLSW;
-	private int multiplier = 0;
-
-	public FloatElement(int address, ModbusChannel<Long> channel) {
-		super(address, channel);
-	}
-
-	@Override public int getLength() {
-		return 2;
-	}
-
-	public FloatElement multiplier(int multiplier) {
-		this.multiplier = multiplier;
-		return this;
-	}
-
-	@Override public void setValue(InputRegister register1, InputRegister register2) {
-		ByteBuffer buff = ByteBuffer.allocate(4).order(byteOrder);
-		if (wordOrder == WordOrder.MSWLSW) {
-			buff.put(register1.toBytes());
-			buff.put(register2.toBytes());
-		} else {
-			buff.put(register2.toBytes());
-			buff.put(register1.toBytes());
-		}
-		setValue((long) (buff.order(byteOrder).getFloat(0) * Math.pow(10, multiplier)));
-	}
-
-	@Override public Register[] toRegisters(Long value) {
-		byte[] b = ByteBuffer.allocate(4).order(byteOrder)
-				.putFloat(value.floatValue() / (float) Math.pow(10, multiplier)).array();
-		if (wordOrder == WordOrder.MSWLSW) {
-			return new Register[] { new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) };
-		} else {
-			return new Register[] { new SimpleRegister(b[2], b[3]), new SimpleRegister(b[0], b[1]) };
-		}
-	}
+	// MOVED TO OSGI
+	//	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+	//	private WordOrder wordOrder = WordOrder.MSWLSW;
+	//	private int multiplier = 0;
+	//
+	//	public FloatElement(int address, ModbusChannel<Long> channel) {
+	//		super(address, channel);
+	//	}
+	//
+	//	@Override public int getLength() {
+	//		return 2;
+	//	}
+	//
+	//	public FloatElement multiplier(int multiplier) {
+	//		this.multiplier = multiplier;
+	//		return this;
+	//	}
+	//
+	//	@Override public void setValue(InputRegister register1, InputRegister register2) {
+	//		ByteBuffer buff = ByteBuffer.allocate(4).order(byteOrder);
+	//		if (wordOrder == WordOrder.MSWLSW) {
+	//			buff.put(register1.toBytes());
+	//			buff.put(register2.toBytes());
+	//		} else {
+	//			buff.put(register2.toBytes());
+	//			buff.put(register1.toBytes());
+	//		}
+	//		setValue((long) (buff.order(byteOrder).getFloat(0) * Math.pow(10, multiplier)));
+	//	}
+	//
+	//	@Override public Register[] toRegisters(Long value) {
+	//		byte[] b = ByteBuffer.allocate(4).order(byteOrder)
+	//				.putFloat(value.floatValue() / (float) Math.pow(10, multiplier)).array();
+	//		if (wordOrder == WordOrder.MSWLSW) {
+	//			return new Register[] { new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) };
+	//		} else {
+	//			return new Register[] { new SimpleRegister(b[2], b[3]), new SimpleRegister(b[0], b[1]) };
+	//		}
+	//	}
 }

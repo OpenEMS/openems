@@ -30,6 +30,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	private final Map<String, Channel<?>> channels = Collections.synchronizedMap(new HashMap<>());
 
 	private String id = null;
+	private String servicePid = null;
 	private boolean enabled = true;
 
 	/**
@@ -39,6 +40,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 */
 	protected void activate(ComponentContext context, String service_pid, String id, boolean enabled) {
 		this.id = id;
+		this.servicePid = service_pid;
 		this.enabled = enabled;
 		if (isEnabled()) {
 			this.logMessage("Activate");
@@ -59,6 +61,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	@Override
 	public boolean isEnabled() {
 		return this.enabled;
+	}
+
+	@Override
+	public String servicePid() {
+		return this.servicePid;
 	}
 
 	private void logMessage(String reason) {

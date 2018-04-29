@@ -15,7 +15,7 @@ public interface EssSymmetricReadonly extends Ess {
 		CHARGE_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
 		DISCHARGE_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
 		REACTIVE_POWER(
-				new Doc().unit(Unit.VOLT_AMPERE_REACTIVE).text("negative values for Charge; positive for Discharge")), //
+				new Doc().unit(Unit.VOLT_AMPERE_REACTIVE).text("Negative values for Charge; positive for Discharge")), //
 		CHARGE_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		DISCHARGE_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE));
 
@@ -30,27 +30,63 @@ public interface EssSymmetricReadonly extends Ess {
 		}
 	}
 
-	default Channel<?> getActivePower() {
+	/**
+	 * Gets the Active Power in [W]. Negative values for Charge; positive for
+	 * Discharge
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getActivePower() {
 		return this.channel(ChannelId.ACTIVE_POWER);
 	}
 
-	default Channel<?> getChargeActivePower() {
+	/**
+	 * Gets the Charge Active Power in [W]. This is derived from negative
+	 * 'getActivePower()' values; 0 for positive.
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getChargeActivePower() {
 		return this.channel(ChannelId.CHARGE_ACTIVE_POWER);
 	}
 
-	default Channel<?> getDischargeActivePower() {
+	/**
+	 * Gets the Discharge Active Power in [W]. This is derived from positive
+	 * 'getActivePower()' values; 0 for negative.
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getDischargeActivePower() {
 		return this.channel(ChannelId.DISCHARGE_ACTIVE_POWER);
 	}
 
-	default Channel<?> getReactivePower() {
+	/**
+	 * Gets the Reactive Power in [var]. Negative values for Charge; positive for
+	 * Discharge
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getReactivePower() {
 		return this.channel(ChannelId.REACTIVE_POWER);
 	}
 
-	default Channel<?> getChargeReactivePower() {
+	/**
+	 * Gets the Charge Reactive Power in [var]. This is derived from negative
+	 * 'getReactivePower()' values; 0 for positive.
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getChargeReactivePower() {
 		return this.channel(ChannelId.CHARGE_REACTIVE_POWER);
 	}
 
-	default Channel<?> getDischargeReactivePower() {
+	/**
+	 * Gets the Discharge Reactive Power in [var]. This is derived from positive
+	 * 'getReactivePower()' values; 0 for negative.
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getDischargeReactivePower() {
 		return this.channel(ChannelId.DISCHARGE_REACTIVE_POWER);
 	}
 }

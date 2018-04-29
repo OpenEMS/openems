@@ -8,12 +8,13 @@ import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 
-public class UnsignedDoublewordElement extends AbstractDoubleWordElement {
+public class UnsignedDoublewordElement extends AbstractDoubleWordElement<Long> {
 	private WordOrder wordOrder = WordOrder.MSWLSW;
 
 	public UnsignedDoublewordElement(int address) {
-		super(address);
+		super(OpenemsType.LONG, address);
 	}
 
 	public UnsignedDoublewordElement wordOrder(WordOrder wordOrder) {

@@ -19,6 +19,8 @@ public class TypeUtils {
 			return (T) ((Integer) value);
 		case BOOLEAN:
 			return (T) ((Boolean) value);
+		case FLOAT:
+			return (T) ((Float) value);
 		}
 		throw new IllegalArgumentException(
 				"Converter for value [" + value + "] to type [" + type + "] is not implemented.");

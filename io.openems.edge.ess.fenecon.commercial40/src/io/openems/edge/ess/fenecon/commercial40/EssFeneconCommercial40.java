@@ -587,7 +587,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 								.m(EssSymmetricReadonly.ChannelId.REACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
 								.m(EssSymmetricReadonly.ChannelId.CHARGE_REACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_NEGATIVE_AND_INVERT) //
+										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_NEGATIVE_INVERT) //
 								.m(EssSymmetricReadonly.ChannelId.DISCHARGE_REACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_POSITIVE) //
 								.build(), //
@@ -624,7 +624,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 								.m(EssSymmetricReadonly.ChannelId.ACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
 								.m(EssSymmetricReadonly.ChannelId.CHARGE_ACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_NEGATIVE_AND_INVERT) //
+										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_NEGATIVE_INVERT) //
 								.m(EssSymmetricReadonly.ChannelId.DISCHARGE_ACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_POSITIVE) //
 								.build(), //
@@ -704,6 +704,9 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS:
 			this.defineWorkState();

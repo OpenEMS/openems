@@ -14,13 +14,29 @@ public enum Unit {
 	/* Apparent Power */
 	VOLT_AMPERE("VA"),
 	/* Voltage */
-	VOLT("V"), MILLIVOLT("mV", VOLT, -3),
+	/**
+	 * Unit of Voltage [V]
+	 */
+	VOLT("V"),
+	/**
+	 * Unit of Voltage [mV]
+	 */
+	MILLIVOLT("mV", VOLT, -3),
 	/* Ampere */
 	AMPERE("A"), MILLIAMPERE("mA", AMPERE, -3),
 	/* Energy */
 	WATT_HOURS("Wh"),
-	/* Frequency */
-	HERTZ("Hz"), MILLIHERTZ("mHz", HERTZ, -3),
+	/*
+	 * Frequency
+	 */
+	/**
+	 * Unit of Frequency [Hz]
+	 */
+	HERTZ("Hz"),
+	/**
+	 * Unit of Frequency [mHz]
+	 */
+	MILLIHERTZ("mHz", HERTZ, -3),
 	/* Temperature */
 	DEGREE_CELCIUS("°C");
 
@@ -55,6 +71,7 @@ public enum Unit {
 			switch (type) {
 			case LONG:
 			case INTEGER:
+			case FLOAT:
 				return this.baseUnit.formatAsBaseUnit(this.getAsBaseUnit((int) value), type);
 			case BOOLEAN:
 				return this.baseUnit.formatAsBaseUnit(value, type);
