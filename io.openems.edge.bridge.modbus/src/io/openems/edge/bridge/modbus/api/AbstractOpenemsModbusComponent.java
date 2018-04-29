@@ -69,7 +69,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			return;
 		}
 		this.unitId = unitId;
-		BridgeModbusTcp modbus = this.modbus.get();
+		BridgeModbus modbus = this.modbus.get();
 		if (this.isEnabled() && modbus != null) {
 			modbus.addProtocol(this.id(), this.getModbusProtocol(this.unitId));
 		}
@@ -80,14 +80,14 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		super.deactivate();
 	}
 
-	private AtomicReference<BridgeModbusTcp> modbus = new AtomicReference<BridgeModbusTcp>(null);
+	private AtomicReference<BridgeModbus> modbus = new AtomicReference<BridgeModbus>(null);
 
 	/**
 	 * Set the Modbus bridge. Should be called by @Reference
 	 * 
 	 * @param modbus
 	 */
-	protected void setModbus(BridgeModbusTcp modbus) {
+	protected void setModbus(BridgeModbus modbus) {
 		this.modbus.set(modbus);
 	}
 
@@ -96,7 +96,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * 
 	 * @param modbus
 	 */
-	protected void unsetModbus(BridgeModbusTcp modbus) {
+	protected void unsetModbus(BridgeModbus modbus) {
 		this.modbus.compareAndSet(modbus, null);
 		if (modbus != null) {
 			modbus.removeProtocol(this.id());

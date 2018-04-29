@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition( //
 		name = "Modbus/TCP Bridge", //
 		description = "Provides a service for connecting to, querying and writing to a Modbus/TCP device.")
-@interface Config {
+@interface ConfigTcp {
 	String service_pid();
 
 	String id();

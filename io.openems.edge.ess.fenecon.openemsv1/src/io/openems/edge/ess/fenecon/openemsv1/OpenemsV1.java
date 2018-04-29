@@ -16,7 +16,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
-import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
@@ -58,11 +58,11 @@ public class OpenemsV1 extends AbstractOpenemsModbusComponent implements Openems
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	protected void setModbus(BridgeModbusTcp modbus) {
+	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
-	protected void unsetModbus(BridgeModbusTcp modbus) {
+	protected void unsetModbus(BridgeModbus modbus) {
 		super.unsetModbus(modbus);
 	}
 

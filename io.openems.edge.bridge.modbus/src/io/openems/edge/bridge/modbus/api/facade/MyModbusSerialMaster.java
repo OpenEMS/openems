@@ -5,8 +5,8 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 
 public class MyModbusSerialMaster extends ModbusSerialMaster implements MyModbusMaster {
 
-	public MyModbusSerialMaster(SerialParameters param) {
-		super(param);
+	public MyModbusSerialMaster(SerialParameters params) {
+		super(params);
 	}
 
 }

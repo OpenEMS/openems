@@ -33,9 +33,9 @@ import io.openems.edge.common.worker.AbstractWorker;
  * Abstract service for connecting to, querying and writing to a Modbus device
  * 
  */
-public abstract class AbstractBridgeModbusImpl extends AbstractOpenemsComponent implements EventHandler {
+public abstract class AbstractModbusBridge extends AbstractOpenemsComponent implements EventHandler {
 
-	private final Logger log = LoggerFactory.getLogger(AbstractBridgeModbusImpl.class);
+	private final Logger log = LoggerFactory.getLogger(AbstractModbusBridge.class);
 	private final ModbusWorker worker = new ModbusWorker();
 
 	/**
@@ -44,7 +44,7 @@ public abstract class AbstractBridgeModbusImpl extends AbstractOpenemsComponent 
 	 */
 	private final AtomicBoolean forceWrite = new AtomicBoolean(false);
 
-	public AbstractBridgeModbusImpl() {
+	public AbstractModbusBridge() {
 		Stream.of( //
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
