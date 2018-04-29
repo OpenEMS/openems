@@ -26,5 +26,4 @@ public interface ChannelId {
 	 * @return
 	 */
 	Doc doc();
-
 }

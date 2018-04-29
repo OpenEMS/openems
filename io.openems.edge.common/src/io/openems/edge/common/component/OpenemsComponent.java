@@ -29,7 +29,7 @@ public interface OpenemsComponent {
 	boolean isEnabled();
 
 	/**
-	 * Returns the Service PID. E.g. 'Ess.Fenecon.Commercial40'
+	 * Returns the Service PID.
 	 * 
 	 * @return
 	 */
@@ -134,15 +134,6 @@ public interface OpenemsComponent {
 	 */
 	public default String debugLog() {
 		return null;
-	}
-
-	/**
-	 * Outputs all channels and their values to stdout. Useful for debugging.
-	 */
-	public default void listAllChannels() {
-		this.channels().forEach(channel -> {
-			System.out.println(String.format("%-20s : %10s", channel.channelId(), channel.format()));
-		});
 	}
 
 	/**

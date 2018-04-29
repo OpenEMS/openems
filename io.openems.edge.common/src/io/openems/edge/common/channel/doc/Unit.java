@@ -62,6 +62,10 @@ public enum Unit {
 		return (int) (value * Math.pow(10, this.scaleFactor));
 	}
 
+	public String getSymbol() {
+		return symbol;
+	}
+
 	public String format(Object value, OpenemsType type) {
 		return value + " " + this.symbol;
 	}
