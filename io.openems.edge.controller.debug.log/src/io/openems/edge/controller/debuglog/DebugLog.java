@@ -28,14 +28,14 @@ import io.openems.edge.controller.api.Controller;
  *
  */
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.DebugLog", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
+@Component(name = "Controller.Debug.Log", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class DebugLog extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(DebugLog.class);
 
 	private List<OpenemsComponent> _components = new CopyOnWriteArrayList<>();
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE, target = "(!(service.factoryPid=Controller.DebugLog))")
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE, target = "(!(service.factoryPid=Controller.Debug.Log))")
 	void addComponent(OpenemsComponent component) {
 		if (component.isEnabled()) {
 			this._components.add(component);
@@ -70,10 +70,6 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 				b.append("[" + debugLog + "]");
 			}
 			b.append(" ");
-
-			// if (component.servicePid().equals("Meter.Janitza.UMG96RME")) {
-			// component.listAllChannels();
-			// }
 		});
 		logInfo(this.log, b.toString());
 	}
