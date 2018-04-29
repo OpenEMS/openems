@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
@@ -20,6 +21,8 @@ import io.openems.edge.common.channel.Channel;
  * @author stefan.feilmeier
  */
 public abstract class AbstractOpenemsComponent implements OpenemsComponent {
+
+	private final static AtomicInteger NEXT_GENERATED_COMPONENT_ID = new AtomicInteger(-1);
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsComponent.class);
 
@@ -39,7 +42,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param id
 	 */
 	protected void activate(ComponentContext context, String service_pid, String id, boolean enabled) {
-		this.id = id;
+		if (id == null || id.trim().equals("")) {
+			this.id = "_component" + AbstractOpenemsComponent.NEXT_GENERATED_COMPONENT_ID.incrementAndGet();
+		} else {
+			this.id = id;
+		}
 		this.servicePid = service_pid;
 		this.enabled = enabled;
 		if (isEnabled()) {
