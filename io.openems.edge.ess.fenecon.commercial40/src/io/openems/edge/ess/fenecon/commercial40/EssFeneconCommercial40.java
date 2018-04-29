@@ -27,13 +27,13 @@ import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
-import io.openems.edge.bridge.modbus.api.element.Priority;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
@@ -399,7 +399,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	@Override
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
 		return new ModbusProtocol(unitId, //
-				new FC3ReadRegistersTask(0x0101, //
+				new FC3ReadRegistersTask(0x0101, Priority.LOW, //
 						m(EssFeneconCommercial40.ChannelId.SYSTEM_STATE, new UnsignedWordElement(0x0101)),
 						m(EssFeneconCommercial40.ChannelId.CONTROL_MODE, new UnsignedWordElement(0x0102)),
 						new DummyRegisterElement(0x0103), // WorkMode: RemoteDispatch
@@ -434,7 +434,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x0127, 0x014F), //
 						m(EssFeneconCommercial40.ChannelId.BATTERY_STRING_SWITCH_STATE,
 								new UnsignedWordElement(0x0150))), //
-				new FC3ReadRegistersTask(0x0180, //
+				new FC3ReadRegistersTask(0x0180, Priority.LOW, //
 						bm(new UnsignedWordElement(0x0180)) //
 								.m(EssFeneconCommercial40.ChannelId.STATE_11, 0) //
 								.m(EssFeneconCommercial40.ChannelId.STATE_12, 1) //
@@ -566,7 +566,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 								.m(EssFeneconCommercial40.ChannelId.STATE_123, 6) //
 								.m(EssFeneconCommercial40.ChannelId.STATE_124, 14) //
 								.build() //
-				), new FC3ReadRegistersTask(0x0200, //
+				), new FC3ReadRegistersTask(0x0200, Priority.HIGH, //
 						m(EssFeneconCommercial40.ChannelId.BATTERY_VOLTAGE, new SignedWordElement(0x0200),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.BATTERY_CURRENT, new SignedWordElement(0x0201),
@@ -583,7 +583,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x020C, 0x020F), //
 						m(EssFeneconCommercial40.ChannelId.GRID_ACTIVE_POWER, new SignedWordElement(0x0210),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						cm(new SignedWordElement(0x0211).priority(Priority.HIGH)) //
+						cm(new SignedWordElement(0x0211)) //
 								.m(EssSymmetricReadonly.ChannelId.REACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
 								.m(EssSymmetricReadonly.ChannelId.CHARGE_REACTIVE_POWER,
@@ -607,7 +607,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						m(EssFeneconCommercial40.ChannelId.VOLTAGE_L3, new UnsignedWordElement(0x021B),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.FREQUENCY, new UnsignedWordElement(0x021C))), //
-				new FC3ReadRegistersTask(0x0222, //
+				new FC3ReadRegistersTask(0x0222, Priority.HIGH, //
 						m(EssFeneconCommercial40.ChannelId.INVERTER_VOLTAGE_L1, new UnsignedWordElement(0x0222),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.INVERTER_VOLTAGE_L2, new UnsignedWordElement(0x0223),
@@ -620,7 +620,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.INVERTER_CURRENT_L3, new SignedWordElement(0x0227),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						cm(new SignedWordElement(0x0228).priority(Priority.HIGH)) //
+						cm(new SignedWordElement(0x0228)) //
 								.m(EssSymmetricReadonly.ChannelId.ACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
 								.m(EssSymmetricReadonly.ChannelId.CHARGE_ACTIVE_POWER,
@@ -650,10 +650,10 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.SET_PV_POWER_LIMIT, new UnsignedWordElement(0x0503),
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
-				new FC3ReadRegistersTask(0xA000, //
+				new FC3ReadRegistersTask(0xA000, Priority.LOW, //
 						m(EssFeneconCommercial40.ChannelId.BMS_DCDC_WORK_STATE, new UnsignedWordElement(0xA000)), //
 						m(EssFeneconCommercial40.ChannelId.BMS_DCDC_WORK_MODE, new UnsignedWordElement(0xA001))), //
-				new FC3ReadRegistersTask(0xA100, //
+				new FC3ReadRegistersTask(0xA100, Priority.LOW, //
 						bm(new UnsignedWordElement(0xA100)) //
 								.m(EssFeneconCommercial40.ChannelId.STATE_125, 0) //
 								.m(EssFeneconCommercial40.ChannelId.STATE_126, 1) //
@@ -685,8 +685,8 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 								.m(EssFeneconCommercial40.ChannelId.STATE_148, 1) //
 								.m(EssFeneconCommercial40.ChannelId.STATE_149, 2) //
 								.build()), //
-				new FC3ReadRegistersTask(0x1402, //
-						m(Ess.ChannelId.SOC, new UnsignedWordElement(0x1402).priority(Priority.HIGH))));
+				new FC3ReadRegistersTask(0x1402, Priority.HIGH, //
+						m(Ess.ChannelId.SOC, new UnsignedWordElement(0x1402))));
 	}
 
 	@Override

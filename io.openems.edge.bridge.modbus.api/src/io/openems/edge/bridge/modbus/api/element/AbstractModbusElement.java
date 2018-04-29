@@ -90,21 +90,6 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 		return isDebug;
 	}
 
-	/*
-	 * Handle high priority elements. Those are queried in every cycle.
-	 */
-	private Priority priority = Priority.LOW;
-
-	public AbstractModbusElement<T> priority(Priority priority) {
-		this.priority = priority;
-		return this;
-	}
-
-	@Override
-	public Priority getPriority() {
-		return priority;
-	}
-
 	@Override
 	public String toString() {
 		return this.startAddress + "/0x" + Integer.toHexString(this.startAddress);

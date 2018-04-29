@@ -44,14 +44,6 @@ public interface ModbusElement<T> {
 	public boolean isIgnored();
 
 	/**
-	 * Gets the {@link Priority} of this Element. It is used to priority queries of
-	 * elements in order to best utilize the speed of the Modbus bus.
-	 * 
-	 * @return
-	 */
-	public Priority getPriority();
-
-	/**
 	 * Gets the type of this Register, e.g. INTEGER, BOOLEAN,..
 	 * 
 	 * @return

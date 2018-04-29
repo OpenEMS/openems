@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ArrayListMultimap;
 
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.bridge.modbus.api.element.Priority;
+import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
@@ -67,14 +67,7 @@ public class ModbusProtocol {
 		 */
 		if (task instanceof ReadTask) {
 			ReadTask readTask = (ReadTask) task;
-			// find highest priority of an element in the Task
-			Priority highestPriorityInTask = Priority.LOW;
-			for (ModbusElement<?> element : readTask.getElements()) {
-				if (element.getPriority().compareTo(highestPriorityInTask) > 0) {
-					highestPriorityInTask = element.getPriority();
-				}
-			}
-			this.readTasks.put(highestPriorityInTask, readTask);
+			this.readTasks.put(task.getPriority(), readTask);
 		}
 	}
 

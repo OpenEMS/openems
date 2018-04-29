@@ -27,7 +27,7 @@ public class FC16WriteRegistersTask extends Task implements WriteTask {
 	private final Logger log = LoggerFactory.getLogger(FC16WriteRegistersTask.class);
 
 	public FC16WriteRegistersTask(int startAddress, AbstractModbusElement<?>... elements) {
-		super(startAddress, elements);
+		super(startAddress, Priority.HIGH /* Write Tasks always have HIGH priority */, elements);
 	}
 
 	private class CombinedWriteRegisters {

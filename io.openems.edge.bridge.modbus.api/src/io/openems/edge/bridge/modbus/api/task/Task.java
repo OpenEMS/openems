@@ -14,12 +14,14 @@ public abstract class Task {
 
 	private final int length;
 	private final int startAddress;
+	private final Priority priority;
 
 	private ModbusElement<?>[] elements;
 	private int unitId; // this is always set by ModbusProtocol.addTask()
 
-	public Task(int startAddress, AbstractModbusElement<?>... elements) {
+	public Task(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
 		this.startAddress = startAddress;
+		this.priority = priority;
 		this.elements = elements;
 		for (AbstractModbusElement<?> element : elements) {
 			element.setModbusTask(this);
@@ -41,6 +43,10 @@ public abstract class Task {
 
 	public int getStartAddress() {
 		return startAddress;
+	}
+
+	public Priority getPriority() {
+		return priority;
 	}
 
 	public void setUnitId(int unitId) {

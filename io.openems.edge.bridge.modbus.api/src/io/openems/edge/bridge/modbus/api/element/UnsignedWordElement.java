@@ -36,11 +36,6 @@ public class UnsignedWordElement extends AbstractWordElement {
 	}
 
 	@Override
-	public UnsignedWordElement priority(Priority priority) {
-		return (UnsignedWordElement) super.priority(priority);
-	}
-
-	@Override
 	public void _setNextWriteValue(Optional<Integer> valueOpt) throws OpenemsException {
 		if (valueOpt.isPresent()) {
 			byte[] b = ByteBuffer.allocate(2).order(this.getByteOrder()).putShort(valueOpt.get().shortValue()).array();

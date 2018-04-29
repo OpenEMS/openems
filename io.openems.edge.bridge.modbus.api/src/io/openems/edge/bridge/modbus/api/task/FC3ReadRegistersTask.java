@@ -25,8 +25,8 @@ public class FC3ReadRegistersTask extends Task implements ReadTask {
 
 	private final Logger log = LoggerFactory.getLogger(FC3ReadRegistersTask.class);
 
-	public FC3ReadRegistersTask(int startAddress, AbstractModbusElement<?>... elements) {
-		super(startAddress, elements);
+	public FC3ReadRegistersTask(int startAddress, Priority priority, AbstractModbusElement<?>... elements) {
+		super(startAddress, priority, elements);
 	}
 
 	public void executeQuery(ModbusTCPMaster master) throws ModbusException {

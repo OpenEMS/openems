@@ -38,6 +38,14 @@ public interface ReadTask {
 	public int getStartAddress();
 
 	/**
+	 * Gets the Priority of this ReadTask. The higher the priority, the more often
+	 * the task is executed. (HIGH = execute in every cycle).
+	 * 
+	 * @return
+	 */
+	public Priority getPriority();
+
+	/**
 	 * Sends a query for this Task to the Modbus device
 	 * 
 	 * @param master

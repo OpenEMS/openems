@@ -21,6 +21,7 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.LongWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -95,7 +96,7 @@ public class OpenemsV1 extends AbstractOpenemsModbusComponent implements Openems
 	@Override
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
 		return new ModbusProtocol(unitId, //
-				new FC3ReadRegistersTask(0, //
+				new FC3ReadRegistersTask(0, Priority.LOW, //
 						m(OpenemsV1.ChannelId.VERSION_MAJOR, new UnsignedDoublewordElement(0))),
 				new FC16WriteRegistersTask(2, //
 						m(OpenemsV1.ChannelId.SET_MIN_SOC, new UnsignedDoublewordElement(2).debug())));
