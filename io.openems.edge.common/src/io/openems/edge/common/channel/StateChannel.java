@@ -10,6 +10,20 @@ import io.openems.edge.common.component.OpenemsComponent;
 
 public class StateChannel extends AbstractReadChannel<Integer> {
 
+	public enum States {
+		OK(0), WARNING(1), FAULT(2);
+
+		private final int value;
+
+		private States(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
+		}
+	}
+
 	private final Map<io.openems.edge.common.channel.doc.ChannelId, Channel<?>> channels = Collections
 			.synchronizedMap(new HashMap<>());
 

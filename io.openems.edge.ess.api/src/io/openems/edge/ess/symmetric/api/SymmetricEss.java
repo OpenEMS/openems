@@ -5,10 +5,10 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.ess.power.symmetric.SymmetricPower;
-import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
+import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
 @ProviderType
-public interface EssSymmetric extends EssSymmetricReadonly {
+public interface SymmetricEss extends SymmetricEssReadonly {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**

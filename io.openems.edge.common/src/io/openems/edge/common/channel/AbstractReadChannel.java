@@ -25,9 +25,18 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	private volatile T activeValue = null;
 
 	public AbstractReadChannel(OpenemsType type, OpenemsComponent component, ChannelId channelId) {
+		this(type, component, channelId, null);
+	}
+
+	public AbstractReadChannel(OpenemsType type, OpenemsComponent component, ChannelId channelId, T initialValue) {
 		this.type = type;
 		this.component = component;
 		this.channelId = channelId;
+		try {
+			this.setNextValue(initialValue);
+		} catch (OpenemsException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 
 	@Override

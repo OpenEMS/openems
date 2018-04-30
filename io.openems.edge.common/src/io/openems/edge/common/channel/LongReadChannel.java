@@ -10,4 +10,8 @@ public class LongReadChannel extends AbstractReadChannel<Long> {
 		super(OpenemsType.LONG, component, channelId);
 	}
 
+	public LongReadChannel(OpenemsComponent component, ChannelId channelId, Long initialValue) {
+		super(OpenemsType.LONG, component, channelId, initialValue);
+	}
+
 }

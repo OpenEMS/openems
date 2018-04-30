@@ -28,7 +28,7 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40;
-import io.openems.edge.ess.symmetric.api.EssSymmetric;
+import io.openems.edge.ess.symmetric.api.SymmetricEss;
 
 /**
  * Implements the FENECON Commercial 40 Charger
@@ -56,7 +56,7 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	protected void setEss(EssSymmetric ess) {
+	protected void setEss(SymmetricEss ess) {
 		if (ess instanceof EssFeneconCommercial40) {
 			this.ess.set((EssFeneconCommercial40) ess);
 		}

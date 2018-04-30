@@ -11,7 +11,7 @@ import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
+import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(EssFeneconCommercial40 c) {
@@ -28,9 +28,11 @@ public class Utils {
 					switch (channelId) {
 					case SOC:
 						return new IntegerReadChannel(c, channelId);
+					case GRID_MODE:
+						return new IntegerReadChannel(c, channelId, Ess.GridMode.UNDEFINED.ordinal());
 					}
 					return null;
-				}), Arrays.stream(EssSymmetricReadonly.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(SymmetricEssReadonly.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case ACTIVE_POWER:
 					case CHARGE_ACTIVE_POWER:
@@ -47,7 +49,6 @@ public class Utils {
 					case CONTROL_MODE:
 					case BATTERY_MAINTENANCE_STATE:
 					case INVERTER_STATE:
-					case GRID_MODE:
 					case PROTOCOL_VERSION:
 					case SYSTEM_MANUFACTURER:
 					case SYSTEM_TYPE:

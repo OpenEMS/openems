@@ -71,6 +71,33 @@ public interface Channel<T> {
 	T getActiveValue();
 
 	/**
+	 * Gets the currently active value as its String option. Enum options are
+	 * converted to Strings.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             no matching option was provided
+	 * @return
+	 */
+	default String getActiveValueOption() {
+		T valueObj = this.getActiveValue();
+		int value = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, valueObj);
+		return this.channelDoc().getOption(value);
+	}
+
+	/**
+	 * Gets the currently active value as its Enum option.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             no matching Enum option was provided
+	 * @return
+	 */
+	default Enum<?> getActiveValueOptionEnum() {
+		T valueObj = this.getActiveValue();
+		int value = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, valueObj);
+		return this.channelDoc().getOptionEnum(value);
+	}
+
+	/**
 	 * Formats the Channel. Can be used like toString()
 	 * 
 	 * @return

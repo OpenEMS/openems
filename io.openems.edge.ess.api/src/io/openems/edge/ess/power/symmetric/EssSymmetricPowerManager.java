@@ -14,7 +14,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
-import io.openems.edge.ess.symmetric.api.EssSymmetric;
+import io.openems.edge.ess.symmetric.api.SymmetricEss;
 
 /**
  * This helper component handles the ControllerExecuter Cycle for SymmetricPower
@@ -28,11 +28,11 @@ import io.openems.edge.ess.symmetric.api.EssSymmetric;
 public class EssSymmetricPowerManager implements EventHandler {
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private volatile List<EssSymmetric> components = new CopyOnWriteArrayList<>();
+	private volatile List<SymmetricEss> components = new CopyOnWriteArrayList<>();
 
 	@Override
 	public void handleEvent(Event event) {
-		for (EssSymmetric component : this.components) {
+		for (SymmetricEss component : this.components) {
 			SymmetricPower power = component.getPower();
 			switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:

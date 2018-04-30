@@ -173,10 +173,29 @@ public class ElementToChannelConverter {
 	private final Function<Object, Object> elementToChannel;
 	private final Function<Object, Object> channelToElement;
 
+	/**
+	 * This constructs and back-and-forth converter from Element to Channel and back
+	 * 
+	 * @param elementToChannel
+	 * @param channelToElement
+	 */
 	public ElementToChannelConverter(Function<Object, Object> elementToChannel,
 			Function<Object, Object> channelToElement) {
 		this.elementToChannel = elementToChannel;
 		this.channelToElement = channelToElement;
+	}
+
+	/**
+	 * This constructs a forward-only converter from Element to Channel.
+	 * Back-conversion throws an Exception.
+	 * 
+	 * @param elementToChannel
+	 */
+	public ElementToChannelConverter(Function<Object, Object> elementToChannel) {
+		this.elementToChannel = elementToChannel;
+		this.channelToElement = (value) -> {
+			throw new IllegalArgumentException("Backwards-Conversion for [" + value + "] is not implemented.");
+		};
 	}
 
 	/**

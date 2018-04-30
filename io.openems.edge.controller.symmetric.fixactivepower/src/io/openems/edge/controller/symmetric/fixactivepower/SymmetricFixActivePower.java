@@ -20,7 +20,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.power.symmetric.PEqualLimitation;
 import io.openems.edge.ess.power.symmetric.SymmetricPower;
-import io.openems.edge.ess.symmetric.api.EssSymmetric;
+import io.openems.edge.ess.symmetric.api.SymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Symmetric.FixActivePower", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -50,7 +50,7 @@ public class SymmetricFixActivePower extends AbstractOpenemsComponent implements
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private EssSymmetric ess;
+	private SymmetricEss ess;
 
 	@Deactivate
 	protected void deactivate() {

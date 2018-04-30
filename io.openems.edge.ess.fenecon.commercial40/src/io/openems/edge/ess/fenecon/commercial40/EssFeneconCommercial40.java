@@ -47,8 +47,8 @@ import io.openems.edge.ess.power.symmetric.QGreaterEqualLimitation;
 import io.openems.edge.ess.power.symmetric.QSmallerEqualLimitation;
 import io.openems.edge.ess.power.symmetric.SMaxLimitation;
 import io.openems.edge.ess.power.symmetric.SymmetricPower;
-import io.openems.edge.ess.symmetric.api.EssSymmetric;
-import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
+import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
 /**
  * Implements the FENECON Commercial 40 energy storage system.
@@ -64,7 +64,7 @@ import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
 public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
-		implements EssSymmetric, OpenemsComponent, EventHandler {
+		implements SymmetricEss, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
 
@@ -180,9 +180,6 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 				.option(32, "Ready") //
 				.option(64, "Start") //
 				.option(128, "Debug")), //
-		GRID_MODE(new Doc() //
-				.option(1, "Off-Grid") //
-				.option(2, "On-Grid")), //
 		PROTOCOL_VERSION(new Doc()), //
 		SYSTEM_MANUFACTURER(new Doc() //
 				.option(1, "BYD")), //
@@ -412,7 +409,16 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x0103), // WorkMode: RemoteDispatch
 						m(EssFeneconCommercial40.ChannelId.BATTERY_MAINTENANCE_STATE, new UnsignedWordElement(0x0104)),
 						m(EssFeneconCommercial40.ChannelId.INVERTER_STATE, new UnsignedWordElement(0x0105)),
-						m(EssFeneconCommercial40.ChannelId.GRID_MODE, new UnsignedWordElement(0x0106)),
+						m(Ess.ChannelId.GRID_MODE, new UnsignedWordElement(0x0106), //
+								new ElementToChannelConverter((value) -> {
+									switch (TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value)) {
+									case 1:
+										return Ess.GridMode.OFF_GRID.ordinal();
+									case 2:
+										return Ess.GridMode.ON_GRID.ordinal();
+									}
+									throw new IllegalArgumentException("Undefined GridMode [" + value + "]");
+								})),
 						new DummyRegisterElement(0x0107), //
 						m(EssFeneconCommercial40.ChannelId.PROTOCOL_VERSION, new UnsignedWordElement(0x0108)),
 						m(EssFeneconCommercial40.ChannelId.SYSTEM_MANUFACTURER, new UnsignedWordElement(0x0109)),
@@ -591,11 +597,11 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						m(EssFeneconCommercial40.ChannelId.GRID_ACTIVE_POWER, new SignedWordElement(0x0210),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						cm(new SignedWordElement(0x0211)) //
-								.m(EssSymmetricReadonly.ChannelId.REACTIVE_POWER,
+								.m(SymmetricEssReadonly.ChannelId.REACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(EssSymmetricReadonly.ChannelId.CHARGE_REACTIVE_POWER,
+								.m(SymmetricEssReadonly.ChannelId.CHARGE_REACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(EssSymmetricReadonly.ChannelId.DISCHARGE_REACTIVE_POWER,
+								.m(SymmetricEssReadonly.ChannelId.DISCHARGE_REACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_POSITIVE) //
 								.build(), //
 						m(EssFeneconCommercial40.ChannelId.APPARENT_POWER, new UnsignedWordElement(0x0212),
@@ -628,11 +634,11 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						m(EssFeneconCommercial40.ChannelId.INVERTER_CURRENT_L3, new SignedWordElement(0x0227),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						cm(new SignedWordElement(0x0228)) //
-								.m(EssSymmetricReadonly.ChannelId.ACTIVE_POWER,
+								.m(SymmetricEssReadonly.ChannelId.ACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(EssSymmetricReadonly.ChannelId.CHARGE_ACTIVE_POWER,
+								.m(SymmetricEssReadonly.ChannelId.CHARGE_ACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(EssSymmetricReadonly.ChannelId.DISCHARGE_ACTIVE_POWER,
+								.m(SymmetricEssReadonly.ChannelId.DISCHARGE_ACTIVE_POWER,
 										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_POSITIVE) //
 								.build(), //
 						new DummyRegisterElement(0x0229, 0x022F), //
@@ -701,7 +707,8 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		return "SoC:" + this.getSoc().format() //
 				+ "|L:" + this.getActivePower().format() //
 				+ "|Allowed:" + this.channel(ChannelId.ALLOWED_CHARGE).getActiveValue() + ";"
-				+ this.channel(ChannelId.ALLOWED_DISCHARGE).format();
+				+ this.channel(ChannelId.ALLOWED_DISCHARGE).format() //
+				+ "|" + this.getGridMode().getActiveValueOption();
 	}
 
 	@Override

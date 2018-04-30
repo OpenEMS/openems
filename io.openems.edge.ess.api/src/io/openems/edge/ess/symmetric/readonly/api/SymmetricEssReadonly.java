@@ -8,7 +8,7 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.ess.api.Ess;
 
 @ProviderType
-public interface EssSymmetricReadonly extends Ess {
+public interface SymmetricEssReadonly extends Ess {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		ACTIVE_POWER(new Doc().unit(Unit.WATT).text("negative values for Charge; positive for Discharge")), //
