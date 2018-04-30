@@ -9,7 +9,7 @@ Export-Package: \
 	io.openems.edge.bridge.modbus.api.task,\
 	io.openems.edge.bridge.modbus.api.element,\
 	io.openems.edge.bridge.modbus.api.facade,\
-	io.openems.edge.bridge.modbus.impl
+	io.openems.edge.bridge.modbus
 
 -includeresource: {readme.md}
 

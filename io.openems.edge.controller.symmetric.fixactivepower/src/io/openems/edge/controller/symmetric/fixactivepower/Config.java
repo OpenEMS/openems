@@ -4,14 +4,14 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Symmetric Fix-Value Controller", //
+		name = "Symmetric Fix-Active Power Controller", //
 		description = "Defines a fixed charge/discharge power to a symmetric energy storage system.")
 @interface Config {
 	String service_pid();
 
-	String id();
+	String id() default "ctrlFixActivePower0";
 
-	boolean enabled();
+	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess device.")
 	String ess_id();

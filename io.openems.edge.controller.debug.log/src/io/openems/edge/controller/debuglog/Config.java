@@ -8,9 +8,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @interface Config {
 	String service_pid();
 
-	String id();
+	String id() default "ctrlDebugLog0";
 
-	boolean enabled();
+	boolean enabled() default true;
 
 	String webconsole_configurationFactory_nameHint() default "Debug Log Controller [{id}]";
 }

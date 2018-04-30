@@ -73,8 +73,9 @@ public enum Unit {
 	public String formatAsBaseUnit(Object value, OpenemsType type) {
 		if (this.baseUnit != null) {
 			switch (type) {
-			case LONG:
+			case SHORT:
 			case INTEGER:
+			case LONG:
 			case FLOAT:
 				return this.baseUnit.formatAsBaseUnit(this.getAsBaseUnit((int) value), type);
 			case BOOLEAN:

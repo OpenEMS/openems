@@ -9,7 +9,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	String id();
 
-	boolean enabled();
+	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id();

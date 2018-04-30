@@ -11,7 +11,7 @@ JPM-Command:				openems-edge
 
 -runproperties: \
 	configFile=./resources/config.json,\
-	felix.cm.dir=c:/openems-config,\
+	felix.cm.dir=/home/fems/etc-openems/,\
 	org.ops4j.pax.logging.DefaultServiceLog.level=INFO,\
 	org.ops4j.pax.logging.service.frameworkEventsLogLevel="DISABLED"
 

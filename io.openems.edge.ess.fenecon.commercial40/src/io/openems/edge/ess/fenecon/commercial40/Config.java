@@ -9,9 +9,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @interface Config {
 	String service_pid();
 
-	String id();
+	String id() default "ess0";
 
-	boolean enabled();
+	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus brige.")
 	String modbus_id();

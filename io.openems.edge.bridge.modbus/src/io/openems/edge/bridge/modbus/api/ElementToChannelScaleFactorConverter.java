@@ -33,10 +33,17 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 			// new OpenemsType was added. ("The enum constant XXX needs a corresponding case
 			// label in this enum switch on OpenemsType")
 			switch (openemsType) {
-			case INTEGER:
 			case BOOLEAN:
+			case SHORT:
+			case INTEGER:
 			case LONG:
 			case FLOAT:
+				if (value instanceof Boolean) {
+					return (boolean) value;
+				}
+				if (value instanceof Short) {
+					return (short) ((short) value * Math.pow(10, scaleFactor * -1));
+				}
 				if (value instanceof Integer) {
 					return (int) ((int) value * Math.pow(10, scaleFactor * -1));
 				}

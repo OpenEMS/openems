@@ -9,9 +9,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @interface Config {
 	String service_pid();
 
-	String id();
+	String id() default "ctrlDetailedLog0";
 
-	boolean enabled();
+	boolean enabled() default true;
 
 	@AttributeDefinition(name = "Component-IDs", description = "IDs of OpenemsComponents.")
 	String[] component_ids() default {};

@@ -34,8 +34,6 @@ public class FC3ReadRegistersTask extends Task implements ReadTask {
 		int startAddress = this.getStartAddress();
 		int length = this.getLength();
 		Register[] registers;
-		// log.debug("FC3 Read Holding Registers [" + startAddress + "/0x" +
-		// Integer.toHexString(startAddress) + "]");
 		try {
 			registers = master.readMultipleRegisters(this.getUnitId(), startAddress, length);
 		} catch (ClassCastException e) {

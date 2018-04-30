@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.modbus.impl;
+package io.openems.edge.bridge.modbus;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;

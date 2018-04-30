@@ -20,56 +20,48 @@
  *******************************************************************************/
 package io.openems.impl.protocol.modbus.internal;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
-import com.ghgande.j2mod.modbus.procimg.InputRegister;
-import com.ghgande.j2mod.modbus.procimg.Register;
-import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
-
-import io.openems.impl.protocol.modbus.ModbusChannel;
-import io.openems.impl.protocol.modbus.ModbusElement;
-
-public class SignedDoublewordElement extends ModbusElement<Long> implements DoublewordElement {
-	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-	private WordOrder wordOrder = WordOrder.MSWLSW;
-
-	public SignedDoublewordElement(int address, ModbusChannel<Long> channel) {
-		super(address, channel);
-	}
-
-	@Override public int getLength() {
-		return 2;
-	}
-
-	@Override public void setValue(InputRegister register1, InputRegister register2) {
-		ByteBuffer buff = ByteBuffer.allocate(4).order(byteOrder);
-		if (wordOrder == WordOrder.MSWLSW) {
-			buff.put(register1.toBytes());
-			buff.put(register2.toBytes());
-		} else {
-			buff.put(register2.toBytes());
-			buff.put(register1.toBytes());
-		}
-		setValue(Long.valueOf(buff.order(byteOrder).getInt(0)));
-	}
-
-	@Override public Register[] toRegisters(Long value) {
-		byte[] b = ByteBuffer.allocate(4).order(byteOrder).putInt(value.intValue()).array();
-		if (wordOrder == WordOrder.MSWLSW) {
-			return new Register[] { new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) };
-		} else {
-			return new Register[] { new SimpleRegister(b[2], b[3]), new SimpleRegister(b[0], b[1]) };
-		}
-	}
-
-	public SignedDoublewordElement wordorder(WordOrder order) {
-		this.wordOrder = order;
-		return this;
-	}
-
-	public SignedDoublewordElement byteorder(ByteOrder order) {
-		this.byteOrder = order;
-		return this;
-	}
+public class SignedDoublewordElement  {
+	// MOVED TO OSGi
+	//extends ModbusElement<Long> implements DoublewordElement {
+	//	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+	//	private WordOrder wordOrder = WordOrder.MSWLSW;
+	//
+	//	public SignedDoublewordElement(int address, ModbusChannel<Long> channel) {
+	//		super(address, channel);
+	//	}
+	//
+	//	@Override public int getLength() {
+	//		return 2;
+	//	}
+	//
+	//	@Override public void setValue(InputRegister register1, InputRegister register2) {
+	//		ByteBuffer buff = ByteBuffer.allocate(4).order(byteOrder);
+	//		if (wordOrder == WordOrder.MSWLSW) {
+	//			buff.put(register1.toBytes());
+	//			buff.put(register2.toBytes());
+	//		} else {
+	//			buff.put(register2.toBytes());
+	//			buff.put(register1.toBytes());
+	//		}
+	//		setValue(Long.valueOf(buff.order(byteOrder).getInt(0)));
+	//	}
+	//
+	//	@Override public Register[] toRegisters(Long value) {
+	//		byte[] b = ByteBuffer.allocate(4).order(byteOrder).putInt(value.intValue()).array();
+	//		if (wordOrder == WordOrder.MSWLSW) {
+	//			return new Register[] { new SimpleRegister(b[0], b[1]), new SimpleRegister(b[2], b[3]) };
+	//		} else {
+	//			return new Register[] { new SimpleRegister(b[2], b[3]), new SimpleRegister(b[0], b[1]) };
+	//		}
+	//	}
+	//
+	//	public SignedDoublewordElement wordorder(WordOrder order) {
+	//		this.wordOrder = order;
+	//		return this;
+	//	}
+	//
+	//	public SignedDoublewordElement byteorder(ByteOrder order) {
+	//		this.byteOrder = order;
+	//		return this;
+	//	}
 }

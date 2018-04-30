@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.modbus.impl;
+package io.openems.edge.bridge.modbus;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -9,6 +9,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.util.SerialParameters;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -79,6 +80,8 @@ public class BridgeModbusSerial extends AbstractModbusBridge implements BridgeMo
 		params.setDatabits(this.databits);
 		params.setStopbits(this.stopbits);
 		params.setParity(this.parity);
+		params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
+		params.setEcho(false);
 		return new MyModbusSerialMaster(params);
 	}
 }

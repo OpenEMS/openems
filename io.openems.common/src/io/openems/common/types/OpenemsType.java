@@ -1,5 +1,6 @@
 package io.openems.common.types;
 
 public enum OpenemsType {
-	LONG, INTEGER, BOOLEAN, FLOAT;
+	BOOLEAN, SHORT, INTEGER, LONG, //
+	FLOAT;
 }

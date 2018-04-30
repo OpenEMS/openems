@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.modbus.impl;
+package io.openems.edge.bridge.modbus;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -9,12 +9,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @interface ConfigTcp {
 	String service_pid();
 
-	String id();
+	String id() default "modbus0";
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Modbus/TCP device.")
 	String ip();
 
-	boolean enabled();
+	boolean enabled() default true;
 
 	String webconsole_configurationFactory_nameHint() default "Modbus/TCP Bridge [{id}]";
 }

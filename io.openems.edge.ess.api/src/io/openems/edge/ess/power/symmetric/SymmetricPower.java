@@ -298,7 +298,7 @@ public class SymmetricPower {
 		// TODO for (BeforePowerWriteListener listener : this.beforeWriteListeners) {
 		// listener.beforeWritePower();
 		// }
-		if (this.dynamicLimitations.size() > 0) {
+		if (!this.dynamicLimitations.isEmpty()) {
 			Point p = this.reduceToZero();
 			Coordinate c = p.getCoordinate();
 			try {

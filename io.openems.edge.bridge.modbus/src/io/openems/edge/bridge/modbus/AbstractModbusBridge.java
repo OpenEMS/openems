@@ -1,4 +1,4 @@
-package io.openems.edge.bridge.modbus.impl;
+package io.openems.edge.bridge.modbus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
