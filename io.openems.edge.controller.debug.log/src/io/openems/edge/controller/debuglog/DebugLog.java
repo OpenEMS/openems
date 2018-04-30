@@ -64,12 +64,11 @@ public class DebugLog extends AbstractOpenemsComponent implements Controller, Op
 		 * of those channelIds and their current values.
 		 */
 		this._components.stream().forEach(component -> {
-			b.append(component.id());
 			String debugLog = component.debugLog();
 			if (debugLog != null) {
-				b.append("[" + debugLog + "]");
+				b.append(component.id());
+				b.append("[" + debugLog + "] ");
 			}
-			b.append(" ");
 		});
 		logInfo(this.log, b.toString());
 	}
