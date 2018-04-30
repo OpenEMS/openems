@@ -27,9 +27,6 @@ import io.openems.edge.scheduler.api.Scheduler;
 /**
  * This Scheduler takes a list of Component IDs and returns the Controllers
  * statically sorted by this order.
- * 
- * @author stefan.feilmeier
- *
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Scheduler.FixedOrder", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
