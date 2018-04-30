@@ -4,8 +4,7 @@
 
 Bundle-Version:					1.0.0.${tstamp}
 
-Export-Package:  \
-	io.openems.edge.controller.symmetric.fixactivepower.api;-provide=true
+Export-Package: io.openems.edge.controller.api
 
 Private-Package:  \
 	io.openems.edge.controller.symmetric.fixactivepower

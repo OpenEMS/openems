@@ -11,8 +11,29 @@ import io.openems.edge.ess.symmetric.readonly.api.EssSymmetricReadonly;
 public interface EssSymmetric extends EssSymmetricReadonly {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		/**
+		 * Set Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
 		SET_ACTIVE_POWER(new Doc().unit(Unit.WATT).text("negative values for Charge; positive for Discharge")), //
-		SET_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE));
+		/**
+		 * Set Reactive Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
+		SET_REACTIVE_POWER(
+				new Doc().unit(Unit.VOLT_AMPERE_REACTIVE).text("negative values for Charge; positive for Discharge"));
 
 		private final Doc doc;
 
@@ -32,4 +53,5 @@ public interface EssSymmetric extends EssSymmetricReadonly {
 	 * @return
 	 */
 	public SymmetricPower getPower();
+
 }

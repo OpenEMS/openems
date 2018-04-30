@@ -80,6 +80,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		super.deactivate();
 	}
 
+	public Integer getUnitId() {
+		return unitId;
+	}
+
 	private AtomicReference<BridgeModbus> modbus = new AtomicReference<BridgeModbus>(null);
 
 	/**

@@ -9,7 +9,8 @@ Export-Package: \
 	io.openems.edge.ess.symmetric.api,\
 	io.openems.edge.ess.symmetric.readonly.api,\
 	io.openems.edge.ess.power,\
-	io.openems.edge.ess.power.symmetric
+	io.openems.edge.ess.power.symmetric,\
+	io.openems.edge.ess.dccharger.api
 	
 -includeresource: {readme.md}
 

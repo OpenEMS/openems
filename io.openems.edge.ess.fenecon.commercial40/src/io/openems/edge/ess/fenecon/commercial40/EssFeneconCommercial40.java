@@ -78,6 +78,8 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	private final PGreaterEqualLimitation allowedChargeLimit;
 	private final PSmallerEqualLimitation allowedDischargeLimit;
 
+	private String modbusBridgeId;
+
 	@Reference
 	protected ConfigurationAdmin cm;
 
@@ -139,11 +141,16 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
+		this.modbusBridgeId = config.modbus_id();
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	public String getModbusBridgeId() {
+		return modbusBridgeId;
 	}
 
 	private enum SetWorkState {

@@ -1,4 +1,4 @@
-package io.openems.edge.ess.api;
+package io.openems.edge.ess.dccharger.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -8,20 +8,20 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
-public interface Ess extends OpenemsComponent {
+public interface EssDcCharger extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
-		 * State of Charge
+		 * Actual Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess
+		 * <li>Interface: Ess DC Charger
 		 * <li>Type: Integer
-		 * <li>Unit: %
-		 * <li>Range: 0..100
+		 * <li>Unit: W
+		 * <li>Range: positive
 		 * </ul>
 		 */
-		SOC(new Doc().unit(Unit.PERCENT));
+		DC_ACTUAL_POWER(new Doc().unit(Unit.WATT)); //
 
 		private final Doc doc;
 
@@ -29,18 +29,19 @@ public interface Ess extends OpenemsComponent {
 			this.doc = doc;
 		}
 
-		@Override
 		public Doc doc() {
 			return this.doc;
 		}
 	}
 
 	/**
-	 * Gets the State of Charge in [%], range 0..100 %
+	 * Gets the Actual Power
+	 * 
+	 * @see EssDcCharger.ChannelId#DC_ACTUAL_POWER
 	 * 
 	 * @return
 	 */
-	default Channel<Integer> getSoc() {
-		return this.channel(ChannelId.SOC);
+	default Channel<Integer> getActualPower() {
+		return this.channel(ChannelId.DC_ACTUAL_POWER);
 	}
 }

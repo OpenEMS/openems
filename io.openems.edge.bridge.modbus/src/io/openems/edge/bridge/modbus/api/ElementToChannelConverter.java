@@ -179,12 +179,6 @@ public class ElementToChannelConverter {
 		this.channelToElement = channelToElement;
 	}
 
-	public ElementToChannelConverter(Function<Object, Object> elementToChannel,
-			Function<Object, Object> channelToElement, ElementToChannelConverter nextConverter) {
-		this.elementToChannel = elementToChannel.andThen(nextConverter.elementToChannel);
-		this.channelToElement = channelToElement.andThen(nextConverter.channelToElement);
-	}
-
 	/**
 	 * Convert an Element value to a Channel value. If the value can or should not
 	 * be converted, this method returns null.
