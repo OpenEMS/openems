@@ -30,7 +30,8 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.socomec.dirisa14)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.commercial40)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)'
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)'
 
 -resolve: auto
 -runbundles: \
@@ -69,4 +70,5 @@ JPM-Command:				openems-edge
 	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
-	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot
+	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
+	io.openems.edge.controller.symmetric.balancing;version=snapshot
