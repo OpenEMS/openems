@@ -90,16 +90,9 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 			component.channels().stream() //
 					.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name())) //
 					.forEach(channel -> {
-						Object valueObj = channel.getActiveValue();
-						String value;
-						if (valueObj == null) {
-							value = "_undefined_";
-						} else {
-							value = valueObj.toString();
-						}
 						String unit = channel.channelDoc().getUnit().getSymbol();
 						this.logInfo(this.log, String.format("%-" + WIDTH_FIRST + "s : %15s %s",
-								channel.channelId().id(), value, unit));
+								channel.channelId().id(), channel.formatWithoutUnit(), unit));
 					});
 			logInfo(this.log, "---------------------------------------");
 		});

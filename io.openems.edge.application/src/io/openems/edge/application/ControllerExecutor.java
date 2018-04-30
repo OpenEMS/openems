@@ -113,7 +113,14 @@ public class ControllerExecutor extends AbstractWorker {
 					return;
 				}
 				scheduler.getControllers().stream().filter(c -> c.isEnabled()).forEach(controller -> {
-					controller.run();
+					try {
+						controller.run();
+					} catch (Exception e) {
+						log.warn("Error in Controller. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+						if (e instanceof ClassCastException || e instanceof NullPointerException) {
+							e.printStackTrace();
+						}
+					}
 				});
 			});
 

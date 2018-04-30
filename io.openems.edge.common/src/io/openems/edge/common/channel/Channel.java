@@ -1,7 +1,9 @@
 package io.openems.edge.common.channel;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -9,6 +11,8 @@ import io.openems.common.utils.TypeUtils;
 import io.openems.edge.common.channel.doc.Doc;
 
 public interface Channel<T> {
+
+	public final static String UNDEFINED_VALUE_STRING = "UNDEFINED";
 
 	/**
 	 * Gets the ChannelId of this Channel
@@ -64,11 +68,33 @@ public interface Channel<T> {
 	public void _setNextValue(T value);
 
 	/**
-	 * Gets the currently active value
+	 * Gets the currently active value or Null
 	 * 
 	 * @return
 	 */
-	T getActiveValue();
+	T getActiveValueOrNull();
+
+	/**
+	 * Gets the currently active value or throws an Exception on Null
+	 * 
+	 * @return
+	 */
+	default T getActiveValue() throws InvalidValueException {
+		T value = this.getActiveValueOrNull();
+		if (value != null) {
+			return value;
+		}
+		throw new InvalidValueException("Value for Channel [" + this.address() + "] is invalid.");
+	}
+
+	/**
+	 * Gets the currently active value as an Optional.
+	 * 
+	 * @return
+	 */
+	default Optional<T> getActiveValueOpt() {
+		return Optional.ofNullable(this.getActiveValueOrNull());
+	};
 
 	/**
 	 * Gets the currently active value as its String option. Enum options are
@@ -78,9 +104,12 @@ public interface Channel<T> {
 	 *             no matching option was provided
 	 * @return
 	 */
-	default String getActiveValueOption() {
-		T valueObj = this.getActiveValue();
-		int value = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, valueObj);
+	default String getActiveValueOption() throws IllegalArgumentException {
+		Optional<T> valueOpt = this.getActiveValueOpt();
+		if (!valueOpt.isPresent()) {
+			return Channel.UNDEFINED_VALUE_STRING;
+		}
+		int value = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, valueOpt.get());
 		return this.channelDoc().getOption(value);
 	}
 
@@ -90,8 +119,9 @@ public interface Channel<T> {
 	 * @throws IllegalArgumentException
 	 *             no matching Enum option was provided
 	 * @return
+	 * @throws InvalidValueException
 	 */
-	default Enum<?> getActiveValueOptionEnum() {
+	default Enum<?> getActiveValueOptionEnum() throws InvalidValueException {
 		T valueObj = this.getActiveValue();
 		int value = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, valueObj);
 		return this.channelDoc().getOptionEnum(value);
@@ -103,7 +133,20 @@ public interface Channel<T> {
 	 * @return
 	 */
 	default String format() {
-		return this.channelDoc().getUnit().format(this.getActiveValue(), this.getType());
+		return this.channelDoc().getUnit().format(this.formatWithoutUnit(), this.getType());
+	}
+
+	/**
+	 * Formats the Channel. Can be used like toString()
+	 * 
+	 * @return
+	 */
+	default String formatWithoutUnit() {
+		Object value = this.getActiveValueOrNull();
+		if (value == null) {
+			return Channel.UNDEFINED_VALUE_STRING;
+		}
+		return value.toString();
 	}
 
 	/**

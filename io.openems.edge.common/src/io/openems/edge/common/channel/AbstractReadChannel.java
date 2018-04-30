@@ -63,7 +63,7 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	}
 
 	@Override
-	public T getActiveValue() {
+	public T getActiveValueOrNull() {
 		return activeValue;
 	}
 
