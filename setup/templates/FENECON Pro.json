@@ -64,7 +64,8 @@
 				"meters": [
 					"meter0",
 					"meter1"
-				]
+				],
+				"rtc": "ess0"
 			},
 			{
 				"priority": 100,
@@ -76,13 +77,6 @@
 				"class": "io.openems.impl.controller.symmetric.balancing.BalancingController",
 				"esss": "ess1",
 				"meter": "meter0"
-			},
-			{
-				"class": "io.openems.impl.controller.systemstate.alwayson.AlwaysOnController",
-				"priority": 0,
-				"esss": [
-					"ess0"
-				]
 			},
 			{
 				"priority": 1,
@@ -101,7 +95,7 @@
 			"class": "io.openems.impl.persistence.influxdb.InfluxdbPersistence",
 			"ip": "127.0.0.1",
 			"fems": "###FEMS_ID###"
-		},
+		},	
 		{
 			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence",
 			"apikey": "###APIKEY###"

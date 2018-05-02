@@ -36,27 +36,13 @@
 						"id": "meter0",
 						"type": "grid"
 					}
-				}
-			]
-		},
-		{
-			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
-			"serialinterface": "/dev/ttyUSB1",
-			"baudrate": 9600,
-			"databits": 8,
-			"parity": "none",
-			"stopbits": 1,
-			"devices": [
+				},
 				{
-					"class": "io.openems.impl.device.pro.FeneconPro",
-					"modbusUnitId": 4,
-					"ess": {
-						"id": "ess1",
-						"minSoc": 15
+					"class": "io.openems.impl.device.kmtronic.KMTronicRelayRev1",
+					"output": {
+						"id": "output0"
 					},
-					"meter": {
-						"id": "meter2"
-					}
+					"modbusUnitId": 1
 				}
 			]
 		}
@@ -67,24 +53,48 @@
 			{
 				"priority": 150,
 				"class": "io.openems.impl.controller.debuglog.DebugLogController",
-				"esss": [ "ess0", "ess1" ],
-				"meters": [ "meter0", "meter1", "meter2" ]
+				"esss": [
+					"ess0"
+				],
+				"meters": [
+					"meter0",
+					"meter1"
+				],
+				"outputs": "output0"
 			},
 			{
 				"priority": 100,
 				"class": "io.openems.impl.controller.asymmetric.avoidtotaldischarge.AvoidTotalDischargeController",
-				"esss": [ "ess0", "ess1" ]
+				"esss": "ess0"
 			},
 			{
 				"priority": 50,
 				"class": "io.openems.impl.controller.asymmetric.balancing.BalancingController",
-				"esss": [ "ess0", "ess1" ],
+				"esss": "ess0",
 				"meter": "meter0"
 			},
 			{
 				"priority": 1,
 				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
 				"rtc": "ess0"
+			},
+			{
+				"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+				"priority": 60,
+				"thresholdChannelAddress": "ess0/Soc",
+				"outputChannelAddress": "output0/2",
+				"lowerThreshold": 0,
+				"upperThreshold": 40,
+				"hysteresis": 5
+			},
+			{
+				"class": "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+				"priority": 65,
+				"thresholdChannelAddress": "ess0/Soc",
+				"outputChannelAddress": "output0/3",
+				"lowerThreshold": 75,
+				"upperThreshold": 100,
+				"hysteresis": 5
 			},
 			{
 				"class": "io.openems.impl.controller.asymmetricsymmetriccombination.AsymmetricSymmetricCombinationController",

@@ -20,6 +20,16 @@
 					}
 				},
 				{
+					"class": "io.openems.impl.device.system.asymmetricsymmetriccombinationess.AsymmetricSymmetricCombinationEss",
+					"wrapper": {
+						"id": "ess1",
+						"class": "io.openems.impl.device.system.asymmetricsymmetriccombinationess.AsymmetricSymmetricCombinationEssNature",
+						"ess": "ess0",
+						"chargeSoc": 0,
+						"minSoc": 0
+					}
+				},
+				{
 					"class": "io.openems.impl.device.socomec.Socomec",
 					"modbusUnitId": 5,
 					"meter": {
@@ -89,6 +99,11 @@
 				"lowerThreshold": 96,
 				"upperThreshold": 100,
 				"hysteresis": 5
+			},
+			{
+				"class": "io.openems.impl.controller.asymmetricsymmetriccombination.AsymmetricSymmetricCombinationController",
+				"ess": "ess1",
+				"priority": 0
 			}
 		]
 	},
