@@ -14,4 +14,8 @@ public class IntegerReadChannel extends AbstractReadChannel<Integer> {
 		super(OpenemsType.INTEGER, component, channelId, initialValue);
 	}
 
+	public IntegerReadChannel(OpenemsComponent component, ChannelId channelId, Enum<?> initialValueEnum) {
+		this(component, channelId, initialValueEnum.ordinal());
+	}
+
 }
