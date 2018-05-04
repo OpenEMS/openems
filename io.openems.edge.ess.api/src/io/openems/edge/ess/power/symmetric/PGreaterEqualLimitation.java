@@ -15,21 +15,23 @@ public class PGreaterEqualLimitation extends Limitation {
 	}
 
 	public PGreaterEqualLimitation setP(Integer p) {
-		if (p != this.p) {
-			if (p != null) {
-				long pMin = p;
-				long pMax = power.getMaxApparentPower() + 1;
-				long qMin = power.getMaxApparentPower() * -1 - 1;
-				long qMax = power.getMaxApparentPower() + 1;
-				Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax), new Coordinate(pMin, qMin),
-						new Coordinate(pMax, qMin), new Coordinate(pMax, qMax), new Coordinate(pMin, qMax) };
-				this.rect = Utils.FACTORY.createPolygon(coordinates);
-			} else {
-				this.rect = null;
-			}
-			this.p = p;
-			this.emitOnChangeEvent();
+		if (p == this.p || (p != null && p.equals(this.p))) {
+			return this;
 		}
+
+		if (p != null) {
+			long pMin = p - 1;
+			long pMax = power.getMaxApparentPower() + 1;
+			long qMin = power.getMaxApparentPower() * -1 - 1;
+			long qMax = power.getMaxApparentPower() + 1;
+			Coordinate[] coordinates = new Coordinate[] { new Coordinate(pMin, qMax), new Coordinate(pMin, qMin),
+					new Coordinate(pMax, qMin), new Coordinate(pMax, qMax), new Coordinate(pMin, qMax) };
+			this.rect = Utils.FACTORY.createPolygon(coordinates);
+		} else {
+			this.rect = null;
+		}
+		this.p = p;
+		this.emitOnChangeEvent();
 		return this;
 	}
 
