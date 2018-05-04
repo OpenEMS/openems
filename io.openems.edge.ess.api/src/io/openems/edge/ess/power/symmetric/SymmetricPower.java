@@ -31,10 +31,6 @@ public class SymmetricPower {
 	private Optional<Integer> maxQ;
 	private int maxApparentPower = 0;
 
-	// private final List<Consumer<Geometry>> onResetListeners;
-	// private final List<Consumer<Geometry>> onChangeListeners;
-	// TODO private final List<BeforePowerWriteListener> beforeWriteListeners;
-
 	public SymmetricPower(int maxApparentPower, BiConsumer<Integer, Integer> onWriteListener) {
 		if (maxApparentPower < 0) {
 			throw new IllegalArgumentException("MaxApprentPower [" + maxApparentPower + "] must be positive!");
@@ -42,9 +38,6 @@ public class SymmetricPower {
 		this.maxApparentPower = maxApparentPower;
 		this.geometries = new ArrayList<>();
 		this.onWriteListener = onWriteListener;
-		// this.onResetListeners = Collections.synchronizedList(new ArrayList<>());
-		// this.onChangeListeners = Collections.synchronizedList(new ArrayList<>());
-		// this.beforeWriteListeners = Collections.synchronizedList(new ArrayList<>());
 
 		createBaseGeometry();
 		reset();
@@ -64,22 +57,19 @@ public class SymmetricPower {
 	}
 
 	/**
-	 * updates the geometrie, calculates the min and max power and notifies all
+	 * updates the geometry, calculates the min and max power and notifies all
 	 * powerChangedListener
 	 *
 	 * @param g
 	 * @throws PowerException
 	 */
-	protected void setGeometry(Geometry g) throws PowerException {
+	private void setGeometry(Geometry g) throws PowerException {
 		if (g.isEmpty()) {
 			throw new PowerException("Geometry is Empty!");
 		}
 		this.geometry = g;
 		this.geometries.add(g);
 		this.calculateMinMax();
-		// for (Consumer<Geometry> listener : this.onChangeListeners) {
-		// listener.accept(g);
-		// }
 	}
 
 	/**
@@ -132,61 +122,6 @@ public class SymmetricPower {
 		return Optional.empty();
 	}
 
-	// /**
-	// * Add OnResetListener
-	// *
-	// * @param listener
-	// */
-	// public void addOnResetListener(Consumer<Geometry> listener) {
-	// this.onResetListeners.add(listener);
-	// }
-	//
-	// /**
-	// * Remove OnResetListener
-	// *
-	// * @param listener
-	// */
-	// public void removeOnResetListener(Consumer<Geometry> listener) {
-	// this.onResetListeners.remove(listener);
-	// }
-	//
-	// /**
-	// * Add OnChangeListener
-	// *
-	// * @param listener
-	// */
-	// public void addOnChangeListener(Consumer<Geometry> listener) {
-	// this.onChangeListeners.add(listener);
-	// }
-	//
-	// /**
-	// * Remove OnChangeListener
-	// *
-	// * @param listener
-	// */
-	// public void removeOnChangeListener(Consumer<Geometry> listener) {
-	// this.onChangeListeners.remove(listener);
-	// }
-
-	// /**
-	// * Add OnWriteListener
-	// *
-	// * @param listener
-	// */
-	// public void addBeforePowerWriteListener(BeforePowerWriteListener listener) {
-	// this.beforeWriteListeners.add(listener);
-	// }
-	//
-	// /**
-	// * Remove BeforePowerWriteListener
-	// *
-	// * @param listener
-	// */
-	// public void removeBeforePowerWriteListener(BeforePowerWriteListener listener)
-	// {
-	// this.beforeWriteListeners.add(listener);
-	// }
-
 	/**
 	 * Returns the max ActivePower, after all limitations applied.
 	 *
@@ -231,24 +166,15 @@ public class SymmetricPower {
 			log.error("BaseGeometry is Empty!");
 		}
 		this.geometries.clear();
-		this.geometries.add(getGeometry());
-		// TODO for (PowerResetListener listener : this.resetListeners) {
-		// Geometry g = listener.afterPowerReset(getGeometry());
-		// try {
-		// setGeometry(g);
-		// } catch (PowerException e) {
-		// log.debug("Geometry of AfterPowerResetListener is Empty!" +
-		// listener.toString());
-		// }
-		// }
+		this.geometries.add(this.geometry);
 	}
 
 	protected Point reduceToZero() {
-		if (getGeometry() instanceof Point) {
-			return (Point) getGeometry();
+		if (this.geometries instanceof Point) {
+			return (Point) this.geometry;
 		}
 		Point pZero = Utils.FACTORY.createPoint(Utils.ZERO);
-		DistanceOp distance = new DistanceOp(getGeometry(), pZero);
+		DistanceOp distance = new DistanceOp(this.geometry, pZero);
 		GeometryLocation[] locations = distance.nearestLocations();
 		Point result = pZero;
 		for (GeometryLocation location : locations) {
@@ -285,7 +211,7 @@ public class SymmetricPower {
 	 *             this Exception is thrown if the result is empty
 	 */
 	public void applyLimitation(Limitation limit) throws PowerException {
-		Geometry limitedPower = limit.applyLimit(getGeometry());
+		Geometry limitedPower = limit.applyLimit(this.geometry);
 		if (!limitedPower.isEmpty()) {
 			setGeometry(limitedPower);
 			this.dynamicLimitations.add(limit);
@@ -295,8 +221,6 @@ public class SymmetricPower {
 	}
 
 	protected void writePower() {
-		// TODO for (BeforePowerWriteListener listener : this.beforeWriteListeners) {
-		// listener.beforeWritePower();
 		// }
 		if (!this.dynamicLimitations.isEmpty()) {
 			Point p = this.reduceToZero();
