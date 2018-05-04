@@ -15,6 +15,15 @@ public final class EdgeEventConstants {
 	public static final String TOPIC_CYCLE = "io/openems/edge/cycle/";
 
 	/**
+	 * BEFORE_PROCESS_IMAGE event
+	 * 
+	 * allows to execute anything that is required to be executed before the current
+	 * processimage is built - i.e. channel.nextProcessImage() is called. The event
+	 * is executed synchronously.
+	 */
+	public static final String TOPIC_CYCLE_BEFORE_PROCESS_IMAGE = TOPIC_CYCLE + "PROCESS_IMAGE";
+
+	/**
 	 * BEFORE_CONTROLLERS event
 	 * 
 	 * allows to execute anything that is required to be executed before the

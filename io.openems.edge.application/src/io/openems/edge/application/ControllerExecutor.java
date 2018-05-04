@@ -84,10 +84,10 @@ public class ControllerExecutor extends AbstractWorker {
 			this.cycle = 1;
 		}
 		try {
-			if (schedulers.isEmpty()) {
-				log.warn("There are no Schedulers configured!");
-				return;
-			}
+			/*
+			 * Trigger BEFORE_PROCESS_IMAGE event
+			 */
+			this.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, new HashMap<>()));
 
 			/*
 			 * Before Controllers start: switch to next process image for each channel
@@ -106,23 +106,28 @@ public class ControllerExecutor extends AbstractWorker {
 			/*
 			 * Execute Schedulers and their Controllers
 			 */
-			schedulers.entrySet().forEach(entry -> {
-				Scheduler scheduler = entry.getKey();
-				if (cycle % entry.getValue() != 0) {
-					// abort if relativeCycleTime is not matching this cycle
-					return;
-				}
-				scheduler.getControllers().stream().filter(c -> c.isEnabled()).forEach(controller -> {
-					try {
-						controller.run();
-					} catch (Exception e) {
-						log.warn("Error in Controller. " + e.getClass().getSimpleName() + ": " + e.getMessage());
-						if (e instanceof ClassCastException || e instanceof NullPointerException) {
-							e.printStackTrace();
-						}
+			if (schedulers.isEmpty()) {
+				log.warn("There are no Schedulers configured!");
+			} else {
+
+				schedulers.entrySet().forEach(entry -> {
+					Scheduler scheduler = entry.getKey();
+					if (cycle % entry.getValue() != 0) {
+						// abort if relativeCycleTime is not matching this cycle
+						return;
 					}
+					scheduler.getControllers().stream().filter(c -> c.isEnabled()).forEach(controller -> {
+						try {
+							controller.run();
+						} catch (Exception e) {
+							log.warn("Error in Controller. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+							if (e instanceof ClassCastException || e instanceof NullPointerException) {
+								e.printStackTrace();
+							}
+						}
+					});
 				});
-			});
+			}
 
 			/*
 			 * Trigger AFTER_CONTROLLERS event
