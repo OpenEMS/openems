@@ -1,0 +1,30 @@
+#
+# io.openems.edge.simulator PROVIDER BUNDLE
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+
+
+Private-Package: \
+	io.openems.edge.simulator.meter.grid.acting,\
+	io.openems.edge.simulator.meter.grid.reactive,\
+	io.openems.edge.simulator.meter,\
+	io.openems.edge.simulator.datasource.api,\
+	io.openems.edge.simulator.datasource.standardloadprofile,\
+	io.openems.edge.simulator.ess,\
+	io.openems.edge.simulator.ess.symmetric.reacting
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.edge.meter.api;version=latest,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.ess.api;version=latest,\
+	com.google.guava
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+
