@@ -1,0 +1,25 @@
+#
+# io.openems.edge.timedata.influxdb PROVIDER BUNDLE
+#
+
+Bundle-Version:					1.0.0.${tstamp}
+
+Export-Package: io.openems.edge.timedata.api
+
+Private-Package:  \
+	io.openems.edge.timedata.influxdb
+
+-includeresource: {readme.md}
+
+-buildpath: \
+	osgi.enroute.base.api;version=2.1,\
+	io.openems.common;version=latest,\
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.timedata.api;version=latest,\
+	io.openems.wrapper.influx4j;version=latest,\
+	io.openems.wrapper.okhttp3;version=latest
+
+-testpath: \
+	osgi.enroute.junit.wrapper;version=4.12, \
+	osgi.enroute.hamcrest.wrapper;version=1.3
+

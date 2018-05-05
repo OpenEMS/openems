@@ -2,4 +2,5 @@
 -buildpath: \
 	org.java-websocket:Java-WebSocket,\
 	com.ghgande:j2mod,\
-	com.fazecast:jSerialComm
+	com.fazecast:jSerialComm, \
+	com.zaxxer:influx4j

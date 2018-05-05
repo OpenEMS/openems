@@ -118,6 +118,16 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	/**
+	 * Log a warn message including the Component ID.
+	 * 
+	 * @param log
+	 * @param message
+	 */
+	protected final void logWarn(Logger log, String message) {
+		log.warn("[" + this.id() + "] " + message);
+	}
+
+	/**
 	 * Log an error message including the Component ID.
 	 * 
 	 * @param log

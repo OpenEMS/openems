@@ -1,0 +1,12 @@
+-dsannotations: *
+-metatypeannotations: *
+Service-Component: *
+
+Bundle-Version: 1.14
+
+Include-Resource: @influx4j-1.6.jar
+
+-exportcontents: \
+	com.zaxxer.influx4j
+
+-sources: false
