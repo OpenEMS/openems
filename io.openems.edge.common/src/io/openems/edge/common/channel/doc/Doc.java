@@ -1,8 +1,13 @@
 package io.openems.edge.common.channel.doc;
 
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+
+import io.openems.edge.common.channel.Channel;
 
 public class Doc {
 
@@ -151,5 +156,25 @@ public class Doc {
 
 	public boolean isDebug() {
 		return this.debug;
+	}
+
+	/*
+	 * On Channel Initalization Callback
+	 */
+	private Optional<Consumer<Channel<?>>> onInitCallbackOpt = Optional.empty();
+
+	/**
+	 * Provides a callback on initialization of the actual Channel
+	 * 
+	 * @param channel
+	 * @return
+	 */
+	public Doc onInit(Consumer<Channel<?>> channel) {
+		this.onInitCallbackOpt = Optional.ofNullable(channel);
+		return this;
+	}
+
+	public Optional<Consumer<Channel<?>>> getOnInitCallback() {
+		return onInitCallbackOpt;
 	}
 }

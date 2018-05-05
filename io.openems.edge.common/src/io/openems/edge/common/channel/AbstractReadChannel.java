@@ -1,6 +1,7 @@
 package io.openems.edge.common.channel;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -32,11 +33,12 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		this.type = type;
 		this.component = component;
 		this.channelId = channelId;
-		try {
-			this.setNextValue(initialValue);
-		} catch (OpenemsException e) {
-			throw new IllegalArgumentException(e);
+		// call onInitCallback from Doc
+		Optional<Consumer<Channel<?>>> onInitCallback = this.channelId.doc().getOnInitCallback();
+		if (onInitCallback.isPresent()) {
+			onInitCallback.get().accept(this);
 		}
+		this.setNextValue(initialValue);
 	}
 
 	@Override
@@ -45,11 +47,14 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	}
 
 	@Override
+	public OpenemsComponent getComponent() {
+		return component;
+	}
+
+	@Override
 	public void nextProcessImage() {
 		this.activeValue = this.nextValue;
-		for (Consumer<T> callback : this.onUpdateCallbacks) {
-			callback.accept(this.activeValue);
-		}
+		this.onUpdateCallbacks.forEach(callback -> callback.accept(this.activeValue));
 	}
 
 	@Override
@@ -80,6 +85,7 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 			log.info("Next value for [" + this.address() + "]: "
 					+ this.channelDoc().getUnit().format(value, this.getType()));
 		}
+		this.onSetNextValueCallbacks.forEach(callback -> callback.accept(value));
 	}
 
 	@Override
@@ -93,4 +99,11 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	public void onUpdate(Consumer<T> callback) {
 		this.onUpdateCallbacks.add(callback);
 	}
+
+	private final List<Consumer<T>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
+
+	public void onSetNextValue(Consumer<T> callback) {
+		this.onSetNextValueCallbacks.add(callback);
+	}
+
 }

@@ -5,19 +5,43 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.converter.StaticConverters;
 import io.openems.edge.ess.api.Ess;
 
 @ProviderType
 public interface SymmetricEssReadonly extends Ess {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		ACTIVE_POWER(new Doc().unit(Unit.WATT).text("negative values for Charge; positive for Discharge")), //
 		CHARGE_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
 		DISCHARGE_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
-		REACTIVE_POWER(
-				new Doc().unit(Unit.VOLT_AMPERE_REACTIVE).text("Negative values for Charge; positive for Discharge")), //
+		ACTIVE_POWER(new Doc() //
+				.unit(Unit.WATT) //
+				.text("negative values for Charge; positive for Discharge") //
+				.onInit(channel -> {
+					channel.onSetNextValue(value -> {
+						// derive DISCHARGE_ACTIVE_POWER and CHARGE_ACTIVE_POWER from ACTIVE_POWER
+						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value);
+						channel.getComponent().channel(ChannelId.DISCHARGE_ACTIVE_POWER).setNextValue(dischargeValue);
+						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
+								.apply(value);
+						channel.getComponent().channel(ChannelId.CHARGE_ACTIVE_POWER).setNextValue(chargeValue);
+					});
+				})), //
 		CHARGE_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		DISCHARGE_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE));
+		DISCHARGE_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		REACTIVE_POWER(new Doc() //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.text("Negative values for Charge; positive for Discharge") //
+				.onInit(channel -> {
+					channel.onSetNextValue(value -> {
+						// derive DISCHARGE_REACTIVE_POWER and CHARGE_REACTIVE_POWER from REACTIVE_POWER
+						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value);
+						channel.getComponent().channel(ChannelId.DISCHARGE_REACTIVE_POWER).setNextValue(dischargeValue);
+						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
+								.apply(value);
+						channel.getComponent().channel(ChannelId.CHARGE_REACTIVE_POWER).setNextValue(chargeValue);
+					});
+				}));
 
 		private final Doc doc;
 

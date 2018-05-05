@@ -4,11 +4,11 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.openems.common.exceptions.InvalidValueException;
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.TypeUtils;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.component.OpenemsComponent;
 
 public interface Channel<T> {
 
@@ -29,6 +29,13 @@ public interface Channel<T> {
 	default Doc channelDoc() {
 		return this.channelId().doc();
 	}
+
+	/**
+	 * Gets the OpenemsComponent this Channel belongs to
+	 * 
+	 * @return
+	 */
+	OpenemsComponent getComponent();
 
 	/**
 	 * Gets the address of this Channel
@@ -55,9 +62,17 @@ public interface Channel<T> {
 	 * 
 	 * @param value
 	 */
-	public default void setNextValue(Object value) throws OpenemsException {
+	public default void setNextValue(Object value) {
 		this._setNextValue(TypeUtils.<T>getAsType(this.getType(), value));
 	}
+
+	/**
+	 * Add an onSetNextValue callback. It is called, after a new NextValue was set.
+	 * Note that usually you should prefer the onUpdate() callback.
+	 * 
+	 * @see #onUpdate
+	 */
+	public void onSetNextValue(Consumer<T> callback);
 
 	/**
 	 * Internal method. Do not call directly.

@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.Log;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -149,11 +148,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 						throw new IllegalArgumentException("Conversion for [" + channel.channelId() + "] failed", e);
 					}
 					if (convertedValue != null) {
-						try {
-							channel.setNextValue(convertedValue);
-						} catch (OpenemsException e) {
-							Log.warn("Channel [" + channel.address() + "] unable to set next value: " + e.getMessage());
-						}
+						channel.setNextValue(convertedValue);
 					}
 				});
 			});
@@ -248,14 +243,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			this.element = element;
 			this.element.onUpdateCallback((value) -> {
 				this.channels.forEach((bitIndex, channel) -> {
-					try {
-						if (value << ~bitIndex < 0) {
-							channel.setNextValue(true);
-						} else {
-							channel.setNextValue(false);
-						}
-					} catch (OpenemsException e) {
-						Log.warn("Channel [" + channel.address() + "] unable to set next value: " + e.getMessage());
+					if (value << ~bitIndex < 0) {
+						channel.setNextValue(true);
+					} else {
+						channel.setNextValue(false);
 					}
 				});
 			});

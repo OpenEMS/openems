@@ -64,7 +64,7 @@ import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
 public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
-		implements SymmetricEss, OpenemsComponent, EventHandler {
+		implements SymmetricEss, Ess, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
 
@@ -596,14 +596,8 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(0x020C, 0x020F), //
 						m(EssFeneconCommercial40.ChannelId.GRID_ACTIVE_POWER, new SignedWordElement(0x0210),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						cm(new SignedWordElement(0x0211)) //
-								.m(SymmetricEssReadonly.ChannelId.REACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(SymmetricEssReadonly.ChannelId.CHARGE_REACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(SymmetricEssReadonly.ChannelId.DISCHARGE_REACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_POSITIVE) //
-								.build(), //
+						m(SymmetricEssReadonly.ChannelId.REACTIVE_POWER, new SignedWordElement(0x0211),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.APPARENT_POWER, new UnsignedWordElement(0x0212),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.CURRENT_L1, new SignedWordElement(0x0213),
@@ -633,14 +627,8 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(EssFeneconCommercial40.ChannelId.INVERTER_CURRENT_L3, new SignedWordElement(0x0227),
 								ElementToChannelConverter.SCALE_FACTOR_2), //
-						cm(new SignedWordElement(0x0228)) //
-								.m(SymmetricEssReadonly.ChannelId.ACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_2) //
-								.m(SymmetricEssReadonly.ChannelId.CHARGE_ACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(SymmetricEssReadonly.ChannelId.DISCHARGE_ACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_2_AND_CONVERT_POSITIVE) //
-								.build(), //
+						m(SymmetricEssReadonly.ChannelId.ACTIVE_POWER, new SignedWordElement(0x0228),
+								ElementToChannelConverter.SCALE_FACTOR_2), //
 						new DummyRegisterElement(0x0229, 0x022F), //
 						m(EssFeneconCommercial40.ChannelId.ALLOWED_CHARGE, new SignedWordElement(0x0230),
 								ElementToChannelConverter.SCALE_FACTOR_2), //

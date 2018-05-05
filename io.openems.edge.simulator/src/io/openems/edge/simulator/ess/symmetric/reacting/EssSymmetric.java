@@ -15,10 +15,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -36,7 +33,7 @@ import io.openems.edge.simulator.ess.EssUtils;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class EssSymmetric extends AbstractOpenemsComponent implements SymmetricEss, OpenemsComponent, EventHandler {
 
-	private final Logger log = LoggerFactory.getLogger(EssSymmetric.class);
+	// private final Logger log = LoggerFactory.getLogger(EssSymmetric.class);
 
 	private SymmetricPower power = null;
 	private PGreaterEqualLimitation allowedChargeLimit;
@@ -75,19 +72,15 @@ public class EssSymmetric extends AbstractOpenemsComponent implements SymmetricE
 					/*
 					 * calculate State of charge
 					 */
-					try {
-						float watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
-						float socChange = watthours / config.capacity();
-						this.soc -= socChange;
-						if (this.soc > 100) {
-							this.soc = 100;
-						} else if (this.soc < 0) {
-							this.soc = 0;
-						}
-						this.getSoc().setNextValue(this.soc);
-					} catch (OpenemsException e) {
-						log.error("Unable to set SoC: " + e.getMessage());
+					float watthours = (float) activePower * this.datasource.getTimeDelta() / 3600;
+					float socChange = watthours / config.capacity();
+					this.soc -= socChange;
+					if (this.soc > 100) {
+						this.soc = 100;
+					} else if (this.soc < 0) {
+						this.soc = 0;
 					}
+					this.getSoc().setNextValue(this.soc);
 					/*
 					 * Apply Active/Reactive power to simulated channels
 					 */
@@ -97,22 +90,14 @@ public class EssSymmetric extends AbstractOpenemsComponent implements SymmetricE
 					if (soc == 100 && activePower < 0) {
 						activePower = 0;
 					}
-					try {
-						this.getActivePower().setNextValue(activePower);
-					} catch (OpenemsException e) {
-						log.error("Unable to set ActivePower: " + e.getMessage());
-					}
+					this.getActivePower().setNextValue(activePower);
 					if (soc == 0 && reactivePower > 0) {
 						reactivePower = 0;
 					}
 					if (soc == 100 && reactivePower < 0) {
 						reactivePower = 0;
 					}
-					try {
-						this.getReactivePower().setNextValue(reactivePower);
-					} catch (OpenemsException e) {
-						log.error("Unable to set ReactivePower: " + e.getMessage());
-					}
+					this.getReactivePower().setNextValue(reactivePower);
 					/*
 					 * Set AllowedCharge / Discharge based on SoC
 					 */

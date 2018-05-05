@@ -19,10 +19,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
@@ -43,7 +40,7 @@ import io.openems.edge.simulator.meter.MeterUtils;
 public class GridMeter extends AbstractOpenemsComponent
 		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
 
-	private final Logger log = LoggerFactory.getLogger(GridMeter.class);
+	// private final Logger log = LoggerFactory.getLogger(GridMeter.class);
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		SIMULATED_ACTIVE_POWER(new Doc().unit(Unit.WATT));
@@ -105,40 +102,35 @@ public class GridMeter extends AbstractOpenemsComponent
 	}
 
 	private void updateChannels() {
-		try {
-			/*
-			 * get and store Simulated Active Power
-			 */
-			int simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
-			this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
+		/*
+		 * get and store Simulated Active Power
+		 */
+		int simulatedActivePower = this.datasource.getValue(OpenemsType.INTEGER, "ActivePower");
+		this.channel(ChannelId.SIMULATED_ACTIVE_POWER).setNextValue(simulatedActivePower);
 
-			/*
-			 * Calculate Active Power
-			 */
-			int activePower = simulatedActivePower;
-			for (SymmetricEss ess : this.symmetricEsss) {
-				Optional<Integer> essPowerOpt = ess.getActivePower().getActiveValueOpt();
-				if (essPowerOpt.isPresent()) {
-					activePower -= essPowerOpt.get();
-				}
+		/*
+		 * Calculate Active Power
+		 */
+		int activePower = simulatedActivePower;
+		for (SymmetricEss ess : this.symmetricEsss) {
+			Optional<Integer> essPowerOpt = ess.getActivePower().getActiveValueOpt();
+			if (essPowerOpt.isPresent()) {
+				activePower -= essPowerOpt.get();
 			}
-
-			this.getActivePower().setNextValue(activePower);
-			this.getActivePowerL1().setNextValue(activePower / 3);
-			this.getActivePowerL2().setNextValue(activePower / 3);
-			this.getActivePowerL3().setNextValue(activePower / 3);
-			this.getProductionActivePower().setNextValue(activePower);
-			this.getProductionActivePowerL1().setNextValue(activePower / 3);
-			this.getProductionActivePowerL2().setNextValue(activePower / 3);
-			this.getProductionActivePowerL3().setNextValue(activePower / 3);
-			this.getConsumptionActivePower().setNextValue(0);
-			this.getConsumptionActivePowerL1().setNextValue(0);
-			this.getConsumptionActivePowerL2().setNextValue(0);
-			this.getConsumptionActivePowerL3().setNextValue(0);
-
-		} catch (OpenemsException e) {
-			log.error("Unable to set value: " + e.getMessage());
 		}
+
+		this.getActivePower().setNextValue(activePower);
+		this.getActivePowerL1().setNextValue(activePower / 3);
+		this.getActivePowerL2().setNextValue(activePower / 3);
+		this.getActivePowerL3().setNextValue(activePower / 3);
+		this.getProductionActivePower().setNextValue(activePower);
+		this.getProductionActivePowerL1().setNextValue(activePower / 3);
+		this.getProductionActivePowerL2().setNextValue(activePower / 3);
+		this.getProductionActivePowerL3().setNextValue(activePower / 3);
+		this.getConsumptionActivePower().setNextValue(0);
+		this.getConsumptionActivePowerL1().setNextValue(0);
+		this.getConsumptionActivePowerL2().setNextValue(0);
+		this.getConsumptionActivePowerL3().setNextValue(0);
 	}
 
 	@Override
