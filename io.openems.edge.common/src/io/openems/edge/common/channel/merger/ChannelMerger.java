@@ -1,4 +1,4 @@
-package io.openems.edge.common.channel.converter;
+package io.openems.edge.common.channel.merger;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,21 +8,20 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
 
 /**
- * Provides Functions to convert from Channel(s) to a Channel. Also has some
- * static convenience functions to facilitate conversion.
+ * Provides Functions to merge from multiple Channels to one Channel. This
+ * package also has some static convenience functions to facilitate conversion.
  */
-public class ChannelConverter<T> {
+public class ChannelMerger<T> {
 
-	private final Logger log = LoggerFactory.getLogger(ChannelConverter.class);
+	private final Logger log = LoggerFactory.getLogger(ChannelMerger.class);
 
 	private final Function<Collection<T>, T> function;
 	private final Map<Channel<T>, T> lastValues = new HashMap<>();
 
-	public ChannelConverter(Function<Collection<T>, T> function, Channel<T> target, T defaultValue,
+	public ChannelMerger(Function<Collection<T>, T> function, Channel<T> target, T defaultValue,
 			@SuppressWarnings("unchecked") Channel<T>... sources) {
 		this.function = function;
 		/*
@@ -39,7 +38,7 @@ public class ChannelConverter<T> {
 					T functionResult = this.function.apply(this.lastValues.values());
 					try {
 						target.setNextValue(functionResult);
-					} catch (OpenemsException e) {
+					} catch (IllegalArgumentException e) {
 						StringBuilder b = new StringBuilder("Unable to merge Channel [" + target.address() + "] from ");
 						for (int i = 0; i < sources.length; i++) {
 							b.append(sources[i].address());
