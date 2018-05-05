@@ -22,9 +22,9 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.converter.ChannelConverterSumInteger;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.fenecon.commercial40.EssFeneconCommercial40;
@@ -101,7 +101,7 @@ public class EssDcChargerFeneconCommercial40 extends AbstractOpenemsModbusCompon
 		/*
 		 * Merge PV_DCDC0_INPUT_POWER and PV_DCDC1_INPUT_POWER to ACTUAL_POWER
 		 */
-		new ChannelConverterSumInteger( //
+		new ChannelMergerSumInteger( //
 				/* target */ this.getActualPower(), //
 				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
 						this.<Channel<Integer>>channel(ChannelId.PV_DCDC0_INPUT_POWER), //

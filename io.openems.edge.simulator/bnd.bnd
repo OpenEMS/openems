@@ -7,7 +7,6 @@ Bundle-Version:					1.0.0.${tstamp}
 
 Private-Package: \
 	io.openems.edge.simulator.meter.grid.acting,\
-	io.openems.edge.simulator.meter.grid.reactive,\
 	io.openems.edge.simulator.meter,\
 	io.openems.edge.simulator.datasource.api,\
 	io.openems.edge.simulator.datasource.standardloadprofile,\

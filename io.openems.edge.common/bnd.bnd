@@ -10,7 +10,8 @@ Export-Package: \
 	io.openems.edge.common.worker,\
 	io.openems.edge.common.channel.doc,\
 	io.openems.edge.common.controllerexecutor,\
-	io.openems.edge.common.channel.converter
+	io.openems.edge.common.channel.merger,\
+	io.openems.edge.common.converter
 
 -includeresource: {readme.md}
 

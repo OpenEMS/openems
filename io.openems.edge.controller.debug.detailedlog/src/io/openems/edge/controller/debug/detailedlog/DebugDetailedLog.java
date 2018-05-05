@@ -27,9 +27,6 @@ import io.openems.edge.controller.api.Controller;
 
 /**
  * This controller prints all channels and their values on the console.
- * 
- * @author stefan.feilmeier
- *
  */
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Debug.DetailedLog", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
