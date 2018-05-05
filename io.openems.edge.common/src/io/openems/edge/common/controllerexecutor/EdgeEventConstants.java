@@ -21,7 +21,16 @@ public final class EdgeEventConstants {
 	 * processimage is built - i.e. channel.nextProcessImage() is called. The event
 	 * is executed synchronously.
 	 */
-	public static final String TOPIC_CYCLE_BEFORE_PROCESS_IMAGE = TOPIC_CYCLE + "PROCESS_IMAGE";
+	public static final String TOPIC_CYCLE_BEFORE_PROCESS_IMAGE = TOPIC_CYCLE + "BEFORE_PROCESS_IMAGE";
+
+	/**
+	 * AFTER_PROCESS_IMAGE event
+	 * 
+	 * allows to execute anything that is required to be executed after the current
+	 * processimage is built - i.e. channel.nextProcessImage() was called. The event
+	 * is executed synchronously.
+	 */
+	public static final String TOPIC_CYCLE_AFTER_PROCESS_IMAGE = TOPIC_CYCLE + "AFTER_PROCESS_IMAGE";
 
 	/**
 	 * BEFORE_CONTROLLERS event
