@@ -106,7 +106,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			 * Charge
 			 */
 			// fit into max possible discharge power
-			int maxChargePower = power.getMinP().orElse(0) * -1;
+			int maxChargePower = power.getMinP().orElse(0);
 			if (requiredPower < maxChargePower) {
 				requiredPower = maxChargePower;
 			}
