@@ -99,6 +99,11 @@ public class ControllerExecutor extends AbstractWorker {
 			});
 
 			/*
+			 * Trigger AFTER_PROCESS_IMAGE event
+			 */
+			this.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, new HashMap<>()));
+
+			/*
 			 * Trigger BEFORE_CONTROLLERS event
 			 */
 			this.eventAdmin.sendEvent(new Event(EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS, new HashMap<>()));
