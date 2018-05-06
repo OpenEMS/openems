@@ -3,7 +3,7 @@ package io.openems.edge.controller.debuglog;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Debug Log Controller", //
+		name = "Controller Debug Log", //
 		description = "This controller prints information about all available components on the console")
 @interface Config {
 	String service_pid();
@@ -12,5 +12,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	boolean enabled() default true;
 
-	String webconsole_configurationFactory_nameHint() default "Debug Log Controller [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Controller Debug Log [{id}]";
 }

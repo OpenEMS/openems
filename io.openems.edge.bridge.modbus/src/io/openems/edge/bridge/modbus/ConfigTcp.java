@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Modbus/TCP Bridge", //
+		name = "Bridge Modbus/TCP", //
 		description = "Provides a service for connecting to, querying and writing to a Modbus/TCP device.")
 @interface ConfigTcp {
 	String service_pid();
@@ -16,5 +16,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	boolean enabled() default true;
 
-	String webconsole_configurationFactory_nameHint() default "Modbus/TCP Bridge [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Bridge Modbus/TCP [{id}]";
 }

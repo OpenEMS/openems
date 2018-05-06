@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Modbus/RTU Serial Bridge", //
+		name = "Bridge Modbus/RTU Serial", //
 		description = "Provides a service for connecting to, querying and writing to a Modbus/RTU device.")
 @interface ConfigSerial {
 	String service_pid();
@@ -28,5 +28,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	boolean enabled() default true;
 
-	String webconsole_configurationFactory_nameHint() default "Modbus/RTU Serial Bridge [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Bridge Modbus/RTU Serial [{id}]";
 }

@@ -5,7 +5,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.edge.scheduler.api.Scheduler;
 
 @ObjectClassDefinition( //
-		name = "All Alphabetically Scheduler", //
+		name = "Scheduler All Alphabetically", //
 		description = "This Scheduler returns all existing Controllers ordered by their ID.")
 @interface Config {
 	String service_pid();
@@ -16,5 +16,5 @@ import io.openems.edge.scheduler.api.Scheduler;
 
 	int cycleTime() default Scheduler.DEFAULT_CYCLE_TIME;
 
-	String webconsole_configurationFactory_nameHint() default "All Alphabetically Scheduler [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Scheduler All Alphabetically [{id}]";
 }
