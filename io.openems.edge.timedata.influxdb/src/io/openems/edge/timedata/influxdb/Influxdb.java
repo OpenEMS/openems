@@ -114,8 +114,10 @@ public class Influxdb extends AbstractOpenemsComponent implements Timedata, Open
 		this.username = config.username();
 		this.password = config.password();
 		this.database = config.database();
-		this.getConnection();
 		this.updatePointFactory();
+		if (config.enabled()) {
+			this.getConnection();
+		}
 	}
 
 	private Optional<InfluxDB> getConnection() {
@@ -144,6 +146,9 @@ public class Influxdb extends AbstractOpenemsComponent implements Timedata, Open
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.collectChannelValues();
