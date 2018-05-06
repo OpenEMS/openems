@@ -25,6 +25,8 @@ import com.zaxxer.influx4j.InfluxDB;
 import com.zaxxer.influx4j.Point;
 import com.zaxxer.influx4j.PointFactory;
 
+import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
@@ -41,11 +43,37 @@ public class Influxdb extends AbstractOpenemsComponent implements Timedata, Open
 
 	private final Logger log = LoggerFactory.getLogger(Influxdb.class);
 
-	private InfluxDB influxDB = null;
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		/**
+		 * FAULT: Unable to connect to InfluxDB
+		 */
+		STATE_0(new Doc().level(Level.FAULT).text("Unable to connect to InfluxDB")); //
+
+		private final Doc doc;
+
+		private ChannelId(Doc doc) {
+			this.doc = doc;
+		}
+
+		@Override
+		public Doc doc() {
+			return this.doc;
+		}
+	}
+
+	private InfluxDB _influxDB = null;
 	private PointFactory pointFactory = null;
 	private int pointFactoryMaxSize = 0;
-
 	private List<OpenemsComponent> _components = new CopyOnWriteArrayList<>();
+	private String ip;
+	private int port;
+	private String username;
+	private String password;
+	private String database;
+
+	public Influxdb() {
+		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
@@ -81,14 +109,32 @@ public class Influxdb extends AbstractOpenemsComponent implements Timedata, Open
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		this.ip = config.ip();
+		this.port = config.port();
+		this.username = config.username();
+		this.password = config.password();
+		this.database = config.database();
+		this.getConnection();
 		this.updatePointFactory();
-		this.influxDB = InfluxDB.builder() //
-				.setConnection(config.ip(), config.port(), InfluxDB.Protocol.HTTP) //
-				.setUsername(config.username()) //
-				.setPassword(config.password()) //
-				.setDatabase(config.database()) //
-				.build();
-		influxDB.createDatabase("db");
+	}
+
+	private Optional<InfluxDB> getConnection() {
+		if (this._influxDB == null) {
+			try {
+				this._influxDB = InfluxDB.builder() //
+						.setConnection(this.ip, this.port, InfluxDB.Protocol.HTTP) //
+						.setUsername(this.username) //
+						.setPassword(this.password) //
+						.setDatabase(this.database) //
+						.build();
+				this._influxDB.createDatabase("db");
+				this.channel(ChannelId.STATE_0).setNextValue(false);
+			} catch (RuntimeException e) {
+				this.logWarn(this.log, "Unable to connect to InfluxDB: " + e.getMessage());
+				this.channel(ChannelId.STATE_0).setNextValue(true);
+			}
+		}
+		return Optional.ofNullable(this._influxDB);
 	}
 
 	@Deactivate
@@ -106,6 +152,12 @@ public class Influxdb extends AbstractOpenemsComponent implements Timedata, Open
 	}
 
 	private synchronized void collectChannelValues() {
+		Optional<InfluxDB> connectionOpt = this.getConnection();
+		if (!connectionOpt.isPresent()) {
+			logWarn(this.log, "Connection not available. Not perisisting any data!");
+			return;
+		}
+		InfluxDB connection = connectionOpt.get();
 		long timestamp = System.currentTimeMillis() / 1000;
 		final Point point = this.pointFactory //
 				.createPoint(MEASUREMENT) //
@@ -143,6 +195,6 @@ public class Influxdb extends AbstractOpenemsComponent implements Timedata, Open
 				}
 			});
 		});
-		this.influxDB.write(point);
+		connection.write(point);
 	}
 }
