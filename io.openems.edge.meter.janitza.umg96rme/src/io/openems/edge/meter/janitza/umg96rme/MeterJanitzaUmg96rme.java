@@ -181,6 +181,6 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "L:" + this.getActivePower().format();
+		return "L:" + this.getActivePower().value().asString();
 	}
 }

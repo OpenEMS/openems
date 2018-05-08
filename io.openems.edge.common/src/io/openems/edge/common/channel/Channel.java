@@ -1,19 +1,15 @@
 package io.openems.edge.common.channel;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
-import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.TypeUtils;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public interface Channel<T> {
-
-	public final static String UNDEFINED_VALUE_STRING = "UNDEFINED";
-
 	/**
 	 * Gets the ChannelId of this Channel
 	 * 
@@ -72,7 +68,7 @@ public interface Channel<T> {
 	 * 
 	 * @see #onUpdate
 	 */
-	public void onSetNextValue(Consumer<T> callback);
+	public void onSetNextValue(Consumer<Value<T>> callback);
 
 	/**
 	 * Internal method. Do not call directly.
@@ -83,90 +79,13 @@ public interface Channel<T> {
 	public void _setNextValue(T value);
 
 	/**
-	 * Gets the currently active value or Null
-	 * 
-	 * @return
+	 * Gets the currently active value, wrapped in a @{link Value}.
 	 */
-	T getActiveValueOrNull();
-
-	/**
-	 * Gets the currently active value or throws an Exception on Null
-	 * 
-	 * @return
-	 */
-	default T getActiveValue() throws InvalidValueException {
-		T value = this.getActiveValueOrNull();
-		if (value != null) {
-			return value;
-		}
-		throw new InvalidValueException("Value for Channel [" + this.address() + "] is invalid.");
-	}
-
-	/**
-	 * Gets the currently active value as an Optional.
-	 * 
-	 * @return
-	 */
-	default Optional<T> getActiveValueOpt() {
-		return Optional.ofNullable(this.getActiveValueOrNull());
-	};
-
-	/**
-	 * Gets the currently active value as its String option. Enum options are
-	 * converted to Strings.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             no matching option was provided
-	 * @return
-	 */
-	default String getActiveValueOption() throws IllegalArgumentException {
-		Optional<T> valueOpt = this.getActiveValueOpt();
-		if (!valueOpt.isPresent()) {
-			return Channel.UNDEFINED_VALUE_STRING;
-		}
-		int value = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, valueOpt.get());
-		return this.channelDoc().getOption(value);
-	}
-
-	/**
-	 * Gets the currently active value as its Enum option.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             no matching Enum option was provided
-	 * @return
-	 * @throws InvalidValueException
-	 */
-	default Enum<?> getActiveValueOptionEnum() throws InvalidValueException {
-		T valueObj = this.getActiveValue();
-		int value = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, valueObj);
-		return this.channelDoc().getOptionEnum(value);
-	}
-
-	/**
-	 * Formats the Channel. Can be used like toString()
-	 * 
-	 * @return
-	 */
-	default String format() {
-		return this.channelDoc().getUnit().format(this.formatWithoutUnit(), this.getType());
-	}
-
-	/**
-	 * Formats the Channel. Can be used like toString()
-	 * 
-	 * @return
-	 */
-	default String formatWithoutUnit() {
-		Object value = this.getActiveValueOrNull();
-		if (value == null) {
-			return Channel.UNDEFINED_VALUE_STRING;
-		}
-		return value.toString();
-	}
+	Value<T> value();
 
 	/**
 	 * Add an onUpdate callback. It is called, after a new ActiveValue was set via
 	 * nextProcessImage().
 	 */
-	public void onUpdate(Consumer<T> callback);
+	public void onUpdate(Consumer<Value<T>> callback);
 }

@@ -31,7 +31,7 @@ public class ChannelMerger<T> {
 			source.onUpdate(value -> {
 				synchronized (this.lastValues) {
 					if (value != null) {
-						this.lastValues.put(source, value);
+						this.lastValues.put(source, value.get());
 					} else {
 						this.lastValues.put(source, defaultValue);
 					}

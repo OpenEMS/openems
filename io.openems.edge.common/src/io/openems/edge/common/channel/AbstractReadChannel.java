@@ -12,6 +12,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.ChannelId;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class AbstractReadChannel<T> implements Channel<T> {
@@ -22,8 +23,8 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	private final OpenemsComponent component;
 	private final OpenemsType type;
 
-	private volatile T nextValue = null; // TODO add timeout for nextValue validity
-	private volatile T activeValue = null;
+	private volatile Value<T> nextValue = null; // TODO add timeout for nextValue validity
+	private volatile Value<T> activeValue = null;
 
 	public AbstractReadChannel(OpenemsType type, OpenemsComponent component, ChannelId channelId) {
 		this(type, component, channelId, null);
@@ -67,11 +68,6 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		return this.type;
 	}
 
-	@Override
-	public T getActiveValueOrNull() {
-		return activeValue;
-	}
-
 	/**
 	 * Sets the next value. Internal method. Do not call directly.
 	 * 
@@ -80,29 +76,33 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	 */
 	@Deprecated
 	public final void _setNextValue(T value) {
-		this.nextValue = value;
+		this.nextValue = new Value<T>(this, value);
 		if (this.channelDoc().isDebug()) {
-			log.info("Next value for [" + this.address() + "]: "
-					+ this.channelDoc().getUnit().format(value, this.getType()));
+			log.info("Next value for [" + this.address() + "]: " + this.nextValue.asString());
 		}
-		this.onSetNextValueCallbacks.forEach(callback -> callback.accept(value));
+		this.onSetNextValueCallbacks.forEach(callback -> callback.accept(this.nextValue));
+	}
+
+	@Override
+	public Value<T> value() {
+		return this.activeValue;
 	}
 
 	@Override
 	public String toString() {
-		return "Channel [ID=" + channelId + ", type=" + type + ", activeValue=" + this.format() + "]";
+		return "Channel [ID=" + channelId + ", type=" + type + ", activeValue=" + this.activeValue.asString() + "]";
 	}
 
-	private final List<Consumer<T>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
+	private final List<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
 
 	@Override
-	public void onUpdate(Consumer<T> callback) {
+	public void onUpdate(Consumer<Value<T>> callback) {
 		this.onUpdateCallbacks.add(callback);
 	}
 
-	private final List<Consumer<T>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
+	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
 
-	public void onSetNextValue(Consumer<T> callback) {
+	public void onSetNextValue(Consumer<Value<T>> callback) {
 		this.onSetNextValueCallbacks.add(callback);
 	}
 

@@ -169,7 +169,7 @@ public class Influxdb extends AbstractOpenemsComponent implements Timedata, Open
 				.timestamp(timestamp, TimeUnit.SECONDS);
 		this._components.stream().filter(c -> c.isEnabled()).forEach(component -> {
 			component.channels().forEach(channel -> {
-				Optional<?> valueOpt = channel.getActiveValueOpt();
+				Optional<?> valueOpt = channel.value().asOptional();
 				if (!valueOpt.isPresent()) {
 					// ignore not available channels
 					return;

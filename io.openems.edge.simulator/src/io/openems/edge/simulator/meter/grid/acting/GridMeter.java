@@ -113,7 +113,7 @@ public class GridMeter extends AbstractOpenemsComponent
 		 */
 		int activePower = simulatedActivePower;
 		for (SymmetricEss ess : this.symmetricEsss) {
-			Optional<Integer> essPowerOpt = ess.getActivePower().getActiveValueOpt();
+			Optional<Integer> essPowerOpt = ess.getActivePower().value().asOptional();
 			if (essPowerOpt.isPresent()) {
 				activePower -= essPowerOpt.get();
 			}
@@ -135,6 +135,6 @@ public class GridMeter extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return this.getActivePower().format();
+		return this.getActivePower().value().asString();
 	}
 }

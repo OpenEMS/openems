@@ -146,9 +146,9 @@ public class EssSymmetric extends AbstractOpenemsComponent implements SymmetricE
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().format() //
-				+ "|L:" + this.getActivePower().format() //
-				+ "|" + this.getGridMode().getActiveValueOption();
+		return "SoC:" + this.getSoc().value().asString() //
+				+ "|L:" + this.getActivePower().value().asString() //
+				+ "|" + this.getGridMode().value().asOptionString();
 	}
 
 	@Override

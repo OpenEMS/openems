@@ -692,11 +692,11 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 
 	@Override
 	public String debugLog() {
-		return "SoC:" + this.getSoc().format() //
-				+ "|L:" + this.getActivePower().format() //
-				+ "|Allowed:" + this.channel(ChannelId.ALLOWED_CHARGE).formatWithoutUnit() + ";"
-				+ this.channel(ChannelId.ALLOWED_DISCHARGE).format() //
-				+ "|" + this.getGridMode().getActiveValueOption();
+		return "SoC:" + this.getSoc().value().asString() //
+				+ "|L:" + this.getActivePower().value().asString() //
+				+ "|Allowed:" + this.channel(ChannelId.ALLOWED_CHARGE).value().asStringWithoutUnit() + ";"
+				+ this.channel(ChannelId.ALLOWED_DISCHARGE).value().asString() //
+				+ "|" + this.getGridMode().value().asOptionString();
 	}
 
 	@Override

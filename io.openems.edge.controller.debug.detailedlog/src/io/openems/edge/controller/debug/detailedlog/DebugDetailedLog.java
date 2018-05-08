@@ -89,7 +89,7 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 					.forEach(channel -> {
 						String unit = channel.channelDoc().getUnit().getSymbol();
 						this.logInfo(this.log, String.format("%-" + WIDTH_FIRST + "s : %15s %s",
-								channel.channelId().id(), channel.formatWithoutUnit(), unit));
+								channel.channelId().id(), channel.value().asStringWithoutUnit(), unit));
 					});
 			logInfo(this.log, "---------------------------------------");
 		});

@@ -11,7 +11,9 @@ Export-Package: \
 	io.openems.edge.common.channel.doc,\
 	io.openems.edge.common.controllerexecutor,\
 	io.openems.edge.common.channel.merger,\
-	io.openems.edge.common.converter
+	io.openems.edge.common.converter,\
+	io.openems.edge.common.user,\
+	io.openems.edge.common.channel.value
 
 -includeresource: {readme.md}
 

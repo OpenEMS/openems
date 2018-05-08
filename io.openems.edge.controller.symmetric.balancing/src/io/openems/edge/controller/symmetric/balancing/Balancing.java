@@ -64,8 +64,8 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	 * @throws InvalidValueException
 	 */
 	private int calculateRequiredPower() throws InvalidValueException {
-		return this.meter.getActivePower().getActiveValue() /* current buy-from/sell-to grid */
-				+ this.ess.getActivePower().getActiveValue() /* current charge/discharge Ess */;
+		return this.meter.getActivePower().value().get() /* current buy-from/sell-to grid */
+				+ this.ess.getActivePower().value().get() /* current charge/discharge Ess */;
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			/*
 			 * Check that we are On-Grid
 			 */
-			Enum<?> gridMode = this.ess.getGridMode().getActiveValueOptionEnum();
+			Enum<?> gridMode = this.ess.getGridMode().value().asEnum();
 			if (gridMode != Ess.GridMode.ON_GRID) {
 				return;
 			}
