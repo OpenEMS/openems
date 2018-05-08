@@ -1,0 +1,17 @@
+-dsannotations: *
+-metatypeannotations: *
+Service-Component: *
+
+Bundle-Version: 2.4.0
+
+Include-Resource: @retrofit-2.4.0.jar
+
+-exportcontents: \
+	retrofit2,\
+	retrofit2.http
+	
+-sources: false
+
+Import-Package: \
+	android.os;resolution:=optional, \
+	*

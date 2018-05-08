@@ -44,6 +44,7 @@ public class Utils {
 				break;
 			case "Simulator.Datasource.SLP":
 			case "Scheduler.AllAlphabetically":
+			case "Timedata.InfluxDB":
 				// ignore
 				continue;
 			default:

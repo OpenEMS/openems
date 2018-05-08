@@ -1,0 +1,13 @@
+-dsannotations: *
+-metatypeannotations: *
+Service-Component: *
+
+Bundle-Version: 2.10
+
+Include-Resource: @influxdb-java-2.10.jar
+
+-exportcontents: \
+	org.influxdb,\
+	org.influxdb.dto
+	
+-sources: false

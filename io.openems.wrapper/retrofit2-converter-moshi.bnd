@@ -1,0 +1,12 @@
+-dsannotations: *
+-metatypeannotations: *
+Service-Component: *
+
+Bundle-Version: 2.4.0
+
+Include-Resource: @converter-moshi-2.4.0.jar
+
+-exportcontents: \
+	retrofit2.converter.moshi
+	
+-sources: false

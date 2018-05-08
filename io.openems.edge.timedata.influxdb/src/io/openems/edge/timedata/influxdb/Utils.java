@@ -9,7 +9,7 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class Utils {
-	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(Influxdb c) {
+	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(InfluxTimedata c) {
 		return Stream.of( //
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
@@ -21,9 +21,10 @@ public class Utils {
 					// switch (channelId) {
 					// }
 					// return null;
-				}), Arrays.stream(Influxdb.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(InfluxTimedata.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE_0:
+					case STATE_1:
 						return new BooleanReadChannel(c, channelId);
 					}
 					return null;

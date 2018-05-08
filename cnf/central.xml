@@ -43,6 +43,21 @@
 			<version>23.6-jre</version>
 		</dependency>
 		<dependency>
+			<groupId>com.squareup.moshi</groupId>
+			<artifactId>moshi</artifactId>
+			<version>1.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>retrofit</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.squareup.retrofit2</groupId>
+			<artifactId>converter-moshi</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>influx4j</artifactId>
 			<version>1.6</version>
@@ -87,6 +102,11 @@
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.xmlrpc-client</artifactId>
 			<version>3.1.3_1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.influxdb</groupId>
+			<artifactId>influxdb-java</artifactId>
+			<version>2.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.java-websocket</groupId>

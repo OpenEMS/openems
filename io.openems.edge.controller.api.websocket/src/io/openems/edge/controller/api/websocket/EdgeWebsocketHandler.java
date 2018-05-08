@@ -11,6 +11,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.AccessDeniedException;
@@ -22,6 +23,7 @@ import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
 import io.openems.edge.common.user.User;
+import io.openems.edge.timedata.api.Timedata;
 
 /**
  * Handles a Websocket connection to a browser, OpenEMS backend,...
@@ -82,8 +84,8 @@ public class EdgeWebsocketHandler {
 			this.currentDataWorkerOpt = Optional.empty();
 		}
 		if (userOpt.isPresent()) {
-			Role role = userOpt.get().getRole();
-			this.currentDataWorkerOpt = Optional.of(new EdgeCurrentDataWorker(this, websocket, role));
+			// Role role = userOpt.get().getRole();
+			this.currentDataWorkerOpt = Optional.of(new EdgeCurrentDataWorker(this, websocket));
 		}
 	}
 
@@ -164,33 +166,19 @@ public class EdgeWebsocketHandler {
 	}
 
 	private void historicData(JsonObject jMessageId, JsonObject jHistoricData) {
-		throw new IllegalArgumentException("Historic Data is no implemented");
-		// TODO
-		// select first QueryablePersistence (by default the running
-		// InfluxdbPersistence)
-		// TimedataService timedataSource = null;
-		// for (QueryablePersistence queryablePersistence :
-		// ThingRepository.getInstance().getQueryablePersistences()) {
-		// timedataSource = queryablePersistence;
-		// break;
-		// }
-		// if (timedataSource == null) {
-		// WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject(),
-		// LogBehaviour.WRITE_TO_LOG,
-		// Notification.NO_TIMEDATA_SOURCE_AVAILABLE);
-		// return;
-		// }
-		// JsonArray jData;
-		// try {
-		// jData = timedataSource.queryHistoricData(jHistoricData);
-		// WebSocketUtils.send(this.websocket,
-		// DefaultMessages.historicDataQueryReply(jMessageId, jData));
-		// } catch (OpenemsException e) {
-		// WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId,
-		// LogBehaviour.WRITE_TO_LOG,
-		// Notification.UNABLE_TO_QUERY_HISTORIC_DATA, e.getMessage());
-		// }
-		// return;
+		Timedata timedataService = this.parent.timedataService;
+		if (timedataService == null) {
+			WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject(), LogBehaviour.WRITE_TO_LOG,
+					Notification.NO_TIMEDATA_SOURCE_AVAILABLE);
+			return;
+		}
+		try {
+			JsonArray jData = timedataService.queryHistoricData(jHistoricData);
+			WebSocketUtils.send(this.websocket, DefaultMessages.historicDataQueryReply(jMessageId, jData));
+		} catch (OpenemsException e) {
+			WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
+					Notification.UNABLE_TO_QUERY_HISTORIC_DATA, e.getMessage());
+		}
 	}
 
 	/**
@@ -230,7 +218,7 @@ public class EdgeWebsocketHandler {
 			 */
 			throw new IllegalArgumentException("Config Update is no implemented");
 
-			// TODO
+			// TODO Update config
 			// Optional<String> thingIdOpt = JsonUtils.getAsOptionalString(jConfig,
 			// "thing");
 			// Optional<String> channelIdOpt = JsonUtils.getAsOptionalString(jConfig,
@@ -427,7 +415,7 @@ public class EdgeWebsocketHandler {
 	private synchronized void system(JsonObject jMessageId, JsonObject jSystem, Role role) throws OpenemsException {
 		throw new IllegalArgumentException("System is no implemented");
 
-		// TODO
+		// TODO implement system
 		// if (!(role == Role.ADMIN)) {
 		// throw new AccessDeniedException("User role [" + role + "] is not allowed to
 		// execute system commands.");

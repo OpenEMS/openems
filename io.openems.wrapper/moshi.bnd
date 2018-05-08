@@ -1,0 +1,12 @@
+-dsannotations: *
+-metatypeannotations: *
+Service-Component: *
+
+Bundle-Version: 1.5.0
+
+Include-Resource: @moshi-1.5.0.jar
+
+-exportcontents: \
+	com.squareup.moshi
+	
+-sources: false

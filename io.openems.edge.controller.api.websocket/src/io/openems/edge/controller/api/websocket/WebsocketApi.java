@@ -42,6 +42,7 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Api.Websocket", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -54,6 +55,9 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE, target = "(!(service.factoryPid=Controller.Api.Websocket))")
 	protected volatile List<OpenemsComponent> components = new CopyOnWriteArrayList<>();
+
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	protected volatile Timedata timedataService = null;
 
 	@Reference
 	protected ConfigurationAdmin configAdmin;
@@ -213,11 +217,13 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 				handler.send(jReply);
 			}
 
-			public void sendLog(long timestamp, String level, String source, String message) {
-				for (UiEdgeWebsocketHandler handler : this.handlers.values()) {
-					handler.sendLog(timestamp, level, source, message);
-				}
-			}
+			// TODO implement Log
+			// public void sendLog(long timestamp, String level, String source, String
+			// message) {
+			// for (UiEdgeWebsocketHandler handler : this.handlers.values()) {
+			// handler.sendLog(timestamp, level, source, message);
+			// }
+			// }
 
 			private String getUserName(WebSocket websocket) {
 				Optional<UiEdgeWebsocketHandler> handlerOpt = getHandlerOpt(websocket);
@@ -260,22 +266,21 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 				}
 			}
 
-			private final static String DEFAULT_CONFIG_LANGUAGE = "en";
-
-			public void onConfigUpdate() {
-				// TODO
-				// for (UiEdgeWebsocketHandler handler : this.handlers.values()) {
-				// try {
-				// Role role = handler.getUserOpt().get().getRole();
-				// JsonObject j = DefaultMessages.configQueryReply(new JsonObject(),
-				// Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, role,
-				// DEFAULT_CONFIG_LANGUAGE));
-				// handler.send(j);
-				// } catch (OpenemsException | NoSuchElementException e) {
-				// log.warn(e.getMessage());
-				// }
-				// }
-			}
+			// TODO handle config update
+			// public void onConfigUpdate() {
+			// TODO
+			// for (UiEdgeWebsocketHandler handler : this.handlers.values()) {
+			// try {
+			// Role role = handler.getUserOpt().get().getRole();
+			// JsonObject j = DefaultMessages.configQueryReply(new JsonObject(),
+			// Config.getInstance().getJson(ConfigFormat.OPENEMS_UI, role,
+			// DEFAULT_CONFIG_LANGUAGE));
+			// handler.send(j);
+			// } catch (OpenemsException | NoSuchElementException e) {
+			// log.warn(e.getMessage());
+			// }
+			// }
+			// }
 
 			/**
 			 * Authenticates a user according to the "authenticate" message. Stores the User

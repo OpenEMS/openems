@@ -4,7 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import io.openems.edge.timedata.influxdb.Influxdb;
+import io.openems.edge.timedata.influxdb.InfluxTimedata;
 
 /*
  * Example JUNit test case
@@ -19,7 +19,7 @@ public class ProviderImplTest {
 
 	@Test
 	public void simple() {
-		Influxdb impl = new Influxdb();
+		InfluxTimedata impl = new InfluxTimedata();
 		assertNotNull(impl);
 	}
 
