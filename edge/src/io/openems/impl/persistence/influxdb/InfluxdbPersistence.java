@@ -23,13 +23,9 @@ package io.openems.impl.persistence.influxdb;
 import java.net.Inet4Address;
 import java.time.ZonedDateTime;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import org.influxdb.InfluxDB;
 import org.influxdb.InfluxDBFactory;
-import org.influxdb.dto.BatchPoints;
-import org.influxdb.dto.Point;
-import org.influxdb.dto.Point.Builder;
 
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonArray;
@@ -46,7 +42,6 @@ import io.openems.api.persistence.QueryablePersistence;
 import io.openems.backend.timedata.influx.InfluxdbUtils;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.ChannelEnum;
 import io.openems.core.Databus;
 
 @ThingInfo(title = "InfluxDB Persistence", description = "Persists data in an InfluxDB time-series database.")
@@ -94,32 +89,33 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 	 */
 	@Override
 	public void channelUpdated(Channel channel, Optional<?> newValue) {
-		if (!(channel instanceof ReadChannel<?>)) {
-			return;
-		}
-		ReadChannel<?> readChannel = (ReadChannel<?>) channel;
-		if (!newValue.isPresent()) {
-			return;
-		}
-		Object value = newValue.get();
-		String field = readChannel.address().toString();
-		FieldValue<?> fieldValue;
-		// TODO merge this with io.openems.backend.timedata.influx.addChannelToBuilder()
-		if (value instanceof Number) {
-			fieldValue = new NumberFieldValue(field, (Number) value);
-		} else if (value instanceof String) {
-			fieldValue = new StringFieldValue(field, (String) value);
-		} else if (value instanceof ChannelEnum) {
-			fieldValue = new NumberFieldValue(field, ((ChannelEnum) value).getValue());
-		} else {
-			return;
-		}
-		// Round time to Cycle-Time
-		int cycleTime = this.getCycleTime();
-		Long timestamp = System.currentTimeMillis() / cycleTime * cycleTime;
-		synchronized (queue) {
-			queue.put(timestamp, fieldValue);
-		}
+		// MOVED TO OSGi
+		//		if (!(channel instanceof ReadChannel<?>)) {
+		//			return;
+		//		}
+		//		ReadChannel<?> readChannel = (ReadChannel<?>) channel;
+		//		if (!newValue.isPresent()) {
+		//			return;
+		//		}
+		//		Object value = newValue.get();
+		//		String field = readChannel.address().toString();
+		//		FieldValue<?> fieldValue;
+		//		// TODO merge this with io.openems.backend.timedata.influx.addChannelToBuilder()
+		//		if (value instanceof Number) {
+		//			fieldValue = new NumberFieldValue(field, (Number) value);
+		//		} else if (value instanceof String) {
+		//			fieldValue = new StringFieldValue(field, (String) value);
+		//		} else if (value instanceof ChannelEnum) {
+		//			fieldValue = new NumberFieldValue(field, ((ChannelEnum) value).getValue());
+		//		} else {
+		//			return;
+		//		}
+		//		// Round time to Cycle-Time
+		//		int cycleTime = this.getCycleTime();
+		//		Long timestamp = System.currentTimeMillis() / cycleTime * cycleTime;
+		//		synchronized (queue) {
+		//			queue.put(timestamp, fieldValue);
+		//		}
 	}
 
 	@Override
@@ -129,44 +125,45 @@ public class InfluxdbPersistence extends QueryablePersistence implements Channel
 
 	@Override
 	protected void forever() {
-		// Prepare DB connection
-		Optional<InfluxDB> _influxdb = getInfluxDB();
-		if (!_influxdb.isPresent()) {
-			synchronized (queue) {
-				// Clear queue if we don't have a valid influxdb connection. This is necessary to avoid filling the
-				// memory in case of no available DB connection
-				queue.clear();
-			}
-		}
-		InfluxDB influxDB = _influxdb.get();
-		/*
-		 * Convert FieldVales in queue to Points
-		 */
-		BatchPoints batchPoints = BatchPoints.database(database.valueOptional().orElse("db")) //
-				.tag("fems", String.valueOf(fems.valueOptional().get())) //
-				/* .retentionPolicy("autogen") */.build();
-		synchronized (queue) {
-			queue.asMap().forEach((timestamp, fieldValues) -> {
-				Builder builder = Point.measurement("data") //
-						.time(timestamp, TimeUnit.MILLISECONDS);
-				fieldValues.forEach(fieldValue -> {
-					if (fieldValue instanceof NumberFieldValue) {
-						builder.addField(fieldValue.field, ((NumberFieldValue) fieldValue).value);
-					} else if (fieldValue instanceof StringFieldValue) {
-						builder.addField(fieldValue.field, ((StringFieldValue) fieldValue).value);
-					}
-				});
-				batchPoints.point(builder.build());
-			});
-			queue.clear();
-		}
-		// write to DB
-		try {
-			influxDB.write(batchPoints);
-			log.debug("Wrote [" + batchPoints.getPoints().size() + "] points to InfluxDB");
-		} catch (RuntimeException e) {
-			log.error("Error writing to InfluxDB: " + e);
-		}
+		// MOVED TO OSGi
+		//		// Prepare DB connection
+		//		Optional<InfluxDB> _influxdb = getInfluxDB();
+		//		if (!_influxdb.isPresent()) {
+		//			synchronized (queue) {
+		//				// Clear queue if we don't have a valid influxdb connection. This is necessary to avoid filling the
+		//				// memory in case of no available DB connection
+		//				queue.clear();
+		//			}
+		//		}
+		//		InfluxDB influxDB = _influxdb.get();
+		//		/*
+		//		 * Convert FieldVales in queue to Points
+		//		 */
+		//		BatchPoints batchPoints = BatchPoints.database(database.valueOptional().orElse("db")) //
+		//				.tag("fems", String.valueOf(fems.valueOptional().get())) //
+		//				/* .retentionPolicy("autogen") */.build();
+		//		synchronized (queue) {
+		//			queue.asMap().forEach((timestamp, fieldValues) -> {
+		//				Builder builder = Point.measurement("data") //
+		//						.time(timestamp, TimeUnit.MILLISECONDS);
+		//				fieldValues.forEach(fieldValue -> {
+		//					if (fieldValue instanceof NumberFieldValue) {
+		//						builder.addField(fieldValue.field, ((NumberFieldValue) fieldValue).value);
+		//					} else if (fieldValue instanceof StringFieldValue) {
+		//						builder.addField(fieldValue.field, ((StringFieldValue) fieldValue).value);
+		//					}
+		//				});
+		//				batchPoints.point(builder.build());
+		//			});
+		//			queue.clear();
+		//		}
+		//		// write to DB
+		//		try {
+		//			influxDB.write(batchPoints);
+		//			log.debug("Wrote [" + batchPoints.getPoints().size() + "] points to InfluxDB");
+		//		} catch (RuntimeException e) {
+		//			log.error("Error writing to InfluxDB: " + e);
+		//		}
 	}
 
 	@Override

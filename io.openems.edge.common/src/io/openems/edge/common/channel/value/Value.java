@@ -2,6 +2,8 @@ package io.openems.edge.common.channel.value;
 
 import java.util.Optional;
 
+import com.google.gson.JsonElement;
+
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.TypeUtils;
@@ -110,5 +112,14 @@ public class Value<T> {
 		T value = this.get();
 		int intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
 		return this.parent.channelDoc().getOptionEnum(intValue);
+	}
+
+	/**
+	 * Gets the value in JSON format
+	 * 
+	 * @return
+	 */
+	public JsonElement asJson() {
+		return TypeUtils.getAsJson(this.parent.getType(), this.get());
 	}
 }

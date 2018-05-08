@@ -20,10 +20,10 @@ public interface SymmetricEssReadonly extends Ess {
 				.onInit(channel -> {
 					channel.onSetNextValue(value -> {
 						// derive DISCHARGE_ACTIVE_POWER and CHARGE_ACTIVE_POWER from ACTIVE_POWER
-						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value);
+						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
 						channel.getComponent().channel(ChannelId.DISCHARGE_ACTIVE_POWER).setNextValue(dischargeValue);
 						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
-								.apply(value);
+								.apply(value.get());
 						channel.getComponent().channel(ChannelId.CHARGE_ACTIVE_POWER).setNextValue(chargeValue);
 					});
 				})), //
@@ -35,10 +35,10 @@ public interface SymmetricEssReadonly extends Ess {
 				.onInit(channel -> {
 					channel.onSetNextValue(value -> {
 						// derive DISCHARGE_REACTIVE_POWER and CHARGE_REACTIVE_POWER from REACTIVE_POWER
-						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value);
+						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
 						channel.getComponent().channel(ChannelId.DISCHARGE_REACTIVE_POWER).setNextValue(dischargeValue);
 						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
-								.apply(value);
+								.apply(value.get());
 						channel.getComponent().channel(ChannelId.CHARGE_REACTIVE_POWER).setNextValue(chargeValue);
 					});
 				}));

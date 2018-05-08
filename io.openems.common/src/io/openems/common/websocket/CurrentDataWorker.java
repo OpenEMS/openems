@@ -1,13 +1,14 @@
 package io.openems.common.websocket;
 
-import java.util.Optional;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
+
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -70,7 +71,7 @@ public abstract class CurrentDataWorker {
 			// registered channels -> create new thread
 			this.futureOpt = Optional.of(this.executor.scheduleWithFixedDelay(() -> {
 				/*
-				 * This task is executed regularly. Sends data to websocket.
+				 * This task is executed regularly. Sends data to Websocket.
 				 */
 				if (!this.websocket.isOpen()) {
 					// disconnected; stop worker
@@ -91,7 +92,7 @@ public abstract class CurrentDataWorker {
 	}
 
 	/**
-	 * Gets a json object with all subscribed channels
+	 * Gets a JSON object with all subscribed channels
 	 *
 	 * @return
 	 */
@@ -101,15 +102,13 @@ public abstract class CurrentDataWorker {
 			JsonObject jThingData = new JsonObject();
 			for (String channelId : this.channels.get(thingId)) {
 				ChannelAddress channelAddress = new ChannelAddress(thingId, channelId);
-				Optional<JsonElement> jValueOpt = this.getChannelValue(channelAddress);
-				if (jValueOpt.isPresent()) {
-					jThingData.add(channelId, jValueOpt.get());
-				}
+				JsonElement jValue = this.getChannelValue(channelAddress);
+				jThingData.add(channelId, jValue);
 			}
 			jData.add(thingId, jThingData);
 		}
 		return jData;
 	}
 
-	protected abstract Optional<JsonElement> getChannelValue(ChannelAddress channelAddress);
+	protected abstract JsonElement getChannelValue(ChannelAddress channelAddress);
 }

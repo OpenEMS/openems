@@ -2,6 +2,10 @@ package io.openems.common.utils;
 
 import java.util.Optional;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
+
 import io.openems.common.types.OpenemsType;
 
 /**
@@ -130,5 +134,25 @@ public class TypeUtils {
 		}
 		throw new IllegalArgumentException(
 				"Converter for value [" + value + "] to type [" + type + "] is not implemented.");
+	}
+
+	public static JsonElement getAsJson(OpenemsType type, Object originalValue) {
+		if (originalValue == null) {
+			return JsonNull.INSTANCE;
+		}
+		Object value = TypeUtils.getAsType(type, originalValue);
+		switch (type) {
+		case BOOLEAN:
+			return new JsonPrimitive((Boolean) value);
+		case FLOAT:
+			return new JsonPrimitive((Float) value);
+		case INTEGER:
+			return new JsonPrimitive((Integer) value);
+		case LONG:
+			return new JsonPrimitive((Long) value);
+		case SHORT:
+			return new JsonPrimitive((Short) value);
+		}
+		throw new IllegalArgumentException("Converter for value [" + value + "] to JSON is not implemented.");
 	}
 }

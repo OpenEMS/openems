@@ -94,21 +94,21 @@ public class WebsocketApiController extends Controller implements ChannelChangeL
 	/*
 	 * Methods
 	 */
-	@Override
-	public void run() {
-		// Start Websocket-Api server
-		if (websocketApiServer == null && port.valueOptional().isPresent()) {
-			try {
-				websocketApiServer = new WebsocketApiServer(apiWorker, port.valueOptional().get());
-				websocketApiServer.start();
-				log.info("Websocket-Api started on port [" + port.valueOptional().orElse(0) + "].");
-			} catch (Exception e) {
-				log.error(e.getMessage() + ": " + e.getCause());
-			}
-		}
-		// call AapiWorker
-		this.apiWorker.run();
-	}
+	//	@Override
+	//	public void run() {
+	//		// Start Websocket-Api server
+	//		if (websocketApiServer == null && port.valueOptional().isPresent()) {
+	//			try {
+	//				websocketApiServer = new WebsocketApiServer(apiWorker, port.valueOptional().get());
+	//				websocketApiServer.start();
+	//				log.info("Websocket-Api started on port [" + port.valueOptional().orElse(0) + "].");
+	//			} catch (Exception e) {
+	//				log.error(e.getMessage() + ": " + e.getCause());
+	//			}
+	//		}
+	//		// call AapiWorker
+	//		this.apiWorker.run();
+	//	}
 
 	@Override
 	public void channelChanged(Channel channel, Optional<?> newValue, Optional<?> oldValue) {

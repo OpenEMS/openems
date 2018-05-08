@@ -31,6 +31,8 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	}
 
 	public AbstractReadChannel(OpenemsType type, OpenemsComponent component, ChannelId channelId, T initialValue) {
+		this.nextValue = new Value<T>(this, null);
+		this.activeValue = new Value<T>(this, null);
 		this.type = type;
 		this.component = component;
 		this.channelId = channelId;

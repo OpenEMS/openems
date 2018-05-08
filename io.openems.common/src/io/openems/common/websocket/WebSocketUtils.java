@@ -47,6 +47,7 @@ public class WebSocketUtils {
 
 	public static void send(Optional<WebSocket> websocketOpt, JsonObject j) throws OpenemsException {
 		if (!websocketOpt.isPresent()) {
+			// TODO cache message for later
 			throw new OpenemsException(
 					"Websocket is not available. Unable to send [" + StringUtils.toShortString(j, 100) + "]");
 		} else {
