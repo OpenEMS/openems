@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -69,7 +70,7 @@ public class JsonUtils {
 	public static JsonElement getAsJsonElement(Object value) throws NotImplementedException {
 		// null
 		if (value == null) {
-			return null;
+			return JsonNull.INSTANCE;
 		}
 		// optional
 		if (value instanceof Optional<?>) {

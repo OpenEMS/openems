@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.java_websocket.WebSocket;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.types.ChannelAddress;
@@ -23,17 +24,17 @@ public class BackendCurrentDataWorker extends CurrentDataWorker {
 	}
 
 	@Override
-	protected Optional<JsonElement> getChannelValue(ChannelAddress channelAddress) {
+	protected JsonElement getChannelValue(ChannelAddress channelAddress) {
 		Optional<Object> channelCacheOpt = this.parent.parent.timeDataService.getChannelValue(this.edgeId,
 				channelAddress);
 		if (channelCacheOpt.isPresent()) {
 			try {
-				return Optional.ofNullable(JsonUtils.getAsJsonElement(channelCacheOpt.get()));
+				return JsonUtils.getAsJsonElement(channelCacheOpt.get());
 			} catch (NotImplementedException e) {
-				return Optional.empty();
+				return JsonNull.INSTANCE;
 			}
 		} else {
-			return Optional.empty();
+			return JsonNull.INSTANCE;
 		}
 	}
 }
