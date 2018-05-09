@@ -48,7 +48,6 @@ public class InfluxRead {
 				org.influxdb.InfluxDB influxDB = InfluxDBFactory.connect(
 						"http://" + this.parent.ip + ":" + this.parent.port, this.parent.username,
 						this.parent.password);
-				influxDB.createDatabase(this.parent.database);
 				this._influxDB = influxDB;
 				this.parent.channel(ChannelId.STATE_1).setNextValue(false);
 			} catch (RuntimeException e) {

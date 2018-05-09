@@ -38,9 +38,10 @@ import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
+import io.openems.edge.api.user.User;
+import io.openems.edge.api.user.UserService;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.timedata.api.Timedata;
 
@@ -61,6 +62,9 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 
 	@Reference
 	protected ConfigurationAdmin configAdmin;
+
+	@Reference
+	protected UserService userService;
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
@@ -303,9 +307,9 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 							Optional<String> usernameOpt = JsonUtils.getAsOptionalString(jAuthenticate, "username");
 							Optional<User> userOpt;
 							if (usernameOpt.isPresent()) {
-								userOpt = User.authenticate(usernameOpt.get(), password);
+								userOpt = userService.authenticate(usernameOpt.get(), password);
 							} else {
-								userOpt = User.authenticate(password);
+								userOpt = userService.authenticate(password);
 							}
 
 							if (!userOpt.isPresent()) {

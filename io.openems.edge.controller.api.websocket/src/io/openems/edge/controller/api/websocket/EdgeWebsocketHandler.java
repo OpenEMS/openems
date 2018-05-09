@@ -22,7 +22,7 @@ import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
-import io.openems.edge.common.user.User;
+import io.openems.edge.api.user.User;
 import io.openems.edge.timedata.api.Timedata;
 
 /**
@@ -103,8 +103,9 @@ public class EdgeWebsocketHandler {
 			log.error("No User! Aborting...");
 			return;
 		}
-		Role role = this.userOpt.get().getRole();
+		// Role role = this.userOpt.get().getRole();
 
+		Role role = Role.ADMIN;
 		// get MessageId from message -> used for reply
 		Optional<JsonObject> jMessageIdOpt = JsonUtils.getAsOptionalJsonObject(jMessage, "messageId");
 
