@@ -154,6 +154,7 @@ public class InfluxdbUtils {
 		} else if (value instanceof String) {
 			return Optional.of((String) value);
 		}
+		// TODO handle JsonNull
 		log.warn("Unknown type of value [" + value + "] channel [" + channel + "]. This should never happen.");
 		return Optional.empty();
 	}
