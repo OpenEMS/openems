@@ -68,6 +68,9 @@ public abstract class Controller implements Thing {
 			run();
 		} catch (Throwable e) {
 			log.error("execution of Controller ["+id()+"] with Implementation ["+this.getClass().getSimpleName()+"] failed. " + e.getClass().getSimpleName() + ": " +e.getMessage());
+			if (e instanceof NullPointerException) { // special treatment for NullPointers
+				e.printStackTrace();
+			}
 		}
 		requiredTime.setValue(System.currentTimeMillis() - beforeRun);
 	}
