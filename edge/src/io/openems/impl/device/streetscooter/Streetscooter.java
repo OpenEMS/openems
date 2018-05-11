@@ -52,13 +52,12 @@ public class Streetscooter extends ModbusDevice {
 	public final ConfigChannel<StreetscooterEss2> ess1 = new ConfigChannel<StreetscooterEss2>("ess1", this)
 	.addChangeListener(this);
 
-
 	/*
 	 * Methods
 	 */
 	@Override
 	public String toString() {
-		return "Streetscooter [ess0=" + ess0 + ", ess1=" + ess0 + ", getThingId()=" + id() + "]";
+		return "Streetscooter [ess0=" + ess0 + ", ess1=" + ess1 + ", getThingId()=" + id() + "]";
 	}
 
 	@Override

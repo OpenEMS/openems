@@ -35,16 +35,12 @@ import io.openems.impl.protocol.modbus.ModbusCoilWriteChannel;
 import io.openems.impl.protocol.modbus.ModbusDeviceNature;
 import io.openems.impl.protocol.modbus.ModbusReadLongChannel;
 import io.openems.impl.protocol.modbus.ModbusWriteLongChannel;
-import io.openems.impl.protocol.modbus.internal.CoilElement;
 import io.openems.impl.protocol.modbus.internal.FloatElement;
 import io.openems.impl.protocol.modbus.internal.ModbusProtocol;
-import io.openems.impl.protocol.modbus.internal.UnsignedDoublewordElement;
-import io.openems.impl.protocol.modbus.internal.range.ModbusCoilRange;
-import io.openems.impl.protocol.modbus.internal.range.ModbusRegisterRange;
-import io.openems.impl.protocol.modbus.internal.range.WriteableModbusCoilRange;
-import io.openems.impl.protocol.modbus.internal.range.WriteableModbusRegisterRange;
+import io.openems.impl.protocol.modbus.internal.WordOrder;
+import io.openems.impl.protocol.modbus.internal.range.ModbusInputRegisterRange;
 
-@ThingInfo(title = "FENECON Pro ESS")
+@ThingInfo(title = "Streetscooter ESS")
 public class StreetscooterEss2 extends ModbusDeviceNature implements SymmetricEssNature {
 
 	/*
@@ -84,15 +80,19 @@ public class StreetscooterEss2 extends ModbusDeviceNature implements SymmetricEs
 	// ESS
 	private ModbusReadLongChannel allowedCharge;
 	private ModbusReadLongChannel allowedDischarge;
-	private ReadChannel<Long> gridMode;
+
 	private ModbusReadLongChannel soc;
-	private ModbusReadLongChannel systemState;
+	private StaticValueChannel<Long> systemState = new StaticValueChannel<>("SystemState", this, 0l);
 	private ModbusWriteLongChannel setWorkState;
 	private ReadChannel<Long> allowedApparent;
 	// RealTimeClock
 	private StaticValueChannel<Long> capacity = new StaticValueChannel<>("capacity", this, 12000L).unit("Wh");
 	private StaticValueChannel<Long> maxNominalPower = new StaticValueChannel<>("maxNominalPower", this, 9000L)
 			.unit("VA");
+
+	private ReadChannel<Long> gridMode = new StaticValueChannel<>("ReactivePower", this, 0l);
+	private StaticValueChannel<Long> reactivePower = new StaticValueChannel<>("ReactivePower", this, 0l);
+	private StaticValueChannel<Long> apparentPower = new StaticValueChannel<>("ApparentPower", this, 0l);
 
 	@Override
 	public ReadChannel<Long> allowedCharge() {
@@ -147,6 +147,7 @@ public class StreetscooterEss2 extends ModbusDeviceNature implements SymmetricEs
 	public ModbusReadLongChannel errorMessage1H;
 	public ModbusReadLongChannel errorMessage1L;
 	public ModbusReadLongChannel errorMessage2H;
+	public ModbusReadLongChannel errorMessage2L;
 	public ModbusReadLongChannel frequencyActive1;
 	public ModbusReadLongChannel frequencyActive2;
 	public ModbusReadLongChannel frequencyActive3;
@@ -178,78 +179,78 @@ public class StreetscooterEss2 extends ModbusDeviceNature implements SymmetricEs
 	/*
 	 * Methods
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected ModbusProtocol defineModbusProtocol() throws ConfigException {
-		ModbusProtocol protokol = new ModbusProtocol(new ModbusRegisterRange(31001, //
-				new UnsignedDoublewordElement(31001, batteryError = new ModbusReadLongChannel("BatteryError", this)),
-				new FloatElement(31003, batteryCurrent = new ModbusReadLongChannel("BatteryCurrent", this)),
-				new FloatElement(31005, allowedCharge = new ModbusReadLongChannel("AllowedCharge", this)),
-				new FloatElement(31007, allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this)),
-				new FloatElement(31009, pwrRgnMax = new ModbusReadLongChannel("PwrRgnMax", this)),
-				new UnsignedDoublewordElement(31011, soc = new ModbusReadLongChannel("Soc", this)),
-				new UnsignedDoublewordElement(31013, soh = new ModbusReadLongChannel("Soh", this)),
-				new UnsignedDoublewordElement(31015, stBat = new ModbusReadLongChannel("StBat", this)),
-				new FloatElement(31017, tMaxPack = new ModbusReadLongChannel("TMaxPack", this)),
-				new FloatElement(31019, tMinPack = new ModbusReadLongChannel("TMinPack", this)),
-				new FloatElement(31021, batteryVoltage = new ModbusReadLongChannel("BatteryVoltage", this)),
-				new UnsignedDoublewordElement(31023, warning = new ModbusReadLongChannel("Warning", this))),
-				new ModbusRegisterRange(33001, //
-						new FloatElement(33001, activePower = new ModbusReadLongChannel("ActivePower", this)),
-						new FloatElement(33003, dc1FaultValue = new ModbusReadLongChannel("DC1FaultValue", this)),
-						new FloatElement(33005, dc2FaultValue = new ModbusReadLongChannel("DC2FaultValue", this)),
-						new FloatElement(33007, errorMessage1H = new ModbusReadLongChannel("ErrorMessage1H", this)),
-						new FloatElement(33009, errorMessage1L = new ModbusReadLongChannel("ErrorMessage1L", this)),
-						new FloatElement(33011, errorMessage2H = new ModbusReadLongChannel("ErrorMessage2H", this)),
-						new FloatElement(33013, errorMessage2H = new ModbusReadLongChannel("ErrorMessage2H", this)),
-						new FloatElement(33015, frequencyActive1 = new ModbusReadLongChannel("FrequencyActive1", this)),
-						new FloatElement(33017, frequencyActive2 = new ModbusReadLongChannel("FrequencyActive2", this)),
-						new FloatElement(33019, frequencyActive3 = new ModbusReadLongChannel("FrequencyActive3", this)),
-						new FloatElement(33021,
-								gridFrequency1FaultValue = new ModbusReadLongChannel("GridFrequency1FaultValue", this)),
-						new FloatElement(33023,
+		ModbusProtocol protocol = new ModbusProtocol( //
+				new ModbusInputRegisterRange(1000, //
+						new FloatElement(1000,
+								batteryError = new ModbusReadLongChannel("BatteryError", this)),
+						new FloatElement(1002, batteryCurrent = new ModbusReadLongChannel("BatteryCurrent", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(1004, allowedCharge = new ModbusReadLongChannel("AllowedCharge", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(1006, allowedDischarge = new ModbusReadLongChannel("AllowedDischarge", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(1008, pwrRgnMax = new ModbusReadLongChannel("PwrRgnMax", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(1010, soc = new ModbusReadLongChannel("Soc", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(1012, soh = new ModbusReadLongChannel("Soh", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(1014, stBat = new ModbusReadLongChannel("StBat", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(1016, tMaxPack = new ModbusReadLongChannel("TMaxPack", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(1018, tMinPack = new ModbusReadLongChannel("TMinPack", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(1020, batteryVoltage = new ModbusReadLongChannel("BatteryVoltage", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(1022, warning = new ModbusReadLongChannel("Warning", this)).wordOrder(WordOrder.LSWMSW)),
+				new ModbusInputRegisterRange(3000, //
+						new FloatElement(3000, activePower = new ModbusReadLongChannel("ActivePower", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3002, dc1FaultValue = new ModbusReadLongChannel("DC1FaultValue", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3004, dc2FaultValue = new ModbusReadLongChannel("DC2FaultValue", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3006, errorMessage1H = new ModbusReadLongChannel("ErrorMessage1H", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3008, errorMessage1L = new ModbusReadLongChannel("ErrorMessage1L", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3010, errorMessage2H = new ModbusReadLongChannel("ErrorMessage2H", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3012, errorMessage2L = new ModbusReadLongChannel("ErrorMessage2L", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3014, frequencyActive1 = new ModbusReadLongChannel("FrequencyActive1", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3016, frequencyActive2 = new ModbusReadLongChannel("FrequencyActive2", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3018, frequencyActive3 = new ModbusReadLongChannel("FrequencyActive3", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3020,
+								gridFrequency1FaultValue = new ModbusReadLongChannel("GridFrequency1FaultValue", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3022,
 								gridFrequency2FaultValue = new ModbusReadLongChannel("GridFrequencyf2FaultValue",
-										this)),
-						new FloatElement(33025,
-								gridFrequency3FaultValue = new ModbusReadLongChannel("GridFrequency3FaultValue", this)),
-						new FloatElement(33027, gfciFaultValue = new ModbusReadLongChannel("GFCIFaultValue", this)),
-						new FloatElement(33029,
-								gridVoltage1FaultValue = new ModbusReadLongChannel("GridVoltage1FaultValue", this)),
-						new FloatElement(33031,
-								gridVoltage2FaultValue = new ModbusReadLongChannel("GridVoltage2FaultValue", this)),
-						new FloatElement(33033,
-								gridVoltage3FaultValue = new ModbusReadLongChannel("GridVoltage3FaultValue", this)),
-						new FloatElement(33035, powerActive = new ModbusReadLongChannel("PowerActive", this)),
-						new FloatElement(33037, powerActive1 = new ModbusReadLongChannel("PowerActive1", this)),
-						new FloatElement(33039, powerActive2 = new ModbusReadLongChannel("PowerActive2", this)),
-						new FloatElement(33041, powerActive3 = new ModbusReadLongChannel("PowerActive3", this)),
-						new FloatElement(33043, temperature = new ModbusReadLongChannel("Temperature", this)),
-						new FloatElement(33045,
-								temperaturFaultValue = new ModbusReadLongChannel("TemperaturFaultValue", this)),
-						new FloatElement(33047, voltageActive1 = new ModbusReadLongChannel("VoltageActive1", this)),
-						new FloatElement(33049, voltageActive2 = new ModbusReadLongChannel("VoltageActive2", this)),
-						new FloatElement(33051, voltageActive3 = new ModbusReadLongChannel("VoltageActive3", this)),
-						new FloatElement(33053, voltagedc1 = new ModbusReadLongChannel("Voltagedc1", this)),
-						new FloatElement(33055, voltagedc2 = new ModbusReadLongChannel("Voltagedc2", this))),
-				new ModbusCoilRange(11001,
-						new CoilElement(11001, batteryConnected = new ModbusCoilReadChannel("BatteryConnected", this)),
-						new CoilElement(11002, batteryOverload = new ModbusCoilReadChannel("BatteryOverload", this))),
-
-				new ModbusCoilRange(13001,
-						new CoilElement(13001,
-								inverterConnected = new ModbusCoilReadChannel("InverterConnected", this))),
-				new WriteableModbusRegisterRange(44001, //
-						// TODO use SetActivePower in Power class
-						new FloatElement(44003, new ModbusWriteLongChannel("SetActivePower", this))),
-
-				new WriteableModbusCoilRange(4001,
-						new CoilElement(4002, icuEnabled = new ModbusCoilWriteChannel("ICUEnabled", this)),
-						new CoilElement(4003, icuRun = new ModbusCoilWriteChannel("ICURun", this))),
-
-				new WriteableModbusCoilRange(14001,
-						new CoilElement(14002, icuRunstate = new ModbusCoilWriteChannel("ICURunstate", this))));
-
-		return protokol;
+										this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3024,
+								gridFrequency3FaultValue = new ModbusReadLongChannel("GridFrequency3FaultValue", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3026, gfciFaultValue = new ModbusReadLongChannel("GFCIFaultValue", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3028,
+								gridVoltage1FaultValue = new ModbusReadLongChannel("GridVoltage1FaultValue", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3030,
+								gridVoltage2FaultValue = new ModbusReadLongChannel("GridVoltage2FaultValue", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3032,
+								gridVoltage3FaultValue = new ModbusReadLongChannel("GridVoltage3FaultValue", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3034, powerActive = new ModbusReadLongChannel("PowerActive", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3036, powerActive1 = new ModbusReadLongChannel("PowerActive1", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3038, powerActive2 = new ModbusReadLongChannel("PowerActive2", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3040, powerActive3 = new ModbusReadLongChannel("PowerActive3", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3042, temperature = new ModbusReadLongChannel("Temperature", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3044,
+								temperaturFaultValue = new ModbusReadLongChannel("TemperaturFaultValue", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3046, voltageActive1 = new ModbusReadLongChannel("VoltageActive1", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3048, voltageActive2 = new ModbusReadLongChannel("VoltageActive2", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3050, voltageActive3 = new ModbusReadLongChannel("VoltageActive3", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3052, voltagedc1 = new ModbusReadLongChannel("Voltagedc1", this)).wordOrder(WordOrder.LSWMSW),
+						new FloatElement(3054, voltagedc2 = new ModbusReadLongChannel("Voltagedc2", this)).wordOrder(WordOrder.LSWMSW))
+				// new ModbusCoilRange(10001,
+				// new CoilElement(10001, batteryConnected = new ModbusCoilReadChannel("BatteryConnected", this)),
+				// new CoilElement(10002, batteryOverload = new ModbusCoilReadChannel("BatteryOverload", this))),
+				//
+				// new ModbusCoilRange(12001,
+				// new CoilElement(12001,
+				// inverterConnected = new ModbusCoilReadChannel("Inverteronnected", this))),
+				// new WriteableModbusRegisterRange(44001, //
+				// // TODO use ICUSetPower for setActivePower
+				// new FloatElement(44001, new ModbusWriteLongChannel("ICUSetPower", this))),
+				//
+				// new WriteableModbusCoilRange(4001,
+				// new CoilElement(4001, icuEnabled = new ModbusCoilWriteChannel("ICUEnabled", this)),
+				// new CoilElement(4003, icuRun = new ModbusCoilWriteChannel("ICURun", this))),
+				// new WriteableModbusCoilRange(14001,
+				// new CoilElement(14001, icuRunstate = new ModbusCoilWriteChannel("ICURunstate", this))));
+				);
+		return protocol;
 	}
 
 	@Override
@@ -274,12 +275,12 @@ public class StreetscooterEss2 extends ModbusDeviceNature implements SymmetricEs
 
 	@Override
 	public ReadChannel<Long> apparentPower() {
-		return null;
+		return this.apparentPower;
 	}
 
 	@Override
 	public ReadChannel<Long> reactivePower() {
-		return null;
+		return this.reactivePower;
 	}
 
 	@Override
