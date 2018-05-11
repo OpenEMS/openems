@@ -559,7 +559,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 								.faultBit(10,FaultEss.Phase1GridVoltageSamplingInvalidation)//
 								.faultBit(11, FaultEss.Phase2VirtualCurrentOverLimitProtection)//
 								.faultBit(12, FaultEss.Phase3VirtualCurrentOverLimitProtection)//
-								.faultBit(13, FaultEss.Phase1GridVoltageSamplingInvalidation2)// 
+								.faultBit(13, FaultEss.Phase1GridVoltageSamplingInvalidation2)//
 								.faultBit(14, FaultEss.Phase2ridVoltageSamplingInvalidation)//
 								.faultBit(15, FaultEss.Phase3GridVoltageSamplingInvalidation)//
 								), //
@@ -1484,6 +1484,7 @@ public class FeneconCommercialEss extends ModbusDeviceNature implements Symmetri
 				allowedDischargeLimit.setP(allowedDischarge.valueOptional().orElse(0L));
 			}
 		});
+		this.power.addStaticLimitation(this.allowedDischargeLimit);
 		return protocol;
 	}
 
