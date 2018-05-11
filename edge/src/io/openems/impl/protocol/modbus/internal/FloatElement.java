@@ -57,7 +57,7 @@ public class FloatElement extends ModbusElement<Long> implements DoublewordEleme
 			buff.put(register2.toBytes());
 			buff.put(register1.toBytes());
 		}
-		setValue((long) (buff.order(byteOrder).getFloat(0) * Math.pow(10, multiplier)));
+		setValue((long) (buff.getFloat(0) * Math.pow(10, multiplier)));
 	}
 
 	@Override public Register[] toRegisters(Long value) {
@@ -68,5 +68,15 @@ public class FloatElement extends ModbusElement<Long> implements DoublewordEleme
 		} else {
 			return new Register[] { new SimpleRegister(b[2], b[3]), new SimpleRegister(b[0], b[1]) };
 		}
+	}
+
+	public FloatElement byteOrder(ByteOrder byteOrder) {
+		this.byteOrder = byteOrder;
+		return this;
+	}
+
+	public FloatElement wordOrder(WordOrder wordOrder) {
+		this.wordOrder = wordOrder;
+		return this;
 	}
 }
