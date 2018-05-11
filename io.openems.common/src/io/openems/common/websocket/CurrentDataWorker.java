@@ -8,6 +8,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.gson.JsonArray;
@@ -17,11 +19,12 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.Log;
 
 public abstract class CurrentDataWorker {
 
 	protected final static int UPDATE_INTERVAL_IN_SECONDS = 2;
+
+	private final Logger log = LoggerFactory.getLogger(CurrentDataWorker.class);
 
 	/**
 	 * Executor for subscriptions task
@@ -64,7 +67,7 @@ public abstract class CurrentDataWorker {
 					channels.put(thing, channel);
 				}
 			} catch (OpenemsException e) {
-				Log.warn("Unable to add channel subscription: " + e.getMessage());
+				this.log.warn("Unable to add channel subscription: " + e.getMessage());
 			}
 		}
 		if (!channels.isEmpty()) {

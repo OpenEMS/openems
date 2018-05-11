@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.TreeMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,11 +21,12 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.Log;
 
 public class ConfigUtils {
 
 	private final static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+
+	private final static Logger log = LoggerFactory.getLogger(ConfigUtils.class);
 
 	protected static synchronized JsonArray readConfigFromFile(Path path) throws Exception {
 		if (!Files.exists(path)) {
@@ -68,7 +72,7 @@ public class ConfigUtils {
 				try {
 					jSub.add(subEntry.getKey(), JsonUtils.getAsJsonElement(subEntry.getValue()));
 				} catch (NotImplementedException e) {
-					Log.warn("Unable to store [" + config.getIdOpt().orElse(config.getPid()) + "/" + subEntry.getKey()
+					log.warn("Unable to store [" + config.getIdOpt().orElse(config.getPid()) + "/" + subEntry.getKey()
 							+ "] value [" + subEntry.getValue() + "] in config: " + e.getMessage());
 				}
 			}
