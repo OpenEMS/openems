@@ -1,10 +1,13 @@
-package io.openems.edge.controller.api.websocket;
+package io.openems.edge.controller.api.apicontrollerutils;
+
+import org.java_websocket.WebSocket;
 
 import org.java_websocket.WebSocket;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
+import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.websocket.CurrentDataWorker;
 import io.openems.edge.common.channel.Channel;
@@ -15,19 +18,19 @@ public class EdgeCurrentDataWorker extends CurrentDataWorker {
 	/**
 	 * The access level Role of this worker
 	 */
-	// private final Role role;
+	private final Role role;
 
 	private final EdgeWebsocketHandler parent;
 
-	public EdgeCurrentDataWorker(EdgeWebsocketHandler parent, WebSocket websocket) {
+	public EdgeCurrentDataWorker(EdgeWebsocketHandler parent, Role role, WebSocket websocket) {
 		super(websocket);
 		this.parent = parent;
-		// this.role = role;
+		this.role = role;
 	}
 
 	@Override
 	protected JsonElement getChannelValue(ChannelAddress channelAddress) {
-		for (OpenemsComponent component : this.parent.parent.components) {
+		for (OpenemsComponent component : this.parent.parent.getComponents()) {
 			if (component.id().equals(channelAddress.getThingId())) {
 				Channel<?> channel;
 				try {

@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.websocket;
+package io.openems.edge.controller.api.apicontrollerutils;
 
 import java.util.HashMap;
 import java.util.Map;

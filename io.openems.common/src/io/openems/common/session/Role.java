@@ -1,5 +1,8 @@
 package io.openems.common.session;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+
 public enum Role {
 	ADMIN, INSTALLER, OWNER, GUEST;
 
@@ -22,8 +25,12 @@ public enum Role {
 			return GUEST;
 		}
 	}
-	
+
 	public static Role getDefaultRole() {
 		return GUEST;
+	}
+
+	public JsonElement asJson() {
+		return new JsonPrimitive(this.name().toLowerCase());
 	}
 }

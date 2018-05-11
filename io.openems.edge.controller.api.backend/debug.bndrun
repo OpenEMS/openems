@@ -1,0 +1,13 @@
+#
+# io.openems.edge.controller.api.backend DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~io.openems.edge.controller.api.backend.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

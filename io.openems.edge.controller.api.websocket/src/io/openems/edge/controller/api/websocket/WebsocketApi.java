@@ -43,11 +43,13 @@ import io.openems.edge.api.user.UserService;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.api.apicontrollerutils.ApiController;
+import io.openems.edge.controller.api.apicontrollerutils.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Api.Websocket", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class WebsocketApi extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
+public class WebsocketApi extends AbstractOpenemsComponent implements Controller, ApiController, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(WebsocketApi.class);
 	private final ApiWorker apiWorker = new ApiWorker();
@@ -211,7 +213,7 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 				jEdge.addProperty("name", "fems0");
 				jEdge.addProperty("comment", "FEMS");
 				jEdge.addProperty("producttype", "");
-				jEdge.addProperty("role", user.getRole().toString().toLowerCase());
+				jEdge.add("role", user.getRole().asJson());
 				jEdge.addProperty("online", true);
 				JsonArray jEdges = new JsonArray();
 				jEdges.add(jEdge);
@@ -233,8 +235,9 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 				Optional<UiEdgeWebsocketHandler> handlerOpt = getHandlerOpt(websocket);
 				if (handlerOpt.isPresent()) {
 					UiEdgeWebsocketHandler handler = handlerOpt.get();
-					if (handler.getUserOpt().isPresent()) {
-						User user = handler.getUserOpt().get();
+					Optional<User> userOpt = handler.getUserOpt();
+					if (userOpt.isPresent()) {
+						User user = userOpt.get();
 						return user.getName();
 					}
 				}
@@ -342,7 +345,7 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 							Optional<User> thisUserOpt = handler.getUserOpt();
 							if (thisUserOpt.isPresent()) {
 								username = thisUserOpt.get().getName();
-								handler.unsetUser();
+								handler.unsetRole();
 							}
 							sessionToken = handler.getSessionToken();
 							this.sessionTokens.remove(sessionToken);
@@ -352,9 +355,9 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 							if (thisUserOpt.isPresent()) {
 								User thisUser = thisUserOpt.get();
 								for (UiEdgeWebsocketHandler h : this.handlers.values()) {
-									if (h.getUserOpt().isPresent()) {
-										User otherUser = h.getUserOpt().get();
-										if (otherUser.equals(thisUser)) {
+									Optional<User> otherUserOpt = h.getUserOpt();
+									if (otherUserOpt.isPresent()) {
+										if (otherUserOpt.get().equals(thisUser)) {
 											JsonObject jReply = DefaultMessages.uiLogoutReply();
 											h.send(jReply);
 											h.dispose();
@@ -393,5 +396,20 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 	@Override
 	public void run() {
 		this.apiWorker.run();
+	}
+
+	@Override
+	public Timedata getTimedataService() {
+		return this.timedataService;
+	}
+
+	@Override
+	public List<OpenemsComponent> getComponents() {
+		return this.components;
+	}
+
+	@Override
+	public ConfigurationAdmin getConfigurationAdmin() {
+		return this.configAdmin;
 	}
 }

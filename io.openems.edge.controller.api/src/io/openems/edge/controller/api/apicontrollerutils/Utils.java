@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.websocket;
+package io.openems.edge.controller.api.apicontrollerutils;
 
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;

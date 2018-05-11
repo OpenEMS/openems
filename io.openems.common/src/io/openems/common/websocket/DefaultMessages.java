@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
@@ -137,7 +136,7 @@ public class DefaultMessages {
 	 * <pre>
 	 *	{
 	 *		timedata: {
-	 *			timestamp (Long): {
+	 *			timestamp (long): {
 	 *				channel: String,
 	 *				value: String | Number
 	 *			}
@@ -148,19 +147,9 @@ public class DefaultMessages {
 	 * @param token
 	 * @return
 	 */
-	public static JsonObject timestampedData(long timestamp, HashMap<ChannelAddress, FieldValue<?>> queue) {
-		JsonObject jTimestamp = new JsonObject();
-		for (Entry<ChannelAddress, FieldValue<?>> entry : queue.entrySet()) {
-			String address = entry.getKey().toString();
-			FieldValue<?> fieldValue = entry.getValue();
-			if (fieldValue instanceof NumberFieldValue) {
-				jTimestamp.addProperty(address, ((NumberFieldValue) fieldValue).value);
-			} else if (fieldValue instanceof StringFieldValue) {
-				jTimestamp.addProperty(address, ((StringFieldValue) fieldValue).value);
-			}
-		}
+	public static JsonObject timestampedData(long timestamp, JsonObject jData) {
 		JsonObject jTimedata = new JsonObject();
-		jTimedata.add(String.valueOf(timestamp), jTimestamp);
+		jTimedata.add(String.valueOf(timestamp), jData);
 		JsonObject j = new JsonObject();
 		j.add("timedata", jTimedata);
 		return j;
@@ -371,7 +360,7 @@ public class DefaultMessages {
 		}
 		return jMessage;
 	}
-	
+
 	public static JsonObject prepareMessageForForwardToUi(JsonObject jMessage) throws OpenemsException {
 		JsonObject jMessageId = JsonUtils.getAsJsonObject(jMessage, "messageId");
 		jMessageId.remove("backend");

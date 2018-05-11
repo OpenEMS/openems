@@ -1,4 +1,4 @@
-package io.openems.edge.controller.api.websocket;
+package io.openems.edge.controller.api.apicontrollerutils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,7 +22,6 @@ import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
-import io.openems.edge.api.user.User;
 import io.openems.edge.timedata.api.Timedata;
 
 /**
@@ -32,7 +31,7 @@ public class EdgeWebsocketHandler {
 
 	private Logger log = LoggerFactory.getLogger(EdgeWebsocketHandler.class);
 
-	protected final WebsocketApi parent;
+	protected final ApiController parent;
 
 	/**
 	 * Holds the websocket connection
@@ -51,11 +50,11 @@ public class EdgeWebsocketHandler {
 	private final Map<String, JsonObject> logSubscribers = new HashMap<>();
 
 	/**
-	 * User for this connection.
+	 * Role for this connection.
 	 */
-	private Optional<User> userOpt = Optional.empty();
+	private Optional<Role> roleOpt = Optional.empty();
 
-	public EdgeWebsocketHandler(WebsocketApi parent, WebSocket websocket) {
+	public EdgeWebsocketHandler(ApiController parent, WebSocket websocket) {
 		this.parent = parent;
 		this.websocket = websocket;
 	}
@@ -69,28 +68,27 @@ public class EdgeWebsocketHandler {
 		this.websocket.close();
 	}
 
-	public synchronized void setUser(User user) {
-		this.setUser(Optional.ofNullable(user));
+	public synchronized void setRole(Role role) {
+		this.setRole(Optional.ofNullable(role));
 	}
 
-	public synchronized void unsetUser() {
-		this.setUser(Optional.empty());
+	public synchronized void unsetRole() {
+		this.setRole(Optional.empty());
 	}
 
-	public synchronized void setUser(Optional<User> userOpt) {
-		this.userOpt = userOpt;
+	public synchronized void setRole(Optional<Role> roleOpt) {
+		this.roleOpt = roleOpt;
 		if (this.currentDataWorkerOpt.isPresent()) {
 			this.currentDataWorkerOpt.get().dispose();
 			this.currentDataWorkerOpt = Optional.empty();
 		}
-		if (userOpt.isPresent()) {
-			// Role role = userOpt.get().getRole();
-			this.currentDataWorkerOpt = Optional.of(new EdgeCurrentDataWorker(this, websocket));
+		if (roleOpt.isPresent()) {
+			this.currentDataWorkerOpt = Optional.of(new EdgeCurrentDataWorker(this, roleOpt.get(), websocket));
 		}
 	}
 
-	public Optional<User> getUserOpt() {
-		return userOpt;
+	public Optional<Role> getRoleOpt() {
+		return roleOpt;
 	}
 
 	/**
@@ -99,7 +97,7 @@ public class EdgeWebsocketHandler {
 	 * @param jMessage
 	 */
 	public final void onMessage(JsonObject jMessage) {
-		if (!this.userOpt.isPresent()) {
+		if (!this.roleOpt.isPresent()) {
 			log.error("No User! Aborting...");
 			return;
 		}
@@ -167,7 +165,7 @@ public class EdgeWebsocketHandler {
 	}
 
 	private void historicData(JsonObject jMessageId, JsonObject jHistoricData) {
-		Timedata timedataService = this.parent.timedataService;
+		Timedata timedataService = this.parent.getTimedataService();
 		if (timedataService == null) {
 			WebSocketUtils.sendNotificationOrLogError(this.websocket, new JsonObject(), LogBehaviour.WRITE_TO_LOG,
 					Notification.NO_TIMEDATA_SOURCE_AVAILABLE);
@@ -201,7 +199,7 @@ public class EdgeWebsocketHandler {
 			try {
 				jReplyConfig.add("things", //
 						Utils.toDeprecatedJsonConfig( //
-								this.parent.configAdmin.listConfigurations("(enabled=true)")));
+								this.parent.getConfigurationAdmin().listConfigurations("(enabled=true)")));
 			} catch (IOException | InvalidSyntaxException e) {
 				e.printStackTrace();
 			}

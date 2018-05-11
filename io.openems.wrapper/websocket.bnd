@@ -14,6 +14,7 @@ Include-Resource: @Java-WebSocket-1.3.8.jar
 
 -exportcontents: \
 	org.java_websocket,\
+	org.java_websocket.client,\
 	org.java_websocket.drafts,\
 	org.java_websocket.exceptions,\
 	org.java_websocket.handshake,\

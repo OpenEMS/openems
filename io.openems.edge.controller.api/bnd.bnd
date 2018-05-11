@@ -4,10 +4,12 @@
 
 Bundle-Version:					1.0.0.${tstamp}
 
-Export-Package: io.openems.edge.controller.api
+Export-Package: \
+	io.openems.edge.controller.api,\
+	io.openems.edge.controller.api.apicontrollerutils
 
-Require-Capability: \
-	compile-only
+#Require-Capability: \
+#	compile-only
 
 -includeresource: {readme.md}
 
@@ -15,7 +17,9 @@ Require-Capability: \
 	osgi.enroute.base.api;version=2.1,\
 	com.google.gson,\
 	io.openems.common;version=latest,\
-	io.openems.edge.common;version=latest
+	io.openems.edge.common;version=latest,\
+	io.openems.edge.timedata.api;version=latest,\
+	io.openems.wrapper.websocket;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
