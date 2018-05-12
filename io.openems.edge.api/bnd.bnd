@@ -1,9 +1,7 @@
-#
-# io.openems.edge.api DEFAULTS
-#
-
-Bundle-Version:					1.0.0.${tstamp}
-
+Bundle-Name: OpenEMS Edge Api
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
 	io.openems.edge.api.channel,\
 	io.openems.edge.api.controller,\
@@ -17,7 +15,6 @@ Export-Package: \
 	io.openems.edge.api.scheduler,\
 	io.openems.edge.api.message,\
 	io.openems.edge.api.user
-
 Require-Capability: \
 	compile-only
 
@@ -31,5 +28,4 @@ Require-Capability: \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
 
-Bundle-Name: OpenEMS Edge API
 -runbundles: org.apache.felix.log;version='[1.0.1,1.0.2)'

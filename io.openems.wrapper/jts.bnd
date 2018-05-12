@@ -1,10 +1,16 @@
--dsannotations: *
--metatypeannotations: *
 Service-Component: *
 
+Bundle-Name: JTS
+Bundle-Description: The JTS Topology Suite is a Java library for creating and manipulating vector geometry.
+Bundle-DocURL: https://github.com/locationtech/jts
+Bundle-License: https://opensource.org/licenses/EPL-1.0
 Bundle-Version: 1.14
 
 Include-Resource: @lib/jts-1.14.jar
+
+-dsannotations: *
+
+-metatypeannotations: *
 
 -exportcontents: \
 	com.vividsolutions.jts.geom, \

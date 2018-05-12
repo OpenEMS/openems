@@ -1,11 +1,8 @@
-#
-# io.openems.backend.timedata DEFAULTS
-#
-
-Bundle-Version:					1.0.0.${tstamp}
-
+Bundle-Name: OpenEMS Backend Timedata Api
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
 Export-Package: io.openems.backend.timedata.api
-
 Require-Capability: \
 	compile-only
 
@@ -20,4 +17,3 @@ Require-Capability: \
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
-

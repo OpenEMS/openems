@@ -1,9 +1,7 @@
-#
-# io.openems.edge.ess.fenecon.commercial40 PROVIDER BUNDLE
-#
-
-Bundle-Version:					1.0.0.${tstamp}
-
+Bundle-Name: OpenEMS Edge ESS FENECON Commercial40
+Bundle-Vendor: FENECON GmbH
+Bundle-License: https://opensource.org/licenses/EPL-2.0
+Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
 	io.openems.edge.ess.symmetric.readonly.api,\
 	io.openems.edge.ess.api,\
@@ -13,7 +11,6 @@ Export-Package: \
 	io.openems.edge.ess.dccharger.api,\
 	io.openems.edge.ess.fenecon.commercial40,\
 	io.openems.edge.ess.fenecon.commercial40.charger
-
 
 -includeresource: {readme.md}
 
@@ -27,4 +24,3 @@ Export-Package: \
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
-
