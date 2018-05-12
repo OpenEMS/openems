@@ -1,6 +1,5 @@
 package io.openems.common.websocket;
 
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,10 +8,6 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
-import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.FieldValue;
-import io.openems.common.types.NumberFieldValue;
-import io.openems.common.types.StringFieldValue;
 import io.openems.common.utils.JsonUtils;
 
 public class DefaultMessages {
@@ -277,7 +272,7 @@ public class DefaultMessages {
 	 *	{
 	 *		messageId: {},
 	 *		log: {
-	 *			times: number,
+	 *			time: number,
 	 *			level: string,
 	 *			source: string,
 	 *			message: string

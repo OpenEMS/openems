@@ -28,7 +28,7 @@ public class EdgeApp {
 		try {
 			config = cm.getConfiguration("org.ops4j.pax.logging", null);
 			Hashtable<String, Object> log4j = new Hashtable<>();
-			log4j.put("log4j.rootLogger", "INFO, CONSOLE");
+			log4j.put("log4j.rootLogger", "INFO, CONSOLE, osgi:*");
 			log4j.put("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
 			log4j.put("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
 			log4j.put("log4j.appender.CONSOLE.layout.ConversionPattern", "%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n");

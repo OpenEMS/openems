@@ -19,7 +19,8 @@ Private-Package: \
 	com.google.gson,\
 	com.google.guava,\
 	io.openems.edge.timedata.api;version=latest,\
-	io.openems.common;version=latest
+	io.openems.common;version=latest,\
+	org.ops4j.pax.logging.pax-logging-api
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

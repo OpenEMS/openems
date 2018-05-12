@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
+import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -461,13 +462,14 @@ public class EdgeWebsocketHandler {
 	 * @param message2
 	 * @param timestamp
 	 */
-	public void sendLog(long timestamp, String level, String source, String message) {
+	public void sendLog(PaxLoggingEvent event) {
 		if (this.logSubscribers.isEmpty()) {
 			// nobody subscribed
 			return;
 		}
 		for (Entry<String, JsonObject> entry : this.logSubscribers.entrySet()) {
-			JsonObject j = DefaultMessages.log(entry.getValue(), timestamp, level, source, message);
+			JsonObject j = DefaultMessages.log(entry.getValue(), event.getTimeStamp(), event.getLevel().toString(),
+					event.getLoggerName(), event.getMessage());
 			try {
 				this.send(j);
 			} catch (OpenemsException e) {

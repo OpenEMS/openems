@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.ops4j.pax.logging.spi.PaxAppender;
+import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -32,8 +34,12 @@ import io.openems.edge.controller.api.apicontrollerutils.ApiWorker;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(name = "Controller.Api.Backend", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
-public class BackendApi extends AbstractOpenemsComponent implements Controller, ApiController, OpenemsComponent {
+@Component(name = "Controller.Api.Backend", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		property = "org.ops4j.pax.logging.appender.name=Controller.Api.Backend")
+public class BackendApi extends AbstractOpenemsComponent
+		implements Controller, ApiController, OpenemsComponent, PaxAppender {
 
 	protected final static int DEFAULT_CYCLE_TIME = 10000;
 
@@ -139,4 +145,8 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 		return this.configAdmin;
 	}
 
+	@Override
+	public void doAppend(PaxLoggingEvent event) {
+		this.websocket.sendLog(event);
+	}
 }

@@ -113,7 +113,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param log
 	 * @param message
 	 */
-	protected final void logInfo(Logger log, String message) {
+	protected void logInfo(Logger log, String message) {
 		log.info("[" + this.id() + "] " + message);
 	}
 
@@ -123,7 +123,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param log
 	 * @param message
 	 */
-	protected final void logWarn(Logger log, String message) {
+	protected void logWarn(Logger log, String message) {
 		log.warn("[" + this.id() + "] " + message);
 	}
 
@@ -133,7 +133,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param log
 	 * @param message
 	 */
-	protected final void logError(Logger log, String message) {
+	protected void logError(Logger log, String message) {
 		log.error("[" + this.id() + "] " + message);
 	}
 }

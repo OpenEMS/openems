@@ -19,7 +19,8 @@ Export-Package: \
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.timedata.api;version=latest,\
-	io.openems.wrapper.websocket;version=latest
+	io.openems.wrapper.websocket;version=latest,\
+	org.ops4j.pax.logging.pax-logging-api
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \

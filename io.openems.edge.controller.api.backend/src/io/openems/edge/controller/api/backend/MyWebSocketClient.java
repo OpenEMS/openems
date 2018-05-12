@@ -14,6 +14,7 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
+import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ import io.openems.edge.controller.api.apicontrollerutils.EdgeWebsocketHandler;
 class MyWebSocketClient extends WebSocketClient {
 
 	private final static Draft WEBSOCKET_DRAFT = new Draft_6455();
-	private final static int DEFAULT_WAIT_AFTER_CLOSE = 1; // 1 second
+	private final static int DEFAULT_WAIT_AFTER_CLOSE = 5; // 1 second
 	private final static int MAX_WAIT_AFTER_CLOSE = 60 * 3; // 3 minutes
 
 	private final Logger log = LoggerFactory.getLogger(MyWebSocketClient.class);
@@ -100,14 +101,18 @@ class MyWebSocketClient extends WebSocketClient {
 	}
 
 	protected void deactivate() {
-		this.handler.dispose();
-		this.reconnectExecutor.shutdown();
 		this.close(2000, "Disabled Backend Api Controller");
+		this.handler.dispose();
+		this.reconnectExecutor.shutdownNow();
+		try {
+			this.reconnectExecutor.awaitTermination(5, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			this.log.error("Unable to shutdown: " + e.getMessage());
+		}
 	}
 
-	// TODO implmeent log
-	protected void sendLog(long timestamp, String level, String source, String message) {
-		this.handler.sendLog(timestamp, level, source, message);
+	protected void sendLog(PaxLoggingEvent event) {
+		this.handler.sendLog(event);
 	}
 
 	/**
