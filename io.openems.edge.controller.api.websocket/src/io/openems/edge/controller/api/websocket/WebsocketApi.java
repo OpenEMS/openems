@@ -77,6 +77,8 @@ public class WebsocketApi extends AbstractOpenemsComponent implements Controller
 			return;
 		}
 
+		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
+
 		/*
 		 * Start WebsocketApiServer
 		 */

@@ -67,6 +67,8 @@ public class BackendApi extends AbstractOpenemsComponent implements Controller, 
 			return;
 		}
 
+		this.apiWorker.setTimeoutSeconds(config.apiTimeout());
+
 		// Get URI
 		URI uri = null;
 		try {

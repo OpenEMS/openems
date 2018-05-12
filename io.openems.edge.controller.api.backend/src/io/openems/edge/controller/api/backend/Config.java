@@ -33,6 +33,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Proxy Type", description = "The type of the proxy server. (e.g. http)")
 	Proxy.Type proxyType() default Proxy.Type.HTTP;
 
+	@AttributeDefinition(name = "Api-Timeout", description = "Sets the timeout in seconds for updates on Channels set by this Api.")
+	int apiTimeout() default 60;
+
 	@AttributeDefinition(name = "Enable Debug mode")
 	boolean debug() default false;
 
