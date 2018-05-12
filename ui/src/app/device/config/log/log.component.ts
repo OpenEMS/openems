@@ -57,7 +57,7 @@ export class LogComponent implements OnInit, OnDestroy {
 
     if (this.device != null) {
       this.device.subscribeLog().takeUntil(this.stopOnDestroy).subscribe(log => {
-        log.time = format(new Date(<number>log.time * 1000), "DD.MM.YYYY HH:mm:ss");
+        log.time = format(new Date(<number>log.time), "DD.MM.YYYY HH:mm:ss");
         switch (log.level) {
           case 'INFO':
             log.color = 'green';
