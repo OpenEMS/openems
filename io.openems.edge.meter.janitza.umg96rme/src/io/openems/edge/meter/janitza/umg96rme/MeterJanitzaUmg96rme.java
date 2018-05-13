@@ -120,62 +120,14 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_3),
 						m(SymmetricMeter.ChannelId.CURRENT, new FloatDoublewordElement(866),
 								ElementToChannelConverter.SCALE_FACTOR_3),
-						cm(new FloatDoublewordElement(868)) //
-								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_ACTIVE_POWER_L1,
-										ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_ACTIVE_POWER_L1,
-										ElementToChannelConverter.KEEP_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(870)) //
-								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_ACTIVE_POWER_L2,
-										ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_ACTIVE_POWER_L2,
-										ElementToChannelConverter.KEEP_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(872)) //
-								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_ACTIVE_POWER_L3,
-										ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_ACTIVE_POWER_L3,
-										ElementToChannelConverter.KEEP_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(874)) //
-								.m(SymmetricMeter.ChannelId.ACTIVE_POWER, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(SymmetricMeter.ChannelId.CONSUMPTION_ACTIVE_POWER,
-										ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT) //
-								.m(SymmetricMeter.ChannelId.PRODUCTION_ACTIVE_POWER,
-										ElementToChannelConverter.KEEP_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(876)) //
-								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_REACTIVE_POWER_L1,
-										ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_REACTIVE_POWER_L1,
-										ElementToChannelConverter.KEEP_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(878)) //
-								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_REACTIVE_POWER_L2,
-										ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_REACTIVE_POWER_L2,
-										ElementToChannelConverter.KEEP_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(880)) //
-								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_REACTIVE_POWER_L3,
-										ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_REACTIVE_POWER_L3,
-										ElementToChannelConverter.KEEP_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(882)) //
-								.m(SymmetricMeter.ChannelId.REACTIVE_POWER, ElementToChannelConverter.DIRECT_1_TO_1) //
-								.m(SymmetricMeter.ChannelId.CONSUMPTION_REACTIVE_POWER,
-										ElementToChannelConverter.KEEP_NEGATIVE_AND_INVERT) //
-								.m(SymmetricMeter.ChannelId.PRODUCTION_REACTIVE_POWER,
-										ElementToChannelConverter.KEEP_POSITIVE) //
-								.build() //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new FloatDoublewordElement(868)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new FloatDoublewordElement(870)),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new FloatDoublewordElement(872)),
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(874)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new FloatDoublewordElement(876)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new FloatDoublewordElement(878)),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new FloatDoublewordElement(880)),
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(882))//
 				));
 	}
 

@@ -17,8 +17,6 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
-import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
-import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Priority;
@@ -105,65 +103,23 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 						m(AsymmetricMeter.ChannelId.CURRENT_L2, new UnsignedDoublewordElement(0xc562)),
 						m(AsymmetricMeter.ChannelId.CURRENT_L3, new UnsignedDoublewordElement(0xc564)),
 						m(SymmetricMeter.ChannelId.CURRENT, new UnsignedDoublewordElement(0xc566)),
-						cm(new SignedDoublewordElement(0xc568)) //
-								.m(SymmetricMeter.ChannelId.ACTIVE_POWER, ElementToChannelConverter.SCALE_FACTOR_1) //
-								.m(SymmetricMeter.ChannelId.CONSUMPTION_ACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(SymmetricMeter.ChannelId.PRODUCTION_ACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_POSITIVE) //
-								.build(), //
-						cm(new SignedDoublewordElement(0xc56A)) //
-								.m(SymmetricMeter.ChannelId.REACTIVE_POWER, ElementToChannelConverter.SCALE_FACTOR_1) //
-								.m(SymmetricMeter.ChannelId.CONSUMPTION_REACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(SymmetricMeter.ChannelId.PRODUCTION_REACTIVE_POWER,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_POSITIVE) //
-								.build(), //
-						new DummyRegisterElement(0xc56C, 0xc56F), cm(new FloatDoublewordElement(0xc570)) //
-								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, ElementToChannelConverter.SCALE_FACTOR_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_ACTIVE_POWER_L1,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_ACTIVE_POWER_L1,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(0xc572)) //
-								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, ElementToChannelConverter.SCALE_FACTOR_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_ACTIVE_POWER_L2,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_ACTIVE_POWER_L2,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(0xc574)) //
-								.m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, ElementToChannelConverter.SCALE_FACTOR_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_ACTIVE_POWER_L3,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_ACTIVE_POWER_L3,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(0xc576)) //
-								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1,
-										ElementToChannelConverter.SCALE_FACTOR_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_REACTIVE_POWER_L1,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_REACTIVE_POWER_L1,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(0xc578)) //
-								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2,
-										ElementToChannelConverter.SCALE_FACTOR_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_REACTIVE_POWER_L2,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_REACTIVE_POWER_L2,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_POSITIVE) //
-								.build(), //
-						cm(new FloatDoublewordElement(0xc57A)) //
-								.m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3,
-										ElementToChannelConverter.SCALE_FACTOR_1) //
-								.m(AsymmetricMeter.ChannelId.CONSUMPTION_REACTIVE_POWER_L3,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_NEGATIVE_INVERT) //
-								.m(AsymmetricMeter.ChannelId.PRODUCTION_REACTIVE_POWER_L3,
-										ElementToChannelConverter.SCALE_FACTOR_1_AND_CONVERT_POSITIVE) //
-								.build() //
+						m(SymmetricMeter.ChannelId.ACTIVE_POWER, new UnsignedDoublewordElement(0xc568),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(SymmetricMeter.ChannelId.REACTIVE_POWER, new UnsignedDoublewordElement(0xc56A),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						new DummyRegisterElement(0xc56C, 0xc56F), //
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L1, new UnsignedDoublewordElement(0xc570),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L2, new UnsignedDoublewordElement(0xc572),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(AsymmetricMeter.ChannelId.ACTIVE_POWER_L3, new UnsignedDoublewordElement(0xc574),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L1, new UnsignedDoublewordElement(0xc576),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L2, new UnsignedDoublewordElement(0xc578),
+								ElementToChannelConverter.SCALE_FACTOR_1),
+						m(AsymmetricMeter.ChannelId.REACTIVE_POWER_L3, new UnsignedDoublewordElement(0xc57A),
+								ElementToChannelConverter.SCALE_FACTOR_1) //
 				));
 	}
 

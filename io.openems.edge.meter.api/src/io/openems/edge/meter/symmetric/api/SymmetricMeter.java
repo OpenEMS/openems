@@ -4,6 +4,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.converter.StaticConverters;
 import io.openems.edge.meter.api.Meter;
 
 /**
@@ -24,49 +25,123 @@ public interface SymmetricMeter extends Meter {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
-		 * Active Power [W].
+		 * Consumption Active Power
 		 * 
 		 * <ul>
-		 * <li>Negative value represents Consumption, i.e. power that is 'leaving the
-		 * system', e.g. feed-to-grid
-		 * <li>Positive value represents Production, i.e. power that is 'entering the
-		 * system', e.g. buy-from-grid
+		 * <li>Interface: Meter Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: only positive values
+		 * <li>Implementation Note: value is automatically derived from negative
+		 * ACTIVE_POWER
 		 * </ul>
-		 */
-		ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT).text(POWER_DOC_TEXT)), //
-		/**
-		 * Consumption Active Power [W], derived from negative ActivePower.
 		 */
 		CONSUMPTION_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
-		 * Production Active Power [W], derived from positive ActivePower.
+		 * Production Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Meter Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: only positive values, derived from ACTIVE_POWER
+		 * <li>Implementation Note: value is automatically derived from ACTIVE_POWER
+		 * </ul>
 		 */
 		PRODUCTION_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
-		 * Reactive Power [var].
+		 * Active Power
 		 * 
 		 * <ul>
-		 * <li>Negative value represents Consumption, i.e. power that is 'leaving the
-		 * system', e.g. feed-to-grid
-		 * <li>Positive value represents Production, i.e. power that is 'entering the
-		 * system', e.g. buy-from-grid
+		 * <li>Interface: Meter Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Consumption (power that is 'leaving the
+		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
+		 * the system')
 		 * </ul>
 		 */
-		REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).text(POWER_DOC_TEXT)), //
+		ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.text(POWER_DOC_TEXT) //
+				.onInit(channel -> {
+					channel.onSetNextValue(value -> {
+						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
+						channel.getComponent().channel(ChannelId.PRODUCTION_ACTIVE_POWER).setNextValue(dischargeValue);
+						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
+								.apply(value.get());
+						channel.getComponent().channel(ChannelId.CONSUMPTION_ACTIVE_POWER).setNextValue(chargeValue);
+					});
+				})), //
 		/**
-		 * Consumption Reactive Power [var], derived from negative ReactivePower.
+		 * Consumption Reactive Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Meter Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: only positive values
+		 * <li>Implementation Note: value is automatically derived from negative
+		 * REACTIVE_POWER
+		 * </ul>
 		 */
 		CONSUMPTION_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
-		 * Production Reactive Power [var], derived from positive ReactivePower.
+		 * Production Reactive Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Meter Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: only positive values
+		 * <li>Implementation Note: value is automatically derived from REACTIVE_POWER
+		 * </ul>
 		 */
 		PRODUCTION_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
-		 * Voltage [mV]
+		 * Reactive Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Meter Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: negative values for Consumption (power that is 'leaving the
+		 * system', e.g. feed-to-grid); positive for Production (power that is 'entering
+		 * the system')
+		 * </ul>
+		 */
+		REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.text(POWER_DOC_TEXT) //
+				.onInit(channel -> {
+					channel.onSetNextValue(value -> {
+						Object dischargeValue = StaticConverters.KEEP_POSITIVE.apply(value.get());
+						channel.getComponent().channel(ChannelId.PRODUCTION_REACTIVE_POWER)
+								.setNextValue(dischargeValue);
+						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
+								.apply(value.get());
+						channel.getComponent().channel(ChannelId.CONSUMPTION_REACTIVE_POWER).setNextValue(chargeValue);
+					});
+				})),
+		/**
+		 * Voltage
+		 * 
+		 * <ul>
+		 * <li>Interface: Meter Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: mV
+		 * </ul>
 		 */
 		VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)), //
 		/**
-		 * Current [mA]
+		 * Current
+		 * 
+		 * <ul>
+		 * <li>Interface: Meter Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: mA
+		 * </ul>
 		 */
 		CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)); //
 

@@ -12,13 +12,48 @@ import io.openems.edge.ess.api.Ess;
 @ProviderType
 public interface SymmetricEssReadonly extends Ess {
 
+	public final static String POWER_DOC_TEXT = "Negative values for Charge; positive for Discharge";
+
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
+		/**
+		 * Charge Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: only positive values
+		 * <li>Implementation Note: value is automatically derived from negative
+		 * ACTIVE_POWER
+		 * </ul>
+		 */
 		CHARGE_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		/**
+		 * Discharge Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: only positive values
+		 * <li>Implementation Note: value is automatically derived from ACTIVE_POWER
+		 * </ul>
+		 */
 		DISCHARGE_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		/**
+		 * Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
 		ACTIVE_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text("negative values for Charge; positive for Discharge") //
+				.text(POWER_DOC_TEXT) //
 				.onInit(channel -> {
 					channel.onSetNextValue(value -> {
 						// derive DISCHARGE_ACTIVE_POWER and CHARGE_ACTIVE_POWER from ACTIVE_POWER
@@ -29,12 +64,45 @@ public interface SymmetricEssReadonly extends Ess {
 						channel.getComponent().channel(ChannelId.CHARGE_ACTIVE_POWER).setNextValue(chargeValue);
 					});
 				})), //
+		/**
+		 * Charge Reactive Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: only positive values
+		 * <li>Implementation Note: value is automatically derived from negative
+		 * REACTIVE_POWER
+		 * </ul>
+		 */
 		CHARGE_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		/**
+		 * Discharge Reactive Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: only positive values
+		 * <li>Implementation Note: value is automatically derived from REACTIVE_POWER
+		 * </ul>
+		 */
 		DISCHARGE_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		/**
+		 * Reactive Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
 		REACTIVE_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.text("Negative values for Charge; positive for Discharge") //
+				.text(POWER_DOC_TEXT) //
 				.onInit(channel -> {
 					channel.onSetNextValue(value -> {
 						// derive DISCHARGE_REACTIVE_POWER and CHARGE_REACTIVE_POWER from REACTIVE_POWER
