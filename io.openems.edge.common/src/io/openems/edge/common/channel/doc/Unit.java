@@ -38,7 +38,11 @@ public enum Unit {
 	 */
 	MILLIHERTZ("mHz", HERTZ, -3),
 	/* Temperature */
-	DEGREE_CELCIUS("°C");
+	DEGREE_CELCIUS("°C"),
+	/**
+	 * On/Off
+	 */
+	ON_OFF("");
 
 	private final Unit baseUnit;
 	private final int scaleFactor;
@@ -67,7 +71,27 @@ public enum Unit {
 	}
 
 	public String format(Object value, OpenemsType type) {
-		return value + " " + this.symbol;
+		switch (this) {
+		case NONE:
+			return value.toString();
+		case AMPERE:
+		case DEGREE_CELCIUS:
+		case HERTZ:
+		case MILLIAMPERE:
+		case MILLIHERTZ:
+		case MILLIVOLT:
+		case PERCENT:
+		case VOLT:
+		case VOLT_AMPERE:
+		case VOLT_AMPERE_REACTIVE:
+		case WATT:
+		case WATT_HOURS:
+			return value + " " + this.symbol;
+		case ON_OFF:
+			boolean booleanValue = (Boolean) value;
+			return booleanValue ? "ON" : "OFF";
+		}
+		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
 	}
 
 	public String formatAsBaseUnit(Object value, OpenemsType type) {
@@ -82,7 +106,7 @@ public enum Unit {
 				return this.baseUnit.formatAsBaseUnit(value, type);
 			}
 		} else {
-			return value + " " + this.symbol;
+			this.format(value, type);
 		}
 		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
 	}
