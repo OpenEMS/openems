@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.java_websocket.WebSocket;
 
 import io.openems.common.session.Role;
-import io.openems.edge.api.user.User;
+import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.apicontrollerutils.ApiController;
 import io.openems.edge.controller.api.apicontrollerutils.EdgeWebsocketHandler;
 

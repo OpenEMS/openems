@@ -1,4 +1,4 @@
-package io.openems.edge.api.user;
+package io.openems.edge.common.user;
 
 import java.util.Optional;
 

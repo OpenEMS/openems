@@ -23,7 +23,7 @@ import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.LogBehaviour;
 import io.openems.common.websocket.Notification;
 import io.openems.common.websocket.WebSocketUtils;
-import io.openems.edge.api.user.User;
+import io.openems.edge.common.user.User;
 
 final class WebsocketApiServer extends AbstractWebsocketServer {
 

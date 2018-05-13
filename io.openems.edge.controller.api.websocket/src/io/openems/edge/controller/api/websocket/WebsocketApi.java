@@ -20,9 +20,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.edge.api.user.UserService;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.user.UserService;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.apicontrollerutils.ApiController;
 import io.openems.edge.controller.api.apicontrollerutils.ApiWorker;

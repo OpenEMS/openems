@@ -22,7 +22,6 @@ Export-Package: \
 	com.google.gson,\
 	io.openems.common;version=latest,\
 	org.apache.felix.scr,\
-	io.openems.edge.api;version=latest,\
 	io.openems.wrapper.websocket;version=latest
 
 -testpath: \

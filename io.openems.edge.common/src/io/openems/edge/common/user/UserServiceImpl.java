@@ -13,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.session.Role;
-import io.openems.edge.api.user.User;
-import io.openems.edge.api.user.UserService;
 
 /**
  * This component handles User authentication.

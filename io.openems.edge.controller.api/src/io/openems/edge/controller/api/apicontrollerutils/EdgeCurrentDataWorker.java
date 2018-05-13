@@ -2,8 +2,6 @@ package io.openems.edge.controller.api.apicontrollerutils;
 
 import org.java_websocket.WebSocket;
 
-import org.java_websocket.WebSocket;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
