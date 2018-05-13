@@ -12,10 +12,29 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 
+/**
+ * This is the base interface for and should be implemented by every service
+ * component in OpenEMS Edge.
+ * 
+ * Every OpenEMS service has:
+ * <ul>
+ * <li>a unique ID (see {@link OpenemsComponent#id()})
+ * <li>an enabled/disabled state (see {@link OpenemsComponent#isEnabled()})
+ * <li>an OSGi service PID (see {@link OpenemsComponent#servicePid()}
+ * <li>Channels (see {@link Channel}), identified by {@link ChannelId} or
+ * String-ID and provided via {@link OpenemsComponent#channel()} and
+ * {@link OpenemsComponent#channels()}
+ * <li>a kind of 'toString' method which provides the most important info about
+ * the component. (see {@link OpenemsComponent#debugLog()})
+ * </ul>
+ * 
+ * The recommended implementation of an OpenEMS component is via
+ * {@link AbstractOpenemsComponent}.
+ */
 public interface OpenemsComponent {
 
 	/**
-	 * Returns a unique ID for this Thing (i.e. the OSGi service.pid)
+	 * Returns a unique ID for this OpenEMS component
 	 * 
 	 * @return
 	 */

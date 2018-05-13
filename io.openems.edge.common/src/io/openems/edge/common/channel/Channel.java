@@ -9,6 +9,35 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
+/**
+ * An OpenEMS Channel holds one specific piece of information of an
+ * {@link OpenemsComponent}.
+ *
+ * A Channel has
+ * <ul>
+ * <li>a Channel-ID which is unique among the OpenemsComponent. (see
+ * {@link io.openems.edge.common.channel.doc.ChannelId})
+ * <li>a {@link Doc} as static meta information. (via
+ * {@link Channel#channelDoc()})
+ * <li>a system-wide unique {@link ChannelAddress} built from Component-ID and
+ * Channel-ID. (via {@link Channel#address()}
+ * <li>a {@link OpenemsType} which needs to map to the generic parameter <T>.
+ * (via {@link Channel#getType()})
+ * <li>an (active) {@link Value}. (via {@link Channel#value()})
+ * <li>callback methods to listen on value changes. (see
+ * {@link Channel#onUpdate()} and {@link Channel#onSetNextValue()})
+ * </ul>
+ * 
+ * Channels implement a 'Process Image' pattern. They provide an 'active' value
+ * which should be used for any operations on the channel value. The 'next'
+ * value is filled by asynchronous workers in the background. At the 'Process
+ * Image Switch' the 'next' value is copied to the 'current' value.
+ * 
+ * The recommended implementation of an OpenEMS Channel is via
+ * {@link AbstractReadChannel}.
+ *
+ * @param <T>
+ */
 public interface Channel<T> {
 	/**
 	 * Gets the ChannelId of this Channel

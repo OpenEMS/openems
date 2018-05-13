@@ -15,10 +15,9 @@ import io.openems.edge.common.channel.Channel;
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
  * 
- * 'activate()' and 'deactivate()' methods should be called by the corresponding
- * methods in the OSGi component.
- * 
- * @author stefan.feilmeier
+ * {@link AbstractOpenemsComponent#activate()} and
+ * {@link AbstractOpenemsComponent#deactivate()} methods should be called by the
+ * corresponding methods in the OSGi component.
  */
 public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 

@@ -9,6 +9,21 @@ import com.google.common.collect.HashBiMap;
 
 import io.openems.edge.common.channel.Channel;
 
+/**
+ * Provides static meta information for a {@link Channel} using Builder pattern.
+ * 
+ * Possible meta information:
+ * <ul>
+ * <li>descriptive text via {@link Doc#getText()}
+ * <li>a Unit via {@link Doc#getUnit()}
+ * <li>possible named option values as String or Enum via
+ * {@link Doc#getOption()} methods
+ * <li>importance {@link Level} via {@link Doc#getLevel()}
+ * <li>is debug mode activated via {@link Doc#isDebug()}
+ * <li>callback on initialisation of a Channel via
+ * {@link Doc#getOnInitCallback()}
+ * </ul>
+ */
 public class Doc {
 
 	/*
@@ -16,6 +31,12 @@ public class Doc {
 	 */
 	private String text = "";
 
+	/**
+	 * Descriptive text. Default: empty string
+	 * 
+	 * @param text
+	 * @return
+	 */
 	public Doc text(String text) {
 		this.text = text;
 		return this;
@@ -30,6 +51,12 @@ public class Doc {
 	 */
 	private Unit unit = Unit.NONE;
 
+	/**
+	 * Unit. Default: none
+	 * 
+	 * @param unit
+	 * @return
+	 */
 	public Doc unit(Unit unit) {
 		this.unit = unit;
 		return this;
@@ -159,12 +186,12 @@ public class Doc {
 	}
 
 	/*
-	 * On Channel Initalization Callback
+	 * On Channel initialisation Callback
 	 */
 	private Optional<Consumer<Channel<?>>> onInitCallbackOpt = Optional.empty();
 
 	/**
-	 * Provides a callback on initialization of the actual Channel
+	 * Provides a callback on initialisation of the actual Channel
 	 * 
 	 * @param channel
 	 * @return
