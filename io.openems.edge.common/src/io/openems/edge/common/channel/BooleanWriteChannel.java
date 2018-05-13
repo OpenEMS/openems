@@ -1,6 +1,8 @@
 package io.openems.edge.common.channel;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import io.openems.edge.common.channel.doc.ChannelId;
@@ -39,22 +41,16 @@ public class BooleanWriteChannel extends BooleanReadChannel implements WriteChan
 	/*
 	 * onSetNextWrite
 	 */
-	private Consumer<Boolean> onSetNextWriteCallback = null;
+	private final List<Consumer<Boolean>> onSetNextWriteCallbacks = new CopyOnWriteArrayList<>();
 
 	@Override
-	public Consumer<Boolean> getOnSetNextWrite() {
-		return this.onSetNextWriteCallback;
+	public List<Consumer<Boolean>> getOnSetNextWrites() {
+		return this.onSetNextWriteCallbacks;
 	}
 
-	/**
-	 * Internal method. Do not call directly.
-	 * 
-	 * @param value
-	 */
-	@Deprecated
 	@Override
-	public void _onSetNextWrite(Consumer<Boolean> callback) {
-		this.onSetNextWriteCallback = callback;
+	public void onSetNextWrite(Consumer<Boolean> callback) {
+		this.onSetNextWriteCallbacks.add(callback);
 	}
 
 }

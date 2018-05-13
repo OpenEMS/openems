@@ -1,5 +1,6 @@
 package io.openems.edge.common.channel;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -30,7 +31,7 @@ public interface WriteChannel<T> extends Channel<T> {
 		this._setNextWriteValue(typedValue);
 		// set the read value to the same value to enable debugging
 		this.setNextValue(value);
-		this.getOnSetNextWrite().accept(typedValue);
+		this.getOnSetNextWrites().forEach(callback -> callback.accept(typedValue));
 	}
 
 	/**
@@ -55,24 +56,11 @@ public interface WriteChannel<T> extends Channel<T> {
 	public Optional<T> _getNextWriteValue();
 
 	/**
-	 * The onSetNextWrite callback is called when a 'next write value' was set.
+	 * Add an onSetNextWrite callback. It is called when a 'next write value' was
+	 * set.
 	 */
-	public default void onSetNextWrite(Consumer<T> callback) {
-		Consumer<T> existingCallback = this.getOnSetNextWrite();
-		if (existingCallback != null) {
-			System.out.println("Setting new onSetNextWriteCallback for WriteChannel [" + this.channelId()
-					+ "] overrides existing one!");
-		}
-		this._onSetNextWrite(callback);
-	}
+	public void onSetNextWrite(Consumer<T> callback);
 
-	public Consumer<T> getOnSetNextWrite();
+	public List<Consumer<T>> getOnSetNextWrites();
 
-	/**
-	 * Internal method. Do not call directly.
-	 * 
-	 * @param value
-	 */
-	@Deprecated
-	public void _onSetNextWrite(Consumer<T> onSetNextWriteCallback);
 }

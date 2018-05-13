@@ -1,6 +1,8 @@
 package io.openems.edge.common.channel;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import io.openems.edge.common.channel.doc.ChannelId;
@@ -39,22 +41,16 @@ public class IntegerWriteChannel extends IntegerReadChannel implements WriteChan
 	/*
 	 * onSetNextWrite
 	 */
-	private Consumer<Integer> onSetNextWriteCallback = null;
+	private final List<Consumer<Integer>> onSetNextWriteCallbacks = new CopyOnWriteArrayList<>();
 
 	@Override
-	public Consumer<Integer> getOnSetNextWrite() {
-		return this.onSetNextWriteCallback;
+	public List<Consumer<Integer>> getOnSetNextWrites() {
+		return this.onSetNextWriteCallbacks;
 	}
 
-	/**
-	 * Internal method. Do not call directly.
-	 * 
-	 * @param value
-	 */
-	@Deprecated
 	@Override
-	public void _onSetNextWrite(Consumer<Integer> callback) {
-		this.onSetNextWriteCallback = callback;
+	public void onSetNextWrite(Consumer<Integer> callback) {
+		this.onSetNextWriteCallbacks.add(callback);
 	}
 
 }
