@@ -4,13 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
 import com.ghgande.j2mod.modbus.util.BitVector;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.bridge.modbus.api.facade.MyModbusMaster;
 
 /**
  * Implements a Read Coils task, implementing Modbus function code 1
@@ -24,7 +24,7 @@ public class FC1ReadCoilsTask extends Task implements ReadTask {
 		super(startAddress, priority, elements);
 	}
 
-	public void executeQuery(MyModbusMaster master) throws ModbusException {
+	public void executeQuery(AbstractModbusMaster master) throws ModbusException {
 		// Query this Task
 		int startAddress = this.getStartAddress();
 		int length = this.getLength();

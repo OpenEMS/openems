@@ -6,11 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
 
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
-import io.openems.edge.bridge.modbus.api.facade.MyModbusMaster;
 
 /**
  * Implements a Write Single Coil task, using Modbus function code 5
@@ -25,7 +25,7 @@ public class FC5WriteCoilTask extends Task implements WriteTask {
 	}
 
 	@Override
-	public void executeWrite(MyModbusMaster master) throws ModbusException {
+	public void executeWrite(AbstractModbusMaster master) throws ModbusException {
 		ModbusElement<?> element = this.getElements()[0];
 		if (element instanceof ModbusCoilElement) {
 			Optional<Boolean> valueOpt = ((ModbusCoilElement) element).getNextWriteValueAndReset();

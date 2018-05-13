@@ -10,11 +10,11 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ghgande.j2mod.modbus.Modbus;
+import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
+import com.ghgande.j2mod.modbus.facade.ModbusSerialMaster;
 import com.ghgande.j2mod.modbus.util.SerialParameters;
 
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.facade.MyModbusMaster;
-import io.openems.edge.bridge.modbus.api.facade.MyModbusSerialMaster;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
 
@@ -73,7 +73,7 @@ public class BridgeModbusSerial extends AbstractModbusBridge implements BridgeMo
 	}
 
 	@Override
-	protected MyModbusMaster createModbusMaster() {
+	protected AbstractModbusMaster createModbusMaster() {
 		SerialParameters params = new SerialParameters();
 		params.setPortName(this.portName);
 		params.setBaudRate(this.baudrate);
@@ -82,6 +82,8 @@ public class BridgeModbusSerial extends AbstractModbusBridge implements BridgeMo
 		params.setParity(this.parity);
 		params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 		params.setEcho(false);
-		return new MyModbusSerialMaster(params);
+		ModbusSerialMaster master = new ModbusSerialMaster(params);
+		master.setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
+		return master;
 	}
 }

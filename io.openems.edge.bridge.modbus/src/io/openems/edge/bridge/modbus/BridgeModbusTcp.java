@@ -9,9 +9,10 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
+import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
+import com.ghgande.j2mod.modbus.facade.ModbusTCPMaster;
+
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
-import io.openems.edge.bridge.modbus.api.facade.MyModbusMaster;
-import io.openems.edge.bridge.modbus.api.facade.MyModbusTCPMaster;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
 
@@ -46,7 +47,9 @@ public class BridgeModbusTcp extends AbstractModbusBridge implements BridgeModbu
 	}
 
 	@Override
-	protected MyModbusMaster createModbusMaster() {
-		return new MyModbusTCPMaster(this.ipAddress);
+	protected AbstractModbusMaster createModbusMaster() {
+		ModbusTCPMaster master = new ModbusTCPMaster(this.ipAddress);
+		master.setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
+		return master;
 	}
 }

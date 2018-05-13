@@ -92,4 +92,5 @@ JPM-Command:				openems-edge
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
 	io.openems.edge.controller.api;version=snapshot,\
 	io.openems.edge.controller.api.backend;version=snapshot,\
-	io.openems.edge.io.kmtronic;version=snapshot
+	io.openems.edge.io.kmtronic;version=snapshot,\
+	io.openems.wrapper.jSerialComm;version=snapshot

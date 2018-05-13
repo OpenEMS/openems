@@ -14,13 +14,14 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.ModbusException;
+import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.facade.MyModbusMaster;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
 import io.openems.edge.common.channel.StateChannel;
@@ -34,6 +35,9 @@ import io.openems.edge.common.worker.AbstractWorker;
  * 
  */
 public abstract class AbstractModbusBridge extends AbstractOpenemsComponent implements EventHandler {
+
+	protected final static int DEFAULT_TIMEOUT = Modbus.DEFAULT_TIMEOUT; // 3000 [ms]
+	protected final static int DEFAULT_RETRIES = 1; // Modbus default is 5
 
 	private final Logger log = LoggerFactory.getLogger(AbstractModbusBridge.class);
 	private final ModbusWorker worker = new ModbusWorker();
@@ -102,10 +106,10 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * 
 	 * @return
 	 */
-	protected abstract MyModbusMaster createModbusMaster();
+	protected abstract AbstractModbusMaster createModbusMaster();
 
 	private class ModbusWorker extends AbstractWorker {
-		private MyModbusMaster master = null;
+		private AbstractModbusMaster master = null;
 
 		@Override
 		public void activate(String name) {
@@ -116,7 +120,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		public void deactivate() {
 			super.deactivate();
 			// disconnect from Modbus
-			MyModbusMaster master = this.master;
+			AbstractModbusMaster master = this.master;
 			if (master != null) {
 				master.disconnect();
 			}
@@ -125,7 +129,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		@Override
 		protected void forever() {
 			// get ModbusMaster or abort
-			MyModbusMaster master = getModbusMasterAndConnect();
+			AbstractModbusMaster master = getModbusMasterAndConnect();
 			if (master == null) {
 				return;
 			}
@@ -157,16 +161,19 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 				try {
 					readTask.executeQuery(master);
 				} catch (ModbusException e) {
+					// TODO remember defective unitid
 					log.error(id() + ". Unable to execute modbus query: " + e.getMessage());
 				}
 			});
 		}
 
-		private MyModbusMaster getModbusMasterAndConnect() {
+		private AbstractModbusMaster getModbusMasterAndConnect() {
 			if (this.master == null) {
-				MyModbusMaster master = createModbusMaster();
+				AbstractModbusMaster master = createModbusMaster();
 				try {
 					master.connect();
+					master.setRetries(AbstractModbusBridge.DEFAULT_RETRIES); // setRetries requires a Transaction which
+																				// is only created by connect()
 					this.master = master;
 				} catch (Exception e) {
 					logError(log, "Unable to connect: " + e.getMessage());
