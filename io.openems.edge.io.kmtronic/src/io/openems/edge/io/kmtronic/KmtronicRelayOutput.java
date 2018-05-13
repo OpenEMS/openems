@@ -20,6 +20,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
+import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
@@ -131,12 +132,11 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		super.setModbus(modbus);
 	}
 
-	private final WriteChannel<Boolean>[] digitalOutputChannels;
+	private final BooleanWriteChannel[] digitalOutputChannels;
 
-	@SuppressWarnings("unchecked")
 	public KmtronicRelayOutput() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		this.digitalOutputChannels = (WriteChannel<Boolean>[]) new WriteChannel[] {
+		this.digitalOutputChannels = new BooleanWriteChannel[] {
 				this.channel(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_1), //
 				this.channel(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_2), //
 				this.channel(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_3), //
@@ -174,7 +174,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 	}
 
 	@Override
-	public WriteChannel<Boolean>[] digitalOutputChannels() {
+	public BooleanWriteChannel[] digitalOutputChannels() {
 		return this.digitalOutputChannels;
 	}
 

@@ -23,7 +23,6 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=org.ops4j.pax.logging.pax-logging-service)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.common)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.fixedorder)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.openemsv1)',\
 	osgi.identity;filter:='(osgi.identity=org.apache.felix.webconsole)',\
 	osgi.identity;filter:='(osgi.identity=osgi.enroute.webconsole.xray.provider)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.janitza.umg96rme)',\
@@ -38,7 +37,8 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.simulator)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.timedata.influxdb)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.websocket)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.backend)'
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.backend)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)'
 
 -resolve: auto
 -runbundles: \
@@ -54,7 +54,6 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
-	io.openems.edge.ess.fenecon.openemsv1;version=snapshot,\
 	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
 	io.openems.edge.meter.socomec.dirisa14;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
@@ -92,4 +91,5 @@ JPM-Command:				openems-edge
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
 	io.openems.edge.controller.api;version=snapshot,\
-	io.openems.edge.controller.api.backend;version=snapshot
+	io.openems.edge.controller.api.backend;version=snapshot,\
+	io.openems.edge.io.kmtronic;version=snapshot
