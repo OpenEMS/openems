@@ -2,6 +2,7 @@ package io.openems.edge.ess.symmetric.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.ess.power.symmetric.SymmetricPower;
@@ -21,7 +22,8 @@ public interface SymmetricEss extends SymmetricEssReadonly {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER(new Doc().unit(Unit.WATT).text("negative values for Charge; positive for Discharge")), //
+		SET_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)
+				.text("negative values for Charge; positive for Discharge")), //
 		/**
 		 * Set Reactive Power
 		 * 
@@ -32,8 +34,8 @@ public interface SymmetricEss extends SymmetricEssReadonly {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER(
-				new Doc().unit(Unit.VOLT_AMPERE_REACTIVE).text("negative values for Charge; positive for Discharge"));
+		SET_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)
+				.text("negative values for Charge; positive for Discharge"));
 
 		private final Doc doc;
 

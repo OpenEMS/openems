@@ -2,6 +2,7 @@ package io.openems.edge.ess.symmetric.readonly.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
@@ -12,9 +13,10 @@ import io.openems.edge.ess.api.Ess;
 public interface SymmetricEssReadonly extends Ess {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		CHARGE_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
-		DISCHARGE_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
+		CHARGE_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		DISCHARGE_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.text("negative values for Charge; positive for Discharge") //
 				.onInit(channel -> {
@@ -27,9 +29,10 @@ public interface SymmetricEssReadonly extends Ess {
 						channel.getComponent().channel(ChannelId.CHARGE_ACTIVE_POWER).setNextValue(chargeValue);
 					});
 				})), //
-		CHARGE_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		DISCHARGE_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		CHARGE_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		DISCHARGE_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		REACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
 				.unit(Unit.VOLT_AMPERE_REACTIVE) //
 				.text("Negative values for Charge; positive for Discharge") //
 				.onInit(channel -> {

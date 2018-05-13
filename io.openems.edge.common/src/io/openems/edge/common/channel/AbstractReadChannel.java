@@ -36,6 +36,13 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		this.type = type;
 		this.component = component;
 		this.channelId = channelId;
+		// validate Type
+		if (channelId.doc().getType().isPresent()) {
+			if (!type.equals(channelId.doc().getType().get())) {
+				throw new IllegalArgumentException(this.address() + "Types do not match for [" + this.address()
+						+ "]. Got [" + type + "]. Expected [" + channelId.doc().getType().get() + "].");
+			}
+		}
 		// call onInitCallback from Doc
 		Optional<Consumer<Channel<?>>> onInitCallback = this.channelId.doc().getOnInitCallback();
 		if (onInitCallback.isPresent()) {

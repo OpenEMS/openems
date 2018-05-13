@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
@@ -39,7 +40,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_1(new Doc().unit(Unit.ON_OFF)), //
+		DIGITAL_OUTPUT_1(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 2
 		 * 
@@ -49,7 +50,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_2(new Doc().unit(Unit.ON_OFF)), //
+		DIGITAL_OUTPUT_2(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 3
 		 * 
@@ -59,7 +60,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_3(new Doc().unit(Unit.ON_OFF)), //
+		DIGITAL_OUTPUT_3(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 4
 		 * 
@@ -69,7 +70,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_4(new Doc().unit(Unit.ON_OFF)), //
+		DIGITAL_OUTPUT_4(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 5
 		 * 
@@ -79,7 +80,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_5(new Doc().unit(Unit.ON_OFF)), //
+		DIGITAL_OUTPUT_5(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 6
 		 * 
@@ -89,7 +90,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_6(new Doc().unit(Unit.ON_OFF)), //
+		DIGITAL_OUTPUT_6(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 7
 		 * 
@@ -99,7 +100,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_7(new Doc().unit(Unit.ON_OFF)), //
+		DIGITAL_OUTPUT_7(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 8
 		 * 
@@ -109,7 +110,7 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_8(new Doc().unit(Unit.ON_OFF));
+		DIGITAL_OUTPUT_8(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF));
 
 		private final Doc doc;
 

@@ -1,5 +1,6 @@
 package io.openems.edge.meter.symmetric.api;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
@@ -32,15 +33,15 @@ public interface SymmetricMeter extends Meter {
 		 * system', e.g. buy-from-grid
 		 * </ul>
 		 */
-		ACTIVE_POWER(new Doc().unit(Unit.WATT).text(POWER_DOC_TEXT)), //
+		ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT).text(POWER_DOC_TEXT)), //
 		/**
 		 * Consumption Active Power [W], derived from negative ActivePower.
 		 */
-		CONSUMPTION_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
+		CONSUMPTION_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
 		 * Production Active Power [W], derived from positive ActivePower.
 		 */
-		PRODUCTION_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
+		PRODUCTION_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
 		 * Reactive Power [var].
 		 * 
@@ -51,23 +52,23 @@ public interface SymmetricMeter extends Meter {
 		 * system', e.g. buy-from-grid
 		 * </ul>
 		 */
-		REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE).text(POWER_DOC_TEXT)), //
+		REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).text(POWER_DOC_TEXT)), //
 		/**
 		 * Consumption Reactive Power [var], derived from negative ReactivePower.
 		 */
-		CONSUMPTION_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		CONSUMPTION_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
 		 * Production Reactive Power [var], derived from positive ReactivePower.
 		 */
-		PRODUCTION_REACTIVE_POWER(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		PRODUCTION_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
 		 * Voltage [mV]
 		 */
-		VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
+		VOLTAGE(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)), //
 		/**
 		 * Current [mA]
 		 */
-		CURRENT(new Doc().unit(Unit.MILLIAMPERE)); //
+		CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)); //
 
 		private final Doc doc;
 

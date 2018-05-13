@@ -1,5 +1,6 @@
 package io.openems.edge.meter.asymmetric.api;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
@@ -32,7 +33,7 @@ public interface AsymmetricMeter extends Meter {
 		 * system', e.g. buy-from-grid
 		 * </ul>
 		 */
-		ACTIVE_POWER_L1(new Doc().unit(Unit.WATT).text(POWER_DOC_TEXT)), //
+		ACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT).text(POWER_DOC_TEXT)), //
 		/**
 		 * Active Power on L2 [W].
 		 * 
@@ -43,7 +44,7 @@ public interface AsymmetricMeter extends Meter {
 		 * system', e.g. buy-from-grid
 		 * </ul>
 		 */
-		ACTIVE_POWER_L2(new Doc().unit(Unit.WATT).text(POWER_DOC_TEXT)), //
+		ACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT).text(POWER_DOC_TEXT)), //
 		/**
 		 * Active Power on L3 [W].
 		 * 
@@ -54,31 +55,32 @@ public interface AsymmetricMeter extends Meter {
 		 * system', e.g. buy-from-grid
 		 * </ul>
 		 */
-		ACTIVE_POWER_L3(new Doc().unit(Unit.WATT).text(POWER_DOC_TEXT)), //
+		ACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT).text(POWER_DOC_TEXT)), //
+		// TODO: derive from ACTIVE_POWER_L1
 		/**
 		 * Consumption Active Power on L1 [W], derived from negative ActivePowerL1.
 		 */
-		CONSUMPTION_ACTIVE_POWER_L1(new Doc().unit(Unit.WATT)), //
+		CONSUMPTION_ACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
 		 * Consumption Active Power on L2 [W], derived from negative ActivePowerL2.
 		 */
-		CONSUMPTION_ACTIVE_POWER_L2(new Doc().unit(Unit.WATT)), //
+		CONSUMPTION_ACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
 		 * Consumption Active Power on L3 [W], derived from negative ActivePowerL3.
 		 */
-		CONSUMPTION_ACTIVE_POWER_L3(new Doc().unit(Unit.WATT)), //
+		CONSUMPTION_ACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
 		 * Production Active Power on L1 [W], derived from positive ActivePowerL1.
 		 */
-		PRODUCTION_ACTIVE_POWER_L1(new Doc().unit(Unit.WATT)), //
+		PRODUCTION_ACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
 		 * Production Active Power on L2 [W], derived from positive ActivePowerL2.
 		 */
-		PRODUCTION_ACTIVE_POWER_L2(new Doc().unit(Unit.WATT)), //
+		PRODUCTION_ACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
 		 * Production Active Power on L3 [W], derived from positive ActivePowerL3.
 		 */
-		PRODUCTION_ACTIVE_POWER_L3(new Doc().unit(Unit.WATT)), //
+		PRODUCTION_ACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
 		 * Reactive Power on L1 [var].
 		 * 
@@ -89,7 +91,7 @@ public interface AsymmetricMeter extends Meter {
 		 * system', e.g. buy-from-grid
 		 * </ul>
 		 */
-		REACTIVE_POWER_L1(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE).text(POWER_DOC_TEXT)), //
+		REACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).text(POWER_DOC_TEXT)), //
 		/**
 		 * Reactive Power on L2 [var].
 		 * 
@@ -100,7 +102,7 @@ public interface AsymmetricMeter extends Meter {
 		 * system', e.g. buy-from-grid
 		 * </ul>
 		 */
-		REACTIVE_POWER_L2(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE).text(POWER_DOC_TEXT)), //
+		REACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).text(POWER_DOC_TEXT)), //
 		/**
 		 * Reactive Power on L3 [var].
 		 * 
@@ -111,58 +113,58 @@ public interface AsymmetricMeter extends Meter {
 		 * system', e.g. buy-from-grid
 		 * </ul>
 		 */
-		REACTIVE_POWER_L3(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE).text(POWER_DOC_TEXT)), //
+		REACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE).text(POWER_DOC_TEXT)), //
 		/**
 		 * Consumption Reactive Power on L1 [var], derived from negative
 		 * ReactivePowerL1.
 		 */
-		CONSUMPTION_REACTIVE_POWER_L1(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		CONSUMPTION_REACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
 		 * Consumption Reactive Power on L2 varW], derived from negative
 		 * ReactivePowerL2.
 		 */
-		CONSUMPTION_REACTIVE_POWER_L2(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		CONSUMPTION_REACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
 		 * Consumption Reactive Power on L3 [var], derived from negative
 		 * ReactivePowerL3.
 		 */
-		CONSUMPTION_REACTIVE_POWER_L3(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		CONSUMPTION_REACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
 		 * Production Reactive Power on L1 [var], derived from positive ReactivePowerL1.
 		 */
-		PRODUCTION_REACTIVE_POWER_L1(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		PRODUCTION_REACTIVE_POWER_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
 		 * Production Reactive Power on L2 [var], derived from positive ReactivePowerL2.
 		 */
-		PRODUCTION_REACTIVE_POWER_L2(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		PRODUCTION_REACTIVE_POWER_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
 		 * Production Reactive Power on L3 [var], derived from positive ReactivePowerL3.
 		 */
-		PRODUCTION_REACTIVE_POWER_L3(new Doc().unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		PRODUCTION_REACTIVE_POWER_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
 		/**
 		 * Voltage on L1 [mV]
 		 */
-		VOLTAGE_L1(new Doc().unit(Unit.MILLIVOLT)), //
+		VOLTAGE_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)), //
 		/**
 		 * Voltage on L2 [mV]
 		 */
-		VOLTAGE_L2(new Doc().unit(Unit.MILLIVOLT)), //
+		VOLTAGE_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)), //
 		/**
 		 * Voltage on L3 [mV]
 		 */
-		VOLTAGE_L3(new Doc().unit(Unit.MILLIVOLT)), //
+		VOLTAGE_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIVOLT)), //
 		/**
 		 * Current on L1 [mA]
 		 */
-		CURRENT_L1(new Doc().unit(Unit.MILLIAMPERE)), //
+		CURRENT_L1(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)), //
 		/**
 		 * Current on L2 [mA]
 		 */
-		CURRENT_L2(new Doc().unit(Unit.MILLIAMPERE)), //
+		CURRENT_L2(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)), //
 		/**
 		 * Current on L3 [mA]
 		 */
-		CURRENT_L3(new Doc().unit(Unit.MILLIAMPERE)); //
+		CURRENT_L3(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)); //
 
 		private final Doc doc;
 

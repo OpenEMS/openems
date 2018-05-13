@@ -2,6 +2,7 @@ package io.openems.edge.ess.dccharger.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
@@ -21,7 +22,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Range: positive
 		 * </ul>
 		 */
-		DC_ACTUAL_POWER(new Doc().unit(Unit.WATT)); //
+		DC_ACTUAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)); //
 
 		private final Doc doc;
 

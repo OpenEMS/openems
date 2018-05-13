@@ -2,6 +2,7 @@ package io.openems.edge.ess.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
@@ -25,7 +26,7 @@ public interface Ess extends OpenemsComponent {
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		SOC(new Doc().unit(Unit.PERCENT)),
+		SOC(new Doc().type(OpenemsType.INTEGER).unit(Unit.PERCENT)),
 		/**
 		 * Grid-Mode
 		 * 
@@ -35,7 +36,7 @@ public interface Ess extends OpenemsComponent {
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
-		GRID_MODE(new Doc() //
+		GRID_MODE(new Doc().type(OpenemsType.INTEGER) //
 				.option(GridMode.UNDEFINED) //
 				.option(GridMode.ON_GRID) //
 				.option(GridMode.OFF_GRID) //

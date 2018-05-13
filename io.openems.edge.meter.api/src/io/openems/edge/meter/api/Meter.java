@@ -2,6 +2,7 @@ package io.openems.edge.meter.api;
 
 import org.osgi.annotation.versioning.ProviderType;
 
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -13,7 +14,7 @@ public interface Meter extends OpenemsComponent {
 		/**
 		 * Frequency [mHz]
 		 */
-		FREQUENCY(new Doc().unit(Unit.MILLIHERTZ)) //
+		FREQUENCY(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIHERTZ)) //
 
 		;
 		private final Doc doc;

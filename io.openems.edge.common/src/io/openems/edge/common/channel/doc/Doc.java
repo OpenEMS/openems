@@ -7,6 +7,8 @@ import com.google.common.base.CaseFormat;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.Channel;
 
 /**
@@ -14,6 +16,7 @@ import io.openems.edge.common.channel.Channel;
  * 
  * Possible meta information:
  * <ul>
+ * <li>expected OpenemsType via {@link Doc#getType()}
  * <li>descriptive text via {@link Doc#getText()}
  * <li>a Unit via {@link Doc#getUnit()}
  * <li>possible named option values as String or Enum via
@@ -25,6 +28,27 @@ import io.openems.edge.common.channel.Channel;
  * </ul>
  */
 public class Doc {
+
+	/*
+	 * OpenEMS Type
+	 */
+	private Optional<OpenemsType> type = Optional.empty();
+
+	/**
+	 * Sets the OpenemsType. This is validated on construction of the Channel by
+	 * {@link AbstractReadChannel}
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public Doc type(OpenemsType type) {
+		this.type = Optional.ofNullable(type);
+		return this;
+	}
+
+	public Optional<OpenemsType> getType() {
+		return type;
+	}
 
 	/*
 	 * Description
