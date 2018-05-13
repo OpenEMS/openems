@@ -18,9 +18,6 @@ import io.openems.edge.bridge.modbus.api.facade.MyModbusMaster;
 /**
  * Implements a Write Holding Registers task, using Modbus function code 16
  * (http://www.simplymodbus.ca/FC16.htm)
- * 
- * @author stefan.feilmeier
- *
  */
 public class FC16WriteRegistersTask extends Task implements WriteTask {
 
