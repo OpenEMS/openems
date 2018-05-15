@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -31,6 +32,15 @@ public class Utils {
 					case DIGITAL_OUTPUT_7:
 					case DIGITAL_OUTPUT_8:
 						return new BooleanWriteChannel(c, channelId);
+					case DEBUG_DIGITAL_OUTPUT_1:
+					case DEBUG_DIGITAL_OUTPUT_2:
+					case DEBUG_DIGITAL_OUTPUT_3:
+					case DEBUG_DIGITAL_OUTPUT_4:
+					case DEBUG_DIGITAL_OUTPUT_5:
+					case DEBUG_DIGITAL_OUTPUT_6:
+					case DEBUG_DIGITAL_OUTPUT_7:
+					case DEBUG_DIGITAL_OUTPUT_8:
+						return new BooleanReadChannel(c, channelId);
 					}
 					return null;
 				}) //

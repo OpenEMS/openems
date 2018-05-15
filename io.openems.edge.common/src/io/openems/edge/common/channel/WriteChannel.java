@@ -29,8 +29,6 @@ public interface WriteChannel<T> extends Channel<T> {
 		T typedValue = TypeUtils.<T>getAsType(this.getType(), value);
 		// set the write value
 		this._setNextWriteValue(typedValue);
-		// set the read value to the same value to enable debugging
-		this.setNextValue(value);
 		this.getOnSetNextWrites().forEach(callback -> callback.accept(typedValue));
 	}
 

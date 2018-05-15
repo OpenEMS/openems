@@ -19,7 +19,9 @@ import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.CoilElement;
+import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
+import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
@@ -33,6 +35,16 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
+		 * Holds writes to Digital Output 1 for debugging
+		 * 
+		 * <ul>
+		 * <li>Interface: KmtronicRelayOutput
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		DEBUG_DIGITAL_OUTPUT_1(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		/**
 		 * Digital Output 1
 		 * 
 		 * <ul>
@@ -41,7 +53,26 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_1(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		@SuppressWarnings("unchecked")
+		DIGITAL_OUTPUT_1(new Doc() //
+				.type(OpenemsType.BOOLEAN) //
+				.unit(Unit.ON_OFF) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Boolean>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_DIGITAL_OUTPUT_1).setNextValue(value);
+					});
+				})),
+		/**
+		 * Holds writes to Digital Output 2 for debugging
+		 * 
+		 * <ul>
+		 * <li>Interface: KmtronicRelayOutput
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		DEBUG_DIGITAL_OUTPUT_2(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 2
 		 * 
@@ -51,7 +82,26 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_2(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		@SuppressWarnings("unchecked")
+		DIGITAL_OUTPUT_2(new Doc() //
+				.type(OpenemsType.BOOLEAN) //
+				.unit(Unit.ON_OFF) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Boolean>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_DIGITAL_OUTPUT_2).setNextValue(value);
+					});
+				})),
+		/**
+		 * Holds writes to Digital Output 3 for debugging
+		 * 
+		 * <ul>
+		 * <li>Interface: KmtronicRelayOutput
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		DEBUG_DIGITAL_OUTPUT_3(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 3
 		 * 
@@ -61,7 +111,26 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_3(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		@SuppressWarnings("unchecked")
+		DIGITAL_OUTPUT_3(new Doc() //
+				.type(OpenemsType.BOOLEAN) //
+				.unit(Unit.ON_OFF) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Boolean>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_DIGITAL_OUTPUT_2).setNextValue(value);
+					});
+				})),
+		/**
+		 * Holds writes to Digital Output 4 for debugging
+		 * 
+		 * <ul>
+		 * <li>Interface: KmtronicRelayOutput
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		DEBUG_DIGITAL_OUTPUT_4(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 4
 		 * 
@@ -71,7 +140,26 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_4(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		@SuppressWarnings("unchecked")
+		DIGITAL_OUTPUT_4(new Doc() //
+				.type(OpenemsType.BOOLEAN) //
+				.unit(Unit.ON_OFF) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Boolean>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_DIGITAL_OUTPUT_4).setNextValue(value);
+					});
+				})),
+		/**
+		 * Holds writes to Digital Output 5 for debugging
+		 * 
+		 * <ul>
+		 * <li>Interface: KmtronicRelayOutput
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		DEBUG_DIGITAL_OUTPUT_5(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 5
 		 * 
@@ -81,7 +169,26 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_5(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		@SuppressWarnings("unchecked")
+		DIGITAL_OUTPUT_5(new Doc() //
+				.type(OpenemsType.BOOLEAN) //
+				.unit(Unit.ON_OFF) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Boolean>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_DIGITAL_OUTPUT_5).setNextValue(value);
+					});
+				})),
+		/**
+		 * Holds writes to Digital Output 6 for debugging
+		 * 
+		 * <ul>
+		 * <li>Interface: KmtronicRelayOutput
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		DEBUG_DIGITAL_OUTPUT_6(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 6
 		 * 
@@ -91,7 +198,26 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_6(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		@SuppressWarnings("unchecked")
+		DIGITAL_OUTPUT_6(new Doc() //
+				.type(OpenemsType.BOOLEAN) //
+				.unit(Unit.ON_OFF) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Boolean>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_DIGITAL_OUTPUT_6).setNextValue(value);
+					});
+				})),
+		/**
+		 * Holds writes to Digital Output 7 for debugging
+		 * 
+		 * <ul>
+		 * <li>Interface: KmtronicRelayOutput
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		DEBUG_DIGITAL_OUTPUT_7(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 7
 		 * 
@@ -101,7 +227,26 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_7(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
+		@SuppressWarnings("unchecked")
+		DIGITAL_OUTPUT_7(new Doc() //
+				.type(OpenemsType.BOOLEAN) //
+				.unit(Unit.ON_OFF) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Boolean>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_DIGITAL_OUTPUT_7).setNextValue(value);
+					});
+				})),
+		/**
+		 * Holds writes to Digital Output 8 for debugging
+		 * 
+		 * <ul>
+		 * <li>Interface: KmtronicRelayOutput
+		 * <li>Type: Boolean
+		 * <li>Range: On/Off
+		 * </ul>
+		 */
+		DEBUG_DIGITAL_OUTPUT_8(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)), //
 		/**
 		 * Digital Output 8
 		 * 
@@ -111,7 +256,16 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		DIGITAL_OUTPUT_8(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF));
+		@SuppressWarnings("unchecked")
+		DIGITAL_OUTPUT_8(new Doc() //
+				.type(OpenemsType.BOOLEAN) //
+				.unit(Unit.ON_OFF) //
+				.onInit(channel -> { //
+					// on each setNextWrite to the channel -> store the value in the DEBUG-channel
+					((WriteChannel<Boolean>) channel).onSetNextWrite(value -> {
+						channel.getComponent().channel(ChannelId.DEBUG_DIGITAL_OUTPUT_8).setNextValue(value);
+					});
+				}));
 
 		private final Doc doc;
 
@@ -162,6 +316,22 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 	@Override
 	protected ModbusProtocol defineModbusProtocol(int unitId) {
 		return new ModbusProtocol(unitId, //
+				/*
+				 * For Read: Read Coils
+				 */
+				new FC1ReadCoilsTask(0, Priority.LOW, //
+						m(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_1, new CoilElement(0)), //
+						m(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_2, new CoilElement(1)), //
+						m(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_3, new CoilElement(2)), //
+						m(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_4, new CoilElement(3)), //
+						m(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_5, new CoilElement(4)), //
+						m(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_6, new CoilElement(5)), //
+						m(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_7, new CoilElement(6)), //
+						m(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_8, new CoilElement(7)) //
+				),
+				/*
+				 * For Write: Write Single Coil
+				 */
 				new FC5WriteCoilTask(0, m(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_1, new CoilElement(0))), //
 				new FC5WriteCoilTask(1, m(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_2, new CoilElement(1))), //
 				new FC5WriteCoilTask(2, m(KmtronicRelayOutput.ChannelId.DIGITAL_OUTPUT_3, new CoilElement(2))), //
