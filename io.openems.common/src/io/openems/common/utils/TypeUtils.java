@@ -143,7 +143,7 @@ public class TypeUtils {
 		Object value = TypeUtils.getAsType(type, originalValue);
 		switch (type) {
 		case BOOLEAN:
-			return new JsonPrimitive((Boolean) value);
+			return new JsonPrimitive(((Boolean) value) ? 1 : 0);
 		case FLOAT:
 			return new JsonPrimitive((Float) value);
 		case INTEGER:
