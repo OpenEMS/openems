@@ -38,7 +38,8 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.timedata.influxdb)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.websocket)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.backend)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)'
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)'
 
 -resolve: auto
 -runbundles: \
@@ -93,4 +94,5 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.api;version=snapshot,\
 	io.openems.edge.controller.api.backend;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
-	io.openems.wrapper.jSerialComm;version=snapshot
+	io.openems.wrapper.jSerialComm;version=snapshot,\
+	io.openems.edge.controller.channelthreshold;version=snapshot
