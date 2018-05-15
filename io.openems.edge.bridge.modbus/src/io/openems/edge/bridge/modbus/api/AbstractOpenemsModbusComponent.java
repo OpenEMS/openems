@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.TypeUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
+import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.common.channel.Channel;
@@ -168,7 +170,15 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 						try {
 							((ModbusRegisterElement<?>) element).setNextWriteValue(Optional.ofNullable(convertedValue));
 						} catch (OpenemsException e) {
-							log.warn("Unable to write to Element [" + this.element.getStartAddress() + "]: "
+							log.warn("Unable to write to ModbusRegisterElement [" + this.element.getStartAddress()
+									+ "]: " + e.getMessage());
+						}
+					} else if (this.element instanceof ModbusCoilElement) {
+						try {
+							((ModbusCoilElement) element).setNextWriteValue(
+									Optional.ofNullable(TypeUtils.getAsType(OpenemsType.BOOLEAN, convertedValue)));
+						} catch (OpenemsException e) {
+							log.warn("Unable to write to ModbusCoilElement [" + this.element.getStartAddress() + "]: "
 									+ e.getMessage());
 						}
 					} else {

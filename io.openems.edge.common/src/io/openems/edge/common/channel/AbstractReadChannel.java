@@ -22,6 +22,8 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	private final ChannelId channelId;
 	private final OpenemsComponent component;
 	private final OpenemsType type;
+	private final List<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
+	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
 
 	private volatile Value<T> nextValue = null; // TODO add timeout for nextValue validity
 	private volatile Value<T> activeValue = null;
@@ -102,17 +104,26 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		return "Channel [ID=" + channelId + ", type=" + type + ", activeValue=" + this.activeValue.asString() + "]";
 	}
 
-	private final List<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
-
 	@Override
 	public void onUpdate(Consumer<Value<T>> callback) {
 		this.onUpdateCallbacks.add(callback);
 	}
 
-	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
-
 	public void onSetNextValue(Consumer<Value<T>> callback) {
 		this.onSetNextValueCallbacks.add(callback);
 	}
 
+	/*
+	 * This is to help WriteChannels implement the WriteChannel interface.
+	 * 'onSetNextWriteCallbacks' is not final by purpose, because it might be called
+	 * in construction and would not be initialised then.
+	 */
+	private List<Consumer<T>> onSetNextWriteCallbacks = null;
+
+	protected List<Consumer<T>> getOnSetNextWrites() {
+		if (this.onSetNextWriteCallbacks == null) {
+			this.onSetNextWriteCallbacks = new CopyOnWriteArrayList<>();
+		}
+		return this.onSetNextWriteCallbacks;
+	}
 }

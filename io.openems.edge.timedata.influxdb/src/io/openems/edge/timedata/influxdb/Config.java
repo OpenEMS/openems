@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
-		name = "Timedata.InfluxDB", //
+		name = "Timedata InfluxDB", //
 		description = "This component persists all data to an InfluxDB timeseries database.")
 @interface Config {
 	String service_pid();

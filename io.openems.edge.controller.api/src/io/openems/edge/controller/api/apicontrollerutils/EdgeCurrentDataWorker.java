@@ -29,7 +29,7 @@ public class EdgeCurrentDataWorker extends CurrentDataWorker {
 	@Override
 	protected JsonElement getChannelValue(ChannelAddress channelAddress) {
 		for (OpenemsComponent component : this.parent.parent.getComponents()) {
-			if (component.id().equals(channelAddress.getThingId())) {
+			if (component.id().equals(channelAddress.getComponentId())) {
 				Channel<?> channel;
 				try {
 					channel = component.channel(channelAddress.getChannelId());

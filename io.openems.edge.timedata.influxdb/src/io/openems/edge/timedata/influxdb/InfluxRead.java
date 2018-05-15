@@ -131,7 +131,7 @@ public class InfluxRead {
 							Double value = (Double) series.getValues().get(timeIndex).get(columnIndex);
 							ChannelAddress address = addressIndex.get(columnIndex - 1);
 							j.get(timeIndex).getAsJsonObject().get("channels").getAsJsonObject()
-									.get(address.getThingId()).getAsJsonObject()
+									.get(address.getComponentId()).getAsJsonObject()
 									.addProperty(address.getChannelId(), value);
 						}
 					}
