@@ -3,6 +3,7 @@ package io.openems.common.types;
 import io.openems.common.exceptions.OpenemsException;
 
 public class ChannelAddress implements Comparable<ChannelAddress> {
+
 	private final String componentId;
 	private final String channelId;
 
@@ -12,7 +13,7 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 		this.channelId = channelId;
 	}
 
-	public String getThingId() {
+	public String getComponentId() {
 		return componentId;
 	}
 
@@ -28,9 +29,9 @@ public class ChannelAddress implements Comparable<ChannelAddress> {
 	public static ChannelAddress fromString(String address) throws OpenemsException {
 		try {
 			String[] addressArray = address.split("/");
-			String thingId = addressArray[0];
+			String componentId = addressArray[0];
 			String channelId = addressArray[1];
-			return new ChannelAddress(thingId, channelId);
+			return new ChannelAddress(componentId, channelId);
 		} catch (Exception e) {
 			throw new OpenemsException("This [" + address + "] is not a valid channel address.");
 		}
