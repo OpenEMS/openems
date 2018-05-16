@@ -59,7 +59,7 @@
               <tr class="underline">
                 <td style="width:50%">Aktuelle Beladung</td>
                 <td style="width:15%"></td>
-                <td style="width:35%" class="align_right">{{ data.EnergySession / 10000 | number:'1.0-0' }}</td>
+                <td style="width:35%" class="align_right">{{ data.EnergySession / 1000 | number:'1.0-0' }}</td>
                 <td style="width:10%">kWh</td>
               </tr>
             </ng-container>
@@ -78,7 +78,7 @@
                     <td style="width:50%">Erzwinge Beladung</td>
                     <td colspan="3" class="align_right" style="width:50%">
                       <channel [thingId]="controllerId" channelId="forceCharge" [config]="config" [role]="device.role" [device]="device" title=""
-                        style="width:100%" (onChange)="onChannelChange($event)"></channel>
+                        style="width:100%"></channel>
                     </td>
                   </tr>
                 </ng-container>

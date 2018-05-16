@@ -30,7 +30,7 @@
                 <span *ngIf="sum.hasDC"> AC</span>
               </td>
               <td></td>
-              <td class="align_right">{{ sum.chargeActivePowerAC }}</td>
+              <td class="align_right">{{ sum.chargeActivePowerAC | number:'1.0-0' }}</td>
               <td>W</td>
             </tr>
             <tr>
@@ -38,7 +38,7 @@
                 <span *ngIf="sum.hasDC"> AC</span>
               </td>
               <td></td>
-              <td class="align_right">{{ sum.dischargeActivePowerAC }}</td>
+              <td class="align_right">{{ sum.dischargeActivePowerAC | number:'1.0-0' }}</td>
               <td>W</td>
             </tr>
           </ng-container>
@@ -49,19 +49,19 @@
                 <span *ngIf="sum.hasDC"> AC</span>
               </td>
               <td>L1</td>
-              <td class="align_right">{{ sum.chargeActivePowerACL1 }}</td>
+              <td class="align_right">{{ sum.chargeActivePowerACL1 | number:'1.0-0' }}</td>
               <td>W</td>
             </tr>
             <tr *ngIf="sum.chargeActivePowerACL2 != null">
               <td></td>
               <td>L2</td>
-              <td class="align_right">{{ sum.chargeActivePowerACL2 }}</td>
+              <td class="align_right">{{ sum.chargeActivePowerACL2 | number:'1.0-0' }}</td>
               <td>W</td>
             </tr>
             <tr *ngIf="sum.chargeActivePowerACL3 != null" class="underline">
               <td></td>
               <td>L3</td>
-              <td class="align_right">{{ sum.chargeActivePowerACL3 }}</td>
+              <td class="align_right">{{ sum.chargeActivePowerACL3 | number:'1.0-0' }}</td>
               <td>W</td>
             </tr>
             <tr>
@@ -69,19 +69,19 @@
                 <span *ngIf="sum.hasDC"> AC</span>
               </td>
               <td>L1</td>
-              <td class="align_right">{{ sum.dischargeActivePowerACL1 }}</td>
+              <td class="align_right">{{ sum.dischargeActivePowerACL1 | number:'1.0-0' }}</td>
               <td>W</td>
             </tr>
             <tr *ngIf="sum.dischargeActivePowerACL2 != null">
               <td></td>
               <td>L2</td>
-              <td class="align_right">{{ sum.dischargeActivePowerACL2 }}</td>
+              <td class="align_right">{{ sum.dischargeActivePowerACL2 | number:'1.0-0' }}</td>
               <td>W</td>
             </tr>
             <tr *ngIf="sum.dischargeActivePowerACL3 != null">
               <td></td>
               <td>L3</td>
-              <td class="align_right">{{ sum.dischargeActivePowerACL3 }}</td>
+              <td class="align_right">{{ sum.dischargeActivePowerACL3 | number:'1.0-0' }}</td>
               <td>W</td>
             </tr>
           </ng-container>
@@ -90,7 +90,7 @@
             <!-- TODO translate -->
             <td>Beladung DC</td>
             <td></td>
-            <td class="align_right">{{ sum.chargeActivePowerDC }}</td>
+            <td class="align_right">{{ sum.chargeActivePowerDC | number:'1.0-0' }}</td>
             <td>W</td>
           </tr>
         </table>
@@ -117,14 +117,14 @@
                 <tr>
                   <td translate>General.ChargePower</td>
                   <td></td>
-                  <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign }}</td>
+                  <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign | number:'1.0-0' }}</td>
                   <td class="align_right" *ngIf="data.ActivePower >= 0">0</td>
                   <td>W</td>
                 </tr>
                 <tr>
                   <td translate>General.DischargePower</td>
                   <td></td>
-                  <td class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower }}</td>
+                  <td class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower | number:'1.0-0' }}</td>
                   <td class="align_right" *ngIf="data.ActivePower <= 0">0</td>
                   <td>W</td>
                 </tr>
@@ -134,42 +134,42 @@
                 <tr>
                   <td translate>General.ChargePower</td>
                   <td>L1</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL1 < 0">{{ data.ActivePowerL1 | sign }}</td>
+                  <td class="align_right" *ngIf="data.ActivePowerL1 < 0">{{ data.ActivePowerL1 | sign | number:'1.0-0' }}</td>
                   <td class="align_right" *ngIf="data.ActivePowerL1 >= 0">0</td>
                   <td>W</td>
                 </tr>
                 <tr>
                   <td></td>
                   <td>L2</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL2 < 0">{{ data.ActivePowerL2 | sign }}</td>
+                  <td class="align_right" *ngIf="data.ActivePowerL2 < 0">{{ data.ActivePowerL2 | sign | number:'1.0-0' }}</td>
                   <td class="align_right" *ngIf="data.ActivePowerL2 >= 0">0</td>
                   <td>W</td>
                 </tr>
                 <tr class="underline">
                   <td></td>
                   <td>L3</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL3 < 0">{{ data.ActivePowerL3 | sign }}</td>
+                  <td class="align_right" *ngIf="data.ActivePowerL3 < 0">{{ data.ActivePowerL3 | sign | number:'1.0-0' }}</td>
                   <td class="align_right" *ngIf="data.ActivePowerL3 >= 0">0</td>
                   <td>W</td>
                 </tr>
                 <tr>
                   <td translate>General.DischargePower</td>
                   <td>L1</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL1 > 0">{{ data.ActivePowerL1 }}</td>
+                  <td class="align_right" *ngIf="data.ActivePowerL1 > 0">{{ data.ActivePowerL1 | number:'1.0-0' }}</td>
                   <td class="align_right" *ngIf="data.ActivePowerL1 <= 0">0</td>
                   <td>W</td>
                 </tr>
                 <tr>
                   <td></td>
                   <td>L2</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL2 > 0">{{ data.ActivePowerL2 }}</td>
+                  <td class="align_right" *ngIf="data.ActivePowerL2 > 0">{{ data.ActivePowerL2 | number:'1.0-0' }}</td>
                   <td class="align_right" *ngIf="data.ActivePowerL2 <= 0">0</td>
                   <td>W</td>
                 </tr>
                 <tr>
                   <td></td>
                   <td>L3</td>
-                  <td class="align_right" *ngIf="data.ActivePowerL3 > 0">{{ data.ActivePowerL3 }}</td>
+                  <td class="align_right" *ngIf="data.ActivePowerL3 > 0">{{ data.ActivePowerL3 | number:'1.0-0' }}</td>
                   <td class="align_right" *ngIf="data.ActivePowerL3 <= 0">0</td>
                   <td>W</td>
                 </tr>
@@ -195,14 +195,14 @@
               <tr>
                 <td style="width:50%" translate>General.GridBuy</td>
                 <td style="width:15%"></td>
-                <td style="width:25%" class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower }}</td>
+                <td style="width:25%" class="align_right" *ngIf="data.ActivePower > 0">{{ data.ActivePower | number:'1.0-0' }}</td>
                 <td style="width:25%" class="align_right" *ngIf="data.ActivePower <= 0">0</td>
                 <td style="width:10%">W</td>
               </tr>
               <tr>
                 <td translate>General.GridSell</td>
                 <td></td>
-                <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign }}</td>
+                <td class="align_right" *ngIf="data.ActivePower < 0">{{ data.ActivePower | sign | number:'1.0-0' }}</td>
                 <td class="align_right" *ngIf="data.ActivePower >= 0">0</td>
                 <td>W</td>
               </tr>
@@ -212,42 +212,42 @@
               <tr>
                 <td style="width:50%" translate>General.GridBuy</td>
                 <td style="width:15%">L1</td>
-                <td style="width:25%" class="align_right" *ngIf="data.ActivePowerL1 > 0">{{ data.ActivePowerL1 }}</td>
+                <td style="width:25%" class="align_right" *ngIf="data.ActivePowerL1 > 0">{{ data.ActivePowerL1 | number:'1.0-0' }}</td>
                 <td style="width:25%" class="align_right" *ngIf="data.ActivePowerL1 <= 0">0</td>
                 <td style="width:10%">W</td>
               </tr>
               <tr>
                 <td></td>
                 <td>L2</td>
-                <td class="align_right" *ngIf="data.ActivePowerL2 > 0">{{ data.ActivePowerL2 }}</td>
+                <td class="align_right" *ngIf="data.ActivePowerL2 > 0">{{ data.ActivePowerL2 | number:'1.0-0' }}</td>
                 <td class="align_right" *ngIf="data.ActivePowerL2 <= 0">0</td>
                 <td>W</td>
               </tr>
               <tr class="underline">
                 <td></td>
                 <td>L3</td>
-                <td class="align_right" *ngIf="data.ActivePowerL3 > 0">{{ data.ActivePowerL3 }}</td>
+                <td class="align_right" *ngIf="data.ActivePowerL3 > 0">{{ data.ActivePowerL3 | number:'1.0-0' }}</td>
                 <td class="align_right" *ngIf="data.ActivePowerL3 <= 0">0</td>
                 <td>W</td>
               </tr>
               <tr>
                 <td translate>General.GridSell</td>
                 <td>L1</td>
-                <td class="align_right" *ngIf="data.ActivePowerL1 < 0">{{ data.ActivePowerL1 | sign }}</td>
+                <td class="align_right" *ngIf="data.ActivePowerL1 < 0">{{ data.ActivePowerL1 | sign | number:'1.0-0' }}</td>
                 <td class="align_right" *ngIf="data.ActivePowerL1 >= 0">0</td>
                 <td>W</td>
               </tr>
               <tr>
                 <td></td>
                 <td>L2</td>
-                <td class="align_right" *ngIf="data.ActivePowerL2 < 0">{{ data.ActivePowerL2 | sign }}</td>
+                <td class="align_right" *ngIf="data.ActivePowerL2 < 0">{{ data.ActivePowerL2 | sign | number:'1.0-0' }}</td>
                 <td class="align_right" *ngIf="data.ActivePowerL2 >= 0">0</td>
                 <td>W</td>
               </tr>
               <tr>
                 <td></td>
                 <td>L3</td>
-                <td class="align_right" *ngIf="data.ActivePowerL3 < 0">{{ data.ActivePowerL3 | sign }}</td>
+                <td class="align_right" *ngIf="data.ActivePowerL3 < 0">{{ data.ActivePowerL3 | sign | number:'1.0-0' }}</td>
                 <td class="align_right" *ngIf="data.ActivePowerL3 >= 0">0</td>
                 <td>W</td>
               </tr>
@@ -272,7 +272,7 @@
                 <span *ngIf="sum.hasDC"> AC</span>
               </td>
               <td style="width:15%"></td>
-              <td style="width:25%" class="align_right">{{ sum.activePowerAC }}</td>
+              <td style="width:25%" class="align_right">{{ sum.activePowerAC | number:'1.0-0' }}</td>
               <td style="width:10%">W</td>
             </tr>
           </ng-container>
@@ -283,7 +283,7 @@
                 <span *ngIf="sum.hasDC"> AC</span>
               </td>
               <td style="width:15%">L1</td>
-              <td style="width:25%" class="align_right">{{ sum.activePowerACL1 }}</td>
+              <td style="width:25%" class="align_right">{{ sum.activePowerACL1 | number:'1.0-0' }}</td>
               <td style="width:10%">W</td>
             </tr>
             <tr>
@@ -291,7 +291,7 @@
                 <span *ngIf="sum.hasDC"> AC</span>
               </td>
               <td>L2</td>
-              <td class="align_right">{{ sum.activePowerACL2 }}</td>
+              <td class="align_right">{{ sum.activePowerACL2 | number:'1.0-0' }}</td>
               <td>W</td>
             </tr>
             <tr>
@@ -299,7 +299,7 @@
                 <span *ngIf="sum.hasDC"> AC</span>
               </td>
               <td>L3</td>
-              <td class="align_right">{{ sum.activePowerACL3 }}</td>
+              <td class="align_right">{{ sum.activePowerACL3 | number:'1.0-0' }}</td>
               <td>W</td>
             </tr>
           </ng-container>
@@ -308,7 +308,7 @@
             <!-- TODO translate -->
             <td>Erzeugung DC</td>
             <td></td>
-            <td class="align_right">{{ sum.activePowerDC }}</td>
+            <td class="align_right">{{ sum.activePowerDC | number:'1.0-0' }}</td>
             <td>W</td>
           </tr>
         </table>
@@ -328,7 +328,7 @@
                 <tr>
                   <td style="width:50%" translate>General.Production</td>
                   <td style="width:15%"></td>
-                  <td style="width:25%" class="align_right">{{ data.ActualPower }}</td>
+                  <td style="width:25%" class="align_right">{{ data.ActualPower | number:'1.0-0' }}</td>
                   <td style="width:10%">W</td>
                 </tr>
               </ng-container>
@@ -336,7 +336,7 @@
                 <tr>
                   <td style="width:50%" translate>General.Production</td>
                   <td style="width:15%"></td>
-                  <td style="width:25%" class="align_right">{{ data.ActivePower }}</td>
+                  <td style="width:25%" class="align_right">{{ data.ActivePower | number:'1.0-0' }}</td>
                   <td style="width:10%">W</td>
                 </tr>
               </ng-container>
@@ -344,19 +344,19 @@
                 <tr>
                   <td style="width:50%" translate>General.Production</td>
                   <td style="width:15%">L1</td>
-                  <td style="width:25%" class="align_right">{{ data.ActivePowerL1 }}</td>
+                  <td style="width:25%" class="align_right">{{ data.ActivePowerL1 | number:'1.0-0' }}</td>
                   <td style="width:10%">W</td>
                 </tr>
                 <tr>
                   <td></td>
                   <td>L2</td>
-                  <td class="align_right">{{ data.ActivePowerL2 }}</td>
+                  <td class="align_right">{{ data.ActivePowerL2 | number:'1.0-0' }}</td>
                   <td>W</td>
                 </tr>
                 <tr>
                   <td></td>
                   <td>L3</td>
-                  <td class="align_right">{{ data.ActivePowerL3 }}</td>
+                  <td class="align_right">{{ data.ActivePowerL3 | number:'1.0-0' }}</td>
                   <td>W</td>
                 </tr>
               </ng-container>
@@ -379,7 +379,7 @@
               <tr>
                 <td style="width:50%" translate>General.Power</td>
                 <td style="width:15%"></td>
-                <td style="width:25%" class="align_right">{{ data.activePower }}</td>
+                <td style="width:25%" class="align_right">{{ data.activePower | number:'1.0-0' }}</td>
                 <td style="width:10%">W</td>
               </tr>
             </ng-container>
