@@ -3,17 +3,48 @@ package io.openems.edge.common.channel.doc;
 import io.openems.common.types.OpenemsType;
 
 public enum Unit {
-	/* No Unit */
+	/*
+	 * Generic
+	 */
+
+	/**
+	 * No Unit
+	 */
 	NONE(""),
-	/* Generic */
+	/**
+	 * Percentage [%], 0-100
+	 */
 	PERCENT("%"),
-	/* Active Power */
+	/**
+	 * On or Off
+	 */
+	ON_OFF(""),
+
+	/*
+	 * Power
+	 */
+
+	/**
+	 * Unit of Active Power [W]
+	 */
 	WATT("W"),
-	/* Reactive Power */
+	/**
+	 * Unit of Active Power [mW]
+	 */
+	MILLIWATT("W", WATT, -3),
+	/*
+	 * Unit of Reactive Power [var]
+	 */
 	VOLT_AMPERE_REACTIVE("var"),
-	/* Apparent Power */
+	/*
+	 * Unit of Apparent Power [VA]
+	 */
 	VOLT_AMPERE("VA"),
-	/* Voltage */
+
+	/*
+	 * Voltage
+	 */
+
 	/**
 	 * Unit of Voltage [V]
 	 */
@@ -22,13 +53,33 @@ public enum Unit {
 	 * Unit of Voltage [mV]
 	 */
 	MILLIVOLT("mV", VOLT, -3),
-	/* Ampere */
-	AMPERE("A"), MILLIAMPERE("mA", AMPERE, -3),
-	/* Energy */
+
+	/*
+	 * Current
+	 */
+
+	/**
+	 * Unit of Current [A]
+	 */
+	AMPERE("A"),
+	/**
+	 * Unit of Current [mA]
+	 */
+	MILLIAMPERE("mA", AMPERE, -3),
+
+	/*
+	 * Energy
+	 */
+
+	/**
+	 * Unit of Energy [Wh]
+	 */
 	WATT_HOURS("Wh"),
+
 	/*
 	 * Frequency
 	 */
+
 	/**
 	 * Unit of Frequency [Hz]
 	 */
@@ -37,12 +88,22 @@ public enum Unit {
 	 * Unit of Frequency [mHz]
 	 */
 	MILLIHERTZ("mHz", HERTZ, -3),
-	/* Temperature */
-	DEGREE_CELCIUS("°C"),
-	/**
-	 * On/Off
+
+	/*
+	 * Temperature
 	 */
-	ON_OFF("");
+	/**
+	 * Unit of Temperature [°C]
+	 */
+	DEGREE_CELCIUS("°C"),
+
+	/*
+	 * Time
+	 */
+	/**
+	 * Unit of Time in Seconds [s]
+	 */
+	SECONDS("sec");
 
 	private final Unit baseUnit;
 	private final int scaleFactor;
@@ -86,10 +147,13 @@ public enum Unit {
 		case VOLT_AMPERE_REACTIVE:
 		case WATT:
 		case WATT_HOURS:
+		case SECONDS:
 			return value + " " + this.symbol;
 		case ON_OFF:
 			boolean booleanValue = (Boolean) value;
 			return booleanValue ? "ON" : "OFF";
+		default:
+			break;
 		}
 		return "FORMAT_ERROR"; // should never happen, if 'switch' is complete
 	}
@@ -103,6 +167,7 @@ public enum Unit {
 			case FLOAT:
 				return this.baseUnit.formatAsBaseUnit(this.getAsBaseUnit((int) value), type);
 			case BOOLEAN:
+			case STRING:
 				return this.baseUnit.formatAsBaseUnit(value, type);
 			}
 		} else {
