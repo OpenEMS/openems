@@ -44,6 +44,7 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 
 	private final Logger log = LoggerFactory.getLogger(KebaKeContact.class);
 	private final QueryWorker queryWorker = new QueryWorker(this);
+	private final ReportReceiver reportReceiver = new ReportReceiver(this);
 
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
@@ -171,9 +172,7 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 		/*
 		 * subscribe on replies to report queries
 		 */
-		this.kebaKeContactCore.onReceive((ip, message) -> {
-			this.logInfo(this.log, "Message from [" + ip + "]: " + message);
-		});
+		this.kebaKeContactCore.onReceive(this.reportReceiver);
 
 		// start queryWorker
 		this.queryWorker.activate(this.id() + "query");
