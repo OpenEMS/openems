@@ -2,6 +2,9 @@ package io.openems.common.utils;
 
 import com.google.gson.JsonObject;
 
+/**
+ * Provides static helper functions for string manipulation
+ */
 public class StringUtils {
 
 	public static String toShortString(String s, int length) {

@@ -23,8 +23,6 @@
 	osgi.identity;filter:='(osgi.identity=biz.aQute.remote.launcher)'
 
 
-# TODO check if still needed
-
 -runproperties.eqnx: 				\
 	org.apache.felix.http.jettyEnabled=true, \
 	org.apache.felix.http.whiteboardEnabled=true,\

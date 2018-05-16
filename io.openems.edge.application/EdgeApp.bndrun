@@ -39,7 +39,8 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.websocket)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.backend)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)'
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)'
 
 -resolve: auto
 -runbundles: \
@@ -49,12 +50,17 @@ JPM-Command:				openems-edge
 	io.openems.edge.application;version=snapshot,\
 	io.openems.edge.bridge.modbus;version=snapshot,\
 	io.openems.edge.common;version=snapshot,\
+	io.openems.edge.controller.api;version=snapshot,\
+	io.openems.edge.controller.api.backend;version=snapshot,\
 	io.openems.edge.controller.api.websocket;version=snapshot,\
+	io.openems.edge.controller.channelthreshold;version=snapshot,\
 	io.openems.edge.controller.debug.detailedlog;version=snapshot,\
 	io.openems.edge.controller.debug.log;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
 	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
+	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
+	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
 	io.openems.edge.meter.socomec.dirisa14;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
@@ -64,6 +70,7 @@ JPM-Command:				openems-edge
 	io.openems.wrapper.influx4j;version=snapshot,\
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.j2mod;version=snapshot,\
+	io.openems.wrapper.jSerialComm;version=snapshot,\
 	io.openems.wrapper.jts;version=snapshot,\
 	io.openems.wrapper.moshi;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
@@ -90,9 +97,4 @@ JPM-Command:				openems-edge
 	osgi.enroute.bostock.d3.webresource;version='[3.5.6,3.5.7)',\
 	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
-	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
-	io.openems.edge.controller.api;version=snapshot,\
-	io.openems.edge.controller.api.backend;version=snapshot,\
-	io.openems.edge.io.kmtronic;version=snapshot,\
-	io.openems.wrapper.jSerialComm;version=snapshot,\
-	io.openems.edge.controller.channelthreshold;version=snapshot
+	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)'

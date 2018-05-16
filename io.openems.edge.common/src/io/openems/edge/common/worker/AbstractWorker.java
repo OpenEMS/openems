@@ -1,23 +1,3 @@
-/*******************************************************************************
- * OpenEMS - Open Source Energy Management System
- * Copyright (c) 2016, 2017 FENECON GmbH and contributors
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- * Contributors:
- *   FENECON GmbH - initial API and implementation and initial documentation
- *******************************************************************************/
 package io.openems.edge.common.worker;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,6 +12,11 @@ public abstract class AbstractWorker {
 	private final AtomicBoolean isForceRun = new AtomicBoolean(false);
 	private final AtomicBoolean isStopped = new AtomicBoolean(false);
 
+	/**
+	 * Initializes the worker and starts the worker thread
+	 * 
+	 * @param name
+	 */
 	protected void activate(String name) {
 		if (name != null) {
 			this.worker.setName(name);
@@ -39,6 +24,9 @@ public abstract class AbstractWorker {
 		}
 	}
 
+	/**
+	 * Stops the worker thread
+	 */
 	protected void deactivate() {
 		this.isStopped.set(true);
 	}
@@ -49,7 +37,7 @@ public abstract class AbstractWorker {
 	protected abstract void forever();
 
 	/**
-	 * Gets the cycleTime of this worker.
+	 * Gets the cycleTime of this worker in [ms].
 	 * 
 	 * @return
 	 */
@@ -59,7 +47,7 @@ public abstract class AbstractWorker {
 	 * Causes the Worker to interrupt sleeping and start again the run() method
 	 * immediately
 	 */
-	public final void triggerForceRun() {
+	public void triggerForceRun() {
 		if (!isForceRun.getAndSet(true)) {
 			this.worker.interrupt();
 		}

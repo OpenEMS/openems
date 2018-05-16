@@ -52,9 +52,6 @@ import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
 /**
  * Implements the FENECON Commercial 40 energy storage system.
- * 
- * @author stefan.feilmeier
- *
  */
 @Designate(ocd = Config.class, factory = true)
 @Component( //
