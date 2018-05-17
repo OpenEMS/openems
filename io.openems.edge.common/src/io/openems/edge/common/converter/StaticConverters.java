@@ -22,7 +22,8 @@ public class StaticConverters {
 			case INTEGER:
 			case LONG:
 			case FLOAT:
-				if (value instanceof Boolean) {
+			case STRING:
+				if (value instanceof Boolean || value instanceof String) {
 					return value; // impossible
 				} else if (value instanceof Short) {
 					short shortValue = (Short) value;
@@ -59,6 +60,9 @@ public class StaticConverters {
 		throw new IllegalArgumentException("Converter KEEP_POSITIVE does not accept the type of [" + value + "]");
 	};
 
+	/**
+	 * Invert a value
+	 */
 	public final static Function<Object, Object> INVERT = (value) -> {
 		if (value == null) {
 			return null;
@@ -73,7 +77,10 @@ public class StaticConverters {
 			case INTEGER:
 			case LONG:
 			case FLOAT:
-				if (value instanceof Boolean) {
+			case STRING:
+				if (value instanceof String) {
+					return value; // impossible
+				} else if (value instanceof Boolean) {
 					return Boolean.valueOf(!(boolean) value);
 				} else if (value instanceof Short) {
 					return Short.valueOf((short) ((short) value * -1));

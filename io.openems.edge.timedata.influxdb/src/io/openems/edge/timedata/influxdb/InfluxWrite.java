@@ -106,6 +106,9 @@ public class InfluxWrite {
 					case SHORT:
 						point.field(address, (Short) value);
 						break;
+					case STRING:
+						point.field(address, (String) value);
+						break;
 					}
 				} catch (IllegalArgumentException e) {
 					this.log.warn("Unable to add Channel [" + address + "] value [" + value + "]: " + e.getMessage());

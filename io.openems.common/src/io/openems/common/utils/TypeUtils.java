@@ -131,6 +131,15 @@ public class TypeUtils {
 			} else if (value instanceof Float) {
 				return (T) (Float) value;
 			}
+
+		case STRING:
+			if (value == null) {
+				return (T) ((String) value);
+
+			} else {
+				return (T) value.toString();
+			}
+
 		}
 		throw new IllegalArgumentException(
 				"Converter for value [" + value + "] to type [" + type + "] is not implemented.");
@@ -152,6 +161,8 @@ public class TypeUtils {
 			return new JsonPrimitive((Long) value);
 		case SHORT:
 			return new JsonPrimitive((Short) value);
+		case STRING:
+			return new JsonPrimitive((String) value);
 		}
 		throw new IllegalArgumentException("Converter for value [" + value + "] to JSON is not implemented.");
 	}

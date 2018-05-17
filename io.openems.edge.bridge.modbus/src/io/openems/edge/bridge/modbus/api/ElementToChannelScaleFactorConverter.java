@@ -38,6 +38,7 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 			case INTEGER:
 			case LONG:
 			case FLOAT:
+			case STRING:
 				if (value instanceof Boolean) {
 					return (boolean) value;
 				}
@@ -52,6 +53,9 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 				}
 				if (value instanceof Float) {
 					return (float) ((float) value * Math.pow(10, scaleFactor * -1));
+				}
+				if (value instanceof String) {
+					return (String) value;
 				}
 			}
 			break;
