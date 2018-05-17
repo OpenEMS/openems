@@ -43,8 +43,9 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	public final static int UDP_PORT = 7090;
 
 	private final Logger log = LoggerFactory.getLogger(KebaKeContact.class);
-	private final QueryWorker queryWorker = new QueryWorker(this);
-	private final ReportReceiver reportReceiver = new ReportReceiver(this);
+	private final ReadWorker readWorker = new ReadWorker(this);
+	private final ReadHandler readHandler = new ReadHandler(this);
+	private final WriteHandler writeHandler = new WriteHandler(this);
 
 	@Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
 	private KebaKeContactCore kebaKeContactCore = null;
@@ -172,16 +173,21 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 		/*
 		 * subscribe on replies to report queries
 		 */
-		this.kebaKeContactCore.onReceive(this.reportReceiver);
+		this.kebaKeContactCore.onReceive((ip, message) -> {
+			log.info("Message from [" + ip + "]: " + message);
+			if (ip.equals(this.ip)) { // same IP -> handle message
+				this.readHandler.accept(message);
+			}
+		});
 
 		// start queryWorker
-		this.queryWorker.activate(this.id() + "query");
+		this.readWorker.activate(this.id() + "query");
 	}
 
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
-		this.queryWorker.deactivate();
+		this.readWorker.deactivate();
 	}
 
 	@Override
@@ -189,6 +195,7 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
 			// handle writes
+			this.writeHandler.run();
 			break;
 		}
 	}
@@ -200,8 +207,10 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	 * @throws IOException
 	 * @throws ConfigException
 	 * @throws InterruptedException
+	 * @return true if sent successfully
 	 */
-	protected void send(String s) {
+	protected boolean send(String s) {
+		this.log.info("SEND: " + s);
 		byte[] raw = s.getBytes();
 		DatagramPacket packet = new DatagramPacket(raw, raw.length, ip, KebaKeContact.UDP_PORT);
 		DatagramSocket dSocket = null;
@@ -209,6 +218,7 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 			dSocket = new DatagramSocket();
 			this.logInfo(this.log, "Sending message to KEBA KeContact [" + s + "]");
 			dSocket.send(packet);
+			return true;
 		} catch (SocketException e) {
 			this.logError(this.log, "Unable to open UDP socket for sending [" + s + "] to [" + ip.getHostAddress()
 					+ "]: " + e.getMessage());
@@ -220,6 +230,14 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 				dSocket.close();
 			}
 		}
+		return false;
+	}
+
+	/**
+	 * Triggers an immediate execution of query reports
+	 */
+	protected void triggerQuery() {
+		this.readWorker.triggerForceRun();
 	}
 
 }

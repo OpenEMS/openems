@@ -8,6 +8,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 @ProviderType
 public interface Evcs extends OpenemsComponent {
 
+	// TODO SET_POWER channel
+
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		;
 

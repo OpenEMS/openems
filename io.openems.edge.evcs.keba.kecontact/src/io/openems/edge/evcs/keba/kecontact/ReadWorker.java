@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit;
 
 import io.openems.edge.common.worker.AbstractWorker;
 
-public class QueryWorker extends AbstractWorker {
+public class ReadWorker extends AbstractWorker {
 
 	private final static int REPORT_1_SECONDS = 6 * 60 * 60; // 6 hours
 	private final static int REPORT_2_SECONDS = 60 * 60; // 1 hour
@@ -17,7 +17,7 @@ public class QueryWorker extends AbstractWorker {
 	private LocalDateTime nextReport2 = LocalDateTime.MIN;
 	private LocalDateTime nextReport3 = LocalDateTime.MIN;
 
-	public QueryWorker(KebaKeContact parent) {
+	public ReadWorker(KebaKeContact parent) {
 		this.parent = parent;
 	}
 
@@ -53,9 +53,13 @@ public class QueryWorker extends AbstractWorker {
 	@Override
 	protected int getCycleTime() {
 		// get minimum required time till next report
-		long tillReport1 = ChronoUnit.MILLIS.between(LocalDateTime.now(), this.nextReport1);
-		long tillReport2 = ChronoUnit.MILLIS.between(LocalDateTime.now(), this.nextReport2);
-		long tillReport3 = ChronoUnit.MILLIS.between(LocalDateTime.now(), this.nextReport3);
+		LocalDateTime now = LocalDateTime.now();
+		if (this.nextReport1.isBefore(now) || this.nextReport2.isBefore(now) || this.nextReport3.isBefore(now)) {
+			return 0;
+		}
+		long tillReport1 = ChronoUnit.MILLIS.between(now, this.nextReport1);
+		long tillReport2 = ChronoUnit.MILLIS.between(now, this.nextReport2);
+		long tillReport3 = ChronoUnit.MILLIS.between(now, this.nextReport3);
 		long min = Math.min(Math.min(tillReport1, tillReport2), tillReport3);
 		if (min < 0) {
 			return 0;
