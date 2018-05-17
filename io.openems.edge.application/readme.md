@@ -6,3 +6,6 @@ ${Bundle-Description}
 
 ## References
 
+Run on Linux:
+
+java -Dfelix.cm.dir=/home/fems/etc-openems/ -jar openems-osgi.jar
