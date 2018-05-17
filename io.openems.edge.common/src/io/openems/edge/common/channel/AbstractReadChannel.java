@@ -41,8 +41,8 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		// validate Type
 		if (channelId.doc().getType().isPresent()) {
 			if (!type.equals(channelId.doc().getType().get())) {
-				throw new IllegalArgumentException(this.address() + "Types do not match for [" + this.address()
-						+ "]. Got [" + type + "]. Expected [" + channelId.doc().getType().get() + "].");
+				throw new IllegalArgumentException("[" + this.address() + "]: Types do not match. Got [" + type
+						+ "]. Expected [" + channelId.doc().getType().get() + "].");
 			}
 		}
 		// call onInitCallback from Doc
