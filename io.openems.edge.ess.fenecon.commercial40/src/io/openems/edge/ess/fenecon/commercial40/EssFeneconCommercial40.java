@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.TypeUtils;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -40,6 +39,7 @@ import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.power.symmetric.PGreaterEqualLimitation;
 import io.openems.edge.ess.power.symmetric.PSmallerEqualLimitation;

@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.TypeUtils;
+import io.openems.edge.common.type.TypeUtils;
 
 public interface ModbusCoilElement extends ModbusElement<Boolean> {
 

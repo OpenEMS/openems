@@ -4,10 +4,10 @@ import java.util.function.Consumer;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.TypeUtils;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * An OpenEMS Channel holds one specific piece of information of an
@@ -88,7 +88,12 @@ public interface Channel<T> {
 	 * @param value
 	 */
 	public default void setNextValue(Object value) {
-		this._setNextValue(TypeUtils.<T>getAsType(this.getType(), value));
+		try {
+			this._setNextValue(TypeUtils.<T>getAsType(this.getType(), value));
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(
+					"Unable to set value [" + value + "] for Channel [" + this.address() + "]: " + e.getMessage(), e);
+		}
 	}
 
 	/**

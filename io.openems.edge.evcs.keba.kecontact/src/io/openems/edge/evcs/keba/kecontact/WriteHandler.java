@@ -3,13 +3,18 @@ package io.openems.edge.evcs.keba.kecontact;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.evcs.keba.kecontact.KebaKeContact.ChannelId;
+import io.openems.edge.evcs.api.Evcs;
 
 /**
  * Handles writes. Called in every cycle
  */
 public class WriteHandler implements Runnable {
+
+	private final Logger log = LoggerFactory.getLogger(WriteHandler.class);
 
 	private final KebaKeContact parent;
 
@@ -26,7 +31,7 @@ public class WriteHandler implements Runnable {
 	public void run() {
 		this.setDisplay();
 		this.setEnabled();
-		this.setCurrent();
+		this.setPower();
 	}
 
 	private String lastDisplay = null;
@@ -34,9 +39,16 @@ public class WriteHandler implements Runnable {
 
 	/**
 	 * Sets the display text from SET_DISPLAY channel
+	 * 
+	 * Note:
+	 * <ul>
+	 * <li>Maximum 23 ASCII characters can be used.
+	 * <li>If you use the text 'kWh', it will be replaced with '???' (due to MID
+	 * metering certification)
+	 * </ul>
 	 */
 	private void setDisplay() {
-		WriteChannel<String> channel = this.parent.channel(ChannelId.SET_DISPLAY);
+		WriteChannel<String> channel = this.parent.channel(Evcs.ChannelId.SET_DISPLAY_TEXT);
 		Optional<String> valueOpt = channel.value().asOptional();
 		if (valueOpt.isPresent()) {
 			String display = valueOpt.get();
@@ -45,6 +57,7 @@ public class WriteHandler implements Runnable {
 			}
 			display = display.replace(" ", "$"); // $ == blank
 			if (!display.equals(this.lastDisplay) || this.nextDisplayWrite.isBefore(LocalDateTime.now())) {
+				this.parent.logInfo(this.log, "Setting KEBA KeContact display text to [" + display + "]");
 				boolean sentSuccessfully = parent.send("display 0 0 0 0 " + display);
 				if (sentSuccessfully) {
 					this.nextDisplayWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
@@ -61,11 +74,13 @@ public class WriteHandler implements Runnable {
 	 * Sets the enabled state from SET_ENABLED channel
 	 */
 	private void setEnabled() {
-		WriteChannel<Boolean> channel = this.parent.channel(ChannelId.SET_ENABLED);
+		WriteChannel<Boolean> channel = this.parent.channel(KebaKeContact.ChannelId.SET_ENABLED);
 		Optional<Boolean> valueOpt = channel.value().asOptional();
 		if (valueOpt.isPresent()) {
 			Boolean enabled = valueOpt.get();
 			if (!enabled.equals(this.lastEnabled) || this.nextEnabledWrite.isBefore(LocalDateTime.now())) {
+				this.parent.logInfo(this.log,
+						"Setting KEBA KeContact state to [" + (enabled ? "enabled" : "disabled") + "]");
 				boolean sentSuccessfully = parent.send("ena " + (enabled ? "1" : "0"));
 				if (sentSuccessfully) {
 					this.nextEnabledWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);
@@ -79,14 +94,23 @@ public class WriteHandler implements Runnable {
 	private LocalDateTime nextCurrentWrite = LocalDateTime.MIN;
 
 	/**
-	 * Sets the current from SET_CURRENT channel
+	 * Sets the current from SET_CHARGE_POWER channel
+	 * 
+	 * Allowed loading current are between 6000mA and 63000mA. Invalid values are
+	 * discarded and the default is set to 6000mA. The value is also depending on
+	 * the DIP-switch settings and the used cable of the charging station.
 	 */
-	private void setCurrent() {
-		WriteChannel<Integer> channel = this.parent.channel(ChannelId.SET_CURRENT);
+	private void setPower() {
+		WriteChannel<Integer> channel = this.parent.channel(Evcs.ChannelId.SET_CHARGE_POWER);
 		Optional<Integer> valueOpt = channel.value().asOptional();
 		if (valueOpt.isPresent()) {
-			Integer current = valueOpt.get();
+			Integer power = valueOpt.get();
+			// calculate current based on phases and voltage. FIXME: this will have to be
+			// adjusted if the EVCS is connected single phase
+			Integer current = power / 3 /* 3 phases */ / 230 /* voltage */;
 			if (!current.equals(this.lastCurrent) || this.nextCurrentWrite.isBefore(LocalDateTime.now())) {
+				this.parent.logInfo(this.log,
+						"Setting KEBA KeContact current to [" + current + " mA] - calculated from [" + power + " W]");
 				boolean sentSuccessfully = parent.send("curr " + current);
 				if (sentSuccessfully) {
 					this.nextCurrentWrite = LocalDateTime.now().plusSeconds(WRITE_INTERVAL_SECONDS);

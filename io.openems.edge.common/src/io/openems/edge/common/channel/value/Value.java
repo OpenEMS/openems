@@ -6,8 +6,8 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.TypeUtils;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * This wraps a 'value' information for a Channel and provides convenience

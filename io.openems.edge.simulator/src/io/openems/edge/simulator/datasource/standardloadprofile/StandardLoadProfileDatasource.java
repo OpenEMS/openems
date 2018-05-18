@@ -12,9 +12,9 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.TypeUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 
 @Designate(ocd = Config.class, factory = true)

@@ -45,6 +45,13 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 						+ "]. Expected [" + channelId.doc().getType().get() + "].");
 			}
 		}
+		// validate isWritable
+		if (channelId.doc().getIsWritable()) {
+			if (!(this instanceof WriteChannel)) {
+				throw new IllegalArgumentException(
+						"[" + this.address() + "]: This Channel needs to implement WriteChannel.");
+			}
+		}
 		// call onInitCallback from Doc
 		Optional<Consumer<Channel<?>>> onInitCallback = this.channelId.doc().getOnInitCallback();
 		if (onInitCallback.isPresent()) {

@@ -12,6 +12,7 @@ import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.evcs.api.Evcs;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(KebaKeContact c) {
@@ -20,6 +21,14 @@ public class Utils {
 					switch (channelId) {
 					case STATE:
 						return new StateChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(Evcs.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case SET_CHARGE_POWER:
+						return new IntegerWriteChannel(c, channelId);
+					case SET_DISPLAY_TEXT:
+						return new StringWriteChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(KebaKeContact.ChannelId.values()).map(channelId -> {
@@ -58,10 +67,6 @@ public class Utils {
 					case SERIAL:
 					case PRODUCT:
 						return new StringReadChannel(c, channelId);
-					case SET_CURRENT:
-						return new IntegerWriteChannel(c, channelId);
-					case SET_DISPLAY:
-						return new StringWriteChannel(c, channelId);
 					case SET_ENABLED:
 						return new BooleanWriteChannel(c, channelId);
 					}

@@ -6,7 +6,7 @@ import com.ghgande.j2mod.modbus.procimg.InputRegister;
 import com.ghgande.j2mod.modbus.procimg.Register;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.TypeUtils;
+import io.openems.edge.common.type.TypeUtils;
 
 public interface ModbusRegisterElement<T> extends ModbusElement<T> {
 

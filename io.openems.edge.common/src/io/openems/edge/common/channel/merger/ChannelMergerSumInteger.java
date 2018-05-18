@@ -13,8 +13,10 @@ public class ChannelMergerSumInteger extends ChannelMerger<Integer> {
 
 	private final static Function<Collection<Integer>, Integer> sumFunction = (sourceValues) -> {
 		int sum = 0;
-		for (int sourceValue : sourceValues) {
-			sum += sourceValue;
+		for (Integer sourceValue : sourceValues) {
+			if (sourceValue != null) {
+				sum += sourceValue;
+			}
 		}
 		return sum;
 	};

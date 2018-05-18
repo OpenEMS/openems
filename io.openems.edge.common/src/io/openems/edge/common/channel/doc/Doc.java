@@ -16,6 +16,7 @@ import io.openems.edge.common.channel.Channel;
  * 
  * Possible meta information:
  * <ul>
+ * <li>read-only/writable flag {@link Doc#isWritable()}
  * <li>expected OpenemsType via {@link Doc#getType()}
  * <li>descriptive text via {@link Doc#getText()}
  * <li>a Unit via {@link Doc#getUnit()}
@@ -28,6 +29,31 @@ import io.openems.edge.common.channel.Channel;
  * </ul>
  */
 public class Doc {
+
+	/*
+	 * Channel is Writable
+	 */
+	private boolean isWritable = false;
+
+	/**
+	 * Sets the Channel as Writable. This is validated on construction of the
+	 * Channel by {@link AbstractReadChannel}
+	 * 
+	 * @return
+	 */
+	public Doc isWritable() {
+		this.isWritable = true;
+		return this;
+	}
+
+	/**
+	 * Gets the 'isWritable' information
+	 * 
+	 * @return
+	 */
+	public boolean getIsWritable() {
+		return this.isWritable;
+	}
 
 	/*
 	 * OpenEMS Type

@@ -137,14 +137,7 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 		SET_ENABLED(new Doc().type(OpenemsType.BOOLEAN).unit(Unit.ON_OFF)
 				.text("Disabled is indicated with a blue flashing LED. "
 						+ "ATTENTION: Some electric vehicles (EVs) do not yet meet the standard requirements "
-						+ "and disabling can lead to an error in the charging station.")), //
-		SET_CURRENT(new Doc().type(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE)
-				.text("Maximum allowed loading current in milliampere. Allowed are values between 6000mA and 63000mA. "
-						+ "Invalid values are discarded and the default is set to 6000mA. The value is also depending on "
-						+ "the DIP-switch settings and the used cable of the charging station.")), //
-		SET_DISPLAY(new Doc().type(OpenemsType.STRING).unit(Unit.NONE)
-				.text("Text shown on the display. Maximum 23 ASCII characters can be used. "
-						+ "0 .. 23 characters; ~ == Σ; $ == blank; , == comma; If you use the text 'kWh', it will be replaced with '???' (due to MID metering certification)"));
+						+ "and disabling can lead to an error in the charging station.")); //
 
 		private final Doc doc;
 
@@ -174,7 +167,6 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 		 * subscribe on replies to report queries
 		 */
 		this.kebaKeContactCore.onReceive((ip, message) -> {
-			log.info("Message from [" + ip + "]: " + message);
 			if (ip.equals(this.ip)) { // same IP -> handle message
 				this.readHandler.accept(message);
 			}
@@ -210,7 +202,6 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	 * @return true if sent successfully
 	 */
 	protected boolean send(String s) {
-		this.log.info("SEND: " + s);
 		byte[] raw = s.getBytes();
 		DatagramPacket packet = new DatagramPacket(raw, raw.length, ip, KebaKeContact.UDP_PORT);
 		DatagramSocket dSocket = null;
@@ -240,4 +231,8 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 		this.readWorker.triggerForceRun();
 	}
 
+	@Override
+	protected void logInfo(Logger log, String message) {
+		super.logInfo(log, message);
+	}
 }

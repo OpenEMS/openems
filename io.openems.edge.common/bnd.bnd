@@ -12,7 +12,8 @@ Export-Package: \
 	io.openems.edge.common.converter,\
 	io.openems.edge.common.channel.value,\
 	io.openems.edge.api.user,\
-	io.openems.edge.common.user
+	io.openems.edge.common.user,\
+	io.openems.edge.common.type
 
 -includeresource: {readme.md}
 

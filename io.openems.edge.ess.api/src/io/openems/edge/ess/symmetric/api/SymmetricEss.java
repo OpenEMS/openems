@@ -17,24 +17,26 @@ public interface SymmetricEss extends SymmetricEssReadonly {
 		 * 
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
+		 * <li>Writable
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)
+		SET_ACTIVE_POWER(new Doc().isWritable().type(OpenemsType.INTEGER).unit(Unit.WATT)
 				.text("negative values for Charge; positive for Discharge")), //
 		/**
 		 * Set Reactive Power
 		 * 
 		 * <ul>
 		 * <li>Interface: Ess Symmetric
+		 * <li>Writable
 		 * <li>Type: Integer
 		 * <li>Unit: var
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)
+		SET_REACTIVE_POWER(new Doc().isWritable().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)
 				.text("negative values for Charge; positive for Discharge"));
 
 		private final Doc doc;

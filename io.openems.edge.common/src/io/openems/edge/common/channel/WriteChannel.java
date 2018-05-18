@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.TypeUtils;
+import io.openems.edge.common.type.TypeUtils;
 
 public interface WriteChannel<T> extends Channel<T> {
 

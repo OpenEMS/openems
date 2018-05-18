@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.TypeUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
@@ -22,6 +21,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.TypeUtils;
 
 public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComponent {
 

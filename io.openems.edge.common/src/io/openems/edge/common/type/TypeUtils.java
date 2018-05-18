@@ -1,4 +1,4 @@
-package io.openems.common.utils;
+package io.openems.edge.common.type;
 
 import java.util.Optional;
 
@@ -7,6 +7,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.value.Value;
 
 /**
  * Handles implicit conversions between {@link OpenemsType}s
@@ -15,6 +16,10 @@ public class TypeUtils {
 
 	@SuppressWarnings("unchecked")
 	public static <T> T getAsType(OpenemsType type, Object value) {
+		// Extract Value containers
+		if (value instanceof Value<?>) {
+			value = ((Value<?>) value).get();
+		}
 		// Extract Optionals
 		if (value instanceof Optional<?>) {
 			value = ((Optional<?>) value).orElse(null);
@@ -78,7 +83,8 @@ public class TypeUtils {
 				if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
 					return (T) Integer.valueOf((int) longValue);
 				} else {
-					throw new IllegalArgumentException("Cannot convert Long [" + value + "] to Integer");
+					throw new IllegalArgumentException(
+							"Cannot convert. Long [" + value + "] is not fitting in Integer range.");
 				}
 
 			} else if (value instanceof Float) {

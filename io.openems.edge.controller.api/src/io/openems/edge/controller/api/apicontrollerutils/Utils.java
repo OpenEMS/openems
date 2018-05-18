@@ -26,6 +26,30 @@ public class Utils {
 			j.addProperty("id", id);
 			j.addProperty("alias", id);
 			switch (config.getFactoryPid()) {
+			case "Bridge.Modbus.Tcp":
+				j.addProperty("class", "io.openems.impl.protocol.modbus.ModbusTcp");
+				break;
+			case "Bridge.Modbus.Serial":
+				j.addProperty("class", "io.openems.impl.protocol.modbus.ModbusRtu");
+				break;
+			case "Ess.Fenecon.Commercial40":
+				j.addProperty("class", "io.openems.impl.device.commercial.FeneconCommercialEss");
+				j.addProperty("chargeSoc", 10);
+				j.addProperty("minSoc", 15);
+				break;
+			case "EssDcCharger.Fenecon.Commercial40":
+				j.addProperty("class", "io.openems.impl.device.commercial.FeneconCommercialCharger");
+				j.addProperty("maxActualPower", 48000);
+				break;
+			case "Meter.SOCOMEC.DirisA14":
+				j.addProperty("class", "io.openems.impl.device.socomec.SocomecMeter");
+				j.addProperty("type", "grid"); // TODO set correct type
+				j.addProperty("minActivePower", -40000); // set correct values
+				j.addProperty("maxActivePower", 40000); // set correct values
+				break;
+			case "Evcs.Keba.KeContact":
+				j.addProperty("class", "io.openems.impl.device.keba.KebaEvcs");
+				break;
 			case "Simulator.EssSymmetric.Reacting":
 				j.addProperty("class", "io.openems.impl.device.simulator.SimulatorSymmetricEss");
 				break;

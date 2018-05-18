@@ -20,11 +20,16 @@ public class InfluxWrite {
 	private final InfluxTimedata parent;
 
 	private InfluxDB _influxDB = null;
-	private PointFactory pointFactory = null;
-	private int pointFactoryMaxSize = 0;
+	private final PointFactory pointFactory;
 
 	public InfluxWrite(InfluxTimedata parent) {
 		this.parent = parent;
+
+		// create a new PointFactory
+		this.pointFactory = PointFactory.builder() //
+				.initialSize(1) //
+				.maximumSize(10) //
+				.build();
 	}
 
 	/**
@@ -52,21 +57,19 @@ public class InfluxWrite {
 		return Optional.ofNullable(this._influxDB);
 	}
 
+	/**
+	 * This sets the 'maxTagCount' property for influx4j, in order to initialise the
+	 * internal array.
+	 * 
+	 * @See: <a href=
+	 *       "https://github.com/brettwooldridge/influx4j/blob/70e708bddcc833529c4835b9205220230fb548bc/src/main/java/com/zaxxer/influx4j/Point.java#L40">Point.java</a>
+	 */
 	protected synchronized void updatePointFactory() {
 		int noOfChannels = 0;
 		for (OpenemsComponent component : this.parent._components) {
 			noOfChannels += component.channels().size();
 		}
-		int calculatedMaxSize = Math.round(noOfChannels * 1.1f) + 1;
-		if (this.pointFactory == null || this.pointFactoryMaxSize < calculatedMaxSize
-				|| this.pointFactoryMaxSize > calculatedMaxSize * 1.1f) {
-			// create a new PointFactory
-			this.pointFactory = PointFactory.builder() //
-					.initialSize(calculatedMaxSize) //
-					.maximumSize(calculatedMaxSize) //
-					.build();
-			this.pointFactoryMaxSize = calculatedMaxSize;
-		}
+		System.setProperty("com.zaxxer.influx4j.maxTagCount", Integer.toString(noOfChannels));
 	}
 
 	protected synchronized void collectAndWriteChannelValues() {
