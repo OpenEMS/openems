@@ -110,9 +110,11 @@ public class Edge {
 	}
 
 	public void setSoc(int soc) {
-		this.soc = soc;
-		if (this.onSetSoc.isPresent()) {
-			this.onSetSoc.get().call(this.soc);
+		if (Integer.valueOf(soc) != this.soc) { // on change
+			this.soc = soc;
+			if (this.onSetSoc.isPresent()) {
+				this.onSetSoc.get().call(this.soc);
+			}
 		}
 	}
 
@@ -123,9 +125,11 @@ public class Edge {
 	}
 
 	public void setIpv4(String ipv4) {
-		this.ipv4 = ipv4;
-		if (this.onSetIpv4.isPresent()) {
-			this.onSetIpv4.get().call(this.ipv4);
+		if (!ipv4.equals(this.ipv4)) { // on change
+			this.ipv4 = ipv4;
+			if (this.onSetIpv4.isPresent()) {
+				this.onSetIpv4.get().call(this.ipv4);
+			}
 		}
 	}
 }
