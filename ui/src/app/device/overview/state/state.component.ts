@@ -96,6 +96,9 @@ export class StateComponent {
           let faults: WarningOrFault[] = [];
           for (let channelId of Object.keys(thing)) {
             if (thing[channelId] != 0) {
+              if (this.ignoreWarningOrFault(thingId, channelId)) {
+                continue;
+              }
               if (channelId.startsWith('Fault/')) {
                 faults.push(this.getWarningOrFault(thingId, channelId, 'fault'));
               } else if (channelId.startsWith('Warning/')) {
@@ -161,6 +164,24 @@ export class StateComponent {
       }
     }
     return result;
+  }
+
+  /*
+   * List of Warnings or Faults that should not be displayed
+   */
+  private ignoreWarningOrFault(thingId: string, channelId: string): boolean {
+    let clazz = this.config.things[thingId].class;
+    if (clazz instanceof Array) {
+      clazz = clazz[0];
+    }
+    switch (clazz) {
+      case 'io.openems.impl.device.minireadonly.FeneconMiniEss':
+        if (['Warning/92'].includes(channelId)) {
+          return true;
+        }
+        break;
+    }
+    return false;
   }
 
   constructor(public utils: Utils) { }

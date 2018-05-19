@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
-import websocketConnect from 'rxjs-websockets';
+import { WebSocketSubject } from 'rxjs/observable/dom/WebSocketSubject';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/timeout';
 import 'rxjs/add/operator/takeUntil';
@@ -19,7 +19,7 @@ import { DefaultMessages } from '../service/defaultmessages';
 
 @Injectable()
 export class Websocket {
-  public static readonly TIMEOUT = 5000;
+  public static readonly TIMEOUT = 15000;
   private static readonly DEFAULT_EDGEID = 0;
   private static readonly DEFAULT_DEVICENAME = "fems";
 
@@ -35,13 +35,12 @@ export class Websocket {
     return this._currentDevice;
   }
 
+  private socket: WebSocketSubject<any>;
   public status: DefaultTypes.ConnectionStatus = "connecting";
   public isWebsocketConnected: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   private username: string = "";
   // private messages: Observable<string>;
-  private messageSubscription: Subscription = null;
-  private inputStream: Subject<any>;
   private queryreply = new Subject<{ id: string[] }>();
   private stopOnInitialize: Subject<void> = new Subject<void>();
 
@@ -107,51 +106,53 @@ export class Websocket {
    * Opens a connection using a stored token or a cookie with a session_id for this websocket. Called once by constructor
    */
   private connect(): BehaviorSubject<boolean> {
-    if (this.messageSubscription != null) {
-      return;
+    if (this.socket != null) {
+      return this.isWebsocketConnected;
     }
 
     if (env.debugMode) {
       console.info("Websocket connect to URL [" + env.url + "]");
     }
-    const { messages, connectionStatus } = websocketConnect(
-      env.url,
-      this.inputStream = new Subject<any>()
-    );
-    connectionStatus
-      .takeUntil(this.stopOnInitialize)
-      .subscribe(count => {
-        let isConnected = count > 0;
-        if (env.debugMode) {
-          console.info("Websocket connected [" + isConnected + "]");
-        }
-        this.isWebsocketConnected.next(isConnected);
 
-        if (!isConnected && this.status == 'online') {
-          this.service.notify({
-            message: "Connection lost. Trying to reconnect.", // TODO translate
-            type: 'warning'
-          });
-          // TODO show spinners everywhere
-          this.status = 'connecting';
+    this.socket = WebSocketSubject.create({
+      url: env.url,
+      openObserver: {
+        next: (value) => {
+          if (env.debugMode) {
+            console.info("Websocket connection opened");
+          }
+          this.isWebsocketConnected.next(true);
+          if (this.status == 'online') {
+            this.service.notify({
+              message: "Connection lost. Trying to reconnect.", // TODO translate
+              type: 'warning'
+            });
+            // TODO show spinners everywhere
+            this.status = 'connecting';
+          } else {
+            this.status = 'waiting for authentication';
+          }
         }
-
-        if (isConnected) {
-          this.status = 'waiting for authentication';
+      },
+      closeObserver: {
+        next: (value) => {
+          if (env.debugMode) {
+            console.info("Websocket connection closed");
+          }
+          this.isWebsocketConnected.next(false);
         }
-      }, error => {
-        console.error(error);
-      }, () => {
-        this.isWebsocketConnected.next(false);
-      });
-    this.messageSubscription = messages.takeUntil(this.stopOnInitialize).retryWhen(errors => {
-      return errors.delay(1000);
+      }
+    });
 
-    }).map(message => JSON.parse(message)).subscribe(message => {
+    this.socket.retryWhen(errors => {
+      console.warn("Websocket was interrupted. Retrying in 2 seconds.");
+      return errors.delay(2000);
+    }).subscribe(message => {
       // called on every receive of message from server
       if (env.debugMode) {
         console.info("RECV", message);
       }
+
       /*
        * Authenticate
        */
@@ -265,7 +266,11 @@ export class Websocket {
           this.service.notify(<DefaultTypes.Notification>notification);
         }
       }
-    });
+    }, error => {
+      console.error("Websocket error", error);
+    }, () => {
+      console.info("Websocket finished");
+    })
     return this.isWebsocketConnected;
   }
 
@@ -273,11 +278,8 @@ export class Websocket {
    * Reset everything to default
    */
   private initialize() {
-    // TODO do not stop the websocket connection on logout
     this.stopOnInitialize.next();
     this.stopOnInitialize.complete();
-    this.messageSubscription.unsubscribe();
-    this.messageSubscription = null;
     this.devices.next({});
   }
 
@@ -320,6 +322,6 @@ export class Websocket {
     if (env.debugMode) {
       console.info("SEND: ", message);
     }
-    this.inputStream.next(JSON.stringify(message));
+    this.socket.socket.send(JSON.stringify(message));
   }
 }

@@ -55,18 +55,31 @@ export module DefaultTypes {
   export interface Summary {
     storage: {
       soc: number,
+      isAsymmetric: boolean,
+      hasDC: boolean,
       chargeActivePower: number,
       chargeActivePowerAC: number,
+      chargeActivePowerACL1: number,
+      chargeActivePowerACL2: number,
+      chargeActivePowerACL3: number,
       chargeActivePowerDC: number,
       maxChargeActivePower: number,
       dischargeActivePower: number,
       dischargeActivePowerAC: number,
+      dischargeActivePowerACL1: number,
+      dischargeActivePowerACL2: number,
+      dischargeActivePowerACL3: number,
       dischargeActivePowerDC: number,
       maxDischargeActivePower: number
     }, production: {
       powerRatio: number,
+      isAsymmetric: boolean,
+      hasDC: boolean,
       activePower: number, // sum of activePowerAC and activePowerDC
       activePowerAC: number,
+      activePowerACL1: number,
+      activePowerACL2: number,
+      activePowerACL3: number,
       activePowerDC: number,
       maxActivePower: number
     }, grid: {
