@@ -10,10 +10,12 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.ghgande.j2mod.modbus.Modbus;
-import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
-import com.ghgande.j2mod.modbus.facade.ModbusSerialMaster;
+import com.ghgande.j2mod.modbus.io.ModbusSerialTransaction;
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.net.SerialConnection;
 import com.ghgande.j2mod.modbus.util.SerialParameters;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
@@ -73,17 +75,47 @@ public class BridgeModbusSerial extends AbstractModbusBridge implements BridgeMo
 	}
 
 	@Override
-	protected AbstractModbusMaster createModbusMaster() {
-		SerialParameters params = new SerialParameters();
-		params.setPortName(this.portName);
-		params.setBaudRate(this.baudrate);
-		params.setDatabits(this.databits);
-		params.setStopbits(this.stopbits);
-		params.setParity(this.parity);
-		params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
-		params.setEcho(false);
-		ModbusSerialMaster master = new ModbusSerialMaster(params);
-		master.setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
-		return master;
+	public void closeModbusConnection() {
+		if (this._connection != null) {
+			this._connection.close();
+		}
+	}
+
+	@Override
+	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
+		SerialConnection connection;
+		connection = this.getModbusConnection();
+		ModbusSerialTransaction transaction = new ModbusSerialTransaction(connection);
+		transaction.setRetries(AbstractModbusBridge.DEFAULT_RETRIES);
+		return transaction;
+	}
+
+	private SerialConnection _connection = null;
+
+	private synchronized SerialConnection getModbusConnection() throws OpenemsException {
+		if (this._connection == null) {
+			/*
+			 * create new connection
+			 */
+			SerialParameters params = new SerialParameters();
+			params.setPortName(this.portName);
+			params.setBaudRate(this.baudrate);
+			params.setDatabits(this.databits);
+			params.setStopbits(this.stopbits);
+			params.setParity(this.parity);
+			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
+			params.setEcho(false);
+			SerialConnection connection = new SerialConnection(params);
+			this._connection = connection;
+		}
+		if (!this._connection.isOpen()) {
+			try {
+				this._connection.open();
+			} catch (Exception e) {
+				throw new OpenemsException("Connection via [" + this.portName + "] failed: " + e.getMessage(), e);
+			}
+			this._connection.getModbusTransport().setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
+		}
+		return this._connection;
 	}
 }

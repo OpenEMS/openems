@@ -1,13 +1,18 @@
 package io.openems.edge.bridge.modbus.api.task;
 
+import java.util.BitSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
-import com.ghgande.j2mod.modbus.util.BitVector;
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.msg.ModbusResponse;
+import com.ghgande.j2mod.modbus.msg.ReadCoilsRequest;
+import com.ghgande.j2mod.modbus.msg.ReadCoilsResponse;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
@@ -24,18 +29,34 @@ public class FC1ReadCoilsTask extends Task implements ReadTask {
 		super(startAddress, priority, elements);
 	}
 
-	public void executeQuery(AbstractModbusMaster master) throws ModbusException {
+	public void executeQuery(AbstractModbusBridge bridge) throws OpenemsException {
 		// Query this Task
 		int startAddress = this.getStartAddress();
 		int length = this.getLength();
-		BitVector bits;
+		boolean[] response;
 		try {
-			bits = master.readCoils(this.getUnitId(), startAddress, length);
-		} catch (ClassCastException e) {
-			log.warn("FC1 Read Coils failed [" + startAddress + "/0x" + Integer.toHexString(startAddress) + "]: "
-					+ e.getMessage());
-			return;
+			/*
+			 * First try
+			 */
+			response = this.readCoils(bridge, this.getUnitId(), startAddress, length);
+		} catch (OpenemsException | ModbusException e) {
+			/*
+			 * Second try: with new connection
+			 */
+			bridge.closeModbusConnection();
+			try {
+				response = this.readCoils(bridge, this.getUnitId(), startAddress, length);
+			} catch (ModbusException e2) {
+				throw new OpenemsException("Transaction failed: " + e.getMessage(), e2);
+			}
 		}
+
+		// Verify response length
+		if (response.length < length) {
+			throw new OpenemsException(
+					"Received message is too short. Expected [" + length + "], got [" + response.length + "]");
+		}
+
 		// Fill elements
 		int position = 0;
 		for (ModbusElement<?> modbusElement : this.getElements()) {
@@ -48,7 +69,7 @@ public class FC1ReadCoilsTask extends Task implements ReadTask {
 					if (element.isIgnored()) {
 						// ignore dummy
 					} else {
-						element.setInputCoil(bits.getBit(position));
+						element.setInputCoil(response[position]);
 					}
 				} catch (OpenemsException e) {
 					log.warn("Unable to fill modbus element. UnitId [" + this.getUnitId() + "] Address [" + startAddress
@@ -59,8 +80,38 @@ public class FC1ReadCoilsTask extends Task implements ReadTask {
 		}
 	}
 
+	private boolean[] readCoils(AbstractModbusBridge bridge, int unitId, int startAddress, int length)
+			throws OpenemsException, ModbusException {
+		ModbusTransaction transaction = bridge.getNewModbusTransaction();
+		ReadCoilsRequest request = new ReadCoilsRequest(startAddress, length);
+		request.setUnitID(unitId);
+		transaction.setRequest(request);
+		transaction.execute();
+		ModbusResponse response = transaction.getResponse();
+		if (response instanceof ReadCoilsResponse) {
+			ReadCoilsResponse coilsResponse = (ReadCoilsResponse) response;
+			return toBooleanArray(coilsResponse.getCoils().getBytes());
+		} else {
+			throw new OpenemsException("Unexpected Modbus response. Expected [ReadCoilsResponse], got ["
+					+ response.getClass().getSimpleName() + "]");
+		}
+	}
+
 	@Override
 	public String toString() {
-		return "FC3ReadRegistersTask [startAddress=" + this.getStartAddress() + ", length=" + this.getLength() + "]";
+		return "FC1 Read Coils Task [" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress())
+				+ ";length=" + this.getLength() + "]";
+	}
+
+	/*
+	 * Static Methods
+	 */
+	static boolean[] toBooleanArray(byte[] bytes) {
+		BitSet bits = BitSet.valueOf(bytes);
+		boolean[] bools = new boolean[bytes.length * 8];
+		for (int i = bits.nextSetBit(0); i != -1; i = bits.nextSetBit(i + 1)) {
+			bools[i] = true;
+		}
+		return bools;
 	}
 }

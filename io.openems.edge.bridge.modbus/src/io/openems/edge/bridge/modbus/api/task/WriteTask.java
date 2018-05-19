@@ -1,8 +1,9 @@
 package io.openems.edge.bridge.modbus.api.task;
 
 import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
 public interface WriteTask {
@@ -31,9 +32,9 @@ public interface WriteTask {
 	/**
 	 * Executes writing for this Task to the Modbus device
 	 * 
-	 * @param master
+	 * @param bridge
 	 * @param unitId
 	 * @throws ModbusException
 	 */
-	public abstract void executeWrite(AbstractModbusMaster master) throws ModbusException;
+	public abstract void executeWrite(AbstractModbusBridge bridge) throws OpenemsException;
 }

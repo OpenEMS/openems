@@ -1,8 +1,9 @@
 package io.openems.edge.bridge.modbus.api.task;
 
 import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
@@ -48,9 +49,9 @@ public interface ReadTask {
 	/**
 	 * Sends a query for this Task to the Modbus device
 	 * 
-	 * @param master
+	 * @param bridge
 	 * @param unitId
 	 * @throws ModbusException
 	 */
-	public abstract void executeQuery(AbstractModbusMaster master) throws ModbusException;
+	public abstract void executeQuery(AbstractModbusBridge bridge) throws OpenemsException;
 }

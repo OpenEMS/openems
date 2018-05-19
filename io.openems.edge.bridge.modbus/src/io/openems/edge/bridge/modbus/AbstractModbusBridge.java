@@ -14,13 +14,12 @@ import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ghgande.j2mod.modbus.Modbus;
-import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
@@ -36,8 +35,18 @@ import io.openems.edge.common.worker.AbstractWorker;
  */
 public abstract class AbstractModbusBridge extends AbstractOpenemsComponent implements EventHandler {
 
-	protected final static int DEFAULT_TIMEOUT = Modbus.DEFAULT_TIMEOUT; // 3000 [ms]
-	protected final static int DEFAULT_RETRIES = 1; // Modbus default is 5
+	/**
+	 * Default Modbus timeout in [ms]
+	 * 
+	 * Modbus library default is 3000 ms
+	 */
+	protected final static int DEFAULT_TIMEOUT = 1000;
+	/**
+	 * Default Modbus retries
+	 * 
+	 * Modbus library default is 5
+	 */
+	protected final static int DEFAULT_RETRIES = 1;
 
 	private final Logger log = LoggerFactory.getLogger(AbstractModbusBridge.class);
 	private final ModbusWorker worker = new ModbusWorker();
@@ -82,6 +91,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	protected void deactivate() {
 		super.deactivate();
 		this.worker.deactivate();
+		this.closeModbusConnection();
 	}
 
 	/**
@@ -101,16 +111,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		this.protocols.removeAll(sourceId);
 	}
 
-	/**
-	 * Creates a new instance of a ModbusMaster
-	 * 
-	 * @return
-	 */
-	protected abstract AbstractModbusMaster createModbusMaster();
-
 	private class ModbusWorker extends AbstractWorker {
-		private AbstractModbusMaster master = null;
-
 		@Override
 		public void activate(String name) {
 			super.activate(name);
@@ -119,21 +120,10 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		@Override
 		public void deactivate() {
 			super.deactivate();
-			// disconnect from Modbus
-			AbstractModbusMaster master = this.master;
-			if (master != null) {
-				master.disconnect();
-			}
 		}
 
 		@Override
 		protected void forever() {
-			// get ModbusMaster or abort
-			AbstractModbusMaster master = getModbusMasterAndConnect();
-			if (master == null) {
-				return;
-			}
-
 			// get the read tasks for this run
 			List<ReadTask> nextReadTasks = this.getNextReadTasks();
 
@@ -148,10 +138,9 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 					List<WriteTask> writeTasks = this.getNextWriteTasks();
 					writeTasks.forEach(writeTask -> {
 						try {
-							writeTask.executeWrite(master);
-						} catch (ModbusException e) {
-							logError(log,
-									"Unable to execute modbus write [" + writeTask.toString() + "]: " + e.getMessage());
+							writeTask.executeWrite(AbstractModbusBridge.this);
+						} catch (OpenemsException e) {
+							logError(log, "Modbus write failed [" + writeTask.toString() + "]: " + e.getMessage());
 						}
 					});
 				}
@@ -159,28 +148,12 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 				 * Execute next read task
 				 */
 				try {
-					readTask.executeQuery(master);
-				} catch (ModbusException e) {
+					readTask.executeQuery(AbstractModbusBridge.this);
+				} catch (OpenemsException e) {
 					// TODO remember defective unitid
-					log.error(id() + ". Unable to execute modbus query: " + e.getMessage());
+					logError(log, "Modbus query failed [" + readTask.toString() + "]: " + e.getMessage());
 				}
 			});
-		}
-
-		private AbstractModbusMaster getModbusMasterAndConnect() {
-			if (this.master == null) {
-				AbstractModbusMaster master = createModbusMaster();
-				try {
-					master.connect();
-					master.setRetries(AbstractModbusBridge.DEFAULT_RETRIES); // setRetries requires a Transaction which
-																				// is only created by connect()
-					this.master = master;
-				} catch (Exception e) {
-					logError(log, "Unable to connect: " + e.getMessage());
-					// TODO set State to Fault
-				}
-			}
-			return this.master;
 		}
 
 		/**
@@ -232,4 +205,17 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 			break;
 		}
 	}
+
+	/**
+	 * Creates a new Modbus Transaction on an open Modbus connection
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract ModbusTransaction getNewModbusTransaction() throws OpenemsException;
+
+	/**
+	 * Closes the Modbus connection
+	 */
+	public abstract void closeModbusConnection();
 }

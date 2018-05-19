@@ -1,5 +1,8 @@
 package io.openems.edge.bridge.modbus;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -9,9 +12,12 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import com.ghgande.j2mod.modbus.facade.AbstractModbusMaster;
-import com.ghgande.j2mod.modbus.facade.ModbusTCPMaster;
+import com.ghgande.j2mod.modbus.Modbus;
+import com.ghgande.j2mod.modbus.io.ModbusTCPTransaction;
+import com.ghgande.j2mod.modbus.io.ModbusTransaction;
+import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
@@ -33,12 +39,12 @@ public class BridgeModbusTcp extends AbstractModbusBridge implements BridgeModbu
 	/**
 	 * The configured IP address
 	 */
-	private String ipAddress = "";
+	private InetAddress ipAddress = null;
 
 	@Activate
-	void activate(ComponentContext context, ConfigTcp config) {
+	void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		this.ipAddress = config.ip();
+		this.ipAddress = InetAddress.getByName(config.ip());
 	}
 
 	@Deactivate
@@ -47,9 +53,40 @@ public class BridgeModbusTcp extends AbstractModbusBridge implements BridgeModbu
 	}
 
 	@Override
-	protected AbstractModbusMaster createModbusMaster() {
-		ModbusTCPMaster master = new ModbusTCPMaster(this.ipAddress);
-		master.setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
-		return master;
+	public void closeModbusConnection() {
+		if (this._connection != null) {
+			this._connection.close();
+		}
+	}
+
+	@Override
+	public ModbusTransaction getNewModbusTransaction() throws OpenemsException {
+		TCPMasterConnection connection = this.getModbusConnection();
+		ModbusTCPTransaction transaction = new ModbusTCPTransaction(connection);
+		transaction.setRetries(AbstractModbusBridge.DEFAULT_RETRIES);
+		return transaction;
+	}
+
+	private TCPMasterConnection _connection = null;
+
+	private synchronized TCPMasterConnection getModbusConnection() throws OpenemsException {
+		if (this._connection == null) {
+			/*
+			 * create new connection
+			 */
+			TCPMasterConnection connection = new TCPMasterConnection(this.ipAddress);
+			connection.setPort(Modbus.DEFAULT_PORT);
+			this._connection = connection;
+		}
+		if (!this._connection.isConnected()) {
+			try {
+				this._connection.connect();
+			} catch (Exception e) {
+				throw new OpenemsException(
+						"Connection to [" + this.ipAddress.getHostAddress() + "] failed: " + e.getMessage(), e);
+			}
+			this._connection.getModbusTransport().setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
+		}
+		return this._connection;
 	}
 }
