@@ -13,7 +13,6 @@ Private-Package:  \
 	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
 	io.openems.edge.timedata.api;version=latest,\
-	io.openems.wrapper.influx4j;version=latest,\
 	com.google.gson,\
 	io.openems.wrapper.influxdb-java;version=latest
 

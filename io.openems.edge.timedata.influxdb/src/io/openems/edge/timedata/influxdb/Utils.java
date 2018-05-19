@@ -1,8 +1,16 @@
 package io.openems.edge.timedata.influxdb;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map.Entry;
 import java.util.stream.Stream;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.StateChannel;
@@ -30,5 +38,26 @@ public class Utils {
 					return null;
 				}) //
 		).flatMap(channel -> channel);
+	}
+
+	/**
+	 * TODO: copied from backend.timedata.influx.provider
+	 * 
+	 * @param channels
+	 * @return
+	 * @throws OpenemsException
+	 */
+	protected static String toChannelAddressList(JsonObject channels) throws OpenemsException {
+		ArrayList<String> channelAddresses = new ArrayList<>();
+		for (Entry<String, JsonElement> entry : channels.entrySet()) {
+			String thingId = entry.getKey();
+			JsonArray channelIds = JsonUtils.getAsJsonArray(entry.getValue());
+			for (JsonElement channelElement : channelIds) {
+				String channelId = JsonUtils.getAsString(channelElement);
+				channelAddresses
+						.add("MEAN(\"" + thingId + "/" + channelId + "\") AS \"" + thingId + "/" + channelId + "\"");
+			}
+		}
+		return String.join(", ", channelAddresses);
 	}
 }

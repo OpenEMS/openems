@@ -2,7 +2,6 @@
 -buildpath: \
 	org.java-websocket:Java-WebSocket,\
 	com.ghgande:j2mod,\
-	com.zaxxer:influx4j,\
 	org.influxdb:influxdb-java,\
 	com.squareup.moshi:moshi,\
 	com.squareup.retrofit2:retrofit,\
