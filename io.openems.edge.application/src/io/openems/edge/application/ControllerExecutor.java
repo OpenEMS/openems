@@ -17,6 +17,7 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.faljse.SDNotify.SDNotify;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
 import io.openems.edge.common.worker.AbstractWorker;
@@ -83,6 +84,10 @@ public class ControllerExecutor extends AbstractWorker {
 		if (++this.cycle > this.maxCycles) {
 			this.cycle = 1;
 		}
+
+		// Kick Operating System Watchdog
+		SDNotify.sendWatchdog();
+
 		try {
 			/*
 			 * Trigger BEFORE_PROCESS_IMAGE event

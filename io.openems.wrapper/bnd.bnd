@@ -6,5 +6,6 @@
 	com.squareup.moshi:moshi,\
 	com.squareup.retrofit2:retrofit,\
 	com.squareup.retrofit2:converter-moshi,\
-	com.fazecast.jSerialComm
+	com.fazecast.jSerialComm,\
+	info.faljse:SDNotify
 	

@@ -12,17 +12,22 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import info.faljse.SDNotify.SDNotify;
+
 @Component(immediate = true)
 public class EdgeApp {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeApp.class);
+
+	// public final static String OPENEMS_VERSION = "2018.6.0";
+	public final static String OPENEMS_VERSION = "2018.0.0-OSGI-SNAPSHOT";
 
 	@Reference
 	ConfigurationAdmin cm;
 
 	@Activate
 	void activate() {
-		log.debug("Activate EdgeApp");
+		log.info("OpenEMS version [" + OPENEMS_VERSION + "] started");
 
 		Configuration config;
 		try {
@@ -41,6 +46,9 @@ public class EdgeApp {
 		} catch (IOException | SecurityException e) {
 			e.printStackTrace();
 		}
+
+		// Announce Operating System that OpenEMS Edge started
+		SDNotify.sendNotify();
 
 		// Example: Create new Scheduler
 		// new Thread(() -> {

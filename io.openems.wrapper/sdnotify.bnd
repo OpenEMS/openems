@@ -1,0 +1,18 @@
+Service-Component: *
+
+Bundle-Name: SDNotify
+Bundle-Description:  SDNotify implements the systemd notification protocol in Java.
+Bundle-DocURL: https://github.com/faljse/SDNotify
+Bundle-License: https://opensource.org/licenses/LGPL-2.1
+Bundle-Version: 1.1
+
+Include-Resource: @SDNotify-1.1.jar
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-exportcontents: \
+	info.faljse.SDNotify
+	
+-sources: false
