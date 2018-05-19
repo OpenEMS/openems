@@ -23,23 +23,23 @@ public class Utils {
 				// * null; })
 				, Arrays.stream(KmtronicRelayOutput.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case DIGITAL_OUTPUT_1:
-					case DIGITAL_OUTPUT_2:
-					case DIGITAL_OUTPUT_3:
-					case DIGITAL_OUTPUT_4:
-					case DIGITAL_OUTPUT_5:
-					case DIGITAL_OUTPUT_6:
-					case DIGITAL_OUTPUT_7:
-					case DIGITAL_OUTPUT_8:
+					case RELAY_1:
+					case RELAY_2:
+					case RELAY_3:
+					case RELAY_4:
+					case RELAY_5:
+					case RELAY_6:
+					case RELAY_7:
+					case RELAY_8:
 						return new BooleanWriteChannel(c, channelId);
-					case DEBUG_DIGITAL_OUTPUT_1:
-					case DEBUG_DIGITAL_OUTPUT_2:
-					case DEBUG_DIGITAL_OUTPUT_3:
-					case DEBUG_DIGITAL_OUTPUT_4:
-					case DEBUG_DIGITAL_OUTPUT_5:
-					case DEBUG_DIGITAL_OUTPUT_6:
-					case DEBUG_DIGITAL_OUTPUT_7:
-					case DEBUG_DIGITAL_OUTPUT_8:
+					case DEBUG_RELAY_1:
+					case DEBUG_RELAY_2:
+					case DEBUG_RELAY_3:
+					case DEBUG_RELAY_4:
+					case DEBUG_RELAY_5:
+					case DEBUG_RELAY_6:
+					case DEBUG_RELAY_7:
+					case DEBUG_RELAY_8:
 						return new BooleanReadChannel(c, channelId);
 					}
 					return null;
