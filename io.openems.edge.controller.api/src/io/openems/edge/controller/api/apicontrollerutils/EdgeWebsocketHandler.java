@@ -216,7 +216,7 @@ public class EdgeWebsocketHandler {
 			/*
 			 * Update thing/channel config
 			 */
-			throw new IllegalArgumentException("Config Update is no implemented");
+			throw new IllegalArgumentException("Config Update is not implemented");
 
 			// TODO Update config
 			// Optional<String> thingIdOpt = JsonUtils.getAsOptionalString(jConfig,

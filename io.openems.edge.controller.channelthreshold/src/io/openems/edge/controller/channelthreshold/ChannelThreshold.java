@@ -116,8 +116,6 @@ public class ChannelThreshold extends AbstractOpenemsComponent implements Contro
 
 	@Override
 	public void run() {
-		logInfo(this.log, this.inputComponent.id() + ", " + this.outputComponent.id());
-
 		/*
 		 * Check if all parameters are available
 		 */

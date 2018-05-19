@@ -63,13 +63,15 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	 * 
 	 * @throws InvalidValueException
 	 */
-	private int calculateRequiredPower() throws InvalidValueException {
+	private int calculateRequiredPower() throws InvalidValueException, NullPointerException {
 		return this.meter.getActivePower().value().get() /* current buy-from/sell-to grid */
 				+ this.ess.getActivePower().value().get() /* current charge/discharge Ess */;
 	}
 
 	@Override
 	public void run() {
+		// TODO improvement: calculate required power with SoC in mind. On high SoC
+		// prefer feeding-to-grid a little bit (<100 W) than buying; on low SoC inverse
 		int requiredPower;
 		try {
 			/*
@@ -85,7 +87,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			 */
 			requiredPower = this.calculateRequiredPower();
 
-		} catch (InvalidValueException e) {
+		} catch (InvalidValueException | NullPointerException e) {
 			logError(this.log, e.getMessage());
 			return;
 		}

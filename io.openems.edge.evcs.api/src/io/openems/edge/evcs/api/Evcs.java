@@ -34,6 +34,8 @@ public interface Evcs extends OpenemsComponent {
 		 */
 		SET_DISPLAY_TEXT(new Doc().isWritable().type(OpenemsType.STRING));
 
+		// TODO add debug channel for set charge power
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
