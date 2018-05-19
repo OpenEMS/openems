@@ -20,7 +20,7 @@ public class Utils {
 					return null;
 				}), Arrays.stream(EssDcCharger.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case DC_ACTUAL_POWER:
+					case ACTUAL_POWER:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;

@@ -22,7 +22,7 @@ public interface EssDcCharger extends OpenemsComponent {
 		 * <li>Range: positive
 		 * </ul>
 		 */
-		DC_ACTUAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)); //
+		ACTUAL_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)); //
 
 		private final Doc doc;
 
@@ -38,11 +38,11 @@ public interface EssDcCharger extends OpenemsComponent {
 	/**
 	 * Gets the Actual Power
 	 * 
-	 * @see EssDcCharger.ChannelId#DC_ACTUAL_POWER
+	 * @see EssDcCharger.ChannelId#ACTUAL_POWER
 	 * 
 	 * @return
 	 */
 	default Channel<Integer> getActualPower() {
-		return this.channel(ChannelId.DC_ACTUAL_POWER);
+		return this.channel(ChannelId.ACTUAL_POWER);
 	}
 }
