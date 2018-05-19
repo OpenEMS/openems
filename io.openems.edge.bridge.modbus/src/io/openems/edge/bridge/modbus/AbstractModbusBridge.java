@@ -140,7 +140,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 						try {
 							writeTask.executeWrite(AbstractModbusBridge.this);
 						} catch (OpenemsException e) {
-							logError(log, "Modbus write failed [" + writeTask.toString() + "]: " + e.getMessage());
+							logError(log, writeTask.toString() + " write failed: " + e.getMessage());
 						}
 					});
 				}
@@ -151,7 +151,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 					readTask.executeQuery(AbstractModbusBridge.this);
 				} catch (OpenemsException e) {
 					// TODO remember defective unitid
-					logError(log, "Modbus query failed [" + readTask.toString() + "]: " + e.getMessage());
+					logError(log, readTask.toString() + " read failed: " + e.getMessage());
 				}
 			});
 		}

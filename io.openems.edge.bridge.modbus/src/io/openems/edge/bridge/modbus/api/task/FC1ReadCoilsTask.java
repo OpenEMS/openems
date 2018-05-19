@@ -99,7 +99,7 @@ public class FC1ReadCoilsTask extends Task implements ReadTask {
 
 	@Override
 	public String toString() {
-		return "FC1 Read Coils Task [" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress())
+		return "FC1 Read Coils [" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress())
 				+ ";length=" + this.getLength() + "]";
 	}
 

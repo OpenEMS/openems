@@ -74,7 +74,6 @@ public class FC5WriteCoilTask extends Task implements WriteTask {
 
 	@Override
 	public String toString() {
-		return "FC5 Write Coil Task [" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress())
-				+ "]";
+		return "FC5 Write Coil [" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress()) + "]";
 	}
 }

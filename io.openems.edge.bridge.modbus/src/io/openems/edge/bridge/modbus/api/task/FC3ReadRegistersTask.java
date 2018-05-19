@@ -102,7 +102,7 @@ public class FC3ReadRegistersTask extends Task implements ReadTask {
 
 	@Override
 	public String toString() {
-		return "FC3 Read Registers Task [" + this.getStartAddress() + "/0x"
-				+ Integer.toHexString(this.getStartAddress()) + ";length=" + this.getLength() + "]";
+		return "FC3 Read Registers [" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress())
+				+ ";length=" + this.getLength() + "]";
 	}
 }

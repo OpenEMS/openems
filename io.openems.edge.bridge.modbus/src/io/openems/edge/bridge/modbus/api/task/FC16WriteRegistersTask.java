@@ -141,7 +141,7 @@ public class FC16WriteRegistersTask extends Task implements WriteTask {
 
 	@Override
 	public String toString() {
-		return "FC16 Write Registers Task [" + this.getStartAddress() + "/0x"
-				+ Integer.toHexString(this.getStartAddress()) + ";length=" + this.getLength() + "]";
+		return "FC16 Write Registers [" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress())
+				+ ";length=" + this.getLength() + "]";
 	}
 }
