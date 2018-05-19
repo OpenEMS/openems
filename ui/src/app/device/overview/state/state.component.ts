@@ -53,7 +53,7 @@ export class StateComponent {
     } else {
       for (let thingId of Object.keys(currentData.data)) {
         let thing = currentData.data[thingId];
-        if (thing['State'] != 0) {
+        if (thing['State'] != null && thing['State'] != 0) {
           // Thing has a warning or fault
           if (thingId in this.lastRequiredSubscribes) {
             // was like this before -> copy subscribes from last time
@@ -95,7 +95,7 @@ export class StateComponent {
           let warnings: WarningOrFault[] = [];
           let faults: WarningOrFault[] = [];
           for (let channelId of Object.keys(thing)) {
-            if (thing[channelId] != 0) {
+            if (thing[channelId] != null && thing[channelId] != 0) {
               if (this.ignoreWarningOrFault(thingId, channelId)) {
                 continue;
               }
