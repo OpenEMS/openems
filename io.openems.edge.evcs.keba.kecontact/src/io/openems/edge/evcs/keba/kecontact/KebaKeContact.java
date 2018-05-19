@@ -235,4 +235,9 @@ public class KebaKeContact extends AbstractOpenemsComponent implements Evcs, Ope
 	protected void logInfo(Logger log, String message) {
 		super.logInfo(log, message);
 	}
+
+	@Override
+	public String debugLog() {
+		return "Limit:" + this.channel(KebaKeContact.ChannelId.CURR_USER).value().asString();
+	}
 }
