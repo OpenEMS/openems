@@ -69,6 +69,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	private final static int MAX_APPARENT_POWER = 40000;
 	private final static int MIN_REACTIVE_POWER = -10000;
 	private final static int MAX_REACTIVE_POWER = 10000;
+	private final static int POWER_PRECISION = 100;
 
 	private final SymmetricPower power;
 	private final SMaxLimitation allowedApparentLimit;
@@ -85,7 +86,8 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		/*
 		 * Initialize Power
 		 */
-		this.power = new SymmetricPower(this, EssFeneconCommercial40.MAX_APPARENT_POWER, //
+		this.power = new SymmetricPower(this, EssFeneconCommercial40.MAX_APPARENT_POWER,
+				EssFeneconCommercial40.POWER_PRECISION, //
 				(activePower, reactivePower) -> {
 					/*
 					 * Apply Active/Reactive power

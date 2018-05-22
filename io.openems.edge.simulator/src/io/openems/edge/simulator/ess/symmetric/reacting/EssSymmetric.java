@@ -35,6 +35,8 @@ public class EssSymmetric extends AbstractOpenemsComponent implements SymmetricE
 
 	// private final Logger log = LoggerFactory.getLogger(EssSymmetric.class);
 
+	private final static int POWER_PRECISION = 1;
+
 	private SymmetricPower power = null;
 	private PGreaterEqualLimitation allowedChargeLimit;
 	private PSmallerEqualLimitation allowedDischargeLimit;
@@ -67,7 +69,7 @@ public class EssSymmetric extends AbstractOpenemsComponent implements SymmetricE
 		/*
 		 * Initialize Power
 		 */
-		this.power = new SymmetricPower(this, config.maxApparentPower(), //
+		this.power = new SymmetricPower(this, config.maxApparentPower(), EssSymmetric.POWER_PRECISION, //
 				(activePower, reactivePower) -> {
 					/*
 					 * calculate State of charge

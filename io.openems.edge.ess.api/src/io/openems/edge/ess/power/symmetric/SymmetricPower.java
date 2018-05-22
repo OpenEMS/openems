@@ -23,6 +23,7 @@ public class SymmetricPower {
 
 	private final Logger log = LoggerFactory.getLogger(SymmetricPower.class);
 	private final SymmetricEss parent;
+	private final int powerPrecision;
 	private final List<Geometry> geometries;
 	private final BiConsumer<Integer, Integer> onWriteListener;
 
@@ -33,11 +34,29 @@ public class SymmetricPower {
 	private Optional<Integer> maxQ;
 	private int maxApparentPower = 0;
 
-	public SymmetricPower(SymmetricEss parent, int maxApparentPower, BiConsumer<Integer, Integer> onWriteListener) {
+	/**
+	 * Initialises the SymmetricPower Object
+	 * 
+	 * @param parent
+	 *            the OpenemsComponent that implements SymmetricEss
+	 * @param maxApparentPower
+	 *            max apparent power in [VA] of the battery inverter
+	 * @param powerPrecision
+	 *            the precision of power that can be handled by the inverter.
+	 *            Example: if this parameter is '100' it shows that the inverter is
+	 *            only capable to handle a precision of 100 W - and not 50 W. The
+	 *            onWriteListener is called with an appropriately rounded value for
+	 *            active and reactive power.
+	 * @param onWriteListener
+	 *            callback for setting active and reactive power
+	 */
+	public SymmetricPower(SymmetricEss parent, int maxApparentPower, int powerPrecision,
+			BiConsumer<Integer, Integer> onWriteListener) {
 		if (maxApparentPower < 0) {
 			throw new IllegalArgumentException("MaxApprentPower [" + maxApparentPower + "] must be positive!");
 		}
 		this.parent = parent;
+		this.powerPrecision = powerPrecision;
 		this.maxApparentPower = maxApparentPower;
 		this.geometries = new ArrayList<>();
 		this.onWriteListener = onWriteListener;
@@ -240,13 +259,38 @@ public class SymmetricPower {
 			 */
 			int activePowerDelta = (int) c.x - this.lastActivePower + 1 /* add 1 to avoid rounding issues */;
 			int reactivePowerDelta = (int) c.y - this.lastReactivePower + 1 /* add 1 to avoid rounding issues */;
-			this.lastActivePower += activePowerDelta / 2;
-			this.lastReactivePower += reactivePowerDelta / 2;
+			int activePower = this.lastActivePower + activePowerDelta / 2;
+			int reactivePower = this.lastReactivePower + reactivePowerDelta / 2;
+			/*
+			 * round values to required accuracy by inverter; following this logic:
+			 * 
+			 * On Discharge (Power > 0) if SoC > 50 %: round up (more discharge) if SoC < 50
+			 * %: round down (less discharge)
+			 * 
+			 * On Charge (Power < 0) if SoC > 50 %: round down (less charge) if SoC < 50 %:
+			 * round up (more discharge)
+			 */
+			boolean roundUp = false;
+			Optional<Integer> socOpt = this.parent.getSoc().value().asOptional();
+			if (socOpt.isPresent()) {
+				int soc = socOpt.get();
+				if (activePower > 0 && soc > 50 || activePower < 0 && soc < 50) {
+					roundUp = true;
+				}
+			}
+			activePower = (int) ((Math.floor(activePower / powerPrecision) + (roundUp ? 1 : 0)) * powerPrecision);
+			reactivePower = (int) ((Math.floor(reactivePower / powerPrecision) + (roundUp ? 1 : 0)) * powerPrecision);
+
 			// set debug channels on parent
-			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(this.lastActivePower);
-			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER).setNextValue(this.lastReactivePower);
+			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(activePower);
+			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER).setNextValue(reactivePower);
+
 			// call listener
-			this.onWriteListener.accept(this.lastActivePower, this.lastReactivePower);
+			this.onWriteListener.accept(activePower, reactivePower);
+
+			// store for next call
+			this.lastActivePower = activePower;
+			this.lastReactivePower = reactivePower;
 		}
 	}
 
