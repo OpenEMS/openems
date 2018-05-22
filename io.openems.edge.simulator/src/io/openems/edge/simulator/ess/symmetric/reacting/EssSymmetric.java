@@ -67,7 +67,7 @@ public class EssSymmetric extends AbstractOpenemsComponent implements SymmetricE
 		/*
 		 * Initialize Power
 		 */
-		this.power = new SymmetricPower(config.maxApparentPower(), //
+		this.power = new SymmetricPower(this, config.maxApparentPower(), //
 				(activePower, reactivePower) -> {
 					/*
 					 * calculate State of charge

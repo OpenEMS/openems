@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
@@ -43,9 +42,9 @@ public class EssUtils {
 					return null;
 				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
-					case SET_ACTIVE_POWER:
-					case SET_REACTIVE_POWER:
-						return new IntegerWriteChannel(c, channelId);
+					case DEBUG_SET_ACTIVE_POWER:
+					case DEBUG_SET_REACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
 				}) //

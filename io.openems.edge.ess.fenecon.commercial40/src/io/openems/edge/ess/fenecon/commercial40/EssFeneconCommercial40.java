@@ -85,7 +85,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		/*
 		 * Initialize Power
 		 */
-		this.power = new SymmetricPower(EssFeneconCommercial40.MAX_APPARENT_POWER, //
+		this.power = new SymmetricPower(this, EssFeneconCommercial40.MAX_APPARENT_POWER, //
 				(activePower, reactivePower) -> {
 					/*
 					 * Apply Active/Reactive power

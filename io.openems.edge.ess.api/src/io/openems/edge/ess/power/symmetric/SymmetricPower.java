@@ -17,10 +17,12 @@ import com.vividsolutions.jts.operation.distance.GeometryLocation;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import io.openems.edge.ess.power.PowerException;
+import io.openems.edge.ess.symmetric.api.SymmetricEss;
 
 public class SymmetricPower {
 
 	private final Logger log = LoggerFactory.getLogger(SymmetricPower.class);
+	private final SymmetricEss parent;
 	private final List<Geometry> geometries;
 	private final BiConsumer<Integer, Integer> onWriteListener;
 
@@ -31,10 +33,11 @@ public class SymmetricPower {
 	private Optional<Integer> maxQ;
 	private int maxApparentPower = 0;
 
-	public SymmetricPower(int maxApparentPower, BiConsumer<Integer, Integer> onWriteListener) {
+	public SymmetricPower(SymmetricEss parent, int maxApparentPower, BiConsumer<Integer, Integer> onWriteListener) {
 		if (maxApparentPower < 0) {
 			throw new IllegalArgumentException("MaxApprentPower [" + maxApparentPower + "] must be positive!");
 		}
+		this.parent = parent;
 		this.maxApparentPower = maxApparentPower;
 		this.geometries = new ArrayList<>();
 		this.onWriteListener = onWriteListener;
@@ -239,6 +242,9 @@ public class SymmetricPower {
 			int reactivePowerDelta = (int) c.y - this.lastReactivePower + 1 /* add 1 to avoid rounding issues */;
 			this.lastActivePower += activePowerDelta / 2;
 			this.lastReactivePower += reactivePowerDelta / 2;
+			// set debug channels on parent
+			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(this.lastActivePower);
+			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER).setNextValue(this.lastReactivePower);
 			// call listener
 			this.onWriteListener.accept(this.lastActivePower, this.lastReactivePower);
 		}

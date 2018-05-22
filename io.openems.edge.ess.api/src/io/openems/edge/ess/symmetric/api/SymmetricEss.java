@@ -13,31 +13,32 @@ public interface SymmetricEss extends SymmetricEssReadonly {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
-		 * Set Active Power
+		 * Holds settings of Active Power for debugging
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
-		 * <li>Writable
+		 * <li>Interface: Symmetric Ess
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge
+		 * <li>Implementation Note: value is automatically written by SymmetricPower
+		 * just before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		SET_ACTIVE_POWER(new Doc().isWritable().type(OpenemsType.INTEGER).unit(Unit.WATT)
-				.text("negative values for Charge; positive for Discharge")), //
+		DEBUG_SET_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
-		 * Set Reactive Power
+		 * Holds settings of Reactive Power for debugging
 		 * 
 		 * <ul>
-		 * <li>Interface: Ess Symmetric
-		 * <li>Writable
+		 * <li>Interface: Symmetric Ess
 		 * <li>Type: Integer
 		 * <li>Unit: var
 		 * <li>Range: negative values for Charge; positive for Discharge
+		 * <li>Implementation Note: value is automatically written by SymmetricPower
+		 * just before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
-		SET_REACTIVE_POWER(new Doc().isWritable().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)
-				.text("negative values for Charge; positive for Discharge"));
+		DEBUG_SET_REACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE_REACTIVE)), //
+		;
 
 		private final Doc doc;
 

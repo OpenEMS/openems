@@ -11,6 +11,7 @@ import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.symmetric.api.SymmetricEss;
 import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
 public class Utils {
@@ -40,6 +41,13 @@ public class Utils {
 					case REACTIVE_POWER:
 					case CHARGE_REACTIVE_POWER:
 					case DISCHARGE_REACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case DEBUG_SET_ACTIVE_POWER:
+					case DEBUG_SET_REACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
