@@ -261,14 +261,22 @@ public class SymmetricPower {
 			int reactivePowerDelta = (int) c.y - this.lastReactivePower + 1 /* add 1 to avoid rounding issues */;
 			int activePower = this.lastActivePower + activePowerDelta / 2;
 			int reactivePower = this.lastReactivePower + reactivePowerDelta / 2;
-			/*
+			/**
 			 * round values to required accuracy by inverter; following this logic:
 			 * 
-			 * On Discharge (Power > 0) if SoC > 50 %: round up (more discharge) if SoC < 50
-			 * %: round down (less discharge)
+			 * On Discharge (Power > 0)
 			 * 
-			 * On Charge (Power < 0) if SoC > 50 %: round down (less charge) if SoC < 50 %:
-			 * round up (more discharge)
+			 * <ul>
+			 * <li>if SoC > 50 %: round up (more discharge)
+			 * <li>if SoC < 50 %: round down (less discharge)
+			 * </ul>
+			 * 
+			 * On Charge (Power < 0)
+			 * 
+			 * <ul>
+			 * <li>if SoC > 50 %: round down (less charge)
+			 * <li>if SoC < 50 %: round up (more discharge)
+			 * </ul>
 			 */
 			boolean roundUp = false;
 			Optional<Integer> socOpt = this.parent.getSoc().value().asOptional();
@@ -278,9 +286,10 @@ public class SymmetricPower {
 					roundUp = true;
 				}
 			}
-			activePower = (int) ((Math.floor(activePower / powerPrecision) + (roundUp ? 1 : 0)) * powerPrecision);
-			reactivePower = (int) ((Math.floor(reactivePower / powerPrecision) + (roundUp ? 1 : 0)) * powerPrecision);
-
+			activePower = (int) ((Math.floor( //
+					(activePower + (roundUp ? -0.1 : 0.1)) / powerPrecision) + (roundUp ? 1 : 0)) * powerPrecision);
+			reactivePower = (int) ((Math.floor( //
+					(reactivePower + (roundUp ? -0.1 : 0.1)) / powerPrecision) + (roundUp ? 1 : 0)) * powerPrecision);
 			// set debug channels on parent
 			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(activePower);
 			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER).setNextValue(reactivePower);
