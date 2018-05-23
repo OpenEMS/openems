@@ -27,28 +27,28 @@ public class StaticConverters {
 					return value; // impossible
 				} else if (value instanceof Short) {
 					short shortValue = (Short) value;
-					if (shortValue >= 0) {
+					if (shortValue > 0) {
 						return shortValue;
 					} else {
 						return 0;
 					}
 				} else if (value instanceof Integer) {
 					int intValue = (Integer) value;
-					if (intValue >= 0) {
+					if (intValue > 0) {
 						return intValue;
 					} else {
 						return 0;
 					}
 				} else if (value instanceof Long) {
 					long longValue = (Long) value;
-					if (longValue >= 0) {
+					if (longValue > 0) {
 						return longValue;
 					} else {
 						return 0;
 					}
 				} else if (value instanceof Float) {
 					float floatValue = (Float) value;
-					if (floatValue >= 0) {
+					if (floatValue > 0) {
 						return floatValue;
 					} else {
 						return 0;

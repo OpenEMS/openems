@@ -25,6 +25,7 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 	}
 
 	private static Object apply(Object value, int scaleFactor) {
+		double factor = Math.pow(10, scaleFactor * -1);
 		if (value == null) {
 			return null;
 		}
@@ -43,16 +44,34 @@ public class ElementToChannelScaleFactorConverter extends ElementToChannelConver
 					return (boolean) value;
 				}
 				if (value instanceof Short) {
-					return (short) ((short) value * Math.pow(10, scaleFactor * -1));
+					double result = ((Short) value) * factor;
+					if (result >= Short.MIN_VALUE && result <= Short.MAX_VALUE) {
+						return Short.valueOf((short) result);
+					} else if (result > Integer.MIN_VALUE && result < Integer.MAX_VALUE) {
+						return Integer.valueOf((int) result);
+					} else {
+						return Double.valueOf(Math.round(result));
+					}
 				}
 				if (value instanceof Integer) {
-					return (int) ((int) value * Math.pow(10, scaleFactor * -1));
+					double result = ((Integer) value) * factor;
+					if (result >= Integer.MIN_VALUE && result <= Integer.MAX_VALUE) {
+						return Integer.valueOf((int) result);
+					} else {
+						return Double.valueOf(Math.round(result));
+					}
 				}
 				if (value instanceof Long) {
-					return (long) ((long) value * Math.pow(10, scaleFactor * -1));
+					double result = ((Long) value) * factor;
+					return Math.round(result);
 				}
 				if (value instanceof Float) {
-					return (float) ((float) value * Math.pow(10, scaleFactor * -1));
+					double result = ((Float) value) * factor;
+					if (result >= Float.MIN_VALUE && result <= Float.MAX_VALUE) {
+						return Float.valueOf((float) result);
+					} else {
+						return Double.valueOf(result);
+					}
 				}
 				if (value instanceof String) {
 					return (String) value;

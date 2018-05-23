@@ -66,28 +66,37 @@ public class ElementToChannelConverter {
 			KEEP_POSITIVE);
 
 	/**
-	 * Applies SCALE_FACTOR_1 and CONVERT_POSITIVE
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_1} and CONVERT_POSITIVE
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_1_AND_CONVERT_POSITIVE = new ElementToChannelConverterChain(
+	public final static ElementToChannelConverter SCALE_FACTOR_1_AND_KEEP_POSITIVE = new ElementToChannelConverterChain(
 			SCALE_FACTOR_1, KEEP_POSITIVE);
 
 	/**
-	 * Applies SCALE_FACTOR_1 and CONVERT_NEGATIVE_AND_INVERT
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_1} and
+	 * CONVERT_NEGATIVE_AND_INVERT
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_1_AND_CONVERT_NEGATIVE_INVERT = new ElementToChannelConverterChain(
+	public final static ElementToChannelConverter SCALE_FACTOR_1_AND_KEEP_NEGATIVE_AND_INVERT = new ElementToChannelConverterChain(
 			SCALE_FACTOR_1, KEEP_NEGATIVE_AND_INVERT);
 
 	/**
-	 * Applies SCALE_FACTOR_2 and CONVERT_POSITIVE
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and CONVERT_POSITIVE
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_2_AND_CONVERT_POSITIVE = new ElementToChannelConverterChain(
+	public final static ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_POSITIVE = new ElementToChannelConverterChain(
 			SCALE_FACTOR_2, KEEP_POSITIVE);
 
 	/**
-	 * Applies SCALE_FACTOR_2 and CONVERT_NEGATIVE_AND_INVERT
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2} and @see
+	 * {@link ElementToChannelConverter#KEEP_NEGATIVE_AND_INVERT}
 	 */
-	public final static ElementToChannelConverter SCALE_FACTOR_2_AND_CONVERT_NEGATIVE_INVERT = new ElementToChannelConverterChain(
+	public final static ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE_AND_INVERT = new ElementToChannelConverterChain(
 			SCALE_FACTOR_2, KEEP_NEGATIVE_AND_INVERT);
+
+	/**
+	 * Applies {@link ElementToChannelConverter#SCALE_FACTOR_2_AND_KEEP_NEGATIVE}
+	 * and @see {@link ElementToChannelConverter#INVERT}
+	 */
+	public final static ElementToChannelConverter SCALE_FACTOR_2_AND_KEEP_NEGATIVE = new ElementToChannelConverterChain(
+			SCALE_FACTOR_2_AND_KEEP_NEGATIVE_AND_INVERT, INVERT);
 
 	private final Function<Object, Object> elementToChannel;
 	private final Function<Object, Object> channelToElement;

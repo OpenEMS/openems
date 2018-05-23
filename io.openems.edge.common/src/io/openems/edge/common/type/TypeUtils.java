@@ -63,6 +63,7 @@ public class TypeUtils {
 					throw new IllegalArgumentException("Cannot convert Float [" + value + "] to Short");
 				}
 			}
+			break;
 
 		case INTEGER:
 			if (value == null) {
@@ -90,6 +91,7 @@ public class TypeUtils {
 			} else if (value instanceof Float) {
 				return (T) (Integer) ((Float) value).intValue();
 			}
+			break;
 
 		case LONG:
 			if (value == null) {
@@ -111,6 +113,7 @@ public class TypeUtils {
 			} else if (value instanceof Float) {
 				return (T) (Long) ((Float) value).longValue();
 			}
+			break;
 
 		case FLOAT:
 			if (value == null) {
@@ -137,6 +140,7 @@ public class TypeUtils {
 			} else if (value instanceof Float) {
 				return (T) (Float) value;
 			}
+			break;
 
 		case STRING:
 			if (value == null) {
