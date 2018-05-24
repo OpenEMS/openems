@@ -19,8 +19,8 @@ public class EdgeApp {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeApp.class);
 
-	// public final static String OPENEMS_VERSION = "2018.6.0";
-	public final static String OPENEMS_VERSION = "2018.0.0-OSGI-SNAPSHOT";
+	public final static String OPENEMS_VERSION = "2018.7.0";
+	// public final static String OPENEMS_VERSION = "2018.8.0-SNAPSHOT";
 
 	@Reference
 	ConfigurationAdmin cm;
