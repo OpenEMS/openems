@@ -1,0 +1,125 @@
+= OpenEMS: Open Energy Management System
+include::_include/header.adoc[]
+
+== Introduction
+
+OpenEMS is a modular platform for energy management applications.
+It was developed around the requirements of controlling, monitoring and integrating energy storage systems together with renewable energy sources and complementary devices and services.
+
+=== OpenEMS IoT stack
+
+The OpenEMS 'Internet of Things' stack contains three main components:
+
+ * **OpenEMS Edge** runs on site and actually controls the devices
+ * **OpenEMS UI** is the generic user interface
+ * **OpenEMS Backend** runs on a (cloud) server, connects the decentralized Edge systems and provides aggregation, monitoring and control via internet
+
+=== Features
+
+The OpenEMS software architecture was designed to leverage some features that are required by a modern and flexible Energy Management System:
+
+ * Fast, PLC-like control of battery inverters and other devices
+ * Easily extendable due to the use of modern programming languages and modular architecture
+ * Wide range of supported devices - (battery) inverters, meters, etc. - and protocols
+ * Modern web-based real-time user interface
+
+.Screenshots of OpenEMS UI
+image::ui-screenshots.png[Screenshots of OpenEMS UI]
+.Screenshots of OpenEMS UI
+image::ui-screenshots2.png[Screenshots of OpenEMS UI]
+
+=== Open Source philosophy
+
+OpenEMS development was started by https://www.fenecon.de[FENECON GmbH icon:external-link[]], a German company specialized in manufacturing and project development of energy storage systems. It is the software stack behind https://fenecon.de/page/fems[FEMS - FENECON Energy Management System icon:external-link[]] and widely used in private, commercial and industrial applications.
+
+We are inviting third parties - like universities, hardware manufacturers, software companies, commercial and private owners,... - to use OpenEMS for their own projects and are glad to support them with their first steps. In any case if you are interested in OpenEMS our development team would be glad to hear from you at fems@fenecon.de.
+
+OpenEMS is funded by several federal and EU funding projects. If you are a developer and you would like to get hired by one of the partner companies or universities for working on OpenEMS, please send your motivation letter to fems@fenecon.de.
+
+=== License
+
+* OpenEMS Edge 
+* OpenEMS Backend
+
+Copyright (C) 2016-2018 FENECON GmbH.
+
+This product includes software developed at FENECON GmbH: you can
+redistribute it and/or modify it under the terms of the [Eclipse Public License version 2.0](LICENSE-EPL-2.0). 
+
+ * OpenEMS UI
+
+Copyright (C) 2016-2018 FENECON GmbH.
+
+This product includes software developed at FENECON GmbH: you can
+redistribute it and/or modify it under the terms of the [GNU Affero General Public License version 3](LICENSE-AGPL-3.0).
+
+=== Development guidelines
+
+Development follows the https://de.wikipedia.org/wiki/Agile_Softwareentwicklung[Agile Manifesto icon:external-link[]] and is driven by the https://de.wikipedia.org/wiki/Scrum[Scrum icon:external-link[]] methodology. 
+The source code is available online at http://openems.io and on https://github.com/OpenEMS/openems[GitHub icon:github[]]. 
+New versions are released after every Scrum Sprint and https://github.com/OpenEMS/openems/releases[tagged icon:github[]] accordingly. 
+Version numbers are built using the pattern `year.number of sprint`, e.g. version `2018.4` is the result of the fourth sprint in 2018. 
+Git development follows the https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow[Gitflow Workflow], so the https://github.com/OpenEMS/openems/tree/master/[master branch icon:github[]] always holds the stable release, while active development is happening on the https://github.com/OpenEMS/openems/tree/develop[develop branch icon:github[]] or in separate feature branches.
+
+For Edge and Backend Java development we recommend the https://www.eclipse.org/ide/[Eclipse IDE icon:external-link[]].
+For the UI (TypeScript + Angular.io) we recommend https://code.visualstudio.com/[Visual Studio Code icon:external-link[]]. 
+The documentation is generated using http://asciidoc.org[AsciiDoc icon:external-link[]]. 
+For handling git we recommend https://www.sourcetreeapp.com/[Sourctree by Atlassian icon:external-link[]].
+
+=== System architecture
+
+OpenEMS is generally used in combination with external hardware and software components
+(the exception is a simulated development environment - see [Getting Started](https://github.com/OpenEMS/openems/blob/old_master/README.md#get-started)). 
+As a brief overview, this is how OpenEMS is used in production setups:
+
+.OpenEMS system architecture
+image::system-architecture.png[OpenEMS system architecture]
+
+== Getting Started
+
+This quick 'Getting Started' should help you setup up a complete development environment. On finishing you will have a working instance of OpenEMS Edge, with simulated energy storage and photovoltaic system, as well as an OpenEMS UI for monitoring the simulator inside your web browser.
+
+=== Download the source code
+
+. Download any https://git-scm.com[git client icon:external-link[]] and install it. Our recommendation is https://www.sourcetreeapp.com/[Sourctree by Atlassian icon:external-link[]]
+
+. Clone the OpenEMS git repository
+
+.. In Sourcetree:
+
+... press btn:[File] -> btn:[Clone]
+... enter the git repository path `https://github.com/OpenEMS/openems.git`
+... select a target directory, for example `C:\Users\your.user\git\openems`
+... and press btn:[Clone].
+// TODO +
+
+.Cloning the git repository using Sourcetree
+image::sourcetree.png[Cloning the git repository using Sourcetree]
+
+.. Alternatively: with the git command line utility
+
+... open a console
+... change to the target directory
+... execute `git clone https://github.com/OpenEMS/openems.git`
+
+. Git is downloading the complete source code for you.
+
+=== Setup Eclipse IDE for OpenEMS Edge and Backend
+
+. Prepare Eclipse IDE
+.. Download https://www.eclipse.org[Eclipse for Java icon:external-link[]], install and start it
+.. On first start you will get asked to create a workspace.
+Select a directory - for example `C:\Users\your.user\git\openems-workspace` - and press btn:[Lauch]. _The directory needs to be different from your source code directory selected above._
+//TODO +
+// .Creating a workspace in Eclipse IDE
+// image::eclipse-workspace.png[Creating a workspace in Eclipse IDE]
+
+.. Install http://bndtools.org[BndTools icon:external-link[]] in Eclipse:
++
+Menu: btn:[Help] →  btn:[Eclipse Marketplace...] → btn:[Find:] → enter btn:[Bndtools] → press btn:[Install]
+
+. Import OpenEMS component projects (OSGi bundles):
++
+Menu: btn:[File] →  btn:[Import...] → btn:[Bndtools] → btn:[Existing Bnd Workspace] → Root directory: btn:[Browse...] → select the directory with the source code - for example `C:\Users\your.user\git\openems` → btn:[OK] → btn:[Finish] → "Switch to Bndtools perspective?" btn:[yes] 
+
+. Eclipse should have successfully built OpenEMS Edge and Backend.
