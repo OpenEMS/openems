@@ -1,5 +1,3 @@
-Service-Component: *
-
 Bundle-Name: jSerialComm
 Bundle-Description: Platform-independent serial port access for Java
 Bundle-DocURL: https://github.com/Fazecast/jSerialComm
@@ -8,10 +6,7 @@ Bundle-Version: 2.0.2
 
 Include-Resource: @jSerialComm-2.0.2.jar
 
-
 -noee=true
-
-#Require-Capability: osgi.ee;filter:="()"
 
 -exportcontents: \
 	com.fazecast.jSerialComm

@@ -1,5 +1,3 @@
-Service-Component: *
-
 Bundle-Name: j2mod
 Bundle-Description: Enhanced Modbus library implemented in the Java programming language
 Bundle-DocURL: https://github.com/steveohara/j2mod
