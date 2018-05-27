@@ -182,9 +182,9 @@ export class Utils {
   // TODO
   // public meta(identifier: string, type: 'controller' | 'channel'): {} {
   //   let property = type == 'controller' ? 'availableControllers' : type;
-  //   let device = this.websocket.currentDevice;
-  //   if (device) {
-  //     let config = device.config.getValue();
+  //   let edge = this.websocket.currentEdge;
+  //   if (edge) {
+  //     let config = edge.config.getValue();
   //     let meta = config._meta[property];
   //     if (identifier in meta) {
   //       return (meta[identifier]);

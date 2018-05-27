@@ -1,8 +1,0 @@
-<div *ngIf="things" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
-  <div fxFlex="100%" *ngFor="let thingId of things">
-    <existingthing [thingId]="thingId" [device]="device" [showSubThings]="showSubThings"></existingthing>
-    <ng-container *ngFor="let deviceId of config.things[thingId].devices">
-      <existingthing [thingId]="deviceId" [device]="device" [showSubThings]="showSubThings"></existingthing>
-    </ng-container>
-  </div>
-</div>

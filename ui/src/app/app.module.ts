@@ -8,7 +8,7 @@ import { environment } from '../environments';
 import { SharedModule } from './shared/shared.module';
 import { AboutModule } from './about/about.module';
 import { OverviewModule } from './overview/overview.module';
-import { DeviceModule } from './device/device.module';
+import { EdgeModule } from './edge/edge.module';
 import { ConfigModule } from './config/config.module';
 
 // components
@@ -23,7 +23,7 @@ import { MyTranslateLoader } from './shared/translate/translate';
     BrowserModule,
     SharedModule,
     AboutModule,
-    DeviceModule,
+    EdgeModule,
     ConfigModule,
     OverviewModule,
     TranslateModule.forRoot({

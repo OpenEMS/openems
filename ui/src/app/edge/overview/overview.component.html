@@ -1,0 +1,13 @@
+<div fxLayoutAlign="start start" fxLayoutWrap="wrap">
+  <energymonitor fxFlex.lt-md="100%" fxFlex.md="66%" fxFlex.gt-md="33%" [currentData]="currentData"></energymonitor>
+  <energytable fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%" [currentData]="currentData" [config]="config" fxFlex="100%"></energytable>
+  <div fxFlex.lt-md="100%" fxFlex.md="50%" fxFlex.gt-md="33%" fxLayoutAlign="start start" fxLayoutWrap="wrap">
+    <history fxFlex="100%" [edge]="edge" [config]="config"></history>
+    <ng-container *ngFor="let widget of widgets">
+      <evcs *ngIf="widget == 'EVCS'" fxFlex="100%" [edge]="edge" [currentData]="currentData" [config]="config"></evcs>
+    </ng-container>
+    <state fxFlex="100%" (requiredSubscribes)="onRequiredSubscribes('state', $event)" [currentData]="currentData" [config]="config"></state>
+  </div>
+  <!-- TODO -->
+  <!-- <fieldstatus [currentData]="currentData" [fielddefinition]="customFields"></fieldstatus> -->
+</div>

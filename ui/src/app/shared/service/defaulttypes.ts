@@ -94,7 +94,7 @@ export module DefaultTypes {
     }
   }
 
-  export interface MessageMetadataDevice {
+  export interface MessageMetadataEdge {
     id: number,
     name: string,
     comment: string,

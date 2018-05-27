@@ -56,7 +56,7 @@
       </mat-card>
     </form>
 
-    <!-- List of devices -->
+    <!-- List of edges -->
     <ng-container *ngIf="env.backend === 'OpenEMS Backend' && websocket.status == 'online'">
       <mat-card class="single">
         <mat-card-content fxLayout fxLayoutWrap="wrap">
@@ -66,29 +66,29 @@
         </mat-card-content>
       </mat-card>
     </ng-container>
-    <ng-container *ngFor="let device of utils.values(websocket.devices | async)">
-      <ng-container *ngIf="env.backend === 'OpenEMS Edge' || device.name.toLowerCase().includes(filter.value.filter.toLowerCase()) || device.comment.toLowerCase().includes(filter.value.filter.toLowerCase())">
+    <ng-container *ngFor="let edge of utils.values(websocket.edges | async)">
+      <ng-container *ngIf="env.backend === 'OpenEMS Edge' || edge.name.toLowerCase().includes(filter.value.filter.toLowerCase()) || edge.comment.toLowerCase().includes(filter.value.filter.toLowerCase())">
         <mat-card class="single">
           <mat-card-header>
-            <mat-icon *ngIf="device.online" mat-card-avatar color="primary">folder</mat-icon>
-            <mat-icon *ngIf="!device.online" mat-card-avatar>error</mat-icon>
+            <mat-icon *ngIf="edge.online" mat-card-avatar color="primary">folder</mat-icon>
+            <mat-icon *ngIf="!edge.online" mat-card-avatar>error</mat-icon>
             <mat-card-title *ngIf="env.backend === 'OpenEMS Edge'" translate>Overview.ToEnergymonitor</mat-card-title>
             <mat-card-title *ngIf="env.backend === 'OpenEMS Backend'">
-              <span>{{ device.comment }}
-                <span *ngIf="!device.online">
+              <span>{{ edge.comment }}
+                <span *ngIf="!edge.online">
                   <br/>
                   <span translate>Overview.IsOffline</span>
                 </span>
               </span>
             </mat-card-title>
             <mat-card-subtitle>
-              <p *ngIf="env.backend === 'OpenEMS Backend'">{{ device.name }}: {{ device.producttype }}</p>
-              <p>Angemeldet als '{{ device.role }}'.</p>
+              <p *ngIf="env.backend === 'OpenEMS Backend'">{{ edge.name }}: {{ edge.producttype }}</p>
+              <p>Angemeldet als '{{ edge.role }}'.</p>
               <!-- TODO translate -->
             </mat-card-subtitle>
           </mat-card-header>
-          <mat-card-actions fxLayout fxLayoutAlign="end start" *ngIf="device.online">
-            <button type="button" mat-fab routerLink="/device/{{ device.name }}">
+          <mat-card-actions fxLayout fxLayoutAlign="end start" *ngIf="edge.online">
+            <button type="button" mat-fab routerLink="/device/{{ edge.name }}">
               <mat-icon>navigate_next</mat-icon>
             </button>
           </mat-card-actions>

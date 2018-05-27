@@ -1,0 +1,47 @@
+<div *ngIf="edge" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
+  <div fxFlex="100%">
+    <mat-card class="single">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>code</mat-icon>
+        <mat-card-title>System-Log</mat-card-title>
+        <mat-card-subtitle>{{ edge.name }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content fxLayout fxLayoutWrap="wrap">
+        <div fxFlex="100%">
+          <mat-input-container fxFlex>
+            <input type="text" #filter placeholder="Filter" value="" matInput>
+          </mat-input-container>
+          <mat-slide-toggle fxFlex="300px" (change)="toggleSubscribe($event)" [checked]="isSubscribed">
+            <span translate>Edge.Config.Log.AutomaticUpdating</span>
+          </mat-slide-toggle>
+        </div>
+        <table fxFlex="100%" class="full_width">
+          <tr>
+            <th>
+              <span translate>Edge.Config.Log.Timestamp</span>
+            </th>
+            <th>
+              <span translate>Edge.Config.Log.Level</span>
+            </th>
+            <th>
+              <span translate>Edge.Config.Log.Source</span>
+            </th>
+            <th>
+              <span translate>Edge.Config.Log.Message</span>
+            </th>
+          </tr>
+          <ng-container *ngFor="let log of logs">
+            <ng-container *ngIf="log.level.includes(filter.value) || log.source.includes(filter.value) || log.message.includes(filter.value)">
+              <tr style="font-family: monospace" [style.color]="log.color">
+                <td>{{ log.time }}</td>
+                <td>{{ log.level }}</td>
+                <td style="word-break: break-all">{{ log.source }}</td>
+                <td>{{ log.message }}</td>
+              </tr>
+            </ng-container>
+          </ng-container>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

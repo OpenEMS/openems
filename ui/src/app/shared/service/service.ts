@@ -4,7 +4,7 @@ import { Subject } from 'rxjs/Subject';
 import { Cookie } from 'ng2-cookies';
 
 import { Websocket } from './websocket';
-import { Device } from '../device/device';
+import { Edge } from '../edge/edge';
 import { DefaultTypes } from './defaulttypes';
 
 @Injectable()

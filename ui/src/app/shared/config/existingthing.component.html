@@ -11,7 +11,7 @@
     </mat-card-header>
     <mat-card-content fxLayout fxLayoutWrap="wrap">
         <ng-container *ngFor="let channelId of utils.keys(meta.channels)">
-            <channel [thingId]="thingId" [channelId]="channelId" [config]="config" [role]="role" [device]="device" [showThings]="showSubThings"
+            <channel [thingId]="thingId" [channelId]="channelId" [config]="config" [role]="role" [edge]="edge" [showThings]="showSubThings"
                 fxFlex="100%"></channel>
         </ng-container>
         <!-- Special cases -->
