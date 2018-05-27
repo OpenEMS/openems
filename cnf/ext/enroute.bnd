@@ -9,7 +9,6 @@ javac.source: 			1.8
 javac.target: 			1.8
 -runee:					JavaSE-1.8
 
-Service-Component: 		*
 -dsannotations: 		*
 -metatypeannotations:	*
 -contract:				*

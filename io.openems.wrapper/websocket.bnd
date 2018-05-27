@@ -1,6 +1,5 @@
 -dsannotations: *
 -metatypeannotations: *
-Service-Component: *
 
 Bundle-DocURL: https://github.com/TooTallNate/Java-WebSocket
 Bundle-License: https://github.com/TooTallNate/Java-WebSocket/blob/8ef67b46ecc927d5521849dcc2d85d10f9789c20/LICENSE
