@@ -214,6 +214,7 @@ export class Websocket {
               edge.name,
               edge.comment,
               edge.producttype,
+              ("version" in edge) ? edge["version"] : "0.0.0",
               Role.getRole(edge.role),
               edge.online,
               replyStream,

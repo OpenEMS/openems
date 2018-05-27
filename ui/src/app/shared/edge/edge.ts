@@ -5,6 +5,7 @@ import { Observer } from 'rxjs/Observer';
 import { Observable } from 'rxjs/Observable';
 import { UUID } from 'angular2-uuid';
 import 'rxjs/add/operator/combineLatest';
+import { cmp } from 'semver-compare-multi';
 
 import { Websocket } from '../shared';
 import { ConfigImpl } from './config';
@@ -30,6 +31,7 @@ export class Edge {
     public readonly name: string,
     public readonly comment: string,
     public readonly producttype: string,
+    public readonly version: string,
     public readonly role: Role,
     public online: boolean,
     private replyStreams: { [messageId: string]: Subject<DefaultMessages.Reply> },
@@ -181,5 +183,16 @@ export class Edge {
         resolve(output);
       });
     })
+  }
+
+  /**
+   * Returns whether the given version is higher than the Edge' version
+   * 
+   * Example: {{ edge.isVersionAtLeast('2018.9') }}
+   * 
+   * @param version 
+   */
+  public isVersionAtLeast(version: string): boolean {
+    return cmp(this.version, version) >= 0;
   }
 }
