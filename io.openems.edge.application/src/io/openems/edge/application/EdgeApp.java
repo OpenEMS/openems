@@ -12,6 +12,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import info.faljse.SDNotify.SDNotify;
 import io.openems.common.OpenemsConstants;
 
@@ -25,7 +27,11 @@ public class EdgeApp {
 
 	@Activate
 	void activate() {
-		log.info("OpenEMS version [" + OpenemsConstants.OPENEMS_VERSION + "] started");
+		String message = "OpenEMS version [" + OpenemsConstants.OPENEMS_VERSION + "] started";
+		String line = Strings.repeat("=", message.length());
+		log.info(line);
+		log.info(message);
+		log.info(line);
 
 		Configuration config;
 		try {

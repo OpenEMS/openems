@@ -2,7 +2,9 @@ package io.openems.backend.metadata.api;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Optional;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 import com.google.gson.JsonObject;
 
@@ -10,6 +12,7 @@ public class Edge {
 	private final int id;
 	private String name;
 	private String comment;
+	private String version;
 	private String producttype;
 	private JsonObject jConfig;
 	private ZonedDateTime lastMessage = null;
@@ -18,10 +21,11 @@ public class Edge {
 	private String ipv4 = null;
 	private boolean isOnline;
 
-	public Edge(int id, String name, String comment, String producttype, JsonObject jConfig) {
+	public Edge(int id, String name, String comment, String version, String producttype, JsonObject jConfig) {
 		this.id = id;
 		this.name = name;
 		this.comment = comment;
+		this.version = version;
 		this.producttype = producttype;
 		this.jConfig = jConfig;
 	}
@@ -41,21 +45,12 @@ public class Edge {
 		this.isOnline = isOnline;
 	}
 
-	private Optional<OnSetJsonObject> onSetConfig = Optional.empty();
-
-	public void onSetConfig(OnSetJsonObject listener) {
-		this.onSetConfig = Optional.of(listener);
-	}
-
-	public void setConfig(JsonObject jConfig) {
-		this.jConfig = jConfig;
-		if (this.onSetConfig.isPresent()) {
-			this.onSetConfig.get().call(jConfig);
-		}
-	}
-
 	public JsonObject getConfig() {
 		return this.jConfig;
+	}
+
+	public String getVersion() {
+		return version;
 	}
 
 	public String getProducttype() {
@@ -71,6 +66,7 @@ public class Edge {
 		j.addProperty("id", this.id);
 		j.addProperty("name", this.name);
 		j.addProperty("comment", this.comment);
+		j.addProperty("version", this.version);
 		j.addProperty("producttype", this.producttype);
 		j.addProperty("online", this.isOnline);
 		return j;
@@ -82,55 +78,105 @@ public class Edge {
 				+ ", isOnline=" + isOnline + "]";
 	}
 
-	private Optional<OnSetZonedDateTime> onSetLastMessage = Optional.empty();
+	/*
+	 * Config
+	 */
+	private final List<Consumer<JsonObject>> onSetConfig = new CopyOnWriteArrayList<>();
 
-	public void onSetLastMessage(OnSetZonedDateTime listener) {
-		this.onSetLastMessage = Optional.of(listener);
+	public void onSetConfig(Consumer<JsonObject> listener) {
+		this.onSetConfig.add(listener);
+	}
+
+	public void setConfig(JsonObject jConfig) {
+		if (!jConfig.equals(this.jConfig)) { // on change
+			this.jConfig = jConfig;
+			this.onSetConfig.forEach(listener -> listener.accept(jConfig));
+		}
+	}
+
+	/*
+	 * Last Message
+	 */
+	private final List<Runnable> onSetLastMessage = new CopyOnWriteArrayList<>();
+
+	public void onSetLastMessage(Runnable listener) {
+		this.onSetLastMessage.add(listener);
 	}
 
 	public void setLastMessage() {
-		this.lastMessage = ZonedDateTime.now(ZoneOffset.UTC);
-		if (this.onSetLastMessage.isPresent()) {
-			this.onSetLastMessage.get().call(this.lastMessage);
-		}
+		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+		this.lastMessage = now;
+		this.onSetLastMessage.forEach(listener -> listener.run());
 	}
 
-	private Optional<OnSetZonedDateTime> onSetLastUpdate = Optional.empty();
+	public ZonedDateTime getLastMessage() {
+		return lastMessage;
+	}
 
-	public void onSetLastUpdate(OnSetZonedDateTime listener) {
-		this.onSetLastUpdate = Optional.of(listener);
+	/*
+	 * Last Update
+	 */
+	private final List<Runnable> onSetLastUpdate = new CopyOnWriteArrayList<>();
+
+	public void onSetLastUpdate(Runnable listener) {
+		this.onSetLastUpdate.add(listener);
 	}
 
 	public void setLastUpdate() {
-		this.lastUpdate = ZonedDateTime.now(ZoneOffset.UTC);
-		if (this.onSetLastUpdate.isPresent()) {
-			this.onSetLastUpdate.get().call(this.lastUpdate);
+		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+		this.lastUpdate = now;
+		this.onSetLastUpdate.forEach(listener -> listener.run());
+	}
+
+	public ZonedDateTime getLastUpdate() {
+		return lastUpdate;
+	}
+
+	/*
+	 * Version
+	 */
+	private final List<Consumer<String>> onSetVersion = new CopyOnWriteArrayList<>();
+
+	public void onSetVersion(Consumer<String> listener) {
+		this.onSetVersion.add(listener);
+	}
+
+	public void setVersion(String version) {
+		if (!version.equals(this.version)) { // on change
+			this.version = version;
+			this.onSetVersion.forEach(listener -> listener.accept(version));
 		}
 	}
 
-	private Optional<OnSetInteger> onSetSoc = Optional.empty();
+	/*
+	 * State of Charge (SoC)
+	 */
+	private final List<Consumer<Integer>> onSetSoc = new CopyOnWriteArrayList<>();
 
-	public void onSetSoc(OnSetInteger listener) {
-		this.onSetSoc = Optional.of(listener);
+	public void onSetSoc(Consumer<Integer> listener) {
+		this.onSetSoc.add(listener);
 	}
 
 	public void setSoc(int soc) {
-		this.soc = soc;
-		if (this.onSetSoc.isPresent()) {
-			this.onSetSoc.get().call(this.soc);
+		if (Integer.valueOf(soc) != this.soc) { // on change
+			this.soc = soc;
+			this.onSetSoc.forEach(listener -> listener.accept(soc));
 		}
 	}
 
-	private Optional<OnSetString> onSetIpv4 = Optional.empty();
+	/*
+	 * IPv4
+	 */
+	private final List<Consumer<String>> onSetIpv4 = new CopyOnWriteArrayList<>();
 
-	public void onSetIpv4(OnSetString listener) {
-		this.onSetIpv4 = Optional.of(listener);
+	public void onSetIpv4(Consumer<String> listener) {
+		this.onSetIpv4.add(listener);
 	}
 
 	public void setIpv4(String ipv4) {
-		this.ipv4 = ipv4;
-		if (this.onSetIpv4.isPresent()) {
-			this.onSetIpv4.get().call(this.ipv4);
+		if (!ipv4.equals(this.ipv4)) { // on change
+			this.ipv4 = ipv4;
+			this.onSetIpv4.forEach(listener -> listener.accept(ipv4));
 		}
 	}
 }

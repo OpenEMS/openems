@@ -15,6 +15,7 @@ import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.SecureRandomSingleton;
@@ -160,6 +161,7 @@ final class WebsocketApiServer extends AbstractWebsocketServer {
 		jEdge.addProperty("name", "fems0");
 		jEdge.addProperty("comment", "FEMS");
 		jEdge.addProperty("producttype", "");
+		jEdge.addProperty("version", OpenemsConstants.OPENEMS_VERSION);
 		jEdge.add("role", user.getRole().asJson());
 		jEdge.addProperty("online", true);
 		JsonArray jEdges = new JsonArray();
