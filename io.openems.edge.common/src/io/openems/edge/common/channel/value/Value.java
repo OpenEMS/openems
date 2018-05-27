@@ -37,7 +37,11 @@ public class Value<T> {
 	}
 
 	public String toString() {
-		return this.parent.channelDoc().getUnit().format(this.value, this.parent.getType());
+		if (this.value == null) {
+			return UNDEFINED_VALUE_STRING;
+		} else {
+			return this.parent.channelDoc().getUnit().format(this.value, this.parent.getType());
+		}
 	}
 
 	/**
