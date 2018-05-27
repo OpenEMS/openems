@@ -1,6 +1,8 @@
 package io.openems.edge.common.channel.doc;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import com.google.common.base.CaseFormat;
@@ -238,7 +240,7 @@ public class Doc {
 	/*
 	 * On Channel initialisation Callback
 	 */
-	private Optional<Consumer<Channel<?>>> onInitCallbackOpt = Optional.empty();
+	private final List<Consumer<Channel<?>>> onInitCallback = new CopyOnWriteArrayList<>();
 
 	/**
 	 * Provides a callback on initialisation of the actual Channel
@@ -246,12 +248,12 @@ public class Doc {
 	 * @param channel
 	 * @return
 	 */
-	public Doc onInit(Consumer<Channel<?>> channel) {
-		this.onInitCallbackOpt = Optional.ofNullable(channel);
+	public Doc onInit(Consumer<Channel<?>> callback) {
+		this.onInitCallback.add(callback);
 		return this;
 	}
 
-	public Optional<Consumer<Channel<?>>> getOnInitCallback() {
-		return onInitCallbackOpt;
+	public List<Consumer<Channel<?>>> getOnInitCallback() {
+		return onInitCallback;
 	}
 }
