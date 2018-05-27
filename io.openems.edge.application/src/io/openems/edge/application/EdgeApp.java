@@ -13,21 +13,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.faljse.SDNotify.SDNotify;
+import io.openems.common.OpenemsConstants;
 
 @Component(immediate = true)
 public class EdgeApp {
 
 	private final Logger log = LoggerFactory.getLogger(EdgeApp.class);
 
-	// public final static String OPENEMS_VERSION = "2018.7.0";
-	public final static String OPENEMS_VERSION = "2018.8.0-SNAPSHOT";
-
 	@Reference
 	ConfigurationAdmin cm;
 
 	@Activate
 	void activate() {
-		log.info("OpenEMS version [" + OPENEMS_VERSION + "] started");
+		log.info("OpenEMS version [" + OpenemsConstants.OPENEMS_VERSION + "] started");
 
 		Configuration config;
 		try {

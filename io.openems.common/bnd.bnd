@@ -9,7 +9,8 @@ Export-Package: \
 	io.openems.common.types,\
 	io.openems.common.api,\
 	io.openems.common.websocket,\
-	io.openems.common.config
+	io.openems.common.config,\
+	io.openems.common
 
 -includeresource: {readme.md}
 
