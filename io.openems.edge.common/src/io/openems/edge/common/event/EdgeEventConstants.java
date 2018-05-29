@@ -1,4 +1,4 @@
-package io.openems.edge.common.controllerexecutor;
+package io.openems.edge.common.event;
 
 public final class EdgeEventConstants {
 

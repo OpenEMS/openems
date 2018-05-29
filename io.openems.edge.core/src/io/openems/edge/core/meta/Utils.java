@@ -1,4 +1,4 @@
-package io.openems.edge.common.meta;
+package io.openems.edge.core.meta;
 
 import java.util.Arrays;
 import java.util.stream.Stream;

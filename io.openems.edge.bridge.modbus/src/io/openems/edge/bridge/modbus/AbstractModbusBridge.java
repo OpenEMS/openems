@@ -26,7 +26,7 @@ import io.openems.edge.bridge.modbus.api.task.WriteTask;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.worker.AbstractWorker;
 
 /**

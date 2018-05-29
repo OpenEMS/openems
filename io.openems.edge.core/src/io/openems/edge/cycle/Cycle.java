@@ -1,4 +1,4 @@
-package io.openems.edge.application;
+package io.openems.edge.cycle;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,14 +19,14 @@ import org.slf4j.LoggerFactory;
 
 import info.faljse.SDNotify.SDNotify;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.worker.AbstractWorker;
 import io.openems.edge.scheduler.api.Scheduler;
 
 @Component(immediate = true)
-public class ControllerExecutor extends AbstractWorker {
+public class Cycle extends AbstractWorker {
 
-	private final Logger log = LoggerFactory.getLogger(ControllerExecutor.class);
+	private final Logger log = LoggerFactory.getLogger(Cycle.class);
 
 	@Reference(policy = ReferencePolicy.STATIC)
 	private EventAdmin eventAdmin;

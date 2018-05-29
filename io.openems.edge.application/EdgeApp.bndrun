@@ -40,7 +40,8 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.api.backend)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)'
+	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)',\
+	bnd.identity;id='io.openems.edge.core'
 
 -resolve: auto
 -runbundles: \
@@ -97,4 +98,5 @@ JPM-Command:				openems-edge
 	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
-	com.google.guava;version='[23.6.0,23.6.1)'
+	com.google.guava;version='[23.6.0,23.6.1)',\
+	io.openems.edge.core;version=snapshot

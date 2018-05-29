@@ -1,4 +1,4 @@
-package io.openems.edge.application;
+package io.openems.edge.cycle;
 
 import java.util.Optional;
 import java.util.TreeMap;
