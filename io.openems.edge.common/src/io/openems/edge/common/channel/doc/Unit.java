@@ -165,6 +165,7 @@ public enum Unit {
 			case INTEGER:
 			case LONG:
 			case FLOAT:
+			case DOUBLE:
 				return this.baseUnit.formatAsBaseUnit(this.getAsBaseUnit((int) value), type);
 			case BOOLEAN:
 			case STRING:

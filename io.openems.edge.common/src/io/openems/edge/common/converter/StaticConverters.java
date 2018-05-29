@@ -22,6 +22,7 @@ public class StaticConverters {
 			case INTEGER:
 			case LONG:
 			case FLOAT:
+			case DOUBLE:
 			case STRING:
 				if (value instanceof Boolean || value instanceof String) {
 					return value; // impossible
@@ -53,6 +54,13 @@ public class StaticConverters {
 					} else {
 						return 0;
 					}
+				} else if (value instanceof Double) {
+					double doubleValue = (Double) value;
+					if (doubleValue > 0) {
+						return doubleValue;
+					} else {
+						return 0;
+					}
 				}
 			}
 			break;
@@ -77,6 +85,7 @@ public class StaticConverters {
 			case INTEGER:
 			case LONG:
 			case FLOAT:
+			case DOUBLE:
 			case STRING:
 				if (value instanceof String) {
 					return value; // impossible
@@ -90,6 +99,8 @@ public class StaticConverters {
 					return Long.valueOf((long) value * -1);
 				} else if (value instanceof Float) {
 					return Float.valueOf((float) value * -1);
+				} else if (value instanceof Double) {
+					return Double.valueOf((double) value * -1);
 				}
 			}
 			break;

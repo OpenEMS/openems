@@ -295,8 +295,8 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 					case BOOLEAN:
 						point.addField(address, (Boolean) value);
 						break;
-					case FLOAT:
-						point.addField(address, (Float) value);
+					case SHORT:
+						point.addField(address, (Short) value);
 						break;
 					case INTEGER:
 						point.addField(address, (Integer) value);
@@ -304,8 +304,11 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 					case LONG:
 						point.addField(address, (Long) value);
 						break;
-					case SHORT:
-						point.addField(address, (Short) value);
+					case FLOAT:
+						point.addField(address, (Float) value);
+						break;
+					case DOUBLE:
+						point.addField(address, (Double) value);
 						break;
 					case STRING:
 						point.addField(address, (String) value);
