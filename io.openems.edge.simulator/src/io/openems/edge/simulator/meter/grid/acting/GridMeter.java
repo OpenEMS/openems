@@ -25,8 +25,9 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.meter.api.Meter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.asymmetric.api.AsymmetricMeter;
 import io.openems.edge.meter.symmetric.api.SymmetricMeter;
@@ -38,7 +39,7 @@ import io.openems.edge.simulator.meter.MeterUtils;
 		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE)
 public class GridMeter extends AbstractOpenemsComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent, EventHandler {
+		implements SymmetricMeter, AsymmetricMeter, Meter, OpenemsComponent, EventHandler {
 
 	// private final Logger log = LoggerFactory.getLogger(GridMeter.class);
 
