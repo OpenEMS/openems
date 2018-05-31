@@ -61,6 +61,10 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
+
+		// Initialize Min/MaxActivePower channels
+		this._initializeMinMaxActivePower(this.cm, config.service_pid(), config.minActivePower(),
+				config.maxActivePower());
 	}
 
 	@Deactivate

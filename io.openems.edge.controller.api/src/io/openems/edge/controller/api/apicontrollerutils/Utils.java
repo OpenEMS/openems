@@ -6,8 +6,6 @@ import java.util.Dictionary;
 import java.util.List;
 
 import org.osgi.service.cm.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -16,8 +14,6 @@ import com.google.gson.JsonPrimitive;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class Utils {
-
-	private final static Logger log = LoggerFactory.getLogger(Utils.class);
 
 	/**
 	 * Gets Meta information about active components.
@@ -119,70 +115,5 @@ public class Utils {
 		} else {
 			return new JsonPrimitive(value.toString());
 		}
-	}
-
-	protected static JsonObject toDeprecatedJsonConfig(Configuration[] configs) {
-		JsonObject jResult = new JsonObject();
-		for (Configuration config : configs) {
-			String id = (String) config.getProperties().get("id");
-			if (id == null) {
-				continue;
-			}
-			JsonObject j = new JsonObject();
-			j.addProperty("id", id);
-			j.addProperty("alias", id);
-			switch (config.getFactoryPid()) {
-			case "Bridge.Modbus.Tcp":
-				j.addProperty("class", "io.openems.impl.protocol.modbus.ModbusTcp");
-				break;
-			case "Bridge.Modbus.Serial":
-				j.addProperty("class", "io.openems.impl.protocol.modbus.ModbusRtu");
-				break;
-			case "Ess.Fenecon.Commercial40":
-				j.addProperty("class", "io.openems.impl.device.commercial.FeneconCommercialEss");
-				j.addProperty("chargeSoc", 10);
-				j.addProperty("minSoc", 15);
-				break;
-			case "EssDcCharger.Fenecon.Commercial40":
-				j.addProperty("class", "io.openems.impl.device.commercial.FeneconCommercialCharger");
-				j.addProperty("maxActualPower", 48000);
-				break;
-			case "Meter.SOCOMEC.DirisA14":
-				j.addProperty("class", "io.openems.impl.device.socomec.SocomecMeter");
-				j.addProperty("type", "grid"); // TODO set correct type
-				j.addProperty("minActivePower", -40000); // set correct values
-				j.addProperty("maxActivePower", 40000); // set correct values
-				break;
-			case "Evcs.Keba.KeContact":
-				j.addProperty("class", "io.openems.impl.device.keba.KebaEvcs");
-				break;
-			case "Simulator.EssSymmetric.Reacting":
-				j.addProperty("class", "io.openems.impl.device.simulator.SimulatorSymmetricEss");
-				break;
-			case "Simulator.GridMeter.Acting":
-				j.addProperty("class", "io.openems.impl.device.simulator.SimulatorGridMeter");
-				j.addProperty("type", "grid");
-				break;
-			case "Controller.Symmetric.Balancing":
-				j.addProperty("class", "io.openems.impl.controller.symmetric.balancing.BalancingController");
-				break;
-			case "Controller.Debug.Log":
-				j.addProperty("class", "io.openems.impl.controller.debuglog.DebugLogController");
-				break;
-			case "Controller.Api.Websocket":
-				j.addProperty("class", "io.openems.impl.controller.api.websocket.WebsocketApiController");
-				break;
-			case "Simulator.Datasource.SLP":
-			case "Scheduler.AllAlphabetically":
-			case "Timedata.InfluxDB":
-				// ignore
-				continue;
-			default:
-				log.warn("FactoryPID [" + config.getFactoryPid() + "] has no Config converter");
-				continue;
-			}
-			jResult.add(id, j);
-		}
-		return jResult;
 	}
 }

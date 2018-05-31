@@ -73,14 +73,14 @@ export module DefaultTypes {
       chargeActivePowerACL2: number,
       chargeActivePowerACL3: number,
       chargeActivePowerDC: number,
-      maxChargeActivePower: number,
+      maxChargeActivePower?: number,
       dischargeActivePower: number,
       dischargeActivePowerAC: number,
       dischargeActivePowerACL1: number,
       dischargeActivePowerACL2: number,
       dischargeActivePowerACL3: number,
       dischargeActivePowerDC: number,
-      maxDischargeActivePower: number
+      maxDischargeActivePower?: number
     }, production: {
       powerRatio: number,
       isAsymmetric: boolean,

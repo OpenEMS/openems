@@ -30,6 +30,8 @@ public class MeterUtils {
 				}), Arrays.stream(SymmetricMeter.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case ACTIVE_POWER:
+					case MAX_ACTIVE_POWER:
+					case MIN_ACTIVE_POWER:
 					case REACTIVE_POWER:
 					case CONSUMPTION_ACTIVE_POWER:
 					case CONSUMPTION_REACTIVE_POWER:

@@ -1,6 +1,8 @@
 package io.openems.edge.core.sum;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.Consumer;
 
 import org.osgi.service.component.ComponentContext;
@@ -76,6 +78,32 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 				.unit(Unit.WATT) //
 				.text(SymmetricMeter.POWER_DOC_TEXT)),
 		/**
+		 * Grid: Minimum Ever Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values or '0'
+		 * </ul>
+		 */
+		GRID_MIN_ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
+		 * Grid: Maximum Ever Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: positive values or '0'
+		 * </ul>
+		 */
+		GRID_MAX_ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
 		 * Production: Active Power
 		 * 
 		 * <ul>
@@ -86,6 +114,19 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		 * </ul>
 		 */
 		PRODUCTION_ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
+		 * Production: Maximum Ever Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: positive values or '0'
+		 * </ul>
+		 */
+		PRODUCTION_MAX_ACTIVE_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
@@ -101,6 +142,19 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		 * </ul>
 		 */
 		CONSUMPTION_ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
+		 * Consumption: Maximum Ever Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: positive values or '0'
+		 * </ul>
+		 */
+		CONSUMPTION_MAX_ACTIVE_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT));
 
@@ -118,6 +172,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	/*
 	 * Ess
 	 */
+	private final Set<Ess> esss = new ConcurrentSkipListSet<>();
 	private final AverageInteger essSoc;
 	private final SumInteger essActivePower;
 
@@ -125,24 +180,40 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	 * Grid
 	 */
 	private final SumInteger gridActivePower;
+	private final SumInteger gridMinActivePower;
+	private final SumInteger gridMaxActivePower;
 
 	/*
 	 * Production
 	 */
 	private final SumInteger productionActivePower;
+	private final SumInteger productionMaxActivePower;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addEss(Ess ess) {
+		this.esss.add(ess);
 		this.essSoc.addComponent(ess);
 		if (ess instanceof SymmetricEss) {
 			this.essActivePower.addComponent(ess);
 		}
+		this.calculateMaxConsumption.accept(null /* ignored */);
 	}
 
 	protected void removeEss(Ess ess) {
+		this.esss.remove(ess);
 		this.essSoc.removeComponent(ess);
 		this.essActivePower.removeComponent(ess);
 	}
+
+	private final Consumer<Value<Integer>> calculateMaxConsumption = ignoreValue -> {
+		int maxPower = 0;
+		for (Ess ess : this.esss) {
+			maxPower += ess.getMaxActivePower().value().orElse(0);
+		}
+		maxPower += this.getGridMaxActivePower().value().orElse(0);
+		maxPower += this.getProductionMaxActivePower().value().orElse(0);
+		this.getConsumptionMaxActivePower().setNextValue(maxPower);
+	};
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addMeter(Meter meter) {
@@ -161,6 +232,8 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 			 */
 			if (meter instanceof SymmetricMeter) {
 				this.gridActivePower.addComponent(meter);
+				this.gridMinActivePower.addComponent(meter);
+				this.gridMaxActivePower.addComponent(meter);
 			}
 			break;
 
@@ -170,6 +243,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 			 */
 			if (meter instanceof SymmetricMeter) {
 				this.productionActivePower.addComponent(meter);
+				this.productionMaxActivePower.addComponent(meter);
 			}
 			break;
 		}
@@ -177,23 +251,43 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 
 	protected void removeMeter(Meter meter) {
 		this.gridActivePower.removeComponent(meter);
+		this.gridMinActivePower.removeComponent(meter);
+		this.gridMaxActivePower.removeComponent(meter);
+		this.productionMaxActivePower.removeComponent(meter);
 	}
 
 	public Sum() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		/*
+		 * Ess
+		 */
 		this.essSoc = new AverageInteger(this, ChannelId.ESS_SOC, Ess.ChannelId.SOC);
 		this.essActivePower = new SumInteger(this, ChannelId.ESS_ACTIVE_POWER,
 				SymmetricEssReadonly.ChannelId.ACTIVE_POWER);
+		/*
+		 * Grid
+		 */
 		this.gridActivePower = new SumInteger(this, ChannelId.GRID_ACTIVE_POWER, SymmetricMeter.ChannelId.ACTIVE_POWER);
+		this.gridMinActivePower = new SumInteger(this, ChannelId.GRID_MIN_ACTIVE_POWER,
+				SymmetricMeter.ChannelId.MIN_ACTIVE_POWER);
+		this.gridMaxActivePower = new SumInteger(this, ChannelId.GRID_MAX_ACTIVE_POWER,
+				SymmetricMeter.ChannelId.MAX_ACTIVE_POWER);
+		/*
+		 * Production
+		 */
 		this.productionActivePower = new SumInteger(this, ChannelId.PRODUCTION_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.ACTIVE_POWER);
+		this.productionMaxActivePower = new SumInteger(this, ChannelId.PRODUCTION_MAX_ACTIVE_POWER,
+				SymmetricMeter.ChannelId.MAX_ACTIVE_POWER);
 		/*
-		 * calculate consumption
+		 * Consumption
 		 */
-		Consumer<Value<Integer>> calculateConsumption = ignoreValue -> {
-			int ess = this.getEssActivePower().getNextValue().asOptional().orElse(0);
-			int grid = this.getGridActivePower().getNextValue().asOptional().orElse(0);
-			int production = this.getProductionActivePower().getNextValue().asOptional().orElse(0);
+		this.getGridMaxActivePower().onSetNextValue(calculateMaxConsumption);
+		this.getProductionMaxActivePower().onSetNextValue(calculateMaxConsumption);
+		final Consumer<Value<Integer>> calculateConsumption = ignoreValue -> {
+			int ess = this.getEssActivePower().getNextValue().orElse(0);
+			int grid = this.getGridActivePower().getNextValue().orElse(0);
+			int production = this.getProductionActivePower().getNextValue().orElse(0);
 			int consumption = ess + grid + production;
 			this.getConsumptionActivePower().setNextValue(consumption);
 		};
@@ -234,11 +328,27 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		return this.channel(ChannelId.GRID_ACTIVE_POWER);
 	}
 
+	public Channel<Integer> getGridMinActivePower() {
+		return this.channel(ChannelId.GRID_MIN_ACTIVE_POWER);
+	}
+
+	public Channel<Integer> getGridMaxActivePower() {
+		return this.channel(ChannelId.GRID_MAX_ACTIVE_POWER);
+	}
+
 	public Channel<Integer> getProductionActivePower() {
 		return this.channel(ChannelId.PRODUCTION_ACTIVE_POWER);
 	}
 
+	public Channel<Integer> getProductionMaxActivePower() {
+		return this.channel(ChannelId.PRODUCTION_MAX_ACTIVE_POWER);
+	}
+
 	public Channel<Integer> getConsumptionActivePower() {
 		return this.channel(ChannelId.CONSUMPTION_ACTIVE_POWER);
+	}
+
+	public Channel<Integer> getConsumptionMaxActivePower() {
+		return this.channel(ChannelId.CONSUMPTION_MAX_ACTIVE_POWER);
 	}
 }

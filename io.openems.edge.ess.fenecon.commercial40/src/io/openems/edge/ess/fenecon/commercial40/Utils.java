@@ -29,6 +29,8 @@ public class Utils {
 					switch (channelId) {
 					case SOC:
 						return new IntegerReadChannel(c, channelId);
+					case MAX_ACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId, EssFeneconCommercial40.MAX_APPARENT_POWER);
 					case GRID_MODE:
 						return new IntegerReadChannel(c, channelId, Ess.GridMode.UNDEFINED.ordinal());
 					}

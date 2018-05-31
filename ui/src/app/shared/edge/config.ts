@@ -280,11 +280,11 @@ export class ConfigImpl implements DefaultTypes.Config {
                     // Ess
                     'EssSoc', 'EssActivePower', 'EssChargeActivePower', 'EssDischargeActivePower',
                     // Grid
-                    'GridActivePower', 'GridBuyActivePower', 'GridSellActivePower',
+                    'GridActivePower', 'GridMinActivePower', 'GridMaxActivePower',
                     // Production
-                    'ProductionActivePower',
+                    'ProductionActivePower', 'ProductionMaxActivePower',
                     // Consumption
-                    'ConsumptionActivePower'
+                    'ConsumptionActivePower', 'ConsumptionMaxActivePower'
                 ]
             }
         } else {

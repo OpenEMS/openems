@@ -24,6 +24,7 @@ public class EssUtils {
 				}), Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
+					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);
 					case GRID_MODE:
 						return new IntegerReadChannel(c, channelId, GridMode.ON_GRID);

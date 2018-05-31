@@ -68,10 +68,8 @@ export class CurrentDataAndSummary {
             const essActivePower: number = sum['EssActivePower'];
             result.storage.chargeActivePowerAC = essActivePower < 0 ? essActivePower * -1 : 0;
             result.storage.chargeActivePower = result.storage.chargeActivePowerAC; // TODO
-            result.storage.maxChargeActivePower = result.storage.chargeActivePower; // TODO
             result.storage.dischargeActivePowerAC = essActivePower > 0 ? essActivePower : 0;
             result.storage.dischargeActivePower = result.storage.dischargeActivePowerAC; // TODO
-            result.storage.maxDischargeActivePower = result.storage.dischargeActivePowerAC; // TODO
         }
 
         {
@@ -81,11 +79,17 @@ export class CurrentDataAndSummary {
              * < 0 => Sell to grid
              */
             const gridActivePower: number = sum['GridActivePower'];
-            result.grid.buyActivePower = gridActivePower > 0 ? gridActivePower : 0;
-            result.grid.maxBuyActivePower = result.grid.buyActivePower; // TODO
-            result.grid.sellActivePower = gridActivePower < 0 ? gridActivePower * -1 : 0;
-            result.grid.maxSellActivePower = result.grid.sellActivePower; // TODO
-            result.grid.powerRatio = 100 // TODO
+            result.grid.maxBuyActivePower = sum['GridMaxActivePower'];
+            result.grid.maxSellActivePower = sum['GridMinActivePower'] * -1;
+            if (gridActivePower > 0) {
+                result.grid.sellActivePower = 0;
+                result.grid.buyActivePower = gridActivePower;
+                result.grid.powerRatio = Math.round(result.grid.buyActivePower / result.grid.maxBuyActivePower * 100);
+            } else {
+                result.grid.sellActivePower = gridActivePower * -1;
+                result.grid.buyActivePower = 0;
+                result.grid.powerRatio = Math.round(result.grid.buyActivePower / result.grid.maxSellActivePower * -100);
+            }
         }
 
         {
@@ -95,8 +99,8 @@ export class CurrentDataAndSummary {
             const productionActivePower: number = sum['ProductionActivePower'];
             result.production.activePowerAC = productionActivePower;
             result.production.activePower = result.production.activePowerAC; // TODO
-            result.production.maxActivePower = result.production.activePowerAC; // TODO
-            result.production.powerRatio = 100;
+            result.production.maxActivePower = sum['ProductionMaxActivePower'];
+            result.production.powerRatio = Math.round(result.production.activePower / result.production.maxActivePower * 100);
         }
 
         {
@@ -105,7 +109,8 @@ export class CurrentDataAndSummary {
              */
             const consumptionActivePower: number = sum['ConsumptionActivePower'];
             result.consumption.activePower = consumptionActivePower;
-            result.consumption.powerRatio = 100;
+            const consumptionMaxActivePower = sum['ConsumptionMaxActivePower'];
+            result.consumption.powerRatio = Math.round(result.consumption.activePower / consumptionMaxActivePower * 100);
         }
         return result;
     }

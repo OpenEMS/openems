@@ -22,8 +22,12 @@ public class Utils {
 					case ESS_SOC:
 					case ESS_ACTIVE_POWER:
 					case GRID_ACTIVE_POWER:
+					case GRID_MAX_ACTIVE_POWER:
+					case GRID_MIN_ACTIVE_POWER:
 					case PRODUCTION_ACTIVE_POWER:
+					case PRODUCTION_MAX_ACTIVE_POWER:
 					case CONSUMPTION_ACTIVE_POWER:
+					case CONSUMPTION_MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId, 0);
 					}
 					return null;

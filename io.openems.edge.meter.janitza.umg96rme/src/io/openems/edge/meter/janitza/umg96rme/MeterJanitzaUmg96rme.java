@@ -67,6 +67,10 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());
+
+		// Initialize Min/MaxActivePower channels
+		this._initializeMinMaxActivePower(this.cm, config.service_pid(), config.minActivePower(),
+				config.maxActivePower());
 	}
 
 	@Deactivate

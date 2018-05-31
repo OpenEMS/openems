@@ -77,6 +77,10 @@ public class GridMeter extends AbstractOpenemsComponent
 		if (OpenemsComponent.updateReferenceFilter(cm, config.service_pid(), "Datasource", config.datasource_id())) {
 			return;
 		}
+
+		// Initialize Min/MaxActivePower channels
+		this._initializeMinMaxActivePower(this.cm, config.service_pid(), config.minActivePower(),
+				config.maxActivePower());
 	}
 
 	@Deactivate

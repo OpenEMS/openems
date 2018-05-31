@@ -3,6 +3,7 @@ package io.openems.edge.core.sum.internal;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.ChannelId;
@@ -24,15 +25,17 @@ public abstract class ChannelsFunction<T> {
 	}
 
 	public void addComponent(OpenemsComponent component) {
-		Channel<T> channel = component.channel(this.sourceChannelId);
-		channel.onSetNextValue(value -> {
+		final Consumer<Value<T>> handler = value -> {
 			this.valueMap.put(component.id(), value);
 			try {
 				this.targetChannel.setNextValue(this.calculate());
 			} catch (NoSuchElementException e) {
 				this.targetChannel.setNextValue(null);
 			}
-		});
+		};
+		Channel<T> channel = component.channel(this.sourceChannelId);
+		handler.accept(channel.value()); // handle current value
+		channel.onSetNextValue(handler); // and every upcoming value
 	}
 
 	public void removeComponent(OpenemsComponent component) {

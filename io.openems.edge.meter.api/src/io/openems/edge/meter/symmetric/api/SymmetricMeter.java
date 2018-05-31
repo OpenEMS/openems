@@ -1,9 +1,14 @@
 package io.openems.edge.meter.symmetric.api;
 
+import org.osgi.service.cm.ConfigurationAdmin;
+
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.IntUtils;
+import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.converter.StaticConverters;
 import io.openems.edge.meter.api.Meter;
 
@@ -50,6 +55,30 @@ public interface SymmetricMeter extends Meter {
 		 */
 		PRODUCTION_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
 		/**
+		 * Minimum Ever Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Meter Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative or '0'
+		 * <li>Implementation Note: value is automatically derived from ACTIVE_POWER
+		 * </ul>
+		 */
+		MIN_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		/**
+		 * Maximum Ever Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Meter Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: positive or '0'
+		 * <li>Implementation Note: value is automatically derived from ACTIVE_POWER
+		 * </ul>
+		 */
+		MAX_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
+		/**
 		 * Active Power
 		 * 
 		 * <ul>
@@ -72,6 +101,35 @@ public interface SymmetricMeter extends Meter {
 						Object chargeValue = StaticConverters.INVERT.andThen(StaticConverters.KEEP_POSITIVE)
 								.apply(value.get());
 						channel.getComponent().channel(ChannelId.CONSUMPTION_ACTIVE_POWER).setNextValue(chargeValue);
+						/*
+						 * Fill Min/Max Active Power channels
+						 */
+						if (value.asOptional().isPresent()) {
+							int newValue = (int) value.get();
+							{
+								Channel<Integer> minActivePowerChannel = channel.getComponent()
+										.channel(ChannelId.MIN_ACTIVE_POWER);
+								int minActivePower = minActivePowerChannel.value().orElse(0);
+								int minNextActivePower = minActivePowerChannel.getNextValue().orElse(0);
+								if (newValue < Math.min(minActivePower, minNextActivePower)) {
+									// avoid getting called too often -> round to 100
+									newValue = IntUtils.roundToPrecision(newValue, Round.DOWN, 100);
+									minActivePowerChannel.setNextValue(newValue);
+								}
+							}
+							{
+								Channel<Integer> maxActivePowerChannel = channel.getComponent()
+										.channel(ChannelId.MAX_ACTIVE_POWER);
+								int maxActivePower = maxActivePowerChannel.value().orElse(0);
+								int maxNextActivePower = maxActivePowerChannel.getNextValue().orElse(0);
+								if (newValue > Math.max(maxActivePower, maxNextActivePower)) {
+									// avoid getting called too often -> round to 100
+									newValue = IntUtils.roundToPrecision(newValue, Round.UP, 100);
+									System.out.println("set new maxAP for " + channel.address() + ": " + newValue);
+									maxActivePowerChannel.setNextValue(newValue);
+								}
+							}
+						}
 					});
 				})), //
 		/**
@@ -216,4 +274,50 @@ public interface SymmetricMeter extends Meter {
 		return this.channel(ChannelId.PRODUCTION_REACTIVE_POWER);
 	}
 
+	/**
+	 * Gets the Minimum Ever Active Power.
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getMinActivePower() {
+		return this.channel(ChannelId.MIN_ACTIVE_POWER);
+	}
+
+	/**
+	 * Gets the Maximum Ever Active Power.
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getMaxActivePower() {
+		return this.channel(ChannelId.MAX_ACTIVE_POWER);
+	}
+
+	/**
+	 * Internal helper method to handle storing Min/MaxActivePower in config
+	 * properties 'minActivePower' and 'maxActivePower'
+	 * 
+	 * @param cm
+	 * @param servicePid
+	 * @param minActivePowerConfig
+	 * @param maxActivePowerConfig
+	 */
+	default void _initializeMinMaxActivePower(ConfigurationAdmin cm, String servicePid, int minActivePowerConfig,
+			int maxActivePowerConfig) {
+		/*
+		 * Update min/max active power channels
+		 */
+		this.getMinActivePower().setNextValue(minActivePowerConfig);
+		this.getMaxActivePower().setNextValue(maxActivePowerConfig);
+
+		this.getMinActivePower().onUpdate(value -> {
+			if (value.get() != minActivePowerConfig) {
+				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "minActivePower", value.get());
+			}
+		});
+		this.getMaxActivePower().onUpdate(value -> {
+			if (value.get() != maxActivePowerConfig) {
+				OpenemsComponent.updateConfigurationProperty(cm, servicePid, "maxActivePower", value.get());
+			}
+		});
+	}
 }

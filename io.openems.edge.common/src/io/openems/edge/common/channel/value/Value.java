@@ -89,6 +89,16 @@ public class Value<T> {
 	};
 
 	/**
+	 * Gets the value or the given alternativeValue. This is short for
+	 * '.asOptional().or()'.
+	 *
+	 * @return
+	 */
+	public T orElse(T alternativeValue) {
+		return Optional.ofNullable(this.get()).orElse(alternativeValue);
+	};
+
+	/**
 	 * Gets the value as its String option. Enum options are converted to Strings.
 	 *
 	 * @throws IllegalArgumentException

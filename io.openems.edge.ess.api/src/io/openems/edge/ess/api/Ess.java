@@ -40,7 +40,17 @@ public interface Ess extends OpenemsComponent {
 				.option(GridMode.UNDEFINED) //
 				.option(GridMode.ON_GRID) //
 				.option(GridMode.OFF_GRID) //
-		);
+		),
+		/**
+		 * Max Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * </ul>
+		 */
+		MAX_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT));
 
 		private final Doc doc;
 
@@ -70,5 +80,14 @@ public interface Ess extends OpenemsComponent {
 	 */
 	default Channel<Integer> getGridMode() {
 		return this.channel(ChannelId.GRID_MODE);
+	}
+
+	/**
+	 * Gets the maximum Active Power
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getMaxActivePower() {
+		return this.channel(ChannelId.MAX_ACTIVE_POWER);
 	}
 }
