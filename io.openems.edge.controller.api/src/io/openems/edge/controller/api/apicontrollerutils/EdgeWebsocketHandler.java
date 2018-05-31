@@ -468,8 +468,8 @@ public class EdgeWebsocketHandler {
 				this.send(j);
 			} catch (OpenemsException e) {
 				// Error while sending: remove subscriber
-				log.error("Error while sending log. Removing subscriber [" + entry.getKey() + "]");
 				this.logSubscribers.remove(entry.getKey());
+				log.error("Error while sending log. Removing subscriber [" + entry.getKey() + "]");
 			}
 		}
 	}

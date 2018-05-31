@@ -157,16 +157,17 @@ export class Edge {
   /**
    * Subscribe to log
    */
-  public subscribeLog(): Observable<DefaultTypes.Log> {
-    let replyStream = this.sendMessageWithReply(DefaultMessages.logSubscribe(this.edgeId));
-    return replyStream.map(message => message.log as DefaultTypes.Log);
+  public subscribeLog(): { messageId: string, logs: Observable<DefaultTypes.Log> } {
+    const message = DefaultMessages.logSubscribe(this.edgeId);
+    let replyStream = this.sendMessageWithReply(message);
+    return { messageId: message.messageId.ui, logs: replyStream.map(message => message.log as DefaultTypes.Log) };
   }
 
   /**
    * Unsubscribe from log
    */
-  public unsubscribeLog() {
-    let message = DefaultMessages.logUnsubscribe(this.edgeId);
+  public unsubscribeLog(messageId: string) {
+    let message = DefaultMessages.logUnsubscribe(messageId, this.edgeId);
     this.send(message);
   }
 

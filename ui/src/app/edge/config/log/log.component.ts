@@ -20,6 +20,7 @@ export class LogComponent implements OnInit, OnDestroy {
 
   private MAX_LOG_ENTRIES = 200;
   private stopOnDestroy: Subject<void> = new Subject<void>();
+  private messageId = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -56,7 +57,9 @@ export class LogComponent implements OnInit, OnDestroy {
     }
 
     if (this.edge != null) {
-      this.edge.subscribeLog().takeUntil(this.stopOnDestroy).subscribe(log => {
+      const result = this.edge.subscribeLog();
+      this.messageId = result.messageId;
+      result.logs.takeUntil(this.stopOnDestroy).subscribe(log => {
         log.time = format(new Date(<number>log.time * 1000), "DD.MM.YYYY HH:mm:ss");
         switch (log.level) {
           case 'INFO':
@@ -83,7 +86,7 @@ export class LogComponent implements OnInit, OnDestroy {
 
   public unsubscribeLog() {
     if (this.edge != null) {
-      this.edge.unsubscribeLog();
+      this.edge.unsubscribeLog(this.messageId);
     }
     this.stopOnDestroy.next();
     this.stopOnDestroy.complete();

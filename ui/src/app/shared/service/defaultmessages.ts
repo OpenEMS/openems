@@ -97,10 +97,10 @@ export class DefaultMessages {
         }
     };
 
-    public static logUnsubscribe(edgeId: number): DefaultTypes.IdentifiedMessage {
+    public static logUnsubscribe(messageId: string, edgeId: number): DefaultTypes.IdentifiedMessage {
         return {
             messageId: {
-                ui: UUID.UUID()
+                ui: messageId
             },
             edgeId: edgeId,
             log: {
