@@ -1,8 +1,8 @@
 package io.openems.edge.core.sum;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import org.osgi.service.component.ComponentContext;
@@ -172,7 +172,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	/*
 	 * Ess
 	 */
-	private final Set<Ess> esss = new ConcurrentSkipListSet<>();
+	private final List<Ess> esss = new CopyOnWriteArrayList<>();
 	private final AverageInteger essSoc;
 	private final SumInteger essActivePower;
 
