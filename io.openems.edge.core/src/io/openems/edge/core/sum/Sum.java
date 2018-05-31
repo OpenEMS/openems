@@ -1,6 +1,7 @@
 package io.openems.edge.core.sum;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -15,6 +16,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.sum.internal.AverageInteger;
@@ -47,7 +49,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		 * Ess: Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: Ess Symmetric Readonly)
+		 * <li>Interface: Sum (origin: @see {@link SymmetricEssReadonly})
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge
@@ -58,10 +60,10 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 				.unit(Unit.WATT) //
 				.text(SymmetricEss.POWER_DOC_TEXT)),
 		/**
-		 * Grid-Meter: Active Power
+		 * Grid: Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: Meter Symmetric)
+		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Consumption (power that is 'leaving the
@@ -69,10 +71,38 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		 * the system')
 		 * </ul>
 		 */
-		GRIDMETER_ACTIVE_POWER(new Doc() //
+		GRID_ACTIVE_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text(SymmetricMeter.POWER_DOC_TEXT));
+				.text(SymmetricMeter.POWER_DOC_TEXT)),
+		/**
+		 * Production: Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: Meter Symmetric)
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: should be only positive
+		 * </ul>
+		 */
+		PRODUCTION_ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
+		 * Consumption: Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: should be only positive
+		 * <li>Note: the value is calculated using the data from Grid-Meter,
+		 * Production-Meter and charge/discharge of battery.
+		 * </ul>
+		 */
+		CONSUMPTION_ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT));
 
 		private final Doc doc;
 
@@ -92,9 +122,14 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	private final SumInteger essActivePower;
 
 	/*
-	 * Grid-Meter
+	 * Grid
 	 */
-	private final SumInteger gridmeterActivePower;
+	private final SumInteger gridActivePower;
+
+	/*
+	 * Production
+	 */
+	private final SumInteger productionActivePower;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addEss(Ess ess) {
@@ -112,7 +147,11 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addMeter(Meter meter) {
 		switch (meter.getMeterType()) {
-		case CONSUMPTION:
+		case CONSUMPTION_METERED:
+			// TODO
+			break;
+
+		case CONSUMPTION_NOT_METERED:
 			// TODO
 			break;
 
@@ -121,18 +160,23 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 			 * Grid-Meter
 			 */
 			if (meter instanceof SymmetricMeter) {
-				this.gridmeterActivePower.addComponent(meter);
+				this.gridActivePower.addComponent(meter);
 			}
 			break;
 
 		case PRODUCTION:
-			// TODO
+			/*
+			 * Production-Meter
+			 */
+			if (meter instanceof SymmetricMeter) {
+				this.productionActivePower.addComponent(meter);
+			}
 			break;
 		}
 	}
 
 	protected void removeMeter(Meter meter) {
-		this.gridmeterActivePower.removeComponent(meter);
+		this.gridActivePower.removeComponent(meter);
 	}
 
 	public Sum() {
@@ -140,8 +184,22 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		this.essSoc = new AverageInteger(this, ChannelId.ESS_SOC, Ess.ChannelId.SOC);
 		this.essActivePower = new SumInteger(this, ChannelId.ESS_ACTIVE_POWER,
 				SymmetricEssReadonly.ChannelId.ACTIVE_POWER);
-		this.gridmeterActivePower = new SumInteger(this, ChannelId.GRIDMETER_ACTIVE_POWER,
+		this.gridActivePower = new SumInteger(this, ChannelId.GRID_ACTIVE_POWER, SymmetricMeter.ChannelId.ACTIVE_POWER);
+		this.productionActivePower = new SumInteger(this, ChannelId.PRODUCTION_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.ACTIVE_POWER);
+		/*
+		 * calculate consumption
+		 */
+		Consumer<Value<Integer>> calculateConsumption = ignoreValue -> {
+			int ess = this.getEssActivePower().getNextValue().asOptional().orElse(0);
+			int grid = this.getGridActivePower().getNextValue().asOptional().orElse(0);
+			int production = this.getProductionActivePower().getNextValue().asOptional().orElse(0);
+			int consumption = ess + grid + production;
+			this.getConsumptionActivePower().setNextValue(consumption);
+		};
+		this.getEssActivePower().onSetNextValue(calculateConsumption);
+		this.getGridActivePower().onSetNextValue(calculateConsumption);
+		this.getProductionActivePower().onSetNextValue(calculateConsumption);
 	}
 
 	@Activate
@@ -158,11 +216,9 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	public String debugLog() {
 		return "ESS SoC:" + this.getEssSoc().value().asString() //
 				+ "|L:" + this.getEssActivePower().value().asString() //
-				+ " Grid-Meter L:" + this.getGridmeterActivePower().value().asString() //
-		// + "|Allowed:" +
-		// this.channel(ChannelId.ALLOWED_CHARGE).value().asStringWithoutUnit() + ";"
-		// + this.channel(ChannelId.ALLOWED_DISCHARGE).value().asString() //
-		// + "|" + this.getGridMode().value().asOptionString();
+				+ " Grid L:" + this.getGridActivePower().value().asString() //
+				+ " Production L:" + this.getProductionActivePower().value().asString() //
+				+ " Consumption L:" + this.getConsumptionActivePower().value().asString() //
 		;
 	}
 
@@ -174,7 +230,15 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		return this.channel(ChannelId.ESS_ACTIVE_POWER);
 	}
 
-	public Channel<Integer> getGridmeterActivePower() {
-		return this.channel(ChannelId.GRIDMETER_ACTIVE_POWER);
+	public Channel<Integer> getGridActivePower() {
+		return this.channel(ChannelId.GRID_ACTIVE_POWER);
+	}
+
+	public Channel<Integer> getProductionActivePower() {
+		return this.channel(ChannelId.PRODUCTION_ACTIVE_POWER);
+	}
+
+	public Channel<Integer> getConsumptionActivePower() {
+		return this.channel(ChannelId.CONSUMPTION_ACTIVE_POWER);
 	}
 }

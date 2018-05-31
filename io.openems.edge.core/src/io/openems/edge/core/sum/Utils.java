@@ -21,8 +21,10 @@ public class Utils {
 					switch (channelId) {
 					case ESS_SOC:
 					case ESS_ACTIVE_POWER:
-					case GRIDMETER_ACTIVE_POWER:
-						return new IntegerReadChannel(c, channelId);
+					case GRID_ACTIVE_POWER:
+					case PRODUCTION_ACTIVE_POWER:
+					case CONSUMPTION_ACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId, 0);
 					}
 					return null;
 				}) //

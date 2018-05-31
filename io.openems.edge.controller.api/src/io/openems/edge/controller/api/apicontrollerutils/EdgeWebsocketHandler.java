@@ -194,23 +194,17 @@ public class EdgeWebsocketHandler {
 			/*
 			 * Query current config
 			 */
-			// TODO: this should not be static
-			JsonObject jReplyConfig = new JsonObject();
-			jReplyConfig.add("meta", Utils.DEPRECATED_CONFIG_META);
 			try {
-				jReplyConfig.add("things", //
-						Utils.toDeprecatedJsonConfig( //
-								this.parent.getConfigurationAdmin().listConfigurations("(enabled=true)")));
-			} catch (IOException | InvalidSyntaxException e) {
-				e.printStackTrace();
-			}
-			try {
+				JsonObject jReplyConfig = new JsonObject();
+				jReplyConfig.add("meta", Utils.getComponentsMeta(this.parent.getComponents()));
+				jReplyConfig.add("components",
+						Utils.getComponents(this.parent.getConfigurationAdmin().listConfigurations("(enabled=true)")));
 				WebSocketUtils.send(this.websocket, DefaultMessages.configQueryReply(jMessageId, jReplyConfig));
-				return;
-			} catch (OpenemsException e) {
+			} catch (IOException | InvalidSyntaxException | OpenemsException e) {
 				WebSocketUtils.sendNotificationOrLogError(this.websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
 						Notification.UNABLE_TO_READ_CURRENT_CONFIG, e.getMessage());
 			}
+			break;
 
 		case "update":
 			/*

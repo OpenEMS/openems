@@ -1,15 +1,116 @@
 import { DefaultTypes } from '../service/defaulttypes';
 import { ConfigImpl } from './config';
 import { Utils } from '../service/utils';
+import { Edge } from './edge';
 
 export class CurrentDataAndSummary {
     public readonly summary: DefaultTypes.Summary;
 
-    constructor(public data: DefaultTypes.Data, config: ConfigImpl) {
-        this.summary = this.calculateSummary(data, config);
+    constructor(private edge: Edge, public data: DefaultTypes.Data, config: ConfigImpl) {
+        if (edge.isVersionAtLeast('2018.8')) {
+            this.summary = this.getSummary(data, config);
+        } else {
+            this.summary = this.calculateSummaryBefore2018_8(data, config);
+        }
     }
 
-    private calculateSummary(currentData: DefaultTypes.Data, config: ConfigImpl): DefaultTypes.Summary {
+    private getSummary(d: DefaultTypes.Data, config: ConfigImpl): DefaultTypes.Summary {
+        let result: DefaultTypes.Summary = {
+            storage: {
+                soc: null,
+                isAsymmetric: false,
+                hasDC: false,
+                chargeActivePower: null, // sum of chargeActivePowerAC and chargeActivePowerDC
+                chargeActivePowerAC: null,
+                chargeActivePowerACL1: null,
+                chargeActivePowerACL2: null,
+                chargeActivePowerACL3: null,
+                chargeActivePowerDC: null,
+                maxChargeActivePower: null,
+                dischargeActivePower: null, // sum of dischargeActivePowerAC and dischargeActivePowerDC
+                dischargeActivePowerAC: null,
+                dischargeActivePowerACL1: null,
+                dischargeActivePowerACL2: null,
+                dischargeActivePowerACL3: null,
+                dischargeActivePowerDC: null,
+                maxDischargeActivePower: null
+            }, production: {
+                isAsymmetric: false,
+                hasDC: false,
+                powerRatio: null,
+                activePower: null, // sum of activePowerAC and activePowerDC
+                activePowerAC: null,
+                activePowerACL1: null,
+                activePowerACL2: null,
+                activePowerACL3: null,
+                activePowerDC: null,
+                maxActivePower: null
+            }, grid: {
+                powerRatio: null,
+                buyActivePower: null,
+                maxBuyActivePower: null,
+                sellActivePower: null,
+                maxSellActivePower: null
+            }, consumption: {
+                powerRatio: null,
+                activePower: null
+            }
+        };
+
+        const sum = d['_sum'];
+        {
+            /*
+             * Storage
+             * > 0 => Discharge
+             * < 0 => Charge
+             */
+            result.storage.soc = sum['EssSoc'];
+            const essActivePower: number = sum['EssActivePower'];
+            result.storage.chargeActivePowerAC = essActivePower < 0 ? essActivePower * -1 : 0;
+            result.storage.chargeActivePower = result.storage.chargeActivePowerAC; // TODO
+            result.storage.maxChargeActivePower = result.storage.chargeActivePower; // TODO
+            result.storage.dischargeActivePowerAC = essActivePower > 0 ? essActivePower : 0;
+            result.storage.dischargeActivePower = result.storage.dischargeActivePowerAC; // TODO
+            result.storage.maxDischargeActivePower = result.storage.dischargeActivePowerAC; // TODO
+        }
+
+        {
+            /*
+             * Grid
+             * > 0 => Buy from grid
+             * < 0 => Sell to grid
+             */
+            const gridActivePower: number = sum['GridActivePower'];
+            result.grid.buyActivePower = gridActivePower > 0 ? gridActivePower : 0;
+            result.grid.maxBuyActivePower = result.grid.buyActivePower; // TODO
+            result.grid.sellActivePower = gridActivePower < 0 ? gridActivePower * -1 : 0;
+            result.grid.maxSellActivePower = result.grid.sellActivePower; // TODO
+            result.grid.powerRatio = 100 // TODO
+        }
+
+        {
+            /*
+             * Production
+             */
+            const productionActivePower: number = sum['ProductionActivePower'];
+            result.production.activePowerAC = productionActivePower;
+            result.production.activePower = result.production.activePowerAC; // TODO
+            result.production.maxActivePower = result.production.activePowerAC; // TODO
+            result.production.powerRatio = 100;
+        }
+
+        {
+            /*
+             * Consumption
+             */
+            const consumptionActivePower: number = sum['ConsumptionActivePower'];
+            result.consumption.activePower = consumptionActivePower;
+            result.consumption.powerRatio = 100;
+        }
+        return result;
+    }
+
+    private calculateSummaryBefore2018_8(currentData: DefaultTypes.Data, config: ConfigImpl): DefaultTypes.Summary {
         let result: DefaultTypes.Summary = {
             storage: {
                 soc: null,

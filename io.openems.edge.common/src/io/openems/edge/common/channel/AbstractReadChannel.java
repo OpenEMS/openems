@@ -101,6 +101,11 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 	}
 
 	@Override
+	public Value<T> getNextValue() {
+		return this.nextValue;
+	}
+
+	@Override
 	public Value<T> value() {
 		return this.activeValue;
 	}

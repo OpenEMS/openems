@@ -9,6 +9,7 @@
   </mat-card>
 
   <ng-container *ngIf="currentData && config">
+
     <!-- Storage -->
     <mat-card class="single_leftright" fxFlex="100%">
       <mat-card-header>
@@ -30,16 +31,28 @@
                 <span *ngIf="sum.hasDC"> AC</span>
               </td>
               <td></td>
-              <td class="align_right">{{ sum.chargeActivePowerAC }}</td>
-              <td>W</td>
+              <ng-container *ngIf="sum.chargeActivePowerAC != 0; else empty">
+                <td class="align_right">{{ sum.chargeActivePowerAC }}</td>
+                <td>W</td>
+              </ng-container>
+              <ng-template #empty>
+                <td class="align_right">-</td>
+                <td></td>
+              </ng-template>
             </tr>
             <tr>
               <td translate>General.DischargePower
                 <span *ngIf="sum.hasDC"> AC</span>
               </td>
               <td></td>
-              <td class="align_right">{{ sum.dischargeActivePowerAC }}</td>
-              <td>W</td>
+              <ng-container *ngIf="sum.dischargeActivePowerAC != 0; else empty">
+                <td class="align_right">{{ sum.dischargeActivePowerAC }}</td>
+                <td>W</td>
+              </ng-container>
+              <ng-template #empty>
+                <td class="align_right">-</td>
+                <td></td>
+              </ng-template>
             </tr>
           </ng-container>
           <!-- Asymmetric ESS -->
@@ -271,9 +284,14 @@
               <td style="width:50%" translate>General.Production
                 <span *ngIf="sum.hasDC"> AC</span>
               </td>
-              <td style="width:15%"></td>
-              <td style="width:25%" class="align_right">{{ sum.activePowerAC }}</td>
-              <td style="width:10%">W</td>
+              <ng-container *ngIf="sum.activePowerAC != 0; else empty">
+                <td style="width:25%" class="align_right">{{ sum.activePowerAC }}</td>
+                <td style="width:10%">W</td>
+              </ng-container>
+              <ng-template #empty>
+                <td style="width:25%" class="align_right">-</td>
+                <td style="width:10%"></td>
+              </ng-template>
             </tr>
           </ng-container>
           <!-- Asymmetric Meter -->

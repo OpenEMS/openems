@@ -33,6 +33,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	private String id = null;
 	private String servicePid = null;
+	private ComponentContext componentContext = null;
 	private boolean enabled = true;
 
 	/**
@@ -48,6 +49,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		}
 		this.servicePid = service_pid;
 		this.enabled = enabled;
+		this.componentContext = context;
 		if (isEnabled()) {
 			this.logMessage("Activate");
 		} else {
@@ -72,6 +74,11 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	@Override
 	public String servicePid() {
 		return this.servicePid;
+	}
+
+	@Override
+	public ComponentContext componentContext() {
+		return this.componentContext;
 	}
 
 	private void logMessage(String reason) {

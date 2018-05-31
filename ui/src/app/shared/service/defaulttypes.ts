@@ -11,6 +11,13 @@ export module DefaultTypes {
     [thing: string]: string[];
   }
 
+  export interface ComponentConfig {
+    'service.pid': string, // unique pid of configuration
+    'service.factoryPid': string, // link to 'meta'
+    enabled: boolean,
+    [channel: string]: string | number | boolean
+  }
+
   export interface ThingConfig {
     id: string,
     class: string | string[],
@@ -18,13 +25,16 @@ export module DefaultTypes {
   }
 
   export interface Config {
-    things: {
+    components?: { // FROM VERSION 2018.8
+      [id: string]: ComponentConfig
+    },
+    things?: { // BEVORE VERSION 2018.8
       [id: string]: ThingConfig
     },
     meta: {
-      [clazz: string]: {
+      [factoryPid: string]: {
         implements: string[],
-        channels: {
+        channels?: {
           [channel: string]: {
             name: string,
             title: string,

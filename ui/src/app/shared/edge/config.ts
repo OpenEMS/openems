@@ -1,11 +1,22 @@
 import { DefaultTypes } from '../service/defaulttypes'
 import { Role } from '../type/role'
 import { Widget } from '../type/widget'
+import { Edge } from './edge';
 
 export class ConfigImpl implements DefaultTypes.Config {
 
-    // Attributes from Config interface
-    public readonly things: {
+    // FROM VERSION 2018.8
+    public readonly components?: {
+        [id: string]: {
+            'service.pid': string, // unique pid of configuration
+            'service.factoryPid': string, // link to 'meta'
+            enabled: boolean,
+            [channel: string]: string | number | boolean
+        }
+    }
+
+    // BEVORE VERSION 2018.8
+    public readonly things?: {
         [id: string]: {
             id: string,
             alias: string,
@@ -13,10 +24,11 @@ export class ConfigImpl implements DefaultTypes.Config {
             [channel: string]: any
         }
     };
+
     public readonly meta: {
-        [clazz: string]: {
+        [factoryPid: string]: {
             implements: string[],
-            channels: {
+            channels?: {
                 [channel: string]: {
                     name: string,
                     title: string,
@@ -45,104 +57,116 @@ export class ConfigImpl implements DefaultTypes.Config {
     public readonly simulatorDevices: string[] = [];
     public readonly evcsDevices: string[] = [];
 
-    constructor(private readonly config: DefaultTypes.Config) {
-        // convert role-strings to Role-objects
-        for (let clazz in config.meta) {
-            for (let channel in config.meta[clazz].channels) {
-                let roles: Role[] = [];
-                for (let roleString of config.meta[clazz].channels[channel].readRoles) {
-                    roles.push(Role.getRole("" + roleString /* convert to string */));
-                }
-                config.meta[clazz].channels[channel].readRoles = roles;
-            }
-        }
-
-        Object.assign(this, config);
-
-        let storageThings: string[] = []
-        let chargers: string[] = [];
-        let gridMeters: string[] = [];
-        let productionMeters: string[] = [];
-        let consumptionMeters: string[] = [];
-        let otherMeters: string[] = [];
-        let bridges: string[] = [];
-        let scheduler: string = null;
-        let controllers: string[] = [];
-        let persistences: string[] = [];
-        let simulatorDevices: string[] = [];
-        let evcsDevices: string[] = [];
-
-        for (let thingId in config.things) {
-            let thing = config.things[thingId];
-            let i = this.getImplements(thing);
-
+    constructor(private readonly edge: Edge, private readonly config: DefaultTypes.Config) {
+        if (edge.isVersionAtLeast("2018.8")) {
             /*
-             * Natures
+             * FROM VERSION 2018.8
              */
-            // Ess
-            if (i.includes("EssNature")
-                && !i.includes("EssClusterNature") /* ignore cluster */
-                && !i.includes("AsymmetricSymmetricCombinationEssNature") /* ignore symmetric Ess of Pro 9-12 */) {
-                storageThings.push(thingId);
+            Object.assign(this, config);
+
+        } else {
+            /*
+             * VERSION BEFORE 2018.8
+             */
+
+            // convert role-strings to Role-objects
+            for (let clazz in config.meta) {
+                for (let channel in config.meta[clazz].channels) {
+                    let roles: Role[] = [];
+                    for (let roleString of config.meta[clazz].channels[channel].readRoles) {
+                        roles.push(Role.getRole("" + roleString /* convert to string */));
+                    }
+                    config.meta[clazz].channels[channel].readRoles = roles;
+                }
             }
-            // Meter
-            if (i.includes("MeterNature")) {
-                if ("type" in thing) {
-                    if (thing.type == 'grid') {
-                        gridMeters.push(thingId);
-                    } else if (thing.type === "production") {
-                        productionMeters.push(thingId);
-                    } else if (thing.type === "consumption") {
-                        consumptionMeters.push(thingId);
-                    } else {
-                        otherMeters.push(thingId);
+
+            Object.assign(this, config);
+
+            let storageThings: string[] = []
+            let chargers: string[] = [];
+            let gridMeters: string[] = [];
+            let productionMeters: string[] = [];
+            let consumptionMeters: string[] = [];
+            let otherMeters: string[] = [];
+            let bridges: string[] = [];
+            let scheduler: string = null;
+            let controllers: string[] = [];
+            let persistences: string[] = [];
+            let simulatorDevices: string[] = [];
+            let evcsDevices: string[] = [];
+
+            for (let thingId in config.things) {
+                let thing = config.things[thingId];
+                let i = this.getImplements(thing);
+
+                /*
+                 * Natures
+                 */
+                // Ess
+                if (i.includes("EssNature")
+                    && !i.includes("EssClusterNature") /* ignore cluster */
+                    && !i.includes("AsymmetricSymmetricCombinationEssNature") /* ignore symmetric Ess of Pro 9-12 */) {
+                    storageThings.push(thingId);
+                }
+                // Meter
+                if (i.includes("MeterNature")) {
+                    if ("type" in thing) {
+                        if (thing.type == 'grid') {
+                            gridMeters.push(thingId);
+                        } else if (thing.type === "production") {
+                            productionMeters.push(thingId);
+                        } else if (thing.type === "consumption") {
+                            consumptionMeters.push(thingId);
+                        } else {
+                            otherMeters.push(thingId);
+                        }
                     }
                 }
+                // Charger
+                if (i.includes("ChargerNature")) {
+                    productionMeters.push(thingId);
+                    chargers.push(thingId);
+                }
+                /*
+                 * Other Things
+                 */
+                // Bridge
+                if (i.includes("io.openems.api.bridge.Bridge")) {
+                    bridges.push(thingId);
+                }
+                // Scheduler
+                if (i.includes("io.openems.api.scheduler.Scheduler")) {
+                    scheduler = thingId;
+                }
+                // Controller
+                if (i.includes("io.openems.api.controller.Controller")) {
+                    controllers.push(thingId);
+                }
+                // Persistence
+                if (i.includes("io.openems.api.persistence.Persistence")) {
+                    persistences.push(thingId);
+                }
+                // Simulator Devices
+                if (i.includes("io.openems.impl.device.simulator.Simulator")) {
+                    simulatorDevices.push(thingId);
+                }
+                // Simulator Devices
+                if (i.includes("KebaDeviceNature")) {
+                    evcsDevices.push(thingId);
+                }
             }
-            // Charger
-            if (i.includes("ChargerNature")) {
-                productionMeters.push(thingId);
-                chargers.push(thingId);
-            }
-            /*
-             * Other Things
-             */
-            // Bridge
-            if (i.includes("io.openems.api.bridge.Bridge")) {
-                bridges.push(thingId);
-            }
-            // Scheduler
-            if (i.includes("io.openems.api.scheduler.Scheduler")) {
-                scheduler = thingId;
-            }
-            // Controller
-            if (i.includes("io.openems.api.controller.Controller")) {
-                controllers.push(thingId);
-            }
-            // Persistence
-            if (i.includes("io.openems.api.persistence.Persistence")) {
-                persistences.push(thingId);
-            }
-            // Simulator Devices
-            if (i.includes("io.openems.impl.device.simulator.Simulator")) {
-                simulatorDevices.push(thingId);
-            }
-            // Simulator Devices
-            if (i.includes("KebaDeviceNature")) {
-                evcsDevices.push(thingId);
-            }
-        }
 
-        this.storageThings = storageThings.sort();
-        this.chargers = chargers.sort();
-        this.gridMeters = gridMeters.sort();
-        this.productionMeters = productionMeters.sort();
-        this.bridges = bridges.sort();
-        this.scheduler = scheduler;
-        this.controllers = controllers;
-        this.persistences = persistences;
-        this.simulatorDevices = simulatorDevices;
-        this.evcsDevices = evcsDevices;
+            this.storageThings = storageThings.sort();
+            this.chargers = chargers.sort();
+            this.gridMeters = gridMeters.sort();
+            this.productionMeters = productionMeters.sort();
+            this.bridges = bridges.sort();
+            this.scheduler = scheduler;
+            this.controllers = controllers;
+            this.persistences = persistences;
+            this.simulatorDevices = simulatorDevices;
+            this.evcsDevices = evcsDevices;
+        }
     }
 
     public getStateChannels(): DefaultTypes.ChannelAddresses {
@@ -250,12 +274,27 @@ export class ConfigImpl implements DefaultTypes.Config {
                 }
             }
         }
-        // basic channels
-        merge(this.getStateChannels());
-        merge(this.getPowerChannels());
-        merge(this.getEssSocChannels());
-        // widget channels
-        merge(this.getEvcsWidgetChannels());
+        if (this.edge.isVersionAtLeast("2018.8")) {
+            return {
+                '_sum': [
+                    // Ess
+                    'EssSoc', 'EssActivePower', 'EssChargeActivePower', 'EssDischargeActivePower',
+                    // Grid
+                    'GridActivePower', 'GridBuyActivePower', 'GridSellActivePower',
+                    // Production
+                    'ProductionActivePower',
+                    // Consumption
+                    'ConsumptionActivePower'
+                ]
+            }
+        } else {
+            // basic channels
+            merge(this.getStateChannels());
+            merge(this.getPowerChannels());
+            merge(this.getEssSocChannels());
+            // widget channels
+            merge(this.getEvcsWidgetChannels());
+        }
         return channels;
     }
 

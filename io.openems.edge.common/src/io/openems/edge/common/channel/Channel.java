@@ -97,6 +97,15 @@ public interface Channel<T> {
 	}
 
 	/**
+	 * Gets the NextValue.
+	 * 
+	 * Note that usually you should prefer the value() method.
+	 * 
+	 * @return
+	 */
+	public Value<T> getNextValue();
+
+	/**
 	 * Add an onSetNextValue callback. It is called, after a new NextValue was set.
 	 * Note that usually you should prefer the onUpdate() callback.
 	 * 

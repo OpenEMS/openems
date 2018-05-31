@@ -80,7 +80,7 @@ export class Edge {
     // wait for reply
     this.replyStreams[messageId].first().subscribe(reply => {
       let config = (<DefaultMessages.ConfigQueryReply>reply).config;
-      let configImpl = new ConfigImpl(config)
+      let configImpl = new ConfigImpl(this, config)
       this.config.next(configImpl);
       this.replyStreams[messageId].unsubscribe();
       delete this.replyStreams[messageId];
@@ -117,7 +117,7 @@ export class Edge {
     let replyStream = this.sendMessageWithReply(DefaultMessages.currentDataSubscribe(this.edgeId, channels));
     let obs = replyStream
       .map(message => (message as DefaultMessages.CurrentDataReply).currentData)
-      .combineLatest(this.config, (currentData, config) => new CurrentDataAndSummary(currentData, config));
+      .combineLatest(this.config, (currentData, config) => new CurrentDataAndSummary(this, currentData, config));
     // TODO send "unsubscribe" to websocket when nobody is subscribed on this observable anymore
     return obs;
   }

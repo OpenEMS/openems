@@ -13,9 +13,10 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.component.OpenemsComponent;
 
 @ProviderType
-public interface Timedata {
+public interface Timedata extends OpenemsComponent {
 
 	// TODO merge this Service with the corresponding Backend Service
 

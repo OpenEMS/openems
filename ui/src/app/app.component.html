@@ -33,7 +33,8 @@
             <small>({{ currentEdge.name }})</small>
           </button>
         </div>
-        <div fxFlex="50px">
+        <div fxFlex="50px" *ngIf="!currentEdge.isVersionAtLeast('2018.8')">
+          <!-- TODO re-enable settings -->
           <button routerLink="/device/{{ currentEdge.name }}/config" mat-icon-button>
             <mat-icon>settings</mat-icon>
           </button>

@@ -6,6 +6,7 @@ import java.util.Dictionary;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StateChannel;
@@ -53,6 +54,11 @@ public interface OpenemsComponent {
 	 * @return
 	 */
 	String servicePid();
+
+	/**
+	 * Returns the ComponentContext
+	 */
+	ComponentContext componentContext();
 
 	/**
 	 * Returns an undefined Channel defined by its ChannelId string representation.

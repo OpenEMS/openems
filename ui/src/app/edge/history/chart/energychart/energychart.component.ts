@@ -111,7 +111,7 @@ export class EnergyChartComponent implements OnChanges {
       let labels: Date[] = [];
       for (let record of historicData.data) {
         labels.push(new Date(record.time));
-        let data = new CurrentDataAndSummary(record.channels, this.config);
+        let data = new CurrentDataAndSummary(this.edge, record.channels, this.config);
         activePowers.gridBuy.push(Utils.divideSafely(data.summary.grid.buyActivePower, 1000)); // convert to kW
         activePowers.gridSell.push(Utils.divideSafely(data.summary.grid.sellActivePower, 1000)); // convert to kW
         activePowers.production.push(Utils.divideSafely(data.summary.production.activePower, 1000)); // convert to kW
