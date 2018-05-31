@@ -1,7 +1,7 @@
 <div *ngIf="(websocket.currentEdge | async) as edge" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap">
   <ng-container *ngIf="(edge.config | async) as config">
     <!--call bridge configuration-->
-    <div fxFlex="50%" fxFlex.xs="100%">
+    <div *ngIf="!edge.isVersionAtLeast('2018.8')" fxFlex="50%" fxFlex.xs="100%">
       <mat-card routerLink="/device/{{ edge.name }}/config/bridge" class="single">
         <mat-card-header>
           <mat-icon mat-card-avatar>device_hub</mat-icon>
@@ -20,7 +20,7 @@
       </mat-card>
     </div>
     <!--call scheduler configuration-->
-    <div fxFlex="50%" fxFlex.xs="100%">
+    <div *ngIf="!edge.isVersionAtLeast('2018.8')" fxFlex="50%" fxFlex.xs="100%">
       <mat-card routerLink="/device/{{ edge.name }}/config/scheduler" class="single">
         <mat-card-header>
           <mat-icon mat-card-avatar>schedule</mat-icon>
@@ -39,7 +39,7 @@
       </mat-card>
     </div>
     <!--call controller configuration-->
-    <div routerLink="/device/{{ edge.name }}/config/controller" fxFlex="50%" fxFlex.xs="100%">
+    <div *ngIf="!edge.isVersionAtLeast('2018.8')" routerLink="/device/{{ edge.name }}/config/controller" fxFlex="50%" fxFlex.xs="100%">
       <mat-card class="single">
         <mat-card-header>
           <mat-icon mat-card-avatar>apps</mat-icon>
@@ -58,7 +58,7 @@
       </mat-card>
     </div>
     <!--call controller configuration-->
-    <div routerLink="/device/{{ edge.name }}/config/persistence" fxFlex="50%" fxFlex.xs="100%">
+    <div *ngIf="!edge.isVersionAtLeast('2018.8')" routerLink="/device/{{ edge.name }}/config/persistence" fxFlex="50%" fxFlex.xs="100%">
       <mat-card class="single">
         <mat-card-header>
           <mat-icon mat-card-avatar>apps</mat-icon>
@@ -116,7 +116,8 @@
       </mat-card>
     </div>
     <!--call more configuration-->
-    <div *ngIf="edge.role == 'admin'" routerLink="/device/{{ edge.name }}/config/more" fxFlex="50%" fxFlex.xs="100%">
+    <div *ngIf="!edge.isVersionAtLeast('2018.8') && edge.role == 'admin'" routerLink="/device/{{ edge.name }}/config/more" fxFlex="50%"
+      fxFlex.xs="100%">
       <mat-card class="single">
         <mat-card-header>
           <mat-icon mat-card-avatar>more_horiz</mat-icon>
