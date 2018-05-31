@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.Edge;
+import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.OpenemsConstants;
@@ -47,7 +48,7 @@ import io.openems.common.utils.StringUtils;
 public class File implements MetadataService {
 
 	private final Logger log = LoggerFactory.getLogger(File.class);
-	
+
 	private String path = "";
 
 	private User user = null;
@@ -84,8 +85,8 @@ public class File implements MetadataService {
 						Role role = Role.getRole(parameters[3]);
 						int edgeId = Integer.parseInt(parameters[4]);
 						String apikey = parameters[5];
-						MyEdge edge = new MyEdge(edgeId, name, comment, OpenemsConstants.OPENEMS_VERSION, producttype,
-								role, apikey, new JsonObject());
+						MyEdge edge = new MyEdge(edgeId, name, comment, State.ACTIVE, OpenemsConstants.OPENEMS_VERSION,
+								producttype, role, apikey, new JsonObject());
 						edge.onSetConfig(jConfig -> {
 							log.debug(
 									"Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
@@ -118,7 +119,7 @@ public class File implements MetadataService {
 	@Override
 	public User authenticate() throws OpenemsException {
 		this.refreshData();
-		return this.user;		
+		return this.user;
 	}
 
 	@Override

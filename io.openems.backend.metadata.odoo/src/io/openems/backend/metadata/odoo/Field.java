@@ -7,6 +7,7 @@ public interface Field {
 		ID("id"), //
 		NAME("name"), //
 		COMMENT("comment"), //
+		STATE("state"), //
 		OPENEMS_VERSION("openems_version"), //
 		PRODUCT_TYPE("producttype"), //
 		OPENEMS_CONFIG("openems_config"), //

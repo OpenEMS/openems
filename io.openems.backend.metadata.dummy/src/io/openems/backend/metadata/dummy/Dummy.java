@@ -17,6 +17,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.Edge;
+import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.OpenemsConstants;
@@ -79,7 +80,7 @@ public class Dummy implements MetadataService {
 		Edge edge = this.edges.get(edgeId);
 		if (edge == null) {
 			int id = this.nextEdgeId++;
-			edge = new Edge(id, "EDGE:" + id, "comment [" + id + "]", OpenemsConstants.OPENEMS_VERSION,
+			edge = new Edge(id, "EDGE:" + id, "comment [" + id + "]", State.ACTIVE, OpenemsConstants.OPENEMS_VERSION,
 					"producttype [" + id + "]", new JsonObject());
 			edge.onSetConfig(jConfig -> {
 				log.debug("Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(jConfig, 100));

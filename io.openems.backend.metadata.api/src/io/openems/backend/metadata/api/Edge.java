@@ -9,9 +9,14 @@ import java.util.function.Consumer;
 import com.google.gson.JsonObject;
 
 public class Edge {
+	public enum State {
+		ACTIVE, INACTIVE, TEST, INSTALLED_ON_STOCK, OFFLINE;
+	}
+
 	private final int id;
 	private String name;
 	private String comment;
+	private State state;
 	private String version;
 	private String producttype;
 	private JsonObject jConfig;
@@ -21,10 +26,12 @@ public class Edge {
 	private String ipv4 = null;
 	private boolean isOnline;
 
-	public Edge(int id, String name, String comment, String version, String producttype, JsonObject jConfig) {
+	public Edge(int id, String name, String comment, State state, String version, String producttype,
+			JsonObject jConfig) {
 		this.id = id;
 		this.name = name;
 		this.comment = comment;
+		this.state = state;
 		this.version = version;
 		this.producttype = producttype;
 		this.jConfig = jConfig;
@@ -38,13 +45,6 @@ public class Edge {
 		return name;
 	}
 
-	/*
-	 * Marks this Edge as being online. This is called by an event listener.
-	 */
-	public void setOnline(boolean isOnline) {
-		this.isOnline = isOnline;
-	}
-
 	public JsonObject getConfig() {
 		return this.jConfig;
 	}
@@ -55,10 +55,6 @@ public class Edge {
 
 	public String getProducttype() {
 		return producttype;
-	}
-
-	public boolean isOnline() {
-		return this.isOnline;
 	}
 
 	public JsonObject toJsonObject() {
@@ -79,6 +75,27 @@ public class Edge {
 	}
 
 	/*
+	 * Online
+	 */
+	private final List<Consumer<Boolean>> onSetOnline = new CopyOnWriteArrayList<>();
+
+	public void onSetOnline(Consumer<Boolean> listener) {
+		this.onSetOnline.add(listener);
+	}
+
+	public boolean isOnline() {
+		return this.isOnline;
+	}
+
+	/**
+	 * Marks this Edge as being online. This is called by an event listener.
+	 */
+	public void setOnline(boolean isOnline) {
+		this.isOnline = isOnline;
+		this.onSetOnline.forEach(listener -> listener.accept(isOnline));
+	}
+
+	/*
 	 * Config
 	 */
 	private final List<Consumer<JsonObject>> onSetConfig = new CopyOnWriteArrayList<>();
@@ -92,6 +109,17 @@ public class Edge {
 			this.jConfig = jConfig;
 			this.onSetConfig.forEach(listener -> listener.accept(jConfig));
 		}
+	}
+
+	/*
+	 * State
+	 */
+	public void setState(State state) {
+		this.state = state;
+	}
+
+	public State getState() {
+		return state;
 	}
 
 	/*

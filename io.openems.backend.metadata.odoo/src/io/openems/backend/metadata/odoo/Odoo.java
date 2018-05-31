@@ -31,6 +31,7 @@ import com.google.gson.JsonParser;
 
 import io.openems.backend.edgewebsocket.api.EdgeWebsocketService;
 import io.openems.backend.metadata.api.Edge;
+import io.openems.backend.metadata.api.Edge.State;
 import io.openems.backend.metadata.api.MetadataService;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
@@ -218,6 +219,14 @@ public class Odoo implements MetadataService {
 			String comment = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.COMMENT.n()));
 			String openemsVersion = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.OPENEMS_VERSION.n()));
 			String productType = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.PRODUCT_TYPE.n()));
+			// parse State
+			String stateString = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.STATE.n()));
+			State state;
+			try {
+				state = State.valueOf(stateString.toUpperCase());
+			} catch (IllegalArgumentException e) {
+				state = State.INACTIVE; // Default
+			}
 			/*
 			 * Create instance of Edge and register listeners
 			 */
@@ -225,9 +234,17 @@ public class Odoo implements MetadataService {
 					(Integer) edgeMap.get(Field.FemsDevice.ID.n()), //
 					name, //
 					comment, //
+					state, //
 					openemsVersion, //
 					productType, //
 					jOpenemsConfig);
+			edge.onSetOnline(isOnline -> {
+				if (isOnline && edge.getState().equals(State.INACTIVE)) {
+					// Update Edge state to active
+					this.write(edge, new FieldValue(Field.FemsDevice.STATE, "active"));
+					edge.setState(State.ACTIVE);
+				}
+			});
 			edge.onSetConfig(jConfig -> {
 				// Update Edge config in Odoo
 				String config = new GsonBuilder().setPrettyPrinting().create().toJson(jConfig);

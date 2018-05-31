@@ -10,9 +10,9 @@ public class MyEdge extends Edge {
 	private final String apikey;
 	private final Role role;
 
-	public MyEdge(int id, String name, String comment, String producttype, String version, Role role, String apikey,
-			JsonObject jConfig) {
-		super(id, name, comment, version, producttype, jConfig);
+	public MyEdge(int id, String name, String comment, State state, String producttype, String version, Role role,
+			String apikey, JsonObject jConfig) {
+		super(id, name, comment, state, version, producttype, jConfig);
 		this.role = role;
 		this.apikey = apikey;
 	}
