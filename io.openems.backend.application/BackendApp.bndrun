@@ -19,7 +19,8 @@ JPM-Command:				openems-backend
 	bnd.identity;id='osgi.enroute.webconsole.xray.provider'
 -runproperties: \
 	felix.cm.dir=c:/openems-backend-config,\
-	org.ops4j.pax.logging.service.frameworkEventsLogLevel="DISABLED"
+	org.ops4j.pax.logging.service.frameworkEventsLogLevel="DISABLED",\
+	org.osgi.service.http.port=8079
 
 -runfw: org.eclipse.osgi;version='[3.10.100.v20150529-1857,3.10.100.v20150529-1857]'
 -runee: JavaSE-1.8
