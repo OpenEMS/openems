@@ -11,6 +11,8 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -158,14 +160,18 @@ public class Odoo implements MetadataService {
 		}
 	}
 
+	private final ExecutorService executor = Executors.newCachedThreadPool();
+
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
 		try {
 			int[] edgeIds = OdooUtils.search(this.url, this.database, this.uid, this.password, "fems.device",
 					new Domain("apikey", "=", apikey));
-			// refresh Edge cache
+			// refresh Edge cache in background
 			for (int edgeId : edgeIds) {
-				this.getEdgeForceRefresh(edgeId);
+				this.executor.submit(() -> {
+					this.getEdgeForceRefresh(edgeId);
+				});
 			}
 			return edgeIds;
 		} catch (OpenemsException e) {
@@ -200,11 +206,13 @@ public class Odoo implements MetadataService {
 	 * @param edgeId
 	 * @return
 	 */
+	// TODO reuse existing edgeId; otherwise duplicates get generated often
 	private Optional<Edge> getEdgeForceRefresh(int edgeId) {
 		try {
 			Map<String, Object> edgeMap = OdooUtils.readOne(this.url, this.database, this.uid, this.password,
 					"fems.device", edgeId, Field.FemsDevice.NAME, Field.FemsDevice.COMMENT,
-					Field.FemsDevice.OPENEMS_VERSION, Field.FemsDevice.PRODUCT_TYPE, Field.FemsDevice.OPENEMS_CONFIG);
+					Field.FemsDevice.OPENEMS_VERSION, Field.FemsDevice.PRODUCT_TYPE, Field.FemsDevice.OPENEMS_CONFIG,
+					Field.FemsDevice.SOC, Field.FemsDevice.IPV4, Field.FemsDevice.STATE);
 			/*
 			 * parse fields from Odoo
 			 */
@@ -219,12 +227,15 @@ public class Odoo implements MetadataService {
 			String comment = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.COMMENT.n()));
 			String openemsVersion = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.OPENEMS_VERSION.n()));
 			String productType = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.PRODUCT_TYPE.n()));
+			String initialIpv4 = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.IPV4.n()));
+			Integer initialSoc = OdooUtils.getAsInteger(edgeMap.get(Field.FemsDevice.SOC.n()));
 			// parse State
 			String stateString = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.STATE.n()));
 			State state;
 			try {
 				state = State.valueOf(stateString.toUpperCase());
 			} catch (IllegalArgumentException e) {
+				log.warn("Edge [" + name + "]. Unable to get State from [" + stateString + "]: " + e.getMessage());
 				state = State.INACTIVE; // Default
 			}
 			/*
@@ -237,12 +248,15 @@ public class Odoo implements MetadataService {
 					state, //
 					openemsVersion, //
 					productType, //
-					jOpenemsConfig);
+					jOpenemsConfig, //
+					initialSoc, //
+					initialIpv4);
 			edge.onSetOnline(isOnline -> {
 				if (isOnline && edge.getState().equals(State.INACTIVE)) {
 					// Update Edge state to active
-					this.write(edge, new FieldValue(Field.FemsDevice.STATE, "active"));
+					log.info("Mark Edge [" + edge.getId() + "] as ACTIVE. It was [" + edge.getState().name() + "]");
 					edge.setState(State.ACTIVE);
+					this.write(edge, new FieldValue(Field.FemsDevice.STATE, "active"));
 				}
 			});
 			edge.onSetConfig(jConfig -> {

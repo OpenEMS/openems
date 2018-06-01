@@ -6,9 +6,15 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonObject;
 
 public class Edge {
+
+	private final Logger log = LoggerFactory.getLogger(Edge.class);
+
 	public enum State {
 		ACTIVE, INACTIVE, TEST, INSTALLED_ON_STOCK, OFFLINE;
 	}
@@ -27,7 +33,7 @@ public class Edge {
 	private boolean isOnline;
 
 	public Edge(int id, String name, String comment, State state, String version, String producttype,
-			JsonObject jConfig) {
+			JsonObject jConfig, Integer soc, String ipv4) {
 		this.id = id;
 		this.name = name;
 		this.comment = comment;
@@ -35,6 +41,8 @@ public class Edge {
 		this.version = version;
 		this.producttype = producttype;
 		this.jConfig = jConfig;
+		this.soc = soc;
+		this.ipv4 = ipv4;
 	}
 
 	public int getId() {
@@ -70,8 +78,10 @@ public class Edge {
 
 	@Override
 	public String toString() {
-		return "Edge [id=" + id + ", name=" + name + ", comment=" + comment + ", producttype=" + producttype
-				+ ", isOnline=" + isOnline + "]";
+		return "Edge [id=" + id + ", name=" + name + ", comment=" + comment + ", state=" + state + ", version="
+				+ version + ", producttype=" + producttype + ", jConfig="
+				+ (jConfig.toString().isEmpty() ? "NOT_SET" : "set") + ", lastMessage=" + lastMessage + ", lastUpdate="
+				+ lastUpdate + ", soc=" + soc + ", ipv4=" + ipv4 + ", isOnline=" + isOnline + "]";
 	}
 
 	/*
@@ -90,7 +100,7 @@ public class Edge {
 	/**
 	 * Marks this Edge as being online. This is called by an event listener.
 	 */
-	public void setOnline(boolean isOnline) {
+	public synchronized void setOnline(boolean isOnline) {
 		this.isOnline = isOnline;
 		this.onSetOnline.forEach(listener -> listener.accept(isOnline));
 	}
@@ -104,8 +114,8 @@ public class Edge {
 		this.onSetConfig.add(listener);
 	}
 
-	public void setConfig(JsonObject jConfig) {
-		if (!jConfig.equals(this.jConfig)) { // on change
+	public synchronized void setConfig(JsonObject jConfig) {
+		if (this.jConfig == null || !jConfig.equals(this.jConfig)) { // on change
 			this.jConfig = jConfig;
 			this.onSetConfig.forEach(listener -> listener.accept(jConfig));
 		}
@@ -131,7 +141,7 @@ public class Edge {
 		this.onSetLastMessage.add(listener);
 	}
 
-	public void setLastMessage() {
+	public synchronized void setLastMessage() {
 		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
 		this.lastMessage = now;
 		this.onSetLastMessage.forEach(listener -> listener.run());
@@ -150,7 +160,7 @@ public class Edge {
 		this.onSetLastUpdate.add(listener);
 	}
 
-	public void setLastUpdate() {
+	public synchronized void setLastUpdate() {
 		ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
 		this.lastUpdate = now;
 		this.onSetLastUpdate.forEach(listener -> listener.run());
@@ -169,8 +179,9 @@ public class Edge {
 		this.onSetVersion.add(listener);
 	}
 
-	public void setVersion(String version) {
-		if (!version.equals(this.version)) { // on change
+	public synchronized void setVersion(String version) {
+		if (this.version == null || !version.equals(this.version)) { // on change
+			log.info("Edge [" + this.getId() + "]: Update version to [" + version + "]. It was [" + this.version + "]");
 			this.version = version;
 			this.onSetVersion.forEach(listener -> listener.accept(version));
 		}
@@ -185,8 +196,9 @@ public class Edge {
 		this.onSetSoc.add(listener);
 	}
 
-	public void setSoc(int soc) {
-		if (Integer.valueOf(soc) != this.soc) { // on change
+	public synchronized void setSoc(int soc) {
+		if (this.soc == null || this.soc.intValue() != this.soc) { // on change
+			log.info("Edge [" + this.getId() + "]: Update SoC to [" + soc + "]. It was [" + this.soc + "]");
 			this.soc = soc;
 			this.onSetSoc.forEach(listener -> listener.accept(soc));
 		}
@@ -201,8 +213,9 @@ public class Edge {
 		this.onSetIpv4.add(listener);
 	}
 
-	public void setIpv4(String ipv4) {
-		if (!ipv4.equals(this.ipv4)) { // on change
+	public synchronized void setIpv4(String ipv4) {
+		if (this.ipv4 == null || !ipv4.equals(this.ipv4)) { // on change
+			log.info("Edge [" + this.getId() + "]: Update IPv4 to [" + ipv4 + "]. It was [" + this.ipv4 + "]");
 			this.ipv4 = ipv4;
 			this.onSetIpv4.forEach(listener -> listener.accept(ipv4));
 		}

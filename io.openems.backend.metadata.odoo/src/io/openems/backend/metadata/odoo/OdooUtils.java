@@ -265,6 +265,17 @@ public class OdooUtils {
 	 */
 	protected static void write(String url, String database, int uid, String password, String model, Integer[] ids,
 			FieldValue... fieldValues) throws OpenemsException {
+		// // for debugging:
+		// StringBuilder b = new StringBuilder("Odoo Write: " + model + "; ");
+		// for (int id : ids) {
+		// b.append(id + ",");
+		// }
+		// b.append(";");
+		// for (FieldValue fieldValue : fieldValues) {
+		// b.append(fieldValue.getField().n() + ",");
+		// }
+		// System.out.println(b.toString());
+
 		// Create request params
 		String action = "write";
 		// Add fieldValues
@@ -297,6 +308,20 @@ public class OdooUtils {
 			return (String) object;
 		} else {
 			return "";
+		}
+	}
+
+	/**
+	 * Return the Object type-safe as a Integer; or otherwise null
+	 * 
+	 * @param object
+	 * @return
+	 */
+	protected static Integer getAsInteger(Object object) {
+		if (object != null && object instanceof Integer) {
+			return (Integer) object;
+		} else {
+			return null;
 		}
 	}
 }

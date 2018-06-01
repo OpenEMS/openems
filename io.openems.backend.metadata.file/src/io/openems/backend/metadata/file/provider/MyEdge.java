@@ -12,7 +12,7 @@ public class MyEdge extends Edge {
 
 	public MyEdge(int id, String name, String comment, State state, String producttype, String version, Role role,
 			String apikey, JsonObject jConfig) {
-		super(id, name, comment, state, version, producttype, jConfig);
+		super(id, name, comment, state, version, producttype, jConfig, null, null);
 		this.role = role;
 		this.apikey = apikey;
 	}

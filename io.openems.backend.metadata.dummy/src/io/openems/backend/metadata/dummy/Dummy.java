@@ -81,7 +81,7 @@ public class Dummy implements MetadataService {
 		if (edge == null) {
 			int id = this.nextEdgeId++;
 			edge = new Edge(id, "EDGE:" + id, "comment [" + id + "]", State.ACTIVE, OpenemsConstants.OPENEMS_VERSION,
-					"producttype [" + id + "]", new JsonObject());
+					"producttype [" + id + "]", new JsonObject(), null, null);
 			edge.onSetConfig(jConfig -> {
 				log.debug("Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
 			});
