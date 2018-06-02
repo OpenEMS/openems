@@ -34,7 +34,7 @@ import io.openems.edge.meter.symmetric.api.SymmetricMeter;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Meter.SOCOMEC.DirisA14", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
-		implements SymmetricMeter, AsymmetricMeter, OpenemsComponent {
+		implements SymmetricMeter, AsymmetricMeter, Meter, OpenemsComponent {
 
 	private MeterType meterType = MeterType.PRODUCTION;
 

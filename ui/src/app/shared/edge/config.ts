@@ -58,11 +58,22 @@ export class ConfigImpl implements DefaultTypes.Config {
     public readonly evcsDevices: string[] = [];
 
     constructor(private readonly edge: Edge, private readonly config: DefaultTypes.Config) {
+        let storageThings: string[] = []
+
         if (edge.isVersionAtLeast("2018.8")) {
             /*
              * FROM VERSION 2018.8
              */
             Object.assign(this, config);
+
+            for (let componentId in config.components) {
+                const i = this.getImplements2(componentId);
+
+                // Ess
+                if (i.includes("Ess")) {
+                    storageThings.push(componentId);
+                }
+            }
 
         } else {
             /*
@@ -82,7 +93,6 @@ export class ConfigImpl implements DefaultTypes.Config {
 
             Object.assign(this, config);
 
-            let storageThings: string[] = []
             let chargers: string[] = [];
             let gridMeters: string[] = [];
             let productionMeters: string[] = [];
@@ -156,7 +166,6 @@ export class ConfigImpl implements DefaultTypes.Config {
                 }
             }
 
-            this.storageThings = storageThings.sort();
             this.chargers = chargers.sort();
             this.gridMeters = gridMeters.sort();
             this.productionMeters = productionMeters.sort();
@@ -167,6 +176,8 @@ export class ConfigImpl implements DefaultTypes.Config {
             this.simulatorDevices = simulatorDevices;
             this.evcsDevices = evcsDevices;
         }
+
+        this.storageThings = storageThings.sort();
     }
 
     public getStateChannels(): DefaultTypes.ChannelAddresses {
@@ -184,49 +195,80 @@ export class ConfigImpl implements DefaultTypes.Config {
     * Return ChannelAddresses of power channels
     */
     public getPowerChannels(): DefaultTypes.ChannelAddresses {
-        let ignoreNatures = { EssClusterNature: true };
         let result: DefaultTypes.ChannelAddresses = {}
 
-        // Set "ignoreNatures"
-        for (let thingId of this.storageThings) {
-            let i = this.getImplements(this.config.things[thingId]);
+        if (this.edge.isVersionAtLeast("2018.8")) {
+            /*
+             * FROM VERSION 2018.8
+             */
+            return {
+                "_sum": [
+                    'EssActivePower', 'GridActivePower', 'ProductionActivePower', 'ConsumptionActivePower'
+                ]
+            }
 
-            if (i.includes("FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
-                ignoreNatures["AsymmetricMeterNature"] = true;
-            }
-        }
-        // Parse all things
-        for (let thingId in this.config.things) {
-            let clazz = <string>this.config.things[thingId].class; // TODO casting
-            let i = this.getImplements(this.config.things[thingId]);
-            let channels = [];
-            // ESS
-            if (i.includes("EssNature")
-                && !i.includes("EssClusterNature") /* ignore cluster */
-                && !i.includes("AsymmetricSymmetricCombinationEssNature") /* ignore symmetric Ess of Pro 9-12 */) {
-                if (i.includes("FeneconMiniEss")) {
-                    channels.push("ActivePowerL1");
-                } else if (i.includes("AsymmetricEssNature")) {
-                    channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
-                } else if (i.includes("SymmetricEssNature")) {
-                    channels.push("ActivePower");
+            // for (let componentId of this.storageThings) {
+            //     const i = this.getImplements2(componentId);
+            //     let channels = [];
+
+            //     // Ess
+            //     if (i.includes("SymmetricEss")) {
+            //         channels.push("ActivePower");
+            //     }
+
+            //     // store result
+            //     if (channels.length > 0) {
+            //         result[componentId] = channels;
+            //     }
+            // }
+
+        } else {
+            /*
+             * VERSION BEFORE 2018.8
+             */
+            let ignoreNatures = { EssClusterNature: true };
+
+            // Set "ignoreNatures"
+            for (let thingId of this.storageThings) {
+                let i = this.getImplements(this.config.things[thingId]);
+
+                if (i.includes("FeneconCommercialEss")) { // workaround to ignore asymmetric meter for commercial
+                    ignoreNatures["AsymmetricMeterNature"] = true;
                 }
             }
-            // Meter
-            if (i.includes("MeterNature")) {
-                if (i.includes("AsymmetricMeterNature") && !ignoreNatures["AsymmetricMeterNature"]) {
-                    channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
-                } else if (i.includes("SymmetricMeterNature")) {
-                    channels.push("ActivePower");
+            // Parse all things
+            for (let thingId in this.config.things) {
+                let clazz = <string>this.config.things[thingId].class; // TODO casting
+                let i = this.getImplements(this.config.things[thingId]);
+                let channels = [];
+                // ESS
+                if (i.includes("EssNature")
+                    && !i.includes("EssClusterNature") /* ignore cluster */
+                    && !i.includes("AsymmetricSymmetricCombinationEssNature") /* ignore symmetric Ess of Pro 9-12 */) {
+                    if (i.includes("FeneconMiniEss")) {
+                        channels.push("ActivePowerL1");
+                    } else if (i.includes("AsymmetricEssNature")) {
+                        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
+                    } else if (i.includes("SymmetricEssNature")) {
+                        channels.push("ActivePower");
+                    }
                 }
-            }
-            // Charger
-            if (i.includes("ChargerNature")) {
-                channels.push("ActualPower");
-            }
-            // store result
-            if (channels.length > 0) {
-                result[thingId] = channels;
+                // Meter
+                if (i.includes("MeterNature")) {
+                    if (i.includes("AsymmetricMeterNature") && !ignoreNatures["AsymmetricMeterNature"]) {
+                        channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
+                    } else if (i.includes("SymmetricMeterNature")) {
+                        channels.push("ActivePower");
+                    }
+                }
+                // Charger
+                if (i.includes("ChargerNature")) {
+                    channels.push("ActualPower");
+                }
+                // store result
+                if (channels.length > 0) {
+                    result[thingId] = channels;
+                }
             }
         }
         return result;
@@ -236,17 +278,31 @@ export class ConfigImpl implements DefaultTypes.Config {
      * Returns ChannelAddresses of ESS Soc channels
      */
     public getEssSocChannels(): DefaultTypes.ChannelAddresses {
-        let result: DefaultTypes.ChannelAddresses = {}
-        for (let thingId of this.storageThings) {
-            let channels = [];
-            // ESS
-            channels.push("Soc");
-            // store result
-            if (channels.length > 0) {
-                result[thingId] = channels;
+        if (this.edge.isVersionAtLeast("2018.8")) {
+            /*
+             * FROM VERSION 2018.8
+             */
+            return {
+                "_sum": [
+                    'EssSoc'
+                ]
             }
+        } else {
+            /*
+             * VERSION BEFORE 2018.8
+             */
+            let result: DefaultTypes.ChannelAddresses = {}
+            for (let thingId of this.storageThings) {
+                let channels = [];
+                // ESS
+                channels.push("Soc");
+                // store result
+                if (channels.length > 0) {
+                    result[thingId] = channels;
+                }
+            }
+            return result;
         }
-        return result;
     }
 
     /**
@@ -304,6 +360,17 @@ export class ConfigImpl implements DefaultTypes.Config {
             widgets.push("EVCS");
         }
         return widgets;
+    }
+
+    private getImplements2(componentId: string): string[] {
+        let component = this.config.components[componentId];
+        let i;
+        if (component["service.factoryPid"] in this.meta) {
+            i = this.meta[component["service.factoryPid"]].implements;
+        } else {
+            i = [];
+        }
+        return i;
     }
 
     private getImplements(thing: DefaultTypes.ThingConfig): string | string[] {

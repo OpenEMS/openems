@@ -125,7 +125,6 @@ public interface SymmetricMeter extends Meter {
 								if (newValue > Math.max(maxActivePower, maxNextActivePower)) {
 									// avoid getting called too often -> round to 100
 									newValue = IntUtils.roundToPrecision(newValue, Round.UP, 100);
-									System.out.println("set new maxAP for " + channel.address() + ": " + newValue);
 									maxActivePowerChannel.setNextValue(newValue);
 								}
 							}

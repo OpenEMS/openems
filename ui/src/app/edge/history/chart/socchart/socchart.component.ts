@@ -86,32 +86,47 @@ export class SocChartComponent implements OnInit, OnChanges {
       this._edge.historicDataQuery(this.fromDate, this.toDate, this.channels).then(historicData => {
         // prepare datas array and prefill with each device
         let tmpData: {
-          [thing: string]: number[];
+          [componentId: string]: number[];
         } = {};
         let labels: Date[] = [];
-        for (let thing in this.channels) {
-          tmpData[thing] = [];
+        for (let componentId in this.channels) {
+          tmpData[componentId] = [];
         }
         for (let record of historicData.data) {
           // read timestamp and soc of each device
           labels.push(new Date(record.time));
-          for (let thing in this.channels) {
+          for (let componentId in this.channels) {
             let soc = null;
-            if (thing in record.channels && "Soc" in record.channels[thing] && record.channels[thing]["Soc"] != null) {
-              soc = Math.round(record.channels[thing].Soc);
+            if (componentId in record.channels
+              && "Soc" in record.channels[componentId]
+              && record.channels[componentId]["Soc"] != null) {
+              soc = Math.round(record.channels[componentId].Soc);
             }
             if (soc > 100 || soc < 0) {
               soc = null;
             }
-            tmpData[thing].push(soc);
+            tmpData[componentId].push(soc);
           }
         }
         // refresh global datasets and labels
         let datasets = [];
-        for (let device in tmpData) {
+        for (let componentId in tmpData) {
+          let label;
+          if (this.edge.isVersionAtLeast("2018.8")) {
+            /*
+             * AFTER VERSION 2018.8
+             */
+            label = this.translate.instant('General.Soc')
+          } else {
+            /*
+            * BEFORE VERSION 2018.8
+            */
+            label = this.translate.instant('General.Soc') + " (" + (this.config === null ? componentId : this.config.things[componentId].alias) + ")"
+          }
+
           datasets.push({
-            label: this.translate.instant('General.Soc') + " (" + (this.config === null ? device : this.config.things[device].alias) + ")",
-            data: tmpData[device]
+            label: label,
+            data: tmpData[componentId]
           });
         }
         this.datasets = datasets;

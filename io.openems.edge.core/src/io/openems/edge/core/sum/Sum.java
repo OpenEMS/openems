@@ -206,13 +206,14 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	}
 
 	private final Consumer<Value<Integer>> calculateMaxConsumption = ignoreValue -> {
-		int maxPower = 0;
-		for (Ess ess : this.esss) {
-			maxPower += ess.getMaxActivePower().value().orElse(0);
+		int ess = 0;
+		for (Ess e : this.esss) {
+			ess += e.getMaxActivePower().getNextValue().orElse(0);
 		}
-		maxPower += this.getGridMaxActivePower().value().orElse(0);
-		maxPower += this.getProductionMaxActivePower().value().orElse(0);
-		this.getConsumptionMaxActivePower().setNextValue(maxPower);
+		int grid = this.getGridMaxActivePower().getNextValue().orElse(0);
+		int production = this.getProductionMaxActivePower().getNextValue().orElse(0);
+		int consumption = ess + grid + production;
+		this.getConsumptionMaxActivePower().setNextValue(consumption);
 	};
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
@@ -270,7 +271,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		this.gridActivePower = new SumInteger(this, ChannelId.GRID_ACTIVE_POWER, SymmetricMeter.ChannelId.ACTIVE_POWER);
 		this.gridMinActivePower = new SumInteger(this, ChannelId.GRID_MIN_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.MIN_ACTIVE_POWER);
-		this.gridMaxActivePower = new SumInteger(this, ChannelId.GRID_MAX_ACTIVE_POWER,
+		this.gridMaxActivePower = (SumInteger) new SumInteger(this, ChannelId.GRID_MAX_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.MAX_ACTIVE_POWER);
 		/*
 		 * Production
@@ -308,7 +309,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 
 	@Override
 	public String debugLog() {
-		return "ESS SoC:" + this.getEssSoc().value().asString() //
+		return "Ess SoC:" + this.getEssSoc().value().asString() //
 				+ "|L:" + this.getEssActivePower().value().asString() //
 				+ " Grid L:" + this.getGridActivePower().value().asString() //
 				+ " Production L:" + this.getProductionActivePower().value().asString() //
