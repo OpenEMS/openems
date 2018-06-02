@@ -20,6 +20,7 @@ public class Edge {
 	}
 
 	private final int id;
+	private final String apikey;
 	private String name;
 	private String comment;
 	private State state;
@@ -32,9 +33,10 @@ public class Edge {
 	private String ipv4 = null;
 	private boolean isOnline;
 
-	public Edge(int id, String name, String comment, State state, String version, String producttype,
+	public Edge(int id, String apikey, String name, String comment, State state, String version, String producttype,
 			JsonObject jConfig, Integer soc, String ipv4) {
 		this.id = id;
+		this.apikey = apikey;
 		this.name = name;
 		this.comment = comment;
 		this.state = state;
@@ -47,6 +49,10 @@ public class Edge {
 
 	public int getId() {
 		return id;
+	}
+
+	public String getApikey() {
+		return apikey;
 	}
 
 	public String getName() {

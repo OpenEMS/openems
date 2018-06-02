@@ -51,8 +51,20 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 			}
 			apikey = apikeyOpt.get();
 
+			// add attachment to websocket
+			Attachment attachment = new Attachment(apikey);
+			websocket.setAttachment(attachment);
+
 			// get edgeId for apikey
 			int[] edgeIds = this.parent.metadataService.getEdgeIdsForApikey(apikey);
+
+			// verify apikey (is also empty, when Odoo is not initialized)
+			if (edgeIds.length == 0) {
+				throw new OpenemsException("Unable to authenticate this Apikey.");
+			}
+
+			// add edgeIds to websocket attachment
+			attachment.setEdgeIds(edgeIds);
 
 			// if existing: close existing websocket for this apikey
 			synchronized (this.websocketsMap) {
@@ -66,9 +78,6 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 					this.websocketsMap.put(edgeId, websocket);
 				}
 			}
-
-			// store edgeIds together with WebSocket
-			websocket.setAttachment(edgeIds);
 
 			// send successful reply to openems
 			JsonObject jReply = DefaultMessages.openemsConnectionSuccessfulReply();
@@ -98,6 +107,7 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 				}
 			}
 		} catch (OpenemsException e) {
+			log.warn(e.getMessage());
 			// send connection failed to OpenEMS
 			JsonObject jReply = DefaultMessages.openemsConnectionFailedReply(e.getMessage());
 			WebSocketUtils.sendOrLogError(websocket, jReply);
@@ -113,8 +123,14 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 	 */
 	@Override
 	protected void _onMessage(WebSocket websocket, JsonObject jMessage) {
-		// get edgeIds from websocket
-		int[] edgeIds = websocket.getAttachment();
+		Attachment attachment = websocket.getAttachment();
+		int[] edgeIds = attachment.getEdgeIds();
+		if (edgeIds.length == 0) {
+			log.info("Closed by onMessage");
+			// close websocket
+			websocket.closeConnection(CloseFrame.REFUSE,
+					"Connection to backend failed. Apikey [" + attachment.getApikey() + "] is not authenticated");
+		}
 
 		// set last update timestamps in MetadataService
 		for (int edgeId : edgeIds) {
@@ -182,10 +198,11 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 
 	@Override
 	protected void _onError(WebSocket websocket, Exception ex) {
-		if (websocket == null) {
+		Attachment attachment = websocket.getAttachment();
+		int[] edgeIds = attachment.getEdgeIds();
+		if (websocket == null || edgeIds.length == 0) {
 			log.warn("Edge [UNKNOWN] websocket error: " + ex.getMessage());
 		} else {
-			int[] edgeIds = websocket.getAttachment();
 			for (String edgeName : getEdgeNames(edgeIds)) {
 				log.warn("Edge [" + edgeName + "] websocket error: " + ex.getMessage());
 			}
@@ -195,7 +212,8 @@ public class EdgeWebsocketServer extends AbstractWebsocketServer {
 	@Override
 	protected void _onClose(WebSocket websocket) {
 		// get edgeIds from websocket
-		int[] edgeIds = websocket.getAttachment();
+		Attachment attachment = websocket.getAttachment();
+		int[] edgeIds = attachment.getEdgeIds();
 
 		// remove websocket from local map
 		for (int edgeId : edgeIds) {

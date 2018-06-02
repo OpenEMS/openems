@@ -132,6 +132,60 @@ public class OdooUtils {
 	}
 
 	/**
+	 * Executes a Search and read on Odoo
+	 * 
+	 * @see https://www.odoo.com/documentation/10.0/api_integration.html
+	 * 
+	 * @param url
+	 *            URL of Odoo instance
+	 * @param database
+	 *            Database name
+	 * @param uid
+	 *            UID of user (e.g. '1' for admin)
+	 * @param password
+	 *            Password of user
+	 * @param model
+	 *            Odoo model to query (e.g. 'res.partner')
+	 * @param domains
+	 *            Odoo domain filters
+	 * @return Odoo object ids
+	 * @throws OpenemsException
+	 */
+	// TODO this method is not yet functional
+	protected static Map<String, Object>[] searchAndRead(String url, String database, int uid, String password,
+			String model, Domain[] domains, Field[] fields) throws OpenemsException {
+		// Add domain filter
+		Object[] domain = new Object[domains.length];
+		for (int i = 0; i < domains.length; i++) {
+			Domain filter = domains[i];
+			domain[i] = new Object[] { filter.field, filter.operator, filter.value };
+		}
+		Object[] paramsDomain = new Object[] { domain };
+		// Add fields
+		String[] fieldStrings = new String[fields.length];
+		for (int i = 0; i < fields.length; i++) {
+			fieldStrings[i] = fields[i].n();
+		}
+		Map<String, String[]> paramsFields = new HashMap<>();
+		paramsFields.put("fields", fieldStrings);
+		// Create request params
+		String action = "search_read";
+		Object[] params = new Object[] { database, uid, password, model, action, paramsDomain, paramsFields };
+		try {
+			// Execute XML request
+			Object[] resultObjs = (Object[]) executeKw(url, params);
+			// Parse results
+			// int[] results = new int[resultObjs.length];
+			// for (int i = 0; i < resultObjs.length; i++) {
+			// results[i] = (int) resultObjs[i];
+			// }
+			return null;
+		} catch (Throwable e) {
+			throw new OpenemsException("Unable to search and read from Odoo: " + e.getMessage());
+		}
+	}
+
+	/**
 	 * Reads multiple records from Odoo
 	 * 
 	 * @param url
@@ -152,23 +206,24 @@ public class OdooUtils {
 	 * @throws OpenemsException
 	 */
 	protected static Map<String, Object>[] readMany(String url, String database, int uid, String password, String model,
-			int[] ids, Field... fields) throws OpenemsException {
+			Integer[] ids, Field... fields) throws OpenemsException {
 		// Create request params
 		String action = "read";
 		// Add ids
-		Object[] paramsIds = new Object[ids.length];
-		for (int i = 0; i < ids.length; i++) {
-			paramsIds[i] = ids[i];
-		}
+		// Object[] paramsIds = Arrays.stream(ids).mapToObj(id -> (Integer)
+		// id).toArray();
+		// Object[] paramsIds = new Object[2];
+		// paramsIds[0] = ids[0];
+		// paramsIds[1] = ids[1];
 		// Add fields
 		String[] fieldStrings = new String[fields.length];
 		for (int i = 0; i < fields.length; i++) {
-			fieldStrings[i] = fields[i].toString();
+			fieldStrings[i] = fields[i].n();
 		}
-		Map<String, String[]> paramsFields = new HashMap<>();
-		paramsFields.put("fields", fieldStrings);
+		// Map<String, String[]> paramsFields = new HashMap<>();
+		// paramsFields.put("fields", fieldStrings);
 		// Create request params
-		Object[] params = new Object[] { database, uid, password, model, action, paramsIds, paramsFields };
+		Object[] params = new Object[] { database, uid, password, model, action, new Object[] { ids, fieldStrings } };
 		try {
 			// Execute XML request
 			Object[] resultObjs = (Object[]) executeKw(url, params);
@@ -178,7 +233,7 @@ public class OdooUtils {
 			for (int i = 0; i < resultObjs.length; i++) {
 				@SuppressWarnings("unchecked")
 				Map<String, Object> result = (Map<String, Object>) resultObjs[i];
-				results[0] = result;
+				results[i] = result;
 			}
 			return results;
 		} catch (Throwable e) {

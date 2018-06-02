@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -45,6 +47,10 @@ import io.openems.common.utils.JsonUtils;
 public class Odoo implements MetadataService {
 
 	private final Logger log = LoggerFactory.getLogger(Odoo.class);
+	private final int READ_BATCH_SIZE = 100;
+	private final AtomicBoolean isInitialized = new AtomicBoolean(false);
+	private final ExecutorService readEdgeExecutor = Executors.newSingleThreadExecutor();
+	private Future<?> readEdgeFuture = null;
 
 	protected String url;
 	protected String database;
@@ -67,12 +73,143 @@ public class Odoo implements MetadataService {
 		this.uid = config.uid();
 		this.password = config.password();
 		this.writeWorker = new OdooWriteWorker(this);
+		this.readEdgeFuture = this.readEdgeExecutor.submit((Runnable) () -> {
+			/*
+			 * Initialize Edge map
+			 */
+			int[] edgeIds;
+			try {
+				edgeIds = OdooUtils.search(this.url, this.database, this.uid, this.password, "fems.device");
+			} catch (OpenemsException e) {
+				log.error("Unable to search Edges from Odoo: " + e.getMessage());
+				e.printStackTrace();
+				return;
+			}
+			for (int firstIndex = 0; firstIndex < edgeIds.length; firstIndex += READ_BATCH_SIZE) {
+				/*
+				 * read batches of 100 Edges
+				 */
+				int lastIndex = firstIndex + READ_BATCH_SIZE - 1 > edgeIds.length ? edgeIds.length
+						: firstIndex + READ_BATCH_SIZE - 1;
+				Integer[] batchEdgeIds = new Integer[lastIndex - firstIndex + 1];
+				for (int i = 0; i <= lastIndex - firstIndex; i++) {
+					batchEdgeIds[i] = edgeIds[firstIndex + i];
+				}
+				Map<String, Object>[] edgeMaps;
+				try {
+					edgeMaps = OdooUtils.readMany(this.url, this.database, this.uid, this.password, "fems.device", //
+							batchEdgeIds, //
+							new Field[] { Field.FemsDevice.ID, Field.FemsDevice.APIKEY, Field.FemsDevice.NAME,
+									Field.FemsDevice.COMMENT, Field.FemsDevice.OPENEMS_VERSION,
+									Field.FemsDevice.PRODUCT_TYPE, Field.FemsDevice.OPENEMS_CONFIG,
+									Field.FemsDevice.SOC, Field.FemsDevice.IPV4, Field.FemsDevice.STATE });
+				} catch (OpenemsException e) {
+					log.error("Unable to read Edges from Odoo: " + e.getMessage());
+					e.printStackTrace();
+					continue;
+				}
+				/*
+				 * parse fields from Odoo
+				 */
+				for (Map<String, Object> edgeMap : edgeMaps) {
+					Integer edgeId = OdooUtils.getAsInteger(edgeMap.get(Field.FemsDevice.ID.n()));
+					try {
+						String openemsConfig = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.OPENEMS_CONFIG.n()));
+						JsonObject jOpenemsConfig;
+						if (openemsConfig.isEmpty()) {
+							jOpenemsConfig = new JsonObject();
+						} else {
+							jOpenemsConfig = JsonUtils.getAsJsonObject(JsonUtils.parse(openemsConfig));
+						}
+						String apikey = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.APIKEY.n()));
+						String name = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.NAME.n()));
+						String comment = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.COMMENT.n()));
+						String openemsVersion = OdooUtils
+								.getAsString(edgeMap.get(Field.FemsDevice.OPENEMS_VERSION.n()));
+						String productType = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.PRODUCT_TYPE.n()));
+						String initialIpv4 = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.IPV4.n()));
+						Integer initialSoc = OdooUtils.getAsInteger(edgeMap.get(Field.FemsDevice.SOC.n()));
+						// parse State
+						String stateString = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.STATE.n()));
+						State state;
+						try {
+							state = State.valueOf(stateString.toUpperCase());
+						} catch (IllegalArgumentException e) {
+							log.warn("Edge [" + name + "]. Unable to get State from [" + stateString + "]: "
+									+ e.getMessage());
+							state = State.INACTIVE; // Default
+						}
+						/*
+						 * Create instance of Edge and register listeners
+						 */
+						Edge edge = new Edge( //
+								edgeId, //
+								apikey, //
+								name, //
+								comment, //
+								state, //
+								openemsVersion, //
+								productType, //
+								jOpenemsConfig, //
+								initialSoc, //
+								initialIpv4);
+						edge.onSetOnline(isOnline -> {
+							if (isOnline && edge.getState().equals(State.INACTIVE)) {
+								// Update Edge state to active
+								log.info("Mark Edge [" + edge.getId() + "] as ACTIVE. It was [" + edge.getState().name()
+										+ "]");
+								edge.setState(State.ACTIVE);
+								this.write(edge, new FieldValue(Field.FemsDevice.STATE, "active"));
+							}
+						});
+						edge.onSetConfig(jConfig -> {
+							// Update Edge config in Odoo
+							String conf = new GsonBuilder().setPrettyPrinting().create().toJson(jConfig);
+							this.write(edge, new FieldValue(Field.FemsDevice.OPENEMS_CONFIG, conf));
+						});
+						edge.onSetLastMessage(() -> {
+							// Set LastMessage timestamp in Odoo
+							this.writeWorker.onLastMessage(edgeId);
+						});
+						edge.onSetLastUpdate(() -> {
+							// Set LastUpdate timestamp in Odoo
+							this.writeWorker.onLastUpdate(edgeId);
+						});
+						edge.onSetVersion(version -> {
+							// Set Version in Odoo
+							this.write(edge, new FieldValue(Field.FemsDevice.OPENEMS_VERSION, version));
+						});
+						edge.onSetSoc(soc -> {
+							// Set SoC in Odoo
+							this.write(edge, new FieldValue(Field.FemsDevice.SOC, String.valueOf(soc)));
+						});
+						edge.onSetIpv4(ipv4 -> {
+							// Set IPv4 in Odoo
+							this.write(edge, new FieldValue(Field.FemsDevice.IPV4, String.valueOf(ipv4)));
+						});
+						edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
+
+						// store in cache
+						synchronized (this.edges) {
+							this.edges.put(edgeId, edge);
+						}
+					} catch (OpenemsException e) {
+						log.error("Unable to read Edge [ID:" + edgeId + "]: " + e.getMessage());
+					}
+				}
+				log.info("Odoo: add batch from [" + firstIndex + "] to [" + lastIndex + "] to cache");
+			}
+			this.isInitialized.set(true);
+		});
 	}
 
 	@Deactivate
 	void deactivate() {
 		log.info("Deactivate Metadata.Odoo");
 		this.writeWorker.dispose();
+		this.readEdgeFuture.cancel(true);
+		this.readEdgeExecutor.shutdown();
+		this.isInitialized.set(false);
 	}
 
 	/**
@@ -160,24 +297,10 @@ public class Odoo implements MetadataService {
 		}
 	}
 
-	private final ExecutorService executor = Executors.newCachedThreadPool();
-
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
-		try {
-			int[] edgeIds = OdooUtils.search(this.url, this.database, this.uid, this.password, "fems.device",
-					new Domain("apikey", "=", apikey));
-			// refresh Edge cache in background
-			for (int edgeId : edgeIds) {
-				this.executor.submit(() -> {
-					this.getEdgeForceRefresh(edgeId);
-				});
-			}
-			return edgeIds;
-		} catch (OpenemsException e) {
-			log.error("Unable to get EdgeIds for Apikey: " + e.getMessage());
-			return new int[] {};
-		}
+		return this.edges.values().stream().filter(edge -> apikey.equals(edge.getApikey()))
+				.mapToInt(edge -> edge.getId()).toArray();
 	}
 
 	@Override
@@ -189,7 +312,10 @@ public class Odoo implements MetadataService {
 			}
 		}
 		// if it was not in cache:
-		return this.getEdgeForceRefresh(edgeId);
+		if (this.isInitialized.get()) {
+			log.error("Edge [" + edgeId + "] is not in Cache!");
+		}
+		return Optional.empty();
 	}
 
 	@Override
@@ -197,102 +323,6 @@ public class Odoo implements MetadataService {
 		// try to read from cache
 		synchronized (this.users) {
 			return Optional.ofNullable(this.users.get(userId));
-		}
-	}
-
-	/**
-	 * Reads the Edge object from Odoo and stores it in the cache
-	 * 
-	 * @param edgeId
-	 * @return
-	 */
-	// TODO reuse existing edgeId; otherwise duplicates get generated often
-	private Optional<Edge> getEdgeForceRefresh(int edgeId) {
-		try {
-			Map<String, Object> edgeMap = OdooUtils.readOne(this.url, this.database, this.uid, this.password,
-					"fems.device", edgeId, Field.FemsDevice.NAME, Field.FemsDevice.COMMENT,
-					Field.FemsDevice.OPENEMS_VERSION, Field.FemsDevice.PRODUCT_TYPE, Field.FemsDevice.OPENEMS_CONFIG,
-					Field.FemsDevice.SOC, Field.FemsDevice.IPV4, Field.FemsDevice.STATE);
-			/*
-			 * parse fields from Odoo
-			 */
-			String openemsConfig = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.OPENEMS_CONFIG.n()));
-			JsonObject jOpenemsConfig;
-			if (openemsConfig.isEmpty()) {
-				jOpenemsConfig = new JsonObject();
-			} else {
-				jOpenemsConfig = JsonUtils.getAsJsonObject(JsonUtils.parse(openemsConfig));
-			}
-			String name = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.NAME.n()));
-			String comment = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.COMMENT.n()));
-			String openemsVersion = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.OPENEMS_VERSION.n()));
-			String productType = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.PRODUCT_TYPE.n()));
-			String initialIpv4 = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.IPV4.n()));
-			Integer initialSoc = OdooUtils.getAsInteger(edgeMap.get(Field.FemsDevice.SOC.n()));
-			// parse State
-			String stateString = OdooUtils.getAsString(edgeMap.get(Field.FemsDevice.STATE.n()));
-			State state;
-			try {
-				state = State.valueOf(stateString.toUpperCase());
-			} catch (IllegalArgumentException e) {
-				log.warn("Edge [" + name + "]. Unable to get State from [" + stateString + "]: " + e.getMessage());
-				state = State.INACTIVE; // Default
-			}
-			/*
-			 * Create instance of Edge and register listeners
-			 */
-			Edge edge = new Edge( //
-					(Integer) edgeMap.get(Field.FemsDevice.ID.n()), //
-					name, //
-					comment, //
-					state, //
-					openemsVersion, //
-					productType, //
-					jOpenemsConfig, //
-					initialSoc, //
-					initialIpv4);
-			edge.onSetOnline(isOnline -> {
-				if (isOnline && edge.getState().equals(State.INACTIVE)) {
-					// Update Edge state to active
-					log.info("Mark Edge [" + edge.getId() + "] as ACTIVE. It was [" + edge.getState().name() + "]");
-					edge.setState(State.ACTIVE);
-					this.write(edge, new FieldValue(Field.FemsDevice.STATE, "active"));
-				}
-			});
-			edge.onSetConfig(jConfig -> {
-				// Update Edge config in Odoo
-				String config = new GsonBuilder().setPrettyPrinting().create().toJson(jConfig);
-				this.write(edge, new FieldValue(Field.FemsDevice.OPENEMS_CONFIG, config));
-			});
-			edge.onSetLastMessage(() -> {
-				// Set LastMessage timestamp in Odoo
-				this.writeWorker.onLastMessage(edgeId);
-			});
-			edge.onSetLastUpdate(() -> {
-				// Set LastUpdate timestamp in Odoo
-				this.writeWorker.onLastUpdate(edgeId);
-			});
-			edge.onSetVersion(version -> {
-				// Set Version in Odoo
-				this.write(edge, new FieldValue(Field.FemsDevice.OPENEMS_VERSION, version));
-			});
-			edge.onSetSoc(soc -> {
-				// Set SoC in Odoo
-				this.write(edge, new FieldValue(Field.FemsDevice.SOC, String.valueOf(soc)));
-			});
-			edge.onSetIpv4(ipv4 -> {
-				// Set IPv4 in Odoo
-				this.write(edge, new FieldValue(Field.FemsDevice.IPV4, String.valueOf(ipv4)));
-			});
-			edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
-			// store in cache
-			synchronized (this.edges) {
-				this.edges.put(edge.getId(), edge);
-			}
-			return Optional.ofNullable(edge);
-		} catch (OpenemsException e) {
-			log.error("Unable to read Edge [ID:" + edgeId + "]: " + e.getMessage());
-			return Optional.empty();
 		}
 	}
 

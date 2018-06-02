@@ -5,6 +5,7 @@ public interface Field {
 
 	public enum FemsDevice implements Field {
 		ID("id"), //
+		APIKEY("apikey"), //
 		NAME("name"), //
 		COMMENT("comment"), //
 		STATE("state"), //
