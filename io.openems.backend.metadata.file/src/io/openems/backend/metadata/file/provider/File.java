@@ -85,8 +85,8 @@ public class File implements MetadataService {
 						Role role = Role.getRole(parameters[3]);
 						int edgeId = Integer.parseInt(parameters[4]);
 						String apikey = parameters[5];
-						MyEdge edge = new MyEdge(edgeId, name, comment, State.ACTIVE, OpenemsConstants.OPENEMS_VERSION,
-								producttype, role, apikey, new JsonObject());
+						MyEdge edge = new MyEdge(edgeId, apikey, name, comment, State.ACTIVE,
+								OpenemsConstants.OPENEMS_VERSION, producttype, new JsonObject(), role);
 						edge.onSetConfig(jConfig -> {
 							log.debug(
 									"Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
@@ -114,6 +114,7 @@ public class File implements MetadataService {
 				this.user.addEdgeRole(edgeId, Role.ADMIN);
 			}
 		}
+
 	}
 
 	@Override

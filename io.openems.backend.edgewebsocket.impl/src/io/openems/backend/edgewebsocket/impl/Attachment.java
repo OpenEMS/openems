@@ -2,10 +2,13 @@ package io.openems.backend.edgewebsocket.impl;
 
 public class Attachment {
 
-	private final String apikey;
+	private String apikey;
 	private int[] edgeIds = {};
 
-	public Attachment(String apikey) {
+	public Attachment() {
+	}
+
+	public synchronized void setApikey(String apikey) {
 		this.apikey = apikey;
 	}
 

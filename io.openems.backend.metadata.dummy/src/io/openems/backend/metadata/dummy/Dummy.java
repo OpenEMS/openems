@@ -71,29 +71,33 @@ public class Dummy implements MetadataService {
 
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
-		Optional<Edge> edgeOpt = this.getEdgeOpt(this.nextEdgeId);
-		return new int[] { edgeOpt.get().getId() };
+		int[] edgeIds = this.edges.values().stream() //
+				.filter(edge -> apikey.equals(edge.getApikey())) //
+				.mapToInt(edge -> edge.getId()).toArray();
+		if (edgeIds.length > 0) {
+			return edgeIds;
+		}
+		// not found -> create
+		int id = this.nextEdgeId++;
+		Edge edge = new Edge(id, apikey, "EDGE:" + id, "comment [" + id + "]", State.ACTIVE,
+				OpenemsConstants.OPENEMS_VERSION, "producttype [" + id + "]", new JsonObject(), null, null);
+		edge.onSetConfig(jConfig -> {
+			log.debug("Edge [" + id + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
+		});
+		edge.onSetSoc(soc -> {
+			log.debug("Edge [" + id + "]. Set SoC: " + soc);
+		});
+		edge.onSetIpv4(ipv4 -> {
+			log.debug("Edge [" + id + "]. Set IPv4: " + ipv4);
+		});
+		edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
+		this.edges.put(id, edge);
+		return new int[] { id };
 	}
 
 	@Override
 	public Optional<Edge> getEdgeOpt(int edgeId) {
 		Edge edge = this.edges.get(edgeId);
-		if (edge == null) {
-			int id = this.nextEdgeId++;
-			edge = new Edge(id, "EDGE:" + id, "comment [" + id + "]", State.ACTIVE, OpenemsConstants.OPENEMS_VERSION,
-					"producttype [" + id + "]", new JsonObject(), null, null);
-			edge.onSetConfig(jConfig -> {
-				log.debug("Edge [" + edgeId + "]. Update config: " + StringUtils.toShortString(jConfig, 100));
-			});
-			edge.onSetSoc(soc -> {
-				log.debug("Edge [" + edgeId + "]. Set SoC: " + soc);
-			});
-			edge.onSetIpv4(ipv4 -> {
-				log.debug("Edge [" + edgeId + "]. Set IPv4: " + ipv4);
-			});
-			edge.setOnline(this.edgeWebsocketService.isOnline(edge.getId()));
-			this.edges.put(id, edge);
-		}
 		return Optional.of(edge);
 	}
 
