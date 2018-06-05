@@ -33,7 +33,7 @@ The OpenEMS software architecture was designed to leverage some features that ar
 ## System architecture
 
 OpenEMS is generally used in combination with external hardware and software components
-(the exception is a simulated development environment - see [Getting Started](https://github.com/OpenEMS/openems/blob/old_master/README.md#get-started)). As a brief overview, this is how OpenEMS is used in production setups:
+(the exception is a simulated development environment - see [Getting Started](/doc/OpenEMS_EN.adoc#getting-started)). As a brief overview, this is how OpenEMS is used in production setups:
 
 <img src="./doc/img/system-architecture.png" />
 
@@ -41,7 +41,10 @@ OpenEMS is generally used in combination with external hardware and software com
 
 Indepth documentation is currently in progress. Please find the latest documents here:
 
- * [Latest draft of documentation](http://htmlpreview.github.io/?https://github.com/OpenEMS/openems/blob/feature/improve_doc/doc/openems.html)
+ * [Latest version of documentation](/doc/OpenEMS_EN.adoc)
+ * [Latest version of documentation in HTML format](http://htmlpreview.github.io/?https://github.com/OpenEMS/openems/blob/develop/doc/OpenEMS_EN.html)
+ * [Latest version of documentation in PDF format](/doc/OpenEMS_EN.pdf)
+ * [Documentation of previous version of OpenEMS](http://htmlpreview.github.io/?https://github.com/OpenEMS/openems/blob/feature/improve_doc/doc/openems.html)
  * [Previous version readme](https://github.com/OpenEMS/openems/blob/old_master/README.md)
 
 ## Open Source philosophy
