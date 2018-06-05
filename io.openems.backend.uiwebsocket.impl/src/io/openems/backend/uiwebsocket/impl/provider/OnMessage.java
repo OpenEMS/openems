@@ -1,5 +1,6 @@
 package io.openems.backend.uiwebsocket.impl.provider;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
@@ -34,7 +35,10 @@ public class OnMessage extends AbstractOnMessage {
 	protected void run(WebSocket websocket, JsonObject jMessage) {
 		// get current User
 		WebsocketData data = websocket.getAttachment();
-		int userId = data.getUserId();
+		Integer userId = data.getUserId();
+		if (userId == null) {
+			return;
+		}
 		Optional<User> userOpt = this.parent.parent.metadataService.getUser(userId);
 		if (!userOpt.isPresent()) {
 			WebSocketUtils.sendNotificationOrLogError(websocket, new JsonObject(), LogBehaviour.WRITE_TO_LOG,
@@ -125,7 +129,7 @@ public class OnMessage extends AbstractOnMessage {
 					Optional<Role> roleOpt = user.getEdgeRole(edgeId);
 					JsonObject j = DefaultMessages.prepareMessageForForwardToEdge(jMessage, data.getUuid(), roleOpt);
 					this.parent.parent.edgeWebsocketService.forwardMessageFromUi(edgeId, j);
-				} catch (OpenemsException e) {
+				} catch (OpenemsException | NoSuchElementException e) {
 					WebSocketUtils.sendNotificationOrLogError(websocket, jMessageId, LogBehaviour.WRITE_TO_LOG,
 							Notification.EDGE_UNABLE_TO_FORWARD, edge.getName(), e.getMessage());
 				}

@@ -4,17 +4,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class WebsocketData {
-	private final int userId;
-	private final UUID uuid;
+	// @Nullable
+	private Integer userId;
+	// @Nullable
+	private UUID uuid;
 	private Optional<BackendCurrentDataWorker> currentDataWorker = Optional.empty();
 
-	public WebsocketData(int userId, UUID uuid) {
-		super();
-		this.userId = userId;
-		this.uuid = uuid;
-	}
-
-	public int getUserId() {
+	public Integer getUserId() {
 		return userId;
 	}
 
@@ -28,5 +24,10 @@ public class WebsocketData {
 
 	public Optional<BackendCurrentDataWorker> getCurrentDataWorker() {
 		return currentDataWorker;
+	}
+
+	public void initialize(int userId, UUID uuid) {
+		this.userId = userId;
+		this.uuid = uuid;
 	}
 }

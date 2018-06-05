@@ -17,7 +17,6 @@ import io.openems.backend.metadata.api.Edge;
 import io.openems.backend.metadata.api.User;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
-import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractOnOpen;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
@@ -33,11 +32,15 @@ public class OnOpen extends AbstractOnOpen {
 	}
 
 	@Override
-	protected void run(WebSocket websocket, JsonObject jHandshake) {
+	protected void run(WebSocket websocket, ClientHandshake handshake) {
+		// create websocket attachment
+		WebsocketData attachment = new WebsocketData();
+		websocket.setAttachment(attachment);
+
 		User user;
 
 		// login using session_id from the cookie
-		Optional<String> sessionIdOpt = JsonUtils.getAsOptionalString(jHandshake, "session_id");
+		Optional<String> sessionIdOpt = AbstractOnOpen.getFieldFromHandshakeCookie(handshake, "session_id");
 		try {
 			if (sessionIdOpt.isPresent()) {
 				// authenticate with Session-ID
@@ -61,7 +64,7 @@ public class OnOpen extends AbstractOnOpen {
 			this.parent.websocketsMap.put(uuid, websocket);
 		}
 		// store userId together with the websocket
-		websocket.setAttachment(new WebsocketData(user.getId(), uuid));
+		attachment.initialize(user.getId(), uuid);
 
 		// send connection successful to browser
 		JsonArray jEdges = new JsonArray();

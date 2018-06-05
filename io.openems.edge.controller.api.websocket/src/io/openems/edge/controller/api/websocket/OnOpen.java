@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.SecureRandomSingleton;
 import io.openems.common.websocket.AbstractOnOpen;
 import io.openems.common.websocket.LogBehaviour;
@@ -32,13 +31,13 @@ public class OnOpen extends AbstractOnOpen {
 	}
 
 	@Override
-	protected void run(WebSocket websocket, JsonObject jHandshake) {
+	protected void run(WebSocket websocket, ClientHandshake handshake) {
 		// generate UUID for this websocket (browser tab)
 		UUID uuid = UUID.randomUUID();
 
 		// get token from cookie or generate new token
 		String token;
-		Optional<String> cookieTokenOpt = JsonUtils.getAsOptionalString(jHandshake, "token");
+		Optional<String> cookieTokenOpt = AbstractOnOpen.getFieldFromHandshakeCookie(handshake, "token");
 		if (cookieTokenOpt.isPresent()) {
 			token = cookieTokenOpt.get();
 		} else {

@@ -173,7 +173,8 @@ public class OdooUtils {
 		Object[] params = new Object[] { database, uid, password, model, action, paramsDomain, paramsFields };
 		try {
 			// Execute XML request
-			Object[] resultObjs = (Object[]) executeKw(url, params);
+			executeKw(url, params);
+			// Object[] resultObjs = (Object[]) executeKw(url, params);
 			// Parse results
 			// int[] results = new int[resultObjs.length];
 			// for (int i = 0; i < resultObjs.length; i++) {

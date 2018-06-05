@@ -1,6 +1,7 @@
 package io.openems.backend.uiwebsocket.impl.provider;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
@@ -31,8 +32,11 @@ public class OnClose extends AbstractOnClose {
 			currentDataWorkerOpt.get().dispose();
 		}
 		// remove websocket from local cache
-		synchronized (this.parent.websocketsMap) {
-			this.parent.websocketsMap.remove(data.getUuid());
+		UUID uuid = data.getUuid();
+		if (uuid != null) {
+			synchronized (this.parent.websocketsMap) {
+				this.parent.websocketsMap.remove(uuid);
+			}
 		}
 	}
 }

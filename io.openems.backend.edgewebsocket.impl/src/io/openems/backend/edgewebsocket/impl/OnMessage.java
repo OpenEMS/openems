@@ -33,7 +33,7 @@ public class OnMessage extends AbstractOnMessage {
 		Attachment attachment = websocket.getAttachment();
 		int[] edgeIds = attachment.getEdgeIds();
 		if (edgeIds.length == 0) {
-			log.warn("websocket was not fully handled by OnOpen yet");
+			log.warn("Websocket was not fully handled by OnOpen yet. Apikey [" + attachment.getApikey() + "]");
 			this.parent.executorTryAgain(this);
 		}
 

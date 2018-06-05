@@ -16,7 +16,6 @@ import com.google.gson.JsonObject;
 import io.openems.backend.common.events.BackendEventConstants;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
 import io.openems.common.websocket.AbstractOnOpen;
 import io.openems.common.websocket.DefaultMessages;
 import io.openems.common.websocket.WebSocketUtils;
@@ -32,7 +31,7 @@ public class OnOpen extends AbstractOnOpen {
 	}
 
 	@Override
-	protected void run(WebSocket websocket, JsonObject jHandshake) {
+	protected void run(WebSocket websocket, ClientHandshake handshake) {
 		String apikey = "";
 		try {
 			// create websocket attachment
@@ -40,7 +39,7 @@ public class OnOpen extends AbstractOnOpen {
 			websocket.setAttachment(attachment);
 
 			// get apikey from handshake
-			Optional<String> apikeyOpt = JsonUtils.getAsOptionalString(jHandshake, "apikey");
+			Optional<String> apikeyOpt = OnOpen.parseApikeyFromHandshake(handshake);
 			if (!apikeyOpt.isPresent()) {
 				throw new OpenemsException("Apikey is missing in handshake");
 			}
@@ -107,5 +106,19 @@ public class OnOpen extends AbstractOnOpen {
 			websocket.closeConnection(CloseFrame.REFUSE,
 					"Connection to backend failed. Apikey [" + apikey + "]. Error: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * Parses the apikey from websocket onOpen handshake
+	 *
+	 * @param handshake
+	 * @return
+	 */
+	private static Optional<String> parseApikeyFromHandshake(ClientHandshake handshake) {
+		if (handshake.hasFieldValue("apikey")) {
+			String apikey = handshake.getFieldValue("apikey");
+			return Optional.ofNullable(apikey);
+		}
+		return Optional.empty();
 	}
 }

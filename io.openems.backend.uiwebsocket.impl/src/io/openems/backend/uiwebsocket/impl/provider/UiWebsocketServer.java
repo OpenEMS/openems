@@ -44,12 +44,15 @@ public class UiWebsocketServer extends AbstractWebsocketServer {
 	}
 
 	protected String getUserName(WebsocketData data) {
-		Optional<User> userOpt = this.parent.metadataService.getUser(data.getUserId());
+		Integer userId = data.getUserId();
+		if (userId == null) {
+			return "ID:UNKNOWN";
+		}
+		Optional<User> userOpt = this.parent.metadataService.getUser(userId);
 		if (userOpt.isPresent()) {
 			return userOpt.get().getName();
-		} else {
-			return "ID:" + data.getUserId();
 		}
+		return "ID:" + data.getUserId();
 	}
 
 	@Override
