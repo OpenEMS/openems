@@ -67,6 +67,7 @@ public class EssSymmetric extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		this.getSoc().setNextValue(config.initialSoc());
 		this.soc = config.initialSoc();
 		this.getMaxActivePower().setNextValue(config.maxApparentPower());
 		/*
