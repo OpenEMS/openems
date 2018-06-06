@@ -126,7 +126,7 @@ public class Cycle extends AbstractWorker {
 						// abort if relativeCycleTime is not matching this cycle
 						return;
 					}
-					scheduler.getControllers().stream().filter(c -> c.isEnabled()).forEach(controller -> {
+					scheduler.getControllers().stream().filter(c -> c.isEnabled()).forEachOrdered(controller -> {
 						try {
 							controller.run();
 						} catch (Exception e) {
