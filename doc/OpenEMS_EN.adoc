@@ -149,7 +149,9 @@ image::eclipse-resolve-osgi.png[Resolve OSGi in Eclipse IDE]
 image::eclipse-edge-initial-log-output.png[OpenEMS Edge initial log output]
 
 . Configure and start the Simulator
-.. Open the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]]
+.. Open the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]].
++
+Login with username *admin* and password *admin*.
 +
 .Apache Felix Web Console Configuration
 image::apache-felix-console-configuration.png[Apache Felix Web Console Configuration]
