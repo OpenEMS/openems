@@ -90,22 +90,26 @@ This quick 'Getting Started' should help you setup up a complete development env
 ... press btn:[File] -> btn:[Clone]
 ... enter the git repository path `https://github.com/OpenEMS/openems.git`
 ... select a target directory, for example `C:\Users\your.user\git\openems`
+... open btn:[Advanced Settings]
+... select the branch btn:[develop]
 ... and press btn:[Clone].
 +
 .Cloning the git repository using Sourcetree
 image::sourcetree.png[Cloning the git repository using Sourcetree]
 
+
 .. Alternatively: with the git command line utility
 
 ... open a console
 ... change to the target directory
-... execute `git clone https://github.com/OpenEMS/openems.git`
+... execute `git clone https://github.com/OpenEMS/openems.git --branch develop`
 
 . Git is downloading the complete source code for you.
 
 === Setup Eclipse IDE for OpenEMS Edge and Backend
 
 . Prepare Eclipse IDE
+.. Download http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html[Java SE Development Kit 8 icon:external-link[]] and install it
 .. Download https://www.eclipse.org[Eclipse for Java icon:external-link[]], install and start it
 .. On first start you will get asked to create a workspace.
 Select a directory - for example `C:\Users\your.user\git\openems-workspace` - and press btn:[Lauch]. _The directory needs to be different from your source code directory selected above._
@@ -145,7 +149,9 @@ image::eclipse-resolve-osgi.png[Resolve OSGi in Eclipse IDE]
 image::eclipse-edge-initial-log-output.png[OpenEMS Edge initial log output]
 
 . Configure and start the Simulator
-.. Open the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]]
+.. Open the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]].
++
+Login with username *admin* and password *admin*.
 +
 .Apache Felix Web Console Configuration
 image::apache-felix-console-configuration.png[Apache Felix Web Console Configuration]

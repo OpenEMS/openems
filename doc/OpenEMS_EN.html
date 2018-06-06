@@ -622,6 +622,12 @@ As a brief overview, this is how OpenEMS is used in production setups:</p>
 <p>select a target directory, for example <code>C:\Users\your.user\git\openems</code></p>
 </li>
 <li>
+<p>open <b class="button">Advanced Settings</b></p>
+</li>
+<li>
+<p>select the branch <b class="button">develop</b></p>
+</li>
+<li>
 <p>and press <b class="button">Clone</b>.</p>
 <div class="imageblock">
 <div class="content">
@@ -644,7 +650,7 @@ As a brief overview, this is how OpenEMS is used in production setups:</p>
 <p>change to the target directory</p>
 </li>
 <li>
-<p>execute <code>git clone <a href="https://github.com/OpenEMS/openems.git" class="bare">https://github.com/OpenEMS/openems.git</a></code></p>
+<p>execute <code>git clone <a href="https://github.com/OpenEMS/openems.git" class="bare">https://github.com/OpenEMS/openems.git</a> --branch develop</code></p>
 </li>
 </ol>
 </div>
@@ -666,6 +672,9 @@ As a brief overview, this is how OpenEMS is used in production setups:</p>
 <p>Prepare Eclipse IDE</p>
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
+<li>
+<p>Download <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">Java SE Development Kit 8 <span class="icon"><i class="fa fa-external-link"></i></span></a> and install it</p>
+</li>
 <li>
 <p>Download <a href="https://www.eclipse.org">Eclipse for Java <span class="icon"><i class="fa fa-external-link"></i></span></a>, install and start it</p>
 </li>
@@ -749,7 +758,10 @@ Select a directory - for example <code>C:\Users\your.user\git\openems-workspace<
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
-<p>Open the <a href="http://localhost:8080/system/console/configMgr">Apache Felix Web Console Configuration <span class="icon"><i class="fa fa-external-link"></i></span></a></p>
+<p>Open the <a href="http://localhost:8080/system/console/configMgr">Apache Felix Web Console Configuration <span class="icon"><i class="fa fa-external-link"></i></span></a>.</p>
+<div class="paragraph">
+<p>Login with username <strong>admin</strong> and password <strong>admin</strong>.</p>
+</div>
 <div class="imageblock">
 <div class="content">
 <img src="./img/apache-felix-console-configuration.png" alt="Apache Felix Web Console Configuration">
@@ -1085,7 +1097,7 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-06-05 21:03:57 DST
+Last updated 2018-06-06 09:31:09 DST
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
