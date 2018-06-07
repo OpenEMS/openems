@@ -299,8 +299,10 @@ public class Odoo implements MetadataService {
 
 	@Override
 	public int[] getEdgeIdsForApikey(String apikey) {
-		return this.edges.values().stream().filter(edge -> apikey.equals(edge.getApikey()))
-				.mapToInt(edge -> edge.getId()).toArray();
+		synchronized (this.edges) {
+			return this.edges.values().stream().filter(edge -> apikey.equals(edge.getApikey()))
+					.mapToInt(edge -> edge.getId()).toArray();
+		}
 	}
 
 	@Override
