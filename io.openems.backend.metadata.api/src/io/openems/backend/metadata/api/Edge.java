@@ -203,7 +203,7 @@ public class Edge {
 	}
 
 	public synchronized void setSoc(int soc) {
-		if (this.soc == null || this.soc.intValue() != this.soc) { // on change
+		if (this.soc == null || this.soc.intValue() != soc) { // on change
 			log.info("Edge [" + this.getId() + "]: Update SoC to [" + soc + "]. It was [" + this.soc + "]");
 			this.soc = soc;
 			this.onSetSoc.forEach(listener -> listener.accept(soc));
