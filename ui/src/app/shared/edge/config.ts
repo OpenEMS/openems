@@ -59,6 +59,7 @@ export class ConfigImpl implements DefaultTypes.Config {
 
     constructor(private readonly edge: Edge, private readonly config: DefaultTypes.Config) {
         let storageThings: string[] = []
+        let chargers: string[] = [];
 
         if (edge.isVersionAtLeast("2018.8")) {
             /*
@@ -72,6 +73,9 @@ export class ConfigImpl implements DefaultTypes.Config {
                 // Ess
                 if (i.includes("Ess")) {
                     storageThings.push(componentId);
+                }
+                if (i.includes("EssDcCharger")) {
+                    chargers.push(componentId);
                 }
             }
 
@@ -93,7 +97,6 @@ export class ConfigImpl implements DefaultTypes.Config {
 
             Object.assign(this, config);
 
-            let chargers: string[] = [];
             let gridMeters: string[] = [];
             let productionMeters: string[] = [];
             let consumptionMeters: string[] = [];
@@ -166,9 +169,10 @@ export class ConfigImpl implements DefaultTypes.Config {
                 }
             }
 
-            this.chargers = chargers.sort();
             this.gridMeters = gridMeters.sort();
             this.productionMeters = productionMeters.sort();
+            this.consumptionMeters = consumptionMeters.sort();
+            this.otherMeters = otherMeters.sort();
             this.bridges = bridges.sort();
             this.scheduler = scheduler;
             this.controllers = controllers;
@@ -178,6 +182,7 @@ export class ConfigImpl implements DefaultTypes.Config {
         }
 
         this.storageThings = storageThings.sort();
+        this.chargers = chargers.sort();
     }
 
     public getStateChannels(): DefaultTypes.ChannelAddresses {
