@@ -1,5 +1,6 @@
 = OpenEMS: Open Energy Management System
 include::_include/header.adoc[]
+:imagesdir: ./img
 
 == Introduction
 
@@ -10,7 +11,7 @@ It was developed around the requirements of controlling, monitoring and integrat
 
 The OpenEMS 'Internet of Things' stack contains three main components:
 
- * **OpenEMS Edge** runs on site and actually controls the devices
+ * **OpenEMS Edge** runs on-site and actually controls the devices
  * **OpenEMS UI** is the generic user interface
  * **OpenEMS Backend** runs on a (cloud) server, connects the decentralized Edge systems and provides aggregation, monitoring and control via internet
 
@@ -96,7 +97,6 @@ This quick 'Getting Started' should help you setup up a complete development env
 +
 .Cloning the git repository using Sourcetree
 image::sourcetree.png[Cloning the git repository using Sourcetree]
-
 
 .. Alternatively: with the git command line utility
 
@@ -302,3 +302,507 @@ image::openems-ui-overview.png[OpenEMS UI Overview screen]
 image::openems-ui-edge-overview.png[OpenEMS UI Energymonitor screen]
 +
 NOTE: OpenEMS UI will complain that "no timedata source is available". Because of this the historic chart is not yet functional.
+
+== Core concepts & terminology
+
+This chapter describes some of the core concepts and commonly used terms in OpenEMS:
+
+=== Bundle
+
+OpenEMS Edge is using the https://en.wikipedia.org/wiki/OSGi[OSGi icon:external-link[]] platform to provide a completely modular and dynamic service oriented system.
+
+Logical groups of source code are put into one OSGi Bundle. Every directory in the source code root directory starting with 'io.openems.*' is a bundle. 
+
+=== Component
+
+OpenEMS Edge is built of Components, i.e. every main component implements the link:../io.openems.edge.common/src/io/openems/edge/common/component/OpenemsComponent.java[OpenemsComponent interface icon:code[]]. 
+
+By definition each Component has a unique ID. Those *Component-IDs* are typically:
+
+* `ess0` for the first storage system or battery inverter
+* `ess1` for the second storage system or battery inverter
+* ...
+* `meter0` for the first meter in the system
+* ...
+
+If you receive your OpenEMS together with a FENECON energy storage system, you will find the following Component-IDs:
+
+* FENECON Pro
+** `ess0`: FENECON Pro Ess
+// TODO link:../edge/src/io/openems/impl/device/pro/FeneconProEss.java[FENECON Pro Ess icon:code[]]
+** `meter0`: Socomec grid meter
+// TODO link:../edge/src/io/openems/impl/device/socomec/SocomecMeter.java[Socomec grid meter icon:code[]]
+** `meter1`: FENECON Pro production meter 
+// TODO link:../edge/src/io/openems/impl/device/pro/FeneconProPvMeter.java[FENECON Pro production meter icon:code[]]
+
+* FENECON Mini
+** `ess0`: FENECON Mini
+// TODO link:../edge/src/io/openems/impl/device/minireadonly/FeneconMiniEss.java[FENECON Mini icon:code[]]
+** `meter0`: FENECON Mini grid meter
+// TODO link:../edge/src/io/openems/impl/device/minireadonly/FeneconMiniGridMeter.java[FENECON Mini grid meter icon:code[]]
+** `meter1`: FENECON Mini production meter
+// TODO link:../edge/src/io/openems/impl/device/minireadonly/FeneconMiniProductionMeter.java[FENECON Mini production meter icon:code[]]
+
+=== Channel
+
+Each OpenemsComponent provides a number of Channels. Each represents a single piece of information. Each Channel implements the link:../io.openems.edge.common/src/io/openems/edge/common/channel/Channel.java[Channel interface icon:code[]]. By definition each Channel has a unique ID within its parent Component.
+
+=== Nature
+
+Natures extend normal Java interfaces with 'Channels'. If a Component implements a Nature it also needs to provide the required Channels. For example the Energy Storage System (ESS) Simulator link:../io.openems.edge.simulator/src/io/openems/edge/simulator/ess/symmetric/reacting/EssSymmetric.java[Simulator.EssSymmetric.Reacting icon:code[]] implements the link:../io.openems.edge.ess.api/src/io/openems/edge/ess/api/Ess.java[Ess interface icon:code[]] and therefor needs to provide a `Soc` Channel that provides the current 'State of Charge' of the battery.
+
+<<Controller>>s are written against Nature implementations. Example: A Controller can be used with any ESS, because it can be sure that it provides all the data the Controller requires for its algorithm.
+
+// TODO: add link to all Natures below. Existing Nature implementations are described below.
+
+=== Channel Address
+
+By combining the unique *Component-ID* and *Channel-ID* each Channel in the system can be addressed by a distinct 'Channel Address' in the form `Component-ID/Channel-ID`.
+
+Example: the state of charge ("Soc") of the first energy storage system ("ess0") has the channel address `ess0/Soc`.
+
+=== Scheduler
+
+_see <<Scheduler and Controller>> below
+
+// TODO: add link to all Schedulers below. Existing Scheduler implementations are described below.
+
+=== Controller
+
+The actual business logic or algorithms are wrapped as 'Controllers'. i.e. they implement the link:../io.openems.edge.controller.api/src/io/openems/edge/controller/api/Controller.java[Controller interface icon:code[]]. Each Controller holds one specific, encapsulated task.
+
+// TODO: add link to all Controllers below. Existing Controller implementations are described below.
+
+== OpenEMS Edge
+
+OpenEMS Edge is the core component of the energy management that runs on-site and is responsible for communicating with and controling of external hardware like battery systems, inverters, meters and so on.
+
+=== Architecture
+
+The OpenEMS Edge software architecture is carefully designed to abstract device communication and control algorithms in a way to provide maximum flexibility, predictability and stability, while simplifying the process of implementing new components.
+
+==== Input-Process-Output
+
+OpenEMS Edge is built around the well-known IPO (input-process-output) model which defines the internal execution cycle.
+
+.Input-Process-Output model
+image::input-process-output.png[Input-Process-Output model]
+
+Input::
+During the input phase all relevant information - e.g. the current 'state of charge' of a battery - is collected and provided as a *process image*. This process image is guaranteed to never change during the cycle.
+
+Process::
+The process phase runs algorithms and tasks based on the process image - e.g. an algorithm uses the 'state of charge' information to evaluate whether a digital output should be turned on.
+
+Output::
+The output phase takes the results from the process phase and applies it - e.g. it turns the digital output on or off.
+
+==== Scheduler and Controller
+
+During the 'process' phase different algorithms (Controllers) might try to access the same resources - e.g. two Controllers try to switch the same digital output. It is therefor necessary to prioritize their execution and restrict access according to priority.
+
+OpenEMS Edge uses Scheduler implementations to receive a sorted list of Controllers. The Controllers are then executed in order. Later executed Controllers are not allowed to overwrite a previously written result. 
+
+.IPO model with Scheduler and Controllers
+image::input-process-scheduler-output.png[IPO model with Scheduler and Controllers]
+
+==== Cycle
+
+The input-process-output model in OpenEMS Edge is executed in a Cycle - implemented by the link:../io.openems.edge.core/src/io/openems/edge/cycle/Cycle.java[Cycle component icon:code[]]). It handles the setting of a process image in the input phase and executes the Controllers in the process phase. Furthermore it emits Cycle Events that can be used in other Components to synchronize with the Cycle.  
+
+.OpenEMS Edge Cycle
+image::edge-cycle.png[OpenEMS Edge Cycle]
+
+==== Asynchronous threads and Cycle synchronization
+
+Communication with external hardware and services needs to be executed in asynchronous threads to not block the system. At the same time, those threads need to synchronize with the Cycle.
+
+The following example shows, how the link:../io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/AbstractModbusBridge.java[Modbus implementation icon:code[]] uses Cycle Events to synchronize with the Cycle:
+
+.Synchronize Cycle with Modbus read/write 
+image::cycle-modbus.png[Synchronize Cycle with Modbus read/write]
+
+=== Configuration
+
+// OpenEMS Edge is using a central configuration file in `etc/openems.d/config.json` where all its components - Bridge, Device, Nature, Scheduler, Controller and Peristence - are defined and configured.
+
+// As an example we will discuss a stripped down configuration of a 'FENECON Commercial' energy storage system. More example configurations can be found in the link:../setup/templates[setup templates icon:code[]].
+
+// [source,json]
+// ----
+// {
+// 	"things": [ <1>
+// ----
+// <1> all Bridges, Devices and Natures are defined within the "things" object.
+
+// [source,json]
+// ----
+// 		{
+// 			"class": "io.openems.impl.protocol.modbus.ModbusTcp", <1>
+// 			"ip": "10.4.0.15", <2>
+// 			"devices": [ <3>
+// 				{
+// 					"class": "io.openems.impl.device.commercial.FeneconCommercialAC", <4>
+// 					"modbusUnitId": 100, <5>
+// 					"ess": { <6>
+// 						"id": "ess0", <7>
+// 						"minSoc": 15
+// 					}
+// 				}
+// 			]
+// 		},
+// ----
+// <1> defines a Modbus/TCP bridge by its Java implementation class
+// // TODO: link to ModbusTcp)
+// <2> sets the target IP address of the Modbus/TCP device
+// <3> Devices are defined within the "devices" array of a bridge
+// <4> defines a 'FENECON Commercial AC' Device by its Java implementation class
+// // TODO: link to FeneconCommercialAC
+// <5> sets the modbus unit ID (which is always 100 for a FENECON Commercial)
+// <6> configures the "Ess" nature of the Device
+// <7> sets the unique ID "ess0" for this nature. This ID is going to be used later in the Controllers.
+
+// [source,json]
+// ----
+// 		{
+// 			"class": "io.openems.impl.protocol.modbus.ModbusRtu", <1>
+// 			"serialinterface": "/dev/ttyUSB0", <2>
+// 			"baudrate": 9600,
+// 			"databits": 8,
+// 			"parity": "none",
+// 			"stopbits": 1,
+// 			"devices": [
+// 				{
+// 					"class": "io.openems.impl.device.socomec.Socomec", <3>
+// 					"modbusUnitId": 5,
+// 					"meter": { <4>
+// 						"id": "meter0", <5>
+// 						"type": "grid"
+// 					}
+// 				}
+// 			]
+// 		}
+// ----
+// <1> defines a Modbus/RTU bridge by its Java implementation class
+// // TODO: link to ModbusRtu
+// <2> configures the RS485-connection (interface, baudrate, databits, parity, stopbits)
+// <3> defines a 'Socomec Meter' Device by its Java implementation class
+// // TODO: link to Socomec
+// <4> configures the "Meter" nature of the Device
+// <5> sets the unique ID "meter0" for this nature. This ID is going to be used later in the Controllers.
+
+// [source,json]
+// ----
+// 	],
+// 	"scheduler": { <1>
+// 		"class": "io.openems.impl.scheduler.SimpleScheduler", <2>
+// 		"controllers": [
+// ----
+// <1> the Scheduler and all Controllers are defined within the "scheduler" object.
+// <2> defines the Scheduler by its Java implementation class
+
+// NOTE: This configuration uses the 'SimpleScheduler' which is executing the Controllers according to their 'priority' - starting with the highest value.
+// // TODO: link to SimpleScheduler
+
+// [source,json]
+// ----
+// 			{
+// 				"priority": 150, <1>
+// 				"class": "io.openems.impl.controller.debuglog.DebugLogController", <2>
+// 				"esss": "ess0", <3>
+// 				"meters": "meter0"
+// 			},
+// ----
+// <1> sets the 'priority' of this Controller. '150' is higher than any other priority in this configuration, so it will be executed first.
+// <2> defines the 'DebugLogController' by its Java implementation class 
+// // TODO: link to DebugLogController
+// <3> this Controller can be configured to take certain IDs for its output.
+
+// NOTE: The 'DebugLogController' is helpful for debugging as it logs information about each Nature on every execution. The configuration above will produce continuous outputs like this: +
+// `[INFO ] [g.DebugLogController:106] +
+// meter0 [L:60 W;-2740 var|L1:0 W;0 var|L2:0 W;0 var|L3:0 W;0 var] +
+// ess0 [SOC:99 %|L:600 W;300 var|Allowed:-12000 W;40000 W|GridMode:On-Grid]`
+
+// [source,json]
+// ----
+// 			{
+// 				"priority": 100,
+// 				"class": "io.openems.impl.controller.symmetric.avoidtotaldischarge.AvoidTotalDischargeController", <1>
+// 				"esss": "ess0"
+// 			},
+// ----
+// <1> defines the 'AvoidTotalDischargeController' by its Java implementation class 
+// // TODO: link to AvoidTotalDischargeController
+
+// NOTE: The 'AvoidTotalDischargeController' takes care of the secure function of a storage system by avoiding total discharging and force charging the battery from the grid if necessary.
+
+// [source,json]
+// ----
+// 			{
+// 				"priority": 50,
+// 				"class": "io.openems.impl.controller.symmetric.balancing.BalancingController", <1>
+// 				"esss": "ess0",
+// 				"meter": "meter0"
+// 			}
+// ----
+// <1> defines the 'BalancingController' by its Java implementation class 
+// // TODO: link to BalancingController
+
+// NOTE: The 'BalancingController' optimizes the self-consumption of a local electric generator like a photovoltaics installation. It watches the grid-meter and tries to keep it on zero by charging or discharching the battery.
+
+// [source,json]
+// ----
+// 		]
+// 	},
+// 	"persistence": [ <1>
+// ----
+// <1> the Persistence services are defined within the "persistence" array.
+
+// [source,json]
+// ----
+// 		{
+// 			"class": "io.openems.impl.persistence.influxdb.InfluxdbPersistence", <1>
+// 			"ip": "127.0.0.1", <2>
+// 			"fems": "0" <3>
+// 		},
+// ----
+// <1> defines the 'InfluxdbPersistence' by its Java implementation class
+// // TODO: link to InfluxdbPersistence
+// <2> sets the IP address of the InfluxDB server.
+// <3> sets the "fems"-ID which allows multiple OpenEMS instances to store data to the same InfluxDB.
+
+// NOTE: The 'InfluxdbPersistence' stores the continuous data of all Channels in an https://www.influxdata.com/[InfluxDB].
+
+// [source,json]
+// ----
+// 		{
+// 			"class": "io.openems.impl.persistence.fenecon.FeneconPersistence", <1>
+// 			"apikey": "###APIKEY###" <2>
+// 		}
+// ----
+// <1> defines the 'FeneconPersistence' by its Java implementation class 
+// // TODO: link to FeneconPersistence
+// <2> sets the apikey which authenticates this OpenEMS at the Backend
+
+// NOTE: The 'FeneconPersistence' is handling the connection to the OpenEMS Backend server.
+
+// [source,json]
+// ----
+// 	]
+// }
+// ----
+
+=== Hardware
+
+==== Natures
+
+// === ESS (Energy Storage System)
+
+// * link:../edge/src/io/openems/api/device/nature/ess/EssNature.java[EssNature icon:code[]]
+// ** Soc
+// ** SystemState
+// ** AllowedCharge, AllowedDischarge
+// ** Capacity
+// * link:../edge/src/io/openems/api/device/nature/ess/AsymmetricEssNature.java[AsymmetricEssNature icon:code[]] extends EssNature
+// ** ActivePowerL1, ActivePowerL2, ActivePowerL3
+// ** ReactivePowerL1, ReactivePowerL2, ReactivePowerL3
+// * link:../edge/src/io/openems/api/device/nature/ess/SymmetricEssNature.java[SymmetricEssNature icon:code[]] extends EssNature
+// ** ActivePower
+// ** ReactivePower
+// * link:../edge/src/io/openems/impl/device/minireadonly/FeneconMiniEss.java[FENECON Mini (readonly) icon:code[]] implements AsymmetricEssNature
+// * link:../edge/src/io/openems/impl/device/pro/FeneconProEss.java[FENECON Pro 9-12 icon:code[]] implements AsymmetricEssNature
+// * link:../edge/src/io/openems/impl/device/commercial/FeneconCommercialEss.java[FENECON Commercial 40-40 icon:code[]] implements SymmetricEssNature
+
+// === Meter
+
+// * link:../edge/src/io/openems/api/device/nature/meter/MeterNature.java[MeterNature icon:code[]]
+// ** Type
+// * link:../edge/src/io/openems/api/device/nature/meter/AsymmetricMeterNature.java[AsymmetricMeterNature icon:code[]] extends MeterNature
+// ** ActivePowerL1, ActivePowerL2, ActivePowerL3
+// ** ReactivePowerL1, ReactivePowerL2, ReactivePowerL3
+// * link:../edge/src/io/openems/api/device/nature/meter/SymmetricMeterNature.java[SymmetricMeterNature icon:code[]] extends MeterNature
+// ** ActivePower
+// ** ReactivePower
+// * link:../edge/src/io/openems/impl/device/socomec/SocomecMeter.java[Socomec icon:code[]] implements SymmetricMeterNature and AsymmetricMeterNature
+// * link:../edge/src/io/openems/impl/device/pro/FeneconProPvMeter.java[FENECON Pro production meter icon:code[]] implements SymmetricMeterNature and AsymmetricMeterNature
+
+// The hardware abstraction was briefly discussed in the <<_architecture>> chapter.
+// A *Device* represents an external hardware or service as its 'digital twin'. A Nature represents a specific class of hardware or service with a defined set of Channels, like an energy storage system ("EssNature") or an electric meter ("MeterNature").
+
+// The following natures are currently available in OpenEMS:
+
+// == Charger
+
+// A Charger is a solar charger that is connected to DC side of an energy storage system. Example: FENECON Commercial DC comes with two Chargers.
+
+// * link:../edge/src/io/openems/api/device/nature/charger/ChargerNature.java[ChargerNature icon:code[]]
+
+// [[EssNature]]
+// [[EssSymmetricNature]]
+// [[AsymmetricEssNature]]
+// == Energy Storage System (ESS)
+
+// An Energy Storage System is an integrated system with battery and battery inverter. Example: FENECON Pro 9-12, FENECON Mini.
+
+// * link:../edge/src/io/openems/api/device/nature/ess/EssNature.java[EssNature icon:code[]]
+// ** *GridMode*: Off-Grid/On-Grid state
+// ** *Soc*: State of Charge in percent [%].
+// ** *AllowedCharge*/*AllowedDischarge*: maximum allowed charge/discharge power in Watt [W].
+// ** *Capacity*: capacity of the battery in Watt-hours [Wh].
+// ** *MaxNominalPower*: maximum nominal power in Watt [W].
+
+// * link:../edge/src/io/openems/api/device/nature/ess/EssSymmetricNature.java[EssSymmetricNature icon:code[]]
+// ** *ActivePower*: charge/discharge active power in Watt [W].
+// ** *ReactivePower*: charge/discharge reactive power in volt-ampere reactive [var].
+// ** *ApparentPower*: apparent power in volt-ampere [VA].
+
+// * link:../edge/src/io/openems/api/device/nature/ess/AsymmetricEssNature.java[AsymmetricEssNature icon:code[]]
+// ** *ActivePowerL1*: charge/discharge active power on L1 in Watt [W].
+// ** *ActivePowerL2*
+// ** *ActivePowerL3*
+// ** *ReactivePowerL1*: charge/discharge reactive power on L1 in volt-ampere reactive [var].
+// ** *ReactivePowerL2*
+// ** *ReactivePowerL3*
+
+// [[EvcsNature]]
+// == Electric Vehicle Charging Station (EVCS)
+
+// A charging station for electric vehicles like e-cars and e-buses. Example: KEBA KeContact.
+
+// * link:../edge/src/io/openems/api/device/nature/evcs/EvcsNature.java[EvcsNature icon:code[]]
+// ** *SetCurrent*: set the charge current in milliampere [mA]
+
+// [[InputNature]]
+// [[OutputNature]]
+// == Digital Input/Output
+
+// Digital inputs and digital/relay outputs. Example: WAGO 750 Fieldbus, KMTronic Relais Board.
+
+// * link:../edge/src/io/openems/api/device/nature/io/InputNature.java[InputNature icon:code[]]
+// * link:../edge/src/io/openems/api/device/nature/io/OutputNature.java[OutputNature icon:code[]]
+
+// [[MeterNature]]
+// [[SymmetricMeterNature]]
+// [[AsymmetricMeterNature]]
+// == Electric Meter
+
+// Electric meter. Example: Meter at grid connection point, Socomec meter.
+
+// * link:../edge/src/io/openems/api/device/nature/meter/MeterNature.java[MeterNature icon:code[]]
+// ** *Type*: type of the meter, e.g. "grid", "production"
+
+// * link:../edge/src/io/openems/api/device/nature/meter/SymmetricMeterNature.java[SymmetricMeterNature icon:code[]]
+// ** *ActivePower*: measured active power in Watt [W].
+// ** *ReactivePower*: measured reactive power in volt-ampere reactive [var].
+
+// * link:../edge/src/io/openems/api/device/nature/meter/AsymmetricMeterNature.java[AsymmetricMeterNature icon:code[]]
+// ** *ActivePowerL1*: measured active power on L1 in Watt [W].
+// ** *ActivePowerL2*
+// ** *ActivePowerL3*
+// ** *ReactivePowerL1*: measured reactive power on L1 in volt-ampere reactive [var].
+// ** *ReactivePowerL2*
+// ** *ReactivePowerL3*
+
+
+==== Bridges
+
+// A *Bridge* represents the connection layer to a physical hardware device and implements communication protocols like Modbus/TCP, Modbus/RTU or other vendor specific implementations.
+// == Modbus/TCP
+
+// https://en.wikipedia.org/wiki/Modbus[Modbus/TCP icon:external-link[]] is a widely used standard for fieldbus connections via TCP/IP network. It is used by all kinds of hardware devices like photovoltaics inverters, electric meters, and so on.
+
+// OpenEMS configuration:
+// [source,json]
+// ----
+// {
+// 	"class": "io.openems.impl.protocol.modbus.ModbusTcp",
+// 	"ip": "192.168.0.1", <1>
+// 	"port": 502, <2>
+// 	"devices": [
+// 		... <3>
+// 	]
+// }
+// ----
+// <1> IP address
+// <2> Port (optional, defaults to `502`)
+// <3> Configuration of deviceNatures (see below)
+
+// Implementation: link:../edge/src/io/openems/impl/protocol/modbus/ModbusTcp.java[io.openems.impl.protocol.modbus.ModbusTcp icon:code[]]
+
+// == Modbus/RTU
+
+// https://en.wikipedia.org/wiki/Modbus[Modbus/RTU icon:external-link[]] is a widely used standard for fieldbus connections via RS485 bus. It is used by all kinds of hardware devices like photovoltaics inverters, electric meters, and so on.
+
+// OpenEMS configuration:
+// [source,json]
+// ----
+// {
+// 	"class": "io.openems.impl.protocol.modbus.ModbusRtu",
+// 	"serialinterface": "/dev/ttyUSB0", <1>
+// 	"baudrate": 9600, <2>
+// 	"databits": 8, <3>
+// 	"parity": "none", <4>
+// 	"stopbits": 1, <5>
+// 	"devices": [
+// 		... <6>
+// 	]
+// }
+// ----
+// <1> Serial interface (e.g. `/dev/ttyUSB0`, `COM3`)
+// <2> RS485 baudrate (e.g. `9600`, `19200`, `38400`, `115200`)
+// <3> RS485 databits (e.g. `8`)
+// <4> RS485 parity (e.g. `none`, `even`, `odd`)
+// <5> RS485 stopbits (e.g. `1`, `1.5`, `2`)
+// <6> Configuration of deviceNatures (see below)
+
+// Implementation: link:../edge/src/io/openems/impl/protocol/modbus/ModbusRtu.java[io.openems.impl.protocol.modbus.ModbusRtu icon:code[]]
+
+==== Devices & Services
+
+// == KEBA KeContact
+
+// The KEBA KeContact bridge is an implementation of the UDP protocol for KEBA KeContact electric vehicle charging stations. It has no specific configuration in itself, as the configuration is happening in the DeviceNature.
+
+// OpenEMS configuration:
+// [source,json]
+// ----
+// {
+// 	"class": "io.openems.impl.protocol.keba.KebaBridge",
+// 	"devices": [
+// 		... <1>
+// 	]
+// }
+// ----
+// <1> Configuration of KEBA deviceNatures (see below)
+
+// Implementation: link:../edge/src/io/openems/impl/protocol/keba/KebaBridge.java[io.openems.impl.protocol.keba.KebaBridge icon:code[]]
+
+==== Implementing a Device
+
+=== Scheduler
+
+==== Existing Schedulers
+
+==== Developing a Scheduler
+
+=== Controller
+
+==== Existing Controllers
+
+==== Developing a Controller
+
+
+== OpenEMS UI
+
+=== Architecture
+
+=== Configuration
+
+=== FAQ
+// TODO * negative consumption
+
+== OpenEMS Backend
+
+=== Architecture
+
+=== Configuration

@@ -449,6 +449,63 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_run_openems_ui">2.5. Run OpenEMS UI</a></li>
 </ul>
 </li>
+<li><a href="#_core_concepts_terminology">3. Core concepts &amp; terminology</a>
+<ul class="sectlevel2">
+<li><a href="#_bundle">3.1. Bundle</a></li>
+<li><a href="#_component">3.2. Component</a></li>
+<li><a href="#_channel">3.3. Channel</a></li>
+<li><a href="#_nature">3.4. Nature</a></li>
+<li><a href="#_channel_address">3.5. Channel Address</a></li>
+<li><a href="#_scheduler">3.6. Scheduler</a></li>
+<li><a href="#_controller">3.7. Controller</a></li>
+</ul>
+</li>
+<li><a href="#_openems_edge">4. OpenEMS Edge</a>
+<ul class="sectlevel2">
+<li><a href="#_architecture">4.1. Architecture</a>
+<ul class="sectlevel3">
+<li><a href="#_input_process_output">4.1.1. Input-Process-Output</a></li>
+<li><a href="#_scheduler_and_controller">4.1.2. Scheduler and Controller</a></li>
+<li><a href="#_cycle">4.1.3. Cycle</a></li>
+<li><a href="#_asynchronous_threads_and_cycle_synchronization">4.1.4. Asynchronous threads and Cycle synchronization</a></li>
+</ul>
+</li>
+<li><a href="#_configuration">4.2. Configuration</a></li>
+<li><a href="#_hardware">4.3. Hardware</a>
+<ul class="sectlevel3">
+<li><a href="#_natures">4.3.1. Natures</a></li>
+<li><a href="#_bridges">4.3.2. Bridges</a></li>
+<li><a href="#_devices_services">4.3.3. Devices &amp; Services</a></li>
+<li><a href="#_implementing_a_device">4.3.4. Implementing a Device</a></li>
+</ul>
+</li>
+<li><a href="#_scheduler_2">4.4. Scheduler</a>
+<ul class="sectlevel3">
+<li><a href="#_existing_schedulers">4.4.1. Existing Schedulers</a></li>
+<li><a href="#_developing_a_scheduler">4.4.2. Developing a Scheduler</a></li>
+</ul>
+</li>
+<li><a href="#_controller_2">4.5. Controller</a>
+<ul class="sectlevel3">
+<li><a href="#_existing_controllers">4.5.1. Existing Controllers</a></li>
+<li><a href="#_developing_a_controller">4.5.2. Developing a Controller</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_openems_ui">5. OpenEMS UI</a>
+<ul class="sectlevel2">
+<li><a href="#_architecture_2">5.1. Architecture</a></li>
+<li><a href="#_configuration_2">5.2. Configuration</a></li>
+<li><a href="#_faq">5.3. FAQ</a></li>
+</ul>
+</li>
+<li><a href="#_openems_backend">6. OpenEMS Backend</a>
+<ul class="sectlevel2">
+<li><a href="#_architecture_3">6.1. Architecture</a></li>
+<li><a href="#_configuration_3">6.2. Configuration</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -468,7 +525,7 @@ It was developed around the requirements of controlling, monitoring and integrat
 <div class="ulist">
 <ul>
 <li>
-<p><strong>OpenEMS Edge</strong> runs on site and actually controls the devices</p>
+<p><strong>OpenEMS Edge</strong> runs on-site and actually controls the devices</p>
 </li>
 <li>
 <p><strong>OpenEMS UI</strong> is the generic user interface</p>
@@ -1094,10 +1151,289 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_core_concepts_terminology">3. Core concepts &amp; terminology</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This chapter describes some of the core concepts and commonly used terms in OpenEMS:</p>
+</div>
+<div class="sect2">
+<h3 id="_bundle">3.1. Bundle</h3>
+<div class="paragraph">
+<p>OpenEMS Edge is using the <a href="https://en.wikipedia.org/wiki/OSGi">OSGi <span class="icon"><i class="fa fa-external-link"></i></span></a> platform to provide a completely modular and dynamic service oriented system.</p>
+</div>
+<div class="paragraph">
+<p>Logical groups of source code are put into one OSGi Bundle. Every directory in the source code root directory starting with 'io.openems.*' is a bundle.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_component">3.2. Component</h3>
+<div class="paragraph">
+<p>OpenEMS Edge is built of Components, i.e. every main component implements the <a href="../io.openems.edge.common/src/io/openems/edge/common/component/OpenemsComponent.java">OpenemsComponent interface <span class="icon"><i class="fa fa-code"></i></span></a>.</p>
+</div>
+<div class="paragraph">
+<p>By definition each Component has a unique ID. Those <strong>Component-IDs</strong> are typically:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ess0</code> for the first storage system or battery inverter</p>
+</li>
+<li>
+<p><code>ess1</code> for the second storage system or battery inverter</p>
+</li>
+<li>
+<p>&#8230;&#8203;</p>
+</li>
+<li>
+<p><code>meter0</code> for the first meter in the system</p>
+</li>
+<li>
+<p>&#8230;&#8203;</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If you receive your OpenEMS together with a FENECON energy storage system, you will find the following Component-IDs:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>FENECON Pro</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ess0</code>: FENECON Pro Ess</p>
+</li>
+<li>
+<p><code>meter0</code>: Socomec grid meter</p>
+</li>
+<li>
+<p><code>meter1</code>: FENECON Pro production meter</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>FENECON Mini</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ess0</code>: FENECON Mini</p>
+</li>
+<li>
+<p><code>meter0</code>: FENECON Mini grid meter</p>
+</li>
+<li>
+<p><code>meter1</code>: FENECON Mini production meter</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_channel">3.3. Channel</h3>
+<div class="paragraph">
+<p>Each OpenemsComponent provides a number of Channels. Each represents a single piece of information. Each Channel implements the <a href="../io.openems.edge.common/src/io/openems/edge/common/channel/Channel.java">Channel interface <span class="icon"><i class="fa fa-code"></i></span></a>. By definition each Channel has a unique ID within its parent Component.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_nature">3.4. Nature</h3>
+<div class="paragraph">
+<p>Natures extend normal Java interfaces with 'Channels'. If a Component implements a Nature it also needs to provide the required Channels. For example the Energy Storage System (ESS) Simulator <a href="../io.openems.edge.simulator/src/io/openems/edge/simulator/ess/symmetric/reacting/EssSymmetric.java">Simulator.EssSymmetric.Reacting <span class="icon"><i class="fa fa-code"></i></span></a> implements the <a href="../io.openems.edge.ess.api/src/io/openems/edge/ess/api/Ess.java">Ess interface <span class="icon"><i class="fa fa-code"></i></span></a> and therefor needs to provide a <code>Soc</code> Channel that provides the current 'State of Charge' of the battery.</p>
+</div>
+<div class="paragraph">
+<p><a href="#_controller">Controller</a>s are written against Nature implementations. Example: A Controller can be used with any ESS, because it can be sure that it provides all the data the Controller requires for its algorithm.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_channel_address">3.5. Channel Address</h3>
+<div class="paragraph">
+<p>By combining the unique <strong>Component-ID</strong> and <strong>Channel-ID</strong> each Channel in the system can be addressed by a distinct 'Channel Address' in the form <code>Component-ID/Channel-ID</code>.</p>
+</div>
+<div class="paragraph">
+<p>Example: the state of charge ("Soc") of the first energy storage system ("ess0") has the channel address <code>ess0/Soc</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scheduler">3.6. Scheduler</h3>
+<div class="paragraph">
+<p>_see <a href="#_scheduler_and_controller">Scheduler and Controller</a> below</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_controller">3.7. Controller</h3>
+<div class="paragraph">
+<p>The actual business logic or algorithms are wrapped as 'Controllers'. i.e. they implement the <a href="../io.openems.edge.controller.api/src/io/openems/edge/controller/api/Controller.java">Controller interface <span class="icon"><i class="fa fa-code"></i></span></a>. Each Controller holds one specific, encapsulated task.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_openems_edge">4. OpenEMS Edge</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>OpenEMS Edge is the core component of the energy management that runs on-site and is responsible for communicating with and controling of external hardware like battery systems, inverters, meters and so on.</p>
+</div>
+<div class="sect2">
+<h3 id="_architecture">4.1. Architecture</h3>
+<div class="paragraph">
+<p>The OpenEMS Edge software architecture is carefully designed to abstract device communication and control algorithms in a way to provide maximum flexibility, predictability and stability, while simplifying the process of implementing new components.</p>
+</div>
+<div class="sect3">
+<h4 id="_input_process_output">4.1.1. Input-Process-Output</h4>
+<div class="paragraph">
+<p>OpenEMS Edge is built around the well-known IPO (input-process-output) model which defines the internal execution cycle.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./img/input-process-output.png" alt="Input-Process-Output model">
+</div>
+<div class="title">Figure 21. Input-Process-Output model</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Input</dt>
+<dd>
+<p>During the input phase all relevant information - e.g. the current 'state of charge' of a battery - is collected and provided as a <strong>process image</strong>. This process image is guaranteed to never change during the cycle.</p>
+</dd>
+<dt class="hdlist1">Process</dt>
+<dd>
+<p>The process phase runs algorithms and tasks based on the process image - e.g. an algorithm uses the 'state of charge' information to evaluate whether a digital output should be turned on.</p>
+</dd>
+<dt class="hdlist1">Output</dt>
+<dd>
+<p>The output phase takes the results from the process phase and applies it - e.g. it turns the digital output on or off.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_scheduler_and_controller">4.1.2. Scheduler and Controller</h4>
+<div class="paragraph">
+<p>During the 'process' phase different algorithms (Controllers) might try to access the same resources - e.g. two Controllers try to switch the same digital output. It is therefor necessary to prioritize their execution and restrict access according to priority.</p>
+</div>
+<div class="paragraph">
+<p>OpenEMS Edge uses Scheduler implementations to receive a sorted list of Controllers. The Controllers are then executed in order. Later executed Controllers are not allowed to overwrite a previously written result.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./img/input-process-scheduler-output.png" alt="IPO model with Scheduler and Controllers">
+</div>
+<div class="title">Figure 22. IPO model with Scheduler and Controllers</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_cycle">4.1.3. Cycle</h4>
+<div class="paragraph">
+<p>The input-process-output model in OpenEMS Edge is executed in a Cycle - implemented by the <a href="../io.openems.edge.core/src/io/openems/edge/cycle/Cycle.java">Cycle component <span class="icon"><i class="fa fa-code"></i></span></a>). It handles the setting of a process image in the input phase and executes the Controllers in the process phase. Furthermore it emits Cycle Events that can be used in other Components to synchronize with the Cycle.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./img/edge-cycle.png" alt="OpenEMS Edge Cycle">
+</div>
+<div class="title">Figure 23. OpenEMS Edge Cycle</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_asynchronous_threads_and_cycle_synchronization">4.1.4. Asynchronous threads and Cycle synchronization</h4>
+<div class="paragraph">
+<p>Communication with external hardware and services needs to be executed in asynchronous threads to not block the system. At the same time, those threads need to synchronize with the Cycle.</p>
+</div>
+<div class="paragraph">
+<p>The following example shows, how the <a href="../io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/AbstractModbusBridge.java">Modbus implementation <span class="icon"><i class="fa fa-code"></i></span></a> uses Cycle Events to synchronize with the Cycle:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./img/cycle-modbus.png" alt="Synchronize Cycle with Modbus read/write">
+</div>
+<div class="title">Figure 24. Synchronize Cycle with Modbus read/write</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configuration">4.2. Configuration</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_hardware">4.3. Hardware</h3>
+<div class="sect3">
+<h4 id="_natures">4.3.1. Natures</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_bridges">4.3.2. Bridges</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_devices_services">4.3.3. Devices &amp; Services</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_implementing_a_device">4.3.4. Implementing a Device</h4>
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scheduler_2">4.4. Scheduler</h3>
+<div class="sect3">
+<h4 id="_existing_schedulers">4.4.1. Existing Schedulers</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_developing_a_scheduler">4.4.2. Developing a Scheduler</h4>
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="_controller_2">4.5. Controller</h3>
+<div class="sect3">
+<h4 id="_existing_controllers">4.5.1. Existing Controllers</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_developing_a_controller">4.5.2. Developing a Controller</h4>
+
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_openems_ui">5. OpenEMS UI</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_architecture_2">5.1. Architecture</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_configuration_2">5.2. Configuration</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_faq">5.3. FAQ</h3>
+
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_openems_backend">6. OpenEMS Backend</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_architecture_3">6.1. Architecture</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_configuration_3">6.2. Configuration</h3>
+
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-06-06 09:31:09 DST
+Last updated 2018-06-10 21:15:54 DST
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">

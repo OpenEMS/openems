@@ -9,5 +9,4 @@ Version 2018.8.0-SNAPSHOT
 :keywords: AsciiDoc
 :source-highlighter: highlight.js
 :icons: font
-:imagesdir: ./img
 endif::toc[]
