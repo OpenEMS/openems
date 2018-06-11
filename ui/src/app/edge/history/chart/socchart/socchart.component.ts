@@ -97,6 +97,14 @@ export class SocChartComponent implements OnInit, OnChanges {
           labels.push(new Date(record.time));
           for (let componentId in this.channels) {
             let soc = null;
+            if (this.edge.isVersionAtLeast("2018.8")) {
+              /*
+               * AFTER VERSION 2018.8
+               */
+              if (componentId == '_sum' && "EssSoc" in record.channels[componentId]
+                && record.channels[componentId]["EssSoc"] != null)
+                soc = Math.round(record.channels[componentId].EssSoc);
+            }
             if (componentId in record.channels
               && "Soc" in record.channels[componentId]
               && record.channels[componentId]["Soc"] != null) {
