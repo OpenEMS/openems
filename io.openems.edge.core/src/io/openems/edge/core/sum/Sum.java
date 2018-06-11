@@ -173,28 +173,28 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	 * Ess
 	 */
 	private final List<Ess> esss = new CopyOnWriteArrayList<>();
-	private final AverageInteger essSoc;
-	private final SumInteger essActivePower;
+	private final AverageInteger<Ess> essSoc;
+	private final SumInteger<SymmetricEssReadonly> essActivePower;
 
 	/*
 	 * Grid
 	 */
-	private final SumInteger gridActivePower;
-	private final SumInteger gridMinActivePower;
-	private final SumInteger gridMaxActivePower;
+	private final SumInteger<SymmetricMeter> gridActivePower;
+	private final SumInteger<SymmetricMeter> gridMinActivePower;
+	private final SumInteger<SymmetricMeter> gridMaxActivePower;
 
 	/*
 	 * Production
 	 */
-	private final SumInteger productionActivePower;
-	private final SumInteger productionMaxActivePower;
+	private final SumInteger<SymmetricMeter> productionActivePower;
+	private final SumInteger<SymmetricMeter> productionMaxActivePower;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addEss(Ess ess) {
 		this.esss.add(ess);
 		this.essSoc.addComponent(ess);
-		if (ess instanceof SymmetricEss) {
-			this.essActivePower.addComponent(ess);
+		if (ess instanceof SymmetricEssReadonly) {
+			this.essActivePower.addComponent((SymmetricEssReadonly) ess);
 		}
 		this.calculateMaxConsumption.accept(null /* ignored */);
 	}
@@ -232,9 +232,9 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 			 * Grid-Meter
 			 */
 			if (meter instanceof SymmetricMeter) {
-				this.gridActivePower.addComponent(meter);
-				this.gridMinActivePower.addComponent(meter);
-				this.gridMaxActivePower.addComponent(meter);
+				this.gridActivePower.addComponent((SymmetricMeter) meter);
+				this.gridMinActivePower.addComponent((SymmetricMeter) meter);
+				this.gridMaxActivePower.addComponent((SymmetricMeter) meter);
 			}
 			break;
 
@@ -243,8 +243,8 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 			 * Production-Meter
 			 */
 			if (meter instanceof SymmetricMeter) {
-				this.productionActivePower.addComponent(meter);
-				this.productionMaxActivePower.addComponent(meter);
+				this.productionActivePower.addComponent((SymmetricMeter) meter);
+				this.productionMaxActivePower.addComponent((SymmetricMeter) meter);
 			}
 			break;
 		}
@@ -262,23 +262,24 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		/*
 		 * Ess
 		 */
-		this.essSoc = new AverageInteger(this, ChannelId.ESS_SOC, Ess.ChannelId.SOC);
-		this.essActivePower = new SumInteger(this, ChannelId.ESS_ACTIVE_POWER,
+		this.essSoc = new AverageInteger<Ess>(this, ChannelId.ESS_SOC, Ess.ChannelId.SOC);
+		this.essActivePower = new SumInteger<SymmetricEssReadonly>(this, ChannelId.ESS_ACTIVE_POWER,
 				SymmetricEssReadonly.ChannelId.ACTIVE_POWER);
 		/*
 		 * Grid
 		 */
-		this.gridActivePower = new SumInteger(this, ChannelId.GRID_ACTIVE_POWER, SymmetricMeter.ChannelId.ACTIVE_POWER);
-		this.gridMinActivePower = new SumInteger(this, ChannelId.GRID_MIN_ACTIVE_POWER,
+		this.gridActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.GRID_ACTIVE_POWER,
+				SymmetricMeter.ChannelId.ACTIVE_POWER);
+		this.gridMinActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.GRID_MIN_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.MIN_ACTIVE_POWER);
-		this.gridMaxActivePower = (SumInteger) new SumInteger(this, ChannelId.GRID_MAX_ACTIVE_POWER,
+		this.gridMaxActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.GRID_MAX_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.MAX_ACTIVE_POWER);
 		/*
 		 * Production
 		 */
-		this.productionActivePower = new SumInteger(this, ChannelId.PRODUCTION_ACTIVE_POWER,
+		this.productionActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.PRODUCTION_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.ACTIVE_POWER);
-		this.productionMaxActivePower = new SumInteger(this, ChannelId.PRODUCTION_MAX_ACTIVE_POWER,
+		this.productionMaxActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.PRODUCTION_MAX_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.MAX_ACTIVE_POWER);
 		/*
 		 * Consumption

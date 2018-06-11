@@ -14,7 +14,7 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.sum.Sum;
 
-public abstract class ChannelsFunction<T> {
+public abstract class ChannelsFunction<C extends OpenemsComponent, T> {
 
 	private final Logger log = LoggerFactory.getLogger(ChannelsFunction.class);
 	private final Channel<T> targetChannel;
@@ -30,7 +30,7 @@ public abstract class ChannelsFunction<T> {
 		this.sourceChannelId = sourceChannelId;
 	}
 
-	public void addComponent(OpenemsComponent component) {
+	public void addComponent(C component) {
 		if (this.debug) {
 			log.info("Add Component [" + component.id() + "] of type [" + component.getClass().getSimpleName() + "]");
 		}
@@ -55,7 +55,7 @@ public abstract class ChannelsFunction<T> {
 		this.valueMap.remove(component.id());
 	}
 
-	public ChannelsFunction<T> debug() {
+	public ChannelsFunction<C, T> debug() {
 		this.debug = true;
 		return this;
 	}
