@@ -1,5 +1,11 @@
-# OpenEMS
-**Open Source Energy Management System**
+<h1 align="center">
+  <br>
+  <img src="https://raw.githubusercontent.com/OpenEMS/openems/develop/doc/img/OpenEMS-Logo.png" alt="the Feneco - OpenEMS Logo" width="200"></a>
+  <br>
+  OpenEMS
+  <br>
+</h1>
+<h4 align="center">Open Source Energy Management System</h4>
 
 OpenEMS is a modular platform for energy management applications.
 It was developed around the requirements of controlling, monitoring and integrating energy storage systems together with renewable energy sources and complementary devices and services.
@@ -43,7 +49,6 @@ Indepth documentation is currently in progress. Please find the latest documents
 
  * [Latest version of documentation](/doc/OpenEMS_EN.adoc)
  * [Latest version of documentation in HTML format](http://htmlpreview.github.io/?https://github.com/OpenEMS/openems/blob/develop/doc/OpenEMS_EN.html)
- * [Latest version of documentation in PDF format](/doc/OpenEMS_EN.pdf)
  * [Documentation of previous version of OpenEMS](http://htmlpreview.github.io/?https://github.com/OpenEMS/openems/blob/feature/improve_doc/doc/openems.html)
  * [Previous version readme](https://github.com/OpenEMS/openems/blob/old_master/README.md)
 
