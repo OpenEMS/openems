@@ -1,6 +1,21 @@
-= OpenEMS: Open Energy Management System
-include::_include/header.adoc[]
+ifdef::backend-pdf[]
+= Open Energy Management System
+endif::[]
+ifndef::backend-pdf[]
+= image:OpenEMS-Logo.png[the Feneco - OpenEMS Logo,400,role="related right"]  Open Energy Management System
+endif::[]
+Stefan Feilmeier (c) 2018 FENECON GmbH
+Version 2018.8.0-SNAPSHOT
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
 :imagesdir: ./img
+:title-logo-image: image:OpenEMS-Logo.png[pdfwidth=4.25in,align=center]
 
 == Introduction
 
