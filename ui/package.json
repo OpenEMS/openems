@@ -1,6 +1,6 @@
 {
   "name": "openems-ui",
-  "version": "2018.7.0",
+  "version": "2018.8.0",
   "license": "AGPL",
   "scripts": {
     "ng": "ng",
@@ -55,6 +55,7 @@
     "ngx-loading": "^1.0.14",
     "roboto-fontface": "0.8.0",
     "rxjs": "^5.5.6",
+    "semver-compare-multi": "^1.0.3",
     "web-animations-js": "^2.3.1",
     "zone.js": "^0.8.19"
   },

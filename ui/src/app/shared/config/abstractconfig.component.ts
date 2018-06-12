@@ -4,10 +4,10 @@ import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 
 import { Utils } from '../service/utils';
-import { Device } from '../device/device';
+import { Edge } from '../edge/edge';
 import { Websocket } from '../shared';
 import { DefaultTypes } from '../service/defaulttypes';
-import { ConfigImpl } from '../device/config';
+import { ConfigImpl } from '../edge/config';
 
 @Component({
   selector: 'abstractconfig',
@@ -16,7 +16,7 @@ import { ConfigImpl } from '../device/config';
 export class AbstractConfigComponent implements OnInit {
 
   public showSubThings: boolean = false;
-  public device: Device = null;
+  public edge: Edge = null;
   public config: ConfigImpl = null;
   public things: string[] = [];
   private stopOnDestroy: Subject<void> = new Subject<void>();
@@ -28,13 +28,13 @@ export class AbstractConfigComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.websocket.setCurrentDevice(this.route)
+    this.websocket.setCurrentEdge(this.route)
       .takeUntil(this.stopOnDestroy)
-      .filter(device => device != null)
-      .subscribe(device => {
-        this.device = device;
-        device.config
-          .filter(device => device != null)
+      .filter(edge => edge != null)
+      .subscribe(edge => {
+        this.edge = edge;
+        edge.config
+          .filter(edge => edge != null)
           .takeUntil(this.stopOnDestroy).subscribe(config => {
             this.config = config;
             this.things = this.filterThings(config);

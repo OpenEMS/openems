@@ -37,7 +37,7 @@ export const TRANSLATION = {
         ToEnergymonitor: "Naar Energiemonitor...",
         IsOffline: "FEMS is offline!"
     },
-    Device: {
+    Edge: {
         Overview: {
             Energymonitor: {
                 Title: "Energiemonitor",

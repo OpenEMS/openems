@@ -16,14 +16,15 @@ public class EdgeCurrentDataWorker extends CurrentDataWorker {
 	/**
 	 * The access level Role of this worker
 	 */
-	private final Role role;
+	// TODO
+	// private final Role role;
 
 	private final EdgeWebsocketHandler parent;
 
 	public EdgeCurrentDataWorker(EdgeWebsocketHandler parent, Role role, WebSocket websocket) {
 		super(websocket);
 		this.parent = parent;
-		this.role = role;
+		// this.role = role;
 	}
 
 	@Override

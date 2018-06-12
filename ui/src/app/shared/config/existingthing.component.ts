@@ -4,8 +4,8 @@ import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from 
 
 import { ChannelComponent } from './channel.component';
 import { Utils } from '../service/utils';
-import { ConfigImpl } from '../device/config';
-import { Device } from '../device/device';
+import { ConfigImpl } from '../edge/config';
+import { Edge } from '../edge/edge';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Role } from '../type/role';
 
@@ -15,7 +15,7 @@ import { Role } from '../type/role';
 })
 export class ExistingThingComponent implements OnChanges {
 
-  public _device: Device = null;
+  public _edge: Edge = null;
   public thing = null;
   public meta = null;
   public role: Role = "guest";
@@ -28,17 +28,17 @@ export class ExistingThingComponent implements OnChanges {
   // sets the flag if subthings should be shown, e.g. a Device of a Bridge
   @Input() public showSubThings: boolean = false;
 
-  @Input() set device(device: Device) {
-    this.role = device.role;
-    this._device = device;
-    device.config.takeUntil(this.stopOnDestroy)
-      .filter(device => device != null)
+  @Input() set edge(edge: Edge) {
+    this.role = edge.role;
+    this._edge = edge;
+    edge.config.takeUntil(this.stopOnDestroy)
+      .filter(edge => edge != null)
       .takeUntil(this.stopOnDestroy).subscribe(config => {
         this.config = config;
       });
   }
-  get device(): Device {
-    return this._device;
+  get edge(): Edge {
+    return this._edge;
   }
 
   @Input() public thingId: string = null;
@@ -89,7 +89,7 @@ export class ExistingThingComponent implements OnChanges {
 
   public save() {
     for (let message of this.utils.values(this.messages)) {
-      this.device.send(message);
+      this.edge.send(message);
     }
     this.messages = {};
     this.formPristine = true;

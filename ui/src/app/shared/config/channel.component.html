@@ -51,7 +51,7 @@
                     <mat-slide-toggle formControlName="channelConfig">{{ title }}</mat-slide-toggle>
                 </ng-container>
                 <ng-container *ngSwitchCase="'thing'">
-                    <existingthing [thingId]="form.value.channelConfig.id" [device]="device"></existingthing>
+                    <existingthing [thingId]="form.value.channelConfig.id" [edge]="edge"></existingthing>
                 </ng-container>
                 <ng-container *ngSwitchCase="'selectNature'">
                     <!-- TODO list all things that are of type {{ deviceNature }} -->

@@ -48,7 +48,7 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.timedata.api.Timedata;
 
 /**
@@ -295,8 +295,8 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 					case BOOLEAN:
 						point.addField(address, (Boolean) value);
 						break;
-					case FLOAT:
-						point.addField(address, (Float) value);
+					case SHORT:
+						point.addField(address, (Short) value);
 						break;
 					case INTEGER:
 						point.addField(address, (Integer) value);
@@ -304,8 +304,11 @@ public class InfluxTimedata extends AbstractOpenemsComponent implements Timedata
 					case LONG:
 						point.addField(address, (Long) value);
 						break;
-					case SHORT:
-						point.addField(address, (Short) value);
+					case FLOAT:
+						point.addField(address, (Float) value);
+						break;
+					case DOUBLE:
+						point.addField(address, (Double) value);
 						break;
 					case STRING:
 						point.addField(address, (String) value);

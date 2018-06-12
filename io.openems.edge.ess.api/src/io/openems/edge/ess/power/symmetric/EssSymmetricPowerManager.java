@@ -13,7 +13,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
-import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.symmetric.api.SymmetricEss;
 
 /**

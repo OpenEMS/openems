@@ -12,7 +12,7 @@ import 'rxjs/add/operator/takeUntil';
 import { environment as env } from '../../../environments';
 import { Service } from './service';
 import { Utils } from './utils';
-import { Device } from '../device/device';
+import { Edge } from '../edge/edge';
 import { Role } from '../type/role';
 import { DefaultTypes } from '../service/defaulttypes';
 import { DefaultMessages } from '../service/defaultmessages';
@@ -21,18 +21,18 @@ import { DefaultMessages } from '../service/defaultmessages';
 export class Websocket {
   public static readonly TIMEOUT = 15000;
   private static readonly DEFAULT_EDGEID = 0;
-  private static readonly DEFAULT_DEVICENAME = "fems";
+  private static readonly DEFAULT_EDGENAME = "fems";
 
-  // holds references of device names (=key) to Device objects (=value)
-  private _devices: BehaviorSubject<{ [name: string]: Device }> = new BehaviorSubject({});
-  public get devices() {
-    return this._devices;
+  // holds references of edge names (=key) to Edge objects (=value)
+  private _edges: BehaviorSubject<{ [name: string]: Edge }> = new BehaviorSubject({});
+  public get edges() {
+    return this._edges;
   }
 
-  // holds the currently selected device
-  private _currentDevice: BehaviorSubject<Device> = new BehaviorSubject<Device>(null);
-  public get currentDevice() {
-    return this._currentDevice;
+  // holds the currently selected edge
+  private _currentEdge: BehaviorSubject<Edge> = new BehaviorSubject<Edge>(null);
+  public get currentEdge() {
+    return this._currentEdge;
   }
 
   private socket: WebSocketSubject<any>;
@@ -44,10 +44,10 @@ export class Websocket {
   private queryreply = new Subject<{ id: string[] }>();
   private stopOnInitialize: Subject<void> = new Subject<void>();
 
-  // holds stream per device (=key1) and message-id (=key2); triggered on message reply for the device
-  private replyStreams: { [deviceName: string]: { [messageId: string]: Subject<any> } } = {};
+  // holds stream per edge (=key1) and message-id (=key2); triggered on message reply for the edge
+  private replyStreams: { [edgeName: string]: { [messageId: string]: Subject<any> } } = {};
 
-  // tracks which message id (=key) is connected with which deviceName (=value)
+  // tracks which message id (=key) is connected with which edgeName (=value)
   private pendingQueryReplies: { [id: string]: string } = {};
 
   constructor(
@@ -61,45 +61,45 @@ export class Websocket {
   }
 
   /**
-   * Parses the route params and sets the current device
+   * Parses the route params and sets the current edge
    */
-  public setCurrentDevice(route: ActivatedRoute): Subject<Device> {
+  public setCurrentEdge(route: ActivatedRoute): Subject<Edge> {
     let onTimeout = () => {
       // Timeout: redirect to overview
       this.router.navigate(['/overview']);
       subscription.unsubscribe();
     }
 
-    let deviceName = route.snapshot.params["device"];
-    let subscription = this.devices
-      .filter(devices => deviceName in devices)
+    let edgeName = route.snapshot.params["edgeName"];
+    let subscription = this.edges
+      .filter(edges => edgeName in edges)
       .first()
-      .map(devices => devices[deviceName])
-      .subscribe(device => {
-        if (device == null || !device.online) {
+      .map(edges => edges[edgeName])
+      .subscribe(edge => {
+        if (edge == null || !edge.online) {
           onTimeout();
         } else {
-          // set current device
-          this.currentDevice.next(device);
-          device.markAsCurrentDevice();
+          // set current edge
+          this.currentEdge.next(edge);
+          edge.markAsCurrentEdge();
         }
       }, error => {
-        console.error("Error while setting current device: ", error);
+        console.error("Error while setting current edge: ", error);
       })
     setTimeout(() => {
-      let device = this.currentDevice.getValue();
-      if (device == null || !device.online) {
+      let edge = this.currentEdge.getValue();
+      if (edge == null || !edge.online) {
         onTimeout();
       }
     }, Websocket.TIMEOUT);
-    return this.currentDevice;
+    return this.currentEdge;
   }
 
   /**
-   * Clears the current device
+   * Clears the current edge
    */
-  public clearCurrentDevice() {
-    this.currentDevice.next(null);
+  public clearCurrentEdge() {
+    this.currentEdge.next(null);
   }
 
   /**
@@ -189,11 +189,11 @@ export class Websocket {
        * Query reply
        */
       if ("messageId" in message && "ui" in message.messageId) {
-        // Receive a reply with a message id -> find device and forward to devices' replyStream
+        // Receive a reply with a message id -> find edge and forward to edges' replyStream
         let messageId = message.messageId.ui;
-        for (let deviceName in this.replyStreams) {
-          if (messageId in this.replyStreams[deviceName]) {
-            this.replyStreams[deviceName][messageId].next(message);
+        for (let edgeName in this.replyStreams) {
+          if (messageId in this.replyStreams[edgeName]) {
+            this.replyStreams[edgeName][messageId].next(message);
             break;
           }
         }
@@ -204,24 +204,25 @@ export class Websocket {
        */
       if ("metadata" in message) {
         if ("edges" in message.metadata) {
-          let devices = <DefaultTypes.MessageMetadataDevice[]>message.metadata.edges;
-          let newDevices = {};
-          for (let device of devices) {
+          let edges = <DefaultTypes.MessageMetadataEdge[]>message.metadata.edges;
+          let newEdges = {};
+          for (let edge of edges) {
             let replyStream: { [messageId: string]: Subject<any> } = {};
-            this.replyStreams[device.name] = replyStream;
-            let newDevice = new Device(
-              device.id,
-              device.name,
-              device.comment,
-              device.producttype,
-              Role.getRole(device.role),
-              device.online,
+            this.replyStreams[edge.name] = replyStream;
+            let newEdge = new Edge(
+              edge.id,
+              edge.name,
+              edge.comment,
+              edge.producttype,
+              ("version" in edge) ? edge["version"] : "0.0.0",
+              Role.getRole(edge.role),
+              edge.online,
               replyStream,
               this
             );
-            newDevices[newDevice.name] = newDevice;
+            newEdges[newEdge.name] = newEdge;
           }
-          this.devices.next(newDevices);
+          this.edges.next(newEdges);
         }
       }
 
@@ -236,16 +237,16 @@ export class Websocket {
           // handle specific notification codes - see Java source for details
           let code = notification.code;
           let params = notification.params;
-          if (code == 100 /* device disconnected -> mark as offline */) {
-            let deviceId = params[0];
-            if (deviceId in this.devices.getValue()) {
-              this.devices.getValue()[deviceId].setOnline(false);
+          if (code == 100 /* edge disconnected -> mark as offline */) {
+            let edgeId = params[0];
+            if (edgeId in this.edges.getValue()) {
+              this.edges.getValue()[edgeId].setOnline(false);
             }
-          } else if (code == 101 /* device reconnected -> mark as online */) {
-            let deviceId = params[0];
-            if (deviceId in this.devices.getValue()) {
-              let device = this.devices.getValue()[deviceId];
-              device.setOnline(true);
+          } else if (code == 101 /* edge reconnected -> mark as online */) {
+            let edgeId = params[0];
+            if (edgeId in this.edges.getValue()) {
+              let edge = this.edges.getValue()[edgeId];
+              edge.setOnline(true);
             }
           } else if (code == 103 /* authentication by token failed */) {
             let token: string = params[0];
@@ -257,7 +258,7 @@ export class Websocket {
             this.status = "waiting for authentication";
             notify = false;
             setTimeout(() => {
-              this.clearCurrentDevice();
+              this.clearCurrentEdge();
               this.router.navigate(["/overview"]);
             });
           }
@@ -280,7 +281,7 @@ export class Websocket {
   private initialize() {
     this.stopOnInitialize.next();
     this.stopOnInitialize.complete();
-    this.devices.next({});
+    this.edges.next({});
   }
 
   /**

@@ -1,0 +1,16 @@
+<mat-card class="single" *ngIf="edge">
+  <mat-card-header>
+    <mat-icon mat-card-avatar>history</mat-icon>
+    <mat-card-title translate>General.History</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div style="height: 150px">
+      <socchart [edge]="edge" [channels]="socChannels" [fromDate]="fromDate" [toDate]="toDate"></socchart>
+    </div>
+  </mat-card-content>
+  <mat-card-actions fxLayout fxLayoutAlign="end start">
+    <button mat-fab routerLink="/device/{{ edge.name }}/history">
+      <mat-icon>navigate_next</mat-icon>
+    </button>
+  </mat-card-actions>
+</mat-card>

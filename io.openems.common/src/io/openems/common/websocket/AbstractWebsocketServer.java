@@ -1,8 +1,8 @@
 package io.openems.common.websocket;
 
 import java.net.InetSocketAddress;
-import java.util.Iterator;
-import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.drafts.Draft_6455;
@@ -14,24 +14,32 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 
 public abstract class AbstractWebsocketServer extends WebSocketServer {
 	private final Logger log = LoggerFactory.getLogger(AbstractWebsocketServer.class);
 
-	protected abstract void _onMessage(WebSocket websocket, JsonObject jMessage);
+	private final static int MAX_CONCURRENT_THREADS = 20;
 
-	protected abstract void _onOpen(WebSocket websocket, ClientHandshake handshake);
+	private final ExecutorService executor = Executors.newFixedThreadPool(MAX_CONCURRENT_THREADS);
 
-	protected abstract void _onError(WebSocket websocket, Exception ex);
+	protected abstract AbstractOnMessage _onMessage(WebSocket websocket, String message);
 
-	protected abstract void _onClose(WebSocket websocket);
+	protected abstract AbstractOnOpen _onOpen(WebSocket websocket, ClientHandshake handshake);
+
+	protected abstract AbstractOnError _onError(WebSocket websocket, Exception ex);
+
+	protected abstract AbstractOnClose _onClose(WebSocket websocket, int code, String reason, boolean remote);
 
 	public AbstractWebsocketServer(int port) {
 		super(new InetSocketAddress(port), Lists.newArrayList(new Draft_6455()));
+	}
+
+	@Override
+	public void stop(int arg0) throws InterruptedException {
+		this.executor.shutdown();
+		super.stop(arg0);
 	}
 
 	@Override
@@ -44,12 +52,7 @@ public abstract class AbstractWebsocketServer extends WebSocketServer {
 	 */
 	@Override
 	public final void onOpen(WebSocket websocket, ClientHandshake handshake) {
-		try {
-			this._onOpen(websocket, handshake);
-		} catch (Throwable e) {
-			log.error("onOpen-Error [" + this.handshakeToJsonObject(handshake) + "]: ");
-			e.printStackTrace();
-		}
+		this.executor.submit(this._onOpen(websocket, handshake));
 	}
 
 	/**
@@ -57,13 +60,7 @@ public abstract class AbstractWebsocketServer extends WebSocketServer {
 	 */
 	@Override
 	public final void onMessage(WebSocket websocket, String message) {
-		try {
-			JsonObject jMessage = (new JsonParser()).parse(message).getAsJsonObject();
-			this._onMessage(websocket, jMessage);
-		} catch (Throwable e) {
-			log.error("onMessage-Error [" + message + "]: " + e.getMessage());
-			e.printStackTrace();
-		}
+		this.executor.submit(this._onMessage(websocket, message));
 	}
 
 	/**
@@ -72,11 +69,7 @@ public abstract class AbstractWebsocketServer extends WebSocketServer {
 	 */
 	@Override
 	public final void onClose(WebSocket websocket, int code, String reason, boolean remote) {
-		try {
-			this._onClose(websocket);
-		} catch (Throwable e) {
-			log.error("onClose-Error. Code [" + code + "] Reason [" + reason + "]: " + e.getMessage());
-		}
+		this.executor.submit(this._onClose(websocket, code, reason, remote));
 	}
 
 	/**
@@ -84,26 +77,7 @@ public abstract class AbstractWebsocketServer extends WebSocketServer {
 	 */
 	@Override
 	public final void onError(WebSocket websocket, Exception ex) {
-		try {
-			this._onError(websocket, ex);
-		} catch (Throwable e) {
-			log.error("onError handling of Exception [" + ex.getMessage() + "] failed: " + e.getMessage());
-		}
-	}
-
-	/**
-	 * Converts a Handshake to a JsonObject
-	 * 
-	 * @param handshake
-	 * @return
-	 */
-	protected JsonObject handshakeToJsonObject(ClientHandshake handshake) {
-		JsonObject j = new JsonObject();
-		for (Iterator<String> iter = handshake.iterateHttpFields(); iter.hasNext();) {
-			String field = iter.next();
-			j.addProperty(field, handshake.getFieldValue(field));
-		}
-		return j;
+		this.executor.submit(this._onError(websocket, ex));
 	}
 
 	/**
@@ -122,24 +96,13 @@ public abstract class AbstractWebsocketServer extends WebSocketServer {
 			return false;
 		}
 	}
-	
-	/**
-	 * Get field from cookie in the handshake
-	 *
-	 * @param handshake
-	 * @return value as optional
-	 */
-	protected Optional<String> getFieldFromHandshakeCookie(ClientHandshake handshake, String fieldname) {
-		JsonObject jCookie = new JsonObject();
-		if (handshake.hasFieldValue("cookie")) {
-			String cookieString = handshake.getFieldValue("cookie");
-			for (String cookieVariable : cookieString.split("; ")) {
-				String[] keyValue = cookieVariable.split("=");
-				if (keyValue.length == 2) {
-					jCookie.addProperty(keyValue[0], keyValue[1]);
-				}
-			}
+
+	public void executorTryAgain(Runnable runnable) {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		return JsonUtils.getAsOptionalString(jCookie, fieldname);
+		this.executor.submit(runnable);
 	}
 }

@@ -16,6 +16,8 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
 import com.vividsolutions.jts.operation.distance.GeometryLocation;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
+import io.openems.common.utils.IntUtils;
+import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.ess.power.PowerException;
 import io.openems.edge.ess.symmetric.api.SymmetricEss;
 
@@ -278,18 +280,17 @@ public class SymmetricPower {
 			 * <li>if SoC < 50 %: round up (more discharge)
 			 * </ul>
 			 */
-			boolean roundUp = false;
+			Round round = Round.DOWN;
 			Optional<Integer> socOpt = this.parent.getSoc().value().asOptional();
 			if (socOpt.isPresent()) {
 				int soc = socOpt.get();
 				if (activePower > 0 && soc > 50 || activePower < 0 && soc < 50) {
-					roundUp = true;
+					round = Round.UP;
 				}
 			}
-			activePower = (int) ((Math.floor( //
-					(activePower + (roundUp ? -0.1 : 0.1)) / powerPrecision) + (roundUp ? 1 : 0)) * powerPrecision);
-			reactivePower = (int) ((Math.floor( //
-					(reactivePower + (roundUp ? -0.1 : 0.1)) / powerPrecision) + (roundUp ? 1 : 0)) * powerPrecision);
+			activePower = IntUtils.roundToPrecision(activePower, round, powerPrecision);
+			reactivePower = IntUtils.roundToPrecision(reactivePower, round, powerPrecision);
+
 			// set debug channels on parent
 			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(activePower);
 			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER).setNextValue(reactivePower);

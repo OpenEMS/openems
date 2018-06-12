@@ -37,7 +37,11 @@ public class Value<T> {
 	}
 
 	public String toString() {
-		return this.parent.channelDoc().getUnit().format(this.value, this.parent.getType());
+		if (this.value == null) {
+			return UNDEFINED_VALUE_STRING;
+		} else {
+			return this.parent.channelDoc().getUnit().format(this.value, this.parent.getType());
+		}
 	}
 
 	/**
@@ -82,6 +86,16 @@ public class Value<T> {
 	 */
 	public Optional<T> asOptional() {
 		return Optional.ofNullable(this.get());
+	};
+
+	/**
+	 * Gets the value or the given alternativeValue. This is short for
+	 * '.asOptional().or()'.
+	 *
+	 * @return
+	 */
+	public T orElse(T alternativeValue) {
+		return Optional.ofNullable(this.get()).orElse(alternativeValue);
 	};
 
 	/**

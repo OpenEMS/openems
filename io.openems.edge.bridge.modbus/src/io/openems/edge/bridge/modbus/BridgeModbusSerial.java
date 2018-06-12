@@ -18,7 +18,7 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
+import io.openems.edge.common.event.EdgeEventConstants;
 
 /**
  * Provides a service for connecting to, querying and writing to a Modbus/RTU

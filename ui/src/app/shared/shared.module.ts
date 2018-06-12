@@ -36,7 +36,7 @@ import { HasclassPipe } from './pipe/hasclass/hasclass.pipe';
 /*
  * Components
  */
-import { SocChartComponent } from './../device/history/chart/socchart/socchart.component';
+import { SocChartComponent } from './../edge/history/chart/socchart/socchart.component';
 import { AbstractConfigComponent } from './config/abstractconfig.component';
 import { ExistingThingComponent } from './config/existingthing.component';
 import { ChannelComponent } from './config/channel.component';

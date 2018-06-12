@@ -44,7 +44,8 @@ public class TypeUtils {
 				if (intValue >= Short.MIN_VALUE && intValue <= Short.MAX_VALUE) {
 					return (T) Short.valueOf((short) intValue);
 				} else {
-					throw new IllegalArgumentException("Cannot convert Integer [" + value + "] to Short");
+					throw new IllegalArgumentException(
+							"Cannot convert. Integer [" + value + "] is not fitting in Short range.");
 				}
 
 			} else if (value instanceof Long) {
@@ -52,15 +53,28 @@ public class TypeUtils {
 				if (longValue >= Short.MIN_VALUE && longValue <= Short.MAX_VALUE) {
 					return (T) Short.valueOf((short) longValue);
 				} else {
-					throw new IllegalArgumentException("Cannot convert Long [" + value + "] to Short");
+					throw new IllegalArgumentException(
+							"Cannot convert. Long [" + value + "] is not fitting in Short range.");
 				}
 
 			} else if (value instanceof Float) {
-				int intValue = ((Float) value).intValue();
+				float floatValue = (Float) value;
+				int intValue = Math.round(floatValue);
 				if (intValue >= Short.MIN_VALUE && intValue <= Short.MAX_VALUE) {
 					return (T) Short.valueOf((short) intValue);
 				} else {
-					throw new IllegalArgumentException("Cannot convert Float [" + value + "] to Short");
+					throw new IllegalArgumentException(
+							"Cannot convert. Float [" + value + "] is not fitting in Short range.");
+				}
+
+			} else if (value instanceof Double) {
+				double doubleValue = (Double) value;
+				long longValue = Math.round(doubleValue);
+				if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
+					return (T) Integer.valueOf((int) longValue);
+				} else {
+					throw new IllegalArgumentException(
+							"Cannot convert. Double [" + value + "] is not fitting in Short range.");
 				}
 			}
 			break;
@@ -89,7 +103,18 @@ public class TypeUtils {
 				}
 
 			} else if (value instanceof Float) {
-				return (T) (Integer) ((Float) value).intValue();
+				float floatValue = (Float) value;
+				return (T) (Integer) Math.round(floatValue);
+
+			} else if (value instanceof Double) {
+				double doubleValue = (Double) value;
+				long longValue = Math.round(doubleValue);
+				if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
+					return (T) Integer.valueOf((int) longValue);
+				} else {
+					throw new IllegalArgumentException(
+							"Cannot convert. Double [" + value + "] is not fitting in Integer range.");
+				}
 			}
 			break;
 
@@ -111,7 +136,10 @@ public class TypeUtils {
 				return (T) (Long) value;
 
 			} else if (value instanceof Float) {
-				return (T) (Long) ((Float) value).longValue();
+				return (T) (Long) Math.round(Double.valueOf((Float) value));
+
+			} else if (value instanceof Double) {
+				return (T) (Long) Math.round((Double) value);
 			}
 			break;
 
@@ -132,13 +160,48 @@ public class TypeUtils {
 			} else if (value instanceof Long) {
 				long longValue = (Long) value;
 				if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
-					return (T) (Float) Long.valueOf(longValue).floatValue();
+					return (T) (Float) Float.valueOf((int) longValue);
 				} else {
-					throw new IllegalArgumentException("Cannot convert Long [" + value + "] to Integer");
+					throw new IllegalArgumentException(
+							"Cannot convert. Long [" + value + "] is not fitting in Float range.");
 				}
 
 			} else if (value instanceof Float) {
 				return (T) (Float) value;
+
+			} else if (value instanceof Double) {
+				double doubleValue = (Double) value;
+				if (doubleValue >= Float.MIN_VALUE && doubleValue <= Float.MAX_VALUE) {
+					return (T) (Float) Float.valueOf((float) doubleValue);
+				} else {
+					throw new IllegalArgumentException(
+							"Cannot convert. Double [" + value + "] is not fitting in Integer range.");
+				}
+			}
+			break;
+
+		case DOUBLE:
+			if (value == null) {
+				return (T) (Double) value;
+
+			} else if (value instanceof Boolean) {
+				boolean boolValue = (Boolean) value;
+				return (T) Double.valueOf((boolValue ? 1l : 0l));
+
+			} else if (value instanceof Short) {
+				return (T) Double.valueOf((Short) value);
+
+			} else if (value instanceof Integer) {
+				return (T) Double.valueOf((Integer) value);
+
+			} else if (value instanceof Long) {
+				return (T) Double.valueOf((Long) value);
+
+			} else if (value instanceof Float) {
+				return (T) Double.valueOf((Float) value);
+
+			} else if (value instanceof Double) {
+				return (T) (Double) value;
 			}
 			break;
 
@@ -153,6 +216,7 @@ public class TypeUtils {
 		}
 		throw new IllegalArgumentException(
 				"Converter for value [" + value + "] to type [" + type + "] is not implemented.");
+
 	}
 
 	public static JsonElement getAsJson(OpenemsType type, Object originalValue) {
@@ -163,14 +227,16 @@ public class TypeUtils {
 		switch (type) {
 		case BOOLEAN:
 			return new JsonPrimitive(((Boolean) value) ? 1 : 0);
-		case FLOAT:
-			return new JsonPrimitive((Float) value);
+		case SHORT:
+			return new JsonPrimitive((Short) value);
 		case INTEGER:
 			return new JsonPrimitive((Integer) value);
 		case LONG:
 			return new JsonPrimitive((Long) value);
-		case SHORT:
-			return new JsonPrimitive((Short) value);
+		case FLOAT:
+			return new JsonPrimitive((Float) value);
+		case DOUBLE:
+			return new JsonPrimitive((Double) value);
 		case STRING:
 			return new JsonPrimitive((String) value);
 		}

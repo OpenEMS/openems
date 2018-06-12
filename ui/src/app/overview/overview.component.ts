@@ -35,11 +35,11 @@ export class OverviewComponent {
       "filter": formBuilder.control('')
     });
     // TODO should only forward when automatic login was successful and user did not come to this page on purpose
-    // websocket.devices.takeUntil(this.stopOnDestroy).subscribe(devices => {
-    // if (Object.keys(devices).length == 1) {
-    // redirect if only one device
-    // let device = devices[Object.keys(devices)[0]];
-    // this.router.navigate(['/device', device.name]);
+    // websocket.edges.takeUntil(this.stopOnDestroy).subscribe(edges => {
+    // if (Object.keys(edges).length == 1) {
+    // redirect if only one edge
+    // let edge = edges[Object.keys(devices)[0]];
+    // this.router.navigate(['/device', edge.name]);
     // }
     // })
   }

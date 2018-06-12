@@ -115,6 +115,8 @@ public class BackendApi extends AbstractOpenemsComponent
 			log.error("Disconnected from OpenEMS Backend [" + config.uri() + (proxy.isPresent() ? " via Proxy" : "")
 					+ "]");
 		});
+		// TODO: re-enable connection lost detection
+		this.websocket.setConnectionLostTimeout(0);
 		this.websocket.connect();
 		this.backendWorker.activate(config.id());
 	}

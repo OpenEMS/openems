@@ -38,7 +38,7 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Level;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.controllerexecutor.EdgeEventConstants;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.power.symmetric.PGreaterEqualLimitation;
@@ -66,7 +66,7 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
 
 	private final static int UNIT_ID = 100;
-	private final static int MAX_APPARENT_POWER = 40000;
+	protected final static int MAX_APPARENT_POWER = 40000;
 	private final static int MIN_REACTIVE_POWER = -10000;
 	private final static int MAX_REACTIVE_POWER = 10000;
 	private final static int POWER_PRECISION = 100;

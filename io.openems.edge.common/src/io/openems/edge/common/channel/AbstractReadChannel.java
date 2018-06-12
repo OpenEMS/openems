@@ -1,7 +1,6 @@
 package io.openems.edge.common.channel;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
@@ -53,10 +52,10 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 			}
 		}
 		// call onInitCallback from Doc
-		Optional<Consumer<Channel<?>>> onInitCallback = this.channelId.doc().getOnInitCallback();
-		if (onInitCallback.isPresent()) {
-			onInitCallback.get().accept(this);
-		}
+		this.channelId.doc().getOnInitCallback().forEach(callback -> {
+			callback.accept(this);
+		});
+		// set initial value
 		this.setNextValue(initialValue);
 	}
 
@@ -99,6 +98,11 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 			log.info("Next value for [" + this.address() + "]: " + this.nextValue.asString());
 		}
 		this.onSetNextValueCallbacks.forEach(callback -> callback.accept(this.nextValue));
+	}
+
+	@Override
+	public Value<T> getNextValue() {
+		return this.nextValue;
 	}
 
 	@Override

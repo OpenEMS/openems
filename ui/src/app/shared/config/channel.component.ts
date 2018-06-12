@@ -4,10 +4,11 @@ import { FormControl, FormGroup, FormArray, AbstractControl, FormBuilder } from 
 
 import { DefaultMessages } from '../service/defaultmessages';
 import { Utils } from '../service/utils';
-import { ConfigImpl } from '../device/config';
-import { Device } from '../device/device';
+import { ConfigImpl } from '../edge/config';
+import { Edge } from '../edge/edge';
 import { DefaultTypes } from '../service/defaulttypes';
 import { Role } from '../type/role';
+import { EdgeModule } from '../../edge/edge.module';
 
 @Component({
   selector: 'channel',
@@ -29,8 +30,8 @@ export class ChannelComponent implements OnChanges, OnDestroy {
   @Input() public thingId: string = null;
   @Input() public channelId: string = null;
   @Input() public config: ConfigImpl = null;
-  @Input() public role: Role = "guest"; // TODO in device
-  @Input() public device: Device = null;
+  @Input() public role: Role = "guest"; // TODO in edge
+  @Input() public edge: Edge = null;
   @Input() public showThings: boolean = false;
   @Input() public title: string = null;
 
@@ -139,12 +140,12 @@ export class ChannelComponent implements OnChanges, OnDestroy {
     if (this.isJson) {
       try {
         value = JSON.parse(value);
-        this.message.next(DefaultMessages.configUpdate(this.device.edgeId, this.thingId, this.channelId, value));
+        this.message.next(DefaultMessages.configUpdate(this.edge.edgeId, this.thingId, this.channelId, value));
       } catch (e) {
         this.message.next(null);
       }
     } else {
-      this.message.next(DefaultMessages.configUpdate(this.device.edgeId, this.thingId, this.channelId, value));
+      this.message.next(DefaultMessages.configUpdate(this.edge.edgeId, this.thingId, this.channelId, value));
     }
 
   }

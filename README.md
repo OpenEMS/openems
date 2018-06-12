@@ -1,5 +1,7 @@
-# OpenEMS
-**Open Source Energy Management System**
+<h1 align="center">
+  <img src="https://raw.githubusercontent.com/OpenEMS/openems/develop/doc/img/OpenEMS-Logo.png" alt="the Feneco - OpenEMS Logo" width="200"></a>
+  <br/>Open Source Energy Management System
+</h1>
 
 OpenEMS is a modular platform for energy management applications.
 It was developed around the requirements of controlling, monitoring and integrating energy storage systems together with renewable energy sources and complementary devices and services.
@@ -23,17 +25,17 @@ The OpenEMS software architecture was designed to leverage some features that ar
 
 ## OpenEMS UI Screenshots
 
-<img src="./doc/img/screenshots/ui-overview.png" width="100" align="left"/>
-<img src="./doc/img/screenshots/ui-device-energymonitor.png" width="100" align="left"/>
-<img src="./doc/img/screenshots/ui-device-energytable.png" width="100" align="left"/>
-<img src="./doc/img/screenshots/ui-device-soc+evcs.png" width="100" align="left"/>
-<img src="./doc/img/screenshots/ui-device-history.png" width="100" align="left"/>
-<img src="./doc/img/screenshots/ui-device-history2.png" width="100"/>
+<img src="./doc/img/ui-overview.png" width="100" align="left"/>
+<img src="./doc/img/ui-device-energymonitor.png" width="100" align="left"/>
+<img src="./doc/img/ui-device-energytable.png" width="100" align="left"/>
+<img src="./doc/img/ui-device-soc+evcs.png" width="100" align="left"/>
+<img src="./doc/img/ui-device-history.png" width="100" align="left"/>
+<img src="./doc/img/ui-device-history2.png" width="100"/>
 
 ## System architecture
 
 OpenEMS is generally used in combination with external hardware and software components
-(the exception is a simulated development environment - see [Getting Started](https://github.com/OpenEMS/openems/blob/old_master/README.md#get-started)). As a brief overview, this is how OpenEMS is used in production setups:
+(the exception is a simulated development environment - see [Getting Started](/doc/OpenEMS_EN.adoc#getting-started)). As a brief overview, this is how OpenEMS is used in production setups:
 
 <img src="./doc/img/system-architecture.png" />
 
@@ -41,8 +43,18 @@ OpenEMS is generally used in combination with external hardware and software com
 
 Indepth documentation is currently in progress. Please find the latest documents here:
 
- * [Latest draft of documentation](http://htmlpreview.github.io/?https://github.com/OpenEMS/openems/blob/feature/improve_doc/doc/openems.html)
+ * [Latest version of documentation](/doc/OpenEMS_EN.adoc)
+ * [Latest version of documentation in HTML format](http://htmlpreview.github.io/?https://github.com/OpenEMS/openems/blob/develop/doc/OpenEMS_EN.html)
+ * [Documentation of previous version of OpenEMS](http://htmlpreview.github.io/?https://github.com/OpenEMS/openems/blob/feature/improve_doc/doc/openems.html)
  * [Previous version readme](https://github.com/OpenEMS/openems/blob/old_master/README.md)
+
+## Open Source philosophy
+
+OpenEMS development was started by [FENECON GmbH](https://www.fenecon.de), a German company specialized in manufacturing and project development of energy storage systems. It is the software stack behind [FEMS - FENECON Energy Management System](https://fenecon.de/page/fems) and widely used in private, commercial and industrial applications.
+
+We are inviting third parties - like universities, hardware manufacturers, software companies, commercial and private owners,... - to use OpenEMS for their own projects and are glad to support them with their first steps. In any case if you are interested in OpenEMS our development team would be glad to hear from you at fems@fenecon.de.
+
+OpenEMS is funded by several federal and EU funding projects. If you are a developer and you would like to get hired by one of the partner companies or universities for working on OpenEMS, please send your motivation letter to fems@fenecon.de.
 
 ## License
 
@@ -60,11 +72,3 @@ Copyright (C) 2016-2018 FENECON GmbH.
 
 This product includes software developed at FENECON GmbH: you can
 redistribute it and/or modify it under the terms of the [GNU Affero General Public License version 3](LICENSE-AGPL-3.0).
-
-## Open Source philosophy
-
-OpenEMS development was started by [FENECON GmbH](https://www.fenecon.de), a German company specialized in manufacturing and project development of energy storage systems. It is the software stack behind [FEMS - FENECON Energy Management System](https://fenecon.de/page/fems) and widely used in private, commercial and industrial applications.
-
-We are inviting third parties - like universities, hardware manufacturers, software companies, commercial and private owners,... - to use OpenEMS for their own projects and are glad to support them with their first steps. In any case if you are interested in OpenEMS our development team would be glad to hear from you at fems@fenecon.de.
-
-OpenEMS is funded by several federal and EU funding projects. If you are a developer and you would like to get hired by one of the partner companies or universities for working on OpenEMS, please send your motivation letter to fems@fenecon.de.

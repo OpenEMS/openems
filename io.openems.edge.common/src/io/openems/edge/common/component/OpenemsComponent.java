@@ -6,6 +6,7 @@ import java.util.Dictionary;
 
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.StateChannel;
@@ -53,6 +54,11 @@ public interface OpenemsComponent {
 	 * @return
 	 */
 	String servicePid();
+
+	/**
+	 * Returns the ComponentContext
+	 */
+	ComponentContext componentContext();
 
 	/**
 	 * Returns an undefined Channel defined by its ChannelId string representation.
@@ -218,5 +224,42 @@ public interface OpenemsComponent {
 			System.out.println("ERROR: " + e.getMessage());
 		}
 		return false;
+	}
+
+	/**
+	 * Update a configuration property.
+	 * 
+	 * Usage:
+	 * 
+	 * <pre>
+	 * updateConfigurationProperty(cm, servicePid, "propertyName", "propertyValue");
+	 * </pre>
+	 * 
+	 * @param cm
+	 *            a ConfigurationAdmin instance. Get one using
+	 * 
+	 *            <pre>
+	 *            &#64;Reference
+	 *            ConfigurationAdmin cm;
+	 *            </pre>
+	 * 
+	 * @param pid
+	 *            PID of the calling component (use 'config.service_pid()' or
+	 *            '(String)prop.get(Constants.SERVICE_PID)'
+	 * @param property
+	 *            Name of the configuration property
+	 * @param value
+	 *            New configuration value
+	 */
+	public static void updateConfigurationProperty(ConfigurationAdmin cm, String pid, String property, int value) {
+		Configuration c;
+		try {
+			c = cm.getConfiguration(pid, "?");
+			Dictionary<String, Object> properties = c.getProperties();
+			properties.put(property, value);
+			c.update(properties);
+		} catch (IOException | SecurityException e) {
+			System.out.println("ERROR: " + e.getMessage());
+		}
 	}
 }

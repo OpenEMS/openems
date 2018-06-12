@@ -1,0 +1,12 @@
+ifndef::toc[]
+Stefan Feilmeier (c) 2018 FENECON GmbH
+Version 2018.8.0
+:sectnums:
+:sectnumlevels: 4
+:toc:
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+endif::toc[]

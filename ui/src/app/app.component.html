@@ -26,20 +26,20 @@
           <mat-icon>menu</mat-icon>
         </button>
       </div>
-      <ng-container *ngIf="(websocket.currentDevice | async) as currentDevice">
+      <ng-container *ngIf="(websocket.currentEdge | async) as currentEdge">
         <div fxFlex>
           <!-- TODO show breadcrumbs like 'Energymonitor > History', 'Energymonitor > Settings' -->
-          <button routerLink="/device/{{ currentDevice.name }}/overview" mat-button>Energiemonitor
-            <small>({{ currentDevice.name }})</small>
+          <button routerLink="/device/{{ currentEdge.name }}/overview" mat-button>Energiemonitor
+            <small>({{ currentEdge.name }})</small>
           </button>
         </div>
         <div fxFlex="50px">
-          <button routerLink="/device/{{ currentDevice.name }}/config" mat-icon-button>
+          <button routerLink="/device/{{ currentEdge.name }}/config" mat-icon-button>
             <mat-icon>settings</mat-icon>
           </button>
         </div>
       </ng-container>
-      <!-- <ng-container *ngIf="!currentDevice">
+      <!-- <ng-container *ngIf="!currentEdge">
         <div>
           <button routerLink="/overview" mat-button>FEMS</button>
         </div>
@@ -51,8 +51,8 @@
     <span>Trying to reconnect...</span>
     <!-- TODO translate -->
   </div>
-  <ng-container *ngIf="(websocket.currentDevice | async) as currentDevice">
-    <div *ngIf="!currentDevice.online" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap" style="font-family: sans-serif; background-color: yellow">
+  <ng-container *ngIf="(websocket.currentEdge | async) as currentEdge">
+    <div *ngIf="!currentEdge.online" fxLayout fxLayoutAlign="center start" fxLayoutWrap="wrap" style="font-family: sans-serif; background-color: yellow">
       <span>Device not connected.</span>
       <!-- TODO translate -->
     </div>

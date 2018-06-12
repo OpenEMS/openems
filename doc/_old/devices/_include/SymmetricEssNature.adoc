@@ -1,0 +1,4 @@
+3+|*<<SymmetricEssNature,SymmetricEssNature>>*
+|ActivePower               |W       |
+|ReactivePower             |var     |
+|ApparentPower             |VA      |

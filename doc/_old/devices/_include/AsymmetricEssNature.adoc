@@ -1,0 +1,7 @@
+3+|*<<AsymmetricEssNature,AsymmetricEssNature>>*
+|ActivePowerL1      |Watt   |
+|ActivePowerL2      |Watt   |
+|ActivePowerL3      |Watt   |
+|ReactivePowerL1    |var    |
+|ReactivePowerL2    |var    |
+|ReactivePowerL3    |var    |

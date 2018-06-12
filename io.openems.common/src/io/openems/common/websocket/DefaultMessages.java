@@ -43,6 +43,7 @@ public class DefaultMessages {
 	 *				name: String,
 	 *				comment: String,
 	 *				producttype: String,
+	 *				version: String,
 	 *				role: "admin" | "installer" | "owner" | "guest",
 	 *				online: boolean
 	 *			}]

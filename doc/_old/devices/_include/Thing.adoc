@@ -1,0 +1,2 @@
+3+|*Thing*
+|State                  |0=Ok, 1=Warning, 2=Fault  |
