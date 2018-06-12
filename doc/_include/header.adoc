@@ -1,6 +1,6 @@
 ifndef::toc[]
 Stefan Feilmeier (c) 2018 FENECON GmbH
-Version 2018.8.0-SNAPSHOT
+Version 2018.8.0
 :sectnums:
 :sectnumlevels: 4
 :toc:
