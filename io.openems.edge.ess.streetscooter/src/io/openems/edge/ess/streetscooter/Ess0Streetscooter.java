@@ -1,0 +1,74 @@
+package io.openems.edge.ess.streetscooter;
+
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.metatype.annotations.Designate;
+
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.symmetric.api.SymmetricEss;
+
+@Designate(ocd = Config0.class, factory = true)
+@Component(name = "Ess0.Streetscooter", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
+		+ "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
+public class Ess0Streetscooter extends AbstractEssStreetscooter implements SymmetricEss, Ess, OpenemsComponent {
+	
+	private static final int INVERTER_0_MODE_ADDRESS = 2056;
+	private static final int ICU_0_SET_POWER_ADDRESS = 4000;
+	private static final int ICU_0_ENABLED_ADDRESS = 4000;
+	private static final int BATTERY_0_ADDRESS_OFFSET = 0;
+	private static final int INVERTER_0_ADDRESS_OFFSET = 0;
+	
+	@Reference
+	private ConfigurationAdmin cm;
+	
+	public Ess0Streetscooter() {
+		super();
+	}
+
+	@Activate
+	protected
+	void activate(ComponentContext context, Config0 config0) {
+		super.activate(context, config0.service_pid(), config0.id(), config0.enabled(), UNIT_ID, this.cm, "Modbus", config0.modbus_id());
+	}
+	
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
+		
+	@Override
+	protected  int getIcuSetPowerAddress() {
+		return ICU_0_SET_POWER_ADDRESS;
+	}
+
+	@Override
+	protected  int getInverterModeAddress() {
+		return INVERTER_0_MODE_ADDRESS;
+	}
+
+	@Override
+	protected int getIcuEnabledAddress() {
+		return ICU_0_ENABLED_ADDRESS;
+	}
+
+	@Override
+	protected int getAdressOffsetForBattery() {		
+		return BATTERY_0_ADDRESS_OFFSET;
+	}
+
+	@Override
+	protected int getAdressOffsetForInverter() {
+		return INVERTER_0_ADDRESS_OFFSET;
+	}
+}
