@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.bridge.modbus.api.task.Task;
+import io.openems.edge.bridge.modbus.api.task.AbstractTask;
 
 public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 
@@ -18,7 +18,7 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	private final int startAddress;
 	private final boolean isIgnored;
 
-	protected Task task = null;
+	protected AbstractTask abstractTask = null;
 
 	public AbstractModbusElement(OpenemsType type, int startAddress) {
 		this(type, startAddress, false);
@@ -59,12 +59,12 @@ public abstract class AbstractModbusElement<T> implements ModbusElement<T> {
 	}
 
 	@Override
-	public void setModbusTask(Task task) {
-		this.task = task;
+	public void setModbusTask(AbstractTask abstractTask) {
+		this.abstractTask = abstractTask;
 	}
 
-	public Task getModbusTask() {
-		return task;
+	public AbstractTask getModbusTask() {
+		return abstractTask;
 	}
 
 	protected void setValue(T value) {

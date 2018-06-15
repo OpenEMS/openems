@@ -145,7 +145,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 					});
 				}
 				/*
-				 * Execute next read task
+				 * Execute next read abstractTask
 				 */
 				try {
 					readTask.executeQuery(AbstractModbusBridge.this);
@@ -160,7 +160,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		 * Returns the 'nextReadTasks' list.
 		 * 
 		 * This checks if a device is listed as defective and - if it is - adds only one
-		 * task with this unitId to the queue
+		 * abstractTask with this unitId to the queue
 		 */
 		private List<ReadTask> getNextReadTasks() {
 			List<ReadTask> result = new ArrayList<>();
@@ -170,7 +170,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 				// check if the unitId is defective
 				int unitId = protocol.getUnitId();
 				if (nextReadTasks.size() > 0 && defectiveUnitIds.contains(unitId)) {
-					// it is defective. Add only one read task.
+					// it is defective. Add only one read abstractTask.
 					// This avoids filling the queue with requests that cannot be fulfilled anyway
 					// because the unitId is not reachable
 					result.add(nextReadTasks.get(0));
