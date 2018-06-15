@@ -34,10 +34,10 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 			writeActivePower(activePower);
 		}
 	}
-
+	
 	private void writeActivePower(Integer activePower) {
 		try {			
-			IntegerWriteChannel setActivePowerChannel = component.channel(ChannelId.SET_ACTIVE_POWER);
+			IntegerWriteChannel setActivePowerChannel = component.channel(ChannelId.INVERTER_SET_ACTIVE_POWER);
 			setActivePowerChannel.setNextWriteValue(activePower);
 		} catch (OpenemsException e) {
 			log.error("Unable to set ActivePower: " + e.getMessage());

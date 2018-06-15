@@ -61,4 +61,5 @@ JPM-Command:				openems-backend
 	osgi.enroute.executor.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.web.simple.provider;version='[2.1.0,2.1.1)',\
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
-	com.google.guava;version='[25.1.0,25.1.1)'
+	com.google.guava;version='[25.1.0,25.1.1)',\
+	org.osgi.compendium;version='[4.1.0,4.1.1)'

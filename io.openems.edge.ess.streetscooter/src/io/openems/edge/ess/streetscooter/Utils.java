@@ -3,6 +3,7 @@ package io.openems.edge.ess.streetscooter;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -93,11 +94,16 @@ public class Utils {
 					case INVERTER_V_DC_1:
 					case INVERTER_V_DC_2:
 						return new IntegerReadChannel(c, channelId);
-					case SET_ACTIVE_POWER:
+					case INVERTER_SET_ACTIVE_POWER:
 						return new IntegerWriteChannel(c, channelId);
 					case ICU_RUN:
 					case ICU_ENABLED:
 						return new BooleanWriteChannel(c, channelId);
+					case BATTERY_CONNECTED:
+					case BATTERY_OVERLOAD:
+					case ICU_RUNSTATE:
+					case INVERTER_CONNECTED:
+						return new BooleanReadChannel(c, channelId);
 					}
 					return null;
 				})  // 

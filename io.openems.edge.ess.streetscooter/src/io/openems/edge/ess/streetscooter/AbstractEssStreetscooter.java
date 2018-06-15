@@ -11,6 +11,7 @@ import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC1ReadCoilsTask;
+import io.openems.edge.bridge.modbus.api.task.FC2ReadInputsTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC5WriteCoilTask;
 import io.openems.edge.bridge.modbus.api.task.Priority;
@@ -24,6 +25,7 @@ import io.openems.edge.ess.power.symmetric.PGreaterEqualLimitation;
 import io.openems.edge.ess.power.symmetric.PSmallerEqualLimitation;
 import io.openems.edge.ess.power.symmetric.SymmetricPower;
 import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
 public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComponent implements SymmetricEss, Ess, OpenemsComponent {
 
@@ -56,6 +58,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	public String debugLog() {
 		return "SoC:" + this.getSoc().value().asString() + 
 				", mode:" + this.channel(ChannelId.INVERTER_MODE).value().asOptionString();
+		
 	}
 
 
@@ -91,7 +94,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 						m(ChannelId.INVERTER_MODE, new FloatDoublewordElement(getInverterModeAddress()).wordOrder(WordOrder.LSWMSW))
 						),
 				new FC16WriteRegistersTask(getIcuSetPowerAddress(),  
-						m(ChannelId.SET_ACTIVE_POWER, new FloatDoublewordElement(getIcuSetPowerAddress()).wordOrder(WordOrder.LSWMSW)) 
+						m(ChannelId.INVERTER_SET_ACTIVE_POWER, new FloatDoublewordElement(getIcuSetPowerAddress()).wordOrder(WordOrder.LSWMSW)) 
 						),
 				new FC4ReadInputRegistersTask(batteryInfoStartAddress, Priority.HIGH, 
 						/*Float gets the right result*/ m(ChannelId.BATTERY_BMS_ERR, new FloatDoublewordElement(batteryInfoStartAddress).wordOrder(WordOrder.LSWMSW)),
@@ -126,35 +129,30 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 						m(ChannelId.INVERTER_GV1_FAULT_VALUE, new FloatDoublewordElement(inverterInfoStartAddress + 28).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_GV2_FAULT_VALUE, new FloatDoublewordElement(inverterInfoStartAddress + 30).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_GV3_FAULT_VALUE, new FloatDoublewordElement(inverterInfoStartAddress + 32).wordOrder(WordOrder.LSWMSW)),
-						m(ChannelId.INVERTER_P_AC, new FloatDoublewordElement(inverterInfoStartAddress + 34).wordOrder(WordOrder.LSWMSW)),
+						m(SymmetricEssReadonly.ChannelId.ACTIVE_POWER, new FloatDoublewordElement(inverterInfoStartAddress + 34).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_P_AC_1, new FloatDoublewordElement(inverterInfoStartAddress + 36).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_P_AC_2, new FloatDoublewordElement(inverterInfoStartAddress + 38).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_P_AC_3, new FloatDoublewordElement(inverterInfoStartAddress + 40).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_TEMPERATURE, new FloatDoublewordElement(inverterInfoStartAddress + 42).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_TEMPERATURE_FAULT_VALUE, new FloatDoublewordElement(inverterInfoStartAddress + 44).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_V_AC_1, new FloatDoublewordElement(inverterInfoStartAddress + 46).wordOrder(WordOrder.LSWMSW)),
-						m(ChannelId.INVERTER_V_AC_2, new FloatDoublewordElement(inverterInfoStartAddress + 48).wordOrder(WordOrder.LSWMSW)),
+						m(ChannelId.INVERTER_V_AC_2, new FloatDoublewordElement(inverterInfoStartAddress + 48).wordOrder(WordOrder.LSWMSW)),						
 						m(ChannelId.INVERTER_V_AC_3, new FloatDoublewordElement(inverterInfoStartAddress + 50).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_V_DC_1, new FloatDoublewordElement(inverterInfoStartAddress + 52).wordOrder(WordOrder.LSWMSW)),
 						m(ChannelId.INVERTER_V_DC_2, new FloatDoublewordElement(inverterInfoStartAddress + 54).wordOrder(WordOrder.LSWMSW))						
-						)
+						),				
+				new FC2ReadInputsTask(getIcuRunstateAddress(), Priority.HIGH, m(ChannelId.ICU_RUNSTATE, new CoilElement(getIcuRunstateAddress()))),
+				new FC2ReadInputsTask(getInverterConnectedAddress(), Priority.HIGH, m(ChannelId.INVERTER_CONNECTED, new CoilElement(getInverterConnectedAddress()))),
+				new FC2ReadInputsTask(getBatteryConnectedAddress(), Priority.HIGH, m(ChannelId.BATTERY_CONNECTED, new CoilElement(getBatteryConnectedAddress()))),
+				new FC2ReadInputsTask(getBatteryOverloadAddress(), Priority.HIGH, m(ChannelId.BATTERY_OVERLOAD, new CoilElement(getBatteryOverloadAddress())))
 				);
 	}
 	
-	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		INVERTER_MODE(new Doc(). //
-				option(getInverterModeInitial(), "Initial"). //
-				option(getInverterModeWait(), "Wait"). //
-				option(getInverterModeStartUp(), "Start up"). //
-				option(getInverterModeNormal(), "Normal"). //
-				option(getInverterModeOffGrid(), "Off grid"). //
-				option(getInverterModeFault(), "Fault"). //
-				option(getInverterModePermanentFault(), "Permanent fault"). //
-				option(getInverterModeUpdateMaster(), "Program update of master controller"). //
-				option(getInverterModeUpdateSlave(), "Program update of slave controller")), //
-		SET_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
+	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {		
 		ICU_RUN(new Doc().unit(Unit.ON_OFF)), //
-		ICU_ENABLED(new Doc().unit(Unit.ON_OFF)), //	
+		ICU_ENABLED(new Doc().unit(Unit.ON_OFF)), //
+		ICU_RUNSTATE(new Doc().unit(Unit.ON_OFF)),
+		
 		BATTERY_BMS_ERR(new Doc().unit(Unit.NONE)),
 		BATTERY_BMS_I_ACT(new Doc().unit(Unit.AMPERE)),
 		BATTERY_BMS_PWR_CHRG_MAX(new Doc().unit(Unit.WATT)),
@@ -166,7 +164,20 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		BATTERY_BMS_T_MIN_PACK(new Doc().unit(Unit.DEGREE_CELCIUS)),
 		BATTERY_BMS_U_PACK(new Doc().unit(Unit.VOLT)),
 		BATTERY_BMS_WRN(new Doc().unit(Unit.NONE)),
+		BATTERY_CONNECTED(new Doc().unit(Unit.ON_OFF)),
+		BATTERY_OVERLOAD(new Doc().unit(Unit.ON_OFF)),
 		
+		INVERTER_MODE(new Doc(). //
+				option(getInverterModeInitial(), "Initial"). //
+				option(getInverterModeWait(), "Wait"). //
+				option(getInverterModeStartUp(), "Start up"). //
+				option(getInverterModeNormal(), "Normal"). //
+				option(getInverterModeOffGrid(), "Off grid"). //
+				option(getInverterModeFault(), "Fault"). //
+				option(getInverterModePermanentFault(), "Permanent fault"). //
+				option(getInverterModeUpdateMaster(), "Program update of master controller"). //
+				option(getInverterModeUpdateSlave(), "Program update of slave controller")), //
+		INVERTER_SET_ACTIVE_POWER(new Doc().unit(Unit.WATT)), //
 		INVERTER_ACTIVE_POWER(new Doc().unit(Unit.WATT)),
 		INVERTER_DC1_FAULT_VALUE(new Doc().unit(Unit.NONE)),
 		INVERTER_DC2_FAULT_VALUE(new Doc().unit(Unit.NONE)),
@@ -194,7 +205,9 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		INVERTER_V_AC_2(new Doc().unit(Unit.VOLT)),
 		INVERTER_V_AC_3(new Doc().unit(Unit.VOLT)),
 		INVERTER_V_DC_1(new Doc().unit(Unit.VOLT)),
-		INVERTER_V_DC_2(new Doc().unit(Unit.VOLT));
+		INVERTER_V_DC_2(new Doc().unit(Unit.VOLT)),
+		INVERTER_CONNECTED(new Doc().unit(Unit.ON_OFF)),		
+		;
 
 		
 
@@ -266,6 +279,10 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	protected int getIcuRunAddress() { return ICU_RUN_ADDRESS; }
 	protected abstract int getIcuEnabledAddress();
 	protected abstract int getIcuSetPowerAddress();
+	protected abstract int getBatteryOverloadAddress();
+	protected abstract int getBatteryConnectedAddress();
+	protected abstract int getInverterConnectedAddress();
+	protected abstract int getIcuRunstateAddress();
 	protected abstract int getInverterModeAddress();
 
 

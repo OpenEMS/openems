@@ -29,7 +29,14 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter implements Symme
 	private static final int ICU_1_ENABLED_ADDRESS = 4001;
 	
 	private static final int BATTERY_1_ADDRESS_OFFSET = 1000;
-	private static final int INVERTER_0_ADDRESS_OFFSET = 1000;
+	private static final int INVERTER_1_ADDRESS_OFFSET = 1000;
+	
+	
+	
+	private static final int BATTERY_1_OVERLOAD_ADDRESS = 1001;
+	private static final int BATTERY_1_CONNECTED_ADDRESS = 1000; // DAS STIMMT!
+	private static final int INVERTER_1_CONNECTED_ADDRESS = 13000;
+	private static final int ICU_1_RUNSTATE_ADDRESS = 14001;
 	
 	@Reference
 	private ConfigurationAdmin cm;
@@ -71,6 +78,26 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter implements Symme
 
 	@Override
 	protected int getAdressOffsetForInverter() {
-		return INVERTER_0_ADDRESS_OFFSET;
+		return INVERTER_1_ADDRESS_OFFSET;
+	}
+
+	@Override
+	protected int getBatteryOverloadAddress() {
+		return BATTERY_1_OVERLOAD_ADDRESS;
+	}
+
+	@Override
+	protected int getBatteryConnectedAddress() {
+		return BATTERY_1_CONNECTED_ADDRESS;
+	}
+
+	@Override
+	protected int getInverterConnectedAddress() {
+		return INVERTER_1_CONNECTED_ADDRESS;
+	}
+
+	@Override
+	protected int getIcuRunstateAddress() {		
+		return ICU_1_RUNSTATE_ADDRESS;
 	}
 }
