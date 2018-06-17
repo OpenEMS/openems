@@ -158,6 +158,32 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
+		 * Production: Maximum Ever AC Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: positive values or '0'
+		 * </ul>
+		 */
+		PRODUCTION_MAX_AC_ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
+		 * Production: Maximum Ever DC Actual Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: @see {@link EssDcCharger}))
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: positive values or '0'
+		 * </ul>
+		 */
+		PRODUCTION_MAX_DC_ACTUAL_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
 		 * Consumption: Active Power
 		 * 
 		 * <ul>
@@ -215,8 +241,9 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	 * Production
 	 */
 	private final SumInteger<SymmetricMeter> productionAcActivePower;
+	private final SumInteger<SymmetricMeter> productionMaxAcActivePower;
 	private final SumInteger<EssDcCharger> productionDcActualPower;
-	private final SumInteger<SymmetricMeter> productionMaxActivePower;
+	private final SumInteger<EssDcCharger> productionMaxDcActualPower;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addEss(Ess ess) {
@@ -273,7 +300,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 			 */
 			if (meter instanceof SymmetricMeter) {
 				this.productionAcActivePower.addComponent((SymmetricMeter) meter);
-				this.productionMaxActivePower.addComponent((SymmetricMeter) meter);
+				this.productionMaxAcActivePower.addComponent((SymmetricMeter) meter);
 			}
 			break;
 		}
@@ -283,16 +310,18 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		this.gridActivePower.removeComponent(meter);
 		this.gridMinActivePower.removeComponent(meter);
 		this.gridMaxActivePower.removeComponent(meter);
-		this.productionMaxActivePower.removeComponent(meter);
+		this.productionMaxAcActivePower.removeComponent(meter);
 	}
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addEssDcCharger(EssDcCharger charger) {
 		this.productionDcActualPower.addComponent(charger);
+		this.productionMaxDcActualPower.addComponent(charger);
 	}
 
 	protected void removeEssDcCharger(EssDcCharger charger) {
 		this.productionDcActualPower.removeComponent(charger);
+		this.productionMaxDcActualPower.removeComponent(charger);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -328,8 +357,17 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 				});
 		// TODO Charger needs a 'MaxActualPower' as well. And it needs to be considered
 		// here.
-		this.productionMaxActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.PRODUCTION_MAX_ACTIVE_POWER,
+		this.productionMaxAcActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.MAX_ACTIVE_POWER);
+		this.productionMaxDcActualPower = new SumInteger<EssDcCharger>(this, ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER,
+				EssDcCharger.ChannelId.MAX_ACTUAL_POWER);
+		new ChannelMergerSumInteger( //
+				/* target */ this.getProductionMaxActivePower(), //
+				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
+						this.getProductionMaxAcActivePower(), //
+						this.getProductionMaxDcActualPower() //
+				});
+
 		/*
 		 * Consumption
 		 */
@@ -401,6 +439,14 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 
 	public Channel<Integer> getProductionMaxActivePower() {
 		return this.channel(ChannelId.PRODUCTION_MAX_ACTIVE_POWER);
+	}
+
+	public Channel<Integer> getProductionMaxAcActivePower() {
+		return this.channel(ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER);
+	}
+
+	public Channel<Integer> getProductionMaxDcActualPower() {
+		return this.channel(ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER);
 	}
 
 	public Channel<Integer> getConsumptionActivePower() {
