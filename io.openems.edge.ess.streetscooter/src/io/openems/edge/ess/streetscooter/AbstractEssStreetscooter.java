@@ -68,6 +68,7 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		this.power.addStaticLimitation( //
 				this.allowedChargeLimit = new PGreaterEqualLimitation(this.power).setP(0) //
 				);
+		// TODO onChange?
 		this.channel(ChannelId.BATTERY_BMS_PWR_CHRG_MAX).onUpdate(value -> { // TODO is this the right field?
 			this.allowedChargeLimit.setP(TypeUtils.getAsType(OpenemsType.INTEGER, value));
 		});
