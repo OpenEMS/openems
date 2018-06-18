@@ -469,6 +469,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_scheduler_and_controller">4.1.2. Scheduler and Controller</a></li>
 <li><a href="#_cycle">4.1.3. Cycle</a></li>
 <li><a href="#_asynchronous_threads_and_cycle_synchronization">4.1.4. Asynchronous threads and Cycle synchronization</a></li>
+<li><a href="#_architecture_scheme">4.1.5. Architecture scheme</a></li>
 </ul>
 </li>
 <li><a href="#_configuration">4.2. Configuration</a></li>
@@ -1371,6 +1372,18 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 <div class="title">Figure 24. Synchronize Cycle with Modbus read/write</div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_architecture_scheme">4.1.5. Architecture scheme</h4>
+<div class="paragraph">
+<p>The following scheme shows the abstraction of hardware via Channels, Natures and Devices as well as the execution of control algorithms via Scheduler and Controllers.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./img/device-nature-channel-scheduler-controller.png" alt="Architecture scheme">
+</div>
+<div class="title">Figure 25. Architecture scheme</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_configuration">4.2. Configuration</h3>
@@ -1381,7 +1394,7 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 <div class="content">
 <img src="./img/apache-felix-console-configuration.png" alt="Apache Felix Web Console Configuration">
 </div>
-<div class="title">Figure 25. Apache Felix Web Console Configuration</div>
+<div class="title">Figure 26. Apache Felix Web Console Configuration</div>
 </div>
 <div class="paragraph">
 <p>Configuration via OpenEMS UI is currently not available due to the ongoing <a href="#_migration_to_osgi">Migration to OSGi</a>. Once migration is finished, it is going to be possible to change every configuration using the settings menu in OpenEMS UI - directly to OpenEMS Edge and via Backend.</p>
@@ -1390,7 +1403,7 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 <div class="content">
 <img src="./img/ui-config.png" alt="OpenEMS UI Configuration">
 </div>
-<div class="title">Figure 26. OpenEMS UI Configuration</div>
+<div class="title">Figure 27. OpenEMS UI Configuration</div>
 </div>
 </div>
 <div class="sect2">
@@ -1601,7 +1614,7 @@ It describes how physical hardware is abstracted using <em>Natures</em>, how sta
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-06-18 22:49:33 DST
+Last updated 2018-06-18 22:57:50 DST
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">

@@ -442,6 +442,13 @@ The following example shows, how the link:../io.openems.edge.bridge.modbus/src/i
 .Synchronize Cycle with Modbus read/write 
 image::cycle-modbus.png[Synchronize Cycle with Modbus read/write]
 
+==== Architecture scheme
+
+The following scheme shows the abstraction of hardware via Channels, Natures and Devices as well as the execution of control algorithms via Scheduler and Controllers.
+
+.Architecture scheme 
+image::device-nature-channel-scheduler-controller.png[Architecture scheme]
+
 === Configuration
 
 OpenEMS Edge and Backend are configured using the standard OSGi configuration admin service. The easiest way to set a configuration is via the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration icon:external-link[]] as described in the <<_getting_started>> guide above.
