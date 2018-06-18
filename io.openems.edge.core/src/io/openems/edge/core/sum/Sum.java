@@ -18,12 +18,14 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.merger.ChannelMergerSumInteger;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.sum.internal.AverageInteger;
 import io.openems.edge.core.sum.internal.SumInteger;
 import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.dccharger.api.EssDcCharger;
 import io.openems.edge.ess.symmetric.api.SymmetricEss;
 import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 import io.openems.edge.meter.api.Meter;
@@ -107,13 +109,39 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		 * Production: Active Power
 		 * 
 		 * <ul>
-		 * <li>Interface: Sum (origin: Meter Symmetric)
+		 * <li>Interface: Sum (origin: Meter Symmetric and ESS DC Charger)
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: should be only positive
 		 * </ul>
 		 */
 		PRODUCTION_ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
+		 * Production: AC Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: Meter Symmetric)
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: should be only positive
+		 * </ul>
+		 */
+		PRODUCTION_AC_ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
+		 * Production: DC Actual Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: ESS DC Charger)
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: should be only positive
+		 * </ul>
+		 */
+		PRODUCTION_DC_ACTUAL_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
@@ -127,6 +155,32 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		 * </ul>
 		 */
 		PRODUCTION_MAX_ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
+		 * Production: Maximum Ever AC Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: @see {@link SymmetricMeter}))
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: positive values or '0'
+		 * </ul>
+		 */
+		PRODUCTION_MAX_AC_ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT)),
+		/**
+		 * Production: Maximum Ever DC Actual Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Sum (origin: @see {@link EssDcCharger}))
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: positive values or '0'
+		 * </ul>
+		 */
+		PRODUCTION_MAX_DC_ACTUAL_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)),
 		/**
@@ -186,8 +240,10 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	/*
 	 * Production
 	 */
-	private final SumInteger<SymmetricMeter> productionActivePower;
-	private final SumInteger<SymmetricMeter> productionMaxActivePower;
+	private final SumInteger<SymmetricMeter> productionAcActivePower;
+	private final SumInteger<SymmetricMeter> productionMaxAcActivePower;
+	private final SumInteger<EssDcCharger> productionDcActualPower;
+	private final SumInteger<EssDcCharger> productionMaxDcActualPower;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addEss(Ess ess) {
@@ -243,8 +299,8 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 			 * Production-Meter
 			 */
 			if (meter instanceof SymmetricMeter) {
-				this.productionActivePower.addComponent((SymmetricMeter) meter);
-				this.productionMaxActivePower.addComponent((SymmetricMeter) meter);
+				this.productionAcActivePower.addComponent((SymmetricMeter) meter);
+				this.productionMaxAcActivePower.addComponent((SymmetricMeter) meter);
 			}
 			break;
 		}
@@ -254,9 +310,21 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		this.gridActivePower.removeComponent(meter);
 		this.gridMinActivePower.removeComponent(meter);
 		this.gridMaxActivePower.removeComponent(meter);
-		this.productionMaxActivePower.removeComponent(meter);
+		this.productionMaxAcActivePower.removeComponent(meter);
 	}
 
+	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
+	private void addEssDcCharger(EssDcCharger charger) {
+		this.productionDcActualPower.addComponent(charger);
+		this.productionMaxDcActualPower.addComponent(charger);
+	}
+
+	protected void removeEssDcCharger(EssDcCharger charger) {
+		this.productionDcActualPower.removeComponent(charger);
+		this.productionMaxDcActualPower.removeComponent(charger);
+	}
+
+	@SuppressWarnings("unchecked")
 	public Sum() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
 		/*
@@ -277,10 +345,29 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		/*
 		 * Production
 		 */
-		this.productionActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.PRODUCTION_ACTIVE_POWER,
+		this.productionAcActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.PRODUCTION_AC_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.ACTIVE_POWER);
-		this.productionMaxActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.PRODUCTION_MAX_ACTIVE_POWER,
+		this.productionDcActualPower = new SumInteger<EssDcCharger>(this, ChannelId.PRODUCTION_DC_ACTUAL_POWER,
+				EssDcCharger.ChannelId.ACTUAL_POWER);
+		new ChannelMergerSumInteger( //
+				/* target */ this.getProductionActivePower(), //
+				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
+						this.getProductionAcActivePower(), //
+						this.getProductionDcActualPower() //
+				});
+		// TODO Charger needs a 'MaxActualPower' as well. And it needs to be considered
+		// here.
+		this.productionMaxAcActivePower = new SumInteger<SymmetricMeter>(this, ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER,
 				SymmetricMeter.ChannelId.MAX_ACTIVE_POWER);
+		this.productionMaxDcActualPower = new SumInteger<EssDcCharger>(this, ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER,
+				EssDcCharger.ChannelId.MAX_ACTUAL_POWER);
+		new ChannelMergerSumInteger( //
+				/* target */ this.getProductionMaxActivePower(), //
+				/* sources */ (Channel<Integer>[]) new Channel<?>[] { //
+						this.getProductionMaxAcActivePower(), //
+						this.getProductionMaxDcActualPower() //
+				});
+
 		/*
 		 * Consumption
 		 */
@@ -342,8 +429,24 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		return this.channel(ChannelId.PRODUCTION_ACTIVE_POWER);
 	}
 
+	public Channel<Integer> getProductionAcActivePower() {
+		return this.channel(ChannelId.PRODUCTION_AC_ACTIVE_POWER);
+	}
+
+	public Channel<Integer> getProductionDcActualPower() {
+		return this.channel(ChannelId.PRODUCTION_DC_ACTUAL_POWER);
+	}
+
 	public Channel<Integer> getProductionMaxActivePower() {
 		return this.channel(ChannelId.PRODUCTION_MAX_ACTIVE_POWER);
+	}
+
+	public Channel<Integer> getProductionMaxAcActivePower() {
+		return this.channel(ChannelId.PRODUCTION_MAX_AC_ACTIVE_POWER);
+	}
+
+	public Channel<Integer> getProductionMaxDcActualPower() {
+		return this.channel(ChannelId.PRODUCTION_MAX_DC_ACTUAL_POWER);
 	}
 
 	public Channel<Integer> getConsumptionActivePower() {

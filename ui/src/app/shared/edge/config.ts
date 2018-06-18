@@ -122,7 +122,8 @@ export class ConfigImpl implements DefaultTypes.Config {
                     storageThings.push(thingId);
                 }
                 // Meter
-                if (i.includes("MeterNature")) {
+                if (i.includes("MeterNature")
+                    && !i.includes("FeneconMiniConsumptionMeter") /* ignore Mini consumption meter */) {
                     if ("type" in thing) {
                         if (thing.type == 'grid') {
                             gridMeters.push(thingId);
@@ -259,7 +260,8 @@ export class ConfigImpl implements DefaultTypes.Config {
                     }
                 }
                 // Meter
-                if (i.includes("MeterNature")) {
+                if (i.includes("MeterNature")
+                    && !i.includes("FeneconMiniConsumptionMeter") /* ignore Mini consumption meter */) {
                     if (i.includes("AsymmetricMeterNature") && !ignoreNatures["AsymmetricMeterNature"]) {
                         channels.push("ActivePowerL1", "ActivePowerL2", "ActivePowerL3");
                     } else if (i.includes("SymmetricMeterNature")) {
