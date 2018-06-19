@@ -8,6 +8,7 @@ import { HistoryComponent } from './history/history.component';
 import { FieldstatusComponent } from './fieldstatus/fieldstatus.component';
 import { OverviewComponent } from './overview.component';
 import { StateComponent } from './state/state.component';
+import { ChannelthresholdComponent } from './channelthreshold/channelthreshold.component';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { StateComponent } from './state/state.component';
     EnergytableComponent,
     HistoryComponent,
     FieldstatusComponent,
-    StateComponent
+    StateComponent,
+    ChannelthresholdComponent
   ]
 })
 export class OverviewModule { }

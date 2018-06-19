@@ -56,6 +56,7 @@ export class ConfigImpl implements DefaultTypes.Config {
     public readonly persistences: string[] = [];
     public readonly simulatorDevices: string[] = [];
     public readonly evcsDevices: string[] = [];
+    public readonly thresholdDevices: string[] = [];
 
     constructor(private readonly edge: Edge, private readonly config: DefaultTypes.Config) {
         let storageThings: string[] = []
@@ -107,6 +108,7 @@ export class ConfigImpl implements DefaultTypes.Config {
             let persistences: string[] = [];
             let simulatorDevices: string[] = [];
             let evcsDevices: string[] = [];
+            let thresholdDevices: string[] = [];
 
             for (let thingId in config.things) {
                 let thing = config.things[thingId];
@@ -168,6 +170,10 @@ export class ConfigImpl implements DefaultTypes.Config {
                 if (i.includes("KebaDeviceNature")) {
                     evcsDevices.push(thingId);
                 }
+                // Channelthreshold
+                if (thing.class == "io.openems.impl.controller.channelthreshold.ChannelThresholdController") {
+                    thresholdDevices.push(thingId);
+                }
             }
 
             this.gridMeters = gridMeters.sort();
@@ -180,6 +186,7 @@ export class ConfigImpl implements DefaultTypes.Config {
             this.persistences = persistences;
             this.simulatorDevices = simulatorDevices;
             this.evcsDevices = evcsDevices;
+            this.thresholdDevices = thresholdDevices;
         }
 
         this.storageThings = storageThings.sort();
@@ -357,14 +364,32 @@ export class ConfigImpl implements DefaultTypes.Config {
             merge(this.getEssSocChannels());
             // widget channels
             merge(this.getEvcsWidgetChannels());
+            merge(this.getThresholdWidgetChannels());
         }
         return channels;
+    }
+
+    public getThresholdWidgetChannels(): DefaultTypes.ChannelAddresses {
+
+        let result: DefaultTypes.ChannelAddresses = {}
+        for (let thingId of this.thresholdDevices) {
+            let address = this.config.things[thingId]['outputChannelAddress'].split("/");
+            if (!(address[0] in result)) {
+                result[address[0]] = []
+            };
+            result[address[0]].push(address[1]);
+            console.log("RESULTI", result);
+        }
+        return result;
     }
 
     public getWidgets(): Widget[] {
         let widgets: Widget[] = [];
         if (this.evcsDevices.length > 0) {
             widgets.push("EVCS");
+        }
+        if (this.thresholdDevices.length > 0) {
+            widgets.push("CHANNELTHRESHOLD");
         }
         return widgets;
     }

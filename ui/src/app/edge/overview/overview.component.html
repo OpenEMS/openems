@@ -5,6 +5,7 @@
     <history fxFlex="100%" [edge]="edge" [config]="config"></history>
     <ng-container *ngFor="let widget of widgets">
       <evcs *ngIf="widget == 'EVCS'" fxFlex="100%" [edge]="edge" [currentData]="currentData" [config]="config"></evcs>
+      <channelthreshold *ngIf="widget == 'CHANNELTHRESHOLD'" fxFlex="100%" [edge]="edge" [currentData]="currentData" [config]="config"></channelthreshold>
     </ng-container>
     <state fxFlex="100%" (requiredSubscribes)="onRequiredSubscribes('state', $event)" [currentData]="currentData" [config]="config"></state>
   </div>
