@@ -2,11 +2,7 @@ package io.openems.edge.bridge.modbus.api.task;
 
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ghgande.j2mod.modbus.ModbusException;
-import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.WriteCoilRequest;
 import com.ghgande.j2mod.modbus.msg.WriteCoilResponse;
@@ -18,15 +14,13 @@ import io.openems.edge.bridge.modbus.api.element.ModbusCoilElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 
 /**
- * Implements a Write Single Coil task, using Modbus function code 5
+ * Implements a Write Single Coil abstractTask, using Modbus function code 5
  * (http://www.simplymodbus.ca/FC05.htm)
  */
-public class FC5WriteCoilTask extends Task implements WriteTask {
-
-	private final Logger log = LoggerFactory.getLogger(FC5WriteCoilTask.class);
+public class FC5WriteCoilTask extends AbstractTask implements WriteTask {
 
 	public FC5WriteCoilTask(int startAddress, AbstractModbusElement<?> element) {
-		super(startAddress, Priority.HIGH /* Write Tasks always have HIGH priority */, element);
+		super(startAddress, element);
 	}
 
 	@Override
@@ -60,12 +54,10 @@ public class FC5WriteCoilTask extends Task implements WriteTask {
 
 	private void writeCoil(AbstractModbusBridge bridge, int unitId, int startAddress, boolean value)
 			throws OpenemsException, ModbusException {
-		ModbusTransaction transaction = bridge.getNewModbusTransaction();
-		WriteCoilRequest request = new WriteCoilRequest(startAddress, value);
-		request.setUnitID(this.getUnitId());
-		transaction.setRequest(request);
-		transaction.execute();
-		ModbusResponse response = transaction.getResponse();
+		
+		WriteCoilRequest request = new WriteCoilRequest(startAddress, value);	
+		ModbusResponse response = Utils.getResponse(request, unitId, bridge);
+		
 		if (!(response instanceof WriteCoilResponse)) {
 			throw new OpenemsException("Unexpected Modbus response. Expected [WriteCoilResponse], got ["
 					+ response.getClass().getSimpleName() + "]");
@@ -73,7 +65,7 @@ public class FC5WriteCoilTask extends Task implements WriteTask {
 	}
 
 	@Override
-	public String toString() {
-		return "FC5 Write Coil [" + this.getStartAddress() + "/0x" + Integer.toHexString(this.getStartAddress()) + "]";
+	protected String getActiondescription() {
+		return "FC5 Write Coil ";
 	}
 }

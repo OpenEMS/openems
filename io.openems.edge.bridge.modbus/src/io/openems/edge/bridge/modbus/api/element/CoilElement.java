@@ -33,7 +33,7 @@ public class CoilElement extends AbstractModbusElement<Boolean> implements Modbu
 	}
 
 	@Override
-	public void setInputCoil(boolean coil) throws OpenemsException {
+	public void setInputCoil(Boolean coil) throws OpenemsException {
 		if (this.isDebug()) {
 			log.info("Element [" + this + "] set input coil to [" + coil + "]");
 		}

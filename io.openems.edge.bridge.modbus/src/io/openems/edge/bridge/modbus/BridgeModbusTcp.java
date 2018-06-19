@@ -42,9 +42,9 @@ public class BridgeModbusTcp extends AbstractModbusBridge implements BridgeModbu
 	private InetAddress ipAddress = null;
 
 	@Activate
-	void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
+	protected void activate(ComponentContext context, ConfigTcp config) throws UnknownHostException {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		this.ipAddress = InetAddress.getByName(config.ip());
+		this.setIpAddress(InetAddress.getByName(config.ip()));
 	}
 
 	@Deactivate
@@ -74,7 +74,7 @@ public class BridgeModbusTcp extends AbstractModbusBridge implements BridgeModbu
 			/*
 			 * create new connection
 			 */
-			TCPMasterConnection connection = new TCPMasterConnection(this.ipAddress);
+			TCPMasterConnection connection = new TCPMasterConnection(this.getIpAddress());
 			connection.setPort(Modbus.DEFAULT_PORT);
 			this._connection = connection;
 		}
@@ -83,10 +83,18 @@ public class BridgeModbusTcp extends AbstractModbusBridge implements BridgeModbu
 				this._connection.connect();
 			} catch (Exception e) {
 				throw new OpenemsException(
-						"Connection to [" + this.ipAddress.getHostAddress() + "] failed: " + e.getMessage(), e);
+						"Connection to [" + this.getIpAddress().getHostAddress() + "] failed: " + e.getMessage(), e);
 			}
 			this._connection.getModbusTransport().setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
 		}
 		return this._connection;
+	}
+
+	public InetAddress getIpAddress() {
+		return ipAddress;
+	}
+
+	public void setIpAddress(InetAddress ipAddress) {
+		this.ipAddress = ipAddress;
 	}
 }
