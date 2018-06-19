@@ -106,8 +106,11 @@ public class DebugDetailedLog extends AbstractOpenemsComponent implements Contro
 					.sorted((c1, c2) -> c1.channelId().name().compareTo(c2.channelId().name())) //
 					.forEach(channel -> {
 						String unit = channel.channelDoc().getUnit().getSymbol();
-						String line = String.format("%-" + WIDTH_FIRST + "s : %15s %s", channel.channelId().id(),
-								channel.value().asStringWithoutUnit(), unit);
+						String description = channel.channelDoc().hasOptions()
+								? "(" + channel.value().asOptionString() + ")"
+								: "";
+						String line = String.format("%-" + WIDTH_FIRST + "s : %15s %-3s %s", channel.channelId().id(),
+								channel.value().asStringWithoutUnit(), unit, description);
 						// Print the line only if is not equal to the last printed line
 						if ((!this.lastPrinted.containsKey(channel.address()))
 								|| !(this.lastPrinted.get(channel.address()).equals(line))) {
