@@ -4,7 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import io.openems.edge.ess.kaco.blueplanet50.EssKacoBlueplanet50;
+import io.openems.edge.ess.kaco.blueplanet.gridsave50.EssKacoBlueplanetGridsave50;
 
 /*
  * Example JUNit test case
@@ -19,7 +19,7 @@ public class ProviderImplTest {
 
 	@Test
 	public void simple() {
-		EssKacoBlueplanet50 impl = new EssKacoBlueplanet50();
+		EssKacoBlueplanetGridsave50 impl = new EssKacoBlueplanetGridsave50();
 		assertNotNull(impl);
 	}
 
