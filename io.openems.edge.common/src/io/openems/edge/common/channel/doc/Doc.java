@@ -123,8 +123,12 @@ public class Doc {
 	 */
 	private BiMap<Integer, Object> options = HashBiMap.create();
 
+	public boolean hasOptions() {
+		return this.options.size() > 0;
+	}
+
 	public Doc option(int value, Enum<?> option) {
-		this.options.put(value, option.name());
+		this.options.put(value, option);
 		return this;
 	}
 

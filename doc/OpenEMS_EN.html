@@ -437,7 +437,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_open_source_philosophy">1.3. Open Source philosophy</a></li>
 <li><a href="#_license">1.4. License</a></li>
 <li><a href="#_development_guidelines">1.5. Development guidelines</a></li>
-<li><a href="#_system_architecture">1.6. System architecture</a></li>
+<li><a href="#_migration_to_osgi">1.6. Migration to OSGi</a></li>
+<li><a href="#_system_architecture">1.7. System architecture</a></li>
 </ul>
 </li>
 <li><a href="#_getting_started">2. Getting Started</a>
@@ -468,13 +469,26 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_scheduler_and_controller">4.1.2. Scheduler and Controller</a></li>
 <li><a href="#_cycle">4.1.3. Cycle</a></li>
 <li><a href="#_asynchronous_threads_and_cycle_synchronization">4.1.4. Asynchronous threads and Cycle synchronization</a></li>
+<li><a href="#_architecture_scheme">4.1.5. Architecture scheme</a></li>
 </ul>
 </li>
 <li><a href="#_configuration">4.2. Configuration</a></li>
 <li><a href="#_hardware">4.3. Hardware</a>
 <ul class="sectlevel3">
-<li><a href="#_natures">4.3.1. Natures</a></li>
-<li><a href="#_bridges">4.3.2. Bridges</a></li>
+<li><a href="#_natures">4.3.1. Natures</a>
+<ul class="sectlevel4">
+<li><a href="#_ess_energy_storage_system">4.3.1.1. ESS (Energy Storage System)</a></li>
+<li><a href="#_meter">4.3.1.2. Meter</a></li>
+<li><a href="#_evcs_electric_vehicle_charging_station">4.3.1.3. EVCS (Electric Vehicle Charging Station)</a></li>
+<li><a href="#_i_o_digital_input_output">4.3.1.4. I/O (Digital Input/Output)</a></li>
+</ul>
+</li>
+<li><a href="#_bridges">4.3.2. Bridges</a>
+<ul class="sectlevel4">
+<li><a href="#_modbus_tcp">4.3.2.1. Modbus/TCP</a></li>
+<li><a href="#_modbus_rtu">4.3.2.2. Modbus/RTU</a></li>
+</ul>
+</li>
 <li><a href="#_devices_services">4.3.3. Devices &amp; Services</a></li>
 <li><a href="#_implementing_a_device">4.3.4. Implementing a Device</a></li>
 </ul>
@@ -633,7 +647,13 @@ For handling git we recommend <a href="https://www.sourcetreeapp.com/">Sourctree
 </div>
 </div>
 <div class="sect2">
-<h3 id="_system_architecture">1.6. System architecture</h3>
+<h3 id="_migration_to_osgi">1.6. Migration to OSGi</h3>
+<div class="paragraph">
+<p>Starting with version <a href="https://github.com/OpenEMS/openems/releases/tag/2018.7">2018.7 <span class="icon"><i class="fa fa-github"></i></span></a> OpenEMS Edge is getting migrated to <a href="https://en.wikipedia.org/wiki/OSGi">OSGi <span class="icon"><i class="fa fa-external-link"></i></span></a>, a platform to provide a completely modular and dynamic service oriented system. Certain parts of Edge are not yet migrated and for the time being only available in the deprecated <a href="https://github.com/OpenEMS/openems/tree/old_master">old_master branch <span class="icon"><i class="fa fa-github"></i></span></a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_system_architecture">1.7. System architecture</h3>
 <div class="paragraph">
 <p>OpenEMS is generally used in combination with external hardware and software components
 (the exception is a simulated development environment - see <a href="https://github.com/OpenEMS/openems/blob/old_master/README.md#get-started">Getting Started</a>)
@@ -1352,20 +1372,181 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 <div class="title">Figure 24. Synchronize Cycle with Modbus read/write</div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_architecture_scheme">4.1.5. Architecture scheme</h4>
+<div class="paragraph">
+<p>The following scheme shows the abstraction of hardware via Channels, Natures and Devices as well as the execution of control algorithms via Scheduler and Controllers.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./img/device-nature-channel-scheduler-controller.png" alt="Architecture scheme">
+</div>
+<div class="title">Figure 25. Architecture scheme</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_configuration">4.2. Configuration</h3>
-
+<div class="paragraph">
+<p>OpenEMS Edge and Backend are configured using the standard OSGi configuration admin service. The easiest way to set a configuration is via the <a href="http://localhost:8080/system/console/configMgr">Apache Felix Web Console Configuration <span class="icon"><i class="fa fa-external-link"></i></span></a> as described in the <a href="#_getting_started">Getting Started</a> guide above.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./img/apache-felix-console-configuration.png" alt="Apache Felix Web Console Configuration">
+</div>
+<div class="title">Figure 26. Apache Felix Web Console Configuration</div>
+</div>
+<div class="paragraph">
+<p>Configuration via OpenEMS UI is currently not available due to the ongoing <a href="#_migration_to_osgi">Migration to OSGi</a>. Once migration is finished, it is going to be possible to change every configuration using the settings menu in OpenEMS UI - directly to OpenEMS Edge and via Backend.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./img/ui-config.png" alt="OpenEMS UI Configuration">
+</div>
+<div class="title">Figure 27. OpenEMS UI Configuration</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_hardware">4.3. Hardware</h3>
+<div class="paragraph">
+<p>This chapter covers hardware related topics around OpenEMS Edge.
+It describes how physical hardware is abstracted using <em>Natures</em>, how standardized physical connection layers and protocols are implemented using <em>Bridges</em> and shows which <em>Devices and Services</em> are implemented. The chapter concludes with a development tutorial on how to implement a device.</p>
+</div>
 <div class="sect3">
 <h4 id="_natures">4.3.1. Natures</h4>
-
+<div class="paragraph">
+<p>Physical hardware is abstracted in OpenEMS Edge using <em>Natures</em>. A Nature defines a set of characteristics and attributes which need to be provided by each OpenEMS component that implements it. These characteristics are defined by Channels. For example an implementation of an <code>Ess</code> (Energy Storage System), needs to provide an <code>Soc</code>-Channel (State of charge of the battery).</p>
+</div>
+<div class="paragraph">
+<p>Technically Natures are implemented as OSGi API Bundles.</p>
+</div>
+<div class="sect4">
+<h5 id="_ess_energy_storage_system">4.3.1.1. ESS (Energy Storage System)</h5>
+<div class="paragraph">
+<p>An Energy Storage System is an integrated system with battery and battery inverter.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="../io.openems.edge.ess.api/src/io/openems/edge/ess/api/Ess.java">Ess <span class="icon"><i class="fa fa-code"></i></span></a></dt>
+<dd>
+<p>A generic Energy Storage System</p>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Soc</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">%</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0..100</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">State of Charge</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GridMode</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0=Undefined, 1=On-Grid, 2=Off-Grid</p></td>
+<td class="tableblock halign-left valign-top"></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MaxActivePower</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">W</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum possible Active Power</p></td>
+</tr>
+</tbody>
+</table>
+</dd>
+<dt class="hdlist1"><a href="../io.openems.edge.ess.api/src/io/openems/edge/ess/symmetric/readonly/api/SymmetricEssReadonly.java">SymmetricEssReadonly <span class="icon"><i class="fa fa-code"></i></span></a></dt>
+<dd>
+<p>A symmetric Energy Storage System in readonly-mode.</p>
+</dd>
+<dt class="hdlist1"><a href="../io.openems.edge.ess.api/src/io/openems/edge/ess/symmetric/api/SymmetricEss.java">SymmetricEss <span class="icon"><i class="fa fa-code"></i></span></a></dt>
+<dd>
+<p>A symmetric, controllable Energy Storage System.</p>
+</dd>
+</dl>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="../io.openems.edge.ess.api/src/io/openems/edge/ess/dccharger/api/EssDcCharger.java">EssDcCharger <span class="icon"><i class="fa fa-code"></i></span></a></dt>
+<dd>
+<p>A solar charger that is connected to DC side of an energy storage system.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_meter">4.3.1.2. Meter</h5>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="../io.openems.edge.meter.api/src/io/openems/edge/meter/api/Meter.java">Meter <span class="icon"><i class="fa fa-code"></i></span></a></dt>
+<dd>
+<p>A generic electric power meter.</p>
+</dd>
+<dt class="hdlist1"><a href="../io.openems.edge.meter.api/src/io/openems/edge/meter/symmetric/api/SymmetricMeter.java">SymmetricMeter <span class="icon"><i class="fa fa-code"></i></span></a></dt>
+<dd>
+<p>A power meter for symmetric metering.</p>
+</dd>
+<dt class="hdlist1"><a href="../io.openems.edge.meter.api/src/io/openems/edge/meter/asymmetric/api/AsymmetricMeter.java">AsymmetricMeter <span class="icon"><i class="fa fa-code"></i></span></a></dt>
+<dd>
+<p>A power meter for asymmetric metering.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_evcs_electric_vehicle_charging_station">4.3.1.3. EVCS (Electric Vehicle Charging Station)</h5>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="../io.openems.edge.evcs.api/src/io/openems/edge/evcs/api/Evcs.java">Evcs <span class="icon"><i class="fa fa-code"></i></span></a></dt>
+<dd>
+<p>A charging station for electric vehicles like e-cars and e-buses.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_i_o_digital_input_output">4.3.1.4. I/O (Digital Input/Output)</h5>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="../io.openems.edge.io.api/src/io/openems/edge/io/api/DigitalOutput.java">DigitalOutput <span class="icon"><i class="fa fa-code"></i></span></a></dt>
+<dd>
+<p>One or more digital outputs or relays.</p>
+</dd>
+</dl>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_bridges">4.3.2. Bridges</h4>
-
+<div class="paragraph">
+<p>To simplify the implementation of hardware that is connected via certain standardized physical connection layers and protocols, those are implemented as Bridges.</p>
+</div>
+<div class="sect4">
+<h5 id="_modbus_tcp">4.3.2.1. Modbus/TCP</h5>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="../io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusTcp.java">Modbus/TCP <span class="icon"><i class="fa fa-code"></i></span></a></dt>
+<dd>
+<p><a href="https://en.wikipedia.org/wiki/Modbus">Modbus/TCP <span class="icon"><i class="fa fa-external-link"></i></span></a> is a widely used standard for fieldbus connections via TCP/IP network. It is used by all kinds of hardware devices like photovoltaics inverters, electric meters, and so on.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_modbus_rtu">4.3.2.2. Modbus/RTU</h5>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="../io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusSerial.java">Modbus/Serial <span class="icon"><i class="fa fa-code"></i></span></a></dt>
+<dd>
+<p><a href="https://en.wikipedia.org/wiki/Modbus">Modbus/RTU <span class="icon"><i class="fa fa-external-link"></i></span></a> is a widely used standard for fieldbus connections via RS485 serial bus. It is used by all kinds of hardware devices like photovoltaics inverters, electric meters, and so on.</p>
+</dd>
+</dl>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_devices_services">4.3.3. Devices &amp; Services</h4>
@@ -1433,7 +1614,7 @@ OpenEMS UI will complain that "no timedata source is available". Because of this
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2018-06-12 10:55:19 DST
+Last updated 2018-06-18 22:57:50 DST
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
