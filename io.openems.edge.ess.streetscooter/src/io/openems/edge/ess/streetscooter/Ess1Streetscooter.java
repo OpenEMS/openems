@@ -34,7 +34,7 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter implements Symme
 	
 	
 	private static final int BATTERY_1_OVERLOAD_ADDRESS = 1001;
-	private static final int BATTERY_1_CONNECTED_ADDRESS = 1000; // DAS STIMMT!
+	private static final int BATTERY_1_CONNECTED_ADDRESS = 1000; 
 	private static final int INVERTER_1_CONNECTED_ADDRESS = 13000;
 	private static final int ICU_1_RUNSTATE_ADDRESS = 14001;
 	
@@ -47,8 +47,8 @@ public class Ess1Streetscooter extends AbstractEssStreetscooter implements Symme
 
 	@Activate
 	protected
-	void activate(ComponentContext context, Config0 config0) {
-		super.activate(context, config0.service_pid(), config0.id(), config0.enabled(), UNIT_ID, this.cm, "Modbus", config0.modbus_id());
+	void activate(ComponentContext context, Config1 config1) {
+		super.activate(context, config1.service_pid(), config1.id(), config1.enabled(), UNIT_ID, this.cm, "Modbus", config1.modbus_id());
 	}
 	
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)

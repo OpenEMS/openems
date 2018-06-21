@@ -110,4 +110,50 @@ public class Utils {
 		).flatMap(channel -> channel);
 	}
 	
+	static Stream<Channel<?>> initializeClusterChannels(EssCluster c) {		
+		return Stream.of( //
+				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case STATE:
+						return new StateChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case SOC:
+						return new IntegerReadChannel(c, channelId);
+					case MAX_ACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId, AbstractEssStreetscooter.MAX_APPARENT_POWER);
+					case GRID_MODE:
+						return new IntegerReadChannel(c, channelId, Ess.GridMode.UNDEFINED.ordinal());
+					}
+					return null;
+				}), Arrays.stream(SymmetricEssReadonly.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case ACTIVE_POWER:
+					case CHARGE_ACTIVE_POWER:
+					case DISCHARGE_ACTIVE_POWER:
+					case REACTIVE_POWER:
+					case CHARGE_REACTIVE_POWER:
+					case DISCHARGE_REACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case DEBUG_SET_ACTIVE_POWER:
+					case DEBUG_SET_REACTIVE_POWER:
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				}), Arrays.stream(EssCluster.ChannelId.values()).map(channelId -> {
+					switch (channelId) {
+					case CAPCACITY:
+					case SYSTEM_STATE:						
+						return new IntegerReadChannel(c, channelId);
+					}
+					return null;
+				})  // 
+		).flatMap(channel -> channel);
+	}
 }

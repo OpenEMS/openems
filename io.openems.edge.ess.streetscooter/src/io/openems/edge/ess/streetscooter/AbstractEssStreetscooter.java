@@ -39,13 +39,14 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 	private static final int BATTERY_INFO_START_ADDRESS = 0;
 	private static final int INVERTER_INFO_START_ADDRESS = 2000;
 
-	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
+	protected final Logger log;
 
 	private SymmetricPower power;
 	private PGreaterEqualLimitation allowedChargeLimit;
 	private PSmallerEqualLimitation allowedDischargeLimit;
 
 	public AbstractEssStreetscooter() {
+		log = LoggerFactory.getLogger(getClass());
 		addChannels();
 		initializePower();
 	}
