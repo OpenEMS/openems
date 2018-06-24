@@ -52,12 +52,7 @@ public class MeterSocomecDirisA14 extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		// get Meter Type:
-		try {
-			this.meterType = MeterType.valueOf(config.type().toUpperCase());
-		} catch (IllegalArgumentException e) {
-			this.meterType = MeterType.PRODUCTION; // default
-		}
+		this.meterType = config.type();
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id());
