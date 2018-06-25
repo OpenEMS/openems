@@ -10,6 +10,7 @@ import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.streetscooter.AbstractEssStreetscooter.ChannelId;
 
@@ -77,8 +78,8 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 				log.info("Try to restart the system for the second time after detecting fault");
 			} else if (isWaitingPeriodAfterFaultRestartPassed() && attempsToRestart > 1) {
 				// Do nothing, let system in fault mode
-				log.error("System could not be restarted!");
-				// TODO set an error in a state channel 
+				StringWriteChannel errorChannel = parent.channel(ChannelId.SYSTEM_STATE_INFORMATION);
+				errorChannel.setNextValue("System could not be started after waiting period and two start attempts");
 			}
 		}
 	}
@@ -94,12 +95,12 @@ public class PowerHandler implements BiConsumer<Integer, Integer> {
 
 	private boolean isInverterInNormalMode() {
 		IntegerReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
-		return inverterModeChannel.value().get().equals(ChannelId.INVERTER_MODE_NORMAL);
+		return inverterModeChannel.value().orElse(ChannelId.INVERTER_MODE_UNDEFINED).equals(ChannelId.INVERTER_MODE_NORMAL);
 	}
 
 	private boolean isInverterInFaultMode() {
 		IntegerReadChannel inverterModeChannel = parent.channel(ChannelId.INVERTER_MODE);
-		return inverterModeChannel.value().get().equals(ChannelId.INVERTER_MODE_FAULT);
+		return inverterModeChannel.value().orElse(ChannelId.INVERTER_MODE_UNDEFINED).equals(ChannelId.INVERTER_MODE_FAULT);
 	}
 
 	private void setEnabled() {

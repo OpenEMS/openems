@@ -29,6 +29,11 @@ public abstract class ChannelsFunction<C extends OpenemsComponent, T> {
 		this.targetChannel = parent.channel(targetChannelId);
 		this.sourceChannelId = sourceChannelId;
 	}
+	
+	public ChannelsFunction(OpenemsComponent parent, ChannelId target, ChannelId source) {
+		this.targetChannel = parent.channel(target);
+		this.sourceChannelId = source;
+	}
 
 	public void addComponent(C component) {
 		if (this.debug) {

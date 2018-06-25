@@ -17,3 +17,4 @@ Private-Package: \
 	io.openems.wrapper.sdnotify;version=latest,\
 	io.openems.edge.scheduler.api;version=latest,\
 	io.openems.edge.controller.api;version=latest
+Export-Package: io.openems.edge.core.sum.internal

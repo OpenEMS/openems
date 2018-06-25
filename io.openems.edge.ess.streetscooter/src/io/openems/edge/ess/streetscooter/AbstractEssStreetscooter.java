@@ -250,8 +250,12 @@ public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComp
 		INVERTER_V_AC_3(new Doc().unit(Unit.VOLT)), 
 		INVERTER_V_DC_1(new Doc().unit(Unit.VOLT)), 
 		INVERTER_V_DC_2(new Doc().unit(Unit.VOLT)), 
-		INVERTER_CONNECTED(new Doc().unit(Unit.ON_OFF)),;
+		INVERTER_CONNECTED(new Doc().unit(Unit.ON_OFF)),
+		
+		SYSTEM_STATE_INFORMATION(new Doc().setWritable().unit(Unit.NONE));
+		;
 
+		public static final int INVERTER_MODE_UNDEFINED = -1;
 		public static final int INVERTER_MODE_INITIAL = 0;
 		public static final int INVERTER_MODE_WAIT = 1;
 		public static final int INVERTER_MODE_START_UP = 2;

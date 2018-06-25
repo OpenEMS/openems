@@ -9,6 +9,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StringWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.symmetric.api.SymmetricEss;
@@ -104,6 +105,8 @@ public class Utils {
 					case ICU_RUNSTATE:
 					case INVERTER_CONNECTED:
 						return new BooleanReadChannel(c, channelId);
+					case SYSTEM_STATE_INFORMATION:
+						return new StringWriteChannel(c, channelId);
 					}
 					return null;
 				})  // 
@@ -149,8 +152,10 @@ public class Utils {
 				}), Arrays.stream(EssCluster.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case CAPCACITY:
-					case SYSTEM_STATE:						
+					case SYSTEM_STATE:
+					case ESS_SOC:
 						return new IntegerReadChannel(c, channelId);
+
 					}
 					return null;
 				})  // 
