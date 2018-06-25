@@ -4,11 +4,11 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
-import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.symmetric.api.SymmetricEss;
@@ -22,7 +22,7 @@ public class Utils {
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
-						return new StateChannel(c, channelId);
+						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
@@ -249,7 +249,7 @@ public class Utils {
 					case STATE_147:
 					case STATE_148:
 					case STATE_149:
-						return new BooleanReadChannel(c, channelId);
+						return new StateChannel(c, channelId);
 					}
 					return null;
 				}) //

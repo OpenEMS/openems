@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.StateChannel;
 
 /**
  * This is the default implementation of the {@link OpenemsComponent} interface.
@@ -105,7 +106,14 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 			throw new NullPointerException(
 					"Trying to add 'null' Channel. Hint: Check for missing handling of Enum value.");
 		}
+		// Add Channel to channels list
 		this.channels.put(channel.channelId().id(), channel);
+		/*
+		 * Handle StateChannels
+		 */
+		if (channel instanceof StateChannel) {
+			this.getState().addChannel((StateChannel) channel);
+		}
 	}
 
 	@Override
