@@ -6,12 +6,7 @@ public class PowerException extends OpenemsException {
 
 	private static final long serialVersionUID = 1L;
 
-	public PowerException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
+	public PowerException(String message) {
+		super(message);
 	}
-
-	public PowerException(String arg0) {
-		super(arg0);
-	}
-
 }

@@ -47,7 +47,7 @@ import io.openems.edge.ess.power.symmetric.QGreaterEqualLimitation;
 import io.openems.edge.ess.power.symmetric.QSmallerEqualLimitation;
 import io.openems.edge.ess.power.symmetric.SMaxLimitation;
 import io.openems.edge.ess.power.symmetric.SymmetricPower;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
 /**
@@ -61,7 +61,7 @@ import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
 public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
-		implements SymmetricEss, Ess, OpenemsComponent, EventHandler {
+		implements ManagedSymmetricEss, Ess, OpenemsComponent, EventHandler {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsModbusComponent.class);
 

@@ -1,4 +1,4 @@
-package io.openems.edge.ess.power.symmetric;
+package io.openems.edge.ess.power;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -14,33 +14,28 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 /**
- * This helper component handles the ControllerExecuter Cycle for SymmetricPower
+ * This helper component handles the ControllerExecuter Cycle for Power
  * objects.
- * 
- * @author stefan.feilmeier
  */
-@Component(scope = ServiceScope.SINGLETON, property = { //
-		EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE,
-		EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE })
-public class EssSymmetricPowerManager implements EventHandler {
+@Component( //
+		immediate = true,
+		scope = ServiceScope.SINGLETON, //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE)
+public class ManagedEssComponent implements EventHandler {
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private volatile List<SymmetricEss> components = new CopyOnWriteArrayList<>();
+	private volatile List<ManagedSymmetricEss> components = new CopyOnWriteArrayList<>();
 
 	@Override
 	public void handleEvent(Event event) {
-		for (SymmetricEss component : this.components) {
-			SymmetricPower power = component.getPower();
+		for (ManagedSymmetricEss component : this.components) {
+			Power power = component.getPower();
 			switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:
-				power.onTopicCycleBeforeWrite();
-				break;
-			case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
-				power.onTopicCycleAfterWrite();
-				break;
+				power.applyPower();
 			}
 		}
 	}
