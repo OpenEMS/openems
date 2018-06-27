@@ -96,12 +96,6 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		} catch (PowerException e) {
 			this.logError(this.log, "Unable to set MaxApparentPower constraint: " + e.getMessage());
 		}
-		// Ignore Reactive Power
-		try {
-			this.power.setReactivePower(ConstraintType.STATIC, Relationship.EQ, 0);
-		} catch (PowerException e) {
-			this.logError(this.log, "Unable to set ReactivePower constraint: " + e.getMessage());
-		}
 		// Allowed Charge
 		try {
 			this.allowedChargeConstraint = this.power.setActivePower(ConstraintType.STATIC, Relationship.GEQ,
