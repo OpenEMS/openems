@@ -31,12 +31,9 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
-/**
- * Implements the KOSTAL Piko energy storage system.
- */
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "Ess.KOSTAL.Piko", //
+		name = "Ess.KOSTAL.PIKO", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //

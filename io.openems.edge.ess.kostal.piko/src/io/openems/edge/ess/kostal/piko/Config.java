@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition( //
 		name = "ESS KOSTAL PIKO", //
-		description = "Implements the KOSTAL Piko energy storage system.")
+		description = "Implements a KOSTAL PIKO based energy storage system.")
 @interface Config {
 	String service_pid();
 
@@ -12,5 +12,5 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	boolean enabled() default true;
 
-	String webconsole_configurationFactory_nameHint() default "ESS KOSTAL Piko [{id}]";
+	String webconsole_configurationFactory_nameHint() default "ESS KOSTAL PIKO [{id}]";
 }
