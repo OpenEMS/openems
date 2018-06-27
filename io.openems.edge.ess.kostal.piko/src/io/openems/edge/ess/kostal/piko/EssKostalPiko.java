@@ -29,7 +29,6 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -39,7 +38,7 @@ import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
 public abstract class EssKostalPiko extends AbstractOpenemsComponent
-		implements SymmetricEssReadonly, Ess, OpenemsComponent, EventHandler {
+		implements Ess, OpenemsComponent, EventHandler {
 
 	private String modbusBridgeId;
 
