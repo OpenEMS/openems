@@ -90,7 +90,7 @@ public class Utils {
 					case OVERALL_DC_CURRENT:
 					case OVERALL_DC_POWER:
 					case DC_CURRENT_STRING_1:
-					case DC_VOLTAGE_STRING1:
+					case DC_VOLTAGE_STRING_1:
 					case DC_POWER_STRING_1:
 					case DC_CURRENT_STRING_2:
 					case DC_VOLTAGE_STRING_2:

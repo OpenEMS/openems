@@ -56,6 +56,118 @@ public abstract class EssKostalPiko extends AbstractOpenemsComponent
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
+
+		try {
+			this.channel(ChannelId.INVERTER_NAME).setNextValue(getStringValues(0x01000300));
+			this.channel(ChannelId.ARTICLE_NUMBER).setNextValue(getStringValues(0x01000100));
+			this.channel(ChannelId.INVERTER_SERIAL_NUMBER).setNextValue(getStringValues(0x01000200));
+			this.channel(ChannelId.FIRMWARE_VERSION).setNextValue(getStringValues(0x01000801));
+			this.channel(ChannelId.HARDWARE_VERSION).setNextValue(getStringValues(0x01000801));
+			this.channel(ChannelId.KOMBOARD_VERSION).setNextValue(getStringValues(0x01000803));
+			this.channel(ChannelId.PARAMETER_VERSION).setNextValue(getStringValues(0x01000901));
+			this.channel(ChannelId.COUNTRY_NAME).setNextValue(getStringValues(0x01000902));
+			this.channel(ChannelId.INVERTER_OPERATING_STATUS).setNextValue(getStringValues(0X08000105));
+			this.channel(ChannelId.INVERTER_TYPE_NAME).setNextValue(getStringValues(0x01000D00));
+
+			this.channel(ChannelId.NUMBER_OF_STRING).setNextValue(getIntegerValues(0x01000500));
+			this.channel(ChannelId.NUMBER_OF_PHASES).setNextValue(getIntegerValues(0x01000600));
+			this.channel(ChannelId.POWER_ID).setNextValue(getIntegerValues(0x01000400));
+			this.channel(ChannelId.PRESENT_ERROR_EVENT_CODE_1).setNextValue(getIntegerValues(0x08000300));
+			this.channel(ChannelId.PRESENT_ERROR_EVENT_CODE_2).setNextValue(getIntegerValues(0x08000400));
+			this.channel(ChannelId.FEED_IN_TIME).setNextValue(getIntegerValues(0x0F000100));
+			this.channel(ChannelId.INVERTER_STATUS).setNextValue(getIntegerValues(0x01000B00));
+			this.channel(ChannelId.ADDRESS_MODBUS_RTU).setNextValue(getIntegerFromUnsignedByte(0x07000201));
+			this.channel(ChannelId.BAUDRATE_INDEX_MODBUS_RTU).setNextValue(getIntegerFromUnsignedByte(0x07000206));
+			this.channel(ChannelId.SETTING_MANUAL_IP1).setNextValue(getIntegerFromUnsignedByte(0x07000102));
+			this.channel(ChannelId.SETTING_MANUAL_IP2).setNextValue(getIntegerFromUnsignedByte(0x07000103));
+			this.channel(ChannelId.SETTING_MANUAL_IP3).setNextValue(getIntegerFromUnsignedByte(0x07000104));
+			this.channel(ChannelId.SETTING_MANUAL_IP4).setNextValue(getIntegerFromUnsignedByte(0x07000105));
+			this.channel(ChannelId.SETTING_MANUAL_SUBNET_MASK_1).setNextValue(getIntegerFromUnsignedByte(0x07000106));
+			this.channel(ChannelId.SETTING_MANUAL_SUBNET_MASK_2).setNextValue(getIntegerFromUnsignedByte(0x07000107));
+			this.channel(ChannelId.SETTING_MANUAL_SUBNET_MASK_3).setNextValue(getIntegerFromUnsignedByte(0x07000108));
+			this.channel(ChannelId.SETTING_MANUAL_SUBNET_MASK_4).setNextValue(getIntegerFromUnsignedByte(0x07000109));
+			this.channel(ChannelId.SETTING_MANUAL_GATEWAY_1).setNextValue(getIntegerFromUnsignedByte(0x0700010B));
+			this.channel(ChannelId.SETTING_MANUAL_GATEWAY_2).setNextValue(getIntegerFromUnsignedByte(0x0700010C));
+			this.channel(ChannelId.SETTING_MANUAL_GATEWAY_3).setNextValue(getIntegerFromUnsignedByte(0x0700010D));
+			this.channel(ChannelId.SETTING_MANUAL_GATEWAY_4).setNextValue(getIntegerFromUnsignedByte(0x0700010E));
+			this.channel(ChannelId.SETTING_MANUAL_IP_DNS_FIRST_1).setNextValue(getIntegerFromUnsignedByte(0x0700010F));
+			this.channel(ChannelId.SETTING_MANUAL_IP_DNS_FIRST_2).setNextValue(getIntegerFromUnsignedByte(0x07000110));
+			this.channel(ChannelId.SETTING_MANUAL_IP_DNS_FIRST_3).setNextValue(getIntegerFromUnsignedByte(0x07000111));
+			this.channel(ChannelId.SETTING_MANUAL_IP_DNS_FIRST_4).setNextValue(getIntegerFromUnsignedByte(0x07000112));
+			this.channel(ChannelId.SETTING_MANUAL_IP_DNS_SECOND_1).setNextValue(getIntegerFromUnsignedByte(0x07000113));
+			this.channel(ChannelId.SETTING_MANUAL_IP_DNS_SECOND_2).setNextValue(getIntegerFromUnsignedByte(0x07000114));
+			this.channel(ChannelId.SETTING_MANUAL_IP_DNS_SECOND_3).setNextValue(getIntegerFromUnsignedByte(0x07000115));
+			this.channel(ChannelId.SETTING_MANUAL_IP_DNS_SECOND_4).setNextValue(getIntegerFromUnsignedByte(0x07000116));
+
+			this.channel(ChannelId.FEED_IN_STATUS).setNextValue(getBooleanValue(0x01000A00));
+			this.channel(ChannelId.SETTING_AUTO_IP).setNextValue(getBooleanValue(0x07000101));
+			this.channel(ChannelId.SETTING_MANUAL_EXTERNAL_ROUTER).setNextValue(getBooleanValue(0x0700010A));
+			this.channel(ChannelId.PRELOAD_MODBUS_RTU).setNextValue(getBooleanValue(0x07000202));
+			this.channel(ChannelId.TERMINATION_MODBUS_RTU).setNextValue(getBooleanValue(0x07000203));
+
+			this.channel(ChannelId.OVERALL_DC_CURRENT).setNextValue(getFloatValue(0x02000100));
+			this.channel(ChannelId.OVERALL_DC_POWER).setNextValue(getFloatValue(0x02000200));
+			this.channel(ChannelId.DC_CURRENT_STRING_1).setNextValue(getFloatValue(0x02000301));
+			this.channel(ChannelId.DC_VOLTAGE_STRING_1).setNextValue(getFloatValue(0x02000302));
+			this.channel(ChannelId.DC_POWER_STRING_1).setNextValue(getFloatValue(0x02000303));
+			this.channel(ChannelId.DC_CURRENT_STRING_2).setNextValue(getFloatValue(0x02000401));
+			this.channel(ChannelId.DC_VOLTAGE_STRING_2).setNextValue(getFloatValue(0x02000402));
+			this.channel(ChannelId.DC_POWER_STRING_2).setNextValue(getFloatValue(0x02000403));
+			this.channel(ChannelId.DC_CURRENT_STRING_3).setNextValue(getFloatValue(0x02000501));
+			this.channel(ChannelId.DC_VOLTAGE_STRING_3).setNextValue(getFloatValue(0x02000502));
+			this.channel(ChannelId.DC_POWER_STRING_3).setNextValue(getFloatValue(0x02000503));
+			this.channel(ChannelId.BATTERY_CURRENT).setNextValue(getFloatValue(0x02000701));
+			this.channel(ChannelId.BATTERY_VOLTAGE).setNextValue(getFloatValue(0x02000702));
+			this.channel(ChannelId.BATTERY_TEMPERATURE).setNextValue(getFloatValue(0x02000703));
+			this.channel(ChannelId.BATTERY_CYCLES).setNextValue(getFloatValue(0x02000704));
+			this.channel(ChannelId.BATTERY_SOC).setNextValue(getFloatValue(0x02000704));
+			this.channel(ChannelId.BATTERY_CURRENT_DIRECTION).setNextValue(getFloatValue(0x02000705));
+			this.channel(ChannelId.AC_TOTAL_POWER).setNextValue(getFloatValue(0x04000100));
+			this.channel(ChannelId.AC_CURRENT_L1).setNextValue(getFloatValue(0x04000101));
+			this.channel(ChannelId.AC_VOLTAGE_L1).setNextValue(getFloatValue(0x04000102));
+			this.channel(ChannelId.AC_POWER_L1).setNextValue(getFloatValue(0x04000103));
+			this.channel(ChannelId.AC_CURRENT_L2).setNextValue(getFloatValue(0x04000301));
+			this.channel(ChannelId.AC_VOLTAGE_L2).setNextValue(getFloatValue(0x04000302));
+			this.channel(ChannelId.AC_POWER_L2).setNextValue(getFloatValue(0x04000303));
+			this.channel(ChannelId.AC_CURRENT_L3).setNextValue(getFloatValue(0x04000401));
+			this.channel(ChannelId.AC_VOLTAGE_L3).setNextValue(getFloatValue(0x04000402));
+			this.channel(ChannelId.AC_POWER_L3).setNextValue(getFloatValue(0x04000403));
+			this.channel(ChannelId.POWER_LIMITATION_OF_EVU).setNextValue(getFloatValue(0x04000500));
+			this.channel(ChannelId.GRID_FREQUENCY).setNextValue(getFloatValue(0x04000600));
+			this.channel(ChannelId.COSINUS_PHI).setNextValue(getFloatValue(0x04000700));
+			this.channel(ChannelId.HOME_CONSUMPTION_PV).setNextValue(getFloatValue(0x05000100));
+			this.channel(ChannelId.HOME_CONSUMPTION_BATTERY).setNextValue(getFloatValue(0x05000200));
+			this.channel(ChannelId.HOME_CONSUMPTION_GRID).setNextValue(getFloatValue(0x05000300));
+			this.channel(ChannelId.HOME_CURRENT_L1).setNextValue(getFloatValue(0x05000401));
+			this.channel(ChannelId.HOME_POWER_L1).setNextValue(getFloatValue(0x05000402));
+			this.channel(ChannelId.HOME_CONSUMPTION_L1).setNextValue(getFloatValue(0x05000403));
+			this.channel(ChannelId.HOME_CURRENT_L2).setNextValue(getFloatValue(0x05000501));
+			this.channel(ChannelId.HOME_POWER_L2).setNextValue(getFloatValue(0x05000502));
+			this.channel(ChannelId.HOME_CONSUMPTION_L2).setNextValue(getFloatValue(0x05000503));
+			this.channel(ChannelId.HOME_CURRENT_L3).setNextValue(getFloatValue(0x05000601));
+			this.channel(ChannelId.HOME_POWER_L3).setNextValue(getFloatValue(0x05000602));
+			this.channel(ChannelId.HOME_CONSUMPTION_L3).setNextValue(getFloatValue(0x05000603));
+			this.channel(ChannelId.HOME_TOTAL_POWER).setNextValue(getFloatValue(0x05000700));
+			this.channel(ChannelId.HOME_SELF_CONSUMPTION_TOTAL).setNextValue(getFloatValue(0x05000800));
+			this.channel(ChannelId.ISOLATION_RESISTOR).setNextValue(getFloatValue(0x06000100));
+			this.channel(ChannelId.MAX_RESIDUAL_CURRENT).setNextValue(getFloatValue(0x06000301));
+			this.channel(ChannelId.ANALOG_INPUT_CH_1).setNextValue(getFloatValue(0x0A000101));
+			this.channel(ChannelId.ANALOG_INPUT_CH_2).setNextValue(getFloatValue(0x0A000201));
+			this.channel(ChannelId.ANALOG_INPUT_CH_3).setNextValue(getFloatValue(0x0A000301));
+			this.channel(ChannelId.ANALOG_INPUT_CH_4).setNextValue(getFloatValue(0x0A000401));
+			this.channel(ChannelId.YIELD_TOTAL).setNextValue(getFloatValue(0x0F000201));
+			this.channel(ChannelId.YIELD_DAY).setNextValue(getFloatValue(0x0F000202));
+			this.channel(ChannelId.HOME_CONSUMPTION_TOTAL).setNextValue(getFloatValue(0x0F000301));
+			this.channel(ChannelId.HOME_CONSUMPTION_DAY).setNextValue(getFloatValue(0x0F000302));
+			this.channel(ChannelId.SELF_CONSUMPTION_TOTAL).setNextValue(getFloatValue(0x0F000401));
+			this.channel(ChannelId.SELF_CONSUMPTION_DAY).setNextValue(getFloatValue(0x0F000402));
+			this.channel(ChannelId.SELF_CONSUMPTION_RATE_TOTAL).setNextValue(getFloatValue(0x0F000410));
+			this.channel(ChannelId.SELF_CONSUMPTION_RATE_DAY).setNextValue(getFloatValue(0x0F00040E));
+			this.channel(ChannelId.DEGREE_OF_SELF_SUFFICIENCY_DAY).setNextValue(getFloatValue(0x0F00040F));
+			this.channel(ChannelId.DEGREE_OF_SELF_SUFFICIENCY_TOTAL).setNextValue(getFloatValue(0x0F000411));
+
+		} catch (Exception e) {
+		}
 	}
 
 	@Deactivate
@@ -236,7 +348,6 @@ public abstract class EssKostalPiko extends AbstractOpenemsComponent
 		return checksum == 0x00;
 	}
 
-	
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		INVERTER_NAME(new Doc()), //
 		ARTICLE_NUMBER(new Doc().type(OpenemsType.STRING)), //
@@ -289,7 +400,7 @@ public abstract class EssKostalPiko extends AbstractOpenemsComponent
 		OVERALL_DC_CURRENT(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		OVERALL_DC_POWER(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		DC_CURRENT_STRING_1(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
-		DC_VOLTAGE_STRING1(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
+		DC_VOLTAGE_STRING_1(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		DC_POWER_STRING_1(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		DC_CURRENT_STRING_2(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		DC_VOLTAGE_STRING_2(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //

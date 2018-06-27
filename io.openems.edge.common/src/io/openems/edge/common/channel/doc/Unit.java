@@ -75,7 +75,11 @@ public enum Unit {
 	 * Unit of Energy [Wh]
 	 */
 	WATT_HOURS("Wh"),
-	KILO_WATT_HOURS("kWh"),
+
+	/**
+	 * Unit of Energy [kWh]
+	 */
+	KILO_WATT_HOURS("kWh", WATT_HOURS, 3),
 
 	/*
 	 * Frequency
@@ -101,9 +105,15 @@ public enum Unit {
 	/*
 	 * Resistor / /** Unit of Resistor Ohm
 	 */
+	/**
+	 * Unit of Resistor [ohm]
+	 */
 	OHM("ohm"),
 
-	KILO_OHM("kOhm"),
+	/**
+	 * Unit of Resistor [kOhm]
+	 */
+	KILO_OHM("kOhm", OHM, 3),
 
 	/*
 	 * Time
