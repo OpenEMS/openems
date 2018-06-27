@@ -37,7 +37,7 @@ import io.openems.edge.ess.api.Ess;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
-public abstract class EssKostalPiko extends AbstractOpenemsComponent
+public class EssKostalPiko extends AbstractOpenemsComponent
 		implements Ess, OpenemsComponent, EventHandler {
 
 	private String modbusBridgeId;
