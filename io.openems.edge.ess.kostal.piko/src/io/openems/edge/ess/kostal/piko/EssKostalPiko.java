@@ -385,7 +385,6 @@ public class EssKostalPiko extends AbstractOpenemsComponent
 		SETTING_MANUAL_IP_DNS_SECOND_2(new Doc().type(OpenemsType.INTEGER)), //
 		SETTING_MANUAL_IP_DNS_SECOND_3(new Doc().type(OpenemsType.INTEGER)), //
 		SETTING_MANUAL_IP_DNS_SECOND_4(new Doc().type(OpenemsType.INTEGER)), //
-		BATTERY_CURRENT_DIRECTION(new Doc().option(0, "charge").option(1, "discharge").type(OpenemsType.INTEGER)), //
 
 		FEED_IN_STATUS(new Doc().type(OpenemsType.BOOLEAN)), //
 		SETTING_AUTO_IP(new Doc().type(OpenemsType.BOOLEAN)), //
@@ -393,6 +392,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent
 		PRELOAD_MODBUS_RTU(new Doc().type(OpenemsType.BOOLEAN)), //
 		TERMINATION_MODBUS_RTU(new Doc().type(OpenemsType.BOOLEAN)), //
 
+		BATTERY_CURRENT_DIRECTION(new Doc().option(0, "charge").option(1, "discharge").type(OpenemsType.FLOAT)), //
 		OVERALL_DC_CURRENT(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		OVERALL_DC_POWER(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		DC_CURRENT_STRING_1(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
