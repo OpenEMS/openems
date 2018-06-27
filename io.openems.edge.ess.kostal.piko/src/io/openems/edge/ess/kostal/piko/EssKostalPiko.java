@@ -10,13 +10,11 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -37,13 +35,7 @@ import io.openems.edge.ess.api.Ess;
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
 )
-public class EssKostalPiko extends AbstractOpenemsComponent
-		implements Ess, OpenemsComponent, EventHandler {
-
-	private String modbusBridgeId;
-
-	@Reference
-	protected ConfigurationAdmin cm;
+public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, OpenemsComponent, EventHandler {
 
 	public EssKostalPiko() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
@@ -161,7 +153,6 @@ public class EssKostalPiko extends AbstractOpenemsComponent
 			this.channel(ChannelId.SELF_CONSUMPTION_RATE_DAY).setNextValue(getFloatValue(0x0F00040E));
 			this.channel(ChannelId.DEGREE_OF_SELF_SUFFICIENCY_DAY).setNextValue(getFloatValue(0x0F00040F));
 			this.channel(ChannelId.DEGREE_OF_SELF_SUFFICIENCY_TOTAL).setNextValue(getFloatValue(0x0F000411));
-
 		} catch (Exception e) {
 		}
 	}
@@ -172,10 +163,6 @@ public class EssKostalPiko extends AbstractOpenemsComponent
 	}
 
 	private final static boolean DEBUG_MODE = false;
-
-	public String getModbusBridgeId() {
-		return modbusBridgeId;
-	}
 
 	private static boolean getBooleanValue(int address) throws Exception {
 		byte[] bytes = EssKostalPiko.sendAndReceive(address);
