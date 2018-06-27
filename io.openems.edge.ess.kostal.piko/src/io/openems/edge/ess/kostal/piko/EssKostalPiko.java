@@ -37,8 +37,20 @@ import io.openems.edge.ess.api.Ess;
 )
 public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, OpenemsComponent, EventHandler {
 
+	private final ReadTasksManager readTasksManager;
+
 	public EssKostalPiko() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		this.readTasksManager = new ReadTasksManager(this, //
+				// ONCE
+				new ReadTask(ChannelId.INVERTER_NAME, Priority.ONCE, FieldType.STRING, 0x01000300),
+				new ReadTask(ChannelId.NUMBER_OF_STRING, Priority.ONCE, FieldType.INTEGER, 0x01000500),
+				new ReadTask(ChannelId.ADDRESS_MODBUS_RTU, Priority.ONCE, FieldType.INTEGER_UNSIGNED_BYTE, 0x07000201),
+				// LOW
+				new ReadTask(ChannelId.FEED_IN_STATUS, Priority.LOW, FieldType.BOOLEAN, 0x01000A00),
+				new ReadTask(ChannelId.OVERALL_DC_CURRENT, Priority.LOW, FieldType.FLOAT, 0x02000100)
+		//
+		);
 	}
 
 	@Activate
@@ -46,25 +58,22 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
 
 		try {
-			this.channel(ChannelId.INVERTER_NAME).setNextValue(getStringValues(0x01000300));
-			this.channel(ChannelId.ARTICLE_NUMBER).setNextValue(getStringValues(0x01000100));
-			this.channel(ChannelId.INVERTER_SERIAL_NUMBER).setNextValue(getStringValues(0x01000200));
-			this.channel(ChannelId.FIRMWARE_VERSION).setNextValue(getStringValues(0x01000801));
-			this.channel(ChannelId.HARDWARE_VERSION).setNextValue(getStringValues(0x01000801));
-			this.channel(ChannelId.KOMBOARD_VERSION).setNextValue(getStringValues(0x01000803));
-			this.channel(ChannelId.PARAMETER_VERSION).setNextValue(getStringValues(0x01000901));
-			this.channel(ChannelId.COUNTRY_NAME).setNextValue(getStringValues(0x01000902));
-			this.channel(ChannelId.INVERTER_OPERATING_STATUS).setNextValue(getStringValues(0X08000105));
-			this.channel(ChannelId.INVERTER_TYPE_NAME).setNextValue(getStringValues(0x01000D00));
+			this.channel(ChannelId.ARTICLE_NUMBER).setNextValue(getStringValue(0x01000100));
+			this.channel(ChannelId.INVERTER_SERIAL_NUMBER).setNextValue(getStringValue(0x01000200));
+			this.channel(ChannelId.FIRMWARE_VERSION).setNextValue(getStringValue(0x01000801));
+			this.channel(ChannelId.HARDWARE_VERSION).setNextValue(getStringValue(0x01000801));
+			this.channel(ChannelId.KOMBOARD_VERSION).setNextValue(getStringValue(0x01000803));
+			this.channel(ChannelId.PARAMETER_VERSION).setNextValue(getStringValue(0x01000901));
+			this.channel(ChannelId.COUNTRY_NAME).setNextValue(getStringValue(0x01000902));
+			this.channel(ChannelId.INVERTER_OPERATING_STATUS).setNextValue(getStringValue(0X08000105));
+			this.channel(ChannelId.INVERTER_TYPE_NAME).setNextValue(getStringValue(0x01000D00));
 
-			this.channel(ChannelId.NUMBER_OF_STRING).setNextValue(getIntegerValues(0x01000500));
-			this.channel(ChannelId.NUMBER_OF_PHASES).setNextValue(getIntegerValues(0x01000600));
-			this.channel(ChannelId.POWER_ID).setNextValue(getIntegerValues(0x01000400));
-			this.channel(ChannelId.PRESENT_ERROR_EVENT_CODE_1).setNextValue(getIntegerValues(0x08000300));
-			this.channel(ChannelId.PRESENT_ERROR_EVENT_CODE_2).setNextValue(getIntegerValues(0x08000400));
-			this.channel(ChannelId.FEED_IN_TIME).setNextValue(getIntegerValues(0x0F000100));
-			this.channel(ChannelId.INVERTER_STATUS).setNextValue(getIntegerValues(0x01000B00));
-			this.channel(ChannelId.ADDRESS_MODBUS_RTU).setNextValue(getIntegerFromUnsignedByte(0x07000201));
+			this.channel(ChannelId.NUMBER_OF_PHASES).setNextValue(getIntegerValue(0x01000600));
+			this.channel(ChannelId.POWER_ID).setNextValue(getIntegerValue(0x01000400));
+			this.channel(ChannelId.PRESENT_ERROR_EVENT_CODE_1).setNextValue(getIntegerValue(0x08000300));
+			this.channel(ChannelId.PRESENT_ERROR_EVENT_CODE_2).setNextValue(getIntegerValue(0x08000400));
+			this.channel(ChannelId.FEED_IN_TIME).setNextValue(getIntegerValue(0x0F000100));
+			this.channel(ChannelId.INVERTER_STATUS).setNextValue(getIntegerValue(0x01000B00));
 			this.channel(ChannelId.BAUDRATE_INDEX_MODBUS_RTU).setNextValue(getIntegerFromUnsignedByte(0x07000206));
 			this.channel(ChannelId.SETTING_MANUAL_IP1).setNextValue(getIntegerFromUnsignedByte(0x07000102));
 			this.channel(ChannelId.SETTING_MANUAL_IP2).setNextValue(getIntegerFromUnsignedByte(0x07000103));
@@ -87,13 +96,11 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 			this.channel(ChannelId.SETTING_MANUAL_IP_DNS_SECOND_3).setNextValue(getIntegerFromUnsignedByte(0x07000115));
 			this.channel(ChannelId.SETTING_MANUAL_IP_DNS_SECOND_4).setNextValue(getIntegerFromUnsignedByte(0x07000116));
 
-			this.channel(ChannelId.FEED_IN_STATUS).setNextValue(getBooleanValue(0x01000A00));
 			this.channel(ChannelId.SETTING_AUTO_IP).setNextValue(getBooleanValue(0x07000101));
 			this.channel(ChannelId.SETTING_MANUAL_EXTERNAL_ROUTER).setNextValue(getBooleanValue(0x0700010A));
 			this.channel(ChannelId.PRELOAD_MODBUS_RTU).setNextValue(getBooleanValue(0x07000202));
 			this.channel(ChannelId.TERMINATION_MODBUS_RTU).setNextValue(getBooleanValue(0x07000203));
 
-			this.channel(ChannelId.OVERALL_DC_CURRENT).setNextValue(getFloatValue(0x02000100));
 			this.channel(ChannelId.OVERALL_DC_POWER).setNextValue(getFloatValue(0x02000200));
 			this.channel(ChannelId.DC_CURRENT_STRING_1).setNextValue(getFloatValue(0x02000301));
 			this.channel(ChannelId.DC_VOLTAGE_STRING_1).setNextValue(getFloatValue(0x02000302));
@@ -164,7 +171,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 
 	private final static boolean DEBUG_MODE = false;
 
-	private static boolean getBooleanValue(int address) throws Exception {
+	protected boolean getBooleanValue(int address) throws Exception {
 		byte[] bytes = EssKostalPiko.sendAndReceive(address);
 		if (bytes[0] == 1) {
 			return true;
@@ -172,17 +179,17 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 		return false;
 	}
 
-	private int getIntegerFromUnsignedByte(int address) throws Exception {
+	protected int getIntegerFromUnsignedByte(int address) throws Exception {
 		byte[] bytes = EssKostalPiko.sendAndReceive(address);
 		return (int) ByteBuffer.wrap(bytes).get() & (0xFF);
 	}
 
-	private float getFloatValue(int address) throws Exception {
+	protected float getFloatValue(int address) throws Exception {
 		byte[] bytes = EssKostalPiko.sendAndReceive(address);
 		return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
 	}
 
-	private int getIntegerValues(int address) throws Exception {
+	protected int getIntegerValue(int address) throws Exception {
 		byte[] bytes = EssKostalPiko.sendAndReceive(address);
 		ByteBuffer b = ByteBuffer.allocate(4).putInt(0).order(ByteOrder.LITTLE_ENDIAN);
 		b.rewind();
@@ -191,7 +198,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 		return b.getInt();
 	}
 
-	private String getStringValues(int address) throws Exception {
+	protected String getStringValue(int address) throws Exception {
 		String stringValue = "";
 		byte[] byi = EssKostalPiko.sendAndReceive(address);
 		for (byte b : byi) {
