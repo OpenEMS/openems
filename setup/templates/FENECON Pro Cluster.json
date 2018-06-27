@@ -2,7 +2,7 @@
 	"things": [
 		{
 			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
-			"serialinterface": "/dev/ttyUSB0",
+			"serialinterface": "/dev/bus0",
 			"baudrate": 9600,
 			"databits": 8,
 			"parity": "none",
@@ -20,16 +20,6 @@
 					}
 				},
 				{
-					"class": "io.openems.impl.device.system.asymmetricsymmetriccombinationess.AsymmetricSymmetricCombinationEss",
-					"wrapper": {
-						"id": "ess1",
-						"class": "io.openems.impl.device.system.asymmetricsymmetriccombinationess.AsymmetricSymmetricCombinationEssNature",
-						"ess": "ess0",
-						"chargeSoc": 0,
-						"minSoc": 0
-					}
-				},
-				{
 					"class": "io.openems.impl.device.socomec.Socomec",
 					"modbusUnitId": 5,
 					"meter": {
@@ -41,7 +31,7 @@
 		},
 		{
 			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
-			"serialinterface": "/dev/ttyUSB1",
+			"serialinterface": "/dev/bus1",
 			"baudrate": 9600,
 			"databits": 8,
 			"parity": "none",
@@ -85,11 +75,6 @@
 				"priority": 1,
 				"class": "io.openems.impl.controller.clocksync.ClockSyncController",
 				"rtc": "ess0"
-			},
-			{
-				"class": "io.openems.impl.controller.asymmetricsymmetriccombination.AsymmetricSymmetricCombinationController",
-				"ess": "ess1",
-				"priority": 0
 			}
 		]
 	},

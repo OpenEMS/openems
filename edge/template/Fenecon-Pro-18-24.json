@@ -2,7 +2,7 @@
 	"things": [
 		{
 			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
-			"serialinterface": "/dev/ttyUSB0",
+			"serialinterface": "/dev/bus0",
 			"baudrate": 9600,
 			"databits": 8,
 			"parity": "none",
@@ -31,7 +31,7 @@
 		},
 		{
 			"class": "io.openems.impl.protocol.modbus.ModbusRtu",
-			"serialinterface": "/dev/ttyUSB1",
+			"serialinterface": "/dev/bus1",
 			"baudrate": 9600,
 			"databits": 8,
 			"parity": "none",
