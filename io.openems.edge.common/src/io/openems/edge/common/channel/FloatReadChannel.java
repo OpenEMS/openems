@@ -14,8 +14,4 @@ public class FloatReadChannel extends AbstractReadChannel<Float> {
 		super(OpenemsType.FLOAT, component, channelId, initialValue);
 	}
 
-	public FloatReadChannel(OpenemsComponent component, ChannelId channelId, Enum<?> initialValueEnum) {
-		this(component, channelId);
-	}
-
 }
