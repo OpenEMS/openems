@@ -5,23 +5,23 @@ import org.osgi.annotation.versioning.ProviderType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
-import io.openems.edge.ess.power.symmetric.SymmetricPower;
-import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
+import io.openems.edge.ess.api.Ess;
+import io.openems.edge.ess.power.Power;
 
 @ProviderType
-public interface SymmetricEss extends SymmetricEssReadonly {
+public interface ManagedSymmetricEss extends Ess {
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
 		/**
 		 * Holds settings of Active Power for debugging
 		 * 
 		 * <ul>
-		 * <li>Interface: Symmetric Ess
+		 * <li>Interface: Managed Symmetric Ess
 		 * <li>Type: Integer
 		 * <li>Unit: W
 		 * <li>Range: negative values for Charge; positive for Discharge
-		 * <li>Implementation Note: value is automatically written by SymmetricPower
-		 * just before it calls the onWriteListener (which writes the value to the Ess)
+		 * <li>Implementation Note: value is automatically written by {@link Power} just
+		 * before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
 		DEBUG_SET_ACTIVE_POWER(new Doc().type(OpenemsType.INTEGER).unit(Unit.WATT)), //
@@ -29,11 +29,11 @@ public interface SymmetricEss extends SymmetricEssReadonly {
 		 * Holds settings of Reactive Power for debugging
 		 * 
 		 * <ul>
-		 * <li>Interface: Symmetric Ess
+		 * <li>Interface: Managed Symmetric Ess
 		 * <li>Type: Integer
 		 * <li>Unit: var
 		 * <li>Range: negative values for Charge; positive for Discharge
-		 * <li>Implementation Note: value is automatically written by SymmetricPower
+		 * <li>Implementation Note: value is automatically written by {@link Power} just
 		 * just before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
@@ -57,6 +57,14 @@ public interface SymmetricEss extends SymmetricEssReadonly {
 	 * 
 	 * @return
 	 */
-	public SymmetricPower getPower();
+	public Power getPower();
+
+	/**
+	 * Apply the calculated Power
+	 * 
+	 * @param activePower
+	 * @param reactivePower
+	 */
+	public void applyPower(int activePower, int reactivePower);
 
 }
