@@ -75,6 +75,7 @@ public enum Unit {
 	 * Unit of Energy [Wh]
 	 */
 	WATT_HOURS("Wh"),
+	KILO_WATT_HOURS("kWh"),
 
 	/*
 	 * Frequency
@@ -98,11 +99,20 @@ public enum Unit {
 	DEGREE_CELCIUS("°C"),
 
 	/*
+	 * Resistor / /** Unit of Resistor Ohm
+	 */
+	OHM("ohm"),
+
+	KILO_OHM("kOhm"),
+
+	/*
 	 * Time
 	 */
+
 	/**
 	 * Unit of Time in Seconds [s]
 	 */
+
 	SECONDS("sec");
 
 	private final Unit baseUnit;
