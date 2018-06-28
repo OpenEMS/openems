@@ -13,6 +13,7 @@ import org.apache.commons.math3.optim.linear.LinearConstraintSet;
 import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
 import org.apache.commons.math3.optim.linear.NoFeasibleSolutionException;
 import org.apache.commons.math3.optim.linear.PivotSelectionRule;
+import org.apache.commons.math3.optim.linear.Relationship;
 import org.apache.commons.math3.optim.linear.SimplexSolver;
 import org.apache.commons.math3.optim.linear.UnboundedSolutionException;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
@@ -37,6 +38,16 @@ public abstract class AbstractPower {
 	 * Holds the total number of coefficients
 	 */
 	protected final int noOfCoefficients;
+
+	/**
+	 * Holds Constraints were all coefficients are in Quadrant I (all >= 0)
+	 */
+	private final LinearConstraint[] coefficientsInQuadrantI;
+
+	/**
+	 * Holds Constraints were all coefficients are in Quadrant III (all <= 0)
+	 */
+	private final LinearConstraint[] coefficientsInQuadrantIII;
 
 	/**
 	 * Holds the indices of coefficents for Active Power (P)
@@ -132,10 +143,27 @@ public abstract class AbstractPower {
 			this.qIndices[i] = qIndices.get(i);
 		}
 		this.startIndices = Collections.unmodifiableMap(startIndices);
+		// create helper constraints
+		this.coefficientsInQuadrantI = new LinearConstraint[noOfCoefficients];
+		this.coefficientsInQuadrantIII = new LinearConstraint[noOfCoefficients];
+		for (int i = 0; i < noOfCoefficients; i++) {
+			double[] coefficients = getZeroCoefficients();
+			coefficients[i] = 1;
+			this.coefficientsInQuadrantI[i] = new LinearConstraint(coefficients, Relationship.GEQ, 0);
+			this.coefficientsInQuadrantIII[i] = new LinearConstraint(coefficients, Relationship.GEQ, 0);
+		}
 		/*
 		 * Create initial constraints
 		 */
 		// TODO add constraint to keep every coefficient < Integer.MAX
+	}
+
+	private double[] getZeroCoefficients() {
+		double[] coefficients = new double[this.noOfCoefficients];
+		for (int i = 0; i < coefficients.length; i++) {
+			coefficients[i] = 0;
+		}
+		return coefficients;
 	}
 
 	/**
@@ -154,17 +182,42 @@ public abstract class AbstractPower {
 				linearConstraints.add(linearConstraint);
 			}
 		});
+
+		// copy to array (let space for 'noOfCoefficients' LinearConstraints)
+		LinearConstraint[] c = new LinearConstraint[linearConstraints.size() + noOfCoefficients];
+		for (int i = 0; i < linearConstraints.size(); i++) {
+			c[i] = linearConstraints.get(i);
+		}
 		
+		/*
+		 * Try MINIMIZE of the function (with each coefficient >= 0 - Quadrant I)
+		 */
+		System.arraycopy(this.coefficientsInQuadrantI, 0, c, linearConstraints.size(), noOfCoefficients);
 		try {
-			
-			PointValuePair solution = solver.optimize(this.objectiveFunction, new LinearConstraintSet(linearConstraints),
+			PointValuePair solution = solver.optimize(this.objectiveFunction, new LinearConstraintSet(c),
 					GoalType.MINIMIZE, PivotSelectionRule.BLAND);
 			return solution.getPoint();
-						
+		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
+			// Error on MINIMIZE -> try MAXIMIZE
+		}
+		
+		/*
+		 * Try MAXIMIZE of the function (with each coefficient <= 0 - Quadrant III)
+		 */
+		System.arraycopy(this.coefficientsInQuadrantIII, 0, c, linearConstraints.size(), noOfCoefficients);
+		try {
+			PointValuePair solution = solver.optimize(this.objectiveFunction, new LinearConstraintSet(c),
+					GoalType.MAXIMIZE, PivotSelectionRule.BLAND);
+			return solution.getPoint();
 		} catch (NoFeasibleSolutionException e) {
+			/*
+			 * No Solution possible
+			 */
 			throw new PowerException("No Solution");
 		} catch (UnboundedSolutionException e) {
-			// return zeros
+			/*
+			 * Unbounded -> return zeros
+			 */
 			double[] solution = new double[this.noOfCoefficients];
 			for (int i = 0; i < this.noOfCoefficients; i++) {
 				solution[i] = 0;
@@ -181,7 +234,8 @@ public abstract class AbstractPower {
 	 * @throws PowerException
 	 *             if solving fails
 	 */
-	protected synchronized void addConstraint(ConstraintType type, AbstractConstraint constraint) throws PowerException {
+	protected synchronized void addConstraint(ConstraintType type, AbstractConstraint constraint)
+			throws PowerException {
 		// get correct list for ConstraintType
 		List<AbstractConstraint> constraints;
 		switch (type) {
@@ -242,14 +296,14 @@ public abstract class AbstractPower {
 				);
 				i += 6;
 			} else {
-				/* 
+				/*
 				 * ManagedSymmetricEss
 				 */
 				((ManagedSymmetricEss) ess).applyPower((int) solution[i], (int) solution[i + 1]);
 				i += 2;
-			} 
+			}
 		}
-		
+
 		/*
 		 * Clear Cycle constraints
 		 */
