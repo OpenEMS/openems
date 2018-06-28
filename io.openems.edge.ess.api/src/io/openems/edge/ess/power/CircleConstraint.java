@@ -28,7 +28,7 @@ public class CircleConstraint extends AbstractConstraint {
 	@Override
 	public LinearConstraint[] getConstraints() {
 		LinearConstraint[] constraints = new LinearConstraint[CIRCLE_SECTIONS_PER_QUARTER * 4];
-		double degreeDelta = 90. / CIRCLE_SECTIONS_PER_QUARTER;
+		double degreeDelta = 90.0 / CIRCLE_SECTIONS_PER_QUARTER;
 		Point p1 = this.getPointOnCircle(radius, 0);
 
 		int i = 0;

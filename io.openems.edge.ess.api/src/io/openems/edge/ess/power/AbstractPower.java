@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.apache.commons.math3.geometry.spherical.twod.Circle;
 import org.apache.commons.math3.optim.PointValuePair;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.LinearConstraintSet;
@@ -155,21 +154,13 @@ public abstract class AbstractPower {
 				linearConstraints.add(linearConstraint);
 			}
 		});
-
-		// copy to array
-		LinearConstraint[] c = new LinearConstraint[linearConstraints.size()];
-		for (int i = 0; i < linearConstraints.size(); i++) {
-			c[i] = linearConstraints.get(i);
-		}
-
+		
 		try {
-			PointValuePair solution = solver.optimize(this.objectiveFunction, new LinearConstraintSet(c),
+			
+			PointValuePair solution = solver.optimize(this.objectiveFunction, new LinearConstraintSet(linearConstraints),
 					GoalType.MINIMIZE, PivotSelectionRule.BLAND);
 			return solution.getPoint();
-			// System.out.println("Maximize");
-			// solution = solver.optimize(this.objectiveFunction, new
-			// LinearConstraintSet(c), GoalType.MAXIMIZE,
-			// PivotSelectionRule.BLAND);
+						
 		} catch (NoFeasibleSolutionException e) {
 			throw new PowerException("No Solution");
 		} catch (UnboundedSolutionException e) {
