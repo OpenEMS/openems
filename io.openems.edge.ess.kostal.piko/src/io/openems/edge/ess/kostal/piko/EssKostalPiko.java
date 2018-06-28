@@ -151,22 +151,22 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 				new ReadTask(ChannelId.HOME_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT, 0x0F000301), //
 				new ReadTask(ChannelId.HOME_CONSUMPTION_DAY, Priority.LOW, FieldType.FLOAT, 0x0F000302), //
 				new ReadTask(ChannelId.HOME_CONSUMPTION_BATTERY, Priority.LOW, FieldType.FLOAT, 0x05000200), //
+				new ReadTask(ChannelId.BATTERY_CURRENT, Priority.LOW, FieldType.FLOAT, 0x02000701), //
+				new ReadTask(ChannelId.YIELD_TOTAL, Priority.HIGH, FieldType.FLOAT, 0x0F000201), //
+				new ReadTask(ChannelId.YIELD_DAY, Priority.HIGH, FieldType.FLOAT, 0x0F000202), //
+				new ReadTask(ChannelId.SELF_CONSUMPTION_TOTAL, Priority.LOW, FieldType.FLOAT, 0x0F000401), //
+				new ReadTask(ChannelId.SELF_CONSUMPTION_DAY, Priority.LOW, FieldType.FLOAT, 0x0F000402), //
+				new ReadTask(ChannelId.AC_TOTAL_POWER, Priority.LOW, FieldType.FLOAT, 0x04000100), //
+				new ReadTask(ChannelId.BATTERY_VOLTAGE, Priority.LOW, FieldType.FLOAT, 0x02000702), //
 
 				// HIGH
-				new ReadTask(ChannelId.BATTERY_CURRENT, Priority.HIGH, FieldType.FLOAT, 0x02000701), //
-				new ReadTask(ChannelId.BATTERY_VOLTAGE, Priority.HIGH, FieldType.FLOAT, 0x02000702), //
 				new ReadTask(ChannelId.BATTERY_SOC, Priority.HIGH, FieldType.FLOAT, 0x02000704), //
-				new ReadTask(ChannelId.AC_TOTAL_POWER, Priority.HIGH, FieldType.FLOAT, 0x04000100), //
 				new ReadTask(ChannelId.AC_VOLTAGE_L1, Priority.HIGH, FieldType.FLOAT, 0x04000102), //
 				new ReadTask(ChannelId.AC_VOLTAGE_L2, Priority.HIGH, FieldType.FLOAT, 0x04000302), //
 				new ReadTask(ChannelId.AC_VOLTAGE_L3, Priority.HIGH, FieldType.FLOAT, 0x04000402), //
 				new ReadTask(ChannelId.AC_POWER_L1, Priority.HIGH, FieldType.FLOAT, 0x04000103), //
 				new ReadTask(ChannelId.AC_POWER_L2, Priority.HIGH, FieldType.FLOAT, 0x04000303), //
-				new ReadTask(ChannelId.AC_POWER_L3, Priority.HIGH, FieldType.FLOAT, 0x04000403), //
-				new ReadTask(ChannelId.YIELD_TOTAL, Priority.HIGH, FieldType.FLOAT, 0x0F000201), //
-				new ReadTask(ChannelId.YIELD_DAY, Priority.HIGH, FieldType.FLOAT, 0x0F000202), //
-				new ReadTask(ChannelId.SELF_CONSUMPTION_TOTAL, Priority.HIGH, FieldType.FLOAT, 0x0F000401), //
-				new ReadTask(ChannelId.SELF_CONSUMPTION_DAY, Priority.HIGH, FieldType.FLOAT, 0x0F000402)//
+				new ReadTask(ChannelId.AC_POWER_L3, Priority.HIGH, FieldType.FLOAT, 0x04000403) //
 		);
 
 	}

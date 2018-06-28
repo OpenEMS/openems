@@ -21,7 +21,7 @@ public class ReadTask {
 	public void execute(EssKostalPiko parent) {
 		try {
 			Channel<?> channel = parent.channel(this.channelId);
-			switch(this.fieldType) {
+			switch (this.fieldType) {
 			case STRING:
 				channel.setNextValue(parent.getStringValue(this.address));
 				break;
@@ -39,7 +39,6 @@ public class ReadTask {
 				break;
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
