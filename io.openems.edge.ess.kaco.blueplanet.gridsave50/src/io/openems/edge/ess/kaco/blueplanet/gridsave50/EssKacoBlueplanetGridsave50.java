@@ -27,6 +27,7 @@ import io.openems.edge.bridge.modbus.api.task.Priority;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.doc.Doc;
+import io.openems.edge.common.channel.doc.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
@@ -182,7 +183,7 @@ implements SymmetricEss, Ess, OpenemsComponent {
 		}
 	}
 	
-	public enum ErrorCode {
+	public enum ErrorCode implements OptionsEnum {
 		WAITING_FOR_FEED_IN(1, "Self-test: Grid parameters and generator voltage are being checked"),
 		BATTERY_VOLTAGE_TOO_LOW(2, "Battery Voltage too low! Transition from or to 'Standby'"),
 		YIELD_COUNTER_FOR_DAILY(4, "Yield counter for daily and annual yields are displayed"),
@@ -253,11 +254,21 @@ implements SymmetricEss, Ess, OpenemsComponent {
 		PRECHARGE_PRECHARGE_UNIT(220, "Precharge Precharge unit: Precharge process being carried out"),
 		WAIT_FOR_COOLDOWN_TIME(221, "Wait for cooldown time Precharge unit: Precharge resistance requires time to cool down");
 
-		int value;
-		String description;
-		private ErrorCode(int value, String description) {
+		private final int value;
+		private final String option;
+		private ErrorCode(int value, String option) {
 			this.value = value;
-			this.description = description;
+			this.option = option;
+		}
+		
+		@Override
+		public int getValue() {
+			return value;
+		}
+		
+		@Override
+		public String getOption() {
+			return option;
 		}
 	}
 	
@@ -266,77 +277,8 @@ implements SymmetricEss, Ess, OpenemsComponent {
 		/*
 		 * SUNSPEC_103
 		 */
-		VENDOR_OPERATING_STATE(new Doc() //
-				.option(ErrorCode.WAITING_FOR_FEED_IN.value, "Self-test")
-				.option(ErrorCode.BATTERY_VOLTAGE_TOO_LOW.value, "Battery voltage too low")
-				.option(ErrorCode.YIELD_COUNTER_FOR_DAILY.value, "Yield counter for daily and annual yields are displayed")
-				.option(ErrorCode.SELF_TEST_IN_PROGR_CHECK.value, "Self test in progr. Check the shutdown of the power electronics as well as the shutdown of the grid relay before the charge process.")
-				.option(ErrorCode.TEMPERATURE_IN_UNIT_TOO.value, "Temperature in unit too high In the event of overheating, the device shuts down. Possible causes: ambient temperature too high, fan covered, device fault.")
-				.option(ErrorCode.POWER_LIMITATION_IF_THE.value, "Power limitation: If the generator power is too high, the device limits itself to the maximum power (e.g. around noon if the generator capacity is too large). ")
-				.option(ErrorCode.POWADORPROTECT_DISCONNECTION.value, "Powador-protect disconnection The activated grid and system protection has been tripped.")
-				.option(ErrorCode.RESID_CURRENT_SHUTDOWN.value, "Resid. current shutdown Residual current was detected. The feed-in was interrupted.")
-				.option(ErrorCode.GENERATOR_INSULATION.value, "Generator insulation fault Insulation fault Insulation resistance from DC-/DC + to PE too low")
-				.option(ErrorCode.ACTIVE_RAMP_LIMITATION.value, "Active ramp limitation The result when the power is increased with a ramp is country-specific.")
-				.option(ErrorCode.VOLTAGE_TRANS_FAULT_CURRENT.value, "Voltage trans. fault Current and voltage measurement in the device are not plausible.")
-				.option(ErrorCode.SELF_TEST_ERROR_THE_INTERNAL.value, "Self test error The internal grid separation relay test has failed. Notify your authorised electrician if the fault occurs repeatedly!")
-				.option(ErrorCode.DC_FEEDIN_ERROR_THE_DC.value, "DC feed-in error The DC feed-in has exceeded the permitted value. This DC feed-in can be caused in the device by grid conditions and may not necessarily indicate a fault.")
-				.option(ErrorCode.INTERNAL_COMMUNICATION.value, "Internal communication error A communication error has occurred in the internal data transmission. ")
-				.option(ErrorCode.PROTECTION_SHUTDOWN_SW.value, "Protection shutdown SW Protective shutdown of the software (AC overvoltage, AC overcurrent, DC link overvoltage, DC overvoltage, DC overtemperature). ")
-				.option(ErrorCode.PROTECTION_SHUTDOWN_HW.value, "Protection shutdown HW Protective shutdown of the software (AC overvoltage, AC overcurrent, DC link overvoltage, DC overvoltage, DC overtemperature). ")
-				.option(ErrorCode.ERROR_GENERATOR_VOLTAGE.value, "Error: Generator Voltage too high Error: Battery overvoltage")
-				.option(ErrorCode.LINE_FAILURE_UNDERVOLTAGE_1.value, "Line failure undervoltage L1 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed.")
-				.option(ErrorCode.LINE_FAILURE_OVERVOLTAGE_1.value, "Line failure overvoltage L1 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed.")
-				.option(ErrorCode.LINE_FAILURE_UNDERVOLTAGE_2.value, "Line failure undervoltage L2 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed.")
-				.option(ErrorCode.LINE_FAILURE_OVERVOLTAGE_2.value, "Line failure overvoltage L2 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed.")
-				.option(ErrorCode.LINE_FAILURE_UNDERVOLTAGE_3.value, "Line failure undervoltage L3 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed.")
-				.option(ErrorCode.LINE_FAILURE_OVERVOLTAGE_3.value, "Line failure overvoltage L3 The voltage of a grid phase is too low; the grid cannot be fed into. The phase experiencing failure is displayed.")
-				.option(ErrorCode.GRID_FAILURE_PHASETOPHASE.value, "Grid failure phase-to-phase voltage")
-				.option(ErrorCode.LINE_FAILURE_UNDERFREQ.value, "Line failure: underfreq. Grid frequency is too low. This fault may be gridrelated.")
-				.option(ErrorCode.LINE_FAILURE_OVERFREQ.value, "Line failure: overfreq. Grid frequency is too high. This fault may be gridrelated.")
-				.option(ErrorCode.LINE_FAILURE_AVERAGE.value, "Line failure: average voltage The grid voltage measurement according to EN 50160 has exceeded the maximum permitted limit value. This fault may be grid-related.")
-				.option(ErrorCode.WAITING_FOR_REACTIVATION.value, "Waiting for reactivation Waiting time of the device following an error. The devices switches on after a countryspecific waiting period.")
-				.option(ErrorCode.CONTROL_BOARD_OVERTEMP.value, "Control board overtemp. The temperature inside the unit was too high. The device shuts down to avoid hardware damage. ")
-				.option(ErrorCode.SELF_TEST_ERROR_A_FAULT.value, "Self test error A fault occurred during a self-test. Contact a qualified electrician.")
-				.option(ErrorCode.GENERATOR_VOLTAGE_TOO.value, "Generator voltage too high Battery voltage too high")
-				.option(ErrorCode.EXTERNAL_LIMIT_X_THE.value, "External limit x% The grid operator has activated the external PowerControl limit. The inverter limits the power.")
-				.option(ErrorCode.P_F_FREQUENCYDEPENDENT.value, "P(f)/frequency-dependent power reduction: When certain country settings are activated, the frequency-dependent power reduction is activated.")
-				.option(ErrorCode.OUTPUT_CURRENT_LIMITING.value, "Output current limiting: The AC current is limited once the specified maximum value has been reached.")
-				.option(ErrorCode.FAULT_AT_POWER_SECTION.value, "Fault at power section 1 There is a fault in the power section. Contact a qualified electrician.")
-				.option(ErrorCode.FAN_1_ERROR_THE_FAN_IS.value, "Fan 1 error The fan is malfunctioning. Replace defective fan See Maintenance and troubleshooting chapter.")
-				.option(ErrorCode.STANDALONE_GRID_ERR_STANDALONE.value, "Standalone grid err. Standalone mode was detected. - ")
-				.option(ErrorCode.EXTERNAL_IDLE_POWER_REQUIREMENT.value, "External idle power requirement The grid operator limits the feed-in power of the device via the transmitted reactive power factor. - 78")
-				.option(ErrorCode.INSULATION_MEASUREMENT.value, "Insulation measurement PV generator's insulation is being measured - ")
-				.option(ErrorCode.INSULATION_MEAS_NOT_POSSIBLE.value, "Insulation meas. not possible The insulation measurement cannot be performed because the generator voltage is too volatile. - ")
-				.option(ErrorCode.PROTECTION_SHUTDOWN_LINE_1.value, "Protection shutdown line volt. L1 Overvoltage has been detected on a conductor. An internal protective mechanism has disconnected the device to protect it against damage. In case of repeated occurrence: Contact a qualified electrician.")
-				.option(ErrorCode.PROTECTION_SHUTDOWN_LINE_2.value, "Protection shutdown line volt. L2 Overvoltage has been detected on a conductor. An internal protective mechanism has disconnected the device to protect it against damage. In case of repeated occurrence: Contact a qualified electrician.")
-				.option(ErrorCode.PROTECTION_SHUTDOWN_LINE_3.value, "Protection shutdown line volt. L3 Overvoltage has been detected on a conductor. An internal protective mechanism has disconnected the device to protect it against damage. In case of repeated occurrence: Contact a qualified electrician.")
-				.option(ErrorCode.PROTECTION_SHUTDOWN_UNDERVOLT.value, "Protection shutdown undervolt. DC link A voltage deviation has been found in the DC link. An internal protective mechanism has disconnected the device to protect it against damage. In a TN-C-S grid, the PE must be connected to the device and at the same time the PEN bridge in the device must be removed. In case of repeated occurrence: Contact a qualified electrician.")
-				.option(ErrorCode.PROTECT_SHUTDOWN_OVERVOLT.value, "Protect. shutdown overvolt. DC link")
-				.option(ErrorCode.PROTECT_SHUTDOWN_DC_LINK.value, "Protect. shutdown DC link asymmetry")
-				.option(ErrorCode.PROTECT_SHUTDOWN_OVERCURRENT_1.value, "Protect. shutdown overcurrent L1")
-				.option(ErrorCode.PROTECT_SHUTDOWN_OVERCURRENT_2.value, "Protect. shutdown overcurrent L2")
-				.option(ErrorCode.PROTECT_SHUTDOWN_OVERCURRENT_3.value, "Protect. shutdown overcurrent L3")
-				.option(ErrorCode.BUFFER_1_SELF_TEST_ERROR.value, "Buffer 1 self test error The control board is defective. Please inform your electrician/system manufacturer's service department.")
-				.option(ErrorCode.SELF_TEST_ERROR_BUFFER.value, "Self test error buffer 2 The control board is defective. Notify authorised electrician / KACO Service!")
-				.option(ErrorCode.RELAY_1_SELF_TEST_ERROR.value, "Relay 1 self test error The power section is defective. Notify KACO Service")
-				.option(ErrorCode.RELAY_2_SELF_TEST_ERROR.value, "Relay 2 self test error The power section is defective. Please inform your electrician/system manufacturer's service department.")
-				.option(ErrorCode.PROTECTION_SHUTDOWN_OVERCURRENT.value, "Protection shutdown overcurrent HW Too much power has been fed into the grid. Complete disconnection of the device. Please inform your electrician/system manufacturer's service department.")
-				.option(ErrorCode.PROTECT_SHUTDOWN_HW_GATE.value, "Protect. shutdown HW gate driver An internal protective mechanism has disconnected the device to protect it against damage. Complete disconnection of the device. Please inform your electrician/system manufacturer's service department.")
-				.option(ErrorCode.PROTECT_SHUTDOWN_HW_BUFFER.value, "Protect. shutdown HW buffer free An internal protective mechanism has disconnected the device to protect it against damage. Complete disconnection of the device. Please inform your electrician/system manufacturer's service department.")
-				.option(ErrorCode.PROTECT_SHUTDOWN_HW_OVERHEATING.value, "Protect. shutdown HW overheating The device has been switched off because the temperatures in the housing were too high. Check to make sure that the fans are working. Replace fan if necessary. B")
-				.option(ErrorCode.PLAUSIBILITY_FAULT_AFI.value, "Plausibility fault AFI module The unit has shut down because of implausible internal measured values. Please inform your system manufacturer's service department!")
-				.option(ErrorCode.PLAUSIBILITY_FAULT_RELAY.value, "Plausibility fault relay The unit has shut down because of implausible internal measured values. Please inform your system manufacturer's service department!")
-				.option(ErrorCode.PLAUSIBILITY_ERROR_DCDC.value, "Plausibility error DCDC converter ")
-				.option(ErrorCode.CHECK_SURGE_PROTECTION.value, "Check surge protection device Surge protection device (if present in the device) has tripped and must be reset if appropriate.")
-				.option(ErrorCode.EXTERNAL_COMMUNICATION.value, "External communication error - - ")
-				.option(ErrorCode.SYMMETRY_ERROR_PARALLEL.value, "Symmetry error parallel connection Circuit currents too high for two or more parallel connected bidirectional feed-in inverters. Synchronise intermediate circuit of the parallel connected devices and synchronise the symmetry.")
-				.option(ErrorCode.BATTERY_DISCONNECTED.value, "Battery disconnected Connection to the battery disconnected. Check connection. The battery voltage may be outside the parameterised battery limits.")
-				.option(ErrorCode.WAITING_FOR_FAULT_ACKNOWLEDGEMENT.value, "Waiting for fault acknowledgement Waiting for fault acknowledgement by EMS")
-				.option(ErrorCode.PRECHARGE_UNIT_FAULT.value, "Precharge unit fault Precharge unit: Group fault for precharge unit")
-				.option(ErrorCode.READY_FOR_PRECHARGING.value, "Ready for precharging Precharge unit: Ready for precharging")
-				.option(ErrorCode.PRECHARGE_PRECHARGE_UNIT.value, "Precharge Precharge unit: Precharge process being carried out")
-				.option(ErrorCode.WAIT_FOR_COOLDOWN_TIME.value, "Wait for cooldown time Precharge unit: Precharge resistance requires time to cool down")
-				),
+		VENDOR_OPERATING_STATE(new Doc().options(ErrorCode.values())),
+		
 		// see error codes in user manual "10.10 Troubleshooting" (page 48)
 		/*
 		 * SUNSPEC_64201

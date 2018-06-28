@@ -42,7 +42,9 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)',\
 	bnd.identity;id='io.openems.edge.core',\
-	bnd.identity;id='io.openems.edge.ess.kaco.blueplanet.gridsave50'
+	bnd.identity;id='io.openems.edge.ess.kaco.blueplanet.gridsave50',\
+	bnd.identity;id='io.openems.edge.battery.api',\
+	bnd.identity;id='io.openems.edge.battery.soltaro'
 
 -resolve: auto
 -runbundles: \
@@ -101,4 +103,7 @@ JPM-Command:				openems-edge
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
 	io.openems.edge.core;version=snapshot,\
 	com.google.guava;version='[25.1.0,25.1.1)',\
-	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot
+	io.openems.edge.ess.kaco.blueplanet.gridsave50;version=snapshot,\
+	io.openems.edge.battery.api;version=snapshot,\
+	io.openems.edge.battery.soltaro;version=snapshot,\
+	org.osgi.compendium;version='[4.1.0,4.1.1)'

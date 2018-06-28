@@ -136,8 +136,15 @@ public class Doc {
 		this.options.put(option.ordinal(), option);
 		// this.options.put(option.ordinal(), option.name());
 		return this;
-	}
+		}
 
+	public Doc options(Enum<? extends OptionsEnum>[] options) {
+		for(Enum<? extends OptionsEnum> option : options) {
+			this.option(((OptionsEnum)option).getValue(), option);
+		}
+		return this;
+	}
+	
 	public Doc option(int value, String option) {
 		this.options.put(value, option);
 		return this;

@@ -53,7 +53,6 @@ public enum Unit {
 	 * Unit of Voltage [mV]
 	 */
 	MILLIVOLT("mV", VOLT, -3),
-
 	/*
 	 * Current
 	 */
@@ -103,7 +102,20 @@ public enum Unit {
 	/**
 	 * Unit of Time in Seconds [s]
 	 */
-	SECONDS("sec");
+	SECONDS("sec"),
+	
+	/*
+	 * Resistance
+	 */
+	/**
+	 * Unit of Resistance [Ohm]
+	 */
+	OHM("Ohm"),
+	/**
+	 * Unit of Resistance [mOhm]
+	 */
+	KILOOHM("kO", OHM, 3);
+	
 
 	private final Unit baseUnit;
 	private final int scaleFactor;
