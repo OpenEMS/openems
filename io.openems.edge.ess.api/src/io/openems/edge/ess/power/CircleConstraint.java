@@ -1,5 +1,7 @@
 package io.openems.edge.ess.power;
 
+import java.util.Optional;
+
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.Relationship;
 
@@ -11,43 +13,52 @@ import org.apache.commons.math3.optim.linear.Relationship;
  */
 public class CircleConstraint extends AbstractConstraint {
 
-	private final static int CIRCLE_SECTIONS_PER_QUARTER = 6; // don't set higher than 90
+	private final static int CIRCLE_SECTIONS_PER_QUARTER = 1; // don't set higher than 90
 
 	private final int pIndex;
 	private final int qIndex;
 
-	private int radius;
+	private Optional<Integer> radiusOpt;
 
-	public CircleConstraint(int noOfCoefficients, int pIndex, int qIndex, int radius) {
-		super(noOfCoefficients);
+	public CircleConstraint(int noOfCoefficients, int pIndex, int qIndex, Integer radius, String note) {
+		super(noOfCoefficients, note);
 		this.pIndex = pIndex;
 		this.qIndex = qIndex;
-		this.radius = radius;
+		this.radiusOpt = Optional.ofNullable(radius);
+	}
+
+	public void setRadius(Integer radius) {
+		this.radiusOpt = Optional.ofNullable(radius);
 	}
 
 	@Override
 	public LinearConstraint[] getConstraints() {
-		LinearConstraint[] constraints = new LinearConstraint[CIRCLE_SECTIONS_PER_QUARTER * 4];
-		double degreeDelta = 90.0 / CIRCLE_SECTIONS_PER_QUARTER;
-		Point p1 = this.getPointOnCircle(radius, 0);
+		if (this.radiusOpt.isPresent()) {
+			int radius = this.radiusOpt.get();
+			LinearConstraint[] constraints = new LinearConstraint[CIRCLE_SECTIONS_PER_QUARTER * 4];
+			double degreeDelta = 90.0 / CIRCLE_SECTIONS_PER_QUARTER;
+			Point p1 = this.getPointOnCircle(radius, 0);
 
-		int i = 0;
-		for (double degree = degreeDelta; Math.floor(degree) <= 360; degree += degreeDelta) {
-			Point p2 = this.getPointOnCircle(radius, degree);
+			int i = 0;
+			for (double degree = degreeDelta; Math.floor(degree) <= 360; degree += degreeDelta) {
+				Point p2 = this.getPointOnCircle(radius, degree);
 
-			Relationship relationship;
-			if (Math.floor(degree) <= 180) {
-				relationship = Relationship.GEQ;
-			} else {
-				relationship = Relationship.LEQ;
+				Relationship relationship;
+				if (Math.floor(degree) <= 180) {
+					relationship = Relationship.GEQ;
+				} else {
+					relationship = Relationship.LEQ;
+				}
+
+				constraints[i++] = this.getConstraintThroughPoints(p1, p2, relationship);
+
+				// set p2 -> p1 for next loop
+				p1 = p2;
 			}
-
-			constraints[i++] = this.getConstraintThroughPoints(p1, p2, relationship);
-
-			// set p2 -> p1 for next loop
-			p1 = p2;
+			return constraints;
+		} else {
+			return new LinearConstraint[] {};
 		}
-		return constraints;
 	}
 
 	private Point getPointOnCircle(double radius, double degree) {
@@ -71,7 +82,7 @@ public class CircleConstraint extends AbstractConstraint {
 		coefficients[this.pIndex] = coefficient1;
 		coefficients[this.qIndex] = coefficient2;
 
-		return new LinearConstraint(new double[] { coefficient1, coefficient2 }, relationship, constraintValue);
+		return new LinearConstraint(coefficients, relationship, constraintValue);
 	}
 
 	private class Point {

@@ -16,15 +16,18 @@ import org.osgi.service.event.EventHandler;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
-/**
- * This helper component handles the ControllerExecuter Cycle for Power
- * objects.
- */
+// TODO: it appears that this component is started/executed twice for each Event
 @Component( //
-		immediate = true,
+		immediate = true, //
 		scope = ServiceScope.SINGLETON, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE)
+		property = { //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE, //
+				EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
+		})
 public class ManagedEssComponent implements EventHandler {
+
+	// private final Logger log =
+	// LoggerFactory.getLogger(ManagedEssComponent.class);
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private volatile List<ManagedSymmetricEss> components = new CopyOnWriteArrayList<>();
@@ -36,6 +39,10 @@ public class ManagedEssComponent implements EventHandler {
 			switch (event.getTopic()) {
 			case EdgeEventConstants.TOPIC_CYCLE_BEFORE_WRITE:
 				power.applyPower();
+				break;
+			case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
+				power.clearCycleConstraints();
+				break;
 			}
 		}
 	}

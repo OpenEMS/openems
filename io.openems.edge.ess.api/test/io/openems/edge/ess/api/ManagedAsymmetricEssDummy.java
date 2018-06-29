@@ -59,4 +59,10 @@ public class ManagedAsymmetricEssDummy implements ManagedAsymmetricEss {
 
 	}
 
+	@Override
+	public int getPowerPrecision() {
+		// TODO Auto-generated method stub
+		return 1;
+	}
+
 }

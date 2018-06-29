@@ -58,4 +58,10 @@ public class ManagedSymmetricEssDummy implements ManagedSymmetricEss {
 //		check.act(activePowerExpected, reactivePowerEexpected, activePower, reactivePower);	
 	}
 
+	@Override
+	public int getPowerPrecision() {
+		// TODO Auto-generated method stub
+		return 1;
+	}
+
 }

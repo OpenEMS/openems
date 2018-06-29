@@ -36,7 +36,7 @@ public class PowerTest {
 		sut = new Power(ess);
 
 		try {
-			sut.setActivePower(ConstraintType.STATIC, Relationship.EQ, 0);
+			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.EQ, 0);
 			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, 0);
 			sut.applyPower();
 
@@ -54,7 +54,7 @@ public class PowerTest {
 
 		sut = new Power(ess);
 		try {
-			sut.setActivePower(ConstraintType.STATIC, Relationship.GEQ, givenActivePower);
+			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, givenActivePower);
 			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, givenReactivePower);
 			sut.applyPower();
 
@@ -73,8 +73,8 @@ public class PowerTest {
 
 		sut = new Power(ess0);
 		try {
-			sut.setActivePower(ConstraintType.STATIC, Relationship.GEQ, givenActivePower);
-			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, 0);			
+			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, givenActivePower);
+			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, 0);
 			sut.setMaxApparentPower(ess0, maxApparentPower);
 			sut.applyPower();
 		} catch (PowerException e) {
@@ -82,7 +82,7 @@ public class PowerTest {
 		}
 	}
 
-	@Test //TODO
+	@Test // TODO
 	public void testGivenPowerGreaterThanMaxApparentPower() {
 		int maxApparentPower = 1000;
 		int givenActivePower = 2000;
@@ -92,9 +92,9 @@ public class PowerTest {
 
 		sut = new Power(ess);
 		try {
-			sut.setActivePower(ConstraintType.STATIC, Relationship.GEQ, givenActivePower); // TODO LEQ?
-			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, 0);			
-			sut.setMaxApparentPower(ess, maxApparentPower );
+			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, givenActivePower); // TODO LEQ?
+			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, 0);
+			sut.setMaxApparentPower(ess, maxApparentPower);
 			sut.applyPower();
 		} catch (PowerException e) {
 			fail(e.getMessage());
@@ -107,18 +107,19 @@ public class PowerTest {
 		int givenActivePower = 1800;
 		int givenReactivePower = 1000;
 
-
-		// fails currently, because reactive power result was -835 => Math.sqrt(1800² + (-835)²) = 1984, should we work with a delta percent=?
-		// awaited result Math.sqrt(2000² - 1800²) = +/-871,779... Difference =  36,779... ==> 36,../871,.. * 100 = 4,21...%
+		// fails currently, because reactive power result was -835 => Math.sqrt(1800² +
+		// (-835)²) = 1984, should we work with a delta percent=?
+		// awaited result Math.sqrt(2000² - 1800²) = +/-871,779... Difference =
+		// 36,779... ==> 36,../871,.. * 100 = 4,21...%
 		// do i know if it was plus or minus?
-		ManagedSymmetricEssDummy ess = createSymmetricEss(givenActivePower, givenReactivePower, DELTA_IN_PERCENT);				
+		ManagedSymmetricEssDummy ess = createSymmetricEss(givenActivePower, givenReactivePower, DELTA_IN_PERCENT);
 		sut = new Power(ess);
 
 		try {
-			sut.setActivePower(ConstraintType.STATIC, Relationship.GEQ, 0);
-			sut.setActivePower(ConstraintType.STATIC, Relationship.GEQ, givenActivePower);
-			sut.setReactivePower(ConstraintType.STATIC, Relationship.LEQ, givenReactivePower);			
-			sut.setMaxApparentPower(ess, maxApparentPower );
+			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, 0);
+			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, givenActivePower);
+			sut.setReactivePower(ConstraintType.STATIC, Relationship.LEQ, givenReactivePower);
+			sut.setMaxApparentPower(ess, maxApparentPower);
 			sut.applyPower();
 		} catch (PowerException e) {
 			fail(e.getMessage());
@@ -136,20 +137,18 @@ public class PowerTest {
 		int givenReactivePowerL3 = 0;
 
 		ManagedAsymmetricEssDummy ess = createAsymmetricEss(
-				Arrays.asList(givenActivePowerL1, givenActivePowerL2, givenActivePowerL3), 
-				Arrays.asList(givenReactivePowerL1, givenReactivePowerL2, givenReactivePowerL3), 
-				DELTA_IN_PERCENT
-				);
+				Arrays.asList(givenActivePowerL1, givenActivePowerL2, givenActivePowerL3),
+				Arrays.asList(givenReactivePowerL1, givenReactivePowerL2, givenReactivePowerL3), DELTA_IN_PERCENT);
 
 		sut = new Power(ess);
 		try {
 			ConstraintType constraintType = ConstraintType.STATIC;
 			Relationship relationship = Relationship.EQ;
 
-			sut.setActivePower(constraintType, relationship, ess, Phase.L1, givenActivePowerL1 );
-			sut.setActivePower(constraintType, relationship, ess, Phase.L2, givenActivePowerL2 );
-			sut.setActivePower(constraintType, relationship, ess, Phase.L3, givenActivePowerL3 );
-			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, 0);
+			sut.setActivePowerAndSolve(constraintType, relationship, ess, Phase.L1, givenActivePowerL1);
+			sut.setActivePowerAndSolve(constraintType, relationship, ess, Phase.L2, givenActivePowerL2);
+			sut.setActivePowerAndSolve(constraintType, relationship, ess, Phase.L3, givenActivePowerL3);
+			sut.setReactivePowerAndSolve(ConstraintType.STATIC, Relationship.EQ, 0);
 			sut.applyPower();
 
 		} catch (PowerException e) {
@@ -164,19 +163,17 @@ public class PowerTest {
 		int givenActivePowerL3 = 1200;
 
 		ManagedAsymmetricEssDummy ess = createAsymmetricEss(
-				Arrays.asList(givenActivePowerL1, givenActivePowerL2, givenActivePowerL3), 
-				Arrays.asList(0, 0, 0), 
-				DELTA_IN_PERCENT
-				);
-		
+				Arrays.asList(givenActivePowerL1, givenActivePowerL2, givenActivePowerL3), Arrays.asList(0, 0, 0),
+				DELTA_IN_PERCENT);
+
 		sut = new Power(ess);
 		try {
 			ConstraintType constraintType = ConstraintType.STATIC;
 			Relationship relationship = Relationship.EQ;
 
-			sut.setActivePower(constraintType, relationship, ess, Phase.L1, givenActivePowerL1 );
-			sut.setActivePower(constraintType, relationship, ess, Phase.L2, givenActivePowerL2 );
-			sut.setActivePower(constraintType, relationship, ess, Phase.L3, givenActivePowerL3 );
+			sut.setActivePowerAndSolve(constraintType, relationship, ess, Phase.L1, givenActivePowerL1);
+			sut.setActivePowerAndSolve(constraintType, relationship, ess, Phase.L2, givenActivePowerL2);
+			sut.setActivePowerAndSolve(constraintType, relationship, ess, Phase.L3, givenActivePowerL3);
 			sut.setReactivePower(ConstraintType.STATIC, Relationship.EQ, 0);
 			sut.applyPower();
 
@@ -197,7 +194,8 @@ public class PowerTest {
 
 		ManagedAsymmetricEssDummy ess0 = new ManagedAsymmetricEssDummy() {
 			@Override
-			public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2, int activePowerL3, int reactivePowerL3) {
+			public void applyPower(int activePowerL1, int reactivePowerL1, int activePowerL2, int reactivePowerL2,
+					int activePowerL3, int reactivePowerL3) {
 				assertEquals(givenActivePowerL1, activePowerL1);
 				assertEquals(givenActivePowerL2, activePowerL2);
 				assertEquals(givenActivePowerL3, activePowerL3);
@@ -211,15 +209,15 @@ public class PowerTest {
 
 		sut = new Power(ess0);
 		try {
-			sut.setMaxApparentPower(ess0, maxApparentPower );
+			sut.setMaxApparentPower(ess0, maxApparentPower);
 
-			sut.setActivePower(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L1, givenActivePowerL1);
-			sut.setActivePower(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L2, givenActivePowerL2);
-			sut.setActivePower(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L3, givenActivePowerL3);
+			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L1, givenActivePowerL1);
+			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L2, givenActivePowerL2);
+			sut.setActivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L3, givenActivePowerL3);
 
-			sut.setReactivePower(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L1, givenReactivePowerL1);
-			sut.setReactivePower(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L2, givenReactivePowerL2);
-			sut.setReactivePower(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L3, givenReactivePowerL3);
+			sut.setReactivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L1, givenReactivePowerL1);
+			sut.setReactivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L2, givenReactivePowerL2);
+			sut.setReactivePowerAndSolve(ConstraintType.STATIC, Relationship.GEQ, ess0, Phase.L3, givenReactivePowerL3);
 
 			sut.applyPower();
 		} catch (PowerException e) {
@@ -227,22 +225,20 @@ public class PowerTest {
 		}
 	}
 
-
-
-
-	public boolean isBetween(double value, double bottomLimit, double upperLimit ) {		
+	public boolean isBetween(double value, double bottomLimit, double upperLimit) {
 		return value > bottomLimit && value < upperLimit;
 	}
 
-	void checkValues(int expectedActive, int expectedReactive, int actualActive, int actualReactive, double deltaPercent)  {
+	void checkValues(int expectedActive, int expectedReactive, int actualActive, int actualReactive,
+			double deltaPercent) {
 		double deltaActive = expectedActive * deltaPercent / 100;
 		double deltaReactive = expectedReactive * deltaPercent / 100;
 		assertEquals(expectedActive, actualActive, deltaActive);
 		assertEquals(expectedReactive, actualReactive, deltaReactive);
 	}
 
-	void checkValues(Map<Integer, Integer> expectedActualValues, double deltaPercent)  {		
-		for (Entry<Integer, Integer> entry : expectedActualValues.entrySet() ) {
+	void checkValues(Map<Integer, Integer> expectedActualValues, double deltaPercent) {
+		for (Entry<Integer, Integer> entry : expectedActualValues.entrySet()) {
 			Integer expected = entry.getKey();
 			Integer actual = entry.getValue();
 			double delta = expected * deltaPercent / 100;
@@ -250,16 +246,18 @@ public class PowerTest {
 		}
 	}
 
-	private ManagedSymmetricEssDummy createSymmetricEss(int expectedActivePower, int expectedReactivePower, double deltaPercent) {
+	private ManagedSymmetricEssDummy createSymmetricEss(int expectedActivePower, int expectedReactivePower,
+			double deltaPercent) {
 		return new ManagedSymmetricEssDummy() {
 			@Override
 			public void applyPower(int activePower, int reactivePower) {
-				checkValues(expectedActivePower, expectedReactivePower, activePower, reactivePower, deltaPercent);				
+				checkValues(expectedActivePower, expectedReactivePower, activePower, reactivePower, deltaPercent);
 			}
 		};
 	}
 
-	private ManagedAsymmetricEssDummy createAsymmetricEss(List<Integer> activePower, List<Integer> reactivePower, double deltaPercent ) {
+	private ManagedAsymmetricEssDummy createAsymmetricEss(List<Integer> activePower, List<Integer> reactivePower,
+			double deltaPercent) {
 		return new ManagedAsymmetricEssDummy() {
 
 			@Override
@@ -277,7 +275,6 @@ public class PowerTest {
 				checkValues(valuesToCheck, deltaPercent);
 			}
 
-
 		};
 	}
 
@@ -288,14 +285,16 @@ public class PowerTest {
 
 		int value = activePower;
 		Relationship relationship = Relationship.LEQ;
-		int[] indices = {0};
+		int[] indices = { 0 };
 		int noOfCoefficients = 2;
-		CoefficientOneConstraint expectedConstraint = new CoefficientOneConstraint(noOfCoefficients, indices, relationship, value);
+		CoefficientOneConstraint expectedConstraint = new CoefficientOneConstraint(noOfCoefficients, indices,
+				relationship, value, "Expected Constraint");
 		LinearConstraint[] expected = expectedConstraint.getConstraints();
 
 		ConstraintType constraintType = ConstraintType.STATIC;
 		try {
-			CoefficientOneConstraint actualConstraint = sut.setActivePower(constraintType, relationship, activePower);
+			CoefficientOneConstraint actualConstraint = sut.setActivePowerAndSolve(constraintType, relationship,
+					activePower);
 			LinearConstraint[] actual = actualConstraint.getConstraints();
 
 			assertEquals(expected.length, actual.length);

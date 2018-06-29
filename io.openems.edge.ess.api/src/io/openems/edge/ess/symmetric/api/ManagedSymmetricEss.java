@@ -67,4 +67,15 @@ public interface ManagedSymmetricEss extends Ess {
 	 */
 	public void applyPower(int activePower, int reactivePower);
 
+	/**
+	 * Gets the smallest positive power that can be set (in W, VA or var).
+	 * Example:
+	 * <ul>
+	 * <li>FENECON Commercial 40 allows setting of power in 100 W steps. It should return 100.
+	 * <li>KACO blueplanet gridsave 50 allows setting of power in 0.1 % of 52 VA. It should return 52 (= 52000 * 0.001)
+	 * <ul> 
+	 * 
+	 * @return
+	 */
+	public int getPowerPrecision();
 }

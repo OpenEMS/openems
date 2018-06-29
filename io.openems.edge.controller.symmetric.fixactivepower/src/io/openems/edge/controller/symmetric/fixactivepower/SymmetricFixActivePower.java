@@ -62,7 +62,7 @@ public class SymmetricFixActivePower extends AbstractOpenemsComponent implements
 	public void run() {
 		try {
 			Power power = ess.getPower();
-			power.setActivePower(ConstraintType.CYCLE, Relationship.EQ, this.power);
+			power.setActivePowerAndSolve(ConstraintType.CYCLE, Relationship.EQ, this.power);
 		} catch (PowerException e) {
 			logError(log, e.getMessage());
 		}

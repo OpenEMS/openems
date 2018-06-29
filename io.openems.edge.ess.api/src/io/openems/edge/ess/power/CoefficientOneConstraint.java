@@ -1,5 +1,7 @@
 package io.openems.edge.ess.power;
 
+import java.util.Optional;
+
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.Relationship;
 
@@ -21,25 +23,31 @@ public class CoefficientOneConstraint extends AbstractConstraint {
 
 	private final Relationship relationship;
 
-	private int value;
+	private Optional<Integer> valueOpt;
 
-	public CoefficientOneConstraint(int noOfCoefficients, int[] indices, Relationship relationship, int value) {
-		super(noOfCoefficients);
+	public CoefficientOneConstraint(int noOfCoefficients, int[] indices, Relationship relationship, Integer value,
+			String note) {
+		super(noOfCoefficients, note);
 		this.indices = indices;
 		this.relationship = relationship;
-		this.value = value;
+		this.valueOpt = Optional.ofNullable(value);
 	}
 
-	public void setValue(int value) {
-		this.value = value;
+	public void setValue(Integer value) {
+		this.valueOpt = Optional.ofNullable(value);
 	}
 
 	@Override
 	public LinearConstraint[] getConstraints() {
-		double[] coefficients = this.initializeCoefficients();
-		for (int index : this.indices) {
-			coefficients[index] = 1;
+		if (this.valueOpt.isPresent()) {
+			int value = this.valueOpt.get();
+			double[] coefficients = this.initializeCoefficients();
+			for (int index : this.indices) {
+				coefficients[index] = 1;
+			}
+			return new LinearConstraint[] { new LinearConstraint(coefficients, this.relationship, value) };
+		} else {
+			return new LinearConstraint[] {};
 		}
-		return new LinearConstraint[] { new LinearConstraint(coefficients, this.relationship, this.value) };
 	}
 }

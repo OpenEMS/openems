@@ -40,7 +40,8 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)',\
-	bnd.identity;id='io.openems.edge.core'
+	bnd.identity;id='io.openems.edge.core',\
+	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40'
 	
 
 -resolve: auto
@@ -99,4 +100,5 @@ JPM-Command:				openems-edge
 	io.openems.edge.core;version=snapshot,\
 	com.google.guava;version='[25.1.0,25.1.1)',\
 	io.openems.edge.ess.api;version=snapshot,\
-	org.apache.commons.math3;version='[3.6.0,3.6.1)'
+	org.apache.commons.math3;version='[3.6.0,3.6.1)',\
+	io.openems.edge.ess.fenecon.commercial40;version=snapshot
