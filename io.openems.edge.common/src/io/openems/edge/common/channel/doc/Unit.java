@@ -94,7 +94,7 @@ public enum Unit {
 	/**
 	 * Unit of Temperature [°C]
 	 */
-	DEGREE_CELCIUS("°C"),
+	DEGREE_CELSIUS("°C"),
 
 	/*
 	 * Time
@@ -148,7 +148,7 @@ public enum Unit {
 		case NONE:
 			return value.toString();
 		case AMPERE:
-		case DEGREE_CELCIUS:
+		case DEGREE_CELSIUS:
 		case HERTZ:
 		case MILLIAMPERE:
 		case MILLIHERTZ:

@@ -213,10 +213,10 @@ public class EssFeneconCommercial40 extends AbstractOpenemsModbusComponent
 		ALLOWED_CHARGE(new Doc().unit(Unit.WATT)), //
 		ALLOWED_DISCHARGE(new Doc().unit(Unit.WATT)), //
 		ALLOWED_APPARENT(new Doc().unit(Unit.VOLT_AMPERE)), //
-		IPM_TEMPERATURE_L1(new Doc().unit(Unit.DEGREE_CELCIUS)), //
-		IPM_TEMPERATURE_L2(new Doc().unit(Unit.DEGREE_CELCIUS)), //
-		IPM_TEMPERATURE_L3(new Doc().unit(Unit.DEGREE_CELCIUS)), //
-		TRANSFORMER_TEMPERATURE_L2(new Doc().unit(Unit.DEGREE_CELCIUS)), //
+		IPM_TEMPERATURE_L1(new Doc().unit(Unit.DEGREE_CELSIUS)), //
+		IPM_TEMPERATURE_L2(new Doc().unit(Unit.DEGREE_CELSIUS)), //
+		IPM_TEMPERATURE_L3(new Doc().unit(Unit.DEGREE_CELSIUS)), //
+		TRANSFORMER_TEMPERATURE_L2(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		SET_WORK_STATE(new Doc() //
 				.option(4, SetWorkState.STOP) //
 				.option(32, SetWorkState.STANDBY) //
