@@ -1,14 +1,12 @@
 package io.openems.backend.edgewebsocket.impl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 import org.java_websocket.WebSocket;
-import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.backend.common.events.BackendEventConstants;
+import io.openems.backend.metadata.api.Edge;
 import io.openems.common.websocket.AbstractOnClose;
 
 public class OnClose extends AbstractOnClose {
@@ -35,12 +33,21 @@ public class OnClose extends AbstractOnClose {
 			}
 		}
 
-		// announce Edge as offline
 		for (int edgeId : edgeIds) {
-			Map<String, Object> properties = new HashMap<>();
-			properties.put(BackendEventConstants.PROPERTY_KEY_EDGE_ID, edgeId);
-			Event event = new Event(BackendEventConstants.TOPIC_EDGE_OFFLINE, properties);
-			this.parent.parent.eventAdmin.postEvent(event);
+			/*
+			 * if there is no other websocket connection for this edgeId -> announce Edge as
+			 * offline (Another connection could have been opened in the meantime when the
+			 * Edge reconnected)
+			 */
+			synchronized (this.parent.websocketsMap) {
+				if (this.parent.websocketsMap.containsKey(edgeId)) {
+					continue;
+				}
+			}
+			Optional<Edge> edgeOpt = this.parent.parent.metadataService.getEdgeOpt(edgeId);
+			if (edgeOpt.isPresent()) {
+				edgeOpt.get().setOnline(false);
+			}
 		}
 
 		// log
