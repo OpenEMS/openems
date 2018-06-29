@@ -58,12 +58,7 @@ public class MeterJanitzaUmg96rme extends AbstractOpenemsModbusComponent
 
 	@Activate
 	void activate(ComponentContext context, Config config) {
-		// get Meter Type:
-		try {
-			this.meterType = MeterType.valueOf(config.type().toUpperCase());
-		} catch (IllegalArgumentException e) {
-			this.meterType = MeterType.PRODUCTION; // default
-		}
+		this.meterType = config.type();
 
 		super.activate(context, config.service_pid(), config.id(), config.enabled(), UNIT_ID, this.cm, "Modbus",
 				config.modbus_id());

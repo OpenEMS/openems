@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
-import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.Meter;
 import io.openems.edge.meter.asymmetric.api.AsymmetricMeter;
@@ -18,7 +18,7 @@ public class MeterUtils {
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
-						return new StateChannel(c, channelId);
+						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(Meter.ChannelId.values()).map(channelId -> {

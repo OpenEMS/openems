@@ -40,10 +40,10 @@ public class ModbusProtocol {
 	 */
 	private final List<WriteTask> writeTasks = new ArrayList<>();
 
-	public ModbusProtocol(int unitId, AbstractTask... tasks) {
+	public ModbusProtocol(int unitId, Task... tasks) {
 		this.unitId = unitId;
-		for (AbstractTask abstractTask : tasks) {
-			addTask(abstractTask);
+		for (Task task : tasks) {
+			addTask(task);
 		}
 	}
 
@@ -51,23 +51,23 @@ public class ModbusProtocol {
 		return unitId;
 	}
 
-	public void addTask(Task abstractTask) {
+	public void addTask(Task task) {
 		// add the unitId to the abstractTask
-		abstractTask.setUnitId(this.unitId);
+		task.setUnitId(this.unitId);
 		// check abstractTask for plausibility
-		this.checkTask(abstractTask);
+		this.checkTask(task);
 		/*
 		 * fill writeTasks
 		 */
-		if (abstractTask instanceof WriteTask) {
-			WriteTask writeTask = (WriteTask) abstractTask;
+		if (task instanceof WriteTask) {
+			WriteTask writeTask = (WriteTask) task;
 			this.writeTasks.add(writeTask);
 		}
 		/*
 		 * fill readTasks
 		 */
-		if (abstractTask instanceof ReadTask) {
-			ReadTask readTask = (ReadTask) abstractTask;
+		if (task instanceof ReadTask) {
+			ReadTask readTask = (ReadTask) task;
 			this.readTasks.put(readTask.getPriority(), readTask);
 		}
 	}
@@ -130,11 +130,11 @@ public class ModbusProtocol {
 	/**
 	 * Checks a {@link AbstractTask} for plausibility
 	 *
-	 * @param abstractTask
+	 * @param task
 	 */
-	private void checkTask(Task abstractTask) {
-		int address = abstractTask.getStartAddress();
-		for (ModbusElement<?> element : abstractTask.getElements()) {
+	private void checkTask(Task task) {
+		int address = task.getStartAddress();
+		for (ModbusElement<?> element : task.getElements()) {
 			if (element.getStartAddress() != address) {
 				log.error("Start address is wrong. It is [" + element.getStartAddress() + "/0x"
 						+ Integer.toHexString(element.getStartAddress()) + "] but should be [" + address + "/0x"

@@ -1,19 +1,17 @@
 package io.openems.backend.edgewebsocket.impl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
-import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 
-import io.openems.backend.common.events.BackendEventConstants;
 import io.openems.backend.metadata.api.Edge;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.websocket.AbstractOnOpen;
@@ -54,6 +52,12 @@ public class OnOpen extends AbstractOnOpen {
 				throw new OpenemsException("Unable to authenticate this Apikey.");
 			}
 
+			// get Edge object for edgeIds
+			List<Edge> edges = new ArrayList<>();
+			for (int edgeId : edgeIds) {
+				edges.add(this.parent.parent.metadataService.getEdge(edgeId)); // throws Exception if Edge is not found
+			}
+
 			// add edgeIds to websocket attachment
 			attachment.setEdgeIds(edgeIds);
 
@@ -75,27 +79,17 @@ public class OnOpen extends AbstractOnOpen {
 			WebSocketUtils.send(websocket, jReply);
 
 			// announce Edge as online
-			for (int edgeId : edgeIds) {
-				Map<String, Object> properties = new HashMap<>();
-				properties.put(BackendEventConstants.PROPERTY_KEY_EDGE_ID, edgeId);
-				Event event = new Event(BackendEventConstants.TOPIC_EDGE_ONLINE, properties);
-				this.parent.parent.eventAdmin.postEvent(event);
+			for (Edge edge : edges) {
+				edge.setOnline(true);
 			}
 
 			// log
-			for (int edgeId : edgeIds) {
-				Optional<Edge> edgeOpt = this.parent.parent.metadataService.getEdgeOpt(edgeId);
-				if (edgeOpt.isPresent()) {
-					Edge edge = edgeOpt.get();
-					log.info("Edge [" + edge.getName() + "]" //
-							+ (edgeIds.length > 1 ? ", ID [" + edgeId + "]" : "") //
-							+ " connected.");
-					// set last update timestamps in MetadataService
-					edge.setLastMessage();
-				} else {
-					log.info("Edge [ID:" + edgeId + "] connected. Apikey [" + apikey + "]. Websocket [" + websocket
-							+ "].");
-				}
+			for (Edge edge : edges) {
+				log.info("Edge [" + edge.getName() + "]" //
+						+ (edgeIds.length > 1 ? ", ID [" + edge.getId() + "]" : "") //
+						+ " connected.");
+				// set last update timestamps in MetadataService
+				edge.setLastMessage();
 			}
 		} catch (OpenemsException e) {
 			log.warn(e.getMessage());

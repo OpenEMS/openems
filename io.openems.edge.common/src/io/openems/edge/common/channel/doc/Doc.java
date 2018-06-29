@@ -94,7 +94,7 @@ public class Doc {
 		return this;
 	}
 
-	String getText() {
+	public String getText() {
 		return this.text;
 	}
 

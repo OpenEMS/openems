@@ -245,8 +245,16 @@ public class SymmetricPower {
 	}
 
 	protected void writePower() {
-		// }
-		if (!this.dynamicLimitations.isEmpty()) {
+		int activePower;
+		int reactivePower;
+		if (this.dynamicLimitations.isEmpty()) {
+			/*
+			 * Set Active/Reactive Power to '0' if we have no limitations
+			 */
+			activePower = 0;
+			reactivePower = 0;
+			
+		} else {
 			Point p = this.reduceToZero();
 			Coordinate c = p.getCoordinate();
 			try {
@@ -261,8 +269,8 @@ public class SymmetricPower {
 			 */
 			int activePowerDelta = (int) c.x - this.lastActivePower + 1 /* add 1 to avoid rounding issues */;
 			int reactivePowerDelta = (int) c.y - this.lastReactivePower + 1 /* add 1 to avoid rounding issues */;
-			int activePower = this.lastActivePower + activePowerDelta / 2;
-			int reactivePower = this.lastReactivePower + reactivePowerDelta / 2;
+			activePower = this.lastActivePower + activePowerDelta / 2;
+			reactivePower = this.lastReactivePower + reactivePowerDelta / 2;
 			/**
 			 * round values to required accuracy by inverter; following this logic:
 			 * 
@@ -290,18 +298,18 @@ public class SymmetricPower {
 			}
 			activePower = IntUtils.roundToPrecision(activePower, round, powerPrecision);
 			reactivePower = IntUtils.roundToPrecision(reactivePower, round, powerPrecision);
-
-			// set debug channels on parent
-			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(activePower);
-			this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER).setNextValue(reactivePower);
-
-			// call listener
-			this.onWriteListener.accept(activePower, reactivePower);
-
-			// store for next call
-			this.lastActivePower = activePower;
-			this.lastReactivePower = reactivePower;
 		}
+		
+		// set debug channels on parent
+		this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER).setNextValue(activePower);
+		this.parent.channel(SymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER).setNextValue(reactivePower);
+
+		// call listener
+		this.onWriteListener.accept(activePower, reactivePower);
+
+		// store for next call
+		this.lastActivePower = activePower;
+		this.lastReactivePower = reactivePower;
 	}
 
 	private void createBaseGeometry() {

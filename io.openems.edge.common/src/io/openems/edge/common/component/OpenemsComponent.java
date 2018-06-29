@@ -9,9 +9,10 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
+import io.openems.edge.common.channel.doc.Level;
 
 /**
  * This is the base interface for and should be implemented by every service
@@ -116,11 +117,12 @@ public interface OpenemsComponent {
 	Collection<Channel<?>> channels();
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
-		// Running State of the component
+		// Running State of the component. Keep values in sync with 'Level' enum!
 		STATE(new Doc().unit(Unit.NONE) //
 				.option(0, "Ok") //
-				.option(1, "Warning") //
-				.option(2, "Fault"));
+				.option(1, Level.INFO) //
+				.option(2, Level.WARNING) //
+				.option(3, Level.FAULT));
 
 		private final Doc doc;
 
@@ -134,8 +136,8 @@ public interface OpenemsComponent {
 		}
 	}
 
-	default StateChannel getState() {
-		return this._getChannelAs(ChannelId.STATE, StateChannel.class);
+	default StateCollectorChannel getState() {
+		return this._getChannelAs(ChannelId.STATE, StateCollectorChannel.class);
 	}
 
 	@SuppressWarnings("unchecked")
