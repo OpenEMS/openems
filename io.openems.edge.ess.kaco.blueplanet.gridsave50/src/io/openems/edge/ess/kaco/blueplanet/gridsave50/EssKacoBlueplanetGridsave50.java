@@ -370,5 +370,4 @@ implements SymmetricEss, Ess, OpenemsComponent {
 	public SymmetricPower getPower() {
 		return this.power;
 	}
-
 }
