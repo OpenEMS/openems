@@ -168,16 +168,19 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 				// get the next read tasks from the protocol
 				List<ReadTask> nextReadTasks = protocol.getNextReadTasks();
 				// check if the unitId is defective
-				int unitId = protocol.getUnitId();
-				if (nextReadTasks.size() > 0 && defectiveUnitIds.contains(unitId)) {
-					// it is defective. Add only one read abstractTask.
-					// This avoids filling the queue with requests that cannot be fulfilled anyway
-					// because the unitId is not reachable
-					result.add(nextReadTasks.get(0));
-				} else {
-					// add all tasks to the next tasks
-					result.addAll(nextReadTasks);
-				}
+				// int unitId = protocol.getUnitId();
+				// FIXME: if we do the following in here, we will eventually miss the
+				// ONCE-priority tasks
+				// if (nextReadTasks.size() > 0 && defectiveUnitIds.contains(unitId)) {
+				// // it is defective. Add only one read abstractTask.
+				// // This avoids filling the queue with requests that cannot be fulfilled
+				// anyway
+				// // because the unitId is not reachable
+				// result.add(nextReadTasks.get(0));
+				// } else {
+				// add all tasks to the next tasks
+				result.addAll(nextReadTasks);
+				// }
 			});
 			return result;
 		}
