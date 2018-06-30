@@ -1,6 +1,5 @@
 package io.openems.edge.battery.soltaro;
 
-
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 

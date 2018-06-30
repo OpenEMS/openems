@@ -11,8 +11,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 @ProviderType
 public interface Battery extends OpenemsComponent {
 
-	// TODO what values are necessary to define a battery system? (voltage, current, temperature...)
-	
+	// TODO what values are necessary to define a battery system? (voltage, current,
+	// temperature...)
+
 	public enum GridMode {
 		UNDEFINED, ON_GRID, OFF_GRID
 	}
@@ -92,6 +93,5 @@ public interface Battery extends OpenemsComponent {
 	default Channel<Integer> getMaxCapacity() {
 		return this.channel(ChannelId.MAX_CAPACITY);
 	}
-	
-	
+
 }
