@@ -24,10 +24,10 @@ import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.power.symmetric.PGreaterEqualLimitation;
 import io.openems.edge.ess.power.symmetric.PSmallerEqualLimitation;
 import io.openems.edge.ess.power.symmetric.SymmetricPower;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
-public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComponent implements SymmetricEss, Ess, OpenemsComponent {
+public abstract class AbstractEssStreetscooter extends AbstractOpenemsModbusComponent implements ManagedSymmetricEss, Ess, OpenemsComponent {
 
 	protected static final int UNIT_ID = 100;
 

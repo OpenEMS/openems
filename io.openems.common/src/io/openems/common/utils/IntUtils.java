@@ -16,7 +16,7 @@ public class IntUtils {
 	 * @param precision
 	 * @return
 	 */
-	public static int roundToPrecision(int value, Round round, int precision) {
+	public static int roundToPrecision(float value, Round round, int precision) {
 		switch (round) {
 		case DOWN:
 			return (int) (Math.floor(value / precision) * precision);

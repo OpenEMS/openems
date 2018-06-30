@@ -11,7 +11,7 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
 public class Utils {
@@ -44,7 +44,7 @@ public class Utils {
 						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
-				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:

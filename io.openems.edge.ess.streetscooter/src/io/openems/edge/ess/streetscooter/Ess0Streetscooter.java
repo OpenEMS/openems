@@ -16,12 +16,12 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config0.class, factory = true)
 @Component(name = "Ess0.Streetscooter", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
 		+ "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
-public class Ess0Streetscooter extends AbstractEssStreetscooter implements SymmetricEss, Ess, OpenemsComponent {
+public class Ess0Streetscooter extends AbstractEssStreetscooter implements ManagedSymmetricEss, Ess, OpenemsComponent {
 	
 	private static final int INVERTER_0_MODE_ADDRESS = 2056;
 	private static final int ICU_0_SET_POWER_ADDRESS = 4000;

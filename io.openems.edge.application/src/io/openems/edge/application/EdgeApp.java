@@ -47,6 +47,7 @@ public class EdgeApp {
 			log4j.put("log4j.logger.sun.net.www.protocol.http.HttpURLConnection", "INFO");
 			log4j.put("log4j.logger.com.ghgande.j2mod", "INFO");
 			log4j.put("log4j.logger.io.openems.edge.ess.streetscooter", "DEBUG");
+			log4j.put("log4j.logger.io.openems.edge.ess.power", "INFO");
 			config.update(log4j);
 		} catch (IOException | SecurityException e) {
 			e.printStackTrace();

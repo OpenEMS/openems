@@ -1,5 +1,6 @@
 package io.openems.edge.controller.symmetric.fixactivepower;
 
+import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -14,13 +15,13 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.ess.power.symmetric.PEqualLimitation;
-import io.openems.edge.ess.power.symmetric.SymmetricPower;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.PowerException;
+import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Controller.Symmetric.FixActivePower", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE)
@@ -50,7 +51,7 @@ public class SymmetricFixActivePower extends AbstractOpenemsComponent implements
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private SymmetricEss ess;
+	private ManagedSymmetricEss ess;
 
 	@Deactivate
 	protected void deactivate() {
@@ -60,9 +61,9 @@ public class SymmetricFixActivePower extends AbstractOpenemsComponent implements
 	@Override
 	public void run() {
 		try {
-			SymmetricPower power = ess.getPower();
-			power.applyLimitation(new PEqualLimitation(power).setP(this.power));
-		} catch (OpenemsException e) {
+			Power power = ess.getPower();
+			power.setActivePowerAndSolve(ConstraintType.CYCLE, Relationship.EQ, this.power);
+		} catch (PowerException e) {
 			logError(log, e.getMessage());
 		}
 	}

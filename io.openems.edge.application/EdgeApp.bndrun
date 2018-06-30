@@ -30,7 +30,6 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.debug.detailedlog)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.bridge.modbus)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.meter.socomec.dirisa14)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.fenecon.commercial40)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.fixactivepower)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.symmetric.balancing)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.scheduler.allalphabetically)',\
@@ -41,8 +40,9 @@ JPM-Command:				openems-edge
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.io.kmtronic)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.controller.channelthreshold)',\
 	osgi.identity;filter:='(osgi.identity=io.openems.edge.evcs.keba.kecontact)',\
-	osgi.identity;filter:='(osgi.identity=io.openems.edge.ess.streetscooter)',\
-	bnd.identity;id='io.openems.edge.core'
+	bnd.identity;id='io.openems.edge.core',\
+	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
+	bnd.identity;id='io.openems.edge.ess.core'
 	
 
 -resolve: auto
@@ -61,7 +61,6 @@ JPM-Command:				openems-edge
 	io.openems.edge.controller.debug.log;version=snapshot,\
 	io.openems.edge.controller.symmetric.balancing;version=snapshot,\
 	io.openems.edge.controller.symmetric.fixactivepower;version=snapshot,\
-	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
 	io.openems.edge.evcs.keba.kecontact;version=snapshot,\
 	io.openems.edge.io.kmtronic;version=snapshot,\
 	io.openems.edge.meter.janitza.umg96rme;version=snapshot,\
@@ -73,7 +72,6 @@ JPM-Command:				openems-edge
 	io.openems.wrapper.influxdb-java;version=snapshot,\
 	io.openems.wrapper.j2mod;version=snapshot,\
 	io.openems.wrapper.jSerialComm;version=snapshot,\
-	io.openems.wrapper.jts;version=snapshot,\
 	io.openems.wrapper.moshi;version=snapshot,\
 	io.openems.wrapper.retrofit2;version=snapshot,\
 	io.openems.wrapper.retrofit2-converter-moshi;version=snapshot,\
@@ -102,5 +100,6 @@ JPM-Command:				openems-edge
 	osgi.enroute.webconsole.xray.provider;version='[2.1.0,2.1.1)',\
 	io.openems.edge.core;version=snapshot,\
 	com.google.guava;version='[25.1.0,25.1.1)',\
-	org.osgi.compendium;version='[4.1.0,4.1.1)',\
-	io.openems.edge.ess.streetscooter;version=snapshot
+	org.apache.commons.math3;version='[3.6.0,3.6.1)',\
+	io.openems.edge.ess.fenecon.commercial40;version=snapshot,\
+	io.openems.edge.ess.core;version=snapshot

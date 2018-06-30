@@ -15,6 +15,12 @@ public enum MeterType {
 	 */
 	PRODUCTION,
 	/**
+	 * Defines a Production+Consumption-Meter, i.e. a meter that is measuring
+	 * something that is an electric producer and consumer at the same time, like a
+	 * non-controlled, external energy storage system.
+	 */
+	PRODUCTION_AND_CONSUMPTION,
+	/**
 	 * Defines a Consumption-Meter that is metered, i.e. a meter that is measuring
 	 * an electric consumer like a heating-element or electric car.
 	 * 
