@@ -1,27 +1,22 @@
-Bundle-Name: OpenEMS Edge Controller Api
+Bundle-Name: OpenEMS Edge Soltaro Battery  
 Bundle-Vendor: FENECON GmbH
 Bundle-License: https://opensource.org/licenses/EPL-2.0
 Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
-	io.openems.edge.controller.api,\
-	io.openems.edge.controller.api.apicontrollerutils
-# TODO: set compile-only
-#Require-Capability: \
-#	compile-only
-
+	io.openems.edge.battery.soltaro,\
+	io.openems.edge.battery.api
+	
 -includeresource: {readme.md}
 
 -buildpath: \
 	osgi.enroute.base.api;version=2.1,\
-	com.google.gson,\
-	io.openems.common;version=latest,\
 	io.openems.edge.common;version=latest,\
-	io.openems.edge.timedata.api;version=latest,\
-	io.openems.wrapper.websocket;version=latest,\
-	org.ops4j.pax.logging.pax-logging-api
+	io.openems.common;version=latest,\
+	io.openems.edge.bridge.modbus,\
+	io.openems.edge.battery.api;version=latest
 
 -testpath: \
 	osgi.enroute.junit.wrapper;version=4.12, \
 	osgi.enroute.hamcrest.wrapper;version=1.3
-
+	
 -runbundles: org.apache.felix.log;version='[1.0.1,1.0.2)'

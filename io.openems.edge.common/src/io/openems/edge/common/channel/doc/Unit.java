@@ -53,7 +53,6 @@ public enum Unit {
 	 * Unit of Voltage [mV]
 	 */
 	MILLIVOLT("mV", VOLT, -3),
-
 	/*
 	 * Current
 	 */
@@ -95,7 +94,7 @@ public enum Unit {
 	/**
 	 * Unit of Temperature [°C]
 	 */
-	DEGREE_CELCIUS("°C"),
+	DEGREE_CELSIUS("°C"),
 
 	/*
 	 * Time
@@ -103,7 +102,20 @@ public enum Unit {
 	/**
 	 * Unit of Time in Seconds [s]
 	 */
-	SECONDS("sec");
+	SECONDS("sec"),
+	
+	/*
+	 * Resistance
+	 */
+	/**
+	 * Unit of Resistance [Ohm]
+	 */
+	OHM("Ohm"),
+	/**
+	 * Unit of Resistance [mOhm]
+	 */
+	KILOOHM("kO", OHM, 3);
+	
 
 	private final Unit baseUnit;
 	private final int scaleFactor;
@@ -136,7 +148,7 @@ public enum Unit {
 		case NONE:
 			return value.toString();
 		case AMPERE:
-		case DEGREE_CELCIUS:
+		case DEGREE_CELSIUS:
 		case HERTZ:
 		case MILLIAMPERE:
 		case MILLIHERTZ:
