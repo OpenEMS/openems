@@ -18,8 +18,9 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractReadChannel.class);
 
+	protected final OpenemsComponent parent;
+
 	private final ChannelId channelId;
-	private final OpenemsComponent component;
 	private final OpenemsType type;
 	private final List<Consumer<Value<T>>> onUpdateCallbacks = new CopyOnWriteArrayList<>();
 	private final List<Consumer<Value<T>>> onSetNextValueCallbacks = new CopyOnWriteArrayList<>();
@@ -31,11 +32,11 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 		this(type, component, channelId, null);
 	}
 
-	public AbstractReadChannel(OpenemsType type, OpenemsComponent component, ChannelId channelId, T initialValue) {
+	public AbstractReadChannel(OpenemsType type, OpenemsComponent parent, ChannelId channelId, T initialValue) {
 		this.nextValue = new Value<T>(this, null);
 		this.activeValue = new Value<T>(this, null);
 		this.type = type;
-		this.component = component;
+		this.parent = parent;
 		this.channelId = channelId;
 		// validate Type
 		if (channelId.doc().getType().isPresent()) {
@@ -66,7 +67,7 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 
 	@Override
 	public OpenemsComponent getComponent() {
-		return component;
+		return parent;
 	}
 
 	@Override
@@ -77,7 +78,7 @@ public abstract class AbstractReadChannel<T> implements Channel<T> {
 
 	@Override
 	public ChannelAddress address() {
-		return new ChannelAddress(this.component.id(), this.channelId().id());
+		return new ChannelAddress(this.parent.id(), this.channelId().id());
 	}
 
 	@Override

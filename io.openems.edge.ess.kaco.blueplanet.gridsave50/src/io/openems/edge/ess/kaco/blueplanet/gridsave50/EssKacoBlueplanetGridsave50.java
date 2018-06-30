@@ -30,8 +30,8 @@ import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.power.symmetric.SymmetricPower;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
@@ -40,14 +40,14 @@ import io.openems.edge.ess.symmetric.api.SymmetricEss;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
-		implements SymmetricEss, Ess, OpenemsComponent {
+		implements ManagedSymmetricEss, Ess, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(EssKacoBlueplanetGridsave50.class);
 
 	private final static int UNIT_ID = 1;
 	protected final static int MAX_APPARENT_POWER = 50000;
 
-	private final SymmetricPower power;
+	private final Power power;
 
 	@Reference
 	protected ConfigurationAdmin cm;
@@ -57,86 +57,9 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 		/*
 		 * Initialize Power
 		 */
-		this.power = new SymmetricPower(this, EssKacoBlueplanetGridsave50.MAX_APPARENT_POWER, 1 /*
-																								 * TODO: POWER_PRECISION
-																								 */, //
-				(activePower, reactivePower) -> {
-					/*
-					 * Get channels
-					 */
-					IntegerWriteChannel disMinV = this.channel(ChannelId.DIS_MIN_V);
-					IntegerWriteChannel disMaxA = this.channel(ChannelId.DIS_MAX_A);
-					IntegerWriteChannel chaMaxV = this.channel(ChannelId.CHA_MAX_V);
-					IntegerWriteChannel chaMaxA = this.channel(ChannelId.CHA_MAX_A);
-					IntegerWriteChannel enLimit = this.channel(ChannelId.EN_LIMIT);
-					IntegerWriteChannel conn = this.channel(ChannelId.CONN);
-					IntegerWriteChannel wSetEna = this.channel(ChannelId.W_SET_ENA);
-					IntegerWriteChannel wSetPct = this.channel(ChannelId.W_SET_PCT);
-					IntegerReadChannel statePowerUnit = this.channel(ChannelId.STATE_POWER_UNIT);
-
-					/*
-					 * Handle state machine
-					 */
-					Value<Integer> stateValue = statePowerUnit.value();
-					if (stateValue.get() == null) {
-						return;
-					}
-
-					StatePowerUnit state;
-					try {
-						state = (StatePowerUnit) stateValue.asEnum();
-					} catch (InvalidValueException e1) {
-						e1.printStackTrace();
-						return;
-					}
-
-					switch (state) {
-					case PRECHARGE_SYSTEM_BOOT: // Transitive state -> Wait...
-						break;
-
-					case DISCONNECT: // DSP has no power supply -> start battery
-					case STANDBY:
-						try {
-							conn.setNextWriteValue(1 /* TODO use enum */);
-						} catch (OpenemsException e) {
-							e.printStackTrace();
-						}
-
-					case ACTIVE:
-						// TODO replace static value with the one from Sunspec 103 * scale factor
-						// TODO round properly
-						// the base formula is (activePower * 1000) / 52000
-						int activePowerPct = activePower / 52;
-
-						try {
-							disMinV.setNextWriteValue(696);
-							disMaxA.setNextWriteValue(3);
-							chaMaxV.setNextWriteValue(854);
-							chaMaxA.setNextWriteValue(3);
-							enLimit.setNextWriteValue(1);
-							wSetEna.setNextWriteValue(1 /* TODO use enum */);
-							wSetPct.setNextWriteValue(activePowerPct);
-						} catch (OpenemsException e) {
-							e.printStackTrace();
-						}
-						break;
-
-					case ERROR: {
-						/*
-						 * Error
-						 */
-						log.warn("ERROR");
-						try {
-							// clear error
-							conn.setNextWriteValue(0);
-						} catch (OpenemsException e) {
-							e.printStackTrace();
-						}
-						break;
-					}
-					}
-				});
-
+		this.power = new Power(this);
+		// Max Apparent
+		this.power.setMaxApparentPower(this, MAX_APPARENT_POWER);
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -260,8 +183,92 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	public SymmetricPower getPower() {
+	public Power getPower() {
 		return this.power;
+	}
+
+	@Override
+	public void applyPower(int activePower, int reactivePower) {
+		/*
+		 * Get channels
+		 */
+		IntegerWriteChannel disMinV = this.channel(ChannelId.DIS_MIN_V);
+		IntegerWriteChannel disMaxA = this.channel(ChannelId.DIS_MAX_A);
+		IntegerWriteChannel chaMaxV = this.channel(ChannelId.CHA_MAX_V);
+		IntegerWriteChannel chaMaxA = this.channel(ChannelId.CHA_MAX_A);
+		IntegerWriteChannel enLimit = this.channel(ChannelId.EN_LIMIT);
+		IntegerWriteChannel conn = this.channel(ChannelId.CONN);
+		IntegerWriteChannel wSetEna = this.channel(ChannelId.W_SET_ENA);
+		IntegerWriteChannel wSetPct = this.channel(ChannelId.W_SET_PCT);
+		IntegerReadChannel statePowerUnit = this.channel(ChannelId.STATE_POWER_UNIT);
+
+		/*
+		 * Handle state machine
+		 */
+		Value<Integer> stateValue = statePowerUnit.value();
+		if (stateValue.get() == null) {
+			return;
+		}
+
+		StatePowerUnit state;
+		try {
+			state = (StatePowerUnit) stateValue.asEnum();
+		} catch (InvalidValueException e1) {
+			e1.printStackTrace();
+			return;
+		}
+
+		switch (state) {
+		case PRECHARGE_SYSTEM_BOOT: // Transitive state -> Wait...
+			break;
+
+		case DISCONNECT: // DSP has no power supply -> start battery
+		case STANDBY:
+			try {
+				conn.setNextWriteValue(1 /* TODO use enum */);
+			} catch (OpenemsException e) {
+				e.printStackTrace();
+			}
+
+		case ACTIVE:
+			// TODO replace static value with the one from Sunspec 103 * scale factor
+			// TODO round properly
+			// the base formula is (activePower * 1000) / 52000
+			int activePowerPct = activePower / 52;
+
+			try {
+				disMinV.setNextWriteValue(696);
+				disMaxA.setNextWriteValue(3);
+				chaMaxV.setNextWriteValue(854);
+				chaMaxA.setNextWriteValue(3);
+				enLimit.setNextWriteValue(1);
+				wSetEna.setNextWriteValue(1 /* TODO use enum */);
+				wSetPct.setNextWriteValue(activePowerPct);
+			} catch (OpenemsException e) {
+				e.printStackTrace();
+			}
+			break;
+
+		case ERROR: {
+			/*
+			 * Error
+			 */
+			log.warn("ERROR");
+			try {
+				// clear error
+				conn.setNextWriteValue(0);
+			} catch (OpenemsException e) {
+				e.printStackTrace();
+			}
+			break;
+		}
+		}
+	}
+
+	@Override
+	public int getPowerPrecision() {
+		// TODO Calculate automatically
+		return 52;
 	}
 
 }

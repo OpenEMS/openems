@@ -23,7 +23,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
-import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -62,7 +62,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
-						return new StateChannel(this, channelId);
+						return new StateCollectorChannel(this, channelId);
 					}
 					return null;
 				})).flatMap(channel -> channel).forEach(channel -> this.addChannel(channel));
@@ -168,16 +168,19 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 				// get the next read tasks from the protocol
 				List<ReadTask> nextReadTasks = protocol.getNextReadTasks();
 				// check if the unitId is defective
-				int unitId = protocol.getUnitId();
-				if (nextReadTasks.size() > 0 && defectiveUnitIds.contains(unitId)) {
-					// it is defective. Add only one read abstractTask.
-					// This avoids filling the queue with requests that cannot be fulfilled anyway
-					// because the unitId is not reachable
-					result.add(nextReadTasks.get(0));
-				} else {
-					// add all tasks to the next tasks
-					result.addAll(nextReadTasks);
-				}
+				// int unitId = protocol.getUnitId();
+				// FIXME: if we do the following in here, we will eventually miss the
+				// ONCE-priority tasks
+				// if (nextReadTasks.size() > 0 && defectiveUnitIds.contains(unitId)) {
+				// // it is defective. Add only one read abstractTask.
+				// // This avoids filling the queue with requests that cannot be fulfilled
+				// anyway
+				// // because the unitId is not reachable
+				// result.add(nextReadTasks.get(0));
+				// } else {
+				// add all tasks to the next tasks
+				result.addAll(nextReadTasks);
+				// }
 			});
 			return result;
 		}

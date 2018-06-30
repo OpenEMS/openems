@@ -1,5 +1,6 @@
 package io.openems.edge.controller.symmetric.balancing;
 
+import org.apache.commons.math3.optim.linear.Relationship;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -19,10 +20,10 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.power.PowerException;
-import io.openems.edge.ess.power.symmetric.PEqualLimitation;
-import io.openems.edge.ess.power.symmetric.SymmetricPower;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.PowerException;
+import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 import io.openems.edge.meter.symmetric.api.SymmetricMeter;
 
 @Designate(ocd = Config.class, factory = true)
@@ -48,7 +49,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 	}
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
-	private SymmetricEss ess;
+	private ManagedSymmetricEss ess;
 
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	private SymmetricMeter meter;
@@ -70,8 +71,6 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 
 	@Override
 	public void run() {
-		// TODO improvement: calculate required power with SoC in mind. On high SoC
-		// prefer feeding-to-grid a little bit (<100 W) than buying; on low SoC inverse
 		int requiredPower;
 		try {
 			/*
@@ -92,13 +91,13 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			return;
 		}
 
-		SymmetricPower power = ess.getPower();
+		Power power = ess.getPower();
 		if (requiredPower > 0) {
 			/*
 			 * Discharge
 			 */
 			// fit into max possible discharge power
-			int maxDischargePower = power.getMaxP().orElse(0);
+			int maxDischargePower = power.getMaxActivePower();
 			if (requiredPower > maxDischargePower) {
 				requiredPower = maxDischargePower;
 			}
@@ -108,7 +107,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			 * Charge
 			 */
 			// fit into max possible discharge power
-			int maxChargePower = power.getMinP().orElse(0);
+			int maxChargePower = power.getMinActivePower();
 			if (requiredPower < maxChargePower) {
 				requiredPower = maxChargePower;
 			}
@@ -118,7 +117,7 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 		 * set result
 		 */
 		try {
-			power.applyLimitation(new PEqualLimitation(power).setP(requiredPower));
+			power.setActivePowerAndSolve(ConstraintType.CYCLE, Relationship.EQ, requiredPower);
 		} catch (PowerException e) {
 			logError(this.log, "Unable to set Power: " + e.getMessage());
 		}

@@ -4,15 +4,14 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.edge.common.channel.AbstractReadChannel;
-import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
-import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
+import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 public class Utils {
 	public static Stream<? extends AbstractReadChannel<?>> initializeChannels(EssFeneconCommercial40 c) {
@@ -22,12 +21,14 @@ public class Utils {
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case STATE:
-						return new StateChannel(c, channelId);
+						return new StateCollectorChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
+					case ACTIVE_POWER:
+					case REACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);
 					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId, EssFeneconCommercial40.MAX_APPARENT_POWER);
@@ -35,18 +36,7 @@ public class Utils {
 						return new IntegerReadChannel(c, channelId, Ess.GridMode.UNDEFINED.ordinal());
 					}
 					return null;
-				}), Arrays.stream(SymmetricEssReadonly.ChannelId.values()).map(channelId -> {
-					switch (channelId) {
-					case ACTIVE_POWER:
-					case CHARGE_ACTIVE_POWER:
-					case DISCHARGE_ACTIVE_POWER:
-					case REACTIVE_POWER:
-					case CHARGE_REACTIVE_POWER:
-					case DISCHARGE_REACTIVE_POWER:
-						return new IntegerReadChannel(c, channelId);
-					}
-					return null;
-				}), Arrays.stream(SymmetricEss.ChannelId.values()).map(channelId -> {
+				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case DEBUG_SET_ACTIVE_POWER:
 					case DEBUG_SET_REACTIVE_POWER:
@@ -249,7 +239,7 @@ public class Utils {
 					case STATE_147:
 					case STATE_148:
 					case STATE_149:
-						return new BooleanReadChannel(c, channelId);
+						return new StateChannel(c, channelId);
 					}
 					return null;
 				}) //

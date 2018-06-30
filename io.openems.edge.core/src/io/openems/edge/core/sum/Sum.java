@@ -26,8 +26,7 @@ import io.openems.edge.core.sum.internal.AverageInteger;
 import io.openems.edge.core.sum.internal.SumInteger;
 import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
-import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
+import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.Meter;
 import io.openems.edge.meter.symmetric.api.SymmetricMeter;
 
@@ -62,7 +61,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		ESS_ACTIVE_POWER(new Doc() //
 				.type(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
-				.text(SymmetricEss.POWER_DOC_TEXT)),
+				.text(ManagedSymmetricEss.POWER_DOC_TEXT)),
 		/**
 		 * Grid: Active Power
 		 * 
@@ -228,7 +227,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	 */
 	private final List<Ess> esss = new CopyOnWriteArrayList<>();
 	private final AverageInteger<Ess> essSoc;
-	private final SumInteger<SymmetricEssReadonly> essActivePower;
+	private final SumInteger<Ess> essActivePower;
 
 	/*
 	 * Grid
@@ -249,9 +248,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	private void addEss(Ess ess) {
 		this.esss.add(ess);
 		this.essSoc.addComponent(ess);
-		if (ess instanceof SymmetricEssReadonly) {
-			this.essActivePower.addComponent((SymmetricEssReadonly) ess);
-		}
+		this.essActivePower.addComponent(ess);
 		this.calculateMaxConsumption.accept(null /* ignored */);
 	}
 
@@ -275,12 +272,16 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addMeter(Meter meter) {
 		switch (meter.getMeterType()) {
+		case PRODUCTION_AND_CONSUMPTION:
+			// TODO PRODUCTION_AND_CONSUMPTION
+			break;
+
 		case CONSUMPTION_METERED:
-			// TODO
+			// TODO CONSUMPTION_METERED
 			break;
 
 		case CONSUMPTION_NOT_METERED:
-			// TODO
+			// TODO CONSUMPTION_NOT_METERED
 			break;
 
 		case GRID:
@@ -303,6 +304,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 				this.productionMaxAcActivePower.addComponent((SymmetricMeter) meter);
 			}
 			break;
+
 		}
 	}
 
@@ -331,8 +333,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 		 * Ess
 		 */
 		this.essSoc = new AverageInteger<Ess>(this, ChannelId.ESS_SOC, Ess.ChannelId.SOC);
-		this.essActivePower = new SumInteger<SymmetricEssReadonly>(this, ChannelId.ESS_ACTIVE_POWER,
-				SymmetricEssReadonly.ChannelId.ACTIVE_POWER);
+		this.essActivePower = new SumInteger<Ess>(this, ChannelId.ESS_ACTIVE_POWER, Ess.ChannelId.ACTIVE_POWER);
 		/*
 		 * Grid
 		 */

@@ -26,7 +26,7 @@ import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.ess.symmetric.api.SymmetricEss;
+import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.Meter;
 import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.asymmetric.api.AsymmetricMeter;
@@ -63,7 +63,7 @@ public class GridMeter extends AbstractOpenemsComponent
 	protected SimulatorDatasource datasource;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
-	private volatile List<SymmetricEss> symmetricEsss = new CopyOnWriteArrayList<>();
+	private volatile List<ManagedSymmetricEss> symmetricEsss = new CopyOnWriteArrayList<>();
 
 	// @Reference(policy = ReferencePolicy.DYNAMIC, policyOption =
 	// ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
@@ -117,7 +117,7 @@ public class GridMeter extends AbstractOpenemsComponent
 		 * Calculate Active Power
 		 */
 		int activePower = simulatedActivePower;
-		for (SymmetricEss ess : this.symmetricEsss) {
+		for (ManagedSymmetricEss ess : this.symmetricEsss) {
 			Optional<Integer> essPowerOpt = ess.getActivePower().value().asOptional();
 			if (essPowerOpt.isPresent()) {
 				activePower -= essPowerOpt.get();

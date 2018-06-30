@@ -11,6 +11,8 @@ import io.openems.edge.common.component.OpenemsComponent;
 @ProviderType
 public interface Ess extends OpenemsComponent {
 
+	public final static String POWER_DOC_TEXT = "Negative values for Charge; positive for Discharge";
+
 	public enum GridMode {
 		UNDEFINED, ON_GRID, OFF_GRID
 	}
@@ -40,6 +42,36 @@ public interface Ess extends OpenemsComponent {
 				.option(GridMode.UNDEFINED) //
 				.option(GridMode.ON_GRID) //
 				.option(GridMode.OFF_GRID) //
+		),
+		/**
+		 * Active Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: W
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
+		ACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.text(POWER_DOC_TEXT) //
+		),
+		/**
+		 * Reactive Power
+		 * 
+		 * <ul>
+		 * <li>Interface: Ess Symmetric
+		 * <li>Type: Integer
+		 * <li>Unit: var
+		 * <li>Range: negative values for Charge; positive for Discharge
+		 * </ul>
+		 */
+		REACTIVE_POWER(new Doc() //
+				.type(OpenemsType.INTEGER) //
+				.unit(Unit.VOLT_AMPERE_REACTIVE) //
+				.text(POWER_DOC_TEXT) //
 		),
 		/**
 		 * Max Active Power
@@ -83,6 +115,16 @@ public interface Ess extends OpenemsComponent {
 	}
 
 	/**
+	 * Gets the Active Power in [W]. Negative values for Charge; positive for
+	 * Discharge
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getActivePower() {
+		return this.channel(ChannelId.ACTIVE_POWER);
+	}
+
+	/**
 	 * Gets the maximum Active Power
 	 * 
 	 * @return
@@ -90,4 +132,15 @@ public interface Ess extends OpenemsComponent {
 	default Channel<Integer> getMaxActivePower() {
 		return this.channel(ChannelId.MAX_ACTIVE_POWER);
 	}
+
+	/**
+	 * Gets the Reactive Power in [var]. Negative values for Charge; positive for
+	 * Discharge
+	 * 
+	 * @return
+	 */
+	default Channel<Integer> getReactivePower() {
+		return this.channel(ChannelId.REACTIVE_POWER);
+	}
+
 }
