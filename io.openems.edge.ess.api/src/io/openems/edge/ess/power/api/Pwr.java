@@ -1,4 +1,4 @@
-package io.openems.edge.ess.power;
+package io.openems.edge.ess.power.api;
 
 enum Pwr {
 	ACTIVE("Active Power", 0), REACTIVE("Reactive Power", 1);

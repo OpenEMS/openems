@@ -6,7 +6,7 @@ import org.osgi.service.component.ComponentContext;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.ess.asymmetric.api.ManagedAsymmetricEss;
-import io.openems.edge.ess.power.Power;
+import io.openems.edge.ess.power.api.Power;
 
 public class ManagedAsymmetricEssDummy implements ManagedAsymmetricEss {
 

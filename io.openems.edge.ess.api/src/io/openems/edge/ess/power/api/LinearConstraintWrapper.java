@@ -1,4 +1,4 @@
-package io.openems.edge.ess.power;
+package io.openems.edge.ess.power.api;
 
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.Relationship;

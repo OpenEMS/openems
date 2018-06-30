@@ -1,4 +1,4 @@
-package io.openems.edge.ess.power;
+package io.openems.edge.ess.power.api;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,8 +19,6 @@ import org.apache.commons.math3.optim.linear.Relationship;
 import org.apache.commons.math3.optim.linear.SimplexSolver;
 import org.apache.commons.math3.optim.linear.UnboundedSolutionException;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
@@ -30,7 +28,7 @@ import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 public abstract class AbstractPower {
 
-	private final Logger log = LoggerFactory.getLogger(AbstractPower.class);
+	// private final Logger log = LoggerFactory.getLogger(AbstractPower.class);
 
 	/**
 	 * Holds all Ess objects covered by this Power object
@@ -218,7 +216,8 @@ public abstract class AbstractPower {
 	 * @param constraint
 	 */
 	public synchronized <T extends AbstractConstraint> T addConstraint(ConstraintType type, T constraint) {
-		log.debug("Add " + type.name() + ": " + Utils.abstractConstraintToString(constraint));
+		// log.debug("Add " + type.name() + ": " +
+		// Utils.abstractConstraintToString(constraint));
 
 		// get correct list for ConstraintType
 		List<AbstractConstraint> constraints;
@@ -331,11 +330,11 @@ public abstract class AbstractPower {
 	 */
 	public synchronized double[] solve(LinearObjectiveFunction objectiveFunction, GoalType goalType,
 			LinearConstraint... additionalConstraints) throws PowerException {
-		log.debug("Additional Constraints");
-		for (LinearConstraint c : additionalConstraints) {
-			log.debug(Utils.linearConstraintToString(c, ""));
-		}
-		log.debug(Utils.objectiveFunctionToString(objectiveFunction, goalType));
+		// log.debug("Additional Constraints");
+		// for (LinearConstraint c : additionalConstraints) {
+		// log.debug(Utils.linearConstraintToString(c, ""));
+		// }
+		// log.debug(Utils.objectiveFunctionToString(objectiveFunction, goalType));
 
 		// copy to array (let space for 'additionalConstraints')
 		List<LinearConstraint> constraints = this.getAllConstraints();
@@ -427,22 +426,24 @@ public abstract class AbstractPower {
 	 * </ul>
 	 */
 	public synchronized void applyPower() {
-		log.debug("ApplyPower [" + Arrays.stream(this.esss).map(ess -> ess.id()).collect(Collectors.joining(", "))
-				+ "], Static [" + this.staticConstraints.size() + "], Cycle [" + this.cycleConstraints.size() + "]");
-
-		log.debug("Static Constraints");
-		for (AbstractConstraint c : this.staticConstraints) {
-			log.debug(c.toString());
-		}
-		log.debug("Cycle Constraints");
-		for (AbstractConstraint c : this.cycleConstraints) {
-			log.debug(c.toString());
-		}
+		// log.debug("ApplyPower [" + Arrays.stream(this.esss).map(ess ->
+		// ess.id()).collect(Collectors.joining(", "))
+		// + "], Static [" + this.staticConstraints.size() + "], Cycle [" +
+		// this.cycleConstraints.size() + "]");
+		//
+		// log.debug("Static Constraints");
+		// for (AbstractConstraint c : this.staticConstraints) {
+		// log.debug(c.toString());
+		// }
+		// log.debug("Cycle Constraints");
+		// for (AbstractConstraint c : this.cycleConstraints) {
+		// log.debug(c.toString());
+		// }
 
 		// solve optimally
 		double[] solution = this.solveOptimally();
-		
-		log.debug(Utils.solutionToString(solution));
+
+		// log.debug(Utils.solutionToString(solution));
 
 		/*
 		 * forward result to Ess

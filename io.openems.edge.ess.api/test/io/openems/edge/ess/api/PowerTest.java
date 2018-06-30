@@ -13,11 +13,11 @@ import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.Relationship;
 import org.junit.Test;
 
-import io.openems.edge.ess.power.CoefficientOneConstraint;
-import io.openems.edge.ess.power.ConstraintType;
-import io.openems.edge.ess.power.Phase;
-import io.openems.edge.ess.power.Power;
-import io.openems.edge.ess.power.PowerException;
+import io.openems.edge.ess.power.api.CoefficientOneConstraint;
+import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.PowerException;
 
 public class PowerTest {
 

@@ -42,10 +42,10 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.power.CircleConstraint;
-import io.openems.edge.ess.power.CoefficientOneConstraint;
-import io.openems.edge.ess.power.ConstraintType;
-import io.openems.edge.ess.power.Power;
+import io.openems.edge.ess.power.api.CircleConstraint;
+import io.openems.edge.ess.power.api.CoefficientOneConstraint;
+import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)

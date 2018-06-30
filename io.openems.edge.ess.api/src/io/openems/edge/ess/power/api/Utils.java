@@ -1,4 +1,4 @@
-package io.openems.edge.ess.power;
+package io.openems.edge.ess.power.api;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;

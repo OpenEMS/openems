@@ -6,7 +6,7 @@ import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.power.Power;
+import io.openems.edge.ess.power.api.Power;
 
 @ProviderType
 public interface ManagedSymmetricEss extends Ess {

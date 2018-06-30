@@ -6,7 +6,7 @@ import java.util.Collection;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.ess.power.Power;
+import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 public class ManagedSymmetricEssDummy implements ManagedSymmetricEss {
