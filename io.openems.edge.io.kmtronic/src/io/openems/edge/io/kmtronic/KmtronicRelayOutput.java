@@ -290,7 +290,8 @@ public class KmtronicRelayOutput extends AbstractOpenemsModbusComponent implemen
 
 	public KmtronicRelayOutput() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		this.digitalOutputChannels = new BooleanWriteChannel[] { this.channel(KmtronicRelayOutput.ChannelId.RELAY_1), //
+		this.digitalOutputChannels = new BooleanWriteChannel[] { //
+				this.channel(KmtronicRelayOutput.ChannelId.RELAY_1), //
 				this.channel(KmtronicRelayOutput.ChannelId.RELAY_2), //
 				this.channel(KmtronicRelayOutput.ChannelId.RELAY_3), //
 				this.channel(KmtronicRelayOutput.ChannelId.RELAY_4), //
