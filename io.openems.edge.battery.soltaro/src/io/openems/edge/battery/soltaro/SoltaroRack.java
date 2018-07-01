@@ -159,7 +159,7 @@ public enum ClusterRunState {
 		CLUSTER_1_MAX_CELL_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		CLUSTER_1_MIN_CELL_TEMPERATURE_ID(new Doc().unit(Unit.NONE)), //
 		CLUSTER_1_MIN_CELL_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
-		SYSTEM_INSULATION(new Doc().unit(Unit.KILOOHM)),
+		SYSTEM_INSULATION(new Doc().unit(Unit.KILO_OHM)),
 		ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature Low Alarm Level 2")), //
 		ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature High Alarm Level 2")), //
 		ALARM_LEVEL_2_INSULATION_LOW(new Doc().level(Level.WARNING).text("Cluster1Insulation Low Alarm Level 2")), //

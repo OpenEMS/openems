@@ -20,17 +20,17 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.doc.Doc;
-import io.openems.edge.common.channel.doc.Unit;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.Ess;
+import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.doc.Unit;
 
 @Designate(ocd = Config.class, factory = true)
 @Component( //
-		name = "Ess.KOSTAL.PIKO", //
+		name = "Ess.Kostal.Piko", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
@@ -174,6 +174,10 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
+		
+		for(ReadTask task : this.readTasksManager.getNextReadTasks()) {
+			task.execute(this);
+		}
 	}
 
 	@Deactivate
@@ -245,7 +249,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 			/*
 			 * Open socket and streams
 			 */
-			socket = new Socket("192.168.178.28", 81);
+			socket = new Socket("localhost", 81);
 			out = socket.getOutputStream();
 			in = socket.getInputStream();
 			/*
@@ -418,7 +422,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 		DC_POWER_STRING_3(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
 		BATTERY_CURRENT(new Doc().type(OpenemsType.FLOAT).unit(Unit.AMPERE)), //
 		BATTERY_VOLTAGE(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
-		BATTERY_TEMPERATURE(new Doc().type(OpenemsType.FLOAT).unit(Unit.DEGREE_CELCIUS)), //
+		BATTERY_TEMPERATURE(new Doc().type(OpenemsType.FLOAT).unit(Unit.DEGREE_CELSIUS)), //
 		BATTERY_CYCLES(new Doc()), //
 		BATTERY_SOC(new Doc().type(OpenemsType.FLOAT).unit(Unit.VOLT)), //
 		AC_TOTAL_POWER(new Doc().type(OpenemsType.FLOAT).unit(Unit.WATT)), //
@@ -487,5 +491,4 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 			break;
 		}
 	}
-
 }
