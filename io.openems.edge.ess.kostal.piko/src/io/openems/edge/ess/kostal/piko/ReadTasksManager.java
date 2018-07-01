@@ -1,25 +1,61 @@
 package io.openems.edge.ess.kostal.piko;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.ess.kostal.piko.EssKostalPiko.ChannelId;
+import java.util.Queue;
 
 public class ReadTasksManager {
 
-	private final EssKostalPiko parent;
-	private final ReadTask[] tasks;
+	private final List<ReadTask> highReadTasks = new ArrayList<>();
+	private final List<ReadTask> lowReadTasks = new ArrayList<>();
+	private final List<ReadTask> onceReadTasks = new ArrayList<>();
 
-	public ReadTasksManager(EssKostalPiko parent, ReadTask... tasks) {
-		this.parent = parent;
-		this.tasks = tasks;
+	private final Queue<ReadTask> lowNextReadTasks = new LinkedList<>();
+	private final Queue<ReadTask> onceNextReadTasks = new LinkedList<>();
+
+	public ReadTasksManager(ReadTask... tasks) {
+		for (ReadTask task : tasks) {
+			switch (task.getPriority()) {
+			case HIGH:
+				this.highReadTasks.add(task);
+				break;
+			case LOW:
+				this.lowReadTasks.add(task);
+				break;
+			case ONCE:
+				this.onceReadTasks.add(task);
+				break;
+			}
+		}
+		this.onceNextReadTasks.addAll(onceReadTasks);
 	}
 
-	List<ReadTask> getNextReadTasks() {
+	public synchronized List<ReadTask> getNextReadTasks() {
 		List<ReadTask> result = new ArrayList<>();
-		result.add(this.tasks[0]);
+		/*
+		 * Handle HIGH
+		 */
+		result.addAll(this.highReadTasks);
+
+		/*
+		 * Handle LOW
+		 */
+		if (lowNextReadTasks.isEmpty()) {
+			this.lowNextReadTasks.addAll(lowReadTasks);
+		}
+		ReadTask task = lowNextReadTasks.poll();
+		if (task != null) {
+			result.add(task);
+		}
+
+		/*
+		 * Handle ONCE
+		 */
+		task = onceNextReadTasks.poll();
+		if (task != null) {
+			result.add(task);
+		}
 		return result;
 	}
 }

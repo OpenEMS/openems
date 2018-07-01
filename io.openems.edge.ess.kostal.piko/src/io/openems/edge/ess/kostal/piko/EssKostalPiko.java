@@ -41,7 +41,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 
 	public EssKostalPiko() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
-		this.readTasksManager = new ReadTasksManager(this, //
+		this.readTasksManager = new ReadTasksManager(//
 				// ONCE
 				new ReadTask(ChannelId.INVERTER_NAME, Priority.ONCE, FieldType.STRING, 0x01000300), //
 				new ReadTask(ChannelId.ARTICLE_NUMBER, Priority.ONCE, FieldType.STRING, 0x01000100), //

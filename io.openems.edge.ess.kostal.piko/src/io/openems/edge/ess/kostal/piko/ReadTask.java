@@ -1,6 +1,5 @@
 package io.openems.edge.ess.kostal.piko;
 
-import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.doc.ChannelId;
 
@@ -16,6 +15,10 @@ public class ReadTask {
 		this.priority = priority;
 		this.address = address;
 		this.fieldType = fieldType;
+	}
+
+	public Priority getPriority() {
+		return this.priority;
 	}
 
 	public void execute(EssKostalPiko parent) {
