@@ -17,33 +17,20 @@ public class ReadTask {
 		this.fieldType = fieldType;
 	}
 
+	public ChannelId getChannelId() {
+		return channelId;
+	}
+
 	public Priority getPriority() {
 		return this.priority;
 	}
 
-	public void execute(EssKostalPiko parent) {
-		try {
-			Channel<?> channel = parent.channel(this.channelId);
-			switch (this.fieldType) {
-			case STRING:
-				channel.setNextValue(parent.getStringValue(this.address));
-				break;
-			case INTEGER:
-				channel.setNextValue(parent.getIntegerValue(this.address));
-				break;
-			case BOOLEAN:
-				channel.setNextValue(parent.getBooleanValue(this.address));
-				break;
-			case INTEGER_UNSIGNED_BYTE:
-				channel.setNextValue(parent.getIntegerFromUnsignedByte(this.address));
-				break;
-			case FLOAT:
-				channel.setNextValue(parent.getFloatValue(this.address));
-				break;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public FieldType getFieldType() {
+		return fieldType;
+	}
+
+	public int getAddress() {
+		return address;
 	}
 
 }

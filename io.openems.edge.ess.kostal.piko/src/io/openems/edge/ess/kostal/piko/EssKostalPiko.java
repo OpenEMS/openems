@@ -33,14 +33,16 @@ import io.openems.edge.common.channel.doc.Unit;
 		name = "Ess.Kostal.Piko", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS //
+		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE //
 )
 public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, OpenemsComponent, EventHandler {
 
 	private final ReadTasksManager readTasksManager;
+	private final PikoProtocol pikoProtocol;
 
 	public EssKostalPiko() {
 		Utils.initializeChannels(this).forEach(channel -> this.addChannel(channel));
+		this.pikoProtocol = new PikoProtocol(this, "localhost", 81, (short) 0xff);
 		this.readTasksManager = new ReadTasksManager(//
 				// ONCE
 				new ReadTask(ChannelId.INVERTER_NAME, Priority.ONCE, FieldType.STRING, 0x01000300), //
@@ -122,7 +124,7 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 				new ReadTask(ChannelId.DC_VOLTAGE_STRING_3, Priority.LOW, FieldType.FLOAT, 0x02000502), //
 				new ReadTask(ChannelId.DC_POWER_STRING_3, Priority.LOW, FieldType.FLOAT, 0x02000503), //
 				new ReadTask(ChannelId.BATTERY_CURRENT_DIRECTION, Priority.LOW, FieldType.FLOAT, 0x02000705), //
-				new ReadTask(ChannelId.AC_CURRENT_L1, Priority.LOW, FieldType.FLOAT, 0x04000101), //
+				new ReadTask(ChannelId.AC_CURRENT_L1, Priority.LOW, FieldType.FLOAT, 0x04000201), //
 				new ReadTask(ChannelId.AC_CURRENT_L2, Priority.LOW, FieldType.FLOAT, 0x04000301), //
 				new ReadTask(ChannelId.AC_CURRENT_L3, Priority.LOW, FieldType.FLOAT, 0x04000401), //
 				new ReadTask(ChannelId.POWER_LIMITATION_OF_EVU, Priority.LOW, FieldType.FLOAT, 0x04000500), //
@@ -160,11 +162,11 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 				new ReadTask(ChannelId.BATTERY_VOLTAGE, Priority.LOW, FieldType.FLOAT, 0x02000702), //
 
 				// HIGH
-				new ReadTask(ChannelId.BATTERY_SOC, Priority.HIGH, FieldType.FLOAT, 0x02000704), //
-				new ReadTask(ChannelId.AC_VOLTAGE_L1, Priority.HIGH, FieldType.FLOAT, 0x04000102), //
+				new ReadTask(ChannelId.BATTERY_SOC, Priority.HIGH, FieldType.FLOAT, 0x02000705), //
+				new ReadTask(ChannelId.AC_VOLTAGE_L1, Priority.HIGH, FieldType.FLOAT, 0x04000202), //
 				new ReadTask(ChannelId.AC_VOLTAGE_L2, Priority.HIGH, FieldType.FLOAT, 0x04000302), //
 				new ReadTask(ChannelId.AC_VOLTAGE_L3, Priority.HIGH, FieldType.FLOAT, 0x04000402), //
-				new ReadTask(ChannelId.AC_POWER_L1, Priority.HIGH, FieldType.FLOAT, 0x04000103), //
+				new ReadTask(ChannelId.AC_POWER_L1, Priority.HIGH, FieldType.FLOAT, 0x04000203), //
 				new ReadTask(ChannelId.AC_POWER_L2, Priority.HIGH, FieldType.FLOAT, 0x04000303), //
 				new ReadTask(ChannelId.AC_POWER_L3, Priority.HIGH, FieldType.FLOAT, 0x04000403) //
 		);
@@ -174,184 +176,12 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 	@Activate
 	void activate(ComponentContext context, Config config) {
 		super.activate(context, config.service_pid(), config.id(), config.enabled());
-		
-		for(ReadTask task : this.readTasksManager.getNextReadTasks()) {
-			task.execute(this);
-		}
 	}
 
 	@Deactivate
 	protected void deactivate() {
+		this.pikoProtocol.deactivate();
 		super.deactivate();
-	}
-
-	private final static boolean DEBUG_MODE = false;
-
-	protected boolean getBooleanValue(int address) throws Exception {
-		byte[] bytes = EssKostalPiko.sendAndReceive(address);
-		if (bytes[0] == 1) {
-			return true;
-		}
-		return false;
-	}
-
-	protected int getIntegerFromUnsignedByte(int address) throws Exception {
-		byte[] bytes = EssKostalPiko.sendAndReceive(address);
-		return (int) ByteBuffer.wrap(bytes).get() & (0xFF);
-	}
-
-	protected float getFloatValue(int address) throws Exception {
-		byte[] bytes = EssKostalPiko.sendAndReceive(address);
-		return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-	}
-
-	protected int getIntegerValue(int address) throws Exception {
-		byte[] bytes = EssKostalPiko.sendAndReceive(address);
-		ByteBuffer b = ByteBuffer.allocate(4).putInt(0).order(ByteOrder.LITTLE_ENDIAN);
-		b.rewind();
-		b.put(bytes);
-		b.rewind();
-		return b.getInt();
-	}
-
-	protected String getStringValue(int address) throws Exception {
-		String stringValue = "";
-		byte[] byi = EssKostalPiko.sendAndReceive(address);
-		for (byte b : byi) {
-			if (b == 0) {
-				break;
-			}
-			stringValue += (char) b;
-		}
-		return stringValue.trim();
-	}
-
-	private static byte[] addressWithByteBuffer(int address) {
-		ByteBuffer byteBuffer = ByteBuffer.allocate(4);
-		byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-		byteBuffer.put((byte) ((address) & (0xff)));
-		byteBuffer.put((byte) (((address) >> 8) & (0xff)));
-		byteBuffer.put((byte) (((address) >> 16) & (0xff)));
-		byteBuffer.put((byte) (((address) >> 24) & (0xff)));
-		byte[] result = byteBuffer.array();
-		return result;
-	}
-
-	private static byte[] sendAndReceive(int address) throws Exception {
-		/*
-		 * convert address to byte array
-		 */
-		byte[] result = EssKostalPiko.addressWithByteBuffer(address);
-		Socket socket = null;
-		OutputStream out = null;
-		InputStream in = null;
-		try {
-			/*
-			 * Open socket and streams
-			 */
-			socket = new Socket("localhost", 81);
-			out = socket.getOutputStream();
-			in = socket.getInputStream();
-			/*
-			 * Calculate Checksum
-			 */
-			byte checksum = EssKostalPiko.calculateChecksumFromAddress(result);
-			/*
-			 * Build Request
-			 */
-			byte[] request = new byte[] { 0x62, (byte) 0Xff, 0x03, (byte) 0xff, 0x00, (byte) 0xf0,
-					Array.getByte(result, 0), Array.getByte(result, 1), Array.getByte(result, 2),
-					Array.getByte(result, 3), checksum, 0x00 };
-			/*
-			 * Send
-			 */
-			if (DEBUG_MODE) {
-				for (byte b : request) {
-					System.out.print(Integer.toHexString(b));
-				}
-				System.out.println();
-			}
-			out.write(request);
-			out.flush();
-			Thread.sleep(100);
-			/*
-			 * Receive
-			 */
-			List<Byte> datasList = new ArrayList<>();
-			while (in.available() > 0) {
-				byte data = (byte) in.read();
-				datasList.add(data);
-			}
-			if (datasList.isEmpty()) {
-				throw new Exception("Could not receive any data");
-			}
-			byte[] datas = new byte[datasList.size()];
-			for (int i = 0; i < datasList.size(); i++) {
-				datas[i] = datasList.get(i);
-			}
-			/*
-			 * Verify Checksum of Reply
-			 */
-			boolean isChecksumOk = EssKostalPiko.verifyChecksumOfReply(datas);
-			if (!isChecksumOk) {
-				throw new Exception("Checksum cannot be verified");
-			}
-			/*
-			 * Extract value
-			 */
-			byte[] results = new byte[datas.length - 7];
-			for (int i = 5; i < datas.length - 2; i++) {
-				results[i - 5] = datas[i];
-			}
-			/*
-			 * Return value
-			 */
-			return results;
-
-		} finally {
-			/*
-			 * Close socket and streams
-			 */
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (socket != null) {
-				try {
-					socket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	private static byte calculateChecksumFromAddress(byte[] result) {
-		byte checksum = 0x00;
-		byte[] request = new byte[] { 0x62, (byte) 0xff, 0x03, (byte) 0xff, Array.getByte(result, 0), 0x00, (byte) 0xf0,
-				Array.getByte(result, 1), Array.getByte(result, 2), Array.getByte(result, 3) };
-		for (int i = 0; i < request.length; i++) {
-			checksum -= request[i];
-		}
-		return checksum;
-	}
-
-	private static boolean verifyChecksumOfReply(byte[] data) {
-		byte checksum = 0x00;
-		for (int i = 0; i < data.length; i++) {
-			checksum += data[i];
-		}
-		return checksum == 0x00;
 	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.doc.ChannelId {
@@ -487,7 +317,9 @@ public class EssKostalPiko extends AbstractOpenemsComponent implements Ess, Open
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_WRITE:
+			List<ReadTask> nextReadTasks = this.readTasksManager.getNextReadTasks();
+			this.pikoProtocol.execute(nextReadTasks);
 			break;
 		}
 	}
