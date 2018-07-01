@@ -272,12 +272,16 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
 	private void addMeter(Meter meter) {
 		switch (meter.getMeterType()) {
+		case PRODUCTION_AND_CONSUMPTION:
+			// TODO PRODUCTION_AND_CONSUMPTION
+			break;
+
 		case CONSUMPTION_METERED:
-			// TODO
+			// TODO CONSUMPTION_METERED
 			break;
 
 		case CONSUMPTION_NOT_METERED:
-			// TODO
+			// TODO CONSUMPTION_NOT_METERED
 			break;
 
 		case GRID:
@@ -300,6 +304,7 @@ public class Sum extends AbstractOpenemsComponent implements OpenemsComponent {
 				this.productionMaxAcActivePower.addComponent((SymmetricMeter) meter);
 			}
 			break;
+
 		}
 	}
 

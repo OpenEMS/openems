@@ -5,6 +5,7 @@ Bundle-Version: 1.0.0.${tstamp}
 Export-Package: \
 	io.openems.edge.controller.api,\
 	io.openems.edge.controller.api.apicontrollerutils
+# TODO: set compile-only
 #Require-Capability: \
 #	compile-only
 

@@ -12,10 +12,9 @@ import io.openems.edge.common.channel.StateCollectorChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.api.Ess;
 import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
-import io.openems.edge.ess.symmetric.readonly.api.SymmetricEssReadonly;
 
 public class Utils {
-	static Stream<Channel<?>> initializeChannels(AbstractEssStreetscooter c) {		
+	static Stream<Channel<?>> initializeChannels(AbstractEssStreetscooter c) {
 		return Stream.of( //
 				Arrays.stream(OpenemsComponent.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
@@ -26,22 +25,13 @@ public class Utils {
 				}), Arrays.stream(Ess.ChannelId.values()).map(channelId -> {
 					switch (channelId) {
 					case SOC:
+					case ACTIVE_POWER:
+					case REACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId);
 					case MAX_ACTIVE_POWER:
 						return new IntegerReadChannel(c, channelId, AbstractEssStreetscooter.MAX_APPARENT_POWER);
 					case GRID_MODE:
 						return new IntegerReadChannel(c, channelId, Ess.GridMode.UNDEFINED.ordinal());
-					}
-					return null;
-				}), Arrays.stream(SymmetricEssReadonly.ChannelId.values()).map(channelId -> {
-					switch (channelId) {
-					case ACTIVE_POWER:
-					case CHARGE_ACTIVE_POWER:
-					case DISCHARGE_ACTIVE_POWER:
-					case REACTIVE_POWER:
-					case CHARGE_REACTIVE_POWER:
-					case DISCHARGE_REACTIVE_POWER:
-						return new IntegerReadChannel(c, channelId);
 					}
 					return null;
 				}), Arrays.stream(ManagedSymmetricEss.ChannelId.values()).map(channelId -> {
@@ -64,7 +54,7 @@ public class Utils {
 					case BATTERY_BMS_T_MAX_PACK:
 					case BATTERY_BMS_T_MIN_PACK:
 					case BATTERY_BMS_U_PACK:
-					case BATTERY_BMS_WRN:						
+					case BATTERY_BMS_WRN:
 					case INVERTER_ACTIVE_POWER:
 					case INVERTER_DC1_FAULT_VALUE:
 					case INVERTER_DC2_FAULT_VALUE:
@@ -106,8 +96,8 @@ public class Utils {
 						return new BooleanReadChannel(c, channelId);
 					}
 					return null;
-				})  // 
+				}) //
 		).flatMap(channel -> channel);
 	}
-	
+
 }

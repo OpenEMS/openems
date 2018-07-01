@@ -1,3 +1,4 @@
+/tools
 
 # Created by https://www.gitignore.io/api/java,maven,gradle,angular,eclipse,node
 
@@ -89,7 +90,7 @@ local.properties
 .project
 
 # JDT-specific (Eclipse Java Development Tools)
-.classpath
+#.classpath
 
 # Annotation Processing
 .apt_generated

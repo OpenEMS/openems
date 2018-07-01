@@ -9,7 +9,14 @@ Private-Package: \
 	io.openems.edge.simulator.datasource.standardloadprofile,\
 	io.openems.edge.simulator.ess,\
 	io.openems.edge.simulator.ess.symmetric.reacting
-
+Export-Package: \
+	io.openems.edge.ess.api,\
+	io.openems.edge.ess.symmetric.api,\
+	io.openems.edge.ess.symmetric.readonly.api,\
+	io.openems.edge.ess.dccharger.api,\
+	io.openems.edge.ess.asymmetric.api,\
+	io.openems.edge.ess.power.api
+	
 -includeresource: {readme.md}
 
 -buildpath: \

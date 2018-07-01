@@ -6,11 +6,13 @@ Export-Package: \
 	io.openems.edge.ess.api,\
 	io.openems.edge.ess.symmetric.api,\
 	io.openems.edge.ess.symmetric.readonly.api,\
-	io.openems.edge.ess.power,\
 	io.openems.edge.ess.dccharger.api,\
 	io.openems.edge.ess.asymmetric.api,\
+	io.openems.edge.ess.power.api,\
 	org.apache.commons.math3.optim.linear
-	
+Require-Capability: \
+	compile-only
+
 -includeresource: {readme.md}
 
 -buildpath: \

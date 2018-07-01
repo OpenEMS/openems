@@ -20,9 +20,9 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.power.ConstraintType;
-import io.openems.edge.ess.power.Power;
-import io.openems.edge.ess.power.PowerException;
+import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 import io.openems.edge.meter.symmetric.api.SymmetricMeter;
 
@@ -71,8 +71,6 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 
 	@Override
 	public void run() {
-		// TODO improvement: calculate required power with SoC in mind. On high SoC
-		// prefer feeding-to-grid a little bit (<100 W) than buying; on low SoC inverse
 		int requiredPower;
 		try {
 			/*
@@ -99,29 +97,27 @@ public class Balancing extends AbstractOpenemsComponent implements Controller, O
 			 * Discharge
 			 */
 			// fit into max possible discharge power
-			// TODO
-			// int maxDischargePower = power.getMaxP().orElse(0);
-			// if (requiredPower > maxDischargePower) {
-			// requiredPower = maxDischargePower;
-			// }
+			int maxDischargePower = power.getMaxActivePower();
+			if (requiredPower > maxDischargePower) {
+				requiredPower = maxDischargePower;
+			}
 
 		} else {
 			/*
 			 * Charge
 			 */
 			// fit into max possible discharge power
-			// TODO
-			// int maxChargePower = power.getMinP().orElse(0);
-			// if (requiredPower < maxChargePower) {
-			// requiredPower = maxChargePower;
-			// }
+			int maxChargePower = power.getMinActivePower();
+			if (requiredPower < maxChargePower) {
+				requiredPower = maxChargePower;
+			}
 		}
 
 		/*
 		 * set result
 		 */
 		try {
-			power.setActivePower(ConstraintType.CYCLE, Relationship.EQ, requiredPower);
+			power.setActivePowerAndSolve(ConstraintType.CYCLE, Relationship.EQ, requiredPower);
 		} catch (PowerException e) {
 			logError(this.log, "Unable to set Power: " + e.getMessage());
 		}

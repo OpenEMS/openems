@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.ess.power.ConstraintType;
-import io.openems.edge.ess.power.Power;
-import io.openems.edge.ess.power.PowerException;
+import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.ess.power.api.PowerException;
 import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
@@ -62,7 +62,7 @@ public class SymmetricFixActivePower extends AbstractOpenemsComponent implements
 	public void run() {
 		try {
 			Power power = ess.getPower();
-			power.setActivePower(ConstraintType.CYCLE, Relationship.EQ, this.power);
+			power.setActivePowerAndSolve(ConstraintType.CYCLE, Relationship.EQ, this.power);
 		} catch (PowerException e) {
 			logError(log, e.getMessage());
 		}

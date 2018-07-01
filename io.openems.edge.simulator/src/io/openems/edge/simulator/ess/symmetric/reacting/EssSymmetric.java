@@ -16,18 +16,15 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.channel.doc.Doc;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.ess.api.Ess;
-import io.openems.edge.ess.power.CoefficientOneConstraint;
-import io.openems.edge.ess.power.ConstraintType;
-import io.openems.edge.ess.power.Power;
-import io.openems.edge.ess.power.PowerException;
+import io.openems.edge.ess.power.api.CoefficientOneConstraint;
+import io.openems.edge.ess.power.api.ConstraintType;
+import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.simulator.ess.EssUtils;
@@ -38,10 +35,6 @@ import io.openems.edge.simulator.ess.EssUtils;
 		property = EventConstants.EVENT_TOPIC + "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class EssSymmetric extends AbstractOpenemsComponent
 		implements ManagedSymmetricEss, Ess, OpenemsComponent, EventHandler {
-
-	private final Logger log = LoggerFactory.getLogger(EssSymmetric.class);
-
-	private final static int POWER_PRECISION = 1;
 
 	private Power power = null;
 	private CoefficientOneConstraint allowedChargeConstraint;
@@ -91,25 +84,13 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		 */
 		this.power = new Power(this);
 		// Max Apparent Power
-		try {
-			this.power.setMaxApparentPower(this, maxApparentPower);
-		} catch (PowerException e) {
-			this.logError(this.log, "Unable to set MaxApparentPower constraint: " + e.getMessage());
-		}
+		this.power.setMaxApparentPower(this, maxApparentPower);
 		// Allowed Charge
-		try {
-			this.allowedChargeConstraint = this.power.setActivePower(ConstraintType.STATIC, Relationship.GEQ,
-					0 /* initial zero; is set later */);
-		} catch (PowerException e) {
-			this.logError(this.log, "Unable to set AllowedCharge constraint: " + e.getMessage());
-		}
+		this.allowedChargeConstraint = this.power.setActivePower(ConstraintType.STATIC, Relationship.GEQ,
+				0 /* initial zero; is set later */);
 		// Allowed Discharge
-		try {
-			this.allowedDischargeConstraint = this.power.setActivePower(ConstraintType.STATIC, Relationship.LEQ,
-					0 /* initial zero; is set later */);
-		} catch (PowerException e) {
-			this.logError(this.log, "Unable to set AllowedDischarge constraint: " + e.getMessage());
-		}
+		this.allowedDischargeConstraint = this.power.setActivePower(ConstraintType.STATIC, Relationship.LEQ,
+				0 /* initial zero; is set later */);
 	}
 
 	@Deactivate
@@ -190,5 +171,10 @@ public class EssSymmetric extends AbstractOpenemsComponent
 		} else {
 			this.allowedDischargeConstraint.setValue(this.maxApparentPower);
 		}
+	}
+
+	@Override
+	public int getPowerPrecision() {
+		return 1;
 	}
 }
