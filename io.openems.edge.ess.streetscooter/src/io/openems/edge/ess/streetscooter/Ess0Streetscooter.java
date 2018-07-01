@@ -22,43 +22,43 @@ import io.openems.edge.ess.symmetric.api.ManagedSymmetricEss;
 @Component(name = "Ess0.Streetscooter", immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE, property = EventConstants.EVENT_TOPIC
 		+ "=" + EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS)
 public class Ess0Streetscooter extends AbstractEssStreetscooter implements ManagedSymmetricEss, Ess, OpenemsComponent {
-	
+
 	private static final int INVERTER_0_MODE_ADDRESS = 2056;
 	private static final int ICU_0_SET_POWER_ADDRESS = 4000;
 	private static final int ICU_0_ENABLED_ADDRESS = 4000;
 	private static final int BATTERY_0_ADDRESS_OFFSET = 0;
 	private static final int INVERTER_0_ADDRESS_OFFSET = 0;
-	
+
 	private static final int BATTERY_0_OVERLOAD_ADDRESS = 0001;
 	private static final int BATTERY_0_CONNECTED_ADDRESS = 0000;
 	private static final int INVERTER_0_CONNECTED_ADDRESS = 2000;
 	private static final int ICU_0_RUNSTATE_ADDRESS = 4000;
-	
+
 	@Reference
 	private ConfigurationAdmin cm;
-	
+
 	public Ess0Streetscooter() {
 		super();
 	}
 
 	@Activate
-	protected
-	void activate(ComponentContext context, Config0 config0) {
-		super.activate(context, config0.service_pid(), config0.id(), config0.enabled(), UNIT_ID, this.cm, "Modbus", config0.modbus_id());
+	protected void activate(ComponentContext context, Config0 config0) {
+		super.activate(context, config0.service_pid(), config0.id(), config0.enabled(), UNIT_ID, this.cm, "Modbus",
+				config0.modbus_id());
 	}
-	
+
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
-		
+
 	@Override
-	protected  int getIcuSetPowerAddress() {
+	protected int getIcuSetPowerAddress() {
 		return ICU_0_SET_POWER_ADDRESS;
 	}
 
 	@Override
-	protected  int getInverterModeAddress() {
+	protected int getInverterModeAddress() {
 		return INVERTER_0_MODE_ADDRESS;
 	}
 
@@ -68,7 +68,7 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter implements Manag
 	}
 
 	@Override
-	protected int getAdressOffsetForBattery() {		
+	protected int getAdressOffsetForBattery() {
 		return BATTERY_0_ADDRESS_OFFSET;
 	}
 
@@ -93,7 +93,7 @@ public class Ess0Streetscooter extends AbstractEssStreetscooter implements Manag
 	}
 
 	@Override
-	protected int getIcuRunstateAddress() {		
+	protected int getIcuRunstateAddress() {
 		return ICU_0_RUNSTATE_ADDRESS;
 	}
 }
