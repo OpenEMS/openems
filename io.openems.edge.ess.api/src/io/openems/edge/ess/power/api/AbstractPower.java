@@ -31,9 +31,9 @@ public abstract class AbstractPower {
 	// private final Logger log = LoggerFactory.getLogger(AbstractPower.class);
 
 	/**
-	 * Holds all Ess objects covered by this Power object
+	 * Holds all ManagedSymmetricEss objects covered by this Power object
 	 */
-	private final Ess[] esss;
+	private final ManagedSymmetricEss[] esss;
 
 	/**
 	 * Holds the Objective Function for the solver
@@ -93,7 +93,7 @@ public abstract class AbstractPower {
 		List<Integer> qIndices = new ArrayList<>();
 		Map<Ess, Integer> startIndices = new HashMap<>();
 		int index = 0;
-		for (Ess ess : esss) {
+		for (ManagedSymmetricEss ess : esss) {
 			startIndices.put(ess, index);
 			coefficents.add(1d); // P L1
 			pIndices.add(index);
@@ -146,7 +146,7 @@ public abstract class AbstractPower {
 		/*
 		 * Create initial constraints
 		 */
-		for (Ess ess : esss) {
+		for (ManagedSymmetricEss ess : esss) {
 			if (ess instanceof ManagedAsymmetricEss) {
 				/*
 				 * ManagedAsymmetricEss
@@ -449,13 +449,13 @@ public abstract class AbstractPower {
 		 * forward result to Ess
 		 */
 		int i = 0;
-		for (Ess ess : this.esss) {
+		for (ManagedSymmetricEss ess : this.esss) {
 			if (ess instanceof ManagedAsymmetricEss) {
 				/*
 				 * ManagedAsymmetricEss
 				 */
 				ManagedAsymmetricEss e = (ManagedAsymmetricEss) ess;
-
+				
 				// Active Power
 				int activePowerL1 = this.roundToInverterPrecision(e,
 						solution[i + Pwr.ACTIVE.getOffset() + Phase.L1.getOffset()]);
