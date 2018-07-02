@@ -374,6 +374,11 @@ public class Utils {
 					case CLUSTER_1_SOH:
 					case CLUSTER_RUN_STATE:
 					case SYSTEM_INSULATION:
+						
+					case SYSTEM_ACCEPT_MAX_CHARGE_CURRENT:
+					case SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT:
+					case SYSTEM_OVER_VOLTAGE_PROTECTION:
+					case SYSTEM_UNDER_VOLTAGE_PROTECTION:
 
 					case CLUSTER_1_MIN_CELL_TEMPERATURE:
 					case CLUSTER_1_MAX_CELL_TEMPERATURE:
@@ -384,7 +389,6 @@ public class Utils {
 					case CLUSTER_1_MIN_CELL_VOLTAGE:
 					case CLUSTER_1_MIN_CELL_VOLTAGE_ID:
 						return new IntegerReadChannel(s, channelId);
-
 					}
 					return null;
 				}) //

@@ -406,18 +406,11 @@ public class EssKacoBlueplanetGridsave50 extends AbstractOpenemsModbusComponent
 			int activePowerPct = activePower / 52;
 
 			try {
-				if (battery.getDischargeMinVoltage().value().get() != null) { // TODO if value is not present do nothing?! set zero?
-					disMinV.setNextWriteValue(battery.getDischargeMinVoltage().value().get());
-				}
-				if (battery.getDischargeMaxCurrent().value().get() != null) {
-					disMaxA.setNextWriteValue(battery.getDischargeMaxCurrent().value().get());
-				}
-				if (battery.getChargeMaxVoltage().value().get() != null) {
-					chaMaxV.setNextWriteValue(battery.getChargeMaxVoltage().value().get());	
-				}
-				if (battery.getChargeMaxCurrent().value().get() != null) {
-					chaMaxA.setNextWriteValue(battery.getChargeMaxCurrent().value().get());
-				}
+				disMinV.setNextWriteValue(battery.getDischargeMinVoltage().value().orElse(0));
+				disMaxA.setNextWriteValue(battery.getDischargeMaxCurrent().value().orElse(0));				
+				chaMaxV.setNextWriteValue(battery.getChargeMaxVoltage().value().orElse(0));
+				chaMaxA.setNextWriteValue(battery.getChargeMaxCurrent().value().orElse(0));
+				
 				enLimit.setNextWriteValue(1);
 				wSetEna.setNextWriteValue(1 /* TODO use enum */);
 				wSetPct.setNextWriteValue(activePowerPct);

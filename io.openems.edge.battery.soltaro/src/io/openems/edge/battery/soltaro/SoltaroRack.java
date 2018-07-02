@@ -132,6 +132,8 @@ public enum ClusterRunState {
 				.option(ContactorControl.CONNECTION_INITIATING.value, ContactorControl.CONNECTION_INITIATING) //
 				.option(ContactorControl.ON_GRID.value, ContactorControl.ON_GRID) //
 		), //
+		SYSTEM_OVER_VOLTAGE_PROTECTION(new Doc().unit(Unit.MILLIVOLT)), //
+		SYSTEM_UNDER_VOLTAGE_PROTECTION(new Doc().unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_VOLTAGE(new Doc().unit(Unit.MILLIVOLT)), //
 		CLUSTER_1_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		CLUSTER_1_CHARGE_INDICATION(new Doc() //
@@ -149,6 +151,8 @@ public enum ClusterRunState {
 		CLUSTER_1_MIN_CELL_TEMPERATURE_ID(new Doc().unit(Unit.NONE)), //
 		CLUSTER_1_MIN_CELL_TEMPERATURE(new Doc().unit(Unit.DEGREE_CELSIUS)), //
 		SYSTEM_INSULATION(new Doc().unit(Unit.KILOOHM)), //
+		SYSTEM_ACCEPT_MAX_CHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
+		SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT(new Doc().unit(Unit.MILLIAMPERE)), //
 		ALARM_LEVEL_2_CELL_DISCHA_TEMP_LOW(new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature Low Alarm Level 2")), //
 		ALARM_LEVEL_2_CELL_DISCHA_TEMP_HIGH(new Doc().level(Level.WARNING).text("Cluster 1 Cell Discharge Temperature High Alarm Level 2")), //
 		ALARM_LEVEL_2_INSULATION_LOW(new Doc().level(Level.WARNING).text("Cluster1Insulation Low Alarm Level 2")), //
@@ -494,22 +498,18 @@ public enum ClusterRunState {
 			return this.doc;
 		}
 	}
-	
-	
-//	protected static final int CONTACTOR_CONTROL_ADRESS = ;
-	protected static final int REGISTER_BASE_ADRESS = 0x2000;
-
-	protected static final int STATUS_OFFSET = 0x0100;
-	protected static final int ALARM_OFFSET = 0x0140;
-	protected static final int FAILURE_OFFSET = 0x0185;
-	protected static final int VOLTAGE_OFFSET = 0x0800;
-	protected static final int TEMPERATURE_OFFSET = 0x0C00;
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol(int unitId) {		
 		return 
 			new ModbusProtocol(unitId, //
 				new FC6WriteRegisterTask(0x2010, new UnsignedWordElement(0x2010)), //
+				new FC3ReadRegistersTask(0x2042 , Priority.HIGH, //
+						m(SoltaroRack.ChannelId.SYSTEM_OVER_VOLTAGE_PROTECTION, new UnsignedWordElement(0x2042), ElementToChannelConverter.SCALE_FACTOR_2) //
+				), //
+				new FC3ReadRegistersTask(0x2048 , Priority.HIGH, //
+						m(SoltaroRack.ChannelId.SYSTEM_UNDER_VOLTAGE_PROTECTION, new UnsignedWordElement(0x2048), ElementToChannelConverter.SCALE_FACTOR_2) //
+				), //
 				new FC3ReadRegistersTask(0x2100 , Priority.HIGH,
 						m(SoltaroRack.ChannelId.CLUSTER_1_VOLTAGE, new UnsignedWordElement(0x2100), ElementToChannelConverter.SCALE_FACTOR_2), //
 						m(SoltaroRack.ChannelId.CLUSTER_1_CURRENT, new UnsignedWordElement(0x2101), ElementToChannelConverter.SCALE_FACTOR_2), //
@@ -526,6 +526,10 @@ public enum ClusterRunState {
 						m(SoltaroRack.ChannelId.CLUSTER_1_MIN_CELL_TEMPERATURE, new UnsignedWordElement(0x210C)), //
 						new DummyRegisterElement(0x210D, 0x2115), //
 						m(SoltaroRack.ChannelId.SYSTEM_INSULATION, new UnsignedWordElement(0x2116)) //
+				), //
+				new FC3ReadRegistersTask(0x2160 , Priority.HIGH, //
+						m(SoltaroRack.ChannelId.SYSTEM_ACCEPT_MAX_CHARGE_CURRENT, new UnsignedWordElement(0x2160), ElementToChannelConverter.SCALE_FACTOR_2), //
+						m(SoltaroRack.ChannelId.SYSTEM_ACCEPT_MAX_DISCHARGE_CURRENT, new UnsignedWordElement(0x2161), ElementToChannelConverter.SCALE_FACTOR_2) //
 				), //
 				new FC3ReadRegistersTask(0x2140, Priority.LOW, //
 						bm(new UnsignedWordElement(0x2140)) //
