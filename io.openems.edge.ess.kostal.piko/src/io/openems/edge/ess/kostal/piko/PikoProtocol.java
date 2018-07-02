@@ -17,38 +17,47 @@ public class PikoProtocol {
 	private final EssKostalPiko parent;
 	private final String ip;
 	private final int port;
-	private final short deviceId;
-
-	public PikoProtocol(EssKostalPiko parent, String ip, int port, short deviceId) {
-		this.parent = parent;
-		this.ip = ip;
-		this.port = port;
-		this.deviceId = deviceId;
-	}
-
-	private static Socket _socket = null;
+	// private final short deviceId;
+	private Socket _socket = null;
 	private static OutputStream out = null;
 	private static InputStream in = null;
 	private final static boolean DEBUG_MODE = false;
 
+	// , short deviceId
+	public PikoProtocol(EssKostalPiko parent, String ip, int port) {
+		this.parent = parent;
+		this.ip = ip;
+		this.port = port;
+		// this.deviceId = deviceId;
+	}
+
 	private Socket getOpenSocket() throws Exception {
-		// TODO: Check if Socket is opened. If not -> open it
-		try {
-			_socket = new Socket(this.ip, port);
-			if (!_socket.isConnected()) {
-				throw new Exception("Socket Could not Opened");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (!_socket.isConnected()) {
+			_socket = new Socket(ip, port);
 		}
-		return PikoProtocol._socket;
+		return this._socket;
+	}
+
+	private OutputStream getOut() throws IOException {
+		if (out == null) {
+			return _socket.getOutputStream();
+		}
+		return out;
+	}
+
+	private InputStream getIn() throws IOException {
+		if (in == null) {
+			return _socket.getInputStream();
+		}
+		return in;
 	}
 
 	public void execute(List<ReadTask> nextReadTasks) {
 		try {
-			Socket socket = this.getOpenSocket();
-			PikoProtocol.out = socket.getOutputStream();
-			PikoProtocol.in = socket.getInputStream();
+
+			this.getOpenSocket();
+			this.getOut();
+			this.getIn();
 			for (ReadTask task : nextReadTasks) {
 				try {
 					Channel<?> channel = this.parent.channel(task.getChannelId());
@@ -128,14 +137,12 @@ public class PikoProtocol {
 		return result;
 	}
 
-	private static byte[] sendAndReceive(int address)
-			throws Exception {
+	private static byte[] sendAndReceive(int address) throws Exception {
 		/*
 		 * convert address to byte array
 		 */
 		byte[] result = addressWithByteBuffer(address);
 
-		// TODO receive Socket as a parameter; don't open it everytime here
 		/*
 		 * Calculate Checksum
 		 */
@@ -153,6 +160,7 @@ public class PikoProtocol {
 				System.out.print(Integer.toHexString(b));
 			}
 		}
+
 		out.write(request);
 		out.flush();
 		Thread.sleep(100);
@@ -227,9 +235,9 @@ public class PikoProtocol {
 				e.printStackTrace();
 			}
 		}
-		if (PikoProtocol._socket != null) {
+		if (this._socket != null) {
 			try {
-				PikoProtocol._socket.close();
+				_socket.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
